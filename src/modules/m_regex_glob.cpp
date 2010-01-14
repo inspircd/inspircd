@@ -54,7 +54,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Regex module using plain wildcard matching.", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Regex module using plain wildcard matching.", VF_VENDOR);
 	}
 };
 

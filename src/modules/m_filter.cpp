@@ -453,7 +453,7 @@ void ModuleFilter::OnRehash(User* user)
 
 Version ModuleFilter::GetVersion()
 {
-	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON);
+	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine);
 }
 
 

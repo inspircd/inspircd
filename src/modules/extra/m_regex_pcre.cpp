@@ -87,7 +87,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Regex Provider Module for PCRE", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Regex Provider Module for PCRE", VF_VENDOR);
 	}
 };
 

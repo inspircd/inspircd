@@ -95,7 +95,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Regex Provider Module for POSIX Regular Expressions", VF_COMMON | VF_VENDOR);
+		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
 	}
 
 	void OnRehash(User* u)

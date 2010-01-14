@@ -92,7 +92,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Regex Provider Module for TRE Regular Expressions", VF_COMMON | VF_VENDOR);
+		return Version("Regex Provider Module for TRE Regular Expressions", VF_VENDOR);
 	}
 
 	~ModuleRegexTRE()

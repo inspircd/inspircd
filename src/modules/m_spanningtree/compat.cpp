@@ -26,7 +26,10 @@ static const char* const forge_common_1201[] = {
 	"m_saquit.so",
 	"m_setident.so",
 	"m_swhois.so",
-	"m_regex_pcre.so"
+	"m_regex_glob.so",
+	"m_regex_pcre.so",
+	"m_regex_posix.so",
+	"m_regex_tre.so"
 };
 
 static std::string wide_newline("\r\n");

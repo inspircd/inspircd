@@ -223,7 +223,7 @@ class ModuleRLine : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR);
+		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxengine);
 	}
 
 	virtual void OnUserConnect(LocalUser* user)
