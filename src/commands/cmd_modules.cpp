@@ -58,8 +58,14 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 				if (!(V.Flags & mult))
 					flags[pos] = '-';
 
+#ifdef PURE_STATIC
+			user->SendText(":%s 702 %s :%p %s %s :%s", ServerInstance->Config->ServerName.c_str(),
+				user->nick.c_str(), (void*)m, module_names[i].c_str(), flags.c_str(), V.description.c_str());
+#else
+			std::string srcrev = m->ModuleDLLManager->GetVersion();
 			user->SendText(":%s 702 %s :%p %s %s :%s - %s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), (void*)m, module_names[i].c_str(), flags.c_str(), V.description.c_str(), V.version.c_str());
+				user->nick.c_str(), (void*)m, module_names[i].c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str());
+#endif
 		}
 		else
 		{

@@ -45,7 +45,10 @@ class CoreExport DLLManager : public classbase
 
 	/** Return a module by calling the init function
 	 */
-	Module* callInit();
+	Module* CallInit();
+
+	/** Get detailed version information from the module file */
+	std::string GetVersion();
 };
 
 #endif

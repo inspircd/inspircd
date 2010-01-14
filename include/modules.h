@@ -180,17 +180,22 @@ class CoreExport VersionBase
 	/** Module description
 	 */
 	const std::string description;
-	/** Version information.
-	 */
-	const std::string version;
 
 	/** Flags
 	 */
 	const int Flags;
 
+	/** Server linking description string */
+	const std::string link_data;
+
 	/** Initialize version class
 	 */
-	VersionBase(const std::string &desc, int flags = VF_NONE, const std::string& src_rev = VERSION " r" REVISION);
+	VersionBase(const std::string &desc, int flags = VF_NONE);
+
+	virtual ~VersionBase() {}
+
+	/** Return true if the module can link (default is identity comparison) */
+	virtual bool CanLink(const std::string& other_data);
 };
 
 typedef VersionBase<API_VERSION> Version;
@@ -1690,7 +1695,8 @@ struct AllModuleList {
 	extern "C" DllExport Module * MODULE_INIT_SYM() \
 	{ \
 		return new y; \
-	}
+	} \
+	extern "C" const char inspircd_src_version[] = VERSION " r" REVISION;
 #endif
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)

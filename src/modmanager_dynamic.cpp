@@ -82,7 +82,7 @@ bool ModuleManager::Load(const char* filename)
 
 	try
 	{
-		newmod = newhandle->callInit();
+		newmod = newhandle->CallInit();
 
 		if (newmod)
 		{
@@ -91,7 +91,7 @@ bool ModuleManager::Load(const char* filename)
 			Version v = newmod->GetVersion();
 
 			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
-				filename, v.version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+				filename, newhandle->GetVersion().c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 
 			Modules[filename_str] = newmod;
 		}

@@ -135,7 +135,7 @@ class ModuleHttpStats : public Module
 				{
 					Module* m = ServerInstance->Modules->Find(i->c_str());
 					Version v = m->GetVersion();
-					data << "<module><name>" << *i << "</name><version>" << v.version << "</version><description>" << Sanitize(v.description) << "</description></module>";
+					data << "<module><name>" << *i << "</name><description>" << Sanitize(v.description) << "</description></module>";
 				}
 				data << "</modulelist><channellist>";
 

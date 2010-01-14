@@ -45,7 +45,7 @@ union init_t {
 	Module* (*fptr)();
 };
 
-Module* DLLManager::callInit()
+Module* DLLManager::CallInit()
 {
 	if (!h)
 		return NULL;
@@ -59,4 +59,15 @@ Module* DLLManager::callInit()
 	}
 
 	return (*initfn.fptr)();
+}
+
+std::string DLLManager::GetVersion()
+{
+	if (!h)
+		return "";
+
+	const char* srcver = (char*)dlsym(h, "inspircd_src_version");
+	if (srcver)
+		return srcver;
+	return "Unversioned module";
 }
