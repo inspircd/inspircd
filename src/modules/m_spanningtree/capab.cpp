@@ -33,8 +33,18 @@ std::string TreeSocket::MyModules(int filter)
 	for (unsigned int i = 0; i < modlist.size(); i++)
 	{
 		if (i)
-			capabilities = capabilities + ",";
-		capabilities = capabilities + modlist[i];
+			capabilities.push_back(',');
+		capabilities.append(modlist[i]);
+		Module* m = ServerInstance->Modules->Find(modlist[i]);
+		if (m && proto_version >= 1202)
+		{
+			Version v = m->GetVersion();
+			if (!v.link_data.empty())
+			{
+				capabilities.push_back('=');
+				capabilities.append(v.link_data);
+			}
+		}
 	}
 	return capabilities;
 }

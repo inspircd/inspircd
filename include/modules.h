@@ -188,9 +188,11 @@ class CoreExport VersionBase
 	/** Server linking description string */
 	const std::string link_data;
 
-	/** Initialize version class
-	 */
+	/** Simple module version */
 	VersionBase(const std::string &desc, int flags = VF_NONE);
+
+	/** Complex version information, including linking compatability data */
+	VersionBase(const std::string &desc, int flags, const std::string& linkdata);
 
 	virtual ~VersionBase() {}
 

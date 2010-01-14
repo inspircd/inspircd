@@ -332,9 +332,23 @@ class ModuleCloaking : public Module
 
 	Version GetVersion()
 	{
-		// returns the version number of the module to be
-		// listed in /MODULES
-		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR);
+		std::string testcloak;
+		switch (mode)
+		{
+			case MODE_COMPAT_HOST:
+				testcloak = prefix + "-" + Hash->sumIV(compatkey, xtab[0], "*").substr(0,10);
+				break;
+			case MODE_COMPAT_IPONLY:
+				testcloak = Hash->sumIV(compatkey, xtab[0], "*").substr(0,10);
+				break;
+			case MODE_HALF_CLOAK:
+				testcloak = prefix + SegmentCloak("*", 3);
+				break;
+			case MODE_OPAQUE:
+			default:
+				testcloak = prefix + SegmentCloak("*", 4);
+		}
+		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
 	}
 
 	void OnRehash(User* user)

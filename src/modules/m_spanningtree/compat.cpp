@@ -30,6 +30,7 @@ static const char* const forge_common_1201[] = {
 };
 
 static std::string wide_newline("\r\n");
+static std::string newline("\n");
 
 void TreeSocket::CompatAddModules(std::vector<std::string>& modlist)
 {
@@ -122,5 +123,8 @@ void TreeSocket::WriteLine(std::string line)
 
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
 	this->WriteData(line);
-	this->WriteData(wide_newline);
+	if (proto_version < 1202)
+		this->WriteData(wide_newline);
+	else
+		this->WriteData(newline);
 }

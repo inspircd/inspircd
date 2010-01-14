@@ -218,20 +218,18 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 void TreeSocket::OnDataReady()
 {
 	Utils->Creator->loopCall = true;
-	/* While there is at least one new line in the buffer,
-	 * do something useful (we hope!) with it.
-	 */
-	while (recvq.find("\n") != std::string::npos)
+	std::string line;
+	while (GetNextLine(line))
 	{
-		std::string ret = recvq.substr(0,recvq.find("\n")-1);
-		recvq = recvq.substr(recvq.find("\n")+1,recvq.length()-recvq.find("\n"));
-		/* Use rfind here not find, as theres more
-		 * chance of the \r being near the end of the
-		 * string, not the start.
-		 */
-		if (ret.find("\r") != std::string::npos)
-			ret = recvq.substr(0,recvq.find("\r")-1);
-		ProcessLine(ret);
+		std::string::size_type rline = line.find('\r');
+		if (rline != std::string::npos)
+			line = line.substr(0,rline);
+		if (line.find('\0') != std::string::npos)
+		{
+			SendError("Read null character from socket");
+			break;
+		}
+		ProcessLine(line);
 	}
 	Utils->Creator->loopCall = false;
 }
