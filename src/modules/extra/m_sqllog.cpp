@@ -284,9 +284,10 @@ class ModuleSQLLog : public Module
 		return 0;
 	}
 
-	virtual void OnUserRegister(User* user)
+	virtual int OnUserRegister(User* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
+		return 0;
 	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
