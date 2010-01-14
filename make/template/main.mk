@@ -24,7 +24,6 @@ BASE = "@BASE_DIR@"
 CONPATH = "@CONFIG_DIR@"
 MODPATH = "@MODULE_DIR@"
 BINPATH = "@BINARY_DIR@"
-LAUNCHDPATH = "/System/Library/LaunchDaemons"
 INSTMODE = 0755
 
 @IFEQ $(CC) icc
@@ -192,9 +191,6 @@ deinstall:
 
 squeakyclean: distclean
 
-launchd_dir:
-	@-install -d -m $(INSTMODE) ${LAUNCHDPATH}
-
 configureclean:
 	rm -f .config.cache
 	rm -f src/modules/Makefile
@@ -235,4 +231,4 @@ help:
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean launchd_dir configureclean help
+.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean configureclean help
