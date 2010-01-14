@@ -55,10 +55,13 @@ int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::st
  * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
  * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
  */
-int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra, bool usemax)
 {
 	if (splithere >= parameters.size())
 		return 0;
+
+	if (extra >= parameters.size())
+		extra = -1;
 
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
 	 * which called us just carries on as it was.
@@ -75,7 +78,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 	/* Create two lists, one for channel names, one for keys
 	 */
 	irc::commasepstream items1(parameters[splithere]);
-	irc::commasepstream items2(parameters[extra]);
+	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "");
 	std::string extrastuff;
 	std::string item;
 	unsigned int max = 0;
@@ -84,72 +87,24 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 	 * which called us, for every parameter pair until there are
 	 * no more left to parse.
 	 */
-	while (items1.GetToken(item) && (max++ < ServerInstance->Config->MaxTargets))
+	while (items1.GetToken(item) && (!usemax || max++ < ServerInstance->Config->MaxTargets))
 	{
 		if (dupes.find(item.c_str()) == dupes.end())
 		{
-			std::vector<std::string> new_parameters;
-
-			for (unsigned int t = 0; (t < parameters.size()) && (t < MAXPARAMETERS); t++)
-				new_parameters.push_back(parameters[t]);
+			std::vector<std::string> new_parameters(parameters);
 
 			if (!items2.GetToken(extrastuff))
 				extrastuff = "";
 
-			new_parameters[splithere] = item.c_str();
-			new_parameters[extra] = extrastuff.c_str();
+			new_parameters[splithere] = item;
+			if (extra >= 0)
+				new_parameters[extra] = extrastuff;
 
 			CommandObj->Handle(new_parameters, user);
 
 			dupes.insert(item.c_str());
 		}
 	}
-	return 1;
-}
-
-int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere)
-{
-	if (splithere >= parameters.size())
-		return 0;
-
-	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
-	 * which called us just carries on as it was.
-	 */
-	if (parameters[splithere].find(',') == std::string::npos)
-		return 0;
-
-	std::set<irc::string> dupes;
-
-	/* Only one commasepstream here */
-	irc::commasepstream items1(parameters[splithere]);
-	std::string item;
-	unsigned int max = 0;
-
-	/* Parse the commasepstream until there are no tokens remaining.
-	 * Each token we parse out, call the command handler that called us
-	 * with it
-	 */
-	while (items1.GetToken(item) && (max++ < ServerInstance->Config->MaxTargets))
-	{
-		if (dupes.find(item.c_str()) == dupes.end())
-		{
-			std::vector<std::string> new_parameters;
-
-			for (unsigned int t = 0; (t < parameters.size()) && (t < MAXPARAMETERS); t++)
-				new_parameters.push_back(parameters[t]);
-
-			new_parameters[splithere] = item.c_str();
-
-			/* Execute the command handler. */
-			CommandObj->Handle(new_parameters, user);
-
-			dupes.insert(item.c_str());
-		}
-	}
-	/* By returning 1 we tell our caller that nothing is to be done,
-	 * as all the previous calls handled the data. This makes the parent
-	 * return without doing any processing.
-	 */
 	return 1;
 }
 

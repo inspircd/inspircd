@@ -50,7 +50,7 @@ CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User 
 {
 	if (parameters.size() > 1)
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, 1))
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, 1, false))
 			return CMD_SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
@@ -61,7 +61,7 @@ CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User 
 	}
 	else
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, -1, false))
 			return CMD_SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))

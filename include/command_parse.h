@@ -101,33 +101,11 @@ class CoreExport CommandParser
 	 * @param The number of items in the parameters list
 	 * @param splithere The first parameter index to split as a comma seperated list
 	 * @param extra The second parameter index to split as a comma seperated list
+	 * @param usemax Limit the command to MaxTargets targets
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra);
-
-	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
-	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
-	 * We need a version which takes two potential lists for JOIN, because a JOIN may contain two lists of items at once,
-	 * the channel names and their keys as follows:
-	 *
-	 * JOIN #chan1,#chan2,#chan3 key1,,key3
-	 *
-	 * Therefore, we need to deal with both lists concurrently. The first instance of this method does that by creating
-	 * two instances of irc::commasepstream and reading them both together until the first runs out of tokens.
-	 * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
-	 * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
-	 *
-	 * @param user The user who sent the command
-	 * @param CommandObj the command object to call for each parameter in the list
-	 * @param parameters Parameter list as an array of array of char (that's not a typo).
-	 * @param The number of items in the parameters list
-	 * @param splithere The first parameter index to split as a comma seperated list
-	 * @param extra The second parameter index to split as a comma seperated list
-	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
-	 * caller should return without doing anything, otherwise it should continue into its main section of code.
-	 */
-	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere);
+	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra = -1, bool usemax = true);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
