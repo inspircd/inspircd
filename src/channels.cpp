@@ -261,24 +261,15 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 	if (IS_LOCAL(user) && !override)
 	{
 		// Checking MyClass exists because we *may* get here with NULL, not 100% sure.
+		unsigned int realmax = Instance->Config->MaxChans;
 		if (user->MyClass && user->MyClass->maxchans)
+			realmax = user->MyClass->maxchans;
+		if (user->HasPrivPermission("channels/high-join-limit") && Instance->Config->OperMaxChans > realmax)
+			realmax = Instance->Config->OperMaxChans;
+		if (user->chans.size() >= realmax)
 		{
-			if (user->HasPrivPermission("channels/high-join-limit"))
-			{
-				if (user->chans.size() >= Instance->Config->OperMaxChans)
-				{
-					user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
-					return NULL;
-				}
-			}
-			else
-			{
-				if (user->chans.size() >= user->MyClass->maxchans)
-				{
-					user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
-					return NULL;
-				}
-			}
+			user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+			return NULL;
 		}
 	}
 
