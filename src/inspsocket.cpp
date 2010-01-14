@@ -156,7 +156,7 @@ bool StreamSocket::GetNextLine(std::string& line, char delim)
 	std::string::size_type i = recvq.find(delim);
 	if (i == std::string::npos)
 		return false;
-	line = recvq.substr(0, i - 1);
+	line = recvq.substr(0, i);
 	// TODO is this the most efficient way to split?
 	recvq = recvq.substr(i + 1);
 	return true;
