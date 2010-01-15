@@ -61,6 +61,8 @@ static std::string BuildModeList(ModeType type)
 				line.push_back(',');
 			line.append(mh->name);
 			line.push_back('=');
+			if (mh->GetPrefix())
+				line.push_back(mh->GetPrefix());
 			line.push_back(c);
 		}
 	}

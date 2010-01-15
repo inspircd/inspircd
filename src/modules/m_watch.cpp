@@ -128,7 +128,10 @@ class CommandSVSWatch : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		User* target = ServerInstance->FindNick(parameters[0]);
+		if (target)
+			return ROUTE_OPT_UCAST(target->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -528,7 +531,7 @@ class Modulewatch : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for the /WATCH command", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for the /WATCH command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

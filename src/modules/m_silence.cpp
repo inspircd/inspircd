@@ -56,7 +56,7 @@ class CommandSVSSilence : public Command
 	CommandSVSSilence(Module* Creator) : Command(Creator,"SVSSILENCE", 2)
 	{
 		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
+		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -85,7 +85,10 @@ class CommandSVSSilence : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		User* target = ServerInstance->FindNick(parameters[0]);
+		if (target)
+			return ROUTE_OPT_UCAST(target->server);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -368,7 +371,7 @@ class ModuleSilence : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for the /SILENCE command", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for the /SILENCE command", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

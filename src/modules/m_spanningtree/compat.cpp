@@ -62,9 +62,11 @@ static const char* const forge_common_1201[] = {
 	"m_saquit.so",
 	"m_servprotect.so",
 	"m_setident.so",
+	"m_silence.so",
 	"m_sslmodes.so",
 	"m_stripcolor.so",
 	"m_swhois.so",
+	"m_watch.so"
 };
 
 static std::string wide_newline("\r\n");
