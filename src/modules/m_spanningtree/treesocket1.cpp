@@ -35,7 +35,8 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, const std::string& shost, in
 {
 	age = ServerInstance->Time();
 	myhost = ServerName;
-	capab_phase = 0;
+	capab = new CapabData;
+	capab->capab_phase = 0;
 	proto_version = 0;
 	LinkState = CONNECTING;
 	if (!hook.empty())
@@ -60,10 +61,11 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, const std::string& shost, in
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	: BufferedSocket(newfd), Utils(Util)
 {
+	capab = new CapabData;
 	IP = client->addr();
 	age = ServerInstance->Time();
 	LinkState = WAIT_AUTH_1;
-	capab_phase = 0;
+	capab->capab_phase = 0;
 	proto_version = 0;
 	myhost = "inbound from " + IP;
 
@@ -82,12 +84,8 @@ ServerState TreeSocket::GetLinkState()
 
 void TreeSocket::CleanNegotiationInfo()
 {
-	ModuleList.clear();
-	OptModuleList.clear();
-	CapKeys.clear();
-	ourchallenge.clear();
-	theirchallenge.clear();
-	OutboundPass.clear();
+	delete capab;
+	capab = NULL;
 }
 
 CullResult TreeSocket::cull()
@@ -100,6 +98,8 @@ CullResult TreeSocket::cull()
 
 TreeSocket::~TreeSocket()
 {
+	if (capab)
+		delete capab;
 }
 
 /** When an outbound connection finishes connecting, we receive
@@ -119,7 +119,7 @@ void TreeSocket::OnConnected()
 			if (x->Name == this->myhost)
 			{
 				ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", myhost.c_str(), (x->HiddenFromStats ? "<hidden>" : this->IP.c_str()));
-				this->OutboundPass = x->SendPass;
+				capab->OutboundPass = x->SendPass;
 				this->SendCapabilities(1);
 				return;
 			}

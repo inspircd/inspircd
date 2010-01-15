@@ -29,22 +29,22 @@
 
 const std::string& TreeSocket::GetOurChallenge()
 {
-	return this->ourchallenge;
+	return capab->ourchallenge;
 }
 
 void TreeSocket::SetOurChallenge(const std::string &c)
 {
-	this->ourchallenge = c;
+	capab->ourchallenge = c;
 }
 
 const std::string& TreeSocket::GetTheirChallenge()
 {
-	return this->theirchallenge;
+	return capab->theirchallenge;
 }
 
 void TreeSocket::SetTheirChallenge(const std::string &c)
 {
-	this->theirchallenge = c;
+	capab->theirchallenge = c;
 }
 
 std::string TreeSocket::MakePass(const std::string &password, const std::string &challenge)
@@ -130,8 +130,8 @@ std::string TreeSocket::RandString(unsigned int ilength)
 
 bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 {
-	this->auth_fingerprint = !link.Fingerprint.empty();
-	this->auth_challenge = !ourchallenge.empty() && !theirchallenge.empty();
+	capab->auth_fingerprint = !link.Fingerprint.empty();
+	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
 	std::string fp;
 	if (GetIOHook())
@@ -143,9 +143,9 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 		}
 	}
 
-	if (auth_challenge)
+	if (capab->auth_challenge)
 	{
-		std::string our_hmac = MakePass(link.RecvPass, ourchallenge);
+		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
 
 		/* Straight string compare of hashes */
 		if (our_hmac != theirs)
@@ -158,7 +158,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 			return false;
 	}
 
-	if (auth_fingerprint)
+	if (capab->auth_fingerprint)
 	{
 		/* Require fingerprint to exist and match */
 		if (link.Fingerprint != fp)

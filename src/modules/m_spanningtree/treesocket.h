@@ -54,6 +54,21 @@
  */
 enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
 
+struct CapabData
+{
+	std::string ModuleList;			/* Required module list of other server from CAPAB */
+	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
+	std::string ChanModes;
+	std::string UserModes;
+	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
+	std::string ourchallenge;		/* Challenge sent for challenge/response */
+	std::string theirchallenge;		/* Challenge recv for challenge/response */
+	std::string OutboundPass;		/* Outbound password */
+	int capab_phase;			/* Have sent CAPAB already */
+	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
+	bool auth_challenge;			/* Did we auth using challenge/response */
+};
+
 /** Every SERVER connection inbound or outbound is represented by
  * an object of type TreeSocket.
  * TreeSockets, being inherited from BufferedSocket, can be tied into
@@ -73,20 +88,12 @@ class TreeSocket : public BufferedSocket
 	std::string InboundServerName;		/* Server name sent to us by other side */
 	std::string InboundDescription;		/* Server description (GECOS) sent to us by the other side */
 	std::string InboundSID;			/* Server ID sent to us by the other side */
+	std::string IP;
+	CapabData* capab;
 	int num_lost_users;			/* Users lost in split */
 	int num_lost_servers;			/* Servers lost in split */
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
-	std::string IP;
-	std::string ModuleList;			/* Required module list of other server from CAPAB */
-	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
-	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
-	std::string ourchallenge;		/* Challenge sent for challenge/response */
-	std::string theirchallenge;		/* Challenge recv for challenge/response */
-	std::string OutboundPass;		/* Outbound password */
-	int capab_phase;			/* Have sent CAPAB already */
-	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
-	bool auth_challenge;			/* Did we auth using challenge/response */
 	int proto_version;			/* Remote protocol version */
  public:
 	reference<Autoconnect> myautoconnect;		/* Autoconnect used to cause this connection, if any */
