@@ -126,7 +126,7 @@ class ModuleRedirect : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides channel mode +L (limit redirection)", VF_COMMON | VF_VENDOR);
+		return Version("Provides channel mode +L (limit redirection)", VF_VENDOR);
 	}
 };
 

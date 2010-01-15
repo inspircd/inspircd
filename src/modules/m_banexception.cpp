@@ -122,7 +122,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Provides support for the +e channel mode", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for the +e channel mode", VF_VENDOR);
 	}
 };
 

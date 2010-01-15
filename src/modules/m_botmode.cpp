@@ -43,7 +43,7 @@ class ModuleBotMode : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style umode +B",VF_COMMON|VF_VENDOR);
+		return Version("Provides support for unreal-style umode +B",VF_VENDOR);
 	}
 
 	virtual void OnWhois(User* src, User* dst)

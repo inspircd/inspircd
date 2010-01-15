@@ -84,7 +84,7 @@ class ModuleHalfop : public Module
 
 	Version GetVersion()
 	{
-		return Version("Channel half-operator mode provider", VF_VENDOR|VF_COMMON);
+		return Version("Channel half-operator mode provider", VF_VENDOR);
 	}
 };
 

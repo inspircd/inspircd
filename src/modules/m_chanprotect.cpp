@@ -287,7 +287,7 @@ class ModuleChanProtect : public Module
 
 	Version GetVersion()
 	{
-		return Version("Founder and Protect modes (+qa)", VF_COMMON | VF_VENDOR);
+		return Version("Founder and Protect modes (+qa)", VF_VENDOR);
 	}
 };
 

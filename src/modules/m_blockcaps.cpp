@@ -128,7 +128,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support to block all-CAPS channel messages and notices", VF_COMMON|VF_VENDOR);
+		return Version("Provides support to block all-CAPS channel messages and notices", VF_VENDOR);
 	}
 };
 

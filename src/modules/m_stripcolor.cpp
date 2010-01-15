@@ -134,7 +134,7 @@ class ModuleStripColor : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides channel +S mode (strip ansi colour)", VF_COMMON | VF_VENDOR);
+		return Version("Provides channel +S mode (strip ansi colour)", VF_VENDOR);
 	}
 
 };

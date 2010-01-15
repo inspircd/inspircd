@@ -16,20 +16,55 @@
 #include "treesocket.h"
 
 static const char* const forge_common_1201[] = {
+	"m_allowinvite.so",
+	"m_auditorium.so",
+	"m_banexception.so",
+	"m_blockcaps.so",
+	"m_blockcolor.so",
+	"m_botmode.so",
+	"m_censor.so",
+	"m_chanfilter.so",
+	"m_chanhistory.so",
+	"m_chanprotect.so",
 	"m_chghost.so",
 	"m_chgname.so",
+	"m_commonchans.so",
+	"m_deaf.so",
+	"m_delayjoin.so",
+	"m_delaymsg.so",
+	"m_exemptchanops.so",
+	"m_helpop.so",
+	"m_hidechans.so",
+	"m_hideoper.so",
+	"m_invisible.so",
+	"m_inviteexception.so",
+	"m_joinflood.so",
+	"m_kicknorejoin.so",
+	"m_messageflood.so",
+	"m_nickflood.so",
+	"m_noctcp.so",
+	"m_nokicks.so",
+	"m_nonicks.so",
+	"m_nonotice.so",
+	"m_ojoin.so",
+	"m_operprefix.so",
+	"m_permchannels.so",
+	"m_redirect.so",
+	"m_regex_glob.so",
+	"m_regex_pcre.so",
+	"m_regex_posix.so",
+	"m_regex_tre.so",
 	"m_remove.so",
 	"m_sajoin.so",
 	"m_sakick.so",
 	"m_sanick.so",
 	"m_sapart.so",
 	"m_saquit.so",
+	"m_servprotect.so",
 	"m_setident.so",
+	"m_sslmodes.so",
+	"m_stripcolor.so",
 	"m_swhois.so",
-	"m_regex_glob.so",
-	"m_regex_pcre.so",
-	"m_regex_posix.so",
-	"m_regex_tre.so"
 };
 
 static std::string wide_newline("\r\n");
@@ -39,14 +74,6 @@ void TreeSocket::CompatAddModules(std::vector<std::string>& modlist)
 {
 	if (proto_version < 1202)
 	{
-		for(std::vector<std::string>::iterator i = modlist.begin(); i != modlist.end(); ++i)
-		{
-			if (*i == "m_halfop.so")
-			{
-				modlist.erase(i);
-				break;
-			}
-		}
 		// you MUST have chgident loaded in order to be able to translate FIDENT
 		modlist.push_back("m_chgident.so");
 		for(int i=0; i * sizeof(char*) < sizeof(forge_common_1201); i++)
@@ -56,7 +83,10 @@ void TreeSocket::CompatAddModules(std::vector<std::string>& modlist)
 		}
 		// module was merged
 		if (ServerInstance->Modules->Find("m_operchans.so"))
+		{
+			modlist.push_back("m_operchans.so");
 			modlist.push_back("m_operinvex.so");
+		}
 	}
 }
 

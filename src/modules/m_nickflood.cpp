@@ -268,7 +268,7 @@ class ModuleNickFlood : public Module
 
 	Version GetVersion()
 	{
-		return Version("Channel mode F - nick flood protection", VF_COMMON | VF_VENDOR);
+		return Version("Channel mode F - nick flood protection", VF_VENDOR);
 	}
 };
 

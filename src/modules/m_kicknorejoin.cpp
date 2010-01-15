@@ -116,7 +116,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Channel mode to delay rejoin after kick", VF_COMMON | VF_VENDOR);
+		return Version("Channel mode to delay rejoin after kick", VF_VENDOR);
 	}
 };
 

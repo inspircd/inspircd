@@ -114,7 +114,7 @@ class ModuleChanHistory : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides channel history replayed on join", VF_COMMON | VF_VENDOR);
+		return Version("Provides channel history replayed on join", VF_VENDOR);
 	}
 };
 

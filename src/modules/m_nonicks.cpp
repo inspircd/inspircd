@@ -62,7 +62,7 @@ class ModuleNoNickChange : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
 	}
 
 

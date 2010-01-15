@@ -112,7 +112,7 @@ class ModuleOperPrefixMode : public Module
 
 	Version GetVersion()
 	{
-		return Version("Gives opers cmode +y which provides a staff prefix.", VF_COMMON | VF_VENDOR);
+		return Version("Gives opers cmode +y which provides a staff prefix.", VF_VENDOR);
 	}
 };
 

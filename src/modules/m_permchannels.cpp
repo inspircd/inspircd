@@ -295,7 +295,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for channel mode +P to provide permanent channels",VF_COMMON|VF_VENDOR);
+		return Version("Provides support for channel mode +P to provide permanent channels",VF_VENDOR);
 	}
 
 	virtual ModResult OnChannelPreDelete(Channel *c)

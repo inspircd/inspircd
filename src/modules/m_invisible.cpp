@@ -139,7 +139,7 @@ class ModuleInvisible : public Module
 
 Version ModuleInvisible::GetVersion()
 {
-	return Version("Allows opers to join channels invisibly", VF_COMMON | VF_VENDOR);
+	return Version("Allows opers to join channels invisibly", VF_VENDOR);
 }
 
 static void BuildExcept(Membership* memb, CUList& excepts)

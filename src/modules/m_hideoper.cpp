@@ -68,7 +68,7 @@ class ModuleHideOper : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for hiding oper status with user mode +H", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
 	}
 
 	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)

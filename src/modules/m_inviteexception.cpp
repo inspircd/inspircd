@@ -91,7 +91,7 @@ public:
 
 	Version GetVersion()
 	{
-		return Version("Provides support for the +I channel mode", VF_VENDOR | VF_COMMON);
+		return Version("Provides support for the +I channel mode", VF_VENDOR);
 	}
 };
 

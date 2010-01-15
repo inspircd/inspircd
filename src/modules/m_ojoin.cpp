@@ -290,7 +290,7 @@ class ModuleOjoin : public Module
 
 	Version GetVersion()
 	{
-		return Version("Network Buisness Join", VF_COMMON | VF_VENDOR);
+		return Version("Network Buisness Join", VF_VENDOR);
 	}
 };
 

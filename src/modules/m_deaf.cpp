@@ -155,7 +155,7 @@ class ModuleDeaf : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for ircu style usermode +d (deaf to channel messages and channel notices)", VF_COMMON|VF_VENDOR);
+		return Version("Provides support for ircu style usermode +d (deaf to channel messages and channel notices)", VF_VENDOR);
 	}
 
 };

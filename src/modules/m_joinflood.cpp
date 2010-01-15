@@ -237,7 +237,7 @@ class ModuleJoinFlood : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides channel mode +j (join flood protection)", VF_COMMON | VF_VENDOR);
+		return Version("Provides channel mode +j (join flood protection)", VF_VENDOR);
 	}
 };
 

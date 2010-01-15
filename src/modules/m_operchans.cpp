@@ -88,7 +88,7 @@ class ModuleOperChans : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for oper-only chans via the +O channel mode and 'O' extban", VF_VENDOR | VF_COMMON);
+		return Version("Provides support for oper-only chans via the +O channel mode and 'O' extban", VF_VENDOR);
 	}
 };
 
