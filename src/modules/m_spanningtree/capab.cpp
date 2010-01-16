@@ -79,42 +79,43 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
-	irc::commasepstream modulelist(MyModules(VF_COMMON));
-	irc::commasepstream optmodulelist(MyModules(VF_OPTCOMMON));
+	char sep = proto_version > 1201 ? ' ' : ',';
+	irc::sepstream modulelist(MyModules(VF_COMMON), sep);
+	irc::sepstream optmodulelist(MyModules(VF_OPTCOMMON), sep);
 	/* Send module names, split at 509 length */
 	std::string item;
-	std::string line = "CAPAB MODULES ";
+	std::string line = "CAPAB MODULES :";
 	while (modulelist.GetToken(item))
 	{
 		if (line.length() + item.length() + 1 > 509)
 		{
 			this->WriteLine(line);
-			line = "CAPAB MODULES ";
+			line = "CAPAB MODULES :";
 		}
 
-		if (line != "CAPAB MODULES ")
-			line.append(",");
+		if (line != "CAPAB MODULES :")
+			line.push_back(sep);
 
 		line.append(item);
 	}
-	if (line != "CAPAB MODULES ")
+	if (line != "CAPAB MODULES :")
 		this->WriteLine(line);
 
-	line = "CAPAB MODSUPPORT ";
+	line = "CAPAB MODSUPPORT :";
 	while (optmodulelist.GetToken(item))
 	{
 		if (line.length() + item.length() + 1 > 509)
 		{
 			this->WriteLine(line);
-			line = "CAPAB MODSUPPORT ";
+			line = "CAPAB MODSUPPORT :";
 		}
 
-		if (line != "CAPAB MODSUPPORT ")
-			line.append(",");
+		if (line != "CAPAB MODSUPPORT :")
+			line.push_back(sep);
 
 		line.append(item);
 	}
-	if (line != "CAPAB MODSUPPORT ")
+	if (line != "CAPAB MODSUPPORT :")
 		this->WriteLine(line);
 
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
@@ -334,26 +335,26 @@ bool TreeSocket::Capab(const parameterlist &params)
 	}
 	else if ((params[0] == "MODULES") && (params.size() == 2))
 	{
-		if (!this->capab->ModuleList.length())
+		if (!capab->ModuleList.length())
 		{
-			this->capab->ModuleList.append(params[1]);
+			capab->ModuleList = params[1];
 		}
 		else
 		{
-			this->capab->ModuleList.append(",");
-			this->capab->ModuleList.append(params[1]);
+			capab->ModuleList.push_back(proto_version > 1201 ? ' ' : ',');
+			capab->ModuleList.append(params[1]);
 		}
 	}
 	else if ((params[0] == "MODSUPPORT") && (params.size() == 2))
 	{
-		if (!this->capab->OptModuleList.length())
+		if (!capab->OptModuleList.length())
 		{
-			this->capab->OptModuleList.append(params[1]);
+			capab->OptModuleList = params[1];
 		}
 		else
 		{
-			this->capab->OptModuleList.append(",");
-			this->capab->OptModuleList.append(params[1]);
+			capab->OptModuleList.push_back(' ');
+			capab->OptModuleList.append(params[1]);
 		}
 	}
 	else if ((params[0] == "CHANMODES") && (params.size() == 2))
