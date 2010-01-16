@@ -100,6 +100,7 @@ all: $(FOOTER)
 
 target: $(HEADER)
 	$(MAKEENV) perl make/calcdep.pl
+	@if [ `id -u` = 0 ]; then echo "Don't compile or install as root!"; exit 1; fi
 	cd $(BUILDPATH); $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
