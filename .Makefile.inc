@@ -52,7 +52,10 @@ all: ircd mods finishmessage
 debug:
 	@${MAKE} D=1 all
 
-debug-header:
+check-root:
+	@if [ `id -u` = 0 ] && [ ! -e .force-root-ok ]; then echo "Don't compile or install as root!"; exit 1; fi
+
+debug-header: check-root
 	@echo "*************************************"
 	@echo "*    BUILDING WITH DEBUG SYMBOLS    *"
 	@echo "*                                   *"
@@ -66,7 +69,7 @@ debug-header:
 	@echo "*                                   *"
 	@echo "*************************************"
 
-std-header:
+std-header: check-root
 	@echo "*************************************"
 	@echo "*       BUILDING INSPIRCD           *"
 	@echo "*                                   *"
