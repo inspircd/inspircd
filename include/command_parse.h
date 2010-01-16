@@ -141,7 +141,7 @@ class CoreExport CommandParser : public classbase
 	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
 	 * caller should return without doing anything, otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra = -1, bool usemax = true);
+	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra = -1, bool usemax = true);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process
