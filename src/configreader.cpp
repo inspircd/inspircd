@@ -1163,6 +1163,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	FailedPortList pl;
 	ServerInstance->BindPorts(pl);
 
+	// Check valid before writing errors about ports so as to allow still starting with some ports in use.
+	valid = errstr.str().empty();
+
 	if (pl.size())
 	{
 		errstr << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
@@ -1178,7 +1181,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
 
-	valid = errstr.str().empty();
 	if (!valid)
 		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
 
