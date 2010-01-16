@@ -55,12 +55,12 @@ int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::st
  * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
  * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
  */
-int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, unsigned int extra, bool usemax)
+int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
 {
 	if (splithere >= parameters.size())
 		return 0;
 
-	if (extra >= parameters.size())
+	if (extra >= (signed)parameters.size())
 		extra = -1;
 
 	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
