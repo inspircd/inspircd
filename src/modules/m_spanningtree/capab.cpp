@@ -19,8 +19,6 @@
 #include "utils.h"
 #include "main.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
 std::string TreeSocket::MyModules(int filter)
 {
 	std::vector<std::string> modlist = ServerInstance->Modules->GetAllModuleNames(filter);
@@ -33,10 +31,10 @@ std::string TreeSocket::MyModules(int filter)
 	for (unsigned int i = 0; i < modlist.size(); i++)
 	{
 		if (i)
-			capabilities.push_back(',');
+			capabilities.push_back(proto_version > 1201 ? ' ' : ',');
 		capabilities.append(modlist[i]);
 		Module* m = ServerInstance->Modules->Find(modlist[i]);
-		if (m && proto_version >= 1202)
+		if (m && proto_version > 1201)
 		{
 			Version v = m->GetVersion();
 			if (!v.link_data.empty())
@@ -58,7 +56,7 @@ static std::string BuildModeList(ModeType type)
 		if (mh)
 		{
 			if (!line.empty())
-				line.push_back(',');
+				line.push_back(' ');
 			line.append(mh->name);
 			line.push_back('=');
 			if (mh->GetPrefix())
@@ -119,13 +117,8 @@ void TreeSocket::SendCapabilities(int phase)
 	if (line != "CAPAB MODSUPPORT ")
 		this->WriteLine(line);
 
-	line = "CAPAB CHANMODES " + BuildModeList(MODETYPE_CHANNEL);
-	if (line != "CAPAB CHANMODES ")
-		this->WriteLine(line);
-
-	line = "CAPAB USERMODES " + BuildModeList(MODETYPE_USER);
-	if (line != "CAPAB USERMODES ")
-		this->WriteLine(line);
+	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
+	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
 	int ip6 = 0;
 #ifdef IPV6
@@ -160,35 +153,31 @@ void TreeSocket::SendCapabilities(int phase)
 	this->WriteLine("CAPAB END");
 }
 
-/* Check a comma seperated list for an item */
-bool TreeSocket::HasItem(const std::string &list, const std::string &item)
-{
-	irc::commasepstream seplist(list);
-	std::string item2;
-
-	while (seplist.GetToken(item2))
-	{
-		if (item2 == item)
-			return true;
-	}
-	return false;
-}
-
 /* Isolate and return the elements that are different between two comma seperated lists */
-std::string TreeSocket::ListDifference(const std::string &one, const std::string &two)
+void TreeSocket::ListDifference(const std::string &one, const std::string &two, char sep,
+		std::string& mleft, std::string& mright)
 {
-	irc::commasepstream list_one(one);
+	std::set<std::string> values;
+	irc::sepstream sepleft(one, sep);
+	irc::sepstream sepright(two, sep);
 	std::string item;
-	std::string result;
-	while (list_one.GetToken(item))
+	while (sepleft.GetToken(item))
 	{
-		if (!HasItem(two, item))
+		values.insert(item);
+	}
+	while (sepright.GetToken(item))
+	{
+		if (!values.erase(item))
 		{
-			result.append(" ");
-			result.append(item);
+			mleft.push_back(sep);
+			mleft.append(item);
 		}
 	}
-	return result;
+	for(std::set<std::string>::iterator i = values.begin(); i != values.end(); ++i)
+	{
+		mright.push_back(sep);
+		mright.append(*i);
+	}
 }
 
 bool TreeSocket::Capab(const parameterlist &params)
@@ -213,47 +202,42 @@ bool TreeSocket::Capab(const parameterlist &params)
 		/* Compare ModuleList and check CapKeys */
 		if ((this->capab->ModuleList != this->MyModules(VF_COMMON)) && (this->capab->ModuleList.length()))
 		{
-			std::string diffIneed = ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON));
-			std::string diffUneed = ListDifference(this->MyModules(VF_COMMON), this->capab->ModuleList);
-			if (diffIneed.length() == 0 && diffUneed.length() == 0)
-			{
-				reason = "Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
-			}
-			else
+			std::string diffIneed, diffUneed;
+			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), proto_version > 1201 ? ' ' : ',', diffIneed, diffUneed);
+			if (diffIneed.length() || diffUneed.length())
 			{
 				reason = "Modules incorrectly matched on these servers.";
 				if (diffIneed.length())
 					reason += " Not loaded here:" + diffIneed;
 				if (diffUneed.length())
 					reason += " Not loaded there:" + diffUneed;
+				this->SendError("CAPAB negotiation failed: "+reason);
+				return false;
 			}
-			this->SendError("CAPAB negotiation failed: "+reason);
-			return false;
 		}
 		if (this->capab->OptModuleList != this->MyModules(VF_OPTCOMMON) && this->capab->OptModuleList.length())
 		{
-			std::string diffIneed = ListDifference(this->capab->OptModuleList, this->MyModules(VF_OPTCOMMON));
-			std::string diffUneed = ListDifference(this->MyModules(VF_OPTCOMMON), this->capab->OptModuleList);
-			if (diffIneed.length() == 0 && diffUneed.length() == 0)
+			std::string diffIneed, diffUneed;
+			ListDifference(this->capab->ModuleList, this->MyModules(VF_OPTCOMMON), ' ', diffIneed, diffUneed);
+			if (diffIneed.length() || diffUneed.length())
 			{
-				reason = "Optional Module list in CAPAB is not alphabetically ordered, cannot compare lists.";
-			}
-			else if (Utils->AllowOptCommon)
-			{
-				ServerInstance->SNO->WriteToSnoMask('l',
-					"Optional module lists do not match, some commands may not work globally.%s%s%s%s",
-					diffIneed.length() ? " Not loaded here:" : "", diffIneed.c_str(),
-					diffUneed.length() ? " Not loaded there:" : "", diffUneed.c_str());
-			}
-			else
-			{
-				reason = "Optional modules incorrectly matched on these servers, and options::allowmismatch not set.";
-				if (diffIneed.length())
-					reason += " Not loaded here:" + diffIneed;
-				if (diffUneed.length())
-					reason += " Not loaded there:" + diffUneed;
-				this->SendError("CAPAB negotiation failed: "+reason);
-				return false;
+				if (Utils->AllowOptCommon)
+				{
+					ServerInstance->SNO->WriteToSnoMask('l',
+						"Optional module lists do not match, some commands may not work globally.%s%s%s%s",
+						diffIneed.length() ? " Not loaded here:" : "", diffIneed.c_str(),
+						diffUneed.length() ? " Not loaded there:" : "", diffUneed.c_str());
+				}
+				else
+				{
+					reason = "Optional modules incorrectly matched on these servers, and options::allowmismatch not set.";
+					if (diffIneed.length())
+						reason += " Not loaded here:" + diffIneed;
+					if (diffUneed.length())
+						reason += " Not loaded there:" + diffUneed;
+					this->SendError("CAPAB negotiation failed: "+reason);
+					return false;
+				}
 			}
 		}
 
@@ -279,13 +263,16 @@ bool TreeSocket::Capab(const parameterlist &params)
 		{
 			if (capab->ChanModes != BuildModeList(MODETYPE_CHANNEL))
 			{
-				std::string diffIneed = ListDifference(capab->ChanModes, BuildModeList(MODETYPE_CHANNEL));
-				std::string diffUneed = ListDifference(BuildModeList(MODETYPE_CHANNEL), capab->ChanModes);
-				reason = "Channel modes not matched on these servers.";
-				if (diffIneed.length())
-					reason += " Not loaded here:" + diffIneed;
-				if (diffUneed.length())
-					reason += " Not loaded there:" + diffUneed;
+				std::string diffIneed, diffUneed;
+				ListDifference(capab->ChanModes, BuildModeList(MODETYPE_CHANNEL), ' ', diffIneed, diffUneed);
+				if (diffIneed.length() || diffUneed.length())
+				{
+					reason = "Channel modes not matched on these servers.";
+					if (diffIneed.length())
+						reason += " Not loaded here:" + diffIneed;
+					if (diffUneed.length())
+						reason += " Not loaded there:" + diffUneed;
+				}
 			}
 		}
 		else if (this->capab->CapKeys.find("CHANMODES") != this->capab->CapKeys.end())
@@ -298,13 +285,16 @@ bool TreeSocket::Capab(const parameterlist &params)
 		{
 			if (capab->UserModes != BuildModeList(MODETYPE_USER))
 			{
-				std::string diffIneed = ListDifference(capab->UserModes, BuildModeList(MODETYPE_USER));
-				std::string diffUneed = ListDifference(BuildModeList(MODETYPE_USER), capab->UserModes);
-				reason = "User modes not matched on these servers.";
-				if (diffIneed.length())
-					reason += " Not loaded here:" + diffIneed;
-				if (diffUneed.length())
-					reason += " Not loaded there:" + diffUneed;
+				std::string diffIneed, diffUneed;
+				ListDifference(capab->UserModes, BuildModeList(MODETYPE_USER), ' ', diffIneed, diffUneed);
+				if (diffIneed.length() || diffUneed.length())
+				{
+					reason = "User modes not matched on these servers.";
+					if (diffIneed.length())
+						reason += " Not loaded here:" + diffIneed;
+					if (diffUneed.length())
+						reason += " Not loaded there:" + diffUneed;
+				}
 			}
 		}
 		else if (this->capab->CapKeys.find("USERMODES") != this->capab->CapKeys.end())
@@ -378,11 +368,10 @@ bool TreeSocket::Capab(const parameterlist &params)
 	{
 		irc::tokenstream capabs(params[1]);
 		std::string item;
-		bool more = true;
-		while ((more = capabs.GetToken(item)))
+		while (capabs.GetToken(item))
 		{
 			/* Process each key/value pair */
-			std::string::size_type equals = item.rfind('=');
+			std::string::size_type equals = item.find('=');
 			if (equals != std::string::npos)
 			{
 				std::string var = item.substr(0, equals);

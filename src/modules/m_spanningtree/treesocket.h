@@ -194,11 +194,9 @@ class TreeSocket : public BufferedSocket
 	/** Add modules to VF_COMMON list for backwards compatability */
 	void CompatAddModules(std::vector<std::string>& modlist);
 
-	/* Check a comma seperated list for an item */
-	bool HasItem(const std::string &list, const std::string &item);
-
-	/* Isolate and return the elements that are different between two comma seperated lists */
-	std::string ListDifference(const std::string &one, const std::string &two);
+	/* Isolate and return the elements that are different between two lists */
+	void ListDifference(const std::string &one, const std::string &two, char sep,
+		std::string& mleft, std::string& mright);
 
 	bool Capab(const parameterlist &params);
 

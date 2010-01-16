@@ -19,9 +19,6 @@
 #include "utils.h"
 #include "main.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-
 /** This function is called when we want to send a netburst to a local
  * server. There is a set order we must do this, because for example
  * users require their servers to exist, and channels require their
