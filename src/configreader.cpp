@@ -617,6 +617,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
+	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
+	valid = errstr.str().empty();
+
 	/*
 	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
 	 */
@@ -645,7 +648,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
 
-	valid = errstr.str().empty();
 	if (!valid)
 		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
 
