@@ -101,7 +101,7 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 				}
 				if ((this->IsModeSet('t')) && (this->GetPrefixValue(u) < HALFOP_VALUE))
 				{
-					u->WriteNumeric(482, "%s %s :You must be at least a half-operator to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+					u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
 					return CMD_FAILURE;
 				}
 			}

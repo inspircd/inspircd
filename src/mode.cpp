@@ -288,11 +288,23 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 			unsigned int ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
-				/* Bog off */
-				// TODO replace with a real search for the proper prefix
-				char needed = neededrank > HALFOP_VALUE ? '@' : '%';
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel privilege %c or above to %sset channel mode %c",
-						user->nick.c_str(), chan->name.c_str(), needed, adding ? "" : "un", modechar);
+				ModeHandler* neededmh = NULL;
+				for(char c='A'; c <= 'z'; c++)
+				{
+					ModeHandler *privmh = FindMode(modechar, type);
+					if (privmh->GetPrefixRank() >= neededrank)
+					{
+						// this mode is sufficient to allow this action
+						if (!neededmh || privmh->GetPrefixRank() < neededmh->GetPrefixRank())
+							neededmh = privmh;
+					}
+				}
+				if (neededmh)
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel %s access or above to %sset channel mode %c",
+						user->nick.c_str(), chan->name.c_str(), neededmh->name.c_str(), adding ? "" : "un", modechar);
+				else
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot %sset channel mode %c",
+						user->nick.c_str(), chan->name.c_str(), adding ? "" : "un", modechar);
 				return MODEACTION_DENY;
 			}
 		}
@@ -551,13 +563,11 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 		bool display = true;
 		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetPrefixValue(user) < HALFOP_VALUE))
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only half-operators and above may view the +%c list",
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You do not have access to view the +%c list",
 				user->nick.c_str(), chan->name.c_str(), mletter);
 			display = false;
 		}
 
-		/** See below for a description of what craq this is :D
-		 */
 		unsigned char handler_id = (mletter - 'A') | MASK_CHANNEL;
 
 		for(ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
@@ -937,7 +947,6 @@ struct builtin_modes
 
 	ModeChannelBan b;
 	ModeChannelOp o;
-	// halfop is added by configreader
 	ModeChannelVoice v;
 
 	ModeUserWallops uw;
