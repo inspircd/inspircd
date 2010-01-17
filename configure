@@ -44,7 +44,8 @@ use make::opensslcert;
 
 our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_ports,
     $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue,
-    $opt_noipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port);
+    $opt_noipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port,
+	$opt_system, $opt_uid);
 
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir);
 
@@ -60,6 +61,8 @@ my @opt_disableextras;
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
 	'rebuild' => \$opt_rebuild,
+	'system' => \$opt_system,
+	'uid=s' => \$opt_uid,
 	'enable-openssl' => \$opt_use_openssl,
 	'disable-interactive' => \$opt_nointeractive,
 	'enable-ports' => \$opt_ports,
@@ -98,7 +101,7 @@ if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
 	exit 0;
 }
 
-our $non_interactive = (
+our $interactive = !(
 	(defined $opt_base_dir) ||
 	(defined $opt_config_dir) ||
 	(defined $opt_module_dir) ||
@@ -115,10 +118,11 @@ our $non_interactive = (
 	(defined $opt_noepoll) ||
 	(defined $opt_noports) ||
 	(defined $opt_maxbuf) ||
+	(defined $opt_system) ||
+	(defined $opt_uid) ||
 	(defined $opt_use_gnutls) ||
 	(defined $opt_freebsd_port)
 );
-our $interactive = !$non_interactive;
 
 chomp(our $topdir = getcwd());
 our $this = resolve_directory($topdir);						# PWD, Regardless.
@@ -128,26 +132,33 @@ $config{ME} = resolve_directory($topdir);				# Present Working Directory
 
 $config{BASE_DIR} = $config{ME}."/run";
 
-if (defined $opt_base_dir)
-{
+if (defined $opt_base_dir) {
 	$config{BASE_DIR} = $opt_base_dir;
+} elsif (defined $opt_system || defined $opt_uid) {
+	$config{BASE_DIR} = '/var/lib/inspircd';
 }
 
-$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
-$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
-$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
-$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
+if (defined $opt_system || defined $opt_uid) {
+	$config{UID} = $opt_uid || 'ircd';
+	$config{CONFIG_DIR}	 = '/etc/inspircd';
+	$config{MODULE_DIR}	 = '/usr/lib/inspircd';
+	$config{BINARY_DIR}	 = '/usr/sbin/';
+	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
+} else {
+	$config{UID} = $<;
+	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
+	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
+	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
+	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
+}
 
-if (defined $opt_config_dir)
-{
+if (defined $opt_config_dir) {
 	$config{CONFIG_DIR} = $opt_config_dir;
 }
-if (defined $opt_module_dir)
-{
+if (defined $opt_module_dir) {
 	$config{MODULE_DIR} = $opt_module_dir;
 }
-if (defined $opt_binary_dir)
-{
+if (defined $opt_binary_dir) {
 	$config{BINARY_DIR} = $opt_binary_dir;
 }
 chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
@@ -186,43 +197,25 @@ if (defined $opt_use_openssl)
 	$config{USE_OPENSSL} = "y";
 }
 
-# no, let's not change these.
-$config{OPTIMITEMP}	 = "0";			      			# Default Optimisation Value
-if (!defined $opt_disable_debug)
-{
+if (!defined $opt_disable_debug) {
 	$config{OPTIMISATI}	 = "-g1";			     	# Optimisation Flag
-}
-else
-{
-	$config{OPTIMISATI}	 = "-O2";				# DEBUGGING OFF!
+} else {
+	$config{OPTIMISATI}	 = "-O2";
 }
 
 $config{HAS_STRLCPY}	= "false";			  		# strlcpy Check.
 $config{HAS_STDINT}	 = "false";					# stdint.h check
 $config{USE_KQUEUE}	 = "y";						# kqueue enabled
-if (defined $opt_kqueue)
-{
-	$config{USE_KQUEUE} = "y";
-}
-if (defined $opt_nokqueue)
-{
+if (defined $opt_nokqueue) {
 	$config{USE_KQUEUE} = "n";
 }
 $config{USE_POLL}     = "y";					# poll enabled
 $config{USE_EPOLL}	  = "y";					# epoll enabled
-if (defined $opt_epoll)
-{
-	$config{USE_EPOLL} = "y";
-}
 if (defined $opt_noepoll)
 {
 	$config{USE_EPOLL} = "n";
 }
 $config{USE_PORTS}	  = "y";					# epoll enabled
-if (defined $opt_ports)
-{
-	$config{USE_PORTS} = "y";
-}
 if (defined $opt_noports)
 {
 	$config{USE_PORTS} = "n";
@@ -1061,7 +1054,7 @@ EOF
 		$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
 
 		for my $var (qw(
-			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR
+			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR UID
 			STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;

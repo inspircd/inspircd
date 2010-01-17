@@ -24,7 +24,10 @@ BASE = "@BASE_DIR@"
 CONPATH = "@CONFIG_DIR@"
 MODPATH = "@MODULE_DIR@"
 BINPATH = "@BINARY_DIR@"
-INSTMODE = 0755
+INSTUID = @UID@
+INSTMODE_DIR = 0755
+INSTMODE_BIN = 0755
+INSTMODE_LIB = 0644
 
 @IFEQ $(CC) icc
   CXXFLAGS += -Wshadow
@@ -78,7 +81,7 @@ CXXFLAGS += -Iinclude
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS PURE_STATIC
-@DO_EXPORT BASE CONPATH MODPATH BINPATH SOURCEPATH BUILDPATH
+@DO_EXPORT BASE CONPATH MODPATH BINPATH SOURCEPATH BUILDPATH INSTUID
 
 # Default target
 TARGET = all
@@ -100,7 +103,6 @@ all: $(FOOTER)
 
 target: $(HEADER)
 	$(MAKEENV) perl make/calcdep.pl
-	@if [ `id -u` = 0 ] && [ ! -e .force-root-ok ]; then echo "Don't compile or install as root!"; exit 1; fi
 	cd $(BUILDPATH); $(MAKEENV) $(MAKE) -f real.mk $(TARGET)
 
 debug:
@@ -147,15 +149,16 @@ finishmessage: target
 	@echo "*************************************"
 
 install: target@EXTRA_DIR@
-	@-install -d -m $(INSTMODE) $(BASE)
-	@-install -d -m $(INSTMODE) $(BASE)/data
-	@-install -d -m $(INSTMODE) $(BASE)/logs
-	@-install -d -m $(INSTMODE) $(BINPATH)
-	@-install -d -m $(INSTMODE) $(CONPATH)
-	@-install -d -m $(INSTMODE) $(MODPATH)
-	-install -m $(INSTMODE) $(BUILDPATH)/modules/*.so $(MODPATH)
-	-install -m $(INSTMODE) $(BUILDPATH)/bin/inspircd $(BINPATH)
-	-install -m $(INSTMODE) @STARTSCRIPT@ $(@DESTINATION@) 2>/dev/null
+	@if [ $(INSTUID) = 0 ]; then echo "You must specify a non-root uid for the server"; exit 1; fi
+	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
+	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
+	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
+	@-install -d -m $(INSTMODE_DIR) $(BINPATH)
+	@-install -d -m $(INSTMODE_DIR) $(CONPATH)
+	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
+	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
+	-install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
+	-install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 	@$(MAKEENV) make/install-extras.pl install
 	@echo ""
 	@echo "*************************************"
@@ -175,12 +178,8 @@ GNUmakefile BSDmakefile: make/template/main.mk configure $(RCS_FILES)
 
 clean:
 	@echo Cleaning...
-	@-rm -f src/inspircd src/modes/modeclasses.a include/inspircd_se_config.h
-	@-rm -f src/*.so src/modules/*.so src/commands/*.so
-	@-rm -f src/*.o src/*/*.o src/modules/*/*.o
-	@-rm -f src/.*.d src/*/.*.d src/modules/*/.*.d
-	@-rm -f $(BUILDPATH)/bin/inspircd $(BUILDPATH)/include $(BUILDPATH)/real.mk
-	@-rm -rf $(BUILDPATH)/obj $(BUILDPATH)/modules
+	-rm -f $(BUILDPATH)/bin/inspircd $(BUILDPATH)/include $(BUILDPATH)/real.mk
+	-rm -rf $(BUILDPATH)/obj $(BUILDPATH)/modules
 	@-rmdir $(BUILDPATH)/bin 2>/dev/null
 	@-rmdir $(BUILDPATH) 2>/dev/null
 	@echo Completed.

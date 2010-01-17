@@ -29,10 +29,9 @@
 /* $CompileFlags: if(!"USE_FREEBSD_BASE_SSL") pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: if(!"USE_FREEBSD_BASE_SSL") rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */
 
-/* $ModDep: transport.h */
 /* $NoPedantic */
-/* $CopyInstall: conf/key.pem $(CONPATH) */
-/* $CopyInstall: conf/cert.pem $(CONPATH) */
+/* $CopyInstall: conf/key.pem $(CONPATH) -m 0400 -o $(INSTUID) */
+/* $CopyInstall: conf/cert.pem $(CONPATH) -m 0444 */
 
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };

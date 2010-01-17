@@ -11,13 +11,13 @@ for my $dir (qw(src src/modules)) {
 		next unless $file =~ /\.cpp$/;
 		open CPP, '<', "$dir/$file" or die "Can't open $dir/$file to scan it: $!";
 		while (<CPP>) {
-			if (/\/\* \$CopyInstall: (\S+) (\S+) \*\//i) {
-				my($ifile, $idir) = ($1,$2);
+			if (/\/\* \$CopyInstall: (\S+) (\S+) (.*) \*\//i) {
+				my($ifile, $idir, $args) = ($1,$2,$3);
 				next if exists $installed{$1.' '.$2};
 				$installed{$1.' '.$2}++;
 				$idir =~ s/\$\(([^)]+)\)/$ENV{$1}/eg;
 				if ($mode eq 'install') {
-					system "install $ifile $idir";
+					system "install $args $ifile $idir";
 				} else {
 					$ifile =~ s/.*\///g;
 					system "rm $idir/$ifile";
