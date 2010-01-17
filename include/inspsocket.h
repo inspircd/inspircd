@@ -106,9 +106,9 @@ class CoreExport StreamSocket : public EventHandler
 	std::string recvq;
  public:
 	StreamSocket() : sendq_len(0) {}
-	inline Module* GetIOHook() { return IOHook; }
-	inline void AddIOHook(Module* m) { IOHook = m; }
-	inline void DelIOHook() { IOHook = NULL; }
+	inline Module* GetIOHook();
+	inline void AddIOHook(Module* m);
+	inline void DelIOHook();
 	/** Handle event from socket engine.
 	 * This will call OnDataReady if there is *new* data in recvq
 	 */
@@ -219,4 +219,9 @@ class CoreExport BufferedSocket : public StreamSocket
 	BufferedSocketError BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
 };
 
+#include "modules.h"
+
+inline Module* StreamSocket::GetIOHook() { return IOHook; }
+inline void StreamSocket::AddIOHook(Module* m) { IOHook = m; }
+inline void StreamSocket::DelIOHook() { IOHook = NULL; }
 #endif
