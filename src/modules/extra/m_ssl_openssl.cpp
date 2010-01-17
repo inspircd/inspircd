@@ -101,7 +101,6 @@ class ModuleSSLOpenSSL : public Module
 
 	ModuleSSLOpenSSL() : iohook(this, "ssl/openssl", SERVICE_IOHOOK)
 	{
-
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
@@ -122,7 +121,10 @@ class ModuleSSLOpenSSL : public Module
 
 		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+	}
 
+	void init()
+	{
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
 		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO, I_OnUserConnect };

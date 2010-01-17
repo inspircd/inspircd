@@ -598,7 +598,10 @@ class CoreExport InspIRCd
 	 * @param f A Command command handler object to add
 	 * @throw ModuleException Will throw ModuleExcption if the command already exists
 	 */
-	void AddCommand(Command *f);
+	inline void AddCommand(Command *f)
+	{
+		Modules->AddService(*f);
+	}
 
 	/** Send a modechange.
 	 * The parameters provided are identical to that sent to the

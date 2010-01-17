@@ -149,6 +149,10 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_x509_privkey_init(&x509_key);
 
 		cred_alloc = false;
+	}
+
+	void init()
+	{
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
 
@@ -282,8 +286,11 @@ class ModuleSSLGnuTLS : public Module
 	{
 		gnutls_x509_crt_deinit(x509_cert);
 		gnutls_x509_privkey_deinit(x509_key);
-		gnutls_dh_params_deinit(dh_params);
-		gnutls_certificate_free_credentials(x509_cred);
+		if (cred_alloc)
+		{
+			gnutls_dh_params_deinit(dh_params);
+			gnutls_certificate_free_credentials(x509_cred);
+		}
 		gnutls_global_deinit();
 		delete[] sessions;
 	}

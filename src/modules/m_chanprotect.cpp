@@ -231,14 +231,16 @@ class ModuleChanProtect : public Module
  public:
 	ModuleChanProtect() : cp(this), cf(this)
 	{
+	}
+
+	void init()
+	{
 		/* Load config stuff */
 		LoadSettings();
 		settings.booting = false;
 
-		if (!ServerInstance->Modes->AddMode(&cp) || !ServerInstance->Modes->AddMode(&cf))
-		{
-			throw ModuleException("Could not add new modes!");
-		}
+		ServerInstance->Modules->AddService(cf);
+		ServerInstance->Modules->AddService(cp);
 
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

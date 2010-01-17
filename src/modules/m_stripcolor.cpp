@@ -41,8 +41,12 @@ class ModuleStripColor : public Module
  public:
 	ModuleStripColor() : csc(this), usc(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&usc) || !ServerInstance->Modes->AddMode(&csc))
-			throw ModuleException("Could not add new modes!");
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(usc);
+		ServerInstance->Modules->AddService(csc);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}

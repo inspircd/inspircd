@@ -109,13 +109,16 @@ class ModuleServicesAccount : public Module
 	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
 		accountname("accountname", this)
 	{
+	}
 
-		if (!ServerInstance->Modes->AddMode(&m1) || !ServerInstance->Modes->AddMode(&m2) ||
-			!ServerInstance->Modes->AddMode(&m3) || !ServerInstance->Modes->AddMode(&m4) ||
-			!ServerInstance->Modes->AddMode(&m5))
-			throw ModuleException("Some other module has claimed our modes!");
-
-		ServerInstance->Extensions.Register(&accountname);
+	void init()
+	{
+		ServerInstance->Modules->AddService(m1);
+		ServerInstance->Modules->AddService(m2);
+		ServerInstance->Modules->AddService(m3);
+		ServerInstance->Modules->AddService(m4);
+		ServerInstance->Modules->AddService(m5);
+		ServerInstance->Modules->AddService(accountname);
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
 			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
 

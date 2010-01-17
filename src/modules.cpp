@@ -174,6 +174,9 @@ ModuleManager::~ModuleManager()
 
 bool ModuleManager::Attach(Implementation i, Module* mod)
 {
+	if (Modules.find(mod->ModuleSourceFile) == Modules.end())
+		ServerInstance->Logs->Log("MODULE", ERROR, "Module %s is attaching to hook %d in constructor; this does not handle exceptions correctly!", mod->ModuleSourceFile.c_str(), i);
+
 	if (std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod) != EventHandlers[i].end())
 		return false;
 
@@ -417,16 +420,12 @@ bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, Us
 	return this->Parser->IsValidCommand(commandname, pcnt, user);
 }
 
-void InspIRCd::AddCommand(Command *f)
-{
-	if (!this->Parser->AddCommand(f))
-	{
-		throw ModuleException("Command "+std::string(f->name)+" already exists.");
-	}
-}
-
 void ModuleManager::AddService(ServiceProvider& item)
 {
+	Module* owner = item.creator;
+	if (Modules.find(owner->ModuleSourceFile) == Modules.end())
+		ServerInstance->Logs->Log("MODULE", ERROR, "Module %s is registering item %s in constructor; this does not handle exceptions correctly!", owner->ModuleSourceFile.c_str(), item.name.c_str());
+
 	switch (item.service)
 	{
 		case SERVICE_COMMAND:

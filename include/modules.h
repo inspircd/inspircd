@@ -347,11 +347,15 @@ class CoreExport Module : public classbase, public usecountbase
 	DLLManager* ModuleDLLManager;
 
 	/** Default constructor.
-	 * Creates a module class.
-	 * @param Me An instance of the InspIRCd class which will be saved into ServerInstance for your use
-	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
+	 * Creates a module class. Don't do any type of hook registration or checks
+	 * for other modules here; do that in init().
 	 */
 	Module();
+
+	/** Module setup
+	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
+	 */
+	virtual void init() {}
 
 	/** Clean up prior to destruction
 	 * If you override, you must call this AFTER your module's cleanup

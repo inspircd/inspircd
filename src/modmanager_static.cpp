@@ -64,15 +64,20 @@ bool ModuleManager::Load(const char* name)
 	{
 		if ((**i).name == name)
 		{
+			Module* c = NULL;
 			try
 			{
-				Module* c = (*(**i).init)();
+				c = (*(**i).init)();
 				Modules[name] = c;
+				c->init();
 				FOREACH_MOD(I_OnLoadModule,OnLoadModule(c));
 				return true;
 			}
 			catch (CoreException& modexcept)
 			{
+				if (c)
+					DoSafeUnload(c);
+				delete c;
 				ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + (**i).name + ": " + modexcept.GetReason());
 			}
 		}
@@ -117,15 +122,20 @@ void ModuleManager::LoadAll()
 	ModCount = 0;
 	for(std::vector<AllModuleList*>::iterator i = modlist->begin(); i != modlist->end(); ++i)
 	{
+		Module* c = NULL;
 		try
 		{
-			Module* c = (*(**i).init)();
+			c = (*(**i).init)();
 			c->ModuleSourceFile = (**i).name;
 			Modules[(**i).name] = c;
+			c->init();
 			FOREACH_MOD(I_OnLoadModule,OnLoadModule(c));
 		}
 		catch (CoreException& modexcept)
 		{
+			if (c)
+				DoSafeUnload(c);
+			delete c;
 			ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + (**i).name + ": " + modexcept.GetReason());
 		}
 	}

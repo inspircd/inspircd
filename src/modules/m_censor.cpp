@@ -44,14 +44,15 @@ class ModuleCensor : public Module
 	CensorChannel cc;
 
  public:
-	ModuleCensor()
-		: cu(this), cc(this)
+	ModuleCensor() : cu(this), cc(this) { }
+
+	void init()
 	{
 		/* Read the configuration file on startup.
 		 */
 		OnRehash(NULL);
-		if (!ServerInstance->Modes->AddMode(&cu) || !ServerInstance->Modes->AddMode(&cc))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(cu);
+		ServerInstance->Modules->AddService(cc);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}

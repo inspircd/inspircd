@@ -89,11 +89,12 @@ bool ModuleManager::Load(const char* filename)
 			newmod->ModuleSourceFile = filename_str;
 			newmod->ModuleDLLManager = newhandle;
 			Version v = newmod->GetVersion();
+			Modules[filename_str] = newmod;
+
+			newmod->init();
 
 			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
 				filename, newhandle->GetVersion().c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
-
-			Modules[filename_str] = newmod;
 		}
 		else
 		{
@@ -106,6 +107,8 @@ bool ModuleManager::Load(const char* filename)
 	catch (CoreException& modexcept)
 	{
 		// failure in module constructor
+		if (newmod)
+			DoSafeUnload(newmod);
 		delete newmod;
 		delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
