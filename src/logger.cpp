@@ -94,7 +94,11 @@ void LogManager::OpenFileLogs()
 		std::map<std::string, FileWriter*>::iterator fwi = logmap.find(target);
 		if (fwi == logmap.end())
 		{
-			FILE* f = fopen(target.c_str(), "a");
+			char realtarget[MAXBUF];
+			time_t time = ServerInstance->Time();
+			struct tm *mytime = gmtime(&time);
+			strftime(realtarget, MAXBUF, target.c_str(), mytime);
+			FILE* f = fopen(realtarget, "a");
 			fw = new FileWriter(f);
 			logmap.insert(std::make_pair(target, fw));
 		}
