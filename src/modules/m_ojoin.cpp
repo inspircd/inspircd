@@ -212,19 +212,18 @@ class ModuleOjoin : public Module
 	ModuleOjoin()
 		: np(NULL), mycommand(this)
 	{
+	}
+
+	void init()
+	{
 		/* Load config stuff */
 		OnRehash(NULL);
 
 		/* Initialise module variables */
 		np = new NetworkPrefix(this);
 
-		if (!ServerInstance->Modes->AddMode(np))
-		{
-			delete np;
-			throw ModuleException("Could not add new mode!");
-		}
-
-		ServerInstance->AddCommand(&mycommand);
+		ServerInstance->Modules->AddService(*np);
+		ServerInstance->Modules->AddService(mycommand);
 
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserPreKick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);

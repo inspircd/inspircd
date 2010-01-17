@@ -121,6 +121,10 @@ class ModuleCloaking : public Module
  public:
 	ModuleCloaking() : cu(this), Hash(this, "hash/md5")
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 
 		/* Register it with the core */

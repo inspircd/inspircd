@@ -344,13 +344,15 @@ private:
 public:
 	ModuleCallerID() : cmd(this), myumode(this)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 
-		if (!ServerInstance->Modes->AddMode(&myumode))
-			throw ModuleException("Could not add usermode +g");
-
-		ServerInstance->AddCommand(&cmd);
-		ServerInstance->Extensions.Register(&cmd.extInfo);
+		ServerInstance->Modules->AddService(myumode);
+		ServerInstance->Modules->AddService(cmd);
+		ServerInstance->Modules->AddService(cmd.extInfo);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 6);

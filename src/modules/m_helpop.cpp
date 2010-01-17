@@ -119,15 +119,18 @@ class ModuleHelpop : public Module
 		ModuleHelpop()
 			: cmd(this), ho(this)
 		{
+		}
+
+		void init()
+		{
 			ReadConfig();
-			if (!ServerInstance->Modes->AddMode(&ho))
-				throw ModuleException("Could not add new modes!");
-			ServerInstance->AddCommand(&cmd);
+			ServerInstance->Modules->AddService(ho);
+			ServerInstance->Modules->AddService(cmd);
 			Implementation eventlist[] = { I_OnRehash, I_OnWhois };
 			ServerInstance->Modules->Attach(eventlist, this, 2);
 		}
 
-		virtual void ReadConfig()
+		void ReadConfig()
 		{
 			ConfigReader MyConf;
 

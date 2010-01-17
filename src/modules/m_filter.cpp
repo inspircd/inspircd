@@ -139,7 +139,7 @@ class ModuleFilter : public Module
 	std::vector<std::string> exemptfromfilter; // List of channel names excluded from filtering.
 
 	ModuleFilter();
-
+	void init();
 	~ModuleFilter();
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
@@ -254,6 +254,10 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 }
 
 ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine(this, "regex")
+{
+}
+
+void ModuleFilter::init()
 {
 	ServerInstance->AddCommand(&filtcommand);
 	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };

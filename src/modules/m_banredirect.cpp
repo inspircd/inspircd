@@ -210,7 +210,11 @@ class ModuleBanRedirect : public Module
 	: re(this)
 	{
 		nofollow = false;
+	}
 
+
+	void init()
+	{
 		if(!ServerInstance->Modes->AddModeWatcher(&re))
 			throw ModuleException("Could not add mode watcher");
 

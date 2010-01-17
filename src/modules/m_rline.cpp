@@ -205,6 +205,10 @@ class ModuleRLine : public Module
  public:
 	ModuleRLine() : rxfactory(this, "regex"), f(rxfactory), r(this, f)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 
 		ServerInstance->AddCommand(&r);
