@@ -329,6 +329,79 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	return true;
 }
 
+bool ModuleManager::CanUnload(Module* mod)
+{
+	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
+
+	if (modfind == Modules.end() || modfind->second != mod)
+	{
+		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		return false;
+	}
+	if (mod->GetVersion().Flags & VF_STATIC)
+	{
+		LastModuleError = "Module " + mod->ModuleSourceFile + " not unloadable (marked static)";
+		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		return false;
+	}
+	return true;
+}
+
+void ModuleManager::DoSafeUnload(Module* mod)
+{
+	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
+
+	std::vector<reference<ExtensionItem> > items;
+	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
+	/* Give the module a chance to tidy out all its metadata */
+	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
+	{
+		mod->OnCleanup(TYPE_CHANNEL,c->second);
+		c->second->doUnhookExtensions(items);
+		const UserMembList* users = c->second->GetUsers();
+		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+			mi->second->doUnhookExtensions(items);
+	}
+	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
+	{
+		mod->OnCleanup(TYPE_USER,u->second);
+		u->second->doUnhookExtensions(items);
+	}
+	for(char m='A'; m <= 'z'; m++)
+	{
+		ModeHandler* mh;
+		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
+		if (mh && mh->creator == mod)
+			ServerInstance->Modes->DelMode(mh);
+		mh = ServerInstance->Modes->FindMode(m, MODETYPE_CHANNEL);
+		if (mh && mh->creator == mod)
+			ServerInstance->Modes->DelMode(mh);
+	}
+	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	{
+		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
+		if (curr->second->creator == mod)
+			DataProviders.erase(curr);
+	}
+	for(unsigned int i = 0; i < ServerInstance->Modules->ActiveDynrefs.size(); i++)
+		ServerInstance->Modules->ActiveDynrefs[i]->ClearCache();
+
+	/* Tidy up any dangling resolvers */
+	ServerInstance->Res->CleanResolvers(mod);
+
+	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
+
+	DetachAll(mod);
+
+	Modules.erase(modfind);
+	ServerInstance->GlobalCulls.AddItem(mod);
+
+	ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
+	this->ModCount--;
+	ServerInstance->BuildISupport();
+}
+
 std::string& ModuleManager::LastError()
 {
 	return LastModuleError;

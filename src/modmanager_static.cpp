@@ -58,18 +58,26 @@ class AllModule : public Module
 
 MODULE_INIT(AllModule)
 
-bool ModuleManager::Load(const char* filename)
+bool ModuleManager::Load(const char* name)
 {
+	for(std::vector<AllModuleList*>::iterator i = modlist->begin(); i != modlist->end(); ++i)
+	{
+		if ((**i).name == name)
+		{
+			try
+			{
+				Module* c = (*(**i).init)();
+				Modules[name] = c;
+				FOREACH_MOD(I_OnLoadModule,OnLoadModule(c));
+				return true;
+			}
+			catch (CoreException& modexcept)
+			{
+				ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + (**i).name + ": " + modexcept.GetReason());
+			}
+		}
+	}
 	return false;
-}
-
-bool ModuleManager::CanUnload(Module* mod)
-{
-	return false;
-}
-
-void ModuleManager::DoSafeUnload(Module* mod)
-{
 }
 
 bool ModuleManager::Unload(Module* mod)
@@ -77,9 +85,31 @@ bool ModuleManager::Unload(Module* mod)
 	return false;
 }
 
+namespace {
+	struct ReloadAction : public HandlerBase0<void>
+	{
+		Module* const mod;
+		HandlerBase1<void, bool>* const callback;
+		ReloadAction(Module* m, HandlerBase1<void, bool>* c)
+			: mod(m), callback(c) {}
+		void Call()
+		{
+			std::string name = mod->ModuleSourceFile;
+			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->GlobalCulls.Apply();
+			bool rv = ServerInstance->Modules->Load(name.c_str());
+			callback->Call(rv);
+			ServerInstance->GlobalCulls.AddItem(this);
+		}
+	};
+}
+
 void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 {
-	callback->Call(false);
+	if (CanUnload(mod))
+		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
+	else
+		callback->Call(false);
 }
 
 void ModuleManager::LoadAll()

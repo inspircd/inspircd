@@ -120,20 +120,28 @@ bad-target:
 all: inspircd
 
 END
-	my @deps;
+	my(@deps, @srcs);
 	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, <commands/*.cpp>,
 			<modules/*.cpp>, <modules/m_*/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file, 1;
+		if ($out =~ m#obj/([^/]+)/[^/]+.o$#) {
+			mkdir "$ENV{BUILDPATH}/obj/$1";
+		}
 		dep_cpp $file, $out;
 		next if $file =~ m#^socketengines/# && $file ne "socketengines/$ENV{SOCKETENGINE}.cpp";
 		push @deps, $out;
+		push @srcs, $file;
 	}
 
 	my $core_mk = join ' ', @deps;
+	my $core_src = join ' ', @srcs;
 	print MAKE <<END;
 
-bin/inspircd: $core_mk
-	\$(RUNCC) -o \$\@ \$(CORELDFLAGS) \$(LDLIBS) \$^ \$>
+obj/ld-extra.cmd: $core_src
+	\@\$(SOURCEPATH)/make/unit-cc.pl -f\$(VERBOSE) \$\@ \$^ \$>
+
+bin/inspircd: obj/ld-extra.cmd $core_mk
+	\@\$(SOURCEPATH)/make/unit-cc.pl -l\$(VERBOSE) \$\@ \$^ \$>
 
 inspircd: bin/inspircd
 
