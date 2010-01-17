@@ -65,9 +65,10 @@ class WhoisNoticeCmd : public Command
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
+		User* source = ServerInstance->FindNick(parameters[1]);
 
-		if (IS_LOCAL(dest))
-			HandleFast(dest, user);
+		if (IS_LOCAL(dest) && source)
+			HandleFast(dest, source);
 
 		return CMD_SUCCESS;
 	}
@@ -100,12 +101,12 @@ class ModuleShowwhois : public Module
 		delete sw;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
-		return Version("Allows opers to set +W to see when a user uses WHOIS on them",VF_COMMON|VF_VENDOR);
+		return Version("Allows opers to set +W to see when a user uses WHOIS on them",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	virtual void OnWhois(User* source, User* dest)
+	void OnWhois(User* source, User* dest)
 	{
 		if (!dest->IsModeSet('W') || source == dest)
 			return;
@@ -122,6 +123,7 @@ class ModuleShowwhois : public Module
 			std::vector<std::string> params;
 			params.push_back(dest->server);
 			params.push_back("WHOISNOTICE");
+			params.push_back(source->uuid);
 			params.push_back(dest->uuid);
 			ServerInstance->PI->SendEncapsulatedData(params);
 		}

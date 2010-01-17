@@ -40,7 +40,7 @@ class CommandAlltime : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_OPT_BCAST;
 	}
 };
 
@@ -61,7 +61,7 @@ class Modulealltime : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Display timestamps from all servers connected to the network", VF_COMMON | VF_VENDOR);
+		return Version("Display timestamps from all servers connected to the network", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };

@@ -17,6 +17,7 @@
 
 static const char* const forge_common_1201[] = {
 	"m_allowinvite.so",
+	"m_alltime.so",
 	"m_auditorium.so",
 	"m_banexception.so",
 	"m_blockcaps.so",
@@ -42,6 +43,7 @@ static const char* const forge_common_1201[] = {
 	"m_kicknorejoin.so",
 	"m_messageflood.so",
 	"m_nickflood.so",
+	"m_nicklock.so",
 	"m_noctcp.so",
 	"m_nokicks.so",
 	"m_nonicks.so",
@@ -62,6 +64,7 @@ static const char* const forge_common_1201[] = {
 	"m_saquit.so",
 	"m_servprotect.so",
 	"m_setident.so",
+	"m_showwhois.so",
 	"m_silence.so",
 	"m_sslmodes.so",
 	"m_stripcolor.so",
