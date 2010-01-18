@@ -173,7 +173,7 @@ class ModuleSSLInfo : public Module
 				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
 					user->WriteNumeric(491, "%s :This oper login requires an SSL connection.", user->nick.c_str());
-					IS_LOCAL(user)->CommandFloodPenalty += 10000;
+					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
 
@@ -181,7 +181,7 @@ class ModuleSSLInfo : public Module
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
 					user->WriteNumeric(491, "%s :This oper login requires a matching SSL fingerprint.",user->nick.c_str());
-					IS_LOCAL(user)->CommandFloodPenalty += 10000;
+					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
 			}
