@@ -14,6 +14,8 @@
 #ifndef __TREESERVER_H__
 #define __TREESERVER_H__
 
+#include "treesocket.h"
+
 /** Each server in the tree is represented by one class of
  * type TreeServer. A locally connected TreeServer can
  * have a class of type TreeSocket associated with it, for

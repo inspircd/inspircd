@@ -185,7 +185,7 @@ class CommandSASL : public Command
 	SimpleExtItem<SaslAuthenticator>& authExt;
 	CommandSASL(Module* Creator, SimpleExtItem<SaslAuthenticator>& ext) : Command(Creator, "SASL", 2), authExt(ext)
 	{
-		this->disabled = true; // should not be called by users
+		this->flags_needed = FLAG_SERVERONLY; // should not be called by users
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)

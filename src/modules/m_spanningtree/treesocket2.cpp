@@ -290,15 +290,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		command = "MODE";
 
 	// TODO move all this into Commands
-	if (command == "UID")
-	{
-		this->ParseUID(prefix, params);
-	}
-	else if (command == "FJOIN")
-	{
-		this->ForceJoin(who,params);
-	}
-	else if (command == "STATS")
+	if (command == "STATS")
 	{
 		this->Stats(prefix, params);
 	}
@@ -322,25 +314,9 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		this->Error(params);
 	}
-	else if (command == "OPERTYPE")
-	{
-		this->OperType(prefix,params);
-	}
 	else if (command == "AWAY")
 	{
 		this->Away(prefix,params);
-	}
-	else if (command == "FMODE")
-	{
-		this->ForceMode(who,params);
-	}
-	else if (command == "FTOPIC")
-	{
-		this->ForceTopic(prefix,params);
-	}
-	else if (command == "METADATA")
-	{
-		this->MetaData(prefix,params);
 	}
 	else if (command == "PING")
 	{
@@ -359,18 +335,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else if (command == "VERSION")
 	{
 		this->ServerVersion(prefix,params);
-	}
-	else if (command == "FHOST")
-	{
-		this->ChangeHost(prefix,params);
-	}
-	else if (command == "FNAME")
-	{
-		this->ChangeName(prefix,params);
-	}
-	else if (command == "FIDENT")
-	{
-		this->ChangeIdent(prefix,params);
 	}
 	else if (command == "ADDLINE")
 	{

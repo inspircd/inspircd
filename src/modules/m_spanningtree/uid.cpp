@@ -12,71 +12,58 @@
  */
 
 #include "inspircd.h"
+#include "commands.h"
 
-#include "main.h"
 #include "utils.h"
-#include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
+#include "treeserver.h"
 #include "resolvers.h"
 
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h m_spanningtree/handshaketimer.h */
-
-bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
+CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 {
+	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 	/** Do we have enough parameters:
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
 	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :gecos
 	 */
 	if (params.size() < 10)
-	{
-		this->SendError("Invalid client introduction (wanted 10 or more parameters, got " + (params.empty() ? "0" : ConvToStr(params.size())) + "!)");
-		return false;
-	}
+		return CMD_INVALID;
 
 	time_t age_t = ConvToInt(params[1]);
 	time_t signon = ConvToInt(params[7]);
 	std::string empty;
+	std::string nick(params[2]);
+	std::string modestr(params[8]);
 
-	TreeServer* remoteserver = Utils->FindServer(source);
+	TreeServer* remoteserver = Utils->FindServer(serversrc->server);
 
 	if (!remoteserver)
-	{
-		this->SendError("Invalid client introduction (Unknown server "+source+")");
-		return false;
-	}
+		return CMD_INVALID;
 	/* Check parameters for validity before introducing the client, discovered by dmb */
-	else if (!age_t)
-	{
-		this->SendError("Invalid client introduction (Invalid TS?)");
-		return false;
-	}
-	else if (!signon)
-	{
-		this->SendError("Invalid client introduction (Invalid signon?)");
-		return false;
-	}
-	else if (params[8][0] != '+')
-	{
-		this->SendError("Invalid client introduction (Malformed MODE sequence?)");
-		return false;
-	}
+	if (!age_t)
+		return CMD_INVALID;
+	if (!signon)
+		return CMD_INVALID;
+	if (modestr[0] != '+')
+		return CMD_INVALID;
+	TreeSocket* sock = remoteserver->GetRoute()->GetSocket();
 
 	/* check for collision */
-	user_hash::iterator iter = ServerInstance->Users->clientlist->find(params[2]);
+	user_hash::iterator iter = ServerInstance->Users->clientlist->find(nick);
 
 	if (iter != ServerInstance->Users->clientlist->end())
 	{
 		/*
 		 * Nick collision.
 		 */
-		int collide = this->DoCollision(iter->second, age_t, params[5], params[8], params[0]);
+		int collide = sock->DoCollision(iter->second, age_t, params[5], modestr, params[0]);
 		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)
 		{
 			/* remote client changed, make sure we change their nick for the hash too */
-			params[2] = params[0];
+			nick = params[0];
 		}
 	}
 
@@ -90,11 +77,10 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	}
 	catch (...)
 	{
-		this->SendError("Protocol violation - Duplicate UUID '" + params[0] + "' on introduction of new user");
-		return false;
+		return CMD_INVALID;
 	}
-	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
-	_new->nick.assign(params[2], 0, MAXBUF);
+	(*(ServerInstance->Users->clientlist))[nick] = _new;
+	_new->nick.assign(nick, 0, MAXBUF);
 	_new->host.assign(params[3], 0, 64);
 	_new->dhost.assign(params[4], 0, 64);
 	_new->ident.assign(params[5], 0, MAXBUF);
@@ -104,12 +90,12 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 	_new->age = age_t;
 
 	/* we need to remove the + from the modestring, so we can do our stuff */
-	std::string::size_type pos_after_plus = params[8].find_first_not_of('+');
+	std::string::size_type pos_after_plus = modestr.find_first_not_of('+');
 	if (pos_after_plus != std::string::npos)
-	params[8] = params[8].substr(pos_after_plus);
+	modestr = modestr.substr(pos_after_plus);
 
 	unsigned int paramptr = 9;
-	for (std::string::iterator v = params[8].begin(); v != params[8].end(); v++)
+	for (std::string::iterator v = modestr.begin(); v != modestr.end(); v++)
 	{
 		if (*v == '+')
 			continue;
@@ -121,6 +107,9 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 		{
 			if (mh->GetNumParams(true))
 			{
+				if (paramptr >= params.size() - 1)
+					return CMD_INVALID;
+				std::string mp = params[paramptr++];
 				/* IMPORTANT NOTE:
 				 * All modes are assumed to succeed here as they are being set by a remote server.
 				 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
@@ -130,28 +119,17 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 				 * will not change in future versions if you want to make use of this protective behaviour
 				 * yourself.
 				 */
-				if (paramptr < params.size() - 1)
-					mh->OnModeChange(_new, _new, NULL, params[paramptr++], true);
-				else
-				{
-					this->SendError(std::string("Broken UID command, expected a parameter for user mode '")+(*v)+"' but there aren't enough parameters in the command!");
-					return false;
-				}
+				mh->OnModeChange(_new, _new, NULL, mp, true);
 			}
 			else
 				mh->OnModeChange(_new, _new, NULL, empty, true);
 			_new->SetMode(*v, true);
 		}
-		else
-		{
-			this->SendError(std::string("Warning: Broken UID command, unknown user mode '")+(*v)+"' in the mode string! (mismatched module?)");
-			return false;
-		}
 	}
 
 	/* now we've done with modes processing, put the + back for remote servers */
-	if (params[8][0] != '+')
-		params[8] = "+" + params[8];
+	if (modestr[0] != '+')
+		modestr = "+" + modestr;
 
 	_new->SetClientIP(params[6].c_str());
 
@@ -160,17 +138,44 @@ bool TreeSocket::ParseUID(const std::string &source, parameterlist &params)
 
 	bool dosend = true;
 
-	if ((this->Utils->quiet_bursts && remoteserver->bursting) || ServerInstance->SilentULine(_new->server))
+	if ((Utils->quiet_bursts && remoteserver->bursting) || ServerInstance->SilentULine(_new->server))
 		dosend = false;
 
 	if (dosend)
 		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s!%s@%s [%s] [%s]", _new->server.c_str(), _new->nick.c_str(), _new->ident.c_str(), _new->host.c_str(), _new->GetIPString(), _new->fullname.c_str());
 
-	params[params.size() - 1] = ":" + params[params.size() - 1];
-	Utils->DoOneToAllButSender(source, "UID", params, source);
-
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(_new));
 
-	return true;
+	return CMD_SUCCESS;
+}
+
+CmdResult CommandFHost::Handle(const parameterlist &params, User* src)
+{
+	if (params.size() < 1)
+		return CMD_INVALID;
+	if (IS_SERVER(src))
+		return CMD_FAILURE;
+	src->ChangeDisplayedHost(params[0].c_str());
+	return CMD_SUCCESS;
+}
+
+CmdResult CommandFIdent::Handle(const parameterlist &params, User* src)
+{
+	if (params.size() < 1)
+		return CMD_INVALID;
+	if (IS_SERVER(src))
+		return CMD_FAILURE;
+	src->ChangeIdent(params[0].c_str());
+	return CMD_SUCCESS;
+}
+
+CmdResult CommandFName::Handle(const parameterlist &params, User* src)
+{
+	if (params.size() < 1)
+		return CMD_INVALID;
+	if (IS_SERVER(src))
+		return CMD_FAILURE;
+	src->ChangeName(params[0].c_str());
+	return CMD_SUCCESS;
 }
 

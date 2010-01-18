@@ -12,20 +12,15 @@
  */
 
 #include "inspircd.h"
-#include "xline.h"
+#include "commands.h"
 
 #include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-
 /** FTOPIC command */
-bool TreeSocket::ForceTopic(const std::string &source, parameterlist &params)
+CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *user)
 {
-	if (params.size() != 4)
-		return true;
 	time_t ts = atoi(params[1].c_str());
 	Channel* c = ServerInstance->FindChan(params[0]);
 	if (c)
@@ -34,30 +29,16 @@ bool TreeSocket::ForceTopic(const std::string &source, parameterlist &params)
 		{
 			if (c->topic != params[3])
 			{
-				User* user = ServerInstance->FindNick(source);
 				// Update topic only when it differs from current topic
 				c->topic.assign(params[3], 0, ServerInstance->Config->Limits.MaxTopic);
-				if (!user)
-				{
-					std::string sourceserv = Utils->FindServer(source)->GetName();
-					c->WriteChannelWithServ(sourceserv.c_str(), "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
-				}
-				else
-				{
-					c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
-				}
+				c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
 			}
 
 			// Always update setter and settime.
 			c->setby.assign(params[2], 0, 127);
 			c->topicset = ts;
-
-			/* all done, send it on its way */
-			params[3] = ":" + params[3];
-			Utils->DoOneToAllButSender(source,"FTOPIC",params,source);
 		}
-
 	}
-	return true;
+	return CMD_SUCCESS;
 }
 

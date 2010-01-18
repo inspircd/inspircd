@@ -53,6 +53,7 @@ class WhoisNoticeCmd : public Command
  public:
 	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 1)
 	{
+		flags_needed = FLAG_SERVERONLY;
 	}
 
 	void HandleFast(User* dest, User* src)

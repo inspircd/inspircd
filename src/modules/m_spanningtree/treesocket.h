@@ -214,20 +214,8 @@ class TreeSocket : public BufferedSocket
 	 */
 	void Squit(TreeServer* Current, const std::string &reason);
 
-	/** FMODE command - server mode with timestamp checks */
-	void ForceMode(User* who, parameterlist &params);
-
-	/** FTOPIC command */
-	bool ForceTopic(const std::string &source, parameterlist &params);
-
-	/** FJOIN, similar to TS6 SJOIN, but not quite. */
-	void ForceJoin(User* who, parameterlist &params);
-
 	/* Used on nick collision ... XXX ugly function HACK */
 	int DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid);
-
-	/** UID command */
-	bool ParseUID(const std::string &source, parameterlist &params);
 
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
@@ -271,11 +259,6 @@ class TreeSocket : public BufferedSocket
 
 	bool Stats(const std::string &prefix, parameterlist &params);
 
-	/** Because the core won't let users or even SERVERS set +o,
-	 * we use the OPERTYPE command to do this.
-	 */
-	bool OperType(const std::string &prefix, parameterlist &params);
-
 	/** Remote AWAY */
 	bool Away(const std::string &prefix, parameterlist &params);
 
@@ -298,17 +281,9 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool LocalPong(const std::string &prefix, parameterlist &params);
 
-	/** METADATA
-	 */
-	bool MetaData(const std::string &prefix, parameterlist &params);
-
 	/** VERSION
 	 */
 	bool ServerVersion(const std::string &prefix, parameterlist &params);
-
-	/** CHGHOST
-	 */
-	bool ChangeHost(const std::string &prefix, parameterlist &params);
 
 	/** ADDLINE
 	 */
@@ -317,13 +292,6 @@ class TreeSocket : public BufferedSocket
 	/** DELLINE
 	 */
 	bool DelLine(const std::string &prefix, parameterlist &params);
-
-	/** CHGNAME
-	 */
-	bool ChangeName(const std::string &prefix, parameterlist &params);
-
-	/** FIDENT */
-	bool ChangeIdent(const std::string &prefix, parameterlist &params);
 
 	/** WHOIS
 	 */
@@ -340,11 +308,6 @@ class TreeSocket : public BufferedSocket
 	/** PING
 	 */
 	bool LocalPing(const std::string &prefix, parameterlist &params);
-
-	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
-	 * This does not update the timestamp of the target channel, this must be done seperately.
-	 */
-	void RemoveStatus(User* source, parameterlist &params);
 
 	/** <- (remote) <- SERVER
 	 */

@@ -20,8 +20,12 @@ enum CmdResult
 {
 	CMD_FAILURE = 0,	/* Command exists, but failed */
 	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
-	CMD_INVALID = 2		/* Command doesnt exist at all! */
+	CMD_INVALID = 2,	/* Command doesnt exist at all! */
+	CMD_EPERM = 3       /* Command failed because of a permission check */
 };
+
+/** Flag for commands that are only allowed from servers */
+const char FLAG_SERVERONLY = 7; // technically anything nonzero below 'A' works
 
 /** Translation types for translation of parameters to UIDs.
  * This allows the core commands to not have to be aware of how UIDs

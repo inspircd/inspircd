@@ -12,18 +12,14 @@
  */
 
 #include "inspircd.h"
-#include "xline.h"
-
-#include "treesocket.h"
+#include "commands.h"
 #include "treeserver.h"
-#include "utils.h"
-
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
+#include "treesocket.h"
 
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
-void TreeSocket::ForceJoin(User* srcuser, parameterlist &params)
+CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *srcuser)
 {
+	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 	/* 1.1 FJOIN works as follows:
 	 *
 	 * Each FJOIN is sent along with a timestamp, and the side with the lowest
@@ -51,7 +47,7 @@ void TreeSocket::ForceJoin(User* srcuser, parameterlist &params)
 	 * who succeed at internets. :-)
 	 */
 	if (params.size() < 3)
-		return;
+		return CMD_INVALID;
 
 	irc::modestacker modestack(true);			/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
@@ -63,16 +59,13 @@ void TreeSocket::ForceJoin(User* srcuser, parameterlist &params)
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
-	if (params.size() > 3)
-		params[params.size() - 1] = ":" + params[params.size() - 1];
-
-	Utils->DoOneToAllButSender(srcuser->server,"FJOIN",params,srcuser->server);
+	TreeSocket* src_socket = Utils->FindServer(srcuser->server)->GetRoute()->GetSocket();
 
 	if (!TS)
 	{
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server.c_str());
-		return;
+		return CMD_INVALID;
 	}
 
 	if (created)
@@ -143,10 +136,7 @@ void TreeSocket::ForceJoin(User* srcuser, parameterlist &params)
 				if (mh)
 					modes += *unparsedmodes;
 				else
-				{
-					this->SendError(std::string("Unknown status mode '")+(*unparsedmodes)+"' in FJOIN");
-					return;
-				}
+					return CMD_INVALID;
 
 				usr++;
 				unparsedmodes++;
@@ -161,7 +151,7 @@ void TreeSocket::ForceJoin(User* srcuser, parameterlist &params)
 			{
 				/* Check that the user's 'direction' is correct */
 				TreeServer* route_back_again = Utils->BestRouteTo(who->server);
-				if ((!route_back_again) || (route_back_again->GetSocket() != this))
+				if ((!route_back_again) || (route_back_again->GetSocket() != src_socket))
 					continue;
 
 				/* Add any modes this user had to the mode stack */
@@ -190,9 +180,10 @@ void TreeSocket::ForceJoin(User* srcuser, parameterlist &params)
 			stackresult.erase(stackresult.begin() + 1, stackresult.end());
 		}
 	}
+	return CMD_SUCCESS;
 }
 
-void TreeSocket::RemoveStatus(User* srcuser, parameterlist &params)
+void CommandFJoin::RemoveStatus(User* srcuser, parameterlist &params)
 {
 	if (params.size() < 1)
 		return;

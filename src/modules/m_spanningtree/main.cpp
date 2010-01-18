@@ -30,17 +30,34 @@
 ModuleSpanningTree::ModuleSpanningTree()
 {
 	Utils = new SpanningTreeUtilities(this);
-	command_rconnect = new CommandRConnect(this, Utils);
-	command_rsquit = new CommandRSQuit(this, Utils);
-	command_svsjoin = new CommandSVSJoin(this);
-	command_svspart = new CommandSVSPart(this);
-	command_svsnick = new CommandSVSNick(this);
+	commands = new SpanningTreeCommands(this);
+}
+
+SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
+	: rconnect(module, module->Utils), rsquit(module, module->Utils),
+	svsjoin(module), svspart(module), svsnick(module), metadata(module),
+	uid(module), opertype(module), fjoin(module), fmode(module), ftopic(module),
+	fhost(module), fident(module), fname(module)
+{
+}
+
+void ModuleSpanningTree::init()
+{
 	RefreshTimer = new CacheRefreshTimer(Utils);
-	ServerInstance->AddCommand(command_rconnect);
-	ServerInstance->AddCommand(command_rsquit);
-	ServerInstance->AddCommand(command_svsjoin);
-	ServerInstance->AddCommand(command_svspart);
-	ServerInstance->AddCommand(command_svsnick);
+	ServerInstance->Modules->AddService(commands->rconnect);
+	ServerInstance->Modules->AddService(commands->rsquit);
+	ServerInstance->Modules->AddService(commands->svsjoin);
+	ServerInstance->Modules->AddService(commands->svspart);
+	ServerInstance->Modules->AddService(commands->svsnick);
+	ServerInstance->Modules->AddService(commands->metadata);
+	ServerInstance->Modules->AddService(commands->uid);
+	ServerInstance->Modules->AddService(commands->opertype);
+	ServerInstance->Modules->AddService(commands->fjoin);
+	ServerInstance->Modules->AddService(commands->fmode);
+	ServerInstance->Modules->AddService(commands->ftopic);
+	ServerInstance->Modules->AddService(commands->fhost);
+	ServerInstance->Modules->AddService(commands->fident);
+	ServerInstance->Modules->AddService(commands->fname);
 	ServerInstance->Timers->AddTimer(RefreshTimer);
 
 	Implementation eventlist[] =
@@ -898,11 +915,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	/* This will also free the listeners */
 	delete Utils;
 
-	delete command_rconnect;
-	delete command_rsquit;
-	delete command_svsjoin;
-	delete command_svspart;
-	delete command_svsnick;
+	delete commands;
 }
 
 Version ModuleSpanningTree::GetVersion()

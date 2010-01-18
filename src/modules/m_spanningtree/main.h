@@ -31,11 +31,7 @@ const long MinCompatProtocol = 1201;
 
 /** Forward declarations
  */
-class CommandRConnect;
-class CommandRSQuit;
-class CommandSVSJoin;
-class CommandSVSPart;
-class CommandSVSNick;
+class SpanningTreeCommands;
 class SpanningTreeUtilities;
 class CacheRefreshTimer;
 class TreeServer;
@@ -46,16 +42,12 @@ class Autoconnect;
  */
 class ModuleSpanningTree : public Module
 {
-	CommandRConnect* command_rconnect;
-	CommandRSQuit* command_rsquit;
-	CommandSVSJoin* command_svsjoin;
-	CommandSVSPart* command_svspart;
-	CommandSVSNick* command_svsnick;
-	SpanningTreeUtilities* Utils;
-
+	SpanningTreeCommands* commands;
 	void RedoConfig(Module* mod);
 
  public:
+	SpanningTreeUtilities* Utils;
+
 	CacheRefreshTimer *RefreshTimer;
 	/** Set to true if inside a spanningtree call, to prevent sending
 	 * xlines and other things back to their source
@@ -65,6 +57,7 @@ class ModuleSpanningTree : public Module
 	/** Constructor
 	 */
 	ModuleSpanningTree();
+	void init();
 
 	/** Shows /LINKS
 	 */

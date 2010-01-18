@@ -12,50 +12,41 @@
  */
 
 #include "inspircd.h"
-#include "xline.h"
+#include "commands.h"
 
 #include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
 
-bool TreeSocket::MetaData(const std::string &prefix, parameterlist &params)
+CmdResult CommandMetadata::Handle(const std::vector<std::string>& params, User *srcuser)
 {
-	if (params.size() < 2)
-		return true;
-	else if (params.size() < 3)
-		params.push_back("");
-	TreeServer* ServerSource = Utils->FindServer(prefix);
+	std::string value = params.size() < 3 ? "" : params[2];
 	ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
-	if (ServerSource)
+	if (params[0] == "*")
 	{
-		if (params[0] == "*")
+		FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(NULL,params[1],value));
+	}
+	else if (*(params[0].c_str()) == '#')
+	{
+		Channel* c = ServerInstance->FindChan(params[0]);
+		if (c)
 		{
-			FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(NULL,params[1],params[2]));
+			if (item)
+				item->unserialize(FORMAT_NETWORK, c, value);
+			FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(c,params[1],value));
 		}
-		else if (*(params[0].c_str()) == '#')
+	}
+	else if (*(params[0].c_str()) != '#')
+	{
+		User* u = ServerInstance->FindNick(params[0]);
+		if (u)
 		{
-			Channel* c = ServerInstance->FindChan(params[0]);
-			if (c)
-			{
-				if (item)
-					item->unserialize(FORMAT_NETWORK, c, params[2]);
-				FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(c,params[1],params[2]));
-			}
-		}
-		else if (*(params[0].c_str()) != '#')
-		{
-			User* u = ServerInstance->FindNick(params[0]);
-			if (u)
-			{
-				if (item)
-					item->unserialize(FORMAT_NETWORK, u, params[2]);
-				FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(u,params[1],params[2]));
-			}
+			if (item)
+				item->unserialize(FORMAT_NETWORK, u, value);
+			FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(u,params[1],value));
 		}
 	}
 
-	params[2] = ":" + params[2];
-	Utils->DoOneToAllButSender(prefix,"METADATA",params,prefix);
-	return true;
+	return CMD_SUCCESS;
 }
 
