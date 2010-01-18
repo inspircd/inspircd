@@ -119,6 +119,7 @@ int SelectEngine::DispatchEvents()
 	tval.tv_usec = 0;
 
 	sresult = select(FD_SETSIZE, &rfdset, &wfdset, &errfdset, &tval);
+	ServerInstance->UpdateTime();
 
 	/* Nothing to process this time around */
 	if (sresult < 1)

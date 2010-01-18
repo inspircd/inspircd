@@ -128,9 +128,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	 * Cancel remote burst mode on any servers which still have it enabled due to latency/lack of data.
 	 * This prevents lost REMOTECONNECT notices
 	 */
-	timeval t;
-	gettimeofday(&t, NULL);
-	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 
 	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
 	{

@@ -340,7 +340,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->ConfigThread = NULL;
 
 	// Initialise TIME
-	this->TIME = this->OLDTIME = this->startup_time = time(NULL);
+	clock_gettime(CLOCK_REALTIME, &TIME);
+	this->startup_time = TIME.tv_sec;
 
 	// This must be created first, so other parts of Insp can use it while starting up
 	this->Logs = new LogManager;
@@ -375,7 +376,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->cmdline.argv = argv;
 	this->Config->cmdline.argc = argc;
 
-	srand(this->TIME);
+	srand(TIME.tv_nsec ^ TIME.tv_sec);
 
 	struct option longopts[] =
 	{
@@ -685,6 +686,11 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->WritePID(Config->PID);
 }
 
+void InspIRCd::UpdateTime()
+{
+	clock_gettime(CLOCK_REALTIME, &TIME);
+}
+
 int InspIRCd::Run()
 {
 	/* See if we're supposed to be running the test suite rather than entering the mainloop */
@@ -694,6 +700,9 @@ int InspIRCd::Run()
 		delete ts;
 		Exit(0);
 	}
+
+	UpdateTime();
+	time_t OLDTIME = TIME.tv_sec;
 
 	while (true)
 	{
@@ -718,53 +727,48 @@ int InspIRCd::Run()
 			ConfigThread = NULL;
 		}
 
-		/* time() seems to be a pretty expensive syscall, so avoid calling it too much.
-		 * Once per loop iteration is pleanty.
-		 */
-		OLDTIME = TIME;
-		TIME = time(NULL);
+		UpdateTime();
 
 		/* Run background module timers every few seconds
 		 * (the docs say modules shouldnt rely on accurate
 		 * timing using this event, so we dont have to
 		 * time this exactly).
 		 */
-		if (TIME != OLDTIME)
+		if (TIME.tv_sec != OLDTIME)
 		{
+			OLDTIME = TIME.tv_sec;
+#ifndef WIN32
+			getrusage(RUSAGE_SELF, &ru);
+			stats->LastSampled = TIME;
+			stats->LastCPU = ru.ru_utime;
+#else
+			WindowsIPC->Check();
+#endif
+
 			/* Allow a buffer of two seconds drift on this so that ntpdate etc dont harass admins */
-			if (TIME < OLDTIME - 2)
+			if (TIME.tv_sec < OLDTIME - 2)
 			{
-				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)OLDTIME-TIME);
+				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)OLDTIME-TIME.tv_sec);
 			}
-			else if (TIME > OLDTIME + 2)
+			else if (TIME.tv_sec > OLDTIME + 2)
 			{
-				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)TIME - OLDTIME);
+				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)TIME.tv_sec - OLDTIME);
 			}
 
-			if ((TIME % 3600) == 0)
+			if ((TIME.tv_sec % 3600) == 0)
 			{
 				this->RehashUsersAndChans();
 				FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 			}
 
-			Timers->TickTimers(TIME);
+			Timers->TickTimers(TIME.tv_sec);
 			this->DoBackgroundUserStuff();
 
-			if ((TIME % 5) == 0)
+			if ((TIME.tv_sec % 5) == 0)
 			{
-				FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME));
+				FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME.tv_sec));
 				SNO->FlushSnotices();
 			}
-#ifndef WIN32
-			/* Same change as in cmd_stats.cpp, use RUSAGE_SELF rather than '0' -- Om */
-			if (!getrusage(RUSAGE_SELF, &ru))
-			{
-				gettimeofday(&this->stats->LastSampled, NULL);
-				this->stats->LastCPU = ru.ru_utime;
-			}
-#else
-			WindowsIPC->Check();
-#endif
 		}
 
 		/* Call the socket engine to wait on the active
@@ -806,11 +810,6 @@ bool InspIRCd::AllModulesReportReady(LocalUser* user)
 	ModResult res;
 	FIRST_MOD_RESULT(OnCheckReady, res, (user));
 	return (res == MOD_RES_PASSTHRU);
-}
-
-time_t InspIRCd::Time()
-{
-	return TIME;
 }
 
 void InspIRCd::SetSignal(int signal)

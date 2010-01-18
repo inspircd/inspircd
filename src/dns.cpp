@@ -147,6 +147,17 @@ class RequestTimeout : public Timer
 	}
 };
 
+CachedQuery::CachedQuery(const std::string &res, unsigned int ttl) : data(res)
+{
+	expires = ServerInstance->Time() + ttl;
+}
+
+int CachedQuery::CalcTTLRemaining()
+{
+	int n = expires - ServerInstance->Time();
+	return (n < 0 ? 0 : n);
+}
+
 /* Allocate the processing buffer */
 DNSRequest::DNSRequest(DNS* dns, int rid, const std::string &original) : dnsobj(dns)
 {
@@ -1035,11 +1046,9 @@ void DNS::CleanResolvers(Module* module)
 unsigned long DNS::PRNG()
 {
 	unsigned long val = 0;
-	timeval n;
 	serverstats* s = ServerInstance->stats;
-	gettimeofday(&n,NULL);
-	val = (n.tv_usec ^ (getpid() ^ geteuid()) ^ ((this->currid++)) ^ s->statsAccept) + n.tv_sec;
-	val = val + (s->statsCollisions ^ s->statsDnsGood) - s->statsDnsBad;
-	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv) - ServerInstance->ports.size();
+	val = (rand() ^ this->currid++ ^ s->statsAccept) + ServerInstance->Time_ns();
+	val += (s->statsCollisions ^ s->statsDnsGood) * s->statsDnsBad;
+	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv);
 	return val;
 }

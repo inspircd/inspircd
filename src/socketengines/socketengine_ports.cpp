@@ -167,6 +167,7 @@ int PortsEngine::DispatchEvents()
 
 	unsigned int nget = 1; // used to denote a retrieve request.
 	int i = port_getn(EngineHandle, this->events, GetMaxFds() - 1, &nget, &poll_time);
+	ServerInstance->UpdateTime();
 
 	// first handle an error condition
 	if (i == -1)

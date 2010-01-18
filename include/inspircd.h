@@ -52,6 +52,7 @@
 #include <map>
 #include <bitset>
 #include <set>
+#include <time.h>
 #include "inspircd_config.h"
 #include "inspircd_version.h"
 #include "typedefs.h"
@@ -222,7 +223,7 @@ class serverstats
 	timeval LastCPU;
 	/** Time last sample was read
 	 */
-	timeval LastSampled;
+	timespec LastSampled;
 	/** The constructor initializes all the counts to zero
 	 */
 	serverstats()
@@ -282,11 +283,7 @@ class CoreExport InspIRCd
 
 	/** The current time, updated in the mainloop
 	 */
-	time_t TIME;
-
-	/** The time that was recorded last time around the mainloop
-	 */
-	time_t OLDTIME;
+	struct timespec TIME;
 
 	/** A 64k buffer used to read socket data into
 	 * NOTE: update ValidateNetBufferSize if you change this
@@ -446,7 +443,11 @@ class CoreExport InspIRCd
 	 * it is much faster than calling time() directly.
 	 * @return The current time as an epoch value (time_t)
 	 */
-	time_t Time();
+	inline time_t Time() { return TIME.tv_sec; }
+	/** The fractional time at the start of this mainloop iteration (nanoseconds) */
+	inline long Time_ns() { return TIME.tv_nsec; }
+	/** Update the current time. Don't call this unless you have reason to do so. */
+	void UpdateTime();
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error

@@ -235,6 +235,7 @@ int PollEngine::DispatchEvents()
 	socklen_t codesize = sizeof(int);
 	int errcode;
 	int processed = 0;
+	ServerInstance->UpdateTime();
 
 	if (i > 0)
 	{

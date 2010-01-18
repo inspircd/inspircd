@@ -59,9 +59,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
 	Warned = false;
 	rtt = 0;
 
-	timeval t;
-	gettimeofday(&t, NULL);
-	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	this->StartBurst = ts;
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Started bursting at time %lu", ts);
 
@@ -142,9 +140,7 @@ void TreeServer::FinishBurst()
 {
 	FinishBurstInternal();
 	ServerInstance->XLines->ApplyLines();
-	timeval t;
-	gettimeofday(&t, NULL);
-	long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));

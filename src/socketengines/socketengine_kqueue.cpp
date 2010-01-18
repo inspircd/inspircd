@@ -217,6 +217,7 @@ int KQueueEngine::DispatchEvents()
 	ts.tv_sec = 1;
 
 	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], GetMaxFds(), &ts);
+	ServerInstance->UpdateTime();
 
 	TotalEvents += i;
 

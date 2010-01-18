@@ -549,14 +549,14 @@ void FindDNS(std::string& server)
 	ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
 }
 
-int gettimeofday(struct timeval * tv, void * tz)
+int clock_gettime(int clock, struct timespec * tv)
 {
 	if(tv == NULL)
 		return -1;
 
 	DWORD mstime = timeGetTime();
 	tv->tv_sec   = time(NULL);
-	tv->tv_usec  = (mstime - (tv->tv_sec * 1000)) * 1000;
+	tv->tv_usec  = (mstime - (tv->tv_sec * 1000)) * 1000000;
 	return 0;	
 }
 

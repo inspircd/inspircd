@@ -872,7 +872,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->Res->Rehash();
 		ServerInstance->ResetMaxBans();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
-		User* user = TheUserUID.empty() ? ServerInstance->FindNick(TheUserUID) : NULL;
+		User* user = ServerInstance->FindNick(TheUserUID);
 		FOREACH_MOD(I_OnRehash, OnRehash(user));
 		ServerInstance->BuildISupport();
 

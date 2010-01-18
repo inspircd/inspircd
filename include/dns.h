@@ -84,19 +84,12 @@ class CoreExport CachedQuery
 	 * @param res The result data, an IP or hostname
 	 * @param ttl The time-to-live value of the query result
 	 */
-	CachedQuery(const std::string &res, unsigned int ttl) : data(res)
-	{
-		expires = time(NULL) + ttl;
-	}
+	CachedQuery(const std::string &res, unsigned int ttl);
 
 	/** Returns the number of seconds remaining before this
 	 * cache item has expired and should be removed.
 	 */
-	int CalcTTLRemaining()
-	{
-		int n = (int)expires - (int)time(NULL);
-		return (n < 0 ? 0 : n);
-	}
+	int CalcTTLRemaining();
 };
 
 /** DNS cache information. Holds IPs mapped to hostnames, and hostnames mapped to IPs.

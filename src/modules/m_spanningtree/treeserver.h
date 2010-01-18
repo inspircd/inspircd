@@ -109,7 +109,7 @@ class TreeServer : public classbase
 	 */
 	time_t NextPingTime();
 
-	/** Last ping time in microseconds, used to calculate round trip time
+	/** Last ping time in milliseconds, used to calculate round trip time
 	 */
 	unsigned long LastPingMsec;
 

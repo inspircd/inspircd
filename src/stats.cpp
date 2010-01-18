@@ -194,11 +194,10 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 				results.push_back(sn+" 249 "+user->nick+" :Swaps:            "+ConvToStr(R.ru_nswap));
 				results.push_back(sn+" 249 "+user->nick+" :Context Switches: Voluntary; "+ConvToStr(R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
 
-				timeval tv;
 				char percent[30];
-				gettimeofday(&tv, NULL);
 
-				float n_elapsed = ((tv.tv_sec - this->stats->LastSampled.tv_sec) * 1000000 + tv.tv_usec - this->stats->LastSampled.tv_usec);
+				float n_elapsed = (ServerInstance->Time() - this->stats->LastSampled.tv_sec) * 1000000
+					+ (ServerInstance->Time_ns() - this->stats->LastSampled.tv_nsec) / 1000;
 				float n_eaten = ((R.ru_utime.tv_sec - this->stats->LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - this->stats->LastCPU.tv_usec);
 				float per = (n_eaten / n_elapsed) * 100;
 

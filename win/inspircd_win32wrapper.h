@@ -193,7 +193,8 @@ CoreExport DIR * opendir(const char * path);
 CoreExport dirent * readdir(DIR * handle);
 CoreExport void closedir(DIR * handle);
 
-CoreExport int gettimeofday(struct timeval * tv, void * tz);
+const int CLOCK_REALTIME = 0;
+CoreExport int clock_gettime(int clock, struct timespec * tv);
 
 /* Disable these stupid warnings.. */
 #pragma warning(disable:4800)

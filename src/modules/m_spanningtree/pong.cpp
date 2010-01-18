@@ -34,9 +34,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, parameterlist &params)
 		if (ServerSource)
 		{
 			ServerSource->SetPingFlag();
-			timeval t;
-			gettimeofday(&t, NULL);
-			long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+			long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 			ServerSource->rtt = ts - ServerSource->LastPingMsec;
 		}
 	}
@@ -61,9 +59,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, parameterlist &params)
 
 			if (ServerSource)
 			{
-				timeval t;
-				gettimeofday(&t, NULL);
-				long ts = (t.tv_sec * 1000) + (t.tv_usec / 1000);
+				long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 				ServerSource->rtt = ts - ServerSource->LastPingMsec;
 				ServerSource->SetPingFlag();
 			}
