@@ -63,28 +63,28 @@ class CommandMetadata : public Command
  public:
 	CommandMetadata(Module* Creator) : Command(Creator, "METADATA", 2) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 class CommandUID : public Command
 {
  public:
 	CommandUID(Module* Creator) : Command(Creator, "UID", 10) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 class CommandOpertype : public Command
 {
  public:
 	CommandOpertype(Module* Creator) : Command(Creator, "OPERTYPE", 1) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 class CommandFJoin : public Command
 {
  public:
 	CommandFJoin(Module* Creator) : Command(Creator, "FJOIN", 3) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
 	 * This does not update the timestamp of the target channel, this must be done seperately.
 	 */
@@ -95,35 +95,35 @@ class CommandFMode : public Command
  public:
 	CommandFMode(Module* Creator) : Command(Creator, "FMODE", 3) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 class CommandFTopic : public Command
 {
  public:
 	CommandFTopic(Module* Creator) : Command(Creator, "FTOPIC", 4) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 class CommandFHost : public Command
 {
  public:
 	CommandFHost(Module* Creator) : Command(Creator, "FHOST", 1) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 class CommandFIdent : public Command
 {
  public:
 	CommandFIdent(Module* Creator) : Command(Creator, "FIDENT", 1) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 class CommandFName : public Command
 {
  public:
 	CommandFName(Module* Creator) : Command(Creator, "FNAME", 1) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 
 class SpanningTreeCommands
