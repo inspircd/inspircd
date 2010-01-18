@@ -214,6 +214,7 @@ void ServerConfig::CrossCheckOperClassType()
 
 		OperInfo* ifo = new OperInfo;
 		oper_blocks[" " + name] = ifo;
+		ifo->name = name;
 		ifo->type_block = tag;
 
 		std::string classname;
