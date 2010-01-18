@@ -164,57 +164,24 @@ class ModuleSSLInfo : public Module
 
 		if ((pcmd == "OPER") && (validated))
 		{
-			ConfigReader cf;
-			char TheHost[MAXBUF];
-			char TheIP[MAXBUF];
-			std::string LoginName;
-			std::string Password;
-			std::string OperType;
-			std::string HostName;
-			std::string HashType;
-			std::string FingerPrint;
-			bool SSLOnly;
-			ssl_cert* cert = cmd.CertExt.get(user);
-
-			snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
-			snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
-
-			for (int i = 0; i < cf.Enumerate("oper"); i++)
+			OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
+			if (i != ServerInstance->Config->oper_blocks.end())
 			{
-				LoginName = cf.ReadValue("oper", "name", i);
-				Password = cf.ReadValue("oper", "password", i);
-				OperType = cf.ReadValue("oper", "type", i);
-				HostName = cf.ReadValue("oper", "host", i);
-				HashType = cf.ReadValue("oper", "hash", i);
-				FingerPrint = cf.ReadValue("oper", "fingerprint", i);
-				SSLOnly = cf.ReadFlag("oper", "sslonly", i);
+				OperInfo* ifo = i->second;
+				ssl_cert* cert = cmd.CertExt.get(user);
 
-				if (FingerPrint.empty() && !SSLOnly)
-					continue;
-
-				if (LoginName != parameters[0])
-					continue;
-
-				if (!OneOfMatches(TheHost, TheIP, HostName.c_str()))
-					continue;
-
-				if (Password.length() && ServerInstance->PassCompare(user, Password.c_str(),parameters[1].c_str(), HashType.c_str()))
-					continue;
-
-				if (SSLOnly && !cert)
+				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
-					user->WriteNumeric(491, "%s :This oper login name requires an SSL connection.", user->nick.c_str());
+					user->WriteNumeric(491, "%s :This oper login requires an SSL connection.", user->nick.c_str());
+					IS_LOCAL(user)->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
 
-				/*
-				 * No cert found or the fingerprint doesn't match
-				 */
-				if ((!cert) || (cert->GetFingerprint() != FingerPrint))
+				std::string fingerprint;
+				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
-					user->WriteNumeric(491, "%s :This oper login name requires a matching key fingerprint.",user->nick.c_str());
-					ServerInstance->SNO->WriteToSnoMask('o',"'%s' cannot oper, does not match fingerprint", user->nick.c_str());
-					ServerInstance->Logs->Log("m_ssl_oper_cert",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s: credentials valid, but wrong fingerprint.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+					user->WriteNumeric(491, "%s :This oper login requires a matching SSL fingerprint.",user->nick.c_str());
+					IS_LOCAL(user)->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
 			}
