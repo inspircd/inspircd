@@ -202,7 +202,13 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 				float per = (n_eaten / n_elapsed) * 100;
 
 				snprintf(percent, 30, "%03.5f%%", per);
-				results.push_back(sn+" 249 "+user->nick+" :CPU Usage: "+percent);
+				results.push_back(sn+" 249 "+user->nick+" :CPU Use (now):    "+percent);
+
+				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
+				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
+				per = (n_eaten / n_elapsed) * 100;
+				snprintf(percent, 30, "%03.5f%%", per);
+				results.push_back(sn+" 249 "+user->nick+" :CPU Use (total):  "+percent);
 			}
 #else
 			PROCESS_MEMORY_COUNTERS MemCounters;
