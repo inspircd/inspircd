@@ -37,7 +37,7 @@ INSTMODE_LIB = 0644
 
 
 @IFEQ $(SYSTEM) linux
-  LDLIBS += -ldl
+  LDLIBS += -ldl -lrt
 @ELSIFEQ $(SYSTEM) solaris
   LDLIBS += -lsocket -lnsl -lrt -lresolv
 @ELSIFEQ $(SYSTEM) sunos
