@@ -158,7 +158,7 @@ class ModuleSSLInfo : public Module
 		return false;
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		irc::string pcmd = command.c_str();
 

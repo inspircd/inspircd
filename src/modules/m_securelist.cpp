@@ -52,7 +52,7 @@ class ModuleSecureList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)

@@ -179,7 +179,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 	return CMD_INVALID;
 }
 
-bool CommandParser::ProcessCommand(User *user, std::string &cmd)
+bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 {
 	std::vector<std::string> command_p;
 	irc::tokenstream tokens(cmd);
@@ -282,9 +282,7 @@ bool CommandParser::ProcessCommand(User *user, std::string &cmd)
 		return true;
 
 	/* activity resets the ping pending timer */
-	LocalUser* luser = IS_LOCAL(user);
-	if (luser)
-		luser->nping = ServerInstance->Time() + luser->MyClass->GetPingTime();
+	user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
 
 	if (cm->second->flags_needed)
 	{
@@ -362,7 +360,7 @@ Command::~Command()
 	ServerInstance->Parser->RemoveCommand(this);
 }
 
-bool CommandParser::ProcessBuffer(std::string &buffer,User *user)
+bool CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
 {
 	if (!user || buffer.empty())
 		return true;

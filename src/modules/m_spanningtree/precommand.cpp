@@ -24,7 +24,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line)
+ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
 	/* If the command doesnt appear to be valid, we dont want to mess with it. */
 	if (!validated)

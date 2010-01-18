@@ -155,7 +155,7 @@ class ModuleFilter : public Module
 	void OnSyncNetwork(Module* proto, void* opaque);
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 	ModResult OnStats(char symbol, User* user, string_list &results);
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line);
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void ReadFilters(ConfigReader &MyConf);
 };
@@ -339,7 +339,7 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 	return MOD_RES_PASSTHRU;
 }
 
-ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
 	flags = 0;
 	if (validated && IS_LOCAL(user))

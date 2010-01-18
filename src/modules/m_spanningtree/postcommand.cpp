@@ -24,7 +24,7 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
-void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line)
+void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line)
 {
 	if (result == CMD_SUCCESS)
 		Utils->RouteCommand(NULL, command, parameters, user);

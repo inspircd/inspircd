@@ -41,7 +41,7 @@ class CoreExport CommandParser
 	 * @param user The user to parse the command for
 	 * @param cmd The command string to process
 	 */
-	bool ProcessCommand(User *user, std::string &cmd);
+	bool ProcessCommand(LocalUser *user, std::string &cmd);
 
 
 
@@ -111,13 +111,7 @@ class CoreExport CommandParser
 	 * @param buffer The buffer line to process
 	 * @param user The user to whom this line belongs
 	 */
-	bool ProcessBuffer(std::string &buffer,User *user);
-
-	/** Process lines in a users sendq.
-	 * @param current The user to process
-	 * @param one_only if one_only is set only one command is processed from the sendq.
-	 */
-	void DoLines(User* current, bool one_only = false);
+	bool ProcessBuffer(std::string &buffer,LocalUser *user);
 
 	/** Add a new command to the commands hash
 	 * @param f The new Command to add to the list

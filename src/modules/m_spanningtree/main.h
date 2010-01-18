@@ -154,8 +154,8 @@ class ModuleSpanningTree : public Module
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, User *user, bool validated, const std::string &original_line);
-	void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, User *user, CmdResult result, const std::string &original_line);
+	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line);
+	void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line);
 	void OnGetServerDescription(const std::string &servername,std::string &description);
 	void OnUserConnect(LocalUser* source);
 	void OnUserInvite(User* source,User* dest,Channel* channel, time_t);

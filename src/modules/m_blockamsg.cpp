@@ -86,7 +86,7 @@ class ModuleBlockAmsg : public Module
 			action = IBLOCK_KILLOPERS;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		// Don't do anything with unregistered users, or remote ones.
 		if(!user || (user->registered != REG_ALL) || !IS_LOCAL(user))

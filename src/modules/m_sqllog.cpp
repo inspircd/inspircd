@@ -232,7 +232,7 @@ class ModuleSQLLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		if ((command == "GLINE" || command == "KLINE" || command == "ELINE" || command == "ZLINE") && validated)
 		{

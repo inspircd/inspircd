@@ -135,7 +135,7 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		std::multimap<irc::string, Alias>::iterator i, upperbound;
 

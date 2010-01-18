@@ -32,7 +32,7 @@ class ModuleMapHide : public Module
 		url = MyConf.ReadValue("security", "maphide", 0);
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		if (!IS_OPER(user) && !url.empty() && (command == "MAP" || command == "LINKS"))
 		{

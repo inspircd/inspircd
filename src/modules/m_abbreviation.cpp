@@ -32,7 +32,7 @@ class ModuleAbbreviation : public Module
 		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords.",VF_VENDOR);
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, User *user, bool validated, const std::string &original_line)
+	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		/* Command is already validated, has a length of 0, or last character is not a . */
 		if (validated || command.empty() || *command.rbegin() != '.')

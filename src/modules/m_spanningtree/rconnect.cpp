@@ -49,9 +49,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 		ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
 		std::vector<std::string> para;
 		para.push_back(parameters[1]);
-		std::string cmd("CONNECT");
-		std::string original_command = cmd + " " + parameters[1];
-		creator->OnPreCommand(cmd, para, user, true, original_command);
+		((ModuleSpanningTree*)(Module*)creator)->HandleConnect(para, user);
 	}
 	return CMD_SUCCESS;
 }

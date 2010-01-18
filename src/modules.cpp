@@ -99,8 +99,8 @@ ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASS
 void		Module::OnLoadModule(Module*) { }
 void		Module::OnUnloadModule(Module*) { }
 void		Module::OnBackgroundTimer(time_t) { }
-ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, User *, bool, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, User *, CmdResult, const std::string&) { }
+ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUser*, bool, const std::string&) { return MOD_RES_PASSTHRU; }
+void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { }
 ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserRegister(LocalUser*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }

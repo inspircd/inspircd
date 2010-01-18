@@ -100,7 +100,7 @@ class ModuleSWhois : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostCommand(const std::string &command, const std::vector<std::string> &params, User *user, CmdResult result, const std::string &original_line)
+	void OnPostCommand(const std::string &command, const std::vector<std::string> &params, LocalUser *user, CmdResult result, const std::string &original_line)
 	{
 		if ((command != "OPER") || (result != CMD_SUCCESS))
 			return;
