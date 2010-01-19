@@ -813,7 +813,11 @@ class CommandModule : public Module
  public:
 	CommandModule() : cmd(this)
 	{
-		ServerInstance->AddCommand(&cmd);
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(cmd);
 	}
 
 	Version GetVersion()
