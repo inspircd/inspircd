@@ -236,7 +236,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 User::~User()
 {
 	if (ServerInstance->Users->uuidlist->find(uuid) != ServerInstance->Users->uuidlist->end())
-		ServerInstance->Logs->Log("USERS", ERROR, "User destructor for %s called without cull", uuid.c_str());
+		ServerInstance->Logs->Log("USERS", DEFAULT, "User destructor for %s called without cull", uuid.c_str());
 }
 
 const std::string& User::MakeHost()

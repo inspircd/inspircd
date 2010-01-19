@@ -117,7 +117,7 @@ CmdResult SplitCommand::Handle(const std::vector<std::string>& parms, User* u)
 		return HandleRemote(parms, IS_REMOTE(u));
 	if (IS_SERVER(u))
 		return HandleServer(parms, IS_SERVER(u));
-	ServerInstance->Logs->Log("COMMAND", ERROR, "Unknown user type in command (uuid=%s)!", u->uuid.c_str());
+	ServerInstance->Logs->Log("COMMAND", DEFAULT, "Unknown user type in command (uuid=%s)!", u->uuid.c_str());
 	return CMD_INVALID;
 }
 

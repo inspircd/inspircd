@@ -123,7 +123,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 			n++;
 		if (n == ports.end())
 		{
-			this->Logs->Log("SOCKET",ERROR,"Port bindings slipped out of vector, aborting close!");
+			this->Logs->Log("SOCKET",DEFAULT,"Port bindings slipped out of vector, aborting close!");
 			break;
 		}
 

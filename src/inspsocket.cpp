@@ -533,7 +533,7 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 	}
 	catch (CoreException& ex)
 	{
-		ServerInstance->Logs->Log("SOCKET", ERROR, "Caught exception in socket processing on FD %d - '%s'",
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "Caught exception in socket processing on FD %d - '%s'",
 			fd, ex.GetReason());
 		SetError(ex.GetReason());
 	}
