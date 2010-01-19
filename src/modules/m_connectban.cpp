@@ -91,7 +91,7 @@ class ModuleConnectBan : public Module
 			if (i->second >= threshold)
 			{
 				// Create zline for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName.c_str(), "Connect flooding", mask.str().c_str());
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.", u->GetCIDRMask(range));
 				if (ServerInstance->XLines->AddLine(zl,NULL))
 					ServerInstance->XLines->ApplyLines();
 				else
