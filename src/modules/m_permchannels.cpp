@@ -217,15 +217,16 @@ public:
 		 * Process config-defined list of permanent channels.
 		 * -- w00t
 		 */
-		ConfigReader MyConf;
 
-		permchannelsconf = MyConf.ReadValue("permchanneldb", "filename", "", 0, false);
+		permchannelsconf = ServerInstance->Config->ConfValue("permchanneldb")->getString("filename");
 
-		for (int i = 0; i < MyConf.Enumerate("permchannels"); i++)
+		ConfigTagList permchannels = ServerInstance->Config->ConfTags("permchannels");
+		for (ConfigIter i = permchannels.first; i != permchannels.second; ++i)
 		{
-			std::string channel = MyConf.ReadValue("permchannels", "channel", i);
-			std::string topic = MyConf.ReadValue("permchannels", "topic", i);
-			std::string modes = MyConf.ReadValue("permchannels", "modes", i);
+			ConfigTag* tag = i->second;
+			std::string channel = tag->getString("channel");
+			std::string topic = tag->getString("topic");
+			std::string modes = tag->getString("modes");
 
 			if (channel.empty())
 			{

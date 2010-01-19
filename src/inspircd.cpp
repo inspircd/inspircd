@@ -247,7 +247,6 @@ bool InspIRCd::DaemonSeed()
 		exit(0);
 	}
 	setsid ();
-	umask (007);
 	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
 
 	signal(SIGTERM, InspIRCd::SetSignal);

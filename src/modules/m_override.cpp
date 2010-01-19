@@ -15,11 +15,8 @@
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
-typedef std::map<std::string,std::string> override_t;
-
 class ModuleOverride : public Module
 {
-	override_t overrides;
 	bool RequireKey;
 	bool NoisyOverride;
 
@@ -42,15 +39,6 @@ class ModuleOverride : public Module
 		// re-read our config options on a rehash
 		NoisyOverride = Conf.ReadFlag("override", "noisy", 0);
 		RequireKey = Conf.ReadFlag("override", "requirekey", 0);
-
-		overrides.clear();
-
-		for (int j =0; j < Conf.Enumerate("type"); j++)
-		{
-			std::string typen = Conf.ReadValue("type","name",j);
-			std::string tokenlist = Conf.ReadValue("type","override",j);
-			overrides[typen] = tokenlist;
-		}
 	}
 
 	void On005Numeric(std::string &output)
@@ -60,17 +48,10 @@ class ModuleOverride : public Module
 
 	bool CanOverride(User* source, const char* token)
 	{
-		// checks to see if the oper's type has <type:override>
-		override_t::iterator j = overrides.find(source->oper->name);
+		std::string tokenlist = source->oper->getConfig("override");
 
-		if (j != overrides.end())
-		{
-			// its defined or * is set, return its value as a boolean for if the token is set
-			return ((j->second.find(token, 0) != std::string::npos) || (j->second.find("*", 0) != std::string::npos));
-		}
-
-		// its not defined at all, count as false
-		return false;
+		// its defined or * is set, return its value as a boolean for if the token is set
+		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find("*", 0) != std::string::npos));
 	}
 
 

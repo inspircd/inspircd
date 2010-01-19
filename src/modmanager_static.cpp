@@ -85,12 +85,19 @@ bool ModuleManager::Load(const char* name)
 	return false;
 }
 
-bool ModuleManager::Unload(Module* mod)
-{
-	return false;
-}
-
 namespace {
+	struct UnloadAction : public HandlerBase0<void>
+	{
+		Module* const mod;
+		UnloadAction(Module* m) : mod(m) {}
+		void Call()
+		{
+			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->GlobalCulls.Apply();
+			ServerInstance->GlobalCulls.AddItem(this);
+		}
+	};
+
 	struct ReloadAction : public HandlerBase0<void>
 	{
 		Module* const mod;
@@ -107,6 +114,14 @@ namespace {
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
 	};
+}
+
+bool ModuleManager::Unload(Module* mod)
+{
+	if (!CanUnload(mod))
+		return false;
+	ServerInstance->AtomicActions.AddAction(new UnloadAction(mod));
+	return true;
 }
 
 void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
@@ -127,6 +142,7 @@ void ModuleManager::LoadAll()
 		{
 			c = (*(**i).init)();
 			c->ModuleSourceFile = (**i).name;
+			c->ModuleDLLManager = NULL;
 			Modules[(**i).name] = c;
 			c->init();
 			FOREACH_MOD(I_OnLoadModule,OnLoadModule(c));
