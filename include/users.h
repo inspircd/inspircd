@@ -704,14 +704,6 @@ class CoreExport User : public Extensible
 	 */
 	virtual ConnectClass* GetClass();
 
-	/** Show the message of the day to this user
-	 */
-	void ShowMOTD();
-
-	/** Show the server RULES file to this user
-	 */
-	void ShowRULES();
-
 	/** Default destructor
 	 */
 	virtual ~User();

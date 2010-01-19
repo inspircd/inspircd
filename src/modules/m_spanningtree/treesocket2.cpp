@@ -294,10 +294,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		this->Stats(prefix, params);
 	}
-	else if (command == "MOTD")
-	{
-		this->Motd(prefix, params);
-	}
 	else if (command == "ADMIN")
 	{
 		this->Admin(prefix, params);

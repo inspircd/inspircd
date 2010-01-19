@@ -75,10 +75,6 @@ class ModuleSpanningTree : public Module
 	 */
 	void ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats);
 
-	/** Handle remote MOTD
-	 */
-	ModResult HandleMotd(const std::vector<std::string>& parameters, User* user);
-
 	/** Handle remote ADMIN
 	 */
 	ModResult HandleAdmin(const std::vector<std::string>& parameters, User* user);

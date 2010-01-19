@@ -829,18 +829,21 @@ void LocalUser::FullConnect()
 	ServerInstance->Config->Send005(this);
 	this->WriteNumeric(RPL_YOURUUID, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());
 
-
-	this->ShowMOTD();
-
 	/* Now registered */
 	if (ServerInstance->Users->unregistered_count)
 		ServerInstance->Users->unregistered_count--;
 
-	/* Trigger LUSERS output, give modules a chance too */
+	/* Trigger MOTD and LUSERS output, give modules a chance too */
 	ModResult MOD_RESULT;
-	std::string command("LUSERS");
+	std::string command("MOTD");
 	std::vector<std::string> parameters;
-	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, "LUSERS"));
+	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
+	if (!MOD_RESULT)
+		ServerInstance->CallCommandHandler(command, parameters, this);
+
+	MOD_RESULT = MOD_RES_PASSTHRU;
+	command = "LUSERS";
+	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
 		ServerInstance->CallCommandHandler(command, parameters, this);
 
@@ -1624,37 +1627,6 @@ void User::PurgeEmptyChannels()
 	}
 
 	this->UnOper();
-}
-
-void User::ShowMOTD()
-{
-	if (!ServerInstance->Config->MOTD.size())
-	{
-		this->WriteNumeric(ERR_NOMOTD, "%s :Message of the day file is missing.",this->nick.c_str());
-		return;
-	}
-	this->WriteNumeric(RPL_MOTDSTART, "%s :%s message of the day", this->nick.c_str(), ServerInstance->Config->ServerName.c_str());
-
-	for (file_cache::iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); i++)
-		this->WriteNumeric(RPL_MOTD, "%s :- %s",this->nick.c_str(),i->c_str());
-
-	this->WriteNumeric(RPL_ENDOFMOTD, "%s :End of message of the day.", this->nick.c_str());
-}
-
-void User::ShowRULES()
-{
-	if (!ServerInstance->Config->RULES.size())
-	{
-		this->WriteNumeric(ERR_NORULES, "%s :RULES File is missing",this->nick.c_str());
-		return;
-	}
-
-	this->WriteNumeric(RPL_RULESTART, "%s :- %s Server Rules -",this->nick.c_str(),ServerInstance->Config->ServerName.c_str());
-
-	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
-		this->WriteNumeric(RPL_RULES, "%s :- %s",this->nick.c_str(),i->c_str());
-
-	this->WriteNumeric(RPL_RULESEND, "%s :End of RULES command.",this->nick.c_str());
 }
 
 const std::string& FakeUser::GetFullHost()

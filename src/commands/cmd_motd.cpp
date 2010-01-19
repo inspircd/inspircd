@@ -13,17 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_MOTD_H__
-#define __CMD_MOTD_H__
-
-// include the common header files
-
-#include <string>
-#include <vector>
-#include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-
 /** Handle /MOTD. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -42,16 +31,34 @@ class CommandMotd : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (parameters.size() > 0)
+			return ROUTE_UNICAST(parameters[0]);
+		return ROUTE_LOCALONLY;
+	}
 };
-
-#endif
-
 
 /** Handle /MOTD
  */
-CmdResult CommandMotd::Handle (const std::vector<std::string>&, User *user)
+CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	user->ShowMOTD();
+	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
+		return CMD_SUCCESS;
+	if (!ServerInstance->Config->MOTD.size())
+	{
+		user->SendText(":%s %03d %s :Message of the day file is missing.",
+			ServerInstance->Config->ServerName.c_str(), ERR_NOMOTD, user->nick.c_str());
+		return CMD_SUCCESS;
+	}
+	user->SendText(":%s %03d %s :%s message of the day", ServerInstance->Config->ServerName.c_str(),
+		RPL_MOTDSTART, user->nick.c_str(), ServerInstance->Config->ServerName.c_str());
+
+	for (file_cache::iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); i++)
+		user->SendText(":%s %03d %s :- %s", ServerInstance->Config->ServerName.c_str(), RPL_MOTD, user->nick.c_str(),i->c_str());
+
+	user->SendText(":%s %03d %s :End of message of the day.", ServerInstance->Config->ServerName.c_str(), RPL_ENDOFMOTD, user->nick.c_str());
+
 	return CMD_SUCCESS;
 }
 

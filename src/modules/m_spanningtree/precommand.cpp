@@ -38,10 +38,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	{
 		return this->HandleStats(parameters,user);
 	}
-	else if (command == "MOTD")
-	{
-		return this->HandleMotd(parameters,user);
-	}
 	else if (command == "ADMIN")
 	{
 		return this->HandleAdmin(parameters,user);

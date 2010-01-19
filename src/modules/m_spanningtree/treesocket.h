@@ -251,9 +251,6 @@ class TreeSocket : public BufferedSocket
 	/** Handle ERROR command */
 	void Error(parameterlist &params);
 
-	/** remote MOTD. */
-	bool Motd(const std::string &prefix, parameterlist &params);
-
 	/** remote ADMIN. */
 	bool Admin(const std::string &prefix, parameterlist &params);
 
