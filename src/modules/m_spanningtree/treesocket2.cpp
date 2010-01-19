@@ -290,15 +290,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		command = "MODE";
 
 	// TODO move all this into Commands
-	if (command == "STATS")
-	{
-		this->Stats(prefix, params);
-	}
-	else if (command == "ADMIN")
-	{
-		this->Admin(prefix, params);
-	}
-	else if (command == "MAP")
+	if (command == "MAP")
 	{
 		Utils->Creator->HandleMap(params, who);
 	}
@@ -355,10 +347,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else if (command == "PUSH")
 	{
 		this->Push(prefix,params);
-	}
-	else if (command == "TIME")
-	{
-		this->Time(prefix,params);
 	}
 	else if (command == "SQUIT")
 	{

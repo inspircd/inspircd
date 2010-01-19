@@ -75,14 +75,6 @@ class ModuleSpanningTree : public Module
 	 */
 	void ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats);
 
-	/** Handle remote ADMIN
-	 */
-	ModResult HandleAdmin(const std::vector<std::string>& parameters, User* user);
-
-	/** Handle remote STATS
-	 */
-	ModResult HandleStats(const std::vector<std::string>& parameters, User* user);
-
 	/** Handle MAP command
 	 */
 	bool HandleMap(const std::vector<std::string>& parameters, User* user);
@@ -90,10 +82,6 @@ class ModuleSpanningTree : public Module
 	/** Handle SQUIT
 	 */
 	ModResult HandleSquit(const std::vector<std::string>& parameters, User* user);
-
-	/** Handle TIME
-	 */
-	ModResult HandleTime(const std::vector<std::string>& parameters, User* user);
 
 	/** Handle remote WHOIS
 	 */

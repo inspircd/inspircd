@@ -34,14 +34,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	{
 		return this->HandleConnect(parameters,user);
 	}
-	else if (command == "STATS")
-	{
-		return this->HandleStats(parameters,user);
-	}
-	else if (command == "ADMIN")
-	{
-		return this->HandleAdmin(parameters,user);
-	}
 	else if (command == "SQUIT")
 	{
 		return this->HandleSquit(parameters,user);
@@ -49,10 +41,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	else if (command == "MAP")
 	{
 		return this->HandleMap(parameters,user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-	}
-	else if ((command == "TIME") && (parameters.size() > 0))
-	{
-		return this->HandleTime(parameters,user);
 	}
 	else if (command == "LINKS")
 	{

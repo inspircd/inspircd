@@ -44,23 +44,23 @@ class CommandStats : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (parameters.size() > 1)
+			return ROUTE_UNICAST(parameters[1]);
+		return ROUTE_LOCALONLY;
+	}
 };
 
 CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (IS_LOCAL(user))
-	{
-		string_list values;
-		if (parameters[0].empty())
-		{
-			user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s STATS :Not enough parameters.", user->nick.c_str());
-			return CMD_FAILURE;
-		}
-		char search = parameters[0][0];
-		ServerInstance->DoStats(search, user, values);
-		for (size_t i = 0; i < values.size(); i++)
-			user->Write(":%s", values[i].c_str());
-	}
+	if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
+		return CMD_SUCCESS;
+	string_list values;
+	char search = parameters[0][0];
+	ServerInstance->DoStats(search, user, values);
+	for (size_t i = 0; i < values.size(); i++)
+		user->SendText(":%s", values[i].c_str());
 
 	return CMD_SUCCESS;
 }

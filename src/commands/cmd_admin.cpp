@@ -13,12 +13,6 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_ADMIN_H__
-#define __CMD_ADMIN_H__
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /ADMIN. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -37,21 +31,29 @@ class CommandAdmin : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (parameters.size() > 0)
+			return ROUTE_UNICAST(parameters[0]);
+		return ROUTE_LOCALONLY;
+	}
 };
-
-#endif
-
-
 
 /** Handle /ADMIN
  */
 CmdResult CommandAdmin::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	user->WriteNumeric(RPL_ADMINME, "%s :Administrative info for %s",user->nick.c_str(),ServerInstance->Config->ServerName.c_str());
+	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
+		return CMD_SUCCESS;
+	user->SendText(":%s %03d %s :Administrative info for %s", ServerInstance->Config->ServerName.c_str(),
+		RPL_ADMINME, user->nick.c_str(),ServerInstance->Config->ServerName.c_str());
 	if (!ServerInstance->Config->AdminName.empty())
-		user->WriteNumeric(RPL_ADMINLOC1, "%s :Name     - %s",user->nick.c_str(),ServerInstance->Config->AdminName.c_str());
-	user->WriteNumeric(RPL_ADMINLOC2, "%s :Nickname - %s",user->nick.c_str(),ServerInstance->Config->AdminNick.c_str());
-	user->WriteNumeric(RPL_ADMINEMAIL, "%s :E-Mail   - %s",user->nick.c_str(),ServerInstance->Config->AdminEmail.c_str());
+		user->SendText(":%s %03d %s :Name     - %s", ServerInstance->Config->ServerName.c_str(),
+			RPL_ADMINLOC1, user->nick.c_str(), ServerInstance->Config->AdminName.c_str());
+	user->SendText(":%s %03d %s :Nickname - %s", ServerInstance->Config->ServerName.c_str(),
+		RPL_ADMINLOC2, user->nick.c_str(), ServerInstance->Config->AdminNick.c_str());
+	user->SendText(":%s %03d %s :E-Mail   - %s", ServerInstance->Config->ServerName.c_str(),
+		RPL_ADMINEMAIL, user->nick.c_str(), ServerInstance->Config->AdminEmail.c_str());
 	return CMD_SUCCESS;
 }
 

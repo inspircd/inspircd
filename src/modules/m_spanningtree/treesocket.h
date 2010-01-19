@@ -251,11 +251,6 @@ class TreeSocket : public BufferedSocket
 	/** Handle ERROR command */
 	void Error(parameterlist &params);
 
-	/** remote ADMIN. */
-	bool Admin(const std::string &prefix, parameterlist &params);
-
-	bool Stats(const std::string &prefix, parameterlist &params);
-
 	/** Remote AWAY */
 	bool Away(const std::string &prefix, parameterlist &params);
 
@@ -297,10 +292,6 @@ class TreeSocket : public BufferedSocket
 	/** PUSH
 	 */
 	bool Push(const std::string &prefix, parameterlist &params);
-
-	/** TIME
-	 */
-	bool Time(const std::string &prefix, parameterlist &params);
 
 	/** PING
 	 */
