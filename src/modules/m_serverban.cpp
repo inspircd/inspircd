@@ -30,7 +30,7 @@ class ModuleServerBan : public Module
 
 	Version GetVersion()
 	{
-		return Version("Extban 's' - server ban",VF_COMMON|VF_VENDOR);
+		return Version("Extban 's' - server ban",VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)

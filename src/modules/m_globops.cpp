@@ -36,14 +36,9 @@ class CommandGlobops : public Command
 			line = line + parameters[i] + " ";
 		}
 		ServerInstance->SNO->WriteToSnoMask('g',line);
+		ServerInstance->PI->SendSNONotice("g", line);
 
-		/* route it (ofc :p) */
 		return CMD_SUCCESS;
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return ROUTE_BROADCAST;
 	}
 };
 
@@ -66,7 +61,7 @@ class ModuleGlobops : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for GLOBOPS and user mode +g", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for GLOBOPS and user mode +g", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };

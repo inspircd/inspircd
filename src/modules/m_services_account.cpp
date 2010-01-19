@@ -278,7 +278,7 @@ class ModuleServicesAccount : public Module
 
 	Version GetVersion()
 	{
-		return Version("Povides support for ircu-style services accounts, including chmode +R, etc.",VF_COMMON|VF_VENDOR);
+		return Version("Povides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

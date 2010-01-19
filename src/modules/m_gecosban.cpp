@@ -30,7 +30,7 @@ class ModuleGecosBan : public Module
 
 	Version GetVersion()
 	{
-		return Version("Extban 'r' - realname (gecos) ban", VF_COMMON|VF_VENDOR);
+		return Version("Extban 'r' - realname (gecos) ban", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)

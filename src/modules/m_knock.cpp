@@ -68,7 +68,7 @@ class CommandKnock : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_OPT_BCAST;
 	}
 };
 
@@ -100,7 +100,7 @@ class ModuleKnock : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for /KNOCK and mode +K", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for /KNOCK and mode +K", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

@@ -12,17 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "xline.h"
-#include "socketengine.h"
-#include "socket.h"
-#include "command_parse.h"
-#include "exitcodes.h"
-
-/* Directory Searching for Unix-Only */
-#ifndef WIN32
-#include <dirent.h>
-#include <dlfcn.h>
-#endif
 
 int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 {
@@ -204,10 +193,10 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 
 	/* Modify the user's penalty regardless of whether or not the command exists */
 	bool do_more = true;
-	if (IS_LOCAL(user) && !user->HasPrivPermission("users/flood/no-throttle"))
+	if (!user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		IS_LOCAL(user)->CommandFloodPenalty += cm != cmdlist.end() ? cm->second->Penalty * 1000 : 2000;
+		user->CommandFloodPenalty += cm != cmdlist.end() ? cm->second->Penalty * 1000 : 2000;
 	}
 
 

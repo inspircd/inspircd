@@ -78,7 +78,7 @@ class CommandUninvite : public Command
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
 		User* u = ServerInstance->FindNick(parameters[0]);
-		return u ? ROUTE_UNICAST(u->server) : ROUTE_LOCALONLY;
+		return u ? ROUTE_OPT_UCAST(u->server) : ROUTE_LOCALONLY;
 	}
 };
 
@@ -99,7 +99,7 @@ class ModuleUninvite : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_COMMON);
+		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

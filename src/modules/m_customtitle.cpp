@@ -116,7 +116,7 @@ class ModuleCustomTitle : public Module
 
 	Version GetVersion()
 	{
-		return Version("Custom Title for users", VF_COMMON | VF_VENDOR);
+		return Version("Custom Title for users", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 
