@@ -118,11 +118,6 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 void StreamSocket::Close()
 {
-	/* Save this, so we dont lose it,
-	 * otherise on failure, error messages
-	 * might be inaccurate.
-	 */
-	int save = errno;
 	if (this->fd > -1)
 	{
 		if (IOHook)
@@ -142,7 +137,6 @@ void StreamSocket::Close()
 		ServerInstance->SE->Close(this);
 		fd = -1;
 	}
-	errno = save;
 }
 
 CullResult StreamSocket::cull()

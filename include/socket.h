@@ -138,7 +138,7 @@ class CoreExport ListenSocket : public EventHandler
 	std::string bind_desc;
 	/** Create a new listening socket
 	 */
-	ListenSocket(ConfigTag* tag, const std::string& addr, int port);
+	ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to);
 	/** Handle an I/O event
 	 */
 	void HandleEvent(EventType et, int errornum = 0);

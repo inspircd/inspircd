@@ -86,8 +86,9 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		while (0 != (portno = portrange.GetToken()))
 		{
 			irc::sockets::sockaddrs bindspec;
-			irc::sockets::aptosa(Addr, portno, bindspec);
-			std::string bind_readable = irc::sockets::satouser(bindspec);
+			if (!irc::sockets::aptosa(Addr, portno, bindspec))
+				continue;
+			std::string bind_readable = bindspec.str();
 
 			bool skip = false;
 			for (std::vector<ListenSocket*>::iterator n = old_ports.begin(); n != old_ports.end(); ++n)
@@ -101,7 +102,8 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 			}
 			if (!skip)
 			{
-				ListenSocket *ll = new ListenSocket(tag, Addr, portno);
+				ListenSocket* ll = new ListenSocket(tag, bindspec);
+
 				if (ll->GetFd() > -1)
 				{
 					bound++;

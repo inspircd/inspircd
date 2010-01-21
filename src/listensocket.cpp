@@ -17,40 +17,34 @@
 #include "socket.h"
 #include "socketengine.h"
 
-ListenSocket::ListenSocket(ConfigTag* tag, const std::string& addr, int port)
+ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
 {
-	irc::sockets::sockaddrs bind_to;
-
-	// canonicalize address if it is defined
-	if (!irc::sockets::aptosa(addr, port, bind_to))
-	{
-		fd = -1;
-		return;
-	}
 	irc::sockets::satoap(bind_to, bind_addr, bind_port);
 	bind_desc = irc::sockets::satouser(bind_to);
 
 	fd = socket(bind_to.sa.sa_family, SOCK_STREAM, 0);
 
-	if (this->fd > -1)
-	{
-		ServerInstance->SE->SetReuse(fd);
-		int rv = ServerInstance->SE->Bind(this->fd, bind_to);
-		if (rv >= 0)
-			rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
+	if (this->fd == -1)
+		return;
 
-		if (rv < 0)
-		{
-			ServerInstance->SE->Shutdown(this, 2);
-			ServerInstance->SE->Close(this);
-			this->fd = -1;
-		}
-		else
-		{
-			ServerInstance->SE->NonBlocking(this->fd);
-			ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-		}
+	ServerInstance->SE->SetReuse(fd);
+	int rv = ServerInstance->SE->Bind(this->fd, bind_to);
+	if (rv >= 0)
+		rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
+
+	if (rv < 0)
+	{
+		int errstore = errno;
+		ServerInstance->SE->Shutdown(this, 2);
+		ServerInstance->SE->Close(this);
+		this->fd = -1;
+		errno = errstore;
+	}
+	else
+	{
+		ServerInstance->SE->NonBlocking(this->fd);
+		ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 	}
 }
 
