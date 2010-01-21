@@ -15,7 +15,6 @@
 #include "u_listmode.h"
 
 /* $ModDesc: Allows an extended ban (+b) syntax redirecting banned users to another channel */
-/* $ModDep: ../../include/u_listmode.h */
 
 /* Originally written by Om, January 2009
  */
@@ -135,7 +134,7 @@ class BanRedirect : public ModeWatcher
 						source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),mask[CHAN].c_str());
 						return false;
 					}
-					else if (c->GetPrefixValue(source) < OP_VALUE)
+					else if (adding && c->GetPrefixValue(source) < OP_VALUE)
 					{
 						source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(), mask[CHAN].c_str());
 						return false;
@@ -203,7 +202,6 @@ class ModuleBanRedirect : public Module
 {
 	BanRedirect re;
 	bool nofollow;
-	Module* ExceptionModule;
 
  public:
 	ModuleBanRedirect()
@@ -267,7 +265,6 @@ class ModuleBanRedirect : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ExceptionModule = ServerInstance->Modules->Find("m_banexception.so");
 	}
 
 	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
