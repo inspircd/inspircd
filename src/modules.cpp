@@ -558,6 +558,8 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 ConfigReader::ConfigReader()
 {
 	this->error = 0;
+	ServerInstance->Logs->Log("MODULE", DEBUG, "ConfigReader is deprecated in 2.0; "
+		"use ServerInstance->Config->ConfValue(\"key\") or ->ConfTags(\"key\") instead");
 }
 
 

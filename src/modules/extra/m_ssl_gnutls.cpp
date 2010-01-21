@@ -168,8 +168,6 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-
 		sslports.clear();
 
 		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
@@ -196,13 +194,13 @@ class ModuleSSLGnuTLS : public Module
 
 		OnRehash(user);
 
-		ConfigReader Conf;
+		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 
-		cafile = Conf.ReadValue("gnutls", "cafile", 0);
-		crlfile	= Conf.ReadValue("gnutls", "crlfile", 0);
-		certfile = Conf.ReadValue("gnutls", "certfile", 0);
-		keyfile	= Conf.ReadValue("gnutls", "keyfile", 0);
-		dh_bits	= Conf.ReadInteger("gnutls", "dhbits", 0, false);
+		cafile = Conf->getString("cafile");
+		crlfile	= Conf->getString("crlfile");
+		certfile = Conf->getString("certfile");
+		keyfile	= Conf->getString("keyfile");
+		dh_bits	= Conf->getInt("dhbits");
 
 		// Set all the default values needed.
 		if (cafile.empty())
