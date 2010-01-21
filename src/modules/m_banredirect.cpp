@@ -120,7 +120,7 @@ class BanRedirect : public ModeWatcher
 
 			if(mask[CHAN].length())
 			{
-				if (IS_LOCAL(source))
+				if (adding && IS_LOCAL(source))
 				{
 					if (!ServerInstance->IsChannel(mask[CHAN].c_str(),  ServerInstance->Config->Limits.ChanMax))
 					{
