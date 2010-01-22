@@ -72,7 +72,10 @@ void ListenSocketBase::AcceptInternal()
 
 	socklen_t sz = sizeof(server);
 	if (getsockname(incomingSockfd, &server.sa, &sz))
+	{
 		ServerInstance->Logs->Log("SOCKET", DEBUG, "Can't get peername: %s", strerror(errno));
+		irc::sockets::aptosa(bind_addr.c_str(), bind_port, &server);
+	}
 
 	/*
 	 * XXX -
