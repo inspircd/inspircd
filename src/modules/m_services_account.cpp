@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "account.h"
+#include "u_listmode.h"
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
@@ -117,9 +118,9 @@ class ModuleServicesAccount : public Module
 			throw ModuleException("Some other module has claimed our modes!");
 
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
-			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
+			I_OnSyncUserMetaData, I_OnUserQuit, I_OnCleanup, I_OnDecodeMetaData, I_On005Numeric, I_OnCheckInvite, I_OnUserPostNick };
 
-		ServerInstance->Modules->Attach(eventlist, this, 10);
+		ServerInstance->Modules->Attach(eventlist, this, 11);
 	}
 
 	virtual void On005Numeric(std::string &t)
@@ -214,6 +215,25 @@ class ModuleServicesAccount : public Module
 		if (!user->GetExt("accountname", account))
 			return 0;
 		return chan->GetExtBanStatus(*account, 'R');
+	}
+
+	virtual int OnCheckInvite(User *user, Channel *c)
+	{
+		std::string* account;
+		if (!IS_LOCAL(user) || !user->GetExt("accountname", account))
+			return 0;
+
+		Module* ExceptionModule = ServerInstance->Modules->Find("m_inviteexception.so");
+		if (ExceptionModule)
+		{
+			if (ListModeRequest(this, ExceptionModule, *account, 'R', c).Send())
+			{
+				// account name is exempt
+				return 1;
+			}
+		}
+
+		return 0;
 	}
 
 	virtual int OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
