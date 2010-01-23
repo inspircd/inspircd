@@ -270,6 +270,8 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
  */
 bool TreeSocket::OnDataReady()
 {
+	if (LinkState == DYING)
+		return true;
 	const char* data = this->Read();
 	/* Check that the data read is a valid pointer and it has some content */
 	if (data && *data)
@@ -294,7 +296,11 @@ bool TreeSocket::OnDataReady()
 			 */
 			if (!this->ProcessLine(ret))
 			{
-				return false;
+				Utils->Creator->loopCall = false;
+				LinkState = DYING;
+				// returning false from this function is a bad
+				// idea, it causes deallocation too soon.
+				return true;
 			}
 		}
 		Utils->Creator->loopCall = false;
@@ -303,5 +309,7 @@ bool TreeSocket::OnDataReady()
 	/* EAGAIN returns an empty but non-NULL string, so this
 	 * evaluates to TRUE for EAGAIN but to FALSE for EOF.
 	 */
-	return (data && !*data);
+	if (!data)
+		LinkState = DYING;
+	return true;
 }

@@ -193,6 +193,9 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	{
 		TreeServer *s = i->second;
 
+		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
+			s->GetSocket()->Squit(s, "split");
+
 		// Fix for bug #792, do not ping servers that are not connected yet!
 		// Remote servers have Socket == NULL and local connected servers have
 		// Socket->LinkState == CONNECTED

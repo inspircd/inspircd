@@ -31,6 +31,8 @@
 
 void TreeSocket::WriteLine(std::string line)
 {
+	if (LinkState == DYING)
+		return;
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
 	line.append("\r\n");
 	this->Write(line);
@@ -96,6 +98,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 	{
 		TreeServer* Node;
 
+		case DYING:
+			return false;
 		case WAIT_AUTH_1:
 			/*
 			 * State WAIT_AUTH_1:
@@ -587,7 +591,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 			}
 			return true;
-			break; // end of state CONNECTED (phew).
 	}
 	return true;
 }
