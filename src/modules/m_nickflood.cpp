@@ -198,7 +198,7 @@ class ModuleNickFlood : public Module
 
 	ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
-		if (isdigit(newnick[0])) /* allow switches to UID */
+		if (ServerInstance->NICKForced.get(user)) /* Allow forced nick changes */
 			return MOD_RES_PASSTHRU;
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)

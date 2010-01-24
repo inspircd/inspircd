@@ -175,9 +175,6 @@ class ModuleNickLock : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		if (isdigit(newnick[0])) /* Allow a switch to a UID */
-			return MOD_RES_PASSTHRU;
-
 		if (ServerInstance->NICKForced.get(user)) /* Allow forced nick changes */
 			return MOD_RES_PASSTHRU;
 

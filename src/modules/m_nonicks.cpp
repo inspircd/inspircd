@@ -76,9 +76,6 @@ class ModuleNoNickChange : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		if (isdigit(newnick[0])) /* don't even think about touching a switch to uid! */
-			return MOD_RES_PASSTHRU;
-
 		// Allow forced nick changes.
 		if (ServerInstance->NICKForced.get(user))
 			return MOD_RES_PASSTHRU;
