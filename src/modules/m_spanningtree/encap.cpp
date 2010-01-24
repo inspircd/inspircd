@@ -18,10 +18,6 @@
 #include "treeserver.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-
-
 /** ENCAP */
 void TreeSocket::Encap(User* who, parameterlist &params)
 {
@@ -38,10 +34,10 @@ void TreeSocket::Encap(User* who, parameterlist &params)
 
 		if (params[0].find('*') != std::string::npos)
 		{
-			Utils->DoOneToAllButSender(who->server, "ENCAP", params, who->server);
+			Utils->DoOneToAllButSender(who->uuid, "ENCAP", params, who->server);
 		}
 		else
-			Utils->DoOneToOne(who->server, "ENCAP", params, params[0]);
+			Utils->DoOneToOne(who->uuid, "ENCAP", params, params[0]);
 	}
 }
 
