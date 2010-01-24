@@ -42,10 +42,11 @@ bool TreeSocket::ForceNick(const std::string &prefix, std::deque<std::string> &p
 
 		if (IS_LOCAL(u))
 		{
-			std::deque<std::string> par;
-			par.push_back(params[1]);
+			std::string nick = params[1];
+			if (isdigit(nick[0]))
+				nick = u->uuid;
 
-			if (!u->ForceNickChange(params[1].c_str()))
+			if (!u->ForceNickChange(nick.c_str()))
 			{
 				/* buh. UID them */
 				if (!u->ForceNickChange(u->uuid.c_str()))
