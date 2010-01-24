@@ -23,10 +23,11 @@ CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, Use
 
 	if (u && IS_LOCAL(u))
 	{
-		parameterlist par;
-		par.push_back(parameters[1]);
+		std::string nick = parameters[1];
+		if (isdigit(nick[0]))
+			nick = u->uuid;
 
-		if (!u->ForceNickChange(parameters[1].c_str()))
+		if (!u->ForceNickChange(nick.c_str()))
 		{
 			/* buh. UID them */
 			if (!u->ForceNickChange(u->uuid.c_str()))
