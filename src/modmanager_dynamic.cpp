@@ -88,11 +88,10 @@ bool ModuleManager::Load(const char* filename)
 		{
 			newmod->ModuleSourceFile = filename_str;
 			newmod->ModuleDLLManager = newhandle;
-			Version v = newmod->GetVersion();
 			Modules[filename_str] = newmod;
-
 			newmod->init();
 
+			Version v = newmod->GetVersion();
 			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
 				filename, newhandle->GetVersion().c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 		}
