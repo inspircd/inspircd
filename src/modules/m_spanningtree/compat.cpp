@@ -153,7 +153,7 @@ void TreeSocket::WriteLine(std::string line)
 				if (c == std::string::npos)
 					return;
 				std::string::size_type d = line.find(' ', c + 1);
-				std::string subcmd = line.substr(c, d - c);
+				std::string subcmd = line.substr(c + 1, d - c - 1);
 				Command* thiscmd = ServerInstance->Parser->GetHandler(subcmd);
 				if (thiscmd)
 				{
