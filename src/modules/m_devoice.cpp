@@ -42,8 +42,7 @@ class CommandDevoice : public Command
 			modes.push_back("-v");
 			modes.push_back(user->nick);
 
-			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
-			ServerInstance->PI->SendMode(c->name, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
+			ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
 			return CMD_LOCALONLY;
 		}
 

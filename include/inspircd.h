@@ -715,6 +715,14 @@ class CoreExport InspIRCd : public classbase
 	 */
 	void SendMode(const std::vector<std::string>& parameters, User *user);
 
+	/** Send a modechange and route it to the network.
+	 * The parameters provided are identical to that sent to the
+	 * handler for class cmd_mode.
+	 * @param parameters The mode parameters
+	 * @param user The user to send error messages to
+	 */
+	void SendGlobalMode(const std::vector<std::string>& parameters, User *user);
+
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
 	 * @param str The literal string to match against

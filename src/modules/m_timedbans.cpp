@@ -174,8 +174,7 @@ class ModuleTimedBans : public Module
 						ServerInstance->PI->SendChannelNotice(cr, '%', expiry);
 					}
 
-					ServerInstance->SendMode(setban, ServerInstance->FakeClient);
-					ServerInstance->PI->SendMode(chan, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
+					ServerInstance->SendGlobalMode(setban, ServerInstance->FakeClient);
 				}
 			}
 			else

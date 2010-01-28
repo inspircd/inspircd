@@ -783,6 +783,14 @@ void InspIRCd::DumpText(User* User, const std::string &LinePrefix, std::stringst
 	User->WriteServ(CompleteLine);
 }
 
+
+void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *user)
+{
+	Modes->Process(parameters, user, true);
+	if (!Modes->GetLastParse().empty())
+		this->PI->SendMode(parameters[0], Modes->GetLastParseParams(), Modes->GetLastParseTranslate());
+}
+
 bool InspIRCd::AddResolver(Resolver* r, bool cached)
 {
 	if (!cached)
