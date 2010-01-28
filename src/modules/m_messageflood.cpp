@@ -215,9 +215,7 @@ class ModuleMsgFlood : public Module
 					parameters.push_back(dest->name);
 					parameters.push_back("+b");
 					parameters.push_back(user->MakeWildHost());
-					ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
-
-					ServerInstance->PI->SendModeStr(dest->name, std::string("+b ") + user->MakeWildHost());
+					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
 				}
 
 				char kickmessage[MAXBUF];

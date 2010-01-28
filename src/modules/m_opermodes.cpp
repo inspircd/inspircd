@@ -73,8 +73,7 @@ class ModuleModesOnOper : public Module
 			modes.push_back(tokens[k]);
 		}
 
-		ServerInstance->SendMode(modes, u);
-		ServerInstance->PI->SendMode(u->uuid, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
+		ServerInstance->SendGlobalMode(modes, u);
 	}
 };
 

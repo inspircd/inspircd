@@ -83,8 +83,7 @@ class CommandOjoin : public Command
 			modes.push_back(parameters[0]);
 			modes.push_back("+Y");
 			modes.push_back(user->nick);
-			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
-			ServerInstance->PI->SendMode(parameters[0], ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
+			ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
 		}
 		return CMD_SUCCESS;
 	}

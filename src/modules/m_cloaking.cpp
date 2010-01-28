@@ -438,9 +438,6 @@ class ModuleCloaking : public Module
 		if (cloak)
 			return;
 
-		if (dest->host.find('.') == std::string::npos && dest->host.find(':') == std::string::npos)
-			return;
-
 		std::string ipstr = dest->GetIPString();
 		std::string chost;
 

@@ -76,8 +76,7 @@ class ModuleChannelNames : public Module
 				modes.push_back(c->name);
 				modes.push_back("-P");
 
-				ServerInstance->SendMode(modes, ServerInstance->FakeClient);
-				ServerInstance->PI->SendMode(c->name, ServerInstance->Modes->GetLastParseParams(), ServerInstance->Modes->GetLastParseTranslate());
+				ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
 			}
 			const UserMembList* users = c->GetUsers();
 			for(UserMembCIter j = users->begin(); j != users->end(); ++j)

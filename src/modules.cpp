@@ -524,6 +524,14 @@ void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
 	this->Modes->Process(parameters, user);
 }
 
+
+void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *user)
+{
+	Modes->Process(parameters, user);
+	if (!Modes->GetLastParse().empty())
+		this->PI->SendMode(parameters[0], Modes->GetLastParseParams(), Modes->GetLastParseTranslate());
+}
+
 bool InspIRCd::AddResolver(Resolver* r, bool cached)
 {
 	if (!cached)
