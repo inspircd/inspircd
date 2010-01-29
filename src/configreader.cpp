@@ -42,7 +42,6 @@ ServerConfig::ServerConfig()
 	NetBufferSize = 10240;
 	SoftLimit = ServerInstance->SE->GetMaxFds();
 	MaxConn = SOMAXCONN;
-	MaxWhoResults = 0;
 	MaxChans = 20;
 	OperMaxChans = 30;
 	c_ipv4_range = 32;
@@ -452,7 +451,6 @@ void ServerConfig::Fill()
 	AdminNick = ConfValue("admin")->getString("nick", "admin");
 	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
-	MaxWhoResults = ConfValue("performance")->getInt("maxwho", 1024);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
@@ -496,7 +494,6 @@ void ServerConfig::Fill()
 	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
 	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
 	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
-	range(MaxWhoResults, 1, 65535, 1024, "<performace:maxwho>");
 	range(WhoWasGroupSize, 0, 10000, 10, "<whowas:groupsize>");
 	range(WhoWasMaxGroups, 0, 1000000, 10240, "<whowas:maxgroups>");
 	range(WhoWasMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");

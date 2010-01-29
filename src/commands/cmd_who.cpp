@@ -23,7 +23,6 @@ class CommandWho : public Command
 	bool CanView(Channel* chan, User* user);
 	bool opt_viewopersonly;
 	bool opt_showrealhost;
-	bool opt_unlimit;
 	bool opt_realname;
 	bool opt_mode;
 	bool opt_ident;
@@ -37,7 +36,9 @@ class CommandWho : public Command
  public:
 	/** Constructor for who.
 	 */
-	CommandWho ( Module* parent) : Command(parent,"WHO", 1) { Penalty = 2; syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]"; }
+	CommandWho ( Module* parent) : Command(parent,"WHO", 1) {
+		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
+	}
 	void SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
@@ -228,7 +229,6 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 	/* WHO options */
 	opt_viewopersonly = false;
 	opt_showrealhost = false;
-	opt_unlimit = false;
 	opt_realname = false;
 	opt_mode = false;
 	opt_ident = false;
@@ -276,10 +276,6 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				case 'h':
 					if (user->HasPrivPermission("users/auspex"))
 						opt_showrealhost = true;
-					break;
-				case 'u':
-					if (user->HasPrivPermission("users/auspex"))
-						opt_unlimit = true;
 					break;
 				case 'r':
 					opt_realname = true;
@@ -388,19 +384,15 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		}
 	}
 	/* Send the results out */
-	if ((ServerInstance->Config->MaxWhoResults && (whoresults.size() <= (size_t)ServerInstance->Config->MaxWhoResults)) || opt_unlimit)
-	{
-		for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
-			user->WriteServ(*n);
-		user->WriteNumeric(315, "%s %s :End of /WHO list.",user->nick.c_str(), *parameters[0].c_str() ? parameters[0].c_str() : "*");
-		return CMD_SUCCESS;
-	}
-	else
-	{
-		/* BZZT! Too many results. */
-		user->WriteNumeric(315, "%s %s :Too many results",user->nick.c_str(), parameters[0].c_str());
-		return CMD_FAILURE;
-	}
+	for (std::vector<std::string>::const_iterator n = whoresults.begin(); n != whoresults.end(); n++)
+		user->WriteServ(*n);
+	user->WriteNumeric(315, "%s %s :End of /WHO list.",user->nick.c_str(), *parameters[0].c_str() ? parameters[0].c_str() : "*");
+
+	// Penalize the user a bit for large queries
+	// (add one unit of penalty per 200 results)
+	if (IS_LOCAL(user))
+		IS_LOCAL(user)->CommandFloodPenalty += whoresults.size() * 5;
+	return CMD_SUCCESS;
 }
 
 COMMAND_INIT(CommandWho)

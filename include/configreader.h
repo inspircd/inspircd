@@ -409,11 +409,6 @@ class CoreExport ServerConfig
 	 */
 	unsigned int MaxTargets;
 
-	/** The maximum number of /WHO results allowed
-	 * in any single /WHO command.
-	 */
-	int MaxWhoResults;
-
 	/** True if we're going to hide netsplits as *.net *.split for non-opers
 	 */
 	bool HideSplits;
