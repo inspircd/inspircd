@@ -1076,6 +1076,10 @@ void User::SetSockAddr(int protocol_family, const char* sip, int port)
 {
 	this->cachedip = "";
 
+	if (ip)
+		delete ip;
+	ip = NULL;
+
 	switch (protocol_family)
 	{
 #ifdef SUPPORT_IP6LINKS
