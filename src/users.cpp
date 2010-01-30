@@ -894,13 +894,12 @@ void User::InvalidateCache()
 	cached_fullrealhost.clear();
 }
 
-bool User::ForceNickChange(const char* newnick)
+bool User::ChangeNick(const std::string& newnick, bool force)
 {
 	ModResult MOD_RESULT;
 
-	this->InvalidateCache();
-
-	ServerInstance->NICKForced.set(this, 1);
+	if (force)
+		ServerInstance->NICKForced.set(this, 1);
 	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
 	ServerInstance->NICKForced.set(this, 0);
 
@@ -910,20 +909,90 @@ bool User::ForceNickChange(const char* newnick)
 		return false;
 	}
 
-	std::deque<classbase*> dummy;
-	Command* nickhandler = ServerInstance->Parser->GetHandler("NICK");
-	if (nickhandler) // wtfbbq, when would this not be here
+	if (assign(newnick) == assign(nick))
 	{
-		std::vector<std::string> parameters;
-		parameters.push_back(newnick);
-		ServerInstance->NICKForced.set(this, 1);
-		bool result = (ServerInstance->Parser->CallHandler("NICK", parameters, this) == CMD_SUCCESS);
-		ServerInstance->NICKForced.set(this, 0);
-		return result;
+		// case change, don't need to check Q:lines and such
+		// and, if it's identical including case, we can leave right now
+		if (newnick == nick)
+			return true;
+	}
+	else
+	{
+		/*
+		 * Don't check Q:Lines if it's a server-enforced change, just on the off-chance some fucking *moron*
+		 * tries to Q:Line SIDs, also, this means we just get our way period, as it really should be.
+		 * Thanks Kein for finding this. -- w00t
+		 *
+		 * Also don't check Q:Lines for remote nickchanges, they should have our Q:Lines anyway to enforce themselves.
+		 *		-- w00t
+		 */
+		if (!IS_LOCAL(this))
+		{
+			XLine* mq = ServerInstance->XLines->MatchesLine("Q",newnick);
+			if (mq)
+			{
+				if (this->registered == REG_ALL)
+				{
+					ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s!%s@%s: %s",
+						newnick.c_str(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), mq->reason.c_str());
+				}
+				this->WriteNumeric(432, "%s %s :Invalid nickname: %s",this->nick.c_str(), newnick.c_str(), mq->reason.c_str());
+				return false;
+			}
+
+			if (ServerInstance->Config->RestrictBannedUsers)
+			{
+				for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
+				{
+					Channel *chan = *i;
+					if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
+					{
+						this->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", this->nick.c_str(), chan->name.c_str());
+						return false;
+					}
+				}
+			}
+		}
+
+		/*
+		 * Uh oh.. if the nickname is in use, and it's not in use by the person using it (doh) --
+		 * then we have a potential collide. Check whether someone else is camping on the nick
+		 * (i.e. connect -> send NICK, don't send USER.) If they are camping, force-change the
+		 * camper to their UID, and allow the incoming nick change.
+		 *
+		 * If the guy using the nick is already using it, tell the incoming nick change to gtfo,
+		 * because the nick is already (rightfully) in use. -- w00t
+		 */
+		User* InUse = ServerInstance->FindNickOnly(newnick);
+		if (InUse && (InUse != this))
+		{
+			if (InUse->registered != REG_ALL)
+			{
+				/* force the camper to their UUID, and ask them to re-send a NICK. */
+				InUse->WriteTo(InUse, "NICK %s", InUse->uuid.c_str());
+				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick.c_str(), InUse->nick.c_str());
+				InUse->UpdateNickHash(InUse->uuid.c_str());
+				InUse->nick.assign(InUse->uuid, 0, IS_LOCAL(InUse) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
+				InUse->InvalidateCache();
+				InUse->registered &= ~REG_NICK;
+			}
+			else
+			{
+				/* No camping, tell the incoming user  to stop trying to change nick ;p */
+				this->WriteNumeric(433, "%s %s :Nickname is already in use.", this->registered >= REG_NICK ? this->nick.c_str() : "*", newnick.c_str());
+				return CMD_FAILURE;
+			}
+		}
 	}
 
-	// Unreachable, we hope
-	return false;
+	if (this->registered == REG_ALL)
+		this->WriteCommon("NICK %s",newnick.c_str());
+	std::string oldnick = nick;
+	nick = newnick;
+	InvalidateCache();
+	UpdateNickHash(newnick.c_str());
+	FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(this,oldnick));
+	return true;
 }
 
 int LocalUser::GetServerPort()

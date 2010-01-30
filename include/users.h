@@ -528,7 +528,7 @@ class CoreExport User : public Extensible
 	 * @param newnick The nickname to change to
 	 * @return True if the nickchange was successful.
 	 */
-	bool ForceNickChange(const char* newnick);
+	inline bool ForceNickChange(const char* newnick) { return ChangeNick(newnick, true); }
 
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type
@@ -669,6 +669,13 @@ class CoreExport User : public Extensible
 	 * @return True if the change succeeded, false if otherwise
 	 */
 	bool ChangeName(const char* gecos);
+
+	/** Change a user's nick
+	 * @param newnick The new nick
+	 * @param force True if the change is being forced (should not be blocked by modes like +N)
+	 * @return True if the change succeeded
+	 */
+	bool ChangeNick(const std::string& newnick, bool force = false);
 
 	/** Send a command to all local users from this user
 	 * The command given must be able to send text with the
