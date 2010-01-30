@@ -513,14 +513,6 @@ class CoreExport User : public Extensible
 	 */
 	void Oper(OperInfo* info);
 
-	/** Change this users hash key to a new string.
-	 * You should not call this function directly. It is used by the core
-	 * to update the users hash entry on a nickchange.
-	 * @param New new user_hash key
-	 * @return Pointer to User in hash (usually 'this')
-	 */
-	User* UpdateNickHash(const char* New);
-
 	/** Force a nickname change.
 	 * If the nickname change fails (for example, because the nick in question
 	 * already exists) this function will return false, and you must then either

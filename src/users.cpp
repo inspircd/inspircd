@@ -864,27 +864,6 @@ void LocalUser::FullConnect()
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 }
 
-/** User::UpdateNick()
- * re-allocates a nick in the user_hash after they change nicknames,
- * returns a pointer to the new user as it may have moved
- */
-User* User::UpdateNickHash(const char* New)
-{
-	//user_hash::iterator newnick;
-	user_hash::iterator oldnick = ServerInstance->Users->clientlist->find(this->nick);
-
-	if (!irc::string(this->nick.c_str()).compare(New))
-		return oldnick->second;
-
-	if (oldnick == ServerInstance->Users->clientlist->end())
-		return NULL; /* doesnt exist */
-
-	User* olduser = oldnick->second;
-	ServerInstance->Users->clientlist->erase(oldnick);
-	(*(ServerInstance->Users->clientlist))[New] = olduser;
-	return olduser;
-}
-
 void User::InvalidateCache()
 {
 	/* Invalidate cache */
@@ -971,8 +950,11 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
 				InUse->WriteTo(InUse, "NICK %s", InUse->uuid.c_str());
 				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick.c_str(), InUse->nick.c_str());
-				InUse->UpdateNickHash(InUse->uuid.c_str());
-				InUse->nick.assign(InUse->uuid, 0, IS_LOCAL(InUse) ? ServerInstance->Config->Limits.NickMax : MAXBUF);
+
+				ServerInstance->Users->clientlist->erase(InUse->nick);
+				(*(ServerInstance->Users->clientlist))[InUse->uuid] = InUse;
+
+				InUse->nick = InUse->uuid;
 				InUse->InvalidateCache();
 				InUse->registered &= ~REG_NICK;
 			}
@@ -980,7 +962,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 			{
 				/* No camping, tell the incoming user  to stop trying to change nick ;p */
 				this->WriteNumeric(433, "%s %s :Nickname is already in use.", this->registered >= REG_NICK ? this->nick.c_str() : "*", newnick.c_str());
-				return CMD_FAILURE;
+				return false;
 			}
 		}
 	}
@@ -989,8 +971,11 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 		this->WriteCommon("NICK %s",newnick.c_str());
 	std::string oldnick = nick;
 	nick = newnick;
+
 	InvalidateCache();
-	UpdateNickHash(newnick.c_str());
+	ServerInstance->Users->clientlist->erase(oldnick);
+	(*(ServerInstance->Users->clientlist))[newnick] = this;
+
 	FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(this,oldnick));
 	return true;
 }
