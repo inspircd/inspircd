@@ -230,6 +230,8 @@ void TreeSocket::OnDataReady()
 			break;
 		}
 		ProcessLine(line);
+		if (!getError().empty())
+			break;
 	}
 	Utils->Creator->loopCall = false;
 }
