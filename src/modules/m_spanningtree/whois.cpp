@@ -21,8 +21,6 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
 bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
@@ -36,14 +34,11 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 			User* x = ServerInstance->FindNick(params[0]);
 			if ((x) && (IS_LOCAL(x)))
 			{
-				char signon[MAXBUF];
-				char idle[MAXBUF];
-				snprintf(signon, MAXBUF, "%lu", (unsigned long)x->signon);
-				snprintf(idle, MAXBUF, "%lu", (unsigned long)abs((long)((x->idle_lastmsg) - ServerInstance->Time())));
+				long idle = abs((long)((x->idle_lastmsg) - ServerInstance->Time()));
 				parameterlist par;
 				par.push_back(prefix);
-				par.push_back(signon);
-				par.push_back(idle);
+				par.push_back(ConvToStr(x->signon));
+				par.push_back(ConvToStr(idle));
 				// ours, we're done, pass it BACK
 				Utils->DoOneToOne(params[0], "IDLE", par, u->server);
 			}

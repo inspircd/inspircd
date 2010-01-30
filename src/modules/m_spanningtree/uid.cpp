@@ -80,11 +80,11 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		return CMD_INVALID;
 	}
 	(*(ServerInstance->Users->clientlist))[nick] = _new;
-	_new->nick.assign(nick, 0, MAXBUF);
-	_new->host.assign(params[3], 0, 64);
-	_new->dhost.assign(params[4], 0, 64);
-	_new->ident.assign(params[5], 0, MAXBUF);
-	_new->fullname.assign(params[params.size() - 1], 0, MAXBUF);
+	_new->nick = nick;
+	_new->host = params[3];
+	_new->dhost = params[4];
+	_new->ident = params[5];
+	_new->fullname = params[params.size() - 1];
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;

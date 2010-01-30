@@ -594,8 +594,8 @@ CullResult FakeUser::cull()
 {
 	// Fake users don't quit, they just get culled.
 	quitting = true;
-	ServerInstance->Users->clientlist->erase(user->nick);
-	ServerInstance->Users->uuidlist->erase(user->uuid);
+	ServerInstance->Users->clientlist->erase(nick);
+	ServerInstance->Users->uuidlist->erase(uuid);
 	return User::cull();
 }
 
