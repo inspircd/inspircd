@@ -116,8 +116,6 @@ class CGIResolver : public Resolver
 
 			them->host.assign(result,0, 64);
 			them->dhost.assign(result, 0, 64);
-			if (querytype)
-				them->SetSockAddr(them->GetProtocolFamily(), result.c_str(), them->GetPort());
 			them->ident.assign("~cgiirc", 0, 8);
 			them->InvalidateCache();
 			them->CheckLines(true);
@@ -341,43 +339,28 @@ public:
 			user->dhost.assign(user->password, 0, 64);
 			user->InvalidateCache();
 
-			bool valid = false;
 			ServerInstance->Users->RemoveCloneCounts(user);
-#ifdef IPV6
-			if (user->GetProtocolFamily() == AF_INET6)
-				valid = (inet_pton(AF_INET6, user->password.c_str(), &((sockaddr_in6*)user->ip)->sin6_addr) > 0);
-			else
-				valid = (inet_aton(user->password.c_str(), &((sockaddr_in*)user->ip)->sin_addr));
-#else
-			if (inet_aton(user->password.c_str(), &((sockaddr_in*)user->ip)->sin_addr))
-				valid = true;
-#endif
+			user->SetSockAddr(user->GetProtocolFamily(), user->password.c_str(), user->GetPort());
+			user->InvalidateCache();
+
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
 			user->SetClass();
 			user->CheckClass();
-
-			if (valid)
+			try
 			{
-				/* We were given a IP in the password, we don't do DNS so they get this is as their host as well. */
-				if(NotifyOpers)
-					ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from PASS", user->nick.c_str(), user->host.c_str(), user->password.c_str());
+				user->host = user->password;
+				user->dhost = user->password;
+				user->ident = "~cgiirc";
+
+				bool cached;
+				CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
+				ServerInstance->AddResolver(r, cached);
 			}
-			else
+			catch (...)
 			{
-				/* We got as resolved hostname in the password. */
-				try
-				{
-
-					bool cached;
-					CGIResolver* r = new CGIResolver(this, ServerInstance, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
-					ServerInstance->AddResolver(r, cached);
-				}
-				catch (...)
-				{
-					if (NotifyOpers)
-						ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
-				}
+				if(NotifyOpers)
+					 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
 			}
 
 			user->password.clear();
