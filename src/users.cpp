@@ -575,7 +575,6 @@ CullResult User::cull()
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
 
-	ServerInstance->Users->uuidlist->erase(uuid);
 	return Extensible::cull();
 }
 

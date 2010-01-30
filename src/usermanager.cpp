@@ -242,6 +242,8 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		this->clientlist->erase(iter);
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "iter == clientlist->end, can't remove them from hash... problematic..");
+
+	ServerInstance->Users->uuidlist->erase(user->uuid);
 }
 
 
