@@ -177,8 +177,10 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 		}
 	}
 	
-	// This avoids a collision on reload
+	// This avoids a collisions on reload
 	ServerUser->uuid = TreeRoot->GetID();
+	ServerInstance->Users->clientlist->erase(ServerUser->nick);
+	ServerInstance->Users->uuidlist->erase(ServerUser->uuid);
 	delete TreeRoot;
 	delete ServerUser;
 	ServerInstance->BufferedSocketCull();

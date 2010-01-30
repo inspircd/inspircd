@@ -36,8 +36,6 @@ void CullList::Apply()
 	for(std::vector<User *>::iterator a = list.begin(); a != list.end(); a++)
 	{
 		User *u = *a;
-		// user has been moved onto their UID; that's why this isn't find(u->nick)
-		user_hash::iterator iter = ServerInstance->Users->clientlist->find(u->uuid);
 
 		if (u->registered != REG_ALL)
 			if (ServerInstance->Users->unregistered_count)
@@ -86,15 +84,6 @@ void CullList::Apply()
 				}
 			}
 			u->AddToWhoWas();
-		}
-
-		if (iter != ServerInstance->Users->clientlist->end())
-		{
-			ServerInstance->Users->clientlist->erase(iter);
-		}
-		else
-		{
-			ServerInstance->Logs->Log("CULLLIST", DEBUG, "iter == clientlist->end, can't remove them from hash... problematic..");
 		}
 
 		if (IS_LOCAL(u))

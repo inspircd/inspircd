@@ -216,8 +216,8 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 	FOREACH_MOD_I(ServerInstance,I_OnUserDisconnect,OnUserDisconnect(user));
 
-	// Move the user onto their UID, to allow nick to be reused immediately
-	user->UpdateNickHash(user->uuid.c_str());
+	ServerInstance->Users->clientlist->erase(user->nick);
+	ServerInstance->Users->uuidlist->erase(user->uuid);
 }
 
 

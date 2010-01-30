@@ -279,8 +279,6 @@ User::~User()
 		}
 #endif
 	}
-
-	ServerInstance->Users->uuidlist->erase(uuid);
 }
 
 const std::string& User::MakeHost()
