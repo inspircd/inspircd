@@ -114,12 +114,6 @@ class PermChannel : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		if (!source->HasPrivPermission("channels/set-permanent"))
-		{
-			source->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges", source->nick.c_str());
-			return MODEACTION_DENY;
-		}
-
 		if (adding)
 		{
 			if (!channel->IsModeSet('P'))
