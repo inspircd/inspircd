@@ -25,7 +25,9 @@ enum ClassTypes {
 	/** connect:allow */
 	CC_ALLOW = 0,
 	/** connect:deny */
-	CC_DENY  = 1
+	CC_DENY  = 1,
+	/** named connect block (for opers, etc) */
+	CC_NAMED = 2
 };
 
 /** RFC1459 channel modes

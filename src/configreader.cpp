@@ -261,7 +261,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		for(ClassVector::iterator i = current->Classes.begin(); i != current->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
-			std::string typeMask = (c->type == CC_ALLOW) ? "a" : "d";
+			std::string typeMask = (c->type == CC_ALLOW) ? "a" : (c->type == CC_DENY) ? "d" : "n";
 			typeMask += c->host;
 			oldBlocksByMask[typeMask] = c;
 		}
@@ -335,7 +335,9 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			}
 			else
 			{
-				throw CoreException("Connect class must have an allow or deny mask at " + tag->getTagLocation());
+				type = CC_NAMED;
+				mask = name;
+				typeMask = 'n' + mask;
 			}
 			ClassMap::iterator dupMask = newBlocksByMask.find(typeMask);
 			if (dupMask != newBlocksByMask.end())

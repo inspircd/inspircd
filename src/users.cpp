@@ -621,10 +621,7 @@ void User::Oper(OperInfo* info)
 			l->ChangeDisplayedHost(vhost.c_str());
 		std::string opClass = oper->getConfig("class");
 		if (!opClass.empty())
-		{
 			l->SetClass(opClass);
-			l->CheckClass();
-		}
 	}
 
 	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
@@ -817,8 +814,10 @@ void LocalUser::FullConnect()
 			return;
 		}
 	}
+	CheckClass();
+	CheckLines();
 
-	if (this->CheckLines())
+	if (quitting)
 		return;
 
 	this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network.c_str());
@@ -1606,9 +1605,13 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "ALLOW %s %d %s", c->host.c_str(), c->GetPort(), c->GetName().c_str());
 			}
-			else
+			else if (c->type == CC_DENY)
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "DENY %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
+			}
+			else
+			{
+				continue;
 			}
 
 			/* check if host matches.. */
