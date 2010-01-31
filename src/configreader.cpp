@@ -261,9 +261,16 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		for(ClassVector::iterator i = current->Classes.begin(); i != current->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
-			std::string typeMask = (c->type == CC_ALLOW) ? "a" : (c->type == CC_DENY) ? "d" : "n";
-			typeMask += c->host;
-			oldBlocksByMask[typeMask] = c;
+			if (c->name.substr(0, 8) != "unnamed-")
+			{
+				oldBlocksByMask["n" + c->name] = c;
+			}
+			else if (c->type == CC_ALLOW || c->type == CC_DENY)
+			{
+				std::string typeMask = (c->type == CC_ALLOW) ? "a" : "d";
+				typeMask += c->host;
+				oldBlocksByMask[typeMask] = c;
+			}
 		}
 	}
 
@@ -278,7 +285,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		blk_count = 1;
 	}
 
-	ClassMap newBlocksByMask;
 	Classes.resize(blk_count);
 	std::map<std::string, int> names;
 
@@ -304,22 +310,13 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 					try_again = true;
 					// couldn't find parent this time. If it's the last time, we'll never find it.
 					if (tries >= blk_count)
-						throw CoreException("Could not find parent connect class \"" + parentName + "\" for connect block " + ConvToStr(i));
+						throw CoreException("Could not find parent connect class \"" + parentName + "\" for connect block at " + tag->getTagLocation());
 					continue;
 				}
 				parent = Classes[parentIter->second];
 			}
 
 			std::string name = tag->getString("name");
-			if (name.empty())
-			{
-				name = "unnamed-" + ConvToStr(i);
-			}
-
-			if (names.find(name) != names.end())
-				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
-			names[name] = i;
-
 			std::string mask, typeMask;
 			char type;
 
@@ -333,15 +330,29 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				type = CC_DENY;
 				typeMask = 'd' + mask;
 			}
-			else
+			else if (!name.empty())
 			{
 				type = CC_NAMED;
 				mask = name;
 				typeMask = 'n' + mask;
 			}
-			ClassMap::iterator dupMask = newBlocksByMask.find(typeMask);
-			if (dupMask != newBlocksByMask.end())
-				throw CoreException("Two connect classes cannot have the same mask (" + mask + ")");
+			else
+			{
+				throw CoreException("Connect class must have allow, deny, or name specified at " + tag->getTagLocation());
+			}
+
+			if (name.empty())
+			{
+				name = "unnamed-" + ConvToStr(i);
+			}
+			else
+			{
+				typeMask = 'n' + name;
+			}
+
+			if (names.find(name) != names.end())
+				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
+			names[name] = i;
 
 			ConnectClass* me = parent ? 
 				new ConnectClass(tag, type, mask, *parent) :
@@ -385,7 +396,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				delete me;
 				me = old;
 			}
-			newBlocksByMask[typeMask] = me;
 			Classes[i] = me;
 		}
 	}

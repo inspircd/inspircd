@@ -65,12 +65,31 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 		case 'i':
 		{
-			int idx = 0;
 			for (ClassVector::iterator i = this->Config->Classes.begin(); i != this->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
-				results.push_back(sn+" 215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : this->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+this->Config->ServerName+" *");
-				idx++;
+				std::stringstream res;
+				res << sn << " 215 " << user->nick << " I " << c->name << ' ';
+				if (c->type == CC_ALLOW)
+					res << '+';
+				if (c->type == CC_DENY)
+					res << '-';
+
+				if (c->type == CC_NAMED)
+					res << '*';
+				else
+					res << c->host;
+
+				if (c->port)
+					res << ' ' << c->port << ' ';
+				else
+					res << " * ";
+
+				res << c->GetRecvqMax() << ' ' << c->GetSendqSoftMax() << ' ' << c->GetSendqHardMax()
+					<< ' ' << c->GetCommandRate() << ' ' << c->GetPenaltyThreshold();
+				if (c->fakelag)
+					res << '*';
+				results.push_back(res.str());
 			}
 		}
 		break;
@@ -81,6 +100,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 			for (ClassVector::iterator i = this->Config->Classes.begin(); i != this->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
+				results.push_back(sn+" 215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : this->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+this->Config->ServerName+" *");
 				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqHardMax())+" :"+
 						ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;

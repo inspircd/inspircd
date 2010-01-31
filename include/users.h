@@ -198,7 +198,7 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned int GetPenaltyThreshold()
 	{
-		return (penaltythreshold ? penaltythreshold : 10);
+		return penaltythreshold ? penaltythreshold : (fakelag ? 10 : 20);
 	}
 
 	unsigned int GetCommandRate()
@@ -206,7 +206,7 @@ struct CoreExport ConnectClass : public refcountbase
 		return commandrate ? commandrate : 1000;
 	}
 
-	/** Returusn the maximum number of local sessions
+	/** Return the maximum number of local sessions
 	 */
 	unsigned long GetMaxLocal()
 	{
