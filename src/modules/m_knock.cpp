@@ -23,6 +23,7 @@ class CommandKnock : public Command
 	CommandKnock(Module* Creator) : Command(Creator,"KNOCK", 2)
 	{
 		syntax = "<channel> <reason>";
+		Penalty = 5;
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
