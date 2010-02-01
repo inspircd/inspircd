@@ -88,7 +88,7 @@ class ModuleHideOper : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line)
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line)
 	{
 		if (user->IsModeSet('H') && !source->HasPrivPermission("users/auspex"))
 		{
@@ -96,6 +96,9 @@ class ModuleHideOper : public Module
 			std::string::size_type pos = line.find("* ");
 			if (pos != std::string::npos)
 				line.erase(pos);
+			// hide the line completely if doing a "/who * o" query
+			if (params.size() > 1 && params[1].find('o') != std::string::npos)
+				line.clear();
 		}
 	}
 };

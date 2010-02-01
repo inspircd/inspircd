@@ -133,7 +133,7 @@ class ModuleInvisible : public Module
 	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exceptions);
 	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	void OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line);
+	void OnSendWhoLine(User* source, const std::vector<std::string>&, User* user, Channel* channel, std::string& line);
 	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick);
 };
 
@@ -191,7 +191,7 @@ ModResult ModuleInvisible::OnUserPreMessage(User* user,void* dest,int target_typ
 	return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 }
 
-void ModuleInvisible::OnSendWhoLine(User* source, User* user, Channel* channel, std::string& line)
+void ModuleInvisible::OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line)
 {
 	if (user->IsModeSet('Q') && !IS_OPER(source))
 		line.clear();

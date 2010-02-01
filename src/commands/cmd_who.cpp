@@ -39,7 +39,7 @@ class CommandWho : public Command
 	CommandWho ( Module* parent) : Command(parent,"WHO", 1) {
 		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
 	}
-	void SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
+	void SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -184,14 +184,18 @@ bool CommandWho::CanView(Channel* chan, User* user)
 	return false;
 }
 
-void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
+void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
 {
 	const std::string& lcn = get_first_visible_channel(u);
-	Channel* chlast = ServerInstance->FindChan(lcn);
 
-	std::string wholine =	initial + (ch ? ch->name : lcn) + " " + u->ident + " " + (opt_showrealhost ? u->host : u->dhost) + " " +
-				((!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex")) ? ServerInstance->Config->HideWhoisServer : u->server) +
-				" " + u->nick + " ";
+	std::string wholine = initial + (ch ? ch->name : lcn) + " " + u->ident + " " + 
+		(opt_showrealhost ? u->host : u->dhost) + " ";
+	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
+		wholine.append(ServerInstance->Config->HideWhoisServer);
+	else
+		wholine.append(u->server);
+	
+	wholine.append(" " + u->nick + " ");
 
 	/* away? */
 	if (IS_AWAY(u))
@@ -206,12 +210,21 @@ void CommandWho::SendWhoLine(User* user, const std::string &initial, Channel* ch
 	/* oper? */
 	if (IS_OPER(u))
 	{
-		wholine.append("*");
+		wholine.push_back('*');
 	}
 
-	wholine = wholine + (ch ? ch->GetPrefixChar(u) : (chlast ? chlast->GetPrefixChar(u) : "")) + " :0 " + u->fullname;
+	if (ch)
+		wholine.append(ch->GetPrefixChar(u));
+	else
+	{
+		Channel* lch = ServerInstance->FindChan(lcn);
+		if (lch)
+			wholine.append(lch->GetPrefixChar(u));
+	}
 
-	FOREACH_MOD(I_OnSendWhoLine, OnSendWhoLine(user, u, ch, wholine));
+	wholine.append(" :0 " + u->fullname);
+
+	FOREACH_MOD(I_OnSendWhoLine, OnSendWhoLine(user, parms, u, ch, wholine));
 
 	if (!wholine.empty())
 		whoresults.push_back(wholine);
@@ -340,7 +353,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 						continue;
 				}
 
-				SendWhoLine(user, initial, ch, i->first, whoresults);
+				SendWhoLine(user, parameters, initial, ch, i->first, whoresults);
 			}
 		}
 	}
@@ -362,7 +375,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 							continue;
 					}
 
-					SendWhoLine(user, initial, NULL, oper, whoresults);
+					SendWhoLine(user, parameters, initial, NULL, oper, whoresults);
 				}
 			}
 		}
@@ -378,7 +391,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 							continue;
 					}
 
-					SendWhoLine(user, initial, NULL, i->second, whoresults);
+					SendWhoLine(user, parameters, initial, NULL, i->second, whoresults);
 				}
 			}
 		}
