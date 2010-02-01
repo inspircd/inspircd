@@ -230,7 +230,7 @@ void StreamSocket::DoWrite()
 		int rv = -1;
 		try
 		{
-			while (!sendq.empty())
+			while (error.empty() && !sendq.empty())
 			{
 				if (sendq.size() > 1 && sendq[0].length() < 1024)
 				{
@@ -323,7 +323,7 @@ void StreamSocket::DoWrite()
 			return;
 		// start out optimistic - we won't need to write any more
 		int eventChange = FD_WANT_EDGE_WRITE;
-		while (sendq_len && eventChange == FD_WANT_EDGE_WRITE)
+		while (error.empty() && sendq_len && eventChange == FD_WANT_EDGE_WRITE)
 		{
 			// Prepare a writev() call to write all buffers efficiently
 			int bufcount = sendq.size();
