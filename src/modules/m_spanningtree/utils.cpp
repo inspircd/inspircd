@@ -371,8 +371,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->AllowMask = tag->getString("allowmask");
 		L->IPAddr = tag->getString("ipaddr");
 		L->Port = tag->getInt("port");
-		L->SendPass = tag->getString("sendpass");
-		L->RecvPass = tag->getString("recvpass");
+		L->SendPass = tag->getString("sendpass", tag->getString("password"));
+		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
 		L->Fingerprint = tag->getString("fingerprint");
 		L->HiddenFromStats = tag->getBool("statshidden");
 		L->Timeout = tag->getInt("timeout");
