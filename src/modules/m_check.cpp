@@ -97,8 +97,40 @@ class CommandCheck : public Command
 
 			if (IS_OPER(targuser))
 			{
+				OperInfo* oper = targuser->oper;
 				/* user is an oper of type ____ */
-				user->SendText(checkstr + " opertype " + targuser->oper->NameStr());
+				user->SendText(checkstr + " opertype " + oper->NameStr());
+				if (IS_LOCAL(targuser))
+				{
+					std::string umodes;
+					std::string cmodes;
+					for(char c='A'; c < 'z'; c++)
+					{
+						ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
+						if (mh && mh->NeedsOper() && oper->AllowedUserModes[c])
+							umodes.push_back(c);
+						mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
+						if (mh && mh->NeedsOper() && oper->AllowedChanModes[c])
+							cmodes.push_back(c);
+					}
+					user->SendText(checkstr + " modeperms user=" + umodes + " channel=" + cmodes);
+					std::string opcmds;
+					for(std::set<std::string>::iterator i = oper->AllowedOperCommands.begin(); i != oper->AllowedOperCommands.end(); i++)
+					{
+						opcmds.push_back(' ');
+						opcmds.append(*i);
+					}
+					std::stringstream opcmddump(opcmds);
+					user->SendText(checkstr + " commandperms", opcmddump);
+					std::string privs;
+					for(std::set<std::string>::iterator i = oper->AllowedPrivs.begin(); i != oper->AllowedPrivs.end(); i++)
+					{
+						privs.push_back(' ');
+						privs.append(*i);
+					}
+					std::stringstream privdump(privs);
+					user->SendText(checkstr + " permissions", privdump);
+				}
 			}
 
 			LocalUser* loctarg = IS_LOCAL(targuser);
