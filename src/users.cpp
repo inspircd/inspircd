@@ -975,7 +975,9 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 	ServerInstance->Users->clientlist->erase(oldnick);
 	(*(ServerInstance->Users->clientlist))[newnick] = this;
 
-	FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(this,oldnick));
+	if (registered == REG_ALL)
+		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(this,oldnick));
+
 	return true;
 }
 
