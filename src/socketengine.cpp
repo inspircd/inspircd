@@ -16,6 +16,7 @@
 EventHandler::EventHandler()
 {
 	fd = -1;
+	event_mask = 0;
 }
 
 void EventHandler::SetFd(int FD)
