@@ -25,8 +25,6 @@
 #include "treesocket.h"
 #include "resolvers.h"
 
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h */
-
 const std::string& TreeSocket::GetOurChallenge()
 {
 	return capab->ourchallenge;
@@ -163,7 +161,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 		/* Require fingerprint to exist and match */
 		if (link.Fingerprint != fp)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL fingerprint on link %s: need '%s' got '%s'", 
+			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL fingerprint on link %s: need \"%s\" got \"%s\"",
 				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
 			SendError("Provided invalid SSL fingerprint " + fp + " - expected " + link.Fingerprint);
 			return false;
@@ -171,7 +169,8 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	}
 	else if (!fp.empty())
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is %s", link.Name.c_str(), fp.c_str());
+		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is \"%s\". "
+			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
 	}
 	return true;
 }
