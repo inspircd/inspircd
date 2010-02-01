@@ -386,6 +386,15 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (L->Name.length() > 64)
 			throw CoreException("The link name '"+assign(L->Name)+"' is longer than 64 characters!");
 
+		if (L->Fingerprint.find(':') != std::string::npos)
+		{
+			std::string tmp = L->Fingerprint;
+			L->Fingerprint.clear();
+			for(unsigned int j=0; j < tmp.length(); j++)
+				if (tmp[j] != ':')
+					L->Fingerprint.push_back(tmp[j]);
+		}
+
 		if ((!L->IPAddr.empty()) && (!L->RecvPass.empty()) && (!L->SendPass.empty()) && (!L->Name.empty()) && (L->Port))
 		{
 			ValidIPs.push_back(L->IPAddr);
