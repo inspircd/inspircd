@@ -288,7 +288,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 					if (mh && mh->NeedsOper() && tag->AllowedChanModes[c])
 						cmodes.push_back(c);
 				}
-				results.push_back(sn+" 243 "+user->nick+" O"+tag->name + " " + umodes + " " + cmodes);
+				results.push_back(sn+" 243 "+user->nick+" O "+tag->NameStr() + " " + umodes + " " + cmodes);
 			}
 		}
 		break;
