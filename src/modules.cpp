@@ -693,6 +693,7 @@ void FileReader::LoadFile(const std::string &filename)
 	}
 	else
 	{
+		fc.clear();
 		FILE* f = fopen(filename.c_str(), "r");
 		if (!f)
 			return;

@@ -63,12 +63,9 @@ class ModuleOpermotd : public Module
 
 	void LoadOperMOTD()
 	{
-		ConfigReader conf;
-		std::string filename;
-		filename = conf.ReadValue("opermotd","file",0);
-		delete opermotd;
-		opermotd = new FileReader(filename);
-		onoper = conf.ReadFlag("opermotd","onoper","yes",0);
+		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
+		opermotd->LoadFile(conf->getString("file","opermotd"));
+		onoper = conf->getBool("onoper", true);
 	}
 
 	ModuleOpermotd()
@@ -84,13 +81,14 @@ class ModuleOpermotd : public Module
 
 	virtual ~ModuleOpermotd()
 	{
+		delete opermotd;
+		opermotd = NULL;
 	}
 
 	virtual Version GetVersion()
 	{
 		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR);
 	}
-
 
 	virtual void OnOper(User* user, const std::string &opertype)
 	{

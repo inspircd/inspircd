@@ -46,12 +46,12 @@ class ModuleHTTPAccessList : public Module
 	void ReadConfig()
 	{
 		acl_list.clear();
-		ConfigReader c;
-		int n_items = c.Enumerate("httpdacl");
-		for (int i = 0; i < n_items; ++i)
+		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
+		for (ConfigIter i = acls.first; i != acls.second; i++)
 		{
-			std::string path = c.ReadValue("httpdacl", "path", i);
-			std::string types = c.ReadValue("httpdacl", "types", i);
+			ConfigTag* c = i->second;
+			std::string path = c->getString("path");
+			std::string types = c->getString("types");
 			irc::commasepstream sep(types);
 			std::string type;
 			std::string username;
@@ -63,16 +63,16 @@ class ModuleHTTPAccessList : public Module
 			{
 				if (type == "password")
 				{
-					username = c.ReadValue("httpdacl", "username", i);
-					password = c.ReadValue("httpdacl", "password", i);
+					username = c->getString("username");
+					password = c->getString("password");
 				}
 				else if (type == "whitelist")
 				{
-					whitelist = c.ReadValue("httpdacl", "whitelist", i);
+					whitelist = c->getString("whitelist");
 				}
 				else if (type == "blacklist")
 				{
-					blacklist = c.ReadValue("httpdacl", "blacklist", i);
+					blacklist = c->getString("blacklist");
 				}
 				else
 				{

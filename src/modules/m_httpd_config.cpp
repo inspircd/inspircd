@@ -16,25 +16,11 @@
 #include "protocol.h"
 
 /* $ModDesc: Provides statistics over HTTP via m_httpd.so */
-/* $ModDep: httpd.h */
 
-class ModuleHttpStats : public Module
+class ModuleHttpConfig : public Module
 {
-
-	std::string stylesheet;
-	bool changed;
-
  public:
-
-	void ReadConfig()
-	{
-		ConfigReader c;
-		this->stylesheet = c.ReadValue("httpstats", "stylesheet", 0);
-	}
-
-	ModuleHttpStats() 	{
-		ReadConfig();
-		this->changed = true;
+	ModuleHttpConfig() 	{
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
@@ -108,14 +94,14 @@ class ModuleHttpStats : public Module
 		}
 	}
 
-	virtual ~ModuleHttpStats()
+	virtual ~ModuleHttpConfig()
 	{
 	}
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides statistics over HTTP via m_httpd.so", VF_VENDOR);
+		return Version("Provides configuration over HTTP via m_httpd.so", VF_VENDOR);
 	}
 };
 
-MODULE_INIT(ModuleHttpStats)
+MODULE_INIT(ModuleHttpConfig)

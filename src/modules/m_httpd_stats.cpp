@@ -21,20 +21,10 @@
 class ModuleHttpStats : public Module
 {
 	static std::map<char, char const*> const &entities;
-	std::string stylesheet;
-	bool changed;
 
  public:
 
-	void ReadConfig()
-	{
-		ConfigReader c;
-		this->stylesheet = c.ReadValue("httpstats", "stylesheet", 0);
-	}
-
 	ModuleHttpStats() 	{
-		ReadConfig();
-		this->changed = true;
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
