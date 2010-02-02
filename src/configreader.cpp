@@ -51,28 +51,29 @@ ServerConfig::ServerConfig()
 void ServerConfig::Update005()
 {
 	std::stringstream out(data005);
+	std::vector<std::string> data;
 	std::string token;
-	std::string line5;
-	int token_counter = 0;
-	isupport.clear();
 	while (out >> token)
+		data.push_back(token);
+	sort(data.begin(), data.end());
+
+	std::string line5;
+	isupport.clear();
+	for(unsigned int i=0; i < data.size(); i++)
 	{
+		token = data[i];
 		line5 = line5 + token + " ";
-		token_counter++;
-		if (token_counter >= 13)
+		if (i % 13 == 12)
 		{
-			char buf[MAXBUF];
-			snprintf(buf, MAXBUF, "%s:are supported by this server", line5.c_str());
-			isupport.push_back(buf);
+			line5.append(":are supported by this server");
+			isupport.push_back(line5);
 			line5.clear();
-			token_counter = 0;
 		}
 	}
 	if (!line5.empty())
 	{
-		char buf[MAXBUF];
-		snprintf(buf, MAXBUF, "%s:are supported by this server", line5.c_str());
-		isupport.push_back(buf);
+		line5.append(":are supported by this server");
+		isupport.push_back(line5);
 	}
 }
 

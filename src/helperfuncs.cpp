@@ -396,13 +396,18 @@ std::string InspIRCd::TimeString(time_t curtime)
 void InspIRCd::AddExtBanChar(char c)
 {
 	std::string &tok = Config->data005;
-	std::string::size_type ebpos;
+	std::string::size_type ebpos = tok.find(" EXTBAN=,");
 
-	if ((ebpos = tok.find(" EXTBAN=,")) == std::string::npos)
+	if (ebpos == std::string::npos)
 	{
 		tok.append(" EXTBAN=,");
 		tok.push_back(c);
 	}
 	else
-		tok.insert(ebpos + 9, 1, c);
+	{
+		ebpos += 9;
+		while (isalpha(tok[ebpos]) && tok[ebpos] < c)
+			ebpos++;
+		tok.insert(ebpos, 1, c);
+	}
 }
