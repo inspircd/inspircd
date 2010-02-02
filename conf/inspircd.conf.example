@@ -275,8 +275,9 @@
          # module be loaded as well.
          modes="+x"
 
-         # requireident/requiressl: require that users of this block use SSL or
-         # have a valid ident response. Requires m_ident or m_sslinfo
+         # requireident, requiressl, requiresasl: require that users of this
+         # block have a valid ident response, use SSL, or have authenticated with SASL.
+         # Requires m_ident, m_sslinfo, or m_sasl respectively
          requiressl="on"
 
          # port: What port this user is allowed to connect on. (optional)
@@ -395,13 +396,16 @@
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
-<files
-       # motd: Path to your motd file. Path is relative to the run directory.
-       motd="conf/inspircd.motd.example"
+# Files block - contains files whose contents are used by the ircd
+#
+#   motd - displayed on connect and when a user executes /MOTD
+#   rules - displayed when the user executes /RULES
+# Modules can also define their own files
+<files motd="conf/inspircd.motd.example" rules="conf/inspircd.rules.example">
 
-       # rules: Path to your rules file. Path is relative to the run directory.
-       # This is optional and is displayed when a user does /rules on the network.
-       rules="conf/inspircd.rules.example">
+# Example of an executable file include. Note this will be read on rehash,
+# not when the command is run.
+#<execfiles rules="wget -O - http://www.example.com/rules.txt">
 
 #-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -552,9 +556,6 @@
 
          # serverpingfreq: How often pings are sent between servers (in seconds).
          serverpingfreq="60"
-
-         # allowhalfop: Allows the use of +h channelmode (halfops).
-         allowhalfop="yes"
 
          # defaultmodes: What modes are set on a empty channel when a user
          # joins it and it is unregistered. This is similar to Asuka's

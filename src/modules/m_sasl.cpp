@@ -226,8 +226,8 @@ class ModuleSASL : public Module
 	ModuleSASL()
 		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnSetConnectClass };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 		ServiceProvider* providelist[] = { &auth, &sasl, &authExt };
 		ServerInstance->Modules->AddServices(providelist, 3);
@@ -245,6 +245,17 @@ class ModuleSASL : public Module
 			authExt.unset(user);
 		}
 
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	{
+		if (myclass->config->getBool("requiresasl"))
+		{
+			AccountExtItem* ext = GetAccountExtItem();
+			if (ext && !ext.get(user))
+				return MOD_RES_DENY;
+		}
 		return MOD_RES_PASSTHRU;
 	}
 
