@@ -44,6 +44,8 @@ bool ModuleManager::Load(const char* filename)
 			dirent* entry = NULL;
 			while (0 != (entry = readdir(library)))
 			{
+				if (entry->d_name[0] == '.')
+					continue;
 				if (InspIRCd::Match(entry->d_name, filename, ascii_case_insensitive_map))
 				{
 					if (!this->Load(entry->d_name))
