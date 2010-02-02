@@ -252,8 +252,8 @@ class ModuleSASL : public Module
 	{
 		if (myclass->config->getBool("requiresasl"))
 		{
-			AccountExtItem* ext = GetAccountExtItem();
-			if (ext && !ext.get(user))
+			const AccountExtItem* ext = GetAccountExtItem();
+			if (ext && !ext->get(user))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

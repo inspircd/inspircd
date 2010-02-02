@@ -89,12 +89,8 @@ class ModuleSSLOpenSSL : public Module
 
 	char cipher[MAXBUF];
 
-	std::string keyfile;
-	std::string certfile;
-	std::string cafile;
-	// std::string crlfile;
-	std::string dhfile;
 	std::string sslports;
+	bool use_sha;
 
 	ServiceProvider iohook;
  public:
@@ -168,27 +164,23 @@ class ModuleSSLOpenSSL : public Module
 		if (param != "ssl")
 			return;
 
+		std::string keyfile;
+		std::string certfile;
+		std::string cafile;
+		std::string dhfile;
 		OnRehash(user);
 
-		ConfigReader Conf;
+		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
 
-		cafile	 = Conf.ReadValue("openssl", "cafile", 0);
-		certfile = Conf.ReadValue("openssl", "certfile", 0);
-		keyfile	 = Conf.ReadValue("openssl", "keyfile", 0);
-		dhfile	 = Conf.ReadValue("openssl", "dhfile", 0);
+		cafile	 = conf->getString("cafile", "conf/ca.pem");
+		certfile = conf->getString("certfile", "conf/cert.pem");
+		keyfile	 = conf->getString("keyfile", "conf/key.pem");
+		dhfile	 = conf->getString("dhfile", "conf/dhparams.pem");
+		std::string hash = conf->getString("hash", "md5");
+		if (hash != "sha1" && hash != "md5")
+			throw ModuleException("Unknown hash type " + hash);
+		use_sha = (hash == "sha1");
 
-		// Set all the default values needed.
-		if (cafile.empty())
-			cafile = "conf/ca.pem";
-
-		if (certfile.empty())
-			certfile = "conf/cert.pem";
-
-		if (keyfile.empty())
-			keyfile = "conf/key.pem";
-
-		if (dhfile.empty())
-			dhfile = "conf/dhparams.pem";
 
 		/* Load our keys and certificates
 		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
@@ -253,6 +245,10 @@ class ModuleSSLOpenSSL : public Module
 			if (sessions[user->GetFd()].sess)
 			{
 				SSLCertSubmission(user, this, ServerInstance->Modules->Find("m_sslinfo.so"), sessions[user->GetFd()].cert);
+
+				if (!sessions[user->GetFd()].cert->fingerprint.empty())
+					user->WriteServ("NOTICE %s :*** You are connected using SSL fingerprint %s",
+						user->nick.c_str(), sessions[user->GetFd()].cert->fingerprint.c_str());
 			}
 		}
 	}
@@ -382,7 +378,7 @@ class ModuleSSLOpenSSL : public Module
 			char* buffer = ServerInstance->GetReadBuffer();
 			size_t bufsiz = ServerInstance->Config->NetBufferSize;
 			int ret = SSL_read(session->sess, buffer, bufsiz);
-			
+
 			if (ret > 0)
 			{
 				recvq.append(buffer, ret);
@@ -563,7 +559,7 @@ class ModuleSSLOpenSSL : public Module
 		session->cert = certinfo;
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
-		const EVP_MD *digest = EVP_md5();
+		const EVP_MD *digest = use_sha ? EVP_sha1() : EVP_md5();
 
 		cert = SSL_get_peer_certificate((SSL*)session->sess);
 

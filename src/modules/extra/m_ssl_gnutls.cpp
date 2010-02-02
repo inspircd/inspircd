@@ -122,12 +122,8 @@ class ModuleSSLGnuTLS : public Module
 
 	gnutls_certificate_credentials x509_cred;
 	gnutls_dh_params dh_params;
+	gnutls_digest_algorithm_t hash;
 
-	std::string keyfile;
-	std::string certfile;
-
-	std::string cafile;
-	std::string crlfile;
 	std::string sslports;
 	int dh_bits;
 
@@ -192,31 +188,31 @@ class ModuleSSLGnuTLS : public Module
 		if(param != "ssl")
 			return;
 
+		std::string keyfile;
+		std::string certfile;
+		std::string cafile;
+		std::string crlfile;
 		OnRehash(user);
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 
-		cafile = Conf->getString("cafile");
-		crlfile	= Conf->getString("crlfile");
-		certfile = Conf->getString("certfile");
-		keyfile	= Conf->getString("keyfile");
+		cafile = Conf->getString("cafile", "conf/ca.pem");
+		crlfile	= Conf->getString("crlfile", "conf/crl.pem");
+		certfile = Conf->getString("certfile", "conf/cert.pem");
+		keyfile	= Conf->getString("keyfile", "conf/key.pem");
 		dh_bits	= Conf->getInt("dhbits");
-
-		// Set all the default values needed.
-		if (cafile.empty())
-			cafile = "conf/ca.pem";
-
-		if (crlfile.empty())
-			crlfile = "conf/crl.pem";
-
-		if (certfile.empty())
-			certfile = "conf/cert.pem";
-
-		if (keyfile.empty())
-			keyfile = "conf/key.pem";
+		std::string hashname = Conf->getString("hash", "md5");
 
 		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
 			dh_bits = 1024;
+
+		if (hashname == "md5")
+			hash = GNUTLS_DIG_MD5;
+		else if (hashname == "sha1")
+			hash = GNUTLS_DIG_SHA1;
+		else
+			throw ModuleException("Unknown hash type " + hashname);
+
 
 		int ret;
 
@@ -556,11 +552,16 @@ class ModuleSSLGnuTLS : public Module
 		{
 			if (sessions[user->GetFd()].sess)
 			{
-				SSLCertSubmission(user, this, ServerInstance->Modules->Find("m_sslinfo.so"), sessions[user->GetFd()].cert);
+				ssl_cert* cert = sessions[user->GetFd()].cert;
+				SSLCertSubmission(user, this, ServerInstance->Modules->Find("m_sslinfo.so"), cert);
 				std::string cipher = gnutls_kx_get_name(gnutls_kx_get(sessions[user->GetFd()].sess));
 				cipher.append("-").append(gnutls_cipher_get_name(gnutls_cipher_get(sessions[user->GetFd()].sess))).append("-");
 				cipher.append(gnutls_mac_get_name(gnutls_mac_get(sessions[user->GetFd()].sess)));
-				user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
+				if (cert->fingerprint.empty())
+					user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
+				else
+					user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\""
+						" and your SSL fingerprint is %s", user->nick.c_str(), cipher.c_str(), cert->fingerprint.c_str());
 			}
 		}
 	}
@@ -652,7 +653,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_x509_crt_get_issuer_dn(cert, name, &name_size);
 		certinfo->issuer = name;
 
-		if ((ret = gnutls_x509_crt_get_fingerprint(cert, GNUTLS_DIG_MD5, digest, &digest_size)) < 0)
+		if ((ret = gnutls_x509_crt_get_fingerprint(cert, hash, digest, &digest_size)) < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
 		}
