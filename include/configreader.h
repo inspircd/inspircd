@@ -219,6 +219,11 @@ class CoreExport ServerConfig
 	 */
 	ConfigDataHash config_data;
 
+	/** This holds all extra files that have been read in the configuration
+	 * (for example, MOTD and RULES files are stored here)
+	 */
+	ConfigFileCache Files;
+
 	/** Length limits, see definition of ServerLimits class
 	 */
 	ServerLimits Limits;
@@ -435,14 +440,6 @@ class CoreExport ServerConfig
 	 */
 	std::string HideKillsServer;
 
-	/** The MOTD file, cached in a file_cache type.
-	 */
-	file_cache MOTD;
-
-	/** The RULES file, cached in a file_cache type.
-	 */
-	file_cache RULES;
-
 	/** The full pathname and filename of the PID
 	 * file as defined in the configuration.
 	 */
@@ -554,10 +551,6 @@ class CoreExport ServerConfig
 	void ApplyModules(User* user);
 
 	void Fill();
-
-	/** Read a file into a file_cache object
-	 */
-	bool ReadFile(file_cache &F, const std::string& fname);
 
 	/* Returns true if the given string starts with a windows drive letter
 	 */

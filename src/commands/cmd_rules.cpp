@@ -44,7 +44,8 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;
 
-	if (!ServerInstance->Config->RULES.size())
+	ConfigFileCache::iterator rules = ServerInstance->Config->Files.find("rules");
+	if (rules == ServerInstance->Config->Files.end())
 	{
 		user->SendText(":%s %03d %s :RULES file is missing.",
 			ServerInstance->Config->ServerName.c_str(), ERR_NORULES, user->nick.c_str());
@@ -53,7 +54,7 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 	user->SendText(":%s %03d %s :%s server rules:", ServerInstance->Config->ServerName.c_str(),
 		RPL_RULESTART, user->nick.c_str(), ServerInstance->Config->ServerName.c_str());
 
-	for (file_cache::iterator i = ServerInstance->Config->RULES.begin(); i != ServerInstance->Config->RULES.end(); i++)
+	for (file_cache::iterator i = rules->second.begin(); i != rules->second.end(); i++)
 		user->SendText(":%s %03d %s :- %s", ServerInstance->Config->ServerName.c_str(), RPL_RULES, user->nick.c_str(),i->c_str());
 
 	user->SendText(":%s %03d %s :End of RULES command.", ServerInstance->Config->ServerName.c_str(), RPL_RULESEND, user->nick.c_str());

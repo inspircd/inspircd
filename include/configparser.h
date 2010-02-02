@@ -22,10 +22,11 @@ struct ParseStack
 	std::vector<std::string> reading;
 	std::map<std::string, std::string> vars;
 	ConfigDataHash& output;
+	ConfigFileCache& FilesOutput;
 	std::stringstream& errstr;
 
 	ParseStack(ServerConfig* conf)
-		: output(conf->config_data), errstr(conf->errstr)
+		: output(conf->config_data), FilesOutput(conf->Files), errstr(conf->errstr)
 	{
 		vars["amp"] = "&";
 		vars["quot"] = "\"";
@@ -34,6 +35,7 @@ struct ParseStack
 	bool ParseFile(const std::string& name, int flags);
 	bool ParseExec(const std::string& name, int flags);
 	void DoInclude(ConfigTag* includeTag, int flags);
+	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
 };
 
 /** RAII wrapper on FILE* to close files on exceptions */

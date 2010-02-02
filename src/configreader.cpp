@@ -588,8 +588,6 @@ void ServerConfig::Read()
 	}
 	if (valid)
 	{
-		ReadFile(MOTD, ConfValue("files")->getString("motd"));
-		ReadFile(RULES, ConfValue("files")->getString("rules"));
 		DNSServer = ConfValue("dns")->getString("server");
 		FindDNS(DNSServer);
 	}
@@ -790,34 +788,6 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 ConfigTagList ServerConfig::ConfTags(const std::string& tag)
 {
 	return config_data.equal_range(tag);
-}
-
-/** Read the contents of a file located by `fname' into a file_cache pointed at by `F'.
- */
-bool ServerConfig::ReadFile(file_cache &F, const std::string& fname)
-{
-	if (fname.empty())
-		return false;
-
-	char linebuf[MAXBUF];
-
-	F.clear();
-
-	FileWrapper file(fopen(fname.c_str(), "r"));
-
-	if (!file)
-		return false;
-	while (!feof(file))
-	{
-		if (fgets(linebuf, sizeof(linebuf), file))
-			linebuf[strlen(linebuf)-1] = 0;
-		else
-			*linebuf = 0;
-
-		F.push_back(*linebuf ? linebuf : " ");
-	}
-
-	return true;
 }
 
 bool ServerConfig::FileExists(const char* file)

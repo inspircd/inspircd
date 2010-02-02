@@ -686,13 +686,26 @@ void FileReader::CalcSize()
 
 void FileReader::LoadFile(const std::string &filename)
 {
-	file_cache c;
-	c.clear();
-	if (ServerInstance->Config->ReadFile(c,filename.c_str()))
+	std::map<std::string, file_cache>::iterator file = ServerInstance->Config->Files.find(filename);
+	if (file != ServerInstance->Config->Files.end())
 	{
-		this->fc = c;
-		this->CalcSize();
+		this->fc = file->second;
 	}
+	else
+	{
+		FILE* f = fopen(filename.c_str(), "r");
+		if (!f)
+			return;
+		char linebuf[MAXBUF*10];
+		while (fgets(linebuf, sizeof(linebuf), f))
+		{
+			int len = strlen(linebuf);
+			if (len)
+				fc.push_back(std::string(linebuf, len - 1));
+		}
+		fclose(f);
+	}
+	CalcSize();
 }
 
 

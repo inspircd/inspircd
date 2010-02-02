@@ -97,6 +97,7 @@ typedef std::pair<std::string, std::string> KeyVal;
 /** The entire configuration
  */
 typedef std::multimap<std::string, reference<ConfigTag> > ConfigDataHash;
+
 /** Iterator of ConfigDataHash */
 typedef ConfigDataHash::const_iterator ConfigIter;
 /** Iterator pair, used for tag-name ranges */
@@ -104,6 +105,9 @@ typedef std::pair<ConfigIter,ConfigIter> ConfigTagList;
 
 /** Index of valid oper blocks and types */
 typedef std::map<std::string, reference<OperInfo> > OperIndex;
+
+/** Files read by the configuration */
+typedef std::map<std::string, file_cache> ConfigFileCache;
 
 /** A hash of commands used by the core
  */

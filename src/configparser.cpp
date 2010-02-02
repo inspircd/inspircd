@@ -177,6 +177,20 @@ struct Parser
 		{
 			stack.DoInclude(tag, flags);
 		}
+		else if (name == "files")
+		{
+			for(std::vector<KeyVal>::iterator i = items->begin(); i != items->end(); i++)
+			{
+				stack.DoReadFile(i->first, i->second, flags, false);
+			}
+		}
+		else if (name == "execfiles")
+		{
+			for(std::vector<KeyVal>::iterator i = items->begin(); i != items->end(); i++)
+			{
+				stack.DoReadFile(i->first, i->second, flags, true);
+			}
+		}
 		else if (name == "define")
 		{
 			if (!(flags & FLAG_USE_XML))
@@ -272,6 +286,29 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_EXEC;
 		if (!ParseExec(name, flags))
 			throw CoreException("Included");
+	}
+}
+
+void ParseStack::DoReadFile(const std::string& key, const std::string& name, int flags, bool exec)
+{
+	if (flags & FLAG_NO_INC)
+		throw CoreException("Invalid <files> tag in file included with noinclude=\"yes\"");
+	if (exec && (flags & FLAG_NO_EXEC))
+		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
+
+	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(name.c_str(), "r"));
+	if (!file)
+		throw CoreException("Could not read \"" + name + "\" for \"" + key + "\" file");
+
+	file_cache& cache = FilesOutput[key];
+	cache.clear();
+
+	char linebuf[MAXBUF*10];
+	while (fgets(linebuf, sizeof(linebuf), file))
+	{
+		int len = strlen(linebuf);
+		if (len)
+			cache.push_back(std::string(linebuf, len - 1));
 	}
 }
 
