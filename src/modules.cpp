@@ -155,6 +155,7 @@ ModResult	Module::OnUserList(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { }
 void		Module::OnGarbageCollect() { }
+ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { return MOD_RES_PASSTHRU; }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }

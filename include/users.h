@@ -92,14 +92,6 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned int pingtime;
 
-	/** (Optional) Password for this line
-	 */
-	std::string pass;
-
-	/** (Optional) Hash Method for this line
-	 */
-	std::string hash;
-
 	/** Maximum size of sendq for users in this class (bytes)
 	 * Users cannot send commands if they go over this limit
 	 */
@@ -133,10 +125,6 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned int maxchans;
 
-	/** Port number this connect class applies to
-	 */
-	int port;
-
 	/** How many users may be in this connect class before they are refused?
 	 * (0 = no limit = default)
 	 */
@@ -152,11 +140,8 @@ struct CoreExport ConnectClass : public refcountbase
 	/** Update the settings in this block to match the given block */
 	void Update(const ConnectClass* newSettings);
 
-
 	const std::string& GetName() { return name; }
-	const std::string& GetPass() { return pass; }
 	const std::string& GetHost() { return host; }
-	const int GetPort() { return port; }
 
 	/** Returns the registration timeout
 	 */

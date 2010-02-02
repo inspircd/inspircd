@@ -806,9 +806,9 @@ void LocalUser::FullConnect()
 	/* Check the password, if one is required by the user's connect class.
 	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
 	 */
-	if (!MyClass->pass.empty())
+	if (!MyClass->config->getString("pass").empty())
 	{
-		if (ServerInstance->PassCompare(this, MyClass->pass.c_str(), password.c_str(), MyClass->hash.c_str()))
+		if (ServerInstance->PassCompare(this, MyClass->config->getString("pass"), password, MyClass->config->getString("hash")))
 		{
 			ServerInstance->Users->QuitUser(this, "Invalid password");
 			return;
@@ -1603,18 +1603,19 @@ void LocalUser::SetClass(const std::string &explicit_name)
 		{
 			ConnectClass* c = *i;
 
-			if (c->type == CC_ALLOW)
-			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "ALLOW %s %d %s", c->host.c_str(), c->GetPort(), c->GetName().c_str());
-			}
-			else if (c->type == CC_DENY)
-			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "DENY %s %d %s", c->GetHost().c_str(), c->GetPort(), c->GetName().c_str());
-			}
-			else
-			{
+			ModResult MOD_RESULT;
+			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
+			if (MOD_RESULT == MOD_RES_DENY)
 				continue;
+			if (MOD_RESULT == MOD_RES_ALLOW)
+			{
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class forced by module to %s", c->GetName().c_str());
+				found = c;
+				break;
 			}
+
+			if (c->type == CC_NAMED)
+				continue;
 
 			/* check if host matches.. */
 			if (c->GetHost().length() && !InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
@@ -1635,16 +1636,14 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			}
 
 			/* if it requires a port ... */
-			if (c->GetPort())
+			int port = c->config->getInt("port");
+			if (port)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port (%d)", c->GetPort());
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port (%d)", port);
 
 				/* and our port doesn't match, fail. */
-				if (this->GetServerPort() != c->GetPort())
-				{
-					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port match failed (%d)", this->GetServerPort());
+				if (this->GetServerPort() != port)
 					continue;
-				}
 			}
 
 			/* we stop at the first class that meets ALL critera. */
@@ -1705,19 +1704,18 @@ const std::string& FakeUser::GetFullRealHost()
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
-	pingtime(0), pass(""), hash(""), softsendqmax(0), hardsendqmax(0), recvqmax(0),
-	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxchans(0), port(0), limit(0)
+	pingtime(0), softsendqmax(0), hardsendqmax(0), recvqmax(0),
+	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxchans(0), limit(0)
 {
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, const ConnectClass& parent)
 	: config(tag), type(t), fakelag(parent.fakelag), name("unnamed"),
 	registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime),
-	pass(parent.pass), hash(parent.hash), softsendqmax(parent.softsendqmax),
-	hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
+	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
 	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
 	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxchans(parent.maxchans),
-	port(parent.port), limit(parent.limit)
+	limit(parent.limit)
 {
 }
 
@@ -1727,8 +1725,6 @@ void ConnectClass::Update(const ConnectClass* src)
 	registration_timeout = src->registration_timeout;
 	host = src->host;
 	pingtime = src->pingtime;
-	pass = src->pass;
-	hash = src->hash;
 	softsendqmax = src->softsendqmax;
 	hardsendqmax = src->hardsendqmax;
 	recvqmax = src->recvqmax;

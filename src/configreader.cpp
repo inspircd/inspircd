@@ -361,8 +361,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 			me->name = name;
 
-			tag->readString("password", me->pass);
-			tag->readString("hash", me->hash);
 			me->registration_timeout = tag->getInt("timeout", me->registration_timeout);
 			me->pingtime = tag->getInt("pingfreq", me->pingtime);
 			std::string sendq;
@@ -384,7 +382,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->fakelag = tag->getBool("fakelag", me->fakelag);
 			me->maxlocal = tag->getInt("localmax", me->maxlocal);
 			me->maxglobal = tag->getInt("globalmax", me->maxglobal);
-			me->port = tag->getInt("port", me->port);
 			me->maxchans = tag->getInt("maxchans", me->maxchans);
 			me->limit = tag->getInt("limit", me->limit);
 

@@ -97,7 +97,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 137
+#define API_VERSION 138
 
 /**
  * This #define allows us to call a method in all
@@ -325,7 +325,7 @@ enum Implementation
 	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
-	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect,
+	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnChannelRestrictionApply,
 	I_END
@@ -1254,6 +1254,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 * method is called when it is time to do that.
 	 */
 	virtual void OnGarbageCollect();
+
+	/** Called when a user's connect class is being matched
+	 * @return MOD_RES_ALLOW to force the class to match, MOD_RES_DENY to forbid it, or
+	 * MOD_RES_PASSTHRU to allow normal matching (by host/port).
+	 */
+	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
 
 	/** Add test suite hooks here. These are used for testing functionality of a module
 	 * via the --testsuite debugging parameter.

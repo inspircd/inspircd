@@ -80,10 +80,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 				else
 					res << c->host;
 
-				if (c->port)
-					res << ' ' << c->port << ' ';
-				else
-					res << " * ";
+				res << ' ' << c->config->getString("port", "*") << ' ';
 
 				res << c->GetRecvqMax() << ' ' << c->GetSendqSoftMax() << ' ' << c->GetSendqHardMax()
 					<< ' ' << c->GetCommandRate() << ' ' << c->GetPenaltyThreshold();
