@@ -127,8 +127,8 @@ class ModuleSSLInfo : public Module
 
 		ServerInstance->Extensions.Register(&cmd.CertExt);
 
-		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	Version GetVersion()
@@ -188,6 +188,13 @@ class ModuleSSLInfo : public Module
 		}
 
 		// Let core handle it for extra stuff
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	{
+		if (myclass->config->getBool("requiressl") && !cmd.CertExt.get(user))
+			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 

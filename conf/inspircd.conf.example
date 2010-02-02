@@ -275,9 +275,13 @@
          # module be loaded as well.
          modes="+x"
 
+         # requireident/requiressl: require that users of this block use SSL or
+         # have a valid ident response. Requires m_ident or m_sslinfo
+         requiressl="on"
+
          # port: What port this user is allowed to connect on. (optional)
          # The port MUST be set to listen in the bind blocks above.
-         port="6667">
+         port="6697">
 
 <connect
          # name: Name to use for this connect block. Mainly used for

@@ -280,8 +280,11 @@ class ModuleIdent : public Module
 	ModuleIdent() : ext("ident_socket", this)
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserDisconnect };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = {
+			I_OnRehash, I_OnUserRegister, I_OnCheckReady,
+			I_OnUserDisconnect, I_OnSetConnectClass
+		};
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	~ModuleIdent()
@@ -381,6 +384,13 @@ class ModuleIdent : public Module
 
 		/* The user isnt actually disconnecting, we call this to clean up the user */
 		OnUserDisconnect(user);
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	{
+		if (myclass->config->getBool("requireident") && user->ident[0] == '~')
+			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 
