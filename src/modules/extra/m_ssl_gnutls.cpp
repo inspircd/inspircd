@@ -105,6 +105,15 @@ class CommandStartTLS : public SplitCommand
 			if (!user->eh.GetIOHook())
 			{
 				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
+				/* We need to flush the write buffer prior to adding the IOHook,
+				 * otherwise we'll be sending this line inside the SSL session - which
+				 * won't start its handshake until the client gets this line. Currently,
+				 * we assume the write will not block here; this is usually safe, as
+				 * STARTTLS is sent very early on in the registration phase, where the
+				 * user hasn't built up much sendq. Handling a blocked write here would
+				 * be very annoying.
+				 */
+				user->eh.DoWrite();
 				user->eh.AddIOHook(creator);
 				creator->OnStreamSocketAccept(&user->eh, NULL, NULL);
 			}
