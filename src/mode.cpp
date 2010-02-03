@@ -291,8 +291,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 				ModeHandler* neededmh = NULL;
 				for(char c='A'; c <= 'z'; c++)
 				{
-					ModeHandler *privmh = FindMode(modechar, type);
-					if (privmh->GetPrefixRank() >= neededrank)
+					ModeHandler *privmh = FindMode(c, MODETYPE_CHANNEL);
+					if (privmh && privmh->GetPrefixRank() >= neededrank)
 					{
 						// this mode is sufficient to allow this action
 						if (!neededmh || privmh->GetPrefixRank() < neededmh->GetPrefixRank())
