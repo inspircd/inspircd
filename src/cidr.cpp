@@ -75,6 +75,9 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 		cidr_copy.assign(cidr_mask);
 	}
 
+	if (cidr_copy.find('/') == std::string::npos)
+		return false;
+
 	irc::sockets::sockaddrs addr;
 	irc::sockets::aptosa(address_copy, 0, addr);
 
@@ -82,7 +85,6 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 	irc::sockets::cidr_mask mask2(addr, mask.length);
 
 	return mask == mask2;
-
 }
 
 
