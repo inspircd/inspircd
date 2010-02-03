@@ -117,8 +117,10 @@ class CGIResolver : public Resolver
 			if (notify)
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
 
-			them->host.assign(result,0, 64);
-			them->dhost.assign(result, 0, 64);
+			if (result.length() > 64)
+				return;
+			them->host = result;
+			them->dhost = result;
 			them->InvalidateCache();
 			them->CheckLines(true);
 		}
@@ -254,12 +256,11 @@ public:
 	{
 		std::string *webirc_hostname = cmd.webirc_hostname.get(user);
 		std::string *webirc_ip = cmd.webirc_ip.get(user);
-		if (webirc_hostname)
+		if (webirc_hostname && webirc_hostname->length() < 64)
 		{
-			user->host.assign(*webirc_hostname, 0, 64);
-			user->dhost.assign(*webirc_hostname, 0, 64);
+			user->host = *webirc_hostname;
+			user->dhost = *webirc_hostname;
 			user->InvalidateCache();
-			cmd.webirc_hostname.unset(user);
 		}
 		if (webirc_ip)
 		{
@@ -273,6 +274,7 @@ public:
 			user->CheckClass();
 			user->CheckLines(true);
 		}
+		cmd.webirc_hostname.unset(user);
 	}
 
 	bool CheckPass(LocalUser* user)
@@ -281,8 +283,8 @@ public:
 		{
 			cmd.realhost.set(user, user->host);
 			cmd.realip.set(user, user->GetIPString());
-			user->host.assign(user->password, 0, 64);
-			user->dhost.assign(user->password, 0, 64);
+			user->host = user->password;
+			user->dhost = user->password;
 			user->InvalidateCache();
 
 			ServerInstance->Users->RemoveCloneCounts(user);
@@ -363,7 +365,7 @@ public:
 
 	bool IsValidHost(const std::string &host)
 	{
-		if(!host.size())
+		if(!host.size() || host.size() > 64)
 			return false;
 
 		for(unsigned int i = 0; i < host.size(); i++)
