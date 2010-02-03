@@ -164,6 +164,16 @@ void TreeSocket::WriteLine(std::string line)
 							subcmd.c_str());
 						line.erase(a, c-a);
 					}
+					if (subcmd == "CHGIDENT" && d != std::string::npos)
+					{
+						std::string::size_type e = line.find(' ', d + 1);
+						if (e == std::string::npos)
+							return; // not valid
+						std::string target = line.substr(d + 1, e - d - 1);
+
+						ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Forging acceptance of CHGIDENT from 1201-protocol server");
+						recvq.insert(0, ":" + target + " FIDENT " + line.substr(e) + "\n");
+					}
 				}
 			}
 		}
