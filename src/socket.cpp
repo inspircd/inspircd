@@ -331,7 +331,7 @@ std::string irc::sockets::cidr_mask::str() const
 	else
 		return "";
 	memcpy(base, bits, len);
-	return sa.addr() + "/" + ConvToStr(length);
+	return sa.addr() + "/" + ConvToStr((int)length);
 }
 
 bool irc::sockets::cidr_mask::operator==(const cidr_mask& other) const

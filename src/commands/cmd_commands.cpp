@@ -48,16 +48,21 @@ class CommandCommands : public Command
  */
 CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 {
+	std::vector<std::string> list;
+	list.reserve(ServerInstance->Parser->cmdlist.size());
 	for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
 		Module* src = i->second->creator;
-		user->WriteNumeric(RPL_COMMANDS, "%s :%s %s %d %d",
-				user->nick.c_str(),
-				i->second->name.c_str(),
-				src ? src->ModuleSourceFile.c_str() : "<core>",
-				i->second->min_params,
-				i->second->Penalty);
+		char buffer[MAXBUF];
+		snprintf(buffer, MAXBUF, ":%s %03d %s :%s %s %d %d",
+			ServerInstance->Config->ServerName.c_str(), RPL_COMMANDS, user->nick.c_str(),
+			i->second->name.c_str(), src->ModuleSourceFile.c_str(),
+			i->second->min_params, i->second->Penalty);
+		list.push_back(buffer);
 	}
+	sort(list.begin(), list.end());
+	for(unsigned int i=0; i < list.size(); i++)
+		user->Write(list[i]);
 	user->WriteNumeric(RPL_COMMANDSEND, "%s :End of COMMANDS list",user->nick.c_str());
 	return CMD_SUCCESS;
 }
