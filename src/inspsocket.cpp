@@ -131,6 +131,7 @@ void StreamSocket::Close()
 				ServerInstance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s",
 					modexcept.GetSource(), modexcept.GetReason());
 			}
+			IOHook = NULL;
 		}
 		ServerInstance->SE->Shutdown(this, 2);
 		ServerInstance->SE->DelFd(this);

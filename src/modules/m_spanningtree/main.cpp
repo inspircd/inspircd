@@ -188,7 +188,6 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 					{
 						sock->SendError("Ping timeout");
 						sock->Squit(s,"Ping timeout");
-						ServerInstance->SE->DelFd(sock);
 						sock->Close();
 						return;
 					}
@@ -750,6 +749,19 @@ void ModuleSpanningTree::OnLoadModule(Module* mod)
 void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
 	// TODO notify other servers?
+
+	unsigned int items = Utils->TreeRoot->ChildCount();
+	for(unsigned int x = 0; x < items; x++)
+	{
+		TreeServer* srv = Utils->TreeRoot->GetChild(x);
+		TreeSocket* sock = srv->GetSocket();
+		if (sock && sock->GetIOHook() == mod)
+		{
+			sock->SendError("SSL module unloaded");
+			sock->Squit(srv,"SSL module unloaded");
+			sock->Close();
+		}
+	}
 }
 
 void ModuleSpanningTree::RedoConfig(Module* mod)
