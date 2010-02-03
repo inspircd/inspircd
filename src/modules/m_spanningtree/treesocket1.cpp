@@ -233,5 +233,7 @@ void TreeSocket::OnDataReady()
 		if (!getError().empty())
 			break;
 	}
+	if (getError().empty() && recvq.length() > 4096)
+		SendError("RecvQ overrun (line too long)");
 	Utils->Creator->loopCall = false;
 }
