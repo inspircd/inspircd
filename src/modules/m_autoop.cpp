@@ -25,8 +25,30 @@ class AutoOpList : public ListModeBase
 	{
 		levelrequired = OP_VALUE;
 	}
-	// TODO need own numerics
-	// TODO add some serious access control for setting this mode (you can currently gain +qa with it)
+
+	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
+	{
+		std::string::size_type pos = parameter.find(':');
+		if (pos == 0 || pos == std::string::npos)
+			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		unsigned int mylevel = channel->GetPrefixValue(source);
+		while (pos > 0)
+		{
+			pos--;
+			ModeHandler* mh = ServerInstance->Modes->FindMode(parameter[pos], MODETYPE_CHANNEL);
+			if (adding && !mh)
+				return MOD_RES_DENY;
+			else if (!mh)
+				continue;
+
+			std::string dummy;
+			if (mh->AccessCheck(source, channel, dummy, true) == MOD_RES_DENY)
+				return MOD_RES_DENY;
+			if (mh->GetLevelRequired() > mylevel)
+				return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
+	}
 };
 
 
@@ -58,10 +80,7 @@ public:
 				if (colon == std::string::npos)
 					continue;
 				if (chan->CheckBan(user, it->mask.substr(colon+1)))
-				{
-					privs = it->mask.substr(0, colon);
-					break;
-				}
+					privs += it->mask.substr(0, colon);
 			}
 		}
 

@@ -182,16 +182,17 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DoRehash()
 	{
-		ConfigReader Conf;
+		ConfigTagList tags = ServerInstance->Config->ConfTags(configtag);
 
 		chanlimits.clear();
 
-		for (int i = 0; i < Conf.Enumerate(configtag); i++)
+		for (ConfigIter i = tags.first; i != tags.second; i++)
 		{
 			// For each <banlist> tag
+			ConfigTag* c = i->second;
 			ListLimit limit;
-			limit.mask = Conf.ReadValue(configtag, "chan", i);
-			limit.limit = Conf.ReadInteger(configtag, "limit", i, true);
+			limit.mask = c->getString("chan");
+			limit.limit = c->getInt("limit");
 
 			if (limit.mask.size() && limit.limit > 0)
 				chanlimits.push_back(limit);
