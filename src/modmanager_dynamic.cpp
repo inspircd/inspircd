@@ -169,7 +169,8 @@ namespace {
 			ServerInstance->GlobalCulls.Apply();
 			delete dll;
 			bool rv = ServerInstance->Modules->Load(name.c_str());
-			callback->Call(rv);
+			if (callback)
+				callback->Call(rv);
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
 	};
