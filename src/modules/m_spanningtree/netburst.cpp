@@ -144,7 +144,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 			params.append(" ").append(b->data);
 			linesize += size;
 		}
-		if ((params.length() >= ServerInstance->Config->Limits.MaxModes) || (currsize > 350))
+		if ((modes.length() >= ServerInstance->Config->Limits.MaxModes) || (currsize > 350))
 		{
 			/* Wrap at MAXMODES */
 			buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
