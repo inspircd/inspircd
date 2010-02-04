@@ -143,6 +143,8 @@ void TreeSocket::OnError(BufferedSocketError e)
 void TreeSocket::SendError(const std::string &errormessage)
 {
 	WriteLine("ERROR :"+errormessage);
+	DoWrite();
+	LinkState = DYING;
 	SetError(errormessage);
 }
 
@@ -233,7 +235,7 @@ void TreeSocket::OnDataReady()
 		if (!getError().empty())
 			break;
 	}
-	if (getError().empty() && recvq.length() > 4096)
+	if (LinkState != CONNECTED && recvq.length() > 4096)
 		SendError("RecvQ overrun (line too long)");
 	Utils->Creator->loopCall = false;
 }

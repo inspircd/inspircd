@@ -49,10 +49,11 @@
  * WAIT_AUTH_2:	indicates that the socket is inbound
  * 							but has not yet sent and received
  *							SERVER strings.
- * CONNECTED:		represents a fully authorized, fully
+ * CONNECTED:   represents a fully authorized, fully
  *							connected server.
+ * DYING:       represents a server that has had an error.
  */
-enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED };
+enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
 struct CapabData
 {

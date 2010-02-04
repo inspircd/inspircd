@@ -219,6 +219,8 @@ void TreeSocket::ProcessLine(std::string &line)
 			 */
 			this->ProcessConnectedLine(prefix, command, params);
 		break;
+		case DYING:
+		break;
 	}
 }
 
