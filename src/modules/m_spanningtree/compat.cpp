@@ -154,6 +154,18 @@ void TreeSocket::WriteLine(std::string line)
 					return;
 				std::string::size_type d = line.find(' ', c + 1);
 				std::string subcmd = line.substr(c + 1, d - c - 1);
+
+				if (subcmd == "CHGIDENT" && d != std::string::npos)
+				{
+					std::string::size_type e = line.find(' ', d + 1);
+					if (e == std::string::npos)
+						return; // not valid
+					std::string target = line.substr(d + 1, e - d - 1);
+
+					ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Forging acceptance of CHGIDENT from 1201-protocol server");
+					recvq.insert(0, ":" + target + " FIDENT " + line.substr(e) + "\n");
+				}
+
 				Command* thiscmd = ServerInstance->Parser->GetHandler(subcmd);
 				if (thiscmd)
 				{
@@ -163,16 +175,6 @@ void TreeSocket::WriteLine(std::string line)
 						ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Removing ENCAP on '%s' for 1201-protocol server",
 							subcmd.c_str());
 						line.erase(a, c-a);
-					}
-					if (subcmd == "CHGIDENT" && d != std::string::npos)
-					{
-						std::string::size_type e = line.find(' ', d + 1);
-						if (e == std::string::npos)
-							return; // not valid
-						std::string target = line.substr(d + 1, e - d - 1);
-
-						ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Forging acceptance of CHGIDENT from 1201-protocol server");
-						recvq.insert(0, ":" + target + " FIDENT " + line.substr(e) + "\n");
 					}
 				}
 			}
