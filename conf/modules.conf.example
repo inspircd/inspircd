@@ -231,6 +231,12 @@
 #   regular users only. Opers will view all users in the channel normally.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Autoop module: Adds basic channel access controls via the +w listmode.
+# For example, +w o:R:Brain will op anyone identified to the account "Brain"
+# on join.
+#<module name="m_autoop.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ban except module: Adds support for channel ban exceptions (+e)
 #<module name="m_banexception.so">
 
@@ -386,6 +392,14 @@
 #<chanfilter hidemask="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel History module: Displays the last 'X' lines of chat to a user
+# joining a channel with +H 'X:T' set; 'T' is the maximum time to keep
+# lines in the history buffer. Designed so that the new user knows what
+# the current topic of conversation is when joining the channel.
+# NOTE: Currently hard-limited to a maximum of 50 lines.
+#<module name="m_chanhistory.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel logging module: used to send snotice output to channels, to
 # allow staff to centrally monitor and discuss network activity.
 #
@@ -394,6 +408,22 @@
 # are allowed.
 #<module name="m_chanlog.so">
 #<chanlog snomasks="AOcC" channel="#opers">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel Names module: Allows disabling channels which have certain
+# characters in the channel name such as bold, colourcodes, etc which
+# can be quite annoying and allow users to on occasion have a channel
+# that looks like the name of another channel on the network.
+#<module name="m_channames.so">
+
+<channames
+	# denyrange: characters or range of characters to deny in channel
+	# names.
+	denyrange="2,3"
+
+	# allowrange: characters or range of characters to specifically allow
+	# in channel names.
+	allowrange="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone in already
@@ -788,6 +818,10 @@
 #<module name="m_globalload.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Halfop module: Provides the +h (halfops) channel status mode.
+#<module name="m_halfop.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
 #<module name="m_helpop.so">
 #
@@ -1043,6 +1077,16 @@
 # more: http://wiki.inspircd.org/Modules/mysql                        #
 #
 #<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database2">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Named Modes module: This module allows for the display and set/unset
+# of channel settings and modes via long-form mode names in channels with
+# channelmode +Z set. For example, to set a channelban with named modes:
+# /mode #channel +Z ban=foo!bar@baz . Currently this doesn't serve much
+# purpose outside of making channel administration a bit easier in some
+# cases, but eventually modules will start using named modes only because
+# we're running out of channelmodes. :D
+#<module name="m_namedmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # NAMESX module: Provides support for the NAMESX extension which allows

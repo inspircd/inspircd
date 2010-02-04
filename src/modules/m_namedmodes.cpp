@@ -129,7 +129,7 @@ class ModuleNamedModes : public Module
 				if (modechar)
 					modelist[i] = modechar;
 				else
-					modelist.erase(i, 1);
+					modelist.erase(i--, 1);
 			}
 			else if (mh && mh->GetNumParams(adding) && param_at < parameters.size())
 			{

@@ -69,6 +69,22 @@
 #
 
 <module name="m_chancreate.so">
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel Names module: Allows disabling channels which have certain
+# characters in the channel name such as bold, colourcodes, etc which
+# can be quite annoying and allow users to on occasion have a channel
+# that looks like the name of another channel on the network.
+<module name="m_channames.so">
+
+<channames
+	# denyrange: characters or range of characters to deny in channel
+	# names.
+	denyrange="2"
+
+	# allowrange: characters or range of characters to specifically allow
+	# in channel names.
+	allowrange="">
+
 <module name="m_channelban.so">
 <module name="m_chghost.so">
 <hostname charmap="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_/0123456789">
