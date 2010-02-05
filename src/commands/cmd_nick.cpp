@@ -91,7 +91,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		 * Also don't check Q:Lines for remote nickchanges, they should have our Q:Lines anyway to enforce themselves.
 		 *		-- w00t
 		 */
-		if (!allowinvalid || !IS_LOCAL(user))
+		if (IS_LOCAL(user) && !allowinvalid)
 		{
 			XLine* mq = ServerInstance->XLines->MatchesLine("Q",parameters[0]);
 			if (mq)
