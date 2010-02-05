@@ -33,21 +33,15 @@ class CommandNicklock : public Command
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 
+		if (!target)
+		{
+			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (target && ServerInstance->ULine(target->server))
-			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an NICKLOCK command on a u-lined client",user->nick.c_str());
-				return CMD_FAILURE;
-			}
-
-			if (!target)
-			{
-				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
-				return CMD_FAILURE;
-			}
-
 			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
@@ -58,7 +52,7 @@ class CommandNicklock : public Command
 		}
 
 		/* If we made it this far, extend the user */
-		if (target && IS_LOCAL(target))
+		if (IS_LOCAL(target))
 		{
 			locked.set(target, 1);
 
@@ -102,32 +96,24 @@ class CommandNickunlock : public Command
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 
-		/* Do local sanity checks and bails */
-		if (IS_LOCAL(user))
+		if (!target)
 		{
-			if (target && ServerInstance->ULine(target->server))
-			{
-				user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Cannot use an NICKUNLOCK command on a u-lined client",user->nick.c_str());
-				return CMD_FAILURE;
-			}
-
-			if (!target)
-			{
-				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
-				return CMD_FAILURE;
-			}
+			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
 		}
 
-		if (target && IS_LOCAL(target))
+		if (IS_LOCAL(target))
 		{
 			if (locked.set(target, 0))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used NICKUNLOCK on "+parameters[0]);
-				user->WriteNumeric(945, "%s %s :Nickname now unlocked.",user->nick.c_str(),target->nick.c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
+				user->SendText(":%s 945 %s %s :Nickname now unlocked.",
+					ServerInstance->Config->ServerName.c_str(),user->nick.c_str(),target->nick.c_str());
 			}
 			else
 			{
-				user->WriteNumeric(946, "%s %s :This user's nickname is not locked.",user->nick.c_str(),target->nick.c_str());
+				user->SendText(":%s 946 %s %s :This user's nickname is not locked.",
+					ServerInstance->Config->ServerName.c_str(),user->nick.c_str(),target->nick.c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -168,7 +154,6 @@ class ModuleNickLock : public Module
 	{
 		return Version("Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 
 	ModResult OnUserPreNick(User* user, const std::string &newnick)
 	{
