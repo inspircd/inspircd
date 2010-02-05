@@ -132,39 +132,6 @@ class NetworkPrefix : public ModeHandler
 		}
 	}
 
-	User* FindAndVerify(std::string &parameter, Channel* channel)
-	{
-		User* theuser = ServerInstance->FindNick(parameter);
-		if ((!theuser) || (!channel->HasUser(theuser)))
-		{
-			parameter.clear();
-			return NULL;
-		}
-		return theuser;
-	}
-
-	ModeAction HandleChange(User* source, User* theuser, bool adding, Channel* channel, std::string &parameter)
-	{
-		Membership* m = channel->GetUser(theuser);
-		if (m && adding)
-		{
-			if (!m->hasMode('Y'))
-			{
-				parameter = theuser->nick;
-				return MODEACTION_ALLOW;
-			}
-		}
-		else if (m && !adding)
-		{
-			if (m->hasMode('Y'))
-			{
-				parameter = theuser->nick;
-				return MODEACTION_ALLOW;
-			}
-		}
-		return MODEACTION_DENY;
-	}
-
 	unsigned int GetPrefixRank()
 	{
 		return NETWORK_VALUE;
@@ -174,29 +141,19 @@ class NetworkPrefix : public ModeHandler
 	{
 	}
 
+	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
+	{
+		User* theuser = ServerInstance->FindNick(parameter);
+		// remove own privs?
+		if (source == theuser && !adding)
+			return MOD_RES_ALLOW;
+
+		return MOD_RES_PASSTHRU;
+	}
+
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		User* theuser = FindAndVerify(parameter, channel);
-
-		if (!theuser)
-			return MODEACTION_DENY;
-
-		 // source is a server, or ulined, we'll let them +-Y the user.
-		if (source == ServerInstance->FakeClient ||
-			((source == theuser) && (!adding)) ||
-			(ServerInstance->ULine(source->nick.c_str())) ||
-			(ServerInstance->ULine(source->server)) ||
-			(!IS_LOCAL(source))
-			)
-		{
-			return HandleChange(source, theuser, adding, channel, parameter);
-		}
-		else
-		{
-			// bzzzt, wrong answer!
-			source->WriteNumeric(482, "%s %s :Only servers may change this mode.", source->nick.c_str(), channel->name.c_str());
-			return MODEACTION_DENY;
-		}
+		return MODEACTION_ALLOW;
 	}
 
 };
