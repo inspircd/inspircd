@@ -81,29 +81,26 @@ std::string Channel::GetModeParameter(ModeHandler* mode)
 
 int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 {
-	if (u)
+	if (!u)
+		u = ServerInstance->FakeClient;
+	if (IS_LOCAL(u) && !forceset)
 	{
-		if(!forceset)
+		ModResult res;
+		FIRST_MOD_RESULT(OnPreTopicChange, res, (u,this,ntopic));
+
+		if (res == MOD_RES_DENY)
+			return CMD_FAILURE;
+		if (res != MOD_RES_ALLOW)
 		{
-			ModResult res;
-			/* 0: check status, 1: don't, -1: disallow change silently */
-
-			FIRST_MOD_RESULT(OnPreTopicChange, res, (u,this,ntopic));
-
-			if (res == MOD_RES_DENY)
-				return CMD_FAILURE;
-			if (res != MOD_RES_ALLOW)
+			if (!this->HasUser(u))
 			{
-				if (!this->HasUser(u))
-				{
-					u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
-					return CMD_FAILURE;
-				}
-				if ((this->IsModeSet('t')) && (this->GetPrefixValue(u) < HALFOP_VALUE))
-				{
-					u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
-					return CMD_FAILURE;
-				}
+				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+				return CMD_FAILURE;
+			}
+			if ((this->IsModeSet('t')) && (this->GetPrefixValue(u) < HALFOP_VALUE))
+			{
+				u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+				return CMD_FAILURE;
 			}
 		}
 	}
@@ -122,11 +119,7 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 
 	this->topicset = ServerInstance->Time();
 
-	// XXX: this check for 'u' is probably pre-fake-user, and it fucking sucks anyway. we need to change this.
-	if (u)
-	{
-		FOREACH_MOD(I_OnPostTopicChange,OnPostTopicChange(u, this, this->topic));
-	}
+	FOREACH_MOD(I_OnPostTopicChange,OnPostTopicChange(u, this, this->topic));
 
 	return CMD_SUCCESS;
 }
