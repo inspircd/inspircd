@@ -170,14 +170,14 @@ void TreeSocket::ListDifference(const std::string &one, const std::string &two, 
 	{
 		if (!values.erase(item))
 		{
-			mleft.push_back(sep);
-			mleft.append(item);
+			mright.push_back(sep);
+			mright.append(item);
 		}
 	}
 	for(std::set<std::string>::iterator i = values.begin(); i != values.end(); ++i)
 	{
-		mright.push_back(sep);
-		mright.append(*i);
+		mleft.push_back(sep);
+		mleft.append(*i);
 	}
 }
 
