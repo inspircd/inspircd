@@ -30,8 +30,6 @@
 /* $LinkerFlags: if(!"USE_FREEBSD_BASE_SSL") rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */
 
 /* $NoPedantic */
-/* $CopyInstall: conf/key.pem $(CONPATH) -m 0400 -o $(INSTUID) */
-/* $CopyInstall: conf/cert.pem $(CONPATH) -m 0444 */
 
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };

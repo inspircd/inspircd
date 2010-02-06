@@ -24,8 +24,6 @@
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") */
-/* $CopyInstall: conf/key.pem $(CONPATH) -m 0400 -o $(INSTUID) */
-/* $CopyInstall: conf/cert.pem $(CONPATH) -m 0444 */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 

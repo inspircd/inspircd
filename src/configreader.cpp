@@ -11,20 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-/* $CopyInstall: conf/inspircd.quotes.example $(CONPATH) */
-/* $CopyInstall: conf/inspircd.rules.example $(CONPATH) */
-/* $CopyInstall: conf/inspircd.motd.example $(CONPATH) */
-/* $CopyInstall: conf/inspircd.helpop-full.example $(CONPATH) */
-/* $CopyInstall: conf/inspircd.helpop.example $(CONPATH) */
-/* $CopyInstall: conf/inspircd.censor.example $(CONPATH) */
-/* $CopyInstall: conf/inspircd.filter.example $(CONPATH) */
-/* $CopyInstall: conf/inspircd.conf.example $(CONPATH) */
-/* $CopyInstall: conf/modules.conf.example $(CONPATH) */
-/* $CopyInstall: conf/opers.conf.example $(CONPATH) */
-/* $CopyInstall: conf/links.conf.example $(CONPATH) */
-/* $CopyInstall: tools/gdbargs $(BASE)/.gdbargs */
-
 #include "inspircd.h"
 #include <fstream>
 #include "xline.h"

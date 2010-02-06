@@ -159,7 +159,7 @@ install: target@EXTRA_DIR@
 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
 	-install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
 	-install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
-	@$(MAKEENV) make/install-extras.pl install
+	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
@@ -187,7 +187,6 @@ clean:
 deinstall:
 	-rm $(BINPATH)/inspircd
 	-rm $(MODPATH)/*.so
-	@make/install-extras.pl deinstall
 
 squeakyclean: distclean
 
