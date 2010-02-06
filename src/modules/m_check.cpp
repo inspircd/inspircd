@@ -250,7 +250,11 @@ class ModuleCheck : public Module
  public:
 	ModuleCheck() : mycommand(this)
 	{
-		ServerInstance->AddCommand(&mycommand);
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(mycommand);
 	}
 
 	~ModuleCheck()

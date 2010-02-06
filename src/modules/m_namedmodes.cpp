@@ -13,11 +13,87 @@
 
 #include "inspircd.h"
 
-class ModuleNamedModes : public Module
+static void DisplayList(User* user, Channel* channel)
+{
+	std::stringstream items;
+	for(char letter = 'A'; letter <= 'z'; letter++)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
+		if (!mh || mh->IsListMode())
+			continue;
+		if (!channel->IsModeSet(letter))
+			continue;
+		std::string item = mh->name;
+		if (mh->GetNumParams(true))
+			item += "=" + channel->GetModeParameter(letter);
+		items << item << " ";
+	}
+	char pfx[MAXBUF];
+	snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());
+	user->SendText(std::string(pfx), items);
+	user->WriteNumeric(960, "%s %s :End of mode list", user->nick.c_str(), channel->name.c_str());
+}
+
+class CommandProp : public Command
 {
  public:
-	ModuleNamedModes()
+	CommandProp(Module* parent) : Command(parent, "PROP", 1)
 	{
+		syntax = "<user|channel> [{+|-}<mode>[=value]]";
+		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
+	}
+
+	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
+	{
+		if (parameters.size() == 1)
+		{
+			Channel* chan = ServerInstance->FindChan(parameters[0]);
+			if (chan)
+				DisplayList(src, chan);
+			return CMD_SUCCESS;
+		}
+
+		std::string prop = parameters[1], value;
+		std::string::size_type eq = prop.find('=');
+		if (eq != std::string::npos)
+		{
+			value = prop.substr(eq + 1);
+			prop = prop.substr(0, eq);
+		}
+		bool plus = prop[0] != '-';
+		if (prop[0] == '+' || prop[0] == '-')
+			prop.erase(prop.begin());
+
+		for(char letter = 'A'; letter <= 'z'; letter++)
+		{
+			ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
+			if (mh && mh->name == prop)
+			{
+				if (mh->GetNumParams(plus) && value.empty())
+					return CMD_FAILURE;
+				std::vector<std::string> modes;
+				modes.push_back(parameters[0]);
+				modes.push_back((plus ? "+" : "-") + std::string(1, letter));
+				modes.push_back(value);
+				ServerInstance->SendGlobalMode(modes, src);
+				return CMD_SUCCESS;
+			}
+		}
+		return CMD_FAILURE;
+	}
+};
+
+class ModuleNamedModes : public Module
+{
+	CommandProp cmd;
+ public:
+	ModuleNamedModes() : cmd(this)
+	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnPreMode, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -42,27 +118,6 @@ class ModuleNamedModes : public Module
 				pos++;
 			line.insert(pos, 1, 'Z');
 		}
-	}
-
-	void DisplayList(User* user, Channel* channel)
-	{
-		std::stringstream items;
-		for(char letter = 'A'; letter <= 'z'; letter++)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-			if (!mh || mh->IsListMode())
-				continue;
-			if (!channel->IsModeSet(letter))
-				continue;
-			std::string item = mh->name;
-			if (mh->GetNumParams(true))
-				item += "=" + channel->GetModeParameter(letter);
-			items << item << " ";
-		}
-		char pfx[MAXBUF];
-		snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());
-		user->SendText(std::string(pfx), items);
-		user->WriteNumeric(960, "%s %s :End of mode list", user->nick.c_str(), channel->name.c_str());
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters)
