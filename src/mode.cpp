@@ -644,6 +644,9 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':') || (mh->GetPrefix() == '#'))
 		return false;
 
+	if (mh->GetPrefix() && FindPrefix(mh->GetPrefix()))
+		return false;
+
 	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
 	pos = (mh->GetModeChar()-65) | mask;
 
