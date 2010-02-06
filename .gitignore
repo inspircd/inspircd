@@ -5,15 +5,10 @@
 /.modulemanager
 /BSDmakefile
 /GNUmakefile
-/bin
 /build
 /inspircd
-/modules
 /org.inspircd.plist
-
-/conf/*.conf
-/conf/*.pem
-/conf/*.pid
+/run
 
 /include/inspircd_config.h
 /include/inspircd_version.h
