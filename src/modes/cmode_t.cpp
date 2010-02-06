@@ -17,6 +17,6 @@
 #include "users.h"
 #include "modes/cmode_t.h"
 
-ModeChannelTopicOps::ModeChannelTopicOps() : SimpleChannelModeHandler(NULL, "topic", 't')
+ModeChannelTopicOps::ModeChannelTopicOps() : SimpleChannelModeHandler(NULL, "topiclock", 't')
 {
 }
