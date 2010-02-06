@@ -743,12 +743,21 @@ void ModuleSpanningTree::OnRehash(User* user)
 
 void ModuleSpanningTree::OnLoadModule(Module* mod)
 {
-	// TODO notify other servers?
+	std::string data;
+	data.push_back('+');
+	data.append(mod->ModuleSourceFile);
+	Version v = mod->GetVersion();
+	if (!v.link_data.empty())
+	{
+		data.push_back('=');
+		data.append(v.link_data);
+	}
+	ServerInstance->PI->SendMetaData(NULL, "modules", data);
 }
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
-	// TODO notify other servers?
+	ServerInstance->PI->SendMetaData(NULL, "modules", "-" + mod->ModuleSourceFile);
 
 	unsigned int items = Utils->TreeRoot->ChildCount();
 	for(unsigned int x = 0; x < items; x++)
