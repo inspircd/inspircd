@@ -87,14 +87,12 @@ class ModuleOverride : public Module
 
 	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
 	{
-		if (!IS_OPER(source))
-			return MOD_RES_PASSTHRU;
 		if (!source || !channel)
 			return MOD_RES_PASSTHRU;
+		if (!IS_OPER(source) || !IS_LOCAL(source))
+			return MOD_RES_PASSTHRU;
 
-		unsigned int mode = 0;
-		if (channel->HasUser(source))
-			mode = channel->GetPrefixValue(source);
+		unsigned int mode = channel->GetPrefixValue(source);
 
 		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
 		{
