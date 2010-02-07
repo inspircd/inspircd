@@ -1244,6 +1244,26 @@
 #<module name="m_opermodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Password forwarding module: Forwards a password users can send on connect
+# to the specified client below. The client is usually nickserv and this
+# module is usually used to authenticate users with nickserv using their
+# connect password.
+#<module name="m_passforward.so">
+
+<passforward
+		# nick: nick to forward connect passwords to.
+		nick="NickServ"
+
+		# forwardmsg: Message to send to users using a connect password.
+		# $nick will be the users' nick, $nickrequired will be the nick
+		# of where the password is going (the nick above).
+		forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
+
+		# cmd: Command for the nick to run when it recieves a connect
+		# password. 
+		cmd="PRIVMSG $nickrequired :IDENTIFY $pass">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper password hash module: Allows hashed oper passwords
 # Relies on the module m_md5.so and/or m_sha256.so being loaded before
 # m_password_hash.so in the configuration file.
@@ -1406,14 +1426,6 @@
 # and are the only way to specify where the space can occur if you do
 # use glob. For this reason, is recommended to use a real regex engine
 # so that at least \s or [[:space:]] is available.
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# JSON-RPC module: Encode and decode JSON-RPC requests for modules
-#<module name="m_rpc_json.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# RPC test module: A test of the RPC API
-#<module name="m_rpctest.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAJOIN module: Adds the /SAJOIN command
