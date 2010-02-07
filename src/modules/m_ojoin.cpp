@@ -98,7 +98,7 @@ class NetworkPrefix : public ModeHandler
 	{
 		list = true;
 		prefix = NPrefix;
-		levelrequired = 0xFFFFFFFF;
+		levelrequired = INT_MAX;
 		m_paramtype = TR_NICK;
 	}
 
@@ -200,27 +200,24 @@ class ModuleOjoin : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
+		ConfigTag* Conf = ServerInstance->Config->ConvValue("ojoin");
 
 		if (!np)
 		{
 			// This is done on module load only
-			std::string npre = Conf.ReadValue("ojoin", "prefix", 0);
+			std::string npre = Conf->getString("prefix");
 			NPrefix = npre.empty() ? 0 : npre[0];
 
 			if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
 				throw ModuleException("Looks like the +Y prefix you picked for m_ojoin is already in use. Pick another.");
 		}
 
-		notice = Conf.ReadFlag("ojoin", "notice", "yes", 0);
-		op = Conf.ReadFlag("ojoin", "op", "yes", 0);
+		notice = Conf->getBool("notice", true);
+		op = Conf->getBool("op", true);
 	}
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
-		if ((ServerInstance->ULine(source->nick.c_str())) || ServerInstance->ULine(source->server))
-			return MOD_RES_PASSTHRU;
-
 		// Don't do anything if they're not +Y
 		if (!memb->hasMode('Y'))
 			return MOD_RES_PASSTHRU;

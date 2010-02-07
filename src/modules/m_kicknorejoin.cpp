@@ -101,7 +101,7 @@ public:
 		if (memb->chan->IsModeSet(&kr) && (source != memb->user))
 		{
 			delaylist* dl = kr.ext.get(memb->chan);
-			if (dl)
+			if (!dl)
 			{
 				dl = new delaylist;
 				kr.ext.set(memb->chan, dl);
