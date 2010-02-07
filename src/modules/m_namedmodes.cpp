@@ -39,8 +39,7 @@ class CommandProp : public Command
  public:
 	CommandProp(Module* parent) : Command(parent, "PROP", 1)
 	{
-		syntax = "<user|channel> [{+|-}<mode>[=value]]";
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
+		syntax = "<user|channel> {[+-]<mode> [<value>]}*";
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
@@ -52,34 +51,34 @@ class CommandProp : public Command
 				DisplayList(src, chan);
 			return CMD_SUCCESS;
 		}
-
-		std::string prop = parameters[1], value;
-		std::string::size_type eq = prop.find('=');
-		if (eq != std::string::npos)
+		unsigned int i = 1;
+		std::vector<std::string> modes;
+		modes.push_back(parameters[0]);
+		modes.push_back("");
+		while (i < parameters.size())
 		{
-			value = prop.substr(eq + 1);
-			prop = prop.substr(0, eq);
-		}
-		bool plus = prop[0] != '-';
-		if (prop[0] == '+' || prop[0] == '-')
-			prop.erase(prop.begin());
+			std::string prop = parameters[i++];
+			bool plus = prop[0] != '-';
+			if (prop[0] == '+' || prop[0] == '-')
+				prop.erase(prop.begin());
 
-		for(char letter = 'A'; letter <= 'z'; letter++)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-			if (mh && mh->name == prop)
+			for(char letter = 'A'; letter <= 'z'; letter++)
 			{
-				if (mh->GetNumParams(plus) && value.empty())
-					return CMD_FAILURE;
-				std::vector<std::string> modes;
-				modes.push_back(parameters[0]);
-				modes.push_back((plus ? "+" : "-") + std::string(1, letter));
-				modes.push_back(value);
-				ServerInstance->SendGlobalMode(modes, src);
-				return CMD_SUCCESS;
+				ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
+				if (mh && mh->name == prop)
+				{
+					modes[1].append((plus ? "+" : "-") + std::string(1, letter));
+					if (mh->GetNumParams(plus))
+					{
+						if (i == parameters.size())
+							return CMD_FAILURE;
+						modes.push_back(parameters[i++]);
+					}
+				}
 			}
 		}
-		return CMD_FAILURE;
+		ServerInstance->SendGlobalMode(modes, src);
+		return CMD_SUCCESS;
 	}
 };
 
