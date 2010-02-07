@@ -679,16 +679,11 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
 
 	/** Called after every MODE command sent from a user
-	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
-	 * if target_type is TYPE_CHANNEL. The text variable contains the remainder of the
-	 * mode string after the target, e.g. "+wsi" or "+ooo nick1 nick2 nick3".
 	 * @param user The user sending the MODEs
 	 * @param dest The target of the modes (User* or Channel*)
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text The actual modes and their parameters if any
-	 * @param translate The translation types of the mode parameters
+	 * @param modes The actual mode changes
 	 */
-	virtual void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate);
+	virtual void OnMode(User* user, Extensible* target, const irc::modestacker& modes);
 
 	/** Allows modules to alter or create server descriptions
 	 * Whenever a module requires a server description, for example for display in
@@ -750,22 +745,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
 	 */
 	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
-
-	/** Implemented by modules which provide the ability to link servers.
-	 * These modules will implement this method, which allows transparent sending of servermodes
-	 * down the network link as a broadcast, without a module calling it having to know the format
-	 * of the MODE command before the actual mode string.
-	 *
-	 * More documentation to follow soon. Please see src/modules/m_chanprotect.cpp for examples
-	 * of how to use this function.
-	 *
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
-	 * @param target The Channel* or User* that modes should be sent for
-	 * @param modeline The modes and parameters to be sent
-	 * @param translate The translation types of the mode parameters
-	 */
-	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
 
 	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows metadata (extra data added to
@@ -856,14 +835,13 @@ class CoreExport Module : public classbase, public usecountbase
 	 * a full mode change (use OnRawMode to check individual modes)
 	 *
 	 * Returning MOD_RES_ALLOW will skip prefix level checks, but can be overridden by
-	 * OnRawMode for each individual mode
+	 * OnRawMode for each individual mode. Returning MOD_RES_DENY will deny all changes.
 	 *
 	 * @param source the user making the mode change
-	 * @param dest the user destination of the umode change (NULL if a channel mode)
-	 * @param channel the channel destination of the mode change
-	 * @param parameters raw mode parameters; parameters[0] is the user/channel being changed
+	 * @param target the user or channel having its modes changed
+	 * @param modes the mode changes being made
 	 */
-	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters);
+	virtual ModResult OnPreMode(User* source, Extensible* target, irc::modestacker& modes);
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
@@ -1008,11 +986,11 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param param The parameter for the mode or an empty string
 	 * @param adding true of the mode is being added, false if it is being removed
 	 * @param pcnt The parameter count for the mode (0 or 1)
-	 * @return ACR_DENY to deny the mode, ACR_DEFAULT to do standard mode checking, and ACR_ALLOW
-	 * to skip all permission checking. Please note that for remote mode changes, your return value
-	 * will be ignored!
+	 * @return MOD_RES_DENY to deny the mode, MOD_RES_PASSTHRU to do standard mode checking, and
+	 * MOD_RES_ALLOW to skip all permission checking. Please note that for remote mode changes, your
+	 * return value will be ignored!
 	 */
-	virtual ModResult OnRawMode(User* user, Channel* chan, ModeID mode, const std::string &param, bool adding, int pcnt);
+	virtual ModResult OnRawMode(User* user, Channel* chan, irc::modechange& mc);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and

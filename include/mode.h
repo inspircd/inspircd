@@ -41,6 +41,39 @@ class ModeIDIter
 	inline void operator++(int) { current++; }
 };
 
+namespace irc
+{
+	class CoreExport modechange
+	{
+	 public:
+		bool adding;
+		ModeID mode;
+		std::string value;
+		modechange(ModeID id, const std::string& param = "", bool add = true)
+			: adding(add), mode(id), value(param) {}
+		modechange(const std::string& name, const std::string& param = "", bool add = true);
+		modechange(char modechar, const std::string& param = "", bool add = true);
+	};
+
+	/** irc::modestacker stacks mode sequences into a list.
+	 * It can then reproduce this list, clamped to a maximum of MAXMODES
+	 * values per line.
+	 */
+	class CoreExport modestacker
+	{
+	 public:
+		/** The mode sequence and its parameters
+		 */
+		std::vector<modechange> sequence;
+		/** Add a mode change to this sequence */
+		inline void push(const modechange& mc) { sequence.push_back(mc); }
+
+		inline bool empty() const { return sequence.empty(); }
+
+		std::string popModeLine(bool use_uuid = false);
+		void popPropLine(std::vector<std::string>& modeparams);
+	};
+}
 
 /**
  * Holds the values for different type of modes
@@ -441,19 +474,12 @@ class CoreExport ModeParser
 	/** Displays the value of a list mode
 	 * Used by ModeParser::Process.
 	 */
-	void DisplayListModes(User* user, Channel* chan, std::string &mode_sequence);
+	void DisplayListModes(User* user, Channel* chan, const std::string &mode_sequence);
 
 	/**
 	 * Attempts to apply a mode change to a user or channel
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, ModeID mode, std::string &param, bool SkipACL);
-
-	/** The string representing the last set of modes to be parsed.
-	 * Use GetLastParse() to get this value, to be used for  display purposes.
-	 */
-	std::string LastParse;
-	std::vector<std::string> LastParseParams;
-	std::vector<TranslateType> LastParseTranslate;
+	ModeAction TryMode(User* user, User* targu, Channel* targc, irc::modechange& mc, bool SkipACL);
 
 	unsigned int sent[MODE_ID_MAX];
 	unsigned int seq;
@@ -479,14 +505,6 @@ class CoreExport ModeParser
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */
 	static void CleanMask(std::string &mask);
-	/** Get the last string to be processed, as it was sent to the user or channel.
-	 * Use this to display a string you just sent to be parsed, as the actual output
-	 * may be different to what you sent after it has been 'cleaned up' by the parser.
-	 * @return Last parsed string, as seen by users.
-	 */
-	const std::string& GetLastParse();
-	const std::vector<std::string>& GetLastParseParams() { return LastParseParams; }
-	const std::vector<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
 
 	/** Add a mode to the mode parser.
 	 * @return True if the mode was successfully added.
@@ -527,6 +545,14 @@ class CoreExport ModeParser
 	 * and *user->server == NULL.
 	 */
 	void Process(const std::vector<std::string>& parameters, User *user, bool merge = false);
+
+	/** Process a set of mode changes from a server or user.
+	 * @param sre The source of these changes; use ServerInstance->FakeUser for server source
+	 * @param target The user or channel that is being changed
+	 * @param modes The modes being changed. Changes that are denied will be removed from the list.
+	 * @param merge True if modes should be merged rather than just applied (used in netburst)
+	 */
+	void Process(User *src, Extensible* target, irc::modestacker& modes, bool merge = false);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for

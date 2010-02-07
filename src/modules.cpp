@@ -83,7 +83,7 @@ void		Module::OnPreRehash(User*, const std::string&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
 ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnMode(User*, void*, int, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
+void		Module::OnMode(User*, Extensible*, const irc::modestacker&) { }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }
@@ -93,7 +93,7 @@ ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList
 ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { }
-ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPreMode(User*, Extensible*, irc::modestacker&) { return MOD_RES_PASSTHRU; }
 void		Module::On005Numeric(std::string&) { }
 ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnLoadModule(Module*) { }
@@ -106,7 +106,7 @@ ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserRegister(LocalUser*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
-ModResult	Module::OnRawMode(User*, Channel*, ModeID, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnRawMode(User*, Channel*, irc::modechange&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }
@@ -138,7 +138,6 @@ void		Module::OnGetServerDescription(const std::string&, std::string&) { }
 void		Module::OnSyncUser(User*, Module*, void*) { }
 void		Module::OnSyncChannel(Channel*, Module*, void*) { }
 void		Module::OnSyncNetwork(Module*, void*) { }
-void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
 void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
 void		Module::OnWallops(User*, const std::string&) { }
@@ -524,12 +523,10 @@ void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
 	this->Modes->Process(parameters, user);
 }
 
-
 void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *user)
 {
 	Modes->Process(parameters, user);
-	if (!Modes->GetLastParse().empty())
-		this->PI->SendMode(parameters[0], Modes->GetLastParseParams(), Modes->GetLastParseTranslate());
+	// TODO
 }
 
 bool InspIRCd::AddResolver(Resolver* r, bool cached)

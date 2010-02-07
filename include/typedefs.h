@@ -151,6 +151,5 @@ typedef XLineContainer::iterator ContainerIter;
  */
 typedef XLineLookup::iterator LookupIter;
 
-
 #endif
 

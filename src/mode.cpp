@@ -213,6 +213,69 @@ void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, Mo
 {
 }
 
+std::string irc::modestacker::popModeLine(bool use_uid)
+{
+	char pm_now = '\0';
+	std::string modeline;
+	std::stringstream params;
+	unsigned int nmodes = 0, linelen = 0;
+
+	std::vector<modechange>::iterator iter = sequence.begin();
+	for(; iter != sequence.end() && nmodes < ServerInstance->Config->Limits.MaxModes; ++iter)
+	{
+		char pm = iter->adding ? '+' : '-';
+		ModeHandler* mh = ServerInstance->Modes->FindMode(iter->mode);
+		if (!mh)
+			continue;
+		char modechar = mh->GetModeChar();
+		std::string value = iter->value;
+		if (mh->GetTranslateType() == TR_NICK)
+		{
+			User* u = ServerInstance->FindNick(value);
+			if (u)
+				value = use_uid ? u->uuid : u->nick;
+		}
+
+		if (!modechar)
+		{
+			modechar = 'Z';
+			if (mh->GetNumParams(iter->adding))
+				value = mh->name + "=" + value;
+			else
+				value = mh->name;
+		}
+		else if (mh->GetNumParams(iter->adding) && value.empty())
+		{
+			// value is empty when we want a param
+			continue;
+		}
+		else if (!mh->GetNumParams(iter->adding))
+			value.clear();
+
+		int mylen = (pm == pm_now) ? 1 : 2;
+		if (!value.empty())
+			mylen += 1 + value.length();
+
+		if (mylen + linelen + 100 > MAXBUF)
+			goto line_full;
+
+		linelen += mylen;
+		if (pm != pm_now)
+		{
+			modeline.push_back(pm);
+			pm_now = pm;
+		}
+		modeline.push_back(modechar);
+
+		if (!value.empty())
+			params << " " << value;
+	}
+
+line_full:
+	sequence.erase(sequence.begin(), iter);
+	return modeline + params.str();
+}
+
 void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text)
 {
 	if (targetchannel)
@@ -240,22 +303,24 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	}
 }
 
-ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool adding, ModeID modeid, std::string &parameter, bool SkipACL)
+ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc::modechange& mc, bool SkipACL)
 {
+	bool adding = mc.adding;
+	ModeID modeid = mc.mode;
 	ModeType type = chan ? MODETYPE_CHANNEL : MODETYPE_USER;
 
 	ModeHandler *mh = FindMode(modeid);
 	int pcnt = mh->GetNumParams(adding);
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, modeid, parameter, adding, pcnt));
+	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mc));
 
 	if (IS_LOCAL(user) && (MOD_RESULT == MOD_RES_DENY))
 		return MODEACTION_DENY;
 
 	if (chan && !SkipACL && (MOD_RESULT != MOD_RES_ALLOW))
 	{
-		MOD_RESULT = mh->AccessCheck(user, chan, parameter, adding);
+		MOD_RESULT = mh->AccessCheck(user, chan, mc.value, adding);
 
 		if (MOD_RESULT == MOD_RES_DENY)
 			return MODEACTION_DENY;
@@ -295,10 +360,10 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	std::pair<ModeWatcherMap::iterator,ModeWatcherMap::iterator> watchers = modewatchers.equal_range(modeid);
 	for (ModeWatcherMap::iterator watcher = watchers.first; watcher != watchers.second; watcher++)
 	{
-		if (watcher->second->BeforeMode(user, targetuser, chan, parameter, adding, type) == false)
+		if (watcher->second->BeforeMode(user, targetuser, chan, mc.value, adding, type) == false)
 			return MODEACTION_DENY;
 		/* A module whacked the parameter completely, and there was one. abort. */
-		if (pcnt && parameter.empty())
+		if (pcnt && mc.value.empty())
 			return MODEACTION_DENY;
 	}
 
@@ -329,15 +394,15 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		return MODEACTION_DENY;
 	}
 
-	if (mh->GetTranslateType() == TR_NICK && !ServerInstance->FindNick(parameter))
+	if (mh->GetTranslateType() == TR_NICK && !ServerInstance->FindNick(mc.value))
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameter.c_str());
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), mc.value.c_str());
 		return MODEACTION_DENY;
 	}
 
 	if (mh->GetPrefixRank() && chan)
 	{
-		User* user_to_prefix = ServerInstance->FindNick(parameter);
+		User* user_to_prefix = ServerInstance->FindNick(mc.value);
 		if (!user_to_prefix)
 			return MODEACTION_DENY;
 		if (!chan->SetPrefix(user_to_prefix, mh->GetModeChar(), adding))
@@ -345,16 +410,16 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	}
 
 	/* Call the handler for the mode */
-	ModeAction ma = mh->OnModeChange(user, targetuser, chan, parameter, adding);
+	ModeAction ma = mh->OnModeChange(user, targetuser, chan, mc.value, adding);
 
-	if (pcnt && parameter.empty())
+	if (pcnt && mc.value.empty())
 		return MODEACTION_DENY;
 
 	if (ma != MODEACTION_ALLOW)
 		return ma;
 
 	for (ModeWatcherMap::iterator watcher = watchers.first; watcher != watchers.second; watcher++)
-		watcher->second->AfterMode(user, targetuser, chan, parameter, adding, type);
+		watcher->second->AfterMode(user, targetuser, chan, mc.value, adding, type);
 
 	return MODEACTION_ALLOW;
 }
@@ -365,10 +430,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 	Channel* targetchannel = ServerInstance->FindChan(target);
 	User* targetuser  = ServerInstance->FindNick(target);
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
-
-	LastParse.clear();
-	LastParseParams.clear();
-	LastParseTranslate.clear();
 
 	if (!targetchannel && !targetuser)
 	{
@@ -381,34 +442,11 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		return;
 	}
 
-	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
-
-	bool SkipAccessChecks = false;
-
-	if (!IS_LOCAL(user) || ServerInstance->ULine(user->server) || MOD_RESULT == MOD_RES_ALLOW)
-		SkipAccessChecks = true;
-	else if (MOD_RESULT == MOD_RES_DENY)
-		return;
-
-	if (targetuser && !SkipAccessChecks && user != targetuser)
-	{
-		user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", user->nick.c_str());
-		return;
-	}
-
-	std::string mode_sequence = parameters[1];
-
-	std::string output_mode;
-	std::ostringstream output_parameters;
-	LastParseParams.push_back(output_mode);
-	LastParseTranslate.push_back(TR_TEXT);
-
-	bool adding = true;
-	char output_pm = '\0'; // current output state, '+' or '-'
 	unsigned int param_at = 2;
+	irc::modestacker modes;
+	bool adding = true;
 
-	for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
+	for (std::string::const_iterator letter = parameters[2].begin(); letter != parameters[2].end(); letter++)
 	{
 		unsigned char modechar = *letter;
 		if (modechar == '+' || modechar == '-')
@@ -436,72 +474,23 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		else if (pcnt)
 		{
 			parameter = parameters[param_at++];
-			/* Make sure the user isn't trying to slip in an invalid parameter */
-			if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
-				continue;
-			if (merge && targetchannel && targetchannel->IsModeSet(modechar) && !mh->IsListMode())
-			{
-				std::string ours = targetchannel->GetModeParameter(modechar);
-				if (!mh->ResolveModeConflict(parameter, ours, targetchannel))
-					/* we won the mode merge, don't apply this mode */
-					continue;
-			}
 		}
-
-		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, mh->id, parameter, SkipAccessChecks);
-
-		if (ma != MODEACTION_ALLOW)
-			continue;
-
-		char needed_pm = adding ? '+' : '-';
-		if (needed_pm != output_pm)
-		{
-			output_pm = needed_pm;
-			output_mode.append(1, output_pm);
-		}
-		output_mode.append(1, modechar);
-
-		if (pcnt)
-		{
-			TranslateType tt = mh->GetTranslateType();
-			if (tt == TR_NICK)
-			{
-				User* u = ServerInstance->FindNick(parameter);
-				if (u)
-					parameter = u->nick;
-			}
-			output_parameters << " " << parameter;
-			LastParseParams.push_back(parameter);
-			LastParseTranslate.push_back(tt);
-		}
-
-		if ( (output_mode.length() + output_parameters.str().length() > 450)
-				|| (output_mode.length() > 100)
-				|| (LastParseParams.size() > ServerInstance->Config->Limits.MaxModes))
-		{
-			/* mode sequence is getting too long */
-			break;
-		}
+		modes.push(irc::modechange(mh->id, parameter, adding));
 	}
 
-	LastParseParams[0] = output_mode;
+	Process(user, targetuser ? (Extensible*)targetuser : targetchannel, modes, merge);
 
-	if (!output_mode.empty())
+	if (!modes.empty())
 	{
-		LastParse = targetchannel ? targetchannel->name : targetuser->nick;
-		LastParse.append(" ");
-		LastParse.append(output_mode);
-		LastParse.append(output_parameters.str());
-
 		if (targetchannel)
 		{
-			targetchannel->WriteChannel(user, "MODE %s", LastParse.c_str());
-			FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, LastParseParams, LastParseTranslate));
+			while (!modes.empty())
+				targetchannel->WriteChannel(user, "MODE %s %s", targetchannel->name.c_str(), modes.popModeLine().c_str());
 		}
 		else
 		{
-			targetuser->WriteFrom(user, "MODE %s", LastParse.c_str());
-			FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, LastParseParams, LastParseTranslate));
+			while (!modes.empty())
+				targetuser->WriteFrom(user, "MODE %s %s", targetuser->nick.c_str(), modes.popModeLine().c_str());
 		}
 	}
 	else if (targetchannel && parameters.size() == 2)
@@ -509,11 +498,70 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		/* Special case for displaying the list for listmodes,
 		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
 		 */
-		this->DisplayListModes(user, targetchannel, mode_sequence);
+		this->DisplayListModes(user, targetchannel, parameters[1]);
 	}
 }
 
-void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_sequence)
+void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes, bool merge)
+{
+	Channel* targetchannel = dynamic_cast<Channel*>(target);
+	User* targetuser = dynamic_cast<User*>(target);
+
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (src, target, modes));
+
+	bool SkipAccessChecks = false;
+
+	if (!IS_LOCAL(src) || MOD_RESULT == MOD_RES_ALLOW)
+		SkipAccessChecks = true;
+	else if (MOD_RESULT == MOD_RES_DENY)
+		return;
+
+	if (targetuser && src != targetuser && !SkipAccessChecks)
+	{
+		src->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", src->nick.c_str());
+		return;
+	}
+
+	std::vector<irc::modechange>::iterator mc = modes.sequence.begin();
+	while (mc != modes.sequence.end())
+	{
+		ModeHandler* mh = FindMode(mc->mode);
+		if (mc->value.c_str()[0] == ':' || mc->value.find(' ') != std::string::npos)
+		{
+			// you can't do that in a mode value, sorry
+			mc = modes.sequence.erase(mc);
+			continue;
+		}
+		if (merge && targetchannel && targetchannel->IsModeSet(mh) && !mh->IsListMode())
+		{
+			std::string ours = targetchannel->GetModeParameter(mh);
+			if (!mh->ResolveModeConflict(mc->value, ours, targetchannel))
+			{
+				/* we won the mode merge, don't apply this mode */
+				mc = modes.sequence.erase(mc);
+				continue;
+			}
+		}
+
+		ModeAction ma = TryMode(src, targetuser, targetchannel, *mc, SkipAccessChecks);
+
+		if (ma == MODEACTION_ALLOW)
+		{
+			mc++;
+		}
+		else
+		{
+			/* mode change was denied */
+			mc = modes.sequence.erase(mc);
+			continue;
+		}
+	}
+	
+	FOREACH_MOD(I_OnMode, OnMode(src, target, modes));
+}
+
+void ModeParser::DisplayListModes(User* user, Channel* chan, const std::string &mode_sequence)
 {
 	seq++;
 
@@ -536,8 +584,9 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 		if (!mh || !mh->IsListMode())
 			return;
 
+		irc::modechange mc(mh->id);
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mh->id, "", true, 0));
+		FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mc));
 		if (MOD_RESULT == MOD_RES_DENY)
 			continue;
 
@@ -562,11 +611,6 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 		else
 			mh->DisplayEmptyList(user, chan);
 	}
-}
-
-const std::string& ModeParser::GetLastParse()
-{
-	return LastParse;
 }
 
 void ModeParser::CleanMask(std::string &mask)
@@ -865,7 +909,7 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 	{
 		if (stack)
 		{
-			stack->Push(this->GetModeChar());
+			stack->push(irc::modechange(id, "", false));
 		}
 		else
 		{
@@ -885,11 +929,11 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	char moderemove[MAXBUF];
 	std::vector<std::string> parameters;
 
-	if (channel->IsModeSet(this->GetModeChar()))
+	if (channel->IsModeSet(this))
 	{
 		if (stack)
 		{
-			stack->Push(this->GetModeChar());
+			stack->push(irc::modechange(id, "", false));
 		}
 		else
 		{
@@ -948,9 +992,6 @@ ModeParser::ModeParser()
 {
 	/* Clear mode handler list */
 	memset(handlers, 0, sizeof(handlers));
-
-	/* Last parse string */
-	LastParse.clear();
 
 	seq = 0;
 	memset(&sent, 0, sizeof(sent));
