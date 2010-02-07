@@ -200,7 +200,7 @@ class ModuleOjoin : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigTag* Conf = ServerInstance->Config->ConvValue("ojoin");
+		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
 
 		if (!np)
 		{
