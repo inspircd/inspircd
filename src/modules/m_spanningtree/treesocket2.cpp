@@ -462,19 +462,13 @@ std::string TreeSocket::GetName()
 
 void TreeSocket::OnTimeout()
 {
-	if (this->LinkState == CONNECTING)
-	{
-		ServerInstance->SNO->WriteGlobalSno('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
-	}
+	ServerInstance->SNO->WriteGlobalSno('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
 }
 
 void TreeSocket::Close()
 {
 	this->BufferedSocket::Close();
-
-	// Test fix for big fuckup
-	if (this->LinkState != CONNECTED)
-		return;
+	SetError("Remote host closed connection");
 
 	// Connection closed.
 	// If the connection is fully up (state CONNECTED)
@@ -485,9 +479,9 @@ void TreeSocket::Close()
 		quitserver = this->InboundServerName;
 	}
 	TreeServer* s = Utils->FindServer(quitserver);
-	if (s)
+	if (s && s->GetSocket() == this)
 	{
-		Squit(s,"Remote host closed the connection");
+		Squit(s,getError());
 	}
 
 	if (!quitserver.empty())
@@ -496,6 +490,6 @@ void TreeSocket::Close()
 
 		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
-				ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
+			ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
 	}
 }

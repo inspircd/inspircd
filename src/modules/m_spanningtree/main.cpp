@@ -150,6 +150,13 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
 	{
 		TreeServer *s = i->second;
+		
+		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
+		{
+			s->GetSocket()->SendError("Ping timeout");
+			s->GetSocket()->Squit(s,"Ping timeout");
+			s->GetSocket()->Close();
+		}
 
 		// Fix for bug #792, do not ping servers that are not connected yet!
 		// Remote servers have Socket == NULL and local connected servers have
