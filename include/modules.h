@@ -1012,7 +1012,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * to skip all permission checking. Please note that for remote mode changes, your return value
 	 * will be ignored!
 	 */
-	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt);
+	virtual ModResult OnRawMode(User* user, Channel* chan, ModeID mode, const std::string &param, bool adding, int pcnt);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and

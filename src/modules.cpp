@@ -106,7 +106,7 @@ ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserRegister(LocalUser*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
-ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnRawMode(User*, Channel*, ModeID, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }

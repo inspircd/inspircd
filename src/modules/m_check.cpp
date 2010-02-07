@@ -105,16 +105,16 @@ class CommandCheck : public Command
 				{
 					std::string umodes;
 					std::string cmodes;
-					for(char c='A'; c < 'z'; c++)
+					for(ModeIDIter id; id; id++)
 					{
-						ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
-						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_USER))
-							umodes.push_back(c);
-						mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_CHANNEL))
-							cmodes.push_back(c);
+						ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+						if (mh && mh->NeedsOper() && loctarg->HasModePermission(mh->GetModeChar(), mh->GetModeType()))
+						{
+							cmodes.push_back(' ');
+							cmodes.append(mh->name);
+						}
 					}
-					user->SendText(checkstr + " modeperms user=" + umodes + " channel=" + cmodes);
+					user->SendText(checkstr + " modeperms " + cmodes);
 					std::string opcmds;
 					for(std::set<std::string>::iterator i = oper->AllowedOperCommands.begin(); i != oper->AllowedOperCommands.end(); i++)
 					{

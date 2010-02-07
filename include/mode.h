@@ -16,6 +16,32 @@
 
 #include "ctables.h"
 
+#define MODE_ID_MAX 128
+
+/** Mode identifier for quick lookup of modes that do not have a letter */
+class ModeID
+{
+	unsigned char id;
+ public:
+	ModeID() : id(0) {}
+	inline bool operator<(const ModeID& other) const { return id < other.id; }
+	inline bool operator==(const ModeID& other) const { return id == other.id; }
+	inline void SetID(int nid) { id = nid; }
+	inline int GetID() const { return id; }
+};
+
+class ModeIDIter
+{
+	unsigned char current;
+ public:
+	ModeIDIter() : current(1) {}
+	inline operator ModeID() { ModeID id; id.SetID(current); return id; }
+	inline operator bool() { return current != MODE_ID_MAX; }
+	inline void operator++() { current++; }
+	inline void operator++(int) { current++; }
+};
+
+
 /**
  * Holds the values for different type of modes
  * that can exist, USER or CHANNEL type.
@@ -141,6 +167,8 @@ class CoreExport ModeHandler : public ServiceProvider
 	int levelrequired;
 
  public:
+	/** The mode identifier (only valid after this object has been added to ModeParser) */
+	ModeID id;
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
 	 * The constructor of any class you derive from ModeHandler should
@@ -386,8 +414,6 @@ class CoreExport ModeWatcher : public classbase
 	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
 };
 
-typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
-
 /** The mode parser handles routing of modes and handling of mode strings.
  * It marshalls, controls and maintains both ModeWatcher and ModeHandler classes,
  * parses client to server MODE strings for user and channel modes, and performs
@@ -399,14 +425,15 @@ class CoreExport ModeParser
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
 	 * The upper bit of the value indicates if its a usermode
-	 * or a channel mode, so we have 256 of them not 64.
+	 * or a channel mode, so we have 256 of them not 128.
 	 */
-	ModeHandler* modehandlers[256];
+	ModeHandler* handlers[MODE_ID_MAX];
 	/** Mode watcher classes arranged in the same way as the
-	 * mode handlers, except for instead of having 256 of them
-	 * we have 256 lists of them.
+	 * mode handlers
 	 */
-	std::vector<ModeWatcher*> modewatchers[256];
+	typedef std::multimap<ModeID, ModeWatcher*> ModeWatcherMap;
+	ModeWatcherMap modewatchers;
+
 	/** Displays the current modes of a channel or user.
 	 * Used by ModeParser::Process.
 	 */
@@ -419,7 +446,7 @@ class CoreExport ModeParser
 	/**
 	 * Attempts to apply a mode change to a user or channel
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool SkipACL);
+	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, ModeID mode, std::string &param, bool SkipACL);
 
 	/** The string representing the last set of modes to be parsed.
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
@@ -428,8 +455,7 @@ class CoreExport ModeParser
 	std::vector<std::string> LastParseParams;
 	std::vector<TranslateType> LastParseTranslate;
 
-	unsigned int sent[256];
-
+	unsigned int sent[MODE_ID_MAX];
 	unsigned int seq;
 
  public:
@@ -439,10 +465,6 @@ class CoreExport ModeParser
 	ModeParser();
 	~ModeParser();
 
-	/** Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
-	 * for example, should 'user A' be able to 'op' on 'channel B'.
-	 */
-	User* SanityChecks(User *user,const char *dest,Channel *chan,int status);
 	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.
 	 *
@@ -465,10 +487,12 @@ class CoreExport ModeParser
 	const std::string& GetLastParse();
 	const std::vector<std::string>& GetLastParseParams() { return LastParseParams; }
 	const std::vector<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
+
 	/** Add a mode to the mode parser.
 	 * @return True if the mode was successfully added.
 	 */
 	bool AddMode(ModeHandler* mh);
+
 	/** Delete a mode from the mode parser.
 	 * When a mode is deleted, the mode handler will be called
 	 * for every user (if it is a user mode) or for every  channel
@@ -509,14 +533,16 @@ class CoreExport ModeParser
 	 * @param type of mode to search for, user or channel
 	 * @returns a pointer to a ModeHandler class, or NULL of there isnt a handler for the given mode
 	 */
-	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
+	ModeHandler* FindMode(unsigned char modeletter, ModeType mt);
+	ModeHandler* FindMode(const std::string& name);
+	inline ModeHandler* FindMode(ModeID id) { return handlers[id.GetID()]; }
 
 	/** Find a mode handler by its prefix.
 	 * If there is no mode handler with the given prefix, NULL will be returned.
 	 * @param pfxletter The prefix to find, e.g. '@'
 	 * @return The mode handler which handles this prefix, or NULL if there is none.
 	 */
-	ModeHandler* FindPrefix(unsigned const char pfxletter);
+	ModeHandler* FindPrefix(unsigned char pfxletter);
 
 	/** Returns a list of mode characters which are usermodes.
 	 * This is used in the 004 numeric when users connect.

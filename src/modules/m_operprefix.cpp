@@ -65,8 +65,8 @@ class ModuleOperPrefixMode : public Module
 		if ((!ServerInstance->Modes->AddMode(opm)))
 			throw ModuleException("Could not add a new mode!");
 
-		Implementation eventlist[] = { I_OnPostJoin, I_OnUserQuit, I_OnUserKick, I_OnUserPart, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnPostJoin, I_OnOper };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void PushChanMode(Channel* channel, User* user)
@@ -83,15 +83,6 @@ class ModuleOperPrefixMode : public Module
 	{
 		if (IS_OPER(memb->user) && !memb->user->IsModeSet('H'))
 			PushChanMode(memb->chan, memb->user);
-	}
-
-	// XXX: is there a better way to do this?
-	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
-	{
-		/* force event propagation to its ModeHandler */
-		if (!IS_SERVER(user) && chan && (mode == 'y'))
-			return MOD_RES_ALLOW;
-		return MOD_RES_PASSTHRU;
 	}
 
 	void OnOper(User *user, const std::string&)

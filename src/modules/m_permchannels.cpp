@@ -152,7 +152,7 @@ public:
 	void init()
 	{
 		ServerInstance->Modules->AddService(p);
-		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash, I_OnBackgroundTimer };
+		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnMode, I_OnRehash, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 
 		OnRehash(NULL);
@@ -253,12 +253,13 @@ public:
 		}
 	}
 
-	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	void OnMode(User*, void* dest, int tt, const std::vector<std::string>& mc, const std::vector<TranslateType>&)
 	{
-		if (chan && (chan->IsModeSet('P') || mode == 'P'))
+		if (tt != TYPE_CHANNEL)
+			return;
+		Channel* chan = (Channel*)dest;
+		if (chan && (chan->IsModeSet('P') || mc[0].find('P') != std::string::npos))
 			dirty = true;
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnPostTopicChange(User*, Channel *c, const std::string&)

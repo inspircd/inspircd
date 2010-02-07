@@ -16,16 +16,17 @@
 static void DisplayList(User* user, Channel* channel)
 {
 	std::stringstream items;
-	for(char letter = 'A'; letter <= 'z'; letter++)
+	for(ModeIDIter id; id; id++)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-		if (!mh || mh->IsListMode())
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+		if (!mh || mh->IsListMode() || mh->GetModeType() != MODETYPE_CHANNEL)
 			continue;
-		if (!channel->IsModeSet(letter))
+		if (!channel->IsModeSet(mh))
 			continue;
 		items << " +" << mh->name;
 		if (mh->GetNumParams(true))
-			items << " " << channel->GetModeParameter(letter);
+			items << " " << channel->GetModeParameter(mh);
+		items << " " << item;
 	}
 	char pfx[MAXBUF];
 	snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());
@@ -61,17 +62,15 @@ class CommandProp : public Command
 			if (prop[0] == '+' || prop[0] == '-')
 				prop.erase(prop.begin());
 
-			for(char letter = 'A'; letter <= 'z'; letter++)
+			ModeHandler* mh = ServerInstance->Modes->FindMode(prop);
+			if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
 			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-				if (mh && mh->name == prop)
+				modes[1].append((plus ? "+" : "-") + std::string(1, letter));
+				if (mh->GetNumParams(plus))
 				{
-					modes[1].append((plus ? "+" : "-") + std::string(1, letter));
-					if (mh->GetNumParams(plus))
-					{
-						if (i != parameters.size())
-							modes.push_back(parameters[i++]);
-					}
+					if (i == parameters.size())
+						return CMD_FAILURE;
+					modes.push_back(parameters[i++]);
 				}
 			}
 		}
@@ -158,25 +157,22 @@ class ModuleNamedModes : public Module
 					value = name.substr(eq + 1);
 					name = name.substr(0, eq);
 				}
-				for(char letter = 'A'; modechar == 0 && letter <= 'z'; letter++)
+				mh = ServerInstance->Modes->FindMode(name);
+				if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
 				{
-					mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-					if (mh && mh->name == name)
+					if (mh->GetNumParams(adding))
 					{
-						if (mh->GetNumParams(adding))
+						if (!value.empty())
 						{
-							if (!value.empty())
-							{
-								newparms.push_back(value);
-								modechar = letter;
-								break;
-							}
-						}
-						else
-						{
-							modechar = letter;
+							newparms.push_back(value);
+							modechar = mh->GetModeChar();
 							break;
 						}
+					}
+					else
+					{
+						modechar = mh->GetModeChar();
+						break;
 					}
 				}
 				if (modechar)
