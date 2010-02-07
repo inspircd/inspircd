@@ -28,8 +28,7 @@
 #include "m_spanningtree/resolvers.h"
 #include "m_spanningtree/handshaketimer.h"
 
-/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_hash.h m_spanningtree/handshaketimer.h */
-
+/* $ModDep: m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/handshaketimer.h */
 
 /** Because most of the I/O gubbins are encapsulated within
  * BufferedSocket, we just call the superclass constructor for
@@ -150,6 +149,7 @@ bool TreeSocket::OnConnected()
 
 void TreeSocket::OnError(BufferedSocketError e)
 {
+	LinkState = DYING;
 	Link* MyLink;
 
 	switch (e)
@@ -194,6 +194,7 @@ void TreeSocket::SendError(const std::string &errormessage)
 	this->WriteLine("ERROR :"+errormessage);
 	/* One last attempt to make sure the error reaches its target */
 	this->FlushWriteBuffer();
+	LinkState = DYING;
 }
 
 /** This function forces this server to quit, removing this server
