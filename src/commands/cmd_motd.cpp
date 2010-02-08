@@ -46,7 +46,11 @@ CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User 
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;
 
-	ConfigFileCache::iterator motd = ServerInstance->Config->Files.find("motd");
+	ConfigTag* tag = NULL;
+	if (IS_LOCAL(user))
+		tag = user->GetClass()->config;
+	std::string motd_name = tag->getString("motd", "motd");
+	ConfigFileCache::iterator motd = ServerInstance->Config->Files.find(motd_name);
 	if (motd == ServerInstance->Config->Files.end())
 	{
 		user->SendText(":%s %03d %s :Message of the day file is missing.",
