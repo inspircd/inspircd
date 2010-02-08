@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include <cstdarg>
 #include "mode.h"
@@ -28,52 +26,58 @@ Channel::Channel(const std::string &cname, time_t ts)
 	this->age = ts ? ts : ServerInstance->Time();
 
 	maxbans = topicset = 0;
-	modes.reset();
+	modebits.reset();
 }
 
-void Channel::SetMode(char mode,bool mode_on)
+void Channel::SetMode(char mode, bool on)
 {
-	modes[mode-65] = mode_on;
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
+	if (mh)
+		modebits[mh->id.GetID()] = on;
+}
+
+bool Channel::IsModeSet(char mode)
+{
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
+	if (!mh)
+		return false;
+	return modebits[mh->id.GetID()];
 }
 
 void Channel::SetMode(ModeHandler* mh, bool on)
 {
-	modes[mh->GetModeChar() - 65] = on;
-}
-
-void Channel::SetModeParam(char mode, const std::string& parameter)
-{
-	CustomModeList::iterator n = custom_mode_params.find(mode);
-	// always erase, even if changing, so that the map gets the new value
-	if (n != custom_mode_params.end())
-		custom_mode_params.erase(n);
-	if (parameter.empty())
-	{
-		modes[mode-65] = false;
-	}
-	else
-	{
-		custom_mode_params[mode] = parameter;
-		modes[mode-65] = true;
-	}
+	modebits[mh->id.GetID()] = on;
 }
 
 void Channel::SetModeParam(ModeHandler* mode, const std::string& parameter)
 {
-	SetModeParam(mode->GetModeChar(), parameter);
+	CustomModeList::iterator n = custom_mode_params.find(mode->id);
+	// always erase, even if changing, so that the map gets the new value
+	if (n != custom_mode_params.end())
+		custom_mode_params.erase(n);
+	SetMode(mode, !parameter.empty());
+	if (!parameter.empty())
+		custom_mode_params[mode->id] = parameter;
+}
+
+void Channel::SetModeParam(char mode, const std::string& parameter)
+{
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
+	if (mh)
+		SetModeParam(mh, parameter);
 }
 
 std::string Channel::GetModeParameter(char mode)
 {
-	CustomModeList::iterator n = custom_mode_params.find(mode);
-	if (n != custom_mode_params.end())
-		return n->second;
-	return "";
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
+	if (!mh)
+		return "";
+	return GetModeParameter(mh);
 }
 
 std::string Channel::GetModeParameter(ModeHandler* mode)
 {
-	CustomModeList::iterator n = custom_mode_params.find(mode->GetModeChar());
+	CustomModeList::iterator n = custom_mode_params.find(mode->id);
 	if (n != custom_mode_params.end())
 		return n->second;
 	return "";
@@ -711,19 +715,23 @@ char* Channel::ChanModes(bool showkey)
 	*sparam = '\0';
 
 	/* This was still iterating up to 190, Channel::modes is only 64 elements -- Om */
-	for(int n = 0; n < 64; n++)
+	for(ModeIDIter id; id; id++)
 	{
-		if(this->modes[n])
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+		if (!mh)
+			continue;
+		char mc = mh->GetModeChar();
+		if (IsModeSet(id) && mc)
 		{
-			*offset++ = n + 65;
+			*offset++ = mc;
 			extparam.clear();
-			if (n == 'k' - 65 && !showkey)
+			if (mc == 'k' && !showkey)
 			{
 				extparam = "<key>";
 			}
 			else
 			{
-				extparam = this->GetModeParameter(n + 65);
+				extparam = this->GetModeParameter(mh);
 			}
 			if (!extparam.empty())
 			{

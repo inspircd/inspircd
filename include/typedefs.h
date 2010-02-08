@@ -28,6 +28,7 @@ class FakeUser;
 class InspIRCd;
 class LocalUser;
 class Membership;
+class ModeID;
 class Module;
 class OperInfo;
 class RemoteUser;
@@ -84,7 +85,7 @@ typedef std::vector<BanItem> BanList;
 
 /** A list of custom modes parameters on a channel
  */
-typedef std::map<char,std::string> CustomModeList;
+typedef std::map<ModeID,std::string> CustomModeList;
 
 /** A cached text file stored with its contents as lines
  */

@@ -63,11 +63,9 @@ class CoreExport Channel : public Extensible
 
 	/** Modes for the channel.
 	 * This is not a null terminated string! It is a bitset where
-	 * each item in it represents if a mode is set. For example
-	 * for mode +A, index 0. Use modechar-65 to calculate which
-	 * field to check.
+	 * each item in it represents if a mode is set.
 	 */
-	std::bitset<64> modes;
+	std::bitset<MODE_ID_MAX> modebits;
 
 	/** Parameters for custom modes.
 	 * One for each custom mode letter.
@@ -130,8 +128,8 @@ class CoreExport Channel : public Extensible
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
 	  */
-	inline bool IsModeSet(char mode) { return modes[mode-'A']; }
-	inline bool IsModeSet(ModeHandler* mode) { return modes[mode->GetModeChar()-'A']; }
+	inline bool IsModeSet(ModeHandler* mode) { return modebits[mode->id.GetID()]; }
+	bool IsModeSet(char mode);
 
 
 	/** Returns the parameter for a custom mode on a channel.
