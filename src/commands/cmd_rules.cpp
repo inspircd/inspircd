@@ -44,7 +44,11 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;
 
-	ConfigFileCache::iterator rules = ServerInstance->Config->Files.find("rules");
+	ConfigTag* tag = NULL;
+	if (IS_LOCAL(user))
+		tag = user->GetClass()->config;
+	std::string rules_name = tag->getString("rules", "rules");
+	ConfigFileCache::iterator rules = ServerInstance->Config->Files.find(rules_name);
 	if (rules == ServerInstance->Config->Files.end())
 	{
 		user->SendText(":%s %03d %s :RULES file is missing.",
