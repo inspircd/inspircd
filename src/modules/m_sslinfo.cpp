@@ -193,15 +193,16 @@ class ModuleSSLInfo : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
-		ssl_cert* cert = cmd.CertExt.get(user);
+		SocketCertificateRequest req(&user->eh, this);
+		req.Send();
 		bool ok = true;
 		if (myclass->config->getBool("requiressl"))
 		{
-			ok = (cert != NULL);
+			ok = (req.cert != NULL);
 		}
 		else if (myclass->config->getString("requiressl") == "trusted")
 		{
-			ok = (cert && cert->IsCAVerified());
+			ok = (req.cert && req.cert->IsCAVerified());
 		}
 
 		if (!ok)

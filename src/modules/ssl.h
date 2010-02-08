@@ -131,8 +131,8 @@ struct SocketCertificateRequest : public Request
 	StreamSocket* const sock;
 	ssl_cert* cert;
 
-	SocketCertificateRequest(StreamSocket* ss, Module* Me, Module* hook)
-		: Request(Me, hook, "GET_SSL_CERT"), sock(ss), cert(NULL)
+	SocketCertificateRequest(StreamSocket* ss, Module* Me)
+		: Request(Me, ss->GetIOHook(), "GET_SSL_CERT"), sock(ss), cert(NULL)
 	{
 		Send();
 	}

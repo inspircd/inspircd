@@ -134,7 +134,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	std::string fp;
 	if (GetIOHook())
 	{
-		SocketCertificateRequest req(this, Utils->Creator, GetIOHook());
+		SocketCertificateRequest req(this, Utils->Creator);
 		if (req.cert)
 		{
 			fp = req.cert->GetFingerprint();
