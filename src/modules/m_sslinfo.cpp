@@ -193,7 +193,18 @@ class ModuleSSLInfo : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
-		if (myclass->config->getBool("requiressl") && !cmd.CertExt.get(user))
+		ssl_cert* cert = cmd.CertExt.get(user);
+		bool ok = true;
+		if (myclass->config->getBool("requiressl"))
+		{
+			ok = (cert != NULL);
+		}
+		else if (myclass->config->getString("requiressl") == "trusted")
+		{
+			ok = (cert && cert->IsCAVerified());
+		}
+
+		if (!ok)
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}

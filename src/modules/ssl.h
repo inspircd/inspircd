@@ -34,6 +34,8 @@ class ssl_cert : public refcountbase
 	std::string fingerprint;
 	bool trusted, invalid, unknownsigner, revoked;
 
+	ssl_cert() : trusted(false), invalid(true), unknownsigner(true), revoked(false) {}
+
 	/** Get certificate distinguished name
 	 * @return Certificate DN
 	 */
@@ -102,6 +104,11 @@ class ssl_cert : public refcountbase
 	bool IsRevoked()
 	{
 		return revoked;
+	}
+
+	bool IsCAVerified()
+	{
+		return trusted && !invalid && !revoked && !unknownsigner && error.empty();
 	}
 
 	std::string GetMetaLine()
