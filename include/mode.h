@@ -18,6 +18,27 @@
 
 #define MODE_ID_MAX 128
 
+/**
+ * Holds the values for different type of modes
+ * that can exist, USER or CHANNEL type.
+ */
+enum ModeType
+{
+	/** User mode */
+	MODETYPE_USER = 0,
+	/** Channel mode */
+	MODETYPE_CHANNEL = 1
+};
+
+/**
+ * Holds mode actions - modes can be allowed or denied.
+ */
+enum ModeAction
+{
+	MODEACTION_DENY = 0, /* Drop the mode change, AND a parameter if its a parameterized mode */
+	MODEACTION_ALLOW = 1 /* Allow the mode */
+};
+
 /** Mode identifier for quick lookup of modes that do not have a letter */
 class ModeID
 {
@@ -52,7 +73,7 @@ namespace irc
 		modechange(ModeID id, const std::string& param = "", bool add = true)
 			: adding(add), mode(id), value(param) {}
 		modechange(const std::string& name, const std::string& param = "", bool add = true);
-		modechange(char modechar, const std::string& param = "", bool add = true);
+		modechange(char modechar, ModeType type, const std::string& param = "", bool add = true);
 	};
 
 	/** irc::modestacker stacks mode sequences into a list.
@@ -74,38 +95,6 @@ namespace irc
 		void popPropLine(std::vector<std::string>& modeparams);
 	};
 }
-
-/**
- * Holds the values for different type of modes
- * that can exist, USER or CHANNEL type.
- */
-enum ModeType
-{
-	/** User mode */
-	MODETYPE_USER = 0,
-	/** Channel mode */
-	MODETYPE_CHANNEL = 1
-};
-
-/**
- * Holds mode actions - modes can be allowed or denied.
- */
-enum ModeAction
-{
-	MODEACTION_DENY = 0, /* Drop the mode change, AND a parameter if its a parameterized mode */
-	MODEACTION_ALLOW = 1 /* Allow the mode */
-};
-
-/**
- * Used to mask off the mode types in the mode handler
- * array. Used in a simple two instruction hashing function
- * "(modeletter - 65) OR mask"
- */
-enum ModeMasks
-{
-	MASK_USER = 128,	/* A user mode */
-	MASK_CHANNEL = 0	/* A channel mode */
-};
 
 /**
  * These fixed values can be used to proportionally compare module-defined prefixes to known values.
@@ -590,7 +579,7 @@ class CoreExport ModeParser
 	 *  3; Modes that only take a param when adding
 	 *  4; Modes that dont take a param
 	 */
-	std::string GiveModeList(ModeMasks m);
+	std::string GiveModeList(ModeType m);
 
 	static bool PrefixComparison(ModeHandler* one, ModeHandler* two);
 

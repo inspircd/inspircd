@@ -65,6 +65,7 @@ class ModuleExemptChanOps : public Module
 
 	void init()
 	{
+		ec.init();
 		ServerInstance->Modules->AddService(ec);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnChannelRestrictionApply, I_OnRehash, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 4);

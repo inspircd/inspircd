@@ -45,6 +45,7 @@ public:
 
 	void init()
 	{
+		be.init();
 		ServerInstance->Modules->AddService(be);
 
 		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };

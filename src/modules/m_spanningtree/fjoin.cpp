@@ -156,7 +156,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 
 				/* Add any modes this user had to the mode stack */
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
-					modestack.push(irc::modechange(*x, who->nick, true));
+					modestack.push(irc::modechange(*x, MODETYPE_CHANNEL, who->nick, true));
 
 				Channel::JoinUser(who, channel.c_str(), true, "", route_back_again->bursting, TS);
 			}

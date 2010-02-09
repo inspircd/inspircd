@@ -81,7 +81,11 @@ class CoreExport ListModeBase : public ModeHandler
 		configtag(ctag), extItem(name + "_mode_list", Creator)
 	{
 		list = true;
-		this->DoRehash();
+	}
+
+	inline void init()
+	{
+		DoRehash();
 		ServerInstance->Extensions.Register(&extItem);
 	}
 

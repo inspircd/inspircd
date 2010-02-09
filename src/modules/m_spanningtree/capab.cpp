@@ -150,8 +150,8 @@ void TreeSocket::SendCapabilities(int phase)
 			" IP6SUPPORT=1"+
 			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
-			" CHANMODES="+ServerInstance->Modes->GiveModeList(MASK_CHANNEL)+
-			" USERMODES="+ServerInstance->Modes->GiveModeList(MASK_USER)+
+			" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL)+
+			" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER)+
 			" SVSPART=1");
 
 	this->WriteLine("CAPAB END");
@@ -281,7 +281,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else if (this->capab->CapKeys.find("CHANMODES") != this->capab->CapKeys.end())
 		{
-			if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes->GiveModeList(MASK_CHANNEL))
+			if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL))
 				reason = "One or more of the channel modes on the remote server are invalid on this server.";
 		}
 
@@ -303,7 +303,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else if (this->capab->CapKeys.find("USERMODES") != this->capab->CapKeys.end())
 		{
-			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MASK_USER))
+			if (this->capab->CapKeys.find("USERMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_USER))
 				reason = "One or more of the user modes on the remote server are invalid on this server.";
 		}
 

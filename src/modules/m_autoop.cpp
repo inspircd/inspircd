@@ -71,6 +71,7 @@ public:
 
 	void init()
 	{
+		mh.init();
 		ServerInstance->Modules->AddService(mh);
 
 		Implementation list[] = { I_OnUserPreJoin, I_OnRehash };

@@ -213,6 +213,21 @@ void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, Mo
 {
 }
 
+irc::modechange::modechange(const std::string& name, const std::string& param, bool add)
+	: adding(add), value(param)
+{
+	ModeHandler* mh = ServerInstance->Modes->FindMode(name);
+	if (mh)
+		mode = mh->id;
+}
+
+irc::modechange::modechange(char modechar, ModeType type, const std::string& param, bool add)
+{
+	ModeHandler* mh = ServerInstance->Modes->FindMode(modechar, type);
+	if (mh)
+		mode = mh->id;
+}
+
 std::string irc::modestacker::popModeLine(bool use_uid)
 {
 	char pm_now = '\0';
@@ -672,6 +687,9 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if (FindMode(mh->GetModeChar(), mh->GetModeType()))
 		return false;
 	
+	if (FindMode(mh->name))
+		return false;
+	
 	for(int id = 1; id < MODE_ID_MAX; id++)
 	{
 		if (handlers[id])
@@ -788,7 +806,7 @@ ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
-std::string ModeParser::GiveModeList(ModeMasks m)
+std::string ModeParser::GiveModeList(ModeType m)
 {
 	std::string type1;	/* Listmodes EXCEPT those with a prefix */
 	std::string type2;	/* Modes that take a param when adding or removing */
@@ -798,7 +816,7 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = FindMode(id);
-		if (mh)
+		if (mh && mh->GetModeType() == m)
 		{
 			if (mh->GetNumParams(true))
 			{
@@ -1149,6 +1167,7 @@ struct builtin_modes
 
 	void init(ModeParser* modes)
 	{
+		b.init();
 		modes->AddMode(&s);
 		modes->AddMode(&p);
 		modes->AddMode(&m);

@@ -237,12 +237,12 @@ class ModuleBanRedirect : public Module
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
-					modestack.push(irc::modechange('b', i->targetchan.insert(0, i->banmask), false));
+					modestack.push(irc::modechange("ban", i->targetchan.insert(0, i->banmask), false));
 				}
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
-					modestack.push(irc::modechange('b', i->banmask, true));
+					modestack.push(irc::modechange("ban", i->banmask, true));
 				}
 
 				ServerInstance->SendMode(ServerInstance->FakeClient, chan, modestack, false);

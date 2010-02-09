@@ -89,7 +89,7 @@ class InvisibleDeOper : public ModeWatcher
 		/* Users who are opers and have +Q get their +Q removed when they deoper */
 		if ((!adding) && (dest->IsModeSet('Q')))
 		{
-			irc::modechange mc('Q', "", false);
+			irc::modechange mc('Q', MODETYPE_CHANNEL, "", false);
 			irc::modestacker ms;
 			ms.push(mc);
 			ServerInstance->SendMode(source, dest, ms, false);

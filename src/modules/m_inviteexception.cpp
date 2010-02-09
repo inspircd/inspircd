@@ -44,6 +44,7 @@ public:
 
 	void init()
 	{
+		ie.init();
 		ServerInstance->Modules->AddService(ie);
 
 		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnRehash };

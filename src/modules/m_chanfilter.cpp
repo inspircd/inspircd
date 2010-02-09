@@ -67,6 +67,7 @@ class ModuleChanFilter : public Module
 
 	void init()
 	{
+		cf.init();
 		ServerInstance->Modules->AddService(cf);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
