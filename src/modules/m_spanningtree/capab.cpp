@@ -52,7 +52,7 @@ static std::string BuildModeList(ModeType type)
 	std::vector<std::string> modes;
 	for(char c='A'; c <= 'z'; c++)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(c, type)
+		ModeHandler* mh = ServerInstance->Modes->FindMode(c, type);
 		if (mh)
 		{
 			std::string mdesc = mh->name;
