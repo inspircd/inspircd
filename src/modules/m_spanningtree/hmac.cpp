@@ -96,36 +96,6 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	return password;
 }
 
-std::string TreeSocket::RandString(unsigned int ilength)
-{
-	char* randombuf = new char[ilength+1];
-	std::string out;
-#ifndef WINDOWS
-	int f = open("/dev/urandom", O_RDONLY, 0);
-
-	if (f >= 0)
-	{
-		if (read(f, randombuf, ilength) < (int)ilength)
-			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Entropy source has gone predictable (did not return enough data)");
-		close(f);
-	}
-	else
-#endif
-	{
-		for (unsigned int i = 0; i < ilength; i++)
-			randombuf[i] = rand();
-	}
-
-	for (unsigned int i = 0; i < ilength; i++)
-	{
-		char randchar = static_cast<char>(0x3F + (randombuf[i] & 0x3F));
-		out += randchar;
-	}
-
-	delete[] randombuf;
-	return out;
-}
-
 bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 {
 	capab->auth_fingerprint = !link.Fingerprint.empty();

@@ -146,10 +146,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	~TreeSocket();
 
-	/** Generate random string used for challenge-response auth
-	 */
-	std::string RandString(unsigned int length);
-
 	/** Construct a password, optionally hashed with the other side's
 	 * challenge string
 	 */

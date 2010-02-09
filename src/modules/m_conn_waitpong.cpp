@@ -45,19 +45,9 @@ class ModuleWaitPong : public Module
 			killonbadreply = true;
 	}
 
-	std::string RandString()
-	{
-		char out[11];
-		for(unsigned int i = 0; i < 10; i++)
-			out[i] = ((rand() % 26) + 65);
-		out[10] = '\0';
-
-		return out;
-	}
-
 	ModResult OnUserRegister(LocalUser* user)
 	{
-		std::string pingrpl = RandString();
+		std::string pingrpl = ServerInstance->GenRandomStr(10);
 
 		user->Write("PING :%s", pingrpl.c_str());
 

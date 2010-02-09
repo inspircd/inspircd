@@ -411,3 +411,31 @@ void InspIRCd::AddExtBanChar(char c)
 		tok.insert(ebpos, 1, c);
 	}
 }
+
+std::string InspIRCd::GenRandomStr(int length, bool printable)
+{
+	char* buf = new char[length];
+	GenRandom(buf, length);
+	std::string rv;
+	rv.resize(length);
+	for(int i=0; i < length; i++)
+		rv[i] = printable ? 0x3F + (buf[i] & 0x3F) : buf[i];
+	delete[] buf;
+	return rv;
+}
+
+// NOTE: this has a slight bias for lower values if max is not a power of 2.
+// Don't use it if that matters.
+unsigned long InspIRCd::GenRandomInt(unsigned long max)
+{
+	unsigned long rv;
+	GenRandom((char*)&rv, sizeof(rv));
+	return rv % max;
+}
+
+// This is overridden by a higher-quality algorithm when SSL support is loaded
+void GenRandomHandler::Call(char *output, size_t max)
+{
+	for(unsigned int i=0; i < max; i++)
+		output[i] = random();
+}

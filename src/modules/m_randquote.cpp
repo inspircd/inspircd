@@ -15,7 +15,6 @@
 
 static FileReader *quotes = NULL;
 
-std::string q_file;
 std::string prefix;
 std::string suffix;
 
@@ -35,17 +34,9 @@ class CommandRandquote : public Command
 		std::string str;
 		int fsize;
 
-		if (q_file.empty() || quotes->Exists())
-		{
-			fsize = quotes->FileSize();
-			str = quotes->GetLine(rand() % fsize);
-			user->WriteServ("NOTICE %s :%s%s%s",user->nick.c_str(),prefix.c_str(),str.c_str(),suffix.c_str());
-		}
-		else
-		{
-			user->WriteServ("NOTICE %s :Your administrator specified an invalid quotes file, please bug them about this.", user->nick.c_str());
-			return CMD_FAILURE;
-		}
+		fsize = quotes->FileSize();
+		str = quotes->GetLine(ServerInstance->GenRandomInt(fsize));
+		user->WriteServ("NOTICE %s :%s%s%s",user->nick.c_str(),prefix.c_str(),str.c_str(),suffix.c_str());
 
 		return CMD_SUCCESS;
 	}
@@ -59,29 +50,22 @@ class ModuleRandQuote : public Module
 	ModuleRandQuote()
 		: cmd(this)
 	{
-		ConfigReader conf;
-		// Sort the Randomizer thingie..
-		srand(ServerInstance->Time());
+	}
 
-		q_file = conf.ReadValue("randquote","file",0);
-		prefix = conf.ReadValue("randquote","prefix",0);
-		suffix = conf.ReadValue("randquote","suffix",0);
+	void init()
+	{
+		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
 
-		if (q_file.empty())
-		{
-			throw ModuleException("m_randquote: Quotefile not specified - Please check your config.");
-		}
+		std::string q_file = conf->getString("file","quotes");
+		prefix = conf->getString("prefix");
+		suffix = conf->getString("suffix");
 
 		quotes = new FileReader(q_file);
-		if(!quotes->Exists())
+		if (!quotes->Exists())
 		{
 			throw ModuleException("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
 		}
-		else
-		{
-			/* Hidden Command -- Mode clients assume /quote sends raw data to an IRCd >:D */
-			ServerInstance->AddCommand(&cmd);
-		}
+		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

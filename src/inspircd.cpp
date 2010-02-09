@@ -295,6 +295,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  */
 	 NICKForced("NICKForced", NULL),
 	 OperQuit("OperQuit", NULL),
+	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
 	 IsSID(&HandleIsSID),
 	 Rehash(&HandleRehash),
@@ -375,7 +376,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->cmdline.argv = argv;
 	this->Config->cmdline.argc = argc;
 
-	srand(TIME.tv_nsec ^ TIME.tv_sec);
+	srandom(TIME.tv_nsec ^ TIME.tv_sec);
 
 	struct option longopts[] =
 	{

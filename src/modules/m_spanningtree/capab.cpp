@@ -129,7 +129,7 @@ void TreeSocket::SendCapabilities(int phase)
 	/* Do we have sha256 available? If so, we send a challenge */
 	if (Utils->ChallengeResponse && (ServerInstance->Modules->Find("m_sha256.so")))
 	{
-		this->SetOurChallenge(RandString(20));
+		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
 

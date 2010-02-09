@@ -242,11 +242,9 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id, const char* original)
 		return NULL;
 
 	/* Create an id */
-	id = this->PRNG() & DNS::MAX_REQUEST_ID;
-
-	/* If this id is already 'in flight', pick another. */
-	while (requests[id])
-		id = this->PRNG() & DNS::MAX_REQUEST_ID;
+	do {
+		id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID);
+	} while (requests[id]);
 
 	DNSRequest* req = new DNSRequest(this, id, original);
 
@@ -1040,15 +1038,4 @@ void DNS::CleanResolvers(Module* module)
 			}
 		}
 	}
-}
-
-/** Generate pseudo-random number */
-unsigned long DNS::PRNG()
-{
-	unsigned long val = 0;
-	serverstats* s = ServerInstance->stats;
-	val = (rand() ^ this->currid++ ^ s->statsAccept) + ServerInstance->Time_ns();
-	val += (s->statsCollisions ^ s->statsDnsGood) * s->statsDnsBad;
-	val += (s->statsConnects ^ (unsigned long)s->statsSent ^ (unsigned long)s->statsRecv);
-	return val;
 }

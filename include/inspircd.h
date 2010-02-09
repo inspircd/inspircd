@@ -234,6 +234,7 @@ class serverstats
 };
 
 DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
+DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
@@ -310,6 +311,7 @@ class CoreExport InspIRCd
 	IsChannelHandler HandleIsChannel;
 	IsSIDHandler HandleIsSID;
 	RehashHandler HandleRehash;
+	GenRandomHandler HandleGenRandom;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -448,6 +450,20 @@ class CoreExport InspIRCd
 	inline long Time_ns() { return TIME.tv_nsec; }
 	/** Update the current time. Don't call this unless you have reason to do so. */
 	void UpdateTime();
+
+	/** Generate a random string with the given length
+	 * @param length The length in bytes
+	 * @param printable if false, the string will use characters 0-255; otherwise,
+	 * it will be limited to 0x30-0x7E ('0'-'~', nonspace printable characters)
+	 */
+	std::string GenRandomStr(int length, bool printable = true);
+	/** Generate a random integer.
+	 * This is generally more secure than rand()
+	 */
+	unsigned long GenRandomInt(unsigned long max);
+
+	/** Fill a buffer with random bits */
+	caller2<void, char*, size_t> GenRandom;
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error

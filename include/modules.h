@@ -97,7 +97,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 138
+#define API_VERSION 139
 
 /**
  * This #define allows us to call a method in all

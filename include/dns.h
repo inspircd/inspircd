@@ -405,13 +405,6 @@ class CoreExport DNS : public EventHandler
 	 */
 	~DNS();
 
-	/** Portable random number generator, generates
-	 * its random number from the ircd stats counters,
-	 * effective user id, time of day and the rollover
-	 * counter (currid)
-	 */
-	unsigned long PRNG();
-
 	/**
 	 * Turn an in6_addr into a .ip6.arpa domain
 	 */
