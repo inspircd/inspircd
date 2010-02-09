@@ -31,7 +31,7 @@ void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
 	{
 		if (stack)
 		{
-			stack->Push('k', channel->GetModeParameter('k'));
+			stack->push(irc::modechange(id, channel->GetModeParameter('k'), false));
 		}
 		else
 		{

@@ -261,6 +261,9 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	virtual std::string GetUserParameter(User* useor);
 
+	/** For list modes, return the list */
+	virtual const modelist* GetList(Channel* channel) { return NULL; }
+
 	/**
 	 * Called when a channel mode change access check for your mode occurs.
 	 * @param source Contains the user setting the mode.

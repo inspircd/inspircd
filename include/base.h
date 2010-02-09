@@ -14,6 +14,7 @@
 #ifndef __BASE_H__
 #define __BASE_H__
 
+#include <list>
 #include <map>
 #include <deque>
 #include <string>

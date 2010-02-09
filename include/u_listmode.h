@@ -23,16 +23,6 @@ inline std::string stringtime()
 	return TIME.str();
 }
 
-/** An item in a listmode's list
- */
-class ListItem
-{
-public:
-	std::string nick;
-	std::string mask;
-	std::string time;
-};
-
 /** The number of items a listmode's list may contain
  */
 class ListLimit
@@ -42,9 +32,6 @@ public:
 	unsigned int limit;
 };
 
-/** Items stored in the channel's list
- */
-typedef std::list<ListItem> modelist;
 /** Max items per channel by name
  */
 typedef std::list<ListLimit> limitlist;
@@ -89,7 +76,7 @@ class ListModeBase : public ModeHandler
 	 * @param ctag Configuration tag to get limits from
 	 */
 	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
-		: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL), 
+		: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL),
 		listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
 		configtag(ctag), extItem("listbase_mode_" + name + "_list", Creator)
 	{
@@ -133,6 +120,11 @@ class ListModeBase : public ModeHandler
 		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
 	}
 
+	virtual const modelist* GetList(Channel* channel)
+	{
+		return extItem.get(channel);
+	}
+
 	virtual void DisplayEmptyList(User* user, Channel* channel)
 	{
 		user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
@@ -147,27 +139,20 @@ class ListModeBase : public ModeHandler
 		modelist* el = extItem.get(channel);
 		if (el)
 		{
-			irc::modestacker modestack(false);
+			irc::modestacker modestack;
 
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
 				if (stack)
-					stack->Push(this->GetModeChar(), it->mask);
+					stack->push(irc::modechange(id, it->mask, false));
 				else
-					modestack.Push(this->GetModeChar(), it->mask);
+					modestack.push(irc::modechange(id, it->mask, false));
 			}
 
 			if (stack)
 				return;
 
-			std::vector<std::string> stackresult;
-			stackresult.push_back(channel->name);
-			while (modestack.GetStackedLine(stackresult))
-			{
-				ServerInstance->SendMode(stackresult, ServerInstance->FakeClient);
-				stackresult.clear();
-				stackresult.push_back(channel->name);
-			}
+			ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, modestack);
 		}
 	}
 
@@ -329,34 +314,6 @@ class ListModeBase : public ModeHandler
 			}
 		}
 		return MODEACTION_DENY;
-	}
-
-	/** Syncronize channel item list with another server.
-	 * See modules.h
-	 * @param chan Channel to syncronize
-	 * @param proto Protocol module pointer
-	 * @param opaque Opaque connection handle
-	 */
-	virtual void DoSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		modelist* mlist = extItem.get(chan);
-		irc::modestacker modestack(true);
-		std::vector<std::string> stackresult;
-		std::vector<TranslateType> types;
-		types.push_back(TR_TEXT);
-		if (mlist)
-		{
-			for (modelist::iterator it = mlist->begin(); it != mlist->end(); it++)
-			{
-				modestack.Push(std::string(1, mode)[0], it->mask);
-			}
-		}
-		while (modestack.GetStackedLine(stackresult))
-		{
-			types.assign(stackresult.size(), this->GetTranslateType());
-			proto->ProtoSendMode(opaque, TYPE_CHANNEL, chan, stackresult, types);
-			stackresult.clear();
-		}
 	}
 
 	/** Clean up module on unload

@@ -15,7 +15,6 @@
 #define __TYPEDEF_H__
 
 class BanCacheManager;
-class BanItem;
 class BufferedSocket;
 class Channel;
 class Command;
@@ -26,6 +25,7 @@ class DNSRequest;
 class Extensible;
 class FakeUser;
 class InspIRCd;
+class ListItem;
 class LocalUser;
 class Membership;
 class ModeID;
@@ -79,10 +79,6 @@ typedef std::set<Channel*> UserChanList;
  */
 typedef UserChanList::iterator UCListIter;
 
-/** Holds a complete ban list
- */
-typedef std::vector<BanItem> BanList;
-
 /** A list of custom modes parameters on a channel
  */
 typedef std::map<ModeID,std::string> CustomModeList;
@@ -131,6 +127,10 @@ typedef std::vector<std::string> string_list;
 /** Contains an ident and host split into two strings
  */
 typedef std::pair<std::string, std::string> IdentHostPair;
+
+/** Items stored in the channel's list
+ */
+typedef std::list<ListItem> modelist;
 
 /** A map of xline factories
  */

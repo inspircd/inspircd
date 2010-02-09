@@ -419,11 +419,18 @@ bool Channel::IsBanned(User* user)
 
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
-
-	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+	
+	ModeHandler* ban = ServerInstance->Modes->FindMode("ban");
+	if (!ban)
+		return false;
+	const modelist *bans = ban->GetList(this);
+	if (bans)
 	{
-		if (CheckBan(user, i->data))
-			return true;
+		for (modelist::const_iterator it = bans->begin(); it != bans->end(); it++)
+		{
+			if (CheckBan(user, it->mask))
+				return true;
+		}
 	}
 	return false;
 }
@@ -463,13 +470,21 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 	FIRST_MOD_RESULT(OnExtBanCheck, rv, (user, this, type));
 	if (rv != MOD_RES_PASSTHRU)
 		return rv;
-	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+
+	ModeHandler* ban = ServerInstance->Modes->FindMode("ban");
+	if (!ban)
+		return MOD_RES_PASSTHRU;
+	const modelist *bans = ban->GetList(this);
+	if (bans)
 	{
-		if (i->data[0] == type && i->data[1] == ':')
+		for (modelist::const_iterator it = bans->begin(); it != bans->end(); it++)
 		{
-			std::string val = i->data.substr(2);
-			if (CheckBan(user, val))
-				return MOD_RES_DENY;
+			if (it->mask[0] == type && it->mask[1] == ':')
+			{
+				std::string val = it->mask.substr(2);
+				if (CheckBan(user, val))
+					return MOD_RES_DENY;
+			}
 		}
 	}
 	return MOD_RES_PASSTHRU;

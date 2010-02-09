@@ -25,7 +25,5 @@ class ModeChannelVoice : public ModeHandler
 	ModeChannelVoice();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	unsigned int GetPrefixRank();
-	void RemoveMode(User* user, irc::modestacker* stack = NULL);
-	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
 };
 

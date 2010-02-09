@@ -33,29 +33,6 @@ unsigned int ModeChannelVoice::GetPrefixRank()
 	return VOICE_VALUE;
 }
 
-void ModeChannelVoice::RemoveMode(Channel* channel, irc::modestacker* stack)
-{
-	const UserMembList* clist = channel->GetUsers();
-
-	for (UserMembCIter i = clist->begin(); i != clist->end(); i++)
-	{
-		if (stack)
-			stack->Push(this->GetModeChar(), i->first->nick);
-		else
-		{
-			std::vector<std::string> parameters;
-			parameters.push_back(channel->name);
-			parameters.push_back("-v");
-			parameters.push_back(i->first->nick);
-			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
-		}
-	}
-}
-
-void ModeChannelVoice::RemoveMode(User*, irc::modestacker* stack)
-{
-}
-
 ModeAction ModeChannelVoice::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	return MODEACTION_ALLOW;

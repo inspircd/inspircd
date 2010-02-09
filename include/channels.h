@@ -17,30 +17,14 @@
 #include "membership.h"
 #include "mode.h"
 
-/** Holds an entry for a ban list, exemption list, or invite list.
- * This class contains a single element in a channel list, such as a banlist.
+/** An item in a listmode's list
  */
-class HostItem
+class ListItem
 {
- public:
-	/** Time the item was added
-	 */
-	time_t set_time;
-	/** Who added the item
-	 */
-	std::string set_by;
-	/** The actual item data
-	 */
-	std::string data;
-
-	HostItem() { /* stub */ }
-	virtual ~HostItem() { /* stub */ }
-};
-
-/** A subclass of HostItem designed to hold channel bans (+b)
- */
-class BanItem : public HostItem
-{
+public:
+	std::string nick;
+	std::string mask;
+	std::string time;
 };
 
 /** Holds all relevent information for a channel.
@@ -104,10 +88,6 @@ class CoreExport Channel : public Extensible
 	 * If this member is an empty string, no topic was ever set.
 	 */
 	std::string setby; /* 128 */
-
-	/** The list of all bans set on the channel.
-	 */
-	BanList bans;
 
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset

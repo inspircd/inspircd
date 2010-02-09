@@ -65,23 +65,7 @@ class ProtocolInterface
 	 * @param target The channel name or user to send mode changes for.
 	 * @param The mode changes to send.
 	 */
-	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &translate) { }
-
-	/** Convenience function, string wrapper around the above.
-	  */
-	virtual void SendModeStr(const std::string &target, const std::string &modeline)
-	{
-		irc::spacesepstream x(modeline);
-		parameterlist n;
-		std::vector<TranslateType> types;
-		std::string v;
-		while (x.GetToken(v))
-		{
-			n.push_back(v);
-			types.push_back(TR_TEXT);
-		}
-		SendMode(target, n, types);
-	}
+	virtual void SendMode(User *src, Extensible* target, irc::modestacker& modes) { }
 
 	/** Send a notice to users with a given snomask.
 	 * @param snomask The snomask required for the message to be sent.
