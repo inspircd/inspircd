@@ -30,7 +30,7 @@ class AccountEvent : public Event
 
 typedef StringExtItem AccountExtItem;
 
-inline const AccountExtItem* GetAccountExtItem()
+inline AccountExtItem* GetAccountExtItem()
 {
 	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
 }
