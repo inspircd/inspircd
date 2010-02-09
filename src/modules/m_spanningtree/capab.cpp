@@ -51,10 +51,10 @@ std::string TreeSocket::MyModules(int filter)
 static std::string BuildModeList(ModeType type)
 {
 	std::vector<std::string> modes;
-	for(char c='A'; c <= 'z'; c++)
+	for(ModeIDIter id; id; id++)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(c, type);
-		if (mh)
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+		if (mh && mh->GetModeType() == type)
 		{
 			std::string mdesc = mh->name;
 			mdesc.push_back('=');
