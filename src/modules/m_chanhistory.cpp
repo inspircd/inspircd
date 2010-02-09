@@ -68,7 +68,7 @@ class ModuleChanHistory : public Module
 		if (!ServerInstance->Modes->AddMode(&m))
 			throw ModuleException("Could not add new modes!");
 
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserMessage };
+		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -95,7 +95,7 @@ class ModuleChanHistory : public Module
 		}
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except_list)
+	void OnPostJoin(Membership* memb)
 	{
 		HistoryList* list = m.ext.get(memb->chan);
 		if (!list)
