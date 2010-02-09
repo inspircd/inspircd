@@ -219,7 +219,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		if (this->capab->OptModuleList != this->MyModules(VF_OPTCOMMON) && this->capab->OptModuleList.length())
 		{
 			std::string diffIneed, diffUneed;
-			ListDifference(this->capab->ModuleList, this->MyModules(VF_OPTCOMMON), ' ', diffIneed, diffUneed);
+			ListDifference(this->capab->OptModuleList, this->MyModules(VF_OPTCOMMON), ' ', diffIneed, diffUneed);
 			if (diffIneed.length() || diffUneed.length())
 			{
 				if (Utils->AllowOptCommon)
