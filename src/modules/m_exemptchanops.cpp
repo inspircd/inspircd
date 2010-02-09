@@ -125,6 +125,8 @@ class ModuleExemptChanOps : public Module
 		ModeHandler* mh = ServerInstance->Modes->FindMode(minmode, MODETYPE_CHANNEL);
 		if (mh && mypfx >= mh->GetPrefixRank())
 			return MOD_RES_ALLOW;
+		if (mh || minmode == '*')
+			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 };

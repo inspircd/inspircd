@@ -92,14 +92,14 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 			return CMD_FAILURE;
 		if (res != MOD_RES_ALLOW)
 		{
-			if (!this->HasUser(u))
+			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (u,this,"topiclock"));
+			bool defok = IsModeSet('t') ? GetPrefixValue(u) >= HALFOP_VALUE : HasUser(u);
+			if (!res.check(defok))
 			{
-				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
-				return CMD_FAILURE;
-			}
-			if ((this->IsModeSet('t')) && (this->GetPrefixValue(u) < HALFOP_VALUE))
-			{
-				u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+				if (!this->HasUser(u))
+					u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+				else
+					u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
 				return CMD_FAILURE;
 			}
 		}
