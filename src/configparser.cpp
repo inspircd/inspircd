@@ -429,7 +429,14 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	if(!readString(key, result))
 		return def;
 
-	return (result == "yes" || result == "true" || result == "1" || result == "on");
+	if (result == "yes" || result == "true" || result == "1" || result == "on")
+		return true;
+	if (result == "no" || result == "false" || result == "0" || result == "off")
+		return false;
+
+	ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+		" is not valid, ignoring");
+	return def;
 }
 
 std::string ConfigTag::getTagLocation()

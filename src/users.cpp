@@ -1646,6 +1646,10 @@ void LocalUser::SetClass(const std::string &explicit_name)
 					continue;
 			}
 
+			bool regdone = (registered != REG_NONE);
+			if (c->config->getBool("registered", regdone) != regdone)
+				continue;
+
 			/* we stop at the first class that meets ALL critera. */
 			found = c;
 			break;
