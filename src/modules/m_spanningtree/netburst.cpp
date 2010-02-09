@@ -83,7 +83,6 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
  */
 void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 {
-	std::string buffer;
 	char list[MAXBUF];
 
 	size_t curlen, headlen;
@@ -106,7 +105,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 			// remove the final space
 			if (ptr[-1] == ' ')
 				ptr[-1] = '\0';
-			buffer.append(list).append("\r\n");
+			WriteLine(list);
 			curlen = headlen;
 			ptr = list + headlen;
 			numusers = 0;
@@ -129,12 +128,28 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		// remove the final space
 		if (ptr[-1] == ' ')
 			ptr[-1] = '\0';
-		buffer.append(list).append("\r\n");
+		WriteLine(list);
 	}
 
-	// TODO burst all listmodes
+	irc::modestacker fmodes;
+	for(ModeIDIter id; id; id++)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+		if (!mh || !mh->IsListMode())
+			continue;
+		const modelist* ml = mh->GetList(c);
+		if (ml)
+		{
+			for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
+			{
+				fmodes.push(irc::modechange(id, i->mask, true));
+			}
+		}
+	}
 
-	this->WriteLine(buffer);
+	snprintf(list, MAXBUF, ":%s FMODE %s %ld ", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age);
+	while (!fmodes.empty())
+		WriteLine(list + fmodes.popModeLine(true));
 }
 
 /** Send G, Q, Z and E lines */
