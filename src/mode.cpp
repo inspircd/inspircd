@@ -939,6 +939,193 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	}
 }
 
+void ListModeBase::DisplayList(User* user, Channel* channel)
+{
+	modelist* el = extItem.get(channel);
+	if (el)
+	{
+		for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
+		{
+			user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (it->nick.length() ? it->nick.c_str() : ServerInstance->Config->ServerName.c_str()), it->time.c_str());
+		}
+	}
+	user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
+}
+
+const modelist* ListModeBase::GetList(Channel* channel)
+{
+	return extItem.get(channel);
+}
+
+
+void ListModeBase::RemoveMode(Channel* channel, irc::modestacker* stack)
+{
+	modelist* el = extItem.get(channel);
+	if (el)
+	{
+		irc::modestacker modestack;
+
+		for (modelist::iterator it = el->begin(); it != el->end(); it++)
+		{
+			if (stack)
+				stack->push(irc::modechange(id, it->mask, false));
+			else
+				modestack.push(irc::modechange(id, it->mask, false));
+		}
+
+		if (stack)
+			return;
+
+		ServerInstance->SendMode(ServerInstance->FakeClient, channel, modestack, false);
+	}
+}
+
+void ListModeBase::RemoveMode(User*, irc::modestacker* stack)
+{
+	// listmodes don't get set on users
+}
+
+void ListModeBase::DoRehash()
+{
+	ConfigTagList tags = ServerInstance->Config->ConfTags(configtag);
+
+	chanlimits.clear();
+
+	for (ConfigIter i = tags.first; i != tags.second; i++)
+	{
+		// For each <banlist> tag
+		ConfigTag* c = i->second;
+		ListLimit limit;
+		limit.mask = c->getString("chan");
+		limit.limit = c->getInt("limit");
+
+		if (limit.mask.size() && limit.limit > 0)
+			chanlimits.push_back(limit);
+	}
+	if (chanlimits.size() == 0)
+	{
+		ListLimit limit;
+		limit.mask = "*";
+		limit.limit = 64;
+		chanlimits.push_back(limit);
+	}
+}
+
+ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
+{
+	// Try and grab the list
+	modelist* el = extItem.get(channel);
+
+	if (adding)
+	{
+		// If there was no list
+		if (!el)
+		{
+			// Make one
+			el = new modelist;
+			extItem.set(channel, el);
+		}
+
+		// Clean the mask up
+		if (this->tidy)
+			ModeParser::CleanMask(parameter);
+
+		// Check if the item already exists in the list
+		for (modelist::iterator it = el->begin(); it != el->end(); it++)
+		{
+			if (parameter == it->mask)
+			{
+				/* Give a subclass a chance to error about this */
+				TellAlreadyOnList(source, channel, parameter);
+
+				// it does, deny the change
+				return MODEACTION_DENY;
+			}
+		}
+
+		unsigned int maxsize = 0;
+
+		for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); it++)
+		{
+			if (InspIRCd::Match(channel->name, it->mask))
+			{
+				// We have a pattern matching the channel...
+				maxsize = el->size();
+				if (IS_LOCAL(source) || (maxsize < it->limit))
+				{
+					/* Ok, it *could* be allowed, now give someone subclassing us
+					 * a chance to validate the parameter.
+					 * The param is passed by reference, so they can both modify it
+					 * and tell us if we allow it or not.
+					 *
+					 * eg, the subclass could:
+					 * 1) allow
+					 * 2) 'fix' parameter and then allow
+					 * 3) deny
+					 */
+					if (ValidateParam(source, channel, parameter))
+					{
+						// And now add the mask onto the list...
+						ListItem e;
+						e.mask = parameter;
+						e.nick = source->nick;
+						e.time = stringtime();
+
+						el->push_back(e);
+						return MODEACTION_ALLOW;
+					}
+					else
+					{
+						/* If they deny it they have the job of giving an error message */
+						return MODEACTION_DENY;
+					}
+				}
+			}
+		}
+
+		/* List is full, give subclass a chance to send a custom message */
+		if (!TellListTooLong(source, channel, parameter))
+		{
+			source->WriteNumeric(478, "%s %s %s :Channel ban/ignore list is full", source->nick.c_str(), channel->name.c_str(), parameter.c_str());
+		}
+
+		parameter = "";
+		return MODEACTION_DENY;
+	}
+	else
+	{
+		// We're taking the mode off
+		if (el)
+		{
+			for (modelist::iterator it = el->begin(); it != el->end(); it++)
+			{
+				if (parameter == it->mask)
+				{
+					el->erase(it);
+					if (el->size() == 0)
+					{
+						extItem.unset(channel);
+					}
+					return MODEACTION_ALLOW;
+				}
+			}
+			/* Tried to remove something that wasn't set */
+			TellNotSet(source, channel, parameter);
+			parameter = "";
+			return MODEACTION_DENY;
+		}
+		else
+		{
+			/* Hmm, taking an exception off a non-existant list, DIE */
+			TellNotSet(source, channel, parameter);
+			parameter = "";
+			return MODEACTION_DENY;
+		}
+	}
+	return MODEACTION_DENY;
+}
+
+
 struct builtin_modes
 {
 	ModeChannelSecret s;

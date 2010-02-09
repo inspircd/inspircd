@@ -83,11 +83,6 @@ class ModuleExemptChanOps : public Module
 		ec.DoRehash();
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		ec.DoSyncChannel(chan, proto, opaque);
-	}
-
 	ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction)
 	{
 		unsigned int mypfx = chan->GetPrefixValue(user);

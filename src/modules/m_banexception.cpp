@@ -105,11 +105,6 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnCleanup(int target_type, void* item)
-	{
-		be.DoCleanup(target_type, item);
-	}
-
 	void OnRehash(User* user)
 	{
 		be.DoRehash();

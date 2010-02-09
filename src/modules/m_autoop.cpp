@@ -98,11 +98,6 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnCleanup(int target_type, void* item)
-	{
-		mh.DoCleanup(target_type, item);
-	}
-
 	void OnRehash(User* user)
 	{
 		mh.DoRehash();

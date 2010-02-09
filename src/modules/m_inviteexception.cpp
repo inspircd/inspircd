@@ -75,11 +75,6 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnCleanup(int target_type, void* item)
-	{
-		ie.DoCleanup(target_type, item);
-	}
-
 	void OnRehash(User* user)
 	{
 		ie.DoRehash();
