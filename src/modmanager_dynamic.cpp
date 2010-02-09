@@ -110,8 +110,8 @@ bool ModuleManager::Load(const char* filename)
 		// failure in module constructor
 		if (newmod)
 			DoSafeUnload(newmod);
-		delete newmod;
-		delete newhandle;
+		else
+			delete newhandle;
 		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
