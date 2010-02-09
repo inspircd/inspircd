@@ -20,9 +20,8 @@
  */
 class Channel_r : public ModeHandler
 {
-
  public:
-	Channel_r(Module* Creator) : ModeHandler(Creator, "registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
+	Channel_r(Module* Creator) : ModeHandler(Creator, "c_registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -52,7 +51,7 @@ class User_r : public ModeHandler
 {
 
  public:
-	User_r(Module* Creator) : ModeHandler(Creator, "registered", 'r', PARAM_NONE, MODETYPE_USER) { }
+	User_r(Module* Creator) : ModeHandler(Creator, "u_registered", 'r', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
