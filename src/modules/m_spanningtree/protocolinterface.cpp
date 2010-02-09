@@ -67,33 +67,31 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC", params);
 }
 
-void SpanningTreeProtocolInterface::SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &translate)
+void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::modestacker& cmodes)
 {
-	if (modedata.empty())
-		return;
-
-	std::string outdata;
-	ServerInstance->Parser->TranslateUIDs(translate, modedata, outdata);
-
-	std::string uidtarget;
-	ServerInstance->Parser->TranslateUIDs(TR_NICK, target, uidtarget);
-
+	irc::modestacker modes(cmodes);
 	parameterlist outlist;
-	outlist.push_back(uidtarget);
-	outlist.push_back(outdata);
 
-	User* a = ServerInstance->FindNick(uidtarget);
+	User* a = dynamic_cast<User*>(dest);
+	Channel* c = dynamic_cast<Channel*>(dest);
 	if (a)
 	{
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",outlist);
-		return;
-	}
-	else
-	{
-		Channel* c = ServerInstance->FindChan(target);
-		if (c)
+		outlist.push_back(a->uuid);
+		outlist.push_back("");
+		while (!modes.empty())
 		{
-			outlist.insert(outlist.begin() + 1, ConvToStr(c->age));
+			outlist[1] = modes.popModeLine(true);
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",outlist);
+		}
+	}
+	else if (c)
+	{
+		outlist.push_back(c->name);
+		outlist.push_back(ConvToStr(c->age));
+		outlist.push_back("");
+		while (!modes.empty())
+		{
+			outlist[2] = modes.popModeLine(true);
 			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",outlist);
 		}
 	}

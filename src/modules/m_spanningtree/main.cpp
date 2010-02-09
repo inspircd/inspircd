@@ -850,21 +850,20 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	}
 }
 
-void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const parameterlist &text, const std::vector<TranslateType> &translate)
+void ModuleSpanningTree::OnMode(User* user, Extensible* dest, const irc::modestacker& modesc)
 {
+	irc::modestacker modes(modesc);
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
 		parameterlist params;
+		int id;
 		std::string command;
-		std::string output_text;
 
-		ServerInstance->Parser->TranslateUIDs(translate, text, output_text);
-
-		if (target_type == TYPE_USER)
+		User* u = dynamic_cast<User*>(dest);
+		if (u)
 		{
-			User* u = (User*)dest;
 			params.push_back(u->uuid);
-			params.push_back(output_text);
+			id = 1;
 			command = "MODE";
 		}
 		else
@@ -872,11 +871,16 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const p
 			Channel* c = (Channel*)dest;
 			params.push_back(c->name);
 			params.push_back(ConvToStr(c->age));
-			params.push_back(output_text);
+			id = 2;
 			command = "FMODE";
 		}
+		params.push_back("");
 
-		Utils->DoOneToMany(user->uuid, command, params);
+		while (!modes.empty())
+		{
+			params[id] = modes.popModeLine(true);
+			Utils->DoOneToMany(user->uuid, command, params);
+		}
 	}
 }
 

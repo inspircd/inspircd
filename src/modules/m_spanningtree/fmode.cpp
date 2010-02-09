@@ -75,7 +75,10 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 	if (TS <= ourTS)
 	{
 		bool merge = (TS == ourTS) && IS_SERVER(who);
-		ServerInstance->Modes->Process(modelist, who, merge);
+		Extensible* target;
+		irc::modestacker modes;
+		ServerInstance->Modes->Parse(modelist, who, target, modes);
+		ServerInstance->Modes->Process(who, target, modes, merge);
 		return CMD_SUCCESS;
 	}
 	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.

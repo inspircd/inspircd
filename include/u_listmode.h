@@ -85,24 +85,6 @@ class ListModeBase : public ModeHandler
 		ServerInstance->Extensions.Register(&extItem);
 	}
 
-	/** See mode.h
-	 */
-	std::pair<bool,std::string> ModeSet(User*, User*, Channel* channel, const std::string &parameter)
-	{
-		modelist* el = extItem.get(channel);
-		if (el)
-		{
-			for (modelist::iterator it = el->begin(); it != el->end(); it++)
-			{
-				if(parameter == it->mask)
-				{
-					return std::make_pair(true, parameter);
-				}
-			}
-		}
-		return std::make_pair(false, parameter);
-	}
-
 	/** Display the list for this mode
 	 * @param user The user to send the list to
 	 * @param channel The channel the user is requesting the list for
@@ -152,7 +134,7 @@ class ListModeBase : public ModeHandler
 			if (stack)
 				return;
 
-			ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, modestack);
+			ServerInstance->SendMode(ServerInstance->FakeClient, channel, modestack, false);
 		}
 	}
 

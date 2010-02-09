@@ -914,31 +914,27 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 		{
 			irc::modestacker tmp;
 			tmp.push(mc);
-			ServerInstance->Modes->Process(ServerInstance->FakeClient, user, tmp);
+			ServerInstance->SendMode(ServerInstance->FakeClient, user, tmp, false);
 		}
 	}
 }
 
-/** This default implementation can remove simple channel modes
- * (no parameters)
+/** This default implementation can remove non-list modes
  */
 void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
-	char moderemove[MAXBUF];
-	std::vector<std::string> parameters;
-
 	if (channel->IsModeSet(this))
 	{
+		irc::modechange mc(id, channel->GetModeParameter(this), false);
 		if (stack)
 		{
-			stack->push(irc::modechange(id, "", false));
+			stack->push(mc);
 		}
 		else
 		{
-			sprintf(moderemove,"-%c",this->GetModeChar());
-			parameters.push_back(channel->name);
-			parameters.push_back(moderemove);
-			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
+			irc::modestacker ms;
+			ms.push(mc);
+			ServerInstance->SendMode(ServerInstance->FakeClient, channel, ms, false);
 		}
 	}
 }

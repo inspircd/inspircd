@@ -92,7 +92,7 @@ class InvisibleDeOper : public ModeWatcher
 			irc::modechange mc('Q', "", false);
 			irc::modestacker ms;
 			ms.push(mc);
-			ServerInstance->Modes->Process(source, dest, ms);
+			ServerInstance->SendMode(source, dest, ms, false);
 		}
 		return true;
 	}

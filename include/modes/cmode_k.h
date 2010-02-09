@@ -22,6 +22,4 @@ class ModeChannelKey : public ModeHandler
  public:
 	ModeChannelKey();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
-	void RemoveMode(User* user, irc::modestacker* stack = NULL);
 };

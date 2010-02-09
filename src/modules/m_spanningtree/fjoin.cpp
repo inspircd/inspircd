@@ -49,7 +49,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	if (params.size() < 3)
 		return CMD_INVALID;
 
-	irc::modestacker modestack(true);			/* Modes to apply from the users in the user list */
+	irc::modestacker modestack;				/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
 	std::string channel = params[0];				/* Channel name, as a string */
 	time_t TS = atoi(params[1].c_str());    			/* Timestamp given to us for remote side */
@@ -156,7 +156,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 
 				/* Add any modes this user had to the mode stack */
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
-					modestack.Push(*x, who->nick);
+					modestack.push(irc::modechange(*x, who->nick, true));
 
 				Channel::JoinUser(who, channel.c_str(), true, "", route_back_again->bursting, TS);
 			}
@@ -171,14 +171,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	/* Flush mode stacker if we lost the FJOIN or had equal TS */
 	if (apply_other_sides_modes)
 	{
-		parameterlist stackresult;
-		stackresult.push_back(channel);
-
-		while (modestack.GetStackedLine(stackresult))
-		{
-			ServerInstance->SendMode(stackresult, srcuser);
-			stackresult.erase(stackresult.begin() + 1, stackresult.end());
-		}
+		ServerInstance->SendMode(srcuser, chan, modestack, false);
 	}
 	return CMD_SUCCESS;
 }
@@ -192,27 +185,21 @@ void CommandFJoin::RemoveStatus(User* srcuser, parameterlist &params)
 
 	if (c)
 	{
-		irc::modestacker stack(false);
-		parameterlist stackresult;
-		stackresult.push_back(c->name);
+		irc::modestacker stack;
 
-		for (char modeletter = 'A'; modeletter <= 'z'; ++modeletter)
+		for (ModeIDIter id; id; id++)
 		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+			ModeHandler* mh = ServerInstance->Modes->FindMode(id);
 
 			/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
 			 * rather than applied immediately. Module unloads require this to be done immediately,
 			 * for this function we require tidyness instead. Fixes bug #493
 			 */
-			if (mh)
+			if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
 				mh->RemoveMode(c, &stack);
 		}
 
-		while (stack.GetStackedLine(stackresult))
-		{
-			ServerInstance->SendMode(stackresult, srcuser);
-			stackresult.erase(stackresult.begin() + 1, stackresult.end());
-		}
+		ServerInstance->SendMode(srcuser, c, stack, false);
 	}
 }
 

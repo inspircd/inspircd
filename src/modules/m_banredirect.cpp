@@ -245,7 +245,7 @@ class ModuleBanRedirect : public Module
 					modestack.push(irc::modechange('b', i->banmask, true));
 				}
 
-				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, modestack);
+				ServerInstance->SendMode(ServerInstance->FakeClient, chan, modestack, false);
 			}
 		}
 	}
