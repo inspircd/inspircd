@@ -16,14 +16,12 @@
 /* $ModDesc: Provides channel mode +V, adding the - prefix
  *  which does nothing but serves as a status symbol. */
 
-#define STATUS_VALUE 1
+#define HALFVOICE_VALUE 1
 
-/** Abstraction of StatusPrefixBase for channel mode +a
- */
-class StatusPrefix : public ModeHandler
+class HalfVoiceMode : public ModeHandler
 {
  public:
-	StatusPrefix(Module* parent) : ModeHandler(parent, "status", 'V', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	HalfVoiceMode(Module* parent) : ModeHandler(parent, "halfvoice", 'V', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		list = true;
 		prefix = 0;
@@ -78,25 +76,21 @@ class StatusPrefix : public ModeHandler
 	}
 };
 
-class ModuleStatusPrefix : public Module
+class ModuleHalfVoice : public Module
 {
-	StatusPrefix mh;
+	HalfVoiceMode mh;
 
  public:
-	ModuleStatusPrefix() : mh(this)
+	ModuleHalfVoice() : mh(this)
 	{
 	}
 
 	void init()
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("statusprefix");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("halfvoice");
 		std::string pfxchar = tag->getString("prefix", "-");
 		mh.SetPrefix(pfxchar[0]);
 		ServerInstance->Modules->AddService(mh);
-	}
-
-	~ModuleStatusPrefix()
-	{
 	}
 
 	Version GetVersion()
@@ -105,4 +99,4 @@ class ModuleStatusPrefix : public Module
 	}
 };
 
-MODULE_INIT(ModuleStatusPrefix)
+MODULE_INIT(ModuleHalfVoice)

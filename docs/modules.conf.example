@@ -822,6 +822,10 @@
 #<module name="m_halfop.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Status prefix: Adds the channel status mode +V
+#<module name="m_halfvoice.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
 #<module name="m_helpop.so">
 #
@@ -1641,10 +1645,6 @@
 # NOTE: If you want to use this module to encrypt and sign your       #
 # server to server traffic, you MUST load it before m_spanningtree in #
 # your configuration file!                                            #
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Status prefix: Adds the channel mode +V
-#<module name="m_statusprefix.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Strip colour module: Adds the channel mode +S
