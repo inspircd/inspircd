@@ -120,9 +120,9 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modules->AddService(m5);
 		ServerInstance->Modules->AddService(accountname);
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
-			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick };
+			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick, I_OnSetConnectClass };
 
-		ServerInstance->Modules->Attach(eventlist, this, 8);
+		ServerInstance->Modules->Attach(eventlist, this, 9);
 	}
 
 	void On005Numeric(std::string &t)
@@ -272,8 +272,11 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	~ModuleServicesAccount()
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
+		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
+			return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion()

@@ -275,10 +275,14 @@
          # module be loaded as well.
          modes="+x"
 
-         # requireident, requiressl, requiresasl: require that users of this
-         # block have a valid ident response, use SSL, or have authenticated with SASL.
-         # Requires m_ident, m_sslinfo, or m_sasl respectively
+         # requireident, requiressl, requireaccount: require that users of this
+         # block have a valid ident response, use SSL, or have authenticated.
+         # Requires m_ident, m_sslinfo, or m_services_account respectively.
          requiressl="on"
+
+         # Alternate MOTD file for this connect class. The contents of this file are
+		 # specified using <files secretmotd="filename"> or <execfiles ...>
+         motd="secretmotd"
 
          # port: What port this user is allowed to connect on. (optional)
          # The port MUST be set to listen in the bind blocks above.
