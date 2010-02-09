@@ -524,6 +524,7 @@ void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *src)
 	irc::modestacker modes;
 	Modes->Parse(parameters, src, target, modes);
 	Modes->Process(src, target, modes);
+	Modes->Send(src,target, modes);
 }
 
 void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *src)
@@ -532,12 +533,14 @@ void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *
 	irc::modestacker modes;
 	Modes->Parse(parameters, src, target, modes);
 	Modes->Process(src, target, modes);
+	Modes->Send(src,target, modes);
 	PI->SendMode(src, target, modes);
 }
 
 void InspIRCd::SendMode(User *src, Extensible* target, irc::modestacker& modes, bool global)
 {
 	Modes->Process(src, target, modes);
+	Modes->Send(src,target, modes);
 	if (global)
 		PI->SendMode(src, target, modes);
 }
