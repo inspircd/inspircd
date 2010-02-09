@@ -27,6 +27,7 @@ ModeChannelHalfOp::ModeChannelHalfOp(Module* parent) : ModeHandler(parent, "half
 	prefix = '%';
 	levelrequired = OP_VALUE;
 	m_paramtype = TR_NICK;
+	fixed_letter = false;
 }
 
 unsigned int ModeChannelHalfOp::GetPrefixRank()

@@ -28,8 +28,10 @@ class OperPrefixMode : public ModeHandler
 		{
 			list = true;
 			prefix = pfx;
-			levelrequired = OPERPREFIX_VALUE;
+			levelrequired = INT_MAX;
 			m_paramtype = TR_NICK;
+			fixed_letter = false;
+			oper = true;
 		}
 
 		unsigned int GetPrefixRank()
@@ -39,17 +41,8 @@ class OperPrefixMode : public ModeHandler
 
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 		{
-			if (IS_SERVER(source) || (source && ServerInstance->ULine(source->server)))
-				return MODEACTION_ALLOW;
-			else
-			{
-				if (source && channel)
-					source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only servers are permitted to change channel mode '%c'", source->nick.c_str(), channel->name.c_str(), 'y');
-				return MODEACTION_DENY;
-			}
+			return MODEACTION_ALLOW;
 		}
-
-		bool NeedsOper() { return true; }
 };
 
 class ModuleOperPrefixMode : public Module
@@ -71,12 +64,11 @@ class ModuleOperPrefixMode : public Module
 
 	void PushChanMode(Channel* channel, User* user)
 	{
-		char modeline[] = "+y";
-		std::vector<std::string> modechange;
-		modechange.push_back(channel->name);
-		modechange.push_back(modeline);
-		modechange.push_back(user->nick);
-		ServerInstance->SendMode(modechange,ServerInstance->FakeClient);
+		irc::modechange mc(opm->id, user->nick, true);
+		irc::modestacker ms;
+		ms.push(mc);
+
+		ServerInstance->SendMode(ServerInstance->FakeClient, channel, ms, false);
 	}
 
 	void OnPostJoin(Membership* memb)

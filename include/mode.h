@@ -166,6 +166,12 @@ class CoreExport ModeHandler : public ServiceProvider
 	bool oper;
 
 	/**
+	 * True if the letter for this mode needs to stay fixed,
+	 * that is, can't be changed in the configuration
+	 */
+	bool fixed_letter;
+
+	/**
 	 * Mode is a 'list' mode. The behaviour
 	 * of your mode is now set entirely within
 	 * the class as of the 1.1 api, rather than
@@ -245,6 +251,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @return The mode character
 	 */
 	inline char GetModeChar() { return mode; }
+
+	/** Adjusts the mode character due to a configuration override.
+	 * This is done during AddMode; do not change it after the mode is added.
+	 */
+	void AdjustModeChar(char proposed_letter);
 
 	/** For user modes, return the current parameter, if any
 	 */

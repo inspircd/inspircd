@@ -27,7 +27,7 @@ class SSLMode : public ModeHandler
 	{
 		if (adding)
 		{
-			if (!channel->IsModeSet('z'))
+			if (!channel->IsModeSet(this))
 			{
 				if (IS_LOCAL(source))
 				{
@@ -43,7 +43,7 @@ class SSLMode : public ModeHandler
 						}
 					}
 				}
-				channel->SetMode('z',true);
+				channel->SetMode(this,true);
 				return MODEACTION_ALLOW;
 			}
 			else
@@ -53,9 +53,9 @@ class SSLMode : public ModeHandler
 		}
 		else
 		{
-			if (channel->IsModeSet('z'))
+			if (channel->IsModeSet(this))
 			{
-				channel->SetMode('z',false);
+				channel->SetMode(this,false);
 				return MODEACTION_ALLOW;
 			}
 
@@ -81,7 +81,7 @@ class ModuleSSLModes : public Module
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
-		if(chan && chan->IsModeSet('z'))
+		if(chan && chan->IsModeSet(&sslm))
 		{
 			UserCertificateRequest req(user, this);
 			req.Send();

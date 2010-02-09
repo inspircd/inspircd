@@ -35,7 +35,7 @@ class HistoryMode : public ModeHandler
 	SimpleExtItem<HistoryList> ext;
 	int maxlines;
 	HistoryMode(Module* Creator) : ModeHandler(Creator, "history", 'H', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("history", Creator) { }
+		ext("history", Creator) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -55,12 +55,12 @@ class HistoryMode : public ModeHandler
 			if (parameter == channel->GetModeParameter(this))
 				return MODEACTION_DENY;
 			ext.set(channel, new HistoryList(len, time));
-			channel->SetModeParam('H', parameter);
+			channel->SetModeParam(this, parameter);
 		}
 		else
 		{
 			ext.unset(channel);
-			channel->SetModeParam('H', "");
+			channel->SetModeParam(this, "");
 		}
 		return MODEACTION_ALLOW;
 	}

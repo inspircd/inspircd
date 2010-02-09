@@ -27,6 +27,7 @@ class HalfVoiceMode : public ModeHandler
 		prefix = 0;
 		levelrequired = HALFOP_VALUE;
 		m_paramtype = TR_NICK;
+		fixed_letter = false;
 	}
 
 	void SetPrefix(char pfx) { prefix = pfx; }

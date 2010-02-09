@@ -31,7 +31,7 @@
 class InviteException : public ListModeBase
 {
  public:
-	InviteException(Module* Creator) : ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", 346, 347, true) { }
+	InviteException(Module* Creator) : ListModeBase(Creator, "invex", 'I', "End of Channel Invite Exception List", 346, 347, true) { fixed_letter = false; }
 };
 
 class ModuleInviteException : public Module
@@ -53,7 +53,8 @@ public:
 
 	void On005Numeric(std::string &output)
 	{
-		output.append(" INVEX=I");
+		if (ie.GetModeChar())
+			output.append(" INVEX=" + ie.GetModeChar());
 	}
 
 	ModResult OnCheckInvite(User* user, Channel* chan)

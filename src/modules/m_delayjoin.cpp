@@ -22,6 +22,7 @@ class DelayJoinMode : public ModeHandler
 	DelayJoinMode(Module* Parent) : ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
 	{
 		levelrequired = OP_VALUE;
+		fixed_letter = false;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
@@ -55,7 +56,7 @@ class ModuleDelayJoin : public Module
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
 	/* no change */
-	if (channel->IsModeSet('D') == adding)
+	if (channel->IsModeSet(this) == adding)
 		return MODEACTION_DENY;
 
 	if (!adding)
@@ -68,7 +69,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
 			creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
 	}
-	channel->SetMode('D', adding);
+	channel->SetMode(this, adding);
 	return MODEACTION_ALLOW;
 }
 
@@ -105,7 +106,7 @@ static void populate(CUList& except, Membership* memb)
 
 void ModuleDelayJoin::OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 {
-	if (memb->chan->IsModeSet('D'))
+	if (memb->chan->IsModeSet(&djm))
 	{
 		unjoined.set(memb, 1);
 		populate(except, memb);

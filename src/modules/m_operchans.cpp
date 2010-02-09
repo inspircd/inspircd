@@ -25,17 +25,17 @@ class OperChans : public ModeHandler
 	{
 		if (adding)
 		{
-			if (!channel->IsModeSet('O'))
+			if (!channel->IsModeSet(this))
 			{
-				channel->SetMode('O',true);
+				channel->SetMode(this,true);
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			if (channel->IsModeSet('O'))
+			if (channel->IsModeSet(this))
 			{
-				channel->SetMode('O',false);
+				channel->SetMode(this,false);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -58,7 +58,7 @@ class ModuleOperChans : public Module
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
-		if (chan && chan->IsModeSet('O') && !IS_OPER(user))
+		if (chan && chan->IsModeSet(&oc) && !IS_OPER(user))
 		{
 			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join %s (+O is set)",
 				user->nick.c_str(), chan->name.c_str(), chan->name.c_str());

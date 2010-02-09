@@ -30,7 +30,10 @@
 class BanException : public ListModeBase
 {
  public:
-	BanException(Module* Creator) : ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", 348, 349, true) { }
+	BanException(Module* Creator) : ListModeBase(Creator, "banexception", 'e', "End of Channel Exception List", 348, 349, true)
+	{
+		fixed_letter = false;
+	}
 };
 
 
@@ -54,7 +57,8 @@ public:
 
 	void On005Numeric(std::string &output)
 	{
-		output.append(" EXCEPTS=e");
+		if (be.GetModeChar())
+			output.append(" EXCEPTS=" + be.GetModeChar());
 	}
 
 	ModResult OnExtBanCheck(User *user, Channel *chan, char type)

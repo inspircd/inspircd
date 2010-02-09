@@ -26,6 +26,7 @@ class DelayMsgMode : public ModeHandler
 		, jointime("delaymsg", Parent)
 	{
 		levelrequired = OP_VALUE;
+		fixed_letter = false;
 	}
 
 	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
@@ -77,7 +78,7 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
 			jointime.set(n->second, 0);
 	}
-	channel->SetModeParam('d', adding ? parameter : "");
+	channel->SetModeParam(this, adding ? parameter : "");
 	return MODEACTION_ALLOW;
 }
 
@@ -92,7 +93,7 @@ Version ModuleDelayMsg::GetVersion()
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
-	if (memb->chan->IsModeSet('d'))
+	if (memb->chan->IsModeSet(&djm))
 	{
 		djm.jointime.set(memb, ServerInstance->Time());
 	}
@@ -118,7 +119,7 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 	if (ts == 0)
 		return MOD_RES_PASSTHRU;
 
-	std::string len = channel->GetModeParameter('d');
+	std::string len = channel->GetModeParameter(&djm);
 
 	if (ts + atoi(len.c_str()) > ServerInstance->Time())
 	{

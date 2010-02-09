@@ -24,6 +24,7 @@ class AutoOpList : public ListModeBase
 	AutoOpList(Module* Creator) : ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", 910, 911, true)
 	{
 		levelrequired = OP_VALUE;
+		fixed_letter = false;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)

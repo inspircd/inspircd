@@ -86,7 +86,7 @@ class JoinFlood : public ModeHandler
  public:
 	SimpleExtItem<joinfloodsettings> ext;
 	JoinFlood(Module* Creator) : ModeHandler(Creator, "joinflood", 'j', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("joinflood", Creator) { }
+		ext("joinflood", Creator) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -128,12 +128,12 @@ class JoinFlood : public ModeHandler
 						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
 						f = new joinfloodsettings(nsecs, njoins);
 						ext.set(channel, f);
-						channel->SetModeParam('j', parameter);
+						channel->SetModeParam(this, parameter);
 						return MODEACTION_ALLOW;
 					}
 					else
 					{
-						std::string cur_param = channel->GetModeParameter('j');
+						std::string cur_param = channel->GetModeParameter(this);
 						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
 						if (cur_param == parameter)
 						{
@@ -147,7 +147,7 @@ class JoinFlood : public ModeHandler
 							{
 								f = new joinfloodsettings(nsecs, njoins);
 								ext.set(channel, f);
-								channel->SetModeParam('j', parameter);
+								channel->SetModeParam(this, parameter);
 								return MODEACTION_ALLOW;
 							}
 							else
@@ -170,7 +170,7 @@ class JoinFlood : public ModeHandler
 			if (f)
 			{
 				ext.unset(channel);
-				channel->SetModeParam('j', "");
+				channel->SetModeParam(this, "");
 				return MODEACTION_ALLOW;
 			}
 		}

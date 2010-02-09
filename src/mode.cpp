@@ -46,9 +46,8 @@
 #include "modes/umode_s.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type)
-	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT),
-	parameters_taken(Params), mode(modeletter), prefix(0), oper(false),
-	list(false), m_type(type), levelrequired(HALFOP_VALUE)
+	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT), parameters_taken(Params),
+	mode(modeletter), prefix(0), oper(false), fixed_letter(true), list(false), m_type(type), levelrequired(HALFOP_VALUE)
 {
 }
 
@@ -73,6 +72,13 @@ bool ModeHandler::IsListMode()
 unsigned int ModeHandler::GetPrefixRank()
 {
 	return 0;
+}
+
+void ModeHandler::AdjustModeChar(char proposed_letter)
+{
+	if (fixed_letter)
+		return;
+	mode = proposed_letter;
 }
 
 int ModeHandler::GetNumParams(bool adding)
@@ -444,6 +450,7 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 	std::string targetstr = parameters[0];
 	Channel* targetchannel = ServerInstance->FindChan(targetstr);
 	User* targetuser = ServerInstance->FindNick(targetstr);
+	target = targetuser ? (Extensible*)targetuser : targetchannel;
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
 
 	if (!targetchannel && !targetuser)
@@ -524,8 +531,6 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 		}
 		modes.push(irc::modechange(mh->id, parameter, adding));
 	}
-
-	target = targetuser ? (Extensible*)targetuser : targetchannel;
 }
 
 void ModeParser::Send(User *src, Extensible* target, irc::modestacker modes)
@@ -707,13 +712,16 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':') || (mh->GetPrefix() == '#'))
 		return false;
 
+	if (FindMode(mh->name))
+		return false;
+	
+	std::string myletter = ServerInstance->Config->ConfValue("modeletters")->getString(mh->name, std::string(1,mh->GetModeChar()));
+	mh->AdjustModeChar(myletter.c_str()[0]);
+
 	if (mh->GetPrefix() && FindPrefix(mh->GetPrefix()))
 		return false;
 
 	if (mh->GetModeChar() && FindMode(mh->GetModeChar(), mh->GetModeType()))
-		return false;
-	
-	if (FindMode(mh->name))
 		return false;
 	
 	for(int id = 1; id < MODE_ID_MAX; id++)

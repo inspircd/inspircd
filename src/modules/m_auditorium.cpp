@@ -21,13 +21,14 @@ class AuditoriumMode : public ModeHandler
 	AuditoriumMode(Module* Creator) : ModeHandler(Creator, "auditorium", 'u', PARAM_NONE, MODETYPE_CHANNEL)
 	{
 		levelrequired = OP_VALUE;
+		fixed_letter = false;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		if (channel->IsModeSet('u') != adding)
+		if (channel->IsModeSet(this) != adding)
 		{
-			channel->SetMode('u', adding);
+			channel->SetMode(this, adding);
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -75,7 +76,7 @@ class ModuleAuditorium : public Module
 
 	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
 	{
-		if (!memb->chan->IsModeSet('u'))
+		if (!memb->chan->IsModeSet(&aum))
 			return;
 
 		/* Some module hid this from being displayed, dont bother */
@@ -103,7 +104,7 @@ class ModuleAuditorium : public Module
 
 	void BuildExcept(Membership* memb, CUList& excepts)
 	{
-		if (!memb->chan->IsModeSet('u'))
+		if (!memb->chan->IsModeSet(&aum))
 			return;
 		if (ShowOps && memb->getRank() >= OP_VALUE)
 			return;
@@ -143,7 +144,7 @@ class ModuleAuditorium : public Module
 		while (i != include.end())
 		{
 			Channel* c = *i++;
-			if (c->IsModeSet('u'))
+			if (c->IsModeSet(&aum))
 				include.erase(c);
 		}
 	}

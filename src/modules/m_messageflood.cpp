@@ -76,7 +76,7 @@ class MsgFlood : public ModeHandler
  public:
 	SimpleExtItem<floodsettings> ext;
 	MsgFlood(Module* Creator) : ModeHandler(Creator, "flood", 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("messageflood", Creator) { }
+		ext("messageflood", Creator) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -128,12 +128,12 @@ class MsgFlood : public ModeHandler
 						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
 						f = new floodsettings(ban,nsecs,nlines);
 						ext.set(channel, f);
-						channel->SetModeParam('f', parameter);
+						channel->SetModeParam(this, parameter);
 						return MODEACTION_ALLOW;
 					}
 					else
 					{
-						std::string cur_param = channel->GetModeParameter('f');
+						std::string cur_param = channel->GetModeParameter(this);
 						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
 						if (cur_param == parameter)
 						{
@@ -146,7 +146,7 @@ class MsgFlood : public ModeHandler
 							{
 								floodsettings *fs = new floodsettings(ban,nsecs,nlines);
 								ext.set(channel, fs);
-								channel->SetModeParam('f', parameter);
+								channel->SetModeParam(this, parameter);
 								return MODEACTION_ALLOW;
 							}
 							else
@@ -169,7 +169,7 @@ class MsgFlood : public ModeHandler
 			if (f)
 			{
 				ext.unset(channel);
-				channel->SetModeParam('f', "");
+				channel->SetModeParam(this, "");
 				return MODEACTION_ALLOW;
 			}
 		}

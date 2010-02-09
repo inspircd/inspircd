@@ -48,7 +48,7 @@ class CommandProp : public Command
 		User* user = ServerInstance->FindNick(parameters[0]);
 		if (!chan && !user)
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(),parameters[0].c_str());
+			src->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",src->nick.c_str(),parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		if (parameters.size() == 1)
@@ -81,7 +81,7 @@ class CommandProp : public Command
 					}
 					if (i == parameters.size())
 					{
-						user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s PROP :Not enough parameters.", user->nick.c_str());
+						src->WriteNumeric(ERR_NEEDMOREPARAMS, "%s PROP :Not enough parameters.", src->nick.c_str());
 						return CMD_FAILURE;
 					}
 					mc.value = parameters[i++];
