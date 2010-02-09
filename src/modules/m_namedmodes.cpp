@@ -44,17 +44,19 @@ class CommandProp : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
 	{
+		Channel* chan = ServerInstance->FindChan(parameters[0]);
+		User* user = ServerInstance->FindNick(parameters[0]);
+		if (!chan && !user)
+		{
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(),parameters[0].c_str());
+			return CMD_FAILURE;
+		}
 		if (parameters.size() == 1)
 		{
-			Channel* chan = ServerInstance->FindChan(parameters[0]);
 			if (chan)
 				DisplayList(src, chan);
 			return CMD_SUCCESS;
 		}
-		Channel* chan = ServerInstance->FindChan(parameters[0]);
-		User* user = ServerInstance->FindNick(parameters[0]);
-		if (!chan && !user)
-			return CMD_FAILURE;
 		unsigned int i = 1;
 		irc::modestacker modes;
 		while (i < parameters.size())
@@ -71,8 +73,17 @@ class CommandProp : public Command
 				mc.adding = plus;
 				if (mh->GetNumParams(plus))
 				{
+					if (i == 2 && parameters.size() == 2 && chan && mh->IsListMode())
+					{
+						// special case: display list mode
+						mh->DisplayList(src, chan);
+						return CMD_SUCCESS;
+					}
 					if (i == parameters.size())
+					{
+						user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s PROP :Not enough parameters.", user->nick.c_str());
 						return CMD_FAILURE;
+					}
 					mc.value = parameters[i++];
 				}
 				modes.push(mc);
