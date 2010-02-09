@@ -736,10 +736,10 @@ char* Channel::ChanModes(bool showkey)
 		if (!mh)
 			continue;
 		char mc = mh->GetModeChar();
-		if (IsModeSet(id) && mc)
+		if (IsModeSet(id))
 		{
-			*offset++ = mc;
 			extparam.clear();
+			*offset++ = mc ? mc : 'Z';
 			if (mc == 'k' && !showkey)
 			{
 				extparam = "<key>";
@@ -747,6 +747,13 @@ char* Channel::ChanModes(bool showkey)
 			else
 			{
 				extparam = this->GetModeParameter(mh);
+			}
+			if (!mc)
+			{
+				if (extparam.empty())
+					extparam = mh->name;
+				else
+					extparam = mh->name + "=" + extparam;
 			}
 			if (!extparam.empty())
 			{

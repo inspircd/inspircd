@@ -148,17 +148,17 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 {
 	if (adding)
 	{
-		if (!channel->IsModeSet(this->GetModeChar()))
+		if (!channel->IsModeSet(this))
 		{
-			channel->SetMode(this->GetModeChar(),true);
+			channel->SetMode(this,true);
 			return MODEACTION_ALLOW;
 		}
 	}
 	else
 	{
-		if (channel->IsModeSet(this->GetModeChar()))
+		if (channel->IsModeSet(this))
 		{
-			channel->SetMode(this->GetModeChar(),false);
+			channel->SetMode(this,false);
 			return MODEACTION_ALLOW;
 		}
 	}
@@ -475,6 +475,32 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 			adding = (modechar == '+');
 			continue;
 		}
+		if (modechar == 'Z')
+		{
+			// special case: Z is the named mode change interface
+			std::string name, value;
+			if (param_at == parameters.size())
+				continue;
+
+			name = parameters[param_at++];
+			std::string::size_type eq = name.find('=');
+			if (eq != std::string::npos)
+			{
+				value = name.substr(eq + 1);
+				name = name.substr(0, eq);
+			}
+			ModeHandler *mh = FindMode(name);
+			if (mh && mh->GetModeType() == type)
+			{
+				irc::modechange mc(mh->id, value, adding);
+				modes.push(mc);
+			}
+			else
+			{
+				user->WriteServ("%d %s %s :is unknown mode string to me", type == MODETYPE_CHANNEL ? 472 : 501, user->nick.c_str(), name.c_str());
+			}
+			continue;
+		}
 
 		ModeHandler *mh = this->FindMode(modechar, type);
 		if (!mh)
@@ -671,7 +697,7 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	 * If they do that, thats their problem, and if i ever EVER see an
 	 * official InspIRCd developer do that, i'll beat them with a paddle!
 	 */
-	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z') || (mh->GetPrefix() > 126))
+	if (mh->GetModeChar() && ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z')))
 		return false;
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
@@ -684,7 +710,7 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if (mh->GetPrefix() && FindPrefix(mh->GetPrefix()))
 		return false;
 
-	if (FindMode(mh->GetModeChar(), mh->GetModeType()))
+	if (mh->GetModeChar() && FindMode(mh->GetModeChar(), mh->GetModeType()))
 		return false;
 	
 	if (FindMode(mh->name))
