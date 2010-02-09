@@ -467,7 +467,7 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 	unsigned int param_at = 2;
 	bool adding = true;
 
-	for (std::string::const_iterator letter = parameters[2].begin(); letter != parameters[2].end(); letter++)
+	for (std::string::const_iterator letter = parameters[1].begin(); letter != parameters[1].end(); letter++)
 	{
 		unsigned char modechar = *letter;
 		if (modechar == '+' || modechar == '-')
@@ -758,9 +758,10 @@ std::string ModeParser::UserModeList()
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = FindMode(id);
-		if(mh->GetModeType() == MODETYPE_USER)
+		if(mh && mh->GetModeType() == MODETYPE_USER)
 			modestr[pointer++] = mh->GetModeChar();
 	}
+	std::sort(modestr, modestr + pointer);
 	modestr[pointer++] = 0;
 	return modestr;
 }
@@ -776,7 +777,8 @@ std::string ModeParser::ChannelModeList()
     	if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
 			modestr[pointer++] = mh->GetModeChar();
 	}
-	modestr[pointer++] = 0;
+	modestr[pointer] = 0;
+	std::sort(modestr, modestr + pointer);
 	return modestr;
 }
 
@@ -849,6 +851,10 @@ std::string ModeParser::GiveModeList(ModeType m)
 		}
 	}
 
+	std::sort(type1.begin(), type1.end());
+	std::sort(type2.begin(), type2.end());
+	std::sort(type3.begin(), type3.end());
+	std::sort(type4.begin(), type4.end());
 	return type1 + "," + type2 + "," + type3 + "," + type4;
 }
 
