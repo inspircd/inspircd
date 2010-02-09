@@ -38,7 +38,10 @@ class CommandMode : public Command
  */
 CmdResult CommandMode::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	ServerInstance->Modes->Process(parameters, user, false);
+	Extensible* target;
+	irc::modestacker modes;
+	ServerInstance->Modes->Parse(parameters, user, target, modes);
+	ServerInstance->SendMode(user, target, modes, true);
 	return CMD_SUCCESS;
 }
 

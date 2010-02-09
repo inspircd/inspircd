@@ -518,15 +518,28 @@ dynamic_reference_base::operator bool()
 	return value;
 }
 
-void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
+void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *src)
 {
-	this->Modes->Process(parameters, user);
+	Extensible* target;
+	irc::modestacker modes;
+	Modes->Parse(parameters, src, target, modes);
+	Modes->Process(src, target, modes);
 }
 
-void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *user)
+void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *src)
 {
-	Modes->Process(parameters, user);
-	// TODO
+	Extensible* target;
+	irc::modestacker modes;
+	Modes->Parse(parameters, src, target, modes);
+	Modes->Process(src, target, modes);
+	PI->SendMode(src, target, modes);
+}
+
+void InspIRCd::SendMode(User *src, Extensible* target, irc::modestacker& modes, bool global)
+{
+	Modes->Process(src, target, modes);
+	if (global)
+		PI->SendMode(src, target, modes);
 }
 
 bool InspIRCd::AddResolver(Resolver* r, bool cached)

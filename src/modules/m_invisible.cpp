@@ -89,10 +89,10 @@ class InvisibleDeOper : public ModeWatcher
 		/* Users who are opers and have +Q get their +Q removed when they deoper */
 		if ((!adding) && (dest->IsModeSet('Q')))
 		{
-			std::vector<std::string> newmodes;
-			newmodes.push_back(dest->nick);
-			newmodes.push_back("-Q");
-			ServerInstance->Modes->Process(newmodes, source);
+			irc::modechange mc('Q', "", false);
+			irc::modestacker ms;
+			ms.push(mc);
+			ServerInstance->Modes->Process(source, dest, ms);
 		}
 		return true;
 	}

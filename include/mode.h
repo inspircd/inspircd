@@ -540,14 +540,8 @@ class CoreExport ModeParser
 	 * @return True if the ModeWatcher was deleted correctly
 	 */
 	bool DelModeWatcher(ModeWatcher* mw);
-	/** Process a set of mode changes from a server or user.
-	 * @param parameters The parameters of the mode change, in the format
-	 * they would be from a MODE command.
-	 * @param user The user setting or removing the modes. When the modes are set
-	 * by a server, an 'uninitialized' User is used, where *user::nick == NULL
-	 * and *user->server == NULL.
-	 */
-	void Process(const std::vector<std::string>& parameters, User *user, bool merge = false);
+
+	void Parse(const std::vector<std::string>& parameters, User *user, Extensible*& target, irc::modestacker& modes);
 
 	/** Process a set of mode changes from a server or user.
 	 * @param sre The source of these changes; use ServerInstance->FakeUser for server source
@@ -556,6 +550,8 @@ class CoreExport ModeParser
 	 * @param merge True if modes should be merged rather than just applied (used in netburst)
 	 */
 	void Process(User *src, Extensible* target, irc::modestacker& modes, bool merge = false);
+
+	void Send(User *src, Extensible* target, irc::modestacker modes);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for

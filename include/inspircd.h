@@ -636,6 +636,8 @@ class CoreExport InspIRCd
 	 */
 	void SendGlobalMode(const std::vector<std::string>& parameters, User *user);
 
+	void SendMode(User *src, Extensible* target, irc::modestacker& modes, bool global);
+
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
 	 * @param str The literal string to match against

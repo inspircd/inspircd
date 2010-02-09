@@ -424,26 +424,32 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 	return MODEACTION_ALLOW;
 }
 
-void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool merge)
+void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, Extensible*& target, irc::modestacker& modes)
 {
-	std::string target = parameters[0];
-	Channel* targetchannel = ServerInstance->FindChan(target);
-	User* targetuser  = ServerInstance->FindNick(target);
+	std::string targetstr = parameters[0];
+	Channel* targetchannel = ServerInstance->FindChan(targetstr);
+	User* targetuser = ServerInstance->FindNick(targetstr);
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
 
 	if (!targetchannel && !targetuser)
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(),target.c_str());
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(),targetstr.c_str());
 		return;
 	}
 	if (parameters.size() == 1)
 	{
-		this->DisplayCurrentModes(user, targetuser, targetchannel, target.c_str());
+		this->DisplayCurrentModes(user, targetuser, targetchannel, targetstr.c_str());
 		return;
+	}
+	if (targetchannel && parameters.size() == 2)
+	{
+		/* Special case for displaying the list for listmodes,
+		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
+		 */
+		this->DisplayListModes(user, targetchannel, parameters[1]);
 	}
 
 	unsigned int param_at = 2;
-	irc::modestacker modes;
 	bool adding = true;
 
 	for (std::string::const_iterator letter = parameters[2].begin(); letter != parameters[2].end(); letter++)
@@ -478,27 +484,22 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		modes.push(irc::modechange(mh->id, parameter, adding));
 	}
 
-	Process(user, targetuser ? (Extensible*)targetuser : targetchannel, modes, merge);
+	target = targetuser ? (Extensible*)targetuser : targetchannel;
+}
 
-	if (!modes.empty())
+void ModeParser::Send(User *src, Extensible* target, irc::modestacker modes)
+{
+	Channel* targetchannel = dynamic_cast<Channel*>(target);
+	User* targetuser = dynamic_cast<User*>(target);
+	if (targetchannel)
 	{
-		if (targetchannel)
-		{
-			while (!modes.empty())
-				targetchannel->WriteChannel(user, "MODE %s %s", targetchannel->name.c_str(), modes.popModeLine().c_str());
-		}
-		else
-		{
-			while (!modes.empty())
-				targetuser->WriteFrom(user, "MODE %s %s", targetuser->nick.c_str(), modes.popModeLine().c_str());
-		}
+		while (!modes.empty())
+			targetchannel->WriteChannel(src, "MODE %s %s", targetchannel->name.c_str(), modes.popModeLine().c_str());
 	}
-	else if (targetchannel && parameters.size() == 2)
+	else
 	{
-		/* Special case for displaying the list for listmodes,
-		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
-		 */
-		this->DisplayListModes(user, targetchannel, parameters[1]);
+		while (!modes.empty())
+			targetuser->WriteFrom(src, "MODE %s %s", targetuser->nick.c_str(), modes.popModeLine().c_str());
 	}
 }
 
@@ -902,21 +903,18 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
  */
 void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 {
-	char moderemove[MAXBUF];
-	std::vector<std::string> parameters;
-
 	if (user->IsModeSet(this->GetModeChar()))
 	{
+		irc::modechange mc(id, "", false);
 		if (stack)
 		{
-			stack->push(irc::modechange(id, "", false));
+			stack->push(mc);
 		}
 		else
 		{
-			sprintf(moderemove,"-%c",this->GetModeChar());
-			parameters.push_back(user->nick);
-			parameters.push_back(moderemove);
-			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
+			irc::modestacker tmp;
+			tmp.push(mc);
+			ServerInstance->Modes->Process(ServerInstance->FakeClient, user, tmp);
 		}
 	}
 }

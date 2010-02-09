@@ -51,10 +51,12 @@ class CommandProp : public Command
 				DisplayList(src, chan);
 			return CMD_SUCCESS;
 		}
+		Channel* chan = ServerInstance->FindChan(parameters[0]);
+		User* user = ServerInstance->FindNick(parameters[0]);
+		if (!chan && !user)
+			return CMD_FAILURE;
 		unsigned int i = 1;
-		std::vector<std::string> modes;
-		modes.push_back(parameters[0]);
-		modes.push_back("");
+		irc::modestacker modes;
 		while (i < parameters.size())
 		{
 			std::string prop = parameters[i++];
@@ -65,16 +67,18 @@ class CommandProp : public Command
 			ModeHandler* mh = ServerInstance->Modes->FindMode(prop);
 			if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
 			{
-				modes[1].append((plus ? "+" : "-") + std::string(1, letter));
+				irc::modechange mc(mh->id);
+				mc.adding = plus;
 				if (mh->GetNumParams(plus))
 				{
 					if (i == parameters.size())
 						return CMD_FAILURE;
-					modes.push_back(parameters[i++]);
+					mc.value = parameters[i++];
 				}
+				modes.push(mc);
 			}
 		}
-		ServerInstance->SendGlobalMode(modes, src);
+		ServerInstance->SendMode(src, chan ? (Extensible*)chan : (Extensible*)user, modes, true);
 		return CMD_SUCCESS;
 	}
 };
@@ -90,104 +94,11 @@ class ModuleNamedModes : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-
-		Implementation eventlist[] = { I_OnPreMode, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	Version GetVersion()
 	{
 		return Version("Provides the ability to manipulate modes via long names.",VF_VENDOR);
-	}
-
-	void Prioritize()
-	{
-		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
-	}
-
-	void On005Numeric(std::string& line)
-	{
-		std::string::size_type pos = line.find(" CHANMODES=");
-		if (pos != std::string::npos)
-		{
-			pos += 11;
-			while (line[pos] > 'A' && line[pos] < 'Z')
-				pos++;
-			line.insert(pos, 1, 'Z');
-		}
-	}
-
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters)
-	{
-		if (!channel)
-			return MOD_RES_PASSTHRU;
-		if (parameters[1].find('Z') == std::string::npos)
-			return MOD_RES_PASSTHRU;
-		if (parameters.size() <= 2)
-		{
-			DisplayList(source, channel);
-			return MOD_RES_DENY;
-		}
-
-		std::vector<std::string> newparms;
-		newparms.push_back(parameters[0]);
-		newparms.push_back(parameters[1]);
-
-		std::string modelist = newparms[1];
-		bool adding = true;
-		unsigned int param_at = 2;
-		for(unsigned int i = 0; i < modelist.length(); i++)
-		{
-			unsigned char modechar = modelist[i];
-			if (modechar == '+' || modechar == '-')
-			{
-				adding = (modechar == '+');
-				continue;
-			}
-			ModeHandler *mh = ServerInstance->Modes->FindMode(modechar, MODETYPE_CHANNEL);
-			if (modechar == 'Z')
-			{
-				modechar = 0;
-				std::string name, value;
-				if (param_at < parameters.size())
-					name = parameters[param_at++];
-				std::string::size_type eq = name.find('=');
-				if (eq != std::string::npos)
-				{
-					value = name.substr(eq + 1);
-					name = name.substr(0, eq);
-				}
-				mh = ServerInstance->Modes->FindMode(name);
-				if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
-				{
-					if (mh->GetNumParams(adding))
-					{
-						if (!value.empty())
-						{
-							newparms.push_back(value);
-							modechar = mh->GetModeChar();
-							break;
-						}
-					}
-					else
-					{
-						modechar = mh->GetModeChar();
-						break;
-					}
-				}
-				if (modechar)
-					modelist[i] = modechar;
-				else
-					modelist.erase(i--, 1);
-			}
-			else if (mh && mh->GetNumParams(adding) && param_at < parameters.size())
-			{
-				newparms.push_back(parameters[param_at++]);
-			}
-		}
-		newparms[1] = modelist;
-		ServerInstance->Modes->Process(newparms, source, false);
-		return MOD_RES_DENY;
 	}
 };
 
