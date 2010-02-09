@@ -49,22 +49,24 @@ std::string TreeSocket::MyModules(int filter)
 
 static std::string BuildModeList(ModeType type)
 {
-	std::string line;
+	std::vector<std::string> modes;
 	for(char c='A'; c <= 'z'; c++)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(c, type);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(c, type)
 		if (mh)
 		{
-			if (!line.empty())
-				line.push_back(' ');
-			line.append(mh->name);
-			line.push_back('=');
+			std::string mdesc = mh->name;
+			mdesc.push_back('=');
 			if (mh->GetPrefix())
-				line.push_back(mh->GetPrefix());
-			line.push_back(c);
+				mdesc.push_back(mh->GetPrefix());
+			if (mh->GetModeChar())
+				mdesc.push_back(mh->GetModeChar());
+			modes.push_back(mdesc);
 		}
 	}
-	return line;
+	sort(modes.begin(), modes.end());
+	irc::stringjoiner line(" ", modes, 0, modes.size() - 1);
+	return line.GetJoined();
 }
 
 void TreeSocket::SendCapabilities(int phase)
