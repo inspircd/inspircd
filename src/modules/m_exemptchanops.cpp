@@ -11,14 +11,10 @@
  * ---------------------------------------------------
  */
 
-#define _CRT_SECURE_NO_DEPRECATE
-#define _SCL_SECURE_NO_DEPRECATE
-
 #include "inspircd.h"
 #include "u_listmode.h"
 
 /* $ModDesc: Provides the ability to allow channel operators to be exempt from certain modes. */
-/* $ModDep: ../../include/u_listmode.h */
 
 /** Handles channel mode +X
  */
@@ -27,7 +23,7 @@ class ExemptChanOps : public ListModeBase
  public:
 	ExemptChanOps(Module* Creator) : ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false, "exemptchanops") { }
 
-	virtual bool ValidateParam(User* user, Channel* chan, std::string &word)
+	bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
 		if ((word.length() > 35) || (word.empty()))
 		{
@@ -38,18 +34,18 @@ class ExemptChanOps : public ListModeBase
 		return true;
 	}
 
-	virtual bool TellListTooLong(User* user, Channel* chan, std::string &word)
+	bool TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(959, "%s %s %s :Channel exemptchanops list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
 		return true;
 	}
 
-	virtual void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
+	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(957, "%s %s :The word %s is already on the exemptchanops list",user->nick.c_str(), chan->name.c_str(), word.c_str());
 	}
 
-	virtual void TellNotSet(User* user, Channel* chan, std::string &word)
+	void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(958, "%s %s :No such exemptchanops word is set",user->nick.c_str(), chan->name.c_str());
 	}
@@ -58,16 +54,17 @@ class ExemptChanOps : public ListModeBase
 class ModuleExemptChanOps : public Module
 {
 	ExemptChanOps ec;
-	std::string alwaysexempt, neverexempt;
+	std::string defaults;
 
  public:
 
-	ModuleExemptChanOps()
-		: ec(this)
+	ModuleExemptChanOps() : ec(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&ec))
-			throw ModuleException("Could not add new modes!");
+	}
 
+	void init()
+	{
+		ServerInstance->Modules->AddService(ec);
 		ec.DoImplements(this);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnChannelRestrictionApply, I_OnRehash, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
@@ -75,48 +72,59 @@ class ModuleExemptChanOps : public Module
 		OnRehash(NULL);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		alwaysexempt = Conf.ReadValue("exemptchanops", "alwaysexempt", 0);
-		neverexempt = Conf.ReadValue("exemptchanops", "neverexempt", 0);
+		defaults = ServerInstance->Config->ConfValue("exemptchanops")->getString("defaults");
 		ec.DoRehash();
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
+	void OnCleanup(int target_type, void* item)
 	{
 		ec.DoCleanup(target_type, item);
 	}
 
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		ec.DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction)
+	ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction)
 	{
-		irc::spacesepstream allowstream(alwaysexempt), denystream(neverexempt);
+		unsigned int mypfx = chan->GetPrefixValue(user);
+		irc::spacesepstream defaultstream(defaults);
+		char minmode = 0;
 		std::string current;
 
-		if (chan->GetPrefixValue(user) != OP_VALUE)
-			return MOD_RES_PASSTHRU; // They're not opped, so we don't exempt them
-		while(denystream.GetToken(current))
-			if (!strcasecmp(restriction, current.c_str())) return MOD_RES_PASSTHRU; // This mode is set to never allow exemptions in the config
-		while(allowstream.GetToken(current))
-			if (!strcasecmp(restriction, current.c_str())) return MOD_RES_ALLOW; // This mode is set to always allow exemptions in the config
-
+		while (defaultstream.GetToken(current))
+		{
+			std::string::size_type pos = current.find(':');
+			if (pos == std::string::npos)
+				continue;
+			if (current.substr(pos+1) == restriction)
+				minmode = current[0];
+		}
 		modelist* list = ec.extItem.get(chan);
 
-		if (!list) return MOD_RES_PASSTHRU;
-		for (modelist::iterator i = list->begin(); i != list->end(); ++i)
-			if (!strcasecmp(restriction, i->mask.c_str()))
-				return MOD_RES_ALLOW; //  They're opped, and the channel lets ops bypass this mode.  Allow regardless of restrictions
+		if (list)
+		{
+			for (modelist::iterator i = list->begin(); i != list->end(); ++i)
+			{
+				std::string::size_type pos = i->mask.find(':');
+				if (pos == std::string::npos)
+					continue;
+				if (i->mask.substr(pos+1) == restriction)
+					minmode = i->mask[0];
+			}
+		}
 
+		ModeHandler* mh = ServerInstance->Modes->FindMode(minmode, MODETYPE_CHANNEL);
+		if (mh && mypfx >= mh->GetPrefixRank())
+			return MOD_RES_ALLOW;
 		return MOD_RES_PASSTHRU;
 	}
 };

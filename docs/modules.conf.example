@@ -737,11 +737,12 @@
 #<module name="m_exemptchanops.so">                                   #
 #                                                                     #
 #-#-#-#-#-#-#-#-#-#-  EXEMPTCHANOPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
-#  alwaysexempt      - Modes channel operators are always exempt from,
-#                      regardless of channel setting.
-#  neverexempt       - Modes channel operators are never exempt from,
-#                      regardless of channel setting.
-#<exemptchanops alwaysexempt="nickflood censor flood filter" neverexempt="regmoderated">
+#  defaults - default exemptions. These can be added to or overridden #
+#             by the channel mode +X. Each item is of the form        #
+#             [minstatus]:[mode] where you must have [minstatus] in   #
+#             order to be able to bypass [mode].                      #
+#             Use "*:blockcolor" to override a default exemption      #
+#<exemptchanops defaults="v:nonick o:flood">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
