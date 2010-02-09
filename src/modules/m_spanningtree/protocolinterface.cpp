@@ -81,7 +81,7 @@ void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::m
 		while (!modes.empty())
 		{
 			outlist[1] = modes.popModeLine(true);
-			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"MODE",outlist);
+			Utils->DoOneToMany(src->uuid,"MODE",outlist);
 		}
 	}
 	else if (c)
@@ -92,7 +92,7 @@ void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::m
 		while (!modes.empty())
 		{
 			outlist[2] = modes.popModeLine(true);
-			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FMODE",outlist);
+			Utils->DoOneToMany(src->uuid,"FMODE",outlist);
 		}
 	}
 }

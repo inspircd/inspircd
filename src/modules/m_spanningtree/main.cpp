@@ -67,7 +67,7 @@ void ModuleSpanningTree::init()
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
-		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
+		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnLoadModule, I_OnStats,
 		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
 	};
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -847,40 +847,6 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	{
 		/* User-unset lines */
 		Utils->DoOneToMany(user->uuid, "DELLINE", params);
-	}
-}
-
-void ModuleSpanningTree::OnMode(User* user, Extensible* dest, const irc::modestacker& modesc)
-{
-	irc::modestacker modes(modesc);
-	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
-	{
-		parameterlist params;
-		int id;
-		std::string command;
-
-		User* u = dynamic_cast<User*>(dest);
-		if (u)
-		{
-			params.push_back(u->uuid);
-			id = 1;
-			command = "MODE";
-		}
-		else
-		{
-			Channel* c = (Channel*)dest;
-			params.push_back(c->name);
-			params.push_back(ConvToStr(c->age));
-			id = 2;
-			command = "FMODE";
-		}
-		params.push_back("");
-
-		while (!modes.empty())
-		{
-			params[id] = modes.popModeLine(true);
-			Utils->DoOneToMany(user->uuid, command, params);
-		}
 	}
 }
 
