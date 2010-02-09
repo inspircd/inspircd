@@ -59,16 +59,9 @@ class BanRedirect : public ModeWatcher
 			std::string mask[4];
 			enum { NICK, IDENT, HOST, CHAN } current = NICK;
 			std::string::iterator start_pos = param.begin();
-			long maxbans = channel->GetMaxBans();
 
 			if (param.length() >= 2 && param[1] == ':')
 				return true;
-
-			if(adding && (channel->bans.size() > static_cast<unsigned>(maxbans)))
-			{
-				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)", source->nick.c_str(), channel->name.c_str(), channel->name.c_str(), maxbans);
-				return false;
-			}
 
 			for(std::string::iterator curr = start_pos; curr != param.end(); curr++)
 			{
@@ -237,28 +230,22 @@ class ModuleBanRedirect : public Module
 
 			if(redirects)
 			{
-				irc::modestacker modestack(false);
+				irc::modestacker modestack;
 				StringDeque stackresult;
 				std::vector<std::string> mode_junk;
 				mode_junk.push_back(chan->name);
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
-					modestack.Push('b', i->targetchan.insert(0, i->banmask));
+					modestack.push(irc::modechange('b', i->targetchan.insert(0, i->banmask), false));
 				}
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
-					modestack.PushPlus();
-					modestack.Push('b', i->banmask);
+					modestack.push(irc::modechange('b', i->banmask, true));
 				}
 
-				while(modestack.GetStackedLine(stackresult))
-				{
-					mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-					ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
-					mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
-				}
+				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, modestack);
 			}
 		}
 	}

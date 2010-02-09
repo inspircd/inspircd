@@ -67,20 +67,20 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, ModeID mode, const std::string &param, bool adding, int pcnt)
+	ModResult OnRawMode(User* user, Channel* chan, irc::modechange& mc)
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
 		 */
-		if (!adding && chan && IS_LOCAL(user) && !param.empty() && !ServerInstance->ULine(user->server))
+		if (!mc.adding && chan && IS_LOCAL(user) && !ServerInstance->ULine(user->server))
 		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(mode);
+			ModeHandler* mh = ServerInstance->Modes->FindMode(mc.mode);
 			if (mh->GetTranslateType() != TR_NICK)
 				return MOD_RES_PASSTHRU;
 
 			/* Check if the parameter is a valid nick/uuid
 			 */
-			User *u = ServerInstance->FindNick(param);
+			User *u = ServerInstance->FindNick(mc.value);
 			if (u)
 			{
 				/* The target user has +k set on themselves, and you are trying to remove a privilege mode the user has set on themselves.

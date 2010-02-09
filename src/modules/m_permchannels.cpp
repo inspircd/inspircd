@@ -253,12 +253,10 @@ public:
 		}
 	}
 
-	void OnMode(User*, void* dest, int tt, const std::vector<std::string>& mc, const std::vector<TranslateType>&)
+	void OnMode(User*, Extensible* dest, const irc::modestacker&)
 	{
-		if (tt != TYPE_CHANNEL)
-			return;
-		Channel* chan = (Channel*)dest;
-		if (chan && (chan->IsModeSet('P') || mc[0].find('P') != std::string::npos))
+		Channel* chan = dynamic_cast<Channel*>(dest);
+		if (chan && chan->IsModeSet('P'))
 			dirty = true;
 	}
 

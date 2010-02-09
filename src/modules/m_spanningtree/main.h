@@ -156,7 +156,7 @@ class ModuleSpanningTree : public Module
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
 	void OnAddLine(User *u, XLine *x);
 	void OnDelLine(User *u, XLine *x);
-	void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate);
+	void OnMode(User* user, Extensible* dest, const irc::modestacker& modes);
 	ModResult OnStats(char statschar, User* user, string_list &results);
 	ModResult OnSetAway(User* user, const std::string &awaymsg);
 	void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);

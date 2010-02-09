@@ -15,7 +15,6 @@
 #include "u_listmode.h"
 
 /* $ModDesc: Provides support for the +I channel mode */
-/* $ModDep: ../../include/u_listmode.h */
 
 /*
  * Written by Om <om@inspircd.org>, April 2005.
@@ -41,12 +40,14 @@ class ModuleInviteException : public Module
 public:
 	ModuleInviteException() : ie(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&ie))
-			throw ModuleException("Could not add new modes!");
+	}
 
-		ie.DoImplements(this);
-		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+	void init()
+	{
+		ServerInstance->Modules->AddService(ie);
+
+		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void On005Numeric(std::string &output)
@@ -77,11 +78,6 @@ public:
 	void OnCleanup(int target_type, void* item)
 	{
 		ie.DoCleanup(target_type, item);
-	}
-
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		ie.DoSyncChannel(chan, proto, opaque);
 	}
 
 	void OnRehash(User* user)

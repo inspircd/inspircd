@@ -67,11 +67,14 @@ class ModuleAutoOp : public Module
 public:
 	ModuleAutoOp() : mh(this)
 	{
-		ServerInstance->Modules->AddService(mh);
-		mh.DoImplements(this);
+	}
 
-		Implementation list[] = { I_OnUserPreJoin, };
-		ServerInstance->Modules->Attach(list, this, 1);
+	void init()
+	{
+		ServerInstance->Modules->AddService(mh);
+
+		Implementation list[] = { I_OnUserPreJoin, I_OnRehash };
+		ServerInstance->Modules->Attach(list, this, 2);
 	}
 
 	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
@@ -98,11 +101,6 @@ public:
 	void OnCleanup(int target_type, void* item)
 	{
 		mh.DoCleanup(target_type, item);
-	}
-
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		mh.DoSyncChannel(chan, proto, opaque);
 	}
 
 	void OnRehash(User* user)

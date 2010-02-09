@@ -191,14 +191,6 @@ class ListModeBase : public ModeHandler
 		}
 	}
 
-	/** Populate the Implements list with the correct events for a List Mode
-	 */
-	virtual void DoImplements(Module* m)
-	{
-		Implementation eventlist[] = { I_OnSyncChannel, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, m, 2);
-	}
-
 	/** Handle the list mode.
 	 * See mode.h
 	 */

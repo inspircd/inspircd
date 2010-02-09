@@ -85,8 +85,9 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
+	ModResult OnPreMode(User* source, Extensible* dest, irc::modestacker& modes)
 	{
+		Channel* channel = dynamic_cast<Channel*>(dest);
 		if (!source || !channel)
 			return MOD_RES_PASSTHRU;
 		if (!IS_OPER(source) || !IS_LOCAL(source))
@@ -96,9 +97,8 @@ class ModuleOverride : public Module
 
 		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
 		{
-			std::string msg = std::string(source->nick)+" overriding modes:";
-			for(unsigned int i=0; i < parameters.size(); i++)
-				msg += " " + parameters[i];
+			irc::modestacker tmp(modes);
+			std::string msg = std::string(source->nick)+" overriding modes:" + tmp.popModeLine();
 			ServerInstance->SNO->WriteGlobalSno('G',msg);
 			return MOD_RES_ALLOW;
 		}

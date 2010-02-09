@@ -76,11 +76,6 @@ class CommandTban : public Command
 		// use CallCommandHandler to make it so that the user sets the mode
 		// themselves
 		ServerInstance->CallCommandHandler("MODE",setban,user);
-		for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-			if (!strcasecmp(i->data.c_str(), mask.c_str()))
-				goto found;
-		return CMD_FAILURE;
-found:
 		CUList tmp;
 		T.channel = channelname;
 		T.mask = mask;

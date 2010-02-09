@@ -189,20 +189,7 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " member " + tmpbuf);
 			}
 
-			irc::modestacker modestack(true);
-			std::string letter_b("b");
-			for(BanList::iterator b = targchan->bans.begin(); b != targchan->bans.end(); ++b)
-			{
-				modestack.Push('b', b->data);
-			}
-			std::vector<std::string> stackresult;
-			std::vector<TranslateType> dummy;
-			while (modestack.GetStackedLine(stackresult))
-			{
-				creator->ProtoSendMode(user, TYPE_CHANNEL, targchan, stackresult, dummy);
-				stackresult.clear();
-			}
-			FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(targchan,creator,user));
+			// TODO ban list dump
 			dumpExt(user, checkstr, targchan);
 		}
 		else
@@ -259,22 +246,6 @@ class ModuleCheck : public Module
 
 	~ModuleCheck()
 	{
-	}
-
-	void ProtoSendMode(void* uv, TargetTypeFlags, void*, const std::vector<std::string>& result, const std::vector<TranslateType>&)
-	{
-		User* user = (User*)uv;
-		std::string checkstr(":");
-		checkstr.append(ServerInstance->Config->ServerName);
-		checkstr.append(" 304 ");
-		checkstr.append(user->nick);
-		checkstr.append(" :CHECK modelist");
-		for(unsigned int i=0; i < result.size(); i++)
-		{
-			checkstr.append(" ");
-			checkstr.append(result[i]);
-		}
-		user->SendText(checkstr);
 	}
 
 	Version GetVersion()

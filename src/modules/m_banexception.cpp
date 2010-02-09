@@ -15,7 +15,6 @@
 #include "u_listmode.h"
 
 /* $ModDesc: Provides support for the +e channel mode */
-/* $ModDep: ../../include/u_listmode.h */
 
 /* Written by Om<om@inspircd.org>, April 2005. */
 /* Rewritten to use the listmode utility by Om, December 2005 */
@@ -42,13 +41,14 @@ class ModuleBanException : public Module
 public:
 	ModuleBanException() : be(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&be))
-			throw ModuleException("Could not add new modes!");
+	}
 
-		be.DoImplements(this);
+	void init()
+	{
+		ServerInstance->Modules->AddService(be);
+
 		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
 		ServerInstance->Modules->Attach(list, this, 4);
-
 	}
 
 	void On005Numeric(std::string &output)
@@ -108,11 +108,6 @@ public:
 	void OnCleanup(int target_type, void* item)
 	{
 		be.DoCleanup(target_type, item);
-	}
-
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		be.DoSyncChannel(chan, proto, opaque);
 	}
 
 	void OnRehash(User* user)

@@ -44,36 +44,6 @@ class FounderProtectBase
 	{
 	}
 
-	void RemoveMode(Channel* channel, irc::modestacker* stack)
-	{
-		const UserMembList* cl = channel->GetUsers();
-		std::vector<std::string> mode_junk;
-		mode_junk.push_back(channel->name);
-		irc::modestacker modestack(false);
-		std::deque<std::string> stackresult;
-
-		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
-		{
-			if (i->second->hasMode(mode))
-			{
-				if (stack)
-					stack->Push(mode, i->first->nick);
-				else
-					modestack.Push(mode, i->first->nick);
-			}
-		}
-
-		if (stack)
-			return;
-
-		while (modestack.GetStackedLine(stackresult))
-		{
-			mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-			ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
-			mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
-		}
-	}
-
 	void DisplayList(User* user, Channel* channel)
 	{
 		const UserMembList* cl = channel->GetUsers();
@@ -118,15 +88,6 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		return FOUNDER_VALUE;
 	}
 
-	void RemoveMode(Channel* channel, irc::modestacker* stack)
-	{
-		FounderProtectBase::RemoveMode(channel, stack);
-	}
-
-	void RemoveMode(User* user, irc::modestacker* stack)
-	{
-	}
-	
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
 	{
 		User* theuser = ServerInstance->FindNick(parameter);
@@ -175,19 +136,9 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		prefix = pfx;
 	}
 
-
 	unsigned int GetPrefixRank()
 	{
 		return PROTECT_VALUE;
-	}
-
-	void RemoveMode(Channel* channel, irc::modestacker* stack)
-	{
-		FounderProtectBase::RemoveMode(channel, stack);
-	}
-
-	void RemoveMode(User* user, irc::modestacker* stack)
-	{
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)

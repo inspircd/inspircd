@@ -31,9 +31,9 @@ class CommandSamode : public Command
 	{
 		this->active = true;
 		ServerInstance->Parser->CallHandler("MODE", parameters, user);
-		if (ServerInstance->Modes->GetLastParse().length())
-			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick) + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
 		this->active = false;
+		irc::stringjoiner list(" ", parameters, 0, parameters.size() - 1);
+		ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick) + " used SAMODE: " + list.GetJoined());
 		return CMD_SUCCESS;
 	}
 };
@@ -58,7 +58,7 @@ class ModuleSaMode : public Module
 		return Version("Provides more advanced UnrealIRCd SAMODE command", VF_VENDOR);
 	}
 
-	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
+	ModResult OnPreMode(User*, Extensible*, irc::modestacker&)
 	{
 		if (cmd.active)
 			return MOD_RES_ALLOW;

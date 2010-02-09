@@ -61,13 +61,14 @@ class ModuleChanFilter : public Module
 
  public:
 
-	ModuleChanFilter()
-		: cf(this)
+	ModuleChanFilter() : cf(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&cf))
-			throw ModuleException("Could not add new modes!");
+	}
 
-		cf.DoImplements(this);
+	void init()
+	{
+		ServerInstance->Modules->AddService(cf);
+
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 
@@ -128,18 +129,9 @@ class ModuleChanFilter : public Module
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		cf.DoSyncChannel(chan, proto, opaque);
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR);
-	}
-
-	virtual ~ModuleChanFilter()
-	{
 	}
 };
 
