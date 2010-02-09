@@ -33,7 +33,7 @@ class HalfVoiceMode : public ModeHandler
 
 	unsigned int GetPrefixRank()
 	{
-		return STATUS_VALUE;
+		return HALFVOICE_VALUE;
 	}
 
 	void RemoveMode(Channel* channel, irc::modestacker* stack)

@@ -801,19 +801,7 @@ void LocalUser::FullConnect()
 	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
-	this->SetClass();
-
-	/* Check the password, if one is required by the user's connect class.
-	 * This CANNOT be in CheckClass(), because that is called prior to PASS as well!
-	 */
-	if (!MyClass->config->getString("pass").empty())
-	{
-		if (ServerInstance->PassCompare(this, MyClass->config->getString("pass"), password, MyClass->config->getString("hash")))
-		{
-			ServerInstance->Users->QuitUser(this, "Invalid password");
-			return;
-		}
-	}
+	SetClass();
 	CheckClass();
 	CheckLines();
 
@@ -1602,6 +1590,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			ConnectClass* c = *i;
+			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Checking %s", c->GetName().c_str());
 
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
@@ -1615,6 +1604,10 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			}
 
 			if (c->type == CC_NAMED)
+				continue;
+
+			bool regdone = (registered != REG_NONE);
+			if (c->config->getBool("registered", regdone) != regdone)
 				continue;
 
 			/* check if host matches.. */
@@ -1646,9 +1639,14 @@ void LocalUser::SetClass(const std::string &explicit_name)
 					continue;
 			}
 
-			bool regdone = (registered != REG_NONE);
-			if (c->config->getBool("registered", regdone) != regdone)
-				continue;
+			if (!c->config->getString("pass").empty())
+			{
+				if (ServerInstance->PassCompare(this, c->config->getString("pass"), password, c->config->getString("hash")))
+				{
+					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Bad password, skipping");
+					continue;
+				}
+			}
 
 			/* we stop at the first class that meets ALL critera. */
 			found = c;
