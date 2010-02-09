@@ -724,7 +724,6 @@ char* Channel::ChanModes(bool showkey)
 	static char scratch[MAXBUF];
 	static char sparam[MAXBUF];
 	char* offset = scratch;
-	std::string extparam;
 
 	*scratch = '\0';
 	*sparam = '\0';
@@ -735,10 +734,10 @@ char* Channel::ChanModes(bool showkey)
 		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
 		if (!mh)
 			continue;
-		char mc = mh->GetModeChar();
-		if (IsModeSet(id))
+		if (IsModeSet(mh))
 		{
-			extparam.clear();
+			char mc = mh->GetModeChar();
+			std::string extparam;
 			*offset++ = mc ? mc : 'Z';
 			if (mc == 'k' && !showkey)
 			{

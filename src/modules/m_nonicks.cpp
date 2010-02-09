@@ -15,32 +15,10 @@
 
 /* $ModDesc: Provides support for channel mode +N & extban +b N: which prevents nick changes on channel */
 
-class NoNicks : public ModeHandler
+class NoNicks : public SimpleChannelModeHandler
 {
  public:
-	NoNicks(Module* Creator) : ModeHandler(Creator, "nonick", 'N', PARAM_NONE, MODETYPE_CHANNEL) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('N'))
-			{
-				channel->SetMode('N',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('N'))
-			{
-				channel->SetMode('N',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	NoNicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nonick", 'N') { }
 };
 
 class ModuleNoNickChange : public Module
@@ -50,8 +28,12 @@ class ModuleNoNickChange : public Module
  public:
 	ModuleNoNickChange() : nn(this)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
-		ServerInstance->Modes->AddMode(&nn);
+		ServerInstance->Modules->AddService(nn);
 		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
@@ -93,7 +75,7 @@ class ModuleNoNickChange : public Module
 			if (override && IS_OPER(user))
 				continue;
 
-			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))
+			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet(&nn)))
 			{
 				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)",
 					user->nick.c_str(), curr->name.c_str());

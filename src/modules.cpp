@@ -371,13 +371,9 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		mod->OnCleanup(TYPE_USER,u->second);
 		u->second->doUnhookExtensions(items);
 	}
-	for(char m='A'; m <= 'z'; m++)
+	for(ModeIDIter id; id; id++)
 	{
-		ModeHandler* mh;
-		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
-		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
-		mh = ServerInstance->Modes->FindMode(m, MODETYPE_CHANNEL);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
 		if (mh && mh->creator == mod)
 			ServerInstance->Modes->DelMode(mh);
 	}

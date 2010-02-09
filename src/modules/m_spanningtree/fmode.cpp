@@ -79,6 +79,7 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 		irc::modestacker modes;
 		ServerInstance->Modes->Parse(modelist, who, target, modes);
 		ServerInstance->Modes->Process(who, target, modes, merge);
+		ServerInstance->Modes->Send(who, target, modes);
 		return CMD_SUCCESS;
 	}
 	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.
