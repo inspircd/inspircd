@@ -85,33 +85,33 @@ class CommandSSLInfo : public Command
 	{
 		User* target = ServerInstance->FindNick(parameters[0]);
 
-		if (target)
+		if (!target)
 		{
-			ssl_cert* cert = CertExt.get(target);
-			if (cert)
-			{
-				if (cert->GetError().length())
-				{
-					user->WriteServ("NOTICE %s :*** No SSL certificate information for this user (%s).", user->nick.c_str(), cert->GetError().c_str());
-				}
-				else
-				{
-					user->WriteServ("NOTICE %s :*** Distinguised Name: %s", user->nick.c_str(), cert->GetDN().c_str());
-					user->WriteServ("NOTICE %s :*** Issuer:            %s", user->nick.c_str(), cert->GetIssuer().c_str());
-					user->WriteServ("NOTICE %s :*** Key Fingerprint:   %s", user->nick.c_str(), cert->GetFingerprint().c_str());
-				}
-				return CMD_SUCCESS;
-			}
-			else
-			{
-				user->WriteServ("NOTICE %s :*** No SSL certificate information for this user.", user->nick.c_str());
-				return CMD_FAILURE;
-			}
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
+		if (operonlyfp && !IS_OPER(user) && target != user)
+		{
+			user->WriteServ("NOTICE %s :*** You cannot view SSL certificate information for other users", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		ssl_cert* cert = CertExt.get(target);
+		if (!cert)
+		{
+			user->WriteServ("NOTICE %s :*** No SSL certificate for this user", user->nick.c_str());
+		}
+		else if (cert->GetError().length())
+		{
+			user->WriteServ("NOTICE %s :*** No SSL certificate information for this user (%s).", user->nick.c_str(), cert->GetError().c_str());
 		}
 		else
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
-
-		return CMD_FAILURE;
+		{
+			user->WriteServ("NOTICE %s :*** Distinguished Name: %s", user->nick.c_str(), cert->GetDN().c_str());
+			user->WriteServ("NOTICE %s :*** Issuer:             %s", user->nick.c_str(), cert->GetIssuer().c_str());
+			user->WriteServ("NOTICE %s :*** Key Fingerprint:    %s", user->nick.c_str(), cert->GetFingerprint().c_str());
+		}
+		return CMD_SUCCESS;
 	}
 };
 
@@ -120,8 +120,11 @@ class ModuleSSLInfo : public Module
 	CommandSSLInfo cmd;
 
  public:
-	ModuleSSLInfo()
-		: cmd(this)
+	ModuleSSLInfo() : cmd(this)
+	{
+	}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 
@@ -138,9 +141,14 @@ class ModuleSSLInfo : public Module
 
 	void OnWhois(User* source, User* dest)
 	{
-		if (cmd.CertExt.get(dest))
+		ssl_cert* cert = cmd.CertExt.get(dest);
+		if (cert)
 		{
 			ServerInstance->SendWhoisLine(source, dest, 320, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
+			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
+			if ((!operonlyfp || source == dest || IS_OPER(source)) && !cert->fingerprint.empty())
+				ServerInstance->SendWhoisLine(source, dest, 276, "%s %s :has client certificate fingerprint %s",
+					source->nick.c_str(), dest->nick.c_str(), cert->fingerprint.c_str());
 		}
 	}
 
