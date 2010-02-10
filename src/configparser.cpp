@@ -76,7 +76,7 @@ struct Parser
 		int ch = next();
 		while (isspace(ch))
 			ch = next();
-		while (isalnum(ch) || ch == '_')
+		while (isalnum(ch) || ch == '_'|| ch == '-')
 		{
 			rv.push_back(ch);
 			ch = next();

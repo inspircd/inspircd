@@ -36,8 +36,12 @@ class AutoOpList : public ListModeBase
 		{
 			pos--;
 			ModeHandler* mh = ServerInstance->Modes->FindMode(parameter[pos], MODETYPE_CHANNEL);
-			if (adding && !mh)
+			if (adding && (!mh || !mh->GetPrefixRank()))
+			{
+				source->WriteNumeric(415, "%s %c :Cannot find prefix mode '%c' for autoop",
+					source->nick.c_str(), parameter[pos], parameter[pos]);
 				return MOD_RES_DENY;
+			}
 			else if (!mh)
 				continue;
 
@@ -45,7 +49,11 @@ class AutoOpList : public ListModeBase
 			if (mh->AccessCheck(source, channel, dummy, true) == MOD_RES_DENY)
 				return MOD_RES_DENY;
 			if (mh->GetLevelRequired() > mylevel)
+			{
+				source->WriteNumeric(482, "%s %s :You must be able to set mode '%c' to include it in an autoop",
+					source->nick.c_str(), channel->name.c_str(), parameter[pos]);
 				return MOD_RES_DENY;
+			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
