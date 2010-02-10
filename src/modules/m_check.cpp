@@ -171,12 +171,37 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " topic_setat " + timestring(targchan->topicset));
 			}
 
-			user->SendText(checkstr + " modes " + targchan->ChanModes(true));
+			irc::modestacker cmodes;
+			for(ModeIDIter id; id; id++)
+			{
+				ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+				if (!mh || mh->GetModeType() != MODETYPE_CHANNEL)
+					continue;
+				if (mh->IsListMode())
+				{
+					const modelist* ml = mh->GetList(targchan);
+					if (ml)
+					{
+						for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
+						{
+							cmodes.push(irc::modechange(id, i->mask, true));
+						}
+					}
+				}
+				else if (targchan->IsModeSet(mh))
+				{
+					cmodes.push(irc::modechange(id, targchan->GetModeParameter(mh), true));
+				}
+			}
+
+			while (!cmodes.empty())
+				user->SendText(checkstr + " modes " + cmodes.popModeLine());
+
 			user->SendText(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
 
 			/* now the ugly bit, spool current members of a channel. :| */
 
-			const UserMembList *ulist= targchan->GetUsers();
+			const UserMembList *ulist = targchan->GetUsers();
 
 			/* note that unlike /names, we do NOT check +i vs in the channel */
 			for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
