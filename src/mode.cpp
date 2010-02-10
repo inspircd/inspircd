@@ -393,10 +393,10 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 	if (IS_LOCAL(user) && !IS_OPER(user))
 	{
 		char* disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
-		if (disabled[mh->GetModeChar() - 'A'])
+		if (mh->GetModeChar() && disabled[mh->GetModeChar() - 'A'])
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - %s mode %c has been locked by the administrator",
-				user->nick.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", mh->GetModeChar());
+			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - mode %s has been locked by the administrator",
+				user->nick.c_str(), mh->name.c_str());
 			return MODEACTION_DENY;
 		}
 	}
@@ -406,13 +406,13 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 		/* It's an oper only mode, and they don't have access to it. */
 		if (IS_OPER(user))
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set %s mode %c",
-					user->nick.c_str(), user->oper->NameStr(), type == MODETYPE_CHANNEL ? "channel" : "user", mh->GetModeChar());
+			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set the %s mode",
+					user->nick.c_str(), user->oper->NameStr(), mh->name.c_str());
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Only operators may set %s mode %c",
-					user->nick.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", mh->GetModeChar());
+			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Only operators may set the %s mode",
+					user->nick.c_str(), mh->name.c_str());
 		}
 		return MODEACTION_DENY;
 	}
@@ -794,7 +794,7 @@ std::string ModeParser::UserModeList()
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = FindMode(id);
-		if(mh && mh->GetModeType() == MODETYPE_USER)
+		if(mh && mh->GetModeType() == MODETYPE_USER && mh->GetModeChar())
 			modestr[pointer++] = mh->GetModeChar();
 	}
 	std::sort(modestr, modestr + pointer);
@@ -810,7 +810,7 @@ std::string ModeParser::ChannelModeList()
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = FindMode(id);
-    	if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
+		if (mh && mh->GetModeType() == MODETYPE_CHANNEL && mh->GetModeChar())
 			modestr[pointer++] = mh->GetModeChar();
 	}
 	modestr[pointer] = 0;
@@ -826,7 +826,7 @@ std::string ModeParser::ParaModeList()
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = FindMode(id);
-    	if (mh && mh->GetModeType() == MODETYPE_CHANNEL && mh->GetNumParams(true))
+		if (mh && mh->GetModeType() == MODETYPE_CHANNEL && mh->GetNumParams(true) && mh->GetModeChar())
 			modestr[pointer++] = mh->GetModeChar();
 	}
 	modestr[pointer++] = 0;
@@ -854,7 +854,7 @@ std::string ModeParser::GiveModeList(ModeType m)
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = FindMode(id);
-		if (mh && mh->GetModeType() == m)
+		if (mh && mh->GetModeType() == m && mh->GetModeChar())
 		{
 			if (mh->GetNumParams(true))
 			{
@@ -904,7 +904,7 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 	{
 		ModeHandler* mh = FindMode(id);
 
-   		if (mh && mh->GetPrefix())
+		if (mh && mh->GetPrefix())
 		{
 			prefixes[mh->GetPrefixRank()] = std::make_pair(mh->GetPrefix(), mh->GetModeChar());
 		}
