@@ -107,75 +107,75 @@ void TreeSocket::CompatAddModules(std::vector<std::string>& modlist)
 
 void TreeSocket::WriteLine(std::string line)
 {
-	if (LinkState == CONNECTED)
+	if (LinkState == CONNECTED && line[0] != ':')
 	{
+		ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Sending line without server prefix!");
+		line = ":" + ServerInstance->Config->GetSID() + " " + line;
+	}
+
+	if (proto_version != ProtocolVersion)
+	{
+		std::string::size_type a = line.find(' ');
 		if (line[0] != ':')
+			a = -1;
+		std::string::size_type b = line.find(' ', a + 1);
+		std::string command = line.substr(a + 1, b-a-1);
+		// now try to find a translation entry
+		// TODO a more efficient lookup method will be needed later
+		if (proto_version < 1202 && command == "FIDENT")
 		{
-			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Sending line without server prefix!");
-			line = ":" + ServerInstance->Config->GetSID() + " " + line;
+			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Rewriting FIDENT for 1201-protocol server");
+			line = ":" + ServerInstance->Config->GetSID() + " CHGIDENT " +  line.substr(1,a-1) + line.substr(b);
 		}
-		if (proto_version != ProtocolVersion)
+		else if (proto_version < 1202 && command == "SAVE")
 		{
-			std::string::size_type a = line.find(' ');
-			std::string::size_type b = line.find(' ', a + 1);
-			std::string command = line.substr(a + 1, b-a-1);
-			// now try to find a translation entry
-			// TODO a more efficient lookup method will be needed later
-			if (proto_version < 1202 && command == "FIDENT")
+			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Rewriting SAVE for 1201-protocol server");
+			std::string::size_type c = line.find(' ', b + 1);
+			std::string uid = line.substr(b, c - b);
+			line = ":" + ServerInstance->Config->GetSID() + " SVSNICK" + uid + line.substr(b);
+		}
+		else if (proto_version < 1202 && command == "AWAY")
+		{
+			if (b != std::string::npos)
 			{
-				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Rewriting FIDENT for 1201-protocol server");
-				line = ":" + ServerInstance->Config->GetSID() + " CHGIDENT " +  line.substr(1,a-1) + line.substr(b);
-			}
-			else if (proto_version < 1202 && command == "SAVE")
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Rewriting SAVE for 1201-protocol server");
+				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Stripping AWAY timestamp for 1201-protocol server");
 				std::string::size_type c = line.find(' ', b + 1);
-				std::string uid = line.substr(b, c - b);
-				line = ":" + ServerInstance->Config->GetSID() + " SVSNICK" + uid + line.substr(b);
+				line.erase(b,c-b);
 			}
-			else if (proto_version < 1202 && command == "AWAY")
+		}
+		else if (proto_version < 1202 && command == "ENCAP")
+		{
+			// :src ENCAP target command [args...]
+			//     A     B      C       D
+			// Therefore B and C cannot be npos in a valid command
+			if (b == std::string::npos)
+				return;
+			std::string::size_type c = line.find(' ', b + 1);
+			if (c == std::string::npos)
+				return;
+			std::string::size_type d = line.find(' ', c + 1);
+			std::string subcmd = line.substr(c + 1, d - c - 1);
+
+			if (subcmd == "CHGIDENT" && d != std::string::npos)
 			{
-				if (b != std::string::npos)
-				{
-					ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Stripping AWAY timestamp for 1201-protocol server");
-					std::string::size_type c = line.find(' ', b + 1);
-					line.erase(b,c-b);
-				}
+				std::string::size_type e = line.find(' ', d + 1);
+				if (e == std::string::npos)
+					return; // not valid
+				std::string target = line.substr(d + 1, e - d - 1);
+
+				ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Forging acceptance of CHGIDENT from 1201-protocol server");
+				recvq.insert(0, ":" + target + " FIDENT " + line.substr(e) + "\n");
 			}
-			else if (proto_version < 1202 && command == "ENCAP")
+
+			Command* thiscmd = ServerInstance->Parser->GetHandler(subcmd);
+			if (thiscmd)
 			{
-				// :src ENCAP target command [args...]
-				//     A     B      C       D
-				// Therefore B and C cannot be npos in a valid command
-				if (b == std::string::npos)
-					return;
-				std::string::size_type c = line.find(' ', b + 1);
-				if (c == std::string::npos)
-					return;
-				std::string::size_type d = line.find(' ', c + 1);
-				std::string subcmd = line.substr(c + 1, d - c - 1);
-
-				if (subcmd == "CHGIDENT" && d != std::string::npos)
+				Version ver = thiscmd->creator->GetVersion();
+				if (ver.Flags & VF_OPTCOMMON)
 				{
-					std::string::size_type e = line.find(' ', d + 1);
-					if (e == std::string::npos)
-						return; // not valid
-					std::string target = line.substr(d + 1, e - d - 1);
-
-					ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Forging acceptance of CHGIDENT from 1201-protocol server");
-					recvq.insert(0, ":" + target + " FIDENT " + line.substr(e) + "\n");
-				}
-
-				Command* thiscmd = ServerInstance->Parser->GetHandler(subcmd);
-				if (thiscmd)
-				{
-					Version ver = thiscmd->creator->GetVersion();
-					if (ver.Flags & VF_OPTCOMMON)
-					{
-						ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Removing ENCAP on '%s' for 1201-protocol server",
-							subcmd.c_str());
-						line.erase(a, c-a);
-					}
+					ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Removing ENCAP on '%s' for 1201-protocol server",
+						subcmd.c_str());
+					line.erase(a, c-a);
 				}
 			}
 		}

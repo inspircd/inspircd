@@ -135,6 +135,12 @@ void TreeSocket::SendCapabilities(int phase)
 		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
+	std::string chanmodes = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
+
+	if (proto_version < 1202)
+	{
+		chanmodes.erase(chanmodes.find('Z'), 1);
+	}
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
@@ -150,7 +156,7 @@ void TreeSocket::SendCapabilities(int phase)
 			" IP6SUPPORT=1"+
 			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
-			" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL)+
+			" CHANMODES="+chanmodes+
 			" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER)+
 			" SVSPART=1");
 
@@ -281,7 +287,14 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else if (this->capab->CapKeys.find("CHANMODES") != this->capab->CapKeys.end())
 		{
-			if (this->capab->CapKeys.find("CHANMODES")->second != ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL))
+			std::string chanmodes = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
+
+			if (proto_version < 1202)
+			{
+				chanmodes.erase(chanmodes.find('Z'), 1);
+			}
+
+			if (this->capab->CapKeys.find("CHANMODES")->second != chanmodes)
 				reason = "One or more of the channel modes on the remote server are invalid on this server.";
 		}
 
