@@ -34,7 +34,7 @@ class CensorUser : public SimpleUserModeHandler
 class CensorChannel : public SimpleChannelModeHandler
 {
  public:
-	CensorChannel(Module* Creator) : SimpleChannelModeHandler(Creator, "censor", 'G') { }
+	CensorChannel(Module* Creator) : SimpleChannelModeHandler(Creator, "censor", 'G') { fixed_letter = false; }
 };
 
 class ModuleCensor : public Module
@@ -74,7 +74,7 @@ class ModuleCensor : public Module
 			active = ((User*)dest)->IsModeSet('G');
 		else if (target_type == TYPE_CHANNEL)
 		{
-			active = ((Channel*)dest)->IsModeSet('G');
+			active = ((Channel*)dest)->IsModeSet(&cc);
 			Channel* c = (Channel*)dest;
 			ModResult res;
 			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"censor"));

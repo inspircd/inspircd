@@ -20,7 +20,7 @@
 class Redirect : public ModeHandler
 {
  public:
-	Redirect(Module* Creator) : ModeHandler(Creator, "redirect", 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
+	Redirect(Module* Creator) : ModeHandler(Creator, "redirect", 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -57,14 +57,14 @@ class Redirect : public ModeHandler
 			 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
 			 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
 			 */
-			channel->SetModeParam('L', parameter);
+			channel->SetModeParam(this, parameter);
 			return MODEACTION_ALLOW;
 		}
 		else
 		{
-			if (channel->IsModeSet('L'))
+			if (channel->IsModeSet(this))
 			{
-				channel->SetModeParam('L', "");
+				channel->SetModeParam(this, "");
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -96,16 +96,16 @@ class ModuleRedirect : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsModeSet('L') && chan->IsModeSet('l'))
+			if (chan->IsModeSet(&re) && chan->IsModeSet('l'))
 			{
 				if (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str()))
 				{
-					std::string channel = chan->GetModeParameter('L');
+					std::string channel = chan->GetModeParameter(&re);
 
 					/* sometimes broken ulines can make circular or chained +L, avoid this */
 					Channel* destchan = NULL;
 					destchan = ServerInstance->FindChan(channel);
-					if (destchan && destchan->IsModeSet('L'))
+					if (destchan && destchan->IsModeSet(&re))
 					{
 						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
 						return MOD_RES_DENY;

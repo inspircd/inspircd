@@ -78,6 +78,8 @@ void ModeHandler::AdjustModeChar(char proposed_letter)
 {
 	if (fixed_letter)
 		return;
+	if (!proposed_letter && GetPrefixRank())
+		return;
 	mode = proposed_letter;
 }
 

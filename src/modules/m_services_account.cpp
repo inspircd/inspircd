@@ -21,7 +21,7 @@
 class Channel_r : public ModeHandler
 {
  public:
-	Channel_r(Module* Creator) : ModeHandler(Creator, "c_registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { }
+	Channel_r(Module* Creator) : ModeHandler(Creator, "c_registered", 'r', PARAM_NONE, MODETYPE_CHANNEL) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -29,9 +29,9 @@ class Channel_r : public ModeHandler
 		if (!IS_LOCAL(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
 		{
 			// Only change the mode if it's not redundant
-			if ((adding && !channel->IsModeSet('r')) || (!adding && channel->IsModeSet('r')))
+			if ((adding && !channel->IsModeSet(this)) || (!adding && channel->IsModeSet(this)))
 			{
-				channel->SetMode('r',adding);
+				channel->SetMode(this,adding);
 				return MODEACTION_ALLOW;
 			}
 
@@ -93,27 +93,27 @@ class AUser_R : public SimpleUserModeHandler
 class AChannel_M : public SimpleChannelModeHandler
 {
  public:
-	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, "regmoderated", 'M') { }
+	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, "regmoderated", 'M') { fixed_letter = false; }
 };
 
 class ModuleServicesAccount : public Module
 {
-	AChannel_R m1;
-	AChannel_M m2;
+	AChannel_R chanR;
+	AChannel_M chanM;
 	AUser_R m3;
 	Channel_r m4;
 	User_r m5;
 	AccountExtItem accountname;
  public:
-	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
+	ModuleServicesAccount() : chanR(this), chanM(this), m3(this), m4(this), m5(this),
 		accountname("accountname", this)
 	{
 	}
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(m1);
-		ServerInstance->Modules->AddService(m2);
+		ServerInstance->Modules->AddService(chanR);
+		ServerInstance->Modules->AddService(chanM);
 		ServerInstance->Modules->AddService(m3);
 		ServerInstance->Modules->AddService(m4);
 		ServerInstance->Modules->AddService(m5);
@@ -178,7 +178,7 @@ class ModuleServicesAccount : public Module
 			ModResult res;
 			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"regmoderated"));
 
-			if (c->IsModeSet('M') && !is_registered && res != MOD_RES_ALLOW)
+			if (c->IsModeSet(&chanM) && !is_registered && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
 				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
@@ -231,7 +231,7 @@ class ModuleServicesAccount : public Module
 				return MOD_RES_PASSTHRU;
 			}
 
-			if (chan->IsModeSet('R'))
+			if (chan->IsModeSet(&chanR))
 			{
 				if (!is_registered)
 				{

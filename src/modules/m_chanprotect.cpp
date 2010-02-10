@@ -29,53 +29,18 @@ struct ChanProtectSettings
 
 static ChanProtectSettings settings;
 
-/** Handles basic operation of +qa channel modes
- */
-class FounderProtectBase
-{
- private:
-	const std::string type;
-	const char mode;
-	const int list;
-	const int end;
- public:
-	FounderProtectBase(char Mode, const std::string &mtype, int l, int e) :
-		type(mtype), mode(Mode), list(l), end(e)
-	{
-	}
-
-	void DisplayList(User* user, Channel* channel)
-	{
-		const UserMembList* cl = channel->GetUsers();
-		for (UserMembCIter i = cl->begin(); i != cl->end(); ++i)
-		{
-			if (i->second->hasMode(mode))
-			{
-				user->WriteServ("%d %s %s %s", list, user->nick.c_str(), channel->name.c_str(), i->first->nick.c_str());
-			}
-		}
-		user->WriteServ("%d %s %s :End of channel %s list", end, user->nick.c_str(), channel->name.c_str(), type.c_str());
-	}
-
-	bool CanRemoveOthers(User* u1, Channel* c)
-	{
-		Membership* m1 = c->GetUser(u1);
-		return (settings.DeprivOthers && m1 && m1->hasMode(mode));
-	}
-};
-
 /** Abstraction of FounderProtectBase for channel mode +q
  */
-class ChanFounder : public ModeHandler, public FounderProtectBase
+class ChanFounder : public ModeHandler
 {
  public:
 	ChanFounder(Module* Creator)
-		: ModeHandler(Creator, "founder", 'q', PARAM_ALWAYS, MODETYPE_CHANNEL),
-		  FounderProtectBase('q', "founder", 386, 387)
+		: ModeHandler(Creator, "founder", 'q', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		ModeHandler::list = true;
 		levelrequired = FOUNDER_VALUE;
 		m_paramtype = TR_NICK;
+		fixed_letter = false;
 	}
 
 	void setPrefix(int pfx)
@@ -95,7 +60,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 		if (source == theuser && !adding && settings.DeprivSelf)
 			return MOD_RES_ALLOW;
 
-		if (!adding && FounderProtectBase::CanRemoveOthers(source, channel))
+		if (!adding && CanRemoveOthers(source, channel))
 		{
 			return MOD_RES_PASSTHRU;
 		}
@@ -113,22 +78,36 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 
 	void DisplayList(User* user, Channel* channel)
 	{
-		FounderProtectBase::DisplayList(user,channel);
+		const UserMembList* cl = channel->GetUsers();
+		for (UserMembCIter i = cl->begin(); i != cl->end(); ++i)
+		{
+			if (i->second->hasMode(mode))
+			{
+				user->WriteServ("386 %s %s %s", user->nick.c_str(), channel->name.c_str(), i->first->nick.c_str());
+			}
+		}
+		user->WriteServ("387 %s %s :End of channel founder list", user->nick.c_str(), channel->name.c_str());
+	}
+
+	bool CanRemoveOthers(User* u1, Channel* c)
+	{
+		Membership* m1 = c->GetUser(u1);
+		return (settings.DeprivOthers && m1 && m1->hasMode(mode));
 	}
 };
 
 /** Abstraction of FounderProtectBase for channel mode +a
  */
-class ChanProtect : public ModeHandler, public FounderProtectBase
+class ChanProtect : public ModeHandler
 {
  public:
 	ChanProtect(Module* Creator)
-		: ModeHandler(Creator, "protected", 'a', PARAM_ALWAYS, MODETYPE_CHANNEL),
-		  FounderProtectBase('a',"protected user", 388, 389)
+		: ModeHandler(Creator, "protected", 'a', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		ModeHandler::list = true;
 		levelrequired = PROTECT_VALUE;
 		m_paramtype = TR_NICK;
+		fixed_letter = false;
 	}
 
 	void setPrefix(int pfx)
@@ -152,7 +131,7 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 		if (source == theuser && !adding && settings.DeprivSelf)
 			return MOD_RES_ALLOW;
 
-		if (!adding && FounderProtectBase::CanRemoveOthers(source, channel))
+		if (!adding && CanRemoveOthers(source, channel))
 		{
 			return MOD_RES_PASSTHRU;
 		}
@@ -170,9 +149,22 @@ class ChanProtect : public ModeHandler, public FounderProtectBase
 
 	void DisplayList(User* user, Channel* channel)
 	{
-		FounderProtectBase::DisplayList(user, channel);
+		const UserMembList* cl = channel->GetUsers();
+		for (UserMembCIter i = cl->begin(); i != cl->end(); ++i)
+		{
+			if (i->second->hasMode(mode))
+			{
+				user->WriteServ("388 %s %s %s", user->nick.c_str(), channel->name.c_str(), i->first->nick.c_str());
+			}
+		}
+		user->WriteServ("389 %s %s :End of channel protected user list", user->nick.c_str(), channel->name.c_str());
 	}
 
+	bool CanRemoveOthers(User* u1, Channel* c)
+	{
+		Membership* m1 = c->GetUser(u1);
+		return (settings.DeprivOthers && m1 && m1->hasMode(mode));
+	}
 };
 
 class ModuleChanProtect : public Module
@@ -186,6 +178,7 @@ class ModuleChanProtect : public Module
 
 	void init()
 	{
+		settings.booting = true;
 		/* Load config stuff */
 		LoadSettings();
 		settings.booting = false;
@@ -233,7 +226,7 @@ class ModuleChanProtect : public Module
 		// the config option for it is set
 
 		if (settings.FirstInGetsFounder && !chan)
-			privs += 'q';
+			privs += cf.GetModeChar();
 
 		return MOD_RES_PASSTHRU;
 	}

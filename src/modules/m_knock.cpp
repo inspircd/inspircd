@@ -44,9 +44,10 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
-		if (c->IsModeSet('K'))
+		ModeHandler* mh = ServerInstance->Modes->FindMode("noknock");
+		if (c->IsModeSet(mh))
 		{
-			user->WriteNumeric(480, "%s :Can't KNOCK on %s, +K is set.",user->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(480, "%s :Can't KNOCK on %s, noknock mode is set.",user->nick.c_str(), c->name.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -78,7 +79,7 @@ class CommandKnock : public Command
 class Knock : public SimpleChannelModeHandler
 {
  public:
-	Knock(Module* Creator) : SimpleChannelModeHandler(Creator, "noknock", 'K') { }
+	Knock(Module* Creator) : SimpleChannelModeHandler(Creator, "noknock", 'K') { fixed_letter = false; }
 };
 
 class ModuleKnock : public Module
@@ -88,18 +89,15 @@ class ModuleKnock : public Module
  public:
 	ModuleKnock() : cmd(this), kn(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&kn))
-			throw ModuleException("Could not add new modes!");
-		ServerInstance->AddCommand(&cmd);
-
 	}
 
-
-	virtual ~ModuleKnock()
+	void init()
 	{
+		ServerInstance->Modules->AddService(kn);
+		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides support for /KNOCK and mode +K", VF_OPTCOMMON | VF_VENDOR);
 	}

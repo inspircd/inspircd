@@ -17,7 +17,7 @@
 
 // Not in a class due to circular dependancy hell.
 static std::string permchannelsconf;
-static bool WriteDatabase()
+static bool WriteDatabase(ModeHandler* p)
 {
 	FILE *f;
 
@@ -46,7 +46,7 @@ static bool WriteDatabase()
 	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 	{
 		Channel* chan = i->second;
-		if (!chan->IsModeSet('P'))
+		if (!chan->IsModeSet(p))
 			continue;
 
 		char line[1024];
@@ -110,21 +110,26 @@ static bool WriteDatabase()
 class PermChannel : public ModeHandler
 {
  public:
-	PermChannel(Module* Creator) : ModeHandler(Creator, "permanent", 'P', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
+	PermChannel(Module* Creator) : ModeHandler(Creator, "permanent", 'P', PARAM_NONE, MODETYPE_CHANNEL)
+	{
+		oper = true;
+		fixed_letter = false;
+	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
-			if (!channel->IsModeSet('P'))
+			if (!channel->IsModeSet(this))
 			{
-				channel->SetMode('P',true);
+				channel->SetMode(this,true);
+
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			if (channel->IsModeSet('P'))
+			if (channel->IsModeSet(this))
 			{
 				channel->SetMode(this,false);
 				if (channel->GetUserCounter() == 0)
@@ -160,26 +165,6 @@ public:
 
 	CullResult cull()
 	{
-		/*
-		 * DelMode can't remove the +P mode on empty channels, or it will break
-		 * merging modes with remote servers. Remove the empty channels now as
-		 * we know this is not the case.
-		 */
-		chan_hash::iterator iter = ServerInstance->chanlist->begin();
-		while (iter != ServerInstance->chanlist->end())
-		{
-			Channel* c = iter->second;
-			if (c->GetUserCounter() == 0)
-			{
-				chan_hash::iterator at = iter;
-				iter++;
-				FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(c));
-				ServerInstance->chanlist->erase(at);
-				ServerInstance->GlobalCulls.AddItem(c);
-			}
-			else
-				iter++;
-		}
 		ServerInstance->Modes->DelMode(&p);
 		return Module::cull();
 	}
@@ -230,25 +215,13 @@ public:
 					continue;
 
 				irc::spacesepstream list(modes);
-				std::string modeseq;
-				std::string par;
+				std::vector<std::string> seq;
+				seq.push_back(c->name);
+				std::string token;
+				while (list.GetToken(token))
+					seq.push_back(token);
 
-				list.GetToken(modeseq);
-
-				// XXX bleh, should we pass this to the mode parser instead? ugly. --w00t
-				for (std::string::iterator n = modeseq.begin(); n != modeseq.end(); ++n)
-				{
-					ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
-					if (mode)
-					{
-						if (mode->GetNumParams(true))
-							list.GetToken(par);
-						else
-							par.clear();
-
-						mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, c, par, true);
-					}
-				}
+				ServerInstance->SendMode(seq, ServerInstance->FakeClient);
 			}
 		}
 	}
@@ -256,20 +229,20 @@ public:
 	void OnMode(User*, Extensible* dest, const irc::modestacker&)
 	{
 		Channel* chan = dynamic_cast<Channel*>(dest);
-		if (chan && chan->IsModeSet('P'))
+		if (chan && chan->IsModeSet(&p))
 			dirty = true;
 	}
 
-	virtual void OnPostTopicChange(User*, Channel *c, const std::string&)
+	void OnPostTopicChange(User*, Channel *c, const std::string&)
 	{
-		if (c->IsModeSet('P'))
+		if (c->IsModeSet(&p))
 			dirty = true;
 	}
 
 	void OnBackgroundTimer(time_t)
 	{
 		if (dirty)
-			WriteDatabase();
+			WriteDatabase(&p);
 		dirty = false;
 	}
 
@@ -280,7 +253,7 @@ public:
 
 	virtual ModResult OnChannelPreDelete(Channel *c)
 	{
-		if (c->IsModeSet('P'))
+		if (c->IsModeSet(&p))
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;

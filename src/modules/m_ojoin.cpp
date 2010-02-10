@@ -100,6 +100,7 @@ class NetworkPrefix : public ModeHandler
 		prefix = NPrefix;
 		levelrequired = INT_MAX;
 		m_paramtype = TR_NICK;
+		fixed_letter = false;
 	}
 
 	unsigned int GetPrefixRank()
@@ -155,7 +156,7 @@ class ModuleOjoin : public Module
 	{
 		if (mycommand.active)
 		{
-			privs += 'Y';
+			privs += np->GetModeChar();
 			if (op)
 				privs += 'o';
 			return MOD_RES_ALLOW;
@@ -185,7 +186,7 @@ class ModuleOjoin : public Module
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
 		// Don't do anything if they're not +Y
-		if (!memb->hasMode('Y'))
+		if (!memb->hasMode(np->GetModeChar()))
 			return MOD_RES_PASSTHRU;
 
 		// Let them do whatever they want to themselves.
