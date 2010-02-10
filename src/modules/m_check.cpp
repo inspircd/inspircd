@@ -75,6 +75,7 @@ class CommandCheck : public Command
 
 		if (targuser)
 		{
+			LocalUser* loctarg = IS_LOCAL(targuser);
 			/* /check on a user */
 			user->SendText(checkstr + " nuh " + targuser->GetFullHost());
 			user->SendText(checkstr + " realnuh " + targuser->GetFullRealHost());
@@ -85,7 +86,7 @@ class CommandCheck : public Command
 			user->SendText(checkstr + " uid " + targuser->uuid);
 			user->SendText(checkstr + " signon " + timestring(targuser->signon));
 			user->SendText(checkstr + " nickts " + timestring(targuser->age));
-			if (IS_LOCAL(targuser))
+			if (loctarg)
 				user->SendText(checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
 
 			if (IS_AWAY(targuser))
@@ -100,17 +101,17 @@ class CommandCheck : public Command
 				OperInfo* oper = targuser->oper;
 				/* user is an oper of type ____ */
 				user->SendText(checkstr + " opertype " + oper->NameStr());
-				if (IS_LOCAL(targuser))
+				if (loctarg)
 				{
 					std::string umodes;
 					std::string cmodes;
 					for(char c='A'; c < 'z'; c++)
 					{
 						ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
-						if (mh && mh->NeedsOper() && oper->AllowedUserModes[c])
+						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_USER))
 							umodes.push_back(c);
 						mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-						if (mh && mh->NeedsOper() && oper->AllowedChanModes[c])
+						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_CHANNEL))
 							cmodes.push_back(c);
 					}
 					user->SendText(checkstr + " modeperms user=" + umodes + " channel=" + cmodes);
@@ -133,7 +134,6 @@ class CommandCheck : public Command
 				}
 			}
 
-			LocalUser* loctarg = IS_LOCAL(targuser);
 			if (loctarg)
 			{
 				user->SendText(checkstr + " clientaddr " + irc::sockets::satouser(loctarg->client_sa));

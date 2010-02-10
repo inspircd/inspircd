@@ -279,10 +279,10 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 				for(char c='A'; c < 'z'; c++)
 				{
 					ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
-					if (mh && mh->NeedsOper() && tag->AllowedUserModes[c])
+					if (mh && mh->NeedsOper() && tag->AllowedUserModes[c - 'A'])
 						umodes.push_back(c);
 					mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
-					if (mh && mh->NeedsOper() && tag->AllowedChanModes[c])
+					if (mh && mh->NeedsOper() && tag->AllowedChanModes[c - 'A'])
 						cmodes.push_back(c);
 				}
 				results.push_back(sn+" 243 "+user->nick+" O "+tag->NameStr() + " " + umodes + " " + cmodes);
