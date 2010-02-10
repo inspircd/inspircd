@@ -23,10 +23,9 @@ static void DisplayList(User* user, Channel* channel)
 			continue;
 		if (!channel->IsModeSet(letter))
 			continue;
-		std::string item = mh->name;
+		items << " +" << mh->name;
 		if (mh->GetNumParams(true))
-			item += "=" + channel->GetModeParameter(letter);
-		items << item << " ";
+			items << " " << channel->GetModeParameter(letter);
 	}
 	char pfx[MAXBUF];
 	snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());
@@ -70,9 +69,8 @@ class CommandProp : public Command
 					modes[1].append((plus ? "+" : "-") + std::string(1, letter));
 					if (mh->GetNumParams(plus))
 					{
-						if (i == parameters.size())
-							return CMD_FAILURE;
-						modes.push_back(parameters[i++]);
+						if (i != parameters.size())
+							modes.push_back(parameters[i++]);
 					}
 				}
 			}
@@ -93,6 +91,7 @@ class ModuleNamedModes : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
+
 		Implementation eventlist[] = { I_OnPreMode, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
