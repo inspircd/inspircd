@@ -42,68 +42,53 @@ class CommandTban : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
-		if (channel)
+		if (!channel)
 		{
-			int cm = channel->GetPrefixValue(user);
-			if ((cm == HALFOP_VALUE) || (cm == OP_VALUE))
-			{
-				if (!ServerInstance->IsValidMask(parameters[2]))
-				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban mask");
-					return CMD_FAILURE;
-				}
-				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-				{
-					if (!strcasecmp(i->data.c_str(), parameters[2].c_str()))
-					{
-						user->WriteServ("NOTICE "+std::string(user->nick)+" :The ban "+parameters[2]+" is already on the banlist of "+parameters[0]);
-						return CMD_FAILURE;
-					}
-				}
-				TimedBan T;
-				std::string channelname = parameters[0];
-				long duration = ServerInstance->Duration(parameters[1]);
-				unsigned long expire = duration + ServerInstance->Time();
-				if (duration < 1)
-				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
-					return CMD_FAILURE;
-				}
-				std::string mask = parameters[2];
-				std::vector<std::string> setban;
-				setban.push_back(parameters[0]);
-				setban.push_back("+b");
-				setban.push_back(parameters[2]);
-				// use CallCommandHandler to make it so that the user sets the mode
-				// themselves
-				ServerInstance->CallCommandHandler("MODE",setban,user);
-				/* Check if the ban was actually added (e.g. banlist was NOT full) */
-				bool was_added = false;
-				for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-					if (!strcasecmp(i->data.c_str(), mask.c_str()))
-						was_added = true;
-				if (was_added)
-				{
-					CUList tmp;
-					T.channel = channelname;
-					T.mask = mask;
-					T.expire = expire;
-					TimedBanList.push_back(T);
-					channel->WriteAllExcept(user, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
-					ServerInstance->PI->SendChannelNotice(channel, '@', user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.");
-					return CMD_SUCCESS;
-				}
-				return CMD_FAILURE;
-			}
-			else
-			{
-				user->WriteNumeric(482, "%s %s :You do not have permission to change modes on this channel",
-					user->nick.c_str(), channel->name.c_str());
-			}
+			user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
-		user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
+		int cm = channel->GetPrefixValue(user);
+		if (cm < HALFOP_VALUE)
+		{
+			user->WriteNumeric(482, "%s %s :You do not have permission to set bans on this channel",
+				user->nick.c_str(), channel->name.c_str());
+			return CMD_FAILURE;
+		}
+		if (!ServerInstance->IsValidMask(parameters[2]))
+		{
+			user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban mask");
+			return CMD_FAILURE;
+		}
+		TimedBan T;
+		std::string channelname = parameters[0];
+		long duration = ServerInstance->Duration(parameters[1]);
+		unsigned long expire = duration + ServerInstance->Time();
+		if (duration < 1)
+		{
+			user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
+			return CMD_FAILURE;
+		}
+		std::string mask = parameters[2];
+		std::vector<std::string> setban;
+		setban.push_back(parameters[0]);
+		setban.push_back("+b");
+		setban.push_back(parameters[2]);
+		// use CallCommandHandler to make it so that the user sets the mode
+		// themselves
+		ServerInstance->CallCommandHandler("MODE",setban,user);
+		for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
+			if (!strcasecmp(i->data.c_str(), mask.c_str()))
+				goto found;
 		return CMD_FAILURE;
+found:
+		CUList tmp;
+		T.channel = channelname;
+		T.mask = mask;
+		T.expire = expire;
+		TimedBanList.push_back(T);
+		channel->WriteAllExcept(ServerInstance->FakeClient, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
+		ServerInstance->PI->SendChannelNotice(channel, '@', user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.");
+		return CMD_SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
