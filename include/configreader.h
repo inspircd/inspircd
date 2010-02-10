@@ -336,11 +336,6 @@ class CoreExport ServerConfig
 	 */
 	std::string FixedPart;
 
-	/** The last string found within a <die> tag, or
-	 * an empty string.
-	 */
-	std::string DieValue;
-
 	/** The DNS server to use for DNS queries
 	 */
 	std::string DNSServer;
