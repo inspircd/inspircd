@@ -26,7 +26,6 @@ static void DisplayList(User* user, Channel* channel)
 		items << " +" << mh->name;
 		if (mh->GetNumParams(true))
 			items << " " << channel->GetModeParameter(mh);
-		items << " " << item;
 	}
 	char pfx[MAXBUF];
 	snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());

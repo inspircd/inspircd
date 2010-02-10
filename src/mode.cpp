@@ -813,6 +813,7 @@ std::string ModeParser::ChannelModeList()
 		if (mh && mh->GetModeType() == MODETYPE_CHANNEL && mh->GetModeChar())
 			modestr[pointer++] = mh->GetModeChar();
 	}
+	modestr[pointer++] = 'Z';
 	modestr[pointer] = 0;
 	std::sort(modestr, modestr + pointer);
 	return modestr;
@@ -829,7 +830,9 @@ std::string ModeParser::ParaModeList()
 		if (mh && mh->GetModeType() == MODETYPE_CHANNEL && mh->GetNumParams(true) && mh->GetModeChar())
 			modestr[pointer++] = mh->GetModeChar();
 	}
-	modestr[pointer++] = 0;
+	modestr[pointer++] = 'Z';
+	modestr[pointer] = 0;
+	std::sort(modestr, modestr + pointer);
 	return modestr;
 }
 
@@ -850,6 +853,7 @@ std::string ModeParser::GiveModeList(ModeType m)
 	std::string type2;	/* Modes that take a param when adding or removing */
 	std::string type3;	/* Modes that only take a param when adding */
 	std::string type4;	/* Modes that dont take a param */
+	type1.push_back('Z');
 
 	for(ModeIDIter id; id; id++)
 	{
