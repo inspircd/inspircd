@@ -48,6 +48,22 @@ class CommandProp : public Command
 		User* user = ServerInstance->FindNick(parameters[0]);
 		if (!chan && !user)
 		{
+			if (parameters[0] == "*")
+			{
+				std::string pfx = ":" + ServerInstance->Config->ServerName + " 020 " + src->nick;
+				std::set<std::string> modeset;
+				for(ModeIDIter id; id; id++)
+				{
+					ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+					if (mh)
+						modeset.insert(mh->name);
+				}
+				std::stringstream dump;
+				for(std::set<std::string>::iterator i = modeset.begin(); i != modeset.end(); i++)
+					dump << " " << *i;
+				src->SendText(pfx, dump);
+				return CMD_SUCCESS;
+			}
 			src->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",src->nick.c_str(),parameters[0].c_str());
 			return CMD_FAILURE;
 		}
