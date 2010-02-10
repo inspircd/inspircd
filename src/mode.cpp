@@ -401,7 +401,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 		}
 	}
 
-	if (adding && IS_LOCAL(user) && mh->NeedsOper() && !user->HasModePermission(mh->GetModeChar(), type))
+	if (adding && IS_LOCAL(user) && mh->NeedsOper() && !user->HasModePermission(mh->id))
 	{
 		/* It's an oper only mode, and they don't have access to it. */
 		if (IS_OPER(user))

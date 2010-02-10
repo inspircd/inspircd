@@ -375,20 +375,26 @@ void LocalUser::RemoveInvite(const irc::string &channel)
 	}
 }
 
-bool User::HasModePermission(unsigned char, ModeType)
+bool User::HasModePermission(ModeID)
 {
 	return true;
 }
 
-bool LocalUser::HasModePermission(unsigned char mode, ModeType type)
+bool LocalUser::HasModePermission(ModeID id)
 {
 	if (!IS_OPER(this))
 		return false;
 
-	if (mode < 'A' || mode > ('A' + 64)) return false;
+	ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+	if (!mh)
+		return false;
 
-	return ((type == MODETYPE_USER ? oper->AllowedUserModes : oper->AllowedChanModes))[(mode - 'A')];
+	if (oper->AllowedModes.find(mh->name) != oper->AllowedModes.end())
+		return true;
+	else if (oper->AllowedModes.find("*") != oper->AllowedModes.end())
+		return true;
 
+	return false;
 }
 /*
  * users on remote servers can completely bypass all permissions based checks.
@@ -611,9 +617,8 @@ void OperInfo::init()
 {
 	AllowedOperCommands.clear();
 	AllowedPrivs.clear();
-	AllowedUserModes.reset();
-	AllowedChanModes.reset();
-	AllowedUserModes['o' - 'A'] = true; // Call me paranoid if you want.
+	AllowedModes.clear();
+	AllowedModes.insert("oper"); // Call me paranoid if you want.
 
 	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
 	{
@@ -632,28 +637,29 @@ void OperInfo::init()
 			AllowedPrivs.insert(mypriv);
 		}
 
+		irc::spacesepstream ModeList(tag->getString("modes"));
+		while (ModeList.GetToken(mypriv))
+		{
+			AllowedModes.insert(mypriv);
+		}
+
+		// backwards compatability for by-letter configuration
 		for (unsigned char* c = (unsigned char*)tag->getString("usermodes").c_str(); *c; ++c)
 		{
 			if (*c == '*')
-			{
-				this->AllowedUserModes.set();
-			}
-			else
-			{
-				this->AllowedUserModes[*c - 'A'] = true;
-			}
+				AllowedModes.insert("*");
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*c, MODETYPE_USER);
+			if (mh)
+				AllowedModes.insert(mh->name);
 		}
 
 		for (unsigned char* c = (unsigned char*)tag->getString("chanmodes").c_str(); *c; ++c)
 		{
 			if (*c == '*')
-			{
-				this->AllowedChanModes.set();
-			}
-			else
-			{
-				this->AllowedChanModes[*c - 'A'] = true;
-			}
+				AllowedModes.insert("*");
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*c, MODETYPE_CHANNEL);
+			if (mh)
+				AllowedModes.insert(mh->name);
 		}
 	}
 }

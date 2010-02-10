@@ -157,12 +157,7 @@ class CoreExport OperInfo : public refcountbase
  public:
 	std::set<std::string> AllowedOperCommands;
 	std::set<std::string> AllowedPrivs;
-
-	/** Allowed user modes from oper classes. */
-	std::bitset<64> AllowedUserModes;
-
-	/** Allowed channel modes from oper classes. */
-	std::bitset<64> AllowedChanModes;
+	std::set<std::string> AllowedModes;
 
 	/** <oper> block used for this oper-up. May be NULL. */
 	reference<ConfigTag> oper_block;
