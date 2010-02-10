@@ -124,8 +124,8 @@ class ModuleShowwhois : public Module
 			std::vector<std::string> params;
 			params.push_back(dest->server);
 			params.push_back("WHOISNOTICE");
-			params.push_back(source->uuid);
 			params.push_back(dest->uuid);
+			params.push_back(source->uuid);
 			ServerInstance->PI->SendEncapsulatedData(params);
 		}
 	}
