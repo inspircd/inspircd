@@ -26,7 +26,6 @@ enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 class SaslAuthenticator
 {
  private:
-	InspIRCd *ServerInstance;
 	std::string agent;
 	User *user;
 	SaslState state;
