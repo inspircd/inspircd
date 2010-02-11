@@ -147,6 +147,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 	 */
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 
+restart:
 	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
 	{
 		TreeServer *s = i->second;
@@ -156,6 +157,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 			s->GetSocket()->SendError("Ping timeout");
 			s->GetSocket()->Squit(s,"Ping timeout");
 			s->GetSocket()->Close();
+			goto restart;
 		}
 
 		// Fix for bug #792, do not ping servers that are not connected yet!
@@ -196,7 +198,7 @@ void ModuleSpanningTree::DoPingChecks(time_t curtime)
 						sock->SendError("Ping timeout");
 						sock->Squit(s,"Ping timeout");
 						sock->Close();
-						return;
+						goto restart;
 					}
 				}
 			}
