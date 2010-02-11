@@ -33,7 +33,6 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	time_t age_t = ConvToInt(params[1]);
 	time_t signon = ConvToInt(params[7]);
 	std::string empty;
-	std::string nick(params[2]);
 	std::string modestr(params[8]);
 
 	TreeServer* remoteserver = Utils->FindServer(serversrc->server);
@@ -50,7 +49,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	TreeSocket* sock = remoteserver->GetRoute()->GetSocket();
 
 	/* check for collision */
-	user_hash::iterator iter = ServerInstance->Users->clientlist->find(nick);
+	user_hash::iterator iter = ServerInstance->Users->clientlist->find(params[2]);
 
 	if (iter != ServerInstance->Users->clientlist->end())
 	{
@@ -63,7 +62,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		if (collide != 1)
 		{
 			/* remote client changed, make sure we change their nick for the hash too */
-			nick = params[0];
+			const_cast<parameterlist&>(params)[2] = params[0];
 		}
 	}
 
@@ -79,8 +78,8 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	{
 		return CMD_INVALID;
 	}
-	(*(ServerInstance->Users->clientlist))[nick] = _new;
-	_new->nick = nick;
+	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
+	_new->nick = params[2];
 	_new->host = params[3];
 	_new->dhost = params[4];
 	_new->ident = params[5];
