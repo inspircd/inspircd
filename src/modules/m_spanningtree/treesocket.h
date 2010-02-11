@@ -262,10 +262,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool OperQuit(const std::string &prefix, parameterlist &params);
 
-	/** KILL
-	 */
-	bool RemoteKill(const std::string &prefix, parameterlist &params);
-
 	/** PONG
 	 */
 	bool LocalPong(const std::string &prefix, parameterlist &params);
