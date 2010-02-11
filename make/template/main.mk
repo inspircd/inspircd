@@ -14,7 +14,7 @@ CC = @CC@
 SYSTEM = @SYSTEM@
 BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
-CXXFLAGS = -O1 -pipe -fPIC -DPIC
+CXXFLAGS = -pipe -fPIC -DPIC
 LDLIBS = -pthread -lstdc++
 LDFLAGS = 
 SHARED = -shared -rdynamic
@@ -59,6 +59,12 @@ INSTMODE_LIB = 0644
     HEADER = std-header
 @ENDIF
 FOOTER = finishmessage
+
+@IFDEF QUICK
+    CXXFLAGS += -O0
+@ELSE
+    CXXFLAGS += -O2
+@ENDIF
 
 CXXFLAGS += -Iinclude
 
