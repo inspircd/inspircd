@@ -23,7 +23,11 @@ class CommandKill : public Command
  public:
 	/** Constructor for kill.
 	 */
-	CommandKill ( Module* parent) : Command(parent,"KILL",2,2) { flags_needed = 'o'; syntax = "<nickname> <reason>"; }
+	CommandKill ( Module* parent) : Command(parent,"KILL",2,2) {
+		flags_needed = 'o';
+		syntax = "<nickname> <reason>";
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+	}
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -33,6 +37,9 @@ class CommandKill : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
+		// local kills of remote users are routed via the OnRemoteKill hook
+		if (IS_LOCAL(user))
+			return ROUTE_LOCALONLY;
 		return ROUTE_BROADCAST;
 	}
 };
