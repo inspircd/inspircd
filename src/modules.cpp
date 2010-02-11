@@ -433,8 +433,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 			if (!ServerInstance->Parser->AddCommand(static_cast<Command*>(&item)))
 				throw ModuleException("Command "+std::string(item.name)+" already exists.");
 			return;
-		case SERVICE_CMODE:
-		case SERVICE_UMODE:
+		case SERVICE_MODE:
 			if (!ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
 			return;

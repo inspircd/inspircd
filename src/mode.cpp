@@ -46,7 +46,7 @@
 #include "modes/umode_s.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type)
-	: ServiceProvider(Creator, Name, type == MODETYPE_CHANNEL ? SERVICE_CMODE : SERVICE_UMODE), m_paramtype(TR_TEXT),
+	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT),
 	parameters_taken(Params), mode(modeletter), prefix(0), oper(false),
 	list(false), m_type(type), levelrequired(HALFOP_VALUE)
 {

@@ -200,10 +200,8 @@ typedef const reference<Module> ModuleRef;
 enum ServiceType {
 	/** is a Command */
 	SERVICE_COMMAND,
-	/** is a channel ModeHandler */
-	SERVICE_CMODE,
-	/** is a user ModeHandler */
-	SERVICE_UMODE,
+	/** is a ModeHandler */
+	SERVICE_MODE,
 	/** is a metadata descriptor */
 	SERVICE_METADATA,
 	/** is a data processing provider (MD5, SQL) */
