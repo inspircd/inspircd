@@ -266,7 +266,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 			}
 		}
 
-		if(this->capab->CapKeys.find("PREFIX") != this->capab->CapKeys.end() && this->capab->CapKeys.find("PREFIX")->second != ServerInstance->Modes->BuildPrefixes())
+		if (capab->ChanModes.empty() && this->capab->CapKeys.find("PREFIX") != this->capab->CapKeys.end() && this->capab->CapKeys.find("PREFIX")->second != ServerInstance->Modes->BuildPrefixes())
 			reason = "One or more of the prefixes on the remote server are invalid on this server.";
 
 		if (!capab->ChanModes.empty())
