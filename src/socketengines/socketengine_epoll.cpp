@@ -159,6 +159,12 @@ int EPollEngine::DispatchEvents()
 
 	for (int j = 0; j < i; j++)
 	{
+		if (!ref[events[j].data.fd])
+		{
+			ServerInstance->Logs->Log("SOCKET",DEBUG,"Got event on unknown fd: %d", events[j].data.fd);
+			epoll_ctl(EngineHandle, EPOLL_CTL_DEL, events[j].data.fd, &events[j]);
+			continue;
+		}
 		if (events[j].events & EPOLLHUP)
 		{
 			ErrorEvents++;
