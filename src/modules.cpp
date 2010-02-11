@@ -464,6 +464,8 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 				return i->second;
 			return NULL;
 		}
+		case SERVICE_MODE:
+			return ServerInstance->Modes->FindMode(name);
 		// TODO implement finding of the other types
 		default:
 			throw ModuleException("Cannot find unknown service type");
