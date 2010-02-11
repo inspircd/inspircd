@@ -389,9 +389,11 @@ bool LocalUser::HasModePermission(ModeID id)
 	if (!mh)
 		return false;
 
-	if (oper->AllowedModes.find(mh->name) != oper->AllowedModes.end())
+	if (oper->AllowedPrivs.find("mode/" + mh->name) != oper->AllowedPrivs.end())
 		return true;
-	else if (oper->AllowedModes.find("*") != oper->AllowedModes.end())
+	else if (oper->AllowedPrivs.find("mode/*") != oper->AllowedPrivs.end())
+		return true;
+	else if (oper->AllowedPrivs.find("*") != oper->AllowedPrivs.end())
 		return true;
 
 	return false;
@@ -617,8 +619,7 @@ void OperInfo::init()
 {
 	AllowedOperCommands.clear();
 	AllowedPrivs.clear();
-	AllowedModes.clear();
-	AllowedModes.insert("oper"); // Call me paranoid if you want.
+	AllowedPrivs.insert("mode/oper"); // Call me paranoid if you want.
 
 	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
 	{
@@ -637,29 +638,23 @@ void OperInfo::init()
 			AllowedPrivs.insert(mypriv);
 		}
 
-		irc::spacesepstream ModeList(tag->getString("modes"));
-		while (ModeList.GetToken(mypriv))
-		{
-			AllowedModes.insert(mypriv);
-		}
-
 		// backwards compatability for by-letter configuration
 		for (unsigned char* c = (unsigned char*)tag->getString("usermodes").c_str(); *c; ++c)
 		{
 			if (*c == '*')
-				AllowedModes.insert("*");
+				AllowedPrivs.insert("mode/*");
 			ModeHandler* mh = ServerInstance->Modes->FindMode(*c, MODETYPE_USER);
 			if (mh)
-				AllowedModes.insert(mh->name);
+				AllowedPrivs.insert("mode/" + mh->name);
 		}
 
 		for (unsigned char* c = (unsigned char*)tag->getString("chanmodes").c_str(); *c; ++c)
 		{
 			if (*c == '*')
-				AllowedModes.insert("*");
+				AllowedPrivs.insert("mode/*");
 			ModeHandler* mh = ServerInstance->Modes->FindMode(*c, MODETYPE_CHANNEL);
 			if (mh)
-				AllowedModes.insert(mh->name);
+				AllowedPrivs.insert("mode/" + mh->name);
 		}
 	}
 }
