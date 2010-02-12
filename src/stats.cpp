@@ -248,7 +248,8 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 			results.push_back(sn+" 249 "+user->nick+" :nick collisions "+ConvToStr(this->stats->statsCollisions));
 			results.push_back(sn+" 249 "+user->nick+" :dns requests "+ConvToStr(this->stats->statsDnsGood+this->stats->statsDnsBad)+" succeeded "+ConvToStr(this->stats->statsDnsGood)+" failed "+ConvToStr(this->stats->statsDnsBad));
 			results.push_back(sn+" 249 "+user->nick+" :connection count "+ConvToStr(this->stats->statsConnects));
-			snprintf(buffer,MAXBUF," 249 %s :bytes sent %5.2fK recv %5.2fK",user->nick.c_str(),this->stats->statsSent / 1024,this->stats->statsRecv / 1024);
+			snprintf(buffer,MAXBUF," 249 %s :bytes sent %5.2fK recv %5.2fK",
+				user->nick.c_str(),this->stats->statsSent / 1024.0,this->stats->statsRecv / 1024.0);
 			results.push_back(sn+buffer);
 		}
 		break;
