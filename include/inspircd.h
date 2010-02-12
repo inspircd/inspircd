@@ -214,10 +214,10 @@ class serverstats
 	unsigned long statsConnects;
 	/** Total bytes of data transmitted
 	 */
-	double statsSent;
+	unsigned long statsSent;
 	/** Total bytes of data received
 	 */
-	double statsRecv;
+	unsigned long statsRecv;
 	/** Cpu usage at last sample
 	 */
 	timeval LastCPU;

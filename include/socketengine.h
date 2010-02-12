@@ -243,10 +243,10 @@ class CoreExport SocketEngine
 	void SetEventMask(EventHandler* eh, int value);
 public:
 
-	double TotalEvents;
-	double ReadEvents;
-	double WriteEvents;
-	double ErrorEvents;
+	unsigned long TotalEvents;
+	unsigned long ReadEvents;
+	unsigned long WriteEvents;
+	unsigned long ErrorEvents;
 
 	/** Constructor.
 	 * The constructor transparently initializes
