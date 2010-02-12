@@ -228,7 +228,7 @@ class serverstats
 	 */
 	serverstats()
 		: statsAccept(0), statsRefused(0), statsUnknown(0), statsCollisions(0), statsDns(0),
-		statsDnsGood(0), statsDnsBad(0), statsConnects(0), statsSent(0.0), statsRecv(0.0)
+		statsDnsGood(0), statsDnsBad(0), statsConnects(0), statsSent(0), statsRecv(0)
 	{
 	}
 };
