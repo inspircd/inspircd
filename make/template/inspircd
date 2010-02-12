@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 #       +------------------------------------+
 #       | Inspire Internet Relay Chat Daemon |
 #       +------------------------------------+
@@ -170,7 +170,7 @@ sub dev_debug(@)
 	checkgdb();
 
 	# If we are still alive here.. Try starting the IRCd..
-	exec 'gdb', "--command=$basepath/.gdbargs", '--args', "$binpath/$executable", qw(-nofork -debug), @_;
+	exec 'gdb', "--command=$basepath/.gdbargs", '--args', "$binpath/$executable", qw(--nofork --debug), @_;
 	die "Failed to start GDB: $!\n";
 }
 
@@ -189,7 +189,7 @@ sub dev_screendebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	exec qw(screen -m -d gdb), "--comand=$basepath/.gdbargs", '-args', "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	exec qw(screen -m -d gdb), "--comand=$basepath/.gdbargs", '-args', "$binpath/$executable", qw(--nofork --debug --nolog), @_;
 	die "Failed to start screen: $!\n";
 }
 
@@ -209,7 +209,7 @@ sub dev_valdebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	# May want to do something with these args at some point: --suppressions=.inspircd.sup --gen-suppressions=yes
 	# Could be useful when we want to stop it complaining about things we're sure aren't issues.
-	exec qw(valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	exec qw(valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(--nofork --debug --nolog), @_;
 	die "Failed to start valgrind: $!\n";
 }
 
@@ -246,7 +246,7 @@ sub dev_valdebug_unattended(@)
 		exec qw(valgrind -v --tool=memcheck --leak-check=full --show-reachable=yes --num-callers=15 --track-fds=yes),
 			"--suppressions=$binpath/valgrind.sup", qw(--gen-suppressions=all),
 			qw(--leak-resolution=med --time-stamp=yes --log-fd=2 --),
-			"$binpath/$executable", qw(-nofork -debug -nolog), @_;
+			"$binpath/$executable", qw(--nofork --debug --nolog), @_;
 		die "Can't execute valgrind: $!\n";
 	}
 }
@@ -268,7 +268,7 @@ sub dev_screenvaldebug(@)
 	# If we are still alive here.. Try starting the IRCd..
 	print "Starting InspIRCd in `screen`, type `screen -r` when the ircd crashes to view the valgrind and gdb output and get a backtrace.\n";
 	print "Once you're inside the screen session press ^C + d to re-detach from the session\n";
-	exec qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(-nofork -debug -nolog), @_;
+	exec qw(screen -m -d valgrind -v --tool=memcheck --leak-check=yes --db-attach=yes --num-callers=10), "$binpath/$executable", qw(--nofork --debug --nolog), @_;
 	die "Failed to start screen: $!\n";
 }
 
