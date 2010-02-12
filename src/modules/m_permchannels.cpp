@@ -170,7 +170,7 @@ public:
 
 	void init()
 	{
-		ServerInstance->Modes->AddService(p);
+		ServerInstance->Modules->AddService(p);
 		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 
