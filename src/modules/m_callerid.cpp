@@ -222,6 +222,11 @@ public:
 		}
 	}
 
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
+
 	void ListAccept(User* user)
 	{
 		callerid_data* dat = extInfo.get(user, false);

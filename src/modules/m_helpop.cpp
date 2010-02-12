@@ -13,9 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: /helpop Command, Works like Unreal helpop */
 static std::map<irc::string, std::string> helpop_map;
-
 
 /** Handles user mode +h
  */
@@ -132,8 +130,6 @@ class ModuleHelpop : public Module
 
 		void ReadConfig()
 		{
-			ConfigReader MyConf;
-
 			helpop_map.clear();
 
 			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
@@ -165,13 +161,12 @@ class ModuleHelpop : public Module
 
 		}
 
-
-		virtual void OnRehash(User* user)
+		void OnRehash(User* user)
 		{
 			ReadConfig();
 		}
 
-		virtual void OnWhois(User* src, User* dst)
+		void OnWhois(User* src, User* dst)
 		{
 			if (dst->IsModeSet('h'))
 			{
@@ -179,13 +174,9 @@ class ModuleHelpop : public Module
 			}
 		}
 
-		virtual ~ModuleHelpop()
+		Version GetVersion()
 		{
-		}
-
-		virtual Version GetVersion()
-		{
-			return Version("/helpop Command, Works like Unreal helpop", VF_VENDOR);
+			return Version("/help command, works like Unreal helpop", VF_VENDOR);
 		}
 };
 
