@@ -89,11 +89,11 @@ public:
 		{
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				std::string::size_type colon = it->mask.find(':');
+				std::string::size_type colon = (**it).mask.find(':');
 				if (colon == std::string::npos)
 					continue;
-				if (chan->CheckBan(user, it->mask.substr(colon+1)))
-					privs += it->mask.substr(0, colon);
+				if (chan->CheckBan(user, (**it).mask.substr(colon+1)))
+					privs += (**it).mask.substr(0, colon);
 			}
 		}
 

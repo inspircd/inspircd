@@ -66,7 +66,7 @@ public:
 			{
 				for (modelist::iterator it = list->begin(); it != list->end(); it++)
 				{
-					if (chan->CheckBan(user, it->mask))
+					if (chan->CheckBan(user, (**it).mask))
 					{
 						return MOD_RES_ALLOW;
 					}

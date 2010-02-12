@@ -142,7 +142,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 		{
 			for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
 			{
-				fmodes.push(irc::modechange(id, i->mask, true));
+				fmodes.push(irc::modechange(id, (**i).mask, true));
 			}
 		}
 	}

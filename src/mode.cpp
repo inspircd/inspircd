@@ -1004,6 +1004,17 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	}
 }
 
+void ListExtItem::free(void* item)
+{
+	modelist* ml = static_cast<modelist*>(item);
+	if (ml)
+	{
+		for (modelist::iterator it = ml->begin(); it != ml->end(); it++)
+			delete *it;
+	}
+	delete ml;
+}
+
 void ListModeBase::DisplayList(User* user, Channel* channel)
 {
 	modelist* el = extItem.get(channel);
@@ -1011,7 +1022,7 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	{
 		for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 		{
-			user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (it->nick.length() ? it->nick.c_str() : ServerInstance->Config->ServerName.c_str()), it->time.c_str());
+			user->WriteNumeric(listnumeric, "%s %s %s %s %ld", user->nick.c_str(), channel->name.c_str(), (**it).mask.c_str(), (**it).setter.c_str(), (long)(**it).time);
 		}
 	}
 	user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
@@ -1033,9 +1044,9 @@ void ListModeBase::RemoveMode(Channel* channel, irc::modestacker* stack)
 		for (modelist::iterator it = el->begin(); it != el->end(); it++)
 		{
 			if (stack)
-				stack->push(irc::modechange(id, it->mask, false));
+				stack->push(irc::modechange(id, (**it).mask, false));
 			else
-				modestack.push(irc::modechange(id, it->mask, false));
+				modestack.push(irc::modechange(id, (**it).mask, false));
 		}
 
 		if (stack)
@@ -1083,13 +1094,9 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 
 	if (adding)
 	{
-		// If there was no list
+		// If there was no list, make one
 		if (!el)
-		{
-			// Make one
-			el = new modelist;
-			extItem.set(channel, el);
-		}
+			el = extItem.make(channel);
 
 		// Clean the mask up
 		if (this->tidy)
@@ -1098,7 +1105,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		// Check if the item already exists in the list
 		for (modelist::iterator it = el->begin(); it != el->end(); it++)
 		{
-			if (parameter == it->mask)
+			if (parameter == (**it).mask)
 			{
 				/* Give a subclass a chance to error about this */
 				TellAlreadyOnList(source, channel, parameter);
@@ -1131,10 +1138,10 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 					if (ValidateParam(source, channel, parameter))
 					{
 						// And now add the mask onto the list...
-						ListItem e;
-						e.mask = parameter;
-						e.nick = source->nick;
-						e.time = stringtime();
+						BanItem* e = new BanItem;
+						e->mask = parameter;
+						e->setter = source->nick;
+						e->time = ServerInstance->Time();
 
 						el->push_back(e);
 						return MODEACTION_ALLOW;
@@ -1164,8 +1171,9 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		{
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				if (parameter == it->mask)
+				if (parameter == (**it).mask)
 				{
+					delete *it;
 					el->erase(it);
 					if (el->size() == 0)
 					{

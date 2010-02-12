@@ -105,11 +105,11 @@ class ModuleExemptChanOps : public Module
 		{
 			for (modelist::iterator i = list->begin(); i != list->end(); ++i)
 			{
-				std::string::size_type pos = (*i).mask.find(':');
+				std::string::size_type pos = (**i).mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				if ((*i).mask.substr(0,pos) == restriction)
-					minmode = (*i).mask[pos+1];
+				if ((**i).mask.substr(0,pos) == restriction)
+					minmode = (**i).mask[pos+1];
 			}
 		}
 

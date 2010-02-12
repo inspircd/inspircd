@@ -14,15 +14,6 @@
 #ifndef INSPIRCD_LISTMODE_PROVIDER
 #define INSPIRCD_LISTMODE_PROVIDER
 
-/** Get the time as a string
- */
-inline std::string stringtime()
-{
-	std::ostringstream TIME;
-	TIME << ServerInstance->Time();
-	return TIME.str();
-}
-
 /** The number of items a listmode's list may contain
  */
 class ListLimit
@@ -35,6 +26,40 @@ public:
 /** Max items per channel by name
  */
 typedef std::list<ListLimit> limitlist;
+
+class CoreExport ListExtItem : public LocalExtItem
+{
+ public:
+	ListExtItem(const std::string& Key, Module* parent) : LocalExtItem(Key, parent)
+	{
+	}
+
+	virtual ~ListExtItem()
+	{
+	}
+
+	inline modelist* get(const Extensible* container) const
+	{
+		return static_cast<modelist*>(get_raw(container));
+	}
+
+	inline modelist* make(Extensible* container)
+	{
+		modelist* ml = new modelist;
+		modelist* old = static_cast<modelist*>(set_raw(container, static_cast<void*>(ml)));
+		this->free(old);
+		return ml;
+	}
+
+	inline void unset(Extensible* container)
+	{
+		modelist* old = static_cast<modelist*>(unset_raw(container));
+		this->free(old);
+	}
+
+	virtual void free(void* item);
+};
+
 
 /** The base class for list modes, should be inherited.
  */
@@ -64,7 +89,7 @@ class CoreExport ListModeBase : public ModeHandler
  public:
 	/** Storage key
 	 */
-	SimpleExtItem<modelist> extItem;
+	ListExtItem extItem;
 
 	/** Constructor.
 	 * @param Instance The creator of this class

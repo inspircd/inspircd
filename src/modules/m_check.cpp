@@ -172,7 +172,7 @@ class CommandCheck : public Command
 					{
 						for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
 						{
-							cmodes.push(irc::modechange(id, i->mask, true));
+							cmodes.push(irc::modechange(id, (**i).mask, true));
 						}
 					}
 				}

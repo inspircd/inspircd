@@ -17,19 +17,16 @@
 #include "membership.h"
 #include "mode.h"
 
-/** An item in a listmode's list
- */
-class ListItem
+class CoreExport BanItem : public Extensible
 {
-public:
-	std::string nick;
+ public:
 	std::string mask;
-	std::string time;
+	std::string setter;
+	time_t time;
 };
 
 /** Holds all relevent information for a channel.
- * This class represents a channel, and contains its name, modes, topic, topic set time,
- * etc, and an instance of the BanList type.
+ * This class represents a channel, and contains its name, modes, topic, topic set time, etc
  */
 class CoreExport Channel : public Extensible
 {
