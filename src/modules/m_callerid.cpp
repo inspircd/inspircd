@@ -66,7 +66,6 @@ class callerid_data
 			// Encode UIDs.
 			oss << "," << (format == FORMAT_USER ? u->nick : u->uuid);
 		}
-		oss << std::ends;
 		return oss.str();
 	}
 };
