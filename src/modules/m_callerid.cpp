@@ -65,7 +65,6 @@ class callerid_data : public classbase
 			// Encode UIDs.
 			oss << "," << (displayable ? (*i)->nick : (*i)->uuid);
 		}
-		oss << std::ends;
 		return oss.str();
 	}
 };
