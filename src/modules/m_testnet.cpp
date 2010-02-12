@@ -194,11 +194,6 @@ class CommandTest : public Command
 		{
 			IS_LOCAL(user)->CommandFloodPenalty += atoi(parameters[1].c_str());
 		}
-		else if (parameters[0] == "shutdown" && IS_LOCAL(user))
-		{
-			int i = parameters.size() > 1 ? atoi(parameters[1].c_str()) : 2;
-			ServerInstance->SE->Shutdown(IS_LOCAL(user)->GetFd(), i);
-		}
 		else if (parameters[0] == "check")
 		{
 			checkall(creator);

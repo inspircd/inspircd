@@ -45,17 +45,15 @@ class DNSBLConfEntry
  */
 class DNSBLResolver : public Resolver
 {
-	int theirfd;
-	LocalUser* them;
+	std::string theiruid;
 	DNSBLConfEntry *ConfEntry;
 
  public:
 
-	DNSBLResolver(Module *me, const std::string &hostname, LocalUser* u, int userfd, DNSBLConfEntry *conf, bool &cached)
+	DNSBLResolver(Module *me, const std::string &hostname, LocalUser* u, DNSBLConfEntry *conf, bool &cached)
 		: Resolver(hostname, DNS_QUERY_A, cached, me)
 	{
-		theirfd = userfd;
-		them = u;
+		theiruid = u->uuid;
 		ConfEntry = conf;
 	}
 
@@ -63,7 +61,8 @@ class DNSBLResolver : public Resolver
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
 		/* Check the user still exists */
-		if ((them) && (&them->eh == ServerInstance->SE->GetRef(theirfd)))
+		User* them = ServerInstance->FindUUID(theiruid);
+		if (them)
 		{
 			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
 			if(result.length())
@@ -352,7 +351,7 @@ class ModuleDNSBL : public Module
 
 			/* now we'd need to fire off lookups for `hostname'. */
 			bool cached;
-			DNSBLResolver *r = new DNSBLResolver(this, hostname, user, user->GetFd(), *i, cached);
+			DNSBLResolver *r = new DNSBLResolver(this, hostname, user, *i, cached);
 			ServerInstance->AddResolver(r, cached);
 		}
 

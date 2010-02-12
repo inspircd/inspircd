@@ -712,6 +712,8 @@ class CoreExport UserIOHandler : public StreamSocket
 	void AddWriteBuf(const std::string &data);
 };
 
+typedef unsigned int already_sent_t;
+
 class CoreExport LocalUser : public User
 {
 	/** A list of channels the user has a pending invite to.
@@ -775,6 +777,9 @@ class CoreExport LocalUser : public User
 	 * This is used either to enable fake lag or for excess flood quits
 	 */
 	unsigned int CommandFloodPenalty;
+
+	static already_sent_t already_sent_id;
+	already_sent_t already_sent;
 
 	/** Stored reverse lookup from res_forward. Should not be used after resolution.
 	 */
@@ -851,8 +856,6 @@ class CoreExport LocalUser : public User
 	 * @return True if the user can set or unset this mode.
 	 */
 	bool HasModePermission(unsigned char mode, ModeType type);
-
-	inline int GetFd() { return eh.GetFd(); }
 };
 
 class CoreExport RemoteUser : public User
@@ -904,12 +907,8 @@ inline FakeUser* IS_SERVER(User* u)
 class CoreExport UserResolver : public Resolver
 {
  private:
-	/** User this class is 'attached' to.
-	 */
-	LocalUser* bound_user;
-	/** File descriptor teh lookup is bound to
-	 */
-	int bound_fd;
+	/** UUID we are looking up */
+	std::string uuid;
 	/** True if the lookup is forward, false if is a reverse lookup
 	 */
 	bool fwd;

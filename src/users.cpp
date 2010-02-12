@@ -18,37 +18,7 @@
 #include "bancache.h"
 #include "commands/cmd_whowas.h"
 
-typedef unsigned int uniq_id_t;
-class sent
-{
-	uniq_id_t uniq_id;
-	uniq_id_t* array;
-	void init()
-	{
-		if (!array)
-			array = new uniq_id_t[ServerInstance->SE->GetMaxFds()];
-		memset(array, 0, ServerInstance->SE->GetMaxFds() * sizeof(uniq_id_t));
-		uniq_id++;
-	}
- public:
-	sent() : uniq_id(static_cast<uniq_id_t>(-1)), array(NULL) {}
-	inline uniq_id_t operator++()
-	{
-		if (++uniq_id == 0)
-			init();
-		return uniq_id;
-	}
-	inline uniq_id_t& operator[](int i)
-	{
-		return array[i];
-	}
-	~sent()
-	{
-		delete[] array;
-	}
-};
-
-static sent already_sent;
+already_sent_t LocalUser::already_sent_id = 0;
 
 std::string User::ProcessNoticeMasks(const char *sm)
 {
@@ -222,12 +192,11 @@ User::User(const std::string &uid, const std::string& sid, int type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this)
+	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
+	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
+	already_sent(0)
 {
-	bytes_in = bytes_out = cmds_in = cmds_out = 0;
-	server_sa.sa.sa_family = AF_UNSPEC;
-	CommandFloodPenalty = 0;
-	lastping = nping = 0;
+	lastping = 0;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
@@ -1193,7 +1162,7 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 	if (this->registered != REG_ALL || quitting)
 		return;
 
-	uniq_id_t uniq_id = ++already_sent;
+	LocalUser::already_sent_id++;
 
 	UserChanList include_c(chans);
 	std::map<User*,bool> exceptions;
@@ -1207,7 +1176,7 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 		LocalUser* u = IS_LOCAL(i->first);
 		if (u && !u->quitting)
 		{
-			already_sent[u->GetFd()] = uniq_id;
+			u->already_sent = LocalUser::already_sent_id;
 			if (i->second)
 				u->Write(line);
 		}
@@ -1219,9 +1188,9 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
-			if (u && !u->quitting && already_sent[u->GetFd()] != uniq_id)
+			if (u && !u->quitting && u->already_sent != LocalUser::already_sent_id)
 			{
-				already_sent[u->GetFd()] = uniq_id;
+				u->already_sent = LocalUser::already_sent_id;
 				u->Write(line);
 			}
 		}
@@ -1236,7 +1205,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	if (this->registered != REG_ALL)
 		return;
 
-	uniq_id_t uniq_id = ++already_sent;
+	already_sent_t uniq_id = ++LocalUser::already_sent_id;
 
 	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),normal_text.c_str());
 	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),oper_text.c_str());
@@ -1253,7 +1222,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		LocalUser* u = IS_LOCAL(i->first);
 		if (u && !u->quitting)
 		{
-			already_sent[u->GetFd()] = uniq_id;
+			u->already_sent = uniq_id;
 			if (i->second)
 				u->Write(IS_OPER(u) ? out2 : out1);
 		}
@@ -1264,9 +1233,9 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
-			if (u && !u->quitting && (already_sent[u->GetFd()] != uniq_id))
+			if (u && !u->quitting && (u->already_sent != uniq_id))
 			{
-				already_sent[u->GetFd()] = uniq_id;
+				u->already_sent = uniq_id;
 				u->Write(IS_OPER(u) ? out2 : out1);
 			}
 		}
@@ -1377,8 +1346,8 @@ void User::DoHostCycle(const std::string &quitline)
 	if (!ServerInstance->Config->CycleHosts)
 		return;
 
-	uniq_id_t silent_id = ++already_sent;
-	uniq_id_t seen_id = ++already_sent;
+	already_sent_t silent_id = ++LocalUser::already_sent_id;
+	already_sent_t seen_id = ++LocalUser::already_sent_id;
 
 	UserChanList include_c(chans);
 	std::map<User*,bool> exceptions;
@@ -1392,12 +1361,12 @@ void User::DoHostCycle(const std::string &quitline)
 		{
 			if (i->second)
 			{
-				already_sent[u->GetFd()] = seen_id;
+				u->already_sent = seen_id;
 				u->Write(quitline);
 			}
 			else
 			{
-				already_sent[u->GetFd()] = silent_id;
+				u->already_sent = silent_id;
 			}
 		}
 	}
@@ -1422,13 +1391,13 @@ void User::DoHostCycle(const std::string &quitline)
 			LocalUser* u = IS_LOCAL(i->first);
 			if (u == NULL || u == this)
 				continue;
-			if (already_sent[u->GetFd()] == silent_id)
+			if (u->already_sent == silent_id)
 				continue;
 
-			if (already_sent[u->GetFd()] != seen_id)
+			if (u->already_sent != seen_id)
 			{
 				u->Write(quitline);
-				already_sent[u->GetFd()] = seen_id;
+				u->already_sent = seen_id;
 			}
 			u->Write(joinline);
 			if (modeline.length() > 0)

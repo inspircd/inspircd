@@ -13,26 +13,26 @@
 
 #include "inspircd.h"
 UserResolver::UserResolver(LocalUser* user, std::string to_resolve, QueryType qt, bool &cache) :
-	Resolver(to_resolve, qt, cache, NULL), bound_user(user)
+	Resolver(to_resolve, qt, cache, NULL), uuid(user->uuid)
 {
 	this->fwd = (qt == DNS_QUERY_A || qt == DNS_QUERY_AAAA);
-	this->bound_fd = user->GetFd();
 }
 
 void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 {
 	UserResolver *res_forward; // for forward-resolution
+	LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 
-	if ((!this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == &bound_user->eh))
+	if ((!this->fwd) && bound_user)
 	{
-		this->bound_user->stored_host = result;
+		bound_user->stored_host = result;
 		try
 		{
 			/* Check we didnt time out */
-			if (this->bound_user->registered != REG_ALL)
+			if (bound_user->registered != REG_ALL)
 			{
 				bool lcached = false;
-				if (this->bound_user->client_sa.sa.sa_family == AF_INET6)
+				if (bound_user->client_sa.sa.sa_family == AF_INET6)
 				{
 					/* IPV6 forward lookup */
 					res_forward = new UserResolver(bound_user, result, DNS_QUERY_AAAA, lcached);
@@ -50,11 +50,11 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			ServerInstance->Logs->Log("RESOLVER", DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
-	else if ((this->fwd) && (ServerInstance->SE->GetRef(this->bound_fd) == &bound_user->eh))
+	else if ((this->fwd) && bound_user)
 	{
 		/* Both lookups completed */
 
-		irc::sockets::sockaddrs* user_ip = &this->bound_user->client_sa;
+		irc::sockets::sockaddrs* user_ip = &bound_user->client_sa;
 		bool rev_match = false;
 		if (user_ip->sa.sa_family == AF_INET6)
 		{
@@ -75,54 +75,55 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 		
 		if (rev_match)
 		{
-			std::string hostname = this->bound_user->stored_host;
+			std::string hostname = bound_user->stored_host;
 			if (hostname.length() < 65)
 			{
 				/* Check we didnt time out */
-				if ((this->bound_user->registered != REG_ALL) && (!this->bound_user->dns_done))
+				if ((bound_user->registered != REG_ALL) && (!bound_user->dns_done))
 				{
 					/* Hostnames starting with : are not a good thing (tm) */
 					if (hostname[0] == ':')
 						hostname.insert(0, "0");
 
-					this->bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
-					this->bound_user->dns_done = true;
-					this->bound_user->dhost.assign(hostname, 0, 64);
-					this->bound_user->host.assign(hostname, 0, 64);
+					bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname.c_str(), (cached ? " -- cached" : ""));
+					bound_user->dns_done = true;
+					bound_user->dhost.assign(hostname, 0, 64);
+					bound_user->host.assign(hostname, 0, 64);
 					/* Invalidate cache */
-					this->bound_user->InvalidateCache();
+					bound_user->InvalidateCache();
 				}
 			}
 			else
 			{
-				if (!this->bound_user->dns_done)
+				if (!bound_user->dns_done)
 				{
-					this->bound_user->WriteServ("NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", this->bound_user->GetIPString());
-					this->bound_user->dns_done = true;
+					bound_user->WriteServ("NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", bound_user->GetIPString());
+					bound_user->dns_done = true;
 				}
 			}
 		}
 		else
 		{
-			if (!this->bound_user->dns_done)
+			if (!bound_user->dns_done)
 			{
-				this->bound_user->WriteServ("NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", this->bound_user->GetIPString());
-				this->bound_user->dns_done = true;
+				bound_user->WriteServ("NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", bound_user->GetIPString());
+				bound_user->dns_done = true;
 			}
 		}
 
 		// Save some memory by freeing this up; it's never used again in the user's lifetime.
-		this->bound_user->stored_host.resize(0);
+		bound_user->stored_host.resize(0);
 	}
 }
 
 void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 {
-	if (ServerInstance->SE->GetRef(this->bound_fd) == &bound_user->eh)
+	LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
+	if (bound_user)
 	{
-		this->bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), this->bound_user->GetIPString());
-		this->bound_user->dns_done = true;
-		this->bound_user->stored_host.resize(0);
+		bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", errormessage.c_str(), bound_user->GetIPString());
+		bound_user->dns_done = true;
+		bound_user->stored_host.resize(0);
 		ServerInstance->stats->statsDnsBad++;
 	}
 }

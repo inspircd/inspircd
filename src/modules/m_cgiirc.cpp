@@ -102,17 +102,17 @@ class CommandWebirc : public Command
 class CGIResolver : public Resolver
 {
 	std::string typ;
-	int theirfd;
-	LocalUser* them;
+	std::string theiruid;
 	bool notify;
  public:
-	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, LocalUser* u, int userfd, const std::string &type, bool &cached)
-		: Resolver(source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theirfd(userfd), them(u), notify(NotifyOpers) { }
+	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, LocalUser* u, const std::string &type, bool &cached)
+		: Resolver(source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theiruid(u->uuid), notify(NotifyOpers) { }
 
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
 		/* Check the user still exists */
-		if ((them) && (&them->eh == ServerInstance->SE->GetRef(theirfd)))
+		User* them = ServerInstance->FindUUID(theiruid);
+		if (them)
 		{
 			if (notify)
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
@@ -128,7 +128,9 @@ class CGIResolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
-		if ((them) && (&them->eh == ServerInstance->SE->GetRef(theirfd)))
+		User* them = ServerInstance->FindUUID(theiruid);
+		if (them)
+		if (them)
 		{
 			if (notify)
 				ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
@@ -298,7 +300,7 @@ public:
 			{
 
 				bool cached;
-				CGIResolver* r = new CGIResolver(this, NotifyOpers, user->password, false, user, user->GetFd(), "PASS", cached);
+				CGIResolver* r = new CGIResolver(this, NotifyOpers, user->password, false, user, "PASS", cached);
 				ServerInstance->AddResolver(r, cached);
 			}
 			catch (...)
@@ -349,7 +351,7 @@ public:
 		{
 
 			bool cached;
-			CGIResolver* r = new CGIResolver(this, NotifyOpers, newipstr, false, user, user->GetFd(), "IDENT", cached);
+			CGIResolver* r = new CGIResolver(this, NotifyOpers, newipstr, false, user, "IDENT", cached);
 			ServerInstance->AddResolver(r, cached);
 		}
 		catch (...)
