@@ -119,9 +119,6 @@ class PermChannel : public ModeHandler
 			if (!channel->IsModeSet('P'))
 			{
 				channel->SetMode('P',true);
-
-				// Save permchannels db if needed.
-				WriteDatabase();
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -153,9 +150,6 @@ class PermChannel : public ModeHandler
 
 				/* for servers, remove +P (to avoid desyncs) but don't bother trying to delete. */
 				channel->SetMode('P',false);
-
-				// Save permchannels db if needed.
-				WriteDatabase();
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -167,14 +161,18 @@ class PermChannel : public ModeHandler
 class ModulePermanentChannels : public Module
 {
 	PermChannel p;
+	bool dirty;
 public:
 
-	ModulePermanentChannels() : p(this)
+	ModulePermanentChannels() : p(this), dirty(false)
 	{
-		if (!ServerInstance->Modes->AddMode(&p))
-			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+	}
+
+	void init()
+	{
+		ServerInstance->Modes->AddService(p);
+		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 
 		OnRehash(NULL);
 	}
@@ -276,8 +274,8 @@ public:
 
 	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
 	{
-		if (chan && chan->IsModeSet('P'))
-			WriteDatabase();
+		if (chan && (chan->IsModeSet('P') || mode == 'P'))
+			dirty = true;
 
 		return MOD_RES_PASSTHRU;
 	}
@@ -285,7 +283,14 @@ public:
 	virtual void OnPostTopicChange(User*, Channel *c, const std::string&)
 	{
 		if (c->IsModeSet('P'))
+			dirty = true;
+	}
+
+	void OnBackgroundTimer(time_t)
+	{
+		if (dirty)
 			WriteDatabase();
+		dirty = false;
 	}
 
 	virtual Version GetVersion()
