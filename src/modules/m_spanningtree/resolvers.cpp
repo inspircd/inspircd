@@ -44,8 +44,7 @@ void ServernameResolver::OnLookupComplete(const std::string &result, unsigned in
 	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name.c_str());
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
-		TreeSocket* newsocket = new TreeSocket(Utils, result, MyLink->Port, MyLink->Timeout ? MyLink->Timeout : 10,
-			MyLink->Name.c_str(), MyLink->Bind, myautoconnect, MyLink->Hook);
+		TreeSocket* newsocket = new TreeSocket(Utils, MyLink, myautoconnect, result);
 		if (newsocket->GetFd() > -1)
 		{
 			/* We're all OK */

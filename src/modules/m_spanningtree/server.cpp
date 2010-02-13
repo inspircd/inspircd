@@ -100,10 +100,6 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 	std::string description = params[4];
 	int hops = atoi(params[2].c_str());
 
-	this->InboundServerName = sname;
-	this->InboundDescription = description;
-	this->InboundSID = sid;
-
 	this->SendCapabilities(2);
 
 	if (hops)
@@ -157,18 +153,18 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		this->LinkState = CONNECTED;
 
 		Utils->timeoutlist.erase(this);
+		linkID = sname;
 
-		TreeServer *Node = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
+		MyRoot = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
 
-		Utils->TreeRoot->AddChild(Node);
+		Utils->TreeRoot->AddChild(MyRoot);
 		params[4] = ":" + params[4];
-
 
 		/* IMPORTANT: Take password/hmac hash OUT of here before we broadcast the introduction! */
 		params[1] = "*";
 		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,sname);
 
-		this->DoBurst(Node);
+		this->DoBurst(MyRoot);
 		return true;
 	}
 
@@ -195,10 +191,6 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 	std::string sid = params[3];
 	std::string description = params[4];
 	int hops = atoi(params[2].c_str());
-
-	this->InboundServerName = sname;
-	this->InboundDescription = description;
-	this->InboundSID = sid;
 
 	this->SendCapabilities(2);
 
@@ -248,14 +240,21 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 			return false;
 		}
 
-
-		ServerInstance->SNO->WriteToSnoMask('l',"Verified incoming server connection from \002"+sname+"\002["+(x->HiddenFromStats ? "<hidden>" : this->IP)+"] ("+description+")");
+		ServerInstance->SNO->WriteToSnoMask('l',"Verified incoming server connection " + linkID + " ("+description+")");
+		linkID = sname;
 
 		// this is good. Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
 		this->SendCapabilities(2);
 		this->WriteLine(std::string("SERVER ")+ServerInstance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
 		// move to the next state, we are now waiting for THEM.
+		MyRoot = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
+		Utils->TreeRoot->AddChild(MyRoot);
+
+		params[1] = "*";
+		params[4] = ":" + params[4];
+		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,sname);
+
 		this->LinkState = WAIT_AUTH_2;
 		return true;
 	}

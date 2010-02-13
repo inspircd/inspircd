@@ -144,14 +144,13 @@ CullResult SpanningTreeUtilities::cull()
 		{
 			TreeSocket* sock = child_server->GetSocket();
 			sock->Close();
-			ServerInstance->GlobalCulls.AddItem(sock);
 		}
 	}
 
 	for(std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = timeoutlist.begin(); i != timeoutlist.end(); ++i)
 	{
 		TreeSocket* s = i->first;
-		ServerInstance->GlobalCulls.AddItem(s);
+		s->Close();
 	}
 	TreeRoot->cull();
 

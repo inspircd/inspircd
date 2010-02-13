@@ -277,8 +277,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	if (ipvalid)
 	{
 		/* Gave a hook, but it wasnt one we know */
-		TreeSocket* newsocket = new TreeSocket(Utils, x->IPAddr, x->Port, x->Timeout ? x->Timeout : 10,
-			x->Name.c_str(), x->Bind, y, x->Hook);
+		TreeSocket* newsocket = new TreeSocket(Utils, x, y, x->IPAddr);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */
@@ -328,12 +327,16 @@ void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
 		std::pair<std::string, int> p = i->second;
 		std::map<TreeSocket*, std::pair<std::string, int> >::iterator me = i;
 		i++;
+		if (s->GetLinkState() == DYING)
+		{
+			Utils->timeoutlist.erase(me);
+			s->Close();
+		}
 		if (curtime > s->age + p.second)
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
 			Utils->timeoutlist.erase(me);
 			s->Close();
-			ServerInstance->GlobalCulls.AddItem(s);
 		}
 	}
 }

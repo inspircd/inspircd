@@ -57,6 +57,8 @@ enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
 
 struct CapabData
 {
+	reference<Link> link;			/* Link block used for this connection */
+	reference<Autoconnect> ac;		/* Autoconnect used to cause this connection, if any */
 	std::string ModuleList;			/* Required module list of other server from CAPAB */
 	std::string OptModuleList;		/* Optional module list of other server from CAPAB */
 	std::string ChanModes;
@@ -64,40 +66,26 @@ struct CapabData
 	std::map<std::string,std::string> CapKeys;	/* CAPAB keys from other server */
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
-	std::string OutboundPass;		/* Outbound password */
 	int capab_phase;			/* Have sent CAPAB already */
 	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
 };
 
-/** Every SERVER connection inbound or outbound is represented by
- * an object of type TreeSocket.
- * TreeSockets, being inherited from BufferedSocket, can be tied into
- * the core socket engine, and we cn therefore receive activity events
- * for them, just like activex objects on speed. (yes really, that
- * is a technical term!) Each of these which relates to a locally
- * connected server is assocated with it, by hooking it onto a
- * TreeSocket class using its constructor. In this way, we can
- * maintain a list of servers, some of which are directly connected,
- * some of which are not.
+/** Every SERVER connection inbound or outbound is represented by an object of
+ * type TreeSocket. During setup, the object can be found in Utils->timeoutlist;
+ * after setup, MyRoot will have been created as a child of Utils->TreeRoot
  */
 class TreeSocket : public BufferedSocket
 {
 	SpanningTreeUtilities* Utils;		/* Utility class */
-	std::string myhost;			/* Canonical hostname */
+	std::string linkID;			/* Description for this link */
 	ServerState LinkState;			/* Link state */
-	std::string InboundServerName;		/* Server name sent to us by other side */
-	std::string InboundDescription;		/* Server description (GECOS) sent to us by the other side */
-	std::string InboundSID;			/* Server ID sent to us by the other side */
-	std::string IP;
-	CapabData* capab;
-	int num_lost_users;			/* Users lost in split */
-	int num_lost_servers;			/* Servers lost in split */
+	CapabData* capab;			/* Link setup data (held until burst is sent) */
+	TreeServer* MyRoot;			/* The server we are talking to */
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
 	int proto_version;			/* Remote protocol version */
  public:
-	reference<Autoconnect> myautoconnect;		/* Autoconnect used to cause this connection, if any */
 	time_t age;
 
 	/** Because most of the I/O gubbins are encapsulated within
@@ -105,7 +93,7 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, const std::string& host, int port, unsigned long maxtime, const std::string &ServerName, const std::string &bindto, Autoconnect* myac, const std::string& Hook);
+	TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
@@ -203,7 +191,7 @@ class TreeSocket : public BufferedSocket
 	 * is having a REAL bad hair day, this function shouldnt be called
 	 * too many times a month ;-)
 	 */
-	void SquitServer(std::string &from, TreeServer* Current);
+	void SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users);
 
 	/** This is a wrapper function for SquitServer above, which
 	 * does some validation first and passes on the SQUIT to all
@@ -312,32 +300,12 @@ class TreeSocket : public BufferedSocket
 
 	void ProcessConnectedLine(std::string& prefix, std::string& command, parameterlist& params);
 
-	/** Get this server's name
-	 */
-	virtual std::string GetName();
-
 	/** Handle socket timeout from connect()
 	 */
 	virtual void OnTimeout();
 	/** Handle server quit on close
 	 */
 	virtual void Close();
-};
-
-/* Used to validate the value lengths of multiple parameters for a command */
-struct cmd_validation
-{
-	const char* item;
-	size_t param;
-	size_t length;
-};
-
-/* Used to validate the length values in CAPAB CAPABILITIES */
-struct cap_validation
-{
-	const char* reason;
-	const char* key;
-	size_t size;
 };
 
 #endif

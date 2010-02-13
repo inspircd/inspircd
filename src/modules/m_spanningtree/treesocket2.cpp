@@ -82,8 +82,6 @@ void TreeSocket::ProcessLine(std::string &line)
 
 	switch (this->LinkState)
 	{
-		TreeServer* Node;
-
 		case WAIT_AUTH_1:
 			/*
 			 * State WAIT_AUTH_1:
@@ -158,27 +156,10 @@ void TreeSocket::ProcessLine(std::string &line)
 				this->LinkState = CONNECTED;
 
 				Utils->timeoutlist.erase(this);
-				if (myautoconnect)
-				{
-					myautoconnect->position = -1;
-					myautoconnect = NULL;
-				}
-
-				Link* lnk = Utils->FindLink(InboundServerName);
-
-				Node = new TreeServer(this->Utils, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
-
-				Utils->TreeRoot->AddChild(Node);
 				parameterlist sparams;
-				sparams.push_back(InboundServerName);
-				sparams.push_back("*");
-				sparams.push_back("1");
-				sparams.push_back(InboundSID);
-				sparams.push_back(":"+InboundDescription);
-				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",sparams,InboundServerName);
-				Utils->DoOneToAllButSender(prefix, "BURST", params, InboundServerName);
-				Node->bursting = true;
-				this->DoBurst(Node);
+				Utils->DoOneToAllButSender(prefix, "BURST", params, MyRoot->GetName());
+				MyRoot->bursting = true;
+				this->DoBurst(MyRoot);
 			}
 			else if (command == "ERROR")
 			{
@@ -237,7 +218,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		TreeServer* ServerSource = Utils->FindServer(prefix);
 		if (prefix.empty())
-			ServerSource = Utils->FindServer(GetName());
+			ServerSource = MyRoot;
 
 		if (ServerSource)
 		{
@@ -280,7 +261,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		if (route_back_again)
 			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Protocol violation: Fake direction '%s' from connection '%s'",
-				prefix.c_str(),this->GetName().c_str());
+				prefix.c_str(),linkID.c_str());
 		return;
 	}
 
@@ -450,46 +431,31 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	}
 }
 
-std::string TreeSocket::GetName()
-{
-	std::string sourceserv = this->myhost;
-	if (!this->InboundServerName.empty())
-	{
-		sourceserv = this->InboundServerName;
-	}
-	return sourceserv;
-}
-
 void TreeSocket::OnTimeout()
 {
-	ServerInstance->SNO->WriteGlobalSno('l', "CONNECT: Connection to \002%s\002 timed out.", myhost.c_str());
+	ServerInstance->SNO->WriteGlobalSno('l', "CONNECT: Connection to \002%s\002 timed out.", linkID.c_str());
 }
 
 void TreeSocket::Close()
 {
+	if (fd != -1)
+		ServerInstance->GlobalCulls.AddItem(this);
 	this->BufferedSocket::Close();
 	SetError("Remote host closed connection");
 
 	// Connection closed.
 	// If the connection is fully up (state CONNECTED)
 	// then propogate a netsplit to all peers.
-	std::string quitserver = this->myhost;
-	if (!this->InboundServerName.empty())
-	{
-		quitserver = this->InboundServerName;
-	}
-	TreeServer* s = Utils->FindServer(quitserver);
-	if (s && s->GetSocket() == this)
-	{
-		Squit(s,getError());
-	}
+	if (MyRoot)
+		Squit(MyRoot,getError());
 
-	if (!quitserver.empty())
+	if (!linkID.empty())
 	{
-		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",quitserver.c_str());
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",linkID.c_str());
 
 		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
-			ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", quitserver.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
+			ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
+		linkID.clear();
 	}
 }
