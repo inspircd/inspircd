@@ -21,62 +21,52 @@
 
 class ModuleGeoIP : public Module
 {
-	GeoIP * gi;
-
-	bool banunknown;
-
-	std::map<std::string, std::string> GeoBans;
-
+	LocalStringExt ext;
+	GeoIP* gi;
 
  public:
-	ModuleGeoIP() 	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
-
+	ModuleGeoIP() : ext("geoip_cc", this)
+	{
 		gi = GeoIP_new(GEOIP_STANDARD);
 	}
 
-	virtual ~ModuleGeoIP()
+	void init()
 	{
+		ServerInstance->Modules->AddService(ext);
+		Implementation eventlist[] = { I_OnSetConnectClass };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	virtual Version GetVersion()
+	~ModuleGeoIP()
 	{
-		return Version("Provides a way to restrict users by country using GeoIP lookup", VF_VENDOR);
+		GeoIP_delete(gi);
 	}
 
-	virtual void OnRehash(User* user)
+	Version GetVersion()
 	{
-		GeoBans.clear();
-
-		ConfigReader conf;
-
-		banunknown = conf.ReadFlag("geoip", "banunknown", 0);
-
-		for (int i = 0; i < conf.Enumerate("geoban"); ++i)
-		{
-			std::string countrycode = conf.ReadValue("geoban", "country", i);
-			std::string reason = conf.ReadValue("geoban", "reason", i);
-			GeoBans[countrycode] = reason;
-		}
+		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_VENDOR);
 	}
 
-	virtual ModResult OnUserRegister(LocalUser* user)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
-		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
-		if (c)
+		std::string* cc = ext.get(user);
+		if (!cc)
 		{
-			std::map<std::string, std::string>::iterator x = GeoBans.find(c);
-			if (x != GeoBans.end())
-				ServerInstance->Users->QuitUser(user,  x->second);
+			const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
+			if (!c)
+				c = "UNK";
+			cc = new std::string(c);
+			ext.set(user, cc);
 		}
-		else
-		{
-			if (banunknown)
-				ServerInstance->Users->QuitUser(user, "Could not identify your country of origin. Access denied.");
-		}
-		return MOD_RES_PASSTHRU;
+		std::string geoip = myclass->config->getString("geoip");
+		if (geoip.empty())
+			return MOD_RES_PASSTHRU;
+		irc::commasepstream list(geoip);
+		std::string country;
+		while (list.GetToken(country))
+			if (country == *cc)
+				return MOD_RES_PASSTHRU;
+		return MOD_RES_DENY;
 	}
 };
 

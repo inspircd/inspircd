@@ -782,7 +782,7 @@
 #<module name="m_gecosban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# GeoIP module: Allows the server admin to ban users by country code.
+# GeoIP module: Allows the server admin to match users by country code.
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_geoip.cpp
 # and run make install, then uncomment this module to enable it.
 # This module requires GeoIP to be installed on your system,
@@ -790,18 +790,17 @@
 # or check the InspIRCd wiki page for this module.
 #<module name="m_geoip.so">
 #
-#-#-#-#-#-#-#-#-#-#-#-#  GEOIP CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# <geoip banunknown="false">                                          #
-#                                                                     #
-# Set this value to true or yes to block unknown IP ranges which are  #
-# not in the database (usually LAN addresses, localhost, etc)         #
-#                                                                     #
-# <geoban country="TR" reason="This country not permitted">           #
-#                                                                     #
-# Use one or more of these tags to ban countries by country code.     #
-# The country code must be in capitals and should be an ISO country   #
-# code such as TR, GB, or US.                                         #
+# The actual allow/ban actions are done by connect classes, not by the
+# GeoIP module. An example connect class to ban people from russia or
+# turkey:
+#
+# <connect deny="*" geoip="TR,RU">
+#
+# The country code must be in capitals and should be an ISO country
+# code such as TR, GB, or US. Unknown IPs (localhost, LAN IPs, etc)
+# will be assigned the country code "UNK". Since connect classes are
+# matched from top down, your deny classes must be above your allow
+# classes for them to match.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Globops module: gives /GLOBOPS and SNOMASK +g
