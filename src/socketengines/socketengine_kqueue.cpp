@@ -16,30 +16,6 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2010 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *            the file COPYING for details.
- *
- * ---------------------------------------------------
- */
-
-#ifndef __SOCKETENGINE_KQUEUE__
-#define __SOCKETENGINE_KQUEUE__
-
-#include <vector>
-#include <string>
-#include <map>
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include <sys/types.h>
-#include <sys/event.h>
-#include <sys/time.h>
 #include "socketengine.h"
 
 /** A specialisation of the SocketEngine class, designed to use FreeBSD kqueue().
@@ -69,13 +45,25 @@ public:
 	virtual void RecoverFromFork();
 };
 
-#endif
-
 #include <sys/sysctl.h>
 
 KQueueEngine::KQueueEngine()
 {
 	MAX_DESCRIPTORS = 0;
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_MAXFILES;
+	len = sizeof(MAX_DESCRIPTORS);
+	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
+	if (MAX_DESCRIPTORS <= 0)
+	{
+		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+	}
+
 	this->RecoverFromFork();
 	ke_list = new struct kevent[GetMaxFds()];
 	ref = new EventHandler* [GetMaxFds()];
