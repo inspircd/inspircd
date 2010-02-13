@@ -25,6 +25,12 @@ class CoreExport BanItem : public Extensible
 	time_t time;
 };
 
+enum ModeListType {
+	MODELIST_PUBLIC,
+	MODELIST_SHORT,
+	MODELIST_FULL
+};
+
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, topic, topic set time, etc
  */
@@ -273,11 +279,12 @@ class CoreExport Channel : public Extensible
 	long GetMaxBans();
 
 	/** Return the channel's modes with parameters.
-	 * @param showkey If this is set to true, the actual key is shown,
-	 * otherwise it is replaced with '&lt;KEY&gt;'
-	 * @return The channel mode string
+	 * @param list The stacker to populate with modes (output)
+	 * @param type The level of detail. MODELIST_PUBLIC will mask the
+	 * channel key, MODELIST_SHORT does not, and MODELIST_FULL includes
+	 * listmodes (+b)
 	 */
-	char* ChanModes(bool showkey);
+	void ChanModes(irc::modestacker& list, ModeListType type);
 
 	/** Spool the NAMES list for this channel to the given user
 	 * @param user The user to spool the NAMES list to

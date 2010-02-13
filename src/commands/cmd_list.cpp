@@ -82,10 +82,13 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		}
 		else
 		{
+			/* User is in the channel/privileged, channel is not +s */
 			if (n || !i->second->IsModeSet('s'))
 			{
-				/* User is in the channel/privileged, channel is not +s */
-				user->WriteNumeric(322, "%s %s %ld :[+%s] %s",user->nick.c_str(),i->second->name.c_str(),users,i->second->ChanModes(n),i->second->topic.c_str());
+				irc::modestacker ms;
+				i->second->ChanModes(ms, n ? MODELIST_SHORT : MODELIST_PUBLIC);
+				user->WriteNumeric(322, "%s %s %ld :[%s] %s", user->nick.c_str(), i->second->name.c_str(), users,
+					ms.popModeLine().c_str(), i->second->topic.c_str());
 			}
 		}
 	}

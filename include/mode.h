@@ -91,7 +91,7 @@ namespace irc
 
 		inline bool empty() const { return sequence.empty(); }
 
-		std::string popModeLine(bool use_uuid = false);
+		std::string popModeLine(bool use_uuid = false, int maxlen = 400, int maxmodes = 0);
 	};
 }
 

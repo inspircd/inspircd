@@ -719,53 +719,32 @@ int Channel::CountInvisible()
 	return count;
 }
 
-char* Channel::ChanModes(bool showkey)
+void Channel::ChanModes(irc::modestacker& cmodes, ModeListType type)
 {
-	static char scratch[MAXBUF];
-	static char sparam[MAXBUF];
-	char* offset = scratch;
-
-	*scratch = '\0';
-	*sparam = '\0';
-
-	/* This was still iterating up to 190, Channel::modes is only 64 elements -- Om */
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
-		if (!mh)
+		if (!mh || mh->GetModeType() != MODETYPE_CHANNEL)
 			continue;
-		if (IsModeSet(mh))
+		if (mh->IsListMode())
 		{
-			char mc = mh->GetModeChar();
-			std::string extparam;
-			*offset++ = mc ? mc : 'Z';
-			if (mc == 'k' && !showkey)
+			const modelist* ml = mh->GetList(this);
+			if (ml && type == MODELIST_FULL)
 			{
-				extparam = "<key>";
-			}
-			else
-			{
-				extparam = this->GetModeParameter(mh);
-			}
-			if (!mc)
-			{
-				if (extparam.empty())
-					extparam = mh->name;
-				else
-					extparam = mh->name + "=" + extparam;
-			}
-			if (!extparam.empty())
-			{
-				charlcat(sparam,' ',MAXBUF);
-				strlcat(sparam,extparam.c_str(),MAXBUF);
+				for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
+				{
+					cmodes.push(irc::modechange(id, (**i).mask, true));
+				}
 			}
 		}
+		else if (this->IsModeSet(mh))
+		{
+			irc::modechange mc(id, this->GetModeParameter(mh), true);
+			if (type == MODELIST_PUBLIC && mh->name == "key")
+				mc.value = "<key>";
+			cmodes.push(mc);
+		}
 	}
-
-	/* Null terminate scratch */
-	*offset = '\0';
-	strlcat(scratch,sparam,MAXBUF);
-	return scratch;
 }
 
 /* compile a userlist of a channel into a string, each nick seperated by

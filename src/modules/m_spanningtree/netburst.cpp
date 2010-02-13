@@ -86,8 +86,9 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	char list[MAXBUF];
 
 	size_t curlen, headlen;
-	curlen = headlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s :",
-		ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
+	// the blank mode is fine here, as we send an FMODE right afterwards that will fix it.
+	curlen = headlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu + :",
+		ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age);
 	int numusers = 0;
 	char* ptr = list + curlen;
 	bool looped_once = false;
@@ -132,20 +133,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	}
 
 	irc::modestacker fmodes;
-	for(ModeIDIter id; id; id++)
-	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
-		if (!mh || !mh->IsListMode())
-			continue;
-		const modelist* ml = mh->GetList(c);
-		if (ml)
-		{
-			for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
-			{
-				fmodes.push(irc::modechange(id, (**i).mask, true));
-			}
-		}
-	}
+	c->ChanModes(fmodes, MODELIST_FULL);
 
 	snprintf(list, MAXBUF, ":%s FMODE %s %ld ", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age);
 	while (!fmodes.empty())

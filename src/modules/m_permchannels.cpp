@@ -17,6 +17,17 @@
 
 // Not in a class due to circular dependancy hell.
 static std::string permchannelsconf;
+
+static void fputesc(FILE* f, const std::string& text)
+{
+	for(std::string::size_type i=0; i < text.length(); i++)
+	{
+		if (text[i] == '\\' || text[i] == '"')
+			fputc('\\', f);
+		fputc(text[i], f);
+	}
+}
+
 static bool WriteDatabase(ModeHandler* p)
 {
 	FILE *f;
@@ -49,37 +60,15 @@ static bool WriteDatabase(ModeHandler* p)
 		if (!chan->IsModeSet(p))
 			continue;
 
-		char line[1024];
-		const char* items[] =
-		{
-			"<permchannels channel=",
-			chan->name.c_str(),
-			" topic=",
-			chan->topic.c_str(),
-			" modes=",
-			chan->ChanModes(true),
-			">\n"
-		};
-
-		int lpos = 0, item = 0, ipos = 0;
-		while (lpos < 1022 && item < 7)
-		{
-			char c = items[item][ipos++];
-			if (c == 0)
-			{
-				// end of this string; hop to next string, insert a quote
-				item++;
-				ipos = 0;
-				c = '"';
-			}
-			else if (c == '\\' || c == '"')
-			{
-				line[lpos++] = '\\';
-			}
-			line[lpos++] = c;
-		}
-		line[--lpos] = 0;
-		fputs(line, f);
+		fputs("<permchannels channel=\"", f);
+		fputesc(f, chan->name);
+		fputs("\" topic=\"", f);
+		fputesc(f, chan->topic);
+		fputs("\" modes=\"", f);
+		irc::modestacker cmodes;
+		chan->ChanModes(cmodes, MODELIST_FULL);
+		fputesc(f, cmodes.popModeLine(true, INT_MAX, INT_MAX));
+		fputs("\">\n", f);
 	}
 
 	int write_error = 0;

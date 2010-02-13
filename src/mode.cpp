@@ -236,15 +236,17 @@ irc::modechange::modechange(char modechar, ModeType type, const std::string& par
 		mode = mh->id;
 }
 
-std::string irc::modestacker::popModeLine(bool use_uid)
+std::string irc::modestacker::popModeLine(bool use_uid, int maxlen, int maxmodes)
 {
 	char pm_now = '\0';
 	std::string modeline;
 	std::stringstream params;
-	unsigned int nmodes = 0, linelen = 0;
+	int nmodes = 0, linelen = 0;
+	if (maxmodes == 0)
+		maxmodes = ServerInstance->Config->Limits.MaxModes;
 
 	std::vector<modechange>::iterator iter = sequence.begin();
-	for(; iter != sequence.end() && nmodes < ServerInstance->Config->Limits.MaxModes; ++iter)
+	for(; iter != sequence.end() && nmodes < maxmodes; ++iter)
 	{
 		char pm = iter->adding ? '+' : '-';
 		ModeHandler* mh = ServerInstance->Modes->FindMode(iter->mode);
@@ -279,7 +281,7 @@ std::string irc::modestacker::popModeLine(bool use_uid)
 		if (!value.empty())
 			mylen += 1 + value.length();
 
-		if (mylen + linelen + 100 > MAXBUF)
+		if (mylen + linelen > maxlen)
 			goto line_full;
 
 		linelen += mylen;
@@ -296,6 +298,8 @@ std::string irc::modestacker::popModeLine(bool use_uid)
 
 line_full:
 	sequence.erase(sequence.begin(), iter);
+	if (modeline.empty())
+		return "+";
 	return modeline + params.str();
 }
 
@@ -303,8 +307,10 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 {
 	if (targetchannel)
 	{
+		irc::modestacker ms;
+		targetchannel->ChanModes(ms, targetchannel->HasUser(user) ? MODELIST_SHORT : MODELIST_PUBLIC);
 		/* Display channel's current mode string */
-		user->WriteNumeric(RPL_CHANNELMODEIS, "%s %s +%s",user->nick.c_str(), targetchannel->name.c_str(), targetchannel->ChanModes(targetchannel->HasUser(user)));
+		user->WriteNumeric(RPL_CHANNELMODEIS, "%s %s %s",user->nick.c_str(), targetchannel->name.c_str(), ms.popModeLine().c_str());
 		user->WriteNumeric(RPL_CHANNELCREATED, "%s %s %lu", user->nick.c_str(), targetchannel->name.c_str(), (unsigned long)targetchannel->age);
 		return;
 	}
