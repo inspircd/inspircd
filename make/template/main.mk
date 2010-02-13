@@ -166,6 +166,7 @@ install: target@EXTRA_DIR@
 	-install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
 	-install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
+	-install -m $(INSTMODE_LIB) docs/*.example $(CONPATH)
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
