@@ -154,8 +154,6 @@ restart:
 		
 		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
 		{
-			s->GetSocket()->SendError("Ping timeout");
-			s->GetSocket()->Squit(s,"Ping timeout");
 			s->GetSocket()->Close();
 			goto restart;
 		}
@@ -196,7 +194,6 @@ restart:
 					if (sock)
 					{
 						sock->SendError("Ping timeout");
-						sock->Squit(s,"Ping timeout");
 						sock->Close();
 						goto restart;
 					}
@@ -776,7 +773,6 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		if (sock && sock->GetIOHook() == mod)
 		{
 			sock->SendError("SSL module unloaded");
-			sock->Squit(srv,"SSL module unloaded");
 			sock->Close();
 		}
 	}

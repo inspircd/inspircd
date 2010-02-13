@@ -205,6 +205,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Current->GetParent()->DelChild(Current);
 		Current->cull();
 		delete Current;
+		Current = NULL;
 		if (LocalSquit)
 			ServerInstance->SNO->WriteToSnoMask('l', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.", num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 		else
