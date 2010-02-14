@@ -50,8 +50,12 @@ public:
 	ModuleLDAPAuth() : ldapAuthed("ldapauth", this)
 	{
 		conn = NULL;
+	}
+
+	void init()
+	{
 		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 		OnRehash(NULL);
 	}
 
