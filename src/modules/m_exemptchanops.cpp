@@ -25,6 +25,7 @@ class ExemptChanOps : public ListModeBase
 
 	bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
+		// TODO actually make sure there's a prop for this
 		if ((word.length() > 35) || (word.empty()))
 		{
 			user->WriteNumeric(955, "%s %s %s :word is too %s for exemptchanops list",user->nick.c_str(), chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
@@ -65,7 +66,6 @@ class ModuleExemptChanOps : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(ec);
-		ec.DoImplements(this);
 		Implementation eventlist[] = { I_OnChannelDelete, I_OnChannelRestrictionApply, I_OnRehash, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 
@@ -81,11 +81,6 @@ class ModuleExemptChanOps : public Module
 	{
 		defaults = ServerInstance->Config->ConfValue("exemptchanops")->getString("defaults");
 		ec.DoRehash();
-	}
-
-	void OnCleanup(int target_type, void* item)
-	{
-		ec.DoCleanup(target_type, item);
 	}
 
 	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
@@ -105,8 +100,8 @@ class ModuleExemptChanOps : public Module
 			std::string::size_type pos = current.find(':');
 			if (pos == std::string::npos)
 				continue;
-			if (current.substr(pos+1) == restriction)
-				minmode = current[0];
+			if (current.substr(0,pos) == restriction)
+				minmode = current[pos+1];
 		}
 		modelist* list = ec.extItem.get(chan);
 
@@ -114,11 +109,11 @@ class ModuleExemptChanOps : public Module
 		{
 			for (modelist::iterator i = list->begin(); i != list->end(); ++i)
 			{
-				std::string::size_type pos = i->mask.find(':');
+				std::string::size_type pos = (**i).mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				if (i->mask.substr(pos+1) == restriction)
-					minmode = i->mask[0];
+				if ((**i).mask.substr(0,pos) == restriction)
+					minmode = (**i).mask[pos+1];
 			}
 		}
 

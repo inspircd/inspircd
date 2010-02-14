@@ -739,10 +739,10 @@
 #-#-#-#-#-#-#-#-#-#-  EXEMPTCHANOPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #  defaults - default exemptions. These can be added to or overridden #
 #             by the channel mode +X. Each item is of the form        #
-#             [minstatus]:[mode] where you must have [minstatus] in   #
+#             [mode]:[minstatus] where you must have [minstatus] in   #
 #             order to be able to bypass [mode].                      #
-#             Use "*:blockcolor" to override a default exemption      #
-#<exemptchanops defaults="v:nonick o:flood">
+#             Use "blockcolor:*" to override a default exemption      #
+#<exemptchanops defaults="nonick:v flood:o">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
