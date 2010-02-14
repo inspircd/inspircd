@@ -196,7 +196,7 @@ restart:
 
 		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
 		{
-			s->GetSocket()->Squit(s, "split");
+			s->GetSocket()->Close();
 			goto restart;
 		}
 

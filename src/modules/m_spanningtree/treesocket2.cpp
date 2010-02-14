@@ -631,7 +631,7 @@ void TreeSocket::OnClose()
 		quitserver = this->InboundServerName;
 	}
 	TreeServer* s = Utils->FindServer(quitserver);
-	if (s)
+	if (s && s->GetSocket() == this)
 	{
 		Squit(s,"Remote host closed the connection");
 	}
