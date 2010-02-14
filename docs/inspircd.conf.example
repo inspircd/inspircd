@@ -702,6 +702,24 @@
           # userstats: /stats commands that users can run (opers can run all).
           userstats="Pu">
 
+#-#-#-#-#-#-#-#-#-#-#-# MODELETTERS CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Starting with InspIRCd 2.1, mode letters can be changed or removed  #
+# on a per-network basis. Modes without an assigned letter are shown  #
+# as being changed using their long name via channel mode Z.          #
+#                                                                     #
+# Modes that provide a prefix must be assigned a letter.              #
+# All other modes can be assigned any unused letter or no letter.     #
+<modeletters
+	allowinvite="A" auditorium="u" banexception="e" blockcaps="B"
+	blockcolor="c" c_registered="r" censor="G" delayjoin="D" delaymsg="d"
+	filter="g" flood="f" founder="q" halfop="h" halfvoice="V" invex="I"
+	joinflood="j" kicknorejoin="J" nickflood="F" noctcp="C" nokick="Q"
+	noknock="K" nonick="N" nonotice="T" official-join="Y" operonly="O"
+	permanent="P" protected="a" redirect="L" reginvite="R" regmoderated="M"
+	sslonly="z" stripcolor="S">
+
+
 #-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # This configuration tag defines the maximum sizes of various types   #
