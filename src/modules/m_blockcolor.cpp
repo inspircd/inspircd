@@ -20,7 +20,7 @@
 class BlockColor : public SimpleChannelModeHandler
 {
  public:
-	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcolor", 'c') { }
+	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcolor", 'c') { fixed_letter = false; }
 };
 
 class ModuleBlockColour : public Module
@@ -53,7 +53,7 @@ class ModuleBlockColour : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet('c')))
+			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet(&bc)))
 			{
 				for (std::string::iterator i = text.begin(); i != text.end(); i++)
 				{

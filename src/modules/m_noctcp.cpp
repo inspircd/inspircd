@@ -15,32 +15,10 @@
 
 /* $ModDesc: Provides support for unreal-style channel mode +C */
 
-class NoCTCP : public ModeHandler
+class NoCTCP : public SimpleChannelModeHandler
 {
  public:
-	NoCTCP(Module* Creator) : ModeHandler(Creator, "noctcp", 'C', PARAM_NONE, MODETYPE_CHANNEL) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('C'))
-			{
-				channel->SetMode('C',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('C'))
-			{
-				channel->SetMode('C',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	NoCTCP(Module* Creator) : SimpleChannelModeHandler(Creator, "noctcp", 'C') { fixed_letter = false; }
 };
 
 class ModuleNoCTCP : public Module
@@ -84,7 +62,7 @@ class ModuleNoCTCP : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet('C')))
+			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(&nc)))
 			{
 				if ((text.length()) && (text[0] == '\1'))
 				{

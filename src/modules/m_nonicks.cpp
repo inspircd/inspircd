@@ -18,7 +18,7 @@
 class NoNicks : public SimpleChannelModeHandler
 {
  public:
-	NoNicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nonick", 'N') { }
+	NoNicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nonick", 'N') { fixed_letter = false; }
 };
 
 class ModuleNoNickChange : public Module

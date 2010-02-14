@@ -20,7 +20,7 @@
 class ChannelStripColor : public SimpleChannelModeHandler
 {
  public:
-	ChannelStripColor(Module* Creator) : SimpleChannelModeHandler(Creator, "stripcolor", 'S') { }
+	ChannelStripColor(Module* Creator) : SimpleChannelModeHandler(Creator, "stripcolor", 'S') { fixed_letter = false; }
 };
 
 /** Handles user mode +S
@@ -120,7 +120,7 @@ class ModuleStripColor : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet('S'));
+			active = !t->GetExtBanStatus(user, 'S').check(!t->IsModeSet(&csc));
 		}
 
 		if (active)

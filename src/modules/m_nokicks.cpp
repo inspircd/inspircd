@@ -18,7 +18,7 @@
 class NoKicks : public SimpleChannelModeHandler
 {
  public:
-	NoKicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nokick", 'Q') { }
+	NoKicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nokick", 'Q') { fixed_letter = false; }
 };
 
 class ModuleNoKicks : public Module
@@ -26,8 +26,11 @@ class ModuleNoKicks : public Module
 	NoKicks nk;
 
  public:
-	ModuleNoKicks()
-		: nk(this)
+	ModuleNoKicks() : nk(this)
+	{
+	}
+
+	void init()
 	{
 		if (!ServerInstance->Modes->AddMode(&nk))
 			throw ModuleException("Could not add new modes!");
@@ -42,7 +45,7 @@ class ModuleNoKicks : public Module
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
-		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet('Q')))
+		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet(&nk)))
 		{
 			if ((ServerInstance->ULine(source->nick.c_str())) || ServerInstance->ULine(source->server))
 			{

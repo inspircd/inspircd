@@ -18,7 +18,7 @@
 class NoNotice : public SimpleChannelModeHandler
 {
  public:
-	NoNotice(Module* Creator) : SimpleChannelModeHandler(Creator, "nonotice", 'T') { }
+	NoNotice(Module* Creator) : SimpleChannelModeHandler(Creator, "nonotice", 'T') { fixed_letter = false; }
 };
 
 class ModuleNoNotice : public Module
@@ -26,8 +26,11 @@ class ModuleNoNotice : public Module
 	NoNotice nt;
  public:
 
-	ModuleNoNotice()
-		: nt(this)
+	ModuleNoNotice() : nt(this)
+	{
+	}
+
+	void init()
 	{
 		if (!ServerInstance->Modes->AddMode(&nt))
 			throw ModuleException("Could not add new modes!");
@@ -46,7 +49,7 @@ class ModuleNoNotice : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet('T')))
+			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet(&nt)))
 			{
 				if (ServerInstance->ULine(user->server))
 				{

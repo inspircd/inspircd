@@ -77,7 +77,7 @@ class User_r : public ModeHandler
 class AChannel_R : public SimpleChannelModeHandler
 {
  public:
-	AChannel_R(Module* Creator) : SimpleChannelModeHandler(Creator, "reginvite", 'R') { }
+	AChannel_R(Module* Creator) : SimpleChannelModeHandler(Creator, "reginvite", 'R') { fixed_letter = false; }
 };
 
 /** User mode +R - unidentified users cannot message

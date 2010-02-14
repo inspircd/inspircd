@@ -15,33 +15,11 @@
 
 /* $ModDesc: Provides support for oper-only chans via the +O channel mode */
 
-class OperChans : public ModeHandler
+class OperChans : public SimpleChannelModeHandler
 {
  public:
 	/* This is an oper-only mode */
-	OperChans(Module* Creator) : ModeHandler(Creator, "operonly", 'O', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet(this))
-			{
-				channel->SetMode(this,true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet(this))
-			{
-				channel->SetMode(this,false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	OperChans(Module* Creator) : SimpleChannelModeHandler(Creator, "operonly", 'O') { fixed_letter = false; }
 };
 
 class ModuleOperChans : public Module
