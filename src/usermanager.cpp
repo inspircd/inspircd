@@ -70,6 +70,17 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	ServerInstance->Users->AddLocalClone(New);
 	ServerInstance->Users->AddGlobalClone(New);
 
+	this->local_users.push_back(New);
+
+	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)ServerInstance->SE->GetMaxFds()))
+	{
+		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
+		this->QuitUser(New,"No more connections allowed");
+		return;
+	}
+
+	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
+
 	/*
 	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
 	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
@@ -81,15 +92,6 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 * This will be done again after DNS resolution. -- w00t
 	 */
 	New->CheckClass();
-
-	this->local_users.push_back(New);
-
-	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)ServerInstance->SE->GetMaxFds()))
-	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
-		this->QuitUser(New,"No more connections allowed");
-		return;
-	}
 
 	/*
 	 * even with bancache, we still have to keep User::exempt current.

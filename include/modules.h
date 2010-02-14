@@ -97,7 +97,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 139
+#define API_VERSION 140
 
 /**
  * This #define allows us to call a method in all
@@ -316,7 +316,7 @@ enum Implementation
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
-	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops, I_OnAcceptConnection,
+	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
@@ -961,6 +961,11 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param original_line The entire original line as passed to the parser from the user
 	 */
 	virtual void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line);
+
+	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
+	 * connect class, or accepting any commands.
+	 */
+	virtual void OnUserInit(LocalUser* user);
 
 	/** Called to check if a user who is connecting can now be allowed to register
 	 * If any modules return false for this function, the user is held in the waiting
