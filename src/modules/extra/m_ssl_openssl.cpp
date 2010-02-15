@@ -242,8 +242,6 @@ class ModuleSSLOpenSSL : public Module
 		{
 			if (sessions[user->eh.GetFd()].sess)
 			{
-				SSLCertSubmission(user, this, ServerInstance->Modules->Find("m_sslinfo.so"), sessions[user->eh.GetFd()].cert);
-
 				if (!sessions[user->eh.GetFd()].cert->fingerprint.empty())
 					user->WriteServ("NOTICE %s :*** You are connected using SSL fingerprint %s",
 						user->nick.c_str(), sessions[user->eh.GetFd()].cert->fingerprint.c_str());

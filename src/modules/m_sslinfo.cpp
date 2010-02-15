@@ -130,8 +130,8 @@ class ModuleSSLInfo : public Module
 
 		ServerInstance->Extensions.Register(&cmd.CertExt);
 
-		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	Version GetVersion()
@@ -199,18 +199,35 @@ class ModuleSSLInfo : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+	void OnUserConnect(LocalUser* user)
+	{
+		SocketCertificateRequest req(&user->eh, this);
+		if (!req.cert)
+			return;
+		cmd.CertExt.set(user, req.cert);
+		if (req.cert->fingerprint.empty())
+			return;
+		// find an auto-oper block for this user
+		for(OperIndex::iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); i++)
+		{
+			OperInfo* ifo = i->second;
+			std::string fp = ifo->oper_block->getString("fingerprint");
+			if (fp == req.cert->fingerprint && ifo->oper_block->getBool("autologin"))
+				user->Oper(ifo);
+		}
+	}
+
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
 		SocketCertificateRequest req(&user->eh, this);
-		req.Send();
 		bool ok = true;
-		if (myclass->config->getBool("requiressl"))
-		{
-			ok = (req.cert != NULL);
-		}
-		else if (myclass->config->getString("requiressl") == "trusted")
+		if (myclass->config->getString("requiressl") == "trusted")
 		{
 			ok = (req.cert && req.cert->IsCAVerified());
+		}
+		else if (myclass->config->getBool("requiressl"))
+		{
+			ok = (req.cert != NULL);
 		}
 
 		if (!ok)
@@ -224,11 +241,6 @@ class ModuleSSLInfo : public Module
 		{
 			UserCertificateRequest& req = static_cast<UserCertificateRequest&>(request);
 			req.cert = cmd.CertExt.get(req.user);
-		}
-		else if (strcmp("SET_CERT", request.id) == 0)
-		{
-			SSLCertSubmission& req = static_cast<SSLCertSubmission&>(request);
-			cmd.CertExt.set(req.item, req.cert);
 		}
 	}
 };

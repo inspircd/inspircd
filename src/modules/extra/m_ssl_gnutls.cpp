@@ -575,7 +575,6 @@ class ModuleSSLGnuTLS : public Module
 			if (sessions[user->eh.GetFd()].sess)
 			{
 				ssl_cert* cert = sessions[user->eh.GetFd()].cert;
-				SSLCertSubmission(user, this, ServerInstance->Modules->Find("m_sslinfo.so"), cert);
 				std::string cipher = gnutls_kx_get_name(gnutls_kx_get(sessions[user->eh.GetFd()].sess));
 				cipher.append("-").append(gnutls_cipher_get_name(gnutls_cipher_get(sessions[user->eh.GetFd()].sess))).append("-");
 				cipher.append(gnutls_mac_get_name(gnutls_mac_get(sessions[user->eh.GetFd()].sess)));

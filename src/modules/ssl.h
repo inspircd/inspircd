@@ -165,15 +165,4 @@ struct UserCertificateRequest : public Request
 	}
 };
 
-struct SSLCertSubmission : public Request
-{
-	Extensible* const item;
-	ssl_cert* const cert;
-	SSLCertSubmission(Extensible* is, Module* Me, Module* Target, ssl_cert* Cert)
-		: Request(Me, Target, "SET_CERT"), item(is), cert(Cert)
-	{
-		Send();
-	}
-};
-
 #endif

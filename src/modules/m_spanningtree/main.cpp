@@ -581,6 +581,13 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	params.push_back(":"+std::string(user->fullname));
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
 
+	if (IS_OPER(user))
+	{
+		params.clear();
+		params.push_back(user->oper->name);
+		Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
+	}
+
 	for(Extensible::ExtensibleStore::const_iterator i = user->GetExtList().begin(); i != user->GetExtList().end(); i++)
 	{
 		ExtensionItem* item = i->first;
@@ -790,12 +797,11 @@ void ModuleSpanningTree::RedoConfig(Module* mod)
 // locally.
 void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 {
-	if (IS_LOCAL(user))
-	{
-		parameterlist params;
-		params.push_back(opertype);
-		Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
-	}
+	if (user->registered != REG_ALL || !IS_LOCAL(user))
+		return;
+	parameterlist params;
+	params.push_back(opertype);
+	Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
 }
 
 void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
