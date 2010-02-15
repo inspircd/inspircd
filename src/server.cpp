@@ -59,10 +59,10 @@ void RehashHandler::Call(const std::string &reason)
 	}
 }
 
-std::string InspIRCd::GetVersionString()
+std::string InspIRCd::GetVersionString(bool operstring)
 {
 	char versiondata[MAXBUF];
-	if (!Config->CustomVersion.empty())
+	if (!operstring && !Config->CustomVersion.empty())
 	{
 		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s",Config->ServerName.c_str(),Config->CustomVersion.c_str());
 	}

@@ -734,7 +734,7 @@ class CoreExport InspIRCd
 	/** Returns the full version string of this ircd
 	 * @return The version string
 	 */
-	std::string GetVersionString();
+	std::string GetVersionString(bool rawversion = false);
 
 	/** Attempt to write the process id to a given file
 	 * @param filename The PID file to attempt to write to
