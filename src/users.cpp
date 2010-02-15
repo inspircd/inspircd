@@ -719,7 +719,7 @@ void LocalUser::CheckClass()
 	}
 	else if (a->type == CC_DENY)
 	{
-		ServerInstance->Users->QuitUser(this, "Unauthorised connection");
+		ServerInstance->Users->QuitUser(this, a->config->getString("reason", "Unauthorised connection"));
 		return;
 	}
 	else if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))

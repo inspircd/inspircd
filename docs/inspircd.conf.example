@@ -225,7 +225,8 @@
          # deny: Will not let people connect if they have specified host/IP.
          deny="69.254.*">
 
-<connect deny="3ffe::0/32">
+# connect:reason is the message that users will see if they match a deny block
+<connect deny="3ffe::0/32" reason="The 6bone address space is deprecated">
 
 <connect
          # name: Name to use for this connect block. Mainly used for
