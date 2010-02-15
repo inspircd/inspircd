@@ -47,6 +47,8 @@ class HistoryMode : public ModeHandler
 			int time = ServerInstance->Duration(parameter.substr(colon+1));
 			if (len <= 0 || time < 0 || len > 50)
 				return MODEACTION_DENY;
+			if (parameter == channel->GetModeParameter(this))
+				return MODEACTION_DENY;
 			ext.set(channel, new HistoryList(len, time));
 			channel->SetModeParam('H', parameter);
 		}
