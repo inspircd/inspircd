@@ -96,8 +96,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 
 	switch (this->LinkState)
 	{
-		TreeServer* Node;
-
 		case DYING:
 			return false;
 		case WAIT_AUTH_1:
@@ -179,12 +177,8 @@ bool TreeSocket::ProcessLine(std::string &line)
 				this->LinkState = CONNECTED;
 
 				Utils->timeoutlist.erase(this);
+				TreeServer *Node = Utils->FindServer(InboundServerName);
 
-				Link* lnk = Utils->FindLink(InboundServerName);
-
-				Node = new TreeServer(this->Utils, this->ServerInstance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
-
-				Utils->TreeRoot->AddChild(Node);
 				parameterlist sparams;
 				sparams.push_back(InboundServerName);
 				sparams.push_back("*");
@@ -193,7 +187,6 @@ bool TreeSocket::ProcessLine(std::string &line)
 				sparams.push_back(":"+InboundDescription);
 				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",sparams,InboundServerName);
 				Utils->DoOneToAllButSenderRaw(line, InboundServerName, prefix, command, params);
-				Node->bursting = true;
 				this->DoBurst(Node);
 			}
 			else if (command == "ERROR")
@@ -619,7 +612,7 @@ void TreeSocket::OnTimeout()
 void TreeSocket::OnClose()
 {
 	// Test fix for big fuckup
-	if (this->LinkState != CONNECTED)
+	if (this->LinkState != CONNECTED && this->LinkState != WAIT_AUTH_2)
 		return;
 
 	// Connection closed.

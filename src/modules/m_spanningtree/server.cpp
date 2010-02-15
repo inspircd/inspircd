@@ -264,6 +264,13 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 		this->SendCapabilities();
 		this->WriteLine(std::string("SERVER ")+this->ServerInstance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+ServerInstance->Config->GetSID()+" :"+this->ServerInstance->Config->ServerDesc);
 		// move to the next state, we are now waiting for THEM.
+
+		Link* lnk = Utils->FindLink(InboundServerName);
+
+		TreeServer* Node = new TreeServer(this->Utils, this->ServerInstance, InboundServerName, InboundDescription, InboundSID, Utils->TreeRoot, this, lnk ? lnk->Hidden : false);
+
+		Utils->TreeRoot->AddChild(Node);
+		Node->bursting = true;
 		this->LinkState = WAIT_AUTH_2;
 		return true;
 	}
