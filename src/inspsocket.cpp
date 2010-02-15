@@ -120,6 +120,8 @@ void StreamSocket::Close()
 {
 	if (this->fd > -1)
 	{
+		// final chance, dump as much of the sendq as we can
+		DoWrite();
 		if (IOHook)
 		{
 			try
