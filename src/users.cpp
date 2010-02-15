@@ -861,7 +861,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 		 * Also don't check Q:Lines for remote nickchanges, they should have our Q:Lines anyway to enforce themselves.
 		 *		-- w00t
 		 */
-		if (IS_LOCAL(this))
+		if (IS_LOCAL(this) && !force)
 		{
 			XLine* mq = ServerInstance->XLines->MatchesLine("Q",newnick);
 			if (mq)

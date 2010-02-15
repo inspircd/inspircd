@@ -57,15 +57,13 @@ class CommandSanick : public Command
 		{
 			std::string oldnick = user->nick;
 			std::string newnick = target->nick;
-			if (target->ForceNickChange(parameters[1].c_str()))
+			if (target->ChangeNick(parameters[1], true))
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
-				ServerInstance->PI->SendSNONotice("A", oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
+				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
-				ServerInstance->PI->SendSNONotice("A", oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
+				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
 			}
 		}
 
