@@ -8,12 +8,12 @@ This system provides help for commands and modes.
 Specify your question or a command name as the
 parameter for this command.
 
-/HELPOP CUSER    -      To see a list of user commands
-/HELPOP COPER    -      To see a list of oper commands
-/HELPOP UMODES   -      To see a list of user modes
-/HELPOP CHMODES  -      To see a list of channel modes
-/HELPOP SNOMASKS -      To see a list of oper snotice masks
-/HELPOP EXTBANS  -      To see a list of extended bans">
+/HELP CUSER    -      To see a list of user commands
+/HELP COPER    -      To see a list of oper commands
+/HELP UMODES   -      To see a list of user modes
+/HELP CHMODES  -      To see a list of channel modes
+/HELP SNOMASKS -      To see a list of oper snotice masks
+/HELP EXTBANS  -      To see a list of extended bans">
 
 <helpop key="nohelp" value="There is no help for the topic
 you searched for. Please try again.">
@@ -203,8 +203,8 @@ A user may only set modes upon themselves, and may not set the
 +o usermode, and a user may only change channel modes of
 channels where they are at least a halfoperator.
 
-For a list of all user and channel modes, enter /HELPOP UMODES or
-/HELPOP CHMODES.">
+For a list of all user and channel modes, enter /HELP UMODES or
+/HELP CHMODES.">
 
 <helpop key="topic" value="/TOPIC [channel] {topic}
 
