@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include <signal.h>
 #include "exitcodes.h"
 #include "inspircd.h"
@@ -62,14 +60,10 @@ void RehashHandler::Call(const std::string &reason)
 std::string InspIRCd::GetVersionString(bool operstring)
 {
 	char versiondata[MAXBUF];
-	if (!operstring && !Config->CustomVersion.empty())
-	{
-		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s",Config->ServerName.c_str(),Config->CustomVersion.c_str());
-	}
+	if (operstring)
+		snprintf(versiondata,MAXBUF,"%s %s :%s [%s,%s,%s]",VERSION,Config->ServerName.c_str(),SYSTEM,REVISION,SE->GetName().c_str(),Config->sid.c_str());
 	else
-	{
-		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s (%s) [FLAGS=%s,%s,%s]",Config->ServerName.c_str(),SYSTEM,VERSION,REVISION,SE->GetName().c_str(),Config->sid.c_str());
-	}
+		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s",Config->ServerName.c_str(),Config->CustomVersion.c_str());
 	return versiondata;
 }
 
