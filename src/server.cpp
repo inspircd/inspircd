@@ -63,7 +63,7 @@ std::string InspIRCd::GetVersionString(bool operstring)
 	if (operstring)
 		snprintf(versiondata,MAXBUF,"%s %s :%s [%s,%s,%s]",VERSION,Config->ServerName.c_str(),SYSTEM,REVISION,SE->GetName().c_str(),Config->sid.c_str());
 	else
-		snprintf(versiondata,MAXBUF,"InspIRCd-2.0 %s :%s",Config->ServerName.c_str(),Config->CustomVersion.c_str());
+		snprintf(versiondata,MAXBUF,"InspIRCd-2.1 %s :%s",Config->ServerName.c_str(),Config->CustomVersion.c_str());
 	return versiondata;
 }
 
