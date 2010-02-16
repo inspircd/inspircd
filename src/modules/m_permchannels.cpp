@@ -126,30 +126,11 @@ class PermChannel : public ModeHandler
 		{
 			if (channel->IsModeSet('P'))
 			{
-				if (channel->GetUserCounter() == 0 && !IS_SERVER(source))
+				channel->SetMode(this,false);
+				if (channel->GetUserCounter() == 0)
 				{
-					/*
-					 * ugh, ugh, UGH!
-					 *
-					 * We can't delete this channel the way things work at the moment,
-					 * because of the following scenario:
-					 * s1:#c <-> s2:#c
-					 *
-					 * s1 has a user in #c, s2 does not. s2 has +P set. s2 has a losing TS.
-					 *
-					 * On netmerge, s2 loses, so s2 removes all modes (including +P) which
-					 * would subsequently delete the channel here causing big fucking problems.
-					 *
-					 * I don't think there's really a way around this, so just deny -P on a 0 user chan.
-					 * -- w00t
-					 *
-					 * delete channel;
-					 */
-					return MODEACTION_DENY;
+					channel->DelUser(ServerInstance->FakeClient);
 				}
-
-				/* for servers, remove +P (to avoid desyncs) but don't bother trying to delete. */
-				channel->SetMode('P',false);
 				return MODEACTION_ALLOW;
 			}
 		}
