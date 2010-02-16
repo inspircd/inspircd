@@ -273,9 +273,12 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
  */
 bool TreeSocket::OnDataReady()
 {
-	if (LinkState == DYING)
-		return true;
 	const char* data = this->Read();
+	if (LinkState == DYING)
+	{
+		Close();
+		return true;
+	}
 	/* Check that the data read is a valid pointer and it has some content */
 	if (data && *data)
 	{

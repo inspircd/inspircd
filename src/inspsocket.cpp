@@ -291,8 +291,9 @@ void BufferedSocket::Close()
 			}
 		}
 		ServerInstance->SE->Shutdown(this, 2);
-		if (ServerInstance->SE->Close(this) != -1)
-			this->OnClose();
+		ServerInstance->SE->DelFd(this, false);
+		ServerInstance->SE->Close(this);
+		this->OnClose();
 
 		if (ServerInstance->SocketCull.find(this) == ServerInstance->SocketCull.end())
 			ServerInstance->SocketCull[this] = this;
