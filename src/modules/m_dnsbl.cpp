@@ -371,6 +371,7 @@ class ModuleDNSBL : public Module
 			bool cached;
 			DNSBLResolver *r = new DNSBLResolver(this, nameExt, countExt, hostname, user, DNSBLConfEntries[i], cached);
 			ServerInstance->AddResolver(r, cached);
+			i++;
 		}
 		countExt.set(user, i);
 	}
