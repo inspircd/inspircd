@@ -144,7 +144,7 @@ class ModuleSSLInfo : public Module
 		ssl_cert* cert = cmd.CertExt.get(dest);
 		if (cert)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 275, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
+			ServerInstance->SendWhoisLine(source, dest, 671, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 			if ((!operonlyfp || source == dest || IS_OPER(source)) && !cert->fingerprint.empty())
 				ServerInstance->SendWhoisLine(source, dest, 276, "%s %s :has client certificate fingerprint %s",
