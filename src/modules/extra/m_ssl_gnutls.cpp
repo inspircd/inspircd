@@ -87,13 +87,9 @@ class CommandStartTLS : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		/* changed from == REG_ALL to catch clients sending STARTTLS
-		 * after NICK and USER but before OnUserConnect completes and
-		 * give a proper error message (see bug #645) - dz
-		 */
-		if (user->registered != REG_NONE)
+		if (user->registered == REG_ALL)
 		{
-			user->WriteNumeric(691, "%s :STARTTLS is not permitted after client registration has started", user->nick.c_str());
+			user->WriteNumeric(691, "%s :STARTTLS is not permitted after client registration is complete", user->nick.c_str());
 		}
 		else
 		{
