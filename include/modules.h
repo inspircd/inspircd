@@ -1587,9 +1587,10 @@ class CoreExport ModuleManager
 
 	/** Load a given module file
 	 * @param filename The file to load
+	 * @param defer Defer module init (loading many modules)
 	 * @return True if the module was found and loaded
 	 */
-	bool Load(const char* filename);
+	bool Load(const std::string& filename, bool defer = false);
 
 	/** Unload a given module file. Note that the module will not be
 	 * completely gone until the cull list has finished processing.

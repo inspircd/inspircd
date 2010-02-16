@@ -58,7 +58,7 @@ class AllModule : public Module
 
 MODULE_INIT(AllModule)
 
-bool ModuleManager::Load(const char* name)
+bool ModuleManager::Load(const std::string& name, bool)
 {
 	for(std::vector<AllModuleList*>::iterator i = modlist->begin(); i != modlist->end(); ++i)
 	{
@@ -145,7 +145,6 @@ void ModuleManager::LoadAll()
 			c->ModuleDLLManager = NULL;
 			Modules[(**i).name] = c;
 			c->init();
-			FOREACH_MOD(I_OnLoadModule,OnLoadModule(c));
 		}
 		catch (CoreException& modexcept)
 		{
@@ -177,7 +176,6 @@ void ModuleManager::LoadAll()
 
 void ModuleManager::UnloadAll()
 {
-	// TODO don't really need this, who cares if we leak on exit?
 }
 
 #endif

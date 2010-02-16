@@ -25,16 +25,16 @@
 
 #ifndef PURE_STATIC
 
-bool ModuleManager::Load(const char* filename)
+bool ModuleManager::Load(const std::string& filename, bool defer)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
-	if (strchr(filename, '/'))
+	if (filename.find('/') != std::string::npos)
 		return false;
 	/* Do we have a glob pattern in the filename?
 	 * The user wants to load multiple modules which
 	 * match the pattern.
 	 */
-	if (strchr(filename,'*') || (strchr(filename,'?')))
+	if (strchr(filename.c_str(),'*') || (strchr(filename.c_str(),'?')))
 	{
 		int n_match = 0;
 		DIR* library = opendir(ServerInstance->Config->ModPath.c_str());
@@ -46,9 +46,9 @@ bool ModuleManager::Load(const char* filename)
 			{
 				if (entry->d_name[0] == '.')
 					continue;
-				if (InspIRCd::Match(entry->d_name, filename, ascii_case_insensitive_map))
+				if (InspIRCd::Match(entry->d_name, filename.c_str(), ascii_case_insensitive_map))
 				{
-					if (!this->Load(entry->d_name))
+					if (!this->Load(entry->d_name, defer))
 						n_match++;
 				}
 			}
@@ -62,19 +62,18 @@ bool ModuleManager::Load(const char* filename)
 	}
 
 	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",ServerInstance->Config->ModPath.c_str(),filename);
-	std::string filename_str = filename;
+	snprintf(modfile,MAXBUF,"%s/%s",ServerInstance->Config->ModPath.c_str(),filename.c_str());
 
 	if (!ServerConfig::FileExists(modfile))
 	{
-		LastModuleError = "Module file could not be found: " + filename_str;
+		LastModuleError = "Module file could not be found: " + filename;
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 
-	if (Modules.find(filename_str) != Modules.end())
+	if (Modules.find(filename) != Modules.end())
 	{
-		LastModuleError = "Module " + filename_str + " is already loaded, cannot load a module twice!";
+		LastModuleError = "Module " + filename + " is already loaded, cannot load a module twice!";
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
@@ -88,18 +87,25 @@ bool ModuleManager::Load(const char* filename)
 
 		if (newmod)
 		{
-			newmod->ModuleSourceFile = filename_str;
+			newmod->ModuleSourceFile = filename;
 			newmod->ModuleDLLManager = newhandle;
-			Modules[filename_str] = newmod;
-			newmod->init();
+			Modules[filename] = newmod;
+			if (defer)
+			{
+				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s", filename.c_str());
+			}
+			else
+			{
+				newmod->init();
 
-			Version v = newmod->GetVersion();
-			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
-				filename, newhandle->GetVersion().c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+				Version v = newmod->GetVersion();
+				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
+					filename.c_str(), newhandle->GetVersion().c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+			}
 		}
 		else
 		{
-			LastModuleError = "Unable to load " + filename_str + ": " + newhandle->LastError();
+			LastModuleError = "Unable to load " + filename + ": " + newhandle->LastError();
 			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 			delete newhandle;
 			return false;
@@ -112,14 +118,16 @@ bool ModuleManager::Load(const char* filename)
 			DoSafeUnload(newmod);
 		else
 			delete newhandle;
-		LastModuleError = "Unable to load " + filename_str + ": " + modexcept.GetReason();
+		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
 
 	this->ModCount++;
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod));
+	if (defer)
+		return true;
 
+	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod));
 	/* We give every module a chance to re-prioritize when we introduce a new one,
 	 * not just the one thats loading, as the new module could affect the preference
 	 * of others
@@ -133,7 +141,7 @@ bool ModuleManager::Load(const char* filename)
 		if (prioritizationState == PRIO_STATE_LAST)
 			break;
 		if (tries == 19)
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename_str);
+			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename);
 	}
 
 	ServerInstance->BuildISupport();
@@ -211,7 +219,7 @@ void ModuleManager::LoadAll()
 				printf(".");
 				fflush(stdout);
 
-				if (!Load(entry->d_name))
+				if (!Load(entry->d_name, true))
 				{
 					ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
 					printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
@@ -230,10 +238,45 @@ void ModuleManager::LoadAll()
 		std::string name = tag->getString("name");
 		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",name.c_str());
 
-		if (!this->Load(name.c_str()))
+		if (!this->Load(name, true))
 		{
 			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
 			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+
+	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
+	{
+		Module* mod = i->second;
+		try 
+		{
+			mod->init();
+		}
+		catch (CoreException& modexcept)
+		{
+			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
+			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", LastModuleError.c_str());
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+
+	/* We give every module a chance to re-prioritize when we introduce a new one,
+	 * not just the one thats loading, as the new module could affect the preference
+	 * of others
+	 */
+	for(int tries = 0; tries < 20; tries++)
+	{
+		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
+		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
+			n->second->Prioritize();
+
+		if (prioritizationState == PRIO_STATE_LAST)
+			break;
+		if (tries == 19)
+		{
+			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected");
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
