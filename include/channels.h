@@ -97,7 +97,6 @@ class CoreExport Channel : public Extensible
 	 * @param mode_on True if you want to set the mode or false if you want to remove it
 	 */
 	void SetMode(ModeHandler* mode, bool value);
-	void SetMode(char mode,bool mode_on);
 
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
@@ -105,7 +104,6 @@ class CoreExport Channel : public Extensible
 	 * If it is empty, the mode is unset; if it is nonempty, the mode is set.
 	 */
 	void SetModeParam(ModeHandler* mode, const std::string& parameter);
-	void SetModeParam(char mode, const std::string& parameter);
 
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
@@ -113,7 +111,7 @@ class CoreExport Channel : public Extensible
 	  */
 	inline bool IsModeSet(ModeHandler* mode) { return modebits[mode->id.GetID()]; }
 	bool IsModeSet(char mode);
-
+	bool IsModeSet(const std::string& mode);
 
 	/** Returns the parameter for a custom mode on a channel.
 	  * @param mode The mode character you wish to query

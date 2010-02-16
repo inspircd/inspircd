@@ -29,16 +29,17 @@ Channel::Channel(const std::string &cname, time_t ts)
 	modebits.reset();
 }
 
-void Channel::SetMode(char mode, bool on)
-{
-	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
-	if (mh)
-		modebits[mh->id.GetID()] = on;
-}
-
 bool Channel::IsModeSet(char mode)
 {
 	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
+	if (!mh)
+		return false;
+	return modebits[mh->id.GetID()];
+}
+
+bool Channel::IsModeSet(const std::string& mode)
+{
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mode);
 	if (!mh)
 		return false;
 	return modebits[mh->id.GetID()];
@@ -58,13 +59,6 @@ void Channel::SetModeParam(ModeHandler* mode, const std::string& parameter)
 	SetMode(mode, !parameter.empty());
 	if (!parameter.empty())
 		custom_mode_params[mode->id] = parameter;
-}
-
-void Channel::SetModeParam(char mode, const std::string& parameter)
-{
-	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
-	if (mh)
-		SetModeParam(mh, parameter);
 }
 
 std::string Channel::GetModeParameter(char mode)

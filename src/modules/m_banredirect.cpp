@@ -297,7 +297,7 @@ class ModuleBanRedirect : public Module
 						if (destchan)
 							destlimit = destchan->GetModeParameter('l');
 
-						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
+						if(destchan && destchan->IsModeSet("redirect") && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
 						{
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
 							return MOD_RES_DENY;
