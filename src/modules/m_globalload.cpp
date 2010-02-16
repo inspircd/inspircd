@@ -113,7 +113,13 @@ class CommandGreloadmodule : public Command
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
 			Module* m = ServerInstance->Modules->Find(parameters[0]);
-			ServerInstance->Modules->Reload(m, NULL);
+			if (m)
+				ServerInstance->Modules->Reload(m, NULL);
+			else
+			{
+				user->WriteNumeric(975, "%s %s :Could not find module by that name", user->nick.c_str(), parameters[0].c_str());
+				return CMD_FAILURE;
+			}
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
