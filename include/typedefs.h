@@ -34,6 +34,7 @@ class OperInfo;
 class RemoteUser;
 class ServerConfig;
 class ServerLimits;
+class StreamSocket;
 class Thread;
 class User;
 class UserResolver;

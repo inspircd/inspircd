@@ -87,6 +87,38 @@ class CoreExport SocketTimeout : public Timer
 	virtual void Tick(time_t now);
 };
 
+/** Private data handler and function dispatch for I/O */
+class CoreExport IOHook : public classbase
+{
+ public:
+	/** Module that is providing this service */
+	ModuleRef creator;
+	IOHook(Module* Creator) : creator(Creator) {}
+	virtual int OnRead(StreamSocket*, std::string& recvq) = 0;
+	virtual int OnWrite(StreamSocket*, std::string& sendq) = 0;
+	virtual void OnClose(StreamSocket*) = 0;
+};
+
+class CoreExport IOHookProvider : public ServiceProvider
+{
+ public:
+	IOHookProvider(Module* Creator, const std::string& Name)
+		: ServiceProvider(Creator, Name, SERVICE_IOHOOK) {}
+	/**
+	 * Setup for oubound connection
+	 * @param socket The new socket wrapper we are binding to
+	 * @param tag Configuration information for this connection (may be NULL)
+	 */
+	virtual void OnClientConnection(StreamSocket*, ConfigTag* tag) = 0;
+
+	/**
+	 * Setup for inbound connection
+	 * @param socket The new socket wrapper we are binding to
+	 * @param from The port binding that this socket came from
+	 */
+	virtual void OnServerConnection(StreamSocket*, ListenSocket* from) = 0;
+};
+
 /**
  * StreamSocket is a class that wraps a TCP socket and handles send
  * and receive queues, including passing them to IO hooks
@@ -94,7 +126,7 @@ class CoreExport SocketTimeout : public Timer
 class CoreExport StreamSocket : public EventHandler
 {
 	/** Module that handles raw I/O for this socket, or NULL */
-	reference<Module> IOHook;
+	IOHook* hook;
 	/** Private send queue. Note that individual strings may be shared
 	 */
 	std::deque<std::string> sendq;
@@ -105,10 +137,9 @@ class CoreExport StreamSocket : public EventHandler
  protected:
 	std::string recvq;
  public:
-	StreamSocket() : sendq_len(0) {}
-	inline Module* GetIOHook();
-	inline void AddIOHook(Module* m);
-	inline void DelIOHook();
+	StreamSocket() : hook(NULL), sendq_len(0) {}
+	inline IOHook* GetIOHook() { return hook; }
+	inline void SetIOHook(IOHook* h) { hook = h; }
 	/** Handle event from socket engine.
 	 * This will call OnDataReady if there is *new* data in recvq
 	 */
@@ -221,7 +252,4 @@ class CoreExport BufferedSocket : public StreamSocket
 
 #include "modules.h"
 
-inline Module* StreamSocket::GetIOHook() { return IOHook; }
-inline void StreamSocket::AddIOHook(Module* m) { IOHook = m; }
-inline void StreamSocket::DelIOHook() { IOHook = NULL; }
 #endif

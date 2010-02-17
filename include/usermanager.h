@@ -67,14 +67,11 @@ class CoreExport UserManager
 	/** Add a client to the system.
 	 * This will create a new User, insert it into the user_hash,
 	 * initialize it as not yet registered, and add it to the socket engine.
-	 * @param Instance a pointer to the server instance
-	 * @param socket The socket id (file descriptor) this user is on
+	 * @param New The user
 	 * @param via The socket that this user connected using
-	 * @param client The IP address and client port of the user
-	 * @param server The server IP address and port used by the user
 	 * @return This function has no return value, but a call to AddClient may remove the user.
 	 */
-	void AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	void AddUser(LocalUser* New, ListenSocket* via);
 
 	/** Disconnect a user gracefully
 	 * @param user The user to remove

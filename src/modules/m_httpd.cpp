@@ -52,10 +52,6 @@ class HttpServerSocket : public BufferedSocket
 		: BufferedSocket(newfd), ip(IP), postsize(0)
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
-
-		FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
-		if (GetIOHook())
-			GetIOHook()->OnStreamSocketAccept(this, client, server);
 	}
 
 	virtual void OnError(BufferedSocketError)
@@ -339,15 +335,14 @@ class ModuleHttpServer : public Module
 		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 
-	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	StreamSocket* OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
 		if (from->bind_tag->getString("type") != "httpd")
-			return MOD_RES_PASSTHRU;
+			return NULL;
 		int port;
 		std::string incomingip;
 		irc::sockets::satoap(*client, incomingip, port);
-		new HttpServerSocket(nfd, incomingip, from, client, server);
-		return MOD_RES_ALLOW;
+		return new HttpServerSocket(nfd, incomingip, from, client, server);
 	}
 
 

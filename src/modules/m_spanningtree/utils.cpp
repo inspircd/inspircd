@@ -24,10 +24,10 @@
 #include "resolvers.h"
 
 /* Create server sockets off a listener. */
-ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+StreamSocket* ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
 	if (from->bind_tag->getString("type") != "servers")
-		return MOD_RES_PASSTHRU;
+		return NULL;
 
 	std::string incomingip = client->addr();
 
@@ -36,12 +36,11 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 		if (*i == "*" || *i == incomingip || irc::sockets::cidr_mask(*i).match(*client))
 		{
 			/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
-			new TreeSocket(Utils, newsock, from, client, server);
-			return MOD_RES_ALLOW;
+			return new TreeSocket(Utils, newsock, from, client, server);
 		}
 	}
 	ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", incomingip.c_str());
-	return MOD_RES_DENY;
+	return NULL;
 }
 
 /** Yay for fast searches!

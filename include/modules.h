@@ -326,7 +326,7 @@ enum Implementation
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
+	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnChannelRestrictionApply,
 	I_END
 };
@@ -1140,12 +1140,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnDelBan(User* source, Channel* channel,const std::string &banmask);
 
-	/** Called to install an I/O hook on an event handler
-	 * @param user The item to possibly install the I/O hook on
-	 * @param via The port that <user> connected on
-	 */
-	virtual void OnHookIO(StreamSocket*, ListenSocket* via);
-
 	/** Called when a port accepts a connection
 	 * Return MOD_RES_ACCEPT if you have used the file descriptor.
 	 * @param fd The file descriptor returned from accept()
@@ -1153,50 +1147,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param client The client IP address and port
 	 * @param server The server IP address and port
 	 */
-	virtual ModResult OnAcceptConnection(int fd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
-
-	/** Called immediately after any connection is accepted. This is intended for raw socket
-	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
-	 * no information relating to a user record as the connection has not been assigned yet.
-	 * There are no return values from this call as all modules get an opportunity if required to
-	 * process the connection.
-	 * @param fd The file descriptor returned from accept()
-	 * @param client The client IP address and port
-	 * @param server The server IP address and port
-	 * @param localport The local port number the user connected to
-	 */
-	virtual void OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
-
-	/**
-	 * Called when a hooked stream has data to write, or when the socket
-	 * engine returns it as writable
-	 * @param socket The socket in question
-	 * @param sendq Data to send to the socket
-	 * @return 1 if the sendq has been completely emptied, 0 if there is
-	 *  still data to send, and -1 if there was an error
-	 */
-	virtual int OnStreamSocketWrite(StreamSocket*, std::string& sendq);
-
-	/** Called immediately before any socket is closed. When this event is called, shutdown()
-	 * has not yet been called on the socket.
-	 * @param fd The file descriptor of the socket prior to close()
-	 */
-	virtual void OnStreamSocketClose(StreamSocket*);
-
-	/** Called immediately upon connection of an outbound BufferedSocket which has been hooked
-	 * by a module.
-	 * @param fd The file descriptor of the socket immediately after connect()
-	 */
-	virtual void OnStreamSocketConnect(StreamSocket*);
-
-	/**
-	 * Called when the stream socket has data to read
-	 * @param socket The socket that is ready
-	 * @param recvq The receive queue that new data should be appended to
-	 * @return 1 if new data has been read, 0 if no new data is ready (but the
-	 *  socket is still connected), -1 if there was an error or close
-	 */
-	virtual int OnStreamSocketRead(StreamSocket*, std::string& recvq);
+	virtual StreamSocket* OnAcceptConnection(int fd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Called whenever a user sets away or returns from being away.
 	 * The away message is available as a parameter, but should not be modified.

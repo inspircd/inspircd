@@ -783,7 +783,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 	{
 		TreeServer* srv = Utils->TreeRoot->GetChild(x);
 		TreeSocket* sock = srv->GetSocket();
-		if (sock && sock->GetIOHook() == mod)
+		if (sock && sock->GetIOHook() && sock->GetIOHook()->creator == mod)
 		{
 			sock->SendError("SSL module unloaded");
 			sock->Close();

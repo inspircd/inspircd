@@ -136,26 +136,55 @@ void ListenSocket::AcceptInternal()
 
 	ServerInstance->SE->NonBlocking(incomingSockfd);
 
-	ModResult res;
-	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
-	if (res == MOD_RES_PASSTHRU)
+	StreamSocket* sock = NULL;
+
+	DO_EACH_HOOK(OnAcceptConnection, sock, (incomingSockfd, this, &client, &server))
+	{
+		if (sock)
+			break;
+	}
+	WHILE_EACH_HOOK(OnAcceptConnection);
+
+	if (!sock)
 	{
 		std::string type = bind_tag->getString("type", "clients");
 		if (type == "clients")
 		{
-			ServerInstance->Users->AddUser(incomingSockfd, this, &client, &server);
-			res = MOD_RES_ALLOW;
+			try
+			{
+				LocalUser* New = new LocalUser(incomingSockfd, &client, &server);
+				ServerInstance->Users->AddUser(New, this);
+				if (!New->quitting)
+					sock = &New->eh;
+			}
+			catch (...)
+			{
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
+			}
 		}
 	}
-	if (res == MOD_RES_ALLOW)
+	if (sock)
 	{
+		std::string ssl = bind_tag->getString("ssl", "plaintext");
+		if (ssl != "plaintext")
+		{
+			IOHookProvider* prov = static_cast<IOHookProvider*>(ServerInstance->Modules->FindService(SERVICE_IOHOOK, ssl));
+			if (!prov)
+			{
+				sock->SetError("Could not find IOHook " + ssl);
+				ServerInstance->Logs->Log("SOCKET",DEFAULT,"Refusing connection on %s due to missing hook %s",
+					bind_desc.c_str(), ssl.c_str());
+				ServerInstance->stats->statsRefused++;
+				return;
+			}
+			prov->OnServerConnection(sock, this);
+		}
 		ServerInstance->stats->statsAccept++;
 	}
 	else
 	{
 		ServerInstance->stats->statsRefused++;
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Refusing connection on %s - %s",
-			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
+		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Refusing connection on %s", bind_desc.c_str());
 		ServerInstance->SE->Close(incomingSockfd);
 	}
 }

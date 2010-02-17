@@ -164,7 +164,6 @@ static void checkall(Module* noimpl)
 	CHK(OnRunTestSuite);
 	CHK(OnNamesListItem);
 	CHK(OnNumeric);
-	CHK(OnHookIO);
 	CHK(OnPreRehash);
 	CHK(OnModuleRehash);
 	CHK(OnSendWhoLine);

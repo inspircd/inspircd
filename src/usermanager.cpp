@@ -16,40 +16,11 @@
 #include "bancache.h"
 
 /* add a client connection to the sockets list */
-void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+void UserManager::AddUser(LocalUser* New, ListenSocket* via)
 {
-	/* NOTE: Calling this one parameter constructor for User automatically
-	 * allocates a new UUID and places it in the hash_map.
-	 */
-	LocalUser* New = NULL;
-	try
-	{
-		New = new LocalUser(socket, client, server);
-	}
-	catch (...)
-	{
-		ServerInstance->Logs->Log("USERS", DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkies have been unleashed.");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
-		return;
-	}
 	UserIOHandler* eh = &New->eh;
 
-	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD(I_OnHookIO, OnHookIO(eh, via));
-
-	if (eh->GetIOHook())
-	{
-		try
-		{
-			eh->GetIOHook()->OnStreamSocketAccept(eh, client, server);
-		}
-		catch (CoreException& modexcept)
-		{
-			ServerInstance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-		}
-	}
-
-	ServerInstance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
+	ServerInstance->Logs->Log("USERS", DEBUG,"New user %s on FD %d", New->uuid.c_str(), eh->GetFd());
 
 	this->unregistered_count++;
 
@@ -195,22 +166,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	{
 		LocalUser* lu = IS_LOCAL(user);
 		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(lu));
-		UserIOHandler* eh = &lu->eh;
-		eh->DoWrite();
-		if (eh->GetIOHook())
-		{
-			try
-			{
-				eh->GetIOHook()->OnStreamSocketClose(eh);
-			}
-			catch (CoreException& modexcept)
-			{
-				ServerInstance->Logs->Log("USERS",DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-			}
-		}
-
-		ServerInstance->SE->DelFd(eh);
-		eh->Close();
+		lu->eh.Close();
 	}
 
 	/*

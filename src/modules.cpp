@@ -124,11 +124,6 @@ void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
 ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnDelBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
-void		Module::OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
-int		Module::OnStreamSocketWrite(StreamSocket*, std::string&) { return -1; }
-void		Module::OnStreamSocketClose(StreamSocket*) { }
-void		Module::OnStreamSocketConnect(StreamSocket*) { }
-int		Module::OnStreamSocketRead(StreamSocket*, std::string&) { return -1; }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&) { }
 void		Module::OnUserNotice(User*, void*, int, const std::string&, char, const CUList&) { }
 void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
@@ -159,8 +154,7 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnRunTestSuite() { }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnHookIO(StreamSocket*, ListenSocket*) { }
-ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return MOD_RES_PASSTHRU; }
+StreamSocket*   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return NULL; }
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Channel*, std::string&) { }
 ModResult	Module::OnChannelRestrictionApply(User*, Channel*, const char*) { return MOD_RES_PASSTHRU; }
 
@@ -696,6 +690,7 @@ void FileReader::CalcSize()
 
 void FileReader::LoadFile(const std::string &filename)
 {
+	contentsize = 0;
 	std::map<std::string, file_cache>::iterator file = ServerInstance->Config->Files.find(filename);
 	if (file != ServerInstance->Config->Files.end())
 	{

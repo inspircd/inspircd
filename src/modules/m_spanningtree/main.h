@@ -162,7 +162,7 @@ class ModuleSpanningTree : public Module
 	void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
 	void OnLoadModule(Module* mod);
 	void OnUnloadModule(Module* mod);
-	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	StreamSocket* OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
 	~ModuleSpanningTree();
 	Version GetVersion();

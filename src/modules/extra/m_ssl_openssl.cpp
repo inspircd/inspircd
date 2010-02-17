@@ -35,19 +35,34 @@
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 
 static bool SelfSigned = false;
+static bool use_sha;
 
-char* get_error()
+static char* get_error()
 {
 	return ERR_error_string(ERR_get_error(), NULL);
 }
 
 static int error_callback(const char *str, size_t len, void *u);
 
+static int OnVerify(int preverify_ok, X509_STORE_CTX *store_ctx)
+{
+	/* XXX: This will allow self signed certificates.
+	 * In the future if we want an option to not allow this,
+	 * we can just return preverify_ok here, and openssl
+	 * will boot off self-signed and invalid peer certs.
+	 */
+	int ve = X509_STORE_CTX_get_error(store_ctx);
+
+	SelfSigned = (ve == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT);
+
+	return 1;
+}
+
 /** Represents an SSL user's extra data
  */
-class issl_session
+class OSSLHook : public IOHook
 {
-public:
+ public:
 	SSL* sess;
 	issl_status status;
 	reference<ssl_cert> cert;
@@ -56,50 +71,293 @@ public:
 	bool outbound;
 	bool data_to_write;
 
-	issl_session()
+	OSSLHook(Module* Creator, bool client, StreamSocket* user, SSL_CTX* ctx) : IOHook(Creator)
 	{
 		outbound = false;
 		data_to_write = false;
+		fd = user->GetFd();
+		sess = SSL_new(ctx);
+		status = ISSL_NONE;
+		outbound = client;
+		if (!sess)
+			return;
+		if (SSL_set_fd(sess, fd) == 0)
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl",DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
+		}
+		user->SetIOHook(this);
+	}
+	
+	int OnRead(StreamSocket* user, std::string& recvq)
+	{
+		if (!sess)
+			return -1;
+
+		if (status == ISSL_HANDSHAKING)
+		{
+			// The handshake isn't finished and it wants to read, try to finish it.
+			if (!Handshake(user))
+			{
+				// Couldn't resume handshake.
+				if (status == ISSL_NONE)
+					return -1;
+				return 0;
+			}
+		}
+
+		// If we resumed the handshake then status will be ISSL_OPEN
+
+		if (status == ISSL_OPEN)
+		{
+			char* buffer = ServerInstance->GetReadBuffer();
+			size_t bufsiz = ServerInstance->Config->NetBufferSize;
+			int ret = SSL_read(sess, buffer, bufsiz);
+
+			if (ret > 0)
+			{
+				recvq.append(buffer, ret);
+				return 1;
+			}
+			else if (ret == 0)
+			{
+				// Client closed connection.
+				OnClose(user);
+				return -1;
+			}
+			else if (ret < 0)
+			{
+				int err = SSL_get_error(sess, ret);
+
+				if (err == SSL_ERROR_WANT_READ)
+				{
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ);
+					return 0;
+				}
+				else if (err == SSL_ERROR_WANT_WRITE)
+				{
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
+					return 0;
+				}
+				else
+				{
+					OnClose(user);
+					return -1;
+				}
+			}
+		}
+
+		return 0;
+	}
+
+	int OnWrite(StreamSocket* user, std::string& buffer)
+	{
+		if (!sess)
+			return -1;
+
+		data_to_write = true;
+
+		if (status == ISSL_HANDSHAKING)
+		{
+			if (!Handshake(user))
+			{
+				// Couldn't resume handshake.
+				if (status == ISSL_NONE)
+					return -1;
+				return 0;
+			}
+		}
+
+		if (status == ISSL_OPEN)
+		{
+			int ret = SSL_write(sess, buffer.data(), buffer.size());
+			if (ret == (int)buffer.length())
+			{
+				data_to_write = false;
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				return 1;
+			}
+			else if (ret > 0)
+			{
+				buffer = buffer.substr(ret);
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
+				return 0;
+			}
+			else if (ret == 0)
+			{
+				OnClose(user);
+				return -1;
+			}
+			else if (ret < 0)
+			{
+				int err = SSL_get_error(sess, ret);
+
+				if (err == SSL_ERROR_WANT_WRITE)
+				{
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
+					return 0;
+				}
+				else if (err == SSL_ERROR_WANT_READ)
+				{
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+					return 0;
+				}
+				else
+				{
+					OnClose(user);
+					return -1;
+				}
+			}
+		}
+		return 0;
+	}
+
+	bool Handshake(StreamSocket* user)
+	{
+		int ret;
+
+		if (outbound)
+			ret = SSL_connect(sess);
+		else
+			ret = SSL_accept(sess);
+
+		if (ret < 0)
+		{
+			int err = SSL_get_error(sess, ret);
+
+			if (err == SSL_ERROR_WANT_READ)
+			{
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				status = ISSL_HANDSHAKING;
+				return true;
+			}
+			else if (err == SSL_ERROR_WANT_WRITE)
+			{
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
+				status = ISSL_HANDSHAKING;
+				return true;
+			}
+			else
+			{
+				OnClose(user);
+			}
+
+			return false;
+		}
+		else if (ret > 0)
+		{
+			// Handshake complete.
+			VerifyCertificate(user);
+
+			status = ISSL_OPEN;
+
+			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
+
+			return true;
+		}
+		else if (ret == 0)
+		{
+			OnClose(user);
+			return true;
+		}
+
+		return true;
+	}
+
+	void OnClose(StreamSocket* user)
+	{
+		if (sess)
+		{
+			SSL_shutdown(sess);
+			SSL_free(sess);
+		}
+
+		sess = NULL;
+		status = ISSL_NONE;
+	}
+
+	void VerifyCertificate(StreamSocket* user)
+	{
+		ssl_cert* certinfo = new ssl_cert;
+		cert = certinfo;
+		unsigned int n;
+		unsigned char md[EVP_MAX_MD_SIZE];
+		const EVP_MD *digest = use_sha ? EVP_sha1() : EVP_md5();
+
+		X509* rawcert = SSL_get_peer_certificate(sess);
+
+		if (!rawcert)
+		{
+			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
+			return;
+		}
+
+		certinfo->invalid = (SSL_get_verify_result(sess) != X509_V_OK);
+
+		if (SelfSigned)
+		{
+			certinfo->unknownsigner = false;
+			certinfo->trusted = true;
+		}
+		else
+		{
+			certinfo->unknownsigner = true;
+			certinfo->trusted = false;
+		}
+
+		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(rawcert),0,0);
+		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(rawcert),0,0);
+
+		if (!X509_digest(rawcert, digest, md, &n))
+		{
+			certinfo->error = "Out of memory generating fingerprint";
+		}
+		else
+		{
+			certinfo->fingerprint = irc::hex(md, n);
+		}
+
+		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(rawcert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(rawcert), ServerInstance->Time()) == 0))
+		{
+			certinfo->error = "Not activated, or expired certificate";
+		}
+
+		X509_free(rawcert);
 	}
 };
 
-static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
+class OSSLProvider : public IOHookProvider
 {
-	/* XXX: This will allow self signed certificates.
-	 * In the future if we want an option to not allow this,
-	 * we can just return preverify_ok here, and openssl
-	 * will boot off self-signed and invalid peer certs.
-	 */
-	int ve = X509_STORE_CTX_get_error(ctx);
-
-	SelfSigned = (ve == X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT);
-
-	return 1;
-}
-
-class ModuleSSLOpenSSL : public Module
-{
-	int inbufsize;
-	issl_session* sessions;
-
+ public:
 	SSL_CTX* ctx;
 	SSL_CTX* clictx;
 
-	char cipher[MAXBUF];
+	OSSLProvider(Module* Creator) : IOHookProvider(Creator, "ssl/openssl") {}
 
+	~OSSLProvider()
+	{
+		SSL_CTX_free(ctx);
+		SSL_CTX_free(clictx);
+	}
+
+	void OnClientConnection(StreamSocket* user, ConfigTag* tag)
+	{
+		new OSSLHook(creator, true, user, clictx);
+	}
+	void OnServerConnection(StreamSocket* user, ListenSocket* from)
+	{
+		new OSSLHook(creator, false, user, ctx);
+	}
+};
+
+class ModuleSSLOpenSSL : public Module
+{
 	std::string sslports;
-	bool use_sha;
 
-	ServiceProvider iohook;
+	OSSLProvider iohook;
  public:
 
-	ModuleSSLOpenSSL() : iohook(this, "ssl/openssl", SERVICE_IOHOOK)
+	ModuleSSLOpenSSL() : iohook(this)
 	{
-		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
-
-		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
-		inbufsize = ServerInstance->Config->NetBufferSize;
-
 		/* Global SSL library initialization*/
 		SSL_library_init();
 		SSL_load_error_strings();
@@ -107,32 +365,23 @@ class ModuleSSLOpenSSL : public Module
 		/* Build our SSL contexts:
 		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
 		 */
-		ctx = SSL_CTX_new( SSLv23_server_method() );
-		clictx = SSL_CTX_new( SSLv23_client_method() );
+		iohook.ctx = SSL_CTX_new( SSLv23_server_method() );
+		iohook.clictx = SSL_CTX_new( SSLv23_client_method() );
 
-		SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-		SSL_CTX_set_mode(clictx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+		SSL_CTX_set_mode(iohook.ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+		SSL_CTX_set_mode(iohook.clictx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 
-		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
-		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+		SSL_CTX_set_verify(iohook.ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+		SSL_CTX_set_verify(iohook.clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 	}
 
 	void init()
 	{
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO, I_OnUserConnect };
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->Modules->AddService(iohook);
-	}
-
-	void OnHookIO(StreamSocket* user, ListenSocket* lsb)
-	{
-		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "openssl")
-		{
-			/* Hook the user with our module */
-			user->AddIOHook(this);
-		}
 	}
 
 	void OnRehash(User* user)
@@ -186,20 +435,23 @@ class ModuleSSLOpenSSL : public Module
 		/* Load our keys and certificates
 		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
 		 */
-		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
+		if ((!SSL_CTX_use_certificate_chain_file(iohook.ctx, certfile.c_str())) ||
+			(!SSL_CTX_use_certificate_chain_file(iohook.clictx, certfile.c_str())))
 		{
 			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
-		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
+		if (((!SSL_CTX_use_PrivateKey_file(iohook.ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) ||
+			(!SSL_CTX_use_PrivateKey_file(iohook.clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
 		{
 			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
 		/* Load the CAs we trust*/
-		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
+		if (((!SSL_CTX_load_verify_locations(iohook.ctx, cafile.c_str(), 0))) ||
+			(!SSL_CTX_load_verify_locations(iohook.clictx, cafile.c_str(), 0)))
 		{
 			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. %s", cafile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
@@ -216,7 +468,7 @@ class ModuleSSLOpenSSL : public Module
 		else
 		{
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
-			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
+			if ((SSL_CTX_set_tmp_dh(iohook.ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(iohook.clictx, ret) < 0))
 			{
 				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
 				ERR_print_errors_cb(error_callback, this);
@@ -232,38 +484,14 @@ class ModuleSSLOpenSSL : public Module
 			output.append(" SSL=" + sslports);
 	}
 
-	~ModuleSSLOpenSSL()
-	{
-		SSL_CTX_free(ctx);
-		SSL_CTX_free(clictx);
-		delete[] sessions;
-	}
-
 	void OnUserConnect(LocalUser* user)
 	{
-		if (user->eh.GetIOHook() == this)
+		OSSLHook* hook = static_cast<OSSLHook*>(user->eh.GetIOHook());
+		if (hook && hook->creator == this)
 		{
-			if (sessions[user->eh.GetFd()].sess)
-			{
-				if (!sessions[user->eh.GetFd()].cert->fingerprint.empty())
-					user->WriteServ("NOTICE %s :*** You are connected using SSL fingerprint %s",
-						user->nick.c_str(), sessions[user->eh.GetFd()].cert->fingerprint.c_str());
-			}
-		}
-	}
-
-	void OnCleanup(int target_type, void* item)
-	{
-		if (target_type == TYPE_USER)
-		{
-			LocalUser* user = IS_LOCAL((User*)item);
-
-			if (user && user->eh.GetIOHook() == this)
-			{
-				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
-				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Users->QuitUser(user, "SSL module unloading");
-			}
+			if (!hook->cert->fingerprint.empty())
+				user->WriteServ("NOTICE %s :*** You are connected using SSL fingerprint %s",
+					user->nick.c_str(), hook->cert->fingerprint.c_str());
 		}
 	}
 
@@ -277,343 +505,15 @@ class ModuleSSLOpenSSL : public Module
 		if (strcmp("GET_SSL_CERT", request.id) == 0)
 		{
 			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
-			int fd = req.sock->GetFd();
-			issl_session* session = &sessions[fd];
-
-			req.cert = session->cert;
+			OSSLHook* hook = static_cast<OSSLHook*>(req.sock->GetIOHook());
+			req.cert = hook->cert;
 		}
-	}
-
-	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-	{
-		int fd = user->GetFd();
-
-		issl_session* session = &sessions[fd];
-
-		session->fd = fd;
-		session->sess = SSL_new(ctx);
-		session->status = ISSL_NONE;
-		session->outbound = false;
-
-		if (session->sess == NULL)
-			return;
-
-		if (SSL_set_fd(session->sess, fd) == 0)
-		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
-			return;
-		}
-
- 		Handshake(user, session);
-	}
-
-	void OnStreamSocketConnect(StreamSocket* user)
-	{
-		int fd = user->GetFd();
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() -1))
-			return;
-
-		issl_session* session = &sessions[fd];
-
-		session->fd = fd;
-		session->sess = SSL_new(clictx);
-		session->status = ISSL_NONE;
-		session->outbound = true;
-
-		if (session->sess == NULL)
-			return;
-
-		if (SSL_set_fd(session->sess, fd) == 0)
-		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
-			return;
-		}
-
-		Handshake(user, session);
-	}
-
-	void OnStreamSocketClose(StreamSocket* user)
-	{
-		int fd = user->GetFd();
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return;
-
-		CloseSession(&sessions[fd]);
-	}
-
-	int OnStreamSocketRead(StreamSocket* user, std::string& recvq)
-	{
-		int fd = user->GetFd();
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return -1;
-
-		issl_session* session = &sessions[fd];
-
-		if (!session->sess)
-		{
-			CloseSession(session);
-			return -1;
-		}
-
-		if (session->status == ISSL_HANDSHAKING)
-		{
-			// The handshake isn't finished and it wants to read, try to finish it.
-			if (!Handshake(user, session))
-			{
-				// Couldn't resume handshake.
-				if (session->status == ISSL_NONE)
-					return -1;
-				return 0;
-			}
-		}
-
-		// If we resumed the handshake then session->status will be ISSL_OPEN
-
-		if (session->status == ISSL_OPEN)
-		{
-			char* buffer = ServerInstance->GetReadBuffer();
-			size_t bufsiz = ServerInstance->Config->NetBufferSize;
-			int ret = SSL_read(session->sess, buffer, bufsiz);
-
-			if (ret > 0)
-			{
-				recvq.append(buffer, ret);
-				return 1;
-			}
-			else if (ret == 0)
-			{
-				// Client closed connection.
-				CloseSession(session);
-				return -1;
-			}
-			else if (ret < 0)
-			{
-				int err = SSL_get_error(session->sess, ret);
-
-				if (err == SSL_ERROR_WANT_READ)
-				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ);
-					return 0;
-				}
-				else if (err == SSL_ERROR_WANT_WRITE)
-				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
-					return 0;
-				}
-				else
-				{
-					CloseSession(session);
-					return -1;
-				}
-			}
-		}
-
-		return 0;
-	}
-
-	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer)
-	{
-		int fd = user->GetFd();
-
-		issl_session* session = &sessions[fd];
-
-		if (!session->sess)
-		{
-			CloseSession(session);
-			return -1;
-		}
-
-		session->data_to_write = true;
-
-		if (session->status == ISSL_HANDSHAKING)
-		{
-			if (!Handshake(user, session))
-			{
-				// Couldn't resume handshake.
-				if (session->status == ISSL_NONE)
-					return -1;
-				return 0;
-			}
-		}
-
-		if (session->status == ISSL_OPEN)
-		{
-			int ret = SSL_write(session->sess, buffer.data(), buffer.size());
-			if (ret == (int)buffer.length())
-			{
-				session->data_to_write = false;
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				return 1;
-			}
-			else if (ret > 0)
-			{
-				buffer = buffer.substr(ret);
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
-				return 0;
-			}
-			else if (ret == 0)
-			{
-				CloseSession(session);
-				return -1;
-			}
-			else if (ret < 0)
-			{
-				int err = SSL_get_error(session->sess, ret);
-
-				if (err == SSL_ERROR_WANT_WRITE)
-				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
-					return 0;
-				}
-				else if (err == SSL_ERROR_WANT_READ)
-				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-					return 0;
-				}
-				else
-				{
-					CloseSession(session);
-					return -1;
-				}
-			}
-		}
-		return 0;
-	}
-
-	bool Handshake(StreamSocket* user, issl_session* session)
-	{
-		int ret;
-
-		if (session->outbound)
-			ret = SSL_connect(session->sess);
-		else
-			ret = SSL_accept(session->sess);
-
-		if (ret < 0)
-		{
-			int err = SSL_get_error(session->sess, ret);
-
-			if (err == SSL_ERROR_WANT_READ)
-			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				session->status = ISSL_HANDSHAKING;
-				return true;
-			}
-			else if (err == SSL_ERROR_WANT_WRITE)
-			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
-				session->status = ISSL_HANDSHAKING;
-				return true;
-			}
-			else
-			{
-				CloseSession(session);
-			}
-
-			return false;
-		}
-		else if (ret > 0)
-		{
-			// Handshake complete.
-			VerifyCertificate(session, user);
-
-			session->status = ISSL_OPEN;
-
-			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
-
-			return true;
-		}
-		else if (ret == 0)
-		{
-			CloseSession(session);
-			return true;
-		}
-
-		return true;
-	}
-
-	void CloseSession(issl_session* session)
-	{
-		if (session->sess)
-		{
-			SSL_shutdown(session->sess);
-			SSL_free(session->sess);
-		}
-
-		session->sess = NULL;
-		session->status = ISSL_NONE;
-		errno = EIO;
-	}
-
-	void VerifyCertificate(issl_session* session, StreamSocket* user)
-	{
-		if (!session->sess || !user || session->cert)
-			return;
-
-		X509* cert;
-		ssl_cert* certinfo = new ssl_cert;
-		session->cert = certinfo;
-		unsigned int n;
-		unsigned char md[EVP_MAX_MD_SIZE];
-		const EVP_MD *digest = use_sha ? EVP_sha1() : EVP_md5();
-
-		cert = SSL_get_peer_certificate((SSL*)session->sess);
-
-		if (!cert)
-		{
-			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
-			return;
-		}
-
-		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
-
-		if (SelfSigned)
-		{
-			certinfo->unknownsigner = false;
-			certinfo->trusted = true;
-		}
-		else
-		{
-			certinfo->unknownsigner = true;
-			certinfo->trusted = false;
-		}
-
-		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
-		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
-
-		if (!X509_digest(cert, digest, md, &n))
-		{
-			certinfo->error = "Out of memory generating fingerprint";
-		}
-		else
-		{
-			certinfo->fingerprint = irc::hex(md, n);
-		}
-
-		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
-		{
-			certinfo->error = "Not activated, or expired certificate";
-		}
-
-		X509_free(cert);
 	}
 };
 
 static int error_callback(const char *str, size_t len, void *u)
 {
 	ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "SSL error: " + std::string(str, len - 1));
-
-	//
-	// XXX: Remove this line, it causes valgrind warnings...
-	//
-	// MD_update(&m, buf, j);
-	//
-	//
-	// ... ONLY JOKING! :-)
-	//
 
 	return 0;
 }

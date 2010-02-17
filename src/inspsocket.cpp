@@ -122,18 +122,19 @@ void StreamSocket::Close()
 	{
 		// final chance, dump as much of the sendq as we can
 		DoWrite();
-		if (IOHook)
+		if (hook)
 		{
 			try
 			{
-				IOHook->OnStreamSocketClose(this);
+				hook->OnClose(this);
 			}
 			catch (CoreException& modexcept)
 			{
 				ServerInstance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s",
 					modexcept.GetSource(), modexcept.GetReason());
 			}
-			IOHook = NULL;
+			delete hook;
+			hook = NULL;
 		}
 		ServerInstance->SE->Shutdown(this, 2);
 		ServerInstance->SE->DelFd(this);
@@ -161,12 +162,12 @@ bool StreamSocket::GetNextLine(std::string& line, char delim)
 
 void StreamSocket::DoRead()
 {
-	if (IOHook)
+	if (hook)
 	{
 		int rv = -1;
 		try
 		{
-			rv = IOHook->OnStreamSocketRead(this, recvq);
+			rv = hook->OnRead(this, recvq);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -227,7 +228,7 @@ void StreamSocket::DoWrite()
 	}
 
 #ifndef DISABLE_WRITEV
-	if (IOHook)
+	if (hook)
 #endif
 	{
 		int rv = -1;
@@ -253,9 +254,9 @@ void StreamSocket::DoWrite()
 				}
 				std::string& front = sendq.front();
 				int itemlen = front.length();
-				if (IOHook)
+				if (hook)
 				{
-					rv = IOHook->OnStreamSocketWrite(this, front);
+					rv = hook->OnWrite(this, front);
 					if (rv > 0)
 					{
 						// consumed the entire string, and is ready for more
@@ -465,10 +466,7 @@ void BufferedSocket::DoWrite()
 	{
 		state = I_CONNECTED;
 		this->OnConnected();
-		if (GetIOHook())
-			GetIOHook()->OnStreamSocketConnect(this);
-		else
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
+		ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 	}
 	this->StreamSocket::DoWrite();
 }

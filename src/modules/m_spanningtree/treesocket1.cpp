@@ -42,17 +42,18 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
 	MyRoot = NULL;
 	proto_version = 0;
 	LinkState = CONNECTING;
+	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
 	if (!link->Hook.empty())
 	{
-		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_IOHOOK, link->Hook);
+		IOHookProvider* prov =
+		static_cast<IOHookProvider*>(ServerInstance->Modules->FindService(SERVICE_IOHOOK, link->Hook));
 		if (!prov)
 		{
 			SetError("Could not find hook '" + link->Hook + "' for connection to " + linkID);
 			return;
 		}
-		AddIOHook(prov->creator);
+		prov->OnClientConnection(this, link->tag);
 	}
-	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, link->Timeout);
 	SendCapabilities(1);
 }
@@ -72,9 +73,6 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via
 	proto_version = 0;
 	linkID = "inbound from " + client->addr();
 
-	FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
-	if (GetIOHook())
-		GetIOHook()->OnStreamSocketAccept(this, client, server);
 	SendCapabilities(1);
 
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, 30);
