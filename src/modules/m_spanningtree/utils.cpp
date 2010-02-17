@@ -171,6 +171,14 @@ void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &li
 /* returns a list of DIRECT servernames for a specific channel */
 void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
 {
+	unsigned int minrank = 0;
+	if (status)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindPrefix(status);
+		if (mh)
+			minrank = mh->GetPrefixRank();
+	}
+
 	const UserMembList *ulist = c->GetUsers();
 
 	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
@@ -178,7 +186,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 		if (IS_LOCAL(i->first))
 			continue;
 
-		if (status && !strchr(c->GetAllPrefixChars(i->first), status))
+		if (minrank && i->second->getRank() < minrank)
 			continue;
 
 		if (exempt_list.find(i->first) == exempt_list.end())
