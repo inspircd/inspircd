@@ -133,6 +133,14 @@ public:
 			if (!Connect())
 				return false;
 
+		if (user->password.empty())
+		{
+			if (verbose)
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (No password provided)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+			user->Extend("ldapauth_failed");
+			return false;
+		}
+
 		int res;
 		char* authpass = strdup(password.c_str());
 		// bind anonymously if no bind DN and authentication are given in the config
@@ -167,9 +175,26 @@ public:
 		std::string what = (attribute + "=" + (useusername ? user->ident : user->nick));
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
-			return false;
+			// Do a second search, based on password, if it contains a :
+			// That is, PASS <user>:<password> will work.
+			if ((size_t pos = user->password.find(":")) != std::string::npos)
+			{
+				res = ldap_search_ext_s(conn, base.c_str(), searchscope, user->password.substr(0, pos), NULL, 0, NULL, NULL, NULL, 0, &msg);
+
+				if (res)
+				{
+					// Trim the user: prefix, leaving just 'pass' for later password check
+					user->password = user->password.substr(pos + 1, user->password.length());
+				}
+			}
+
+			// It may have found based on user:pass check above.
+			if (!res)
+			{
+				if (verbose)
+					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				return false;
+			}
 		}
 		if (ldap_count_entries(conn, msg) > 1)
 		{
@@ -183,13 +208,6 @@ public:
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search returned no results: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
-			return false;
-		}
-		if (user->password.empty())
-		{
-			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (No password provided)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-			user->Extend("ldapauth_failed");
 			return false;
 		}
 		cred.bv_val = (char*)user->password.data();
