@@ -137,24 +137,27 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-
 		sslports.clear();
 
-		for (size_t i = 0; i < ServerInstance->ports.size(); i++)
+		ConfigTag* Conf = ServerInstance->Config->ConfValue("openssl");
+		
+		if (Conf->getBool("showports", true))
 		{
-			ListenSocket* port = ServerInstance->ports[i];
-			if (port->bind_tag->getString("ssl") != "openssl")
-				continue;
+			for (size_t i = 0; i < ServerInstance->ports.size(); i++)
+			{
+				ListenSocket* port = ServerInstance->ports[i];
+				if (port->bind_tag->getString("ssl") != "openssl")
+					continue;
 
-			std::string portid = port->bind_desc;
-			ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
-			if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
-				sslports.append(portid).append(";");
+				std::string portid = port->bind_desc;
+				ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
+				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
+					sslports.append(portid).append(";");
+			}
+
+			if (!sslports.empty())
+				sslports.erase(sslports.end() - 1);
 		}
-
-		if (!sslports.empty())
-			sslports.erase(sslports.end() - 1);
 	}
 
 	void OnModuleRehash(User* user, const std::string &param)
