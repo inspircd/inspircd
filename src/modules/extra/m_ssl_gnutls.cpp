@@ -94,13 +94,21 @@ public:
 class CommandStartTLS : public SplitCommand
 {
  public:
+	bool enabled;
 	CommandStartTLS (Module* mod) : SplitCommand(mod, "STARTTLS")
 	{
+		enabled = true;
 		works_before_reg = true;
 	}
 
 	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser *user)
 	{
+		if (!enabled)
+		{
+			user->WriteNumeric(691, "%s :STARTTLS is not enabled", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+
 		if (user->registered == REG_ALL)
 		{
 			user->WriteNumeric(691, "%s :STARTTLS is not permitted after client registration is complete", user->nick.c_str());
@@ -184,6 +192,7 @@ class ModuleSSLGnuTLS : public Module
 		sslports.clear();
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
+		starttls.enabled = Conf->getBool("starttls", true);
 
 		if (Conf->getBool("showports", true))
 		{
@@ -337,7 +346,8 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if (!sslports.empty())
 			output.append(" SSL=" + sslports);
-		output.append(" STARTTLS");
+		if (starttls.enabled)
+			output.append(" STARTTLS");
 	}
 
 	void OnHookIO(StreamSocket* user, ListenSocket* lsb)
@@ -697,7 +707,8 @@ info_done_dealloc:
 
 	void OnEvent(Event& ev)
 	{
-		capHandler.HandleEvent(ev);
+		if (starttls.enabled)
+			capHandler.HandleEvent(ev);
 	}
 };
 
