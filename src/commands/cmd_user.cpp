@@ -68,13 +68,8 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 	/* parameters 2 and 3 are local and remote hosts, and are ignored */
 	if (user->registered == REG_NICKUSER)
 	{
-		ModResult MOD_RESULT;
-
 		/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-		FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));
-		if (MOD_RESULT == MOD_RES_DENY)
-			return CMD_FAILURE;
-
+		FOREACH_MOD(I_OnUserRegister, OnUserRegister(IS_LOCAL(user)));
 	}
 
 	return CMD_SUCCESS;

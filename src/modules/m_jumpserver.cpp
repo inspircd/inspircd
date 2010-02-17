@@ -137,25 +137,23 @@ class ModuleJumpServer : public Module
  public:
 	ModuleJumpServer() : js(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&js);
 		Implementation eventlist[] = { I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	virtual ~ModuleJumpServer()
-	{
-	}
-
-	virtual ModResult OnUserRegister(LocalUser* user)
+	void OnUserRegister(LocalUser* user)
 	{
 		if (js.port && js.redirect_new_users)
 		{
 			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead",
 				user->nick.c_str(), js.redirect_to.c_str(), js.port);
 			ServerInstance->Users->QuitUser(user, js.reason);
-			return MOD_RES_PASSTHRU;
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 

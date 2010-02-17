@@ -103,7 +103,7 @@ ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUse
 void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { }
 void		Module::OnUserInit(LocalUser*) { }
 ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserRegister(LocalUser*) { return MOD_RES_PASSTHRU; }
+void		Module::OnUserRegister(LocalUser*) { }
 ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
 ModResult	Module::OnRawMode(User*, Channel*, irc::modechange&) { return MOD_RES_PASSTHRU; }

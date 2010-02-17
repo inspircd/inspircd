@@ -45,7 +45,7 @@ class ModuleWaitPong : public Module
 			killonbadreply = true;
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	void OnUserRegister(LocalUser* user)
 	{
 		std::string pingrpl = ServerInstance->GenRandomStr(10);
 
@@ -55,7 +55,6 @@ class ModuleWaitPong : public Module
 			user->WriteServ("NOTICE %s :*** If you are having problems connecting due to ping timeouts, please type /quote PONG %s or /raw PONG %s now.", user->nick.c_str(), pingrpl.c_str(), pingrpl.c_str());
 
 		ext.set(user, pingrpl);
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string &original_line)

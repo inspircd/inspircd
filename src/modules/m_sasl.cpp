@@ -256,7 +256,7 @@ class ModuleSASL : public Module
 		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
 	}
 
-	ModResult OnUserRegister(LocalUser *user)
+	void OnUserRegister(LocalUser *user)
 	{
 		SaslAuthenticator *sasl_ = authExt.get(user);
 		if (sasl_)
@@ -264,8 +264,6 @@ class ModuleSASL : public Module
 			sasl_->Abort();
 			authExt.unset(user);
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion()

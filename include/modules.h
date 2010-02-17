@@ -964,9 +964,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 * Note that you should NOT delete the user record here by causing a disconnection!
 	 * Use OnUserConnect for that instead.
 	 * @param user The user registering
-	 * @return 1 to indicate user quit, 0 to continue
 	 */
-	virtual ModResult OnUserRegister(LocalUser* user);
+	virtual void OnUserRegister(LocalUser* user);
 
 	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +i, and

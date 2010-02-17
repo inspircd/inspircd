@@ -73,13 +73,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		if (user->registered == REG_NICKUSER)
 		{
 			/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (IS_LOCAL(user)));
-			if (MOD_RESULT == MOD_RES_DENY)
-				return CMD_FAILURE;
-
-			// return early to not penalize new users
-			return CMD_SUCCESS;
+			FOREACH_MOD(I_OnUserRegister, OnUserRegister(IS_LOCAL(user)));
 		}
 	}
 

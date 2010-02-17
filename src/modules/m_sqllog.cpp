@@ -157,6 +157,10 @@ class ModuleSQLLog : public Module
  public:
 	ModuleSQLLog()
 	{
+	}
+
+	void init()
+	{
 		Module* SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
@@ -241,10 +245,9 @@ class ModuleSQLLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserRegister(LocalUser* user)
+	void OnUserRegister(LocalUser* user)
 	{
 		AddLogEntry(LT_CONNECT,user->nick,user->host,user->server);
-		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)

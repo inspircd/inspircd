@@ -305,11 +305,11 @@ class ModuleIdent : public Module
 			RequestTimeout = 5;
 	}
 
-	virtual ModResult OnUserRegister(LocalUser *user)
+	void OnUserRegister(LocalUser *user)
 	{
 		ConfigTag* tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
-			return MOD_RES_PASSTHRU;
+			return;
 
 		/* User::ident is currently the username field from USER; with m_ident loaded, that
 		 * should be preceded by a ~. The field is actually IdentMax+2 characters wide. */
@@ -328,8 +328,6 @@ class ModuleIdent : public Module
 		{
 			ServerInstance->Logs->Log("m_ident",DEBUG,"Ident exception: %s", e.GetReason());
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	/* This triggers pretty regularly, we can use it in preference to

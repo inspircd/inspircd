@@ -115,20 +115,18 @@ public:
 		return true;
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	void OnUserRegister(LocalUser* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
 			ldapAuthed.set(user,1);
-			return MOD_RES_PASSTHRU;
+			return;
 		}
 
 		if (!CheckCredentials(user))
 		{
 			ServerInstance->Users->QuitUser(user, killreason);
-			return MOD_RES_DENY;
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	bool CheckCredentials(LocalUser* user)

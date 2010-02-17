@@ -35,6 +35,10 @@ class ModuleSQLAuth : public Module
 public:
 	ModuleSQLAuth() : sqlAuthed("sqlauth", this)
 	{
+	}
+
+	void init()
+	{
 		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
@@ -64,20 +68,18 @@ public:
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	void OnUserRegister(LocalUser* user)
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
 			sqlAuthed.set(user, 1);
-			return MOD_RES_PASSTHRU;
+			return;
 		}
 
 		if (!CheckCredentials(user))
 		{
 			ServerInstance->Users->QuitUser(user, killreason);
-			return MOD_RES_DENY;
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	bool CheckCredentials(LocalUser* user)
