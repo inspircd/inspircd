@@ -33,6 +33,7 @@ class HistoryMode : public ModeHandler
 {
  public:
 	SimpleExtItem<HistoryList> ext;
+	int maxlines;
 	HistoryMode(Module* Creator) : ModeHandler(Creator, "history", 'H', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("history", Creator) { }
 
@@ -45,8 +46,12 @@ class HistoryMode : public ModeHandler
 				return MODEACTION_DENY;
 			int len = atoi(parameter.substr(0, colon).c_str());
 			int time = ServerInstance->Duration(parameter.substr(colon+1));
-			if (len <= 0 || time < 0 || len > 50)
+			if (len <= 0 || time < 0)
 				return MODEACTION_DENY;
+			if (len > maxlines && IS_LOCAL(source))
+				return MODEACTION_DENY;
+			if (len > maxlines)
+				len = maxlines;
 			if (parameter == channel->GetModeParameter(this))
 				return MODEACTION_DENY;
 			ext.set(channel, new HistoryList(len, time));
@@ -67,11 +72,20 @@ class ModuleChanHistory : public Module
  public:
 	ModuleChanHistory() : m(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&m))
-			throw ModuleException("Could not add new modes!");
+	}
 
-		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+	void init()
+	{
+		ServerInstance->Modules->AddService(m);
+
+		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
+		OnRehash(NULL);
+	}
+
+	void OnRehash(User*)
+	{
+		m.maxlines = ServerInstance->Config->ConfValue("chanhistory")->getInt("maxlines", 50);
 	}
 
 	~ModuleChanHistory()
