@@ -164,6 +164,11 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
                     see themselves or themselves and the operators,
                     while operators see all the users (requires
                     auditorium module).
+ w                  Adds basic channel access controls of [flag] to
+                    [banmask], via the +w listmode.
+                    For example, +w o:R:Brain will op anyone identified
+                    to the account 'Brain' on join.
+                    (requires autoop module)
  z                  Blocks non-SSL clients from joining the channel.
 
  A                  Allows anyone to invite users to the channel
@@ -247,7 +252,7 @@ help channel if you have any questions.">
 
 <helpop key="extbans" value="Extended Bans
 ----------
- 
+
  c:n!u@h      Blocks any messages that contain colour codes from
               matching users (requires blockcolor module).
  j:#channel   Prevents anyone in #channel from joining the channel

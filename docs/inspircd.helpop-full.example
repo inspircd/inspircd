@@ -2,6 +2,8 @@
 #  Helpop Standard  #
 #####################
 
+<alias text="HELPOP" replace="HELP $2-">
+
 <helpop key="start" value="InspIRCd Help System
 
 This system provides help for commands and modes.
@@ -224,7 +226,7 @@ it may be one of a nickname, a channel, a hostmask, an ip address
 mask or a server mask.
 
 Valid WHO Flags
---------------- 
+---------------
 
 The following flags after the mask have the following effects:
 
@@ -842,6 +844,11 @@ Closes all unregistered connections to the local server.">
                     see themselves or themselves and the operators,
                     while operators see all the users (requires
                     auditorium module).
+ w                  Adds basic channel access controls of [flag] to
+                    [banmask], via the +w listmode.
+                    For example, +w o:R:Brain will op anyone identified
+                    to the account 'Brain' on join.
+                    (requires autoop module)
  z                  Blocks non-SSL clients from joining the channel.
 
  A                  Allows anyone to invite users to the channel
@@ -970,43 +977,44 @@ Note that all /STATS use is broadcast to online IRC operators.">
 <helpop key="extbans" value="Extended Bans
 ----------
 
- c:n!u@h      Blocks any messages that contain colour codes from
-              matching users (requires blockcolor module).
- j:#channel   Prevents anyone in #channel from joining the channel
-              (requires channelban module).
- m:n!u@h      Blocks messages from matching users (requires muteban
-              module).
- p:n!u@h      Blocks part messages from matching users (requires
-              nopartmsg module).
- r:realname   Prevents users with a matching realname from joining
-              the channel (requires gecosban module).
- s:server     Prevents users on a matching server from joining the
-              channel (requires services account).
+ c:n!u@h       Blocks any messages that contain colour codes from
+               matching users (requires blockcolor module).
+ j:#channel    Prevents anyone in #channel from joining the channel
+               (requires channelban module).
+ m:n!u@h       Blocks messages from matching users (requires muteban
+               module).
+ p:n!u@h       Blocks part messages from matching users (requires
+               nopartmsg module).
+ r:realname    Prevents users with a matching realname from joining
+               the channel (requires gecosban module).
+ s:server      Prevents users on a matching server from joining the
+               channel (requires services account).
+ z:fingerprint Prevents users with a matching ssl fingerprint from
+               joining the server. (requires sslmodes module)
+ A:n!u@h       Blocks invites by matching users even when +A is set
+               (requires allowinvite module).
+ B:n!u@h       Blocks all capital or nearly all capital messages from
+               matching users (requires blockcaps module).
+ C:n!u@h       Blocks CTCPs from matching users (requires noctcp
+               module).
+ M:account     Blocks messages from users logged into a matching
+               account (requires services account module).
+ N:n!u@h       Blocks nick changes from matching users (requires
+               nonicks module).
+ O:opertype    Prevents IRCops of the specified opertype from joining
+               the channel, mostly useful as an invite exception (IRCop
+               only, requires operchans module).
+ Q:n!u@h       Blocks kicks by matching users (requires nokicks
+               module).
+ R:account     Prevents users logged into a matching account from
+               joining the channel (requires services account module).
+ S:n!u@h       Strips color/bold/underline from messages from matching
+               users (requires stripcolor module).
+ T:n!u@h       Blocks notices from matching users (requires nonotice
+               module).
 
- A:n!u@h      Blocks invites by matching users even when +A is set
-              (requires allowinvite module).
- B:n!u@h      Blocks all capital or nearly all capital messages from
-              matching users (requires blockcaps module).
- C:n!u@h      Blocks CTCPs from matching users (requires noctcp
-              module).
- M:account    Blocks messages from users logged into a matching
-              account (requires services account module).
- N:n!u@h      Blocks nick changes from matching users (requires
-              nonicks module).
- O:opertype   Prevents IRCops of the specified opertype from joining
-              the channel, mostly useful as an invite exception (IRCop
-              only, requires operchans module).
- Q:n!u@h      Blocks kicks by matching users (requires nokicks
-              module).
- R:account    Prevents users logged into a matching account from
-              joining the channel (requires services account module).
- S:n!u@h      Strips color/bold/underline from messages from matching
-              users (requires stripcolor module).
- T:n!u@h      Blocks notices from matching users (requires nonotice
-              module).
-
- Redirect     n!u@h#channel will redirect the banned user to #channel
-              when they try to join (requires banredirect module).
+ Redirect      n!u@h#channel will redirect the banned user to #channel
+               when they try to join (requires banredirect module).
 
 All extbans that prevent users from joining may by used for ban
 exceptions and invite exceptions (invex), and extbans blocking
