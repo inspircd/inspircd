@@ -171,37 +171,41 @@ void InspIRCd::ResetMaxBans()
 		i->second->ResetMaxBans();
 }
 
-/** Because hash_map doesnt free its buckets when we delete items (this is a 'feature')
- * we must occasionally rehash the hash (yes really).
+/** Because hash_map doesn't free its buckets when we delete items, we occasionally
+ * recreate the hash to free them up.
  * We do this by copying the entries from the old hash to a new hash, causing all
- * empty buckets to be weeded out of the hash. We dont do this on a timer, as its
- * very expensive, so instead we do it when the user types /REHASH and expects a
- * short delay anyway.
+ * empty buckets to be weeded out of the hash.
+ * Since this is quite expensive, it's not done very often.
  */
 void InspIRCd::RehashUsersAndChans()
 {
-	user_hash* old_users = this->Users->clientlist;
-	user_hash* old_uuid  = this->Users->uuidlist;
-	chan_hash* old_chans = this->chanlist;
+	user_hash* old_users = Users->clientlist;
+	user_hash* old_uuid  = Users->uuidlist;
+	chan_hash* old_chans = chanlist;
 
-	this->Users->clientlist = new user_hash();
-	this->Users->uuidlist = new user_hash();
-	this->chanlist = new chan_hash();
+	Users->clientlist = new user_hash();
+	Users->uuidlist = new user_hash();
+	chanlist = new chan_hash();
 
 	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
-		this->Users->clientlist->insert(*n);
-
-	delete old_users;
+		Users->clientlist->insert(*n);
 
 	for (user_hash::const_iterator n = old_uuid->begin(); n != old_uuid->end(); n++)
-		this->Users->uuidlist->insert(*n);
-
-	delete old_uuid;
+		Users->uuidlist->insert(*n);
 
 	for (chan_hash::const_iterator n = old_chans->begin(); n != old_chans->end(); n++)
-		this->chanlist->insert(*n);
+		chanlist->insert(*n);
 
+	delete old_users;
+	delete old_uuid;
 	delete old_chans;
+
+	// Reset the already_sent IDs so we don't wrap it around and drop a message
+	LocalUser::already_sent_id = 0;
+	for (std::vector<LocalUser*>::const_iterator i = Users->local_users.begin(); i != Users->local_users.end(); i++)
+	{
+		(**i).already_sent = 0;
+	}
 }
 
 void InspIRCd::SetSignals()
