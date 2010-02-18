@@ -30,8 +30,6 @@ enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN, ISSL_CLOSING, I
 
 static gnutls_digest_algorithm_t hash;
 static int dh_bits;
-/** Hack to work around broken gnutls_session_get_ptr */
-static StreamSocket* active_socket = NULL;
 
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st);
@@ -402,9 +400,7 @@ info_done_dealloc:
 
 	bool Handshake(StreamSocket* user)
 	{
-		active_socket = user;
 		int ret = gnutls_handshake(sess);
-		active_socket = NULL;
 
 		if (ret < 0)
 		{
@@ -472,10 +468,7 @@ class GnuTLSProvider : public IOHookProvider
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st) {
 
-	StreamSocket* socket = reinterpret_cast<StreamSocket*>(gnutls_session_get_ptr(session));
-	if (!socket)
-		socket = active_socket;
-
+	StreamSocket* socket = reinterpret_cast<StreamSocket*>(gnutls_transport_get_ptr(session));
 	GnuTLSHook* hook = static_cast<GnuTLSHook*>(socket->GetIOHook());
 	st->type = GNUTLS_CRT_X509;
 	st->cert.x509 = &hook->creds->certs[0];
@@ -553,16 +546,21 @@ class ModuleSSLGnuTLS : public Module
 		: capHandler(this, "tls"), iohook(this), starttls(this, iohook)
 	{
 		gnutls_global_init(); // This must be called once in the program
+
+		int ret = gnutls_dh_params_init(&dh_params);
+		if (ret < 0)
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
 	}
 
 	void init()
 	{
 		OnModuleRehash(NULL,"ssl");
+		OnGarbageCollect();
 
 		ServerInstance->GenRandom = &randhandler;
 
 		// Void return, guess we assume success
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect, I_OnEvent };
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect, I_OnEvent, I_OnGarbageCollect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->Modules->AddService(iohook);
@@ -618,22 +616,6 @@ class ModuleSSLGnuTLS : public Module
 		else
 			throw ModuleException("Unknown hash type " + hashname);
 
-
-		int ret;
-
-		if (cred_alloc)
-		{
-			// Deallocate the old credentials
-			gnutls_dh_params_deinit(dh_params);
-		}
-		else
-			cred_alloc = true;
-
-		if((ret = gnutls_dh_params_init(&dh_params)) < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
-		
-		GenerateDHParams();
-
 		FileReader reader;
 
 		reader.LoadFile(Conf->getString("cafile", "conf/ca.pem"));
@@ -642,9 +624,7 @@ class ModuleSSLGnuTLS : public Module
 		reader.LoadFile(Conf->getString("crlfile", "conf/crl.pem"));
 		std::string crl_string = reader.Contents();
 
-		{
-			iohook.def_creds = new x509_cred(Conf, ca_string, crl_string, dh_params);
-		}
+		iohook.def_creds = new x509_cred(Conf, ca_string, crl_string, dh_params);
 
 		iohook.creds.clear();
 
@@ -662,25 +642,24 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	void GenerateDHParams()
+	void OnGarbageCollect()
 	{
  		// Generate Diffie Hellman parameters - for use with DHE
 		// kx algorithms. These should be discarded and regenerated
 		// once a day, once a week or once a month. Depending on the
 		// security requirements.
 
-		int ret;
+		int ret = gnutls_dh_params_generate2(dh_params, dh_bits);
 
-		if((ret = gnutls_dh_params_generate2(dh_params, dh_bits)) < 0)
+		if(ret < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
 	}
 
 	~ModuleSSLGnuTLS()
 	{
-		if (cred_alloc)
-		{
-			gnutls_dh_params_deinit(dh_params);
-		}
+		iohook.creds.clear();
+		iohook.def_creds = NULL;
+		gnutls_dh_params_deinit(dh_params);
 		gnutls_global_deinit();
 		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
 	}
