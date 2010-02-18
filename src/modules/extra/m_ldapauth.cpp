@@ -177,14 +177,15 @@ public:
 		{
 			// Do a second search, based on password, if it contains a :
 			// That is, PASS <user>:<password> will work.
-			if ((size_t pos = user->password.find(":")) != std::string::npos)
+			size_t pos = user->password.find(":");
+			if (pos != std::string::npos)
 			{
-				res = ldap_search_ext_s(conn, base.c_str(), searchscope, user->password.substr(0, pos), NULL, 0, NULL, NULL, NULL, 0, &msg);
+				res = ldap_search_ext_s(conn, base.c_str(), searchscope, user->password.substr(0, pos).c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
 
 				if (res)
 				{
 					// Trim the user: prefix, leaving just 'pass' for later password check
-					user->password = user->password.substr(pos + 1, user->password.length());
+					user->password = user->password.substr(pos + 1);
 				}
 			}
 
