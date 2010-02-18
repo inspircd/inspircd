@@ -26,9 +26,14 @@ void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 	}
 }
 
-void SpanningTreeProtocolInterface::SendEncapsulatedData(parameterlist &encap)
+bool SpanningTreeProtocolInterface::SendEncapsulatedData(const parameterlist &encap)
 {
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);
+	if (encap[0].find('*') != std::string::npos)
+	{
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);
+		return true;
+	}
+	return Utils->DoOneToOne(ServerInstance->Config->GetSID(), "ENCAP", encap, encap[0]);
 }
 
 void SpanningTreeProtocolInterface::SendMetaData(Extensible* target, const std::string &key, const std::string &data)

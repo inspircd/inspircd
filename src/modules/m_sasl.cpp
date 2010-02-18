@@ -14,11 +14,22 @@
 #include "inspircd.h"
 #include "m_cap.h"
 #include "account.h"
+#include "sasl.h"
 
 /* $ModDesc: Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE. */
 
 enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
+
+static std::string sasl_target = "*";
+
+static void SendSASL(const parameterlist& params)
+{
+	if (!ServerInstance->PI->SendEncapsulatedData(params))
+	{
+		SASLFallback(NULL, params);
+	}
+}
 
 /**
  * Tracks SASL authentication state like charybdis does. --nenolod
@@ -37,14 +48,14 @@ class SaslAuthenticator
 		: user(user_), state(SASL_INIT), state_announced(false)
 	{
 		parameterlist params;
-		params.push_back("*");
+		params.push_back(sasl_target);
 		params.push_back("SASL");
 		params.push_back(user->uuid);
 		params.push_back("*");
 		params.push_back("S");
 		params.push_back(method);
 
-		ServerInstance->PI->SendEncapsulatedData(params);
+		SendSASL(params);
 	}
 
 	SaslResult GetSaslResult(const std::string &result_)
@@ -103,7 +114,7 @@ class SaslAuthenticator
 			return true;
 
 		parameterlist params;
-		params.push_back("*");
+		params.push_back(sasl_target);
 		params.push_back("SASL");
 		params.push_back(this->user->uuid);
 		params.push_back(this->agent);
@@ -111,7 +122,7 @@ class SaslAuthenticator
 
 		params.insert(params.end(), parameters.begin(), parameters.end());
 
-		ServerInstance->PI->SendEncapsulatedData(params);
+		SendSASL(params);
 
 		if (parameters[0][0] == '*')
 		{
@@ -225,14 +236,24 @@ class ModuleSASL : public Module
 	ModuleSASL()
 		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
 	{
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+	}
+
+	void init()
+	{
+		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 		ServiceProvider* providelist[] = { &auth, &sasl, &authExt };
 		ServerInstance->Modules->AddServices(providelist, 3);
 
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
 			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
+	}
+
+	void OnRehash(User*)
+	{
+		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
 	}
 
 	ModResult OnUserRegister(LocalUser *user)

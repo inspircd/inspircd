@@ -13,7 +13,7 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 	SpanningTreeProtocolInterface(ModuleSpanningTree* mod, SpanningTreeUtilities* util) : Utils(util), Module(mod) { }
 	virtual ~SpanningTreeProtocolInterface() { }
 
-	virtual void SendEncapsulatedData(parameterlist &encap);
+	virtual bool SendEncapsulatedData(const parameterlist &encap);
 	virtual void SendMetaData(Extensible* target, const std::string &key, const std::string &data);
 	virtual void SendTopic(Channel* channel, std::string &topic);
 	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &types);

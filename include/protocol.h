@@ -44,8 +44,9 @@ class ProtocolInterface
 	 * @param encap This is a list of string parameters, the first of which must be a server ID or glob matching servernames.
 	 * The second must be a subcommand. All subsequent parameters are dependant on the subcommand.
 	 * ENCAP (should) be used instead of creating new protocol messages for easier third party application support.
+	 * @return True if the message was sent out (target exists)
 	 */
-	virtual void SendEncapsulatedData(parameterlist &encap) { }
+	virtual bool SendEncapsulatedData(const parameterlist &encap) { return false; }
 
 	/** Send metadata for an object to other linked servers.
 	 * @param target The object to send metadata for.
