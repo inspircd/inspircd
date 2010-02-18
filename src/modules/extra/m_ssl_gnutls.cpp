@@ -47,14 +47,14 @@ static bool isin(const std::string &host, int port, const std::vector<std::strin
 	return std::find(portlist.begin(), portlist.end(), host + ":" + ConvToStr(port)) != portlist.end();
 }
 
-static gnutls_x509_crt_t x509_cert;
+static std::vector<gnutls_x509_crt_t> x509_certs;
 static gnutls_x509_privkey_t x509_key;
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st) {
 
 	st->type = GNUTLS_CRT_X509;
-	st->ncerts = 1;
-	st->cert.x509 = &x509_cert;
+	st->ncerts = x509_certs.size();
+	st->cert.x509 = &x509_certs[0];
 	st->key.x509 = x509_key;
 	st->deinit_all = 0;
 
@@ -138,7 +138,6 @@ class ModuleSSLGnuTLS : public Module
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		gnutls_global_init(); // This must be called once in the program
-		gnutls_x509_crt_init(&x509_cert);
 		gnutls_x509_privkey_init(&x509_key);
 
 		cred_alloc = false;
@@ -268,6 +267,10 @@ class ModuleSSLGnuTLS : public Module
 			// Deallocate the old credentials
 			gnutls_dh_params_deinit(dh_params);
 			gnutls_certificate_free_credentials(x509_cred);
+
+			for(unsigned int i=0; i < x509_certs.size(); i++)
+				gnutls_x509_crt_deinit(x509_certs[i]);
+			x509_certs.clear();
 		}
 		else
 			cred_alloc = true;
@@ -292,13 +295,19 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), key_string.length() };
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
-		if((ret = gnutls_x509_crt_import(x509_cert, &cert_datum, GNUTLS_X509_FMT_PEM)) < 0)
+		unsigned int certcount = Conf.ReadInteger("gnutls", "certcount", 0, false);
+		if (!certcount)
+			certcount = 3;
+		x509_certs.resize(certcount);
+		ret = gnutls_x509_crt_list_import(&x509_certs[0], &certcount, &cert_datum, GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
+		if (ret < 0)
 			throw ModuleException("Unable to load GnuTLS server certificate (" + certfile + "): " + std::string(gnutls_strerror(ret)));
+		x509_certs.resize(certcount);
 
 		if((ret = gnutls_x509_privkey_import(x509_key, &key_datum, GNUTLS_X509_FMT_PEM)) < 0)
 			throw ModuleException("Unable to load GnuTLS server private key (" + keyfile + "): " + std::string(gnutls_strerror(ret)));
 
-		if((ret = gnutls_certificate_set_x509_key(x509_cred, &x509_cert, 1, x509_key)) < 0)
+		if((ret = gnutls_certificate_set_x509_key(x509_cred, &x509_certs[0], certcount, x509_key)) < 0)
 			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
 
 		gnutls_certificate_client_set_retrieve_function (x509_cred, cert_callback);
@@ -325,7 +334,9 @@ class ModuleSSLGnuTLS : public Module
 
 	virtual ~ModuleSSLGnuTLS()
 	{
-		gnutls_x509_crt_deinit(x509_cert);
+		for(unsigned int i=0; i < x509_certs.size(); i++)
+			gnutls_x509_crt_deinit(x509_certs[i]);
+		x509_certs.clear();
 		gnutls_x509_privkey_deinit(x509_key);
 		gnutls_dh_params_deinit(dh_params);
 		gnutls_certificate_free_credentials(x509_cred);
