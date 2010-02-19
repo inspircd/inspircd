@@ -154,7 +154,6 @@ static void checkall(Module* noimpl)
 	CHK(OnPostOper);
 	CHK(OnSyncNetwork);
 	CHK(OnSetAway);
-	CHK(OnUserList);
 	CHK(OnPostCommand);
 	CHK(OnPostJoin);
 	CHK(OnWhoisLine);

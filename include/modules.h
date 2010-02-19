@@ -97,7 +97,7 @@ struct ModResult {
 /** If you change the module API in any way, increment this value.
  * This MUST be a pure integer, with no parenthesis
  */
-#define API_VERSION 140
+#define API_VERSION 141
 
 /**
  * This #define allows us to call a method in all
@@ -324,7 +324,7 @@ enum Implementation
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
 	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
-	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnUserList, I_OnPostCommand, I_OnPostJoin,
+	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnChannelRestrictionApply,
@@ -1230,15 +1230,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return nonzero if the away message should be blocked - should ONLY be nonzero for LOCAL users (IS_LOCAL) (no output is returned by core)
 	 */
 	virtual ModResult OnSetAway(User* user, const std::string &awaymsg);
-
-	/** Called whenever a NAMES list is requested.
-	 * You can produce the nameslist yourself, overriding the current list,
-	 * and if you do you must return 1. If you do not handle the names list,
-	 * return 0.
-	 * @param The user requesting the NAMES list
-	 * @param Ptr The channel the NAMES list is requested for
-	 */
-	virtual ModResult OnUserList(User* user, Channel* Ptr);
 
 	/** Called whenever a line of WHOIS output is sent to a user.
 	 * You may change the numeric and the text of the output by changing

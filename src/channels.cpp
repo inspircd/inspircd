@@ -746,20 +746,14 @@ void Channel::UserList(User *user)
 {
 	char list[MAXBUF];
 	size_t dlen, curlen;
-	ModResult call_modules;
 
 	if (!IS_LOCAL(user))
 		return;
 
-	FIRST_MOD_RESULT(OnUserList, call_modules, (user, this));
-
-	if (call_modules != MOD_RES_ALLOW)
+	if (this->IsModeSet('s') && !this->HasUser(user) && !user->HasPrivPermission("channels/auspex"))
 	{
-		if ((this->IsModeSet('s')) && (!this->HasUser(user)))
-		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
-			return;
-		}
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
+		return;
 	}
 
 	dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick.c_str(), this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name.c_str());
@@ -786,14 +780,11 @@ void Channel::UserList(User *user)
 		std::string prefixlist = this->GetPrefixChar(i->first);
 		std::string nick = i->first->nick;
 
-		if (call_modules != MOD_RES_DENY)
-		{
-			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->second, prefixlist, nick));
+		FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->second, prefixlist, nick));
 
-			/* Nick was nuked, a module wants us to skip it */
-			if (nick.empty())
-				continue;
-		}
+		/* Nick was nuked, a module wants us to skip it */
+		if (nick.empty())
+			continue;
 
 		size_t ptrlen = 0;
 
