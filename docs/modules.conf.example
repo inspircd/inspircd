@@ -445,15 +445,11 @@
 
 	# aprefix: Prefix (symbol) to use for +a users.
 	aprefix="&amp;"
-
-	# deprotectself: If this value is set (true, yes or 1), it will allow
-	# +a and +q users to remove the +a and +q from themselves, otherwise,
-	# the status will have to be removed by services.
-	deprotectself="yes"
-
-	# deprotectothers: If this value is set to yes, true, or 1, then any
-	# user with +q or +a may remove the +q or +a from other users.
-	deprotectothers="yes">
+	
+	# grantadmin/grantfounder: when set to yes, +a users will be able to
+	# grant +a on other users (or +q to +q). Founder can always set/unset
+	# admin mode.
+	grantadmin="no" grantfounder"yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

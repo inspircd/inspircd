@@ -94,13 +94,7 @@
 <chanfilter hidemask="yes">
 
 <module name="m_chanprotect.so">
-
-<chanprotect
-	noservices="no"
-	qprefix="~"
-	aprefix="&amp;"
-	deprotectself="yes"
-	deprotectothers="yes">
+<chanprotect noservices="no" qprefix="~" aprefix="&amp;">
 
 <module name="m_check.so">
 <module name="m_chghost.so">
