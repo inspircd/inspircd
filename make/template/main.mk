@@ -51,20 +51,23 @@ INSTMODE_LIB = 0644
   CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
 @ENDIF 
 
-@IFDEF D
-    CXXFLAGS += -g3 -Werror
-    HEADER = debug-header
+@IFNDEF D
+  D=0
+@ENDIF
+
+@IFEQ $(D) 0
+  CXXFLAGS += -O2 -g1
+  HEADER = std-header
+@ELSIFEQ $(D) 1
+  CXXFLAGS += -O0 -g3 -Werror
+  HEADER = debug-header
+@ELSIFEQ $(D) 2
+  CXXFLAGS += -O2 -g3
+  HEADER = debug-header
 @ELSE
-    CXXFLAGS += -g1
-    HEADER = std-header
+  HEADER = unknown-debug-level
 @ENDIF
 FOOTER = finishmessage
-
-@IFDEF QUICK
-    CXXFLAGS += -O0
-@ELSE
-    CXXFLAGS += -O2
-@ENDIF
 
 CXXFLAGS += -Iinclude
 
