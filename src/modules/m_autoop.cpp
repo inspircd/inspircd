@@ -33,33 +33,30 @@ class AutoOpList : public ListModeBase
 		if (pos == 0 || pos == std::string::npos)
 			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 		unsigned int mylevel = channel->GetPrefixValue(source);
-		while (pos > 0)
-		{
-			pos--;
-			ModeHandler* mh = ServerInstance->Modes->FindMode(parameter[pos], MODETYPE_CHANNEL);
-			if (adding && (!mh || !mh->GetPrefixRank()))
-			{
-				source->WriteNumeric(415, "%s %c :Cannot find prefix mode '%c' for autoop",
-					source->nick.c_str(), parameter[pos], parameter[pos]);
-				return MOD_RES_DENY;
-			}
-			else if (!mh)
-				continue;
+		std::string mid = parameter.substr(0, pos);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mid);
 
-			std::string dummy;
-			if (mh->AccessCheck(source, channel, dummy, true) == MOD_RES_DENY)
-				return MOD_RES_DENY;
-			if (mh->GetLevelRequired() > mylevel)
-			{
-				source->WriteNumeric(482, "%s %s :You must be able to set mode '%c' to include it in an autoop",
-					source->nick.c_str(), channel->name.c_str(), parameter[pos]);
-				return MOD_RES_DENY;
-			}
+		if (adding && (!mh || !mh->GetPrefixRank()))
+		{
+			source->WriteNumeric(415, "%s %s :Cannot find prefix mode '%s' for autoop",
+				source->nick.c_str(), mid.c_str(), mid.c_str());
+			return MOD_RES_DENY;
+		}
+		else if (!mh)
+			return MOD_RES_PASSTHRU;
+
+		std::string dummy;
+		if (mh->AccessCheck(source, channel, dummy, true) == MOD_RES_DENY)
+			return MOD_RES_DENY;
+		if (mh->GetLevelRequired() > mylevel)
+		{
+			source->WriteNumeric(482, "%s %s :You must be able to set mode '%s' to include it in an autoop",
+				source->nick.c_str(), channel->name.c_str(), mid.c_str());
+			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 };
-
 
 class ModuleAutoOp : public Module
 {
@@ -93,7 +90,11 @@ public:
 				if (colon == std::string::npos)
 					continue;
 				if (chan->CheckBan(user, (**it).mask.substr(colon+1)))
-					privs += (**it).mask.substr(0, colon);
+				{
+					ModeHandler* given = ServerInstance->Modes->FindMode((**it).mask.substr(0, colon));
+					if (given)
+						privs += given->GetModeChar();
+				}
 			}
 		}
 
