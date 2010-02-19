@@ -122,49 +122,31 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	/* Now, process every 'modes,nick' pair */
 	while (users.GetToken(item))
 	{
-		const char* usr = item.c_str();
-		if (usr && *usr)
+		std::string::size_type comma = item.find(',');
+		if (comma == std::string::npos)
+			continue;
+
+		std::string modes = item.substr(0, comma);
+
+		/* Check the user actually exists */
+		who = ServerInstance->FindUUID(item.substr(comma + 1));
+		if (who)
 		{
-			const char* unparsedmodes = usr;
-			std::string modes;
-
-
-			/* Iterate through all modes for this user and check they are valid. */
-			while ((*unparsedmodes) && (*unparsedmodes != ','))
-			{
-				ModeHandler *mh = ServerInstance->Modes->FindMode(*unparsedmodes, MODETYPE_CHANNEL);
-				if (mh)
-					modes += *unparsedmodes;
-				else
-					return CMD_INVALID;
-
-				usr++;
-				unparsedmodes++;
-			}
-
-			/* Advance past the comma, to the nick */
-			usr++;
-
-			/* Check the user actually exists */
-			who = ServerInstance->FindUUID(usr);
-			if (who)
-			{
-				/* Check that the user's 'direction' is correct */
-				TreeServer* route_back_again = Utils->BestRouteTo(who->server);
-				if ((!route_back_again) || (route_back_again->GetSocket() != src_socket))
-					continue;
-
-				/* Add any modes this user had to the mode stack */
-				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
-					modestack.push(irc::modechange(*x, MODETYPE_CHANNEL, who->nick, true));
-
-				Channel::JoinUser(who, channel.c_str(), true, "", route_back_again->bursting, TS);
-			}
-			else
-			{
-				ServerInstance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
+			/* Check that the user's 'direction' is correct */
+			TreeServer* route_back_again = Utils->BestRouteTo(who->server);
+			if ((!route_back_again) || (route_back_again->GetSocket() != src_socket))
 				continue;
-			}
+
+			/* Add any modes this user had to the mode stack */
+			for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
+				modestack.push(irc::modechange(*x, MODETYPE_CHANNEL, who->uuid, true));
+
+			Channel::JoinUser(who, channel.c_str(), true, "", route_back_again->bursting, TS);
+		}
+		else
+		{
+			ServerInstance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", item.c_str(), channel.c_str());
+			continue;
 		}
 	}
 
