@@ -844,7 +844,7 @@ Closes all unregistered connections to the local server.">
                     see themselves or themselves and the operators,
                     while operators see all the users (requires
                     auditorium module).
- w                  Adds basic channel access controls of [flag] to
+ w [flag]:[banmask] Adds basic channel access controls of [flag] to
                     [banmask], via the +w listmode.
                     For example, +w o:R:Brain will op anyone identified
                     to the account 'Brain' on join.
