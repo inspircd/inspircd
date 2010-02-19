@@ -701,13 +701,6 @@ void ModeParser::CleanMask(std::string &mask)
 
 bool ModeParser::AddMode(ModeHandler* mh)
 {
-	/* Yes, i know, this might let people declare modes like '_' or '^'.
-	 * If they do that, thats their problem, and if i ever EVER see an
-	 * official InspIRCd developer do that, i'll beat them with a paddle!
-	 */
-	if (mh->GetModeChar() && ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z')))
-		return false;
-
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
 	 * A mode prefix of '#' will mess up /whois and /privmsg
@@ -715,18 +708,30 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':') || (mh->GetPrefix() == '#'))
 		return false;
 
-	if (FindMode(mh->name))
-		return false;
-	
 	std::string myletter = ServerInstance->Config->ConfValue("modeletters")->getString(mh->name, std::string(1,mh->GetModeChar()));
 	mh->AdjustModeChar(myletter.c_str()[0]);
 
+	// names can't be duplicated
+	if (FindMode(mh->name))
+		return false;
+	
+	// prefixes can't be duplicated
 	if (mh->GetPrefix() && FindPrefix(mh->GetPrefix()))
 		return false;
 
+	// user modes have to be alpha (can't be null either)
+	if (mh->GetModeType() == MODETYPE_USER && !isalpha(mh->GetModeChar()))
+		return false;
+
+	// all modes have to be alphanumeric or null
+	if (mh->GetModeChar() && !isalnum(mh->GetModeChar()))
+		return false;
+
+	// mode letters can't be duplicated
 	if (mh->GetModeChar() && FindMode(mh->GetModeChar(), mh->GetModeType()))
 		return false;
 	
+	// find a free ID, and add it
 	for(int id = 1; id < MODE_ID_MAX; id++)
 	{
 		if (handlers[id])
@@ -735,6 +740,7 @@ bool ModeParser::AddMode(ModeHandler* mh)
 		handlers[id] = mh;
 		return true;
 	}
+	// whoops, you need to increase MODE_ID_MAX
 	return false;
 }
 
