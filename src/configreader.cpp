@@ -108,25 +108,53 @@ static void ValidHost(const std::string& p, const std::string& msg)
 		throw CoreException("The value of "+msg+" is not a valid hostname");
 }
 
-bool ServerConfig::ApplyDisabledCommands(const std::string& data)
+void ServerConfig::ApplyDisabled()
 {
-	std::stringstream dcmds(data);
-	std::string thiscmd;
+	std::stringstream dcmds(ConfValue("disabled")->getString("commands", ""));
+	std::stringstream dmodes(ConfValue("disabled")->getString("modes", ""));
+	std::string word;
 
 	/* Enable everything first */
 	for (Commandtable::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
 		x->second->Disable(false);
 
-	/* Now disable all the ones which the user wants disabled */
-	while (dcmds >> thiscmd)
+	for (ModeIDIter id; id; id++)
 	{
-		Commandtable::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+		if (mh)
+			mh->disabled = false;
+	}
+
+	/* Now disable all the ones which the user wants disabled */
+	while (dcmds >> word)
+	{
+		Commandtable::iterator cm = ServerInstance->Parser->cmdlist.find(word);
 		if (cm != ServerInstance->Parser->cmdlist.end())
 		{
 			cm->second->Disable(true);
 		}
 	}
-	return true;
+
+	while (dmodes >> word)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(word);
+		if (mh)
+			mh->disabled = true;
+	}
+
+	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("usermodes").c_str(); *p; ++p)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(*p, MODETYPE_USER);
+		if (mh)
+			mh->disabled = true;
+	}
+
+	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("chanmodes").c_str(); *p; ++p)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(*p, MODETYPE_CHANNEL);
+		if (mh)
+			mh->disabled = true;
+	}
 }
 
 #ifdef WINDOWS
@@ -448,7 +476,6 @@ void ServerConfig::Fill()
 	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
-	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");
 	CustomVersion = security->getString("customversion", Network + " IRCd");
@@ -522,20 +549,6 @@ void ServerConfig::Fill()
 	ReadXLine(this, "badnick", "nick", ServerInstance->XLines->GetFactory("Q"));
 	ReadXLine(this, "badhost", "host", ServerInstance->XLines->GetFactory("K"));
 	ReadXLine(this, "exception", "host", ServerInstance->XLines->GetFactory("E"));
-
-	memset(DisabledUModes, 0, sizeof(DisabledUModes));
-	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("usermodes").c_str(); *p; ++p)
-	{
-		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid usermode ")+(char)*p+" was found.");
-		DisabledUModes[*p - 'A'] = 1;
-	}
-
-	memset(DisabledCModes, 0, sizeof(DisabledCModes));
-	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("chanmodes").c_str(); *p; ++p)
-	{
-		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid chanmode ")+(char)*p+" was found.");
-		DisabledCModes[*p - 'A'] = 1;
-	}
 
 	memset(HideModeLists, 0, sizeof(HideModeLists));
 	for (const unsigned char* p = (const unsigned char*)ConfValue("security")->getString("hidemodes").c_str(); *p; ++p)
@@ -834,7 +847,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
 		ServerInstance->ResetMaxBans();
-		Config->ApplyDisabledCommands(Config->DisabledCommands);
+		Config->ApplyDisabled();
 		User* user = ServerInstance->FindNick(TheUserUID);
 		FOREACH_MOD(I_OnRehash, OnRehash(user));
 		ServerInstance->BuildISupport();

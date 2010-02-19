@@ -47,7 +47,8 @@
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type)
 	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT), parameters_taken(Params),
-	mode(modeletter), prefix(0), oper(false), fixed_letter(true), list(false), m_type(type), levelrequired(HALFOP_VALUE)
+	m_type(type), levelrequired(HALFOP_VALUE), mode(modeletter), prefix(0), oper(false),
+	fixed_letter(true), list(false), disabled(false)
 {
 }
 
@@ -396,24 +397,18 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 			return MODEACTION_DENY;
 	}
 
-	if (IS_LOCAL(user) && !IS_OPER(user))
-	{
-		char* disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
-		if (mh->GetModeChar() && disabled[mh->GetModeChar() - 'A'])
-		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - mode %s has been locked by the administrator",
-				user->nick.c_str(), mh->name.c_str());
-			return MODEACTION_DENY;
-		}
-	}
-
-	if (adding && IS_LOCAL(user) && mh->NeedsOper() && !user->HasModePermission(mh->id))
+	if (!SkipACL && (mh->disabled || (adding && mh->NeedsOper())) && !user->HasModePermission(mh->id))
 	{
 		/* It's an oper only mode, and they don't have access to it. */
 		if (IS_OPER(user))
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set the %s mode",
 					user->nick.c_str(), user->oper->NameStr(), mh->name.c_str());
+		}
+		else if (mh->disabled)
+		{
+			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - mode %s has been locked by the administrator",
+				user->nick.c_str(), mh->name.c_str());
 		}
 		else
 		{

@@ -18,7 +18,10 @@
 class ModuleModesOnConnect : public Module
 {
  public:
-	ModuleModesOnConnect() 	{
+	ModuleModesOnConnect() {}
+
+	void init()
+	{
 		ServerInstance->Modules->Attach(I_OnUserConnect, this);
 	}
 
@@ -28,53 +31,28 @@ class ModuleModesOnConnect : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
-	virtual ~ModuleModesOnConnect()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user)
 	{
-		// Backup and zero out the disabled usermodes, so that we can override them here.
-		char save[64];
-		memcpy(save, ServerInstance->Config->DisabledUModes,
-				sizeof(ServerInstance->Config->DisabledUModes));
-		memset(ServerInstance->Config->DisabledUModes, 0, 64);
-
-		ConfigTag* tag = user->MyClass->config;
-		std::string ThisModes = tag->getString("modes");
+		std::string ThisModes = user->MyClass->config->getString("modes");
 		if (!ThisModes.empty())
 		{
 			std::string buf;
 			std::stringstream ss(ThisModes);
 
-			std::vector<std::string> tokens;
+			std::vector<std::string> modes;
+			modes.push_back(user->nick);
 
 			// split ThisUserModes into modes and mode params
 			while (ss >> buf)
-				tokens.push_back(buf);
+				modes.push_back(buf);
 
-			std::vector<std::string> modes;
-			modes.push_back(user->nick);
-			modes.push_back(tokens[0]);
-
-			if (tokens.size() > 1)
-			{
-				// process mode params
-				for (unsigned int k = 1; k < tokens.size(); k++)
-				{
-					modes.push_back(tokens[k]);
-				}
-			}
-
-			ServerInstance->Parser->CallHandler("MODE", modes, user);
+			ServerInstance->SendMode(modes, ServerInstance->FakeClient);
 		}
-
-		memcpy(ServerInstance->Config->DisabledUModes, save, 64);
 	}
 };
 

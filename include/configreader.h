@@ -338,20 +338,6 @@ class CoreExport ServerConfig
 	 */
 	bool DisabledDontExist;
 
-	/** This variable contains a space-seperated list
-	 * of commands which are disabled by the
-	 * administrator of the server for non-opers.
-	 */
-	std::string DisabledCommands;
-
-	/** This variable identifies which usermodes have been diabled.
-	 */
-	char DisabledUModes[64];
-
-	/** This variable identifies which chanmodes have been disabled.
-	 */
-	char DisabledCModes[64];
-
 	/** The full path to the modules directory.
 	 * This is either set at compile time, or
 	 * overridden in the configuration file via
@@ -545,7 +531,7 @@ class CoreExport ServerConfig
 	 */
 	bool StartsWithWindowsDriveLetter(const std::string &path);
 
-	bool ApplyDisabledCommands(const std::string& data);
+	void ApplyDisabled();
 
 	/** Clean a filename, stripping the directories (and drives) from string.
 	 * @param name Directory to tidy

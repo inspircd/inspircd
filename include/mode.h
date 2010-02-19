@@ -150,6 +150,17 @@ class CoreExport ModeHandler : public ServiceProvider
 	ParamSpec parameters_taken;
 
 	/**
+	 * The mode type, either MODETYPE_USER or
+	 * MODETYPE_CHANNEL.
+	 */
+	ModeType m_type;
+
+	/** The prefix char needed on channel to use this mode,
+	 * only checked for channel modes
+	 */
+	int levelrequired;
+
+	/**
 	 * The mode letter you're implementing.
 	 */
 	char mode;
@@ -182,18 +193,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	bool list;
 
-	/**
-	 * The mode type, either MODETYPE_USER or
-	 * MODETYPE_CHANNEL.
-	 */
-	ModeType m_type;
-
-	/** The prefix char needed on channel to use this mode,
-	 * only checked for channel modes
-	 */
-	int levelrequired;
-
  public:
+	/** Mode is disabled by the configuration file
+	 */
+	bool disabled;
+
 	/** The mode identifier (only valid after this object has been added to ModeParser) */
 	ModeID id;
 	/**
