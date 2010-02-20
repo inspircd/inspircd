@@ -151,14 +151,13 @@ class reference
  */
 class CoreExport CoreException : public std::exception
 {
- protected:
+ public:
 	/** Holds the error message to be displayed
 	 */
 	const std::string err;
 	/** Source of the exception
 	 */
 	const std::string source;
- public:
 	/** Default constructor, just uses the error mesage 'Core threw an exception'.
 	 */
 	CoreException() : err("Core threw an exception"), source("The core") {}

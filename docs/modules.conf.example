@@ -628,6 +628,23 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Custom prefixes : allows for channel prefixes to be added. 
+# This replaces m_chanprotect and m_halfop
+#<module name="m_customprefix.so">
+#
+# name       The name of the mode, must be unique from other modes
+# letter     The letter used for this mode. Required.
+# prefix     The prefix used for nicks with this mode. Not required.
+# rank       A numeric rank for this prefix, defining what permissions it gives
+#            VOICE_VALUE is 10000, HALFOP_VALUE is 20000, OP_VALUE is 30000
+# ranktoset  The numeric rank required to set/unset this mode. Defaults to rank.
+# depriv     False if you cannot remove the mode from yourself
+#<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
+#<customprefix name="admin" letter="a" prefix="&" rank="40000" ranktoset="50000">
+#<customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">
+#<customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted
 #                      users to gain a custom whois line and a optional
 #                      vhost can be specified.
@@ -807,10 +824,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Halfop module: Provides the +h (halfops) channel status mode.
 #<module name="m_halfop.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Status prefix: Adds the channel status mode +V
-#<module name="m_halfvoice.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
