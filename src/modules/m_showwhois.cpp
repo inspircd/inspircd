@@ -20,7 +20,11 @@
 class SeeWhois : public ModeHandler
 {
  public:
-	SeeWhois(Module* Creator, bool IsOpersOnly) : ModeHandler(Creator, "showwhois", 'W', PARAM_NONE, MODETYPE_USER)
+	SeeWhois(Module* Creator) : ModeHandler(Creator, "showwhois", 'W', PARAM_NONE, MODETYPE_USER)
+	{
+	}
+
+	void SetOper(bool IsOpersOnly)
 	{
 		oper = IsOpersOnly;
 	}
@@ -78,28 +82,25 @@ class WhoisNoticeCmd : public Command
 class ModuleShowwhois : public Module
 {
 	bool ShowWhoisFromOpers;
-	SeeWhois* sw;
 	WhoisNoticeCmd cmd;
+	SeeWhois sw;
 
  public:
 
-	ModuleShowwhois() : cmd(this)
+	ModuleShowwhois() : cmd(this), sw(this)
 	{
-		ConfigReader conf;
-		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", "yes", 0);
-		ShowWhoisFromOpers = conf.ReadFlag("showwhois", "showfromopers", "yes", 0);
-
-		sw = new SeeWhois(this, OpersOnly);
-		if (!ServerInstance->Modes->AddMode(sw))
-			throw ModuleException("Could not add new modes!");
-		ServerInstance->AddCommand(&cmd);
-		Implementation eventlist[] = { I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	~ModuleShowwhois()
+	void init()
 	{
-		delete sw;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
+		sw.SetOper(tag->getBool("opersonly", true));
+		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
+
+		ServerInstance->Modules->AddService(sw);
+		ServerInstance->Modules->AddService(cmd);
+		Implementation eventlist[] = { I_OnWhois };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	Version GetVersion()
@@ -129,7 +130,6 @@ class ModuleShowwhois : public Module
 			ServerInstance->PI->SendEncapsulatedData(params);
 		}
 	}
-
 };
 
 MODULE_INIT(ModuleShowwhois)

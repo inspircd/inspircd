@@ -48,8 +48,7 @@ class ModuleAuditorium : public Module
 	ModuleAuditorium()
 		: aum(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&aum))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(aum);
 
 		OnRehash(NULL);
 

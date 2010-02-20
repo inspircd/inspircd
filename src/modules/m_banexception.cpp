@@ -58,7 +58,7 @@ public:
 	void On005Numeric(std::string &output)
 	{
 		if (be.GetModeChar())
-			output.append(" EXCEPTS=").append(be.GetModeChar());
+			output.append(" EXCEPTS=").push_back(be.GetModeChar());
 	}
 
 	ModResult OnExtBanCheck(User *user, Channel *chan, char type)

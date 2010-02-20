@@ -79,8 +79,6 @@ void ModeHandler::AdjustModeChar(char proposed_letter)
 {
 	if (fixed_letter)
 		return;
-	if (!proposed_letter && GetPrefixRank())
-		return;
 	mode = proposed_letter;
 }
 
@@ -264,6 +262,7 @@ std::string irc::modestacker::popModeLine(bool use_uid, int maxlen, int maxmodes
 
 		if (!modechar)
 		{
+			// this will only happen if we already allowed NameOnlyModes, no need to check
 			modechar = 'Z';
 			if (mh->GetNumParams(iter->adding))
 				value = mh->name + "=" + value;
@@ -485,7 +484,7 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 			adding = (modechar == '+');
 			continue;
 		}
-		if (modechar == 'Z')
+		if (modechar == 'Z' && ServerInstance->Config->NameOnlyModes)
 		{
 			// special case: Z is the named mode change interface
 			std::string name, value;
@@ -699,38 +698,44 @@ void ModeParser::CleanMask(std::string &mask)
 	}
 }
 
-bool ModeParser::AddMode(ModeHandler* mh)
+void ModeParser::AddMode(ModeHandler* mh)
 {
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
 	 * A mode prefix of '#' will mess up /whois and /privmsg
 	 */
 	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':') || (mh->GetPrefix() == '#'))
-		return false;
+		throw ModuleException("Invalid prefix defined in mode");
 
 	std::string myletter = ServerInstance->Config->ConfValue("modeletters")->getString(mh->name, std::string(1,mh->GetModeChar()));
 	mh->AdjustModeChar(myletter.c_str()[0]);
 
-	// names can't be duplicated
 	if (FindMode(mh->name))
-		return false;
+		throw ModuleException("Duplicate mode name found");
 	
 	// prefixes can't be duplicated
 	if (mh->GetPrefix() && FindPrefix(mh->GetPrefix()))
-		return false;
+		throw ModuleException("Duplicate channel prefix found");
+
+	char mc = mh->GetModeChar();
 
 	// user modes have to be alpha (can't be null either)
-	if (mh->GetModeType() == MODETYPE_USER && !isalpha(mh->GetModeChar()))
-		return false;
+	if (mh->GetModeType() == MODETYPE_USER && !isalpha(mc))
+		throw ModuleException("Invalid mode character");
 
 	// all modes have to be alphanumeric or null
-	if (mh->GetModeChar() && !isalnum(mh->GetModeChar()))
-		return false;
+	if (mc && !isalnum(mc))
+		throw ModuleException("Invalid mode character");
 
-	// mode letters can't be duplicated
-	if (mh->GetModeChar() && FindMode(mh->GetModeChar(), mh->GetModeType()))
-		return false;
+	if (mh->GetPrefixRank() && !mc)
+		throw ModuleException("Prefix modes must define a mode character");
+
+	if (mc && FindMode(mc, mh->GetModeType()))
+		throw ModuleException("Duplicate mode character '" + std::string(mc,1) + "' found");
 	
+	if (!mc && !ServerInstance->Config->NameOnlyModes)
+		throw ModuleException("<options:nameonlymodes> must be enabled to clear a mode character");
+
 	// find a free ID, and add it
 	for(int id = 1; id < MODE_ID_MAX; id++)
 	{
@@ -738,10 +743,10 @@ bool ModeParser::AddMode(ModeHandler* mh)
 			continue;
 		mh->id.SetID(id);
 		handlers[id] = mh;
-		return true;
+		return;
 	}
 	// whoops, you need to increase MODE_ID_MAX
-	return false;
+	throw ModuleException("Out of Mode IDs!");
 }
 
 bool ModeParser::DelMode(ModeHandler* mh)
@@ -769,6 +774,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	}
 
 	handlers[mh->id.GetID()] = NULL;
+	mh->id.SetID(0);
 
 	return true;
 }
@@ -820,7 +826,8 @@ std::string ModeParser::ChannelModeList()
 		if (mh && mh->GetModeType() == MODETYPE_CHANNEL && mh->GetModeChar())
 			modestr[pointer++] = mh->GetModeChar();
 	}
-	modestr[pointer++] = 'Z';
+	if (ServerInstance->Config->NameOnlyModes)
+		modestr[pointer++] = 'Z';
 	modestr[pointer] = 0;
 	std::sort(modestr, modestr + pointer);
 	return modestr;
@@ -837,7 +844,8 @@ std::string ModeParser::ParaModeList()
 		if (mh && mh->GetModeType() == MODETYPE_CHANNEL && mh->GetNumParams(true) && mh->GetModeChar())
 			modestr[pointer++] = mh->GetModeChar();
 	}
-	modestr[pointer++] = 'Z';
+	if (ServerInstance->Config->NameOnlyModes)
+		modestr[pointer++] = 'Z';
 	modestr[pointer] = 0;
 	std::sort(modestr, modestr + pointer);
 	return modestr;
@@ -860,7 +868,7 @@ std::string ModeParser::GiveModeList(ModeType m)
 	std::string type2;	/* Modes that take a param when adding or removing */
 	std::string type3;	/* Modes that only take a param when adding */
 	std::string type4;	/* Modes that dont take a param */
-	if (m == MODETYPE_CHANNEL)
+	if (m == MODETYPE_CHANNEL && ServerInstance->Config->NameOnlyModes)
 		type1.push_back('Z');
 
 	for(ModeIDIter id; id; id++)

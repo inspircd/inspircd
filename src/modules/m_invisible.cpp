@@ -107,8 +107,7 @@ class ModuleInvisible : public Module
  public:
 	ModuleInvisible() : qm(this), ido(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&qm))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(qm);
 		if (!ServerInstance->Modes->AddModeWatcher(&ido))
 			throw ModuleException("Could not add new mode watcher on usermode +o!");
 

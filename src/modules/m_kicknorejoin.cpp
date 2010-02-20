@@ -55,8 +55,7 @@ public:
 	ModuleKickNoRejoin()
 		: kr(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&kr))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Extensions.Register(&kr.ext);
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

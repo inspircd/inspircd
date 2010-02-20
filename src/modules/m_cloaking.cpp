@@ -128,8 +128,7 @@ class ModuleCloaking : public Module
 		OnRehash(NULL);
 
 		/* Register it with the core */
-		if (!ServerInstance->Modes->AddMode(&cu))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(cu);
 
 		ServerInstance->Extensions.Register(&cu.ext);
 

@@ -28,8 +28,7 @@ class ModuleAllowInvite : public Module
 
 	ModuleAllowInvite() : ni(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&ni))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(ni);
 		Implementation eventlist[] = { I_OnUserPreInvite, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

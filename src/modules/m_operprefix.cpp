@@ -50,13 +50,15 @@ class ModuleOperPrefixMode : public Module
  private:
 	OperPrefixMode* opm;
  public:
-	ModuleOperPrefixMode() 	{
+	ModuleOperPrefixMode() {}
+
+	void init()
+	{
 		ConfigReader Conf;
 		std::string pfx = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
 
 		opm = new OperPrefixMode(this, pfx[0]);
-		if ((!ServerInstance->Modes->AddMode(opm)))
-			throw ModuleException("Could not add a new mode!");
+		ServerInstance->Modules->AddService(*opm);
 
 		Implementation eventlist[] = { I_OnPostJoin, I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

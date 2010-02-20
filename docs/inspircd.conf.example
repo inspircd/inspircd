@@ -581,6 +581,11 @@
          # banned from the server.
          moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 
+	 # nameonlymodes: Allow modes to be defined with names and no letters.
+	 # These modes can be changed with PROP or the pseudo-mode Z, which this
+	 # option enables.
+	 nameonlymodes="no"
+
          # invitebypassmodes: This allows /invite to bypass other channel modes.
          # (Such as +k, +j, +l, etc)
          invitebypassmodes="yes">
@@ -710,6 +715,8 @@
 #                                                                     #
 # Modes that provide a prefix must be assigned a letter.              #
 # All other modes can be assigned any unused letter or no letter.     #
+#                                                                     #
+# To asssign no letter, you must enable <options:nameonlymodes>       #
 <modeletters
 	allowinvite="A" auditorium="u" banexception="e" blockcaps="B"
 	blockcolor="c" c_registered="r" censor="G" delayjoin="D" delaymsg="d"

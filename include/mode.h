@@ -515,7 +515,7 @@ class CoreExport ModeParser
 	/** Add a mode to the mode parser.
 	 * @return True if the mode was successfully added.
 	 */
-	bool AddMode(ModeHandler* mh);
+	void AddMode(ModeHandler* mh);
 
 	/** Delete a mode from the mode parser.
 	 * When a mode is deleted, the mode handler will be called

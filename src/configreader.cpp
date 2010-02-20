@@ -21,7 +21,7 @@
 ServerConfig::ServerConfig()
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
-	NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
+	NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = NameOnlyModes = false;
 	CycleHosts = InvBypassModes = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
@@ -511,6 +511,7 @@ void ServerConfig::Fill()
 	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
+	NameOnlyModes = options->getBool("nameonlymodes", true);
 
 	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
 	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");

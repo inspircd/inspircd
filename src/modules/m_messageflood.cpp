@@ -187,8 +187,7 @@ class ModuleMsgFlood : public Module
 	ModuleMsgFlood()
 		: mf(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&mf))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(mf);
 		ServerInstance->Extensions.Register(&mf.ext);
 		Implementation eventlist[] = { I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

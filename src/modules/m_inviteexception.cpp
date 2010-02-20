@@ -54,7 +54,7 @@ public:
 	void On005Numeric(std::string &output)
 	{
 		if (ie.GetModeChar())
-			output.append(" INVEX=").append(ie.GetModeChar());
+			output.append(" INVEX=").push_back(ie.GetModeChar());
 	}
 
 	ModResult OnCheckInvite(User* user, Channel* chan)

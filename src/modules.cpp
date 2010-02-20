@@ -423,8 +423,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 				throw ModuleException("Command "+std::string(item.name)+" already exists.");
 			return;
 		case SERVICE_MODE:
-			if (!ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item)))
-				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
+			ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item));
 			return;
 		case SERVICE_METADATA:
 			ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item));

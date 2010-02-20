@@ -189,8 +189,7 @@ class ModuleJoinFlood : public Module
 		: jf(this)
 	{
 
-		if (!ServerInstance->Modes->AddMode(&jf))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(jf);
 		ServerInstance->Extensions.Register(&jf.ext);
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

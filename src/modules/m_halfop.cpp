@@ -46,8 +46,7 @@ class ModuleHalfop : public Module
  public:
 	ModuleHalfop() : mh(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&mh))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(mh);
 	}
 
 	~ModuleHalfop()

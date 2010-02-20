@@ -35,8 +35,7 @@ class ModuleDelayJoin : public Module
 	LocalIntExt unjoined;
 	ModuleDelayJoin() : djm(this), unjoined("delayjoin", this)
 	{
-		if (!ServerInstance->Modes->AddMode(&djm))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(djm);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}

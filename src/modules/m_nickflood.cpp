@@ -189,8 +189,7 @@ class ModuleNickFlood : public Module
 	ModuleNickFlood()
 		: nf(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&nf))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(nf);
 		ServerInstance->Extensions.Register(&nf.ext);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserPostNick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

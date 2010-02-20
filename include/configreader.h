@@ -296,16 +296,6 @@ class CoreExport ServerConfig
 	 */
 	std::string powerhash;
 
-	/** The pathname and filename of the message of the
-	 * day file, as defined by the administrator.
-	 */
-	std::string motd;
-
-	/** The pathname and filename of the rules file,
-	 * as defined by the administrator.
-	 */
-	std::string rules;
-
 	/** The quit prefix in use, or an empty string
 	 */
 	std::string PrefixQuit;
@@ -478,6 +468,14 @@ class CoreExport ServerConfig
 	 */
 	bool FullHostInTopic;
 
+	/** If this value is true, invites will bypass more than just +i
+	 */
+	bool InvBypassModes;
+
+	/** If this value is true, modes can have their letters removed (enables +Z)
+	 */
+	bool NameOnlyModes;
+
 	/** Oper block and type index.
 	 * For anonymous oper blocks (type only), prefix with a space.
 	 */
@@ -544,11 +542,6 @@ class CoreExport ServerConfig
 	 * @return True if the file exists and is readable.
 	 */
 	static bool FileExists(const char* file);
-
-	/** If this value is true, invites will bypass more than just +i
-	 */
-	bool InvBypassModes;
-
 };
 
 /** The background thread for config reading, so that reading from executable includes

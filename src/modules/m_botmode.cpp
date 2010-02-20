@@ -30,8 +30,7 @@ class ModuleBotMode : public Module
 	ModuleBotMode()
 		: bm(this)
 	{
-		if (!ServerInstance->Modes->AddMode(&bm))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(bm);
 		Implementation eventlist[] = { I_OnWhois };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

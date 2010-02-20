@@ -85,8 +85,7 @@ class ModuleRedirect : public Module
 		: re(this)
 	{
 
-		if (!ServerInstance->Modes->AddMode(&re))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(re);
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
