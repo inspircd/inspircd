@@ -88,7 +88,7 @@ class ModuleExemptChanOps : public Module
 	{
 		unsigned int mypfx = chan->GetPrefixValue(user);
 		irc::spacesepstream defaultstream(defaults);
-		char minmode = 0;
+		std::string minmode;
 		std::string current;
 
 		while (defaultstream.GetToken(current))
@@ -109,14 +109,16 @@ class ModuleExemptChanOps : public Module
 				if (pos == std::string::npos)
 					continue;
 				if ((**i).mask.substr(0,pos) == restriction)
-					minmode = (**i).mask[pos+1];
+					minmode = (**i).mask.substr(pos + 1);
 			}
 		}
 
-		ModeHandler* mh = ServerInstance->Modes->FindMode(minmode, MODETYPE_CHANNEL);
+		ModeHandler* mh = minmode.length() == 1 ?
+			ServerInstance->Modes->FindMode(minmode[0], MODETYPE_CHANNEL) :
+			ServerInstance->Modes->FindMode(minmode);
 		if (mh && mypfx >= mh->GetPrefixRank())
 			return MOD_RES_ALLOW;
-		if (mh || minmode == '*')
+		if (mh || minmode == "*")
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}

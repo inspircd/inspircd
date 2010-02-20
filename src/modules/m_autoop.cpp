@@ -34,7 +34,9 @@ class AutoOpList : public ListModeBase
 			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 		unsigned int mylevel = channel->GetPrefixValue(source);
 		std::string mid = parameter.substr(0, pos);
-		ModeHandler* mh = ServerInstance->Modes->FindMode(mid);
+		ModeHandler* mh = mid.length() == 1 ?
+			ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL) :
+			ServerInstance->Modes->FindMode(mid);
 
 		if (adding && (!mh || !mh->GetPrefixRank()))
 		{
@@ -91,7 +93,10 @@ public:
 					continue;
 				if (chan->CheckBan(user, (**it).mask.substr(colon+1)))
 				{
-					ModeHandler* given = ServerInstance->Modes->FindMode((**it).mask.substr(0, colon));
+					std::string mid = (**it).mask.substr(0, colon);
+					ModeHandler* given = mid.length() == 1 ?
+						ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL) :
+						ServerInstance->Modes->FindMode(mid);
 					if (given)
 						privs += given->GetModeChar();
 				}
