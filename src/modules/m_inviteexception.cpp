@@ -45,8 +45,8 @@ public:
 			throw ModuleException("Could not add new modes!");
 
 		ie.DoImplements(this);
-		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnCheckKey };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void On005Numeric(std::string &output)
@@ -71,6 +71,13 @@ public:
 			}
 		}
 
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key)
+	{
+		if (ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true))
+			return OnCheckInvite(user, chan);
 		return MOD_RES_PASSTHRU;
 	}
 
