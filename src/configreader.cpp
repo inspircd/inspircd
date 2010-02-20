@@ -492,7 +492,7 @@ void ServerConfig::Fill()
 	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getInt("maxtargets", 20);
-	DefaultModes = options->getString("defaultmodes", "nt");
+	DefaultModes = options->getString("defaultmodes", "ont");
 	PID = ConfValue("pid")->getString("file");
 	WhoWasGroupSize = ConfValue("whowas")->getInt("groupsize");
 	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
