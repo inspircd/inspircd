@@ -83,7 +83,9 @@ class ModeCheckHandler : public HandlerBase3<ModResult, User*, Channel*, irc::mo
 				{
 					// overridden
 					neededname = (**i).mask.substr(pos + 1);
-					ModeHandler* privmh = ServerInstance->Modes->FindMode(neededname);
+					ModeHandler* privmh = neededname.length() == 1 ?
+						ServerInstance->Modes->FindMode(neededname[0], MODETYPE_CHANNEL) :
+						ServerInstance->Modes->FindMode(neededname);
 					neededrank = privmh ? privmh->GetPrefixRank() : INT_MAX;
 				}
 			}

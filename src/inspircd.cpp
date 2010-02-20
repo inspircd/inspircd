@@ -305,7 +305,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
-	 FloodQuitUser(&HandleFloodQuitUser),
 	 ModeAccessCheck(&HandleModeAccessCheck),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {

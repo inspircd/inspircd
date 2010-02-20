@@ -235,7 +235,6 @@ class serverstats
 DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
-DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
@@ -308,7 +307,6 @@ class CoreExport InspIRCd
 
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
-	FloodQuitUserHandler HandleFloodQuitUser;
 	ModeAccessCheckHandler HandleModeAccessCheck;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
@@ -780,12 +778,6 @@ class CoreExport InspIRCd
 	/** Handle /WHOIS
 	 */
 	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
-
-	/** Quit a user for excess flood, and if they are not
-	 * fully registered yet, temporarily zline their IP.
-	 * @param current user to quit
-	 */
-	caller1<void, User*> FloodQuitUser;
 
 	/** Access check for modes
 	 */
