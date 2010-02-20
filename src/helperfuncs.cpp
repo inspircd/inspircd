@@ -443,7 +443,7 @@ void GenRandomHandler::Call(char *output, size_t max)
 ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::string& restriction)
 {
 	unsigned int mypfx = chan->GetPrefixValue(user);
-	char minmode;
+	char minmode = 0;
 	std::string current;
 
 	irc::spacesepstream defaultstream(ServerInstance->Config->ConfValue("options")->getString("exemptchanops"));
