@@ -88,11 +88,24 @@ class ModuleExemptChanOps : public Module
 		ec.DoSyncChannel(chan, proto, opaque);
 	}
 
+	ModeHandler* FindMode(const std::string& mid)
+	{
+		if (mid.length() == 1)
+			return ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL);
+		for(char c='A'; c < 'z'; c++)
+		{
+			ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
+			if (mh && mh->name == mid)
+				return mh;
+		}
+		return NULL;
+	}
+
 	ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction)
 	{
 		unsigned int mypfx = chan->GetPrefixValue(user);
 		irc::spacesepstream defaultstream(defaults);
-		char minmode = 0;
+		std::string minmode;
 		std::string current;
 
 		while (defaultstream.GetToken(current))
@@ -113,14 +126,14 @@ class ModuleExemptChanOps : public Module
 				if (pos == std::string::npos)
 					continue;
 				if ((*i).mask.substr(0,pos) == restriction)
-					minmode = (*i).mask[pos+1];
+					minmode = (*i).mask.substr(pos + 1);
 			}
 		}
 
-		ModeHandler* mh = ServerInstance->Modes->FindMode(minmode, MODETYPE_CHANNEL);
+		ModeHandler* mh = FindMode(minmode);
 		if (mh && mypfx >= mh->GetPrefixRank())
 			return MOD_RES_ALLOW;
-		if (mh || minmode == '*')
+		if (mh || minmode == "*")
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
