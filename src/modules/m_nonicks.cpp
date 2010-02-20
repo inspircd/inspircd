@@ -66,8 +66,7 @@ class ModuleNoNickChange : public Module
 		{
 			Channel* curr = *i;
 
-			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,curr,"nonick"));
+			ModResult res = ServerInstance->OnCheckExemption(user,curr,"nonick");
 
 			if (res == MOD_RES_ALLOW)
 				continue;

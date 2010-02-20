@@ -168,7 +168,6 @@ static void checkall(Module* noimpl)
 	CHK(OnModuleRehash);
 	CHK(OnSendWhoLine);
 	CHK(OnChangeIdent);
-	CHK(OnChannelRestrictionApply);
 }
 
 class CommandTest : public Command

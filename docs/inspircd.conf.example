@@ -580,6 +580,9 @@
          # moronbanner: This is the text that is sent to a user when they are
          # banned from the server.
          moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
+	
+	# exemptchanops: exemptions for channel access restrictions based on prefix.
+	exemptchanops="nonick:v flood:o"
 
 	 # nameonlymodes: Allow modes to be defined with names and no letters.
 	 # These modes can be changed with PROP or the pseudo-mode Z, which this

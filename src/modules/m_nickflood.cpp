@@ -208,7 +208,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,channel,"nickflood"));
+				res = ServerInstance->OnCheckExemption(user,channel,"nickflood");
 				if (res == MOD_RES_ALLOW)
 					continue;
 
@@ -247,7 +247,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,channel,"nickflood"));
+				res = ServerInstance->OnCheckExemption(user,channel,"nickflood");
 				if (res == MOD_RES_ALLOW)
 					return;
 				

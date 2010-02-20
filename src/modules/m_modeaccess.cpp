@@ -118,8 +118,8 @@ class ModuleModeAccess : public Module
 		ServerInstance->Modules->AddService(mc.mode);
 		ServerInstance->ModeAccessCheck = &mc;
 
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnChannelRestrictionApply, I_OnRehash, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 
 		OnRehash(NULL);
 	}

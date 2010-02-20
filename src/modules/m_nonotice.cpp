@@ -55,7 +55,7 @@ class ModuleNoNotice : public Module
 					// ulines are exempt.
 					return MOD_RES_PASSTHRU;
 				}
-				FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"nonotice"));
+				res = ServerInstance->OnCheckExemption(user,c,"nonotice");
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 				else

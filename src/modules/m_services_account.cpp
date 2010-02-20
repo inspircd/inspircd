@@ -175,8 +175,7 @@ class ModuleServicesAccount : public Module
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
-			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"regmoderated"));
+			ModResult res = ServerInstance->OnCheckExemption(user,c,"regmoderated");
 
 			if (c->IsModeSet(&chanM) && !is_registered && res != MOD_RES_ALLOW)
 			{

@@ -90,9 +90,8 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 			return CMD_FAILURE;
 		if (res != MOD_RES_ALLOW)
 		{
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (u,this,"topiclock"));
 			bool defok = IsModeSet('t') ? GetPrefixValue(u) >= HALFOP_VALUE : HasUser(u);
-			if (!res.check(defok))
+			if (!ServerInstance->OnCheckExemption(u,this,"topiclock").check(defok))
 			{
 				if (!this->HasUser(u))
 					u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());

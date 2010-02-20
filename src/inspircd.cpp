@@ -306,7 +306,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
 	 FloodQuitUser(&HandleFloodQuitUser),
-	 ModeAccessCheck(&HandleModeAccessCheck)
+	 ModeAccessCheck(&HandleModeAccessCheck),
+	 OnCheckExemption(&HandleOnCheckExemption)
 {
 #ifdef WIN32
 	// Strict, frequent checking of memory on debug builds

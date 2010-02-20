@@ -156,7 +156,6 @@ void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { 
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
 StreamSocket*   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return NULL; }
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Channel*, std::string&) { }
-ModResult	Module::OnChannelRestrictionApply(User*, Channel*, const char*) { return MOD_RES_PASSTHRU; }
 
 ModuleManager::ModuleManager() : ModCount(0)
 {
