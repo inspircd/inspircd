@@ -77,7 +77,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "socketengine.h"
 #include "snomasks.h"
 #include "filelogger.h"
-#include "caller.h"
 #include "modules.h"
 #include "threadengine.h"
 #include "configreader.h"
@@ -240,6 +239,7 @@ DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
+DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
@@ -308,6 +308,7 @@ class CoreExport InspIRCd
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
 	FloodQuitUserHandler HandleFloodQuitUser;
+	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
 	IsSIDHandler HandleIsSID;
 	RehashHandler HandleRehash;
@@ -781,6 +782,13 @@ class CoreExport InspIRCd
 	 * @param current user to quit
 	 */
 	caller1<void, User*> FloodQuitUser;
+
+	/** Called to check whether a channel restriction mode applies to a user
+	 * @param User that is attempting some action
+	 * @param Channel that the action is being performed on
+	 * @param Action name
+	 */
+	caller3<ModResult, User*, Channel*, const std::string&> OnCheckExemption;
 
 	/** Restart the server.
 	 * This function will not return. If an error occurs,

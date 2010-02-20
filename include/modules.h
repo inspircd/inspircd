@@ -327,7 +327,7 @@ enum Implementation
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
-	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnChannelRestrictionApply,
+	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
 };
 
@@ -1278,12 +1278,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param line The raw line to send; modifiable, if empty no line will be returned.
 	 */
 	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line);
-
-	/** Called to check whether a channel restriction mode applies to a user on it
-	 * @return MOD_RES_DENY to apply the restriction, MOD_RES_ALLOW to bypass
-	 * the restriction, or MOD_RES_PASSTHRU to check restriction status normally
-	 */
-	virtual ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction);
 };
 
 

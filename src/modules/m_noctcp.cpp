@@ -78,8 +78,7 @@ class ModuleNoCTCP : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"noctcp"));
+			ModResult res = ServerInstance->OnCheckExemption(user,c,"noctcp");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

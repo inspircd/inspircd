@@ -59,8 +59,7 @@ public:
 				return MOD_RES_PASSTHRU;
 
 			Channel* c = (Channel*)dest;
-			ModResult res;
-			FIRST_MOD_RESULT(OnChannelRestrictionApply, res, (user,c,"blockcaps"));
+			ModResult res = ServerInstance->OnCheckExemption(user,c,"blockcaps");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

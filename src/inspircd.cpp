@@ -305,7 +305,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
-	 FloodQuitUser(&HandleFloodQuitUser)
+	 FloodQuitUser(&HandleFloodQuitUser),
+	 OnCheckExemption(&HandleOnCheckExemption)
 {
 #ifdef WIN32
 	// Strict, frequent checking of memory on debug builds

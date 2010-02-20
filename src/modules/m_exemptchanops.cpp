@@ -52,42 +52,12 @@ class ExemptChanOps : public ListModeBase
 	}
 };
 
-class ModuleExemptChanOps : public Module
+class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std::string&>
 {
-	ExemptChanOps ec;
-	std::string defaults;
-
  public:
-
-	ModuleExemptChanOps() : ec(this)
-	{
-	}
-
-	void init()
-	{
-		ServerInstance->Modules->AddService(ec);
-		Implementation eventlist[] = { I_OnChannelDelete, I_OnChannelRestrictionApply, I_OnRehash, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
-
-		OnRehash(NULL);
-	}
-
-	Version GetVersion()
-	{
-		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
-	}
-
-	void OnRehash(User* user)
-	{
-		defaults = ServerInstance->Config->ConfValue("exemptchanops")->getString("defaults");
-		ec.DoRehash();
-	}
-
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
-	{
-		ec.DoSyncChannel(chan, proto, opaque);
-	}
-
+	ExemptChanOps ec;
+	ExemptHandler(Module* me) : ec(me) {}
+	
 	ModeHandler* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
@@ -101,21 +71,11 @@ class ModuleExemptChanOps : public Module
 		return NULL;
 	}
 
-	ModResult OnChannelRestrictionApply(User* user, Channel* chan, const char* restriction)
+	ModResult Call(User* user, Channel* chan, const std::string& restriction)
 	{
 		unsigned int mypfx = chan->GetPrefixValue(user);
-		irc::spacesepstream defaultstream(defaults);
 		std::string minmode;
-		std::string current;
 
-		while (defaultstream.GetToken(current))
-		{
-			std::string::size_type pos = current.find(':');
-			if (pos == std::string::npos)
-				continue;
-			if (current.substr(0,pos) == restriction)
-				minmode = current[pos+1];
-		}
 		modelist* list = ec.extItem.get(chan);
 
 		if (list)
@@ -135,7 +95,50 @@ class ModuleExemptChanOps : public Module
 			return MOD_RES_ALLOW;
 		if (mh || minmode == "*")
 			return MOD_RES_DENY;
-		return MOD_RES_PASSTHRU;
+
+		return ServerInstance->HandleOnCheckExemption.Call(user, chan, restriction);
+	}
+};
+
+class ModuleExemptChanOps : public Module
+{
+	std::string defaults;
+	ExemptHandler eh;
+
+ public:
+
+	ModuleExemptChanOps() : eh(this)
+	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(eh.ec);
+		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->OnCheckExemption = &eh;
+
+		OnRehash(NULL);
+	}
+
+	~ModuleExemptChanOps()
+	{
+		ServerInstance->OnCheckExemption = &ServerInstance->HandleOnCheckExemption;
+	}
+
+	Version GetVersion()
+	{
+		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
+	}
+
+	void OnRehash(User* user)
+	{
+		eh.ec.DoRehash();
+	}
+
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	{
+		eh.ec.DoSyncChannel(chan, proto, opaque);
 	}
 };
 
