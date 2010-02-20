@@ -351,39 +351,10 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 	{
 		MOD_RESULT = mh->AccessCheck(user, chan, mc.value, adding);
 
+		if (MOD_RESULT == MOD_RES_PASSTHRU)
+			MOD_RESULT = ServerInstance->ModeAccessCheck(user, chan, mc);
 		if (MOD_RESULT == MOD_RES_DENY)
 			return MODEACTION_DENY;
-		if (MOD_RESULT == MOD_RES_PASSTHRU)
-		{
-			unsigned int neededrank = mh->GetLevelRequired();
-			/* Compare our rank on the channel against the rank of the required prefix,
-			 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
-			 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
-			 * first, so we don't need to iterate, we just look up the first instead.
-			 */
-			unsigned int ourrank = chan->GetPrefixValue(user);
-			if (ourrank < neededrank)
-			{
-				ModeHandler* neededmh = NULL;
-				for(ModeIDIter id; id; id++)
-				{
-					ModeHandler* privmh = FindMode(id);
-					if (privmh && privmh->GetPrefixRank() >= neededrank)
-					{
-						// this mode is sufficient to allow this action
-						if (!neededmh || privmh->GetPrefixRank() < neededmh->GetPrefixRank())
-							neededmh = privmh;
-					}
-				}
-				if (neededmh)
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel %s access or above to %sset the %s channel mode",
-						user->nick.c_str(), chan->name.c_str(), neededmh->name.c_str(), adding ? "" : "un", mh->name.c_str());
-				else
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot %sset the %s channel mode",
-						user->nick.c_str(), chan->name.c_str(), adding ? "" : "un", mh->name.c_str());
-				return MODEACTION_DENY;
-			}
-		}
 	}
 
 	std::pair<ModeWatcherMap::iterator,ModeWatcherMap::iterator> watchers = modewatchers.equal_range(modeid);
