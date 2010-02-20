@@ -47,8 +47,8 @@ public:
 		ie.init();
 		ServerInstance->Modules->AddService(ie);
 
-		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnRehash, I_OnCheckKey };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void On005Numeric(std::string &output)
@@ -74,6 +74,13 @@ public:
 			}
 		}
 
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key)
+	{
+		if (ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true))
+			return OnCheckInvite(user, chan);
 		return MOD_RES_PASSTHRU;
 	}
 

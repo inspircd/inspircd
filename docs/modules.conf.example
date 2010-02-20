@@ -929,6 +929,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite except module: Adds support for channel invite exceptions (+I)
 #<module name="m_inviteexception.so">
+# Does a +I bypass channel +k in addition to +i?
+#<inviteexception bypasskey="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invisible module - Adds support for usermode +Q (quiet) which lets an
