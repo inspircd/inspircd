@@ -56,7 +56,7 @@
  * CONNECTED:		represents a fully authorized, fully
  *							connected server.
  */
-enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, DYING };
+enum ServerState { CONNECTING, WAIT_AUTH_1, WAIT_AUTH_2, CONNECTED, ERRORED, DYING };
 
 /** Every SERVER connection inbound or outbound is represented by
  * an object of type TreeSocket.

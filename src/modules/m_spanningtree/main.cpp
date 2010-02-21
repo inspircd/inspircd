@@ -194,7 +194,7 @@ restart:
 	{
 		TreeServer *s = i->second;
 
-		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
+		if (s->GetSocket() && (s->GetSocket()->GetLinkState() == DYING || s->GetSocket()->GetLinkState() == ERRORED))
 		{
 			s->GetSocket()->Close();
 			goto restart;

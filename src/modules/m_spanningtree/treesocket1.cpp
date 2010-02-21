@@ -150,7 +150,7 @@ bool TreeSocket::OnConnected()
 void TreeSocket::OnError(BufferedSocketError e)
 {
 	OnClose();
-	LinkState = DYING;
+
 	Link* MyLink;
 
 	switch (e)
@@ -195,8 +195,10 @@ void TreeSocket::SendError(const std::string &errormessage)
 	this->WriteLine("ERROR :"+errormessage);
 	/* One last attempt to make sure the error reaches its target */
 	this->FlushWriteBuffer();
-	OnClose();
-	LinkState = DYING;
+	if (LinkState == WAIT_AUTH_2 || LinkState == CONNECTED)
+		LinkState = ERRORED;
+	else
+		LinkState = DYING;
 }
 
 /** This function forces this server to quit, removing this server
@@ -274,7 +276,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 bool TreeSocket::OnDataReady()
 {
 	const char* data = this->Read();
-	if (LinkState == DYING)
+	if (LinkState == DYING || LinkState == ERRORED)
 	{
 		Close();
 		return true;
@@ -304,7 +306,6 @@ bool TreeSocket::OnDataReady()
 			{
 				Utils->Creator->loopCall = false;
 				OnClose();
-				LinkState = DYING;
 				// returning false from this function is a bad
 				// idea, it causes deallocation too soon.
 				return true;
@@ -317,9 +318,6 @@ bool TreeSocket::OnDataReady()
 	 * evaluates to TRUE for EAGAIN but to FALSE for EOF.
 	 */
 	if (!data)
-	{
 		OnClose();
-		LinkState = DYING;
-	}
 	return true;
 }

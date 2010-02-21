@@ -97,6 +97,7 @@ bool TreeSocket::ProcessLine(std::string &line)
 	switch (this->LinkState)
 	{
 		case DYING:
+		case ERRORED:
 			return false;
 		case WAIT_AUTH_1:
 			/*
@@ -611,10 +612,9 @@ void TreeSocket::OnTimeout()
 
 void TreeSocket::OnClose()
 {
-	// Test fix for big fuckup
-	if (this->LinkState != CONNECTED && this->LinkState != WAIT_AUTH_2)
+	if (LinkState != CONNECTED && LinkState != WAIT_AUTH_2 && LinkState != ERRORED)
 		return;
-
+	LinkState = DYING;
 	// Connection closed.
 	// If the connection is fully up (state CONNECTED)
 	// then propogate a netsplit to all peers.
