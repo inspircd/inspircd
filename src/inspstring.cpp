@@ -212,7 +212,7 @@ std::string Base64ToBin(const std::string& data_str, const char* table)
 	std::string rv;
 	while (ok)
 	{
-		const char* find = strchr(table, *data);
+		const char* find = strchr(table, *data++);
 		ok = (find && find < table + 64);
 		buffer = (buffer << 6) | (ok ? find - table : 0);
 		bitcount += 6;

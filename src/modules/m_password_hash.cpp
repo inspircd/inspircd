@@ -44,6 +44,7 @@ class CommandMkpasswd : public Command
 
 			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
 				user->nick.c_str(), algo.c_str(), stuff.c_str(), str.c_str());
+			return;
 		}
 		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + algo);
 		if (hp)
