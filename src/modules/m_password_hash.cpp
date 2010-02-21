@@ -16,6 +16,19 @@
 #include "inspircd.h"
 #include "m_hash.h"
 
+static std::string hmac(HashProvider* hp, const std::string& key, const std::string& msg)
+{
+	std::string hmac1, hmac2;
+	for (size_t n = 0; n < key.length(); n++)
+	{
+		hmac1.push_back(static_cast<char>(key[n] ^ 0x5C));
+		hmac2.push_back(static_cast<char>(key[n] ^ 0x36));
+	}
+	hmac2.append(msg);
+	hmac1.append(hp->sum(hmac2));
+	return hp->sum(hmac1);
+}
+
 /* Handle /MKPASSWD
  */
 class CommandMkpasswd : public Command
@@ -29,6 +42,22 @@ class CommandMkpasswd : public Command
 
 	void MakeHash(User* user, const std::string& algo, const std::string& stuff)
 	{
+		if (algo.substr(0,5) == "hmac-")
+		{
+			std::string type = algo.substr(5);
+			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
+			if (!hp)
+			{
+				user->WriteServ("NOTICE %s :Unknown hash type", user->nick.c_str());
+				return;
+			}
+			std::string salt = GenRandomStr(6, false);
+			std::string target = hmac(hp, salt, stuff);
+			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
+
+			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
+				user->nick.c_str(), algo.c_str(), stuff.c_str(), str.c_str());
+		}
 		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + algo);
 		if (hp)
 		{
@@ -38,7 +67,6 @@ class CommandMkpasswd : public Command
 		}
 		else
 		{
-			/* I dont do flying, bob. */
 			user->WriteServ("NOTICE %s :Unknown hash type", user->nick.c_str());
 		}
 	}
@@ -68,6 +96,33 @@ class ModuleOperHash : public Module
 
 	virtual ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 	{
+		if (hashtype.substr(0,5) == "hmac-")
+		{
+			std::string type = hashtype.substr(5);
+			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
+			if (!hp)
+				return MOD_RES_PASSTHRU;
+			// this is a valid hash, from here on we either accept or deny
+			std::string::size_type sep = data.find('$');
+			if (sep == std::string::npos)
+				return MOD_RES_DENY;
+			std::string salt = Base64ToBin(data.substr(0, sep));
+			std::string target = Base64ToBin(data.substr(sep + 1));
+
+			std::string hmac1, hmac2;
+			for (size_t n = 0; n < salt.length(); n++)
+			{
+				hmac1.push_back(static_cast<char>(salt[n] ^ 0x5C));
+				hmac2.push_back(static_cast<char>(salt[n] ^ 0x36));
+			}
+			hmac2.append(input);
+			hmac1.append(hp->sum(hmac2));
+			if (target == hp->sum(hmac1))
+				return MOD_RES_ALLOW;
+			else
+				return MOD_RES_DENY;
+		}
+
 		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
 
 		/* Is this a valid hash name? */

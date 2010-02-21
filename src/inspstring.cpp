@@ -152,3 +152,75 @@ std::string BinToHex(const std::string& data)
 	}
 	return rv;
 }
+
+static const char b64table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+std::string BinToBase64(const std::string& data_str, const char* table, char pad)
+{
+	if (!table)
+		table = b64table;
+
+	uint32_t buffer;
+	uint8_t* data = (uint8_t*)data_str.data();
+	std::string rv;
+	size_t i = 0;
+	while (i + 2 < data_str.length())
+	{
+		buffer = (data[i] << 16 | data[i+1] << 8 | data[i+2]);
+		rv.push_back(table[0x3F & (buffer >> 18)]);
+		rv.push_back(table[0x3F & (buffer >> 12)]);
+		rv.push_back(table[0x3F & (buffer >>  6)]);
+		rv.push_back(table[0x3F & (buffer >>  0)]);
+		i += 3;
+	}
+	if (data_str.length() == i)
+	{
+		// no extra characters
+	}
+	else if (data_str.length() == i + 1)
+	{
+		buffer = data[i] << 16;
+		rv.push_back(table[0x3F & (buffer >> 18)]);
+		rv.push_back(table[0x3F & (buffer >> 12)]);
+		if (pad)
+		{
+			rv.push_back(pad);
+			rv.push_back(pad);
+		}
+	}
+	else if (data_str.length() == i + 2)
+	{
+		buffer = (data[i] << 16 | data[i] << 8);
+		rv.push_back(table[0x3F & (buffer >> 18)]);
+		rv.push_back(table[0x3F & (buffer >> 12)]);
+		rv.push_back(table[0x3F & (buffer >>  6)]);
+		if (pad)
+			rv.push_back(pad);
+	}
+	return rv;
+}
+
+std::string Base64ToBin(const std::string& data_str, const char* table)
+{
+	if (!table)
+		table = b64table;
+
+	bool ok = true;
+	int bitcount = 0;
+	uint32_t buffer;
+	const char* data = data_str.c_str();
+	std::string rv;
+	while (ok)
+	{
+		const char* find = strchr(table, *data);
+		ok = (find && find < table + 64);
+		buffer = (buffer << 6) | (ok ? find - table : 0);
+		bitcount += 6;
+		if (bitcount >= 8)
+		{
+			bitcount -= 8;
+			rv.push_back((buffer >> bitcount) & 0xFF);
+		}
+	}
+	return rv;
+}

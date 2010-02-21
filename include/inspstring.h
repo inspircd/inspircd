@@ -41,6 +41,10 @@ CoreExport bool charremove(char* mp, char remove);
 
 /** Binary to hexadecimal conversion */
 CoreExport std::string BinToHex(const std::string& data);
+/** Base64 encode */
+CoreExport std::string BinToBase64(const std::string& data, const char* table = NULL, char pad = 0);
+/** Base64 decode */
+CoreExport std::string Base64ToBin(const std::string& data, const char* table = NULL);
 
 #endif
 
