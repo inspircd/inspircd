@@ -29,18 +29,21 @@ class HashProvider : public DataProvider
 		return BinToHex(sum(data));
 	}
 
+	inline std::string b64sum(const std::string& data)
+	{
+		return BinToBase64(sum(data), NULL, 0);
+	}
+
 	/** Allows the IVs for the hash to be specified. As the choice of initial IV is
 	 * important for the security of a hash, this should not be used except to
 	 * maintain backwards compatability. This also allows you to change the hex
 	 * sequence from its default of "0123456789abcdef", which does not improve the
 	 * strength of the output, but helps confuse those attempting to implement it.
 	 *
-	 * Only m_md5 implements this request; only m_cloaking should use it.
-	 *
 	 * Example:
 	 * \code
 	 * unsigned int iv[] = { 0xFFFFFFFF, 0x00000000, 0xAAAAAAAA, 0xCCCCCCCC };
-	 * std::string result = Hash.sumIV(iv, "0123456789abcdef", "data");
+	 * std::string result = Hash.sumIV(iv, "fedcba9876543210", "data");
 	 * \endcode
 	 */
 	virtual std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata) = 0;

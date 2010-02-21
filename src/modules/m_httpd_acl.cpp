@@ -105,61 +105,6 @@ class ModuleHTTPAccessList : public Module
 		response.Send();
 	}
 
-	bool IsBase64(unsigned char c)
-	{
-		return (isalnum(c) || (c == '+') || (c == '/'));
-	}
-
-	std::string Base64Decode(const std::string &base64)
-	{
-		const std::string base64_chars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-		int inputlen = base64.length();
-		int i = 0, j = 0, input = 0;
-		unsigned char longbuf[4], shortbuf[3];
-		std::string retval;
-
-		if (inputlen == 0)
-			return "";
-
-		while (inputlen-- && (base64[input] != '=') && IsBase64(base64[input]))
-		{
-			longbuf[i++] = base64[input];
-			input++;
-			if (i == 4)
-			{
-				for (i = 0; i < 4; ++i)
-					longbuf[i] = base64_chars.find(longbuf[i]);
-
-				shortbuf[0] = (longbuf[0] << 2)		+ ((longbuf[1] & 0x30) >> 4);
-				shortbuf[1] = ((longbuf[1] & 0xf) << 4)	+ ((longbuf[2] & 0x3c) >> 2);
-				shortbuf[2] = ((longbuf[2] & 0x3) << 6)	+ longbuf[3];
-
-				for (i = 0; i < 3; ++i)
-					retval += shortbuf[i];
-
-				i = 0;
-			}
-		}
-
-		if (i)
-		{
-			for (j = i; j < 4; ++j)
-				longbuf[j] = 0;
-
-			for (j = 0; j < 4; ++j)
-				longbuf[j] = base64_chars.find(longbuf[j]);
-
-			shortbuf[0] = (longbuf[0] << 2)		+ ((longbuf[1] & 0x30) >> 4);
-			shortbuf[1] = ((longbuf[1] & 0xf) << 4)	+ ((longbuf[2] & 0x3c) >> 2);
-			shortbuf[2] = ((longbuf[2] & 0x3) << 6)	+ longbuf[3];
-
-			for (j = 0; j < i - 1; ++j)
-				retval += shortbuf[j];
-		}
-
-		return retval;
-	}
-
 	void OnEvent(Event& event)
 	{
 		if (event.id == "httpd_acl")
@@ -230,7 +175,7 @@ class ModuleHTTPAccessList : public Module
 								std::string pass;
 
 								sep.GetToken(base64);
-								std::string userpass = Base64Decode(base64);
+								std::string userpass = Base64ToBin(base64);
 								ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "HTTP authorization: %s (%s)", userpass.c_str(), base64.c_str());
 
 								irc::sepstream userpasspair(userpass, ':');
