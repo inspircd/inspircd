@@ -190,7 +190,7 @@ std::string BinToBase64(const std::string& data_str, const char* table, char pad
 	}
 	else if (data_str.length() == i + 2)
 	{
-		buffer = (data[i] << 16 | data[i] << 8);
+		buffer = (data[i] << 16 | data[i+1] << 8);
 		rv.push_back(table[0x3F & (buffer >> 18)]);
 		rv.push_back(table[0x3F & (buffer >> 12)]);
 		rv.push_back(table[0x3F & (buffer >>  6)]);
@@ -205,16 +205,16 @@ std::string Base64ToBin(const std::string& data_str, const char* table)
 	if (!table)
 		table = b64table;
 
-	bool ok = true;
 	int bitcount = 0;
 	uint32_t buffer;
 	const char* data = data_str.c_str();
 	std::string rv;
-	while (ok)
+	while (true)
 	{
 		const char* find = strchr(table, *data++);
-		ok = (find && find < table + 64);
-		buffer = (buffer << 6) | (ok ? find - table : 0);
+		if (!find || find >= table + 64)
+			break;
+		buffer = (buffer << 6) | (find - table);
 		bitcount += 6;
 		if (bitcount >= 8)
 		{
