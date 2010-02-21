@@ -48,17 +48,19 @@
  */
 
 /* $ModDesc: Allows for SHA-256 encrypted oper passwords */
-/* $ModDep: m_hash.h */
 
 #include "inspircd.h"
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "m_hash.h"
+#include "hash.h"
 
 #ifndef HAS_STDINT
 typedef unsigned int uint32_t;
 #endif
+
+#define SHA256_DIGEST_SIZE (256 / 8)
+#define SHA256_BLOCK_SIZE  (512 / 8)
 
 /** An sha 256 context, used by m_opersha256
  */
@@ -257,7 +259,7 @@ class HashSHA256 : public HashProvider
 		return "";
 	}
 
-	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256") {}
+	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256", 32, 64) {}
 };
 
 class ModuleSHA256 : public Module

@@ -48,7 +48,6 @@
 
 
 /* $ModDesc: Allows for RIPEMD-160 encrypted oper passwords */
-/* $ModDep: m_hash.h */
 
 /* macro definitions */
 
@@ -56,7 +55,7 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "m_hash.h"
+#include "hash.h"
 
 #define RMDsize 160
 
@@ -448,7 +447,7 @@ public:
 		return "";
 	}
 
-	RIProv(Module* m) : HashProvider(m, "hash/ripemd160") {}
+	RIProv(Module* m) : HashProvider(m, "hash/ripemd160", 20, 64) {}
 };
 
 class ModuleRIPEMD160 : public Module

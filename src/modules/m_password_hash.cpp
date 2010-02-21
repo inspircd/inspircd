@@ -14,20 +14,7 @@
 /* $ModDesc: Allows for hashed oper passwords */
 
 #include "inspircd.h"
-#include "m_hash.h"
-
-static std::string hmac(HashProvider* hp, const std::string& key, const std::string& msg)
-{
-	std::string hmac1, hmac2;
-	for (size_t n = 0; n < key.length(); n++)
-	{
-		hmac1.push_back(static_cast<char>(key[n] ^ 0x5C));
-		hmac2.push_back(static_cast<char>(key[n] ^ 0x36));
-	}
-	hmac2.append(msg);
-	hmac1.append(hp->sum(hmac2));
-	return hp->sum(hmac1);
-}
+#include "hash.h"
 
 /* Handle /MKPASSWD
  */
@@ -51,8 +38,8 @@ class CommandMkpasswd : public Command
 				user->WriteServ("NOTICE %s :Unknown hash type", user->nick.c_str());
 				return;
 			}
-			std::string salt = GenRandomStr(6, false);
-			std::string target = hmac(hp, salt, stuff);
+			std::string salt = ServerInstance->GenRandomStr(6, false);
+			std::string target = hp->hmac(salt, stuff);
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
 
 			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
@@ -109,15 +96,7 @@ class ModuleOperHash : public Module
 			std::string salt = Base64ToBin(data.substr(0, sep));
 			std::string target = Base64ToBin(data.substr(sep + 1));
 
-			std::string hmac1, hmac2;
-			for (size_t n = 0; n < salt.length(); n++)
-			{
-				hmac1.push_back(static_cast<char>(salt[n] ^ 0x5C));
-				hmac2.push_back(static_cast<char>(salt[n] ^ 0x36));
-			}
-			hmac2.append(input);
-			hmac1.append(hp->sum(hmac2));
-			if (target == hp->sum(hmac1))
+			if (target == hp->hmac(salt, input))
 				return MOD_RES_ALLOW;
 			else
 				return MOD_RES_DENY;

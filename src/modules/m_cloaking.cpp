@@ -12,7 +12,7 @@
  */
 
 #include "inspircd.h"
-#include "m_hash.h"
+#include "hash.h"
 
 /* $ModDesc: Provides masking of user hostnames */
 

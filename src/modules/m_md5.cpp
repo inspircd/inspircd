@@ -12,13 +12,12 @@
  */
 
 /* $ModDesc: Allows for MD5 encrypted oper passwords */
-/* $ModDep: m_hash.h */
 
 #include "inspircd.h"
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "m_hash.h"
+#include "hash.h"
 
 /* The four core functions - F1 is optimized somewhat */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
@@ -273,7 +272,7 @@ class MD5Provider : public HashProvider
 		return res;
 	}
 
-	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5") {}
+	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5", 16, 64) {}
 };
 
 class ModuleMD5 : public Module

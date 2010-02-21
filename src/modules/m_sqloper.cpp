@@ -14,10 +14,9 @@
 #include "inspircd.h"
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
-#include "m_hash.h"
+#include "hash.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
-/* $ModDep: m_sqlv2.h m_sqlutils.h m_hash.h */
 
 typedef std::map<irc::string, Module*> hashymodules;
 
