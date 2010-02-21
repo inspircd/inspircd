@@ -14,10 +14,9 @@
 #include "inspircd.h"
 #include "m_sqlv2.h"
 #include "m_sqlutils.h"
-#include "m_hash.h"
+#include "hash.h"
 
 /* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
-/* $ModDep: m_sqlv2.h m_sqlutils.h m_hash.h */
 
 class ModuleSQLAuth : public Module
 {

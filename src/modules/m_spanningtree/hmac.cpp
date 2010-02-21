@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../m_hash.h"
+#include "../hash.h"
 #include "../ssl.h"
 #include "socketengine.h"
 
@@ -56,31 +56,23 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
 	{
-		/* This is how HMAC is supposed to be done:
-		 *
-		 * sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) )
-		 *
-		 * 5c and 36 were chosen as part of the HMAC standard, because they
-		 * flip the bits in a way likely to strengthen the function.
-		 */
-		std::string hmac1, hmac2;
-
-		for (size_t n = 0; n < password.length(); n++)
+		if (proto_version < 1202)
 		{
-			hmac1.push_back(static_cast<char>(password[n] ^ 0x5C));
-			hmac2.push_back(static_cast<char>(password[n] ^ 0x36));
-		}
+			/* This is how HMAC is done in InspIRCd 1.2:
+			 *
+			 * sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) )
+			 *
+			 * 5c and 36 were chosen as part of the HMAC standard, because they
+			 * flip the bits in a way likely to strengthen the function.
+			 */
+			std::string hmac1, hmac2;
 
-		if (proto_version >= 1202)
-		{
-			hmac2.append(challenge);
-			std::string hmac = sha256->hexsum(hmac1 + sha256->sum(hmac2));
+			for (size_t n = 0; n < password.length(); n++)
+			{
+				hmac1.push_back(static_cast<char>(password[n] ^ 0x5C));
+				hmac2.push_back(static_cast<char>(password[n] ^ 0x36));
+			}
 
-			return "AUTH:" + hmac;
-		}
-		else
-		{
-			// version 1.2 used a weaker HMAC, using hex output in the intermediate step
 			hmac2.append(challenge);
 			hmac2 = sha256->hexsum(hmac2);
 		
@@ -88,6 +80,10 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 			hmac = sha256->hexsum(hmac);
 
 			return "HMAC-SHA256:"+ hmac;
+		}
+		else
+		{
+			return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
 		}
 	}
 	else if (!challenge.empty() && !sha256)
