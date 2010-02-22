@@ -253,7 +253,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	return true;
 }
 
-ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine(this, "regex")
+ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine("regex")
 {
 }
 

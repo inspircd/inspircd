@@ -279,8 +279,7 @@ class CoreExport dynamic_reference_base : public interfacebase
  protected:
 	DataProvider* value;
  public:
-	ModuleRef creator;
-	dynamic_reference_base(Module* Creator, const std::string& Name);
+	dynamic_reference_base(const std::string& Name);
 	~dynamic_reference_base();
 	inline void ClearCache() { value = NULL; }
 	inline const std::string& GetProvider() { return name; }
@@ -293,9 +292,15 @@ template<typename T>
 class dynamic_reference : public dynamic_reference_base
 {
  public:
-	dynamic_reference(Module* Creator, const std::string& Name)
-		: dynamic_reference_base(Creator, Name) {}
+	dynamic_reference(const std::string& Name)
+		: dynamic_reference_base(Name) {}
 	inline T* operator->()
+	{
+		if (!value)
+			lookup();
+		return static_cast<T*>(value);
+	}
+	inline operator T*()
 	{
 		if (!value)
 			lookup();

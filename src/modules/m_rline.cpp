@@ -32,7 +32,7 @@ class RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(time_t s_time, long d, std::string src, std::string re, std::string regexs, dynamic_reference<RegexFactory>& rxfactory)
+	RLine(time_t s_time, long d, std::string src, std::string re, std::string regexs, RegexFactory* rxfactory)
 		: XLine(s_time, d, src, re, "R")
 	{
 		matchtext = regexs;
@@ -203,7 +203,7 @@ class ModuleRLine : public Module
 	bool MatchOnNickChange;
 
  public:
-	ModuleRLine() : rxfactory(this, "regex"), f(rxfactory), r(this, f)
+	ModuleRLine() : rxfactory("regex"), f(rxfactory), r(this, f)
 	{
 	}
 

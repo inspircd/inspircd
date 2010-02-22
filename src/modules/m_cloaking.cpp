@@ -119,7 +119,7 @@ class ModuleCloaking : public Module
 	dynamic_reference<HashProvider> Hash;
 
  public:
-	ModuleCloaking() : cu(this), Hash(this, "hash/md5")
+	ModuleCloaking() : cu(this), Hash("hash/md5")
 	{
 	}
 

@@ -464,8 +464,8 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 	}
 }
 
-dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
-	: name(Name), value(NULL), creator(Creator)
+dynamic_reference_base::dynamic_reference_base(const std::string& Name)
+	: name(Name), value(NULL)
 {
 	ServerInstance->Modules->ActiveDynrefs.push_back(this);
 }
