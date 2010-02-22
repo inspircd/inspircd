@@ -30,7 +30,7 @@
  * to it.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr)
-	: Utils(Util)
+	: Utils(Util), sync(this)
 {
 	age = ServerInstance->Time();
 	linkID = assign(link->Name);
@@ -62,7 +62,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
  * connection. This constructor is used for this purpose.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-	: BufferedSocket(newfd), Utils(Util)
+	: BufferedSocket(newfd), Utils(Util), sync(this)
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;

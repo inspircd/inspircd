@@ -71,6 +71,17 @@ struct CapabData
 	bool auth_challenge;			/* Did we auth using challenge/response */
 };
 
+class TreeSocket;
+
+class SpanningTreeSyncTarget : public SyncTarget
+{
+ public:
+	TreeSocket& ts;
+	SpanningTreeSyncTarget(TreeSocket* t) : ts(*t) {}
+	void SendMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
+	void SendEncap(const parameterlist &encap);
+};
+
 /** Every SERVER connection inbound or outbound is represented by an object of
  * type TreeSocket. During setup, the object can be found in Utils->timeoutlist;
  * after setup, MyRoot will have been created as a child of Utils->TreeRoot
@@ -86,6 +97,7 @@ class TreeSocket : public BufferedSocket
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
 	int proto_version;			/* Remote protocol version */
  public:
+	SpanningTreeSyncTarget sync;
 	time_t age;
 
 	/** Because most of the I/O gubbins are encapsulated within

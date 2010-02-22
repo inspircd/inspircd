@@ -130,11 +130,10 @@ void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&
 void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { }
 void		Module::OnGetServerDescription(const std::string&, std::string&) { }
-void		Module::OnSyncUser(User*, Module*, void*) { }
-void		Module::OnSyncChannel(Channel*, Module*, void*) { }
-void		Module::OnSyncNetwork(Module*, void*) { }
+void		Module::OnSyncUser(User*, SyncTarget*) { }
+void		Module::OnSyncChannel(Channel*, SyncTarget*) { }
+void		Module::OnSyncNetwork(SyncTarget*) { }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
-void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
 void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }
 void		Module::OnChangeName(User*, const std::string&) { }

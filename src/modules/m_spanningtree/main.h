@@ -158,8 +158,6 @@ class ModuleSpanningTree : public Module
 	void OnDelLine(User *u, XLine *x);
 	ModResult OnStats(char statschar, User* user, string_list &results);
 	ModResult OnSetAway(User* user, const std::string &awaymsg);
-	void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
-	void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
 	void OnLoadModule(Module* mod);
 	void OnUnloadModule(Module* mod);
 	StreamSocket* OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);

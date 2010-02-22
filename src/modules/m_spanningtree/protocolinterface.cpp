@@ -9,6 +9,31 @@
  * For documentation on this class, see include/protocol.h.
  */
 
+void SpanningTreeSyncTarget::SendMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
+{
+	User* u = dynamic_cast<User*>(target);
+	Channel* c = dynamic_cast<Channel*>(target);
+	if (u)
+		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
+	else if (c)
+		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
+	else if (!target)
+		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
+}
+
+void SpanningTreeSyncTarget::SendEncap(const parameterlist &encap)
+{
+	std::string line = ":"+ServerInstance->Config->GetSID()+" ENCAP";
+	for(parameterlist::const_iterator i = encap.begin(); i != encap.end(); i++)
+	{
+		line.push_back(' ');
+		if (i + 1 == encap.end())
+			line.push_back(':');
+		line.append(*i);
+	}
+	ts.WriteLine(line);
+}
+
 void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 {
 	sl.clear();

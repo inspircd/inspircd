@@ -33,6 +33,20 @@ class ProtoServer
 
 typedef std::list<ProtoServer> ProtoServerList;
 
+class SyncTarget : public classbase
+{
+ public:
+	/**
+	 * Send metadata during the netburst
+	 *
+	 * @param target The Channel* or User* that metadata should be sent for. NULL for network metadata.
+	 * @param extname The extension name to send metadata for
+	 * @param extdata Encoded data for this extension
+	 */
+	virtual void SendMetaData(Extensible* target, const std::string &extname, const std::string &extdata) = 0;
+	virtual void SendEncap(const parameterlist &encap) = 0;
+};
+
 class ProtocolInterface
 {
  public:

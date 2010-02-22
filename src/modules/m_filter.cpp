@@ -144,15 +144,15 @@ class ModuleFilter : public Module
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
-	void SyncFilters(Module* proto, void* opaque);
-	void SendFilter(Module* proto, void* opaque, FilterResult* iter);
+	void SyncFilters(SyncTarget* opaque);
+	void SendFilter(SyncTarget* opaque, FilterResult* iter);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags);
 	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	void OnRehash(User* user);
 	Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	void OnSyncNetwork(Module* proto, void* opaque);
+	void OnSyncNetwork(SyncTarget* opaque);
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 	ModResult OnStats(char symbol, User* user, string_list &results);
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line);
@@ -498,14 +498,14 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	return res;
 }
 
-void ModuleFilter::OnSyncNetwork(Module* proto, void* opaque)
+void ModuleFilter::OnSyncNetwork(SyncTarget* opaque)
 {
-	this->SyncFilters(proto, opaque);
+	this->SyncFilters(opaque);
 }
 
-void ModuleFilter::SendFilter(Module* proto, void* opaque, FilterResult* iter)
+void ModuleFilter::SendFilter(SyncTarget* opaque, FilterResult* iter)
 {
-	proto->ProtoSendMetaData(opaque, NULL, "filter", EncodeFilter(iter));
+	opaque->SendMetaData(NULL, "filter", EncodeFilter(iter));
 }
 
 void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
@@ -565,11 +565,11 @@ bool ModuleFilter::DeleteFilter(const std::string &freeform)
 	return false;
 }
 
-void ModuleFilter::SyncFilters(Module* proto, void* opaque)
+void ModuleFilter::SyncFilters(SyncTarget* opaque)
 {
 	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
-		this->SendFilter(proto, opaque, &(*i));
+		this->SendFilter(opaque, &(*i));
 	}
 }
 

@@ -35,6 +35,7 @@ class RemoteUser;
 class ServerConfig;
 class ServerLimits;
 class StreamSocket;
+class SyncTarget;
 class Thread;
 class User;
 class UserResolver;

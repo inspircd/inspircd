@@ -709,10 +709,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * synchronize data which you have stored using class Extensible -- There is a specialist
 	 * function OnSyncUserMetaData and OnSyncChannelMetaData for this!
 	 * @param user The user being syncronized
-	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
+	 * @param opaque An object that is used to send the sync data
 	 */
-	virtual void OnSyncUser(User* user, Module* proto, void* opaque);
+	virtual void OnSyncUser(User* user, SyncTarget* opaque);
 
 	/** Allows modules to synchronize data which relates to channels during a netburst.
 	 * When this function is called, it will be called from the module which implements
@@ -725,9 +724,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 *
 	 * @param chan The channel being syncronized
 	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
+	 * @param opaque An object that is used to send the sync data
 	 */
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque);
+	virtual void OnSyncChannel(Channel* chan, SyncTarget* opaque);
 
 	/* Allows modules to syncronize metadata not related to users or channels, over the network during a netburst.
 	 * Whenever the linking module wants to send out data, but doesnt know what the data
@@ -736,11 +735,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * correctly decided how the data should be represented, to send the metadata on its way if
 	 * if it belongs to your module.
 	 * @param proto A pointer to the module handling network protocol
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param displayable If this value is true, the data is going to be displayed to a user,
-	 * and not sent across the network. Use this to determine wether or not to show sensitive data.
+	 * @param opaque An object that is used to send the sync data
 	 */
-	virtual void OnSyncNetwork(Module* proto, void* opaque);
+	virtual void OnSyncNetwork(SyncTarget* opaque);
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
@@ -750,22 +747,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
 	 */
 	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
-
-	/** Implemented by modules which provide the ability to link servers.
-	 * These modules will implement this method, which allows metadata (extra data added to
-	 * user and channel records using class Extensible, Extensible::Extend, etc) to be sent
-	 * to other servers on a netburst and decoded at the other end by the same module on a
-	 * different server.
-	 *
-	 * More documentation to follow soon. Please see src/modules/m_swhois.cpp for example of
-	 * how to use this function.
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
-	 * @param target The Channel* or User* that metadata should be sent for
-	 * @param extname The extension name to send metadata for
-	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
-	 */
-	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
 
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS

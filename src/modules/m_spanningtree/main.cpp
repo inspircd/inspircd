@@ -873,41 +873,6 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const parameterlist &modeline, const std::vector<TranslateType> &translate)
-{
-	TreeSocket* s = (TreeSocket*)opaque;
-	std::string output_text;
-
-	ServerInstance->Parser->TranslateUIDs(translate, modeline, output_text);
-
-	if (target)
-	{
-		if (target_type == TYPE_USER)
-		{
-			User* u = (User*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" MODE "+u->uuid+" "+output_text);
-		}
-		else if (target_type == TYPE_CHANNEL)
-		{
-			Channel* c = (Channel*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
-		}
-	}
-}
-
-void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata)
-{
-	TreeSocket* s = static_cast<TreeSocket*>(opaque);
-	User* u = dynamic_cast<User*>(target);
-	Channel* c = dynamic_cast<Channel*>(target);
-	if (u)
-		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
-	else if (c)
-		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
-	else if (!target)
-		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
-}
-
 CullResult ModuleSpanningTree::cull()
 {
 	Utils->cull();
