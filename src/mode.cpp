@@ -229,6 +229,7 @@ irc::modechange::modechange(const std::string& name, const std::string& param, b
 }
 
 irc::modechange::modechange(char modechar, ModeType type, const std::string& param, bool add)
+	: adding(add), value(param)
 {
 	ModeHandler* mh = ServerInstance->Modes->FindMode(modechar, type);
 	if (mh)
