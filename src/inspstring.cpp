@@ -11,8 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 
 /*
@@ -206,7 +204,7 @@ std::string Base64ToBin(const std::string& data_str, const char* table)
 		table = b64table;
 
 	int bitcount = 0;
-	uint32_t buffer;
+	uint32_t buffer = 0;
 	const char* data = data_str.c_str();
 	std::string rv;
 	while (true)
