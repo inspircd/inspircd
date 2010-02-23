@@ -205,6 +205,9 @@ class CoreExport ServerConfig
 	/** True if this configuration is valid enough to run with */
 	bool valid;
 
+	/** Bind to IPv6 by default */
+	bool WildcardIPv6;
+
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
 

@@ -124,10 +124,6 @@ void TreeSocket::SendCapabilities(int phase)
 	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
 	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
 
-	int ip6 = 0;
-#ifdef IPV6
-	ip6 = 1;
-#endif
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
 	if (Utils->ChallengeResponse && (ServerInstance->Modules->Find("m_sha256.so")))
@@ -146,7 +142,6 @@ void TreeSocket::SendCapabilities(int phase)
 			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
 			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
-			" IP6NATIVE="+ConvToStr(ip6)+
 			" IP6SUPPORT=1"+
 			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
