@@ -22,7 +22,7 @@ ServerConfig::ServerConfig()
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
-	CycleHosts = InvBypassModes = true;
+	WildcardIPv6 = CycleHosts = InvBypassModes = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -498,6 +498,24 @@ void ServerConfig::Fill()
 	if (!sid.empty() && !ServerInstance->IsSID(sid))
 		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 
+	std::string defbind = options->getString("defaultbind");
+	if (assign(defbind) == "ipv4")
+	{
+		WildcardIPv6 = false;
+	}
+	else if (assign(defbind) == "ipv6")
+	{
+		WildcardIPv6 = true;
+	}
+	else
+	{
+		WildcardIPv6 = true;
+		int socktest = socket(AF_INET6, SOCK_STREAM, 0);
+		if (socktest < 0)
+			WildcardIPv6 = false;
+		else
+			close(socktest);
+	}
 	ConfigTagList tags = ConfTags("uline");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
