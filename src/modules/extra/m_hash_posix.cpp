@@ -31,7 +31,7 @@ class ModulePosixCrypt : public Module
 		if (hashtype == "posix")
 		{
 			const char* res = crypt(input.c_str(), data.c_str());
-			if (data == res)
+			if (data == std::string(res))
 				return MOD_RES_ALLOW;
 			else
 				return MOD_RES_DENY;
