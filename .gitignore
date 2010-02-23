@@ -14,6 +14,7 @@
 /include/inspircd_version.h
 
 /src/modules/m_geoip.cpp
+/src/modules/m_hash_posix.cpp
 /src/modules/m_ldapauth.cpp
 /src/modules/m_ldapoper.cpp
 /src/modules/m_mssql.cpp
