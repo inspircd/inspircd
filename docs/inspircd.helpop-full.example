@@ -31,7 +31,7 @@ PRIVMSG   NOTICE   NICK      JOIN      PART
 CYCLE     KNOCK    MODE      DEVOICE   TOPIC
 KICK      FPART    REMOVE    TBAN      INVITE
 UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
-MKPASSWD  VHOST    TITLE
+MKPASSWD  VHOST    TITLE     SETNAME
 
 WHOIS     WHOWAS   ISON      USERHOST  WATCH
 LIST      NAMES    WHO       MOTD      RULES
@@ -300,7 +300,7 @@ removes your away status and previous message.">
 Returns a subset of the nicks you give, showing only those
 that are currently online.">
 
-<helpop key="invite" value="/INVITE [nick] [channel]
+<helpop key="invite" value="/INVITE [nick] [channel] {[time]}
 
 Invites a user to a channel. If the channel is NOT +A, only
 channel halfoperators or above can invite people. If +A is set,
@@ -309,7 +309,10 @@ doing the invite is a member of the channel they wish to invite
 the user to.
 
 Invited users may override bans, +k, and similar in addition to
-+i, depending on configuration.">
++i, depending on configuration.
+
+If a time is provided, the invite expires after that time and the user
+can no longer use it to enter the channel.">
 
 <helpop key="pass" value="/PASS [password]
 
@@ -351,6 +354,11 @@ server.">
 Returns information on the developers and supporters who made this
 IRC server possible.">
 
+<helpop key="setname" value="/SETNAME [name]
+
+Sets your name to the specified name.">
+
+
 #####################
 #   Oper Commands   #
 #####################
@@ -361,8 +369,8 @@ IRC server possible.">
 OPERMOTD  CHECK     TAXONOMY    CLONES   USERIP
 TLINE     ALLTIME   MODULES     WALLOPS  GLOBOPS
 
-SETHOST   SETIDENT  SETNAME     CHGHOST  CHGIDENT
-CHGNAME   SETIDLE   SWHOIS
+SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
+SETIDLE   SWHOIS
 
 SANICK    NICKLOCK  NICKUNLOCK
 
@@ -475,10 +483,15 @@ it is also removed from the config file.">
 Retrieves a list of users with more clones than the specified
 limit.">
 
-<helpop key="check" value="/CHECK [nick|ip|hostmask|channel]
+<helpop key="check" value="/CHECK [nick|ip|hostmask|channel] {[server]}
 
 Allows opers to look up advanced information on channels, hostmasks
-or IP addresses, in a similar way to WHO but in more detail.">
+or IP addresses, in a similar way to WHO but in more detail, displaying
+most information the IRCD has stored on the target, including all
+metadata.
+
+With the second parameter given, runs the command remotely on the
+specified server.">
 
 <helpop key="alltime" value="/ALLTIME
 
@@ -539,10 +552,6 @@ Sets your host to the specified host.">
 <helpop key="setident" value="/SETIDENT [ident]
 
 Sets your ident to the specified ident.">
-
-<helpop key="setname" value="/SETNAME [name]
-
-Sets your name to the specified name.">
 
 <helpop key="swhois" line="/SWHOIS [nick] [swhois]
 
