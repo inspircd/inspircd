@@ -977,47 +977,59 @@ Note that all /STATS use is broadcast to online IRC operators.">
 <helpop key="extbans" value="Extended Bans
 ----------
 
- c:n!u@h       Blocks any messages that contain colour codes from
+Extbans are split into two types; matching extbans, which match on
+users in additional ways, and acting extbans, which restrict users
+in different ways to a standard ban.
+
+To use an extban, simply set +b <ban> or +e <ban> with it as the ban,
+instead of a normal nick!user@host mask, to ban or exempt matching
+users. Ban exceptions on acting extbans exempt that user from matching
+an extban of that type, and from any channel mode corresponding to the
+restriction. Matching extbans may also be used for invite exceptions by
+setting +I <extban>.
+
+Matching extbans:
+
+ j:#channel    Matches anyone in #channel. Does not support wildcards
+               for #channel (requires channelban module).
+ r:realname    Matches users with a matching realname (requires gecosban
+               module).
+ s:server      Matches users on a matching server (requires serverban
+               module).
+ z:fingerprint Matches users with a matching ssl fingerprint (requires
+               sslmodes module)
+ O:opertype    Matches IRCops of a matching type, mostly useful as an
+               an invite exception (requires operchans module).
+ R:account     Matches users logged into a matching account (requires
+               services account module).
+
+Acting extbans:
+
+ c:<ban>       Blocks any messages that contain colour codes from
                matching users (requires blockcolor module).
- j:#channel    Prevents anyone in #channel from joining the channel
-               (requires channelban module).
- m:n!u@h       Blocks messages from matching users (requires muteban
-               module).
- p:n!u@h       Blocks part messages from matching users (requires
+ m:<ban>       Blocks messages from matching users (requires muteban
+               module). Users with +v or above are not affected.
+ p:<ban>       Blocks part messages from matching users (requires
                nopartmsg module).
- r:realname    Prevents users with a matching realname from joining
-               the channel (requires gecosban module).
- s:server      Prevents users on a matching server from joining the
-               channel (requires services account).
- z:fingerprint Prevents users with a matching ssl fingerprint from
-               joining the server. (requires sslmodes module)
- A:n!u@h       Blocks invites by matching users even when +A is set
+ A:<ban>       Blocks invites by matching users even when +A is set
                (requires allowinvite module).
- B:n!u@h       Blocks all capital or nearly all capital messages from
+ B:<ban>       Blocks all capital or nearly all capital messages from
                matching users (requires blockcaps module).
- C:n!u@h       Blocks CTCPs from matching users (requires noctcp
+ C:<ban>       Blocks CTCPs from matching users (requires noctcp
                module).
- M:account     Blocks messages from users logged into a matching
-               account (requires services account module).
- N:n!u@h       Blocks nick changes from matching users (requires
+ N:<ban>       Blocks nick changes from matching users (requires
                nonicks module).
- O:opertype    Prevents IRCops of the specified opertype from joining
-               the channel, mostly useful as an invite exception (IRCop
-               only, requires operchans module).
- Q:n!u@h       Blocks kicks by matching users (requires nokicks
+ Q:<ban>       Blocks kicks by matching users (requires nokicks
                module).
- R:account     Prevents users logged into a matching account from
-               joining the channel (requires services account module).
- S:n!u@h       Strips color/bold/underline from messages from matching
+ S:<ban>       Strips color/bold/underline from messages from matching
                users (requires stripcolor module).
- T:n!u@h       Blocks notices from matching users (requires nonotice
+ T:<ban>       Blocks notices from matching users (requires nonotice
                module).
+
+A ban given to an acting extban may either be a nick!user@host mask,
+matched against users as for a normal ban, or a matching extban.
+
+There is an additional special type of extended ban, a redirect ban:
 
  Redirect      n!u@h#channel will redirect the banned user to #channel
-               when they try to join (requires banredirect module).
-
-All extbans that prevent users from joining may by used for ban
-exceptions and invite exceptions (invex), and extbans blocking
-specific actions may be used for ban exceptions to exempt people from
-either wider extbans or the restrictive mode matching the extban,
-where one exists.">
+               when they try to join (requires banredirect module).">
