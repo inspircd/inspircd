@@ -366,8 +366,8 @@ Sets your name to the specified name.">
 <helpop key="coper" value="Oper Commands
 -------------
 
-OPERMOTD  CHECK     TAXONOMY    CLONES   USERIP
-TLINE     ALLTIME   MODULES     WALLOPS  GLOBOPS
+OPERMOTD  CHECK     CLONES      USERIP   LINE
+ALLTIME   MODULES   WALLOPS     GLOBOPS
 
 SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
 SETIDLE   SWHOIS
@@ -397,10 +397,6 @@ Returns the ip and nickname of a user.">
 This command returns the number of local and global clients matched,
 and the percentage of clients matched, plus how they were matched
 (by IP address or by hostname).">
-
-<helpop key="taxonomy" value="/TAXONOMY [nick]
-
-Lists all metadata attached to the user.">
 
 <helpop key="lockserv" value="/LOCKSERV
 
@@ -825,11 +821,12 @@ Closes all unregistered connections to the local server.">
 
  c                  Blocks messages containing mIRC colour codes
                     (requires blockcolor module).
+ d [time]           Blocks messages to a channel from new users
+                    until they have been in the channel for [time]
+                    seconds (requires delaymsg module).
  f [*][lines]:[sec] Kicks on text flood equal to or above the
                     specified rate. With *, the user is banned
                     (requires messageflood module).
- g [mask]           Blocks messages matching the given blob mask
-                    (requires chanfilter module).
  i                  Makes the channel invite-only.
                     Users can only join if an operator
                     uses /INVITE to invite them.
@@ -841,11 +838,11 @@ Closes all unregistered connections to the local server.">
                     can speak.
  n                  Blocks users who are not members of the channel
                     from messaging it.
- p                  Make channel private, hiding it in user's whoises
+ p                  Make channel private, hiding it in users' whoises
                     and replacing it with * in /LIST.
  r                  Marks the channel as registered with Services
                     (requires services account module).
- s                  Make channel secret, hiding it in user's whoises
+ s                  Make channel secret, hiding it in users' whoises
                     and /LIST.
  t                  Prevents users without +h or +o from changing the
                     topic.
@@ -899,6 +896,11 @@ Closes all unregistered connections to the local server.">
                     channel (requirs stripcolor module).
  T                  Blocks /NOTICEs to the channel from users who are
                     not at least halfop (requires nonotice module).
+ 
+ g [mask]           Blocks messages matching the given blob mask
+                    (requires chanfilter module).
+ X [mode]           Makes channel operators immune to the specified
+                    restrictive mode (requires exemptchanops module).
 
 -------------
 NOTE: A large number of these modes are dependent upon server-side modules
