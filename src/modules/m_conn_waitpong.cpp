@@ -25,6 +25,10 @@ class ModuleWaitPong : public Module
 	ModuleWaitPong()
 	 : ext("waitpong_pingstr", this)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 4);

@@ -149,6 +149,10 @@ class ModuleCgiIRC : public Module
 public:
 	ModuleCgiIRC() : cmd(this, NotifyOpers)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Extensions.Register(&cmd.realhost);

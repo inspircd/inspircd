@@ -88,6 +88,10 @@ class ModuleCustomTitle : public Module
  public:
 	ModuleCustomTitle() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Extensions.Register(&cmd.ctitle);
 		ServerInstance->Modules->Attach(I_OnWhoisLine, this);

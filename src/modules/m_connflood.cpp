@@ -25,8 +25,8 @@ private:
 	std::string quitmsg;
 
 public:
-	ModuleConnFlood() 	{
-
+	void init()
+	{
 		InitConf();
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

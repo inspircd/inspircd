@@ -77,7 +77,11 @@ class ModuleChgIdent : public Module
 public:
 	ModuleChgIdent() : cmd(this)
 	{
-		ServerInstance->AddCommand(&cmd);
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(cmd);
 	}
 
 	virtual ~ModuleChgIdent()
