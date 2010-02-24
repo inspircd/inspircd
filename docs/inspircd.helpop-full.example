@@ -378,7 +378,7 @@ SAJOIN    SAPART    SAMODE      SATOPIC  SAKICK
 
 KILL      SAQUIT    GLINE       ZLINE    QLINE
 KLINE     RLINE     ELINE       CBAN     SHUN
-FILTER
+FILTER    OJOIN
 
 CONNECT   SQUIT     RCONNECT    RSQUIT
 
@@ -473,6 +473,13 @@ When only one parameter is provided (the filter pattern) the provided
 filter will be removed. Note that if you remove a
 configuration-defined filter, it will reappear at next rehash unless
 it is also removed from the config file.">
+
+<helpop key="ojoin" value="/OJOIN [#chan]
+
+Force joins you to the specified channel, and gives you +Y and any other
+configuration-defined modes on it, preventing you from being kicked.
+Depending on configuration, may announce that you have joined the
+channel on official network business.">
 
 <helpop key="clones" value="/CLONES [limit]
 
