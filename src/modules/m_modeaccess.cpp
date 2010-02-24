@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "opflags.h"
 #include "u_listmode.h"
 
 /* $ModDesc: Provides the ability to adjust the prefix required for setting modes */
@@ -49,12 +50,13 @@ class ModeCheckHandler : public HandlerBase3<ModResult, User*, Channel*, irc::mo
 {
  public:
 	ModeAccess mode;
-	ModeCheckHandler(Module* parent) : mode(parent) {}
+	dynamic_reference<OpFlagProvider> permcheck;
+	ModeCheckHandler(Module* parent) : mode(parent), permcheck("opflags") {}
 
 	ModResult Call(User* user, Channel* chan, irc::modechange& mc)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindMode(mc.mode);
-		unsigned int ourrank = chan->GetPrefixValue(user);
+		Membership* memb = chan->GetUser(user);
 
 		unsigned int neededrank = mh->GetLevelRequired();
 		ModeHandler* neededmh = NULL;
@@ -83,15 +85,25 @@ class ModeCheckHandler : public HandlerBase3<ModResult, User*, Channel*, irc::mo
 				{
 					// overridden
 					neededname = (**i).mask.substr(pos + 1);
-					ModeHandler* privmh = neededname.length() == 1 ?
-						ServerInstance->Modes->FindMode(neededname[0], MODETYPE_CHANNEL) :
-						ServerInstance->Modes->FindMode(neededname);
-					neededrank = privmh ? privmh->GetPrefixRank() : INT_MAX;
+					if (permcheck)
+					{
+						if (permcheck->PermissionCheck(memb, neededname))
+							neededrank = 0;
+						else
+							neededrank = INT_MAX;
+					}
+					else
+					{
+						ModeHandler* privmh = neededname.length() == 1 ?
+							ServerInstance->Modes->FindMode(neededname[0], MODETYPE_CHANNEL) :
+							ServerInstance->Modes->FindMode(neededname);
+						neededrank = privmh ? privmh->GetPrefixRank() : INT_MAX;
+					}
 				}
 			}
 		}
 
-		if (ourrank >= neededrank)
+		if (!neededrank || (memb && memb->getRank() >= neededrank))
 			return MOD_RES_ALLOW;
 
 		if (neededname.empty())

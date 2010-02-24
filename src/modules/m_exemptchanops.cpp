@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "opflags.h"
 #include "u_listmode.h"
 
 /* $ModDesc: Provides the ability to allow channel operators to be exempt from certain modes. */
@@ -56,10 +57,11 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 {
  public:
 	ExemptChanOps ec;
-	ExemptHandler(Module* me) : ec(me) {}
+	dynamic_reference<OpFlagProvider> permcheck;
+	ExemptHandler(Module* me) : ec(me), permcheck("opflags") {}
 	ModResult Call(User* user, Channel* chan, const std::string& restriction)
 	{
-		unsigned int mypfx = chan->GetPrefixValue(user);
+		Membership* memb = chan->GetUser(user);
 		std::string minmode;
 
 		modelist* list = ec.extItem.get(chan);
@@ -76,13 +78,23 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 			}
 		}
 
-		ModeHandler* mh = minmode.length() == 1 ?
-			ServerInstance->Modes->FindMode(minmode[0], MODETYPE_CHANNEL) :
-			ServerInstance->Modes->FindMode(minmode);
-		if (mh && mypfx >= mh->GetPrefixRank())
-			return MOD_RES_ALLOW;
-		if (mh || minmode == "*")
-			return MOD_RES_DENY;
+		if (permcheck && !minmode.empty())
+		{
+			if (permcheck->PermissionCheck(memb, minmode))
+				return MOD_RES_ALLOW;
+			else
+				return MOD_RES_DENY;
+		}
+		else if (memb && !minmode.empty())
+		{
+			ModeHandler* mh = minmode.length() == 1 ?
+				ServerInstance->Modes->FindMode(minmode[0], MODETYPE_CHANNEL) :
+				ServerInstance->Modes->FindMode(minmode);
+			if (mh && memb->getRank() >= mh->GetPrefixRank())
+				return MOD_RES_ALLOW;
+			if (mh || minmode == "*")
+				return MOD_RES_DENY;
+		}
 		return ServerInstance->HandleOnCheckExemption.Call(user, chan, restriction);
 	}
 };

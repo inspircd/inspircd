@@ -12,15 +12,59 @@
  */
 
 #include "inspircd.h"
+#include "opflags.h"
 
 /* $ModDesc: Handles +x flag:nick channel mode */
+
+class OpFlagProviderImpl : public OpFlagProvider
+{
+ public:
+	SimpleExtItem<std::vector<std::string> > ext;
+	OpFlagProviderImpl(Module* parent) : OpFlagProvider(parent, "opflags"), ext("flaglist", parent)
+	{
+	}
+
+	const std::vector<std::string>* GetFlags(Membership* memb)
+	{
+		return ext.get(memb);
+	}
+
+	bool PermissionCheck(Membership* memb, const std::string& needed)
+	{
+		if (!memb)
+			return false;
+		irc::commasepstream flags(needed);
+		std::string flag;
+		if (flags.GetToken(flag))
+		{
+			ModeHandler* privmh = flag.length() == 1 ?
+				ServerInstance->Modes->FindMode(flag[0], MODETYPE_CHANNEL) :
+				ServerInstance->Modes->FindMode(flag);
+			unsigned int neededrank = privmh ? privmh->GetPrefixRank() : INT_MAX;
+			if (memb->getRank() >= neededrank)
+				return true;
+		}
+		std::vector<std::string>* mine = ext.get(memb);
+		if (!mine)
+			return false;
+		while (flags.GetToken(flag))
+		{
+			for(std::vector<std::string>::iterator i = mine->begin(); i != mine->end(); i++)
+			{
+				if (flag == *i)
+					return true;
+			}
+		}
+		return false;
+	}
+};
 
 class FlagMode : public ModeHandler
 {
  public:
-	SimpleExtItem<std::vector<std::string> > ext;
+	OpFlagProviderImpl prov;
 	FlagMode(Module* parent) : ModeHandler(parent, "opflags", 'x', PARAM_ALWAYS, MODETYPE_CHANNEL),
-		ext("flaglist", parent)
+		prov(parent)
 	{
 		fixed_letter = true;
 		list = true;
@@ -52,9 +96,9 @@ class FlagMode : public ModeHandler
 		Membership* memb = channel->GetUser(dest);
 		if (!memb)
 			return MODEACTION_DENY;
-		std::vector<std::string>* ptr = ext.get(memb);
+		std::vector<std::string>* ptr = prov.ext.get(memb);
 		if (adding && !ptr)
-			ext.set(memb, ptr = new std::vector<std::string>);
+			prov.ext.set(memb, ptr = new std::vector<std::string>);
 		if (!ptr)
 			return MODEACTION_ALLOW;
 		for(std::vector<std::string>::iterator i = ptr->begin(); i != ptr->end(); i++)
@@ -67,7 +111,7 @@ class FlagMode : public ModeHandler
 				{
 					ptr->erase(i);
 					if (ptr->empty())
-						ext.unset(memb);
+						prov.ext.unset(memb);
 					return MODEACTION_ALLOW;
 				}
 			}
@@ -82,7 +126,7 @@ class FlagMode : public ModeHandler
 		const UserMembList* users = channel->GetUsers();
 		for(UserMembCIter u = users->begin(); u != users->end(); u++)
 		{
-			std::vector<std::string>* ptr = ext.get(u->second);
+			std::vector<std::string>* ptr = prov.ext.get(u->second);
 			if (ptr)
 			{
 				for(std::vector<std::string>::iterator i = ptr->begin(); i != ptr->end(); i++)
@@ -119,6 +163,8 @@ class ModuleCustomPrefix : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(mode);
+		ServerInstance->Modules->AddService(mode.prov);
+		ServerInstance->Modules->AddService(mode.prov.ext);
 	}
 
 	Version GetVersion()
