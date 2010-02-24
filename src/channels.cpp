@@ -721,16 +721,9 @@ void Channel::ChanModes(irc::modestacker& cmodes, ModeListType type)
 		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
 		if (!mh || mh->GetModeType() != MODETYPE_CHANNEL)
 			continue;
-		if (mh->IsListMode())
+		if (mh->IsListMode() && type == MODELIST_FULL)
 		{
-			const modelist* ml = mh->GetList(this);
-			if (ml && type == MODELIST_FULL)
-			{
-				for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
-				{
-					cmodes.push(irc::modechange(id, (**i).mask, true));
-				}
-			}
+			mh->PopulateChanModes(this, cmodes);
 		}
 		else if (this->IsModeSet(mh))
 		{

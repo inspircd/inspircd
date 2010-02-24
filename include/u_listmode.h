@@ -115,6 +115,7 @@ class CoreExport ListModeBase : public ModeHandler
 	}
 
 	virtual void DisplayList(User* user, Channel* channel);
+	virtual void PopulateChanModes(Channel* channel, irc::modestacker& stack);
 	virtual const modelist* GetList(Channel* channel);
 
 	virtual void DisplayEmptyList(User* user, Channel* channel)

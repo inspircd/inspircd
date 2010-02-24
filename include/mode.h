@@ -173,13 +173,13 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * True if the mode requires oper status
 	 * to set.
 	 */
-	bool oper;
+	unsigned int oper:1;
 
 	/**
 	 * True if the letter for this mode needs to stay fixed,
 	 * that is, can't be changed in the configuration
 	 */
-	bool fixed_letter;
+	unsigned int fixed_letter:1;
 
 	/**
 	 * Mode is a 'list' mode. The behaviour
@@ -191,12 +191,12 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * wether your module can produce 'lists' or not
 	 * (e.g. banlists, etc)
 	 */
-	bool list;
+	unsigned int list:1;
 
  public:
 	/** Mode is disabled by the configuration file
 	 */
-	bool disabled;
+	unsigned int disabled:1;
 
 	/** The mode identifier (only valid after this object has been added to ModeParser) */
 	ModeID id;
@@ -238,6 +238,10 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * Returns the mode's parameter translation type
 	 */
 	inline TranslateType GetTranslateType() const { return m_paramtype; }
+
+	/** Translate a parameter */
+	virtual void TranslateMode(std::string& value, bool adding, bool use_uid) {}
+
 	/**
 	 * Returns true if the mode can only be set/unset by an oper
 	 */
@@ -263,6 +267,12 @@ class CoreExport ModeHandler : public ServiceProvider
 	/** For user modes, return the current parameter, if any
 	 */
 	virtual std::string GetUserParameter(User* useor);
+
+	/**
+	 * Populate mode list with changes required to set this mode on this channel.
+	 * For non-list modes, this is the single mode change. For list modes, all list items.
+	 */
+	virtual void PopulateChanModes(Channel* channel, irc::modestacker& stack);
 
 	/** For list modes, return the list */
 	virtual const modelist* GetList(Channel* channel) { return NULL; }

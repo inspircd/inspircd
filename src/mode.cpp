@@ -260,6 +260,10 @@ std::string irc::modestacker::popModeLine(bool use_uid, int maxlen, int maxmodes
 			if (u)
 				value = use_uid ? u->uuid : u->nick;
 		}
+		else if (mh->GetTranslateType() == TR_CUSTOM)
+		{
+			mh->TranslateMode(value, iter->adding, use_uid);
+		}
 
 		if (!modechar)
 		{
@@ -991,6 +995,13 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	}
 }
 
+void ModeHandler::PopulateChanModes(Channel* channel, irc::modestacker& stack)
+{
+	irc::modechange mc(id, channel->GetModeParameter(this), true);
+	if (channel->IsModeSet(this))
+		stack.push(mc);
+}
+
 void ListExtItem::free(void* item)
 {
 	modelist* ml = static_cast<modelist*>(item);
@@ -1020,6 +1031,16 @@ const modelist* ListModeBase::GetList(Channel* channel)
 	return extItem.get(channel);
 }
 
+void ListModeBase::PopulateChanModes(Channel* channel, irc::modestacker& stack)
+{
+	modelist* ml = extItem.get(channel);
+	if (!ml)
+		return;
+	for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
+	{
+		stack.push(irc::modechange(id, (**i).mask, true));
+	}
+}
 
 void ListModeBase::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
