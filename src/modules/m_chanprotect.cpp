@@ -261,14 +261,14 @@ class ModuleChanProtect : public Module
 		if ((APrefix && QPrefix) && APrefix == QPrefix)
 			throw ModuleException("What the smeg, why are both your +q and +a prefixes the same character?");
 
-		if (ServerInstance->Modes->FindPrefix(APrefix) && ServerInstance->Modes->FindPrefix(APrefix) != &cp)
-			throw ModuleException("Looks like the +a prefix you picked for m_chanprotect is already in use. Pick another.");
-
-		if (ServerInstance->Modes->FindPrefix(QPrefix) && ServerInstance->Modes->FindPrefix(QPrefix) != &cf)
-			throw ModuleException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
-
 		if (settings.booting)
 		{
+			if (APrefix && ServerInstance->Modes->FindPrefix(APrefix) && ServerInstance->Modes->FindPrefix(APrefix) != &cp)
+				throw ModuleException("Looks like the +a prefix you picked for m_chanprotect is already in use. Pick another.");
+
+			if (QPrefix && ServerInstance->Modes->FindPrefix(QPrefix) && ServerInstance->Modes->FindPrefix(QPrefix) != &cf)
+				throw ModuleException("Looks like the +q prefix you picked for m_chanprotect is already in use. Pick another.");
+
 			cp.setPrefix(APrefix);
 			cf.setPrefix(QPrefix);
 		}
