@@ -167,7 +167,7 @@ void TreeSocket::WriteLine(std::string line)
 				}
 
 				Command* thiscmd = ServerInstance->Parser->GetHandler(subcmd);
-				if (thiscmd)
+				if (thiscmd && subcmd != "WHOISNOTICE")
 				{
 					Version ver = thiscmd->creator->GetVersion();
 					if (ver.Flags & VF_OPTCOMMON)
