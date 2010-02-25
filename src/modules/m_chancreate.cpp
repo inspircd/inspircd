@@ -22,15 +22,8 @@ class ModuleChanCreate : public Module
 	ModuleChanCreate()
 			{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
-		ServerInstance->SNO->EnableSnomask('J', "REMOTECHANCREATE");
 		Implementation eventlist[] = { I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
-	}
-
-	~ModuleChanCreate()
-	{
-		ServerInstance->SNO->DisableSnomask('j');
-		ServerInstance->SNO->DisableSnomask('J');
 	}
 
 	Version GetVersion()

@@ -17,30 +17,26 @@
 class Snomask
 {
  public:
-	char MySnomask;
 	std::string Description;
 	std::string LastMessage;
+	int Count;
 	bool LastBlocked;
-	unsigned int Count;
+	char LastLetter;
 
 	/** Create a new Snomask
 	 */
-	Snomask(char snomask, const std::string &description) : MySnomask(snomask), Description(description), LastMessage(""), Count(0)
+	Snomask() : Count(0), LastBlocked(false), LastLetter(0)
 	{
 	}
 
 	/** Sends a message to all opers with this snomask.
 	 */
-	void SendMessage(const std::string &message);
+	void SendMessage(const std::string &message, char letter);
 
 	/** Sends out the (last message repeated N times) message
 	 */
 	void Flush();
 };
-
-/** A list of snomasks which are valid, and their descriptive texts
- */
-typedef std::map<char, Snomask *> SnoList;
 
 /** Snomask manager handles routing of SNOMASK (usermode +n) messages to opers.
  * Modules and the core can enable and disable snomask characters. If they do,
@@ -48,22 +44,12 @@ typedef std::map<char, Snomask *> SnoList;
  */
 class CoreExport SnomaskManager
 {
- private:
-	/** Currently active snomask list
-	 */
-	SnoList SnoMasks;
-
-	/** Set up the default (core available) snomask chars
-	 */
-	void SetupDefaults();
  public:
+	Snomask	masks[26];
+
 	/** Create a new SnomaskManager
 	 */
 	SnomaskManager();
-
-	/** Delete SnomaskManager
-	 */
-	~SnomaskManager();
 
 	/** Enable a snomask.
 	 * @param letter The snomask letter to enable. Once enabled,
@@ -71,17 +57,8 @@ class CoreExport SnomaskManager
 	 * their list, and users may add this letter to their list.
 	 * @param description The descriptive text sent along with any
 	 * server notices, at the start of the notice, e.g. "GLOBOPS".
-	 * @return True if the snomask was enabled, false if it already
-	 * exists.
 	 */
-	bool EnableSnomask(char letter, const std::string &description);
-
-	/** Disable a snomask.
-	 * @param letter The snomask letter to disable.
-	 * @return True if the snomask was disabled, false if it didn't
-	 * exist.
-	 */
-	bool DisableSnomask(char letter);
+	void EnableSnomask(char letter, const std::string &description);
 
 	/** Write to all users with a given snomask (local server only)
 	 * @param letter The snomask letter to write to
@@ -119,12 +96,6 @@ class CoreExport SnomaskManager
 	 * is not particularly significant, in order to keep notices going out.
 	 */
 	void FlushSnotices();
-
-	/** Check if a snomask is enabled.
-	 * @param letter The snomask letter to check.
-	 * @return True if the snomask has been enabled.
-	 */
-	bool IsEnabled(char letter);
 };
 
 #endif
