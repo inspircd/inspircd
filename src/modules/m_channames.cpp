@@ -103,9 +103,9 @@ class ModuleChannelNames : public Module
 		while (0 != (allowno = allowrange.GetToken()))
 			allowedmap[(unsigned char)(allowno)] = true;
 
-		allowedmap[7] = false;
-		allowedmap[' '] = false;
-		allowedmap[','] = false;
+		allowedmap[0x07] = false; // BEL
+		allowedmap[0x20] = false; // ' '
+		allowedmap[0x2C] = false; // ','
 
 		ValidateChans();
 	}
