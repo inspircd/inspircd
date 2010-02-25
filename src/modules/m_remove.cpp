@@ -206,7 +206,7 @@ class RemoveBase
 class CommandRemove : public Command, public RemoveBase
 {
  public:
-	CommandRemove(InspIRCd* Instance, bool& snk) : Command(Instance, "REMOVE", 0, 2, 2, false, 0), RemoveBase(Instance, snk)
+	CommandRemove(InspIRCd* Instance, bool& snk) : Command(Instance, "REMOVE", 0, 2, 3, false, 0), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<nick> <channel> [<reason>]";
@@ -224,7 +224,7 @@ class CommandRemove : public Command, public RemoveBase
 class CommandFpart : public Command, public RemoveBase
 {
  public:
-	CommandFpart(InspIRCd* Instance, bool& snk) : Command(Instance, "FPART", 0, 2), RemoveBase(Instance, snk)
+	CommandFpart(InspIRCd* Instance, bool& snk) : Command(Instance, "FPART", 0, 2, 3), RemoveBase(Instance, snk)
 	{
 		this->source = "m_remove.so";
 		syntax = "<channel> <nick> [<reason>]";
