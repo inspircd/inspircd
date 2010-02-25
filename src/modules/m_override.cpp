@@ -26,7 +26,7 @@ class ModuleOverride : public Module
 			{
 		// read our config options (main config file)
 		OnRehash(NULL);
-		ServerInstance->SNO->EnableSnomask('G', "GODMODE");
+		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
 		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPreTopicChange };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
@@ -61,7 +61,7 @@ class ModuleOverride : public Module
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
+				ServerInstance->SNO->WriteGlobalSno('v',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
 			}
 
 			// Explicit allow
@@ -78,7 +78,7 @@ class ModuleOverride : public Module
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('G',std::string(source->nick)+" used oper override to kick "+std::string(memb->user->nick)+" on "+std::string(memb->chan->name)+" ("+reason+")");
+				ServerInstance->SNO->WriteGlobalSno('v',std::string(source->nick)+" used oper override to kick "+std::string(memb->user->nick)+" on "+std::string(memb->chan->name)+" ("+reason+")");
 				return MOD_RES_ALLOW;
 			}
 		}
@@ -99,7 +99,7 @@ class ModuleOverride : public Module
 		{
 			irc::modestacker tmp(modes);
 			std::string msg = std::string(source->nick)+" overriding modes:" + tmp.popModeLine();
-			ServerInstance->SNO->WriteGlobalSno('G',msg);
+			ServerInstance->SNO->WriteGlobalSno('v',msg);
 			return MOD_RES_ALLOW;
 		}
 		return MOD_RES_PASSTHRU;
@@ -125,7 +125,7 @@ class ModuleOverride : public Module
 
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass invite-only", cname, user->nick.c_str());
-						ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +i on "+std::string(cname));
+						ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +i on "+std::string(cname));
 					}
 					return MOD_RES_ALLOW;
 				}
@@ -141,7 +141,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass the channel key", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +k on "+std::string(cname));
+					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +k on "+std::string(cname));
 					return MOD_RES_ALLOW;
 				}
 
@@ -156,7 +156,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass the channel limit", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('G', user->nick+" used oper override to bypass +l on "+std::string(cname));
+					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +l on "+std::string(cname));
 					return MOD_RES_ALLOW;
 				}
 
@@ -171,17 +171,12 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass channel ban", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('G',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
+					ServerInstance->SNO->WriteGlobalSno('v',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
 					return MOD_RES_ALLOW;
 				}
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	~ModuleOverride()
-	{
-		ServerInstance->SNO->DisableSnomask('G');
 	}
 
 	Version GetVersion()

@@ -18,25 +18,17 @@
 class ModuleSeeNicks : public Module
 {
  public:
-	ModuleSeeNicks()
-			{
+	void init()
+	{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
-		ServerInstance->SNO->EnableSnomask('N',"REMOTENICK");
 		Implementation eventlist[] = { I_OnUserPostNick };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
-	}
-
-	virtual ~ModuleSeeNicks()
-	{
-		ServerInstance->SNO->DisableSnomask('n');
-		ServerInstance->SNO->DisableSnomask('N');
 	}
 
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for seeing local and remote nickchanges via snomasks", VF_VENDOR);
 	}
-
 
 	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{

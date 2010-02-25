@@ -37,9 +37,9 @@ std::string User::ProcessNoticeMasks(const char *sm)
 				adding = false;
 			break;
 			case '*':
-				for (unsigned char d = 'A'; d <= 'z'; d++)
+				for (unsigned char d = 'a'; d <= 'z'; d++)
 				{
-					if (ServerInstance->SNO->IsEnabled(d))
+					if (!ServerInstance->SNO->masks[d - 'a'].Description.empty())
 					{
 						if ((!IsNoticeMaskSet(d) && adding) || (IsNoticeMaskSet(d) && !adding))
 						{
@@ -50,12 +50,23 @@ std::string User::ProcessNoticeMasks(const char *sm)
 
 							output += d;
 						}
+						oldadding = adding;
+						char u = toupper(d);
+						if ((!IsNoticeMaskSet(u) && adding) || (IsNoticeMaskSet(u) && !adding))
+						{
+							if ((oldadding != adding) || (!output.length()))
+								output += (adding ? '+' : '-');
+
+							this->SetNoticeMask(u, adding);
+
+							output += u;
+						}
+						oldadding = adding;
 					}
-					oldadding = adding;
 				}
 			break;
 			default:
-				if ((*c >= 'A') && (*c <= 'z') && (ServerInstance->SNO->IsEnabled(*c)))
+				if (isalpha(*c))
 				{
 					if ((!IsNoticeMaskSet(*c) && adding) || (IsNoticeMaskSet(*c) && !adding))
 					{

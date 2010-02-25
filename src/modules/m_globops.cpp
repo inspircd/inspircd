@@ -35,8 +35,7 @@ class CommandGlobops : public Command
 		{
 			line = line + parameters[i] + " ";
 		}
-		ServerInstance->SNO->WriteToSnoMask('g',line);
-		ServerInstance->PI->SendSNONotice("g", line);
+		ServerInstance->SNO->WriteGlobalSno('g',line);
 
 		return CMD_SUCCESS;
 	}
@@ -46,22 +45,17 @@ class ModuleGlobops : public Module
 {
 	CommandGlobops cmd;
  public:
-	ModuleGlobops()
-		: cmd(this)
+	ModuleGlobops() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
-
-	}
-
-	virtual ~ModuleGlobops()
-	{
-		ServerInstance->SNO->DisableSnomask('g');
 	}
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for GLOBOPS and user mode +g", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides support for GLOBOPS and user mode +g", VF_VENDOR);
 	}
 
 };

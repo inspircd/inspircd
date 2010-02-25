@@ -11,66 +11,27 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include <stdarg.h>
-#include "snomasks.h"
-
-SnomaskManager::SnomaskManager()
-{
-	SnoMasks.clear();
-	this->SetupDefaults();
-}
-
-SnomaskManager::~SnomaskManager()
-{
-	for (std::map<char, Snomask *>::iterator i = SnoMasks.begin(); i != SnoMasks.end(); i++)
-	{
-		delete i->second;
-	}
-	SnoMasks.clear();
-}
 
 void SnomaskManager::FlushSnotices()
 {
-	for (std::map<char, Snomask *>::iterator i = SnoMasks.begin(); i != SnoMasks.end(); i++)
-	{
-		i->second->Flush();
-	}
+	for (int i=0; i < 26; i++)
+		masks[i].Flush();
 }
 
-bool SnomaskManager::EnableSnomask(char letter, const std::string &type)
+void SnomaskManager::EnableSnomask(char letter, const std::string &type)
 {
-	if (SnoMasks.find(letter) == SnoMasks.end())
-	{
-		Snomask *s = new Snomask(letter, type);
-		SnoMasks[letter] = s;
-		return true;
-	}
-	return false;
-}
-
-bool SnomaskManager::DisableSnomask(char letter)
-{
-	SnoList::iterator n = SnoMasks.find(letter);
-	if (n != SnoMasks.end())
-	{
-		delete n->second; // destroy the snomask
-		SnoMasks.erase(n);
-		return true;
-	}
-	return false;
+	if (letter >= 'a' && letter <= 'z')
+		masks[letter - 'a'].Description = type;
 }
 
 void SnomaskManager::WriteToSnoMask(char letter, const std::string &text)
 {
-	/* Only send to snomask chars which are enabled */
-	SnoList::iterator n = SnoMasks.find(letter);
-	if (n != SnoMasks.end())
-	{
-		n->second->SendMessage(text);
-	}
+	if (letter >= 'a' && letter <= 'z')
+		masks[letter - 'a'].SendMessage(text, letter);
+	if (letter >= 'A' && letter <= 'Z')
+		masks[letter - 'A'].SendMessage(text, letter);
 }
 
 void SnomaskManager::WriteGlobalSno(char letter, const std::string& text)
@@ -104,44 +65,36 @@ void SnomaskManager::WriteGlobalSno(char letter, const char* text, ...)
 	this->WriteGlobalSno(letter, std::string(textbuffer));
 }
 
-bool SnomaskManager::IsEnabled(char letter)
+SnomaskManager::SnomaskManager()
 {
-	return (SnoMasks.find(letter) != SnoMasks.end());
-}
-
-void SnomaskManager::SetupDefaults()
-{
-	this->EnableSnomask('c',"CONNECT");			/* Local connect notices */
-	this->EnableSnomask('C',"REMOTECONNECT");	/* Remote connect notices */
-	this->EnableSnomask('q',"QUIT");			/* Local quit notices */
-	this->EnableSnomask('Q',"REMOTEQUIT");		/* Remote quit notices */
-	this->EnableSnomask('k',"KILL");			/* Kill notices */
-	this->EnableSnomask('K',"REMOTEKILL");		/* Remote kill notices */
-	this->EnableSnomask('l',"LINK");			/* Linking notices */
-	this->EnableSnomask('L',"REMOTELINK");			/* Remote linking notices */
-	this->EnableSnomask('o',"OPER");			/* Oper up/down notices */
-	this->EnableSnomask('O',"REMOTEOPER");			/* Remote oper up/down notices */
-	this->EnableSnomask('a',"ANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
-	this->EnableSnomask('A',"REMOTEANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
-	this->EnableSnomask('d',"DEBUG");			/* Debug notices */
-	this->EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
-	this->EnableSnomask('X',"REMOTEXLINE");			/* Remove Xline notice (g/z/q/k/e) */
-	this->EnableSnomask('t',"STATS");			/* Local or remote stats request */
-	this->EnableSnomask('f',"FLOOD");			/* Flooding notices */
+	EnableSnomask('c',"CONNECT");			/* Local connect notices */
+	EnableSnomask('q',"QUIT");			/* Local quit notices */
+	EnableSnomask('k',"KILL");			/* Kill notices */
+	EnableSnomask('l',"LINK");			/* Linking notices */
+	EnableSnomask('o',"OPER");			/* Oper up/down notices */
+	EnableSnomask('a',"ANNOUNCEMENT");	/* formerly WriteOpers() - generic notices to all opers */
+	EnableSnomask('d',"DEBUG");			/* Debug notices */
+	EnableSnomask('x',"XLINE");			/* Xline notice (g/z/q/k/e) */
+	EnableSnomask('t',"STATS");			/* Local or remote stats request */
+	EnableSnomask('f',"FLOOD");			/* Flooding notices */
 }
 
 /*************************************************************************************/
 
-void Snomask::SendMessage(const std::string &message)
+void Snomask::SendMessage(const std::string &message, char mysnomask)
 {
-	if (message != LastMessage)
+	if (message != LastMessage || mysnomask != LastLetter)
 	{
 		this->Flush();
 		LastMessage = message;
+		LastLetter = mysnomask;
 
-		std::string desc = this->Description;
+		std::string desc = Description;
+		if (desc.empty())
+			desc = "SNO-" + tolower(mysnomask);
+		if (isupper(mysnomask))
+			desc = "REMOTE" + desc;
 		ModResult MOD_RESULT;
-		char mysnomask = MySnomask;
 		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", desc.c_str(), message.c_str());
 
 		FIRST_MOD_RESULT(OnSendSnotice, MOD_RESULT, (mysnomask, desc, message));
@@ -172,13 +125,16 @@ void Snomask::Flush()
 {
 	if (Count > 1)
 	{
-		std::string desc = this->Description;
+		std::string desc = Description;
+		if (desc.empty())
+			desc = "SNO-" + tolower(LastLetter);
+		if (isupper(LastLetter))
+			desc = "REMOTE" + desc;
 		std::string mesg = "(last message repeated "+ConvToStr(Count)+" times)";
-		char mysnomask = MySnomask;
 
 		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", desc.c_str(), mesg.c_str());
 
-		FOREACH_MOD(I_OnSendSnotice, OnSendSnotice(mysnomask, desc, mesg));
+		FOREACH_MOD(I_OnSendSnotice, OnSendSnotice(LastLetter, desc, mesg));
 
 		if (!LastBlocked)
 		{
@@ -188,7 +144,7 @@ void Snomask::Flush()
 			while (i != ServerInstance->Users->all_opers.end())
 			{
 				User* a = *i;
-				if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(mysnomask) && !a->quitting)
+				if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(LastLetter) && !a->quitting)
 				{
 					a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), desc.c_str(), mesg.c_str());
 				}
