@@ -26,15 +26,10 @@ class AuditoriumMode : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		if (channel->IsModeSet(this) != adding)
-		{
-			channel->SetMode(this, adding);
-			return MODEACTION_ALLOW;
-		}
-		else
-		{
+		if (channel->IsModeSet(this) == adding)
 			return MODEACTION_DENY;
-		}
+		channel->SetMode(this, adding);
+		return MODEACTION_ALLOW;
 	}
 };
 
@@ -42,11 +37,15 @@ class ModuleAuditorium : public Module
 {
  private:
 	AuditoriumMode aum;
-	bool ShowOps;
-	bool OperOverride;
+	bool OpsVisible;
+	bool OpsCanSee;
+	bool OperCanSee;
  public:
-	ModuleAuditorium()
-		: aum(this)
+	ModuleAuditorium() : aum(this)
+	{
+	}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(aum);
 
@@ -54,7 +53,6 @@ class ModuleAuditorium : public Module
 
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
-
 	}
 
 	~ModuleAuditorium()
@@ -63,9 +61,10 @@ class ModuleAuditorium : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader conf;
-		ShowOps = conf.ReadFlag("auditorium", "showops", 0);
-		OperOverride = conf.ReadFlag("auditorium", "operoverride", 0);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("auditorium");
+		OpsVisible = tag->getBool("opvisible");
+		OpsCanSee = tag->getBool("opcansee");
+		OperCanSee = tag->getBool("opercansee", true);
 	}
 
 	Version GetVersion()
@@ -73,55 +72,66 @@ class ModuleAuditorium : public Module
 		return Version("Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list", VF_VENDOR);
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+	/* Can they be seen by everyone? */
+	bool IsVisible(Membership* memb)
 	{
 		if (!memb->chan->IsModeSet(&aum))
-			return;
+			return true;
 
-		/* Some module hid this from being displayed, dont bother */
+		ModResult res = ServerInstance->OnCheckExemption(memb->user, memb->chan, "auditorium-vis");
+		return res.check(OpsVisible && memb->getRank() >= OP_VALUE);
+	}
+
+	/* Can they see this specific membership? */
+	bool CanSee(User* issuer, Membership* memb)
+	{
+		// If user is oper and operoverride is on, don't touch the list
+		if (OperCanSee && issuer->HasPrivPermission("channels/auspex"))
+			return true;
+
+		// You can always see yourself
+		if (issuer == memb->user)
+			return true;
+
+		// Can you see the list by permission?
+		ModResult res = ServerInstance->OnCheckExemption(issuer,memb->chan,"auditorium-see");
+		if (res.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE))
+			return true;
+
+		return false;
+	}
+
+	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+	{
+		// Some module already hid this from being displayed, don't bother
 		if (nick.empty())
 			return;
 
-		/* If user is oper and operoverride is on, don't touch the list */
-		if (OperOverride && issuer->HasPrivPermission("channels/auspex"))
+		if (IsVisible(memb))
 			return;
 
-		if (ShowOps && (issuer != memb->user) && (memb->getRank() < OP_VALUE))
-		{
-			/* Showops is set, hide all non-ops from the user, except themselves */
-			nick.clear();
+		if (CanSee(issuer, memb))
 			return;
-		}
 
-		if (!ShowOps && (issuer != memb->user))
-		{
-			/* ShowOps is not set, hide everyone except the user whos requesting NAMES */
-			nick.clear();
-			return;
-		}
+		nick.clear();
 	}
 
+	/** Build CUList for showing this join/part/kick */
 	void BuildExcept(Membership* memb, CUList& excepts)
 	{
 		if (!memb->chan->IsModeSet(&aum))
 			return;
-		if (ShowOps && memb->getRank() >= OP_VALUE)
+		if (IsVisible(memb))
 			return;
 
 		const UserMembList* users = memb->chan->GetUsers();
 		for(UserMembCIter i = users->begin(); i != users->end(); i++)
 		{
-			if (i->first == memb->user || !IS_LOCAL(i->first))
-				continue;
-			if (ShowOps && i->second->getRank() >= OP_VALUE)
-				continue;
-			if (OperOverride && i->first->HasPrivPermission("channels/auspex"))
-				continue;
-			// This is a different user in the channel, local, and not op/oper
-			// so, hide the join from them
-			excepts.insert(i->first);
+			if (IS_LOCAL(i->first) && !CanSee(i->first, memb))
+				excepts.insert(i->first);
 		}
 	}
+
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 	{
 		BuildExcept(memb, excepts);
@@ -143,8 +153,11 @@ class ModuleAuditorium : public Module
 		while (i != include.end())
 		{
 			Channel* c = *i++;
-			if (c->IsModeSet(&aum))
-				include.erase(c);
+			Membership* memb = c->GetUser(source); // will be non-null
+			if (IsVisible(memb))
+				continue;
+			// TODO this doesn't take can-see into account
+			include.erase(c);
 		}
 	}
 };
