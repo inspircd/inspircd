@@ -217,18 +217,17 @@
 #
 # Auditorium settings:
 #
-#<auditorium showops="no" operoverride="no">
+#<auditorium opvisible="no" opcansee="no" opercansee="yes">
 #
-# showops:
-#   Setting this value to yes makes m_auditorium behave like unrealircd
-#   +u channel mode, e.g. ops see users joining, parting, etc, and users
-#   joining the channel see the ops. Without this flag, the mode acts
-#   like ircnet's +a (anonymous channels), showing only the user in the
-#   names list, and not even showing the ops in the list, or showing the
-#   ops that the user has joined.
-# operoverride:
-#   Setting this value to yes makes m_auditorium affect the userlist for
-#   regular users only. Opers will view all users in the channel normally.
+# opvisible (auditorium-vis in exemptchanops):
+#   Show channel ops to all users
+# opcansee (auditorium-see in exemptchanops):
+#   Allow ops to see all joins/parts/kicks in the channel
+# opercansee:
+#   Allow opers (channels/auspex) to see see all joins/parts/kicks in the channel
+#
+# Exemptchanops can be used to adjust the level at which users become visible or
+# the level at which they can see the full membe list of the channel.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Autoop module: Adds basic channel access controls via the +w listmode.
