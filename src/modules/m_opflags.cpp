@@ -19,14 +19,17 @@
 class OpFlagProviderImpl : public OpFlagProvider
 {
  public:
-	SimpleExtItem<std::vector<std::string> > ext;
+	LocalStringExt ext;
 	OpFlagProviderImpl(Module* parent) : OpFlagProvider(parent, "opflags"), ext("flaglist", parent)
 	{
 	}
 
-	const std::vector<std::string>* GetFlags(Membership* memb)
+	std::string GetFlags(Membership* memb)
 	{
-		return ext.get(memb);
+		std::string* v = ext.get(memb);
+		if (v)
+			return *v;
+		return "";
 	}
 
 	bool PermissionCheck(Membership* memb, const std::string& needed)
@@ -44,14 +47,16 @@ class OpFlagProviderImpl : public OpFlagProvider
 			if (memb->getRank() >= neededrank)
 				return true;
 		}
-		std::vector<std::string>* mine = ext.get(memb);
+		std::string* mine = ext.get(memb);
 		if (!mine)
 			return false;
 		while (flags.GetToken(flag))
 		{
-			for(std::vector<std::string>::iterator i = mine->begin(); i != mine->end(); i++)
+			irc::commasepstream myflags(*mine);
+			std::string myflag;
+			while (myflags.GetToken(myflag))
 			{
-				if (flag == *i)
+				if (flag == myflag)
 					return true;
 			}
 		}
@@ -59,113 +64,14 @@ class OpFlagProviderImpl : public OpFlagProvider
 	}
 };
 
-class FlagMode : public ModeHandler
-{
- public:
-	OpFlagProviderImpl prov;
-	bool hide;
-	FlagMode(Module* parent) : ModeHandler(parent, "opflags", 'x', PARAM_ALWAYS, MODETYPE_CHANNEL),
-		prov(parent)
-	{
-		fixed_letter = true;
-		list = true;
-		m_paramtype = TR_CUSTOM;
-		levelrequired = OP_VALUE;
-	}
-
-	ModResult AccessCheck(User* src, Channel*, std::string& value, bool adding)
-	{
-		// TODO remove flags from self
-		// TODO maximum size of flag list on a person?
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		std::string::size_type colon = parameter.find(':');
-		if (colon == std::string::npos)
-			return MODEACTION_DENY;
-		std::string flag = parameter.substr(0, colon);
-		std::string nick = parameter.substr(colon + 1);
-		dest = ServerInstance->FindNick(nick);
-		if (!dest)
-		{
-			source->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",
-				source->nick.c_str(), parameter.c_str());
-			return MODEACTION_DENY;
-		}
-		Membership* memb = channel->GetUser(dest);
-		if (!memb)
-			return MODEACTION_DENY;
-		std::vector<std::string>* ptr = prov.ext.get(memb);
-		if (adding && !ptr)
-			prov.ext.set(memb, ptr = new std::vector<std::string>);
-		if (!ptr)
-			return MODEACTION_ALLOW;
-		for(std::vector<std::string>::iterator i = ptr->begin(); i != ptr->end(); i++)
-		{
-			if (*i == flag)
-			{
-				if (adding)
-					return MODEACTION_DENY;
-				else
-				{
-					ptr->erase(i);
-					if (ptr->empty())
-						prov.ext.unset(memb);
-					return MODEACTION_ALLOW;
-				}
-			}
-		}
-		if (adding)
-			ptr->push_back(flag);
-		return MODEACTION_ALLOW;
-	}
-
-	void PopulateChanModes(Channel* channel, irc::modestacker& stack)
-	{
-		const UserMembList* users = channel->GetUsers();
-		for(UserMembCIter u = users->begin(); u != users->end(); u++)
-		{
-			std::vector<std::string>* ptr = prov.ext.get(u->second);
-			if (ptr)
-			{
-				for(std::vector<std::string>::iterator i = ptr->begin(); i != ptr->end(); i++)
-				{
-					std::string value = *i + ":" + u->first->uuid;
-					stack.push(irc::modechange(id, value, true));
-				}
-			}
-		}
-	}
-
-	void TranslateMode(std::string& value, bool adding, SerializeFormat format)
-	{
-		if (format == FORMAT_PERSIST || (hide && format == FORMAT_USER))
-		{
-			value.clear();
-			return;
-		}
-
-		std::string::size_type colon = value.find(':');
-		if (colon == std::string::npos)
-			return;
-		std::string flag = value.substr(0, colon + 1);
-		std::string nick = value.substr(colon + 1);
-		User* dest = ServerInstance->FindNick(nick);
-		if (!dest)
-			return;
-		value = flag + (format == FORMAT_USER ? dest->nick : dest->uuid);
-	}
-};
-
 class FlagCmd : public Command
 {
  public:
-	FlagMode mode;
-	FlagCmd(Module* parent) : Command(parent, "OPFLAGS", 3), mode(parent)
+	OpFlagProviderImpl prov;
+	FlagCmd(Module* parent) : Command(parent, "OPFLAGS", 2), prov(parent)
 	{
-		flags_needed = FLAG_SERVERONLY; // ?
+		syntax = "<channel> <nick> {+-=}[<flags>]";
+		TRANSLATE4(TR_TEXT, TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
@@ -174,23 +80,51 @@ class FlagCmd : public Command
 		User* user = ServerInstance->FindNick(parameters[1]);
 
 		if (!user || !chan)
+		{
+			src->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",
+				src->nick.c_str(), parameters[chan ? 1 : 0].c_str());
 			return CMD_FAILURE;
+		}
 
 		Membership* memb = chan->GetUser(user);
 		if (!memb)
 			return CMD_FAILURE;
-		std::vector<std::string>* ptr = mode.prov.ext.get(memb);
-		if (!ptr)
-			mode.prov.ext.set(memb, ptr = new std::vector<std::string>);
+		std::string* ptr = prov.ext.get(memb);
 
-		bool adding = true;
-		irc::commasepstream flags(parameters[2]);
+		if (parameters.size() == 2)
+		{
+			src->WriteServ("NOTICE %s :User %s has %s%s", chan->name.c_str(),
+				user->nick.c_str(), ptr ? "opflags " : "no opflags", ptr ? ptr->c_str() : "");
+			return CMD_SUCCESS;
+		}
+
+		if (IS_LOCAL(src))
+		{
+			ModResult res = ServerInstance->OnCheckExemption(src,chan,"opflags");
+			if (!res.check(chan->GetPrefixValue(src) >= OP_VALUE))
+			{
+				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot change opflags on this channel.",
+					src->nick.c_str(), chan->name.c_str());
+				return CMD_FAILURE;
+			}
+		}
+
 		std::string flag;
-		while (flags.GetToken(flag))
+		std::set<std::string> flags;
+		if (ptr)
+		{
+			irc::commasepstream myflags(*ptr);
+			while (myflags.GetToken(flag))
+				flags.insert(flag);
+		}
+		
+		bool adding = true;
+		irc::commasepstream deltaflags(parameters[2]);
+		while (deltaflags.GetToken(flag))
 		{
 			if (flag[0] == '=')
 			{
-				ptr->clear();
+				flags.clear();
 				flag = flag.substr(1);
 			}
 			else if (flag[0] == '+' || flag[0] == '-')
@@ -200,26 +134,37 @@ class FlagCmd : public Command
 			}
 			if (flag.empty())
 				continue;
-			for(std::vector<std::string>::iterator i = ptr->begin(); i != ptr->end(); i++)
-			{
-				if (*i == flag)
-				{
-					if (!adding)
-						ptr->erase(i);
-					goto found;
-				}
-			}
 			if (adding)
-				ptr->push_back(flag);
-found:		;
+				flags.insert(flag);
+			else
+				flags.erase(flag);
 		}
-		if (ptr->empty())
-			mode.prov.ext.unset(memb);
+		if (flags.empty())
+		{
+			prov.ext.unset(memb);
+			chan->WriteChannelWithServ(src->server, "NOTICE %s :%s removed all opflags from %s",
+				chan->name.c_str(), src->nick.c_str(), user->nick.c_str());
+		}
+		else
+		{
+			std::string v;
+			for(std::set<std::string>::iterator i = flags.begin(); i != flags.end(); i++)
+			{
+				if (i != flags.begin())
+					v.push_back(',');
+				v.append(*i);
+			}
+			prov.ext.set(memb, v);
+			chan->WriteChannelWithServ(src->server, "NOTICE %s :%s set %s opflags to %s",
+				chan->name.c_str(), src->nick.c_str(), user->nick.c_str(), v.c_str());
+		}
 		return CMD_SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
+		if (parameters.size() == 2)
+			return ROUTE_LOCALONLY;
 		return ROUTE_OPT_BCAST;
 	}
 };
@@ -235,24 +180,43 @@ class ModuleOpFlags : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.mode);
-		ServerInstance->Modules->AddService(cmd.mode.prov);
-		ServerInstance->Modules->AddService(cmd.mode.prov.ext);
+		ServerInstance->Modules->AddService(cmd.prov);
+		ServerInstance->Modules->AddService(cmd.prov.ext);
 		OnRehash(NULL);
 
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void OnRehash(User*)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("opflags");
-		cmd.mode.hide = tag->getBool("hidden");
+		// ConfigTag* tag = ServerInstance->Config->ConfValue("opflags");
+		// TODO maxflags?
 	}
+
+	void OnSyncChannel(Channel* channel, SyncTarget* target)
+	{
+		const UserMembList* users = channel->GetUsers();
+		for(UserMembCIter u = users->begin(); u != users->end(); u++)
+		{
+			std::string* ptr = cmd.prov.ext.get(u->second);
+			if (ptr)
+			{
+				parameterlist flags;
+				flags.push_back("*");
+				flags.push_back("OPFLAGS");
+				flags.push_back(channel->name);
+				flags.push_back(u->first->uuid);
+				flags.push_back(*ptr);
+				target->SendEncap(flags);
+			}
+		}
+	}
+
 
 	Version GetVersion()
 	{
-		return Version("Provides per-channel access flags", VF_VENDOR);
+		return Version("Provides per-channel access flags", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

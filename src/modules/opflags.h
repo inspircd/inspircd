@@ -20,7 +20,7 @@ class OpFlagProvider : public DataProvider
 	OpFlagProvider(Module* mod, const std::string& Name) : DataProvider(mod, Name) {}
 
 	/** Get the list of flags for a user; NULL if empty */
-	virtual const std::vector<std::string>* GetFlags(Membership* memb) = 0;
+	virtual std::string GetFlags(Membership* memb) = 0;
 
 	/**
 	 * Check if the user has permission based on a mode/flag list
