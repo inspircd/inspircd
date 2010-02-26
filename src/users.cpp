@@ -219,11 +219,8 @@ User::~User()
 		ServerInstance->Logs->Log("USERS", DEFAULT, "User destructor for %s called without cull", uuid.c_str());
 }
 
-const std::string& User::MakeHost()
+std::string User::MakeHost()
 {
-	if (!this->cached_makehost.empty())
-		return this->cached_makehost;
-
 	char nhost[MAXBUF];
 	/* This is much faster than snprintf */
 	char* t = nhost;
@@ -234,16 +231,11 @@ const std::string& User::MakeHost()
 		*t++ = *n;
 	*t = 0;
 
-	this->cached_makehost.assign(nhost);
-
-	return this->cached_makehost;
+	return nhost;
 }
 
-const std::string& User::MakeHostIP()
+std::string User::MakeHostIP()
 {
-	if (!this->cached_hostip.empty())
-		return this->cached_hostip;
-
 	char ihost[MAXBUF];
 	/* This is much faster than snprintf */
 	char* t = ihost;
@@ -254,9 +246,7 @@ const std::string& User::MakeHostIP()
 		*t++ = *n;
 	*t = 0;
 
-	this->cached_hostip = ihost;
-
-	return this->cached_hostip;
+	return ihost;
 }
 
 const std::string& User::GetFullHost()
@@ -293,11 +283,8 @@ char* User::MakeWildHost()
 	return nresult;
 }
 
-const std::string& User::GetFullRealHost()
+std::string User::GetFullRealHost()
 {
-	if (!this->cached_fullrealhost.empty())
-		return this->cached_fullrealhost;
-
 	char fresult[MAXBUF];
 	char* t = fresult;
 	for(const char* n = nick.c_str(); *n; n++)
@@ -310,9 +297,7 @@ const std::string& User::GetFullRealHost()
 		*t++ = *n;
 	*t = 0;
 
-	this->cached_fullrealhost = fresult;
-
-	return this->cached_fullrealhost;
+	return fresult;
 }
 
 bool LocalUser::IsInvited(const irc::string &channel)
@@ -836,9 +821,6 @@ void User::InvalidateCache()
 {
 	/* Invalidate cache */
 	cached_fullhost.clear();
-	cached_hostip.clear();
-	cached_makehost.clear();
-	cached_fullrealhost.clear();
 }
 
 bool User::ChangeNick(const std::string& newnick, bool force)
@@ -1672,13 +1654,6 @@ void User::PurgeEmptyChannels()
 }
 
 const std::string& FakeUser::GetFullHost()
-{
-	if (!ServerInstance->Config->HideWhoisServer.empty())
-		return ServerInstance->Config->HideWhoisServer;
-	return server;
-}
-
-const std::string& FakeUser::GetFullRealHost()
 {
 	if (!ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;

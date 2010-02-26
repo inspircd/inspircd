@@ -218,18 +218,6 @@ class CoreExport User : public Extensible
 	 */
 	std::string cached_fullhost;
 
-	/** Cached ident@ip value using the real IP address
-	 */
-	std::string cached_hostip;
-
-	/** Cached ident@realhost value using the real hostname
-	 */
-	std::string cached_makehost;
-
-	/** Cached nick!ident@realhost value using the real hostname
-	 */
-	std::string cached_fullrealhost;
-
 	/** Set by GetIPString() to avoid constantly re-grabbing IP via sockets voodoo.
 	 */
 	std::string cachedip;
@@ -397,7 +385,7 @@ class CoreExport User : public Extensible
 	 * e.g. through a module, then this method will ignore it and return the true hostname.
 	 * @return The full real host of the user
 	 */
-	virtual const std::string& GetFullRealHost();
+	std::string GetFullRealHost();
 
 	/** This clears any cached results that are used for GetFullRealHost() etc.
 	 * The results of these calls are cached as generating them can be generally expensive.
@@ -482,13 +470,13 @@ class CoreExport User : public Extensible
 	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user@host
 	 * @return the usermask in the format user@host
 	 */
-	const std::string& MakeHost();
+	std::string MakeHost();
 
 	/** Creates a usermask with real ip.
 	 * Takes a buffer to use and fills the given buffer with the ipmask in the format user@ip
 	 * @return the usermask in the format user@ip
 	 */
-	const std::string& MakeHostIP();
+	std::string MakeHostIP();
 
 	/** Add the user to WHOWAS system
 	 */
@@ -876,7 +864,6 @@ class CoreExport FakeUser : public User
 	virtual CullResult cull();
 	virtual void SendText(const std::string& line);
 	virtual const std::string& GetFullHost();
-	virtual const std::string& GetFullRealHost();
 };
 
 /* Faster than dynamic_cast */
