@@ -613,7 +613,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, C
 		params.push_back(ConvToStr(memb->chan->age));
 		irc::modestacker ms;
 		memb->chan->ChanModes(ms, MODELIST_SHORT);
-		params.push_back(ms.popModeLine(true, 400, INT_MAX));
+		params.push_back(ms.popModeLine(FORMAT_NETWORK, 400, INT_MAX));
 		params.push_back(memb->modes+","+std::string(memb->user->uuid));
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 	}

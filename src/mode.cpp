@@ -236,7 +236,7 @@ irc::modechange::modechange(char modechar, ModeType type, const std::string& par
 		mode = mh->id;
 }
 
-std::string irc::modestacker::popModeLine(bool use_uid, int maxlen, int maxmodes)
+std::string irc::modestacker::popModeLine(SerializeFormat format, int maxlen, int maxmodes)
 {
 	char pm_now = '\0';
 	std::string modeline;
@@ -257,12 +257,22 @@ std::string irc::modestacker::popModeLine(bool use_uid, int maxlen, int maxmodes
 		if (mh->GetTranslateType() == TR_NICK)
 		{
 			User* u = ServerInstance->FindNick(value);
-			if (u)
-				value = use_uid ? u->uuid : u->nick;
+			if (u && format == FORMAT_USER)
+				value = u->nick;
+			else if (u && (format == FORMAT_NETWORK || format == FORMAT_INTERNAL))
+				value = u->uuid;
+			else
+				value.clear();
 		}
 		else if (mh->GetTranslateType() == TR_CUSTOM)
 		{
-			mh->TranslateMode(value, iter->adding, use_uid);
+			mh->TranslateMode(value, iter->adding, format);
+		}
+
+		if (mh->GetNumParams(iter->adding) && value.empty())
+		{
+			// value is empty when we want a param - failed conversion?
+			continue;
 		}
 
 		if (!modechar)
@@ -273,11 +283,6 @@ std::string irc::modestacker::popModeLine(bool use_uid, int maxlen, int maxmodes
 				value = mh->name + "=" + value;
 			else
 				value = mh->name;
-		}
-		else if (mh->GetNumParams(iter->adding) && value.empty())
-		{
-			// value is empty when we want a param
-			continue;
 		}
 		else if (!mh->GetNumParams(iter->adding))
 			value.clear();
@@ -315,7 +320,8 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 		irc::modestacker ms;
 		targetchannel->ChanModes(ms, targetchannel->HasUser(user) ? MODELIST_SHORT : MODELIST_PUBLIC);
 		/* Display channel's current mode string */
-		user->WriteNumeric(RPL_CHANNELMODEIS, "%s %s %s",user->nick.c_str(), targetchannel->name.c_str(), ms.popModeLine().c_str());
+		user->WriteNumeric(RPL_CHANNELMODEIS, "%s %s %s", user->nick.c_str(),
+			targetchannel->name.c_str(), ms.popModeLine(FORMAT_USER, 400, INT_MAX).c_str());
 		user->WriteNumeric(RPL_CHANNELCREATED, "%s %s %lu", user->nick.c_str(), targetchannel->name.c_str(), (unsigned long)targetchannel->age);
 		return;
 	}
@@ -518,12 +524,12 @@ void ModeParser::Send(User *src, Extensible* target, irc::modestacker modes)
 	if (targetchannel)
 	{
 		while (!modes.empty())
-			targetchannel->WriteChannel(src, "MODE %s %s", targetchannel->name.c_str(), modes.popModeLine().c_str());
+			targetchannel->WriteChannel(src, "MODE %s %s", targetchannel->name.c_str(), modes.popModeLine(FORMAT_USER).c_str());
 	}
 	else
 	{
 		while (!modes.empty())
-			targetuser->WriteFrom(src, "MODE %s %s", targetuser->nick.c_str(), modes.popModeLine().c_str());
+			targetuser->WriteFrom(src, "MODE %s %s", targetuser->nick.c_str(), modes.popModeLine(FORMAT_USER).c_str());
 	}
 }
 

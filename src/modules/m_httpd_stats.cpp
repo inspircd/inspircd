@@ -142,7 +142,7 @@ class ModuleHttpStats : public Module
 					data << "</channeltopic>";
 					irc::modestacker cmodes;
 					c->ChanModes(cmodes, MODELIST_FULL);
-					data << "<channelmodes>" << Sanitize(cmodes.popModeLine(true, INT_MAX, INT_MAX)) << "</channelmodes>";
+					data << "<channelmodes>" << Sanitize(cmodes.popModeLine(FORMAT_USER, INT_MAX, INT_MAX)) << "</channelmodes>";
 					const UserMembList* ulist = c->GetUsers();
 
 					for (UserMembCIter x = ulist->begin(); x != ulist->end(); ++x)

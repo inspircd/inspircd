@@ -91,7 +91,12 @@ namespace irc
 
 		inline bool empty() const { return sequence.empty(); }
 
-		std::string popModeLine(bool use_uuid = false, int maxlen = 400, int maxmodes = 0);
+		/** Pop a single mode line from this stack
+		 * @param format The format to use for the sequence (UID translation)
+		 * @param maxlen Maximum length of the string
+		 * @param maxmodes Maximum number of modes to change. 0 = MaxModes config option
+		 */
+		std::string popModeLine(SerializeFormat format, int maxlen = 400, int maxmodes = 0);
 	};
 }
 
@@ -239,8 +244,13 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	inline TranslateType GetTranslateType() const { return m_paramtype; }
 
-	/** Translate a parameter */
-	virtual void TranslateMode(std::string& value, bool adding, bool use_uid) {}
+	/** Translate a parameter
+	 * @param value The value being translated. If changed to empty string,
+	 * the mode change will be omitted (assuming it requires a parameter)
+	 * @param adding True if adding the mode
+	 * @param format The target of this translation
+	 */
+	virtual void TranslateMode(std::string& value, bool adding, SerializeFormat format) {}
 
 	/**
 	 * Returns true if the mode can only be set/unset by an oper

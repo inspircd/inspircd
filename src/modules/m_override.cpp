@@ -98,7 +98,7 @@ class ModuleOverride : public Module
 		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
 		{
 			irc::modestacker tmp(modes);
-			std::string msg = std::string(source->nick)+" overriding modes:" + tmp.popModeLine();
+			std::string msg = std::string(source->nick)+" overriding modes:" + tmp.popModeLine(FORMAT_USER);
 			ServerInstance->SNO->WriteGlobalSno('v',msg);
 			return MOD_RES_ALLOW;
 		}

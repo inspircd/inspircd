@@ -67,7 +67,7 @@ static bool WriteDatabase(ModeHandler* p)
 		fputs("\" modes=\"", f);
 		irc::modestacker cmodes;
 		chan->ChanModes(cmodes, MODELIST_FULL);
-		fputesc(f, cmodes.popModeLine(true, INT_MAX, INT_MAX));
+		fputesc(f, cmodes.popModeLine(FORMAT_PERSIST, INT_MAX, INT_MAX));
 		fputs("\">\n", f);
 	}
 

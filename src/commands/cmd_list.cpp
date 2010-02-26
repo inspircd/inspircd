@@ -88,7 +88,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 				irc::modestacker ms;
 				i->second->ChanModes(ms, n ? MODELIST_SHORT : MODELIST_PUBLIC);
 				user->WriteNumeric(322, "%s %s %ld :[%s] %s", user->nick.c_str(), i->second->name.c_str(), users,
-					ms.popModeLine().c_str(), i->second->topic.c_str());
+					ms.popModeLine(FORMAT_USER).c_str(), i->second->topic.c_str());
 			}
 		}
 	}

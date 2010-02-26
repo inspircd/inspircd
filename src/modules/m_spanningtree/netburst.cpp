@@ -137,7 +137,7 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 
 	snprintf(list, MAXBUF, ":%s FMODE %s %ld ", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age);
 	while (!fmodes.empty())
-		WriteLine(list + fmodes.popModeLine(true));
+		WriteLine(list + fmodes.popModeLine(FORMAT_NETWORK));
 }
 
 /** Send G, Q, Z and E lines */

@@ -138,8 +138,10 @@ class FlagMode : public ModeHandler
 		}
 	}
 
-	void TranslateMode(std::string& value, bool adding, bool use_uid)
+	void TranslateMode(std::string& value, bool adding, SerializeFormat format)
 	{
+		if (format == FORMAT_PERSIST)
+			value.clear();
 		std::string::size_type colon = value.find(':');
 		if (colon == std::string::npos)
 			return;
@@ -148,7 +150,7 @@ class FlagMode : public ModeHandler
 		User* dest = ServerInstance->FindNick(nick);
 		if (!dest)
 			return;
-		value = flag + (use_uid ? dest->uuid : dest->nick);
+		value = flag + (format == FORMAT_USER ? dest->nick : dest->uuid);
 	}
 };
 

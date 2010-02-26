@@ -105,7 +105,7 @@ void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::m
 		outlist.push_back("");
 		while (!modes.empty())
 		{
-			outlist[1] = modes.popModeLine(true);
+			outlist[1] = modes.popModeLine(FORMAT_NETWORK);
 			Utils->DoOneToMany(src->uuid,"MODE",outlist);
 		}
 	}
@@ -116,7 +116,7 @@ void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::m
 		outlist.push_back("");
 		while (!modes.empty())
 		{
-			outlist[2] = modes.popModeLine(true);
+			outlist[2] = modes.popModeLine(FORMAT_NETWORK);
 			Utils->DoOneToMany(src->uuid,"FMODE",outlist);
 		}
 	}

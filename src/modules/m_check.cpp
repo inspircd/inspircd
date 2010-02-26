@@ -162,7 +162,7 @@ class CommandCheck : public Command
 			irc::modestacker cmodes;
 			targchan->ChanModes(cmodes, MODELIST_FULL);
 			while (!cmodes.empty())
-				user->SendText(checkstr + " modes " + cmodes.popModeLine());
+				user->SendText(checkstr + " modes " + cmodes.popModeLine(FORMAT_USER));
 
 			user->SendText(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
 
