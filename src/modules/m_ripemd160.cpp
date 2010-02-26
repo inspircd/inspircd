@@ -151,7 +151,7 @@ typedef		uint32_t		dword;
 class RIProv : public HashProvider
 {
 
-	void MDinit(dword *MDbuf, unsigned int* key)
+	void MDinit(dword *MDbuf, const unsigned int* key)
 	{
 		if (key)
 		{
@@ -403,7 +403,7 @@ class RIProv : public HashProvider
 		return;
 	}
 
-	byte *RMD(byte *message, dword length, unsigned int* key)
+	byte *RMD(byte *message, dword length, const unsigned int* key)
 	{
 		ServerInstance->Logs->Log("m_ripemd160", DEBUG, "RMD: '%s' length=%u", (const char*)message, length);
 		dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(E))   */
@@ -436,15 +436,10 @@ class RIProv : public HashProvider
 		return (byte *)hashcode;
 	}
 public:
-	std::string sum(const std::string& data)
+	std::string sum(const std::string& data, const unsigned int* IV)
 	{
-		char* rv = (char*)RMD((byte*)data.data(), data.length(), NULL);
+		char* rv = (char*)RMD((byte*)data.data(), data.length(), IV);
 		return std::string(rv, RMDsize / 8);
-	}
-
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		return "";
 	}
 
 	RIProv(Module* m) : HashProvider(m, "hash/ripemd160", 20, 64) {}

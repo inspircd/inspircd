@@ -167,6 +167,20 @@ class ModuleCloaking : public Module
 			return host.substr(splitdot);
 	}
 
+	std::string sumIV(int table, const std::string& data, int bytes)
+	{
+		std::string bits = Hash->sum(data, compatkey);
+		const char* hex = xtab[table % 4];
+		std::string rv;
+		for(int i=0; i < bytes; i++)
+		{
+			unsigned char v = bits[i];
+			rv.push_back(hex[v / 16]);
+			rv.push_back(hex[v % 16]);
+		}
+		return rv;
+	}
+
 	std::string CompatCloak4(const char* ip)
 	{
 		irc::sepstream seps(ip, '.');
@@ -190,7 +204,7 @@ class ModuleCloaking : public Module
 		/* Send the Hash module a different hex table for each octet group's Hash sum */
 		for (int k = 0; k < 4; k++)
 		{
-			rv.append(Hash->sumIV(compatkey, xtab[(compatkey[k]+i[k]) % 4], octet[k]).substr(0,6));
+			rv.append(sumIV(compatkey[k]+i[k], octet[k], 3));
 			if (k < 3)
 				rv.append(".");
 		}
@@ -211,14 +225,14 @@ class ModuleCloaking : public Module
 			item += *input;
 			if (item.length() > 7)
 			{
-				hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[1]+rounds) % 4], item).substr(0,8));
+				hashies.push_back(sumIV(compatkey[1]+rounds, item, 4));
 				item.clear();
 			}
 			rounds++;
 		}
 		if (!item.empty())
 		{
-			hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[1]+rounds) % 4], item).substr(0,8));
+			hashies.push_back(sumIV(compatkey[1]+rounds, item, 4));
 		}
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
@@ -341,10 +355,10 @@ class ModuleCloaking : public Module
 			switch (mode)
 			{
 				case MODE_COMPAT_HOST:
-					testcloak = prefix + "-" + Hash->sumIV(compatkey, xtab[0], "*").substr(0,10);
+					testcloak = prefix + "-" + sumIV(0, "*", 5);
 					break;
 				case MODE_COMPAT_IPONLY:
-					testcloak = Hash->sumIV(compatkey, xtab[0], "*").substr(0,10);
+					testcloak = sumIV(0, "*", 5);
 					break;
 				case MODE_HALF_CLOAK:
 					testcloak = prefix + SegmentCloak("*", 3);
@@ -451,7 +465,7 @@ class ModuleCloaking : public Module
 					std::string tail = LastTwoDomainParts(dest->host);
 
 					/* Generate a cloak using specialized Hash */
-					chost = prefix + "-" + Hash->sumIV(compatkey, xtab[(dest->host[0]) % 4], dest->host).substr(0,8) + tail;
+					chost = prefix + "-" + sumIV(dest->host[0], dest->host, 4) + tail;
 
 					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 					 * according to the DNS RFC) then they get cloaked as an IP.

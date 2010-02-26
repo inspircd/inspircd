@@ -60,7 +60,7 @@ class MD5Provider : public HashProvider
 		} while (--words);
 	}
 
-	void MD5Init(MD5Context *ctx, unsigned int* ikey = NULL)
+	void MD5Init(MD5Context *ctx, const unsigned int* ikey = NULL)
 	{
 		/* These are the defaults for md5 */
 		if (!ikey)
@@ -235,41 +235,19 @@ class MD5Provider : public HashProvider
 	}
 
 
-	void MyMD5(void *dest, void *orig, int len, unsigned int* ikey)
+	void MyMD5(void *dest, const void *orig, int len, const unsigned int* ikey)
 	{
-		MD5Context context;
-		MD5Init(&context, ikey);
-		MD5Update(&context, (const unsigned char*)orig, len);
-		MD5Final((unsigned char*)dest, &context);
 	}
 
-
-	void GenHash(const char* src, char* dest, const char* xtab, unsigned int* ikey, size_t srclen)
-	{
-		unsigned char bytes[16];
-
-		MyMD5((char*)bytes, (void*)src, srclen, ikey);
-
-		for (int i = 0; i < 16; i++)
-		{
-			*dest++ = xtab[bytes[i] / 16];
-			*dest++ = xtab[bytes[i] % 16];
-		}
-		*dest++ = 0;
-	}
  public:
-	std::string sum(const std::string& data)
+	std::string sum(const std::string& data, const unsigned int* IV)
 	{
 		char res[16];
-		MyMD5(res, (void*)data.data(), data.length(), NULL);
+		MD5Context context;
+		MD5Init(&context, IV);
+		MD5Update(&context, (const byte*)data.data(), data.length());
+		MD5Final((unsigned char*)res, &context);
 		return std::string(res, 16);
-	}
-
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		char res[33];
-		GenHash(sdata.data(), res, HexMap, IV, sdata.length());
-		return res;
 	}
 
 	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5", 16, 64) {}

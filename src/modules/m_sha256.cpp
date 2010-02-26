@@ -238,28 +238,23 @@ class HashSHA256 : public HashProvider
 			UNPACK32(ctx->h[i], &digest[i << 2]);
 	}
 
-	void SHA256(const char *src, unsigned char *dest, unsigned int len)
+	void SHA256(const unsigned int* IV, const char *src, unsigned char *dest, unsigned int len)
 	{
 		SHA256Context ctx;
-		SHA256Init(&ctx, NULL);
+		SHA256Init(&ctx, IV);
 		SHA256Update(&ctx, (unsigned char *)src, len);
 		SHA256Final(&ctx, dest);
 	}
 
  public:
-	std::string sum(const std::string& data)
+	std::string sum(const std::string& data, const unsigned int* IV)
 	{
 		unsigned char bytes[SHA256_DIGEST_SIZE];
-		SHA256(data.data(), bytes, data.length());
+		SHA256(IV, data.data(), bytes, data.length());
 		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		return "";
-	}
-
-	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256", 32, 64) {}
+	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256", SHA256_DIGEST_SIZE, 64) {}
 };
 
 class ModuleSHA256 : public Module
