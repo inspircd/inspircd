@@ -63,6 +63,7 @@ class FlagMode : public ModeHandler
 {
  public:
 	OpFlagProviderImpl prov;
+	bool hide;
 	FlagMode(Module* parent) : ModeHandler(parent, "opflags", 'x', PARAM_ALWAYS, MODETYPE_CHANNEL),
 		prov(parent)
 	{
@@ -140,8 +141,12 @@ class FlagMode : public ModeHandler
 
 	void TranslateMode(std::string& value, bool adding, SerializeFormat format)
 	{
-		if (format == FORMAT_PERSIST)
+		if (format == FORMAT_PERSIST || (hide && format == FORMAT_USER))
+		{
 			value.clear();
+			return;
+		}
+
 		std::string::size_type colon = value.find(':');
 		if (colon == std::string::npos)
 			return;
@@ -154,25 +159,101 @@ class FlagMode : public ModeHandler
 	}
 };
 
-class ModuleCustomPrefix : public Module
+class FlagCmd : public Command
 {
-	FlagMode mode;
  public:
-	ModuleCustomPrefix() : mode(this)
+	FlagMode mode;
+	FlagCmd(Module* parent) : Command(parent, "OPFLAGS", 3), mode(parent)
+	{
+		flags_needed = FLAG_SERVERONLY; // ?
+	}
+
+	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
+	{
+		Channel* chan = ServerInstance->FindChan(parameters[0]);
+		User* user = ServerInstance->FindNick(parameters[1]);
+
+		if (!user || !chan)
+			return CMD_FAILURE;
+
+		Membership* memb = chan->GetUser(user);
+		if (!memb)
+			return CMD_FAILURE;
+		std::vector<std::string>* ptr = mode.prov.ext.get(memb);
+		if (!ptr)
+			mode.prov.ext.set(memb, ptr = new std::vector<std::string>);
+
+		bool adding = true;
+		irc::commasepstream flags(parameters[2]);
+		std::string flag;
+		while (flags.GetToken(flag))
+		{
+			if (flag[0] == '=')
+			{
+				ptr->clear();
+				flag = flag.substr(1);
+			}
+			else if (flag[0] == '+' || flag[0] == '-')
+			{
+				adding = (flag[0] == '+');
+				flag = flag.substr(1);
+			}
+			if (flag.empty())
+				continue;
+			for(std::vector<std::string>::iterator i = ptr->begin(); i != ptr->end(); i++)
+			{
+				if (*i == flag)
+				{
+					if (!adding)
+						ptr->erase(i);
+					goto found;
+				}
+			}
+			if (adding)
+				ptr->push_back(flag);
+found:		;
+		}
+		if (ptr->empty())
+			mode.prov.ext.unset(memb);
+		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_OPT_BCAST;
+	}
+};
+
+class ModuleOpFlags : public Module
+{
+	FlagCmd cmd;
+ public:
+	ModuleOpFlags() : cmd(this)
 	{
 	}
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(mode);
-		ServerInstance->Modules->AddService(mode.prov);
-		ServerInstance->Modules->AddService(mode.prov.ext);
+		ServerInstance->Modules->AddService(cmd);
+		ServerInstance->Modules->AddService(cmd.mode);
+		ServerInstance->Modules->AddService(cmd.mode.prov);
+		ServerInstance->Modules->AddService(cmd.mode.prov.ext);
+		OnRehash(NULL);
+
+		Implementation eventlist[] = { I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
+	}
+
+	void OnRehash(User*)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("opflags");
+		cmd.mode.hide = tag->getBool("hidden");
 	}
 
 	Version GetVersion()
 	{
-		return Version("Provides custom prefix channel modes", VF_VENDOR);
+		return Version("Provides per-channel access flags", VF_VENDOR);
 	}
 };
 
-MODULE_INIT(ModuleCustomPrefix)
+MODULE_INIT(ModuleOpFlags)
