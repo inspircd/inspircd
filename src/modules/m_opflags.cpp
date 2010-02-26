@@ -32,10 +32,26 @@ class OpFlagProviderImpl : public OpFlagProvider
 		return "";
 	}
 
-	bool PermissionCheck(Membership* memb, const std::string& needed)
+	ModResult PermissionCheck(Membership* memb, const std::string& acl, const std::string& needed)
 	{
 		if (!memb)
-			return false;
+			return MOD_RES_DENY;
+
+		std::string* mine = ext.get(memb);
+		if (mine && !acl.empty())
+		{
+			irc::commasepstream myflags(*mine);
+			std::string myflag;
+			while (myflags.GetToken(myflag))
+			{
+				if (acl == myflag)
+					return MOD_RES_ALLOW;
+			}
+		}
+
+		if (needed.empty())
+			return MOD_RES_PASSTHRU;
+
 		irc::commasepstream flags(needed);
 		std::string flag;
 		if (flags.GetToken(flag))
@@ -45,11 +61,9 @@ class OpFlagProviderImpl : public OpFlagProvider
 				ServerInstance->Modes->FindMode(flag);
 			unsigned int neededrank = privmh ? privmh->GetPrefixRank() : INT_MAX;
 			if (memb->getRank() >= neededrank)
-				return true;
+				return MOD_RES_ALLOW;
 		}
-		std::string* mine = ext.get(memb);
-		if (!mine)
-			return false;
+
 		while (flags.GetToken(flag))
 		{
 			irc::commasepstream myflags(*mine);
@@ -57,10 +71,10 @@ class OpFlagProviderImpl : public OpFlagProvider
 			while (myflags.GetToken(myflag))
 			{
 				if (flag == myflag)
-					return true;
+					return MOD_RES_ALLOW;
 			}
 		}
-		return false;
+		return MOD_RES_DENY;
 	}
 };
 
@@ -117,7 +131,7 @@ class FlagCmd : public Command
 			while (myflags.GetToken(flag))
 				flags.insert(flag);
 		}
-		
+
 		bool adding = true;
 		irc::commasepstream deltaflags(parameters[2]);
 		while (deltaflags.GetToken(flag))

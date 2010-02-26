@@ -78,12 +78,11 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 			}
 		}
 
-		if (permcheck && !minmode.empty())
+		if (permcheck)
 		{
-			if (permcheck->PermissionCheck(memb, minmode))
-				return MOD_RES_ALLOW;
-			else
-				return MOD_RES_DENY;
+			ModResult res = permcheck->PermissionCheck(memb, "exempt/" + restriction, minmode);
+			if (res != MOD_RES_PASSTHRU)
+				return res;
 		}
 		else if (memb && !minmode.empty())
 		{

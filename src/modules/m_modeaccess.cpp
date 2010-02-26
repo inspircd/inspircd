@@ -87,9 +87,10 @@ class ModeCheckHandler : public HandlerBase3<ModResult, User*, Channel*, irc::mo
 					neededname = (**i).mask.substr(pos + 1);
 					if (permcheck)
 					{
-						if (permcheck->PermissionCheck(memb, neededname))
+						ModResult res = permcheck->PermissionCheck(memb, "mode/" + mh->name, neededname);
+						if (res == MOD_RES_ALLOW)
 							neededrank = 0;
-						else
+						if (res == MOD_RES_DENY)
 							neededrank = INT_MAX;
 					}
 					else
