@@ -101,6 +101,7 @@ class ModuleCustomPrefix : public Module
 		while (tags.first != tags.second)
 		{
 			ConfigTag* tag = tags.first->second;
+			tags.first++;
 			CustomPrefixMode* mh = new CustomPrefixMode(this, tag);
 			modes.push_back(mh);
 			if (mh->rank <= 0)
