@@ -342,7 +342,8 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		if (params.size() >= 2)
 		{
-			ServerInstance->SNO->WriteToSnoMask(*(params[0].c_str()), "From " + who->nick + ": "+ params[1]);
+			ServerInstance->SNO->WriteToSnoMask(params[0][0], "From " + who->nick + ": "+ params[1]);
+			params[1] = ":" + params[1];
 			Utils->DoOneToAllButSender(prefix, command, params, prefix);
 		}
 	}
