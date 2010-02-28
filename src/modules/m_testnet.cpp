@@ -18,6 +18,7 @@
 struct vtbase
 {
 	virtual void isok(const char* name, int impl, Module* basemod, std::vector<std::string>& allmods) = 0;
+	virtual ~vtbase() {}
 };
 
 template<typename T> struct vtable : public vtbase
