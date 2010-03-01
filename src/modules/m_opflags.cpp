@@ -32,6 +32,30 @@ class OpFlagProviderImpl : public OpFlagProvider
 		return "";
 	}
 
+	void SetFlags(Membership* memb, const std::string& flags)
+	{
+		if (flags.empty())
+			ext.unset(memb);
+		else
+			ext.set(memb, flags);
+	}
+
+	std::string SetFlags(Membership* memb, const std::set<std::string>& flags)
+	{
+		std::string v;
+		for(std::set<std::string>::iterator i = flags.begin(); i != flags.end(); i++)
+		{
+			if (i != flags.begin())
+				v.push_back(',');
+			v.append(*i);
+		}
+		if (v.empty())
+			ext.unset(memb);
+		else
+			ext.set(memb, v);
+		return v;
+	}
+
 	ModResult PermissionCheck(Membership* memb, const std::string& acl, const std::string& needed)
 	{
 		if (!memb)
@@ -161,14 +185,7 @@ class FlagCmd : public Command
 		}
 		else
 		{
-			std::string v;
-			for(std::set<std::string>::iterator i = flags.begin(); i != flags.end(); i++)
-			{
-				if (i != flags.begin())
-					v.push_back(',');
-				v.append(*i);
-			}
-			prov.ext.set(memb, v);
+			std::string v = prov.SetFlags(memb, flags);
 			chan->WriteChannelWithServ(src->server, "NOTICE %s :%s set %s opflags to %s",
 				chan->name.c_str(), src->nick.c_str(), user->nick.c_str(), v.c_str());
 		}

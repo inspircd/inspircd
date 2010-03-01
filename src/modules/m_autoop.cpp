@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "opflags.h"
 #include "u_listmode.h"
 
 /* $ModDesc: Provides support for the +w channel mode, autoop list */
@@ -63,9 +64,10 @@ class AutoOpList : public ListModeBase
 class ModuleAutoOp : public Module
 {
 	AutoOpList mh;
+	dynamic_reference<OpFlagProvider> opflags;
 
 public:
-	ModuleAutoOp() : mh(this)
+	ModuleAutoOp() : mh(this), opflags("opflags")
 	{
 	}
 
@@ -78,32 +80,46 @@ public:
 		ServerInstance->Modules->Attach(list, this, 2);
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	void OnUserJoin(Membership* memb, bool, bool, CUList&)
 	{
-		if (!chan)
-			return MOD_RES_PASSTHRU;
-
-		modelist* list = mh.extItem.get(chan);
-		if (list)
+		if (!IS_LOCAL(memb->user))
+			return;
+		modelist* list = mh.extItem.get(memb->chan);
+		if (!list)
+			return;
+		irc::modestacker ms;
+		std::set<std::string> flags;
+		for (modelist::iterator it = list->begin(); it != list->end(); it++)
 		{
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			std::string::size_type colon = (**it).mask.find(':');
+			if (colon == std::string::npos)
+				continue;
+			if (!memb->chan->CheckBan(memb->user, (**it).mask.substr(colon+1)))
+				continue;
+			irc::commasepstream modes((**it).mask.substr(0, colon));
+			std::string mflag;
+			while (modes.GetToken(mflag))
 			{
-				std::string::size_type colon = (**it).mask.find(':');
-				if (colon == std::string::npos)
-					continue;
-				if (chan->CheckBan(user, (**it).mask.substr(colon+1)))
+				ModeHandler* given = mflag.length() == 1 ?
+					ServerInstance->Modes->FindMode(mflag[0], MODETYPE_CHANNEL) :
+					ServerInstance->Modes->FindMode(mflag);
+				if (given && given->GetPrefixRank())
+					ms.push(irc::modechange(given->id, memb->user->nick, true));
+				else if (!given)
 				{
-					std::string mid = (**it).mask.substr(0, colon);
-					ModeHandler* given = mid.length() == 1 ?
-						ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL) :
-						ServerInstance->Modes->FindMode(mid);
-					if (given)
-						privs += given->GetModeChar();
+					// it's a flag
+					flags.insert(mflag);
 				}
 			}
 		}
-
-		return MOD_RES_PASSTHRU;
+		if (!ms.empty())
+		{
+			ServerInstance->Modes->Process(memb->user, memb->chan, ms, false, true);
+			ServerInstance->Modes->Send(memb->user, memb->chan, ms);
+			ServerInstance->PI->SendMode(memb->user, memb->chan, ms);
+		}
+		if (opflags && !flags.empty())
+			opflags->SetFlags(memb, flags);
 	}
 
 	void OnRehash(User* user)

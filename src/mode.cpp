@@ -537,15 +537,13 @@ void ModeParser::Send(User *src, Extensible* target, irc::modestacker modes)
 	}
 }
 
-void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes, bool merge)
+void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes, bool merge, bool SkipAccessChecks)
 {
 	Channel* targetchannel = dynamic_cast<Channel*>(target);
 	User* targetuser = dynamic_cast<User*>(target);
 
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (src, target, modes));
-
-	bool SkipAccessChecks = false;
 
 	if (!IS_LOCAL(src) || MOD_RESULT == MOD_RES_ALLOW)
 		SkipAccessChecks = true;

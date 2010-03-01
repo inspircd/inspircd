@@ -571,8 +571,9 @@ class CoreExport ModeParser
 	 * @param target The user or channel that is being changed
 	 * @param modes The modes being changed. Changes that are denied will be removed from the list.
 	 * @param merge True if modes should be merged rather than just applied (used in netburst)
+	 * @param skipACL True if the ACL checks should be skipped for this mode change
 	 */
-	void Process(User *src, Extensible* target, irc::modestacker& modes, bool merge = false);
+	void Process(User *src, Extensible* target, irc::modestacker& modes, bool merge = false, bool skipACL = false);
 
 	void Send(User *src, Extensible* target, irc::modestacker modes);
 
