@@ -531,19 +531,18 @@ class ModuleSSLGnuTLS : public Module
 {
 	gnutls_dh_params dh_params;
 
-	std::string sslports;
-
-	bool cred_alloc;
-
 	RandGen randhandler;
-
 	GenericCap capHandler;
 	GnuTLSProvider iohook;
 	CommandStartTLS starttls;
+
+	int once_in_a_while;
+	std::string sslports;
+
  public:
 
 	ModuleSSLGnuTLS()
-		: capHandler(this, "tls"), iohook(this), starttls(this, iohook)
+		: capHandler(this, "tls"), iohook(this), starttls(this, iohook), once_in_a_while(0)
 	{
 		gnutls_global_init(); // This must be called once in the program
 
@@ -648,6 +647,8 @@ class ModuleSSLGnuTLS : public Module
 		// kx algorithms. These should be discarded and regenerated
 		// once a day, once a week or once a month. Depending on the
 		// security requirements.
+		if (once_in_a_while++ & 0xFF)
+			return;
 
 		int ret = gnutls_dh_params_generate2(dh_params, dh_bits);
 
