@@ -23,7 +23,7 @@ void TreeSocket::Encap(User* who, parameterlist &params)
 {
 	if (params.size() > 1)
 	{
-		if (InspIRCd::Match(ServerInstance->Config->GetSID(), params[0]))
+		if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 		{
 			parameterlist plist(params.begin() + 2, params.end());
 			ServerInstance->CallCommandHandler(params[1].c_str(), plist, who);
