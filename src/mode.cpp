@@ -352,6 +352,10 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 	ModeHandler *mh = FindMode(modeid);
 	int pcnt = mh->GetNumParams(adding);
 
+	// crop mode parameter size to 250 characters
+	if (mc.value.length() > 250)
+		mc.value = mc.value.substr(0, 250);
+
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mc));
 

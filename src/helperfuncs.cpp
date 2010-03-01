@@ -173,6 +173,9 @@ bool InspIRCd::IsValidMask(const std::string &mask)
 	if (exclamation != 1 || atsign != 1)
 		return false;
 
+	if (mask.length() > 250)
+		return false;
+
 	return true;
 }
 
