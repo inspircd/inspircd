@@ -582,6 +582,9 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 									/* Yerk, invalid! */
 									if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
 										parameter.clear();
+									/* Prevent people from setting insane-sized bans that can't be listed or removed */
+									if (parameter.length() > 250)
+										parameter.clear();
 								}
 								else
 								{
