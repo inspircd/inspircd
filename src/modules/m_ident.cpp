@@ -189,7 +189,6 @@ class IdentRequestSocket : public EventHandler
 			ServerInstance->Logs->Log("m_ident",DEBUG,"Close ident socket %d", GetFd());
 			ServerInstance->SE->DelFd(this);
 			ServerInstance->SE->Close(GetFd());
-			ServerInstance->SE->Shutdown(GetFd(), SHUT_WR);
 			this->SetFd(-1);
 		}
 	}

@@ -447,11 +447,6 @@ void SocketTimeout::Tick(time_t)
 		// connection.
 		this->sock->OnTimeout();
 		this->sock->OnError(I_ERR_TIMEOUT);
-
-		/* NOTE: We must set this AFTER DelFd, as we added
-		 * this socket whilst writeable. This means that we
-		 * must DELETE the socket whilst writeable too!
-		 */
 		this->sock->state = I_ERROR;
 
 		ServerInstance->GlobalCulls.AddItem(sock);

@@ -735,17 +735,7 @@ class SQLConn : public EventHandler
 
 	void Close()
 	{
-		if (!ServerInstance->SE->DelFd(this))
-		{
-			if (sql && PQstatus(sql) == CONNECTION_BAD)
-			{
-				ServerInstance->SE->DelFd(this, true);
-			}
-			else
-			{
-				ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: PQsocket cant be removed from socket engine!");
-			}
-		}
+		ServerInstance->SE->DelFd(this);
 
 		if(sql)
 		{
