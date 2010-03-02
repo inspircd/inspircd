@@ -57,7 +57,6 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 			const char *reason = parameters.size() == 2 ? parameters[1].c_str() : "No reason";
 			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick.c_str(), reason);
 			sock->Squit(server_target, std::string("Server quit by ") + user->GetFullRealHost() + " (" + reason + ")");
-			ServerInstance->SE->DelFd(sock);
 			sock->Close();
 		}
 	}
