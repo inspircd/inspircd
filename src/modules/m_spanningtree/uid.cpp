@@ -76,6 +76,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	}
 	catch (...)
 	{
+		ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
 		return CMD_INVALID;
 	}
 	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
