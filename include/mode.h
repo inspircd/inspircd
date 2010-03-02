@@ -309,7 +309,8 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param adding This value is true when the mode is being set, or false when it is being unset.
 	 * @return MODEACTION_ALLOW to allow the mode, or MODEACTION_DENY to prevent the mode, also see the description of 'parameter'.
 	 */
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
+	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding) = 0;
+
 	/**
 	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE #channel +modechar
 	 * without any parameter or other modes in the command.

@@ -106,11 +106,6 @@ ModResult ModeHandler::AccessCheck(User*, Channel*, std::string &, bool)
 	return MOD_RES_PASSTHRU;
 }
 
-ModeAction ModeHandler::OnModeChange(User*, User*, Channel*, std::string&, bool)
-{
-	return MODEACTION_DENY;
-}
-
 void ModeHandler::DisplayList(User*, Channel*)
 {
 }
