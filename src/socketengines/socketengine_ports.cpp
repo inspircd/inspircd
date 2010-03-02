@@ -48,7 +48,7 @@ public:
 	virtual ~PortsEngine();
 	virtual bool AddFd(EventHandler* eh, int event_mask);
 	void OnSetEvent(EventHandler* eh, int old_event, int new_event);
-	virtual bool DelFd(EventHandler* eh, bool force = false);
+	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 	virtual void WantWrite(EventHandler* eh);
@@ -131,11 +131,11 @@ void PortsEngine::WantWrite(EventHandler* eh, int old_mask, int new_mask)
 		port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), mask_to_events(new_mask), eh);
 }
 
-bool PortsEngine::DelFd(EventHandler* eh, bool force)
+void PortsEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
-		return false;
+		return;
 
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);
 

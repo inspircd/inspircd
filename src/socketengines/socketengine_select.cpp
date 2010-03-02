@@ -32,7 +32,7 @@ public:
 	 */
 	virtual ~SelectEngine();
 	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual bool DelFd(EventHandler* eh, bool force = false);
+	virtual void DelFd(EventHandler* eh);
 	void OnSetEvent(EventHandler* eh, int, int);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
@@ -69,18 +69,17 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 	return true;
 }
 
-bool SelectEngine::DelFd(EventHandler* eh, bool force)
+void SelectEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
-		return false;
+		return;
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
-	return true;
 }
 
 void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)

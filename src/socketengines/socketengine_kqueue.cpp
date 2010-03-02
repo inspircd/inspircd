@@ -39,7 +39,7 @@ public:
 	virtual ~KQueueEngine();
 	bool AddFd(EventHandler* eh, int event_mask);
 	void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual bool DelFd(EventHandler* eh, bool force = false);
+	virtual bool DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 	virtual void RecoverFromFork();
@@ -127,14 +127,14 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 	return true;
 }
 
-bool KQueueEngine::DelFd(EventHandler* eh, bool force)
+void KQueueEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
 		ServerInstance->Logs->Log("SOCKET",DEFAULT,"DelFd() on invalid fd: %d", fd);
-		return false;
+		return;
 	}
 
 	struct kevent ke;
@@ -148,18 +148,16 @@ bool KQueueEngine::DelFd(EventHandler* eh, bool force)
 	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 	int j = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 
-	if ((j < 0) && !force)
+	if (j < 0)
 	{
 		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to remove fd: %d %s",
 					  fd, strerror(errno));
-		return false;
 	}
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
-	return true;
 }
 
 void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)

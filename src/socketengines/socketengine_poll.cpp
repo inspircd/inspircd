@@ -59,7 +59,7 @@ public:
 	virtual bool AddFd(EventHandler* eh, int event_mask);
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual EventHandler* GetRef(int fd);
-	virtual bool DelFd(EventHandler* eh, bool force = false);
+	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 };
@@ -168,20 +168,20 @@ void PollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	events[it->second].events = mask_to_poll(new_mask);
 }
 
-bool PollEngine::DelFd(EventHandler* eh, bool force)
+void PollEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
 		ServerInstance->Logs->Log("SOCKET", DEBUG, "DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
-		return false;
+		return;
 	}
 
 	std::map<int, unsigned int>::iterator it = fd_mappings.find(fd);
 	if (it == fd_mappings.end())
 	{
 		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd() on unknown fd: %d", fd);
-		return false;
+		return;
 	}
 
 	unsigned int index = it->second;
@@ -213,7 +213,6 @@ bool PollEngine::DelFd(EventHandler* eh, bool force)
 
 	ServerInstance->Logs->Log("SOCKET", DEBUG, "Remove file descriptor: %d (index: %d) "
 			"(Filled gap with: %d (index: %d))", fd, index, last_fd, last_index);
-	return true;
 }
 
 int PollEngine::DispatchEvents()

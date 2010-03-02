@@ -195,22 +195,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	{
 		LocalUser* lu = IS_LOCAL(user);
 		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(lu));
-		UserIOHandler* eh = &lu->eh;
-		eh->DoWrite();
-		if (eh->GetIOHook())
-		{
-			try
-			{
-				eh->GetIOHook()->OnStreamSocketClose(eh);
-			}
-			catch (CoreException& modexcept)
-			{
-				ServerInstance->Logs->Log("USERS",DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
-			}
-		}
-
-		ServerInstance->SE->DelFd(eh);
-		eh->Close();
+		lu->eh.Close();
 	}
 
 	/*
