@@ -216,6 +216,9 @@ void StreamSocket::DoRead()
 	}
 }
 
+/* Don't try to prepare huge blobs of data to send to a blocked socket */
+static const int MYIOV_MAX = IOV_MAX < 128 ? IOV_MAX : 128;
+
 void StreamSocket::DoWrite()
 {
 	if (sendq.empty())
@@ -330,11 +333,11 @@ void StreamSocket::DoWrite()
 		{
 			// Prepare a writev() call to write all buffers efficiently
 			int bufcount = sendq.size();
-		
-			// cap the number of buffers at IOV_MAX
-			if (bufcount > IOV_MAX)
+
+			// cap the number of buffers at MYIOV_MAX
+			if (bufcount > MYIOV_MAX)
 			{
-				bufcount = IOV_MAX;
+				bufcount = MYIOV_MAX;
 			}
 
 			int rv_max = 0;
