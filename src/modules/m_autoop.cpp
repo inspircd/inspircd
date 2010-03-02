@@ -77,8 +77,14 @@ public:
 		mh.init();
 		ServerInstance->Modules->AddService(mh);
 
-		Implementation list[] = { I_OnUserPreJoin, I_OnRehash };
+		Implementation list[] = { I_OnUserJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(list, this, 2);
+	}
+
+	void Prioritize()
+	{
+		Module* st = ServerInstance->Modules->Find("m_spanningtree.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserJoin, PRIORITY_AFTER, &st);
 	}
 
 	void OnUserJoin(Membership* memb, bool, bool, CUList&)
