@@ -784,7 +784,7 @@
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
 
-<log method="file" type="* -USERINPUT -USEROUTPUT -m_spanningtree" level="default" target="ircd.log">
+<log method="file" type="* -USERINPUT -USEROUTPUT" level="default" target="ircd.log">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
