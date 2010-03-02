@@ -192,6 +192,12 @@ class CommandTest : public Command
 		{
 			IS_LOCAL(user)->CommandFloodPenalty += atoi(parameters[1].c_str());
 		}
+		else if (parameters[0] == "sizes")
+		{
+			user->SendText(":z.z NOTICE !info :User=%lu/%lu/%lu Channel=%lu Membership=%lu ban=%lu",
+				sizeof(LocalUser), sizeof(RemoteUser), sizeof(FakeUser), sizeof(Channel),
+				sizeof(Membership), sizeof(BanItem));
+		}
 		else if (parameters[0] == "check")
 		{
 			checkall(creator);
