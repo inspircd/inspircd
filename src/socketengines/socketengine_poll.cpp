@@ -13,18 +13,6 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2010 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *            the file COPYING for details.
- *
- * ---------------------------------------------------
- */
 
 #ifndef __SOCKETENGINE_POLL__
 #define __SOCKETENGINE_POLL__
@@ -269,6 +257,9 @@ int PollEngine::DispatchEvents()
 			{
 				SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
 				eh->HandleEvent(EVENT_READ);
+				if (eh != ref[index])
+					// whoops, deleted out from under us
+					continue;
 			}
 			
 			if (events[index].revents & POLLOUT)

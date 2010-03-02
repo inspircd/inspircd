@@ -151,6 +151,8 @@ int SelectEngine::DispatchEvents()
 					ReadEvents++;
 					SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
 					ev->HandleEvent(EVENT_READ);
+					if (ev != ref[i])
+						continue;
 				}
 				if (FD_ISSET (i, &wfdset))
 				{
