@@ -350,6 +350,9 @@ class ModuleIdent : public Module
 
 	virtual int OnUserRegister(User *user)
 	{
+		if (user->GetExt("ident_socket"))
+			return 0;
+
 		for (int j = 0; j < Conf->Enumerate("connect"); j++)
 		{
 			std::string hostn = Conf->ReadValue("connect","allow",j);
