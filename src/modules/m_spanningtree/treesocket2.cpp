@@ -429,7 +429,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		{
 			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
 			ServerInstance->Logs->Log("spanningtree", SPARSE, "Invalid S2S command :%s %s %s",
-				who->uuid, command.c_str(), pmlist.GetJoined().c_str());
+				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Unrecognised or malformed command '" + command + "' -- possibly loaded mismatched modules");
 		}
 		if (res == CMD_SUCCESS)
