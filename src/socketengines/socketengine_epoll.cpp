@@ -39,7 +39,7 @@ public:
 	virtual ~EPollEngine();
 	virtual bool AddFd(EventHandler* eh, int event_mask);
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual bool DelFd(EventHandler* eh, bool force = false);
+	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 };
@@ -155,13 +155,13 @@ void EPollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	}
 }
 
-bool EPollEngine::DelFd(EventHandler* eh, bool force)
+void EPollEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
 		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
-		return false;
+		return;
 	}
 
 	struct epoll_event ev;
@@ -169,17 +169,15 @@ bool EPollEngine::DelFd(EventHandler* eh, bool force)
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
-	if (i < 0 && !force)
+	if (i < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Cant remove socket: %s", strerror(errno));
-		return false;
+		ServerInstance->Logs->Log("SOCKET",DEBUG,"epoll_ctl can't remove socket: %s", strerror(errno));
 	}
 
 	ref[fd] = NULL;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 	CurrentSetSize--;
-	return true;
 }
 
 int EPollEngine::DispatchEvents()
