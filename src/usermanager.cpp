@@ -85,8 +85,6 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 */
 	New->SetClass();
 
-	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
-
 	/*
 	 * Check connect class settings and initialise settings into User.
 	 * This will be done again after DNS resolution. -- w00t
@@ -140,6 +138,8 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 * BOPM and other stuff requires it.
 	 */
 	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
+
+	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
 
 	if (ServerInstance->Config->NoUserDns)
 	{
