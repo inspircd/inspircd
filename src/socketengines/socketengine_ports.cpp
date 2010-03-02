@@ -14,18 +14,6 @@
 #include "inspircd.h"
 #include "exitcodes.h"
 #include <port.h>
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
- *       +------------------------------------+
- *
- *  InspIRCd: (C) 2002-2010 InspIRCd Development Team
- * See: http://wiki.inspircd.org/Credits
- *
- * This program is free but copyrighted software; see
- *            the file COPYING for details.
- *
- * ---------------------------------------------------
- */
 
 #ifndef __SOCKETENGINE_PORTS__
 #define __SOCKETENGINE_PORTS__
@@ -197,6 +185,8 @@ int PortsEngine::DispatchEvents()
 					{
 						ReadEvents++;
 						eh->HandleEvent(EVENT_READ);
+						if (eh != ref[fd])
+							continue;
 					}
 					if (events[i].portev_events & POLLWRNORM)
 					{

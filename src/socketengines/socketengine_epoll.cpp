@@ -233,6 +233,9 @@ int EPollEngine::DispatchEvents()
 		{
 			ReadEvents++;
 			eh->HandleEvent(EVENT_READ);
+			if (eh != ref[events[j].data.fd])
+				// whoops, deleted out from under us
+				continue;
 		}
 		if (events[j].events & EPOLLOUT)
 		{
