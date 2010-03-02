@@ -73,14 +73,13 @@
 
 class IdentRequestSocket : public EventHandler
 {
- private:
-	LocalUser *user;			/* User we are attached to */
-	bool done;			/* True if lookup is finished */
-	std::string result;		/* Holds the ident string if done */
  public:
+	LocalUser *user;			/* User we are attached to */
+	std::string result;		/* Holds the ident string if done */
 	time_t age;
+	bool done;			/* True if lookup is finished */
 
-	IdentRequestSocket(LocalUser* u) : user(u), result(u->ident)
+	IdentRequestSocket(LocalUser* u) : user(u)
 	{
 		age = ServerInstance->Time();
 
@@ -198,14 +197,6 @@ class IdentRequestSocket : public EventHandler
 		return done;
 	}
 
-	/* Note: if the lookup succeeded, will contain 'ident', otherwise
-	 * will contain '~ident'. Use *GetResult() to determine lookup success.
-	 */
-	const char* GetResult()
-	{
-		return result.c_str();
-	}
-
 	void ReadResponse()
 	{
 		/* We don't really need to buffer for incomplete replies here, since IDENT replies are
@@ -280,7 +271,7 @@ class ModuleIdent : public Module
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = {
-			I_OnRehash, I_OnUserRegister, I_OnCheckReady,
+			I_OnRehash, I_OnUserInit, I_OnCheckReady,
 			I_OnUserDisconnect, I_OnSetConnectClass
 		};
 		ServerInstance->Modules->Attach(eventlist, this, 5);
@@ -304,17 +295,11 @@ class ModuleIdent : public Module
 			RequestTimeout = 5;
 	}
 
-	virtual ModResult OnUserRegister(LocalUser *user)
+	void OnUserInit(LocalUser *user)
 	{
 		ConfigTag* tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
-			return MOD_RES_PASSTHRU;
-
-		/* User::ident is currently the username field from USER; with m_ident loaded, that
-		 * should be preceded by a ~. The field is actually IdentMax+2 characters wide. */
-		if (user->ident.length() > ServerInstance->Config->Limits.IdentMax + 1)
-			user->ident.assign(user->ident, 0, ServerInstance->Config->Limits.IdentMax);
-		user->ident.insert(0, "~");
+			return;
 
 		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
 
@@ -327,8 +312,6 @@ class ModuleIdent : public Module
 		{
 			ServerInstance->Logs->Log("m_ident",DEBUG,"Ident exception: %s", e.GetReason());
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	/* This triggers pretty regularly, we can use it in preference to
@@ -356,16 +339,10 @@ class ModuleIdent : public Module
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
 			ServerInstance->Logs->Log("m_ident",DEBUG, "Timeout");
-			/* The user isnt actually disconnecting,
-			 * we call this to clean up the user
-			 */
-			OnUserDisconnect(user);
-			return MOD_RES_PASSTHRU;
 		}
-
-		/* Got a result yet? */
-		if (!isock->HasResult())
+		else if (!isock->HasResult())
 		{
+			// time still good, no result yet... hold the registration
 			ServerInstance->Logs->Log("m_ident",DEBUG, "No result yet");
 			return MOD_RES_DENY;
 		}
@@ -373,16 +350,19 @@ class ModuleIdent : public Module
 		ServerInstance->Logs->Log("m_ident",DEBUG, "Yay, result!");
 
 		/* wooo, got a result (it will be good, or bad) */
-		if (*(isock->GetResult()) != '~')
-			user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", isock->GetResult());
+		if (isock->result.empty())
+		{
+			user->ident.insert(0, 1, '~');
+			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident.c_str());
+		}
 		else
-			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", isock->GetResult());
+		{
+			user->ident = isock->result;
+			user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", user->ident.c_str());
+		}
 
-		/* Copy the ident string to the user */
-		user->ChangeIdent(isock->GetResult());
-
-		/* The user isnt actually disconnecting, we call this to clean up the user */
-		OnUserDisconnect(user);
+		isock->Close();
+		ext.unset(user);
 		return MOD_RES_PASSTHRU;
 	}
 

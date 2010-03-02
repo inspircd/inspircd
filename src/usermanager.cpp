@@ -79,13 +79,13 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		return;
 	}
 
-	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
-
 	/*
 	 * First class check. We do this again in FullConnect after DNS is done, and NICK/USER is recieved.
 	 * See my note down there for why this is required. DO NOT REMOVE. :) -- w00t
 	 */
 	New->SetClass();
+
+	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
 
 	/*
 	 * Check connect class settings and initialise settings into User.
