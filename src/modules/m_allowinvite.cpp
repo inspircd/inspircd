@@ -29,7 +29,7 @@ class ModuleAllowInvite : public Module
 	ModuleAllowInvite() : ni(this)
 	{
 		ServerInstance->Modules->AddService(ni);
-		Implementation eventlist[] = { I_OnUserPreInvite, I_On005Numeric };
+		Implementation eventlist[] = { I_OnChannelPermissionCheck, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -38,25 +38,23 @@ class ModuleAllowInvite : public Module
 		ServerInstance->AddExtBanChar('A');
 	}
 
-	virtual ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
+	void OnChannelPermissionCheck(User* user,Channel* channel, PermissionData& perm)
 	{
-		if (IS_LOCAL(user))
-		{
-			ModResult res = channel->GetExtBanStatus(user, 'A');
-			if (res == MOD_RES_DENY)
-			{
-				// Matching extban, explicitly deny /invite
-				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You are banned from using INVITE", user->nick.c_str(), channel->name.c_str());
-				return res;
-			}
-			if (channel->IsModeSet(&ni) || res == MOD_RES_ALLOW)
-			{
-				// Explicitly allow /invite
-				return MOD_RES_ALLOW;
-			}
-		}
+		if (perm.name != "invite")
+			return;
 
-		return MOD_RES_PASSTHRU;
+		ModResult res = channel->GetExtBanStatus(user, 'A');
+		if (res == MOD_RES_DENY)
+		{
+			// Matching extban, explicitly deny /invite
+			perm.result = res;
+			perm.SetReason(":%s %d %s %s :You are banned from using INVITE", ServerInstance->Config->ServerName.c_str(),
+				ERR_CHANOPRIVSNEEDED, user->nick.c_str(), channel->name.c_str());
+		}
+		else if (channel->IsModeSet(&ni) || res == MOD_RES_ALLOW)
+		{
+			perm.result = MOD_RES_ALLOW;
+		}
 	}
 
 	virtual ~ModuleAllowInvite()

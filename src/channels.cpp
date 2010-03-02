@@ -83,22 +83,21 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 		u = ServerInstance->FakeClient;
 	if (IS_LOCAL(u) && !forceset)
 	{
-		ModResult res;
-		FIRST_MOD_RESULT(OnPreTopicChange, res, (u,this,ntopic));
+		PermissionData tc("topic");
+		FOR_EACH_MOD(OnChannelPermissionCheck, (u,this,tc));
 
-		if (res == MOD_RES_DENY)
-			return CMD_FAILURE;
-		if (res != MOD_RES_ALLOW)
+		if (tc.result == MOD_RES_PASSTHRU && (IsModeSet('t') ? GetPrefixValue(u) < HALFOP_VALUE : !HasUser(u)))
+			tc.result = MOD_RES_DENY;
+
+		if (tc.result == MOD_RES_DENY)
 		{
-			bool defok = IsModeSet('t') ? GetPrefixValue(u) >= HALFOP_VALUE : HasUser(u);
-			if (!ServerInstance->OnCheckExemption(u,this,"topiclock").check(defok))
-			{
-				if (!this->HasUser(u))
-					u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
-				else
-					u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
-				return CMD_FAILURE;
-			}
+			if (!tc.reason.empty())
+				u->SendText(tc.reason);
+			else if (!this->HasUser(u))
+				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+			else
+				u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+			return CMD_FAILURE;
 		}
 	}
 
@@ -530,21 +529,25 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 		}
 
 		ModResult res;
-		if (ServerInstance->ULine(src->server))
-			res = MOD_RES_ALLOW;
-		else
-			FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
+
+		TargetedPermissionData perm("kick", memb->user);
+		FOR_EACH_MOD(OnChannelPermissionCheck, (src,this,perm));
 
 		if (res == MOD_RES_DENY)
+		{
+			if (!perm.reason.empty())
+				src->SendText(perm.reason);
 			return;
+		}
 
 		if (res == MOD_RES_PASSTHRU)
 		{
 			int them = this->GetPrefixValue(src);
 			int us = this->GetPrefixValue(user);
-			if ((them < HALFOP_VALUE) || (them < us))
+			if (them < us || them < HALFOP_VALUE)
 			{
-				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them >= HALFOP_VALUE ? "" : "half-");
+				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :They have a higher prefix set",
+					src->nick.c_str(), this->name.c_str());
 				return;
 			}
 		}

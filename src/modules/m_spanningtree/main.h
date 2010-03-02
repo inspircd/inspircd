@@ -150,7 +150,6 @@ class ModuleSpanningTree : public Module
 	void OnUserPostNick(User* user, const std::string &oldnick);
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts);
 	void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
-	void OnPreRehash(User* user, const std::string &parameter);
 	void OnRehash(User* user);
 	void OnOper(User* user, const std::string &opertype);
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);

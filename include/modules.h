@@ -122,6 +122,24 @@ struct ModResult {
 	} \
 } while (0);
 
+#define FOR_EACH_MOD(n,args) do { \
+	EventHandlerIter iter_ ## n = ServerInstance->Modules->EventHandlers[I_ ## n].begin(); \
+	while (iter_ ## n != ServerInstance->Modules->EventHandlers[I_ ## n].end()) \
+	{ \
+		Module* mod_ ## n = *iter_ ## n; \
+		iter_ ## n ++; \
+		try \
+		{ \
+			(mod_ ## n)->n args; \
+		} \
+		catch (CoreException& modexcept) \
+		{ \
+			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+		} \
+	} \
+} while (0);
+
+
 /**
  * Custom module result handling loop. This is a paired macro, and should only
  * be used with while_each_hook.
@@ -318,22 +336,51 @@ enum Implementation
 {
 	I_BEGIN,
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash,
-	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
-	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
+	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
+	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
 	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
+	I_OnStats, I_OnChangeLocalUserHost, I_OnChannelPermissionCheck,
 	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric,
-	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
+	I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
+};
+
+class CoreExport PermissionData : public interfacebase
+{
+ public:
+	/** Name of the permission we would like to check */
+	const std::string name;
+	/** Result of the permission check. 
+	 * MOD_RES_ALLOW will allow the action (skipping any built-in checks)
+	 * MOD_RES_DENY will deny the action. If reason is nonempty, this will
+	 * be sent to the user as an explanation.
+	 * MOD_RES_PASSTHRU will produce the default ircd behavior.
+	 */
+	ModResult result;
+	/** Reason the permission was denied */
+	std::string reason;
+	PermissionData(const std::string& Name) : name(Name) {}
+
+	/** Convenience formatter class for setting reason as a numeric */
+	void SetReason(const char* format, ...) CUSTOM_PRINTF(2, 3);
+};
+
+class CoreExport TargetedPermissionData : public PermissionData
+{
+ public:
+	/** User that this action (kick, etc) is targeted at */
+	User* const target;
+	TargetedPermissionData(const std::string& Name, User* dest)
+		: PermissionData(Name), target(dest) {}
 };
 
 /** Base class for all InspIRCd modules
@@ -443,18 +490,6 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList& except_list);
 
 	/** Called on rehash.
-	 * This method is called prior to a /REHASH or when a SIGHUP is received from the operating
-	 * system. This is called in all cases -- including when this server will not execute the
-	 * rehash because it is directed at a remote server.
-	 *
-	 * @param user The user performing the rehash, if any. If this is server initiated, the value of
-	 * this variable will be NULL.
-	 * @param parameter The (optional) parameter given to REHASH from the user. Empty when server
-	 * initiated.
-	 */
-	virtual void OnPreRehash(User* user, const std::string &parameter);
-
-	/** Called on rehash.
 	 * This method is called when a user initiates a module-specific rehash. This can be used to do
 	 * expensive operations (such as reloading SSL certificates) that are not executed on a normal
 	 * rehash for efficiency. A rehash of this type does not reload the core configuration.
@@ -503,21 +538,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
 
-	/** Called whenever a user is about to be kicked.
-	 * Returning a value of 1 from this function stops the process immediately, causing no
-	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
-	 * notices etc.
-	 * @param source The user issuing the kick
-	 * @param user The user being kicked
-	 * @param chan The channel the user is being kicked from
-	 * @param reason The kick reason
-	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
-	 */
-	virtual ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason);
-
 	/** Called whenever a user is kicked.
-	 * If this method is called, the kick is already underway and cannot be prevented, so
-	 * to prevent a kick, please use Module::OnUserPreKick instead of this method.
 	 * @param source The user issuing the kick
 	 * @param user The user being kicked
 	 * @param chan The channel the user is being kicked from
@@ -563,21 +584,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnWhois(User* source, User* dest);
 
-	/** Called whenever a user is about to invite another user into a channel, before any processing is done.
-	 * Returning 1 from this function stops the process immediately, causing no
-	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
-	 * notices etc. This is useful for modules which may want to filter invites to channels.
-	 * @param source The user who is issuing the INVITE
-	 * @param dest The user being invited
-	 * @param channel The channel the user is being invited to
-	 * @param timeout The time the invite will expire (0 == never)
-	 * @return 1 to deny the invite, 0 to check whether or not the user has permission to invite, -1 to explicitly allow the invite
-	 */
-	virtual ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout);
-
 	/** Called after a user has been successfully invited to a channel.
-	 * You cannot prevent the invite from occuring using this function, to do that,
-	 * use OnUserPreInvite instead.
 	 * @param source The user who is issuing the INVITE
 	 * @param dest The user being invited
 	 * @param channel The channel the user is being invited to
@@ -747,6 +754,16 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
 	 */
 	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
+
+	/**
+	 * Primary permission check hook
+	 *
+	 * Every time the IRCd either denies permission or prevents an action in
+	 * a channel due to insufficient access (as opposed to invalid syntax),
+	 * this hook should first be called to see if a channel has overridden
+	 * the access control.
+	 */
+	virtual void OnChannelPermissionCheck(User* source, Channel* channel, PermissionData& permission);
 
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS
@@ -1050,18 +1067,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnChangeLocalUserGECOS(LocalUser* user, const std::string &newhost);
 
-	/** Called before a topic is changed.
-	 * Return 1 to deny the topic change, 0 to check details on the change, -1 to let it through with no checks
-	 * As with other 'pre' events, you should only ever block a local event.
-	 * @param user The user changing the topic
-	 * @param chan The channels who's topic is being changed
-	 * @param topic The actual topic text
-	 * @param 1 to block the topic change, 0 to allow
-	 */
-	virtual ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic);
-
 	/** Called whenever a topic has been changed.
-	 * To block topic changes you must use OnPreTopicChange instead.
 	 * @param user The user changing the topic
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text

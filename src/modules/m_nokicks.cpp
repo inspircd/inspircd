@@ -33,7 +33,7 @@ class ModuleNoKicks : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(nk);
-		Implementation eventlist[] = { I_OnUserPreKick, I_On005Numeric };
+		Implementation eventlist[] = { I_OnChannelPermissionCheck, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -42,23 +42,14 @@ class ModuleNoKicks : public Module
 		ServerInstance->AddExtBanChar('Q');
 	}
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
+	void OnChannelPermissionCheck(User* user,Channel* chan, PermissionData& perm)
 	{
-		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet(&nk)))
+		if (perm.name == "kick" && !chan->GetExtBanStatus(user, 'Q').check(!chan->IsModeSet(&nk)))
 		{
-			if ((ServerInstance->ULine(source->nick.c_str())) || ServerInstance->ULine(source->server))
-			{
-				// ulines can still kick with +Q in place
-				return MOD_RES_PASSTHRU;
-			}
-			else
-			{
-				// nobody else can (not even opers with override, and founders)
-				source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), memb->chan->name.c_str(), memb->user->nick.c_str());
-				return MOD_RES_DENY;
-			}
+			perm.SetReason(":%s %d %s %s :Can't kick in channel (+Q set)", ServerInstance->Config->ServerName.c_str(),
+				ERR_CHANOPRIVSNEEDED, user->nick.c_str(), chan->name.c_str());
+			perm.result = MOD_RES_DENY;
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	~ModuleNoKicks()

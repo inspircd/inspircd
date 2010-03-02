@@ -27,8 +27,8 @@ class ModuleOverride : public Module
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
-		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPreTopicChange };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnChannelPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	void OnRehash(User* user)
@@ -54,35 +54,14 @@ class ModuleOverride : public Module
 		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find("*", 0) != std::string::npos));
 	}
 
-
-	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic)
+	void OnChannelPermissionCheck(User* source,Channel* chan, PermissionData& perm)
 	{
-		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, "TOPIC"))
+		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, perm.name.c_str()))
 		{
-			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetPrefixValue(source) < HALFOP_VALUE))
-			{
-				ServerInstance->SNO->WriteGlobalSno('v',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
-			}
+			ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override for "+perm.name+" on "+chan->name);
 
-			// Explicit allow
-			return MOD_RES_ALLOW;
+			perm.result = MOD_RES_ALLOW;
 		}
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
-	{
-		if (IS_OPER(source) && CanOverride(source,"KICK"))
-		{
-			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
-			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE))
-			{
-				ServerInstance->SNO->WriteGlobalSno('v',std::string(source->nick)+" used oper override to kick "+std::string(memb->user->nick)+" on "+std::string(memb->chan->name)+" ("+reason+")");
-				return MOD_RES_ALLOW;
-			}
-		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnPreMode(User* source, Extensible* dest, irc::modestacker& modes)

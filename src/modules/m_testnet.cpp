@@ -98,12 +98,11 @@ static void checkall(Module* noimpl)
 	CHK(OnRehash);
 	CHK(OnSendSnotice);
 	CHK(OnUserPreJoin);
-	CHK(OnUserPreKick);
+	CHK(OnChannelPermissionCheck);
 	CHK(OnUserKick);
 	CHK(OnOper);
 	CHK(OnInfo);
 	CHK(OnWhois);
-	CHK(OnUserPreInvite);
 	CHK(OnUserInvite);
 	CHK(OnUserPreMessage);
 	CHK(OnUserPreNotice);
@@ -141,7 +140,6 @@ static void checkall(Module* noimpl)
 	CHK(OnExtBanCheck);
 	CHK(OnStats);
 	CHK(OnChangeLocalUserHost);
-	CHK(OnPreTopicChange);
 	CHK(OnPostTopicChange);
 	CHK(OnEvent);
 	CHK(OnGlobalOper);
@@ -165,7 +163,6 @@ static void checkall(Module* noimpl)
 	CHK(OnRunTestSuite);
 	CHK(OnNamesListItem);
 	CHK(OnNumeric);
-	CHK(OnPreRehash);
 	CHK(OnModuleRehash);
 	CHK(OnSendWhoLine);
 	CHK(OnChangeIdent);

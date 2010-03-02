@@ -44,7 +44,7 @@ class ModuleServProtectMode : public Module
 		: bm(this)
 	{
 		ServerInstance->Modules->AddService(bm);
-		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnUserPreKick };
+		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnChannelPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -112,16 +112,17 @@ class ModuleServProtectMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreKick(User *src, Membership* memb, const std::string &reason)
+	void OnChannelPermissionCheck(User* src, Channel* chan, PermissionData& perm)
 	{
-		if (memb->user->IsModeSet('k'))
+		if (perm.name != "kick")
+			return;
+		TargetedPermissionData& t = static_cast<TargetedPermissionData&>(perm);
+		if (t.target->IsModeSet('k'))
 		{
-			src->WriteNumeric(484, "%s %s :You are not permitted to kick services",
-				src->nick.c_str(), memb->chan->name.c_str());
-			return MOD_RES_DENY;
+			perm.SetReason(":%s 484 %s %s :You are not permitted to kick services",
+				ServerInstance->Config->ServerName.c_str(), src->nick.c_str(), chan->name.c_str());
+			perm.result = MOD_RES_DENY;
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)

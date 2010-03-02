@@ -70,15 +70,18 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 	  		return CMD_FAILURE;
 		}
 
-		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user,u,c,timeout));
+		if (IS_LOCAL(user))
+		{
+			TargetedPermissionData perm("invite", u);
+			FOR_EACH_MOD(OnChannelPermissionCheck, (user,c,perm));
 
-		if (MOD_RESULT == MOD_RES_DENY)
-		{
-			return CMD_FAILURE;
-		}
-		else if (MOD_RESULT == MOD_RES_PASSTHRU)
-		{
-			if (IS_LOCAL(user))
+			if (MOD_RESULT == MOD_RES_DENY)
+			{
+				if (!perm.reason.empty())
+					user->SendText(perm.reason);
+				return CMD_FAILURE;
+			}
+			else if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				int rank = c->GetPrefixValue(user);
 				if (rank < HALFOP_VALUE)

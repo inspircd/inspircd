@@ -31,13 +31,19 @@ class CommandRehash : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (parameters.size() > 0 && parameters[0].find('*') != std::string::npos)
+			return ROUTE_BROADCAST;
+		if (parameters.size() > 0 && parameters[0].find('.') != std::string::npos)
+			return ROUTE_UNICAST(parameters[0]);
+		return ROUTE_LOCALONLY;
+	}
 };
 
 CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string param = parameters.size() ? parameters[0] : "";
-
-	FOREACH_MOD(I_OnPreRehash,OnPreRehash(user, param));
 
 	if (param.empty())
 	{

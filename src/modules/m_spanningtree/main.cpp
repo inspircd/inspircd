@@ -66,7 +66,7 @@ void ModuleSpanningTree::init()
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
-		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
+		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnLoadModule, I_OnStats,
 		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
 	};
@@ -737,19 +737,6 @@ void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::strin
 	params.push_back(dest->uuid);
 	params.push_back(":"+reason);
 	Utils->DoOneToMany(source->uuid,"KILL",params);
-}
-
-void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
-{
-	ServerInstance->Logs->Log("remoterehash", DEBUG, "called with param %s", parameter.c_str());
-
-	// Send out to other servers
-	if (!parameter.empty() && parameter[0] != '-')
-	{
-		parameterlist params;
-		params.push_back(parameter);
-		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->ServerName);
-	}
 }
 
 void ModuleSpanningTree::OnRehash(User* user)

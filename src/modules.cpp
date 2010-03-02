@@ -79,7 +79,6 @@ void		Module::OnUserDisconnect(LocalUser*) { }
 void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { }
 void		Module::OnPostJoin(Membership*) { }
 void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
-void		Module::OnPreRehash(User*, const std::string&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
 ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
@@ -88,7 +87,6 @@ void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }
 void		Module::OnWhois(User*, User*) { }
-ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
@@ -104,7 +102,6 @@ void		Module::OnPostCommand(const std::string&, const std::vector<std::string>&,
 void		Module::OnUserInit(LocalUser*) { }
 ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserRegister(LocalUser*) { }
-ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
 ModResult	Module::OnRawMode(User*, Channel*, irc::modechange&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
@@ -116,7 +113,6 @@ ModResult	Module::OnExtBanCheck(User*, Channel*, char) { return MOD_RES_PASSTHRU
 ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnEvent(Event&) { }
 void		Module::OnRequest(Request&) { }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
@@ -134,6 +130,7 @@ void		Module::OnSyncUser(User*, SyncTarget*) { }
 void		Module::OnSyncChannel(Channel*, SyncTarget*) { }
 void		Module::OnSyncNetwork(SyncTarget*) { }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
+void		Module::OnChannelPermissionCheck(User*, Channel*, PermissionData&) { }
 void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }
 void		Module::OnChangeName(User*, const std::string&) { }
@@ -505,6 +502,18 @@ dynamic_reference_base::operator bool()
 			value = static_cast<DataProvider*>(i->second);
 	}
 	return value;
+}
+
+void PermissionData::SetReason(const char* format, ...)
+{
+	va_list argsPtr;
+	char textbuffer[MAXBUF];
+
+	va_start(argsPtr, format);
+	vsnprintf(textbuffer, MAXBUF, format, argsPtr);
+	va_end(argsPtr);
+
+	reason = textbuffer;
 }
 
 void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *src)
