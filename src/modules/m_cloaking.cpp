@@ -59,46 +59,31 @@ class CloakUser : public ModeHandler
 		/* don't allow this user to spam modechanges */
 		IS_LOCAL(dest)->CommandFloodPenalty += 5000;
 
-		if (adding)
+		if (adding && !dest->IsModeSet('x'))
 		{
-			if(!dest->IsModeSet('x'))
+			std::string* cloak = ext.get(dest);
+
+			if (!cloak)
 			{
-				/* The mode is being turned on - so attempt to
-				 * allocate the user a cloaked host using a non-reversible
-				 * algorithm (its simple, but its non-reversible so the
-				 * simplicity doesnt really matter). This algorithm
-				 * will not work if the user has only one level of domain
-				 * naming in their hostname (e.g. if they are on a lan or
-				 * are connecting via localhost) -- this doesnt matter much.
-				 */
-
-				std::string* cloak = ext.get(dest);
-
-				if (!cloak && IS_LOCAL(dest))
-				{
-					/* Force creation of missing cloak */
-					creator->OnUserConnect(IS_LOCAL(dest));
-					cloak = ext.get(dest);
-				}
-				if (cloak)
-				{
-					dest->ChangeDisplayedHost(cloak->c_str());
-					dest->SetMode('x',true);
-					return MODEACTION_ALLOW;
-				}
+				/* Force creation of missing cloak */
+				creator->OnUserConnect(IS_LOCAL(dest));
+				cloak = ext.get(dest);
 			}
-		}
-		else
-		{
-			if (dest->IsModeSet('x'))
+			if (cloak)
 			{
-				/* User is removing the mode, so just restore their real host
-				 * and make it match the displayed one.
-				 */
-				dest->ChangeDisplayedHost(dest->host.c_str());
-				dest->SetMode('x',false);
+				dest->ChangeDisplayedHost(cloak->c_str());
+				dest->SetMode('x',true);
 				return MODEACTION_ALLOW;
 			}
+		}
+		else if (!adding && dest->IsModeSet('x'))
+		{
+			/* User is removing the mode, so restore their real host
+			 * and make it match the displayed one.
+			 */
+			dest->ChangeDisplayedHost(dest->host.c_str());
+			dest->SetMode('x',false);
+			return MODEACTION_ALLOW;
 		}
 
 		return MODEACTION_DENY;
@@ -132,8 +117,8 @@ class ModuleCloaking : public Module
 
 		ServerInstance->Extensions.Register(&cu.ext);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect, I_OnChangeHost };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	/** This function takes a domain name string and returns just the last two domain parts,
@@ -341,6 +326,13 @@ class ModuleCloaking : public Module
 	{
 		/* Needs to be after m_banexception etc. */
 		ServerInstance->Modules->SetPriority(this, I_OnCheckBan, PRIORITY_LAST);
+	}
+
+	// this unsets umode +x on every host change. If we are actually doing a +x
+	// mode change, we will call SetMode back to true AFTER the host change is done.
+	void OnChangeHost(User* u, const std::string& host)
+	{
+		u->SetMode('x', false);
 	}
 
 	~ModuleCloaking()
