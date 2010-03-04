@@ -67,7 +67,7 @@ void ListenSocket::AcceptInternal()
 	socklen_t length = sizeof(client);
 	int incomingSockfd = ServerInstance->SE->Accept(this, &client.sa, &length);
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensoket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
+	ServerInstance->Logs->Log("SOCKET",DEBUG,"HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
 		ServerInstance->stats->statsRefused++;
