@@ -48,7 +48,7 @@ std::string TreeSocket::MyModules(int filter)
 	return capabilities;
 }
 
-static std::string BuildModeList(ModeType type)
+static std::string BuildModeList(ModeType type, int proto_version)
 {
 	std::vector<std::string> modes;
 	for(ModeIDIter id; id; id++)
@@ -65,7 +65,7 @@ static std::string BuildModeList(ModeType type)
 			modes.push_back(mdesc);
 		}
 	}
-	if (type == TYPE_CHANNEL && proto_version == 1202 && ServerInstance->Config->NameOnlyModes)
+	if (type == MODETYPE_CHANNEL && proto_version == 1202 && ServerInstance->Config->NameOnlyModes)
 		modes.push_back("namebase=Z");
 	sort(modes.begin(), modes.end());
 	irc::stringjoiner line(" ", modes, 0, modes.size() - 1);
@@ -123,8 +123,8 @@ void TreeSocket::SendCapabilities(int phase)
 	if (line != "CAPAB MODSUPPORT :")
 		this->WriteLine(line);
 
-	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL));
-	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER));
+	WriteLine("CAPAB CHANMODES :" + BuildModeList(MODETYPE_CHANNEL, proto_version));
+	WriteLine("CAPAB USERMODES :" + BuildModeList(MODETYPE_USER, proto_version));
 
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
@@ -262,10 +262,10 @@ bool TreeSocket::Capab(const parameterlist &params)
 
 		if (!capab->ChanModes.empty())
 		{
-			if (capab->ChanModes != BuildModeList(MODETYPE_CHANNEL))
+			if (capab->ChanModes != BuildModeList(MODETYPE_CHANNEL, proto_version))
 			{
 				std::string diffIneed, diffUneed;
-				ListDifference(capab->ChanModes, BuildModeList(MODETYPE_CHANNEL), ' ', diffIneed, diffUneed);
+				ListDifference(capab->ChanModes, BuildModeList(MODETYPE_CHANNEL, proto_version), ' ', diffIneed, diffUneed);
 				if (diffIneed.length() || diffUneed.length())
 				{
 					reason = "Channel modes not matched on these servers.";
@@ -284,10 +284,10 @@ bool TreeSocket::Capab(const parameterlist &params)
 
 		if (!capab->UserModes.empty())
 		{
-			if (capab->UserModes != BuildModeList(MODETYPE_USER))
+			if (capab->UserModes != BuildModeList(MODETYPE_USER, proto_version))
 			{
 				std::string diffIneed, diffUneed;
-				ListDifference(capab->UserModes, BuildModeList(MODETYPE_USER), ' ', diffIneed, diffUneed);
+				ListDifference(capab->UserModes, BuildModeList(MODETYPE_USER, proto_version), ' ', diffIneed, diffUneed);
 				if (diffIneed.length() || diffUneed.length())
 				{
 					reason = "User modes not matched on these servers.";
