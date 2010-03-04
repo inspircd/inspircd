@@ -39,7 +39,7 @@ void InspIRCd::DoBackgroundUserStuff()
 
 		if (curr->CommandFloodPenalty)
 		{
-			unsigned int rate = curr->MyClass->GetCommandRate();
+			unsigned int rate = curr->MyClass->commandrate;
 			if (curr->CommandFloodPenalty > rate)
 				curr->CommandFloodPenalty -= rate;
 			else
@@ -55,18 +55,18 @@ void InspIRCd::DoBackgroundUserStuff()
 					// This user didn't answer the last ping, remove them
 					if (!curr->lastping)
 					{
-						time_t time = this->Time() - (curr->nping - curr->MyClass->GetPingTime());
+						time_t time = this->Time() - (curr->nping - curr->MyClass->pingtime);
 						char message[MAXBUF];
 						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
 						curr->lastping = 1;
-						curr->nping = Time() + curr->MyClass->GetPingTime();
+						curr->nping = Time() + curr->MyClass->pingtime;
 						this->Users->QuitUser(curr, message);
 						continue;
 					}
 
 					curr->Write("PING :%s",this->Config->ServerName.c_str());
 					curr->lastping = 0;
-					curr->nping = Time()  +curr->MyClass->GetPingTime();
+					curr->nping = Time()  +curr->MyClass->pingtime;
 				}
 				break;
 			case REG_NICKUSER:
@@ -79,7 +79,7 @@ void InspIRCd::DoBackgroundUserStuff()
 				break;
 		}
 
-		if (curr->registered != REG_ALL && (Time() > (curr->age + curr->MyClass->GetRegTimeout())))
+		if (curr->registered != REG_ALL && (Time() > (curr->age + curr->MyClass->registration_timeout)))
 		{
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST

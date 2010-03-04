@@ -455,18 +455,18 @@ void UserIOHandler::OnDataReady()
 	if (user->quitting)
 		return;
 
-	if (recvq.length() > user->MyClass->GetRecvqMax() && !user->HasPrivPermission("users/flood/increased-buffers"))
+	if (recvq.length() > user->MyClass->recvqmax && !user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		ServerInstance->Users->QuitUser(user, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
-			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
+			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->recvqmax);
 	}
 	unsigned long sendqmax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/increased-buffers"))
-		sendqmax = user->MyClass->GetSendqSoftMax();
+		sendqmax = user->MyClass->softsendqmax;
 	unsigned long penaltymax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/no-fakelag"))
-		penaltymax = user->MyClass->GetPenaltyThreshold() * 1000;
+		penaltymax = user->MyClass->penaltythreshold * 1000;
 
 	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
@@ -513,7 +513,7 @@ eol_found:
 
 void UserIOHandler::AddWriteBuf(const std::string &data)
 {
-	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->GetSendqHardMax() &&
+	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->hardsendqmax &&
 		!user->HasPrivPermission("users/flood/increased-buffers"))
 	{
 		/*
@@ -522,7 +522,7 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 		 */
 		ServerInstance->Users->QuitUser(user, "SendQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds connect class maximum of %lu",
-			user->nick.c_str(), user->MyClass->GetSendqHardMax());
+			user->nick.c_str(), user->MyClass->hardsendqmax);
 		return;
 	}
 
@@ -719,20 +719,20 @@ void LocalUser::CheckClass()
 		ServerInstance->Users->QuitUser(this, a->config->getString("reason", "Unauthorised connection"));
 		return;
 	}
-	else if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))
+	else if (a->maxlocal && ServerInstance->Users->LocalCloneCount(this) > a->maxlocal)
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
+		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->maxlocal, this->GetIPString());
 		return;
 	}
-	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
+	else if (a->maxglobal && ServerInstance->Users->GlobalCloneCount(this) > a->maxglobal)
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
+		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->maxglobal, this->GetIPString());
 		return;
 	}
 
-	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
+	this->nping = ServerInstance->Time() + a->pingtime + ServerInstance->Config->dns_timeout;
 }
 
 bool User::CheckLines(bool doZline)
@@ -1553,7 +1553,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			ConnectClass* c = *i;
-			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Checking %s", c->GetName().c_str());
+			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Checking %s", c->name.c_str());
 
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
@@ -1561,7 +1561,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class forced by module to %s", c->GetName().c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class forced by module to %s", c->name.c_str());
 				found = c;
 				break;
 			}
@@ -1574,10 +1574,10 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 
 			/* check if host matches.. */
-			if (c->GetHost().length() && !InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
-			    !InspIRCd::MatchCIDR(this->host, c->GetHost(), NULL))
+			if (c->host.length() && !InspIRCd::MatchCIDR(this->GetIPString(), c->host, NULL) &&
+			    !InspIRCd::MatchCIDR(this->host, c->host, NULL))
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->host.c_str());
 				continue;
 			}
 
@@ -1660,25 +1660,55 @@ const std::string& FakeUser::GetFullHost()
 	return server;
 }
 
-ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
-	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
-	pingtime(0), softsendqmax(0), hardsendqmax(0), recvqmax(0),
-	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxchans(0), limit(0)
+ConnectClass::ConnectClass(ConfigTag* tag, ConnectClass* Parent)
+	: config(tag), parent(Parent)
 {
-}
+	name = tag->getString("name");
 
-ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, const ConnectClass& parent)
-	: config(tag), type(t), fakelag(parent.fakelag), name("unnamed"),
-	registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime),
-	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
-	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
-	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxchans(parent.maxchans),
-	limit(parent.limit)
-{
+	if (tag->readString("allow", host, false))
+		type = CC_ALLOW;
+	else if (tag->readString("deny", host, false))
+		type = CC_DENY;
+	else if (!name.empty())
+	{
+		type = CC_NAMED;
+		host = name;
+	}
+	else
+	{
+		throw CoreException("Connect class must have allow, deny, or name specified at " + tag->getTagLocation());
+	}
+
+	registration_timeout = tag->getInt("timeout", parent ? parent->registration_timeout : 90);
+	pingtime = tag->getInt("pingfreq", parent ? parent->pingtime : 120);
+	softsendqmax = tag->getInt("softsendq", parent ? parent->softsendqmax : 4096);
+	hardsendqmax = tag->getInt("hardsendq", parent ? parent->hardsendqmax : 0x100000);
+	std::string sendq;
+	if (tag->readString("sendq", sendq))
+	{
+		// attempt to guess a good hard/soft sendq from a single value
+		long value = atol(sendq.c_str());
+		if (value > 16384)
+			softsendqmax = value / 16;
+		else
+			softsendqmax = value;
+		hardsendqmax = value * 8;
+	}
+	recvqmax = tag->getInt("recvq", parent ? parent->recvqmax : 4096);
+	fakelag = tag->getBool("fakelag", parent ? parent->fakelag : true);
+	penaltythreshold = tag->getInt("threshold", parent ? parent->penaltythreshold : (fakelag ? 10 : 20));
+	commandrate = tag->getInt("commandrate", parent ? parent->commandrate : 1000);
+	maxlocal = tag->getInt("localmax", parent ? parent->maxlocal : 0);
+	maxglobal = tag->getInt("globalmax", parent ? parent->maxglobal : 0);
+	maxchans = tag->getInt("maxchans", parent ? parent->maxchans : 0);
+	limit = tag->getInt("limit", parent ? parent->limit : 0);
 }
 
 void ConnectClass::Update(const ConnectClass* src)
 {
+	config = src->config;
+	parent = src->parent;
+
 	name = src->name;
 	registration_timeout = src->registration_timeout;
 	host = src->host;
@@ -1690,4 +1720,11 @@ void ConnectClass::Update(const ConnectClass* src)
 	maxlocal = src->maxlocal;
 	maxglobal = src->maxglobal;
 	limit = src->limit;
+}
+
+std::string ConnectClass::GetConfig(const std::string& key, const std::string& def)
+{
+	if (parent)
+		return config->getString(key, parent->GetConfig(key, def));
+	return config->getString(key, def);
 }

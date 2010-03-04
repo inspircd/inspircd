@@ -82,8 +82,8 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 				res << ' ' << c->config->getString("port", "*") << ' ';
 
-				res << c->GetRecvqMax() << ' ' << c->GetSendqSoftMax() << ' ' << c->GetSendqHardMax()
-					<< ' ' << c->GetCommandRate() << ' ' << c->GetPenaltyThreshold();
+				res << c->recvqmax << ' ' << c->softsendqmax << ' ' << c->hardsendqmax
+					<< ' ' << c->commandrate << ' ' << c->penaltythreshold;
 				if (c->fakelag)
 					res << '*';
 				results.push_back(res.str());
@@ -97,9 +97,9 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 			for (ClassVector::iterator i = this->Config->Classes.begin(); i != this->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
-				results.push_back(sn+" 215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : this->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+this->Config->ServerName+" *");
-				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqHardMax())+" :"+
-						ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
+				results.push_back(sn+" 215 "+user->nick+" i NOMATCH * "+c->host+" "+ConvToStr(c->limit ? c->limit : this->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+this->Config->ServerName+" *");
+				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->pingtime)+" 0 "+ConvToStr(c->hardsendqmax)+" :"+
+						ConvToStr(c->recvqmax)+" "+ConvToStr(c->registration_timeout));
 				idx++;
 			}
 		}

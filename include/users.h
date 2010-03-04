@@ -68,25 +68,30 @@ enum UserType {
  */
 struct CoreExport ConnectClass : public refcountbase
 {
-	reference<ConfigTag> config;
-	/** Type of line, either CC_ALLOW or CC_DENY
-	 */
-	char type;
-
-	/** True if this class uses fake lag to manage flood, false if it kills */
-	bool fakelag;
-
 	/** Connect class name
 	 */
 	std::string name;
 
-	/** Max time to register the connection in seconds
+	/** Tag defining this class */
+	reference<ConfigTag> config;
+
+	/** Parent connect class, if any */
+	reference<ConnectClass> parent;
+
+	/** Type of line - CC_ALLOW, CC_DENY, or CC_NAMED
 	 */
-	unsigned int registration_timeout;
+	unsigned int type:2;
+
+	/** True if this class uses fake lag to manage flood, false if it kills */
+	unsigned int fakelag:1;
 
 	/** Host mask for this line
 	 */
 	std::string host;
+
+	/** Max time to register the connection in seconds
+	 */
+	unsigned int registration_timeout;
 
 	/** Number of seconds between pings for this line
 	 */
@@ -125,85 +130,20 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned int maxchans;
 
-	/** How many users may be in this connect class before they are refused?
+	/** How many users may be in this connect class?
 	 * (0 = no limit = default)
 	 */
 	unsigned long limit;
 
-	/** Create a new connect class with no settings.
-	 */
-	ConnectClass(ConfigTag* tag, char type, const std::string& mask);
-	/** Create a new connect class with inherited settings.
-	 */
-	ConnectClass(ConfigTag* tag, char type, const std::string& mask, const ConnectClass& parent);
+	ConnectClass(ConfigTag* tag, ConnectClass* parent);
 
-	/** Update the settings in this block to match the given block */
+	/** Update the settings in this block to match the given block
+	 * Used to change settings of existing users on a /REHASH
+	 */
 	void Update(const ConnectClass* newSettings);
 
-	const std::string& GetName() { return name; }
-	const std::string& GetHost() { return host; }
-
-	/** Returns the registration timeout
-	 */
-	time_t GetRegTimeout()
-	{
-		return (registration_timeout ? registration_timeout : 90);
-	}
-
-	/** Returns the ping frequency
-	 */
-	unsigned int GetPingTime()
-	{
-		return (pingtime ? pingtime : 120);
-	}
-
-	/** Returns the maximum sendq value (soft limit)
-	 * Note that this is in addition to internal OS buffers
-	 */
-	unsigned long GetSendqSoftMax()
-	{
-		return (softsendqmax ? softsendqmax : 4096);
-	}
-
-	/** Returns the maximum sendq value (hard limit)
-	 */
-	unsigned long GetSendqHardMax()
-	{
-		return (hardsendqmax ? hardsendqmax : 0x100000);
-	}
-
-	/** Returns the maximum recvq value
-	 */
-	unsigned long GetRecvqMax()
-	{
-		return (recvqmax ? recvqmax : 4096);
-	}
-
-	/** Returns the penalty threshold value
-	 */
-	unsigned int GetPenaltyThreshold()
-	{
-		return penaltythreshold ? penaltythreshold : (fakelag ? 10 : 20);
-	}
-
-	unsigned int GetCommandRate()
-	{
-		return commandrate ? commandrate : 1000;
-	}
-
-	/** Return the maximum number of local sessions
-	 */
-	unsigned long GetMaxLocal()
-	{
-		return maxlocal;
-	}
-
-	/** Returns the maximum number of global sessions
-	 */
-	unsigned long GetMaxGlobal()
-	{
-		return maxglobal;
-	}
+	/** Get a config value, looking at parents if not set */
+	std::string GetConfig(const std::string& key, const std::string& def = "");
 };
 
 /** Holds all information about a user

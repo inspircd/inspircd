@@ -38,7 +38,7 @@ class ModuleModesOnConnect : public Module
 
 	void OnUserConnect(LocalUser* user)
 	{
-		std::string ThisModes = user->MyClass->config->getString("modes");
+		std::string ThisModes = user->MyClass->GetConfig("modes");
 		if (!ThisModes.empty())
 		{
 			std::string buf;

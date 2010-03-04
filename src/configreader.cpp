@@ -341,73 +341,25 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				parent = Classes[parentIter->second];
 			}
 
-			std::string name = tag->getString("name");
-			std::string mask, typeMask;
-			char type;
+			reference<ConnectClass> me = new ConnectClass(tag, parent);
 
-			if (tag->readString("allow", mask, false))
+			std::string typeMask;
+			if (me->name.empty())
 			{
-				type = CC_ALLOW;
-				typeMask = 'a' + mask;
-			}
-			else if (tag->readString("deny", mask, false))
-			{
-				type = CC_DENY;
-				typeMask = 'd' + mask;
-			}
-			else if (!name.empty())
-			{
-				type = CC_NAMED;
-				mask = name;
-				typeMask = 'n' + mask;
-			}
-			else
-			{
-				throw CoreException("Connect class must have allow, deny, or name specified at " + tag->getTagLocation());
-			}
-
-			if (name.empty())
-			{
-				name = "unnamed-" + ConvToStr(i);
-			}
-			else
-			{
-				typeMask = 'n' + name;
-			}
-
-			if (names.find(name) != names.end())
-				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
-			names[name] = i;
-
-			ConnectClass* me = parent ? 
-				new ConnectClass(tag, type, mask, *parent) :
-				new ConnectClass(tag, type, mask);
-
-			me->name = name;
-
-			me->registration_timeout = tag->getInt("timeout", me->registration_timeout);
-			me->pingtime = tag->getInt("pingfreq", me->pingtime);
-			std::string sendq;
-			if (tag->readString("sendq", sendq))
-			{
-				// attempt to guess a good hard/soft sendq from a single value
-				long value = atol(sendq.c_str());
-				if (value > 16384)
-					me->softsendqmax = value / 16;
+				me->name = "unnamed-" + ConvToStr(i);
+				if (me->type == CC_ALLOW)
+					typeMask = 'a' + me->host;
 				else
-					me->softsendqmax = value;
-				me->hardsendqmax = value * 8;
+					typeMask = 'd' + me->host;
 			}
-			me->softsendqmax = tag->getInt("softsendq", me->softsendqmax);
-			me->hardsendqmax = tag->getInt("hardsendq", me->hardsendqmax);
-			me->recvqmax = tag->getInt("recvq", me->recvqmax);
-			me->penaltythreshold = tag->getInt("threshold", me->penaltythreshold);
-			me->commandrate = tag->getInt("commandrate", me->commandrate);
-			me->fakelag = tag->getBool("fakelag", me->fakelag);
-			me->maxlocal = tag->getInt("localmax", me->maxlocal);
-			me->maxglobal = tag->getInt("globalmax", me->maxglobal);
-			me->maxchans = tag->getInt("maxchans", me->maxchans);
-			me->limit = tag->getInt("limit", me->limit);
+			else
+			{
+				typeMask = 'n' + me->name;
+			}
+
+			if (names.find(me->name) != names.end())
+				throw CoreException("Two connect classes with name \"" + me->name + "\" defined!");
+			names[me->name] = i;
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
@@ -415,7 +367,6 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				ConnectClass* old = oldMask->second;
 				oldBlocksByMask.erase(oldMask);
 				old->Update(me);
-				delete me;
 				me = old;
 			}
 			Classes[i] = me;

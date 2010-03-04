@@ -40,7 +40,7 @@ class ModuleConnJoin : public Module
 				return;
 
 			std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
-			chanlist = user->GetClass()->config->getString("autojoin", chanlist);
+			chanlist = user->GetClass()->GetConfig("autojoin", chanlist);
 
 			irc::commasepstream chans(chanlist);
 			std::string chan;
