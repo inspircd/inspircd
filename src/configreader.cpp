@@ -264,6 +264,16 @@ void ServerConfig::CrossCheckOperClassType()
 		ifo->type_block = tblk->second->type_block;
 		ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
 		oper_blocks[name] = ifo;
+
+		std::string classname;
+		irc::spacesepstream str(tag->getString("classes"));
+		while (str.GetToken(classname))
+		{
+			LocalIndex::iterator cls = operclass.find(classname);
+			if (cls == operclass.end())
+				throw CoreException("Oper " + name + " has missing class " + classname);
+			ifo->class_blocks.push_back(cls->second);
+		}
 	}
 }
 
