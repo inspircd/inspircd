@@ -21,9 +21,8 @@ class ModuleOverride : public Module
 	bool NoisyOverride;
 
  public:
-
-	ModuleOverride()
-			{
+	void init()
+	{
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
@@ -46,17 +45,9 @@ class ModuleOverride : public Module
 		output.append(" OVERRIDE");
 	}
 
-	bool CanOverride(User* source, const char* token)
-	{
-		std::string tokenlist = source->oper->getConfig("override");
-
-		// its defined or * is set, return its value as a boolean for if the token is set
-		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find("*", 0) != std::string::npos));
-	}
-
 	void OnChannelPermissionCheck(User* source,Channel* chan, PermissionData& perm)
 	{
-		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, perm.name.c_str()))
+		if (IS_LOCAL(source) && source->HasPermission("override/" + perm.name))
 		{
 			ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override for "+perm.name+" on "+chan->name);
 
@@ -74,7 +65,7 @@ class ModuleOverride : public Module
 
 		unsigned int mode = channel->GetPrefixValue(source);
 
-		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
+		if (mode < HALFOP_VALUE && source->HasPermission("override/mode"))
 		{
 			irc::modestacker tmp(modes);
 			std::string msg = std::string(source->nick)+" overriding modes:" + tmp.popModeLine(FORMAT_USER);
@@ -90,7 +81,7 @@ class ModuleOverride : public Module
 		{
 			if (chan)
 			{
-				if (chan->IsModeSet('i') && (CanOverride(user,"INVITE")))
+				if (chan->IsModeSet('i') && user->HasPermission("override/invite"))
 				{
 					irc::string x(chan->name.c_str());
 					if (!IS_LOCAL(user)->IsInvited(x))
@@ -109,7 +100,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet('k') && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter('k'))
+				if (chan->IsModeSet('k') && user->HasPermission("override/key") && keygiven != chan->GetModeParameter('k'))
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -124,7 +115,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && (CanOverride(user,"LIMIT")))
+				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && user->HasPermission("override/limit"))
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -139,7 +130,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsBanned(user) && CanOverride(user,"BANWALK"))
+				if (chan->IsBanned(user) && user->HasPermission("override/ban"))
 				{
 					if (RequireKey && keygiven != "override")
 					{
