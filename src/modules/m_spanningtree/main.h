@@ -26,7 +26,7 @@
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.
  */
-const long ProtocolVersion = 1202;
+const long ProtocolVersion = 1203;
 const long MinCompatProtocol = 1201;
 
 /** Forward declarations

@@ -81,7 +81,7 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
  * If the length of a single line is more than 480-NICKMAX
  * in length, it is split over multiple lines.
  */
-void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
+void TreeSocket::SendFJoins(Channel* c)
 {
 	char list[MAXBUF];
 
@@ -138,6 +138,22 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	snprintf(list, MAXBUF, ":%s FMODE %s %ld ", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age);
 	while (!fmodes.empty())
 		WriteLine(list + fmodes.popModeLine(FORMAT_NETWORK));
+
+	if (!c->topic.empty())
+	{
+		snprintf(list,MAXBUF,":%s FTOPIC %s %lu %s :%s", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->topicset, c->setby.c_str(), c->topic.c_str());
+		WriteLine(list);
+	}
+
+	for(Extensible::ExtensibleStore::const_iterator i = c->GetExtList().begin(); i != c->GetExtList().end(); i++)
+	{
+		ExtensionItem* item = i->first;
+		std::string value = item->serialize(FORMAT_NETWORK, c, i->second);
+		if (!value.empty())
+			sync.SendMetaData(c, item->name, value);
+	}
+
+	FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c, &sync));
 }
 
 /** Send G, Q, Z and E lines */
@@ -183,28 +199,9 @@ void TreeSocket::SendXLines(TreeServer* Current)
 /** Send channel modes and topics */
 void TreeSocket::SendChannelModes(TreeServer* Current)
 {
-	char data[MAXBUF];
-	std::deque<std::string> list;
-	std::string n = ServerInstance->Config->GetSID();
-	const char* sn = n.c_str();
 	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 	{
-		SendFJoins(Current, c->second);
-		if (!c->second->topic.empty())
-		{
-			snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", sn, c->second->name.c_str(), (unsigned long)c->second->topicset, c->second->setby.c_str(), c->second->topic.c_str());
-			this->WriteLine(data);
-		}
-
-		for(Extensible::ExtensibleStore::const_iterator i = c->second->GetExtList().begin(); i != c->second->GetExtList().end(); i++)
-		{
-			ExtensionItem* item = i->first;
-			std::string value = item->serialize(FORMAT_NETWORK, c->second, i->second);
-			if (!value.empty())
-				sync.SendMetaData(c->second, item->name, value);
-		}
-
-		FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,&sync));
+		SendFJoins(c->second);
 	}
 }
 

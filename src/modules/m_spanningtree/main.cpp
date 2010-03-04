@@ -611,9 +611,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, C
 		// new joining permissions for the user.
 		params.push_back(memb->chan->name);
 		params.push_back(ConvToStr(memb->chan->age));
-		irc::modestacker ms;
-		memb->chan->ChanModes(ms, MODELIST_SHORT);
-		params.push_back(ms.popModeLine(FORMAT_NETWORK, 400, INT_MAX));
+		params.push_back("*");
 		params.push_back(memb->modes+","+std::string(memb->user->uuid));
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 	}

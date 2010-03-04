@@ -289,6 +289,12 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		this->Away(prefix,params);
 	}
+	else if (command == "RESYNC" && !params.empty())
+	{
+		Channel* chan = ServerInstance->FindChan(params[0]);
+		if (chan)
+			SendFJoins(chan);
+	}
 	else if (command == "PING")
 	{
 		this->LocalPing(prefix,params);

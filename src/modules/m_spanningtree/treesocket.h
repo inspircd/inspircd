@@ -218,7 +218,7 @@ class TreeSocket : public BufferedSocket
 	 * If the length of a single line is more than 480-NICKMAX
 	 * in length, it is split over multiple lines.
 	 */
-	void SendFJoins(TreeServer* Current, Channel* c);
+	void SendFJoins(Channel* c);
 
 	/** Send G, Q, Z and E lines */
 	void SendXLines(TreeServer* Current);

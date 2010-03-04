@@ -143,6 +143,11 @@ void TreeSocket::WriteLine(std::string line)
 				line.erase(b,c-b);
 			}
 		}
+		else if (proto_version < 1203 && command == "RESYNC")
+		{
+			// drop the command. 2.0 and earlier cannot automatically recover from desync
+			return;
+		}
 		else if (proto_version < 1202 && command == "ENCAP")
 		{
 			// :src ENCAP target command [args...]

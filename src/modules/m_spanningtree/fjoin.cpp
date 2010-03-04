@@ -56,6 +56,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	irc::tokenstream users((params.size() > 3) ? params[params.size() - 1] : "");   /* users from the user list */
 	bool apply_other_sides_modes = true;				/* True if we are accepting the other side's modes */
 	Channel* chan = ServerInstance->FindChan(channel);		/* The channel we're sending joins to */
+	bool incremental = (params[2] == "*");
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
@@ -71,7 +72,13 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	if (created)
 	{
 		chan = new Channel(channel, TS);
-		ServerInstance->SNO->WriteToSnoMask('d', "Creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
+		if (incremental)
+		{
+			ServerInstance->SNO->WriteToSnoMask('d', "Incremental creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
+			parameterlist resync;
+			resync.push_back(channel);
+			Utils->DoOneToOne(ServerInstance->Config->GetSID().c_str(), "RESYNC", resync, srcuser->uuid);
+		}
 	}
 	else
 	{
@@ -97,12 +104,19 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			chan->age = TS;
 			param_list.push_back(channel);
 			this->RemoveStatus(ServerInstance->FakeClient, param_list);
+			if (incremental)
+			{
+				ServerInstance->SNO->WriteToSnoMask('d', "Incremental merge FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
+				parameterlist resync;
+				resync.push_back(channel);
+				Utils->DoOneToOne(ServerInstance->Config->GetSID().c_str(), "RESYNC", resync, srcuser->uuid);
+			}
 		}
 		// The silent case here is ourTS == TS, we don't need to remove modes here, just to merge them later on.
 	}
 
 	/* First up, apply their modes if they won the TS war */
-	if (apply_other_sides_modes)
+	if (apply_other_sides_modes && !incremental)
 	{
 		unsigned int idx = 2;
 		std::vector<std::string> modelist;
