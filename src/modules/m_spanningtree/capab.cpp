@@ -65,6 +65,8 @@ static std::string BuildModeList(ModeType type)
 			modes.push_back(mdesc);
 		}
 	}
+	if (type == TYPE_CHANNEL && proto_version == 1202 && ServerInstance->Config->NameOnlyModes)
+		modes.push_back("namebase=Z");
 	sort(modes.begin(), modes.end());
 	irc::stringjoiner line(" ", modes, 0, modes.size() - 1);
 	return line.GetJoined();
