@@ -159,10 +159,10 @@ class ModuleAuditorium : public Module
 			include.erase(c);
 			// however, that might hide me from ops that can see me...
 			const UserMembList* users = c->GetUsers();
-			for(UserMembCIter i = users->begin(); i != users->end(); i++)
+			for(UserMembCIter j = users->begin(); j != users->end(); j++)
 			{
-				if (IS_LOCAL(i->first) && CanSee(i->first, memb))
-					exception[i->first] = true;
+				if (IS_LOCAL(j->first) && CanSee(j->first, memb))
+					exception[j->first] = true;
 			}
 		}
 	}
