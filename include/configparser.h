@@ -12,9 +12,17 @@ struct fpos
 
 enum ParseFlags
 {
-	FLAG_USE_XML = 1,
-	FLAG_NO_EXEC = 2,
-	FLAG_NO_INC = 4
+	FLAG_USE_XML  = 0x1,
+	/** Any include is safe, including executables */
+	FLAG_INC_EXEC = 0x00,
+	/** Only file-based includes are safe, any path */
+	FLAG_INC_FILE = 0x10,
+	/** Only relative-path (no /../) includes are safe */
+	FLAG_INC_REL  = 0x20,
+	/** No includes or <files> allowed */
+	FLAG_INC_NONE = 0x30,
+	/** Mask */
+	FLAG_INC_MASK = 0x30
 };
 
 struct ParseStack

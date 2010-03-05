@@ -262,28 +262,57 @@ struct Parser
 	}
 };
 
+static int AllowToInc(const std::string& allow)
+{
+	if (allow == "exec")
+		return FLAG_INC_EXEC;
+	if (allow == "file")
+		return FLAG_INC_FILE;
+	if (allow == "relative")
+		return FLAG_INC_REL;
+	if (allow == "none")
+		return FLAG_INC_NONE;
+	throw CoreException("Invalid value for <include:allow> - must be one of exec, file, relative, none");
+}
+
 void ParseStack::DoInclude(ConfigTag* tag, int flags)
 {
-	if (flags & FLAG_NO_INC)
+	int inc = (flags & FLAG_INC_MASK);
+	if (inc == FLAG_INC_NONE)
 		throw CoreException("Invalid <include> tag in file included with noinclude=\"yes\"");
+	int newinc = inc;
+	std::string allow;
+	if (tag->readString("allow", allow))
+		newinc = AllowToInc(allow);
+	else if (tag->getBool("noinclude", false))
+		newinc = FLAG_INC_NONE;
+	else if (tag->getBool("noexec", false))
+		newinc = FLAG_INC_FILE;
+
+	if (newinc < inc)
+		throw CoreException("You cannot widen permissions using <include:allow>; adjust the parent <include> block");
+	flags = (flags & ~FLAG_INC_MASK) | newinc;
+
 	std::string name;
 	if (tag->readString("file", name))
 	{
-		if (tag->getBool("noinclude", false))
-			flags |= FLAG_NO_INC;
-		if (tag->getBool("noexec", false))
-			flags |= FLAG_NO_EXEC;
+		if (inc == FLAG_INC_REL)
+		{
+			if (name[0] == '/')
+				throw CoreException("You cannot use absolute paths in a file included with <include:allow=\"relative\">");
+			if (name.find("/../") != std::string::npos || name.find("../") == 0)
+				throw CoreException("You cannot use paths containing \"..\" in a file included with <include:allow=\"relative\">");
+		}
 		if (!ParseFile(name, flags))
 			throw CoreException("Included");
 	}
 	else if (tag->readString("executable", name))
 	{
-		if (flags & FLAG_NO_EXEC)
-			throw CoreException("Invalid <include:executable> tag in file included with noexec=\"yes\"");
-		if (tag->getBool("noinclude", false))
-			flags |= FLAG_NO_INC;
-		if (tag->getBool("noexec", true))
-			flags |= FLAG_NO_EXEC;
+		if (inc != FLAG_INC_EXEC)
+			throw CoreException("Invalid <include:executable> tag in file without executable include permission. Use <include allow=\"exec\"> in the parent file to override this.");
+		// by default, don't allow <include:executable> to stack
+		if (allow.empty() && tag->getBool("noexec", true))
+			flags = (flags & ~FLAG_INC_MASK) | FLAG_INC_FILE;
 		if (!ParseExec(name, flags))
 			throw CoreException("Included");
 	}
@@ -291,10 +320,18 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 
 void ParseStack::DoReadFile(const std::string& key, const std::string& name, int flags, bool exec)
 {
-	if (flags & FLAG_NO_INC)
-		throw CoreException("Invalid <files> tag in file included with noinclude=\"yes\"");
-	if (exec && (flags & FLAG_NO_EXEC))
-		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
+	int inc = (flags & FLAG_INC_MASK);
+	if (exec && inc != FLAG_INC_EXEC)
+		throw CoreException("Invalid <execfiles> tag in file without executable include permission. Use <include allow=\"exec\"> in the parent file to override this.");
+	if (inc == FLAG_INC_NONE)
+		throw CoreException("Invalid <files> tag in file included without file include permission. Use <include:allow> to change this.");
+	if (inc == FLAG_INC_REL)
+	{
+		if (name[0] == '/')
+			throw CoreException("You cannot use absolute paths in a file included with <include:allow=\"relative\">");
+		if (name.find("/../") != std::string::npos || name.find("../") == 0)
+			throw CoreException("You cannot use paths containing \"..\" in a file included with <include:allow=\"relative\">");
+	}
 
 	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(name.c_str(), "r"));
 	if (!file)
