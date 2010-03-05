@@ -78,8 +78,9 @@ class ModuleAuditorium : public Module
 		if (!memb->chan->IsModeSet(&aum))
 			return true;
 
-		ModResult res = ServerInstance->OnCheckExemption(memb->user, memb->chan, "auditorium-vis");
-		return res.check(OpsVisible && memb->getRank() >= OP_VALUE);
+		PermissionData vis("auditorium/visible");
+		FOR_EACH_MOD(OnChannelPermissionCheck, (memb->user, memb->chan, vis));
+		return vis.result.check(OpsVisible && memb->getRank() >= OP_VALUE);
 	}
 
 	/* Can they see this specific membership? */
@@ -94,11 +95,9 @@ class ModuleAuditorium : public Module
 			return true;
 
 		// Can you see the list by permission?
-		ModResult res = ServerInstance->OnCheckExemption(issuer,memb->chan,"auditorium-see");
-		if (res.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE))
-			return true;
-
-		return false;
+		TargetedPermissionData vis("auditorium/see", memb->user);
+		FOR_EACH_MOD(OnChannelPermissionCheck, (issuer, memb->chan, vis));
+		return vis.result.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE);
 	}
 
 	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
