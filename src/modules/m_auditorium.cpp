@@ -150,11 +150,18 @@ class ModuleAuditorium : public Module
 		while (i != include.end())
 		{
 			Channel* c = *i++;
-			Membership* memb = c->GetUser(source); // will be non-null
-			if (IsVisible(memb))
+			Membership* memb = c->GetUser(source);
+			if (!memb || IsVisible(memb))
 				continue;
-			// TODO this doesn't take can-see into account
+			// this channel should not be considered when listing my neighbors
 			include.erase(c);
+			// however, that might hide me from ops that can see me...
+			const UserMembList* users = c->GetUsers();
+			for(UserMembCIter i = users->begin(); i != users->end(); i++)
+			{
+				if (IS_LOCAL(i->first) && CanSee(i->first, memb))
+					exception[i->first] = true;
+			}
 		}
 	}
 };
