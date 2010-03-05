@@ -178,6 +178,8 @@ public:
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
+		Module* umodes = ServerInstance->Modules->Find("m_conn_umodes.cpp");
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, &umodes);
 	}
 
 	void OnRehash(User* user)
