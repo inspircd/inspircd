@@ -83,17 +83,19 @@ class CommandProp : public Command
 class ModuleNamedModes : public Module
 {
 	CommandProp cmd;
+	ModeHandler dummyZ;
  public:
-	ModuleNamedModes() : cmd(this)
+	ModuleNamedModes() : cmd(this), dummyZ(this, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 	}
 
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
+		ServerInstance->Modules->AddService(dummyZ);
 
-		Implementation eventlist[] = { I_OnPreMode, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnPreMode };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	Version GetVersion()
@@ -104,18 +106,6 @@ class ModuleNamedModes : public Module
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
-	}
-
-	void On005Numeric(std::string& line)
-	{
-		std::string::size_type pos = line.find(" CHANMODES=");
-		if (pos != std::string::npos)
-		{
-			pos += 11;
-			while (line[pos] > 'A' && line[pos] < 'Z')
-				pos++;
-			line.insert(pos, 1, 'Z');
-		}
 	}
 
 	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters)
