@@ -452,6 +452,11 @@ class ModuleSQLite3 : public Module
 	ModuleSQLite3()
 	: currid(0), sqlserv(this, "SQL/sqlite", SERVICE_DATA)
 	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(sqlserv);
 
 		ReadConf();
 

@@ -87,20 +87,21 @@ static unsigned long count(const char * const str, char a)
 class ModuleSQL : public Module
 {
  public:
-	 int currid;
-	 bool rehashing;
-	 DispatcherThread* Dispatcher;
-	 Mutex ResultsMutex;
-	 Mutex LoggingMutex;
-	 Mutex ConnMutex;
-	 ServiceProvider sqlserv;
+	int currid;
+	bool rehashing;
+	DispatcherThread* Dispatcher;
+	Mutex ResultsMutex;
+	Mutex LoggingMutex;
+	Mutex ConnMutex;
+	ServiceProvider sqlserv;
 
-	 ModuleSQL();
-	 ~ModuleSQL();
-	 unsigned long NewID();
-	 void OnRequest(Request& request);
-	 void OnRehash(User* user);
-	 Version GetVersion();
+	ModuleSQL();
+	void init();
+	~ModuleSQL();
+	unsigned long NewID();
+	void OnRequest(Request& request);
+	void OnRehash(User* user);
+	Version GetVersion();
 };
 
 
@@ -681,6 +682,12 @@ class DispatcherThread : public SocketThread
 ModuleSQL::ModuleSQL() : rehashing(false), sqlserv(this, "SQL/mysql", SERVICE_DATA)
 {
 	currid = 0;
+	Dispatcher = NULL;
+}
+
+void ModuleSQL::init()
+{
+	ServerInstance->Modules->AddService(sqlserv);
 
 	Dispatcher = new DispatcherThread(this);
 	ServerInstance->Threads->Start(Dispatcher);

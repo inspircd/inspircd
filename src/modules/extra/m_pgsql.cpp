@@ -759,9 +759,11 @@ class ModulePgSQL : public Module
 	: currid(0), sqlserv(this, "SQL/pgsql", SERVICE_DATA)
 	{
 		sqlsuccess = new char[strlen(SQLSUCCESS)+1];
-
 		strlcpy(sqlsuccess, SQLSUCCESS, strlen(SQLSUCCESS));
+	}
 
+	void init()
+	{
 		ReadConf();
 
 		ServerInstance->Modules->AddService(sqlserv);

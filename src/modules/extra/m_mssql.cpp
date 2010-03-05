@@ -644,10 +644,13 @@ class ModuleMsSQL : public Module
 	{
 		LoggingMutex = new Mutex();
 		ResultsMutex = new Mutex();
+		queryDispatcher = new QueryThread(this);
+	}
 
+	void init()
+	{
 		ReadConf();
 
-		queryDispatcher = new QueryThread(this);
 		ServerInstance->Threads->Start(queryDispatcher);
 
 		Implementation eventlist[] = { I_OnRehash };
