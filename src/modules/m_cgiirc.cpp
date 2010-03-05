@@ -103,10 +103,15 @@ class CGIResolver : public Resolver
 {
 	std::string typ;
 	std::string theiruid;
+	LocalIntExt& waiting;
 	bool notify;
  public:
-	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, LocalUser* u, const std::string &type, bool &cached)
-		: Resolver(source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theiruid(u->uuid), notify(NotifyOpers) { }
+	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, LocalUser* u,
+			const std::string &type, bool &cached, LocalIntExt& ext)
+		: Resolver(source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theiruid(u->uuid),
+		waiting(ext), notify(NotifyOpers)
+	{
+	}
 
 	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 	{
@@ -130,7 +135,6 @@ class CGIResolver : public Resolver
 	{
 		User* them = ServerInstance->FindUUID(theiruid);
 		if (them)
-		if (them)
 		{
 			if (notify)
 				ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
@@ -139,15 +143,26 @@ class CGIResolver : public Resolver
 
 	virtual ~CGIResolver()
 	{
+		User* them = ServerInstance->FindUUID(theiruid);
+		if (!them)
+			return;
+		int count = waiting.get(them);
+		if (count)
+			waiting.set(them, count - 1);
 	}
 };
 
 class ModuleCgiIRC : public Module
 {
 	CommandWebirc cmd;
+	LocalIntExt waiting;
 	bool NotifyOpers;
 public:
-	ModuleCgiIRC() : cmd(this, NotifyOpers)
+	ModuleCgiIRC() : cmd(this, NotifyOpers), waiting("cgiirc-delay", this)
+	{
+	}
+
+	void init()
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
@@ -156,31 +171,29 @@ public:
 		ServerInstance->Extensions.Register(&cmd.webirc_hostname);
 		ServerInstance->Extensions.Register(&cmd.webirc_ip);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnDecodeMetaData, I_OnUserDisconnect, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-
-	virtual void Prioritize()
+	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
 		cmd.Hosts.clear();
 
-		NotifyOpers = Conf.ReadFlag("cgiirc", "opernotice", 0);	// If we send an oper notice when a CGI:IRC has their host changed.
+		// Do we send an oper notice when a CGI:IRC has their host changed?
+		NotifyOpers = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			NotifyOpers = true;
-
-		for(int i = 0; i < Conf.Enumerate("cgihost"); i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("cgihost");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			std::string hostmask = Conf.ReadValue("cgihost", "mask", i); // An allowed CGI:IRC host
-			std::string type = Conf.ReadValue("cgihost", "type", i); // What type of user-munging we do on this host.
-			std::string password = Conf.ReadValue("cgihost", "password", i);
+			ConfigTag* tag = i->second;
+			std::string hostmask = tag->getString("mask"); // An allowed CGI:IRC host
+			std::string type = tag->getString("type"); // What type of user-munging we do on this host.
+			std::string password = tag->getString("password");
 
 			if(hostmask.length())
 			{
@@ -215,7 +228,14 @@ public:
 		}
 	}
 
-	virtual ModResult OnUserRegister(LocalUser* user)
+	ModResult OnCheckReady(LocalUser *user)
+	{
+		if (waiting.get(user))
+			return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserRegister(LocalUser* user)
 	{
 		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
 		{
@@ -298,10 +318,10 @@ public:
 
 			try
 			{
-
 				bool cached;
-				CGIResolver* r = new CGIResolver(this, NotifyOpers, user->password, false, user, "PASS", cached);
+				CGIResolver* r = new CGIResolver(this, NotifyOpers, user->password, false, user, "PASS", cached, waiting);
 				ServerInstance->AddResolver(r, cached);
+				waiting.set(user, waiting.get(user) + 1);
 			}
 			catch (...)
 			{
@@ -351,8 +371,9 @@ public:
 		{
 
 			bool cached;
-			CGIResolver* r = new CGIResolver(this, NotifyOpers, newipstr, false, user, "IDENT", cached);
+			CGIResolver* r = new CGIResolver(this, NotifyOpers, newipstr, false, user, "IDENT", cached, waiting);
 			ServerInstance->AddResolver(r, cached);
+			waiting.set(user, waiting.get(user) + 1);
 		}
 		catch (...)
 		{
