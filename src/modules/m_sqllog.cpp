@@ -157,10 +157,6 @@ class ModuleSQLLog : public Module
  public:
 	void init()
 	{
-	}
-
-	void init()
-	{
 		Module* SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
 		if (!SQLutils)
 			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqlauth.so.");
