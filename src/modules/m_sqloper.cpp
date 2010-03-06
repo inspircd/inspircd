@@ -36,10 +36,14 @@ class OpMeQuery : public SQLQuery
  public:
 	const std::string uid, username, password;
 	OpMeQuery(Module* me, const std::string& db, const std::string& q, const std::string& u, const std::string& un, const std::string& pw)
-		: SQLQuery(me, db, q), uid(u), username(un), password(pw) {}
+		: SQLQuery(me, db, q), uid(u), username(un), password(pw)
+	{
+		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: db=%s query=\"%s\"", db.c_str(), q.c_str());
+	}
 
 	void OnResult(SQLResult& res)
 	{
+		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result on db=%s for %s", dbid.c_str(), uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
@@ -48,9 +52,10 @@ class OpMeQuery : public SQLQuery
 		parameterlist row;
 		while (res.GetRow(row))
 		{
-			if (OperUser(user, row[2], row[3]))
+			if (OperUser(user, row[0], row[1]))
 				return;
 		}
+		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER
 		fallback();
 	}
@@ -85,7 +90,10 @@ class OpMeQuery : public SQLQuery
 	{
 		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
 		if (iter == ServerInstance->Config->oper_blocks.end())
+		{
+			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
 			return false;
+		}
 		OperInfo* ifo = iter->second;
 
 		std::string hostname(user->ident);
@@ -149,7 +157,7 @@ public:
 		params.push_back(hash ? hash->hexsum(password) : password);
 
 		SQL->submit(new OpMeQuery(this, databaseid, SQL->FormatQuery(
-			"SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'", params
+			"SELECT hostname, type FROM ircd_opers WHERE username = '?' AND password='?'", params
 			), user->uuid, username, password));
 	}
 
