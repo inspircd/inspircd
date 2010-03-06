@@ -437,13 +437,22 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 	}
 
 	if (oper->AllowedPrivs.find(privstr) != oper->AllowedPrivs.end())
-	{
 		return true;
-	}
-	else if (oper->AllowedPrivs.find("*") != oper->AllowedPrivs.end())
+
+	// if we are checking "override/mode/op", also try checking for
+	// "override/mode/*", "override/*", and "*"
+	std::string path = privstr;
+	while (1)
 	{
-		return true;
+		std::string::size_type slash = path.rfind('/');
+		if (slash == std::string::npos)
+			break;
+		path = path.substr(0, slash);
+		if (oper->AllowedPrivs.find(path + "/*") != oper->AllowedPrivs.end())
+			return true;
 	}
+	if (oper->AllowedPrivs.find("*") != oper->AllowedPrivs.end())
+		return true;
 
 	if (noisy)
 		this->WriteServ("NOTICE %s :Oper type %s does not have access to priv %s", this->nick.c_str(), oper->NameStr(), privstr.c_str());

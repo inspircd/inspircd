@@ -46,7 +46,7 @@ class ModuleOverride : public Module
 
 	void OnPermissionCheck(PermissionData& perm)
 	{
-		if (IS_LOCAL(perm.source) && perm.source->HasPermission("override/" + perm.name))
+		if (IS_LOCAL(perm.source) && perm.source->HasPrivPermission("override/" + perm.name))
 		{
 			ServerInstance->SNO->WriteGlobalSno('v',perm.source->nick+" used oper override for "+perm.name+" on "+
 				(perm.chan ? perm.chan->name : "<none>"));
@@ -61,7 +61,7 @@ class ModuleOverride : public Module
 		{
 			if (chan)
 			{
-				if (chan->IsModeSet('i') && user->HasPermission("override/invite"))
+				if (chan->IsModeSet('i') && user->HasPrivPermission("override/invite"))
 				{
 					irc::string x(chan->name.c_str());
 					if (!IS_LOCAL(user)->IsInvited(x))
@@ -80,7 +80,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet('k') && user->HasPermission("override/key") && keygiven != chan->GetModeParameter('k'))
+				if (chan->IsModeSet('k') && user->HasPrivPermission("override/key") && keygiven != chan->GetModeParameter('k'))
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -95,7 +95,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && user->HasPermission("override/limit"))
+				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && user->HasPrivPermission("override/limit"))
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -110,7 +110,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsBanned(user) && user->HasPermission("override/ban"))
+				if (chan->IsBanned(user) && user->HasPrivPermission("override/ban"))
 				{
 					if (RequireKey && keygiven != "override")
 					{
