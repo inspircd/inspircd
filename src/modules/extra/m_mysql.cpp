@@ -16,13 +16,13 @@
 
 #include "inspircd.h"
 #include <mysql.h>
-#include "m_sqlv2.h"
+#include "sql.h"
 
 #ifdef WINDOWS
 #pragma comment(lib, "mysqlclient.lib")
 #endif
 
-/* VERSION 2 API: With nonblocking (threaded) requests */
+/* VERSION 3 API: With nonblocking (threaded) requests */
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
 /* $CompileFlags: exec("mysql_config --include") */
@@ -63,47 +63,57 @@
  * For a diagram of this system please see http://wiki.inspircd.org/Mysql2
  */
 
-
 class SQLConnection;
+class MySQLresult;
 class DispatcherThread;
 
-typedef std::map<std::string, SQLConnection*> ConnMap;
-typedef std::deque<SQLresult*> ResultQueue;
-
-static unsigned long count(const char * const str, char a)
+struct QQueueItem
 {
-	unsigned long n = 0;
-	for (const char *p = str; *p; ++p)
-	{
-		if (*p == '?')
-			++n;
-	}
-	return n;
-}
+	SQLQuery* q;
+	std::string query;
+	SQLConnection* c;
+	QQueueItem(SQLQuery* Q, const std::string& S, SQLConnection* C) : q(Q), query(S), c(C) {}
+};
 
+struct RQueueItem
+{
+	SQLQuery* q;
+	MySQLresult* r;
+	RQueueItem(SQLQuery* Q, MySQLresult* R) : q(Q), r(R) {}
+};
+
+typedef std::map<std::string, SQLConnection*> ConnMap;
+typedef std::deque<QQueueItem> QueryQueue;
+typedef std::deque<RQueueItem> ResultQueue;
 
 /** MySQL module
  *  */
 class ModuleSQL : public Module
 {
  public:
-	int currid;
-	bool rehashing;
 	DispatcherThread* Dispatcher;
-	Mutex ResultsMutex;
-	Mutex LoggingMutex;
-	Mutex ConnMutex;
-	ServiceProvider sqlserv;
+	QueryQueue qq;       // MUST HOLD MUTEX
+	ResultQueue rq;      // MUST HOLD MUTEX
+	ConnMap connections; // main thread only
 
 	ModuleSQL();
 	void init();
 	~ModuleSQL();
-	unsigned long NewID();
-	void OnRequest(Request& request);
 	void OnRehash(User* user);
+	void OnUnloadModule(Module* mod);
 	Version GetVersion();
 };
 
+class DispatcherThread : public SocketThread
+{
+ private:
+	ModuleSQL* const Parent;
+ public:
+	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
+	~DispatcherThread() { }
+	virtual void Run();
+	virtual void OnNotify();
+};
 
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
 #define mysql_field_count mysql_num_fields
@@ -111,23 +121,17 @@ class ModuleSQL : public Module
 
 /** Represents a mysql result set
  */
-class MySQLresult : public SQLresult
+class MySQLresult : public SQLResult
 {
-	int currentrow;
-	std::vector<std::string> colnames;
-	std::vector<SQLfieldList> fieldlists;
-	SQLfieldMap* fieldmap;
-	SQLfieldMap fieldmap2;
-	SQLfieldList emptyfieldlist;
-	int rows;
  public:
+	SQLerror err;
+	int currentrow;
+	int rows;
+	std::vector<std::string> colnames;
+	std::vector<SQLEntries> fieldlists;
 
-	MySQLresult(Module* self, Module* to, MYSQL_RES* res, int affected_rows, unsigned int rid) : SQLresult(self, to, rid), currentrow(0), fieldmap(NULL)
+	MySQLresult(MYSQL_RES* res, int affected_rows) : err(SQL_NO_ERROR), currentrow(0), rows(0)
 	{
-		/* A number of affected rows from from mysql_affected_rows.
-		 */
-		fieldlists.clear();
-		rows = 0;
 		if (affected_rows >= 1)
 		{
 			rows = affected_rows;
@@ -154,10 +158,11 @@ class MySQLresult : public SQLresult
 					while (field_count < mysql_num_fields(res))
 					{
 						std::string a = (fields[field_count].name ? fields[field_count].name : "");
-						std::string b = (row[field_count] ? row[field_count] : "");
-						SQLfield sqlf(b, !row[field_count]);
+						if (row[field_count])
+							fieldlists[n].push_back(SQLEntry(row[field_count]));
+						else
+							fieldlists[n].push_back(SQLEntry());
 						colnames.push_back(a);
-						fieldlists[n].push_back(sqlf);
 						field_count++;
 					}
 					n++;
@@ -169,10 +174,9 @@ class MySQLresult : public SQLresult
 		}
 	}
 
-	MySQLresult(Module* self, Module* to, SQLerror e, unsigned int rid) : SQLresult(self, to, rid), currentrow(0)
+	MySQLresult(SQLerror& e) : err(e)
 	{
-		rows = 0;
-		error = e;
+
 	}
 
 	~MySQLresult()
@@ -184,135 +188,48 @@ class MySQLresult : public SQLresult
 		return rows;
 	}
 
-	virtual int Cols()
+	virtual void GetCols(std::vector<std::string>& result)
 	{
-		return colnames.size();
+		result.assign(colnames.begin(), colnames.end());
 	}
 
-	virtual std::string ColName(int column)
+	virtual SQLEntry GetValue(int row, int column)
 	{
-		if (column < (int)colnames.size())
-		{
-			return colnames[column];
-		}
-		else
-		{
-			throw SQLbadColName();
-		}
-		return "";
-	}
-
-	virtual int ColNum(const std::string &column)
-	{
-		for (unsigned int i = 0; i < colnames.size(); i++)
-		{
-			if (column == colnames[i])
-				return i;
-		}
-		throw SQLbadColName();
-		return 0;
-	}
-
-	virtual SQLfield GetValue(int row, int column)
-	{
-		if ((row >= 0) && (row < rows) && (column >= 0) && (column < Cols()))
+		if ((row >= 0) && (row < rows) && (column >= 0) && (column < (int)fieldlists[row].size()))
 		{
 			return fieldlists[row][column];
 		}
-
-		throw SQLbadColName();
-
-		/* XXX: We never actually get here because of the throw */
-		return SQLfield("",true);
+		return SQLEntry();
 	}
 
-	virtual SQLfieldList& GetRow()
+	virtual bool GetRow(SQLEntries& result)
 	{
 		if (currentrow < rows)
-			return fieldlists[currentrow++];
+		{
+			result.assign(fieldlists[currentrow].begin(), fieldlists[currentrow].end());
+			currentrow++;
+			return true;
+		}
 		else
-			return emptyfieldlist;
-	}
-
-	virtual SQLfieldMap& GetRowMap()
-	{
-		fieldmap2.clear();
-
-		if (currentrow < rows)
 		{
-			for (int i = 0; i < Cols(); i++)
-			{
-				fieldmap2.insert(std::make_pair(colnames[i],GetValue(currentrow, i)));
-			}
-			currentrow++;
+			result.clear();
+			return false;
 		}
-
-		return fieldmap2;
-	}
-
-	virtual SQLfieldList* GetRowPtr()
-	{
-		SQLfieldList* fieldlist = new SQLfieldList();
-
-		if (currentrow < rows)
-		{
-			for (int i = 0; i < Rows(); i++)
-			{
-				fieldlist->push_back(fieldlists[currentrow][i]);
-			}
-			currentrow++;
-		}
-		return fieldlist;
-	}
-
-	virtual SQLfieldMap* GetRowMapPtr()
-	{
-		fieldmap = new SQLfieldMap();
-
-		if (currentrow < rows)
-		{
-			for (int i = 0; i < Cols(); i++)
-			{
-				fieldmap->insert(std::make_pair(colnames[i],GetValue(currentrow, i)));
-			}
-			currentrow++;
-		}
-
-		return fieldmap;
-	}
-
-	virtual void Free(SQLfieldMap* fm)
-	{
-		delete fm;
-	}
-
-	virtual void Free(SQLfieldList* fl)
-	{
-		delete fl;
 	}
 };
 
 /** Represents a connection to a mysql database
  */
-class SQLConnection : public classbase
+class SQLConnection : public SQLProvider
 {
- protected:
-	MYSQL *connection;
-	MYSQL_RES *res;
-	MYSQL_ROW *row;
-	SQLhost host;
-	std::map<std::string,std::string> thisrow;
-	bool Enabled;
-	ModuleSQL* Parent;
-	std::string initquery;
-
  public:
-
-	QueryQueue queue;
-	ResultQueue rq;
+	reference<ConfigTag> config;
+	MYSQL *connection;
+	Mutex lock;
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
-	SQLConnection(const SQLhost &hi, ModuleSQL* Creator) : connection(NULL), host(hi), Enabled(false), Parent(Creator)
+	SQLConnection(Module* p, ConfigTag* tag) : SQLProvider(p, "SQL/" + tag->getString("id")),
+		config(tag)
 	{
 	}
 
@@ -328,167 +245,50 @@ class SQLConnection : public classbase
 		unsigned int timeout = 1;
 		connection = mysql_init(connection);
 		mysql_options(connection,MYSQL_OPT_CONNECT_TIMEOUT,(char*)&timeout);
-		return mysql_real_connect(connection, host.host.c_str(), host.user.c_str(), host.pass.c_str(), host.name.c_str(), host.port, NULL, 0);
+		std::string host = config->getString("host");
+		std::string user = config->getString("user");
+		std::string pass = config->getString("pass");
+		std::string dbname = config->getString("name");
+		int port = config->getInt("port");
+		bool rv = mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, 0);
+		if (!rv)
+			return rv;
+		std::string initquery;
+		if (config->readString("initialquery", initquery))
+		{
+			mysql_query(connection,initquery.c_str());
+		}
+		return true;
 	}
 
-	void DoLeadingQuery()
+	ModuleSQL* Parent()
 	{
-		if (!CheckConnection())
-			return;
+		return (ModuleSQL*)(Module*)creator;
+	}
 
-		if( !initquery.empty() )
-			mysql_query(connection,initquery.c_str());
+	MySQLresult* DoBlockingQuery(const std::string& query)
+	{
 
 		/* Parse the command string and dispatch it to mysql */
-		SQLrequest* req = queue.front();
-
-		/* Pointer to the buffer we screw around with substitution in */
-		char* query;
-
-		/* Pointer to the current end of query, where we append new stuff */
-		char* queryend;
-
-		/* Total length of the unescaped parameters */
-		unsigned long maxparamlen, paramcount;
-
-		/* The length of the longest parameter */
-		maxparamlen = 0;
-
-		for(ParamL::iterator i = req->query.p.begin(); i != req->query.p.end(); i++)
-		{
-			if (i->size() > maxparamlen)
-				maxparamlen = i->size();
-		}
-
-		/* How many params are there in the query? */
-		paramcount = count(req->query.q.c_str(), '?');
-
-		/* This stores copy of params to be inserted with using numbered params 1;3B*/
-		ParamL paramscopy(req->query.p);
-
-		/* To avoid a lot of allocations, allocate enough memory for the biggest the escaped query could possibly be.
-		 * sizeofquery + (maxtotalparamlength*2) + 1
-		 *
-		 * The +1 is for null-terminating the string for mysql_real_escape_string
-		 */
-
-		query = new char[req->query.q.length() + (maxparamlen*paramcount*2) + 1];
-		queryend = query;
-
-		/* Okay, now we have a buffer large enough we need to start copying the query into it and escaping and substituting
-		 * the parameters into it...
-		 */
-
-		for(unsigned long i = 0; i < req->query.q.length(); i++)
-		{
-			if(req->query.q[i] == '?')
-			{
-				/* We found a place to substitute..what fun.
-				 * use mysql calls to escape and write the
-				 * escaped string onto the end of our query buffer,
-				 * then we "just" need to make sure queryend is
-				 * pointing at the right place.
-				 */
-
-				/* Is it numbered parameter?
-				 */
-
-				bool numbered;
-				numbered = false;
-
-				/* Numbered parameter number :|
-				 */
-				unsigned int paramnum;
-				paramnum = 0;
-
-				/* Let's check if it's a numbered param. And also calculate it's number.
-				 */
-
-				while ((i < req->query.q.length() - 1) && (req->query.q[i+1] >= '0') && (req->query.q[i+1] <= '9'))
-				{
-					numbered = true;
-					++i;
-					paramnum = paramnum * 10 + req->query.q[i] - '0';
-				}
-
-				if (paramnum > paramscopy.size() - 1)
-				{
-					/* index is out of range!
-					 */
-					numbered = false;
-				}
-
-				if (numbered)
-				{
-					unsigned long len = mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
-
-					queryend += len;
-				}
-				else if (req->query.p.size())
-				{
-					unsigned long len = mysql_real_escape_string(connection, queryend, req->query.p.front().c_str(), req->query.p.front().length());
-
-					queryend += len;
-					req->query.p.pop_front();
-				}
-				else
-					break;
-			}
-			else
-			{
-				*queryend = req->query.q[i];
-				queryend++;
-			}
-		}
-
-		*queryend = 0;
-
-		req->query.q = query;
-
-		if (!mysql_real_query(connection, req->query.q.data(), req->query.q.length()))
+		if (CheckConnection() && !mysql_real_query(connection, query.data(), query.length()))
 		{
 			/* Successfull query */
-			res = mysql_use_result(connection);
+			MYSQL_RES* res = mysql_use_result(connection);
 			unsigned long rows = mysql_affected_rows(connection);
-			MySQLresult* r = new MySQLresult(Parent, req->source, res, rows, req->id);
-			r->dbid = this->GetID();
-			r->query = req->query.q;
-			/* Put this new result onto the results queue.
-			 * XXX: Remember to mutex the queue!
-			 */
-			Parent->ResultsMutex.Lock();
-			rq.push_back(r);
-			Parent->ResultsMutex.Unlock();
+			return new MySQLresult(res, rows);
 		}
 		else
 		{
 			/* XXX: See /usr/include/mysql/mysqld_error.h for a list of
 			 * possible error numbers and error messages */
 			SQLerror e(SQL_QREPLY_FAIL, ConvToStr(mysql_errno(connection)) + std::string(": ") + mysql_error(connection));
-			MySQLresult* r = new MySQLresult(Parent, req->source, e, req->id);
-			r->dbid = this->GetID();
-			r->query = req->query.q;
-
-			Parent->ResultsMutex.Lock();
-			rq.push_back(r);
-			Parent->ResultsMutex.Unlock();
+			return new MySQLresult(e);
 		}
-
-		delete[] query;
-	}
-
-	bool ConnectionLost()
-	{
-		if (&connection)
-		{
-			return (mysql_ping(connection) != 0);
-		}
-		else return false;
 	}
 
 	bool CheckConnection()
 	{
-		if (ConnectionLost())
+		if (mysql_ping(connection) != 0)
 		{
 			return Connect();
 		}
@@ -500,290 +300,208 @@ class SQLConnection : public classbase
 		return mysql_error(connection);
 	}
 
-	const std::string& GetID()
-	{
-		return host.id;
-	}
-
-	std::string GetHost()
-	{
-		return host.host;
-	}
-
-	void setInitialQuery(std::string init)
-	{
-		initquery = init;
-	}
-
-	void SetEnable(bool Enable)
-	{
-		Enabled = Enable;
-	}
-
-	bool IsEnabled()
-	{
-		return Enabled;
-	}
-
 	void Close()
 	{
 		mysql_close(connection);
 	}
 
-	const SQLhost& GetConfHost()
+	void submit(SQLQuery* q, const std::string& qs)
 	{
-		return host;
+		Parent()->Dispatcher->LockQueue();
+		Parent()->qq.push_back(QQueueItem(q, qs, this));
+		Parent()->Dispatcher->UnlockQueueWakeup();
 	}
 
+	void submit(SQLQuery* call, const std::string& q, const ParamL& p)
+	{
+		std::string res;
+		unsigned int param = 0;
+		for(std::string::size_type i = 0; i < q.length(); i++)
+		{
+			if (q[i] != '?')
+				res.push_back(q[i]);
+			else
+			{
+				if (param < p.size())
+				{
+					std::string parm = p[param++];
+					char buffer[MAXBUF];
+					mysql_escape_string(buffer, parm.c_str(), parm.length());
+//					mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
+					res.append(buffer);
+				}
+			}
+		}
+		submit(call, res);
+	}
+
+	void submit(SQLQuery* call, const std::string& q, const ParamM& p)
+	{
+		std::string res;
+		for(std::string::size_type i = 0; i < q.length(); i++)
+		{
+			if (q[i] != '$')
+				res.push_back(q[i]);
+			else
+			{
+				std::string field;
+				i++;
+				while (i < q.length() && isalpha(q[i]))
+					field.push_back(q[i++]);
+				i--;
+
+				ParamM::const_iterator it = p.find(field);
+				if (it != p.end())
+				{
+					std::string parm = it->second;
+					char buffer[MAXBUF];
+					mysql_escape_string(buffer, parm.c_str(), parm.length());
+					res.append(buffer);
+				}
+			}
+		}
+		submit(call, res);
+	}
 };
 
-ConnMap Connections;
-
-bool HasHost(const SQLhost &host)
+ModuleSQL::ModuleSQL()
 {
-	for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); iter++)
-	{
-		if (host == iter->second->GetConfHost())
-			return true;
-	}
-	return false;
-}
-
-bool HostInConf(const SQLhost &h)
-{
-	ConfigReader conf;
-	for(int i = 0; i < conf.Enumerate("database"); i++)
-	{
-		SQLhost host;
-		host.id		= conf.ReadValue("database", "id", i);
-		host.host	= conf.ReadValue("database", "hostname", i);
-		host.port	= conf.ReadInteger("database", "port", i, true);
-		host.name	= conf.ReadValue("database", "name", i);
-		host.user	= conf.ReadValue("database", "username", i);
-		host.pass	= conf.ReadValue("database", "password", i);
-		host.ssl	= conf.ReadFlag("database", "ssl", i);
-		if (h == host)
-			return true;
-	}
-	return false;
-}
-
-void ClearOldConnections()
-{
-	ConnMap::iterator i,safei;
-	for (i = Connections.begin(); i != Connections.end(); i++)
-	{
-		if (!HostInConf(i->second->GetConfHost()))
-		{
-			delete i->second;
-			safei = i;
-			--i;
-			Connections.erase(safei);
-		}
-	}
-}
-
-void ClearAllConnections()
-{
-	ConnMap::iterator i;
-	while ((i = Connections.begin()) != Connections.end())
-	{
-		Connections.erase(i);
-		delete i->second;
-	}
-}
-
-void ConnectDatabases(ModuleSQL* Parent)
-{
-	for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
-	{
-		if (i->second->IsEnabled())
-			continue;
-
-		i->second->SetEnable(true);
-		if (!i->second->Connect())
-		{
-			/* XXX: MUTEX */
-			Parent->LoggingMutex.Lock();
-			ServerInstance->Logs->Log("m_mysql",DEFAULT,"SQL: Failed to connect database "+i->second->GetHost()+": Error: "+i->second->GetError());
-			i->second->SetEnable(false);
-			Parent->LoggingMutex.Unlock();
-		}
-	}
-}
-
-void LoadDatabases(ModuleSQL* Parent)
-{
-	ConfigReader conf;
-	Parent->ConnMutex.Lock();
-	ClearOldConnections();
-	for (int j =0; j < conf.Enumerate("database"); j++)
-	{
-		SQLhost host;
-		host.id		= conf.ReadValue("database", "id", j);
-		host.host	= conf.ReadValue("database", "hostname", j);
-		host.port	= conf.ReadInteger("database", "port", j, true);
-		host.name	= conf.ReadValue("database", "name", j);
-		host.user	= conf.ReadValue("database", "username", j);
-		host.pass	= conf.ReadValue("database", "password", j);
-		host.ssl	= conf.ReadFlag("database", "ssl", j);
-		std::string initquery = conf.ReadValue("database", "initialquery", j);
-
-		if (HasHost(host))
-			continue;
-
-		if (!host.id.empty() && !host.host.empty() && !host.name.empty() && !host.user.empty() && !host.pass.empty())
-		{
-			SQLConnection* ThisSQL = new SQLConnection(host, Parent);
-			Connections[host.id] = ThisSQL;
-
-			ThisSQL->setInitialQuery(initquery);
-		}
-	}
-	ConnectDatabases(Parent);
-	Parent->ConnMutex.Unlock();
-}
-
-char FindCharId(const std::string &id)
-{
-	char i = 1;
-	for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); ++iter, ++i)
-	{
-		if (iter->first == id)
-		{
-			return i;
-		}
-	}
-	return 0;
-}
-
-ConnMap::iterator GetCharId(char id)
-{
-	char i = 1;
-	for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); ++iter, ++i)
-	{
-		if (i == id)
-			return iter;
-	}
-	return Connections.end();
-}
-
-class DispatcherThread : public SocketThread
-{
- private:
-	ModuleSQL* const Parent;
- public:
-	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
-	~DispatcherThread() { }
-	virtual void Run();
-	virtual void OnNotify();
-};
-
-ModuleSQL::ModuleSQL() : rehashing(false), sqlserv(this, "SQL/mysql", SERVICE_DATA)
-{
-	currid = 0;
 	Dispatcher = NULL;
 }
 
 void ModuleSQL::init()
 {
-	ServerInstance->Modules->AddService(sqlserv);
-
 	Dispatcher = new DispatcherThread(this);
 	ServerInstance->Threads->Start(Dispatcher);
 
-	Implementation eventlist[] = { I_OnRehash };
-	ServerInstance->Modules->Attach(eventlist, this, 1);
+	Implementation eventlist[] = { I_OnRehash, I_OnUnloadModule };
+	ServerInstance->Modules->Attach(eventlist, this, 2);
 }
 
 ModuleSQL::~ModuleSQL()
 {
-	delete Dispatcher;
-	ClearAllConnections();
-}
-
-unsigned long ModuleSQL::NewID()
-{
-	if (currid+1 == 0)
-		currid++;
-	return ++currid;
-}
-
-void ModuleSQL::OnRequest(Request& request)
-{
-	if(strcmp(SQLREQID, request.id) == 0)
+	if (Dispatcher)
 	{
-		SQLrequest* req = (SQLrequest*)&request;
-
-		ConnMap::iterator iter;
-
-		Dispatcher->LockQueue();
-		ConnMutex.Lock();
-		if((iter = Connections.find(req->dbid)) != Connections.end())
-		{
-			req->id = NewID();
-			iter->second->queue.push(new SQLrequest(*req));
-		}
-		else
-		{
-			req->error.Id(SQL_BAD_DBID);
-		}
-
-		ConnMutex.Unlock();
-		Dispatcher->UnlockQueueWakeup();
-		/* Yes, it's possible this will generate a spurious wakeup.
-		 * That's fine, it'll just get ignored.
-		 */
+		Dispatcher->join();
+		Dispatcher->OnNotify();
+		delete Dispatcher;
+	}
+	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
+	{
+		delete i->second;
 	}
 }
 
 void ModuleSQL::OnRehash(User* user)
 {
+	ConnMap conns;
+	ConfigTagList tags = ServerInstance->Config->ConfTags("database");
+	for(ConfigIter i = tags.first; i != tags.second; i++)
+	{
+		if (i->second->getString("module", "mysql") != "mysql")
+			continue;
+		std::string id = i->second->getString("id");
+		ConnMap::iterator curr = connections.find(id);
+		if (curr == connections.end())
+		{
+			SQLConnection* conn = new SQLConnection(this, i->second);
+			conns.insert(std::make_pair(id, conn));
+			ServerInstance->Modules->AddService(*conn);
+		}
+		else
+		{
+			conns.insert(*curr);
+			connections.erase(curr);
+		}
+	}
+
+	// now clean up the deleted databases
 	Dispatcher->LockQueue();
-	rehashing = true;
-	Dispatcher->UnlockQueueWakeup();
+	SQLerror err(SQL_BAD_DBID);
+	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
+	{
+		ServerInstance->Modules->DelService(*i->second);
+		// it might be running a query on this database. Wait for that to complete
+		i->second->lock.Lock();
+		i->second->lock.Unlock();
+		// now remove all active queries to this DB
+		for(unsigned int j = qq.size() - 1; j >= 0; j--)
+		{
+			if (qq[j].c == i->second)
+			{
+				qq[j].q->OnError(err);
+				delete qq[j].q;
+				qq.erase(qq.begin() + j);
+			}
+		}
+		// finally, nuke the connection
+		delete i->second;
+	}
+	Dispatcher->UnlockQueue();
+	connections.swap(conns);
+}
+
+void ModuleSQL::OnUnloadModule(Module* mod)
+{
+	SQLerror err(SQL_BAD_DBID);
+	Dispatcher->LockQueue();
+	for(unsigned int i = qq.size() - 1; i >= 0; i--)
+	{
+		if (qq[i].q->creator == mod)
+		{
+			if (i == 0)
+			{
+				// need to wait until the query is done
+				// (the result will be discarded)
+				qq[i].c->lock.Lock();
+				qq[i].c->lock.Unlock();
+			}
+			qq[i].q->OnError(err);
+			delete qq[i].q;
+			qq.erase(qq.begin() + i);
+		}
+	}
+	Dispatcher->UnlockQueue();
+	// clean up any result queue entries
+	Dispatcher->OnNotify();
 }
 
 Version ModuleSQL::GetVersion()
 {
-	return Version("SQL Service Provider module for all other m_sql* modules", VF_VENDOR);
+	return Version("MySQL support", VF_VENDOR);
 }
 
 void DispatcherThread::Run()
 {
-	LoadDatabases(Parent);
-
-	SQLConnection* conn = NULL;
-
 	this->LockQueue();
 	while (!this->GetExitFlag())
 	{
-		if (Parent->rehashing)
+		if (!Parent->qq.empty())
 		{
-			Parent->rehashing = false;
-			LoadDatabases(Parent);
-		}
-
-		conn = NULL;
-		Parent->ConnMutex.Lock();
-		for (ConnMap::iterator i = Connections.begin(); i != Connections.end(); i++)
-		{
-			if (i->second->queue.totalsize())
-			{
-				conn = i->second;
-				break;
-			}
-		}
-		Parent->ConnMutex.Unlock();
-
-		if (conn)
-		{
-			/* There's an item! */
+			QQueueItem i = Parent->qq.front();
+			i.c->lock.Lock();
 			this->UnlockQueue();
-			conn->DoLeadingQuery();
-			this->NotifyParent();
+			MySQLresult* res = i.c->DoBlockingQuery(i.query);
+			i.c->lock.Unlock();
+
+			/*
+			 * At this point, the main thread could be working on:
+			 *  Rehash - delete i.c out from under us. We don't care about that.
+			 *  UnloadModule - delete i.q and the qq item. Need to avoid reporting results.
+			 */
+
 			this->LockQueue();
-			conn->queue.pop();
+			if (Parent->qq.front().q == i.q)
+			{
+				Parent->qq.pop_front();
+				Parent->rq.push_back(RQueueItem(i.q, res));
+				NotifyParent();
+			}
+			else
+			{
+				// UnloadModule ate the query
+				delete res;
+			}
 		}
 		else
 		{
@@ -798,35 +516,20 @@ void DispatcherThread::Run()
 
 void DispatcherThread::OnNotify()
 {
-	SQLConnection* conn;
-	while (1)
+	// this could unlock during the dispatch, but OnResult isn't expected to take that long
+	this->LockQueue();
+	for(ResultQueue::iterator i = Parent->rq.begin(); i != Parent->rq.end(); i++)
 	{
-		conn = NULL;
-		Parent->ConnMutex.Lock();
-		for (ConnMap::iterator iter = Connections.begin(); iter != Connections.end(); iter++)
-		{
-			if (!iter->second->rq.empty())
-			{
-				conn = iter->second;
-				break;
-			}
-		}
-		Parent->ConnMutex.Unlock();
-
-		if (!conn)
-			break;
-
-		Parent->ResultsMutex.Lock();
-		ResultQueue::iterator n = conn->rq.begin();
-		Parent->ResultsMutex.Unlock();
-
-		(*n)->Send();
-		delete (*n);
-
-		Parent->ResultsMutex.Lock();
-		conn->rq.pop_front();
-		Parent->ResultsMutex.Unlock();
+		MySQLresult* res = i->r;
+		if (res->err.id == SQL_NO_ERROR)
+			i->q->OnResult(*res);
+		else
+			i->q->OnError(res->err);
+		delete i->q;
+		delete i->r;
 	}
+	Parent->rq.clear();
+	this->UnlockQueue();
 }
 
 MODULE_INIT(ModuleSQL)

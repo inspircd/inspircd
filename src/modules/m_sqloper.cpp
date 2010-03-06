@@ -12,221 +12,103 @@
  */
 
 #include "inspircd.h"
-#include "m_sqlv2.h"
-#include "m_sqlutils.h"
+#include "sql.h"
 #include "hash.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
-typedef std::map<irc::string, Module*> hashymodules;
-
-class ModuleSQLOper : public Module
+static bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
 {
-	LocalStringExt saved_user;
-	LocalStringExt saved_pass;
-	Module* SQLutils;
-	std::string databaseid;
-	std::string hashtype;
-	parameterlist names;
-
-public:
-	ModuleSQLOper() : saved_user("sqloper_user", this), saved_pass("sqloper_pass", this)
+	std::stringstream hl(hostlist);
+	std::string xhost;
+	while (hl >> xhost)
 	{
-	}
-
-	void init()
-	{
-		OnRehash(NULL);
-
-		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");
-		if (!SQLutils)
-			throw ModuleException("Can't find m_sqlutils.so. Please load m_sqlutils.so before m_sqloper.so.");
-
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnLoadModule };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
-		ServerInstance->Modules->AddService(saved_user);
-		ServerInstance->Modules->AddService(saved_pass);
-	}
-
-	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
-	{
-		std::stringstream hl(hostlist);
-		std::string xhost;
-		while (hl >> xhost)
+		if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
 		{
-			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	virtual void OnRehash(User* user)
-	{
-		ConfigReader Conf;
-
-		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
-		hashtype = Conf.ReadValue("sqloper", "hash", 0);
-	}
-
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
-	{
-		if ((validated) && (command == "OPER"))
-		{
-			if (LookupOper(user, parameters[0], parameters[1]))
-			{
-				/* Returning true here just means the query is in progress, or on it's way to being
-				 * in progress. Nothing about the /oper actually being successful..
-				 * If the oper lookup fails later, we pass the command to the original handler
-				 * for /oper by calling its Handle method directly.
-				 */
-				return MOD_RES_DENY;
-			}
-		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	bool LookupOper(User* user, const std::string &username, const std::string &password)
-	{
-		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_DATA, "SQL");
-		if (prov)
-		{
-			Module* target = prov->creator;
-			HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
-
-			/* Make an MD5 hash of the password for using in the query */
-			std::string md5_pass_hash = hash ? hash->hexsum(password) : password;
-
-			/* We generate our own sum here because some database providers (e.g. SQLite) dont have a builtin md5/sha256 function,
-			 * also hashing it in the module and only passing a remote query containing a hash is more secure.
-			 */
-			SQLrequest req = SQLrequest(this, target, databaseid,
-					SQLquery("SELECT username, password, hostname, type FROM ircd_opers WHERE username = '?' AND password='?'") % username % md5_pass_hash);
-
-			/* When we get the query response from the service provider we will be given an ID to play with,
-			 * just an ID number which is unique to this query. We need a way of associating that ID with a User
-			 * so we insert it into a map mapping the IDs to users.
-			 * Thankfully m_sqlutils provides this, it will associate a ID with a user or channel, and if the user quits it removes the
-			 * association. This means that if the user quits during a query we will just get a failed lookup from m_sqlutils - telling
-			 * us to discard the query.
-			 */
-			AssociateUser(this, SQLutils, req.id, user).Send();
-
-			saved_user.set(user, username);
-			saved_pass.set(user, password);
-
 			return true;
 		}
-		else
-		{
-			ServerInstance->Logs->Log("m_sqloper",SPARSE, "WARNING: Couldn't find SQL provider module. NOBODY will be able to oper up unless their o:line is statically configured");
-			return false;
-		}
+	}
+	return false;
+}
+
+class OpMeQuery : public SQLQuery
+{
+ public:
+	const std::string uid, username, password;
+	OpMeQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw)
+		: SQLQuery(me), uid(u), username(un), password(pw)
+	{
 	}
 
-	void OnRequest(Request& request)
+	void OnResult(SQLResult& res)
 	{
-		if (strcmp(SQLRESID, request.id) == 0)
+		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result for %s", uid.c_str());
+		User* user = ServerInstance->FindNick(uid);
+		if (!user)
+			return;
+
+		// multiple rows may exist
+		SQLEntries row;
+		while (res.GetRow(row))
 		{
-			SQLresult* res = static_cast<SQLresult*>(&request);
+			parameterlist cols;
+			res.GetCols(cols);
 
-			User* user = GetAssocUser(this, SQLutils, res->id).S().user;
-			UnAssociate(this, SQLutils, res->id).S();
-
-			if (user)
+			std::vector<KeyVal>* items;
+			reference<ConfigTag> tag = ConfigTag::create("oper", "<m_sqloper>", 0, items);
+			for(unsigned int i=0; i < cols.size(); i++)
 			{
-				std::string* tried_user = saved_user.get(user);
-				std::string* tried_pass = saved_pass.get(user);
-				if (res->error.Id() == SQL_NO_ERROR)
-				{
-					if (res->Rows())
-					{
-						/* We got a row in the result, this means there was a record for the oper..
-						 * now we just need to check if their host matches, and if it does then
-						 * oper them up.
-						 *
-						 * We now (previous versions of the module didn't) support multiple SQL
-						 * rows per-oper in the same way the config file does, all rows will be tried
-						 * until one is found which matches. This is useful to define several different
-						 * hosts for a single oper.
-						 *
-						 * The for() loop works as SQLresult::GetRowMap() returns an empty map when there
-						 * are no more rows to return.
-						 */
+				if (!row[i].nul)
+					items->push_back(KeyVal(cols[i], row[i].value));
+			}
+			try
+			{
+				reference<OperInfo> ifo = new OperInfo(tag);
 
-						for (SQLfieldMap& row = res->GetRowMap(); row.size(); row = res->GetRowMap())
-						{
-							if (OperUser(user, row["hostname"].d, row["type"].d))
-							{
-								/* If/when one of the rows matches, stop checking and return */
-								saved_user.unset(user);
-								saved_pass.unset(user);
-							}
-							if (tried_user && tried_pass)
-							{
-								LoginFail(user, *tried_user, *tried_pass);
-								saved_user.unset(user);
-								saved_pass.unset(user);
-							}
-						}
-					}
-					else
-					{
-						/* No rows in result, this means there was no oper line for the user,
-						 * we should have already checked the o:lines so now we need an
-						 * "insufficient awesomeness" (invalid credentials) error
-						 */
-						if (tried_user && tried_pass)
-						{
-							LoginFail(user, *tried_user, *tried_pass);
-							saved_user.unset(user);
-							saved_pass.unset(user);
-						}
-					}
-				}
-				else
-				{
-					/* This one shouldn't happen, the query failed for some reason.
-					 * We have to fail the /oper request and give them the same error
-					 * as above.
-					 */
-					if (tried_user && tried_pass)
-					{
-						LoginFail(user, *tried_user, *tried_pass);
-						saved_user.unset(user);
-						saved_pass.unset(user);
-					}
-
-				}
+				if (OperUser(user, ifo))
+					return;
+			}
+			catch (CoreException& e)
+			{
+				ServerInstance->Logs->Log("m_sqloper", DEFAULT, "SQLOPER: Config error in oper %s: %s",
+					username.c_str(), e.GetReason());
 			}
 		}
+		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
+		// nobody succeeded... fall back to OPER
+		fallback();
 	}
 
-	void LoginFail(User* user, const std::string &username, const std::string &pass)
+	void OnError(SQLerror& error)
 	{
+		ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: query failed (%s)", error.Str());
+		fallback();
+	}
+
+	void fallback()
+	{
+		User* user = ServerInstance->FindNick(uid);
+		if (!user)
+			return;
+
 		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
 
 		if (oper_command)
 		{
 			std::vector<std::string> params;
 			params.push_back(username);
-			params.push_back(pass);
+			params.push_back(password);
 			oper_command->Handle(params, user);
 		}
 		else
 		{
-			ServerInstance->Logs->Log("m_sqloper",DEBUG, "BUG: WHAT?! Why do we have no OPER command?!");
+			ServerInstance->Logs->Log("m_sqloper",SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
 		}
 	}
 
-	bool OperUser(User* user, const std::string &pattern, const std::string &type)
+	bool OperUser(User* user, OperInfo* ifo)
 	{
-		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
-		if (iter == ServerInstance->Config->oper_blocks.end())
-			return false;
-		OperInfo* ifo = iter->second;
-
+		std::string pattern = ifo->getConfig("host");
 		std::string hostname(user->ident);
 
 		hostname.append("@").append(user->host);
@@ -240,6 +122,61 @@ public:
 		}
 
 		return false;
+	}
+};
+
+class ModuleSQLOper : public Module
+{
+	std::string query;
+	std::string hashtype;
+	dynamic_reference<SQLProvider> SQL;
+
+public:
+	ModuleSQLOper() : SQL("SQL") {}
+
+	void init()
+	{
+		OnRehash(NULL);
+
+		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
+	}
+
+	void OnRehash(User* user)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
+
+		std::string dbid = tag->getString("dbid");
+		if (dbid.empty())
+			SQL.SetProvider("SQL");
+		else
+			SQL.SetProvider("SQL/" + dbid);
+		SQL.lookup();
+		hashtype = tag->getString("hash");
+		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password'");
+	}
+
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	{
+		if (validated && command == "OPER" && parameters.size() == 2 && SQL)
+		{
+			LookupOper(user, parameters[0], parameters[1]);
+			/* Query is in progress, it will re-invoke OPER if needed */
+			return MOD_RES_DENY;
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	void LookupOper(User* user, const std::string &username, const std::string &password)
+	{
+		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
+
+		ParamM userinfo;
+		SQL->PopulateUserInfo(user, userinfo);
+		userinfo["username"] = username;
+		userinfo["password"] = hash ? hash->hexsum(password) : password;
+
+		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
 	}
 
 	Version GetVersion()

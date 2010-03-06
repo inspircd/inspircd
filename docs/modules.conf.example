@@ -1067,7 +1067,7 @@
 # m_mssql.so is more complex than described here, see wiki for more   #
 # info http://wiki.inspircd.org/Modules/mssql                         #
 #
-#<database name="db" username="user" password="pass" hostname="localhost" id="db1">
+#<database module="mssql" name="db" username="user" password="pass" hostname="localhost" id="db1">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
@@ -1083,7 +1083,7 @@
 # m_mysql.so is more complex than described here, see the wiki for    #
 # more: http://wiki.inspircd.org/Modules/mysql                        #
 #
-#<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database2">
+#<database module="mysql" name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Named Modes module: This module allows for the display and set/unset
@@ -1326,7 +1326,7 @@
 # m_pgsql.so is more complex than described here, see the wiki for    #
 # more: http://wiki.inspircd.org/Modules/pgsql                        #
 #
-#<database name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
+#<database module="pgsql" name="mydb" username="myuser" password="mypass" hostname="localhost" id="my_database" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Muteban: Implements extended ban m:, which stops anyone matching
@@ -1678,7 +1678,7 @@
 # m_sqlite.so is more complex than described here, see the wiki for   #
 # more: http://wiki.inspircd.org/Modules/sqlite3                      #
 #
-#<database hostname="/full/path/to/database.db" id="anytext">
+#<database module="sqlite" hostname="/full/path/to/database.db" id="anytext">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLutils module: Provides some utilities to SQL client modules, such
