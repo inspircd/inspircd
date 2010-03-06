@@ -61,6 +61,8 @@ class Redirect : public ModeHandler
 				}
 			}
 
+			if (channel->GetModeParameter('L') == parameter)
+				return MODEACTION_DENY;
 			/*
 			 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
 			 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
