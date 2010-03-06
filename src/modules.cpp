@@ -215,7 +215,7 @@ bool ModuleManager::SetPriority(Module* mod, Priority s)
 	return true;
 }
 
-bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module** modules, size_t sz)
+bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module* which)
 {
 	/** To change the priority of a module, we first find its position in the vector,
 	 * then we find the position of the other modules in the vector that this module
@@ -223,10 +223,7 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	 * on which they want, and we make sure our module is *at least* before or after
 	 * the first or last of this subset, depending again on the type of priority.
 	 */
-	size_t swap_pos = 0;
-	size_t source = 0;
-	bool swap = true;
-	bool found = false;
+	size_t my_pos = 0;
 
 	/* Locate our module. This is O(n) but it only occurs on module load so we're
 	 * not too bothered about it
@@ -235,81 +232,65 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	{
 		if (EventHandlers[i][x] == mod)
 		{
-			source = x;
-			found = true;
-			break;
+			my_pos = x;
+			goto found_src;
 		}
 	}
 
 	/* Eh? this module doesnt exist, probably trying to set priority on an event
 	 * theyre not attached to.
 	 */
-	if (!found)
-		return false;
+	return false;
 
+found_src:
+	size_t swap_pos = my_pos;
 	switch (s)
 	{
-		/* Dummy value */
-		case PRIORITY_DONTCARE:
-			swap = false;
-		break;
-		/* Module wants to be first, sod everything else */
 		case PRIORITY_FIRST:
 			if (prioritizationState != PRIO_STATE_FIRST)
-				swap = false;
+				return true;
 			else
 				swap_pos = 0;
-		break;
-		/* Module wants to be last. */
+			break;
 		case PRIORITY_LAST:
 			if (prioritizationState != PRIO_STATE_FIRST)
-				swap = false;
-			else if (EventHandlers[i].empty())
-				swap_pos = 0;
+				return true;
 			else
 				swap_pos = EventHandlers[i].size() - 1;
-		break;
-		/* Place this module after a set of other modules */
+			break;
 		case PRIORITY_AFTER:
 		{
-			/* Find the latest possible position */
-			swap_pos = 0;
-			swap = false;
-			for (size_t x = 0; x != EventHandlers[i].size(); ++x)
+			/* Find the latest possible position, only searching AFTER our position */
+			for (size_t x = EventHandlers[i].size() - 1; x > my_pos; --x)
 			{
-				for (size_t n = 0; n < sz; ++n)
+				if (EventHandlers[i][x] == which)
 				{
-					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x >= swap_pos) && (source <= swap_pos))
-					{
-						swap_pos = x;
-						swap = true;
-					}
+					swap_pos = x;
+					goto swap_now;
 				}
 			}
+			// didn't find it - either not loaded or we're already after
+			return true;
 		}
-		break;
 		/* Place this module before a set of other modules */
 		case PRIORITY_BEFORE:
 		{
-			swap_pos = EventHandlers[i].size() - 1;
-			swap = false;
-			for (size_t x = 0; x != EventHandlers[i].size(); ++x)
+			for (size_t x = 0; x < my_pos; ++x)
 			{
-				for (size_t n = 0; n < sz; ++n)
+				if (EventHandlers[i][x] == which)
 				{
-					if ((modules[n]) && (EventHandlers[i][x] == modules[n]) && (x <= swap_pos) && (source >= swap_pos))
-					{
-						swap = true;
-						swap_pos = x;
-					}
+					swap_pos = x;
+					goto swap_now;
 				}
 			}
+			// didn't find it - either not loaded or we're already before
+			return true;
 		}
-		break;
 	}
 
+swap_now:
 	/* Do we need to swap? */
-	if (swap && (swap_pos != source))
+	if (swap_pos != my_pos)
 	{
 		// We are going to change positions; we'll need to run again to verify all requirements
 		if (prioritizationState == PRIO_STATE_LAST)
@@ -317,10 +298,10 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 		/* Suggestion from Phoenix, "shuffle" the modules to better retain call order */
 		int incrmnt = 1;
 
-		if (source > swap_pos)
+		if (my_pos > swap_pos)
 			incrmnt = -1;
 
-		for (unsigned int j = source; j != swap_pos; j += incrmnt)
+		for (unsigned int j = my_pos; j != swap_pos; j += incrmnt)
 		{
 			if (( j + incrmnt > EventHandlers[i].size() - 1) || (j + incrmnt < 0))
 				continue;
