@@ -328,7 +328,7 @@ class dynamic_reference : public dynamic_reference_base
 
 /** Priority types which can be used by Module::Prioritize()
  */
-enum Priority { PRIORITY_FIRST, PRIORITY_DONTCARE, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };
+enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER };
 
 /** Implementation-specific flags which may be set in Module::Implements()
  */
@@ -1435,16 +1435,17 @@ class CoreExport ModuleManager
 	 * PRIO_FIRST to set the event to be first called, PRIO_LAST to
 	 * set it to be the last called, or PRIO_BEFORE and PRIORITY_AFTER
 	 * to set it to be before or after one or more other modules.
-	 * @param modules If PRIO_BEFORE or PRIORITY_AFTER is set in parameter 's',
-	 * then this contains a list of one or more modules your module must be
-	 * placed before or after. Your module will be placed before the highest
-	 * priority module in this list for PRIO_BEFORE, or after the lowest
-	 * priority module in this list for PRIORITY_AFTER.
-	 * @param sz The number of modules being passed for PRIO_BEFORE and PRIORITY_AFTER.
-	 * Defaults to 1, as most of the time you will only want to prioritize your module
-	 * to be before or after one other module.
+	 * @param which If PRIO_BEFORE or PRIORITY_AFTER is set in parameter 's',
+	 * then this contains a the module that your module must be placed before
+	 * or after.
 	 */
-	bool SetPriority(Module* mod, Implementation i, Priority s, Module** modules = NULL, size_t sz = 1);
+	bool SetPriority(Module* mod, Implementation i, Priority s, Module* which = NULL);
+
+	/** Backwards compat interface */
+	inline bool SetPriority(Module* mod, Implementation i, Priority s, Module** dptr)
+	{
+		return SetPriority(mod, i, s, *dptr);
+	}
 
 	/** Change the priority of all events in a module.
 	 * @param mod The module to set the priority of
