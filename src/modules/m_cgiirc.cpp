@@ -178,7 +178,7 @@ public:
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
-		Module* umodes = ServerInstance->Modules->Find("m_conn_umodes.cpp");
+		Module* umodes = ServerInstance->Modules->Find("m_conn_umodes.so");
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, &umodes);
 	}
 
