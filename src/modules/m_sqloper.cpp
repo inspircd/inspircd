@@ -48,12 +48,25 @@ class OpMeQuery : public SQLQuery
 		if (!user)
 			return;
 
-		// multiple rows may exist for multiple hosts
-		parameterlist row;
+		// multiple rows may exist
+		SQLEntries row;
 		while (res.GetRow(row))
 		{
+#if 0
+			parameterlist cols;
+			res.GetCols(cols);
+
+			std::vector<KeyVal>* items;
+			reference<ConfigTag> tag = ConfigTag::create("oper", "<m_sqloper>", 0, items);
+			for(unsigned int i=0; i < cols.size(); i++)
+			{
+				if (!row[i].nul)
+					items->insert(std::make_pair(cols[i], row[i]));
+			}
+#else
 			if (OperUser(user, row[0], row[1]))
 				return;
+#endif
 		}
 		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER
@@ -62,6 +75,7 @@ class OpMeQuery : public SQLQuery
 
 	void OnError(SQLerror& error)
 	{
+		ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: query failed (%s)", error.Str());
 		fallback();
 	}
 
@@ -115,6 +129,7 @@ class OpMeQuery : public SQLQuery
 class ModuleSQLOper : public Module
 {
 	std::string databaseid;
+	std::string query;
 	std::string hashtype;
 	dynamic_reference<SQLProvider> SQL;
 
@@ -131,10 +146,11 @@ public:
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
 
-		databaseid = Conf.ReadValue("sqloper", "dbid", 0); /* Database ID of a database configured for the service provider module */
-		hashtype = Conf.ReadValue("sqloper", "hash", 0);
+		databaseid = tag->getString("dbid");
+		hashtype = tag->getString("hash");
+		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password'");
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
@@ -152,13 +168,12 @@ public:
 	{
 		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
 
-		parameterlist params;
-		params.push_back(username);
-		params.push_back(hash ? hash->hexsum(password) : password);
+		ParamM userinfo;
+		SQL->PopulateUserInfo(user, userinfo);
+		userinfo["username"] = username;
+		userinfo["password"] = hash ? hash->hexsum(password) : password;
 
-		SQL->submit(new OpMeQuery(this, databaseid, SQL->FormatQuery(
-			"SELECT hostname, type FROM ircd_opers WHERE username = '?' AND password='?'", params
-			), user->uuid, username, password));
+		SQL->submit(new OpMeQuery(this, databaseid, SQL->FormatQuery(query, userinfo), user->uuid, username, password));
 	}
 
 	Version GetVersion()

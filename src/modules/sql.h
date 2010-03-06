@@ -24,6 +24,18 @@ typedef std::vector<std::string> ParamL;
 
 typedef std::map<std::string, std::string> ParamM;
 
+class SQLEntry
+{
+ public:
+	std::string value;
+	bool nul;
+	SQLEntry() : nul(true) {}
+	SQLEntry(const std::string& v) : value(v), nul(false) {}
+	inline operator std::string&() { return value; }
+};
+
+typedef std::vector<SQLEntry> SQLEntries;
+
 /**
  * Result of an SQL query. Only valid inside OnResult
  */
@@ -49,7 +61,11 @@ class SQLResult : public interfacebase
 	 * @returns true if there was a row, false if no row exists (end of
 	 * iteration)
 	 */
-	virtual bool GetRow(std::vector<std::string>& result) = 0;
+	virtual bool GetRow(SQLEntries& result) = 0;
+
+	/** Returns column names for the items in this row
+	 */
+	virtual void GetCols(std::vector<std::string>& result) = 0;
 };
 
 /** SQLerror holds the error state of a request.
@@ -143,13 +159,25 @@ class SQLProvider : public DataProvider
 	 * @param q The query string, with '?' parameters
 	 * @param p The parameters to fill in in the '?' slots
 	 */
-	virtual std::string FormatQuery(std::string q, ParamL p) = 0;
+	virtual std::string FormatQuery(const std::string& q, const ParamL& p) = 0;
 
 	/** Format a parameterized query string using proper SQL escaping.
 	 * @param q The query string, with '$foo' parameters
 	 * @param p The map to look up parameters in
 	 */
-	virtual std::string FormatQuery(std::string q, ParamM p) = 0;
+	virtual std::string FormatQuery(const std::string& q, const ParamM& p) = 0;
+
+	/** Convenience function */
+	void PopulateUserInfo(User* user, ParamM& userinfo)
+	{
+		userinfo["nick"] = user->nick;
+		userinfo["host"] = user->host;
+		userinfo["ip"] = user->GetIPString();
+		userinfo["gecos"] = user->fullname;
+		userinfo["ident"] = user->ident;
+		userinfo["server"] = user->server;
+		userinfo["uuid"] = user->uuid;
+	}
 };
 
 #endif

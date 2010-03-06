@@ -28,7 +28,8 @@ class SQLite3Result : public SQLResult
  public:
 	int currentrow;
 	int rows;
-	std::vector<std::vector<std::string> > fieldlists;
+	std::vector<std::string> columns;
+	std::vector<SQLEntries> fieldlists;
 
 	SQLite3Result() : currentrow(0), rows(0)
 	{
@@ -43,7 +44,7 @@ class SQLite3Result : public SQLResult
 		return rows;
 	}
 
-	virtual bool GetRow(std::vector<std::string>& result)
+	virtual bool GetRow(SQLEntries& result)
 	{
 		if (currentrow < rows)
 		{
@@ -56,6 +57,10 @@ class SQLite3Result : public SQLResult
 			result.clear();
 			return false;
 		}
+	}
+	virtual void GetCols(std::vector<std::string>& result)
+	{
+		result.assign(columns.begin(), columns.end());
 	}
 };
 
@@ -94,6 +99,11 @@ class SQLConn : public refcountbase
 			return;
 		}
 		int cols = sqlite3_column_count(stmt);
+		res.columns.resize(cols);
+		for(int i=0; i < cols; i++)
+		{
+			res.columns[i] = sqlite3_column_name(stmt, i);
+		}
 		while (1)
 		{
 			err = sqlite3_step(stmt);
@@ -105,7 +115,8 @@ class SQLConn : public refcountbase
 				for(int i=0; i < cols; i++)
 				{
 					const char* txt = (const char*)sqlite3_column_text(stmt, i);
-					res.fieldlists[res.rows][i] = txt ? txt : "";
+					if (txt)
+						res.fieldlists[res.rows][i] = SQLEntry(txt);
 				}
 				res.rows++;
 			}
@@ -132,7 +143,7 @@ class SQLiteProvider : public SQLProvider
 
 	SQLiteProvider(Module* Parent) : SQLProvider(Parent, "SQL/SQLite") {}
 
-	std::string FormatQuery(std::string q, ParamL p)
+	std::string FormatQuery(const std::string& q, const ParamL& p)
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -154,7 +165,7 @@ class SQLiteProvider : public SQLProvider
 		return res;
 	}
 
-	std::string FormatQuery(std::string q, ParamM p)
+	std::string FormatQuery(const std::string& q, const ParamM& p)
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -169,9 +180,13 @@ class SQLiteProvider : public SQLProvider
 					field.push_back(q[i++]);
 				i--;
 
-				char* escaped = sqlite3_mprintf("%q", p[field].c_str());
-				res.append(escaped);
-				sqlite3_free(escaped);
+				ParamM::const_iterator it = p.find(field);
+				if (it != p.end())
+				{
+					char* escaped = sqlite3_mprintf("%q", it->second.c_str());
+					res.append(escaped);
+					sqlite3_free(escaped);
+				}
 			}
 		}
 		return res;

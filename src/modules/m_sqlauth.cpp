@@ -113,16 +113,9 @@ class ModuleSQLAuth : public Module
 
 		pendingExt.set(user, AUTH_STATE_BUSY);
 
-		std::string thisquery = freeformquery;
 		ParamM userinfo;
-		userinfo["nick"] = user->nick;
+		SQL->PopulateUserInfo(user, userinfo);
 		userinfo["pass"] = user->password;
-		userinfo["host"] = user->host;
-		userinfo["ip"] = user->GetIPString();
-		userinfo["gecos"] = user->fullname;
-		userinfo["ident"] = user->ident;
-		userinfo["server"] = user->server;
-		userinfo["uuid"] = user->uuid;
 
 		HashProvider* md5 = ServerInstance->Modules->FindDataService<HashProvider>("hash/md5");
 		if (md5)
