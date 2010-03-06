@@ -131,6 +131,7 @@ class SQLQuery : public classbase
 class SQLProvider : public DataProvider
 {
  public:
+	SQLProvider(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) {}
 	/** Submit an asynchronous SQL request
 	 * @param dbid The database ID to apply the request to
 	 * @param query The query string
@@ -142,13 +143,13 @@ class SQLProvider : public DataProvider
 	 * @param q The query string, with '?' parameters
 	 * @param p The parameters to fill in in the '?' slots
 	 */
-	virtual std::string FormatQuery(std::string q, ParamL p);
+	virtual std::string FormatQuery(std::string q, ParamL p) = 0;
 
 	/** Format a parameterized query string using proper SQL escaping.
 	 * @param q The query string, with '$foo' parameters
 	 * @param p The map to look up parameters in
 	 */
-	virtual std::string FormatQuery(std::string q, ParamM p);
+	virtual std::string FormatQuery(std::string q, ParamM p) = 0;
 };
 
 #endif
