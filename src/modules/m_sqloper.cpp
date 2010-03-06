@@ -32,6 +32,10 @@ class ModuleSQLOper : public Module
 public:
 	ModuleSQLOper() : saved_user("sqloper_user", this), saved_pass("sqloper_pass", this)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 
 		SQLutils = ServerInstance->Modules->Find("m_sqlutils.so");

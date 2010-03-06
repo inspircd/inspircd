@@ -155,7 +155,7 @@ class ModuleSQLLog : public Module
 {
 
  public:
-	ModuleSQLLog()
+	void init()
 	{
 	}
 
