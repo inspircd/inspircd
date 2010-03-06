@@ -90,6 +90,8 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 * This will be done again after DNS resolution. -- w00t
 	 */
 	New->CheckClass();
+	if (New->quitting)
+		return;
 
 	/*
 	 * even with bancache, we still have to keep User::exempt current.
