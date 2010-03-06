@@ -80,12 +80,21 @@ class CommandProp : public Command
 	}
 };
 
+class DummyZ : public ModeHandler
+{
+ public:
+	DummyZ(Module* parent) : ModeHandler(parent, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	{
+		list = true;
+	}
+};
+
 class ModuleNamedModes : public Module
 {
 	CommandProp cmd;
-	ModeHandler dummyZ;
+	DummyZ dummyZ;
  public:
-	ModuleNamedModes() : cmd(this), dummyZ(this, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	ModuleNamedModes() : cmd(this), dummyZ(this)
 	{
 	}
 
