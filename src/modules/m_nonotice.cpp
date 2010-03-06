@@ -55,7 +55,7 @@ class ModuleNoNotice : public Module
 					// ulines are exempt.
 					return MOD_RES_PASSTHRU;
 				}
-				res = ServerInstance->OnCheckExemption(user,c,"nonotice");
+				res = ServerInstance->CheckExemption(user,c,"nonotice");
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;
 				else

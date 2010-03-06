@@ -208,7 +208,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				res = ServerInstance->OnCheckExemption(user,channel,"nickflood");
+				res = ServerInstance->CheckExemption(user,channel,"nickflood");
 				if (res == MOD_RES_ALLOW)
 					continue;
 
@@ -247,7 +247,7 @@ class ModuleNickFlood : public Module
 			nickfloodsettings *f = nf.ext.get(channel);
 			if (f)
 			{
-				res = ServerInstance->OnCheckExemption(user,channel,"nickflood");
+				res = ServerInstance->CheckExemption(user,channel,"nickflood");
 				if (res == MOD_RES_ALLOW)
 					return;
 				

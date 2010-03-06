@@ -280,7 +280,7 @@ class ModuleSilence : public Module
 		ServerInstance->AddCommand(&cmdsilence);
 		ServerInstance->AddCommand(&cmdsvssilence);
 
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnChannelPermissionCheck };
+		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -342,11 +342,11 @@ class ModuleSilence : public Module
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
 	}
 
-	void OnChannelPermissionCheck(User* user,Channel* chan, PermissionData& perm)
+	void OnPermissionCheck(PermissionData& perm)
 	{
 		if (perm.name != "invite" || perm.result != MOD_RES_PASSTHRU)
 			return;
-		perm.result = MatchPattern(static_cast<TargetedPermissionData&>(perm).target, user, SILENCE_INVITE);
+		perm.result = MatchPattern(perm.user, perm.source, SILENCE_INVITE);
 	}
 
 	ModResult MatchPattern(User* dest, User* source, int pattern)

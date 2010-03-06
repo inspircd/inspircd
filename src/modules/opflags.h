@@ -36,7 +36,7 @@ class OpFlagProvider : public DataProvider
 	 * in addition to anyone who has the "speaker" or "moderator" flags. You can
 	 * also do "*,speaker" to only permit those with the "speaker" flag.
 	 */
-	virtual ModResult PermissionCheck(Membership*, const std::string& myname, const std::string& needed) = 0;
+	virtual ModResult PermissionCheck(Membership*, const std::string& needed) = 0;
 };
 
 #endif

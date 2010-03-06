@@ -26,13 +26,12 @@ class ModuleOverride : public Module
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
-		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnChannelPermissionCheck };
+		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreJoin, I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	void OnRehash(User* user)
 	{
-		// on a rehash we delete our classes for good measure and create them again.
 		ConfigReader Conf;
 
 		// re-read our config options on a rehash
@@ -45,34 +44,15 @@ class ModuleOverride : public Module
 		output.append(" OVERRIDE");
 	}
 
-	void OnChannelPermissionCheck(User* source,Channel* chan, PermissionData& perm)
+	void OnPermissionCheck(PermissionData& perm)
 	{
-		if (IS_LOCAL(source) && source->HasPermission("override/" + perm.name))
+		if (IS_LOCAL(perm.source) && perm.source->HasPermission("override/" + perm.name))
 		{
-			ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override for "+perm.name+" on "+chan->name);
+			ServerInstance->SNO->WriteGlobalSno('v',perm.source->nick+" used oper override for "+perm.name+" on "+
+				(perm.chan ? perm.chan->name : "<none>"));
 
 			perm.result = MOD_RES_ALLOW;
 		}
-	}
-
-	ModResult OnPreMode(User* source, Extensible* dest, irc::modestacker& modes)
-	{
-		Channel* channel = dynamic_cast<Channel*>(dest);
-		if (!source || !channel)
-			return MOD_RES_PASSTHRU;
-		if (!IS_OPER(source) || !IS_LOCAL(source))
-			return MOD_RES_PASSTHRU;
-
-		unsigned int mode = channel->GetPrefixValue(source);
-
-		if (mode < HALFOP_VALUE && source->HasPermission("override/mode"))
-		{
-			irc::modestacker tmp(modes);
-			std::string msg = std::string(source->nick)+" overriding modes:" + tmp.popModeLine(FORMAT_USER);
-			ServerInstance->SNO->WriteGlobalSno('v',msg);
-			return MOD_RES_ALLOW;
-		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)

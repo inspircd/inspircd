@@ -344,7 +344,7 @@ enum Implementation
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnStats, I_OnChangeLocalUserHost, I_OnChannelPermissionCheck,
+	I_OnStats, I_OnChangeLocalUserHost, I_OnPermissionCheck,
 	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
@@ -357,6 +357,12 @@ enum Implementation
 class CoreExport PermissionData : public interfacebase
 {
  public:
+	/** User that is performing this action */
+	User* const source;
+	/** Channel that this action is targeted at, or null */
+	Channel* const chan;
+	/** User that this action is targeted at, or null */
+	User* const user;
 	/** Name of the permission we would like to check */
 	const std::string name;
 	/** Result of the permission check. 
@@ -368,20 +374,24 @@ class CoreExport PermissionData : public interfacebase
 	ModResult result;
 	/** Reason the permission was denied */
 	std::string reason;
-	PermissionData(const std::string& Name) : name(Name) {}
+	PermissionData(User* src, const std::string& Name, Channel* c, User* u)
+		: source(src), chan(c), user(u), name(Name) {}
 
-	/** Convenience formatter class for setting reason as a numeric */
+	/** Convenience formatter class for setting reason as a printf */
 	void SetReason(const char* format, ...) CUSTOM_PRINTF(2, 3);
+	/** Convenience formatter class for setting reason as a numeric */
+	void ErrorNumeric(int id, const char* format, ...) CUSTOM_PRINTF(3, 4);
 };
 
-class CoreExport TargetedPermissionData : public PermissionData
+class CoreExport ModePermissionData : public PermissionData
 {
  public:
-	/** User that this action (kick, etc) is targeted at */
-	User* const target;
-	TargetedPermissionData(const std::string& Name, User* dest)
-		: PermissionData(Name), target(dest) {}
+	irc::modechange& mc;
+	ModePermissionData(User* src, const std::string& Name, Channel* c, User* u, irc::modechange& m)
+		: PermissionData(src, Name, c, u), mc(m) {}
+	void DoRankCheck();
 };
+
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -763,7 +773,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * this hook should first be called to see if a channel has overridden
 	 * the access control.
 	 */
-	virtual void OnChannelPermissionCheck(User* source, Channel* channel, PermissionData& permission);
+	virtual void OnPermissionCheck(PermissionData& permission);
 
 	/** Called after every WALLOPS command.
 	 * @param user The user sending the WALLOPS

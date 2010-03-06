@@ -83,8 +83,8 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 		u = ServerInstance->FakeClient;
 	if (IS_LOCAL(u) && !forceset)
 	{
-		PermissionData tc("topic");
-		FOR_EACH_MOD(OnChannelPermissionCheck, (u,this,tc));
+		PermissionData tc(u, "topic", this, NULL);
+		FOR_EACH_MOD(OnPermissionCheck, (tc));
 
 		if (tc.result == MOD_RES_PASSTHRU && (IsModeSet('t') ? GetPrefixValue(u) < HALFOP_VALUE : !HasUser(u)))
 			tc.result = MOD_RES_DENY;
@@ -530,8 +530,8 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 
 		ModResult res;
 
-		TargetedPermissionData perm("kick", memb->user);
-		FOR_EACH_MOD(OnChannelPermissionCheck, (src,this,perm));
+		PermissionData perm(src, "kick", this, memb->user);
+		FOR_EACH_MOD(OnPermissionCheck, (perm));
 
 		if (res == MOD_RES_DENY)
 		{

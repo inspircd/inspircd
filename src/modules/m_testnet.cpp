@@ -98,7 +98,7 @@ static void checkall(Module* noimpl)
 	CHK(OnRehash);
 	CHK(OnSendSnotice);
 	CHK(OnUserPreJoin);
-	CHK(OnChannelPermissionCheck);
+	CHK(OnPermissionCheck);
 	CHK(OnUserKick);
 	CHK(OnOper);
 	CHK(OnInfo);

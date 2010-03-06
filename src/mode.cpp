@@ -359,10 +359,12 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 
 	if (chan && !SkipACL && (MOD_RESULT != MOD_RES_ALLOW))
 	{
-		MOD_RESULT = mh->AccessCheck(user, chan, mc.value, adding);
+		User* targ = (mh->GetTranslateType() == TR_NICK) ? ServerInstance->FindNick(mc.value) : NULL;
+		ModePermissionData perm(user, "mode/" + mh->name, chan, targ, mc);
+		perm.result = mh->AccessCheck(user, chan, mc.value, adding);
+		FOR_EACH_MOD(OnPermissionCheck, (perm));
+		perm.DoRankCheck();
 
-		if (MOD_RESULT == MOD_RES_PASSTHRU)
-			MOD_RESULT = ServerInstance->ModeAccessCheck(user, chan, mc);
 		if (MOD_RESULT == MOD_RES_DENY)
 			return MODEACTION_DENY;
 	}

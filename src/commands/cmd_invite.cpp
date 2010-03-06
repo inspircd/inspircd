@@ -72,8 +72,8 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		if (IS_LOCAL(user))
 		{
-			TargetedPermissionData perm("invite", u);
-			FOR_EACH_MOD(OnChannelPermissionCheck, (user,c,perm));
+			PermissionData perm(user, "invite", c, u);
+			FOR_EACH_MOD(OnPermissionCheck, (perm));
 
 			if (MOD_RESULT == MOD_RES_DENY)
 			{

@@ -266,7 +266,7 @@ bool IsIdentHandler::Call(const char* n)
 	return true;
 }
 
-bool IsSIDHandler::Call(const std::string &str)
+bool InspIRCd::IsSID(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits
@@ -443,8 +443,13 @@ void GenRandomHandler::Call(char *output, size_t max)
 		output[i] = random();
 }
 
-ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::string& restriction)
+ModResult InspIRCd::CheckExemption(User* user, Channel* chan, const std::string& restriction)
 {
+	PermissionData perm(user, "exempt/" + restriction, chan, NULL);
+	FOR_EACH_MOD(OnPermissionCheck, (perm));
+	if (perm.result != MOD_RES_PASSTHRU)
+		return perm.result;
+
 	unsigned int mypfx = chan->GetPrefixValue(user);
 	char minmode;
 	std::string current;
@@ -468,8 +473,11 @@ ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::st
 	return MOD_RES_PASSTHRU;
 }
 
-ModResult ModeAccessCheckHandler::Call(User* user, Channel* chan, irc::modechange& mc)
+void ModePermissionData::DoRankCheck()
 {
+	if (result != MOD_RES_PASSTHRU)
+		return;
+
 	ModeHandler* mh = ServerInstance->Modes->FindMode(mc.mode);
 
 	unsigned int neededrank = mh->GetLevelRequired();
@@ -478,9 +486,12 @@ ModResult ModeAccessCheckHandler::Call(User* user, Channel* chan, irc::modechang
 	 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
 	 * first, so we don't need to iterate, we just look up the first instead.
 	 */
-	unsigned int ourrank = chan->GetPrefixValue(user);
+	unsigned int ourrank = chan->GetPrefixValue(source);
 	if (ourrank >= neededrank)
-		return MOD_RES_ALLOW;
+	{
+		result = MOD_RES_ALLOW;
+		return;
+	}
 
 	ModeHandler* neededmh = NULL;
 	for(ModeIDIter id; id; id++)
@@ -494,10 +505,10 @@ ModResult ModeAccessCheckHandler::Call(User* user, Channel* chan, irc::modechang
 		}
 	}
 	if (neededmh)
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel %s access or above to %sset the %s channel mode",
-			user->nick.c_str(), chan->name.c_str(), neededmh->name.c_str(), mc.adding ? "" : "un", mh->name.c_str());
+		ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must have channel %s access or above to %sset the %s channel mode",
+			chan->name.c_str(), neededmh->name.c_str(), mc.adding ? "" : "un", mh->name.c_str());
 	else
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot %sset the %s channel mode",
-			user->nick.c_str(), chan->name.c_str(), mc.adding ? "" : "un", mh->name.c_str());
-	return MOD_RES_DENY;
+		ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You cannot %sset the %s channel mode",
+			chan->name.c_str(), mc.adding ? "" : "un", mh->name.c_str());
+	result = MOD_RES_DENY;
 }

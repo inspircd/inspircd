@@ -114,7 +114,7 @@ class ModuleStripColor : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* t = (Channel*)dest;
-			ModResult res = ServerInstance->OnCheckExemption(user,t,"stripcolor");
+			ModResult res = ServerInstance->CheckExemption(user,t,"stripcolor");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

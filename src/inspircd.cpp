@@ -301,12 +301,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 OperQuit("OperQuit", NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
-	 IsSID(&HandleIsSID),
-	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
-	 IsIdent(&HandleIsIdent),
-	 ModeAccessCheck(&HandleModeAccessCheck),
-	 OnCheckExemption(&HandleOnCheckExemption)
+	 IsIdent(&HandleIsIdent)
 {
 #ifdef WIN32
 	// Strict, frequent checking of memory on debug builds

@@ -53,18 +53,33 @@ class ExemptChanOps : public ListModeBase
 	}
 };
 
-class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std::string&>
+class ModuleExemptChanOps : public Module
 {
- public:
 	ExemptChanOps ec;
 	dynamic_reference<OpFlagProvider> permcheck;
-	ExemptHandler(Module* me) : ec(me), permcheck("opflags") {}
-	ModResult Call(User* user, Channel* chan, const std::string& restriction)
+
+ public:
+
+	ModuleExemptChanOps() : ec(this), permcheck("opflags") {}
+
+	void init()
 	{
-		Membership* memb = chan->GetUser(user);
+		ec.init();
+		ServerInstance->Modules->AddService(ec);
+		Implementation eventlist[] = { I_OnRehash, I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
+
+		OnRehash(NULL);
+	}
+
+	void OnPermissionCheck(PermissionData& perm)
+	{
+		if (perm.name.substr(0,7) != "exempt/" || perm.result != MOD_RES_PASSTHRU)
+			return;
+		Membership* memb = perm.chan->GetUser(perm.user);
 		std::string minmode;
 
-		modelist* list = ec.extItem.get(chan);
+		modelist* list = ec.extItem.get(perm.chan);
 
 		if (list)
 		{
@@ -73,16 +88,14 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 				std::string::size_type pos = (**i).mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				if ((**i).mask.substr(0,pos) == restriction)
+				if ((**i).mask.substr(0,pos) == perm.name.substr(7))
 					minmode = (**i).mask.substr(pos + 1);
 			}
 		}
 
 		if (permcheck)
 		{
-			ModResult res = permcheck->PermissionCheck(memb, "exempt/" + restriction, minmode);
-			if (res != MOD_RES_PASSTHRU)
-				return res;
+			perm.result = permcheck->PermissionCheck(memb, minmode);
 		}
 		else if (memb && !minmode.empty())
 		{
@@ -90,38 +103,10 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 				ServerInstance->Modes->FindMode(minmode[0], MODETYPE_CHANNEL) :
 				ServerInstance->Modes->FindMode(minmode);
 			if (mh && memb->getRank() >= mh->GetPrefixRank())
-				return MOD_RES_ALLOW;
-			if (mh || minmode == "*")
-				return MOD_RES_DENY;
+				perm.result = MOD_RES_ALLOW;
+			else if (mh || minmode == "*")
+				perm.result = MOD_RES_DENY;
 		}
-		return ServerInstance->HandleOnCheckExemption.Call(user, chan, restriction);
-	}
-};
-
-class ModuleExemptChanOps : public Module
-{
-	ExemptHandler eh;
-
- public:
-
-	ModuleExemptChanOps() : eh(this)
-	{
-	}
-
-	void init()
-	{
-		eh.ec.init();
-		ServerInstance->Modules->AddService(eh.ec);
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
-		ServerInstance->OnCheckExemption = &eh;
-
-		OnRehash(NULL);
-	}
-
-	~ModuleExemptChanOps()
-	{
-		ServerInstance->OnCheckExemption = &ServerInstance->HandleOnCheckExemption;
 	}
 
 	Version GetVersion()
@@ -131,7 +116,7 @@ class ModuleExemptChanOps : public Module
 
 	void OnRehash(User* user)
 	{
-		eh.ec.DoRehash();
+		ec.DoRehash();
 	}
 
 };

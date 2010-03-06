@@ -76,7 +76,7 @@ class ModuleCensor : public Module
 		{
 			active = ((Channel*)dest)->IsModeSet(&cc);
 			Channel* c = (Channel*)dest;
-			ModResult res = ServerInstance->OnCheckExemption(user,c,"censor");
+			ModResult res = ServerInstance->CheckExemption(user,c,"censor");
 
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;

@@ -130,7 +130,7 @@ void		Module::OnSyncUser(User*, SyncTarget*) { }
 void		Module::OnSyncChannel(Channel*, SyncTarget*) { }
 void		Module::OnSyncNetwork(SyncTarget*) { }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
-void		Module::OnChannelPermissionCheck(User*, Channel*, PermissionData&) { }
+void		Module::OnPermissionCheck(PermissionData&) { }
 void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }
 void		Module::OnChangeName(User*, const std::string&) { }
@@ -496,6 +496,22 @@ void PermissionData::SetReason(const char* format, ...)
 
 	reason = textbuffer;
 }
+
+void PermissionData::ErrorNumeric(int num, const char* format, ...)
+{
+	va_list argsPtr;
+	char textbuffer[MAXBUF];
+
+	int offset = snprintf(textbuffer, MAXBUF, ":%s %03d %s ",
+		ServerInstance->Config->ServerName.c_str(), num, source->nick.c_str());
+
+	va_start(argsPtr, format);
+	vsnprintf(textbuffer + offset, MAXBUF - offset, format, argsPtr);
+	va_end(argsPtr);
+
+	reason = textbuffer;
+}
+
 
 void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *src)
 {

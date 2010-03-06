@@ -236,10 +236,6 @@ DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
-DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
-DEFINE_HANDLER1(RehashHandler, void, const std::string&);
-DEFINE_HANDLER3(ModeAccessCheckHandler, ModResult, User*, Channel*, irc::modechange&);
-DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
@@ -307,11 +303,7 @@ class CoreExport InspIRCd
 
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
-	ModeAccessCheckHandler HandleModeAccessCheck;
-	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
-	IsSIDHandler HandleIsSID;
-	RehashHandler HandleRehash;
 	GenRandomHandler HandleGenRandom;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
@@ -543,11 +535,11 @@ class CoreExport InspIRCd
 	/** Return true if str looks like a server ID
 	 * @param string to check against
 	 */
-	caller1<bool, const std::string&> IsSID;
+	bool IsSID(const std::string& sid);
 
 	/** Rehash the local server
 	 */
-	caller1<void, const std::string&> Rehash;
+	void Rehash(const std::string& why);
 
 	/** Handles incoming signals after being set
 	 * @param signal the signal recieved
@@ -779,16 +771,8 @@ class CoreExport InspIRCd
 	 */
 	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
 
-	/** Access check for modes
-	 */
-	caller3<ModResult, User*, Channel*, irc::modechange&> ModeAccessCheck;
-
-	/** Called to check whether a channel restriction mode applies to a user
-	 * @param User that is attempting some action
-	 * @param Channel that the action is being performed on
-	 * @param Action name
-	 */
-	caller3<ModResult, User*, Channel*, const std::string&> OnCheckExemption;
+	/** Wrapper around PermissionCheck */
+	ModResult CheckExemption(User* who, Channel* chan, const std::string& name);
 
 	/** Restart the server.
 	 * This function will not return. If an error occurs,

@@ -33,7 +33,7 @@ class ModuleNoKicks : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(nk);
-		Implementation eventlist[] = { I_OnChannelPermissionCheck, I_On005Numeric };
+		Implementation eventlist[] = { I_OnPermissionCheck, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -42,12 +42,11 @@ class ModuleNoKicks : public Module
 		ServerInstance->AddExtBanChar('Q');
 	}
 
-	void OnChannelPermissionCheck(User* user,Channel* chan, PermissionData& perm)
+	void OnPermissionCheck(PermissionData& perm)
 	{
-		if (perm.name == "kick" && !chan->GetExtBanStatus(user, 'Q').check(!chan->IsModeSet(&nk)))
+		if (perm.name == "kick" && !perm.chan->GetExtBanStatus(perm.user, 'Q').check(!perm.chan->IsModeSet(&nk)))
 		{
-			perm.SetReason(":%s %d %s %s :Can't kick in channel (+Q set)", ServerInstance->Config->ServerName.c_str(),
-				ERR_CHANOPRIVSNEEDED, user->nick.c_str(), chan->name.c_str());
+			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :Can't kick in channel (+Q set)", perm.chan->name.c_str());
 			perm.result = MOD_RES_DENY;
 		}
 	}

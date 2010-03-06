@@ -148,7 +148,7 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->AddService(*np);
 		ServerInstance->Modules->AddService(mycommand);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnChannelPermissionCheck, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPermissionCheck, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
@@ -183,22 +183,21 @@ class ModuleOjoin : public Module
 		op = Conf->getBool("op", true);
 	}
 
-	void OnChannelPermissionCheck(User* source, Channel* chan, PermissionData& perm)
+	void OnPermissionCheck(PermissionData& perm)
 	{
 		if (perm.name != "kick")
 			return;
-		TargetedPermissionData& t = static_cast<TargetedPermissionData&>(perm);
-		Membership* memb = chan->GetUser(t.target);
+		Membership* memb = perm.chan->GetUser(perm.user);
 		// Don't do anything if they're not +Y
-		if (!memb->hasMode(np->GetModeChar()))
+		if (!memb || !memb->hasMode(np->GetModeChar()))
 			return;
 
 		// Let them do whatever they want to themselves.
-		if (source == memb->user)
+		if (perm.source == perm.user)
 			return;
 
 		perm.SetReason(":%s 484 %s %s :Can't kick %s as they're on official network business",
-			ServerInstance->Config->ServerName.c_str(), source->nick.c_str(),
+			ServerInstance->Config->ServerName.c_str(), perm.source->nick.c_str(),
 			memb->chan->name.c_str(), memb->user->nick.c_str());
 		perm.result = MOD_RES_DENY;
 	}

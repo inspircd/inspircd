@@ -56,25 +56,15 @@ class OpFlagProviderImpl : public OpFlagProvider
 		return v;
 	}
 
-	ModResult PermissionCheck(Membership* memb, const std::string& acl, const std::string& needed)
+	ModResult PermissionCheck(Membership* memb, const std::string& needed)
 	{
 		if (!memb)
 			return MOD_RES_DENY;
 
-		std::string* mine = ext.get(memb);
-		if (mine && !acl.empty())
-		{
-			irc::commasepstream myflags(*mine);
-			std::string myflag;
-			while (myflags.GetToken(myflag))
-			{
-				if (acl == myflag)
-					return MOD_RES_ALLOW;
-			}
-		}
-
 		if (needed.empty())
 			return MOD_RES_PASSTHRU;
+
+		std::string* mine = ext.get(memb);
 
 		irc::commasepstream flags(needed);
 		std::string flag;
@@ -138,7 +128,7 @@ class FlagCmd : public Command
 
 		if (IS_LOCAL(src))
 		{
-			ModResult res = ServerInstance->OnCheckExemption(src,chan,"opflags");
+			ModResult res = ServerInstance->CheckExemption(src,chan,"opflags");
 			if (!res.check(chan->GetPrefixValue(src) >= OP_VALUE))
 			{
 				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot change opflags on this channel.",
@@ -215,8 +205,8 @@ class ModuleOpFlags : public Module
 		ServerInstance->Modules->AddService(cmd.prov.ext);
 		OnRehash(NULL);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel, I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void OnRehash(User*)
@@ -244,6 +234,15 @@ class ModuleOpFlags : public Module
 		}
 	}
 
+	void OnPermissionCheck(PermissionData& perm)
+	{
+		if (perm.chan && perm.source && perm.result == MOD_RES_PASSTHRU)
+		{
+			Membership* memb = perm.chan->GetUser(perm.source);
+			if (cmd.prov.PermissionCheck(memb, perm.name) == MOD_RES_ALLOW)
+				perm.result = MOD_RES_ALLOW;
+		}
+	}
 
 	Version GetVersion()
 	{
