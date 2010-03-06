@@ -30,7 +30,10 @@ class AuthQuery : public SQLQuery
 	LocalIntExt& pendingExt;
 	bool verbose;
 	AuthQuery(Module* me, const std::string& db, const std::string& q, const std::string& u, LocalIntExt& e, bool v)
-		: SQLQuery(me, db, q), uid(u), pendingExt(e), verbose(v) {}
+		: SQLQuery(me, db, q), uid(u), pendingExt(e), verbose(v)
+	{
+		ServerInstance->Logs->Log("m_sqlauth",DEBUG, "SQLAUTH: db=%s query=\"%s\"", db.c_str(), q.c_str());
+	}
 	
 	void OnResult(SQLResult& res)
 	{
@@ -127,7 +130,7 @@ class ModuleSQLAuth : public Module
 
 		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 		if (sha256)
-			userinfo["$sha256pass"] = sha256->hexsum(user->password);
+			userinfo["sha256pass"] = sha256->hexsum(user->password);
 
 		SQL->submit(new AuthQuery(this, databaseid, SQL->FormatQuery(freeformquery, userinfo), user->uuid, pendingExt, verbose));
 
