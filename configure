@@ -695,6 +695,9 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	}
 }
 
+# We are on a POSIX system, we can enable POSIX extras without asking
+symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
+
 dumphash();
 
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
