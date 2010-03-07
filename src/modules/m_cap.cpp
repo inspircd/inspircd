@@ -73,13 +73,13 @@ class CommandCAP : public Command
 			if (Data.ack.size() > 0)
 			{
 				std::string AckResult = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
-				user->WriteServ("CAP * ACK :%s", AckResult.c_str());
+				user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), AckResult.c_str());
 			}
 
 			if (Data.wanted.size() > 0)
 			{
 				std::string NakResult = irc::stringjoiner(" ", Data.wanted, 0, Data.wanted.size() - 1).GetJoined();
-				user->WriteServ("CAP * NAK :%s", NakResult.c_str());
+				user->WriteServ("CAP %s NAK :%s", user->nick.c_str(), NakResult.c_str());
 			}
 		}
 		else if (subcommand == "END")
@@ -103,7 +103,7 @@ class CommandCAP : public Command
 			else
 				Result = "";
 
-			user->WriteServ("CAP * %s :%s", subcommand.c_str(), Result.c_str());
+			user->WriteServ("CAP %s %s :%s", user->nick.c_str(), subcommand.c_str(), Result.c_str());
 		}
 		else if (subcommand == "CLEAR")
 		{
@@ -117,11 +117,11 @@ class CommandCAP : public Command
 			Data.Send();
 
 			std::string Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
-			user->WriteServ("CAP * ACK :%s", Result.c_str());
+			user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), Result.c_str());
 		}
 		else
 		{
-			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, "* %s :Invalid CAP subcommand", subcommand.c_str());
+			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, "%s %s :Invalid CAP subcommand", user->nick.c_str(), subcommand.c_str());
 		}
 
 		return CMD_FAILURE;
