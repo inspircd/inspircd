@@ -74,7 +74,7 @@ class OpFlagProviderImpl : public OpFlagProvider
 				ServerInstance->Modes->FindMode(flag[0], MODETYPE_CHANNEL) :
 				ServerInstance->Modes->FindMode(flag);
 			unsigned int neededrank = privmh ? privmh->GetPrefixRank() : INT_MAX;
-			if (memb->getRank() >= neededrank)
+			if (neededrank && memb->getRank() >= neededrank)
 				return MOD_RES_ALLOW;
 		}
 

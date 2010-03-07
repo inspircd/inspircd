@@ -72,6 +72,11 @@ class ModuleExemptChanOps : public Module
 		OnRehash(NULL);
 	}
 
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnPermissionCheck, PRIORITY_AFTER, ServerInstance->Modules->Find("m_opflags.so"));
+	}
+
 	void OnPermissionCheck(PermissionData& perm)
 	{
 		if (perm.name.substr(0,7) != "exempt/" || perm.result != MOD_RES_PASSTHRU)
