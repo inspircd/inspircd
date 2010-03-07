@@ -92,13 +92,14 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 			return CMD_FAILURE;
 		if (res != MOD_RES_ALLOW)
 		{
-			bool defok = IsModeSet('t') ? GetPrefixValue(u) >= HALFOP_VALUE : HasUser(u);
-			if (!ServerInstance->OnCheckExemption(u,this,"topiclock").check(defok))
+			if (!this->HasUser(u))
 			{
-				if (!this->HasUser(u))
-					u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
-				else
-					u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+				return CMD_FAILURE;
+			}
+			if (IsModeSet('t') && !ServerInstance->OnCheckExemption(u,this,"topiclock").check(GetPrefixValue(u) >= HALFOP_VALUE))
+			{
+				u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
 				return CMD_FAILURE;
 			}
 		}
