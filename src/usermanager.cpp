@@ -61,6 +61,8 @@ void UserManager::AddUser(LocalUser* New, ListenSocket* via)
 	 * This will be done again after DNS resolution. -- w00t
 	 */
 	New->CheckClass();
+	if (New->quitting)
+		return;
 
 	/*
 	 * even with bancache, we still have to keep User::exempt current.

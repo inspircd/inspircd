@@ -722,6 +722,7 @@ void LocalUser::CheckClass()
 	if (!a)
 	{
 		ServerInstance->Users->QuitUser(this, "Access denied by configuration");
+		return;
 	}
 	else if (a->type == CC_DENY)
 	{
