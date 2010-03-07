@@ -83,20 +83,15 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 		u = ServerInstance->FakeClient;
 	if (IS_LOCAL(u) && !forceset)
 	{
-		PermissionData tc(u, "topic", this, NULL);
-		FOR_EACH_MOD(OnPermissionCheck, (tc));
-
-		if (tc.result == MOD_RES_PASSTHRU && (IsModeSet('t') ? GetPrefixValue(u) < HALFOP_VALUE : !HasUser(u)))
-			tc.result = MOD_RES_DENY;
-
-		if (tc.result == MOD_RES_DENY)
+		if (!this->HasUser(u))
 		{
-			if (!tc.reason.empty())
-				u->SendText(tc.reason);
-			else if (!this->HasUser(u))
-				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
-			else
-				u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
+			u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
+			return CMD_FAILURE;
+		}
+		ModResult res = ServerInstance->CheckExemption(u,this,"topiclock");
+		if (IsModeSet('t') && !res.check(GetPrefixValue(u) >= HALFOP_VALUE))
+		{
+			u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
 			return CMD_FAILURE;
 		}
 	}
