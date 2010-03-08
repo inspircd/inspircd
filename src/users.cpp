@@ -592,8 +592,8 @@ void User::Oper(OperInfo* info)
 	FOREACH_MOD(I_OnOper, OnOper(this, info->name));
 
 	std::string opername;
-	if (info->oper_block)
-		opername = info->oper_block->getString("name");
+	if (!info->config_blocks.empty() && info->config_blocks[0]->tag == "oper")
+		opername = info->config_blocks[0]->getString("name");
 
 	if (IS_LOCAL(this))
 	{
@@ -620,13 +620,37 @@ void User::Oper(OperInfo* info)
 	FOREACH_MOD(I_OnPostOper,OnPostOper(this, oper->name, opername));
 }
 
+OperInfo::OperInfo(ConfigTag* tag)
+{
+	config_blocks.push_back(tag);
+	if (tag->tag == "oper")
+	{
+		std::string type = tag->getString("type");
+		OperIndex::iterator tblk = ServerInstance->Config->oper_blocks.find(" " + type);
+		if (tblk == ServerInstance->Config->oper_blocks.end())
+			throw CoreException("Oper block at " + tag->getTagLocation() + " has missing type " + type);
+		tag = tblk->second->config_blocks[0];
+		config_blocks.insert(config_blocks.end(), tblk->second->config_blocks.begin(), tblk->second->config_blocks.end());
+	}
+	name = tag->getString("name");
+	std::string classname;
+	irc::spacesepstream str(tag->getString("classes"));
+	while (str.GetToken(classname))
+	{
+		ConfigTagIndex::iterator cls = ServerInstance->Config->oper_classes.find(classname);
+		if (cls == ServerInstance->Config->oper_classes.end())
+			throw CoreException("Oper type " + name + " has missing class " + classname);
+		config_blocks.push_back(cls->second);
+	}
+}
+
 void OperInfo::init()
 {
 	AllowedOperCommands.clear();
 	AllowedPrivs.clear();
 	AllowedPrivs.insert("mode/oper"); // Call me paranoid if you want.
 
-	for(std::vector<reference<ConfigTag> >::iterator iter = class_blocks.begin(); iter != class_blocks.end(); ++iter)
+	for(std::vector<reference<ConfigTag> >::iterator iter = config_blocks.begin(); iter != config_blocks.end(); ++iter)
 	{
 		ConfigTag* tag = *iter;
 		std::string mycmd, mypriv;

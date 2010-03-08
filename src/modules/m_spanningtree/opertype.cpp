@@ -30,10 +30,7 @@ CmdResult CommandOpertype::Handle(const std::vector<std::string>& params, User *
 	if (iter != ServerInstance->Config->oper_blocks.end())
 		u->oper = iter->second;
 	else
-	{
-		u->oper = new OperInfo;
-		u->oper->name = opertype;
-	}
+		u->oper = new OperInfo(opertype);
 
 	TreeServer* remoteserver = Utils->FindServer(u->server);
 	bool dosend = true;

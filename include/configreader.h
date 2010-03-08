@@ -158,18 +158,21 @@ class CoreExport OperInfo : public refcountbase
 	std::set<std::string> AllowedOperCommands;
 	std::set<std::string> AllowedPrivs;
 
-	/** <oper> block used for this oper-up. May be NULL. */
-	reference<ConfigTag> oper_block;
-	/** <type> block used for this oper-up. Valid for local users, may be NULL on remote */
-	reference<ConfigTag> type_block;
-	/** <class> blocks referenced from the <type> block. These define individual permissions */
-	std::vector<reference<ConfigTag> > class_blocks;
+	/** Configuration blocks defined for this oper. This includes <oper>,
+	 * <type>, and <class> blocks.
+	 */
+	std::vector<reference<ConfigTag> > config_blocks;
 	/** Name of the oper type; i.e. the one shown in WHOIS */
 	std::string name;
 
 	/** Get a configuration item, searching in the oper, type, and class blocks (in that order) */
 	std::string getConfig(const std::string& key);
 	void init();
+
+	/** Construct an OperInfo object from a <type> or <oper> block */
+	OperInfo(ConfigTag* tag);
+	/** Construct a dummy OperInfo for a remote user */
+	OperInfo(const std::string& Name) : name(name) {}
 
 	inline const char* NameStr()
 	{
@@ -483,6 +486,8 @@ class CoreExport ServerConfig
 	 * For anonymous oper blocks (type only), prefix with a space.
 	 */
 	OperIndex oper_blocks;
+
+	ConfigTagIndex oper_classes;
 
 	/** Max channels per user
 	 */

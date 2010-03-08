@@ -102,6 +102,8 @@ typedef ConfigDataHash::const_iterator ConfigIter;
 /** Iterator pair, used for tag-name ranges */
 typedef std::pair<ConfigIter,ConfigIter> ConfigTagList;
 
+/** A map of configuration tags */
+typedef std::map<std::string, reference<ConfigTag> > ConfigTagIndex;
 /** Index of valid oper blocks and types */
 typedef std::map<std::string, reference<OperInfo> > OperIndex;
 

@@ -202,10 +202,8 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 	}
 }
 
-typedef std::map<std::string, ConfigTag*> LocalIndex;
 void ServerConfig::CrossCheckOperClassType()
 {
-	LocalIndex operclass;
 	ConfigTagList tags = ConfTags("class");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
@@ -213,8 +211,9 @@ void ServerConfig::CrossCheckOperClassType()
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<class:name> missing from tag at " + tag->getTagLocation());
-		operclass[name] = tag;
+		oper_classes[name] = tag;
 	}
+
 	tags = ConfTags("type");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
@@ -226,20 +225,7 @@ void ServerConfig::CrossCheckOperClassType()
 		if (!ServerInstance->IsNick(name.c_str(), Limits.NickMax))
 			throw CoreException("<type:name> is invalid (value '" + name + "')");
 
-		OperInfo* ifo = new OperInfo;
-		oper_blocks[" " + name] = ifo;
-		ifo->name = name;
-		ifo->type_block = tag;
-
-		std::string classname;
-		irc::spacesepstream str(tag->getString("classes"));
-		while (str.GetToken(classname))
-		{
-			LocalIndex::iterator cls = operclass.find(classname);
-			if (cls == operclass.end())
-				throw CoreException("Oper type " + name + " has missing class " + classname);
-			ifo->class_blocks.push_back(cls->second);
-		}
+		oper_blocks[" " + name] = new OperInfo(tag);
 	}
 
 	tags = ConfTags("oper");
@@ -251,29 +237,10 @@ void ServerConfig::CrossCheckOperClassType()
 		if (name.empty())
 			throw CoreException("<oper:name> missing from tag at " + tag->getTagLocation());
 
-		std::string type = tag->getString("type");
-		OperIndex::iterator tblk = oper_blocks.find(" " + type);
-		if (tblk == oper_blocks.end())
-			throw CoreException("Oper block " + name + " has missing type " + type);
 		if (oper_blocks.find(name) != oper_blocks.end())
 			throw CoreException("Duplicate oper block with name " + name);
 
-		OperInfo* ifo = new OperInfo;
-		ifo->name = type;
-		ifo->oper_block = tag;
-		ifo->type_block = tblk->second->type_block;
-		ifo->class_blocks.assign(tblk->second->class_blocks.begin(), tblk->second->class_blocks.end());
-		oper_blocks[name] = ifo;
-
-		std::string classname;
-		irc::spacesepstream str(tag->getString("classes"));
-		while (str.GetToken(classname))
-		{
-			LocalIndex::iterator cls = operclass.find(classname);
-			if (cls == operclass.end())
-				throw CoreException("Oper " + name + " has missing class " + classname);
-			ifo->class_blocks.push_back(cls->second);
-		}
+		oper_blocks[name] = new OperInfo(tag);
 	}
 }
 

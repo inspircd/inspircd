@@ -496,9 +496,10 @@ ConfigTag::ConfigTag(const std::string& Tag, const std::string& file, int line)
 std::string OperInfo::getConfig(const std::string& key)
 {
 	std::string rv;
-	if (type_block)
-		type_block->readString(key, rv);
-	if (oper_block)
-		oper_block->readString(key, rv);
+	for(std::vector<reference<ConfigTag> >::iterator i = config_blocks.begin(); i != config_blocks.end(); i++)
+	{
+		if ((**i).readString(key, rv))
+			return rv;
+	}
 	return rv;
 }

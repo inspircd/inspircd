@@ -65,7 +65,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	if (i != ServerInstance->Config->oper_blocks.end())
 	{
 		OperInfo* ifo = i->second;
-		ConfigTag* tag = ifo->oper_block;
+		ConfigTag* tag = ifo->config_blocks[0];
 		match_login = true;
 		match_pass = !ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
 		match_hosts = OneOfMatches(TheHost,TheIP,tag->getString("host"));

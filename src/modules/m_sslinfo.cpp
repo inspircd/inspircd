@@ -178,7 +178,7 @@ class ModuleSSLInfo : public Module
 				OperInfo* ifo = i->second;
 				ssl_cert* cert = cmd.CertExt.get(user);
 
-				if (ifo->oper_block->getBool("sslonly") && !cert)
+				if (ifo->config_blocks[0]->getBool("sslonly") && !cert)
 				{
 					user->WriteNumeric(491, "%s :This oper login requires an SSL connection.", user->nick.c_str());
 					user->CommandFloodPenalty += 10000;
@@ -186,7 +186,7 @@ class ModuleSSLInfo : public Module
 				}
 
 				std::string fingerprint;
-				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
+				if (ifo->config_blocks[0]->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
 					user->WriteNumeric(491, "%s :This oper login requires a matching SSL fingerprint.",user->nick.c_str());
 					user->CommandFloodPenalty += 10000;
@@ -211,8 +211,8 @@ class ModuleSSLInfo : public Module
 		for(OperIndex::iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); i++)
 		{
 			OperInfo* ifo = i->second;
-			std::string fp = ifo->oper_block->getString("fingerprint");
-			if (fp == req.cert->fingerprint && ifo->oper_block->getBool("autologin"))
+			std::string fp = ifo->config_blocks[0]->getString("fingerprint");
+			if (fp == req.cert->fingerprint && ifo->config_blocks[0]->getBool("autologin"))
 				user->Oper(ifo);
 		}
 	}
