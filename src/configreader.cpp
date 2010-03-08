@@ -185,7 +185,7 @@ void ServerConfig::CrossCheckOperClassType()
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<class:name> missing from tag at " + tag->getTagLocation());
-		if (operclass.find(name) != oper_blocks.end())
+		if (operclass.find(name) != operclass.end())
 			throw CoreException("Duplicate class block with name " + name + " at " + tag->getTagLocation());
 		operclass[name] = tag;
 	}
