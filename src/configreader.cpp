@@ -211,6 +211,8 @@ void ServerConfig::CrossCheckOperClassType()
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<class:name> missing from tag at " + tag->getTagLocation());
+		if (oper_classes.find(name) != oper_classes.end())
+			throw CoreException("Duplicate class block with name " + name + " at " + tag->getTagLocation());
 		oper_classes[name] = tag;
 	}
 
@@ -221,9 +223,10 @@ void ServerConfig::CrossCheckOperClassType()
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<type:name> is missing from tag at " + tag->getTagLocation());
-
 		if (!ServerInstance->IsNick(name.c_str(), Limits.NickMax))
 			throw CoreException("<type:name> is invalid (value '" + name + "')");
+		if (oper_blocks.find(" " + name) != oper_blocks.end())
+			throw CoreException("Duplicate type block with name " + name + " at " + tag->getTagLocation());
 
 		oper_blocks[" " + name] = new OperInfo(tag);
 	}
@@ -238,7 +241,7 @@ void ServerConfig::CrossCheckOperClassType()
 			throw CoreException("<oper:name> missing from tag at " + tag->getTagLocation());
 
 		if (oper_blocks.find(name) != oper_blocks.end())
-			throw CoreException("Duplicate oper block with name " + name);
+			throw CoreException("Duplicate oper block with name " + name + " at " + tag->getTagLocation());
 
 		oper_blocks[name] = new OperInfo(tag);
 	}
