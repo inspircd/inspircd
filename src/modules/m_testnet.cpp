@@ -50,6 +50,8 @@ template<typename T> struct vtable : public vtbase
 	void isok(const char* name, int impl, Module* basemod, std::vector<std::string>& allmods)
 	{
 		void* base = read(basemod);
+		int users = 0;
+		std::string modusers;
 		for(unsigned int i=0; i < allmods.size(); ++i)
 		{
 			Module* mod = ServerInstance->Modules->Find(allmods[i]);
@@ -59,6 +61,9 @@ template<typename T> struct vtable : public vtbase
 			{
 				if (mod == *j)
 				{
+					users++;
+					modusers.push_back(' ');
+					modusers.append(mod->ModuleSourceFile);
 					if (fptr == base)
 					{
 						ServerInstance->SNO->WriteToSnoMask('a', "Module %s implements %s but uses default function",
@@ -74,6 +79,7 @@ template<typename T> struct vtable : public vtbase
 			}
 			done:;
 		}
+		ServerInstance->SNO->WriteToSnoMask('a', "Hook I_%s used by %d modules:%s", name, users, modusers.c_str());
 	}
 };
 

@@ -172,7 +172,7 @@ class CoreExport OperInfo : public refcountbase
 	/** Construct an OperInfo object from a <type> or <oper> block */
 	OperInfo(ConfigTag* tag);
 	/** Construct a dummy OperInfo for a remote user */
-	OperInfo(const std::string& Name) : name(name) {}
+	OperInfo(const std::string& Name) : name(Name) {}
 
 	inline const char* NameStr()
 	{
