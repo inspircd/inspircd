@@ -50,8 +50,11 @@ class ModuleAuditorium : public Module
 
 		OnRehash(NULL);
 
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = {
+			I_OnUserJoin, I_OnUserPart, I_OnUserKick,
+			I_OnBuildNeighborList, I_OnNamesListItem, I_OnSendWhoLine,
+			I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 
 	~ModuleAuditorium()
@@ -163,6 +166,18 @@ class ModuleAuditorium : public Module
 					exception[j->first] = true;
 			}
 		}
+	}
+
+	void OnSendWhoLine(User* source, const std::vector<std::string>&, User* user, Channel* channel, std::string& line)
+	{
+		if (!channel)
+			return;
+		Membership* memb = channel->GetUser(user);
+		if (IsVisible(memb))
+			return;
+		if (CanSee(source, memb))
+			return;
+		line.clear();
 	}
 };
 
