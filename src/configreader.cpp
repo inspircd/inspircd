@@ -785,10 +785,15 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 
 ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 {
-	ConfigDataHash::iterator iter = config_data.find(tag);
-	if (iter == config_data.end())
+	ConfigTagList found = config_data.equal_range(tag);
+	if (found.first == found.second)
 		return NULL;
-	return iter->second;
+	ConfigTag* rv = found.first->second;
+	found.first++;
+	if (found.first != found.second)
+		ServerInstance->Logs->Log("CONFIG",DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
+			"(first at " + rv->getTagLocation() + "; second at " + found.first->second->getTagLocation() + ")");
+	return rv;
 }
 
 ConfigTagList ServerConfig::ConfTags(const std::string& tag)
