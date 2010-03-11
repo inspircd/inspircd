@@ -21,7 +21,7 @@ use Exporter 'import';
 use POSIX;
 use Getopt::Long;
 use Fcntl;
-our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring vcheck);
+our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
 # Parse the output of a *_config program,
 # such as pcre_config, take out the -L
@@ -176,29 +176,6 @@ sub pkgconfig_get_include_dirs($$$;$)
 	return $ret;
 }
 
-sub vcheck($$)
-{
-	my ($version1, $version2) = @_;
-	$version1 =~ s/\-r(\d+)/\.$1/g; # minor revs/patchlevels
-	$version2 =~ s/\-r(\d+)/\.$1/g;
-	$version1 =~ s/p(\d+)/\.$1/g;
-	$version2 =~ s/p(\d+)/\.$1/g;
-	$version1 =~ s/\-//g;
-	$version2 =~ s/\-//g;
-	$version1 =~ s/[a-z]//g;
-	$version2 =~ s/[a-z]//g;
-	my @v1 = split('\.', $version1);
-	my @v2 = split('\.', $version2);
-	for (my $curr = 0; $curr < scalar(@v2); $curr++)
-	{
-		if ($v1[$curr] < $v2[$curr])
-		{
-			return 0;
-		}
-	}
-	return 1;
-}
-
 sub pkgconfig_check_version($$;$)
 {
 	my ($packagename, $version, $module) = @_;
@@ -214,7 +191,7 @@ sub pkgconfig_check_version($$;$)
 	}
 	if ((defined $v) && ($v ne ""))
 	{
-		if (vcheck($v,$version) == 1)
+		if (!system "pkg-config --atleast-version $version $packagename")
 		{
 			print "\e[1;32mYes (version $v)\e[0m\n";
 			return 1;
