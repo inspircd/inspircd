@@ -16,7 +16,11 @@
 class CommandModeNotice : public Command
 {
  public:
-	CommandModeNotice(Module* parent) : Command(parent,"MODENOTICE",2,2) { syntax = "<modes> <message>"; }
+	CommandModeNotice(Module* parent) : Command(parent,"MODENOTICE",2,2)
+	{
+		syntax = "<modes> <message>";
+		flags_needed = 'o';
+	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *src)
 	{
