@@ -225,7 +225,6 @@ $config{OSNAME}       	    = $^O;			      		# Operating System Name
 $config{IS_DARWIN}	  = "NO";					# Is OSX?
 $config{STARTSCRIPT}	  = "inspircd";			# start script?
 $config{DESTINATION}	  = "BASE";				# Is target path.
-$config{EXTRA_DIR}	  = "";						# Is empty.
 if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{IS_DARWIN} = "YES";
@@ -1047,7 +1046,7 @@ EOF
 
 		for my $var (qw(
 			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR UID
-			STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE
+			STARTSCRIPT DESTINATION SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;
 		}

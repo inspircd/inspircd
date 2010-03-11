@@ -20,10 +20,10 @@ LDFLAGS =
 SHARED = -shared -rdynamic
 CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
 PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
-BASE = "@BASE_DIR@"
-CONPATH = "@CONFIG_DIR@"
-MODPATH = "@MODULE_DIR@"
-BINPATH = "@BINARY_DIR@"
+BASE = "$(DESTDIR)@BASE_DIR@"
+CONPATH = "$(DESTDIR)@CONFIG_DIR@"
+MODPATH = "$(DESTDIR)@MODULE_DIR@"
+BINPATH = "$(DESTDIR)@BINARY_DIR@"
 INSTUID = @UID@
 INSTMODE_DIR = 0755
 INSTMODE_BIN = 0755
@@ -157,7 +157,7 @@ finishmessage: target
 	@echo "*         make install              *"
 	@echo "*************************************"
 
-install: target@EXTRA_DIR@
+install: target
 	@if [ $(INSTUID) = 0 ]; then echo "You must specify a non-root uid for the server"; exit 1; fi
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
@@ -165,9 +165,9 @@ install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE_DIR) $(BINPATH)
 	@-install -d -m $(INSTMODE_DIR) $(CONPATH)
 	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
+	install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
+	install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
-	-install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
-	-install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
 	-install -m $(INSTMODE_LIB) docs/*.example $(CONPATH)
 	@echo ""
@@ -221,10 +221,12 @@ help:
 	@echo 'Flags:'
 	@echo ' V=1       Show the full command being executed instead of "BUILD: dns.cpp"'
 	@echo ' D=1       Enable debug build, for module development or crash tracing'
+	@echo ' D=2       Enable debug build with optimizations, for detailed backtraces'
+	@echo ' DESTDIR=  Specify a destination root directory (for tarball creation)'
 	@echo ' -j <N>    Run a parallel build using N jobs'
 	@echo ''
-	@echo 'User targets:'
-	@echo ' all       Complete build of InspIRCd, without installing'
+	@echo 'Targets:'
+	@echo ' all       Complete build of InspIRCd, without installing (default)'
 	@echo ' install   Build and install InspIRCd to the directory chosen in ./configure'
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
