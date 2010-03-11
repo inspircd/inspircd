@@ -429,6 +429,22 @@ void ServerConfig::Fill()
 {
 	ConfigTag* options = ConfValue("options");
 	ConfigTag* security = ConfValue("security");
+	if (sid.empty())
+	{
+		ServerName = ConfValue("server")->getString("name");
+		sid = ConfValue("server")->getString("id");
+		ValidHost(ServerName, "<server:name>");
+		if (!sid.empty() && !ServerInstance->IsSID(sid))
+			throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
+	}
+	else
+	{
+		if (ServerName != ConfValue("server")->getString("name"))
+			throw CoreException("You must restart to change the server name or SID");
+		std::string nsid = ConfValue("server")->getString("id");
+		if (!nsid.empty() && nsid != sid)
+			throw CoreException("You must restart to change the server name or SID");
+	}
 	diepass = ConfValue("power")->getString("diepass");
 	restartpass = ConfValue("power")->getString("restartpass");
 	powerhash = ConfValue("power")->getString("hash");
@@ -441,10 +457,8 @@ void ServerConfig::Fill()
 	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
 	MoronBanner = options->getString("moronbanner", "You're banned!");
-	ServerName = ConfValue("server")->getString("name");
 	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
 	Network = ConfValue("server")->getString("network", "Network");
-	sid = ConfValue("server")->getString("id", "");
 	AdminName = ConfValue("admin")->getString("name", "");
 	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
 	AdminNick = ConfValue("admin")->getString("nick", "admin");
@@ -497,9 +511,6 @@ void ServerConfig::Fill()
 	range(WhoWasMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
 
 	ValidIP(DNSServer, "<dns:server>");
-	ValidHost(ServerName, "<server:name>");
-	if (!sid.empty() && !ServerInstance->IsSID(sid))
-		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 
 	std::string defbind = options->getString("defaultbind");
 	if (assign(defbind) == "ipv4")
@@ -602,6 +613,15 @@ void ServerConfig::Read()
 void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 {
 	valid = true;
+	if (old)
+	{
+		/*
+		 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
+		 */
+		this->ServerName = old->ServerName;
+		this->sid = old->sid;
+		this->cmdline = old->cmdline;
+	}
 
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
@@ -632,16 +652,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
 	valid = errstr.str().empty();
 
-	/*
-	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
-	 */
 	if (old)
 	{
-		this->ServerName = old->ServerName;
-		this->sid = old->sid;
-		this->cmdline = old->cmdline;
-
-		// Same for ports... they're bound later on first run.
+		// On first run, ports are bound later on
 		FailedPortList pl;
 		ServerInstance->BindPorts(pl);
 		if (pl.size())
