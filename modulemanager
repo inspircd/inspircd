@@ -101,6 +101,18 @@ getmodules(1);
 # determine core version
 `./src/version.sh` =~ /InspIRCd-([0-9.]+)/ or die "Cannot determine inspircd version";
 $installed{core} = $1;
+for my $mod (keys %modules) {
+	MODVER: for my $mver (keys %{$modules{$mod}}) {
+		for my $dep (@{$modules{$mod}{$mver}{depends}}) {
+			next unless $dep =~ /^core (.*)/;
+			if (!ver_in_range($installed{core}, $1)) {
+				delete $modules{$mod}{$mver};
+				next MODVER;
+			}
+		}
+	}
+	delete $modules{$mod} unless %{$modules{$mod}};
+}
 $modules{core}{$1} = {
 	url => 'NONE',
 	depends => [],
