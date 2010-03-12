@@ -949,6 +949,8 @@
 # Jump Server module: Adds support for the RPL_REDIR numeric
 # This module is oper-only.
 # To use, JUMPSERVER must be in one of your oper class blocks.
+# If your server is redirecting new clients and you get disconnected,
+# do a REHASH from shell to open up again.
 #<module name="m_jumpserver.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1034,7 +1036,7 @@
 # These commands require OPER status and that the LOCKSERV UNLOCKSERV #
 # are specified in a <class> tag that the oper is part of. This is so #
 # you can control who has access to this possible dangerous command.  #
-# If your server is locked and you got disconnected, do a REHASH from #
+# If your server is locked and you get disconnected, do a REHASH from #
 # shell to open up again.
 #
 # This module is oper-only.

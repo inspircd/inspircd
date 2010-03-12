@@ -68,15 +68,10 @@ private:
 	CommandLockserv lockcommand;
 	CommandUnlockserv unlockcommand;
 
-	virtual void ResetLocked()
-	{
-		locked = false;
-	}
-
 public:
 	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked)
 	{
-		ResetLocked();
+		locked = false;
 		ServerInstance->AddCommand(&lockcommand);
 		ServerInstance->AddCommand(&unlockcommand);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
@@ -90,7 +85,8 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ResetLocked();
+		// Emergency way to unlock
+		if (!user) locked = false;
 	}
 
 	void OnUserRegister(LocalUser* user)
@@ -106,7 +102,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Allows locking of the server to stop all incoming connections till unlocked again", VF_VENDOR);
+		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_VENDOR);
 	}
 };
 
