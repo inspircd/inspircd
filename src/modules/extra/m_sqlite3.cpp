@@ -58,6 +58,7 @@ class SQLite3Result : public SQLResult
 			return false;
 		}
 	}
+
 	virtual void GetCols(std::vector<std::string>& result)
 	{
 		result.assign(columns.begin(), columns.end());

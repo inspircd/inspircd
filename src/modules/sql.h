@@ -16,7 +16,7 @@
 
 /** Defines the error types which SQLerror may be set to
  */
-enum SQLerrorNum { SQL_BAD_DBID, SQL_BAD_CONN, SQL_QSEND_FAIL, SQL_QREPLY_FAIL };
+enum SQLerrorNum { SQL_NO_ERROR, SQL_BAD_DBID, SQL_BAD_CONN, SQL_QSEND_FAIL, SQL_QREPLY_FAIL };
 
 /** A list of format parameters for an SQLquery object.
  */
@@ -39,7 +39,7 @@ typedef std::vector<SQLEntry> SQLEntries;
 /**
  * Result of an SQL query. Only valid inside OnResult
  */
-class SQLResult : public interfacebase
+class SQLResult : public classbase
 {
  public:
 	/**

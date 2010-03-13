@@ -129,11 +129,11 @@ class CoreExport SocketThread : public Thread
 	{
 		queue.Wait();
 	}
+ public:
 	/** Notifies parent by making the SignalFD ready to read
 	 * No requirements on locking
 	 */
 	void NotifyParent();
- public:
 	SocketThread();
 	virtual ~SocketThread();
 	/** Lock queue.
