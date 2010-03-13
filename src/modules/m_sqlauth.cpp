@@ -87,14 +87,16 @@ class ModuleSQLAuth : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-
-		SQL.SetProvider("SQL/" + Conf.ReadValue("sqlauth", "dbid", 0));		/* Database ID, given to the SQL service provider */
-		freeformquery	= Conf.ReadValue("sqlauth", "query", 0);	/* Field name where username can be found */
-		killreason	= Conf.ReadValue("sqlauth", "killreason", 0);	/* Reason to give when access is denied to a user (put your reg details here) */
-		allowpattern	= Conf.ReadValue("sqlauth", "allowpattern",0 );	/* Allow nicks matching this pattern without requiring auth */
-		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
-		SQL.lookup();
+		ConfigTag* conf = ServerInstance->Config->ConfValue("sqlauth");
+		std::string dbid = conf->getString("dbid");
+		if (dbid.empty())
+			SQL.SetProvider("SQL");
+		else
+			SQL.SetProvider("SQL/" + dbid);
+		freeformquery = conf->getString("query");
+		killreason = conf->getString("killreason");
+		allowpattern = conf->getString("allowpattern");
+		verbose = conf->getBool("verbose");
 	}
 
 	ModResult OnUserRegister(LocalUser* user)
@@ -109,6 +111,14 @@ class ModuleSQLAuth : public Module
 
 		if (pendingExt.get(user))
 			return MOD_RES_PASSTHRU;
+
+		if (!SQL)
+		{
+			ServerInstance->SNO->WriteGlobalSno('a', "Forbiding connection from %s!%s@%s (SQL database not present)",
+				user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+			ServerInstance->Users->QuitUser(user, killreason);
+			return MOD_RES_PASSTHRU;
+		}
 
 		pendingExt.set(user, AUTH_STATE_BUSY);
 

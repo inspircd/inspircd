@@ -376,6 +376,8 @@ void ModuleSQL::init()
 
 	Implementation eventlist[] = { I_OnRehash, I_OnUnloadModule };
 	ServerInstance->Modules->Attach(eventlist, this, 2);
+
+	OnRehash(NULL);
 }
 
 ModuleSQL::~ModuleSQL()

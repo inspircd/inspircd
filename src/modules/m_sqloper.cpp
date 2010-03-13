@@ -146,19 +146,27 @@ public:
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
 
-		SQL.SetProvider("SQL/" + tag->getString("dbid"));
-		SQL.lookup();
+		std::string dbid = tag->getString("dbid");
+		if (dbid.empty())
+			SQL.SetProvider("SQL");
+		else
+			SQL.SetProvider("SQL/" + dbid);
+
 		hashtype = tag->getString("hash");
 		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password'");
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
-		if (validated && command == "OPER" && parameters.size() == 2 && SQL)
+		if (validated && command == "OPER" && parameters.size() >= 2)
 		{
-			LookupOper(user, parameters[0], parameters[1]);
-			/* Query is in progress, it will re-invoke OPER if needed */
-			return MOD_RES_DENY;
+			if (SQL)
+			{
+				LookupOper(user, parameters[0], parameters[1]);
+				/* Query is in progress, it will re-invoke OPER if needed */
+				return MOD_RES_DENY;
+			}
+			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: database not present");
 		}
 		return MOD_RES_PASSTHRU;
 	}
