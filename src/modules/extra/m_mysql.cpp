@@ -70,8 +70,9 @@ class DispatcherThread;
 struct QQueueItem
 {
 	SQLQuery* q;
+	std::string query;
 	SQLConnection* c;
-	QQueueItem(SQLQuery* Q, SQLConnection* C) : q(Q), c(C) {}
+	QQueueItem(SQLQuery* Q, const std::string& S, SQLConnection* C) : q(Q), query(S), c(C) {}
 };
 
 struct RQueueItem
@@ -260,68 +261,16 @@ class SQLConnection : public SQLProvider
 		return true;
 	}
 
-	virtual std::string FormatQuery(const std::string& q, const ParamL& p)
-	{
-		std::string res;
-		unsigned int param = 0;
-		for(std::string::size_type i = 0; i < q.length(); i++)
-		{
-			if (q[i] != '?')
-				res.push_back(q[i]);
-			else
-			{
-				// TODO numbered parameter support ('?1')
-				if (param < p.size())
-				{
-					std::string parm = p[param++];
-					char buffer[MAXBUF];
-					mysql_escape_string(buffer, parm.c_str(), parm.length());
-//					mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
-					res.append(buffer);
-				}
-			}
-		}
-		return res;
-	}
-
-	std::string FormatQuery(const std::string& q, const ParamM& p)
-	{
-		std::string res;
-		for(std::string::size_type i = 0; i < q.length(); i++)
-		{
-			if (q[i] != '$')
-				res.push_back(q[i]);
-			else
-			{
-				std::string field;
-				i++;
-				while (i < q.length() && isalpha(q[i]))
-					field.push_back(q[i++]);
-				i--;
-
-				ParamM::const_iterator it = p.find(field);
-				if (it != p.end())
-				{
-					std::string parm = it->second;
-					char buffer[MAXBUF];
-					mysql_escape_string(buffer, parm.c_str(), parm.length());
-					res.append(buffer);
-				}
-			}
-		}
-		return res;
-	}
-
 	ModuleSQL* Parent()
 	{
 		return (ModuleSQL*)(Module*)creator;
 	}
 
-	MySQLresult* DoBlockingQuery(SQLQuery* req)
+	MySQLresult* DoBlockingQuery(const std::string& query)
 	{
 
 		/* Parse the command string and dispatch it to mysql */
-		if (CheckConnection() && !mysql_real_query(connection, req->query.data(), req->query.length()))
+		if (CheckConnection() && !mysql_real_query(connection, query.data(), query.length()))
 		{
 			/* Successfull query */
 			MYSQL_RES* res = mysql_use_result(connection);
@@ -356,11 +305,62 @@ class SQLConnection : public SQLProvider
 		mysql_close(connection);
 	}
 
-	void submit(SQLQuery* q)
+	void submit(SQLQuery* q, const std::string& qs)
 	{
 		Parent()->Dispatcher->LockQueue();
-		Parent()->qq.push_back(QQueueItem(q, this));
+		Parent()->qq.push_back(QQueueItem(q, qs, this));
 		Parent()->Dispatcher->UnlockQueueWakeup();
+	}
+
+	void submit(SQLQuery* call, const std::string& q, const ParamL& p)
+	{
+		std::string res;
+		unsigned int param = 0;
+		for(std::string::size_type i = 0; i < q.length(); i++)
+		{
+			if (q[i] != '?')
+				res.push_back(q[i]);
+			else
+			{
+				if (param < p.size())
+				{
+					std::string parm = p[param++];
+					char buffer[MAXBUF];
+					mysql_escape_string(buffer, parm.c_str(), parm.length());
+//					mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
+					res.append(buffer);
+				}
+			}
+		}
+		submit(call, res);
+	}
+
+	void submit(SQLQuery* call, const std::string& q, const ParamM& p)
+	{
+		std::string res;
+		for(std::string::size_type i = 0; i < q.length(); i++)
+		{
+			if (q[i] != '$')
+				res.push_back(q[i]);
+			else
+			{
+				std::string field;
+				i++;
+				while (i < q.length() && isalpha(q[i]))
+					field.push_back(q[i++]);
+				i--;
+
+				ParamM::const_iterator it = p.find(field);
+				if (it != p.end())
+				{
+					std::string parm = it->second;
+					char buffer[MAXBUF];
+					mysql_escape_string(buffer, parm.c_str(), parm.length());
+					res.append(buffer);
+				}
+			}
+		}
+		submit(call, res);
 	}
 };
 
@@ -481,7 +481,7 @@ void DispatcherThread::Run()
 			QQueueItem i = Parent->qq.front();
 			i.c->lock.Lock();
 			this->UnlockQueue();
-			MySQLresult* res = i.c->DoBlockingQuery(i.q);
+			MySQLresult* res = i.c->DoBlockingQuery(i.query);
 			i.c->lock.Unlock();
 
 			/*

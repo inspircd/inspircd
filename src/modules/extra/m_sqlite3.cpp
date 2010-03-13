@@ -88,11 +88,11 @@ class SQLConn : public SQLProvider
 		sqlite3_close(conn);
 	}
 
-	void Query(SQLQuery* query)
+	void Query(SQLQuery* query, const std::string& q)
 	{
 		SQLite3Result res;
 		sqlite3_stmt *stmt;
-		int err = sqlite3_prepare_v2(conn, query->query.c_str(), query->query.length(), &stmt, NULL);
+		int err = sqlite3_prepare_v2(conn, q.c_str(), q.length(), &stmt, NULL);
 		if (err != SQLITE_OK)
 		{
 			SQLerror error(SQL_QSEND_FAIL, sqlite3_errmsg(conn));
@@ -136,7 +136,13 @@ class SQLConn : public SQLProvider
 		sqlite3_finalize(stmt);
 	}
 
-	std::string FormatQuery(const std::string& q, const ParamL& p)
+	virtual void submit(SQLQuery* query, const std::string& q)
+	{
+		Query(query, q);
+		delete query;
+	}
+
+	virtual void submit(SQLQuery* query, const std::string& q, const ParamL& p)
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -146,7 +152,6 @@ class SQLConn : public SQLProvider
 				res.push_back(q[i]);
 			else
 			{
-				// TODO numbered parameter support ('?1')
 				if (param < p.size())
 				{
 					char* escaped = sqlite3_mprintf("%q", p[param++].c_str());
@@ -155,10 +160,10 @@ class SQLConn : public SQLProvider
 				}
 			}
 		}
-		return res;
+		submit(query, res);
 	}
 
-	std::string FormatQuery(const std::string& q, const ParamM& p)
+	virtual void submit(SQLQuery* query, const std::string& q, const ParamM& p)
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -182,13 +187,7 @@ class SQLConn : public SQLProvider
 				}
 			}
 		}
-		return res;
-	}
-	
-	virtual void submit(SQLQuery* query)
-	{
-		Query(query);
-		delete query;
+		submit(query, res);
 	}
 };
 

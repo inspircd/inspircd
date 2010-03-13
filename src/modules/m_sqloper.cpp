@@ -35,10 +35,9 @@ class OpMeQuery : public SQLQuery
 {
  public:
 	const std::string uid, username, password;
-	OpMeQuery(Module* me, const std::string& q, const std::string& u, const std::string& un, const std::string& pw)
-		: SQLQuery(me, q), uid(u), username(un), password(pw)
+	OpMeQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw)
+		: SQLQuery(me), uid(u), username(un), password(pw)
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: query=\"%s\"", q.c_str());
 	}
 
 	void OnResult(SQLResult& res)
@@ -173,7 +172,7 @@ public:
 		userinfo["username"] = username;
 		userinfo["password"] = hash ? hash->hexsum(password) : password;
 
-		SQL->submit(new OpMeQuery(this, SQL->FormatQuery(query, userinfo), user->uuid, username, password));
+		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
 	}
 
 	Version GetVersion()

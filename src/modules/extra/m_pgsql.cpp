@@ -55,6 +55,12 @@ class ReconnectTimer : public Timer
 	virtual void Tick(time_t TIME);
 };
 
+struct QueueItem
+{
+	SQLQuery* c;
+	std::string q;
+	QueueItem(SQLQuery* C, const std::string& Q) : c(C), q(Q) {}
+};
 
 /** PgSQLresult is a subclass of the mostly-pure-virtual class SQLresult.
  * All SQL providers must create their own subclass and define it's methods using that
@@ -126,13 +132,13 @@ class SQLConn : public SQLProvider, public EventHandler
 {
  public:
 	reference<ConfigTag> conf;	/* The <database> entry */
-	std::deque<SQLQuery*> queue;
+	std::deque<QueueItem> queue;
 	PGconn* 		sql;		/* PgSQL database connection handle */
 	SQLstatus		status;		/* PgSQL database connection status */
-	SQLQuery*		qinprog;	/* If there is currently a query in progress */
+	QueueItem		qinprog;	/* If there is currently a query in progress */
 
 	SQLConn(Module* Creator, ConfigTag* tag)
-	: SQLProvider(Creator, "SQL/" + tag->getString("id")), conf(tag), sql(NULL), status(CWRITE), qinprog(NULL)
+	: SQLProvider(Creator, "SQL/" + tag->getString("id")), conf(tag), sql(NULL), status(CWRITE), qinprog(NULL, "")
 	{
 		if (!DoConnect())
 		{
@@ -151,14 +157,14 @@ class SQLConn : public SQLProvider, public EventHandler
 	~SQLConn()
 	{
 		SQLerror err(SQL_BAD_DBID);
-		if (qinprog)
+		if (qinprog.c)
 		{
-			qinprog->OnError(err);
-			delete qinprog;
+			qinprog.c->OnError(err);
+			delete qinprog.c;
 		}
-		for(std::deque<SQLQuery*>::iterator i = queue.begin(); i != queue.end(); i++)
+		for(std::deque<QueueItem>::iterator i = queue.begin(); i != queue.end(); i++)
 		{
-			SQLQuery* q = *i;
+			SQLQuery* q = i->c;
 			q->OnError(err);
 			delete q;
 		}
@@ -262,7 +268,7 @@ class SQLConn : public SQLProvider, public EventHandler
 	void DoConnectedPoll()
 	{
 restart:
-		while (!qinprog && !queue.empty())
+		while (qinprog.q.empty() && !queue.empty())
 		{
 			/* There's no query currently in progress, and there's queries in the queue. */
 			DoQuery(queue.front());
@@ -275,7 +281,7 @@ restart:
 			{
 				/* Nothing happens here */
 			}
-			else if (qinprog)
+			else if (qinprog.c)
 			{
 				/* Fetch the result.. */
 				PGresult* result = PQgetResult(sql);
@@ -301,17 +307,21 @@ restart:
 					case PGRES_FATAL_ERROR:
 					{
 						SQLerror err(SQL_QREPLY_FAIL, PQresultErrorMessage(result));
-						qinprog->OnError(err);
+						qinprog.c->OnError(err);
 						break;
 					}
 					default:
 						/* Other values are not errors */
-						qinprog->OnResult(reply);
+						qinprog.c->OnResult(reply);
 				}
 
-				delete qinprog;
-				qinprog = NULL;
+				delete qinprog.c;
+				qinprog = QueueItem(NULL, "");
 				goto restart;
+			}
+			else
+			{
+				qinprog.q = "";
 			}
 		}
 		else
@@ -366,7 +376,20 @@ restart:
 		}
 	}
 
-	virtual std::string FormatQuery(const std::string& q, const ParamL& p)
+	void submit(SQLQuery *req, const std::string& q)
+	{
+		if (qinprog.q.empty())
+		{
+			DoQuery(QueueItem(req,q));
+		}
+		else
+		{
+			// wait your turn.
+			queue.push_back(QueueItem(req,q));
+		}
+	}
+
+	void submit(SQLQuery *req, const std::string& q, const ParamL& p)
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -376,7 +399,6 @@ restart:
 				res.push_back(q[i]);
 			else
 			{
-				// TODO numbered parameter support ('?1')
 				if (param < p.size())
 				{
 					std::string parm = p[param++];
@@ -393,10 +415,10 @@ restart:
 				}
 			}
 		}
-		return res;
+		submit(req, res);
 	}
 
-	std::string FormatQuery(const std::string& q, const ParamM& p)
+	void submit(SQLQuery *req, const std::string& q, const ParamM& p)
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -428,42 +450,29 @@ restart:
 				}
 			}
 		}
-		return res;
+		submit(req, res);
 	}
 
-	virtual void submit(SQLQuery *req)
-	{
-		if (qinprog)
-		{
-			// wait your turn.
-			queue.push_back(req);
-		}
-		else
-		{
-			DoQuery(req);
-		}
-	}
-
-	void DoQuery(SQLQuery* req)
+	void DoQuery(const QueueItem& req)
 	{
 		if (status != WREAD && status != WWRITE)
 		{
 			// whoops, not connected...
 			SQLerror err(SQL_BAD_CONN);
-			req->OnError(err);
-			delete req;
+			req.c->OnError(err);
+			delete req.c;
 			return;
 		}
 
-		if(PQsendQuery(sql, req->query.c_str()))
+		if(PQsendQuery(sql, req.q.c_str()))
 		{
 			qinprog = req;
 		}
 		else
 		{
 			SQLerror err(SQL_QSEND_FAIL, PQerrorMessage(sql));
-			req->OnError(err);
-			delete req;
+			req.c->OnError(err);
+			delete req.c;
 		}
 	}
 
@@ -477,13 +486,6 @@ restart:
 			sql = NULL;
 		}
 	}
-};
-
-class DummyQuery : public SQLQuery
-{
- public:
-	DummyQuery(Module* me) : SQLQuery(me, "") {}
-	void OnResult(SQLResult& result) {}
 };
 
 class ModulePgSQL : public Module
@@ -558,16 +560,16 @@ class ModulePgSQL : public Module
 		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 		{
 			SQLConn* conn = i->second;
-			if (conn->qinprog && conn->qinprog->creator == mod)
+			if (conn->qinprog.c && conn->qinprog.c->creator == mod)
 			{
-				conn->qinprog->OnError(err);
-				delete conn->qinprog;
-				conn->qinprog = new DummyQuery(this);
+				conn->qinprog.c->OnError(err);
+				delete conn->qinprog.c;
+				conn->qinprog.c = NULL;
 			}
-			std::deque<SQLQuery*>::iterator j = conn->queue.begin();
+			std::deque<QueueItem>::iterator j = conn->queue.begin();
 			while (j != conn->queue.end())
 			{
-				SQLQuery* q = *j;
+				SQLQuery* q = j->c;
 				if (q->creator == mod)
 				{
 					q->OnError(err);

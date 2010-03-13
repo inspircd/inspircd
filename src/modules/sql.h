@@ -127,10 +127,8 @@ class SQLQuery : public classbase
 {
  public:
 	ModuleRef creator;
-	const std::string query;
 
-	SQLQuery(Module* Creator, const std::string& q)
-		: creator(Creator), query(q) {}
+	SQLQuery(Module* Creator) : creator(Creator) {}
 	virtual ~SQLQuery() {}
 
 	virtual void OnResult(SQLResult& result) = 0;
@@ -148,25 +146,26 @@ class SQLProvider : public DataProvider
  public:
 	SQLProvider(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) {}
 	/** Submit an asynchronous SQL request
-	 * @param dbid The database ID to apply the request to
-	 * @param query The query string
-	 * @param callback The callback that the result is sent to
+	 * @param callback The result reporting point
+	 * @param query The hardcoded query string. If you have parameters to substitute, see below.
 	 */
-	virtual void submit(SQLQuery* query) = 0;
+	virtual void submit(SQLQuery* callback, const std::string& query) = 0;
 
-	/** Format a parameterized query string using proper SQL escaping.
-	 * @param q The query string, with '?' parameters
-	 * @param p The parameters to fill in in the '?' slots
+	/** Submit an asynchronous SQL request
+	 * @param callback The result reporting point
+	 * @param format The simple parameterized query string ('?' parameters)
+	 * @param p Parameters to fill in for the '?' entries
 	 */
-	virtual std::string FormatQuery(const std::string& q, const ParamL& p) = 0;
+	virtual void submit(SQLQuery* callback, const std::string& format, const ParamL& p) = 0;
 
-	/** Format a parameterized query string using proper SQL escaping.
-	 * @param q The query string, with '$foo' parameters
-	 * @param p The map to look up parameters in
+	/** Submit an asynchronous SQL request.
+	 * @param callback The result reporting point
+	 * @param format The parameterized query string ('$name' parameters)
+	 * @param p Parameters to fill in for the '$name' entries
 	 */
-	virtual std::string FormatQuery(const std::string& q, const ParamM& p) = 0;
+	virtual void submit(SQLQuery* callback, const std::string& format, const ParamM& p) = 0;
 
-	/** Convenience function */
+	/** Convenience function to prepare a map from a User* */
 	void PopulateUserInfo(User* user, ParamM& userinfo)
 	{
 		userinfo["nick"] = user->nick;
