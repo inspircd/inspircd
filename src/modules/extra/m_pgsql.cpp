@@ -124,19 +124,16 @@ class PgSQLresult : public SQLResult
  */
 class SQLConn : public SQLProvider, public EventHandler
 {
- private:
+ public:
 	reference<ConfigTag> conf;	/* The <database> entry */
 	std::deque<SQLQuery*> queue;
 	PGconn* 		sql;		/* PgSQL database connection handle */
 	SQLstatus		status;		/* PgSQL database connection status */
 	SQLQuery*		qinprog;	/* If there is currently a query in progress */
-	time_t			idle;		/* Time we last heard from the database */
 
- public:
 	SQLConn(Module* Creator, ConfigTag* tag)
 	: SQLProvider(Creator, "SQL/" + tag->getString("id")), conf(tag), sql(NULL), status(CWRITE), qinprog(NULL)
 	{
-		idle = ServerInstance->Time();
 		if (!DoConnect())
 		{
 			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database " + tag->getString("id")); 
@@ -274,11 +271,6 @@ restart:
 
 		if (PQconsumeInput(sql))
 		{
-			/* We just read stuff from the server, that counts as it being alive
-			 * so update the idle-since time :p
-			 */
-			idle = ServerInstance->Time();
-
 			if (PQisBusy(sql))
 			{
 				/* Nothing happens here */
@@ -487,6 +479,13 @@ restart:
 	}
 };
 
+class DummyQuery : public SQLQuery
+{
+ public:
+	DummyQuery(Module* me) : SQLQuery(me, "") {}
+	void OnResult(SQLResult& result) {}
+};
+
 class ModulePgSQL : public Module
 {
  public:
@@ -555,7 +554,30 @@ class ModulePgSQL : public Module
 
 	void OnUnloadModule(Module* mod)
 	{
-		// TODO cancel queries that will have a bad vtable
+		SQLerror err(SQL_BAD_DBID);
+		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
+		{
+			SQLConn* conn = i->second;
+			if (conn->qinprog && conn->qinprog->creator == mod)
+			{
+				conn->qinprog->OnError(err);
+				delete conn->qinprog;
+				conn->qinprog = new DummyQuery(this);
+			}
+			std::deque<SQLQuery*>::iterator j = conn->queue.begin();
+			while (j != conn->queue.end())
+			{
+				SQLQuery* q = *j;
+				if (q->creator == mod)
+				{
+					q->OnError(err);
+					delete q;
+					j = conn->queue.erase(j);
+				}
+				else
+					j++;
+			}
+		}
 	}
 
 	Version GetVersion()
