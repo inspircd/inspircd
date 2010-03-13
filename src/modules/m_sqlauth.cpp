@@ -97,7 +97,6 @@ class ModuleSQLAuth : public Module
 		killreason = conf->getString("killreason");
 		allowpattern = conf->getString("allowpattern");
 		verbose = conf->getBool("verbose");
-		SQL.lookup();
 	}
 
 	void OnUserRegister(LocalUser* user)
@@ -112,6 +111,14 @@ class ModuleSQLAuth : public Module
 
 		if (pendingExt.get(user))
 			return;
+
+		if (!SQL)
+		{
+			ServerInstance->SNO->WriteGlobalSno('a', "Forbiding connection from %s!%s@%s (SQL database not present)",
+				user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+			ServerInstance->Users->QuitUser(user, killreason);
+			return;
+		}
 
 		pendingExt.set(user, AUTH_STATE_BUSY);
 
