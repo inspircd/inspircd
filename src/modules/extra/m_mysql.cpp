@@ -229,7 +229,7 @@ class SQLConnection : public SQLProvider
 
 	// This constructor creates an SQLConnection object with the given credentials, but does not connect yet.
 	SQLConnection(Module* p, ConfigTag* tag) : SQLProvider(p, "SQL/" + tag->getString("id")),
-		config(tag)
+		config(tag), connection(NULL)
 	{
 	}
 
@@ -288,11 +288,9 @@ class SQLConnection : public SQLProvider
 
 	bool CheckConnection()
 	{
-		if (mysql_ping(connection) != 0)
-		{
+		if (!connection || mysql_ping(connection) != 0)
 			return Connect();
-		}
-		else return true;
+		return true;
 	}
 
 	std::string GetError()
