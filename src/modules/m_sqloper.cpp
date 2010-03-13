@@ -35,15 +35,15 @@ class OpMeQuery : public SQLQuery
 {
  public:
 	const std::string uid, username, password;
-	OpMeQuery(Module* me, const std::string& db, const std::string& q, const std::string& u, const std::string& un, const std::string& pw)
-		: SQLQuery(me, db, q), uid(u), username(un), password(pw)
+	OpMeQuery(Module* me, const std::string& q, const std::string& u, const std::string& un, const std::string& pw)
+		: SQLQuery(me, q), uid(u), username(un), password(pw)
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: db=%s query=\"%s\"", db.c_str(), q.c_str());
+		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: query=\"%s\"", q.c_str());
 	}
 
 	void OnResult(SQLResult& res)
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result on db=%s for %s", dbid.c_str(), uid.c_str());
+		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
@@ -128,7 +128,6 @@ class OpMeQuery : public SQLQuery
 
 class ModuleSQLOper : public Module
 {
-	std::string databaseid;
 	std::string query;
 	std::string hashtype;
 	dynamic_reference<SQLProvider> SQL;
@@ -148,7 +147,8 @@ public:
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
 
-		databaseid = tag->getString("dbid");
+		SQL.SetProvider("SQL/" + tag->getString("dbid"));
+		SQL.lookup();
 		hashtype = tag->getString("hash");
 		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password'");
 	}
@@ -173,7 +173,7 @@ public:
 		userinfo["username"] = username;
 		userinfo["password"] = hash ? hash->hexsum(password) : password;
 
-		SQL->submit(new OpMeQuery(this, databaseid, SQL->FormatQuery(query, userinfo), user->uuid, username, password));
+		SQL->submit(new OpMeQuery(this, SQL->FormatQuery(query, userinfo), user->uuid, username, password));
 	}
 
 	Version GetVersion()

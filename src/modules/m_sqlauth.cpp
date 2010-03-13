@@ -29,10 +29,10 @@ class AuthQuery : public SQLQuery
 	const std::string uid;
 	LocalIntExt& pendingExt;
 	bool verbose;
-	AuthQuery(Module* me, const std::string& db, const std::string& q, const std::string& u, LocalIntExt& e, bool v)
-		: SQLQuery(me, db, q), uid(u), pendingExt(e), verbose(v)
+	AuthQuery(Module* me, const std::string& q, const std::string& u, LocalIntExt& e, bool v)
+		: SQLQuery(me, q), uid(u), pendingExt(e), verbose(v)
 	{
-		ServerInstance->Logs->Log("m_sqlauth",DEBUG, "SQLAUTH: db=%s query=\"%s\"", db.c_str(), q.c_str());
+		ServerInstance->Logs->Log("m_sqlauth",DEBUG, "SQLAUTH: query=\"%s\"", q.c_str());
 	}
 	
 	void OnResult(SQLResult& res)
@@ -71,7 +71,6 @@ class ModuleSQLAuth : public Module
 	std::string freeformquery;
 	std::string killreason;
 	std::string allowpattern;
-	std::string databaseid;
 	bool verbose;
 
  public:
@@ -91,11 +90,12 @@ class ModuleSQLAuth : public Module
 	{
 		ConfigReader Conf;
 
-		databaseid	= Conf.ReadValue("sqlauth", "dbid", 0);			/* Database ID, given to the SQL service provider */
+		SQL.SetProvider("SQL/" + Conf.ReadValue("sqlauth", "dbid", 0));		/* Database ID, given to the SQL service provider */
 		freeformquery	= Conf.ReadValue("sqlauth", "query", 0);	/* Field name where username can be found */
 		killreason	= Conf.ReadValue("sqlauth", "killreason", 0);	/* Reason to give when access is denied to a user (put your reg details here) */
 		allowpattern	= Conf.ReadValue("sqlauth", "allowpattern",0 );	/* Allow nicks matching this pattern without requiring auth */
 		verbose		= Conf.ReadFlag("sqlauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
+		SQL.lookup();
 	}
 
 	ModResult OnUserRegister(LocalUser* user)
@@ -125,7 +125,7 @@ class ModuleSQLAuth : public Module
 		if (sha256)
 			userinfo["sha256pass"] = sha256->hexsum(user->password);
 
-		SQL->submit(new AuthQuery(this, databaseid, SQL->FormatQuery(freeformquery, userinfo), user->uuid, pendingExt, verbose));
+		SQL->submit(new AuthQuery(this, SQL->FormatQuery(freeformquery, userinfo), user->uuid, pendingExt, verbose));
 
 		return MOD_RES_PASSTHRU;
 	}

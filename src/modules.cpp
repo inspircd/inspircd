@@ -437,6 +437,32 @@ void ModuleManager::AddService(ServiceProvider& item)
 	}
 }
 
+void ModuleManager::DelService(ServiceProvider& item)
+{
+	switch (item.service)
+	{
+		case SERVICE_MODE:
+			if (!ServerInstance->Modes->DelMode(static_cast<ModeHandler*>(&item)))
+				throw ModuleException("Mode "+std::string(item.name)+" does not exist.");
+			return;
+		case SERVICE_DATA:
+		case SERVICE_IOHOOK:
+		{
+			for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+			{
+				std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
+				if (curr->second == &item)
+					DataProviders.erase(curr);
+			}
+			for(unsigned int i = 0; i < ServerInstance->Modules->ActiveDynrefs.size(); i++)
+				ServerInstance->Modules->ActiveDynrefs[i]->ClearCache();
+			return;
+		}
+		default:
+			throw ModuleException("Cannot delete unknown service type");
+	}
+}
+
 ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string& name)
 {
 	switch (type)

@@ -1615,6 +1615,9 @@ class CoreExport ModuleManager
 	/** Register a service provided by a module */
 	void AddService(ServiceProvider&);
 
+	/** Unregister a service provided by a module */
+	void DelService(ServiceProvider&);
+
 	inline void AddServices(ServiceProvider** list, int count)
 	{
 		for(int i=0; i < count; i++)

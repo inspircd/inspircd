@@ -21,7 +21,7 @@
 /* $NoPedantic */
 
 class SQLConn;
-typedef std::map<std::string, reference<SQLConn> > ConnMap;
+typedef std::map<std::string, SQLConn*> ConnMap;
 
 class SQLite3Result : public SQLResult
 {
@@ -64,14 +64,14 @@ class SQLite3Result : public SQLResult
 	}
 };
 
-class SQLConn : public refcountbase
+class SQLConn : public SQLProvider
 {
  private:
 	sqlite3* conn;
 	reference<ConfigTag> config;
 
  public:
-	SQLConn(ConfigTag* tag) : config(tag)
+	SQLConn(Module* Parent, ConfigTag* tag) : SQLProvider(Parent, "SQL/" + tag->getString("id")), config(tag)
 	{
 		std::string host = tag->getString("hostname");
 		if (sqlite3_open_v2(host.c_str(), &conn, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
@@ -134,14 +134,6 @@ class SQLConn : public refcountbase
 		}
 		sqlite3_finalize(stmt);
 	}
-};
-
-class SQLiteProvider : public SQLProvider
-{
- public:
-	ConnMap hosts;
-
-	SQLiteProvider(Module* Parent) : SQLProvider(Parent, "SQL/SQLite") {}
 
 	std::string FormatQuery(const std::string& q, const ParamL& p)
 	{
@@ -192,18 +184,9 @@ class SQLiteProvider : public SQLProvider
 		return res;
 	}
 	
-	void submit(SQLQuery* query)
+	virtual void submit(SQLQuery* query)
 	{
-		ConnMap::iterator iter = hosts.find(query->dbid);
-		if (iter == hosts.end())
-		{
-			SQLerror err(SQL_BAD_DBID);
-			query->OnError(err);
-		}
-		else
-		{
-			iter->second->Query(query);
-		}
+		Query(query);
 		delete query;
 	}
 };
@@ -211,18 +194,15 @@ class SQLiteProvider : public SQLProvider
 class ModuleSQLite3 : public Module
 {
  private:
-	SQLiteProvider sqlserv;
+	ConnMap conns;
 
  public:
 	ModuleSQLite3()
-	: sqlserv(this)
 	{
 	}
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(sqlserv);
-
 		ReadConf();
 
 		Implementation eventlist[] = { I_OnRehash };
@@ -231,15 +211,31 @@ class ModuleSQLite3 : public Module
 
 	virtual ~ModuleSQLite3()
 	{
+		ClearConns();
+	}
+
+	void ClearConns()
+	{
+		for(ConnMap::iterator i = conns.begin(); i != conns.end(); i++)
+		{
+			SQLConn* conn = i->second;
+			ServerInstance->Modules->DelService(*conn);
+			delete conn;
+		}
+		conns.clear();
 	}
 
 	void ReadConf()
 	{
-		sqlserv.hosts.clear();
+		ClearConns();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
 		{
-			sqlserv.hosts.insert(std::make_pair(i->second->getString("id"), new SQLConn(i->second)));
+			if (i->second->getString("module", "sqlite") != "sqlite")
+				continue;
+			SQLConn* conn = new SQLConn(this, i->second);
+			conns.insert(std::make_pair(i->second->getString("id"), conn));
+			ServerInstance->Modules->AddService(*conn);
 		}
 	}
 

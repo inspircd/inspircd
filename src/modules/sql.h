@@ -127,11 +127,10 @@ class SQLQuery : public classbase
 {
  public:
 	ModuleRef creator;
-	const std::string dbid;
 	const std::string query;
 
-	SQLQuery(Module* Creator, const std::string& db, const std::string& q)
-		: creator(Creator), dbid(db), query(q) {}
+	SQLQuery(Module* Creator, const std::string& q)
+		: creator(Creator), query(q) {}
 	virtual ~SQLQuery() {}
 
 	virtual void OnResult(SQLResult& result) = 0;
