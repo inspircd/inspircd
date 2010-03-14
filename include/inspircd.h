@@ -429,6 +429,10 @@ class CoreExport InspIRCd
 	 */
 	LocalIntExt NICKForced;
 
+	/** Holds extensible for user connect class forcing
+	 */
+	LocalStringExt ForcedClass;
+
 	/** Holds extensible for user operquit
 	 */
 	LocalStringExt OperQuit;

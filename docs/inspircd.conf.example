@@ -282,14 +282,15 @@
          # module be loaded as well.
          modes="+x"
 
-         # requireident, requiressl, requireaccount: require that users of this
-         # block have a valid ident response, use SSL, or have authenticated.
-         # Requires m_ident, m_sslinfo, or m_services_account respectively.
-         requiressl="on"
-         # NOTE: For requireaccount, you must complete the signon prior to full
-         # connection. Currently, this is only possible by using SASL
-         # authentication; passforward and PRIVMSG NickServ happen after
-         # your final connect block has been found.
+	# requireident, requiressl, requireaccount, requiresqlauth:
+	# require that users of this block have a valid ident response, use SSL,
+	# have authenticated to an account, or have passed SQLauth.
+	# Requires m_ident, m_sslinfo, m_account/m_services_account, or m_sqlauth
+	requiressl="on"
+	# NOTE: For requireaccount, you must complete the signon prior to full
+	# connection. Passforward and PRIVMSG NickServ happen after your final
+	# connect block has been found. Methods for authenticating prior to full
+	# connect include SASL, m_account_auth, and m_sqlauth.
 
          # Alternate MOTD file for this connect class. The contents of this file are
          # specified using <files secretmotd="filename"> or <execfiles ...>

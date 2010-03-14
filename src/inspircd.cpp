@@ -298,6 +298,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * themselves within the class.
 	  */
 	 NICKForced("NICKForced", NULL),
+	 ForcedClass("ForcedClass", NULL),
 	 OperQuit("OperQuit", NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),

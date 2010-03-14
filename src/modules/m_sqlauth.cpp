@@ -20,7 +20,8 @@
 enum AuthState {
 	AUTH_STATE_NONE = 0,
 	AUTH_STATE_BUSY = 1,
-	AUTH_STATE_FAIL = 2
+	AUTH_STATE_FAIL = 2,
+	AUTH_STATE_OK   = 3
 };
 
 class AuthQuery : public SQLQuery
@@ -39,9 +40,20 @@ class AuthQuery : public SQLQuery
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
-		if (res.Rows())
+		SQLEntries result;
+		if (res.GetRow(result))
 		{
-			pendingExt.set(user, AUTH_STATE_NONE);
+			std::vector<std::string> cols;
+			res.GetCols(cols);
+			std::string acct, tag;
+			for(unsigned int i=0; i < cols.size(); i++)
+			{
+				if (result[i].nul)
+					continue;
+				if (cols[i] == "class")
+					ServerInstance->ForcedClass.set(user, result[i].value);
+			}
+			pendingExt.set(user, AUTH_STATE_OK);
 		}
 		else
 		{
@@ -68,8 +80,6 @@ class ModuleSQLAuth : public Module
 	dynamic_reference<SQLProvider> SQL;
 
 	std::string freeformquery;
-	std::string killreason;
-	std::string allowpattern;
 	bool verbose;
 
  public:
@@ -94,8 +104,6 @@ class ModuleSQLAuth : public Module
 		else
 			SQL.SetProvider("SQL/" + dbid);
 		freeformquery = conf->getString("query");
-		killreason = conf->getString("killreason");
-		allowpattern = conf->getString("allowpattern");
 		verbose = conf->getBool("verbose");
 	}
 
@@ -106,17 +114,13 @@ class ModuleSQLAuth : public Module
 		if (!tag->getBool("usesqlauth", true))
 			return;
 
-		if (!allowpattern.empty() && InspIRCd::Match(user->nick,allowpattern))
-			return;
-
 		if (pendingExt.get(user))
 			return;
 
 		if (!SQL)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "Forbiding connection from %s!%s@%s (SQL database not present)",
-				user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-			ServerInstance->Users->QuitUser(user, killreason);
+			ServerInstance->SNO->WriteGlobalSno('a', "SQLAUTH: No database present, connection denied");
+			pendingExt.set(user, AUTH_STATE_FAIL);
 			return;
 		}
 
@@ -139,16 +143,15 @@ class ModuleSQLAuth : public Module
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		switch (pendingExt.get(user))
-		{
-			case AUTH_STATE_NONE:
-				return MOD_RES_PASSTHRU;
-			case AUTH_STATE_BUSY:
-				return MOD_RES_DENY;
-			case AUTH_STATE_FAIL:
-				ServerInstance->Users->QuitUser(user, killreason);
-				return MOD_RES_DENY;
-		}
+		if (pendingExt.get(user) == AUTH_STATE_BUSY)
+			return MOD_RES_DENY;
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	{
+		if (myclass->config->getBool("requiresqlauth", false) && pendingExt.get(user) == AUTH_STATE_FAIL)
+			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 

@@ -801,7 +801,16 @@ void LocalUser::FullConnect()
 	 * may put the user into a totally seperate class with different restrictions! so we *must* check again.
 	 * Don't remove this! -- w00t
 	 */
-	SetClass();
+	if (ServerInstance->ForcedClass.get(this))
+	{
+		std::string* cls = ServerInstance->ForcedClass.get(this);
+		SetClass(*cls);
+		ServerInstance->ForcedClass.unset(this);
+	}
+	else
+	{
+		SetClass();
+	}
 	CheckClass();
 	CheckLines();
 
