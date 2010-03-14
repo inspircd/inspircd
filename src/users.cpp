@@ -1393,7 +1393,9 @@ void User::DoHostCycle(const std::string &quitline)
 		{
 			for(unsigned int i=0; i < memb->modes.length(); i++)
 				modeline.append(" ").append(nick);
-			snprintf(buffer, MAXBUF, ":%s MODE %s +%s", GetFullHost().c_str(), c->name.c_str(), modeline.c_str());
+			snprintf(buffer, MAXBUF, ":%s MODE %s +%s",
+				ServerInstance->Config->CycleHostsFromUser ? GetFullHost().c_str() : ServerInstance->Config->ServerName.c_str(),
+				c->name.c_str(), modeline.c_str());
 			modeline = buffer;
 		}
 

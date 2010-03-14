@@ -491,6 +491,11 @@ class CoreExport ServerConfig
 	 */
 	bool CycleHosts;
 
+	/** If set to true, the CycleHosts mode change will be sourced from the user,
+	 * rather than the server
+	 */
+	bool CycleHostsFromUser;
+
 	/** If set to true, prefixed channel NOTICEs and PRIVMSGs will have the prefix
 	 *  added to the outgoing text for undernet style msg prefixing.
 	 */
