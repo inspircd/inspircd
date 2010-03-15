@@ -514,28 +514,24 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 			return;
 		}
 
-		ModResult res;
-
 		PermissionData perm(src, "kick", this, memb->user);
+		int them = this->GetPrefixValue(src);
+		int us = this->GetPrefixValue(user);
+		if (them < us)
+		{
+			perm.result = MOD_RES_DENY;
+			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :They have a higher prefix set", this->name.c_str());
+		}
+		if (them < HALFOP_VALUE)
+			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to kick in this channel", this->name.c_str());
+
 		FOR_EACH_MOD(OnPermissionCheck, (perm));
 
-		if (res == MOD_RES_DENY)
+		if (!perm.result.check(them >= HALFOP_VALUE))
 		{
 			if (!perm.reason.empty())
 				src->SendText(perm.reason);
 			return;
-		}
-
-		if (res == MOD_RES_PASSTHRU)
-		{
-			int them = this->GetPrefixValue(src);
-			int us = this->GetPrefixValue(user);
-			if (them < us || them < HALFOP_VALUE)
-			{
-				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :They have a higher prefix set",
-					src->nick.c_str(), this->name.c_str());
-				return;
-			}
 		}
 	}
 
