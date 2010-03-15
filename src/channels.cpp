@@ -392,9 +392,8 @@ Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, 
 	for(unsigned int i=0; i < memb->modes.length(); i++)
 		ms.append(" ").append(user->nick);
 	if ((Ptr->GetUserCounter() > 1) && (ms.length()))
-		Ptr->WriteAllExceptSender(user, true, 0, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
+		Ptr->WriteAllExceptSender(user, ServerInstance->Config->CycleHostsFromUser, 0, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
 
-	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
 	if (IS_LOCAL(user))
 	{
 		if (Ptr->topicset)
