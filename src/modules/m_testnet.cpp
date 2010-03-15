@@ -91,7 +91,9 @@ template<typename T> vtbase* vtinit(T t)
 static void checkall(Module* noimpl)
 {
 	std::vector<std::string> allmods = ServerInstance->Modules->GetAllModuleNames(0);
+	int seen = 0;
 #define CHK(name) do { \
+	seen++; \
 	vtbase* vt = vtinit(&Module::name); \
 	vt->isok(#name, I_ ## name, noimpl, allmods); \
 	delete vt; \
@@ -145,14 +147,11 @@ static void checkall(Module* noimpl)
 	CHK(OnCheckChannelBan);
 	CHK(OnExtBanCheck);
 	CHK(OnStats);
-	CHK(OnChangeLocalUserHost);
 	CHK(OnPostTopicChange);
 	CHK(OnEvent);
-	CHK(OnGlobalOper);
 	CHK(OnPostConnect);
 	CHK(OnAddBan);
 	CHK(OnDelBan);
-	CHK(OnChangeLocalUserGECOS);
 	CHK(OnUserRegister);
 	CHK(OnChannelPreDelete);
 	CHK(OnChannelDelete);
@@ -172,6 +171,8 @@ static void checkall(Module* noimpl)
 	CHK(OnModuleRehash);
 	CHK(OnSendWhoLine);
 	CHK(OnChangeIdent);
+	if (seen != I_END - 1)
+		ServerInstance->SNO->WriteToSnoMask('a', "Only checked %d/%d hooks", seen, I_END - 1);
 }
 
 class CommandTest : public Command

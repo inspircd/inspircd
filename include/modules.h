@@ -224,6 +224,9 @@ typedef VersionBase<API_VERSION> Version;
  * When this class is properly instantiated it may be sent to a module
  * using the Send() method, which will call the given module's OnRequest
  * method with this class as its parameter.
+ *
+ * You should consider using direct RPC via dynamic_reference rather than
+ * using this class.
  */
 class CoreExport Request : public classbase
 {
@@ -255,7 +258,7 @@ class CoreExport Request : public classbase
 };
 
 
-/** The Event class is a unicast message directed at all modules.
+/** The Event class is a broadcast message directed at all modules.
  * When the class is properly instantiated it may be sent to all modules
  * using the Send() method, which will trigger the OnEvent method in
  * all modules passing the object as its parameter.
@@ -344,9 +347,9 @@ enum Implementation
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnStats, I_OnChangeLocalUserHost, I_OnPermissionCheck,
-	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
-	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
+	I_OnStats, I_OnPermissionCheck,
+	I_OnPostTopicChange, I_OnEvent, I_OnPostConnect, I_OnAddBan,
+	I_OnDelBan, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric,
@@ -1061,22 +1064,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnStats(char symbol, User* user, string_list &results);
 
-	/** Called whenever a change of a local users displayed host is attempted.
-	 * Return 1 to deny the host change, or 0 to allow it.
-	 * @param user The user whos host will be changed
-	 * @param newhost The new hostname
-	 * @return 1 to deny the host change, 0 to allow
-	 */
-	virtual ModResult OnChangeLocalUserHost(LocalUser* user, const std::string &newhost);
-
-	/** Called whenever a change of a local users GECOS (fullname field) is attempted.
-	 * return 1 to deny the name change, or 0 to allow it.
-	 * @param user The user whos GECOS will be changed
-	 * @param newhost The new GECOS
-	 * @return 1 to deny the GECOS change, 0 to allow
-	 */
-	virtual ModResult OnChangeLocalUserGECOS(LocalUser* user, const std::string &newhost);
-
 	/** Called whenever a topic has been changed.
 	 * @param user The user changing the topic
 	 * @param chan The channels who's topic is being changed
@@ -1107,14 +1094,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return 0 to do nothing (pass on to next module/default), 1 == password is OK, -1 == password is not OK
 	 */
 	virtual ModResult OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
-
-	/** Called whenever a user is given usermode +o, anywhere on the network.
-	 * You cannot override this and prevent it from happening as it is already happened and
-	 * such a task must be performed by another server. You can however bounce modes by sending
-	 * servermodes out to reverse mode changes.
-	 * @param user The user who is opering
-	 */
-	virtual void OnGlobalOper(User* user);
 
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this

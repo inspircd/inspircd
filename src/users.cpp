@@ -1363,14 +1363,7 @@ bool User::ChangeName(const char* gecos)
 	if (!this->fullname.compare(gecos))
 		return true;
 
-	if (IS_LOCAL(this))
-	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnChangeLocalUserGECOS, MOD_RESULT, (IS_LOCAL(this),gecos));
-		if (MOD_RESULT == MOD_RES_DENY)
-			return false;
-		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
-	}
+	FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
 	this->fullname.assign(gecos, 0, ServerInstance->Config->Limits.MaxGecos);
 
 	return true;
@@ -1447,14 +1440,6 @@ bool User::ChangeDisplayedHost(const char* shost)
 {
 	if (dhost == shost)
 		return true;
-
-	if (IS_LOCAL(this))
-	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnChangeLocalUserHost, MOD_RESULT, (IS_LOCAL(this),shost));
-		if (MOD_RESULT == MOD_RES_DENY)
-			return false;
-	}
 
 	FOREACH_MOD(I_OnChangeHost, OnChangeHost(this,shost));
 
