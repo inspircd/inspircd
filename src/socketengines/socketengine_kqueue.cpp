@@ -229,7 +229,7 @@ int KQueueEngine::DispatchEvents()
 			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
 			eh->HandleEvent(EVENT_WRITE);
 
-			if (eh != ref[ke_list[j].ident];
+			if (eh != ref[ke_list[j].ident])
 				// whoops, deleted out from under us
 				continue;
 		}
