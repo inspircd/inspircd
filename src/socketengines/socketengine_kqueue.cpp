@@ -39,7 +39,7 @@ public:
 	virtual ~KQueueEngine();
 	bool AddFd(EventHandler* eh, int event_mask);
 	void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual bool DelFd(EventHandler* eh);
+	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 	virtual void RecoverFromFork();
