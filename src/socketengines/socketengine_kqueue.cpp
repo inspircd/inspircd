@@ -39,7 +39,7 @@ public:
 	virtual ~KQueueEngine();
 	bool AddFd(EventHandler* eh, int event_mask);
 	void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual bool DelFd(EventHandler* eh);
+	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 	virtual void RecoverFromFork();
@@ -229,7 +229,7 @@ int KQueueEngine::DispatchEvents()
 			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
 			eh->HandleEvent(EVENT_WRITE);
 
-			if (eh != ref[ke_list[j].ident];
+			if (eh != ref[ke_list[j].ident])
 				// whoops, deleted out from under us
 				continue;
 		}
