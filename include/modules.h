@@ -1579,8 +1579,11 @@ struct AllModuleList {
 };
 
 #define MODULE_INIT(x) static Module* MK_ ## x() { return new x; } \
-	static const AllModuleList PREP_ ## x(&MK_ ## x, #x);
+	static const AllModuleList PREP_ ## x(&MK_ ## x, MODNAMESTR);
 
+#define MODNAMESTR MODNAMESTR_FN_2(MODNAME)
+#define MODNAMESTR_FN_2(x) MODNAMESTR_FN_1(x)
+#define MODNAMESTR_FN_1(x) #x
 
 #else
 
