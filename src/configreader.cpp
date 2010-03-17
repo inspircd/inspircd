@@ -420,6 +420,7 @@ void ServerConfig::Fill()
 	NoUserDns = ConfValue("performance")->getBool("nouserdns");
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHosts = options->getBool("cyclehosts");
+	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
 	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getInt("maxtargets", 20);
