@@ -286,9 +286,12 @@ static bool ValidateDnsServer(ServerConfig* conf, const char*, const char*, Valu
 				if ((nameserver == "nameserver") && (!found_server))
 				{
 					resolv >> nameserver;
-					data.Set(nameserver.c_str());
-					found_server = true;
-					conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+					if (nameserver.find_first_not_of("0123456789.") == std::string::npos)
+					{
+						data.Set(nameserver.c_str());
+						found_server = true;
+						conf->GetInstance()->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",nameserver.c_str());
+					}
 				}
 			}
 
