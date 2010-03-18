@@ -176,8 +176,11 @@ static void FindDNS(std::string& server)
 		if (server == "nameserver")
 		{
 			resolv >> server;
-			ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",server.c_str());
-			return;
+			if (server.find_first_not_of("0123456789.") == std::string::npos)
+			{
+				ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",server.c_str());
+				return;
+			}
 		}
 	}
 
