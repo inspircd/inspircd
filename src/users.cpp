@@ -1622,7 +1622,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 					continue;
 			}
 
-			if (!c->config->getString("pass").empty())
+			if (regdone && !c->config->getString("pass").empty())
 			{
 				if (ServerInstance->PassCompare(this, c->config->getString("pass"), password, c->config->getString("hash")))
 				{
