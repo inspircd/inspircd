@@ -1,9 +1,13 @@
+#define MODNAME AllModule
+
 #include "inspircd.h"
+#include "exitcodes.h"
 
 #ifdef PURE_STATIC
 
+typedef std::map<std::string, AllModuleList*> modmap;
 static std::vector<AllCommandList::fn>* cmdlist = NULL;
-static std::vector<AllModuleList*>* modlist = NULL;
+static modmap* modlist = NULL;
 
 AllCommandList::AllCommandList(fn cmd)
 {
@@ -15,8 +19,8 @@ AllCommandList::AllCommandList(fn cmd)
 AllModuleList::AllModuleList(AllModuleList::fn mod, const std::string& Name) : init(mod), name(Name)
 {
 	if (!modlist)
-		modlist = new std::vector<AllModuleList*>();
-	modlist->push_back(this);
+		modlist = new modmap();
+	modlist->insert(std::make_pair(Name, this));
 }
 
 class AllModule : public Module
@@ -58,31 +62,54 @@ class AllModule : public Module
 
 MODULE_INIT(AllModule)
 
-bool ModuleManager::Load(const std::string& name, bool)
+bool ModuleManager::Load(const std::string& name, bool defer)
 {
-	for(std::vector<AllModuleList*>::iterator i = modlist->begin(); i != modlist->end(); ++i)
+	modmap::iterator it = modlist->find(name);
+	if (it == modlist->end())
+		return false;
+	Module* mod = NULL;
+	try
 	{
-		if ((**i).name == name)
+		mod = (*it->second->init)();
+		mod->ModuleSourceFile = name;
+		mod->ModuleDLLManager = NULL;
+		Modules[name] = mod;
+		if (defer)
 		{
-			Module* c = NULL;
-			try
-			{
-				c = (*(**i).init)();
-				Modules[name] = c;
-				c->init();
-				FOREACH_MOD(I_OnLoadModule,OnLoadModule(c));
-				return true;
-			}
-			catch (CoreException& modexcept)
-			{
-				if (c)
-					DoSafeUnload(c);
-				delete c;
-				ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + (**i).name + ": " + modexcept.GetReason());
-			}
+			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s", name.c_str());
+			return true;
+		}
+		else
+		{
+			mod->init();
 		}
 	}
-	return false;
+	catch (CoreException& modexcept)
+	{
+		if (mod)
+			DoSafeUnload(mod);
+		ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + name + ": " + modexcept.GetReason());
+		return false;
+	}
+	FOREACH_MOD(I_OnLoadModule,OnLoadModule(mod));
+	/* We give every module a chance to re-prioritize when we introduce a new one,
+	 * not just the one thats loading, as the new module could affect the preference
+	 * of others
+	 */
+	for(int tries = 0; tries < 20; tries++)
+	{
+		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
+		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
+			n->second->Prioritize();
+
+		if (prioritizationState == PRIO_STATE_LAST)
+			break;
+		if (tries == 19)
+			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + name);
+	}
+
+	ServerInstance->BuildISupport();
+	return true;
 }
 
 namespace {
@@ -134,24 +161,36 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 
 void ModuleManager::LoadAll()
 {
-	ModCount = 0;
-	for(std::vector<AllModuleList*>::iterator i = modlist->begin(); i != modlist->end(); ++i)
+	Load("AllModule", true);
+
+	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
+	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		Module* c = NULL;
-		try
+		ConfigTag* tag = i->second;
+		std::string name = tag->getString("name");
+		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",name.c_str());
+
+		if (!this->Load(name, true))
 		{
-			c = (*(**i).init)();
-			c->ModuleSourceFile = (**i).name;
-			c->ModuleDLLManager = NULL;
-			Modules[(**i).name] = c;
-			c->init();
+			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
+			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+
+	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
+	{
+		Module* mod = i->second;
+		try 
+		{
+			mod->init();
 		}
 		catch (CoreException& modexcept)
 		{
-			if (c)
-				DoSafeUnload(c);
-			delete c;
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + (**i).name + ": " + modexcept.GetReason());
+			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
+			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", LastModuleError.c_str());
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
 
@@ -168,10 +207,11 @@ void ModuleManager::LoadAll()
 		if (prioritizationState == PRIO_STATE_LAST)
 			break;
 		if (tries == 19)
+		{
 			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected");
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
 	}
-
-	ServerInstance->BuildISupport();
 }
 
 void ModuleManager::UnloadAll()

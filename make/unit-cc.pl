@@ -29,6 +29,10 @@ my $cflags = $ENV{CXXFLAGS};
 $cflags =~ s/ -pedantic// if nopedantic($file);
 $cflags .= ' ' . getcompilerflags($file);
 
+if ($file =~ m#(?:^|/)((?:m|cmd)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
+	$cflags .= ' -DMODNAME='.$1.'.so';
+}
+
 my $flags;
 if ($out =~ /\.so$/) {
 	$flags = join ' ', $cflags, $ENV{PICLDFLAGS}, getlinkerflags($file);
