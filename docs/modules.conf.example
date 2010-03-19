@@ -448,7 +448,7 @@
 	# grantadmin/grantfounder: when set to yes, +a users will be able to
 	# grant +a on other users (or +q to +q). Founder can always set/unset
 	# admin mode.
-	grantadmin="no" grantfounder"yes">
+	grantadmin="no" grantfounder="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

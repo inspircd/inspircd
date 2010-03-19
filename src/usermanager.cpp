@@ -111,6 +111,8 @@ void UserManager::AddUser(LocalUser* New, ListenSocket* via)
 	 * BOPM and other stuff requires it.
 	 */
 	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
+	if (ServerInstance->Config->RawLog)
+		New->WriteServ("NOTICE Auth :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
 	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
 

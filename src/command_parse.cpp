@@ -354,7 +354,7 @@ bool CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
 	if (!user || buffer.empty())
 		return true;
 
-	ServerInstance->Logs->Log("USERINPUT", DEBUG, "C[%s] I :%s %s",
+	ServerInstance->Logs->Log("USERINPUT", RAWIO, "C[%s] I :%s %s",
 		user->uuid.c_str(), user->nick.c_str(), buffer.c_str());
 	return ProcessCommand(user,buffer);
 }

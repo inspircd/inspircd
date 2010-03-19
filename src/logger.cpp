@@ -69,7 +69,12 @@ void LogManager::OpenFileLogs()
 		std::string type = tag->getString("type");
 		std::string level = tag->getString("level");
 		int loglevel = DEFAULT;
-		if (level == "debug")
+		if (level == "rawio")
+		{
+			loglevel = RAWIO;
+			ServerInstance->Config->RawLog = true;
+		}
+		else if (level == "debug")
 		{
 			loglevel = DEBUG;
 		}
