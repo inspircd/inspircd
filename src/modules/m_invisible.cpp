@@ -104,8 +104,16 @@ class ModuleInvisible : public Module
  private:
 	InvisibleMode qm;
 	InvisibleDeOper ido;
+	bool hidejoin;
+	bool hidelist;
+	bool hidewho;
+	bool hidemsg;
  public:
 	ModuleInvisible() : qm(this), ido(this)
+	{
+	}
+
+	void init()
 	{
 		if (!ServerInstance->Modes->AddMode(&qm))
 			throw ModuleException("Could not add new modes!");
@@ -116,9 +124,11 @@ class ModuleInvisible : public Module
 		ServerInstance->Users->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
 		Implementation eventlist[] = {
 			I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserJoin,
-			I_OnBuildNeighborList, I_OnSendWhoLine, I_OnNamesListItem
+			I_OnBuildNeighborList, I_OnSendWhoLine, I_OnNamesListItem,
+			I_OnRehash
 		};
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		ServerInstance->Modules->Attach(eventlist, this, 7);
+		OnRehash(NULL);
 	};
 
 	~ModuleInvisible()
@@ -128,6 +138,14 @@ class ModuleInvisible : public Module
 			ServerInstance->Logs->Log("m_banredirect.so", DEBUG, "Failed to delete modewatcher!");
 	};
 
+	void OnRehash(User*)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("invisible");
+		hidejoin = tag->getBool("join");
+		hidelist = tag->getBool("list");
+		hidewho = tag->getBool("who");
+		hidemsg = tag->getBool("msg");
+	}
 	Version GetVersion();
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts);
 	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exceptions);
@@ -147,15 +165,14 @@ static void BuildExcept(Membership* memb, CUList& excepts)
 	const UserMembList* users = memb->chan->GetUsers();
 	for(UserMembCIter i = users->begin(); i != users->end(); i++)
 	{
-		// hide from all local non-opers
-		if (IS_LOCAL(i->first) && !IS_OPER(i->first))
+		if (IS_LOCAL(i->first) && i->first->HasPrivPermission("invisible/see"))
 			excepts.insert(i->first);
 	}
 }
 
 void ModuleInvisible::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 {
-	if (memb->user->IsModeSet('Q'))
+	if (hidejoin && memb->user->IsModeSet('Q'))
 	{
 		BuildExcept(memb, excepts);
 		ServerInstance->SNO->WriteToSnoMask('a', "\2NOTICE\2: Oper %s has joined %s invisibly (+Q)",
@@ -165,7 +182,7 @@ void ModuleInvisible::OnUserJoin(Membership* memb, bool sync, bool created, CULi
 
 void ModuleInvisible::OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exceptions)
 {
-	if (source->IsModeSet('Q'))
+	if (hidewho && source->IsModeSet('Q'))
 	{
 		include.clear();
 	}
@@ -177,7 +194,7 @@ ModResult ModuleInvisible::OnUserPreNotice(User* user,void* dest,int target_type
 	if ((target_type == TYPE_USER) && (IS_LOCAL(user)))
 	{
 		User* target = (User*)dest;
-		if(target->IsModeSet('Q') && !IS_OPER(user))
+		if(hidemsg && target->IsModeSet('Q') && !IS_OPER(user))
 		{
 			user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), target->nick.c_str());
 			return MOD_RES_DENY;
@@ -193,13 +210,13 @@ ModResult ModuleInvisible::OnUserPreMessage(User* user,void* dest,int target_typ
 
 void ModuleInvisible::OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line)
 {
-	if (user->IsModeSet('Q') && !IS_OPER(source))
+	if ((channel ? hidelist : hidewho) && user->IsModeSet('Q') && !IS_OPER(source))
 		line.clear();
 }
 
 void ModuleInvisible::OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
 {
-	if (memb->user->IsModeSet('Q') && !IS_OPER(issuer))
+	if (hidelist && memb->user->IsModeSet('Q') && !IS_OPER(issuer))
 		nick.clear();
 }
 
