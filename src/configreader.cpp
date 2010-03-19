@@ -21,7 +21,7 @@
 ServerConfig::ServerConfig()
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
-	NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
+	RawLog = NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
 	WildcardIPv6 = CycleHosts = InvBypassModes = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
@@ -859,9 +859,7 @@ void ConfigReaderThread::Finish()
 {
 	ServerConfig* old = ServerInstance->Config;
 	ServerInstance->Logs->Log("CONFIG",DEBUG,"Switching to new configuration...");
-	ServerInstance->Logs->CloseLogs();
 	ServerInstance->Config = this->Config;
-	ServerInstance->Logs->OpenFileLogs();
 	Config->Apply(old, TheUserUID);
 
 	if (Config->valid)
@@ -882,13 +880,17 @@ void ConfigReaderThread::Finish()
 		FOREACH_MOD(I_OnRehash, OnRehash(user));
 		ServerInstance->BuildISupport();
 
+		ServerInstance->Logs->CloseLogs();
+		ServerInstance->Logs->OpenFileLogs();
+
+		if (Config->RawLog)
+			ServerInstance->Users->ServerNoticeAll("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
+
 		Config = old;
 	}
 	else
 	{
 		// whoops, abort!
-		ServerInstance->Logs->CloseLogs();
 		ServerInstance->Config = old;
-		ServerInstance->Logs->OpenFileLogs();
 	}
 }

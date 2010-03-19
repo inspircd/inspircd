@@ -181,7 +181,7 @@ void TreeSocket::WriteLine(std::string line)
 		}
 	}
 
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] O %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log("m_spanningtree", RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 	this->WriteData(line);
 	if (proto_version < 1202)
 		this->WriteData(wide_newline);

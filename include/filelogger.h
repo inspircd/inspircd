@@ -20,6 +20,7 @@
  *  */
 enum DebugLevel
 {
+    RAWIO       =   5,
     DEBUG       =   10,
     VERBOSE     =   20,
     DEFAULT     =   30,

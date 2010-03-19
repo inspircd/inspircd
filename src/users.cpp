@@ -816,6 +816,9 @@ void LocalUser::FullConnect()
 	if (!MOD_RESULT)
 		ServerInstance->CallCommandHandler(command, parameters, this);
 
+	if (ServerInstance->Config->RawLog)
+		WriteServ("PRIVMSG %s :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", nick.c_str());
+
 	/*
 	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
 	 * for a user that doesn't exist yet.
@@ -1020,7 +1023,7 @@ void LocalUser::Write(const std::string& text)
 		return;
 	}
 
-	ServerInstance->Logs->Log("USEROUTPUT", DEBUG,"C[%s] O %s", uuid.c_str(), text.c_str());
+	ServerInstance->Logs->Log("USEROUTPUT", RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
 
 	eh.AddWriteBuf(text);
 	eh.AddWriteBuf(wide_newline);

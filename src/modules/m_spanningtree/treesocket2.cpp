@@ -73,7 +73,7 @@ void TreeSocket::ProcessLine(std::string &line)
 	std::string command;
 	parameterlist params;
 
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "S[%d] I %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log("m_spanningtree", RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
 
 	Split(line, prefix, command, params);
 
