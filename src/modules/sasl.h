@@ -14,12 +14,23 @@
 #ifndef __SASL_H__
 #define __SASL_H__
 
-class SASLFallback : public Event
+class SASLHook : public classbase
 {
  public:
-	const parameterlist& params;
-	SASLFallback(Module* me, const parameterlist& p)
-		: Event(me, "sasl_fallback"), params(p)
+	SASLHook() {}
+	virtual ~SASLHook() {}
+	virtual void ProcessClient(User* user, const std::vector<std::string>& parameters) = 0;
+	virtual void ProcessServer(User* user, const std::vector<std::string>& parameters) = 0;
+};
+
+class SASLSearch : public Event
+{
+ public:
+	User* const user;
+	const std::string method;
+	SASLHook* auth;
+	SASLSearch(Module* me, User* u, const std::string& m)
+		: Event(me, "sasl_search"), user(u), method(m), auth(NULL)
 	{
 		Send();
 	}
