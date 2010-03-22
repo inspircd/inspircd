@@ -1,4 +1,4 @@
-#define MODNAME AllModule
+#define MODNAME cmd_all
 
 #include "inspircd.h"
 #include "exitcodes.h"
@@ -161,7 +161,7 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 
 void ModuleManager::LoadAll()
 {
-	Load("AllModule", true);
+	Load("cmd_all", true);
 	Load("cmd_whowas.so", true);
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
