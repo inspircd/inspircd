@@ -445,8 +445,10 @@ void ModuleSQL::OnUnloadModule(Module* mod)
 {
 	SQLerror err(SQL_BAD_DBID);
 	Dispatcher->LockQueue();
-	for(unsigned int i = qq.size() - 1; i >= 0; i--)
+	unsigned int i = qq.size();
+	while (i > 0)
 	{
+		i--;
 		if (qq[i].q->creator == mod)
 		{
 			if (i == 0)
