@@ -77,39 +77,16 @@ class InvisibleMode : public ModeHandler
 	}
 };
 
-class InvisibleDeOper : public ModeWatcher
-{
- public:
-	InvisibleDeOper(Module* parent) : ModeWatcher(parent, 'o', MODETYPE_USER)
-	{
-	}
-
-	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type)
-	{
-		/* Users who are opers and have +Q get their +Q removed when they deoper */
-		if ((!adding) && (dest->IsModeSet('Q')))
-		{
-			std::vector<std::string> newmodes;
-			newmodes.push_back(dest->nick);
-			newmodes.push_back("-Q");
-			ServerInstance->Modes->Process(newmodes, source);
-		}
-		return true;
-	}
-};
-
-
 class ModuleInvisible : public Module
 {
  private:
 	InvisibleMode qm;
-	InvisibleDeOper ido;
 	bool hidejoin;
 	bool hidelist;
 	bool hidewho;
 	bool hidemsg;
  public:
-	ModuleInvisible() : qm(this), ido(this)
+	ModuleInvisible() : qm(this)
 	{
 	}
 
@@ -117,8 +94,6 @@ class ModuleInvisible : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&qm))
 			throw ModuleException("Could not add new modes!");
-		if (!ServerInstance->Modes->AddModeWatcher(&ido))
-			throw ModuleException("Could not add new mode watcher on usermode +o!");
 
 		/* Yeah i know people can take this out. I'm not about to obfuscate code just to be a pain in the ass. */
 		ServerInstance->Users->ServerNoticeAll("*** m_invisible.so has just been loaded on this network. For more information, please visit http://inspircd.org/wiki/Modules/invisible");
@@ -129,14 +104,7 @@ class ModuleInvisible : public Module
 		};
 		ServerInstance->Modules->Attach(eventlist, this, 7);
 		OnRehash(NULL);
-	};
-
-	~ModuleInvisible()
-	{
-		/* XXX is this the best place to do this? */
-		if (!ServerInstance->Modes->DelModeWatcher(&ido))
-			ServerInstance->Logs->Log("m_banredirect.so", DEBUG, "Failed to delete modewatcher!");
-	};
+	}
 
 	void OnRehash(User*)
 	{
@@ -151,7 +119,7 @@ class ModuleInvisible : public Module
 	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exceptions);
 	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	void OnSendWhoLine(User* source, const std::vector<std::string>&, User* user, Channel* channel, std::string& line);
+	void OnSendWhoLine(User* source, const std::vector<std::string>&, User* user, std::string& line);
 	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick);
 };
 
@@ -208,9 +176,9 @@ ModResult ModuleInvisible::OnUserPreMessage(User* user,void* dest,int target_typ
 	return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
 }
 
-void ModuleInvisible::OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line)
+void ModuleInvisible::OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
 {
-	if ((channel ? hidelist : hidewho) && user->IsModeSet('Q') && !IS_OPER(source))
+	if (hidewho && user->IsModeSet('Q') && !IS_OPER(source))
 		line.clear();
 }
 

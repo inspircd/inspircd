@@ -1275,10 +1275,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param source The user running the /WHO query
 	 * @param params The parameters to the /WHO query
 	 * @param user The user that this line of the query is about
-	 * @param channel The channel being queried (or NULL if not a channel query)
 	 * @param line The raw line to send; modifiable, if empty no line will be returned.
 	 */
-	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line);
+	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line);
 };
 
 

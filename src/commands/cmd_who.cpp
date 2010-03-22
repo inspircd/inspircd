@@ -51,19 +51,16 @@ class CommandWho : public Command
 };
 
 
-static const std::string star = "*";
-
-static const std::string& get_first_visible_channel(User *u)
+static Channel* get_first_visible_channel(User *u)
 {
 	UCListIter i = u->chans.begin();
 	while (i != u->chans.end())
 	{
 		Channel* c = *i++;
 		if (!c->IsModeSet('s'))
-			return c->name;
+			return c;
 	}
-
-	return star;
+	return NULL;
 }
 
 bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
@@ -162,8 +159,6 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 	}
 }
 
-
-
 bool CommandWho::CanView(Channel* chan, User* user)
 {
 	if (!user || !chan)
@@ -186,9 +181,10 @@ bool CommandWho::CanView(Channel* chan, User* user)
 
 void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
 {
-	const std::string& lcn = get_first_visible_channel(u);
+	if (!ch)
+		ch = get_first_visible_channel(u);
 
-	std::string wholine = initial + (ch ? ch->name : lcn) + " " + u->ident + " " + 
+	std::string wholine = initial + (ch ? ch->name : "*") + " " + u->ident + " " +
 		(opt_showrealhost ? u->host : u->dhost) + " ";
 	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 		wholine.append(ServerInstance->Config->HideWhoisServer);
@@ -215,16 +211,10 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 
 	if (ch)
 		wholine.append(ch->GetPrefixChar(u));
-	else
-	{
-		Channel* lch = ServerInstance->FindChan(lcn);
-		if (lch)
-			wholine.append(lch->GetPrefixChar(u));
-	}
 
 	wholine.append(" :0 " + u->fullname);
 
-	FOREACH_MOD(I_OnSendWhoLine, OnSendWhoLine(user, parms, u, ch, wholine));
+	FOREACH_MOD(I_OnSendWhoLine, OnSendWhoLine(user, parms, u, wholine));
 
 	if (!wholine.empty())
 		whoresults.push_back(wholine);
