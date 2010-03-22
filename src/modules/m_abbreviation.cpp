@@ -17,13 +17,14 @@
 
 class ModuleAbbreviation : public Module
 {
-
  public:
-
-	ModuleAbbreviation()
-			{
+	void init()
+	{
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
-		/* Must do this first */
+	}
+
+	void Prioritize()
+	{
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
