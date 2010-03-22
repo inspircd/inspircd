@@ -166,6 +166,19 @@ class ModuleAuditorium : public Module
 			}
 		}
 	}
+
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
+	{
+		Channel* channel = ServerInstance->FindChan(params[0]);
+		if (!channel)
+			return;
+		Membership* memb = channel->GetUser(user);
+		if (IsVisible(memb))
+			return;
+		if (CanSee(source, memb))
+			return;
+		line.clear();
+	}
 };
 
 MODULE_INIT(ModuleAuditorium)
