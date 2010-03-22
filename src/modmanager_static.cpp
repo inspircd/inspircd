@@ -214,8 +214,4 @@ void ModuleManager::LoadAll()
 	}
 }
 
-void ModuleManager::UnloadAll()
-{
-}
-
 #endif

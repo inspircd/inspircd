@@ -377,6 +377,29 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	ServerInstance->BuildISupport();
 }
 
+void ModuleManager::UnloadAll()
+{
+	/* We do this more than once, so that any service providers get a
+	 * chance to be unhooked by the modules using them, but then get
+	 * a chance to be removed themsleves.
+	 *
+	 * Note: this deliberately does NOT delete the DLLManager objects
+	 */
+	for (int tries = 0; tries < 4; tries++)
+	{
+		std::map<std::string, Module*>::iterator i = Modules.begin();
+		while (i != Modules.end())
+		{
+			std::map<std::string, Module*>::iterator me = i++;
+			if (CanUnload(me->second))
+			{
+				DoSafeUnload(me->second);
+			}
+		}
+		ServerInstance->GlobalCulls.Apply();
+	}
+}
+
 std::string& ModuleManager::LastError()
 {
 	return LastModuleError;
