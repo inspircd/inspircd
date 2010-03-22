@@ -162,6 +162,7 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 void ModuleManager::LoadAll()
 {
 	Load("AllModule", true);
+	Load("cmd_whowas.so", true);
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
