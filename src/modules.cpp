@@ -23,6 +23,15 @@
 	#include <dirent.h>
 #endif
 
+static std::vector<dynamic_reference_base*>* dynrefs = NULL;
+
+void dynamic_reference_base::reset_all()
+{
+	if (!dynrefs)
+		return;
+	for(unsigned int i = 0; i < dynrefs->size(); i++)
+		(*dynrefs)[i]->ClearCache();
+}
 
 // Version is a simple class for holding a modules version number
 template<>
@@ -350,8 +359,8 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		if (curr->second->creator == mod)
 			DataProviders.erase(curr);
 	}
-	for(unsigned int i = 0; i < ServerInstance->Modules->ActiveDynrefs.size(); i++)
-		ServerInstance->Modules->ActiveDynrefs[i]->ClearCache();
+
+	dynamic_reference_base::reset_all();
 
 	/* Tidy up any dangling resolvers */
 	ServerInstance->Res->CleanResolvers(mod);
@@ -435,8 +444,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 				if (curr->second == &item)
 					DataProviders.erase(curr);
 			}
-			for(unsigned int i = 0; i < ServerInstance->Modules->ActiveDynrefs.size(); i++)
-				ServerInstance->Modules->ActiveDynrefs[i]->ClearCache();
+			dynamic_reference_base::reset_all();
 			return;
 		}
 		default:
@@ -467,19 +475,26 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 dynamic_reference_base::dynamic_reference_base(const std::string& Name)
 	: name(Name), value(NULL)
 {
-	ServerInstance->Modules->ActiveDynrefs.push_back(this);
+	if (!dynrefs)
+		dynrefs = new std::vector<dynamic_reference_base*>;
+	dynrefs->push_back(this);
 }
 
 dynamic_reference_base::~dynamic_reference_base()
 {
-	for(unsigned int i = 0; i < ServerInstance->Modules->ActiveDynrefs.size(); i++)
+	for(unsigned int i = 0; i < dynrefs->size(); i++)
 	{
-		if (ServerInstance->Modules->ActiveDynrefs[i] == this)
+		if (dynrefs->at(i) == this)
 		{
-			unsigned int last = ServerInstance->Modules->ActiveDynrefs.size() - 1;
+			unsigned int last = dynrefs->size() - 1;
 			if (i != last)
-				ServerInstance->Modules->ActiveDynrefs[i] = ServerInstance->Modules->ActiveDynrefs[last];
-			ServerInstance->Modules->ActiveDynrefs.erase(ServerInstance->Modules->ActiveDynrefs.begin() + last);
+				dynrefs->at(i) = dynrefs->at(last);
+			dynrefs->erase(dynrefs->begin() + last);
+			if (dynrefs->empty())
+			{
+				delete dynrefs;
+				dynrefs = NULL;
+			}
 			return;
 		}
 	}
