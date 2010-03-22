@@ -681,10 +681,11 @@
           # the ircd. This may be set for security reasons or vanity reasons.
           customversion=""
 
-          # operspywhois: If this is set to yes, when a oper /whois 's a user,
-          # it will show all channels the user is in including +s and +p
-          # channels.
-          operspywhois="no"
+	# operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
+	#  splitmsg  Split with an explanatory message
+	#  yes       Split with no explanatory message
+	#  no        Do not show
+	operspywhois="no"
 
           # runasuser: If this is set, InspIRCd will attempt to setuid
           # to run as this user- allows binding of ports under 1024.

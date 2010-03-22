@@ -21,7 +21,7 @@
 ServerConfig::ServerConfig()
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
-	RawLog = NoUserDns = OperSpyWhois = HideBans = HideSplits = UndernetMsgPrefix = false;
+	RawLog = NoUserDns = HideBans = HideSplits = UndernetMsgPrefix = false;
 	WildcardIPv6 = CycleHosts = InvBypassModes = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
@@ -476,7 +476,6 @@ void ServerConfig::Fill()
 	HideBans = security->getBool("hidebans");
 	HideWhoisServer = security->getString("hidewhois");
 	HideKillsServer = security->getString("hidekills");
-	OperSpyWhois = security->getBool("operspywhois");
 	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
 	NoUserDns = ConfValue("performance")->getBool("nouserdns");
@@ -587,6 +586,14 @@ void ServerConfig::Fill()
 		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_DYNAMIC;
 	else
 		AnnounceInvites = ServerConfig::INVITE_ANNOUNCE_NONE;
+
+	v = security->getString("operspywhois");
+	if (v == "splitmsg")
+		OperSpyWhois = SPYWHOIS_SPLITMSG;
+	else if (v == "on" || v == "yes")
+		OperSpyWhois = SPYWHOIS_NEWLINE;
+	else
+		OperSpyWhois = SPYWHOIS_NONE;
 
 	Limits.Finalise();
 }
