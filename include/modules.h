@@ -287,6 +287,7 @@ class CoreExport dynamic_reference_base : public interfacebase
 	void SetProvider(const std::string& newname);
 	void lookup();
 	operator bool();
+	static void reset_all();
 };
 
 template<typename T>
@@ -1491,9 +1492,6 @@ class CoreExport ModuleManager
 
 	/** List of data services keyed by name */
 	std::multimap<std::string, ServiceProvider*> DataProviders;
-
-	/** List of all dynamic references that are currently active */
-	std::vector<dynamic_reference_base*> ActiveDynrefs;
 
 	/** Simple, bog-standard, boring constructor.
 	 */
