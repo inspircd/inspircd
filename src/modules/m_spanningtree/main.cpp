@@ -734,11 +734,13 @@ void ModuleSpanningTree::OnRehash(User* user)
 
 void ModuleSpanningTree::OnLoadModule(Module* mod, const std::string &name)
 {
+	ServerInstance->PI->SendMetaData(NULL, TYPE_SERVER, "modules", "+" + name);
 	this->RedoConfig(mod, name);
 }
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod, const std::string &name)
 {
+	ServerInstance->PI->SendMetaData(NULL, TYPE_SERVER, "modules", "-" + name);
 	this->RedoConfig(mod, name);
 }
 
