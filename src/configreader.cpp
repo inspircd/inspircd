@@ -819,7 +819,7 @@ void ConfigReaderThread::Finish()
 		ServerInstance->Logs->CloseLogs();
 		ServerInstance->Logs->OpenFileLogs();
 
-		if (Config->RawLog)
+		if (Config->RawLog && !old->RawLog)
 			ServerInstance->Users->ServerNoticeAll("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
 		Config = old;
