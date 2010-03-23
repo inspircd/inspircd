@@ -257,7 +257,9 @@ class ModuleMD5 : public Module
 {
 	MD5Provider md5;
  public:
-	ModuleMD5() : md5(this)
+	ModuleMD5() : md5(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(md5);
 	}

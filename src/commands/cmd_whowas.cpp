@@ -308,7 +308,9 @@ class ModuleWhoWas : public Module
 {
 	CommandWhowas cmd;
  public:
-	ModuleWhoWas() : cmd(this)
+	ModuleWhoWas() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

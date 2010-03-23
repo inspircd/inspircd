@@ -261,7 +261,9 @@ class ModuleSHA256 : public Module
 {
 	HashSHA256 sha;
  public:
-	ModuleSHA256() : sha(this)
+	ModuleSHA256() : sha(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(sha);
 	}

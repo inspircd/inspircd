@@ -82,7 +82,9 @@ class ModuleChgHost : public Module
 	CommandChghost cmd;
 	char hostmap[256];
  public:
-	ModuleChgHost() : cmd(this, hostmap)
+	ModuleChgHost() : cmd(this, hostmap) {}
+
+	void init()
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);

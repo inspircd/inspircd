@@ -38,7 +38,6 @@ class AllModule : public Module
 			{
 				Command* c = (*i)(this);
 				cmds.push_back(c);
-				ServerInstance->AddCommand(c);
 			}
 		}
 		catch (...)
@@ -46,6 +45,12 @@ class AllModule : public Module
 			this->AllModule::~AllModule();
 			throw;
 		}
+	}
+
+	void init()
+	{
+		for(std::vector<Command*>::iterator i = cmds.begin(); i != cmds.end(); ++i)
+			ServerInstance->AddCommand(*i);
 	}
 
 	~AllModule()

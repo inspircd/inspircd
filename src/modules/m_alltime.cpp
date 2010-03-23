@@ -49,17 +49,14 @@ class Modulealltime : public Module
 {
 	CommandAlltime mycommand;
  public:
-	Modulealltime()
-		: mycommand(this)
+	Modulealltime() : mycommand(this) {}
+
+	void init()
 	{
-		ServerInstance->AddCommand(&mycommand);
+		ServerInstance->Modules->AddService(mycommand);
 	}
 
-	virtual ~Modulealltime()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Display timestamps from all servers connected to the network", VF_OPTCOMMON | VF_VENDOR);
 	}

@@ -449,7 +449,9 @@ class ModuleRIPEMD160 : public Module
 {
  public:
 	RIProv mr;
-	ModuleRIPEMD160() : mr(this)
+	ModuleRIPEMD160() : mr(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(mr);
 	}
