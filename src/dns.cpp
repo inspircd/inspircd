@@ -904,10 +904,7 @@ Resolver::Resolver(const std::string &source, QueryType qt, bool &cached, Module
 	}
 	if (this->myid == -1)
 	{
-		this->OnError(RESOLVER_NSDOWN, "Nameserver is down");
-		throw ModuleException("Resolver: Couldnt get an id to make a request");
-		/* We shouldnt get here really */
-		return;
+		throw ModuleException("Resolver: Couldn't get an id to make a request");
 	}
 	else
 	{
