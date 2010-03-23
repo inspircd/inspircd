@@ -104,7 +104,7 @@ class ModuleCloaking : public Module
 	dynamic_reference<HashProvider> Hash;
 
  public:
-	ModuleCloaking() : cu(this), Hash("hash/md5")
+	ModuleCloaking() : cu(this), mode(MODE_OPAQUE), Hash("hash/md5")
 	{
 	}
 
@@ -152,6 +152,38 @@ class ModuleCloaking : public Module
 			return host.substr(splitdot);
 	}
 
+	/**
+	 * 2.0-style cloaking function
+	 * @param item The item to cloak (part of an IP or hostname)
+	 * @param id A unique ID for this type of item (to make it unique if the item matches)
+	 * @param len The length of the output. Maximum for MD5 is 16 characters.
+	 */
+	std::string SegmentCloak(const std::string& item, char id, int len)
+	{
+		std::string input;
+		input.reserve(key.length() + 3 + item.length());
+		input.append(1, id);
+		input.append(key);
+		input.append(1, 0); // null does not terminate a C++ string
+		input.append(item);
+
+		std::string rv = Hash->sum(input).substr(0,len);
+		for(int i=0; i < len; i++)
+		{
+			// this discards 3 bits per byte. We have an
+			// overabundance of bits in the hash output, doesn't
+			// matter which ones we are discarding.
+			rv[i] = base32[rv[i] & 0x1F];
+		}
+		return rv;
+	}
+
+	/**
+	 * 1.2-style cloaking function
+	 * @param table The table to use (will be used mod 4, not a secure parameter)
+	 * @param data The item to cloak
+	 * @param bytes The number of bytes in the output (output is double this size)
+	 */
 	std::string sumIV(int table, const std::string& data, int bytes)
 	{
 		std::string bits = Hash->sum(data, compatkey);
@@ -227,6 +259,7 @@ class ModuleCloaking : public Module
 	{
 		std::string bindata;
 		int hop1, hop2, hop3;
+		int len1, len2;
 		std::string rv;
 		if (ip.sa.sa_family == AF_INET6)
 		{
@@ -234,7 +267,9 @@ class ModuleCloaking : public Module
 			hop1 = 8;
 			hop2 = 6;
 			hop3 = 4;
-			rv.reserve(prefix.length() + 37);
+			len1 = 6;
+			len2 = 4;
+			rv.reserve(prefix.length() + 29);
 		}
 		else
 		{
@@ -242,26 +277,27 @@ class ModuleCloaking : public Module
 			hop1 = 3;
 			hop2 = 0;
 			hop3 = 2;
-			rv.reserve(prefix.length() + 30);
+			len1 = len2 = 3;
+			rv.reserve(prefix.length() + 18);
 		}
 
 		rv.append(prefix);
-		rv.append(SegmentCloak(bindata, 10));
+		rv.append(SegmentCloak(bindata, 10, len1));
 		rv.append(1, '.');
 		bindata.erase(hop1);
-		rv.append(SegmentCloak(bindata, 11));
+		rv.append(SegmentCloak(bindata, 11, len2));
 		if (hop2)
 		{
 			rv.append(1, '.');
 			bindata.erase(hop2);
-			rv.append(SegmentCloak(bindata, 12));
+			rv.append(SegmentCloak(bindata, 12, len2));
 		}
 
 		if (full)
 		{
 			rv.append(1, '.');
 			bindata.erase(hop3);
-			rv.append(SegmentCloak(bindata, 13));
+			rv.append(SegmentCloak(bindata, 13, 6));
 			rv.append(".IP");
 		}
 		else
@@ -279,26 +315,6 @@ class ModuleCloaking : public Module
 				snprintf(buf, 50, ".%d.%d.IP", ip4[1], ip4[0]);
 			}
 			rv.append(buf);
-		}
-		return rv;
-	}
-
-	std::string SegmentCloak(const std::string& item, char id)
-	{
-		std::string input;
-		input.reserve(key.length() + 3 + item.length());
-		input.append(1, id);
-		input.append(key);
-		input.append(1, 0); // null does not terminate a C++ string
-		input.append(item);
-
-		std::string rv = Hash->sum(input).substr(0,6);
-		for(int i=0; i < 6; i++)
-		{
-			// this discards 3 bits per byte. We have an
-			// overabundance of bits in the hash output, doesn't
-			// matter which ones we are discarding.
-			rv[i] = base32[rv[i] & 0x1F];
 		}
 		return rv;
 	}
@@ -353,10 +369,10 @@ class ModuleCloaking : public Module
 					testcloak = sumIV(0, "*", 5);
 					break;
 				case MODE_HALF_CLOAK:
-					testcloak = prefix + SegmentCloak("*", 3);
+					testcloak = prefix + SegmentCloak("*", 3, 8);
 					break;
 				case MODE_OPAQUE:
-					testcloak = prefix + SegmentCloak("*", 4);
+					testcloak = prefix + SegmentCloak("*", 4, 8);
 			}
 		}
 		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
@@ -476,7 +492,7 @@ class ModuleCloaking : public Module
 			case MODE_HALF_CLOAK:
 			{
 				if (ipstr != dest->host)
-					chost = prefix + SegmentCloak(dest->host, 1) + LastTwoDomainParts(dest->host);
+					chost = prefix + SegmentCloak(dest->host, 1, 6) + LastTwoDomainParts(dest->host);
 				if (chost.empty() || chost.length() > 50)
 					chost = SegmentIP(dest->client_sa, false);
 				break;
