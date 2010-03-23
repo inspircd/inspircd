@@ -84,7 +84,7 @@ struct Parser
 		unget(ch);
 	}
 
-	bool kv(std::vector<KeyVal>* items)
+	bool kv(std::vector<KeyVal>* items, std::set<std::string>& seen)
 	{
 		std::string key;
 		nextword(key);
@@ -149,6 +149,10 @@ struct Parser
 			else
 				value.push_back(ch);
 		}
+
+		if (!seen.insert(key).second)
+			throw CoreException("Duplicate key '" + key + "' found");
+
 		items->push_back(KeyVal(key, value));
 		return true;
 	}
@@ -169,9 +173,10 @@ struct Parser
 			throw CoreException("Empty tag name");
 
 		std::vector<KeyVal>* items;
+		std::set<std::string> seen;
 		tag = ConfigTag::create(name, current.filename, current.line, items);
 
-		while (kv(items));
+		while (kv(items, seen));
 
 		if (name == "include")
 		{
