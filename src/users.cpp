@@ -835,6 +835,8 @@ void LocalUser::FullConnect()
 		this->GetServerPort(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), this->GetIPString(), this->fullname.c_str());
 	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
+	// reset the flood penalty (which could have been raised due to things like auto +x)
+	CommandFloodPenalty = 0;
 }
 
 void User::InvalidateCache()
