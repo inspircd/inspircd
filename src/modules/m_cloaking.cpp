@@ -56,11 +56,11 @@ class CloakUser : public ModeHandler
 			return MODEACTION_ALLOW;
 		}
 
-		/* don't allow this user to spam modechanges */
-		IS_LOCAL(dest)->CommandFloodPenalty += 5000;
-
 		if (adding && !dest->IsModeSet('x'))
 		{
+			/* don't allow this user to spam modechanges */
+			IS_LOCAL(dest)->CommandFloodPenalty += 5000;
+
 			std::string* cloak = ext.get(dest);
 
 			if (!cloak)
@@ -78,6 +78,9 @@ class CloakUser : public ModeHandler
 		}
 		else if (!adding && dest->IsModeSet('x'))
 		{
+			/* don't allow this user to spam modechanges */
+			IS_LOCAL(dest)->CommandFloodPenalty += 5000;
+			
 			/* User is removing the mode, so restore their real host
 			 * and make it match the displayed one.
 			 */
