@@ -113,6 +113,8 @@ void LocalUser::StartDNSLookup()
 	catch (CoreException& e)
 	{
 		ServerInstance->Logs->Log("USERS", DEBUG,"Error in resolver: %s",e.GetReason());
+		dns_done = true;
+		ServerInstance->stats->statsDnsBad++;
 	}
 }
 
