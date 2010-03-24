@@ -77,16 +77,16 @@ CXXFLAGS += -Iinclude
 @BSD_ONLY SOURCEPATH != /bin/pwd
 
 @IFDEF V
-    RUNCC = $(CC)
-    VERBOSE = -v
+  RUNCC = $(CC)
+  VERBOSE = -v
 @ELSE
-    @GNU_ONLY MAKEFLAGS += --silent
-    @BSD_ONLY MAKE += -s
-    RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
+  @GNU_ONLY MAKEFLAGS += --silent
+  @BSD_ONLY MAKE += -s
+  RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
 @ENDIF
 
 @IFDEF PURE_STATIC
-	CXXFLAGS += -DPURE_STATIC
+  CXXFLAGS += -DPURE_STATIC
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS PURE_STATIC
@@ -165,20 +165,24 @@ install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE_DIR) $(BINPATH)
 	@-install -d -m $(INSTMODE_DIR) $(CONPATH)
 	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
+	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
+@IFNDEF PURE_STATIC
+	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
+@ENDIF
 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
-	-install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
-	-install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
 	-install -m $(INSTMODE_LIB) docs/*.example $(CONPATH)
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
-	@echo "*                                   *"
-	@echo "* It is safe to ignore any messages *"
-	@echo "* related to copying of conf files. *"
-	@echo "*                                   *"
-	@echo "* REMEMBER TO EDIT YOUR CONFIG FILE *"
 	@echo "*************************************"
+	@echo 'Paths:'
+	@echo '  Base install:' $(BASE)
+	@echo '  Configuration:' $(CONPATH)
+	@echo '  Binaries:' $(BINPATH)
+	@echo '  Moudles:' $(MODPATH)
+	@echo 'To start the ircd, run:' $(BASE)/inspircd start
+	@echo 'Remember to edit your config file:' $(CONPATH)/inspircd.conf
 
 @GNU_ONLY RCS_FILES = $(wildcard .git/index .svn/entries src/version.sh)
 @BSD_ONLY RCS_FILES = src/version.sh
