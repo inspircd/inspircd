@@ -27,7 +27,7 @@ class ModuleOverride : public Module
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
 		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreJoin, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void OnRehash(User* user)
