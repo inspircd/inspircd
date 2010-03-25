@@ -184,7 +184,7 @@ install: target@EXTRA_DIR@
 	@echo 'To start the ircd, run:' $(BASE)/inspircd start
 	@echo 'Remember to edit your config file:' $(CONPATH)/inspircd.conf
 
-@GNU_ONLY RCS_FILES = $(wildcard .git/index .svn/entries src/version.sh)
+@GNU_ONLY RCS_FILES = $(wildcard .git/index src/version.sh)
 @BSD_ONLY RCS_FILES = src/version.sh
 GNUmakefile BSDmakefile: make/template/main.mk configure $(RCS_FILES)
 	./configure -update
