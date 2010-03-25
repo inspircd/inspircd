@@ -82,7 +82,6 @@ GetOptions (
 	'disable-debuginfo' => sub { $opt_disable_debug = 1 },
 	'help'	=> sub { showhelp(); },
 	'update' => sub { update(); },
-	'svnupdate' => sub { svnupdate(); },
 	'clean' => sub { clean(); },
 	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
 	'enable-extras=s@' => \@opt_enableextras, # ^
@@ -297,84 +296,6 @@ sub update
 	exit;
 }
 
-sub svnupdate
-{
-	my $fail = 0;
-	open(FH,"<.svn/entries") or $fail = 1;
-	if ($fail) {
-		print "This is not an SVN copy of InspIRCd.\n";
-		exit 1;
-	}
-	else
-	{
-		close(FH);
-	}
-	open my $fd, "-|", "svn update";
-	my $configurechanged = 0; # Needs ./configure -update
-	my $rootincchanged = 0;
-	my @conflicted = ();
-	while (defined(my $line = <$fd>))
-	{
-		my ($action, $file);
-		print $line;
-		$line =~ m/^([ADUCG])\s+(.*)$/ or next;
-		($action, $file) = ($1, $2);
-		if ($action eq "C")
-		{
-			push @conflicted, $file;
-			if ($file eq "configure")
-			{
-				$configurechanged = 1;
-			}
-			elsif ($file =~ m/^\..*\.inc$/)
-			{
-				$rootincchanged = 1;
-			}
-		}
-		elsif ($action eq "U" || $action eq "G")
-		{
-			if ($file eq "configure")
-			{
-				$configurechanged = 1;
-			}
-			elsif ($file =~ m/^\..*\.inc$/)
-			{
-				$rootincchanged = 1;
-			}
-		}
-	}
-	unless (close $fd) # close() waits for exit and returns false if the command failed
-	{
-		if ($! == 0)
-		{
-			print STDERR "Problem updating from SVN, please check above for errors\n";
-		}
-		else
-		{
-			print STDERR "Failed to run SVN: $!\n";
-		}
-		exit 1;
-	}
-	if (scalar(@conflicted) > 0)
-	{
-		print STDERR "\e[0;33;1mERROR:\e[0m You have local modifications which conflicted with the updates from SVN\n";
-		print STDERR "Configure is not able to complete the update. Please resolve these conflicts, then run ./configure -update\n";
-		print "Conflicted files: " . join ", ", @conflicted . "\n";
-		exit 1;
-	}
-	if ($configurechanged)
-	{
-		system("perl configure -update");
-	}
-	else
-	{
-		print "No need to update Makefiles.\n";
-	}
-	if (defined $opt_rebuild) {
-		system("make install");
-	}
-	exit;
-}
 
 sub test_compile {
 	my $feature = shift;
@@ -1147,7 +1068,6 @@ sub list_extras () {
 	my %extras = ();
 EXTRA:	for my $extra (@extras) {
 		next if (File::Spec->curdir() eq $extra || File::Spec->updir() eq $extra);
-		next if ($extra eq '.svn');
 		my $abs_extra = File::Spec->catfile($abs_srcdir, "extra", $extra);
 		my $abs_source = File::Spec->catfile($abs_srcdir, $extra);
 		next unless ($extra =~ m/\.(cpp|h)$/ || (-d $abs_extra)); # C++ Source/Header, or directory
