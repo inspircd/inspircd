@@ -38,58 +38,78 @@ class CloakUser : public ModeHandler
  public:
 	LocalStringExt ext;
 
+	std::string debounce_uid;
+	time_t debounce_ts;
+	int debounce_count;
+
 	CloakUser(Module* source)
 		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER),
-		ext("cloaked_host", source)
+		ext("cloaked_host", source), debounce_ts(0), debounce_count(0)
 	{
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
+		LocalUser* user = IS_LOCAL(dest);
+
 		/* For remote clients, we don't take any action, we just allow it.
 		 * The local server where they are will set their cloak instead.
 		 * This is fine, as we will receive it later.
 		 */
-		if (!IS_LOCAL(dest))
+		if (!user)
 		{
 			dest->SetMode('x',adding);
 			return MODEACTION_ALLOW;
 		}
 
-		if (adding && !dest->IsModeSet('x'))
+		if (user->uuid == debounce_uid && debounce_ts == ServerInstance->Time())
 		{
-			/* don't allow this user to spam modechanges */
-			IS_LOCAL(dest)->CommandFloodPenalty += 5000;
+			// prevent spamming using /mode user +x-x+x-x+x-x
+			if (++debounce_count > 2)
+				return MODEACTION_DENY;
+		}
+		else
+		{
+			debounce_uid = user->uuid;
+			debounce_count = 1;
+			debounce_ts = ServerInstance->Time();
+		}
 
-			std::string* cloak = ext.get(dest);
+		if (adding == user->IsModeSet('x'))
+			return MODEACTION_DENY;
+
+		/* don't allow this user to spam modechanges */
+		if (source == dest)
+			user->CommandFloodPenalty += 5000;
+		
+		if (adding)
+		{
+			std::string* cloak = ext.get(user);
 
 			if (!cloak)
 			{
 				/* Force creation of missing cloak */
-				creator->OnUserConnect(IS_LOCAL(dest));
-				cloak = ext.get(dest);
+				creator->OnUserConnect(user);
+				cloak = ext.get(user);
 			}
 			if (cloak)
 			{
-				dest->ChangeDisplayedHost(cloak->c_str());
-				dest->SetMode('x',true);
+				user->ChangeDisplayedHost(cloak->c_str());
+				user->SetMode('x',true);
 				return MODEACTION_ALLOW;
 			}
+			else
+				return MODEACTION_DENY;
 		}
-		else if (!adding && dest->IsModeSet('x'))
+		else
 		{
-			/* don't allow this user to spam modechanges */
-			IS_LOCAL(dest)->CommandFloodPenalty += 5000;
-			
 			/* User is removing the mode, so restore their real host
 			 * and make it match the displayed one.
 			 */
-			dest->ChangeDisplayedHost(dest->host.c_str());
-			dest->SetMode('x',false);
+			user->ChangeDisplayedHost(user->host.c_str());
+			user->SetMode('x',false);
 			return MODEACTION_ALLOW;
 		}
-
-		return MODEACTION_DENY;
 	}
 
 };
@@ -150,7 +170,7 @@ class ModuleCloaking : public Module
 		}
 
 		if (splitdot == host.length())
-			return host;
+			return "";
 		else
 			return host.substr(splitdot);
 	}
