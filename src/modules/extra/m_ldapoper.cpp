@@ -31,7 +31,7 @@
 /* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
 /* $LinkerFlags: -lldap */
 
-class ModuleLDAPAuth : public Module
+class ModuleLDAPOper : public Module
 {
 	std::string base;
 	std::string ldapserver;
@@ -41,7 +41,7 @@ class ModuleLDAPAuth : public Module
 	LDAP *conn;
 
 public:
-	ModuleLDAPAuth()
+	ModuleLDAPOper()
 		{
 		conn = NULL;
 		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
@@ -49,7 +49,7 @@ public:
 		OnRehash(NULL);
 	}
 
-	virtual ~ModuleLDAPAuth()
+	virtual ~ModuleLDAPOper()
 	{
 		if (conn)
 			ldap_unbind_ext(conn, NULL, NULL);
@@ -182,4 +182,4 @@ public:
 
 };
 
-MODULE_INIT(ModuleLDAPAuth)
+MODULE_INIT(ModuleLDAPOper)
