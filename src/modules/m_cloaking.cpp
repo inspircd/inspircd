@@ -32,6 +32,10 @@ class CloakUser : public ModeHandler
 	Module* HashProvider;
 	const char *xtab[4];
 
+	std::string debounce_uid;
+	time_t debounce_ts;
+	int debounce_count;
+
 	/** This function takes a domain name string and returns just the last two domain parts,
 	 * or the last domain part if only two are available. Failing that it just returns what it was given.
 	 *
@@ -58,7 +62,7 @@ class CloakUser : public ModeHandler
 		}
 
 		if (splitdot == host.length())
-			return host;
+			return "";
 		else
 			return host.substr(splitdot);
 	}
@@ -79,8 +83,22 @@ class CloakUser : public ModeHandler
 			return MODEACTION_ALLOW;
 		}
 
+		if (dest->uuid == debounce_uid && debounce_ts == ServerInstance->Time())
+		{
+			// prevent spamming using /mode user +x-x+x-x+x-x
+			if (++debounce_count > 2)
+				return MODEACTION_DENY;
+		}
+		else
+		{
+			debounce_uid = dest->uuid;
+			debounce_count = 1;
+			debounce_ts = ServerInstance->Time();
+		}
+
 		/* don't allow this user to spam modechanges */
-		dest->IncreasePenalty(5);
+		if (source == dest)
+			dest->IncreasePenalty(5);
 
 		if (adding)
 		{
