@@ -33,11 +33,40 @@ DLLManager::DLLManager(const char *fname)
 	}
 }
 
+#ifdef VT_DEBUG
+extern std::set<void*>* alloc_list;
+static void check_list(void* h)
+{
+	Dl_info info;
+	void* ifn = dlsym(h, MODULE_INIT_STR);
+	if (!ifn)
+		return;
+	if (!dladdr(ifn, &info))
+		return;
+	std::string soname = info.dli_fname;
+	for(std::set<void*>::iterator i = alloc_list->begin(); i != alloc_list->end(); i++)
+	{
+		void* vtable = *reinterpret_cast<void**>(*i);
+		if (dladdr(vtable, &info) && info.dli_fname == soname)
+		{
+			ServerInstance->Logs->Log("DLLMGR", DEBUG, "Object @%p remains with vtable %s+0x%lx <%p> in %s",
+				*i, info.dli_sname, (long)(vtable - info.dli_saddr), vtable, info.dli_fname);
+		}
+	}
+}
+
+#else
+#define check_list(h) do {} while (0)
+#endif
+
 DLLManager::~DLLManager()
 {
 	/* close the library */
 	if (h)
+	{
+		check_list(h);
 		dlclose(h);
+	}
 }
 
 union init_t {

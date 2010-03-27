@@ -17,10 +17,26 @@
 #include "inspircd.h"
 #include <typeinfo>
 
+#ifdef VT_DEBUG
+std::set<void*>* alloc_list = NULL;
+static void alloc_list_add_(void* item)
+{
+	if (!alloc_list)
+		alloc_list = new std::set<classbase*>;
+	alloc_list->insert(item);
+}
+#define alloc_list_add(x) alloc_list_add_(static_cast<void*>(x))
+#define alloc_list_del(x) alloc_list->erase(x)
+#else
+#define alloc_list_add(x) do { } while (0)
+#define alloc_list_del(x) do { } while (0)
+#endif
+
 classbase::classbase()
 {
 	if (ServerInstance && ServerInstance->Logs)
 		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::+ @%p", (void*)this);
+	alloc_list_add(this);
 }
 
 CullResult classbase::cull()
@@ -35,6 +51,7 @@ classbase::~classbase()
 {
 	if (ServerInstance && ServerInstance->Logs)
 		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::~ @%p", (void*)this);
+	alloc_list_del(this);
 }
 
 CullResult::CullResult()
@@ -61,6 +78,7 @@ refcountbase::refcountbase() : refcount(0)
 {
 	if (this != last_heap)
 		throw CoreException("Reference allocate on the stack!");
+	alloc_list_add(this);
 }
 
 refcountbase::~refcountbase()
@@ -68,6 +86,7 @@ refcountbase::~refcountbase()
 	if (refcount && ServerInstance && ServerInstance->Logs)
 		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %d",
 			(void*)this, refcount);
+	alloc_list_del(this);
 }
 
 usecountbase::~usecountbase()
