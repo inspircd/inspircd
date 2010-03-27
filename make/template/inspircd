@@ -20,8 +20,7 @@ my $confpath	=	"@CONFIG_DIR@/";
 my $binpath	=	"@BINARY_DIR@";
 my $runpath	=	"@BASE_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
-my $executable	=	"@EXECUTABLE@";
-my $version	=	"@VERSION@";
+my $executable	=	"inspircd";
 my $uid = "@UID@";
 
 if ($< == 0 || $> == 0) {
@@ -44,12 +43,12 @@ our($pid,$pidfile);
 # Lets see what they want to do.. Set the variable (Cause i'm a lazy coder)
 my $arg = shift(@ARGV);
 my $conf;
-for my $a (@ARGV)
+for (@ARGV)
 {
-	if ($a =~ m/^--config=(.*)$/)
-	{
+	if (/^--config=(.*)$/) {
 		$conf = $1;
-		last;
+	} elsif (/^--pid(?:file)=(.*)$/) {
+		$pidfile = $1;
 	}
 }
 if (!defined $conf) {
@@ -126,8 +125,7 @@ sub cmd_cron()
 
 sub cmd_version()
 {
-	print "InspIRCd version: $version\n";
-	exit();
+	exec "$binpath/$executable", '--version';
 }
 
 sub cmd_restart(@)
@@ -313,11 +311,9 @@ my %filesparsed;
 sub getpidfile
 {
 	my ($file) = @_;
-	# Before we start, do we have a PID already? (Should never occur)
-	if ($pid ne "") {
-		return;
-	}
-	# Are We using a relative path?
+	return if defined $pidfile;
+
+	# Are we using a relative path?
 	if ($file !~ /^\//) {
 		# Convert it to a full path.
 		$file = $runpath .'/'. $file;

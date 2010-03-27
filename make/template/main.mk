@@ -14,6 +14,7 @@ CC = @CC@
 SYSTEM = @SYSTEM@
 BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
+PURE_STATIC = @PURE_STATIC@
 CXXFLAGS = -pipe -fPIC -DPIC
 LDLIBS = -pthread -lstdc++
 LDFLAGS = 
@@ -85,8 +86,11 @@ CXXFLAGS += -Iinclude
   RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
 @ENDIF
 
-@IFDEF PURE_STATIC
+@IFEQ $(PURE_STATIC) 0
+@ELSIFEQ $(PURE_STATIC) 1
   CXXFLAGS += -DPURE_STATIC
+@ELSE
+  HEADER = unknown-value-for-pure_static
 @ENDIF
 
 @DO_EXPORT RUNCC CXXFLAGS CC LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS PURE_STATIC
@@ -166,7 +170,7 @@ install: target@EXTRA_DIR@
 	@-install -d -m $(INSTMODE_DIR) $(CONPATH)
 	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
-@IFNDEF PURE_STATIC
+@IFEQ PURE_STATIC 0
 	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 @ENDIF
 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null

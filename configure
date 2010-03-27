@@ -1021,7 +1021,6 @@ EOF
 	# Write all .in files.
 	my $tmp = "";
 	my $file = "";
-	my $exe = "inspircd";
 
 	# Do this once here, and cache it in the .*.inc files,
 	# rather than attempting to read src/version.sh from
@@ -1039,21 +1038,20 @@ EOF
 	my @dotfiles = qw(main.mk inspircd);
 	push @dotfiles, 'org.inspircd.plist' if $config{OSNAME} eq 'darwin';
 
+	$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
+	$config{PURE_STATIC} ||= 0;
+
 	foreach my $file (@dotfiles) {
 		open(FILEHANDLE, "make/template/$file") or die "Can't open make/template/$file: $!";
 		$_ = join '', <FILEHANDLE>;
 		close(FILEHANDLE);
 
-		$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
-
 		for my $var (qw(
 			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR UID
-			STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE
+			STARTSCRIPT DESTINATION EXTRA_DIR SOCKETENGINE PURE_STATIC
 		)) {
 			s/\@$var\@/$config{$var}/g;
 		}
-		s/\@EXECUTABLE\@/$exe/ if defined $exe;
-		s/\@VERSION\@/$version/ if defined $version;
 
 		if ($file eq 'main.mk') {
 			print "Writing \e[1;32mGNUmakefile\e[0m ...\n";
