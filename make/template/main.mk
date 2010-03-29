@@ -161,8 +161,17 @@ finishmessage: target
 	@echo "*         make install              *"
 	@echo "*************************************"
 
-install: target@EXTRA_DIR@
-	@if [ $(INSTUID) = 0 ]; then echo "You must specify a non-root uid for the server"; exit 1; fi
+install: target
+	@if [ "$(INSTUID)" = 0 -o "$(INSTUID)" = root ]; then \
+		echo ""; \
+		echo "Error: You must specify a non-root UID for the server"; \
+		echo ""; \
+		echo "If you are making a package, please specify using ./configure --uid"; \
+		echo "Otherwise, rerun using 'make INSTUID=irc install', where 'irc' is the user"; \
+		echo "who will be running the ircd. You will also need to modify the start script."; \
+		echo ""; \
+		exit 1; \
+	fi
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
