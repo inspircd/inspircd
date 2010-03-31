@@ -340,6 +340,9 @@ class ModuleDNSBL : public Module
 
 	void OnUserInit(LocalUser* user)
 	{
+		if (user->exempt)
+			return;
+
 		/* following code taken from bopm, reverses an IP address. */
 		struct in_addr in;
 		unsigned char a, b, c, d;
