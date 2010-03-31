@@ -307,8 +307,7 @@ class ModuleDNSBL : public Module
 
 	virtual int OnUserRegister(User* user)
 	{
-		/* only do lookups on local users */
-		if (IS_LOCAL(user))
+		if (IS_LOCAL(user) && !user->exempt)
 		{
 			/* following code taken from bopm, reverses an IP address. */
 			struct in_addr in;
