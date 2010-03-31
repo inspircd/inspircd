@@ -1629,9 +1629,9 @@ void LocalUser::SetClass(const std::string &explicit_name)
 					continue;
 			}
 
-			if (regdone && !c->config->getString("pass").empty())
+			if (regdone && !c->config->getString("password").empty())
 			{
-				if (ServerInstance->PassCompare(this, c->config->getString("pass"), password, c->config->getString("hash")))
+				if (ServerInstance->PassCompare(this, c->config->getString("password"), password, c->config->getString("hash")))
 				{
 					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Bad password, skipping");
 					continue;
