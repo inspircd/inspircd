@@ -343,22 +343,17 @@ class ModuleDNSBL : public Module
 		if (user->exempt)
 			return;
 
-		/* following code taken from bopm, reverses an IP address. */
-		struct in_addr in;
 		unsigned char a, b, c, d;
 		char reversedipbuf[128];
 		std::string reversedip;
-		bool success;
 
-		success = inet_aton(user->GetIPString(), &in);
-
-		if (!success)
+		if (user->client_sa.sa.sa_family != AF_INET)
 			return;
 
-		d = (unsigned char) (in.s_addr >> 24) & 0xFF;
-		c = (unsigned char) (in.s_addr >> 16) & 0xFF;
-		b = (unsigned char) (in.s_addr >> 8) & 0xFF;
-		a = (unsigned char) in.s_addr & 0xFF;
+		d = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
+		c = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
+		b = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
+		a = (unsigned char) user->client_sa.in4.sin_addr.s_addr & 0xFF;
 
 		snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
 		reversedip = std::string(reversedipbuf);
