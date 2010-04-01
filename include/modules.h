@@ -94,10 +94,17 @@ struct ModResult {
 	}
 };
 
-/** If you change the module API in any way, increment this value.
- * This MUST be a pure integer, with no parenthesis
+/** InspIRCd major version.
+ * 1.2 -> 102; 2.1 -> 201; 2.12 -> 212
  */
-#define API_VERSION 141
+#define INSPIRCD_VERSION_MAJ 200
+/** InspIRCd API version.
+ * If you change any API elements, increment this value. This counter should be
+ * reset whenever the major version is changed. Modules can use these two values
+ * and numerical comparisons in preprocessor macros if they wish to support
+ * multiple versions of InspIRCd in one file.
+ */
+#define INSPIRCD_VERSION_API 1
 
 /**
  * This #define allows us to call a method in all
@@ -169,12 +176,8 @@ do { \
 /** Holds a module's Version information.
  * The members (set by the constructor only) indicate details as to the version number
  * of a module. A class of type Version is returned by the GetVersion method of the Module class.
- *
- * The core provides only one implementation of the template, causing a run-time linking
- * error when attempting to load a module compiled against a different API_VERSION.
  */
-template<int api>
-class CoreExport VersionBase
+class CoreExport Version
 {
  public:
 	/** Module description
@@ -189,18 +192,13 @@ class CoreExport VersionBase
 	const std::string link_data;
 
 	/** Simple module version */
-	VersionBase(const std::string &desc, int flags = VF_NONE);
+	Version(const std::string &desc, int flags = VF_NONE);
 
 	/** Complex version information, including linking compatability data */
-	VersionBase(const std::string &desc, int flags, const std::string& linkdata);
+	Version(const std::string &desc, int flags, const std::string& linkdata);
 
-	virtual ~VersionBase() {}
-
-	/** Return true if the module can link (default is identity comparison) */
-	virtual bool CanLink(const std::string& other_data);
+	virtual ~Version() {}
 };
-
-typedef VersionBase<API_VERSION> Version;
 
 /** The Request class is a unicast message directed at a given module.
  * When this class is properly instantiated it may be sent to a module
@@ -1646,9 +1644,9 @@ class CoreExport ModuleManager
 #define MODULE_INIT_STR MODULE_INIT_STR_FN_2(MODULE_INIT_SYM)
 #define MODULE_INIT_STR_FN_2(x) MODULE_INIT_STR_FN_1(x)
 #define MODULE_INIT_STR_FN_1(x) #x
-#define MODULE_INIT_SYM MODULE_INIT_SYM_FN_2(API_VERSION)
-#define MODULE_INIT_SYM_FN_2(x) MODULE_INIT_SYM_FN_1(x)
-#define MODULE_INIT_SYM_FN_1(x) inspircd_module_ ## x
+#define MODULE_INIT_SYM MODULE_INIT_SYM_FN_2(INSPIRCD_VERSION_MAJ, INSPIRCD_VERSION_API)
+#define MODULE_INIT_SYM_FN_2(x,y) MODULE_INIT_SYM_FN_1(x,y)
+#define MODULE_INIT_SYM_FN_1(x,y) inspircd_module_ ## x ## _ ## y
 
 #ifdef PURE_STATIC
 
