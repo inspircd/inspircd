@@ -136,6 +136,10 @@ debug-header:
 	@echo "*************************************"
 
 mod-header:
+@IFEQ $(PURE_STATIC) 1
+	@echo 'Cannot build single modules in pure-static build'
+	@exit 1
+@ENDIF
 	@echo 'Building single module:'
 
 mod-footer: target
