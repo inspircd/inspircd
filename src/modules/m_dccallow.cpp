@@ -88,7 +88,7 @@ class CommandDccallow : public Command
 			}
 
 			std::string nick = parameters[0].substr(1);
-			User *target = ServerInstance->FindNick(nick);
+			User *target = ServerInstance->FindNickOnly(nick);
 
 			if (target)
 			{

@@ -54,7 +54,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
-		u = ServerInstance->FindNick(parameters[i]);
+		u = ServerInstance->FindNickOnly(parameters[i]);
 		if (ison_already.find(u) != ison_already.end())
 			continue;
 
@@ -79,7 +79,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 
 				while (list.GetToken(item))
 				{
-					u = ServerInstance->FindNick(item);
+					u = ServerInstance->FindNickOnly(item);
 					if (ison_already.find(u) != ison_already.end())
 						continue;
 

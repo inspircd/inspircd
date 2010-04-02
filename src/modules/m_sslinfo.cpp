@@ -83,7 +83,7 @@ class CommandSSLInfo : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		User* target = ServerInstance->FindNick(parameters[0]);
+		User* target = ServerInstance->FindNickOnly(parameters[0]);
 
 		if (!target)
 		{

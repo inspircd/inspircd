@@ -50,7 +50,7 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
-		User *u = ServerInstance->FindNick(parameters[i]);
+		User *u = ServerInstance->FindNickOnly(parameters[i]);
 
 		if ((u) && (u->registered == REG_ALL))
 		{
