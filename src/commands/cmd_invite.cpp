@@ -41,7 +41,12 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 	if (parameters.size() == 2 || parameters.size() == 3)
 	{
-		User* u = ServerInstance->FindNick(parameters[0]);
+		User* u;
+		if (IS_LOCAL(user))
+			u = ServerInstance->FindNickOnly(parameters[0]);
+		else
+			u = ServerInstance->FindNick(parameters[0]);
+
 		Channel* c = ServerInstance->FindChan(parameters[1]);
 		time_t timeout = 0;
 		if (parameters.size() == 3)

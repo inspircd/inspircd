@@ -40,10 +40,15 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 {
 	std::string reason;
 	Channel* c = ServerInstance->FindChan(parameters[0]);
-	User* u = ServerInstance->FindNick(parameters[1]);
+	User* u;
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 1))
 		return CMD_SUCCESS;
+
+	if (IS_LOCAL(user))
+		u = ServerInstance->FindNickOnly(parameters[1]);
+	else
+		u = ServerInstance->FindNick(parameters[1]);
 
 	if (!u || !c)
 	{
