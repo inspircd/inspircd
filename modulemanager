@@ -141,10 +141,9 @@ my %todo = %installed;
 sub ver_cmp {
 	($a,$b) = @_ if @_;
 
-	# string versions first, git IDs
-	if ($a =~ /[a-z0-9]{40}/ or $b =~ /[a-z0-9]{40}/)
+	if ($a !~ /^[0-9.]+$/ or $b !~ /^[0-9.]+$/)
 	{
-		# it's a string version. compare them as such.
+		# not a valid version number, don't try to sort
 		return $a ne $b;
 	}
 
@@ -152,7 +151,7 @@ sub ver_cmp {
 	my @a = split /\./, $a;
 	my @b = split /\./, $b;
 	push @a, 0 while $#a < $#b;
-	push @b, 0 while $#b < $#a;
+	push @b, ($_[2] || 0) while $#b < $#a;
 	for my $i (0..$#a) {
 		my $d = $a[$i] <=> $b[$i];
 		return $d if $d;
@@ -163,13 +162,13 @@ sub ver_cmp {
 sub ver_in_range {
 	my($ver, $range) = @_;
 	return 1 unless defined $range;
+	my($l,$h) = ($range, $range);
 	if ($range =~ /(.*)-(.*)/) {
-		my($l,$h) = ($1,$2);
-		return 0 if $l && ver_cmp($ver, $l) < 0;
-		return 0 if $h && ver_cmp($ver, $h) > 0;
-		return 1;
+		($l,$h) = ($1,$2);
 	}
-	return !ver_cmp($ver, $range);
+	return 0 if $l && ver_cmp($ver, $l) < 0;
+	return 0 if $h && ver_cmp($ver, $h, 9999) > 0;
+	return 1;
 }
 
 sub find_mod_in_range {
