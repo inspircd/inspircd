@@ -335,10 +335,10 @@ int main(int argc, char** argv)
 	 * process.
 	 */
 	SC_HANDLE myService, scm;
-	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
+	scm = OpenSCManager(0,0,GENERIC_READ);
 	if (scm)
 	{
-		myService = OpenService(scm,"InspIRCd",SERVICE_ALL_ACCESS);
+		myService = OpenService(scm,"InspIRCd",GENERIC_READ);
 		if (!myService)
 		{
 			/* Service not installed or no permission to modify it */
