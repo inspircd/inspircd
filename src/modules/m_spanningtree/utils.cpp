@@ -54,7 +54,7 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 	if (ServerInstance->IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
-	server_hash::iterator iter = serverlist.find(ServerName.c_str());
+	server_hash::iterator iter = serverlist.find(ServerName);
 	if (iter != serverlist.end())
 	{
 		return iter->second;

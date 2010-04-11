@@ -83,9 +83,6 @@ class SpanningTreeUtilities : public classbase
 	/** Hash of currently known server ids
 	 */
 	server_hash sidlist;
-	/** Hash of servers currently bursting but not initialized as connected
-	 */
-	std::map<irc::string,TreeSocket*> burstingserverlist;
 	/** List of all outgoing sockets and their timeouts
 	 */
 	std::map<TreeSocket*, std::pair<std::string, int> > timeoutlist;

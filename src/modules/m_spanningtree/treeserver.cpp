@@ -27,7 +27,7 @@
  * no socket associated with it. Its version string is our own local version.
  */
 TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id)
-	: ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util), ServerUser(ServerInstance->FakeClient)
+	: ServerName(Name), ServerDesc(Desc), Utils(Util), ServerUser(ServerInstance->FakeClient)
 {
 	age = ServerInstance->Time();
 	bursting = false;
@@ -48,7 +48,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
  * its ping counters so that it will be pinged one minute from now.
  */
 TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), ServerUser(new FakeUser(id, Name)), Hidden(Hide)
+	: Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock), Utils(Util), ServerUser(new FakeUser(id, Name)), Hidden(Hide)
 {
 	age = ServerInstance->Time();
 	bursting = true;
@@ -144,7 +144,7 @@ void TreeServer::FinishBurst()
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	AddServerEvent(Utils->Creator, ServerName.c_str());
+	AddServerEvent(Utils->Creator, ServerName);
 }
 
 void TreeServer::SetID(const std::string &id)
@@ -188,9 +188,9 @@ int TreeServer::QuitUsers(const std::string &reason)
  */
 void TreeServer::AddHashEntry()
 {
-	server_hash::iterator iter = Utils->serverlist.find(this->ServerName.c_str());
+	server_hash::iterator iter = Utils->serverlist.find(this->ServerName);
 	if (iter == Utils->serverlist.end())
-		Utils->serverlist[this->ServerName.c_str()] = this;
+		Utils->serverlist[ServerName] = this;
 }
 
 /** This method removes the reference to this object
@@ -199,7 +199,7 @@ void TreeServer::AddHashEntry()
  */
 void TreeServer::DelHashEntry()
 {
-	server_hash::iterator iter = Utils->serverlist.find(this->ServerName.c_str());
+	server_hash::iterator iter = Utils->serverlist.find(this->ServerName);
 	if (iter != Utils->serverlist.end())
 		Utils->serverlist.erase(iter);
 }
@@ -214,7 +214,7 @@ TreeServer* TreeServer::GetRoute()
 
 std::string TreeServer::GetName()
 {
-	return ServerName.c_str();
+	return ServerName;
 }
 
 std::string TreeServer::GetDesc()

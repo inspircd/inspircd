@@ -35,7 +35,7 @@ class TreeServer : public classbase
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	irc::string ServerName;			/* Server's name */
+	std::string ServerName;			/* Server's name */
 	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
 	unsigned int ServerUserCount;		/* How many users are on this server? [note: doesn't care about +i] */
