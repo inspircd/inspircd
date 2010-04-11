@@ -39,6 +39,9 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 
 	if (!remoteserver)
 		return CMD_INVALID;
+	/* Is this a valid UID, and not misrouted? */
+	if (params[0].length() != 9 || params[0].substr(0,3) != serversrc->uuid)
+		return CMD_INVALID;
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age_t)
 		return CMD_INVALID;
@@ -61,7 +64,11 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 
 		if (collide != 1)
 		{
-			/* remote client changed, make sure we change their nick for the hash too */
+			/* remote client lost, make sure we change their nick for the hash too
+			 *
+			 * This alters the line that will be sent to other servers, which
+			 * commands normally shouldn't do; hence the required const_cast.
+			 */
 			const_cast<parameterlist&>(params)[2] = params[0];
 		}
 	}
@@ -97,9 +104,6 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	unsigned int paramptr = 9;
 	for (std::string::iterator v = modestr.begin(); v != modestr.end(); v++)
 	{
-		if (*v == '+')
-			continue;
-
 		/* For each mode thats set, increase counter */
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
 
