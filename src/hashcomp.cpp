@@ -148,7 +148,7 @@ void nspace::strlower(char *n)
 #endif
 {
 	register size_t t = 0;
-	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
+	for (std::string::const_iterator x = s.value.begin(); x != s.value.end(); ++x) /* ++x not x++, as its faster */
 		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
 	return t;
 }
@@ -213,6 +213,16 @@ const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 	while(n-- > 0 && national_case_insensitive_map[(unsigned char)*s1] != national_case_insensitive_map[(unsigned char)c])
 		s1++;
 	return (n >= 0) ? s1 : NULL;
+}
+
+std::string irc::irc_char_traits::remap(const std::string& source)
+{
+	std::string rv;
+	std::string::size_type len = source.length();
+	rv.reserve(len);
+	for(size_t i=0; i < len; i++)
+		rv.push_back(national_case_insensitive_map[(unsigned char)source[i]]);
+	return rv;
 }
 
 irc::tokenstream::tokenstream(const std::string &source) : tokens(source), last_pushed(false)

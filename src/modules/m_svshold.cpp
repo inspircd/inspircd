@@ -24,9 +24,8 @@ public:
 	irc::string nickname;
 
 	SVSHold(time_t s_time, long d, std::string src, std::string re, std::string nick)
-		: XLine(s_time, d, src, re, "SVSHOLD")
+		: XLine(s_time, d, src, re, "SVSHOLD"), nickname(nick)
 	{
-		this->nickname = nick.c_str();
 	}
 
 	~SVSHold()
@@ -35,14 +34,14 @@ public:
 
 	bool Matches(User *u)
 	{
-		if (u->nick == nickname)
+		if (assign(u->nick) == nickname)
 			return true;
 		return false;
 	}
 
 	bool Matches(const std::string &s)
 	{
-		if (nickname == s)
+		if (nickname == assign(s))
 			return true;
 		return false;
 	}

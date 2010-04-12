@@ -200,21 +200,22 @@ class ModuleAlias : public Module
 		// text is like "!moo cows bite me", we want "!moo" first
 		irc::spacesepstream ss(text);
 		ss.GetToken(scommand);
-		irc::string fcommand = scommand.c_str();
 
-		if (fcommand.empty())
+		if (scommand.empty())
 		{
 			return; // wtfbbq
 		}
 
 		// we don't want to touch non-fantasy stuff
-		if (*fcommand.c_str() != fprefix)
+		if (*scommand.c_str() != fprefix)
 		{
 			return;
 		}
 
 		// nor do we give a shit about the prefix
-		fcommand.erase(fcommand.begin());
+		scommand.erase(scommand.begin());
+
+		irc::string fcommand = scommand;
 
 		std::multimap<irc::string, Alias>::iterator i = Aliases.find(fcommand);
 
@@ -226,7 +227,7 @@ class ModuleAlias : public Module
 
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = text.substr(fcommand.length() + 1);
+		std::string compare = text.substr(scommand.length() + 1);
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 

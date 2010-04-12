@@ -17,13 +17,15 @@
 
 Channel::Channel(const std::string &cname, time_t ts)
 {
-	chan_hash::iterator findchan = ServerInstance->chanlist->find(cname);
-	if (findchan != ServerInstance->chanlist->end())
-		throw CoreException("Cannot create duplicate channel " + cname);
+	name.assign(cname, 0, ServerInstance->Config->Limits.ChanMax);
+	age = ts ? ts : ServerInstance->Time();
 
-	(*(ServerInstance->chanlist))[cname.c_str()] = this;
-	this->name.assign(cname, 0, ServerInstance->Config->Limits.ChanMax);
-	this->age = ts ? ts : ServerInstance->Time();
+	chan_hash::iterator findchan = ServerInstance->chanlist->find(name);
+	if (findchan != ServerInstance->chanlist->end())
+		throw CoreException("Cannot create duplicate channel " + name);
+
+
+	ServerInstance->chanlist->insert(std::make_pair(name, this));
 
 	maxbans = topicset = 0;
 	modebits.reset();
@@ -294,7 +296,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 			else if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
-				bool invited = IS_LOCAL(user)->IsInvited(Ptr->name.c_str());
+				bool invited = IS_LOCAL(user)->IsInvited(Ptr->name);
 				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
 
 				if (!ckey.empty())
@@ -341,7 +343,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 				 */
 				if (invited)
 				{
-					IS_LOCAL(user)->RemoveInvite(Ptr->name.c_str());
+					IS_LOCAL(user)->RemoveInvite(Ptr->name);
 				}
 			}
 		}

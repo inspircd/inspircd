@@ -387,10 +387,10 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->Hidden = tag->getBool("hidden");
 
 		if (L->Name.find('.') == std::string::npos)
-			throw CoreException("The link name '"+assign(L->Name)+"' is invalid and must contain at least one '.' character");
+			throw CoreException("The link name '"+L->Name+"' is invalid and must contain at least one '.' character");
 
 		if (L->Name.length() > 64)
-			throw CoreException("The link name '"+assign(L->Name)+"' is longer than 64 characters!");
+			throw CoreException("The link name '"+L->Name+"' is longer than 64 characters!");
 
 		if (L->Fingerprint.find(':') != std::string::npos)
 		{
@@ -411,17 +411,17 @@ void SpanningTreeUtilities::ReadConfiguration()
 			{
 				L->IPAddr = "*";
 				ValidIPs.push_back("*");
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L->Name) + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
+				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + L->Name + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 			}
 
 			if (L->RecvPass.empty())
 			{
-				throw CoreException("Invalid configuration for server '"+assign(L->Name)+"', recvpass not defined!");
+				throw CoreException("Invalid configuration for server '"+L->Name+"', recvpass not defined!");
 			}
 
 			if (L->SendPass.empty())
 			{
-				throw CoreException("Invalid configuration for server '"+assign(L->Name)+"', sendpass not defined!");
+				throw CoreException("Invalid configuration for server '"+L->Name+"', sendpass not defined!");
 			}
 
 			if (L->Name.empty())
@@ -431,7 +431,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 			if (!L->Port)
 			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L->Name) + " has no port defined, you will not be able to /connect it.");
+				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + L->Name + " has no port defined, you will not be able to /connect it.");
 			}
 		}
 

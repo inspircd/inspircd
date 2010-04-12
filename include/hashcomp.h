@@ -142,6 +142,11 @@ namespace irc
 		 * @return Pointer to the first occurance of c in s1
 		 */
 		static CoreExport const char* find(const char* s1, int  n, char c);
+
+		/** Remap a string so that comparisons for std::string match those
+		 * of irc::string; will be faster if doing many comparisons
+		 */
+		static std::string remap(const std::string& source);
 	};
 
 	/** Compose a hex string from raw data.
@@ -153,7 +158,36 @@ namespace irc
 
 	/** This typedef declares irc::string based upon irc_char_traits.
 	 */
-	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;
+	class string
+	{
+	 public:
+		std::string value;
+		string() {}
+		string(const std::string& v) : value(v) {}
+		string(const char* v) : value(v) {}
+		inline operator std::string&() { return value; }
+		inline operator const std::string&() const { return value; }
+		inline const char* c_str() const { return value.c_str(); }
+		inline bool operator<(const string& o) const
+		{
+			const std::string::size_type __mlen = value.length();
+			const std::string::size_type __olen = o.value.length();
+			const std::string::size_type __len = std::min(__mlen, __olen);
+			return irc_char_traits::compare(value.c_str(), o.value.c_str(), __len) < 0;
+		}
+		inline bool operator==(const string& o) const
+		{
+			if (value.length() != o.value.length())
+				return false;
+			return irc_char_traits::compare(value.c_str(), o.value.c_str(), value.length()) == 0;
+		}
+		inline bool operator!=(const string& o) const
+		{
+			if (value.length() != o.value.length())
+				return true;
+			return irc_char_traits::compare(value.c_str(), o.value.c_str(), value.length()) != 0;
+		}
+	};
 
 	/** irc::stringjoiner joins string lists into a string, using
 	 * the given seperator string.
@@ -408,7 +442,7 @@ namespace irc
 
 /** Operator << for irc::string
  */
-inline std::ostream& operator<<(std::ostream &os, const irc::string &str) { return os << str.c_str(); }
+inline std::ostream& operator<<(std::ostream &os, const irc::string &str) { return os << str.value; }
 
 /** Operator >> for irc::string
  */
@@ -416,7 +450,7 @@ inline std::istream& operator>>(std::istream &is, irc::string &str)
 {
 	std::string tmp;
 	is >> tmp;
-	str = tmp.c_str();
+	str = tmp;
 	return is;
 }
 
@@ -427,60 +461,16 @@ inline std::istream& operator>>(std::istream &is, irc::string &str)
  */
 inline std::string operator+ (std::string& leftval, irc::string& rightval)
 {
-	return leftval + std::string(rightval.c_str());
-}
-
-/* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison
- *
- * Operator +
- */
-inline irc::string operator+ (irc::string& leftval, std::string& rightval)
-{
-	return leftval + irc::string(rightval.c_str());
-}
-
-/* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison
- *
- * Operator ==
- */
-inline bool operator== (const std::string& leftval, const irc::string& rightval)
-{
-	return (leftval.c_str() == rightval);
-}
-
-/* Define operators for + and == with irc::string to std::string for easy assignment
- * and comparison
- *
- * Operator ==
- */
-inline bool operator== (const irc::string& leftval, const std::string& rightval)
-{
-	return (leftval == rightval.c_str());
-}
-
-/* Define operators != for irc::string to std::string for easy comparison
- */
-inline bool operator!= (const irc::string& leftval, const std::string& rightval)
-{
-	return !(leftval == rightval.c_str());
-}
-
-/* Define operators != for std::string to irc::string for easy comparison
- */
-inline bool operator!= (const std::string& leftval, const irc::string& rightval)
-{
-	return !(leftval.c_str() == rightval);
+	return leftval + rightval.value;
 }
 
 /** Assign an irc::string to a std::string.
  */
-inline std::string assign(const irc::string &other) { return other.c_str(); }
+inline const std::string& assign(const irc::string &other) { return other.value; }
 
 /** Assign a std::string to an irc::string.
  */
-inline irc::string assign(const std::string &other) { return other.c_str(); }
+inline irc::string assign(const std::string &other) { return other; }
 
 /** Trim the leading and trailing spaces from a std::string.
  */

@@ -17,7 +17,7 @@
 #include "inspircd.h"
 #include <iostream>
 
-typedef std::map<irc::string,irc::string> censor_t;
+typedef std::map<std::string,std::string> censor_t;
 
 /* $ModDesc: Provides user and channel +G mode */
 
@@ -85,10 +85,10 @@ class ModuleCensor : public Module
 		if (!active)
 			return MOD_RES_PASSTHRU;
 
-		irc::string text2 = text.c_str();
+		std::string text2 = irc::irc_char_traits::remap(text);
 		for (censor_t::iterator index = censors.begin(); index != censors.end(); index++)
 		{
-			if (text2.find(index->first) != irc::string::npos)
+			if (text2.find(index->first) != std::string::npos)
 			{
 				if (index->second.empty())
 				{
@@ -117,10 +117,12 @@ class ModuleCensor : public Module
 		ConfigReader MyConf;
 		censors.clear();
 
-		for (int index = 0; index < MyConf.Enumerate("badword"); index++)
+		ConfigTagList badwords = ServerInstance->Config->ConfTags("badword");
+		for(ConfigIter i = badwords.first; i != badwords.second; ++i)
 		{
-			irc::string pattern = (MyConf.ReadValue("badword","text",index)).c_str();
-			irc::string replace = (MyConf.ReadValue("badword","replace",index)).c_str();
+			ConfigTag* tag = i->second;
+			std::string pattern = irc::irc_char_traits::remap(tag->getString("text"));
+			std::string replace = tag->getString("replace");
 			censors[pattern] = replace;
 		}
 	}

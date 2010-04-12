@@ -93,7 +93,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		return false;
 	}
 
-	irc::string servername = params[0].c_str();
+	std::string servername = params[0];
 	std::string sname = params[0];
 	std::string password = params[1];
 	std::string sid = params[3];
@@ -138,7 +138,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		if (CheckDupe)
 		{
 			this->SendError("Server ID "+sid+" already exists on the network! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-			ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
+			ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+servername+"\2 being introduced denied, server ID already exists on the network. Closing link.");
 			return false;
 		}
 
@@ -185,7 +185,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 		return false;
 	}
 
-	irc::string servername = params[0].c_str();
+	std::string servername = params[0];
 	std::string sname = params[0];
 	std::string password = params[1];
 	std::string sid = params[3];
