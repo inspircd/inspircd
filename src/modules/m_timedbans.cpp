@@ -116,12 +116,11 @@ class ModuleTimedBans : public Module
 	ModuleTimedBans(InspIRCd* Me)
 		: Module(Me)
 	{
-		
 		mycommand = new cmd_tban(ServerInstance);
 		ServerInstance->AddCommand(mycommand);
 		TimedBanList.clear();
 	}
-	
+
 	virtual ~ModuleTimedBans()
 	{
 		TimedBanList.clear();
@@ -151,60 +150,46 @@ class ModuleTimedBans : public Module
 
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
-		bool again = true;
-		while (again)
+		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end();)
 		{
-			again = false;
-			for (timedbans::iterator i = TimedBanList.begin(); i < TimedBanList.end(); i++)
+			if (curtime > i->expire)
 			{
-				if (curtime > i->expire)
+				std::string chan = i->channel;
+				std::string mask = i->mask;
+				chanrec* cr = ServerInstance->FindChan(chan);
+				i = TimedBanList.erase(i);
+				if (cr)
 				{
-					chanrec* cr = ServerInstance->FindChan(i->channel);
-					again = true;
-					if (cr)
-					{
-						const char *setban[3];
-						std::string mask = i->mask;
-						
-						setban[0] = i->channel.c_str();
-						setban[1] = "-b";
-						setban[2] = mask.c_str();
-						// kludge alert!
-						// ::SendMode expects a userrec* to send the numeric replies
-						// back to, so we create it a fake user that isnt in the user
-						// hash and set its descriptor to FD_MAGIC_NUMBER so the data
-						// falls into the abyss :p
-						userrec* temp = new userrec(ServerInstance);
-						CUList empty;
-						temp->SetFd(FD_MAGIC_NUMBER);
-						cr->WriteAllExcept(temp, true, '@', empty, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
-						cr->WriteAllExcept(temp, true, '%', empty, "NOTICE %s :Timed ban on %s expired.", cr->name, i->mask.c_str());
-						/* FIX: Send mode remotely*/
-						std::deque<std::string> n;
-						n.push_back(setban[0]);
-						n.push_back("-b");
-						n.push_back(setban[2]);
-						ServerInstance->SendMode(setban,3,temp);
-						Event rmode((char *)&n, NULL, "send_mode");
-						rmode.Send(ServerInstance);
-						DELETE(temp);
-						
-						/* Fix for crash if user cycles before the ban expires */
-						if (ServerInstance->Modes->GetLastParse().empty())
-							TimedBanList.erase(i); 
-					}
-					else
-					{
-						/* Where the hell did our channel go?! */
-						TimedBanList.erase(i);
-					}
-					// we used to delete the item here, but we dont need to as the servermode above does it for us,
-					break;
+					const char *setban[3];
+					setban[0] = chan.c_str();
+					setban[1] = "-b";
+					setban[2] = mask.c_str();
+					// kludge alert!
+					// ::SendMode expects a userrec* to send the numeric replies
+					// back to, so we create it a fake user that isnt in the user
+					// hash and set its descriptor to FD_MAGIC_NUMBER so the data
+					// falls into the abyss :p
+					userrec* temp = new userrec(ServerInstance);
+					CUList empty;
+					temp->SetFd(FD_MAGIC_NUMBER);
+					cr->WriteAllExcept(temp, true, '@', empty, "NOTICE %s :Timed ban on %s expired.", cr->name, setban[2]);
+					cr->WriteAllExcept(temp, true, '%', empty, "NOTICE %s :Timed ban on %s expired.", cr->name, setban[2]);
+					/* FIX: Send mode remotely*/
+					std::deque<std::string> n;
+					n.push_back(setban[0]);
+					n.push_back(setban[1]);
+					n.push_back(setban[2]);
+					ServerInstance->SendMode(setban,3,temp);
+					Event rmode((char *)&n, NULL, "send_mode");
+					rmode.Send(ServerInstance);
+					DELETE(temp);
 				}
 			}
+			else
+				++i;
 		}
 	}
-	
+
 	virtual Version GetVersion()
 	{
 		return Version(1, 1, 0, 0, VF_COMMON | VF_VENDOR, API_VERSION);
