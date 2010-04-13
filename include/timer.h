@@ -111,10 +111,9 @@ class CoreExport Timer
  */
 class CoreExport TimerManager
 {
- protected:
-	/** A list of all pending timers
+	/** Pending timers
 	 */
-	std::vector<Timer *> Timers;
+	std::multimap<time_t, Timer*> Timers;
 
  public:
 	/** Constructor
@@ -141,10 +140,6 @@ class CoreExport TimerManager
 	 * @param T an Timer derived class to delete
 	 */
 	void DelTimer(Timer* T);
-
-	/** Compares two timers
-	 */
-	static bool TimerComparison( Timer *one,  Timer*two);
 };
 
 #endif

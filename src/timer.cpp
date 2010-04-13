@@ -11,10 +11,7 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
-#include "timer.h"
 
 TimerManager::TimerManager()
 {
@@ -22,21 +19,22 @@ TimerManager::TimerManager()
 
 TimerManager::~TimerManager()
 {
-	for(std::vector<Timer *>::iterator i = Timers.begin(); i != Timers.end(); i++)
-		delete *i;
+	for(std::multimap<time_t, Timer *>::iterator i = Timers.begin(); i != Timers.end(); i++)
+		delete i->second;
 }
 
 void TimerManager::TickTimers(time_t TIME)
 {
-	while ((Timers.size()) && (TIME > (*Timers.begin())->GetTimer()))
+	while (!Timers.empty())
 	{
-		std::vector<Timer *>::iterator i = Timers.begin();
-		Timer *t = (*i);
-
-		// Probable fix: move vector manipulation to *before* we modify the vector.
+		std::multimap<time_t, Timer*>::iterator i = Timers.begin();
+		Timer* t = i->second;
+		if (t->GetTimer() > TIME)
+			return;
 		Timers.erase(i);
 
 		t->Tick(TIME);
+
 		if (t->GetRepeat())
 		{
 			t->SetTimer(TIME + t->GetSecs());
@@ -49,22 +47,23 @@ void TimerManager::TickTimers(time_t TIME)
 
 void TimerManager::DelTimer(Timer* T)
 {
-	std::vector<Timer *>::iterator i = std::find(Timers.begin(), Timers.end(), T);
-
-	if (i != Timers.end())
+	std::multimap<time_t, Timer*>::iterator i = Timers.find(T->GetTimer());
+	while (1)
 	{
-		delete (*i);
-		Timers.erase(i);
+		if (i == Timers.end())
+			return;
+		if (i->second == T)
+			break;
+		if (i->second->GetTimer() != T->GetTimer())
+			return;
+		i++;
 	}
+
+	Timers.erase(i);
+	delete T;
 }
 
 void TimerManager::AddTimer(Timer* T)
 {
-	Timers.push_back(T);
-	sort(Timers.begin(), Timers.end(), TimerManager::TimerComparison);
-}
-
-bool TimerManager::TimerComparison( Timer *one, Timer *two)
-{
-	return (one->GetTimer()) < (two->GetTimer());
+	Timers.insert(std::make_pair(T->GetTimer(), T));
 }
