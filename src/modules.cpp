@@ -701,15 +701,6 @@ long ConfigReader::GetError()
 	return olderr;
 }
 
-int ConfigReader::Enumerate(const std::string &tag)
-{
-	ServerInstance->Logs->Log("MODULE", DEBUG, "Module is using ConfigReader::Enumerate on %s; this is slow!",
-		tag.c_str());
-	int i=0;
-	while (SlowGetTag(tag, i)) i++;
-	return i;
-}
-
 FileReader::FileReader(const std::string &filename)
 {
 	LoadFile(filename);

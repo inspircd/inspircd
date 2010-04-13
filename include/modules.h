@@ -1270,14 +1270,6 @@ class CoreExport ConfigReader : public interfacebase
 	 * A call to GetError() resets the error flag back to 0.
 	 */
 	long GetError();
-
-	/** Counts the number of times a given tag appears in the config file.
-	 * This method counts the number of times a tag appears in a config file, for use where
-	 * there are several tags of the same kind, e.g. with opers and connect types. It can be
-	 * used with the index value of ConfigReader::ReadValue to loop through all copies of a
-	 * multiple instance tag.
-	 */
-	int Enumerate(const std::string &tag);
 };
 
 

@@ -446,18 +446,15 @@ class ModuleDCCAllow : public Module
 
 	void ReadFileConf()
 	{
-		ConfigReader Conf;
 		bfl.clear();
-		for (int i = 0; i < Conf.Enumerate("banfile"); i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			BannedFileList bf;
-			std::string fileglob = Conf.ReadValue("banfile", "pattern", i);
-			std::string action = Conf.ReadValue("banfile", "action", i);
-			bf.filemask = fileglob;
-			bf.action = action;
+			bf.filemask = i->second->getString("pattern");
+			bf.action = i->second->getString("action");
 			bfl.push_back(bf);
 		}
-
 	}
 
 	virtual ~ModuleDCCAllow()

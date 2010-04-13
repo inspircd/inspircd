@@ -70,12 +70,13 @@ class ModuleHostChange : public Module
 			delete i->second;
 		}
 		hostchanges.clear();
-		for (int index = 0; index < Conf.Enumerate("hostchange"); index++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("hostchange");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			std::string mask = Conf.ReadValue("hostchange", "mask", index);
-			std::string ports = Conf.ReadValue("hosthange", "ports", index);
-			std::string action = Conf.ReadValue("hostchange", "action", index);
-			std::string newhost = Conf.ReadValue("hostchange", "value", index);
+			std::string mask = i->second->getString("mask");
+			std::string ports = i->second->getString("ports");
+			std::string action = i->second->getString("action");
+			std::string newhost = i->second->getString("value");
 			Host* x = new Host;
 			x->action = action;
 			x->ports = ports;

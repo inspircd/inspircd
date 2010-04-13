@@ -433,9 +433,10 @@ void ModuleFilter::OnRehash(User* user)
 {
 	ConfigReader MyConf;
 	std::vector<std::string>().swap(exemptfromfilter);
-	for (int index = 0; index < MyConf.Enumerate("exemptfromfilter"); ++index)
+	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
+	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		std::string chan = MyConf.ReadValue("exemptfromfilter", "channel", index);
+		std::string chan = i->second->getString("channel");
 		if (!chan.empty()) {
 			exemptfromfilter.push_back(chan);
 		}
@@ -597,15 +598,15 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 
 void ModuleFilter::ReadFilters(ConfigReader &MyConf)
 {
-	for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
+	ConfigTagList tags = ServerInstance->Config->ConfTags("keyword");
+	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		this->DeleteFilter(MyConf.ReadValue("keyword", "pattern", index));
-
-		std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
-		std::string reason = MyConf.ReadValue("keyword", "reason", index);
-		std::string action = MyConf.ReadValue("keyword", "action", index);
-		std::string flgs = MyConf.ReadValue("keyword", "flags", index);
-		long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index));
+		std::string pattern = i->second->getString("pattern");
+		std::string reason = i->second->getString("reason");
+		std::string action = i->second->getString("action");
+		std::string flgs = i->second->getString("flags");
+		long gline_time = ServerInstance->Duration(i->second->getString("duration"));
+		this->DeleteFilter(pattern);
 		if (action.empty())
 			action = "none";
 		if (flgs.empty())
