@@ -173,7 +173,10 @@ namespace irc
 			const std::string::size_type __mlen = value.length();
 			const std::string::size_type __olen = o.value.length();
 			const std::string::size_type __len = std::min(__mlen, __olen);
-			return irc_char_traits::compare(value.c_str(), o.value.c_str(), __len) < 0;
+			const int __cmp = irc_char_traits::compare(value.c_str(), o.value.c_str(), __len);
+			if (__cmp == 0)
+				return __mlen < __olen;
+			return __cmp < 0;
 		}
 		inline bool operator==(const string& o) const
 		{
