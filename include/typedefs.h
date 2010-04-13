@@ -38,6 +38,7 @@ class StreamSocket;
 class SyncTarget;
 class Thread;
 class User;
+class UserChanList;
 class UserResolver;
 class XLine;
 class XLineManager;
@@ -72,14 +73,6 @@ typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
 typedef std::vector<reference<ConnectClass> > ClassVector;
-
-/** Typedef for the list of user-channel records for a user
- */
-typedef std::set<Channel*> UserChanList;
-
-/** Shorthand for an iterator into a UserChanList
- */
-typedef UserChanList::iterator UCListIter;
 
 /** A list of custom modes parameters on a channel
  */

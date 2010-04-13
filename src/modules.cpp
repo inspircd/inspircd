@@ -140,7 +140,7 @@ ModResult	Module::OnChannelPreDelete(Channel*) { return MOD_RES_PASSTHRU; }
 void		Module::OnChannelDelete(Channel*) { }
 ModResult	Module::OnSetAway(User*, const std::string &) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { }
+void		Module::OnBuildNeighborList(User*, std::vector<Channel*>&, std::map<User*,bool>&) { }
 void		Module::OnGarbageCollect() { }
 ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { return MOD_RES_PASSTHRU; }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }

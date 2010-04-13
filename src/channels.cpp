@@ -363,7 +363,7 @@ Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, 
 	std::string nick = user->nick;
 
 	Membership* memb = Ptr->AddUser(user);
-	user->chans.insert(Ptr);
+	user->chans.insert(memb);
 
 	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
 	{
@@ -498,7 +498,7 @@ void Channel::PartUser(User *user, std::string &reason)
 
 		WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
-		user->chans.erase(this);
+		user->chans.erase(memb);
 		this->RemoveAllPrefixes(user);
 	}
 
@@ -556,7 +556,7 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 
 		WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), user->nick.c_str(), reason);
 
-		user->chans.erase(this);
+		user->chans.erase(memb);
 		this->RemoveAllPrefixes(user);
 	}
 

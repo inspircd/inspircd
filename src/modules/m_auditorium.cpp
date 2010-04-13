@@ -146,17 +146,20 @@ class ModuleAuditorium : public Module
 		BuildExcept(memb, excepts);
 	}
 
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
+	void OnBuildNeighborList(User* source, std::vector<Channel*> &include, std::map<User*,bool> &exception)
 	{
-		UCListIter i = include.begin();
+		std::vector<Channel*>::iterator i = include.begin();
 		while (i != include.end())
 		{
-			Channel* c = *i++;
+			Channel* c = *i;
 			Membership* memb = c->GetUser(source);
 			if (!memb || IsVisible(memb))
+			{
+				i++;
 				continue;
+			}
 			// this channel should not be considered when listing my neighbors
-			include.erase(c);
+			include.erase(i);
 			// however, that might hide me from ops that can see me...
 			const UserMembList* users = c->GetUsers();
 			for(UserMembCIter j = users->begin(); j != users->end(); j++)

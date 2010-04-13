@@ -136,8 +136,7 @@ class CommandCheck : public Command
 
 			for (UCListIter i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
-				Channel* c = *i;
-				chliststr.append(c->GetPrefixChar(targuser)).append(c->name).append(" ");
+				chliststr.append(i->chan->GetPrefixChar(targuser)).append(i->chan->name).append(" ");
 			}
 
 			std::stringstream dump(chliststr);

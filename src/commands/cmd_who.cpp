@@ -56,9 +56,10 @@ static Channel* get_first_visible_channel(User *u)
 	UCListIter i = u->chans.begin();
 	while (i != u->chans.end())
 	{
-		Channel* c = *i++;
+		Channel* c = i->chan;
 		if (!c->IsModeSet('s'))
 			return c;
+		i++;
 	}
 	return NULL;
 }

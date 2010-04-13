@@ -652,7 +652,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 *
 	 * Set exceptions[user] = true to include, exceptions[user] = false to exclude
 	 */
-	virtual void OnBuildNeighborList(User* source, UserChanList &include_c, std::map<User*,bool> &exceptions);
+	virtual void OnBuildNeighborList(User* source, std::vector<Channel*> &include_c, std::map<User*,bool> &exceptions);
 
 	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
 	 * Please note that although you can see remote nickchanges through this function, you should

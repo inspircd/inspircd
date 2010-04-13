@@ -46,7 +46,7 @@ class ModuleDelayJoin : public Module
 	void CleanUser(User* user);
 	void OnUserPart(Membership*, std::string &partmessage, CUList&);
 	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&);
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception);
+	void OnBuildNeighborList(User* source, std::vector<Channel*> &include, std::map<User*,bool> &exception);
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
 };
 
@@ -124,15 +124,17 @@ void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::stri
 		populate(except, memb);
 }
 
-void ModuleDelayJoin::OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
+void ModuleDelayJoin::OnBuildNeighborList(User* source, std::vector<Channel*> &include, std::map<User*,bool> &exception)
 {
-	UCListIter i = include.begin();
+	std::vector<Channel*>::iterator i = include.begin();
 	while (i != include.end())
 	{
-		Channel* c = *i++;
+		Channel* c = *i;
 		Membership* memb = c->GetUser(source);
 		if (memb && unjoined.get(memb))
-			include.erase(c);
+			include.erase(i);
+		else
+			i++;
 	}
 }
 

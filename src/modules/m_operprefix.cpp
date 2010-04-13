@@ -85,7 +85,7 @@ class ModuleOperPrefixMode : public Module
 		{
 			for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 			{
-				PushChanMode(*v, user);
+				PushChanMode(v->chan, user);
 			}
 		}
 	}

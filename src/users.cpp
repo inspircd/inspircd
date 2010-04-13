@@ -924,10 +924,9 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 			{
 				for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 				{
-					Channel *chan = *i;
-					if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
+					if (i->getRank() < VOICE_VALUE && i->chan->IsBanned(this))
 					{
-						this->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", this->nick.c_str(), chan->name.c_str());
+						this->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", this->nick.c_str(), i->chan->name.c_str());
 						return false;
 					}
 				}
@@ -1209,7 +1208,10 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 
 	LocalUser::already_sent_id++;
 
-	UserChanList include_c(chans);
+	std::vector<Channel*> include_c;
+	include_c.reserve(chans.size());
+	for (UCListIter v = chans.begin(); v != chans.end(); ++v)
+		include_c.push_back(v->chan);
 	std::map<User*,bool> exceptions;
 
 	exceptions[this] = include_self;
@@ -1226,7 +1228,7 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 				u->Write(line);
 		}
 	}
-	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
+	for (std::vector<Channel*>::iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
 		Channel* c = *v;
 		const UserMembList* ulist = c->GetUsers();
@@ -1257,7 +1259,10 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	std::string out1 = tb1;
 	std::string out2 = tb2;
 
-	UserChanList include_c(chans);
+	std::vector<Channel*> include_c;
+	include_c.reserve(chans.size());
+	for (UCListIter v = chans.begin(); v != chans.end(); ++v)
+		include_c.push_back(v->chan);
 	std::map<User*,bool> exceptions;
 
 	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
@@ -1272,9 +1277,9 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 				u->Write(IS_OPER(u) ? out2 : out1);
 		}
 	}
-	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
+	for (std::vector<Channel*>::iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
-		const UserMembList* ulist = (*v)->GetUsers();
+		const UserMembList* ulist = (**v).GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
@@ -1360,7 +1365,7 @@ bool User::SharesChannelWith(User *other)
 		/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
 		 * by replacing it with a map::find which *should* be more efficient
 		 */
-		if ((*i)->HasUser(other))
+		if (i->chan->HasUser(other))
 			return true;
 	}
 	return false;
@@ -1387,7 +1392,10 @@ void User::DoHostCycle(const std::string &quitline)
 	already_sent_t silent_id = ++LocalUser::already_sent_id;
 	already_sent_t seen_id = ++LocalUser::already_sent_id;
 
-	UserChanList include_c(chans);
+	std::vector<Channel*> include_c;
+	include_c.reserve(chans.size());
+	for (UCListIter v = chans.begin(); v != chans.end(); ++v)
+		include_c.push_back(v->chan);
 	std::map<User*,bool> exceptions;
 
 	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
@@ -1408,13 +1416,13 @@ void User::DoHostCycle(const std::string &quitline)
 			}
 		}
 	}
-	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
+	for (std::vector<Channel*>::iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
 		Channel* c = *v;
 		snprintf(buffer, MAXBUF, ":%s JOIN %s", GetFullHost().c_str(), c->name.c_str());
 		std::string joinline(buffer);
 		Membership* memb = c->GetUser(this);
-		std::string modeline = memb->modes;
+		std::string modeline = memb ? memb->modes : "";
 		if (modeline.length() > 0)
 		{
 			for(unsigned int i=0; i < memb->modes.length(); i++)
@@ -1512,7 +1520,7 @@ std::string User::ChannelList(User* source, bool spy)
 
 	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 	{
-		Channel* c = *i;
+		Channel* c = i->chan;
 		/* If the target is the sender, neither +p nor +s is set, or
 		 * the channel contains the user, it is not a spy channel
 		 */
@@ -1684,7 +1692,7 @@ void User::PurgeEmptyChannels()
 	// firstly decrement the count on each channel
 	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
 	{
-		Channel* c = *f;
+		Channel* c = f->chan;
 		c->DelUser(this);
 	}
 

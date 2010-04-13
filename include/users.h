@@ -18,6 +18,7 @@
 #include "inspsocket.h"
 #include "dns.h"
 #include "mode.h"
+#include "membership.h"
 
 /** connect class types
  */
