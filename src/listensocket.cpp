@@ -31,6 +31,22 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	if (rv >= 0)
 		rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
 
+#ifdef IPV6_V6ONLY
+	/* This OS supports IPv6 sockets that can also listen for IPv4
+	 * connections. If our address is "*" or empty, enable both v4 and v6 to
+	 * allow for simpler configuration on dual-stack hosts. Otherwise, if it
+	 * is "::" or an IPv6 address, disable support so that an IPv4 bind will
+	 * work on the port (by us or another application).
+	 */
+	if (bind_to.sa.sa_family == AF_INET6)
+	{
+		std::string addr = tag->getString("address");
+		int enable = (addr.empty() || addr == "*") ? 0 : 1;
+		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &enable, sizeof(enable));
+		// errors ignored intentionally
+	}
+#endif
+
 	if (rv < 0)
 	{
 		int errstore = errno;
