@@ -403,10 +403,10 @@ class ModuleCloaking : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		prefix = Conf.ReadValue("cloak","prefix",0);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("cloak");
+		prefix = tag->getString("prefix");
 
-		std::string modestr = Conf.ReadValue("cloak", "mode", 0);
+		std::string modestr = tag->getString("mode");
 		if (modestr == "compat-host")
 			mode = MODE_COMPAT_HOST;
 		else if (modestr == "compat-ip")
@@ -420,7 +420,7 @@ class ModuleCloaking : public Module
 
 		if (mode == MODE_COMPAT_HOST || mode == MODE_COMPAT_IPONLY)
 		{
-			bool lowercase = Conf.ReadFlag("cloak", "lowercase", 0);
+			bool lowercase = tag->getBool("lowercase");
 
 			/* These are *not* using the need_positive parameter of ReadInteger -
 			 * that will limit the valid values to only the positive values in a
@@ -431,10 +431,10 @@ class ModuleCloaking : public Module
 			 * We must limit the keys or else we get different results on
 			 * amd64/x86 boxes. - psychon */
 			const unsigned int limit = 0x80000000;
-			compatkey[0] = (unsigned int) Conf.ReadInteger("cloak","key1",0,false);
-			compatkey[1] = (unsigned int) Conf.ReadInteger("cloak","key2",0,false);
-			compatkey[2] = (unsigned int) Conf.ReadInteger("cloak","key3",0,false);
-			compatkey[3] = (unsigned int) Conf.ReadInteger("cloak","key4",0,false);
+			compatkey[0] = (unsigned int) tag->getInt("key1");
+			compatkey[1] = (unsigned int) tag->getInt("key2");
+			compatkey[2] = (unsigned int) tag->getInt("key3");
+			compatkey[3] = (unsigned int) tag->getInt("key4");
 
 			if (!lowercase)
 			{
@@ -472,7 +472,7 @@ class ModuleCloaking : public Module
 		}
 		else
 		{
-			key = Conf.ReadFlag("cloak", "key", 0);
+			key = tag->getString("key");
 			if (key.empty() || key == "secret")
 				throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
 		}
