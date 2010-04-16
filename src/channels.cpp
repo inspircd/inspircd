@@ -206,13 +206,12 @@ void Channel::SetDefaultModes()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record
  */
-Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS)
+Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, const char* key, bool bursting, time_t TS)
 {
 	// Fix: unregistered users could be joined using /SAJOIN
-	if (!user || !cn || user->registered != REG_ALL)
+	if (!user || user->registered != REG_ALL)
 		return NULL;
 
-	char cname[MAXBUF];
 	std::string privs;
 	Channel *Ptr;
 
@@ -228,7 +227,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		{
 			if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
 			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn.c_str());
 				return NULL;
 			}
 		}
@@ -239,14 +238,13 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 				maxchans = ServerInstance->Config->MaxChans;
 			if (user->chans.size() >= maxchans)
 			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn);
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn.c_str());
 				return NULL;
 			}
 		}
 	}
 
-	strlcpy(cname, cn, ServerInstance->Config->Limits.ChanMax);
-	Ptr = ServerInstance->FindChan(cname);
+	Ptr = ServerInstance->FindChan(cn);
 	bool created_by_local = false;
 
 	if (!Ptr)
@@ -257,7 +255,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		if (!IS_LOCAL(user))
 		{
 			if (!TS)
-				ServerInstance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn);
+				ServerInstance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn.c_str());
 		}
 		else
 		{
@@ -268,12 +266,12 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cn, privs, key ? key : ""));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return NULL;
 		}
 
-		Ptr = new Channel(cname, TS);
+		Ptr = new Channel(cn, TS);
 	}
 	else
 	{
@@ -288,7 +286,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cname, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cn, privs, key ? key : ""));
 			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				return NULL;

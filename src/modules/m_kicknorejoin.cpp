@@ -61,7 +61,7 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{

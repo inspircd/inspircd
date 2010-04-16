@@ -81,7 +81,7 @@ void		Module::OnPostJoin(Membership*) { }
 void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
-ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreJoin(User*, Channel*, const std::string&, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, Extensible*, const irc::modestacker&) { }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }

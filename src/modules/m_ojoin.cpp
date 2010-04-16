@@ -152,7 +152,7 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User *user, Channel *chan, const std::string& cname, std::string &privs, const std::string &keygiven)
 	{
 		if (mycommand.active)
 		{

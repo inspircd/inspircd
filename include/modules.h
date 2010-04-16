@@ -548,7 +548,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param keygiven The key given to join the channel, or an empty string if none was provided
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven);
 
 	/** Called whenever a user is kicked.
 	 * @param source The user issuing the kick

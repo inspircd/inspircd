@@ -150,7 +150,7 @@ class ModuleChanProtect : public Module
 		FirstInGetsFounder = tag->getBool("noservices");
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User *user, Channel *chan, const std::string& cname, std::string &privs, const std::string &keygiven)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set

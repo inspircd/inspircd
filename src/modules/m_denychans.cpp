@@ -88,7 +88,7 @@ class ModuleDenyChannels : public Module
 	}
 
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
 	{
 		ConfigTag* tag = FindBadChan(cname);
 		if (!tag)
@@ -104,13 +104,13 @@ class ModuleDenyChannels : public Module
 			Channel *newchan = ServerInstance->FindChan(redirect);
 			if (!newchan || !newchan->IsModeSet("redirect"))
 			{
-				user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname,cname,redirect.c_str(), reason.c_str());
+				user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname.c_str(),cname.c_str(),redirect.c_str(), reason.c_str());
 				Channel::JoinUser(user,redirect.c_str(),false,"",false,ServerInstance->Time());
 				return MOD_RES_DENY;
 			}
 		}
 
-		user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",user->nick.c_str(),cname,cname,reason.c_str());
+		user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",user->nick.c_str(),cname.c_str(),cname.c_str(),reason.c_str());
 		return MOD_RES_DENY;
 	}
 };

@@ -93,7 +93,7 @@ class ModuleRedirect : public Module
 	}
 
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{
@@ -108,11 +108,11 @@ class ModuleRedirect : public Module
 					destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet(&re))
 					{
-						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
+						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname.c_str());
 						return MOD_RES_DENY;
 					}
 
-					user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname, channel.c_str());
+					user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname.c_str(), channel.c_str());
 					Channel::JoinUser(user, channel.c_str(), false, "", false, ServerInstance->Time());
 					return MOD_RES_DENY;
 				}

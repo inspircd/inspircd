@@ -170,12 +170,6 @@ class ModuleNickLock : public Module
 		}
 		return MOD_RES_PASSTHRU;
 	}
-
-	void Prioritize()
-	{
-		Module *nflood = ServerInstance->Modules->Find("m_nickflood.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_BEFORE, &nflood);
-	}
 };
 
 MODULE_INIT(ModuleNickLock)

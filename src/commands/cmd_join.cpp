@@ -55,7 +55,7 @@ CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User 
 
 		if (ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
 		{
-			Channel::JoinUser(user, parameters[0].c_str(), false, parameters[1].c_str(), false);
+			Channel::JoinUser(user, parameters[0], false, parameters[1].c_str(), false);
 			return CMD_SUCCESS;
 		}
 	}
@@ -66,7 +66,7 @@ CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User 
 
 		if (ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
 		{
-			Channel::JoinUser(user, parameters[0].c_str(), false, "", false);
+			Channel::JoinUser(user, parameters[0], false, "", false);
 			return CMD_SUCCESS;
 		}
 	}
