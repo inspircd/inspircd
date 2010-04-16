@@ -1371,13 +1371,13 @@ bool User::SharesChannelWith(User *other)
 	return false;
 }
 
-bool User::ChangeName(const char* gecos)
+bool User::ChangeName(const std::string& gecos)
 {
 	if (!this->fullname.compare(gecos))
 		return true;
 
 	FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
-	this->fullname.assign(gecos, 0, ServerInstance->Config->Limits.MaxGecos);
+	fullname = gecos;
 
 	return true;
 }
@@ -1454,7 +1454,7 @@ void User::DoHostCycle(const std::string &quitline)
 	}
 }
 
-bool User::ChangeDisplayedHost(const char* shost)
+bool User::ChangeDisplayedHost(const std::string& shost)
 {
 	if (dhost == shost)
 		return true;
@@ -1462,10 +1462,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	FOREACH_MOD(I_OnChangeHost, OnChangeHost(this,shost));
 
 	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing host";
-
-	/* Fix by Om: User::dhost is 65 long, this was truncating some long hosts */
-	this->dhost.assign(shost, 0, 64);
-
+	dhost = shost;
 	this->InvalidateCache();
 
 	this->DoHostCycle(quitstr);
@@ -1476,7 +1473,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	return true;
 }
 
-bool User::ChangeIdent(const char* newident)
+bool User::ChangeIdent(const std::string& newident)
 {
 	if (this->ident == newident)
 		return true;
@@ -1485,7 +1482,7 @@ bool User::ChangeIdent(const char* newident)
 
 	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing ident";
 
-	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax + 1);
+	ident = newident;
 
 	this->InvalidateCache();
 

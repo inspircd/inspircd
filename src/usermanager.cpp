@@ -15,6 +15,8 @@
 #include "xline.h"
 #include "bancache.h"
 
+static const std::string unk = "unknown";
+
 /* add a client connection to the sockets list */
 void UserManager::AddUser(LocalUser* New, ListenSocket* via)
 {
@@ -25,23 +27,19 @@ void UserManager::AddUser(LocalUser* New, ListenSocket* via)
 	this->unregistered_count++;
 
 	/* The users default nick is their UUID */
-	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
-	(*(this->clientlist))[New->nick] = New;
-
-	New->ident.assign("unknown");
-
+	New->nick = New->uuid;
+	New->ident = unk;
 	New->registered = REG_NONE;
-	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
+	New->signon = ServerInstance->Time();
 	New->lastping = 1;
-
-	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-	New->dhost.assign(New->GetIPString(), 0, 64);
-	New->host.assign(New->GetIPString(), 0, 64);
+	New->host = New->GetIPString();
+	New->dhost = New->host;
 
 	ServerInstance->Users->AddLocalClone(New);
 	ServerInstance->Users->AddGlobalClone(New);
 
-	this->local_users.push_back(New);
+	clientlist->insert(std::make_pair(New->nick, New));
+	local_users.push_back(New);
 
 	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)ServerInstance->SE->GetMaxFds()))
 	{

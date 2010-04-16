@@ -24,13 +24,14 @@ CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, Use
 	if (u && IS_LOCAL(u))
 	{
 		std::string nick = parameters[1];
+		// If they are trying to force change to a UID, make sure it's the CORRECT uid
 		if (isdigit(nick[0]))
 			nick = u->uuid;
 
-		if (!u->ForceNickChange(nick.c_str()))
+		if (!u->ForceNickChange(nick))
 		{
 			/* buh. UID them */
-			if (!u->ForceNickChange(u->uuid.c_str()))
+			if (!u->ForceNickChange(u->uuid))
 			{
 				ServerInstance->Users->QuitUser(u, "Nickname collision");
 				return CMD_SUCCESS;

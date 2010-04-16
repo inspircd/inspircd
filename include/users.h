@@ -435,7 +435,7 @@ class CoreExport User : public Extensible
 	 * @param newnick The nickname to change to
 	 * @return True if the nickchange was successful.
 	 */
-	inline bool ForceNickChange(const char* newnick) { return ChangeNick(newnick, true); }
+	inline bool ForceNickChange(const std::string& newnick) { return ChangeNick(newnick, true); }
 
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type
@@ -557,7 +557,7 @@ class CoreExport User : public Extensible
 	 * @param host The new hostname to set
 	 * @return True if the change succeeded, false if it didn't
 	 */
-	bool ChangeDisplayedHost(const char* host);
+	bool ChangeDisplayedHost(const std::string& host);
 
 	/** Change the ident (username) of a user.
 	 * ALWAYS use this function, rather than writing User::ident directly,
@@ -566,7 +566,7 @@ class CoreExport User : public Extensible
 	 * @param host The new ident to set
 	 * @return True if the change succeeded, false if it didn't
 	 */
-	bool ChangeIdent(const char* newident);
+	bool ChangeIdent(const std::string& newident);
 
 	/** Change a users realname field.
 	 * ALWAYS use this function, rather than writing User::fullname directly,
@@ -575,7 +575,7 @@ class CoreExport User : public Extensible
 	 * @param gecos The user's new realname
 	 * @return True if the change succeeded, false if otherwise
 	 */
-	bool ChangeName(const char* gecos);
+	bool ChangeName(const std::string& gecos);
 
 	/** Change a user's nick
 	 * @param newnick The new nick

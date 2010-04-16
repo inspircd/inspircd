@@ -181,7 +181,7 @@ class CoreExport Channel : public Extensible
 	 * @param user The user being kicked (must be on this channel)
 	 * @param reason The reason for the kick
 	 */
-	void KickUser(User *src, User *user, const char* reason);
+	void KickUser(User *src, User *user, const std::string& reason);
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
@@ -199,7 +199,7 @@ class CoreExport Channel : public Extensible
 	 * been created if the channel did not exist before the user was joined to it.
 	 * If the user could not be joined to a channel, the return value may be NULL.
 	 */
-	static Channel* JoinUser(User *user, const std::string& cn, bool override, const char* key, bool bursting, time_t TS = 0);
+	static Channel* JoinUser(User *user, const std::string& cn, bool override, const std::string& key, bool bursting, time_t TS = 0);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with

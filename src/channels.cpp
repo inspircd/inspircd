@@ -16,8 +16,8 @@
 #include "mode.h"
 
 Channel::Channel(const std::string &cname, time_t ts)
+	: name(cname)
 {
-	name.assign(cname, 0, ServerInstance->Config->Limits.ChanMax);
 	age = ts ? ts : ServerInstance->Time();
 
 	chan_hash::iterator findchan = ServerInstance->chanlist->find(name);
@@ -98,19 +98,11 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 		}
 	}
 
-	this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
-	if (u)
-	{
-		this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
-		this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
-	}
-	else
-	{
-		this->setby.assign(ServerInstance->Config->ServerName);
-		this->WriteChannelWithServ(ServerInstance->Config->ServerName, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
-	}
+	topic = ntopic;
+	topicset = ServerInstance->Time();
+	setby = ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick;
 
-	this->topicset = ServerInstance->Time();
+	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
 
 	FOREACH_MOD(I_OnPostTopicChange,OnPostTopicChange(u, this, this->topic));
 
@@ -206,7 +198,7 @@ void Channel::SetDefaultModes()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record
  */
-Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, const char* key, bool bursting, time_t TS)
+Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, const std::string& key, bool bursting, time_t TS)
 {
 	// Fix: unregistered users could be joined using /SAJOIN
 	if (!user || user->registered != REG_ALL)
@@ -266,7 +258,7 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cn, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cn, privs, key));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return NULL;
 		}
@@ -286,7 +278,7 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cn, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cn, privs, key));
 			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				return NULL;
@@ -299,8 +291,8 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 
 				if (!ckey.empty())
 				{
-					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, Ptr, key ? key : ""));
-					if (!MOD_RESULT.check((key && ckey == key) || can_bypass))
+					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, Ptr, key));
+					if (!MOD_RESULT.check(ckey == key || can_bypass))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
 						user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
@@ -503,9 +495,9 @@ void Channel::PartUser(User *user, std::string &reason)
 	this->DelUser(user);
 }
 
-void Channel::KickUser(User *src, User *user, const char* reason)
+void Channel::KickUser(User *src, User *user, const std::string& reason)
 {
-	if (!src || !user || !reason)
+	if (!src || !user)
 		return;
 
 	Membership* memb = GetUser(user);
@@ -552,7 +544,7 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 		CUList except_list;
 		FOREACH_MOD(I_OnUserKick,OnUserKick(src, memb, reason, except_list));
 
-		WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), user->nick.c_str(), reason);
+		WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), user->nick.c_str(), reason.c_str());
 
 		user->chans.erase(memb);
 		this->RemoveAllPrefixes(user);
