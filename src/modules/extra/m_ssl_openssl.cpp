@@ -381,6 +381,8 @@ class ModuleSSLOpenSSL : public Module
 			if (ret > 0)
 			{
 				recvq.append(buffer, ret);
+				if (session->data_to_write)
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE);
 				return 1;
 			}
 			else if (ret == 0)
@@ -470,7 +472,7 @@ class ModuleSSLOpenSSL : public Module
 				}
 				else if (err == SSL_ERROR_WANT_READ)
 				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ);
 					return 0;
 				}
 				else
