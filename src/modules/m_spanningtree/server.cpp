@@ -234,8 +234,9 @@ bool TreeSocket::Inbound_Server(std::deque<std::string> &params)
 		TreeServer* CheckDupe = Utils->FindServer(sname);
 		if (CheckDupe)
 		{
-			this->SendError("Server "+sname+" already exists on server "+CheckDupe->GetParent()->GetName()+"!");
-			this->ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+CheckDupe->GetParent()->GetName());
+			std::string pname = CheckDupe->GetParent() ? CheckDupe->GetParent()->GetName() : "<ourself>";
+			this->SendError("Server "+sname+" already exists on server "+pname+"!");
+			this->ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+pname);
 			return false;
 		}
 
