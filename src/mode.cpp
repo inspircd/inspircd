@@ -1136,7 +1136,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 			{
 				// We have a pattern matching the channel...
 				maxsize = el->size();
-				if (IS_LOCAL(source) || (maxsize < it->limit))
+				if (!IS_LOCAL(source) || (maxsize < it->limit))
 				{
 					/* Ok, it *could* be allowed, now give someone subclassing us
 					 * a chance to validate the parameter.
