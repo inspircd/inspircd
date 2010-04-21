@@ -198,7 +198,7 @@ install: target
 	@echo '  Base install:' $(BASE)
 	@echo '  Configuration:' $(CONPATH)
 	@echo '  Binaries:' $(BINPATH)
-	@echo '  Moudles:' $(MODPATH)
+	@echo '  Modules:' $(MODPATH)
 	@echo 'To start the ircd, run:' $(BASE)/inspircd start
 	@echo 'Remember to edit your config file:' $(CONPATH)/inspircd.conf
 
