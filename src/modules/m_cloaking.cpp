@@ -266,14 +266,14 @@ class ModuleCloaking : public Module
 			item += *input;
 			if (item.length() > 7)
 			{
-				hashies.push_back(sumIV(compatkey[1]+rounds, item, 4));
+				hashies.push_back(sumIV(compatkey[0]+rounds, item, 4));
 				item.clear();
 			}
 			rounds++;
 		}
 		if (!item.empty())
 		{
-			hashies.push_back(sumIV(compatkey[1]+rounds, item, 4));
+			hashies.push_back(sumIV(compatkey[0]+rounds, item, 4));
 		}
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
