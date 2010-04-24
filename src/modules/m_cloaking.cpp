@@ -485,8 +485,8 @@ class ModuleCloaking : public Module
 				{
 					std::string tail = LastTwoDomainParts(host);
 
-					/* Generate a cloak using specialized Hash */
-					chost = prefix + "-" + Hash->sumIV(compatkey, xtab[(dest->host[0]) % 4], dest->host).substr(0,8) + tail;
+					// xtab is not used here due to a bug in 1.2 cloaking
+					chost = prefix + "-" + Hash->sumIV(compatkey, "0123456789abcdef", host).substr(0,8) + tail;
 
 					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
 					 * according to the DNS RFC) then they get cloaked as an IP.
