@@ -121,6 +121,7 @@ class ModuleCloaking : public Module
 	CloakUser cu;
 	CloakMode mode;
 	std::string prefix;
+	std::string suffix;
 	std::string key;
 	unsigned int compatkey[4];
 	const char* xtab[4];
@@ -273,7 +274,9 @@ class ModuleCloaking : public Module
 			hop3 = 4;
 			len1 = 6;
 			len2 = 4;
-			rv.reserve(prefix.length() + 29);
+			// pfx s1.s2.s3. (xxxx.xxxx or s4) sfx
+			//     6  4  4    9/6
+			rv.reserve(prefix.length() + 26 + suffix.length());
 		}
 		else
 		{
@@ -282,7 +285,8 @@ class ModuleCloaking : public Module
 			hop2 = 0;
 			hop3 = 2;
 			len1 = len2 = 3;
-			rv.reserve(prefix.length() + 18);
+			// pfx s1.s2. (xxx.xxx or s3) sfx
+			rv.reserve(prefix.length() + 15 + suffix.length());
 		}
 
 		rv.append(prefix);
@@ -302,21 +306,21 @@ class ModuleCloaking : public Module
 			rv.append(1, '.');
 			bindata.erase(hop3);
 			rv.append(SegmentCloak(bindata, 13, 6));
-			rv.append(".IP");
+			rv.append(suffix);
 		}
 		else
 		{
 			char buf[50];
 			if (ip.sa.sa_family == AF_INET6)
 			{
-				snprintf(buf, 50, ".%02x%02x.%02x%02x.IP",
+				snprintf(buf, 50, ".%02x%02x.%02x%02x%s",
 					ip.in6.sin6_addr.s6_addr[2], ip.in6.sin6_addr.s6_addr[3],
-					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1]);
+					ip.in6.sin6_addr.s6_addr[0], ip.in6.sin6_addr.s6_addr[1], suffix.c_str());
 			}
 			else
 			{
 				const unsigned char* ip4 = (const unsigned char*)&ip.in4.sin_addr;
-				snprintf(buf, 50, ".%d.%d.IP", ip4[1], ip4[0]);
+				snprintf(buf, 50, ".%d.%d%s", ip4[1], ip4[0], suffix.c_str());
 			}
 			rv.append(buf);
 		}
@@ -373,10 +377,10 @@ class ModuleCloaking : public Module
 					testcloak = Hash->sumIV(compatkey, xtab[0], "*").substr(0,10);
 					break;
 				case MODE_HALF_CLOAK:
-					testcloak = prefix + SegmentCloak("*", 3, 8);
+					testcloak = prefix + SegmentCloak("*", 3, 8) + suffix;
 					break;
 				case MODE_OPAQUE:
-					testcloak = prefix + SegmentCloak("*", 4, 8);
+					testcloak = prefix + SegmentCloak("*", 4, 8) + suffix;
 			}
 		}
 		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
@@ -386,6 +390,7 @@ class ModuleCloaking : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("cloak");
 		prefix = tag->getString("prefix");
+		suffix = tag->getString("suffix", ".IP");
 
 		std::string modestr = tag->getString("mode");
 		if (modestr == "compat-host")
