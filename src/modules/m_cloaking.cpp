@@ -247,14 +247,14 @@ class ModuleCloaking : public Module
 			item += *input;
 			if (item.length() > 7)
 			{
-				hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[1]+rounds) % 4], item).substr(0,8));
+				hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[0]+rounds) % 4], item).substr(0,8));
 				item.clear();
 			}
 			rounds++;
 		}
 		if (!item.empty())
 		{
-			hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[1]+rounds) % 4], item).substr(0,8));
+			hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[0]+rounds) % 4], item).substr(0,8));
 		}
 		/* Stick them all together */
 		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
