@@ -415,10 +415,11 @@ class ModuleCloaking : public Module
 			 */
 			if (!cu->ipalways)
 			{
-				/** Reset the Hash module, and send it our IV and hex table */
+				/** Reset the Hash module, and send it our IV
+				 * We use the default hex table here (for no reason whatsoever)
+				 */
 				HashResetRequest(this, cu->HashProvider).Send();
 				HashKeyRequest(this, cu->HashProvider, iv).Send();
-				HashHexRequest(this, cu->HashProvider, cu->xtab[(dest->host[0]) % 4]);
 
 				/* Generate a cloak using specialized Hash */
 				std::string hostcloak = cu->prefix + "-" + std::string(HashSumRequest(this, cu->HashProvider, dest->host.c_str()).Send()).substr(0,8) + a;
