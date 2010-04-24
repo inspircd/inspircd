@@ -81,7 +81,7 @@ class CloakUser : public ModeHandler
 		/* don't allow this user to spam modechanges */
 		if (source == dest)
 			user->CommandFloodPenalty += 5000;
-		
+
 		if (adding)
 		{
 			std::string* cloak = ext.get(user);
@@ -114,12 +114,24 @@ class CloakUser : public ModeHandler
 
 };
 
+class CommandCloak : public Command
+{
+ public:
+	CommandCloak(Module* Creator) : Command(Creator, "CLOAK", 1)
+	{
+		flags_needed = 'o';
+		syntax = "<host>";
+	}
+
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user);
+};
 
 class ModuleCloaking : public Module
 {
- private:
+ public:
 	CloakUser cu;
 	CloakMode mode;
+	CommandCloak ck;
 	std::string prefix;
 	std::string suffix;
 	std::string key;
@@ -127,8 +139,7 @@ class ModuleCloaking : public Module
 	const char* xtab[4];
 	dynamic_reference<HashProvider> Hash;
 
- public:
-	ModuleCloaking() : cu(this), mode(MODE_OPAQUE), Hash(this, "hash/md5")
+	ModuleCloaking() : cu(this), mode(MODE_OPAQUE), ck(this), Hash(this, "hash/md5")
 	{
 	}
 
@@ -136,11 +147,9 @@ class ModuleCloaking : public Module
 	{
 		OnRehash(NULL);
 
-		/* Register it with the core */
-		if (!ServerInstance->Modes->AddMode(&cu))
-			throw ModuleException("Could not add new modes!");
-
-		ServerInstance->Extensions.Register(&cu.ext);
+		ServerInstance->Modules->AddService(cu);
+		ServerInstance->Modules->AddService(ck);
+		ServerInstance->Modules->AddService(cu.ext);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect, I_OnChangeHost };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
@@ -464,22 +473,17 @@ class ModuleCloaking : public Module
 		}
 	}
 
-	void OnUserConnect(LocalUser* dest)
+	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host)
 	{
-		std::string* cloak = cu.ext.get(dest);
-		if (cloak)
-			return;
-
-		std::string ipstr = dest->GetIPString();
 		std::string chost;
 
 		switch (mode)
 		{
 			case MODE_COMPAT_HOST:
 			{
-				if (ipstr != dest->host)
+				if (ipstr != host)
 				{
-					std::string tail = LastTwoDomainParts(dest->host);
+					std::string tail = LastTwoDomainParts(host);
 
 					/* Generate a cloak using specialized Hash */
 					chost = prefix + "-" + Hash->sumIV(compatkey, xtab[(dest->host[0]) % 4], dest->host).substr(0,8) + tail;
@@ -493,26 +497,50 @@ class ModuleCloaking : public Module
 				// fall through to IP cloak
 			}
 			case MODE_COMPAT_IPONLY:
-				if (dest->client_sa.sa.sa_family == AF_INET6)
+				if (ip.sa.sa_family == AF_INET6)
 					chost = CompatCloak6(ipstr.c_str());
 				else
 					chost = CompatCloak4(ipstr.c_str());
 				break;
 			case MODE_HALF_CLOAK:
 			{
-				if (ipstr != dest->host)
-					chost = prefix + SegmentCloak(dest->host, 1, 6) + LastTwoDomainParts(dest->host);
+				if (ipstr != host)
+					chost = prefix + SegmentCloak(host, 1, 6) + LastTwoDomainParts(host);
 				if (chost.empty() || chost.length() > 50)
-					chost = SegmentIP(dest->client_sa, false);
+					chost = SegmentIP(ip, false);
 				break;
 			}
 			case MODE_OPAQUE:
 			default:
-				chost = SegmentIP(dest->client_sa, true);
+				chost = SegmentIP(ip, true);
 		}
-		cu.ext.set(dest,chost);
+		return chost;
 	}
 
+	void OnUserConnect(LocalUser* dest)
+	{
+		std::string* cloak = cu.ext.get(dest);
+		if (cloak)
+			return;
+
+		cu.ext.set(dest, GenCloak(dest->client_sa, dest->GetIPString(), dest->host));
+	}
 };
+
+CmdResult CommandCloak::Handle(const std::vector<std::string> &parameters, User *user)
+{
+	ModuleCloaking* mod = (ModuleCloaking*)(Module*)creator;
+	irc::sockets::sockaddrs sa;
+	std::string cloak;
+
+	if (irc::sockets::aptosa(parameters[0], 0, sa))
+		cloak = mod->GenCloak(sa, parameters[0], parameters[0]);
+	else
+		cloak = mod->GenCloak(sa, "", parameters[0]);
+
+	user->WriteServ("NOTICE %s :*** Cloak for %s is %s", user->nick.c_str(), parameters[0].c_str(), cloak.c_str());
+
+	return CMD_SUCCESS;
+}
 
 MODULE_INIT(ModuleCloaking)
