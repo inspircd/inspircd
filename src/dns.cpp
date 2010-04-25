@@ -340,7 +340,7 @@ void DNS::Rehash()
 			{
 				if (!ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 				{
-					ServerInstance->Logs->Log("RESOLVER",DEFAULT,"Internal error starting DNS - hostnames will NOT resolve.");
+					ServerInstance->Logs->Log("RESOLVER",SPARSE,"Internal error starting DNS - hostnames will NOT resolve.");
 					ServerInstance->SE->Shutdown(this, 2);
 					ServerInstance->SE->Close(this);
 					this->SetFd(-1);
@@ -350,7 +350,7 @@ void DNS::Rehash()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Error creating dns socket");
+		ServerInstance->Logs->Log("RESOLVER",SPARSE,"Error creating DNS socket - hostnames will NOT resolve");
 	}
 }
 
@@ -493,8 +493,11 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 			DNS::MakeIP6Int(query, &i);
 		}
 		else
+		{
+			ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce IPv6 bad format for '%s'", ip);
 			/* Invalid IP address */
 			return -1;
+		}
 	}
 	else
 	{
@@ -505,17 +508,33 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 			sprintf(query,"%d.%d.%d.%d.in-addr.arpa",c[3],c[2],c[1],c[0]);
 		}
 		else
+		{
+			ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce IPv4 bad format for '%s'", ip);
 			/* Invalid IP address */
 			return -1;
+		}
 	}
 
-	if ((length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload)) == -1)
+	length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload);
+	if (length == -1)
+	{
+		ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce can't query '%s' using '%s' because it's too long", ip, query);
 		return -1;
+	}
 
 	DNSRequest* req = this->AddQuery(&h, id, ip);
 
-	if ((!req) || (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1))
+	if (!req)
+	{
+		ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce can't add query (resolver down?)");
 		return -1;
+	}
+
+	if (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1)
+	{
+		ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce can't send (firewall?)");
+		return -1;
+	}
 
 	return id;
 }
@@ -899,6 +918,7 @@ Resolver::Resolver(const std::string &source, QueryType qt, bool &cached, Module
 		break;
 
 		default:
+			ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS request with unknown query type %d", querytype);
 			this->myid = -1;
 		break;
 	}
