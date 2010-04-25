@@ -293,12 +293,9 @@ int DNS::PruneCache()
 
 void DNS::Rehash()
 {
-	int portpass = 0;
-
 	if (this->GetFd() > -1)
 	{
-		if (ServerInstance && ServerInstance->SE)
-			ServerInstance->SE->DelFd(this);
+		ServerInstance->SE->DelFd(this);
 		ServerInstance->SE->Shutdown(this, 2);
 		ServerInstance->SE->Close(this);
 		this->SetFd(-1);
@@ -323,29 +320,23 @@ void DNS::Rehash()
 	{
 		ServerInstance->SE->SetReuse(s);
 		ServerInstance->SE->NonBlocking(s);
-		/* Bind the port - port 0 INADDR_ANY */
-		if (!ServerInstance->BindSocket(this->GetFd(), portpass, "", false))
+		irc::sockets::sockaddrs bindto;
+		memset(&bindto, 0, sizeof(bindto));
+		bindto.sa.sa_family = myserver.sa.sa_family;
+		if (ServerInstance->SE->Bind(this->GetFd(), bindto) < 0)
 		{
 			/* Failed to bind */
-			ServerInstance->Logs->Log("RESOLVER",DEBUG,"Error binding dns socket");
+			ServerInstance->Logs->Log("RESOLVER",SPARSE,"Error binding dns socket - hostnames will NOT resolve");
 			ServerInstance->SE->Shutdown(this, 2);
 			ServerInstance->SE->Close(this);
 			this->SetFd(-1);
 		}
-
-		if (this->GetFd() >= 0)
+		else if (!ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 		{
-			/* Hook the descriptor into the socket engine */
-			if (ServerInstance && ServerInstance->SE)
-			{
-				if (!ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
-				{
-					ServerInstance->Logs->Log("RESOLVER",SPARSE,"Internal error starting DNS - hostnames will NOT resolve.");
-					ServerInstance->SE->Shutdown(this, 2);
-					ServerInstance->SE->Close(this);
-					this->SetFd(-1);
-				}
-			}
+			ServerInstance->Logs->Log("RESOLVER",SPARSE,"Internal error starting DNS - hostnames will NOT resolve.");
+			ServerInstance->SE->Shutdown(this, 2);
+			ServerInstance->SE->Close(this);
+			this->SetFd(-1);
 		}
 	}
 	else
