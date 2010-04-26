@@ -564,6 +564,7 @@ DNSResult DNS::GetResult()
 	/* Did we get the whole header? */
 	if (length < 12)
 	{
+		ServerInstance->Logs->Log("RESOLVER",DEBUG,"GetResult didn't get a full packet (len=%d)", length);
 		/* Nope - something screwed up. */
 		return DNSResult(-1,"",0,"");
 	}
@@ -579,6 +580,8 @@ DNSResult DNS::GetResult()
 	 */
 	if (memcmp(&from, &myserver, sizeof(irc::sockets::sockaddrs)))
 	{
+		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
+			from.str().c_str(), myserver.str().c_str());
 		return DNSResult(-1,"",0,"");
 	}
 
@@ -595,6 +598,7 @@ DNSResult DNS::GetResult()
 	if (!requests[this_id])
 	{
 		/* Somehow we got a DNS response for a request we never made... */
+		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Hmm, got a result that we didn't ask for (id=%lx). Ignoring.", this_id);
 		return DNSResult(-1,"",0,"");
 	}
 	else
