@@ -22,9 +22,17 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 {
 	UserResolver *res_forward; // for forward-resolution
 	LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
-
-	if ((!this->fwd) && bound_user)
+	if (!bound_user)
 	{
+		ServerInstance->Logs->Log("RESOLVER", DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
+		return;
+	}
+
+	ServerInstance->Logs->Log("RESOLVER", DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), input.c_str(), result.c_str());
+
+	if (!fwd)
+	{
+		// first half of resolution is done. We now need to verify that the host matches.
 		bound_user->stored_host = result;
 		try
 		{
@@ -50,7 +58,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			ServerInstance->Logs->Log("RESOLVER", DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
-	else if ((this->fwd) && bound_user)
+	else
 	{
 		/* Both lookups completed */
 
