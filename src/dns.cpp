@@ -578,7 +578,7 @@ DNSResult DNS::GetResult()
 	 *
 	 * -- Thanks jilles for pointing this one out.
 	 */
-	if (memcmp(&from, &myserver, sizeof(irc::sockets::sockaddrs)))
+	if (from != myserver)
 	{
 		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
 			from.str().c_str(), myserver.str().c_str());
