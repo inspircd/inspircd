@@ -44,7 +44,8 @@ namespace irc
 	 */
 	namespace sockets
 	{
-		union CoreExport sockaddrs {
+		union CoreExport sockaddrs
+		{
 			struct sockaddr sa;
 			struct sockaddr_in in4;
 			struct sockaddr_in6 in6;
@@ -56,9 +57,11 @@ namespace irc
 			std::string addr() const;
 			/** Return human-readable IP/port pair */
 			std::string str() const;
+			bool operator==(const sockaddrs& other) const;
+			inline bool operator!=(const sockaddrs& other) const { return !(*this == other); }
 		};
 
-		struct cidr_mask
+		struct CoreExport cidr_mask
 		{
 			/** Type, AF_INET or AF_INET6 */
 			unsigned char type;

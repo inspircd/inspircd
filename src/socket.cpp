@@ -239,6 +239,17 @@ int irc::sockets::sockaddrs::sa_size() const
 	return 0;
 }
 
+bool irc::sockets::sockaddrs::operator==(const irc::sockets::sockaddrs& other) const
+{
+	if (sa.sa_family != other.sa.sa_family)
+		return false;
+	if (sa.sa_family == AF_INET)
+		return (in4.sin_port == other.in4.sin_port) && (in4.sin_addr.s_addr == other.in4.sin_addr.s_addr);
+	if (sa.sa_family == AF_INET6)
+		return (in6.sin6_port == other.in6.sin6_port) && !memcmp(in6.sin6_addr.s6_addr, other.in6.sin6_addr.s6_addr, 16);
+	return !memcmp(this, &other, sizeof(*this));
+}
+
 static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs& sa, int range)
 {
 	const unsigned char* base;
