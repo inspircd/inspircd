@@ -92,7 +92,8 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 			Modules[filename] = newmod;
 			if (defer)
 			{
-				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s", filename.c_str());
+				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)",
+					filename.c_str(), newhandle->GetVersion().c_str());
 			}
 			else
 			{
@@ -251,6 +252,7 @@ void ModuleManager::LoadAll()
 		Module* mod = i->second;
 		try 
 		{
+			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", i->first.c_str());
 			mod->init();
 		}
 		catch (CoreException& modexcept)

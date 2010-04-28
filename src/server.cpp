@@ -67,6 +67,10 @@ std::string InspIRCd::GetVersionString(bool operstring)
 	return versiondata;
 }
 
+const char InspIRCd::LogHeader[] =
+	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
+	" - compiled on " SYSTEM;
+
 void InspIRCd::BuildISupport()
 {
 	// the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...

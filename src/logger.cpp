@@ -112,6 +112,7 @@ void LogManager::OpenFileLogs()
 			fw = fwi->second;
 		}
 		FileLogStream* fls = new FileLogStream(loglevel, fw);
+		fls->OnLog(SPARSE, "HEADER", InspIRCd::LogHeader);
 		AddLogTypes(type, fls, true);
 	}
 }
