@@ -210,11 +210,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	User* who = ServerInstance->FindUUID(prefix);
 	std::string direction;
 
-	if (who)
-	{
-		direction = who->server;
-	}
-	else
+	if (!who)
 	{
 		TreeServer* ServerSource = Utils->FindServer(prefix);
 		if (prefix.empty())
@@ -223,7 +219,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		if (ServerSource)
 		{
 			who = ServerSource->ServerUser;
-			direction = prefix;
 		}
 		else
 		{
@@ -238,6 +233,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	}
 
 	// Make sure prefix is still good
+	direction = who->server;
 	prefix = who->uuid;
 
 	/*
