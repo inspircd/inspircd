@@ -5,7 +5,8 @@ use POSIX qw(getcwd);
 
 sub find_output;
 sub gendep($);
-sub dep_cpp($$);
+sub dep_cpp($$$);
+sub dep_so($);
 sub dep_dir($);
 sub run();
 
@@ -55,14 +56,13 @@ END
 	my(@core_deps, @cmdlist, @modlist);
 	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file;
-		dep_cpp $file, $out;
+		dep_cpp $file, $out, 'gen-o';
 		next if $file =~ m#^socketengines/# && $file ne "socketengines/$ENV{SOCKETENGINE}.cpp";
 		push @core_deps, $out;
 	}
 
 	for my $file (<commands/*.cpp>) {
-		my $out = find_output $file;
-		dep_cpp $file, $out;
+		my $out = dep_so $file;
 		push @cmdlist, $out;
 	}
 
@@ -80,8 +80,7 @@ END
 			push @modlist, "modules/$file.so";
 		}
 		if ($file =~ /^m_.*\.cpp$/) {
-			my $out = find_output "modules/$file";
-			dep_cpp "modules/$file", $out;
+			my $out = dep_so "modules/$file";
 			push @modlist, $out;
 		}
 	}
@@ -92,7 +91,7 @@ END
 	print MAKE <<END;
 
 bin/inspircd: $core_mk
-	\$(RUNCC) -o \$\@ \$(CORELDFLAGS) \$(LDLIBS) \$^ \$>
+	@\$(SOURCEPATH)/make/unit-cc.pl core-ld\$(VERBOSE) \$\@ \$^ \$>
 
 inspircd: bin/inspircd
 
@@ -127,7 +126,7 @@ END
 		if ($out =~ m#obj/([^/]+)/[^/]+.o$#) {
 			mkdir "$ENV{BUILDPATH}/obj/$1";
 		}
-		dep_cpp $file, $out;
+		dep_cpp $file, $out, 'gen-o';
 		next if $file =~ m#^socketengines/# && $file ne "socketengines/$ENV{SOCKETENGINE}.cpp";
 		push @deps, $out;
 		push @srcs, $file;
@@ -138,10 +137,10 @@ END
 	print MAKE <<END;
 
 obj/ld-extra.cmd: $core_src
-	\@\$(SOURCEPATH)/make/unit-cc.pl -f\$(VERBOSE) \$\@ \$^ \$>
+	\@\$(SOURCEPATH)/make/unit-cc.pl gen-ld\$(VERBOSE) \$\@ \$^ \$>
 
 bin/inspircd: obj/ld-extra.cmd $core_mk
-	\@\$(SOURCEPATH)/make/unit-cc.pl -l\$(VERBOSE) \$\@ \$^ \$>
+	\@\$(SOURCEPATH)/make/unit-cc.pl static-ld\$(VERBOSE) \$\@ \$^ \$>
 
 inspircd: bin/inspircd
 
@@ -200,12 +199,27 @@ sub gendep($) {
 	$f2dep{$f};
 }
 
-sub dep_cpp($$) {
-	my($file, $out) = @_;
+sub dep_cpp($$$) {
+	my($file, $out, $type) = @_;
 	gendep $file;
 
 	print MAKE "$out: $file $f2dep{$file}\n";
-	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl \$(VERBOSE) \$\@ \$< \$>\n";
+	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl $type\$(VERBOSE) \$\@ \$< \$>\n";
+}
+
+sub dep_so($) {
+	my($file) = @_;
+	my $out = find_output $file;
+	my $split = find_output $file, 1;
+
+	if ($ENV{SPLIT_CC}) {
+		dep_cpp $file, $split, 'gen-o';
+		print MAKE "$out: $split\n";
+		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-so\$(VERBOSE) \$\@ \$< \$>\n";
+	} else {
+		dep_cpp $file, $out, 'gen-so';
+	}
+	return $out;
 }
 
 sub dep_dir($) {
@@ -215,13 +229,14 @@ sub dep_dir($) {
 	for my $file (sort readdir DIR) {
 		next unless $file =~ /(.*)\.cpp$/;
 		my $ofile = find_output "$dir/$file";
-		dep_cpp "$dir/$file", $ofile;
+		dep_cpp "$dir/$file", $ofile, 'gen-o';
 		push @ofiles, $ofile;
 	}
 	closedir DIR;
 	if (@ofiles) {
 		my $ofiles = join ' ', @ofiles;
-		print MAKE "$dir.so: $ofiles\n\t\$(RUNCC) \$(PICLDFLAGS) -o \$\@ \$^ \$>\n";
+		print MAKE "$dir.so: $ofiles\n";
+		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir\$(VERBOSE) \$\@ \$^ \$>\n";
 		return 1;
 	} else {
 		return 0;
