@@ -157,7 +157,7 @@ void TreeSocket::ProcessLine(std::string &line)
 
 				Utils->timeoutlist.erase(this);
 				parameterlist sparams;
-				Utils->DoOneToAllButSender(prefix, "BURST", params, MyRoot->GetName());
+				Utils->DoOneToAllButSender(MyRoot->GetID(), "BURST", params, MyRoot->GetName());
 				MyRoot->bursting = true;
 				this->DoBurst(MyRoot);
 			}
