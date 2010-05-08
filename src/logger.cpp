@@ -53,7 +53,7 @@ LogManager::~LogManager()
 
 void LogManager::OpenFileLogs()
 {
-	if (Config->cmdline.forcedebug)
+	if (ServerInstance->Config->cmdline.forcedebug)
 	{
 		ServerInstance->Config->RawLog = true;
 		return;
@@ -124,7 +124,7 @@ void LogManager::OpenFileLogs()
 
 void LogManager::CloseLogs()
 {
-	if (Config->cmdline.forcedebug)
+	if (ServerInstance->Config->cmdline.forcedebug)
 		return;
 	std::map<std::string, std::vector<LogStream*> >().swap(LogStreams); /* Clear it */
 	std::map<LogStream*, std::vector<std::string> >().swap(GlobalLogStreams); /* Clear it */
