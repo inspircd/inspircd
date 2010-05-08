@@ -454,7 +454,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	if (do_debug)
 	{
 		FileWriter* fw = new FileWriter(stdout);
-		FileLogStream* fls = new FileLogStream(DEBUG, fw);
+		FileLogStream* fls = new FileLogStream(RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}
 	else if (!this->OpenLog(argv, argc))
