@@ -53,6 +53,11 @@ LogManager::~LogManager()
 
 void LogManager::OpenFileLogs()
 {
+	if (Config->cmdline.forcedebug)
+	{
+		ServerInstance->Config->RawLog = true;
+		return;
+	}
 	/* Skip rest of logfile opening if we are running -nolog. */
 	if (!ServerInstance->Config->cmdline.writelog)
 		return;
@@ -119,6 +124,8 @@ void LogManager::OpenFileLogs()
 
 void LogManager::CloseLogs()
 {
+	if (Config->cmdline.forcedebug)
+		return;
 	std::map<std::string, std::vector<LogStream*> >().swap(LogStreams); /* Clear it */
 	std::map<LogStream*, std::vector<std::string> >().swap(GlobalLogStreams); /* Clear it */
 	for (std::map<LogStream*, int>::iterator i = AllLogStreams.begin(); i != AllLogStreams.end(); ++i)
