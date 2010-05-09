@@ -15,7 +15,7 @@
 
 /* $ModDesc: Implements config tags which allow changing characters allowed in channel names */
 
-static bool allowedmap[256];
+static std::bitset<256> allowedmap;
 
 class NewIsChannelHandler : public HandlerBase2<bool, const char*, size_t>
 {
@@ -25,19 +25,20 @@ class NewIsChannelHandler : public HandlerBase2<bool, const char*, size_t>
 	virtual bool Call(const char*, size_t);
 };
 
-bool NewIsChannelHandler::Call(const char* chname, size_t max)
+bool NewIsChannelHandler::Call(const char* c, size_t max)
 {
-		const char *c = chname + 1;
-
 		/* check for no name - don't check for !*chname, as if it is empty, it won't be '#'! */
-		if (!chname || *chname != '#')
+		if (!c || *c++ != '#')
 			return false;
 
-		while (*c)
-			if (!allowedmap[(unsigned int)(*c++)]) return false;
-
-		size_t len = c - chname;
-		return len <= max;
+		while (*c && --max)
+		{
+			unsigned int i = *c++ & 0xFF;
+			if (!allowedmap[i])
+				return false;
+		}
+		// a name of exactly max length will have max = 1 here; the null does not trigger --max
+		return max;
 }
 
 class ModuleChannelNames : public Module
@@ -91,17 +92,17 @@ class ModuleChannelNames : public Module
 		ConfigReader Conf;
 		std::string denyToken = Conf.ReadValue("channames", "denyrange", 0);
 		std::string allowToken = Conf.ReadValue("channames", "allowrange", 0);
-		memset(allowedmap, 1, sizeof(allowedmap));
+		allowedmap.set();
 
 		irc::portparser denyrange(denyToken, false);
 		int denyno = -1;
 		while (0 != (denyno = denyrange.GetToken()))
-			allowedmap[(unsigned char)(denyno)] = false;
+			allowedmap[denyno & 0xFF] = false;
 
 		irc::portparser allowrange(allowToken, false);
 		int allowno = -1;
 		while (0 != (allowno = allowrange.GetToken()))
-			allowedmap[(unsigned char)(allowno)] = true;
+			allowedmap[allowno & 0xFF] = true;
 
 		allowedmap[0x07] = false; // BEL
 		allowedmap[0x20] = false; // ' '
