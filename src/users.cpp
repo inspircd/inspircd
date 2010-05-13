@@ -1714,6 +1714,9 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 
 void ConnectClass::Update(const ConnectClass* src)
 {
+	config = src->config;
+	type = src->type;
+	fakelag = src->fakelag;
 	name = src->name;
 	registration_timeout = src->registration_timeout;
 	host = src->host;
@@ -1722,7 +1725,9 @@ void ConnectClass::Update(const ConnectClass* src)
 	hardsendqmax = src->hardsendqmax;
 	recvqmax = src->recvqmax;
 	penaltythreshold = src->penaltythreshold;
+	commandrate = src->commandrate;
 	maxlocal = src->maxlocal;
 	maxglobal = src->maxglobal;
+	maxchans = src->maxchans;
 	limit = src->limit;
 }
