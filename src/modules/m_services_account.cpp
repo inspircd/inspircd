@@ -154,7 +154,7 @@ class ModuleServicesAccount : public Module
 			std::vector<std::string> modechange;
 			modechange.push_back(user->nick);
 			modechange.push_back("-r");
-			ServerInstance->SendMode(modechange, user);
+			ServerInstance->SendMode(modechange, ServerInstance->FakeClient);
 		}
 	}
 
