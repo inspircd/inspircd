@@ -95,7 +95,6 @@ my @msgfilters = (
 		$msg = $location . $msg;
 		$location = "";
 		$msg =~ s/std::basic_string\<char\, std\:\:char_traits\<char\>, std::allocator\<char\> \>(\s+|)/std::string/g;
-		$msg =~ s/std::basic_string\<char\, .*?irc_char_traits\<char\>, std::allocator\<char\> \>(\s+|)/irc::string/g;
 		for my $stl (qw(deque vector list)) {
 			$msg =~ s/std::$stl\<(\S+), std::allocator\<\1\> \>/std::$stl\<$1\>/g;
 			$msg =~ s/std::$stl\<(std::pair\<\S+, \S+\>), std::allocator\<\1 \> \>/std::$stl<$1 >/g;
@@ -105,7 +104,6 @@ my @msgfilters = (
 		$msg =~ s/__gnu_cxx::__normal_iterator\<(\S+)\*, std::vector\<\1\> \>/std::vector<$1>::iterator/g;
 		$msg =~ s/__gnu_cxx::__normal_iterator\<(std::pair\<\S+, \S+\>)\*, std::vector\<\1 \> \>/std::vector<$1 >::iterator/g;
 		$msg =~ s/__gnu_cxx::__normal_iterator\<char\*, std::string\>/std::string::iterator/g;
-		$msg =~ s/__gnu_cxx::__normal_iterator\<char\*, irc::string\>/irc::string::iterator/g;
 		return $msg;
 	} ],
 );
