@@ -89,7 +89,7 @@ class ThreadSignalSocket : public BufferedSocket
 
 SocketThread::SocketThread(InspIRCd* SI)
 {
-	int fd = eventfd(0, O_NONBLOCK);
+	int fd = eventfd(0, EFD_NONBLOCK);
 	if (fd < 0)
 		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
 	signal.sock = new ThreadSignalSocket(this, SI, fd);
