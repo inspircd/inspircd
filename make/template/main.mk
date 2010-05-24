@@ -188,7 +188,7 @@ install: target
 	@-install -d -m $(INSTMODE_DIR) '$(CONPATH)'
 	@-install -d -m $(INSTMODE_DIR) '$(MODPATH)'
 	[ '$(BUILDPATH)'/bin/ -ef '$(BINPATH)' ] || install -m $(INSTMODE_BIN) '$(BUILDPATH)'/bin/inspircd '$(BINPATH)'
-@IFEQ PURE_STATIC 0
+@IFEQ $(PURE_STATIC) 0
 	[ '$(BUILDPATH)'/modules/ -ef '$(MODPATH)' ] || install -m $(INSTMODE_LIB) '$(BUILDPATH)'/modules/*.so '$(MODPATH)'
 @ENDIF
 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ '$(BASE)' 2>/dev/null
