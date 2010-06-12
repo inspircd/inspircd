@@ -37,23 +37,16 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s!%s@%s, restarting server.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 
-		try
-		{
-			ServerInstance->Restart("Server restarting.");
-		}
-		catch (...)
-		{
-			/* We dont actually get here unless theres some fatal and unrecoverable error. */
-			exit(0);
-		}
+		ServerInstance->SendError("Server restarting.");
+		execv(ServerInstance->Config->cmdline.argv[0], ServerInstance->Config->cmdline.argv);
+		ServerInstance->SNO->WriteGlobalSno('a', "Failed RESTART - could not execute '%s' (%s)",
+			ServerInstance->Config->cmdline.argv[0], strerror(errno));
 	}
 	else
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "Failed RESTART Command from %s!%s@%s.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		return CMD_FAILURE;
 	}
-
-	return CMD_SUCCESS;
+	return CMD_FAILURE;
 }
 
 
