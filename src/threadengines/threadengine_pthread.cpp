@@ -61,11 +61,15 @@ void ThreadData::FreeThread(Thread* thread)
 #ifdef HAS_EVENTFD
 #include <sys/eventfd.h>
 
-class ThreadSignalSocket : public BufferedSocket
+class ThreadSignalSocket : public EventHandler
 {
 	SocketThread* parent;
  public:
-	ThreadSignalSocket(SocketThread* p, int newfd) : BufferedSocket(newfd), parent(p) {}
+	ThreadSignalSocket(SocketThread* p, int newfd) : parent(p)
+	{
+		SetFd(newfd);
+		ServerInstance->SE->AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
+	}
 
 	~ThreadSignalSocket()
 	{
@@ -76,15 +80,18 @@ class ThreadSignalSocket : public BufferedSocket
 		eventfd_write(fd, 1);
 	}
 
-	void OnDataReady()
+	void HandleEvent(EventType et, int errornum)
 	{
-		recvq.clear();
-		parent->OnNotify();
-	}
-
-	void OnError(BufferedSocketError)
-	{
-		ServerInstance->GlobalCulls.AddItem(this);
+		if (et == EVENT_READ)
+		{
+			eventfd_t dummy;
+			eventfd_read(fd, &dummy);
+			parent->OnNotify();
+		}
+		else
+		{
+			ServerInstance->GlobalCulls.AddItem(this);
+		}
 	}
 };
 
@@ -97,13 +104,18 @@ SocketThread::SocketThread()
 }
 #else
 
-class ThreadSignalSocket : public BufferedSocket
+class ThreadSignalSocket : public EventHandler
 {
 	SocketThread* parent;
 	int send_fd;
  public:
 	ThreadSignalSocket(SocketThread* p, int recvfd, int sendfd) :
-		BufferedSocket(recvfd), parent(p), send_fd(sendfd)  {}
+		parent(p), send_fd(sendfd)
+	{
+		SetFd(recvfd);
+		ServerInstance->SE->NonBlocking(fd);
+		ServerInstance->SE->AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
+	}
 
 	~ThreadSignalSocket()
 	{
@@ -112,19 +124,22 @@ class ThreadSignalSocket : public BufferedSocket
 
 	void Notify()
 	{
-		char dummy = '*';
+		static const char dummy = '*';
 		write(send_fd, &dummy, 1);
 	}
 
-	void OnDataReady()
+	void HandleEvent(EventType et, int errornum)
 	{
-		recvq.clear();
-		parent->OnNotify();
-	}
-
-	void OnError(BufferedSocketError)
-	{
-		ServerInstance->GlobalCulls.AddItem(this);
+		if (et == EVENT_READ)
+		{
+			char dummy[128];
+			read(fd, dummy, 128);
+			parent->OnNotify();
+		}
+		else
+		{
+			ServerInstance->GlobalCulls.AddItem(this);
+		}
 	}
 };
 
