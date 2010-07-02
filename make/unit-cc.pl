@@ -41,7 +41,7 @@ sub do_static_find {
 }
 
 sub do_static_link {
-	my $execstr = "$ENV{RUNLD} -o $out $ENV{CORELDFLAGS} $ENV{LDLIBS}";
+	my $execstr = "$ENV{RUNLD} -o $out $ENV{CORELDFLAGS}";
 	for (@ARGV) {
 		if (/\.cmd$/) {
 			open F, '<', $_;
@@ -53,12 +53,13 @@ sub do_static_link {
 			$execstr .= ' '.$_;
 		}
 	}
+	$execstr .= ' '.$ENV{LDLIBS};
 	print "$execstr\n" if $verbose;
 	exec $execstr;
 }
 
 sub do_core_link {
-	my $execstr = "$ENV{RUNLD} -o $out $ENV{CORELDFLAGS} $ENV{LDLIBS} @_";
+	my $execstr = "$ENV{RUNLD} -o $out $ENV{CORELDFLAGS} @_ $ENV{LDLIBS}";
 	print "$execstr\n" if $verbose;
 	exec $execstr;
 }
@@ -73,6 +74,7 @@ sub do_compile {
 	my ($do_compile, $do_link, $file) = @_;
 
 	my $flags = '';
+	my $libs = '';
 	my $binary = $ENV{RUNCC};
 	if ($do_compile) {
 		$flags = $ENV{CXXFLAGS};
@@ -87,12 +89,13 @@ sub do_compile {
 	}
 
 	if ($do_link) {
-		$flags = join ' ', $flags, $ENV{PICLDFLAGS}, getlinkerflags($file);
+		$flags = join ' ', $flags, $ENV{PICLDFLAGS};
+		$libs = join ' ', getlinkerflags($file);
 	} else {
 		$flags .= ' -c';
 	}
 
-	my $execstr = "$binary -o $out $flags $file";
+	my $execstr = "$binary -o $out $flags $file $libs";
 	print "$execstr\n" if $verbose;
 	exec $execstr;
 }
