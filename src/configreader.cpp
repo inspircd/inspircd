@@ -234,7 +234,7 @@ void ServerConfig::CrossCheckOperClassType()
 		if (tblk == oper_blocks.end())
 			throw CoreException("Oper block " + name + " has missing type " + type);
 		if (oper_blocks.find(name) != oper_blocks.end())
-			throw CoreException("Duplicate oper block with name " + name);
+			throw CoreException("Duplicate oper block with name " + name + " at " + tag->getTagLocation());
 
 		OperInfo* ifo = new OperInfo;
 		ifo->name = type;
