@@ -82,8 +82,8 @@ class ModuleAlias : public Module
 			tag->readString("replace", a.ReplaceFormat, true);
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");
-			a.ChannelCommand = tag->getBool("channelcommand", "no");
-			a.UserCommand = tag->getBool("usercommand", "yes");
+			a.ChannelCommand = tag->getBool("channelcommand", false);
+			a.UserCommand = tag->getBool("usercommand", true);
 			a.OperOnly = tag->getBool("operonly");
 			a.format = tag->getString("format");
 			a.CaseSensitive = tag->getBool("matchcase");
