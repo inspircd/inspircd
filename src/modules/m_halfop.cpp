@@ -19,6 +19,13 @@ class ModeChannelHalfOp : public ModeHandler
 	ModeChannelHalfOp(Module* parent);
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	unsigned int GetPrefixRank();
+
+	ModResult AccessCheck(User* src, Channel*, std::string& value, bool adding)
+	{
+		if (!adding && src->nick == value)
+			return MOD_RES_ALLOW;
+		return MOD_RES_PASSTHRU;
+	}
 };
 
 ModeChannelHalfOp::ModeChannelHalfOp(Module* parent) : ModeHandler(parent, "halfop", 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
