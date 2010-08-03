@@ -628,7 +628,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom prefixes : allows for channel prefixes to be added. 
-# This replaces m_chanprotect and m_halfop
+# This can replace m_chanprotect and m_halfop, except for interation with services
 #<module name="m_customprefix.so">
 #
 # name       The name of the mode, must be unique from other modes
