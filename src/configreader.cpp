@@ -691,19 +691,16 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	{
 		std::string line;
 		getline(errstr, line, '\n');
-		if (!line.empty())
-		{
-			if (user)
-				user->WriteServ("NOTICE %s :*** %s", user->nick.c_str(), line.c_str());
-			else
-				ServerInstance->SNO->WriteGlobalSno('a', line);
-		}
-
+		if (line.empty())
+			continue;
+		// On startup, print out to console (still attached at this point)
 		if (!old)
-		{
-			// Starting up, so print it out so it's seen. XXX this is a bit of a hack.
 			printf("%s\n", line.c_str());
-		}
+		// If a user is rehashing, tell them directly
+		if (user)
+			user->SendText(":%s NOTICE %s :*** %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), line.c_str());
+		// Also tell opers
+		ServerInstance->SNO->WriteGlobalSno('a', line);
 	}
 
 	errstr.clear();
@@ -727,7 +724,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	ApplyModules(user);
 
 	if (user)
-		user->WriteServ("NOTICE %s :*** Successfully rehashed server.", user->nick.c_str());
+		user->SendText(":%s NOTICE %s :*** Successfully rehashed server.",
+			ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
 	ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
 }
 
