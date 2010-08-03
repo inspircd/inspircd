@@ -124,7 +124,7 @@ void LogManager::OpenFileLogs()
 
 void LogManager::CloseLogs()
 {
-	if (ServerInstance->Config->cmdline.forcedebug)
+	if (ServerInstance->Config && ServerInstance->Config->cmdline.forcedebug)
 		return;
 	std::map<std::string, std::vector<LogStream*> >().swap(LogStreams); /* Clear it */
 	std::map<LogStream*, std::vector<std::string> >().swap(GlobalLogStreams); /* Clear it */
