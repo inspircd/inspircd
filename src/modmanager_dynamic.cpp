@@ -115,7 +115,6 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 		if (tries == 19)
 			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename);
 	}
-	FOREACH_MOD(I_InitModule,init());
 
 	ServerInstance->BuildISupport();
 	return true;
@@ -239,7 +238,7 @@ void ModuleManager::LoadAll()
 	}
 
 	IntModuleList& initlist = EventHandlers[I_ModuleInit];
-	for(int i=0; i < initlist.length(); i++)
+	for(size_t i=0; i < initlist.size(); i++)
 	{
 		Module* mod = initlist[i];
 		try
