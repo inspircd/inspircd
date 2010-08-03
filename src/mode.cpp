@@ -365,7 +365,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 		FOR_EACH_MOD(OnPermissionCheck, (perm));
 		perm.DoRankCheck();
 
-		if (MOD_RESULT == MOD_RES_DENY)
+		if (perm.result == MOD_RES_DENY)
 			return MODEACTION_DENY;
 	}
 
