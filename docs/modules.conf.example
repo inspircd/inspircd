@@ -632,7 +632,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom prefixes : allows for channel prefixes to be added. 
-# This replaces m_chanprotect and m_halfop
+# This can replace m_chanprotect and m_halfop, except for interation with services
 #<module name="m_customprefix.so">
 #
 # name       The name of the mode, must be unique from other modes
@@ -645,7 +645,7 @@
 #<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
 #<customprefix name="admin" letter="a" prefix="&" rank="40000" ranktoset="50000">
 #<customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">
-<customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
+#<customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted
