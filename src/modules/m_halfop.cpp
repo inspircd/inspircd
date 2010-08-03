@@ -21,6 +21,13 @@ class ModeChannelHalfOp : public ModeHandler
 	unsigned int GetPrefixRank();
 	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
 	void RemoveMode(User* user, irc::modestacker* stack = NULL);
+
+	ModResult AccessCheck(User* src, Channel*, std::string& value, bool adding)
+	{
+		if (!adding && src->nick == value)
+			return MOD_RES_ALLOW;
+		return MOD_RES_PASSTHRU;
+	}
 };
 
 ModeChannelHalfOp::ModeChannelHalfOp(Module* parent) : ModeHandler(parent, "halfop", 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
