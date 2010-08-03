@@ -198,7 +198,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (user->registered == REG_ALL)
 	{
-		user->IncreasePenalty(10);
+		user->IncreasePenalty(4);
 		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(user, oldnick));
 	}
 
