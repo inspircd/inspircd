@@ -153,6 +153,9 @@ class ModuleCloaking : public Module
 
 		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect, I_OnChangeHost };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
+
+		if (!Hash)
+			throw CoreException("Cannot find hash/md5: did you load the m_md5.so module?");
 	}
 
 	/** This function takes a domain name string and returns just the last two domain parts,

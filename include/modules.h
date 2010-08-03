@@ -336,7 +336,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
  */
 enum Implementation
 {
-	I_BEGIN,
+	I_ModuleInit,
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,

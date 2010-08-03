@@ -62,6 +62,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 			Modules[filename] = newmod;
 			if (defer)
 			{
+				Attach(I_ModuleInit, newmod);
 				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)",
 					filename.c_str(), newhandle->GetVersion().c_str());
 			}
@@ -114,6 +115,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 		if (tries == 19)
 			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename);
 	}
+	FOREACH_MOD(I_InitModule,init());
 
 	ServerInstance->BuildISupport();
 	return true;
@@ -217,23 +219,6 @@ void ModuleManager::LoadAll()
 		}
 	}
 
-	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
-	{
-		Module* mod = i->second;
-		try 
-		{
-			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", i->first.c_str());
-			mod->init();
-		}
-		catch (CoreException& modexcept)
-		{
-			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
-			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", LastModuleError.c_str());
-			ServerInstance->Exit(EXIT_STATUS_MODULE);
-		}
-	}
-
 	/* We give every module a chance to re-prioritize when we introduce a new one,
 	 * not just the one thats loading, as the new module could affect the preference
 	 * of others
@@ -252,6 +237,25 @@ void ModuleManager::LoadAll()
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
+
+	IntModuleList& initlist = EventHandlers[I_ModuleInit];
+	for(int i=0; i < initlist.length(); i++)
+	{
+		Module* mod = initlist[i];
+		try
+		{
+			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", mod->ModuleSourceFile.c_str());
+			mod->init();
+		}
+		catch (CoreException& modexcept)
+		{
+			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
+			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", LastModuleError.c_str());
+			ServerInstance->Exit(EXIT_STATUS_MODULE);
+		}
+	}
+	initlist.clear();
 }
 
 #endif

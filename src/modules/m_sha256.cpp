@@ -268,6 +268,12 @@ class ModuleSHA256 : public Module
 		ServerInstance->Modules->AddService(sha);
 	}
 
+	void Prioritize()
+	{
+		// we are a pure service provider, init us first
+		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_FIRST);
+	}
+
 	Version GetVersion()
 	{
 		return Version("Implements SHA-256 hashing", VF_VENDOR);
