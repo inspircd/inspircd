@@ -216,6 +216,9 @@ class ModuleRLine : public Module
 
 		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
+
+		if (!rxfactory)
+			throw ModuleException("Regex engine not set or loaded!");
 	}
 
 	virtual ~ModuleRLine()

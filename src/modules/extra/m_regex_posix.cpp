@@ -86,11 +86,20 @@ class ModuleRegexPOSIX : public Module
 {
 	PosixFactory ref;
 public:
-	ModuleRegexPOSIX() : ref(this) {
+	ModuleRegexPOSIX() : ref(this) {}
+
+	void init()
+	{
 		ServerInstance->Modules->AddService(ref);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 		OnRehash(NULL);
+	}
+
+	void Prioritize()
+	{
+		// we are a pure service provider, init us first
+		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_FIRST);
 	}
 
 	Version GetVersion()

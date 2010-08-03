@@ -48,8 +48,19 @@ class ModuleRegexGlob : public Module
 {
 	GlobFactory gf;
 public:
-	ModuleRegexGlob() : gf(this) {
+	ModuleRegexGlob() : gf(this)
+	{
+	}
+
+	void init()
+	{
 		ServerInstance->Modules->AddService(gf);
+	}
+
+	void Prioritize()
+	{
+		// we are a pure service provider, init us first
+		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_FIRST);
 	}
 
 	Version GetVersion()
