@@ -30,36 +30,6 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
 	if (filename.find('/') != std::string::npos)
 		return false;
-	/* Do we have a glob pattern in the filename?
-	 * The user wants to load multiple modules which
-	 * match the pattern.
-	 */
-	if (strchr(filename.c_str(),'*') || (strchr(filename.c_str(),'?')))
-	{
-		int n_match = 0;
-		DIR* library = opendir(ServerInstance->Config->ModPath.c_str());
-		if (library)
-		{
-			/* Try and locate and load all modules matching the pattern */
-			dirent* entry = NULL;
-			while (0 != (entry = readdir(library)))
-			{
-				if (entry->d_name[0] == '.')
-					continue;
-				if (InspIRCd::Match(entry->d_name, filename.c_str(), ascii_case_insensitive_map))
-				{
-					if (!this->Load(entry->d_name, defer))
-						n_match++;
-				}
-			}
-			closedir(library);
-		}
-		/* Loadmodule will now return false if any one of the modules failed
-		 * to load (but wont abort when it encounters a bad one) and when 1 or
-		 * more modules were actually loaded.
-		 */
-		return (n_match > 0 ? false : true);
-	}
 
 	char modfile[MAXBUF];
 	snprintf(modfile,MAXBUF,"%s/%s",ServerInstance->Config->ModPath.c_str(),filename.c_str());
