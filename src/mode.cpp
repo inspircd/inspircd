@@ -366,7 +366,11 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 		perm.DoRankCheck();
 
 		if (perm.result == MOD_RES_DENY)
+		{
+			if (!perm.reason.empty())
+				user->SendText(perm.reason);
 			return MODEACTION_DENY;
+		}
 	}
 
 	std::pair<ModeWatcherMap::iterator,ModeWatcherMap::iterator> watchers = modewatchers.equal_range(modeid);
