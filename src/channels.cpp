@@ -258,7 +258,11 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 			FOR_EACH_MOD(OnCheckJoin, (perm));
 			FOR_EACH_MOD(OnPermissionCheck, (perm));
 			if (perm.result == MOD_RES_DENY)
+			{
+				if (!perm.reason.empty())
+					user->SendText(perm.reason);
 				return NULL;
+			}
 		}
 
 		Ptr = new Channel(cn, TS);
@@ -277,7 +281,11 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 		{
 			FOR_EACH_MOD(OnCheckJoin, (perm));
 			if (perm.result == MOD_RES_DENY)
+			{
+				if (!perm.reason.empty())
+					user->SendText(perm.reason);
 				return NULL;
+			}
 			if (perm.result == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
