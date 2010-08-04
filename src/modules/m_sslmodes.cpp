@@ -74,30 +74,21 @@ class ModuleSSLModes : public Module
 		: sslm(this)
 	{
 		ServerInstance->Modules->AddService(sslm);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if(chan && chan->IsModeSet(&sslm))
+		if (!join.chan || join.result != MOD_RES_PASSTHRU || !join.chan->IsModeSet(&sslm))
+			return;
+		UserCertificateRequest req(join.user, this);
+		req.Send();
+		if (!req.cert)
 		{
-			UserCertificateRequest req(user, this);
-			req.Send();
-			if (req.cert)
-			{
-				// Let them in
-				return MOD_RES_PASSTHRU;
-			}
-			else
-			{
-				// Deny
-				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname.c_str());
-				return MOD_RES_DENY;
-			}
+			join.ErrorNumeric(489, "%s :Cannot join channel; SSL users only (+z)", join.chan->name.c_str());
+			join.result = MOD_RES_DENY;
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)

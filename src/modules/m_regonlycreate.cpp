@@ -21,28 +21,27 @@ class ModuleRegOnlyCreate : public Module
  public:
 	ModuleRegOnlyCreate()
 	{
-		Implementation eventlist[] = { I_OnUserPreJoin };
+		Implementation eventlist[] = { I_OnCheckJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (chan)
-			return MOD_RES_PASSTHRU;
+		if (join.chan || join.result != MOD_RES_PASSTHRU)
+			return;
 
-		if (IS_OPER(user))
-			return MOD_RES_PASSTHRU;
+		if (IS_OPER(join.user))
+			return;
 
-		if (user->IsModeSet('r'))
-			return MOD_RES_PASSTHRU;
+		if (join.user->IsModeSet('r'))
+			return;
 
 		const AccountExtItem* ext = GetAccountExtItem();
-		if (ext && ext->get(user))
-			return MOD_RES_PASSTHRU;
+		if (ext && ext->get(join.user))
+			return;
 
-		// XXX. there may be a better numeric for this..
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have a registered nickname to create a new channel", user->nick.c_str(), cname.c_str());
-		return MOD_RES_DENY;
+		join.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must have a registered nickname to create a new channel", join.channel.c_str());
+		join.result = MOD_RES_DENY;
 	}
 
 	~ModuleRegOnlyCreate()

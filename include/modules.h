@@ -104,7 +104,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 1
+#define INSPIRCD_VERSION_API 2
 
 /**
  * This #define allows us to call a method in all
@@ -338,15 +338,15 @@ enum Implementation
 {
 	I_ModuleInit,
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash,
-	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
+	I_OnSendSnotice, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
 	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
-	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
-	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
-	I_OnStats, I_OnPermissionCheck,
+	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady,
+	I_OnRawMode, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
+	I_OnStats, I_OnPermissionCheck, I_OnCheckJoin,
 	I_OnPostTopicChange, I_OnEvent, I_OnPostConnect, I_OnAddBan,
 	I_OnDelBan, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
@@ -394,6 +394,20 @@ class CoreExport ModePermissionData : public PermissionData
 	void DoRankCheck();
 };
 
+class CoreExport ChannelPermissionData : public PermissionData
+{
+ public:
+	/** Channel name; is present even when creating the channel (when chan is null) */
+	const std::string channel;
+	/** Key specified by the user (empty if none) */
+	std::string key;
+	/** Initial privileges of the Membership (applied prior to OnUserJoin) */
+	std::string privs;
+	/** True if the user was invited */
+	bool invited;
+	ChannelPermissionData(User* src, Channel* c, const std::string& Name, const std::string& Key)
+		: PermissionData(src, "join", c, NULL), channel(Name), key(Key) {}
+};
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
@@ -528,27 +542,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnSendSnotice(char &snomask, std::string &type, const std::string &message);
 
-	/** Called whenever a user is about to join a channel, before any processing is done.
-	 * Returning a value of 1 from this function stops the process immediately, causing no
-	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
-	 * notices etc. This is useful for modules which may want to mimic +b, +k, +l etc. Returning -1 from
-	 * this function forces the join to be allowed, bypassing restrictions such as banlists, invite, keys etc.
-	 *
-	 * IMPORTANT NOTE!
-	 *
-	 * If the user joins a NEW channel which does not exist yet, OnUserPreJoin will be called BEFORE the channel
-	 * record is created. This will cause Channel* chan to be NULL. There is very little you can do in form of
-	 * processing on the actual channel record at this point, however the channel NAME will still be passed in
-	 * char* cname, so that you could for example implement a channel blacklist or whitelist, etc.
-	 * @param user The user joining the channel
-	 * @param chan If the  channel is a new channel, this will be NULL, otherwise it will be a pointer to the channel being joined
-	 * @param cname The channel name being joined. For new channels this is valid where chan is not.
-	 * @param privs A string containing the users privilages when joining the channel. For new channels this will contain "o".
-	 * You may alter this string to alter the user's modes on the channel.
-	 * @param keygiven The key given to join the channel, or an empty string if none was provided
-	 * @return 1 To prevent the join, 0 to allow it.
-	 */
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven);
+	virtual void OnCheckJoin(ChannelPermissionData& join);
 
 	/** Called whenever a user is kicked.
 	 * @param source The user issuing the kick
@@ -982,16 +976,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnUserRegister(LocalUser* user);
 
-	/** Called whenever a user joins a channel, to determine if invite checks should go ahead or not.
-	 * This method will always be called for each join, wether or not the channel is actually +i, and
-	 * determines the outcome of an if statement around the whole section of invite checking code.
-	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
-	 * @param user The user joining the channel
-	 * @param chan The channel being joined
-	 * @return 1 to explicitly allow the join, 0 to proceed as normal
-	 */
-	virtual ModResult OnCheckInvite(User* user, Channel* chan);
-
 	/** Called whenever a mode character is processed.
 	 * Return 1 from this function to block the mode character from being processed entirely.
 	 * @param user The user who is sending the mode
@@ -1005,27 +989,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * return value will be ignored!
 	 */
 	virtual ModResult OnRawMode(User* user, Channel* chan, irc::modechange& mc);
-
-	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
-	 * This method will always be called for each join, wether or not the channel is actually +k, and
-	 * determines the outcome of an if statement around the whole section of key checking code.
-	 * if the user specified no key, the keygiven string will be a valid but empty value.
-	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
-	 * @param user The user joining the channel
-	 * @param chan The channel being joined
-	 * @return 1 to explicitly allow the join, 0 to proceed as normal
-	 */
-	virtual ModResult OnCheckKey(User* user, Channel* chan, const std::string &keygiven);
-
-	/** Called whenever a user joins a channel, to determine if channel limit checks should go ahead or not.
-	 * This method will always be called for each join, wether or not the channel is actually +l, and
-	 * determines the outcome of an if statement around the whole section of channel limit checking code.
-	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
-	 * @param user The user joining the channel
-	 * @param chan The channel being joined
-	 * @return 1 to explicitly allow the join, 0 to proceed as normal
-	 */
-	virtual ModResult OnCheckLimit(User* user, Channel* chan);
 
 	/**
 	 * Checks for a user's ban from the channel

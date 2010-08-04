@@ -26,8 +26,8 @@ class ModuleOverride : public Module
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreJoin, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void OnRehash(User* user)
@@ -55,78 +55,10 @@ class ModuleOverride : public Module
 		}
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (IS_LOCAL(user) && IS_OPER(user))
-		{
-			if (chan)
-			{
-				if (chan->IsModeSet('i') && user->HasPrivPermission("override/invite"))
-				{
-					irc::string x(chan->name.c_str());
-					if (!IS_LOCAL(user)->IsInvited(x))
-					{
-						if (RequireKey && keygiven != "override")
-						{
-							// Can't join normally -- must use a special key to bypass restrictions
-							user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-							return MOD_RES_PASSTHRU;
-						}
-
-						if (NoisyOverride)
-							chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass invite-only", cname.c_str(), user->nick.c_str());
-						ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +i on "+std::string(cname));
-					}
-					return MOD_RES_ALLOW;
-				}
-
-				if (chan->IsModeSet('k') && user->HasPrivPermission("override/key") && keygiven != chan->GetModeParameter('k'))
-				{
-					if (RequireKey && keygiven != "override")
-					{
-						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return MOD_RES_PASSTHRU;
-					}
-
-					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass the channel key", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +k on "+std::string(cname));
-					return MOD_RES_ALLOW;
-				}
-
-				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && user->HasPrivPermission("override/limit"))
-				{
-					if (RequireKey && keygiven != "override")
-					{
-						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return MOD_RES_PASSTHRU;
-					}
-
-					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass the channel limit", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +l on "+std::string(cname));
-					return MOD_RES_ALLOW;
-				}
-
-				if (chan->IsBanned(user) && user->HasPrivPermission("override/ban"))
-				{
-					if (RequireKey && keygiven != "override")
-					{
-						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteServ("NOTICE %s :*** You may not join normally. You must join with a key of 'override' to oper override.", user->nick.c_str());
-						return MOD_RES_PASSTHRU;
-					}
-
-					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s used oper override to bypass channel ban", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname.c_str());
-					return MOD_RES_ALLOW;
-				}
-			}
-		}
-		return MOD_RES_PASSTHRU;
+		if (!RequireKey || join.key == "override")
+			OnPermissionCheck(join);
 	}
 
 	Version GetVersion()

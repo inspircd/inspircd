@@ -171,7 +171,7 @@ class ModuleCBan : public Module
 		ServerInstance->XLines->RegisterFactory(&f);
 
 		ServerInstance->AddCommand(&mycommand);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnStats };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -190,21 +190,20 @@ class ModuleCBan : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual ModResult OnUserPreJoin(User *user, Channel *chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	virtual void OnCheckJoin(ChannelPermissionData& join)
 	{
-		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
+		if (join.result != MOD_RES_PASSTHRU)
+			return;
+		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", join.channel);
 
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname.c_str(), rl->reason.c_str());
-			ServerInstance->SNO->WriteToSnoMask('a', "%s tried to join %s which is CBANed (%s)",
-				 user->nick.c_str(), cname.c_str(), rl->reason.c_str());
-			ServerInstance->PI->SendSNONotice("A", user->nick + " tried to join " + cname + " which is CBANed (" + rl->reason + ")");
-			return MOD_RES_DENY;
+			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
+				 join.user->nick.c_str(), join.channel.c_str(), rl->reason.c_str());
+			join.ErrorNumeric(384, "%s :Cannot join channel, CBANed (%s)", join.channel.c_str(), rl->reason.c_str());
+			join.result = MOD_RES_DENY;
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	virtual Version GetVersion()

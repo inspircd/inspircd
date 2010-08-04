@@ -57,45 +57,43 @@ public:
 	{
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Extensions.Register(&kr.ext);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (chan)
+		if (!join.chan || join.result != MOD_RES_PASSTHRU)
+			return;
+		delaylist* dl = kr.ext.get(join.chan);
+		if (!dl)
+			return;
+		std::vector<User*> itemstoremove;
+
+		for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
 		{
-			delaylist* dl = kr.ext.get(chan);
-			if (dl)
+			if (iter->second > ServerInstance->Time())
 			{
-				std::vector<User*> itemstoremove;
-
-				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
+				if (iter->first == join.user)
 				{
-					if (iter->second > ServerInstance->Time())
-					{
-						if (iter->first == user)
-						{
-							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)",
-								user->nick.c_str(), chan->name.c_str(), chan->GetModeParameter(&kr).c_str());
-							return MOD_RES_DENY;
-						}
-					}
-					else
-					{
-						// Expired record, remove.
-						itemstoremove.push_back(iter->first);
-					}
+					join.ErrorNumeric(ERR_DELAYREJOIN, "%s :You must wait %s seconds after being kicked to rejoin (+J)",
+						join.chan->name.c_str(), join.chan->GetModeParameter(&kr).c_str());
+					join.result = MOD_RES_DENY;
+					return;
 				}
-
-				for (unsigned int i = 0; i < itemstoremove.size(); i++)
-					dl->erase(itemstoremove[i]);
-
-				if (!dl->size())
-					kr.ext.unset(chan);
+			}
+			else
+			{
+				// Expired record, remove.
+				itemstoremove.push_back(iter->first);
 			}
 		}
-		return MOD_RES_PASSTHRU;
+
+		for (unsigned int i = 0; i < itemstoremove.size(); i++)
+			dl->erase(itemstoremove[i]);
+
+		if (!dl->size())
+			kr.ext.unset(join.chan);
 	}
 
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)

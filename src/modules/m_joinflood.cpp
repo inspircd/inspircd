@@ -188,25 +188,26 @@ class ModuleJoinFlood : public Module
 	ModuleJoinFlood()
 		: jf(this)
 	{
+	}
 
+	void init()
+	{
 		ServerInstance->Modules->AddService(jf);
 		ServerInstance->Extensions.Register(&jf.ext);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserJoin };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (chan)
+		if (!join.chan || join.result != MOD_RES_PASSTHRU)
+			return;
+		joinfloodsettings *f = jf.ext.get(join.chan);
+		if (f && f->islocked())
 		{
-			joinfloodsettings *f = jf.ext.get(chan);
-			if (f && f->islocked())
-			{
-				user->WriteNumeric(609, "%s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick.c_str(),chan->name.c_str());
-				return MOD_RES_DENY;
-			}
+			join.ErrorNumeric(609, "%s :This channel is temporarily unavailable (+j). Please try again later.",join.chan->name.c_str());
+			join.result = MOD_RES_DENY;
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)

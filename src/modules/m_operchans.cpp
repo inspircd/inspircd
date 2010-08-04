@@ -29,19 +29,18 @@ class ModuleOperChans : public Module
 	ModuleOperChans() : oc(this)
 	{
 		ServerInstance->Modules->AddService(oc);
-		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnUserPreJoin };
+		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnCheckJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (chan && chan->IsModeSet(&oc) && !IS_OPER(user))
+		if (join.chan && join.result == MOD_RES_PASSTHRU && join.chan->IsModeSet(&oc) && !IS_OPER(join.user))
 		{
-			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join %s (+O is set)",
-				user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
-			return MOD_RES_DENY;
+			join.ErrorNumeric(ERR_CANTJOINOPERSONLY, "%s :Only IRC operators may join %s (+O is set)",
+				join.chan->name.c_str(), join.chan->name.c_str());
+			join.result = MOD_RES_DENY;
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)

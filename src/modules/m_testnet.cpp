@@ -105,9 +105,8 @@ static void checkall(Module* noimpl)
 	CHK(OnUserPart);
 	CHK(OnRehash);
 	CHK(OnSendSnotice);
-	CHK(OnUserPreJoin);
+	CHK(OnCheckJoin);
 	CHK(OnPermissionCheck);
-	CHK(OnUserKick);
 	CHK(OnOper);
 	CHK(OnInfo);
 	CHK(OnWhois);
@@ -139,10 +138,7 @@ static void checkall(Module* noimpl)
 	CHK(OnBackgroundTimer);
 	CHK(OnPreCommand);
 	CHK(OnCheckReady);
-	CHK(OnCheckInvite);
 	CHK(OnRawMode);
-	CHK(OnCheckKey);
-	CHK(OnCheckLimit);
 	CHK(OnCheckBan);
 	CHK(OnCheckChannelBan);
 	CHK(OnExtBanCheck);

@@ -138,7 +138,7 @@ class ModuleChanProtect : public Module
 		ServerInstance->Modules->AddService(cf);
 		ServerInstance->Modules->AddService(cp);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -150,15 +150,13 @@ class ModuleChanProtect : public Module
 		FirstInGetsFounder = tag->getBool("noservices");
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set
 
-		if (FirstInGetsFounder && !chan)
-			privs += cf.GetModeChar();
-
-		return MOD_RES_PASSTHRU;
+		if (FirstInGetsFounder && !join.chan)
+			join.privs += cf.GetModeChar();
 	}
 
 	Version GetVersion()

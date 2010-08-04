@@ -148,21 +148,19 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->AddService(*np);
 		ServerInstance->Modules->AddService(mycommand);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPermissionCheck, I_OnRehash };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnPermissionCheck, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
 		if (mycommand.active)
 		{
-			privs += np->GetModeChar();
+			join.privs += np->GetModeChar();
 			if (op)
-				privs += 'o';
-			return MOD_RES_ALLOW;
+				join.privs += 'o';
+			join.result = MOD_RES_ALLOW;
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	void OnRehash(User* user)
@@ -209,7 +207,7 @@ class ModuleOjoin : public Module
 
 	void Prioritize()
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
+		ServerInstance->Modules->SetPriority(this, I_OnCheckJoin, PRIORITY_FIRST);
 	}
 
 	Version GetVersion()

@@ -81,7 +81,6 @@ void		Module::OnPostJoin(Membership*) { }
 void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
-ModResult	Module::OnUserPreJoin(User*, Channel*, const std::string&, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, Extensible*, const irc::modestacker&) { }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
@@ -104,9 +103,6 @@ ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserRegister(LocalUser*) { }
 void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
 ModResult	Module::OnRawMode(User*, Channel*, irc::modechange&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckChannelBan(User*, Channel*) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnExtBanCheck(User*, Channel*, char) { return MOD_RES_PASSTHRU; }
@@ -127,6 +123,7 @@ void		Module::OnSyncUser(User*, SyncTarget*) { }
 void		Module::OnSyncChannel(Channel*, SyncTarget*) { }
 void		Module::OnSyncNetwork(SyncTarget*) { }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
+void		Module::OnCheckJoin(ChannelPermissionData&) { }
 void		Module::OnPermissionCheck(PermissionData&) { }
 void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }

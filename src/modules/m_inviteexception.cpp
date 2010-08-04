@@ -47,8 +47,8 @@ public:
 		ie.init();
 		ServerInstance->Modules->AddService(ie);
 
-		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnRehash, I_OnCheckKey };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_On005Numeric, I_OnCheckJoin, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void On005Numeric(std::string &output)
@@ -57,31 +57,18 @@ public:
 			output.append(" INVEX=").push_back(ie.GetModeChar());
 	}
 
-	ModResult OnCheckInvite(User* user, Channel* chan)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if(chan != NULL)
+		if(!join.chan)
+			return;
+		modelist* list = ie.extItem.get(join.chan);
+		if (!list)
+			return;
+		for (modelist::iterator it = list->begin(); it != list->end(); it++)
 		{
-			modelist* list = ie.extItem.get(chan);
-			if (list)
-			{
-				for (modelist::iterator it = list->begin(); it != list->end(); it++)
-				{
-					if (chan->CheckBan(user, (**it).mask))
-					{
-						return MOD_RES_ALLOW;
-					}
-				}
-			}
+			if (join.chan->CheckBan(join.user, (**it).mask))
+				join.invited = true;
 		}
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key)
-	{
-		if (ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true))
-			return OnCheckInvite(user, chan);
-		return MOD_RES_PASSTHRU;
 	}
 
 	void OnRehash(User* user)

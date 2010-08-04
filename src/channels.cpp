@@ -204,7 +204,6 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 	if (!user || user->registered != REG_ALL)
 		return NULL;
 
-	std::string privs;
 	Channel *Ptr;
 
 	/*
@@ -239,27 +238,26 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 	Ptr = ServerInstance->FindChan(cn);
 	bool created_by_local = false;
 
-	if (!Ptr)
+	ChannelPermissionData perm(user, Ptr, cn, key);
+	if (override)
+		perm.result = MOD_RES_ALLOW;
+	if (IS_LOCAL(user))
+		perm.invited = IS_LOCAL(user)->IsInvited(cn);
+
+	if (Ptr == NULL)
 	{
-		/*
-		 * Fix: desync bug was here, don't set @ on remote users - spanningtree handles their permissions. bug #358. -- w00t
-		 */
-		if (!IS_LOCAL(user))
+		if (IS_LOCAL(user))
 		{
-			if (!TS)
-				ServerInstance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn.c_str());
-		}
-		else
-		{
-			privs = ServerInstance->Config->DefaultModes.substr(0, ServerInstance->Config->DefaultModes.find(' '));
+			// for local users only, creating the channel gets default modes
+			perm.privs = ServerInstance->Config->DefaultModes.substr(0, ServerInstance->Config->DefaultModes.find(' '));
 			created_by_local = true;
 		}
 
 		if (IS_LOCAL(user) && override == false)
 		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cn, privs, key));
-			if (MOD_RESULT == MOD_RES_DENY)
+			FOR_EACH_MOD(OnCheckJoin, (perm));
+			FOR_EACH_MOD(OnPermissionCheck, (perm));
+			if (perm.result == MOD_RES_DENY)
 				return NULL;
 		}
 
@@ -277,75 +275,62 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 		 */
 		if (IS_LOCAL(user) && override == false)
 		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cn, privs, key));
-			if (MOD_RESULT == MOD_RES_DENY)
-			{
+			FOR_EACH_MOD(OnCheckJoin, (perm));
+			if (perm.result == MOD_RES_DENY)
 				return NULL;
-			}
-			else if (MOD_RESULT == MOD_RES_PASSTHRU)
+			if (perm.result == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
-				bool invited = IS_LOCAL(user)->IsInvited(Ptr->name);
-				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
+				bool can_bypass = ServerInstance->Config->InvBypassModes && perm.invited;
 
-				if (!ckey.empty())
+				if (!ckey.empty() && ckey != key && !can_bypass)
 				{
-					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, Ptr, key));
-					if (!MOD_RESULT.check(ckey == key || can_bypass))
-					{
-						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-						user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
-						return NULL;
-					}
+					// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
+					perm.result = MOD_RES_DENY;
+					perm.ErrorNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", Ptr->name.c_str());
 				}
 
-				if (Ptr->IsModeSet('i'))
+				if (Ptr->IsModeSet('i') && !perm.invited)
 				{
-					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, Ptr));
-					if (!MOD_RESULT.check(invited))
-					{
-						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
-						return NULL;
-					}
+					perm.result = MOD_RES_DENY;
+					perm.ErrorNumeric(ERR_INVITEONLYCHAN, "%s :Cannot join channel (Invite only)", Ptr->name.c_str());
 				}
 
 				std::string limit = Ptr->GetModeParameter('l');
-				if (!limit.empty())
+				if (!limit.empty() && Ptr->GetUserCounter() >= atol(limit.c_str()) && !can_bypass)
 				{
-					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, Ptr));
-					if (!MOD_RESULT.check((Ptr->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
-					{
-						user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
-						return NULL;
-					}
+					perm.result = MOD_RES_DENY;
+					perm.ErrorNumeric(ERR_CHANNELISFULL, "%s :Cannot join channel (Channel is full)", Ptr->name.c_str());
 				}
 
 				if (Ptr->IsBanned(user) && !can_bypass)
 				{
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
-					return NULL;
+					perm.result = MOD_RES_DENY;
+					perm.ErrorNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You're banned)", Ptr->name.c_str());
 				}
 
-				/*
-				 * If the user has invites for this channel, remove them now
-				 * after a successful join so they don't build up.
-				 */
-				if (invited)
+				FOR_EACH_MOD(OnPermissionCheck, (perm));
+				if (perm.result == MOD_RES_DENY)
 				{
-					IS_LOCAL(user)->RemoveInvite(Ptr->name);
+					if (!perm.reason.empty())
+						user->SendText(perm.reason);
+					return NULL;
 				}
 			}
 		}
 	}
+	/*
+	 * If the user has invites for this channel, remove them now after a successful join so they
+	 * don't build up. This is harmless if it was changed to true; if changed to false, we didn't
+	 * "use" the invite.
+	 */
+	if (IS_LOCAL(user) && perm.invited)
+		IS_LOCAL(user)->RemoveInvite(Ptr->name);
 
 	if (created_by_local)
-	{
-		/* As spotted by jilles, dont bother to set this on remote users */
 		Ptr->SetDefaultModes();
-	}
 
-	return Channel::ForceChan(Ptr, user, privs, bursting, created_by_local);
+	return Channel::ForceChan(Ptr, user, perm.privs, bursting, created_by_local);
 }
 
 Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created)

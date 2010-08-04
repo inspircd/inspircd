@@ -35,7 +35,7 @@ class ModuleRestrictChans : public Module
 	ModuleRestrictChans()
 	{
 		ReadConfig();
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -45,23 +45,18 @@ class ModuleRestrictChans : public Module
 	}
 
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		irc::string x = cname;
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
-
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
-		if (!chan)
+		if (!join.chan && join.result == MOD_RES_PASSTHRU && !IS_OPER(join.user))
 		{
 			// user is not an oper and its not in the allow list
-			if ((!IS_OPER(user)) && (allowchans.find(x) == allowchans.end()))
+			if (allowchans.find(assign(join.chan->name)) == allowchans.end())
 			{
-				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Only IRC operators may create new channels",user->nick.c_str(),cname.c_str());
-				return MOD_RES_DENY;
+				join.ErrorNumeric(ERR_BANNEDFROMCHAN, "%s :Only IRC operators may create new channels",join.channel.c_str());
+				join.result = MOD_RES_DENY;
 			}
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleRestrictChans()

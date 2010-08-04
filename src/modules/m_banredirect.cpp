@@ -212,7 +212,7 @@ class ModuleBanRedirect : public Module
 		OnRehash(NULL);
 
 		ServerInstance->Extensions.Register(&re.extItem);
-		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete };
+		Implementation list[] = { I_OnRehash, I_OnCheckJoin, I_OnChannelDelete };
 		ServerInstance->Modules->Attach(list, this, 3);
 	}
 
@@ -254,68 +254,44 @@ class ModuleBanRedirect : public Module
 	{
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	virtual void OnCheckJoin(ChannelPermissionData& join)
 	{
 		/* This prevents recursion when a user sets multiple ban redirects in a chain
 		 * (thanks Potter)
 		 */
 		if (nofollow)
-			return MOD_RES_PASSTHRU;
+			return;
 
-		/* Return 1 to prevent the join, 0 to allow it */
-		if (chan)
+		if (!join.chan || join.result != MOD_RES_PASSTHRU)
+			return;
+
+		BanRedirectList* redirects = re.extItem.get(join.chan);
+		if (!redirects)
+			return;
+		/* We actually had some ban redirects to check */
+
+		/* First, allow all normal +e exemptions to work */
+		ModResult result;
+		FIRST_MOD_RESULT(OnCheckChannelBan, result, (join.user, join.chan));
+		if (result != MOD_RES_PASSTHRU)
+			return;
+
+		for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
 		{
-			BanRedirectList* redirects = re.extItem.get(chan);
-
-			if (redirects)
+			if (join.chan->CheckBan(join.user, redir->banmask))
 			{
-				/* We actually had some ban redirects to check */
-
-				/* This was replaced with user->MakeHostIP() when I had a snprintf(), but MakeHostIP() doesn't seem to add the nick.
-				 * Maybe we should have a GetFullIPHost() or something to match GetFullHost() and GetFullRealHost?
-				 */
-
-				ModResult result;
-				FIRST_MOD_RESULT(OnCheckChannelBan, result, (user, chan));
-				if (result == MOD_RES_ALLOW)
-				{
-					// they have a ban exception
-					return MOD_RES_PASSTHRU;
-				}
-
-				std::string ipmask(user->nick);
-				ipmask.append(1, '!').append(user->MakeHostIP());
-
-				for(BanRedirectList::iterator redir = redirects->begin(); redir != redirects->end(); redir++)
-				{
-					if(InspIRCd::Match(user->GetFullRealHost(), redir->banmask) || InspIRCd::Match(user->GetFullHost(), redir->banmask) || InspIRCd::MatchCIDR(ipmask, redir->banmask))
-					{
-						/* tell them they're banned and are being transferred */
-						Channel* destchan = ServerInstance->FindChan(redir->targetchan);
-						std::string destlimit;
-
-						if (destchan)
-							destlimit = destchan->GetModeParameter('l');
-
-						if(destchan && destchan->IsModeSet("redirect") && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
-						{
-							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
-							return MOD_RES_DENY;
-						}
-						else
-						{
-							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
-							user->WriteNumeric(470, "%s %s %s :You are banned from this channel, so you are automatically transfered to the redirected channel.", user->nick.c_str(), chan->name.c_str(), redir->targetchan.c_str());
-							nofollow = true;
-							Channel::JoinUser(user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
-							nofollow = false;
-							return MOD_RES_DENY;
-						}
-					}
-				}
+				/* tell them they're banned and are being transferred */
+				join.user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)",
+					join.user->nick.c_str(), join.chan->name.c_str());
+				join.user->WriteNumeric(470, "%s %s %s :You are banned from this channel, so you are automatically transfered to the redirected channel.",
+					join.user->nick.c_str(), join.chan->name.c_str(), redir->targetchan.c_str());
+				nofollow = true;
+				Channel::JoinUser(join.user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
+				nofollow = false;
+				join.result = MOD_RES_DENY;
+				return;
 			}
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleBanRedirect()
@@ -332,8 +308,7 @@ class ModuleBanRedirect : public Module
 
 	void Prioritize()
 	{
-		Module* banex = ServerInstance->Modules->Find("m_banexception.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_BEFORE, &banex);
+		ServerInstance->Modules->SetPriority(this, I_OnCheckJoin, PRIORITY_LAST);
 	}
 };
 

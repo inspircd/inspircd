@@ -118,7 +118,7 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modules->AddService(m4);
 		ServerInstance->Modules->AddService(m5);
 		ServerInstance->Modules->AddService(accountname);
-		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
+		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnCheckJoin, I_OnCheckBan,
 			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick, I_OnSetConnectClass };
 
 		ServerInstance->Modules->Attach(eventlist, this, 9);
@@ -214,33 +214,19 @@ class ModuleServicesAccount : public Module
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
-
-		std::string *account = accountname.get(user);
+		if (!join.chan || join.result != MOD_RES_PASSTHRU)
+			return;
+		std::string *account = accountname.get(join.user);
 		bool is_registered = account && !account->empty();
 
-		if (chan)
+		if (join.chan->IsModeSet(&chanR) && !is_registered)
 		{
-			if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
-			{
-				// user is ulined, won't be stopped from joining
-				return MOD_RES_PASSTHRU;
-			}
-
-			if (chan->IsModeSet(&chanR))
-			{
-				if (!is_registered)
-				{
-					// joining a +R channel and not identified
-					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
-					return MOD_RES_DENY;
-				}
-			}
+			// joining a +R channel and not identified
+			join.ErrorNumeric(477, "%s :You need to be identified to a registered account to join this channel", join.chan->name.c_str());
+			join.result = MOD_RES_DENY;
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	// Whenever the linking module receives metadata from another server and doesnt know what

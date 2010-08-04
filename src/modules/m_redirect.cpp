@@ -83,42 +83,33 @@ class ModuleRedirect : public Module
 
  public:
 
-	ModuleRedirect()
-		: re(this)
-	{
+	ModuleRedirect() : re(this) {}
 
+	void init()
+	{
 		ServerInstance->Modules->AddService(re);
-		Implementation eventlist[] = { I_OnUserPreJoin };
+		Implementation eventlist[] = { I_OnCheckJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (chan)
+		if (join.chan && join.result == MOD_RES_PASSTHRU && join.chan->IsModeSet(&re) && join.chan->IsModeSet('l'))
 		{
-			if (chan->IsModeSet(&re) && chan->IsModeSet('l'))
+			if (join.chan->GetUserCounter() >= atoi(join.chan->GetModeParameter('l').c_str()))
 			{
-				if (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str()))
-				{
-					std::string channel = chan->GetModeParameter(&re);
+				std::string channel = join.chan->GetModeParameter(&re);
 
-					/* sometimes broken ulines can make circular or chained +L, avoid this */
-					Channel* destchan = NULL;
-					destchan = ServerInstance->FindChan(channel);
-					if (destchan && destchan->IsModeSet(&re))
-					{
-						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname.c_str());
-						return MOD_RES_DENY;
-					}
+				/* sometimes broken ulines can make circular or chained +L, avoid this */
+				Channel* destchan = ServerInstance->FindChan(channel);
+				if (destchan && destchan->IsModeSet(&re))
+					return;
 
-					user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname.c_str(), channel.c_str());
-					Channel::JoinUser(user, channel.c_str(), false, "", false, ServerInstance->Time());
-					return MOD_RES_DENY;
-				}
+				join.ErrorNumeric(470, "%s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", join.chan->name.c_str(), channel.c_str());
+				join.result = MOD_RES_DENY;
+				Channel::JoinUser(join.user, channel.c_str(), false, "", false, ServerInstance->Time());
 			}
 		}
-		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ~ModuleRedirect()

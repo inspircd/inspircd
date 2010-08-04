@@ -20,7 +20,7 @@ class ModuleDenyChannels : public Module
  public:
 	ModuleDenyChannels()
 	{
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
@@ -88,30 +88,28 @@ class ModuleDenyChannels : public Module
 	}
 
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
+	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		ConfigTag* tag = FindBadChan(cname);
+		if (join.result != MOD_RES_PASSTHRU)
+			return;
+		ConfigTag* tag = FindBadChan(join.channel);
 		if (!tag)
-			return MOD_RES_PASSTHRU;
-		if (IS_OPER(user) && tag->getBool("allowopers"))
-			return MOD_RES_PASSTHRU;
+			return;
+		if (IS_OPER(join.user) && tag->getBool("allowopers"))
+			return;
 		std::string reason = tag->getString("reason");
 		std::string redirect = tag->getString("redirect");
+		join.result = MOD_RES_DENY;
 
 		if (ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
 		{
-			/* simple way to avoid potential loops: don't redirect to +L channels */
-			Channel *newchan = ServerInstance->FindChan(redirect);
-			if (!newchan || !newchan->IsModeSet("redirect"))
-			{
-				user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname.c_str(),cname.c_str(),redirect.c_str(), reason.c_str());
-				Channel::JoinUser(user,redirect.c_str(),false,"",false,ServerInstance->Time());
-				return MOD_RES_DENY;
-			}
+			join.user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",
+				join.user->nick.c_str(),join.channel.c_str(),join.channel.c_str(),redirect.c_str(), reason.c_str());
+			Channel::JoinUser(join.user,redirect.c_str(),false,"",false,ServerInstance->Time());
+		} else {
+			join.user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",
+				join.user->nick.c_str(),join.channel.c_str(),join.channel.c_str(),reason.c_str());
 		}
-
-		user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",user->nick.c_str(),cname.c_str(),cname.c_str(),reason.c_str());
-		return MOD_RES_DENY;
 	}
 };
 
