@@ -367,7 +367,7 @@ class CoreExport PermissionData : public interfacebase
 	User* const user;
 	/** Name of the permission we would like to check */
 	const std::string name;
-	/** Result of the permission check. 
+	/** Result of the permission check.
 	 * MOD_RES_ALLOW will allow the action (skipping any built-in checks)
 	 * MOD_RES_DENY will deny the action. If reason is nonempty, this will
 	 * be sent to the user as an explanation.
@@ -394,6 +394,12 @@ class CoreExport ModePermissionData : public PermissionData
 	void DoRankCheck();
 };
 
+/**
+ * Permission data for a channel join. This is first sent to the OnCheckJoin
+ * hook. If the result is still MOD_RES_PASSTHRU, normal channel rules are
+ * applied (key, limit, invex, ban). Finally, it is passed to OnPermissionCheck
+ * and the result is used to determine if the join succeeds.
+ */
 class CoreExport ChannelPermissionData : public PermissionData
 {
  public:
@@ -406,7 +412,7 @@ class CoreExport ChannelPermissionData : public PermissionData
 	/** True if the user was invited */
 	bool invited;
 	ChannelPermissionData(User* src, Channel* c, const std::string& Name, const std::string& Key)
-		: PermissionData(src, "join", c, src), channel(Name), key(Key) {}
+		: PermissionData(src, "join", c, src), channel(Name), key(Key), invited(false) {}
 };
 
 /** Base class for all InspIRCd modules
@@ -542,6 +548,15 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnSendSnotice(char &snomask, std::string &type, const std::string &message);
 
+	/** Called whenever a user is about to join a channel. This hook is
+	 * called prior to the checks for channel ban, limit, invite, etc; the
+	 * normal OnPermissionCheck hook is called after those checks.
+	 *
+	 * Change the result of the join to MOD_RES_DENY to forbid the join, or
+	 * to MOD_RES_ALLOW to skip further checks.
+	 *
+	 * @param join A description of the join to check
+	 */
 	virtual void OnCheckJoin(ChannelPermissionData& join);
 
 	/** Called whenever a user is kicked.

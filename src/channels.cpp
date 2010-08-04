@@ -386,7 +386,7 @@ bool Channel::IsBanned(User* user)
 
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
-	
+
 	ModeHandler* ban = ServerInstance->Modes->FindMode("ban");
 	if (!ban)
 		return false;
