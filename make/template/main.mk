@@ -283,6 +283,7 @@ help:
 	@echo ' install   Build and install InspIRCd to the directory chosen in ./configure'
 	@echo '           Currently installs to ${BASE}'
 	@echo ' debug     Compile a debug build. Equivalent to "make D=1 all"'
+	@echo ' docs      Create developer documentation in dev-docs'
 	@echo ''
 	@echo ' M=m_foo   Builds a single module (cmd_foo also works here)'
 	@echo ' T=target  Builds a user-specified target, such as "inspircd" or "modules"'
@@ -295,4 +296,7 @@ help:
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall configureclean print-vars help
+docs:
+	doxygen docs/Doxyfile
+
+.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall configureclean print-vars help docs
