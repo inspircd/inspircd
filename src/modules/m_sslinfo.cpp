@@ -130,8 +130,8 @@ class ModuleSSLInfo : public Module
 
 		ServerInstance->Extensions.Register(&cmd.CertExt);
 
-		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	Version GetVersion()
@@ -205,14 +205,19 @@ class ModuleSSLInfo : public Module
 		if (!req.cert)
 			return;
 		cmd.CertExt.set(user, req.cert);
-		if (req.cert->fingerprint.empty())
+	}
+
+	void OnPostConnect(User* user)
+	{
+		ssl_cert *cert = cmd.CertExt.get(user);
+		if (!cert || cert->fingerprint.empty())
 			return;
 		// find an auto-oper block for this user
 		for(OperIndex::iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); i++)
 		{
 			OperInfo* ifo = i->second;
 			std::string fp = ifo->oper_block->getString("fingerprint");
-			if (fp == req.cert->fingerprint && ifo->oper_block->getBool("autologin"))
+			if (fp == cert->fingerprint && ifo->oper_block->getBool("autologin"))
 				user->Oper(ifo);
 		}
 	}
