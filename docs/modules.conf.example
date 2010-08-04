@@ -13,10 +13,6 @@
 #  http://wiki.inspircd.org/Modules for a list of modules and         #
 #  each modules link for any additional conf tags they require.       #
 #                                                                     #
-#  You may use wildcards in a <module> tag to load all modules which  #
-#  match a glob pattern (e.g. m_sa????.so would load m_sajoin,        #
-#  m_sapart, m_saquit and m_sanick)                                   #
-#                                                                     #
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -24,13 +20,9 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 # To link servers to InspIRCd, you MUST load the m_spanningtree       #
-# module. Since several features (like SSL server links) rely on      #
-# other modules being loaded before m_spanningtree, the module itself #
-# is at the bottom of this file. DO NOT forget to load it. If you DO  #
-# NOT do this, server links will NOT work at all. ie. The ports will  #
-# NOT bind, and /connect will not work properly. This is by design,   #
-# to allow for the implementation of other linking protocols in       #
-# modules in the future.                                              #
+# module. If you don't do this, server links will NOT work at all.    #
+# This is by design, to allow for the implementation of other linking #
+# protocols in modules in the future.                                 #
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -200,15 +192,6 @@
 # This module is oper-only and provides /alltime.
 # To use, ALLTIME must be in one of your oper class blocks.
 #<module name="m_alltime.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Antibear security module: Prevents 'bear.txt' based trojans from
-# connecting to your network by sending them a numeric they can't handle.
-#<module name="m_antibear.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Antibottler module: Labels bottler leech bots
-#<module name="m_antibottler.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Auditorium module: Adds channel mode +u which makes everyone else
@@ -628,7 +611,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom prefixes : allows for channel prefixes to be added. 
-# This can replace m_chanprotect and m_halfop, except for interation with services
+# This can replace m_chanprotect and m_halfop, except for services that
+# recognise those modules by name
 #<module name="m_customprefix.so">
 #
 # name       The name of the mode, must be unique from other modes
@@ -1271,13 +1255,12 @@
 		cmd="PRIVMSG $nickrequired :IDENTIFY $pass">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper password hash module: Allows hashed oper passwords
-# Relies on the module m_md5.so and/or m_sha256.so being loaded before
-# m_password_hash.so in the configuration file.
-# This module is oper-only.
+# Password hash module: Allows hashed passwords to be used.
+# To be useful, a hashing module like m_sha256.so also needs to be loaded.
+# 
 #<module name="m_password_hash.so">
 #
-#-#-#-#-#-#-#-#-#-#-# OPER HASH CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-# PASSWORD HASH CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#
 #
 # To use this module, you must define a hash type for each oper's
 # password you want to hash. For example:
@@ -1285,13 +1268,15 @@
 #     <oper name="Brain"
 #           host="ident@dialup15.isp.com"
 #           hash="sha256"
-#           password="a41d730937a53b79f788c0ab13e9e1d5"
+#           password="01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
 #           type="NetAdmin">
 # 
-# The types of hashing available vary depending on which hashing modules
-# you load, but usually if you load m_sha256.so and m_md5.so, both md5
-# and sha256 type hashing will be available (the most secure of which
-# is SHA256).
+# Starting from 2.0, you can use a more secure salted hash that prevents simply
+# looking up the hash's value in a rainbow table built for the hash.
+#    hash="hmac-sha256" password="lkS1Nbtp$CyLd/WPQXizsbxFUTqFRoMvaC+zhOULEeZaQkUJj+Gg"
+#
+# Generate hashes using the /MKPASSWD command on the server. Don't run it on a
+# server you don't trust with your password.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Permanent Channels module: Channels with the permanent channels mode
@@ -1306,11 +1291,12 @@
 # whenever +P is set, unset, or the topic/modes on a +P channel is changed.
 # If you want to do this, set the filename below, and uncomment the include.
 #
-#<permchanneldb filename="conf/permchannels.conf">
-#<include file="permchannels.conf">
+#<permchanneldb filename="data/permchannels.conf">
+#<include file="data/permchannels.conf">
 #
 # You may also create channels on startup by using the <permchannels> block.
-#<permchannels channel="#opers" modes="is" topic="Opers only.">
+# Don't forget to set them +P in the modes, or they won't stay permanent.
+#<permchannels channel="#opers" modes="isP" topic="Opers only.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
@@ -1788,20 +1774,6 @@
 #<module name="m_xline_db.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# ZipLinks module: Adds support for zlib deflate on server to server
-# connections. Both ends of the connection must load this module.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_ziplink.cpp
-# and run make install, then uncomment this module to enable it.
-#
-#<module name="m_ziplink.so">
-#
-# To use this module, you must enable it as a ssl type in your
-# <link> tags or <bind> tags using the ssl name 'ziplinks'.
-# See the documentation of <link> and <bind>, respectively.
-#
-
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #
 #   |  _ \ ___  __ _  __| | |_   _| |__ (_)___  | __ )(_) |_| |       #
 #   | |_) / _ \/ _` |/ _` |   | | | '_ \| / __| |  _ \| | __| |       #
@@ -1809,13 +1781,9 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 # To link servers to InspIRCd, you MUST load the m_spanningtree       #
-# module. Since several features (like SSL server links) rely on      #
-# other modules being loaded before m_spanningtree, the module itself #
-# is at the bottom of this file. DO NOT forget to load it. If you DO  #
-# NOT do this, server links will NOT work at all. ie. The ports will  #
-# NOT bind, and /connect will not work properly. This is by design,   #
-# to allow for the implementation of other linking protocols in       #
-# modules in the future.                                              #
+# module. If you don't do this, server links will NOT work at all.    #
+# This is by design, to allow for the implementation of other linking #
+# protocols in modules in the future.                                 #
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
