@@ -256,12 +256,6 @@ class ModuleBanRedirect : public Module
 
 	virtual void OnCheckJoin(ChannelPermissionData& join)
 	{
-		/* This prevents recursion when a user sets multiple ban redirects in a chain
-		 * (thanks Potter)
-		 */
-		if (nofollow)
-			return;
-
 		if (!join.chan || join.result != MOD_RES_PASSTHRU)
 			return;
 
@@ -280,15 +274,20 @@ class ModuleBanRedirect : public Module
 		{
 			if (join.chan->CheckBan(join.user, redir->banmask))
 			{
+				join.result = MOD_RES_DENY;
 				/* tell them they're banned and are being transferred */
 				join.user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)",
 					join.user->nick.c_str(), join.chan->name.c_str());
+				
+				// double redirects are not allowed
+				if (ServerInstance->RedirectJoin.get(join.user))
+					return;
+				
 				join.user->WriteNumeric(470, "%s %s %s :You are banned from this channel, so you are automatically transfered to the redirected channel.",
 					join.user->nick.c_str(), join.chan->name.c_str(), redir->targetchan.c_str());
-				nofollow = true;
+				ServerInstance->RedirectJoin.set(join.user, 1);
 				Channel::JoinUser(join.user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
-				nofollow = false;
-				join.result = MOD_RES_DENY;
+				ServerInstance->RedirectJoin.set(join.user, 0);
 				return;
 			}
 		}

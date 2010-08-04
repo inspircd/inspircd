@@ -94,22 +94,26 @@ class ModuleRedirect : public Module
 
 	void OnCheckJoin(ChannelPermissionData& join)
 	{
-		if (join.chan && join.result == MOD_RES_PASSTHRU && join.chan->IsModeSet(&re) && join.chan->IsModeSet('l'))
-		{
-			if (join.chan->GetUserCounter() >= atoi(join.chan->GetModeParameter('l').c_str()))
-			{
-				std::string channel = join.chan->GetModeParameter(&re);
+		if (!join.chan || join.result != MOD_RES_PASSTHRU)
+			return;
+		// already in a redirect, don't double-redirect
+		if (ServerInstance->RedirectJoin.get(join.user))
+			return;
+		// not +lL
+		if (!join.chan->IsModeSet(&re) || !join.chan->IsModeSet('l'))
+			return;
+		// below the limit
+		if (join.chan->GetUserCounter() < atoi(join.chan->GetModeParameter('l').c_str()))
+			return;
 
-				/* sometimes broken ulines can make circular or chained +L, avoid this */
-				Channel* destchan = ServerInstance->FindChan(channel);
-				if (destchan && destchan->IsModeSet(&re))
-					return;
+		// ok, now actually do it
+		std::string channel = join.chan->GetModeParameter(&re);
 
-				join.ErrorNumeric(470, "%s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", join.chan->name.c_str(), channel.c_str());
-				join.result = MOD_RES_DENY;
-				Channel::JoinUser(join.user, channel.c_str(), false, "", false, ServerInstance->Time());
-			}
-		}
+		join.ErrorNumeric(470, "%s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", join.chan->name.c_str(), channel.c_str());
+		join.result = MOD_RES_DENY;
+		ServerInstance->RedirectJoin.set(join.user, 1);
+		Channel::JoinUser(join.user, channel.c_str(), false, "", false, ServerInstance->Time());
+		ServerInstance->RedirectJoin.set(join.user, 0);
 	}
 
 	virtual ~ModuleRedirect()

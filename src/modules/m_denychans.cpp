@@ -101,11 +101,13 @@ class ModuleDenyChannels : public Module
 		std::string redirect = tag->getString("redirect");
 		join.result = MOD_RES_DENY;
 
-		if (ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
+		if (!ServerInstance->RedirectJoin.get(join.user) && ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
 		{
 			join.user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",
 				join.user->nick.c_str(),join.channel.c_str(),join.channel.c_str(),redirect.c_str(), reason.c_str());
+			ServerInstance->RedirectJoin.set(join.user, 1);
 			Channel::JoinUser(join.user,redirect.c_str(),false,"",false,ServerInstance->Time());
+			ServerInstance->RedirectJoin.set(join.user, 0);
 		} else {
 			join.user->WriteNumeric(926, "%s %s :Channel %s is forbidden: %s",
 				join.user->nick.c_str(),join.channel.c_str(),join.channel.c_str(),reason.c_str());

@@ -427,9 +427,13 @@ class CoreExport InspIRCd
 	 */
 	ProtocolInterface* PI;
 
-	/** Holds extensible for user nickforced
+	/** Flag indicating the nick change is being forced
 	 */
 	LocalIntExt NICKForced;
+
+	/** Flag to indicate that the join is a redirect
+	 */
+	LocalIntExt RedirectJoin;
 
 	/** Holds extensible for user connect class forcing
 	 */
