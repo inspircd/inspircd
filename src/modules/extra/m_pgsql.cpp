@@ -429,7 +429,7 @@ restart:
 			{
 				std::string field;
 				i++;
-				while (i < q.length() && isalpha(q[i]))
+				while (i < q.length() && isalnum(q[i]))
 					field.push_back(q[i++]);
 				i--;
 
