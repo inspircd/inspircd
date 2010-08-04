@@ -105,12 +105,12 @@ class ModuleRedirect : public Module
 			return;
 
 		// ok, now actually do the redirect
-		std::string channel = join.chan->GetModeParameter(&re);
+		std::string channel = perm.chan->GetModeParameter(&re);
 
-		join.ErrorNumeric(470, "%s %s :You have been tranferred by a channel redirection.", join.chan->name.c_str(), channel.c_str());
-		ServerInstance->RedirectJoin.set(join.user, 1);
-		Channel::JoinUser(join.user, channel.c_str(), false, "", false, ServerInstance->Time());
-		ServerInstance->RedirectJoin.set(join.user, 0);
+		perm.ErrorNumeric(470, "%s %s :You have been tranferred by a channel redirection.", perm.chan->name.c_str(), channel.c_str());
+		ServerInstance->RedirectJoin.set(perm.user, 1);
+		Channel::JoinUser(perm.user, channel.c_str(), false, "", false, ServerInstance->Time());
+		ServerInstance->RedirectJoin.set(perm.user, 0);
 	}
 
 	virtual ~ModuleRedirect()
