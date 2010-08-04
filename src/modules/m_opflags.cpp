@@ -14,8 +14,6 @@
 #include "inspircd.h"
 #include "opflags.h"
 
-/* $ModDesc: Handles +x flag:nick channel mode */
-
 class OpFlagProviderImpl : public OpFlagProvider
 {
  public:

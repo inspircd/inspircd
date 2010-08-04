@@ -280,12 +280,6 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 		if (IS_LOCAL(user) && override == false)
 		{
 			FOR_EACH_MOD(OnCheckJoin, (perm));
-			if (perm.result == MOD_RES_DENY)
-			{
-				if (!perm.reason.empty())
-					user->SendText(perm.reason);
-				return NULL;
-			}
 			if (perm.result == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
@@ -316,14 +310,14 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 					perm.result = MOD_RES_DENY;
 					perm.ErrorNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You're banned)", Ptr->name.c_str());
 				}
+			}
 
-				FOR_EACH_MOD(OnPermissionCheck, (perm));
-				if (perm.result == MOD_RES_DENY)
-				{
-					if (!perm.reason.empty())
-						user->SendText(perm.reason);
-					return NULL;
-				}
+			FOR_EACH_MOD(OnPermissionCheck, (perm));
+			if (perm.result == MOD_RES_DENY)
+			{
+				if (!perm.reason.empty())
+					user->SendText(perm.reason);
+				return NULL;
 			}
 		}
 	}

@@ -88,29 +88,26 @@ class ModuleRedirect : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(re);
-		Implementation eventlist[] = { I_OnCheckJoin };
+		Implementation eventlist[] = { I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void OnCheckJoin(ChannelPermissionData& join)
+	void OnPermissionCheck(PermissionData& perm)
 	{
-		if (!join.chan || join.result != MOD_RES_PASSTHRU)
+		// we want a DENIED join action
+		if (!perm.chan || perm.result != MOD_RES_DENY || perm.name != "join")
 			return;
 		// already in a redirect, don't double-redirect
-		if (ServerInstance->RedirectJoin.get(join.user))
+		if (ServerInstance->RedirectJoin.get(perm.user))
 			return;
-		// not +lL
-		if (!join.chan->IsModeSet(&re) || !join.chan->IsModeSet('l'))
-			return;
-		// below the limit
-		if (join.chan->GetUserCounter() < atoi(join.chan->GetModeParameter('l').c_str()))
+		// not +L
+		if (!perm.chan->IsModeSet(&re))
 			return;
 
-		// ok, now actually do it
+		// ok, now actually do the redirect
 		std::string channel = join.chan->GetModeParameter(&re);
 
-		join.ErrorNumeric(470, "%s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", join.chan->name.c_str(), channel.c_str());
-		join.result = MOD_RES_DENY;
+		join.ErrorNumeric(470, "%s %s :You have been tranferred by a channel redirection.", join.chan->name.c_str(), channel.c_str());
 		ServerInstance->RedirectJoin.set(join.user, 1);
 		Channel::JoinUser(join.user, channel.c_str(), false, "", false, ServerInstance->Time());
 		ServerInstance->RedirectJoin.set(join.user, 0);
@@ -118,6 +115,11 @@ class ModuleRedirect : public Module
 
 	virtual ~ModuleRedirect()
 	{
+	}
+
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnPermissionCheck, PRIORITY_LAST);
 	}
 
 	virtual Version GetVersion()
