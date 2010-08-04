@@ -214,8 +214,8 @@ sub dep_so($) {
 
 	if ($ENV{SPLIT_CC}) {
 		dep_cpp $file, $split, 'gen-o';
-		print MAKE "$out: $split\n";
-		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-so\$(VERBOSE) \$\@ \$< \$>\n";
+		print MAKE "$out: $split $file\n";
+		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-so\$(VERBOSE) \$\@ \$^ \$>\n";
 	} else {
 		dep_cpp $file, $out, 'gen-so';
 	}

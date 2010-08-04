@@ -5,6 +5,7 @@ BEGIN { push @INC, $ENV{SOURCEPATH}; }
 use make::configure;
 
 chdir $ENV{BUILDPATH};
+print join(' ', $0, @ARGV), "\n" if $ENV{DEBUG_UNITCC};
 
 my $type = shift;
 my $out = shift;
@@ -71,7 +72,7 @@ sub do_link_dir {
 }
 
 sub do_compile {
-	my ($do_compile, $do_link, $file) = @_;
+	my ($do_compile, $do_link, $file, $file2) = @_;
 
 	my $flags = '';
 	my $libs = '';
@@ -90,7 +91,7 @@ sub do_compile {
 
 	if ($do_link) {
 		$flags = join ' ', $flags, $ENV{PICLDFLAGS};
-		$libs = join ' ', getlinkerflags($file);
+		$libs = join ' ', getlinkerflags($file2 || $file);
 	} else {
 		$flags .= ' -c';
 	}
