@@ -79,7 +79,7 @@ void InspIRCd::DoBackgroundUserStuff()
 				break;
 		}
 
-		if (curr->registered != REG_ALL && (Time() > (curr->age + curr->MyClass->registration_timeout)))
+		if (curr->registered != REG_ALL && (Time() > (time_t)(curr->age + curr->MyClass->registration_timeout)))
 		{
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
