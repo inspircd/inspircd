@@ -55,7 +55,7 @@ class ModuleHostChange : public Module
 	void Prioritize()
 	{
 		Module* cloak = ServerInstance->Modules->Find("m_cloaking.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, &cloak);
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, cloak);
 	}
 
 

@@ -46,19 +46,30 @@ class ModuleOverride : public Module
 
 	void OnPermissionCheck(PermissionData& perm)
 	{
-		if (IS_LOCAL(perm.source) && perm.source->HasPrivPermission("override/" + perm.name))
-		{
-			ServerInstance->SNO->WriteGlobalSno('v',perm.source->nick+" used oper override for "+perm.name+" on "+
-				(perm.chan ? perm.chan->name : "<none>"));
+		if (perm.name == "join" && RequireKey &&
+			static_cast<ChannelPermissionData&>(perm).key != "override")
+			return;
 
+		if (IS_LOCAL(perm.source) && perm.result == MOD_RES_DENY && perm.source->HasPrivPermission("override/" + perm.name))
+		{
 			perm.result = MOD_RES_ALLOW;
+			std::string msg = perm.source->nick+" used oper override for "+perm.name+" on "+
+				(perm.chan ? perm.chan->name : "<none>");
+			ServerInstance->SNO->WriteGlobalSno('v', msg);
+			if (perm.chan && NoisyOverride)
+			{
+				CUList empty;
+				perm.chan->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", perm.chan->name.c_str(), msg.c_str());
+				ServerInstance->PI->SendChannelNotice(perm.chan, '@', msg);
+			}
 		}
 	}
 
-	void OnCheckJoin(ChannelPermissionData& join)
+	void Prioritize()
 	{
-		if (!RequireKey || join.key == "override")
-			OnPermissionCheck(join);
+		ServerInstance->Modules->SetPriority(this, I_OnPermissionCheck, PRIORITY_LAST);
+		Module* redir = ServerInstance->Modules->Find("m_redirect.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, redir);
 	}
 
 	Version GetVersion()
