@@ -1617,12 +1617,21 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 
 			/* check if host matches.. */
-			if (c->host.length() && !InspIRCd::MatchCIDR(this->GetIPString(), c->host, NULL) &&
-			    !InspIRCd::MatchCIDR(this->host, c->host, NULL))
+			if (!c->host.empty())
 			{
+				irc::spacesepstream HostList(c->host);
+				std::string h;
+				while (HostList.GetToken(h))
+				{
+					if (InspIRCd::MatchCIDR(this->GetIPString(), h, NULL))
+						goto host_found;
+					if (InspIRCd::Match(this->host, h, NULL))
+						goto host_found;
+				}
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->host.c_str());
 				continue;
 			}
+host_found:
 
 			/*
 			 * deny change if change will take class over the limit check it HERE, not after we found a matching class,
@@ -1635,15 +1644,23 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			}
 
 			/* if it requires a port ... */
-			int port = c->config->getInt("port");
-			if (port)
+			std::string porttag = c->config->getString("port");
+			if (!porttag.empty())
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port (%d)", port);
-
-				/* and our port doesn't match, fail. */
-				if (this->GetServerPort() != port)
-					continue;
+				irc::portparser portrange(porttag, false);
+				int myport = GetServerPort();
+				while (1)
+				{
+					int port = portrange.GetToken();
+					if (port == myport)
+						goto port_found;
+					if (port == 0)
+						break;
+				}
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port does not match (%s)", porttag.c_str());
+				continue;
 			}
+port_found:
 
 			if (regdone && !c->config->getString("password").empty())
 			{

@@ -229,58 +229,59 @@
 <connect deny="3ffe::0/32" reason="The 6bone address space is deprecated">
 
 <connect
-         # name: Name to use for this connect block. Mainly used for
-         # connect class inheriting.
-         name="secret"
+	# name: Name to use for this connect block. Mainly used for
+	# connect class inheriting.
+	name="secret"
 
-         # parent: This setting is to specify if this connect class
-         # inherits settings from any other. Put the other class's name
-         # in here to use its settings as a template - for example,  if
-         # you only want to adjust sendq and a password
-         parent="main"
+	# parent: This setting is to specify if this connect class
+	# inherits settings from any other. Put the other class's name
+	# in here to use its settings as a template - for example,  if
+	# you only want to adjust sendq and a password
+	parent="main"
 
-         # allow: What IP addresses/hosts to allow for this block.
-         allow="196.12.*"
+	# allow: What IP addresses/hosts to allow for this block.
+	# Multiple hosts can be separated by a space, same as for deny=""
+	allow="10.* 192.168.*"
 
-         # hash: what hash this password is hashed with. requires the module
-         # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-         # loaded and the password hashing module (m_password_hash.so)
-         # loaded. Options here are: "md5", "sha256" and "ripemd160".
-         # Optional, but recommended. Create hashed password with:
-         # /mkpasswd <hash> <password>
-         #hash="sha256"
+	# hash: what hash this password is hashed with. requires the module
+	# for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
+	# loaded and the password hashing module (m_password_hash.so)
+	# loaded. Options here are: "md5", "sha256" and "ripemd160".
+	# Optional, but recommended. Create hashed password with:
+	# /mkpasswd <hash> <password>
+	#hash="sha256"
 
-         # password: Password to use for this block/user(s)
-         password="secret"
+	# password: Password to use for this block/user(s)
+	password="secret"
 
-         # maxchans: Maximum number of channels a user in this class
-         # be in at one time. This overrides every other maxchans setting.
-         #maxchans="30"
+	# maxchans: Maximum number of channels a user in this class
+	# be in at one time. This overrides every other maxchans setting.
+	#maxchans="30"
 
-         # timeout: How long (in seconds) the server will wait before
-         # disconnecting a user if they do not do anything on connect.
-         # (Note, this is a client-side thing, if the client does not
-         # send /nick, /user or /pass)
-         timeout="10"
+	# timeout: How long (in seconds) the server will wait before
+	# disconnecting a user if they do not do anything on connect.
+	# (Note, this is a client-side thing, if the client does not
+	# send /nick, /user or /pass)
+	timeout="10"
 
-         # localmax: Maximum local connections per IP (or CIDR mask, see below).
-         localmax="3"
+	# localmax: Maximum local connections per IP (or CIDR mask, see below).
+	localmax="3"
 
-         # globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
-         globalmax="3"
+	# globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
+	globalmax="3"
 
-         # useident: Defines if users in this class MUST respond to a ident query or not.
-         useident="no"
+	# useident: Defines if users in this class MUST respond to a ident query or not.
+	useident="no"
 
-         # limit: How many users are allowed in this class
-         limit="5000"
+	# limit: How many users are allowed in this class
+	limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
-         # Enabling this option requires that the m_conn_umodes module be loaded.
-         # This entry is highly recommended to use for/with IP Cloaking/masking.
-         # For the example to work, this also requires that the m_cloaking
-         # module be loaded as well.
-         modes="+x"
+	# modes: Usermodes that are set on users in this block on connect.
+	# Enabling this option requires that the m_conn_umodes module be loaded.
+	# This entry is highly recommended to use for/with IP Cloaking/masking.
+	# For the example to work, this also requires that the m_cloaking
+	# module be loaded as well.
+	modes="+x"
 
 	# requireident, requiressl, requireaccount, requiresqlauth:
 	# require that users of this block have a valid ident response, use SSL,
@@ -292,89 +293,90 @@
 	# connect block has been found. Methods for authenticating prior to full
 	# connect include SASL, m_account_auth, and m_sqlauth.
 
-         # Alternate MOTD file for this connect class. The contents of this file are
-         # specified using <files secretmotd="filename"> or <execfiles ...>
-         motd="secretmotd"
+	# Alternate MOTD file for this connect class. The contents of this file are
+	# specified using <files secretmotd="filename"> or <execfiles ...>
+	motd="secretmotd"
 
-         # port: What port this user is allowed to connect on. (optional)
-         # The port MUST be set to listen in the bind blocks above.
-         port="6697">
+	# port: What port this user is allowed to connect on. (optional)
+	# The port MUST be set to listen in the bind blocks above.
+	# Multiple ports may be specified like 6660,6667-6669
+	port="6697">
 
 <connect
-         # name: Name to use for this connect block. Mainly used for
-         # connect class inheriting.
-         name="main"
+	# name: Name to use for this connect block. Mainly used for
+	# connect class inheriting.
+	name="main"
 
-         # allow: What IP addresses/hosts to allow for this block.
-         allow="*"
+	# allow: What IP addresses/hosts to allow for this block.
+	allow="*"
 
-         # maxchans: Maximum number of channels a user in this class
-         # be in at one time. This overrides every other maxchans setting.
-         #maxchans="30"
+	# maxchans: Maximum number of channels a user in this class
+	# be in at one time. This overrides every other maxchans setting.
+	#maxchans="30"
 
-         # timeout: How long (in seconds) the server will wait before
-         # disconnecting a user if they do not do anything on connect.
-         # (Note, this is a client-side thing, if the client does not
-         # send /nick, /user or /pass)
-         timeout="10"
+	# timeout: How long (in seconds) the server will wait before
+	# disconnecting a user if they do not do anything on connect.
+	# (Note, this is a client-side thing, if the client does not
+	# send /nick, /user or /pass)
+	timeout="10"
 
-         # pingfreq: How often (in seconds) the server tries to ping connecting clients.
-         pingfreq="120"
+	# pingfreq: How often (in seconds) the server tries to ping connecting clients.
+	pingfreq="120"
 
-         # hardsendq: maximum amount of data allowed in a client's send queue
-         # before they are dropped. Keep this value higher than the length of
-         # your network's /LIST or /WHO output, or you will have lots of
-         # disconnects from sendq overruns!
-         hardsendq="1048576"
+	# hardsendq: maximum amount of data allowed in a client's send queue
+	# before they are dropped. Keep this value higher than the length of
+	# your network's /LIST or /WHO output, or you will have lots of
+	# disconnects from sendq overruns!
+	hardsendq="1048576"
 
-         # softsendq: amount of data in a client's send queue before the server
-         # begins delaying their commands in order to allow the sendq to drain
-         softsendq="8192"
+	# softsendq: amount of data in a client's send queue before the server
+	# begins delaying their commands in order to allow the sendq to drain
+	softsendq="8192"
 
-         # recvq: amount of data allowed in a client's queue before they are dropped.
-         recvq="8192"
+	# recvq: amount of data allowed in a client's queue before they are dropped.
+	recvq="8192"
 
-         # threshold: This specifies the amount of command penalty a user is allowed to have
-         # before being quit or fakelagged due to flood. Normal commands have a penalty of 1,
-         # ones such as /OPER have penalties up to 10.
-         #
-         # If you are not using fakelag, this should be at least 20 to avoid excess flood kills
-         # from processing some commands.
-         threshold="10"
+	# threshold: This specifies the amount of command penalty a user is allowed to have
+	# before being quit or fakelagged due to flood. Normal commands have a penalty of 1,
+	# ones such as /OPER have penalties up to 10.
+	#
+	# If you are not using fakelag, this should be at least 20 to avoid excess flood kills
+	# from processing some commands.
+	threshold="10"
 
-         # commandrate: This specifies the maximum rate that commands can be processed.
-         # If commands are sent more rapidly, the user's penalty will increase and they will
-         # either be fakelagged or killed when they reach the threshold
-         #
-         # Units are millicommands per second, so 1000 means one line per second.
-         commandrate="1000"
+	# commandrate: This specifies the maximum rate that commands can be processed.
+	# If commands are sent more rapidly, the user's penalty will increase and they will
+	# either be fakelagged or killed when they reach the threshold
+	#
+	# Units are millicommands per second, so 1000 means one line per second.
+	commandrate="1000"
 
-         # fakelag: Use fakelag instead of killing users for excessive flood
-         #
-         # Fake lag stops command processing for a user when a flood is detected rather than
-         # immediately killing them; their commands are held in the recvq and processed later
-         # as the user's command penalty drops. Note that if this is enabled, flooders will
-         # quit with "RecvQ exceeded" rather than "Excess Flood".
-         fakelag="on"
+	# fakelag: Use fakelag instead of killing users for excessive flood
+	#
+	# Fake lag stops command processing for a user when a flood is detected rather than
+	# immediately killing them; their commands are held in the recvq and processed later
+	# as the user's command penalty drops. Note that if this is enabled, flooders will
+	# quit with "RecvQ exceeded" rather than "Excess Flood".
+	fakelag="on"
 
-         # localmax: Maximum local connections per IP.
-         localmax="3"
+	# localmax: Maximum local connections per IP.
+	localmax="3"
 
-         # globalmax: Maximum global (network-wide) connections per IP.
-         globalmax="3"
+	# globalmax: Maximum global (network-wide) connections per IP.
+	globalmax="3"
 
-         # useident: Defines if users in this class must respond to a ident query or not.
-         useident="no"
+	# useident: Defines if users in this class must respond to a ident query or not.
+	useident="no"
 
-         # limit: How many users are allowed in this class
-         limit="5000"
+	# limit: How many users are allowed in this class
+	limit="5000"
 
-         # modes: Usermodes that are set on users in this block on connect.
-         # Enabling this option requires that the m_conn_umodes module be loaded.
-         # This entry is highly recommended to use for/with IP Cloaking/masking.
-         # For the example to work, this also requires that the m_cloaking
-         # module be loaded as well.
-         modes="+x">
+	# modes: Usermodes that are set on users in this block on connect.
+	# Enabling this option requires that the m_conn_umodes module be loaded.
+	# This entry is highly recommended to use for/with IP Cloaking/masking.
+	# For the example to work, this also requires that the m_cloaking
+	# module be loaded as well.
+	modes="+x">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
