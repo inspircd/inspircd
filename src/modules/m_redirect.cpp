@@ -107,7 +107,8 @@ class ModuleRedirect : public Module
 		// ok, now actually do the redirect
 		std::string channel = perm.chan->GetModeParameter(&re);
 
-		perm.ErrorNumeric(470, "%s %s :You have been tranferred by a channel redirection.", perm.chan->name.c_str(), channel.c_str());
+		perm.ErrorNumeric(470, "%s %s :You have been transferred by a channel redirection from %s to %s.",
+			perm.chan->name.c_str(), channel.c_str(), perm.chan->name.c_str(), channel.c_str());
 		ServerInstance->RedirectJoin.set(perm.user, 1);
 		Channel::JoinUser(perm.user, channel.c_str(), false, "", false, ServerInstance->Time());
 		ServerInstance->RedirectJoin.set(perm.user, 0);
