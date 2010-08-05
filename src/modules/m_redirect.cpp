@@ -53,7 +53,7 @@ class Redirect : public ModeHandler
 				}
 			}
 
-			if (channel->GetModeParameter('L') == parameter)
+			if (channel->GetModeParameter(this) == parameter)
 				return MODEACTION_DENY;
 			/*
 			 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
@@ -125,7 +125,7 @@ class ModuleRedirect : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides channel mode +L (limit redirection)", VF_VENDOR);
+		return Version("Provides channel mode +L (channel redirection)", VF_VENDOR);
 	}
 };
 
