@@ -30,6 +30,7 @@ class LocalUser;
 class Membership;
 class ModeID;
 class Module;
+class ModuleState;
 class OperInfo;
 class RemoteUser;
 class ServerConfig;

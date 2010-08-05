@@ -25,7 +25,7 @@
 
 #ifndef PURE_STATIC
 
-bool ModuleManager::Load(const std::string& filename, bool defer)
+bool ModuleManager::Load(const std::string& filename, bool defer, ModuleState* state)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
 	if (filename.find('/') != std::string::npos)
@@ -87,7 +87,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	{
 		// failure in module constructor
 		if (newmod)
-			DoSafeUnload(newmod);
+			DoSafeUnload(newmod, NULL);
 		else
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
@@ -96,27 +96,8 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	}
 
 	this->ModCount++;
-	if (defer)
-		return true;
-
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod));
-	/* We give every module a chance to re-prioritize when we introduce a new one,
-	 * not just the one thats loading, as the new module could affect the preference
-	 * of others
-	 */
-	for(int tries = 0; tries < 20; tries++)
-	{
-		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
-		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
-			n->second->Prioritize();
-
-		if (prioritizationState == PRIO_STATE_LAST)
-			break;
-		if (tries == 19)
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + filename);
-	}
-
-	ServerInstance->BuildISupport();
+	if (!defer)
+		DoModuleLoad(newmod, state);
 	return true;
 }
 
@@ -128,7 +109,7 @@ namespace {
 		void Call()
 		{
 			DLLManager* dll = mod->ModuleDLLManager;
-			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->Modules->DoSafeUnload(mod, NULL);
 			ServerInstance->GlobalCulls.Apply();
 			delete dll;
 			ServerInstance->GlobalCulls.AddItem(this);
@@ -143,12 +124,13 @@ namespace {
 			: mod(m), callback(c) {}
 		void Call()
 		{
+			ModuleState state;
 			DLLManager* dll = mod->ModuleDLLManager;
 			std::string name = mod->ModuleSourceFile;
-			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->Modules->DoSafeUnload(mod, &state);
 			ServerInstance->GlobalCulls.Apply();
 			delete dll;
-			bool rv = ServerInstance->Modules->Load(name.c_str());
+			bool rv = ServerInstance->Modules->Load(name.c_str(), false, &state);
 			if (callback)
 				callback->Call(rv);
 			ServerInstance->GlobalCulls.AddItem(this);

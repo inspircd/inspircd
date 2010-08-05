@@ -67,7 +67,7 @@ class AllModule : public Module
 
 MODULE_INIT(AllModule)
 
-bool ModuleManager::Load(const std::string& name, bool defer)
+bool ModuleManager::Load(const std::string& name, bool defer, ModuleState* state)
 {
 	modmap::iterator it = modlist->find(name);
 	if (it == modlist->end())
@@ -92,28 +92,12 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 	catch (CoreException& modexcept)
 	{
 		if (mod)
-			DoSafeUnload(mod);
+			DoSafeUnload(mod, NULL);
 		ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + name + ": " + modexcept.GetReason());
 		return false;
 	}
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(mod));
-	/* We give every module a chance to re-prioritize when we introduce a new one,
-	 * not just the one thats loading, as the new module could affect the preference
-	 * of others
-	 */
-	for(int tries = 0; tries < 20; tries++)
-	{
-		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
-		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
-			n->second->Prioritize();
 
-		if (prioritizationState == PRIO_STATE_LAST)
-			break;
-		if (tries == 19)
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + name);
-	}
-
-	ServerInstance->BuildISupport();
+	DoModuleLoad(mod, state);
 	return true;
 }
 
@@ -124,7 +108,7 @@ namespace {
 		UnloadAction(Module* m) : mod(m) {}
 		void Call()
 		{
-			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->Modules->DoSafeUnload(mod, NULL);
 			ServerInstance->GlobalCulls.Apply();
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
@@ -138,10 +122,11 @@ namespace {
 			: mod(m), callback(c) {}
 		void Call()
 		{
+			ModuleState state;
 			std::string name = mod->ModuleSourceFile;
-			ServerInstance->Modules->DoSafeUnload(mod);
+			ServerInstance->Modules->DoSafeUnload(mod, &state);
 			ServerInstance->GlobalCulls.Apply();
-			bool rv = ServerInstance->Modules->Load(name.c_str());
+			bool rv = ServerInstance->Modules->Load(name.c_str(), false, state);
 			callback->Call(rv);
 			ServerInstance->GlobalCulls.AddItem(this);
 		}

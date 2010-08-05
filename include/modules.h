@@ -1165,6 +1165,25 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line);
 };
 
+struct RestoreData {
+	/** item to restore to (uuid, channel) */
+	std::string item;
+	/** name of thing we restore (mode, metadata key) */
+	std::string name;
+	/** value to restore */
+	std::string value;
+	RestoreData(const std::string& i, const std::string& k, const std::string& v)
+		: item(i), name(k), value(v) {}
+};
+
+/** Module state stored between module loads */
+class CoreExport ModuleState
+{
+ public:
+	std::vector<RestoreData> modes;
+	std::vector<RestoreData> channelExt;
+	std::vector<RestoreData> userExt;
+};
 
 #define CONF_NO_ERROR		0x000000
 #define CONF_NOT_A_NUMBER	0x000010
@@ -1359,6 +1378,7 @@ class CoreExport ModuleManager
 
 	/** Internal unload module hook */
 	bool CanUnload(Module*);
+
  public:
 
 	/** Event handler hooks.
@@ -1448,9 +1468,10 @@ class CoreExport ModuleManager
 	/** Load a given module file
 	 * @param filename The file to load
 	 * @param defer Defer module init (loading many modules)
+	 * @param state Module state from recently unloaded module
 	 * @return True if the module was found and loaded
 	 */
-	bool Load(const std::string& filename, bool defer = false);
+	bool Load(const std::string& filename, bool defer = false, ModuleState* state = NULL);
 
 	/** Unload a given module file. Note that the module will not be
 	 * completely gone until the cull list has finished processing.
@@ -1469,7 +1490,8 @@ class CoreExport ModuleManager
 	 */
 	void LoadAll();
 	void UnloadAll();
-	void DoSafeUnload(Module*);
+	void DoSafeUnload(Module*, ModuleState* state);
+	void DoModuleLoad(Module*, ModuleState* state);
 
 	/** Get the total number of currently loaded modules
 	 * @return The number of loaded modules

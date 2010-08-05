@@ -315,15 +315,39 @@ bool ModuleManager::CanUnload(Module* mod)
 	return true;
 }
 
-void ModuleManager::DoSafeUnload(Module* mod)
+void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 {
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
 	std::vector<reference<ExtensionItem> > items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
+	std::vector<ModeHandler*> modes;
 	/* Give the module a chance to tidy out all its metadata */
 	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 	{
+		if (state)
+		{
+			irc::modestacker mlist;
+			c->second->ChanModes(mlist, MODELIST_FULL);
+			for(std::vector<irc::modechange>::iterator i = mlist.sequence.begin(); i != mlist.sequence.end(); i++)
+			{
+				ModeHandler* mh = ServerInstance->Modes->FindMode(i->mode);
+				if (mh && mh->creator == mod)
+					state->modes.push_back(RestoreData(c->second->name, mh->name, i->value));
+			}
+			const Extensible::ExtensibleStore& extlist = c->second->GetExtList();
+			for(std::vector<reference<ExtensionItem> >::iterator i = items.begin(); i != items.end(); i++)
+			{
+				ExtensionItem* item = *i;
+				Extensible::ExtensibleStore::const_iterator v = extlist.find(item);
+				if (v != extlist.end())
+				{
+					std::string value = item->serialize(FORMAT_INTERNAL, c->second, v->second);
+					if (!value.empty())
+						state->channelExt.push_back(RestoreData(c->second->name, item->name, value));
+				}
+			}
+		}
 		mod->OnCleanup(TYPE_CHANNEL,c->second);
 		c->second->doUnhookExtensions(items);
 		const UserMembList* users = c->second->GetUsers();
@@ -332,20 +356,36 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	}
 	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 	{
+		if (state)
+		{
+			const Extensible::ExtensibleStore& extlist = u->second->GetExtList();
+			for(std::vector<reference<ExtensionItem> >::iterator i = items.begin(); i != items.end(); i++)
+			{
+				ExtensionItem* item = *i;
+				Extensible::ExtensibleStore::const_iterator v = extlist.find(item);
+				if (v != extlist.end())
+				{
+					std::string value = item->serialize(FORMAT_INTERNAL, u->second, v->second);
+					if (!value.empty())
+						state->userExt.push_back(RestoreData(u->second->uuid, item->name, value));
+				}
+			}
+		}
 		mod->OnCleanup(TYPE_USER,u->second);
 		u->second->doUnhookExtensions(items);
+	}
+
+	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
+	{
+		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
+		if (curr->second->creator == mod)
+			DataProviders.erase(curr);
 	}
 	for(ModeIDIter id; id; id++)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
 		if (mh && mh->creator == mod)
 			ServerInstance->Modes->DelMode(mh);
-	}
-	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
-	{
-		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
-		if (curr->second->creator == mod)
-			DataProviders.erase(curr);
 	}
 
 	dynamic_reference_base::reset_all();
@@ -365,6 +405,57 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	ServerInstance->BuildISupport();
 }
 
+void ModuleManager::DoModuleLoad(Module* newmod, ModuleState* state)
+{
+	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod));
+	/* We give every module a chance to re-prioritize when we introduce a new one,
+	 * not just the one thats loading, as the new module could affect the preference
+	 * of others
+	 */
+	for(int tries = 0; tries < 20; tries++)
+	{
+		prioritizationState = tries > 0 ? PRIO_STATE_LAST : PRIO_STATE_FIRST;
+		for (std::map<std::string, Module*>::iterator n = Modules.begin(); n != Modules.end(); ++n)
+			n->second->Prioritize();
+
+		if (prioritizationState == PRIO_STATE_LAST)
+			break;
+		if (tries == 19)
+			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + newmod->ModuleSourceFile);
+	}
+
+	ServerInstance->BuildISupport();
+
+	if (!state)
+		return;
+
+	for(std::vector<RestoreData>::iterator i = state->modes.begin(); i != state->modes.end(); i++)
+	{
+		Channel* c = ServerInstance->FindChan(i->item);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(i->name);
+		if (c && mh)
+		{
+			irc::modestacker mc;
+			mc.push(irc::modechange(mh->id, i->value, true));
+			ServerInstance->SendMode(ServerInstance->FakeClient, c, mc, false);
+		}
+	}
+	for(std::vector<RestoreData>::iterator i = state->channelExt.begin(); i != state->channelExt.end(); i++)
+	{
+		Channel* c = ServerInstance->FindChan(i->item);
+		ExtensionItem* item = ServerInstance->Extensions.GetItem(i->name);
+		if (c && item)
+			item->unserialize(FORMAT_INTERNAL, c, i->value);
+	}
+	for(std::vector<RestoreData>::iterator i = state->userExt.begin(); i != state->userExt.end(); i++)
+	{
+		User* u = ServerInstance->FindUUID(i->item);
+		ExtensionItem* item = ServerInstance->Extensions.GetItem(i->name);
+		if (u && item)
+			item->unserialize(FORMAT_INTERNAL, u, i->value);
+	}
+}
+
 void ModuleManager::UnloadAll()
 {
 	/* We do this more than once, so that any service providers get a
@@ -381,7 +472,7 @@ void ModuleManager::UnloadAll()
 			std::map<std::string, Module*>::iterator me = i++;
 			if (CanUnload(me->second))
 			{
-				DoSafeUnload(me->second);
+				DoSafeUnload(me->second, NULL);
 			}
 		}
 		ServerInstance->GlobalCulls.Apply();
