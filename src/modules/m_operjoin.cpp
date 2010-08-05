@@ -54,7 +54,7 @@ class ModuleOperjoin : public Module
 		{
 			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
 
-			operChan = tag->getString("channel", 0);
+			operChan = tag->getString("channel");
 			override = tag->getBool("override");
 			operChans.clear();
 			if (!operChan.empty())

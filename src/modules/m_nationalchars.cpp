@@ -223,6 +223,10 @@ class ModuleNationalChars : public Module
  public:
 	ModuleNationalChars() : rememberer(ServerInstance->IsNick)
 	{
+	}
+
+	void init()
+	{
 		lowermap_rememberer = national_case_insensitive_map;
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
