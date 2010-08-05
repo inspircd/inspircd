@@ -114,7 +114,7 @@ void ModeHandler::DisplayEmptyList(User*, Channel*)
 {
 }
 
-void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel)
+void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel, std::string& param)
 {
 }
 
@@ -511,8 +511,9 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 		if (pcnt && param_at == parameters.size())
 		{
 			/* No parameter, continue to the next mode */
-			mh->OnParameterMissing(user, targetuser, targetchannel);
-			continue;
+			mh->OnParameterMissing(user, targetuser, targetchannel, parameter);
+			if (parameter.empty())
+				continue;
 		}
 		else if (pcnt)
 		{

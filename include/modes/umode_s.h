@@ -22,6 +22,6 @@ class ModeUserServerNoticeMask : public ModeHandler
  public:
 	ModeUserServerNoticeMask();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	void OnParameterMissing(User* user, User* dest, Channel* channel);
+	void OnParameterMissing(User* user, User* dest, Channel* channel, std::string& parameter);
 	std::string GetUserParameter(User* user);
 };

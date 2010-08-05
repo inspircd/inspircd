@@ -324,8 +324,9 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param user The user issuing the mode change
 	 * @param dest For user mode changes, the target of the mode. For channel mode changes, NULL.
 	 * @param channel For channel mode changes, the target of the mode. For user mode changes, NULL.
+	 * @param parameter The parameter (initially empty); if you fill this in, the mode change will be accepted
 	 */
-	virtual void OnParameterMissing(User* user, User* dest, Channel* channel);
+	virtual void OnParameterMissing(User* user, User* dest, Channel* channel, std::string& parameter);
 
 	/**
 	 * If your mode is a listmode, this method will be called to display an empty list (just the end of list numeric)

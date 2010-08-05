@@ -56,7 +56,7 @@ std::string ModeUserServerNoticeMask::GetUserParameter(User* user)
 	return masks;
 }
 
-void ModeUserServerNoticeMask::OnParameterMissing(User* user, User* dest, Channel* channel)
+void ModeUserServerNoticeMask::OnParameterMissing(User* user, User*, Channel*, std::string&)
 {
 	user->WriteServ("NOTICE %s :*** The user mode +s requires a parameter (server notice mask). Please provide a parameter, e.g. '+s +*'.",
 			user->nick.c_str());
