@@ -503,8 +503,10 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 
 		PermissionData perm(src, "kick", this, memb->user);
 		int them = this->GetPrefixValue(src);
-		int us = this->GetPrefixValue(user);
-		if (them < us)
+		char us = GetPrefixChar(user)[0];
+		ModeHandler* mh = ServerInstance->Modes->FindMode(us, MODETYPE_CHANNEL);
+		int min = mh ? mh->GetLevelRequired() : HALFOP_VALUE;
+		if (them < min)
 		{
 			perm.result = MOD_RES_DENY;
 			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :They have a higher prefix set", this->name.c_str());
