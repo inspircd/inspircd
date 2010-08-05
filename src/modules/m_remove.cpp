@@ -186,7 +186,9 @@ class ModuleRemove : public Module
 
 
  public:
-	ModuleRemove() : cmd1(this, supportnokicks), cmd2(this, supportnokicks)
+	ModuleRemove() : cmd1(this, supportnokicks), cmd2(this, supportnokicks) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

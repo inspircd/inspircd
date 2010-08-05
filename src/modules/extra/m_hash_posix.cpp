@@ -20,7 +20,7 @@
 class ModulePosixCrypt : public Module
 {
  public:
-	ModulePosixCrypt()
+	void init()
 	{
 		Implementation eventlist[] = { I_OnPassCompare };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

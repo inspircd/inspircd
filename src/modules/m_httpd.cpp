@@ -321,7 +321,8 @@ class ModuleHttpServer : public Module
 	std::vector<HttpServerSocket *> httpsocks;
  public:
 
-	ModuleHttpServer() 	{
+	void init()
+	{
 		HttpModule = this;
 		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
 	}

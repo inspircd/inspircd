@@ -139,6 +139,9 @@ class ModuleNickLock : public Module
  public:
 	ModuleNickLock()
 		: locked("nick_locked", this), cmd1(this, locked), cmd2(this, locked)
+	{}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);

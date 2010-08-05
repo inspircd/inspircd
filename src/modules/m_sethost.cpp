@@ -66,8 +66,9 @@ class ModuleSetHost : public Module
 	CommandSethost cmd;
 	char hostmap[256];
  public:
-	ModuleSetHost()
-		: cmd(this, hostmap)
+	ModuleSetHost() : cmd(this, hostmap) {}
+
+	void init()
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);

@@ -70,8 +70,9 @@ class ModuleSSLModes : public Module
 	SSLMode sslm;
 
  public:
-	ModuleSSLModes()
-		: sslm(this)
+	ModuleSSLModes() : sslm(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(sslm);
 		Implementation eventlist[] = { I_OnCheckJoin, I_OnCheckBan, I_On005Numeric };

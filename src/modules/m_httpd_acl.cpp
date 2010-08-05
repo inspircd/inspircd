@@ -87,7 +87,7 @@ class ModuleHTTPAccessList : public Module
 		}
 	}
 
-	ModuleHTTPAccessList() 	{
+	void init() {
 		ReadConfig();
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

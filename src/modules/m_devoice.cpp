@@ -54,6 +54,9 @@ class ModuleDeVoice : public Module
 	CommandDevoice cmd;
  public:
 	ModuleDeVoice() : cmd(this)
+	{}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

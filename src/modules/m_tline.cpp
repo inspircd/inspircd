@@ -63,18 +63,14 @@ class ModuleTLine : public Module
 {
 	CommandTline cmd;
  public:
-	ModuleTLine()
-		: cmd(this)
+	ModuleTLine() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}
 
-
-	virtual ~ModuleTLine()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides /tline command used to test who a mask matches", VF_VENDOR);
 	}

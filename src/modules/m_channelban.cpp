@@ -19,13 +19,9 @@ class ModuleBadChannelExtban : public Module
 {
  private:
  public:
-	ModuleBadChannelExtban() 	{
+	void init() {
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-	}
-
-	~ModuleBadChannelExtban()
-	{
 	}
 
 	Version GetVersion()

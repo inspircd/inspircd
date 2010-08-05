@@ -42,7 +42,7 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin()
+		void init()
 		{
 			OnRehash(NULL);
 			Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
@@ -52,10 +52,10 @@ class ModuleOperjoin : public Module
 
 		virtual void OnRehash(User* user)
 		{
-			ConfigReader conf;
+			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
 
-			operChan = conf.ReadValue("operjoin", "channel", 0);
-			override = conf.ReadFlag("operjoin", "override", "0", 0);
+			operChan = tag->getString("channel", 0);
+			override = tag->getBool("override");
 			operChans.clear();
 			if (!operChan.empty())
 				tokenize(operChan,operChans);

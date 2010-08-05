@@ -66,8 +66,9 @@ class ModuleSaquit : public Module
 {
 	CommandSaquit cmd;
  public:
-	ModuleSaquit()
-		: cmd(this)
+	ModuleSaquit() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

@@ -50,8 +50,9 @@ class ModuleSetIdle : public Module
 {
 	CommandSetidle cmd;
  public:
-	ModuleSetIdle()
-		: cmd(this)
+	ModuleSetIdle() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

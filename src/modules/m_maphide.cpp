@@ -19,7 +19,7 @@ class ModuleMapHide : public Module
 {
 	std::string url;
  public:
-	ModuleMapHide()
+	void init()
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

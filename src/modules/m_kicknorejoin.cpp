@@ -52,8 +52,9 @@ class ModuleKickNoRejoin : public Module
 
 public:
 
-	ModuleKickNoRejoin()
-		: kr(this)
+	ModuleKickNoRejoin() : kr(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Extensions.Register(&kr.ext);

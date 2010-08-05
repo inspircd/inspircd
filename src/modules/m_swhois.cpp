@@ -75,7 +75,9 @@ class ModuleSWhois : public Module
 	CommandSwhois cmd;
 
  public:
-	ModuleSWhois() : cmd(this)
+	ModuleSWhois() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostCommand };

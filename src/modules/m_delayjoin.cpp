@@ -33,7 +33,9 @@ class ModuleDelayJoin : public Module
 	DelayJoinMode djm;
  public:
 	LocalIntExt unjoined;
-	ModuleDelayJoin() : djm(this), unjoined("delayjoin", this)
+	ModuleDelayJoin() : djm(this), unjoined("delayjoin", this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(djm);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText };

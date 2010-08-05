@@ -18,7 +18,7 @@
 class ModuleModesOnOper : public Module
 {
  public:
-	ModuleModesOnOper()
+	void init()
 	{
 		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

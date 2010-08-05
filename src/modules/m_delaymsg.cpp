@@ -42,7 +42,9 @@ class ModuleDelayMsg : public Module
  private:
 	DelayMsgMode djm;
  public:
-	ModuleDelayMsg() : djm(this)
+	ModuleDelayMsg() : djm(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(djm);
 		ServerInstance->Extensions.Register(&djm.jointime);

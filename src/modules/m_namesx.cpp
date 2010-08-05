@@ -22,13 +22,12 @@ class ModuleNamesX : public Module
 	GenericCap cap;
 	ModuleNamesX() : cap(this, "multi-prefix")
 	{
-		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-
-	~ModuleNamesX()
+	void init()
 	{
+		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	Version GetVersion()

@@ -96,8 +96,9 @@ class ModuleSapart : public Module
 {
 	CommandSapart cmd;
  public:
-	ModuleSapart()
-		: cmd(this)
+	ModuleSapart() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

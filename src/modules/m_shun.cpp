@@ -187,7 +187,9 @@ class ModuleShun : public Module
 	bool affectopers;
 
  public:
-	ModuleShun() : cmd(this)
+	ModuleShun() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->AddCommand(&cmd);

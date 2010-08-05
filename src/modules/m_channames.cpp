@@ -52,6 +52,10 @@ class ModuleChannelNames : public Module
 	ModuleChannelNames() : rememberer(ServerInstance->IsChannel)
 	{
 		ServerInstance->IsChannel = &myhandler;
+	}
+
+	void init()
+	{
 		badchan = false;
 		Implementation eventlist[] = { I_OnRehash, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

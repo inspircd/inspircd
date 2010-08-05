@@ -65,18 +65,17 @@ class ModuleAlias : public Module
 
 	virtual void ReadAliases()
 	{
-		ConfigReader MyConf;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("fantasy");
+		AllowBots = tag->getBool("allowbots");
 
-		AllowBots = MyConf.ReadFlag("fantasy", "allowbots", "no", 0);
-
-		std::string fpre = MyConf.ReadValue("fantasy","prefix",0);
+		std::string fpre = tag->getString("prefix");
 		fprefix = fpre.empty() ? '!' : fpre[0];
 
 		Aliases.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			ConfigTag* tag = i->second;
+			tag = i->second;
 			Alias a;
 			a.AliasedCommand = tag->getString("text").c_str();
 			tag->readString("replace", a.ReplaceFormat, true);
@@ -93,7 +92,7 @@ class ModuleAlias : public Module
 
  public:
 
-	ModuleAlias()
+	void init()
 	{
 		ReadAliases();
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);

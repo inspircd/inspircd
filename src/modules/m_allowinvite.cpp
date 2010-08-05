@@ -26,7 +26,9 @@ class ModuleAllowInvite : public Module
 	AllowInvite ni;
  public:
 
-	ModuleAllowInvite() : ni(this)
+	ModuleAllowInvite() : ni(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(ni);
 		Implementation eventlist[] = { I_OnPermissionCheck, I_On005Numeric };

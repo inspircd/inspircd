@@ -55,17 +55,14 @@ class ModuleSetName : public Module
 {
 	CommandSetname cmd;
  public:
-	ModuleSetName()
-		: cmd(this)
+	ModuleSetName() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}
 
-	virtual ~ModuleSetName()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides support for the SETNAME command", VF_VENDOR);
 	}

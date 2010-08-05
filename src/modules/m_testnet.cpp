@@ -211,7 +211,9 @@ class ModuleTest : public Module
 {
 	CommandTest cmd;
  public:
-	ModuleTest() : cmd(this)
+	ModuleTest() : cmd(this) {}
+
+	void init()
 	{
 		if (!strstr(ServerInstance->Config->ServerName.c_str(), ".test"))
 			throw ModuleException("Don't load modules without reading their descriptions!");

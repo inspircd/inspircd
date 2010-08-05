@@ -69,7 +69,9 @@ private:
 	CommandUnlockserv unlockcommand;
 
 public:
-	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked)
+	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked) {}
+
+	void init()
 	{
 		locked = false;
 		ServerInstance->AddCommand(&lockcommand);

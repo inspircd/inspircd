@@ -158,7 +158,7 @@ ModuleManager::~ModuleManager()
 bool ModuleManager::Attach(Implementation i, Module* mod)
 {
 	if (Modules.find(mod->ModuleSourceFile) == Modules.end())
-		ServerInstance->Logs->Log("MODULE", DEFAULT, "Module is attaching to hook %d in constructor; this does not handle exceptions correctly!", i);
+		throw CoreException("Module is attaching to hook in constructor; this must be done in init()!");
 
 	if (std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod) != EventHandlers[i].end())
 		return false;
@@ -407,7 +407,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 {
 	Module* owner = item.creator;
 	if (Modules.find(owner->ModuleSourceFile) == Modules.end())
-		ServerInstance->Logs->Log("MODULE", DEFAULT, "Module is registering item %s in constructor; this does not handle exceptions correctly!", item.name.c_str());
+		throw CoreException("Module is registering item in constructor; this must be done in init()!");
 
 	switch (item.service)
 	{

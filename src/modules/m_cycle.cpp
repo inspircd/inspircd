@@ -78,8 +78,8 @@ class ModuleCycle : public Module
 {
 	CommandCycle cmd;
  public:
-	ModuleCycle()
-		: cmd(this)
+	ModuleCycle() : cmd(this) {}
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

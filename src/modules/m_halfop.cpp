@@ -51,14 +51,11 @@ class ModuleHalfop : public Module
 {
 	ModeChannelHalfOp mh;
  public:
-	ModuleHalfop() : mh(this)
+	ModuleHalfop() : mh(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(mh);
-	}
-
-	~ModuleHalfop()
-	{
-		ServerInstance->Modes->DelMode(&mh);
 	}
 
 	Version GetVersion()

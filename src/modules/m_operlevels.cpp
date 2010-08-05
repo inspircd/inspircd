@@ -17,7 +17,7 @@
 class ModuleOperLevels : public Module
 {
 	public:
-		ModuleOperLevels()
+		void init()
 		{
 			Implementation eventlist[] = { I_OnRehash, I_OnKill };
 			ServerInstance->Modules->Attach(eventlist, this, 2);

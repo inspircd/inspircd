@@ -31,6 +31,10 @@ class ModuleBlockColour : public Module
 
 	ModuleBlockColour() : bc(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->Modules->AddService(bc);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 3);

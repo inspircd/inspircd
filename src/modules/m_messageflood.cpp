@@ -184,8 +184,9 @@ class ModuleMsgFlood : public Module
 
  public:
 
-	ModuleMsgFlood()
-		: mf(this)
+	ModuleMsgFlood() : mf(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(mf);
 		ServerInstance->Extensions.Register(&mf.ext);

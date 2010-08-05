@@ -98,7 +98,8 @@ class ModuleSajoin : public Module
 	CommandSajoin cmd;
  public:
 	ModuleSajoin()
-		: cmd(this)
+		: cmd(this) {}
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}

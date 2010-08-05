@@ -140,16 +140,13 @@ class ModuleGlobalLoad : public Module
 	CommandGreloadmodule cmd3;
 
  public:
-	ModuleGlobalLoad()
-		: cmd1(this), cmd2(this), cmd3(this)
+	ModuleGlobalLoad() : cmd1(this), cmd2(this), cmd3(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);
 		ServerInstance->AddCommand(&cmd3);
-	}
-
-	~ModuleGlobalLoad()
-	{
 	}
 
 	Version GetVersion()

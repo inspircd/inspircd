@@ -372,6 +372,9 @@ class Modulewatch : public Module
  public:
 	Modulewatch()
 		: maxwatch(32), cmdw(this, maxwatch), sw(this) 
+	{}
+
+	void init()
 	{
 		OnRehash(NULL);
 		whos_watching_me = new watchentries();

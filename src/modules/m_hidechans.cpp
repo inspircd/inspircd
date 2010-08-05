@@ -50,7 +50,9 @@ class ModuleHideChans : public Module
 	bool AffectsOpers;
 	HideChans hm;
  public:
-	ModuleHideChans() : hm(this)
+	ModuleHideChans() : hm(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(hm);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnRehash };

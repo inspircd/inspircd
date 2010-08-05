@@ -68,10 +68,10 @@ class ModuleOpermotd : public Module
 		onoper = conf->getBool("onoper", true);
 	}
 
-	ModuleOpermotd()
-		: cmd(this)
+	ModuleOpermotd() : cmd(this) {}
+
+	void init()
 	{
-		opermotd = NULL;
 		ServerInstance->AddCommand(&cmd);
 		opermotd = new FileReader;
 		LoadOperMOTD();

@@ -58,17 +58,14 @@ class ModuleVHost : public Module
 	CommandVhost cmd;
 
  public:
-	ModuleVHost() : cmd(this)
+	ModuleVHost() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}
 
-	virtual ~ModuleVHost()
-	{
-	}
-
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR);
 	}

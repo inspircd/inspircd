@@ -162,7 +162,9 @@ class ModuleSVSHold : public Module
 
 
  public:
-	ModuleSVSHold() : cmd(this)
+	ModuleSVSHold() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->AddCommand(&cmd);

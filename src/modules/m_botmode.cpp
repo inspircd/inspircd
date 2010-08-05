@@ -27,8 +27,11 @@ class ModuleBotMode : public Module
 {
 	BotMode bm;
  public:
-	ModuleBotMode()
-		: bm(this)
+	ModuleBotMode() : bm(this)
+	{
+	}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(bm);
 		Implementation eventlist[] = { I_OnWhois };

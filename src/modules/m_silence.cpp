@@ -275,6 +275,9 @@ class ModuleSilence : public Module
 
 	ModuleSilence()
 		: maxsilence(32), cmdsilence(this, maxsilence), cmdsvssilence(this)
+	{}
+
+	void init()
 	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmdsilence);

@@ -55,6 +55,9 @@ class ModuleDeaf : public Module
  public:
 	ModuleDeaf()
 		: m1(this)
+	{}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(m1);
 

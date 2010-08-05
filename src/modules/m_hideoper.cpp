@@ -52,8 +52,9 @@ class ModuleHideOper : public Module
 {
 	HideOper hm;
  public:
-	ModuleHideOper()
-		: hm(this)
+	ModuleHideOper() : hm(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(hm);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine };

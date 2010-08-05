@@ -186,8 +186,9 @@ class ModuleNickFlood : public Module
 
  public:
 
-	ModuleNickFlood()
-		: nf(this)
+	ModuleNickFlood() : nf(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(nf);
 		ServerInstance->Extensions.Register(&nf.ext);

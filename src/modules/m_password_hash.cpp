@@ -72,7 +72,9 @@ class ModuleOperHash : public Module
 	CommandMkpasswd cmd;
  public:
 
-	ModuleOperHash() : cmd(this)
+	ModuleOperHash() : cmd(this) {}
+
+	void init()
 	{
 		/* Read the config file first */
 		OnRehash(NULL);

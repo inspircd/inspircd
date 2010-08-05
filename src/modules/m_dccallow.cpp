@@ -41,7 +41,7 @@ typedef std::vector<DCCAllow> dccallowlist;
 dccallowlist* dl;
 typedef std::vector<BannedFileList> bannedfilelist;
 bannedfilelist bfl;
-SimpleExtItem<dccallowlist>* ext;
+SimpleExtItem<dccallowlist>* ext = NULL;
 
 class CommandDccallow : public Command
 {
@@ -240,6 +240,10 @@ class ModuleDCCAllow : public Module
 
 	ModuleDCCAllow()
 		: cmd(this)
+	{
+	}
+
+	void init()
 	{
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
 		ServerInstance->Extensions.Register(ext);

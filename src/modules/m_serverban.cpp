@@ -17,9 +17,8 @@
 
 class ModuleServerBan : public Module
 {
- private:
  public:
-	ModuleServerBan() 	{
+	void init() 	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

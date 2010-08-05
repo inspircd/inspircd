@@ -33,6 +33,9 @@ class ModuleBlockCAPS : public Module
 public:
 
 	ModuleBlockCAPS() : bc(this)
+	{}
+
+	void init()
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(bc);

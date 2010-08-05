@@ -41,7 +41,9 @@ class ModuleServProtectMode : public Module
 	ServProtectMode bm;
  public:
 	ModuleServProtectMode()
-		: bm(this)
+		: bm(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(bm);
 		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnPermissionCheck };

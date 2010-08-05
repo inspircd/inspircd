@@ -23,13 +23,11 @@ class NoCTCP : public SimpleChannelModeHandler
 
 class ModuleNoCTCP : public Module
 {
-
 	NoCTCP nc;
-
  public:
+	ModuleNoCTCP() : nc(this) {}
 
-	ModuleNoCTCP()
-		: nc(this)
+	void init()
 	{
 		ServerInstance->Modules->AddService(nc);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };

@@ -96,8 +96,9 @@ class ModuleTimedBans : public Module
 {
 	CommandTban cmd;
  public:
-	ModuleTimedBans()
-		: cmd(this)
+	ModuleTimedBans() : cmd(this) {}
+
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 		TimedBanList.clear();

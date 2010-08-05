@@ -26,7 +26,9 @@ class ModuleOperChans : public Module
 {
 	OperChans oc;
  public:
-	ModuleOperChans() : oc(this)
+	ModuleOperChans() : oc(this) {}
+
+	void init()
 	{
 		ServerInstance->Modules->AddService(oc);
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnCheckJoin };

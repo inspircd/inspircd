@@ -87,17 +87,14 @@ class ModuleUninvite : public Module
 	CommandUninvite cmd;
 
  public:
+	ModuleUninvite() : cmd(this) {}
 
-	ModuleUninvite() : cmd(this)
+	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
 	}
 
-	virtual ~ModuleUninvite()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_OPTCOMMON);
 	}

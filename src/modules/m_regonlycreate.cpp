@@ -19,7 +19,7 @@
 class ModuleRegOnlyCreate : public Module
 {
  public:
-	ModuleRegOnlyCreate()
+	void init()
 	{
 		Implementation eventlist[] = { I_OnCheckJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
