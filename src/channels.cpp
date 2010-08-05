@@ -526,10 +526,13 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 		if (res == MOD_RES_PASSTHRU)
 		{
 			int them = this->GetPrefixValue(src);
-			int us = this->GetPrefixValue(user);
-			if ((them < HALFOP_VALUE) || (them < us))
+			char us = GetPrefixChar(user)[0];
+			ModeHandler* mh = ServerInstance->Modes->FindMode(us, MODETYPE_CHANNEL);
+			int min = mh ? mh->GetLevelRequired() : HALFOP_VALUE;
+			if (them < HALFOP_VALUE || them < min)
 			{
-				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",src->nick.c_str(), this->name.c_str(), them >= HALFOP_VALUE ? "" : "half-");
+				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",
+					src->nick.c_str(), this->name.c_str(), min > HALFOP_VALUE ? "" : "half-");
 				return;
 			}
 		}
