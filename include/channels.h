@@ -36,10 +36,6 @@ enum ModeListType {
  */
 class CoreExport Channel : public Extensible
 {
-	/** Connect a Channel to a User
-	 */
-	static Channel* ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created);
-
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();

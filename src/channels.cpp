@@ -251,10 +251,7 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 			// for local users only, creating the channel gets default modes
 			perm.privs = ServerInstance->Config->DefaultModes.substr(0, ServerInstance->Config->DefaultModes.find(' '));
 			created_by_local = true;
-		}
 
-		if (IS_LOCAL(user) && override == false)
-		{
 			FOR_EACH_MOD(OnCheckJoin, (perm));
 			FOR_EACH_MOD(OnPermissionCheck, (perm));
 			if (perm.result == MOD_RES_DENY)
@@ -277,7 +274,7 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 		 * remote users are allowed us to bypass channel modes
 		 * and bans (used by servers)
 		 */
-		if (IS_LOCAL(user) && override == false)
+		if (IS_LOCAL(user))
 		{
 			FOR_EACH_MOD(OnCheckJoin, (perm));
 			if (perm.result == MOD_RES_PASSTHRU)
@@ -332,17 +329,11 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 	if (created_by_local)
 		Ptr->SetDefaultModes();
 
-	return Channel::ForceChan(Ptr, user, perm.privs, bursting, created_by_local);
-}
-
-Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created)
-{
-	std::string nick = user->nick;
-
+	/* Now actually do the work of the join */
 	Membership* memb = Ptr->AddUser(user);
 	user->chans.insert(memb);
 
-	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
+	for (std::string::const_iterator x = perm.privs.begin(); x != perm.privs.end(); x++)
 	{
 		const char status = *x;
 		ModeHandler* mh = ServerInstance->Modes->FindMode(status, MODETYPE_CHANNEL);
@@ -350,16 +341,16 @@ Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, 
 		{
 			/* Set, and make sure that the mode handler knows this mode was now set */
 			Ptr->SetPrefix(user, mh->GetModeChar(), true);
-			mh->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, Ptr, nick, true);
+			mh->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, Ptr, user->nick, true);
 		}
 	}
 
 	CUList except_list;
-	FOREACH_MOD(I_OnUserJoin,OnUserJoin(memb, bursting, created, except_list));
+	FOREACH_MOD(I_OnUserJoin,OnUserJoin(memb, bursting, created_by_local, except_list));
 
 	Ptr->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", Ptr->name.c_str());
 
-	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
+	/* Show the on-join modes to everyone else */
 	std::string ms = memb->modes;
 	for(unsigned int i=0; i < memb->modes.length(); i++)
 		ms.append(" ").append(user->nick);
