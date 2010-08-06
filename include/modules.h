@@ -1180,8 +1180,9 @@ struct RestoreData {
 class CoreExport ModuleState
 {
  public:
-	std::vector<RestoreData> modes;
+	std::vector<RestoreData> channelModes;
 	std::vector<RestoreData> channelExt;
+	std::vector<RestoreData> userModes;
 	std::vector<RestoreData> userExt;
 };
 

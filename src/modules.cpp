@@ -333,7 +333,7 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 			{
 				ModeHandler* mh = ServerInstance->Modes->FindMode(i->mode);
 				if (mh && mh->creator == mod)
-					state->modes.push_back(RestoreData(c->second->name, mh->name, i->value));
+					state->channelModes.push_back(RestoreData(c->second->name, mh->name, i->value));
 			}
 			const Extensible::ExtensibleStore& extlist = c->second->GetExtList();
 			for(std::vector<reference<ExtensionItem> >::iterator i = items.begin(); i != items.end(); i++)
@@ -358,6 +358,15 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 	{
 		if (state)
 		{
+			for(char c='A'; c <= 'z'; c++)
+			{
+				if (u->second->IsModeSet(c))
+				{
+					ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
+					if (mh && mh->creator == mod)
+						state->userModes.push_back(RestoreData(u->second->uuid, mh->name, ""));
+				}
+			}
 			const Extensible::ExtensibleStore& extlist = u->second->GetExtList();
 			for(std::vector<reference<ExtensionItem> >::iterator i = items.begin(); i != items.end(); i++)
 			{
@@ -429,7 +438,7 @@ void ModuleManager::DoModuleLoad(Module* newmod, ModuleState* state)
 	if (!state)
 		return;
 
-	for(std::vector<RestoreData>::iterator i = state->modes.begin(); i != state->modes.end(); i++)
+	for(std::vector<RestoreData>::iterator i = state->channelModes.begin(); i != state->channelModes.end(); i++)
 	{
 		Channel* c = ServerInstance->FindChan(i->item);
 		ModeHandler* mh = ServerInstance->Modes->FindMode(i->name);
@@ -446,6 +455,17 @@ void ModuleManager::DoModuleLoad(Module* newmod, ModuleState* state)
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(i->name);
 		if (c && item)
 			item->unserialize(FORMAT_INTERNAL, c, i->value);
+	}
+	for(std::vector<RestoreData>::iterator i = state->userModes.begin(); i != state->userModes.end(); i++)
+	{
+		User* u = ServerInstance->FindUUID(i->item);
+		ModeHandler* mh = ServerInstance->Modes->FindMode(i->name);
+		if (u && mh)
+		{
+			irc::modestacker mc;
+			mc.push(irc::modechange(mh->id, i->value, true));
+			ServerInstance->SendMode(ServerInstance->FakeClient, u, mc, false);
+		}
 	}
 	for(std::vector<RestoreData>::iterator i = state->userExt.begin(); i != state->userExt.end(); i++)
 	{
