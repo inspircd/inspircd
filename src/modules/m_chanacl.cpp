@@ -69,7 +69,7 @@ class ModuleChanACL : public Module
 		if (!perm.chan || !perm.source || perm.result != MOD_RES_PASSTHRU)
 			return;
 
-		Membership* memb = perm.chan->GetUser(perm.user);
+		Membership* memb = perm.chan->GetUser(perm.source);
 		modelist* list = ec.extItem.get(perm.chan);
 		std::set<std::string> given;
 
@@ -117,7 +117,7 @@ class ModuleChanACL : public Module
 
 		if (permcheck)
 			perm.result = permcheck->PermissionCheck(memb, flaglist);
-		if (memb->getRank() >= minrank)
+		if (memb && memb->getRank() >= minrank)
 			perm.result = MOD_RES_ALLOW;
 		if (perm.result != MOD_RES_ALLOW)
 			perm.result = MOD_RES_DENY;
