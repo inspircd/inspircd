@@ -272,7 +272,7 @@ std::string irc::modestacker::popModeLine(SerializeFormat format, int maxlen, in
 			continue;
 		}
 
-		if (!modechar)
+		if (format == FORMAT_PERSIST || !modechar)
 		{
 			// this will only happen if we already allowed NameOnlyModes, no need to check
 			modechar = 'Z';
@@ -305,6 +305,14 @@ std::string irc::modestacker::popModeLine(SerializeFormat format, int maxlen, in
 
 line_full:
 	sequence.erase(sequence.begin(), iter);
+	if (format == FORMAT_PERSIST)
+	{
+		std::string rv = params.str();
+		if (rv.empty())
+			return rv;
+		// drop the initial space
+		return rv.substr(1);
+	}
 	if (modeline.empty())
 		return "+";
 	return modeline + params.str();

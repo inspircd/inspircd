@@ -65,7 +65,7 @@ static bool WriteDatabase(ModeHandler* p)
 		fputesc(f, chan->name);
 		fputs("\" topic=\"", f);
 		fputesc(f, chan->topic);
-		fputs("\" modes=\"", f);
+		fputs("\" modelist=\"", f);
 		irc::modestacker cmodes;
 		chan->ChanModes(cmodes, MODELIST_FULL);
 		fputesc(f, cmodes.popModeLine(FORMAT_PERSIST, INT_MAX, INT_MAX));
@@ -175,6 +175,7 @@ public:
 			std::string channel = tag->getString("channel");
 			std::string topic = tag->getString("topic");
 			std::string modes = tag->getString("modes");
+			std::string longmodes = tag->getString("modelist");
 
 			if (channel.empty())
 			{
@@ -201,17 +202,40 @@ public:
 				}
 				ServerInstance->Logs->Log("blah", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
-				if (modes.empty())
+				if (modes.empty() && longmodes.empty())
 					continue;
 
+				Extensible* target;
+				irc::modestacker modestack;
 				irc::spacesepstream list(modes);
+				irc::spacesepstream longlist(longmodes);
+
 				std::vector<std::string> seq;
 				seq.push_back(c->name);
 				std::string token;
 				while (list.GetToken(token))
 					seq.push_back(token);
+				ServerInstance->Modes->Parse(seq, ServerInstance->FakeClient, target, modestack);
 
-				ServerInstance->SendMode(seq, ServerInstance->FakeClient);
+				while (longlist.GetToken(token))
+				{
+					std::string name, value;
+
+					std::string::size_type eq = token.find('=');
+					if (eq == std::string::npos)
+						name = token;
+					else
+					{
+						name = token.substr(0, eq);
+						value = token.substr(eq + 1);
+					}
+					ModeHandler *mh = ServerInstance->Modes->FindMode(name);
+					if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
+					{
+						modestack.push(irc::modechange(mh->id, value, true));
+					}
+				}
+				ServerInstance->Modes->Process(ServerInstance->FakeClient, target, modestack);
 			}
 		}
 	}

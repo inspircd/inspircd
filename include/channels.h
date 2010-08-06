@@ -26,8 +26,11 @@ class CoreExport BanItem : public Extensible
 };
 
 enum ModeListType {
+	/** Mode list viewable by anyone (i.e. in /list; key hidden) */
 	MODELIST_PUBLIC,
+	/** Mode list returned on /MODE #channel */
 	MODELIST_SHORT,
+	/** Mode list including listmodes, for netburst */
 	MODELIST_FULL
 };
 
