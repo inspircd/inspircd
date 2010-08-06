@@ -81,7 +81,7 @@ class ModuleExemptChanOps : public Module
 	{
 		if (perm.name.substr(0,7) != "exempt/" || perm.result != MOD_RES_PASSTHRU)
 			return;
-		Membership* memb = perm.chan->GetUser(perm.user);
+		Membership* memb = perm.chan->GetUser(perm.source);
 		std::string minmode;
 
 		modelist* list = ec.extItem.get(perm.chan);

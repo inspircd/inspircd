@@ -45,13 +45,13 @@ class ModuleAllowInvite : public Module
 		if (perm.name != "invite")
 			return;
 
-		ModResult res = perm.chan->GetExtBanStatus(perm.user, 'A');
+		ModResult res = perm.chan->GetExtBanStatus(perm.source, 'A');
 		if (res == MOD_RES_DENY)
 		{
 			// Matching extban, explicitly deny /invite
 			perm.result = res;
 			perm.SetReason(":%s %d %s %s :You are banned from using INVITE", ServerInstance->Config->ServerName.c_str(),
-				ERR_CHANOPRIVSNEEDED, perm.user->nick.c_str(), perm.chan->name.c_str());
+				ERR_CHANOPRIVSNEEDED, perm.source->nick.c_str(), perm.chan->name.c_str());
 		}
 		else if (perm.chan->IsModeSet(&ni) || res == MOD_RES_ALLOW)
 		{

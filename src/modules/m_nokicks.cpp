@@ -44,7 +44,7 @@ class ModuleNoKicks : public Module
 
 	void OnPermissionCheck(PermissionData& perm)
 	{
-		if (perm.name == "kick" && !perm.chan->GetExtBanStatus(perm.user, 'Q').check(!perm.chan->IsModeSet(&nk)))
+		if (perm.name == "kick" && !perm.chan->GetExtBanStatus(perm.source, 'Q').check(!perm.chan->IsModeSet(&nk)))
 		{
 			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :Can't kick in channel (+Q set)", perm.chan->name.c_str());
 			perm.result = MOD_RES_DENY;

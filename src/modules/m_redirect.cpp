@@ -98,7 +98,7 @@ class ModuleRedirect : public Module
 		if (!perm.chan || perm.result != MOD_RES_DENY || perm.name != "join")
 			return;
 		// already in a redirect, don't double-redirect
-		if (ServerInstance->RedirectJoin.get(perm.user))
+		if (ServerInstance->RedirectJoin.get(perm.source))
 			return;
 		// not +L
 		if (!perm.chan->IsModeSet(&re))
@@ -109,9 +109,9 @@ class ModuleRedirect : public Module
 
 		perm.ErrorNumeric(470, "%s %s :You have been transferred by a channel redirection from %s to %s.",
 			perm.chan->name.c_str(), channel.c_str(), perm.chan->name.c_str(), channel.c_str());
-		ServerInstance->RedirectJoin.set(perm.user, 1);
-		Channel::JoinUser(perm.user, channel.c_str(), false, "", false, ServerInstance->Time());
-		ServerInstance->RedirectJoin.set(perm.user, 0);
+		ServerInstance->RedirectJoin.set(perm.source, 1);
+		Channel::JoinUser(perm.source, channel.c_str(), false, "", false, ServerInstance->Time());
+		ServerInstance->RedirectJoin.set(perm.source, 0);
 	}
 
 	virtual ~ModuleRedirect()
