@@ -17,6 +17,7 @@
 
 // Not in a class due to circular dependancy hell.
 static std::string permchannelsconf;
+static bool dirty;
 
 static void fputesc(FILE* f, const std::string& text)
 {
@@ -93,8 +94,6 @@ static bool WriteDatabase(ModeHandler* p)
 	return true;
 }
 
-
-
 /** Handles the +P channel mode
  */
 class PermChannel : public ModeHandler
@@ -113,6 +112,7 @@ class PermChannel : public ModeHandler
 			if (!channel->IsModeSet(this))
 			{
 				channel->SetMode(this,true);
+				dirty = true;
 
 				return MODEACTION_ALLOW;
 			}
@@ -122,6 +122,7 @@ class PermChannel : public ModeHandler
 			if (channel->IsModeSet(this))
 			{
 				channel->SetMode(this,false);
+				dirty = true;
 				if (channel->GetUserCounter() == 0)
 				{
 					channel->DelUser(ServerInstance->FakeClient);
@@ -137,10 +138,9 @@ class PermChannel : public ModeHandler
 class ModulePermanentChannels : public Module
 {
 	PermChannel p;
-	bool dirty;
 public:
 
-	ModulePermanentChannels() : p(this), dirty(false)
+	ModulePermanentChannels() : p(this)
 	{
 	}
 
