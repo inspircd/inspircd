@@ -63,7 +63,7 @@ static bool WriteDatabase(ModeHandler* p)
 
 		fputs("<permchannels channel=\"", f);
 		fputesc(f, chan->name);
-		fputs("\" topic=\"", f);
+		fprintf(f, "\" ts=\"%lu\" topic=\"", (unsigned long)chan->age);
 		fputesc(f, chan->topic);
 		fputs("\" modelist=\"", f);
 		irc::modestacker cmodes;
@@ -179,7 +179,8 @@ public:
 
 			if (channel.empty())
 			{
-				ServerInstance->Logs->Log("blah", DEBUG, "Malformed permchannels tag with empty channel name.");
+				ServerInstance->Logs->Log("m_permchannels", ERROR, "Malformed permchannels tag at " +
+					tag->getTagLocation());
 				continue;
 			}
 
@@ -187,7 +188,7 @@ public:
 
 			if (!c)
 			{
-				c = new Channel(channel, ServerInstance->Time());
+				c = new Channel(channel, tag->getInt("ts", ServerInstance->Time()));
 				if (!topic.empty())
 				{
 					c->SetTopic(NULL, topic, true);
