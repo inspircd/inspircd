@@ -60,6 +60,8 @@ class OpFlagProviderImpl : public OpFlagProvider
 			return false;
 
 		std::string* mine = ext.get(memb);
+		if (!mine)
+			return false;
 
 		irc::commasepstream flags(needed);
 		std::string flag;
