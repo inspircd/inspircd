@@ -48,10 +48,10 @@ class ModuleRestrictChans : public Module
 	void OnCheckJoin(ChannelPermissionData& join)
 	{
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
-		if (join.chan && join.result == MOD_RES_PASSTHRU && !IS_OPER(join.source))
+		if (!join.chan && join.result == MOD_RES_PASSTHRU && !IS_OPER(join.source))
 		{
 			// user is not an oper and its not in the allow list
-			if (allowchans.find(assign(join.chan->name)) == allowchans.end())
+			if (allowchans.find(assign(join.channel)) == allowchans.end())
 			{
 				join.ErrorNumeric(ERR_BANNEDFROMCHAN, "%s :Only IRC operators may create new channels",join.channel.c_str());
 				join.result = MOD_RES_DENY;
