@@ -24,10 +24,12 @@
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(Module* Creator, char pfx) : ModeHandler(Creator, "operprefix", 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+		int prefixrank;
+		OperPrefixMode(Module* Creator, char pfx, int rank) : ModeHandler(Creator, "operprefix", 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
 		{
 			list = true;
 			prefix = pfx;
+			prefixrank = rank;
 			levelrequired = INT_MAX;
 			m_paramtype = TR_NICK;
 			fixed_letter = false;
@@ -36,7 +38,7 @@ class OperPrefixMode : public ModeHandler
 
 		unsigned int GetPrefixRank()
 		{
-			return OPERPREFIX_VALUE;
+			return prefixrank;
 		}
 
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
@@ -56,8 +58,9 @@ class ModuleOperPrefixMode : public Module
 	{
 		ConfigReader Conf;
 		std::string pfx = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
+		int rank = Conf.ReadInteger("operprefix", "rank", OPERPREFIX_VALUE, 0, true);
 
-		opm = new OperPrefixMode(this, pfx[0]);
+		opm = new OperPrefixMode(this, pfx[0], rank);
 		ServerInstance->Modules->AddService(*opm);
 
 		Implementation eventlist[] = { I_OnPostJoin, I_OnOper };

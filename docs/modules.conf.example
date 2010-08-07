@@ -1203,8 +1203,11 @@
 #
 #<module name="m_operprefix.so">
 #
-# You may additionally customise the prefix character.
-#<operprefix prefix="!">
+# prefix     The prefix used for nicks with this mode. Not required.
+# rank       A numeric rank for this prefix, defining what permissions it gives
+#            VOICE_VALUE is 10000, HALFOP_VALUE is 20000, OP_VALUE is 30000
+#            If not specified, 1000000 is used.
+#<operprefix prefix="!" rank="1000000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for seperate message of the day
