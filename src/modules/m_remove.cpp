@@ -66,14 +66,15 @@ class RemoveBase : public Command
 			return CMD_FAILURE;
 		}
 
-		if (!channel->HasUser(target))
+		Membership* memb = channel->GetUser(target);
+		if (!memb)
 		{
 			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick.c_str(), target->nick.c_str(), channel->name.c_str());
 			return CMD_FAILURE;
 		}
 
-		int ulevel = channel->GetPrefixValue(user);
-		int tlevel = channel->GetPrefixValue(target);
+		int ulevel = channel->GetAccessRank(user);
+		int tlevel = memb->GetProtectRank();
 
 		hasnokicks = (ServerInstance->Modules->Find("m_nokicks.so") && channel->IsModeSet('Q'));
 

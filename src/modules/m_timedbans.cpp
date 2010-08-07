@@ -47,7 +47,7 @@ class CommandTban : public Command
 			user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
-		int cm = channel->GetPrefixValue(user);
+		int cm = channel->GetAccessRank(user);
 		if (cm < HALFOP_VALUE)
 		{
 			user->WriteNumeric(482, "%s %s :You do not have permission to set bans on this channel",

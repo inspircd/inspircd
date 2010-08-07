@@ -121,7 +121,7 @@ class FlagCmd : public Command
 			ModResult res = ServerInstance->CheckExemption(src,chan,"opflags");
 			PermissionData perm(src, "opflags", chan, user);
 
-			if (!perm.result.check(chan->GetPrefixValue(src) >= conflevel))
+			if (!perm.result.check(chan->GetAccessRank(src) >= conflevel))
 			{
 				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot change opflags on this channel.",
 					src->nick.c_str(), chan->name.c_str());

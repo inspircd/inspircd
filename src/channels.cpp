@@ -85,13 +85,14 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 		u = ServerInstance->FakeClient;
 	if (IS_LOCAL(u) && !forceset)
 	{
-		if (!this->HasUser(u))
+		Membership* memb = GetUser(u);
+		if (!memb)
 		{
 			u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
 			return CMD_FAILURE;
 		}
 		ModResult res = ServerInstance->CheckExemption(u,this,"topiclock");
-		if (IsModeSet('t') && !res.check(GetPrefixValue(u) >= HALFOP_VALUE))
+		if (IsModeSet('t') && !res.check(memb->GetAccessRank() >= HALFOP_VALUE))
 		{
 			u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
 			return CMD_FAILURE;
@@ -493,21 +494,19 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 		}
 
 		PermissionData perm(src, "kick", this, memb->user);
-		int them = this->GetPrefixValue(src);
-		char us = GetPrefixChar(user)[0];
-		ModeHandler* mh = ServerInstance->Modes->FindMode(us, MODETYPE_CHANNEL);
-		int min = mh ? mh->GetLevelRequired() : HALFOP_VALUE;
-		if (them < min)
+		// pre-populate the error message to something sensible
+		perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to kick in this channel", this->name.c_str());
+		unsigned int rankKicker = GetAccessRank(src);
+		unsigned int rankKickee = memb->GetProtectRank();
+		if (rankKicker < rankKickee)
 		{
 			perm.result = MOD_RES_DENY;
 			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :They have a higher prefix set", this->name.c_str());
 		}
-		if (them < HALFOP_VALUE)
-			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to kick in this channel", this->name.c_str());
 
 		FOR_EACH_MOD(OnPermissionCheck, (perm));
 
-		if (!perm.result.check(them >= HALFOP_VALUE))
+		if (!perm.result.check(rankKicker >= HALFOP_VALUE))
 		{
 			if (!perm.reason.empty())
 				src->SendText(perm.reason);
@@ -648,7 +647,7 @@ void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CULi
 		if (IS_LOCAL(i->first) && (except_list.find(i->first) == except_list.end()))
 		{
 			/* User doesn't have the status we're after */
-			if (minrank && i->second->getRank() < minrank)
+			if (minrank && i->second->GetAccessRank() < minrank)
 				continue;
 
 			i->first->Write(out);
@@ -832,7 +831,7 @@ const char* Channel::GetPrefixChar(User *user)
 	return pf;
 }
 
-unsigned int Membership::getRank()
+unsigned int Membership::GetAccessRank()
 {
 	char mchar = modes.c_str()[0];
 	unsigned int rv = 0;
@@ -841,6 +840,20 @@ unsigned int Membership::getRank()
 		ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
 		if (mh)
 			rv = mh->GetPrefixRank();
+	}
+	return rv;
+}
+
+unsigned int Membership::GetProtectRank()
+{
+	const char* mchar = modes.c_str();
+	unsigned int rv = 0;
+	while (*mchar)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(*mchar, MODETYPE_CHANNEL);
+		if (mh && rv < mh->GetLevelRequired())
+			rv = mh->GetLevelRequired();
+		mchar++;
 	}
 	return rv;
 }
@@ -864,14 +877,6 @@ const char* Channel::GetAllPrefixChars(User* user)
 	prefix[ctr] = 0;
 
 	return prefix;
-}
-
-unsigned int Channel::GetPrefixValue(User* user)
-{
-	UserMembIter m = userlist.find(user);
-	if (m == userlist.end())
-		return 0;
-	return m->second->getRank();
 }
 
 bool Channel::SetPrefix(User* user, char prefix, bool adding)

@@ -88,7 +88,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			}
 			else if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				int rank = c->GetPrefixValue(user);
+				int rank = c->GetAccessRank(user);
 				if (rank < HALFOP_VALUE)
 				{
 					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",

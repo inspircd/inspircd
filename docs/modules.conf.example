@@ -621,11 +621,22 @@
 # rank       A numeric rank for this prefix, defining what permissions it gives
 #            VOICE_VALUE is 10000, HALFOP_VALUE is 20000, OP_VALUE is 30000
 # ranktoset  The numeric rank required to set/unset this mode. Defaults to rank.
+#            This is also the rank required to kick people having this mode.
 # depriv     False if you cannot remove the mode from yourself
-#<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
-#<customprefix name="admin" letter="a" prefix="&" rank="40000" ranktoset="50000">
-#<customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">
-#<customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
+#
+#m_chanprotect in 2.0, by default, defines:
+#  <customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
+#  <customprefix name="admin" letter="a" prefix="&amp;" rank="40000" ranktoset="50000">
+#m_halfop is just:
+#  <customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">
+#
+#Another useful configuration:
+#  <customprefix name="owner" letter="q" prefix="~" rank="50000" ranktoset="50000">
+#  <customprefix name="protected" letter="a" prefix="" rank="10010" ranktoset="50000">
+#This allows +a to act like +v and also protect the user from kicks by ops/halfops.
+#
+#A useless "vanity" rank:
+#  <customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted

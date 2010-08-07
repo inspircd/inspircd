@@ -91,7 +91,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 
 		if (chan)
 		{
-			if (IS_LOCAL(user) && chan->GetPrefixValue(user) < VOICE_VALUE)
+			if (IS_LOCAL(user) && chan->GetAccessRank(user) < VOICE_VALUE)
 			{
 				if (chan->IsModeSet('n') && !chan->HasUser(user))
 				{

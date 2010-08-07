@@ -314,18 +314,11 @@ class CoreExport Channel : public Extensible
 	 */
 	const char* GetAllPrefixChars(User* user);
 
-	/** Get the value of a users prefix on this channel.
-	 * @param user The user to look up
-	 * @return The module or core-defined value of the users prefix.
-	 * The values for op, halfop and voice status are constants in
-	 * mode.h, and are OP_VALUE, HALFOP_VALUE, and VOICE_VALUE respectively.
-	 * If the value you are given does not match one of these three, it is
-	 * a module-defined mode, and it should be compared in proportion to
-	 * these three constants. For example a value greater than OP_VALUE
-	 * is a prefix of greater 'worth' than ops, and a value less than
-	 * VOICE_VALUE is of lesser 'worth' than a voice.
-	 */
-	unsigned int GetPrefixValue(User* user);
+	inline unsigned int GetAccessRank(User* user)
+	{
+		Membership* memb = GetUser(user);
+		return memb ? memb->GetAccessRank() : 0;
+	}
 
 	/** This method removes all prefix characters from a user.
 	 * It will not inform the user or the channel of the removal of prefixes,

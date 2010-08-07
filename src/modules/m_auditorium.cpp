@@ -80,7 +80,7 @@ class ModuleAuditorium : public Module
 
 		PermissionData vis(memb->user, "auditorium/visible", memb->chan, NULL);
 		FOR_EACH_MOD(OnPermissionCheck, (vis));
-		return vis.result.check(OpsVisible && memb->getRank() >= OP_VALUE);
+		return vis.result.check(OpsVisible && memb->GetAccessRank() >= OP_VALUE);
 	}
 
 	/* Can they see this specific membership? */
@@ -97,7 +97,7 @@ class ModuleAuditorium : public Module
 		// Can you see the list by permission?
 		PermissionData vis(issuer, "auditorium/see", memb->chan, memb->user);
 		FOR_EACH_MOD(OnPermissionCheck, (vis));
-		return vis.result.check(OpsCanSee && memb->chan->GetPrefixValue(issuer) >= OP_VALUE);
+		return vis.result.check(OpsCanSee && memb->chan->GetAccessRank(issuer) >= OP_VALUE);
 	}
 
 	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)

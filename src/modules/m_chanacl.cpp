@@ -119,7 +119,7 @@ class ModuleChanACL : public Module
 		// do they have an opflag, or are they above minimum rank?
 		if (permcheck && permcheck->PermissionCheck(memb, flaglist))
 			perm.result = MOD_RES_ALLOW;
-		else if (memb && memb->getRank() >= minrank)
+		else if (memb && memb->GetAccessRank() >= minrank)
 			perm.result = MOD_RES_ALLOW;
 		else
 		{

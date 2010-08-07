@@ -450,7 +450,7 @@ ModResult InspIRCd::CheckExemption(User* user, Channel* chan, const std::string&
 	if (perm.result != MOD_RES_PASSTHRU)
 		return perm.result;
 
-	unsigned int mypfx = chan->GetPrefixValue(user);
+	unsigned int mypfx = chan->GetAccessRank(user);
 	char minmode = 0;
 	std::string current;
 
@@ -486,7 +486,7 @@ void ModePermissionData::DoRankCheck()
 	 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
 	 * first, so we don't need to iterate, we just look up the first instead.
 	 */
-	unsigned int ourrank = chan->GetPrefixValue(source);
+	unsigned int ourrank = chan->GetAccessRank(source);
 	if (ourrank >= neededrank)
 	{
 		result = MOD_RES_ALLOW;

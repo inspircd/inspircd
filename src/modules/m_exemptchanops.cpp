@@ -101,7 +101,7 @@ class ModuleExemptChanOps : public Module
 			ModeHandler* mh = minmode.length() == 1 ?
 				ServerInstance->Modes->FindMode(minmode[0], MODETYPE_CHANNEL) :
 				ServerInstance->Modes->FindMode(minmode);
-			if (mh && memb->getRank() >= mh->GetPrefixRank())
+			if (mh && memb->GetAccessRank() >= mh->GetPrefixRank())
 				perm.result = MOD_RES_ALLOW;
 			else if (mh || minmode == "*")
 				perm.result = MOD_RES_DENY;

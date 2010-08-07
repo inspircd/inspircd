@@ -185,7 +185,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 		if (IS_LOCAL(i->first))
 			continue;
 
-		if (minrank && i->second->getRank() < minrank)
+		if (minrank && i->second->GetAccessRank() < minrank)
 			continue;
 
 		if (exempt_list.find(i->first) == exempt_list.end())

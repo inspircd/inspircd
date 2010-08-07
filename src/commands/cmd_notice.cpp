@@ -97,7 +97,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
-				if ((chan->IsModeSet('m')) && (chan->GetPrefixValue(user) < VOICE_VALUE))
+				if ((chan->IsModeSet('m')) && (chan->GetAccessRank(user) < VOICE_VALUE))
 				{
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;

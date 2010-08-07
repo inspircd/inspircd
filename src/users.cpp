@@ -924,7 +924,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 			{
 				for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 				{
-					if (i->getRank() < VOICE_VALUE && i->chan->IsBanned(this))
+					if (i->GetAccessRank() < VOICE_VALUE && i->chan->IsBanned(this))
 					{
 						this->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", this->nick.c_str(), i->chan->name.c_str());
 						return false;

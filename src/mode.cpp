@@ -636,7 +636,7 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, const std::string &
 			continue;
 
 		bool display = true;
-		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetPrefixValue(user) < HALFOP_VALUE))
+		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetAccessRank(user) < HALFOP_VALUE))
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You do not have access to view the +%c list",
 				user->nick.c_str(), chan->name.c_str(), mletter);

@@ -33,7 +33,7 @@ class AutoOpList : public ListModeBase
 		std::string::size_type pos = parameter.find(':');
 		if (pos == 0 || pos == std::string::npos)
 			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-		unsigned int mylevel = channel->GetPrefixValue(source);
+		unsigned int mylevel = channel->GetAccessRank(source);
 		irc::commasepstream modes(parameter.substr(0, pos));
 		std::string mid;
 		while (modes.GetToken(mid))

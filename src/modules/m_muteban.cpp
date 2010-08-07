@@ -40,7 +40,7 @@ class ModuleQuietBan : public Module
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = static_cast<Channel*>(dest);
-		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetPrefixValue(user) < VOICE_VALUE)
+		if (chan->GetExtBanStatus(user, 'm') == MOD_RES_DENY && chan->GetAccessRank(user) < VOICE_VALUE)
 		{
 			user->WriteNumeric(404, "%s %s :Cannot send to channel (you're muted)", user->nick.c_str(), chan->name.c_str());
 			return MOD_RES_DENY;

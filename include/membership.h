@@ -28,7 +28,10 @@ class CoreExport Membership : public Extensible
 	{
 		return modes.find(m) != std::string::npos;
 	}
-	unsigned int getRank();
+	/** Rank in the channel for actions this user is taking */
+	unsigned int GetAccessRank();
+	/** Rank in the channel for actions performed on this user */
+	unsigned int GetProtectRank();
 	friend class UCListIter;
 	friend class UserChanList;
 };
