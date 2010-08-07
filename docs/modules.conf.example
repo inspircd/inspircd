@@ -53,6 +53,11 @@
 # IMPORTANT:
 # Other modules may rely on this module being loaded to function.
 #<module name="m_ripemd160.so">
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# POSIX crypt() Module - Allows passwords to be stored using the POSIX
+# crypt() function.
+#
+#<module name="m_hash_posix.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Abbreviation module: Provides the ability to abbreviate commands a-la 
@@ -398,40 +403,38 @@
 # that looks like the name of another channel on the network.
 #<module name="m_channames.so">
 
-<channames
+#<channames
 	# denyrange: characters or range of characters to deny in channel
 	# names.
-	denyrange="2,3"
+	#denyrange="2,3"
 
 	# allowrange: characters or range of characters to specifically allow
 	# in channel names.
-	allowrange="">
+	#allowrange="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone in already
-# in a channel matching a mask like +b j:#channel*mask from joining.
+# in a channel matching a mask like +b j:#channel*mask from joining,
+# although joining the channel with the banmask and then the banned
+# channel is still possible.
 #<module name="m_channelban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Chanprotect module: gives +q and +a channel modes
+# Note that m_customprefix provides a more customizable version of this.
 #<module name="m_chanprotect.so">
 
-<chanprotect
-	# noservices: With this set to yes, when a user joins a empty channel,
-	# the server will set +q on them. If set to no, it will only set +o
-	# on them until they register the channel.
-	noservices="no"
-
+#<chanprotect
 	# qprefix: Prefix (symbol) to use for +q users.
-	qprefix="~"
+	#qprefix="~"
 
 	# aprefix: Prefix (symbol) to use for +a users.
-	aprefix="&amp;"
+	#aprefix="&amp;"
 	
 	# grantadmin/grantfounder: when set to yes, +a users will be able to
 	# grant +a on other users (or +q to +q). Founder can always set/unset
 	# admin mode.
-	grantadmin="no" grantfounder="yes">
+	#grantadmin="no" grantfounder="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -531,11 +534,11 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Common channels module: Adds user mode +c, which, when set, requires
 # that users must share a common channel with you to PRIVMSG or NOTICE
-# you.
+# you unless they are an IRC operator.
 #<module name="m_commonchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Conn-Join: Allows you to force users to join one or more channels
+# Conn-Join: Allows you to auto-join users to one or more channels
 # automatically upon connecting to the server.
 #<module name="m_conn_join.so">
 #
@@ -636,7 +639,7 @@
 #This allows +a to act like +v and also protect the user from kicks by ops/halfops.
 #
 #A useless "vanity" rank:
-#  <customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
+#  <customprefix name="halfvoice" letter="V" prefix="-" rank="2" ranktoset="20000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted
@@ -817,6 +820,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Halfop module: Provides the +h (halfops) channel status mode.
+# Note that m_customprefix provides a more customizable version of this.
 #<module name="m_halfop.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -829,7 +833,7 @@
 # specify below the path to the helpop.conf file, or if you like to   #
 # make a mess, define your helpop tags in this conf.                  #
 #                                                                     #
-#<include file="helpop.conf">
+#<include file="inspircd.helpop-full.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDECHANS module: Allows opers to hide their channels list from non-
@@ -923,8 +927,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite except module: Adds support for channel invite exceptions (+I)
 #<module name="m_inviteexception.so">
-# Does a +I bypass channel +k in addition to +i?
-#<inviteexception bypasskey="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invisible module - Adds support for usermode +Q (quiet) which lets an
@@ -932,7 +934,11 @@
 # opers are still able to see invisible users, and if an oper with +Q
 # deopers, they will become visible. 
 #
-# This module is oper-only and seen by many to be quite abusive.
+# This module is oper-only and seen by many to be quite abusive.  It
+# currently requires an extra installation procedure, running the
+# following from the command line in the InspIRCd directory and
+# then recompiling:
+# ./modulemanager install m_invisible
 #
 #<module name="m_invisible.so">
 
@@ -950,10 +956,14 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
+# Setting this mode requires a parameter of the number of seconds
+# before a kicked user is allowed to rejoin.  Note that removing and
+# resetting the mode will reset the kick data.
 #<module name="m_kicknorejoin.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Knock module: adds the /KNOCK command and +K channel mode
+# Knock module: adds the /KNOCK command and +K channel mode which
+# prevents /KNOCK from being used on the channel it is set on.
 #<module name="m_knock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1082,9 +1092,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Named Modes module: This module allows for the display and set/unset
-# of channel settings and modes via long-form mode names in channels with
-# channelmode +Z set. For example, to set a channelban with named modes:
-# /mode #channel +Z ban=foo!bar@baz . Currently this doesn't serve much
+# of channel settings and modes via long-form mode names in channels
+# with the /PROP command.  For example, to set a ban with named modes:
+# /prop #channel +ban foo!bar@baz . Currently this doesn't serve much
 # purpose outside of making channel administration a bit easier in some
 # cases, but eventually modules will start using named modes only because
 # we're running out of channelmodes. :D
@@ -1092,8 +1102,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # NAMESX module: Provides support for the NAMESX extension which allows
-# clients to see all the prefixes set on a user without getting confused.
-# This is supported by mIRC, x-chat, klient, and maybe more.
+# clients that support it to see all the prefixes set on a user without
+# getting confused. This is supported by mIRC, x-chat, klient, and
+# maybe more.
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1114,7 +1125,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nicklock module: Let opers change a user's nick and then stop that
-# user from changing their nick again.
+# user from changing their nick again, except to change it to their UID
+# via "/NICK 0".
 # This module is oper-only.
 # To use, NICKLOCK and NICKUNLOCK must be in one of your oper class blocks.
 #<module name="m_nicklock.so">
@@ -1262,18 +1274,18 @@
 # connect password.
 #<module name="m_passforward.so">
 
-<passforward
+#<passforward
 		# nick: nick to forward connect passwords to.
-		nick="NickServ"
+		#nick="NickServ"
 
 		# forwardmsg: Message to send to users using a connect password.
 		# $nick will be the users' nick, $nickrequired will be the nick
 		# of where the password is going (the nick above).
-		forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
+		#forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
 
 		# cmd: Command for the nick to run when it recieves a connect
 		# password. 
-		cmd="PRIVMSG $nickrequired :IDENTIFY $pass">
+		#cmd="PRIVMSG $nickrequired :IDENTIFY $pass">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.
@@ -1472,6 +1484,12 @@
 #<module name="m_sapart.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SAPROP module: Adds the oper /SAPROP command
+# This module is oper-only.
+# To use, SAPROP must be in one of your oper class blocks.
+#<module name="m_saprop.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
 # This module is oper-only.
 # To use, SAQUIT must be in one of your oper class blocks.
@@ -1498,10 +1516,10 @@
 # Securelist can be harmful to some irc search engines such as        #
 # netsplit.de and searchirc.com. To prevent securelist blocking these #
 # sites from listing, define exception tags as shown below:           #
-<securehost exception="*@*.searchirc.org">
-<securehost exception="*@*.netsplit.de">
-<securehost exception="*@echo940.server4you.de">
-<securehost exception="*@*.ircdriven.com">
+#<securehost exception="*@*.searchirc.org">
+#<securehost exception="*@*.netsplit.de">
+#<securehost exception="*@echo940.server4you.de">
+#<securehost exception="*@*.ircdriven.com">
 #                                                                     #
 # Define the following variable to change how long a user must wait   #
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
@@ -1651,7 +1669,7 @@
 # your configuration file!                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Strip colour module: Adds the channel mode +S
+# Strip colour module: Adds the channel mode +S and extban S
 #<module name="m_stripcolor.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
