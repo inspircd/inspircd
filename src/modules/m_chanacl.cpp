@@ -122,12 +122,16 @@ class ModuleChanACL : public Module
 		else if (memb && memb->getRank() >= minrank)
 			perm.result = MOD_RES_ALLOW;
 		else
+		{
+			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to %s on this channel (ACLs active)",
+				perm.chan->name.c_str(), perm.name.c_str());
 			perm.result = MOD_RES_DENY;
+		}
 	}
 
 	Version GetVersion()
 	{
-		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
+		return Version("Provides the ability to define channel access control lists.",VF_VENDOR);
 	}
 
 	void OnRehash(User* user)
