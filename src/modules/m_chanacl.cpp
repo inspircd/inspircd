@@ -61,7 +61,8 @@ class ModuleChanACL : public Module
 
 	void Prioritize()
 	{
-		ServerInstance->Modules->SetPriority(this, I_OnPermissionCheck, PRIORITY_AFTER, ServerInstance->Modules->Find("m_opflags.so"));
+		// this module makes a final yes/no determination; it should be last.
+		ServerInstance->Modules->SetPriority(this, I_OnPermissionCheck, PRIORITY_LAST);
 	}
 
 	void OnPermissionCheck(PermissionData& perm)
