@@ -48,12 +48,29 @@ class Alias
 	std::string format;
 };
 
+class CommandEcho : public Command
+{
+ public:
+	CommandEcho(Module* Parent) : Command(Parent, "ECHO", 1, 1)
+	{
+		syntax = "<line>";
+	}
+
+	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
+	{
+		std::string line = parameters[0];
+		if (line[0] != ':')
+			user->WriteServ(line);
+		else
+			user->SendText(line);
+		return CMD_SUCCESS;
+	}
+};
+
 class ModuleAlias : public Module
 {
- private:
-
+	CommandEcho echo;
 	char fprefix;
-
 	/* We cant use a map, there may be multiple aliases with the same name.
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
@@ -91,10 +108,12 @@ class ModuleAlias : public Module
 	}
 
  public:
+	ModuleAlias() : echo(this) {}
 
 	void init()
 	{
 		ReadAliases();
+		ServerInstance->Modules->AddService(echo);
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
 		ServerInstance->Modules->Attach(I_OnRehash, this);
 		ServerInstance->Modules->Attach(I_OnUserMessage, this);
