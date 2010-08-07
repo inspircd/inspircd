@@ -1585,6 +1585,24 @@
 #<module name="m_serverban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Serverbots: Implements simple command-forwarding bots as part of
+# the IRCd. This can be used similar to aliases, but allows users to
+# speak to a client instead of using /COMMANDs
+#<module name="m_serverbots.so">
+#
+#An implementation of the "IRC" nick from Unreal and other IRCds
+# <bot nick="irc">
+# <botcmd bot="irc" replace="$0-">
+#A "help" bot that forwards messages to ops in #help
+# <bot nick="help">
+# <botcmd bot="help" replace="JOIN #help&nl;PRIVMSG @#help :$0-">
+#A bot taking multiple commands
+# <bot nick="useful" ident="useful" host="nothing.at.all" name="Bob">
+# <botcmd bot="useful" text="help" replace="ECHO ::$fullbot PRIVMSG $nick :Commands for $bot: ECHO JOIN-TO">
+# <botcmd bot="useful" text="echo" replace="ECHO ::$fullbot PRIVMSG $nick :$1-">
+# <botcmd bot="useful" text="join-to" replace="JOIN $1">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Show Whois module: Adds the +W usermode which allows opers
 # to see when they are whois'ed (can be annoying).
 # This module is oper-only.
