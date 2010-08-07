@@ -15,42 +15,60 @@
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 
+class OverrideMode : public ModeHandler
+{
+ public:
+	int OverrideTimeout;
+	LocalIntExt timeout;
+	OverrideMode(Module* Creator) : ModeHandler(Creator, "override", 'O', PARAM_NONE, MODETYPE_USER),
+		timeout("override_timeout", Creator)
+	{
+		oper = true;
+	}
+
+	ModeAction OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)
+	{
+		if (adding == dest->IsModeSet('O'))
+			return MODEACTION_DENY;
+		if (IS_LOCAL(dest))
+		{
+			if (adding)
+				timeout.set(dest, ServerInstance->Time() + OverrideTimeout);
+			else
+				timeout.set(dest, 0);
+		}
+		dest->SetMode('O', adding);
+		return MODEACTION_ALLOW;
+	}
+};
+
 class ModuleOverride : public Module
 {
-	bool RequireKey;
+	OverrideMode om;
 	bool NoisyOverride;
 
  public:
+	ModuleOverride() : om(this) {}
+
 	void init()
 	{
-		// read our config options (main config file)
 		OnRehash(NULL);
+		ServerInstance->Modules->AddService(om);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnPermissionCheck };
+		Implementation eventlist[] = { I_OnRehash, I_OnBackgroundTimer, I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-
-		// re-read our config options on a rehash
-		NoisyOverride = Conf.ReadFlag("override", "noisy", 0);
-		RequireKey = Conf.ReadFlag("override", "requirekey", 0);
-	}
-
-	void On005Numeric(std::string &output)
-	{
-		output.append(" OVERRIDE");
+		NoisyOverride = ServerInstance->Config->ConfValue("override")->getBool("noisy");
+		om.OverrideTimeout = ServerInstance->Config->ConfValue("override")->getInt("timeout", 30);
 	}
 
 	void OnPermissionCheck(PermissionData& perm)
 	{
-		if (perm.name == "join" && RequireKey &&
-			static_cast<ChannelPermissionData&>(perm).key != "override")
-			return;
-
-		if (IS_LOCAL(perm.source) && perm.result == MOD_RES_DENY && perm.source->HasPrivPermission("override/" + perm.name))
+		if (IS_LOCAL(perm.source) && perm.result != MOD_RES_ALLOW && perm.source->IsModeSet('O') && 
+			perm.source->HasPrivPermission("override/" + perm.name))
 		{
 			perm.result = MOD_RES_ALLOW;
 			std::string msg = perm.source->nick+" used oper override for "+perm.name+" on "+
@@ -65,11 +83,23 @@ class ModuleOverride : public Module
 		}
 	}
 
+	void OnBackgroundTimer(time_t Now)
+	{
+		for(std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
+		{
+			User* u = *i;
+			if (IS_LOCAL(u) && u->IsModeSet('O') && Now > om.timeout.get(u))
+			{
+				irc::modestacker ms;
+				ms.push(irc::modechange(om.id, "", false));
+				ServerInstance->SendMode(ServerInstance->FakeClient, u, ms, true);
+			}
+		}
+	}
+
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPermissionCheck, PRIORITY_LAST);
-		Module* redir = ServerInstance->Modules->Find("m_redirect.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, redir);
 	}
 
 	Version GetVersion()
