@@ -1235,6 +1235,13 @@
 #<module name="m_opermodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Op flags module: allows you to adjust the rights of users in a channel
+# in a more fine-grained manner than +qaohv modes.
+# See http://wiki.inspircd.org/ChannelPermissions for details.
+#<module name="m_opflags.so">
+#<opflags level="30000" maxflags="15">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password forwarding module: Forwards a password users can send on connect
 # to the specified client below. The client is usually nickserv and this
 # module is usually used to authenticate users with nickserv using their

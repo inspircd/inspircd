@@ -84,6 +84,8 @@ class FlagCmd : public Command
 {
  public:
 	OpFlagProviderImpl prov;
+	unsigned int conflevel;
+	unsigned int usermax;
 	FlagCmd(Module* parent) : Command(parent, "OPFLAGS", 2), prov(parent)
 	{
 		syntax = "<channel> <nick> {+-=}[<flags>]";
@@ -117,7 +119,9 @@ class FlagCmd : public Command
 		if (IS_LOCAL(src))
 		{
 			ModResult res = ServerInstance->CheckExemption(src,chan,"opflags");
-			if (!res.check(chan->GetPrefixValue(src) >= OP_VALUE))
+			PermissionData perm(src, "opflags", chan, user);
+
+			if (!perm.result.check(chan->GetPrefixValue(src) >= conflevel))
 			{
 				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot change opflags on this channel.",
 					src->nick.c_str(), chan->name.c_str());
@@ -154,6 +158,12 @@ class FlagCmd : public Command
 				flags.insert(flag);
 			else
 				flags.erase(flag);
+		}
+		if (IS_LOCAL(src) && flags.size() > usermax)
+		{
+			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Users cannot have more than %d opflags set.",
+				src->nick.c_str(), chan->name.c_str(), usermax);
+			return CMD_FAILURE;
 		}
 		if (flags.empty())
 		{
@@ -199,8 +209,9 @@ class ModuleOpFlags : public Module
 
 	void OnRehash(User*)
 	{
-		// ConfigTag* tag = ServerInstance->Config->ConfValue("opflags");
-		// TODO maxflags?
+		ConfigTag* tag = ServerInstance->Config->ConfValue("opflags");
+		cmd.conflevel = tag->getInt("level", OP_VALUE);
+		cmd.usermax = tag->getInt("maxflags", 15);
 	}
 
 	void OnSyncChannel(Channel* channel, SyncTarget* target)
