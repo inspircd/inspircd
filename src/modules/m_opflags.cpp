@@ -54,27 +54,15 @@ class OpFlagProviderImpl : public OpFlagProvider
 		return v;
 	}
 
-	ModResult PermissionCheck(Membership* memb, const std::string& needed)
+	bool PermissionCheck(Membership* memb, const std::string& needed)
 	{
-		if (!memb)
-			return MOD_RES_DENY;
-
-		if (needed.empty())
-			return MOD_RES_PASSTHRU;
+		if (!memb || needed.empty())
+			return false;
 
 		std::string* mine = ext.get(memb);
 
 		irc::commasepstream flags(needed);
 		std::string flag;
-		if (flags.GetToken(flag))
-		{
-			ModeHandler* privmh = flag.length() == 1 ?
-				ServerInstance->Modes->FindMode(flag[0], MODETYPE_CHANNEL) :
-				ServerInstance->Modes->FindMode(flag);
-			unsigned int neededrank = privmh ? privmh->GetPrefixRank() : INT_MAX;
-			if (neededrank && memb->getRank() >= neededrank)
-				return MOD_RES_ALLOW;
-		}
 
 		while (flags.GetToken(flag))
 		{
@@ -83,10 +71,10 @@ class OpFlagProviderImpl : public OpFlagProvider
 			while (myflags.GetToken(myflag))
 			{
 				if (flag == myflag)
-					return MOD_RES_ALLOW;
+					return true;
 			}
 		}
-		return MOD_RES_DENY;
+		return false;
 	}
 };
 
@@ -237,7 +225,7 @@ class ModuleOpFlags : public Module
 		if (perm.chan && perm.source && perm.result == MOD_RES_PASSTHRU)
 		{
 			Membership* memb = perm.chan->GetUser(perm.source);
-			if (cmd.prov.PermissionCheck(memb, perm.name) == MOD_RES_ALLOW)
+			if (cmd.prov.PermissionCheck(memb, perm.name))
 				perm.result = MOD_RES_ALLOW;
 		}
 	}

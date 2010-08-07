@@ -29,14 +29,10 @@ class OpFlagProvider : public DataProvider
 	/**
 	 * Check if the user has permission based on a mode/flag list
 	 * @param memb The user/channel to check
-	 * @param needed The string of modes to check. In the format [level]{,flag}*
-	 * @return True to allow, false to deny
-	 *
-	 * Example: "op,speaker,moderator" will allow anyone with op or higher,
-	 * in addition to anyone who has the "speaker" or "moderator" flags. You can
-	 * also do "*,speaker" to only permit those with the "speaker" flag.
+	 * @param needed A list of flags to check for
+	 * @return true if the user has at least one of the listed flags
 	 */
-	virtual ModResult PermissionCheck(Membership*, const std::string& needed) = 0;
+	virtual bool PermissionCheck(Membership*, const std::string& needed) = 0;
 };
 
 #endif

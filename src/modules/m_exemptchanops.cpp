@@ -12,7 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "opflags.h"
 #include "u_listmode.h"
 
 /* $ModDesc: Provides the ability to allow channel operators to be exempt from certain modes. */
@@ -56,11 +55,10 @@ class ExemptChanOps : public ListModeBase
 class ModuleExemptChanOps : public Module
 {
 	ExemptChanOps ec;
-	dynamic_reference<OpFlagProvider> permcheck;
 
  public:
 
-	ModuleExemptChanOps() : ec(this), permcheck("opflags") {}
+	ModuleExemptChanOps() : ec(this) {}
 
 	void init()
 	{
@@ -98,11 +96,7 @@ class ModuleExemptChanOps : public Module
 			}
 		}
 
-		if (permcheck)
-		{
-			perm.result = permcheck->PermissionCheck(memb, minmode);
-		}
-		else if (memb && !minmode.empty())
+		if (memb && !minmode.empty())
 		{
 			ModeHandler* mh = minmode.length() == 1 ?
 				ServerInstance->Modes->FindMode(minmode[0], MODETYPE_CHANNEL) :

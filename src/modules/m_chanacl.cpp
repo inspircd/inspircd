@@ -15,9 +15,9 @@
 #include "opflags.h"
 #include "u_listmode.h"
 
-/* $ModDesc: Provides the ability to allow channel operators to be exempt from certain modes. */
+/* $ModDesc: Handles channel ACLs */
 
-/** Handles channel mode +X
+/** Handles channel mode +W
  */
 class ChannelACLMode : public ListModeBase
 {
@@ -110,16 +110,18 @@ class ModuleChanACL : public Module
 			}
 			else
 			{
-				flaglist.push_back(',');
+				if (!flaglist.empty())
+					flaglist.push_back(',');
 				flaglist.append(*i);
 			}
 		}
 
-		if (permcheck)
-			perm.result = permcheck->PermissionCheck(memb, flaglist);
-		if (memb && memb->getRank() >= minrank)
+		// do they have an opflag, or are they above minimum rank?
+		if (permcheck && permcheck->PermissionCheck(memb, flaglist))
 			perm.result = MOD_RES_ALLOW;
-		if (perm.result != MOD_RES_ALLOW)
+		else if (memb && memb->getRank() >= minrank)
+			perm.result = MOD_RES_ALLOW;
+		else
 			perm.result = MOD_RES_DENY;
 	}
 
