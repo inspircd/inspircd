@@ -56,9 +56,9 @@ class ModuleOperPrefixMode : public Module
 
 	void init()
 	{
-		ConfigReader Conf;
-		std::string pfx = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
-		int rank = Conf.ReadInteger("operprefix", "rank", OPERPREFIX_VALUE, 0, true);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("operprefix");
+		std::string pfx = tag->getString("prefix", "!");
+		int rank = tag->getInt("rank", OPERPREFIX_VALUE);
 
 		opm = new OperPrefixMode(this, pfx[0], rank);
 		ServerInstance->Modules->AddService(*opm);
