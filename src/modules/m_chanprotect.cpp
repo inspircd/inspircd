@@ -118,7 +118,6 @@ class ModuleChanProtect : public Module
 {
 	ChanProtect cp;
 	ChanFounder cf;
-	bool FirstInGetsFounder;
  public:
 	ModuleChanProtect() : cp(this), cf(this)
 	{
@@ -138,8 +137,7 @@ class ModuleChanProtect : public Module
 		ServerInstance->Modules->AddService(cf);
 		ServerInstance->Modules->AddService(cp);
 
-		Implementation eventlist[] = { I_OnCheckJoin, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(I_OnRehash, this);
 	}
 
 	void OnRehash(User*)
@@ -147,16 +145,6 @@ class ModuleChanProtect : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanprotect");
 		cp.setLevel(tag->getBool("grantadmin", false));
 		cf.setLevel(tag->getBool("grantfounder", true));
-		FirstInGetsFounder = tag->getBool("noservices");
-	}
-
-	void OnCheckJoin(ChannelPermissionData& join)
-	{
-		// if the user is the first user into the channel, mark them as the founder, but only if
-		// the config option for it is set
-
-		if (FirstInGetsFounder && !join.chan)
-			join.privs += cf.GetModeChar();
 	}
 
 	Version GetVersion()
