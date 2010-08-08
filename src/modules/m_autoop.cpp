@@ -24,6 +24,7 @@ class AutoOpList : public ListModeBase
 	AutoOpList(Module* Creator) : ListModeBase(Creator, "autoop", 'w', "End of Channel Access List", 910, 911, true)
 	{
 		levelrequired = OP_VALUE;
+		tidy = false;
 	}
 
 	ModeHandler* FindMode(const std::string& mid)
