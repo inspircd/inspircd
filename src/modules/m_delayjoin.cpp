@@ -38,8 +38,8 @@ class ModuleDelayJoin : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(djm);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText, I_OnRawMode };
+		ServerInstance->Modules->Attach(eventlist, this, 7);
 	}
 	~ModuleDelayJoin();
 	Version GetVersion();
@@ -50,6 +50,7 @@ class ModuleDelayJoin : public Module
 	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&);
 	void OnBuildNeighborList(User* source, std::vector<Channel*> &include, std::map<User*,bool> &exception);
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
+	ModResult OnRawMode(User* user, Channel* channel, irc::modechange& mc);
 };
 
 /* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
@@ -149,7 +150,7 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 	if (target_type != TYPE_CHANNEL)
 		return;
 
-	Channel* channel = (Channel*) dest;
+	Channel* channel = static_cast<Channel*>(dest);
 
 	Membership* memb = channel->GetUser(user);
 	if (!memb || !unjoined.set(memb, 0))
@@ -164,6 +165,24 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 
 	if (ms.length() > 0)
 		channel->WriteAllExceptSender(user, false, 0, "MODE %s +%s", channel->name.c_str(), ms.c_str());
+}
+
+/* make the user visible if he receives any mode change */
+ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, irc::modechange& mc)
+{
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mc.mode);
+	if (!mh || mh->GetTranslateType() != TR_NICK)
+		return MOD_RES_PASSTHRU;
+
+	User* dest = ServerInstance->FindNick(mc.value);
+
+	if (!dest)
+		return MOD_RES_PASSTHRU;
+
+	Membership* memb = channel->GetUser(dest);
+	if (memb && unjoined.set(memb, 0))
+		channel->WriteAllExceptSender(dest, false, 0, "JOIN %s", channel->name.c_str());
+	return MOD_RES_PASSTHRU;
 }
 
 MODULE_INIT(ModuleDelayJoin)
