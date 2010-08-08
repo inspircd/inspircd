@@ -6,6 +6,8 @@
 /inspircd
 /org.inspircd.plist
 /run
+/ssl
+/extras/ssl
 
 /include/inspircd_config.h
 /include/inspircd_version.h
