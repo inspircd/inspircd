@@ -538,7 +538,7 @@ void ServerConfig::Read()
 	ParseStack stack(this);
 	try
 	{
-		valid = stack.ParseFile(ServerInstance->ConfigFileName, 0);
+		valid = stack.ParseFile(ServerInstance->ConfigFileName, FLAG_USE_XML);
 	}
 	catch (CoreException& err)
 	{

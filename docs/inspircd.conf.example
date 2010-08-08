@@ -70,10 +70,10 @@
 # Variables may be redefined and may reference other variables.       #
 # Value expansion happens at the time the tag is read.                #
 #                                                                     #
-# Using variable definitions REQUIRES that the config format be       #
-# changed to "xml" from the default "compat" that uses escape         #
-# sequences such as "\"" and "\n", and does not support <define>      #
-<config format="xml">
+# Using variable definitions requires that the config format be "xml" #
+# which is now the default in 2.1; to use "\n" escapes as in older    #
+# configs, change it to "compat".                                     #
+#<config format="xml">
 <define name="bindip" value="1.2.2.3">
 <define name="localips" value="&bindip;/24">
 
