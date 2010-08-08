@@ -169,6 +169,17 @@ struct Parser
 		nextword(name);
 
 		int spc = next();
+		if (spc == '/' && name.empty())
+		{
+			// XML close tag like "</tag>"; ignore.
+			nextword(name);
+			spc = next();
+			if (spc != '>')
+				throw CoreException("Invalid characters in XML closing tag");
+			return;
+		}
+
+		// Except for <tag> and <tag/>, the name must be followed by a space
 		if (spc == '>' || spc == '/')
 			unget(spc);
 		else if (!isspace(spc))
