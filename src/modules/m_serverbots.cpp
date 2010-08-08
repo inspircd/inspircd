@@ -38,12 +38,22 @@ class Alias
 
 typedef std::multimap<irc::string, Alias>::iterator AliasIter;
 
+class ServerBot : public FakeUser
+{
+ public:
+	ServerBot(const std::string& uid) : FakeUser(uid, ServerInstance->Config->ServerName) {}
+	virtual const std::string& GetFullHost()
+	{
+		return this->User::GetFullHost();
+	}
+};
+
 class BotData
 {
  public:
 	std::multimap<irc::string, Alias> Aliases;
-	FakeUser* const bot;
-	BotData(FakeUser* Bot) : bot(Bot) {}
+	ServerBot* const bot;
+	BotData(ServerBot* Bot) : bot(Bot) {}
 
 	void HandleMessage(User* user, const std::string& text)
 	{
@@ -147,7 +157,7 @@ class BotData
 				}
 				else if (format.substr(i, 8) == "$fullbot")
 				{
-					result.append(bot->User::GetFullHost());
+					result.append(bot->GetFullHost());
 				}
 				else
 					result.push_back(c);
@@ -188,7 +198,7 @@ class BotData
 
 class ModuleServerBots : public Module
 {
-	std::vector<FakeUser*> bots;
+	std::map<std::string, BotData*> bots;
 	SimpleExtItem<BotData> dataExt;
 	bool recursing;
 	int botID;
@@ -232,8 +242,8 @@ class ModuleServerBots : public Module
 
 	void OnRehash(User* user)
 	{
-		// TODO don't recreate all bots on rehash
-		cull();
+		std::map<std::string, BotData*> oldbots;
+		oldbots.swap(bots);
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("bot");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
@@ -243,20 +253,45 @@ class ModuleServerBots : public Module
 			std::string nick = tag->getString("nick");
 			if (nick.empty())
 				continue;
-			// TODO bump nicks out of the way
-			if (ServerInstance->FindNick(nick))
-				continue;
-			std::string uid = ConvToStr(++botID) + "!BOT";
-			FakeUser* bot = new FakeUser(uid, ServerInstance->Config->ServerName);
-			bots.push_back(bot);
-			bot->ChangeNick(nick, true);
+			std::map<std::string, BotData*>::iterator found = oldbots.find(nick);
+			ServerBot* bot;
+			if (found != oldbots.end())
+			{
+				bots.insert(*found);
+				bot = found->second->bot;
+				oldbots.erase(found);
+			}
+			else
+			{
+				User* bump = ServerInstance->FindNick(nick);
+				if (bump)
+					bump->ChangeNick(bump->uuid, true);
+				std::string uid = ConvToStr(++botID) + "!BOT";
+				bot = new ServerBot(uid);
+				BotData* bd = new BotData(bot);
+				dataExt.set(bot, bd);
+				bots.insert(std::make_pair(nick, bd));
+
+				bot->ChangeNick(nick, true);
+			}
 			bot->ident = tag->getString("ident", "bot");
 			bot->host = tag->getString("host", ServerInstance->Config->ServerName);
 			bot->dhost = bot->host;
 			bot->fullname = tag->getString("name", "Server-side Bot");
-			// TODO should we oper it?
-
-			dataExt.set(bot, new BotData(bot));
+			bot->InvalidateCache();
+			std::string oper = tag->getString("oper", "Server_Bot");
+			if (!oper.empty())
+			{
+				OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + oper);
+				if (iter != ServerInstance->Config->oper_blocks.end())
+					bot->oper = iter->second;
+				else
+					bot->oper = new OperInfo(oper);
+			}
+		}
+		for(std::map<std::string, BotData*>::iterator i = oldbots.begin(); i != oldbots.end(); i++)
+		{
+			ServerInstance->GlobalCulls.AddItem(i->second->bot);
 		}
 
 		tags = ServerInstance->Config->ConfTags("botcmd");
@@ -264,12 +299,10 @@ class ModuleServerBots : public Module
 		{
 			ConfigTag* tag = i->second;
 			std::string botnick = tag->getString("bot");
-			User* u = ServerInstance->FindNick(botnick);
-			if (!u)
+			std::map<std::string, BotData*>::iterator found = bots.find(botnick);
+			if (found == bots.end())
 				continue;
-			BotData* bot = dataExt.get(u);
-			if (!bot)
-				continue;
+			BotData* bot = found->second;
 			Alias a;
 			a.AliasedCommand = tag->getString("text").c_str();
 			tag->readString("replace", a.ReplaceFormat, true);
@@ -283,9 +316,9 @@ class ModuleServerBots : public Module
 
 	CullResult cull()
 	{
-		for(std::vector<FakeUser*>::iterator i = bots.begin(); i != bots.end(); i++)
+		for(std::map<std::string, BotData*>::iterator i = bots.begin(); i != bots.end(); i++)
 		{
-			ServerInstance->GlobalCulls.AddItem(*i);
+			ServerInstance->GlobalCulls.AddItem(i->second->bot);
 		}
 		return Module::cull();
 	}
