@@ -194,9 +194,11 @@ class CommandTest : public Command
 		}
 		else if (parameters[0] == "sizes")
 		{
+// work around printf's lack of a size_t format specification
+#define szl(x) static_cast<unsigned long>(sizeof(x))
 			user->SendText(":z.z NOTICE !info :User=%lu/%lu/%lu Channel=%lu Membership=%lu ban=%lu",
-				sizeof(LocalUser), sizeof(RemoteUser), sizeof(FakeUser), sizeof(Channel),
-				sizeof(Membership), sizeof(BanItem));
+				szl(LocalUser), szl(RemoteUser), szl(FakeUser), szl(Channel),
+				szl(Membership), szl(BanItem));
 		}
 		else if (parameters[0] == "check")
 		{
