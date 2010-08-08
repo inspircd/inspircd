@@ -59,6 +59,13 @@ enum UserType {
 	USERTYPE_SERVER = 3
 };
 
+/**
+ * This is the maximum length of a UUID (unique user identifier).
+ * This length is set in compliance with TS6 protocol, and really should not be changed. Ever.
+ * It allows for a lot of clients as-is. -- w00t.
+ */
+#define UUID_LENGTH 10
+
 /** Holds information relevent to &lt;connect allow&gt; and &lt;connect deny&gt; tags in the config file.
  */
 struct CoreExport ConnectClass : public refcountbase

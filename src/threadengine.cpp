@@ -11,12 +11,6 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
-/*********        DEFAULTS       **********/
-/* $ExtraSources: threadengines/threadengine_pthread.cpp */
-/* $ExtraObjects: threadengine_pthread.o */
-
 #include "inspircd.h"
 #include "threadengine.h"
 

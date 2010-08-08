@@ -360,7 +360,6 @@ void Run()
 	fprintf(f, "#define LIBRARYDIR \"%s\"\n", library_dir);
 	fprintf(f, "#define MAXBUF 514\n");
 
-	fprintf(f, "\n#include \"inspircd_win32wrapper.h\"");
 	fprintf(f, "\n#include \"inspircd_namedpipe.h\"");
 	fprintf(f, "#endif\n\n");
 	fclose(f);

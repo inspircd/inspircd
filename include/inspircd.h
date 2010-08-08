@@ -69,7 +69,6 @@
 #include "dns.h"
 #include "extensible.h"
 #include "numerics.h"
-#include "uid.h"
 #include "membership.h"
 #include "inspsocket.h"
 #include "users.h"

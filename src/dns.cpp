@@ -29,8 +29,6 @@ looks like this, walks like this or tastes like this.
 #include <errno.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#else
-#include "inspircd_win32wrapper.h"
 #endif
 
 #include "inspircd.h"
