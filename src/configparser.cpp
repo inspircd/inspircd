@@ -98,6 +98,11 @@ struct Parser
 			comment();
 			return true;
 		}
+		else if (ch == '/' && key.empty())
+		{
+			// self-closing tags like <connect allow="*" />
+			return true;
+		}
 		else if (ch != '=')
 		{
 			throw CoreException("Invalid character " + std::string(1, ch) + " in key (" + key + ")");
@@ -164,7 +169,7 @@ struct Parser
 		nextword(name);
 
 		int spc = next();
-		if (spc == '>')
+		if (spc == '>' || spc == '/')
 			unget(spc);
 		else if (!isspace(spc))
 			throw CoreException("Invalid character in tag name");
