@@ -14,8 +14,6 @@
 #ifndef __INSP_SOCKET_H__
 #define __INSP_SOCKET_H__
 
-#include "timer.h"
-
 /**
  * States which a socket may be in
  */
@@ -249,7 +247,5 @@ class CoreExport BufferedSocket : public StreamSocket
 	BufferedSocketError BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout);
 	BufferedSocketError BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
 };
-
-#include "modules.h"
 
 #endif

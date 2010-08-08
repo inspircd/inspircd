@@ -14,16 +14,9 @@
 #ifndef __MODULES_H
 #define __MODULES_H
 
-#include "dynamic.h"
-#include "base.h"
-#include "ctables.h"
-#include "inspsocket.h"
 #include <string>
 #include <deque>
 #include <sstream>
-#include "timer.h"
-#include "mode.h"
-#include "dns.h"
 
 /** Used to define a set of behavior bits for a module
  */

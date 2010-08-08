@@ -15,7 +15,7 @@
 #define __THREADENGINE_WIN32THREAD__
 
 #include "inspircd_config.h"
-#include "base.h"
+#include "typedefs.h"
 
 class Thread;
 

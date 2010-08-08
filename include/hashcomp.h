@@ -20,7 +20,6 @@
 #include <deque>
 #include <map>
 #include <set>
-#include "hash_map.h"
 
 /*******************************************************
  * This file contains classes and templates that deal

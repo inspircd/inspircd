@@ -18,10 +18,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "inspircd.h"
-#include "modules.h"
-#include "socketengine.h"
-#include "socket.h"
 
 /** Structure representing a single <tag> in config */
 class CoreExport ConfigTag : public refcountbase

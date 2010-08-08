@@ -48,6 +48,7 @@ struct ConnectClass;
 struct ModResult;
 struct ResourceRecord;
 
+#include "hash_map.h"
 #include "hashcomp.h"
 #include "base.h"
 

@@ -32,9 +32,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef _DNS_H
 #define _DNS_H
 
-#include "socket.h"
-#include "hashcomp.h"
-
 /**
  * Result status, used internally
  */

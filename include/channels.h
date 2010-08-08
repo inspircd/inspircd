@@ -14,9 +14,6 @@
 #ifndef __CHANNELS_H__
 #define __CHANNELS_H__
 
-#include "membership.h"
-#include "mode.h"
-
 class CoreExport BanItem : public Extensible
 {
  public:

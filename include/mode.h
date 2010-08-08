@@ -14,8 +14,6 @@
 #ifndef __MODE_H
 #define __MODE_H
 
-#include "ctables.h"
-
 #define MODE_ID_MAX 128
 
 /**

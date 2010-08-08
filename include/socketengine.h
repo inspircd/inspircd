@@ -17,9 +17,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
-#include "socket.h"
-#include "base.h"
 
 /** Types of event an EventHandler may receive.
  * EVENT_READ is a readable file descriptor,

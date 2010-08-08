@@ -14,8 +14,6 @@
 #ifndef __LOG_H__
 #define __LOG_H__
 
-#include "logger.h"
-
 /** Debug levels for use with InspIRCd::Log()
  *  */
 enum DebugLevel

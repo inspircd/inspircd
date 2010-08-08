@@ -14,8 +14,6 @@
 #ifndef __PROTOCOL_H__
 #define __PROTOCOL_H__
 
-#include "hashcomp.h"
-
 class User;
 
 typedef std::vector<std::string> parameterlist;
