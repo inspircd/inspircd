@@ -26,6 +26,7 @@ class AutoOpList : public ListModeBase
 	{
 		levelrequired = OP_VALUE;
 		fixed_letter = false;
+		tidy = false;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
