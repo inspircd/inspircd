@@ -25,9 +25,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
-#include "inspircd.h"
-#include "socketengine.h"
 #include <port.h>
 
 /** A specialisation of the SocketEngine class, designed to use solaris 10 I/O completion ports

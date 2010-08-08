@@ -12,9 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "socket.h"
-#include "inspstring.h"
-#include "socketengine.h"
 
 #ifndef DISABLE_WRITEV
 #include <sys/uio.h>

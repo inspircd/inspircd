@@ -13,7 +13,6 @@
 
 #ifndef __CMD_WHOWAS_H__
 #define __CMD_WHOWAS_H__
-#include "modules.h"
 
 struct WhowasRequest : public Request
 {

@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/umode_w.h"
+#include "builtin-modes.h"
 
 ModeUserWallops::ModeUserWallops() : SimpleUserModeHandler(NULL, "wallops", 'w')
 {

@@ -14,12 +14,6 @@
 #ifndef __USERS_H__
 #define __USERS_H__
 
-#include "socket.h"
-#include "inspsocket.h"
-#include "dns.h"
-#include "mode.h"
-#include "membership.h"
-
 /** connect class types
  */
 enum ClassTypes {

@@ -904,7 +904,7 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 				$config{SOCKETENGINE} = "socketengine_select";
 			}
 		}
-		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n\n#endif\n";
+		print FILEHANDLE "\n#endif\n";
 		close(FILEHANDLE);
 
 		open(FILEHANDLE, ">include/inspircd_version.h.tmp");

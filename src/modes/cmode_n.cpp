@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/cmode_n.h"
+#include "builtin-modes.h"
 
 ModeChannelNoExternal::ModeChannelNoExternal() : SimpleChannelModeHandler(NULL, "noextmsg", 'n')
 {

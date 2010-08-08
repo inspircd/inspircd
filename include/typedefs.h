@@ -14,44 +14,6 @@
 #ifndef __TYPEDEF_H__
 #define __TYPEDEF_H__
 
-class BanCacheManager;
-class BanItem;
-class BufferedSocket;
-class Channel;
-class Command;
-class ConfigReader;
-class ConfigTag;
-class DNSHeader;
-class DNSRequest;
-class Extensible;
-class FakeUser;
-class InspIRCd;
-class LocalUser;
-class Membership;
-class ModeID;
-class Module;
-class ModuleState;
-class OperInfo;
-class RemoteUser;
-class ServerConfig;
-class ServerLimits;
-class StreamSocket;
-class SyncTarget;
-class Thread;
-class User;
-class UserChanList;
-class UserResolver;
-class XLine;
-class XLineManager;
-class XLineFactory;
-struct ConnectClass;
-struct ModResult;
-struct ResourceRecord;
-
-#include "hash_map.h"
-#include "hashcomp.h"
-#include "base.h"
-
 #if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
 	typedef nspace::hash_map<std::string, User*, nspace::hash_compare<std::string, std::less<std::string> > > user_hash;
 	typedef nspace::hash_map<std::string, Channel*, nspace::hash_compare<std::string, std::less<std::string> > > chan_hash;

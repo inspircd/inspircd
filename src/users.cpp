@@ -13,7 +13,6 @@
 
 #include "inspircd.h"
 #include <stdarg.h>
-#include "socketengine.h"
 #include "xline.h"
 #include "bancache.h"
 #include "commands/cmd_whowas.h"

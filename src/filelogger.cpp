@@ -11,12 +11,8 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include <fstream>
-#include "socketengine.h"
-#include "filelogger.h"
 
 FileLogStream::FileLogStream(int loglevel, FileWriter *fw)
 	: LogStream(loglevel), f(fw)

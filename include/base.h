@@ -14,10 +14,8 @@
 #ifndef __BASE_H__
 #define __BASE_H__
 
-#include <list>
-#include <map>
-#include <deque>
-#include <string>
+/** The server instance - global variable */
+CoreExport extern InspIRCd* ServerInstance;
 
 /** Dummy class to help enforce culls being parent-called up to classbase */
 class CullResult

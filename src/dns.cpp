@@ -34,9 +34,6 @@ looks like this, walks like this or tastes like this.
 #endif
 
 #include "inspircd.h"
-#include "socketengine.h"
-#include "configreader.h"
-#include "socket.h"
 
 /** Masks to mask off the responses we get from the DNSRequest methods
  */

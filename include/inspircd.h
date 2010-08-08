@@ -55,10 +55,11 @@
 #include <time.h>
 #include "inspircd_config.h"
 #include "inspircd_version.h"
+#include "types.h"
+#include "hash_map.h"
+#include "hashcomp.h"
+#include "base.h"
 #include "typedefs.h"
-
-CoreExport extern InspIRCd* ServerInstance;
-
 #include "caller.h"
 #include "cull_list.h"
 #include "dynamic.h"
@@ -69,14 +70,14 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "extensible.h"
 #include "numerics.h"
 #include "uid.h"
-#include "users.h"
 #include "membership.h"
+#include "inspsocket.h"
+#include "users.h"
 #include "mode.h"
 #include "channels.h"
 #include "timer.h"
 #include "logger.h"
 #include "usermanager.h"
-#include "inspsocket.h"
 #include "ctables.h"
 #include "command_parse.h"
 #include "snomasks.h"

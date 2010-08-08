@@ -12,38 +12,7 @@
  */
 
 #include "inspircd.h"
-#include "inspstring.h"
-
-/* +s (secret) */
-#include "modes/cmode_s.h"
-/* +p (private) */
-#include "modes/cmode_p.h"
-/* +b (bans) */
-#include "modes/cmode_b.h"
-/* +m (moderated) */
-#include "modes/cmode_m.h"
-/* +t (only (half) ops can change topic) */
-#include "modes/cmode_t.h"
-/* +n (no external messages) */
-#include "modes/cmode_n.h"
-/* +i (invite only) */
-#include "modes/cmode_i.h"
-/* +k (keyed channel) */
-#include "modes/cmode_k.h"
-/* +l (channel user limit) */
-#include "modes/cmode_l.h"
-/* +o (channel op) */
-#include "modes/cmode_o.h"
-/* +v (channel voice) */
-#include "modes/cmode_v.h"
-/* +w (see wallops) */
-#include "modes/umode_w.h"
-/* +i (invisible) */
-#include "modes/umode_i.h"
-/* +o (operator) */
-#include "modes/umode_o.h"
-/* +s (server notice masks) */
-#include "modes/umode_s.h"
+#include "builtin-modes.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type)
 	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT), parameters_taken(Params),

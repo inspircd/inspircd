@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/cmode_m.h"
+#include "builtin-modes.h"
 
 ModeChannelModerated::ModeChannelModerated() : SimpleChannelModeHandler(NULL, "moderated", 'm')
 {

@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/cmode_i.h"
+#include "builtin-modes.h"
 
 ModeChannelInviteOnly::ModeChannelInviteOnly() : SimpleChannelModeHandler(NULL, "inviteonly", 'i')
 {

@@ -362,7 +362,6 @@ void Run()
 
 	fprintf(f, "\n#include \"inspircd_win32wrapper.h\"");
 	fprintf(f, "\n#include \"inspircd_namedpipe.h\"");
-	fprintf(f, "\n#include \"threadengines/threadengine_win32.h\"\n\n");
 	fprintf(f, "#endif\n\n");
 	fclose(f);
 

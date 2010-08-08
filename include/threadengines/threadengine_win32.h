@@ -14,9 +14,6 @@
 #ifndef __THREADENGINE_WIN32THREAD__
 #define __THREADENGINE_WIN32THREAD__
 
-#include "inspircd_config.h"
-#include "typedefs.h"
-
 class Thread;
 
 /** The ThreadEngine class has the responsibility of initialising

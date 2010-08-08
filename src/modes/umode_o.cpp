@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/umode_o.h"
+#include "builtin-modes.h"
 
 ModeUserOperator::ModeUserOperator() : ModeHandler(NULL, "oper", 'o', PARAM_NONE, MODETYPE_USER)
 {

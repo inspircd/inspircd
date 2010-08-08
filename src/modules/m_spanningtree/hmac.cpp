@@ -16,7 +16,6 @@
 #include "xline.h"
 #include "../hash.h"
 #include "../ssl.h"
-#include "socketengine.h"
 
 #include "main.h"
 #include "utils.h"

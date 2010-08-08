@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/cmode_t.h"
+#include "builtin-modes.h"
 
 ModeChannelTopicOps::ModeChannelTopicOps() : SimpleChannelModeHandler(NULL, "topiclock", 't')
 {

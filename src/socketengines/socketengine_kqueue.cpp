@@ -16,7 +16,6 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include "socketengine.h"
 
 /** A specialisation of the SocketEngine class, designed to use FreeBSD kqueue().
  */

@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/umode_i.h"
+#include "builtin-modes.h"
 
 ModeUserInvisible::ModeUserInvisible() : SimpleUserModeHandler(NULL, "invisible", 'i')
 {

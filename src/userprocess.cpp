@@ -11,12 +11,8 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
-
 #include "inspircd.h"
 #include "xline.h"
-#include "socketengine.h"
-#include "command_parse.h"
 
 /**
  * This function is called once a second from the mainloop.

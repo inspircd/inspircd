@@ -12,7 +12,8 @@
  */
 
 #include "inspircd.h"
-#include "modes/cmode_b.h"
+#include "u_listmode.h"
+#include "builtin-modes.h"
 
 ModeChannelBan::ModeChannelBan() : ListModeBase(NULL, "ban", 'b', "End of channel ban list", 367, 368, true)
 {

@@ -20,6 +20,8 @@
 
 #ifdef WINDOWS
 #include "threadengines/threadengine_win32.h"
+#else
+#include "threadengines/threadengine_pthread.h"
 #endif
 
 class ThreadData;

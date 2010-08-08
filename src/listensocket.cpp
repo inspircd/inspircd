@@ -12,8 +12,6 @@
  */
 
 #include "inspircd.h"
-#include "socket.h"
-#include "socketengine.h"
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)

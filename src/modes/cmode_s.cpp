@@ -15,7 +15,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/cmode_s.h"
+#include "builtin-modes.h"
 
 ModeChannelSecret::ModeChannelSecret() : SimpleChannelModeHandler(NULL, "secret", 's')
 {

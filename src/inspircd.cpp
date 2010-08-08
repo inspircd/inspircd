@@ -11,9 +11,8 @@
  * ---------------------------------------------------
  */
 
-/* $Core */
 #include "inspircd.h"
-#include "inspircd_version.h"
+#include "bancache.h"
 #include <signal.h>
 
 #ifndef WIN32
@@ -34,12 +33,7 @@
 
 #include <fstream>
 #include "xline.h"
-#include "bancache.h"
-#include "socketengine.h"
-#include "socket.h"
-#include "command_parse.h"
 #include "exitcodes.h"
-#include "caller.h"
 #include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
