@@ -32,11 +32,30 @@ public:
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		std::string param = parameters.size() ? parameters[0] : "";
+
+		if (param.find_first_of("*.") != std::string::npos)
+		{
+			// lock of servers by server name (with wildcard)
+			if (!InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
+			{
+				// Doesn't match us.
+				return CMD_SUCCESS;
+			}
+		}
 		locked = true;
 		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick.c_str(), user->server.c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily close for new connections", user->nick.c_str());
-		/* Dont send to the network */
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (parameters.size() > 0 && parameters[0].find('*') != std::string::npos)
+			return ROUTE_OPT_BCAST;
+		if (parameters.size() > 0 && parameters[0].find('.') != std::string::npos)
+			return ROUTE_OPT_UCAST(parameters[0]);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -53,11 +72,30 @@ public:
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		std::string param = parameters.size() ? parameters[0] : "";
+
+		if (param.find_first_of("*.") != std::string::npos)
+		{
+			// lock of servers by server name (with wildcard)
+			if (!InspIRCd::Match(ServerInstance->Config->ServerName, parameters[0]))
+			{
+				// Doesn't match us.
+				return CMD_SUCCESS;
+			}
+		}
 		locked = false;
 		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick.c_str(), user->server.c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow for new connections", user->nick.c_str());
-		/* Dont send to the network */
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (parameters.size() > 0 && parameters[0].find('*') != std::string::npos)
+			return ROUTE_OPT_BCAST;
+		if (parameters.size() > 0 && parameters[0].find('.') != std::string::npos)
+			return ROUTE_OPT_UCAST(parameters[0]);
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -104,7 +142,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_VENDOR);
+		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 
