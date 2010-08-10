@@ -259,7 +259,7 @@ class ModuleServerBots : public Module
 			{
 				bots.insert(*found);
 				bot = found->second->bot;
-				bot->Aliases.clear();
+				found->second->Aliases.clear();
 				oldbots.erase(found);
 			}
 			else
