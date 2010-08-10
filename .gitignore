@@ -12,11 +12,8 @@
 /include/inspircd_config.h
 /include/inspircd_version.h
 
-/src/modules/m_antibear.cpp
-/src/modules/m_antibottler.cpp
 /src/modules/m_geoip.cpp
 /src/modules/m_hash_posix.cpp
-/src/modules/m_invisible.cpp
 /src/modules/m_ldapauth.cpp
 /src/modules/m_ldapoper.cpp
 /src/modules/m_mssql.cpp
