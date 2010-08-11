@@ -222,6 +222,9 @@ class ListModeBase : public ModeHandler
 		// Try and grab the list
 		modelist* el = extItem.get(channel);
 
+		if (this->tidy)
+			ModeParser::CleanMask(parameter);
+
 		if (adding)
 		{
 			// If there was no list
@@ -231,10 +234,6 @@ class ListModeBase : public ModeHandler
 				el = new modelist;
 				extItem.set(channel, el);
 			}
-
-			// Clean the mask up
-			if (this->tidy)
-				ModeParser::CleanMask(parameter);
 
 			// Check if the item already exists in the list
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
