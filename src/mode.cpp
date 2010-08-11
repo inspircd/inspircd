@@ -547,12 +547,12 @@ void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes,
 			mc = modes.sequence.erase(mc);
 			continue;
 		}
-		if (merge && targetchannel && targetchannel->IsModeSet(mh) && !mh->IsListMode())
+		if (merge && targetchannel && targetchannel->IsModeSet(mh) && mc->adding && !mh->IsListMode())
 		{
 			std::string ours = targetchannel->GetModeParameter(mh);
 			if (!mh->ResolveModeConflict(mc->value, ours, targetchannel))
 			{
-				/* we won the mode merge, don't apply this mode */
+				/* local side won the mode merge, don't apply this mode */
 				mc = modes.sequence.erase(mc);
 				continue;
 			}
