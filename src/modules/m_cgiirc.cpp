@@ -53,16 +53,16 @@ typedef std::vector<CGIhost> CGIHostlist;
  */
 class CommandWebirc : public Command
 {
-	bool notify;
  public:
+	bool notify;
 	StringExtItem realhost;
 	StringExtItem realip;
 	LocalStringExt webirc_hostname;
 	LocalStringExt webirc_ip;
 
 	CGIHostlist Hosts;
-	CommandWebirc(Module* Creator, bool bnotify)
-		: Command(Creator, "WEBIRC", 4), notify(bnotify),
+	CommandWebirc(Module* Creator)
+		: Command(Creator, "WEBIRC", 4),
 		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator),
 		  webirc_hostname("cgiirc_webirc_hostname", Creator), webirc_ip("cgiirc_webirc_ip", Creator)
 		{
@@ -156,9 +156,8 @@ class ModuleCgiIRC : public Module
 {
 	CommandWebirc cmd;
 	LocalIntExt waiting;
-	bool NotifyOpers;
 public:
-	ModuleCgiIRC() : cmd(this, NotifyOpers), waiting("cgiirc-delay", this)
+	ModuleCgiIRC() : cmd(this), waiting("cgiirc-delay", this)
 	{
 	}
 
@@ -187,7 +186,7 @@ public:
 		cmd.Hosts.clear();
 
 		// Do we send an oper notice when a CGI:IRC has their host changed?
-		NotifyOpers = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
+		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("cgihost");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -321,13 +320,13 @@ public:
 			try
 			{
 				bool cached;
-				CGIResolver* r = new CGIResolver(this, NotifyOpers, user->password, false, user, "PASS", cached, waiting);
+				CGIResolver* r = new CGIResolver(this, cmd.notify, user->password, false, user, "PASS", cached, waiting);
 				ServerInstance->AddResolver(r, cached);
 				waiting.set(user, waiting.get(user) + 1);
 			}
 			catch (...)
 			{
-				if (NotifyOpers)
+				if (cmd.notify)
 					ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
 			}
 
@@ -373,7 +372,7 @@ public:
 		{
 
 			bool cached;
-			CGIResolver* r = new CGIResolver(this, NotifyOpers, newipstr, false, user, "IDENT", cached, waiting);
+			CGIResolver* r = new CGIResolver(this, cmd.notify, newipstr, false, user, "IDENT", cached, waiting);
 			ServerInstance->AddResolver(r, cached);
 			waiting.set(user, waiting.get(user) + 1);
 		}
@@ -381,7 +380,7 @@ public:
 		{
 			user->InvalidateCache();
 
-			if(NotifyOpers)
+			if(cmd.notify)
 				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
 		}
 
