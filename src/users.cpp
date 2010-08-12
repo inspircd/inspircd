@@ -746,24 +746,26 @@ void LocalUser::CheckClass()
 
 	if (!a)
 	{
-		ServerInstance->Users->QuitUser(this, "Access denied by configuration");
+		ServerInstance->Users->QuitUser(this, "Unauthorized connection: no matching <connect> block found");
 		return;
 	}
 	else if (a->type == CC_DENY)
 	{
-		ServerInstance->Users->QuitUser(this, a->config->getString("reason", "Unauthorised connection"));
+		ServerInstance->Users->QuitUser(this, a->config->getString("reason", "Unauthorized connection: <connect> block " + a->name));
 		return;
 	}
 	else if (a->maxlocal && ServerInstance->Users->LocalCloneCount(this) > a->maxlocal)
 	{
+		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s (connect class %s)",
+			a->maxlocal, GetIPString(), a->name.c_str());
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->maxlocal, this->GetIPString());
 		return;
 	}
 	else if (a->maxglobal && ServerInstance->Users->GlobalCloneCount(this) > a->maxglobal)
 	{
+		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s (connect class %s)",
+			a->maxglobal, GetIPString(), a->name.c_str());
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->maxglobal, this->GetIPString());
 		return;
 	}
 
