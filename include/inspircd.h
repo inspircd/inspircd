@@ -276,12 +276,6 @@ class CoreExport InspIRCd
 	 */
 	void DoBackgroundUserStuff();
 
-	/** Returns true when all modules have done pre-registration checks on a user
-	 * @param user The user to verify
-	 * @return True if all modules have finished checking this user
-	 */
-	bool AllModulesReportReady(LocalUser* user);
-
 	/** The current time, updated in the mainloop
 	 */
 	struct timespec TIME;
@@ -310,13 +304,11 @@ class CoreExport InspIRCd
 	IsChannelHandler HandleIsChannel;
 	GenRandomHandler HandleGenRandom;
 
-	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
-	 * Reason for it:
-	 * kludge alert!
-	 * SendMode expects a User* to send the numeric replies
-	 * back to, so we create it a fake user that isnt in the user
-	 * hash and set its descriptor to FD_MAGIC_NUMBER so the data
-	 * falls into the abyss :p
+	/**
+	 * Globally accessible fake user record. This represents the server in
+	 * commands that take a User*, and should be used in place of NULL if
+	 * you cannot use a real User* as the source for your command, mode
+	 * change, etc.
 	 */
 	FakeUser* FakeClient;
 
@@ -324,6 +316,8 @@ class CoreExport InspIRCd
 	 */
 	std::string GetUID();
 
+	/** Header for logfiles, contains some system & version information
+	 */
 	static const char LogHeader[];
 
 	/** Find a user in the UUID hash

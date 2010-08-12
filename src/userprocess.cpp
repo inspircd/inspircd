@@ -66,11 +66,15 @@ void InspIRCd::DoBackgroundUserStuff()
 				}
 				break;
 			case REG_NICKUSER:
-				if (AllModulesReportReady(curr) && curr->dns_done)
+				if (curr->dns_done)
 				{
-					/* User has sent NICK/USER, modules are okay, DNS finished. */
-					curr->FullConnect();
-					continue;
+					ModResult res;
+					FIRST_MOD_RESULT(OnCheckReady, res, (curr));
+					if (res != MOD_RES_DENY) {
+						/* User has sent NICK/USER, modules are okay, DNS finished. */
+						curr->FullConnect();
+						continue;
+					}
 				}
 				break;
 		}

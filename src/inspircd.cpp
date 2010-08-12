@@ -733,7 +733,6 @@ int InspIRCd::Run()
 		 */
 		if (TIME.tv_sec != OLDTIME)
 		{
-			OLDTIME = TIME.tv_sec;
 #ifndef WIN32
 			getrusage(RUSAGE_SELF, &ru);
 			stats->LastSampled = TIME;
@@ -766,6 +765,8 @@ int InspIRCd::Run()
 				FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME.tv_sec));
 				SNO->FlushSnotices();
 			}
+
+			OLDTIME = TIME.tv_sec;
 		}
 
 		/* Call the socket engine to wait on the active
@@ -790,23 +791,6 @@ int InspIRCd::Run()
 	}
 
 	return 0;
-}
-
-/**********************************************************************************/
-
-/**
- * An ircd in five lines! bwahahaha. ahahahahaha. ahahah *cough*.
- */
-
-/* this returns true when all modules are satisfied that the user should be allowed onto the irc server
- * (until this returns true, a user will block in the waiting state, waiting to connect up to the
- * registration timeout maximum seconds)
- */
-bool InspIRCd::AllModulesReportReady(LocalUser* user)
-{
-	ModResult res;
-	FIRST_MOD_RESULT(OnCheckReady, res, (user));
-	return (res == MOD_RES_PASSTHRU);
 }
 
 void InspIRCd::SetSignal(int signal)
