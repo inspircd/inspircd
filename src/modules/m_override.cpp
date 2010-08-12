@@ -71,13 +71,16 @@ class ModuleOverride : public Module
 			perm.source->HasPrivPermission("override/" + perm.name))
 		{
 			perm.result = MOD_RES_ALLOW;
+			// Override on exemptions is just noise
+			if (perm.name.substr(0,7) == "exempt/")
+				return;
 			std::string msg = perm.source->nick+" used oper override for "+perm.name+" on "+
 				(perm.chan ? perm.chan->name : "<none>");
 			ServerInstance->SNO->WriteGlobalSno('v', msg);
 			if (perm.chan && NoisyOverride)
 			{
 				CUList empty;
-				perm.chan->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", perm.chan->name.c_str(), msg.c_str());
+				perm.chan->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE @%s :%s", perm.chan->name.c_str(), msg.c_str());
 				ServerInstance->PI->SendChannelNotice(perm.chan, '@', msg);
 			}
 		}
