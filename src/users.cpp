@@ -1724,7 +1724,7 @@ bool User::ChangeIdent(const char* newident)
 	if (this->ServerInstance->Config->CycleHosts && !MOD_RESULT)
 		this->WriteCommonExcept("%s","QUIT :Changing ident");
 
-	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax + 1);
+	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax - 1);
 
 	this->InvalidateCache();
 
