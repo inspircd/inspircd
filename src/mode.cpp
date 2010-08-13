@@ -445,6 +445,9 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 	for (std::string::const_iterator letter = parameters[1].begin(); letter != parameters[1].end(); letter++)
 	{
 		unsigned char modechar = *letter;
+		// skip s2s mode-merge indicator
+		if (modechar == '=')
+			continue;
 		if (modechar == '+' || modechar == '-')
 		{
 			adding = (modechar == '+');

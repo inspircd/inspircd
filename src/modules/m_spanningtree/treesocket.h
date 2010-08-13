@@ -95,8 +95,8 @@ class TreeSocket : public BufferedSocket
 	TreeServer* MyRoot;			/* The server we are talking to */
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
-	int proto_version;			/* Remote protocol version */
  public:
+	int proto_version;			/* Remote protocol version */
 	SpanningTreeSyncTarget sync;
 	time_t age;
 

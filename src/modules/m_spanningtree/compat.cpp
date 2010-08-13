@@ -148,6 +148,22 @@ void TreeSocket::WriteLine(std::string line)
 			// drop the command. 2.0 and earlier cannot automatically recover from desync
 			return;
 		}
+		else if (proto_version < 1203 && command == "FMODE")
+		{
+			// Need to down-convert new merge-mode syntax:
+			// :src FMODE #chan TS =modes params....
+			//     A     B     C  D
+			if (b == std::string::npos)
+				return;
+			std::string::size_type c = line.find(' ', b + 1);
+			if (c == std::string::npos)
+				return;
+			std::string::size_type d = line.find(' ', c + 1);
+			if (d == std::string::npos)
+				return;
+			if (line[d + 1] == '=')
+				line[d + 1] = '+';
+		}
 		else if (proto_version < 1202 && command == "ENCAP")
 		{
 			// :src ENCAP target command [args...]

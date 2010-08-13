@@ -137,7 +137,14 @@ void TreeSocket::SendFJoins(Channel* c)
 
 	snprintf(list, MAXBUF, ":%s FMODE %s %ld ", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age);
 	while (!fmodes.empty())
-		WriteLine(list + fmodes.popModeLine(FORMAT_NETWORK));
+	{
+		std::string line = fmodes.popModeLine(FORMAT_NETWORK);
+		if (line.empty())
+			continue;
+		// request a mode merge, not a forced application of our modes
+		line[0] = '=';
+		WriteLine(list + line);
+	}
 
 	if (!c->topic.empty())
 	{

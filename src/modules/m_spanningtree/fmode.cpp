@@ -22,69 +22,44 @@
 CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who)
 {
 	std::string sourceserv = who->server;
+	if (IS_SERVER(who))
+	{
+		SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
+		TreeServer* origin = Utils->FindServer(sourceserv);
+		if (origin->GetSocket()->proto_version < 1203 && params[2][0] == '+')
+			const_cast<parameterlist&>(params)[2][0] = '=';
+	}
 
 	std::vector<std::string> modelist;
-	time_t TS = 0;
-	for (unsigned int q = 0; (q < params.size()) && (q < 64); q++)
-	{
-		if (q == 1)
-		{
-			/* The timestamp is in this position.
-			 * We don't want to pass that up to the
-			 * server->client protocol!
-			 */
-			TS = atoi(params[q].c_str());
-		}
-		else
-		{
-			/* Everything else is fine to append to the modelist */
-			modelist.push_back(params[q]);
-		}
-
-	}
-	/* Extract the TS value of the object, either User or Channel */
-	User* dst = ServerInstance->FindNick(params[0]);
-	Channel* chan = NULL;
-	time_t ourTS = 0;
-
-	if (dst)
-	{
-		ourTS = dst->age;
-	}
-	else
-	{
-		chan = ServerInstance->FindChan(params[0]);
-		if (chan)
-		{
-			ourTS = chan->age;
-		}
-		else
-			/* Oops, channel doesnt exist! */
-			return CMD_FAILURE;
-	}
-
+	modelist.push_back(params[0]);
+	time_t TS = atoi(params[1].c_str());
 	if (!TS)
-	{
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
 		return CMD_INVALID;
+	modelist.insert(modelist.end(), params.begin() + 2, params.end());
+
+	Extensible* target;
+	irc::modestacker modes;
+	ServerInstance->Modes->Parse(modelist, who, target, modes);
+
+	// maybe last user already parted the channel; discard if so.
+	if (!target)
+		return CMD_FAILURE;
+	
+	time_t ourTS = 0;
+	if (params[0][0] == '#') {
+		ourTS = static_cast<Channel*>(target)->age;
+	} else {
+		ourTS = static_cast<User*>(target)->age;
 	}
 
-	/* TS is equal or less: Merge the mode changes into ours and pass on.
-	 */
-	if (TS <= ourTS)
-	{
-		bool merge = (TS == ourTS) && IS_SERVER(who);
-		Extensible* target;
-		irc::modestacker modes;
-		ServerInstance->Modes->Parse(modelist, who, target, modes);
-		ServerInstance->Modes->Process(who, target, modes, merge);
-		ServerInstance->Modes->Send(who, target, modes);
-		return CMD_SUCCESS;
-	}
-	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.
-	 */
-	return CMD_FAILURE;
+	// given TS is greater: the change fails to propagate (possible desync takeover)
+	if (TS > ourTS)
+		return CMD_FAILURE;
+
+	// netburst merge: only if equal, and new in 2.1, only if using =
+	bool merge = (TS == ourTS && modelist[1][0] == '=');
+
+	ServerInstance->Modes->Process(who, target, modes, merge);
+	ServerInstance->Modes->Send(who, target, modes);
+	return CMD_SUCCESS;
 }
-
-
