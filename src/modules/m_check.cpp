@@ -124,8 +124,8 @@ class CommandCheck : public Command
 
 			if (loctarg)
 			{
-				user->SendText(checkstr + " clientaddr " + irc::sockets::satouser(loctarg->client_sa));
-				user->SendText(checkstr + " serveraddr " + irc::sockets::satouser(loctarg->server_sa));
+				user->SendText(checkstr + " clientaddr " + loctarg->client_sa.str());
+				user->SendText(checkstr + " serveraddr " + loctarg->server_sa.str());
 
 				std::string classname = loctarg->GetClass()->name;
 				if (!classname.empty())

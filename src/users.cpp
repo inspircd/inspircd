@@ -991,12 +991,11 @@ int LocalUser::GetServerPort()
 
 const char* User::GetIPString()
 {
-	int port;
 	if (cachedip.empty())
 	{
-		irc::sockets::satoap(client_sa, cachedip, port);
+		cachedip = client_sa.addr();
 		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
-		if (cachedip.c_str()[0] == ':')
+		if (cachedip[0] == ':')
 			cachedip.insert(0,1,'0');
 	}
 

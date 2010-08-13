@@ -340,9 +340,7 @@ class ModuleHttpServer : public Module
 	{
 		if (from->bind_tag->getString("type") != "httpd")
 			return NULL;
-		int port;
-		std::string incomingip;
-		irc::sockets::satoap(*client, incomingip, port);
+		std::string incomingip = client->addr();
 		return new HttpServerSocket(nfd, incomingip, from, client, server);
 	}
 

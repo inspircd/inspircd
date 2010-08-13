@@ -197,13 +197,6 @@ std::string irc::sockets::sockaddrs::addr() const
 	return "";
 }
 
-bool irc::sockets::satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port)
-{
-	port = sa.port();
-	addr = sa.addr();
-	return !addr.empty();
-}
-
 static const char all_zero[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
 
 std::string irc::sockets::sockaddrs::str() const
