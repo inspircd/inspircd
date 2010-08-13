@@ -120,7 +120,7 @@ struct ModResult {
 		} \
 		_i = safei; \
 	} \
-} while (0);
+} while (0)
 
 #define FOR_EACH_MOD(n,args) do { \
 	EventHandlerIter iter_ ## n = ServerInstance->Modules->EventHandlers[I_ ## n].begin(); \
@@ -137,7 +137,7 @@ struct ModResult {
 			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 	} \
-} while (0);
+} while (0)
 
 
 /**
