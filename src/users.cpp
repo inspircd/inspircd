@@ -465,18 +465,14 @@ void UserIOHandler::OnDataReady()
 	if (user->quitting)
 		return;
 
-	if (recvq.length() > user->MyClass->recvqmax && !user->HasPrivPermission("users/flood/increased-buffers"))
+	if (recvq.length() > user->MyClass->recvqmax)
 	{
 		ServerInstance->Users->QuitUser(user, "RecvQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
-			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->recvqmax);
+		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ exceeds maximum of %lu (class %s)",
+			user->nick.c_str(), user->MyClass->recvqmax, user->MyClass->name.c_str());
 	}
-	unsigned long sendqmax = ULONG_MAX;
-	if (!user->HasPrivPermission("users/flood/increased-buffers"))
-		sendqmax = user->MyClass->softsendqmax;
-	unsigned long penaltymax = ULONG_MAX;
-	if (!user->HasPrivPermission("users/flood/no-fakelag"))
-		penaltymax = user->MyClass->penaltythreshold * 1000;
+	unsigned long sendqmax = user->MyClass->softsendqmax;
+	unsigned long penaltymax = user->MyClass->penaltythreshold * 1000;
 
 	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
@@ -505,7 +501,6 @@ eol_found:
 		// just found a newline. Terminate the string, and pull it out of recvq
 		recvq = recvq.substr(qpos);
 
-		// TODO should this be moved to when it was inserted in recvq?
 		ServerInstance->stats->statsRecv += qpos;
 		user->bytes_in += qpos;
 		user->cmds_in++;
@@ -523,16 +518,15 @@ eol_found:
 
 void UserIOHandler::AddWriteBuf(const std::string &data)
 {
-	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->hardsendqmax &&
-		!user->HasPrivPermission("users/flood/increased-buffers"))
+	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->hardsendqmax)
 	{
 		/*
 		 * Quit the user FIRST, because otherwise we could recurse
 		 * here and hit the same limit.
 		 */
 		ServerInstance->Users->QuitUser(user, "SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds connect class maximum of %lu",
-			user->nick.c_str(), user->MyClass->hardsendqmax);
+		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds maximum of %lu (class %s)",
+			user->nick.c_str(), user->MyClass->hardsendqmax, user->MyClass->name.c_str());
 		return;
 	}
 

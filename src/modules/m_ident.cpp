@@ -229,7 +229,7 @@ class IdentRequestSocket : public EventHandler
 
 			/* Truncate the ident at any characters we don't like, skip leading spaces */
 			size_t k = 0;
-			for (const char *j = token.c_str(); *j && (k < ServerInstance->Config->Limits.IdentMax + 1); j++)
+			for (const char *j = token.c_str(); *j && (k++ < ServerInstance->Config->Limits.IdentMax); j++)
 			{
 				if (*j == ' ')
 					continue;
@@ -244,7 +244,6 @@ class IdentRequestSocket : public EventHandler
 				break;
 			}
 
-			/* Re-check with IsIdent, in case that changes and this doesn't (paranoia!) */
 			if (!ident.empty() && ServerInstance->IsIdent(ident.c_str()))
 			{
 				result = ident;

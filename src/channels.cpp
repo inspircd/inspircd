@@ -209,30 +209,19 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 
 	/*
 	 * We don't restrict the number of channels that remote users or users that are override-joining may be in.
-	 * We restrict local users to MaxChans channels.
-	 * We restrict local operators to OperMaxChans channels.
+	 * We restrict local users to the maximum defined in their <connect> block
 	 * This is a lot more logical than how it was formerly. -- w00t
 	 */
 	if (IS_LOCAL(user) && !override)
 	{
-		if (user->HasPrivPermission("channels/high-join-limit"))
+		unsigned int maxchans = user->GetClass()->maxchans;
+		// default if not set in <connect> is 20
+		if (!maxchans)
+			maxchans = 20;
+		if (user->chans.size() >= maxchans)
 		{
-			if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn.c_str());
-				return NULL;
-			}
-		}
-		else
-		{
-			unsigned int maxchans = user->GetClass()->maxchans;
-			if (!maxchans)
-				maxchans = ServerInstance->Config->MaxChans;
-			if (user->chans.size() >= maxchans)
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn.c_str());
-				return NULL;
-			}
+			user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cn.c_str());
+			return NULL;
 		}
 	}
 

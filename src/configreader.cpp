@@ -28,8 +28,6 @@ ServerConfig::ServerConfig()
 	NetBufferSize = 10240;
 	SoftLimit = ServerInstance->SE->GetMaxFds();
 	MaxConn = SOMAXCONN;
-	MaxChans = 20;
-	OperMaxChans = 30;
 	c_ipv4_range = 32;
 	c_ipv6_range = 128;
 }
@@ -431,8 +429,6 @@ void ServerConfig::Fill()
 	WhoWasGroupSize = ConfValue("whowas")->getInt("groupsize");
 	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
 	WhoWasMaxKeep = ServerInstance->Duration(ConfValue("whowas")->getString("maxkeep"));
-	MaxChans = ConfValue("channels")->getInt("users", 20);
-	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
 	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
 	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);

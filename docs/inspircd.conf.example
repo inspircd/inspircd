@@ -378,6 +378,12 @@
 	# module be loaded as well.
 	modes="+x">
 
+# Connect classes can also be assigned upon /OPER, or by modules like m_sqlauth.
+# Classes with only a name (no allow=/deny=) are allowed for this use; they never match new users.
+<connect name="OperOnlyClass"
+	# some higher limits for opers
+	commandrate="50000" maxchans="100" hardsendq="10485760">
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-  CIDR CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
@@ -424,16 +430,6 @@
 # Example of an executable file include. Note this will be read on rehash,
 # not when the command is run.
 #<execfiles rules="wget -O - http://www.example.com/rules.txt">
-
-#-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-
-<channels
-          # users: Maximum number of channels a user can be in at once.
-          users="20"
-
-          # opers: Maximum number of channels a oper can be in at once.
-          opers="60">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # If these values are not defined, InspIRCd uses the default DNS resolver

@@ -479,14 +479,6 @@ class CoreExport ServerConfig
 
 	ConfigTagIndex oper_classes;
 
-	/** Max channels per user
-	 */
-	unsigned int MaxChans;
-
-	/** Oper max channels per user
-	 */
-	unsigned int OperMaxChans;
-
 	/** TS6-like server ID.
 	 * NOTE: 000...999 are usable for InspIRCd servers. This
 	 * makes code simpler. 0AA, 1BB etc with letters are reserved

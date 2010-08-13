@@ -191,14 +191,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	/* find the command, check it exists */
 	Commandtable::iterator cm = cmdlist.find(command);
 
-	/* Modify the user's penalty regardless of whether or not the command exists */
 	bool do_more = true;
-	if (!user->HasPrivPermission("users/flood/no-throttle"))
-	{
-		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		user->CommandFloodPenalty += cm != cmdlist.end() ? cm->second->Penalty * 1000 : 2000;
-	}
-
 
 	if (cm == cmdlist.end())
 	{
@@ -219,10 +212,15 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		{
 			if (user->registered == REG_ALL)
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
+			// don't flood crap, please
+			user->CommandFloodPenalty += 2000;
 			ServerInstance->stats->statsUnknown++;
 			return true;
 		}
 	}
+
+	// account for the penalty of the command
+	user->CommandFloodPenalty += cm->second->Penalty * 1000;
 
 	if (cm->second->max_params && command_p.size() > cm->second->max_params)
 	{
