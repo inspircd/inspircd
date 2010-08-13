@@ -448,6 +448,12 @@ void ServerConfig::Fill()
 	range(WhoWasGroupSize, 0, 10000, 10, "<whowas:groupsize>");
 	range(WhoWasMaxGroups, 0, 1000000, 10240, "<whowas:maxgroups>");
 	range(WhoWasMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
+	if (ServerName.empty())
+	{
+		char hostname[64];
+		if (gethostname(hostname, 64) == 0)
+			ServerName = hostname;
+	}
 
 	ValidIP(DNSServer, "<dns:server>");
 	ValidHost(ServerName, "<server:name>");
