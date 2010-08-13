@@ -605,9 +605,6 @@
              # The ircd may only read this amount of text in 1 go at any time.
              netbuffersize="10240"
 
-             # maxwho: Maximum number of results to show in a /who query.
-             maxwho="4096"
-
              # somaxconn: The maximum number of connections that may be waiting
              # in the accept queue. This is *NOT* the total maximum number of
              # connections per server. Some systems may only allow this to be up

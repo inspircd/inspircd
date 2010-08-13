@@ -373,11 +373,9 @@ static const Deprecated ChangedConfig[] = {
 	{"options", "hidemodes",		"has been moved to <security:hidemodes> as of 1.2a3"},
 	{"options", "maxtargets",		"has been moved to <security:maxtargets> as of 1.2a3"},
 	{"options",	"nouserdns",		"has been moved to <performance:nouserdns> as of 1.2a3"},
-	{"options",	"maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
 	{"options",	"softlimit",		"has been moved to <performance:softlimit> as of 1.2a3"},
 	{"options", "somaxconn",		"has been moved to <performance:somaxconn> as of 1.2a3"},
 	{"options", "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
-	{"options", "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
 	{"options",	"loglevel",		"1.2 does not use the loglevel value. Please define <log> tags instead."},
 	{"die",     "value",            "you need to reread your config"},
 };
