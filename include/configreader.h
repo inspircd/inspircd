@@ -88,21 +88,6 @@ class ServerLimits
 	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12), MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200)
 	{
 	}
-
-	/** Finalises the settings by adding one. This allows for them to be used as-is
-	 * without a 'value+1' when using the std::string assignment methods etc.
-	 */
-	void Finalise()
-	{
-		NickMax++;
-		ChanMax++;
-		IdentMax++;
-		MaxQuit++;
-		MaxTopic++;
-		MaxKick++;
-		MaxGecos++;
-		MaxAway++;
-	}
 };
 
 struct CommandLineConf
