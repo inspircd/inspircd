@@ -270,29 +270,31 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 			if (perm.result == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
-				bool can_bypass = ServerInstance->Config->InvBypassModes && perm.invited;
+				// invites will bypass +iklb because someone explicitly approved it
+				bool inv_bypass = ServerInstance->Config->InvBypassModes && perm.invited;
+				// key use just bypasses +i, since it's static and is known by all valid members
+				bool key_bypass = ServerInstance->Config->InvBypassModes && !ckey.empty() && key == ckey;
 
-				if (!ckey.empty() && ckey != key && !can_bypass)
+				if (!ckey.empty() && ckey != key && !inv_bypass)
 				{
-					// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
 					perm.result = MOD_RES_DENY;
 					perm.ErrorNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", Ptr->name.c_str());
 				}
 
-				if (Ptr->IsModeSet('i') && !perm.invited)
+				if (Ptr->IsModeSet('i') && !perm.invited && !key_bypass)
 				{
 					perm.result = MOD_RES_DENY;
 					perm.ErrorNumeric(ERR_INVITEONLYCHAN, "%s :Cannot join channel (Invite only)", Ptr->name.c_str());
 				}
 
 				std::string limit = Ptr->GetModeParameter('l');
-				if (!limit.empty() && Ptr->GetUserCounter() >= atol(limit.c_str()) && !can_bypass)
+				if (!limit.empty() && Ptr->GetUserCounter() >= atol(limit.c_str()) && !inv_bypass)
 				{
 					perm.result = MOD_RES_DENY;
 					perm.ErrorNumeric(ERR_CHANNELISFULL, "%s :Cannot join channel (Channel is full)", Ptr->name.c_str());
 				}
 
-				if (Ptr->IsBanned(user) && !can_bypass)
+				if (Ptr->IsBanned(user) && !inv_bypass)
 				{
 					perm.result = MOD_RES_DENY;
 					perm.ErrorNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You're banned)", Ptr->name.c_str());
