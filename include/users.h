@@ -702,6 +702,11 @@ class CoreExport LocalUser : public User
 	 */
 	time_t nping;
 
+	/** Timestamp of the soft sendq overrun, or zero for no previous overrun.
+	 * Used to enforce collapse of SendQ.
+	 */
+	time_t overrun_start;
+
 	/** This value contains how far into the penalty threshold the user is.
 	 * This is used either to enable fake lag or for excess flood quits
 	 */

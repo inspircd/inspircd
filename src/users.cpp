@@ -518,7 +518,8 @@ eol_found:
 
 void UserIOHandler::AddWriteBuf(const std::string &data)
 {
-	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->hardsendqmax)
+	size_t len = getSendQSize() + data.length();
+	if (!user->quitting && len > user->MyClass->hardsendqmax)
 	{
 		/*
 		 * Quit the user FIRST, because otherwise we could recurse
@@ -529,6 +530,21 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 			user->nick.c_str(), user->MyClass->hardsendqmax, user->MyClass->name.c_str());
 		return;
 	}
+
+	if (!user->quitting && len > user->MyClass->softsendqmax)
+	{
+		if (!user->overrun_start)
+			user->overrun_start = ServerInstance->Time();
+		else if (user->overrun_start + 30 < ServerInstance->Time())
+		{
+			ServerInstance->Users->QuitUser(user, "SendQ exceeded");
+			ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeded maximum of %lu for 30s (class %s)",
+				user->nick.c_str(), user->MyClass->softsendqmax, user->MyClass->name.c_str());
+			return;
+		}
+	}
+	else
+		user->overrun_start = 0;
 
 	// We still want to append data to the sendq of a quitting user,
 	// e.g. their ERROR message that says 'closing link'
