@@ -526,6 +526,9 @@ void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes,
 	Channel* targetchannel = dynamic_cast<Channel*>(target);
 	User* targetuser = dynamic_cast<User*>(target);
 
+	if (!targetuser && !targetchannel)
+		return;
+
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (src, target, modes));
 
@@ -574,7 +577,7 @@ void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes,
 			continue;
 		}
 	}
-	
+
 	FOREACH_MOD(I_OnMode, OnMode(src, target, modes));
 }
 
@@ -680,7 +683,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 
 	if (FindMode(mh->name))
 		throw ModuleException("Duplicate mode name found");
-	
+
 	// prefixes can't be duplicated
 	if (mh->GetPrefix() && FindPrefix(mh->GetPrefix()))
 		throw ModuleException("Duplicate channel prefix found");
@@ -700,7 +703,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 
 	if (mc && FindMode(mc, mh->GetModeType()))
 		throw ModuleException("Duplicate mode character '" + std::string(mc,1) + "' found");
-	
+
 	if (!mc && !ServerInstance->Config->NameOnlyModes)
 		throw ModuleException("<options:nameonlymodes> must be enabled to clear a mode character");
 
@@ -933,7 +936,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 		return false;
 
 	std::pair<ModeWatcherMap::iterator,ModeWatcherMap::iterator> watchers = modewatchers.equal_range(mh->id);
-	
+
 	while (watchers.first != watchers.second)
 	{
 		if (watchers.first->second == mw)
