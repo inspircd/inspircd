@@ -1,0 +1,9 @@
+# Fast example configuration: no modules, all defaults
+<server name="test.server">
+<bind port="6667">
+
+<type name="Operator" privs="*" commands="*">
+<oper name="test" password="test" host="*@*" type="Operator">
+
+# You probably want to look at the real configuration and add modules or
+# configuration settings that you want to change.
