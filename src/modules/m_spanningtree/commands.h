@@ -85,10 +85,9 @@ class CommandFJoin : public Command
 	CommandFJoin(Module* Creator) : Command(Creator, "FJOIN", 3) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
-	 * This does not update the timestamp of the target channel, this must be done seperately.
+	/** Recreate a channel, remove modes, send TS change information
 	 */
-	void RemoveStatus(User* source, parameterlist &params);
+	Channel* NukeChannel(Channel* old, const std::string& name, time_t ts);
 };
 class CommandFMode : public Command
 {

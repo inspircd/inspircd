@@ -64,8 +64,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 
 	if (!TS)
 	{
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server.c_str());
+		ServerInstance->SNO->WriteToSnoMask('d', "ERROR: The server %s sent an FJOIN with a TS of zero.", srcuser->server.c_str());
 		return CMD_INVALID;
 	}
 
@@ -85,8 +84,8 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 		time_t ourTS = chan->age;
 
 		if (TS != ourTS)
-			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %lu",
-				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (unsigned long)(ourTS - TS));
+			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %ld",
+				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (long)(ourTS - TS));
 		/* If our TS is less than theirs, we dont accept their modes */
 		if (ourTS < TS)
 		{
@@ -95,20 +94,10 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 		}
 		else if (ourTS > TS)
 		{
-			/* Our TS greater than theirs, clear all our modes from the channel, accept theirs. */
-			ServerInstance->SNO->WriteToSnoMask('d', "Removing our modes, accepting remote");
-			parameterlist param_list;
-			if (Utils->AnnounceTSChange)
-				chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), channel.c_str(), (unsigned long) ourTS, (unsigned long) TS);
-			ourTS = TS;
-			// while the name is equal in case-insensitive compare, it might differ in case; use the remote version
-			chan->name = channel;
-			chan->age = TS;
-			param_list.push_back(channel);
-			this->RemoveStatus(ServerInstance->FakeClient, param_list);
+			chan = NukeChannel(chan, channel, TS);
 			if (incremental)
 			{
-				ServerInstance->SNO->WriteToSnoMask('d', "Incremental merge FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
+				ServerInstance->SNO->WriteToSnoMask('d', "Incremental merge FJOIN recieved for %s", chan->name.c_str());
 				parameterlist resync;
 				resync.push_back(channel);
 				Utils->DoOneToOne(ServerInstance->Config->GetSID().c_str(), "RESYNC", resync, srcuser->uuid);
@@ -174,30 +163,55 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	return CMD_SUCCESS;
 }
 
-void CommandFJoin::RemoveStatus(User* srcuser, parameterlist &params)
+Channel* CommandFJoin::NukeChannel(Channel* old, const std::string& channel, time_t newTS)
 {
-	if (params.size() < 1)
-		return;
+	time_t oldTS = old->age;
+	ServerInstance->SNO->WriteToSnoMask('d', "Recreating channel");
+	if (((ModuleSpanningTree*)(Module*)creator)->Utils->AnnounceTSChange)
+		old->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu",
+			old->name.c_str(), channel.c_str(), (unsigned long) oldTS, (unsigned long) newTS);
 
-	Channel* c = ServerInstance->FindChan(params[0]);
-
-	if (c)
+	// prepare a mode change that removes all modes on the channel
+	irc::modestacker stack;
+	for (ModeIDIter id; id; id++)
 	{
-		irc::modestacker stack;
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
 
-		for (ModeIDIter id; id; id++)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(id);
-
-			/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
-			 * rather than applied immediately. Module unloads require this to be done immediately,
-			 * for this function we require tidyness instead. Fixes bug #493
-			 */
-			if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
-				mh->RemoveMode(c, &stack);
-		}
-
-		ServerInstance->SendMode(srcuser, c, stack, false);
+		/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
+		 * rather than applied immediately. Module unloads require this to be done immediately,
+		 * for this function we require tidyness instead. Fixes bug #493
+		 */
+		if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
+			mh->RemoveMode(old, &stack);
 	}
+
+	// don't process the change, just send it to clients
+	ServerInstance->Modes->Send(ServerInstance->FakeClient, old, stack);
+
+	// unhook the old channel
+	chan_hash::iterator iter = ServerInstance->chanlist->find(old->name);
+	ServerInstance->chanlist->erase(iter);
+
+	// create the new channel (which inserts itself in chanlist)
+	Channel* chan = new Channel(channel, newTS);
+
+	// migrate all the users to the new channel
+	// This has the side effect of dropping their permissions (op/voice/etc)
+	for(UserMembIter i = old->userlist.begin(); i != old->userlist.end(); i++)
+	{
+		User* u = i->first;
+		Membership* memb = i->second;
+		u->chans.erase(memb);
+		memb->cull();
+		delete memb;
+		memb = chan->AddUser(u);
+		u->chans.insert(memb);
+	}
+	// nuke the old channel
+	old->userlist.clear();
+	old->cull();
+	delete old;
+
+	return chan;
 }
 

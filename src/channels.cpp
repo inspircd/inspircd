@@ -16,9 +16,10 @@
 #include "mode.h"
 
 Channel::Channel(const std::string &cname, time_t ts)
-	: name(cname)
+	: name(cname), age(ts)
 {
-	age = ts ? ts : ServerInstance->Time();
+	if (!age)
+		throw CoreException("Cannot create channel with zero timestamp");
 
 	chan_hash::iterator findchan = ServerInstance->chanlist->find(name);
 	if (findchan != ServerInstance->chanlist->end())
@@ -133,21 +134,21 @@ void Channel::DelUser(User* user)
 		userlist.erase(a);
 	}
 
-	if (userlist.empty())
+	if (!userlist.empty())
+		return;
+
+	ModResult res;
+	FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
+	if (res == MOD_RES_DENY)
+		return;
+	/* kill the record */
+	chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
+	if (iter != ServerInstance->chanlist->end() && iter->second == this)
 	{
-		ModResult res;
-		FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
-		if (res == MOD_RES_DENY)
-			return;
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		ServerInstance->GlobalCulls.AddItem(this);
+		FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
+		ServerInstance->chanlist->erase(iter);
 	}
+	ServerInstance->GlobalCulls.AddItem(this);
 }
 
 bool Channel::HasUser(User* user)
@@ -251,6 +252,8 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 				return NULL;
 			}
 		}
+		if (TS == 0)
+			TS = ServerInstance->Time();
 
 		Ptr = new Channel(cn, TS);
 	}

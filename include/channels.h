@@ -63,11 +63,11 @@ class CoreExport Channel : public Extensible
 
 	/** The channel's name.
 	 */
-	std::string name;
+	const std::string name;
 
-	/** Time that the object was instantiated (used for TS calculation etc)
-	*/
-	time_t age;
+	/** Timestamp for the channel. To change, recreate the channel.
+	 */
+	const time_t age;
 
 	/** User list.
 	 */
