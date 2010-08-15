@@ -289,6 +289,13 @@ class CoreExport User : public Extensible
 	/** What type of user is this? */
 	const unsigned int usertype:2;
 
+	/** Freeze the user's input processing? This is useful if you're doing
+	 * some kind of asynchronous lookup (like an SQL query), but be careful:
+	 * the user will ping out or get RecvQ exceeded if they're frozen for
+	 * too long.
+	 */
+	unsigned int frozen:1;
+
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */

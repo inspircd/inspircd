@@ -186,12 +186,11 @@ const char* User::FormatModes(bool showparameters)
 }
 
 User::User(const std::string &uid, const std::string& sid, int type)
-	: Extensible(Extensible::USER), uuid(uid), server(sid), usertype(type)
+	: Extensible(Extensible::USER), age(ServerInstance->Time()), signon(0),
+	idle_lastmsg(0), nick(uid), uuid(uid), server(sid), registered(0),
+	dns_done(0), quietquit(0), quitting(0), exempt(0), lastping(0),
+	usertype(type), frozen(0)
 {
-	age = ServerInstance->Time();
-	signon = idle_lastmsg = 0;
-	registered = 0;
-	quietquit = quitting = exempt = dns_done = false;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
@@ -205,10 +204,9 @@ User::User(const std::string &uid, const std::string& sid, int type)
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
 	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
-	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
-	already_sent(0)
+	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0),
+	overrun_start(0), CommandFloodPenalty(0), already_sent(0)
 {
-	lastping = 0;
 	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
@@ -474,7 +472,7 @@ void UserIOHandler::OnDataReady()
 	unsigned long sendqmax = user->MyClass->softsendqmax;
 	unsigned long penaltymax = user->MyClass->penaltythreshold * 1000;
 
-	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
+	while (!user->frozen && user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
 		std::string line;
 		line.reserve(MAXBUF);
@@ -510,7 +508,7 @@ eol_found:
 			return;
 	}
 	// Add pseudo-penalty so that we continue processing after sendq recedes
-	if (user->CommandFloodPenalty == 0 && getSendQSize() >= sendqmax)
+	if (user->CommandFloodPenalty == 0 && (user->frozen || getSendQSize() >= sendqmax))
 		user->CommandFloodPenalty++;
 	if (user->CommandFloodPenalty >= penaltymax && !user->MyClass->fakelag)
 		ServerInstance->Users->QuitUser(user, "Excess Flood");
