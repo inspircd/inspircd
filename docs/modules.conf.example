@@ -1766,6 +1766,21 @@
 #<module name="m_timedbans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Timed modes module: Adds timed channel modes and the /TMODE command
+#<module name="m_timedmodes.so">
+#-#-#-#-#-#-#-#-#-#-# TIMED MODES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Use these tags to customise the timed mode limits on a per channel  #
+# basis. The tags are read from top to bottom, and any tag found      #
+# which matches the channel's name applies the timed mode limit to    #
+# that channel. It is advisable to put an entry with the channel as   #
+# '*' at the bottom of the list. If none are specified or no tag is   #
+# matched, the timed mode list maximum size defaults to 30 entries.   #
+#                                                                     #
+#<timedmodes chan="#morons" limit="64">
+#<timedmodes chan="*" limit="30">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Test line module: Adds the /TLINE command, used to test how many
 # users a /GLINE or /ZLINE etc would match.
 # This module is oper-only.
