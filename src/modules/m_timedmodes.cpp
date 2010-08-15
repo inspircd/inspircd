@@ -292,7 +292,7 @@ class ModuleTimedModes : public Module
 		}
 	}
 
-	virtual void OnBackgroundTimer(time_t)
+	virtual void OnBackgroundTimer(time_t curtime)
 	{
 		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
 		{
