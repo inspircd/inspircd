@@ -97,7 +97,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 3
+#define INSPIRCD_VERSION_API 4
 
 /**
  * This #define allows us to call a method in all
@@ -283,6 +283,16 @@ class CoreExport DataProvider : public ServiceProvider
 	DataProvider(Module* Creator, const std::string& Name)
 		: ServiceProvider(Creator, Name, SERVICE_DATA) {}
 };
+
+inline User* IS_USER(Extensible* e)
+{
+	return e->type_id == Extensible::USER ? static_cast<User*>(e) : NULL;
+}
+
+inline Channel* IS_CHANNEL(Extensible* e)
+{
+	return e->type_id == Extensible::CHANNEL ? static_cast<Channel*>(e) : NULL;
+}
 
 class CoreExport dynamic_reference_base : public interfacebase
 {

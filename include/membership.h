@@ -23,7 +23,7 @@ class CoreExport Membership : public Extensible
 	Channel* const chan;
 	// mode list, sorted by prefix rank, higest first
 	std::string modes;
-	Membership(User* u, Channel* c) : u_prev(NULL), u_next(NULL), user(u), chan(c) {}
+	Membership(User* u, Channel* c) : Extensible(Extensible::MEMBERSHIP), u_prev(NULL), u_next(NULL), user(u), chan(c) {}
 	inline bool hasMode(char m) const
 	{
 		return modes.find(m) != std::string::npos;

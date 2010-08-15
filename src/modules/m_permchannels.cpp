@@ -243,7 +243,7 @@ public:
 
 	void OnMode(User*, Extensible* dest, const irc::modestacker&)
 	{
-		Channel* chan = dynamic_cast<Channel*>(dest);
+		Channel* chan = IS_CHANNEL(dest);
 		if (chan && chan->IsModeSet(&p))
 			dirty = true;
 	}

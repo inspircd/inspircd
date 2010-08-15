@@ -531,7 +531,7 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 	for (std::vector<ImplFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 	{
 		/* Skip ones that dont apply to us */
-		if (!AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flgs))
+		if (!AppliesToMe(user, static_cast<FilterResult*>(&(*index)), flgs))
 			continue;
 
 		//ServerInstance->Logs->Log("m_filter", DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());

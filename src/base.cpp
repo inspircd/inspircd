@@ -188,7 +188,7 @@ static struct DummyExtensionItem : LocalExtItem
 	void free(void*) {}
 } dummy;
 
-Extensible::Extensible()
+Extensible::Extensible(ExtType Type) : type_id(Type)
 {
 	extensions[&dummy] = NULL;
 }

@@ -238,7 +238,7 @@ class ModuleServicesAccount : public Module
 	// in a textual way for sending over the link.
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 	{
-		User* dest = dynamic_cast<User*>(target);
+		User* dest = IS_USER(target);
 		// check if its our metadata key, and its associated with a user
 		if (dest && (extname == "accountname"))
 		{

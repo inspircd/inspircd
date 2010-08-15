@@ -11,8 +11,8 @@
 
 void SpanningTreeSyncTarget::SendMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
 {
-	User* u = dynamic_cast<User*>(target);
-	Channel* c = dynamic_cast<Channel*>(target);
+	User* u = IS_USER(target);
+	Channel* c = IS_CHANNEL(target);
 	if (u)
 		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 	else if (c)
@@ -65,8 +65,8 @@ void SpanningTreeProtocolInterface::SendMetaData(Extensible* target, const std::
 {
 	parameterlist params;
 
-	User* u = dynamic_cast<User*>(target);
-	Channel* c = dynamic_cast<Channel*>(target);
+	User* u = IS_USER(target);
+	Channel* c = IS_CHANNEL(target);
 	if (u)
 		params.push_back(u->uuid);
 	else if (c)
@@ -97,11 +97,11 @@ void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::m
 	irc::modestacker modes(cmodes);
 	parameterlist outlist;
 
-	User* a = dynamic_cast<User*>(dest);
-	Channel* c = dynamic_cast<Channel*>(dest);
-	if (a)
+	User* u = IS_USER(dest);
+	Channel* c = IS_CHANNEL(dest);
+	if (u)
 	{
-		outlist.push_back(a->uuid);
+		outlist.push_back(u->uuid);
 		outlist.push_back("");
 		while (!modes.empty())
 		{

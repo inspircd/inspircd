@@ -507,14 +507,14 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 
 void ModeParser::Send(User *src, Extensible* target, irc::modestacker modes)
 {
-	Channel* targetchannel = dynamic_cast<Channel*>(target);
-	User* targetuser = dynamic_cast<User*>(target);
+	Channel* targetchannel = IS_CHANNEL(target);
+	User* targetuser = IS_USER(target);
 	if (targetchannel)
 	{
 		while (!modes.empty())
 			targetchannel->WriteChannel(src, "MODE %s %s", targetchannel->name.c_str(), modes.popModeLine(FORMAT_USER).c_str());
 	}
-	else
+	else if (targetuser)
 	{
 		while (!modes.empty())
 			targetuser->WriteFrom(src, "MODE %s %s", targetuser->nick.c_str(), modes.popModeLine(FORMAT_USER).c_str());
@@ -523,8 +523,8 @@ void ModeParser::Send(User *src, Extensible* target, irc::modestacker modes)
 
 void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes, bool merge, bool SkipAccessChecks)
 {
-	Channel* targetchannel = dynamic_cast<Channel*>(target);
-	User* targetuser = dynamic_cast<User*>(target);
+	Channel* targetchannel = IS_CHANNEL(target);
+	User* targetuser = IS_USER(target);
 
 	if (!targetuser && !targetchannel)
 		return;

@@ -42,7 +42,7 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 	void* unset_raw(Extensible* container);
 };
 
-/** class Extensible is the parent class of many classes such as User and Channel.
+/** class Extensible is the parent class of the core object classes such as User and Channel.
  * class Extensible implements a system which allows modules to 'extend' the class by attaching data within
  * a map associated with the object. In this way modules can store their own custom information within user
  * objects, channel objects and server objects, without breaking other modules (this is more sensible than using
@@ -56,18 +56,25 @@ class CoreExport Extensible : public classbase
 
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;
+	enum ExtType {
+		UNMANAGED,
+		USER,
+		CHANNEL,
+		MEMBERSHIP
+	};
  private:
 	/** Private data store.
 	 * Holds all extensible metadata for the class.
 	 */
 	ExtensibleStore extensions;
  public:
+	const ExtType type_id;
 	/**
 	 * Get the extension items for iteraton (i.e. for metadata sync during netburst)
 	 */
 	inline const ExtensibleStore& GetExtList() const { return extensions; }
 
-	Extensible();
+	Extensible(ExtType type_id);
 	virtual CullResult cull();
 	virtual ~Extensible();
 	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);

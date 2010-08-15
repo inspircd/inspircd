@@ -186,7 +186,7 @@ const char* User::FormatModes(bool showparameters)
 }
 
 User::User(const std::string &uid, const std::string& sid, int type)
-	: uuid(uid), server(sid), usertype(type)
+	: Extensible(Extensible::USER), uuid(uid), server(sid), usertype(type)
 {
 	age = ServerInstance->Time();
 	signon = idle_lastmsg = 0;
