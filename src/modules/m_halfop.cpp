@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-class ModeChannelHalfOp : public ModeHandler
+class ModeChannelHalfOp : public PrefixModeHandler
 {
  public:
 	ModeChannelHalfOp(Module* parent);
@@ -28,12 +28,10 @@ class ModeChannelHalfOp : public ModeHandler
 	}
 };
 
-ModeChannelHalfOp::ModeChannelHalfOp(Module* parent) : ModeHandler(parent, "halfop", 'h', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelHalfOp::ModeChannelHalfOp(Module* parent) : PrefixModeHandler(parent, "halfop", 'h')
 {
-	list = true;
 	prefix = '%';
 	levelrequired = OP_VALUE;
-	m_paramtype = TR_NICK;
 	fixed_letter = false;
 }
 

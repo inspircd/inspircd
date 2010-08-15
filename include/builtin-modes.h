@@ -63,7 +63,7 @@ class ModeChannelNoExternal : public SimpleChannelModeHandler
 
 /** Channel mode +o
  */
-class ModeChannelOp : public ModeHandler
+class ModeChannelOp : public PrefixModeHandler
 {
  private:
  public:
@@ -96,7 +96,7 @@ class ModeChannelTopicOps : public SimpleChannelModeHandler
 
 /** Channel mode +v
  */
-class ModeChannelVoice : public ModeHandler
+class ModeChannelVoice : public PrefixModeHandler
 {
  private:
  public:

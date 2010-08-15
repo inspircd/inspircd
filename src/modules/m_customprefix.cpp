@@ -15,17 +15,15 @@
 
 /* $ModDesc: Allows custom prefix modes to be created. */
 
-class CustomPrefixMode : public ModeHandler
+class CustomPrefixMode : public PrefixModeHandler
 {
  public:
 	reference<ConfigTag> tag;
 	int rank;
 	bool depriv;
 	CustomPrefixMode(Module* parent, ConfigTag* Tag)
-		: ModeHandler(parent, Tag->getString("name"), 0, PARAM_ALWAYS, MODETYPE_CHANNEL), tag(Tag)
+		: PrefixModeHandler(parent, Tag->getString("name"), 0), tag(Tag)
 	{
-		list = true;
-		m_paramtype = TR_NICK;
 		std::string v = tag->getString("prefix");
 		prefix = v.c_str()[0];
 		v = tag->getString("letter");

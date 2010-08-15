@@ -20,15 +20,12 @@
 
 /** Abstraction of FounderProtectBase for channel mode +q
  */
-class ChanFounder : public ModeHandler
+class ChanFounder : public PrefixModeHandler
 {
  public:
-	ChanFounder(Module* Creator)
-		: ModeHandler(Creator, "founder", 'q', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	ChanFounder(Module* Creator) : PrefixModeHandler(Creator, "founder", 'q')
 	{
-		ModeHandler::list = true;
 		levelrequired = FOUNDER_VALUE;
-		m_paramtype = TR_NICK;
 		fixed_letter = false;
 	}
 
@@ -68,15 +65,12 @@ class ChanFounder : public ModeHandler
 
 /** Abstraction of FounderProtectBase for channel mode +a
  */
-class ChanProtect : public ModeHandler
+class ChanProtect : public PrefixModeHandler
 {
  public:
-	ChanProtect(Module* Creator)
-		: ModeHandler(Creator, "admin", 'a', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	ChanProtect(Module* Creator) : PrefixModeHandler(Creator, "admin", 'a')
 	{
-		ModeHandler::list = true;
 		levelrequired = PROTECT_VALUE;
-		m_paramtype = TR_NICK;
 		fixed_letter = false;
 	}
 

@@ -19,12 +19,10 @@
 #include "modules.h"
 #include "builtin-modes.h"
 
-ModeChannelOp::ModeChannelOp() : ModeHandler(NULL, "op", 'o', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelOp::ModeChannelOp() : PrefixModeHandler(NULL, "op", 'o')
 {
-	list = true;
 	prefix = '@';
 	levelrequired = OP_VALUE;
-	m_paramtype = TR_NICK;
 }
 
 unsigned int ModeChannelOp::GetPrefixRank()

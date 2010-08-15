@@ -20,12 +20,10 @@
 #include "modules.h"
 #include "builtin-modes.h"
 
-ModeChannelVoice::ModeChannelVoice() : ModeHandler(NULL, "voice", 'v', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelVoice::ModeChannelVoice() : PrefixModeHandler(NULL, "voice", 'v')
 {
-	list = true;
 	prefix = '+';
 	levelrequired = HALFOP_VALUE;
-	m_paramtype = TR_NICK;
 }
 
 unsigned int ModeChannelVoice::GetPrefixRank()

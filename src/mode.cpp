@@ -990,6 +990,25 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 	}
 }
 
+void PrefixModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
+{
+	irc::modestacker loc_ms;
+	if (!stack)
+		stack = &loc_ms;
+	for (UserMembIter i = channel->userlist.begin(); i != channel->userlist.end(); i++)
+	{
+		Membership* memb = i->second;
+		if (memb->hasMode(mode))
+			stack->push(irc::modechange(id, i->first->nick, false));
+	}
+	if (stack == &loc_ms)
+		ServerInstance->SendMode(ServerInstance->FakeClient, channel, loc_ms, false);
+}
+
+void PrefixModeHandler::RemoveMode(User*, irc::modestacker*)
+{
+}
+
 void ModeHandler::PopulateChanModes(Channel* channel, irc::modestacker& stack)
 {
 	irc::modechange mc(id, channel->GetModeParameter(this), true);

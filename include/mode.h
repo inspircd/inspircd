@@ -406,6 +406,20 @@ class CoreExport ParamChannelModeHandler : public ModeHandler
 	virtual bool ParamValidate(std::string& parameter);
 };
 
+class PrefixModeHandler : public ModeHandler
+{
+ public:
+	PrefixModeHandler(Module* Creator, const std::string& Name, char modeletter)
+		: ModeHandler(Creator, Name, modeletter, PARAM_ALWAYS, MODETYPE_CHANNEL)
+	{
+		list = true;
+		m_paramtype = TR_NICK;
+	}
+
+	virtual void RemoveMode(Channel* channel, irc::modestacker* stack);
+	void RemoveMode(User* user, irc::modestacker* stack);
+};
+
 /**
  * The ModeWatcher class can be used to alter the behaviour of a mode implemented
  * by the core or by another module. To use ModeWatcher, derive a class from it,
