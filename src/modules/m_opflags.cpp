@@ -223,12 +223,10 @@ class ModuleOpFlags : public Module
 			if (ptr)
 			{
 				parameterlist flags;
-				flags.push_back("*");
-				flags.push_back("OPFLAGS");
 				flags.push_back(channel->name);
 				flags.push_back(u->first->uuid);
 				flags.push_back(*ptr);
-				target->SendEncap(flags);
+				target->SendEncap("OPFLAGS", flags);
 			}
 		}
 	}

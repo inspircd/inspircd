@@ -21,17 +21,22 @@ void SpanningTreeSyncTarget::SendMetaData(Extensible* target, const std::string 
 		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 }
 
-void SpanningTreeSyncTarget::SendEncap(const parameterlist &encap)
+void SpanningTreeSyncTarget::SendEncap(const std::string& cmd, const parameterlist &params)
 {
-	std::string line = ":"+ServerInstance->Config->GetSID()+" ENCAP";
-	for(parameterlist::const_iterator i = encap.begin(); i != encap.end(); i++)
+	std::string line = ":"+ServerInstance->Config->GetSID()+" ENCAP * " + cmd;
+	for(parameterlist::const_iterator i = params.begin(); i != params.end(); i++)
 	{
 		line.push_back(' ');
-		if (i + 1 == encap.end())
+		if (i + 1 == params.end())
 			line.push_back(':');
 		line.append(*i);
 	}
 	ts.WriteLine(line);
+}
+
+void SpanningTreeSyncTarget::SendCommand(const std::string &line)
+{
+	ts.WriteLine(":" + ServerInstance->Config->GetSID() + " " + line);
 }
 
 void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)

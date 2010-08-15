@@ -42,7 +42,17 @@ class SyncTarget : public classbase
 	 * @param extdata Encoded data for this extension
 	 */
 	virtual void SendMetaData(Extensible* target, const std::string &extname, const std::string &extdata) = 0;
-	virtual void SendEncap(const parameterlist &encap) = 0;
+	/**
+	 * Send an ENCAP * command during netburst (for network sync)
+	 * @param cmd The subcommand to send (the receiver should have a handler for this)
+	 * @param params The parameters to the command; only the last can contain spaces
+	 */
+	virtual void SendEncap(const std::string& cmd, const parameterlist &params) = 0;
+	/**
+	 * Send a line s2s during netburst. The line should begin with the command you
+	 * are sending; ":SID " will be prepended prior to sending.
+	 */
+	virtual void SendCommand(const std::string &line) = 0;
 };
 
 class ProtocolInterface
