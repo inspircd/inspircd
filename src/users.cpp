@@ -1584,10 +1584,6 @@ void User::SplitChanList(User* dest, const std::string &cl)
  */
 void LocalUser::SetClass(const std::string &explicit_name)
 {
-	ConnectClass *found = NULL;
-
-	ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
-
 	if (!explicit_name.empty())
 	{
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
@@ -1596,17 +1592,18 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			if (explicit_name == c->name)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Explicitly set to %s", explicit_name.c_str());
-				found = c;
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class of %s to %s (forced)", uuid.c_str(), explicit_name.c_str());
+				MyClass = c;
+				return;
 			}
 		}
+		ServerInstance->Logs->Log("CONNECTCLASS", DEFAULT, "Connect class %s not found for %s", explicit_name.c_str(), uuid.c_str());
 	}
 	else
 	{
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			ConnectClass* c = *i;
-			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Checking %s", c->name.c_str());
 
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
@@ -1614,9 +1611,9 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class forced by module to %s", c->name.c_str());
-				found = c;
-				break;
+				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class of %s to %s (module forced)", uuid.c_str(), c->name.c_str());
+				MyClass = c;
+				return;
 			}
 
 			if (c->type == CC_NAMED)
@@ -1638,7 +1635,6 @@ void LocalUser::SetClass(const std::string &explicit_name)
 					if (InspIRCd::Match(this->host, h, NULL))
 						goto host_found;
 				}
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->host.c_str());
 				continue;
 			}
 host_found:
@@ -1667,7 +1663,6 @@ host_found:
 					if (port == 0)
 						break;
 				}
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Port does not match (%s)", porttag.c_str());
 				continue;
 			}
 port_found:
@@ -1682,33 +1677,12 @@ port_found:
 			}
 
 			/* we stop at the first class that meets ALL critera. */
-			found = c;
-			break;
+			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class of %s to %s", uuid.c_str(), c->name.c_str());
+			MyClass = c;
+			return;
 		}
+		ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No connect class found for %s", uuid.c_str());
 	}
-
-	/*
-	 * Okay, assuming we found a class that matches.. switch us into that class, keeping refcounts up to date.
-	 */
-	if (found)
-	{
-		MyClass = found;
-	}
-}
-
-/* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
- * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
- * then their ip will be taken as 'priority' anyway, so for example,
- * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
- */
-ConnectClass* LocalUser::GetClass()
-{
-	return MyClass;
-}
-
-ConnectClass* User::GetClass()
-{
-	return NULL;
 }
 
 void User::PurgeEmptyChannels()

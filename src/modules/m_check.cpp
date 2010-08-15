@@ -127,7 +127,7 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " clientaddr " + loctarg->client_sa.str());
 				user->SendText(checkstr + " serveraddr " + loctarg->server_sa.str());
 
-				std::string classname = loctarg->GetClass()->name;
+				std::string classname = loctarg->MyClass->name;
 				if (!classname.empty())
 					user->SendText(checkstr + " connectclass " + classname);
 			}

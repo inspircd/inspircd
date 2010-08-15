@@ -215,7 +215,7 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 	 */
 	if (IS_LOCAL(user) && !override)
 	{
-		unsigned int maxchans = user->GetClass()->maxchans;
+		unsigned int maxchans = IS_LOCAL(user)->MyClass->maxchans;
 		// default if not set in <connect> is 20
 		if (!maxchans)
 			maxchans = 20;
