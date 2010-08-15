@@ -115,10 +115,6 @@ class ModuleSpanningTree : public Module
 	 */
 	ModResult HandleConnect(const std::vector<std::string>& parameters, User* user);
 
-	/** Attempt to send a message to a user
-	 */
-	void RemoteMessage(User* user, const char* format, ...) CUSTOM_PRINTF(3, 4);
-
 	/** Returns oper-specific MAP information
 	 */
 	const std::string MapOperInfo(TreeServer* Current);

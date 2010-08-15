@@ -1350,6 +1350,21 @@ void User::SendText(const std::string &LinePrefix, std::stringstream &TextStream
 	SendText(std::string(line));
 }
 
+void User::SendServerNotice(const char* format, ...)
+{
+	char text[MAXBUF];
+	va_list argsPtr;
+
+	va_start(argsPtr, format);
+	vsnprintf(text, MAXBUF, format, argsPtr);
+	va_end(argsPtr);
+
+	if (IS_LOCAL(this))
+		Write(":%s NOTICE %s :%s", ServerInstance->Config->ServerName.c_str(), this->nick.c_str(), text);
+	else
+		ServerInstance->PI->SendUserNotice(this, text);
+}
+
 /* return 0 or 1 depending if users u and u2 share one or more common channels
  * (used by QUIT, NICK etc which arent channel specific notices)
  *

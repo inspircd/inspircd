@@ -543,6 +543,10 @@ class CoreExport User : public Extensible
 	 */
 	void SendText(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
+	/** Write a server notice to the user, routing the line if the user is remote.
+	 */
+	void SendServerNotice(const char* text, ...) CUSTOM_PRINTF(2, 3);
+
 	/** Return true if the user shares at least one channel with another user
 	 * @param other The other user to compare the channel list against
 	 * @return True if the given user shares at least one channel with this user
