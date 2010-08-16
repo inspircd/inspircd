@@ -263,6 +263,8 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 		if (Ptr->HasUser(user))
 			return NULL;
 
+		perm.needs_invite = Ptr->IsModeSet('i');
+
 		/*
 		 * remote users are allowed us to bypass channel modes
 		 * and bans (used by servers)
@@ -284,7 +286,7 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 					perm.ErrorNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", Ptr->name.c_str());
 				}
 
-				if (Ptr->IsModeSet('i') && !perm.invited && !key_bypass)
+				if (perm.needs_invite && !perm.invited && !key_bypass)
 				{
 					perm.result = MOD_RES_DENY;
 					perm.ErrorNumeric(ERR_INVITEONLYCHAN, "%s :Cannot join channel (Invite only)", Ptr->name.c_str());

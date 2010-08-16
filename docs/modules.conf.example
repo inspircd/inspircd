@@ -929,6 +929,12 @@
 #<module name="m_inviteexception.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Invite extban module: Implements extban i:, which requires an
+# invitation to join a channel if it matches +b, or exempts a user from
+# +i if it matches +e.
+#<module name="m_inviteextban.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invisible module - Adds support for usermode +Q (quiet) which lets an
 # oper go 'invisible' similar to unrealircd 3.1's +I mode. Note that
 # opers are still able to see invisible users, and if an oper with +Q

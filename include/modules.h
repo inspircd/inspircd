@@ -414,8 +414,10 @@ class CoreExport ChannelPermissionData : public PermissionData
 	std::string privs;
 	/** True if the user was invited */
 	bool invited;
+	/** True if the user needs an invite to join */
+	bool needs_invite;
 	ChannelPermissionData(User* src, Channel* c, const std::string& Name, const std::string& Key)
-		: PermissionData(src, "join", c, src), channel(Name), key(Key), invited(false) {}
+		: PermissionData(src, "join", c, src), channel(Name), key(Key), invited(false), needs_invite(false) {}
 };
 
 /** Base class for all InspIRCd modules
