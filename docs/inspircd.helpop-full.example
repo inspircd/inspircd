@@ -29,7 +29,7 @@ you searched for. Please try again.">
 
 PRIVMSG   NOTICE   NICK      JOIN      PART
 CYCLE     KNOCK    MODE      DEVOICE   TOPIC
-KICK      FPART    REMOVE    TBAN      INVITE
+KICK      FPART    REMOVE    TMODE     INVITE
 UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
 MKPASSWD  VHOST    TITLE     SETNAME
 
@@ -57,14 +57,16 @@ authentication by bots and scripts.">
 
 Uninvite a user from a channel, same syntax as INVITE.">
 
-<helpop key="tban" value="/TBAN [channel] [duration] [banmask]
+<helpop key="tmode" value="/TMODE [channel] {[duration] [modes] [mode-parameters]}
 
-Sets a timed ban. The duration of the ban can be specified in the
-following format: 1w2d3h4m6s which indicates a ban of one week, two
-days, three hours, four minutes and six seconds. Alternatively the
-ban may just be specified as a number of seconds. All timed bans
-appear in the banlist as normal bans and may be safely removed
-before their time is up.">
+When only a channel is given, shows active timed modes on that
+channel.  When a duration and modes are given, sets a timed mode entry.
+The duration can be specified in the following format: 1w2d3h4m6s which
+indicates a duration of one week, two days, three hours, four minutes
+and six seconds. Alternatively the duration may just be specified as a
+number of seconds. All timed modes appear in the mode list normally
+and may be safely removed before their time is up, which will cancel
+their timed mode entry.">
 
 <helpop key="dccallow" value="/DCCALLOW [+|-] [nick] [duration]
 

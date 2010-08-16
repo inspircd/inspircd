@@ -1762,10 +1762,6 @@
 #<module name="m_testnet.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Timed bans module: Adds timed channel bans and the /TBAN command
-#<module name="m_timedbans.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Timed modes module: Adds timed channel modes and the /TMODE command
 #<module name="m_timedmodes.so">
 #-#-#-#-#-#-#-#-#-#-# TIMED MODES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#
