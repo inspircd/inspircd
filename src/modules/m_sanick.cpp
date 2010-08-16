@@ -45,7 +45,7 @@ class CommandSanick : public Command
 				return CMD_FAILURE;
 			}
 
-			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+			if (parameters[1].compare("0") && !ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
 				return CMD_FAILURE;
@@ -55,15 +55,18 @@ class CommandSanick : public Command
 		/* Have we hit target's server yet? */
 		if (target && IS_LOCAL(target))
 		{
-			std::string oldnick = user->nick;
-			std::string newnick = target->nick;
-			if (target->ChangeNick(parameters[1], true))
+			std::string oldnick = target->nick;
+			if (!parameters[1].compare("0") && target->ChangeNick(target->uuid, true))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" used SANICK to change "+newnick+" to "+parameters[1]);
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SANICK to change "+oldnick+" to their UID ("+target->uuid+")");
+			}
+			else if (target->ChangeNick(parameters[1], true))
+			{
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SANICK to change "+oldnick+" to "+parameters[1]);
 			}
 			else
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', oldnick+" failed SANICK (from "+newnick+" to "+parameters[1]+")");
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" failed SANICK (from "+oldnick+" to "+parameters[1]+")");
 			}
 		}
 

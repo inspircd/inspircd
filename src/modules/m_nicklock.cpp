@@ -21,11 +21,11 @@ class CommandNicklock : public Command
 {
  public:
 	LocalIntExt& locked;
-	CommandNicklock (Module* Creator, LocalIntExt& ext) : Command(Creator,"NICKLOCK", 2),
+	CommandNicklock (Module* Creator, LocalIntExt& ext) : Command(Creator,"NICKLOCK", 1),
 		locked(ext)
 	{
 		flags_needed = 'o';
-		syntax = "<oldnick> <newnick>";
+		syntax = "<oldnick> [newnick]";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -42,13 +42,13 @@ class CommandNicklock : public Command
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+			if (parameters.size() > 1 && parameters[1].compare("0") && !ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
 				return CMD_FAILURE;
 			}
 
-			user->WriteServ("947 %s %s :Nickname now locked.", user->nick.c_str(), parameters[1].c_str());
+			user->WriteServ("947 %s %s :Nickname now locked.", user->nick.c_str(), parameters.size() > 1 ? parameters[1].c_str() : parameters[0].c_str());
 		}
 
 		/* If we made it this far, extend the user */
@@ -57,8 +57,12 @@ class CommandNicklock : public Command
 			locked.set(target, 1);
 
 			std::string oldnick = target->nick;
-			if (target->ForceNickChange(parameters[1].c_str()))
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+oldnick+" to "+parameters[1]);
+			if (parameters.size() < 2)
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to lock the nick of "+oldnick);
+			else if (!parameters[1].compare("0") && target->ForceNickChange(target->uuid))
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and lock the nick of "+oldnick+" to their UID ("+target->uuid+")");
+			else if (target->ForceNickChange(parameters[1].c_str()))
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and lock the nick of "+oldnick+" to "+parameters[1]);
 			else
 			{
 				std::string newnick = target->nick;
@@ -106,7 +110,7 @@ class CommandNickunlock : public Command
 		{
 			if (locked.set(target, 0))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKUNLOCK to unlock the nick of "+target->nick);
 				user->SendText(":%s 945 %s %s :Nickname now unlocked.",
 					ServerInstance->Config->ServerName.c_str(),user->nick.c_str(),target->nick.c_str());
 			}
