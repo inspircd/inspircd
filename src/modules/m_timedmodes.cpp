@@ -135,14 +135,14 @@ class CommandTmode : public Command
 				user->WriteNumeric(953, "%s %s :End of channel timed modes", user->nick.c_str(), channel->name.c_str());
 				return CMD_SUCCESS;
 			}
-			unsigned int maxsize = 0;
+			unsigned int maxsize = 30;
 			for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); ++it)
 				if (InspIRCd::Match(channel->name, it->mask)) {
 					maxsize = it->limit;
 					break;
 				}
 			timedmodes* existing = tmodes.get(channel);
-			if (existing && existing->size() >= maxsize)
+			if ((existing && existing->size() >= maxsize) || maxsize == 0)
 			{
 				user->WriteServ("NOTICE " + user->nick + " :Channel " + channel->name + " timedmodes list is full");
 				return CMD_FAILURE;
@@ -271,24 +271,23 @@ class ModuleTimedModes : public Module
 				std::back_inserter(newsequence), &modeChangeLessThan);
 			cmd.current->modes.sequence = newsequence;
 			cmd.toannounce = modeschanged;
-		} else {
-			std::vector<irc::modechange> sortedchanged = modeschanged.sequence;
-			stable_sort(sortedchanged.begin(), sortedchanged.end(), &modeChangeLessThan);
-			timedmodes* existing = cmd.tmodes.get(dest);
-			if(!existing) return;
-			for (timedmodes::iterator i = existing->begin(); i != existing->end();)
-			{
-				std::vector<irc::modechange> newsequence;
-				set_difference(i->modes.sequence.begin(), i->modes.sequence.end(),
-					sortedchanged.begin(), sortedchanged.end(),
-					std::back_inserter(newsequence), &modeChangeLessThan);
-				i->modes.sequence = newsequence;
-				if(i->modes.sequence.empty()) {
-					i = existing->erase(i);
-					continue;
-				}
-				++i;
+		}
+		std::vector<irc::modechange> sortedchanged = modeschanged.sequence;
+		stable_sort(sortedchanged.begin(), sortedchanged.end(), &modeChangeLessThan);
+		timedmodes* existing = cmd.tmodes.get(dest);
+		if(!existing) return;
+		for (timedmodes::iterator i = existing->begin(); i != existing->end();)
+		{
+			std::vector<irc::modechange> newsequence;
+			set_difference(i->modes.sequence.begin(), i->modes.sequence.end(),
+				sortedchanged.begin(), sortedchanged.end(),
+				std::back_inserter(newsequence), &modeChangeLessThan);
+			i->modes.sequence = newsequence;
+			if(i->modes.sequence.empty()) {
+				i = existing->erase(i);
+				continue;
 			}
+			++i;
 		}
 	}
 
