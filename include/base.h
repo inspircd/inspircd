@@ -52,11 +52,12 @@ class CoreExport interfacebase
 {
  public:
 	interfacebase() {}
+	static inline void* operator new(size_t, void* m) { return m; }
  private:
 	interfacebase(const interfacebase&);
 	void operator=(const interfacebase&);
-	void* operator new(size_t);
-	void operator delete(void*);
+	static void* operator new(size_t);
+	static void operator delete(void*);
 };
 
 /** The base class for inspircd classes that support reference counting.
@@ -79,8 +80,9 @@ class CoreExport refcountbase
 	refcountbase();
 	virtual ~refcountbase();
 	inline unsigned int GetReferenceCount() const { return refcount; }
-	void* operator new(size_t);
-	void operator delete(void*);
+	static inline void* operator new(size_t, void* m) { return m; }
+	static void* operator new(size_t);
+	static void operator delete(void*);
 	inline void refcount_inc() const { refcount++; }
 	inline bool refcount_dec() const { refcount--; return !refcount; }
  private:
@@ -137,9 +139,10 @@ class reference
 	inline T& operator*() const { return *value; }
 	inline bool operator<(const reference<T>& other) const { return value < other.value; }
 	inline bool operator>(const reference<T>& other) const { return value > other.value; }
+	static inline void* operator new(size_t, void* m) { return m; }
  private:
-	void* operator new(size_t);
-	void operator delete(void*);
+	static void* operator new(size_t);
+	static void operator delete(void*);
 };
 
 /** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.
