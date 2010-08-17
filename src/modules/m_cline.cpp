@@ -109,12 +109,14 @@ class CommandCLine : public Command
 		{
 			long duration = ServerInstance->Duration(parameters[1]);
 			std::string expr;
-			if (parameters.size() > 2 && duration)
+			if (parameters.size() > 2 && (duration || parameters[1][0] == '0'))
 			{
+				// they specified a time
 				expr = parameters[2];
 			}
 			else
 			{
+				// no time specification; the two parameters may need to be joined
 				duration = 0;
 				if (parameters.size() > 2)
 					expr = parameters[1] + " " + parameters[2];
@@ -125,7 +127,7 @@ class CommandCLine : public Command
 
 			try
 			{
-				r = new CLine(ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
+				r = new CLine(ServerInstance->Time(), duration, user->nick, expr, target);
 			}
 			catch (...)
 			{
@@ -151,7 +153,7 @@ class CommandCLine : public Command
 			else
 			{
 				delete r;
-				user->WriteServ("NOTICE %s :*** CLine for %s already exists", user->nick.c_str(), expr.c_str());
+				user->WriteServ("NOTICE %s :*** CLine for %s already exists", user->nick.c_str(), target.c_str());
 			}
 		}
 
@@ -177,7 +179,8 @@ class ModuleCLine : public Module
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->AddCommand(&cmd);
 
-		ServerInstance->Modules->Attach(I_OnSetConnectClass, this);
+		ServerInstance->Modules->Attach(I_OnStats, this);
+		ServerInstance->Modules->Attach(I_OnCheckReady, this);
 	}
 
 	~ModuleCLine()
