@@ -476,6 +476,14 @@
 #<module name="m_chgname.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# CLINE module: Adds the /CLINE command
+# This module is oper-only.
+# To use, CLINE must be in one of your oper class blocks.
+# Users matching a CLINE are assigned to the connect class it
+# specifies.
+#<module name="m_cline.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Cloaking module: Adds usermode +x and cloaking support.
 # Relies on the module m_md5.so being loaded before m_cloaking.so in
 # the configuration file.
@@ -1241,6 +1249,11 @@
 #                    /OPERMOTD is used. Use "yes" or "no".            #
 #                                                                     #
 #<opermotd file="oper.motd" onoper="yes">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Opmoderated module: Adds channel mode +U which makes messages from
+# users below voice go to operators and above only.
+#<module name="m_opmoderated.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override
