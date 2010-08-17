@@ -201,7 +201,7 @@ class ModuleCloaking : public Module
 		input.reserve(key.length() + 3 + item.length());
 		input.append(1, id);
 		input.append(key);
-		input.append(1, 0); // null does not terminate a C++ string
+		input.append(1, '\0'); // null does not terminate a C++ string
 		input.append(item);
 
 		std::string rv = Hash->sum(input).substr(0,len);
