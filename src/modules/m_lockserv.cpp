@@ -142,7 +142,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_VENDOR);
 	}
 };
 
