@@ -362,6 +362,10 @@
 # sessions maximum.
 #
 
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel ACL module: Adds cmode +W, which allows fine-grained control
+# over channel permissions.
+#<module name="m_chanacl.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel create module: Adds snomask +j, which will notify opers of
