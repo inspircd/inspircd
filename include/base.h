@@ -79,7 +79,6 @@ class CoreExport refcountbase
 	refcountbase();
 	virtual ~refcountbase();
 	inline unsigned int GetReferenceCount() const { return refcount; }
-	static inline void* operator new(size_t, void* m) { return m; }
 	static void* operator new(size_t);
 	static void operator delete(void*);
 	inline void refcount_inc() const { refcount++; }
@@ -88,6 +87,8 @@ class CoreExport refcountbase
 	// uncopyable
 	refcountbase(const refcountbase&);
 	void operator=(const refcountbase&);
+	// don't allocate this strangely
+	static void* operator new(size_t, void*);
 };
 
 /** Base class for use count tracking. Uses reference<>, but does not
