@@ -3,10 +3,11 @@
 /BSDmakefile
 /GNUmakefile
 /build
+/dev-docs
 /inspircd
-/org.inspircd.plist
 /run
 /ssl
+
 /extras/ssl
 
 /include/inspircd_config.h
