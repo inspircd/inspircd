@@ -40,7 +40,7 @@ class CustomPrefixMode : public PrefixModeHandler
 
 	void AccessCheck(ModePermissionData& perm)
 	{
-		if (!perm.mc.adding && perm.source->nick == perm.mc.value && depriv)
+		if (!perm.mc.adding && perm.source == perm.user && depriv)
 			perm.result = MOD_RES_ALLOW;
 	}
 

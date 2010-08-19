@@ -21,7 +21,7 @@ ModeChannelLimit::ModeChannelLimit() : ParamChannelModeHandler(NULL, "limit", 'l
 {
 }
 
-bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
+bool ModeChannelLimit::ParamOrder(const std::string &their_param, const std::string &our_param)
 {
 	/* When TS is equal, the higher channel limit wins */
 	return (atoi(their_param.c_str()) < atoi(our_param.c_str()));

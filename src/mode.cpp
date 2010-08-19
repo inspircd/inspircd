@@ -86,7 +86,7 @@ void ModeHandler::OnParameterMissing(User* user, User* dest, Channel* channel, s
 {
 }
 
-bool ModeHandler::ResolveModeConflict(std::string& theirs, const std::string& ours, Channel*)
+bool ModeHandler::ParamOrder(const std::string& theirs, const std::string& ours)
 {
 	return (theirs < ours);
 }
@@ -555,7 +555,7 @@ void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes,
 		if (merge && targetchannel && targetchannel->IsModeSet(mh) && mc->adding && !mh->IsListMode())
 		{
 			std::string ours = targetchannel->GetModeParameter(mh);
-			if (!mh->ResolveModeConflict(mc->value, ours, targetchannel))
+			if (mc->value == ours || !mh->ParamOrder(mc->value, ours))
 			{
 				/* local side won the mode merge, don't apply this mode */
 				mc = modes.sequence.erase(mc);

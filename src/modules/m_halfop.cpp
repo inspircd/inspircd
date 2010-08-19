@@ -22,7 +22,7 @@ class ModeChannelHalfOp : public PrefixModeHandler
 
 	void AccessCheck(ModePermissionData& perm)
 	{
-		if (!perm.mc.adding && perm.source->nick == perm.mc.value)
+		if (!perm.mc.adding && perm.source == perm.user)
 			perm.result = MOD_RES_ALLOW;
 	}
 };

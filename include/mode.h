@@ -332,14 +332,12 @@ class CoreExport ModeHandler : public ServiceProvider
 	/**
 	 * If your mode needs special action during a server sync to determine which side wins when comparing timestamps,
 	 * override this function and use it to return true or false. The default implementation just returns true if
-	 * theirs < ours. This will only be called for non-listmodes with parameters, when adding the mode and where
-	 * theirs == ours (therefore the default implementation will always return false).
-	 * @param their_param Their parameter if the mode has a parameter
-	 * @param our_param Our parameter if the mode has a parameter
-	 * @param channel The channel we are checking against
-	 * @return True if the other side wins the merge, false if we win the merge for this mode.
+	 * theirs < ours (i.e. case sensitive string ordering).
+	 * @param theirs The parameter on the remote side
+	 * @param ours The parameter on the local side
+	 * @return True if the other side wins the merge, false if we win the merge.
 	 */
-	virtual bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
+	virtual bool ParamOrder(const std::string &theirs, const std::string &ours);
 
 	/**
 	 * When a MODETYPE_USER mode handler is being removed, the server will call this method for every user on the server.

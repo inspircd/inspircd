@@ -44,7 +44,7 @@ class ModeChannelLimit : public ParamChannelModeHandler
  public:
 	ModeChannelLimit();
 	bool ParamValidate(std::string& parameter);
-	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
+	bool ParamOrder(const std::string&, const std::string&);
 };
 /** Channel mode +m
  */

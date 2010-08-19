@@ -29,7 +29,7 @@ class DelayMsgMode : public ModeHandler
 		fixed_letter = false;
 	}
 
-	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel*)
+	bool ParamOrder(const std::string &their_param, const std::string &our_param)
 	{
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 	}

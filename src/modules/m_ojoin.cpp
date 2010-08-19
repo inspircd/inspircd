@@ -110,9 +110,8 @@ class NetworkPrefix : public ModeHandler
 
 	void AccessCheck(ModePermissionData& perm)
 	{
-		User* theuser = ServerInstance->FindNick(perm.mc.value);
 		// remove own privs?
-		if (perm.source == theuser && !perm.mc.adding)
+		if (perm.source == perm.user && !perm.mc.adding)
 			perm.result = MOD_RES_ALLOW;
 	}
 
