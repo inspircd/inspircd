@@ -286,14 +286,10 @@ class CoreExport ModeHandler : public ServiceProvider
 	virtual const modelist* GetList(Channel* channel) { return NULL; }
 
 	/**
-	 * Called when a channel mode change access check for your mode occurs.
-	 * @param source Contains the user setting the mode.
-	 * @param channel contains the destination channel the modes are being set on.
-	 * @param parameter The parameter for your mode. This is modifiable.
-	 * @param adding This value is true when the mode is being set, or false when it is being unset.
-	 * @return allow, deny, or passthru to check against the required level
+	 * Called when a channel mode change access check for your mode occurs. This is called prior to
+	 * the OnPermissionCheck hook, and before any channel rank checks.
 	 */
-	virtual ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding);
+	virtual void AccessCheck(ModePermissionData&);
 
 	/**
 	 * Called when a mode change for your mode occurs.

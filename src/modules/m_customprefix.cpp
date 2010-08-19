@@ -38,11 +38,10 @@ class CustomPrefixMode : public PrefixModeHandler
 		return rank;
 	}
 
-	ModResult AccessCheck(User* src, Channel*, std::string& value, bool adding)
+	void AccessCheck(ModePermissionData& perm)
 	{
-		if (!adding && src->nick == value && depriv)
-			return MOD_RES_ALLOW;
-		return MOD_RES_PASSTHRU;
+		if (!perm.mc.adding && perm.source->nick == perm.mc.value && depriv)
+			perm.result = MOD_RES_ALLOW;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)

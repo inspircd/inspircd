@@ -108,14 +108,12 @@ class NetworkPrefix : public ModeHandler
 		return NETWORK_VALUE;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
+	void AccessCheck(ModePermissionData& perm)
 	{
-		User* theuser = ServerInstance->FindNick(parameter);
+		User* theuser = ServerInstance->FindNick(perm.mc.value);
 		// remove own privs?
-		if (source == theuser && !adding)
-			return MOD_RES_ALLOW;
-
-		return MOD_RES_PASSTHRU;
+		if (perm.source == theuser && !perm.mc.adding)
+			perm.result = MOD_RES_ALLOW;
 	}
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)

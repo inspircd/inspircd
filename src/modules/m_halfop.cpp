@@ -20,11 +20,10 @@ class ModeChannelHalfOp : public PrefixModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	unsigned int GetPrefixRank();
 
-	ModResult AccessCheck(User* src, Channel*, std::string& value, bool adding)
+	void AccessCheck(ModePermissionData& perm)
 	{
-		if (!adding && src->nick == value)
-			return MOD_RES_ALLOW;
-		return MOD_RES_PASSTHRU;
+		if (!perm.mc.adding && perm.source->nick == perm.mc.value)
+			perm.result = MOD_RES_ALLOW;
 	}
 };
 

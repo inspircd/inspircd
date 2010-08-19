@@ -29,13 +29,17 @@ class AutoOpList : public ListModeBase
 		tidy = false;
 	}
 
-	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
+	void AccessCheck(ModePermissionData& perm)
 	{
-		std::string::size_type pos = parameter.find(':');
+		std::string::size_type pos = perm.mc.value.find(':');
 		if (pos == 0 || pos == std::string::npos)
-			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-		unsigned int mylevel = channel->GetAccessRank(source);
-		irc::commasepstream modes(parameter.substr(0, pos));
+		{
+			if (perm.mc.adding)
+				perm.result = MOD_RES_DENY;
+			return;
+		}
+		unsigned int mylevel = perm.chan->GetAccessRank(perm.source);
+		irc::commasepstream modes(perm.mc.value.substr(0, pos));
 		std::string mid;
 		while (modes.GetToken(mid))
 		{
@@ -43,14 +47,13 @@ class AutoOpList : public ListModeBase
 				ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL) :
 				ServerInstance->Modes->FindMode(mid);
 
-			if (adding && mh && mh->GetLevelRequired() > mylevel)
+			if (perm.mc.adding && mh && mh->GetLevelRequired() > mylevel)
 			{
-				source->WriteNumeric(482, "%s %s :You must be able to set mode '%s' to include it in an autoop",
-					source->nick.c_str(), channel->name.c_str(), mid.c_str());
-				return MOD_RES_DENY;
+				perm.ErrorNumeric(482, "%s :You must be able to set mode '%s' to include it in an autoop",
+					perm.chan->name.c_str(), mid.c_str());
+				perm.result = MOD_RES_DENY;
 			}
 		}
-		return MOD_RES_PASSTHRU;
 	}
 };
 

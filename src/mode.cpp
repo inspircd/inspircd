@@ -70,9 +70,8 @@ std::string ModeHandler::GetUserParameter(User* user)
 	return "";
 }
 
-ModResult ModeHandler::AccessCheck(User*, Channel*, std::string &, bool)
+void ModeHandler::AccessCheck(ModePermissionData&)
 {
-	return MOD_RES_PASSTHRU;
 }
 
 void ModeHandler::DisplayList(User*, Channel*)
@@ -340,7 +339,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 	{
 		User* targ = (mh->GetTranslateType() == TR_NICK) ? ServerInstance->FindNick(mc.value) : NULL;
 		ModePermissionData perm(user, "mode/" + mh->name, chan, targ, mc);
-		perm.result = mh->AccessCheck(user, chan, mc.value, adding);
+		mh->AccessCheck(perm);
 		FOR_EACH_MOD(OnPermissionCheck, (perm));
 		perm.DoRankCheck();
 

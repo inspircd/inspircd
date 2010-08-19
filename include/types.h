@@ -27,6 +27,7 @@ class InspIRCd;
 class LocalUser;
 class Membership;
 class ModeID;
+class ModePermissionData;
 class Module;
 class ModuleState;
 class OperInfo;
