@@ -175,14 +175,16 @@ class FlagCmd : public Command
 		if (flags.empty())
 		{
 			prov.ext.unset(memb);
-			chan->WriteChannelWithServ(src->server, "NOTICE %s :%s removed all opflags from %s",
-				chan->name.c_str(), src->nick.c_str(), user->nick.c_str());
+			if (!IS_SERVER(src))
+				chan->WriteChannelWithServ(src->server, "NOTICE %s :%s removed all opflags from %s",
+					chan->name.c_str(), src->nick.c_str(), user->nick.c_str());
 		}
 		else
 		{
 			std::string v = prov.SetFlags(memb, flags, false);
-			chan->WriteChannelWithServ(src->server, "NOTICE %s :%s set %s opflags to %s",
-				chan->name.c_str(), src->nick.c_str(), user->nick.c_str(), v.c_str());
+			if (!IS_SERVER(src))
+				chan->WriteChannelWithServ(src->server, "NOTICE %s :%s set %s opflags to %s",
+					chan->name.c_str(), src->nick.c_str(), user->nick.c_str(), v.c_str());
 		}
 		return CMD_SUCCESS;
 	}
