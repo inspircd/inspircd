@@ -587,7 +587,7 @@ class ChannelRegistrationModule : public Module
 	/* get module version and flags. */
 	Version GetVersion ( )
 	{
-		return Version("Provides channel mode +r for channel registration", VF_VENDOR|VF_COMMON);
+		return Version("Provides channel mode +r for channel registration", VF_VENDOR);
 	}
 	void init ( )
 	{
@@ -619,7 +619,7 @@ class ChannelRegistrationModule : public Module
 		/* get the channel database */
 		chandb = chregistertag->getString ("chandb", "");
 		/* get the expire time and convert it to time_t */
-		expiretime = ServerInstance->Duration (chregistertag->getString ("expiretime", "7d"));
+		expiretime = ServerInstance->Duration (chregistertag->getString ("expiretime", "21d"));
 		/* check if prefix exists, if not, throw an exception */
 		if (!ServerInstance->Modes->FindMode (prefixmode)) throw CoreException ("Module providing the configured prefix is not loaded");
 		mh.set_prefixrequired (prefixmode);
