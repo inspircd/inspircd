@@ -16,6 +16,30 @@
 
 /* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
+class ServicesAccountProvider : public AccountProvider
+{
+ public:
+	StringExtItem ext;
+	ServicesAccountProvider(Module* mod)
+		: AccountProvider(mod, "account/services_account"), ext("accountname", mod)
+	{
+	}
+
+	bool IsRegistered(User* user)
+	{
+		return user->IsModeSet('r') || ext.get(user);
+	}
+
+	std::string GetAccountName(User* user)
+	{
+		std::string* account = ext.get(user);
+		if (account)
+			return *account;
+		return "";
+	}
+};
+
+
 /** Channel mode +r - mark a channel as identified
  */
 class Channel_r : public ModeHandler
@@ -103,10 +127,9 @@ class ModuleServicesAccount : public Module
 	AUser_R m3;
 	Channel_r m4;
 	User_r m5;
-	AccountExtItem accountname;
+	ServicesAccountProvider account;
  public:
-	ModuleServicesAccount() : chanR(this), chanM(this), m3(this), m4(this), m5(this),
-		accountname("accountname", this)
+	ModuleServicesAccount() : chanR(this), chanM(this), m3(this), m4(this), m5(this), account(this)
 	{
 	}
 
@@ -117,7 +140,8 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modules->AddService(m3);
 		ServerInstance->Modules->AddService(m4);
 		ServerInstance->Modules->AddService(m5);
-		ServerInstance->Modules->AddService(accountname);
+		ServerInstance->Modules->AddService(account);
+		ServerInstance->Modules->AddService(account.ext);
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnCheckJoin, I_OnCheckBan,
 			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick, I_OnSetConnectClass };
 
@@ -132,11 +156,12 @@ class ModuleServicesAccount : public Module
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	void OnWhois(User* source, User* dest)
 	{
-		std::string *account = accountname.get(dest);
+		std::string acctname = account.GetAccountName(dest);
 
-		if (account)
+		if (!acctname.empty())
 		{
-			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as", source->nick.c_str(), dest->nick.c_str(), account->c_str());
+			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as",
+				source->nick.c_str(), dest->nick.c_str(), acctname.c_str());
 		}
 
 		if (dest->IsModeSet('r'))
@@ -163,21 +188,12 @@ class ModuleServicesAccount : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		std::string *account = accountname.get(user);
-		bool is_registered = account && !account->empty();
-
-		if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
-		{
-			// user is ulined, can speak regardless
-			return MOD_RES_PASSTHRU;
-		}
-
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
 			ModResult res = ServerInstance->CheckExemption(user,c,"regmoderated");
 
-			if (c->IsModeSet(&chanM) && !is_registered && res != MOD_RES_ALLOW)
+			if (c->IsModeSet(&chanM) && !account.IsRegistered(user) && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
 				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
@@ -188,7 +204,7 @@ class ModuleServicesAccount : public Module
 		{
 			User* u = (User*)dest;
 
-			if (u->IsModeSet('R') && !is_registered)
+			if (u->IsModeSet('R') && !account.IsRegistered(user))
 			{
 				// user messaging a +R user and is not registered
 				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
@@ -202,8 +218,8 @@ class ModuleServicesAccount : public Module
 	{
 		if (mask[0] == 'R' && mask[1] == ':')
 		{
-			std::string *account = accountname.get(user);
-			if (account && InspIRCd::Match(*account, mask.substr(2)))
+			std::string acctname = account.GetAccountName(user);
+			if (!acctname.empty() && InspIRCd::Match(acctname, mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
@@ -218,10 +234,8 @@ class ModuleServicesAccount : public Module
 	{
 		if (!join.chan || join.result != MOD_RES_PASSTHRU)
 			return;
-		std::string *account = accountname.get(join.user);
-		bool is_registered = account && !account->empty();
 
-		if (join.chan->IsModeSet(&chanR) && !is_registered)
+		if (join.chan->IsModeSet(&chanR) && !account.IsRegistered(join.source))
 		{
 			// joining a +R channel and not identified
 			join.ErrorNumeric(477, "%s :You need to be identified to a registered account to join this channel", join.chan->name.c_str());
@@ -240,25 +254,19 @@ class ModuleServicesAccount : public Module
 	{
 		User* dest = IS_USER(target);
 		// check if its our metadata key, and its associated with a user
-		if (dest && (extname == "accountname"))
+		if (dest && extname == "accountname" && !extdata.empty())
 		{
-			std::string *account = accountname.get(dest);
-			if (account && !account->empty())
-			{
-				trim(*account);
+			if (IS_LOCAL(dest))
+				dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
+					dest->nick.c_str(), dest->GetFullHost().c_str(), extdata.c_str(), extdata.c_str());
 
-				if (IS_LOCAL(dest))
-					dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
-						dest->nick.c_str(), dest->GetFullHost().c_str(), account->c_str(), account->c_str());
-
-				AccountEvent(this, dest, *account).Send();
-			}
+			AccountEvent(this, dest, extdata).Send();
 		}
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
-		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
+		if (myclass->config->getBool("requireaccount") && !account.IsRegistered(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}

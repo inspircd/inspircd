@@ -307,7 +307,9 @@ class RegisterModeHandler : public ParamChannelModeHandler
 {
  public:
 	ChanExpiryExtItem last_activity;
-	RegisterModeHandler(Module *me) : ParamChannelModeHandler(me, "registered", 'r'), last_activity(me)
+	dynamic_reference<AccountProvider> account;
+	RegisterModeHandler(Module *me) : ParamChannelModeHandler(me, "registered", 'r'),
+		last_activity(me), account("account")
 	{
 		/* set properties. */
 		list = false;
@@ -316,29 +318,17 @@ class RegisterModeHandler : public ParamChannelModeHandler
 		m_paramtype = TR_TEXT;
 		levelrequired = OP_VALUE;
 	}
-	/* translate a parameter */
-	void OnParameterMissing (User *user, User *undefined, Channel *chan, std::string &param)
+
+	void OnParameterMissing (User *user, User*, Channel *chan, std::string &param)
 	{
-		/* we are called only if the registrant of a new channel didn't provide a parameter into the mode */
-		/* if user is not logged in, we won't allow him and we'll send an error, if he is logged in then we'll use his account name */
-		/* after account name is used, next permission checks will occur, but this function doesn't do it */
-		/* get account extension item */
-		AccountExtItem *it = GetAccountExtItem ( );
-		std::string *acctname = it->get (user);
-		if (!acctname || acctname->empty ( ))
-		{
-			/* user not logged in, so we don't have any account to use as a default one, just tell him that he can't do this, really. */
-			user->WriteNumeric (ERR_CHANOPRIVSNEEDED, "%s %s :You must be logged into an account to register a channel", user->nick.c_str(), chan->name.c_str ( ));
-			return;
-		}
-		/* user is logged in, this doesn't mean we'll allow it, but we really deny it without a param, so set the parameter */
-		param = *acctname;
+		// put the user's own account name in the parameter, if missing
+		if (account)
+			param = account->GetAccountName(user);
 	}
 	/* make access checks */
 	void AccessCheck(ModePermissionData& perm)
 	{
-		AccountExtItem *it = GetAccountExtItem();
-		std::string *acctname = it ? it->get(perm.source) : NULL;
+		std::string acctname = account ? account->GetAccountName(perm.source) : "";
 
 		if (perm.mc.adding)
 		{
@@ -350,7 +340,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			/* otherwise, you can only set it to your own account name */
 
 			/* if the account name was not given, is empty or is not equal to the given parameter, deny */
-			if (!acctname || acctname->empty() || *acctname != perm.mc.value)
+			if (acctname.empty() || acctname != perm.mc.value)
 			{
 				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be logged into the account %s to register a channel to it",
 					perm.chan->name.c_str(), perm.mc.value.c_str());
@@ -361,24 +351,25 @@ class RegisterModeHandler : public ParamChannelModeHandler
 		{
 			/* removing a mode: must be the registrant */
 			std::string registrantname = perm.chan->GetModeParameter(this);
-			if (!acctname || acctname->empty())
+			if (acctname.empty())
 			{
+				// not logged in: different error message
 				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be logged into an account to unregister a channel",
 					perm.chan->name.c_str());
 				perm.result = MOD_RES_DENY;
 				return;
 			}
-			/* user is logged in; right account? */
-			if (*acctname == registrantname)
+			else if (acctname != registrantname)
 			{
-				// go ahead and skip the rest of the checks
-				perm.result = MOD_RES_ALLOW;
-			}
-			else
-			{
+				// mismatching account name
 				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :Only the person who registered a channel may unregister it",
 					perm.chan->name.c_str());
 				perm.result = MOD_RES_DENY;
+			}
+			else
+			{
+				// go ahead and skip the rest of the checks
+				perm.result = MOD_RES_ALLOW;
 			}
 		}
 	}
@@ -390,7 +381,8 @@ class RegisterModeHandler : public ParamChannelModeHandler
 		if (adding)
 		{
 			/* we won't do anything if mode is set */
-			if (chan->IsModeSet (this)) return MODEACTION_DENY;
+			if (chan->IsModeSet (this))
+				return MODEACTION_DENY;
 			/* servers are expected to notice their reasons themselves */
 			if (!IS_SERVER(source))
 			{
@@ -636,43 +628,54 @@ banned */
 	void OnCheckJoin (ChannelPermissionData &joindata)
 	{
 		/* if channel is null, it's not something that is done on channels, or it is but channel is being created, so no registrant in it */
-		if (!joindata.chan) return;
+		if (!joindata.chan)
+			return;
 		/* return if mode is not set and channel is unregistered */
-		if (!joindata.chan->IsModeSet (&mh)) return;
+		if (!joindata.chan->IsModeSet (&mh))
+			return;
 		/* it is set and we have parameter, get it */
 		std::string registrantname = joindata.chan->GetModeParameter (&mh);
 		/* get user's account name */
-		std::string *acctname = GetAccountExtItem ( )->get (joindata.source);
+		std::string acctname = mh.account ? mh.account->GetAccountName(joindata.source) : "";
 		/* if account is not found or empty, we can be really sure that we really aren't registrant of any channel */
-		if (!acctname || acctname->empty ( )) return;
+		if (acctname.empty())
+			return;
 		/* if registrantname and account name are the same, override */
-		if (registrantname == *acctname) joindata.result = MOD_RES_ALLOW;
+		if (registrantname == acctname)
+			joindata.result = MOD_RES_ALLOW;
 	}
 	/* check permissions */
 	void OnPermissionCheck (PermissionData &perm)
 	{
 		/* if channel is null, proceed normally */
-		if (!perm.chan) return;
+		if (!perm.chan)
+			return;
 		/* if not, but name of permission is join, proceed normally because it was checked */
-		if (perm.name == "join") return;
+		if (perm.name == "join")
+			return;
 		/* if +r mode is changed, return */
-		if (perm.name == "mode/registered") return;
+		if (perm.name == "mode/registered")
+			return;
 		/* if anything is ok, but mode +r is unset, return and check perms normally */
-		if (!perm.chan->IsModeSet (&mh)) return;
+		if (!perm.chan->IsModeSet (&mh))
+			return;
 		/* if set, get the registrant account name */
-		std::string registrantname = perm.chan->GetModeParameter (&mh);
+		std::string registrantname = perm.chan->GetModeParameter(&mh);
 		/* get account name of the current user */
-		std::string *acctname = GetAccountExtItem ( )->get (perm.source);
+		std::string acctname = mh.account ? mh.account->GetAccountName(perm.source) : "";
 		/* if user is not logged in then return */
-		if (!acctname || acctname->empty ( )) return;
+		if (acctname.empty())
+			return;
 		/* if ok, then set result to allow if registrant name matches account name */
-		if (*acctname == registrantname) perm.result = MOD_RES_ALLOW;
+		if (acctname == registrantname)
+			perm.result = MOD_RES_ALLOW;
 	}
 	/* called before channel is being deleted */
 	ModResult OnChannelPreDelete (Channel *chan)
 	{
 		/* return 1 to prevent channel deletion if channel is registered */
-		if (chan->IsModeSet (&mh)) return MOD_RES_DENY;
+		if (chan->IsModeSet(&mh))
+			return MOD_RES_DENY;
 		/* in other case, return 0, to allow channel deletion */
 		return MOD_RES_PASSTHRU;
 	}
@@ -680,7 +683,8 @@ banned */
 	void OnBackgroundTimer (time_t cur)
 	{
 		/* if not dirty then don't do anything */
-		if (!dirty) return;
+		if (!dirty)
+			return;
 		/* dirty, one of registered channels was changed, save it */
 		WriteDatabase ( );
 		/* clear dirty to prevent next savings */
@@ -690,7 +694,8 @@ banned */
 	void OnPostTopicChange (User *user, Channel *chan, const std::string &topic)
 	{
 		/* if the channel is not registered, don't do anything, but if channel has been registered, this must be saved, so mark database as to be saved */
-		if ((chan->IsModeSet (&mh)) || (chan->IsModeSet ("permanent"))) dirty = true;
+		if ((chan->IsModeSet (&mh)) || (chan->IsModeSet ("permanent")))
+			dirty = true;
 	}
 	/* this event is called after each modechange */
 	void OnMode (User *user, Extensible *target, const irc::modestacker &modes)
@@ -711,8 +716,10 @@ banned */
 		if (!mc.adding)
 		{
 			ModeHandler *mh2 = ServerInstance->Modes->FindMode ("permanent");
-			if (mc.mode == mh.id) dirty = true;
-			if (mh2 && mc.mode == mh2->id) dirty = true;
+			if (mc.mode == mh.id)
+				dirty = true;
+			if (mh2 && mc.mode == mh2->id)
+				dirty = true;
 		}
 		/* this is the only thing this module does, so pass through */
 		return MOD_RES_PASSTHRU;

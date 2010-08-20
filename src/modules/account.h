@@ -14,9 +14,6 @@
 #ifndef __ACCOUNT_H__
 #define __ACCOUNT_H__
 
-#include <map>
-#include <string>
-
 class AccountEvent : public Event
 {
  public:
@@ -28,11 +25,19 @@ class AccountEvent : public Event
 	}
 };
 
-typedef StringExtItem AccountExtItem;
-
-inline AccountExtItem* GetAccountExtItem()
+/** AccountProvider: use dynamic_reference<AccountProvider> acct("account") to access. */
+class AccountProvider : public DataProvider
 {
-	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
-}
+ public:
+	AccountProvider(Module* mod, const std::string& Name) : DataProvider(mod, Name) {}
+	/** Is the user registered? */
+	virtual bool IsRegistered(User* user) = 0;
+	/**
+	 * Get the account name that a user is using
+	 * @param user The user to query
+	 * @return The account name, or "" if not logged in
+	 */
+	virtual std::string GetAccountName(User* user) = 0;
+};
 
 #endif

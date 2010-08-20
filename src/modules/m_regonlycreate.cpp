@@ -19,6 +19,9 @@
 class ModuleRegOnlyCreate : public Module
 {
  public:
+	dynamic_reference<AccountProvider> account;
+	ModuleRegOnlyCreate() : account("account") {}
+
 	void init()
 	{
 		Implementation eventlist[] = { I_OnCheckJoin };
@@ -33,19 +36,11 @@ class ModuleRegOnlyCreate : public Module
 		if (IS_OPER(join.user))
 			return;
 
-		if (join.user->IsModeSet('r'))
-			return;
-
-		const AccountExtItem* ext = GetAccountExtItem();
-		if (ext && ext->get(join.user))
+		if (account && account->IsRegistered(join.user))
 			return;
 
 		join.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must have a registered nickname to create a new channel", join.channel.c_str());
 		join.result = MOD_RES_DENY;
-	}
-
-	~ModuleRegOnlyCreate()
-	{
 	}
 
 	Version GetVersion()
