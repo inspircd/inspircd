@@ -1581,21 +1581,37 @@
 #<module name="m_setidle.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Services support module: Adds several usermodes such as +R and +M
-# this module implements the 'identified' state via account names (AC)
+# Services support module: Adds account tracking support.
+#
+# This module implements the 'identified' state via account names (AC)
 # and is similar in operation to the way asuka and ircu handle services.
 #
-# At the same time, this offers +r for users and channels to mark them
-# as identified seperately from the idea of a master account, which
-# can be useful for services which are heavily nick-as-account centric.
-#
-# This replaces m_services from 1.1 and earlier.
-#
-# Also of note is that this module implements two extbans:
-# +b R: (stop matching account names from joining)
-# +b M: (stop matching account names from speaking)
-#                                                                       
+# Prior to 2.1, the functionality of m_account_flags and m_account_modes
+# was included in this module; you probably want to load those too.
 #<module name="m_services_account.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Legacy registration flags module
+# This offers +r for users and channels to mark them as identified
+# seperately from the idea of a master account, which can be useful for
+# services which are heavily nick-as-account centric.
+#
+# If your services package does not use +r, this module is not required.
+#<module name="m_account_flags.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# User and channel modes related to accounts.
+#
+# User mode +R      unidentified users cannot message
+# Channel mode +R   unidentified users cannot join
+# Channel mode +M   unidentified users cannot message
+# Extban R:         match users based on account name
+# 
+# Note that the extban "M:" from 1.2 can be implemented using muteban
+# and extban R like "+b m:R:name"
+#
+# If you use accounts, you will likely find this module useful.
+#<module name="m_account_modes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Sethost module: Adds the /SETHOST command
