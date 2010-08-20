@@ -116,9 +116,10 @@ public:
 		}
 		if (!ms.empty())
 		{
-			ServerInstance->Modes->Process(memb->user, memb->chan, ms, false, true);
-			ServerInstance->Modes->Send(memb->user, memb->chan, ms);
-			ServerInstance->PI->SendMode(memb->user, memb->chan, ms);
+			User* src = ServerInstance->Config->CycleHostsFromUser ? memb->user : ServerInstance->FakeClient;
+			ServerInstance->Modes->Process(src, memb->chan, ms, false, true);
+			ServerInstance->Modes->Send(src, memb->chan, ms);
+			ServerInstance->PI->SendMode(src, memb->chan, ms);
 		}
 		if (opflags && !flags.empty())
 			opflags->SetFlags(memb, flags);
