@@ -30,15 +30,25 @@ class OpFlagProviderImpl : public OpFlagProvider
 		return "";
 	}
 
-	void SetFlags(Membership* memb, const std::string& flags)
+	void SetFlags(Membership* memb, const std::string& flags, bool sendGlobal)
 	{
 		if (flags.empty())
 			ext.unset(memb);
 		else
 			ext.set(memb, flags);
+		if (sendGlobal)
+		{
+			parameterlist encap;
+			encap.push_back("*");
+			encap.push_back("OPFLAGS");
+			encap.push_back(memb->chan->name);
+			encap.push_back(memb->user->uuid);
+			encap.push_back(":=" + flags);
+			ServerInstance->PI->SendEncapsulatedData(encap);
+		}
 	}
 
-	std::string SetFlags(Membership* memb, const std::set<std::string>& flags)
+	std::string SetFlags(Membership* memb, const std::set<std::string>& flags, bool sendGlobal)
 	{
 		std::string v;
 		for(std::set<std::string>::iterator i = flags.begin(); i != flags.end(); i++)
@@ -47,10 +57,7 @@ class OpFlagProviderImpl : public OpFlagProvider
 				v.push_back(',');
 			v.append(*i);
 		}
-		if (v.empty())
-			ext.unset(memb);
-		else
-			ext.set(memb, v);
+		SetFlags(memb, v, sendGlobal);
 		return v;
 	}
 
@@ -173,7 +180,7 @@ class FlagCmd : public Command
 		}
 		else
 		{
-			std::string v = prov.SetFlags(memb, flags);
+			std::string v = prov.SetFlags(memb, flags, false);
 			chan->WriteChannelWithServ(src->server, "NOTICE %s :%s set %s opflags to %s",
 				chan->name.c_str(), src->nick.c_str(), user->nick.c_str(), v.c_str());
 		}

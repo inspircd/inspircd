@@ -118,11 +118,11 @@ public:
 		{
 			User* src = ServerInstance->Config->CycleHostsFromUser ? memb->user : ServerInstance->FakeClient;
 			ServerInstance->Modes->Process(src, memb->chan, ms, false, true);
-			ServerInstance->Modes->Send(src, memb->chan, ms);
+			// need SendMode because we are AFTER spanningtree due to opflags
 			ServerInstance->PI->SendMode(src, memb->chan, ms);
 		}
 		if (opflags && !flags.empty())
-			opflags->SetFlags(memb, flags);
+			opflags->SetFlags(memb, flags, true);
 	}
 
 	void OnRehash(User* user)

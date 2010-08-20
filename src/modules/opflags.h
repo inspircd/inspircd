@@ -23,8 +23,8 @@ class OpFlagProvider : public DataProvider
 	virtual std::string GetFlags(Membership* memb) = 0;
 
 	/** Set the flag list for a user */
-	virtual void SetFlags(Membership* memb, const std::string& flags) = 0;
-	virtual std::string SetFlags(Membership* memb, const std::set<std::string>& flags) = 0;
+	virtual void SetFlags(Membership* memb, const std::string& flags, bool sendGlobal) = 0;
+	virtual std::string SetFlags(Membership* memb, const std::set<std::string>& flags, bool sendGlobal) = 0;
 
 	/**
 	 * Check if the user has permission based on a mode/flag list
