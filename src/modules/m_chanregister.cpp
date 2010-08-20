@@ -603,8 +603,9 @@ class ChannelRegistrationModule : public Module
 		ServerInstance->Modules->AddService(mh.last_activity);
 		/* call OnRehash event */
 		OnRehash (NULL);
-		/* rehash procedures finished, read the database */
-		ReadDatabase ( );
+		/* rehash procedures finished, read the database if we have one */
+		if (!chandb.empty())
+			ReadDatabase ( );
 		/* after database read, it's possible some channels must be updated, do it now */
 		dirty = true;
 	}
@@ -616,7 +617,7 @@ class ChannelRegistrationModule : public Module
 		/* get the prefix mode */
 		std::string prefixmode = chregistertag->getString ("prefix", "op");
 		/* get the channel database */
-		chandb = chregistertag->getString ("chandb", "data/channels.db");
+		chandb = chregistertag->getString ("chandb", "");
 		/* get the expire time and convert it to time_t */
 		expiretime = ServerInstance->Duration (chregistertag->getString ("expiretime", "7d"));
 		/* check if prefix exists, if not, throw an exception */
@@ -686,7 +687,8 @@ banned */
 		if (!dirty)
 			return;
 		/* dirty, one of registered channels was changed, save it */
-		WriteDatabase ( );
+		if (!chandb.empty())
+			WriteDatabase ( );
 		/* clear dirty to prevent next savings */
 		dirty = false;
 	}
