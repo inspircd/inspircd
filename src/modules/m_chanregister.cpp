@@ -379,17 +379,23 @@ class RegisterModeHandler : public ParamChannelModeHandler
 		}
 	}
 
-	ModeAction OnModeChange (User *source, User *undefined, Channel *chan, std::string &param, bool adding)
+	ModeAction OnModeChange (User *source, User*, Channel *chan, std::string &param, bool adding)
 	{
-		/* the modechange itself is performed */
-		/* if we are adding the mode, it means we are registering the channel */
 		if (adding)
 		{
-			/* we won't do anything if mode is set */
-			if (chan->IsModeSet (this))
+			std::string now = chan->GetModeParameter(this);
+			if (param == now)
 				return MODEACTION_DENY;
+			if (!now.empty())
+			{
+				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(source) ? 'r' : 'R', "%s changed registration of %s from %s to %s",
+					source->GetFullHost().c_str(), chan->name.c_str(), now.c_str(), param.c_str());
+				if (verbose)
+					chan->WriteChannel(ServerInstance->FakeClient, "NOTICE %s :This channel has been reregistered (%s -> %s)",
+						chan->name.c_str(), now.c_str(), param.c_str());
+			}
 			/* servers are expected to notice their reasons themselves */
-			if (!IS_SERVER(source))
+			else if (!IS_SERVER(source))
 			{
 				/* first, send a message to all ircops with snomask +r set */
 				ServerInstance->SNO->WriteToSnoMask (IS_LOCAL (source) ? 'r' : 'R', "%s registered channel %s to account %s", source->GetFullHost ( ).c_str ( ), chan->name.c_str ( ), param.c_str ( ));
@@ -398,16 +404,10 @@ class RegisterModeHandler : public ParamChannelModeHandler
 					chan->WriteChannel (ServerInstance->FakeClient, "NOTICE %s :This channel has been registered",
 					chan->name.c_str ( ));
 			}
-			/* set channel registrant by setting parameter of mode */
 			chan->SetModeParam (this, param);
-			/* set the mode itself */
-			chan->SetMode (this, true);
-			/* and allow further processing */
-		} else
+		}
+		else
 		{
-			/* if not, we are unregistering it */
-			/*if the channel mode is unset, don't set it again and deny */
-			if (!chan->IsModeSet (this)) return MODEACTION_DENY;
 			/* servers are expected to notice their reasons themselves */
 			if (!IS_SERVER(source))
 			{
@@ -418,15 +418,12 @@ class RegisterModeHandler : public ParamChannelModeHandler
 					chan->WriteChannel (ServerInstance->FakeClient, "NOTICE %s :This channel has been unregistered",
 					chan->name.c_str ( ));
 			}
-			/* then unset the mode */
-			chan->SetMode (this, false);
-			/* unset the last activity metadata for it */
+			chan->SetModeParam(this, "");
 			last_activity.unset(chan);
 			/* now, if usercount is 0, delete the channel */
-			if (!chan->GetUserCounter ( )) chan->DelUser (ServerInstance->FakeClient);
-			/* and allow modechange to proceed */
+			if (!chan->GetUserCounter())
+				chan->DelUser(ServerInstance->FakeClient);
 		}
-		/* allow further actions */
 		return MODEACTION_ALLOW;
 	}
 
