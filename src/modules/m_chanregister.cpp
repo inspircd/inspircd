@@ -587,7 +587,7 @@ class ChannelRegistrationModule : public Module
 	/* get module version and flags. */
 	Version GetVersion ( )
 	{
-		return Version("Provides channel mode +r for channel registration", VF_COMMON);
+		return Version("Provides channel mode +r for channel registration", VF_VENDOR|VF_COMMON);
 	}
 	void init ( )
 	{

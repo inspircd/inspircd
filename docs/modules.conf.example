@@ -654,6 +654,20 @@
 #  <customprefix name="halfvoice" letter="V" prefix="-" rank="2" ranktoset="20000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel registration module: Adds support for ircd-side channel
+# registration
+# Note: This module conflicts with the channel registered mode in
+# m_services_account.  If you want to use this module, you should set
+# <modeletters:c_registered> in inspircd.conf to "" to fix the conflict
+#
+#<module name="m_chanregister.so">
+#-#-#-#-#-#-#-#-# CHANNEL REGISTRATION CONFIGURATION -#-#-#-#-#-#-#-#-#
+# prefix - The minimum rank needed to register an unregistered channel
+# chandb - The file to store channel registration information in
+# expiretime - The amount of time to retain an empty registered channel
+#<chanregister prefix="op" chandb="data/channels.db" expiretime="21d">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted
 #                      users to gain a custom whois line and a optional
 #                      vhost can be specified.
