@@ -308,6 +308,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
  public:
 	ChanExpiryExtItem last_activity;
 	dynamic_reference<AccountProvider> account;
+	bool verbose;
 	RegisterModeHandler(Module *me) : ParamChannelModeHandler(me, "registered", 'r'),
 		last_activity(me), account("account")
 	{
@@ -317,6 +318,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 		oper = false;
 		m_paramtype = TR_TEXT;
 		levelrequired = OP_VALUE;
+		verbose = true;
 	}
 
 	void OnParameterMissing (User *user, User*, Channel *chan, std::string &param)
@@ -392,7 +394,9 @@ class RegisterModeHandler : public ParamChannelModeHandler
 				/* first, send a message to all ircops with snomask +r set */
 				ServerInstance->SNO->WriteToSnoMask (IS_LOCAL (source) ? 'r' : 'R', "%s registered channel %s to account %s", source->GetFullHost ( ).c_str ( ), chan->name.c_str ( ), param.c_str ( ));
 				/* now, send similar to channel */
-				chan->WriteChannel (ServerInstance->FakeClient, "NOTICE %s :This channel has been registered", chan->name.c_str ( ));
+				if (verbose)
+					chan->WriteChannel (ServerInstance->FakeClient, "NOTICE %s :This channel has been registered",
+					chan->name.c_str ( ));
 			}
 			/* set channel registrant by setting parameter of mode */
 			chan->SetModeParam (this, param);
@@ -410,7 +414,9 @@ class RegisterModeHandler : public ParamChannelModeHandler
 				/* it is set, so first send a server notice to all ircops using +r snomask that this channel has been unregistered */
 				ServerInstance->SNO->WriteToSnoMask (IS_LOCAL (source) ? 'r' : 'R', "channel %s unregistered by %s", chan->name.c_str ( ), source->GetFullHost ( ).c_str ( ));
 				/* then send this important message to the channel as the notice */
-				chan->WriteChannel (ServerInstance->FakeClient, "NOTICE %s :This channel has been unregistered", chan->name.c_str ( ));
+				if (verbose)
+					chan->WriteChannel (ServerInstance->FakeClient, "NOTICE %s :This channel has been unregistered",
+					chan->name.c_str ( ));
 			}
 			/* then unset the mode */
 			chan->SetMode (this, false);
@@ -548,14 +554,14 @@ class ChannelRegistrationModule : public Module
 							value = token.substr (namepos + 1);
 						}
 						/* mode name and value found, we can now add it to the modestacker */
-						/* hmm, or we can't, reason is that letters are separate in user and channel modes, but mode names are not, so what if this thing we're setting is 
+						/* hmm, or we can't, reason is that letters are separate in user and channel modes, but mode names are not, so what if this thing we're setting is
 						an user mode? */
 						/* to check that, we must find the mode */
 						ModeHandler *mc = ServerInstance->Modes->FindMode (name);
 						/* those actions will be taken only if mode was found and if it's the channel mode */
 						if (mc && mc->GetModeType ( ) == MODETYPE_CHANNEL)
 						{
-							/* mode was found and is not an user mode but a channel mode, push it to the modestacker, we use id instead of name for quicker push because we 
+							/* mode was found and is not an user mode but a channel mode, push it to the modestacker, we use id instead of name for quicker push because we
 							have the mode handler now */
 							ms.push (irc::modechange (mc->id, value));
 						}
@@ -593,7 +599,7 @@ class ChannelRegistrationModule : public Module
 		/* enable the snomask for channel registration */
 		ServerInstance->SNO->EnableSnomask ('r', "CHANREGISTER");
 		/* attach events */
-		Implementation eventlist[] = {I_OnRehash, I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode, 
+		Implementation eventlist[] = {I_OnRehash, I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode,
 		I_OnPostTopicChange, I_OnRawMode, I_OnUserQuit, I_OnUserPart, I_OnUserKick, I_OnGarbageCollect};
 		ServerInstance->Modules->Attach (eventlist, this, 12);
 		/* add a new service that is a new channel mode handler for handling channel registration mode */
@@ -619,13 +625,15 @@ class ChannelRegistrationModule : public Module
 		chandb = chregistertag->getString ("chandb", "");
 		/* get the expire time and convert it to time_t */
 		expiretime = ServerInstance->Duration (chregistertag->getString ("expiretime", "21d"));
+		/* set verbose directly in a modehandler */
+		mh.verbose = chregistertag->getBool ("verbose", true);
 		/* check if prefix exists, if not, throw an exception */
 		ModeHandler *prefixmodehandler = ServerInstance->Modes->FindMode (prefixmode);
 		if (!prefixmodehandler)
 			throw CoreException ("Module providing the configured prefix is not loaded");
 		mh.set_prefixrequired (prefixmodehandler);
 	}
-	/* OnCheckJoin - this is an event for checking permissions of some user to join some channel, it is used to allow joining by registrants even when 
+	/* OnCheckJoin - this is an event for checking permissions of some user to join some channel, it is used to allow joining by registrants even when
 banned */
 	void OnCheckJoin (ChannelPermissionData &joindata)
 	{
@@ -724,7 +732,7 @@ banned */
 		if ((chan->IsModeSet (&mh)) || (chan->IsModeSet ("permanent")))
 			dirty = true;
 	}
-	/* when someone unsets +r, OnMode event won't mark the database as requiring saving, but it requires to be saved, and because of this, this event 
+	/* when someone unsets +r, OnMode event won't mark the database as requiring saving, but it requires to be saved, and because of this, this event
 	handler is needed */
 	/* it catches all mode changes, and sets database as dirty if register mode is being removed */
 	ModResult OnRawMode (User *user, Channel *chan, irc::modechange &mc)
