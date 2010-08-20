@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "account.h"
 #include "sql.h"
 #include "hash.h"
 
@@ -23,6 +24,8 @@ enum AuthState {
 	AUTH_STATE_FAIL = 2,
 	AUTH_STATE_OK   = 3
 };
+
+static dynamic_reference<AccountProvider> account("account");
 
 class AuthQuery : public SQLQuery
 {
@@ -52,6 +55,8 @@ class AuthQuery : public SQLQuery
 					continue;
 				if (cols[i] == "class")
 					ServerInstance->ForcedClass.set(user, result[i].value);
+				if (cols[i] == "account" && account)
+					account->DoLogin(user, result[i].value);
 			}
 			pendingExt.set(user, AUTH_STATE_OK);
 		}

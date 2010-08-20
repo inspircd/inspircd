@@ -38,6 +38,13 @@ class AccountProvider : public DataProvider
 	 * @return The account name, or "" if not logged in
 	 */
 	virtual std::string GetAccountName(User* user) = 0;
+	/**
+	 * Log the user in to an account.
+	 *
+	 * @param user The user to log in
+	 * @param name The account name to log them in with. Empty to log out.
+	 */
+	virtual void DoLogin(User* user, const std::string& name) = 0;
 };
 
 #endif

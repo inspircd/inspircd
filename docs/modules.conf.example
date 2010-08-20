@@ -1017,6 +1017,7 @@
 #           searchscope="subtree"                                     #
 #           binddn="cn=Manager,dc=brainbox,dc=cc"                     #
 #           bindauth="mysecretpass"                                   #
+#           setaccount="no"                                           #
 #           verbose="yes">                                            #
 #                                                                     #
 # The baserdn indicates the base DN to search in for users. Usually   #
@@ -1046,6 +1047,9 @@
 # allow anonymous searching in which case these two values do not     #
 # need defining, otherwise they should be set similar to the examples #
 # above.                                                              #
+#                                                                     #
+# If setaccount is yes, the account name in m_services_account is set #
+# to the LDAP username that was authenticated                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP oper configuration module: Adds the ability to authenticate    #

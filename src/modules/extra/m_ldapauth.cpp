@@ -22,9 +22,7 @@
  */
 
 #include "inspircd.h"
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
+#include "account.h"
 
 #include <ldap.h>
 
@@ -44,10 +42,12 @@ class ModuleLDAPAuth : public Module
 	int searchscope;
 	bool verbose;
 	bool useusername;
+	bool setaccount;
 	LDAP *conn;
+	dynamic_reference<AccountProvider> acctprov;
 
 public:
-	ModuleLDAPAuth() : ldapAuthed("ldapauth", this)
+	ModuleLDAPAuth() : ldapAuthed("ldapauth", this), acctprov("account")
 	{
 		conn = NULL;
 	}
@@ -79,6 +79,7 @@ public:
 		password		= Conf.ReadValue("ldapauth", "bindauth", 0);
 		verbose			= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 		useusername		= Conf.ReadFlag("ldapauth", "userfield", 0);
+		setaccount		= Conf.ReadFlag("ldapauth", "setaccount", 0);
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
@@ -169,8 +170,9 @@ public:
 			}
 		}
 
+		std::string acctname = useusername ? user->ident : user->nick;
 		LDAPMessage *msg, *entry;
-		std::string what = (attribute + "=" + (useusername ? user->ident : user->nick));
+		std::string what = attribute + "=" + acctname;
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
 			// Do a second search, based on password, if it contains a :
@@ -178,7 +180,9 @@ public:
 			size_t pos = user->password.find(":");
 			if (pos != std::string::npos)
 			{
-				res = ldap_search_ext_s(conn, base.c_str(), searchscope, user->password.substr(0, pos).c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
+				acctname = user->password.substr(0, pos);
+				what = attribute + "=" + acctname;
+				res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
 
 				if (res)
 				{
@@ -215,6 +219,8 @@ public:
 		{
 			ldap_msgfree(msg);
 			ldapAuthed.set(user,1);
+			if (setaccount && acctprov)
+				acctprov->DoLogin(user, acctname);
 			return true;
 		}
 		else

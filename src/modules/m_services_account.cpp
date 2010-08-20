@@ -37,6 +37,23 @@ class ServicesAccountProvider : public AccountProvider
 			return *account;
 		return "";
 	}
+
+	void DoLogin(User* user, const std::string& acct)
+	{
+		if (IS_LOCAL(user) && !acct.empty())
+			user->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
+				user->nick.c_str(), user->GetFullHost().c_str(), acct.c_str(), acct.c_str());
+
+		if (acct.empty())
+			ext.unset(user);
+		else
+			ext.set(user, acct);
+
+		if (user->registered == REG_ALL)
+			ServerInstance->PI->SendMetaData(user, "accountname", acct);
+
+		AccountEvent(creator, user, acct).Send();
+	}
 };
 
 class ModuleServicesAccount : public Module
