@@ -424,13 +424,9 @@ class RegisterModeHandler : public ParamChannelModeHandler
 		return MODEACTION_ALLOW;
 	}
 
-	void set_prefixrequired (std::string prefixrequired)
+	void set_prefixrequired (ModeHandler *mh)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(prefixrequired);
-		if (mh)
-			levelrequired = mh->GetPrefixRank();
-		else
-			levelrequired = OP_VALUE;
+		levelrequired = mh->GetPrefixRank();
 	}
 };
 
@@ -624,8 +620,10 @@ class ChannelRegistrationModule : public Module
 		/* get the expire time and convert it to time_t */
 		expiretime = ServerInstance->Duration (chregistertag->getString ("expiretime", "21d"));
 		/* check if prefix exists, if not, throw an exception */
-		if (!ServerInstance->Modes->FindMode (prefixmode)) throw CoreException ("Module providing the configured prefix is not loaded");
-		mh.set_prefixrequired (prefixmode);
+		ModeHandler *prefixmodehandler = ServerInstance->Modes->FindMode (prefixmode);
+		if (!prefixmodehandler)
+			throw CoreException ("Module providing the configured prefix is not loaded");
+		mh.set_prefixrequired (prefixmodehandler);
 	}
 	/* OnCheckJoin - this is an event for checking permissions of some user to join some channel, it is used to allow joining by registrants even when 
 banned */
