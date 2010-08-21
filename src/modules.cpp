@@ -519,7 +519,10 @@ void ConfigReadStatus::ReportError(const std::string& msg, bool Fatal)
 
 void ConfigReadStatus::ReportError(ConfigTag* where, const char* why, bool Fatal)
 {
-	ReportError("Error in <" + where->tag + "> tag at " + where->getTagLocation() + ": " + why, Fatal);
+	if (where)
+		ReportError("Error in <" + where->tag + "> tag at " + where->getTagLocation() + ": " + why, Fatal);
+	else
+		ReportError("Error in missing tag: " + std::string(why), Fatal);
 }
 
 ConfigTag* ConfigReadStatus::GetTag(const std::string& tag)
@@ -615,7 +618,13 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 		}
 		case SERVICE_MODE:
 			return ServerInstance->Modes->FindMode(name);
-		// TODO implement finding of the other types
+		case SERVICE_COMMAND:
+		{
+			Commandtable::iterator i = ServerInstance->Parser->cmdlist.find(name);
+			return i == ServerInstance->Parser->cmdlist.end() ? NULL : i->second;
+		}
+		case SERVICE_METADATA:
+			return ServerInstance->Extensions.GetItem(name);
 		default:
 			throw ModuleException("Cannot find unknown service type");
 	}

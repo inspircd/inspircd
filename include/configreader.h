@@ -183,7 +183,7 @@ class CoreExport ConfigReadStatus : public interfacebase
 	void ReportError(const std::string& msg, bool fatal = true);
 	/** Simple error reporting */
 	void ReportError(ConfigTag* where, const char* why, bool fatal = true);
-	/** Wrapper around ServerInstance->Config->ConfValue that reports duplicate tags */
+	/** Get a single tag, warn on duplicates; return NULL if not found */
 	ConfigTag* GetTag(const std::string& key);
 	/** Convenience wrapper on ServerInstance->Config->ConfTags */
 	ConfigTagList GetTags(const std::string& key);
@@ -203,16 +203,13 @@ class CoreExport ServerConfig
  public:
 	ServerConfig(RehashReason);
 
-	/** Get a configuration tag
-	 * @param tag The name of the tag to get
-	 */
-	ConfigTag* GetTag(const std::string& tag);
-	inline ConfigTag* ConfValue(const std::string& tag) { return GetTag(tag); }
+	ConfigReadStatus status;
+
+	inline ConfigTag* GetTag(const std::string& tag) { return status.GetTag(tag); }
+	inline ConfigTag* ConfValue(const std::string& tag) { return status.GetTag(tag); }
 
 	ConfigTagList GetTags(const std::string& tag);
 	inline ConfigTagList ConfTags(const std::string& tag) { return GetTags(tag); }
-
-	ConfigReadStatus status;
 
 	/** Bind to IPv6 by default */
 	bool WildcardIPv6;
