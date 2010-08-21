@@ -351,7 +351,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			/* new functionality, you can't register any channel if you don't have the oper privilege and chanlimit == 0 */
 			if (chanlimit == 0)
 			{
-				perm.ErrorNumeric (ERR_NOPRIVILEGES, "permission denied - only irc operators may register channels");
+				perm.ErrorNumeric (ERR_NOPRIVILEGES, ":Permission denied - only IRC operators may register channels");
 				perm.result = MOD_RES_DENY;
 				return;
 			}
@@ -370,7 +370,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			/* check for limit */
 			if (chans >= chanlimit)
 			{
-				perm.ErrorNumeric (ERR_CHANOPRIVSNEEDED, "You can't register more than %i channels under one account", chans);
+				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You can't register more than %i channels under one account", perm.chan->name.c_str(), chans);
 				perm.result = MOD_RES_DENY;
 				return;
 			}
@@ -380,7 +380,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			/* if the account name was not given, is empty or is not equal to the given parameter, deny */
 			if (acctname.empty() || !registrantnames.GetToken(registrantname) || acctname != registrantname)
 			{
-				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be logged in to the account that is the first account that you are registering a channel to",
+				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be logged in to the first account in the registrant list",
 					perm.chan->name.c_str());
 				perm.result = MOD_RES_DENY;
 			}
