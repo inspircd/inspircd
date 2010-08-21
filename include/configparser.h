@@ -34,7 +34,7 @@ struct ParseStack
 	std::stringstream& errstr;
 
 	ParseStack(ServerConfig* conf)
-		: output(conf->config_data), FilesOutput(conf->Files), errstr(conf->errstr)
+		: output(conf->config_data), FilesOutput(conf->Files), errstr(conf->status.errors)
 	{
 		vars["amp"] = "&";
 		vars["quot"] = "\"";

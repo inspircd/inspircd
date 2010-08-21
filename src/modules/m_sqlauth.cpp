@@ -95,12 +95,11 @@ class ModuleSQLAuth : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(pendingExt);
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("sqlauth");
 		std::string dbid = conf->getString("dbid");

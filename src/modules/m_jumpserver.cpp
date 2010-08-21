@@ -142,8 +142,8 @@ class ModuleJumpServer : public Module
 	void init()
 	{
 		ServerInstance->AddCommand(&js);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void OnUserRegister(LocalUser* user)
@@ -156,10 +156,10 @@ class ModuleJumpServer : public Module
 		}
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		// Emergency way to unlock
-		if (!user) js.redirect_new_users = false;
+		js.redirect_new_users = false;
 	}
 
 	virtual Version GetVersion()

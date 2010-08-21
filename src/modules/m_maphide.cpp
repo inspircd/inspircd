@@ -21,12 +21,11 @@ class ModuleMapHide : public Module
  public:
 	void init()
 	{
-		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader MyConf;
 		url = MyConf.ReadValue("security", "maphide", 0);

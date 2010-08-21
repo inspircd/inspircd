@@ -48,13 +48,10 @@ class ModuleCensor : public Module
 
 	void init()
 	{
-		/* Read the configuration file on startup.
-		 */
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(cc);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 
@@ -108,7 +105,7 @@ class ModuleCensor : public Module
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes

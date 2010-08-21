@@ -21,9 +21,8 @@ class ModulePassForward : public Module
  public:
 	void init()
 	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnPostConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	Version GetVersion()
@@ -31,7 +30,7 @@ class ModulePassForward : public Module
 		return Version("Sends server password to NickServ", VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		nickrequired = Conf.ReadValue("passforward", "nick", "NickServ", 0);

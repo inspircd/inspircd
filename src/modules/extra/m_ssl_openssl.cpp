@@ -379,12 +379,12 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect };
+		Implementation eventlist[] = { I_On005Numeric, I_OnModuleRehash, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->Modules->AddService(iohook);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		sslports.clear();
 
@@ -418,7 +418,6 @@ class ModuleSSLOpenSSL : public Module
 		std::string certfile;
 		std::string cafile;
 		std::string dhfile;
-		OnRehash(user);
 
 		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
 

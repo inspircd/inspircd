@@ -352,14 +352,12 @@ public:
 
 	void init()
 	{
-		OnRehash(NULL);
-
 		ServerInstance->Modules->AddService(myumode);
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.extInfo);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	virtual ~ModuleCallerID()
@@ -432,7 +430,7 @@ public:
 		RemoveFromAllAccepts(user);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		cmd.maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);

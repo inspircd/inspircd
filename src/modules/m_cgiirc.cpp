@@ -163,15 +163,14 @@ public:
 
 	void init()
 	{
-		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Extensions.Register(&cmd.realhost);
 		ServerInstance->Extensions.Register(&cmd.realip);
 		ServerInstance->Extensions.Register(&cmd.webirc_hostname);
 		ServerInstance->Extensions.Register(&cmd.webirc_ip);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void Prioritize()
@@ -181,7 +180,7 @@ public:
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, &umodes);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		cmd.Hosts.clear();
 

@@ -210,13 +210,12 @@ class ModuleOpFlags : public Module
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.prov);
 		ServerInstance->Modules->AddService(cmd.prov.ext);
-		OnRehash(NULL);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnSyncChannel, I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void OnRehash(User*)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("opflags");
 		cmd.conflevel = tag->getInt("level", OP_VALUE);

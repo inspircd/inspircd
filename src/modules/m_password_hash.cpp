@@ -76,9 +76,6 @@ class ModuleOperHash : public Module
 
 	void init()
 	{
-		/* Read the config file first */
-		OnRehash(NULL);
-
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnPassCompare };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

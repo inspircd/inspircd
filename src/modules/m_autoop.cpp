@@ -72,8 +72,8 @@ public:
 		mh.init();
 		ServerInstance->Modules->AddService(mh);
 
-		Implementation list[] = { I_OnUserJoin, I_OnRehash };
-		ServerInstance->Modules->Attach(list, this, 2);
+		Implementation list[] = { I_OnUserJoin };
+		ServerInstance->Modules->Attach(list, this, 1);
 	}
 
 	void Prioritize()
@@ -125,7 +125,7 @@ public:
 			opflags->SetFlags(memb, flags, true);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		mh.DoRehash();
 	}

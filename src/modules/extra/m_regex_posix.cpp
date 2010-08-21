@@ -91,9 +91,6 @@ public:
 	void init()
 	{
 		ServerInstance->Modules->AddService(ref);
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
-		OnRehash(NULL);
 	}
 
 	void Prioritize()
@@ -107,7 +104,7 @@ public:
 		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
 	}
 
-	void OnRehash(User* u)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		ref.extended = Conf.ReadFlag("posix", "extended", 0);

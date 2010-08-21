@@ -51,8 +51,8 @@ public:
 		be.init();
 		ServerInstance->Modules->AddService(be);
 
-		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
-		ServerInstance->Modules->Attach(list, this, 4);
+		Implementation list[] = { I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
+		ServerInstance->Modules->Attach(list, this, 3);
 	}
 
 	void On005Numeric(std::string &output)
@@ -110,7 +110,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		be.DoRehash();
 	}

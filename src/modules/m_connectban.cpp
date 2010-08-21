@@ -27,9 +27,8 @@ class ModuleConnectBan : public Module
  public:
 	void init()
 	{
-		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleConnectBan()
@@ -41,7 +40,7 @@ class ModuleConnectBan : public Module
 		return Version("Throttles the connections of any users who try connect flood", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		std::string duration;

@@ -270,12 +270,11 @@ class ModuleIdent : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		Implementation eventlist[] = {
-			I_OnRehash, I_OnUserInit, I_OnCheckReady,
+			I_OnUserInit, I_OnCheckReady,
 			I_OnUserDisconnect, I_OnSetConnectClass
 		};
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	~ModuleIdent()
@@ -287,7 +286,7 @@ class ModuleIdent : public Module
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User *user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 

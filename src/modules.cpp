@@ -76,7 +76,7 @@ void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { }
 void		Module::OnPostJoin(Membership*) { }
 void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
-void		Module::OnRehash(User*) { }
+void		Module::ReadConfig(ConfigReadStatus&) { }
 void		Module::OnMode(User*, Extensible*, const irc::modestacker&) { }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
@@ -508,6 +508,37 @@ CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const std
 bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, User* user)
 {
 	return this->Parser->IsValidCommand(commandname, pcnt, user);
+}
+
+void ConfigReadStatus::ReportError(const std::string& msg, bool Fatal)
+{
+	errors << msg << "\n";
+	if (Fatal)
+		fatal = true;
+}
+
+void ConfigReadStatus::ReportError(ConfigTag* where, const char* why, bool Fatal)
+{
+	ReportError("Error in <" + where->tag + "> tag at " + where->getTagLocation() + ": " + why, Fatal);
+}
+
+ConfigTag* ConfigReadStatus::GetTag(const std::string& tag)
+{
+	ConfigTagList found = ServerInstance->Config->config_data.equal_range(tag);
+	if (found.first == found.second)
+		return NULL;
+	ConfigTag* rv = found.first->second;
+	found.first++;
+	if (found.first != found.second)
+		ReportError("Multiple <" + tag + "> tags found; only first will be used "
+			"(first at " + rv->getTagLocation() + "; second at " + found.first->second->getTagLocation() + ")",
+			false);
+	return rv;
+}
+
+ConfigTagList ConfigReadStatus::GetTags(const std::string& key)
+{
+	return ServerInstance->Config->ConfTags(key);
 }
 
 void ModuleManager::AddService(ServiceProvider& item)

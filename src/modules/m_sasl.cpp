@@ -174,15 +174,14 @@ class ModuleSASL : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 
 		ServiceProvider* providelist[] = { &auth, &sasl, &authExt };
 		ServerInstance->Modules->AddServices(providelist, 3);
 	}
 
-	void OnRehash(User*)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
 	}

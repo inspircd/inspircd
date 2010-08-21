@@ -61,13 +61,12 @@ class ModuleDeaf : public Module
 	{
 		ServerInstance->Modules->AddService(m1);
 
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader conf;
 		deaf_bypasschars = conf.ReadValue("deaf", "bypasschars", 0);

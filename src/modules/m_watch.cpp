@@ -376,16 +376,15 @@ class Modulewatch : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		whos_watching_me = new watchentries();
 		ServerInstance->AddCommand(&cmdw);
 		ServerInstance->AddCommand(&sw);
 		ServerInstance->Extensions.Register(&cmdw.ext);
-		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnGarbageCollect, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
+		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		maxwatch = Conf.ReadInteger("watch", "maxentries", 0, true);

@@ -114,8 +114,8 @@ public:
 		locked = false;
 		ServerInstance->AddCommand(&lockcommand);
 		ServerInstance->AddCommand(&unlockcommand);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleLockserv()
@@ -123,10 +123,10 @@ public:
 	}
 
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		// Emergency way to unlock
-		if (!user) locked = false;
+		locked = false;
 	}
 
 	void OnUserRegister(LocalUser* user)

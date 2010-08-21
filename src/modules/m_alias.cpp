@@ -115,7 +115,6 @@ class ModuleAlias : public Module
 		ReadAliases();
 		ServerInstance->Modules->AddService(echo);
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
-		ServerInstance->Modules->Attach(I_OnRehash, this);
 		ServerInstance->Modules->Attach(I_OnUserMessage, this);
 	}
 
@@ -386,7 +385,7 @@ class ModuleAlias : public Module
 		ServerInstance->Parser->CallHandler(command, pars, user);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ReadAliases();
  	}

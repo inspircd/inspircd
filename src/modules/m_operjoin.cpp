@@ -44,13 +44,12 @@ class ModuleOperjoin : public Module
 	public:
 		void init()
 		{
-			OnRehash(NULL);
-			Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
-			ServerInstance->Modules->Attach(eventlist, this, 2);
+			Implementation eventlist[] = { I_OnPostOper };
+			ServerInstance->Modules->Attach(eventlist, this, 1);
 		}
 
 
-		virtual void OnRehash(User* user)
+		void ReadConfig(ConfigReadStatus&)
 		{
 			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
 

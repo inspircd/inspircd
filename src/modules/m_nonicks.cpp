@@ -32,10 +32,9 @@ class ModuleNoNickChange : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(nn);
-		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleNoNickChange()
@@ -85,7 +84,7 @@ class ModuleNoNickChange : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		override = Conf.ReadFlag("nonicks", "operoverride", "no", 0);

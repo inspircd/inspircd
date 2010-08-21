@@ -64,10 +64,9 @@ class ModuleExemptChanOps : public Module
 	{
 		ec.init();
 		ServerInstance->Modules->AddService(ec);
-		Implementation eventlist[] = { I_OnRehash, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 
-		OnRehash(NULL);
 	}
 
 	void Prioritize()
@@ -113,7 +112,7 @@ class ModuleExemptChanOps : public Module
 		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ec.DoRehash();
 	}

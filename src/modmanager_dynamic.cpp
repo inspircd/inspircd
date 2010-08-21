@@ -64,6 +64,12 @@ bool ModuleManager::Load(const std::string& filename, bool defer, ModuleState* s
 			}
 			else
 			{
+				ConfigReadStatus conf(REHASH_LOAD);
+				newmod->ReadConfig(conf);
+
+				if (conf.fatal)
+					throw ModuleException(conf.errors.str());
+
 				newmod->init();
 
 				Version v = newmod->GetVersion();
@@ -215,6 +221,7 @@ void ModuleManager::LoadAll()
 		}
 	}
 
+	ConfigReadStatus conf(REHASH_BOOT);
 	IntModuleList& initlist = EventHandlers[I_ModuleInit];
 	for(size_t i=0; i < initlist.size(); i++)
 	{
@@ -222,6 +229,7 @@ void ModuleManager::LoadAll()
 		try
 		{
 			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", mod->ModuleSourceFile.c_str());
+			mod->ReadConfig(conf);
 			mod->init();
 		}
 		catch (CoreException& modexcept)
@@ -233,6 +241,11 @@ void ModuleManager::LoadAll()
 		}
 	}
 	initlist.clear();
+	if (conf.fatal)
+	{
+		fputs(conf.errors.str().c_str(), stdout); 
+		ServerInstance->Exit(EXIT_STATUS_MODULE);
+	}
 }
 
 #endif

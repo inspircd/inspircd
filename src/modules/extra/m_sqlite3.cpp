@@ -203,10 +203,6 @@ class ModuleSQLite3 : public Module
 
 	void init()
 	{
-		ReadConf();
-
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleSQLite3()
@@ -225,7 +221,7 @@ class ModuleSQLite3 : public Module
 		conns.clear();
 	}
 
-	void ReadConf()
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ClearConns();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
@@ -237,11 +233,6 @@ class ModuleSQLite3 : public Module
 			conns.insert(std::make_pair(i->second->getString("id"), conn));
 			ServerInstance->Modules->AddService(*conn);
 		}
-	}
-
-	void OnRehash(User* user)
-	{
-		ReadConf();
 	}
 
 	Version GetVersion()

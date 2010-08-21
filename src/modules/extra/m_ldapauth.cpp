@@ -54,9 +54,8 @@ public:
 
 	void init()
 	{
-		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnCheckReady, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	~ModuleLDAPAuth()
@@ -65,7 +64,7 @@ public:
 			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 

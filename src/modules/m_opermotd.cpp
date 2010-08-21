@@ -75,8 +75,8 @@ class ModuleOpermotd : public Module
 		ServerInstance->AddCommand(&cmd);
 		opermotd = new FileReader;
 		LoadOperMOTD();
-		Implementation eventlist[] = { I_OnRehash, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnOper };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleOpermotd()
@@ -96,7 +96,7 @@ class ModuleOpermotd : public Module
 			ShowOperMOTD(user);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		LoadOperMOTD();
 	}

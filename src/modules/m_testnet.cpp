@@ -103,7 +103,6 @@ static void checkall(Module* noimpl)
 	CHK(OnUserDisconnect);
 	CHK(OnUserJoin);
 	CHK(OnUserPart);
-	CHK(OnRehash);
 	CHK(OnSendSnotice);
 	CHK(OnCheckJoin);
 	CHK(OnPermissionCheck);

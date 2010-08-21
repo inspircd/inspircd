@@ -29,12 +29,11 @@ class ModuleWaitPong : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 

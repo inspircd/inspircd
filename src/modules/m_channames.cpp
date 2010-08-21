@@ -57,9 +57,8 @@ class ModuleChannelNames : public Module
 	void init()
 	{
 		badchan = false;
-		Implementation eventlist[] = { I_OnRehash, I_OnUserKick };
+		Implementation eventlist[] = { I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL);
 	}
 
 	void ValidateChans()
@@ -91,7 +90,7 @@ class ModuleChannelNames : public Module
 		badchan = false;
 	}
 
-	virtual void OnRehash(User* user)
+	virtual void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		std::string denyToken = Conf.ReadValue("channames", "denyrange", 0);

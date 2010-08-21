@@ -148,7 +148,7 @@ class ModuleFilter : public Module
 	void SendFilter(SyncTarget* opaque, FilterResult* iter);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags);
 	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	void OnRehash(User* user);
+	void ReadConfig(ConfigReadStatus&);
 	Version GetVersion();
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
@@ -260,9 +260,8 @@ ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine("regex")
 void ModuleFilter::init()
 {
 	ServerInstance->AddCommand(&filtcommand);
-	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
-	ServerInstance->Modules->Attach(eventlist, this, 7);
-	OnRehash(NULL);
+	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice };
+	ServerInstance->Modules->Attach(eventlist, this, 6);
 }
 
 ModuleFilter::~ModuleFilter()
@@ -429,7 +428,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleFilter::OnRehash(User* user)
+void ModuleFilter::ReadConfig(ConfigReadStatus&)
 {
 	ConfigReader MyConf;
 	std::vector<std::string>().swap(exemptfromfilter);

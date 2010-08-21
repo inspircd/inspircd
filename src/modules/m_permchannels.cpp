@@ -147,10 +147,9 @@ public:
 	void init()
 	{
 		ServerInstance->Modules->AddService(p);
-		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnMode, I_OnRehash, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnMode, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 
-		OnRehash(NULL);
 	}
 
 	CullResult cull()
@@ -159,7 +158,7 @@ public:
 		return Module::cull();
 	}
 
-	virtual void OnRehash(User *user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		/*
 		 * Process config-defined list of permanent channels.

@@ -210,8 +210,6 @@ class ModuleServerBots : public Module
 	{
 		recursing = false;
 		botID = 0;
-		OnRehash(NULL);
-		ServerInstance->Modules->Attach(I_OnRehash, this);
 		ServerInstance->Modules->Attach(I_OnUserMessage, this);
 	}
 
@@ -240,7 +238,7 @@ class ModuleServerBots : public Module
 		recursing = false;
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		std::map<std::string, BotData*> oldbots;
 		oldbots.swap(bots);

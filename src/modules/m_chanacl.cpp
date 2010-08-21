@@ -53,10 +53,8 @@ class ModuleChanACL : public Module
 	{
 		ec.init();
 		ServerInstance->Modules->AddService(ec);
-		Implementation eventlist[] = { I_OnRehash, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
-
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void Prioritize()
@@ -135,7 +133,7 @@ class ModuleChanACL : public Module
 		return Version("Provides the ability to define channel access control lists.",VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ec.DoRehash();
 	}

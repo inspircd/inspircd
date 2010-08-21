@@ -43,7 +43,7 @@ class ModuleHTTPAccessList : public Module
 
  public:
 
-	void ReadConfig()
+	void ReadConfig(ConfigReadStatus& conf)
 	{
 		acl_list.clear();
 		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
@@ -88,7 +88,6 @@ class ModuleHTTPAccessList : public Module
 	}
 
 	void init() {
-		ReadConfig();
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

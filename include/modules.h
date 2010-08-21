@@ -97,7 +97,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 5
+#define INSPIRCD_VERSION_API 6
 
 /**
  * This #define allows us to call a method in all
@@ -340,7 +340,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
 enum Implementation
 {
 	I_ModuleInit,
-	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash,
+	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreNick,
 	I_OnUserMessage, I_OnUserNotice, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
@@ -441,10 +441,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	Module();
 
-	/** Module setup
+	/** Configuration reading hook. Called just before init() on module load, and on a rehash.
+	 */
+	virtual void ReadConfig(ConfigReadStatus&);
+
+	/** Module setup. Add the hooks you need here; without this, your module won't do anything.
 	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
 	 */
-	virtual void init() {}
+	virtual void init() = 0;
 
 	/** Clean up prior to destruction
 	 * If you override, you must call this AFTER your module's cleanup
@@ -465,6 +469,10 @@ class CoreExport Module : public classbase, public usecountbase
 	 * Version::Version
 	 */
 	virtual Version GetVersion() = 0;
+	
+	//////////////////////////////////////////////////////////////////////////////////////
+	// All functions below here are never called unless you register for them in init() //
+	//////////////////////////////////////////////////////////////////////////////////////
 
 	/** Called when a user connects.
 	 * The details of the connecting user are available to you in the parameter User *user
@@ -535,14 +543,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param parameter The parameter given to REHASH
 	 */
 	virtual void OnModuleRehash(User* user, const std::string &parameter);
-
-	/** Called on rehash.
-	 * This method is called after a rehash has completed. You should use it to reload any module
-	 * configuration from the main configuration file.
-	 * @param user The user that performed the rehash, if it was initiated by a user and that user
-	 * is still connected.
-	 */
-	virtual void OnRehash(User* user);
 
 	/** Called whenever a snotice is about to be sent to a snomask.
 	 * snomask and type may both be modified; the message may not.
@@ -1535,6 +1535,8 @@ class CoreExport ModuleManager
 	{
 		return static_cast<T*>(FindService(SERVICE_DATA, name));
 	}
+
+	inline const std::map<std::string, Module*>& GetModules() { return Modules; }
 
 	/** Return a list of all modules matching the given filter
 	 * @param filter This int is a bitmask of flags set in Module::Flags,

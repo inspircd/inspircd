@@ -279,15 +279,14 @@ class ModuleSilence : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmdsilence);
 		ServerInstance->AddCommand(&cmdsvssilence);
 
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);

@@ -361,7 +361,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Users->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
-	this->Config = new ServerConfig;
+	this->Config = new ServerConfig(REHASH_BOOT);
 	this->SNO = new SnomaskManager;
 	this->BanCache = new BanCacheManager;
 	this->Modules = new ModuleManager();
@@ -519,8 +519,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	/* During startup we don't actually initialize this
 	 * in the thread engine.
 	 */
-	this->Config->Read();
-	this->Config->Apply(NULL, "");
+	Config->Read();
+	Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
 
 	this->Res = new DNS();

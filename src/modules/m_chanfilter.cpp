@@ -73,16 +73,13 @@ class ModuleChanFilter : public Module
 		cf.init();
 		ServerInstance->Modules->AddService(cf);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
-
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual void OnRehash(User* user)
+	virtual void ReadConfig(ConfigReadStatus& stat)
 	{
-		ConfigReader Conf;
-		hidemask = Conf.ReadFlag("chanfilter", "hidemask", 0);
+		hidemask = stat.GetTag("chanfilter")->getBool("hidemask");
 		cf.DoRehash();
 	}
 

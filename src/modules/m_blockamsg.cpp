@@ -51,10 +51,9 @@ class ModuleBlockAmsg : public Module
 
 	void init()
 	{
-		this->OnRehash(NULL);
 		ServerInstance->Extensions.Register(&blockamsg);
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnPreCommand };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 
@@ -67,7 +66,7 @@ class ModuleBlockAmsg : public Module
 		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	virtual void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 

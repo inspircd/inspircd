@@ -502,8 +502,8 @@ class ModulePgSQL : public Module
 	{
 		ReadConf();
 
-		Implementation eventlist[] = { I_OnUnloadModule, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUnloadModule };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModulePgSQL()
@@ -513,7 +513,7 @@ class ModulePgSQL : public Module
 		ClearAllConnections();
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ReadConf();
 	}

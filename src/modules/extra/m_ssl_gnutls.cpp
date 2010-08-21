@@ -558,15 +558,14 @@ class ModuleSSLGnuTLS : public Module
 
 		ServerInstance->GenRandom = &randhandler;
 
-		// Void return, guess we assume success
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect, I_OnEvent, I_OnGarbageCollect };
+		Implementation eventlist[] = { I_On005Numeric, I_OnModuleRehash, I_OnUserConnect, I_OnEvent, I_OnGarbageCollect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->Modules->AddService(iohook);
 		ServerInstance->AddCommand(&starttls);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		sslports.clear();
 
@@ -597,8 +596,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if(param != "ssl")
 			return;
-
-		OnRehash(user);
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 

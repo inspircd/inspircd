@@ -48,9 +48,8 @@ public:
 
 	void init()
 	{
-		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnPassCompare };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleLDAPOper()
@@ -59,7 +58,7 @@ public:
 			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 

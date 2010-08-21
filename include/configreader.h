@@ -161,6 +161,34 @@ class CoreExport OperInfo : public refcountbase
 	}
 };
 
+enum RehashReason {
+	REHASH_BOOT,
+	REHASH_LOAD,
+	REHASH_NEWCONF
+};
+
+class CoreExport ConfigReadStatus : public interfacebase
+{
+ public:
+	/** Reason for the rehash */
+	const RehashReason reason;
+	/** Current error list for this rehash */
+	std::stringstream errors;
+	/** Is this failure fatal? Will block module load or boot, and cautions about this on rehash. If
+	 * set prior to switching ServerInstance->Config, will also block rehash.
+	 */
+	bool fatal;
+	ConfigReadStatus(RehashReason Reason) : reason(Reason), fatal(false) {}
+	/** Raw error reporting */
+	void ReportError(const std::string& msg, bool fatal = true);
+	/** Simple error reporting */
+	void ReportError(ConfigTag* where, const char* why, bool fatal = true);
+	/** Wrapper around ServerInstance->Config->ConfValue that reports duplicate tags */
+	ConfigTag* GetTag(const std::string& key);
+	/** Convenience wrapper on ServerInstance->Config->ConfTags */
+	ConfigTagList GetTags(const std::string& key);
+};
+
 /** This class holds the bulk of the runtime configuration for the ircd.
  * It allows for reading new config values, accessing configuration files,
  * and storage of the configuration data needed to run the ircd, such as
@@ -173,21 +201,18 @@ class CoreExport ServerConfig
 	void CrossCheckConnectBlocks(ServerConfig* current);
 
  public:
+	ServerConfig(RehashReason);
 
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get
-	 * @param offset get the Nth occurance of the tag
 	 */
-	ConfigTag* ConfValue(const std::string& tag);
+	ConfigTag* GetTag(const std::string& tag);
+	inline ConfigTag* ConfValue(const std::string& tag) { return GetTag(tag); }
 
-	ConfigTagList ConfTags(const std::string& tag);
+	ConfigTagList GetTags(const std::string& tag);
+	inline ConfigTagList ConfTags(const std::string& tag) { return GetTags(tag); }
 
-	/** Error stream, contains error output from any failed configuration parsing.
-	 */
-	std::stringstream errstr;
-
-	/** True if this configuration is valid enough to run with */
-	bool valid;
+	ConfigReadStatus status;
 
 	/** Bind to IPv6 by default */
 	bool WildcardIPv6;
@@ -486,10 +511,6 @@ class CoreExport ServerConfig
 	 */
 	std::string sid;
 
-	/** Construct a new ServerConfig
-	 */
-	ServerConfig();
-
 	/** Get server ID as string with required leading zeroes
 	 */
 	std::string GetSID();
@@ -544,7 +565,7 @@ class CoreExport ConfigReaderThread : public Thread
  public:
 	const std::string TheUserUID;
 	ConfigReaderThread(const std::string &useruid)
-		: Config(new ServerConfig), done(false), TheUserUID(useruid)
+		: Config(new ServerConfig(REHASH_NEWCONF)), done(false), TheUserUID(useruid)
 	{
 	}
 

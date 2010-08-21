@@ -49,17 +49,15 @@ class ModuleAuditorium : public Module
 	{
 		ServerInstance->Modules->AddService(aum);
 
-		OnRehash(NULL);
-
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	~ModuleAuditorium()
 	{
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("auditorium");
 		OpsVisible = tag->getBool("opvisible");

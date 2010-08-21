@@ -653,8 +653,6 @@ class ModuleMsSQL : public Module
 
 		ServerInstance->Threads->Start(queryDispatcher);
 
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 		ServerInstance->Modules->AddService(sqlserv);
 	}
 
@@ -778,7 +776,7 @@ class ModuleMsSQL : public Module
 		}
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&);
 	{
 		queryDispatcher->LockQueue();
 		ReadConf();

@@ -119,8 +119,6 @@ class ModuleChanProtect : public Module
 
 	void init()
 	{
-		/* Load config stuff */
-		OnRehash(NULL);
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanprotect");
 
 		std::string qpre = tag->getString("qprefix");
@@ -130,11 +128,9 @@ class ModuleChanProtect : public Module
 
 		ServerInstance->Modules->AddService(cf);
 		ServerInstance->Modules->AddService(cp);
-
-		ServerInstance->Modules->Attach(I_OnRehash, this);
 	}
 
-	void OnRehash(User*)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanprotect");
 		cp.setLevel(tag->getBool("grantadmin", false));

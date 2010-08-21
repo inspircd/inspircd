@@ -78,12 +78,11 @@ class ModuleChanHistory : public Module
 	{
 		ServerInstance->Modules->AddService(m);
 
-		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void OnRehash(User*)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		m.maxlines = ServerInstance->Config->ConfValue("chanhistory")->getInt("maxlines", 50);
 	}

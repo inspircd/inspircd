@@ -22,9 +22,8 @@ class ModuleSecureList : public Module
 	time_t WaitTime;
  public:
 	void init() {
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	virtual ~ModuleSecureList()
@@ -36,7 +35,7 @@ class ModuleSecureList : public Module
 		return Version("A module overriding /list, and making it safe - stop those sendq problems.",VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		allowlist.clear();
 

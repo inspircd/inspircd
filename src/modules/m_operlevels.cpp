@@ -19,8 +19,8 @@ class ModuleOperLevels : public Module
 	public:
 		void init()
 		{
-			Implementation eventlist[] = { I_OnRehash, I_OnKill };
-			ServerInstance->Modules->Attach(eventlist, this, 2);
+			Implementation eventlist[] = { I_OnKill };
+			ServerInstance->Modules->Attach(eventlist, this, 1);
 		}
 
 		virtual ~ModuleOperLevels()
@@ -28,7 +28,7 @@ class ModuleOperLevels : public Module
 		}
 
 
-		virtual void OnRehash(User* user)
+		void ReadConfig(ConfigReadStatus&)
 		{
 		}
 

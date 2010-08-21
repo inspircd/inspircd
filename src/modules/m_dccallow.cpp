@@ -249,12 +249,12 @@ class ModuleDCCAllow : public Module
 		ServerInstance->Extensions.Register(ext);
 		ServerInstance->AddCommand(&cmd);
 		ReadFileConf();
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ReadFileConf();
 	}

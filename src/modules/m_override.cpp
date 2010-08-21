@@ -52,14 +52,13 @@ class ModuleOverride : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(om);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
-		Implementation eventlist[] = { I_OnRehash, I_OnBackgroundTimer, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnBackgroundTimer, I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		NoisyOverride = ServerInstance->Config->ConfValue("override")->getBool("noisy");
 		om.OverrideTimeout = ServerInstance->Config->ConfValue("override")->getInt("timeout", 30);

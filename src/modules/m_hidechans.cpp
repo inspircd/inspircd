@@ -55,9 +55,8 @@ class ModuleHideChans : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(hm);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
-		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnWhoisLine };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleHideChans()
@@ -69,7 +68,7 @@ class ModuleHideChans : public Module
 		return Version("Provides support for hiding channels with user mode +I", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader conf;
 		AffectsOpers = conf.ReadFlag("hidechans", "affectsopers", 0);

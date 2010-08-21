@@ -38,9 +38,8 @@ class ModuleHostChange : public Module
  public:
 	void init()
 	{
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleHostChange()
@@ -59,7 +58,7 @@ class ModuleHostChange : public Module
 	}
 
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		MySuffix = Conf.ReadValue("host","suffix",0);

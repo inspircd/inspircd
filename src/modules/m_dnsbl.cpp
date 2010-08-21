@@ -230,11 +230,10 @@ class ModuleDNSBL : public Module
 
 	void init()
 	{
-		ReadConf();
 		ServerInstance->Modules->AddService(nameExt);
 		ServerInstance->Modules->AddService(countExt);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserInit, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnUserInit, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	virtual ~ModuleDNSBL()
@@ -333,7 +332,7 @@ class ModuleDNSBL : public Module
 		}
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ReadConf();
 	}

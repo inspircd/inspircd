@@ -70,14 +70,11 @@ class ModuleSetHost : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);

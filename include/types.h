@@ -18,6 +18,7 @@ class BufferedSocket;
 class Channel;
 class Command;
 class ConfigReader;
+class ConfigReadStatus;
 class ConfigTag;
 class DNSHeader;
 class DNSRequest;

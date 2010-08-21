@@ -66,7 +66,7 @@ void ModuleSpanningTree::init()
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
 		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
-		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash,
+		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnLoadModule, I_OnStats,
 		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
 	};
@@ -722,7 +722,7 @@ void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::strin
 	Utils->DoOneToMany(source->uuid,"KILL",params);
 }
 
-void ModuleSpanningTree::OnRehash(User* user)
+void ModuleSpanningTree::ReadConfig(ConfigReadStatus&)
 {
 	// Re-read config stuff
 	Utils->ReadConfiguration();

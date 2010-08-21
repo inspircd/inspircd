@@ -209,13 +209,12 @@ class ModuleRLine : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 
 		ServerInstance->AddCommand(&r);
 		ServerInstance->XLines->RegisterFactory(&f);
 
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnUserConnect, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 
 		if (!rxfactory)
 			throw ModuleException("Regex engine not set or loaded!");
@@ -244,7 +243,7 @@ class ModuleRLine : public Module
 		}
 	}
 
-	virtual void OnRehash(User *user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 

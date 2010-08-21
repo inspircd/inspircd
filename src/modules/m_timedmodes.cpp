@@ -249,12 +249,11 @@ class ModuleTimedModes : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		cmd.current = NULL;
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Extensions.Register(&cmd.tmodes);
-		Implementation eventlist[] = { I_OnMode, I_OnBackgroundTimer, I_OnSyncChannel, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnMode, I_OnBackgroundTimer, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual ~ModuleTimedModes()
@@ -332,7 +331,7 @@ class ModuleTimedModes : public Module
 		}
 	}
 
-	void OnRehash(User*)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("timedmodes");
 

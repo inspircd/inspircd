@@ -121,14 +121,13 @@ class ModuleHelpop : public Module
 
 		void init()
 		{
-			ReadConfig();
 			ServerInstance->Modules->AddService(ho);
 			ServerInstance->Modules->AddService(cmd);
-			Implementation eventlist[] = { I_OnRehash, I_OnWhois };
-			ServerInstance->Modules->Attach(eventlist, this, 2);
+			Implementation eventlist[] = { I_OnWhois };
+			ServerInstance->Modules->Attach(eventlist, this, 1);
 		}
 
-		void ReadConfig()
+		void ReadConfig(ConfigReadStatus&)
 		{
 			helpop_map.clear();
 
@@ -159,11 +158,6 @@ class ModuleHelpop : public Module
 				throw ModuleException("m_helpop: Helpop file is missing important entry 'nohelp'. Please check the example conf.");
 			}
 
-		}
-
-		void OnRehash(User* user)
-		{
-			ReadConfig();
 		}
 
 		void OnWhois(User* src, User* dst)

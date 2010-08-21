@@ -27,9 +27,8 @@ private:
 public:
 	void init()
 	{
-		InitConf();
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	virtual ~ModuleConnFlood()
@@ -41,7 +40,7 @@ public:
 		return Version("Connection throttle", VF_VENDOR);
 	}
 
-	void InitConf()
+	void ReadConfig(ConfigReadStatus&)
 	{
 		/* read configuration variables */
 		ConfigReader conf;
@@ -98,11 +97,6 @@ public:
 			conns = 1;
 			first = next;
 		}
-	}
-
-	virtual void OnRehash(User* user)
-	{
-		InitConf();
 	}
 
 };

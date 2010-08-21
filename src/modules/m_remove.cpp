@@ -193,9 +193,8 @@ class ModuleRemove : public Module
 	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);
-		OnRehash(NULL);
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 
@@ -204,7 +203,7 @@ class ModuleRemove : public Module
 		output.append(" REMOVE");
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader conf;
 		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);

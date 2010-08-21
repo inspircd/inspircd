@@ -145,14 +145,12 @@ class ModuleCloaking : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
-
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(ck);
 		ServerInstance->Modules->AddService(cu.ext);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect, I_OnChangeHost };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnCheckBan, I_OnUserConnect, I_OnChangeHost };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 
 		if (!Hash)
 			throw CoreException("Cannot find hash/md5: did you load the m_md5.so module?");
@@ -418,7 +416,7 @@ class ModuleCloaking : public Module
 		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("cloak");
 		prefix = tag->getString("prefix");

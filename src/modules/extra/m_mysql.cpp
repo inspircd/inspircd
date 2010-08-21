@@ -99,7 +99,7 @@ class ModuleSQL : public Module
 	ModuleSQL();
 	void init();
 	~ModuleSQL();
-	void OnRehash(User* user);
+	void ReadConfig(ConfigReadStatus&);
 	void OnUnloadModule(Module* mod);
 	Version GetVersion();
 };
@@ -372,10 +372,9 @@ void ModuleSQL::init()
 	Dispatcher = new DispatcherThread(this);
 	ServerInstance->Threads->Start(Dispatcher);
 
-	Implementation eventlist[] = { I_OnRehash, I_OnUnloadModule };
-	ServerInstance->Modules->Attach(eventlist, this, 2);
+	Implementation eventlist[] = { I_OnUnloadModule };
+	ServerInstance->Modules->Attach(eventlist, this, 1);
 
-	OnRehash(NULL);
 }
 
 ModuleSQL::~ModuleSQL()
@@ -392,7 +391,7 @@ ModuleSQL::~ModuleSQL()
 	}
 }
 
-void ModuleSQL::OnRehash(User* user)
+void ModuleSQL::ReadConfig(ConfigReadStatus&)
 {
 	ConnMap conns;
 	ConfigTagList tags = ServerInstance->Config->ConfTags("database");

@@ -37,20 +37,14 @@ public:
 
 	void init()
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(bc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	virtual void On005Numeric(std::string &output)
 	{
 		ServerInstance->AddExtBanChar('B');
-	}
-
-	virtual void OnRehash(User* user)
-	{
-		ReadConf();
 	}
 
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -100,7 +94,7 @@ public:
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	void ReadConf()
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigReader Conf;
 		percent = Conf.ReadInteger("blockcaps", "percent", "100", 0, true);

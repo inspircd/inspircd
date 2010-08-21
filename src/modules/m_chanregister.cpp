@@ -603,15 +603,13 @@ class ChannelRegistrationModule : public Module
 		/* enable the snomask for channel registration */
 		ServerInstance->SNO->EnableSnomask ('r', "CHANREGISTER");
 		/* attach events */
-		Implementation eventlist[] = {I_OnRehash, I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode,
+		Implementation eventlist[] = {I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode,
 		I_OnPostTopicChange, I_OnRawMode, I_OnUserQuit, I_OnUserPart, I_OnUserKick, I_OnGarbageCollect};
-		ServerInstance->Modules->Attach (eventlist, this, 12);
+		ServerInstance->Modules->Attach (eventlist, this, 11);
 		/* add a new service that is a new channel mode handler for handling channel registration mode */
 		ServerInstance->Modules->AddService (mh);
 		/* register a new extension item with the name last_activity */
 		ServerInstance->Modules->AddService(mh.last_activity);
-		/* call OnRehash event */
-		OnRehash (NULL);
 		/* rehash procedures finished, read the database if we have one */
 		if (!chandb.empty())
 			ReadDatabase ( );
@@ -619,7 +617,7 @@ class ChannelRegistrationModule : public Module
 		dirty = true;
 	}
 	/* rehash event */
-	void OnRehash (User *u)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		/* try to download the tag from the config system */
 		ConfigTag *chregistertag = ServerInstance->Config->ConfValue ("chanregister");

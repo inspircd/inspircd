@@ -137,7 +137,6 @@ class ModuleOjoin : public Module
 	void init()
 	{
 		/* Load config stuff */
-		OnRehash(NULL);
 
 		/* Initialise module variables */
 		np = new NetworkPrefix(this);
@@ -145,8 +144,8 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->AddService(*np);
 		ServerInstance->Modules->AddService(mycommand);
 
-		Implementation eventlist[] = { I_OnCheckJoin, I_OnPermissionCheck, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnPermissionCheck };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void OnCheckJoin(ChannelPermissionData& join)
@@ -160,7 +159,7 @@ class ModuleOjoin : public Module
 		}
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
 

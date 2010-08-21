@@ -47,8 +47,8 @@ public:
 		ie.init();
 		ServerInstance->Modules->AddService(ie);
 
-		Implementation eventlist[] = { I_On005Numeric, I_OnCheckJoin, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_On005Numeric, I_OnCheckJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void On005Numeric(std::string &output)
@@ -71,7 +71,7 @@ public:
 		}
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus&)
 	{
 		ie.DoRehash();
 	}

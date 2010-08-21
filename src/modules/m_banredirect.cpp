@@ -209,11 +209,9 @@ class ModuleBanRedirect : public Module
 		if(!ServerInstance->Modes->AddModeWatcher(&re))
 			throw ModuleException("Could not add mode watcher");
 
-		OnRehash(NULL);
-
 		ServerInstance->Extensions.Register(&re.extItem);
-		Implementation list[] = { I_OnRehash, I_OnCheckJoin, I_OnChannelDelete };
-		ServerInstance->Modules->Attach(list, this, 3);
+		Implementation list[] = { I_OnCheckJoin, I_OnChannelDelete };
+		ServerInstance->Modules->Attach(list, this, 2);
 	}
 
 	virtual void OnChannelDelete(Channel* chan)
@@ -248,10 +246,6 @@ class ModuleBanRedirect : public Module
 				ServerInstance->SendMode(ServerInstance->FakeClient, chan, modestack, false);
 			}
 		}
-	}
-
-	virtual void OnRehash(User* user)
-	{
 	}
 
 	virtual void OnCheckJoin(ChannelPermissionData& join)

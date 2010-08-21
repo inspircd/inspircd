@@ -23,8 +23,8 @@ class ModuleDenyChannels : public Module
 
 	void init()
 	{
-		Implementation eventlist[] = { I_OnCheckJoin, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnCheckJoin };
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	ConfigTag* FindBadChan(const std::string& cname)
@@ -49,7 +49,7 @@ class ModuleDenyChannels : public Module
 		return NULL;
 	}
 
-	virtual void OnRehash(User* user)
+	void ReadConfig(ConfigReadStatus& stat)
 	{
 		ConfigReader Conf;
 		/* check for redirect validity and loops/chains */
@@ -63,9 +63,7 @@ class ModuleDenyChannels : public Module
 			{
 				if (!ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
 				{
-					if (user)
-						user->WriteServ("NOTICE %s :Invalid badchan redirect '%s'", user->nick.c_str(), redirect.c_str());
-					throw ModuleException("Invalid badchan redirect, not a channel");
+					stat.ReportError(i->second, "Invalid badchan redirect, not a channel", true);
 				}
 
 				ConfigTag* tag = FindBadChan(redirect);
@@ -73,9 +71,7 @@ class ModuleDenyChannels : public Module
 				if (tag)
 				{
 					/* <badchan:redirect> is a badchan */
-					if (user)
-						user->WriteServ("NOTICE %s :Badchan %s redirects to badchan %s", user->nick.c_str(), name.c_str(), redirect.c_str());
-					throw ModuleException("Badchan redirect loop");
+					stat.ReportError(i->second, "Badchan redirect loop", true);
 				}
 			}
 		}

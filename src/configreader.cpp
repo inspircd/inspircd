@@ -18,7 +18,7 @@
 #include "commands/cmd_whowas.h"
 #include "configparser.h"
 
-ServerConfig::ServerConfig()
+ServerConfig::ServerConfig(RehashReason reason) : status(reason)
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	RawLog = NoUserDns = HideBans = HideSplits = UndernetMsgPrefix = NameOnlyModes = false;
@@ -536,24 +536,22 @@ void ServerConfig::Read()
 	ParseStack stack(this);
 	try
 	{
-		valid = stack.ParseFile(ServerInstance->ConfigFileName, FLAG_USE_XML);
+		status.fatal = !stack.ParseFile(ServerInstance->ConfigFileName, FLAG_USE_XML);
 	}
 	catch (CoreException& err)
 	{
-		valid = false;
-		errstr << err.GetReason();
+		status.fatal = true;
+		status.errors << err.GetReason();
 	}
-	if (valid)
+	if (!status.fatal)
 	{
 		DNSServer = ConfValue("dns")->getString("server");
 		FindDNS(DNSServer);
 	}
 }
 
-void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
+void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 {
-	valid = true;
-
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
@@ -561,7 +559,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		{
 			std::string dummy;
 			if (ConfValue(ChangedConfig[Index].tag)->readString(ChangedConfig[Index].value, dummy, true))
-				errstr << "Your configuration contains a deprecated value: <"
+				status.errors << "Your configuration contains a deprecated value: <"
 					<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
 					<< " (at " << ConfValue(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
 		}
@@ -574,14 +572,15 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	}
 	catch (CoreException &ce)
 	{
-		errstr << ce.GetReason();
+		status.errors << ce.GetReason();
 	}
 
 	// write once here, to try it out and make sure its ok
 	ServerInstance->WritePID(this->PID);
 
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
-	valid = errstr.str().empty();
+	if (!status.errors.str().empty())
+		status.fatal = true;
 
 	/*
 	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
@@ -597,63 +596,119 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ServerInstance->BindPorts(pl);
 		if (pl.size())
 		{
-			errstr << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
+			status.errors << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
 
 			int j = 1;
 			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 			{
 				char buf[MAXBUF];
 				snprintf(buf, MAXBUF, "%d.   Address: %s   Reason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
-				errstr << buf;
+				status.errors << buf;
 			}
 		}
 	}
 
-	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
-
-	if (!valid)
-		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
-
-	while (errstr.good())
+	if (old && !status.fatal)
 	{
-		std::string line;
-		getline(errstr, line, '\n');
-		if (line.empty())
-			continue;
-		// On startup, print out to console (still attached at this point)
-		if (!old)
-			printf("%s\n", line.c_str());
-		// If a user is rehashing, tell them directly
-		if (user)
-			user->SendText(":%s NOTICE %s :*** %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), line.c_str());
-		// Also tell opers
-		ServerInstance->SNO->WriteGlobalSno('a', line);
+		ServerInstance->Config = this;
+		/*
+		 * Apply the changed configuration from the rehash.
+		 *
+		 * XXX: The order of these is IMPORTANT, do not reorder them without testing
+		 * thoroughly!!!
+		 */
+		ServerInstance->XLines->CheckELines();
+		ServerInstance->XLines->CheckELines();
+		ServerInstance->XLines->ApplyLines();
+		ServerInstance->Res->Rehash();
+		ServerInstance->ResetMaxBans();
+		this->ApplyDisabled();
+		for(std::map<std::string, Module*>::const_iterator i = ServerInstance->Modules->GetModules().begin(); i != ServerInstance->Modules->GetModules().end(); i++)
+		{
+			Module* m = i->second;
+			try
+			{
+				m->ReadConfig(status);
+			}
+			catch (CoreException& e)
+			{
+				status.ReportError("Module " + m->ModuleSourceFile + " failed: " + e.err);
+			}
+		}
+		ServerInstance->BuildISupport();
+
+		ServerInstance->Logs->CloseLogs();
+		ServerInstance->Logs->OpenFileLogs();
+
+		if (RawLog && !old->RawLog)
+			ServerInstance->Users->ServerNoticeAll("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 	}
 
-	errstr.clear();
-	errstr.str(std::string());
+	// now report the errors (if any)
+	if (status.fatal && status.errors.str().empty())
+		status.ReportError("Unknown rehash error");
+
+	User* user = ServerInstance->FindNick(TheUserUID);
+	if (status.errors.str().empty())
+	{
+		if (user)
+			user->SendText(":%s NOTICE %s :*** Successfully rehashed server.",
+				ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
+	}
+	else
+	{
+		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
+
+		if (status.fatal && ServerInstance->Config != this)
+		{
+			if (user)
+				user->SendText(":%s NOTICE %s :*** Failed to rehash server.",
+					ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "*** Failed to rehash server.");
+		}
+		else if (status.fatal)
+		{
+			if (user)
+				user->SendText(":%s NOTICE %s :*** Rehashed server with errors.",
+					ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "*** Rehashed server with errors.");
+		}
+
+		while (status.errors.good())
+		{
+			std::string line;
+			getline(status.errors, line, '\n');
+			if (line.empty())
+				continue;
+			// On startup, print out to console (still attached at this point)
+			if (!old)
+				printf("%s\n", line.c_str());
+			// If a user is rehashing, tell them directly
+			if (user)
+				user->SendText(":%s NOTICE %s :*** %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), line.c_str());
+			// Also tell opers
+			ServerInstance->SNO->WriteGlobalSno('a', line);
+		}
+
+		status.errors.clear();
+		status.errors.str(std::string());
+	}
 
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)
 	{
-		if (!valid)
-		{
+		if (status.fatal)
 			ServerInstance->Exit(EXIT_STATUS_CONFIG);
-		}
 
 		return;
 	}
 
 	// If there were errors processing configuration, don't touch modules.
-	if (!valid)
+	if (status.fatal)
 		return;
 
 	ApplyModules(user);
-
-	if (user)
-		user->SendText(":%s NOTICE %s :*** Successfully rehashed server.",
-			ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
-	ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
 }
 
 void ServerConfig::ApplyModules(User* user)
@@ -732,7 +787,7 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
 }
 
-ConfigTag* ServerConfig::ConfValue(const std::string &tag)
+ConfigTag* ServerConfig::GetTag(const std::string &tag)
 {
 	ConfigTagList found = config_data.equal_range(tag);
 	if (found.first == found.second)
@@ -745,7 +800,7 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 	return rv;
 }
 
-ConfigTagList ServerConfig::ConfTags(const std::string& tag)
+ConfigTagList ServerConfig::GetTags(const std::string& tag)
 {
 	return config_data.equal_range(tag);
 }
@@ -794,35 +849,9 @@ void ConfigReaderThread::Finish()
 	ServerInstance->Config = this->Config;
 	Config->Apply(old, TheUserUID);
 
-	if (Config->valid)
+	if (ServerInstance->Config == Config)
 	{
-		/*
-		 * Apply the changed configuration from the rehash.
-		 *
-		 * XXX: The order of these is IMPORTANT, do not reorder them without testing
-		 * thoroughly!!!
-		 */
-		ServerInstance->XLines->CheckELines();
-		ServerInstance->XLines->CheckELines();
-		ServerInstance->XLines->ApplyLines();
-		ServerInstance->Res->Rehash();
-		ServerInstance->ResetMaxBans();
-		Config->ApplyDisabled();
-		User* user = ServerInstance->FindNick(TheUserUID);
-		FOREACH_MOD(I_OnRehash, OnRehash(user));
-		ServerInstance->BuildISupport();
-
-		ServerInstance->Logs->CloseLogs();
-		ServerInstance->Logs->OpenFileLogs();
-
-		if (Config->RawLog && !old->RawLog)
-			ServerInstance->Users->ServerNoticeAll("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
-
+		// successful; free the old conf on destruction
 		Config = old;
-	}
-	else
-	{
-		// whoops, abort!
-		ServerInstance->Config = old;
 	}
 }
