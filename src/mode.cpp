@@ -546,6 +546,8 @@ void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes,
 	while (mc != modes.sequence.end())
 	{
 		ModeHandler* mh = FindMode(mc->mode);
+		if (!mh)
+			throw CoreException("Invalid mode sequence passed to ModeParser::Process!");
 		if (mc->value.c_str()[0] == ':' || mc->value.find(' ') != std::string::npos)
 		{
 			// you can't do that in a mode value, sorry

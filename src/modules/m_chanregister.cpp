@@ -501,8 +501,10 @@ class ChannelRegistrationModule : public Module
 				if (entry->registrant == "-")
 				{
 					irc::modestacker ms;
-					ms.push (irc::modechange ("permanent"));
-					ServerInstance->SendMode (ServerInstance->FakeClient, chan, ms, false);
+					irc::modechange mc("permanent");
+					if (mc.mode.GetID())
+						ms.push(mc);
+					ServerInstance->SendMode(ServerInstance->FakeClient, chan, ms, false);
 				}
 				/* if not, set +r */
 				else
@@ -578,8 +580,13 @@ class ChannelRegistrationModule : public Module
 				if ((!chan->IsModeSet (&mh)) || (!chan->IsModeSet ("permanent")))
 				{
 					irc::modestacker ms2;
-					if (entry->registrant != "-") ms2.push (irc::modechange ("registered", entry->registrant));
-					else ms2.push (irc::modechange("permanent"));
+					if (entry->registrant != "-")
+						ms2.push (irc::modechange ("registered", entry->registrant));
+					else {
+						irc::modechange mc("permanent");
+						if (mc.mode.GetID())
+							ms2.push(mc);
+					}
 					ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms2);
 				}
 				/* channel is empty, and thus, should be checked for expiry, but we can't do it while we have no last activity timestamp, so set it */
@@ -794,6 +801,11 @@ banned */
 				ServerInstance->SendMode (ServerInstance->FakeClient, it->second, ms, true);
 			}
 		}
+	}
+	void Prioritize()
+	{
+		// database reading may depend on channel modes being loaded
+		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_LAST);
 	}
 };
 /* register the module */
