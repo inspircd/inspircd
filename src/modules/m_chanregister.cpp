@@ -334,6 +334,13 @@ class RegisterModeHandler : public ParamChannelModeHandler
 
 		if (perm.mc.adding)
 		{
+			if (perm.chan->IsModeSet(this))
+			{
+				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must unregister the channel to change its registrants",
+					perm.chan->name.c_str());
+				perm.result = MOD_RES_DENY;
+				return;
+			}
 			if (perm.source->HasPrivPermission("channels/set-registration", false))
 			{
 				perm.result = MOD_RES_ALLOW;
