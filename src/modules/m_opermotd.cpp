@@ -63,17 +63,16 @@ class ModuleOpermotd : public Module
 
 	void LoadOperMOTD()
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
-		opermotd->LoadFile(conf->getString("file","opermotd"));
-		onoper = conf->getBool("onoper", true);
 	}
 
-	ModuleOpermotd() : cmd(this) {}
+	ModuleOpermotd() : cmd(this)
+	{
+		opermotd = new FileReader;
+	}
 
 	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
-		opermotd = new FileReader;
 		LoadOperMOTD();
 		Implementation eventlist[] = { I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
@@ -96,9 +95,11 @@ class ModuleOpermotd : public Module
 			ShowOperMOTD(user);
 	}
 
-	void ReadConfig(ConfigReadStatus&)
+	void ReadConfig(ConfigReadStatus& status)
 	{
-		LoadOperMOTD();
+		ConfigTag* conf = status.GetTag("opermotd");
+		opermotd->LoadFile(conf->getString("file","opermotd"));
+		onoper = conf->getBool("onoper", true);
 	}
 };
 
