@@ -1918,4 +1918,36 @@
 #
 #<module name="m_spanningtree.so">
 
+<spanningtree
+	# hideulines: If this value is set to yes, U-lined servers will
+	# be hidden from non-opers in /links and /map.
+	hideulines="no"
+
+	# flatlinks: If this value is set to yes, /map and /links will
+	# be flattened when shown to non-opers.
+	flatlinks="no"
+
+	# announcets: If set to yes, when the TimeStamp on a channel changes, all users
+	# in channel will be sent a NOTICE about it.
+	announcets="yes"
+
+	# allowmismatched: Setting this option to yes will allow servers to link even
+	# if they don't have the same VF_OPTCOMMON modules loaded. Setting this to
+	# yes may introduce some desyncs and weirdness.
+	allowmismatched="no"
+
+	# quietbursts: When syncing or splitting from a network, a server
+	# can generate a lot of connect and quit messages to opers with
+	# +C and +Q snomasks. Setting this to yes squelches those messages,
+	# which makes it easier for opers, but degrades the functionality of
+	# bots like BOPM during netsplits.
+	quietbursts="yes"
+
+	# pingwarning: If a server does not respond to a ping within x seconds,
+	# it will send a notice to opers with snomask +l informing that the server
+	# is about to ping timeout.
+	pingwarning="15"
+
+	# serverpingfreq: How often pings are sent between servers (in seconds).
+	serverpingfreq="60">
 

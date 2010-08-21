@@ -345,19 +345,15 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration()
 {
-	ConfigReader Conf;
-
-	FlatLinks = Conf.ReadFlag("security","flatlinks",0);
-	HideULines = Conf.ReadFlag("security","hideulines",0);
-	AnnounceTSChange = Conf.ReadFlag("options","announcets",0);
-	AllowOptCommon = Conf.ReadFlag("options", "allowmismatch", 0);
-	ChallengeResponse = !Conf.ReadFlag("security", "disablehmac", 0);
-	quiet_bursts = Conf.ReadFlag("performance", "quietbursts", 0);
-	PingWarnTime = Conf.ReadInteger("options", "pingwarning", 0, true);
-	PingFreq = Conf.ReadInteger("options", "serverpingfreq", 0, true);
-
-	if (PingFreq == 0)
-		PingFreq = 60;
+	ConfigTag* tag = ServerInstance->Config->GetTag("spanningtree");
+	FlatLinks = tag->getBool("flatlinks");
+	HideULines = tag->getBool("hideulines");
+	AnnounceTSChange = tag->getBool("announcets");
+	AllowOptCommon = tag->getBool("allowmismatch");
+	ChallengeResponse = !tag->getBool("disablehmac");
+	quiet_bursts = tag->getBool("quietbursts");
+	PingWarnTime = tag->getInt("pingwarning");
+	PingFreq = tag->getInt("serverpingfreq", 60);
 
 	if (PingWarnTime < 0 || PingWarnTime > PingFreq - 1)
 		PingWarnTime = 0;
@@ -368,7 +364,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	ConfigTagList tags = ServerInstance->Config->ConfTags("link");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = i->second;
+		tag = i->second;
 		reference<Link> L = new Link(tag);
 		L->Name = tag->getString("name").c_str();
 		L->AllowMask = tag->getString("allowmask");
@@ -438,7 +434,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	tags = ServerInstance->Config->ConfTags("autoconnect");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		ConfigTag* tag = i->second;
+		tag = i->second;
 		reference<Autoconnect> A = new Autoconnect(tag);
 		A->Period = tag->getInt("period");
 		A->NextConnectTime = ServerInstance->Time() + A->Period;
