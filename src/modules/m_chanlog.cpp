@@ -34,9 +34,8 @@ class ModuleChanLog : public Module
 	{
 	}
 
-	void ReadConfig(ConfigReadStatus&)
+	void ReadConfig(ConfigReadStatus& status)
 	{
-		ConfigReader MyConf;
 		std::string snomasks;
 		std::string channel;
 
@@ -50,7 +49,7 @@ class ModuleChanLog : public Module
 
 			if (channel.empty() || snomasks.empty())
 			{
-				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Malformed chanlog tag, ignoring");
+				status.ReportError(i->second, "Malformed chanlog tag, ignoring", false);
 				continue;
 			}
 
@@ -60,7 +59,6 @@ class ModuleChanLog : public Module
 				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Logging %c to %s", *it, channel.c_str());
 			}
 		}
-
 	}
 
 	virtual ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg)

@@ -94,12 +94,12 @@ public:
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	void ReadConfig(ConfigReadStatus&)
+	void ReadConfig(ConfigReadStatus& status)
 	{
-		ConfigReader Conf;
-		percent = Conf.ReadInteger("blockcaps", "percent", "100", 0, true);
-		minlen = Conf.ReadInteger("blockcaps", "minlen", "1", 0, true);
-		std::string hmap = Conf.ReadValue("blockcaps", "capsmap", 0);
+		ConfigTag* tag = status.GetTag("blockcaps");
+		percent = tag->getInt("percent", 100);
+		minlen = tag->getInt("minlen", 1);
+		std::string hmap = tag->getString("capsmap");
 		if (hmap.empty())
 			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		memset(capsmap, 0, sizeof(capsmap));
@@ -107,21 +107,17 @@ public:
 			capsmap[(unsigned char)*n] = 1;
 		if (percent < 1 || percent > 100)
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
+			status.ReportError(tag, "<blockcaps:percent> out of range, setting to default of 100.", false);
 			percent = 100;
 		}
 		if (minlen < 1 || minlen > MAXBUF-1)
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
+			status.ReportError(tag, "<blockcaps:minlen> out of range, setting to default of 1.", false);
 			minlen = 1;
 		}
 	}
 
-	virtual ~ModuleBlockCAPS()
-	{
-	}
-
-	virtual Version GetVersion()
+	Version GetVersion()
 	{
 		return Version("Provides support to block all-CAPS channel messages and notices", VF_VENDOR);
 	}

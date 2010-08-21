@@ -180,12 +180,12 @@ public:
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, &umodes);
 	}
 
-	void ReadConfig(ConfigReadStatus&)
+	void ReadConfig(ConfigReadStatus& status)
 	{
 		cmd.Hosts.clear();
 
 		// Do we send an oper notice when a CGI:IRC has their host changed?
-		cmd.notify = ServerInstance->Config->ConfValue("cgiirc")->getBool("opernotice", true);
+		cmd.notify = status.GetTag("cgiirc")->getBool("opernotice", true);
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("cgihost");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -198,7 +198,7 @@ public:
 			if(hostmask.length())
 			{
 				if (type == "webirc" && !password.length()) {
-						ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
+					status.ReportError(tag, "missing <cgihost:password> in webirc block", false);
 				}
 				else
 				{
@@ -210,9 +210,7 @@ public:
 					else if (type == "passfirst")
 						cgitype = PASSFIRST;
 					else if (type == "webirc")
-					{
 						cgitype = WEBIRC;
-					}
 
 					if (cgitype == INVALID)
 						cgitype = PASS;
@@ -222,8 +220,7 @@ public:
 			}
 			else
 			{
-				ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
-				continue;
+				status.ReportError(tag, "invalid <cgihost:mask>", false);
 			}
 		}
 	}

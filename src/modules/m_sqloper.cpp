@@ -44,8 +44,9 @@ class OpMeQuery : public SQLQuery
 	{
 		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
-		if (!user)
+		if (!user || !IS_LOCAL(user))
 			return;
+		user->frozen = 0;
 
 		// multiple rows may exist
 		SQLEntries row;
@@ -76,21 +77,21 @@ class OpMeQuery : public SQLQuery
 		}
 		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER
-		fallback();
+		fallback(user);
 	}
 
 	void OnError(SQLerror& error)
 	{
 		ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: query failed (%s)", error.Str());
-		fallback();
+		User* user = ServerInstance->FindNick(uid);
+		if (!user || !IS_LOCAL(user))
+			return;
+		user->frozen = 0;
+		fallback(user);
 	}
 
-	void fallback()
+	void fallback(User* user)
 	{
-		User* user = ServerInstance->FindNick(uid);
-		if (!user)
-			return;
-
 		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
 
 		if (oper_command)
@@ -160,6 +161,9 @@ public:
 		{
 			if (SQL)
 			{
+				// freeze the user's recvq while we wait for SQL
+				// this ensures that the result of the /OPER is returned in order
+				user->frozen = 1;
 				LookupOper(user, parameters[0], parameters[1]);
 				/* Query is in progress, it will re-invoke OPER if needed */
 				return MOD_RES_DENY;

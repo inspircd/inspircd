@@ -308,15 +308,6 @@ void SpanningTreeUtilities::RefreshIPCache()
 		Link* L = *i;
 		if (L->IPAddr.empty() || L->RecvPass.empty() || L->SendPass.empty() || L->Name.empty() || !L->Port)
 		{
-			if (L->Name.empty())
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Ignoring a malformed link block (all link blocks require a name!)");
-			}
-			else
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Ignoring a link block missing recvpass, sendpass, port or ipaddr.");
-			}
-
 			/* Invalid link block */
 			continue;
 		}
@@ -345,7 +336,8 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration()
 {
-	ConfigTag* tag = ServerInstance->Config->GetTag("spanningtree");
+	ConfigReadStatus& status = ServerInstance->Config->status;
+	ConfigTag* tag = status.GetTag("spanningtree");
 	FlatLinks = tag->getBool("flatlinks");
 	HideULines = tag->getBool("hideulines");
 	AnnounceTSChange = tag->getBool("announcets");
@@ -366,7 +358,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	{
 		tag = i->second;
 		reference<Link> L = new Link(tag);
-		L->Name = tag->getString("name").c_str();
+		L->Name = tag->getString("name");
 		L->AllowMask = tag->getString("allowmask");
 		L->IPAddr = tag->getString("ipaddr");
 		L->Port = tag->getInt("port");
@@ -379,12 +371,6 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->Bind = tag->getString("bind");
 		L->Hidden = tag->getBool("hidden");
 
-		if (L->Name.find('.') == std::string::npos)
-			throw CoreException("The link name '"+L->Name+"' is invalid and must contain at least one '.' character");
-
-		if (L->Name.length() > 64)
-			throw CoreException("The link name '"+L->Name+"' is longer than 64 characters!");
-
 		if (L->Fingerprint.find(':') != std::string::npos)
 		{
 			std::string tmp = L->Fingerprint;
@@ -394,39 +380,24 @@ void SpanningTreeUtilities::ReadConfiguration()
 					L->Fingerprint.push_back(tmp[j]);
 		}
 
-		if ((!L->IPAddr.empty()) && (!L->RecvPass.empty()) && (!L->SendPass.empty()) && (!L->Name.empty()) && (L->Port))
+		if (L->IPAddr.empty())
 		{
-			ValidIPs.push_back(L->IPAddr);
+			L->IPAddr = "*";
+			ValidIPs.push_back("*");
+			status.ReportError(tag, "<link:ipaddr> not defined! Setting to \"*\" and allowing all IPs to connect", false);
 		}
+		else if (L->RecvPass.empty())
+			status.ReportError(tag, "<link:recvpass> not defined", true);
+		else if (L->SendPass.empty())
+			status.ReportError(tag, "<link:sendpass> not defined", true);
+		else if (L->Name.empty())
+			status.ReportError(tag, "<link:name> not defined", true);
+		else if (L->Name.find('.') == std::string::npos)
+			status.ReportError(tag, "<link:name> is invalid: must contain a '.'", true);
+		else if (L->Name.length() > 64)
+			status.ReportError(tag, "<link:name> is invalid: maximum length is 64 characters", true);
 		else
-		{
-			if (L->IPAddr.empty())
-			{
-				L->IPAddr = "*";
-				ValidIPs.push_back("*");
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + L->Name + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
-			}
-
-			if (L->RecvPass.empty())
-			{
-				throw CoreException("Invalid configuration for server '"+L->Name+"', recvpass not defined!");
-			}
-
-			if (L->SendPass.empty())
-			{
-				throw CoreException("Invalid configuration for server '"+L->Name+"', sendpass not defined!");
-			}
-
-			if (L->Name.empty())
-			{
-				throw CoreException("Invalid configuration, link tag without a name! IP address: "+L->IPAddr);
-			}
-
-			if (!L->Port)
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + L->Name + " has no port defined, you will not be able to /connect it.");
-			}
-		}
+			ValidIPs.push_back(L->IPAddr);
 
 		LinkBlocks.push_back(L);
 	}
@@ -448,12 +419,14 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 		if (A->Period <= 0)
 		{
-			throw CoreException("Invalid configuration for autoconnect, period not a positive integer!");
+			status.ReportError(tag, "<autoconnect:period> must be positive", true);
+			continue;
 		}
 
 		if (A->servers.empty())
 		{
-			throw CoreException("Invalid configuration for autoconnect, server cannot be empty!");
+			status.ReportError(tag, "<autoconnect:servers> cannot be empty", true);
+			continue;
 		}
 
 		AutoconnectBlocks.push_back(A);
