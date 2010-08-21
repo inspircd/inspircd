@@ -126,10 +126,24 @@ class CommandCheck : public Command
 			{
 				user->SendText(checkstr + " clientaddr " + loctarg->client_sa.str());
 				user->SendText(checkstr + " serveraddr " + loctarg->server_sa.str());
+				user->SendText(checkstr + " connectclass " + loctarg->MyClass->name);
+				user->SendText(checkstr + " stats_bytes in=" + ConvToStr(loctarg->bytes_in) + " out=" + ConvToStr(loctarg->bytes_out));
+				user->SendText(checkstr + " stats_cmds in=" + ConvToStr(loctarg->cmds_in) + " out=" + ConvToStr(loctarg->cmds_out));
 
-				std::string classname = loctarg->MyClass->name;
-				if (!classname.empty())
-					user->SendText(checkstr + " connectclass " + classname);
+				InvitedList* invitelist = loctarg->GetInviteList();
+				std::string invites;
+				for(InvitedList::iterator i = invitelist->begin(); i != invitelist->end(); i++)
+				{
+					invites.push_back(' ');
+					invites.append(i->first);
+					if (i->second)
+					{
+						invites.push_back(',');
+						invites.append(ConvToStr(i->second));
+					}
+				}
+				std::stringstream invitedump(invites);
+				user->SendText(checkstr + " invites", invitedump);
 			}
 			else
 				user->SendText(checkstr + " onip " + targuser->GetIPString());
@@ -138,9 +152,7 @@ class CommandCheck : public Command
 			{
 				chliststr.append(i->chan->GetPrefixChar(targuser)).append(i->chan->name).append(" ");
 			}
-
 			std::stringstream dump(chliststr);
-
 			user->SendText(checkstr + " onchans", dump);
 
 			dumpExt(user, checkstr, targuser);
@@ -180,7 +192,6 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " member " + tmpbuf);
 			}
 
-			// TODO ban list dump
 			dumpExt(user, checkstr, targchan);
 		}
 		else
