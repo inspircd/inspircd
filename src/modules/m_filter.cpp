@@ -157,7 +157,7 @@ class ModuleFilter : public Module
 	ModResult OnStats(char symbol, User* user, string_list &results);
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
-	void ReadFilters(ConfigReader &MyConf);
+	void ReadFilters(ConfigReadStatus&);
 };
 
 CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User *user)
@@ -253,7 +253,7 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	return true;
 }
 
-ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine("regex")
+ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine("")
 {
 }
 
@@ -428,9 +428,8 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleFilter::ReadConfig(ConfigReadStatus&)
+void ModuleFilter::ReadConfig(ConfigReadStatus& status)
 {
-	ConfigReader MyConf;
 	std::vector<std::string>().swap(exemptfromfilter);
 	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -440,7 +439,7 @@ void ModuleFilter::ReadConfig(ConfigReadStatus&)
 			exemptfromfilter.push_back(chan);
 		}
 	}
-	std::string newrxengine = "regex/" + MyConf.ReadValue("filteropts", "engine", 0);
+	std::string newrxengine = "regex/" + status.GetTag("filteropts")->getString("engine");
 	if (newrxengine == "regex/")
 		newrxengine = "regex";
 	if (RegexEngine.GetProvider() == newrxengine)
@@ -452,9 +451,10 @@ void ModuleFilter::ReadConfig(ConfigReadStatus&)
 	RegexEngine.SetProvider(newrxengine);
 	if (!RegexEngine)
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
+		status.ReportError("Regex engine '" + newrxengine + "' is not loaded - m_filter has been disabled.");
+		return;
 	}
-	ReadFilters(MyConf);
+	ReadFilters(status);
 }
 
 Version ModuleFilter::GetVersion()
@@ -595,7 +595,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 	return std::make_pair(true, "");
 }
 
-void ModuleFilter::ReadFilters(ConfigReader &MyConf)
+void ModuleFilter::ReadFilters(ConfigReadStatus &MyConf)
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags("keyword");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -618,7 +618,7 @@ void ModuleFilter::ReadFilters(ConfigReader &MyConf)
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
+			MyConf.ReportError(i->second, "Error in regular expression", false);
 		}
 	}
 }
