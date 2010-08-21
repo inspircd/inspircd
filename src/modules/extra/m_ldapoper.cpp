@@ -60,13 +60,12 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
 
-		base 			= Conf.ReadValue("ldapoper", "baserdn", 0);
-		ldapserver		= Conf.ReadValue("ldapoper", "server", 0);
-		std::string scope	= Conf.ReadValue("ldapoper", "searchscope", 0);
-		username		= Conf.ReadValue("ldapoper", "binddn", 0);
-		password		= Conf.ReadValue("ldapoper", "bindauth", 0);
+		base 			= ServerInstance->Config->GetTag("ldapoper")->getString("baserdn");
+		ldapserver		= ServerInstance->Config->GetTag("ldapoper")->getString("server");
+		std::string scope	= ServerInstance->Config->GetTag("ldapoper")->getString("searchscope");
+		username		= ServerInstance->Config->GetTag("ldapoper")->getString("binddn");
+		password		= ServerInstance->Config->GetTag("ldapoper")->getString("bindauth");
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;

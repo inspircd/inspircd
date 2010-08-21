@@ -42,23 +42,22 @@ class ModuleConnectBan : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
 		std::string duration;
 
-		ipv4_cidr = Conf.ReadInteger("connectban", "ipv4cidr", 0, true);
+		ipv4_cidr = ServerInstance->Config->GetTag("connectban")->getInt("ipv4cidr");
 		if (ipv4_cidr == 0)
 			ipv4_cidr = 32;
 
-		ipv6_cidr = Conf.ReadInteger("connectban", "ipv6cidr", 0, true);
+		ipv6_cidr = ServerInstance->Config->GetTag("connectban")->getInt("ipv6cidr");
 		if (ipv6_cidr == 0)
 			ipv6_cidr = 128;
 
-		threshold = Conf.ReadInteger("connectban", "threshold", 0, true);
+		threshold = ServerInstance->Config->GetTag("connectban")->getInt("threshold");
 
 		if (threshold == 0)
 			threshold = 10;
 
-		duration = Conf.ReadValue("connectban", "duration", 0, true);
+		duration = ServerInstance->Config->GetTag("connectban")->getString("duration");
 
 		if (duration.empty())
 			duration = "10m";

@@ -51,7 +51,6 @@ class ModuleDenyChannels : public Module
 
 	void ReadConfig(ConfigReadStatus& stat)
 	{
-		ConfigReader Conf;
 		/* check for redirect validity and loops/chains */
 		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)

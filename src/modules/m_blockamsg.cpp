@@ -68,14 +68,9 @@ class ModuleBlockAmsg : public Module
 
 	virtual void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
+		ForgetDelay = ServerInstance->Config->GetTag("blockamsg")->getInt("delay", -1);
 
-		ForgetDelay = Conf.ReadInteger("blockamsg", "delay", 0, false);
-
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			ForgetDelay = -1;
-
-		std::string act = Conf.ReadValue("blockamsg", "action", 0);
+		std::string act = ServerInstance->Config->GetTag("blockamsg")->getString("action");
 
 		if(act == "notice")
 			action = IBLOCK_NOTICE;

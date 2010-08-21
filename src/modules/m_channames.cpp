@@ -92,9 +92,8 @@ class ModuleChannelNames : public Module
 
 	virtual void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		std::string denyToken = Conf.ReadValue("channames", "denyrange", 0);
-		std::string allowToken = Conf.ReadValue("channames", "allowrange", 0);
+		std::string denyToken = ServerInstance->Config->GetTag("channames")->getString("denyrange");
+		std::string allowToken = ServerInstance->Config->GetTag("channames")->getString("allowrange");
 		allowedmap.set();
 
 		irc::portparser denyrange(denyToken, false);

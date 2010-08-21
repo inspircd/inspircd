@@ -68,9 +68,8 @@ class ModuleDeaf : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader conf;
-		deaf_bypasschars = conf.ReadValue("deaf", "bypasschars", 0);
-		deaf_bypasschars_uline = conf.ReadValue("deaf", "bypasscharsuline", 0);
+		deaf_bypasschars = ServerInstance->Config->GetTag("deaf")->getString("bypasschars");
+		deaf_bypasschars_uline = ServerInstance->Config->GetTag("deaf")->getString("bypasscharsuline");
 	}
 
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)

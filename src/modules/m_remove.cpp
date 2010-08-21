@@ -205,8 +205,7 @@ class ModuleRemove : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader conf;
-		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);
+		supportnokicks = ServerInstance->Config->GetTag("remove")->getBool("supportnokicks");
 	}
 
 	virtual ~ModuleRemove()

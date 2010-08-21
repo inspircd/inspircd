@@ -70,8 +70,7 @@ class ModuleHideChans : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader conf;
-		AffectsOpers = conf.ReadFlag("hidechans", "affectsopers", 0);
+		AffectsOpers = ServerInstance->Config->GetTag("hidechans")->getBool("affectsopers");
 	}
 
 	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)

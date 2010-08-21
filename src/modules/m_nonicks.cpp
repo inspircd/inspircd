@@ -86,8 +86,7 @@ class ModuleNoNickChange : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		override = Conf.ReadFlag("nonicks", "operoverride", "no", 0);
+		override = ServerInstance->Config->GetTag("nonicks")->getBool("operoverride");
 	}
 };
 

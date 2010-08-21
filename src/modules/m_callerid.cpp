@@ -432,11 +432,10 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		cmd.maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
-		operoverride = Conf.ReadFlag("callerid", "operoverride", "0", 0);
-		tracknick = Conf.ReadFlag("callerid", "tracknick", "0", 0);
-		notify_cooldown = Conf.ReadInteger("callerid", "cooldown", "60", 0, true);
+		cmd.maxaccepts = ServerInstance->Config->GetTag("callerid")->getInt("maxaccepts", 16);
+		operoverride = ServerInstance->Config->GetTag("callerid")->getBool("operoverride");
+		tracknick = ServerInstance->Config->GetTag("callerid")->getBool("tracknick");
+		notify_cooldown = ServerInstance->Config->GetTag("callerid")->getInt("cooldown", 60);
 	}
 };
 

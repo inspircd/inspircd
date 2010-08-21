@@ -42,16 +42,16 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
+		ConfigTag* tag = ServerInstance->Config->GetTag("connflood");
 		/* read configuration variables */
-		ConfigReader conf;
 		/* throttle configuration */
-		seconds = conf.ReadInteger("connflood", "seconds", 0, true);
-		maxconns = conf.ReadInteger("connflood", "maxconns", 0, true);
-		timeout = conf.ReadInteger("connflood", "timeout", 0, true);
-		quitmsg = conf.ReadValue("connflood", "quitmsg", 0);
+		seconds = tag->getInt("seconds");
+		maxconns = tag->getInt("maxconns");
+		timeout = tag->getInt("timeout");
+		quitmsg = tag->getString("quitmsg");
 
 		/* seconds to wait when the server just booted */
-		boot_wait = conf.ReadInteger("connflood", "bootwait", 0, true);
+		boot_wait = tag->getInt("bootwait");
 
 		first = ServerInstance->Time();
 	}

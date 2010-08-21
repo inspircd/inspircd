@@ -35,17 +35,8 @@ class ModuleWaitPong : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-
-		sendsnotice = Conf.ReadFlag("waitpong", "sendsnotice", 0);
-
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			sendsnotice = true;
-
-		killonbadreply = Conf.ReadFlag("waitpong", "killonbadreply", 0);
-
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			killonbadreply = true;
+		sendsnotice = ServerInstance->Config->GetTag("waitpong")->getBool("sendsnotice", true);
+		killonbadreply = ServerInstance->Config->GetTag("waitpong")->getBool("killonbadreply", true);
 	}
 
 	void OnUserRegister(LocalUser* user)

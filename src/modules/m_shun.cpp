@@ -215,8 +215,8 @@ class ModuleShun : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader MyConf;
-		std::string cmds = MyConf.ReadValue("shun", "enabledcommands", 0);
+		ConfigTag* tag = ServerInstance->Config->GetTag("shun");
+		std::string cmds = tag->getString("enabledcommands");
 
 		if (cmds.empty())
 			cmds = "PING PONG QUIT";
@@ -233,8 +233,8 @@ class ModuleShun : public Module
 			ShunEnabledCommands.insert(thiscmd);
 		}
 
-		NotifyOfShun = MyConf.ReadFlag("shun", "notifyuser", "yes", 0);
-		affectopers = MyConf.ReadFlag("shun", "affectopers", "no", 0);
+		NotifyOfShun = tag->getBool("notifyuser", true);
+		affectopers = tag->getBool("affectopers");
 	}
 
 	virtual void OnUserConnect(LocalUser* user)

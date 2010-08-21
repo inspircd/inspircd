@@ -92,8 +92,7 @@ class ModuleChgHost : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);
+		std::string hmap = ServerInstance->Config->GetTag("hostname")->getString("charmap");
 
 		if (hmap.empty())
 			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";

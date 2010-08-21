@@ -386,8 +386,7 @@ class Modulewatch : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		maxwatch = Conf.ReadInteger("watch", "maxentries", 0, true);
+		maxwatch = ServerInstance->Config->GetTag("watch")->getInt("maxentries");
 		if (!maxwatch)
 			maxwatch = 32;
 	}

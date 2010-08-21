@@ -695,7 +695,6 @@ class ModuleMsSQL : public Module
 
 	bool HostInConf(const SQLhost &h)
 	{
-		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;
@@ -715,7 +714,6 @@ class ModuleMsSQL : public Module
 	{
 		ClearOldConnections();
 
-		ConfigReader conf;
 		for(int i = 0; i < conf.Enumerate("database"); i++)
 		{
 			SQLhost host;

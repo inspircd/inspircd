@@ -106,8 +106,7 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		ref.extended = Conf.ReadFlag("posix", "extended", 0);
+		ref.extended = ServerInstance->Config->GetTag("posix")->getBool("extended");
 	}
 };
 

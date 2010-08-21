@@ -138,8 +138,7 @@ class CommandDccallow : public Command
 					}
 
 					std::string mask = std::string(target->nick)+"!"+std::string(target->ident)+"@"+std::string(target->dhost);
-					ConfigReader Conf;
-					std::string default_length = Conf.ReadValue("dccallow", "length", 0);
+					std::string default_length = ServerInstance->Config->GetTag("dccallow")->getString("length");
 
 					long length;
 					if (parameters.size() < 2)
@@ -325,12 +324,11 @@ class ModuleDCCAllow : public Module
 
 					irc::string type = tokens[1].c_str();
 
-					ConfigReader Conf;
-					bool blockchat = Conf.ReadFlag("dccallow", "blockchat", 0);
+					bool blockchat = ServerInstance->Config->GetTag("dccallow")->getBool("blockchat");
 
 					if (type == "SEND")
 					{
-						std::string defaultaction = Conf.ReadValue("dccallow", "action", 0);
+						std::string defaultaction = ServerInstance->Config->GetTag("dccallow")->getString("action");
 						std::string filename = tokens[2];
 
 						bool found = false;

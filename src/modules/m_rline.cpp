@@ -245,14 +245,13 @@ class ModuleRLine : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
 
-		if (!Conf.ReadFlag("rline", "zlineonmatch", 0) && ZlineOnMatch)
+		if (!ServerInstance->Config->GetTag("rline")->getBool("zlineonmatch") && ZlineOnMatch)
 			background_zlines.clear();
 
-		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 0);
-		ZlineOnMatch = Conf.ReadFlag("rline", "zlineonmatch", 0);
-		std::string newrxengine = Conf.ReadValue("rline", "engine", 0);
+		MatchOnNickChange = ServerInstance->Config->GetTag("rline")->getBool("matchonnickchange");
+		ZlineOnMatch = ServerInstance->Config->GetTag("rline")->getBool("zlineonmatch");
+		std::string newrxengine = ServerInstance->Config->GetTag("rline")->getString("engine");
 
 		if (newrxengine.empty())
 			rxfactory.SetProvider("regex");

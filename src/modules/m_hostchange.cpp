@@ -60,10 +60,10 @@ class ModuleHostChange : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		MySuffix = Conf.ReadValue("host","suffix",0);
-		MyPrefix = Conf.ReadValue("host","prefix","",0);
-		MySeparator = Conf.ReadValue("host","separator",".",0);
+		ConfigTag* tag = ServerInstance->Config->GetTag("host");
+		MySuffix = tag->getString("suffix");
+		MyPrefix = tag->getString("prefix");
+		MySeparator = tag->getString("separator",".");
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
 			delete i->second;

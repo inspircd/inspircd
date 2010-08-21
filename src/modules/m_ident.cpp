@@ -288,9 +288,8 @@ class ModuleIdent : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
 
-		RequestTimeout = Conf.ReadInteger("ident", "timeout", 0, true);
+		RequestTimeout = ServerInstance->Config->GetTag("ident")->getInt("timeout");
 		if (!RequestTimeout)
 			RequestTimeout = 5;
 	}

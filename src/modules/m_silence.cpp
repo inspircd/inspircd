@@ -288,8 +288,7 @@ class ModuleSilence : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
-		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);
+		maxsilence = ServerInstance->Config->GetTag("silence")->getInt("maxentries");
 		if (!maxsilence)
 			maxsilence = 32;
 	}

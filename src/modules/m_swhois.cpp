@@ -106,7 +106,6 @@ class ModuleSWhois : public Module
 	{
 		if ((command != "OPER") || (result != CMD_SUCCESS))
 			return;
-		ConfigReader Conf;
 
 		std::string swhois = user->oper->getConfig("swhois");
 

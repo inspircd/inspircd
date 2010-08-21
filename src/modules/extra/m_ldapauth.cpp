@@ -66,19 +66,18 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigReader Conf;
 
-		base 			= Conf.ReadValue("ldapauth", "baserdn", 0);
-		attribute		= Conf.ReadValue("ldapauth", "attribute", 0);
-		ldapserver		= Conf.ReadValue("ldapauth", "server", 0);
-		allowpattern		= Conf.ReadValue("ldapauth", "allowpattern", 0);
-		killreason		= Conf.ReadValue("ldapauth", "killreason", 0);
-		std::string scope	= Conf.ReadValue("ldapauth", "searchscope", 0);
-		username		= Conf.ReadValue("ldapauth", "binddn", 0);
-		password		= Conf.ReadValue("ldapauth", "bindauth", 0);
-		verbose			= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
-		useusername		= Conf.ReadFlag("ldapauth", "userfield", 0);
-		setaccount		= Conf.ReadFlag("ldapauth", "setaccount", 0);
+		base 			= ServerInstance->Config->GetTag("ldapauth")->getString("baserdn");
+		attribute		= ServerInstance->Config->GetTag("ldapauth")->getString("attribute");
+		ldapserver		= ServerInstance->Config->GetTag("ldapauth")->getString("server");
+		allowpattern		= ServerInstance->Config->GetTag("ldapauth")->getString("allowpattern");
+		killreason		= ServerInstance->Config->GetTag("ldapauth")->getString("killreason");
+		std::string scope	= ServerInstance->Config->GetTag("ldapauth")->getString("searchscope");
+		username		= ServerInstance->Config->GetTag("ldapauth")->getString("binddn");
+		password		= ServerInstance->Config->GetTag("ldapauth")->getString("bindauth");
+		verbose			= ServerInstance->Config->GetTag("ldapauth")->getBool("verbose");		/* Set to true if failed connects should be reported to operators */
+		useusername		= ServerInstance->Config->GetTag("ldapauth")->getBool("userfield");
+		setaccount		= ServerInstance->Config->GetTag("ldapauth")->getBool("setaccount");
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
