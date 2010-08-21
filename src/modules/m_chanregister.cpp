@@ -309,6 +309,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 	ChanExpiryExtItem last_activity;
 	dynamic_reference<AccountProvider> account;
 	bool verbose;
+	int chanlimit;
 	RegisterModeHandler(Module *me) : ParamChannelModeHandler(me, "registered", 'r'),
 		last_activity(me), account("account")
 	{
@@ -319,6 +320,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 		m_paramtype = TR_TEXT;
 		levelrequired = OP_VALUE;
 		verbose = true;
+		chanlimit = 10;
 	}
 
 	void OnParameterMissing (User *user, User*, Channel *chan, std::string &param)
@@ -344,6 +346,32 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			if (perm.source->HasPrivPermission("channels/set-registration", false))
 			{
 				perm.result = MOD_RES_ALLOW;
+				return;
+			}
+			/* new functionality, you can't register any channel if you don't have the oper privilege and chanlimit == 0 */
+			if (chanlimit == 0)
+			{
+				perm.ErrorNumeric (ERR_NOPRIVILEGES, "permission denied - only irc operators may register channels");
+				perm.result = MOD_RES_DENY;
+				return;
+			}
+			/* calculate how many channels the user has registered himself */
+			int chans = 0;
+			for (chan_hash::const_iterator it = ServerInstance->chanlist->begin ( ); it != ServerInstance->chanlist->end ( ); it++)
+			{
+				if (it->second->IsModeSet (this))
+				{
+					irc::commasepstream registrantnames (it->second->GetModeParameter (this));
+					std::string token;
+					registrantnames.GetToken (token);
+					if (token == acctname) chans++;
+				}
+			}
+			/* check for limit */
+			if (chans >= chanlimit)
+			{
+				perm.ErrorNumeric (ERR_CHANOPRIVSNEEDED, "You can't register more than %i channels under one account", chans);
+				perm.result = MOD_RES_DENY;
 				return;
 			}
 			/* otherwise, you can only set it to your own account name */
@@ -636,6 +664,8 @@ class ChannelRegistrationModule : public Module
 		expiretime = ServerInstance->Duration (chregistertag->getString ("expiretime", "21d"));
 		/* set verbose directly in a modehandler */
 		mh.verbose = chregistertag->getBool ("verbose", true);
+		/* set channel limit in a modehandler too */
+		mh.chanlimit = chregistertag->getInt ("limit", 10);
 		/* check if prefix exists, if not, throw an exception */
 		ModeHandler *prefixmodehandler = ServerInstance->Modes->FindMode (prefixmode);
 		if (!prefixmodehandler)
