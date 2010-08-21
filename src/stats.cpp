@@ -173,14 +173,9 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 			if (!this->Config->WhoWasGroupSize == 0 && !this->Config->WhoWasMaxGroups == 0)
 			{
-				Module* whowas = Modules->Find("cmd_whowas.so");
+				dynamic_reference<WhoWasMaintainer> whowas("whowas_maintain");
 				if (whowas)
-				{
-					WhowasRequest req(NULL, whowas, WhowasRequest::WHOWAS_STATS);
-					req.user = user;
-					req.Send();
-					results.push_back(sn+" 249 "+user->nick+" :"+req.value);
-				}
+					results.push_back(sn+" 249 "+user->nick+" :"+whowas->GetStats());
 			}
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;

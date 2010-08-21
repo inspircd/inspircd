@@ -713,9 +713,9 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 
 void ServerConfig::ApplyModules(User* user)
 {
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
+	dynamic_reference<WhoWasMaintainer> whowas("whowas_maintain");
 	if (whowas)
-		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
+		whowas->PruneWhoWas(ServerInstance->Time());
 
 	const std::vector<std::string> v = ServerInstance->Modules->GetAllModuleNames(0);
 	std::vector<std::string> added_modules;

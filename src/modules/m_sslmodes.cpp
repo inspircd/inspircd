@@ -21,7 +21,9 @@
 class SSLMode : public ModeHandler
 {
  public:
-	SSLMode(Module* Creator) : ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL) { fixed_letter = false; }
+	dynamic_reference<UserCertificateProvider> sslinfo;
+	SSLMode(Module* Creator) : ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL),
+		sslinfo("sslinfo") { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -34,9 +36,7 @@ class SSLMode : public ModeHandler
 					const UserMembList* userlist = channel->GetUsers();
 					for(UserMembCIter i = userlist->begin(); i != userlist->end(); i++)
 					{
-						UserCertificateRequest req(i->first, creator);
-						req.Send();
-						if(!req.cert && !ServerInstance->ULine(i->first->server))
+						if ((!sslinfo || !sslinfo->GetCert(i->first)) && !ServerInstance->ULine(i->first->server))
 						{
 							source->WriteNumeric(ERR_ALLMUSTSSL, "%s %s :all members of the channel must be connected via SSL", source->nick.c_str(), channel->name.c_str());
 							return MODEACTION_DENY;
@@ -83,9 +83,7 @@ class ModuleSSLModes : public Module
 	{
 		if (!join.chan || join.result != MOD_RES_PASSTHRU || !join.chan->IsModeSet(&sslm))
 			return;
-		UserCertificateRequest req(join.user, this);
-		req.Send();
-		if (!req.cert)
+		if (!sslm.sslinfo || !sslm.sslinfo->GetCert(join.user))
 		{
 			join.ErrorNumeric(489, "%s :Cannot join channel; SSL users only (+z)", join.chan->name.c_str());
 			join.result = MOD_RES_DENY;
@@ -94,11 +92,9 @@ class ModuleSSLModes : public Module
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		if (mask[0] == 'z' && mask[1] == ':')
+		if (mask[0] == 'z' && mask[1] == ':' && sslm.sslinfo)
 		{
-			UserCertificateRequest req(user, this);
-			req.Send();
-			if (req.cert && InspIRCd::Match(req.cert->GetFingerprint(), mask.substr(2)))
+			if (InspIRCd::Match(sslm.sslinfo->GetFingerprint(user), mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

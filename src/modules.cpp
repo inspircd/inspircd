@@ -39,17 +39,6 @@ Version::Version(const std::string &desc, int flags, const std::string& linkdata
 {
 }
 
-Request::Request(Module* src, Module* dst, const char* idstr)
-: id(idstr), source(src), dest(dst)
-{
-}
-
-void Request::Send()
-{
-	if (dest)
-		dest->OnRequest(*this);
-}
-
 Event::Event(Module* src, const std::string &eventid) : source(src), id(eventid) { }
 
 void Event::Send()
@@ -104,7 +93,6 @@ ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { return MOD_R
 ModResult	Module::OnExtBanCheck(User*, Channel*, char) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
 void		Module::OnEvent(Event&) { }
-void		Module::OnRequest(Request&) { }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { }
 ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }

@@ -211,44 +211,6 @@ class CoreExport Version
 	virtual ~Version() {}
 };
 
-/** The Request class is a unicast message directed at a given module.
- * When this class is properly instantiated it may be sent to a module
- * using the Send() method, which will call the given module's OnRequest
- * method with this class as its parameter.
- *
- * You should consider using direct RPC via dynamic_reference rather than
- * using this class.
- */
-class CoreExport Request : public classbase
-{
- public:
-	/** This should be a null-terminated string identifying the type of request,
-	 * all modules should define this and use it to determine the nature of the
-	 * request before they attempt to cast the Request in any way.
-	 */
-	const char* const id;
-	/** This is a pointer to the sender of the message, which can be used to
-	 * directly trigger events, or to create a reply.
-	 */
-	ModuleRef source;
-	/** The single destination of the Request
-	 */
-	ModuleRef dest;
-
-	/** Create a new Request
-	 * This is for the 'new' way of defining a subclass
-	 * of Request and defining it in a common header,
-	 * passing an object of your Request subclass through
-	 * as a Request* and using the ID string to determine
-	 * what to cast it back to and the other end.
-	 */
-	Request(Module* src, Module* dst, const char* idstr);
-	/** Send the Request.
-	 */
-	void Send();
-};
-
-
 /** The Event class is a broadcast message directed at all modules.
  * When the class is properly instantiated it may be sent to all modules
  * using the Send() method, which will trigger the OnEvent method in
@@ -1058,12 +1020,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param event The Event class being received
 	 */
 	virtual void OnEvent(Event& event);
-
-	/** Called whenever a Request class is sent to your module by another module.
-	 * The value of Request::id should be used to determine the type of request.
-	 * @param request The Request class being received
-	 */
-	virtual void OnRequest(Request& request);
 
 	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
 	 * The password field (from the config file) is in 'password' and is to be compared against

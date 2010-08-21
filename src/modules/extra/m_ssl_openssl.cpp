@@ -60,7 +60,7 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *store_ctx)
 
 /** Represents an SSL user's extra data
  */
-class OSSLHook : public IOHook
+class OSSLHook : public SSLIOHook
 {
  public:
 	SSL* sess;
@@ -71,7 +71,7 @@ class OSSLHook : public IOHook
 	bool outbound;
 	bool data_to_write;
 
-	OSSLHook(Module* Creator, bool client, StreamSocket* user, SSL_CTX* ctx) : IOHook(Creator)
+	OSSLHook(Module* Creator, bool client, StreamSocket* user, SSL_CTX* ctx) : SSLIOHook(Creator)
 	{
 		outbound = false;
 		data_to_write = false;
@@ -323,6 +323,11 @@ class OSSLHook : public IOHook
 
 		X509_free(rawcert);
 	}
+
+	ssl_cert* GetCertificate()
+	{
+		return cert;
+	}
 };
 
 class OSSLProvider : public IOHookProvider
@@ -497,16 +502,6 @@ class ModuleSSLOpenSSL : public Module
 	Version GetVersion()
 	{
 		return Version("Provides SSL support for clients", VF_VENDOR);
-	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp("GET_SSL_CERT", request.id) == 0)
-		{
-			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
-			OSSLHook* hook = static_cast<OSSLHook*>(req.sock->GetIOHook());
-			req.cert = hook->cert;
-		}
 	}
 };
 

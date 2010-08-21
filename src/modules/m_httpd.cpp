@@ -31,6 +31,26 @@ enum HttpState
 	HTTP_SERVE_SEND_DATA = 2 /* Sending response */
 };
 
+class HttpServerSocket;
+
+class HTTPRequestImpl : public HTTPRequest
+{
+ public:
+	HTTPRequestImpl(Module* me, const std::string &eventid, const std::string &request_type, const std::string &uri,
+		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
+		: HTTPRequest(me, eventid, request_type, uri, hdr, ip, pdata), sock(socket)
+	{
+	}
+
+	/** A socket pointer, which you must return in your HTTPDocument class
+	 * if you reply to this request.
+	 */
+	HttpServerSocket* sock;
+
+	void Respond(HTTPDocumentResponse& resp);
+};
+
+
 /** A socket used for HTTP transport
  */
 class HttpServerSocket : public BufferedSocket
@@ -296,11 +316,11 @@ class HttpServerSocket : public BufferedSocket
 		InternalState = HTTP_SERVE_SEND_DATA;
 
 		claimed = false;
-		HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
+		HTTPRequestImpl acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
 		acl.Send();
 		if (!claimed)
 		{
-			HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
+			HTTPRequestImpl url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
 			url.Send();
 			if (!claimed)
 			{
@@ -316,6 +336,12 @@ class HttpServerSocket : public BufferedSocket
 	}
 };
 
+void HTTPRequestImpl::Respond(HTTPDocumentResponse& resp)
+{
+	claimed = true;
+	sock->Page(resp.document, resp.responsecode, &resp.headers);
+}
+
 class ModuleHttpServer : public Module
 {
 	std::vector<HttpServerSocket *> httpsocks;
@@ -325,15 +351,6 @@ class ModuleHttpServer : public Module
 	{
 		HttpModule = this;
 		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
-	}
-
-	void OnRequest(Request& request)
-	{
-		if (strcmp(request.id, "HTTP-DOC") != 0)
-			return;
-		HTTPDocumentResponse& resp = static_cast<HTTPDocumentResponse&>(request);
-		claimed = true;
-		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 
 	StreamSocket* OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)

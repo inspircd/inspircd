@@ -14,14 +14,110 @@
 #include "inspircd.h"
 #include "commands/cmd_whowas.h"
 
-WhoWasMaintainTimer * timer;
+/* Forward ref for timer */
+class WhoWasMaintainTimer;
 
-CommandWhowas::CommandWhowas( Module* parent) : Command(parent, "WHOWAS", 1)
+/* Forward ref for typedefs */
+class WhoWasGroup;
+
+/** A group of users related by nickname
+ */
+typedef std::deque<WhoWasGroup*> whowas_set;
+
+/** Sets of users in the whowas system
+ */
+typedef std::map<irc::string,whowas_set*> whowas_users;
+
+/** Sets of time and users in whowas list
+ */
+typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
+
+class WhoWasMaintainerImpl : public WhoWasMaintainer
+{
+ public:
+	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
+	 */
+	whowas_users whowas;
+
+	/** Whowas container, contains a map of time_t to users tracked by WHOWAS
+	 */
+	whowas_users_fifo whowas_fifo;
+
+	WhoWasMaintainerImpl(Module* mod) : WhoWasMaintainer(mod) {}
+	void AddToWhoWas(User* user);
+	std::string GetStats();
+	void PruneWhoWas(time_t t);
+	void MaintainWhoWas(time_t t);
+};
+
+/** Handle /WHOWAS. These command handlers can be reloaded by the core,
+ * and handle basic RFC1459 commands. Commands within modules work
+ * the same way, however, they can be fully unloaded, where these
+ * may not.
+ */
+class CommandWhowas : public Command
+{
+  public:
+	WhoWasMaintainerImpl prov;
+	CommandWhowas(Module* parent);
+	/** Handle command.
+	 * @param parameters The parameters to the comamnd
+	 * @param pcnt The number of parameters passed to teh command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	~CommandWhowas();
+};
+
+/** Used to hold WHOWAS information
+ */
+class WhoWasGroup
+{
+ public:
+	/** Real host
+	 */
+	std::string host;
+	/** Displayed host
+	 */
+	std::string dhost;
+	/** Ident
+	 */
+	std::string ident;
+	/** Server name
+	 */
+	std::string server;
+	/** Fullname (GECOS)
+	 */
+	std::string gecos;
+	/** Signon time
+	 */
+	time_t signon;
+
+	/** Initialize this WhoWasFroup with a user
+	 */
+	WhoWasGroup(User* user);
+	/** Destructor
+	 */
+	~WhoWasGroup();
+};
+
+class WhoWasMaintainTimer : public Timer
+{
+  public:
+	CommandWhowas cmd;
+	WhoWasMaintainTimer(Module* m) : Timer(3600, ServerInstance->Time(), true), cmd(m)
+	{
+	}
+	virtual void Tick(time_t TIME);
+};
+
+
+
+CommandWhowas::CommandWhowas( Module* parent) : Command(parent, "WHOWAS", 1), prov(parent)
 {
 	syntax = "<nick>{,<nick>}";
 	Penalty = 2;
-	timer = new WhoWasMaintainTimer(3600);
-	ServerInstance->Timers->AddTimer(timer);
 }
 
 CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
@@ -33,9 +129,9 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 	}
 
-	whowas_users::iterator i = whowas.find(assign(parameters[0]));
+	whowas_users::iterator i = prov.whowas.find(assign(parameters[0]));
 
-	if (i == whowas.end())
+	if (i == prov.whowas.end())
 	{
 		user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick.c_str(),parameters[0].c_str());
 		user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick.c_str(),parameters[0].c_str());
@@ -83,7 +179,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 }
 
-std::string CommandWhowas::GetStats()
+std::string WhoWasMaintainerImpl::GetStats()
 {
 	int whowas_size = 0;
 	int whowas_bytes = 0;
@@ -100,7 +196,7 @@ std::string CommandWhowas::GetStats()
 	return "Whowas entries: " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)";
 }
 
-void CommandWhowas::AddToWhoWas(User* user)
+void WhoWasMaintainerImpl::AddToWhoWas(User* user)
 {
 	/* if whowas disabled */
 	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
@@ -157,7 +253,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 }
 
 /* on rehash, refactor maps according to new conf values */
-void CommandWhowas::PruneWhoWas(time_t t)
+void WhoWasMaintainerImpl::PruneWhoWas(time_t t)
 {
 	/* config values */
 	int groupsize = ServerInstance->Config->WhoWasGroupSize;
@@ -229,7 +325,7 @@ void CommandWhowas::PruneWhoWas(time_t t)
 }
 
 /* call maintain once an hour to remove expired nicks */
-void CommandWhowas::MaintainWhoWas(time_t t)
+void WhoWasMaintainerImpl::MaintainWhoWas(time_t t)
 {
 	for (whowas_users::iterator iter = whowas.begin(); iter != whowas.end(); iter++)
 	{
@@ -248,19 +344,14 @@ void CommandWhowas::MaintainWhoWas(time_t t)
 
 CommandWhowas::~CommandWhowas()
 {
-	if (timer)
-	{
-		ServerInstance->Timers->DelTimer(timer);
-	}
-
 	whowas_users::iterator iter;
 	int fifosize;
-	while ((fifosize = (int)whowas_fifo.size()) > 0)
+	while ((fifosize = (int)prov.whowas_fifo.size()) > 0)
 	{
-		iter = whowas.find(whowas_fifo[0].second);
+		iter = prov.whowas.find(prov.whowas_fifo[0].second);
 
 		/* hopefully redundant integrity check, but added while debugging r6216 */
-		if (iter == whowas.end())
+		if (iter == prov.whowas.end())
 		{
 			/* this should never happen, if it does maps are corrupt */
 			ServerInstance->Logs->Log("WHOWAS",DEFAULT, "BUG: Whowas maps got corrupted! (3)");
@@ -280,8 +371,8 @@ CommandWhowas::~CommandWhowas()
 		}
 
 		delete n;
-		whowas.erase(iter);
-		whowas_fifo.pop_front();
+		prov.whowas.erase(iter);
+		prov.whowas_fifo.pop_front();
 	}
 }
 
@@ -295,44 +386,27 @@ WhoWasGroup::~WhoWasGroup()
 }
 
 /* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
-void WhoWasMaintainTimer::Tick(time_t)
+void WhoWasMaintainTimer::Tick(time_t now)
 {
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-	if (whowas)
-	{
-		WhowasRequest(whowas, whowas, WhowasRequest::WHOWAS_MAINTAIN).Send();
-	}
+	cmd.prov.MaintainWhoWas(now);
 }
 
 class ModuleWhoWas : public Module
 {
-	CommandWhowas cmd;
+	WhoWasMaintainTimer timer;
  public:
-	ModuleWhoWas() : cmd(this) {}
+	ModuleWhoWas() : timer(this) {}
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Timers->AddTimer(&timer);
+		ServerInstance->Modules->AddService(timer.cmd);
+		ServerInstance->Modules->AddService(timer.cmd.prov);
 	}
 
-	void OnRequest(Request& request)
+	~ModuleWhoWas()
 	{
-		WhowasRequest& req = static_cast<WhowasRequest&>(request);
-		switch (req.type)
-		{
-			case WhowasRequest::WHOWAS_ADD:
-				cmd.AddToWhoWas(req.user);
-				break;
-			case WhowasRequest::WHOWAS_STATS:
-				req.value = cmd.GetStats();
-				break;
-			case WhowasRequest::WHOWAS_PRUNE:
-				cmd.PruneWhoWas(ServerInstance->Time());
-				break;
-			case WhowasRequest::WHOWAS_MAINTAIN:
-				cmd.MaintainWhoWas(ServerInstance->Time());
-				break;
-		}
+		ServerInstance->Timers->DelTimer(&timer);
 	}
 
 	Version GetVersion()

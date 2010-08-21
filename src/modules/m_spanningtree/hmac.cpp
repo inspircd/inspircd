@@ -97,13 +97,11 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
 	std::string fp;
-	if (GetIOHook())
+	if (GetIOHook() && GetIOHook()->creator->ModuleSourceFile.find("_ssl_") != std::string::npos)
 	{
-		SocketCertificateRequest req(this, Utils->Creator);
-		if (req.cert)
-		{
-			fp = req.cert->GetFingerprint();
-		}
+		ssl_cert* cert = static_cast<SSLIOHook*>(GetIOHook())->GetCertificate();
+		if (cert)
+			fp = cert->GetFingerprint();
 	}
 
 	if (capab->auth_challenge)

@@ -115,20 +115,37 @@ class CommandSSLInfo : public Command
 	}
 };
 
+class UserCertificateProviderImpl : public UserCertificateProvider
+{
+ public:
+	CommandSSLInfo cmd;
+	UserCertificateProviderImpl(Module* me) : UserCertificateProvider(me, "sslinfo"), cmd(me) {}
+
+	ssl_cert* GetCert(User* u)
+	{
+		return cmd.CertExt.get(u);
+	}
+
+	std::string GetFingerprint(User* u)
+	{
+		ssl_cert* c = GetCert(u);
+		return c ? c->GetFingerprint() : "";
+	}
+};
+
 class ModuleSSLInfo : public Module
 {
-	CommandSSLInfo cmd;
-
  public:
-	ModuleSSLInfo() : cmd(this)
+	UserCertificateProviderImpl prov;
+	ModuleSSLInfo() : prov(this)
 	{
 	}
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
-
-		ServerInstance->Extensions.Register(&cmd.CertExt);
+		ServerInstance->Modules->AddService(prov);
+		ServerInstance->Modules->AddService(prov.cmd);
+		ServerInstance->Modules->AddService(prov.cmd.CertExt);
 
 		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
@@ -141,7 +158,7 @@ class ModuleSSLInfo : public Module
 
 	void OnWhois(User* source, User* dest)
 	{
-		ssl_cert* cert = cmd.CertExt.get(dest);
+		ssl_cert* cert = prov.cmd.CertExt.get(dest);
 		if (cert)
 		{
 			ServerInstance->SendWhoisLine(source, dest, 671, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
@@ -176,7 +193,7 @@ class ModuleSSLInfo : public Module
 			if (i != ServerInstance->Config->oper_blocks.end())
 			{
 				OperInfo* ifo = i->second;
-				ssl_cert* cert = cmd.CertExt.get(user);
+				ssl_cert* cert = prov.cmd.CertExt.get(user);
 
 				if (ifo->config_blocks[0]->getBool("sslonly") && !cert)
 				{
@@ -201,15 +218,16 @@ class ModuleSSLInfo : public Module
 
 	void OnUserConnect(LocalUser* user)
 	{
-		SocketCertificateRequest req(&user->eh, this);
-		if (!req.cert)
-			return;
-		cmd.CertExt.set(user, req.cert);
+		IOHook* ioh = user->eh.GetIOHook();
+		if (ioh && ioh->creator->ModuleSourceFile.find("_ssl_") != std::string::npos)
+		{
+			prov.cmd.CertExt.set(user, static_cast<SSLIOHook*>(ioh)->GetCertificate());
+		}
 	}
 
 	void OnPostConnect(User* user)
 	{
-		ssl_cert *cert = cmd.CertExt.get(user);
+		ssl_cert *cert = prov.cmd.CertExt.get(user);
 		if (!cert || cert->fingerprint.empty())
 			return;
 		// find an auto-oper block for this user
@@ -224,15 +242,19 @@ class ModuleSSLInfo : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
-		SocketCertificateRequest req(&user->eh, this);
+		ssl_cert* cert = NULL;
+		IOHook* ioh = user->eh.GetIOHook();
+		if (ioh && ioh->creator->ModuleSourceFile.find("_ssl_") != std::string::npos)
+			cert = static_cast<SSLIOHook*>(ioh)->GetCertificate();
+
 		bool ok = true;
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
-			ok = (req.cert && req.cert->IsCAVerified());
+			ok = (cert && cert->IsCAVerified());
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
-			ok = (req.cert != NULL);
+			ok = (cert != NULL);
 		}
 
 		if (!ok)
@@ -240,14 +262,6 @@ class ModuleSSLInfo : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRequest(Request& request)
-	{
-		if (strcmp("GET_USER_CERT", request.id) == 0)
-		{
-			UserCertificateRequest& req = static_cast<UserCertificateRequest&>(request);
-			req.cert = cmd.CertExt.get(req.user);
-		}
-	}
 };
 
 MODULE_INIT(ModuleSSLInfo)

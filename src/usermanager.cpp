@@ -14,6 +14,7 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "bancache.h"
+#include "commands/cmd_whowas.h"
 
 static const std::string unk = "unknown";
 
@@ -193,7 +194,10 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 					user->server.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str(), oper_reason.c_str(), user->GetIPString());
 			}
 		}
-		user->AddToWhoWas();
+
+		dynamic_reference<WhoWasMaintainer> whowas("whowas_maintain");
+		if (whowas)
+			whowas->AddToWhoWas(user);
 	}
 
 	user_hash::iterator iter = this->clientlist->find(user->nick);

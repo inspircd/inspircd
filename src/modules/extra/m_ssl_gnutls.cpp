@@ -144,7 +144,7 @@ class RandGen : public HandlerBase2<void, char*, size_t>
 	}
 };
 
-class GnuTLSHook : public IOHook
+class GnuTLSHook : public SSLIOHook
 {
  public:
 	gnutls_session_t sess;
@@ -152,7 +152,7 @@ class GnuTLSHook : public IOHook
 	reference<ssl_cert> cert;
 	reference<x509_cred> creds;
 	GnuTLSHook(Module* Creator, bool client, StreamSocket* user, x509_cred* mycert)
-		: IOHook(Creator), sess(NULL), status(ISSL_HANDSHAKING), creds(mycert)
+		: SSLIOHook(Creator), sess(NULL), status(ISSL_HANDSHAKING), creds(mycert)
 	{
 		int rv;
 		rv = gnutls_init(&sess, client ? GNUTLS_CLIENT : GNUTLS_SERVER);
@@ -181,6 +181,13 @@ class GnuTLSHook : public IOHook
 	~GnuTLSHook()
 	{
 		OnClose(NULL);
+	}
+
+	std::string GetFingerprint()
+	{
+		if (cert)
+			return cert->GetFingerprint();
+		return "";
 	}
 
 	void OnClose(StreamSocket* user)
@@ -441,6 +448,11 @@ info_done_dealloc:
 			return true;
 		}
 	}
+
+	ssl_cert* GetCertificate()
+	{
+		return cert;
+	}
 };
 
 class GnuTLSProvider : public IOHookProvider
@@ -691,15 +703,6 @@ class ModuleSSLGnuTLS : public Module
 			output.append(" STARTTLS");
 	}
 
-	void OnRequest(Request& request)
-	{
-		if (strcmp("GET_SSL_CERT", request.id) == 0)
-		{
-			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
-			GnuTLSHook* hook = static_cast<GnuTLSHook*>(req.sock->GetIOHook());
-			req.cert = hook->cert;
-		}
-	}
 	void OnUserConnect(LocalUser* user)
 	{
 		GnuTLSHook* hook = static_cast<GnuTLSHook*>(user->eh.GetIOHook());

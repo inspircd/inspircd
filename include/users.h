@@ -427,10 +427,6 @@ class CoreExport User : public Extensible
 	 */
 	std::string MakeHostIP();
 
-	/** Add the user to WHOWAS system
-	 */
-	void AddToWhoWas();
-
 	/** Oper up the user using the given opertype.
 	 * This will also give the +o usermode.
 	 */

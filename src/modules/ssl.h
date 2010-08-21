@@ -125,44 +125,25 @@ class ssl_cert : public refcountbase
 	}
 };
 
-/** Get certificate from a socket (only useful with an SSL module) */
-struct SocketCertificateRequest : public Request
+class SSLIOHook : public IOHook
 {
-	StreamSocket* const sock;
-	ssl_cert* cert;
-
-	SocketCertificateRequest(StreamSocket* ss, Module* Me)
-		: Request(Me, ss->GetIOHook() ? (Module*)ss->GetIOHook()->creator : NULL, "GET_SSL_CERT"), sock(ss), cert(NULL)
-	{
-		Send();
-	}
-
-	std::string GetFingerprint()
-	{
-		if (cert)
-			return cert->GetFingerprint();
-		return "";
-	}
+ public:
+	SSLIOHook(Module* Creator) : IOHook(Creator) {}
+	virtual int OnRead(StreamSocket*, std::string& recvq) = 0;
+	virtual int OnWrite(StreamSocket*, std::string& sendq) = 0;
+	virtual void OnClose(StreamSocket*) = 0;
+	virtual ssl_cert* GetCertificate() = 0;
 };
 
-/** Get certificate from a user (requires m_sslinfo) */
-struct UserCertificateRequest : public Request
+/** Get SSL certificates from users.
+ * Access via dynamic_reference<UserCertificateProvider>("sslinfo")
+ */
+class UserCertificateProvider : public DataProvider
 {
-	User* const user;
-	ssl_cert* cert;
-
-	UserCertificateRequest(User* u, Module* Me, Module* info = ServerInstance->Modules->Find("m_sslinfo.so"))
-		: Request(Me, info, "GET_USER_CERT"), user(u), cert(NULL)
-	{
-		Send();
-	}
-
-	std::string GetFingerprint()
-	{
-		if (cert)
-			return cert->GetFingerprint();
-		return "";
-	}
+ public:
+	UserCertificateProvider(Module* mod, const std::string& Name) : DataProvider(mod, Name) {}
+	virtual ssl_cert* GetCert(User* u) = 0;
+	virtual std::string GetFingerprint(User* u) = 0;
 };
 
 #endif

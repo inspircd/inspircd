@@ -94,7 +94,7 @@ class HTTPHeaders
 	}
 };
 
-class HttpServerSocket;
+class HTTPDocumentResponse;
 
 /** This class represents a HTTP request.
  */
@@ -111,11 +111,6 @@ class HTTPRequest : public Event
 	HTTPHeaders *headers;
 	int errorcode;
 
-	/** A socket pointer, which you must return in your HTTPDocument class
-	 * if you reply to this request.
-	 */
-	HttpServerSocket* sock;
-
 	/** Initialize HTTPRequest.
 	 * This constructor is called by m_httpd.so to initialize the class.
 	 * @param request_type The request type, e.g. GET, POST, HEAD
@@ -126,8 +121,8 @@ class HTTPRequest : public Event
 	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
 	HTTPRequest(Module* me, const std::string &eventid, const std::string &request_type, const std::string &uri,
-		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
-		: Event(me, eventid), type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(socket)
+		HTTPHeaders* hdr, const std::string &ip, const std::string &pdata)
+		: Event(me, eventid), type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr)
 	{
 	}
 
@@ -166,19 +161,20 @@ class HTTPRequest : public Event
 	{
 		return ipaddr;
 	}
+
+	virtual void Respond(HTTPDocumentResponse&) = 0;
 };
 
 /** You must return a HTTPDocument to the httpd module by using the Request class.
  * When you initialize this class you may initialize it with all components required to
  * form a valid HTTP response, including document data, headers, and a response code.
  */
-class HTTPDocumentResponse : public Request
+class HTTPDocumentResponse
 {
  public:
 	std::stringstream* document;
 	int responsecode;
 	HTTPHeaders headers;
-	HTTPRequest& src;
 
 	/** Initialize a HTTPRequest ready for sending to m_httpd.so.
 	 * @param opaque The socket pointer you obtained from the HTTPRequest at an earlier time
@@ -187,8 +183,8 @@ class HTTPDocumentResponse : public Request
 	 * based upon the response code.
 	 * @param extra Any extra headers to include with the defaults, seperated by carriage return and linefeed.
 	 */
-	HTTPDocumentResponse(Module* me, HTTPRequest& req, std::stringstream* doc, int response)
-		: Request(me, req.source, "HTTP-DOC"), document(doc), responsecode(response), src(req)
+	HTTPDocumentResponse(std::stringstream* doc, int response)
+		: document(doc), responsecode(response)
 	{
 	}
 };
