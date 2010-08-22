@@ -216,17 +216,18 @@
 # Connect blocks are searched twice for each user - once when the TCP #
 # connection is accepted, and once when the user completes their      #
 # registration. Most of the information (hostname, ident response,    #
-# password, SSL when using STARTTLS, etc) is only available during    #
-# the second search, so if you are trying to make a closed server,    #
-# you will probably need a connect block just for user registration.  #
-# This can be done by using <connect registered="no">                 #
-
+# password, SSL connection data, etc) is only available during the    #
+# second search, so if you are trying to create a closed server, you  #
+# will need a connect block just for user registration.               #
 <connect
-         # deny: Will not let people connect if they have specified host/IP.
-         deny="69.254.*">
-
-# connect:reason is the message that users will see if they match a deny block
-<connect deny="3ffe::0/32" reason="The 6bone address space is deprecated">
+	# This block is only used for user registration, and allows all
+	registered="no" allow="*"
+	# timeout: maximum time that the user can remain in the connecting state.
+	timeout="10"
+	# useident: if m_ident is loaded, send an ident query for these users.
+	# See requireident below to enforce a valid reply
+	#useident="no"
+	>
 
 <connect
 	# name: Name to use for this connect block. Mainly used for
@@ -246,52 +247,31 @@
 	# hash: what hash this password is hashed with. requires the module
 	# for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
 	# loaded and the password hashing module (m_password_hash.so)
-	# loaded. Options here are: "md5", "sha256" and "ripemd160".
-	# Optional, but recommended. Create hashed password with:
+	# loaded. Optional, but recommended. Create hashed password with:
 	# /mkpasswd <hash> <password>
+	# Values for hash: md5 sha256 ripemd160 hmac-md5 hmac-sha256 posix
 	#hash="sha256"
 
-	# password: Password to use for this block/user(s)
+	# password: Password (or password hash) to use for this block
 	password="secret"
 
 	# maxchans: Maximum number of channels a user in this class
-	# be in at one time. This overrides every other maxchans setting.
+	# be in at one time.
 	#maxchans="30"
 
-	# timeout: How long (in seconds) the server will wait before
-	# disconnecting a user if they do not do anything on connect.
-	# (Note, this is a client-side thing, if the client does not
-	# send /nick, /user or /pass)
-	timeout="10"
-
-	# localmax: Maximum local connections per IP (or CIDR mask, see below).
-	localmax="3"
-
-	# globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
-	globalmax="3"
-
-	# useident: Defines if users in this class MUST respond to a ident query or not.
-	useident="no"
-
-	# limit: How many users are allowed in this class
-	limit="5000"
-
-	# modes: Usermodes that are set on users in this block on connect.
-	# Enabling this option requires that the m_conn_umodes module be loaded.
-	# This entry is highly recommended to use for/with IP Cloaking/masking.
-	# For the example to work, this also requires that the m_cloaking
-	# module be loaded as well.
-	modes="+x"
+	# limit: How many users are allowed in this class. 0 for no limit.
+	# If the limit is overrun, matching contines with the next connect block
+	limit="10"
 
 	# requireident, requiressl, requireaccount, requiresqlauth:
 	# require that users of this block have a valid ident response, use SSL,
 	# have authenticated to an account, or have passed SQLauth.
-	# Requires m_ident, m_sslinfo, m_account/m_services_account, or m_sqlauth
+	# Requires m_ident, m_sslinfo, m_services_account, or m_sqlauth
 	requiressl="on"
 	# NOTE: For requireaccount, you must complete the signon prior to full
 	# connection. Passforward and PRIVMSG NickServ happen after your final
 	# connect block has been found. Methods for authenticating prior to full
-	# connect include SASL, m_account_auth, and m_sqlauth.
+	# connect include SASL, m_ldapauth, and m_sqlauth.
 
 	# Alternate MOTD file for this connect class. The contents of this file are
 	# specified using <files secretmotd="filename"> or <execfiles ...>
@@ -302,23 +282,17 @@
 	# Multiple ports may be specified like 6660,6667-6669
 	port="6697">
 
+# Since blocks are matched top-down, denies normally go before allows.
+# However, if you put a passworded allow before a deny, it can be used
+# to bypass the deny.
+<connect deny="69.254.*">
+
+# connect:reason is the message that users will see if they match a deny block
+<connect deny="3ffe::0/32" reason="The 6bone address space is deprecated">
+
 <connect
-	# name: Name to use for this connect block. Mainly used for
-	# connect class inheriting.
 	name="main"
-
-	# allow: What IP addresses/hosts to allow for this block.
 	allow="*"
-
-	# maxchans: Maximum number of channels a user in this class
-	# be in at one time. This overrides every other maxchans setting.
-	#maxchans="30"
-
-	# timeout: How long (in seconds) the server will wait before
-	# disconnecting a user if they do not do anything on connect.
-	# (Note, this is a client-side thing, if the client does not
-	# send /nick, /user or /pass)
-	timeout="10"
 
 	# pingfreq: How often (in seconds) the server tries to ping connecting clients.
 	pingfreq="120"
@@ -359,19 +333,14 @@
 	# quit with "RecvQ exceeded" rather than "Excess Flood".
 	fakelag="on"
 
-	# localmax: Maximum local connections per IP.
+	# localmax: Maximum local connections per IP (or CIDR mask, see below).
+	# If you are over this maximum, your connection is denied.
 	localmax="3"
 
-	# globalmax: Maximum global (network-wide) connections per IP.
+	# globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
+	# If you are over this maximum, your connection is denied.
 	globalmax="3"
-
-	# useident: Defines if users in this class must respond to a ident query or not.
-	useident="no"
-
-	# limit: How many users are allowed in this class
-	limit="5000"
-
-	# modes: Usermodes that are set on users in this block on connect.
+	
 	# Enabling this option requires that the m_conn_umodes module be loaded.
 	# This entry is highly recommended to use for/with IP Cloaking/masking.
 	# For the example to work, this also requires that the m_cloaking
@@ -511,78 +480,78 @@
 #                                                                     #
 
 <options
-         # prefixquit: What (if anything) a users' quit message
-         # should be prefixed with.
-         prefixquit="Quit: "
+	# prefixquit: What (if anything) a users' quit message
+	# should be prefixed with.
+	prefixquit="Quit: "
 
-         # suffixquit: What (if anything) a users' quit message
-         # should be suffixed with.
-         suffixquit=""
+	# suffixquit: What (if anything) a users' quit message
+	# should be suffixed with.
+	suffixquit=""
 
-         # prefixpart: What (if anything) a users' part message
-         # should be prefixed with.
-         prefixpart="&quot;"
-         # NOTE: Use "\"" instead of "&quot;" if not using <config format="xml">
+	# prefixpart: What (if anything) a users' part message
+	# should be prefixed with.
+	prefixpart="&quot;"
+	# NOTE: Use "\"" instead of "&quot;" if not using <config format="xml">
 
-         # suffixpart: What (if anything) a users' part message
-         # should be suffixed with.
-         suffixpart="&quot;"
+	# suffixpart: What (if anything) a users' part message
+	# should be suffixed with.
+	suffixpart="&quot;"
 
-         # fixedquit: Set all users' quit messages to this value.
-         #fixedquit=""
+	# fixedquit: Set all users' quit messages to this value.
+	#fixedquit=""
 
-         # fixedpart: Set all users' part messages in all channels
-         # to this value.
-         #fixedpart=""
+	# fixedpart: Set all users' part messages in all channels
+	# to this value.
+	#fixedpart=""
 
-         # syntaxhints: If enabled, if a user fails to send the correct parameters
-         # for a command, the ircd will give back some help text of what
-         # the correct parameters are.
-         syntaxhints="no"
+	# syntaxhints: If enabled, if a user fails to send the correct parameters
+	# for a command, the ircd will give back some help text of what
+	# the correct parameters are.
+	syntaxhints="no"
 
-         # cyclehosts: If enabled, when a user gets a host set, it will cycle
-         # them in all their channels. If not, it will simply change their host
-         # without cycling them.
-         cyclehosts="yes"
+	# cyclehosts: If enabled, when a user gets a host set, it will cycle
+	# them in all their channels. If not, it will simply change their host
+	# without cycling them.
+	cyclehosts="yes"
 
 	 # cyclehostsfromuser: If enabled, the source of the mode change for
 	 # cyclehosts will be the user who cycled. This can look nicer, but
 	 # triggers anti-takeover mechanisms of some obsolete bots.
 	 cyclehostsfromuser="no"
 
-         # ircumsgprefix: Use undernet-style message prefixing for NOTICE and
-         # PRIVMSG. If enabled, it will add users' prefix to the line, if not,
-         # it will just message the user normally.
-         ircumsgprefix="no"
+	# ircumsgprefix: Use undernet-style message prefixing for NOTICE and
+	# PRIVMSG. If enabled, it will add users' prefix to the line, if not,
+	# it will just message the user normally.
+	ircumsgprefix="no"
 
 	# defaultbind: Sets the default for <bind> tags without an address. Choices are
 	# ipv4 or ipv6; if not specified, IPv6 will be used if your system has support,
 	# falling back to IPv4 otherwise.
 	defaultbind="auto"
 
-         # hostintopic: If enabled, channels will show the host of the topicsetter
-         # in the topic. If set to no, it will only show the nick of the topicsetter.
-         hostintopic="yes"
+	# hostintopic: If enabled, channels will show the host of the topicsetter
+	# in the topic. If set to no, it will only show the nick of the topicsetter.
+	hostintopic="yes"
 
-         # defaultmodes: What modes are set on a empty channel when a user
-         # joins it.
-         defaultmodes="ont"
+	# defaultmodes: What modes are set on a empty channel when a user
+	# joins it.
+	defaultmodes="ont"
 
-         # moronbanner: This is the text that is sent to a user when they are
-         # banned from the server.
-         moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
+	# moronbanner: This is the text that is sent to a user when they are
+	# banned from the server.
+	moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
 	
 	# exemptchanops: exemptions for channel access restrictions based on prefix.
 	exemptchanops="nonick:v flood:o"
 
-	 # nameonlymodes: Allow modes to be defined with names and no letters.
-	 # These modes can be changed with PROP or the pseudo-mode Z, which this
-	 # option enables.
-	 nameonlymodes="no"
+	# nameonlymodes: Allow modes to be defined with names and no letters.
+	# These modes can be changed with PROP or the pseudo-mode Z, which this
+	# option enables.
+	nameonlymodes="no"
 
-         # invitebypassmodes: This allows /invite to bypass other channel modes.
-         # (Such as +k, +j, +l, etc)
-         invitebypassmodes="yes">
+	# invitebypassmodes: This allows /invite to bypass other channel modes.
+	# (Such as +k, +j, +l, etc)
+	invitebypassmodes="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
@@ -601,7 +570,6 @@
 
              # softlimit: This optional feature allows a defined softlimit for
              # connections. If defined, it sets a soft max connections value.
-             # must be lower than ./configure maxclients.
              softlimit="12800"
 
              # nouserdns: If enabled, no DNS lookups will be performed on
@@ -693,7 +661,12 @@
 # Modes that provide a prefix must be assigned a letter.              #
 # All other modes can be assigned any unused letter or no letter.     #
 #                                                                     #
+# By default, you can assign any character [a-zA-Z0-9] to any mode.   #
 # To asssign no letter, you must enable <options:nameonlymodes>       #
+#                                                                     #
+# Before changing letters on modes, remember that many IRC clients,   #
+# bots, and users already have some expectation of what each letter   #
+# means; switching around modes for no reason just causes confusion.  #
 <modeletters
 	allowinvite="A" auditorium="u" banexception="e" blockcaps="B"
 	blockcolor="c" c_registered="r" censor="G" delayjoin="D" delaymsg="d"
@@ -773,12 +746,11 @@
 # XXX someone doc more on this
 #
 # You may also log *everything* by using a type of *, and subtract things out
-# of that by using -TYPE - for example "* -USERINPUT -USEROUTPUT".
+# of that by using -TYPE - for example "* -m_spanningtree -m_cgiirc".
 #
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
-
-<log method="file" type="* -USERINPUT -USEROUTPUT" level="default" target="ircd.log">
+<log method="file" type="*" level="default" target="ircd.log">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
