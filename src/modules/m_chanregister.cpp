@@ -344,10 +344,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 				return;
 			}
 			if (perm.source->HasPrivPermission("channels/set-registration", false))
-			{
-				perm.result = MOD_RES_ALLOW;
 				return;
-			}
 			/* new functionality, you can't register any channel if you don't have the oper privilege and chanlimit == 0 */
 			if (chanlimit == 0)
 			{
