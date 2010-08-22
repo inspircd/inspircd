@@ -267,7 +267,7 @@ class DatabaseWriter
 		/* first, construct the chaninfo line */
 		std::string line;
 		line.append ("chaninfo ").append (chan->name).append (" ").append (ConvToStr(chan->age))
-			.append (" ").append (chan->IsModeSet(mh) ? chan->GetModeParameter (mh) : "-").append ("\n");
+			.append (" ").append (chan->GetModeParameter (mh)).append ("\n");
 		if (fputs (line.c_str ( ), fd) == EOF)
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "unable to write the channel entry");
@@ -490,7 +490,7 @@ class ChannelRegistrationModule : public Module
 		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin ( ); i != ServerInstance->chanlist->end ( ); i++)
 		{
 			/* write the channel if it has mode set */
-			if ((i->second->IsModeSet (&mh)) || i->second->IsModeSet ("permanent")) db.next (i->second);
+			if (i->second->IsModeSet (&mh)) db.next (i->second);
 		}
 		/* completed all iterations, function now goes down, that will destruct the database writer */
 		/* while destruction, it will close the temporary file and rename it to a real database file, completing write process */
@@ -518,29 +518,16 @@ class ChannelRegistrationModule : public Module
 			if (chan)
 			{
 				/* if it was found, then channel timestamp becomes not important, only things needing to be set is the registrant status, do it */
-				/* if registrant is -, set +P instead */
-				if (entry->registrant == "-")
-				{
-					irc::modestacker ms;
-					irc::modechange mc("permanent");
-					if (mc.mode.GetID())
-						ms.push(mc);
-					ServerInstance->SendMode(ServerInstance->FakeClient, chan, ms, false);
-				}
-				/* if not, set +r */
-				else
-				{
-					/* create the mode stacker */
-					irc::modestacker ms;
-					/* we need to push the mode change */
-					ms.push (irc::modechange ("registered", entry->registrant));
-					/* make the server process and apply the mode change */
-					ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms);
-					/* we don't do it below because channel doesn't exist then */
-					/* but in this situation, channel exists and there are users on it, they must know that mode has been changed */
-					/* send that info to them */
-					ServerInstance->Modes->Send (ServerInstance->FakeClient, chan, ms);
-				}
+				/* create the mode stacker */
+				irc::modestacker ms;
+				/* we need to push the mode change */
+				ms.push (irc::modechange ("registered", entry->registrant));
+				/* make the server process and apply the mode change */
+				ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms);
+				/* we don't do it below because channel doesn't exist then */
+				/* but in this situation, channel exists and there are users on it, they must know that mode has been changed */
+				/* send that info to them */
+				ServerInstance->Modes->Send (ServerInstance->FakeClient, chan, ms);
 			} else
 			{
 				/* channel does not exist, allocate it, it will be constructed and added to the network as an empty channel */
@@ -597,17 +584,11 @@ class ChannelRegistrationModule : public Module
 					/* so, process all mode changes and apply them on a channel */
 					ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms);
 				}
-				/* if some error was found like no modes line, set registrant or permanent */
-				if ((!chan->IsModeSet (&mh)) || (!chan->IsModeSet ("permanent")))
+				/* if some error was found like no modes line, set registrant */
+				if (!chan->IsModeSet (&mh))
 				{
 					irc::modestacker ms2;
-					if (entry->registrant != "-")
-						ms2.push (irc::modechange ("registered", entry->registrant));
-					else {
-						irc::modechange mc("permanent");
-						if (mc.mode.GetID())
-							ms2.push(mc);
-					}
+					ms2.push (irc::modechange ("registered", entry->registrant));
 					ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms2);
 				}
 				/* channel is empty, and thus, should be checked for expiry, but we can't do it while we have no last activity timestamp, so set it */
@@ -751,7 +732,7 @@ banned */
 	void OnPostTopicChange (User *user, Channel *chan, const std::string &topic)
 	{
 		/* if the channel is not registered, don't do anything, but if channel has been registered, this must be saved, so mark database as to be saved */
-		if ((chan->IsModeSet (&mh)) || (chan->IsModeSet ("permanent")))
+		if (chan->IsModeSet (&mh))
 			dirty = true;
 	}
 	/* this event is called after each modechange */
@@ -761,7 +742,7 @@ banned */
 		if (!chan)
 			return;
 		/* if it's a registered channel, then the database was changed and must be saved */
-		if ((chan->IsModeSet (&mh)) || (chan->IsModeSet ("permanent")))
+		if (chan->IsModeSet (&mh))
 			dirty = true;
 	}
 	/* when someone unsets +r, OnMode event won't mark the database as requiring saving, but it requires to be saved, and because of this, this event
@@ -772,10 +753,7 @@ banned */
 		/* if mode is being removed and this is our mode then mark as dirty */
 		if (!mc.adding)
 		{
-			ModeHandler *mh2 = ServerInstance->Modes->FindMode ("permanent");
 			if (mc.mode == mh.id)
-				dirty = true;
-			if (mh2 && mc.mode == mh2->id)
 				dirty = true;
 		}
 		/* this is the only thing this module does, so pass through */
