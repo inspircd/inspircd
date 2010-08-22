@@ -58,7 +58,7 @@ class ModuleChannelNames : public Module
 	{
 		badchan = false;
 		Implementation eventlist[] = { I_OnUserKick };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
 	void ValidateChans()
