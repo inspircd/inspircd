@@ -57,13 +57,28 @@ class AutoOpList : public ListModeBase
 	}
 };
 
+/** Handle /UP
+ */
+class CommandUp : public Command
+{
+ public:
+	CommandUp(Module* Creator) : Command(Creator,"UP", 0)
+	{
+		Penalty = 2; syntax = "[<channel>]";
+		TRANSLATE2(TR_TEXT, TR_END);
+	}
+
+	CmdResult Handle (const std::vector<std::string> &parameters, User *user);
+};
+
 class ModuleAutoOp : public Module
 {
 	AutoOpList mh;
 	dynamic_reference<OpFlagProvider> opflags;
+	CommandUp cmd;
 
 public:
-	ModuleAutoOp() : mh(this), opflags("opflags")
+	ModuleAutoOp() : mh(this), opflags("opflags"), cmd(this)
 	{
 	}
 
@@ -71,21 +86,14 @@ public:
 	{
 		mh.init();
 		ServerInstance->Modules->AddService(mh);
+		ServerInstance->AddCommand(&cmd);
 
-		Implementation list[] = { I_OnUserJoin };
+		Implementation list[] = { I_OnPostJoin };
 		ServerInstance->Modules->Attach(list, this, 1);
 	}
 
-	void Prioritize()
+	void DoAutoop(Membership* memb)
 	{
-		Module* st = ServerInstance->Modules->Find("m_spanningtree.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserJoin, PRIORITY_AFTER, &st);
-	}
-
-	void OnUserJoin(Membership* memb, bool, bool, CUList&)
-	{
-		if (!IS_LOCAL(memb->user))
-			return;
 		modelist* list = mh.extItem.get(memb->chan);
 		if (!list)
 			return;
@@ -118,11 +126,18 @@ public:
 		{
 			User* src = ServerInstance->Config->CycleHostsFromUser ? memb->user : ServerInstance->FakeClient;
 			ServerInstance->Modes->Process(src, memb->chan, ms, false, true);
-			// need SendMode because we are AFTER spanningtree due to opflags
+			ServerInstance->Modes->Send(src, memb->chan, ms);
 			ServerInstance->PI->SendMode(src, memb->chan, ms);
 		}
 		if (opflags && !flags.empty())
 			opflags->SetFlags(memb, flags, true);
+	}
+
+	void OnPostJoin(Membership* memb)
+	{
+		if (!IS_LOCAL(memb->user))
+			return;
+		DoAutoop(memb);
 	}
 
 	void ReadConfig(ConfigReadStatus&)
@@ -135,5 +150,23 @@ public:
 		return Version("Provides support for the +w channel mode", VF_VENDOR);
 	}
 };
+
+CmdResult CommandUp::Handle (const std::vector<std::string> &parameters, User *user)
+{
+	ModuleAutoOp* mod = (ModuleAutoOp*)(Module*) creator;
+	if (parameters.size() && parameters[0].compare("*"))
+	{
+		Channel* c = ServerInstance->FindChan(parameters[0]);
+		if (c && c->HasUser(user))
+		{
+			mod->DoAutoop(c->GetUser(user));
+			return CMD_SUCCESS;
+		}
+		return CMD_FAILURE;
+	}
+	for (UCListIter v = user->chans.begin(); v != user->chans.end(); ++v)
+		mod->DoAutoop(&*v);
+	return CMD_SUCCESS;
+}
 
 MODULE_INIT(ModuleAutoOp)
