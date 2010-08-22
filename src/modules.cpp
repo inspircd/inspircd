@@ -421,36 +421,52 @@ void ModuleManager::DoModuleLoad(Module* newmod, ModuleState* state)
 	if (!state)
 		return;
 
-	for(std::vector<RestoreData>::iterator i = state->channelModes.begin(); i != state->channelModes.end(); i++)
+	Channel* chan = NULL;
+	irc::modestacker ms;
+	std::vector<RestoreData>::iterator i;
+	i = state->channelModes.begin();
+	while (1)
 	{
-		Channel* c = ServerInstance->FindChan(i->item);
-		ModeHandler* mh = ServerInstance->Modes->FindMode(i->name);
-		if (c && mh)
+		if (chan && (i == state->channelModes.end() || i->item != chan->name))
 		{
-			irc::modestacker mc;
-			mc.push(irc::modechange(mh->id, i->value, true));
-			ServerInstance->SendMode(ServerInstance->FakeClient, c, mc, false);
+			// no more on this channel, apply the modes we have collected so far
+			ServerInstance->SendMode(ServerInstance->FakeClient, chan, ms, false);
+			chan = NULL;
+			ms.sequence.clear();
 		}
+		if (i == state->channelModes.end())
+			break;
+
+		// now add this element to the current stack
+		ModeHandler* mh = ServerInstance->Modes->FindMode(i->name);
+		if (mh)
+		{
+			if (!chan)
+				chan = ServerInstance->FindChan(i->item);
+			if (chan)
+				ms.push(irc::modechange(mh->id, i->value, true));
+		}
+		i++;
 	}
-	for(std::vector<RestoreData>::iterator i = state->channelExt.begin(); i != state->channelExt.end(); i++)
+	for(i = state->channelExt.begin(); i != state->channelExt.end(); i++)
 	{
 		Channel* c = ServerInstance->FindChan(i->item);
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(i->name);
 		if (c && item)
 			item->unserialize(FORMAT_INTERNAL, c, i->value);
 	}
-	for(std::vector<RestoreData>::iterator i = state->userModes.begin(); i != state->userModes.end(); i++)
+	for(i = state->userModes.begin(); i != state->userModes.end(); i++)
 	{
 		User* u = ServerInstance->FindUUID(i->item);
 		ModeHandler* mh = ServerInstance->Modes->FindMode(i->name);
 		if (u && mh)
 		{
-			irc::modestacker mc;
-			mc.push(irc::modechange(mh->id, i->value, true));
-			ServerInstance->SendMode(ServerInstance->FakeClient, u, mc, false);
+			ms.push(irc::modechange(mh->id, i->value, true));
+			ServerInstance->SendMode(ServerInstance->FakeClient, u, ms, false);
+			ms.sequence.clear();
 		}
 	}
-	for(std::vector<RestoreData>::iterator i = state->userExt.begin(); i != state->userExt.end(); i++)
+	for(i = state->userExt.begin(); i != state->userExt.end(); i++)
 	{
 		User* u = ServerInstance->FindUUID(i->item);
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(i->name);
