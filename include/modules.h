@@ -97,7 +97,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 6
+#define INSPIRCD_VERSION_API 7
 
 /**
  * This #define allows us to call a method in all
@@ -316,7 +316,7 @@ enum Implementation
 	I_OnDelBan, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric,
+	I_OnText, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
 };
@@ -1103,11 +1103,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * MOD_RES_PASSTHRU to allow normal matching (by host/port).
 	 */
 	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
-
-	/** Add test suite hooks here. These are used for testing functionality of a module
-	 * via the --testsuite debugging parameter.
-	 */
-	virtual void OnRunTestSuite();
 
 	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
 	 * For example NAMESX, channel mode +u and +I, and UHNAMES. If the nick is set to an empty string by any

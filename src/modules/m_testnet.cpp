@@ -160,7 +160,6 @@ static void checkall(Module* noimpl)
 	CHK(OnGarbageCollect);
 	CHK(OnText);
 	CHK(OnPassCompare);
-	CHK(OnRunTestSuite);
 	CHK(OnNamesListItem);
 	CHK(OnNumeric);
 	CHK(OnModuleRehash);

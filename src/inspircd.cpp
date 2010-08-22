@@ -34,7 +34,6 @@
 #include <fstream>
 #include "xline.h"
 #include "exitcodes.h"
-#include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
 int* mysig = NULL;
@@ -315,7 +314,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,
-	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
+	    do_nolog = 0, do_root = 0;    /* flag variables */
 	int c = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
@@ -384,7 +383,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
-		{ "testsuite",	no_argument,		&do_testsuite,	1	},
 		{ 0, 0, 0, 0 }
 	};
 
@@ -409,14 +407,11 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 			default:
 				/* Fall through to handle other weird values too */
 				printf("Unknown parameter '%s'\n", argv[optind-1]);
-				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n%*s[--runasroot] [--version] [--config <config>] [--testsuite]\n", argv[0], static_cast<int>(8+strlen(argv[0])), " ");
+				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n%*s[--runasroot] [--version] [--config <config>]\n", argv[0], static_cast<int>(8+strlen(argv[0])), " ");
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
 	}
-
-	if (do_testsuite)
-		do_nofork = do_debug = true;
 
 	if (do_version)
 	{
@@ -444,7 +439,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Config->cmdline.nofork = do_nofork;
 	Config->cmdline.forcedebug = do_debug;
 	Config->cmdline.writelog = !do_nolog;
-	Config->cmdline.TestSuite = do_testsuite;
 
 	if (do_debug)
 	{
@@ -594,7 +588,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		 * e.g. we are restarting, or being launched by cron. Dont kill parent, and dont
 		 * close stdin/stdout
 		 */
-		if ((!do_nofork) && (!do_testsuite))
+		if (!do_nofork)
 		{
 			fclose(stdin);
 			fclose(stderr);
@@ -690,14 +684,6 @@ void InspIRCd::UpdateTime()
 
 int InspIRCd::Run()
 {
-	/* See if we're supposed to be running the test suite rather than entering the mainloop */
-	if (Config->cmdline.TestSuite)
-	{
-		TestSuite* ts = new TestSuite;
-		delete ts;
-		Exit(0);
-	}
-
 	UpdateTime();
 	time_t OLDTIME = TIME.tv_sec;
 
