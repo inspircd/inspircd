@@ -129,7 +129,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 	}
 
-	whowas_users::iterator i = prov.whowas.find(assign(parameters[0]));
+	whowas_users::iterator i = prov.whowas.find(parameters[0]);
 
 	if (i == prov.whowas.end())
 	{

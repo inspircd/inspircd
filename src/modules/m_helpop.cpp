@@ -135,7 +135,7 @@ class ModuleHelpop : public Module
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
 				ConfigTag* tag = i->second;
-				irc::string key = assign(tag->getString("key"));
+				irc::string key = tag->getString("key");
 				std::string value;
 				tag->readString("value", value, true); /* Linefeeds allowed */
 

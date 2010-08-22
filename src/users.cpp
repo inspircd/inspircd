@@ -885,7 +885,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 		return false;
 	}
 
-	if (assign(newnick) == assign(nick))
+	if (irc::string(newnick) == irc::string(nick))
 	{
 		// case change, don't need to check Q:lines and such
 		// and, if it's identical including case, we can leave right now

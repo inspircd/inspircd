@@ -466,14 +466,6 @@ inline std::string operator+ (std::string& leftval, irc::string& rightval)
 	return leftval + rightval.value;
 }
 
-/** Assign an irc::string to a std::string.
- */
-inline const std::string& assign(const irc::string &other) { return other.value; }
-
-/** Assign a std::string to an irc::string.
- */
-inline irc::string assign(const std::string &other) { return other; }
-
 /** Trim the leading and trailing spaces from a std::string.
  */
 inline std::string& trim(std::string &str)

@@ -253,7 +253,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 {
 	bool ipvalid = true;
 
-	if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name)))
+	if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name))
 	{
 		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Not connecting to myself.");
 		return;
@@ -369,7 +369,7 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 		Link* x = *i;
 		if (InspIRCd::Match(x->Name.c_str(),parameters[0]))
 		{
-			if (InspIRCd::Match(ServerInstance->Config->ServerName, assign(x->Name)))
+			if (InspIRCd::Match(ServerInstance->Config->ServerName, x->Name))
 			{
 				user->SendServerNotice("*** CONNECT: Server \002%s\002 is ME, not connecting.",x->Name.c_str());
 				return MOD_RES_DENY;
@@ -676,7 +676,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 
 		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
 		 */
-		if (irc::string(user->nick.c_str()) != assign(oldnick))
+		if (irc::string(user->nick.c_str()) != irc::string(oldnick))
 			user->age = ServerInstance->Time();
 
 		params.push_back(ConvToStr(user->age));

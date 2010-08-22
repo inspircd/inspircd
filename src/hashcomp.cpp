@@ -285,7 +285,7 @@ bool irc::tokenstream::GetToken(irc::string &token)
 {
 	std::string stdstring;
 	bool returnval = GetToken(stdstring);
-	token = assign(stdstring);
+	token = stdstring;
 	return returnval;
 }
 

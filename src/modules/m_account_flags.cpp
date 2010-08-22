@@ -95,7 +95,7 @@ class ModuleAccountFlags : public Module
 	void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (user->IsModeSet('r') && assign(user->nick) != oldnick)
+		if (user->IsModeSet('r') && irc::string(user->nick) != irc::string(oldnick))
 		{
 			std::vector<std::string> modechange;
 			modechange.push_back(user->nick);

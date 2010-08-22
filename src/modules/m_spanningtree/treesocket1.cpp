@@ -30,7 +30,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
 	: Utils(Util), sync(this)
 {
 	age = ServerInstance->Time();
-	linkID = assign(link->Name);
+	linkID = link->Name;
 	capab = new CapabData;
 	capab->link = link;
 	capab->ac = myac;

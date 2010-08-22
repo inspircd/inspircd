@@ -461,11 +461,11 @@ void ServerConfig::Fill()
 		throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 
 	std::string defbind = options->getString("defaultbind");
-	if (assign(defbind) == "ipv4")
+	if (irc::string(defbind) == "ipv4")
 	{
 		WildcardIPv6 = false;
 	}
-	else if (assign(defbind) == "ipv6")
+	else if (irc::string(defbind) == "ipv6")
 	{
 		WildcardIPv6 = true;
 	}
@@ -485,7 +485,7 @@ void ServerConfig::Fill()
 		std::string server;
 		if (!tag->readString("server", server))
 			throw CoreException("<uline> tag missing server at " + tag->getTagLocation());
-		ulines[assign(server)] = tag->getBool("silent");
+		ulines.insert(std::make_pair(server, tag->getBool("silent")));
 	}
 
 	tags = GetTags("banlist");

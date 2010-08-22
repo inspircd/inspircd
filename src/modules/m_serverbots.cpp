@@ -62,7 +62,7 @@ class BotData
 		ss.GetToken(command);
 		params = ss.GetRemaining();
 
-		std::pair<AliasIter, AliasIter> range = Aliases.equal_range(assign(command));
+		std::pair<AliasIter, AliasIter> range = Aliases.equal_range(command);
 
 		for(AliasIter i = range.first; i != range.second; i++)
 		{

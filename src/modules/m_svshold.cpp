@@ -34,14 +34,14 @@ public:
 
 	bool Matches(User *u)
 	{
-		if (assign(u->nick) == nickname)
+		if (irc::string(u->nick) == nickname)
 			return true;
 		return false;
 	}
 
 	bool Matches(const std::string &s)
 	{
-		if (nickname == assign(s))
+		if (nickname == irc::string(s))
 			return true;
 		return false;
 	}

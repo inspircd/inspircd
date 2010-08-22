@@ -51,7 +51,7 @@ class ModuleRestrictChans : public Module
 		if (!join.chan && join.result == MOD_RES_PASSTHRU && !IS_OPER(join.source))
 		{
 			// user is not an oper and its not in the allow list
-			if (allowchans.find(assign(join.channel)) == allowchans.end())
+			if (allowchans.find(join.channel) == allowchans.end())
 			{
 				join.ErrorNumeric(ERR_BANNEDFROMCHAN, "%s :Only IRC operators may create new channels",join.channel.c_str());
 				join.result = MOD_RES_DENY;

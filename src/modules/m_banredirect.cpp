@@ -133,7 +133,7 @@ class BanRedirect : public ModeWatcher
 						return false;
 					}
 
-					if (assign(channel->name) == mask[CHAN])
+					if (irc::string(channel->name) == mask[CHAN])
 					{
 						source->WriteNumeric(690, "%s %s :You cannot set a ban redirection to the channel the ban is on", source->nick.c_str(), channel->name.c_str());
 						return false;
