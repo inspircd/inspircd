@@ -302,10 +302,9 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 	std::vector<reference<ExtensionItem> > items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 	std::vector<ModeHandler*> modes;
-	/* Give the module a chance to tidy out all its metadata */
-	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
+	if (state)
 	{
-		if (state)
+		for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 		{
 			irc::modestacker mlist;
 			c->second->ChanModes(mlist, MODELIST_FULL);
@@ -328,15 +327,7 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 				}
 			}
 		}
-		mod->OnCleanup(TYPE_CHANNEL,c->second);
-		c->second->doUnhookExtensions(items);
-		const UserMembList* users = c->second->GetUsers();
-		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
-			mi->second->doUnhookExtensions(items);
-	}
-	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
-	{
-		if (state)
+		for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 		{
 			for(char c='A'; c <= 'z'; c++)
 			{
@@ -360,6 +351,24 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 				}
 			}
 		}
+	}
+	for(ModeIDIter id; id; id++)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+		if (mh && mh->creator == mod)
+			ServerInstance->Modes->DelMode(mh);
+	}
+
+	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
+	{
+		mod->OnCleanup(TYPE_CHANNEL,c->second);
+		c->second->doUnhookExtensions(items);
+		const UserMembList* users = c->second->GetUsers();
+		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+			mi->second->doUnhookExtensions(items);
+	}
+	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
+	{
 		mod->OnCleanup(TYPE_USER,u->second);
 		u->second->doUnhookExtensions(items);
 	}
@@ -369,12 +378,6 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;
 		if (curr->second->creator == mod)
 			DataProviders.erase(curr);
-	}
-	for(ModeIDIter id; id; id++)
-	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
-		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
 	}
 
 	dynamic_reference_base::reset_all();
