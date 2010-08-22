@@ -398,11 +398,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			while (registrantnames.GetToken(registrantname))
 			{
 				if (acctname == registrantname)
-				{
-					// go ahead and skip the rest of the checks
-					perm.result = MOD_RES_ALLOW;
 					return;
-				}
 			}
 			// no matching account name
 			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :Only a registrant of a channel may unregister it",
@@ -706,7 +702,7 @@ banned */
 		/* if not, but name of permission is join, proceed normally because it was checked */
 		if (perm.name == "join")
 			return;
-		/* if +r mode is changed, return */
+		/* if +r mode is being changed, return: we keep the normal checks here */
 		if (perm.name == "mode/registered")
 			return;
 		/* if anything is ok, but mode +r is unset, return and check perms normally */
