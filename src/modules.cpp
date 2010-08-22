@@ -95,8 +95,6 @@ ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; 
 void		Module::OnEvent(Event&) { }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { }
-ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnDelBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&) { }
 void		Module::OnUserNotice(User*, void*, int, const std::string&, char, const CUList&) { }
 void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
@@ -126,7 +124,6 @@ void		Module::OnGarbageCollect() { }
 ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { return MOD_RES_PASSTHRU; }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
-ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
 StreamSocket*   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return NULL; }
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { }
 

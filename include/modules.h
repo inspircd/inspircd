@@ -312,11 +312,11 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady,
 	I_OnRawMode, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnPermissionCheck, I_OnCheckJoin,
-	I_OnPostTopicChange, I_OnEvent, I_OnPostConnect, I_OnAddBan,
-	I_OnDelBan, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
+	I_OnPostTopicChange, I_OnEvent, I_OnPostConnect,
+	I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnText, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
+	I_OnText, I_OnPassCompare, I_OnNamesListItem,
 	I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
 	I_END
 };
@@ -787,7 +787,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnAddLine(User* source, XLine* line);
 
-	/** Called whenever an xline is deleted MANUALLY. See OnExpireLine for expiry.
+	/** Called whenever an xline is deleted MANUALLY.
 	 * This method is triggered after the line is deleted.
 	 * @param source The user removing the line or NULL for local server
 	 * @param line the line being deleted
@@ -1041,24 +1041,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnPostConnect(User* user);
 
-	/** Called whenever a ban is added to a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being added.
-	 * @param source The user adding the ban
-	 * @param channel The channel the ban is being added to
-	 * @param banmask The ban mask being added
-	 * @return 1 to block the ban, 0 to continue as normal
-	 */
-	virtual ModResult OnAddBan(User* source, Channel* channel,const std::string &banmask);
-
-	/** Called whenever a ban is removed from a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
-	 * @param source The user deleting the ban
-	 * @param channel The channel the ban is being deleted from
-	 * @param banmask The ban mask being deleted
-	 * @return 1 to block the unban, 0 to continue as normal
-	 */
-	virtual ModResult OnDelBan(User* source, Channel* channel,const std::string &banmask);
-
 	/** Called when a port accepts a connection
 	 * Return MOD_RES_ACCEPT if you have used the file descriptor.
 	 * @param fd The file descriptor returned from accept()
@@ -1109,8 +1091,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * module, then this will cause the nickname not to be displayed at all.
 	 */
 	virtual void OnNamesListItem(User* issuer, Membership* item, std::string &prefixes, std::string &nick);
-
-	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
 
 	/** Called whenever a result from /WHO is about to be returned
 	 * @param source The user running the /WHO query

@@ -1107,13 +1107,6 @@ void User::WriteNumeric(unsigned int numeric, const char* text, ...)
 void User::WriteNumeric(unsigned int numeric, const std::string &text)
 {
 	char textbuffer[MAXBUF];
-	ModResult MOD_RESULT;
-
-	FIRST_MOD_RESULT(OnNumeric, MOD_RESULT, (this, numeric, text));
-
-	if (MOD_RESULT == MOD_RES_DENY)
-		return;
-
 	snprintf(textbuffer,MAXBUF,":%s %03u %s",ServerInstance->Config->ServerName.c_str(), numeric, text.c_str());
 	this->Write(std::string(textbuffer));
 }
