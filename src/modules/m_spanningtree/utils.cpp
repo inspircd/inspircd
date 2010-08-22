@@ -359,8 +359,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 		tag = i->second;
 		reference<Link> L = new Link(tag);
 		L->Name = tag->getString("name");
-		L->AllowMask = tag->getString("allowmask");
 		L->IPAddr = tag->getString("ipaddr");
+		L->AllowMask = tag->getString("allowmask", L->IPAddr);
 		L->Port = tag->getInt("port");
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
 		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
@@ -380,13 +380,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 					L->Fingerprint.push_back(tmp[j]);
 		}
 
-		if (L->IPAddr.empty())
-		{
-			L->IPAddr = "*";
-			ValidIPs.push_back("*");
-			status.ReportError(tag, "<link:ipaddr> not defined! Setting to \"*\" and allowing all IPs to connect", false);
-		}
-		else if (L->RecvPass.empty())
+		if (L->RecvPass.empty())
 			status.ReportError(tag, "<link:recvpass> not defined", true);
 		else if (L->SendPass.empty())
 			status.ReportError(tag, "<link:sendpass> not defined", true);
@@ -397,9 +391,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		else if (L->Name.length() > 64)
 			status.ReportError(tag, "<link:name> is invalid: maximum length is 64 characters", true);
 		else
-			ValidIPs.push_back(L->IPAddr);
-
-		LinkBlocks.push_back(L);
+			LinkBlocks.push_back(L);
 	}
 
 	tags = ServerInstance->Config->GetTags("autoconnect");
