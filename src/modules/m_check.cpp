@@ -33,7 +33,7 @@ class CommandCheck : public Command
 		return std::string(timebuf);
 	}
 
-	void dumpExt(User* user, std::string checkstr, Extensible* ext)
+	void dumpExt(User* user, const std::string& checkstr, Extensible* ext)
 	{
 		std::stringstream dumpkeys;
 		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
@@ -96,6 +96,9 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " awaymsg " + targuser->awaymsg);
 			}
 
+			user->SendText(checkstr + " globalclones " + ConvToStr(ServerInstance->Users->GlobalCloneCount(targuser)));
+			user->SendText(checkstr + " localclones " + ConvToStr(ServerInstance->Users->LocalCloneCount(targuser)));
+
 			if (IS_OPER(targuser))
 			{
 				OperInfo* oper = targuser->oper;
@@ -128,7 +131,7 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " serveraddr " + loctarg->server_sa.str());
 				user->SendText(checkstr + " connectclass " + loctarg->MyClass->name);
 				user->SendText(checkstr + " stats_bytes in=" + ConvToStr(loctarg->bytes_in) + " out=" + ConvToStr(loctarg->bytes_out));
-				user->SendText(checkstr + " stats_cmds in=" + ConvToStr(loctarg->cmds_in) + " out=" + ConvToStr(loctarg->cmds_out));
+				user->SendText(checkstr + " stats_lines in=" + ConvToStr(loctarg->cmds_in) + " out=" + ConvToStr(loctarg->cmds_out));
 
 				InvitedList* invitelist = loctarg->GetInviteList();
 				std::string invites;
@@ -177,19 +180,18 @@ class CommandCheck : public Command
 
 			user->SendText(checkstr + " membercount " + ConvToStr(targchan->GetUserCounter()));
 
-			/* now the ugly bit, spool current members of a channel. :| */
-
 			const UserMembList *ulist = targchan->GetUsers();
-
+			std::string checkstr2 = checkstr + " ";
 			/* note that unlike /names, we do NOT check +i vs in the channel */
 			for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 			{
 				char tmpbuf[MAXBUF];
-				/*
-				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
-				 */
-				snprintf(tmpbuf, MAXBUF, "%-3lu %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
-				user->SendText(checkstr + " member " + tmpbuf);
+				snprintf(tmpbuf, MAXBUF, "%s member %3lu %s%s!%s@%s",
+					checkstr.c_str(), ServerInstance->Users->GlobalCloneCount(i->first),
+					targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(),
+					i->first->ident.c_str(), i->first->dhost.c_str());
+				user->SendText(std::string(tmpbuf));
+				dumpExt(user, checkstr2, i->second);
 			}
 
 			dumpExt(user, checkstr, targchan);
