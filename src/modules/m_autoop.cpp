@@ -101,12 +101,12 @@ public:
 		std::set<std::string> flags;
 		for (modelist::iterator it = list->begin(); it != list->end(); it++)
 		{
-			std::string::size_type colon = (**it).mask.find(':');
+			std::string::size_type colon = it->mask.find(':');
 			if (colon == std::string::npos)
 				continue;
-			if (!memb->chan->CheckBan(memb->user, (**it).mask.substr(colon+1)))
+			if (!memb->chan->CheckBan(memb->user, it->mask.substr(colon+1)))
 				continue;
-			irc::commasepstream modes((**it).mask.substr(0, colon));
+			irc::commasepstream modes(it->mask.substr(0, colon));
 			std::string mflag;
 			while (modes.GetToken(mflag))
 			{

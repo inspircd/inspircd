@@ -1020,11 +1020,6 @@ void ModeHandler::PopulateChanModes(Channel* channel, irc::modestacker& stack)
 void ListExtItem::free(void* item)
 {
 	modelist* ml = static_cast<modelist*>(item);
-	if (ml)
-	{
-		for (modelist::iterator it = ml->begin(); it != ml->end(); it++)
-			delete *it;
-	}
 	delete ml;
 }
 
@@ -1035,7 +1030,7 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	{
 		for (modelist::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 		{
-			user->WriteNumeric(listnumeric, "%s %s %s %s %ld", user->nick.c_str(), channel->name.c_str(), (**it).mask.c_str(), (**it).setter.c_str(), (long)(**it).time);
+			user->WriteNumeric(listnumeric, "%s %s %s %s %ld", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), it->setter.c_str(), (long)it->time);
 		}
 	}
 	user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
@@ -1053,7 +1048,7 @@ void ListModeBase::PopulateChanModes(Channel* channel, irc::modestacker& stack)
 		return;
 	for(modelist::const_iterator i = ml->begin(); i != ml->end(); i++)
 	{
-		stack.push(irc::modechange(id, (**i).mask, true));
+		stack.push(irc::modechange(id, i->mask, true));
 	}
 }
 
@@ -1067,9 +1062,9 @@ void ListModeBase::RemoveMode(Channel* channel, irc::modestacker* stack)
 		for (modelist::iterator it = el->begin(); it != el->end(); it++)
 		{
 			if (stack)
-				stack->push(irc::modechange(id, (**it).mask, false));
+				stack->push(irc::modechange(id, it->mask, false));
 			else
-				modestack.push(irc::modechange(id, (**it).mask, false));
+				modestack.push(irc::modechange(id, it->mask, false));
 		}
 
 		if (stack)
@@ -1128,7 +1123,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		// Check if the item already exists in the list
 		for (modelist::iterator it = el->begin(); it != el->end(); it++)
 		{
-			if (parameter == (**it).mask)
+			if (parameter == it->mask)
 			{
 				/* Give a subclass a chance to error about this */
 				TellAlreadyOnList(source, channel, parameter);
@@ -1161,10 +1156,10 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 					if (ValidateParam(source, channel, parameter))
 					{
 						// And now add the mask onto the list...
-						BanItem* e = new BanItem;
-						e->mask = parameter;
-						e->setter = source->nick;
-						e->time = ServerInstance->Time();
+						BanItem e;
+						e.mask = parameter;
+						e.setter = source->nick;
+						e.time = ServerInstance->Time();
 
 						el->push_back(e);
 						return MODEACTION_ALLOW;
@@ -1194,9 +1189,8 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		{
 			for (modelist::iterator it = el->begin(); it != el->end(); it++)
 			{
-				if (parameter == (**it).mask)
+				if (parameter == it->mask)
 				{
-					delete *it;
 					el->erase(it);
 					if (el->size() == 0)
 					{

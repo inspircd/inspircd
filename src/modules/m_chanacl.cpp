@@ -76,15 +76,15 @@ class ModuleChanACL : public Module
 		{
 			for (modelist::iterator i = list->begin(); i != list->end(); ++i)
 			{
-				std::string::size_type pos = (**i).mask.find(':');
+				std::string::size_type pos = i->mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				irc::commasepstream contents((**i).mask.substr(pos + 1));
+				irc::commasepstream contents(i->mask.substr(pos + 1));
 				std::string flag;
 				while (contents.GetToken(flag))
 				{
 					if (flag == perm.name)
-						given.insert((**i).mask.substr(0,pos));
+						given.insert(i->mask.substr(0,pos));
 				}
 			}
 		}

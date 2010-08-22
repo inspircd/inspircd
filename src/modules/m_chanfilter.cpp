@@ -96,12 +96,12 @@ class ModuleChanFilter : public Module
 		{
 			for (modelist::iterator i = list->begin(); i != list->end(); i++)
 			{
-				if (InspIRCd::Match(text, (**i).mask))
+				if (InspIRCd::Match(text, i->mask))
 				{
 					if (hidemask)
 						user->WriteNumeric(404, "%s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str());
 					else
-						user->WriteNumeric(404, "%s %s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str(), (**i).mask.c_str());
+						user->WriteNumeric(404, "%s %s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str(), i->mask.c_str());
 					return MOD_RES_DENY;
 				}
 			}

@@ -66,7 +66,7 @@ public:
 			return;
 		for (modelist::iterator it = list->begin(); it != list->end(); it++)
 		{
-			if (join.chan->CheckBan(join.user, (**it).mask))
+			if (join.chan->CheckBan(join.user, it->mask))
 				join.needs_invite = false;
 		}
 	}

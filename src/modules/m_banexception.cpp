@@ -72,10 +72,10 @@ public:
 
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				if ((**it).mask[0] != type || (**it).mask[1] != ':')
+				if (it->mask[0] != type || it->mask[1] != ':')
 					continue;
 
-				if (chan->CheckBan(user, (**it).mask.substr(2)))
+				if (chan->CheckBan(user, it->mask.substr(2)))
 				{
 					// They match an entry on the list, so let them pass this.
 					return MOD_RES_ALLOW;
@@ -100,7 +100,7 @@ public:
 
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				if (chan->CheckBan(user, (**it).mask))
+				if (chan->CheckBan(user, it->mask))
 				{
 					// They match an entry on the list, so let them in.
 					return MOD_RES_ALLOW;

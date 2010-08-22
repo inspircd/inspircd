@@ -383,7 +383,7 @@ bool Channel::IsBanned(User* user)
 	{
 		for (modelist::const_iterator it = bans->begin(); it != bans->end(); it++)
 		{
-			if (CheckBan(user, (**it).mask))
+			if (CheckBan(user, it->mask))
 				return true;
 		}
 	}
@@ -434,9 +434,9 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 	{
 		for (modelist::const_iterator it = bans->begin(); it != bans->end(); it++)
 		{
-			if ((**it).mask[0] == type && (**it).mask[1] == ':')
+			if (it->mask[0] == type && it->mask[1] == ':')
 			{
-				std::string val = (**it).mask.substr(2);
+				std::string val = it->mask.substr(2);
 				if (CheckBan(user, val))
 					return MOD_RES_DENY;
 			}

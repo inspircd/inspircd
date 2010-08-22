@@ -91,7 +91,7 @@ typedef std::pair<std::string, std::string> IdentHostPair;
 
 /** Items stored in the channel's list
  */
-typedef std::list<BanItem*> modelist;
+typedef std::list<BanItem> modelist;
 
 /** A map of xline factories
  */
