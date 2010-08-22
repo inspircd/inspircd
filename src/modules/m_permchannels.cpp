@@ -165,9 +165,9 @@ public:
 		 * -- w00t
 		 */
 
-		permchannelsconf = ServerInstance->Config->ConfValue("permchanneldb")->getString("filename");
+		permchannelsconf = ServerInstance->Config->GetTag("permchanneldb")->getString("filename");
 
-		ConfigTagList permchannels = ServerInstance->Config->ConfTags("permchannels");
+		ConfigTagList permchannels = ServerInstance->Config->GetTags("permchannels");
 		for (ConfigIter i = permchannels.first; i != permchannels.second; ++i)
 		{
 			ConfigTag* tag = i->second;

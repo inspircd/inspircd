@@ -56,7 +56,7 @@ class ModuleOperPrefixMode : public Module
 
 	void init()
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("operprefix");
+		ConfigTag* tag = ServerInstance->Config->GetTag("operprefix");
 		std::string pfx = tag->getString("prefix", "!");
 		int rank = tag->getInt("rank", OPERPREFIX_VALUE);
 

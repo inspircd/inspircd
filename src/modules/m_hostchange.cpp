@@ -69,7 +69,7 @@ class ModuleHostChange : public Module
 			delete i->second;
 		}
 		hostchanges.clear();
-		ConfigTagList tags = ServerInstance->Config->ConfTags("hostchange");
+		ConfigTagList tags = ServerInstance->Config->GetTags("hostchange");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			std::string mask = i->second->getString("mask");

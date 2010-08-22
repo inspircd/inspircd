@@ -62,7 +62,7 @@ void LogManager::OpenFileLogs()
 	if (!ServerInstance->Config->cmdline.writelog)
 		return;
 	std::map<std::string, FileWriter*> logmap;
-	ConfigTagList tags = ServerInstance->Config->ConfTags("log");
+	ConfigTagList tags = ServerInstance->Config->GetTags("log");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;

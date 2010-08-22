@@ -525,7 +525,7 @@ ConfigTag* ConfigReadStatus::GetTag(const std::string& tag)
 
 ConfigTagList ConfigReadStatus::GetTags(const std::string& key)
 {
-	return ServerInstance->Config->ConfTags(key);
+	return ServerInstance->Config->GetTags(key);
 }
 
 void ModuleManager::AddService(ServiceProvider& item)

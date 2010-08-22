@@ -27,7 +27,7 @@ class CommandVhost : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("vhost");
+		ConfigTagList tags = ServerInstance->Config->GetTags("vhost");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;

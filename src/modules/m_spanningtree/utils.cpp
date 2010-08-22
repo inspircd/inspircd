@@ -353,7 +353,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
 	ValidIPs.clear();
-	ConfigTagList tags = ServerInstance->Config->ConfTags("link");
+	ConfigTagList tags = ServerInstance->Config->GetTags("link");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		tag = i->second;
@@ -402,7 +402,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		LinkBlocks.push_back(L);
 	}
 
-	tags = ServerInstance->Config->ConfTags("autoconnect");
+	tags = ServerInstance->Config->GetTags("autoconnect");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		tag = i->second;

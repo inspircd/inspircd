@@ -60,8 +60,8 @@ class ModuleOverride : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		NoisyOverride = ServerInstance->Config->ConfValue("override")->getBool("noisy");
-		om.OverrideTimeout = ServerInstance->Config->ConfValue("override")->getInt("timeout", 30);
+		NoisyOverride = ServerInstance->Config->GetTag("override")->getBool("noisy");
+		om.OverrideTimeout = ServerInstance->Config->GetTag("override")->getInt("timeout", 30);
 	}
 
 	void OnPermissionCheck(PermissionData& perm)

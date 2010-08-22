@@ -333,7 +333,7 @@ class ModuleTimedModes : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("timedmodes");
+		ConfigTagList tags = ServerInstance->Config->GetTags("timedmodes");
 
 		cmd.chanlimits.clear();
 

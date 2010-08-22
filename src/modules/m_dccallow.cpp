@@ -449,7 +449,7 @@ class ModuleDCCAllow : public Module
 	void ReadFileConf()
 	{
 		bfl.clear();
-		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");
+		ConfigTagList tags = ServerInstance->Config->GetTags("banfile");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			BannedFileList bf;

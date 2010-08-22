@@ -60,7 +60,7 @@ class ModuleCustomPrefix : public Module
 
 	void init()
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("customprefix");
+		ConfigTagList tags = ServerInstance->Config->GetTags("customprefix");
 		while (tags.first != tags.second)
 		{
 			ConfigTag* tag = tags.first->second;

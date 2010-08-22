@@ -54,7 +54,7 @@ class ModuleRandQuote : public Module
 
 	void init()
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
+		ConfigTag* conf = ServerInstance->Config->GetTag("randquote");
 
 		std::string q_file = conf->getString("file","quotes");
 		prefix = conf->getString("prefix");

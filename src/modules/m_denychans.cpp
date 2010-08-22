@@ -29,13 +29,13 @@ class ModuleDenyChannels : public Module
 
 	ConfigTag* FindBadChan(const std::string& cname)
 	{
-		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
+		ConfigTagList tags = ServerInstance->Config->GetTags("badchan");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			if (InspIRCd::Match(cname, i->second->getString("name")))
 			{
 				// found a bad channel. Maybe it has a goodchan pattern?
-				tags = ServerInstance->Config->ConfTags("goodchan");
+				tags = ServerInstance->Config->GetTags("goodchan");
 				for (ConfigIter j = tags.first; j != tags.second; ++j)
 				{
 					if (InspIRCd::Match(cname, i->second->getString("name")))
@@ -52,7 +52,7 @@ class ModuleDenyChannels : public Module
 	void ReadConfig(ConfigReadStatus& stat)
 	{
 		/* check for redirect validity and loops/chains */
-		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
+		ConfigTagList tags = ServerInstance->Config->GetTags("badchan");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			std::string name = i->second->getString("name");

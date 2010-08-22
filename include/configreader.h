@@ -201,10 +201,8 @@ class CoreExport ServerConfig
 	ConfigReadStatus status;
 
 	inline ConfigTag* GetTag(const std::string& tag) { return status.GetTag(tag); }
-	inline ConfigTag* ConfValue(const std::string& tag) { return status.GetTag(tag); }
 
 	ConfigTagList GetTags(const std::string& tag);
-	inline ConfigTagList ConfTags(const std::string& tag) { return GetTags(tag); }
 
 	/** Bind to IPv6 by default */
 	bool WildcardIPv6;

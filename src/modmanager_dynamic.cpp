@@ -187,7 +187,7 @@ void ModuleManager::LoadAll()
 		printf("\n");
 	}
 
-	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
+	ConfigTagList tags = ServerInstance->Config->GetTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;

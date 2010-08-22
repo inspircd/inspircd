@@ -161,7 +161,7 @@ class ModuleOjoin : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
+		ConfigTag* Conf = ServerInstance->Config->GetTag("ojoin");
 
 		if (!np)
 		{

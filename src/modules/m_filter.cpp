@@ -431,7 +431,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 void ModuleFilter::ReadConfig(ConfigReadStatus& status)
 {
 	std::vector<std::string>().swap(exemptfromfilter);
-	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
+	ConfigTagList tags = ServerInstance->Config->GetTags("exemptfromfilter");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		std::string chan = i->second->getString("channel");
@@ -597,7 +597,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 
 void ModuleFilter::ReadFilters(ConfigReadStatus &MyConf)
 {
-	ConfigTagList tags = ServerInstance->Config->ConfTags("keyword");
+	ConfigTagList tags = ServerInstance->Config->GetTags("keyword");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		std::string pattern = i->second->getString("pattern");

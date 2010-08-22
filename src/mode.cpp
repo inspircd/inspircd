@@ -679,7 +679,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':') || (mh->GetPrefix() == '#'))
 		throw ModuleException("Invalid prefix defined in mode");
 
-	std::string myletter = ServerInstance->Config->ConfValue("modeletters")->getString(mh->name, std::string(1,mh->GetModeChar()));
+	std::string myletter = ServerInstance->Config->GetTag("modeletters")->getString(mh->name, std::string(1,mh->GetModeChar()));
 	mh->AdjustModeChar(myletter.c_str()[0]);
 
 	if (FindMode(mh->name))
@@ -1081,7 +1081,7 @@ void ListModeBase::RemoveMode(User*, irc::modestacker* stack)
 
 void ListModeBase::DoRehash()
 {
-	ConfigTagList tags = ServerInstance->Config->ConfTags(configtag);
+	ConfigTagList tags = ServerInstance->Config->GetTags(configtag);
 
 	chanlimits.clear();
 

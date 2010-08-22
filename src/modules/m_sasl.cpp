@@ -183,7 +183,7 @@ class ModuleSASL : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
+		sasl_target = ServerInstance->Config->GetTag("sasl")->getString("target", "*");
 	}
 
 	void OnUserRegister(LocalUser *user)

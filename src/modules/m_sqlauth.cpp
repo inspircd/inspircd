@@ -101,7 +101,7 @@ class ModuleSQLAuth : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("sqlauth");
+		ConfigTag* conf = ServerInstance->Config->GetTag("sqlauth");
 		std::string dbid = conf->getString("dbid");
 		if (dbid.empty())
 			SQL.SetProvider("SQL");

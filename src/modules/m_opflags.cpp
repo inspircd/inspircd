@@ -217,7 +217,7 @@ class ModuleOpFlags : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("opflags");
+		ConfigTag* tag = ServerInstance->Config->GetTag("opflags");
 		cmd.conflevel = tag->getInt("level", OP_VALUE);
 		cmd.usermax = tag->getInt("maxflags", 15);
 	}

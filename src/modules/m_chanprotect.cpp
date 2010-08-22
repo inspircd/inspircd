@@ -119,7 +119,7 @@ class ModuleChanProtect : public Module
 
 	void init()
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("chanprotect");
+		ConfigTag* tag = ServerInstance->Config->GetTag("chanprotect");
 
 		std::string qpre = tag->getString("qprefix");
 		std::string apre = tag->getString("aprefix");
@@ -132,7 +132,7 @@ class ModuleChanProtect : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("chanprotect");
+		ConfigTag* tag = ServerInstance->Config->GetTag("chanprotect");
 		cp.setLevel(tag->getBool("grantadmin", false));
 		cf.setLevel(tag->getBool("grantfounder", true));
 	}

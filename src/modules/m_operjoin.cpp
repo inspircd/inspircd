@@ -51,7 +51,7 @@ class ModuleOperjoin : public Module
 
 		void ReadConfig(ConfigReadStatus&)
 		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
+			ConfigTag* tag = ServerInstance->Config->GetTag("operjoin");
 
 			operChan = tag->getString("channel");
 			override = tag->getBool("override");

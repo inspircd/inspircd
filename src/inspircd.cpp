@@ -614,8 +614,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef WIN32
-	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
-	std::string SetGroup = Config->ConfValue("security")->getString("runasgroup");
+	std::string SetUser = Config->GetTag("security")->getString("runasuser");
+	std::string SetGroup = Config->GetTag("security")->getString("runasgroup");
 	if (!SetGroup.empty())
 	{
 		int ret;

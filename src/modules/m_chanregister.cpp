@@ -655,7 +655,7 @@ class ChannelRegistrationModule : public Module
 	void ReadConfig(ConfigReadStatus&)
 	{
 		/* try to download the tag from the config system */
-		ConfigTag *chregistertag = ServerInstance->Config->ConfValue ("chanregister");
+		ConfigTag *chregistertag = ServerInstance->Config->GetTag ("chanregister");
 		/* get the prefix mode */
 		std::string prefixmode = chregistertag->getString ("prefix", "op");
 		/* get the channel database */

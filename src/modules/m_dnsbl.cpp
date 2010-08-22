@@ -261,7 +261,7 @@ class ModuleDNSBL : public Module
 	{
 		ClearEntries();
 
-		ConfigTagList dnsbls = ServerInstance->Config->ConfTags("dnsbl");
+		ConfigTagList dnsbls = ServerInstance->Config->GetTags("dnsbl");
 		for(ConfigIter i = dnsbls.first; i != dnsbls.second; ++i)
 		{
 			ConfigTag* tag = i->second;

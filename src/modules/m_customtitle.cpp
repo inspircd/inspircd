@@ -50,7 +50,7 @@ class CommandTitle : public Command
 		snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(), user->host.c_str());
 		snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(), user->GetIPString());
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("title");
+		ConfigTagList tags = ServerInstance->Config->GetTags("title");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			std::string Name = i->second->getString("name");

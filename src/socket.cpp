@@ -69,7 +69,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 	int bound = 0;
 	std::vector<ListenSocket*> old_ports(ports.begin(), ports.end());
 
-	ConfigTagList tags = ServerInstance->Config->ConfTags("bind");
+	ConfigTagList tags = ServerInstance->Config->GetTags("bind");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;

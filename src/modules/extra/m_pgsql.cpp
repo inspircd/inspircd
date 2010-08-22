@@ -521,7 +521,7 @@ class ModulePgSQL : public Module
 	void ReadConf()
 	{
 		ConnMap conns;
-		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
+		ConfigTagList tags = ServerInstance->Config->GetTags("database");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
 		{
 			if (i->second->getString("module", "pgsql") != "pgsql")

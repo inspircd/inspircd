@@ -90,7 +90,7 @@ class CommandSSLInfo : public Command
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
 		}
-		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
+		bool operonlyfp = ServerInstance->Config->GetTag("sslinfo")->getBool("operonly");
 		if (operonlyfp && !IS_OPER(user) && target != user)
 		{
 			user->WriteServ("NOTICE %s :*** You cannot view SSL certificate information for other users", user->nick.c_str());
@@ -162,7 +162,7 @@ class ModuleSSLInfo : public Module
 		if (cert)
 		{
 			ServerInstance->SendWhoisLine(source, dest, 671, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
-			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
+			bool operonlyfp = ServerInstance->Config->GetTag("sslinfo")->getBool("operonly");
 			if ((!operonlyfp || source == dest || IS_OPER(source)) && !cert->fingerprint.empty())
 				ServerInstance->SendWhoisLine(source, dest, 276, "%s %s :has client certificate fingerprint %s",
 					source->nick.c_str(), dest->nick.c_str(), cert->fingerprint.c_str());

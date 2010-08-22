@@ -59,7 +59,7 @@ class ModuleAuditorium : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("auditorium");
+		ConfigTag* tag = ServerInstance->Config->GetTag("auditorium");
 		OpsVisible = tag->getBool("opvisible");
 		OpsCanSee = tag->getBool("opcansee");
 		OperCanSee = tag->getBool("opercansee", true);

@@ -418,7 +418,7 @@ class ModuleCloaking : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("cloak");
+		ConfigTag* tag = ServerInstance->Config->GetTag("cloak");
 		prefix = tag->getString("prefix");
 		suffix = tag->getString("suffix", ".IP");
 

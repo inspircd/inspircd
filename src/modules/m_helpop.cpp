@@ -131,7 +131,7 @@ class ModuleHelpop : public Module
 		{
 			helpop_map.clear();
 
-			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
+			ConfigTagList tags = ServerInstance->Config->GetTags("helpop");
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
 				ConfigTag* tag = i->second;

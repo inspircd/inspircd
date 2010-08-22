@@ -454,7 +454,7 @@ ModResult InspIRCd::CheckExemption(User* user, Channel* chan, const std::string&
 	char minmode = 0;
 	std::string current;
 
-	irc::spacesepstream defaultstream(ServerInstance->Config->ConfValue("options")->getString("exemptchanops"));
+	irc::spacesepstream defaultstream(ServerInstance->Config->GetTag("options")->getString("exemptchanops"));
 
 	while (defaultstream.GetToken(current))
 	{

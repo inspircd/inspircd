@@ -46,7 +46,7 @@ class ModuleHTTPAccessList : public Module
 	void ReadConfig(ConfigReadStatus& conf)
 	{
 		acl_list.clear();
-		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
+		ConfigTagList acls = ServerInstance->Config->GetTags("httpdacl");
 		for (ConfigIter i = acls.first; i != acls.second; i++)
 		{
 			ConfigTag* c = i->second;

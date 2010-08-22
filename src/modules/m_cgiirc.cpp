@@ -187,7 +187,7 @@ public:
 		// Do we send an oper notice when a CGI:IRC has their host changed?
 		cmd.notify = status.GetTag("cgiirc")->getBool("opernotice", true);
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("cgihost");
+		ConfigTagList tags = ServerInstance->Config->GetTags("cgihost");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;

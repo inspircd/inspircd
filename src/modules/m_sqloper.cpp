@@ -144,7 +144,7 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
+		ConfigTag* tag = ServerInstance->Config->GetTag("sqloper");
 
 		std::string dbid = tag->getString("dbid");
 		if (dbid.empty())

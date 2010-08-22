@@ -39,11 +39,11 @@ class ModuleSecureList : public Module
 	{
 		allowlist.clear();
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("securehost");
+		ConfigTagList tags = ServerInstance->Config->GetTags("securehost");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 			allowlist.push_back(i->second->getString("exception"));
 
-		WaitTime = ServerInstance->Config->ConfValue("securelist")->getInt("waittime", 60);
+		WaitTime = ServerInstance->Config->GetTag("securelist")->getInt("waittime", 60);
 	}
 
 

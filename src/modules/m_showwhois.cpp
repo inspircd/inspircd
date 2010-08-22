@@ -93,7 +93,7 @@ class ModuleShowwhois : public Module
 
 	void init()
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
+		ConfigTag* tag = ServerInstance->Config->GetTag("showwhois");
 		sw.SetOper(tag->getBool("opersonly", true));
 		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
 

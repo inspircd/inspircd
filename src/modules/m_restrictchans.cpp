@@ -22,7 +22,7 @@ class ModuleRestrictChans : public Module
 	void ReadConfig()
 	{
 		allowchans.clear();
-		ConfigTagList tags = ServerInstance->Config->ConfTags("allowchannel");
+		ConfigTagList tags = ServerInstance->Config->GetTags("allowchannel");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			ConfigTag* tag = i->second;

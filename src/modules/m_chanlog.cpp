@@ -41,7 +41,7 @@ class ModuleChanLog : public Module
 
 		logstreams.clear();
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("chanlog");
+		ConfigTagList tags = ServerInstance->Config->GetTags("chanlog");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			channel = i->second->getString("channel");

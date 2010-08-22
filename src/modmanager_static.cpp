@@ -154,7 +154,7 @@ void ModuleManager::LoadAll()
 	Load("cmd_all", true);
 	Load("cmd_whowas.so", true);
 
-	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
+	ConfigTagList tags = ServerInstance->Config->GetTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;

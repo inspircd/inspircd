@@ -252,7 +252,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 		/* stats o */
 		case 'o':
 		{
-			ConfigTagList tags = ServerInstance->Config->ConfTags("oper");
+			ConfigTagList tags = ServerInstance->Config->GetTags("oper");
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
 				ConfigTag* tag = i->second;

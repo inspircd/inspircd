@@ -113,7 +113,7 @@ class ModuleCensor : public Module
 		 */
 		censors.clear();
 
-		ConfigTagList badwords = ServerInstance->Config->ConfTags("badword");
+		ConfigTagList badwords = ServerInstance->Config->GetTags("badword");
 		for(ConfigIter i = badwords.first; i != badwords.second; ++i)
 		{
 			ConfigTag* tag = i->second;

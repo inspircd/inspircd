@@ -84,7 +84,7 @@ class ModuleChanHistory : public Module
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		m.maxlines = ServerInstance->Config->ConfValue("chanhistory")->getInt("maxlines", 50);
+		m.maxlines = ServerInstance->Config->GetTag("chanhistory")->getInt("maxlines", 50);
 	}
 
 	~ModuleChanHistory()

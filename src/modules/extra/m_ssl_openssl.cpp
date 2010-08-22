@@ -393,7 +393,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		sslports.clear();
 
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("openssl");
+		ConfigTag* Conf = ServerInstance->Config->GetTag("openssl");
 		
 		if (Conf->getBool("showports", true))
 		{
@@ -424,7 +424,7 @@ class ModuleSSLOpenSSL : public Module
 		std::string cafile;
 		std::string dhfile;
 
-		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
+		ConfigTag* conf = ServerInstance->Config->GetTag("openssl");
 
 		cafile	 = conf->getString("cafile", "conf/ca.pem");
 		certfile = conf->getString("certfile", "conf/cert.pem");

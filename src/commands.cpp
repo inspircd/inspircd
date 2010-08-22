@@ -23,7 +23,7 @@ bool InspIRCd::HostMatchesEveryone(const std::string &mask, User* user)
 {
 	long matches = 0;
 
-	ConfigTag* insane = Config->ConfValue("insane");
+	ConfigTag* insane = Config->GetTag("insane");
 
 	if (insane->getBool("hostmasks"))
 		return false;
@@ -55,7 +55,7 @@ bool InspIRCd::IPMatchesEveryone(const std::string &ip, User* user)
 {
 	long matches = 0;
 
-	ConfigTag* insane = Config->ConfValue("insane");
+	ConfigTag* insane = Config->GetTag("insane");
 
 	if (insane->getBool("ipmasks"))
 		return false;
@@ -84,7 +84,7 @@ bool InspIRCd::NickMatchesEveryone(const std::string &nick, User* user)
 {
 	long matches = 0;
 
-	ConfigTag* insane = Config->ConfValue("insane");
+	ConfigTag* insane = Config->GetTag("insane");
 
 	if (insane->getBool("nickmasks"))
 		return false;

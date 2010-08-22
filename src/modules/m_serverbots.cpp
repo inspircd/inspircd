@@ -243,7 +243,7 @@ class ModuleServerBots : public Module
 		std::map<std::string, BotData*> oldbots;
 		oldbots.swap(bots);
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("bot");
+		ConfigTagList tags = ServerInstance->Config->GetTags("bot");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
 		{
 			ConfigTag* tag = i->second;
@@ -293,7 +293,7 @@ class ModuleServerBots : public Module
 			ServerInstance->GlobalCulls.AddItem(i->second->bot);
 		}
 
-		tags = ServerInstance->Config->ConfTags("botcmd");
+		tags = ServerInstance->Config->GetTags("botcmd");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
 		{
 			ConfigTag* tag = i->second;

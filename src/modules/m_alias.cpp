@@ -82,14 +82,14 @@ class ModuleAlias : public Module
 
 	virtual void ReadAliases()
 	{
-		ConfigTag* tag = ServerInstance->Config->ConfValue("fantasy");
+		ConfigTag* tag = ServerInstance->Config->GetTag("fantasy");
 		AllowBots = tag->getBool("allowbots");
 
 		std::string fpre = tag->getString("prefix");
 		fprefix = fpre.empty() ? '!' : fpre[0];
 
 		Aliases.clear();
-		ConfigTagList tags = ServerInstance->Config->ConfTags("alias");
+		ConfigTagList tags = ServerInstance->Config->GetTags("alias");
 		for(ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			tag = i->second;

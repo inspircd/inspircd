@@ -108,8 +108,8 @@ static void ValidHost(const std::string& p, const std::string& msg)
 
 void ServerConfig::ApplyDisabled()
 {
-	std::stringstream dcmds(ConfValue("disabled")->getString("commands", ""));
-	std::stringstream dmodes(ConfValue("disabled")->getString("modes", ""));
+	std::stringstream dcmds(GetTag("disabled")->getString("commands", ""));
+	std::stringstream dmodes(GetTag("disabled")->getString("modes", ""));
 	std::string word;
 
 	/* Enable everything first */
@@ -140,14 +140,14 @@ void ServerConfig::ApplyDisabled()
 			mh->disabled = true;
 	}
 
-	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("usermodes").c_str(); *p; ++p)
+	for (const unsigned char* p = (const unsigned char*)GetTag("disabled")->getString("usermodes").c_str(); *p; ++p)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*p, MODETYPE_USER);
 		if (mh)
 			mh->disabled = true;
 	}
 
-	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("chanmodes").c_str(); *p; ++p)
+	for (const unsigned char* p = (const unsigned char*)GetTag("disabled")->getString("chanmodes").c_str(); *p; ++p)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*p, MODETYPE_CHANNEL);
 		if (mh)
@@ -189,7 +189,7 @@ static void FindDNS(std::string& server)
 
 static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
 {
-	ConfigTagList tags = conf->ConfTags(tag);
+	ConfigTagList tags = conf->GetTags(tag);
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* ctag = i->second;
@@ -205,7 +205,7 @@ static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::str
 
 void ServerConfig::CrossCheckOperClassType()
 {
-	ConfigTagList tags = ConfTags("class");
+	ConfigTagList tags = GetTags("class");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
@@ -217,7 +217,7 @@ void ServerConfig::CrossCheckOperClassType()
 		oper_classes[name] = tag;
 	}
 
-	tags = ConfTags("type");
+	tags = GetTags("type");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
@@ -232,7 +232,7 @@ void ServerConfig::CrossCheckOperClassType()
 		oper_blocks[" " + name] = new OperInfo(tag);
 	}
 
-	tags = ConfTags("oper");
+	tags = GetTags("oper");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
@@ -288,7 +288,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 	for(int tries=0; try_again; tries++)
 	{
 		try_again = false;
-		ConfigTagList tags = ConfTags("connect");
+		ConfigTagList tags = GetTags("connect");
 		int i=0;
 		for(ConfigIter it = tags.first; it != tags.second; ++it, ++i)
 		{
@@ -382,31 +382,31 @@ static const Deprecated ChangedConfig[] = {
 
 void ServerConfig::Fill()
 {
-	ConfigTag* options = ConfValue("options");
-	ConfigTag* security = ConfValue("security");
-	diepass = ConfValue("power")->getString("diepass");
-	restartpass = ConfValue("power")->getString("restartpass");
-	powerhash = ConfValue("power")->getString("hash");
+	ConfigTag* options = GetTag("options");
+	ConfigTag* security = GetTag("security");
+	diepass = GetTag("power")->getString("diepass");
+	restartpass = GetTag("power")->getString("restartpass");
+	powerhash = GetTag("power")->getString("hash");
 	PrefixQuit = options->getString("prefixquit");
 	SuffixQuit = options->getString("suffixquit");
 	FixedQuit = options->getString("fixedquit");
 	PrefixPart = options->getString("prefixpart");
 	SuffixPart = options->getString("suffixpart");
 	FixedPart = options->getString("fixedpart");
-	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
-	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
+	SoftLimit = GetTag("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
+	MaxConn = GetTag("performance")->getInt("somaxconn", SOMAXCONN);
 	MoronBanner = options->getString("moronbanner", "You're banned!");
-	ServerName = ConfValue("server")->getString("name");
-	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
-	Network = ConfValue("server")->getString("network", "Network");
-	sid = ConfValue("server")->getString("id", "");
-	AdminName = ConfValue("admin")->getString("name", "");
-	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
-	AdminNick = ConfValue("admin")->getString("nick", "admin");
-	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
-	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
-	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
-	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
+	ServerName = GetTag("server")->getString("name");
+	ServerDesc = GetTag("server")->getString("description", "Configure Me");
+	Network = GetTag("server")->getString("network", "Network");
+	sid = GetTag("server")->getString("id", "");
+	AdminName = GetTag("admin")->getString("name", "");
+	AdminEmail = GetTag("admin")->getString("email", "null@example.com");
+	AdminNick = GetTag("admin")->getString("nick", "admin");
+	ModPath = GetTag("path")->getString("moduledir", MOD_PATH);
+	NetBufferSize = GetTag("performance")->getInt("netbuffersize", 10240);
+	dns_timeout = GetTag("dns")->getInt("timeout", 5);
+	DisabledDontExist = GetTag("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");
 	CustomVersion = security->getString("customversion", Network + " IRCd");
 	HideSplits = security->getBool("hidesplits");
@@ -415,7 +415,7 @@ void ServerConfig::Fill()
 	HideKillsServer = security->getString("hidekills");
 	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
-	NoUserDns = ConfValue("performance")->getBool("nouserdns");
+	NoUserDns = GetTag("performance")->getBool("nouserdns");
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHosts = options->getBool("cyclehosts");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
@@ -423,21 +423,21 @@ void ServerConfig::Fill()
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getInt("maxtargets", 20);
 	DefaultModes = options->getString("defaultmodes", "ont");
-	PID = ConfValue("pid")->getString("file");
-	WhoWasGroupSize = ConfValue("whowas")->getInt("groupsize");
-	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
-	WhoWasMaxKeep = ServerInstance->Duration(ConfValue("whowas")->getString("maxkeep"));
-	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
-	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
-	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);
-	Limits.ChanMax = ConfValue("limits")->getInt("maxchan", 64);
-	Limits.MaxModes = ConfValue("limits")->getInt("maxmodes", 20);
-	Limits.IdentMax = ConfValue("limits")->getInt("maxident", 11);
-	Limits.MaxQuit = ConfValue("limits")->getInt("maxquit", 255);
-	Limits.MaxTopic = ConfValue("limits")->getInt("maxtopic", 307);
-	Limits.MaxKick = ConfValue("limits")->getInt("maxkick", 255);
-	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
-	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
+	PID = GetTag("pid")->getString("file");
+	WhoWasGroupSize = GetTag("whowas")->getInt("groupsize");
+	WhoWasMaxGroups = GetTag("whowas")->getInt("maxgroups");
+	WhoWasMaxKeep = ServerInstance->Duration(GetTag("whowas")->getString("maxkeep"));
+	c_ipv4_range = GetTag("cidr")->getInt("ipv4clone", 32);
+	c_ipv6_range = GetTag("cidr")->getInt("ipv6clone", 128);
+	Limits.NickMax = GetTag("limits")->getInt("maxnick", 32);
+	Limits.ChanMax = GetTag("limits")->getInt("maxchan", 64);
+	Limits.MaxModes = GetTag("limits")->getInt("maxmodes", 20);
+	Limits.IdentMax = GetTag("limits")->getInt("maxident", 11);
+	Limits.MaxQuit = GetTag("limits")->getInt("maxquit", 255);
+	Limits.MaxTopic = GetTag("limits")->getInt("maxtopic", 307);
+	Limits.MaxKick = GetTag("limits")->getInt("maxkick", 255);
+	Limits.MaxGecos = GetTag("limits")->getInt("maxgecos", 128);
+	Limits.MaxAway = GetTag("limits")->getInt("maxaway", 200);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NameOnlyModes = options->getBool("nameonlymodes", true);
 
@@ -478,7 +478,7 @@ void ServerConfig::Fill()
 		else
 			close(socktest);
 	}
-	ConfigTagList tags = ConfTags("uline");
+	ConfigTagList tags = GetTags("uline");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
@@ -488,7 +488,7 @@ void ServerConfig::Fill()
 		ulines[assign(server)] = tag->getBool("silent");
 	}
 
-	tags = ConfTags("banlist");
+	tags = GetTags("banlist");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
@@ -504,7 +504,7 @@ void ServerConfig::Fill()
 	ReadXLine(this, "exception", "host", ServerInstance->XLines->GetFactory("E"));
 
 	memset(HideModeLists, 0, sizeof(HideModeLists));
-	for (const unsigned char* p = (const unsigned char*)ConfValue("security")->getString("hidemodes").c_str(); *p; ++p)
+	for (const unsigned char* p = (const unsigned char*)GetTag("security")->getString("hidemodes").c_str(); *p; ++p)
 		HideModeLists[*p] = true;
 
 	std::string v = security->getString("announceinvites");
@@ -545,7 +545,7 @@ void ServerConfig::Read()
 	}
 	if (!status.fatal)
 	{
-		DNSServer = ConfValue("dns")->getString("server");
+		DNSServer = GetTag("dns")->getString("server");
 		FindDNS(DNSServer);
 	}
 }
@@ -558,10 +558,10 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
 		{
 			std::string dummy;
-			if (ConfValue(ChangedConfig[Index].tag)->readString(ChangedConfig[Index].value, dummy, true))
+			if (GetTag(ChangedConfig[Index].tag)->readString(ChangedConfig[Index].value, dummy, true))
 				status.errors << "Your configuration contains a deprecated value: <"
 					<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
-					<< " (at " << ConfValue(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
+					<< " (at " << GetTag(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
 		}
 
 		Fill();
@@ -721,7 +721,7 @@ void ServerConfig::ApplyModules(User* user)
 	std::vector<std::string> added_modules;
 	std::set<std::string> removed_modules(v.begin(), v.end());
 
-	ConfigTagList tags = ConfTags("module");
+	ConfigTagList tags = GetTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
@@ -735,7 +735,7 @@ void ServerConfig::ApplyModules(User* user)
 		}
 	}
 
-	if (ConfValue("options")->getBool("allowhalfop") && removed_modules.erase("m_halfop.so") == 0)
+	if (GetTag("options")->getBool("allowhalfop") && removed_modules.erase("m_halfop.so") == 0)
 		added_modules.push_back("m_halfop.so");
 
 	for (std::set<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)

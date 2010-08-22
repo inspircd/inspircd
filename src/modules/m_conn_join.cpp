@@ -39,7 +39,7 @@ class ModuleConnJoin : public Module
 			if (!IS_LOCAL(user))
 				return;
 
-			std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
+			std::string chanlist = ServerInstance->Config->GetTag("autojoin")->getString("channel");
 			chanlist = IS_LOCAL(user)->MyClass->GetConfig("autojoin", chanlist);
 
 			irc::commasepstream chans(chanlist);

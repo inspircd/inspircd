@@ -581,7 +581,7 @@ class ModuleSSLGnuTLS : public Module
 	{
 		sslports.clear();
 
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
+		ConfigTag* Conf = ServerInstance->Config->GetTag("gnutls");
 		starttls.enabled = Conf->getBool("starttls", true);
 
 		if (Conf->getBool("showports", true))
@@ -609,7 +609,7 @@ class ModuleSSLGnuTLS : public Module
 		if(param != "ssl")
 			return;
 
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
+		ConfigTag* Conf = ServerInstance->Config->GetTag("gnutls");
 
 		dh_bits	= Conf->getInt("dhbits");
 		std::string hashname = Conf->getString("hash", "md5");
@@ -636,7 +636,7 @@ class ModuleSSLGnuTLS : public Module
 
 		iohook.creds.clear();
 
-		ConfigTagList tags = ServerInstance->Config->ConfTags("ssl_cert");
+		ConfigTagList tags = ServerInstance->Config->GetTags("ssl_cert");
 		while (tags.first != tags.second)
 		{
 			ConfigTag* tag = tags.first->second;
