@@ -43,8 +43,9 @@ class AccountProvider : public DataProvider
 	 *
 	 * @param user The user to log in
 	 * @param name The account name to log them in with. Empty to log out.
+	 * @param tag A hidden tag on the account, for recording freshness or login method
 	 */
-	virtual void DoLogin(User* user, const std::string& name) = 0;
+	virtual void DoLogin(User* user, const std::string& name, const std::string& tag = "") = 0;
 };
 
 #endif

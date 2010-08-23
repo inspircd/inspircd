@@ -53,10 +53,16 @@ class AuthQuery : public SQLQuery
 			{
 				if (result[i].nul)
 					continue;
+				if (cols[i] == "account")
+					acct = result[i].value;
+				if (cols[i] == "tag")
+					tag = result[i].value;
 				if (cols[i] == "class")
 					ServerInstance->ForcedClass.set(user, result[i].value);
-				if (cols[i] == "account" && account)
-					account->DoLogin(user, result[i].value);
+			}
+			if (!acct.empty() && account)
+			{
+				account->DoLogin(user, acct, tag);
 			}
 			pendingExt.set(user, AUTH_STATE_OK);
 		}

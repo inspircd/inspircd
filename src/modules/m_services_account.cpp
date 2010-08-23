@@ -16,12 +16,49 @@
 
 /* $ModDesc: Povides support for accounts. */
 
+struct AccountItem
+{
+	std::string account;
+	std::string tag;
+	AccountItem(const std::string& a) : account(a) {}
+	AccountItem(const std::string& a, const std::string& t) : account(a), tag(t) {}
+};
+
+class ServicesExtItem : public SimpleExtItem<AccountItem>
+{
+ public:
+	ServicesExtItem(Module* owner) : SimpleExtItem<AccountItem>("accountname", owner) {}
+
+	std::string serialize(SerializeFormat format, const Extensible* container, void* itemv) const
+	{
+		AccountItem* item = static_cast<AccountItem*>(itemv);
+		if (!item)
+			return "";
+		else if (item->tag.empty())
+			return item->account;
+		else
+			return item->account + " " + item->tag;
+	}
+
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	{
+		std::string::size_type spc = value.find(' ');
+		if (value.empty())
+			unset(container);
+		else if (spc == std::string::npos)
+			set(container, new AccountItem(value));
+		else
+			set(container, new AccountItem(value.substr(0, spc), value.substr(spc + 1)));
+	}
+};
+
+
 class ServicesAccountProvider : public AccountProvider
 {
  public:
-	StringExtItem ext;
+	ServicesExtItem ext;
 	ServicesAccountProvider(Module* mod)
-		: AccountProvider(mod, "account/services_account"), ext("accountname", mod)
+		: AccountProvider(mod, "account/services_account"), ext(mod)
 	{
 	}
 
@@ -32,13 +69,21 @@ class ServicesAccountProvider : public AccountProvider
 
 	std::string GetAccountName(User* user)
 	{
-		std::string* account = ext.get(user);
+		AccountItem* account = ext.get(user);
 		if (account)
-			return *account;
+			return account->account;
 		return "";
 	}
 
-	void DoLogin(User* user, const std::string& acct)
+	std::string GetAccountTag(User* user)
+	{
+		AccountItem* account = ext.get(user);
+		if (account)
+			return account->tag;
+		return "";
+	}
+
+	void DoLogin(User* user, const std::string& acct, const std::string& tag)
 	{
 		if (IS_LOCAL(user) && !acct.empty())
 			user->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
@@ -47,7 +92,7 @@ class ServicesAccountProvider : public AccountProvider
 		if (acct.empty())
 			ext.unset(user);
 		else
-			ext.set(user, acct);
+			ext.set(user, new AccountItem(acct, tag));
 
 		if (user->registered == REG_ALL)
 			ServerInstance->PI->SendMetaData(user, "accountname", acct);
