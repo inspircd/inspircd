@@ -788,18 +788,19 @@ banned */
 	/* called once a hour to expire expired channels */
 	void OnGarbageCollect ( )
 	{
-		/* iterate through all channels */
-		for (chan_hash::const_iterator it = ServerInstance->chanlist->begin ( ); it != ServerInstance->chanlist->end ( ); it++)
+		chan_hash::const_iterator it = ServerInstance->chanlist->begin();
+		while (it != ServerInstance->chanlist->end())
 		{
+			Channel* c = it++->second;
 			/* check if the channel was expired and is empty at the same time */
-			if (it->second->GetUserCounter ( ) == 0 && Expired (it->second))
+			if (c->GetUserCounter() == 0 && Expired(c))
 			{
 				/* send a notice */
-				ServerInstance->SNO->WriteGlobalSno ('r', "Channel %s was expired", it->second->name.c_str ( ));
+				ServerInstance->SNO->WriteGlobalSno('r', "Channel %s was expired", c->name.c_str());
 				/* send mode -r */
 				irc::modestacker ms;
-				ms.push (irc::modechange (mh.id, "", false));
-				ServerInstance->SendMode (ServerInstance->FakeClient, it->second, ms, true);
+				ms.push(irc::modechange(mh.id, "", false));
+				ServerInstance->SendMode(ServerInstance->FakeClient, c, ms, true);
 			}
 		}
 	}
