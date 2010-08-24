@@ -222,6 +222,17 @@
 # For example, +w o:R:Brain will op anyone identified to the account "Brain"
 # on join.
 #<module name="m_autoop.so">
+#
+# Autoop settings:
+#
+#<autoop checkonlogin="yes" checkonhostchange="yes">
+#
+# checkonlogin:
+#   Whether or not to recheck a user against autoop lists automatically
+#   when they identify to an account
+# checkonhostchange:
+#   Whether or not to recheck a user against autoop lists automatically
+#   when their host changes
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ban except module: Adds support for channel ban exceptions (+e)

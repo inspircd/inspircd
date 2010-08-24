@@ -77,6 +77,7 @@ class ModuleAutoOp : public Module
 	AutoOpList mh;
 	dynamic_reference<OpFlagProvider> opflags;
 	CommandUp cmd;
+	bool checkonlogin, checkonhostchange;
 
 public:
 	ModuleAutoOp() : mh(this), opflags("opflags"), cmd(this)
@@ -89,8 +90,8 @@ public:
 		ServerInstance->Modules->AddService(mh);
 		ServerInstance->AddCommand(&cmd);
 
-		Implementation list[] = { I_OnPostJoin, I_OnEvent };
-		ServerInstance->Modules->Attach(list, this, 2);
+		Implementation list[] = { I_OnPostJoin, I_OnEvent, I_OnChangeHost };
+		ServerInstance->Modules->Attach(list, this, 3);
 	}
 
 	void DoAutoop(Membership* memb)
@@ -143,7 +144,7 @@ public:
 
 	void OnEvent(Event& event)
 	{
-		if(event.id == "account_login"){
+		if(checkonlogin && event.id == "account_login"){
 			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
 			if(!IS_LOCAL(acct_event.user)) return;
 			std::vector<std::string> params;
@@ -152,9 +153,19 @@ public:
 		}
 	}
 
+	void OnChangeHost(User* u, const std::string&)
+	{
+		if(checkonhostchange)
+			for (UCListIter v = u->chans.begin(); v != u->chans.end(); ++v)
+				DoAutoop(&*v);
+	}
+
 	void ReadConfig(ConfigReadStatus&)
 	{
 		mh.DoRehash();
+		ConfigTag* tag = ServerInstance->Config->GetTag("autoop");
+		checkonlogin = tag->getBool("checkonlogin", true);
+		checkonhostchange = tag->getBool("checkonhostchange", true);
 	}
 
 	Version GetVersion()
