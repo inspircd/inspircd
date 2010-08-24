@@ -162,9 +162,14 @@ class CommandTmode : public Command
 			if(modes.sequence.empty()) return CMD_SUCCESS;
 			stable_sort(modes.sequence.begin(), modes.sequence.end(), &modeChangeLessThan);
 			T.modes = modes;
+			ModeHandler* regmh = ServerInstance->Modes->FindMode("registered");
 			for (std::vector<irc::modechange>::iterator iter = T.modes.sequence.begin(); iter != T.modes.sequence.end();)
 			{
 				ModeHandler* mh = ServerInstance->Modes->FindMode(iter->mode);
+				if(mh == regmh && !user->HasPrivPermission("channels/set-registration", false)) {
+					iter = T.modes.sequence.erase(iter);
+					continue;
+				}
 				if(!iter->adding) {								// if we're about to remove the mode now
 					if(mh->GetNumParams(true) && !mh->IsListMode())				// and it needs a parameter to put back
 						iter->value = channel->GetModeParameter(mh);			// then save the parameter we have now
@@ -187,14 +192,20 @@ class CommandTmode : public Command
 				}
 				++iter;
 			}
-			for (std::vector<irc::modechange>::iterator iter = modes.sequence.begin(); iter != modes.sequence.end(); ++iter)
+			for (std::vector<irc::modechange>::iterator iter = modes.sequence.begin(); iter != modes.sequence.end();)
 			{
 				ModeHandler* mh = ServerInstance->Modes->FindMode(iter->mode);
+				if(mh == regmh && !user->HasPrivPermission("channels/set-registration", false)) {
+					user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission denied - you may not set the registered channel mode as a timed mode", user->nick.c_str());
+					iter = modes.sequence.erase(iter);
+					continue;
+				}
 				if(mh->GetNumParams(iter->adding) && mh->GetTranslateType() == TR_NICK) {	// if this mode takes a nick as a parameter
 					User* u = ServerInstance->FindNick(iter->value);			// look for the user with the given nick
 					if(u) iter->value = u->uuid;						// and change it to the UID if we found them
 														// otherwise, let SendMode remove it and tell the user
 				}
+				++iter;
 			}
 
 			current = &T;
