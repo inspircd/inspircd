@@ -42,11 +42,22 @@ struct x509_cred : public refcountbase
 	x509_cred(ConfigTag* tag, const std::string& ca_string, const std::string& crl_string, gnutls_dh_params dh_params)
 	{
 		FileReader reader;
+
+		errno = 0;
 		reader.LoadFile(tag->getString("certfile", "conf/cert.pem"));
 		std::string cert_string = reader.Contents();
 
+		if (cert_string.empty())
+			throw ModuleException("Unable to read GnuTLS server certificates from " +
+				tag->getString("certfile", "conf/cert.pem") + ": " + (errno ? strerror(errno) : "Unknown error"));
+
+		errno = 0;
 		reader.LoadFile(tag->getString("keyfile", "conf/key.pem"));
 		std::string key_string = reader.Contents();
+
+		if (key_string.empty())
+			throw ModuleException("Unable to read GnuTLS private key from " +
+				tag->getString("keyfile", "conf/key.pem") + ": " + (errno ? strerror(errno) : "Unknown error"));
 
 		int ret;
 
@@ -645,7 +656,7 @@ class ModuleSSLGnuTLS : public Module
 				throw ModuleException("Invalid <ssl_cert> without name at " + tag->getTagLocation());
 
 			iohook.creds[name] = new x509_cred(tag, ca_string, crl_string, dh_params);
-			
+
 			tags.first++;
 		}
 	}
