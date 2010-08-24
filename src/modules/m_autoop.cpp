@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "account.h"
 #include "opflags.h"
 #include "u_listmode.h"
 
@@ -88,8 +89,8 @@ public:
 		ServerInstance->Modules->AddService(mh);
 		ServerInstance->AddCommand(&cmd);
 
-		Implementation list[] = { I_OnPostJoin };
-		ServerInstance->Modules->Attach(list, this, 1);
+		Implementation list[] = { I_OnPostJoin, I_OnEvent };
+		ServerInstance->Modules->Attach(list, this, 2);
 	}
 
 	void DoAutoop(Membership* memb)
@@ -138,6 +139,17 @@ public:
 		if (!IS_LOCAL(memb->user))
 			return;
 		DoAutoop(memb);
+	}
+
+	void OnEvent(Event& event)
+	{
+		if(event.id == "account_login"){
+			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
+			if(!IS_LOCAL(acct_event.user)) return;
+			std::vector<std::string> params;
+			for (UCListIter v = acct_event.user->chans.begin(); v != acct_event.user->chans.end(); ++v)
+				DoAutoop(&*v);
+		}
 	}
 
 	void ReadConfig(ConfigReadStatus&)
