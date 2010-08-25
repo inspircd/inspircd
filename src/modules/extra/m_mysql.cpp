@@ -294,12 +294,18 @@ class QueryJob : public Job
 	void run()
 	{
 		Mutex::Lock lock(conn->lock);
-		result = exec();
+		if (!IsCancelled())
+			result = exec();
 	}
 
 	void finish()
 	{
-		if (result->err.id == SQL_NO_ERROR)
+		if (!result)
+		{
+			SQLerror err(SQL_BAD_DBID, "Query cancelled");
+			query->OnError(err);
+		}
+		else if (result->err.id == SQL_NO_ERROR)
 			query->OnResult(*result);
 		else
 			query->OnError(result->err);

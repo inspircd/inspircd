@@ -145,16 +145,23 @@ ThreadEngine::Runner::~Runner()
 void ThreadEngine::Submit(Job* job)
 {
 	Mutex::Lock lock(job_lock);
+	// TODO launch more threads if we have a queue and more are allowed
+	// TODO clean up threads at garbage collection time (all but one)
 	if (threads.empty())
-	{
-		Runner* thread = new Runner(this);
-		threads.push_back(thread);
-	}
+		threads.push_back(new Runner(this));
 	if (result_ss == NULL)
 		result_ss = new ThreadSignalSocket();
 	submit_q.push_back(job);
 	submit_s.signal_one();
 }
+
+static class TerminateJob : public Job
+{
+ public:
+	TerminateJob() : Job(NULL) { cancel(); }
+	void run() {}
+	void finish() {}
+} terminator;
 
 void ThreadEngine::Runner::main_loop()
 {
@@ -166,18 +173,22 @@ void ThreadEngine::Runner::main_loop()
 
 		current = te->submit_q.front();
 		te->submit_q.pop_front();
-		te->job_lock.unlock();
-		
-		try
-		{
-			current->run();
-		}
-		catch (...)
-		{
-		}
 
-		te->job_lock.lock();
+		if (!current->IsCancelled())
+		{
+			te->job_lock.unlock();
+			try
+			{
+				current->run();
+			}
+			catch (...)
+			{
+			}
+			te->job_lock.lock();
+		}
 		te->result_q.push_back(current);
+		if (current == &terminator)
+			break;
 		current = NULL;
 
 		te->result_sc.signal_one();
@@ -185,6 +196,7 @@ void ThreadEngine::Runner::main_loop()
 			te->result_ss->Notify();
 	}
 	te->job_lock.unlock();
+	// current == terminator, we die
 }
 
 void ThreadEngine::result_loop()
