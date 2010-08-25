@@ -270,77 +270,31 @@ class SQLConnection : public SQLProvider
 		mysql_close(connection);
 	}
 
-	void submit(SQLQuery* q, const std::string& qs);
-
-	void submit(SQLQuery* call, const std::string& q, const ParamL& p)
-	{
-		std::string res;
-		unsigned int param = 0;
-		for(std::string::size_type i = 0; i < q.length(); i++)
-		{
-			if (q[i] != '?')
-				res.push_back(q[i]);
-			else
-			{
-				if (param < p.size())
-				{
-					std::string parm = p[param++];
-					char buffer[MAXBUF];
-					mysql_escape_string(buffer, parm.c_str(), parm.length());
-//					mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
-					res.append(buffer);
-				}
-			}
-		}
-		submit(call, res);
-	}
-
-	void submit(SQLQuery* call, const std::string& q, const ParamM& p)
-	{
-		std::string res;
-		for(std::string::size_type i = 0; i < q.length(); i++)
-		{
-			if (q[i] != '$')
-				res.push_back(q[i]);
-			else
-			{
-				std::string field;
-				i++;
-				while (i < q.length() && isalnum(q[i]))
-					field.push_back(q[i++]);
-				i--;
-
-				ParamM::const_iterator it = p.find(field);
-				if (it != p.end())
-				{
-					std::string parm = it->second;
-					char buffer[MAXBUF];
-					mysql_escape_string(buffer, parm.c_str(), parm.length());
-					res.append(buffer);
-				}
-			}
-		}
-		submit(call, res);
-	}
+	void submit(SQLQuery*, const std::string&);
+	void submit(SQLQuery*, const std::string& q, const ParamL& p);
+	void submit(SQLQuery*, const std::string& q, const ParamM& p);
 };
 
 class QueryJob : public Job
 {
- private:
+ protected:
 	SQLQuery* const query;
-	std::string query_str;
 	SQLConnection* conn;
+ private:
 	MySQLresult* result;
  public:
-	QueryJob(SQLQuery* Q, const std::string& S, SQLConnection* C)
-		: Job(C->creator), query(Q), query_str(S), conn(C), result(NULL)
+	QueryJob(SQLQuery* Q, SQLConnection* C)
+		: Job(C->creator), query(Q), conn(C), result(NULL)
 	{
 	}
 	~QueryJob() { }
 
+	virtual MySQLresult* exec() = 0;
+
 	void run()
 	{
-		result = conn->DoBlockingQuery(query_str);
+		Mutex::Lock lock(conn->lock);
+		result = exec();
 	}
 
 	void finish()
@@ -361,10 +315,100 @@ class QueryJob : public Job
 	}
 };
 
-void SQLConnection::submit(SQLQuery* q, const std::string& qs)
+class QueryJobStatic : public QueryJob
 {
-	QueryJob* job = new QueryJob(q, qs, this);
-	ServerInstance->Threads->Submit(job);
+	const std::string query_str;
+ public:
+	QueryJobStatic(SQLQuery* Q, SQLConnection* C, const std::string& S)
+		: QueryJob(Q, C), query_str(S) {}
+
+	MySQLresult* exec()
+	{
+		return conn->DoBlockingQuery(query_str);
+	}
+};
+
+class QueryJobList : public QueryJob
+{
+ public:
+	const std::string format;
+	const ParamL p;
+	QueryJobList(SQLQuery* Q, SQLConnection* C, const std::string& F, const ParamL& P)
+		: QueryJob(Q, C), format(F), p(P) {}
+	
+	MySQLresult* exec()
+	{
+		std::string res;
+		unsigned int param = 0;
+		for(std::string::size_type i = 0; i < format.length(); i++)
+		{
+			if (format[i] != '?')
+				res.push_back(format[i]);
+			else
+			{
+				if (param < p.size())
+				{
+					std::string parm = p[param++];
+					char buffer[MAXBUF];
+					mysql_real_escape_string(conn->connection, buffer, parm.data(), parm.length());
+					res.append(buffer);
+				}
+			}
+		}
+		return conn->DoBlockingQuery(res);
+	}
+};
+
+class QueryJobMap : public QueryJob
+{
+ public:
+	const std::string format;
+	const ParamM p;
+	QueryJobMap(SQLQuery* Q, SQLConnection* C, const std::string& F, const ParamM& P)
+		: QueryJob(Q, C), format(F), p(P) {}
+
+	MySQLresult* exec()
+	{
+		std::string res;
+		for(std::string::size_type i = 0; i < format.length(); i++)
+		{
+			if (format[i] != '$')
+				res.push_back(format[i]);
+			else
+			{
+				std::string field;
+				i++;
+				while (i < format.length() && isalnum(format[i]))
+					field.push_back(format[i++]);
+				i--;
+
+				ParamM::const_iterator it = p.find(field);
+				if (it != p.end())
+				{
+					std::string parm = it->second;
+					char buffer[MAXBUF];
+					mysql_real_escape_string(conn->connection, buffer, parm.data(), parm.length());
+					res.append(buffer);
+				}
+			}
+		}
+		return conn->DoBlockingQuery(res);
+	}
+};
+
+void SQLConnection::submit(SQLQuery* call, const std::string& qs)
+{
+	ServerInstance->Threads->Submit(new QueryJobStatic(call, this, qs));
+}
+
+void SQLConnection::submit(SQLQuery* call, const std::string& format, const ParamL& p)
+{
+	ServerInstance->Threads->Submit(new QueryJobList(call, this, format, p));
+}
+
+void SQLConnection::submit(SQLQuery* call, const std::string& format, const ParamM& p)
+{
+	ServerInstance->Threads->Submit(new QueryJobMap(call, this, format, p));
 }
 
 ModuleSQL::ModuleSQL()
@@ -391,6 +435,7 @@ class CleanupJob : public Job
 	void run()
 	{
 		conn->lock.lock();
+		// TODO wait for any not-yet-started pending queries to finish
 		conn->lock.unlock();
 	}
 	void finish()
