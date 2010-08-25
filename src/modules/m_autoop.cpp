@@ -18,6 +18,14 @@
 
 /* $ModDesc: Provides support for the +w channel mode, autoop list */
 
+/** Handles +n user mode
+ */
+class NoAutoopMode : public SimpleUserModeHandler
+{
+ public:
+	NoAutoopMode(Module* Creator) : SimpleUserModeHandler(Creator, "noautoop", 'n') { }
+};
+
 /** Handles +w channel mode
  */
 class AutoOpList : public ListModeBase
@@ -75,12 +83,13 @@ class CommandUp : public Command
 class ModuleAutoOp : public Module
 {
 	AutoOpList mh;
+	NoAutoopMode mh2;
 	dynamic_reference<OpFlagProvider> opflags;
 	CommandUp cmd;
 	bool checkonlogin, checkonhostchange;
 
 public:
-	ModuleAutoOp() : mh(this), opflags("opflags"), cmd(this)
+	ModuleAutoOp() : mh(this), mh2(this), opflags("opflags"), cmd(this)
 	{
 	}
 
@@ -88,6 +97,7 @@ public:
 	{
 		mh.init();
 		ServerInstance->Modules->AddService(mh);
+		ServerInstance->Modules->AddService(mh2);
 		ServerInstance->AddCommand(&cmd);
 
 		Implementation list[] = { I_OnPostJoin, I_OnEvent, I_OnChangeHost };
@@ -137,7 +147,7 @@ public:
 
 	void OnPostJoin(Membership* memb)
 	{
-		if (!IS_LOCAL(memb->user))
+		if (!IS_LOCAL(memb->user) || memb->user->IsModeSet('n'))
 			return;
 		DoAutoop(memb);
 	}
@@ -146,7 +156,7 @@ public:
 	{
 		if(checkonlogin && event.id == "account_login"){
 			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
-			if(!IS_LOCAL(acct_event.user)) return;
+			if(!IS_LOCAL(acct_event.user) || acct_event.user->IsModeSet('n')) return;
 			std::vector<std::string> params;
 			for (UCListIter v = acct_event.user->chans.begin(); v != acct_event.user->chans.end(); ++v)
 				DoAutoop(&*v);
@@ -155,7 +165,7 @@ public:
 
 	void OnChangeHost(User* u, const std::string&)
 	{
-		if(checkonhostchange)
+		if(checkonhostchange && !u->IsModeSet('n'))
 			for (UCListIter v = u->chans.begin(); v != u->chans.end(); ++v)
 				DoAutoop(&*v);
 	}
