@@ -234,7 +234,7 @@ class CommandTmode : public Command
 				params.push_back("*");
 				params.push_back("TMODE");
 				params.push_back(channel->name);
-				params.push_back(ConvToStr(T.expire));
+				params.push_back(ConvToStr(T.expire + 5)); // Adding 5 seconds is a kludge to prevent race conditions resulting in multiple "timed modes expired" notices
 				params.push_back(toannounce.popModeLine(FORMAT_NETWORK, maxModeLength, INT_MAX));
 				ServerInstance->PI->SendEncapsulatedData(params);
 			}
