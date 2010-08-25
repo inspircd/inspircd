@@ -333,7 +333,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->XLines = 0;
 	this->Modes = 0;
 	this->Res = 0;
-	this->ConfigThread = NULL;
+	this->PendingRehash = 0;
 
 	// Initialise TIME
 	clock_gettime(CLOCK_REALTIME, &TIME);
@@ -696,19 +696,6 @@ int InspIRCd::Run()
 		static struct tm * stime;
 		static char window_title[100];
 #endif
-
-		/* Check if there is a config thread which has finished executing but has not yet been freed */
-		if (this->ConfigThread && this->ConfigThread->IsDone())
-		{
-			/* Rehash has completed */
-			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
-
-			this->ConfigThread->Finish();
-
-			ConfigThread->join();
-			delete ConfigThread;
-			ConfigThread = NULL;
-		}
 
 		UpdateTime();
 

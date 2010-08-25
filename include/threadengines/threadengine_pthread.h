@@ -16,52 +16,7 @@
 
 #include <pthread.h>
 
-/** The ThreadEngine class has the responsibility of initialising
- * Thread derived classes. It does this by creating operating system
- * level threads which are then associated with the class transparently.
- * This allows Thread classes to be derived without needing to know how
- * the OS implements threads. You should ensure that any sections of code
- * that use threads are threadsafe and do not interact with any other
- * parts of the code which are NOT known threadsafe! If you really MUST
- * access non-threadsafe code from a Thread, use the Mutex class to wrap
- * access to the code carefully.
- */
-class CoreExport ThreadEngine
-{
- public:
-
-	/** Constructor.
-	 * @param Instance Creator object
-	 */
-	ThreadEngine();
-
-	/** Destructor
-	 */
-	virtual ~ThreadEngine();
-
-	/** Create a new thread. This takes an already allocated
-	 * Thread* pointer and initializes it to use this threading
-	 * engine. On failure, this function may throw a CoreException.
-	 * @param thread_to_init Pointer to a newly allocated Thread
-	 * derived object.
-	 */
-	void Start(Thread* thread_to_init);
-
-	/** Returns the thread engine's name for display purposes
-	 * @return The thread engine name
-	 */
-	const std::string GetName()
-	{
-		return "posix-thread";
-	}
-};
-
-class CoreExport ThreadData
-{
- public:
-	pthread_t pthread_id;
-	void FreeThread(Thread* toFree);
-};
+class ThreadSignalSocket;
 
 /** The Mutex class represents a mutex, which can be used to keep threads
  * properly synchronised. Use mutexes sparingly, as they are a good source
@@ -74,77 +29,101 @@ class CoreExport ThreadData
 class CoreExport Mutex
 {
  private:
-	pthread_mutex_t putex;
+	pthread_mutex_t mutex;
+	friend class pthread_cond_var;
  public:
-	/** Constructor.
-	 */
 	Mutex()
 	{
-		pthread_mutex_init(&putex, NULL);
-	}
-	/** Enter/enable the mutex lock.
-	 */
-	void Lock()
-	{
-		pthread_mutex_lock(&putex);
-	}
-	/** Leave/disable the mutex lock.
-	 */
-	void Unlock()
-	{
-		pthread_mutex_unlock(&putex);
-	}
-	/** Destructor
-	 */
-	~Mutex()
-	{
-		pthread_mutex_destroy(&putex);
-	}
-};
-
-class ThreadQueueData
-{
-	pthread_mutex_t mutex;
-	pthread_cond_t cond;
- public:
-	ThreadQueueData()
-	{
 		pthread_mutex_init(&mutex, NULL);
-		pthread_cond_init(&cond, NULL);
 	}
-
-	~ThreadQueueData()
-	{
-		pthread_mutex_destroy(&mutex);
-		pthread_cond_destroy(&cond);
-	}
-
-	void Lock()
+	void lock()
 	{
 		pthread_mutex_lock(&mutex);
 	}
-
-	void Unlock()
+	void unlock()
 	{
 		pthread_mutex_unlock(&mutex);
 	}
-
-	void Wakeup()
+	~Mutex()
 	{
-		pthread_cond_signal(&cond);
+		pthread_mutex_destroy(&mutex);
 	}
 
-	void Wait()
+	/** RAII locking object for proper unlock on exceptions */
+	class Lock
 	{
-		pthread_cond_wait(&cond, &mutex);
+	 public:
+		Mutex& mutex;
+		Lock(Mutex& m) : mutex(m)
+		{
+			mutex.lock();
+		}
+		~Lock()
+		{
+			mutex.unlock();
+		}
+	};
+};
+
+/** Only available in pthreads model */
+class CoreExport pthread_cond_var
+{
+ public:
+	pthread_cond_t pcond;
+	pthread_cond_var()
+	{
+		pthread_cond_init(&pcond, NULL);
+	}
+
+	~pthread_cond_var()
+	{
+		pthread_cond_destroy(&pcond);
+	}
+
+	void wait(Mutex& mutex)
+	{
+		pthread_cond_wait(&pcond, &mutex.mutex);
+	}
+	
+	void signal_one()
+	{
+		pthread_cond_signal(&pcond);
 	}
 };
 
-class ThreadSignalSocket;
-class ThreadSignalData
+class CoreExport ThreadEngine
 {
  public:
-	ThreadSignalSocket* sock;
+	ThreadEngine();
+	~ThreadEngine();
+	void Submit(Job*);
+
+ private:
+	class Runner : public classbase
+	{
+	 public:
+		pthread_t id;
+		ThreadEngine* const te;
+		Job* current;
+		static void* entry_point(void* parameter);
+		void main_loop();
+		Runner(ThreadEngine* t);
+		~Runner();
+	};
+
+	void result_loop();
+
+	Mutex job_lock;
+
+	std::list<Job*> submit_q;
+	pthread_cond_var submit_s;
+	
+	std::vector<Runner*> threads;
+	
+	std::list<Job*> result_q;
+	ThreadSignalSocket* result_s;
+	
+	friend class ThreadSignalSocket;
 };
 
 

@@ -47,13 +47,11 @@ void InspIRCd::Exit(int status)
 
 void InspIRCd::Rehash(const std::string &reason)
 {
-	ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), reason.c_str());
-	ServerInstance->RehashUsersAndChans();
-	FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
-	if (!ServerInstance->ConfigThread)
+	if (!ServerInstance->PendingRehash)
 	{
-		ServerInstance->ConfigThread = new ConfigReaderThread("");
-		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
+		ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), reason.c_str());
+		ServerInstance->PendingRehash = new ConfigReaderThread("");
+		ServerInstance->Threads->Submit(ServerInstance->PendingRehash);
 	}
 }
 

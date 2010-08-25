@@ -364,7 +364,7 @@ class CoreExport InspIRCd
 
 	/** The thread/class used to read config files in REHASH and on startup
 	 */
-	ConfigReaderThread* ConfigThread;
+	ConfigReaderThread* PendingRehash;
 
 	/** LogManager handles logging.
 	 */

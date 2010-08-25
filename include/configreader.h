@@ -548,14 +548,13 @@ class CoreExport ServerConfig
 /** The background thread for config reading, so that reading from executable includes
  * does not block.
  */
-class CoreExport ConfigReaderThread : public Thread
+class CoreExport ConfigReaderThread : public Job
 {
 	ServerConfig* Config;
-	volatile bool done;
  public:
 	const std::string TheUserUID;
 	ConfigReaderThread(const std::string &useruid)
-		: Config(new ServerConfig(REHASH_NEWCONF)), done(false), TheUserUID(useruid)
+		: Job(NULL), Config(new ServerConfig(REHASH_NEWCONF)), TheUserUID(useruid)
 	{
 	}
 
@@ -564,10 +563,9 @@ class CoreExport ConfigReaderThread : public Thread
 		delete Config;
 	}
 
-	void Run();
+	void run();
 	/** Run in the main thread to apply the configuration */
-	void Finish();
-	bool IsDone() { return done; }
+	void finish();
 };
 
 #endif

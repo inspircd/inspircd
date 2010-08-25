@@ -65,54 +65,21 @@
 
 class SQLConnection;
 class MySQLresult;
-class DispatcherThread;
-
-struct QQueueItem
-{
-	SQLQuery* q;
-	std::string query;
-	SQLConnection* c;
-	QQueueItem(SQLQuery* Q, const std::string& S, SQLConnection* C) : q(Q), query(S), c(C) {}
-};
-
-struct RQueueItem
-{
-	SQLQuery* q;
-	MySQLresult* r;
-	RQueueItem(SQLQuery* Q, MySQLresult* R) : q(Q), r(R) {}
-};
 
 typedef std::map<std::string, SQLConnection*> ConnMap;
-typedef std::deque<QQueueItem> QueryQueue;
-typedef std::deque<RQueueItem> ResultQueue;
 
 /** MySQL module
  *  */
 class ModuleSQL : public Module
 {
  public:
-	DispatcherThread* Dispatcher;
-	QueryQueue qq;       // MUST HOLD MUTEX
-	ResultQueue rq;      // MUST HOLD MUTEX
 	ConnMap connections; // main thread only
 
 	ModuleSQL();
 	void init();
 	~ModuleSQL();
 	void ReadConfig(ConfigReadStatus&);
-	void OnUnloadModule(Module* mod);
 	Version GetVersion();
-};
-
-class DispatcherThread : public SocketThread
-{
- private:
-	ModuleSQL* const Parent;
- public:
-	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
-	~DispatcherThread() { }
-	virtual void Run();
-	virtual void OnNotify();
 };
 
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
@@ -303,12 +270,7 @@ class SQLConnection : public SQLProvider
 		mysql_close(connection);
 	}
 
-	void submit(SQLQuery* q, const std::string& qs)
-	{
-		Parent()->Dispatcher->LockQueue();
-		Parent()->qq.push_back(QQueueItem(q, qs, this));
-		Parent()->Dispatcher->UnlockQueueWakeup();
-	}
+	void submit(SQLQuery* q, const std::string& qs);
 
 	void submit(SQLQuery* call, const std::string& q, const ParamL& p)
 	{
@@ -362,34 +324,60 @@ class SQLConnection : public SQLProvider
 	}
 };
 
+class QueryJob : public Job
+{
+ private:
+	SQLQuery* q;
+	std::string query;
+	SQLConnection* c;
+	MySQLresult* r;
+ public:
+	QueryJob(SQLQuery* Q, const std::string& S, SQLConnection* C)
+		: Job(C->creator), q(Q), query(S), c(C), r(NULL)
+	{
+	}
+	~QueryJob() { }
+	virtual void run();
+	virtual void finish();
+};
+
+void SQLConnection::submit(SQLQuery* q, const std::string& qs)
+{
+	QueryJob* job = new QueryJob(q, qs, this);
+	ServerInstance->Threads->Submit(job);
+}
+
 ModuleSQL::ModuleSQL()
 {
-	Dispatcher = NULL;
 }
 
 void ModuleSQL::init()
 {
-	Dispatcher = new DispatcherThread(this);
-	ServerInstance->Threads->Start(Dispatcher);
-
-	Implementation eventlist[] = { I_OnUnloadModule };
-	ServerInstance->Modules->Attach(eventlist, this, 1);
-
 }
 
 ModuleSQL::~ModuleSQL()
 {
-	if (Dispatcher)
-	{
-		Dispatcher->join();
-		Dispatcher->OnNotify();
-		delete Dispatcher;
-	}
 	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 	{
 		delete i->second;
 	}
 }
+
+class CleanupJob : public Job
+{
+ public:
+	SQLConnection* conn;
+	CleanupJob(SQLConnection* c) : Job(c->creator), conn(c) {}
+	void run()
+	{
+		conn->lock.lock();
+		conn->lock.unlock();
+	}
+	void finish()
+	{
+		delete conn;
+	}
+};
 
 void ModuleSQL::ReadConfig(ConfigReadStatus&)
 {
@@ -415,56 +403,12 @@ void ModuleSQL::ReadConfig(ConfigReadStatus&)
 	}
 
 	// now clean up the deleted databases
-	Dispatcher->LockQueue();
-	SQLerror err(SQL_BAD_DBID);
 	for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
 	{
 		ServerInstance->Modules->DelService(*i->second);
-		// it might be running a query on this database. Wait for that to complete
-		i->second->lock.Lock();
-		i->second->lock.Unlock();
-		// now remove all active queries to this DB
-		for(unsigned int j = qq.size() - 1; j >= 0; j--)
-		{
-			if (qq[j].c == i->second)
-			{
-				qq[j].q->OnError(err);
-				delete qq[j].q;
-				qq.erase(qq.begin() + j);
-			}
-		}
-		// finally, nuke the connection
-		delete i->second;
+		ServerInstance->Threads->Submit(new CleanupJob(i->second));
 	}
-	Dispatcher->UnlockQueue();
 	connections.swap(conns);
-}
-
-void ModuleSQL::OnUnloadModule(Module* mod)
-{
-	SQLerror err(SQL_BAD_DBID);
-	Dispatcher->LockQueue();
-	unsigned int i = qq.size();
-	while (i > 0)
-	{
-		i--;
-		if (qq[i].q->creator == mod)
-		{
-			if (i == 0)
-			{
-				// need to wait until the query is done
-				// (the result will be discarded)
-				qq[i].c->lock.Lock();
-				qq[i].c->lock.Unlock();
-			}
-			qq[i].q->OnError(err);
-			delete qq[i].q;
-			qq.erase(qq.begin() + i);
-		}
-	}
-	Dispatcher->UnlockQueue();
-	// clean up any result queue entries
-	Dispatcher->OnNotify();
 }
 
 Version ModuleSQL::GetVersion()
@@ -472,65 +416,19 @@ Version ModuleSQL::GetVersion()
 	return Version("MySQL support", VF_VENDOR);
 }
 
-void DispatcherThread::Run()
+void QueryJob::run()
 {
-	this->LockQueue();
-	while (!this->GetExitFlag())
-	{
-		if (!Parent->qq.empty())
-		{
-			QQueueItem i = Parent->qq.front();
-			i.c->lock.Lock();
-			this->UnlockQueue();
-			MySQLresult* res = i.c->DoBlockingQuery(i.query);
-			i.c->lock.Unlock();
-
-			/*
-			 * At this point, the main thread could be working on:
-			 *  Rehash - delete i.c out from under us. We don't care about that.
-			 *  UnloadModule - delete i.q and the qq item. Need to avoid reporting results.
-			 */
-
-			this->LockQueue();
-			if (Parent->qq.front().q == i.q)
-			{
-				Parent->qq.pop_front();
-				Parent->rq.push_back(RQueueItem(i.q, res));
-				NotifyParent();
-			}
-			else
-			{
-				// UnloadModule ate the query
-				delete res;
-			}
-		}
-		else
-		{
-			/* We know the queue is empty, we can safely hang this thread until
-			 * something happens
-			 */
-			this->WaitForQueue();
-		}
-	}
-	this->UnlockQueue();
+	r = c->DoBlockingQuery(query);
 }
 
-void DispatcherThread::OnNotify()
+void QueryJob::finish()
 {
-	// this could unlock during the dispatch, but OnResult isn't expected to take that long
-	this->LockQueue();
-	for(ResultQueue::iterator i = Parent->rq.begin(); i != Parent->rq.end(); i++)
-	{
-		MySQLresult* res = i->r;
-		if (res->err.id == SQL_NO_ERROR)
-			i->q->OnResult(*res);
-		else
-			i->q->OnError(res->err);
-		delete i->q;
-		delete i->r;
-	}
-	Parent->rq.clear();
-	this->UnlockQueue();
+	if (r->err.id == SQL_NO_ERROR)
+		q->OnResult(*r);
+	else
+		q->OnError(r->err);
+	delete q;
+	delete r;
 }
 
 MODULE_INIT(ModuleSQL)

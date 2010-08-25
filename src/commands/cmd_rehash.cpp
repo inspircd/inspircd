@@ -71,7 +71,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	}
 
 	// Rehash for me. Try to start the rehash thread
-	if (!ServerInstance->ConfigThread)
+	if (!ServerInstance->PendingRehash)
 	{
 		std::string m = user->nick + " is rehashing config file " + ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()) + " on " + ServerInstance->Config->ServerName;
 		ServerInstance->SNO->WriteGlobalSno('a', m);
@@ -83,16 +83,8 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 			ServerInstance->PI->SendUserNotice(user, std::string("*** Rehashing server ") +
 				ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()));
 
-		/* Don't do anything with the logs here -- logs are restarted
-		 * after the config thread has completed.
-		 */
-
-		ServerInstance->RehashUsersAndChans();
-		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
-
-
-		ServerInstance->ConfigThread = new ConfigReaderThread(user->uuid);
-		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
+		ServerInstance->PendingRehash = new ConfigReaderThread(user->uuid);
+		ServerInstance->Threads->Submit(ServerInstance->PendingRehash);
 
 		return CMD_SUCCESS;
 	}

@@ -823,13 +823,12 @@ std::string ServerConfig::GetSID()
 	return sid;
 }
 
-void ConfigReaderThread::Run()
+void ConfigReaderThread::run()
 {
 	Config->Read();
-	done = true;
 }
 
-void ConfigReaderThread::Finish()
+void ConfigReaderThread::finish()
 {
 	ServerConfig* old = ServerInstance->Config;
 	ServerInstance->Logs->Log("CONFIG",DEBUG,"Switching to new configuration...");
@@ -841,4 +840,5 @@ void ConfigReaderThread::Finish()
 		// successful; free the old conf on destruction
 		Config = old;
 	}
+	ServerInstance->PendingRehash = 0;
 }
