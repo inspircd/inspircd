@@ -295,6 +295,11 @@ bool ModuleManager::CanUnload(Module* mod)
 	return true;
 }
 
+bool Job::BlocksUnload(Module* going)
+{
+	return (going == owner);
+}
+
 void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 {
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
@@ -388,6 +393,8 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
 
 	DetachAll(mod);
+	
+	ServerInstance->Threads->BlockForUnload(mod);
 
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);

@@ -20,7 +20,7 @@
 #include "threadengines/threadengine_pthread.h"
 #endif
 
-class Job : public classbase
+class CoreExport Job : public classbase
 {
  public:
 	ModuleRef owner;
@@ -36,6 +36,8 @@ class Job : public classbase
 	virtual void finish() = 0;
 	/** Override this to cause a thread wakeup, or simply poll for cancellation in run() */
 	virtual void cancel() { cancelled = true; }
+	/** Return true to ensure that this job finishes prior to the unload of the given module */
+	virtual bool BlocksUnload(Module* m);
 	inline bool IsCancelled() { return cancelled; }
 };
 

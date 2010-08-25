@@ -97,6 +97,8 @@ class CoreExport ThreadEngine
 	ThreadEngine();
 	~ThreadEngine();
 	void Submit(Job*);
+	/** Wait for all jobs that rely on this module */
+	void BlockForUnload(Module* going);
 
  private:
 	class Runner : public classbase
@@ -121,7 +123,8 @@ class CoreExport ThreadEngine
 	std::vector<Runner*> threads;
 	
 	std::list<Job*> result_q;
-	ThreadSignalSocket* result_s;
+	pthread_cond_var result_sc;
+	ThreadSignalSocket* result_ss;
 	
 	friend class ThreadSignalSocket;
 };

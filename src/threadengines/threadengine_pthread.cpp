@@ -52,7 +52,7 @@ class ThreadSignalSocket : public EventHandler
 		else
 		{
 			ServerInstance->Threads->job_lock.lock();
-			ServerInstance->Threads->result_s = NULL;
+			ServerInstance->Threads->result_ss = NULL;
 			ServerInstance->Threads->job_lock.unlock();
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
@@ -108,13 +108,13 @@ class ThreadSignalSocket : public EventHandler
 };
 #endif
 
-ThreadEngine::ThreadEngine() : result_s(NULL)
+ThreadEngine::ThreadEngine() : result_ss(NULL)
 {
 }
 
 ThreadEngine::~ThreadEngine()
 {
-	delete result_s;
+	delete result_ss;
 }
 
 void* ThreadEngine::Runner::entry_point(void* parameter)
@@ -150,8 +150,8 @@ void ThreadEngine::Submit(Job* job)
 		Runner* thread = new Runner(this);
 		threads.push_back(thread);
 	}
-	if (result_s == NULL)
-		result_s = new ThreadSignalSocket();
+	if (result_ss == NULL)
+		result_ss = new ThreadSignalSocket();
 	submit_q.push_back(job);
 	submit_s.signal_one();
 }
@@ -168,14 +168,21 @@ void ThreadEngine::Runner::main_loop()
 		te->submit_q.pop_front();
 		te->job_lock.unlock();
 		
-		current->run();
+		try
+		{
+			current->run();
+		}
+		catch (...)
+		{
+		}
 
 		te->job_lock.lock();
 		te->result_q.push_back(current);
 		current = NULL;
 
-		if (te->result_s)
-			te->result_s->Notify();
+		te->result_sc.signal_one();
+		if (te->result_ss)
+			te->result_ss->Notify();
 	}
 	te->job_lock.unlock();
 }
@@ -192,4 +199,39 @@ void ThreadEngine::result_loop()
 		job_lock.lock();
 	}
 	job_lock.unlock();
+}
+
+void ThreadEngine::BlockForUnload(Module* mod)
+{
+	job_lock.lock();
+	while (1)
+	{
+		bool found = false;
+		for(std::list<Job*>::iterator i = submit_q.begin(); i != submit_q.end(); i++)
+		{
+			Job* j = *i;
+			if (j->BlocksUnload(mod))
+			{
+				found = true;
+				j->cancel();
+			}
+		}
+		for(std::vector<Runner*>::iterator i = threads.begin(); i != threads.end(); i++)
+		{
+			Runner* r = *i;
+			if (r->current && r->current->BlocksUnload(mod))
+			{
+				found = true;
+				r->current->cancel();
+			}
+		}
+		if (!found)
+			break;
+		// wait for an item to finish so we can check again
+		result_sc.wait(job_lock);
+	}
+	job_lock.unlock();
+	// clean up any references remaining in the result loop
+	// (that's where any we were waiting for are sitting)
+	result_loop();
 }

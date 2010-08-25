@@ -327,18 +327,38 @@ class SQLConnection : public SQLProvider
 class QueryJob : public Job
 {
  private:
-	SQLQuery* q;
-	std::string query;
-	SQLConnection* c;
-	MySQLresult* r;
+	SQLQuery* const query;
+	std::string query_str;
+	SQLConnection* conn;
+	MySQLresult* result;
  public:
 	QueryJob(SQLQuery* Q, const std::string& S, SQLConnection* C)
-		: Job(C->creator), q(Q), query(S), c(C), r(NULL)
+		: Job(C->creator), query(Q), query_str(S), conn(C), result(NULL)
 	{
 	}
 	~QueryJob() { }
-	virtual void run();
-	virtual void finish();
+
+	void run()
+	{
+		result = conn->DoBlockingQuery(query_str);
+	}
+
+	void finish()
+	{
+		if (result->err.id == SQL_NO_ERROR)
+			query->OnResult(*result);
+		else
+			query->OnError(result->err);
+		delete query;
+		delete result;
+	}
+
+	bool BlocksUnload(Module* m)
+	{
+		if (m == owner || m == query->creator)
+			return true;
+		return false;
+	}
 };
 
 void SQLConnection::submit(SQLQuery* q, const std::string& qs)
@@ -414,21 +434,6 @@ void ModuleSQL::ReadConfig(ConfigReadStatus&)
 Version ModuleSQL::GetVersion()
 {
 	return Version("MySQL support", VF_VENDOR);
-}
-
-void QueryJob::run()
-{
-	r = c->DoBlockingQuery(query);
-}
-
-void QueryJob::finish()
-{
-	if (r->err.id == SQL_NO_ERROR)
-		q->OnResult(*r);
-	else
-		q->OnError(r->err);
-	delete q;
-	delete r;
 }
 
 MODULE_INIT(ModuleSQL)
