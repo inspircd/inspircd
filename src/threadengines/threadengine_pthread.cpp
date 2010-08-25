@@ -100,7 +100,7 @@ class ThreadSignalSocket : public EventHandler
 		else
 		{
 			ServerInstance->Threads->job_lock.lock();
-			ServerInstance->Threads->result_s = NULL;
+			ServerInstance->Threads->result_ss = NULL;
 			ServerInstance->Threads->job_lock.unlock();
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
