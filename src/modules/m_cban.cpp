@@ -41,7 +41,7 @@ public:
 
 	bool Matches(const std::string &s)
 	{
-		if (matchtext == s)
+		if (InspIRCd::Match(s, matchtext))
 			return true;
 		return false;
 	}
