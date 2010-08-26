@@ -108,6 +108,7 @@ struct ModResult {
 	EventHandlerIter safei; \
 	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
 	{ \
+		CrashState foreach_crash("FOREACH_MOD " #y HERE_STR, *_i); \
 		safei = _i; \
 		++safei; \
 		try \
@@ -127,6 +128,7 @@ struct ModResult {
 	while (iter_ ## n != ServerInstance->Modules->EventHandlers[I_ ## n].end()) \
 	{ \
 		Module* mod_ ## n = *iter_ ## n; \
+		CrashState fe_crashifo_ ## n("FOR_EACH_MOD " #n HERE_STR, mod_ ## n); \
 		iter_ ## n ++; \
 		try \
 		{ \
@@ -152,6 +154,7 @@ do { \
 	while (iter_ ## n != ServerInstance->Modules->EventHandlers[I_ ## n].end()) \
 	{ \
 		Module* mod_ ## n = *iter_ ## n; \
+		CrashState de_crashifo_ ## n("DO_EACH_HOOK " #n HERE_STR, mod_ ## n); \
 		iter_ ## n ++; \
 		try \
 		{ \
@@ -1392,6 +1395,16 @@ class CoreExport ModuleManager
 	const std::vector<std::string> GetAllModuleNames(int filter);
 };
 
+class CoreExport CrashState : public interfacebase
+{
+ public:
+	CrashState* parent;
+	const char* const where;
+	const void* const item;
+	CrashState(const char* Where, const void* Item);
+	~CrashState();
+};
+
 /** Do not mess with these functions unless you know the C preprocessor
  * well enough to explain why they are needed. The order is important.
  */
@@ -1401,6 +1414,9 @@ class CoreExport ModuleManager
 #define MODULE_INIT_SYM MODULE_INIT_SYM_FN_2(INSPIRCD_VERSION_MAJ, INSPIRCD_VERSION_API)
 #define MODULE_INIT_SYM_FN_2(x,y) MODULE_INIT_SYM_FN_1(x,y)
 #define MODULE_INIT_SYM_FN_1(x,y) inspircd_module_ ## x ## _ ## y
+#define HERE_STR HERE_STR_FN_2(__FILE__, __LINE__)
+#define HERE_STR_FN_2(x,y) HERE_STR_FN_1(x,y)
+#define HERE_STR_FN_1(x,y) " @" x ":" #y
 
 #ifdef PURE_STATIC
 

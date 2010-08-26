@@ -20,6 +20,7 @@ class Command;
 class ConfigReader;
 class ConfigReadStatus;
 class ConfigTag;
+class CrashState;
 class DNSHeader;
 class DNSRequest;
 class Extensible;

@@ -28,6 +28,7 @@ void InspIRCd::DoBackgroundUserStuff()
 	while (count2 != this->Users->local_users.rend())
 	{
 		LocalUser *curr = *count2;
+		CrashState trace_handler(HERE_STR, curr);
 		count2++;
 
 		if (curr->quitting)

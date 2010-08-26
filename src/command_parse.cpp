@@ -168,8 +168,9 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 	return CMD_INVALID;
 }
 
-bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
+bool CommandParser::ProcessCommand(LocalUser *user, const std::string &cmd)
 {
+	CrashState cmd_tracer(HERE_STR, cmd.c_str());
 	std::vector<std::string> command_p;
 	irc::tokenstream tokens(cmd);
 	std::string command, token;

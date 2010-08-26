@@ -41,7 +41,7 @@ class CoreExport CommandParser
 	 * @param user The user to parse the command for
 	 * @param cmd The command string to process
 	 */
-	bool ProcessCommand(LocalUser *user, std::string &cmd);
+	bool ProcessCommand(LocalUser *user, const std::string &cmd);
 
 
 

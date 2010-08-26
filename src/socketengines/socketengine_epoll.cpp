@@ -191,6 +191,7 @@ int EPollEngine::DispatchEvents()
 	for (int j = 0; j < i; j++)
 	{
 		EventHandler* eh = ref[events[j].data.fd];
+		CrashState trace_handler(HERE_STR, eh);
 		if (!eh)
 		{
 			ServerInstance->Logs->Log("SOCKET",DEBUG,"Got event on unknown fd: %d", events[j].data.fd);

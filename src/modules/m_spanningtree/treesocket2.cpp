@@ -64,11 +64,12 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 	}
 }
 
-void TreeSocket::ProcessLine(std::string &line)
+void TreeSocket::ProcessLine(const std::string &line)
 {
 	std::string prefix;
 	std::string command;
 	parameterlist params;
+	CrashState cmd_tracer(HERE_STR, line.c_str());
 
 	ServerInstance->Logs->Log("m_spanningtree", RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
 

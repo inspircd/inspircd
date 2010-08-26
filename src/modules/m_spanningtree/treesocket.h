@@ -309,7 +309,7 @@ class TreeSocket : public BufferedSocket
 
 	/** Process complete line from buffer
 	 */
-	void ProcessLine(std::string &line);
+	void ProcessLine(const std::string &line);
 
 	void ProcessConnectedLine(std::string& prefix, std::string& command, parameterlist& params);
 

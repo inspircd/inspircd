@@ -318,6 +318,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	int c = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
+	this->TraceData = 0;
 	this->Logs = 0;
 	this->Threads = 0;
 	this->PI = 0;

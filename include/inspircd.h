@@ -441,6 +441,10 @@ class CoreExport InspIRCd
 	 */
 	LocalStringExt OperQuit;
 
+	/** Holds current state
+	 */
+	CrashState* TraceData;
+
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
 	 * it is much faster than calling time() directly.
@@ -829,6 +833,8 @@ class CoreExport InspIRCd
 };
 
 ENTRYPOINT;
+
+#include "inline.h"
 
 template<class Cmd>
 class CommandModule : public Module
