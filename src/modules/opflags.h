@@ -35,5 +35,13 @@ class OpFlagProvider : public DataProvider
 	virtual bool PermissionCheck(Membership*, const std::string& needed) = 0;
 };
 
+class OpFlagPermissionData : public PermissionData
+{
+ public:
+	std::string& delta;
+	OpFlagPermissionData(User* src, Channel* c, User* u, std::string& Delta)
+		: PermissionData(src, "opflags", c, u), delta(Delta) {}
+};
+
 #endif
 

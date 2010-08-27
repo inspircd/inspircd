@@ -66,30 +66,15 @@ class AutoOpList : public ListModeBase
 	}
 };
 
-/** Handle /UP
- */
-class CommandUp : public Command
-{
- public:
-	CommandUp(Module* Creator) : Command(Creator,"UP", 0)
-	{
-		Penalty = 2; syntax = "[<channel>]";
-		TRANSLATE2(TR_TEXT, TR_END);
-	}
-
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user);
-};
-
 class ModuleAutoOp : public Module
 {
 	AutoOpList mh;
 	NoAutoopMode mh2;
 	dynamic_reference<OpFlagProvider> opflags;
-	CommandUp cmd;
-	bool checkonlogin, checkonhostchange;
+	bool checkonlogin, checkonhostchange, allow_selfup;
 
 public:
-	ModuleAutoOp() : mh(this), mh2(this), opflags("opflags"), cmd(this)
+	ModuleAutoOp() : mh(this), mh2(this), opflags("opflags")
 	{
 	}
 
@@ -98,19 +83,16 @@ public:
 		mh.init();
 		ServerInstance->Modules->AddService(mh);
 		ServerInstance->Modules->AddService(mh2);
-		ServerInstance->AddCommand(&cmd);
 
 		Implementation list[] = { I_OnPostJoin, I_OnEvent, I_OnChangeHost };
 		ServerInstance->Modules->Attach(list, this, 3);
 	}
 
-	void DoAutoop(Membership* memb)
+	void PrepareAutoop(Membership* memb, irc::modestacker& ms, std::set<std::string>& flags)
 	{
 		modelist* list = mh.extItem.get(memb->chan);
 		if (!list)
 			return;
-		irc::modestacker ms;
-		std::set<std::string> flags;
 		for (modelist::iterator it = list->begin(); it != list->end(); it++)
 		{
 			std::string::size_type colon = it->mask.find(':');
@@ -134,6 +116,13 @@ public:
 				}
 			}
 		}
+	}
+
+	void DoAutoop(Membership* memb)
+	{
+		irc::modestacker ms;
+		std::set<std::string> flags;
+		PrepareAutoop(memb, ms, flags);
 		if (!ms.empty())
 		{
 			User* src = ServerInstance->Config->CycleHostsFromUser ? memb->user : ServerInstance->FakeClient;
@@ -144,6 +133,7 @@ public:
 		if (opflags && !flags.empty())
 			opflags->SetFlags(memb, flags, true);
 	}
+
 
 	void OnPostJoin(Membership* memb)
 	{
@@ -170,10 +160,56 @@ public:
 				DoAutoop(&*v);
 	}
 
+	void OnPermissionCheck(PermissionData& perm)
+	{
+		if (!allow_selfup || !perm.chan || perm.user != perm.source ||
+				perm.result != MOD_RES_PASSTHRU)
+			return;
+		Membership* memb = perm.chan->GetUser(perm.user);
+		if (!memb)
+			return;
+		irc::modestacker ms;
+		std::set<std::string> flags;
+		PrepareAutoop(memb, ms, flags);
+
+		if (perm.name.substr(0,5) == "mode/")
+		{
+			ModePermissionData& mpd = static_cast<ModePermissionData&>(perm);
+			if (!mpd.mc.adding)
+				return;
+			for(std::vector<irc::modechange>::iterator i = ms.sequence.begin(); i != ms.sequence.end(); i++)
+			{
+				if (i->mode == mpd.mc.mode)
+				{
+					mpd.result = MOD_RES_ALLOW;
+					return;
+				}
+			}
+		}
+		else if (perm.name == "opflags")
+		{
+			OpFlagPermissionData& opd = static_cast<OpFlagPermissionData&>(perm);
+			irc::commasepstream deltaflags(opd.delta);
+			std::string flag;
+			while (deltaflags.GetToken(flag))
+			{
+				if (flag[0] == '-' || flag[0] == '=')
+					return;
+				if (flag[0] == '+')
+					flag = flag.substr(1);
+				if (flags.find(flag) == flags.end())
+					return;
+			}
+			// all flags mentioned in this change are in the autoop list
+			opd.result = MOD_RES_ALLOW;
+		}
+	}
+
 	void ReadConfig(ConfigReadStatus&)
 	{
 		mh.DoRehash();
 		ConfigTag* tag = ServerInstance->Config->GetTag("autoop");
+		allow_selfup = tag->getBool("selfop", true);
 		checkonlogin = tag->getBool("checkonlogin", true);
 		checkonhostchange = tag->getBool("checkonhostchange", true);
 	}
@@ -183,23 +219,5 @@ public:
 		return Version("Provides support for the +w channel mode", VF_VENDOR);
 	}
 };
-
-CmdResult CommandUp::Handle (const std::vector<std::string> &parameters, User *user)
-{
-	ModuleAutoOp* mod = (ModuleAutoOp*)(Module*) creator;
-	if (parameters.size() && parameters[0].compare("*"))
-	{
-		Channel* c = ServerInstance->FindChan(parameters[0]);
-		if (c && c->HasUser(user))
-		{
-			mod->DoAutoop(c->GetUser(user));
-			return CMD_SUCCESS;
-		}
-		return CMD_FAILURE;
-	}
-	for (UCListIter v = user->chans.begin(); v != user->chans.end(); ++v)
-		mod->DoAutoop(&*v);
-	return CMD_SUCCESS;
-}
 
 MODULE_INIT(ModuleAutoOp)

@@ -103,6 +103,7 @@ class FlagCmd : public Command
 	{
 		Channel* chan = ServerInstance->FindChan(parameters[0]);
 		User* user = ServerInstance->FindNick(parameters[1]);
+		std::string delta = parameters[2];
 
 		if (!user || !chan)
 		{
@@ -126,7 +127,7 @@ class FlagCmd : public Command
 		if (IS_LOCAL(src))
 		{
 			ModResult res = ServerInstance->CheckExemption(src,chan,"opflags");
-			PermissionData perm(src, "opflags", chan, user);
+			OpFlagPermissionData perm(src, chan, user, delta);
 
 			if (!perm.result.check(chan->GetAccessRank(src) >= conflevel))
 			{
@@ -146,7 +147,7 @@ class FlagCmd : public Command
 		}
 
 		bool adding = true;
-		irc::commasepstream deltaflags(parameters[2]);
+		irc::commasepstream deltaflags(delta);
 		while (deltaflags.GetToken(flag))
 		{
 			if (flag[0] == '=')
