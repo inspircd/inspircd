@@ -1798,6 +1798,31 @@
 # http://wiki.inspircd.org/Modules/sqlauth                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL command module: Allows arbitrary SQL queries to be run based
+# on a /COMMAND and its parameters
+#
+#<module name="m_sqlcommand.so">
+#  dbid        - Database ID to use
+#  name        - Name of the command
+#  syntax      - Syntax hints (optional)
+#  operonly    - Must be an allowed command in oper tag, true by default
+#  queryformat - Query string format; $1, $2, ... are command parameters
+#  rowformat   - String sent to the user for each row of the result
+#                Each column returned is a $variable
+#  resultformat- String sent to the user on a successful query
+#                $rows is the number of rows returned/modified
+#  errorformat - String sent to the user on an unsuccessful query
+#                $msg is a detailed error message.
+#
+#Examples related to m_sqloper:
+#<sqlcommand name="ADDOPER" syntax="<type> <name> <pwhash>" dbid="operdb"
+#	queryformat="INSERT INTO ircd_opers VALUES('$1', '$2', '$3', '*@*')"
+#	resultformat=":$server NOTICE $nick :Success, $rows oper added">
+#<sqlcommand name="LISTOPERS" syntax="<type>" dbid="operdb"
+#	queryformat="SELECT username, hostname FROM ircd_opers WHERE type = '$1'"
+#	rowformat=":$server NOTICE $nick :Oper $username has hosts $hostname">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
 # You must copy the source for this module from the directory src/modules/extra
 #
@@ -1807,6 +1832,8 @@
 #                                                                     #
 # dbid       - Database ID to use (see m_sql)                         #
 # hash       - Hashing provider to use for password hashing           #
+# query      - Query string format. Default is:
+#  SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password'
 #                                                                     #
 # See also: http://wiki.inspircd.org/Modules/sqloper                  #
 #                                                                     #

@@ -178,7 +178,7 @@ public:
 		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
 
 		ParamM userinfo;
-		SQL->PopulateUserInfo(user, userinfo);
+		PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
 		userinfo["password"] = hash ? hash->hexsum(password) : password;
 
