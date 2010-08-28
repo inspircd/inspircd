@@ -1793,9 +1793,43 @@
 #<module name="m_sqlauth.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# m_sqlauth.so is too complex it describe here, see the wiki:         #
-# http://wiki.inspircd.org/Modules/sqlauth                            #
+#  
+# dbid         Database ID from the <database> tag (see database module)
+# verbose      Set to true to notify opers of failed connections
+# query        Query string. Variable substitution is allowed; see below
+# 
+#<sqlauth dbid="authdb" verbose="no"
+#	query="SELECT id FROM users WHERE user='$nick' AND pass='$sha256pass'">
+#
+# This module does not actually prevent users from connecting. Instead, use
+# <connect requiresqlauth="true"> in a connect block to require that the
+# user's query has completed successfully. This allows you to only require
+# SQL authentication for certain types of users, or to allow bypassing it
+# with a hard-coded <connect> block for use should the SQL server go down.
+#
+# A user is considered to have "passed" SQL auth if the query returns at
+# least one row. The values returned in first row may produce additional
+# actions; the following column names are defined:
+#  class       Named <connect> class to put the user in.
+#  account     Account to log the user in to. Requires m_services_account
+#  tag         Tag associated with the account name. You probably don't need this.
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# SQL Variable substitution
+# All SQL queries that allow variable substitution will populate the
+# following fields:
+#  nick      nickname
+#  host      hostname (resolved, real host not cloak/vhost)
+#  ip        IP address
+#  gecos     Realname
+#  ident     Ident, likely taken from USER command
+#  server    Server name that the user is on
+#  uuid      UID for the user
+#
+# Additionally, sqlauth adds the following:
+#  pass       Password used for the server (PASS command)
+#  md5pass    MD5 hash of $pass, hex format. Requires m_md5
+#  sha256pass SHA256 hash of $pass, hex format. Requires m_sha256
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL command module: Allows arbitrary SQL queries to be run based

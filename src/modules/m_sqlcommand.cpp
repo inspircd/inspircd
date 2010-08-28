@@ -121,7 +121,7 @@ class SQLCommand : public Command
 		ParamM userinfo;
 		PopulateUserInfo(user, userinfo);
 		for(unsigned int i=0; i < parameters.size(); i++)
-			userinfo.insert(std::make_pair(ConvToStr(i), parameters[i]));
+			userinfo.insert(std::make_pair(ConvToStr(i + 1), parameters[i]));
 		std::string fmt = tag->getString("queryformat");
 
 		db->submit(new UserQuery(creator, user->uuid, tag), fmt, userinfo);
