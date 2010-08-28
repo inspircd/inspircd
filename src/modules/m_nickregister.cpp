@@ -144,8 +144,8 @@ class ModuleNickRegister : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady, I_OnSyncNetwork };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 	
 	ModResult OnUserPreNick(User* user, const std::string& nick)

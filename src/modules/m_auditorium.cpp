@@ -49,8 +49,10 @@ class ModuleAuditorium : public Module
 	{
 		ServerInstance->Modules->AddService(aum);
 
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = {
+			I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnSendWhoLine
+		};
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleAuditorium()
