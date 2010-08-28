@@ -67,6 +67,44 @@ class CommandEcho : public Command
 	}
 };
 
+class AliasFormatSubst : public FormatSubstitute
+{
+ public:
+	SubstMap info;
+	const std::string &line;
+	AliasFormatSubst(const std::string &Line) : line(Line) {}
+	std::string lookup(const std::string& key)
+	{
+		if (isdigit(key[0]))
+		{
+			int index = atoi(key.c_str());
+			irc::spacesepstream ss(line);
+			bool everything_after = (key.find('-') != std::string::npos);
+			bool good = true;
+			std::string word;
+
+			for (int j = 0; j < index && good; j++)
+				good = ss.GetToken(word);
+
+			if (everything_after)
+			{
+				std::string more;
+				while (ss.GetToken(more))
+				{
+					word.append(" ");
+					word.append(more);
+				}
+			}
+
+			return word;
+		}
+		SubstMap::iterator i = info.find(key);
+		if (i != info.end())
+			return i->second;
+		return "";
+	}
+};
+
 class ModuleAlias : public Module
 {
 	CommandEcho echo;
@@ -125,31 +163,6 @@ class ModuleAlias : public Module
 	virtual Version GetVersion()
 	{
 		return Version("Provides aliases of commands.", VF_VENDOR);
-	}
-
-	std::string GetVar(std::string varname, const std::string &original_line)
-	{
-		irc::spacesepstream ss(original_line);
-		varname.erase(varname.begin());
-		int index = *(varname.begin()) - 48;
-		varname.erase(varname.begin());
-		bool everything_after = (varname == "-");
-		std::string word;
-
-		for (int j = 0; j < index; j++)
-			ss.GetToken(word);
-
-		if (everything_after)
-		{
-			std::string more;
-			while (ss.GetToken(more))
-			{
-				word.append(" ");
-				word.append(more);
-			}
-		}
-
-		return word;
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
@@ -326,52 +339,11 @@ class ModuleAlias : public Module
 
 	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line)
 	{
-		std::string result;
-		result.reserve(MAXBUF);
-		for (unsigned int i = 0; i < newline.length(); i++)
-		{
-			char c = newline[i];
-			if (c == '$')
-			{
-				if (isdigit(newline[i+1]))
-				{
-					int len = (newline[i+2] == '-') ? 3 : 2;
-					std::string var = newline.substr(i, len);
-					result.append(GetVar(var, original_line));
-					i += len - 1;
-				}
-				else if (newline.substr(i, 5) == "$nick")
-				{
-					result.append(user->nick);
-					i += 4;
-				}
-				else if (newline.substr(i, 5) == "$host")
-				{
-					result.append(user->host);
-					i += 4;
-				}
-				else if (newline.substr(i, 5) == "$chan")
-				{
-					if (chan)
-						result.append(chan->name);
-					i += 4;
-				}
-				else if (newline.substr(i, 6) == "$ident")
-				{
-					result.append(user->ident);
-					i += 5;
-				}
-				else if (newline.substr(i, 6) == "$vhost")
-				{
-					result.append(user->dhost);
-					i += 5;
-				}
-				else
-					result.push_back(c);
-			}
-			else
-				result.push_back(c);
-		}
+		AliasFormatSubst subst(original_line);
+		user->PopulateInfoMap(subst.info);
+		if (chan)
+			subst.info["chan"] = chan->name;
+		std::string result = subst.format(newline);
 
 		irc::tokenstream ss(result);
 		std::vector<std::string> pars;

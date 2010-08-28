@@ -244,7 +244,7 @@ std::string FormatSubstitute::format(const std::string& src)
 			}
 			else
 			{
-				while (isalnum(src[i]))
+				while (isalnum(src[i]) || src[i] == '-')
 					word.push_back(src[i++]);
 				i--;
 			}

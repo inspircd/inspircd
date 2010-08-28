@@ -1695,6 +1695,7 @@ void User::PopulateInfoMap(SubstMap& userinfo)
 	GetIPString(); // populate cachedip
 	userinfo["nick"] = nick;
 	userinfo["host"] = host;
+	userinfo["vhost"] = dhost;
 	userinfo["ip"] = cachedip;
 	userinfo["gecos"] = fullname;
 	userinfo["ident"] = ident;

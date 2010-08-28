@@ -113,19 +113,18 @@
 #                                                                     #
 # replace     -      The text to replace 'text' with. Usually this    #
 #                    will be "PRIVMSG ServiceName :$2-" or similar.   #
-#                    You may use the variables $1 through $9 in the   #
-#                    replace string, which refer to the first through #
-#                    ninth word in the original string typed by the   #
-#                    user. You may also use $1- through $9- which     #
-#                    refer to the first word onwards, through to the  #
-#                    ninth word onwards, e.g. if the user types the   #
-#                    command "foo bar baz qux quz" then $3- will hold #
-#                    "baz qux quz" and $2 will contain "bar". You may #
-#                    also use the special variables: $nick, $ident,   #
-#                    $host and $vhost, and you may separate multiple  #
-#                    commands with a newline (which can be written in #
-#                    the file literally, or encoded as &nl; or \n     #
-#                    depending on the config format setting).         #
+#                    You may use the variables $1, $2, ... in the     #
+#                    replace string, which refer to the words in the  #
+#                    the original string typed by the user. You can   #
+#                    also use $1- to refer to the first word onward.  #
+#                    For example, "foo bar baz qux quz" will cause    #
+#                    $3- to hold "baz qux quz" and $2 to hold "bar".  #
+#                    You may also use any special variables defined   #
+#                    for users ($nick, $host, $ip, $gecos, $ident,    #
+#                    $server, $uuid), and $chan if a channel command. #
+#                    Separate multiple commands with a newline (which #
+#                    can be written in the file literally, or encoded #
+#                    as &nl; or \n depending on the config format).   #
 #                                                                     #
 # requires    -      If you provide a value for 'requires' this means #
 #                    the given nickname MUST be online for the alias  #

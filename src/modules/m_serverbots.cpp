@@ -38,6 +38,44 @@ class Alias
 
 typedef std::multimap<irc::string, Alias>::iterator AliasIter;
 
+class AliasFormatSubst : public FormatSubstitute
+{
+ public:
+	SubstMap info;
+	const std::string &line;
+	AliasFormatSubst(const std::string &Line) : line(Line) {}
+	std::string lookup(const std::string& key)
+	{
+		if (isdigit(key[0]))
+		{
+			int index = atoi(key.c_str());
+			irc::spacesepstream ss(line);
+			bool everything_after = (key.find('-') != std::string::npos);
+			bool good = true;
+			std::string word;
+
+			for (int j = 0; j < index && good; j++)
+				good = ss.GetToken(word);
+
+			if (everything_after)
+			{
+				std::string more;
+				while (ss.GetToken(more))
+				{
+					word.append(" ");
+					word.append(more);
+				}
+			}
+
+			return word;
+		}
+		SubstMap::iterator i = info.find(key);
+		if (i != info.end())
+			return i->second;
+		return "";
+	}
+};
+
 class ServerBot : public FakeUser
 {
  public:
@@ -116,55 +154,11 @@ class BotData
 
 	void DoCommand(const std::string& format, User* user, const std::string &text)
 	{
-		std::string result;
-		result.reserve(MAXBUF);
-		for (unsigned int i = 0; i < format.length(); i++)
-		{
-			char c = format[i];
-			if (c == '$')
-			{
-				if (isdigit(format[i+1]))
-				{
-					int len = (format[i+2] == '-') ? 3 : 2;
-					std::string var = format.substr(i, len);
-					result.append(GetVar(var, text));
-					i += len - 1;
-				}
-				else if (format.substr(i, 4) == "$bot")
-				{
-					result.append(bot->nick);
-					i += 3;
-				}
-				else if (format.substr(i, 5) == "$nick")
-				{
-					result.append(user->nick);
-					i += 4;
-				}
-				else if (format.substr(i, 5) == "$host")
-				{
-					result.append(user->host);
-					i += 4;
-				}
-				else if (format.substr(i, 6) == "$ident")
-				{
-					result.append(user->ident);
-					i += 5;
-				}
-				else if (format.substr(i, 6) == "$vhost")
-				{
-					result.append(user->dhost);
-					i += 5;
-				}
-				else if (format.substr(i, 8) == "$fullbot")
-				{
-					result.append(bot->GetFullHost());
-				}
-				else
-					result.push_back(c);
-			}
-			else
-				result.push_back(c);
-		}
+		AliasFormatSubst subst(text);
+		user->PopulateInfoMap(subst.info);
+		subst.info["bot"] = bot->nick;
+		subst.info["fullbot"] = bot->GetFullHost();
+		std::string result = subst.format(format);
 
 		irc::tokenstream ss(result);
 		std::vector<std::string> pars;
