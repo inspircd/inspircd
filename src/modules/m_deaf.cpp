@@ -78,7 +78,7 @@ class ModuleDeaf : public Module
 		{
 			Channel* chan = (Channel*)dest;
 			if (chan)
-				this->BuildDeafList(MSG_NOTICE, chan, user, status, text, exempt_list);
+				this->BuildDeafList(chan, user, status, text, exempt_list);
 		}
 
 		return MOD_RES_PASSTHRU;
@@ -90,13 +90,13 @@ class ModuleDeaf : public Module
 		{
 			Channel* chan = (Channel*)dest;
 			if (chan)
-				this->BuildDeafList(MSG_PRIVMSG, chan, user, status, text, exempt_list);
+				this->BuildDeafList(chan, user, status, text, exempt_list);
 		}
 
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
+	virtual void BuildDeafList(Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
 	{
 		const UserMembList *ulist = chan->GetUsers();
 		bool is_a_uline;

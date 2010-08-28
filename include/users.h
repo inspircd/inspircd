@@ -621,6 +621,10 @@ class CoreExport User : public Extensible
 	 */
 	void PurgeEmptyChannels();
 
+	/** Populate the given substitution map with information about this user
+	 */
+	void PopulateInfoMap(SubstMap& map);
+
 	/** Default destructor
 	 */
 	virtual ~User();

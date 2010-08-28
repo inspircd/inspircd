@@ -55,7 +55,7 @@ class UserQuery : public SQLQuery
 		int rows = res.Rows();
 		std::string format = tag->getString("rowformat");
 		std::map<std::string, std::string> items;
-		PopulateUserInfo(user, items);
+		user->PopulateInfoMap(items);
 		if (!format.empty())
 		{
 			SQLEntries result;
@@ -91,7 +91,7 @@ class UserQuery : public SQLQuery
 		if (!format.empty())
 		{
 			std::map<std::string, std::string> items;
-			PopulateUserInfo(user, items);
+			user->PopulateInfoMap(items);
 			items.insert(std::make_pair("msg", error.str));
 			user->SendText(FormatSubst(format, items));
 		}
@@ -119,7 +119,7 @@ class SQLCommand : public Command
 			return CMD_FAILURE;
 
 		ParamM userinfo;
-		PopulateUserInfo(user, userinfo);
+		user->PopulateInfoMap(userinfo);
 		for(unsigned int i=0; i < parameters.size(); i++)
 			userinfo.insert(std::make_pair(ConvToStr(i + 1), parameters[i]));
 		std::string fmt = tag->getString("queryformat");

@@ -137,7 +137,7 @@ class ModuleSQLAuth : public Module
 		pendingExt.set(user, AUTH_STATE_BUSY);
 
 		ParamM userinfo;
-		PopulateUserInfo(user, userinfo);
+		user->PopulateInfoMap(userinfo);
 		userinfo["pass"] = user->password;
 
 		HashProvider* md5 = ServerInstance->Modules->FindDataService<HashProvider>("hash/md5");

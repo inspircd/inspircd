@@ -1690,6 +1690,18 @@ void User::PurgeEmptyChannels()
 	this->UnOper();
 }
 
+void User::PopulateInfoMap(SubstMap& userinfo)
+{
+	GetIPString(); // populate cachedip
+	userinfo["nick"] = nick;
+	userinfo["host"] = host;
+	userinfo["ip"] = cachedip;
+	userinfo["gecos"] = fullname;
+	userinfo["ident"] = ident;
+	userinfo["server"] = server;
+	userinfo["uuid"] = uuid;
+}
+
 const std::string& FakeUser::GetFullHost()
 {
 	if (!ServerInstance->Config->HideWhoisServer.empty())

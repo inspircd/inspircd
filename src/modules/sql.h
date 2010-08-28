@@ -166,16 +166,4 @@ class SQLProvider : public DataProvider
 	virtual void submit(SQLQuery* callback, const std::string& format, const ParamM& p) = 0;
 };
 
-/** Convenience function to prepare a map from a User* */
-inline void PopulateUserInfo(User* user, ParamM& userinfo)
-{
-	userinfo["nick"] = user->nick;
-	userinfo["host"] = user->host;
-	userinfo["ip"] = user->GetIPString();
-	userinfo["gecos"] = user->fullname;
-	userinfo["ident"] = user->ident;
-	userinfo["server"] = user->server;
-	userinfo["uuid"] = user->uuid;
-}
-
 #endif

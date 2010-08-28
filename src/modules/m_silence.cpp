@@ -299,9 +299,9 @@ class ModuleSilence : public Module
 		output = output + " ESILENCE SILENCE=" + ConvToStr(maxsilence);
 	}
 
-	void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
+	void OnBuildExemptList(bool is_msg, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
 	{
-		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
+		int public_silence = (is_msg ? SILENCE_CHANNEL : SILENCE_CNOTICE);
 		const UserMembList *ulist = chan->GetUsers();
 
 		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
@@ -327,7 +327,7 @@ class ModuleSilence : public Module
 			Channel* chan = (Channel*)dest;
 			if (chan)
 			{
-				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list, "");
+				this->OnBuildExemptList(silence_type == SILENCE_PRIVATE, chan, user, status, exempt_list, "");
 			}
 		}
 		return MOD_RES_PASSTHRU;

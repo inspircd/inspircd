@@ -38,13 +38,6 @@ enum TargetTypeFlags {
 	TYPE_OTHER
 };
 
-/** Used to represent wether a message was PRIVMSG or NOTICE
- */
-enum MessageType {
-	MSG_PRIVMSG = 0,
-	MSG_NOTICE = 1
-};
-
 #define MOD_RES_ALLOW (ModResult(1))
 #define MOD_RES_PASSTHRU (ModResult(0))
 #define MOD_RES_DENY (ModResult(-1))

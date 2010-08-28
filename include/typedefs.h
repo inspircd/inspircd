@@ -113,5 +113,9 @@ typedef XLineContainer::iterator ContainerIter;
  */
 typedef XLineLookup::iterator LookupIter;
 
+/** A map of strings for substitution
+ */
+typedef std::map<std::string, std::string> SubstMap;
+
 #endif
 
