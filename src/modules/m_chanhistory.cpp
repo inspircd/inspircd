@@ -59,6 +59,8 @@ class HistoryMode : public ModeHandler
 		}
 		else
 		{
+			if (!channel->IsModeSet('H'))
+				return MODEACTION_DENY;
 			ext.unset(channel);
 			channel->SetModeParam('H', "");
 		}
