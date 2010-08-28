@@ -24,29 +24,6 @@ class UserQuery : public SQLQuery
 	{
 	}
 
-	std::string FormatSubst(const std::string& format, ParamM& subst)
-	{
-		std::string result;
-		result.reserve(MAXBUF);
-		for (unsigned int i = 0; i < format.length(); i++)
-		{
-			char c = format[i];
-			if (c == '$')
-			{
-				std::string word;
-				while (isalnum(format[++i]))
-					word.push_back(format[i]);
-				i--;
-				ParamM::iterator value = subst.find(word);
-				if (value != subst.end())
-					result.append(value->second);
-			}
-			else
-				result.push_back(c);
-		}
-		return result;
-	}
-
 	void OnResult(SQLResult& res)
 	{
 		User* user = ServerInstance->FindUUID(uid);
@@ -71,14 +48,14 @@ class UserQuery : public SQLQuery
 					row.insert(std::make_pair(cols[i], result[i].value));
 				}
 
-				user->SendText(FormatSubst(format, row));
+				user->SendText(MapFormatSubst(format, row));
 			}
 		}
 		format = tag->getString("resultformat");
 		if (!format.empty())
 		{
 			items.insert(std::make_pair("rows", ConvToStr(rows)));
-			user->SendText(FormatSubst(format, items));
+			user->SendText(MapFormatSubst(format, items));
 		}
 	}
 
@@ -93,7 +70,7 @@ class UserQuery : public SQLQuery
 			std::map<std::string, std::string> items;
 			user->PopulateInfoMap(items);
 			items.insert(std::make_pair("msg", error.str));
-			user->SendText(FormatSubst(format, items));
+			user->SendText(MapFormatSubst(format, items));
 		}
 	}
 };

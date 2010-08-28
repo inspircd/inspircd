@@ -224,3 +224,42 @@ std::string Base64ToBin(const std::string& data_str, const char* table)
 	}
 	return rv;
 }
+
+std::string FormatSubstitute::format(const std::string& src)
+{
+	std::string result;
+	result.reserve(MAXBUF);
+	for (unsigned int i = 0; i < src.length(); i++)
+	{
+		char c = src[i];
+		if (c == '$')
+		{
+			std::string word;
+			i++;
+			if (src[i] == '{')
+			{
+				// processing something like "${foo}bar"
+				while (src[i] && src[i] != '}')
+					word.push_back(src[i++]);
+			}
+			else
+			{
+				while (isalnum(src[i]))
+					word.push_back(src[i++]);
+				i--;
+			}
+			result.append(lookup(word));
+		}
+		else
+			result.push_back(c);
+	}
+	return result;
+}
+
+std::string MapFormatSubstitute::lookup(const std::string& word)
+{
+	SubstMap::const_iterator value = map.find(word);
+	if (value == map.end())
+		return "";
+	return value->second;
+}

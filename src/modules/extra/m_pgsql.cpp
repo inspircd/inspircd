@@ -418,38 +418,34 @@ restart:
 		submit(req, res);
 	}
 
+	class PGSubstFn : public FormatSubstitute
+	{
+	 public:
+		PGconn* sql;
+		const ParamM& map;
+		PGSubstFn(PGconn* SQL, const ParamM& Map) : sql(SQL), map(Map) {}
+		std::string lookup(const std::string& key)
+		{
+			char buffer[MAXBUF];
+			ParamM::const_iterator it = map.find(key);
+			if (it == map.end())
+				return "";
+#ifdef PGSQL_HAS_ESCAPECONN
+			int error;
+			PQescapeStringConn(sql, buffer, it->second.c_str(), it->second.length(), &error);
+			if (error)
+				ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+#else
+			PQescapeString(buffer, it->second.c_str(), it->second.length());
+#endif
+			return buffer;
+		}
+	};
+
 	void submit(SQLQuery *req, const std::string& q, const ParamM& p)
 	{
-		std::string res;
-		for(std::string::size_type i = 0; i < q.length(); i++)
-		{
-			if (q[i] != '$')
-				res.push_back(q[i]);
-			else
-			{
-				std::string field;
-				i++;
-				while (i < q.length() && isalnum(q[i]))
-					field.push_back(q[i++]);
-				i--;
-
-				ParamM::const_iterator it = p.find(field);
-				if (it != p.end())
-				{
-					std::string parm = it->second;
-					char buffer[MAXBUF];
-#ifdef PGSQL_HAS_ESCAPECONN
-					int error;
-					PQescapeStringConn(sql, buffer, parm.c_str(), parm.length(), &error);
-					if (error)
-						ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
-#else
-					PQescapeString         (buffer, parm.c_str(), parm.length());
-#endif
-					res.append(buffer);
-				}
-			}
-		}
+		PGSubstFn subst(sql, p);
+		std::string res = subst.format(q);
 		submit(req, res);
 	}
 

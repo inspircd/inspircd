@@ -163,30 +163,27 @@ class SQLConn : public SQLProvider
 		submit(query, res);
 	}
 
+	class SQLFormat : public FormatSubstitute
+	{
+	 public:
+		const ParamM& map;
+		SQLFormat(const ParamM& Map) : map(Map) {}
+		std::string lookup(const std::string& key)
+		{
+			ParamM::const_iterator it = map.find(key);
+			if (it == map.end())
+				return "";
+			char* escaped = sqlite3_mprintf("%q", it->second.c_str());
+			std::string rv(escaped);
+			sqlite3_free(escaped);
+			return rv;
+		}
+	};
+
 	virtual void submit(SQLQuery* query, const std::string& q, const ParamM& p)
 	{
-		std::string res;
-		for(std::string::size_type i = 0; i < q.length(); i++)
-		{
-			if (q[i] != '$')
-				res.push_back(q[i]);
-			else
-			{
-				std::string field;
-				i++;
-				while (i < q.length() && isalnum(q[i]))
-					field.push_back(q[i++]);
-				i--;
-
-				ParamM::const_iterator it = p.find(field);
-				if (it != p.end())
-				{
-					char* escaped = sqlite3_mprintf("%q", it->second.c_str());
-					res.append(escaped);
-					sqlite3_free(escaped);
-				}
-			}
-		}
+		SQLFormat subst(p);
+		std::string res = subst.format(q);
 		submit(query, res);
 	}
 };

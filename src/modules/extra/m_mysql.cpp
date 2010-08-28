@@ -371,34 +371,27 @@ class QueryJobMap : public QueryJob
 	const std::string format;
 	const ParamM p;
 	QueryJobMap(SQLQuery* Q, SQLConnection* C, const std::string& F, const ParamM& P)
-		: QueryJob(Q, C), format(F), p(P) {}
+		: QueryJob(Q, C), format(F), p(P), subst(this) {}
+
+	class FormatSubstFn : public FormatSubstitute
+	{
+	 public:
+		QueryJobMap* me;
+		FormatSubstFn(QueryJobMap* Me) : me(Me) {}
+		std::string lookup(const std::string& key)
+		{
+			char buffer[MAXBUF];
+			ParamM::const_iterator it = me->p.find(key);
+			if (it == me->p.end())
+				return "";
+			mysql_real_escape_string(me->conn->connection, buffer, it->second.data(), it->second.length());
+			return buffer;
+		}
+	} subst;
 
 	MySQLresult* exec()
 	{
-		std::string res;
-		for(std::string::size_type i = 0; i < format.length(); i++)
-		{
-			if (format[i] != '$')
-				res.push_back(format[i]);
-			else
-			{
-				std::string field;
-				i++;
-				while (i < format.length() && isalnum(format[i]))
-					field.push_back(format[i++]);
-				i--;
-
-				ParamM::const_iterator it = p.find(field);
-				if (it != p.end())
-				{
-					std::string parm = it->second;
-					char buffer[MAXBUF];
-					mysql_real_escape_string(conn->connection, buffer, parm.data(), parm.length());
-					res.append(buffer);
-				}
-			}
-		}
-		return conn->DoBlockingQuery(res);
+		return conn->DoBlockingQuery(subst.format(format));
 	}
 };
 

@@ -45,5 +45,30 @@ CoreExport std::string BinToBase64(const std::string& data, const char* table = 
 /** Base64 decode */
 CoreExport std::string Base64ToBin(const std::string& data, const char* table = NULL);
 
+/** Wrapping class to allow simple replacement of lookup function */
+class CoreExport FormatSubstitute : public interfacebase
+{
+ public:
+	/** Substitute $var expressions within the parameter */
+	std::string format(const std::string& what);
+	/** Variable lookup function: given a name, give the value */
+	virtual std::string lookup(const std::string&) = 0;
+};
+
+class CoreExport MapFormatSubstitute : public FormatSubstitute
+{
+ public:
+	const SubstMap& map;
+	MapFormatSubstitute(const SubstMap& Map) : map(Map) {}
+	virtual std::string lookup(const std::string&);
+};
+
+/** Given format = "foo $bar $baz!" and Map('bar' => 'one'), returns "foo one !" */
+inline std::string MapFormatSubst(const std::string& format, const SubstMap& Map)
+{
+	MapFormatSubstitute m(Map);
+	return m.format(format);
+}
+
 #endif
 
