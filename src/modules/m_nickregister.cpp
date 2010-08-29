@@ -23,11 +23,23 @@ struct NickData
 	time_t last_used;
 	NickData(const std::string& a, time_t t, time_t l)
 		: account(a), ts(t), last_used(l) {}
-	bool operator<(const NickData& o) const
+	void update(const NickData& incoming)
 	{
-		if (ts != o.ts)
-			return ts < o.ts;
-		return account < o.account;
+		if (ts == incoming.ts && account == incoming.account)
+		{
+			// match, just update last_used
+			if (last_used < incoming.last_used)
+				last_used = incoming.last_used;
+		}
+		else if (ts > incoming.ts || (ts == incoming.ts && account < incoming.account))
+		{
+			// we got replaced by TS collision
+			*this = incoming;
+		}
+		else
+		{
+			// we won the TS collision; discard
+		}
 	}
 };
 typedef std::map<std::string, NickData> OwnerMap;
@@ -110,8 +122,7 @@ class CommandRegisterNick : public Command
 		}
 		else
 		{
-			if (it->second < value)
-				it->second = value;
+			it->second.update(value);
 			if (it->second.account == "-")
 				nickowner.erase(it);
 		}
