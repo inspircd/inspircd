@@ -22,6 +22,14 @@ struct AccountItem
 	std::string tag;
 	AccountItem(const std::string& a) : account(a) {}
 	AccountItem(const std::string& a, const std::string& t) : account(a), tag(t) {}
+	std::string metastr()
+	{
+		if (!this)
+			return "";
+		if (tag.empty())
+			return account;
+		return account + " " + tag;
+	}
 };
 
 class ServicesExtItem : public SimpleExtItem<AccountItem>
@@ -31,13 +39,7 @@ class ServicesExtItem : public SimpleExtItem<AccountItem>
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* itemv) const
 	{
-		AccountItem* item = static_cast<AccountItem*>(itemv);
-		if (!item)
-			return "";
-		else if (item->tag.empty())
-			return item->account;
-		else
-			return item->account + " " + item->tag;
+		return static_cast<AccountItem*>(itemv)->metastr();
 	}
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
@@ -89,13 +91,19 @@ class ServicesAccountProvider : public AccountProvider
 			user->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
 				user->nick.c_str(), user->GetFullHost().c_str(), acct.c_str(), acct.c_str());
 
+		AccountItem* item = NULL;
 		if (acct.empty())
+		{
 			ext.unset(user);
+		}
 		else
-			ext.set(user, new AccountItem(acct, tag));
+		{
+			item = new AccountItem(acct, tag);
+			ext.set(user, item);
+		}
 
 		if (user->registered == REG_ALL)
-			ServerInstance->PI->SendMetaData(user, "accountname", acct);
+			ServerInstance->PI->SendMetaData(user, "accountname", item->metastr());
 
 		AccountEvent(creator, user, acct).Send();
 	}
@@ -142,13 +150,14 @@ class ModuleServicesAccount : public Module
 	{
 		User* dest = IS_USER(target);
 		// check if its our metadata key, and its associated with a user
-		if (dest && extname == "accountname" && !extdata.empty())
+		if (dest && extname == "accountname")
 		{
-			if (IS_LOCAL(dest))
+			std::string acct = account.GetAccountName(dest);
+			if (IS_LOCAL(dest) && !acct.empty())
 				dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
-					dest->nick.c_str(), dest->GetFullHost().c_str(), extdata.c_str(), extdata.c_str());
+					dest->nick.c_str(), dest->GetFullHost().c_str(), acct.c_str(), acct.c_str());
 
-			AccountEvent(this, dest, extdata).Send();
+			AccountEvent(this, dest, acct).Send();
 		}
 	}
 
