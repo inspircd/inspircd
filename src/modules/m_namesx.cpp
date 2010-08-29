@@ -27,7 +27,7 @@ class ModuleNamesX : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion()

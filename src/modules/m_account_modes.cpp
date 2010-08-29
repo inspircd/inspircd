@@ -55,7 +55,7 @@ class ModuleAccountModes : public Module
 		Implementation eventlist[] = {
 			I_OnUserPreMessage, I_OnUserPreNotice, I_OnCheckJoin, I_OnCheckBan, I_On005Numeric
 		};
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::string &t)

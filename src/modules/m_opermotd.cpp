@@ -75,7 +75,7 @@ class ModuleOpermotd : public Module
 		ServerInstance->AddCommand(&cmd);
 		LoadOperMOTD();
 		Implementation eventlist[] = { I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleOpermotd()

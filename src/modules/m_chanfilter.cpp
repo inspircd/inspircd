@@ -74,7 +74,7 @@ class ModuleChanFilter : public Module
 		ServerInstance->Modules->AddService(cf);
 
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void ReadConfig(ConfigReadStatus& stat)

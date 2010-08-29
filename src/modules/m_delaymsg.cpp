@@ -49,7 +49,7 @@ class ModuleDelayMsg : public Module
 		ServerInstance->Modules->AddService(djm);
 		ServerInstance->Extensions.Register(&djm.jointime);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 	~ModuleDelayMsg();
 	Version GetVersion();

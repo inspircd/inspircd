@@ -54,7 +54,7 @@ class ModuleChanACL : public Module
 		ec.init();
 		ServerInstance->Modules->AddService(ec);
 		Implementation eventlist[] = { I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void Prioritize()

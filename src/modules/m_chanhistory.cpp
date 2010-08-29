@@ -79,7 +79,7 @@ class ModuleChanHistory : public Module
 		ServerInstance->Modules->AddService(m);
 
 		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

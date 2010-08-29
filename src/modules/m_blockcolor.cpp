@@ -37,7 +37,7 @@ class ModuleBlockColour : public Module
 	{
 		ServerInstance->Modules->AddService(bc);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void On005Numeric(std::string &output)

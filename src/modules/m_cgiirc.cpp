@@ -170,7 +170,7 @@ public:
 		ServerInstance->Extensions.Register(&cmd.webirc_ip);
 
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void Prioritize()

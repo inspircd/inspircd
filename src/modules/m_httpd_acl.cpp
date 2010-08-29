@@ -89,7 +89,7 @@ class ModuleHTTPAccessList : public Module
 
 	void init() {
 		Implementation eventlist[] = { I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void BlockAccess(HTTPRequest* http, int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")

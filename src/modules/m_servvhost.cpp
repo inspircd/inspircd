@@ -24,7 +24,7 @@ class ModuleServVHost : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_OnSetConnectClass };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion()

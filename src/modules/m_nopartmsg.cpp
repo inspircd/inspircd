@@ -22,7 +22,7 @@ class ModulePartMsgBan : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnUserPart, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModulePartMsgBan()

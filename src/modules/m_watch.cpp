@@ -381,7 +381,7 @@ class Modulewatch : public Module
 		ServerInstance->AddCommand(&sw);
 		ServerInstance->Extensions.Register(&cmdw.ext);
 		Implementation eventlist[] = { I_OnGarbageCollect, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
-		ServerInstance->Modules->Attach(eventlist, this, 6);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

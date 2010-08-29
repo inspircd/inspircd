@@ -148,7 +148,7 @@ public:
 	{
 		ServerInstance->Modules->AddService(p);
 		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnMode, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 	}
 

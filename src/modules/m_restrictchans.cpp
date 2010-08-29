@@ -36,7 +36,7 @@ class ModuleRestrictChans : public Module
 	{
 		ReadConfig();
 		Implementation eventlist[] = { I_OnCheckJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

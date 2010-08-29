@@ -264,7 +264,7 @@ class ModuleTimedModes : public Module
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Extensions.Register(&cmd.tmodes);
 		Implementation eventlist[] = { I_OnMode, I_OnBackgroundTimer, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleTimedModes()

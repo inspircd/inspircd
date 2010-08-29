@@ -116,7 +116,7 @@ class ModuleServicesAccount : public Module
 		Implementation eventlist[] = {
 			I_OnWhois, I_OnDecodeMetaData, I_OnSetConnectClass
 		};
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */

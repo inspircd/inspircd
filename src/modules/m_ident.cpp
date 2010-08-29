@@ -274,7 +274,7 @@ class ModuleIdent : public Module
 			I_OnUserInit, I_OnCheckReady,
 			I_OnUserDisconnect, I_OnSetConnectClass
 		};
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleIdent()

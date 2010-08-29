@@ -195,7 +195,7 @@ class ModuleJoinFlood : public Module
 		ServerInstance->Modules->AddService(jf);
 		ServerInstance->Extensions.Register(&jf.ext);
 		Implementation eventlist[] = { I_OnCheckJoin, I_OnUserJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnCheckJoin(ChannelPermissionData& join)

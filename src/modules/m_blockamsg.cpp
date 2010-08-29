@@ -53,7 +53,7 @@ class ModuleBlockAmsg : public Module
 	{
 		ServerInstance->Extensions.Register(&blockamsg);
 		Implementation eventlist[] = { I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

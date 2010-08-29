@@ -23,7 +23,7 @@ class ModulePosixCrypt : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPassCompare };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)

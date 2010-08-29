@@ -148,7 +148,7 @@ class ModuleSSLInfo : public Module
 		ServerInstance->Modules->AddService(prov.cmd.CertExt);
 
 		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion()

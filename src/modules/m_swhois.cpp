@@ -81,7 +81,7 @@ class ModuleSWhois : public Module
 	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.

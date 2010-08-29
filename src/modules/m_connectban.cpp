@@ -28,7 +28,7 @@ class ModuleConnectBan : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleConnectBan()

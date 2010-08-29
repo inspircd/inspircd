@@ -211,7 +211,7 @@ class ModuleBanRedirect : public Module
 
 		ServerInstance->Extensions.Register(&re.extItem);
 		Implementation list[] = { I_OnCheckJoin, I_OnChannelDelete };
-		ServerInstance->Modules->Attach(list, this, 2);
+		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
 	virtual void OnChannelDelete(Channel* chan)

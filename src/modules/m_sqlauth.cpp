@@ -102,7 +102,7 @@ class ModuleSQLAuth : public Module
 	{
 		ServerInstance->Modules->AddService(pendingExt);
 		Implementation eventlist[] = { I_OnCheckReady, I_OnUserRegister, I_OnSetConnectClass };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

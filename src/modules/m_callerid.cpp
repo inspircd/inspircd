@@ -357,7 +357,7 @@ public:
 		ServerInstance->Modules->AddService(cmd.extInfo);
 
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleCallerID()

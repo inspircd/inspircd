@@ -34,7 +34,7 @@ class ModuleNoNotice : public Module
 	{
 		ServerInstance->Modules->AddService(nt);
 		Implementation eventlist[] = { I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void On005Numeric(std::string &output)

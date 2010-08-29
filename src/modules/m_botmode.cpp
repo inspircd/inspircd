@@ -35,7 +35,7 @@ class ModuleBotMode : public Module
 	{
 		ServerInstance->Modules->AddService(bm);
 		Implementation eventlist[] = { I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

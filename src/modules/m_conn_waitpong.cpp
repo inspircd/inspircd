@@ -30,7 +30,7 @@ class ModuleWaitPong : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

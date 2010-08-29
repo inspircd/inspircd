@@ -283,7 +283,7 @@ class ModuleSilence : public Module
 		ServerInstance->AddCommand(&cmdsvssilence);
 
 		Implementation eventlist[] = { I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

@@ -233,7 +233,7 @@ class ModuleDNSBL : public Module
 		ServerInstance->Modules->AddService(nameExt);
 		ServerInstance->Modules->AddService(countExt);
 		Implementation eventlist[] = { I_OnUserInit, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleDNSBL()

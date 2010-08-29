@@ -55,7 +55,7 @@ class ModuleOverride : public Module
 		ServerInstance->Modules->AddService(om);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
 		Implementation eventlist[] = { I_OnBackgroundTimer, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

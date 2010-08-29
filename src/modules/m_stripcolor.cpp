@@ -48,7 +48,7 @@ class ModuleStripColor : public Module
 		ServerInstance->Modules->AddService(usc);
 		ServerInstance->Modules->AddService(csc);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleStripColor()

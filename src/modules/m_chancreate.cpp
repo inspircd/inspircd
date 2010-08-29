@@ -23,7 +23,7 @@ class ModuleChanCreate : public Module
 	{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
 		Implementation eventlist[] = { I_OnUserJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion()

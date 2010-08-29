@@ -34,7 +34,7 @@ class ModuleNoNickChange : public Module
 	{
 		ServerInstance->Modules->AddService(nn);
 		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleNoNickChange()

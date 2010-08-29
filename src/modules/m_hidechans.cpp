@@ -56,7 +56,7 @@ class ModuleHideChans : public Module
 	{
 		ServerInstance->Modules->AddService(hm);
 		Implementation eventlist[] = { I_OnWhoisLine };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleHideChans()

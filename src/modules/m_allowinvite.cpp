@@ -32,7 +32,7 @@ class ModuleAllowInvite : public Module
 	{
 		ServerInstance->Modules->AddService(ni);
 		Implementation eventlist[] = { I_OnPermissionCheck, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void On005Numeric(std::string &output)

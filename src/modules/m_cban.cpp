@@ -172,7 +172,7 @@ class ModuleCBan : public Module
 
 		ServerInstance->AddCommand(&mycommand);
 		Implementation eventlist[] = { I_OnCheckJoin, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleCBan()

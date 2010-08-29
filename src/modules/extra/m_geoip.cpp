@@ -34,7 +34,7 @@ class ModuleGeoIP : public Module
 	{
 		ServerInstance->Modules->AddService(ext);
 		Implementation eventlist[] = { I_OnSetConnectClass };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleGeoIP()

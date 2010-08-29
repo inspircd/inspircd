@@ -76,7 +76,7 @@ class ModuleSSLModes : public Module
 	{
 		ServerInstance->Modules->AddService(sslm);
 		Implementation eventlist[] = { I_OnCheckJoin, I_OnCheckBan, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnCheckJoin(ChannelPermissionData& join)

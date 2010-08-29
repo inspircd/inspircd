@@ -169,7 +169,7 @@ class ModuleSVSHold : public Module
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

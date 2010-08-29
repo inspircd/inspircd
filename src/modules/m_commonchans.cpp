@@ -57,7 +57,7 @@ class ModulePrivacyMode : public Module
 	{
 		ServerInstance->Modules->AddService(pm);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

@@ -34,7 +34,7 @@ class ModuleNoKicks : public Module
 	{
 		ServerInstance->Modules->AddService(nk);
 		Implementation eventlist[] = { I_OnPermissionCheck, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::string &output)

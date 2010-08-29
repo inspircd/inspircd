@@ -20,7 +20,7 @@ class ModuleOperLevels : public Module
 		void init()
 		{
 			Implementation eventlist[] = { I_OnKill };
-			ServerInstance->Modules->Attach(eventlist, this, 1);
+			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		}
 
 		virtual ~ModuleOperLevels()

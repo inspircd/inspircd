@@ -85,7 +85,7 @@ public:
 		ServerInstance->Modules->AddService(mh2);
 
 		Implementation list[] = { I_OnPostJoin, I_OnEvent, I_OnChangeHost, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(list, this, 4);
+		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
 	void PrepareAutoop(Membership* memb, irc::modestacker& ms, std::set<std::string>& flags)

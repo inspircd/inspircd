@@ -64,7 +64,7 @@ class ModuleOperPrefixMode : public Module
 		ServerInstance->Modules->AddService(*opm);
 
 		Implementation eventlist[] = { I_OnPostJoin, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void PushChanMode(Channel* channel, User* user)

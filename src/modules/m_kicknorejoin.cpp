@@ -59,7 +59,7 @@ public:
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Extensions.Register(&kr.ext);
 		Implementation eventlist[] = { I_OnCheckJoin, I_OnUserKick };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnCheckJoin(ChannelPermissionData& join)

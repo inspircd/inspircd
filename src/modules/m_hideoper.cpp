@@ -58,7 +58,7 @@ class ModuleHideOper : public Module
 	{
 		ServerInstance->Modules->AddService(hm);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

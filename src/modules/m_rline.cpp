@@ -214,7 +214,7 @@ class ModuleRLine : public Module
 		ServerInstance->XLines->RegisterFactory(&f);
 
 		Implementation eventlist[] = { I_OnUserConnect, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		if (!rxfactory)
 			throw ModuleException("Regex engine not set or loaded!");

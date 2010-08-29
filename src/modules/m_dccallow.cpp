@@ -249,7 +249,7 @@ class ModuleDCCAllow : public Module
 		ServerInstance->AddCommand(&cmd);
 		ReadFileConf();
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

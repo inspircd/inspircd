@@ -614,7 +614,7 @@ class ChannelRegistrationModule : public Module
 		/* attach events */
 		Implementation eventlist[] = {I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode,
 		I_OnPostTopicChange, I_OnRawMode, I_OnUserQuit, I_OnUserPart, I_OnUserKick, I_OnGarbageCollect};
-		ServerInstance->Modules->Attach (eventlist, this, 11);
+		ServerInstance->Modules->Attach (eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		/* add a new service that is a new channel mode handler for handling channel registration mode */
 		ServerInstance->Modules->AddService (mh);
 		/* register a new extension item with the name last_activity */

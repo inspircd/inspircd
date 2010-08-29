@@ -22,7 +22,7 @@ class ModuleMapHide : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

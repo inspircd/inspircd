@@ -25,7 +25,7 @@ public:
 	void init()
 	{
 		Implementation eventlist[] = { I_On005Numeric, I_OnCheckJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::string &output)

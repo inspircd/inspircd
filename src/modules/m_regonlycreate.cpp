@@ -25,7 +25,7 @@ class ModuleRegOnlyCreate : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnCheckJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnCheckJoin(ChannelPermissionData& join)

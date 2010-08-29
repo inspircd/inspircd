@@ -52,7 +52,7 @@ public:
 		ServerInstance->Modules->AddService(be);
 
 		Implementation list[] = { I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
-		ServerInstance->Modules->Attach(list, this, 3);
+		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::string &output)

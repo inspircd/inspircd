@@ -24,7 +24,7 @@ class ModuleDenyChannels : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnCheckJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ConfigTag* FindBadChan(const std::string& cname)

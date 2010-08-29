@@ -175,7 +175,7 @@ class ModuleSASL : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServiceProvider* providelist[] = { &auth, &sasl, &authExt };
 		ServerInstance->Modules->AddServices(providelist, 3);

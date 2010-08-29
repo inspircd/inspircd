@@ -124,7 +124,7 @@ class ModuleHelpop : public Module
 			ServerInstance->Modules->AddService(ho);
 			ServerInstance->Modules->AddService(cmd);
 			Implementation eventlist[] = { I_OnWhois };
-			ServerInstance->Modules->Attach(eventlist, this, 1);
+			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		}
 
 		void ReadConfig(ConfigReadStatus&)

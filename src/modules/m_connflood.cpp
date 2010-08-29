@@ -28,7 +28,7 @@ public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleConnFlood()

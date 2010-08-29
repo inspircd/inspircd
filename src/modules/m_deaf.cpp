@@ -62,7 +62,7 @@ class ModuleDeaf : public Module
 		ServerInstance->Modules->AddService(m1);
 
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

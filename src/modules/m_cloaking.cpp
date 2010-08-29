@@ -150,7 +150,7 @@ class ModuleCloaking : public Module
 		ServerInstance->Modules->AddService(cu.ext);
 
 		Implementation eventlist[] = { I_OnCheckBan, I_OnUserConnect, I_OnChangeHost };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		if (!Hash)
 			throw CoreException("Cannot find hash/md5: did you load the m_md5.so module?");

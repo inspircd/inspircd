@@ -213,7 +213,7 @@ class ModuleOpFlags : public Module
 		ServerInstance->Modules->AddService(cmd.prov.ext);
 
 		Implementation eventlist[] = { I_OnSyncChannel, I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

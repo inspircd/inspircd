@@ -89,7 +89,7 @@ class ModuleRedirect : public Module
 	{
 		ServerInstance->Modules->AddService(re);
 		Implementation eventlist[] = { I_OnPermissionCheck };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnPermissionCheck(PermissionData& perm)

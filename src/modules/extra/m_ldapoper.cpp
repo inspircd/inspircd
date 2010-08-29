@@ -49,7 +49,7 @@ public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPassCompare };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleLDAPOper()

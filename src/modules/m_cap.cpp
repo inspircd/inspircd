@@ -143,7 +143,7 @@ class ModuleCAP : public Module
 		ServerInstance->Extensions.Register(&cmd.reghold);
 
 		Implementation eventlist[] = { I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnCheckReady(LocalUser* user)

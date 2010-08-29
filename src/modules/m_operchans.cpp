@@ -32,7 +32,7 @@ class ModuleOperChans : public Module
 	{
 		ServerInstance->Modules->AddService(oc);
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnCheckJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnCheckJoin(ChannelPermissionData& join)
