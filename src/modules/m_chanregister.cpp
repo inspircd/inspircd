@@ -14,6 +14,7 @@
 
 #include "inspircd.h"
 #include "account.h"
+#include "sql.h"
 
 /* $ModDesc: Provides channel mode +r for channel registration */
 
@@ -66,12 +67,18 @@ class ChanExpiryExtItem : public ExtensionItem
 	}
 };
 
-/* database reader reads the channel database and returns structure with it */
+
+
+/******************************************************************************
+ * Flat-file database read/write
+ ******************************************************************************/
+
 /* structure for single entry */
 struct EntryDescriptor
 {
 	std::string name, ts, topicset, topicsetby, topic, modes, registrant;
 };
+/** reads the channel database and returns structure with it */
 class DatabaseReader
 {
 	/* the entry descriptor */
@@ -302,6 +309,76 @@ class DatabaseWriter
 		}
 	}
 };
+
+/******************************************************************************
+ * SQL database read/write
+ ******************************************************************************/
+class DatabaseReadQuery : public SQLQuery
+{
+ public:
+	ChanExpiryExtItem& last_activity;
+	DatabaseReadQuery(Module* me, ChanExpiryExtItem& la) : SQLQuery(me), last_activity(la)
+	{
+	}
+
+	void OnResult(SQLResult& res)
+	{
+		SQLEntries row;
+		while (res.GetRow(row))
+		{
+			std::string channame = row[0];
+			Channel* chan = ServerInstance->FindChan(channame);
+			if (!chan)
+			{
+				time_t ts = atol(row[1].value.c_str());
+				if (!ts)
+					ts = ServerInstance->Time();
+				chan = new Channel(channame, ts);
+			}
+			last_activity.set(chan, ServerInstance->Time());
+			if (!row[2].nul)
+			{
+				irc::spacesepstream modes(row[2]);
+				std::string mode;
+				irc::modestacker ms;
+				while (modes.GetToken(mode))
+				{
+					std::string::size_type eq = mode.find('=');
+					std::string name = mode.substr(0, eq);
+					std::string value;
+					if (eq != std::string::npos)
+						value = mode.substr(eq + 1);
+					ModeHandler *mh = ServerInstance->Modes->FindMode(name);
+					if (!mh)
+						continue;
+					ms.push(irc::modechange(mh->id, value, true));
+				}
+				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, ms);
+			}
+			if (!row[3].nul)
+			{
+				chan->topic = row[3];
+				chan->setby = row[4];
+				chan->topicset = atol(row[5].value.c_str());
+			}
+		}
+	}
+};
+class DiscardQuery : public SQLQuery
+{
+ public:
+	DiscardQuery(Module* me) : SQLQuery(me) {}
+	void OnResult(SQLResult& res) {}
+	void OnError(SQLerror& e)
+	{
+		ServerInstance->Logs->Log("m_chanregister", DEFAULT, "SQL update returned error: %s", e.str.c_str());
+	}
+};
+
+/******************************************************************************
+ * Module
+ ******************************************************************************/
+
 /* class for handling +r mode */
 class RegisterModeHandler : public ParamChannelModeHandler
 {
@@ -464,42 +541,47 @@ class RegisterModeHandler : public ParamChannelModeHandler
 class ChannelRegistrationModule : public Module
 {
  private:
-	/* some config variables */
-	std::string chandb;
-	bool dirty;
-	time_t expiretime;
-	/* modehandler handling registration mode */
 	RegisterModeHandler mh;
+
+	std::string filedb;
+	bool dirty; // filedb needs to be flushed to disk
+
+	std::string tablename;
+	dynamic_reference<SQLProvider> sqldb;
+
+	time_t expiretime;
+
 	/* check if the channel given as a parameter expired */
 	bool Expired (Channel *chan)
 	{
-		/* if mode +r is not set, it didn't */
-		if (!chan->IsModeSet (&mh)) return false;
-		/* if +P was set, it didn't too */
-		if (chan->IsModeSet ("permanent")) return false;
-		/* channel is the user-owned channel without noexpire set, so it expires, but we must check if it expired now */
-		if (ServerInstance->Time ( ) - expiretime >= mh.last_activity.get (chan)) return true;
+		// can't expire if +r isn't set
+		if (!chan->IsModeSet(&mh))
+			return false;
+		// won't expire if +P is set
+		if (chan->IsModeSet("permanent"))
+			return false;
+		// is it too old?
+		if (ServerInstance->Time() - expiretime >= mh.last_activity.get(chan))
+			return true;
 		return false;
 	}
-	/* write the channel database */
-	void WriteDatabase ( )
+
+	void WriteFileDatabase ( )
 	{
-		/* step1: create the database writer that opens the temporary database file for writing */
-		DatabaseWriter db (chandb, &mh);
-		/* ready, start a loop */
-		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin ( ); i != ServerInstance->chanlist->end ( ); i++)
+		// Dump entire database; open/close in constructor/destructor
+		DatabaseWriter db (filedb, &mh);
+		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 		{
-			/* write the channel if it has mode set */
-			if (i->second->IsModeSet (&mh)) db.next (i->second);
+			if (i->second->IsModeSet(&mh))
+				db.next(i->second);
 		}
-		/* completed all iterations, function now goes down, that will destruct the database writer */
-		/* while destruction, it will close the temporary file and rename it to a real database file, completing write process */
 	}
-	/* read the channel database */
-	void ReadDatabase ( )
+
+	/** Read flat-file database */
+	void ReadFileDatabase ( )
 	{
 		/* create the reader object and open the database */
-		DatabaseReader db (chandb);
+		DatabaseReader db (filedb);
 		/* start the database read loop */
 		EntryDescriptor *entry;
 		while ((entry = db.next ( )))
@@ -528,10 +610,12 @@ class ChannelRegistrationModule : public Module
 				/* but in this situation, channel exists and there are users on it, they must know that mode has been changed */
 				/* send that info to them */
 				ServerInstance->Modes->Send (ServerInstance->FakeClient, chan, ms);
-			} else
+			}
+			else
 			{
 				/* channel does not exist, allocate it, it will be constructed and added to the network as an empty channel */
 				chan = new Channel (entry->name, atol (entry->ts.c_str ( )));
+				mh.last_activity.set(chan, ServerInstance->Time());
 				/* empty modeless channel added and allocated */
 				/* so, channel exists in the network, then if topic is not empty, set data */
 				if (!entry->topic.empty ( ))
@@ -591,60 +675,75 @@ class ChannelRegistrationModule : public Module
 					ms2.push (irc::modechange ("registered", entry->registrant));
 					ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms2);
 				}
-				/* channel is empty, and thus, should be checked for expiry, but we can't do it while we have no last activity timestamp, so set it */
-				if (chan->IsModeSet (&mh))
-					mh.last_activity.set (chan, ServerInstance->Time ( ));
 			}
 		}
 	}
+
  public:
 	/* module constructor, for initializing stuff */
-	ChannelRegistrationModule ( ) : mh (this)
+	ChannelRegistrationModule() : mh(this), dirty(true), sqldb("SQL")
 	{
 	}
 	/* get module version and flags. */
-	Version GetVersion ( )
+	Version GetVersion()
 	{
 		return Version("Provides channel mode +r for channel registration", VF_VENDOR);
 	}
 	void init ( )
 	{
-		/* enable the snomask for channel registration */
 		ServerInstance->SNO->EnableSnomask ('r', "CHANREGISTER");
-		/* attach events */
-		Implementation eventlist[] = {I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode,
-		I_OnPostTopicChange, I_OnRawMode, I_OnUserQuit, I_OnUserPart, I_OnUserKick, I_OnGarbageCollect};
-		ServerInstance->Modules->Attach (eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		/* add a new service that is a new channel mode handler for handling channel registration mode */
-		ServerInstance->Modules->AddService (mh);
-		/* register a new extension item with the name last_activity */
+		Implementation eventlist[] = {
+			I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode,
+			I_OnPostTopicChange, I_OnRawMode, I_OnUserQuit, I_OnUserPart, I_OnUserKick, I_OnGarbageCollect
+		};
+
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modules->AddService(mh);
 		ServerInstance->Modules->AddService(mh.last_activity);
-		/* rehash procedures finished, read the database if we have one */
-		if (!chandb.empty())
-			ReadDatabase ( );
-		/* after database read, it's possible some channels must be updated, do it now */
-		dirty = true;
+
+		/* now read the database */
+		if (!tablename.empty())
+		{
+			ParamL n;
+			n.push_back(tablename);
+			// just dump the entire thing back to us, please
+			sqldb->submit(new DatabaseReadQuery(this, mh.last_activity),
+				"SELECT (name, ts, modes, topic, topicset, topicts) FROM ?", n);
+		}
+		if (!filedb.empty())
+			ReadFileDatabase();
 	}
 	/* rehash event */
-	void ReadConfig(ConfigReadStatus&)
+	void ReadConfig(ConfigReadStatus& status)
 	{
-		/* try to download the tag from the config system */
-		ConfigTag *chregistertag = ServerInstance->Config->GetTag ("chanregister");
-		/* get the prefix mode */
-		std::string prefixmode = chregistertag->getString ("prefix", "op");
-		/* get the channel database */
-		chandb = chregistertag->getString ("chandb", "");
-		/* get the expire time and convert it to time_t */
-		expiretime = ServerInstance->Duration (chregistertag->getString ("expiretime", "21d"));
-		/* set verbose directly in a modehandler */
-		mh.verbose = chregistertag->getBool ("verbose", true);
-		/* set channel limit in a modehandler too */
-		mh.chanlimit = chregistertag->getInt ("limit", 10);
-		/* check if prefix exists, if not, throw an exception */
-		ModeHandler *prefixmodehandler = ServerInstance->Modes->FindMode (prefixmode);
-		if (!prefixmodehandler)
-			throw CoreException ("Module providing the configured prefix is not loaded");
-		mh.set_prefixrequired (prefixmodehandler);
+		ConfigTag *tag = ServerInstance->Config->GetTag ("chanregister");
+
+		filedb = tag->getString ("dbfile");
+		tablename = tag->getString("sqltable");
+		if (!tablename.empty())
+		{
+			std::string dbid = tag->getString("dbid");
+			if (dbid.empty())
+				sqldb.SetProvider("SQL");
+			else
+				sqldb.SetProvider("SQL/" + dbid);
+			if (!sqldb)
+			{
+				status.ReportError(tag, "SQL database not found!");
+				tablename = "";
+			}
+		}
+		/* expiration is in user-readable time format */
+		expiretime = ServerInstance->Duration (tag->getString ("expiretime", "21d"));
+		mh.verbose = tag->getBool ("verbose", true);
+		mh.chanlimit = tag->getInt ("limit", 10);
+
+		std::string prefixmode = tag->getString("prefix", "op");
+		ModeHandler *prefixmodehandler = ServerInstance->Modes->FindMode(prefixmode);
+		if (prefixmodehandler)
+			mh.set_prefixrequired (prefixmodehandler);
+		else
+			status.ReportError(tag, "The given prefix level was not found");
 	}
 	/* OnCheckJoin - this is an event for checking permissions of some user to join some channel, it is used to allow joining by registrants even when
 banned */
@@ -723,8 +822,8 @@ banned */
 		if (!dirty)
 			return;
 		/* dirty, one of registered channels was changed, save it */
-		if (!chandb.empty())
-			WriteDatabase ( );
+		if (!filedb.empty())
+			WriteFileDatabase();
 		/* clear dirty to prevent next savings */
 		dirty = false;
 	}
@@ -733,7 +832,20 @@ banned */
 	{
 		/* if the channel is not registered, don't do anything, but if channel has been registered, this must be saved, so mark database as to be saved */
 		if (chan->IsModeSet (&mh))
+		{
 			dirty = true;
+			if (!tablename.empty())
+			{
+				ParamL n;
+				n.push_back(tablename);
+				n.push_back(chan->topic);
+				n.push_back(chan->setby);
+				n.push_back(ConvToStr(chan->topicset));
+				n.push_back(chan->name);
+				sqldb->submit(new DiscardQuery(this),
+					"UPDATE ? SET (topic, topicset, topicts) = ('?', '?', '?') WHERE name = '?'", n);
+			}
+		}
 	}
 	/* this event is called after each modechange */
 	void OnMode (User *user, Extensible *target, const irc::modestacker &modes)
@@ -743,7 +855,48 @@ banned */
 			return;
 		/* if it's a registered channel, then the database was changed and must be saved */
 		if (chan->IsModeSet (&mh))
+		{
 			dirty = true;
+			time_t was_set = mh.last_activity.get(chan);
+			if (!was_set)
+				mh.last_activity.set(chan, ServerInstance->Time());
+			if (!tablename.empty())
+			{
+				irc::modestacker ms;
+				chan->ChanModes(ms, MODELIST_FULL);
+				if (was_set)
+				{
+					ParamL n;
+					n.push_back(tablename);
+					n.push_back(ms.popModeLine(FORMAT_PERSIST, INT_MAX, INT_MAX));
+					n.push_back(chan->name);
+					sqldb->submit(new DiscardQuery(this),
+						"UPDATE ? SET modes = '?' WHERE name = '?'", n);
+				}
+				else
+				{
+					// someone just set +r on the channel. Add to DB.
+					ParamL n;
+					n.push_back(tablename);
+					n.push_back(chan->name);
+					n.push_back(ConvToStr(chan->age));
+					n.push_back(ms.popModeLine(FORMAT_PERSIST, INT_MAX, INT_MAX));
+					if (chan->topic.empty())
+					{
+						sqldb->submit(new DiscardQuery(this),
+							"INSERT INTO ? (name, ts, modes) VALUES ('?', '?', '?')", n);
+					}
+					else
+					{
+						n.push_back(chan->topic);
+						n.push_back(chan->setby);
+						n.push_back(ConvToStr(chan->topicset));
+						sqldb->submit(new DiscardQuery(this),
+							"INSERT INTO ? (name, ts, modes, topic, topicset, topicts) VALUES ('?', '?', '?', '?', '?', '?')", n);
+					}
+				}
+			}
+		}
 	}
 	/* when someone unsets +r, OnMode event won't mark the database as requiring saving, but it requires to be saved, and because of this, this event
 	handler is needed */
@@ -751,10 +904,16 @@ banned */
 	ModResult OnRawMode (User *user, Channel *chan, irc::modechange &mc)
 	{
 		/* if mode is being removed and this is our mode then mark as dirty */
-		if (!mc.adding)
+		if (!mc.adding && mc.mode == mh.id)
 		{
-			if (mc.mode == mh.id)
-				dirty = true;
+			dirty = true;
+			if (!tablename.empty())
+			{
+				ParamL n;
+				n.push_back(tablename);
+				n.push_back(chan->name);
+				sqldb->submit(new DiscardQuery(this), "DELETE FROM ? WHERE name = '?'", n);
+			}
 		}
 		/* this is the only thing this module does, so pass through */
 		return MOD_RES_PASSTHRU;
