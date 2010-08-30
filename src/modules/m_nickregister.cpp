@@ -42,12 +42,18 @@ struct NickData
 		}
 	}
 };
-typedef std::map<std::string, NickData> OwnerMap;
+
+/** Nick mapped to information */
+typedef std::map<std::string, NickData> NickMap;
+/** Account mapped to nick(s) */
+typedef std::multimap<std::string, std::string> OwnerMap;
 
 class CommandRegisterNick : public Command
 {
  public:
-	OwnerMap nickowner;
+	NickMap nickinfo;
+	OwnerMap nicksowned;
+
 	int maxreg;
 	CommandRegisterNick(Module* parent) : Command(parent, "NICKREGISTER"), maxreg(5)
 	{
@@ -80,12 +86,12 @@ class CommandRegisterNick : public Command
 			}
 			// and they can't register more than 5 per account (or the conf'd max)
 			int count = 0;
-			for(OwnerMap::iterator i = nickowner.begin(); i != nickowner.end(); i++)
-				if (i->second.account == useraccount)
-					count++;
+			std::pair<OwnerMap::iterator, OwnerMap::iterator> range = nicksowned.equal_range(useraccount);
+			for(OwnerMap::iterator i = range.first; i != range.second; i++)
+				count++;
 			if (count > maxreg)
 			{
-				user->WriteServ("NOTICE %s :You can only %d nicks", user->nick.c_str(), maxreg);
+				user->WriteServ("NOTICE %s :You can only register %d nicks", user->nick.c_str(), maxreg);
 				return CMD_FAILURE;
 			}
 		}
@@ -114,17 +120,31 @@ class CommandRegisterNick : public Command
 		}
 
 		NickData value(regaccount, ts, luts);
-		OwnerMap::iterator it = nickowner.find(nick);
-		if (it == nickowner.end())
+		NickMap::iterator it = nickinfo.find(nick);
+		if (it == nickinfo.end())
 		{
 			if (regaccount != "-")
-				nickowner.insert(std::make_pair(nick, value));
+			{
+				nickinfo.insert(std::make_pair(nick, value));
+				nicksowned.insert(std::make_pair(value.account, nick));
+			}
 		}
 		else
 		{
+			std::string oldowner = it->second.account;
 			it->second.update(value);
+			if (it->second.account != oldowner)
+			{
+				OwnerMap::iterator rev = nicksowned.lower_bound(oldowner);
+				while (rev != nicksowned.end() && rev->first == oldowner && rev->second != regaccount)
+					rev++;
+				if (rev != nicksowned.end() && rev->first == oldowner)
+					nicksowned.erase(rev);
+				if (it->second.account != "-")
+					nicksowned.insert(std::make_pair(it->second.account, nick));
+			}
 			if (it->second.account == "-")
-				nickowner.erase(it);
+				nickinfo.erase(it);
 		}
 
 		if (IS_LOCAL(user))
@@ -176,16 +196,16 @@ class ModuleNickRegister : public Module
 	ModResult OnUserPreNick(User* user, const std::string& nick)
 	{
 		// update timestamp on old nick
-		OwnerMap::iterator it = cmd.nickowner.find(user->nick);
-		if (it != cmd.nickowner.end())
+		NickMap::iterator it = cmd.nickinfo.find(user->nick);
+		if (it != cmd.nickinfo.end())
 			it->second.last_used = ServerInstance->Time();
 
 		if (ServerInstance->NICKForced.get(user))
 			return MOD_RES_PASSTHRU;
 
 		// check the new nick
-		it = cmd.nickowner.find(nick);
-		if (it == cmd.nickowner.end())
+		it = cmd.nickinfo.find(nick);
+		if (it == cmd.nickinfo.end())
 			return MOD_RES_PASSTHRU;
 		std::string acctname = account ? account->GetAccountName(user) : "";
 		if (it->second.account == acctname)
@@ -207,8 +227,8 @@ class ModuleNickRegister : public Module
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		OwnerMap::iterator it = cmd.nickowner.find(user->nick);
-		if (it == cmd.nickowner.end())
+		NickMap::iterator it = cmd.nickinfo.find(user->nick);
+		if (it == cmd.nickinfo.end())
 			return MOD_RES_PASSTHRU;
 		std::string acctname = account ? account->GetAccountName(user) : "";
 		if (it->second.account != acctname)
@@ -222,26 +242,33 @@ class ModuleNickRegister : public Module
 
 	void OnUserQuit(User* user, const std::string&, const std::string&)
 	{
-		OwnerMap::iterator it = cmd.nickowner.find(user->nick);
-		if (it != cmd.nickowner.end())
+		NickMap::iterator it = cmd.nickinfo.find(user->nick);
+		if (it != cmd.nickinfo.end())
 			it->second.last_used = ServerInstance->Time();
 	}
 	
 	void OnGarbageCollect()
 	{
-		OwnerMap::iterator i = cmd.nickowner.begin();
+		NickMap::iterator i = cmd.nickinfo.begin();
 		time_t cutoff = ServerInstance->Time() - expiry;
-		while (i != cmd.nickowner.end())
+		while (i != cmd.nickinfo.end())
 		{
-			OwnerMap::iterator curr = i++;
+			NickMap::iterator curr = i++;
 			if (curr->second.last_used < cutoff)
-				cmd.nickowner.erase(curr);
+			{
+				OwnerMap::iterator rev = cmd.nicksowned.lower_bound(curr->second.account);
+				while (rev != cmd.nicksowned.end() && rev->first == curr->second.account && rev->second != curr->first)
+					rev++;
+				if (rev != cmd.nicksowned.end() && rev->first == curr->second.account)
+					cmd.nicksowned.erase(rev);
+				cmd.nickinfo.erase(curr);
+			}
 		}
 	}
 
 	void OnSyncNetwork(SyncTarget* target)
 	{
-		for(OwnerMap::iterator i = cmd.nickowner.begin(); i != cmd.nickowner.end(); i++)
+		for(NickMap::iterator i = cmd.nickinfo.begin(); i != cmd.nickinfo.end(); i++)
 		{
 			parameterlist params;
 			params.push_back(i->first);
