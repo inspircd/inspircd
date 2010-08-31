@@ -13,8 +13,9 @@
 
 #include "inspircd.h"
 #include "account.h"
+#include "nickregister.h"
 
-static dynamic_reference<AccountProvider> account("account");
+static dynamic_reference<AccountProvider> accounts("account");
 
 struct NickData
 {
@@ -48,14 +49,111 @@ typedef std::map<std::string, NickData> NickMap;
 /** Account mapped to nick(s) */
 typedef std::multimap<std::string, std::string> OwnerMap;
 
-class CommandRegisterNick : public Command
+class RegDB : public NickRegistrationProvider
 {
  public:
 	NickMap nickinfo;
 	OwnerMap nicksowned;
+	time_t expiry;
+
+	RegDB(Module* parent) : NickRegistrationProvider(parent) {}
+
+	std::vector<std::string> GetNicks(const std::string& useraccount)
+	{
+		std::vector<std::string> rv;
+		std::pair<OwnerMap::iterator, OwnerMap::iterator> range = nicksowned.equal_range(useraccount);
+		for(OwnerMap::iterator i = range.first; i != range.second; i++)
+			rv.push_back(i->second);
+		return rv;
+	}
+
+	std::string GetOwner(const std::string& nick)
+	{
+		NickMap::iterator it = nickinfo.find(nick);
+		if (it == nickinfo.end())
+			return "";
+		return it->second.account;
+	}
+
+	void UpdateLastUse(const std::string& nick)
+	{
+		NickMap::iterator it = nickinfo.find(nick);
+		if (it != nickinfo.end())
+			it->second.last_used = ServerInstance->Time();
+	}
+
+	void SetOwner(const std::string& nick, const std::string& acct)
+	{
+		time_t now = ServerInstance->Time();
+		SetOwner(nick, acct, now, now);
+		parameterlist params;
+		params.push_back("*");
+		params.push_back("NICKREGISTER");
+		params.push_back(nick);
+		params.push_back(acct);
+		params.push_back(ConvToStr(now));
+		params.push_back(ConvToStr(now));
+		ServerInstance->PI->SendEncapsulatedData(params);
+	}
+
+	void SetOwner(const std::string& nick, const std::string& regaccount, time_t ts, time_t luts)
+	{
+		NickData value(regaccount, ts, luts);
+		NickMap::iterator it = nickinfo.find(nick);
+		if (it == nickinfo.end())
+		{
+			if (regaccount != "-")
+			{
+				nickinfo.insert(std::make_pair(nick, value));
+				nicksowned.insert(std::make_pair(value.account, nick));
+			}
+		}
+		else
+		{
+			std::string oldowner = it->second.account;
+			it->second.update(value);
+			if (it->second.account != oldowner)
+			{
+				OwnerMap::iterator rev = nicksowned.lower_bound(oldowner);
+				while (rev != nicksowned.end() && rev->first == oldowner && rev->second != regaccount)
+					rev++;
+				if (rev != nicksowned.end() && rev->first == oldowner)
+					nicksowned.erase(rev);
+				if (it->second.account != "-")
+					nicksowned.insert(std::make_pair(it->second.account, nick));
+			}
+			if (it->second.account == "-")
+				nickinfo.erase(it);
+		}
+	}
+
+	void Clean()
+	{
+		NickMap::iterator i = nickinfo.begin();
+		time_t cutoff = ServerInstance->Time() - expiry;
+		while (i != nickinfo.end())
+		{
+			NickMap::iterator curr = i++;
+			if (curr->second.last_used < cutoff)
+			{
+				OwnerMap::iterator rev = nicksowned.lower_bound(curr->second.account);
+				while (rev != nicksowned.end() && rev->first == curr->second.account && rev->second != curr->first)
+					rev++;
+				if (rev != nicksowned.end() && rev->first == curr->second.account)
+					nicksowned.erase(rev);
+				nickinfo.erase(curr);
+			}
+		}
+	}
+};
+
+class CommandRegisterNick : public Command
+{
+ public:
+	RegDB db;
 
 	int maxreg;
-	CommandRegisterNick(Module* parent) : Command(parent, "NICKREGISTER"), maxreg(5)
+	CommandRegisterNick(Module* parent) : Command(parent, "NICKREGISTER"), db(parent), maxreg(5)
 	{
 		syntax = "[[<nick>] <account>|-]";
 	}
@@ -65,7 +163,7 @@ class CommandRegisterNick : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
 		std::string nick = parameters.size() > 2 ? parameters[0] : user->nick;
-		std::string useraccount = account ? account->GetAccountName(user) : "";
+		std::string useraccount = accounts ? accounts->GetAccountName(user) : "";
 		std::string regaccount =
 			parameters.size() > 2 ? parameters[1] :
 			parameters.size() > 1 ? parameters[0] : useraccount;
@@ -85,10 +183,7 @@ class CommandRegisterNick : public Command
 				return CMD_FAILURE;
 			}
 			// and they can't register more than 5 per account (or the conf'd max)
-			int count = 0;
-			std::pair<OwnerMap::iterator, OwnerMap::iterator> range = nicksowned.equal_range(useraccount);
-			for(OwnerMap::iterator i = range.first; i != range.second; i++)
-				count++;
+			int count = db.GetNicks(useraccount).size();
 			if (count > maxreg)
 			{
 				user->WriteServ("NOTICE %s :You can only register %d nicks", user->nick.c_str(), maxreg);
@@ -119,34 +214,7 @@ class CommandRegisterNick : public Command
 			pmod[3] = ConvToStr(luts);
 		}
 
-		NickData value(regaccount, ts, luts);
-		NickMap::iterator it = nickinfo.find(nick);
-		if (it == nickinfo.end())
-		{
-			if (regaccount != "-")
-			{
-				nickinfo.insert(std::make_pair(nick, value));
-				nicksowned.insert(std::make_pair(value.account, nick));
-			}
-		}
-		else
-		{
-			std::string oldowner = it->second.account;
-			it->second.update(value);
-			if (it->second.account != oldowner)
-			{
-				OwnerMap::iterator rev = nicksowned.lower_bound(oldowner);
-				while (rev != nicksowned.end() && rev->first == oldowner && rev->second != regaccount)
-					rev++;
-				if (rev != nicksowned.end() && rev->first == oldowner)
-					nicksowned.erase(rev);
-				if (it->second.account != "-")
-					nicksowned.insert(std::make_pair(it->second.account, nick));
-			}
-			if (it->second.account == "-")
-				nickinfo.erase(it);
-		}
-
+		db.SetOwner(nick, regaccount, ts, luts);
 		if (IS_LOCAL(user))
 			user->WriteServ("NOTICE %s :You have successfully %sregistered the nick %s",
 				user->nick.c_str(), regaccount == "-" ? "un" : "", nick.c_str());
@@ -163,7 +231,6 @@ class ModuleNickRegister : public Module
 {
  public:
 	CommandRegisterNick cmd;
-	time_t expiry;
 
 	ModuleNickRegister() : cmd(this) {}
 
@@ -181,60 +248,57 @@ class ModuleNickRegister : public Module
 			status.ReportError(tag, "<nickregister:mode> must be one of: services, opers, users");
 
 		cmd.maxreg = tag->getInt("maxperaccount", 5);
-		expiry = ServerInstance->Duration(tag->getString("expiretime", "21d"));
+		cmd.db.expiry = ServerInstance->Duration(tag->getString("expiretime", "21d"));
 	}
 
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
+		ServerInstance->Modules->AddService(cmd.db);
 		Implementation eventlist[] = {
 			I_OnUserPreNick, I_OnCheckReady, I_OnSyncNetwork, I_OnUserQuit, I_OnGarbageCollect
 		};
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
-	
+
 	ModResult OnUserPreNick(User* user, const std::string& nick)
 	{
 		// update timestamp on old nick
-		NickMap::iterator it = cmd.nickinfo.find(user->nick);
-		if (it != cmd.nickinfo.end())
-			it->second.last_used = ServerInstance->Time();
+		cmd.db.UpdateLastUse(user->nick);
 
 		if (ServerInstance->NICKForced.get(user))
 			return MOD_RES_PASSTHRU;
 
 		// check the new nick
-		it = cmd.nickinfo.find(nick);
-		if (it == cmd.nickinfo.end())
-			return MOD_RES_PASSTHRU;
-		std::string acctname = account ? account->GetAccountName(user) : "";
-		if (it->second.account == acctname)
+		std::string owner = cmd.db.GetOwner(nick);
+		std::string acctname = accounts ? accounts->GetAccountName(user) : "";
+		if (owner.empty() || owner == acctname)
 			return MOD_RES_PASSTHRU;
 		if (user->registered == REG_ALL)
 		{
 			user->WriteNumeric(433, "%s %s :You must be identified to the account '%s' to use this nick",
-				user->nick.c_str(), user->nick.c_str(), it->second.account.c_str());
+				user->nick.c_str(), user->nick.c_str(), owner.c_str());
 			return MOD_RES_DENY;
 		}
 		else
 		{
 			// allow through to give things like SASL or SQLauth time to return before denying
 			user->WriteNumeric(437, "%s %s :This nick requires you to identify to the account '%s'",
-				user->nick.c_str(), user->nick.c_str(), it->second.account.c_str());
+				user->nick.c_str(), user->nick.c_str(), owner.c_str());
 			return MOD_RES_PASSTHRU;
 		}
 	}
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		NickMap::iterator it = cmd.nickinfo.find(user->nick);
-		if (it == cmd.nickinfo.end())
+		std::string owner = cmd.db.GetOwner(user->nick);
+		if (owner.empty())
 			return MOD_RES_PASSTHRU;
-		std::string acctname = account ? account->GetAccountName(user) : "";
-		if (it->second.account != acctname)
+		std::string acctname = accounts ? accounts->GetAccountName(user) : "";
+		if (owner != acctname)
 		{
 			user->WriteNumeric(433, "%s %s :Nickname overruled: requires login to the account '%s'",
-				user->nick.c_str(), user->nick.c_str(), it->second.account.c_str());
+				user->nick.c_str(), user->nick.c_str(), owner.c_str());
 			user->ChangeNick(user->uuid, true);
 		}
 		return MOD_RES_PASSTHRU;
@@ -242,33 +306,17 @@ class ModuleNickRegister : public Module
 
 	void OnUserQuit(User* user, const std::string&, const std::string&)
 	{
-		NickMap::iterator it = cmd.nickinfo.find(user->nick);
-		if (it != cmd.nickinfo.end())
-			it->second.last_used = ServerInstance->Time();
+		cmd.db.UpdateLastUse(user->nick);
 	}
-	
+
 	void OnGarbageCollect()
 	{
-		NickMap::iterator i = cmd.nickinfo.begin();
-		time_t cutoff = ServerInstance->Time() - expiry;
-		while (i != cmd.nickinfo.end())
-		{
-			NickMap::iterator curr = i++;
-			if (curr->second.last_used < cutoff)
-			{
-				OwnerMap::iterator rev = cmd.nicksowned.lower_bound(curr->second.account);
-				while (rev != cmd.nicksowned.end() && rev->first == curr->second.account && rev->second != curr->first)
-					rev++;
-				if (rev != cmd.nicksowned.end() && rev->first == curr->second.account)
-					cmd.nicksowned.erase(rev);
-				cmd.nickinfo.erase(curr);
-			}
-		}
+		cmd.db.Clean();
 	}
 
 	void OnSyncNetwork(SyncTarget* target)
 	{
-		for(NickMap::iterator i = cmd.nickinfo.begin(); i != cmd.nickinfo.end(); i++)
+		for(NickMap::iterator i = cmd.db.nickinfo.begin(); i != cmd.db.nickinfo.end(); i++)
 		{
 			parameterlist params;
 			params.push_back(i->first);
