@@ -135,6 +135,12 @@ class CommandSilence : public Command
 				pattern = CompilePattern(parameters[1].c_str());
 			}
 
+			if (pattern == 0)
+			{
+				user->WriteServ("NOTICE %s :Bad SILENCE pattern",user->nick.c_str());
+				return CMD_INVALID;
+			}
+
 			if (!mask.length())
 			{
 				// 'SILENCE +' or 'SILENCE -', assume *!*@*
@@ -247,21 +253,24 @@ class CommandSilence : public Command
 	std::string DecompPattern (const int pattern)
 	{
 		std::string out;
-		if ((pattern & SILENCE_PRIVATE) > 0)
+		if (pattern & SILENCE_PRIVATE)
 			out += ",privatemessages";
-		if ((pattern & SILENCE_CHANNEL) > 0)
+		if (pattern & SILENCE_CHANNEL)
 			out += ",channelmessages";
-		if ((pattern & SILENCE_INVITE) > 0)
+		if (pattern & SILENCE_INVITE)
 			out += ",invites";
-		if ((pattern & SILENCE_NOTICE) > 0)
+		if (pattern & SILENCE_NOTICE)
 			out += ",privatenotices";
-		if ((pattern & SILENCE_CNOTICE) > 0)
+		if (pattern & SILENCE_CNOTICE)
 			out += ",channelnotices";
-		if ((pattern & SILENCE_ALL) > 0)
+		if (pattern & SILENCE_ALL)
 			out = ",all";
-		if ((pattern & SILENCE_EXCLUDE) > 0)
+		if (pattern & SILENCE_EXCLUDE)
 			out += ",exclude";
-		return "<" + out.substr(1) + ">";
+		if (out.length())
+			return "<" + out.substr(1) + ">";
+		else
+			return "<none>";
 	}
 
 };
