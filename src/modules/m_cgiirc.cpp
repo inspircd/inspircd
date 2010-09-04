@@ -13,29 +13,45 @@
 
 #include "inspircd.h"
 
-#ifndef WINDOWS
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif
-
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
 enum CGItype { INVALID, PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
+struct CGIData {
+	/** Name of the CGI:IRC server as defined in its <cgiirc> block */
+	std::string name;
+	/** Original host/ip */
+	std::string host, ip;
+};
+
+class CGIExtItem : public SimpleExtItem<CGIData>
+{
+ public:
+	CGIExtItem(Module* parent) : SimpleExtItem<CGIData>("cgiirc", parent) {}
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	{
+		CGIData* d = static_cast<CGIData*>(item);
+		if (d && format == FORMAT_USER)
+			return d->name + " " + d->host + " " + d->ip;
+		return "";
+	}
+};
 
 /** Holds a CGI site's details
  */
 class CGIhost
 {
 public:
+	std::string name;
 	std::string hostmask;
 	CGItype type;
 	std::string password;
 
-	CGIhost(const std::string &mask = "", CGItype t = IDENTFIRST, const std::string &spassword ="")
-	: hostmask(mask), type(t), password(spassword)
+	CGIhost(ConfigTag* tag, const std::string& mask, CGItype t)
+	: hostmask(mask), type(t)
 	{
+		name = tag->getString("name", mask);
+		password = tag->getString("password");
 	}
 };
 typedef std::vector<CGIhost> CGIHostlist;
@@ -55,16 +71,11 @@ class CommandWebirc : public Command
 {
  public:
 	bool notify;
-	StringExtItem realhost;
-	StringExtItem realip;
-	LocalStringExt webirc_hostname;
-	LocalStringExt webirc_ip;
+	CGIExtItem cgiext;
 
 	CGIHostlist Hosts;
 	CommandWebirc(Module* Creator)
-		: Command(Creator, "WEBIRC", 4),
-		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator),
-		  webirc_hostname("cgiirc_webirc_hostname", Creator), webirc_ip("cgiirc_webirc_ip", Creator)
+		: Command(Creator, "WEBIRC", 4), cgiext(Creator)
 		{
 			works_before_reg = true;
 			this->syntax = "password client hostname ip";
@@ -80,12 +91,24 @@ class CommandWebirc : public Command
 				{
 					if(iter->type == WEBIRC && parameters[0] == iter->password)
 					{
-						realhost.set(user, user->host);
-						realip.set(user, user->GetIPString());
+						CGIData* data = new CGIData;
+						data->name = iter->name;
+						data->host = user->host;
+						data->ip = user->GetIPString();
+						cgiext.set(user, data);
 						if (notify)
 							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
-						webirc_hostname.set(user, parameters[2]);
-						webirc_ip.set(user, parameters[3]);
+
+						ServerInstance->Users->RemoveCloneCounts(user);
+						user->InvalidateCache();
+						user->SetClientIP(parameters[3].c_str());
+						if (parameters[2].length() < 64)
+							user->host = user->dhost = parameters[2];
+						else
+							user->host = user->dhost = user->GetIPString();
+						ServerInstance->Users->AddLocalClone(user);
+						ServerInstance->Users->AddGlobalClone(user);
+						user->CheckLines(true);
 						return CMD_SUCCESS;
 					}
 				}
@@ -163,13 +186,11 @@ public:
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
-		ServerInstance->Extensions.Register(&cmd.realhost);
-		ServerInstance->Extensions.Register(&cmd.realip);
-		ServerInstance->Extensions.Register(&cmd.webirc_hostname);
-		ServerInstance->Extensions.Register(&cmd.webirc_ip);
+		ServerInstance->Modules->AddService(cmd);
+		ServerInstance->Modules->AddService(cmd.cgiext);
+		ServerInstance->Modules->AddService(waiting);
 
-		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnUserConnect };
+		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -192,36 +213,29 @@ public:
 		{
 			ConfigTag* tag = i->second;
 			std::string hostmask = tag->getString("mask"); // An allowed CGI:IRC host
-			std::string type = tag->getString("type"); // What type of user-munging we do on this host.
-			std::string password = tag->getString("password");
+			std::string type = tag->getString("type", "pass");
 
-			if(hostmask.length())
-			{
-				if (type == "webirc" && !password.length()) {
-					status.ReportError(tag, "missing <cgihost:password> in webirc block", false);
-				}
-				else
-				{
-					CGItype cgitype = INVALID;
-					if (type == "pass")
-						cgitype = PASS;
-					else if (type == "ident")
-						cgitype = IDENT;
-					else if (type == "passfirst")
-						cgitype = PASSFIRST;
-					else if (type == "webirc")
-						cgitype = WEBIRC;
-
-					if (cgitype == INVALID)
-						cgitype = PASS;
-
-					cmd.Hosts.push_back(CGIhost(hostmask,cgitype, password.length() ? password : "" ));
-				}
-			}
-			else
+			if(!hostmask.length())
 			{
 				status.ReportError(tag, "invalid <cgihost:mask>", false);
+				continue;
 			}
+
+			CGItype cgitype = INVALID;
+			if (type == "pass")
+				cgitype = PASS;
+			else if (type == "ident")
+				cgitype = IDENT;
+			else if (type == "passfirst")
+				cgitype = PASSFIRST;
+			else if (type == "webirc")
+				cgitype = WEBIRC;
+			else
+			{
+				status.ReportError(tag, "invalid <cgihost:type>", false);
+				continue;
+			}
+			cmd.Hosts.push_back(CGIhost(tag,hostmask,cgitype));
 		}
 	}
 
@@ -241,24 +255,24 @@ public:
 				// Deal with it...
 				if(iter->type == PASS)
 				{
-					CheckPass(user); // We do nothing if it fails so...
+					CheckPass(iter->name, user); // We do nothing if it fails so...
 					user->CheckLines(true);
 				}
-				else if(iter->type == PASSFIRST && !CheckPass(user))
+				else if(iter->type == PASSFIRST && !CheckPass(iter->name, user))
 				{
 					// If the password lookup failed, try the ident
-					CheckIdent(user);	// If this fails too, do nothing
+					CheckIdent(iter->name, user);	// If this fails too, do nothing
 					user->CheckLines(true);
 				}
 				else if(iter->type == IDENT)
 				{
-					CheckIdent(user); // Nothing on failure.
+					CheckIdent(iter->name, user); // Nothing on failure.
 					user->CheckLines(true);
 				}
-				else if(iter->type == IDENTFIRST && !CheckIdent(user))
+				else if(iter->type == IDENTFIRST && !CheckIdent(iter->name, user))
 				{
 					// If the ident lookup fails, try the password.
-					CheckPass(user);
+					CheckPass(iter->name, user);
 					user->CheckLines(true);
 				}
 				else if(iter->type == WEBIRC)
@@ -270,35 +284,16 @@ public:
 		}
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
-	{
-		std::string *webirc_hostname = cmd.webirc_hostname.get(user);
-		std::string *webirc_ip = cmd.webirc_ip.get(user);
-		if (!webirc_ip)
-			return;
-		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetClientIP(webirc_ip->c_str());
-		user->InvalidateCache();
-		if (webirc_hostname && webirc_hostname->length() < 64)
-			user->host = user->dhost = *webirc_hostname;
-		else
-			user->host = user->dhost = user->GetIPString();
-		user->InvalidateCache();
-		ServerInstance->Users->AddLocalClone(user);
-		ServerInstance->Users->AddGlobalClone(user);
-		user->SetClass();
-		user->CheckClass();
-		user->CheckLines(true);
-		cmd.webirc_ip.unset(user);
-		cmd.webirc_hostname.unset(user);
-	}
-
-	bool CheckPass(LocalUser* user)
+	bool CheckPass(const std::string& name, LocalUser* user)
 	{
 		if(IsValidHost(user->password))
 		{
-			cmd.realhost.set(user, user->host);
-			cmd.realip.set(user, user->GetIPString());
+			CGIData* data = new CGIData;
+			data->name = name;
+			data->host = user->host;
+			data->ip = user->GetIPString();
+			cmd.cgiext.set(user,data);
+
 			user->host = user->password;
 			user->dhost = user->password;
 			user->InvalidateCache();
@@ -330,7 +325,7 @@ public:
 		return false;
 	}
 
-	bool CheckIdent(LocalUser* user)
+	bool CheckIdent(const std::string& name, LocalUser* user)
 	{
 		const char* ident;
 		int len = user->ident.length();
@@ -350,8 +345,12 @@ public:
 		newip.s_addr = htonl(ipaddr);
 		char* newipstr = inet_ntoa(newip);
 
-		cmd.realhost.set(user, user->host);
-		cmd.realip.set(user, user->GetIPString());
+		CGIData* data = new CGIData;
+		data->name = name;
+		data->host = user->host;
+		data->ip = user->GetIPString();
+		cmd.cgiext.set(user,data);
+
 		ServerInstance->Users->RemoveCloneCounts(user);
 		user->SetClientIP(newipstr);
 		ServerInstance->Users->AddLocalClone(user);
