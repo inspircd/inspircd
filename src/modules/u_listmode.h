@@ -222,11 +222,14 @@ class ListModeBase : public ModeHandler
 		// Try and grab the list
 		modelist* el = extItem.get(channel);
 
-		if (this->tidy)
-			ModeParser::CleanMask(parameter);
-
 		if (adding)
 		{
+			if (tidy)
+				ModeParser::CleanMask(parameter);
+
+			if (parameter.length() > 250)
+				return MODEACTION_DENY;
+
 			// If there was no list
 			if (!el)
 			{

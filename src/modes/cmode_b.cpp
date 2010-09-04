@@ -105,7 +105,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	/* Attempt to tidy the mask */
 	ModeParser::CleanMask(dest);
 	/* If the mask was invalid, we exit */
-	if (dest == "")
+	if (dest == "" || dest.length() > 250)
 		return dest;
 
 	long maxbans = chan->GetMaxBans();
@@ -149,9 +149,6 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 		dest = "";
 		return dest;
 	}
-
-	/* 'Clean' the mask, e.g. nick -> nick!*@* */
-	ModeParser::CleanMask(dest);
 
 	for (BanList::iterator i = chan->bans.begin(); i != chan->bans.end(); i++)
 	{

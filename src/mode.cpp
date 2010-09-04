@@ -266,7 +266,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	int pcnt = mh->GetNumParams(adding);
 
 	// crop mode parameter size to 250 characters
-	if (parameter.length() > 250)
+	if (parameter.length() > 250 && adding)
 		parameter = parameter.substr(0, 250);
 
 	ModResult MOD_RESULT;
