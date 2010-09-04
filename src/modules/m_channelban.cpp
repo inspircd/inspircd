@@ -48,7 +48,7 @@ class ModuleBadChannelExtban : public Module
 					if (status)
 					{
 						Membership* memb = c->GetUser(user);
-						if (memb->hasMode(status))
+						if (memb && memb->hasMode(status))
 							return MOD_RES_DENY;
 					}
 					else
