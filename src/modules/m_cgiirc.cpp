@@ -305,20 +305,23 @@ public:
 	virtual void OnUserConnect(User* user)
 	{
 		std::string *webirc_hostname, *webirc_ip;
-		if(user->GetExt("cgiirc_webirc_hostname", webirc_hostname))
-		{
-			user->host.assign(*webirc_hostname, 0, 64);
-			user->dhost.assign(*webirc_hostname, 0, 64);
-			delete webirc_hostname;
-			user->InvalidateCache();
-			user->Shrink("cgiirc_webirc_hostname");
-		}
 		if(user->GetExt("cgiirc_webirc_ip", webirc_ip))
 		{
 			ServerInstance->Users->RemoveCloneCounts(user);
 			user->SetSockAddr(user->GetProtocolFamily(), webirc_ip->c_str(), user->GetPort());
 			delete webirc_ip;
 			user->InvalidateCache();
+			if(user->GetExt("cgiirc_webirc_hostname", webirc_hostname) && webirc_hostname->length() < 64)
+			{
+				user->host = *webirc_hostname;
+				user->dhost = *webirc_hostname;
+				delete webirc_hostname;
+			}
+			else
+			{
+				user->host = user->dhost = user->GetIPString();
+			}
+			user->Shrink("cgiirc_webirc_hostname");
 			user->Shrink("cgiirc_webirc_ip");
 			ServerInstance->Users->AddLocalClone(user);
 			ServerInstance->Users->AddGlobalClone(user);
