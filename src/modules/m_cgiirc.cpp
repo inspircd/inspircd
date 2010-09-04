@@ -274,24 +274,22 @@ public:
 	{
 		std::string *webirc_hostname = cmd.webirc_hostname.get(user);
 		std::string *webirc_ip = cmd.webirc_ip.get(user);
+		if (!webirc_ip)
+			return;
+		ServerInstance->Users->RemoveCloneCounts(user);
+		user->SetClientIP(webirc_ip->c_str());
+		user->InvalidateCache();
 		if (webirc_hostname && webirc_hostname->length() < 64)
-		{
-			user->host = *webirc_hostname;
-			user->dhost = *webirc_hostname;
-			user->InvalidateCache();
-		}
-		if (webirc_ip)
-		{
-			ServerInstance->Users->RemoveCloneCounts(user);
-			user->SetClientIP(webirc_ip->c_str());
-			user->InvalidateCache();
-			cmd.webirc_ip.unset(user);
-			ServerInstance->Users->AddLocalClone(user);
-			ServerInstance->Users->AddGlobalClone(user);
-			user->SetClass();
-			user->CheckClass();
-			user->CheckLines(true);
-		}
+			user->host = user->dhost = *webirc_hostname;
+		else
+			user->host = user->dhost = user->GetIPString();
+		user->InvalidateCache();
+		ServerInstance->Users->AddLocalClone(user);
+		ServerInstance->Users->AddGlobalClone(user);
+		user->SetClass();
+		user->CheckClass();
+		user->CheckLines(true);
+		cmd.webirc_ip.unset(user);
 		cmd.webirc_hostname.unset(user);
 	}
 
