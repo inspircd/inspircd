@@ -416,13 +416,14 @@ class ModuleCloaking : public Module
 		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
 	}
 
-	void ReadConfig(ConfigReadStatus&)
+	void ReadConfig(ConfigReadStatus& stat)
 	{
 		ConfigTag* tag = ServerInstance->Config->GetTag("cloak");
 		prefix = tag->getString("prefix");
 		suffix = tag->getString("suffix", ".IP");
 
 		std::string modestr = tag->getString("mode");
+		mode = MODE_OPAQUE;
 		if (modestr == "compat-host")
 			mode = MODE_COMPAT_HOST;
 		else if (modestr == "compat-ip")
@@ -432,7 +433,7 @@ class ModuleCloaking : public Module
 		else if (modestr == "full")
 			mode = MODE_OPAQUE;
 		else
-			throw ModuleException("Bad value for <cloak:mode>; must be one of compat-host, compat-ip, half, full");
+			stat.ReportError(tag, "Bad value for <cloak:mode>; must be one of compat-host, compat-ip, half, full");
 
 		if (mode == MODE_COMPAT_HOST || mode == MODE_COMPAT_IPONLY)
 		{
@@ -470,27 +471,24 @@ class ModuleCloaking : public Module
 			if (prefix.empty())
 				prefix = ServerInstance->Config->Network;
 
-			if (!compatkey[0] || !compatkey[1] || !compatkey[2] || !compatkey[3] ||
-				compatkey[0] >= limit || compatkey[1] >= limit || compatkey[2] >= limit || compatkey[3] >= limit)
-			{
-				std::string detail;
-				if (!compatkey[0] || compatkey[0] >= limit)
-					detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[1] || compatkey[1] >= limit)
-					detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[2] || compatkey[2] >= limit)
-					detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[3] || compatkey[3] >= limit)
-					detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
+			const char* detail = NULL;
+			if (!compatkey[0] || compatkey[0] >= limit)
+				detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
+			else if (!compatkey[1] || compatkey[1] >= limit)
+				detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
+			else if (!compatkey[2] || compatkey[2] >= limit)
+				detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
+			else if (!compatkey[3] || compatkey[3] >= limit)
+				detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
 
-				throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
-			}
+			if (detail)
+				stat.ReportError(tag, detail);
 		}
 		else
 		{
 			key = tag->getString("key");
 			if (key.empty() || key == "secret")
-				throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
+				stat.ReportError(tag, "You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
 		}
 	}
 
