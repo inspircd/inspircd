@@ -162,11 +162,11 @@ class CommandRegisterNick : public Command
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
-		std::string nick = parameters.size() > 2 ? parameters[0] : user->nick;
+		std::string nick = parameters.size() > 1 ? parameters[0] : user->nick;
 		std::string useraccount = accounts ? accounts->GetAccountName(user) : "";
 		std::string regaccount =
-			parameters.size() > 2 ? parameters[1] :
-			parameters.size() > 1 ? parameters[0] : useraccount;
+			parameters.size() > 1 ? parameters[1] :
+			parameters.size() > 0 ? parameters[0] : useraccount;
 
 		// TODO convert to numerics for errors
 		if (!user->HasPrivPermission("nicks/set-registration", false))
@@ -177,17 +177,20 @@ class CommandRegisterNick : public Command
 				user->WriteServ("NOTICE %s :You can only register your own nick", user->nick.c_str());
 				return CMD_FAILURE;
 			}
-			if (regaccount != "-" && regaccount != useraccount)
+			if (regaccount != "-")
 			{
-				user->WriteServ("NOTICE %s :You can only register to your own account", user->nick.c_str());
-				return CMD_FAILURE;
-			}
-			// and they can't register more than 5 per account (or the conf'd max)
-			int count = db.GetNicks(useraccount).size();
-			if (count > maxreg)
-			{
-				user->WriteServ("NOTICE %s :You can only register %d nicks", user->nick.c_str(), maxreg);
-				return CMD_FAILURE;
+				if (regaccount != useraccount)
+				{
+					user->WriteServ("NOTICE %s :You can only register to your own account", user->nick.c_str());
+					return CMD_FAILURE;
+				}
+				// and they can't register more than 5 per account (or the conf'd max)
+				int count = db.GetNicks(useraccount).size();
+				if (count > maxreg)
+				{
+					user->WriteServ("NOTICE %s :You can only register %d nicks", user->nick.c_str(), maxreg);
+					return CMD_FAILURE;
+				}
 			}
 		}
 		if (IS_LOCAL(user) && !ServerInstance->IsNick(nick.c_str(), ServerInstance->Config->Limits.NickMax))
@@ -335,7 +338,7 @@ class ModuleNickRegister : public Module
 
 	Version GetVersion()
 	{
-		return Version("Nick registration tracking", VF_VENDOR);
+		return Version("Nick registration tracking", VF_VENDOR | VF_OPTCOMMON);
 	}
 };
 

@@ -73,6 +73,10 @@ class DatabaseReadQuery : public SQLQuery
 		}
 		reading = false;
 	}
+	void OnError(SQLerror& e)
+	{
+		ServerInstance->Logs->Log("m_sql_channels", SPARSE, "m_sql_channels got error on initial query: %s", e.str.c_str());
+	}
 };
 
 class DiscardQuery : public SQLQuery
@@ -82,7 +86,7 @@ class DiscardQuery : public SQLQuery
 	void OnResult(SQLResult& res) {}
 	void OnError(SQLerror& e)
 	{
-		ServerInstance->Logs->Log("m_chanregister", DEFAULT, "SQL update returned error: %s", e.str.c_str());
+		ServerInstance->Logs->Log("m_sql_channels", DEFAULT, "SQL update returned error: %s", e.str.c_str());
 	}
 };
 
@@ -99,7 +103,7 @@ class ChanSQLDB : public Module
 	}
 	Version GetVersion()
 	{
-		return Version("Provides channel state updates to an SQL databse", VF_VENDOR);
+		return Version("Provides channel state updates to an SQL database", VF_VENDOR);
 	}
 	void init()
 	{
