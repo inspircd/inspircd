@@ -506,9 +506,6 @@ eol_found:
 		if (user->quitting)
 			return;
 	}
-	// Add pseudo-penalty so that we continue processing after sendq recedes
-	if (user->CommandFloodPenalty == 0 && (user->frozen || getSendQSize() >= sendqmax))
-		user->CommandFloodPenalty++;
 	if (user->CommandFloodPenalty >= penaltymax && !user->MyClass->fakelag)
 		ServerInstance->Users->QuitUser(user, "Excess Flood");
 }
