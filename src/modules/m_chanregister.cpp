@@ -196,6 +196,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 					chan->WriteChannel (ServerInstance->FakeClient, "NOTICE %s :This channel has been registered",
 					chan->name.c_str ( ));
 			}
+			last_activity.set(chan, ServerInstance->Time());
 			chan->SetModeParam (this, param);
 		}
 		else
