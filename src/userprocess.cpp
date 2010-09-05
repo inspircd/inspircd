@@ -55,7 +55,7 @@ void InspIRCd::DoBackgroundUserStuff()
 		if (curr->quitting)
 			continue;
 
-		if (curr->CommandFloodPenalty)
+		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
 		{
 			unsigned int rate = curr->MyClass->GetCommandRate();
 			if (curr->CommandFloodPenalty > rate)
