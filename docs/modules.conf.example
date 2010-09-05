@@ -667,15 +667,37 @@
 # Channel registration module: Adds support for ircd-side channel
 # registration
 # Note: This module conflicts with the channel registered mode in
-# m_services_account.  If you want to use this module, you should set
+# m_account_flags.  If you want to use this module, you should set
 # <modeletters:c_registered> in inspircd.conf to "" to fix the conflict
 #
 #<module name="m_chanregister.so">
 #-#-#-#-#-#-#-#-# CHANNEL REGISTRATION CONFIGURATION -#-#-#-#-#-#-#-#-#
 # prefix - The minimum rank needed to register an unregistered channel
-# chandb - The file to store channel registration information in
 # expiretime - The amount of time to retain an empty registered channel
-#<chanregister prefix="op" chandb="data/channels.db" expiretime="21d">
+#<chanregister prefix="op" expiretime="21d">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel state storage module: stores +P and +r (chanregister) channels
+# so that their state (topic/modes) is not lost on ircd restart
+#
+#<module name="m_flatfile_channels.so">
+#<chandb dbfile="data/channels.db">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel state storage module: stores channels in an SQL database and
+# restores their state on ircd restart. 
+#
+#<module name="m_sql_channels.so">
+#<chandb table="channels" dbid="db1">
+# chandb:table - the table name in the database. Must contain columns:
+#   name - channel name
+#   ts - channel timestamp (integer)
+#   modes - channel modes, long-form list (includes bans, can get very long)
+#   topic - channel topic (may be null)
+#   topicset - setter of the topic (may be null)
+#   topicts - channel topic timestamp (numeric, may be null)
+# chandb:dbid - The ID from a <database> tag
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted

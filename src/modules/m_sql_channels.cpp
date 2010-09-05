@@ -68,10 +68,13 @@ class DatabaseReadQuery : public SQLQuery
 				chan->setby = row[4];
 				chan->topicset = atol(row[5].value.c_str());
 			}
+			// delete the channel if it is empty and not +r or +P
+			chan->DelUser(ServerInstance->FakeClient);
 		}
 		reading = false;
 	}
 };
+
 class DiscardQuery : public SQLQuery
 {
  public:
@@ -101,7 +104,7 @@ class ChanSQLDB : public Module
 	void init()
 	{
 		Implementation eventlist[] = {
-			I_OnMode, I_OnPostTopicChange
+			I_OnMode, I_OnPostTopicChange, I_OnUserJoin, I_OnChannelDelete
 		};
 
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -116,7 +119,7 @@ class ChanSQLDB : public Module
 	{
 		ConfigTag *tag = ServerInstance->Config->GetTag ("chandb");
 
-		tablename = tag->getString("sqltable");
+		tablename = tag->getString("table");
 		std::string dbid = tag->getString("dbid");
 		if (dbid.empty())
 			sqldb.SetProvider("SQL");
@@ -124,6 +127,35 @@ class ChanSQLDB : public Module
 			sqldb.SetProvider("SQL/" + dbid);
 		if (!sqldb)
 			status.ReportError(tag, "SQL database not found!");
+	}
+
+	void AddToDB(Channel* chan)
+	{
+		irc::modestacker ms;
+		chan->ChanModes(ms, MODELIST_FULL);
+		ParamL n;
+		n.push_back(tablename);
+		n.push_back(chan->name);
+		n.push_back(ConvToStr(chan->age));
+		n.push_back(ms.popModeLine(FORMAT_PERSIST, INT_MAX, INT_MAX));
+		if (chan->topic.empty())
+		{
+			sqldb->submit(new DiscardQuery(this),
+				"INSERT INTO ? (name, ts, modes) VALUES ('?', '?', '?')", n);
+		}
+		else
+		{
+			n.push_back(chan->topic);
+			n.push_back(chan->setby);
+			n.push_back(ConvToStr(chan->topicset));
+			sqldb->submit(new DiscardQuery(this),
+				"INSERT INTO ? (name, ts, modes, topic, topicset, topicts) VALUES ('?', '?', '?', '?', '?', '?')", n);
+		}
+	}
+	void OnUserJoin(Membership* memb, bool, bool, CUList&)
+	{
+		if (!InDB.get(memb->chan))
+			AddToDB(memb->chan);
 	}
 	void OnPostTopicChange (User *user, Channel *chan, const std::string &topic)
 	{
@@ -159,28 +191,15 @@ class ChanSQLDB : public Module
 			"UPDATE ? SET modes = '?' WHERE name = '?'", n);
 	}
 
-	void AddToDB(Channel* chan)
+	void OnChannelDelete(Channel* chan)
 	{
-		irc::modestacker ms;
-		chan->ChanModes(ms, MODELIST_FULL);
+		if (!InDB.get(chan))
+			return;
 		ParamL n;
 		n.push_back(tablename);
 		n.push_back(chan->name);
-		n.push_back(ConvToStr(chan->age));
-		n.push_back(ms.popModeLine(FORMAT_PERSIST, INT_MAX, INT_MAX));
-		if (chan->topic.empty())
-		{
-			sqldb->submit(new DiscardQuery(this),
-				"INSERT INTO ? (name, ts, modes) VALUES ('?', '?', '?')", n);
-		}
-		else
-		{
-			n.push_back(chan->topic);
-			n.push_back(chan->setby);
-			n.push_back(ConvToStr(chan->topicset));
-			sqldb->submit(new DiscardQuery(this),
-				"INSERT INTO ? (name, ts, modes, topic, topicset, topicts) VALUES ('?', '?', '?', '?', '?', '?')", n);
-		}
+		sqldb->submit(new DiscardQuery(this),
+			"DELETE FROM ? WHERE name = '?'", n);
 	}
 
 	void Prioritize()
