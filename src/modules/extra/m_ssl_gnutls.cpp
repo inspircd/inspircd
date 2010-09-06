@@ -31,6 +31,8 @@ enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN, ISSL_CLOSING, I
 static gnutls_digest_algorithm_t hash;
 static int dh_bits;
 
+#define GNUTLS_HAS_PRIORITY (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 2))
+
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st);
 
@@ -39,8 +41,10 @@ struct x509_cred : public refcountbase
 	std::vector<gnutls_x509_crt_t> certs;
 	gnutls_x509_privkey_t key;
 	gnutls_certificate_credentials cred;
+#if GNUTLS_HAS_PRIORITY
 	gnutls_priority_t cipher_prio;
 	bool gnutlsonly;
+#endif
 	x509_cred(ConfigTag* tag, const std::string& ca_string, const std::string& crl_string, gnutls_dh_params dh_params)
 	{
 		FileReader reader;
@@ -106,6 +110,7 @@ struct x509_cred : public refcountbase
 		if (ret < 0)
 			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
 
+#if GNUTLS_HAS_PRIORITY
 		std::string prios = tag->getString("prio", "NORMAL:+COMP-DEFLATE");
 		const char* errpos = NULL;
 		ret = gnutls_priority_init(&cipher_prio, prios.c_str(), &errpos);
@@ -113,6 +118,7 @@ struct x509_cred : public refcountbase
 			throw ModuleException("Bad GnuTLS priority settings: " + std::string(gnutls_strerror(ret)));
 
 		gnutlsonly = tag->getBool("gnutls_only");
+#endif
 
 		gnutls_certificate_set_dh_params(cred, dh_params);
 		gnutls_certificate_client_set_retrieve_function (cred, cert_callback);
@@ -120,7 +126,9 @@ struct x509_cred : public refcountbase
 
 	~x509_cred()
 	{
+#if GNUTLS_HAS_PRIORITY
 		gnutls_priority_deinit(cipher_prio);
+#endif
 		gnutls_certificate_free_credentials(cred);
 		for(unsigned int i=0; i < certs.size(); i++)
 			gnutls_x509_crt_deinit(certs[i]);
@@ -184,7 +192,11 @@ class GnuTLSHook : public SSLIOHook
 		if (mycert->gnutlsonly)
 			gnutls_handshake_set_private_extensions(sess, 1);
 
+#if GNUTLS_HAS_PRIORITY
 		rv = gnutls_priority_set(sess, creds->cipher_prio);
+#else
+		rv = gnutls_set_default_priority(sess);
+#endif
 		if (rv < 0)
 			throw ModuleException("Cannot set cipher priorities");
 
