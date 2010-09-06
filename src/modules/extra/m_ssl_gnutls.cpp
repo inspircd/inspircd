@@ -40,6 +40,7 @@ struct x509_cred : public refcountbase
 	gnutls_x509_privkey_t key;
 	gnutls_certificate_credentials cred;
 	gnutls_priority_t cipher_prio;
+	bool gnutlsonly;
 	x509_cred(ConfigTag* tag, const std::string& ca_string, const std::string& crl_string, gnutls_dh_params dh_params)
 	{
 		FileReader reader;
@@ -109,7 +110,9 @@ struct x509_cred : public refcountbase
 		const char* errpos = NULL;
 		ret = gnutls_priority_init(&cipher_prio, prios.c_str(), &errpos);
 		if (ret != GNUTLS_E_SUCCESS)
-			throw ModuleException("Bad GnuTLS priority settings (gnutls:prio)");
+			throw ModuleException("Bad GnuTLS priority settings: " + std::string(gnutls_strerror(ret)));
+
+		gnutlsonly = tag->getBool("gnutls_only");
 
 		gnutls_certificate_set_dh_params(cred, dh_params);
 		gnutls_certificate_client_set_retrieve_function (cred, cert_callback);
@@ -177,6 +180,9 @@ class GnuTLSHook : public SSLIOHook
 		rv = gnutls_init(&sess, client ? GNUTLS_CLIENT : GNUTLS_SERVER);
 		if (rv < 0)
 			throw ModuleException("Cannot init");
+
+		if (mycert->gnutlsonly)
+			gnutls_handshake_set_private_extensions(sess, 1);
 
 		rv = gnutls_priority_set(sess, creds->cipher_prio);
 		if (rv < 0)
