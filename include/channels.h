@@ -352,6 +352,11 @@ class CoreExport Channel : public Extensible
 	/** Clears the cached max bans value
 	 */
 	void ResetMaxBans();
+
+	/** Delete a channel and migrate everyone to a new channel.
+	 * This is used when a channel's TS is lowered.
+	 */
+	static Channel* Nuke(Channel* old, const std::string& channel, time_t newTS);
 };
 
 #endif

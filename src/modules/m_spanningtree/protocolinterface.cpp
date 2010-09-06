@@ -97,7 +97,7 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC", params);
 }
 
-void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::modestacker& cmodes)
+void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::modestacker& cmodes, bool merge)
 {
 	irc::modestacker modes(cmodes);
 	parameterlist outlist;
@@ -122,6 +122,7 @@ void SpanningTreeProtocolInterface::SendMode(User* src, Extensible* dest, irc::m
 		while (!modes.empty())
 		{
 			outlist[2] = modes.popModeLine(FORMAT_NETWORK);
+			if(merge) outlist[2][0] = '=';
 			Utils->DoOneToMany(src->uuid,"FMODE",outlist);
 		}
 	}

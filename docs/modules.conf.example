@@ -681,7 +681,14 @@
 # so that their state (topic/modes) is not lost on ircd restart
 #
 #<module name="m_flatfile_channels.so">
-#<chandb dbfile="data/channels.db">
+#-#-#-#-#-#-#- FLATFILE CHANNEL DATABASE CONFIGURATION -#-#-#-#-#-#-#-#
+# dbfile - The file to store the channels in
+# storeregistered - Whether or not to store registered channels
+# storepermanent - Whether or not to store permanent channels
+# Note that even if storeregistered and storepermanent are both
+# enabled, a channel that is both registered and permanent will still
+# only be stored once.
+#<chandb dbfile="data/channels.db" storeregistered="yes" storepermanent="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel state storage module: stores channels in an SQL database and
@@ -2019,10 +2026,6 @@
 	# flatlinks: If this value is set to yes, /map and /links will
 	# be flattened when shown to non-opers.
 	flatlinks="no"
-
-	# announcets: If set to yes, when the TimeStamp on a channel changes, all users
-	# in channel will be sent a NOTICE about it.
-	announcets="yes"
 
 	# allowmismatched: Setting this option to yes will allow servers to link even
 	# if they don't have the same VF_OPTCOMMON modules loaded. Setting this to

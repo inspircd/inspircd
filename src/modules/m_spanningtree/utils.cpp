@@ -340,7 +340,6 @@ void SpanningTreeUtilities::ReadConfiguration()
 	ConfigTag* tag = status.GetTag("spanningtree");
 	FlatLinks = tag->getBool("flatlinks");
 	HideULines = tag->getBool("hideulines");
-	AnnounceTSChange = tag->getBool("announcets");
 	AllowOptCommon = tag->getBool("allowmismatch");
 	ChallengeResponse = !tag->getBool("disablehmac");
 	quiet_bursts = tag->getBool("quietbursts");

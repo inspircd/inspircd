@@ -524,6 +524,10 @@
 	# it will just message the user normally.
 	ircumsgprefix="no"
 
+	# announcets: If set to yes, when the TimeStamp on a channel changes, all users
+	# in channel will be sent a NOTICE about it.
+	announcets="yes"
+
 	# defaultbind: Sets the default for <bind> tags without an address. Choices are
 	# ipv4 or ipv6; if not specified, IPv6 will be used if your system has support,
 	# falling back to IPv4 otherwise.

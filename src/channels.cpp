@@ -909,3 +909,55 @@ void Channel::RemoveAllPrefixes(User* user)
 		m->second->modes.clear();
 	}
 }
+
+Channel* Channel::Nuke(Channel* old, const std::string& channel, time_t newTS)
+{
+	time_t oldTS = old->age;
+	ServerInstance->SNO->WriteToSnoMask('d', "Recreating channel");
+	if (ServerInstance->Config->AnnounceTSChange)
+		old->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu",
+			old->name.c_str(), channel.c_str(), (unsigned long) oldTS, (unsigned long) newTS);
+
+	// prepare a mode change that removes all modes on the channel
+	irc::modestacker stack;
+	for (ModeIDIter id; id; id++)
+	{
+		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+
+		/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
+		 * rather than applied immediately. Module unloads require this to be done immediately,
+		 * for this function we require tidyness instead. Fixes bug #493
+		 */
+		if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
+			mh->RemoveMode(old, &stack);
+	}
+
+	// don't process the change, just send it to clients
+	ServerInstance->Modes->Send(ServerInstance->FakeClient, old, stack);
+
+	// unhook the old channel
+	chan_hash::iterator iter = ServerInstance->chanlist->find(old->name);
+	ServerInstance->chanlist->erase(iter);
+
+	// create the new channel (which inserts itself in chanlist)
+	Channel* chan = new Channel(channel, newTS);
+
+	// migrate all the users to the new channel
+	// This has the side effect of dropping their permissions (op/voice/etc)
+	for(UserMembIter i = old->userlist.begin(); i != old->userlist.end(); i++)
+	{
+		User* u = i->first;
+		Membership* memb = i->second;
+		u->chans.erase(memb);
+		memb->cull();
+		delete memb;
+		memb = chan->AddUser(u);
+		u->chans.insert(memb);
+	}
+	// nuke the old channel
+	old->userlist.clear();
+	old->cull();
+	delete old;
+
+	return chan;
+}

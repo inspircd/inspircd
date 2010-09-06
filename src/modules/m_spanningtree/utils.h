@@ -55,9 +55,6 @@ class SpanningTreeUtilities : public classbase
 	/** Hide U-Lined servers in /MAP and /LINKS
 	 */
 	bool HideULines;
-	/** Announce TS changes to channels on merge
-	 */
-	bool AnnounceTSChange;
 
 	/** Allow modules marked as VF_OPTCOMMON to be mismatched when linking
 	 */

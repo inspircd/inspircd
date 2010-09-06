@@ -86,8 +86,9 @@ class ProtocolInterface
 	/** Send mode changes for an object.
 	 * @param target The channel name or user to send mode changes for.
 	 * @param The mode changes to send.
+	 * @param merge Whether or not to send the modes as a merge.
 	 */
-	virtual void SendMode(User *src, Extensible* target, irc::modestacker& modes) { }
+	virtual void SendMode(User *src, Extensible* target, irc::modestacker& modes, bool merge = false) { }
 
 	/** Send a notice to users with a given snomask.
 	 * @param snomask The snomask required for the message to be sent.

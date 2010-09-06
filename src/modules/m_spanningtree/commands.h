@@ -85,9 +85,6 @@ class CommandFJoin : public Command
 	CommandFJoin(Module* Creator) : Command(Creator, "FJOIN", 3) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-	/** Recreate a channel, remove modes, send TS change information
-	 */
-	Channel* NukeChannel(Channel* old, const std::string& name, time_t ts);
 };
 class CommandFMode : public Command
 {

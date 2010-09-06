@@ -487,6 +487,10 @@ class CoreExport ServerConfig
 	 */
 	bool NameOnlyModes;
 
+	/** If this value is true, announce TS changes to channels
+	 */
+	bool AnnounceTSChange;
+
 	/** Oper block and type index.
 	 * For anonymous oper blocks (type only), prefix with a space.
 	 */

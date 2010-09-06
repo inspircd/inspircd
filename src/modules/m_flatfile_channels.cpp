@@ -21,7 +21,7 @@
 /* structure for single entry */
 struct EntryDescriptor
 {
-	std::string name, ts, topicset, topicsetby, topic, modes, registrant;
+	std::string name, ts, topicset, topicsetby, topic, modes;
 };
 /** reads the channel database and returns structure with it */
 class DatabaseReader
@@ -55,7 +55,6 @@ class DatabaseReader
 		/* clear data */
 		entry.name = "";
 		entry.ts = "";
-		entry.registrant = "";
 		entry.topicset = "";
 		entry.topicsetby = "";
 		entry.modes = "";
@@ -74,37 +73,23 @@ class DatabaseReader
 		std::string token;
 		irc::spacesepstream sep(str);
 		/* get first one */
-		bool res = sep.GetToken (token);
 		/* malformed if it is not chaninfo */
-		if (token != "chaninfo" || !res)
+		if (!sep.GetToken (token) || token != "chaninfo")
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed channel database");
 			return 0;
 		}
 		/* okay, read channel name */
-		res = sep.GetToken (token);
 		/* name was get, but if it's the last token, database is malformed */
-		if (!res)
+		if (!sep.GetToken (token))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed channel database");
 			return 0;
 		}
 		/* save name */
 		entry.name = token;
-		/* get next token, if it's the last one, db is malformed */
-		res = sep.GetToken (token);
-		if (!res)
-		{
-			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed channel database");
-			return 0;
-		}
 		/* set channel timestamp */
-			entry.ts = token;
-		/* get the last token */
-		res = sep.GetToken (token);
-		/* this time we ignore things after this token */
-		/* set registrant */
-		entry.registrant = token;
+		sep.GetToken (entry.ts);
 		/* initial entry read, read next lines in a loop until end, eof means malformed database again */
 		while (1)
 		{
@@ -130,7 +115,7 @@ class DatabaseReader
 				ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed channel database");
 				return 0;
 			}
-			res = sep2.GetToken (token);
+			sep2.GetToken (token);
 			/* break the loop if token is "end" */
 			if (token == "end") break;
 			/* it is not, so the large if statement there */
@@ -142,18 +127,16 @@ class DatabaseReader
 					ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed topic declaration in channel database for channel %s", entry.name.c_str ( ));
 				}
 				/* if not, then read topic set time */
-				res = sep2.GetToken (token);
 				/* if end then malformed */
-				if (!res)
+				if (!sep2.GetToken (token))
 				{
 					ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed topic declaration in channel database for channel %s", entry.name.c_str ( ));
 				}
 				/* save that */
 				entry.topicset = token;
 				/* get next token */
-				res = sep2.GetToken (token);
 				/* if last then malformed */
-				if (!res)
+				if (!sep2.GetToken (token))
 				{
 					ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed topic declaration in channel database for channel %s", entry.name.c_str ( ));
 				}
@@ -257,6 +240,13 @@ class FlatFileChannelDB : public Module
  private:
 	std::string filedb;
 	bool dirty; // filedb needs to be flushed to disk
+	bool storeregistered, storepermanent;
+
+	/** Whether or not to store a channel to the database */
+	bool ShouldStoreChannel(Channel* c)
+	{
+		return (storeregistered && c->IsModeSet("registered")) || (storepermanent && c->IsModeSet("permanent"));
+	}
 
 	void WriteFileDatabase ( )
 	{
@@ -264,7 +254,7 @@ class FlatFileChannelDB : public Module
 		DatabaseWriter db (filedb);
 		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 		{
-			if (i->second->IsModeSet("permanent") || i->second->IsModeSet("registered"))
+			if (ShouldStoreChannel(i->second))
 				db.next(i->second);
 		}
 	}
@@ -288,77 +278,77 @@ class FlatFileChannelDB : public Module
 			/* entry is valid */
 			/* try to find the channel */
 			Channel *chan = ServerInstance->FindChan (entry->name);
+			time_t ourTS = atol (entry->ts.c_str ( ));
 			/* now, things that will be done depends on if channel was found or not */
-			if (chan)
-			{
-				/* if it was found, then channel timestamp becomes not important, only things needing to be set is the registrant status, do it */
-				/* create the mode stacker */
-				irc::modestacker ms;
-				/* we need to push the mode change */
-				ms.push (irc::modechange ("registered", entry->registrant));
-				/* make the server process and apply the mode change */
-				ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms);
-				/* we don't do it below because channel doesn't exist then */
-				/* but in this situation, channel exists and there are users on it, they must know that mode has been changed */
-				/* send that info to them */
-				ServerInstance->Modes->Send (ServerInstance->FakeClient, chan, ms);
-			}
-			else
+			if (!chan)
 			{
 				/* channel does not exist, allocate it, it will be constructed and added to the network as an empty channel */
-				chan = new Channel (entry->name, atol (entry->ts.c_str ( )));
+				chan = new Channel (entry->name, ourTS);
 				/* empty modeless channel added and allocated */
-				/* so, channel exists in the network, then if topic is not empty, set data */
-				if (!entry->topic.empty ( ))
+			}
+			else if(chan->age > ourTS)
+			{
+				chan = Channel::Nuke(chan, entry->name, ourTS);
+			}
+			else if(chan->age < ourTS)
+			{
+				continue; // there's a channel older than the one we want to load, so we don't load it
+			}
+			/* so, channel exists in the network, then if our topic is newer than the current, set data
+			 * if no topic was ever set, topicset is 0 */
+			time_t topicTS = atol (entry->topicset.c_str ( ));
+			if (topicTS && topicTS >= chan->topicset)
+			{
+				chan->topic = entry->topic;
+				chan->topicset = atol (entry->topicset.c_str ( ));
+				chan->setby = entry->topicsetby;
+				chan->WriteChannelWithServ(chan->setby, "TOPIC %s :%s", chan->name.c_str(), chan->topic.c_str());
+			}
+			/* if modestring is not empty, then set all modes in it */
+			if (!entry->modes.empty ( ))
+			{
+				/* create sepstream */
+				irc::spacesepstream sep(entry->modes);
+				/* create modestacker for stacking all mode changes */
+				irc::modestacker ms;
+				/* spacesepstream is used to iterate through all modes that were saved for a channel */
+				/* modestacker ms is used to stack them */
+				/* iterate through the mode list */
+				while (!sep.StreamEnd ( ))
 				{
-					chan->topic = entry->topic;
-					chan->topicset = atol (entry->topicset.c_str ( ));
-					chan->setby = entry->topicsetby;
-				}
-				/* if modestring is not empty, then set all modes in it */
-				if (!entry->modes.empty ( ))
-				{
-					/* create sepstream */
-					irc::spacesepstream sep(entry->modes);
-					/* create modestacker for stacking all mode changes */
-					irc::modestacker ms;
-					/* spacesepstream is used to iterate through all modes that were saved for a channel */
-					/* modestacker ms is used to stack them */
-					/* iterate through the mode list */
-					while (!sep.StreamEnd ( ))
+					/* get the mode to be applied */
+					std::string token, name, value;
+					sep.GetToken (token);
+					/* the mode looks like name=value unless it doesn't have any value then it's just name */
+					/* find the position of = sign */
+					size_t namepos = token.find ('=');
+					/* if we didn't find anything, set name to the token because mode is... valueless */
+					if (namepos == std::string::npos) name = token;
+					/* if it found that = sign, we have both name and value */
+					else
 					{
-						/* get the mode to be applied */
-						std::string token, name, value;
-						sep.GetToken (token);
-						/* the mode looks like name=value unless it doesn't have any value then it's just name */
-						/* find the position of = sign */
-						size_t namepos = token.find ('=');
-						/* if we didn't find anything, set name to the token because mode is... valueless */
-						if (namepos == std::string::npos) name = token;
-						/* if it found that = sign, we have both name and value */
-						else
-						{
-							/* it found it, name is string before the character, value is the string after it */
-							name = token.substr (0, namepos);
-							value = token.substr (namepos + 1);
-						}
-						/* mode name and value found, we can now add it to the modestacker */
-						/* hmm, or we can't, reason is that letters are separate in user and channel modes, but mode names are not, so what if this thing we're setting is
-						an user mode? */
-						/* to check that, we must find the mode */
-						ModeHandler *mc = ServerInstance->Modes->FindMode (name);
-						/* those actions will be taken only if mode was found and if it's the channel mode */
-						if (mc && mc->GetModeType ( ) == MODETYPE_CHANNEL)
-						{
-							/* mode was found and is not an user mode but a channel mode, push it to the modestacker, we use id instead of name for quicker push because we
-							have the mode handler now */
-							ms.push (irc::modechange (mc->id, value));
-						}
+						/* it found it, name is string before the character, value is the string after it */
+						name = token.substr (0, namepos);
+						value = token.substr (namepos + 1);
 					}
-					/* okay, all modes were pushed, modestacker can now produce the mode line */
-					/* so, process all mode changes and apply them on a channel */
-					ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms);
+					/* mode name and value found, we can now add it to the modestacker */
+					/* hmm, or we can't, reason is that letters are separate in user and channel modes, but mode names are not, so what if this thing we're setting is
+					an user mode? */
+					/* to check that, we must find the mode */
+					ModeHandler *mc = ServerInstance->Modes->FindMode (name);
+					/* those actions will be taken only if mode was found and if it's the channel mode */
+					if (mc && mc->GetModeType ( ) == MODETYPE_CHANNEL)
+					{
+						/* mode was found and is not an user mode but a channel mode, push it to the modestacker, we use id instead of name for quicker push because we
+						have the mode handler now */
+						ms.push (irc::modechange (mc->id, value));
+					}
 				}
+				/* okay, all modes were pushed, modestacker can now produce the mode line */
+				/* so, process all mode changes and apply them on a channel as a merge */
+				ServerInstance->Modes->Process (ServerInstance->FakeClient, chan, ms, true);
+				ServerInstance->Modes->Send (ServerInstance->FakeClient, chan, ms);
+				ServerInstance->PI->SendMode (ServerInstance->FakeClient, chan, ms, true);
 			}
 		}
 	}
@@ -387,8 +377,9 @@ class FlatFileChannelDB : public Module
 	void ReadConfig(ConfigReadStatus& status)
 	{
 		ConfigTag *tag = ServerInstance->Config->GetTag ("chandb");
-
 		filedb = tag->getString ("dbfile");
+		storeregistered = tag->getBool("storeregistered", true);
+		storepermanent = tag->getBool("storepermanent", false);
 	}
 	/* called on background timer to write all channels to disk if they were changed */
 	void OnBackgroundTimer (time_t cur)
@@ -404,12 +395,13 @@ class FlatFileChannelDB : public Module
 	/* after the topic has been changed, call this to check if channel was registered */
 	void OnPostTopicChange (User *user, Channel *chan, const std::string &topic)
 	{
-		dirty = true;
+		if (ShouldStoreChannel(chan)) dirty = true;
 	}
 	/* this event is called after each modechange */
 	void OnMode (User *user, Extensible *target, const irc::modestacker &modes)
 	{
-		dirty = true;
+		Channel* chan = IS_CHANNEL(target);
+		if (chan && ShouldStoreChannel(chan)) dirty = true;
 	}
 
 	void Prioritize()

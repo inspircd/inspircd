@@ -440,6 +440,7 @@ void ServerConfig::Fill()
 	Limits.MaxAway = GetTag("limits")->getInt("maxaway", 200);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NameOnlyModes = options->getBool("nameonlymodes", true);
+	AnnounceTSChange = options->getBool("announcets");
 
 	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
 	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
