@@ -38,36 +38,6 @@ class ModulePassForward : public Module
 		forwardcmd = tag->getString("cmd", "PRIVMSG $nickrequired :IDENTIFY $pass");
 	}
 
-	void FormatStr(std::string& result, const std::string& format, const std::string &nick, const std::string &pass)
-	{
-		for (unsigned int i = 0; i < format.length(); i++)
-		{
-			char c = format[i];
-			if (c == '$')
-			{
-				if (format.substr(i, 13) == "$nickrequired")
-				{
-					result.append(nickrequired);
-					i += 12;
-				}
-				else if (format.substr(i, 5) == "$nick")
-				{
-					result.append(nick);
-					i += 4;
-				}
-				else if (format.substr(i,5) == "$pass")
-				{
-					result.append(pass);
-					i += 4;
-				}
-				else
-					result.push_back(c);
-			}
-			else
-				result.push_back(c);
-		}
-	}
-
 	virtual void OnPostConnect(User* ruser)
 	{
 		LocalUser* user = IS_LOCAL(ruser);
@@ -82,13 +52,13 @@ class ModulePassForward : public Module
 				return;
 		}
 
-		std::string tmp;
-		FormatStr(tmp,forwardmsg, user->nick, user->password);
-		user->WriteServ(tmp);
-
-		tmp.clear();
-		FormatStr(tmp,forwardcmd, user->nick, user->password);
-		ServerInstance->Parser->ProcessBuffer(tmp,user);
+		SubstMap subst;
+		user->PopulateInfoMap(subst);
+		subst["nickrequired"] = nickrequired;
+		subst["pass"] = user->password;
+		user->WriteServ(MapFormatSubst(forwardmsg, subst));
+		std::string buf = MapFormatSubst(forwardcmd, subst);
+		ServerInstance->Parser->ProcessBuffer(buf, user);
 	}
 };
 
