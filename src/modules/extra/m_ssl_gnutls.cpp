@@ -106,7 +106,7 @@ struct x509_cred : public refcountbase
 		if (ret < 0)
 			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
 
-		std::string prios = tag->getString("prio", "NORMAL");
+		std::string prios = tag->getString("prio", "NORMAL:+COMP-DEFLATE");
 		const char* errpos = NULL;
 		ret = gnutls_priority_init(&cipher_prio, prios.c_str(), &errpos);
 		if (ret != GNUTLS_E_SUCCESS)
