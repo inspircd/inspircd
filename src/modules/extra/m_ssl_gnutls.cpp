@@ -43,8 +43,8 @@ struct x509_cred : public refcountbase
 	gnutls_certificate_credentials cred;
 #if GNUTLS_HAS_PRIORITY
 	gnutls_priority_t cipher_prio;
-	bool gnutlsonly;
 #endif
+	bool gnutlsonly;
 	x509_cred(ConfigTag* tag, const std::string& ca_string, const std::string& crl_string, gnutls_dh_params dh_params)
 	{
 		FileReader reader;
@@ -116,9 +116,9 @@ struct x509_cred : public refcountbase
 		ret = gnutls_priority_init(&cipher_prio, prios.c_str(), &errpos);
 		if (ret != GNUTLS_E_SUCCESS)
 			throw ModuleException("Bad GnuTLS priority settings: " + std::string(gnutls_strerror(ret)));
+#endif
 
 		gnutlsonly = tag->getBool("gnutls_only");
-#endif
 
 		gnutls_certificate_set_dh_params(cred, dh_params);
 		gnutls_certificate_client_set_retrieve_function (cred, cert_callback);
