@@ -1400,13 +1400,6 @@
 # This module is oper-only.
 #<module name="m_permchannels.so">
 #
-# If you like, m_permchannels can write a config file of permanent channels
-# whenever +P is set, unset, or the topic/modes on a +P channel is changed.
-# If you want to do this, set the filename below, and uncomment the include.
-#
-#<permchanneldb filename="data/permchannels.conf">
-#<include file="data/permchannels.conf">
-#
 # You may also create channels on startup by using the <permchannels> block.
 # Don't forget to set them +P in the modes, or they won't stay permanent.
 #<permchannels channel="#opers" modes="isP" topic="Opers only.">
