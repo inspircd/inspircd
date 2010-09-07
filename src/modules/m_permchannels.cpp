@@ -77,11 +77,6 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		/*
-		 * Process config-defined list of permanent channels.
-		 * -- w00t
-		 */
-
 		ConfigTagList permchannels = ServerInstance->Config->GetTags("permchannels");
 		for (ConfigIter i = permchannels.first; i != permchannels.second; ++i)
 		{
@@ -106,16 +101,11 @@ public:
 				if (!topic.empty())
 				{
 					c->SetTopic(NULL, topic, true);
-
-					/*
-					 * Due to the way protocol works in 1.2, we need to hack the topic TS in such a way that this
-					 * topic will always win over others.
-					 *
-					 * This is scheduled for (proper) fixing in a later release, and can be removed at a later date.
-					 */
-					c->topicset = 42;
+					// topic was set at channel creation; it'll be overwritten if it was ever
+					// changed
+					c->topicset = c->age;
 				}
-				ServerInstance->Logs->Log("blah", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
+				ServerInstance->Logs->Log("m_permchannels", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
 				if (modes.empty() && longmodes.empty())
 					continue;
