@@ -65,6 +65,11 @@ class ModuleChannelNames : public Module
 	{
 		badchan = true;
 		std::vector<Channel*> chanvec;
+		irc::modestacker modes;
+		ModeHandler* mh = ServerInstance->Modes->FindMode("registered");
+		if (mh) modes.push(irc::modechange(mh->id, "", false));
+		mh = ServerInstance->Modes->FindMode("permanent");
+		if (mh) modes.push(irc::modechange(mh->id, "", false));
 		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
 		{
 			if (!ServerInstance->IsChannel(i->second->name.c_str(), MAXBUF))
@@ -74,14 +79,8 @@ class ModuleChannelNames : public Module
 		while (c2 != chanvec.rend())
 		{
 			Channel* c = *c2++;
-			if (c->IsModeSet('P') && c->GetUserCounter())
-			{
-				std::vector<std::string> modes;
-				modes.push_back(c->name);
-				modes.push_back("-P");
-
-				ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
-			}
+			irc::modestacker tmpmodes(modes);
+			ServerInstance->SendMode(ServerInstance->FakeClient, c, tmpmodes, true);
 			const UserMembList* users = c->GetUsers();
 			for(UserMembCIter j = users->begin(); j != users->end(); ++j)
 				if (IS_LOCAL(j->first))
