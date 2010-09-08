@@ -871,6 +871,9 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		if ($config{HAS_EVENTFD} eq 'true') {
 			print FILEHANDLE "#define HAS_EVENTFD\n";
 		}
+		if ($config{OSNAME} !~ /DARWIN/i) {
+			print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
+		}
 		my $use_hiperf = 0;
 		if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
 			print FILEHANDLE "#define USE_KQUEUE\n";
