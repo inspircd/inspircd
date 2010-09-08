@@ -336,8 +336,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Res = 0;
 	this->PendingRehash = 0;
 
-	// Initialise TIME
-	clock_gettime(CLOCK_REALTIME, &TIME);
+	UpdateTime();
 	this->startup_time = TIME.tv_sec;
 
 	// This must be created first, so other parts of Insp can use it while starting up
@@ -680,7 +679,14 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 void InspIRCd::UpdateTime()
 {
+#ifdef HAS_CLOCK_GETTIME
 	clock_gettime(CLOCK_REALTIME, &TIME);
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	TIME.tv_sec = tv.tv_sec;
+	TIME.tv_nsec = tv.tv_usec * 1000;
+#endif
 }
 
 int InspIRCd::Run()
