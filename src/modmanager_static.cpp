@@ -81,11 +81,17 @@ bool ModuleManager::Load(const std::string& name, bool defer, ModuleState* state
 		Modules[name] = mod;
 		if (defer)
 		{
+			Attach(I_ModuleInit, mod);
 			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s", name.c_str());
-			return true;
 		}
 		else
 		{
+			ConfigReadStatus conf(REHASH_LOAD);
+			mod->ReadConfig(conf);
+
+			if (conf.fatal)
+				throw ModuleException(conf.errors.str());
+
 			mod->init();
 		}
 	}
@@ -97,7 +103,8 @@ bool ModuleManager::Load(const std::string& name, bool defer, ModuleState* state
 		return false;
 	}
 
-	DoModuleLoad(mod, state);
+	if (!defer)
+		DoModuleLoad(mod, state);
 	return true;
 }
 
@@ -126,7 +133,7 @@ namespace {
 			std::string name = mod->ModuleSourceFile;
 			ServerInstance->Modules->DoSafeUnload(mod, &state);
 			ServerInstance->GlobalCulls.Apply();
-			bool rv = ServerInstance->Modules->Load(name.c_str(), false, state);
+			bool rv = ServerInstance->Modules->Load(name.c_str(), false, &state);
 			callback->Call(rv);
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
@@ -188,6 +195,7 @@ void ModuleManager::LoadAll()
 		}
 	}
 
+	ConfigReadStatus conf(REHASH_BOOT);
 	IntModuleList& initlist = EventHandlers[I_ModuleInit];
 	for(size_t i=0; i < initlist.size(); i++)
 	{
@@ -195,6 +203,7 @@ void ModuleManager::LoadAll()
 		try
 		{
 			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", mod->ModuleSourceFile.c_str());
+			mod->ReadConfig(conf);
 			mod->init();
 		}
 		catch (CoreException& modexcept)
@@ -206,6 +215,11 @@ void ModuleManager::LoadAll()
 		}
 	}
 	initlist.clear();
+	if (conf.fatal)
+	{
+		fputs(conf.errors.str().c_str(), stdout);
+		ServerInstance->Exit(EXIT_STATUS_MODULE);
+	}
 }
 
 #endif
