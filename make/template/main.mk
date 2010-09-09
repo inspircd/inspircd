@@ -17,7 +17,6 @@ SOCKETENGINE = @SOCKETENGINE@
 CXXFLAGS = -pipe -fPIC -DPIC
 LDLIBS = -pthread -lstdc++
 LDFLAGS = 
-SHARED = -shared -rdynamic
 CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
 PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "$(DESTDIR)@BASE_DIR@"
@@ -45,8 +44,8 @@ INSTMODE_LIB = 0644
 @ELSIFEQ $(SYSTEM) darwin
   CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
-  SHARED = -bundle -twolevel_namespace -undefined dynamic_lookup
-  CORELDFLAGS = -dynamic -bind_at_load -L.
+  CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
+  PICLDFLAGS = -fPIC -shared -bundle -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
 @ELSIFEQ $(SYSTEM) interix
   CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
 @ENDIF 
