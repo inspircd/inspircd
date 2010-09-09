@@ -19,6 +19,7 @@ sub run() {
 	my $build = $ENV{BUILDPATH};
 	mkdir $build;
 	chdir $build or die "Could not open build directory: $!";
+	unlink 'include';
 	symlink "$ENV{SOURCEPATH}/include", 'include';
 	mkdir $_ for qw/bin modules obj/;
 # BSD make has a horribly annoying bug resulting in an extra chdir of the make process
