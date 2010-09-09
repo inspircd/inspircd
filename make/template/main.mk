@@ -46,7 +46,8 @@ INSTMODE_LIB = 0644
 @ELSIFEQ $(SYSTEM) darwin
   CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
-  CORELDFLAGS = -dynamic -bind_at_load -L.
+  CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
+  PICLDFLAGS = -fPIC -shared -bundle -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
 @ELSIFEQ $(SYSTEM) interix
   CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
 @ENDIF 
