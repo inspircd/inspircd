@@ -20,6 +20,8 @@
 /* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
 /* $NoPedantic */
 
+namespace m_sqlite {
+
 class SQLConn;
 typedef std::map<std::string, SQLConn*> ConnMap;
 
@@ -237,5 +239,9 @@ class ModuleSQLite3 : public Module
 		return Version("sqlite3 provider", VF_VENDOR);
 	}
 };
+
+}
+
+using m_sqlite::ModuleSQLite3;
 
 MODULE_INIT(ModuleSQLite3)

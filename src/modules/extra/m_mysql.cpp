@@ -22,6 +22,8 @@
 #pragma comment(lib, "mysqlclient.lib")
 #endif
 
+namespace m_mysql {
+
 /* VERSION 3 API: With nonblocking (threaded) requests */
 
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
@@ -479,5 +481,9 @@ Version ModuleSQL::GetVersion()
 {
 	return Version("MySQL support", VF_VENDOR);
 }
+
+}
+
+using m_mysql::ModuleSQL;
 
 MODULE_INIT(ModuleSQL)
