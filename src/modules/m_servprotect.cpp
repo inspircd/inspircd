@@ -73,7 +73,7 @@ class ModuleServProtectMode : public Module
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
 		 */
-		if (!mc.adding && chan && IS_LOCAL(user) && !ServerInstance->ULine(user->server))
+		if (!mc.adding && chan && IS_LOCAL(user))
 		{
 			ModeHandler* mh = ServerInstance->Modes->FindMode(mc.mode);
 			if (mh->GetTranslateType() != TR_NICK)

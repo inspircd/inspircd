@@ -56,7 +56,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	if ((IS_LOCAL(user)) && (!c->HasUser(user)) && (!ServerInstance->ULine(user->server)))
+	if (IS_LOCAL(user) && !c->HasUser(user))
 	{
 		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;

@@ -483,9 +483,9 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 			src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), user->nick.c_str(), this->name.c_str());
 			return;
 		}
-		if ((ServerInstance->ULine(user->server)) && (!ServerInstance->ULine(src->server)))
+		if (ServerInstance->ULine(user->server))
 		{
-			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick.c_str(), this->name.c_str());
+			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You may not kick a u-lined client.",src->nick.c_str(), this->name.c_str());
 			return;
 		}
 
