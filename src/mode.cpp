@@ -469,8 +469,14 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 			ModeHandler *mh = FindMode(name);
 			if (mh && mh->GetModeType() == type)
 			{
-				irc::modechange mc(mh->id, value, adding);
-				modes.push(mc);
+				if (mh->GetNumParams(adding) && value.empty())
+				{
+					/* No parameter, continue to the next mode unless OnParameterMissing fills one in */
+					mh->OnParameterMissing(user, targetuser, targetchannel, value);
+					if (value.empty())
+						continue;
+				}
+				modes.push(irc::modechange(mh->id, value, adding));
 			}
 			else
 			{
@@ -491,7 +497,7 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 		int pcnt = mh->GetNumParams(adding);
 		if (pcnt && param_at == parameters.size())
 		{
-			/* No parameter, continue to the next mode */
+			/* No parameter, continue to the next mode unless OnParameterMissing fills one in */
 			mh->OnParameterMissing(user, targetuser, targetchannel, parameter);
 			if (parameter.empty())
 				continue;
