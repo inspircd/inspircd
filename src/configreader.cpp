@@ -553,6 +553,10 @@ void ServerConfig::Read()
 
 void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 {
+	if (config_data.empty())
+	{
+		status.errors << "Empty configuration found, aborting (broken executable include?)\n";
+	}
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
@@ -573,7 +577,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 	}
 	catch (CoreException &ce)
 	{
-		status.errors << ce.GetReason();
+		status.errors << ce.GetReason() << "\n";
 	}
 
 	// write once here, to try it out and make sure its ok
