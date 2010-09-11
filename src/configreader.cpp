@@ -553,13 +553,12 @@ void ServerConfig::Read()
 
 void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 {
-	if (config_data.empty())
-	{
-		status.errors << "Empty configuration found, aborting (broken executable include?)\n";
-	}
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
+		ConfigTagList binds = GetTags("bind");
+		if (binds.first == binds.second)
+			status.errors << "Config error: you must define at least one <bind> block\n";
 		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
 		{
 			std::string dummy;
