@@ -103,7 +103,6 @@ class FlagCmd : public Command
 	{
 		Channel* chan = ServerInstance->FindChan(parameters[0]);
 		User* user = ServerInstance->FindNick(parameters[1]);
-		std::string delta = parameters[2];
 
 		if (!user || !chan)
 		{
@@ -123,6 +122,8 @@ class FlagCmd : public Command
 				user->nick.c_str(), ptr ? "opflags " : "no opflags", ptr ? ptr->c_str() : "");
 			return CMD_SUCCESS;
 		}
+
+		std::string delta = parameters[2];
 
 		if (IS_LOCAL(src))
 		{
