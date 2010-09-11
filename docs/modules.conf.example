@@ -1679,17 +1679,20 @@
 # speak to a client instead of using /COMMANDs
 #<module name="m_serverbots.so">
 #
-#An implementation of the "IRC" nick from Unreal and other IRCds
-# <bot nick="irc">
-# <botcmd bot="irc" replace="$0-">
-#A "help" bot that forwards messages to ops in #help
-# <bot nick="help">
-# <botcmd bot="help" replace="JOIN #help&nl;PRIVMSG @#help :$0-">
-#A bot taking multiple commands
-# <bot nick="useful" ident="useful" host="nothing.at.all" name="Bob">
-# <botcmd bot="useful" text="help" replace="ECHO ::$fullbot PRIVMSG $nick :Commands for $bot: ECHO JOIN-TO">
-# <botcmd bot="useful" text="echo" replace="ECHO ::$fullbot PRIVMSG $nick :$1-">
-# <botcmd bot="useful" text="join-to" replace="JOIN $1">
+# An implementation of the "IRC" nick from Unreal and other IRCds
+#<bot nick="irc">
+#<botcmd bot="irc" replace="$0-">
+# A "help" bot that forwards messages to ops in #help
+#<bot nick="help">
+#<botcmd bot="help" replace="JOIN #help&nl;PRIVMSG @#help :$0-">
+# A ChanServ interface to the modular service replacements:
+#<bot nick="ChanServ" ident="services" host="services.omega.org.za" name="Channel Services">
+#<botcmd bot="ChanServ" text="help" replace="ECHO ::$fullbot NOTICE $nick :Commands are: REGISTER DROP ACCESSADD ACCESSDEL ACCESSLIST">
+#<botcmd bot="ChanServ" text="register" replace="MODE $1 +Z registered $2">
+#<botcmd bot="ChanServ" text="drop" replace="MODE $1 -Z registered">
+#<botcmd bot="ChanServ" text="accessadd" replace="MODE $1 +Z autoop=$2">
+#<botcmd bot="ChanServ" text="accessdel" replace="MODE $1 -Z autoop=$2">
+#<botcmd bot="ChanServ" text="accesslist" replace="MODE $1 +Z autoop">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Show Whois module: Adds the +W usermode which allows opers
