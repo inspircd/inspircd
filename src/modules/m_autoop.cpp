@@ -131,7 +131,11 @@ public:
 			ServerInstance->PI->SendMode(src, memb->chan, ms);
 		}
 		if (opflags && !flags.empty())
-			opflags->SetFlags(memb, flags, true);
+		{
+			std::string message = ServerInstance->Config->ServerName + " set " + memb->user->nick + " opflags to " + opflags->SetFlags(memb, flags, true);
+			memb->chan->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s", memb->chan->name.c_str(), message.c_str());
+			ServerInstance->PI->SendChannelNotice(memb->chan, 0, message);
+		}
 	}
 
 
