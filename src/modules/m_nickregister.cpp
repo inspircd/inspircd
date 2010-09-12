@@ -280,14 +280,14 @@ class ModuleNickRegister : public Module
 		if (user->registered == REG_ALL)
 		{
 			user->WriteNumeric(433, "%s %s :You must be identified to the account '%s' to use this nick",
-				user->nick.c_str(), user->nick.c_str(), owner.c_str());
+				user->nick.c_str(), nick.c_str(), owner.c_str());
 			return MOD_RES_DENY;
 		}
 		else
 		{
 			// allow through to give things like SASL or SQLauth time to return before denying
 			user->WriteNumeric(437, "%s %s :This nick requires you to identify to the account '%s'",
-				user->nick.c_str(), user->nick.c_str(), owner.c_str());
+				user->nick.c_str(), nick.c_str(), owner.c_str());
 			return MOD_RES_PASSTHRU;
 		}
 	}
