@@ -40,9 +40,9 @@ static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_c
 
 struct DH_info : public refcountbase
 {
-	static int bits;
+	int bits;
 	gnutls_dh_params params;
-	DH_info()
+	DH_info(int Bits) : bits(Bits)
 	{
 		gnutls_dh_params_init(&params);
 		int ret = gnutls_dh_params_generate2(params, bits);
@@ -57,20 +57,116 @@ struct DH_info : public refcountbase
 	}
 };
 
-int DH_info::bits = 0;
+struct x509_key : public refcountbase
+{
+	gnutls_x509_privkey_t x509;
+
+	x509_key(const std::string& pem)
+	{
+		gnutls_datum_t key_datum = { (unsigned char*)pem.data(), pem.length() };
+		int ret = gnutls_x509_privkey_init(&x509);
+		if (ret < 0)
+			throw ModuleException("GnuTLS memory allocation error " + std::string(gnutls_strerror(ret)));
+		ret = gnutls_x509_privkey_import(x509, &key_datum, GNUTLS_X509_FMT_PEM);
+		if (ret < 0)
+			throw ModuleException("Unable to load GnuTLS server private key: " + std::string(gnutls_strerror(ret)));
+	}
+
+	~x509_key()
+	{
+		gnutls_x509_privkey_deinit(x509);
+	}
+};
+
+struct x509_crt_list : public refcountbase
+{
+	std::vector<gnutls_x509_crt_t> list;
+
+	x509_crt_list(const std::string& pem)
+	{
+		gnutls_datum_t cert_datum = { (unsigned char*)pem.data(), pem.length() };
+
+		unsigned int certcount = 100;
+		list.resize(certcount);
+
+		int ret = gnutls_x509_crt_list_import(data(), &certcount, &cert_datum, GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
+		if (ret < 0)
+			throw ModuleException("Unable to load GnuTLS server certificates: " + std::string(gnutls_strerror(ret)));
+		list.resize(certcount);
+	}
+
+	inline gnutls_x509_crt_t* data()
+	{
+		return &list[0];
+	}
+
+	inline int count()
+	{
+		return list.size();
+	}
+
+	~x509_crt_list()
+	{
+		for(unsigned int i=0; i < list.size(); i++)
+			gnutls_x509_crt_deinit(list[i]);
+	}
+};
+
+struct x509_crl_list : public refcountbase
+{
+	std::vector<gnutls_x509_crl_t> list;
+
+	x509_crl_list(const std::string& pem)
+	{
+		std::string::size_type pos = 0;
+		while (1)
+		{
+			pos = pem.find("-----BEGIN", pos);
+			if (pos == std::string::npos)
+				break;
+			gnutls_x509_crl_t item;
+			gnutls_x509_crl_init(&item);
+			gnutls_datum_t datum = { (unsigned char*)pem.data() + pos, pem.length() - pos };
+			int ret = gnutls_x509_crl_import(item, &datum, GNUTLS_X509_FMT_PEM);
+			if (ret < 0)
+				throw ModuleException("Unable to load GnuTLS CRL: " + std::string(gnutls_strerror(ret)));
+			list.push_back(item);
+			pos++;
+		}
+	}
+
+	inline gnutls_x509_crl_t* data()
+	{
+		return &list[0];
+	}
+
+	inline int count()
+	{
+		return list.size();
+	}
+
+	~x509_crl_list()
+	{
+		for(unsigned int i=0; i < list.size(); i++)
+			gnutls_x509_crl_deinit(list[i]);
+	}
+};
 
 struct x509_cred : public refcountbase
 {
-	std::vector<gnutls_x509_crt_t> certs;
-	gnutls_x509_privkey_t key;
+	reference<ConfigTag> tag;
+	reference<x509_key> key;
+	reference<x509_crt_list> certs;
+	reference<x509_crt_list> ca_list;
+	reference<x509_crl_list> crl_list;
+	reference<DH_info> dh;
 	gnutls_certificate_credentials cred;
 #if GNUTLS_HAS_PRIORITY
 	gnutls_priority_t cipher_prio;
 #endif
-	reference<DH_info> dh;
 	bool gnutlsonly;
-	x509_cred(ConfigTag* tag, const std::string& ca_string, const std::string& crl_string, DH_info* DH)
-		: dh(DH)
+	x509_cred(ConfigTag* Tag, x509_crt_list* CA, x509_crl_list* CRL, DH_info* DH)
+		: tag(Tag), ca_list(CA), crl_list(CRL), dh(DH)
 	{
 		FileReader reader;
 
@@ -90,50 +186,52 @@ struct x509_cred : public refcountbase
 			throw ModuleException("Unable to read GnuTLS private key from " +
 				tag->getString("keyfile", "conf/key.pem") + ": " + (errno ? strerror(errno) : "Unknown error"));
 
+		key = new x509_key(key_string);
+		certs = new x509_crt_list(cert_string);
+
+		std::string ca_fn;
+		if (tag->readString("cafile", ca_fn))
+		{
+			reader.LoadFile(ca_fn);
+			std::string ca_string = reader.Contents();
+			ca_list = new x509_crt_list(ca_string);
+		}
+
+		init();
+	}
+
+	x509_cred(x509_cred* src, DH_info* DH)
+		: tag(src->tag), key(src->key), certs(src->certs),
+		  ca_list(src->ca_list), crl_list(src->crl_list), dh(DH)
+	{
+		init();
+	}
+
+	void init()
+	{
 		int ret;
-
-		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), cert_string.length() };
-		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), key_string.length() };
-		gnutls_datum_t ca_datum = { (unsigned char*)ca_string.data(), ca_string.length() };
-		gnutls_datum_t crl_datum = { (unsigned char*)crl_string.data(), crl_string.length() };
-
-		unsigned int certcount = tag->getInt("certcount", 3);
-		certs.resize(certcount);
-
-		ret = gnutls_x509_crt_list_import(&certs[0], &certcount, &cert_datum, GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
-		if (ret < 0)
-			throw ModuleException("Unable to load GnuTLS server certificates: " + std::string(gnutls_strerror(ret)));
-		certs.resize(certcount);
-
-
-		ret = gnutls_x509_privkey_init(&key);
-		if (ret < 0)
-			throw ModuleException("GnuTLS memory allocation error " + std::string(gnutls_strerror(ret)));
-		ret = gnutls_x509_privkey_import(key, &key_datum, GNUTLS_X509_FMT_PEM);
-		if (ret < 0)
-			throw ModuleException("Unable to load GnuTLS server private key: " + std::string(gnutls_strerror(ret)));
-
 
 		ret = gnutls_certificate_allocate_credentials(&cred);
 		if (ret < 0)
 			throw ModuleException("GnuTLS memory allocation error " + std::string(gnutls_strerror(ret)));
-		if (!ca_string.empty())
+
+		ret = gnutls_certificate_set_x509_key(cred, certs->data(), certs->count(), key->x509);
+		if (ret < 0)
+			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
+
+		if (ca_list)
 		{
-			ret = gnutls_certificate_set_x509_trust_mem(cred, &ca_datum, GNUTLS_X509_FMT_PEM);
+			ret = gnutls_certificate_set_x509_trust(cred, ca_list->data(), ca_list->count());
 			if (ret < 0)
 				ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Could not set X.509 trust file: %s", gnutls_strerror(ret));
 		}
 
-		if (!crl_string.empty())
+		if (crl_list)
 		{
-			ret = gnutls_certificate_set_x509_crl_mem(cred, &crl_datum, GNUTLS_X509_FMT_PEM);
+			ret = gnutls_certificate_set_x509_crl(cred, crl_list->data(), crl_list->count());
 			if (ret < 0)
 				ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to set X.509 CRL file: %s", gnutls_strerror(ret));
 		}
-
-		ret = gnutls_certificate_set_x509_key(cred, &certs[0], certcount, key);
-		if (ret < 0)
-			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
 
 #if GNUTLS_HAS_PRIORITY
 		std::string prios = tag->getString("prio", "NORMAL:+COMP-DEFLATE");
@@ -155,9 +253,6 @@ struct x509_cred : public refcountbase
 		gnutls_priority_deinit(cipher_prio);
 #endif
 		gnutls_certificate_free_credentials(cred);
-		for(unsigned int i=0; i < certs.size(); i++)
-			gnutls_x509_crt_deinit(certs[i]);
-		gnutls_x509_privkey_deinit(key);
 	}
 };
 
@@ -228,7 +323,7 @@ class GnuTLSHook : public SSLIOHook
 		rv = gnutls_credentials_set(sess, GNUTLS_CRD_CERTIFICATE, creds->cred);
 		if (rv < 0)
 			throw ModuleException("Cannot set credentials");
-		gnutls_dh_set_prime_bits(sess, DH_info::bits);
+		gnutls_dh_set_prime_bits(sess, creds->dh->bits);
 
 		gnutls_transport_set_ptr(sess, reinterpret_cast<void*>(user));
 		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
@@ -545,9 +640,9 @@ static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_c
 	StreamSocket* socket = reinterpret_cast<StreamSocket*>(gnutls_transport_get_ptr(session));
 	GnuTLSHook* hook = static_cast<GnuTLSHook*>(socket->GetIOHook());
 	st->type = GNUTLS_CRT_X509;
-	st->cert.x509 = &hook->creds->certs[0];
-	st->key.x509 = hook->creds->key;
-	st->ncerts = hook->creds->certs.size();
+	st->cert.x509 = hook->creds->certs->data();
+	st->key.x509 = hook->creds->key->x509;
+	st->ncerts = hook->creds->certs->count();
 	st->deinit_all = 0;
 
 	return 0;
@@ -673,8 +768,7 @@ class ModuleSSLGnuTLS : public Module
 
 		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
 			dh_bits = 1024;
-		DH_info::bits = dh_bits;
-		dh = new DH_info;
+		dh = new DH_info(dh_bits);
 
 		if (hashname == "md5")
 			hash = GNUTLS_DIG_MD5;
@@ -684,14 +778,18 @@ class ModuleSSLGnuTLS : public Module
 			throw ModuleException("Unknown hash type " + hashname);
 
 		FileReader reader;
+		reference<x509_crt_list> ca_list;
+		reference<x509_crl_list> crl_list;
 
 		reader.LoadFile(Conf->getString("cafile", "conf/ca.pem"));
-		std::string ca_string = reader.Contents();
+		if (reader.FileSize())
+			ca_list = new x509_crt_list(reader.Contents());
 
 		reader.LoadFile(Conf->getString("crlfile", "conf/crl.pem"));
-		std::string crl_string = reader.Contents();
+		if (reader.FileSize())
+			crl_list = new x509_crl_list(reader.Contents());
 
-		iohook.def_creds = new x509_cred(Conf, ca_string, crl_string, dh);
+		iohook.def_creds = new x509_cred(Conf, ca_list, crl_list, dh);
 
 		iohook.creds.clear();
 
@@ -703,7 +801,7 @@ class ModuleSSLGnuTLS : public Module
 			if (name.empty())
 				throw ModuleException("Invalid <ssl_cert> without name at " + tag->getTagLocation());
 
-			iohook.creds[name] = new x509_cred(tag, ca_string, crl_string, dh);
+			iohook.creds[name] = new x509_cred(tag, ca_list, crl_list, dh);
 
 			tags.first++;
 		}
@@ -718,7 +816,14 @@ class ModuleSSLGnuTLS : public Module
 		if (once_in_a_while++ & 0xFF)
 			return;
 
-		dh = new DH_info;
+		dh = new DH_info(dh->bits);
+		reference<x509_cred> cred = iohook.def_creds;
+		iohook.def_creds = new x509_cred(cred, dh);
+		for(std::map<std::string, reference<x509_cred> >::iterator i = iohook.creds.begin(); i != iohook.creds.end(); i++)
+		{
+			cred = i->second;
+			i->second = new x509_cred(cred, dh);
+		}
 	}
 
 	~ModuleSSLGnuTLS()
