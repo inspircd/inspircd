@@ -112,18 +112,18 @@ class RegDB : public NickRegistrationProvider
 		{
 			std::string oldowner = it->second.account;
 			it->second.update(value);
-			if (it->second.account != oldowner)
+			if (regaccount == "-" || it->second.account != oldowner)
 			{
 				OwnerMap::iterator rev = nicksowned.lower_bound(oldowner);
-				while (rev != nicksowned.end() && rev->first == oldowner && rev->second != regaccount)
+				while (rev != nicksowned.end() && rev->first == oldowner && rev->second != nick)
 					rev++;
 				if (rev != nicksowned.end() && rev->first == oldowner)
 					nicksowned.erase(rev);
-				if (it->second.account != "-")
+				if (regaccount == "-")
+					nickinfo.erase(it);
+				else
 					nicksowned.insert(std::make_pair(it->second.account, nick));
 			}
-			if (it->second.account == "-")
-				nickinfo.erase(it);
 		}
 	}
 
