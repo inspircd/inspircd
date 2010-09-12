@@ -10,3 +10,11 @@ void RemoteUser::SendText(const std::string& line)
 	TreeSocket* sock = srv->GetRoute()->GetSocket();
 	sock->WriteLine(buf);
 }
+
+void RemoteUser::DoWhois(User* src)
+{
+	char buf[MAXBUF];
+	snprintf(buf, MAXBUF, ":%s IDLE %s", src->uuid.c_str(), this->uuid.c_str());
+	TreeSocket* sock = srv->GetRoute()->GetSocket();
+	sock->WriteLine(buf);
+}

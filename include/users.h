@@ -625,6 +625,8 @@ class CoreExport User : public Extensible
 	 */
 	void PopulateInfoMap(SubstMap& map);
 
+	virtual void DoWhois(User* src);
+
 	/** Default destructor
 	 */
 	virtual ~User();

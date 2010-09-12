@@ -8,6 +8,7 @@ class CoreExport RemoteUser : public User
 	{
 	}
 	virtual void SendText(const std::string& line);
+	virtual void DoWhois(User* src);
 };
 
 

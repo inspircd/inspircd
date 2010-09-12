@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick)
+void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle)
 {
 	this->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
 	if (user == dest || user->HasPrivPermission("users/auspex"))

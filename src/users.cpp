@@ -457,6 +457,11 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 	return false;
 }
 
+void User::DoWhois(User* src)
+{
+	ServerInstance->DoWhois(src, this, signon, idle_lastmsg - ServerInstance->Time());
+}
+
 void UserIOHandler::OnDataReady()
 {
 	if (user->quitting)

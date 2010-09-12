@@ -781,7 +781,7 @@ class CoreExport InspIRCd
 
 	/** Handle /WHOIS
 	 */
-	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
+	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle);
 
 	/** Wrapper around PermissionCheck */
 	ModResult CheckExemption(User* who, Channel* chan, const std::string& name);

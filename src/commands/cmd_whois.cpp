@@ -38,7 +38,6 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 {
 	User *dest;
 	int userindex = 0;
-	unsigned long idle = 0, signon = 0;
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
@@ -59,20 +58,18 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 	if (dest)
 	{
 		/*
-		 * Okay. Umpteenth attempt at doing this, so let's re-comment...
-		 * For local users (/w localuser), we show idletime if hidewhois is disabled
-		 * For local users (/w localuser localuser), we always show idletime, hence parameters.size() > 1 check.
-		 * For remote users (/w remoteuser), we do NOT show idletime
-		 * For remote users (/w remoteuser remoteuser), spanningtree will handle calling do_whois, so we can ignore this case.
-		 * Thanks to djGrrr for not being impatient while I have a crap day coding. :p -- w00t
+		 * For local whois of local users (/w localuser), we show idletime if hidewhois is disabled
+		 * For local whois of remote users (/w remoteuser), we do not show idletime
+		 * For remote whois (/w user user), we always show idletime
 		 */
-		if (IS_LOCAL(dest) && (ServerInstance->Config->HideWhoisServer.empty() || parameters.size() > 1))
-		{
-			idle = abs((long)((dest->idle_lastmsg)-ServerInstance->Time()));
-			signon = dest->signon;
-		}
+		bool showIdle = (parameters.size() > 1);
+		if (IS_LOCAL(dest) && ServerInstance->Config->HideWhoisServer.empty())
+			showIdle = true;
 
-		ServerInstance->DoWhois(user,dest,signon,idle,parameters[userindex].c_str());
+		if (showIdle)
+			dest->DoWhois(user);
+		else
+			ServerInstance->DoWhois(user,dest,0,0);
 	}
 	else
 	{

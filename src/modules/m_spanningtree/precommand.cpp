@@ -11,18 +11,12 @@
  * ---------------------------------------------------
  */
 
-/* $ModDesc: Provides a spanning tree server link protocol */
-
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
 #include "treesocket.h"
-
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
 
 ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
@@ -46,14 +40,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	{
 		this->HandleLinks(parameters,user);
 		return MOD_RES_DENY;
-	}
-	else if (command == "WHOIS")
-	{
-		if (parameters.size() > 1)
-		{
-			// remote whois
-			return this->HandleRemoteWhois(parameters,user);
-		}
 	}
 	else if ((command == "VERSION") && (parameters.size() > 0))
 	{

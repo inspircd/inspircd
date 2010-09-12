@@ -58,7 +58,7 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 				unsigned long idle = atoi(params[2].c_str());
 				if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 				{
-					ServerInstance->DoWhois(who_to_send_to, u, signon, idle, nick_whoised.c_str());
+					ServerInstance->DoWhois(who_to_send_to, u, signon, idle);
 				}
 			}
 			else
