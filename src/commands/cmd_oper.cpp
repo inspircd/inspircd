@@ -54,47 +54,51 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 {
 	char TheHost[MAXBUF];
 	char TheIP[MAXBUF];
-	bool match_login = false;
-	bool match_pass = false;
-	bool match_hosts = false;
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
+	std::string why;
+	OperInfo* ifo;
+	ConfigTag* tag;
+
 	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
-	if (i != ServerInstance->Config->oper_blocks.end())
+	if (i == ServerInstance->Config->oper_blocks.end())
 	{
-		OperInfo* ifo = i->second;
-		ConfigTag* tag = ifo->config_blocks[0];
-		match_login = true;
-		match_pass = !ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
-		match_hosts = OneOfMatches(TheHost,TheIP,tag->getString("host"));
-
-		if (match_pass && match_hosts)
-		{
-			/* found this oper's opertype */
-			user->Oper(ifo);
-			return CMD_SUCCESS;
-		}
+		why = "oper block not found";
+		goto fail;
 	}
-	char broadcast[MAXBUF];
 
-	std::string fields;
-	if (!match_login)
-		fields.append("login ");
-	if (!match_pass)
-		fields.append("password ");
-	if (!match_hosts)
-		fields.append("hosts");
+	ifo = i->second;
+	tag = ifo->config_blocks[0];
+	if (!OneOfMatches(TheHost,TheIP,tag->getString("host")))
+	{
+		why = "host does not match";
+		goto fail;
+	}
+
+	if (ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash")))
+	{
+		why = "password does not match";
+		goto fail;
+	}
+
+	user->Oper(ifo);
+	return CMD_SUCCESS;
+
+fail:
+	char broadcast[MAXBUF];
 
 	// tell them they suck, and lag them up to help prevent brute-force attacks
 	user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick.c_str());
 	user->CommandFloodPenalty += 10000;
 
-	snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': The following fields do not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
+	snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': %s",
+		user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), why.c_str());
 	ServerInstance->SNO->WriteGlobalSno('o',std::string(broadcast));
 
-	ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': The following fields did not match: %s", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), fields.c_str());
+	ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': %s",
+		user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), why.c_str());
 	return CMD_FAILURE;
 }
 
