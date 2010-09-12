@@ -19,6 +19,7 @@
 #include "treesocket.h"
 #include "treeserver.h"
 #include "resolvers.h"
+#include "remoteuser.h"
 
 CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 {
@@ -79,7 +80,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	User* _new = NULL;
 	try
 	{
-		_new = new RemoteUser(params[0], remoteserver->GetName());
+		_new = new RemoteUser(params[0], remoteserver);
 	}
 	catch (...)
 	{

@@ -218,7 +218,6 @@ class CoreExport SplitCommand : public Command
 		: Command(me, cmd, minpara, maxpara) {}
 	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user);
 	virtual CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
-	virtual CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* user);
 	virtual CmdResult HandleServer(const std::vector<std::string>& parameters, FakeUser* user);
 };
 

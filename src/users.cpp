@@ -1282,11 +1282,6 @@ void LocalUser::SendText(const std::string& line)
 	Write(line);
 }
 
-void RemoteUser::SendText(const std::string& line)
-{
-	ServerInstance->PI->PushToClient(this, line);
-}
-
 void FakeUser::SendText(const std::string& line)
 {
 }

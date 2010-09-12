@@ -795,15 +795,6 @@ class CoreExport LocalUser : public User
 	bool HasModePermission(ModeID mode);
 };
 
-class CoreExport RemoteUser : public User
-{
- public:
-	RemoteUser(const std::string& uid, const std::string& srv) : User(uid, srv, USERTYPE_REMOTE)
-	{
-	}
-	virtual void SendText(const std::string& line);
-};
-
 class CoreExport FakeUser : public User
 {
  public:
@@ -822,11 +813,6 @@ class CoreExport FakeUser : public User
 inline LocalUser* IS_LOCAL(User* u)
 {
 	return u->usertype == USERTYPE_LOCAL ? static_cast<LocalUser*>(u) : NULL;
-}
-/** Is a remote user */
-inline RemoteUser* IS_REMOTE(User* u)
-{
-	return u->usertype == USERTYPE_REMOTE ? static_cast<RemoteUser*>(u) : NULL;
 }
 /** Is a server fakeuser */
 inline FakeUser* IS_SERVER(User* u)

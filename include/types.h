@@ -34,7 +34,6 @@ class ModePermissionData;
 class Module;
 class ModuleState;
 class OperInfo;
-class RemoteUser;
 class ServerConfig;
 class ServerLimits;
 class StreamSocket;
