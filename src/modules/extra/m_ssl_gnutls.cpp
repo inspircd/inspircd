@@ -26,15 +26,38 @@
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") -lgcrypt */
 
+namespace GnuTLS
+{
+
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
 static gnutls_digest_algorithm_t hash;
-static int dh_bits;
 
 #define GNUTLS_HAS_PRIORITY (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 2))
 
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st);
+
+struct DH_info : public refcountbase
+{
+	static int bits;
+	gnutls_dh_params params;
+	DH_info()
+	{
+		gnutls_dh_params_init(&params);
+		int ret = gnutls_dh_params_generate2(params, bits);
+		if (ret < 0)
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s",
+				bits, gnutls_strerror(ret));
+	}
+
+	~DH_info()
+	{
+		gnutls_dh_params_deinit(params);
+	}
+};
+
+int DH_info::bits = 0;
 
 struct x509_cred : public refcountbase
 {
@@ -44,8 +67,10 @@ struct x509_cred : public refcountbase
 #if GNUTLS_HAS_PRIORITY
 	gnutls_priority_t cipher_prio;
 #endif
+	reference<DH_info> dh;
 	bool gnutlsonly;
-	x509_cred(ConfigTag* tag, const std::string& ca_string, const std::string& crl_string, gnutls_dh_params dh_params)
+	x509_cred(ConfigTag* tag, const std::string& ca_string, const std::string& crl_string, DH_info* DH)
+		: dh(DH)
 	{
 		FileReader reader;
 
@@ -120,7 +145,7 @@ struct x509_cred : public refcountbase
 
 		gnutlsonly = tag->getBool("gnutls_only");
 
-		gnutls_certificate_set_dh_params(cred, dh_params);
+		gnutls_certificate_set_dh_params(cred, dh->params);
 		gnutls_certificate_client_set_retrieve_function (cred, cert_callback);
 	}
 
@@ -203,7 +228,7 @@ class GnuTLSHook : public SSLIOHook
 		rv = gnutls_credentials_set(sess, GNUTLS_CRD_CERTIFICATE, creds->cred);
 		if (rv < 0)
 			throw ModuleException("Cannot set credentials");
-		gnutls_dh_set_prime_bits(sess, dh_bits);
+		gnutls_dh_set_prime_bits(sess, DH_info::bits);
 
 		gnutls_transport_set_ptr(sess, reinterpret_cast<void*>(user));
 		gnutls_transport_set_push_function(sess, gnutls_push_wrapper);
@@ -578,8 +603,6 @@ class CommandStartTLS : public SplitCommand
 
 class ModuleSSLGnuTLS : public Module
 {
-	gnutls_dh_params dh_params;
-
 	RandGen randhandler;
 	GenericCap capHandler;
 	GnuTLSProvider iohook;
@@ -588,22 +611,19 @@ class ModuleSSLGnuTLS : public Module
 	int once_in_a_while;
 	std::string sslports;
 
+	reference<DH_info> dh;
+
  public:
 
 	ModuleSSLGnuTLS()
 		: capHandler(this, "tls"), iohook(this), starttls(this, iohook), once_in_a_while(0)
 	{
 		gnutls_global_init(); // This must be called once in the program
-
-		int ret = gnutls_dh_params_init(&dh_params);
-		if (ret < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
 	}
 
 	void init()
 	{
 		OnModuleRehash(NULL,"ssl");
-		OnGarbageCollect();
 
 		ServerInstance->GenRandom = &randhandler;
 
@@ -648,11 +668,13 @@ class ModuleSSLGnuTLS : public Module
 
 		ConfigTag* Conf = ServerInstance->Config->GetTag("gnutls");
 
-		dh_bits	= Conf->getInt("dhbits");
+		int dh_bits = Conf->getInt("dhbits");
 		std::string hashname = Conf->getString("hash", "md5");
 
 		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
 			dh_bits = 1024;
+		DH_info::bits = dh_bits;
+		dh = new DH_info;
 
 		if (hashname == "md5")
 			hash = GNUTLS_DIG_MD5;
@@ -669,7 +691,7 @@ class ModuleSSLGnuTLS : public Module
 		reader.LoadFile(Conf->getString("crlfile", "conf/crl.pem"));
 		std::string crl_string = reader.Contents();
 
-		iohook.def_creds = new x509_cred(Conf, ca_string, crl_string, dh_params);
+		iohook.def_creds = new x509_cred(Conf, ca_string, crl_string, dh);
 
 		iohook.creds.clear();
 
@@ -681,7 +703,7 @@ class ModuleSSLGnuTLS : public Module
 			if (name.empty())
 				throw ModuleException("Invalid <ssl_cert> without name at " + tag->getTagLocation());
 
-			iohook.creds[name] = new x509_cred(tag, ca_string, crl_string, dh_params);
+			iohook.creds[name] = new x509_cred(tag, ca_string, crl_string, dh);
 
 			tags.first++;
 		}
@@ -696,17 +718,13 @@ class ModuleSSLGnuTLS : public Module
 		if (once_in_a_while++ & 0xFF)
 			return;
 
-		int ret = gnutls_dh_params_generate2(dh_params, dh_bits);
-
-		if(ret < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
+		dh = new DH_info;
 	}
 
 	~ModuleSSLGnuTLS()
 	{
 		iohook.creds.clear();
 		iohook.def_creds = NULL;
-		gnutls_dh_params_deinit(dh_params);
 		gnutls_global_deinit();
 		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
 	}
@@ -763,5 +781,9 @@ class ModuleSSLGnuTLS : public Module
 			capHandler.HandleEvent(ev);
 	}
 };
+
+}
+
+using GnuTLS::ModuleSSLGnuTLS;
 
 MODULE_INIT(ModuleSSLGnuTLS)
