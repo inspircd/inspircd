@@ -471,6 +471,14 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 			{
 				if (mh->GetNumParams(adding) && value.empty())
 				{
+					if (mh->IsListMode() && targetchannel && adding)
+					{
+						/* Special case for displaying the list for listmodes,
+						 * e.g. MODE #chan +Z ban, or MODE #chan +Z ban=
+						 */
+						mh->DisplayList(user, targetchannel);
+						continue;
+					}
 					/* No parameter, continue to the next mode unless OnParameterMissing fills one in */
 					mh->OnParameterMissing(user, targetuser, targetchannel, value);
 					if (value.empty())
