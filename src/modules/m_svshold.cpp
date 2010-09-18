@@ -82,7 +82,7 @@ class CommandSvshold : public Command
 	CommandSvshold(Module* Creator) : Command(Creator, "SVSHOLD", 1)
 	{
 		flags_needed = 'o'; this->syntax = "<nickname> [<duration> :<reason>]";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
+		TRANSLATE4(TR_TEXT, TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
