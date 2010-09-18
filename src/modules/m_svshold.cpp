@@ -81,7 +81,7 @@ class CommandSvshold : public Command
 	{
 		this->source = "m_svshold.so";
 		this->syntax = "<nickname> [<duration> :<reason>]";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
+		TRANSLATE4(TR_TEXT, TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
