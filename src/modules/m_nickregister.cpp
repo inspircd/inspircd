@@ -88,7 +88,7 @@ class RegDB : public NickRegistrationProvider
 		SetOwner(nick, acct, now, now);
 		parameterlist params;
 		params.push_back("*");
-		params.push_back("NICKREGISTER");
+		params.push_back("SVSNICKREGISTER");
 		params.push_back(nick);
 		params.push_back(acct);
 		params.push_back(ConvToStr(now));
@@ -100,6 +100,7 @@ class RegDB : public NickRegistrationProvider
 	{
 		NickData value(regaccount, ts, luts);
 		NickMap::iterator it = nickinfo.find(nick);
+		std::string oldowner = "-";
 		if (it == nickinfo.end())
 		{
 			if (regaccount != "-")
@@ -110,21 +111,21 @@ class RegDB : public NickRegistrationProvider
 		}
 		else
 		{
-			std::string oldowner = it->second.account;
+			oldowner = it->second.account;
 			it->second.update(value);
-			if (regaccount == "-" || it->second.account != oldowner)
-			{
-				OwnerMap::iterator rev = nicksowned.lower_bound(oldowner);
-				while (rev != nicksowned.end() && rev->first == oldowner && rev->second != nick)
-					rev++;
-				if (rev != nicksowned.end() && rev->first == oldowner)
-					nicksowned.erase(rev);
-				if (regaccount == "-")
-					nickinfo.erase(it);
-				else
-					nicksowned.insert(std::make_pair(it->second.account, nick));
-			}
+			if (it->second.account == oldowner && regaccount != "-")
+				return;
+			OwnerMap::iterator rev = nicksowned.lower_bound(oldowner);
+			while (rev != nicksowned.end() && rev->first == oldowner && rev->second != nick)
+				rev++;
+			if (rev != nicksowned.end() && rev->first == oldowner)
+				nicksowned.erase(rev);
+			if (regaccount == "-")
+				nickinfo.erase(it);
+			else
+				nicksowned.insert(std::make_pair(it->second.account, nick));
 		}
+		NickRegisterChangeEvent(creator, nick, oldowner, regaccount);
 	}
 
 	void Clean()
@@ -153,74 +154,20 @@ class CommandRegisterNick : public Command
 	RegDB db;
 
 	int maxreg;
-	CommandRegisterNick(Module* parent) : Command(parent, "NICKREGISTER"), db(parent), maxreg(5)
+	CommandRegisterNick(Module* parent) : Command(parent, "SVSNICKREGISTER", 4), db(parent)
 	{
-		syntax = "[[<nick>] <account>|-]";
+		syntax = "<nick> <account> <age> <last-used>";
+		flags_needed = FLAG_SERVERONLY;
 	}
-
-	inline void setflags(char f) { flags_needed = f; }
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
-		std::string nick = parameters.size() > 1 ? parameters[0] : user->nick;
-		std::string useraccount = accounts ? accounts->GetAccountName(user) : "";
-		std::string regaccount =
-			parameters.size() > 1 ? parameters[1] :
-			parameters.size() > 0 ? parameters[0] : useraccount;
+		std::string nick = parameters[0];
+		std::string account = parameters[1];
+		time_t ts = atoi(parameters[2].c_str());
+		time_t luts = atoi(parameters[3].c_str());
 
-		// TODO convert to numerics for errors
-		if (!user->HasPrivPermission("nicks/set-registration", false))
-		{
-			// users can only register their own nick to their own account
-			if (irc::string(nick) != irc::string(user->nick))
-			{
-				user->WriteServ("NOTICE %s :You can only register your own nick", user->nick.c_str());
-				return CMD_FAILURE;
-			}
-			if (regaccount != "-")
-			{
-				if (regaccount != useraccount)
-				{
-					user->WriteServ("NOTICE %s :You can only register to your own account", user->nick.c_str());
-					return CMD_FAILURE;
-				}
-				// and they can't register more than 5 per account (or the conf'd max)
-				int count = db.GetNicks(useraccount).size();
-				if (count > maxreg)
-				{
-					user->WriteServ("NOTICE %s :You can only register %d nicks", user->nick.c_str(), maxreg);
-					return CMD_FAILURE;
-				}
-			}
-		}
-		if (IS_LOCAL(user) && !ServerInstance->IsNick(nick.c_str(), ServerInstance->Config->Limits.NickMax))
-		{
-			user->WriteServ("NOTICE %s :Not a valid nick", user->nick.c_str());
-			return CMD_FAILURE;
-		}
-
-		time_t ts = ServerInstance->Time();
-		time_t luts = ServerInstance->Time();
-		if (IS_SERVER(user) && parameters.size() > 3)
-		{
-			ts = atoi(parameters[2].c_str());
-			luts = atoi(parameters[3].c_str());
-		}
-		else
-		{
-			// TODO allow this to be done by changing API
-			std::vector<std::string>& pmod = const_cast<std::vector<std::string>&>(parameters);
-			pmod.resize(4);
-			pmod[0] = nick;
-			pmod[1] = regaccount;
-			pmod[2] = ConvToStr(ts);
-			pmod[3] = ConvToStr(luts);
-		}
-
-		db.SetOwner(nick, regaccount, ts, luts);
-		if (IS_LOCAL(user))
-			user->WriteServ("NOTICE %s :You have successfully %sregistered the nick %s",
-				user->nick.c_str(), regaccount == "-" ? "un" : "", nick.c_str());
+		db.SetOwner(nick, account, ts, luts);
 		return CMD_SUCCESS;
 	}
 
@@ -240,17 +187,6 @@ class ModuleNickRegister : public Module
 	void ReadConfig(ConfigReadStatus& status)
 	{
 		ConfigTag* tag = status.GetTag("nickregister");
-		std::string mode = tag->getString("mode", "services");
-		if (mode == "services")
-			cmd.setflags(FLAG_SERVERONLY);
-		else if (mode == "opers")
-			cmd.setflags('o');
-		else if (mode == "users")
-			cmd.setflags(0);
-		else
-			status.ReportError(tag, "<nickregister:mode> must be one of: services, opers, users");
-
-		cmd.maxreg = tag->getInt("maxperaccount", 5);
 		cmd.db.expiry = ServerInstance->Duration(tag->getString("expiretime", "21d"));
 	}
 

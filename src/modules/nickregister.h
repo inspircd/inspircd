@@ -11,6 +11,20 @@
  * ---------------------------------------------------
  */
 
+class NickRegisterChangeEvent : public Event
+{
+ public:
+	const std::string nick;
+	const std::string oldacct;
+	const std::string newacct;
+	NickRegisterChangeEvent(Module* me, const std::string& Nick, const std::string& Old, const std::string& New)
+		: Event(me, "nickregistration_change"), nick(Nick), oldacct(Old), newacct(New)
+	{
+		Send();
+	}
+};
+
+
 class NickRegistrationProvider : public DataProvider
 {
  public:
