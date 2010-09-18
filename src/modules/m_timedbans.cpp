@@ -84,10 +84,9 @@ found:
 		CUList tmp;
 		T.channel = channelname;
 		T.mask = mask;
-		T.expire = expire;
+		T.expire = expire + (IS_REMOTE(user) ? 5 : 0);
 		TimedBanList.push_back(T);
 		channel->WriteAllExcept(ServerInstance->FakeClient, true, '@', tmp, "NOTICE %s :%s added a timed ban on %s lasting for %ld seconds.", channel->name.c_str(), user->nick.c_str(), mask.c_str(), duration);
-		ServerInstance->PI->SendChannelNotice(channel, '@', user->nick + " added a timed ban on " + mask + " lasting for " + ConvToStr(duration) + " seconds.");
 		return CMD_SUCCESS;
 	}
 
