@@ -540,16 +540,10 @@ info_done_dealloc:
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
-			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED || ret == 0)
 			{
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
-			}
-			else if (ret == 0)
-			{
-				user->SetError("SSL Connection closed");
-				OnClose(user);
-				return -1;
 			}
 			else // (ret < 0)
 			{
