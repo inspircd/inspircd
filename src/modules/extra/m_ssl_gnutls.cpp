@@ -520,16 +520,10 @@ class ModuleSSLGnuTLS : public Module
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
-			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
+			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED || ret == 0)
 			{
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
-			}
-			else if (ret == 0)
-			{
-				CloseSession(session);
-				user->SetError("SSL Connection closed");
-				return -1;
 			}
 			else // (ret < 0)
 			{
