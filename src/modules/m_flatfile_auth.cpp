@@ -369,6 +369,7 @@ class CommandLogin : public Command
 			return CMD_FAILURE;
 		}
 		if(account) account->DoLogin(user, iter->first, iter->second.tag);
+		if(!iter->second.connectclass.empty()) ServerInstance->ForcedClass.set(user, iter->second.connectclass);
 		return CMD_SUCCESS;
 	}
 };
