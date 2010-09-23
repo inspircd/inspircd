@@ -515,7 +515,7 @@ class ModuleFlatfileAuth : public Module
 	{
 		ServerInstance->AddCommand(&cmd_acctinfo);
 		ServerInstance->AddCommand(&cmd_login);
-		Implementation eventlist[] = { I_OnSyncNetwork, I_OnBackgroundTimer /* , I_OnUnloadModule */ };
+		Implementation eventlist[] = { I_OnSyncNetwork, I_OnBackgroundTimer, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ReadFileDatabase();
 	}
