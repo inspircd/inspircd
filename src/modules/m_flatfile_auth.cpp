@@ -202,7 +202,8 @@ class DatabaseReader
 			sep2.GetToken (token);
 			/* break the loop if token is "end" */
 			if (token == "end") break;
-			/* in the future, let other modules read their own data here */
+			ExtensionItem* ext = ServerInstance->Extensions.GetItem(token);
+			if (ext) ext->unserialize(FORMAT_PERSIST, entry, sep2.GetRemaining());
 		}
 		return entry;
 	}
@@ -260,7 +261,22 @@ class DatabaseWriter
 			fd = NULL;
 			return;
 		}
-		/* in the future, let other modules write any data of their own here */
+		for(Extensible::ExtensibleStore::const_iterator i = ent->GetExtList().begin(); i != ent->GetExtList().end(); ++i)
+		{
+			ExtensionItem* item = i->first;
+			std::string value = item->serialize(FORMAT_PERSIST, ent, i->second);
+			if (!value.empty())
+			{
+				std::string toWrite = item->name + " " + value + "\n";
+				if (fputs (toWrite.c_str ( ), fd) == EOF)
+				{
+					ServerInstance->Logs->Log ("MODULE", DEFAULT, "can't write extension item entry");
+					fclose (fd);
+					fd = NULL;
+					return;
+				}
+			}
+		}
 		if (fputs ("end\n", fd) == EOF)
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "can't write end of account entry");
@@ -278,7 +294,7 @@ class CommandAcctinfo : public Command
 	AccountDB& db;
 	bool& dirty;
  public:
-	CommandAcctinfo(Module* Creator, AccountDB& db_ref, bool& dirty_ref) : Command(Creator,"ACCTINFO", 3, 5), db(db_ref), dirty(dirty_ref)
+	CommandAcctinfo(Module* Creator, AccountDB& db_ref, bool& dirty_ref) : Command(Creator,"ACCTINFO", 3, 6), db(db_ref), dirty(dirty_ref)
 	{
 		flags_needed = FLAG_SERVERONLY; syntax = "ADD|SET|DEL <account name> <account TS> [key] [value TS] [value]";
 	}
@@ -303,7 +319,12 @@ class CommandAcctinfo : public Command
 				std::pair<AccountDB::iterator, bool> result = db.insert(std::make_pair(parameters[1], entry));
 				iter = result.first;
 			}
-			/* in the future, let other modules look for their own data here */
+			ExtensionItem* ext = ServerInstance->Extensions.GetItem(parameters[3]);
+			if (ext)
+			{
+				if(parameters.size() > 5) ext->unserialize(FORMAT_NETWORK, iter->second, parameters[4] + " " + parameters[5]);
+				else ext->unserialize(FORMAT_NETWORK, iter->second, parameters[4]);
+			}
 			if(parameters[3] == "hash_password")
 			{
 				if(iter->second->hash_password_ts > atol(parameters[4].c_str())) return CMD_FAILURE;
@@ -386,7 +407,7 @@ class CommandLogin : public Command
 			password = parameters[1];
 		}
 		AccountDB::iterator iter = db.find(username);
-		if(iter == db.end() || ServerInstance->PassCompare(user, iter->second->password, password, iter->second->hash))
+		if(iter == db.end() || iter->second->password.empty() || ServerInstance->PassCompare(user, iter->second->password, password, iter->second->hash))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
 			return CMD_FAILURE;
@@ -448,6 +469,12 @@ class ModuleFlatfileAuth : public Module
 						existing->tag = entry->tag;
 						existing->tag_ts = entry->tag_ts;
 					}
+					for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
+					{
+						ExtensionItem* item = it->first;
+						std::string value = item->serialize(FORMAT_INTERNAL, entry, it->second);
+						if(!value.empty()) item->unserialize(FORMAT_INTERNAL, existing, value);
+					}
 				}
 				/* if this one is older, replace the existing one with it completely */
 				else if(entry->ts < existing->ts)
@@ -502,7 +529,23 @@ class ModuleFlatfileAuth : public Module
 			params.push_back(ConvToStr(entry->tag_ts));
 			params.push_back(":" + entry->tag);
 			ServerInstance->PI->SendEncapsulatedData(params);
-			/* in the future, let other modules send their own data here */
+			for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
+			{
+				ExtensionItem* item = it->first;
+				std::string value = item->serialize(FORMAT_NETWORK, entry, it->second);
+				if (!value.empty())
+				{
+					params.clear();
+					params.push_back("*");
+					params.push_back("ACCTINFO");
+					params.push_back("SET");
+					params.push_back(entry->name);
+					params.push_back(ConvToStr(entry->ts));
+					params.push_back(item->name);
+					params.push_back(value);
+					ServerInstance->PI->SendEncapsulatedData(params);
+				}
+			}
 		}
 	}
 
@@ -548,7 +591,13 @@ class ModuleFlatfileAuth : public Module
 				+ ConvToStr(i->second->connectclass_ts) + " :" + i->second->connectclass);
 			target->SendCommand("ENCAP * ACCTINFO SET " + name + " " + ts + " tag "
 				+ ConvToStr(i->second->tag_ts) + " :" + i->second->tag);
-			/* in the future, let other modules send their own data here */
+			for(Extensible::ExtensibleStore::const_iterator it = i->second->GetExtList().begin(); it != i->second->GetExtList().end(); ++it)
+			{
+				ExtensionItem* item = it->first;
+				std::string value = item->serialize(FORMAT_NETWORK, i->second, it->second);
+				if (!value.empty())
+					target->SendCommand("ENCAP * ACCTINFO SET " + name + " " + ts + " " + item->name + " " + value);
+			}
 		}
 	}
 
