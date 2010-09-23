@@ -27,7 +27,7 @@ struct CGIData {
 class CGIExtItem : public SimpleExtItem<CGIData>
 {
  public:
-	CGIExtItem(Module* parent) : SimpleExtItem<CGIData>("cgiirc", parent) {}
+	CGIExtItem(Module* parent) : SimpleExtItem<CGIData>(EXTENSIBLE_USER, "cgiirc", parent) {}
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
 		CGIData* d = static_cast<CGIData*>(item);
@@ -180,7 +180,7 @@ class ModuleCgiIRC : public Module
 	CommandWebirc cmd;
 	LocalIntExt waiting;
 public:
-	ModuleCgiIRC() : cmd(this), waiting("cgiirc-delay", this)
+	ModuleCgiIRC() : cmd(this), waiting(EXTENSIBLE_USER, "cgiirc-delay", this)
 	{
 	}
 

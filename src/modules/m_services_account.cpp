@@ -35,7 +35,7 @@ struct AccountItem
 class ServicesExtItem : public SimpleExtItem<AccountItem>
 {
  public:
-	ServicesExtItem(Module* owner) : SimpleExtItem<AccountItem>("accountname", owner) {}
+	ServicesExtItem(Module* owner) : SimpleExtItem<AccountItem>(EXTENSIBLE_USER, "accountname", owner) {}
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* itemv) const
 	{

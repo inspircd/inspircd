@@ -86,7 +86,7 @@ class JoinFlood : public ModeHandler
  public:
 	SimpleExtItem<joinfloodsettings> ext;
 	JoinFlood(Module* Creator) : ModeHandler(Creator, "joinflood", 'j', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("joinflood", Creator) { fixed_letter = false; }
+		ext(EXTENSIBLE_CHANNEL, "joinflood", Creator) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

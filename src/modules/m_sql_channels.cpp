@@ -98,7 +98,7 @@ class ChanSQLDB : public Module
 	LocalIntExt InDB;
 
  public:
-	ChanSQLDB() : sqldb("SQL"), InDB("in_sql_chans", this)
+	ChanSQLDB() : sqldb("SQL"), InDB(EXTENSIBLE_CHANNEL, "in_sql_chans", this)
 	{
 	}
 	Version GetVersion()

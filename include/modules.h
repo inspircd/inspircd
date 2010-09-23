@@ -244,12 +244,12 @@ class CoreExport DataProvider : public ServiceProvider
 
 inline User* IS_USER(Extensible* e)
 {
-	return e && e->type_id == Extensible::USER ? static_cast<User*>(e) : NULL;
+	return e && e->type_id == EXTENSIBLE_USER ? static_cast<User*>(e) : NULL;
 }
 
 inline Channel* IS_CHANNEL(Extensible* e)
 {
-	return e && e->type_id == Extensible::CHANNEL ? static_cast<Channel*>(e) : NULL;
+	return e && e->type_id == EXTENSIBLE_CHANNEL ? static_cast<Channel*>(e) : NULL;
 }
 
 class CoreExport dynamic_reference_base : public interfacebase

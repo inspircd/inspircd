@@ -68,7 +68,7 @@ class CommandTmode : public Command
 	TimedMode* current;
 	irc::modestacker toannounce;
 	limitlist chanlimits;
-	CommandTmode(Module* Creator) : Command(Creator,"TMODE", 1), tmodes("tmodes", Creator)
+	CommandTmode(Module* Creator) : Command(Creator,"TMODE", 1), tmodes(EXTENSIBLE_CHANNEL, "tmodes", Creator)
 	{
 		syntax = "<channel> [<duration> <modes> {<mode-parameters>}]"; // NB: This is the syntax for clients to use.  The s2s syntax is different: <channel> <expiry> <modes to set/unset upon expiry> {<mode-parameters>}
 		ServerInstance->Extensions.Register(&tmodes);

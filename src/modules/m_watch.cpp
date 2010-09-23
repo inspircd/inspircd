@@ -251,7 +251,8 @@ class CommandWatch : public Command
 		return CMD_SUCCESS;
 	}
 
-	CommandWatch(Module* parent, unsigned int &maxwatch) : Command(parent,"WATCH", 0), MAX_WATCH(maxwatch), ext("watchlist", parent)
+	CommandWatch(Module* parent, unsigned int &maxwatch)
+		: Command(parent,"WATCH", 0), MAX_WATCH(maxwatch), ext(EXTENSIBLE_USER, "watchlist", parent)
 	{
 		syntax = "[C|L|S]|[+|-<nick>]";
 		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */

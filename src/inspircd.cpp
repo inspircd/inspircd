@@ -290,10 +290,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
-	 NICKForced("NICKForced", NULL),
-	 RedirectJoin("RedirectJoin", NULL),
-	 ForcedClass("ForcedClass", NULL),
-	 OperQuit("OperQuit", NULL),
+	 NICKForced(EXTENSIBLE_USER, "NICKForced", NULL),
+	 RedirectJoin(EXTENSIBLE_USER, "RedirectJoin", NULL),
+	 ForcedClass(EXTENSIBLE_USER, "ForcedClass", NULL),
+	 OperQuit(EXTENSIBLE_USER, "OperQuit", NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
 	 IsNick(&HandleIsNick),

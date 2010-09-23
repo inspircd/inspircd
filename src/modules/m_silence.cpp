@@ -98,7 +98,7 @@ class CommandSilence : public Command
  public:
 	SimpleExtItem<silencelist> ext;
 	CommandSilence(Module* Creator, unsigned int &max) : Command(Creator, "SILENCE", 0),
-		maxsilence(max), ext("silence_list", Creator)
+		maxsilence(max), ext(EXTENSIBLE_USER, "silence_list", Creator)
 	{
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);

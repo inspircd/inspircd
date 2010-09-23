@@ -18,7 +18,7 @@
 
 class SSLCertExt : public ExtensionItem {
  public:
-	SSLCertExt(Module* parent) : ExtensionItem("ssl_cert", parent) {}
+	SSLCertExt(Module* parent) : ExtensionItem(EXTENSIBLE_USER, "ssl_cert", parent) {}
 	ssl_cert* get(const Extensible* item) const
 	{
 		return static_cast<ssl_cert*>(get_raw(item));

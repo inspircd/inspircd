@@ -19,7 +19,7 @@ class ModuleServVHost : public Module
 {
  public:
 	StringExtItem cli_name, srv_name;
-	ModuleServVHost() : cli_name("usercmd_host", this), srv_name("usercmd_server", this) {}
+	ModuleServVHost() : cli_name(EXTENSIBLE_USER, "usercmd_host", this), srv_name(EXTENSIBLE_USER, "usercmd_server", this) {}
 
 	void init()
 	{

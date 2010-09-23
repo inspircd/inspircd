@@ -94,7 +94,7 @@ class ModuleSQLAuth : public Module
 	bool verbose;
 
  public:
-	ModuleSQLAuth() : pendingExt("sqlauth-wait", this), SQL("SQL")
+	ModuleSQLAuth() : pendingExt(EXTENSIBLE_USER, "sqlauth-wait", this), SQL("SQL")
 	{
 	}
 

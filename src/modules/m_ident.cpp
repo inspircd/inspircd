@@ -266,7 +266,7 @@ class ModuleIdent : public Module
 	int RequestTimeout;
 	SimpleExtItem<IdentRequestSocket> ext;
  public:
-	ModuleIdent() : ext("ident_socket", this) {}
+	ModuleIdent() : ext(EXTENSIBLE_USER, "ident_socket", this) {}
 
 	void init()
 	{

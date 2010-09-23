@@ -142,7 +142,7 @@ class ModuleNickLock : public Module
 	CommandNickunlock cmd2;
  public:
 	ModuleNickLock()
-		: locked("nick_locked", this), cmd1(this, locked), cmd2(this, locked)
+		: locked(EXTENSIBLE_USER, "nick_locked", this), cmd1(this, locked), cmd2(this, locked)
 	{}
 
 	void init()

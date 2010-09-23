@@ -198,7 +198,7 @@ class ModuleServerBots : public Module
 	int botID;
 
  public:
-	ModuleServerBots() : dataExt("serverbot", this) {}
+	ModuleServerBots() : dataExt(EXTENSIBLE_USER, "serverbot", this) {}
 
 	void init()
 	{

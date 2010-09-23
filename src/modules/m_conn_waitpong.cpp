@@ -23,7 +23,7 @@ class ModuleWaitPong : public Module
 
  public:
 	ModuleWaitPong()
-	 : ext("waitpong_pingstr", this)
+	 : ext(EXTENSIBLE_USER, "waitpong_pingstr", this)
 	{
 	}
 

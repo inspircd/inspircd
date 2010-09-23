@@ -167,7 +167,7 @@ class ModuleSASL : public Module
 	CommandSASL sasl;
  public:
 	ModuleSASL()
-		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this), sasl(this)
+		: authExt(EXTENSIBLE_USER, "sasl_auth", this), cap(this, "sasl"), auth(this), sasl(this)
 	{
 		sasl_ext = &authExt;
 	}

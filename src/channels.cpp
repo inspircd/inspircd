@@ -16,7 +16,7 @@
 #include "mode.h"
 
 Channel::Channel(const std::string &cname, time_t ts)
-	: Extensible(Extensible::CHANNEL), name(cname), age(ts)
+	: Extensible(EXTENSIBLE_CHANNEL), name(cname), age(ts)
 {
 	if (!age)
 		throw CoreException("Cannot create channel with zero timestamp");

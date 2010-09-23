@@ -21,7 +21,7 @@
 class ChanExpiryExtItem : public ExtensionItem
 {
 	public:
-	ChanExpiryExtItem (Module *owner) : ExtensionItem ("last_activity", owner)
+	ChanExpiryExtItem (Module *owner) : ExtensionItem (EXTENSIBLE_CHANNEL, "last_activity", owner)
 	{
 
 	}

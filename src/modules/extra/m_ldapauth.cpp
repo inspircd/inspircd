@@ -47,7 +47,7 @@ class ModuleLDAPAuth : public Module
 	dynamic_reference<AccountProvider> acctprov;
 
 public:
-	ModuleLDAPAuth() : ldapAuthed("ldapauth", this), acctprov("account")
+	ModuleLDAPAuth() : ldapAuthed(EXTENSIBLE_USER, "ldapauth", this), acctprov("account")
 	{
 		conn = NULL;
 	}

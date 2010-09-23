@@ -90,7 +90,7 @@ class NickFlood : public ModeHandler
  public:
 	SimpleExtItem<nickfloodsettings> ext;
 	NickFlood(Module* Creator) : ModeHandler(Creator, "nickflood", 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("nickflood", Creator) { fixed_letter = false; }
+		ext(EXTENSIBLE_CHANNEL, "nickflood", Creator) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

@@ -185,7 +185,7 @@ const char* User::FormatModes(bool showparameters)
 }
 
 User::User(const std::string &uid, const std::string& sid, int type)
-	: Extensible(Extensible::USER), age(ServerInstance->Time()), signon(0),
+	: Extensible(EXTENSIBLE_USER), age(ServerInstance->Time()), signon(0),
 	idle_lastmsg(0), nick(uid), uuid(uid), server(sid), registered(0),
 	dns_done(0), quietquit(0), quitting(0), exempt(0), lastping(0),
 	usertype(type), frozen(0)

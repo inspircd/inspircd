@@ -39,7 +39,7 @@ class BanRedirect : public ModeWatcher
  public:
 	SimpleExtItem<BanRedirectList> extItem;
 	BanRedirect(Module* parent) : ModeWatcher(parent, 'b', MODETYPE_CHANNEL),
-		extItem("banredirect", parent)
+		extItem(EXTENSIBLE_CHANNEL, "banredirect", parent)
 	{
 	}
 

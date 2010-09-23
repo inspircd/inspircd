@@ -45,7 +45,7 @@ class ModuleBlockAmsg : public Module
 	SimpleExtItem<BlockedMessage> blockamsg;
 
  public:
-	ModuleBlockAmsg() : blockamsg("blockamsg", this)
+	ModuleBlockAmsg() : blockamsg(EXTENSIBLE_USER, "blockamsg", this)
 	{
 	}
 

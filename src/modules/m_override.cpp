@@ -21,7 +21,7 @@ class OverrideMode : public ModeHandler
 	int OverrideTimeout;
 	LocalIntExt timeout;
 	OverrideMode(Module* Creator) : ModeHandler(Creator, "override", 'O', PARAM_NONE, MODETYPE_USER),
-		timeout("override_timeout", Creator)
+		timeout(EXTENSIBLE_USER, "override_timeout", Creator)
 	{
 		oper = true;
 	}

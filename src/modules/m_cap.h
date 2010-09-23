@@ -33,7 +33,7 @@ class GenericCap
  public:
 	LocalIntExt ext;
 	const std::string cap;
-	GenericCap(Module* parent, const std::string &Cap) : ext("cap_" + Cap, parent), cap(Cap)
+	GenericCap(Module* parent, const std::string &Cap) : ext(EXTENSIBLE_USER, "cap_" + Cap, parent), cap(Cap)
 	{
 		ServerInstance->Extensions.Register(&ext);
 	}

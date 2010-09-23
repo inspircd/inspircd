@@ -73,7 +73,7 @@ class callerid_data
 struct CallerIDExtInfo : public ExtensionItem
 {
 	CallerIDExtInfo(Module* parent)
-		: ExtensionItem("callerid_data", parent)
+		: ExtensionItem(EXTENSIBLE_USER, "callerid_data", parent)
 	{
 	}
 

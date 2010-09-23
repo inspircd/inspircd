@@ -25,7 +25,7 @@ class ModuleGeoIP : public Module
 	GeoIP* gi;
 
  public:
-	ModuleGeoIP() : ext("geoip_cc", this)
+	ModuleGeoIP() : ext(EXTENSIBLE_USER, "geoip_cc", this)
 	{
 		gi = GeoIP_new(GEOIP_STANDARD);
 	}

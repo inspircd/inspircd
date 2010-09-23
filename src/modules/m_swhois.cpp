@@ -21,7 +21,7 @@ class CommandSwhois : public Command
 {
  public:
 	StringExtItem swhois;
-	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois("swhois", Creator)
+	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois(EXTENSIBLE_USER, "swhois", Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
 		ServerInstance->Extensions.Register(&swhois);

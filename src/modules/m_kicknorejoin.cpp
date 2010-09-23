@@ -23,7 +23,7 @@ class KickRejoin : public ParamChannelModeHandler
 {
  public:
 	SimpleExtItem<delaylist> ext;
-	KickRejoin(Module* Creator) : ParamChannelModeHandler(Creator, "kicknorejoin", 'J'), ext("norejoinusers", Creator)
+	KickRejoin(Module* Creator) : ParamChannelModeHandler(Creator, "kicknorejoin", 'J'), ext(EXTENSIBLE_CHANNEL, "norejoinusers", Creator)
 	{
 		fixed_letter = false;
 	}

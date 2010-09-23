@@ -76,7 +76,7 @@ class MsgFlood : public ModeHandler
  public:
 	SimpleExtItem<floodsettings> ext;
 	MsgFlood(Module* Creator) : ModeHandler(Creator, "flood", 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("messageflood", Creator) { fixed_letter = false; }
+		ext(EXTENSIBLE_CHANNEL, "messageflood", Creator) { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{

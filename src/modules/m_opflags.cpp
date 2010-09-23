@@ -18,7 +18,7 @@ class OpFlagProviderImpl : public OpFlagProvider
 {
  public:
 	LocalStringExt ext;
-	OpFlagProviderImpl(Module* parent) : OpFlagProvider(parent, "opflags"), ext("flaglist", parent)
+	OpFlagProviderImpl(Module* parent) : OpFlagProvider(parent, "opflags"), ext(EXTENSIBLE_MEMBERSHIP, "flaglist", parent)
 	{
 	}
 

@@ -244,7 +244,7 @@ class ModuleDCCAllow : public Module
 
 	void init()
 	{
-		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
+		ext = new SimpleExtItem<dccallowlist>(EXTENSIBLE_USER, "dccallow", this);
 		ServerInstance->Extensions.Register(ext);
 		ServerInstance->AddCommand(&cmd);
 		ReadFileConf();

@@ -226,7 +226,7 @@ class ModuleDNSBL : public Module
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
  public:
-	ModuleDNSBL() : nameExt("dnsbl_match", this), countExt("dnsbl_pending", this) { }
+	ModuleDNSBL() : nameExt(EXTENSIBLE_USER, "dnsbl_match", this), countExt(EXTENSIBLE_USER, "dnsbl_pending", this) { }
 
 	void init()
 	{

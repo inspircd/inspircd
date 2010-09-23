@@ -10,12 +10,21 @@ enum SerializeFormat
 	FORMAT_PERSIST
 };
 
+enum ExtensibleType {
+	EXTENSIBLE_NONE,
+	EXTENSIBLE_USER,
+	EXTENSIBLE_CHANNEL,
+	EXTENSIBLE_MEMBERSHIP,
+	EXTENSIBLE_ACCOUNT
+};
+
 /** Class represnting an extension of some object
  */
 class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
  public:
-	ExtensionItem(const std::string& key, Module* owner);
+	const ExtensibleType type_id;
+	ExtensionItem(ExtensibleType type, const std::string& key, Module* owner);
 	virtual ~ExtensionItem();
 	/** Serialize this item into a string
 	 *
@@ -56,25 +65,19 @@ class CoreExport Extensible : public classbase
 
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;
-	enum ExtType {
-		UNMANAGED,
-		USER,
-		CHANNEL,
-		MEMBERSHIP
-	};
  private:
 	/** Private data store.
 	 * Holds all extensible metadata for the class.
 	 */
 	ExtensibleStore extensions;
  public:
-	const ExtType type_id;
+	const ExtensibleType type_id;
 	/**
 	 * Get the extension items for iteraton (i.e. for metadata sync during netburst)
 	 */
 	inline const ExtensibleStore& GetExtList() const { return extensions; }
 
-	Extensible(ExtType type_id);
+	Extensible(ExtensibleType type_id);
 	virtual CullResult cull();
 	virtual ~Extensible();
 	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);
@@ -93,7 +96,7 @@ class CoreExport ExtensionManager
 class CoreExport LocalExtItem : public ExtensionItem
 {
  public:
-	LocalExtItem(const std::string& key, Module* owner);
+	LocalExtItem(ExtensibleType type, const std::string& key, Module* owner);
 	virtual ~LocalExtItem();
 	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value);
@@ -104,7 +107,7 @@ template<typename T>
 class SimpleExtItem : public LocalExtItem
 {
  public:
-	SimpleExtItem(const std::string& Key, Module* parent) : LocalExtItem(Key, parent)
+	SimpleExtItem(ExtensibleType type, const std::string& Key, Module* parent) : LocalExtItem(type, Key, parent)
 	{
 	}
 
@@ -145,7 +148,7 @@ class SimpleExtItem : public LocalExtItem
 class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 {
  public:
-	LocalStringExt(const std::string& key, Module* owner);
+	LocalStringExt(ExtensibleType type, const std::string& key, Module* owner);
 	virtual ~LocalStringExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 };
@@ -153,7 +156,7 @@ class CoreExport LocalStringExt : public SimpleExtItem<std::string>
 class CoreExport LocalIntExt : public LocalExtItem
 {
  public:
-	LocalIntExt(const std::string& key, Module* owner);
+	LocalIntExt(ExtensibleType type, const std::string& key, Module* owner);
 	virtual ~LocalIntExt();
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 	intptr_t get(const Extensible* container) const;
@@ -164,7 +167,7 @@ class CoreExport LocalIntExt : public LocalExtItem
 class CoreExport StringExtItem : public ExtensionItem
 {
  public:
-	StringExtItem(const std::string& key, Module* owner);
+	StringExtItem(ExtensibleType type, const std::string& key, Module* owner);
 	virtual ~StringExtItem();
 	std::string* get(const Extensible* container) const;
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;

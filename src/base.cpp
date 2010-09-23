@@ -97,7 +97,8 @@ ServiceProvider::~ServiceProvider()
 {
 }
 
-ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : ServiceProvider(mod, Key, SERVICE_METADATA)
+ExtensionItem::ExtensionItem(ExtensibleType type, const std::string& Key, Module* mod)
+	: ServiceProvider(mod, Key, SERVICE_METADATA), type_id(type)
 {
 }
 
@@ -184,11 +185,11 @@ void Extensible::doUnhookExtensions(const std::vector<reference<ExtensionItem> >
 
 static struct DummyExtensionItem : LocalExtItem
 {
-	DummyExtensionItem() : LocalExtItem("", NULL) {}
+	DummyExtensionItem() : LocalExtItem(EXTENSIBLE_NONE, "", NULL) {}
 	void free(void*) {}
 } dummy;
 
-Extensible::Extensible(ExtType Type) : type_id(Type)
+Extensible::Extensible(ExtensibleType Type) : type_id(Type)
 {
 	extensions[&dummy] = NULL;
 }
@@ -210,7 +211,8 @@ Extensible::~Extensible()
 			"Extensible destructor called without cull @%p", (void*)this);
 }
 
-LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)
+LocalExtItem::LocalExtItem(ExtensibleType type, const std::string& Key, Module* mod)
+	: ExtensionItem(type, Key, mod)
 {
 }
 
@@ -227,8 +229,8 @@ void LocalExtItem::unserialize(SerializeFormat format, Extensible* container, co
 {
 }
 
-LocalStringExt::LocalStringExt(const std::string& Key, Module* Owner)
-	: SimpleExtItem<std::string>(Key, Owner) { }
+LocalStringExt::LocalStringExt(ExtensibleType type, const std::string& Key, Module* Owner)
+	: SimpleExtItem<std::string>(type, Key, Owner) { }
 
 LocalStringExt::~LocalStringExt()
 {
@@ -241,7 +243,8 @@ std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* 
 	return "";
 }
 
-LocalIntExt::LocalIntExt(const std::string& Key, Module* mod) : LocalExtItem(Key, mod)
+LocalIntExt::LocalIntExt(ExtensibleType type, const std::string& Key, Module* mod)
+	: LocalExtItem(type, Key, mod)
 {
 }
 
@@ -273,7 +276,8 @@ void LocalIntExt::free(void*)
 {
 }
 
-StringExtItem::StringExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)
+StringExtItem::StringExtItem(ExtensibleType type, const std::string& Key, Module* mod)
+	: ExtensionItem(type, Key, mod)
 {
 }
 

@@ -22,7 +22,7 @@ class CommandTitle : public Command
  public:
 	StringExtItem ctitle;
 	CommandTitle(Module* Creator) : Command(Creator,"TITLE", 2),
-		ctitle("ctitle", Creator)
+		ctitle(EXTENSIBLE_USER, "ctitle", Creator)
 	{
 		syntax = "<user> <password>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);

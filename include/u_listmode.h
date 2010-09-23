@@ -30,7 +30,7 @@ typedef std::list<ListLimit> limitlist;
 class CoreExport ListExtItem : public LocalExtItem
 {
  public:
-	ListExtItem(const std::string& Key, Module* parent) : LocalExtItem(Key, parent)
+	ListExtItem(const std::string& Key, Module* parent) : LocalExtItem(EXTENSIBLE_CHANNEL, Key, parent)
 	{
 	}
 
