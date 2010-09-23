@@ -108,6 +108,8 @@ ExtensionItem::~ExtensionItem()
 
 void* ExtensionItem::get_raw(const Extensible* container) const
 {
+	if (container->type_id != type_id)
+		throw CoreException("Type mismatch in Extensible object");
 	Extensible::ExtensibleStore::const_iterator i =
 		container->extensions.find(const_cast<ExtensionItem*>(this));
 	if (i == container->extensions.end())
@@ -117,6 +119,8 @@ void* ExtensionItem::get_raw(const Extensible* container) const
 
 void* ExtensionItem::set_raw(Extensible* container, void* value)
 {
+	if (container->type_id != type_id)
+		throw CoreException("Type mismatch in Extensible object");
 	std::pair<Extensible::ExtensibleStore::iterator,bool> rv =
 		container->extensions.insert(std::make_pair(this, value));
 	if (rv.second)
@@ -133,6 +137,8 @@ void* ExtensionItem::set_raw(Extensible* container, void* value)
 
 void* ExtensionItem::unset_raw(Extensible* container)
 {
+	if (container->type_id != type_id)
+		throw CoreException("Type mismatch in Extensible object");
 	Extensible::ExtensibleStore::iterator i = container->extensions.find(this);
 	if (i == container->extensions.end())
 		return NULL;
@@ -146,14 +152,14 @@ void ExtensionManager::Register(ExtensionItem* item)
 	types.insert(std::make_pair(item->name, item));
 }
 
-void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
+void ExtensionManager::BeginUnregister(Module* module, ExtensibleType type, std::vector<reference<ExtensionItem> >& list)
 {
 	std::map<std::string, reference<ExtensionItem> >::iterator i = types.begin();
 	while (i != types.end())
 	{
 		std::map<std::string, reference<ExtensionItem> >::iterator me = i++;
 		ExtensionItem* item = me->second;
-		if (item->creator == module)
+		if (item->creator == module && (type == EXTENSIBLE_NONE || item->type_id == type))
 		{
 			list.push_back(item);
 			types.erase(me);

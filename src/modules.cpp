@@ -304,8 +304,10 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 {
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
-	std::vector<reference<ExtensionItem> > items;
-	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
+	std::vector<reference<ExtensionItem> > chan_exts, user_exts, memb_exts;
+	ServerInstance->Extensions.BeginUnregister(modfind->second, EXTENSIBLE_CHANNEL, chan_exts);
+	ServerInstance->Extensions.BeginUnregister(modfind->second, EXTENSIBLE_USER, user_exts);
+	ServerInstance->Extensions.BeginUnregister(modfind->second, EXTENSIBLE_MEMBERSHIP, memb_exts);
 	std::vector<ModeHandler*> modes;
 	if (state)
 	{
@@ -320,7 +322,7 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 					state->channelModes.push_back(RestoreData(c->second->name, mh->name, i->value));
 			}
 			const Extensible::ExtensibleStore& extlist = c->second->GetExtList();
-			for(std::vector<reference<ExtensionItem> >::iterator i = items.begin(); i != items.end(); i++)
+			for(std::vector<reference<ExtensionItem> >::iterator i = chan_exts.begin(); i != chan_exts.end(); i++)
 			{
 				ExtensionItem* item = *i;
 				Extensible::ExtensibleStore::const_iterator v = extlist.find(item);
@@ -344,7 +346,7 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 				}
 			}
 			const Extensible::ExtensibleStore& extlist = u->second->GetExtList();
-			for(std::vector<reference<ExtensionItem> >::iterator i = items.begin(); i != items.end(); i++)
+			for(std::vector<reference<ExtensionItem> >::iterator i = user_exts.begin(); i != user_exts.end(); i++)
 			{
 				ExtensionItem* item = *i;
 				Extensible::ExtensibleStore::const_iterator v = extlist.find(item);
@@ -367,15 +369,18 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 	{
 		mod->OnCleanup(TYPE_CHANNEL,c->second);
-		c->second->doUnhookExtensions(items);
-		const UserMembList* users = c->second->GetUsers();
-		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
-			mi->second->doUnhookExtensions(items);
+		c->second->doUnhookExtensions(chan_exts);
+		if (!memb_exts.empty())
+		{
+			const UserMembList* users = c->second->GetUsers();
+			for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+				mi->second->doUnhookExtensions(memb_exts);
+		}
 	}
 	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 	{
 		mod->OnCleanup(TYPE_USER,u->second);
-		u->second->doUnhookExtensions(items);
+		u->second->doUnhookExtensions(user_exts);
 	}
 
 	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
@@ -395,6 +400,7 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 	DetachAll(mod);
 	
 	ServerInstance->Threads->BlockForUnload(mod);
+	ServerInstance->Extensions.BeginUnregister(modfind->second, EXTENSIBLE_NONE, chan_exts);
 
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
