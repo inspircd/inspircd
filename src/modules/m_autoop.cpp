@@ -151,7 +151,6 @@ public:
 		if(checkonlogin && event.id == "account_login"){
 			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
 			if(!IS_LOCAL(acct_event.user) || acct_event.user->IsModeSet('n')) return;
-			std::vector<std::string> params;
 			for (UCListIter v = acct_event.user->chans.begin(); v != acct_event.user->chans.end(); ++v)
 				DoAutoop(&*v);
 		}
