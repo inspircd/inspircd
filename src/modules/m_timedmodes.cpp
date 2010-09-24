@@ -273,6 +273,7 @@ class ModuleTimedModes : public Module
 
 	void OnMode(User*, Extensible* dest, const irc::modestacker& modeschanged)
 	{
+		if(!IS_CHANNEL(dest)) return;
 		if(cmd.current)
 		{
 			std::vector<irc::modechange> newsequence;
