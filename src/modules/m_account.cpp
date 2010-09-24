@@ -140,7 +140,9 @@ class AccountDBProviderImpl : public AccountDBProvider
 		{
 			ExtensionItem* ext = ServerInstance->Extensions.GetItem(field);
 			if(!ext) return;
-			std::string value = ext->serialize(FORMAT_NETWORK, entry, entry->GetExtList().find(ext)->second);
+			Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().find(ext);
+			if(it == entry->GetExtList().end()) return;
+			std::string value = ext->serialize(FORMAT_NETWORK, entry, it->second);
 			if(value.empty()) return;
 			params.push_back(value);
 		}
