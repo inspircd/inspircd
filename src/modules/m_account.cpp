@@ -160,7 +160,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 		std::vector<std::string> params;
 		params.push_back("*");
 		params.push_back("ACCTINFO");
-		params.push_back("SET");
+		params.push_back("DEL");
 		params.push_back(acctname);
 		params.push_back(ConvToStr(ts));
 		ServerInstance->PI->SendEncapsulatedData(params);
