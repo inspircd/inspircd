@@ -14,26 +14,15 @@
 #include "inspircd.h"
 #include "account.h"
 #include "hash.h"
+#include "flatfile_auth.h"
 
 /* $ModDesc: Allow/Deny connections based upon a flat-file database */
 
 static dynamic_reference<AccountProvider> account("account");
 
-/* structure for single entry */
-class AccountDBEntry : public Extensible
-{
- public:
-	irc::string name;
-	time_t ts, hash_password_ts, connectclass_ts, tag_ts;
-	std::string hash, password, connectclass, tag;
-	AccountDBEntry() : Extensible(EXTENSIBLE_ACCOUNT), name(""), ts(0), hash_password_ts(0), connectclass_ts(0), tag_ts(0), hash(""), password(""), connectclass(""), tag("") {}
-};
-
 /******************************************************************************
  * Flat-file database read/write
  ******************************************************************************/
-
-typedef std::map<irc::string, AccountDBEntry*> AccountDB;
 
 /** reads the account database and returns structure with it */
 class DatabaseReader
@@ -287,14 +276,85 @@ class DatabaseWriter
 	}
 };
 
+class FlatfileAccountDBProvider : public AccountDBProvider
+{
+ public:
+	AccountDB db;
+
+	FlatfileAccountDBProvider(Module* parent) : AccountDBProvider(parent) {}
+
+	inline AccountDB& GetDB()
+	{
+		return db;
+	}
+
+	void SendUpdate(const AccountDBEntry* entry)
+	{
+		std::vector<std::string> params;
+		params.push_back("*");
+		params.push_back("ACCTINFO");
+		params.push_back("ADD");
+		params.push_back(entry->name);
+		params.push_back(":" + ConvToStr(entry->ts));
+		ServerInstance->PI->SendEncapsulatedData(params);
+		params.clear();
+		params.push_back("*");
+		params.push_back("ACCTINFO");
+		params.push_back("SET");
+		params.push_back(entry->name);
+		params.push_back(ConvToStr(entry->ts));
+		params.push_back("hash_password");
+		params.push_back(ConvToStr(entry->hash_password_ts));
+		params.push_back(":" + entry->hash + " " + entry->password);
+		ServerInstance->PI->SendEncapsulatedData(params);
+		params.clear();
+		params.push_back("*");
+		params.push_back("ACCTINFO");
+		params.push_back("SET");
+		params.push_back(entry->name);
+		params.push_back(ConvToStr(entry->ts));
+		params.push_back("connectclass");
+		params.push_back(ConvToStr(entry->connectclass_ts));
+		params.push_back(":" + entry->connectclass);
+		ServerInstance->PI->SendEncapsulatedData(params);
+		params.clear();
+		params.push_back("*");
+		params.push_back("ACCTINFO");
+		params.push_back("SET");
+		params.push_back(entry->name);
+		params.push_back(ConvToStr(entry->ts));
+		params.push_back("tag");
+		params.push_back(ConvToStr(entry->tag_ts));
+		params.push_back(":" + entry->tag);
+		ServerInstance->PI->SendEncapsulatedData(params);
+		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
+		{
+			ExtensionItem* item = it->first;
+			std::string value = item->serialize(FORMAT_NETWORK, entry, it->second);
+			if (!value.empty())
+			{
+				params.clear();
+				params.push_back("*");
+				params.push_back("ACCTINFO");
+				params.push_back("SET");
+				params.push_back(entry->name);
+				params.push_back(ConvToStr(entry->ts));
+				params.push_back(item->name);
+				params.push_back(value);
+				ServerInstance->PI->SendEncapsulatedData(params);
+			}
+		}
+	}
+};
+
 /** Handle /ACCTINFO
  */
 class CommandAcctinfo : public Command
 {
-	AccountDB& db;
 	bool& dirty;
  public:
-	CommandAcctinfo(Module* Creator, AccountDB& db_ref, bool& dirty_ref) : Command(Creator,"ACCTINFO", 3, 6), db(db_ref), dirty(dirty_ref)
+	FlatfileAccountDBProvider prov;
+	CommandAcctinfo(Module* Creator, bool& dirty_ref) : Command(Creator,"ACCTINFO", 3, 6), dirty(dirty_ref), prov(Creator)
 	{
 		flags_needed = FLAG_SERVERONLY; syntax = "ADD|SET|DEL <account name> <account TS> [key] [value TS] [value]";
 	}
@@ -302,21 +362,21 @@ class CommandAcctinfo : public Command
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		dirty = true;
-		AccountDB::iterator iter = db.find(parameters[1]);
+		AccountDB::iterator iter = prov.db.find(parameters[1]);
 		if(parameters[0] == "SET")
 		{
-			if(iter == db.end()) return CMD_FAILURE; /* if this ever happens, we're desynced */
+			if(iter == prov.db.end()) return CMD_FAILURE; /* if this ever happens, we're desynced */
 			if(iter->second->ts < atol(parameters[2].c_str())) return CMD_FAILURE; /* we have an older account with the same name */
 			if(iter->second->ts > atol(parameters[2].c_str()))
 			{
 				/* Nuke the entry. */
 				iter->second->cull();
 				delete iter->second;
-				db.erase(iter);
+				prov.db.erase(iter);
 				AccountDBEntry* entry = new AccountDBEntry();
 				entry->name = parameters[1];
 				entry->ts = atol(parameters[2].c_str());
-				std::pair<AccountDB::iterator, bool> result = db.insert(std::make_pair(parameters[1], entry));
+				std::pair<AccountDB::iterator, bool> result = prov.db.insert(std::make_pair(parameters[1], entry));
 				iter = result.first;
 			}
 			ExtensionItem* ext = ServerInstance->Extensions.GetItem(parameters[3]);
@@ -352,28 +412,28 @@ class CommandAcctinfo : public Command
 		}
 		else if(parameters[0] == "ADD")
 		{
-			if(iter == db.end() || iter->second->ts > atol(parameters[2].c_str()))
+			if(iter == prov.db.end() || iter->second->ts > atol(parameters[2].c_str()))
 			{
 				if(iter->second->ts > atol(parameters[2].c_str()))
 				{
 					iter->second->cull();
 					delete iter->second;
-					db.erase(iter);
+					prov.db.erase(iter);
 				}
 				AccountDBEntry* entry = new AccountDBEntry();
 				entry->name = parameters[1];
 				entry->ts = atol(parameters[2].c_str());
-				std::pair<AccountDB::iterator, bool> result = db.insert(std::make_pair(parameters[1], entry));
+				std::pair<AccountDB::iterator, bool> result = prov.db.insert(std::make_pair(parameters[1], entry));
 				iter = result.first;
 			}
 			else if(iter->second->ts < atol(parameters[2].c_str())) return CMD_FAILURE;
 		}
 		else if(parameters[0] == "DEL")
 		{
-			if(iter != db.end())
+			if(iter != prov.db.end())
 			{
 				if(iter->second->ts < atol(parameters[2].c_str())) return CMD_FAILURE;
-				db.erase(iter);
+				prov.db.erase(iter);
 			}
 		}
 		else return CMD_FAILURE;
@@ -424,15 +484,14 @@ class ModuleFlatfileAuth : public Module
 	std::string dbfile;
 	bool dirty; // dbfile needs to be flushed to disk
 
-	AccountDB db;
-	CommandAcctinfo cmd_acctinfo;
+	CommandAcctinfo cmd;
 	CommandLogin cmd_login;
 
 	void WriteFileDatabase ( )
 	{
 		// Dump entire database; open/close in constructor/destructor
 		DatabaseWriter dbwriter (dbfile);
-		for (AccountDB::const_iterator i = db.begin(); i != db.end(); ++i)
+		for (AccountDB::const_iterator i = cmd.prov.db.begin(); i != cmd.prov.db.end(); ++i)
 			dbwriter.next(i->second);
 	}
 
@@ -445,7 +504,7 @@ class ModuleFlatfileAuth : public Module
 		AccountDBEntry *entry;
 		while ((entry = dbreader.next ( )))
 		{
-			std::pair<AccountDB::iterator, bool> result = db.insert(std::make_pair(entry->name, entry));
+			std::pair<AccountDB::iterator, bool> result = cmd.prov.db.insert(std::make_pair(entry->name, entry));
 			/* if it didn't insert because we already have one, look at its TS */
 			if(!result.second)
 			{
@@ -481,8 +540,8 @@ class ModuleFlatfileAuth : public Module
 				{
 					result.first->second->cull();
 					delete result.first->second;
-					db.erase(result.first);
-					db.insert(std::make_pair(entry->name, entry));
+					cmd.prov.db.erase(result.first);
+					cmd.prov.db.insert(std::make_pair(entry->name, entry));
 				}
 				/* the third case is that the one we read is newer, in which case we get rid of it */
 				else
@@ -492,85 +551,33 @@ class ModuleFlatfileAuth : public Module
 					continue;
 				}
 			}
-			std::vector<std::string> params;
-			params.push_back("*");
-			params.push_back("ACCTINFO");
-			params.push_back("ADD");
-			params.push_back(entry->name);
-			params.push_back(":" + ConvToStr(entry->ts));
-			ServerInstance->PI->SendEncapsulatedData(params);
-			params.clear();
-			params.push_back("*");
-			params.push_back("ACCTINFO");
-			params.push_back("SET");
-			params.push_back(entry->name);
-			params.push_back(ConvToStr(entry->ts));
-			params.push_back("hash_password");
-			params.push_back(ConvToStr(entry->hash_password_ts));
-			params.push_back(":" + entry->hash + " " + entry->password);
-			ServerInstance->PI->SendEncapsulatedData(params);
-			params.clear();
-			params.push_back("*");
-			params.push_back("ACCTINFO");
-			params.push_back("SET");
-			params.push_back(entry->name);
-			params.push_back(ConvToStr(entry->ts));
-			params.push_back("connectclass");
-			params.push_back(ConvToStr(entry->connectclass_ts));
-			params.push_back(":" + entry->connectclass);
-			ServerInstance->PI->SendEncapsulatedData(params);
-			params.clear();
-			params.push_back("*");
-			params.push_back("ACCTINFO");
-			params.push_back("SET");
-			params.push_back(entry->name);
-			params.push_back(ConvToStr(entry->ts));
-			params.push_back("tag");
-			params.push_back(ConvToStr(entry->tag_ts));
-			params.push_back(":" + entry->tag);
-			ServerInstance->PI->SendEncapsulatedData(params);
-			for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
-			{
-				ExtensionItem* item = it->first;
-				std::string value = item->serialize(FORMAT_NETWORK, entry, it->second);
-				if (!value.empty())
-				{
-					params.clear();
-					params.push_back("*");
-					params.push_back("ACCTINFO");
-					params.push_back("SET");
-					params.push_back(entry->name);
-					params.push_back(ConvToStr(entry->ts));
-					params.push_back(item->name);
-					params.push_back(value);
-					ServerInstance->PI->SendEncapsulatedData(params);
-				}
-			}
+			cmd.prov.SendUpdate(entry);
 		}
 	}
 
  public:
-	ModuleFlatfileAuth() : dirty(true), cmd_acctinfo(this, db, dirty), cmd_login(this, db)
+	ModuleFlatfileAuth() : dirty(true), cmd(this, dirty), cmd_login(this, cmd.prov.db)
 	{
 	}
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd_acctinfo);
-		ServerInstance->AddCommand(&cmd_login);
+		ServerInstance->Modules->AddService(cmd);
+		ServerInstance->Modules->AddService(cmd.prov);
+		ServerInstance->Modules->AddService(cmd_login);
 		Implementation eventlist[] = { I_OnSyncNetwork, I_OnBackgroundTimer, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		ReadFileDatabase();
+		if(!dbfile.empty()) ReadFileDatabase();
 	}
 
 	virtual ~ModuleFlatfileAuth()
 	{
-		for(AccountDB::iterator iter = db.begin(); iter != db.end(); ++iter)
+		for(AccountDB::iterator iter = cmd.prov.db.begin(); iter != cmd.prov.db.end(); ++iter)
 		{
 			iter->second->cull();
 			delete iter->second;
 		}
-		db.clear();
+		cmd.prov.db.clear();
 	}
 
 	void ReadConfig(ConfigReadStatus&)
@@ -581,7 +588,7 @@ class ModuleFlatfileAuth : public Module
 
 	void OnSyncNetwork(SyncTarget* target)
 	{
-		for (AccountDB::const_iterator i = db.begin(); i != db.end(); ++i)
+		for (AccountDB::const_iterator i = cmd.prov.db.begin(); i != cmd.prov.db.end(); ++i)
 		{
 			std::string name = i->first, ts = ConvToStr(i->second->ts);
 			target->SendCommand("ENCAP * ACCTINFO ADD " + name + " :" + ts);
@@ -608,7 +615,8 @@ class ModuleFlatfileAuth : public Module
 		if (!dirty)
 			return;
 		/* dirty, an account was changed, save it */
-		WriteFileDatabase();
+		if(!dbfile.empty())
+			WriteFileDatabase();
 		/* clear dirty to prevent next savings */
 		dirty = false;
 	}
@@ -617,7 +625,7 @@ class ModuleFlatfileAuth : public Module
 	{
 		std::vector<reference<ExtensionItem> > acct_exts;
 		ServerInstance->Extensions.BeginUnregister(mod, EXTENSIBLE_ACCOUNT, acct_exts);
-		for(AccountDB::iterator iter = db.begin(); iter != db.end(); ++iter)
+		for(AccountDB::iterator iter = cmd.prov.db.begin(); iter != cmd.prov.db.end(); ++iter)
 		{
 			mod->OnCleanup(TYPE_OTHER, iter->second);
 			iter->second->doUnhookExtensions(acct_exts);
