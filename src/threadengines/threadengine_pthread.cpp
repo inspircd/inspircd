@@ -69,7 +69,7 @@ class ThreadSignalSocket : public EventHandler
 	{
 		int fds[2];
 		if (pipe(fds))
-			throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
+			throw CoreException("Could not create pipe " + std::string(strerror(errno)));
 		SetFd(fds[0]);
 		send_fd = fds[1];
 
