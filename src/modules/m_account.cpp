@@ -362,7 +362,7 @@ class ModuleAccount : public Module
 
 	Version GetVersion()
 	{
-		return Version("Store account information and allow logging in to them ircd-side", VF_VENDOR);
+		return Version("Store account information and allow logging in to them ircd-side", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 
