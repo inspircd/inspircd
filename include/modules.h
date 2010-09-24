@@ -378,6 +378,14 @@ class CoreExport ChannelPermissionData : public PermissionData
 		: PermissionData(src, "join", c, src), channel(Name), key(Key), invited(false), needs_invite(false) {}
 };
 
+class CoreExport OperPermissionData : public PermissionData
+{
+ public:
+	/** Oper block being used to oper; NULL if none found */
+	reference<OperInfo> oper;
+	OperPermissionData(User* who, const std::string& name);
+};
+
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,
  *  its methods will be called when irc server events occur. class inherited from module must be

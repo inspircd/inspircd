@@ -80,7 +80,7 @@ class ModuleSWhois : public Module
 	void init()
 	{
 		ServerInstance->AddCommand(&cmd);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostCommand };
+		Implementation eventlist[] = { I_OnWhoisLine, I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -102,9 +102,9 @@ class ModuleSWhois : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostCommand(const std::string &command, const std::vector<std::string> &params, LocalUser *user, CmdResult result, const std::string &original_line)
+	void OnOper(User* user, const std::string&)
 	{
-		if ((command != "OPER") || (result != CMD_SUCCESS))
+		if (!IS_LOCAL(user))
 			return;
 
 		std::string swhois = user->oper->getConfig("swhois");

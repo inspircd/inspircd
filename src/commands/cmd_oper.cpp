@@ -58,32 +58,35 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
 	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
 
-	std::string why;
-	OperInfo* ifo;
-	ConfigTag* tag;
+	OperPermissionData perm(user, parameters[0]);
+	FOR_EACH_MOD(OnPermissionCheck, (perm));
 
-	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
-	if (i == ServerInstance->Config->oper_blocks.end())
+	if (perm.result == MOD_RES_DENY)
+		goto fail;
+
+	if (!perm.oper)
 	{
-		why = "oper block not found";
+		perm.reason = "oper block not found";
 		goto fail;
 	}
 
-	ifo = i->second;
-	tag = ifo->config_blocks[0];
-	if (!OneOfMatches(TheHost,TheIP,tag->getString("host")))
+	if (perm.result != MOD_RES_ALLOW)
 	{
-		why = "host does not match";
-		goto fail;
+		ConfigTag* tag = perm.oper->config_blocks[0];
+		if (!OneOfMatches(TheHost,TheIP,tag->getString("host")))
+		{
+			perm.reason = "host does not match";
+			goto fail;
+		}
+
+		if (ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash")))
+		{
+			perm.reason = "password does not match";
+			goto fail;
+		}
 	}
 
-	if (ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash")))
-	{
-		why = "password does not match";
-		goto fail;
-	}
-
-	user->Oper(ifo);
+	user->Oper(perm.oper);
 	return CMD_SUCCESS;
 
 fail:
@@ -94,11 +97,11 @@ fail:
 	user->CommandFloodPenalty += 10000;
 
 	snprintf(broadcast, MAXBUF, "WARNING! Failed oper attempt by %s!%s@%s using login '%s': %s",
-		user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), why.c_str());
+		user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), perm.reason.c_str());
 	ServerInstance->SNO->WriteGlobalSno('o',std::string(broadcast));
 
 	ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s!%s@%s using login '%s': %s",
-		user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), why.c_str());
+		user->nick.c_str(), user->ident.c_str(), user->host.c_str(), parameters[0].c_str(), perm.reason.c_str());
 	return CMD_FAILURE;
 }
 

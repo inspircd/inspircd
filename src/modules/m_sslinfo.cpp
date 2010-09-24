@@ -147,7 +147,7 @@ class ModuleSSLInfo : public Module
 		ServerInstance->Modules->AddService(prov.cmd);
 		ServerInstance->Modules->AddService(prov.cmd.CertExt);
 
-		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
+		Implementation eventlist[] = { I_OnWhois, I_OnPermissionCheck, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -183,37 +183,39 @@ class ModuleSSLInfo : public Module
 		return false;
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	void OnPermisisonCheck(PermissionData& perm)
 	{
-		irc::string pcmd = command.c_str();
+		if (perm.name != "oper")
+			return;
+		OperPermissionData& operm = static_cast<OperPermissionData&>(perm);
 
-		if ((pcmd == "OPER") && (validated))
+		if (!operm.oper)
+			return;
+
+		ssl_cert* cert = prov.cmd.CertExt.get(perm.user);
+		ConfigTag* tag = operm.oper->config_blocks[0];
+
+		std::string fplist = tag->getString("fingerprint");
+		if ((!fplist.empty() || tag->getBool("sslonly")) && !cert)
 		{
-			OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
-			if (i != ServerInstance->Config->oper_blocks.end())
-			{
-				OperInfo* ifo = i->second;
-				ssl_cert* cert = prov.cmd.CertExt.get(user);
-
-				if (ifo->config_blocks[0]->getBool("sslonly") && !cert)
-				{
-					user->WriteNumeric(491, "%s :This oper login requires an SSL connection.", user->nick.c_str());
-					user->CommandFloodPenalty += 10000;
-					return MOD_RES_DENY;
-				}
-
-				std::string fingerprint;
-				if (ifo->config_blocks[0]->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
-				{
-					user->WriteNumeric(491, "%s :This oper login requires a matching SSL fingerprint.",user->nick.c_str());
-					user->CommandFloodPenalty += 10000;
-					return MOD_RES_DENY;
-				}
-			}
+			perm.reason = "SSL connection required";
+			perm.result = MOD_RES_DENY;
+			return;
 		}
 
-		// Let core handle it for extra stuff
-		return MOD_RES_PASSTHRU;
+		if (!fplist.empty())
+		{
+			std::string myfp = cert->GetFingerprint();
+			irc::spacesepstream fprints(fplist);
+			std::string fingerprint;
+			while (fprints.GetToken(fingerprint))
+			{
+				if (fingerprint == myfp)
+					return;
+			}
+			perm.reason = "SSL fingerprint mismatch";
+			perm.result = MOD_RES_DENY;
+		}
 	}
 
 	void OnUserConnect(LocalUser* user)
