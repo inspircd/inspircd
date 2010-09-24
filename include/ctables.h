@@ -20,7 +20,7 @@ enum CmdResult
 {
 	CMD_FAILURE = 0,	/* Command exists, but failed */
 	CMD_SUCCESS = 1,	/* Command exists, and succeeded */
-	CMD_INVALID = 2,	/* Command doesnt exist at all! */
+	CMD_INVALID = 2,	/* Command doesn't exist at all, or an incorrect number of parameters were given */
 	CMD_EPERM = 3       /* Command failed because of a permission check */
 };
 
