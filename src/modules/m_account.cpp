@@ -59,14 +59,14 @@ class AccountDBProviderImpl : public AccountDBProvider
 	{
 		std::vector<std::string> params;
 		params.push_back("*");
-		params.push_back("ACCTINFO");
+		params.push_back("SVSACCOUNT");
 		params.push_back("ADD");
 		params.push_back(entry->name);
 		params.push_back(":" + ConvToStr(entry->ts));
 		ServerInstance->PI->SendEncapsulatedData(params);
 		params.clear();
 		params.push_back("*");
-		params.push_back("ACCTINFO");
+		params.push_back("SVSACCOUNT");
 		params.push_back("SET");
 		params.push_back(entry->name);
 		params.push_back(ConvToStr(entry->ts));
@@ -76,7 +76,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 		ServerInstance->PI->SendEncapsulatedData(params);
 		params.clear();
 		params.push_back("*");
-		params.push_back("ACCTINFO");
+		params.push_back("SVSACCOUNT");
 		params.push_back("SET");
 		params.push_back(entry->name);
 		params.push_back(ConvToStr(entry->ts));
@@ -86,7 +86,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 		ServerInstance->PI->SendEncapsulatedData(params);
 		params.clear();
 		params.push_back("*");
-		params.push_back("ACCTINFO");
+		params.push_back("SVSACCOUNT");
 		params.push_back("SET");
 		params.push_back(entry->name);
 		params.push_back(ConvToStr(entry->ts));
@@ -102,7 +102,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 			{
 				params.clear();
 				params.push_back("*");
-				params.push_back("ACCTINFO");
+				params.push_back("SVSACCOUNT");
 				params.push_back("SET");
 				params.push_back(entry->name);
 				params.push_back(ConvToStr(entry->ts));
@@ -118,7 +118,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 	{
 		std::vector<std::string> params;
 		params.push_back("*");
-		params.push_back("ACCTINFO");
+		params.push_back("SVSACCOUNT");
 		params.push_back("SET");
 		params.push_back(entry->name);
 		params.push_back(ConvToStr(entry->ts));
@@ -164,7 +164,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 	{
 		std::vector<std::string> params;
 		params.push_back("*");
-		params.push_back("ACCTINFO");
+		params.push_back("SVSACCOUNT");
 		params.push_back("DEL");
 		params.push_back(acctname);
 		params.push_back(ConvToStr(ts));
@@ -173,13 +173,13 @@ class AccountDBProviderImpl : public AccountDBProvider
 	}
 };
 
-/** Handle /ACCTINFO
+/** Handle /SVSACCOUNT
  */
-class CommandAcctinfo : public Command
+class CommandSvsaccount : public Command
 {
  public:
 	AccountDBProviderImpl prov;
-	CommandAcctinfo(Module* Creator) : Command(Creator,"ACCTINFO", 3, 6), prov(Creator)
+	CommandSvsaccount(Module* Creator) : Command(Creator,"SVSACCOUNT", 3, 6), prov(Creator)
 	{
 		flags_needed = FLAG_SERVERONLY; syntax = "ADD|SET|DEL <account name> <account TS> [key] [value TS] [value]";
 	}
@@ -402,7 +402,7 @@ class CommandAcctshow : public Command
 class ModuleAccount : public Module
 {
  private:
-	CommandAcctinfo cmd;
+	CommandSvsaccount cmd;
 	CommandLogin cmd_login;
 	CommandLogout cmd_logout;
 	CommandAcctlist cmd_acctlist;
@@ -440,19 +440,19 @@ class ModuleAccount : public Module
 		for (AccountDB::const_iterator i = cmd.prov.db.begin(); i != cmd.prov.db.end(); ++i)
 		{
 			std::string name = i->first, ts = ConvToStr(i->second->ts);
-			target->SendCommand("ENCAP * ACCTINFO ADD " + name + " :" + ts);
-			target->SendCommand("ENCAP * ACCTINFO SET " + name + " " + ts + " hash_password "
+			target->SendCommand("ENCAP * SVSACCOUNT ADD " + name + " :" + ts);
+			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " hash_password "
 				+ ConvToStr(i->second->hash_password_ts) + " :" + i->second->hash + " " + i->second->password);
-			target->SendCommand("ENCAP * ACCTINFO SET " + name + " " + ts + " connectclass "
+			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " connectclass "
 				+ ConvToStr(i->second->connectclass_ts) + " :" + i->second->connectclass);
-			target->SendCommand("ENCAP * ACCTINFO SET " + name + " " + ts + " tag "
+			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " tag "
 				+ ConvToStr(i->second->tag_ts) + " :" + i->second->tag);
 			for(Extensible::ExtensibleStore::const_iterator it = i->second->GetExtList().begin(); it != i->second->GetExtList().end(); ++it)
 			{
 				ExtensionItem* item = it->first;
 				std::string value = item->serialize(FORMAT_NETWORK, i->second, it->second);
 				if (!value.empty())
-					target->SendCommand("ENCAP * ACCTINFO SET " + name + " " + ts + " " + item->name + " " + value);
+					target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " " + item->name + " " + value);
 			}
 		}
 	}
