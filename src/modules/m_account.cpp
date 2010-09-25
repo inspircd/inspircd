@@ -216,7 +216,7 @@ class CommandSvsaccount : public Command
 			{
 				if(iter->second->hash_password_ts > atol(parameters[4].c_str()))
 					return CMD_FAILURE;
-				size_t delim;
+				std::string::size_type delim;
 				if(parameters.size() > 5 && (delim = parameters[5].find_first_of(' ')) != std::string::npos)
 				{
 					iter->second->hash = parameters[5].substr(0, delim);
@@ -288,31 +288,33 @@ class CommandLogin : public Command
 		syntax = "[account name] <password>";
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	bool TryLogin (User* user, irc::string username, std::string password)
 	{
-		irc::string username;
-		std::string password;
-		if(parameters.size() == 1)
-		{
-			username = user->nick;
-			password = parameters[0];
-		}
-		else
-		{
-			username = parameters[0];
-			password = parameters[1];
-		}
 		AccountDB::iterator iter = db.find(username);
 		if(iter == db.end() || iter->second->password.empty() || ServerInstance->PassCompare(user, iter->second->password, password, iter->second->hash))
-		{
-			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
-			return CMD_FAILURE;
-		}
+			return false;
 		if(account)
 			account->DoLogin(user, iter->first, iter->second->tag);
 		if(!iter->second->connectclass.empty())
 			ServerInstance->ForcedClass.set(user, iter->second->connectclass);
+		return true;
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		bool result;
+		if(parameters.size() == 1)
+			result = TryLogin(user, user->nick, parameters[0]);
+		else
+			result = TryLogin(user, parameters[0], parameters[1]);
+
+		if(!result)
+		{
+			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
+			return CMD_FAILURE;
+		}
 		return CMD_SUCCESS;
+
 	}
 };
 
@@ -421,7 +423,7 @@ class ModuleAccount : public Module
 		ServerInstance->Modules->AddService(cmd_logout);
 		ServerInstance->Modules->AddService(cmd_acctlist);
 		ServerInstance->Modules->AddService(cmd_acctshow);
-		Implementation eventlist[] = { I_OnSyncNetwork, I_OnUnloadModule };
+		Implementation eventlist[] = { I_OnUserRegister, I_OnSyncNetwork, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -433,6 +435,17 @@ class ModuleAccount : public Module
 			delete iter->second;
 		}
 		cmd.prov.db.clear();
+	}
+
+	void OnUserRegister(LocalUser* user)
+	{
+		if (account->IsRegistered(user) ||
+			cmd_login.TryLogin(user, user->nick, user->password) ||
+			cmd_login.TryLogin(user, user->ident, user->password))
+			return;
+		std::string::size_type sep = user->password.find_first_of(':');
+		if(sep != std::string::npos)
+			cmd_login.TryLogin(user, user->password.substr(0, sep), user->password.substr(sep + 1));
 	}
 
 	void OnSyncNetwork(SyncTarget* target)
