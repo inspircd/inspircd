@@ -913,7 +913,7 @@ void Channel::RemoveAllPrefixes(User* user)
 Channel* Channel::Nuke(Channel* old, const std::string& channel, time_t newTS)
 {
 	time_t oldTS = old->age;
-	ServerInstance->SNO->WriteToSnoMask('d', "Recreating channel");
+	ServerInstance->SNO->WriteToSnoMask('d', "Recreating channel " + channel);
 	if (ServerInstance->Config->AnnounceTSChange)
 		old->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu",
 			old->name.c_str(), channel.c_str(), (unsigned long) oldTS, (unsigned long) newTS);
@@ -924,10 +924,6 @@ Channel* Channel::Nuke(Channel* old, const std::string& channel, time_t newTS)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindMode(id);
 
-		/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
-		 * rather than applied immediately. Module unloads require this to be done immediately,
-		 * for this function we require tidyness instead. Fixes bug #493
-		 */
 		if (mh && mh->GetModeType() == MODETYPE_CHANNEL)
 			mh->RemoveMode(old, &stack);
 	}

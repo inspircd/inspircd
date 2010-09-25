@@ -487,7 +487,8 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called after a user joins a channel
 	 * Identical to OnUserJoin, but called immediately afterwards, when any linking module has
-	 * seen the join.
+	 * seen the join. Note this is also called when a channel's timestamp is being lowered.
+	 *
 	 * @param memb The channel membership created
 	 */
 	virtual void OnPostJoin(Membership*);
