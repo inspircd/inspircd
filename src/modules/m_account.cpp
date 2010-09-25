@@ -385,10 +385,16 @@ class CommandAcctshow : public Command
 			return CMD_FAILURE;
 		}
 		AccountDBEntry* entry = iter->second;
-		user->WriteServ("NOTICE " + user->nick + " :Account: \"" + std::string(entry->name) + "\"TS: " +
-			ConvToStr(entry->ts) + "Hash type: \"" + entry->hash + "\"Hash/Password TS: " +
-			ConvToStr(entry->hash_password_ts) + "Connect class: \"" + entry->connectclass + "\"Connect class TS: " +
-			ConvToStr(entry->connectclass_ts) + "Tag: \"" + entry->tag + "\"");
+		user->WriteServ("NOTICE " + user->nick + " :Account: \"" + std::string(entry->name) + "\" TS: " +
+			ConvToStr(entry->ts) + " Hash type: \"" + entry->hash + "\" Hash/Password TS: " +
+			ConvToStr(entry->hash_password_ts) + " Connect class: \"" + entry->connectclass + "\" Connect class TS: " +
+			ConvToStr(entry->connectclass_ts) + " Tag: \"" + entry->tag + "\" Tag TS: " + ConvToStr(entry->tag_ts));
+		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
+		{
+			std::string value = it->first->serialize(FORMAT_USER, entry, it->second);
+			if (!value.empty())
+				user->WriteServ("NOTICE " + user->nick + " :" + it->first->name + ": " + value);
+		}
 		return CMD_SUCCESS;
 	}
 };

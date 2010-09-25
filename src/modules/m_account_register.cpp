@@ -165,6 +165,7 @@ class CommandChgpass : public Command
 		}
 		entry->hash_password_ts = ServerInstance->Time();
 		db->SendUpdate(entry, "hash_password");
+		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " password changed successfully");
 		return CMD_SUCCESS;
 	}
 };
