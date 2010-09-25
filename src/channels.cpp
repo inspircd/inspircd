@@ -953,6 +953,7 @@ Channel* Channel::Nuke(Channel* old, const std::string& channel, time_t newTS)
 		delete memb;
 		memb = chan->AddUser(u);
 		u->chans.insert(memb);
+		FOREACH_MOD(I_OnPostJoin,OnPostJoin(memb));
 	}
 	// nuke the old channel
 	old->userlist.clear();
