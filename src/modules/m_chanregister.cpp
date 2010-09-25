@@ -16,6 +16,18 @@
 #include "account.h"
 
 /* $ModDesc: Provides channel mode +r for channel registration */
+/* Some function for checking if the selected account is a registrant for a selected channel, for writing less code later */
+static bool IsRegistrant (ModeHandler *mh, Channel *chan, const std::string &account)
+{
+	std::string token;
+	irc::commasepstream registrantnames(chan->GetModeParameter (mh));
+	while (registrantnames.GetToken (token))
+	{
+		if (token == account)
+			return true;
+	}
+	return false;
+}
 
 /* The last_activity extension item: last part from the channel, used to implement expiry */
 class ChanExpiryExtItem : public ExtensionItem
@@ -157,13 +169,8 @@ class RegisterModeHandler : public ParamChannelModeHandler
 				perm.result = MOD_RES_DENY;
 				return;
 			}
-			irc::commasepstream registrantnames(perm.chan->GetModeParameter(this));
-			std::string registrantname;
-			while (registrantnames.GetToken(registrantname))
-			{
-				if (acctname == registrantname)
-					return;
-			}
+			if (IsRegistrant (this, perm.chan, acctname))
+				return;
 			// no matching account name
 			perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :Only a registrant of a channel may unregister it",
 				perm.chan->name.c_str());
@@ -303,16 +310,11 @@ banned */
 		if (acctname.empty())
 			return;
 		/* it is set and we have parameter, get it */
-		irc::commasepstream registrantnames(joindata.chan->GetModeParameter(&mh));
-		std::string registrantname;
-		while (registrantnames.GetToken(registrantname))
+		if (IsRegistrant (&mh, joindata.chan, acctname))
 		{
-			if (acctname == registrantname)
-			{
-				/* if registrantname and account name are the same, override */
-				joindata.result = MOD_RES_ALLOW;
-				return;
-			}
+			/* if registrantname and account name are the same, override */
+			joindata.result = MOD_RES_ALLOW;
+			return;
 		}
 	}
 	/* check permissions */
@@ -336,16 +338,11 @@ banned */
 		/* if user is not logged in then return */
 		if (acctname.empty())
 			return;
-		irc::commasepstream registrantnames(perm.chan->GetModeParameter(&mh));
-		std::string registrantname;
-		while (registrantnames.GetToken(registrantname))
+		if (IsRegistrant (&mh, perm.chan, acctname))
 		{
-			if (acctname == registrantname)
-			{
-				/* if ok, then set result to allow if registrant name matches account name */
-				perm.result = MOD_RES_ALLOW;
-				return;
-			}
+			/* if ok, then set result to allow if registrant name matches account name */
+			perm.result = MOD_RES_ALLOW;
+			return;
 		}
 	}
 	/* called before channel is being deleted */
