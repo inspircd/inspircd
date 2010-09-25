@@ -149,36 +149,42 @@ class ModuleTimedBans : public Module
 
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
+		timedbans expired;
 		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end();)
 		{
 			if (curtime > i->expire)
 			{
-				std::string chan = i->channel;
-				std::string mask = i->mask;
-				Channel* cr = ServerInstance->FindChan(chan);
+				expired.push_back(*i);
 				i = TimedBanList.erase(i);
-				if (cr)
-				{
-					std::vector<std::string> setban;
-					setban.push_back(chan);
-					setban.push_back("-b");
-					setban.push_back(mask);
-
-					CUList empty;
-					std::string expiry = "*** Timed ban on " + chan + " expired.";
-					cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
-					ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
-					if (ServerInstance->Config->AllowHalfop)
-					{
-						cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
-						ServerInstance->PI->SendChannelNotice(cr, '%', expiry);
-					}
-
-					ServerInstance->SendGlobalMode(setban, ServerInstance->FakeClient);
-				}
 			}
 			else
 				++i;
+		}
+
+		for (timedbans::iterator i = expired.begin(); i != expired.end(); i++)
+		{
+			std::string chan = i->channel;
+			std::string mask = i->mask;
+			Channel* cr = ServerInstance->FindChan(chan);
+			if (cr)
+			{
+				std::vector<std::string> setban;
+				setban.push_back(chan);
+				setban.push_back("-b");
+				setban.push_back(mask);
+
+				CUList empty;
+				std::string expiry = "*** Timed ban on " + chan + " expired.";
+				cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
+				ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
+				if (ServerInstance->Config->AllowHalfop)
+				{
+					cr->WriteAllExcept(ServerInstance->FakeClient, true, '%', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
+					ServerInstance->PI->SendChannelNotice(cr, '%', expiry);
+				}
+
+				ServerInstance->SendGlobalMode(setban, ServerInstance->FakeClient);
+			}
 		}
 	}
 
