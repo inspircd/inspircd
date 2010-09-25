@@ -26,14 +26,15 @@ class AccountDBProviderImpl : public AccountDBProvider
 
 	AccountDBProviderImpl(Module* parent) : AccountDBProvider(parent) {}
 
-	bool AddAccount(const AccountDBEntry* entry, bool send)
+	bool AddAccount(AccountDBEntry* entry, bool send)
 	{
-		if(db.insert(std::make_pair(entry->name, const_cast<AccountDBEntry*>(entry))).second)
+		if(db.insert(std::make_pair(entry->name, entry)).second)
 		{
-			if(send) SendAccount(entry);
+			if(send)
+				SendAccount(entry);
 			return true;
 		}
-		else return false;
+		return false;
 	}
 
 	AccountDBEntry* GetAccount(irc::string acctname)
@@ -45,7 +46,8 @@ class AccountDBProviderImpl : public AccountDBProvider
 	void RemoveAccount(const AccountDBEntry* entry, bool send)
 	{
 		db.erase(entry->name);
-		if(send) SendRemoval(entry);
+		if(send)
+			SendRemoval(entry);
 	}
 
 	const AccountDB& GetDB()
@@ -139,11 +141,14 @@ class AccountDBProviderImpl : public AccountDBProvider
 		else
 		{
 			ExtensionItem* ext = ServerInstance->Extensions.GetItem(field);
-			if(!ext) return;
+			if(!ext)
+				return;
 			Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().find(ext);
-			if(it == entry->GetExtList().end()) return;
+			if(it == entry->GetExtList().end())
+				return;
 			std::string value = ext->serialize(FORMAT_NETWORK, entry, it->second);
-			if(value.empty()) return;
+			if(value.empty())
+				return;
 			params.push_back(value);
 		}
 		ServerInstance->PI->SendEncapsulatedData(params);
@@ -184,8 +189,12 @@ class CommandAcctinfo : public Command
 		AccountDB::iterator iter = prov.db.find(parameters[1]);
 		if(parameters[0] == "SET")
 		{
-			if(iter == prov.db.end()) return CMD_FAILURE; /* if this ever happens, we're desynced */
-			if(iter->second->ts < atol(parameters[2].c_str())) return CMD_FAILURE; /* we have an older account with the same name */
+			if(parameters.size() < 5)
+				return CMD_INVALID; /* this form of the command needs at least 5 parameters */
+			if(iter == prov.db.end())
+				return CMD_FAILURE; /* if this ever happens, we're desynced */
+			if(iter->second->ts < atol(parameters[2].c_str()))
+				return CMD_FAILURE; /* we have an older account with the same name */
 			if(iter->second->ts > atol(parameters[2].c_str()))
 			{
 				/* Nuke the entry. */
@@ -198,30 +207,36 @@ class CommandAcctinfo : public Command
 			ExtensionItem* ext = ServerInstance->Extensions.GetItem(parameters[3]);
 			if (ext)
 			{
-				if(parameters.size() > 5) ext->unserialize(FORMAT_NETWORK, iter->second, parameters[4] + " " + parameters[5]);
-				else ext->unserialize(FORMAT_NETWORK, iter->second, parameters[4]);
+				if(parameters.size() > 5)
+					ext->unserialize(FORMAT_NETWORK, iter->second, parameters[4] + " " + parameters[5]);
+				else
+					ext->unserialize(FORMAT_NETWORK, iter->second, parameters[4]);
 			}
 			if(parameters[3] == "hash_password")
 			{
-				if(iter->second->hash_password_ts > atol(parameters[4].c_str())) return CMD_FAILURE;
+				if(iter->second->hash_password_ts > atol(parameters[4].c_str()))
+					return CMD_FAILURE;
 				size_t delim;
 				if(parameters.size() > 5 && (delim = parameters[5].find_first_of(' ')) != std::string::npos)
 				{
 					iter->second->hash = parameters[5].substr(0, delim);
 					iter->second->password = parameters[5].substr(delim + 1);
 				}
-				else iter->second->hash = iter->second->password = "";
+				else
+					iter->second->hash = iter->second->password = "";
 				iter->second->hash_password_ts = atol(parameters[4].c_str());
 			}
 			else if(parameters[3] == "connectclass")
 			{
-				if(iter->second->connectclass_ts > atol(parameters[4].c_str())) return CMD_FAILURE;
+				if(iter->second->connectclass_ts > atol(parameters[4].c_str()))
+					return CMD_FAILURE;
 				iter->second->connectclass = parameters.size() > 5 ? parameters[5] : "";
 				iter->second->connectclass_ts = atol(parameters[4].c_str());
 			}
 			else if(parameters[3] == "tag")
 			{
-				if(iter->second->tag_ts > atol(parameters[4].c_str())) return CMD_FAILURE;
+				if(iter->second->tag_ts > atol(parameters[4].c_str()))
+					return CMD_FAILURE;
 				iter->second->tag = parameters.size() > 5 ? parameters[5] : "";
 				iter->second->tag_ts = atol(parameters[4].c_str());
 			}
@@ -240,21 +255,24 @@ class CommandAcctinfo : public Command
 				AccountDBEntry* entry = new AccountDBEntry(parameters[1], atol(parameters[2].c_str()));
 				iter = prov.db.insert(std::make_pair(parameters[1], entry)).first;
 			}
-			else if(iter->second->ts < atol(parameters[2].c_str())) return CMD_FAILURE;
+			else if(iter->second->ts < atol(parameters[2].c_str()))
+				return CMD_FAILURE;
 			AccountDBModifiedEvent(creator, iter->second->name, iter->second).Send();
 		}
 		else if(parameters[0] == "DEL")
 		{
 			if(iter != prov.db.end())
 			{
-				if(iter->second->ts < atol(parameters[2].c_str())) return CMD_FAILURE;
+				if(iter->second->ts < atol(parameters[2].c_str()))
+					return CMD_FAILURE;
 				iter->second->cull();
 				delete iter->second;
 				prov.db.erase(iter);
 				AccountDBModifiedEvent(creator, parameters[1], NULL).Send();
 			}
 		}
-		else return CMD_FAILURE;
+		else
+			return CMD_FAILURE;
 		return CMD_SUCCESS;
 	}
 };
@@ -290,8 +308,87 @@ class CommandLogin : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
 			return CMD_FAILURE;
 		}
-		if(account) account->DoLogin(user, iter->first, iter->second->tag);
-		if(!iter->second->connectclass.empty()) ServerInstance->ForcedClass.set(user, iter->second->connectclass);
+		if(account)
+			account->DoLogin(user, iter->first, iter->second->tag);
+		if(!iter->second->connectclass.empty())
+			ServerInstance->ForcedClass.set(user, iter->second->connectclass);
+		return CMD_SUCCESS;
+	}
+};
+
+/** Handle /LOGOUT
+ */
+class CommandLogout : public Command
+{
+ public:
+	CommandLogout(Module* Creator) : Command(Creator,"LOGOUT", 0, 0)
+	{
+		syntax.clear();
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		if(account)
+		{
+			if(account->IsRegistered(user))
+			{
+				account->DoLogin(user, "", "");
+				user->WriteServ("NOTICE " + user->nick + " :Logout successful");
+			}
+			else
+				user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
+		}
+		return CMD_SUCCESS;
+	}
+};
+
+/** Handle /ACCTLIST
+ */
+class CommandAcctlist : public Command
+{
+	AccountDB& db;
+ public:
+	CommandAcctlist(Module* Creator, AccountDB& db_ref) : Command(Creator,"ACCTLIST", 0, 1), db(db_ref)
+	{
+		flags_needed = 'o'; syntax = "[pattern]";
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		// XXX: Use numerics instead of NOTICEs?
+		bool displayAll = parameters.empty() || parameters[0] == "*";
+		for(AccountDB::const_iterator iter = db.begin(); iter != db.end(); ++iter)
+			if(displayAll || InspIRCd::Match(iter->second->name, parameters[0]))
+				user->WriteServ("NOTICE " + user->nick + " :" + std::string(iter->second->name));
+		user->WriteServ("NOTICE " + user->nick + " :End of account list");
+		return CMD_SUCCESS;
+	}
+};
+
+/** Handle /ACCTSHOW
+ */
+class CommandAcctshow : public Command
+{
+	AccountDB& db;
+ public:
+	CommandAcctshow(Module* Creator, AccountDB& db_ref) : Command(Creator,"ACCTSHOW", 1, 1), db(db_ref)
+	{
+		flags_needed = 'o'; syntax = "<account name>";
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		AccountDB::iterator iter = db.find(parameters[0]);
+		if(iter == db.end())
+		{
+			user->WriteServ("NOTICE " + user->nick + " :No such account");
+			return CMD_FAILURE;
+		}
+		AccountDBEntry* entry = iter->second;
+		user->WriteServ("NOTICE " + user->nick + " :Account: \"" + std::string(entry->name) + "\"TS: " +
+			ConvToStr(entry->ts) + "Hash type: \"" + entry->hash + "\"Hash/Password TS: " +
+			ConvToStr(entry->hash_password_ts) + "Connect class: \"" + entry->connectclass + "\"Connect class TS: " +
+			ConvToStr(entry->connectclass_ts) + "Tag: \"" + entry->tag + "\"");
 		return CMD_SUCCESS;
 	}
 };
@@ -301,9 +398,12 @@ class ModuleAccount : public Module
  private:
 	CommandAcctinfo cmd;
 	CommandLogin cmd_login;
+	CommandLogout cmd_logout;
+	CommandAcctlist cmd_acctlist;
+	CommandAcctshow cmd_acctshow;
 
  public:
-	ModuleAccount() : cmd(this), cmd_login(this, cmd.prov.db)
+	ModuleAccount() : cmd(this), cmd_login(this, cmd.prov.db), cmd_logout(this), cmd_acctlist(this, cmd.prov.db), cmd_acctshow(this, cmd.prov.db)
 	{
 	}
 
@@ -312,6 +412,9 @@ class ModuleAccount : public Module
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.prov);
 		ServerInstance->Modules->AddService(cmd_login);
+		ServerInstance->Modules->AddService(cmd_logout);
+		ServerInstance->Modules->AddService(cmd_acctlist);
+		ServerInstance->Modules->AddService(cmd_acctshow);
 		Implementation eventlist[] = { I_OnSyncNetwork, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
@@ -352,7 +455,7 @@ class ModuleAccount : public Module
 	{
 		std::vector<reference<ExtensionItem> > acct_exts;
 		ServerInstance->Extensions.BeginUnregister(mod, EXTENSIBLE_ACCOUNT, acct_exts);
-		for(AccountDB::iterator iter = cmd.prov.db.begin(); iter != cmd.prov.db.end(); ++iter)
+		for(AccountDB::const_iterator iter = cmd.prov.db.begin(); iter != cmd.prov.db.end(); ++iter)
 		{
 			mod->OnCleanup(TYPE_OTHER, iter->second);
 			iter->second->doUnhookExtensions(acct_exts);

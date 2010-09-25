@@ -92,7 +92,7 @@ class AccountDBProvider : public DataProvider
 	 * @param send Whether or not to send the account immediately after adding it, if adding was successful
 	 * @return True if the account was added, false if an account with the same name already existed
 	 */
-	virtual bool AddAccount(const AccountDBEntry* entry, bool send) = 0;
+	virtual bool AddAccount(AccountDBEntry* entry, bool send) = 0;
 
 	/**
 	 * Get an account from the database
