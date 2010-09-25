@@ -371,7 +371,7 @@ class ModuleTimedModes : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Adds timed mode changes", VF_VENDOR);
+		return Version("Adds timed mode changes", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 
