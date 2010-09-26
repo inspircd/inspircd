@@ -385,6 +385,7 @@ class CommandHold : public Command
 			return CMD_FAILURE;
 		}
 		held.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
+		db->SendUpdate(entry, "held");
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used HOLD to %sable hold of account '%s'", user->nick.c_str(), newsetting ? "en" : "dis", entry->name.c_str());
 		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + (newsetting ? " held" : " unheld") + " successfully");
 		return CMD_SUCCESS;
