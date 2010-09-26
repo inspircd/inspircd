@@ -470,7 +470,7 @@ class ModuleAccountRegister : public Module
 		for (AccountDB::const_iterator i = db->GetDB().begin(); i != db->GetDB().end();)
 		{
 			entry = i++->second;
-			if(*last_used.get(entry) < threshold)
+			if(*last_used.get(entry) < threshold && !cmd_hold.held.get(entry)->second)
 			{
 				db->RemoveAccount(entry, true);
 				entry->cull();
