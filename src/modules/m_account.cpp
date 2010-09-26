@@ -439,7 +439,7 @@ class ModuleAccount : public Module
 
 	void OnUserRegister(LocalUser* user)
 	{
-		if (account->IsRegistered(user) ||
+		if ((account && account->IsRegistered(user)) ||
 			cmd_login.TryLogin(user, user->nick, user->password) ||
 			cmd_login.TryLogin(user, user->ident, user->password))
 			return;
