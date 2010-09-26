@@ -20,6 +20,56 @@
 static dynamic_reference<AccountProvider> account("account");
 static dynamic_reference<AccountDBProvider> db("accountdb");
 
+/* XXX: Do we want to put these somewhere global? */
+class TSExtItem : public SimpleExtItem<time_t>
+{
+ public:
+	TSExtItem(const std::string& Key, Module* parent) : SimpleExtItem<time_t>(EXTENSIBLE_ACCOUNT, Key, parent) {}
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	{
+		time_t* ts = static_cast<time_t*>(item);
+		if(!ts) /* If we don't have a TS, not if the TS is zero */
+			return "";
+		return ConvToStr(*ts);
+	}
+
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	{
+		time_t* ours = get(container);
+		time_t theirs = atol(value.c_str());
+		if(!ours || theirs > *ours)
+			set(container, theirs);
+	}
+};
+
+class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
+{
+ public:
+	TSBoolExtItem(const std::string& Key, Module* parent) : SimpleExtItem<std::pair<time_t, bool> >(EXTENSIBLE_ACCOUNT, Key, parent) {}
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	{
+		std::pair<time_t, bool>* p = static_cast<std::pair<time_t, bool>*>(item);
+		if(!p)
+			return "";
+		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + (p->second ? '1' : '0');
+	}
+
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	{
+		time_t ts;
+		bool item;
+		std::string::size_type delim = value.find_first_of(' ');
+		ts = atol(value.substr(0, delim).c_str());
+		if(delim == std::string::npos)
+			item = false;
+		else
+			item = (value.substr(delim + 1)[0] == '1');
+		std::pair<time_t, bool>* p = get(container);
+		if(!p || ts > p->first)
+			set(container, std::make_pair(ts, item));
+	}
+};
+
 /** Handle /REGISTER
  */
 class CommandRegister : public Command
@@ -305,6 +355,42 @@ class CommandFdrop : public Command
 	}
 };
 
+/** Handle /HOLD
+ */
+class CommandHold : public Command
+{
+ public:
+	TSBoolExtItem held;
+	CommandHold(Module* Creator) : Command(Creator,"HOLD", 2, 2), held("held", Creator)
+	{
+		flags_needed = 'o'; syntax = "<account name> OFF|ON";
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		bool newsetting;
+		if(irc::string(parameters[1]) == "ON")
+			newsetting = true;
+		else if(irc::string(parameters[1]) == "OFF")
+			newsetting = false;
+		else
+		{
+			user->WriteServ("NOTICE " + user->nick + " :Unknown setting");
+			return CMD_FAILURE;
+		}
+		AccountDBEntry* entry = db->GetAccount(parameters[0]);
+		if(!entry)
+		{
+			user->WriteServ("NOTICE " + user->nick + " :No such account");
+			return CMD_FAILURE;
+		}
+		held.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
+		ServerInstance->SNO->WriteGlobalSno('a', "%s used HOLD to %sable hold of account '%s'", user->nick.c_str(), newsetting ? "en" : "dis", entry->name.c_str());
+		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + (newsetting ? " held" : " unheld") + " successfully");
+		return CMD_SUCCESS;
+	}
+};
+
 class ModuleAccountRegister : public Module
 {
 	std::string hashtype;
@@ -313,9 +399,12 @@ class ModuleAccountRegister : public Module
 	CommandFchgpass cmd_fchgpass;
 	CommandDrop cmd_drop;
 	CommandFdrop cmd_fdrop;
+	CommandHold cmd_hold;
+	/* TSExtItem last_used; */
 
  public:
-	ModuleAccountRegister() : cmd_register(this, hashtype), cmd_chgpass(this, hashtype), cmd_fchgpass(this, hashtype), cmd_drop(this), cmd_fdrop(this)
+	ModuleAccountRegister() : cmd_register(this, hashtype), cmd_chgpass(this, hashtype), cmd_fchgpass(this, hashtype),
+		cmd_drop(this), cmd_fdrop(this), cmd_hold(this) /* , last_used("last_used", this) */
 	{
 	}
 
@@ -327,6 +416,9 @@ class ModuleAccountRegister : public Module
 		ServerInstance->Modules->AddService(cmd_fchgpass);
 		ServerInstance->Modules->AddService(cmd_drop);
 		ServerInstance->Modules->AddService(cmd_fdrop);
+		ServerInstance->Modules->AddService(cmd_hold);
+		ServerInstance->Modules->AddService(cmd_hold.held);
+		/* ServerInstance->Modules->AddService(last_used); */
 	}
 
 	void ReadConfig(ConfigReadStatus&)
@@ -337,7 +429,6 @@ class ModuleAccountRegister : public Module
 
 	void Prioritize()
 	{
-		// database reading may depend on extension item providers being loaded
 		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_AFTER, ServerInstance->Modules->Find("m_account.so"));
 	}
 
