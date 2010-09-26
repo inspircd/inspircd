@@ -15,7 +15,7 @@
 #define __THREADENGINE__
 
 #ifdef WINDOWS
-#include "threadengines/threadengine_win32.h"
+// #include "threadengines/threadengine_win32.h"
 #else
 #include "threadengines/threadengine_pthread.h"
 #endif
@@ -42,7 +42,8 @@ class CoreExport Job : public classbase
 };
 
 // Mutexes are available. Be careful not to block the main thread.
-// Condition variables (cross-thread signalling) are not yet available in the API
+// Condition variables (cross-thread signalling) are not yet available, because
+// no use case for them has been presented
 
 #endif
 
