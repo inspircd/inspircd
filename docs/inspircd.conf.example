@@ -266,12 +266,12 @@
 	# requireident, requiressl, requireaccount, requiresqlauth:
 	# require that users of this block have a valid ident response, use SSL,
 	# have authenticated to an account, or have passed SQLauth.
-	# Requires m_ident, m_sslinfo, m_services_account, or m_sqlauth
+	# Requires m_ident, m_sslinfo, m_services_account, or m_sql_auth
 	requiressl="on"
 	# NOTE: For requireaccount, you must complete the signon prior to full
 	# connection. Passforward and PRIVMSG NickServ happen after your final
 	# connect block has been found. Methods for authenticating prior to full
-	# connect include SASL, m_ldapauth, and m_sqlauth.
+	# connect include SASL, m_ldapauth, and m_sql_auth.
 
 	# Alternate MOTD file for this connect class. The contents of this file are
 	# specified using <files secretmotd="filename"> or <execfiles ...>
@@ -347,7 +347,7 @@
 	# module be loaded as well.
 	modes="+x">
 
-# Connect classes can also be assigned upon /OPER, or by modules like m_sqlauth.
+# Connect classes can also be assigned upon /OPER, or by modules like m_sql_auth.
 # Classes with only a name (no allow=/deny=) are allowed for this use; they never match new users.
 <connect name="OperOnlyClass"
 	# some higher limits for opers

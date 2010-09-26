@@ -1134,27 +1134,10 @@
 #<module name="m_messageflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MsSQL module: Allows other SQL modules to access MS SQL Server 
-# through a unified API. You must copy the source for this module
-# from the directory src/modules/extra, plus the file m_sqlv2.h
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mssql.cpp
-# and run make install, then uncomment this module to enable it.
-#
-#<module name="m_mssql.so">
-#
-#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# m_mssql.so is more complex than described here, see wiki for more   #
-# info http://wiki.inspircd.org/Modules/mssql                         #
-#
-#<database module="mssql" name="db" user="user" pass="pass" host="localhost" id="db1">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
-# through a unified API. You must copy the source for this module
-# from the directory src/modules/extra, plus the file m_sqlv2.h
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mysql.cpp
-# and run make install, then uncomment this module to enable it.
+# through a unified API. 
+# This modules is in extras. Run ./configure --enable-extras=m_mysql.cpp
+# to enable it, then rerun make install.
 #
 #<module name="m_mysql.so">
 #
@@ -1406,10 +1389,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
-# through a unified API. You must copy the source for this module
-# from the directory src/modules/extra, plus the file m_sqlv2.h
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_pgsql.cpp
-# and run make install, then uncomment this module to enable it.
+# through a unified API.
+# This modules is in extras. Run ./configure --enable-extras=m_pgsql.cpp
+# to enable it, then rerun make install.
 #
 #<module name="m_pgsql.so">
 #
@@ -1794,11 +1776,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
-# databases through a unified API. You must link the source for this  #
-# module from the directory src/modules/extra to src/modules, plus    #
-# the file m_sqlv2.h                                                  #
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_aqlite.cpp
-# and run make install, then uncomment this module to enable it.      #
+# databases through a unified API.
+# This modules is in extras. Run ./configure --enable-extras=m_sqlite3.cpp
+# to enable it, then rerun make install.
 #
 #<module name="m_sqlite3.so">
 #
@@ -1814,7 +1794,7 @@
 # a database table (for example a forum). This can also sign users into
 # an account automatically if m_account is loaded.
 #
-#<module name="m_sqlauth.so">
+#<module name="m_sql_auth.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #  
@@ -1859,7 +1839,7 @@
 # SQL command module: Allows arbitrary SQL queries to be run based
 # on a /COMMAND and its parameters
 #
-#<module name="m_sqlcommand.so">
+#<module name="m_sql_command.so">
 #  dbid        - Database ID to use
 #  name        - Name of the command
 #  syntax      - Syntax hints (optional)
@@ -1872,7 +1852,7 @@
 #  errorformat - String sent to the user on an unsuccessful query
 #                $msg is a detailed error message.
 #
-#Examples related to m_sqloper:
+#Examples related to m_sql_oper:
 #<sqlcommand name="ADDOPER" syntax="<type> <name> <pwhash>" dbid="operdb"
 #	queryformat="INSERT INTO ircd_opers VALUES('$1', '$2', '$3', '*@*')"
 #	resultformat=":$server NOTICE $nick :Success, $rows oper added">
@@ -1884,7 +1864,7 @@
 # SQL oper module: Allows you to store oper credentials in an SQL table
 # You must copy the source for this module from the directory src/modules/extra
 #
-#<module name="m_sqloper.so">
+#<module name="m_sql_oper.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
