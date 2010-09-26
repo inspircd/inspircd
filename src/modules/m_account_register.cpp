@@ -458,6 +458,8 @@ class ModuleAccountRegister : public Module
 		time_t threshold = ServerInstance->Time() - expiretime;
 		for (user_hash::const_iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
 		{
+			if(!IS_LOCAL(i->second))
+				continue;
 			account_name = account->GetAccountName(i->second);
 			if(account_name.empty())
 				continue;
