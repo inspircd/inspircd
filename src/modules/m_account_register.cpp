@@ -401,11 +401,11 @@ class ModuleAccountRegister : public Module
 	CommandDrop cmd_drop;
 	CommandFdrop cmd_fdrop;
 	CommandHold cmd_hold;
-	/* TSExtItem last_used; */
+	TSExtItem last_used;
 
  public:
 	ModuleAccountRegister() : cmd_register(this, hashtype), cmd_chgpass(this, hashtype), cmd_fchgpass(this, hashtype),
-		cmd_drop(this), cmd_fdrop(this), cmd_hold(this) /* , last_used("last_used", this) */
+		cmd_drop(this), cmd_fdrop(this), cmd_hold(this), last_used("last_used", this)
 	{
 	}
 
@@ -419,13 +419,29 @@ class ModuleAccountRegister : public Module
 		ServerInstance->Modules->AddService(cmd_fdrop);
 		ServerInstance->Modules->AddService(cmd_hold);
 		ServerInstance->Modules->AddService(cmd_hold.held);
-		/* ServerInstance->Modules->AddService(last_used); */
+		ServerInstance->Modules->AddService(last_used);
+		Implementation eventlist[] = { I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void ReadConfig(ConfigReadStatus&)
 	{
 		ConfigTag* conf = ServerInstance->Config->GetTag("acctregister");
 		hashtype = conf->getString("hashtype", "plaintext");
+	}
+
+	void OnEvent(Event& event)
+	{
+		if(event.id == "account_login"){
+			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
+			if(!IS_LOCAL(acct_event.user))
+				return;
+			AccountDBEntry* entry = db->GetAccount(acct_event.account);
+			if(!entry)
+				return;
+			last_used.set(entry, ServerInstance->Time());
+			db->SendUpdate(entry, "last_used");
+		}
 	}
 
 	void Prioritize()
