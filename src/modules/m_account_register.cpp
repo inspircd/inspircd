@@ -88,6 +88,11 @@ class CommandRegister : public Command
 			user->WriteServ("NOTICE " + user->nick + " :You may not register your UID");
 			return CMD_FAILURE;
 		}
+		if (account->IsRegistered(user))
+		{
+			user->WriteServ("NOTICE " + user->nick + " :You are already logged in to an account");
+			return CMD_FAILURE;
+		}
 		AccountDBEntry* entry = db->GetAccount(user->nick);
 		if(entry)
 		{
@@ -394,6 +399,7 @@ class CommandHold : public Command
 
 class ModuleAccountRegister : public Module
 {
+	time_t expiretime;
 	std::string hashtype;
 	CommandRegister cmd_register;
 	CommandChgpass cmd_chgpass;
@@ -420,7 +426,7 @@ class ModuleAccountRegister : public Module
 		ServerInstance->Modules->AddService(cmd_hold);
 		ServerInstance->Modules->AddService(cmd_hold.held);
 		ServerInstance->Modules->AddService(last_used);
-		Implementation eventlist[] = { I_OnEvent };
+		Implementation eventlist[] = { I_OnEvent, I_OnGarbageCollect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -428,6 +434,7 @@ class ModuleAccountRegister : public Module
 	{
 		ConfigTag* conf = ServerInstance->Config->GetTag("acctregister");
 		hashtype = conf->getString("hashtype", "plaintext");
+		expiretime = ServerInstance->Duration (conf->getString ("expiretime", "21d"));
 	}
 
 	void OnEvent(Event& event)
@@ -444,6 +451,33 @@ class ModuleAccountRegister : public Module
 		}
 	}
 
+	void OnGarbageCollect()
+	{
+		std::string account_name;
+		AccountDBEntry* entry;
+		time_t threshold = ServerInstance->Time() - expiretime;
+		for (user_hash::const_iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
+		{
+			account_name = account->GetAccountName(i->second);
+			if(account_name.empty())
+				continue;
+			entry = db->GetAccount(account_name);
+			if(!entry)
+				continue;
+			last_used.set(entry, ServerInstance->Time()); // ServerInstance->Time() is inlined, so we would gain nothing by using a temporary variable
+			db->SendUpdate(entry, "last_used");
+		}
+		for (AccountDB::const_iterator i = db->GetDB().begin(); i != db->GetDB().end();)
+		{
+			entry = i++->second;
+			if(*last_used.get(entry) < threshold)
+			{
+				db->RemoveAccount(entry, true);
+				entry->cull();
+				delete entry;
+			}
+		}
+	}
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_AFTER, ServerInstance->Modules->Find("m_account.so"));
