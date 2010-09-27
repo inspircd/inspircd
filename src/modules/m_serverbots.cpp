@@ -198,12 +198,10 @@ class ModuleServerBots : public Module
 	int botID;
 
  public:
-	ModuleServerBots() : dataExt(EXTENSIBLE_USER, "serverbot", this) {}
+	ModuleServerBots() : dataExt(EXTENSIBLE_USER, "serverbot", this), recursing(false), botID(0) {}
 
 	void init()
 	{
-		recursing = false;
-		botID = 0;
 		ServerInstance->Modules->Attach(I_OnUserMessage, this);
 	}
 
