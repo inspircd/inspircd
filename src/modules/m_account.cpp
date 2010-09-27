@@ -19,6 +19,21 @@
 
 static dynamic_reference<AccountProvider> account("account");
 
+class AccountDBEntryImpl : public AccountDBEntry
+{
+ public:
+	AccountDBEntryImpl(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0) : AccountDBEntry(nameref, ourTS, h, p, h_p_ts, cc, cc_ts, t, t_ts)
+	{
+	}
+	virtual CullResult cull()
+	{
+		return Extensible::cull();
+	}
+	virtual ~AccountDBEntryImpl()
+	{
+	}
+};
+
 class AccountDBProviderImpl : public AccountDBProvider
 {
  public:
@@ -26,24 +41,24 @@ class AccountDBProviderImpl : public AccountDBProvider
 
 	AccountDBProviderImpl(Module* parent) : AccountDBProvider(parent) {}
 
-	bool AddAccount(AccountDBEntry* entry, bool send)
+	AccountDBEntry* AddAccount(bool send, const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0)
 	{
-		if(db.insert(std::make_pair(entry->name, entry)).second)
-		{
-			if(send)
-				SendAccount(entry);
-			return true;
-		}
-		return false;
+		if(db.find(nameref) != db.end())
+			return NULL;
+		AccountDBEntry* entry = new AccountDBEntryImpl(nameref, ourTS, h, p, h_p_ts, cc, cc_ts, t, t_ts);
+		db.insert(std::make_pair(nameref, entry));
+		if(send)
+			SendAccount(entry);
+		return entry;
 	}
 
-	AccountDBEntry* GetAccount(irc::string acctname)
+	AccountDBEntry* GetAccount(irc::string acctname) const
 	{
-		AccountDB::iterator res = db.find(acctname);
+		AccountDB::const_iterator res = db.find(acctname);
 		return res != db.end() ? res->second : NULL;
 	}
 
-	void RemoveAccount(const AccountDBEntry* entry, bool send)
+	void RemoveAccount(bool send, AccountDBEntry* entry)
 	{
 		db.erase(entry->name);
 		if(account)
@@ -58,15 +73,17 @@ class AccountDBProviderImpl : public AccountDBProvider
 				}
 			}
 		if(send)
-			SendRemoval(entry);
+			SendRemoval(entry->name, entry->ts);
+		entry->cull();
+		delete entry;
 	}
 
-	const AccountDB& GetDB()
+	const AccountDB& GetDB() const
 	{
 		return db;
 	}
 
-	void SendAccount(const AccountDBEntry* entry)
+	void SendAccount(const AccountDBEntry* entry) const
 	{
 		std::vector<std::string> params;
 		params.push_back("*");
@@ -125,7 +142,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 		AccountDBModifiedEvent(creator, entry->name, entry).Send();
 	}
 
-	void SendUpdate(const AccountDBEntry* entry, std::string field)
+	void SendUpdate(const AccountDBEntry* entry, std::string field) const
 	{
 		std::vector<std::string> params;
 		params.push_back("*");
@@ -166,12 +183,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 		AccountDBModifiedEvent(creator, entry->name, entry).Send();
 	}
 
-	void SendRemoval(const AccountDBEntry* entry)
-	{
-		SendRemoval(entry->name, entry->ts);
-	}
-
-	void SendRemoval(irc::string acctname, time_t ts)
+	void SendRemoval(irc::string acctname, time_t ts) const
 	{
 		std::vector<std::string> params;
 		params.push_back("*");
@@ -209,10 +221,8 @@ class CommandSvsaccount : public Command
 			if(iter->second->ts > atol(parameters[2].c_str()))
 			{
 				/* Nuke the entry. */
-				prov.RemoveAccount(iter->second, false);
-				iter->second->cull();
-				delete iter->second;
-				AccountDBEntry* entry = new AccountDBEntry(parameters[1], atol(parameters[2].c_str()));
+				prov.RemoveAccount(false, iter->second);
+				AccountDBEntry* entry = new AccountDBEntryImpl(parameters[1], atol(parameters[2].c_str()));
 				iter = prov.db.insert(std::make_pair(parameters[1], entry)).first;
 			}
 			ExtensionItem* ext = ServerInstance->Extensions.GetItem(parameters[3]);
@@ -258,12 +268,8 @@ class CommandSvsaccount : public Command
 			if(iter == prov.db.end() || iter->second->ts > atol(parameters[2].c_str()))
 			{
 				if(iter != prov.db.end())
-				{
-					prov.RemoveAccount(iter->second, false);
-					iter->second->cull();
-					delete iter->second;
-				}
-				AccountDBEntry* entry = new AccountDBEntry(parameters[1], atol(parameters[2].c_str()));
+					prov.RemoveAccount(false, iter->second);
+				AccountDBEntry* entry = new AccountDBEntryImpl(parameters[1], atol(parameters[2].c_str()));
 				iter = prov.db.insert(std::make_pair(parameters[1], entry)).first;
 			}
 			else if(iter->second->ts < atol(parameters[2].c_str()))
@@ -276,9 +282,7 @@ class CommandSvsaccount : public Command
 			{
 				if(iter->second->ts < atol(parameters[2].c_str()))
 					return CMD_FAILURE;
-				prov.RemoveAccount(iter->second, false);
-				iter->second->cull();
-				delete iter->second;
+				prov.RemoveAccount(false, iter->second);
 				AccountDBModifiedEvent(creator, parameters[1], NULL).Send();
 			}
 		}
@@ -301,7 +305,7 @@ class CommandLogin : public Command
 
 	bool TryLogin (User* user, irc::string username, std::string password)
 	{
-		AccountDB::iterator iter = db.find(username);
+		AccountDB::const_iterator iter = db.find(username);
 		if(iter == db.end() || iter->second->password.empty() || ServerInstance->PassCompare(user, iter->second->password, password, iter->second->hash))
 			return false;
 		if(account)
@@ -391,7 +395,7 @@ class CommandAcctshow : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDB::iterator iter = db.find(parameters[0]);
+		AccountDB::const_iterator iter = db.find(parameters[0]);
 		if(iter == db.end())
 		{
 			user->WriteServ("NOTICE " + user->nick + " :No such account");

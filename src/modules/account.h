@@ -55,9 +55,11 @@ class AccountDBEntry : public Extensible
 	const time_t ts;
 	time_t hash_password_ts, connectclass_ts, tag_ts;
 	std::string hash, password, connectclass, tag;
-	AccountDBEntry(const irc::string& nameref, time_t ourTS) : Extensible(EXTENSIBLE_ACCOUNT), name(nameref), ts(ourTS), hash_password_ts(0), connectclass_ts(0), tag_ts(0), hash(""), password(""), connectclass(""), tag("")
+	AccountDBEntry(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0) : Extensible(EXTENSIBLE_ACCOUNT), name(nameref), ts(ourTS), hash_password_ts(h_p_ts), connectclass_ts(cc_ts), tag_ts(t_ts), hash(h), password(p), connectclass(cc), tag(t)
 	{
 	}
+	virtual CullResult cull() = 0;
+	virtual ~AccountDBEntry() {}
 };
 
 typedef std::map<irc::string, AccountDBEntry*> AccountDB;
@@ -87,57 +89,59 @@ class AccountDBProvider : public DataProvider
 	AccountDBProvider(Module* mod) : DataProvider(mod, "accountdb") {}
 
 	/**
-	 * Add an account to the database
-	 * @param entry A pointer to the account to add
+	 * Create an account and add it to the database
 	 * @param send Whether or not to send the account immediately after adding it, if adding was successful
-	 * @return True if the account was added, false if an account with the same name already existed
+	 * @param nameref The name of the account to add
+	 * @param ourTS The creation TS of the account to add
+	 * @param h The hash type of the account to add
+	 * @param p The password of the account to add
+	 * @param h_p_ts The hash/password TS of the account to add
+	 * @param cc The connect class of the account to add
+	 * @param cc_ts The TS of the connect class of the account to add
+	 * @param t The tag of the account to add
+	 * @param t_ts The TS of the tag to add
+	 * @return A pointer to the new account if it was successfully added, NULL if an account with the same name already existed
 	 */
-	virtual bool AddAccount(AccountDBEntry* entry, bool send) = 0;
+	virtual AccountDBEntry* AddAccount(bool send, const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0) = 0;
 
 	/**
 	 * Get an account from the database
 	 * @param name The name of the account
 	 * @return A pointer to the account, or NULL if no account by the given name exists
 	 */
-	virtual AccountDBEntry* GetAccount(irc::string name) = 0;
+	virtual AccountDBEntry* GetAccount(irc::string name) const = 0;
 
 	/**
-	 * Remove an account from the database
-	 * Note that this does not free the memory belonging to the account
-	 * @param entry A pointer to the account to remove
+	 * Remove an account from the database and delete it
+	 * This frees the memory associated with the account and invalidates any pointers to it
 	 * @param send Whether or not to send the removal immediately after removing it
+	 * @param entry A pointer to the account to remove
 	 */
-	virtual void RemoveAccount(const AccountDBEntry* entry, bool send) = 0;
+	virtual void RemoveAccount(bool send, AccountDBEntry* entry) = 0;
 
 	/**
 	 * Get the internal database used to store accounts
 	 * @return A const reference to the database
 	 */
-	virtual const AccountDB& GetDB() = 0;
+	virtual const AccountDB& GetDB() const = 0;
 
 	/**
 	 * Send an entire account
 	 * @param entry A pointer to the account to send
 	 */
-	virtual void SendAccount(const AccountDBEntry* entry) = 0;
+	virtual void SendAccount(const AccountDBEntry* entry) const = 0;
 
 	/** Send an update to an account
 	 * @param entry A pointer to the account to send an update for
 	 * @param field The name of the field to send an update for
 	 */
-	virtual void SendUpdate(const AccountDBEntry* entry, std::string field) = 0;
-
-	/** Send a removal for an account
-	 * Note that this does not free the memory belonging to the account
-	 * @param entry A pointer to the account to send a removal for
-	 */
-	virtual void SendRemoval(const AccountDBEntry* entry) = 0;
+	virtual void SendUpdate(const AccountDBEntry* entry, std::string field) const = 0;
 
 	/** Send a removal for an account
 	 * @param name The name of the account to remove
 	 * @param ts The creation TS of the account to remove
 	 */
-	virtual void SendRemoval(irc::string name, time_t ts) = 0;
+	virtual void SendRemoval(irc::string name, time_t ts) const = 0;
 };
 
 #endif

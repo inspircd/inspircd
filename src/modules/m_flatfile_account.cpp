@@ -46,11 +46,11 @@ class DatabaseReader
 		/* if fd is not null, close it */
 		if (fd) fclose (fd);
 	}
-	/* get next entry */
-	AccountDBEntry *next ( )
+	/* read and store next entry */
+	bool next ( )
 	{
 		/* if fd is NULL, fake eof */
-		if (!fd) return NULL;
+		if (!fd) return false;
 		std::string str;
 		/* read single characters from the file and add them to the string, end at EOF or \n, ignore \r */
 		while (1)
@@ -61,8 +61,11 @@ class DatabaseReader
 			str.push_back ((unsigned char)c);
 		}
 		/* ready to parse the line */
-		if (str == "") return NULL;
+		if (str == "") return false;
 		irc::string name;
+		time_t ts, hash_password_ts, connectclass_ts, tag_ts;
+		std::string hash, password, connectclass, tag;
+		std::map<std::string, std::string> extensions;
 		std::string token;
 		irc::spacesepstream sep(str);
 		/* get first one */
@@ -70,89 +73,75 @@ class DatabaseReader
 		if (!sep.GetToken (token) || token != "acctinfo")
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - entry didn't start with acctinfo");
-			return NULL;
+			return false;
 		}
 		/* read account name */
 		/* if we don't have one, database is malformed */
 		if (!sep.GetToken (name))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected name");
-			return NULL;
+			return false;
 		}
 		/* read account TS */
 		/* if we don't have one, database is malformed */
 		if (!sep.GetToken (token))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected ts");
-			return NULL;
+			return false;
 		}
-		AccountDBEntry* entry = new AccountDBEntry(name, atol(token.c_str()));
+		ts = atol(token.c_str());
 		/* read hash type */
 		/* if we don't have one, database is malformed */
-		if (!sep.GetToken (entry->hash))
+		if (!sep.GetToken (hash))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected hash");
-			entry->cull();
-			delete entry;
-			return NULL;
+			return false;
 		}
 		/* read password */
 		/* if we don't have one, database is malformed */
-		if (!sep.GetToken (entry->password))
+		if (!sep.GetToken (password))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected password");
-			entry->cull();
-			delete entry;
-			return NULL;
+			return false;
 		}
 		/* read hash and password TS */
 		/* if we don't have one, database is malformed */
 		if (!sep.GetToken (token))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected hash/password ts");
-			entry->cull();
-			delete entry;
-			return NULL;
+			return false;
 		}
-		entry->hash_password_ts = atol(token.c_str());
+		hash_password_ts = atol(token.c_str());
 		/* read connect class */
 		/* if we don't have one, database is malformed. if it's blank, GetToken returns true and fills in an empty string */
-		if (!sep.GetToken (entry->connectclass))
+		if (!sep.GetToken (connectclass))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected connectclass");
-			entry->cull();
-			delete entry;
-			return NULL;
+			return false;
 		}
 		/* read connect class TS */
 		/* if we don't have one, database is malformed */
 		if (!sep.GetToken (token))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected connectclass ts");
-			entry->cull();
-			delete entry;
-			return NULL;
+			return false;
 		}
-		entry->connectclass_ts = atol(token.c_str());
+		connectclass_ts = atol(token.c_str());
 		/* read tag */
 		/* if we don't have one, database is malformed. if it's blank, GetToken returns true and fills in an empty string */
-		if (!sep.GetToken (entry->tag))
+		if (!sep.GetToken (tag))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected tag");
-			entry->cull();
-			delete entry;
-			return NULL;
+			return false;
 		}
 		/* read tag TS */
 		/* if we don't have one, database is malformed */
 		if (!sep.GetToken (token))
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected tag ts");
-			entry->cull();
-			delete entry;
-			return NULL;
+			return false;
 		}
-		entry->tag_ts = atol(token.c_str());
+		tag_ts = atol(token.c_str());
 		/* initial entry read, read next lines in a loop until end, eof means malformed database again */
 		while (1)
 		{
@@ -164,9 +153,7 @@ class DatabaseReader
 				if (c == EOF)
 				{
 					ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - eof, expected end");
-					entry->cull();
-					delete entry;
-					return NULL;
+					return false;
 				}
 					unsigned char c2 = (unsigned char)c;
 				if (c2 == '\n') break;
@@ -178,17 +165,47 @@ class DatabaseReader
 			if (str == "")
 			{
 				ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - empty line");
-				entry->cull();
-				delete entry;
-				return NULL;
+				return false;
 			}
 			sep2.GetToken (token);
 			/* break the loop if token is "end" */
 			if (token == "end") break;
-			ExtensionItem* ext = ServerInstance->Extensions.GetItem(token);
-			if (ext) ext->unserialize(FORMAT_PERSIST, entry, sep2.GetRemaining());
+			extensions.insert(std::make_pair(token, sep2.GetRemaining()));
 		}
-		return entry;
+		AccountDBEntry* entry = db->GetAccount(name);
+		if(entry->ts < ts)
+			return true;
+		else if(entry->ts > ts)
+		{
+			db->RemoveAccount(false, entry);
+			entry = db->AddAccount(false, name, ts, hash, password, hash_password_ts, connectclass, connectclass_ts, tag, tag_ts);
+		}
+		else
+		{
+			if(hash_password_ts > entry->hash_password_ts)
+			{
+				entry->hash = hash;
+				entry->password = password;
+				entry->hash_password_ts = hash_password_ts;
+			}
+			if(connectclass_ts > entry->connectclass_ts)
+			{
+				entry->connectclass = connectclass;
+				entry->connectclass_ts = connectclass_ts;
+			}
+			if(tag_ts > entry->tag_ts)
+			{
+				entry->tag = tag;
+				entry->tag_ts = tag_ts;
+			}
+		}
+		for(std::map<std::string, std::string>::iterator i = extensions.begin(); i != extensions.end(); ++i)
+		{
+			ExtensionItem* ext = ServerInstance->Extensions.GetItem(i->first);
+			if (ext) ext->unserialize(FORMAT_PERSIST, entry, i->second);
+		}
+		db->SendAccount(entry);
+		return true;
 	}
 };
 /* class being a database writer, gets a database file name on construct */
@@ -284,71 +301,6 @@ class ModuleFlatfileAccount : public Module
 			dbwriter.next(i->second);
 	}
 
-	/** Read flat-file database */
-	void ReadFileDatabase ( )
-	{
-		/* create the reader object and open the database */
-		DatabaseReader dbreader (dbfile);
-		/* start the database read loop */
-		AccountDBEntry *entry;
-		while ((entry = dbreader.next ( )))
-		{
-			AccountDBEntry* existing = db->GetAccount(entry->name);
-			if(!existing)
-				db->AddAccount(entry, true);
-			else
-			{
-				/* if the TS's are the same, merge each field individually */
-				if(entry->ts == existing->ts)
-				{
-					if(entry->hash_password_ts > existing->hash_password_ts)
-					{
-						existing->hash = entry->hash;
-						existing->password = entry->password;
-						existing->hash_password_ts = entry->hash_password_ts;
-						db->SendUpdate(existing, "hash_password");
-					}
-					if(entry->connectclass_ts > existing->connectclass_ts)
-					{
-						existing->connectclass = entry->connectclass;
-						existing->connectclass_ts = entry->connectclass_ts;
-						db->SendUpdate(existing, "connectclass");
-					}
-					if(entry->tag_ts > existing->tag_ts)
-					{
-						existing->tag = entry->tag;
-						existing->tag_ts = entry->tag_ts;
-						db->SendUpdate(existing, "tag");
-					}
-					for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
-					{
-						ExtensionItem* item = it->first;
-						std::string value = item->serialize(FORMAT_INTERNAL, entry, it->second);
-						if(!value.empty())
-						{
-							item->unserialize(FORMAT_INTERNAL, existing, value);
-							db->SendUpdate(existing, item->name);
-						}
-					}
-				}
-				/* if this one is older, replace the existing one with it completely */
-				else if(entry->ts < existing->ts)
-				{
-					db->RemoveAccount(existing, false);
-					existing->cull();
-					delete existing;
-					db->AddAccount(entry, true);
-				}
-				/* the third case is that the one we read is newer, in which case we get rid of it */
-				else
-				{
-					entry->cull();
-					delete entry;
-				}
-			}
-		}
-	}
-
  public:
 	ModuleFlatfileAccount() : dirty(true)
 	{
@@ -359,7 +311,7 @@ class ModuleFlatfileAccount : public Module
 		if(!db) throw ModuleException("m_flatfile_account requires that m_account be loaded");
 		Implementation eventlist[] = { I_OnBackgroundTimer, I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		ReadFileDatabase();
+		for(DatabaseReader dbreader(dbfile);dbreader.next(););
 	}
 
 	void ReadConfig(ConfigReadStatus&)

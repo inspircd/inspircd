@@ -93,15 +93,14 @@ class CommandRegister : public Command
 			user->WriteServ("NOTICE " + user->nick + " :You are already logged in to an account");
 			return CMD_FAILURE;
 		}
-		AccountDBEntry* entry = db->GetAccount(user->nick);
-		if(entry)
+		// Don't send this now.  Wait until we have the password set.
+		AccountDBEntry* entry = db->AddAccount(false, user->nick, ServerInstance->Time(), hashtype);
+		if(!entry)
 		{
 			user->WriteServ("NOTICE " + user->nick + " :An account with name " + user->nick + " already exists");
 			return CMD_FAILURE;
 		}
-		entry = new AccountDBEntry(user->nick, ServerInstance->Time());
 		entry->hash_password_ts = entry->connectclass_ts = entry->tag_ts = entry->ts;
-		entry->hash = hashtype;
 		// XXX: The code to generate a hash was copied from m_password_hash.  We may want a better way to do this.
 		if (hashtype == "plaintext" || hashtype.empty())
 				entry->password = parameters[0];
@@ -135,7 +134,7 @@ class CommandRegister : public Command
 				ServerInstance->Logs->Log ("MODULE", DEFAULT, "unknown hash type in m_account_register, not using a hash");
 			}
 		}
-		db->AddAccount(entry, true);
+		db->SendAccount(entry);
 
 		if(account) account->DoLogin(user, entry->name, entry->tag);
 		if(!entry->connectclass.empty()) ServerInstance->ForcedClass.set(user, entry->connectclass);
@@ -324,9 +323,7 @@ class CommandDrop : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
 			return CMD_FAILURE;
 		}
-		db->RemoveAccount(entry, true);
-		entry->cull();
-		delete entry;
+		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}
 };
@@ -351,9 +348,7 @@ class CommandFdrop : public Command
 		}
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used FDROP to force drop of account '%s'", user->nick.c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " force-dropped successfully");
-		db->RemoveAccount(entry, true);
-		entry->cull();
-		delete entry;
+		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}
 };
@@ -476,9 +471,7 @@ class ModuleAccountRegister : public Module
 			held = cmd_hold.held.get(entry);
 			if((!last_used_time || *last_used_time < threshold) && !(held && held->second))
 			{
-				db->RemoveAccount(entry, true);
-				entry->cull();
-				delete entry;
+				db->RemoveAccount(true, entry);
 			}
 		}
 	}
