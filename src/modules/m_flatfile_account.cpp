@@ -173,14 +173,13 @@ class DatabaseReader
 			extensions.insert(std::make_pair(token, sep2.GetRemaining()));
 		}
 		AccountDBEntry* entry = db->GetAccount(name);
-		if(entry->ts < ts)
-			return true;
-		else if(entry->ts > ts)
+		if(!entry || entry->ts > ts)
 		{
-			db->RemoveAccount(false, entry);
+			if(entry)
+				db->RemoveAccount(false, entry);
 			entry = db->AddAccount(false, name, ts, hash, password, hash_password_ts, connectclass, connectclass_ts, tag, tag_ts);
 		}
-		else
+		else if(entry->ts == ts)
 		{
 			if(hash_password_ts > entry->hash_password_ts)
 			{
@@ -199,6 +198,8 @@ class DatabaseReader
 				entry->tag_ts = tag_ts;
 			}
 		}
+		else
+			return true;
 		for(std::map<std::string, std::string>::iterator i = extensions.begin(); i != extensions.end(); ++i)
 		{
 			ExtensionItem* ext = ServerInstance->Extensions.GetItem(i->first);
