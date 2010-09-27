@@ -323,6 +323,8 @@ class CommandDrop : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
 			return CMD_FAILURE;
 		}
+		if(!account || username != account->GetAccountName(user))
+			user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(username) + " has been dropped");
 		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}
