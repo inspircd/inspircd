@@ -1677,11 +1677,11 @@ port_found:
 
 void User::PurgeEmptyChannels()
 {
-	// firstly decrement the count on each channel
-	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
+	while (chans.size())
 	{
-		Channel* c = f->chan;
-		c->DelUser(this);
+		Membership* memb = chans.begin();
+		chans.erase(memb);
+		memb->chan->DelUser(this);
 	}
 
 	this->UnOper();

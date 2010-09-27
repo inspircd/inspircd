@@ -45,6 +45,7 @@ class CoreExport UCListIter
 	inline void operator++(int) { if (curr) curr = curr->u_next; }
 	inline bool operator==(const UCListIter& o) const { return curr == o.curr; }
 	inline bool operator!=(const UCListIter& o) const { return curr != o.curr; }
+	inline operator Membership*() const { return curr; }
 	inline Membership* operator->() const { return curr; }
 	inline Membership& operator*() const { return *curr; }
 };
