@@ -456,6 +456,7 @@ class ModuleAccountRegister : public Module
 		std::string account_name;
 		AccountDBEntry* entry;
 		time_t threshold = ServerInstance->Time() - expiretime;
+		time_t* last_used_time;
 		for (user_hash::const_iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
 		{
 			if(!IS_LOCAL(i->second))
@@ -472,7 +473,8 @@ class ModuleAccountRegister : public Module
 		for (AccountDB::const_iterator i = db->GetDB().begin(); i != db->GetDB().end();)
 		{
 			entry = i++->second;
-			if(*last_used.get(entry) < threshold && !cmd_hold.held.get(entry)->second)
+			last_used_time = last_used.get(entry);
+			if((!last_used_time || *last_used_time < threshold) && !cmd_hold.held.get(entry)->second)
 			{
 				db->RemoveAccount(entry, true);
 				entry->cull();
