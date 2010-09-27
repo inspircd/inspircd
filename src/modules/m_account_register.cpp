@@ -88,7 +88,7 @@ class CommandRegister : public Command
 			user->WriteServ("NOTICE " + user->nick + " :You may not register your UID");
 			return CMD_FAILURE;
 		}
-		if (account->IsRegistered(user))
+		if (account && account->IsRegistered(user))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :You are already logged in to an account");
 			return CMD_FAILURE;
@@ -324,8 +324,6 @@ class CommandDrop : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
 			return CMD_FAILURE;
 		}
-		if(account) account->DoLogin(user, "", "");
-		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " dropped successfully");
 		db->RemoveAccount(entry, true);
 		entry->cull();
 		delete entry;

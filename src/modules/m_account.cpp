@@ -46,6 +46,17 @@ class AccountDBProviderImpl : public AccountDBProvider
 	void RemoveAccount(const AccountDBEntry* entry, bool send)
 	{
 		db.erase(entry->name);
+		if(account)
+			for (user_hash::const_iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
+			{
+				if(!IS_LOCAL(i->second))
+					continue;
+				if(entry->name == account->GetAccountName(i->second))
+				{
+					account->DoLogin(i->second, "", "");
+					i->second->WriteServ("NOTICE " + i->second->nick + " :Account " + std::string(entry->name) + " has been dropped");
+				}
+			}
 		if(send)
 			SendRemoval(entry);
 	}
@@ -198,9 +209,9 @@ class CommandSvsaccount : public Command
 			if(iter->second->ts > atol(parameters[2].c_str()))
 			{
 				/* Nuke the entry. */
+				prov.RemoveAccount(iter->second, false);
 				iter->second->cull();
 				delete iter->second;
-				prov.db.erase(iter);
 				AccountDBEntry* entry = new AccountDBEntry(parameters[1], atol(parameters[2].c_str()));
 				iter = prov.db.insert(std::make_pair(parameters[1], entry)).first;
 			}
@@ -248,9 +259,9 @@ class CommandSvsaccount : public Command
 			{
 				if(iter != prov.db.end())
 				{
+					prov.RemoveAccount(iter->second, false);
 					iter->second->cull();
 					delete iter->second;
-					prov.db.erase(iter);
 				}
 				AccountDBEntry* entry = new AccountDBEntry(parameters[1], atol(parameters[2].c_str()));
 				iter = prov.db.insert(std::make_pair(parameters[1], entry)).first;
@@ -265,9 +276,9 @@ class CommandSvsaccount : public Command
 			{
 				if(iter->second->ts < atol(parameters[2].c_str()))
 					return CMD_FAILURE;
+				prov.RemoveAccount(iter->second, false);
 				iter->second->cull();
 				delete iter->second;
-				prov.db.erase(iter);
 				AccountDBModifiedEvent(creator, parameters[1], NULL).Send();
 			}
 		}
