@@ -37,34 +37,42 @@ INSTMODE_LIB = 0644
 
 @IFEQ $(SYSTEM) linux
   LDLIBS += -ldl -lrt
-@ELSIFEQ $(SYSTEM) solaris
+@ENDIF
+@IFEQ $(SYSTEM) solaris
   LDLIBS += -lsocket -lnsl -lrt -lresolv
-@ELSIFEQ $(SYSTEM) sunos
+@ENDIF
+@IFEQ $(SYSTEM) sunos
   LDLIBS += -lsocket -lnsl -lrt -lresolv
-@ELSIFEQ $(SYSTEM) darwin
+@ENDIF
+@IFEQ $(SYSTEM) darwin
   CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
   CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
   PICLDFLAGS = -fPIC -shared -bundle -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
-@ELSIFEQ $(SYSTEM) interix
+@ENDIF
+@IFEQ $(SYSTEM) interix
   CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
-@ENDIF 
+@ENDIF
 
 @IFNDEF D
   D=0
 @ENDIF
 
+DBGOK=0
 @IFEQ $(D) 0
   CXXFLAGS += -O2 -g1
   HEADER = std-header
-@ELSIFEQ $(D) 1
+  DBGOK=1
+@ENDIF
+@IFEQ $(D) 1
   CXXFLAGS += -O0 -g3 -Werror
   HEADER = debug-header
-@ELSIFEQ $(D) 2
+  DBGOK=1
+@ENDIF
+@IFEQ $(D) 2
   CXXFLAGS += -O2 -g3
   HEADER = debug-header
-@ELSE
-  HEADER = unknown-debug-level
+  DBGOK=1
 @ENDIF
 FOOTER = finishmessage
 
@@ -107,6 +115,10 @@ TARGET = all
     HEADER =
     FOOTER = target
     TARGET = $(T)
+@ENDIF
+
+@IFEQ $(DBGOK) 0
+  HEADER = unknown-debug-level
 @ENDIF
 
 all: $(FOOTER)
