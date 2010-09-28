@@ -1677,6 +1677,11 @@
 #<botcmd bot="ChanServ" text="accesslist" replace="MODE $1 +Z autoop">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Shorthand listmodes: Allows shorthand listmodes
+# (+v user1,user2,user3 instead of +vvv user1 user2 user3)
+#<module name="m_shorthand_listmodes.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Show Whois module: Adds the +W usermode which allows opers
 # to see when they are whois'ed (can be annoying).
 # This module is oper-only.
