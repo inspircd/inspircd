@@ -161,37 +161,8 @@ class CommandTmode : public Command
 			ServerInstance->Modes->Parse(tmpparams, user, tmp, modes);
 			if(modes.sequence.empty()) return CMD_SUCCESS;
 			stable_sort(modes.sequence.begin(), modes.sequence.end(), &modeChangeLessThan);
-			T.modes = modes;
 			ModeHandler* regmh = ServerInstance->Modes->FindMode("registered");
-			for (std::vector<irc::modechange>::iterator iter = T.modes.sequence.begin(); iter != T.modes.sequence.end();)
-			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(iter->mode);
-				if(mh == regmh && !user->HasPrivPermission("channels/set-registration", false)) {
-					iter = T.modes.sequence.erase(iter);
-					continue;
-				}
-				if(!iter->adding) {								// if we're about to remove the mode now
-					if(mh->GetNumParams(true) && !mh->IsListMode())				// and it needs a parameter to put back
-						iter->value = channel->GetModeParameter(mh);			// then save the parameter we have now
-					iter->adding = true; 							// and toggle the adding flag
-				} else if (!channel->IsModeSet(mh)) {						// but if we're just adding it now
-					if(!mh->GetNumParams(false))						// and it doesn't want a parameter to remove
-						iter->value = "";						// then make sure it doesn't get one
-					iter->adding = false;							// and toggle the adding flag
-				} else {									// but if we're changing a mode we already have
-					iter->value = channel->GetModeParameter(mh);				// then just save the parameter we have now
-				}
-
-				if(mh->GetNumParams(iter->adding) && mh->GetTranslateType() == TR_NICK) {	// if this mode takes a nick as a parameter
-					User* u = ServerInstance->FindNick(iter->value);			// look for the user with the given nick
-					if(u) iter->value = u->uuid;						// and change it to the UID if we found them
-					else {									// otherwise,
-						iter = T.modes.sequence.erase(iter);				// drop the mode
-						continue;							// and go to the next mode
-					}
-				}
-				++iter;
-			}
+			std::string token;
 			for (std::vector<irc::modechange>::iterator iter = modes.sequence.begin(); iter != modes.sequence.end();)
 			{
 				ModeHandler* mh = ServerInstance->Modes->FindMode(iter->mode);
@@ -200,11 +171,52 @@ class CommandTmode : public Command
 					iter = modes.sequence.erase(iter);
 					continue;
 				}
-				if(mh->GetNumParams(iter->adding) && mh->GetTranslateType() == TR_NICK) {	// if this mode takes a nick as a parameter
-					User* u = ServerInstance->FindNick(iter->value);			// look for the user with the given nick
-					if(u) iter->value = u->uuid;						// and change it to the UID if we found them
-														// otherwise, let SendMode remove it and tell the user
+
+				if(mh->IsListMode())
+				{
+					if(mh->GetTranslateType() == TR_NICK) 
+					{
+						if(iter->value.find_first_of(',') != std::string::npos)
+						{
+							irc::commasepstream sep(iter->value);
+							while(sep.GetToken(token))
+							{
+								User* u = ServerInstance->FindNick(token);
+								if(u)
+									T.modes.sequence.push_back(irc::modechange(iter->mode,
+										u->uuid, !iter->adding));
+							}
+						}
+						else
+						{
+							User* u = ServerInstance->FindNick(iter->value);
+							if(u)
+								T.modes.sequence.push_back(irc::modechange(iter->mode,
+									u->uuid, !iter->adding));
+						}
+					}
+					else
+					{
+						T.modes.sequence.push_back(irc::modechange(iter->mode,
+							iter->value, !iter->adding));
+					}
 				}
+				else if(!iter->adding)
+				{
+					T.modes.sequence.push_back(irc::modechange(iter->mode,
+						mh->GetNumParams(true) ? channel->GetModeParameter(mh) : "", true));
+				}
+				else if (!channel->IsModeSet(mh))
+				{
+					T.modes.sequence.push_back(irc::modechange(iter->mode,
+						mh->GetNumParams(false) ? iter->value : "", false));
+				}
+				else
+				{
+					T.modes.sequence.push_back(irc::modechange(iter->mode,
+						channel->GetModeParameter(mh), true));
+				}
+
 				++iter;
 			}
 
