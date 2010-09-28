@@ -83,6 +83,8 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 			ServerInstance->PI->SendUserNotice(user, std::string("*** Rehashing server ") +
 				ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()));
 
+		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+
 		ServerInstance->PendingRehash = new ConfigReaderThread(user->uuid);
 		ServerInstance->Threads->Submit(ServerInstance->PendingRehash);
 
