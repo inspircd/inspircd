@@ -523,10 +523,10 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 		if (res == MOD_RES_DENY)
 			return;
 
-		if (res == MOD_RES_PASSTHRU)
+		if (res == MOD_RES_PASSTHRU && !memb->modes.empty())
 		{
 			int them = this->GetPrefixValue(src);
-			char us = GetPrefixChar(user)[0];
+			char us = memb->modes[0];
 			ModeHandler* mh = ServerInstance->Modes->FindMode(us, MODETYPE_CHANNEL);
 			int min = mh ? mh->GetLevelRequired() : HALFOP_VALUE;
 			if (them < HALFOP_VALUE || them < min)
