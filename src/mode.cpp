@@ -382,10 +382,16 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, irc:
 		return MODEACTION_DENY;
 	}
 
-	if (mh->GetTranslateType() == TR_NICK && !ServerInstance->FindNick(mc.value))
+	if (mh->GetTranslateType() == TR_NICK)
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), mc.value.c_str());
-		return MODEACTION_DENY;
+		User* targ = ServerInstance->FindNick(mc.value);
+		if(!targ)
+		{
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), mc.value.c_str());
+			return MODEACTION_DENY;
+		}
+		else
+			mc.value = targ->uuid;
 	}
 
 	if (mh->GetPrefixRank() && chan)
