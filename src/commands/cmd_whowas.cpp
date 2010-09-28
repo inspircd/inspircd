@@ -393,20 +393,20 @@ void WhoWasMaintainTimer::Tick(time_t now)
 
 class ModuleWhoWas : public Module
 {
-	WhoWasMaintainTimer timer;
+	WhoWasMaintainTimer* timer;
  public:
-	ModuleWhoWas() : timer(this) {}
+	ModuleWhoWas() : timer(new WhoWasMaintainTimer(this)) {}
 
 	void init()
 	{
-		ServerInstance->Timers->AddTimer(&timer);
-		ServerInstance->Modules->AddService(timer.cmd);
-		ServerInstance->Modules->AddService(timer.cmd.prov);
+		ServerInstance->Timers->AddTimer(timer);
+		ServerInstance->Modules->AddService(timer->cmd);
+		ServerInstance->Modules->AddService(timer->cmd.prov);
 	}
 
 	~ModuleWhoWas()
 	{
-		ServerInstance->Timers->DelTimer(&timer);
+		ServerInstance->Timers->DelTimer(timer);
 	}
 
 	Version GetVersion()
