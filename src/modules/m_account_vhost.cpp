@@ -135,7 +135,7 @@ class ModuleAccountVhost : public Module
 		if(!db) throw ModuleException("m_account_vhost requires that m_account be loaded");
 		ServerInstance->Modules->AddService(cmd_acctvhost);
 		ServerInstance->Modules->AddService(cmd_acctvhost.vhost);
-		Implementation eventlist[] = { I_OnEvent };
+		Implementation eventlist[] = { I_OnEvent, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -155,7 +155,7 @@ class ModuleAccountVhost : public Module
 	{
 		if(event.id == "account_login"){
 			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
-			if(!IS_LOCAL(acct_event.user))
+			if(!IS_LOCAL(acct_event.user) || acct_event.user->registered != REG_ALL)
 				return;
 			AccountDBEntry* entry = db->GetAccount(acct_event.account);
 			if(!entry)
@@ -166,9 +166,22 @@ class ModuleAccountVhost : public Module
 		}
 	}
 
+	virtual void OnUserConnect(LocalUser* user)
+	{
+		if(!account->IsRegistered(user))
+			return;
+		AccountDBEntry* entry = db->GetAccount(account->GetAccountName(user));
+		if(!entry)
+			return;
+		std::pair<time_t, std::string>* vhost = cmd_acctvhost.vhost.get(entry);
+		if(vhost && !vhost->second.empty())
+			user->ChangeDisplayedHost(vhost->second.c_str());
+	}
+
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_AFTER, ServerInstance->Modules->Find("m_account.so"));
+		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, ServerInstance->Modules->Find("m_hostchange.so"));
 	}
 
 	Version GetVersion()
