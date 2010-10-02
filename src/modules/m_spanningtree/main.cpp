@@ -832,7 +832,8 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 CullResult ModuleSpanningTree::cull()
 {
 	Utils->cull();
-	ServerInstance->Timers->DelTimer(RefreshTimer);
+	if (RefreshTimer)
+		ServerInstance->Timers->DelTimer(RefreshTimer);
 	return this->Module::cull();
 }
 

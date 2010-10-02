@@ -15,6 +15,9 @@
 
 /* $ModDesc: Provides fake clients that respond to messages. */
 
+namespace m_serverbots
+{
+
 /** Command definition
  */
 class Alias
@@ -203,6 +206,7 @@ class ModuleServerBots : public Module
 	void init()
 	{
 		ServerInstance->Modules->Attach(I_OnUserMessage, this);
+		ServerInstance->Modules->AddService(dataExt);
 	}
 
 	Version GetVersion()
@@ -314,5 +318,9 @@ class ModuleServerBots : public Module
 		return Module::cull();
 	}
 };
+
+}
+
+using m_serverbots::ModuleServerBots;
 
 MODULE_INIT(ModuleServerBots)

@@ -112,18 +112,21 @@ class ChanSQLDB : public Module
 		};
 
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modules->AddService(InDB);
 
 		ParamL n;
 		n.push_back(tablename);
 		// just dump the entire thing back to us, please
 		sqldb->submit(new DatabaseReadQuery(this, InDB),
-			"SELECT (name, ts, modes, topic, topicset, topicts) FROM ?", n);
+			"SELECT name, ts, modes, topic, topicset, topicts FROM ?", n);
 	}
 	void ReadConfig(ConfigReadStatus& status)
 	{
 		ConfigTag *tag = ServerInstance->Config->GetTag ("chandb");
 
-		tablename = tag->getString("table");
+		tablename = tag->getString("table", "channels");
+		if (tablename.empty())
+			status.ReportError(tag, "Table name cannot be empty");
 		std::string dbid = tag->getString("dbid");
 		if (dbid.empty())
 			sqldb.SetProvider("SQL");
