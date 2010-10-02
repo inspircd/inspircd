@@ -60,7 +60,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
-	TreeSocket* src_socket = Utils->FindServer(srcuser->server)->GetRoute()->GetSocket();
+	TreeSocket* src_socket = Utils->FindServer(srcuser->server)->GetSocket();
 
 	if (!TS)
 	{
@@ -138,7 +138,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 		if (who)
 		{
 			/* Check that the user's 'direction' is correct */
-			TreeServer* route_back_again = Utils->BestRouteTo(who->server);
+			TreeServer* route_back_again = Utils->FindServer(who->server);
 			if ((!route_back_again) || (route_back_again->GetSocket() != src_socket))
 				continue;
 

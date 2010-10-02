@@ -106,19 +106,18 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 			Channel* c = ServerInstance->FindChan(dest);
 			if (!c)
 				return;
-			TreeServerList list;
+			TreeSocketSet list;
 			// TODO OnBuildExemptList hook was here
 			GetListOfServersForChannel(c,list,pfx, CUList());
 			std::string data = ":" + user->uuid + " " + sent_cmd;
 			for (unsigned int x = 0; x < params.size(); x++)
 				data += " " + params[x];
-			for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
+			for (TreeSocketSet::iterator i = list.begin(); i != list.end(); i++)
 			{
-				TreeSocket* Sock = i->second->GetSocket();
+				TreeSocket* Sock = *i;
 				if (origin && origin->GetSocket() == Sock)
 					continue;
-				if (Sock)
-					Sock->WriteLine(data);
+				Sock->WriteLine(data);
 			}
 		}
 		else if (dest[0] == '$')
@@ -134,8 +133,8 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 			User* d = ServerInstance->FindNick(dest);
 			if (!d)
 				return;
-			TreeServer* tsd = BestRouteTo(d->server);
-			if (tsd == origin)
+			TreeServer* tsd = FindServer(d->server);
+			if (origin && tsd->GetSocket() == origin->GetSocket())
 				// huh? no routing stuff around in a circle, please.
 				return;
 			DoOneToOne(user->uuid, sent_cmd, params, d->server);

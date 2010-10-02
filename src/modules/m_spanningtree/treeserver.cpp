@@ -20,108 +20,32 @@
 #include "utils.h"
 #include "treeserver.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h */
-
 /** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
  * represents our own server. Therefore, it has no route, no parent, and
  * no socket associated with it. Its version string is our own local version.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id)
-	: ServerName(Name), ServerDesc(Desc), Utils(Util), ServerUser(ServerInstance->FakeClient)
+TreeServer::TreeServer(SpanningTreeUtilities* Util)
+	: Parent(NULL), Socket(NULL), ServerUser(ServerInstance->FakeClient), Utils(Util),
+	ServerDesc(ServerInstance->Config->ServerDesc), VersionString(ServerInstance->GetVersionString()),
+	age(ServerInstance->Time()), NextPing(0), LastPingMsec(0), rtt(0),
+	StartBurst(age), LastPingWasGood(true), Warned(false), bursting(false), Hidden(false)
 {
-	age = ServerInstance->Time();
-	bursting = false;
-	Parent = NULL;
-	VersionString.clear();
-	ServerUserCount = ServerOperCount = 0;
-	VersionString = ServerInstance->GetVersionString();
-	Route = NULL;
-	Socket = NULL; /* Fix by brain */
-	StartBurst = rtt = 0;
-	Warned = Hidden = false;
 	AddHashEntry();
-	SetID(id);
 }
 
 /** When we create a new server, we call this constructor to initialize it.
  * This constructor initializes the server's Route and Parent, and sets up
  * its ping counters so that it will be pinged one minute from now.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock), Utils(Util), ServerUser(new FakeUser(id, Name)), Hidden(Hide)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, const std::string& Name, const std::string& Desc, const std::string &id,
+		TreeServer* Above, TreeSocket* Sock, bool Hide)
+	: Parent(Above), Socket(Sock), ServerUser(new FakeUser(id, Name)), Utils(Util), ServerDesc(Desc),
+	UserCount(0), age(ServerInstance->Time()), NextPing(age + Util->PingFreq), LastPingMsec(0), rtt(0),
+	StartBurst(age * 1000 + (ServerInstance->Time_ns() / 1000000)),
+	LastPingWasGood(true), Warned(false), bursting(true), Hidden(Hide)
 {
-	age = ServerInstance->Time();
-	bursting = true;
-	VersionString.clear();
-	ServerUserCount = ServerOperCount = 0;
-	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
-	SetPingFlag();
-	Warned = false;
-	rtt = 0;
-
-	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-	this->StartBurst = ts;
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Started bursting at time %lu", ts);
-
-	/* find the 'route' for this server (e.g. the one directly connected
-	 * to the local server, which we can use to reach it)
-	 *
-	 * In the following example, consider we have just added a TreeServer
-	 * class for server G on our network, of which we are server A.
-	 * To route traffic to G (marked with a *) we must send the data to
-	 * B (marked with a +) so this algorithm initializes the 'Route'
-	 * value to point at whichever server traffic must be routed through
-	 * to get here. If we were to try this algorithm with server B,
-	 * the Route pointer would point at its own object ('this').
-	 *
-	 *            A
-	 *           / \
-	 *        + B   C
-	 *         / \   \
-	 *        D   E   F
-	 *       /         \
-	 *    * G           H
-	 *
-	 * We only run this algorithm when a server is created, as
-	 * the routes remain constant while ever the server exists, and
-	 * do not need to be re-calculated.
-	 */
-
-	Route = Above;
-	if (Route == Utils->TreeRoot)
-	{
-		Route = this;
-	}
-	else
-	{
-		while (this->Route->GetParent() != Utils->TreeRoot)
-		{
-			this->Route = Route->GetParent();
-		}
-	}
-
-	/* Because recursive code is slow and takes a lot of resources,
-	 * we store two representations of the server tree. The first
-	 * is a recursive structure where each server references its
-	 * children and its parent, which is used for netbursts and
-	 * netsplits to dump the whole dataset to the other server,
-	 * and the second is used for very fast lookups when routing
-	 * messages and is instead a hash_map, where each item can
-	 * be referenced by its server name. The AddHashEntry()
-	 * call below automatically inserts each TreeServer class
-	 * into the hash_map as it is created. There is a similar
-	 * maintainance call in the destructor to tidy up deleted
-	 * servers.
-	 */
-
-	this->AddHashEntry();
-
-	SetID(id);
-}
-
-std::string& TreeServer::GetID()
-{
-	return sid;
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Started bursting at time %lu", StartBurst);
+	AddHashEntry();
 }
 
 void TreeServer::FinishBurstInternal()
@@ -143,15 +67,8 @@ void TreeServer::FinishBurst()
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
-		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	AddServerEvent(Utils->Creator, ServerName);
-}
-
-void TreeServer::SetID(const std::string &id)
-{
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Setting SID to " + id);
-	sid = id;
-	Utils->sidlist[sid] = this;
+		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
+	AddServerEvent(Utils->Creator, GetName());
 }
 
 int TreeServer::QuitUsers(const std::string &reason)
@@ -160,7 +77,7 @@ int TreeServer::QuitUsers(const std::string &reason)
 	std::vector<User*> time_to_die;
 	for (user_hash::iterator n = ServerInstance->Users->clientlist->begin(); n != ServerInstance->Users->clientlist->end(); n++)
 	{
-		if (n->second->server == ServerName)
+		if (n->second->server == GetName())
 		{
 			time_to_die.push_back(n->second);
 		}
@@ -188,9 +105,9 @@ int TreeServer::QuitUsers(const std::string &reason)
  */
 void TreeServer::AddHashEntry()
 {
-	server_hash::iterator iter = Utils->serverlist.find(this->ServerName);
-	if (iter == Utils->serverlist.end())
-		Utils->serverlist[ServerName] = this;
+	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Setting SID for " + ServerUser->server + " to " + ServerUser->uuid);
+	Utils->serverlist[ServerUser->server] = this;
+	Utils->sidlist[ServerUser->uuid] = this;
 }
 
 /** This method removes the reference to this object
@@ -199,32 +116,9 @@ void TreeServer::AddHashEntry()
  */
 void TreeServer::DelHashEntry()
 {
-	server_hash::iterator iter = Utils->serverlist.find(this->ServerName);
+	server_hash::iterator iter = Utils->serverlist.find(GetName());
 	if (iter != Utils->serverlist.end())
 		Utils->serverlist.erase(iter);
-}
-
-/** These accessors etc should be pretty self-
- * explanitory.
- */
-TreeServer* TreeServer::GetRoute()
-{
-	return Route;
-}
-
-std::string TreeServer::GetName()
-{
-	return ServerName;
-}
-
-std::string TreeServer::GetDesc()
-{
-	return ServerDesc;
-}
-
-std::string TreeServer::GetVersion()
-{
-	return VersionString;
 }
 
 void TreeServer::SetNextPingTime(time_t t)
@@ -246,41 +140,6 @@ bool TreeServer::AnsweredLastPing()
 void TreeServer::SetPingFlag()
 {
 	LastPingWasGood = true;
-}
-
-unsigned int TreeServer::GetUserCount()
-{
-	return ServerUserCount;
-}
-
-void TreeServer::SetUserCount(int diff)
-{
-	ServerUserCount += diff;
-}
-
-void TreeServer::SetOperCount(int diff)
-{
-	ServerOperCount += diff;
-}
-
-unsigned int TreeServer::GetOperCount()
-{
-	return ServerOperCount;
-}
-
-TreeSocket* TreeServer::GetSocket()
-{
-	return Socket;
-}
-
-TreeServer* TreeServer::GetParent()
-{
-	return Parent;
-}
-
-void TreeServer::SetVersion(const std::string &Version)
-{
-	VersionString = Version;
 }
 
 unsigned int TreeServer::ChildCount()

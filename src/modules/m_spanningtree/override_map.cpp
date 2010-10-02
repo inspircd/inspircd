@@ -40,7 +40,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	}
 	else
 	{
-		percent = Current->GetUserCount() * 100.0 / ServerInstance->Users->clientlist->size();
+		percent = Current->UserCount * 100.0 / ServerInstance->Users->clientlist->size();
 	}
 
 	const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
@@ -61,7 +61,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	memset(myname + w, ' ', 100 - w);
 	if (w > maxnamew)
 		maxnamew = w;
-	snprintf(mystat, 49, "%5d [%5.2f%%]%s", Current->GetUserCount(), percent, operdata.c_str());
+	snprintf(mystat, 49, "%5d [%5.2f%%]%s", Current->UserCount, percent, operdata.c_str());
 
 	line++;
 

@@ -48,8 +48,7 @@ void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 		ps.servername = i->second->GetName();
 		TreeServer* s = i->second->GetParent();
 		ps.parentname = s ? s->GetName() : "";
-		ps.usercount = i->second->GetUserCount();
-		ps.opercount = i->second->GetOperCount();
+		ps.usercount = i->second->UserCount;
 		ps.gecos = i->second->GetDesc();
 		ps.latencyms = i->second->rtt;
 		sl.push_back(ps);
@@ -149,14 +148,12 @@ void SpanningTreeProtocolInterface::SendChannel(Channel* target, char status, co
 	std::string cname = target->name;
 	if (status)
 		cname = status + cname;
-	TreeServerList list;
+	TreeSocketSet list;
 	CUList exempt_list;
 	Utils->GetListOfServersForChannel(target,list,status,exempt_list);
-	for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
+	for (TreeSocketSet::iterator i = list.begin(); i != list.end(); i++)
 	{
-		TreeSocket* Sock = i->second->GetSocket();
-		if (Sock)
-			Sock->WriteLine(text);
+		(**i).WriteLine(text);
 	}
 }
 

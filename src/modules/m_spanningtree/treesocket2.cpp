@@ -250,7 +250,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	 * a valid SID or a valid UUID, so that invalid UUID or SID never makes it
 	 * to the higher level functions. -- B
 	 */
-	TreeServer* route_back_again = Utils->BestRouteTo(direction);
+	TreeServer* route_back_again = Utils->FindServer(direction);
 	if ((!route_back_again) || (route_back_again->GetSocket() != this))
 	{
 		if (route_back_again)

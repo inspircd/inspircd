@@ -18,8 +18,6 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
 bool TreeSocket::ServerVersion(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
@@ -28,9 +26,7 @@ bool TreeSocket::ServerVersion(const std::string &prefix, parameterlist &params)
 	TreeServer* ServerSource = Utils->FindServer(prefix);
 
 	if (ServerSource)
-	{
-		ServerSource->SetVersion(params[0]);
-	}
+		ServerSource->VersionString = params[0];
 	params[0] = ":" + params[0];
 	Utils->DoOneToAllButSender(prefix,"VERSION",params,prefix);
 	return true;

@@ -62,36 +62,6 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 	}
 }
 
-/** Returns the locally connected server we must route a
- * message through to reach server 'ServerName'. This
- * only applies to one-to-one and not one-to-many routing.
- * See the comments for the constructor of TreeServer
- * for more details.
- */
-TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
-{
-	if (ServerName.c_str() == TreeRoot->GetName() || ServerName == ServerInstance->Config->GetSID())
-		return NULL;
-	TreeServer* Found = FindServer(ServerName);
-	if (Found)
-	{
-		return Found->GetRoute();
-	}
-	else
-	{
-		// Cheat a bit. This allows for (better) working versions of routing commands with nick based prefixes, without hassle
-		User *u = ServerInstance->FindNick(ServerName);
-		if (u)
-		{
-			Found = FindServer(u->server);
-			if (Found)
-				return Found->GetRoute();
-		}
-
-		return NULL;
-	}
-}
-
 /** Find the first server matching a given glob mask.
  * Theres no find-using-glob method of hash_map [awwww :-(]
  * so instead, we iterate over the list using an iterator
@@ -125,9 +95,7 @@ bool SpanningTreeUtilities::IsServer(const std::string &ServerName)
 
 SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 {
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
-
-	this->TreeRoot = new TreeServer(this, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
+	TreeRoot = new TreeServer(this);
 	this->ReadConfiguration();
 }
 
@@ -158,14 +126,13 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	delete TreeRoot;
 }
 
-void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)
+void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeSocketSet &list)
 {
-	if (list.find(server) == list.end())
-		list[server] = server;
+	list.insert(server->GetSocket());
 }
 
 /* returns a list of DIRECT servernames for a specific channel */
-void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
+void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet &list, char status, const CUList &exempt_list)
 {
 	unsigned int minrank = 0;
 	if (status)
@@ -187,7 +154,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 
 		if (exempt_list.find(i->first) == exempt_list.end())
 		{
-			TreeServer* best = this->BestRouteTo(i->first->server);
+			TreeServer* best = this->FindServer(i->first->server);
 			if (best)
 				AddThisServer(best,list);
 		}
@@ -197,24 +164,21 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 
 bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, const parameterlist &params)
 {
-	TreeServer* omitroute = this->BestRouteTo(omit);
-	unsigned int items =this->TreeRoot->ChildCount();
+	TreeServer* omitroute = this->FindServer(omit);
+	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = this->TreeRoot->GetChild(x);
-		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
-		{
-			TreeSocket* Sock = Route->GetSocket();
-			if (Sock)
-				Sock->WriteLine(data);
-		}
+		TreeSocket* Sock = Route->GetSocket();
+		if (Sock != omitroute->GetSocket())
+			Sock->WriteLine(data);
 	}
 	return true;
 }
 
 bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, std::string omit)
 {
-	TreeServer* omitroute = this->BestRouteTo(omit);
+	TreeServer* omitroute = this->FindServer(omit);
 	std::string FullLine = ":" + prefix + " " + command;
 	unsigned int words = params.size();
 	for (unsigned int x = 0; x < words; x++)
@@ -277,7 +241,7 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const char* prefix, const char* 
 
 bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, std::string target)
 {
-	TreeServer* Route = this->BestRouteTo(target);
+	TreeServer* Route = this->FindServer(target);
 	if (Route)
 	{
 		std::string FullLine = ":" + prefix + " " + command;

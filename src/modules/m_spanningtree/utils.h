@@ -37,7 +37,7 @@ class SpanningTreeUtilities;
 	#endif
 #endif
 
-typedef std::map<TreeServer*,TreeServer*> TreeServerList;
+typedef std::set<TreeSocket*> TreeSocketSet;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
@@ -146,11 +146,11 @@ class SpanningTreeUtilities : public classbase
 
 	/** Add a server to the server list for GetListOfServersForChannel
 	 */
-	void AddThisServer(TreeServer* server, TreeServerList &list);
+	void AddThisServer(TreeServer* server, TreeSocketSet &list);
 
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list);
+	void GetListOfServersForChannel(Channel* c, TreeSocketSet &list, char status, const CUList &exempt_list);
 
 	/** Find a server by name
 	 */
@@ -159,10 +159,6 @@ class SpanningTreeUtilities : public classbase
 	/** Find server by SID
 	 */
 	TreeServer* FindServerID(const std::string &id);
-
-	/** Find a route to a server by name
-	 */
-	TreeServer* BestRouteTo(const std::string &ServerName);
 
 	/** Find a server by glob mask
 	 */

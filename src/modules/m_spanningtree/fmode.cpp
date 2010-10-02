@@ -26,7 +26,7 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 	{
 		SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 		TreeServer* origin = Utils->FindServer(sourceserv);
-		if (origin->GetRoute()->GetSocket()->proto_version < 1203 && params[2][0] == '+')
+		if (origin->GetSocket()->proto_version < 1203 && params[2][0] == '+')
 			const_cast<parameterlist&>(params)[2][0] = '=';
 	}
 

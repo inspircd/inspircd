@@ -50,7 +50,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		return CMD_INVALID;
 	if (modestr[0] != '+')
 		return CMD_INVALID;
-	TreeSocket* sock = remoteserver->GetRoute()->GetSocket();
+	TreeSocket* sock = remoteserver->GetSocket();
 
 	/* check for collision */
 	user_hash::iterator iter = ServerInstance->Users->clientlist->find(params[2]);
@@ -138,7 +138,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	_new->SetClientIP(params[6].c_str());
 
 	ServerInstance->Users->AddGlobalClone(_new);
-	remoteserver->SetUserCount(1); // increment by 1
+	remoteserver->UserCount++;
 
 	bool dosend = true;
 

@@ -77,7 +77,7 @@ void ModuleSpanningTree::init()
 	loopCall = false;
 
 	// update our local user count
-	Utils->TreeRoot->SetUserCount(ServerInstance->Users->local_users.size());
+	Utils->TreeRoot->UserCount = ServerInstance->Users->local_users.size();
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
@@ -165,49 +165,43 @@ restart:
 		if (s->GetSocket() && s->GetSocket()->GetLinkState() != CONNECTED)
 			continue;
 
-		// Now do PING checks on all servers
-		TreeServer *mts = Utils->BestRouteTo(s->GetID());
-
-		if (mts)
+		// Only ping if this server needs one
+		if (curtime >= s->NextPingTime())
 		{
-			// Only ping if this server needs one
-			if (curtime >= s->NextPingTime())
+			// And if they answered the last
+			if (s->AnsweredLastPing())
 			{
-				// And if they answered the last
-				if (s->AnsweredLastPing())
-				{
-					// They did, send a ping to them
-					s->SetNextPingTime(curtime + Utils->PingFreq);
-					TreeSocket *tsock = mts->GetSocket();
+				// They did, send a ping to them
+				s->SetNextPingTime(curtime + Utils->PingFreq);
+				TreeSocket *tsock = s->GetSocket();
 
-					// ... if we can find a proper route to them
-					if (tsock)
-					{
-						tsock->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " +
-								ServerInstance->Config->GetSID() + " " + s->GetID());
-						s->LastPingMsec = ts;
-					}
-				}
-				else
+				// ... if we can find a proper route to them
+				if (tsock)
 				{
-					// They didn't answer the last ping, if they are locally connected, get rid of them.
-					TreeSocket *sock = s->GetSocket();
-					if (sock)
-					{
-						sock->SendError("Ping timeout");
-						sock->Close();
-						goto restart;
-					}
+					tsock->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " +
+							ServerInstance->Config->GetSID() + " " + s->GetID());
+					s->LastPingMsec = ts;
 				}
 			}
-
-			// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
-			if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
+			else
 			{
-				/* The server hasnt responded, send a warning to opers */
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
-				s->Warned = true;
+				// They didn't answer the last ping, if they are locally connected, get rid of them.
+				TreeSocket *sock = s->GetSocket();
+				if (sock)
+				{
+					sock->SendError("Ping timeout");
+					sock->Close();
+					goto restart;
+				}
 			}
+		}
+
+		// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
+		if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
+		{
+			/* The server hasnt responded, send a warning to opers */
+			ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
+			s->Warned = true;
 		}
 	}
 }
@@ -463,13 +457,11 @@ void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, c
 				std::string cname = c->name;
 				if (status)
 					cname = status + cname;
-				TreeServerList list;
+				TreeSocketSet list;
 				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
+				for (TreeSocketSet::iterator i = list.begin(); i != list.end(); i++)
 				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
+					(**i).WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
 				}
 			}
 		}
@@ -516,13 +508,11 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 				std::string cname = c->name;
 				if (status)
 					cname = status + cname;
-				TreeServerList list;
+				TreeSocketSet list;
 				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
+				for (TreeSocketSet::iterator i = list.begin(); i != list.end(); i++)
 				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
+					(**i).WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
 				}
 			}
 		}
@@ -580,7 +570,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 			ServerInstance->PI->SendMetaData(user, item->name, value);
 	}
 
-	Utils->TreeRoot->SetUserCount(1); // increment by 1
+	Utils->TreeRoot->UserCount++;
 }
 
 void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
@@ -662,9 +652,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 	// Regardless, We need to modify the user Counts..
 	TreeServer* SourceServer = Utils->FindServer(user->server);
 	if (SourceServer)
-	{
-		SourceServer->SetUserCount(-1); // decrement by 1
-	}
+		SourceServer->UserCount--;
 }
 
 void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)

@@ -32,44 +32,38 @@
  */
 class TreeServer : public classbase
 {
-	TreeServer* Parent;			/* Parent entry */
-	TreeServer* Route;			/* Route entry */
-	std::vector<TreeServer*> Children;	/* List of child objects */
-	std::string ServerName;			/* Server's name */
-	std::string ServerDesc;			/* Server's description */
-	std::string VersionString;		/* Version string or empty string */
-	unsigned int ServerUserCount;		/* How many users are on this server? [note: doesn't care about +i] */
-	unsigned int ServerOperCount;		/* How many opers are on this server? */
-	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
-	time_t NextPing;			/* After this time, the server should be PINGed*/
-	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
-	SpanningTreeUtilities* Utils;		/* Utility class */
-	std::string sid;			/* Server ID */
-
-	/** Set server ID
-	 * @param id Server ID
-	 * @throws CoreException on duplicate ID
-	 */
-	void SetID(const std::string &id);
-
  public:
-	FakeUser* const ServerUser;		/* User representing this server */
-	time_t age;
-
+	TreeServer* const Parent;		/* Parent entry (like in /map); NULL only for local server */
+	TreeSocket* const Socket;		/* Socket that this server was introduced on */
+	FakeUser* const ServerUser;		/* User representing this server (server name and SID) */
+	SpanningTreeUtilities* const Utils;	/* Utility class */
+	std::vector<TreeServer*> Children;	/* List of child servers */
+	std::string ServerDesc;			/* Server's description */
+	std::string VersionString;		/* Version string (empty if unset) */
+	std::string ModuleList;
+	unsigned int UserCount;
+	const time_t age;
+	time_t NextPing;			/* After this time, the server should be PINGed*/
+	unsigned long LastPingMsec;		/* Last ping time, in milliseconds */
+	unsigned long rtt;			/* Round trip time of last ping */
+	unsigned long StartBurst;		/* Time (in milliseconds) when we recieved BURST from this server */
+	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	bool Warned;				/* True if we've warned opers about high latency on this server */
 	bool bursting;				/* whether or not this server is bursting */
+	bool Hidden;
 
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id);
+	TreeServer(SpanningTreeUtilities* Util);
 
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide);
+	TreeServer(SpanningTreeUtilities* Util, const std::string& Name, const std::string& Desc, const std::string &id,
+		TreeServer* Above, TreeSocket* Sock, bool Hide);
 
 	int QuitUsers(const std::string &reason);
 
@@ -85,23 +79,17 @@ class TreeServer : public classbase
 	 */
 	void DelHashEntry();
 
-	/** Get route.
-	 * The 'route' is defined as the locally-
-	 * connected server which can be used to reach this server.
-	 */
-	TreeServer* GetRoute();
-
 	/** Get server name
 	 */
-	std::string GetName();
+	const std::string& GetName() { return ServerUser->server; }
 
 	/** Get server description (GECOS)
 	 */
-	std::string GetDesc();
+	const std::string& GetDesc() { return ServerDesc; }
 
 	/** Get server version string
 	 */
-	std::string GetVersion();
+	const std::string& GetVersion() { return VersionString; }
 
 	/** Set time we are next due to ping this server
 	 */
@@ -111,22 +99,6 @@ class TreeServer : public classbase
 	 */
 	time_t NextPingTime();
 
-	/** Last ping time in milliseconds, used to calculate round trip time
-	 */
-	unsigned long LastPingMsec;
-
-	/** Round trip time of last ping
-	 */
-	unsigned long rtt;
-
-	/** When we recieved BURST from this server, used to calculate total burst time at ENDBURST.
-	 */
-	unsigned long StartBurst;
-
-	/** True if this server is hidden
-	 */
-	bool Hidden;
-
 	/** True if the server answered their last ping
 	 */
 	bool AnsweredLastPing();
@@ -135,35 +107,15 @@ class TreeServer : public classbase
 	 */
 	void SetPingFlag();
 
-	/** Get the number of users on this server.
-	 */
-	unsigned int GetUserCount();
-
-	/** Increment or decrement the user count by diff.
-	 */
-	void SetUserCount(int diff);
-
-	/** Gets the numbers of opers on this server.
-	 */
-	unsigned int GetOperCount();
-
-	/** Increment or decrement the oper count by diff.
-	 */
-	void SetOperCount(int diff);
-
 	/** Get the TreeSocket pointer for local servers.
 	 * For remote servers, this returns NULL.
 	 */
-	TreeSocket* GetSocket();
+	TreeSocket* GetSocket() { return Socket; }
 
 	/** Get the parent server.
 	 * For the root node, this returns NULL.
 	 */
-	TreeServer* GetParent();
-
-	/** Set the server version string
-	 */
-	void SetVersion(const std::string &Version);
+	TreeServer* GetParent() { return Parent; }
 
 	/** Return number of child servers
 	 */
@@ -189,7 +141,7 @@ class TreeServer : public classbase
 
 	/** Get server ID
 	 */
-	std::string& GetID();
+	const std::string& GetID() { return ServerUser->uuid; }
 
 	/** Marks a server as having finished bursting and performs appropriate actions.
 	 */
