@@ -17,6 +17,9 @@
 
 /* $ModDesc: Provides channel mode +r for channel registration */
 
+namespace m_sql_channels
+{
+
 static bool reading = false;
 
 class DatabaseReadQuery : public SQLQuery
@@ -216,4 +219,8 @@ class ChanSQLDB : public Module
 		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_LAST);
 	}
 };
+}
+
+using m_sql_channels::ChanSQLDB;
+
 MODULE_INIT(ChanSQLDB)
