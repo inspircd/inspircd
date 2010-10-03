@@ -125,6 +125,7 @@ class ClearBase : public Command
 			if (!mh)
 			{
 				user->WriteNumeric (472, "%s %s :is unknown mode string to me", user->nick.c_str ( ), type.c_str ( ));
+				return CMD_FAILURE;
 			}
 			else if (!mh->IsListMode ( ))
 			{
