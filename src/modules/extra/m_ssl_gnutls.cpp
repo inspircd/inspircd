@@ -265,7 +265,16 @@ static ssize_t gnutls_pull_wrapper(gnutls_transport_ptr_t user_wrap, void* buffe
 		return -1;
 	}
 	int rv = recv(user->GetFd(), buffer, size, 0);
-	if (rv < (int)size)
+	if (rv < 0)
+	{
+		if (errno == EAGAIN || errno == EINTR)
+			ServerInstance->SE->ChangeEventMask(user, FD_READ_WILL_BLOCK);
+		else
+			user->SetError(strerror(errno));
+	}
+	else if (rv == 0)
+		user->SetError("Connection Closed");
+	else if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_READ_WILL_BLOCK);
 	return rv;
 }
@@ -279,7 +288,14 @@ static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void*
 		return -1;
 	}
 	int rv = send(user->GetFd(), buffer, size, 0);
-	if (rv < (int)size)
+	if (rv < 0)
+	{
+		if (errno == EAGAIN || errno == EINTR)
+			ServerInstance->SE->ChangeEventMask(user, FD_WRITE_WILL_BLOCK);
+		else
+			user->SetError(strerror(errno));
+	}
+	else if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_WRITE_WILL_BLOCK);
 	return rv;
 }
@@ -459,6 +475,9 @@ info_done_dealloc:
 			return -1;
 		}
 
+		// gnutls seems to need a bit of prodding to read everything on the socket
+		ServerInstance->SE->ChangeEventMask(user, FD_ADD_TRIAL_READ | FD_ADD_TRIAL_WRITE);
+
 		if (status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
@@ -513,6 +532,9 @@ info_done_dealloc:
 			user->SetError("No SSL session");
 			return -1;
 		}
+
+		// gnutls seems to need a bit of prodding to read everything on the socket
+		ServerInstance->SE->ChangeEventMask(user, FD_ADD_TRIAL_READ | FD_ADD_TRIAL_WRITE);
 
 		if (status == ISSL_HANDSHAKING)
 		{
