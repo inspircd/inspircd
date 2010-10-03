@@ -479,7 +479,10 @@ BufferedSocket::~BufferedSocket()
 void StreamSocket::HandleEvent(EventType et, int errornum)
 {
 	if (!error.empty())
+	{
+		ServerInstance->SE->DelFd(this);
 		return;
+	}
 	BufferedSocketError errcode = I_ERR_OTHER;
 	try {
 		switch (et)
