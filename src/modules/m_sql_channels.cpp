@@ -158,6 +158,7 @@ class ChanSQLDB : public Module
 			sqldb->submit(new DiscardQuery(this),
 				"INSERT INTO ? (name, ts, modes, topic, topicset, topicts) VALUES ('?', '?', '?', '?', '?', '?')", n);
 		}
+		InDB.set(chan, 1);
 	}
 	void OnUserJoin(Membership* memb, bool, bool, CUList&)
 	{
@@ -181,7 +182,7 @@ class ChanSQLDB : public Module
 	void OnMode (User *user, Extensible *target, const irc::modestacker &modes)
 	{
 		Channel *chan = IS_CHANNEL(target);
-		if (reading || !chan)
+		if (reading || !chan || modes.empty())
 			return;
 		if (!InDB.get(chan))
 		{

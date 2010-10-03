@@ -92,6 +92,7 @@ class SQLConn : public SQLProvider
 
 	void Query(SQLQuery* query, const std::string& q)
 	{
+		ServerInstance->Logs->Log("m_sqlite3",DEBUG, "Query(%s): %s", config->getString("id").c_str(), q.c_str());
 		SQLite3Result res;
 		sqlite3_stmt *stmt;
 		int err = sqlite3_prepare_v2(conn, q.c_str(), q.length(), &stmt, NULL);
