@@ -30,32 +30,37 @@ struct NickTSItem
 	}
 };
 
-class NicksOwnedExtItem : public SimpleExtItem<std::pair<time_t, std::vector<NickTSItem> > >
+typedef std::pair<time_t, std::vector<NickTSItem> > NicksOwned;
+
+class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 {
 	bool CheckCollision(irc::string accountname, irc::string nick, time_t ts)
 	{
 		NickMap::iterator i = nickinfo.find(nick);
 		if(i == nickinfo.end()) return false;
 		AccountDBEntry* entry = i->second;
-		std::vector<NickTSItem>& vec = get(entry)->second;
+		NicksOwned* ext = get(entry);
+		if(!ext)
+			throw ModuleException("An entry in nickinfo is incorrect");
+
 		std::vector<NickTSItem>::iterator iter;
-		for(iter = vec.begin(); iter != vec.end(); ++iter)
+		for(iter = ext->second.begin(); iter != ext->second.end(); ++iter)
 			if(iter->nick == nick)
 				break;
 
-		if(iter == vec.end())
+		if(iter == ext->second.end())
 			throw ModuleException("An entry in nickinfo is incorrect");
 		if(iter->ts < ts || (iter->ts == ts && entry->name < accountname)) return true;
-		vec.erase(iter);
+		ext->second.erase(iter);
 		nickinfo.erase(i);
 		return false;
 	}
 
  public:
-	NicksOwnedExtItem(const std::string& Key, Module* parent) : SimpleExtItem<std::pair<time_t, std::vector<NickTSItem> > >(EXTENSIBLE_ACCOUNT, Key, parent) {}
+	NicksOwnedExtItem(const std::string& Key, Module* parent) : SimpleExtItem<NicksOwned>(EXTENSIBLE_ACCOUNT, Key, parent) {}
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
-		std::pair<time_t, std::vector<NickTSItem> >* p = static_cast<std::pair<time_t, std::vector<NickTSItem> >*>(item);
+		NicksOwned* p = static_cast<NicksOwned*>(item);
 		if(!p)
 			return "";
 		std::ostringstream str;
@@ -69,7 +74,7 @@ class NicksOwnedExtItem : public SimpleExtItem<std::pair<time_t, std::vector<Nic
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
-		std::pair<time_t, std::vector<NickTSItem> >* newvalue = new std::pair<time_t, std::vector<NickTSItem> >;
+		NicksOwned* newvalue = new NicksOwned;
 		std::string item;
 		std::string::size_type delim = value.find_first_of(' ');
 		newvalue->first = atol(value.substr(0, delim).c_str());
@@ -77,7 +82,7 @@ class NicksOwnedExtItem : public SimpleExtItem<std::pair<time_t, std::vector<Nic
 			item = "";
 		else
 			item = value.substr(delim + 1);
-		std::pair<time_t, std::vector<NickTSItem> >* p = get(container);
+		NicksOwned* p = get(container);
 		if(!p || newvalue->first > p->first)
 		{
 			if(p)
@@ -88,7 +93,7 @@ class NicksOwnedExtItem : public SimpleExtItem<std::pair<time_t, std::vector<Nic
 			irc::string nick;
 			time_t ts;
 			irc::spacesepstream sep(item);
-			NickMap newinfo(nickinfo);
+			std::vector<std::pair<irc::string, AccountDBEntry*> > newinfo;
 			while(sep.GetToken(token))
 			{
 				delim = token.find_first_of(',');
@@ -97,12 +102,12 @@ class NicksOwnedExtItem : public SimpleExtItem<std::pair<time_t, std::vector<Nic
 				ts = atol(token.substr(delim + 1).c_str());
 				if(!CheckCollision(static_cast<AccountDBEntry*>(container)->name, nick, ts))
 				{
-					newinfo.insert(std::make_pair(nick, static_cast<AccountDBEntry*>(container)));
+					newinfo.push_back(std::make_pair(nick, static_cast<AccountDBEntry*>(container)));
 					newvalue->second.push_back(NickTSItem(nick, ts));
 				}
 			}
 			set(container, newvalue);
-			nickinfo = newinfo;
+			nickinfo.insert(newinfo.begin(), newinfo.end());
 		}
 		else
 			delete newvalue;
@@ -110,7 +115,7 @@ class NicksOwnedExtItem : public SimpleExtItem<std::pair<time_t, std::vector<Nic
 
 	virtual void free(void* item)
 	{
-		std::pair<time_t, std::vector<NickTSItem> >* p = static_cast<std::pair<time_t, std::vector<NickTSItem> >*>(item);
+		NicksOwned* p = static_cast<NicksOwned*>(item);
 		for(std::vector<NickTSItem>::iterator i = p->second.begin(); i != p->second.end(); ++i)
 			nickinfo.erase(i->nick);
 		delete p;
@@ -140,11 +145,11 @@ class CommandAddnick : public Command
 			return CMD_FAILURE;
 		}
 		nickinfo.insert(std::make_pair(user->nick, entry));
-		std::pair<time_t, std::vector<NickTSItem> >* p = nicks.get(entry);
+		NicksOwned* p = nicks.get(entry);
 		bool needToSet = false;
 		if(!p)
 		{
-			p = new std::pair<time_t, std::vector<NickTSItem> >;
+			p = new NicksOwned;
 			needToSet = true;
 		}
 		p->first = ServerInstance->Time();
@@ -182,7 +187,7 @@ class CommandDelnick : public Command
 			return CMD_FAILURE;
 		}
 		nickinfo.erase(nick);
-		std::pair<time_t, std::vector<NickTSItem> >* p = nicks.get(entry);
+		NicksOwned* p = nicks.get(entry);
 		if(!p)
 			throw ModuleException("An entry in nickinfo is incorrect");
 		p->first = ServerInstance->Time();
