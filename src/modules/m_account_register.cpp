@@ -430,6 +430,11 @@ class ModuleAccountRegister : public Module
 		ConfigTag* conf = ServerInstance->Config->GetTag("acctregister");
 		hashtype = conf->getString("hashtype", "plaintext");
 		expiretime = ServerInstance->Duration (conf->getString ("expiretime", "21d"));
+		if(expiretime && expiretime < 7200)
+		{
+			ServerInstance->Logs->Log ("MODULE", DEFAULT, "account expiration times of under 2 hours are unsafe, setting to 2 hours");
+			expiretime = 7200;
+		}
 	}
 
 	void OnEvent(Event& event)
@@ -466,6 +471,7 @@ class ModuleAccountRegister : public Module
 			last_used.set(entry, ServerInstance->Time()); // ServerInstance->Time() is inlined, so we would gain nothing by using a temporary variable
 			db->SendUpdate(entry, "last_used");
 		}
+		if(!expiretime) return;
 		for (AccountDB::const_iterator i = db->GetDB().begin(); i != db->GetDB().end();)
 		{
 			entry = i++->second;
