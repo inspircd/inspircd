@@ -454,13 +454,15 @@ class ModuleAccount : public Module
 
 	void OnUserRegister(LocalUser* user)
 	{
-		if ((account && account->IsRegistered(user)) ||
-			cmd_login.TryLogin(user, user->nick, user->password) ||
-			cmd_login.TryLogin(user, user->ident, user->password))
+		if (account && account->IsRegistered(user))
 			return;
 		std::string::size_type sep = user->password.find_first_of(':');
-		if(sep != std::string::npos)
-			cmd_login.TryLogin(user, user->password.substr(0, sep), user->password.substr(sep + 1));
+		if(sep != std::string::npos &&
+			cmd_login.TryLogin(user, user->password.substr(0, sep), user->password.substr(sep + 1)))
+			return;
+		if(cmd_login.TryLogin(user, user->ident, user->password))
+			return;
+		cmd_login.TryLogin(user, user->nick, user->password);
 	}
 
 	void OnSyncNetwork(SyncTarget* target)
