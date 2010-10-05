@@ -490,6 +490,10 @@
 #<module name="m_chgname.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Clear module: Adds the /CLEAR command
+#<module name="m_clear.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CLINE module: Adds the /CLINE command
 # This module is oper-only.
 # To use, CLINE must be in one of your oper class blocks.
