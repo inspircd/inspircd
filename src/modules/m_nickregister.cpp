@@ -13,257 +13,254 @@
 
 #include "inspircd.h"
 #include "account.h"
-#include "nickregister.h"
 
 static dynamic_reference<AccountProvider> accounts("account");
+static dynamic_reference<AccountDBProvider> db("accountdb");
 
-struct NickData
+typedef std::map<irc::string, AccountDBEntry*> NickMap;
+
+static NickMap nickinfo;
+
+struct NickTSItem
 {
-	std::string account;
+	irc::string nick;
 	time_t ts;
-	time_t last_used;
-	NickData(const std::string& a, time_t t, time_t l)
-		: account(a), ts(t), last_used(l) {}
-	void update(const NickData& incoming)
+	NickTSItem(const irc::string& newnick, time_t newTS) : nick(newnick), ts(newTS)
 	{
-		if (ts == incoming.ts && account == incoming.account)
-		{
-			// match, just update last_used
-			if (last_used < incoming.last_used)
-				last_used = incoming.last_used;
-		}
-		else if (ts > incoming.ts || (ts == incoming.ts && account < incoming.account))
-		{
-			// we got replaced by TS collision
-			*this = incoming;
-		}
-		else
-		{
-			// we won the TS collision; discard
-		}
 	}
 };
 
-/** Nick mapped to information */
-typedef std::map<std::string, NickData> NickMap;
-/** Account mapped to nick(s) */
-typedef std::multimap<std::string, std::string> OwnerMap;
-
-class RegDB : public NickRegistrationProvider
+class NicksOwnedExtItem : public SimpleExtItem<std::pair<time_t, std::vector<NickTSItem> > >
 {
- public:
-	NickMap nickinfo;
-	OwnerMap nicksowned;
-	time_t expiry;
-
-	RegDB(Module* parent) : NickRegistrationProvider(parent) {}
-
-	std::vector<std::string> GetNicks(const std::string& useraccount)
+	bool CheckCollision(irc::string accountname, irc::string nick, time_t ts)
 	{
-		std::vector<std::string> rv;
-		std::pair<OwnerMap::iterator, OwnerMap::iterator> range = nicksowned.equal_range(useraccount);
-		for(OwnerMap::iterator i = range.first; i != range.second; i++)
-			rv.push_back(i->second);
-		return rv;
+		NickMap::iterator i = nickinfo.find(nick);
+		if(i == nickinfo.end()) return false;
+		AccountDBEntry* entry = i->second;
+		std::vector<NickTSItem>& vec = get(entry)->second;
+		std::vector<NickTSItem>::iterator iter;
+		for(iter = vec.begin(); iter != vec.end(); ++iter)
+			if(iter->nick == nick)
+				break;
+
+		if(iter == vec.end())
+			throw ModuleException("An entry in nickinfo is incorrect");
+		if(iter->ts < ts || (iter->ts == ts && entry->name < accountname)) return true;
+		vec.erase(iter);
+		nickinfo.erase(i);
+		return false;
 	}
 
-	std::string GetOwner(const std::string& nick)
+ public:
+	NicksOwnedExtItem(const std::string& Key, Module* parent) : SimpleExtItem<std::pair<time_t, std::vector<NickTSItem> > >(EXTENSIBLE_ACCOUNT, Key, parent) {}
+	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
-		NickMap::iterator it = nickinfo.find(nick);
-		if (it == nickinfo.end())
+		std::pair<time_t, std::vector<NickTSItem> >* p = static_cast<std::pair<time_t, std::vector<NickTSItem> >*>(item);
+		if(!p)
 			return "";
-		return it->second.account;
-	}
-
-	void UpdateLastUse(const std::string& nick)
-	{
-		NickMap::iterator it = nickinfo.find(nick);
-		if (it != nickinfo.end())
-			it->second.last_used = ServerInstance->Time();
-	}
-
-	void SetOwner(const std::string& nick, const std::string& acct)
-	{
-		time_t now = ServerInstance->Time();
-		SetOwner(nick, acct, now, now);
-		parameterlist params;
-		params.push_back("*");
-		params.push_back("SVSNICKREGISTER");
-		params.push_back(nick);
-		params.push_back(acct);
-		params.push_back(ConvToStr(now));
-		params.push_back(ConvToStr(now));
-		ServerInstance->PI->SendEncapsulatedData(params);
-	}
-
-	void SetOwner(const std::string& nick, const std::string& regaccount, time_t ts, time_t luts)
-	{
-		NickData value(regaccount, ts, luts);
-		NickMap::iterator it = nickinfo.find(nick);
-		std::string oldowner = "-";
-		if (it == nickinfo.end())
+		std::ostringstream str;
+		str << p->first << (format == FORMAT_NETWORK ? " :" : " ");
+		for(std::vector<NickTSItem>::iterator i = p->second.begin(); i != p->second.end(); ++i)
 		{
-			if (regaccount != "-")
+			str << i->nick << "," << i->ts << " ";
+		}
+		return str.str();
+	}
+
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	{
+		std::pair<time_t, std::vector<NickTSItem> >* newvalue = new std::pair<time_t, std::vector<NickTSItem> >;
+		std::string item;
+		std::string::size_type delim = value.find_first_of(' ');
+		newvalue->first = atol(value.substr(0, delim).c_str());
+		if(delim == std::string::npos)
+			item = "";
+		else
+			item = value.substr(delim + 1);
+		std::pair<time_t, std::vector<NickTSItem> >* p = get(container);
+		if(!p || newvalue->first > p->first)
+		{
+			if(p)
+				for(std::vector<NickTSItem>::iterator i = p->second.begin(); i != p->second.end(); ++i)
+					nickinfo.erase(i->nick);
+
+			std::string token;
+			irc::string nick;
+			time_t ts;
+			irc::spacesepstream sep(item);
+			NickMap newinfo(nickinfo);
+			while(sep.GetToken(token))
 			{
-				nickinfo.insert(std::make_pair(nick, value));
-				nicksowned.insert(std::make_pair(value.account, nick));
+				delim = token.find_first_of(',');
+				if(delim == std::string::npos) continue;
+				nick = token.substr(0, delim);
+				ts = atol(token.substr(delim + 1).c_str());
+				if(!CheckCollision(static_cast<AccountDBEntry*>(container)->name, nick, ts))
+				{
+					newinfo.insert(std::make_pair(nick, static_cast<AccountDBEntry*>(container)));
+					newvalue->second.push_back(NickTSItem(nick, ts));
+				}
 			}
+			set(container, newvalue);
+			nickinfo = newinfo;
 		}
 		else
-		{
-			oldowner = it->second.account;
-			it->second.update(value);
-			if (it->second.account == oldowner && regaccount != "-")
-				return;
-			OwnerMap::iterator rev = nicksowned.lower_bound(oldowner);
-			while (rev != nicksowned.end() && rev->first == oldowner && rev->second != nick)
-				rev++;
-			if (rev != nicksowned.end() && rev->first == oldowner)
-				nicksowned.erase(rev);
-			if (regaccount == "-")
-				nickinfo.erase(it);
-			else
-				nicksowned.insert(std::make_pair(it->second.account, nick));
-		}
-		NickRegisterChangeEvent(creator, nick, oldowner, regaccount);
+			delete newvalue;
 	}
 
-	void Clean()
+	virtual void free(void* item)
 	{
-		NickMap::iterator i = nickinfo.begin();
-		time_t cutoff = ServerInstance->Time() - expiry;
-		while (i != nickinfo.end())
-		{
-			NickMap::iterator curr = i++;
-			if (curr->second.last_used < cutoff)
-			{
-				OwnerMap::iterator rev = nicksowned.lower_bound(curr->second.account);
-				while (rev != nicksowned.end() && rev->first == curr->second.account && rev->second != curr->first)
-					rev++;
-				if (rev != nicksowned.end() && rev->first == curr->second.account)
-					nicksowned.erase(rev);
-				nickinfo.erase(curr);
-			}
-		}
+		std::pair<time_t, std::vector<NickTSItem> >* p = static_cast<std::pair<time_t, std::vector<NickTSItem> >*>(item);
+		for(std::vector<NickTSItem>::iterator i = p->second.begin(); i != p->second.end(); ++i)
+			nickinfo.erase(i->nick);
+		delete p;
 	}
 };
 
-class CommandRegisterNick : public Command
+class CommandAddnick : public Command
 {
+	NicksOwnedExtItem& nicks;
  public:
-	RegDB db;
-
-	int maxreg;
-	CommandRegisterNick(Module* parent) : Command(parent, "SVSNICKREGISTER", 4), db(parent)
+	CommandAddnick(Module* parent, NicksOwnedExtItem& nicks_ref) : Command(parent, "ADDNICK", 0, 0), nicks(nicks_ref)
 	{
-		syntax = "<nick> <account> <age> <last-used>";
-		flags_needed = FLAG_SERVERONLY;
+		syntax.clear();
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
-		std::string nick = parameters[0];
-		std::string account = parameters[1];
-		time_t ts = atoi(parameters[2].c_str());
-		time_t luts = atoi(parameters[3].c_str());
-
-		db.SetOwner(nick, account, ts, luts);
+		AccountDBEntry* entry;
+		if(nickinfo.find(user->nick) != nickinfo.end())
+		{
+			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is already registered");
+			return CMD_FAILURE;
+		}
+		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user))))
+		{
+			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
+			return CMD_FAILURE;
+		}
+		nickinfo.insert(std::make_pair(user->nick, entry));
+		std::pair<time_t, std::vector<NickTSItem> >* p = nicks.get(entry);
+		bool needToSet = false;
+		if(!p)
+		{
+			p = new std::pair<time_t, std::vector<NickTSItem> >;
+			needToSet = true;
+		}
+		p->first = ServerInstance->Time();
+		p->second.push_back(NickTSItem(user->nick, ServerInstance->Time()));
+		if(needToSet)
+			nicks.set(entry, p);
+		db->SendUpdate(entry, "nicks");
+		user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " has been registered to account " + std::string(entry->name));
 		return CMD_SUCCESS;
 	}
+};
 
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+class CommandDelnick : public Command
+{
+	NicksOwnedExtItem& nicks;
+ public:
+	CommandDelnick(Module* parent, NicksOwnedExtItem& nicks_ref) : Command(parent, "DELNICK", 0, 1), nicks(nicks_ref)
 	{
-		return ROUTE_OPT_BCAST;
+		syntax = "[nick]";
+	}
+
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
+	{
+		AccountDBEntry* entry;
+		irc::string nick = parameters.size() ? parameters[0] : user->nick;
+		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user))))
+		{
+			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
+			return CMD_FAILURE;
+		}
+		NickMap::iterator iter = nickinfo.find(nick);
+		if(iter == nickinfo.end() || iter->second != entry)
+		{
+			user->WriteServ("NOTICE " + std::string(user->nick) + " :Nick " + std::string(nick) + " is not registered to you");
+			return CMD_FAILURE;
+		}
+		nickinfo.erase(nick);
+		std::pair<time_t, std::vector<NickTSItem> >* p = nicks.get(entry);
+		if(!p)
+			throw ModuleException("An entry in nickinfo is incorrect");
+		p->first = ServerInstance->Time();
+		std::vector<NickTSItem>::iterator i;
+		for(i = p->second.begin(); i != p->second.end(); ++i)
+			if(i->nick == nick)
+				break;
+
+		if(i == p->second.end())
+			throw ModuleException("An entry in nickinfo is incorrect");
+		p->second.erase(i);
+		db->SendUpdate(entry, "nicks");
+		user->WriteServ("NOTICE " + user->nick + " :Nick " + std::string(nick) + " has been unregistered");
+		return CMD_SUCCESS;
 	}
 };
 
 class ModuleNickRegister : public Module
 {
  public:
-	CommandRegisterNick cmd;
+	NicksOwnedExtItem nicks;
+	CommandAddnick cmd_addnick;
+	CommandDelnick cmd_delnick;
 
-	ModuleNickRegister() : cmd(this) {}
-
-	void ReadConfig(ConfigReadStatus& status)
-	{
-		ConfigTag* tag = status.GetTag("nickregister");
-		cmd.db.expiry = ServerInstance->Duration(tag->getString("expiretime", "21d"));
-	}
+	ModuleNickRegister() : nicks("nicks", this), cmd_addnick(this, nicks), cmd_delnick(this, nicks) {}
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.db);
-		Implementation eventlist[] = {
-			I_OnUserPreNick, I_OnCheckReady, I_OnSyncNetwork, I_OnUserQuit, I_OnGarbageCollect
-		};
+		ServerInstance->Modules->AddService(nicks);
+		ServerInstance->Modules->AddService(cmd_addnick);
+		ServerInstance->Modules->AddService(cmd_delnick);
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserPreNick(User* user, const std::string& nick)
 	{
-		// update timestamp on old nick
-		cmd.db.UpdateLastUse(user->nick);
-
 		if (ServerInstance->NICKForced.get(user))
 			return MOD_RES_PASSTHRU;
 
 		// check the new nick
-		std::string owner = cmd.db.GetOwner(nick);
-		std::string acctname = accounts ? accounts->GetAccountName(user) : "";
-		if (owner.empty() || owner == acctname)
+		NickMap::iterator iter = nickinfo.find(nick);
+		if(iter == nickinfo.end())
+			return MOD_RES_PASSTHRU;
+		if (accounts && irc::string(accounts->GetAccountName(user)) == iter->second->name)
 			return MOD_RES_PASSTHRU;
 		if (user->registered == REG_ALL)
 		{
 			user->WriteNumeric(433, "%s %s :You must be identified to the account '%s' to use this nick",
-				user->nick.c_str(), nick.c_str(), owner.c_str());
+				user->nick.c_str(), nick.c_str(), iter->second->name.c_str());
 			return MOD_RES_DENY;
 		}
 		else
 		{
 			// allow through to give things like SASL or SQLauth time to return before denying
+#if 0
+			// this numeric makes both irssi and xchat auto-select a different nick, for now we'll send a NOTICE instead
 			user->WriteNumeric(437, "%s %s :This nick requires you to identify to the account '%s'",
-				user->nick.c_str(), nick.c_str(), owner.c_str());
+				user->nick.c_str(), nick.c_str(), iter->second->name.c_str());
+#else
+			user->WriteServ("NOTICE " + user->nick + " :Nick " + nick + " requires you to identify to the account '" + iter->second->name.c_str() + "'");
+#endif
 			return MOD_RES_PASSTHRU;
 		}
 	}
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		std::string owner = cmd.db.GetOwner(user->nick);
-		if (owner.empty())
+		NickMap::iterator iter = nickinfo.find(user->nick);
+		if(iter == nickinfo.end())
 			return MOD_RES_PASSTHRU;
-		std::string acctname = accounts ? accounts->GetAccountName(user) : "";
-		if (owner != acctname)
+		if (!accounts || iter->second->name != irc::string(accounts->GetAccountName(user)))
 		{
 			user->WriteNumeric(433, "%s %s :Nickname overruled: requires login to the account '%s'",
-				user->nick.c_str(), user->nick.c_str(), owner.c_str());
+				user->nick.c_str(), user->nick.c_str(), iter->second->name.c_str());
 			user->ChangeNick(user->uuid, true);
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnUserQuit(User* user, const std::string&, const std::string&)
-	{
-		cmd.db.UpdateLastUse(user->nick);
-	}
-
-	void OnGarbageCollect()
-	{
-		cmd.db.Clean();
-	}
-
-	void OnSyncNetwork(SyncTarget* target)
-	{
-		for(NickMap::iterator i = cmd.db.nickinfo.begin(); i != cmd.db.nickinfo.end(); i++)
-		{
-			parameterlist params;
-			params.push_back(i->first);
-			params.push_back(i->second.account);
-			params.push_back(ConvToStr(i->second.ts));
-			params.push_back(ConvToStr(i->second.last_used));
-			target->SendEncap(cmd.name, params);
-		}
 	}
 
 	void Prioritize()
