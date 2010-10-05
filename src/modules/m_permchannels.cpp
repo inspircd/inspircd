@@ -56,26 +56,8 @@ class PermChannel : public ModeHandler
 class ModulePermanentChannels : public Module
 {
 	PermChannel p;
-public:
 
-	ModulePermanentChannels() : p(this)
-	{
-	}
-
-	void init()
-	{
-		ServerInstance->Modules->AddService(p);
-		ServerInstance->Modules->Attach(I_OnChannelPreDelete, this);
-
-	}
-
-	CullResult cull()
-	{
-		ServerInstance->Modes->DelMode(&p);
-		return Module::cull();
-	}
-
-	void ReadConfig(ConfigReadStatus&)
+	void LoadPermChannels()
 	{
 		ConfigTagList permchannels = ServerInstance->Config->GetTags("permchannels");
 		for (ConfigIter i = permchannels.first; i != permchannels.second; ++i)
@@ -143,6 +125,31 @@ public:
 				ServerInstance->Modes->Process(ServerInstance->FakeClient, target, modestack);
 			}
 		}
+	}
+
+public:
+
+	ModulePermanentChannels() : p(this)
+	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(p);
+		ServerInstance->Modules->Attach(I_OnChannelPreDelete, this);
+		LoadPermChannels();
+	}
+
+	CullResult cull()
+	{
+		ServerInstance->Modes->DelMode(&p);
+		return Module::cull();
+	}
+
+	void ReadConfig(ConfigReadStatus& status)
+	{
+		if(status.reason == REHASH_NEWCONF)
+			LoadPermChannels();
 	}
 
 	virtual Version GetVersion()
