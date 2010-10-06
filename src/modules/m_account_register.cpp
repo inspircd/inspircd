@@ -20,56 +20,6 @@
 static dynamic_reference<AccountProvider> account("account");
 static dynamic_reference<AccountDBProvider> db("accountdb");
 
-/* XXX: Do we want to put these somewhere global? */
-class TSExtItem : public SimpleExtItem<time_t>
-{
- public:
-	TSExtItem(const std::string& Key, Module* parent) : SimpleExtItem<time_t>(EXTENSIBLE_ACCOUNT, Key, parent) {}
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
-	{
-		time_t* ts = static_cast<time_t*>(item);
-		if(!ts) /* If we don't have a TS, not if the TS is zero */
-			return "";
-		return ConvToStr(*ts);
-	}
-
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
-	{
-		time_t* ours = get(container);
-		time_t theirs = atol(value.c_str());
-		if(!ours || theirs > *ours)
-			set(container, theirs);
-	}
-};
-
-class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
-{
- public:
-	TSBoolExtItem(const std::string& Key, Module* parent) : SimpleExtItem<std::pair<time_t, bool> >(EXTENSIBLE_ACCOUNT, Key, parent) {}
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
-	{
-		std::pair<time_t, bool>* p = static_cast<std::pair<time_t, bool>*>(item);
-		if(!p)
-			return "";
-		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + (p->second ? '1' : '0');
-	}
-
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
-	{
-		time_t ts;
-		bool item;
-		std::string::size_type delim = value.find_first_of(' ');
-		ts = atol(value.substr(0, delim).c_str());
-		if(delim == std::string::npos)
-			item = false;
-		else
-			item = (value.substr(delim + 1)[0] == '1');
-		std::pair<time_t, bool>* p = get(container);
-		if(!p || ts > p->first)
-			set(container, std::make_pair(ts, item));
-	}
-};
-
 /** Handle /REGISTER
  */
 class CommandRegister : public Command

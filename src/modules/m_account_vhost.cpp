@@ -19,35 +19,6 @@
 static dynamic_reference<AccountProvider> account("account");
 static dynamic_reference<AccountDBProvider> db("accountdb");
 
-/* XXX: Do we want to put this somewhere global? */
-class TSStringExtItem : public SimpleExtItem<std::pair<time_t, std::string> >
-{
- public:
-	TSStringExtItem(const std::string& Key, Module* parent) : SimpleExtItem<std::pair<time_t, std::string> >(EXTENSIBLE_ACCOUNT, Key, parent) {}
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
-	{
-		std::pair<time_t, std::string>* p = static_cast<std::pair<time_t, std::string>*>(item);
-		if(!p)
-			return "";
-		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + p->second;
-	}
-
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
-	{
-		time_t ts;
-		std::string item;
-		std::string::size_type delim = value.find_first_of(' ');
-		ts = atol(value.substr(0, delim).c_str());
-		if(delim == std::string::npos)
-			item = "";
-		else
-			item = value.substr(delim + 1);
-		std::pair<time_t, std::string>* p = get(container);
-		if(!p || ts > p->first)
-			set(container, std::make_pair(ts, item));
-	}
-};
-
 /** Handle /ACCTVHOST
  */
 class CommandAcctvhost : public Command
