@@ -272,6 +272,7 @@ class ModuleNickRegister : public Module
 		ServerInstance->Modules->AddService(cmd_addnick);
 		ServerInstance->Modules->AddService(cmd_delnick);
 		ServerInstance->Modules->AddService(cmd_setenforce);
+		ServerInstance->Modules->AddService(cmd_setenforce.enforce);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
