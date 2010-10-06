@@ -437,9 +437,9 @@ class ModuleAccount : public Module
 		if(sep != std::string::npos &&
 			cmd_login.TryLogin(user, user->password.substr(0, sep), user->password.substr(sep + 1)))
 			return;
-		if(cmd_login.TryLogin(user, user->ident, user->password))
+		if(cmd_login.TryLogin(user, user->nick, user->password))
 			return;
-		cmd_login.TryLogin(user, user->nick, user->password);
+		cmd_login.TryLogin(user, user->ident, user->password);
 	}
 
 	void OnSyncNetwork(SyncTarget* target)
