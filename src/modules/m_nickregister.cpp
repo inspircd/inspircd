@@ -36,6 +36,16 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 {
 	bool CheckCollision(irc::string accountname, irc::string nick, time_t ts)
 	{
+		AccountDBEntry* owner = db->GetAccount(nick);
+		if(owner)
+		{
+			if(owner->ts > ts)
+			{
+				db->RemoveAccount(true, owner);
+				return false;
+			}
+			return true;
+		}
 		NickMap::iterator i = nickinfo.find(nick);
 		if(i == nickinfo.end()) return false;
 		AccountDBEntry* entry = i->second;
@@ -133,14 +143,14 @@ class CommandAddnick : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
 		AccountDBEntry* entry;
-		if(nickinfo.find(user->nick) != nickinfo.end())
-		{
-			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is already registered");
-			return CMD_FAILURE;
-		}
 		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user))))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
+			return CMD_FAILURE;
+		}
+		if(db->GetAccount(user->nick) || nickinfo.find(user->nick) != nickinfo.end())
+		{
+			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is already registered");
 			return CMD_FAILURE;
 		}
 		nickinfo.insert(std::make_pair(user->nick, entry));
@@ -179,13 +189,19 @@ class CommandDelnick : public Command
 			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
 			return CMD_FAILURE;
 		}
+		AccountDBEntry* owner = db->GetAccount(nick);
 		NickMap::iterator iter = nickinfo.find(nick);
-		if(iter == nickinfo.end() || iter->second != entry)
+		if(owner == entry)
+		{
+			user->WriteServ("NOTICE " + std::string(user->nick) + " :Nick " + std::string(nick) + " is your primary nick and may not be deleted");
+			return CMD_FAILURE;
+		}
+		else if(owner || iter == nickinfo.end() || iter->second != entry)
 		{
 			user->WriteServ("NOTICE " + std::string(user->nick) + " :Nick " + std::string(nick) + " is not registered to you");
 			return CMD_FAILURE;
 		}
-		nickinfo.erase(nick);
+		nickinfo.erase(iter);
 		NicksOwned* p = nicks.get(entry);
 		if(!p)
 			throw ModuleException("An entry in nickinfo is incorrect");
@@ -204,20 +220,58 @@ class CommandDelnick : public Command
 	}
 };
 
+/** Handle /SETENFORCE
+ */
+class CommandSetenforce : public Command
+{
+ public:
+	TSBoolExtItem enforce;
+	CommandSetenforce(Module* Creator) : Command(Creator,"SETENFORCE", 1, 1), enforce("enforce", Creator)
+	{
+		syntax = "OFF|ON";
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		AccountDBEntry* entry;
+		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user))))
+		{
+			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
+			return CMD_FAILURE;
+		}
+		bool newsetting;
+		if(irc::string(parameters[0]) == "ON")
+			newsetting = true;
+		else if(irc::string(parameters[0]) == "OFF")
+			newsetting = false;
+		else
+		{
+			user->WriteServ("NOTICE " + user->nick + " :Unknown setting");
+			return CMD_FAILURE;
+		}
+		enforce.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
+		db->SendUpdate(entry, "enforce");
+		user->WriteServ("NOTICE " + user->nick + " :Nick enforcement for account " + std::string(entry->name) + (newsetting ? " enabled" : " disabled") + " successfully");
+		return CMD_SUCCESS;
+	}
+};
+
 class ModuleNickRegister : public Module
 {
  public:
 	NicksOwnedExtItem nicks;
 	CommandAddnick cmd_addnick;
 	CommandDelnick cmd_delnick;
+	CommandSetenforce cmd_setenforce;
 
-	ModuleNickRegister() : nicks("nicks", this), cmd_addnick(this, nicks), cmd_delnick(this, nicks) {}
+	ModuleNickRegister() : nicks("nicks", this), cmd_addnick(this, nicks), cmd_delnick(this, nicks), cmd_setenforce(this) {}
 
 	void init()
 	{
 		ServerInstance->Modules->AddService(nicks);
 		ServerInstance->Modules->AddService(cmd_addnick);
 		ServerInstance->Modules->AddService(cmd_delnick);
+		ServerInstance->Modules->AddService(cmd_setenforce);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
@@ -228,40 +282,52 @@ class ModuleNickRegister : public Module
 			return MOD_RES_PASSTHRU;
 
 		// check the new nick
-		NickMap::iterator iter = nickinfo.find(nick);
-		if(iter == nickinfo.end())
+		AccountDBEntry* owner = db->GetAccount(nick);
+		if(!owner)
+		{
+			NickMap::iterator iter = nickinfo.find(nick);
+			if(iter == nickinfo.end())
+				return MOD_RES_PASSTHRU;
+			owner = iter->second;
+		}
+		if (accounts && accounts->GetAccountName(user) == owner->name)
 			return MOD_RES_PASSTHRU;
-		if (accounts && accounts->GetAccountName(user) == iter->second->name)
+		std::pair<time_t, bool>* enforce = cmd_setenforce.enforce.get(owner);
+		if (!enforce || !enforce->second)
+		{
+			user->WriteServ("NOTICE " + user->nick + " :Nick " + nick + " is registered to the account '" + owner->name.c_str() + "'");
 			return MOD_RES_PASSTHRU;
-		if (user->registered == REG_ALL)
+		}
+		else if (user->registered == REG_ALL)
 		{
 			user->WriteNumeric(433, "%s %s :You must be identified to the account '%s' to use this nick",
-				user->nick.c_str(), nick.c_str(), iter->second->name.c_str());
+				user->nick.c_str(), nick.c_str(), owner->name.c_str());
 			return MOD_RES_DENY;
 		}
 		else
 		{
 			// allow through to give things like SASL or SQLauth time to return before denying
-#if 0
-			// this numeric makes both irssi and xchat auto-select a different nick, for now we'll send a NOTICE instead
-			user->WriteNumeric(437, "%s %s :This nick requires you to identify to the account '%s'",
-				user->nick.c_str(), nick.c_str(), iter->second->name.c_str());
-#else
-			user->WriteServ("NOTICE " + user->nick + " :Nick " + nick + " requires you to identify to the account '" + iter->second->name.c_str() + "'");
-#endif
+			// sending a 437 here makes both irssi and xchat auto-select a different nick, so we'll send a NOTICE instead
+			user->WriteServ("NOTICE " + user->nick + " :Nick " + nick + " requires you to identify to the account '" + owner->name.c_str() + "'");
 			return MOD_RES_PASSTHRU;
 		}
 	}
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		NickMap::iterator iter = nickinfo.find(user->nick);
-		if(iter == nickinfo.end())
-			return MOD_RES_PASSTHRU;
-		if (!accounts || iter->second->name != accounts->GetAccountName(user))
+		AccountDBEntry* owner = db->GetAccount(user->nick);
+		if(!owner)
+		{
+			NickMap::iterator iter = nickinfo.find(user->nick);
+			if(iter == nickinfo.end())
+				return MOD_RES_PASSTHRU;
+			owner = iter->second;
+		}
+		std::pair<time_t, bool>* enforce = cmd_setenforce.enforce.get(owner);
+		if (enforce && enforce->second && (!accounts || owner->name != accounts->GetAccountName(user)))
 		{
 			user->WriteNumeric(433, "%s %s :Nickname overruled: requires login to the account '%s'",
-				user->nick.c_str(), user->nick.c_str(), iter->second->name.c_str());
+				user->nick.c_str(), user->nick.c_str(), owner->name.c_str());
 			user->ChangeNick(user->uuid, true);
 		}
 		return MOD_RES_PASSTHRU;
