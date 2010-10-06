@@ -272,7 +272,7 @@ class ModuleNickRegister : public Module
 		ServerInstance->Modules->AddService(cmd_addnick);
 		ServerInstance->Modules->AddService(cmd_delnick);
 		ServerInstance->Modules->AddService(cmd_setenforce);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady };
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -295,7 +295,8 @@ class ModuleNickRegister : public Module
 		std::pair<time_t, bool>* enforce = cmd_setenforce.enforce.get(owner);
 		if (!enforce || !enforce->second)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :Nick " + nick + " is registered to the account '" + owner->name.c_str() + "'");
+			if(user->registered == REG_ALL)
+				user->WriteServ("NOTICE " + user->nick + " :Nick " + nick + " is registered to the account '" + owner->name.c_str() + "'");
 			return MOD_RES_PASSTHRU;
 		}
 		else if (user->registered == REG_ALL)
@@ -329,8 +330,25 @@ class ModuleNickRegister : public Module
 			user->WriteNumeric(433, "%s %s :Nickname overruled: requires login to the account '%s'",
 				user->nick.c_str(), user->nick.c_str(), owner->name.c_str());
 			user->ChangeNick(user->uuid, true);
+			user->registered &= ~REG_NICK;
+			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	virtual void OnUserConnect(LocalUser* user)
+	{
+		AccountDBEntry* owner = db->GetAccount(user->nick);
+		if(!owner)
+		{
+			NickMap::iterator iter = nickinfo.find(user->nick);
+			if(iter == nickinfo.end())
+				return;
+			owner = iter->second;
+		}
+		std::pair<time_t, bool>* enforce = cmd_setenforce.enforce.get(owner);
+		if ((!enforce || !enforce->second) && (!accounts || owner->name != accounts->GetAccountName(user)))
+			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is registered to the account '" + owner->name.c_str() + "'");
 	}
 
 	void Prioritize()
