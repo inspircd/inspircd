@@ -269,6 +269,7 @@ class ModuleNickRegister : public Module
 
 	void Prioritize()
 	{
+		ServerInstance->Modules->SetPriority(this, I_ModuleInit, PRIORITY_AFTER, ServerInstance->Modules->Find("m_account.so"));
 		// need to be after all modules that might deny the ready check
 		ServerInstance->Modules->SetPriority(this, I_OnCheckReady, PRIORITY_LAST);
 	}
