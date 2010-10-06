@@ -136,6 +136,7 @@ class CommandAddnick : public Command
 {
 	NicksOwnedExtItem& nicks;
  public:
+	unsigned int limit;
 	CommandAddnick(Module* parent, NicksOwnedExtItem& nicks_ref) : Command(parent, "ADDNICK", 0, 0), nicks(nicks_ref)
 	{
 	}
@@ -153,7 +154,6 @@ class CommandAddnick : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is already registered");
 			return CMD_FAILURE;
 		}
-		nickinfo.insert(std::make_pair(user->nick, entry));
 		NicksOwned* p = nicks.get(entry);
 		bool needToSet = false;
 		if(!p)
@@ -161,10 +161,16 @@ class CommandAddnick : public Command
 			p = new NicksOwned;
 			needToSet = true;
 		}
+		else if(limit && p->second.size() >= limit)
+		{
+			user->WriteServ("NOTICE " + user->nick + " :You already have the maximum number of nicks registered");
+			return CMD_FAILURE;
+		}
 		p->first = ServerInstance->Time();
 		p->second.push_back(NickTSItem(user->nick, ServerInstance->Time()));
 		if(needToSet)
 			nicks.set(entry, p);
+		nickinfo.insert(std::make_pair(user->nick, entry));
 		db->SendUpdate(entry, "nicks");
 		user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " has been registered to account " + std::string(entry->name));
 		return CMD_SUCCESS;
@@ -275,6 +281,12 @@ class ModuleAccountNickOwnership : public Module
 		ServerInstance->Modules->AddService(cmd_setenforce.enforce);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+	}
+
+	void ReadConfig(ConfigReadStatus&)
+	{
+		ConfigTag *tag = ServerInstance->Config->GetTag ("nickownership");
+		cmd_addnick.limit = tag->getInt ("limit", 5);
 	}
 
 	ModResult OnUserPreNick(User* user, const std::string& nick)
