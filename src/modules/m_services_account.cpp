@@ -18,17 +18,17 @@
 
 struct AccountItem
 {
-	std::string account;
+	irc::string account;
 	std::string tag;
-	AccountItem(const std::string& a) : account(a) {}
-	AccountItem(const std::string& a, const std::string& t) : account(a), tag(t) {}
+	AccountItem(const irc::string& a) : account(a) {}
+	AccountItem(const irc::string& a, const std::string& t) : account(a), tag(t) {}
 	std::string metastr()
 	{
 		if (!this)
 			return "";
 		if (tag.empty())
 			return account;
-		return account + " " + tag;
+		return std::string(account) + " " + tag;
 	}
 };
 
@@ -69,7 +69,7 @@ class ServicesAccountProvider : public AccountProvider
 		return ext.get(user);
 	}
 
-	std::string GetAccountName(User* user)
+	irc::string GetAccountName(User* user)
 	{
 		AccountItem* account = ext.get(user);
 		if (account)
@@ -85,7 +85,7 @@ class ServicesAccountProvider : public AccountProvider
 		return "";
 	}
 
-	void DoLogin(User* user, const std::string& acct, const std::string& tag)
+	void DoLogin(User* user, const irc::string& acct, const std::string& tag)
 	{
 		if (IS_LOCAL(user) && !acct.empty())
 			user->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
@@ -130,7 +130,7 @@ class ModuleServicesAccount : public Module
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
 	void OnWhois(User* source, User* dest)
 	{
-		std::string acctname = account.GetAccountName(dest);
+		irc::string acctname = account.GetAccountName(dest);
 
 		if (!acctname.empty())
 		{
@@ -152,7 +152,7 @@ class ModuleServicesAccount : public Module
 		// check if its our metadata key, and its associated with a user
 		if (dest && extname == "accountname")
 		{
-			std::string acct = account.GetAccountName(dest);
+			irc::string acct = account.GetAccountName(dest);
 			if (IS_LOCAL(dest) && !acct.empty())
 				dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
 					dest->nick.c_str(), dest->GetFullHost().c_str(), acct.c_str(), acct.c_str());

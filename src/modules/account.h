@@ -18,8 +18,8 @@ class AccountEvent : public Event
 {
  public:
 	User* const user;
-	const std::string account;
-	AccountEvent(Module* me, User* u, const std::string& name)
+	const irc::string account;
+	AccountEvent(Module* me, User* u, const irc::string& name)
 		: Event(me, "account_login"), user(u), account(name)
 	{
 	}
@@ -37,7 +37,7 @@ class AccountProvider : public DataProvider
 	 * @param user The user to query
 	 * @return The account name, or "" if not logged in
 	 */
-	virtual std::string GetAccountName(User* user) = 0;
+	virtual irc::string GetAccountName(User* user) = 0;
 	/**
 	 * Log the user in to an account.
 	 *
@@ -45,7 +45,7 @@ class AccountProvider : public DataProvider
 	 * @param name The account name to log them in with. Empty to log out.
 	 * @param tag A hidden tag on the account, for recording freshness or login method
 	 */
-	virtual void DoLogin(User* user, const std::string& name, const std::string& tag = "") = 0;
+	virtual void DoLogin(User* user, const irc::string& name, const std::string& tag = "") = 0;
 };
 
 class AccountDBEntry : public Extensible

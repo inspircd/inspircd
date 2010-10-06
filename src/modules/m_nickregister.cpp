@@ -231,7 +231,7 @@ class ModuleNickRegister : public Module
 		NickMap::iterator iter = nickinfo.find(nick);
 		if(iter == nickinfo.end())
 			return MOD_RES_PASSTHRU;
-		if (accounts && irc::string(accounts->GetAccountName(user)) == iter->second->name)
+		if (accounts && accounts->GetAccountName(user) == iter->second->name)
 			return MOD_RES_PASSTHRU;
 		if (user->registered == REG_ALL)
 		{
@@ -258,7 +258,7 @@ class ModuleNickRegister : public Module
 		NickMap::iterator iter = nickinfo.find(user->nick);
 		if(iter == nickinfo.end())
 			return MOD_RES_PASSTHRU;
-		if (!accounts || iter->second->name != irc::string(accounts->GetAccountName(user)))
+		if (!accounts || iter->second->name != accounts->GetAccountName(user))
 		{
 			user->WriteNumeric(433, "%s %s :Nickname overruled: requires login to the account '%s'",
 				user->nick.c_str(), user->nick.c_str(), iter->second->name.c_str());
