@@ -22,7 +22,7 @@ static dynamic_reference<AccountProvider> account("account");
 class AccountDBEntryImpl : public AccountDBEntry
 {
  public:
-	AccountDBEntryImpl(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0) : AccountDBEntry(nameref, ourTS, h, p, h_p_ts, cc, cc_ts, t, t_ts)
+	AccountDBEntryImpl(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0) : AccountDBEntry(nameref, ourTS, h, p, h_p_ts, cc, cc_ts)
 	{
 	}
 	virtual CullResult cull()
@@ -41,11 +41,11 @@ class AccountDBProviderImpl : public AccountDBProvider
 
 	AccountDBProviderImpl(Module* parent) : AccountDBProvider(parent) {}
 
-	AccountDBEntry* AddAccount(bool send, const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0)
+	AccountDBEntry* AddAccount(bool send, const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0)
 	{
 		if(db.find(nameref) != db.end())
 			return NULL;
-		AccountDBEntry* entry = new AccountDBEntryImpl(nameref, ourTS, h, p, h_p_ts, cc, cc_ts, t, t_ts);
+		AccountDBEntry* entry = new AccountDBEntryImpl(nameref, ourTS, h, p, h_p_ts, cc, cc_ts);
 		db.insert(std::make_pair(nameref, entry));
 		if(send)
 			SendAccount(entry);
@@ -112,16 +112,6 @@ class AccountDBProviderImpl : public AccountDBProvider
 		params.push_back(ConvToStr(entry->connectclass_ts));
 		params.push_back(":" + entry->connectclass);
 		ServerInstance->PI->SendEncapsulatedData(params);
-		params.clear();
-		params.push_back("*");
-		params.push_back("SVSACCOUNT");
-		params.push_back("SET");
-		params.push_back(entry->name);
-		params.push_back(ConvToStr(entry->ts));
-		params.push_back("tag");
-		params.push_back(ConvToStr(entry->tag_ts));
-		params.push_back(":" + entry->tag);
-		ServerInstance->PI->SendEncapsulatedData(params);
 		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
 		{
 			ExtensionItem* item = it->first;
@@ -160,11 +150,6 @@ class AccountDBProviderImpl : public AccountDBProvider
 		{
 			params.push_back(ConvToStr(entry->connectclass_ts));
 			params.push_back(":" + entry->connectclass);
-		}
-		else if(field == "tag")
-		{
-			params.push_back(ConvToStr(entry->tag_ts));
-			params.push_back(":" + entry->tag);
 		}
 		else
 		{
@@ -254,13 +239,6 @@ class CommandSvsaccount : public Command
 				iter->second->connectclass = parameters.size() > 5 ? parameters[5] : "";
 				iter->second->connectclass_ts = atol(parameters[4].c_str());
 			}
-			else if(parameters[3] == "tag")
-			{
-				if(iter->second->tag_ts > atol(parameters[4].c_str()))
-					return CMD_FAILURE;
-				iter->second->tag = parameters.size() > 5 ? parameters[5] : "";
-				iter->second->tag_ts = atol(parameters[4].c_str());
-			}
 			AccountDBModifiedEvent(creator, iter->second->name, iter->second).Send();
 		}
 		else if(parameters[0] == "ADD")
@@ -309,7 +287,7 @@ class CommandLogin : public Command
 		if(iter == db.end() || iter->second->password.empty() || ServerInstance->PassCompare(user, iter->second->password, password, iter->second->hash))
 			return false;
 		if(account)
-			account->DoLogin(user, iter->first, iter->second->tag);
+			account->DoLogin(user, iter->first, "");
 		if(!iter->second->connectclass.empty())
 			ServerInstance->ForcedClass.set(user, iter->second->connectclass);
 		return true;
@@ -404,7 +382,7 @@ class CommandAcctshow : public Command
 		user->WriteServ("NOTICE " + user->nick + " :Account: \"" + std::string(entry->name) + "\" TS: " +
 			ConvToStr(entry->ts) + " Hash type: \"" + entry->hash + "\" Hash/Password TS: " +
 			ConvToStr(entry->hash_password_ts) + " Connect class: \"" + entry->connectclass + "\" Connect class TS: " +
-			ConvToStr(entry->connectclass_ts) + " Tag: \"" + entry->tag + "\" Tag TS: " + ConvToStr(entry->tag_ts));
+			ConvToStr(entry->connectclass_ts));
 		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
 		{
 			std::string value = it->first->serialize(FORMAT_USER, entry, it->second);
@@ -474,8 +452,6 @@ class ModuleAccount : public Module
 				+ ConvToStr(i->second->hash_password_ts) + " :" + i->second->hash + " " + i->second->password);
 			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " connectclass "
 				+ ConvToStr(i->second->connectclass_ts) + " :" + i->second->connectclass);
-			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " tag "
-				+ ConvToStr(i->second->tag_ts) + " :" + i->second->tag);
 			for(Extensible::ExtensibleStore::const_iterator it = i->second->GetExtList().begin(); it != i->second->GetExtList().end(); ++it)
 			{
 				ExtensionItem* item = it->first;

@@ -53,9 +53,9 @@ class AccountDBEntry : public Extensible
  public:
 	const irc::string name;
 	const time_t ts;
-	time_t hash_password_ts, connectclass_ts, tag_ts;
-	std::string hash, password, connectclass, tag;
-	AccountDBEntry(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0) : Extensible(EXTENSIBLE_ACCOUNT), name(nameref), ts(ourTS), hash_password_ts(h_p_ts), connectclass_ts(cc_ts), tag_ts(t_ts), hash(h), password(p), connectclass(cc), tag(t)
+	time_t hash_password_ts, connectclass_ts;
+	std::string hash, password, connectclass;
+	AccountDBEntry(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0) : Extensible(EXTENSIBLE_ACCOUNT), name(nameref), ts(ourTS), hash_password_ts(h_p_ts), connectclass_ts(cc_ts), hash(h), password(p), connectclass(cc)
 	{
 	}
 	virtual CullResult cull() = 0;
@@ -98,11 +98,9 @@ class AccountDBProvider : public DataProvider
 	 * @param h_p_ts The hash/password TS of the account to add
 	 * @param cc The connect class of the account to add
 	 * @param cc_ts The TS of the connect class of the account to add
-	 * @param t The tag of the account to add
-	 * @param t_ts The TS of the tag to add
 	 * @return A pointer to the new account if it was successfully added, NULL if an account with the same name already existed
 	 */
-	virtual AccountDBEntry* AddAccount(bool send, const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0, std::string t = "", time_t t_ts = 0) = 0;
+	virtual AccountDBEntry* AddAccount(bool send, const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0) = 0;
 
 	/**
 	 * Get an account from the database

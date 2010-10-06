@@ -63,8 +63,8 @@ class DatabaseReader
 		/* ready to parse the line */
 		if (str == "") return false;
 		irc::string name;
-		time_t ts, hash_password_ts, connectclass_ts, tag_ts;
-		std::string hash, password, connectclass, tag;
+		time_t ts, hash_password_ts, connectclass_ts;
+		std::string hash, password, connectclass;
 		std::map<std::string, std::string> extensions;
 		std::string token;
 		irc::spacesepstream sep(str);
@@ -127,21 +127,6 @@ class DatabaseReader
 			return false;
 		}
 		connectclass_ts = atol(token.c_str());
-		/* read tag */
-		/* if we don't have one, database is malformed. if it's blank, GetToken returns true and fills in an empty string */
-		if (!sep.GetToken (tag))
-		{
-			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected tag");
-			return false;
-		}
-		/* read tag TS */
-		/* if we don't have one, database is malformed */
-		if (!sep.GetToken (token))
-		{
-			ServerInstance->Logs->Log ("MODULE", DEFAULT, "malformed account database - ran out of tokens, expected tag ts");
-			return false;
-		}
-		tag_ts = atol(token.c_str());
 		/* initial entry read, read next lines in a loop until end, eof means malformed database again */
 		while (1)
 		{
@@ -177,7 +162,7 @@ class DatabaseReader
 		{
 			if(entry)
 				db->RemoveAccount(false, entry);
-			entry = db->AddAccount(false, name, ts, hash, password, hash_password_ts, connectclass, connectclass_ts, tag, tag_ts);
+			entry = db->AddAccount(false, name, ts, hash, password, hash_password_ts, connectclass, connectclass_ts);
 		}
 		else if(entry->ts == ts)
 		{
@@ -191,11 +176,6 @@ class DatabaseReader
 			{
 				entry->connectclass = connectclass;
 				entry->connectclass_ts = connectclass_ts;
-			}
-			if(tag_ts > entry->tag_ts)
-			{
-				entry->tag = tag;
-				entry->tag_ts = tag_ts;
 			}
 		}
 		else
@@ -253,8 +233,7 @@ class DatabaseWriter
 		line.append("acctinfo ").append (ent->name).append (" ").append (ConvToStr(ent->ts)).append (" ")
 			.append (ent->hash).append (" ").append (ent->password).append (" ")
 			.append (ConvToStr(ent->hash_password_ts)).append (" ").append (ent->connectclass).append (" ")
-			.append (ConvToStr(ent->connectclass_ts)).append (" ").append (ent->tag).append (" ")
-			.append (ConvToStr(ent->tag_ts)).append ("\n");
+			.append (ConvToStr(ent->connectclass_ts)).append ("\n");
 		if (fputs (line.c_str ( ), fd) == EOF)
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "unable to write the account entry");
