@@ -340,7 +340,6 @@ class CommandLogout : public Command
  public:
 	CommandLogout(Module* Creator) : Command(Creator,"LOGOUT", 0, 0)
 	{
-		syntax.clear();
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

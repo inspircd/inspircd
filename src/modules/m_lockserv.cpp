@@ -27,7 +27,7 @@ class CommandLockserv : public Command
 public:
 	CommandLockserv(Module* Creator, bool& lock) : Command(Creator, "LOCKSERV", 0), locked(lock)
 	{
-		flags_needed = 'o'; syntax.clear();
+		flags_needed = 'o';
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

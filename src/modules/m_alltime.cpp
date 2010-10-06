@@ -20,7 +20,7 @@ class CommandAlltime : public Command
  public:
 	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
 	{
-		flags_needed = 'o'; syntax.clear();
+		flags_needed = 'o';
 		translation.push_back(TR_END);
 	}
 

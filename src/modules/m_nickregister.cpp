@@ -128,7 +128,6 @@ class CommandAddnick : public Command
  public:
 	CommandAddnick(Module* parent, NicksOwnedExtItem& nicks_ref) : Command(parent, "ADDNICK", 0, 0), nicks(nicks_ref)
 	{
-		syntax.clear();
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
