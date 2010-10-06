@@ -256,7 +256,7 @@ class CommandSetenforce : public Command
 	}
 };
 
-class ModuleNickRegister : public Module
+class ModuleAccountNickOwnership : public Module
 {
  public:
 	NicksOwnedExtItem nicks;
@@ -264,7 +264,7 @@ class ModuleNickRegister : public Module
 	CommandDelnick cmd_delnick;
 	CommandSetenforce cmd_setenforce;
 
-	ModuleNickRegister() : nicks("nicks", this), cmd_addnick(this, nicks), cmd_delnick(this, nicks), cmd_setenforce(this) {}
+	ModuleAccountNickOwnership() : nicks("nicks", this), cmd_addnick(this, nicks), cmd_delnick(this, nicks), cmd_setenforce(this) {}
 
 	void init()
 	{
@@ -365,4 +365,4 @@ class ModuleNickRegister : public Module
 	}
 };
 
-MODULE_INIT(ModuleNickRegister)
+MODULE_INIT(ModuleAccountNickOwnership)
