@@ -167,6 +167,7 @@ namespace irc
 		inline operator std::string&() { return value; }
 		inline operator const std::string&() const { return value; }
 		inline const char* c_str() const { return value.c_str(); }
+		inline bool empty() const { return value.empty(); }
 		inline bool operator<(const string& o) const
 		{
 			const std::string::size_type __mlen = value.length();
