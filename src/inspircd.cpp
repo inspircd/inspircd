@@ -170,8 +170,26 @@ void InspIRCd::ResetMaxBans()
  * empty buckets to be weeded out of the hash.
  * Since this is quite expensive, it's not done very often.
  */
-void InspIRCd::RehashUsersAndChans()
+void InspIRCd::DoGarbageCollect()
 {
+	UpdateTime();
+	ServerInstance->Logs->Log("core", DEBUG, "Garbage Collect started at %ld.%09ld", (long)Time(), Time_ns());
+	IntModuleList& gclist = ServerInstance->Modules->EventHandlers[I_OnGarbageCollect];
+	for(size_t i=0; i < gclist.size(); i++)
+	{
+		Module* mod = gclist[i];
+		try
+		{
+			mod->OnGarbageCollect();
+		}
+		catch (CoreException& modexcept)
+		{
+			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason());
+		}
+		UpdateTime();
+		ServerInstance->Logs->Log("core", DEBUG, "Module %s GC finished at %ld.%09ld",
+			mod->ModuleSourceFile.c_str(), (long)Time(), Time_ns());
+	}
 	user_hash* old_users = Users->clientlist;
 	user_hash* old_uuid  = Users->uuidlist;
 	chan_hash* old_chans = chanlist;
@@ -199,6 +217,8 @@ void InspIRCd::RehashUsersAndChans()
 	{
 		(**i).already_sent = 0;
 	}
+	UpdateTime();
+	ServerInstance->Logs->Log("core", DEBUG, "Garbage Collect finished at %ld.%09ld", (long)Time(), Time_ns());
 }
 
 void InspIRCd::SetSignals()
@@ -733,8 +753,7 @@ int InspIRCd::Run()
 
 			if ((TIME.tv_sec % 3600) == 0)
 			{
-				this->RehashUsersAndChans();
-				FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+				this->DoGarbageCollect();
 			}
 
 			Timers->TickTimers(TIME.tv_sec);

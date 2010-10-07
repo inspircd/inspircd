@@ -800,11 +800,10 @@ class CoreExport InspIRCd
 	 */
 	void Cleanup();
 
-	/** This copies the user and channel hash_maps into new hash maps.
-	 * This frees memory used by the hash_map allocator (which it neglects
-	 * to free, most of the time, using tons of ram)
+	/**
+	 * Run garbage collection
 	 */
-	void RehashUsersAndChans();
+	void DoGarbageCollect();
 
 	/** Resets the cached max bans value on all channels.
 	 * Called by rehash.
