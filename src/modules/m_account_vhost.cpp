@@ -44,7 +44,7 @@ class CommandAcctvhost : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDBEntry* entry = db->GetAccount(parameters[0]);
+		AccountDBEntry* entry = db->GetAccount(parameters[0], true);
 		if(!entry)
 		{
 			user->WriteServ("NOTICE " + user->nick + " :No such account");
@@ -128,7 +128,7 @@ class ModuleAccountVhost : public Module
 			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
 			if(!IS_LOCAL(acct_event.user) || acct_event.user->registered != REG_ALL)
 				return;
-			AccountDBEntry* entry = db->GetAccount(acct_event.account);
+			AccountDBEntry* entry = db->GetAccount(acct_event.account, false);
 			if(!entry)
 				return;
 			std::pair<time_t, std::string>* vhost = cmd_acctvhost.vhost.get(entry);
@@ -141,7 +141,7 @@ class ModuleAccountVhost : public Module
 	{
 		if(!account->IsRegistered(user))
 			return;
-		AccountDBEntry* entry = db->GetAccount(account->GetAccountName(user));
+		AccountDBEntry* entry = db->GetAccount(account->GetAccountName(user), false);
 		if(!entry)
 			return;
 		std::pair<time_t, std::string>* vhost = cmd_acctvhost.vhost.get(entry);

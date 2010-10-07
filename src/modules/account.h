@@ -83,6 +83,18 @@ class AccountDBModifiedEvent : public Event
 	}
 };
 
+class GetAccountByAliasEvent : public Event
+{
+ public:
+	const irc::string account;
+	AccountDBEntry* entry;
+	GetAccountByAliasEvent(Module* me, const irc::string& name)
+		: Event(me, "get_account_by_alias"), account(name), entry(NULL)
+	{
+		Send();
+	}
+};
+
 class AccountDBProvider : public DataProvider
 {
  public:
@@ -105,9 +117,10 @@ class AccountDBProvider : public DataProvider
 	/**
 	 * Get an account from the database
 	 * @param name The name of the account
+	 * @param alias Whether or not to check the given name as an alias
 	 * @return A pointer to the account, or NULL if no account by the given name exists
 	 */
-	virtual AccountDBEntry* GetAccount(irc::string name) const = 0;
+	virtual AccountDBEntry* GetAccount(irc::string name, bool alias) const = 0;
 
 	/**
 	 * Remove an account from the database and delete it

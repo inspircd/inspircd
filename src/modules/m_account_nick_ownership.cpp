@@ -36,7 +36,7 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 {
 	bool CheckCollision(irc::string accountname, irc::string nick, time_t ts)
 	{
-		AccountDBEntry* owner = db->GetAccount(nick);
+		AccountDBEntry* owner = db->GetAccount(nick, false);
 		if(owner)
 		{
 			if(owner->ts > ts)
@@ -144,12 +144,12 @@ class CommandAddnick : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
 	{
 		AccountDBEntry* entry;
-		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user))))
+		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user), false)))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
 			return CMD_FAILURE;
 		}
-		if(db->GetAccount(user->nick) || nickinfo.find(user->nick) != nickinfo.end())
+		if(db->GetAccount(user->nick, true))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is already registered");
 			return CMD_FAILURE;
@@ -190,12 +190,12 @@ class CommandDelnick : public Command
 	{
 		AccountDBEntry* entry;
 		irc::string nick = parameters.size() ? parameters[0] : user->nick;
-		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user))))
+		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user), false)))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
 			return CMD_FAILURE;
 		}
-		AccountDBEntry* owner = db->GetAccount(nick);
+		AccountDBEntry* owner = db->GetAccount(nick, false);
 		NickMap::iterator iter = nickinfo.find(nick);
 		if(owner == entry)
 		{
@@ -240,7 +240,7 @@ class CommandSetenforce : public Command
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		AccountDBEntry* entry;
-		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user))))
+		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user), false)))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
 			return CMD_FAILURE;
@@ -279,7 +279,7 @@ class ModuleAccountNickOwnership : public Module
 		ServerInstance->Modules->AddService(cmd_delnick);
 		ServerInstance->Modules->AddService(cmd_setenforce);
 		ServerInstance->Modules->AddService(cmd_setenforce.enforce);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady, I_OnUserConnect };
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady, I_OnUserConnect, I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -295,15 +295,8 @@ class ModuleAccountNickOwnership : public Module
 			return MOD_RES_PASSTHRU;
 
 		// check the new nick
-		AccountDBEntry* owner = db->GetAccount(nick);
-		if(!owner)
-		{
-			NickMap::iterator iter = nickinfo.find(nick);
-			if(iter == nickinfo.end())
-				return MOD_RES_PASSTHRU;
-			owner = iter->second;
-		}
-		if (accounts && accounts->GetAccountName(user) == owner->name)
+		AccountDBEntry* owner = db->GetAccount(nick, true);
+		if(!owner || (accounts && accounts->GetAccountName(user) == owner->name))
 			return MOD_RES_PASSTHRU;
 		std::pair<time_t, bool>* enforce = cmd_setenforce.enforce.get(owner);
 		if (!enforce || !enforce->second)
@@ -329,14 +322,9 @@ class ModuleAccountNickOwnership : public Module
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		AccountDBEntry* owner = db->GetAccount(user->nick);
+		AccountDBEntry* owner = db->GetAccount(user->nick, true);
 		if(!owner)
-		{
-			NickMap::iterator iter = nickinfo.find(user->nick);
-			if(iter == nickinfo.end())
-				return MOD_RES_PASSTHRU;
-			owner = iter->second;
-		}
+			return MOD_RES_PASSTHRU;
 		std::pair<time_t, bool>* enforce = cmd_setenforce.enforce.get(owner);
 		if (enforce && enforce->second && (!accounts || owner->name != accounts->GetAccountName(user)))
 		{
@@ -351,17 +339,22 @@ class ModuleAccountNickOwnership : public Module
 
 	virtual void OnUserConnect(LocalUser* user)
 	{
-		AccountDBEntry* owner = db->GetAccount(user->nick);
+		AccountDBEntry* owner = db->GetAccount(user->nick, true);
 		if(!owner)
-		{
-			NickMap::iterator iter = nickinfo.find(user->nick);
-			if(iter == nickinfo.end())
-				return;
-			owner = iter->second;
-		}
+			return;
 		std::pair<time_t, bool>* enforce = cmd_setenforce.enforce.get(owner);
 		if ((!enforce || !enforce->second) && (!accounts || owner->name != accounts->GetAccountName(user)))
 			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is registered to the account '" + owner->name.c_str() + "'");
+	}
+
+	void OnEvent(Event& event)
+	{
+		if(event.id == "get_account_by_alias"){
+			GetAccountByAliasEvent& e = static_cast<GetAccountByAliasEvent&>(event);
+			NickMap::iterator iter = nickinfo.find(e.account);
+			if(iter != nickinfo.end())
+				e.entry = iter->second;
+		}
 	}
 
 	void Prioritize()

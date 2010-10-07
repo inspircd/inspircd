@@ -157,7 +157,7 @@ class DatabaseReader
 			if (token == "end") break;
 			extensions.insert(std::make_pair(token, sep2.GetRemaining()));
 		}
-		AccountDBEntry* entry = db->GetAccount(name);
+		AccountDBEntry* entry = db->GetAccount(name, false);
 		if(!entry || entry->ts > ts)
 		{
 			if(entry)

@@ -47,7 +47,7 @@ class CommandRegister : public Command
 		AccountDBEntry* entry = db->AddAccount(false, user->nick, ServerInstance->Time(), hashtype);
 		if(!entry)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :An account with name " + user->nick + " already exists");
+			user->WriteServ("NOTICE " + user->nick + " :Account " + user->nick + " already exists");
 			return CMD_FAILURE;
 		}
 		entry->hash_password_ts = entry->connectclass_ts = entry->ts;
@@ -127,7 +127,7 @@ class CommandChgpass : public Command
 			user->WriteServ("NOTICE " + user->nick + " :You must specify a new password");
 			return CMD_FAILURE;
 		}
-		AccountDBEntry* entry = db->GetAccount(username);
+		AccountDBEntry* entry = db->GetAccount(username, true);
 		if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, oldpass, entry->hash))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
@@ -187,7 +187,7 @@ class CommandFchgpass : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDBEntry* entry = db->GetAccount(parameters[0]);
+		AccountDBEntry* entry = db->GetAccount(parameters[0], true);
 		if(!entry)
 		{
 			user->WriteServ("NOTICE " + user->nick + " :No such account");
@@ -267,7 +267,7 @@ class CommandDrop : public Command
 			username = parameters[0];
 			password = parameters[1];
 		}
-		AccountDBEntry* entry = db->GetAccount(username);
+		AccountDBEntry* entry = db->GetAccount(username, false);
 		if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, password, entry->hash))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
@@ -292,7 +292,7 @@ class CommandFdrop : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDBEntry* entry = db->GetAccount(parameters[0]);
+		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
 			user->WriteServ("NOTICE " + user->nick + " :No such account");
@@ -328,7 +328,7 @@ class CommandHold : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Unknown setting");
 			return CMD_FAILURE;
 		}
-		AccountDBEntry* entry = db->GetAccount(parameters[0]);
+		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
 			user->WriteServ("NOTICE " + user->nick + " :No such account");
@@ -393,7 +393,7 @@ class ModuleAccountRegister : public Module
 			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
 			if(!IS_LOCAL(acct_event.user))
 				return;
-			AccountDBEntry* entry = db->GetAccount(acct_event.account);
+			AccountDBEntry* entry = db->GetAccount(acct_event.account, false);
 			if(!entry)
 				return;
 			last_used.set(entry, ServerInstance->Time());
@@ -415,7 +415,7 @@ class ModuleAccountRegister : public Module
 			account_name = account->GetAccountName(i->second);
 			if(account_name.empty())
 				continue;
-			entry = db->GetAccount(account_name);
+			entry = db->GetAccount(account_name, false);
 			if(!entry)
 				continue;
 			last_used.set(entry, ServerInstance->Time()); // ServerInstance->Time() is inlined, so we would gain nothing by using a temporary variable

@@ -52,8 +52,14 @@ class AccountDBProviderImpl : public AccountDBProvider
 		return entry;
 	}
 
-	AccountDBEntry* GetAccount(irc::string acctname) const
+	AccountDBEntry* GetAccount(irc::string acctname, bool alias) const
 	{
+		if(alias)
+		{
+			GetAccountByAliasEvent e(creator, acctname);
+			if(e.entry)
+				return e.entry;
+		}
 		AccountDB::const_iterator res = db.find(acctname);
 		return res != db.end() ? res->second : NULL;
 	}
@@ -283,13 +289,23 @@ class CommandLogin : public Command
 
 	bool TryLogin (User* user, irc::string username, std::string password)
 	{
-		AccountDB::const_iterator iter = db.find(username);
-		if(iter == db.end() || iter->second->password.empty() || ServerInstance->PassCompare(user, iter->second->password, password, iter->second->hash))
+		AccountDBEntry* entry;
+		GetAccountByAliasEvent e(creator, username);
+		if(e.entry)
+			entry = e.entry;
+		else
+		{
+			AccountDB::const_iterator iter = db.find(username);
+			if(iter == db.end())
+				return false;
+			entry = iter->second;
+		}
+		if(entry->password.empty() || ServerInstance->PassCompare(user, entry->password, password, entry->hash))
 			return false;
 		if(account)
-			account->DoLogin(user, iter->first, "");
-		if(!iter->second->connectclass.empty())
-			ServerInstance->ForcedClass.set(user, iter->second->connectclass);
+			account->DoLogin(user, entry->name, "");
+		if(!entry->connectclass.empty())
+			ServerInstance->ForcedClass.set(user, entry->connectclass);
 		return true;
 	}
 
