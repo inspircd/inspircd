@@ -725,6 +725,7 @@ int InspIRCd::Run()
 #endif
 
 		UpdateTime();
+		Logs->Log("core", DEBUG, "Mainloop time step: %ld.%09ld", (long)Time(), Time_ns());
 
 		/* Run background module timers every few seconds
 		 * (the docs say modules shouldnt rely on accurate
@@ -750,6 +751,7 @@ int InspIRCd::Run()
 			{
 				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)TIME.tv_sec - OLDTIME);
 			}
+			OLDTIME = TIME.tv_sec;
 
 			if ((TIME.tv_sec % 3600) == 0)
 			{
@@ -764,8 +766,8 @@ int InspIRCd::Run()
 				FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME.tv_sec));
 				SNO->FlushSnotices();
 			}
-
-			OLDTIME = TIME.tv_sec;
+			UpdateTime();
+			Logs->Log("core", DEBUG, "Finished background events: %ld.%09ld", (long)Time(), Time_ns());
 		}
 
 		/* Call the socket engine to wait on the active
@@ -777,6 +779,9 @@ int InspIRCd::Run()
 		 */
 		this->SE->DispatchTrialWrites();
 		this->SE->DispatchEvents();
+
+		ServerInstance->Logs->Log("SOCKET", DEBUG, "Finished socket events: %ld.%09ld",
+			(long)ServerInstance->Time(), ServerInstance->Time_ns());
 
 		/* if any users were quit, take them out */
 		GlobalCulls.Apply();

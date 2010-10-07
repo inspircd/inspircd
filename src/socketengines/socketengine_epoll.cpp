@@ -183,8 +183,14 @@ int EPollEngine::DispatchEvents()
 {
 	socklen_t codesize = sizeof(int);
 	int errcode;
+	ServerInstance->UpdateTime();
+	ServerInstance->Logs->Log("SOCKET", DEBUG, "Waiting for events: %ld.%09ld",
+		(long)ServerInstance->Time(), ServerInstance->Time_ns());
 	int i = epoll_wait(EngineHandle, events, GetMaxFds() - 1, 1000);
 	ServerInstance->UpdateTime();
+	if (i)
+		ServerInstance->Logs->Log("SOCKET", DEBUG, "Dispatching %d socket events: %ld.%09ld",
+			i, (long)ServerInstance->Time(), ServerInstance->Time_ns());
 
 	TotalEvents += i;
 
