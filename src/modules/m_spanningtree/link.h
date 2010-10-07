@@ -40,9 +40,10 @@ class Autoconnect : public refcountbase
 	std::vector<std::string> servers;
 	unsigned long Period;
 	time_t NextConnectTime;
+	bool Enabled;
 	/** Negative == inactive */
 	int position;
-	Autoconnect(ConfigTag* Tag) : tag(Tag) {}
+	Autoconnect(ConfigTag* Tag) : tag(Tag), Enabled(true) {}
 };
 
 

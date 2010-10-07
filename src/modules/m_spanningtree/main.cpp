@@ -35,7 +35,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
-	: rconnect(module, module->Utils), rsquit(module, module->Utils),
+	: rconnect(module, module->Utils), rsquit(module, module->Utils), autoconnect(module, module->Utils),
 	svsjoin(module), svspart(module), svsnick(module), metadata(module),
 	uid(module), opertype(module), fjoin(module), fmode(module), ftopic(module),
 	fhost(module), fident(module), fname(module)
@@ -46,6 +46,7 @@ void ModuleSpanningTree::init()
 {
 	ServerInstance->Modules->AddService(commands->rconnect);
 	ServerInstance->Modules->AddService(commands->rsquit);
+	ServerInstance->Modules->AddService(commands->autoconnect);
 	ServerInstance->Modules->AddService(commands->svsjoin);
 	ServerInstance->Modules->AddService(commands->svspart);
 	ServerInstance->Modules->AddService(commands->svsnick);
@@ -305,7 +306,7 @@ void ModuleSpanningTree::AutoConnectServers(time_t curtime)
 	for (std::vector<reference<Autoconnect> >::iterator i = Utils->AutoconnectBlocks.begin(); i < Utils->AutoconnectBlocks.end(); ++i)
 	{
 		Autoconnect* x = *i;
-		if (curtime >= x->NextConnectTime)
+		if (x->Enabled && curtime >= x->NextConnectTime)
 		{
 			x->NextConnectTime = curtime + x->Period;
 			ConnectServer(x, true);

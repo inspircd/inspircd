@@ -37,6 +37,15 @@ class CommandRSQuit : public Command
         void NoticeUser(User* user, const std::string &msg);
 };
 
+class CommandAutoconnect : public Command
+{
+        SpanningTreeUtilities* Utils;	/* Utility class */
+ public:
+        CommandAutoconnect (Module* Callback, SpanningTreeUtilities* Util);
+        CmdResult Handle (const std::vector<std::string>& parameters, User *user);
+		RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+};
+
 class CommandSVSJoin : public Command
 {
  public:
@@ -127,6 +136,7 @@ class SpanningTreeCommands
  public:
 	CommandRConnect rconnect;
 	CommandRSQuit rsquit;
+	CommandAutoconnect autoconnect;
 	CommandSVSJoin svsjoin;
 	CommandSVSPart svspart;
 	CommandSVSNick svsnick;
