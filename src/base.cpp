@@ -98,7 +98,7 @@ ServiceProvider::~ServiceProvider()
 }
 
 ExtensionItem::ExtensionItem(ExtensibleType type, const std::string& Key, Module* mod)
-	: ServiceProvider(mod, Key, SERVICE_METADATA), type_id(type)
+	: ServiceProvider(mod, Key, SERVICE_METADATA), is_registered(false), type_id(type)
 {
 }
 
@@ -108,6 +108,8 @@ ExtensionItem::~ExtensionItem()
 
 void* ExtensionItem::get_raw(const Extensible* container) const
 {
+	if (!is_registered)
+		throw CoreException("Attempting to use an unregistered Extensible!");
 	if (container->type_id != type_id)
 		throw CoreException("Type mismatch in Extensible object");
 	Extensible::ExtensibleStore::const_iterator i =
@@ -119,6 +121,8 @@ void* ExtensionItem::get_raw(const Extensible* container) const
 
 void* ExtensionItem::set_raw(Extensible* container, void* value)
 {
+	if (!is_registered)
+		throw CoreException("Attempting to use an unregistered Extensible!");
 	if (container->type_id != type_id)
 		throw CoreException("Type mismatch in Extensible object");
 	std::pair<Extensible::ExtensibleStore::iterator,bool> rv =
@@ -137,6 +141,8 @@ void* ExtensionItem::set_raw(Extensible* container, void* value)
 
 void* ExtensionItem::unset_raw(Extensible* container)
 {
+	if (!is_registered)
+		throw CoreException("Attempting to use an unregistered Extensible!");
 	if (container->type_id != type_id)
 		throw CoreException("Type mismatch in Extensible object");
 	Extensible::ExtensibleStore::iterator i = container->extensions.find(this);
@@ -149,6 +155,7 @@ void* ExtensionItem::unset_raw(Extensible* container)
 
 void ExtensionManager::Register(ExtensionItem* item)
 {
+	item->is_registered = true;
 	types.insert(std::make_pair(item->name, item));
 }
 

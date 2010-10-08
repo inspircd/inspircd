@@ -330,6 +330,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	ServerInstance = this;
 
 	Extensions.Register(&NICKForced);
+	Extensions.Register(&RedirectJoin);
+	Extensions.Register(&ForcedClass);
 	Extensions.Register(&OperQuit);
 
 	FailedPortList pl;
@@ -780,6 +782,7 @@ int InspIRCd::Run()
 		this->SE->DispatchTrialWrites();
 		this->SE->DispatchEvents();
 
+		UpdateTime();
 		ServerInstance->Logs->Log("SOCKET", DEBUG, "Finished socket events: %ld.%09ld",
 			(long)ServerInstance->Time(), ServerInstance->Time_ns());
 

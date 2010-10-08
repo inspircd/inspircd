@@ -23,6 +23,7 @@ enum ExtensibleType {
 class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 {
  public:
+	bool is_registered;
 	const ExtensibleType type_id;
 	ExtensionItem(ExtensibleType type, const std::string& key, Module* owner);
 	virtual ~ExtensionItem();
