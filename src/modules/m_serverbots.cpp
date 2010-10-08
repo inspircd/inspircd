@@ -159,8 +159,9 @@ class BotData
 	{
 		AliasFormatSubst subst(text);
 		user->PopulateInfoMap(subst.info);
+		std::string bothost = bot->GetFullHost();
 		subst.info["bot"] = bot->nick;
-		subst.info["fullbot"] = bot->GetFullHost();
+		subst.info["fullbot"] = bothost;
 		std::string result = subst.format(format);
 
 		irc::tokenstream ss(result);
@@ -168,6 +169,13 @@ class BotData
 		std::string command, token;
 
 		ss.GetToken(command);
+		if (irc::string(command) == "BOTNOTICE")
+		{
+			ss.GetToken(token);
+			user->Write(":%s NOTICE %s :%s", bothost.c_str(), user->nick.c_str(), token.c_str());
+			return;
+		}
+
 		while (ss.GetToken(token) && (pars.size() <= MAXPARAMETERS))
 		{
 			pars.push_back(token);

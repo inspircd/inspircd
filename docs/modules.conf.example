@@ -1673,7 +1673,7 @@
 #<botcmd bot="help" replace="JOIN #help&nl;PRIVMSG @#help :$0-">
 # A ChanServ interface to the modular service replacements:
 #<bot nick="ChanServ" ident="services" host="services.omega.org.za" name="Channel Services">
-#<botcmd bot="ChanServ" text="help" replace="ECHO ::$fullbot NOTICE $nick :Commands are: REGISTER DROP ACCESSADD ACCESSDEL ACCESSLIST">
+#<botcmd bot="ChanServ" text="help" replace="BOTNOTICE :Commands are: REGISTER DROP ACCESSADD ACCESSDEL ACCESSLIST">
 #<botcmd bot="ChanServ" text="register" replace="MODE $1 +Z registered=$2">
 #<botcmd bot="ChanServ" text="drop" replace="MODE $1 -Z registered">
 #<botcmd bot="ChanServ" text="accessadd" replace="MODE $1 +Z autoop=$2">
