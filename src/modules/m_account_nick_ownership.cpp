@@ -21,6 +21,11 @@ typedef std::map<irc::string, AccountDBEntry*> NickMap;
 
 static NickMap nickinfo;
 
+static void RemoveNick(const irc::string& nick)
+{
+	nickinfo.erase(nick);
+}
+
 struct NickTSItem
 {
 	irc::string nick;
@@ -147,6 +152,11 @@ class CommandAddnick : public Command
 		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user), false)))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
+			return CMD_FAILURE;
+		}
+		if (!ServerInstance->IsNick(user->nick.c_str(), ServerInstance->Config->Limits.NickMax))
+		{
+			user->WriteServ("NOTICE " + user->nick + " :You may not register your UID");
 			return CMD_FAILURE;
 		}
 		if(db->GetAccount(user->nick, true))
@@ -351,9 +361,26 @@ class ModuleAccountNickOwnership : public Module
 	{
 		if(event.id == "get_account_by_alias"){
 			GetAccountByAliasEvent& e = static_cast<GetAccountByAliasEvent&>(event);
+			if(e.entry)
+				return; // Some other module already populated the event
 			NickMap::iterator iter = nickinfo.find(e.account);
 			if(iter != nickinfo.end())
+			{
 				e.entry = iter->second;
+				NicksOwned* ext = nicks.get(iter->second);
+				if(!ext)
+					throw ModuleException("An entry in nickinfo is incorrect");
+
+				std::vector<NickTSItem>::const_iterator i;
+				for(i = ext->second.begin(); i != ext->second.end(); ++i)
+					if(i->nick == e.account)
+						break;
+
+				if(i == ext->second.end())
+					throw ModuleException("An entry in nickinfo is incorrect");
+				e.alias_ts = i->ts;
+				e.RemoveAliasImpl = &RemoveNick;
+			}
 		}
 	}
 

@@ -200,20 +200,28 @@ class CommandSvsaccount : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
+		GetAccountByAliasEvent e(creator, parameters[1]);
 		AccountDB::iterator iter = prov.db.find(parameters[1]);
+		time_t ts = atol(parameters[2].c_str());
 		if(parameters[0] == "SET")
 		{
 			if(parameters.size() < 5)
 				return CMD_INVALID; /* this form of the command needs at least 5 parameters */
 			if(iter == prov.db.end())
 				return CMD_FAILURE; /* if this ever happens, we're desynced */
-			if(iter->second->ts < atol(parameters[2].c_str()))
+			if(e.entry)
+			{
+				if(e.alias_ts < ts)
+					return CMD_FAILURE;
+				e.RemoveAlias();
+			}
+			if(iter->second->ts < ts)
 				return CMD_FAILURE; /* we have an older account with the same name */
-			if(iter->second->ts > atol(parameters[2].c_str()))
+			if(iter->second->ts > ts)
 			{
 				/* Nuke the entry. */
 				prov.RemoveAccount(false, iter->second);
-				AccountDBEntry* entry = new AccountDBEntryImpl(parameters[1], atol(parameters[2].c_str()));
+				AccountDBEntry* entry = new AccountDBEntryImpl(parameters[1], ts);
 				iter = prov.db.insert(std::make_pair(parameters[1], entry)).first;
 			}
 			ExtensionItem* ext = ServerInstance->Extensions.GetItem(parameters[3]);
@@ -249,14 +257,20 @@ class CommandSvsaccount : public Command
 		}
 		else if(parameters[0] == "ADD")
 		{
-			if(iter == prov.db.end() || iter->second->ts > atol(parameters[2].c_str()))
+			if(e.entry)
+			{
+				if(e.alias_ts < ts)
+					return CMD_FAILURE;
+				e.RemoveAlias();
+			}
+			if(iter == prov.db.end() || iter->second->ts > ts)
 			{
 				if(iter != prov.db.end())
 					prov.RemoveAccount(false, iter->second);
-				AccountDBEntry* entry = new AccountDBEntryImpl(parameters[1], atol(parameters[2].c_str()));
+				AccountDBEntry* entry = new AccountDBEntryImpl(parameters[1], ts);
 				iter = prov.db.insert(std::make_pair(parameters[1], entry)).first;
 			}
-			else if(iter->second->ts < atol(parameters[2].c_str()))
+			else if(iter->second->ts < ts)
 				return CMD_FAILURE;
 			AccountDBModifiedEvent(creator, iter->second->name, iter->second).Send();
 		}
@@ -264,7 +278,7 @@ class CommandSvsaccount : public Command
 		{
 			if(iter != prov.db.end())
 			{
-				if(iter->second->ts < atol(parameters[2].c_str()))
+				if(iter->second->ts < ts)
 					return CMD_FAILURE;
 				prov.RemoveAccount(false, iter->second);
 				AccountDBModifiedEvent(creator, parameters[1], NULL).Send();

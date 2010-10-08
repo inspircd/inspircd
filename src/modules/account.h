@@ -88,10 +88,16 @@ class GetAccountByAliasEvent : public Event
  public:
 	const irc::string account;
 	AccountDBEntry* entry;
+	time_t alias_ts;
+	void (*RemoveAliasImpl)(const irc::string&);
 	GetAccountByAliasEvent(Module* me, const irc::string& name)
-		: Event(me, "get_account_by_alias"), account(name), entry(NULL)
+		: Event(me, "get_account_by_alias"), account(name), entry(NULL), alias_ts(0), RemoveAliasImpl(NULL)
 	{
 		Send();
+	}
+	inline void RemoveAlias()
+	{
+		RemoveAliasImpl(account);
 	}
 };
 
