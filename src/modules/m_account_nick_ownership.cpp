@@ -41,7 +41,7 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 		{
 			if(owner->ts > ts)
 			{
-				db->RemoveAccount(true, owner);
+				db->RemoveAccount(false, owner);
 				return false;
 			}
 			return true;
