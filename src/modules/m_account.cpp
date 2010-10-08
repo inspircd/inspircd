@@ -402,13 +402,20 @@ class CommandAcctshow : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDB::const_iterator iter = db.find(parameters[0]);
-		if(iter == db.end())
+		AccountDBEntry* entry;
+		GetAccountByAliasEvent e(creator, parameters[0]);
+		if(e.entry)
+			entry = e.entry;
+		else
 		{
-			user->WriteServ("NOTICE " + user->nick + " :No such account");
-			return CMD_FAILURE;
+			AccountDB::const_iterator iter = db.find(parameters[0]);
+			if(iter == db.end())
+			{
+				user->WriteServ("NOTICE " + user->nick + " :No such account");
+				return CMD_FAILURE;
+			}
+			entry = iter->second;
 		}
-		AccountDBEntry* entry = iter->second;
 		user->WriteServ("NOTICE " + user->nick + " :Account: \"" + std::string(entry->name) + "\" TS: " +
 			ConvToStr(entry->ts) + " Hash type: \"" + entry->hash + "\" Hash/Password TS: " +
 			ConvToStr(entry->hash_password_ts) + " Connect class: \"" + entry->connectclass + "\" Connect class TS: " +
