@@ -127,7 +127,7 @@ class CommandChgpass : public Command
 			user->WriteServ("NOTICE " + user->nick + " :You must specify a new password");
 			return CMD_FAILURE;
 		}
-		AccountDBEntry* entry = db->GetAccount(username, true);
+		AccountDBEntry* entry = db->GetAccount(username, false);
 		if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, oldpass, entry->hash))
 		{
 			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
@@ -187,7 +187,7 @@ class CommandFchgpass : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDBEntry* entry = db->GetAccount(parameters[0], true);
+		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
 			user->WriteServ("NOTICE " + user->nick + " :No such account");

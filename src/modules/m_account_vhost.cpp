@@ -44,7 +44,7 @@ class CommandAcctvhost : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDBEntry* entry = db->GetAccount(parameters[0], true);
+		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
 			user->WriteServ("NOTICE " + user->nick + " :No such account");
