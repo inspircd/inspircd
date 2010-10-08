@@ -21,11 +21,6 @@ typedef std::map<irc::string, AccountDBEntry*> NickMap;
 
 static NickMap nickinfo;
 
-static void RemoveNick(const irc::string& nick)
-{
-	nickinfo.erase(nick);
-}
-
 struct NickTSItem
 {
 	irc::string nick;
@@ -137,12 +132,32 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 	}
 };
 
+static NicksOwnedExtItem* nicks_ext;
+
+static void RemoveNick(const irc::string& nick)
+{
+	NickMap::iterator i = nickinfo.find(nick);
+	AccountDBEntry* entry = i->second;
+	NicksOwned* ext = nicks_ext->get(entry);
+	if(!ext)
+		throw ModuleException("An entry in nickinfo is incorrect");
+
+	std::vector<NickTSItem>::iterator iter;
+	for(iter = ext->second.begin(); iter != ext->second.end(); ++iter)
+		if(iter->nick == nick)
+			break;
+
+	if(iter == ext->second.end())
+		throw ModuleException("An entry in nickinfo is incorrect");
+	ext->second.erase(iter);
+	nickinfo.erase(i);
+}
+
 class CommandAddnick : public Command
 {
-	NicksOwnedExtItem& nicks;
  public:
 	unsigned int limit;
-	CommandAddnick(Module* parent, NicksOwnedExtItem& nicks_ref) : Command(parent, "ADDNICK", 0, 0), nicks(nicks_ref)
+	CommandAddnick(Module* parent) : Command(parent, "ADDNICK", 0, 0)
 	{
 	}
 
@@ -164,7 +179,7 @@ class CommandAddnick : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " is already registered");
 			return CMD_FAILURE;
 		}
-		NicksOwned* p = nicks.get(entry);
+		NicksOwned* p = nicks_ext->get(entry);
 		bool needToSet = false;
 		if(!p)
 		{
@@ -179,7 +194,7 @@ class CommandAddnick : public Command
 		p->first = ServerInstance->Time();
 		p->second.push_back(NickTSItem(user->nick, ServerInstance->Time()));
 		if(needToSet)
-			nicks.set(entry, p);
+			nicks_ext->set(entry, p);
 		nickinfo.insert(std::make_pair(user->nick, entry));
 		db->SendUpdate(entry, "nicks");
 		user->WriteServ("NOTICE " + user->nick + " :Nick " + user->nick + " has been registered to account " + std::string(entry->name));
@@ -189,9 +204,8 @@ class CommandAddnick : public Command
 
 class CommandDelnick : public Command
 {
-	NicksOwnedExtItem& nicks;
  public:
-	CommandDelnick(Module* parent, NicksOwnedExtItem& nicks_ref) : Command(parent, "DELNICK", 0, 1), nicks(nicks_ref)
+	CommandDelnick(Module* parent) : Command(parent, "DELNICK", 0, 1)
 	{
 		syntax = "[nick]";
 	}
@@ -218,7 +232,7 @@ class CommandDelnick : public Command
 			return CMD_FAILURE;
 		}
 		nickinfo.erase(iter);
-		NicksOwned* p = nicks.get(entry);
+		NicksOwned* p = nicks_ext->get(entry);
 		if(!p)
 			throw ModuleException("An entry in nickinfo is incorrect");
 		p->first = ServerInstance->Time();
@@ -280,7 +294,10 @@ class ModuleAccountNickOwnership : public Module
 	CommandDelnick cmd_delnick;
 	CommandSetenforce cmd_setenforce;
 
-	ModuleAccountNickOwnership() : nicks("nicks", this), cmd_addnick(this, nicks), cmd_delnick(this, nicks), cmd_setenforce(this) {}
+	ModuleAccountNickOwnership() : nicks("nicks", this), cmd_addnick(this), cmd_delnick(this), cmd_setenforce(this)
+	{
+		nicks_ext = &nicks;
+	}
 
 	void init()
 	{
