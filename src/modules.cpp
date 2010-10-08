@@ -57,6 +57,7 @@ Module::~Module()
 {
 }
 
+void		Module::early_init() { }
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(LocalUser*) { }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }

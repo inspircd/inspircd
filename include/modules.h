@@ -407,7 +407,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	Module();
 
-	/** Configuration reading hook. Called just before init() on module load, and on a rehash.
+	/** Module setup. Add the hooks you need here; without this, your module won't do anything.
+	 * \exception ModuleException Throwing this class, or any class derived from ModuleException, causes loading of the module to abort.
+	 */
+	virtual void early_init();
+
+	/** Configuration reading hook. Called after early_init() and before init() on module load, and on a rehash.
 	 */
 	virtual void ReadConfig(ConfigReadStatus&);
 

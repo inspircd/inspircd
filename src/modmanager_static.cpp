@@ -96,6 +96,7 @@ bool ModuleManager::Load(const std::string& name, bool defer, ModuleState* state
 		else
 		{
 			ConfigReadStatus conf(REHASH_LOAD);
+			mod->early_init();
 			mod->ReadConfig(conf);
 
 			if (conf.fatal)
@@ -212,6 +213,7 @@ void ModuleManager::LoadAll()
 		try
 		{
 			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", mod->ModuleSourceFile.c_str());
+			mod->early_init();
 			mod->ReadConfig(conf);
 			mod->init();
 		}

@@ -203,10 +203,14 @@ class ModuleServerBots : public Module
  public:
 	ModuleServerBots() : dataExt(EXTENSIBLE_USER, "serverbot", this), recursing(false), botID(0) {}
 
+	void early_init()
+	{
+		ServerInstance->Modules->AddService(dataExt);
+	}
+
 	void init()
 	{
 		ServerInstance->Modules->Attach(I_OnUserMessage, this);
-		ServerInstance->Modules->AddService(dataExt);
 	}
 
 	Version GetVersion()
