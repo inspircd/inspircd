@@ -1,0 +1,54 @@
+# Example configuration for builtin services (2.1)
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel registration module: Adds support for ircd-side channel
+# registration
+# Note: This module conflicts with the channel registered mode in
+# m_account_flags.  If you want to use both modules, you should set
+# <modeletters:c_registered> in inspircd.conf to "" to fix the conflict
+<module name="m_chanregister.so">
+
+#-#-#-#-#-#-#-#-# CHANNEL REGISTRATION CONFIGURATION -#-#-#-#-#-#-#-#-#
+# prefix - The minimum rank needed to register an unregistered channel
+# expiretime - The amount of time to retain an empty registered channel
+#<chanregister prefix="op" expiretime="21d">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel state storage module: stores +P and +r (chanregister) channels
+# so that their state (topic/modes) is not lost on ircd restart
+#
+<module name="m_flatfile_channels.so">
+#-#-#-#-#-#-#- FLATFILE CHANNEL DATABASE CONFIGURATION -#-#-#-#-#-#-#-#
+# dbfile - The file to store the channels in
+# storeregistered - Whether or not to store registered channels
+# storepermanent - Whether or not to store permanent channels
+<chandb dbfile="data/channels.db" storeregistered="yes" storepermanent="no">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel state storage module: stores channels in an SQL database and
+# restores their state on ircd restart. 
+#
+# Note that this replaces m_flatfile_channels.so; don't load both of them.
+#
+#<module name="m_sql_channels.so">
+#<chandb table="channels" dbid="db1">
+# chandb:table - the table name in the database. Must contain columns:
+#   name - channel name
+#   ts - channel timestamp (integer)
+#   modes - channel modes, long-form list (includes bans, can get very long)
+#   topic - channel topic (may be null)
+#   topicset - setter of the topic (may be null)
+#   topicts - channel topic timestamp (numeric, may be null)
+# chandb:dbid - The ID from a <database> tag
+
+<module name="m_serverbots.so">
+# A ChanServ interface to the modular service replacements:
+#<bot nick="ChanServ" ident="services" host="services.omega.org.za" name="Channel Services">
+#<botcmd bot="ChanServ" text="help" replace="BOTNOTICE :Commands are: REGISTER DROP ACCESSADD ACCESSDEL ACCESSLIST">
+#<botcmd bot="ChanServ" text="register" replace="MODE $1 +Z registered=$2">
+#<botcmd bot="ChanServ" text="drop" replace="MODE $1 -Z registered">
+#<botcmd bot="ChanServ" text="accessadd" replace="MODE $1 +Z autoop=$2">
+#<botcmd bot="ChanServ" text="accessdel" replace="MODE $1 -Z autoop=$2">
+#<botcmd bot="ChanServ" text="accesslist" replace="MODE $1 +Z autoop">
+
+

@@ -65,127 +65,8 @@
 #<module name="m_abbreviation.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Alias module: Allows you to define server-side command aliases
+# Alias module: see examples in docs/aliases
 #<module name="m_alias.so">
-#
-# Fantasy settings:
-#
-#<fantasy prefix="!" allowbots="no">
-#
-# prefix:
-#  Set the prefix for in-channel aliases (fantasy commands) to the
-#  specified character. If not set, the default is "!".
-# allowbots:
-#  If this is set to no, +B clients will not be able to use fantasy
-#  commands. If not set, the default is no.
-#
-#-#-#-#-#-#-#-#-#-#-#-  ALIAS DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# If you have the m_alias.so module loaded, you may also define       #
-# aliases as shown below. They are commonly used to provide shortcut  #
-# commands to services, however they are not limited to just this use.#
-# An alias tag requires the following values to be defined in it:     #
-#                                                                     #
-# text        -      The text to detect as the actual command line,   #
-#                    Cant contain spaces, but case insensitive.       #
-#                    You may have multiple aliases with the same      #
-#                    command name (text="" value), however the first  #
-#                    found will be executed if its format value is    #
-#                    matched, or it has no format value. Aliases are  #
-#                    read from the top of the file to the bottom.     #
-#                                                                     #
-# usercommand -      If this is true, the alias can be run simply as  #
-#                    /aliasname. Defaults to true.                    #
-#                                                                     #
-# channelcommand -   If this is true, the alias can be used as an     #
-#                    in-channel alias or 'fantasy command', prefixed  #
-#                    by the fantasy prefix character, !aliasname by   #
-#                    default. Defaults to false.                      #
-#                                                                     #
-# format      -      If this is defined, the parameters of the alias  #
-#                    must match this glob pattern. For example if you #
-#                    want the first parameter to start with a # for   #
-#                    the alias to be executed, set format="#*" in the #
-#                    alias definition. Note that the :'s which are    #
-#                    part of IRC formatted lines will be preserved    #
-#                    for matching of this text. This value is         #
-#                    optional.                                        #
-#                                                                     #
-# replace     -      The text to replace 'text' with. Usually this    #
-#                    will be "PRIVMSG ServiceName :$2-" or similar.   #
-#                    You may use the variables $1, $2, ... in the     #
-#                    replace string, which refer to the words in the  #
-#                    the original string typed by the user. You can   #
-#                    also use $1- to refer to the first word onward.  #
-#                    For example, "foo bar baz qux quz" will cause    #
-#                    $3- to hold "baz qux quz" and $2 to hold "bar".  #
-#                    You may also use any special variables defined   #
-#                    for users ($nick, $host, $ip, $gecos, $ident,    #
-#                    $server, $uuid), and $chan if a channel command. #
-#                    Separate multiple commands with a newline (which #
-#                    can be written in the file literally, or encoded #
-#                    as &nl; or \n depending on the config format).   #
-#                                                                     #
-# requires    -      If you provide a value for 'requires' this means #
-#                    the given nickname MUST be online for the alias  #
-#                    to successfully trigger. If they are not, then   #
-#                    the user receives a 'no such nick' 401 numeric.  #
-#                                                                     #
-# uline       -      Defining this value with 'yes', 'true' or '1'    #
-#                    will ensure that the user given in 'requires'    #
-#                    must also be on a u-lined server, as well as     #
-#                    actually being on the network. If the user is    #
-#                    online, but not on a u-lined server, then an     #
-#                    oper-alert is sent out as this is possibly signs #
-#                    of a user trying to impersonate a service.       #
-#                                                                     #
-# operonly    -      Defining this value, with a value of 'yes', '1'  #
-#                    or true will make the alias oper only. If a non- #
-#                    oper attempts to use the alias, it will appear   #
-#                    to not exist.                                    #
-#                                                                     #
-#<alias text="NICKSERV" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
-#<alias text="CHANSERV" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
-#<alias text="OPERSERV" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
-#<alias text="BOTSERV" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
-#<alias text="HOSTSERV" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
-#<alias text="MEMOSERV" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
-#<alias text="NS" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
-#<alias text="CS" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
-#<alias text="OS" replace="PRIVMSG OperServ :$2-" requires="OperServ" uline="yes" operonly="yes">
-#<alias text="BS" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
-#<alias text="HS" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
-#<alias text="MS" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
-#
-# An example of using the format value to create an alias with two
-# different behaviours depending on the format of the parameters.
-#
-#<alias text="ID" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3"
-#  requires="ChanServ" uline="yes">
-#
-#<alias text="ID" replace="PRIVMSG NickServ :IDENTIFY $2"
-#  requires="NickServ" uline="yes">
-#
-# This alias fixes a glitch in xchat 2.6.x and above and the way it
-# assumes IDENTIFY must be prefixed by a colon (:) character. It should
-# be placed ABOVE the default NICKSERV alias (the first example) listed
-# above.
-#
-#<alias text="NICKSERV" format=":IDENTIFY *" replace="PRIVMSG NickServ :IDENTIFY $3-"
-#  requires="NickServ" uline="yes">
-#
-# You may also add aliases to trigger based on something said in a
-# channel, aka 'fantasy' commands, configured in the same manner as any
-# other alias, with usercommand="no" and channelcommand="yes" The
-# command must be preceded by the fantasy prefix when used.
-#
-#<alias text="CS" usercommand="no" channelcommand="yes"
-#  replace="PRIVMSG ChanServ :$1 $chan $2-" requires="ChanServ" uline="yes">
-#
-# This would be used as "!cs <command> <options>", with the channel
-# being automatically inserted after the command in the message to
-# ChanServ, assuming the fantasy prefix is "!".
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Allowinvite module: Gives channel mode +A to allow all users to use
 # /invite, and extban A to deny invite from specific masks
@@ -666,49 +547,6 @@
 #
 #A useless "vanity" rank:
 #  <customprefix name="halfvoice" letter="V" prefix="-" rank="2" ranktoset="20000">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel registration module: Adds support for ircd-side channel
-# registration
-# Note: This module conflicts with the channel registered mode in
-# m_account_flags.  If you want to use this module, you should set
-# <modeletters:c_registered> in inspircd.conf to "" to fix the conflict
-#
-#<module name="m_chanregister.so">
-#-#-#-#-#-#-#-#-# CHANNEL REGISTRATION CONFIGURATION -#-#-#-#-#-#-#-#-#
-# prefix - The minimum rank needed to register an unregistered channel
-# expiretime - The amount of time to retain an empty registered channel
-#<chanregister prefix="op" expiretime="21d">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel state storage module: stores +P and +r (chanregister) channels
-# so that their state (topic/modes) is not lost on ircd restart
-#
-#<module name="m_flatfile_channels.so">
-#-#-#-#-#-#-#- FLATFILE CHANNEL DATABASE CONFIGURATION -#-#-#-#-#-#-#-#
-# dbfile - The file to store the channels in
-# storeregistered - Whether or not to store registered channels
-# storepermanent - Whether or not to store permanent channels
-# Note that even if storeregistered and storepermanent are both
-# enabled, a channel that is both registered and permanent will still
-# only be stored once.
-#<chandb dbfile="data/channels.db" storeregistered="yes" storepermanent="no">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel state storage module: stores channels in an SQL database and
-# restores their state on ircd restart. 
-#
-#<module name="m_sql_channels.so">
-#<chandb table="channels" dbid="db1">
-# chandb:table - the table name in the database. Must contain columns:
-#   name - channel name
-#   ts - channel timestamp (integer)
-#   modes - channel modes, long-form list (includes bans, can get very long)
-#   topic - channel topic (may be null)
-#   topicset - setter of the topic (may be null)
-#   topicts - channel topic timestamp (numeric, may be null)
-# chandb:dbid - The ID from a <database> tag
-
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted
@@ -1603,39 +1441,6 @@
 #<module name="m_setidle.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Services support module: Adds account tracking support.
-#
-# This module implements the 'identified' state via account names (AC)
-# and is similar in operation to the way asuka and ircu handle services.
-#
-# Prior to 2.1, the functionality of m_account_flags and m_account_modes
-# was included in this module; you probably want to load those too.
-#<module name="m_services_account.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Legacy registration flags module
-# This offers +r for users and channels to mark them as identified
-# seperately from the idea of a master account, which can be useful for
-# services which are heavily nick-as-account centric.
-#
-# If your services package does not use +r, this module is not required.
-#<module name="m_account_flags.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# User and channel modes related to accounts.
-#
-# User mode +R      unidentified users cannot message
-# Channel mode +R   unidentified users cannot join
-# Channel mode +M   unidentified users cannot message
-# Extban R:         match users based on account name
-# 
-# Note that the extban "M:" from 1.2 can be implemented using muteban
-# and extban R like "+b m:R:name"
-#
-# If you use accounts, you will likely find this module useful.
-#<module name="m_account_modes.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Sethost module: Adds the /SETHOST command
 # This module is oper-only.
 # To use, SETHOST must be in one of your oper class blocks.
@@ -1671,14 +1476,7 @@
 # A "help" bot that forwards messages to ops in #help
 #<bot nick="help">
 #<botcmd bot="help" replace="JOIN #help&nl;PRIVMSG @#help :$0-">
-# A ChanServ interface to the modular service replacements:
-#<bot nick="ChanServ" ident="services" host="services.omega.org.za" name="Channel Services">
-#<botcmd bot="ChanServ" text="help" replace="BOTNOTICE :Commands are: REGISTER DROP ACCESSADD ACCESSDEL ACCESSLIST">
-#<botcmd bot="ChanServ" text="register" replace="MODE $1 +Z registered=$2">
-#<botcmd bot="ChanServ" text="drop" replace="MODE $1 -Z registered">
-#<botcmd bot="ChanServ" text="accessadd" replace="MODE $1 +Z autoop=$2">
-#<botcmd bot="ChanServ" text="accessdel" replace="MODE $1 -Z autoop=$2">
-#<botcmd bot="ChanServ" text="accesslist" replace="MODE $1 +Z autoop">
+# See services/builtin.conf.example for more examples
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Shorthand listmodes: Allows shorthand listmodes
