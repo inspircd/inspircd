@@ -18,9 +18,8 @@
 <alias text="HS" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
 <alias text="LS" replace="PRIVMSG ALIS :$2-" requires="ALIS" uline="yes">
 
-# /id [channel] <password>
-# Identify for a channel or nickname
-<alias text="ID" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3" requires="ChanServ" uline="yes">
+# /id <password>
+# Identify for a nickname
 <alias text="ID" format="*" replace="PRIVMSG NickServ :IDENTIFY $2-" requires="NickServ" uline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -32,15 +31,6 @@
 # Prior to 2.1, the functionality of m_account_flags and m_account_modes
 # was included in this module; you probably want to load those too.
 <module name="m_services_account.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Legacy registration flags module
-# This offers +r for users and channels to mark them as identified
-# seperately from the idea of a master account, which can be useful for
-# services which are heavily nick-as-account centric.
-#
-# If your services package does not use +r, this module is not required.
-<module name="m_account_flags.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # User and channel modes related to accounts.
@@ -55,4 +45,3 @@
 #
 # If you use accounts, you will likely find this module useful.
 <module name="m_account_modes.so">
-
