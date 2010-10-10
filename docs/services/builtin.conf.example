@@ -1,6 +1,45 @@
 # Example configuration for builtin services (2.1)
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Account system base module: Adds support for ircd-side account
+# tracking
+<module name="m_account.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Account registration module: Allows users to register accounts
+<module name="m_account_register.so">
+
+#-#-#-#-#-#-#-#-# ACCOUNT REGISTRATION CONFIGURATION -#-#-#-#-#-#-#-#-#
+# hashtype - The hash type to store users' passwords with
+# expiretime - The amount of time to retain an unused account
+<acctregister hashtype="hmac-sha256" expiretime="21d">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Account listing module: Allows accounts to be listed and viewed
+<module name="m_account_list.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Account virtual host module: Allows vhosts to be set on accounts
+<module name="m_account_vhost.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Nick ownership module: Allows accounts to own and enforce nicks
+<module name="m_account_nick_ownership.so">
+
+#-#-#-#-#-#-#-#-#-# NICK OWNERSHIP CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+# limit - The maximum number of nicks an account may register
+<nickownership limit="5">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Account state storage module: stores registered accounts so that
+# their state is not lost on ircd restart
+#
+<module name="m_flatfile_account.so">
+#-#-#-#-#-#-#- FLATFILE ACCOUNT DATABASE CONFIGURATION -#-#-#-#-#-#-#-#
+# dbfile - The file to store the channels in
+<flatfileacct dbfile="data/accounts.db">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel registration module: Adds support for ircd-side channel
 # registration
 # Note: This module conflicts with the channel registered mode in
