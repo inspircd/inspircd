@@ -366,81 +366,15 @@ class CommandLogout : public Command
 	}
 };
 
-/** Handle /ACCTLIST
- */
-class CommandAcctlist : public Command
-{
-	AccountDB& db;
- public:
-	CommandAcctlist(Module* Creator, AccountDB& db_ref) : Command(Creator,"ACCTLIST", 0, 1), db(db_ref)
-	{
-		flags_needed = 'o'; syntax = "[pattern]";
-	}
-
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
-	{
-		// XXX: Use numerics instead of NOTICEs?
-		bool displayAll = parameters.empty() || parameters[0] == "*";
-		for(AccountDB::const_iterator iter = db.begin(); iter != db.end(); ++iter)
-			if(displayAll || InspIRCd::Match(iter->second->name, parameters[0]))
-				user->WriteServ("NOTICE " + user->nick + " :" + std::string(iter->second->name));
-		user->WriteServ("NOTICE " + user->nick + " :End of account list");
-		return CMD_SUCCESS;
-	}
-};
-
-/** Handle /ACCTSHOW
- */
-class CommandAcctshow : public Command
-{
-	AccountDB& db;
- public:
-	CommandAcctshow(Module* Creator, AccountDB& db_ref) : Command(Creator,"ACCTSHOW", 1, 1), db(db_ref)
-	{
-		flags_needed = 'o'; syntax = "<account name>";
-	}
-
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
-	{
-		AccountDBEntry* entry;
-		GetAccountByAliasEvent e(creator, parameters[0]);
-		if(e.entry)
-			entry = e.entry;
-		else
-		{
-			AccountDB::const_iterator iter = db.find(parameters[0]);
-			if(iter == db.end())
-			{
-				user->WriteServ("NOTICE " + user->nick + " :No such account");
-				return CMD_FAILURE;
-			}
-			entry = iter->second;
-		}
-		user->WriteServ("NOTICE " + user->nick + " :Account: \"" + std::string(entry->name) + "\" TS: " +
-			ConvToStr(entry->ts) + " Hash type: \"" + entry->hash + "\" Hash/Password TS: " +
-			ConvToStr(entry->hash_password_ts) + " Connect class: \"" + entry->connectclass + "\" Connect class TS: " +
-			ConvToStr(entry->connectclass_ts));
-		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
-		{
-			std::string value = it->first->serialize(FORMAT_USER, entry, it->second);
-			if (!value.empty())
-				user->WriteServ("NOTICE " + user->nick + " :" + it->first->name + ": " + value);
-		}
-		return CMD_SUCCESS;
-	}
-};
-
 class ModuleAccount : public Module
 {
  private:
 	CommandSvsaccount cmd;
 	CommandLogin cmd_login;
 	CommandLogout cmd_logout;
-	CommandAcctlist cmd_acctlist;
-	CommandAcctshow cmd_acctshow;
 
  public:
-	ModuleAccount() : cmd(this), cmd_login(this, cmd.prov.db), cmd_logout(this), cmd_acctlist(this, cmd.prov.db), cmd_acctshow(this, cmd.prov.db)
+	ModuleAccount() : cmd(this), cmd_login(this, cmd.prov.db), cmd_logout(this)
 	{
 	}
 
@@ -450,8 +384,6 @@ class ModuleAccount : public Module
 		ServerInstance->Modules->AddService(cmd.prov);
 		ServerInstance->Modules->AddService(cmd_login);
 		ServerInstance->Modules->AddService(cmd_logout);
-		ServerInstance->Modules->AddService(cmd_acctlist);
-		ServerInstance->Modules->AddService(cmd_acctshow);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnSyncNetwork, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
