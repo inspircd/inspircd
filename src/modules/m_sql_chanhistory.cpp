@@ -125,8 +125,12 @@ class ModuleChanHistory : public Module
 		ServerInstance->Modules->AddService(m);
 		ServerInstance->Modules->AddService(m.histID);
 
-		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage };
+		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage, I_OnChannelDelete };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+
+		ParamL n;
+		n.push_back(m.tablename);
+		m.sqldb->submit(new DiscardQuery(this), "DELETE FROM ?", n);
 	}
 
 	void ReadConfig(ConfigReadStatus& status)
@@ -203,7 +207,18 @@ class ModuleChanHistory : public Module
 		n.push_back(ConvToStr(ServerInstance->Time() - param.second));
 
 		m.sqldb->submit(new ReplayQuery(this, memb),
-			"SELECT text FROM ? WHERE chan= '?' AND line >= ? AND ts >= ? ORDER BY line", n);
+			"SELECT text FROM ? WHERE chan = '?' AND line >= ? AND ts >= ? ORDER BY line", n);
+	}
+
+	void OnChannelDelete(Channel* chan)
+	{
+		if (chan->IsModeSet(&m))
+		{
+			ParamL n;
+			n.push_back(m.tablename);
+			n.push_back(chan->name);
+			m.sqldb->submit(new DiscardQuery(this), "DELETE FROM ? WHERE chan = '?'", n);
+		}
 	}
 
 	Version GetVersion()
