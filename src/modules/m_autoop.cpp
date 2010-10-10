@@ -18,6 +18,8 @@
 
 /* $ModDesc: Provides support for the +w channel mode, autoop list */
 
+static dynamic_reference<AccountDBProvider> db("accountdb");
+
 /** Handles +n user mode
  */
 class NoAutoopMode : public SimpleUserModeHandler
@@ -84,7 +86,7 @@ public:
 		ServerInstance->Modules->AddService(mh);
 		ServerInstance->Modules->AddService(mh2);
 
-		Implementation list[] = { I_OnPostJoin, I_OnEvent, I_OnChangeHost, I_OnPermissionCheck };
+		Implementation list[] = { I_OnPostJoin, I_OnEvent, I_OnChangeHost, I_OnPermissionCheck, I_OnGarbageCollect };
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
@@ -93,7 +95,7 @@ public:
 		modelist* list = mh.extItem.get(memb->chan);
 		if (!list)
 			return;
-		for (modelist::iterator it = list->begin(); it != list->end(); it++)
+		for (modelist::const_iterator it = list->begin(); it != list->end(); ++it)
 		{
 			std::string::size_type colon = it->mask.find(':');
 			if (colon == std::string::npos)
@@ -180,7 +182,7 @@ public:
 			ModePermissionData& mpd = static_cast<ModePermissionData&>(perm);
 			if (!mpd.mc.adding)
 				return;
-			for(std::vector<irc::modechange>::iterator i = ms.sequence.begin(); i != ms.sequence.end(); i++)
+			for(std::vector<irc::modechange>::const_iterator i = ms.sequence.begin(); i != ms.sequence.end(); ++i)
 			{
 				if (i->mode == mpd.mc.mode)
 				{
@@ -215,6 +217,37 @@ public:
 		allow_selfup = tag->getBool("selfop", true);
 		checkonlogin = tag->getBool("checkonlogin", true);
 		checkonhostchange = tag->getBool("checkonhostchange", true);
+	}
+
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnGarbageCollect, PRIORITY_AFTER, ServerInstance->Modules->Find("m_account_register.so"));
+	}
+
+	void OnGarbageCollect ()
+	{
+		if(!db) return;
+		irc::modestacker ms;
+		for (chan_hash::const_iterator iter = ServerInstance->chanlist->begin(); iter != ServerInstance->chanlist->end(); ++iter)
+		{
+			modelist* list = mh.extItem.get(iter->second);
+			if (!list)
+				return;
+			ms.sequence.clear();
+			for (modelist::const_iterator it = list->begin(); it != list->end(); ++it)
+			{
+				std::string::size_type colon = it->mask.find_first_of(':');
+				if (colon == std::string::npos)
+					continue;
+				std::string mask = it->mask.substr(colon + 1);
+				if(mask.length() < 2 || mask[0] != 'R' || mask[1] != ':')
+					continue;
+				if(!db->GetAccount(mask.substr(2), false))
+					ms.sequence.push_back(irc::modechange(mh.id, it->mask, false));
+			}
+			if(!ms.sequence.empty())
+				ServerInstance->SendMode(ServerInstance->FakeClient, iter->second, ms, false);
+		}
 	}
 
 	Version GetVersion()

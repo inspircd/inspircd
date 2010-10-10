@@ -99,9 +99,7 @@ class ModuleAccountModes : public Module
 		if (mask[0] == 'R' && mask[1] == ':')
 		{
 			std::string acctname = account ? account->GetAccountName(user) : "";
-			if (acctname.empty() && mask.length() == 2)
-				return MOD_RES_DENY;
-			if (!acctname.empty() && InspIRCd::Match(acctname, mask.substr(2)))
+			if (acctname == mask.substr(2))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
