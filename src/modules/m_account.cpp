@@ -108,16 +108,6 @@ class AccountDBProviderImpl : public AccountDBProvider
 		params.push_back(ConvToStr(entry->hash_password_ts));
 		params.push_back(":" + entry->hash + " " + entry->password);
 		ServerInstance->PI->SendEncapsulatedData(params);
-		params.clear();
-		params.push_back("*");
-		params.push_back("SVSACCOUNT");
-		params.push_back("SET");
-		params.push_back(entry->name);
-		params.push_back(ConvToStr(entry->ts));
-		params.push_back("connectclass");
-		params.push_back(ConvToStr(entry->connectclass_ts));
-		params.push_back(":" + entry->connectclass);
-		ServerInstance->PI->SendEncapsulatedData(params);
 		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
 		{
 			ExtensionItem* item = it->first;
@@ -151,11 +141,6 @@ class AccountDBProviderImpl : public AccountDBProvider
 		{
 			params.push_back(ConvToStr(entry->hash_password_ts));
 			params.push_back(":" + entry->hash + " " + entry->password);
-		}
-		else if(field == "connectclass")
-		{
-			params.push_back(ConvToStr(entry->connectclass_ts));
-			params.push_back(":" + entry->connectclass);
 		}
 		else
 		{
@@ -246,13 +231,6 @@ class CommandSvsaccount : public Command
 					iter->second->hash = iter->second->password = "";
 				iter->second->hash_password_ts = atol(parameters[4].c_str());
 			}
-			else if(parameters[3] == "connectclass")
-			{
-				if(iter->second->connectclass_ts > atol(parameters[4].c_str()))
-					return CMD_FAILURE;
-				iter->second->connectclass = parameters.size() > 5 ? parameters[5] : "";
-				iter->second->connectclass_ts = atol(parameters[4].c_str());
-			}
 			AccountDBModifiedEvent(creator, iter->second->name, iter->second).Send();
 		}
 		else if(parameters[0] == "ADD")
@@ -318,8 +296,6 @@ class CommandLogin : public Command
 			return false;
 		if(account)
 			account->DoLogin(user, entry->name, "");
-		if(!entry->connectclass.empty())
-			ServerInstance->ForcedClass.set(user, entry->connectclass);
 		return true;
 	}
 
@@ -419,8 +395,6 @@ class ModuleAccount : public Module
 			target->SendCommand("ENCAP * SVSACCOUNT ADD " + name + " :" + ts);
 			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " hash_password "
 				+ ConvToStr(i->second->hash_password_ts) + " :" + i->second->hash + " " + i->second->password);
-			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " connectclass "
-				+ ConvToStr(i->second->connectclass_ts) + " :" + i->second->connectclass);
 			for(Extensible::ExtensibleStore::const_iterator it = i->second->GetExtList().begin(); it != i->second->GetExtList().end(); ++it)
 			{
 				ExtensionItem* item = it->first;

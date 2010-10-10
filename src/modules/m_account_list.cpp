@@ -64,9 +64,8 @@ class CommandAcctshow : public Command
 			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		user->WriteServ("NOTICE %s :Account \"%s\" TS: %lu Hash type: \"%s\" Hash/Password TS: %lu Connect class: \"%s\""
-			" Connect class TS: %lu", user->nick.c_str(), entry->name.c_str(), entry->ts, entry->hash.c_str(),
-			entry->hash_password_ts, entry->connectclass.c_str(), entry->connectclass_ts);
+		user->WriteServ("NOTICE %s :Account \"%s\" TS: %lu Hash type: \"%s\" Hash/Password TS: %lu",
+			user->nick.c_str(), entry->name.c_str(), entry->ts, entry->hash.c_str(), entry->hash_password_ts);
 		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
 		{
 			std::string value = it->first->serialize(FORMAT_USER, entry, it->second);

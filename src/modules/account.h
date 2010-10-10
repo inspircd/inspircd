@@ -53,9 +53,9 @@ class AccountDBEntry : public Extensible
  public:
 	const irc::string name;
 	const time_t ts;
-	time_t hash_password_ts, connectclass_ts;
-	std::string hash, password, connectclass;
-	AccountDBEntry(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0) : Extensible(EXTENSIBLE_ACCOUNT), name(nameref), ts(ourTS), hash_password_ts(h_p_ts), connectclass_ts(cc_ts), hash(h), password(p), connectclass(cc)
+	time_t hash_password_ts;
+	std::string hash, password;
+	AccountDBEntry(const irc::string& nameref, time_t ourTS, std::string h = "", std::string p = "", time_t h_p_ts = 0, std::string cc = "", time_t cc_ts = 0) : Extensible(EXTENSIBLE_ACCOUNT), name(nameref), ts(ourTS), hash_password_ts(h_p_ts), hash(h), password(p)
 	{
 	}
 	virtual CullResult cull() = 0;

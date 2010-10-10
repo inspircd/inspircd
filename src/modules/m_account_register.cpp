@@ -50,7 +50,7 @@ class CommandRegister : public Command
 			user->WriteServ("NOTICE " + user->nick + " :Account " + user->nick + " already exists");
 			return CMD_FAILURE;
 		}
-		entry->hash_password_ts = entry->connectclass_ts = entry->ts;
+		entry->hash_password_ts = entry->ts;
 		// XXX: The code to generate a hash was copied from m_password_hash.  We may want a better way to do this.
 		if (hashtype == "plaintext" || hashtype.empty())
 				entry->password = parameters[0];
@@ -87,7 +87,6 @@ class CommandRegister : public Command
 		db->SendAccount(entry);
 
 		if(account) account->DoLogin(user, entry->name, "");
-		if(!entry->connectclass.empty()) ServerInstance->ForcedClass.set(user, entry->connectclass);
 		return CMD_SUCCESS;
 	}
 };
