@@ -32,8 +32,9 @@ StreamSocket* ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* 
 	{
 		if (*i == "*" || *i == incomingip || irc::sockets::cidr_mask(*i).match(*client))
 		{
-			/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
-			return new TreeSocket(Utils, newsock, from, client, server);
+			TreeSocket* sock = new TreeSocket(Utils, newsock, from, client, server);
+			Utils->Connections.push_back(sock);
+			return sock;
 		}
 	}
 	ServerInstance->SNO->WriteToSnoMask('l', "Server connection from %s denied (no link blocks with that IP address)", incomingip.c_str());
@@ -111,10 +112,9 @@ CullResult SpanningTreeUtilities::cull()
 		}
 	}
 
-	for(std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = timeoutlist.begin(); i != timeoutlist.end(); ++i)
+	for(size_t i = 0; i < Connections.size(); i++)
 	{
-		TreeSocket* s = i->first;
-		s->Close();
+		Connections[i]->Close();
 	}
 	TreeRoot->cull();
 

@@ -152,8 +152,9 @@ void TreeSocket::ProcessLine(const std::string &line)
 					}
 				}
 				this->LinkState = CONNECTED;
+				NextPing = ServerInstance->Time() + Utils->PingFreq;
+				LastPingWasGood = true;
 
-				Utils->timeoutlist.erase(this);
 				parameterlist sparams;
 				Utils->DoOneToAllButSender(MyRoot->GetID(), "BURST", params, MyRoot->GetName());
 				MyRoot->bursting = true;

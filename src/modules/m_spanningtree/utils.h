@@ -64,32 +64,6 @@ class SpanningTreeUtilities : public classbase
 	 */
 	bool quiet_bursts;
 
-	/* Number of seconds that a server can go without ping
-	 * before opers are warned of high latency.
-	 */
-	int PingWarnTime;
-	/** This variable represents the root of the server tree
-	 */
-	TreeServer *TreeRoot;
-	/** IPs allowed to link to us
-	 */
-	std::vector<std::string> ValidIPs;
-	/** Hash of currently connected servers by name
-	 */
-	server_hash serverlist;
-	/** Hash of currently known server ids
-	 */
-	server_hash sidlist;
-	/** List of all outgoing sockets and their timeouts
-	 */
-	std::map<TreeSocket*, std::pair<std::string, int> > timeoutlist;
-	/** Holds the data from the <link> tags in the conf
-	 */
-	std::vector<reference<Link> > LinkBlocks;
-	/** Holds the data from the <autoconnect> tags in the conf
-	 */
-	std::vector<reference<Autoconnect> > AutoconnectBlocks;
-
 	/** True (default) if we are to use challenge-response HMAC
 	 * to authenticate passwords.
 	 *
@@ -101,6 +75,33 @@ class SpanningTreeUtilities : public classbase
 	/** Ping frequency of server to server links
 	 */
 	int PingFreq;
+	/* Number of seconds that a server can go without ping
+	 * before opers are warned of high latency.
+	 */
+	int PingWarnTime;
+	/** IPs allowed to link to us (collected from link blocks)
+	 */
+	std::vector<std::string> ValidIPs;
+	/** Holds the data from the <link> tags in the conf
+	 */
+	std::vector<reference<Link> > LinkBlocks;
+	/** Holds the data from the <autoconnect> tags in the conf
+	 */
+	std::vector<reference<Autoconnect> > AutoconnectBlocks;
+
+	/** All server sockets
+	 */
+	std::vector<TreeSocket*> Connections;
+	/** The root of the tree represented by /MAP (used in routing)
+	 */
+	TreeServer *TreeRoot;
+	/** Lookup hash for servers by name
+	 */
+	server_hash serverlist;
+	/** Lookup hash for servers by SID
+	 */
+	server_hash sidlist;
+
 
 	/** Initialise utility class
 	 */

@@ -27,17 +27,13 @@
  * to it.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr)
-	: Utils(Util), sync(this)
+	: Utils(Util), linkID(link->Name), LinkState(CONNECTING), MyRoot(NULL), proto_version(0),
+	  sync(this), age(ServerInstance->Time()), NextPing(age + link->Timeout), LastPingWasGood(false)
 {
-	age = ServerInstance->Time();
-	linkID = link->Name;
 	capab = new CapabData;
 	capab->link = link;
 	capab->ac = myac;
 	capab->capab_phase = 0;
-	MyRoot = NULL;
-	proto_version = 0;
-	LinkState = CONNECTING;
 	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
 	if (!link->Hook.empty())
 	{
@@ -50,7 +46,6 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
 		}
 		prov->OnClientConnection(this, link->tag);
 	}
-	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, link->Timeout);
 	SendCapabilities(1);
 }
 
@@ -59,19 +54,14 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
  * connection. This constructor is used for this purpose.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-	: BufferedSocket(newfd), Utils(Util), sync(this)
+	: BufferedSocket(newfd), Utils(Util), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0),
+	  sync(this), age(ServerInstance->Time()), NextPing(age + 30), LastPingWasGood(false)
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;
-	MyRoot = NULL;
-	age = ServerInstance->Time();
-	LinkState = WAIT_AUTH_1;
-	proto_version = 0;
 	linkID = "inbound from " + client->addr();
 
 	SendCapabilities(1);
-
-	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, 30);
 }
 
 ServerState TreeSocket::GetLinkState()
@@ -90,9 +80,20 @@ void TreeSocket::CleanNegotiationInfo()
 
 CullResult TreeSocket::cull()
 {
-	Utils->timeoutlist.erase(this);
 	if (capab && capab->ac)
 		Utils->Creator->ConnectServer(capab->ac, false);
+	for(size_t i = 0; i < Utils->Connections.size(); i++)
+	{
+		if (Utils->Connections[i] == this)
+		{
+			// fast removal from an unsorted vector:
+			// replace this element with the last one (nop if we are the last)
+			Utils->Connections[i] = Utils->Connections.back();
+			// then remove the last element
+			Utils->Connections.pop_back();
+			break;
+		}
+	}
 	return this->BufferedSocket::cull();
 }
 
@@ -120,16 +121,24 @@ void TreeSocket::OnConnected()
 
 void TreeSocket::OnError(BufferedSocketError e)
 {
-	ServerInstance->SNO->WriteGlobalSno('l', "Connection to \002%s\002 failed with error: %s",
-		linkID.c_str(), getError().c_str());
-	LinkState = DYING;
+	if (LinkState != DYING)
+	{
+		ServerInstance->GlobalCulls.AddItem(this);
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \002%s\002 failed with error: %s",
+			linkID.c_str(), getError().c_str());
+		LinkState = DYING;
+	}
 }
 
 void TreeSocket::SendError(const std::string &errormessage)
 {
 	WriteLine("ERROR :"+errormessage);
 	DoWrite();
-	LinkState = DYING;
+	if (LinkState != DYING)
+	{
+		ServerInstance->GlobalCulls.AddItem(this);
+		LinkState = DYING;
+	}
 	SetError(errormessage);
 }
 
@@ -195,7 +204,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		if (Current == MyRoot)
 		{
 			MyRoot = NULL;
-			Close();
+			SetError("SQUIT: " + reason);
 		}
 	}
 	else

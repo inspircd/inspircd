@@ -141,72 +141,6 @@ std::string ModuleSpanningTree::TimeToStr(time_t secs)
 			+ ConvToStr(secs) + "s");
 }
 
-void ModuleSpanningTree::DoPingChecks(time_t curtime)
-{
-	/*
-	 * Cancel remote burst mode on any servers which still have it enabled due to latency/lack of data.
-	 * This prevents lost REMOTECONNECT notices
-	 */
-	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-
-restart:
-	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
-	{
-		TreeServer *s = i->second;
-		
-		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
-		{
-			s->GetSocket()->Close();
-			goto restart;
-		}
-
-		// Fix for bug #792, do not ping servers that are not connected yet!
-		// Remote servers have Socket == NULL and local connected servers have
-		// Socket->LinkState == CONNECTED
-		if (s->GetSocket() && s->GetSocket()->GetLinkState() != CONNECTED)
-			continue;
-
-		// Only ping if this server needs one
-		if (curtime >= s->NextPingTime())
-		{
-			// And if they answered the last
-			if (s->AnsweredLastPing())
-			{
-				// They did, send a ping to them
-				s->SetNextPingTime(curtime + Utils->PingFreq);
-				TreeSocket *tsock = s->GetSocket();
-
-				// ... if we can find a proper route to them
-				if (tsock)
-				{
-					tsock->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " +
-							ServerInstance->Config->GetSID() + " " + s->GetID());
-					s->LastPingMsec = ts;
-				}
-			}
-			else
-			{
-				// They didn't answer the last ping, if they are locally connected, get rid of them.
-				TreeSocket *sock = s->GetSocket();
-				if (sock)
-				{
-					sock->SendError("Ping timeout");
-					sock->Close();
-					goto restart;
-				}
-			}
-		}
-
-		// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
-		if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
-		{
-			/* The server hasnt responded, send a warning to opers */
-			ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
-			s->Warned = true;
-		}
-	}
-}
-
 void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 {
 	if (!a)
@@ -276,7 +210,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		TreeSocket* newsocket = new TreeSocket(Utils, x, y, x->IPAddr);
 		if (newsocket->GetFd() > -1)
 		{
-			/* Handled automatically on success */
+			Utils->Connections.push_back(newsocket);
 		}
 		else
 		{
@@ -301,41 +235,6 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	}
 }
 
-void ModuleSpanningTree::AutoConnectServers(time_t curtime)
-{
-	for (std::vector<reference<Autoconnect> >::iterator i = Utils->AutoconnectBlocks.begin(); i < Utils->AutoconnectBlocks.end(); ++i)
-	{
-		Autoconnect* x = *i;
-		if (x->Enabled && curtime >= x->NextConnectTime)
-		{
-			x->NextConnectTime = curtime + x->Period;
-			ConnectServer(x, true);
-		}
-	}
-}
-
-void ModuleSpanningTree::DoConnectTimeout(time_t curtime)
-{
-	std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = Utils->timeoutlist.begin();
-	while (i != Utils->timeoutlist.end())
-	{
-		TreeSocket* s = i->first;
-		std::pair<std::string, int> p = i->second;
-		std::map<TreeSocket*, std::pair<std::string, int> >::iterator me = i;
-		i++;
-		if (s->GetLinkState() == DYING)
-		{
-			Utils->timeoutlist.erase(me);
-			s->Close();
-		}
-		else if (curtime > s->age + p.second)
-		{
-			ServerInstance->SNO->WriteToSnoMask('l',"CONNECT: Error connecting \002%s\002 (timeout of %d seconds)",p.first.c_str(),p.second);
-			Utils->timeoutlist.erase(me);
-			s->Close();
-		}
-	}
-}
 
 ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& parameters, User* user)
 {
@@ -533,9 +432,61 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 {
-	AutoConnectServers(curtime);
-	DoPingChecks(curtime);
-	DoConnectTimeout(curtime);
+	long ts = curtime * 1000 + (ServerInstance->Time_ns() / 1000000);
+
+	for(server_hash::iterator i = Utils->sidlist.begin(); i != Utils->sidlist.end(); i++)
+	{
+		TreeServer* srv = i->second;
+		if (!srv->Socket || !srv->Socket->getError().empty())
+			// no need to check ourselves or any errored sockets
+			continue;
+
+		// warning deadline is the time the last ping was sent, plus the maximum lag
+		time_t deadline = (srv->NextPing - Utils->PingFreq) + Utils->PingWarnTime;
+		if (Utils->PingWarnTime && !srv->LastPingWasGood && curtime >= deadline && !srv->Warned)
+		{
+			// oops, we're a bit laggy today
+			ServerInstance->SNO->WriteToSnoMask('l', "Server \002%s\002 has not responded to PING for %d seconds, high latency.",
+				srv->GetName().c_str(), Utils->PingWarnTime);
+			srv->Warned = true;
+		}
+
+		// send out a new ping if we don't have one pending, and if it's time
+		if (srv->LastPingWasGood && curtime >= srv->NextPing)
+		{
+			// it's now time to ping
+			srv->LastPingMsec = ts;
+			srv->LastPingWasGood = false;
+			srv->NextPing = curtime + Utils->PingFreq;
+			if (srv->Parent == Utils->TreeRoot)
+			{
+				// this is a direct neighbor; update the socket ping information too
+				srv->Socket->LastPingWasGood = false;
+				srv->Socket->NextPing = srv->NextPing;
+			}
+			srv->Socket->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " +
+				ServerInstance->Config->GetSID() + " " + srv->GetID());
+		}
+	}
+
+	// check for sockets that are timed out (ping has been pending for too long)
+	for(size_t i = 0; i < Utils->Connections.size(); i++)
+	{
+		TreeSocket* sock = Utils->Connections[i];
+		if (curtime > sock->NextPing && !sock->LastPingWasGood)
+			sock->SendError("Ping timeout");
+	}
+
+	// start the autoconnects
+	for (std::vector<reference<Autoconnect> >::iterator i = Utils->AutoconnectBlocks.begin(); i < Utils->AutoconnectBlocks.end(); ++i)
+	{
+		Autoconnect* x = *i;
+		if (x->Enabled && curtime >= x->NextConnectTime)
+		{
+			x->NextConnectTime = curtime + x->Period;
+			ConnectServer(x, true);
+		}
+	}
 }
 
 void ModuleSpanningTree::OnUserConnect(LocalUser* user)

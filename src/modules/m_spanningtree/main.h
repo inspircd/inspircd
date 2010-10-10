@@ -88,10 +88,6 @@ class ModuleSpanningTree : public Module
 	 */
 	ModResult HandleRemoteWhois(const std::vector<std::string>& parameters, User* user);
 
-	/** Ping all local servers
-	 */
-	void DoPingChecks(time_t curtime);
-
 	/** Connect a server locally
 	 */
 	void ConnectServer(Link* x, Autoconnect* y = NULL);
@@ -99,14 +95,6 @@ class ModuleSpanningTree : public Module
 	/** Connect the next autoconnect server
 	 */
 	void ConnectServer(Autoconnect* y, bool on_timer);
-
-	/** Check if any servers are due to be autoconnected
-	 */
-	void AutoConnectServers(time_t curtime);
-
-	/** Check if any connecting servers should timeout
-	 */
-	void DoConnectTimeout(time_t curtime);
 
 	/** Handle remote VERSON
 	 */

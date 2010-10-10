@@ -147,18 +147,19 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		 * While we're at it, create a treeserver object so we know about them.
 		 *   -- w
 		 */
-		this->LinkState = CONNECTED;
-
-		Utils->timeoutlist.erase(this);
 		linkID = sname;
-
+		LinkState = CONNECTED;
 		MyRoot = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
-
 		Utils->TreeRoot->AddChild(MyRoot);
+
+		// pretend this SERVER line was a PING so we don't time out during the burst
+		NextPing = ServerInstance->Time() + Utils->PingFreq;
+		LastPingWasGood = true;
+
+		/* Remove password from command prior to sending */
+		params[1] = "*";
 		params[4] = ":" + params[4];
 
-		/* IMPORTANT: Take password/hmac hash OUT of here before we broadcast the introduction! */
-		params[1] = "*";
 		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,sname);
 
 		this->DoBurst(MyRoot);
