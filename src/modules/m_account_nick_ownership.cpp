@@ -73,6 +73,16 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 		NicksOwned* p = static_cast<NicksOwned*>(item);
 		if(!p)
 			return "";
+		if(format == FORMAT_USER)
+		{
+			std::string retval;
+			for(std::vector<NickTSItem>::iterator i = p->second.begin(); i != p->second.end(); ++i)
+			{
+				retval.append(i->nick);
+				retval.push_back(' ');
+			}
+			return retval;
+		}
 		std::ostringstream str;
 		str << p->first << (format == FORMAT_NETWORK ? " :" : " ");
 		for(std::vector<NickTSItem>::iterator i = p->second.begin(); i != p->second.end(); ++i)
@@ -303,7 +313,7 @@ class CommandSetenforce : public Command
 {
  public:
 	TSBoolExtItem enforce;
-	CommandSetenforce(Module* Creator) : Command(Creator,"SETENFORCE", 1, 1), enforce("enforce", Creator)
+	CommandSetenforce(Module* Creator) : Command(Creator,"SETENFORCE", 1, 1), enforce("enforce", false, Creator)
 	{
 		syntax = "OFF|ON";
 	}

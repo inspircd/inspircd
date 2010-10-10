@@ -64,8 +64,8 @@ class CommandAcctshow : public Command
 			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		user->WriteServ("NOTICE %s :Account \"%s\" TS: %lu Hash type: \"%s\" Hash/Password TS: %lu",
-			user->nick.c_str(), entry->name.c_str(), entry->ts, entry->hash.c_str(), entry->hash_password_ts);
+		user->WriteServ("NOTICE %s :Account \"%s\" TS: %lu Hash type: \"%s\"",
+			user->nick.c_str(), entry->name.c_str(), entry->ts, entry->hash.c_str());
 		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
 		{
 			std::string value = it->first->serialize(FORMAT_USER, entry, it->second);
@@ -120,7 +120,7 @@ class ModuleAccountList : public Module
 	CommandSethidden cmd_sethidden;
 
  public:
-	ModuleAccountList() : hidden("hidden", this), cmd_acctlist(this, hidden), cmd_acctshow(this), cmd_sethidden(this, hidden)
+	ModuleAccountList() : hidden("hidden", true, this), cmd_acctlist(this, hidden), cmd_acctshow(this), cmd_sethidden(this, hidden)
 	{
 	}
 

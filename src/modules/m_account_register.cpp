@@ -310,7 +310,7 @@ class CommandHold : public Command
 {
  public:
 	TSBoolExtItem held;
-	CommandHold(Module* Creator) : Command(Creator,"HOLD", 2, 2), held("held", Creator)
+	CommandHold(Module* Creator) : Command(Creator,"HOLD", 2, 2), held("held", false, Creator)
 	{
 		flags_needed = 'o'; syntax = "<account name> OFF|ON";
 	}

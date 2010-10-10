@@ -186,13 +186,16 @@ class TSExtItem : public SimpleExtItem<time_t>
 
 class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
 {
+	const bool default_value;
  public:
-	TSBoolExtItem(const std::string& Key, Module* parent) : SimpleExtItem<std::pair<time_t, bool> >(EXTENSIBLE_ACCOUNT, Key, parent) {}
+	TSBoolExtItem(const std::string& Key, bool def_value, Module* parent) : SimpleExtItem<std::pair<time_t, bool> >(EXTENSIBLE_ACCOUNT, Key, parent), default_value(def_value) {}
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
 		std::pair<time_t, bool>* p = static_cast<std::pair<time_t, bool>*>(item);
 		if(!p)
 			return "";
+		if(format == FORMAT_USER)
+			return p->second ? "true" : "false";
 		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + (p->second ? '1' : '0');
 	}
 
@@ -203,7 +206,7 @@ class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
 		std::string::size_type delim = value.find_first_of(' ');
 		ts = atol(value.substr(0, delim).c_str());
 		if(delim == std::string::npos)
-			item = false;
+			item = default_value;
 		else
 			item = (value.substr(delim + 1)[0] == '1');
 		std::pair<time_t, bool>* p = get(container);
@@ -222,6 +225,8 @@ class TSIntExtItem : public SimpleExtItem<std::pair<time_t, signed int> >
 		std::pair<time_t, signed int>* p = static_cast<std::pair<time_t, signed int>*>(item);
 		if(!p)
 			return "";
+		if(format == FORMAT_USER)
+			return ConvToStr(p->second);
 		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + ConvToStr(p->second);
 	}
 
@@ -250,6 +255,8 @@ class TSStringExtItem : public SimpleExtItem<std::pair<time_t, std::string> >
 		std::pair<time_t, std::string>* p = static_cast<std::pair<time_t, std::string>*>(item);
 		if(!p)
 			return "";
+		if(format == FORMAT_USER)
+			return p->second;
 		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + p->second;
 	}
 
