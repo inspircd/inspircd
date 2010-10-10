@@ -109,7 +109,7 @@ ExtensionItem::~ExtensionItem()
 void* ExtensionItem::get_raw(const Extensible* container) const
 {
 	if (!is_registered)
-		throw CoreException("Attempting to use an unregistered Extensible!");
+		throw CoreException("Attempting to use an unregistered Extensible: " + name);
 	if (container->type_id != type_id)
 		throw CoreException("Type mismatch in Extensible object");
 	Extensible::ExtensibleStore::const_iterator i =
@@ -122,7 +122,7 @@ void* ExtensionItem::get_raw(const Extensible* container) const
 void* ExtensionItem::set_raw(Extensible* container, void* value)
 {
 	if (!is_registered)
-		throw CoreException("Attempting to use an unregistered Extensible!");
+		throw CoreException("Attempting to use an unregistered Extensible: " + name);
 	if (container->type_id != type_id)
 		throw CoreException("Type mismatch in Extensible object");
 	std::pair<Extensible::ExtensibleStore::iterator,bool> rv =
@@ -142,7 +142,7 @@ void* ExtensionItem::set_raw(Extensible* container, void* value)
 void* ExtensionItem::unset_raw(Extensible* container)
 {
 	if (!is_registered)
-		throw CoreException("Attempting to use an unregistered Extensible!");
+		throw CoreException("Attempting to use an unregistered Extensible: " + name);
 	if (container->type_id != type_id)
 		throw CoreException("Type mismatch in Extensible object");
 	Extensible::ExtensibleStore::iterator i = container->extensions.find(this);
