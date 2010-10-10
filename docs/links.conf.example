@@ -67,10 +67,8 @@
       # servers will not be shown when users do a /map or /links
       hidden="no"
 
-      # passwords: the passwords we send and receive.
-      # The remote server will have these passwords reversed.
-      sendpass="outgoing!password"
-      recvpass="incoming!password">
+      # password: the password we use. should be the same on both servers.
+      password="pa55w0rd">
 
 # A duplicate of the first link block without comments
 # if you like copying & pasting.
@@ -83,8 +81,7 @@
       bind="1.2.3.4"
       statshidden="no"
       hidden="no"
-      sendpass="outgoing!password"
-      recvpass="incoming!password">
+      password="pa55w0rd">
 
 # Link block for services. Options are the same as for the first
 # link block (depending on what your services package supports).
@@ -92,8 +89,7 @@
       ipaddr="localhost"
       port="7000"
       allowmask="127.0.0.0/8"
-      sendpass="penguins"
-      recvpass="polarbears">
+      password="penguins">
 
 # Simple autoconnect block. This enables automatic connection of a server
 # Recommended setup is to have leaves connect to the hub, and have no
