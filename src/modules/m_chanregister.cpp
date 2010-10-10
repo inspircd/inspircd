@@ -20,9 +20,9 @@
 static dynamic_reference<AccountDBProvider> db("accountdb");
 
 /* Some function for checking if the selected account is a registrant for a selected channel, for writing less code later */
-static bool IsRegistrant (ModeHandler *mh, Channel *chan, const std::string &account)
+static bool IsRegistrant (ModeHandler *mh, Channel *chan, const irc::string &account)
 {
-	std::string token;
+	irc::string token;
 	irc::commasepstream registrantnames(chan->GetModeParameter (mh));
 	while (registrantnames.GetToken (token))
 	{
@@ -111,16 +111,29 @@ class RegisterModeHandler : public ParamChannelModeHandler
 	/* make access checks */
 	void AccessCheck(ModePermissionData& perm)
 	{
-		std::string acctname = account ? account->GetAccountName(perm.source) : "";
+		irc::string acctname = account ? account->GetAccountName(perm.source) : "";
 
 		if (perm.mc.adding)
 		{
 			if (perm.chan->IsModeSet(this))
 			{
-				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must unregister the channel to change its registrants",
-					perm.chan->name.c_str());
-				perm.result = MOD_RES_DENY;
-				return;
+				/* changing registration: must be a registrant */
+				if (acctname.empty())
+				{
+					// not logged in: different error message
+					perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be logged in to an account to reregister a channel",
+						perm.chan->name.c_str());
+					perm.result = MOD_RES_DENY;
+					return;
+				}
+				if (!IsRegistrant (this, perm.chan, acctname))
+				{
+					// no matching account name
+					perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :Only a registrant of a channel may reregister it",
+						perm.chan->name.c_str());
+					perm.result = MOD_RES_DENY;
+					return;
+				}
 			}
 			if (perm.source->HasPrivPermission("channels/set-registration", false))
 				return;
@@ -135,10 +148,10 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			int chans = 0;
 			for (chan_hash::const_iterator it = ServerInstance->chanlist->begin ( ); it != ServerInstance->chanlist->end ( ); it++)
 			{
-				if (it->second->IsModeSet (this))
+				if (it->second != perm.chan && it->second->IsModeSet (this))
 				{
 					irc::commasepstream registrantnames (it->second->GetModeParameter (this));
-					std::string token;
+					irc::string token;
 					registrantnames.GetToken (token);
 					if (token == acctname) chans++;
 				}
@@ -152,7 +165,7 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			}
 			/* otherwise, you can only set it to your own account name */
 			irc::commasepstream registrantnames(perm.mc.value);
-			std::string registrantname;
+			irc::string registrantname;
 			/* if the account name was not given, is empty or is not equal to the given parameter, deny */
 			if (acctname.empty() || !registrantnames.GetToken(registrantname) || acctname != registrantname)
 			{
@@ -322,7 +335,7 @@ banned */
 		if (!joindata.chan->IsModeSet (&mh))
 			return;
 		/* get user's account name */
-		std::string acctname = mh.account ? mh.account->GetAccountName(joindata.source) : "";
+		irc::string acctname = mh.account ? mh.account->GetAccountName(joindata.source) : "";
 		/* if account is not found or empty, we can be really sure that we really aren't registrant of any channel */
 		if (acctname.empty())
 			return;
@@ -351,7 +364,7 @@ banned */
 			return;
 		/* if set, get the registrant account name */
 		/* get account name of the current user */
-		std::string acctname = mh.account ? mh.account->GetAccountName(perm.source) : "";
+		irc::string acctname = mh.account ? mh.account->GetAccountName(perm.source) : "";
 		/* if user is not logged in then return */
 		if (acctname.empty())
 			return;
@@ -429,7 +442,7 @@ banned */
 				continue;
 			if(!db)			// if we're using a services packages for nick registration rather than the account system,
 				continue;	// then we can't check whether registrants exist anymore, so we just go to the next channel
-			std::string token;
+			irc::string token;
 			irc::commasepstream registrantnames(c->GetModeParameter (&mh));
 			registrants.clear();
 			listChanged = false;
