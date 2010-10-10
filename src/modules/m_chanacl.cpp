@@ -83,7 +83,7 @@ class ModuleChanACL : public Module
 				std::string flag;
 				while (contents.GetToken(flag))
 				{
-					if (InspIRCd::Match(perm.name, flag)
+					if (InspIRCd::Match(perm.name, flag))
 						given.insert(i->mask.substr(0,pos));
 				}
 			}
