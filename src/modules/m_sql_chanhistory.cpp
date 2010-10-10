@@ -177,7 +177,7 @@ class ModuleChanHistory : public Module
 			std::pair<int, int> param = m.ParamParse(c->GetModeParameter(&m));
 			n.push_back(m.tablename);
 			n.push_back(c->name);
-			if (param.first > seq)
+			if (param.first < seq)
 				n.push_back(ConvToStr(seq - param.first));
 			else
 				n.push_back("0");
@@ -196,7 +196,7 @@ class ModuleChanHistory : public Module
 		ParamL n;
 		n.push_back(m.tablename);
 		n.push_back(memb->chan->name);
-		if (param.first > seq)
+		if (param.first < seq)
 			n.push_back(ConvToStr(seq - param.first));
 		else
 			n.push_back("0");
