@@ -123,6 +123,7 @@ class ModuleChanHistory : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(m);
+		ServerInstance->Modules->AddService(m.histID);
 
 		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
