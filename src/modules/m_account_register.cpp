@@ -35,19 +35,19 @@ class CommandRegister : public Command
 	{
 		if (!ServerInstance->IsNick(user->nick.c_str(), ServerInstance->Config->Limits.NickMax))
 		{
-			user->WriteServ("NOTICE " + user->nick + " :You may not register your UID");
+			user->WriteServ("NOTICE %s :You may not register your UID", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		if (account && account->IsRegistered(user))
 		{
-			user->WriteServ("NOTICE " + user->nick + " :You are already logged in to an account");
+			user->WriteServ("NOTICE %s :You are already logged in to an account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		// Don't send this now.  Wait until we have the password set.
 		AccountDBEntry* entry = db->AddAccount(false, user->nick, ServerInstance->Time(), hashtype);
 		if(!entry)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :Account " + user->nick + " already exists");
+			user->WriteServ("NOTICE %s :Account %s already exists", user->nick.c_str(), user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		entry->hash_password_ts = entry->ts;
@@ -123,13 +123,13 @@ class CommandChgpass : public Command
 		}
 		if(newpass.empty())
 		{
-			user->WriteServ("NOTICE " + user->nick + " :You must specify a new password");
+			user->WriteServ("NOTICE %s :You must specify a new password", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		AccountDBEntry* entry = db->GetAccount(username, false);
 		if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, oldpass, entry->hash))
 		{
-			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
+			user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		entry->hash = hashtype;
@@ -168,7 +168,7 @@ class CommandChgpass : public Command
 		}
 		entry->hash_password_ts = ServerInstance->Time();
 		db->SendUpdate(entry, "hash_password");
-		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " password changed successfully");
+		user->WriteServ("NOTICE %s :Account %s password changed successfully", user->nick.c_str(), entry->name.c_str());
 		return CMD_SUCCESS;
 	}
 };
@@ -189,12 +189,12 @@ class CommandFchgpass : public Command
 		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :No such account");
+			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		if(parameters[1].empty())
 		{
-			user->WriteServ("NOTICE " + user->nick + " :You must specify a new password");
+			user->WriteServ("NOTICE %s :You must specify a new password", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		entry->hash = hashtype;
@@ -234,7 +234,7 @@ class CommandFchgpass : public Command
 		entry->hash_password_ts = ServerInstance->Time();
 		db->SendUpdate(entry, "hash_password");
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used FCHGPASS to force password change of account '%s'", user->nick.c_str(), entry->name.c_str());
-		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " force-password changed successfully");
+		user->WriteServ("NOTICE %s :Account %s force-password changed successfully", user->nick.c_str(), entry->name.c_str());
 		return CMD_SUCCESS;
 	}
 };
@@ -269,11 +269,11 @@ class CommandDrop : public Command
 		AccountDBEntry* entry = db->GetAccount(username, false);
 		if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, password, entry->hash))
 		{
-			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
+			user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		if(!account || username != account->GetAccountName(user))
-			user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(username) + " has been dropped");
+			user->WriteServ("NOTICE %s :Account %s has been dropped", user->nick.c_str(), username.c_str());
 		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}
@@ -294,11 +294,11 @@ class CommandFdrop : public Command
 		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :No such account");
+			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used FDROP to force drop of account '%s'", user->nick.c_str(), entry->name.c_str());
-		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " force-dropped successfully");
+		user->WriteServ("NOTICE %s :Account %s force-dropped successfully", user->nick.c_str(), entry->name.c_str());
 		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}
@@ -324,19 +324,19 @@ class CommandHold : public Command
 			newsetting = false;
 		else
 		{
-			user->WriteServ("NOTICE " + user->nick + " :Unknown setting");
+			user->WriteServ("NOTICE %s :Unknown setting", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :No such account");
+			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		held.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
 		db->SendUpdate(entry, "held");
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used HOLD to %sable hold of account '%s'", user->nick.c_str(), newsetting ? "en" : "dis", entry->name.c_str());
-		user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + (newsetting ? " held" : " unheld") + " successfully");
+		user->WriteServ("NOTICE %s :Account %s %sheld successfully", user->nick.c_str(), entry->name.c_str(), newsetting ? "" : "un");
 		return CMD_SUCCESS;
 	}
 };

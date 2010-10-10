@@ -47,7 +47,7 @@ class CommandAcctvhost : public Command
 		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
 		if(!entry)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :No such account");
+			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		if(parameters.size() > 1 && !parameters[1].empty())
@@ -59,19 +59,19 @@ class CommandAcctvhost : public Command
 				{
 					if (!hostmap[(const unsigned char)*x])
 					{
-						user->WriteServ("NOTICE " + user->nick + " :Invalid characters in hostname");
+						user->WriteServ("NOTICE %s :Invalid characters in hostname", user->nick.c_str());
 						return CMD_FAILURE;
 					}
 				}
 				if (len > 64)
 				{
-					user->WriteServ("NOTICE " + user->nick + " :Host too long");
+					user->WriteServ("NOTICE %s :Host too long", user->nick.c_str());
 					return CMD_FAILURE;
 				}
 				vhost.set(entry, std::make_pair(ServerInstance->Time(), parameters[1]));
 				db->SendUpdate(entry, "vhost");
 				ServerInstance->SNO->WriteGlobalSno('a', "%s used ACCTVHOST to set the vhost of account %s to %s", user->nick.c_str(), entry->name.c_str(), parameters[1].c_str());
-				user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " vhost set to " + parameters[1]);
+				user->WriteServ("NOTICE %s :Account %s vhost set to %s", user->nick.c_str(), entry->name.c_str(), parameters[1].c_str());
 			}
 			UpdateVhosts(entry->name, parameters[1]);
 		}
@@ -80,7 +80,7 @@ class CommandAcctvhost : public Command
 			vhost.set(entry, std::make_pair(ServerInstance->Time(), ""));
 			db->SendUpdate(entry, "vhost");
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used ACCTVHOST to remove the vhost of account %s", user->nick.c_str(), entry->name.c_str());
-			user->WriteServ("NOTICE " + user->nick + " :Account " + std::string(entry->name) + " vhost removed");
+			user->WriteServ("NOTICE %s :Account %s vhost removed", user->nick.c_str(), entry->name.c_str());
 		}
 		return CMD_SUCCESS;
 	}
