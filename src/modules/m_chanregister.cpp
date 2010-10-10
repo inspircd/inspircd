@@ -16,6 +16,9 @@
 #include "account.h"
 
 /* $ModDesc: Provides channel mode +r for channel registration */
+
+static dynamic_reference<AccountDBProvider> db("accountdb");
+
 /* Some function for checking if the selected account is a registrant for a selected channel, for writing less code later */
 static bool IsRegistrant (ModeHandler *mh, Channel *chan, const std::string &account)
 {
@@ -182,12 +185,26 @@ class RegisterModeHandler : public ParamChannelModeHandler
 	{
 		if (adding)
 		{
-			std::string now = chan->GetModeParameter(this);
+			std::string now = chan->GetModeParameter(this), token;
+			if(!IS_SERVER(source) && db)
+			{
+				irc::commasepstream registrantnames(param);
+				std::vector<irc::string> registrants;
+				while (registrantnames.GetToken (token))
+					if (db->GetAccount(token, false))
+						registrants.push_back(token);
+				if(registrants.empty())
+					return MODEACTION_DENY;
+				param.clear();
+				for(std::vector<irc::string>::iterator i = registrants.begin(); i != registrants.end(); ++i)
+					param.append(*i).push_back(',');
+				param = param.substr(0, param.size() - 1);
+			}
 			if (param == now)
 				return MODEACTION_DENY;
 			if (!now.empty())
 			{
-				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(source) ? 'r' : 'R', "%s changed registration of %s from %s to %s",
+				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(source) || source == ServerInstance->FakeClient ? 'r' : 'R', "%s changed registration of %s from %s to %s",
 					source->GetFullHost().c_str(), chan->name.c_str(), now.c_str(), param.c_str());
 				if (verbose)
 					chan->WriteChannel(ServerInstance->FakeClient, "NOTICE %s :This channel has been reregistered (%s -> %s)",
@@ -382,10 +399,18 @@ banned */
 				mh.last_activity.set (it->chan, ServerInstance->Time ( ));
 		}
 	}
+
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnGarbageCollect, PRIORITY_AFTER, ServerInstance->Modules->Find("m_account_register.so"));
+	}
+
 	/* called once a hour to expire expired channels */
 	void OnGarbageCollect ( )
 	{
 		chan_hash::const_iterator it = ServerInstance->chanlist->begin();
+		std::vector<irc::string> registrants;
+		bool listChanged;
 		while (it != ServerInstance->chanlist->end())
 		{
 			Channel* c = it++->second;
@@ -397,6 +422,44 @@ banned */
 				/* send mode -r */
 				irc::modestacker ms;
 				ms.push(irc::modechange(mh.id, "", false));
+				ServerInstance->SendMode(ServerInstance->FakeClient, c, ms, true);
+			}
+
+			if(!c->IsModeSet(&mh))
+				continue;
+			if(!db)			// if we're using a services packages for nick registration rather than the account system,
+				continue;	// then we can't check whether registrants exist anymore, so we just go to the next channel
+			std::string token;
+			irc::commasepstream registrantnames(c->GetModeParameter (&mh));
+			registrants.clear();
+			listChanged = false;
+			registrantnames.GetToken(token);
+			if(db->GetAccount(token, false))
+				registrants.push_back(token);
+			else
+			{
+				/* send a notice */
+				ServerInstance->SNO->WriteGlobalSno('r', "Channel %s was deregistered because the primary registrant account was missing", c->name.c_str());
+				/* send mode -r */
+				irc::modestacker ms;
+				ms.push(irc::modechange(mh.id, "", false));
+				ServerInstance->SendMode(ServerInstance->FakeClient, c, ms, true);
+				continue;
+			}
+			while (registrantnames.GetToken (token))
+			{
+				if (db->GetAccount(token, false))
+					registrants.push_back(token);
+				else
+					listChanged = true;
+			}
+			if(listChanged)
+			{
+				std::string newvalue;
+				for(std::vector<irc::string>::iterator i = registrants.begin(); i != registrants.end(); ++i)
+					newvalue.append(*i).push_back(',');
+				irc::modestacker ms;
+				ms.push(irc::modechange(mh.id, newvalue.substr(0, newvalue.length() - 1), true));
 				ServerInstance->SendMode(ServerInstance->FakeClient, c, ms, true);
 			}
 		}
