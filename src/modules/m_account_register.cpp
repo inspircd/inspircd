@@ -267,32 +267,28 @@ class CommandDrop : public Command
 			else
 				username = user->nick;
 			password = parameters[0];
-			const_cast<std::vector<std::string>&>(parameters).insert(const_cast<std::vector<std::string>&>(parameters).begin(), username); // XXX: This is a hack.  Is it really necessary?
 		}
 		else
 		{
 			username = parameters[0];
 			password = parameters[1];
 		}
-		if(IS_LOCAL(user))
+		AccountDBEntry* entry = db->GetAccount(username, false);
+		if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, password, entry->hash))
 		{
-			AccountDBEntry* entry = db->GetAccount(username, false);
-			if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, password, entry->hash))
-			{
-				user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
-				return CMD_FAILURE;
-			}
-			if(!account || username != account->GetAccountName(user))
-				user->WriteServ("NOTICE %s :Account %s has been dropped", user->nick.c_str(), username.c_str());
-			db->RemoveAccount(true, entry);
+			user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
+			return CMD_FAILURE;
 		}
-		recentlydropped.insert(username);
+		if(!account || username != account->GetAccountName(user))
+			user->WriteServ("NOTICE %s :Account %s has been dropped", user->nick.c_str(), username.c_str());
+		recentlydropped.insert(entry->name);
+		std::vector<std::string> params;
+		params.push_back("*");
+		params.push_back("RECENTLYDROPPED");
+		params.push_back(entry->name);
+		ServerInstance->PI->SendEncapsulatedData(params);
+		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return ROUTE_OPT_BCAST;
 	}
 };
 
@@ -309,25 +305,22 @@ class CommandFdrop : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		if(IS_LOCAL(user))
+		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
+		if(!entry)
 		{
-			AccountDBEntry* entry = db->GetAccount(parameters[0], false);
-			if(!entry)
-			{
-				user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
-				return CMD_FAILURE;
-			}
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used FDROP to force drop of account '%s'", user->nick.c_str(), entry->name.c_str());
-			user->WriteServ("NOTICE %s :Account %s force-dropped successfully", user->nick.c_str(), entry->name.c_str());
-			db->RemoveAccount(true, entry);
+			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
+			return CMD_FAILURE;
 		}
-		recentlydropped.insert(parameters[0]);
+		ServerInstance->SNO->WriteGlobalSno('a', "%s used FDROP to force drop of account '%s'", user->nick.c_str(), entry->name.c_str());
+		user->WriteServ("NOTICE %s :Account %s force-dropped successfully", user->nick.c_str(), entry->name.c_str());
+		recentlydropped.insert(entry->name);
+		std::vector<std::string> params;
+		params.push_back("*");
+		params.push_back("RECENTLYDROPPED");
+		params.push_back(entry->name);
+		ServerInstance->PI->SendEncapsulatedData(params);
+		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return ROUTE_OPT_BCAST;
 	}
 };
 
@@ -368,6 +361,24 @@ class CommandHold : public Command
 	}
 };
 
+/** Handle /RECENTLYDROPPED
+ */
+class CommandRecentlydropped : public Command
+{
+	std::set<irc::string>& recentlydropped;
+ public:
+	CommandRecentlydropped(Module* Creator, std::set<irc::string>& recentlydropped_ref) : Command(Creator,"RECENTLYDROPPED", 1, 1), recentlydropped(recentlydropped_ref)
+	{
+		flags_needed = FLAG_SERVERONLY; syntax = "<account name>";
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User*)
+	{
+		recentlydropped.insert(parameters[0]);
+		return CMD_SUCCESS;
+	}
+};
+
 class ModuleAccountRegister : public Module
 {
 	time_t expiretime;
@@ -379,12 +390,13 @@ class ModuleAccountRegister : public Module
 	CommandDrop cmd_drop;
 	CommandFdrop cmd_fdrop;
 	CommandHold cmd_hold;
+	CommandRecentlydropped cmd_recentlydropped;
 	TSExtItem last_used;
 
  public:
 	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped), cmd_chgpass(this, hashtype),
 		cmd_fchgpass(this, hashtype), cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
-		last_used("last_used", this)
+		cmd_recentlydropped(this, recentlydropped), last_used("last_used", this)
 	{
 	}
 
@@ -398,8 +410,9 @@ class ModuleAccountRegister : public Module
 		ServerInstance->Modules->AddService(cmd_fdrop);
 		ServerInstance->Modules->AddService(cmd_hold);
 		ServerInstance->Modules->AddService(cmd_hold.held);
+		ServerInstance->Modules->AddService(cmd_recentlydropped);
 		ServerInstance->Modules->AddService(last_used);
-		Implementation eventlist[] = { I_OnEvent, I_OnGarbageCollect };
+		Implementation eventlist[] = { I_OnEvent, I_OnSyncNetwork, I_OnGarbageCollect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -427,6 +440,12 @@ class ModuleAccountRegister : public Module
 			last_used.set(entry, ServerInstance->Time());
 			db->SendUpdate(entry, "last_used");
 		}
+	}
+
+	virtual void OnSyncNetwork(SyncTarget* target)
+	{
+		for (std::set<irc::string>::const_iterator i = recentlydropped.begin(); i != recentlydropped.end(); ++i)
+			target->SendCommand("ENCAP * RECENTLYDROPPED " + i->value);
 	}
 
 	void OnGarbageCollect()
