@@ -25,8 +25,9 @@ static dynamic_reference<AccountDBProvider> db("accountdb");
 class CommandRegister : public Command
 {
 	const std::string& hashtype;
+	const std::set<irc::string>& recentlydropped;
  public:
-	CommandRegister(Module* Creator, const std::string& hashtype_ref) : Command(Creator,"REGISTER", 1, 1), hashtype(hashtype_ref)
+	CommandRegister(Module* Creator, const std::string& hashtype_ref, const std::set<irc::string>& recentlydropped_ref) : Command(Creator,"REGISTER", 1, 1), hashtype(hashtype_ref), recentlydropped(recentlydropped_ref)
 	{
 		syntax = "<password>";
 	}
@@ -48,6 +49,11 @@ class CommandRegister : public Command
 		if(!entry)
 		{
 			user->WriteServ("NOTICE %s :Account %s already exists", user->nick.c_str(), user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		if(recentlydropped.find(user->nick) != recentlydropped.end())
+		{
+			user->WriteServ("NOTICE %s :Account %s was dropped less than an hour ago and may not yet be re-registered", user->nick.c_str(), user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		entry->hash_password_ts = entry->ts;
@@ -243,8 +249,9 @@ class CommandFchgpass : public Command
  */
 class CommandDrop : public Command
 {
+	std::set<irc::string>& recentlydropped;
  public:
-	CommandDrop(Module* Creator) : Command(Creator,"DROP", 1, 2)
+	CommandDrop(Module* Creator, std::set<irc::string>& recentlydropped_ref) : Command(Creator,"DROP", 1, 2), recentlydropped(recentlydropped_ref)
 	{
 		syntax = "[account name] <password>";
 	}
@@ -274,6 +281,7 @@ class CommandDrop : public Command
 		}
 		if(!account || username != account->GetAccountName(user))
 			user->WriteServ("NOTICE %s :Account %s has been dropped", user->nick.c_str(), username.c_str());
+		recentlydropped.insert(entry->name);
 		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}
@@ -283,8 +291,9 @@ class CommandDrop : public Command
  */
 class CommandFdrop : public Command
 {
+	std::set<irc::string>& recentlydropped;
  public:
-	CommandFdrop(Module* Creator) : Command(Creator,"FDROP", 1, 1)
+	CommandFdrop(Module* Creator, std::set<irc::string>& recentlydropped_ref) : Command(Creator,"FDROP", 1, 1), recentlydropped(recentlydropped_ref)
 	{
 		flags_needed = 'o'; syntax = "<account name>";
 	}
@@ -299,6 +308,7 @@ class CommandFdrop : public Command
 		}
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used FDROP to force drop of account '%s'", user->nick.c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE %s :Account %s force-dropped successfully", user->nick.c_str(), entry->name.c_str());
+		recentlydropped.insert(entry->name);
 		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}
@@ -345,6 +355,7 @@ class ModuleAccountRegister : public Module
 {
 	time_t expiretime;
 	std::string hashtype;
+	std::set<irc::string> recentlydropped;
 	CommandRegister cmd_register;
 	CommandChgpass cmd_chgpass;
 	CommandFchgpass cmd_fchgpass;
@@ -354,8 +365,9 @@ class ModuleAccountRegister : public Module
 	TSExtItem last_used;
 
  public:
-	ModuleAccountRegister() : cmd_register(this, hashtype), cmd_chgpass(this, hashtype), cmd_fchgpass(this, hashtype),
-		cmd_drop(this), cmd_fdrop(this), cmd_hold(this), last_used("last_used", this)
+	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped), cmd_chgpass(this, hashtype),
+		cmd_fchgpass(this, hashtype), cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
+		last_used("last_used", this)
 	{
 	}
 
@@ -407,6 +419,7 @@ class ModuleAccountRegister : public Module
 		time_t threshold = ServerInstance->Time() - expiretime;
 		time_t* last_used_time;
 		std::pair<time_t, bool>* held;
+		recentlydropped.clear();
 		for (user_hash::const_iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
 		{
 			if(!IS_LOCAL(i->second))
