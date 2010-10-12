@@ -267,23 +267,32 @@ class CommandDrop : public Command
 			else
 				username = user->nick;
 			password = parameters[0];
+			const_cast<std::vector<std::string>&>(parameters).insert(const_cast<std::vector<std::string>&>(parameters).begin(), username); // XXX: This is a hack.  Is it really necessary?
 		}
 		else
 		{
 			username = parameters[0];
 			password = parameters[1];
 		}
-		AccountDBEntry* entry = db->GetAccount(username, false);
-		if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, password, entry->hash))
+		if(IS_LOCAL(user))
 		{
-			user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
-			return CMD_FAILURE;
+			AccountDBEntry* entry = db->GetAccount(username, false);
+			if(!entry || entry->password.empty() || ServerInstance->PassCompare(user, entry->password, password, entry->hash))
+			{
+				user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
+				return CMD_FAILURE;
+			}
+			if(!account || username != account->GetAccountName(user))
+				user->WriteServ("NOTICE %s :Account %s has been dropped", user->nick.c_str(), username.c_str());
+			db->RemoveAccount(true, entry);
 		}
-		if(!account || username != account->GetAccountName(user))
-			user->WriteServ("NOTICE %s :Account %s has been dropped", user->nick.c_str(), username.c_str());
-		recentlydropped.insert(entry->name);
-		db->RemoveAccount(true, entry);
+		recentlydropped.insert(username);
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_OPT_BCAST;
 	}
 };
 
@@ -300,17 +309,25 @@ class CommandFdrop : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		AccountDBEntry* entry = db->GetAccount(parameters[0], false);
-		if(!entry)
+		if(IS_LOCAL(user))
 		{
-			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
-			return CMD_FAILURE;
+			AccountDBEntry* entry = db->GetAccount(parameters[0], false);
+			if(!entry)
+			{
+				user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
+				return CMD_FAILURE;
+			}
+			ServerInstance->SNO->WriteGlobalSno('a', "%s used FDROP to force drop of account '%s'", user->nick.c_str(), entry->name.c_str());
+			user->WriteServ("NOTICE %s :Account %s force-dropped successfully", user->nick.c_str(), entry->name.c_str());
+			db->RemoveAccount(true, entry);
 		}
-		ServerInstance->SNO->WriteGlobalSno('a', "%s used FDROP to force drop of account '%s'", user->nick.c_str(), entry->name.c_str());
-		user->WriteServ("NOTICE %s :Account %s force-dropped successfully", user->nick.c_str(), entry->name.c_str());
-		recentlydropped.insert(entry->name);
-		db->RemoveAccount(true, entry);
+		recentlydropped.insert(parameters[0]);
 		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_OPT_BCAST;
 	}
 };
 
