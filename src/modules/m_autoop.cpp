@@ -246,7 +246,7 @@ public:
 					ms.sequence.push_back(irc::modechange(mh.id, it->mask, false));
 			}
 			if(!ms.sequence.empty())
-				ServerInstance->SendMode(ServerInstance->FakeClient, iter->second, ms, false);
+				ServerInstance->SendMode(ServerInstance->FakeClient, iter->second, ms, true);
 		}
 	}
 
