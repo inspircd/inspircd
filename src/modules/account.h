@@ -171,7 +171,7 @@ class TSExtItem : public SimpleExtItem<time_t>
 	{
 		time_t* ts = static_cast<time_t*>(item);
 		if(!ts) /* If we don't have a TS, not if the TS is zero */
-			return "";
+			return format == FORMAT_USER ? "never" : "";
 		return ConvToStr(*ts);
 	}
 
@@ -193,7 +193,11 @@ class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
 	{
 		std::pair<time_t, bool>* p = static_cast<std::pair<time_t, bool>*>(item);
 		if(!p)
+		{
+			if(format == FORMAT_USER)
+				return default_value ? "true" : "false";
 			return "";
+		}
 		if(format == FORMAT_USER)
 			return p->second ? "true" : "false";
 		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + (p->second ? '1' : '0');
@@ -224,7 +228,7 @@ class TSIntExtItem : public SimpleExtItem<std::pair<time_t, signed int> >
 	{
 		std::pair<time_t, signed int>* p = static_cast<std::pair<time_t, signed int>*>(item);
 		if(!p)
-			return "";
+			return format == FORMAT_USER ? ConvToStr(default_value) : "";
 		if(format == FORMAT_USER)
 			return ConvToStr(p->second);
 		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + ConvToStr(p->second);

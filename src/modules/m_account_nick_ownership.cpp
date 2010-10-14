@@ -72,7 +72,7 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 	{
 		NicksOwned* p = static_cast<NicksOwned*>(item);
 		if(!p)
-			return "";
+			return format == FORMAT_USER ? "-none-" : "";
 		if(format == FORMAT_USER)
 		{
 			std::string retval;
@@ -89,7 +89,8 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 		{
 			str << i->nick << "," << i->ts << " ";
 		}
-		return str.str();
+		std::string retval = str.str();
+		return retval.empty() && format == FORMAT_USER ? "-none-" : "";
 	}
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
