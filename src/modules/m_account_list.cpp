@@ -66,11 +66,13 @@ class CommandAcctshow : public Command
 		}
 		user->WriteServ("NOTICE %s :Account \"%s\" TS: %lu Hash type: \"%s\"",
 			user->nick.c_str(), entry->name.c_str(), entry->ts, entry->hash.c_str());
-		for(Extensible::ExtensibleStore::const_iterator it = entry->GetExtList().begin(); it != entry->GetExtList().end(); ++it)
+		for(std::map<std::string, reference<ExtensionItem> >::const_iterator it = ServerInstance->Extensions.GetTypes().begin(); it != ServerInstance->Extensions.GetTypes().end(); ++it)
 		{
-			std::string value = it->first->serialize(FORMAT_USER, entry, it->second);
+			if(it->second->type_id != EXTENSIBLE_ACCOUNT) continue;
+			Extensible::ExtensibleStore::const_iterator iter = entry->GetExtList().find(it->second);
+			std::string value = it->second->serialize(FORMAT_USER, entry, iter != entry->GetExtList().end() ? iter->second : NULL);
 			if (!value.empty())
-				user->WriteServ("NOTICE %s :%s: %s", user->nick.c_str(), it->first->name.c_str(), value.c_str());
+				user->WriteServ("NOTICE %s :%s: %s", user->nick.c_str(), it->second->name.c_str(), value.c_str());
 		}
 		return CMD_SUCCESS;
 	}
