@@ -91,6 +91,7 @@ class CoreExport ExtensionManager
 	void Register(ExtensionItem* item);
 	void BeginUnregister(Module* module, ExtensibleType type, std::vector<reference<ExtensionItem> >& list);
 	ExtensionItem* GetItem(const std::string& name);
+	inline const std::map<std::string, reference<ExtensionItem> >& GetTypes() const { return types; }
 };
 
 /** Base class for items that are NOT synchronized between servers */
