@@ -29,6 +29,7 @@ class ModuleWaitPong : public Module
 
 	void init()
 	{
+		ServerInstance->Modules->AddService(ext);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
