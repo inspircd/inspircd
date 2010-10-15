@@ -27,7 +27,6 @@
 /* $ModDesc: SQL Service Provider module for all other m_sql* modules */
 /* $CompileFlags: exec("mysql_config --include") */
 /* $LinkerFlags: exec("mysql_config --libs_r") rpath("mysql_config --libs_r") */
-/* $ModDep: m_sqlv2.h */
 
 /* THE NONBLOCKING MYSQL API!
  *
