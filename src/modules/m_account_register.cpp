@@ -47,13 +47,6 @@ class CommandRegister : public Command
 			user->WriteServ("NOTICE %s :You are already logged in to an account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		// Don't send this now.  Wait until we have the password set.
-		AccountDBEntry* entry = db->AddAccount(false, user->nick, ServerInstance->Time(), hashtype);
-		if(!entry)
-		{
-			user->WriteServ("NOTICE %s :Account %s already exists", user->nick.c_str(), user->nick.c_str());
-			return CMD_FAILURE;
-		}
 		if(recentlydropped.find(user->nick) != recentlydropped.end())
 		{
 			user->WriteServ("NOTICE %s :Account %s was dropped less than an hour ago and may not yet be re-registered", user->nick.c_str(), user->nick.c_str());
@@ -63,6 +56,13 @@ class CommandRegister : public Command
 		if(maxregcount && user_regcount >= maxregcount && !user->HasPrivPermission("accounts/no-registration-limit"))
 		{
 			user->WriteServ("NOTICE %s :You have already registered the maximum number of accounts for this session", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		// Don't send this now.  Wait until we have the password set.
+		AccountDBEntry* entry = db->AddAccount(false, user->nick, ServerInstance->Time(), hashtype);
+		if(!entry)
+		{
+			user->WriteServ("NOTICE %s :Account %s already exists", user->nick.c_str(), user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		entry->hash_password_ts = entry->ts;
