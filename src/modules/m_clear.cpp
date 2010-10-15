@@ -20,7 +20,7 @@ class ClearBase : public Command
 	ClearBase (Module *me, const std::string &cmd, char flags) : Command (me, cmd, 2, 3)
 	{
 		flags_needed = flags;
-		syntax = "<channel> {users [reason] || +<modeletter> || <modename>}";
+		syntax = "<channel> {users [reason] || +<modeletter> [glob pattern] || <modename> [glob pattern]}";
 	}
 	/* this access check returns -1 if user doesn't have access, 0 if he does and if further access checks must be skipped, 1 if user has access to 
 	the command but kick and mode accesses must be checked */
@@ -30,17 +30,17 @@ class ClearBase : public Command
 	{
 	}
 	/* make the user user clear the mode pointed to by mh on channel chan */
-	void ListClear (User *user, Channel *chan, ModeHandler *mh, bool accesscheck)
+	void ListClear (User *user, Channel *chan, ModeHandler *mh, std::string glob, bool accesscheck)
 	{
 		/* create the modestacker and fill it with mode changes to be made */
 		irc::modestacker ms;
 		const modelist *list = mh->GetList (chan);
+		const bool matchAll = glob.empty() || (glob == "*");
 		if (!list)
 			return;
 		for (modelist::const_iterator it = list->begin ( ); it != list->end ( ); it++)
-		{
-			ms.push (irc::modechange (mh->id, it->mask, false));
-		}
+			if(matchAll || InspIRCd::Match(it->mask, glob))
+				ms.push (irc::modechange (mh->id, it->mask, false));
 		/* commit all mode changes and process them, calling handlers and skipping acls, it will update lists */
 		ServerInstance->Modes->Process (user, chan, ms, false, !accesscheck);
 		/* then, send information about all mode changes to users in the channel to make clients know it */
@@ -115,7 +115,7 @@ class ClearBase : public Command
 				return CMD_FAILURE;
 			}
 			/* clear the list mode */
-			ListClear (user, chan, mh, acc == 1 ? true : false);
+			ListClear (user, chan, mh, params.size() == 3 ? params[2] : "", acc == 1);
 		}
 		else
 		{
@@ -133,7 +133,7 @@ class ClearBase : public Command
 				return CMD_FAILURE;
 			}
 			/* clear the list mode */
-			ListClear (user, chan, mh, acc == 1 ? true : false);
+			ListClear (user, chan, mh, params.size() == 3 ? params[2] : "", acc == 1);
 		}
 		PostClear (user, chan, type);
 		return CMD_SUCCESS;
