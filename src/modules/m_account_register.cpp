@@ -26,8 +26,11 @@ class CommandRegister : public Command
 {
 	const std::string& hashtype;
 	const std::set<irc::string>& recentlydropped;
+	const unsigned int& maxregcount;
  public:
-	CommandRegister(Module* Creator, const std::string& hashtype_ref, const std::set<irc::string>& recentlydropped_ref) : Command(Creator,"REGISTER", 1, 1), hashtype(hashtype_ref), recentlydropped(recentlydropped_ref)
+	LocalIntExt regcount;
+	CommandRegister(Module* Creator, const std::string& hashtype_ref, const std::set<irc::string>& recentlydropped_ref, const unsigned int& maxregcount_ref) :
+		Command(Creator,"REGISTER", 1, 1), hashtype(hashtype_ref), recentlydropped(recentlydropped_ref), maxregcount(maxregcount_ref), regcount(EXTENSIBLE_USER, "regcount", Creator)
 	{
 		syntax = "<password>";
 	}
@@ -54,6 +57,12 @@ class CommandRegister : public Command
 		if(recentlydropped.find(user->nick) != recentlydropped.end())
 		{
 			user->WriteServ("NOTICE %s :Account %s was dropped less than an hour ago and may not yet be re-registered", user->nick.c_str(), user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		unsigned int user_regcount = regcount.get(user);
+		if(maxregcount && user_regcount >= maxregcount && !user->HasPrivPermission("accounts/no-registration-limit"))
+		{
+			user->WriteServ("NOTICE %s :You have already registered the maximum number of accounts for this session", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		entry->hash_password_ts = entry->ts;
@@ -91,6 +100,7 @@ class CommandRegister : public Command
 			}
 		}
 		db->SendAccount(entry);
+		regcount.set(user, user_regcount + 1);
 
 		if(account) account->DoLogin(user, entry->name, "");
 		return CMD_SUCCESS;
@@ -384,6 +394,7 @@ class ModuleAccountRegister : public Module
 	time_t expiretime;
 	std::string hashtype;
 	std::set<irc::string> recentlydropped;
+	unsigned int maxregcount;
 	CommandRegister cmd_register;
 	CommandChgpass cmd_chgpass;
 	CommandFchgpass cmd_fchgpass;
@@ -394,7 +405,7 @@ class ModuleAccountRegister : public Module
 	TSExtItem last_used;
 
  public:
-	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped), cmd_chgpass(this, hashtype),
+	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped, maxregcount), cmd_chgpass(this, hashtype),
 		cmd_fchgpass(this, hashtype), cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
 		cmd_recentlydropped(this, recentlydropped), last_used("last_used", this)
 	{
@@ -404,6 +415,7 @@ class ModuleAccountRegister : public Module
 	{
 		if(!db) throw ModuleException("m_account_register requires that m_account be loaded");
 		ServerInstance->Modules->AddService(cmd_register);
+		ServerInstance->Modules->AddService(cmd_register.regcount);
 		ServerInstance->Modules->AddService(cmd_chgpass);
 		ServerInstance->Modules->AddService(cmd_fchgpass);
 		ServerInstance->Modules->AddService(cmd_drop);
@@ -421,6 +433,7 @@ class ModuleAccountRegister : public Module
 		ConfigTag* conf = ServerInstance->Config->GetTag("acctregister");
 		hashtype = conf->getString("hashtype", "plaintext");
 		expiretime = ServerInstance->Duration (conf->getString ("expiretime", "21d"));
+		maxregcount = conf->getInt("maxregcount", 3);
 		if(expiretime && expiretime < 7200)
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "account expiration times of under 2 hours are unsafe, setting to 2 hours");
