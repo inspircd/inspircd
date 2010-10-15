@@ -290,6 +290,7 @@ class ModuleSilence : public Module
 	{
 		ServerInstance->AddCommand(&cmdsilence);
 		ServerInstance->AddCommand(&cmdsvssilence);
+		ServerInstance->Extensions.Register(&cmdsilence.ext);
 
 		Implementation eventlist[] = { I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
