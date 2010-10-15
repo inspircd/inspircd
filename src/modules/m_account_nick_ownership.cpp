@@ -81,7 +81,7 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 				retval.append(i->nick);
 				retval.push_back(' ');
 			}
-			return retval;
+			return !retval.empty() ? retval : "-none-";
 		}
 		std::ostringstream str;
 		str << p->first << (format == FORMAT_NETWORK ? " :" : " ");
@@ -89,8 +89,7 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 		{
 			str << i->nick << "," << i->ts << " ";
 		}
-		std::string retval = str.str();
-		return retval.empty() && format == FORMAT_USER ? "-none-" : "";
+		return str.str();
 	}
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
