@@ -343,6 +343,55 @@ class CommandSetenforce : public Command
 	}
 };
 
+/** Handle /ENFORCE
+ */
+class CommandEnforce : public Command
+{
+ public:
+	CommandEnforce(Module* Creator) : Command(Creator,"ENFORCE", 1, 1)
+	{
+		syntax = "<nick>";
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		if(IS_LOCAL(user))
+		{
+			AccountDBEntry* entry;
+			if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user), false)))
+			{
+				user->WriteServ("NOTICE %s :You are not logged in", user->nick.c_str());
+				return CMD_FAILURE;
+			}
+			NickMap::iterator iter = nickinfo.find(parameters[0]);
+			if(entry->name != parameters[0] && (iter == nickinfo.end() || iter->second != entry))
+			{
+				user->WriteServ("NOTICE %s :Nick %s is not registered to you", user->nick.c_str(), parameters[0].c_str());
+				return CMD_FAILURE;
+			}
+		}
+		User* target = ServerInstance->FindNick(parameters[0]);
+		if(!target)
+		{
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+		if(IS_LOCAL(user))
+			user->WriteServ("NOTICE %s :Nick %s enforced successfully", user->nick.c_str(), parameters[0].c_str());
+		if(IS_LOCAL(target))
+			target->ChangeNick(target->uuid, true);
+		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (dest)
+			return ROUTE_OPT_UCAST(dest->server);
+		return ROUTE_LOCALONLY;
+	}
+};
+
 class ModuleAccountNickOwnership : public Module
 {
  public:
@@ -351,8 +400,9 @@ class ModuleAccountNickOwnership : public Module
 	CommandDelnick cmd_delnick;
 	CommandFdelnick cmd_fdelnick;
 	CommandSetenforce cmd_setenforce;
+	CommandEnforce cmd_enforce;
 
-	ModuleAccountNickOwnership() : nicks("nicks", this), cmd_addnick(this), cmd_delnick(this), cmd_fdelnick(this), cmd_setenforce(this)
+	ModuleAccountNickOwnership() : nicks("nicks", this), cmd_addnick(this), cmd_delnick(this), cmd_fdelnick(this), cmd_setenforce(this), cmd_enforce(this)
 	{
 		nicks_ext = &nicks;
 	}
@@ -365,6 +415,7 @@ class ModuleAccountNickOwnership : public Module
 		ServerInstance->Modules->AddService(cmd_fdelnick);
 		ServerInstance->Modules->AddService(cmd_setenforce);
 		ServerInstance->Modules->AddService(cmd_setenforce.enforce);
+		ServerInstance->Modules->AddService(cmd_enforce);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnCheckReady, I_OnUserConnect, I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
