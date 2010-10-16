@@ -53,6 +53,7 @@ class CommandGhost : public Command
 				user->WriteServ("NOTICE %s :You may not ghost yourself", user->nick.c_str());
 				return CMD_FAILURE;
 			}
+			user->WriteServ("NOTICE %s :User %s ghosted successfully", user->nick.c_str(), parameters[0].c_str());
 		}
 		if(IS_LOCAL(target))
 			ServerInstance->Users->QuitUser(target, "GHOST command used by " + user->nick);
