@@ -723,7 +723,7 @@ void ModeParser::AddMode(ModeHandler* mh)
 		throw ModuleException("Prefix modes must define a mode character");
 
 	if (mc && FindMode(mc, mh->GetModeType()))
-		throw ModuleException("Duplicate mode character '" + std::string(mc,1) + "' found");
+		throw ModuleException("Duplicate mode character '" + std::string(1, mc) + "' found");
 
 	if (!mc && !ServerInstance->Config->NameOnlyModes)
 		throw ModuleException("<options:nameonlymodes> must be enabled to clear a mode character");
