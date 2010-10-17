@@ -81,13 +81,61 @@
 # chandb:dbid - The ID from a <database> tag
 
 <module name="m_serverbots.so">
-# A ChanServ interface to the modular service replacements:
-#<bot nick="ChanServ" ident="services" host="services.omega.org.za" name="Channel Services">
-#<botcmd bot="ChanServ" text="help" replace="BOTNOTICE :Commands are: REGISTER DROP ACCESSADD ACCESSDEL ACCESSLIST">
-#<botcmd bot="ChanServ" text="register" replace="MODE $1 +Z registered=$2">
-#<botcmd bot="ChanServ" text="drop" replace="MODE $1 -Z registered">
-#<botcmd bot="ChanServ" text="accessadd" replace="MODE $1 +Z autoop=$2">
-#<botcmd bot="ChanServ" text="accessdel" replace="MODE $1 -Z autoop=$2">
-#<botcmd bot="ChanServ" text="accesslist" replace="MODE $1 +Z autoop">
-
-
+# A ChanServ interface to the modular service replacements
+# Note that this assumes that you have not changed the letters used by the autoop or registered modes.
+<bot nick="ChanServ" ident="services" host="services.omega.org.za" name="Channel Services">
+<botcmd bot="ChanServ" text="help" format="help*"
+replace="BOTNOTICE :Syntax: &#02; /msg $bot HELP [command] [subcommand]&#02;
+BOTNOTICE :Displays a command list, or help for a specific command if one is given.
+BOTNOTICE :This command has no equivalent.">
+<botcmd bot="ChanServ" text="help" format="register*"
+replace="BOTNOTICE :Syntax: &#02; /msg $bot REGISTER <channel name> [registrant list]&#02;
+BOTNOTICE :Registers a channel to you, or to the provided registrant list.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> +r [registrant list]&#02;">
+<botcmd bot="ChanServ" text="help" format="drop*"
+replace="BOTNOTICE :Syntax: &#02; /msg $bot DROP <channel name>&#02;
+BOTNOTICE :Drops a channel that you are a registrant of.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> -r&#02;">
+<botcmd bot="ChanServ" text="help" format="access add*"
+replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS ADD <channel name> <access entry>&#02;
+BOTNOTICE :Adds an access entry to a channel.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> +w <access entry>&#02;">
+<botcmd bot="ChanServ" text="help" format="access del*"
+replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS DEL <channel name> <access entry>&#02;
+BOTNOTICE :Removes an access entry from a channel.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> -w <access entry>&#02;">
+<botcmd bot="ChanServ" text="help" format="access list*"
+replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS LIST <channel name>&#02;
+BOTNOTICE :Views a channel's access entries.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> +w&#02;">
+<botcmd bot="ChanServ" text="help" format="access clear*"
+replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS CLEAR <channel name> [pattern]&#02;
+BOTNOTICE :Clears a channel's access entries, or if a glob pattern is given, only the entries that match it.
+BOTNOTICE :Equivalent: &#02;/QUOTE CLEAR <channel name> +w [pattern]&#02;">
+<botcmd bot="ChanServ" text="help" format="access*"
+replace="BOTNOTICE :Views or changes a channel's access entries.&#02;
+BOTNOTICE :&#02;ACCESS ADD&#02; - Adds an access entry to a channel.
+BOTNOTICE :&#02;ACCESS DEL&#02; - Removes an access entry to a channel.
+BOTNOTICE :&#02;ACCESS LIST&#02; - Views a channel's access entries.
+BOTNOTICE :&#02;ACCESS CLEAR&#02; - Clears a channel's access entries.">
+<botcmd bot="ChanServ" text="help"
+replace="BOTNOTICE :&#02;$bot&#02; is a wrapper around the channel registration services.
+BOTNOTICE :The commmands it provides are:
+BOTNOTICE :&#02;HELP&#02; - View help
+BOTNOTICE :&#02;REGISTER&#02; - Register a channel
+BOTNOTICE :&#02;DROP&#02; - Unregister a channel
+BOTNOTICE :&#02;ACCESS&#02; - View or modify a channel's access list">
+<botcmd bot="ChanServ" format="register ?*" replace="MODE $2 +r $3">
+<botcmd bot="ChanServ" format="register*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP REGISTER&#02; for help with this command.">
+<botcmd bot="ChanServ" format="drop ?*" replace="MODE $2 -r">
+<botcmd bot="ChanServ" format="drop*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP DROP&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" format="add ?* ?*" replace="MODE $3 +w $4">
+<botcmd bot="ChanServ" text="access" format="add*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS ADD&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" format="del ?* ?*" replace="MODE $3 -w $4">
+<botcmd bot="ChanServ" text="access" format="del*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS DEL&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" format="list ?*" replace="MODE $3 +w">
+<botcmd bot="ChanServ" text="access" format="list*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS LIST&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" format="clear ?*" replace="CLEAR $3 +w $4">
+<botcmd bot="ChanServ" text="access" format="clear*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS CLEAR&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" replace="BOTNOTICE :Unknown subcommand.  Type &#02;/msg $bot HELP ACCESS&#02; for help with this command.">
+<botcmd bot="ChanServ" replace="BOTNOTICE :Unknown command.  Type &#02;/msg $bot HELP&#02; for help.">
