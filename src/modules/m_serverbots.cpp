@@ -105,26 +105,24 @@ class BotData
 
 		std::pair<AliasIter, AliasIter> range = Aliases.equal_range(command);
 
-		for(AliasIter i = range.first; i != range.second; i++)
-		{
-			DoAlias(user, &i->second, params, text);
-		}
+		for(AliasIter i = range.first; i != range.second; ++i)
+			if(DoAlias(user, &i->second, params, text))
+				return;
 
 		// also support no-command aliases (presumably they have format checks)
 		range = Aliases.equal_range("");
-		for(AliasIter i = range.first; i != range.second; i++)
-		{
-			DoAlias(user, &i->second, text, text);
-		}
+		for(AliasIter i = range.first; i != range.second; ++i)
+			if(DoAlias(user, &i->second, text, text))
+				return;
 	}
 
-	void DoAlias(User *user, Alias *a, const std::string& params, const std::string& text)
+	bool DoAlias(User *user, Alias *a, const std::string& params, const std::string& text)
 	{
 		/* Does it match the pattern? */
 		if (!a->format.empty())
 		{
 			if (!InspIRCd::Match(params, a->format))
-				return;
+				return false;
 		}
 
 		if (!a->RequiredNick.empty())
@@ -134,14 +132,14 @@ class BotData
 			{
 				user->WriteFrom(bot, "NOTICE %s :%s is currently unavailable. Please try again later.",
 					user->nick.c_str(), a->RequiredNick.c_str());
-				return;
+				return true;
 			}
 			if (a->ULineOnly && !ServerInstance->ULine(u->server))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+std::string(a->AliasedCommand.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
 				user->WriteFrom(bot, "NOTICE %s :%s is an imposter! Please inform an IRC operator as soon as possible.",
 					user->nick.c_str(), a->RequiredNick.c_str());
-				return;
+				return true;
 			}
 		}
 
@@ -153,6 +151,7 @@ class BotData
 		{
 			DoCommand(scommand, user, text);
 		}
+		return true;
 	}
 
 	void DoCommand(const std::string& format, User* user, const std::string &text)
