@@ -379,7 +379,11 @@ class CommandEnforce : public Command
 		if(IS_LOCAL(user))
 			user->WriteServ("NOTICE %s :Nick %s enforced successfully", user->nick.c_str(), parameters[0].c_str());
 		if(IS_LOCAL(target))
+		{
+			target->WriteNumeric(433, "%s %s :Nickname overruled: ENFORCE command used",
+				target->nick.c_str(), target->nick.c_str());
 			target->ChangeNick(target->uuid, true);
+		}
 		return CMD_SUCCESS;
 	}
 
