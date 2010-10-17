@@ -458,7 +458,7 @@ void TreeSocket::Close()
 
 	if (!linkID.empty())
 	{
-		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",linkID.c_str());
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed: %s.",linkID.c_str(), getError().c_str());
 
 		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
