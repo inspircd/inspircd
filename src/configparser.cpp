@@ -122,6 +122,7 @@ struct Parser
 				std::string varname;
 				while (1)
 				{
+					ch = next();
 					if (isalnum(ch) || (varname.empty() && ch == '#'))
 						varname.push_back(ch);
 					else if (ch == ';')
@@ -132,7 +133,6 @@ struct Parser
 							<< "To include an ampersand or quote, use &amp; or &quot;\n";
 						throw CoreException("Parse error");
 					}
-					ch = next();
 				}
 				const char* varname_c = varname.c_str();
 				if (varname_c[0] == '#')
