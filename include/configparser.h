@@ -37,7 +37,10 @@ struct ParseStack
 		: output(conf->config_data), FilesOutput(conf->Files), errstr(conf->status.errors)
 	{
 		vars["amp"] = "&";
+		vars["apos"] = "'";
 		vars["quot"] = "\"";
+		vars["lt"] = "<";
+		vars["gt"] = ">";
 		vars["newline"] = vars["nl"] = "\n";
 	}
 	bool ParseFile(const std::string& name, int flags);

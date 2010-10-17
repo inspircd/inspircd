@@ -122,8 +122,7 @@ struct Parser
 				std::string varname;
 				while (1)
 				{
-					ch = next();
-					if (isalnum(ch))
+					if (isalnum(ch) || (varname.empty() && ch == '#'))
 						varname.push_back(ch);
 					else if (ch == ';')
 						break;
@@ -133,11 +132,30 @@ struct Parser
 							<< "To include an ampersand or quote, use &amp; or &quot;\n";
 						throw CoreException("Parse error");
 					}
+					ch = next();
 				}
-				std::map<std::string, std::string>::iterator var = stack.vars.find(varname);
-				if (var == stack.vars.end())
-					throw CoreException("Undefined XML entity reference '&" + varname + ";'");
-				value.append(var->second);
+				const char* varname_c = varname.c_str();
+				if (varname_c[0] == '#')
+				{
+					int val = 0;
+					char* end;
+					if (tolower(varname_c[1]) == 'x')
+						val = strtol(varname_c + 2, &end, 16);
+					else
+						val = strtol(varname_c + 1, &end, 10);
+					if (val == 0 || *end != '\0')
+						throw CoreException("Bad numeric character reference (&#xx;)");
+					if (val > 255 || val < 0)
+						throw CoreException("Unicode character references are not allowed");
+					value.push_back(val);
+				}
+				else
+				{
+					std::map<std::string, std::string>::iterator var = stack.vars.find(varname);
+					if (var == stack.vars.end())
+						throw CoreException("Undefined XML entity reference '&" + varname + ";'");
+					value.append(var->second);
+				}
 			}
 			else if (ch == '\\' && !(flags & FLAG_USE_XML))
 			{
