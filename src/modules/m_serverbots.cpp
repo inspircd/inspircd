@@ -170,7 +170,7 @@ class BotData
 		ss.GetToken(command);
 		if (irc::string(command) == "BOTNOTICE")
 		{
-			ss.GetRemaining(token);
+			ss.GetToken(token);
 			user->Write(":%s NOTICE %s :%s", bothost.c_str(), user->nick.c_str(), token.c_str());
 			return;
 		}
