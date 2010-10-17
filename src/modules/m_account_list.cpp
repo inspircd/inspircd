@@ -64,8 +64,8 @@ class CommandAcctshow : public Command
 			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		user->WriteServ("NOTICE %s :Account \"%s\" TS: %lu Hash type: \"%s\"",
-			user->nick.c_str(), entry->name.c_str(), entry->ts, entry->hash.c_str());
+		user->WriteServ("NOTICE %s :Account %s: Registration time: %s Hash type: %s",
+			user->nick.c_str(), entry->name.c_str(), ServerInstance->TimeString(entry->ts).c_str(), entry->hash.c_str());
 		for(std::map<std::string, reference<ExtensionItem> >::const_iterator it = ServerInstance->Extensions.GetTypes().begin(); it != ServerInstance->Extensions.GetTypes().end(); ++it)
 		{
 			if(it->second->type_id != EXTENSIBLE_ACCOUNT) continue;

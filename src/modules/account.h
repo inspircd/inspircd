@@ -170,8 +170,14 @@ class TSExtItem : public SimpleExtItem<time_t>
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
 		time_t* ts = static_cast<time_t*>(item);
-		if(!ts) /* If we don't have a TS, not if the TS is zero */
-			return format == FORMAT_USER ? "never" : "";
+		if(format == FORMAT_USER)
+		{
+			if(!ts || !*ts)
+				return "never";
+			return ServerInstance->TimeString(*ts);
+		}
+		if(!ts)
+			return "";
 		return ConvToStr(*ts);
 	}
 
