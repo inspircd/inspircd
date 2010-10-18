@@ -107,13 +107,13 @@ class CommandRegister : public Command
 	}
 };
 
-/** Handle /CHGPASS
+/** Handle /SETPASS
  */
-class CommandChgpass : public Command
+class CommandSetpass : public Command
 {
 	const std::string& hashtype;
  public:
-	CommandChgpass(Module* Creator, const std::string& hashtype_ref) : Command(Creator,"CHGPASS", 2, 3), hashtype(hashtype_ref)
+	CommandSetpass(Module* Creator, const std::string& hashtype_ref) : Command(Creator,"SETPASS", 2, 3), hashtype(hashtype_ref)
 	{
 		syntax = "[username] <old password> <new password>";
 	}
@@ -189,13 +189,13 @@ class CommandChgpass : public Command
 	}
 };
 
-/** Handle /FCHGPASS
+/** Handle /FSETPASS
  */
-class CommandFchgpass : public Command
+class CommandFsetpass : public Command
 {
 	const std::string& hashtype;
  public:
-	CommandFchgpass(Module* Creator, const std::string& hashtype_ref) : Command(Creator,"FCHGPASS", 2, 2), hashtype(hashtype_ref)
+	CommandFsetpass(Module* Creator, const std::string& hashtype_ref) : Command(Creator,"FSETPASS", 2, 2), hashtype(hashtype_ref)
 	{
 		flags_needed = 'o'; syntax = "<username> <new password>";
 	}
@@ -249,7 +249,7 @@ class CommandFchgpass : public Command
 		}
 		entry->hash_password_ts = ServerInstance->Time();
 		db->SendUpdate(entry, "hash_password");
-		ServerInstance->SNO->WriteGlobalSno('a', "%s used FCHGPASS to force password change of account '%s'", user->nick.c_str(), entry->name.c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "%s used FSETPASS to force password change of account '%s'", user->nick.c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE %s :Account %s force-password changed successfully", user->nick.c_str(), entry->name.c_str());
 		return CMD_SUCCESS;
 	}
@@ -396,8 +396,8 @@ class ModuleAccountRegister : public Module
 	std::set<irc::string> recentlydropped;
 	unsigned int maxregcount;
 	CommandRegister cmd_register;
-	CommandChgpass cmd_chgpass;
-	CommandFchgpass cmd_fchgpass;
+	CommandSetpass cmd_setpass;
+	CommandFsetpass cmd_fsetpass;
 	CommandDrop cmd_drop;
 	CommandFdrop cmd_fdrop;
 	CommandHold cmd_hold;
@@ -405,8 +405,8 @@ class ModuleAccountRegister : public Module
 	TSExtItem last_used;
 
  public:
-	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped, maxregcount), cmd_chgpass(this, hashtype),
-		cmd_fchgpass(this, hashtype), cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
+	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped, maxregcount), cmd_setpass(this, hashtype),
+		cmd_fsetpass(this, hashtype), cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
 		cmd_recentlydropped(this, recentlydropped), last_used("last_used", this)
 	{
 	}
@@ -416,8 +416,8 @@ class ModuleAccountRegister : public Module
 		if(!db) throw ModuleException("m_account_register requires that m_account be loaded");
 		ServerInstance->Modules->AddService(cmd_register);
 		ServerInstance->Modules->AddService(cmd_register.regcount);
-		ServerInstance->Modules->AddService(cmd_chgpass);
-		ServerInstance->Modules->AddService(cmd_fchgpass);
+		ServerInstance->Modules->AddService(cmd_setpass);
+		ServerInstance->Modules->AddService(cmd_fsetpass);
 		ServerInstance->Modules->AddService(cmd_drop);
 		ServerInstance->Modules->AddService(cmd_fdrop);
 		ServerInstance->Modules->AddService(cmd_hold);

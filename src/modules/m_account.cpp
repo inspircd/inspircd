@@ -268,13 +268,13 @@ class CommandSvsaccount : public Command
 	}
 };
 
-/** Handle /LOGIN
+/** Handle /IDENTIFY
  */
-class CommandLogin : public Command
+class CommandIdentify : public Command
 {
 	AccountDB& db;
  public:
-	CommandLogin(Module* Creator, AccountDB& db_ref) : Command(Creator,"LOGIN", 1, 2), db(db_ref)
+	CommandIdentify(Module* Creator, AccountDB& db_ref) : Command(Creator,"IDENTIFY", 1, 2), db(db_ref)
 	{
 		syntax = "[account name] <password>";
 	}
@@ -346,11 +346,11 @@ class ModuleAccount : public Module
 {
  private:
 	CommandSvsaccount cmd;
-	CommandLogin cmd_login;
+	CommandIdentify cmd_identify;
 	CommandLogout cmd_logout;
 
  public:
-	ModuleAccount() : cmd(this), cmd_login(this, cmd.prov.db), cmd_logout(this)
+	ModuleAccount() : cmd(this), cmd_identify(this, cmd.prov.db), cmd_logout(this)
 	{
 	}
 
@@ -358,7 +358,7 @@ class ModuleAccount : public Module
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.prov);
-		ServerInstance->Modules->AddService(cmd_login);
+		ServerInstance->Modules->AddService(cmd_identify);
 		ServerInstance->Modules->AddService(cmd_logout);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnSyncNetwork, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -380,11 +380,11 @@ class ModuleAccount : public Module
 			return;
 		std::string::size_type sep = user->password.find_first_of(':');
 		if(sep != std::string::npos &&
-			cmd_login.TryLogin(user, user->password.substr(0, sep), user->password.substr(sep + 1)))
+			cmd_identify.TryLogin(user, user->password.substr(0, sep), user->password.substr(sep + 1)))
 			return;
-		if(cmd_login.TryLogin(user, user->nick, user->password))
+		if(cmd_identify.TryLogin(user, user->nick, user->password))
 			return;
-		cmd_login.TryLogin(user, user->ident, user->password);
+		cmd_identify.TryLogin(user, user->ident, user->password);
 	}
 
 	void OnSyncNetwork(SyncTarget* target)
