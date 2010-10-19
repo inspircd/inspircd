@@ -205,15 +205,16 @@ class ModuleAlias : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+	virtual void OnUserMessage(User *u, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 	{
 		if (target_type != TYPE_CHANNEL)
 		{
 			return;
 		}
 
+		LocalUser* user;
 		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
-		if (!user || !IS_LOCAL(user))
+		if (!u || !(user = IS_LOCAL(u)))
 		{
 			return;
 		}
@@ -275,7 +276,7 @@ class ModuleAlias : public Module
 	}
 
 
-	int DoAlias(User *user, Channel *c, Alias *a, const std::string compare, const std::string safe)
+	int DoAlias(LocalUser *user, Channel *c, Alias *a, const std::string compare, const std::string safe)
 	{
 		User *u = NULL;
 
@@ -337,7 +338,7 @@ class ModuleAlias : public Module
 		}
 	}
 
-	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line)
+	void DoCommand(const std::string& newline, LocalUser* user, Channel *chan, const std::string &original_line)
 	{
 		AliasFormatSubst subst(original_line);
 		user->PopulateInfoMap(subst.info);
@@ -354,7 +355,8 @@ class ModuleAlias : public Module
 		{
 			pars.push_back(token);
 		}
-		ServerInstance->Parser->CallHandler(command, pars, user);
+		CmdResult res = ServerInstance->Parser->CallHandler(command, pars, user);
+		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, pars, user, res,original_line));
 	}
 
 	void ReadConfig(ConfigReadStatus&)

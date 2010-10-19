@@ -96,8 +96,10 @@ class BotData
 	ServerBot* const bot;
 	BotData(ServerBot* Bot) : bot(Bot) {}
 
-	void HandleMessage(User* user, const std::string& text)
+	void HandleMessage(LocalUser* user, const std::string& text)
 	{
+		if(!user)
+			return;
 		irc::spacesepstream ss(text);
 		std::string command, params;
 		ss.GetToken(command);
@@ -116,7 +118,7 @@ class BotData
 				return;
 	}
 
-	bool DoAlias(User *user, Alias *a, const std::string& params, const std::string& text)
+	bool DoAlias(LocalUser *user, Alias *a, const std::string& params, const std::string& text)
 	{
 		/* Does it match the pattern? */
 		if (!a->format.empty())
@@ -154,7 +156,7 @@ class BotData
 		return true;
 	}
 
-	void DoCommand(const std::string& format, User* user, const std::string &text)
+	void DoCommand(const std::string& format, LocalUser* user, const std::string &text)
 	{
 		AliasFormatSubst subst(text);
 		user->PopulateInfoMap(subst.info);
@@ -179,7 +181,8 @@ class BotData
 		{
 			pars.push_back(token);
 		}
-		ServerInstance->Parser->CallHandler(command, pars, user);
+		CmdResult res = ServerInstance->Parser->CallHandler(command, pars, user);
+		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, pars, user, res,text));
 	}
 
 	std::string GetVar(std::string varname, const std::string &original_line)
@@ -241,7 +244,7 @@ class ModuleServerBots : public Module
 		}
 
 		recursing = true;
-		bot->HandleMessage(user, text);
+		bot->HandleMessage(IS_LOCAL(user), text);
 		recursing = false;
 	}
 
