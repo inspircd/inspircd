@@ -101,7 +101,7 @@ class CommandRegister : public Command
 		}
 		db->SendAccount(entry);
 		regcount.set(user, user_regcount + 1);
-
+		ServerInstance->SNO->WriteGlobalSno('u', "%s used REGISTER to register a new account", user->nick.c_str());
 		if(account) account->DoLogin(user, entry->name, "");
 		return CMD_SUCCESS;
 	}
@@ -297,6 +297,7 @@ class CommandDrop : public Command
 		params.push_back("RECENTLYDROPPED");
 		params.push_back(entry->name);
 		ServerInstance->PI->SendEncapsulatedData(params);
+		ServerInstance->SNO->WriteGlobalSno('u', "%s used DROP to drop account %s", user->nick.c_str(), entry->name.c_str());
 		db->RemoveAccount(true, entry);
 		return CMD_SUCCESS;
 	}

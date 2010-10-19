@@ -356,6 +356,7 @@ class ModuleAccount : public Module
 
 	void init()
 	{
+		ServerInstance->SNO->EnableSnomask('u', "ACCOUNT");
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.prov);
 		ServerInstance->Modules->AddService(cmd_identify);

@@ -207,6 +207,7 @@ class CommandAddnick : public Command
 			nicks_ext->set(entry, p);
 		nickinfo.insert(std::make_pair(user->nick, entry));
 		db->SendUpdate(entry, "nicks");
+		ServerInstance->SNO->WriteGlobalSno('u', "%s used ADDNICK to register their nick to %s", user->nick.c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE %s :Nick %s has been registered to account %s", user->nick.c_str(), user->nick.c_str(), entry->name.c_str());
 		return CMD_SUCCESS;
 	}
@@ -255,6 +256,7 @@ class CommandDelnick : public Command
 			throw ModuleException("An entry in nickinfo is incorrect");
 		p->second.erase(i);
 		db->SendUpdate(entry, "nicks");
+		ServerInstance->SNO->WriteGlobalSno('u', "%s used DELNICK to unregister nick %s from %s", user->nick.c_str(), nick.c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE %s :Nick %s has been unregistered", user->nick.c_str(), nick.c_str());
 		return CMD_SUCCESS;
 	}
