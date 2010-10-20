@@ -23,6 +23,8 @@ static std::vector<ZLine *> background_zlines;
 class RLine : public XLine
 {
  public:
+	std::string matchtext;
+	Regex *regex;
 
 	/** Create a R-Line.
 	 * @param s_time The set time
@@ -82,10 +84,6 @@ class RLine : public XLine
 	{
 		return matchtext.c_str();
 	}
-
-	std::string matchtext;
-
-	Regex *regex;
 };
 
 
