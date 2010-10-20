@@ -385,6 +385,8 @@ class CommandEnforce : public Command
 			target->WriteNumeric(433, "%s %s :Nickname overruled: ENFORCE command used",
 				target->nick.c_str(), target->nick.c_str());
 			target->ChangeNick(target->uuid, true);
+			if(user->registered != REG_ALL)
+				user->registered &= ~REG_NICK;
 		}
 		return CMD_SUCCESS;
 	}
