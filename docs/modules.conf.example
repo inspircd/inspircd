@@ -1351,6 +1351,11 @@
 # so that at least \s or [[:space:]] is available.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# RMATCH module: Match users matching a regular expression
+#<module name="m_rmatch.so">
+#<rmatch engine="glob">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAJOIN module: Adds the /SAJOIN command
 # This module is oper-only.
 # To use, SAJOIN must be in one of your oper class blocks.
