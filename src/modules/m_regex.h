@@ -18,7 +18,9 @@
 
 enum RegexFlags {
 	REGEX_NONE = 0,
-	REGEX_CASE_INSENSITIVE = 1
+	REGEX_CASE_INSENSITIVE = 1,
+	REGEX_IRC_LOWERCASE = 2,
+	REGEX_SPACES_TO_UNDERSCORES = 4
 };
 
 class Regex : public classbase

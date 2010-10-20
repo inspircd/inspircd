@@ -32,10 +32,13 @@ class POSIXRegex : public Regex
 {
 private:
 	regex_t regbuf;
+	bool irc_lowercase, spaces_to_underscores;
 
 public:
 	POSIXRegex(const std::string& rx, RegexFlags reflags, bool extended) : Regex(rx)
 	{
+		irc_lowercase = reflags & REGEX_IRC_LOWERCASE;
+		spaces_to_underscores = reflags & REGEX_SPACES_TO_UNDERSCORES;
 		int flags = (extended ? REG_EXTENDED : 0) | ((reflags & REGEX_CASE_INSENSITIVE) ? REG_ICASE : 0) | REG_NOSUB;
 		int errcode;
 		errcode = regcomp(&regbuf, rx.c_str(), flags);
@@ -62,12 +65,12 @@ public:
 
 	virtual bool Matches(const std::string& text)
 	{
-		if (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		std::string matchtext(irc_lowercase ? irc::irc_char_traits::remap(text) : text);
+		if(spaces_to_underscores)
+			for(std::string::iterator i = matchtext.begin(); i != matchtext.end(); ++i)
+				if(*i == ' ')
+					*i = '_';
+		return regexec(&regbuf, matchtext.c_str(), 0, NULL, 0) == 0;
 	}
 };
 
@@ -106,7 +109,7 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
-		ref.extended = ServerInstance->Config->GetTag("posix")->getBool("extended");
+		ref.extended = ServerInstance->Config->GetTag("posix")->getBool("extended", true);
 	}
 };
 

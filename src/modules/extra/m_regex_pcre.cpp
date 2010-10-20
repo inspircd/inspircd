@@ -37,9 +37,10 @@ class PCRERegex : public Regex
 {
 private:
 	pcre* regex;
+	RegexFlags flags;
 
 public:
-	PCRERegex(const std::string& rx, RegexFlags flags) : Regex(rx)
+	PCRERegex(const std::string& rx, RegexFlags reflags) : Regex(rx), flags(reflags)
 	{
 		const char* error;
 		int erroffset;
@@ -58,12 +59,12 @@ public:
 
 	virtual bool Matches(const std::string& text)
 	{
-		if (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		std::string matchtext((flags & REGEX_IRC_LOWERCASE) ? irc::irc_char_traits::remap(text) : text);
+		if(flags & REGEX_SPACES_TO_UNDERSCORES)
+			for(std::string::iterator i = matchtext.begin(); i != matchtext.end(); ++i)
+				if(*i == ' ')
+					*i = '_';
+		return pcre_exec(regex, NULL, matchtext.c_str(), matchtext.length(), 0, 0, NULL, 0) > -1;
 	}
 };
 

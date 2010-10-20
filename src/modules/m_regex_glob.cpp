@@ -18,9 +18,17 @@
 
 class GlobRegex : public Regex
 {
+	unsigned const char* map;
+	bool irc_lowercase, spaces_to_underscores;
 public:
-	GlobRegex(const std::string& rx) : Regex(rx)
+	GlobRegex(const std::string& rx, RegexFlags flags) : Regex(rx)
 	{
+		if(flags & REGEX_CASE_INSENSITIVE)
+			map = ascii_case_insensitive_map;
+		else
+			map = rfc_case_sensitive_map;
+		irc_lowercase = flags & REGEX_IRC_LOWERCASE;
+		spaces_to_underscores = flags & REGEX_SPACES_TO_UNDERSCORES;
 	}
 
 	virtual ~GlobRegex()
@@ -29,16 +37,23 @@ public:
 
 	virtual bool Matches(const std::string& text)
 	{
-		return InspIRCd::Match(text, this->regex_string);
+		std::string matchtext(irc_lowercase ? irc::irc_char_traits::remap(text) : text);
+		if(spaces_to_underscores)
+		{
+			for(std::string::iterator i = matchtext.begin(); i != matchtext.end(); ++i)
+				if(*i == ' ')
+					*i = '_';
+		}
+		return InspIRCd::Match(matchtext, this->regex_string, map);
 	}
 };
 
 class GlobFactory : public RegexFactory
 {
  public:
-	Regex* Create(const std::string& expr, RegexFlags)
+	Regex* Create(const std::string& expr, RegexFlags flags)
 	{
-		return new GlobRegex(expr);
+		return new GlobRegex(expr, flags);
 	}
 
 	GlobFactory(Module* m) : RegexFactory(m, "regex/glob") {}
