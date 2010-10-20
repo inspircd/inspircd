@@ -102,10 +102,10 @@ class CommandWebirc : public Command
 						ServerInstance->Users->RemoveCloneCounts(user);
 						user->InvalidateCache();
 						user->SetClientIP(parameters[3].c_str());
-						if (parameters[2].length() < 64)
-							user->host = user->dhost = parameters[2];
-						else
+						if (parameters[2].length() >= 64 || parameters[2] == parameters[3])
 							user->host = user->dhost = user->GetIPString();
+						else
+							user->host = user->dhost = parameters[2];
 						ServerInstance->Users->AddLocalClone(user);
 						ServerInstance->Users->AddGlobalClone(user);
 						user->CheckLines(true);
