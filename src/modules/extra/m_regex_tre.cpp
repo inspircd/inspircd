@@ -36,9 +36,9 @@ private:
 	regex_t regbuf;
 
 public:
-	TRERegex(const std::string& rx) : Regex(rx)
+	TRERegex(const std::string& rx, RegexFlags reflags) : Regex(rx)
 	{
-		int flags = REG_EXTENDED | REG_NOSUB;
+		int flags = REG_EXTENDED | REG_NOSUB | ((reflags & REGEX_CASE_INSENSITIVE) ? REG_ICASE : 0);
 		int errcode;
 		errcode = regcomp(&regbuf, rx.c_str(), flags);
 		if (errcode)
@@ -76,9 +76,9 @@ public:
 class TREFactory : public RegexFactory {
  public:
 	TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr, RegexFlags flags)
 	{
-		return new TRERegex(expr);
+		return new TRERegex(expr, flags);
 	}
 };
 

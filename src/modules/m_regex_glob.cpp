@@ -36,7 +36,7 @@ public:
 class GlobFactory : public RegexFactory
 {
  public:
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr, RegexFlags)
 	{
 		return new GlobRegex(expr);
 	}

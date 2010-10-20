@@ -42,7 +42,7 @@ class RLine : public XLine
 		/* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
 		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
 		 */
-		regex = rxfactory->Create(regexs);
+		regex = rxfactory->Create(regexs, REGEX_NONE);
 	}
 
 	/** Destructor

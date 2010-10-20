@@ -522,7 +522,7 @@ ImplFilter::ImplFilter(ModuleFilter* mymodule, const std::string &rea, const std
 {
 	if (!mymodule->RegexEngine)
 		throw ModuleException("Regex module implementing '"+mymodule->RegexEngine.GetProvider()+"' is not loaded!");
-	regex = mymodule->RegexEngine->Create(pat);
+	regex = mymodule->RegexEngine->Create(pat, REGEX_NONE);
 }
 
 FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)

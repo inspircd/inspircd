@@ -16,6 +16,11 @@
 
 #include "inspircd.h"
 
+enum RegexFlags {
+	REGEX_NONE = 0,
+	REGEX_CASE_INSENSITIVE = 1
+};
+
 class Regex : public classbase
 {
 protected:
@@ -45,7 +50,7 @@ class RegexFactory : public DataProvider
  public:
 	RegexFactory(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) {}
 
-	virtual Regex* Create(const std::string& expr) = 0;
+	virtual Regex* Create(const std::string& expr, RegexFlags flags) = 0;
 };
 
 #endif

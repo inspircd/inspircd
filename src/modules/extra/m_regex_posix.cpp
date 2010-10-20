@@ -34,9 +34,9 @@ private:
 	regex_t regbuf;
 
 public:
-	POSIXRegex(const std::string& rx, bool extended) : Regex(rx)
+	POSIXRegex(const std::string& rx, RegexFlags reflags, bool extended) : Regex(rx)
 	{
-		int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
+		int flags = (extended ? REG_EXTENDED : 0) | ((reflags & REGEX_CASE_INSENSITIVE) ? REG_ICASE : 0) | REG_NOSUB;
 		int errcode;
 		errcode = regcomp(&regbuf, rx.c_str(), flags);
 		if (errcode)
@@ -76,9 +76,9 @@ class PosixFactory : public RegexFactory
  public:
 	bool extended;
 	PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr, RegexFlags flags)
 	{
-		return new POSIXRegex(expr, extended);
+		return new POSIXRegex(expr, flags, extended);
 	}
 };
 

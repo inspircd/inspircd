@@ -39,11 +39,11 @@ private:
 	pcre* regex;
 
 public:
-	PCRERegex(const std::string& rx) : Regex(rx)
+	PCRERegex(const std::string& rx, RegexFlags flags) : Regex(rx)
 	{
 		const char* error;
 		int erroffset;
-		regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
+		regex = pcre_compile(rx.c_str(), ((flags & REGEX_CASE_INSENSITIVE) ? PCRE_CASELESS : 0), &error, &erroffset, NULL);
 		if (!regex)
 		{
 			ServerInstance->Logs->Log("REGEX", DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
@@ -71,9 +71,9 @@ class PCREFactory : public RegexFactory
 {
  public:
 	PCREFactory(Module* m) : RegexFactory(m, "regex/pcre") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr, RegexFlags flags)
 	{
-		return new PCRERegex(expr);
+		return new PCRERegex(expr, flags);
 	}
 };
 
