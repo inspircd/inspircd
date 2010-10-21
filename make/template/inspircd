@@ -380,16 +380,16 @@ sub getpidfile
 sub getstatus {
 	my $pid = getprocessid();
 	return 0 if $pid == 0;
-	return kill 0, $pid;
+	return kill 0, $1;
 }
 
 
 sub getprocessid {
-	my $pid;
-	open PIDFILE, "< $pidfile" or return 0;
+	my $pid = 0;
+	open PIDFILE, '<', $pidfile or return 0;
 	while(<PIDFILE>)
 	{
-		$pid = $_;
+		/(\d+)/ and $pid = $1;
 	}
 	close PIDFILE;
 	return $pid;
