@@ -482,19 +482,19 @@ void ModePermissionData::DoRankCheck()
 
 	unsigned int neededrank = mh->GetLevelRequired();
 
-	Membership* memb = chan->GetUser(user);
-	if(memb)
-	{
-		unsigned int protectrank = memb->GetProtectRank();
-		if(neededrank < protectrank)
-			neededrank = protectrank;
-	}
 	/* Compare our rank on the channel against the rank of the required prefix,
 	 * allow if >= ours. Because mIRC and xchat throw a tizz if the modes shown
 	 * in NAMES(X) are not in rank order, we know the most powerful mode is listed
 	 * first, so we don't need to iterate, we just look up the first instead.
 	 */
 	unsigned int ourrank = chan->GetAccessRank(source);
+	Membership* memb = chan->GetUser(user);
+	if(memb && ourrank < memb->GetProtectRank())
+	{
+		ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :They have a higher prefix set", chan->name.c_str());
+		result = MOD_RES_DENY;
+		return;
+	}
 	if (ourrank >= neededrank)
 	{
 		result = MOD_RES_ALLOW;
