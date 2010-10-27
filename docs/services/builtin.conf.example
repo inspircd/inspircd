@@ -1,6 +1,10 @@
 # Example configuration for builtin services (2.1)
 #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Ghost module: Adds support for users disconnecting their own ghosts
+<module name="m_ghost.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Account system base module: Adds support for ircd-side account
 # tracking
 <module name="m_account.so">
@@ -81,61 +85,160 @@
 # chandb:dbid - The ID from a <database> tag
 
 <module name="m_serverbots.so">
-# A ChanServ interface to the modular service replacements
+# An interface to the modular service replacements
 # Note that this assumes that you have not changed the letters used by the autoop or registered modes.
 <bot nick="ChanServ" ident="services" host="services.omega.org.za" name="Channel Services">
-<botcmd bot="ChanServ" text="help" format="help*"
-replace="BOTNOTICE :Syntax: &#02; /msg $bot HELP [command] [subcommand]&#02;
-BOTNOTICE :Displays a command list, or help for a specific command if one is given.
-BOTNOTICE :This command has no equivalent.">
-<botcmd bot="ChanServ" text="help" format="register*"
-replace="BOTNOTICE :Syntax: &#02; /msg $bot REGISTER <channel name> [registrant list]&#02;
-BOTNOTICE :Registers a channel to you, or to the provided registrant list.
-BOTNOTICE :Equivalent: &#02;/MODE <channel name> +r [registrant list]&#02;">
-<botcmd bot="ChanServ" text="help" format="drop*"
-replace="BOTNOTICE :Syntax: &#02; /msg $bot DROP <channel name>&#02;
-BOTNOTICE :Drops a channel that you are a registrant of.
-BOTNOTICE :Equivalent: &#02;/MODE <channel name> -r&#02;">
-<botcmd bot="ChanServ" text="help" format="access add*"
-replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS ADD <channel name> <access entry>&#02;
+<botcmd bot="ChanServ" text="access" format="add #* ?*" replace="MODE $3 +w $4-">
+<botcmd bot="ChanServ" text="access" format="add*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS ADD&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" format="clear #*" replace="CLEAR $3 +w $4-">
+<botcmd bot="ChanServ" text="access" format="clear*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS CLEAR&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" format="del #* ?*" replace="MODE $3 -w $4-">
+<botcmd bot="ChanServ" text="access" format="del*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS DEL&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" format="list #*" replace="MODE $3 +w">
+<botcmd bot="ChanServ" text="access" format="list*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS LIST&#02; for help with this command.">
+<botcmd bot="ChanServ" text="access" replace="BOTNOTICE :Unknown subcommand.  Type &#02;/msg $bot HELP ACCESS&#02; for help with this command.">
+<botcmd bot="ChanServ" format="drop #*" replace="MODE $2- -r">
+<botcmd bot="ChanServ" format="drop*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP DROP&#02; for help with this command.">
+<botcmd bot="ChanServ" text="help" format="access add"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot ACCESS ADD <channel name> <access entry>&#02;
 BOTNOTICE :Adds an access entry to a channel.
 BOTNOTICE :Equivalent: &#02;/MODE <channel name> +w <access entry>&#02;">
-<botcmd bot="ChanServ" text="help" format="access del*"
-replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS DEL <channel name> <access entry>&#02;
-BOTNOTICE :Removes an access entry from a channel.
-BOTNOTICE :Equivalent: &#02;/MODE <channel name> -w <access entry>&#02;">
-<botcmd bot="ChanServ" text="help" format="access list*"
-replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS LIST <channel name>&#02;
-BOTNOTICE :Views a channel's access entries.
-BOTNOTICE :Equivalent: &#02;/MODE <channel name> +w&#02;">
-<botcmd bot="ChanServ" text="help" format="access clear*"
-replace="BOTNOTICE :Syntax: &#02; /msg $bot ACCESS CLEAR <channel name> [pattern]&#02;
+<botcmd bot="ChanServ" text="help" format="access clear"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot ACCESS CLEAR <channel name> [pattern]&#02;
 BOTNOTICE :Clears a channel's access entries, or if a glob pattern is given, only the entries that match it.
 BOTNOTICE :Equivalent: &#02;/QUOTE CLEAR <channel name> +w [pattern]&#02;">
-<botcmd bot="ChanServ" text="help" format="access*"
+<botcmd bot="ChanServ" text="help" format="access del"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot ACCESS DEL <channel name> <access entry>&#02;
+BOTNOTICE :Removes an access entry from a channel.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> -w <access entry>&#02;">
+<botcmd bot="ChanServ" text="help" format="access list"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot ACCESS LIST <channel name>&#02;
+BOTNOTICE :Views a channel's access entries.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> +w&#02;">
+<botcmd bot="ChanServ" text="help" format="access"
 replace="BOTNOTICE :Views or changes a channel's access entries.&#02;
 BOTNOTICE :&#02;ACCESS ADD&#02; - Adds an access entry to a channel.
+BOTNOTICE :&#02;ACCESS CLEAR&#02; - Clears a channel's access entries.
 BOTNOTICE :&#02;ACCESS DEL&#02; - Removes an access entry to a channel.
-BOTNOTICE :&#02;ACCESS LIST&#02; - Views a channel's access entries.
-BOTNOTICE :&#02;ACCESS CLEAR&#02; - Clears a channel's access entries.">
-<botcmd bot="ChanServ" text="help"
+BOTNOTICE :&#02;ACCESS LIST&#02; - Views a channel's access entries.">
+<botcmd bot="ChanServ" text="help" format="drop"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot DROP <channel name>&#02;
+BOTNOTICE :Drops a channel that you are a registrant of.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> -r&#02;">
+<botcmd bot="ChanServ" text="help" format="help"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot HELP [command] [subcommand]&#02;
+BOTNOTICE :Displays a command list, or help for a specific command if one is given.
+BOTNOTICE :This command has no equivalent.">
+<botcmd bot="ChanServ" text="help" format="register"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot REGISTER <channel name> [registrant list]&#02;
+BOTNOTICE :Registers a channel to you, or to the provided registrant list.
+BOTNOTICE :Equivalent: &#02;/MODE <channel name> +r [registrant list]&#02;">
+<botcmd bot="ChanServ" format="help *"
+replace="BOTNOTICE :No help available for &#02;$2-&#02;.">
+<botcmd bot="ChanServ" format="help"
 replace="BOTNOTICE :&#02;$bot&#02; is a wrapper around the channel registration services.
 BOTNOTICE :The commmands it provides are:
-BOTNOTICE :&#02;HELP&#02; - View help
-BOTNOTICE :&#02;REGISTER&#02; - Register a channel
+BOTNOTICE :&#02;ACCESS&#02; - View or modify a channel's access list
 BOTNOTICE :&#02;DROP&#02; - Unregister a channel
-BOTNOTICE :&#02;ACCESS&#02; - View or modify a channel's access list">
-<botcmd bot="ChanServ" format="register ?*" replace="MODE $2 +r $3">
+BOTNOTICE :&#02;HELP&#02; - View help
+BOTNOTICE :&#02;REGISTER&#02; - Register a channel">
+<botcmd bot="ChanServ" format="register #*" replace="MODE $2 +r $3-">
 <botcmd bot="ChanServ" format="register*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP REGISTER&#02; for help with this command.">
-<botcmd bot="ChanServ" format="drop ?*" replace="MODE $2 -r">
-<botcmd bot="ChanServ" format="drop*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP DROP&#02; for help with this command.">
-<botcmd bot="ChanServ" text="access" format="add ?* ?*" replace="MODE $3 +w $4">
-<botcmd bot="ChanServ" text="access" format="add*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS ADD&#02; for help with this command.">
-<botcmd bot="ChanServ" text="access" format="del ?* ?*" replace="MODE $3 -w $4">
-<botcmd bot="ChanServ" text="access" format="del*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS DEL&#02; for help with this command.">
-<botcmd bot="ChanServ" text="access" format="list ?*" replace="MODE $3 +w">
-<botcmd bot="ChanServ" text="access" format="list*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS LIST&#02; for help with this command.">
-<botcmd bot="ChanServ" text="access" format="clear ?*" replace="CLEAR $3 +w $4">
-<botcmd bot="ChanServ" text="access" format="clear*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ACCESS CLEAR&#02; for help with this command.">
-<botcmd bot="ChanServ" text="access" replace="BOTNOTICE :Unknown subcommand.  Type &#02;/msg $bot HELP ACCESS&#02; for help with this command.">
 <botcmd bot="ChanServ" replace="BOTNOTICE :Unknown command.  Type &#02;/msg $bot HELP&#02; for help.">
+<bot nick="NickServ" ident="services" host="services.omega.org.za" name="Account and Nick Services">
+<botcmd bot="NickServ" text="addnick" replace="ADDNICK">
+<botcmd bot="NickServ" text="delnick" replace="DELNICK $2-">
+<botcmd bot="NickServ" format="drop *" replace="DROP $2-">
+<botcmd bot="NickServ" format="drop" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP DROP&#02; for help with this command.">
+<botcmd bot="NickServ" format="enforce *" replace="ENFORCE $2-">
+<botcmd bot="NickServ" format="enforce" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP ENFORCE&#02; for help with this command.">
+<botcmd bot="NickServ" format="ghost *" replace="GHOST $2-">
+<botcmd bot="NickServ" format="ghost" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP GHOST&#02; for help with this command.">
+<botcmd bot="NickServ" text="help" format="addnick"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot ADDNICK&#02;
+BOTNOTICE :Adds your current nick to your account.
+BOTNOTICE :Equivalent: &#02;/ADDNICK&#02;">
+<botcmd bot="NickServ" text="help" format="delnick"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot DELNICK [nick]&#02;
+BOTNOTICE :Removes the specified nick from your account, or your current nick if no nick is specified.
+BOTNOTICE :Equivalent: &#02;/DELNICK [nick]&#02;">
+<botcmd bot="NickServ" text="help" format="drop"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot DROP [account name] <password>&#02;
+BOTNOTICE :Drops the specified account, or your current account if no account is specified.
+BOTNOTICE :Equivalent: &#02;/DROP [account name] <password>&#02;">
+<botcmd bot="NickServ" text="help" format="enforce"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot ENFORCE <nick>&#02;
+BOTNOTICE :Forces a user using a nick you own to change their nick.
+BOTNOTICE :Equivalent: &#02;/ENFORCE <nick>&#02;">
+<botcmd bot="NickServ" text="help" format="ghost"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot GHOST <nick>&#02;
+BOTNOTICE :Disconnects another user logged in to the same account that you are.
+BOTNOTICE :Equivalent: &#02;/GHOST <nick>&#02;">
+<botcmd bot="NickServ" text="help" format="help"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot HELP [command] [subcommand]&#02;
+BOTNOTICE :Displays a command list, or help for a specific command if one is given.
+BOTNOTICE :This command has no equivalent.">
+<botcmd bot="NickServ" text="help" format="identify"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot IDENTIFY [account name] <password>&#02;
+BOTNOTICE :Logs you into the account with the given name, or your nick if no name is given, and the given password.
+BOTNOTICE :Equivalent: &#02;/IDENTIFY [account name] <password>&#02;">
+<botcmd bot="NickServ" text="help" format="list"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot LIST [pattern]&#02;
+BOTNOTICE :Lists all accounts matching the given pattern, or all accounts if no pattern is given.
+BOTNOTICE :Note that only IRC operators can see hidden accounts that are not their own.
+BOTNOTICE :Equivalent: &#02;/ACCTLIST [pattern]&#02;">
+<botcmd bot="NickServ" text="help" format="logout"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot LOGOUT&#02;
+BOTNOTICE :Logs you out of your account.
+BOTNOTICE :Equivalent: &#02;/LOGOUT&#02;">
+<botcmd bot="NickServ" text="help" format="register"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot REGISTER <password>&#02;
+BOTNOTICE :Registers an account with your current nick as its name, and the specified password as its password.
+BOTNOTICE :Equivalent: &#02;/REGISTER <password>&#02;">
+<botcmd bot="NickServ" text="help" format="set enforce"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot SET ENFORCE OFF|ON&#02;
+BOTNOTICE :Sets whether or not an account's nicks are enforced.
+BOTNOTICE :Equivalent: &#02;/SETENFORCE OFF|ON&#02;">
+<botcmd bot="NickServ" text="help" format="set hidden"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot SET HIDDEN OFF|ON&#02;
+BOTNOTICE :Sets whether or not an account is hidden from non-IRC operators in the account list.
+BOTNOTICE :Equivalent: &#02;/SETHIDDEN OFF|ON&#02;">
+<botcmd bot="NickServ" text="help" format="set password"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot SET PASSWORD [account] <old password> <new password>&#02;
+BOTNOTICE :Changes the given account's password, or your current account if none is given, to the new password, provided that the old password is correct.
+BOTNOTICE :Equivalent: &#02;/SETPASS [account] <old password> <new password>&#02;">
+<botcmd bot="NickServ" text="help" format="set"
+replace="BOTNOTICE :Changes your account's settings.&#02;
+BOTNOTICE :&#02;SET ENFORCE&#02; - Sets whether nicks are enforced.
+BOTNOTICE :&#02;SET HIDDEN&#02; - Sets whether an account is hidden.
+BOTNOTICE :&#02;SET PASSWORD&#02; - Changes an account's password.">
+<botcmd bot="NickServ" format="help *"
+replace="BOTNOTICE :No help available for &#02;$2-&#02;.">
+<botcmd bot="NickServ" format="help"
+replace="BOTNOTICE :&#02;$bot&#02; is a wrapper around the account registration and nick ownership services.
+BOTNOTICE :The commmands it provides are:
+BOTNOTICE :&#02;ADDNICK&#02; - Add your current nick to your account
+BOTNOTICE :&#02;DELNICK&#02; - Remove a nick from your account
+BOTNOTICE :&#02;DROP&#02; - Unregister an account
+BOTNOTICE :&#02;ENFORCE&#02; - Enforce one of your nicks
+BOTNOTICE :&#02;GHOST&#02; - Disconnect a ghost session
+BOTNOTICE :&#02;HELP&#02; - View help
+BOTNOTICE :&#02;IDENTIFY&#02; - Log in to an account
+BOTNOTICE :&#02;LIST&#02; - List accounts
+BOTNOTICE :&#02;LOGOUT&#02; - Log out of your account
+BOTNOTICE :&#02;REGISTER&#02; - Register an account
+BOTNOTICE :&#02;SET&#02; - Change your account's settings">
+<botcmd bot="NickServ" format="identify *" replace="IDENTIFY $2-">
+<botcmd bot="NickServ" format="identify" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP IDENTIFY&#02; for help with this command.">
+<botcmd bot="NickServ" text="list" replace="ACCTLIST $2-">
+<botcmd bot="NickServ" text="logout" replace="LOGOUT">
+<botcmd bot="NickServ" format="register *" replace="REGISTER $2-">
+<botcmd bot="NickServ" format="register" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP REGISTER&#02; for help with this command.">
+<botcmd bot="NickServ" text="set" format="enforce o?*" replace="SETENFORCE $3-">
+<botcmd bot="NickServ" text="set" format="enforce**" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP SET ADD&#02; for help with this command.">
+<botcmd bot="NickServ" text="set" format="hidden o?*" replace="SETHIDDEN $3-">
+<botcmd bot="NickServ" text="set" format="hidden*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP SET CLEAR&#02; for help with this command.">
+<botcmd bot="NickServ" text="set" format="password ?*" replace="SETPASS $3-">
+<botcmd bot="NickServ" text="set" format="password*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP SET DEL&#02; for help with this command.">
+<botcmd bot="NickServ" text="set" replace="BOTNOTICE :Unknown subcommand.  Type &#02;/msg $bot HELP SET&#02; for help with this command.">
+<botcmd bot="NickServ" replace="BOTNOTICE :Unknown command.  Type &#02;/msg $bot HELP&#02; for help.">
