@@ -93,21 +93,54 @@ class FlagCmd : public Command
 	OpFlagProviderImpl prov;
 	unsigned int conflevel;
 	unsigned int usermax;
-	FlagCmd(Module* parent) : Command(parent, "OPFLAGS", 2), prov(parent)
+	FlagCmd(Module* parent) : Command(parent, "OPFLAGS", 1), prov(parent)
 	{
-		syntax = "<channel> <nick> {+-=}[<flags>]";
+		syntax = "<channel> [nick] {+-=}[<flags>]";
 		TRANSLATE4(TR_TEXT, TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
 	{
 		Channel* chan = ServerInstance->FindChan(parameters[0]);
-		User* user = ServerInstance->FindNick(parameters[1]);
-
-		if (!user || !chan)
+		if (!chan)
 		{
 			src->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",
-				src->nick.c_str(), parameters[chan ? 1 : 0].c_str());
+				src->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+
+		if (parameters.size() == 1)
+		{
+			std::map<std::string, std::vector<std::string> > opflags;
+			std::string tmp;
+			for(UserMembCIter i = chan->GetUsers()->begin(); i != chan->GetUsers()->end(); ++i)
+			{
+				irc::commasepstream flags(prov.GetFlags(i->second));
+				while(flags.GetToken(tmp))
+					opflags[tmp].push_back(i->first->nick);
+			}
+			for(std::map<std::string, std::vector<std::string> >::iterator i = opflags.begin(); i != opflags.end(); ++i)
+			{
+				for(std::vector<std::string>::iterator j = i->second.begin(); j != i->second.end(); ++j)
+				{
+					if(j == i->second.begin())
+						tmp.clear();
+					else
+						tmp.push_back(',');
+					tmp.append(*j);
+				}
+				src->WriteNumeric(926, "%s %s %s %s :Opflag is held by these users", src->nick.c_str(),
+					chan->name.c_str(), i->first.c_str(), tmp.c_str());
+			}
+			src->WriteNumeric(925, "%s %s :End of channel opflags", src->nick.c_str(), chan->name.c_str());
+			return CMD_SUCCESS;
+		}
+
+		User* user = ServerInstance->FindNick(parameters[1]);
+		if (!user)
+		{
+			src->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",
+				src->nick.c_str(), parameters[1].c_str());
 			return CMD_FAILURE;
 		}
 
