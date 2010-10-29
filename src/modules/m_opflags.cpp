@@ -146,13 +146,20 @@ class FlagCmd : public Command
 
 		Membership* memb = chan->GetUser(user);
 		if (!memb)
+		{
+			src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel", src->nick.c_str(), user->nick.c_str(), chan->name.c_str());
 			return CMD_FAILURE;
+		}
 		std::string* ptr = prov.ext.get(memb);
 
 		if (parameters.size() == 2)
 		{
-			src->WriteServ("NOTICE %s :User %s has %s%s", chan->name.c_str(),
-				user->nick.c_str(), ptr ? "opflags " : "no opflags", ptr ? ptr->c_str() : "");
+			if(ptr)
+				src->WriteNumeric(923, "%s %s %s %s :Opflags held", src->nick.c_str(),
+					chan->name.c_str(), user->nick.c_str(), ptr->c_str());
+			else
+				src->WriteNumeric(924, "%s %s %s :No opflags held", src->nick.c_str(),
+					chan->name.c_str(), user->nick.c_str());
 			return CMD_SUCCESS;
 		}
 
@@ -203,23 +210,29 @@ class FlagCmd : public Command
 		}
 		if (IS_LOCAL(src) && flags.size() > usermax)
 		{
-			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Users cannot have more than %d opflags set.",
-				src->nick.c_str(), chan->name.c_str(), usermax);
+			src->WriteNumeric(920, "%s %s %s :User would have too many opflags set",
+				src->nick.c_str(), chan->name.c_str(), user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		if (flags.empty())
 		{
 			prov.ext.unset(memb);
 			if (!IS_SERVER(src))
-				chan->WriteChannelWithServ(src->server, "NOTICE %s :%s removed all opflags from %s",
-					chan->name.c_str(), src->nick.c_str(), user->nick.c_str());
+				for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
+					if (IS_LOCAL(i->first))
+						i->first->WriteNumeric(922, "%s %s %s %s :Removed all opflags from",
+							i->first->nick.c_str(), chan->name.c_str(), src->nick.c_str(),
+							user->nick.c_str());
 		}
 		else
 		{
 			std::string v = prov.SetFlags(memb, flags, false);
 			if (!IS_SERVER(src))
-				chan->WriteChannelWithServ(src->server, "NOTICE %s :%s set %s opflags to %s",
-					chan->name.c_str(), src->nick.c_str(), user->nick.c_str(), v.c_str());
+				for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
+					if (IS_LOCAL(i->first))
+						i->first->WriteNumeric(921, "%s %s %s %s %s :Set opflags to",
+							i->first->nick.c_str(), chan->name.c_str(), src->nick.c_str(),
+							user->nick.c_str(), v.c_str());
 		}
 		return CMD_SUCCESS;
 	}
