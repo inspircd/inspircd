@@ -218,7 +218,7 @@ class FlagCmd : public Command
 		{
 			prov.ext.unset(memb);
 			if (!IS_SERVER(src))
-				for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
+				for (UserMembIter i = chan->userlist.begin(); i != chan->userlist.end(); ++i)
 					if (IS_LOCAL(i->first))
 						i->first->WriteNumeric(922, "%s %s %s %s :Removed all opflags from",
 							i->first->nick.c_str(), chan->name.c_str(), src->nick.c_str(),
@@ -228,7 +228,7 @@ class FlagCmd : public Command
 		{
 			std::string v = prov.SetFlags(memb, flags, false);
 			if (!IS_SERVER(src))
-				for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
+				for (UserMembIter i = chan->userlist.begin(); i != chan->userlist.end(); ++i)
 					if (IS_LOCAL(i->first))
 						i->first->WriteNumeric(921, "%s %s %s %s %s :Set opflags to",
 							i->first->nick.c_str(), chan->name.c_str(), src->nick.c_str(),
