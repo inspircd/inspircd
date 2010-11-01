@@ -341,7 +341,7 @@ class CommandHold : public Command
 {
  public:
 	TSBoolExtItem held;
-	CommandHold(Module* Creator) : Command(Creator,"HOLD", 2, 2), held("held", false, Creator)
+	CommandHold(Module* Creator) : Command(Creator,"HOLD", 2, 2), held("Held", false, Creator)
 	{
 		flags_needed = 'o'; syntax = "<account name> OFF|ON";
 	}
@@ -408,7 +408,7 @@ class ModuleAccountRegister : public Module
  public:
 	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped, maxregcount), cmd_setpass(this, hashtype),
 		cmd_fsetpass(this, hashtype), cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
-		cmd_recentlydropped(this, recentlydropped), last_used("last_used", this)
+		cmd_recentlydropped(this, recentlydropped), last_used("Last_used", this)
 	{
 	}
 

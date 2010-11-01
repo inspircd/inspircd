@@ -315,7 +315,7 @@ class CommandSetenforce : public Command
 {
  public:
 	TSBoolExtItem enforce;
-	CommandSetenforce(Module* Creator) : Command(Creator,"SETENFORCE", 1, 1), enforce("enforce", false, Creator)
+	CommandSetenforce(Module* Creator) : Command(Creator,"SETENFORCE", 1, 1), enforce("Automatically_enforce_nicks", false, Creator)
 	{
 		syntax = "OFF|ON";
 	}
@@ -410,7 +410,7 @@ class ModuleAccountNickOwnership : public Module
 	CommandSetenforce cmd_setenforce;
 	CommandEnforce cmd_enforce;
 
-	ModuleAccountNickOwnership() : nicks("nicks", this), cmd_addnick(this), cmd_delnick(this), cmd_fdelnick(this), cmd_setenforce(this), cmd_enforce(this)
+	ModuleAccountNickOwnership() : nicks("Nicks_owned", this), cmd_addnick(this), cmd_delnick(this), cmd_fdelnick(this), cmd_setenforce(this), cmd_enforce(this)
 	{
 		nicks_ext = &nicks;
 	}

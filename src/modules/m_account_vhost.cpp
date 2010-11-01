@@ -37,7 +37,7 @@ class CommandAcctvhost : public Command
 
  public:
 	TSStringExtItem vhost;
-	CommandAcctvhost(Module* Creator, char* hmap) : Command(Creator,"ACCTVHOST", 1, 2), hostmap(hmap), vhost("vhost", Creator)
+	CommandAcctvhost(Module* Creator, char* hmap) : Command(Creator,"ACCTVHOST", 1, 2), hostmap(hmap), vhost("Vhost", Creator)
 	{
 		flags_needed = 'o'; syntax = "<account name> [vhost]";
 	}

@@ -64,6 +64,7 @@ class CommandAcctshow : public Command
 			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
+		std::string printname;
 		user->WriteServ("NOTICE %s :Account %s: Registration time: %s Hash type: %s",
 			user->nick.c_str(), entry->name.c_str(), ServerInstance->TimeString(entry->ts).c_str(), entry->hash.c_str());
 		for(std::map<std::string, reference<ExtensionItem> >::const_iterator it = ServerInstance->Extensions.GetTypes().begin(); it != ServerInstance->Extensions.GetTypes().end(); ++it)
@@ -72,7 +73,13 @@ class CommandAcctshow : public Command
 			Extensible::ExtensibleStore::const_iterator iter = entry->GetExtList().find(it->second);
 			std::string value = it->second->serialize(FORMAT_USER, entry, iter != entry->GetExtList().end() ? iter->second : NULL);
 			if (!value.empty())
-				user->WriteServ("NOTICE %s :%s: %s", user->nick.c_str(), it->second->name.c_str(), value.c_str());
+			{
+				printname = it->second->name;
+				for(std::string::iterator i = printname.begin(); i != printname.end(); ++i)
+					if(*i == '_')
+						*i = ' ';
+				user->WriteServ("NOTICE %s :%s: %s", user->nick.c_str(), printname.c_str(), value.c_str());
+			}
 		}
 		return CMD_SUCCESS;
 	}
@@ -122,7 +129,7 @@ class ModuleAccountList : public Module
 	CommandSethidden cmd_sethidden;
 
  public:
-	ModuleAccountList() : hidden("hidden", true, this), cmd_acctlist(this, hidden), cmd_acctshow(this), cmd_sethidden(this, hidden)
+	ModuleAccountList() : hidden("Hidden", true, this), cmd_acctlist(this, hidden), cmd_acctshow(this), cmd_sethidden(this, hidden)
 	{
 	}
 
