@@ -98,13 +98,13 @@ class CoreExport Command : public ServiceProvider
 
 	/** Minimum number of parameters command takes
 	*/
-	const unsigned int min_params;
+	unsigned int min_params;
 
 	/** Maximum number of parameters command takes.
 	 * This is used by the command parser to join extra parameters into one last param.
 	 * If not set, no munging is done to this command.
 	 */
-	const unsigned int max_params;
+	unsigned int max_params;
 
 	/** used by /stats m
 	 */
