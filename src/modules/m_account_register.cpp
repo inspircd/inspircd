@@ -17,8 +17,16 @@
 
 /* $ModDesc: Allow users to register their own accounts */
 
-static dynamic_reference<AccountProvider> account("account");
+static dynamic_reference<AccountProvider> accounts("account");
 static dynamic_reference<AccountDBProvider> db("accountdb");
+
+static bool IsValidEmail(const std::string& emailaddr)
+{
+	// We consider an email valid if it contains exactly one @ sign that isn't at the very beginning or end.
+	// We don't check for a dot because some email addresses don't have one, such as root@localhost
+	std::string::size_type pos = emailaddr.find_first_of('@');
+	return pos != std::string::npos && pos != 0 && pos != emailaddr.length() - 1 && pos == emailaddr.find_last_of('@');
+}
 
 /** Handle /REGISTER
  */
@@ -27,12 +35,13 @@ class CommandRegister : public Command
 	const std::string& hashtype;
 	const std::set<irc::string>& recentlydropped;
 	const unsigned int& maxregcount;
+	TSStringExtItem& email;
  public:
 	LocalIntExt regcount;
-	CommandRegister(Module* Creator, const std::string& hashtype_ref, const std::set<irc::string>& recentlydropped_ref, const unsigned int& maxregcount_ref) :
-		Command(Creator,"REGISTER", 1, 1), hashtype(hashtype_ref), recentlydropped(recentlydropped_ref), maxregcount(maxregcount_ref), regcount(EXTENSIBLE_USER, "regcount", Creator)
+	CommandRegister(Module* Creator, const std::string& hashtype_ref, const std::set<irc::string>& recentlydropped_ref, TSStringExtItem& email_ref, const unsigned int& maxregcount_ref) :
+		Command(Creator,"REGISTER", 1, 2), hashtype(hashtype_ref), recentlydropped(recentlydropped_ref), maxregcount(maxregcount_ref), email(email_ref), regcount(EXTENSIBLE_USER, "regcount", Creator)
 	{
-		syntax = "<password>";
+		syntax = "<password> [email]";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -42,7 +51,7 @@ class CommandRegister : public Command
 			user->WriteServ("NOTICE %s :You may not register your UID", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		if (account && account->IsRegistered(user))
+		if (accounts && accounts->IsRegistered(user))
 		{
 			user->WriteServ("NOTICE %s :You are already logged in to an account", user->nick.c_str());
 			return CMD_FAILURE;
@@ -56,6 +65,11 @@ class CommandRegister : public Command
 		if(maxregcount && user_regcount >= maxregcount && !user->HasPrivPermission("accounts/no-registration-limit"))
 		{
 			user->WriteServ("NOTICE %s :You have already registered the maximum number of accounts for this session", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		if(parameters.size() == 2 && !IsValidEmail(parameters[1]))
+		{
+			user->WriteServ("NOTICE %s :The email address provided is invalid", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		// Don't send this now.  Wait until we have the password set.
@@ -99,11 +113,66 @@ class CommandRegister : public Command
 				ServerInstance->Logs->Log ("MODULE", DEFAULT, "unknown hash type in m_account_register, not using a hash");
 			}
 		}
+		if(parameters.size() == 2)
+			email.set(entry, std::make_pair(ServerInstance->Time(), parameters[1]));
 		db->SendAccount(entry);
 		regcount.set(user, user_regcount + 1);
-		ServerInstance->SNO->WriteGlobalSno('u', "%s used REGISTER to register a new account", user->nick.c_str());
-		if(account) account->DoLogin(user, entry->name, "");
+		if(parameters.size() == 2)
+			ServerInstance->SNO->WriteGlobalSno('u', "%s used REGISTER to register a new account with email %s", user->nick.c_str(), parameters[1].c_str());
+		else
+			ServerInstance->SNO->WriteGlobalSno('u', "%s used REGISTER to register a new account", user->nick.c_str());
+		if(accounts) accounts->DoLogin(user, entry->name, "");
 		return CMD_SUCCESS;
+	}
+};
+
+/** Handle /SETEMAIL
+ */
+class CommandSetemail : public Command
+{
+	TSStringExtItem& email;
+
+ public:
+	CommandSetemail(Module* Creator, TSStringExtItem& email_ref) : Command(Creator,"SETEMAIL", 0, 1), email(email_ref)
+	{
+		syntax = "[new email]";
+	}
+
+	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	{
+		AccountDBEntry* entry;
+		if(!accounts || !accounts->IsRegistered(user) || !(entry = db->GetAccount(accounts->GetAccountName(user), false)))
+		{
+			user->WriteServ("NOTICE %s :You are not logged in", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		if(parameters.empty() || parameters[0].empty())
+		{
+			if(min_params)
+			{
+				// We could get here if we got "SETEMAIL :"
+				user->WriteServ("NOTICE %s :An email address is required", user->nick.c_str());
+				return CMD_FAILURE;
+			}
+			email.set(entry, std::make_pair(ServerInstance->Time(), ""));
+			db->SendUpdate(entry, "email");
+			ServerInstance->SNO->WriteGlobalSno('u', "%s cleared the email address of account %s", user->nick.c_str(), entry->name.c_str());
+			user->WriteServ("NOTICE %s :Account %s email removed", user->nick.c_str(), entry->name.c_str());
+			return CMD_SUCCESS;
+		}
+		else if(!IsValidEmail(parameters[0]))
+		{
+			user->WriteServ("NOTICE %s :The email address provided is invalid", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+		else
+		{
+			email.set(entry, std::make_pair(ServerInstance->Time(), parameters[0]));
+			db->SendUpdate(entry, "email");
+			ServerInstance->SNO->WriteGlobalSno('u', "%s set the email address of account %s to %s", user->nick.c_str(), entry->name.c_str(), parameters[0].c_str());
+			user->WriteServ("NOTICE %s :Account %s email set to %s", user->nick.c_str(), entry->name.c_str(), parameters[0].c_str());
+			return CMD_SUCCESS;
+		}
 	}
 };
 
@@ -124,8 +193,8 @@ class CommandSetpass : public Command
 		std::string oldpass, newpass;
 		if(parameters.size() == 2)
 		{
-			if(account && account->IsRegistered(user))
-				username = account->GetAccountName(user);
+			if(accounts && accounts->IsRegistered(user))
+				username = accounts->GetAccountName(user);
 			else
 				username = user->nick;
 			oldpass = parameters[0];
@@ -272,8 +341,8 @@ class CommandDrop : public Command
 		std::string password;
 		if(parameters.size() == 1)
 		{
-			if(account && account->IsRegistered(user))
-				username = account->GetAccountName(user);
+			if(accounts && accounts->IsRegistered(user))
+				username = accounts->GetAccountName(user);
 			else
 				username = user->nick;
 			password = parameters[0];
@@ -289,7 +358,7 @@ class CommandDrop : public Command
 			user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		if(!account || username != account->GetAccountName(user))
+		if(!accounts || username != accounts->GetAccountName(user))
 			user->WriteServ("NOTICE %s :Account %s has been dropped", user->nick.c_str(), username.c_str());
 		recentlydropped.insert(entry->name);
 		std::vector<std::string> params;
@@ -396,7 +465,9 @@ class ModuleAccountRegister : public Module
 	std::string hashtype;
 	std::set<irc::string> recentlydropped;
 	unsigned int maxregcount;
+	TSStringExtItem email;
 	CommandRegister cmd_register;
+	CommandSetemail cmd_setemail;
 	CommandSetpass cmd_setpass;
 	CommandFsetpass cmd_fsetpass;
 	CommandDrop cmd_drop;
@@ -406,8 +477,9 @@ class ModuleAccountRegister : public Module
 	TSExtItem last_used;
 
  public:
-	ModuleAccountRegister() : cmd_register(this, hashtype, recentlydropped, maxregcount), cmd_setpass(this, hashtype),
-		cmd_fsetpass(this, hashtype), cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
+	ModuleAccountRegister() : email("Email_address", this), cmd_register(this, hashtype, recentlydropped, email, maxregcount),
+		cmd_setemail(this, email), cmd_setpass(this, hashtype), cmd_fsetpass(this, hashtype),
+		cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
 		cmd_recentlydropped(this, recentlydropped), last_used("Last_used", this)
 	{
 	}
@@ -415,8 +487,10 @@ class ModuleAccountRegister : public Module
 	void init()
 	{
 		if(!db) throw ModuleException("m_account_register requires that m_account be loaded");
+		ServerInstance->Modules->AddService(email);
 		ServerInstance->Modules->AddService(cmd_register);
 		ServerInstance->Modules->AddService(cmd_register.regcount);
+		ServerInstance->Modules->AddService(cmd_setemail);
 		ServerInstance->Modules->AddService(cmd_setpass);
 		ServerInstance->Modules->AddService(cmd_fsetpass);
 		ServerInstance->Modules->AddService(cmd_drop);
@@ -439,6 +513,20 @@ class ModuleAccountRegister : public Module
 		{
 			ServerInstance->Logs->Log ("MODULE", DEFAULT, "account expiration times of under 2 hours are unsafe, setting to 2 hours");
 			expiretime = 7200;
+		}
+		if(conf->getBool("emailrequired"))
+		{
+			cmd_register.min_params = 2;
+			cmd_register.syntax = "<password> <email>";
+			cmd_setemail.min_params = 1;
+			cmd_setemail.syntax = "<new email>";
+		}
+		else
+		{
+			cmd_register.min_params = 1;
+			cmd_register.syntax = "<password> [email]";
+			cmd_setemail.min_params = 0;
+			cmd_setemail.syntax = "[new email]";
 		}
 	}
 
@@ -474,7 +562,7 @@ class ModuleAccountRegister : public Module
 		{
 			if(!IS_LOCAL(i->second))
 				continue;
-			account_name = account->GetAccountName(i->second);
+			account_name = accounts->GetAccountName(i->second);
 			if(account_name.empty())
 				continue;
 			entry = db->GetAccount(account_name, false);

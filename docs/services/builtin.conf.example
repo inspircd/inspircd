@@ -16,7 +16,9 @@
 #-#-#-#-#-#-#-#-# ACCOUNT REGISTRATION CONFIGURATION -#-#-#-#-#-#-#-#-#
 # hashtype - The hash type to store users' passwords with
 # expiretime - The amount of time to retain an unused account
-<acctregister hashtype="hmac-sha256" expiretime="21d">
+# emailrequired - Whether or not an email address is required to
+#                 register an account
+<acctregister hashtype="hmac-sha256" expiretime="21d" emailrequired="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Account listing module: Allows accounts to be listed and viewed
@@ -192,9 +194,13 @@ replace="BOTNOTICE :Syntax: &#02;/msg $bot LOGOUT&#02;
 BOTNOTICE :Logs you out of your account.
 BOTNOTICE :Equivalent: &#02;/LOGOUT&#02;">
 <botcmd bot="NickServ" text="help" format="register"
-replace="BOTNOTICE :Syntax: &#02;/msg $bot REGISTER <password>&#02;
-BOTNOTICE :Registers an account with your current nick as its name, and the specified password as its password.
-BOTNOTICE :Equivalent: &#02;/REGISTER <password>&#02;">
+replace="BOTNOTICE :Syntax: &#02;/msg $bot REGISTER <password> [email]&#02;
+BOTNOTICE :Registers an account with your current nick as its name, the specified password as its password, and the specified email address as its email address, if any.
+BOTNOTICE :Equivalent: &#02;/REGISTER <password> [email]&#02;">
+<botcmd bot="NickServ" text="help" format="set email"
+replace="BOTNOTICE :Syntax: &#02;/msg $bot SET EMAIL [new email]&#02;
+BOTNOTICE :Changes your account's email address to the one given, or removes it if none is given.
+BOTNOTICE :Equivalent: &#02;/SETEMAIL [new email]&#02;">
 <botcmd bot="NickServ" text="help" format="set enforce"
 replace="BOTNOTICE :Syntax: &#02;/msg $bot SET ENFORCE OFF|ON&#02;
 BOTNOTICE :Sets whether or not an account's nicks are enforced.
@@ -209,6 +215,7 @@ BOTNOTICE :Changes the given account's password, or your current account if none
 BOTNOTICE :Equivalent: &#02;/SETPASS [account] <old password> <new password>&#02;">
 <botcmd bot="NickServ" text="help" format="set"
 replace="BOTNOTICE :Changes your account's settings.&#02;
+BOTNOTICE :&#02;SET EMAIL&#02; - Changes an account's email address.
 BOTNOTICE :&#02;SET ENFORCE&#02; - Sets whether nicks are enforced.
 BOTNOTICE :&#02;SET HIDDEN&#02; - Sets whether an account is hidden.
 BOTNOTICE :&#02;SET PASSWORD&#02; - Changes an account's password.">
@@ -234,8 +241,9 @@ BOTNOTICE :&#02;SET&#02; - Change your account's settings">
 <botcmd bot="NickServ" text="logout" replace="LOGOUT">
 <botcmd bot="NickServ" format="register *" replace="REGISTER $2-">
 <botcmd bot="NickServ" format="register" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP REGISTER&#02; for help with this command.">
+<botcmd bot="NickServ" text="set" format="email*" replace="SETEMAIL $3-">
 <botcmd bot="NickServ" text="set" format="enforce o?*" replace="SETENFORCE $3-">
-<botcmd bot="NickServ" text="set" format="enforce**" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP SET ADD&#02; for help with this command.">
+<botcmd bot="NickServ" text="set" format="enforce*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP SET ADD&#02; for help with this command.">
 <botcmd bot="NickServ" text="set" format="hidden o?*" replace="SETHIDDEN $3-">
 <botcmd bot="NickServ" text="set" format="hidden*" replace="BOTNOTICE :Invalid parameters.  Type &#02;/msg $bot HELP SET CLEAR&#02; for help with this command.">
 <botcmd bot="NickServ" text="set" format="password ?*" replace="SETPASS $3-">
