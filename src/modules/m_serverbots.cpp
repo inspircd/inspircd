@@ -203,15 +203,30 @@ class BotData
 	}
 };
 
+class BotTracker : public SimpleExtItem<BotData>
+{
+ public:
+	std::map<std::string, BotData*> bots;
+	BotTracker(Module* Creator) : SimpleExtItem<BotData>(EXTENSIBLE_USER, "serverbot", Creator) {}
+
+	void free(void* item)
+	{
+		BotData* ext = static_cast<BotData*>(item);
+		if (!ext)
+			return;
+		bots.erase(ext->bot->nick);
+		ServerInstance->GlobalCulls.AddItem(ext->bot);
+		delete ext;
+	}
+};
+
 class ModuleServerBots : public Module
 {
-	std::map<std::string, BotData*> bots;
-	SimpleExtItem<BotData> dataExt;
+	BotTracker dataExt;
 	bool recursing;
 	int botID;
-
  public:
-	ModuleServerBots() : dataExt(EXTENSIBLE_USER, "serverbot", this), recursing(false), botID(0) {}
+	ModuleServerBots() : dataExt(this), recursing(false), botID(0) {}
 
 	void early_init()
 	{
@@ -251,7 +266,7 @@ class ModuleServerBots : public Module
 	void ReadConfig(ConfigReadStatus&)
 	{
 		std::map<std::string, BotData*> oldbots;
-		oldbots.swap(bots);
+		oldbots.swap(dataExt.bots);
 
 		ConfigTagList tags = ServerInstance->Config->GetTags("bot");
 		for(ConfigIter i = tags.first; i != tags.second; i++)
@@ -265,7 +280,7 @@ class ModuleServerBots : public Module
 			ServerBot* bot;
 			if (found != oldbots.end())
 			{
-				bots.insert(*found);
+				dataExt.bots.insert(*found);
 				bot = found->second->bot;
 				found->second->Aliases.clear();
 				oldbots.erase(found);
@@ -279,7 +294,7 @@ class ModuleServerBots : public Module
 				bot = new ServerBot(uid);
 				BotData* bd = new BotData(bot);
 				dataExt.set(bot, bd);
-				bots.insert(std::make_pair(nick, bd));
+				dataExt.bots.insert(std::make_pair(nick, bd));
 
 				bot->ChangeNick(nick, true);
 			}
@@ -308,8 +323,8 @@ class ModuleServerBots : public Module
 		{
 			ConfigTag* tag = i->second;
 			std::string botnick = tag->getString("bot");
-			std::map<std::string, BotData*>::iterator found = bots.find(botnick);
-			if (found == bots.end())
+			std::map<std::string, BotData*>::iterator found = dataExt.bots.find(botnick);
+			if (found == dataExt.bots.end())
 				continue;
 			BotData* bot = found->second;
 			Alias a;
@@ -322,15 +337,6 @@ class ModuleServerBots : public Module
 			bot->Aliases.insert(std::make_pair(a.AliasedCommand, a));
 		}
  	}
-
-	CullResult cull()
-	{
-		for(std::map<std::string, BotData*>::iterator i = bots.begin(); i != bots.end(); i++)
-		{
-			ServerInstance->GlobalCulls.AddItem(i->second->bot);
-		}
-		return Module::cull();
-	}
 };
 
 }
