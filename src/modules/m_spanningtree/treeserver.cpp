@@ -212,10 +212,10 @@ TreeServer::~TreeServer()
 {
 	/* We'd better tidy up after ourselves, eh? */
 	this->DelHashEntry();
-	if (ServerUser != ServerInstance->FakeClient)
-		delete ServerUser;
 
 	server_hash::iterator iter = Utils->sidlist.find(GetID());
 	if (iter != Utils->sidlist.end())
 		Utils->sidlist.erase(iter);
+	if (ServerUser != ServerInstance->FakeClient)
+		delete ServerUser;
 }
