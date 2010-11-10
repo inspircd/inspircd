@@ -352,7 +352,7 @@ class ModuleCloaking : public Module
 		if (key.empty() || key == "secret")
 			throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
 		
-		long hostsegments_l = tag->getInt("hostsegments", 2);
+		long hostsegments_l = tag->getInt("hostsegments", 3);
 		if (hostsegments_l < -64 || hostsegments_l > 64)
 			throw ModuleException("<cloak:hostsegments> must be between -64 and 64 (inclusive)");
 		hostsegments = (int8_t)hostsegments_l;
