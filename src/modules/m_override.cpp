@@ -53,6 +53,7 @@ class ModuleOverride : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(om);
+		ServerInstance->Modules->AddService(om.timeout);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
 		Implementation eventlist[] = { I_OnBackgroundTimer, I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
