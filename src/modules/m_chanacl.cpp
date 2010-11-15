@@ -22,7 +22,25 @@
 class ChannelACLMode : public ListModeBase
 {
  public:
-	ChannelACLMode(Module* Creator) : ListModeBase(Creator, "chanacl", 'W', "End of channel access group list", 954, 953, false, "chanacl") { fixed_letter = false; }
+	ChannelACLMode(Module* Creator) : ListModeBase(Creator, "chanacl", 'W', "End of channel access group list", 954, 953, false, "chanacl")
+	{
+		levelrequired = OP_VALUE;
+		fixed_letter = false;
+	}
+
+	virtual void DoRehash()
+	{
+		this->ListModeBase::DoRehash();
+		std::string prefixmode = ServerInstance->Config->GetTag("chanacl")->getString("moderequired", "op");
+		ModeHandler *prefixmodehandler = ServerInstance->Modes->FindMode(prefixmode);
+		if (prefixmodehandler)
+			levelrequired = prefixmodehandler->GetPrefixRank();
+		else
+		{
+			levelrequired = OP_VALUE;
+			ServerInstance->Logs->Log("CONFIG", DEFAULT, "Prefix " + prefixmode + " specified in <chanacl:moderequired> not found, defaulting to op");
+		}
+	}
 
 	bool TellListTooLong(User* user, Channel* chan, std::string &word)
 	{

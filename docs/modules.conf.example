@@ -254,11 +254,6 @@
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel ACL module: Adds cmode +W, which allows fine-grained control
-# over channel permissions.
-#<module name="m_chanacl.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel create module: Adds snomask +j, which will notify opers of
 # any new channels that are created.
 # This module is oper-only.
@@ -547,6 +542,14 @@
 #
 #A useless "vanity" rank:
 #  <customprefix name="halfvoice" letter="V" prefix="-" rank="2" ranktoset="20000">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Channel ACL module: Adds cmode +W, which allows fine-grained control
+# over channel permissions.
+#<module name="m_chanacl.so">
+#-#-#-#-#-#-#-#-#-#-#-#- CHANACL CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+# moderequired - The default mode needed to use the chanacl mode.
+#<chanacl moderequired="founder">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Custom title module: Adds the /TITLE command which allows for trusted
