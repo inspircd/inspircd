@@ -232,7 +232,7 @@ public:
 		{
 			modelist* list = mh.extItem.get(iter->second);
 			if (!list)
-				return;
+				continue;
 			ms.sequence.clear();
 			for (modelist::const_iterator it = list->begin(); it != list->end(); ++it)
 			{
