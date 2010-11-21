@@ -116,7 +116,7 @@ class CommandSethidden : public Command
 			return CMD_FAILURE;
 		}
 		hidden.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
-		db->SendUpdate(entry, "hidden");
+		db->SendUpdate(entry, "Hidden");
 		user->WriteServ("NOTICE %s :Account hiding for %s %s successfully", user->nick.c_str(), entry->name.c_str(), newsetting ? "enabled" : "disabled");
 		return CMD_SUCCESS;
 	}

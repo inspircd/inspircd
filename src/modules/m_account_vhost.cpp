@@ -69,7 +69,7 @@ class CommandAcctvhost : public Command
 					return CMD_FAILURE;
 				}
 				vhost.set(entry, std::make_pair(ServerInstance->Time(), parameters[1]));
-				db->SendUpdate(entry, "vhost");
+				db->SendUpdate(entry, "Vhost");
 				ServerInstance->SNO->WriteGlobalSno('a', "%s used ACCTVHOST to set the vhost of account %s to %s", user->nick.c_str(), entry->name.c_str(), parameters[1].c_str());
 				user->WriteServ("NOTICE %s :Account %s vhost set to %s", user->nick.c_str(), entry->name.c_str(), parameters[1].c_str());
 			}
@@ -78,7 +78,7 @@ class CommandAcctvhost : public Command
 		else if(IS_LOCAL(user))
 		{
 			vhost.set(entry, std::make_pair(ServerInstance->Time(), ""));
-			db->SendUpdate(entry, "vhost");
+			db->SendUpdate(entry, "Vhost");
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used ACCTVHOST to remove the vhost of account %s", user->nick.c_str(), entry->name.c_str());
 			user->WriteServ("NOTICE %s :Account %s vhost removed", user->nick.c_str(), entry->name.c_str());
 		}

@@ -155,7 +155,7 @@ class CommandSetemail : public Command
 				return CMD_FAILURE;
 			}
 			email.set(entry, std::make_pair(ServerInstance->Time(), ""));
-			db->SendUpdate(entry, "email");
+			db->SendUpdate(entry, "Email_address");
 			ServerInstance->SNO->WriteGlobalSno('u', "%s cleared the email address of account %s", user->nick.c_str(), entry->name.c_str());
 			user->WriteServ("NOTICE %s :Account %s email removed", user->nick.c_str(), entry->name.c_str());
 			return CMD_SUCCESS;
@@ -168,7 +168,7 @@ class CommandSetemail : public Command
 		else
 		{
 			email.set(entry, std::make_pair(ServerInstance->Time(), parameters[0]));
-			db->SendUpdate(entry, "email");
+			db->SendUpdate(entry, "Email_address");
 			ServerInstance->SNO->WriteGlobalSno('u', "%s set the email address of account %s to %s", user->nick.c_str(), entry->name.c_str(), parameters[0].c_str());
 			user->WriteServ("NOTICE %s :Account %s email set to %s", user->nick.c_str(), entry->name.c_str(), parameters[0].c_str());
 			return CMD_SUCCESS;
@@ -434,7 +434,7 @@ class CommandHold : public Command
 			return CMD_FAILURE;
 		}
 		held.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
-		db->SendUpdate(entry, "held");
+		db->SendUpdate(entry, "Held");
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used HOLD to %sable hold of account '%s'", user->nick.c_str(), newsetting ? "en" : "dis", entry->name.c_str());
 		user->WriteServ("NOTICE %s :Account %s %sheld successfully", user->nick.c_str(), entry->name.c_str(), newsetting ? "" : "un");
 		return CMD_SUCCESS;
@@ -540,7 +540,7 @@ class ModuleAccountRegister : public Module
 			if(!entry)
 				return;
 			last_used.set(entry, ServerInstance->Time());
-			db->SendUpdate(entry, "last_used");
+			db->SendUpdate(entry, "Last_used");
 		}
 	}
 
@@ -569,7 +569,7 @@ class ModuleAccountRegister : public Module
 			if(!entry)
 				continue;
 			last_used.set(entry, ServerInstance->Time()); // ServerInstance->Time() is inlined, so we would gain nothing by using a temporary variable
-			db->SendUpdate(entry, "last_used");
+			db->SendUpdate(entry, "Last_used");
 		}
 		if(!expiretime) return;
 		for (AccountDB::const_iterator i = db->GetDB().begin(); i != db->GetDB().end();)

@@ -206,7 +206,7 @@ class CommandAddnick : public Command
 		if(needToSet)
 			nicks_ext->set(entry, p);
 		nickinfo.insert(std::make_pair(user->nick, entry));
-		db->SendUpdate(entry, "nicks");
+		db->SendUpdate(entry, "Nicks_owned");
 		ServerInstance->SNO->WriteGlobalSno('u', "%s used ADDNICK to register their nick to %s", user->nick.c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE %s :Nick %s has been registered to account %s", user->nick.c_str(), user->nick.c_str(), entry->name.c_str());
 		return CMD_SUCCESS;
@@ -255,7 +255,7 @@ class CommandDelnick : public Command
 		if(i == p->second.end())
 			throw ModuleException("An entry in nickinfo is incorrect");
 		p->second.erase(i);
-		db->SendUpdate(entry, "nicks");
+		db->SendUpdate(entry, "Nicks_owned");
 		ServerInstance->SNO->WriteGlobalSno('u', "%s used DELNICK to unregister nick %s from %s", user->nick.c_str(), nick.c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE %s :Nick %s has been unregistered", user->nick.c_str(), nick.c_str());
 		return CMD_SUCCESS;
@@ -302,7 +302,7 @@ class CommandFdelnick : public Command
 		if(i == p->second.end())
 			throw ModuleException("An entry in nickinfo is incorrect");
 		p->second.erase(i);
-		db->SendUpdate(entry, "nicks");
+		db->SendUpdate(entry, "Nicks_owned");
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used FDELNICK to unregister nick %s from account %s", user->nick.c_str(), parameters[1].c_str(), entry->name.c_str());
 		user->WriteServ("NOTICE %s :Nick %s has been unregistered from account %s", user->nick.c_str(), parameters[1].c_str(), entry->name.c_str());
 		return CMD_SUCCESS;
@@ -339,7 +339,7 @@ class CommandSetenforce : public Command
 			return CMD_FAILURE;
 		}
 		enforce.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
-		db->SendUpdate(entry, "enforce");
+		db->SendUpdate(entry, "Automatically_enforce_nicks");
 		user->WriteServ("NOTICE %s :Nick enforcement for account %s %s successfully", user->nick.c_str(), entry->name.c_str(), newsetting ? "enabled" : "disabled");
 		return CMD_SUCCESS;
 	}
