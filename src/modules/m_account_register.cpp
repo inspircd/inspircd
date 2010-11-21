@@ -579,6 +579,7 @@ class ModuleAccountRegister : public Module
 			held = cmd_hold.held.get(entry);
 			if((!last_used_time || *last_used_time < threshold) && !(held && held->second))
 			{
+				ServerInstance->SNO->WriteGlobalSno('u', "Account %s has expired", entry->name.c_str());
 				db->RemoveAccount(true, entry);
 			}
 		}
