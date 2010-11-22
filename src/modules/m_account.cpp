@@ -219,17 +219,25 @@ class CommandSvsaccount : public Command
 			}
 			if(parameters[3] == "hash_password")
 			{
-				if(iter->second->hash_password_ts > atol(parameters[4].c_str()))
+				time_t theirTS = atol(parameters[4].c_str());
+				if(iter->second->hash_password_ts > theirTS)
 					return CMD_FAILURE;
+				std::string theirhash, theirpassword;
 				std::string::size_type delim;
 				if(parameters.size() > 5 && (delim = parameters[5].find_first_of(' ')) != std::string::npos)
 				{
-					iter->second->hash = parameters[5].substr(0, delim);
-					iter->second->password = parameters[5].substr(delim + 1);
+					theirhash = parameters[5].substr(0, delim);
+					theirpassword = parameters[5].substr(delim + 1);
 				}
 				else
-					iter->second->hash = iter->second->password = "";
-				iter->second->hash_password_ts = atol(parameters[4].c_str());
+					theirhash = theirpassword = "";
+
+				if(iter->second->hash_password_ts < theirTS || iter->second->hash < theirhash || iter->second->password < theirpassword)
+				{
+					iter->second->hash = theirhash;
+					iter->second->password = theirpassword;
+					iter->second->hash_password_ts = theirTS;
+				}
 			}
 			AccountDBModifiedEvent(creator, iter->second->name, iter->second).Send();
 		}

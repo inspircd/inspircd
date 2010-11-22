@@ -130,7 +130,7 @@ class ModuleAccountList : public Module
 	CommandSethidden cmd_sethidden;
 
  public:
-	ModuleAccountList() : hidden("Hidden", true, this), cmd_acctlist(this, hidden), cmd_acctshow(this), cmd_sethidden(this, hidden)
+	ModuleAccountList() : hidden("Hidden", true, true, this), cmd_acctlist(this, hidden), cmd_acctshow(this), cmd_sethidden(this, hidden)
 	{
 	}
 

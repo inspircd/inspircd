@@ -193,8 +193,9 @@ class TSExtItem : public SimpleExtItem<time_t>
 class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
 {
 	const bool default_value;
+	const bool conflict_value;
  public:
-	TSBoolExtItem(const std::string& Key, bool def_value, Module* parent) : SimpleExtItem<std::pair<time_t, bool> >(EXTENSIBLE_ACCOUNT, Key, parent), default_value(def_value) {}
+	TSBoolExtItem(const std::string& Key, bool default_val, bool conflict_val, Module* parent) : SimpleExtItem<std::pair<time_t, bool> >(EXTENSIBLE_ACCOUNT, Key, parent), default_value(default_val), conflict_value(conflict_val) {}
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
 		std::pair<time_t, bool>* p = static_cast<std::pair<time_t, bool>*>(item);
@@ -222,37 +223,8 @@ class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
 		std::pair<time_t, bool>* p = get(container);
 		if(!p || ts > p->first)
 			set(container, std::make_pair(ts, item));
-	}
-};
-
-class TSIntExtItem : public SimpleExtItem<std::pair<time_t, signed int> >
-{
-	const signed int default_value;
- public:
-	TSIntExtItem(const std::string& Key, Module* parent, signed int def_value) : SimpleExtItem<std::pair<time_t, signed int> >(EXTENSIBLE_ACCOUNT, Key, parent), default_value(def_value) {}
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
-	{
-		std::pair<time_t, signed int>* p = static_cast<std::pair<time_t, signed int>*>(item);
-		if(!p)
-			return format == FORMAT_USER ? ConvToStr(default_value) : "";
-		if(format == FORMAT_USER)
-			return ConvToStr(p->second);
-		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + ConvToStr(p->second);
-	}
-
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
-	{
-		time_t ts;
-		signed int item;
-		std::string::size_type delim = value.find_first_of(' ');
-		ts = atol(value.substr(0, delim).c_str());
-		if(delim == std::string::npos)
-			item = default_value;
-		else
-			item = atoi(value.substr(delim + 1).c_str());
-		std::pair<time_t, signed int>* p = get(container);
-		if(!p || ts > p->first)
-			set(container, std::make_pair(ts, item));
+		else if(ts == p->first && item != p->second)
+			set(container, std::make_pair(ts, conflict_value));
 	}
 };
 
@@ -283,6 +255,8 @@ class TSStringExtItem : public SimpleExtItem<std::pair<time_t, std::string> >
 		std::pair<time_t, std::string>* p = get(container);
 		if(!p || ts > p->first)
 			set(container, std::make_pair(ts, item));
+		else if(ts == p->first && item != p->second)
+			set(container, std::make_pair(ts, std::max(item, p->second)));
 	}
 };
 

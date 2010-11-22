@@ -103,7 +103,7 @@ class NicksOwnedExtItem : public SimpleExtItem<NicksOwned>
 		else
 			item = value.substr(delim + 1);
 		NicksOwned* p = get(container);
-		if(!p || newvalue->first > p->first)
+		if(!p || newvalue->first > p->first || (newvalue->first == p->first && serialize(format, container, p) < value))
 		{
 			if(p)
 				for(std::vector<NickTSItem>::iterator i = p->second.begin(); i != p->second.end(); ++i)
@@ -315,7 +315,7 @@ class CommandSetenforce : public Command
 {
  public:
 	TSBoolExtItem enforce;
-	CommandSetenforce(Module* Creator) : Command(Creator,"SETENFORCE", 1, 1), enforce("Automatically_enforce_nicks", false, Creator)
+	CommandSetenforce(Module* Creator) : Command(Creator,"SETENFORCE", 1, 1), enforce("Automatically_enforce_nicks", false, true, Creator)
 	{
 		syntax = "OFF|ON";
 	}
