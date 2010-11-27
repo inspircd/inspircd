@@ -427,43 +427,44 @@ class GnuTLSHook : public SSLIOHook
 		if (cert_list == NULL)
 		{
 			certinfo->error = "No certificate was found";
-			goto info_done_dealloc;
-		}
-
-		/* This is not a real world example, since we only check the first
-		 * certificate in the given chain.
-		 */
-
-		ret = gnutls_x509_crt_import(raw_cert, &cert_list[0], GNUTLS_X509_FMT_DER);
-		if (ret < 0)
-		{
-			certinfo->error = gnutls_strerror(ret);
-			goto info_done_dealloc;
-		}
-
-		gnutls_x509_crt_get_dn(raw_cert, name, &name_size);
-		certinfo->dn = name;
-
-		gnutls_x509_crt_get_issuer_dn(raw_cert, name, &name_size);
-		certinfo->issuer = name;
-
-		if ((ret = gnutls_x509_crt_get_fingerprint(raw_cert, hash, digest, &digest_size)) < 0)
-		{
-			certinfo->error = gnutls_strerror(ret);
 		}
 		else
 		{
-			certinfo->fingerprint = irc::hex(digest, digest_size);
-		}
 
-		/* Beware here we do not check for errors.
-		 */
-		if ((gnutls_x509_crt_get_expiration_time(raw_cert) < ServerInstance->Time()) || (gnutls_x509_crt_get_activation_time(raw_cert) > ServerInstance->Time()))
-		{
-			certinfo->error = "Not activated, or expired certificate";
-		}
+			/* This is not a real world example, since we only check the first
+			 * certificate in the given chain.
+			 */
 
-info_done_dealloc:
+			ret = gnutls_x509_crt_import(raw_cert, &cert_list[0], GNUTLS_X509_FMT_DER);
+			if (ret < 0)
+			{
+				certinfo->error = gnutls_strerror(ret);
+			}
+			else
+			{
+				gnutls_x509_crt_get_dn(raw_cert, name, &name_size);
+				certinfo->dn = name;
+
+				gnutls_x509_crt_get_issuer_dn(raw_cert, name, &name_size);
+				certinfo->issuer = name;
+
+				if ((ret = gnutls_x509_crt_get_fingerprint(raw_cert, hash, digest, &digest_size)) < 0)
+				{
+					certinfo->error = gnutls_strerror(ret);
+				}
+				else
+				{
+					certinfo->fingerprint = irc::hex(digest, digest_size);
+				}
+
+				/* Beware here we do not check for errors.
+				 */
+				if ((gnutls_x509_crt_get_expiration_time(raw_cert) < ServerInstance->Time()) || (gnutls_x509_crt_get_activation_time(raw_cert) > ServerInstance->Time()))
+				{
+					certinfo->error = "Not activated, or expired certificate";
+				}
+			}
+		}
 		gnutls_x509_crt_deinit(raw_cert);
 	}
 

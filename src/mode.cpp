@@ -257,7 +257,7 @@ std::string irc::modestacker::popModeLine(SerializeFormat format, int maxlen, in
 			mylen += 1 + value.length();
 
 		if (mylen + linelen > maxlen)
-			goto line_full;
+			break;
 
 		linelen += mylen;
 		if (pm != pm_now)
@@ -271,7 +271,6 @@ std::string irc::modestacker::popModeLine(SerializeFormat format, int maxlen, in
 			params << " " << value;
 	}
 
-line_full:
 	sequence.erase(sequence.begin(), iter);
 	if (format == FORMAT_PERSIST)
 	{
