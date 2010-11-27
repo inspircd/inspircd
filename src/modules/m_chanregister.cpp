@@ -299,8 +299,8 @@ class ChannelRegistrationModule : public Module
 	{
 		ServerInstance->SNO->EnableSnomask ('r', "CHANREGISTER");
 		Implementation eventlist[] = {
-			I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete, I_OnBackgroundTimer, I_OnMode,
-			I_OnPostTopicChange, I_OnRawMode, I_OnUserQuit, I_OnUserPart, I_OnUserKick, I_OnGarbageCollect
+			I_OnCheckJoin, I_OnPermissionCheck, I_OnChannelPreDelete,
+			I_OnUserQuit, I_OnUserPart, I_OnUserKick, I_OnGarbageCollect
 		};
 
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
