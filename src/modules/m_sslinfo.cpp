@@ -183,7 +183,7 @@ class ModuleSSLInfo : public Module
 		return false;
 	}
 
-	void OnPermisisonCheck(PermissionData& perm)
+	void OnPermissionCheck(PermissionData& perm)
 	{
 		if (perm.name != "oper")
 			return;
