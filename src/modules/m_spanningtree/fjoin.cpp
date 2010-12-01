@@ -110,18 +110,18 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	if (apply_other_sides_modes && !incremental)
 	{
 		unsigned int idx = 2;
-		std::vector<std::string> modelist;
+		std::vector<std::string> mode_list;
 
 		// Mode parser needs to know what channel to act on.
-		modelist.push_back(params[0]);
+		mode_list.push_back(params[0]);
 
 		/* Remember, params[params.size() - 1] is nicklist, and we don't want to apply *that* */
 		for (idx = 2; idx != (params.size() - 1); idx++)
 		{
-			modelist.push_back(params[idx]);
+			mode_list.push_back(params[idx]);
 		}
 
-		ServerInstance->SendMode(modelist, srcuser);
+		ServerInstance->SendMode(mode_list, srcuser);
 	}
 
 	/* Now, process every 'modes,nick' pair */

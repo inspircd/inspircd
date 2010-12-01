@@ -30,16 +30,16 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 			const_cast<parameterlist&>(params)[2][0] = '=';
 	}
 
-	std::vector<std::string> modelist;
-	modelist.push_back(params[0]);
+	std::vector<std::string> mode_list;
+	mode_list.push_back(params[0]);
 	time_t TS = atoi(params[1].c_str());
 	if (!TS)
 		return CMD_INVALID;
-	modelist.insert(modelist.end(), params.begin() + 2, params.end());
+	mode_list.insert(mode_list.end(), params.begin() + 2, params.end());
 
 	Extensible* target;
 	irc::modestacker modes;
-	ServerInstance->Modes->Parse(modelist, who, target, modes);
+	ServerInstance->Modes->Parse(mode_list, who, target, modes);
 
 	// maybe last user already parted the channel; discard if so.
 	if (!target)
@@ -57,7 +57,7 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 		return CMD_FAILURE;
 
 	// netburst merge: only if equal, and new in 2.1, only if using =
-	bool merge = (TS == ourTS && modelist[1][0] == '=');
+	bool merge = (TS == ourTS && mode_list[1][0] == '=');
 
 	ServerInstance->Modes->Process(who, target, modes, merge);
 	ServerInstance->Modes->Send(who, target, modes);
