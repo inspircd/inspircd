@@ -47,7 +47,11 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 	ConfigTag* tag = NULL;
 	if (IS_LOCAL(user))
 		tag = IS_LOCAL(user)->MyClass->config;
+
+	// Although tag could be null here, ConfigTag::getString can be called on a null object safely.
+	// cppcheck-suppress nullPointer
 	std::string rules_name = tag->getString("rules", "rules");
+
 	ConfigFileCache::iterator rules = ServerInstance->Config->Files.find(rules_name);
 	if (rules == ServerInstance->Config->Files.end())
 	{

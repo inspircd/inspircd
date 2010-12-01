@@ -49,7 +49,11 @@ CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User 
 	ConfigTag* tag = NULL;
 	if (IS_LOCAL(user))
 		tag = IS_LOCAL(user)->MyClass->config;
+
+	// Although tag could be null here, ConfigTag::getString can be called on a null object safely.
+	// cppcheck-suppress nullPointer
 	std::string motd_name = tag->getString("motd", "motd");
+
 	ConfigFileCache::iterator motd = ServerInstance->Config->Files.find(motd_name);
 	if (motd == ServerInstance->Config->Files.end())
 	{
