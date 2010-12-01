@@ -100,13 +100,12 @@ class ModuleDeaf : public Module
 	{
 		const UserMembList *ulist = chan->GetUsers();
 		bool is_a_uline;
-		bool is_bypasschar, is_bypasschar_avail;
+		bool is_bypasschar;
 		bool is_bypasschar_uline, is_bypasschar_uline_avail;
 
-		is_bypasschar = is_bypasschar_avail = is_bypasschar_uline = is_bypasschar_uline_avail = 0;
+		is_bypasschar = is_bypasschar_uline = is_bypasschar_uline_avail = 0;
 		if (!deaf_bypasschars.empty())
 		{
-			is_bypasschar_avail = 1;
 			if (deaf_bypasschars.find(text[0], 0) != std::string::npos)
 				is_bypasschar = 1;
 		}

@@ -722,8 +722,6 @@ int InspIRCd::Run()
 		static rusage ru;
 #else
 		static time_t uptime;
-		static struct tm * stime;
-		static char window_title[100];
 #endif
 
 		UpdateTime();

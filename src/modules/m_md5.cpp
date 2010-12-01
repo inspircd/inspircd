@@ -234,11 +234,6 @@ class MD5Provider : public HashProvider
 		buf[3] += d;
 	}
 
-
-	void MyMD5(void *dest, const void *orig, int len, const unsigned int* ikey)
-	{
-	}
-
  public:
 	std::string sum(const std::string& data, const unsigned int* IV)
 	{
