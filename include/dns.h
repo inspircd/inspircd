@@ -257,7 +257,7 @@ class CoreExport Resolver
 	 * from 0 to 65535. If there is an issue and the core cannot send your request,
 	 * this method will return -1.
 	 */
-	int GetId();
+	int GetId() const;
 
 	/**
 	 * Returns the creator module, or NULL

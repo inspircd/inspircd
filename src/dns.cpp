@@ -935,7 +935,7 @@ Resolver::~Resolver()
 }
 
 /** Get the request id associated with this class */
-int Resolver::GetId()
+int Resolver::GetId() const
 {
 	return this->myid;
 }

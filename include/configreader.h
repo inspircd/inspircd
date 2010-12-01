@@ -507,7 +507,7 @@ class CoreExport ServerConfig
 
 	/** Get server ID as string with required leading zeroes
 	 */
-	std::string GetSID();
+	std::string GetSID() const;
 
 	/** Update the 005 vector
 	 */

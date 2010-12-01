@@ -822,7 +822,7 @@ const char* ServerConfig::CleanFilename(const char* name)
 	return (p != name ? ++p : p);
 }
 
-std::string ServerConfig::GetSID()
+std::string ServerConfig::GetSID() const
 {
 	return sid;
 }

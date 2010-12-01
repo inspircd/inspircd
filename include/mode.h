@@ -55,8 +55,8 @@ class ModeIDIter
  public:
 	ModeIDIter() : current(1) {}
 	inline operator ModeID() { ModeID id; id.SetID(current); return id; }
-	inline operator bool() { return current != MODE_ID_MAX; }
-	inline void operator++() { current++; }
+	inline operator bool() const { return current != MODE_ID_MAX; }
+	inline void operator++() { ++current; }
 	inline void operator++(int) { current++; }
 };
 

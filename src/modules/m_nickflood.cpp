@@ -44,7 +44,7 @@ class nickfloodsettings
 		}
 	}
 
-	bool shouldlock()
+	bool shouldlock() const
 	{
 		/* XXX HACK: using counter + 1 here now to allow the counter to only be incremented
 		 * on successful nick changes; this will be checked before the counter is

@@ -128,7 +128,7 @@ class CoreExport UserManager
 	/** Return a count of unregistered (before NICK/USER) users only
 	 * @return The number of unregistered (unknown) connections
 	 */
-	unsigned int UnregisteredUserCount();
+	unsigned int UnregisteredUserCount() const;
 
 	/** Return a count of local users on this server only
 	 * @return The number of local users

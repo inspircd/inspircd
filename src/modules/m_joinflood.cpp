@@ -44,7 +44,7 @@ class joinfloodsettings
 		}
 	}
 
-	bool shouldlock()
+	bool shouldlock() const
 	{
 		return (counter >= this->joins);
 	}

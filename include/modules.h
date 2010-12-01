@@ -1357,7 +1357,7 @@ class CoreExport ModuleManager
 	/** Get the total number of currently loaded modules
 	 * @return The number of loaded modules
 	 */
-	int GetCount()
+	int GetCount() const
 	{
 		return this->ModCount;
 	}
@@ -1391,7 +1391,7 @@ class CoreExport ModuleManager
 		return static_cast<T*>(FindService(SERVICE_DATA, name));
 	}
 
-	inline const std::map<std::string, Module*>& GetModules() { return Modules; }
+	inline const std::map<std::string, Module*>& GetModules() const { return Modules; }
 
 	/** Return a list of all modules matching the given filter
 	 * @param filter This int is a bitmask of flags set in Module::Flags,

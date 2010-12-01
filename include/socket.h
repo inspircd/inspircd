@@ -333,7 +333,7 @@ class CoreExport SocketEngine
 	void UpdateStats(size_t len_in, size_t len_out);
 
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask) = 0;
-	void SetEventMask(EventHandler* eh, int value);
+	void SetEventMask(EventHandler* eh, int value) const;
 public:
 
 	unsigned long TotalEvents;

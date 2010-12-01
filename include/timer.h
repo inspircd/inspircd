@@ -75,7 +75,7 @@ class CoreExport Timer
 
 	/** Returns true if this timer is set to repeat
 	 */
-	bool GetRepeat()
+	bool GetRepeat() const
 	{
 		return repeat;
 	}
@@ -83,7 +83,7 @@ class CoreExport Timer
 	/** Returns the interval (number of seconds between ticks)
 	 * of this timer object.
 	 */
-	long GetSecs()
+	long GetSecs() const
 	{
 		return secs;
 	}

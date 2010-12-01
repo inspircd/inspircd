@@ -450,9 +450,9 @@ class CoreExport InspIRCd
 	 * it is much faster than calling time() directly.
 	 * @return The current time as an epoch value (time_t)
 	 */
-	inline time_t Time() { return TIME.tv_sec; }
+	inline time_t Time() const { return TIME.tv_sec; }
 	/** The fractional time at the start of this mainloop iteration (nanoseconds) */
-	inline long Time_ns() { return TIME.tv_nsec; }
+	inline long Time_ns() const { return TIME.tv_nsec; }
 	/** Update the current time. Don't call this unless you have reason to do so. */
 	void UpdateTime();
 

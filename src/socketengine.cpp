@@ -35,7 +35,7 @@ SocketEngine::~SocketEngine()
 {
 }
 
-void SocketEngine::SetEventMask(EventHandler* eh, int mask)
+void SocketEngine::SetEventMask(EventHandler* eh, int mask) const
 {
 	eh->event_mask = mask;
 }

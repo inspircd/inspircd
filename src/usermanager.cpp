@@ -300,7 +300,7 @@ unsigned int UserManager::OperCount()
 }
 
 /* return how many users are unregistered */
-unsigned int UserManager::UnregisteredUserCount()
+unsigned int UserManager::UnregisteredUserCount() const
 {
 	return this->unregistered_count;
 }
