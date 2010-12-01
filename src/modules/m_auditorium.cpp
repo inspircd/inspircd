@@ -159,7 +159,7 @@ class ModuleAuditorium : public Module
 				continue;
 			}
 			// this channel should not be considered when listing my neighbors
-			include.erase(i);
+			i = include.erase(i);
 			// however, that might hide me from ops that can see me...
 			const UserMembList* users = c->GetUsers();
 			for(UserMembCIter j = users->begin(); j != users->end(); j++)

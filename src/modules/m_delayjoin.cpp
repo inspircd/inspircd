@@ -136,7 +136,7 @@ void ModuleDelayJoin::OnBuildNeighborList(User* source, std::vector<Channel*> &i
 		Channel* c = *i;
 		Membership* memb = c->GetUser(source);
 		if (memb && unjoined.get(memb))
-			include.erase(i);
+			i = include.erase(i);
 		else
 			i++;
 	}
