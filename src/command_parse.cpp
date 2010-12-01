@@ -374,7 +374,7 @@ CommandParser::CommandParser()
 	para.resize(128);
 }
 
-int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final, Command* custom_translator)
+int CommandParser::TranslateUIDs(const std::vector<TranslateType> &to, const std::vector<std::string> &source, std::string &dest, bool prefix_final, Command* custom_translator)
 {
 	std::vector<TranslateType>::const_iterator types = to.begin();
 	User* user = NULL;

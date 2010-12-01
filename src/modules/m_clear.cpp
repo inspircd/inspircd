@@ -26,7 +26,7 @@ class ClearBase : public Command
 	the command but kick and mode accesses must be checked */
 	virtual int CheckAccess (User *who, Channel *chan) = 0;
 	/* function to do things after the clear, like notifying ircops in saclear */
-	virtual void PostClear (User *user, Channel *chan, const std::string type)
+	virtual void PostClear (User *user, Channel *chan, const std::string& type)
 	{
 	}
 	/* make the user user clear the mode pointed to by mh on channel chan */
@@ -155,7 +155,7 @@ class SaclearCommand : public ClearBase
 		return 0;
 	}
  /* post clear hook */
-	void PostClear (User *user, Channel *chan, const std::string type)
+	void PostClear (User *user, Channel *chan, const std::string& type)
 	{
 		/* send notice */
 		ServerInstance->SNO->WriteGlobalSno ('a', "%s used saclear %s on channel %s", user->nick.c_str ( ), type.c_str ( ), chan->name.c_str ( 

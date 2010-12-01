@@ -42,7 +42,7 @@ class FilterResult
 	bool flag_privmsg;
 	bool flag_notice;
 
-	FilterResult(const std::string free, const std::string &rea, const std::string &act, long gt, const std::string &fla) :
+	FilterResult(const std::string &free, const std::string &rea, const std::string &act, long gt, const std::string &fla) :
 			freeform(free), reason(rea), action(act), gline_time(gt), flags(fla)
 	{
 		this->FillFlags(fla);

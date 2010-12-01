@@ -139,7 +139,7 @@ class CoreExport CommandParser
 	 * @param custom_translator Used to translate the parameter if the TR_CUSTOM type is found in to
 	 * @return returns the number of substitutions made.
 	 */
-	int TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final = false, Command* custom_translator = NULL);
+	int TranslateUIDs(const std::vector<TranslateType> &to, const std::vector<std::string> &source, std::string &dest, bool prefix_final = false, Command* custom_translator = NULL);
 };
 
 /** A lookup table of values for multiplier characters used by

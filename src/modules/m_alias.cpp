@@ -276,7 +276,7 @@ class ModuleAlias : public Module
 	}
 
 
-	int DoAlias(LocalUser *user, Channel *c, Alias *a, const std::string compare, const std::string safe)
+	int DoAlias(LocalUser *user, Channel *c, Alias *a, const std::string& compare, const std::string& safe)
 	{
 		User *u = NULL;
 
