@@ -267,7 +267,7 @@ swap_now:
 
 		for (unsigned int j = my_pos; j != swap_pos; j += incrmnt)
 		{
-			if (( j + incrmnt > EventHandlers[i].size() - 1) || (j + incrmnt < 0))
+			if (j + incrmnt > EventHandlers[i].size() - 1)
 				continue;
 
 			std::swap(EventHandlers[i][j], EventHandlers[i][j+incrmnt]);
