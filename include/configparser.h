@@ -54,8 +54,7 @@ struct FileWrapper
 {
 	FILE* const f;
 	FileWrapper(FILE* file) : f(file) {}
-	operator bool() const { return f; }
-	operator FILE*() { return f; }
+	operator FILE*() const { return f; }
 	~FileWrapper()
 	{
 		if (f)
