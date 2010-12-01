@@ -33,7 +33,7 @@ INSTMODE_LIB = 0644
 @IFEQ $(CC) icc
   CXXFLAGS += -Wshadow
 @ELSE
-  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall -Wextra -Wno-unused-parameter
+  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall -Wextra -Wno-unused-parameter -Winit-self -Wfloat-equal -Wcast-qual -Wcast-align -Wconversion -Wpacked -Wredundant-decls
 @ENDIF
 
 
