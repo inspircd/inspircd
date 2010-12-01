@@ -99,8 +99,7 @@ CullResult TreeSocket::cull()
 
 TreeSocket::~TreeSocket()
 {
-	if (capab)
-		delete capab;
+	delete capab;
 }
 
 /** When an outbound connection finishes connecting, we receive

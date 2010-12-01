@@ -838,8 +838,7 @@ DNS::~DNS()
 	ServerInstance->SE->Shutdown(this, 2);
 	ServerInstance->SE->Close(this);
 	ServerInstance->Timers->DelTimer(this->PruneTimer);
-	if (cache)
-		delete cache;
+	delete cache;
 }
 
 CachedQuery* DNS::GetCache(const std::string &source)
@@ -1024,8 +1023,7 @@ bool DNS::AddResolverClass(Resolver* r)
 		/* Pointer or id not valid.
 		 * Free the item and return
 		 */
-		if (r)
-			delete r;
+		delete r;
 
 		return false;
 	}
