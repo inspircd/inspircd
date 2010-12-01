@@ -117,7 +117,7 @@ void TreeSocket::WriteLine(std::string line)
 	{
 		std::string::size_type a = line.find(' ');
 		if (line[0] != ':')
-			a = -1;
+			a = std::string::npos;
 		std::string::size_type b = line.find(' ', a + 1);
 		std::string command = line.substr(a + 1, b-a-1);
 		// now try to find a translation entry
