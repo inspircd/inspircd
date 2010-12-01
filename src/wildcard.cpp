@@ -17,11 +17,9 @@
 #include "hashcomp.h"
 #include "inspstring.h"
 
-static bool match_internal(const unsigned char *str, const unsigned char *mask, unsigned const char *map)
+static bool match_internal(const unsigned char *string, const unsigned char *wild, unsigned const char *map)
 {
-	unsigned char *cp = NULL, *mp = NULL;
-	unsigned char* string = (unsigned char*)str;
-	unsigned char* wild = (unsigned char*)mask;
+	const unsigned char *cp = NULL, *mp = NULL;
 
 	while ((*string) && (*wild != '*'))
 	{
