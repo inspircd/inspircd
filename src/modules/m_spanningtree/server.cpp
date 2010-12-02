@@ -45,7 +45,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, parameterlist &params)
 
 	if (!ParentOfThis)
 	{
-		this->SendError("Protocol error - Introduced remote server from unknown server "+ParentOfThis->GetName());
+		this->SendError("Protocol error - Introduced remote server from an unknown server");
 		return false;
 	}
 	if (!ServerInstance->IsSID(sid))
