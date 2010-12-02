@@ -770,12 +770,9 @@ class ModuleMsSQL : public Module
 
 	void ClearAllConnections()
 	{
-		ConnMap::iterator i;
-		while ((i = connections.begin()) != connections.end())
-		{
-			connections.erase(i);
+		for(ConnMap::iterator i = connections.begin(); i != connections.end(); ++i)
 			delete i->second;
-		}
+		connections.clear();
 	}
 
 	virtual void OnRehash(User* user)
