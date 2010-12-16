@@ -55,7 +55,7 @@ class CommandOjoin : public Command
 		// Make sure the channel name is allowable.
 		if (!ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
 		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name or name too long");
+			user->WriteServ("NOTICE %s :*** Invalid characters in channel name or name too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 

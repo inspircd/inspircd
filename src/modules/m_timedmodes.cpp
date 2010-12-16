@@ -144,13 +144,13 @@ class CommandTmode : public Command
 			timedmodes* existing = tmodes.get(channel);
 			if ((existing && existing->size() >= maxsize) || maxsize == 0)
 			{
-				user->WriteServ("NOTICE " + user->nick + " :Channel " + channel->name + " timedmodes list is full");
+				user->WriteServ("NOTICE %s :Channel %s timedmodes list is full", user->nick.c_str(), channel->name.c_str());
 				return CMD_FAILURE;
 			}
 			duration = ServerInstance->Duration(parameters[1]);
 			if (duration < 1)
 			{
-				user->WriteServ("NOTICE " + user->nick + " :Invalid timed mode duration");
+				user->WriteServ("NOTICE %s :Invalid timed mode duration", user->nick.c_str());
 				return CMD_FAILURE;
 			}
 			T.expire = duration + ServerInstance->Time();
@@ -231,7 +231,7 @@ class CommandTmode : public Command
 			else {
 				for (timedmodes::iterator i = existing->begin(); i != existing->end(); ++i)
 					if(T == *i) {
-						user->WriteServ("NOTICE " + user->nick + " :The timed mode given is an exact duplicate of one already set");
+						user->WriteServ("NOTICE %s :The timed mode given is an exact duplicate of one already set", user->nick.c_str());
 						return CMD_FAILURE; // we already have this TimedMode, so this one's a duplicate
 					}
 			}

@@ -75,7 +75,7 @@ class AccountDBProviderImpl : public AccountDBProvider
 				if(entry->name == account->GetAccountName(i->second))
 				{
 					account->DoLogin(i->second, "", "");
-					i->second->WriteServ("NOTICE " + i->second->nick + " :Account " + std::string(entry->name) + " has been dropped");
+					i->second->WriteServ("NOTICE %s :Account %s has been dropped", i->second->nick.c_str(), entry->name.c_str());
 				}
 			}
 		if(send)
@@ -317,7 +317,7 @@ class CommandIdentify : public Command
 
 		if(!result)
 		{
-			user->WriteServ("NOTICE " + user->nick + " :Invalid username or password");
+			user->WriteServ("NOTICE %s :Invalid username or password", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -341,10 +341,10 @@ class CommandLogout : public Command
 			if(account->IsRegistered(user))
 			{
 				account->DoLogin(user, "", "");
-				user->WriteServ("NOTICE " + user->nick + " :Logout successful");
+				user->WriteServ("NOTICE %s :Logout successful", user->nick.c_str());
 			}
 			else
-				user->WriteServ("NOTICE " + user->nick + " :You are not logged in");
+				user->WriteServ("NOTICE %s :You are not logged in", user->nick.c_str());
 		}
 		return CMD_SUCCESS;
 	}

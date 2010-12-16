@@ -39,17 +39,17 @@ class CommandClones : public Command
 		 *  :server.name 304 target :CHECK END
 		 */
 
-		user->WriteServ(clonesstr + " START");
+		user->WriteServ("%s START", clonesstr.c_str());
 
 		/* hostname or other */
 		// XXX I really don't like marking global_clones public for this. at all. -- w00t
 		for (clonemap::iterator x = ServerInstance->Users->global_clones.begin(); x != ServerInstance->Users->global_clones.end(); x++)
 		{
 			if (x->second >= limit)
-				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + x->first.str());
+				user->WriteServ("%s %s %s", clonesstr.c_str(), ConvToStr(x->second).c_str(), x->first.str().c_str());
 		}
 
-		user->WriteServ(clonesstr + " END");
+		user->WriteServ("%s END", clonesstr.c_str());
 
 		return CMD_SUCCESS;
 	}

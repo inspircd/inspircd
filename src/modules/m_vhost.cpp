@@ -40,14 +40,14 @@ class CommandVhost : public Command
 			{
 				if (!mask.empty())
 				{
-					user->WriteServ("NOTICE "+user->nick+" :Setting your VHost: " + mask);
+					user->WriteServ("NOTICE %s :Setting your VHost: %s", user->nick.c_str(), mask.c_str());
 					user->ChangeDisplayedHost(mask.c_str());
 					return CMD_SUCCESS;
 				}
 			}
 		}
 
-		user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid username or password.");
+		user->WriteServ("NOTICE %s :Invalid username or password.", user->nick.c_str());
 		return CMD_FAILURE;
 	}
 };

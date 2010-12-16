@@ -113,13 +113,13 @@ class DNSBLResolver : public Resolver
 						{
 							if (!ConfEntry->ident.empty())
 							{
-								them->WriteServ("304 " + them->nick + " :Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
+								them->WriteServ("304 %s :Your ident has been set to %s because you matched %s", them->nick.c_str(), ConfEntry->ident.c_str(), reason.c_str());
 								them->ChangeIdent(ConfEntry->ident.c_str());
 							}
 
 							if (!ConfEntry->host.empty())
 							{
-								them->WriteServ("304 " + them->nick + " :Your host has been set to " + ConfEntry->host + " because you matched " + reason);
+								them->WriteServ("304 %s :Your host has been set to %s because you matched %s", them->nick.c_str(), ConfEntry->host.c_str(), reason.c_str());
 								them->ChangeDisplayedHost(ConfEntry->host.c_str());
 							}
 

@@ -308,14 +308,14 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
 			else
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
+				user->WriteServ("NOTICE %s :Your message to %s was blocked and opers notified: %s", user->nick.c_str(), target.c_str(), f->reason.c_str());
 		}
 		if (f->action == "silent")
 		{
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(404, "%s %s :Message to channel blocked (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
 			else
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message to "+target+" was blocked: "+f->reason);
+				user->WriteServ("NOTICE %s :Your message to %s was blocked: %s", user->nick.c_str(), target.c_str(), f->reason.c_str());
 		}
 		if (f->action == "kill")
 		{

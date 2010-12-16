@@ -37,7 +37,7 @@ class CommandChghost : public Command
 		{
 			if (!hostmap[(unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** CHGHOST: Invalid characters in hostname");
+				user->WriteServ("NOTICE %s :*** CHGHOST: Invalid characters in hostname", user->nick.c_str());
 				return CMD_FAILURE;
 			}
 		}
