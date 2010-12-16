@@ -1389,12 +1389,6 @@
 #<module name="m_sapart.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAPROP module: Adds the oper /SAPROP command
-# This module is oper-only.
-# To use, SAPROP must be in one of your oper class blocks.
-#<module name="m_saprop.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
 # This module is oper-only.
 # To use, SAQUIT must be in one of your oper class blocks.
