@@ -36,10 +36,10 @@ class CommandAcctlist : public Command
 		bool displayAll = parameters.empty() || parameters[0] == "*";
 		bool canSeeHidden = user->HasPrivPermission("accounts/auspex");
 		irc::string username = accounts ? accounts->GetAccountName(user) : "";
-		std::pair<time_t, bool>* ext;
+		bool* ext;
 		for(AccountDB::const_iterator iter = db->GetDB().begin(); iter != db->GetDB().end(); ++iter)
 			if(displayAll || InspIRCd::Match(iter->second->name, parameters[0]))
-				if(canSeeHidden || username == iter->second->name || ((ext = hidden.get(iter->second)) && !ext->second)) // default to hidden
+				if(canSeeHidden || username == iter->second->name || ((ext = hidden.get_value(iter->second)) && !*ext)) // default to hidden
 					user->WriteServ("NOTICE %s :%s", user->nick.c_str(), iter->second->name.c_str());
 		user->WriteServ("NOTICE %s :End of account list", user->nick.c_str());
 		return CMD_SUCCESS;
@@ -115,9 +115,9 @@ class CommandSethidden : public Command
 			user->WriteServ("NOTICE %s :Unknown setting", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		hidden.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
+		hidden.set(entry, newsetting);
 		db->SendUpdate(entry, "Hidden");
-		user->WriteServ("NOTICE %s :Account hiding for %s %s successfully", user->nick.c_str(), entry->name.c_str(), newsetting ? "enabled" : "disabled");
+		user->WriteServ("NOTICE %s :Account hiding for %s %sabled successfully", user->nick.c_str(), entry->name.c_str(), newsetting ? "en" : "dis");
 		return CMD_SUCCESS;
 	}
 };

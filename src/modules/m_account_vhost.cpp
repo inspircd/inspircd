@@ -37,7 +37,7 @@ class CommandAcctvhost : public Command
 
  public:
 	TSStringExtItem vhost;
-	CommandAcctvhost(Module* Creator, char* hmap) : Command(Creator,"ACCTVHOST", 1, 2), hostmap(hmap), vhost("Vhost", Creator)
+	CommandAcctvhost(Module* Creator, char* hmap) : Command(Creator,"ACCTVHOST", 1, 2), hostmap(hmap), vhost("Vhost", "", Creator)
 	{
 		flags_needed = 'o'; syntax = "<account name> [vhost]";
 	}
@@ -68,7 +68,7 @@ class CommandAcctvhost : public Command
 					user->WriteServ("NOTICE %s :Host too long", user->nick.c_str());
 					return CMD_FAILURE;
 				}
-				vhost.set(entry, std::make_pair(ServerInstance->Time(), parameters[1]));
+				vhost.set(entry, parameters[1]);
 				db->SendUpdate(entry, "Vhost");
 				ServerInstance->SNO->WriteGlobalSno('a', "%s used ACCTVHOST to set the vhost of account %s to %s", user->nick.c_str(), entry->name.c_str(), parameters[1].c_str());
 				user->WriteServ("NOTICE %s :Account %s vhost set to %s", user->nick.c_str(), entry->name.c_str(), parameters[1].c_str());
@@ -77,7 +77,7 @@ class CommandAcctvhost : public Command
 		}
 		else if(IS_LOCAL(user))
 		{
-			vhost.set(entry, std::make_pair(ServerInstance->Time(), ""));
+			vhost.set(entry, "");
 			db->SendUpdate(entry, "Vhost");
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used ACCTVHOST to remove the vhost of account %s", user->nick.c_str(), entry->name.c_str());
 			user->WriteServ("NOTICE %s :Account %s vhost removed", user->nick.c_str(), entry->name.c_str());
@@ -131,9 +131,9 @@ class ModuleAccountVhost : public Module
 			AccountDBEntry* entry = db->GetAccount(acct_event.account, false);
 			if(!entry)
 				return;
-			std::pair<time_t, std::string>* vhost = cmd_acctvhost.vhost.get(entry);
-			if(vhost && !vhost->second.empty())
-				acct_event.user->ChangeDisplayedHost(vhost->second.c_str());
+			std::string* vhost = cmd_acctvhost.vhost.get_value(entry);
+			if(vhost && !vhost->empty())
+				acct_event.user->ChangeDisplayedHost(vhost->c_str());
 		}
 	}
 
@@ -144,9 +144,9 @@ class ModuleAccountVhost : public Module
 		AccountDBEntry* entry = db->GetAccount(account->GetAccountName(user), false);
 		if(!entry)
 			return;
-		std::pair<time_t, std::string>* vhost = cmd_acctvhost.vhost.get(entry);
-		if(vhost && !vhost->second.empty())
-			user->ChangeDisplayedHost(vhost->second.c_str());
+		std::string* vhost = cmd_acctvhost.vhost.get_value(entry);
+		if(vhost && !vhost->empty())
+			user->ChangeDisplayedHost(vhost->c_str());
 	}
 
 	void Prioritize()

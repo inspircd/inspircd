@@ -190,73 +190,196 @@ class TSExtItem : public SimpleExtItem<time_t>
 	}
 };
 
-class TSBoolExtItem : public SimpleExtItem<std::pair<time_t, bool> >
+template<typename T>
+class TSGenericExtItem : public ExtensionItem
 {
-	const bool default_value;
-	const bool conflict_value;
+ protected:
+	const T* const default_value;
+
+	/**
+	 * Serialize the value of the extension item
+	 * @param format The format to serialize the value in
+	 * @param value The value to serialize.  It it the caller's responsibility to make sure that it is not null.
+	 * @return The serialized value
+	 */
+	virtual std::string value_serialize(SerializeFormat format, const T* value) const = 0;
+
+	/**
+	 * Unserialize the value of an extension item
+	 * This function needs to allocate memory for the unserialized value.
+	 * Its lifetime will be handled by the caller.
+	 * @param format The format to unserialize the value from
+	 * @param value The serialized value
+	 * @return A pointer to the unserialized value.  This should not be null.
+	 */
+	virtual T* value_unserialize(SerializeFormat format, const std::string& value) = 0;
+
+	/**
+	 * Resolve a conflict when timestamps are identical
+	 * @param value The existing value, which will be modified if necessary to resolve the conflict.  It is the caller's responsibility to make sure that it is not null.
+	 * @param newvalue The new value.  It is the caller's responsibility to make sure that it is not null.
+	 */
+	virtual void value_resolve_conflict(T* value, const T* newvalue) = 0;
+
  public:
-	TSBoolExtItem(const std::string& Key, bool default_val, bool conflict_val, Module* parent) : SimpleExtItem<std::pair<time_t, bool> >(EXTENSIBLE_ACCOUNT, Key, parent), default_value(default_val), conflict_value(conflict_val) {}
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	typedef std::pair<time_t, T* const> value_pair;
+
+	TSGenericExtItem(const std::string& Key, const T& default_val, Module* parent) : ExtensionItem(EXTENSIBLE_ACCOUNT, Key, parent), default_value(new T(default_val))
 	{
-		std::pair<time_t, bool>* p = static_cast<std::pair<time_t, bool>*>(item);
+	}
+
+	TSGenericExtItem(const std::string& Key, T* default_val, Module* parent) : ExtensionItem(EXTENSIBLE_ACCOUNT, Key, parent), default_value(default_val)
+	{
+	}
+
+	virtual ~TSGenericExtItem()
+	{
+		delete default_value;
+	}
+
+	inline value_pair* get(const Extensible* container) const
+	{
+		return static_cast<value_pair*>(get_raw(container));
+	}
+
+	inline T* get_value(const Extensible* container) const
+	{
+		value_pair* ptr = get(container);
+		return ptr ? ptr->second : NULL;
+	}
+
+	inline void set(Extensible* container, time_t ts, const T& value)
+	{
+		value_pair* old = static_cast<value_pair*>(set_raw(container, new value_pair(ts, new T(value))));
+		if(old)
+		{
+			delete old->second;
+			delete old;
+		}
+	}
+
+	inline void set(Extensible* container, time_t ts, T* value)
+	{
+		value_pair* old = static_cast<value_pair*>(set_raw(container, new value_pair(ts, value)));
+		if(old)
+		{
+			delete old->second;
+			delete old;
+		}
+	}
+
+	inline void set(Extensible* container, const T& value)
+	{
+		set(container, ServerInstance->Time(), value);
+	}
+
+	inline void set(Extensible* container, T* value)
+	{
+		set(container, ServerInstance->Time(), value);
+	}
+
+	// The way account extension items are synchronized between servers, it would always be a bug to unset one, so the lack of an unset function is deliberate.
+
+	virtual std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	{
+		value_pair* p = static_cast<value_pair*>(item);
 		if(!p)
 		{
 			if(format == FORMAT_USER)
-				return default_value ? "true" : "false";
+				return value_serialize(FORMAT_USER, default_value);
 			return "";
 		}
 		if(format == FORMAT_USER)
-			return p->second ? "true" : "false";
-		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + (p->second ? '1' : '0');
+			return value_serialize(FORMAT_USER, p->second);
+		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + value_serialize(format, p->second);
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	virtual void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
 		time_t ts;
-		bool item;
+		T* ptr;
 		std::string::size_type delim = value.find_first_of(' ');
 		ts = atol(value.substr(0, delim).c_str());
 		if(delim == std::string::npos)
-			item = default_value;
+			ptr = new T(*default_value);
 		else
-			item = (value.substr(delim + 1)[0] == '1');
-		std::pair<time_t, bool>* p = get(container);
+			ptr = value_unserialize(format, value.substr(delim + 1));
+		value_pair* p = get(container);
 		if(!p || ts > p->first)
-			set(container, std::make_pair(ts, item));
-		else if(ts == p->first && item != p->second)
-			set(container, std::make_pair(ts, conflict_value));
+			set(container, ts, ptr);
+		else
+		{
+			if(ts == p->first)
+				value_resolve_conflict(p->second, ptr);
+			delete ptr;
+		}
+	}
+
+	virtual void free(void* item)
+	{
+		value_pair* old = static_cast<value_pair*>(item);
+		if(old)
+		{
+			delete old->second;
+			delete old;
+		}
 	}
 };
 
-class TSStringExtItem : public SimpleExtItem<std::pair<time_t, std::string> >
+class TSBoolExtItem : public TSGenericExtItem<bool>
 {
- public:
-	TSStringExtItem(const std::string& Key, Module* parent) : SimpleExtItem<std::pair<time_t, std::string> >(EXTENSIBLE_ACCOUNT, Key, parent) {}
-	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
+	const bool conflict_value;
+ protected:
+	virtual std::string value_serialize(SerializeFormat format, const bool* value) const
 	{
-		std::pair<time_t, std::string>* p = static_cast<std::pair<time_t, std::string>*>(item);
-		if(!p)
-			return "";
 		if(format == FORMAT_USER)
-			return p->second;
-		return ConvToStr(p->first) + (format == FORMAT_NETWORK ? " :" : " ") + p->second;
+			return *value ? "true" : "false";
+		return *value ? "1" : "0";
 	}
 
-	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	virtual bool* value_unserialize(SerializeFormat format, const std::string& value)
 	{
-		time_t ts;
-		std::string item;
-		std::string::size_type delim = value.find_first_of(' ');
-		ts = atol(value.substr(0, delim).c_str());
-		if(delim == std::string::npos)
-			item = "";
-		else
-			item = value.substr(delim + 1);
-		std::pair<time_t, std::string>* p = get(container);
-		if(!p || ts > p->first)
-			set(container, std::make_pair(ts, item));
-		else if(ts == p->first && item != p->second)
-			set(container, std::make_pair(ts, std::max(item, p->second)));
+		if(value.empty())
+			return new bool(default_value);
+		if(value[0] == '0')
+			return new bool(false);
+		return new bool(true);
+	}
+
+	virtual void value_resolve_conflict(bool* value, const bool* newvalue)
+	{
+		if(*value != *newvalue)
+			*value = conflict_value;
+	}
+
+ public:
+	TSBoolExtItem(const std::string& Key, bool default_val, bool conflict_val, Module* parent) : TSGenericExtItem<bool>(Key, default_val, parent), conflict_value(conflict_val)
+	{
+	}
+};
+
+class TSStringExtItem : public TSGenericExtItem<std::string>
+{
+ protected:
+	virtual std::string value_serialize(SerializeFormat format, const std::string* value) const
+	{
+		return *value;
+	}
+
+	virtual std::string* value_unserialize(SerializeFormat format, const std::string& value)
+	{
+		return new std::string(value);
+	}
+
+	virtual void value_resolve_conflict(std::string* value, const std::string* newvalue)
+	{
+		if(*value < *newvalue)
+			*value = *newvalue;
+	}
+
+ public:
+	TSStringExtItem(const std::string& Key, const std::string& default_val, Module* parent) : TSGenericExtItem<std::string>(Key, default_val, parent)
+	{
 	}
 };
 

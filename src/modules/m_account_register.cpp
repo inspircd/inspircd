@@ -114,7 +114,7 @@ class CommandRegister : public Command
 			}
 		}
 		if(parameters.size() == 2)
-			email.set(entry, std::make_pair(ServerInstance->Time(), parameters[1]));
+			email.set(entry, parameters[1]);
 		db->SendAccount(entry);
 		regcount.set(user, user_regcount + 1);
 		if(parameters.size() == 2)
@@ -154,7 +154,7 @@ class CommandSetemail : public Command
 				user->WriteServ("NOTICE %s :An email address is required", user->nick.c_str());
 				return CMD_FAILURE;
 			}
-			email.set(entry, std::make_pair(ServerInstance->Time(), ""));
+			email.set(entry, "");
 			db->SendUpdate(entry, "Email_address");
 			ServerInstance->SNO->WriteGlobalSno('u', "%s cleared the email address of account %s", user->nick.c_str(), entry->name.c_str());
 			user->WriteServ("NOTICE %s :Account %s email removed", user->nick.c_str(), entry->name.c_str());
@@ -167,7 +167,7 @@ class CommandSetemail : public Command
 		}
 		else
 		{
-			email.set(entry, std::make_pair(ServerInstance->Time(), parameters[0]));
+			email.set(entry, parameters[0]);
 			db->SendUpdate(entry, "Email_address");
 			ServerInstance->SNO->WriteGlobalSno('u', "%s set the email address of account %s to %s", user->nick.c_str(), entry->name.c_str(), parameters[0].c_str());
 			user->WriteServ("NOTICE %s :Account %s email set to %s", user->nick.c_str(), entry->name.c_str(), parameters[0].c_str());
@@ -433,7 +433,7 @@ class CommandHold : public Command
 			user->WriteServ("NOTICE %s :No such account", user->nick.c_str());
 			return CMD_FAILURE;
 		}
-		held.set(entry, std::make_pair(ServerInstance->Time(), newsetting));
+		held.set(entry, newsetting);
 		db->SendUpdate(entry, "Held");
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used HOLD to %sable hold of account '%s'", user->nick.c_str(), newsetting ? "en" : "dis", entry->name.c_str());
 		user->WriteServ("NOTICE %s :Account %s %sheld successfully", user->nick.c_str(), entry->name.c_str(), newsetting ? "" : "un");
@@ -477,7 +477,7 @@ class ModuleAccountRegister : public Module
 	TSExtItem last_used;
 
  public:
-	ModuleAccountRegister() : email("Email_address", this), cmd_register(this, hashtype, recentlydropped, email, maxregcount),
+	ModuleAccountRegister() : email("Email_address", "", this), cmd_register(this, hashtype, recentlydropped, email, maxregcount),
 		cmd_setemail(this, email), cmd_setpass(this, hashtype), cmd_fsetpass(this, hashtype),
 		cmd_drop(this, recentlydropped), cmd_fdrop(this, recentlydropped), cmd_hold(this),
 		cmd_recentlydropped(this, recentlydropped), last_used("Last_used", this)
@@ -556,7 +556,7 @@ class ModuleAccountRegister : public Module
 		AccountDBEntry* entry;
 		time_t threshold = ServerInstance->Time() - expiretime;
 		time_t* last_used_time;
-		std::pair<time_t, bool>* held;
+		bool* held;
 		recentlydropped.clear();
 		for (user_hash::const_iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
 		{
@@ -576,8 +576,8 @@ class ModuleAccountRegister : public Module
 		{
 			entry = i++->second;
 			last_used_time = last_used.get(entry);
-			held = cmd_hold.held.get(entry);
-			if((!last_used_time || *last_used_time < threshold) && !(held && held->second))
+			held = cmd_hold.held.get_value(entry);
+			if((!last_used_time || *last_used_time < threshold) && !(held && *held))
 			{
 				ServerInstance->SNO->WriteGlobalSno('u', "Account %s has expired", entry->name.c_str());
 				db->RemoveAccount(true, entry);
