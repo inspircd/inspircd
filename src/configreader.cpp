@@ -591,7 +591,7 @@ void ServerConfig::Fill()
 	if (v == "splitmsg")
 		OperSpyWhois = SPYWHOIS_SPLITMSG;
 	else if (v == "on" || v == "yes")
-		OperSpyWhois = SPYWHOIS_NEWLINE;
+		OperSpyWhois = SPYWHOIS_SINGLEMSG;
 	else
 		OperSpyWhois = SPYWHOIS_NONE;
 
