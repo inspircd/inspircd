@@ -209,7 +209,7 @@ class CoreExport ServerConfig
 
 	/** Used to indicate who we announce invites to on a channel */
 	enum InviteAnnounceState { INVITE_ANNOUNCE_NONE, INVITE_ANNOUNCE_ALL, INVITE_ANNOUNCE_OPS, INVITE_ANNOUNCE_DYNAMIC };
-	enum OperSpyWhoisState { SPYWHOIS_NONE, SPYWHOIS_NEWLINE, SPYWHOIS_SPLITMSG };
+	enum OperSpyWhoisState { SPYWHOIS_NONE, SPYWHOIS_SINGLEMSG, SPYWHOIS_SPLITMSG };
 
   	/** This holds all the information in the config file,
 	 * it's indexed by tag name to a vector of key/values.
