@@ -210,7 +210,7 @@ struct Parser
 		std::set<std::string> seen;
 		tag = ConfigTag::create(name, current.filename, current.line, items);
 
-		while (kv(items, seen));
+		while (kv(items, seen)) {}
 
 		if (name == "include")
 		{

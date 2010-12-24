@@ -270,7 +270,7 @@ class ModuleFlatfileAccount : public Module
 		if(!db) throw ModuleException("m_flatfile_account requires that m_account be loaded");
 		Implementation eventlist[] = { I_OnBackgroundTimer, I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		for(DatabaseReader dbreader(dbfile);dbreader.next(););
+		for(DatabaseReader dbreader(dbfile);dbreader.next();) {}
 	}
 
 	void ReadConfig(ConfigReadStatus&)
