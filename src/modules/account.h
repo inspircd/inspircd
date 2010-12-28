@@ -217,9 +217,9 @@ class TSGenericExtItem : public ExtensionItem
 	/**
 	 * Resolve a conflict when timestamps are identical
 	 * @param value The existing value, which will be modified if necessary to resolve the conflict.  It is the caller's responsibility to make sure that it is not null.
-	 * @param newvalue The new value.  It is the caller's responsibility to make sure that it is not null.
+	 * @param newvalue The new value.  It is the caller's responsibility to make sure that it is not null.  The contents of the object that this pointer points to are undefined after calling this function.
 	 */
-	virtual void value_resolve_conflict(T* value, const T* newvalue) = 0;
+	virtual void value_resolve_conflict(T* value, T* newvalue) = 0;
 
  public:
 	typedef std::pair<time_t, T* const> value_pair;
@@ -346,7 +346,7 @@ class TSBoolExtItem : public TSGenericExtItem<bool>
 		return new bool(true);
 	}
 
-	virtual void value_resolve_conflict(bool* value, const bool* newvalue)
+	virtual void value_resolve_conflict(bool* value, bool* newvalue)
 	{
 		if(*value != *newvalue)
 			*value = conflict_value;
@@ -371,14 +371,57 @@ class TSStringExtItem : public TSGenericExtItem<std::string>
 		return new std::string(value);
 	}
 
-	virtual void value_resolve_conflict(std::string* value, const std::string* newvalue)
+	virtual void value_resolve_conflict(std::string* value, std::string* newvalue)
 	{
 		if(*value < *newvalue)
-			*value = *newvalue;
+			value->swap(*newvalue);
 	}
 
  public:
 	TSStringExtItem(const std::string& Key, const std::string& default_val, Module* parent) : TSGenericExtItem<std::string>(Key, default_val, parent)
+	{
+	}
+
+	TSStringExtItem(const std::string& Key, std::string* default_val, Module* parent) : TSGenericExtItem<std::string>(Key, default_val, parent)
+	{
+	}
+};
+
+class TSStringVectorExtItem : public TSGenericExtItem<std::vector<std::string> >
+{
+	const char delimeter;
+
+ protected:
+	virtual std::string value_serialize(SerializeFormat format, const std::vector<std::string>* value) const
+	{
+		std::ostringstream retval;
+		for(std::vector<std::string>::const_iterator i = value->begin(); i != value->end(); ++i)
+			retval << *i << delimeter;
+		return retval.str();
+	}
+
+	virtual std::vector<std::string>* value_unserialize(SerializeFormat format, const std::string& value)
+	{
+		irc::sepstream sep(value, delimeter);
+		std::string token;
+		std::vector<std::string>* retval = new std::vector<std::string>;
+		while(sep.GetToken(token))
+			retval->push_back(token);
+		return retval;
+	}
+
+	virtual void value_resolve_conflict(std::vector<std::string>* value, std::vector<std::string>* newvalue)
+	{
+		if(*value < *newvalue)
+			value->swap(*newvalue);
+	}
+
+ public:
+	TSStringVectorExtItem(const std::string& Key, const std::vector<std::string>& default_val, const char delim, Module* parent) : TSGenericExtItem<std::vector<std::string> >(Key, default_val, parent), delimeter(delim)
+	{
+	}
+
+	TSStringVectorExtItem(const std::string& Key, std::vector<std::string>* default_val, const char delim, Module* parent) : TSGenericExtItem<std::vector<std::string> >(Key, default_val, parent), delimeter(delim)
 	{
 	}
 };

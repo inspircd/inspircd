@@ -90,7 +90,7 @@ class NicksOwnedExtItem : public TSGenericExtItem<NicksOwned>
 		throw ModuleException("Called NicksOwnedExtItem::value_unserialize");
 	}
 
-	virtual void value_resolve_conflict(NicksOwned*, const NicksOwned*)
+	virtual void value_resolve_conflict(NicksOwned*, NicksOwned*)
 	{
 		throw ModuleException("Called NicksOwnedExtItem::value_resolve_conflict");
 	}
