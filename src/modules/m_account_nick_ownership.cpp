@@ -140,6 +140,7 @@ class NicksOwnedExtItem : public TSGenericExtItem<NicksOwned>
 
 	virtual void free(void* item)
 	{
+		if(!item) return;
 		NicksOwned* value = static_cast<value_pair*>(item)->second;
 		for(NicksOwned::const_iterator i = value->begin(); i != value->end(); ++i)
 			nickinfo.erase(i->nick);
