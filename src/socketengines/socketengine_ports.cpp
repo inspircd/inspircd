@@ -62,7 +62,6 @@ PortsEngine::PortsEngine()
 	if (max > 0)
 	{
 		MAX_DESCRIPTORS = max;
-		return max;
 	}
 	else
 	{
