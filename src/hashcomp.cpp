@@ -199,7 +199,7 @@ bool irc::tokenstream::GetToken(std::string &token)
 			/* If we find a space, or end of string, this is the end of a token.
 			 */
 			last_starting_position = n+1;
-			last_pushed = true;
+			last_pushed = *n == ' ';
 
 			std::string strip(lsp, n+1 == tokens.end() ? n+1  : n++);
 			while ((strip.length()) && (strip.find_last_of(' ') == strip.length() - 1))
