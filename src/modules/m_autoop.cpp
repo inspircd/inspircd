@@ -81,33 +81,39 @@ public:
 		ServerInstance->Modules->AddService(mh);
 		mh.DoImplements(this);
 
-		Implementation list[] = { I_OnUserPreJoin, };
+		Implementation list[] = { I_OnPostJoin, };
 		ServerInstance->Modules->Attach(list, this, 1);
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	void OnPostJoin(Membership *memb)
 	{
-		if (!chan)
-			return MOD_RES_PASSTHRU;
+		if (!IS_LOCAL(memb->user))
+			return;
 
-		modelist* list = mh.extItem.get(chan);
+		modelist* list = mh.extItem.get(memb->chan);
 		if (list)
 		{
+			std::string modeline("+");
+			std::vector<std::string> modechange;
+			modechange.push_back(memb->chan->name);
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
 				std::string::size_type colon = it->mask.find(':');
 				if (colon == std::string::npos)
 					continue;
-				if (chan->CheckBan(user, it->mask.substr(colon+1)))
+				if (memb->chan->CheckBan(memb->user, it->mask.substr(colon+1)))
 				{
 					ModeHandler* given = mh.FindMode(it->mask.substr(0, colon));
-					if (given)
-						privs += given->GetModeChar();
+					if (given && given->GetPrefixRank())
+						modeline.push_back(given->GetModeChar());
 				}
 			}
+			modechange.push_back(modeline);
+			for(std::string::size_type i = modeline.length(); i > 1; --i) // we use "i > 1" instead of "i" so we skip the +
+				modechange.push_back(memb->user->nick);
+			if(modechange.size() >= 3)
+				ServerInstance->SendMode(modechange,ServerInstance->FakeClient);
 		}
-
-		return MOD_RES_PASSTHRU;
 	}
 
 	void OnCleanup(int target_type, void* item)
