@@ -127,6 +127,7 @@ void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
 StreamSocket*   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return NULL; }
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { }
+void		Module::RunTestSuite() { }
 
 ModuleManager::ModuleManager() : ModCount(0)
 {

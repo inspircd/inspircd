@@ -90,7 +90,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 8
+#define INSPIRCD_VERSION_API 9
 
 /**
  * This #define allows us to call a method in all
@@ -1109,6 +1109,11 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param line The raw line to send; modifiable, if empty no line will be returned.
 	 */
 	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line);
+
+	/** Add test suite hooks here. These are used for testing functionality of a module
+	 * via the --testsuite debugging parameter.
+	 */
+	virtual void RunTestSuite();
 };
 
 struct RestoreData {

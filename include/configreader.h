@@ -117,6 +117,11 @@ struct CommandLineConf
 	 */
 	bool writelog;
 
+	/** True if we have been told to run the testsuite from the commandline,
+	 * rather than entering the mainloop.
+	 */
+	bool testsuite;
+
 	/** Saved argc from startup
 	 */
 	int argc;
