@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "threadengines/threadengine_pthread.h"
 #include <pthread.h>
 #include <signal.h>
@@ -54,7 +55,7 @@ class ThreadSignalSocket : public EventHandler
 			ServerInstance->Threads->job_lock.lock();
 			ServerInstance->Threads->result_ss = NULL;
 			ServerInstance->Threads->job_lock.unlock();
-			ServerInstance->GlobalCulls.AddItem(this);
+			ServerInstance->GlobalCulls->AddItem(this);
 		}
 	}
 };
@@ -102,7 +103,7 @@ class ThreadSignalSocket : public EventHandler
 			ServerInstance->Threads->job_lock.lock();
 			ServerInstance->Threads->result_ss = NULL;
 			ServerInstance->Threads->job_lock.unlock();
-			ServerInstance->GlobalCulls.AddItem(this);
+			ServerInstance->GlobalCulls->AddItem(this);
 		}
 	}
 };

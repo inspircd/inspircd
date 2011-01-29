@@ -122,7 +122,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 {
 	if (LinkState != DYING)
 	{
-		ServerInstance->GlobalCulls.AddItem(this);
+		ServerInstance->GlobalCulls->AddItem(this);
 		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \002%s\002 failed with error: %s",
 			linkID.c_str(), getError().c_str());
 		LinkState = DYING;
@@ -135,7 +135,7 @@ void TreeSocket::SendError(const std::string &errormessage)
 	DoWrite();
 	if (LinkState != DYING)
 	{
-		ServerInstance->GlobalCulls.AddItem(this);
+		ServerInstance->GlobalCulls->AddItem(this);
 		LinkState = DYING;
 	}
 	SetError(errormessage);

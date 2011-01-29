@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
@@ -76,7 +77,7 @@ class HttpServerSocket : public BufferedSocket
 
 	virtual void OnError(BufferedSocketError)
 	{
-		ServerInstance->GlobalCulls.AddItem(this);
+		ServerInstance->GlobalCulls->AddItem(this);
 	}
 
 	std::string Response(int response)

@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include <cstdarg>
 #include "mode.h"
 
@@ -148,7 +149,7 @@ void Channel::DelUser(User* user)
 		FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 		ServerInstance->chanlist->erase(iter);
 	}
-	ServerInstance->GlobalCulls.AddItem(this);
+	ServerInstance->GlobalCulls->AddItem(this);
 }
 
 bool Channel::HasUser(User* user)

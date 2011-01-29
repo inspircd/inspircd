@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "protocol.h"
 #include "bancache.h"
 #include <signal.h>
@@ -101,7 +102,7 @@ void InspIRCd::Cleanup()
 		Users->QuitUser(u, "Server shutdown");
 	}
 
-	GlobalCulls.Apply();
+	GlobalCulls->Apply();
 	Modules->UnloadAll();
 
 	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
@@ -126,6 +127,8 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Threads);
 	DeleteZero(this->Timers);
 	DeleteZero(this->SE);
+	DeleteZero(this->AtomicActions);
+	DeleteZero(this->GlobalCulls);
 	/* Close logging */
 	this->Logs->CloseLogs();
 	DeleteZero(this->Logs);
@@ -365,6 +368,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	// This must be created first, so other parts of Insp can use it while starting up
 	this->Logs = new LogManager;
+
+	this->GlobalCulls = new CullList;
+
+	this->AtomicActions = new ActionList;
 
 	SE = CreateSocketEngine();
 
@@ -800,8 +807,8 @@ int InspIRCd::Run()
 			(long)ServerInstance->Time(), ServerInstance->Time_ns());
 
 		/* if any users were quit, take them out */
-		GlobalCulls.Apply();
-		AtomicActions.Run();
+		GlobalCulls->Apply();
+		AtomicActions->Run();
 
 		if (this->s_signal)
 		{

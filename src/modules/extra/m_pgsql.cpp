@@ -599,7 +599,7 @@ void SQLConn::DelayReconnect()
 	if (it != mod->connections.end())
 	{
 		mod->connections.erase(it);
-		ServerInstance->GlobalCulls.AddItem((EventHandler*)this);
+		ServerInstance->GlobalCulls->AddItem((EventHandler*)this);
 		if (!mod->retimer)
 		{
 			mod->retimer = new ReconnectTimer(mod);

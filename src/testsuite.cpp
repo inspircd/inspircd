@@ -14,6 +14,7 @@
 /* $Core */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "testsuite.h"
 #include <iostream>
 
@@ -269,7 +270,7 @@ TestSuite::TestSuite()
 				{
 					Module* m = ServerInstance->Modules->Find(modname);
 					std::cout << std::endl << (ServerInstance->Modules->Unload(m) ? "SUCCESS" : "FAILURE") << std::endl;
-					ServerInstance->AtomicActions.Run();
+					ServerInstance->AtomicActions->Run();
 				}
 				break;
 

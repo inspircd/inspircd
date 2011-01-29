@@ -12,6 +12,7 @@
  */
 
 // Types that we use before they are defined in header files
+class ActionList;
 class BanCacheManager;
 class BanItem;
 class BufferedSocket;
@@ -21,6 +22,7 @@ class ConfigReader;
 class ConfigReadStatus;
 class ConfigTag;
 class CrashState;
+class CullList;
 class DNSHeader;
 class DNSRequest;
 class Extensible;

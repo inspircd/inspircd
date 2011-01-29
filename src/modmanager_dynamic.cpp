@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "xline.h"
 #include "exitcodes.h"
 
@@ -114,9 +115,9 @@ namespace {
 		{
 			DLLManager* dll = mod->ModuleDLLManager;
 			ServerInstance->Modules->DoSafeUnload(mod, NULL);
-			ServerInstance->GlobalCulls.Apply();
+			ServerInstance->GlobalCulls->Apply();
 			delete dll;
-			ServerInstance->GlobalCulls.AddItem(this);
+			ServerInstance->GlobalCulls->AddItem(this);
 		}
 	};
 
@@ -132,12 +133,12 @@ namespace {
 			DLLManager* dll = mod->ModuleDLLManager;
 			std::string name = mod->ModuleSourceFile;
 			ServerInstance->Modules->DoSafeUnload(mod, &state);
-			ServerInstance->GlobalCulls.Apply();
+			ServerInstance->GlobalCulls->Apply();
 			delete dll;
 			bool rv = ServerInstance->Modules->Load(name.c_str(), false, &state);
 			if (callback)
 				callback->Call(rv);
-			ServerInstance->GlobalCulls.AddItem(this);
+			ServerInstance->GlobalCulls->AddItem(this);
 		}
 	};
 }
@@ -146,14 +147,14 @@ bool ModuleManager::Unload(Module* mod)
 {
 	if (!CanUnload(mod))
 		return false;
-	ServerInstance->AtomicActions.AddAction(new UnloadAction(mod));
+	ServerInstance->AtomicActions->AddAction(new UnloadAction(mod));
 	return true;
 }
 
 void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 {
 	if (CanUnload(mod))
-		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
+		ServerInstance->AtomicActions->AddAction(new ReloadAction(mod, callback));
 	else
 		callback->Call(false);
 }

@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "xline.h"
 #include "bancache.h"
 #include "commands/cmd_whowas.h"
@@ -153,7 +154,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	else
 		oper_reason = quitreason;
 
-	ServerInstance->GlobalCulls.AddItem(user);
+	ServerInstance->GlobalCulls->AddItem(user);
 
 	if (user->registered == REG_ALL)
 	{

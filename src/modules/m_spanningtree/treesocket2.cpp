@@ -446,7 +446,7 @@ void TreeSocket::OnTimeout()
 void TreeSocket::Close()
 {
 	if (fd != -1)
-		ServerInstance->GlobalCulls.AddItem(this);
+		ServerInstance->GlobalCulls->AddItem(this);
 	this->BufferedSocket::Close();
 	SetError("Remote host closed connection");
 

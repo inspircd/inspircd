@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include <typeinfo>
 
 void CullList::Apply()

@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 
 #ifndef DISABLE_WRITEV
 #include <sys/uio.h>
@@ -446,7 +447,7 @@ void SocketTimeout::Tick(time_t)
 		this->sock->OnError(I_ERR_TIMEOUT);
 		this->sock->state = I_ERROR;
 
-		ServerInstance->GlobalCulls.AddItem(sock);
+		ServerInstance->GlobalCulls->AddItem(sock);
 	}
 
 	this->sock->Timeout = NULL;

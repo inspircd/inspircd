@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 
 /* $ModDesc: Provides fake clients that respond to messages. */
 
@@ -215,7 +216,7 @@ class BotTracker : public SimpleExtItem<BotData>
 		if (!ext)
 			return;
 		bots.erase(ext->bot->nick);
-		ServerInstance->GlobalCulls.AddItem(ext->bot);
+		ServerInstance->GlobalCulls->AddItem(ext->bot);
 		delete ext;
 	}
 };
@@ -315,7 +316,7 @@ class ModuleServerBots : public Module
 		}
 		for(std::map<std::string, BotData*>::iterator i = oldbots.begin(); i != oldbots.end(); i++)
 		{
-			ServerInstance->GlobalCulls.AddItem(i->second->bot);
+			ServerInstance->GlobalCulls->AddItem(i->second->bot);
 		}
 
 		tags = ServerInstance->Config->GetTags("botcmd");

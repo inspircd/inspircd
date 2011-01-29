@@ -61,7 +61,6 @@
 #include "base.h"
 #include "typedefs.h"
 #include "caller.h"
-#include "cull_list.h"
 #include "dynamic.h"
 #include "ctables.h"
 #include "timer.h"
@@ -292,9 +291,9 @@ class CoreExport InspIRCd
 
 	/** Global cull list, will be processed on next iteration
 	 */
-	CullList GlobalCulls;
+	CullList* GlobalCulls;
 	/** Actions that must happen outside of the current call stack */
-	ActionList AtomicActions;
+	ActionList* AtomicActions;
 
 	/**** Functors ****/
 

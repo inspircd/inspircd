@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "protocol.h"
 #include "xline.h"
 #include "exitcodes.h"
@@ -406,7 +407,7 @@ void ModuleManager::DoSafeUnload(Module* mod, ModuleState* state)
 	ServerInstance->Extensions.BeginUnregister(modfind->second, EXTENSIBLE_NONE, chan_exts);
 
 	Modules.erase(modfind);
-	ServerInstance->GlobalCulls.AddItem(mod);
+	ServerInstance->GlobalCulls->AddItem(mod);
 
 	ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
 	this->ModCount--;
@@ -510,7 +511,7 @@ void ModuleManager::UnloadAll()
 				DoSafeUnload(me->second, NULL);
 			}
 		}
-		ServerInstance->GlobalCulls.Apply();
+		ServerInstance->GlobalCulls->Apply();
 	}
 }
 
