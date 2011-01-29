@@ -13,6 +13,7 @@
 
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /******************************************************************************
  * Flat-file database read/write

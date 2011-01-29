@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 #include "account.h"
 #include "opflags.h"
 #include "u_listmode.h"

@@ -17,6 +17,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /* $ModConfig: <ojoin prefix="!" notice="yes" op="yes">
  *  Specify the prefix that +Y will grant here, it should be unused.

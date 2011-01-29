@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /* $ModDesc: Provides the TITLE command which allows setting of CUSTOM WHOIS TITLE line */
 

@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 #include "account.h"
 
 /* $ModDesc: Povides support for accounts. */

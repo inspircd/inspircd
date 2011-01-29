@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 #include <stdarg.h>
 #include "xline.h"
 #include "bancache.h"

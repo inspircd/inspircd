@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 #include "m_cap.h"
 #include "account.h"
 #include "sasl.h"

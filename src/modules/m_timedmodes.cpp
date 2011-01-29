@@ -14,6 +14,7 @@
 /* $ModDesc: Adds timed modes */
 
 #include "inspircd.h"
+#include "protocol.h"
 // This isn't a listmode, but we need this anyway for the limit of the number of timed modes allowed.
 #include "u_listmode.h"
 

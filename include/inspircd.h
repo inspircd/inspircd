@@ -85,7 +85,6 @@
 #include "threadengine.h"
 #include "configreader.h"
 #include "inspstring.h"
-#include "protocol.h"
 
 #ifndef PATH_MAX
 #warning Potentially broken system, PATH_MAX undefined

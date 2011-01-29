@@ -14,6 +14,7 @@
 /* $ModDesc: Provides a SATOPIC command */
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /** Handle /SATOPIC
  */

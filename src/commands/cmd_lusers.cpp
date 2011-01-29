@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 
 #ifndef __CMD_LUSERS_H__
 #define __CMD_LUSERS_H__

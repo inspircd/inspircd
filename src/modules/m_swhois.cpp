@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /* $ModDesc: Provides the SWHOIS command which allows setting of arbitary WHOIS lines */
 

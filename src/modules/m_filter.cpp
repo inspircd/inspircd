@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 #include "xline.h"
 #include "m_regex.h"
 

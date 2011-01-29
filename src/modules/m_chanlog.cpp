@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /* $ModDesc: Logs snomask output to channel(s). */
 

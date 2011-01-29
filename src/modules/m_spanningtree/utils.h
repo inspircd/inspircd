@@ -15,6 +15,7 @@
 #define __ST__UTIL__
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /* Foward declarations */
 class TreeServer;

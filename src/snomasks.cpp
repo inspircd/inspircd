@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 #include <stdarg.h>
 
 void SnomaskManager::FlushSnotices()

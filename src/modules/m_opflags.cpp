@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 #include "opflags.h"
 
 class OpFlagProviderImpl : public OpFlagProvider

@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "protocol.h"
 
 /* $ModDesc: Provides support for unreal-style oper-override */
 

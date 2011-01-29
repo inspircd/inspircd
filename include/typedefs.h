@@ -117,5 +117,9 @@ typedef XLineLookup::iterator LookupIter;
  */
 typedef std::map<std::string, std::string> SubstMap;
 
+/** A list of parameters for a command
+ */
+typedef std::vector<std::string> parameterlist;
+
 #endif
 

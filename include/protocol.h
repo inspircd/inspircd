@@ -16,8 +16,6 @@
 
 class User;
 
-typedef std::vector<std::string> parameterlist;
-
 class ProtoServer
 {
  public:
