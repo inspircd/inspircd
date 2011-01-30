@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "dynamic.h"
 
 /** Handle /MODULES. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work

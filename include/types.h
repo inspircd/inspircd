@@ -24,6 +24,7 @@ class ConfigReaderThread;
 class ConfigTag;
 class CrashState;
 class CullList;
+class DLLManager;
 class DNS;
 class DNSHeader;
 class DNSRequest;

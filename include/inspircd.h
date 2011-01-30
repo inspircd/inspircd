@@ -61,7 +61,6 @@
 #include "base.h"
 #include "typedefs.h"
 #include "caller.h"
-#include "dynamic.h"
 #include "ctables.h"
 #include "socket.h"
 #include "extensible.h"
