@@ -72,7 +72,6 @@
 #include "users.h"
 #include "mode.h"
 #include "channels.h"
-#include "timer.h"
 #include "logger.h"
 #include "usermanager.h"
 #include "ctables.h"
