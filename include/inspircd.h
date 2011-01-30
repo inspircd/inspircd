@@ -42,7 +42,6 @@
 #include <cmath>
 #include <cstring>
 #include <climits>
-#include <cstdio>
 
 #include <sstream>
 #include <string>
