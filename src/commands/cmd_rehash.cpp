@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "threadengine.h"
 #include "protocol.h"
 #include "xline.h"
 /** Handle /REHASH. These command handlers can be reloaded by the core,

@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "dns.h"
+#include "threadengine.h"
 #include <fstream>
 #include "xline.h"
 #include "exitcodes.h"

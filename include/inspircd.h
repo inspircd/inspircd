@@ -80,7 +80,6 @@
 #include "snomasks.h"
 #include "filelogger.h"
 #include "modules.h"
-#include "threadengine.h"
 #include "configreader.h"
 #include "inspstring.h"
 

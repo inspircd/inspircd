@@ -16,6 +16,7 @@
 #include "dns.h"
 #include "protocol.h"
 #include "bancache.h"
+#include "threadengine.h"
 #include <signal.h>
 
 #ifndef WIN32

@@ -45,5 +45,28 @@ class CoreExport Job : public classbase
 // Condition variables (cross-thread signalling) are not yet available, because
 // no use case for them has been presented
 
+/** The background thread for config reading, so that reading from executable includes
+ * does not block.
+ */
+class CoreExport ConfigReaderThread : public Job
+{
+	ServerConfig* Config;
+ public:
+	const std::string TheUserUID;
+	ConfigReaderThread(const std::string &useruid)
+		: Job(NULL), Config(new ServerConfig(REHASH_NEWCONF)), TheUserUID(useruid)
+	{
+	}
+
+	virtual ~ConfigReaderThread()
+	{
+		delete Config;
+	}
+
+	void run();
+	/** Run in the main thread to apply the configuration */
+	void finish();
+};
+
 #endif
 

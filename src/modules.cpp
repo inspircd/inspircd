@@ -14,6 +14,7 @@
 #include "inspircd.h"
 #include "cull_list.h"
 #include "dns.h"
+#include "threadengine.h"
 #include "protocol.h"
 #include "xline.h"
 #include "exitcodes.h"

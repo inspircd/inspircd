@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 #include "cull_list.h"
-#include "threadengines/threadengine_pthread.h"
+#include "threadengine.h"
 #include <pthread.h>
 #include <signal.h>
 #include <fcntl.h>
