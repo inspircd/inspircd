@@ -690,7 +690,7 @@ class CommandStartTLS : public SplitCommand
 		}
 		else
 		{
-			if (!user->eh.GetIOHook())
+			if (!user->eh->GetIOHook())
 			{
 				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
 				/* We need to flush the write buffer prior to adding the IOHook,
@@ -701,8 +701,8 @@ class CommandStartTLS : public SplitCommand
 				 * user hasn't built up much sendq. Handling a blocked write here would
 				 * be very annoying.
 				 */
-				user->eh.DoWrite();
-				prov.OnServerConnection(&user->eh, NULL);
+				user->eh->DoWrite();
+				prov.OnServerConnection(user->eh, NULL);
 			}
 			else
 				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());
@@ -857,7 +857,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 
-			if (user && user->eh.GetIOHook() && user->eh.GetIOHook()->creator == this)
+			if (user && user->eh->GetIOHook() && user->eh->GetIOHook()->creator == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.
@@ -882,7 +882,7 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnUserConnect(LocalUser* user)
 	{
-		GnuTLSHook* hook = static_cast<GnuTLSHook*>(user->eh.GetIOHook());
+		GnuTLSHook* hook = static_cast<GnuTLSHook*>(user->eh->GetIOHook());
 		if (hook && hook->creator == this)
 		{
 			ssl_cert* cert = hook->cert;

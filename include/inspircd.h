@@ -67,7 +67,6 @@
 #include "extensible.h"
 #include "numerics.h"
 #include "membership.h"
-#include "inspsocket.h"
 #include "users.h"
 #include "mode.h"
 #include "channels.h"

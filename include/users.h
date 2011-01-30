@@ -633,21 +633,7 @@ class CoreExport User : public Extensible
 	virtual CullResult cull();
 };
 
-class CoreExport UserIOHandler : public StreamSocket
-{
- public:
-	LocalUser* const user;
-	UserIOHandler(LocalUser* me) : user(me) {}
-	void OnDataReady();
-	void OnError(BufferedSocketError error);
-
-	/** Adds to the user's write buffer.
-	 * You may add any amount of text up to this users sendq value, if you exceed the
-	 * sendq value, the user will be removed, and further buffer adds will be dropped.
-	 * @param data The data to add to the write buffer
-	 */
-	void AddWriteBuf(const std::string &data);
-};
+class UserIOHandler;
 
 typedef unsigned int already_sent_t;
 
@@ -663,7 +649,7 @@ class CoreExport LocalUser : public User
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
 
-	UserIOHandler eh;
+	UserIOHandler* const eh;
 
 	/** Stats counter for bytes inbound
 	 */
@@ -795,6 +781,8 @@ class CoreExport LocalUser : public User
 	 * @return True if the user can set or unset this mode.
 	 */
 	bool HasModePermission(ModeID mode);
+
+	virtual ~LocalUser();
 };
 
 class CoreExport FakeUser : public User

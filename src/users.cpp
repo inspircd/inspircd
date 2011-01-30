@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "dns.h"
+#include "inspsocket.h"
 #include "protocol.h"
 #include <stdarg.h>
 #include "xline.h"
@@ -204,13 +205,18 @@ User::User(const std::string &uid, const std::string& sid, int type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
+	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(new UserIOHandler(this)),
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0),
 	overrun_start(0), CommandFloodPenalty(0), already_sent(0)
 {
-	eh.SetFd(myfd);
+	eh->SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
+}
+
+LocalUser::~LocalUser()
+{
+	delete eh;
 }
 
 User::~User()
@@ -580,7 +586,7 @@ CullResult LocalUser::cull()
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
 
-	eh.cull();
+	eh->cull();
 	return User::cull();
 }
 
@@ -1040,7 +1046,7 @@ void User::Write(const char *text, ...)
 
 void LocalUser::Write(const std::string& text)
 {
-	if (!ServerInstance->SE->BoundsCheckFd(&eh))
+	if (!ServerInstance->SE->BoundsCheckFd(eh))
 		return;
 
 	if (text.length() > MAXBUF - 2)
@@ -1053,8 +1059,8 @@ void LocalUser::Write(const std::string& text)
 
 	ServerInstance->Logs->Log("USEROUTPUT", RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
 
-	eh.AddWriteBuf(text);
-	eh.AddWriteBuf(wide_newline);
+	eh->AddWriteBuf(text);
+	eh->AddWriteBuf(wide_newline);
 
 	ServerInstance->stats->statsSent += text.length() + 2;
 	this->bytes_out += text.length() + 2;

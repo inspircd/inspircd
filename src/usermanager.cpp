@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "cull_list.h"
+#include "inspsocket.h"
 #include "xline.h"
 #include "bancache.h"
 #include "commands/cmd_whowas.h"
@@ -22,7 +23,7 @@ static const std::string unk = "unknown";
 /* add a client connection to the sockets list */
 void UserManager::AddUser(LocalUser* New, ListenSocket* via)
 {
-	UserIOHandler* eh = &New->eh;
+	UserIOHandler* eh = New->eh;
 
 	ServerInstance->Logs->Log("USERS", DEBUG,"New user %s on FD %d", New->uuid.c_str(), eh->GetFd());
 
@@ -170,7 +171,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	{
 		LocalUser* lu = IS_LOCAL(user);
 		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(lu));
-		lu->eh.Close();
+		lu->eh->Close();
 	}
 
 	/*

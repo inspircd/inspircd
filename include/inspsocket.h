@@ -220,4 +220,20 @@ class CoreExport BufferedSocket : public StreamSocket
 	BufferedSocketError BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
 };
 
+class CoreExport UserIOHandler : public StreamSocket
+{
+ public:
+	LocalUser* const user;
+	UserIOHandler(LocalUser* me) : user(me) {}
+	void OnDataReady();
+	void OnError(BufferedSocketError error);
+
+	/** Adds to the user's write buffer.
+	 * You may add any amount of text up to this users sendq value, if you exceed the
+	 * sendq value, the user will be removed, and further buffer adds will be dropped.
+	 * @param data The data to add to the write buffer
+	 */
+	void AddWriteBuf(const std::string &data);
+};
+
 #endif

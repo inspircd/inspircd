@@ -14,6 +14,7 @@
 #ifndef __SSL_H__
 #define __SSL_H__
 
+#include "inspsocket.h"
 #include <map>
 #include <string>
 

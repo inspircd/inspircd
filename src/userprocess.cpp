@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "inspsocket.h"
 #include "xline.h"
 
 /**
@@ -34,14 +35,14 @@ void InspIRCd::DoBackgroundUserStuff()
 		if (curr->quitting)
 			continue;
 
-		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
+		if (curr->CommandFloodPenalty || curr->eh->getSendQSize())
 		{
 			unsigned int rate = curr->MyClass->commandrate;
 			if (curr->CommandFloodPenalty > rate)
 				curr->CommandFloodPenalty -= rate;
 			else
 				curr->CommandFloodPenalty = 0;
-			curr->eh.OnDataReady();
+			curr->eh->OnDataReady();
 		}
 
 		switch (curr->registered)

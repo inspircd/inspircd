@@ -220,7 +220,7 @@ class ModuleSSLInfo : public Module
 
 	void OnUserConnect(LocalUser* user)
 	{
-		IOHook* ioh = user->eh.GetIOHook();
+		IOHook* ioh = user->eh->GetIOHook();
 		if (ioh && ioh->creator->ModuleSourceFile.find("_ssl_") != std::string::npos)
 		{
 			prov.cmd.CertExt.set(user, static_cast<SSLIOHook*>(ioh)->GetCertificate());
@@ -245,7 +245,7 @@ class ModuleSSLInfo : public Module
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
 		ssl_cert* cert = NULL;
-		IOHook* ioh = user->eh.GetIOHook();
+		IOHook* ioh = user->eh->GetIOHook();
 		if (ioh && ioh->creator->ModuleSourceFile.find("_ssl_") != std::string::npos)
 			cert = static_cast<SSLIOHook*>(ioh)->GetCertificate();
 

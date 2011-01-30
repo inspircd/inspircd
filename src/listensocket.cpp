@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "inspsocket.h"
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
@@ -168,7 +169,7 @@ void ListenSocket::AcceptInternal()
 				LocalUser* New = new LocalUser(incomingSockfd, &client, &server);
 				ServerInstance->Users->AddUser(New, this);
 				if (!New->quitting)
-					sock = &New->eh;
+					sock = New->eh;
 			}
 			catch (...)
 			{

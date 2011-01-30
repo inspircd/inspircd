@@ -490,7 +490,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnUserConnect(LocalUser* user)
 	{
-		OSSLHook* hook = static_cast<OSSLHook*>(user->eh.GetIOHook());
+		OSSLHook* hook = static_cast<OSSLHook*>(user->eh->GetIOHook());
 		if (hook && hook->creator == this)
 		{
 			if (!hook->cert->fingerprint.empty())

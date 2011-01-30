@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "cull_list.h"
+#include "inspsocket.h"
 #include "httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
