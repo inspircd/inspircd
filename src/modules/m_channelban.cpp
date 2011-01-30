@@ -51,7 +51,7 @@ class ModuleBadChannelExtban : public Module
 				{
 					if (status)
 					{
-						Membership* memb = c->GetUser(user);
+						Membership* memb = (**i).GetUser(user);
 						if (memb && memb->hasMode(status))
 							return MOD_RES_DENY;
 					}
