@@ -1,6 +1,7 @@
 #define MODNAME cmd_all
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "exitcodes.h"
 
 #ifdef PURE_STATIC
