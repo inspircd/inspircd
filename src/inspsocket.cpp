@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "cull_list.h"
+#include "timer.h"
 
 #ifndef DISABLE_WRITEV
 #include <sys/uio.h>

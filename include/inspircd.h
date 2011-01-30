@@ -63,7 +63,6 @@
 #include "caller.h"
 #include "dynamic.h"
 #include "ctables.h"
-#include "timer.h"
 #include "socket.h"
 #include "extensible.h"
 #include "numerics.h"

@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "commands/cmd_whowas.h"
+#include "timer.h"
 
 /* Forward ref for timer */
 class WhoWasMaintainTimer;

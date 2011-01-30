@@ -33,6 +33,7 @@ looks like this, walks like this or tastes like this.
 
 #include "inspircd.h"
 #include "dns.h"
+#include "timer.h"
 
 /** Masks to mask off the responses we get from the DNSRequest methods
  */

@@ -17,6 +17,7 @@
 #include "protocol.h"
 #include "bancache.h"
 #include "threadengine.h"
+#include "timer.h"
 #include <signal.h>
 
 #ifndef WIN32

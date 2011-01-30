@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "timer.h"
 
 TimerManager::TimerManager()
 {

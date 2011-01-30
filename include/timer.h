@@ -142,5 +142,33 @@ class CoreExport TimerManager
 	void DelTimer(Timer* T);
 };
 
+/** Used to time out socket connections
+ */
+class CoreExport SocketTimeout : public Timer
+{
+ private:
+	/** BufferedSocket the class is attached to
+	 */
+	BufferedSocket* sock;
+
+	/** File descriptor of class this is attached to
+	 */
+	int sfd;
+
+ public:
+	/** Create a socket timeout class
+	 * @param fd File descriptor of BufferedSocket
+	 * @pram Instance server instance to attach to
+	 * @param thesock BufferedSocket to attach to
+	 * @param secs_from_now Seconds from now to time out
+	 * @param now The current time
+	 */
+	SocketTimeout(int fd, BufferedSocket* thesock, long secs_from_now, time_t now) : Timer(secs_from_now, now), sock(thesock), sfd(fd) { }
+
+	/** Handle tick event
+	 */
+	virtual void Tick(time_t now);
+};
+
 #endif
 
