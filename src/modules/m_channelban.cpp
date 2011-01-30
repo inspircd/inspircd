@@ -41,20 +41,10 @@ class ModuleBadChannelExtban : public Module
 				rm = mask.substr(3);
 				status = mh->GetModeChar();
 			}
+
 			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
-			{
-				if (InspIRCd::Match(i->chan->name, rm))
-				{
-					if (status)
-					{
-						Membership* memb = c->GetUser(user);
-						if (memb && memb->hasMode(status))
-							return MOD_RES_DENY;
-					}
-					else
-						return MOD_RES_DENY;
-				}
-			}
+				if (InspIRCd::Match(i->chan->name, rm) && (!status || i->hasMode(status)))
+					return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
