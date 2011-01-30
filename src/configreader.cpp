@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "dns.h"
 #include <fstream>
 #include "xline.h"
 #include "exitcodes.h"

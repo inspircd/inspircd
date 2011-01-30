@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "dns.h"
 #include "xline.h"
 
 #ifndef WINDOWS

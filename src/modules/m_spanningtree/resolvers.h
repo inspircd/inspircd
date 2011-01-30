@@ -16,6 +16,7 @@
 
 #include "socket.h"
 #include "inspircd.h"
+#include "dns.h"
 #include "xline.h"
 
 #include "utils.h"

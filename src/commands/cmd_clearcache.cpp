@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 
+#include "dns.h"
 #include "users.h"
 #include "channels.h"
 #include "ctables.h"

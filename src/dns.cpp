@@ -32,6 +32,7 @@ looks like this, walks like this or tastes like this.
 #endif
 
 #include "inspircd.h"
+#include "dns.h"
 
 /** Masks to mask off the responses we get from the DNSRequest methods
  */

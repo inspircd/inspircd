@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "dns.h"
 #include "protocol.h"
 #include <stdarg.h>
 #include "xline.h"

@@ -826,38 +826,4 @@ inline FakeUser* IS_SERVER(User* u)
 /** Is away */
 #define IS_AWAY(x) (!x->awaymsg.empty())
 
-/** Derived from Resolver, and performs user forward/reverse lookups.
- */
-class CoreExport UserResolver : public Resolver
-{
- private:
-	/** UUID we are looking up */
-	std::string uuid;
-	/** True if the lookup is forward, false if is a reverse lookup
-	 */
-	bool fwd;
- public:
-	/** Create a resolver.
-	 * @param Instance The creating instance
-	 * @param user The user to begin lookup on
-	 * @param to_resolve The IP or host to resolve
-	 * @param qt The query type
-	 * @param cache Modified by the constructor if the result was cached
-	 */
-	UserResolver(LocalUser* user, std::string to_resolve, QueryType qt, bool &cache);
-
-	/** Called on successful lookup
-	 * @param result Result string
-	 * @param ttl Time to live for result
-	 * @param cached True if the result was found in the cache
-	 */
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
-
-	/** Called on failed lookup
-	 * @param e Error code
-	 * @param errormessage Error message string
-	 */
-	void OnError(ResolverError e, const std::string &errormessage);
-};
-
 #endif

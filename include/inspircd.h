@@ -65,7 +65,6 @@
 #include "ctables.h"
 #include "timer.h"
 #include "socket.h"
-#include "dns.h"
 #include "extensible.h"
 #include "numerics.h"
 #include "membership.h"

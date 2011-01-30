@@ -13,6 +13,7 @@
 
 #include "inspircd.h"
 #include "cull_list.h"
+#include "dns.h"
 #include "protocol.h"
 #include "bancache.h"
 #include <signal.h>

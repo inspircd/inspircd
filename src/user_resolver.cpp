@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "dns.h"
 UserResolver::UserResolver(LocalUser* user, std::string to_resolve, QueryType qt, bool &cache) :
 	Resolver(to_resolve, qt, cache, NULL), uuid(user->uuid)
 {
