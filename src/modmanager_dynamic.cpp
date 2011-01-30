@@ -13,7 +13,6 @@
 
 #include "inspircd.h"
 #include "cull_list.h"
-#include "xline.h"
 #include "exitcodes.h"
 
 #ifndef WIN32
