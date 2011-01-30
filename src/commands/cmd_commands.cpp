@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 
 #ifndef __CMD_COMMANDS_H__
 #define __CMD_COMMANDS_H__

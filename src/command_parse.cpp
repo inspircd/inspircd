@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 
 int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
 {

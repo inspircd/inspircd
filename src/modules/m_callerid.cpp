@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 #include <set>
 #include <sstream>
 #include <algorithm>

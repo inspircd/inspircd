@@ -12,6 +12,8 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
+
 /** Handle /NOTICE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these

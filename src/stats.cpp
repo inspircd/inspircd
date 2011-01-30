@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 #include "inspsocket.h"
 #include "xline.h"
 #include "commands/cmd_whowas.h"

@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 #include "dns.h"
 #include "inspsocket.h"
 #include "protocol.h"

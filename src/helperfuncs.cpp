@@ -14,6 +14,7 @@
 /* $Core */
 
 #include "inspircd.h"
+#include "command_parse.h"
 #include "xline.h"
 #include "exitcodes.h"
 

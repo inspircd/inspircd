@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 
 /* $ModDesc: Provides the ability to abbreviate commands a-la BBC BASIC keywords. */
 

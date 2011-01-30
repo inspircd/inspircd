@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 
 /* $ModDesc: Provides aliases of commands. */
 

@@ -18,6 +18,7 @@ class BanItem;
 class BufferedSocket;
 class Channel;
 class Command;
+class CommandParser;
 class ConfigReader;
 class ConfigReadStatus;
 class ConfigReaderThread;

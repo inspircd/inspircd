@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 
 #ifndef __CMD_JOIN_H__
 #define __CMD_JOIN_H__

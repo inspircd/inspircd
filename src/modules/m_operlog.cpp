@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 
 /* $ModDesc: A module which logs all oper commands to the ircd log at default loglevel. */
 

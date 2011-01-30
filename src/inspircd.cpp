@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "command_parse.h"
 #include "cull_list.h"
 #include "dns.h"
 #include "protocol.h"
