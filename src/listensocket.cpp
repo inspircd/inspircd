@@ -26,11 +26,6 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	if (this->fd == -1)
 		return;
 
-	ServerInstance->SE->SetReuse(fd);
-	int rv = ServerInstance->SE->Bind(this->fd, bind_to);
-	if (rv >= 0)
-		rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
-
 #ifdef IPV6_V6ONLY
 	/* This OS supports IPv6 sockets that can also listen for IPv4
 	 * connections. If our address is "*" or empty, enable both v4 and v6 to
@@ -46,6 +41,11 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 		// errors ignored intentionally
 	}
 #endif
+
+	ServerInstance->SE->SetReuse(fd);
+	int rv = ServerInstance->SE->Bind(this->fd, bind_to);
+	if (rv >= 0)
+		rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
 
 	if (rv < 0)
 	{
