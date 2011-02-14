@@ -101,8 +101,8 @@ class CloakUser : public ModeHandler
 			/* User is removing the mode, so restore their real host
 			 * and make it match the displayed one.
 			 */
-			user->ChangeDisplayedHost(user->host.c_str());
 			user->SetMode('x',false);
+			user->ChangeDisplayedHost(user->host.c_str());
 			return MODEACTION_ALLOW;
 		}
 	}
@@ -325,7 +325,11 @@ class ModuleCloaking : public Module
 	// mode change, we will call SetMode back to true AFTER the host change is done.
 	void OnChangeHost(User* u, const std::string& host)
 	{
-		u->SetMode('x', false);
+		if(u->IsModeSet('x'))
+		{
+			u->SetMode('x', false);
+			u->WriteServ("MODE %s -x", u->nick.c_str());
+		}
 	}
 
 	~ModuleCloaking()
