@@ -515,9 +515,6 @@ class CoreExport ModeParser
 	 */
 	ModeAction TryMode(User* user, User* targu, Channel* targc, irc::modechange& mc, bool SkipACL);
 
-	unsigned int sent[MODE_ID_MAX];
-	unsigned int seq;
-
  public:
 
 	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().

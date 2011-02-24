@@ -446,6 +446,8 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 	unsigned int param_at = 2;
 	bool adding = true;
 
+	bool listednamedmodes = false;
+
 	for (std::string::const_iterator letter = parameters[1].begin(); letter != parameters[1].end(); letter++)
 	{
 		unsigned char modechar = *letter;
@@ -462,7 +464,40 @@ void ModeParser::Parse(const std::vector<std::string>& parameters, User *user, E
 			// special case: Z is the named mode change interface
 			std::string name, value;
 			if (param_at == parameters.size())
+			{
+				/* Ensure the user doesnt request the same mode twice,
+				 * so they cant flood themselves off out of idiocy.
+				 */
+				if (listednamedmodes)
+					continue;
+
+				listednamedmodes = true;
+				for(ModeIDIter id; id; id++)
+				{
+					ModeHandler* mh = ServerInstance->Modes->FindMode(id);
+					if (!mh || mh->IsListMode() || mh->GetModeType() != type)
+						continue;
+					if (targetchannel && !targetchannel->IsModeSet(mh))
+						continue;
+					if (targetuser && !targetuser->IsModeSet(mh->GetModeChar()))
+						continue;
+
+					if (mh->GetNumParams(true))
+						user->WriteNumeric(963, "%s %s %s=%s", user->nick.c_str(), targetchannel->name.c_str(), mh->name.c_str(), targetchannel->GetModeParameter(mh).c_str());
+					else
+					{
+						if(targetchannel)
+							user->WriteNumeric(963, "%s %s %s", user->nick.c_str(), targetchannel->name.c_str(), mh->name.c_str());
+						else
+							user->WriteNumeric(963, "%s %s %s", user->nick.c_str(), targetuser->nick.c_str(), mh->name.c_str());
+					}
+				}
+				if(targetchannel)
+					user->WriteNumeric(962, "%s :End of Mode List", targetchannel->name.c_str());
+				else
+					user->WriteNumeric(962, "%s :End of Mode List", targetuser->nick.c_str());
 				continue;
+			}
 
 			name = parameters[param_at++];
 			std::string::size_type eq = name.find('=');
@@ -603,7 +638,7 @@ void ModeParser::Process(User *src, Extensible* target, irc::modestacker& modes,
 
 void ModeParser::DisplayListModes(User* user, Channel* chan, const std::string &mode_sequence)
 {
-	seq++;
+	std::bitset<MODE_ID_MAX> sent;
 
 	for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 	{
@@ -611,18 +646,18 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, const std::string &
 		if (mletter == '+')
 			continue;
 
-		/* Ensure the user doesnt request the same mode twice,
-		 * so they cant flood themselves off out of idiocy.
-		 */
-		if (sent[mletter] == seq)
-			continue;
-
-		sent[mletter] = seq;
-
 		ModeHandler *mh = this->FindMode(mletter, MODETYPE_CHANNEL);
 
 		if (!mh || !mh->IsListMode())
 			return;
+
+		/* Ensure the user doesnt request the same mode twice,
+		 * so they cant flood themselves off out of idiocy.
+		 */
+		if (sent[mh->id.GetID()])
+			continue;
+
+		sent[mh->id.GetID()] = true;
 
 		irc::modechange mc(mh->id);
 		ModResult MOD_RESULT;
@@ -1283,9 +1318,6 @@ ModeParser::ModeParser()
 {
 	/* Clear mode handler list */
 	memset(handlers, 0, sizeof(handlers));
-
-	seq = 0;
-	memset(&sent, 0, sizeof(sent));
 
 	static_modes.init(this);
 }
