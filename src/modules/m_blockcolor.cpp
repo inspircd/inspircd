@@ -36,7 +36,7 @@ class ModuleBlockColour : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(bc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPart, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -50,29 +50,13 @@ class ModuleBlockColour : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			ModResult res = ServerInstance->CheckExemption(user,c,"blockcolor");
 
-			if (res == MOD_RES_ALLOW)
-				return MOD_RES_PASSTHRU;
-
-			if (!c->GetExtBanStatus(user, 'c').check(!c->IsModeSet(&bc)))
-			{
-				for (std::string::iterator i = text.begin(); i != text.end(); i++)
+			if (ServerInstance->CheckExemption(user,c,"blockcolor") != MOD_RES_ALLOW && !c->GetExtBanStatus(user, 'c').check(!c->IsModeSet(&bc)))
+				if (text.find_first_of("\x02\x03\x0f\x15\x16\x1f") != std::string::npos)
 				{
-					switch (*i)
-					{
-						case 2:
-						case 3:
-						case 15:
-						case 21:
-						case 22:
-						case 31:
-							user->WriteNumeric(404, "%s %s :Can't send colours to channel (+c set)",user->nick.c_str(), c->name.c_str());
-							return MOD_RES_DENY;
-						break;
-					}
+					user->WriteNumeric(404, "%s %s :Can't send colours to channel (+c set)",user->nick.c_str(), c->name.c_str());
+					return MOD_RES_DENY;
 				}
-			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -80,6 +64,19 @@ class ModuleBlockColour : public Module
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
+	}
+
+	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList&)
+	{
+		if (!IS_LOCAL(memb->user))
+			return;
+
+		if (ServerInstance->CheckExemption(memb->user,memb->chan,"blockcolor") == MOD_RES_ALLOW)
+			return;
+
+		if (!memb->chan->GetExtBanStatus(memb->user, 'c').check(!memb->chan->IsModeSet(&bc)))
+			if (partmessage.find_first_of("\x02\x03\x0f\x15\x16\x1f") != std::string::npos)
+				partmessage = "";
 	}
 
 	virtual ~ModuleBlockColour()

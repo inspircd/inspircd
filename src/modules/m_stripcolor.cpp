@@ -47,7 +47,7 @@ class ModuleStripColor : public Module
 	{
 		ServerInstance->Modules->AddService(usc);
 		ServerInstance->Modules->AddService(csc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPart, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -133,6 +133,18 @@ class ModuleStripColor : public Module
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
+	}
+
+	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList&)
+	{
+		if (!IS_LOCAL(memb->user))
+			return;
+
+		if (ServerInstance->CheckExemption(memb->user,memb->chan,"stripcolor") == MOD_RES_ALLOW)
+			return;
+
+		if (!memb->chan->GetExtBanStatus(memb->user, 'S').check(!memb->chan->IsModeSet(&csc)))
+			this->ReplaceLine(partmessage);
 	}
 
 	virtual Version GetVersion()
