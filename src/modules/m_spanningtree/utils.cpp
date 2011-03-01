@@ -329,7 +329,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
 		L->Fingerprint = tag->getString("fingerprint");
 		L->HiddenFromStats = tag->getBool("statshidden");
-		L->Timeout = tag->getInt("timeout");
+		L->Timeout = tag->getInt("timeout", 30);
 		L->Hook = tag->getString("ssl");
 		L->Bind = tag->getString("bind");
 		L->Hidden = tag->getBool("hidden");
