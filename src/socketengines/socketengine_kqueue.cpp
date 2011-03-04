@@ -146,7 +146,7 @@ int KQueueEngine::GetMaxFds()
 		size_t len;
 
 		mib[0] = CTL_KERN;
-		mib[1] = KERN_MAXFILES;
+		mib[1] = KERN_MAXFILESPERPROC;
 		len = sizeof(maxfiles);
 		sysctl(mib, 2, &maxfiles, &len, NULL, 0);
 		MAX_DESCRIPTORS = maxfiles;
