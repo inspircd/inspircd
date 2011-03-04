@@ -53,7 +53,7 @@ KQueueEngine::KQueueEngine()
 	size_t len;
 
 	mib[0] = CTL_KERN;
-	mib[1] = KERN_MAXFILES;
+	mib[1] = KERN_MAXFILESPERPROC;
 	len = sizeof(MAX_DESCRIPTORS);
 	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
 	if (MAX_DESCRIPTORS <= 0)
