@@ -14,6 +14,7 @@
 /* $ModDesc: Allows global loading of a module. */
 
 #include "inspircd.h"
+#include "cull_list.h"
 
 /** Handle /GLOADMODULE
  */
@@ -96,6 +97,25 @@ class CommandGunloadmodule : public Command
 	}
 };
 
+class GReloadModuleWorker : public HandlerBase1<void, bool>
+{
+ public:
+	const std::string nick;
+	const std::string name;
+	const std::string uid;
+	GReloadModuleWorker(const std::string& usernick, const std::string& uuid, const std::string& modn)
+		: nick(usernick), name(modn), uid(uuid) {}
+	void Call(bool result)
+	{
+		ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'%s", name.c_str(), nick.c_str(), result ? "" : " (failed here)");
+		User* user = ServerInstance->FindNick(uid);
+		if (user)
+			user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
+				user->nick.c_str(), name.c_str(), result ? "" : "un");
+		ServerInstance->GlobalCulls->AddItem(this);
+	}
+};
+
 /** Handle /GRELOADMODULE
  */
 class CommandGreloadmodule : public Command
@@ -114,7 +134,7 @@ class CommandGreloadmodule : public Command
 		{
 			Module* m = ServerInstance->Modules->Find(parameters[0]);
 			if (m)
-				ServerInstance->Modules->Reload(m, NULL);
+				ServerInstance->Modules->Reload(m, new GReloadModuleWorker(user->nick, user->uuid, parameters[0]));
 			else
 			{
 				user->WriteNumeric(975, "%s %s :Could not find module by that name", user->nick.c_str(), parameters[0].c_str());
