@@ -37,6 +37,9 @@ class Alias
 	/** RequiredNick must be on a ulined server */
 	bool ULineOnly;
 
+	/** Requires oper? */
+	bool OperOnly;
+
 	/** Format that must be matched for use */
 	std::string format;
 };
@@ -128,6 +131,9 @@ class BotData
 			if (!InspIRCd::Match(params, a->format))
 				return false;
 		}
+
+		if ((a->OperOnly) && (!IS_OPER(user)))
+			return 0;
 
 		if (!a->RequiredNick.empty())
 		{
@@ -334,6 +340,7 @@ class ModuleServerBots : public Module
 			tag->readString("replace", a.ReplaceFormat, true);
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");
+			a.OperOnly = tag->getBool("operonly");
 			a.format = tag->getString("format");
 
 			bot->Aliases.insert(std::make_pair(a.AliasedCommand, a));
