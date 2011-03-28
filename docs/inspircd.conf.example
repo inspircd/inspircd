@@ -164,12 +164,11 @@
 
 <bind address="" port="6660-6669" type="clients">
 
-# When linking servers, the openssl and gnutls transports are completely
+# When linking servers, the openssl and gnutls implementations are completely
 # link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
-# Transports can only be used on server blocks.
-# Supported Transports are: "ziplinks", "openssl" and "gnutls".
-# You must load m_ziplinks module for zip, m_ssl_openssl for openssl
+# Supported ssl types are: "openssl" and "gnutls".
+# You must load, m_ssl_openssl for openssl
 # or m_ssl_gnutls for gnutls.
 
 <bind address="" port="7000,7001" type="servers">
