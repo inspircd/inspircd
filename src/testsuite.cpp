@@ -150,6 +150,7 @@ static bool DoCommaSepStreamTests()
 	bool failed = false;
 
 	STREAMTEST(irc::commasepstream, "this,is,a,comma,stream", { "this", "is", "a", "comma", "stream", NULL });
+	STREAMTEST(irc::commasepstream, "with,lots,,of,,,commas", { "with", "lots", "", "of", "", "", "commas", NULL });
 
 	std::cout << "Result of comma sepstream tests:";
 	COUTFAILED();
@@ -162,7 +163,6 @@ static bool DoSpaceSepStreamTests()
 	bool failed = false;
 
 	STREAMTEST(irc::spacesepstream, "this is a space stream", { "this", "is", "a", "space", "stream", NULL });
-	STREAMTEST(irc::spacesepstream, "with a double  space", { "with", "a", "double", "", "space", NULL });
 
 	std::cout << "Result of space sepstream tests:";
 	COUTFAILED();
