@@ -134,7 +134,7 @@ Valid SILENCE Flags
 Multiple letters may be specified. For an exception, you msut pair x
 with what you want excepted. For example, if you wanted to except
 everything from people with a host matching *.foo.net, you would do
-/SILENCE +xa *!*@*.foo.net
+/SILENCE +*!*@*.foo.net xa
 
 /SILENCE without a parameter will list the hostmasks that you have silenced.">
 
