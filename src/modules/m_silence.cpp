@@ -319,7 +319,7 @@ class ModuleSilence : public Module
 		{
 			if (IS_LOCAL(i->first))
 			{
-				if (MatchPattern(i->first, sender, public_silence) == MOD_RES_ALLOW)
+				if (MatchPattern(i->first, sender, public_silence) == MOD_RES_DENY)
 				{
 					exempt_list.insert(i->first);
 				}
