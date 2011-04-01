@@ -247,14 +247,23 @@ bool irc::sepstream::GetToken(std::string &token)
 {
 	std::string::iterator lsp = last_starting_position;
 
-	for(; n != tokens.end(); ++n)
+	while (n != tokens.end())
 	{
-		if(*n == sep || n+1 == tokens.end())
+		if ((*n == sep) || (n+1 == tokens.end()))
 		{
 			last_starting_position = n+1;
-			token = std::string(lsp, n+1 == tokens.end() ? ++n : n++);
-			return true;
+			token = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
+
+			while ((token.length()) && (token.find_last_of(sep) == token.length() - 1))
+				token.erase(token.end() - 1);
+
+			if (token.empty())
+				n++;
+
+			return n == tokens.end() ? false : true;
 		}
+
+		n++;
 	}
 
 	token = "";
@@ -268,7 +277,7 @@ const std::string irc::sepstream::GetRemaining()
 
 bool irc::sepstream::StreamEnd()
 {
-	return n == tokens.end();
+	return ((n + 1) == tokens.end());
 }
 
 irc::sepstream::~sepstream()
