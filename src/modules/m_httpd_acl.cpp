@@ -170,20 +170,16 @@ class ModuleHTTPAccessList : public Module
 							sep.GetToken(authtype);
 							if (authtype == "Basic")
 							{
-								std::string user;
-								std::string pass;
-
 								sep.GetToken(base64);
 								std::string userpass = Base64ToBin(base64);
 								ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "HTTP authorization: %s (%s)", userpass.c_str(), base64.c_str());
 
-								irc::sepstream userpasspair(userpass, ':');
-								if (userpasspair.GetToken(user))
-								{
-									userpasspair.GetToken(pass);
+								std::string::size_type delim = userpass.find_first_of(':');
 
+								if (delim != std::string::npos)
+								{
 									/* Access granted if username and password are correct */
-									if (user == this_acl->username && pass == this_acl->password)
+									if (userpass.substr(delim + 1) == this_acl->password && userpass.substr(0, delim) == this_acl->username)
 									{
 										ServerInstance->Logs->Log("m_httpd_acl", DEBUG, "HTTP authorization: password and username match");
 										return;

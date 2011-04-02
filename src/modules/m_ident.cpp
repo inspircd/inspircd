@@ -217,14 +217,10 @@ class IdentRequestSocket : public EventHandler
 
 		ServerInstance->Logs->Log("m_ident",DEBUG,"ReadResponse()");
 
-		irc::sepstream sep(ibuf, ':');
-		std::string token;
-		for (int i = 0; sep.GetToken(token); i++)
+		const char* i = strrchr(ibuf, ':');
+		if(i)
 		{
-			/* We only really care about the 4th portion */
-			if (i < 3)
-				continue;
-
+			std::string token(i);
 			std::string ident;
 
 			/* Truncate the ident at any characters we don't like, skip leading spaces */
@@ -248,8 +244,6 @@ class IdentRequestSocket : public EventHandler
 			{
 				result = ident;
 			}
-
-			break;
 		}
 
 		/* Close (but dont delete from memory) our socket
