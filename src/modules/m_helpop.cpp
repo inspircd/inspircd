@@ -87,7 +87,7 @@ class CommandHelpop : public Command
 			}
 
 			std::string value = iter->second;
-			irc::sepstream stream(value, '\n');
+			irc::sepstream stream(value, '\n', false);
 			std::string token = "*";
 
 			while (stream.GetToken(token))

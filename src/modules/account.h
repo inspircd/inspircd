@@ -394,15 +394,17 @@ class TSStringVectorExtItem : public TSGenericExtItem<std::vector<std::string> >
  protected:
 	virtual std::string value_serialize(SerializeFormat format, const std::vector<std::string>* value) const
 	{
-		std::ostringstream retval;
+		std::ostringstream str;
 		for(std::vector<std::string>::const_iterator i = value->begin(); i != value->end(); ++i)
-			retval << *i << delimeter;
-		return retval.str();
+			str << *i << delimeter;
+		std::string retval = str.str();
+		retval.erase(retval.length() - 1);
+		return retval;
 	}
 
 	virtual std::vector<std::string>* value_unserialize(SerializeFormat format, const std::string& value)
 	{
-		irc::sepstream sep(value, delimeter);
+		irc::sepstream sep(value, delimeter, false);
 		std::string token;
 		std::vector<std::string>* retval = new std::vector<std::string>;
 		while(sep.GetToken(token))

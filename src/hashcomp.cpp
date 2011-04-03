@@ -305,47 +305,70 @@ bool irc::tokenstream::GetToken(long &token)
 	return returnval;
 }
 
-irc::sepstream::sepstream(const std::string &source, char seperator) : tokens(source), sep(seperator)
+irc::sepstream::sepstream(const std::string &source, char seperator, bool suppress_empty_items) : tokens(source), suppress_empty(suppress_empty_items), sep(seperator), endreached(false)
 {
-	last_starting_position = tokens.begin();
 	n = tokens.begin();
+	if(suppress_empty)
+	{
+		while(n != tokens.end() && *n == sep)
+			++n;
+		if(n == tokens.end())
+			endreached = true;
+	}
 }
 
 bool irc::sepstream::GetToken(std::string &token)
 {
-	std::string::iterator lsp = last_starting_position;
-
-	while (n != tokens.end())
+	if(endreached)
 	{
-		if ((*n == sep) || (n+1 == tokens.end()))
-		{
-			last_starting_position = n+1;
-			token = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
-
-			while ((token.length()) && (token.find_last_of(sep) == token.length() - 1))
-				token.erase(token.end() - 1);
-
-			if (token.empty())
-				n++;
-
-			return n == tokens.end() ? false : true;
-		}
-
-		n++;
+		token = "";
+		return false;
 	}
 
-	token = "";
-	return false;
+	std::string::const_iterator lsp = n;
+
+	for(;; ++n)
+	{
+		if(n == tokens.end())
+		{
+			endreached = true;
+			token = std::string(lsp, n);
+			if(suppress_empty)
+			{
+				std::string::size_type i = token.find_first_of(sep);
+				if(i != std::string::npos)
+					token.erase(i);
+				return !token.empty();
+			}
+			else
+				return true;
+		}
+		else if(*n == sep)
+		{
+			if(suppress_empty && (n+1 == tokens.end() || *(n+1) == sep))
+				continue;
+			token = std::string(lsp, n++);
+			if(suppress_empty)
+			{
+				std::string::size_type i = token.find_first_of(sep);
+				if(i != std::string::npos)
+					token.erase(i);
+				return !token.empty();
+			}
+			else
+				return true;
+		}
+	}
 }
 
-const std::string irc::sepstream::GetRemaining()
+std::string irc::sepstream::GetRemaining() const
 {
 	return std::string(n, tokens.end());
 }
 
-bool irc::sepstream::StreamEnd()
+bool irc::sepstream::StreamEnd() const
 {
-	return ((n + 1) == tokens.end());
+	return endreached;
 }
 
 irc::sepstream::~sepstream()
@@ -468,9 +491,7 @@ long irc::portparser::GetToken()
 	}
 
 	std::string x;
-	sep->GetToken(x);
-
-	if (x.empty())
+	if (!sep->GetToken(x))
 		return 0;
 
 	while (Overlaps(atoi(x.c_str())))

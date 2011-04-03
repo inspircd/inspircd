@@ -203,7 +203,7 @@ class ModuleCloaking : public Module
 
 	std::string CompatCloak4(const char* ip)
 	{
-		irc::sepstream seps(ip, '.');
+		irc::sepstream seps(ip, '.', false);
 		std::string octet[4];
 		int i[4];
 

@@ -67,8 +67,8 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 
 	/* Create two lists, one for channel names, one for keys
 	 */
-	irc::commasepstream items1(parameters[splithere]);
-	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "");
+	irc::commasepstream items1(parameters[splithere], false);
+	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "", false);
 	std::string extrastuff;
 	std::string item;
 	unsigned int max = 0;

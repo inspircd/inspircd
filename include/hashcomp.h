@@ -314,20 +314,23 @@ namespace irc
 	 private:
 		/** Original string.
 		 */
-		std::string tokens;
-		/** Last position of a seperator token
+		const std::string tokens;
+		/** Whether to suppress empty items
 		 */
-		std::string::iterator last_starting_position;
+		const bool suppress_empty;
 		/** Current string position
 		 */
-		std::string::iterator n;
+		std::string::const_iterator n;
 		/** Seperator value
 		 */
-		char sep;
+		const char sep;
+		/** Whether the end has been reached
+		 */
+		bool endreached;
 	 public:
 		/** Create a sepstream and fill it with the provided data
 		 */
-		sepstream(const std::string &source, char seperator);
+		sepstream(const std::string &source, char seperator, bool suppress_empty_items = true);
 
 		/** Destructor
 		 */
@@ -342,12 +345,12 @@ namespace irc
 		/** Fetch the entire remaining stream, without tokenizing
 		 * @return The remaining part of the stream
 		 */
-		virtual const std::string GetRemaining();
+		virtual std::string GetRemaining() const;
 
 		/** Returns true if the end of the stream has been reached
 		 * @return True if the end of the stream has been reached, otherwise false
 		 */
-		virtual bool StreamEnd();
+		virtual bool StreamEnd() const;
 	};
 
 	/** A derived form of sepstream, which seperates on commas
@@ -357,7 +360,7 @@ namespace irc
 	 public:
 		/** Initialize with comma seperator
 		 */
-		commasepstream(const std::string &source) : sepstream(source, ',')
+		commasepstream(const std::string &source, bool suppress_empty_items = true) : sepstream(source, ',', suppress_empty_items)
 		{
 		}
 	};
@@ -369,7 +372,7 @@ namespace irc
 	 public:
 		/** Initialize with space seperator
 		 */
-		spacesepstream(const std::string &source) : sepstream(source, ' ')
+		spacesepstream(const std::string &source, bool suppress_empty_items = true) : sepstream(source, ' ', suppress_empty_items)
 		{
 		}
 	};

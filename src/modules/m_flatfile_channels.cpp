@@ -72,7 +72,7 @@ class DatabaseReader
 		/* ready to parse the line */
 		if (str == "") return 0;
 		std::string token;
-		irc::spacesepstream sep(str);
+		irc::spacesepstream sep(str, false);
 		/* get first one */
 		/* malformed if it is not chaninfo */
 		if (!sep.GetToken (token) || token != "chaninfo")
@@ -109,7 +109,7 @@ class DatabaseReader
 				if (c2 == '\r') continue;
 				str.push_back (c2);
 			}
-			irc::spacesepstream sep2(str);
+			irc::spacesepstream sep2(str, false);
 			/* get the token */
 			if (str == "")
 			{

@@ -43,11 +43,6 @@ class callerid_data
 		}
 		while (s.GetToken(tok))
 		{
-			if (tok.empty())
-			{
-				continue;
-			}
-
 			User *u = ServerInstance->FindNick(tok);
 			if (!u)
 			{

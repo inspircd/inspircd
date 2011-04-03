@@ -138,7 +138,7 @@ static bool DoStreamTest(const char* expected[], T& stream)
 
 #define STREAMTEST(a,b,...) \
 do { \
-	a stream(b); \
+	a stream b; \
 	static const char* expected[] = __VA_ARGS__; \
 	failed = !DoStreamTest(expected, stream) || failed; \
 	std::cout << std::endl; \
@@ -149,8 +149,12 @@ static bool DoCommaSepStreamTests()
 	std::cout << "Comma sepstream tests" << std::endl << std::endl;
 	bool failed = false;
 
-	STREAMTEST(irc::commasepstream, "this,is,a,comma,stream", { "this", "is", "a", "comma", "stream", NULL });
-	STREAMTEST(irc::commasepstream, "with,lots,,of,,,commas", { "with", "lots", "", "of", "", "", "commas", NULL });
+	STREAMTEST(irc::commasepstream, ("this,is,a,comma,stream", false), { "this", "is", "a", "comma", "stream", NULL });
+	STREAMTEST(irc::commasepstream, ("with,lots,,of,,,commas", false), { "with", "lots", "", "of", "", "", "commas", NULL });
+	STREAMTEST(irc::commasepstream, (",comma,at,the,beginning", false), { "", "comma", "at", "the", "beginning", NULL });
+	STREAMTEST(irc::commasepstream, ("commas,at,the,end,,", false), { "commas", "at", "the", "end", "", "", NULL });
+	STREAMTEST(irc::commasepstream, (",", false), { "", "", NULL });
+	STREAMTEST(irc::commasepstream, ("", false), { "", NULL });
 
 	std::cout << "Result of comma sepstream tests:";
 	COUTFAILED();
@@ -162,7 +166,12 @@ static bool DoSpaceSepStreamTests()
 	std::cout << "Space sepstream tests" << std::endl << std::endl;
 	bool failed = false;
 
-	STREAMTEST(irc::spacesepstream, "this is a space stream", { "this", "is", "a", "space", "stream", NULL });
+	STREAMTEST(irc::spacesepstream, ("this is a space stream", true), { "this", "is", "a", "space", "stream", NULL });
+	STREAMTEST(irc::spacesepstream, ("with lots  of   spaces", true), { "with", "lots", "of", "spaces", NULL });
+	STREAMTEST(irc::spacesepstream, (" space at the beginning", true), { "space", "at", "the", "beginning", NULL });
+	STREAMTEST(irc::spacesepstream, ("spaces at the end  ", true), { "spaces", "at", "the", "end", NULL });
+	STREAMTEST(irc::spacesepstream, (" ", true), { NULL });
+	STREAMTEST(irc::spacesepstream, ("", true), { NULL });
 
 	std::cout << "Result of space sepstream tests:";
 	COUTFAILED();
@@ -174,14 +183,14 @@ static bool DoTokenStreamTests()
 	std::cout << "Token stream tests" << std::endl << std::endl;
 	bool failed = false;
 
-	STREAMTEST(irc::tokenstream, "just some words and spaces", { "just", "some", "words", "and", "spaces", NULL });
-	STREAMTEST(irc::tokenstream, ":not actually all one token", { ":not", "actually", "all", "one", "token", NULL });
-	STREAMTEST(irc::tokenstream, "several small tokens :and one large one", { "several", "small", "tokens", "and one large one", NULL });
-	STREAMTEST(irc::tokenstream, "with 3 tokens ", { "with", "3", "tokens", NULL });
-	STREAMTEST(irc::tokenstream, "with a blank token at the end :", { "with", "a", "blank", "token", "at", "the", "end", "", NULL });
-	STREAMTEST(irc::tokenstream, "with a space at the end : ", { "with", "a", "space", "at", "the", "end", " ", NULL });
-	STREAMTEST(irc::tokenstream, "a :large token ending in a colon:", { "a", "large token ending in a colon:", NULL });
-	STREAMTEST(irc::tokenstream, "several tokens with the last ending in a colon:", { "several", "tokens", "with", "the", "last", "ending", "in", "a", "colon:", NULL });
+	STREAMTEST(irc::tokenstream, ("just some words and spaces"), { "just", "some", "words", "and", "spaces", NULL });
+	STREAMTEST(irc::tokenstream, (":not actually all one token"), { ":not", "actually", "all", "one", "token", NULL });
+	STREAMTEST(irc::tokenstream, ("several small tokens :and one large one"), { "several", "small", "tokens", "and one large one", NULL });
+	STREAMTEST(irc::tokenstream, ("with 3 tokens "), { "with", "3", "tokens", NULL });
+	STREAMTEST(irc::tokenstream, ("with a blank token at the end :"), { "with", "a", "blank", "token", "at", "the", "end", "", NULL });
+	STREAMTEST(irc::tokenstream, ("with a space at the end : "), { "with", "a", "space", "at", "the", "end", " ", NULL });
+	STREAMTEST(irc::tokenstream, ("a :large token ending in a colon:"), { "a", "large token ending in a colon:", NULL });
+	STREAMTEST(irc::tokenstream, ("several tokens with the last ending in a colon:"), { "several", "tokens", "with", "the", "last", "ending", "in", "a", "colon:", NULL });
 
 	std::cout << "Result of token stream tests:";
 	COUTFAILED();
