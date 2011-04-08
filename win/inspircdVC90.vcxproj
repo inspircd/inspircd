@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -484,6 +485,7 @@ nmake -f modules.mak
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\src\command_parse.cpp" />
+    <ClCompile Include="..\src\configparser.cpp" />
     <ClCompile Include="..\src\configreader.cpp" />
     <ClCompile Include="..\src\cull_list.cpp" />
     <ClCompile Include="..\src\dns.cpp" />
@@ -498,7 +500,6 @@ nmake -f modules.mak
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\mode.cpp" />
     <ClCompile Include="..\src\modes\cmode_b.cpp" />
-    <ClCompile Include="..\src\modes\cmode_h.cpp" />
     <ClCompile Include="..\src\modes\cmode_i.cpp" />
     <ClCompile Include="..\src\modes\cmode_k.cpp" />
     <ClCompile Include="..\src\modes\cmode_l.cpp" />
@@ -513,12 +514,14 @@ nmake -f modules.mak
     <ClCompile Include="..\src\modes\umode_o.cpp" />
     <ClCompile Include="..\src\modes\umode_s.cpp" />
     <ClCompile Include="..\src\modes\umode_w.cpp" />
+    <ClCompile Include="..\src\modmanager_dynamic.cpp" />
     <ClCompile Include="..\src\modules.cpp" />
     <ClCompile Include="..\src\server.cpp" />
     <ClCompile Include="..\src\snomasks.cpp" />
     <ClCompile Include="..\src\socket.cpp" />
     <ClCompile Include="..\src\socketengine.cpp" />
     <ClCompile Include="..\src\socketengines\socketengine_select.cpp" />
+    <ClCompile Include="..\src\stats.cpp" />
     <ClCompile Include="..\src\testsuite.cpp" />
     <ClCompile Include="..\src\threadengine.cpp" />
     <ClCompile Include="..\src\threadengines\threadengine_win32.cpp" />
@@ -527,6 +530,7 @@ nmake -f modules.mak
     <ClCompile Include="..\src\userprocess.cpp" />
     <ClCompile Include="..\src\users.cpp" />
     <ClCompile Include="..\src\user_resolver.cpp" />
+    <ClCompile Include="..\src\whois.cpp" />
     <ClCompile Include="..\src\wildcard.cpp" />
     <ClCompile Include="..\src\xline.cpp" />
     <ClCompile Include="inspircd_memory_functions.cpp" />
@@ -995,9 +999,6 @@ nmake -f modules.mak
     <CustomBuild Include="..\src\modules\m_abbreviation.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </CustomBuild>
-    <ClCompile Include="..\src\socketengines\socketengine_iocp.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)</ObjectFileName>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\src\modules\account.h">
@@ -1130,7 +1131,6 @@ nmake -f modules.mak
     <ClInclude Include="..\include\snomasks.h" />
     <ClInclude Include="..\include\socket.h" />
     <ClInclude Include="..\include\socketengine.h" />
-    <ClInclude Include="..\include\socketengines\socketengine_iocp.h" />
     <ClInclude Include="..\include\socketengines\socketengine_select.h" />
     <ClInclude Include="..\include\testsuite.h" />
     <ClInclude Include="..\include\threadengine.h" />

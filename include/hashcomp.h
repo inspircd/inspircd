@@ -92,7 +92,7 @@ namespace irc
 	 * Case sensitivity is ignored, and the RFC 'character set'
 	 * is adhered to
 	 */
-	struct StrHashComp
+	struct CoreExport StrHashComp
 	{
 		/** The operator () does the actual comparison in hash_map
 		 */
@@ -479,6 +479,15 @@ namespace irc
 	 * @return The new value with _ translated to space.
 	 */
 	CoreExport const char* Spacify(const char* n);
+
+	struct hash
+	{
+		/** Hash an irc::string using RFC1459 case sensitivity rules
+		 * @param s A string to hash
+		 * @return The hash value
+		 */
+		size_t CoreExport operator()(const irc::string &s) const;
+	};
 }
 
 /* Define operators for using >> and << with irc::string to an ostream on an istream. */
@@ -621,15 +630,6 @@ BEGIN_HASHMAP_NAMESPACE
 		size_t operator()(const std::string & s) const;
 	};
 #else
-
-	template<> struct hash<irc::string>
-	{
-		/** Hash an irc::string using RFC1459 case sensitivity rules
-		 * @param s A string to hash
-		 * @return The hash value
-		 */
-		size_t CoreExport operator()(const irc::string &s) const;
-	};
 
 	/* XXX FIXME: Implement a hash function overriding std::string's that works with TR1! */
 

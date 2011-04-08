@@ -41,7 +41,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	if (bind_to.sa.sa_family == AF_INET6)
 	{
 		std::string addr = tag->getString("address");
-		int enable = (addr.empty() || addr == "*") ? 0 : 1;
+		const char enable = (addr.empty() || addr == "*") ? 0 : 1;
 		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &enable, sizeof(enable));
 		// errors ignored intentionally
 	}

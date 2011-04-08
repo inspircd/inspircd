@@ -18,9 +18,10 @@
 
 #ifndef DISABLE_WRITEV
 #include <sys/uio.h>
+#endif
+
 #ifndef IOV_MAX
 #define IOV_MAX 1024
-#endif
 #endif
 
 BufferedSocket::BufferedSocket()

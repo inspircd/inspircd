@@ -140,6 +140,8 @@ CoreExport const char * insp_inet_ntop(int af, const void * src, char * dst, soc
 /* Since when does the ISO C++ standard *remove* C functions?! */
 #define mkdir(file,mode) _mkdir(file)
 
+#define strncasecmp strnicmp
+
 /* Unix-style sleep (argument is in seconds) */
 __inline void sleep(int seconds) { Sleep(seconds * 1000); }
 
@@ -165,7 +167,7 @@ struct option
 };
 extern int optind;
 extern char optarg[514];
-int getopt_long_only (int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind);
+int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, const struct option *__longopts, int *__longind);
 
 /* Module Loading */
 #define dlopen(path, state) (void*)LoadLibrary(path)
@@ -187,6 +189,12 @@ struct DIR
 	HANDLE find_handle;
 	WIN32_FIND_DATA find_data;
 	bool first;
+};
+
+struct timespec
+{
+	time_t tv_sec;
+	long tv_nsec;
 };
 
 CoreExport DIR * opendir(const char * path);
@@ -246,6 +254,9 @@ CoreExport void FindDNS(std::string& server);
 CoreExport bool initwmi();
 CoreExport void donewmi();
 CoreExport int getcpu();
+CoreExport int random();
+CoreExport void srandom(unsigned seed);
+CoreExport int gettimeofday(timeval *tv, void *);
 
 #endif
 

@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib inspircd.lib cmd_whois.lib cmd_stats.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
+				AdditionalDependencies="ws2_32.lib inspircd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="$(OutDir)/m_spanningtree.so"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\bin\debug\bin;..\bin\debug\lib"
@@ -148,7 +148,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib inspircd.lib cmd_whois.lib cmd_stats.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
+				AdditionalDependencies="ws2_32.lib inspircd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib"
 				OutputFile="$(OutDir)/m_spanningtree.so"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\bin\release\bin;..\bin\release\lib"
@@ -234,7 +234,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib inspircd.lib cmd_whois.lib cmd_stats.lib"
+				AdditionalDependencies="ws2_32.lib inspircd.lib"
 				OutputFile="$(OutDir)/m_spanningtree.so"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\bin\debug_x64\bin;..\bin\debug_x64\lib"
@@ -315,7 +315,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib inspircd.lib cmd_whois.lib cmd_stats.lib"
+				AdditionalDependencies="ws2_32.lib inspircd.lib"
 				OutputFile="$(OutDir)/m_spanningtree.so"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\bin\release_x64\bin;..\bin\release_x64\lib"

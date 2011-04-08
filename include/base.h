@@ -112,7 +112,7 @@ class CoreExport usecountbase
 };
 
 template <typename T>
-class reference
+class CoreExport reference
 {
 	T* value;
  public:
@@ -141,8 +141,10 @@ class reference
 	inline bool operator>(const reference<T>& other) const { return value > other.value; }
 	static inline void* operator new(size_t, void* m) { return m; }
  private:
+#ifndef WIN32
 	static void* operator new(size_t);
 	static void operator delete(void*);
+#endif
 };
 
 /** This class can be used on its own to represent an exception, or derived to represent a module-specific exception.
@@ -189,6 +191,7 @@ class CoreExport CoreException : public std::exception
 	}
 };
 
+class Module;
 class CoreExport ModuleException : public CoreException
 {
  public:

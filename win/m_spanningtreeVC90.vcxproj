@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -113,7 +114,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;inspircd.lib;cmd_whois.lib;cmd_stats.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;inspircd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\debug\bin;..\bin\debug\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)m_spanningtree.pdb</ProgramDatabaseFile>
@@ -142,7 +143,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;inspircd.lib;cmd_whois.lib;cmd_stats.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;inspircd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\debug_x64\bin;..\bin\debug_x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)m_spanningtree.pdb</ProgramDatabaseFile>
@@ -159,7 +160,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MinSpace</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\include;..\win;..\src\modules\m_spanningtree;.;..\src\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\win;.;..\src\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;M_SPANNINGTREE_EXPORTS;DLL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -169,7 +170,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;inspircd.lib;cmd_whois.lib;cmd_stats.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;inspircd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\release\bin;..\bin\release\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -205,7 +206,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;inspircd.lib;cmd_whois.lib;cmd_stats.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;inspircd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\release_x64\bin;..\bin\release_x64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -220,67 +221,53 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\modules\m_spanningtree\addline.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\admin.cpp" />
+    <ClCompile Include="..\src\modules\m_spanningtree\away.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\cachetimer.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\capab.cpp" />
+    <ClCompile Include="..\src\modules\m_spanningtree\compat.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\delline.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\encap.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\fhost.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\fjoin.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\fmode.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\fname.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\ftopic.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\handshaketimer.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\hmac.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\kill.cpp" />
+    <ClCompile Include="..\src\modules\m_spanningtree\idle.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\main.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\metadata.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\modules.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)modules_spanningtree.obj</ObjectFileName>
-    </ClCompile>
-    <ClCompile Include="..\src\modules\m_spanningtree\motd.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\netburst.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\nickcollide.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\operquit.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\opertype.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\override_admin.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\override_map.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\override_modules.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\override_motd.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\override_squit.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\override_stats.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\override_time.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\override_whois.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\ping.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\pong.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\postcommand.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\precommand.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\privmsg.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\protocolinterface.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\push.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\rconnect.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\resolvers.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\rsquit.cpp" />
+    <ClCompile Include="..\src\modules\m_spanningtree\save.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\server.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)servers_spanningtree.obj</ObjectFileName>
     </ClCompile>
-    <ClCompile Include="..\src\modules\m_spanningtree\stats.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\svsjoin.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\svsnick.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\svspart.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\time.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\treeserver.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\treesocket1.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\treesocket2.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\uid.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\utils.cpp" />
     <ClCompile Include="..\src\modules\m_spanningtree\version.cpp" />
-    <ClCompile Include="..\src\modules\m_spanningtree\whois.cpp" />
     <ClCompile Include="inspircd_memory_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\modules\m_spanningtree\cachetimer.h" />
-    <ClInclude Include="..\src\modules\m_spanningtree\handshaketimer.h" />
     <ClInclude Include="..\src\modules\m_spanningtree\link.h" />
     <ClInclude Include="..\src\modules\m_spanningtree\main.h" />
     <ClInclude Include="..\src\modules\m_spanningtree\protocolinterface.h" />

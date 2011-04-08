@@ -165,7 +165,7 @@ void IPC::Check()
 			/* Toggle debug */
 			thread->SetResult(0);
 			thread->ClearStatus();
-			ServerInstance->Config->forcedebug = !ServerInstance->Config->forcedebug;
+			ServerInstance->Config->cmdline.forcedebug = !ServerInstance->Config->cmdline.forcedebug;
 		break;
 	}
 }

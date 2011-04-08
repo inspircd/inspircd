@@ -615,7 +615,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	}
 #else
 	WindowsIPC = new IPC;
-	if(!Config->nofork)
+	if(!Config->cmdline.nofork)
 	{
 		WindowsForkKillOwner();
 		FreeConsole();
