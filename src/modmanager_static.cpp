@@ -73,12 +73,12 @@ bool ModuleManager::Load(const std::string& name, bool defer, ModuleState* state
 	modmap::iterator it = modlist->find(name);
 	if (it == modlist->end())
 	{
-		LastModuleError = "Module not found";
+		LastModuleError = "Module " + name + " not found";
 		return false;
 	}
 	if (Modules.find(name) != Modules.end())
 	{
-		LastModuleError = "Module already loaded";
+		LastModuleError = "Module " + name + " already loaded";
 		return false;
 	}
 
