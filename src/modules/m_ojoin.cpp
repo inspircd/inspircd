@@ -205,6 +205,7 @@ class ModuleOjoin : public Module
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnCheckJoin, PRIORITY_FIRST);
+		ServerInstance->Modules->SetPriority(this, I_OnPermissionCheck, PRIORITY_BEFORE, ServerInstance->Modules->Find("m_chanregister.so"));
 	}
 
 	Version GetVersion()
