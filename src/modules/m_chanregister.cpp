@@ -162,8 +162,8 @@ class RegisterModeHandler : public ParamChannelModeHandler
 			/* if the account name was not given, is empty or is not equal to the given parameter, deny */
 			if (acctname.empty() || !registrantnames.GetToken(registrantname) || acctname != registrantname)
 			{
-				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be logged in to the first account in the registrant list",
-					perm.chan->name.c_str());
+				perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :The first account in the %sregistrant list must be your own",
+					perm.chan->name.c_str(), perm.chan->IsModeSet(this) ? "new " : "");
 				perm.result = MOD_RES_DENY;
 			}
 		}
