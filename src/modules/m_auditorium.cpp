@@ -20,7 +20,6 @@ class AuditoriumMode : public ModeHandler
  public:
 	AuditoriumMode(Module* Creator) : ModeHandler(Creator, "auditorium", 'u', PARAM_NONE, MODETYPE_CHANNEL)
 	{
-		levelrequired = OP_VALUE;
 		fixed_letter = false;
 	}
 

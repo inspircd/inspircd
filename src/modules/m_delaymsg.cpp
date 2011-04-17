@@ -25,7 +25,6 @@ class DelayMsgMode : public ModeHandler
 	DelayMsgMode(Module* Parent) : ModeHandler(Parent, "delaymsg", 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
 		, jointime(EXTENSIBLE_MEMBERSHIP, "delaymsg", Parent)
 	{
-		levelrequired = OP_VALUE;
 		fixed_letter = false;
 	}
 
