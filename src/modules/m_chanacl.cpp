@@ -24,7 +24,6 @@ class ChannelACLMode : public ListModeBase
  public:
 	ChannelACLMode(Module* Creator) : ListModeBase(Creator, "chanacl", 'W', "End of channel access group list", 954, 953, false, "chanacl")
 	{
-		levelrequired = OP_VALUE;
 		fixed_letter = false;
 	}
 

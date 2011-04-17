@@ -23,7 +23,6 @@
 ModeChannelVoice::ModeChannelVoice() : PrefixModeHandler(NULL, "voice", 'v')
 {
 	prefix = '+';
-	levelrequired = HALFOP_VALUE;
 }
 
 unsigned int ModeChannelVoice::GetPrefixRank()

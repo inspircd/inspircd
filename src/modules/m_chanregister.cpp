@@ -90,16 +90,9 @@ class RegisterModeHandler : public ParamChannelModeHandler
 	bool verbose;
 	int chanlimit;
 	RegisterModeHandler(Module *me) : ParamChannelModeHandler(me, "registered", 'r'),
-		last_activity(me), account("account")
+		last_activity(me), account("account"), verbose(true), chanlimit(10)
 	{
-		/* set properties. */
-		list = false;
 		fixed_letter = false;
-		oper = false;
-		m_paramtype = TR_TEXT;
-		levelrequired = OP_VALUE;
-		verbose = true;
-		chanlimit = 10;
 	}
 
 	void OnParameterMissing (User *user, User*, Channel *chan, std::string &param)
