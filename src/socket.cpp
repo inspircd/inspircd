@@ -338,8 +338,11 @@ bool irc::sockets::cidr_mask::operator==(const cidr_mask& other) const
 
 bool irc::sockets::cidr_mask::operator<(const cidr_mask& other) const
 {
-	return type < other.type || length < other.length ||
-		memcmp(bits, other.bits, 16) < 0;
+	if (type != other.type)
+		return type < other.type;
+	if (length != other.length)
+		return length < other.length;
+	return memcmp(bits, other.bits, 16) < 0;
 }
 
 bool irc::sockets::cidr_mask::match(const irc::sockets::sockaddrs& addr) const
