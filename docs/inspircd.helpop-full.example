@@ -96,13 +96,13 @@ and S queries the status.">
 
 Authenticate for a vhost using the specified username and password.">
 
-<helpop key="remove" value="/REMOVE [channel] [nick] {[reason]}
+<helpop key="remove" value="/REMOVE [nick] [channel] {[reason]}
 
 Removes a user from a channel you specify. You must be at least a
 channel halfoperator to remove a user. A removed user will part with
 a message stating they were removed from the channel and by whom.">
 
-<helpop key="fpart" value="/FPART [nick] [channel] {[reason]}
+<helpop key="fpart" value="/FPART [channel] [nick] {[reason]}
 
 This behaves identically to /REMOVE, the only difference is that that
 [channel] and [nick] parameters are switched around to match /KICK's
@@ -132,7 +132,7 @@ Valid SILENCE Flags
 Multiple letters may be specified. For an exception, you msut pair x
 with what you want excepted. For example, if you wanted to except
 everything from people with a host matching *.foo.net, you would do
-/SILENCE +xa *!*@*.foo.net
+/SILENCE +*!*@*.foo.net xa
 
 /SILENCE without a parameter will list the hostmasks that you have silenced.">
 

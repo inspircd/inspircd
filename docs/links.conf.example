@@ -40,14 +40,12 @@
 
       # ssl: If defined, this states extra modules that will be used when
       # making an outbound connection to the server. Options are: "openssl"
-      # and "gnutls" for encryption (they are compatible with each other) and
-      # "ziplinks" for compression. You must use the same (or a compatible)
-      # transport on both sides of the link.
+      # and "gnutls" for encryption (they are compatible with each other).
+      # You must use the same (or a compatible) transport on both sides of the link.
       #
       # You will need to load the m_ssl_openssl.so module for openssl,
-      # m_ssl_gnutls.so for gnutls or m_ziplinks.so for ziplinks. The server
-      # port that you connect to must be capable of accepting this type of
-      # connection.
+      # m_ssl_gnutls.so for gnutls. The server port that you connect to
+      # must be capable of accepting this type of connection.
       ssl="gnutls"
 
       # fingerprint: If defined, this option will force servers to be
