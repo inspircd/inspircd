@@ -531,7 +531,7 @@ void ServerConfig::Fill()
 		if (socktest < 0)
 			WildcardIPv6 = false;
 		else
-			close(socktest);
+			ServerInstance->SE->Close(socktest);
 	}
 	ConfigTagList tags = ConfTags("uline");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
