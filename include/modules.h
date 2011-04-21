@@ -328,6 +328,11 @@ class CoreExport PermissionData : public interfacebase
 	User* const user;
 	/** Name of the permission we would like to check */
 	const std::string name;
+	/** Whether or not the permission is being implicitly requested
+	 * This would be no for most permissions, but would be yes for
+	 * ones such as exempt/stripcolor and auditorium/visible.
+	 */
+	const bool implicit;
 	/** Result of the permission check.
 	 * MOD_RES_ALLOW will allow the action (skipping any built-in checks)
 	 * MOD_RES_DENY will deny the action. If reason is nonempty, this will
@@ -337,8 +342,8 @@ class CoreExport PermissionData : public interfacebase
 	ModResult result;
 	/** Reason the permission was denied */
 	std::string reason;
-	PermissionData(User* src, const std::string& Name, Channel* c, User* u)
-		: source(src), chan(c), user(u), name(Name) {}
+	PermissionData(User* src, const std::string& Name, Channel* c, User* u, bool i)
+		: source(src), chan(c), user(u), name(Name), implicit(i) {}
 
 	/** Convenience formatter class for setting reason as a printf */
 	void SetReason(const char* format, ...) CUSTOM_PRINTF(2, 3);
@@ -351,7 +356,7 @@ class CoreExport ModePermissionData : public PermissionData
  public:
 	irc::modechange& mc;
 	ModePermissionData(User* src, const std::string& Name, Channel* c, User* u, irc::modechange& m)
-		: PermissionData(src, Name, c, u), mc(m) {}
+		: PermissionData(src, Name, c, u, false), mc(m) {}
 	void DoRankCheck();
 };
 
@@ -375,7 +380,7 @@ class CoreExport ChannelPermissionData : public PermissionData
 	/** True if the user needs an invite to join */
 	bool needs_invite;
 	ChannelPermissionData(User* src, Channel* c, const std::string& Name, const std::string& Key)
-		: PermissionData(src, "join", c, src), channel(Name), key(Key), invited(false), needs_invite(false) {}
+		: PermissionData(src, "join", c, src, false), channel(Name), key(Key), invited(false), needs_invite(false) {}
 };
 
 class CoreExport OperPermissionData : public PermissionData

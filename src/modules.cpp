@@ -731,7 +731,7 @@ void PermissionData::ErrorNumeric(int num, const char* format, ...)
 	reason = textbuffer;
 }
 
-OperPermissionData::OperPermissionData(User* who, const std::string& Name) : PermissionData(who, "oper", NULL, who)
+OperPermissionData::OperPermissionData(User* who, const std::string& Name) : PermissionData(who, "oper", NULL, who, false)
 {
 	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(Name);
 	if (i != ServerInstance->Config->oper_blocks.end())

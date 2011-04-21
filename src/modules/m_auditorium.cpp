@@ -77,7 +77,7 @@ class ModuleAuditorium : public Module
 		if (!memb->chan->IsModeSet(&aum))
 			return true;
 
-		PermissionData vis(memb->user, "auditorium/visible", memb->chan, NULL);
+		PermissionData vis(memb->user, "auditorium/visible", memb->chan, NULL, true);
 		FOR_EACH_MOD(OnPermissionCheck, (vis));
 		return vis.result.check(OpsVisible && memb->GetAccessRank() >= OP_VALUE);
 	}
@@ -94,7 +94,7 @@ class ModuleAuditorium : public Module
 			return true;
 
 		// Can you see the list by permission?
-		PermissionData vis(issuer, "auditorium/see", memb->chan, memb->user);
+		PermissionData vis(issuer, "auditorium/see", memb->chan, memb->user, true);
 		FOR_EACH_MOD(OnPermissionCheck, (vis));
 		return vis.result.check(OpsCanSee && memb->chan->GetAccessRank(issuer) >= OP_VALUE);
 	}

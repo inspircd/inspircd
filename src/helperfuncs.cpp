@@ -446,7 +446,7 @@ void GenRandomHandler::Call(char *output, size_t max)
 
 ModResult InspIRCd::CheckExemption(User* user, Channel* chan, const std::string& restriction)
 {
-	PermissionData perm(user, "exempt/" + restriction, chan, NULL);
+	PermissionData perm(user, "exempt/" + restriction, chan, NULL, true);
 	FOR_EACH_MOD(OnPermissionCheck, (perm));
 	if (perm.result != MOD_RES_PASSTHRU)
 		return perm.result;

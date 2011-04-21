@@ -40,7 +40,7 @@ class OpFlagPermissionData : public PermissionData
  public:
 	std::string& delta;
 	OpFlagPermissionData(User* src, Channel* c, User* u, std::string& Delta)
-		: PermissionData(src, "opflags", c, u), delta(Delta) {}
+		: PermissionData(src, "opflags", c, u, false), delta(Delta) {}
 };
 
 #endif

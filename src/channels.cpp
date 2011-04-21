@@ -490,7 +490,7 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 			return;
 		}
 
-		PermissionData perm(src, "kick", this, memb->user);
+		PermissionData perm(src, "kick", this, memb->user, false);
 		// pre-populate the error message to something sensible
 		perm.ErrorNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to kick in this channel", this->name.c_str());
 		unsigned int rankKicker = GetAccessRank(src);
