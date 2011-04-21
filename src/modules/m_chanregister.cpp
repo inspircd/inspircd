@@ -349,6 +349,9 @@ banned */
 		/* if not, but name of permission is join, proceed normally because it was checked */
 		if (perm.name == "join")
 			return;
+		/* if permission is implicit, proceed normally, as registrants may not want these permissions */
+		if (perm.implicit)
+			return;
 		/* if +r mode is being changed, return: we keep the normal checks here */
 		if (perm.name == "mode/registered")
 			return;
