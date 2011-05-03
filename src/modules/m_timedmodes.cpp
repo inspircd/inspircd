@@ -372,7 +372,7 @@ class ModuleTimedModes : public Module
 			if (limit.mask.size() && limit.limit > 0)
 				cmd.chanlimits.push_back(limit);
 		}
-		if (cmd.chanlimits.size() == 0)
+		if (cmd.chanlimits.empty())
 		{
 			ListLimit limit;
 			limit.mask = "*";
