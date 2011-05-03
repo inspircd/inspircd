@@ -14,8 +14,6 @@
 #include "inspircd.h"
 #include "hashcomp.h"
 
-bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
-
 /** Handle /OPER. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -23,6 +21,20 @@ bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
  */
 class CommandOper : public SplitCommand
 {
+	bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
+	{
+		std::stringstream hl(hostlist);
+		std::string xhost;
+		while (hl >> xhost)
+		{
+			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
  public:
 	/** Constructor for oper.
 	 */
@@ -35,20 +47,6 @@ class CommandOper : public SplitCommand
 	 */
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
 };
-
-bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
-{
-	std::stringstream hl(hostlist);
-	std::string xhost;
-	while (hl >> xhost)
-	{
-		if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-		{
-			return true;
-		}
-	}
-	return false;
-}
 
 CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
