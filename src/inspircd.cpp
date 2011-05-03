@@ -820,8 +820,6 @@ int InspIRCd::Run()
 			this->s_signal = 0;
 		}
 	}
-
-	return 0;
 }
 
 void InspIRCd::SetSignal(int signal)
