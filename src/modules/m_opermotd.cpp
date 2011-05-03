@@ -17,7 +17,7 @@
 
 static FileReader* opermotd;
 
-CmdResult ShowOperMOTD(User* user)
+static CmdResult ShowOperMOTD(User* user)
 {
 	if(!opermotd->FileSize())
 	{

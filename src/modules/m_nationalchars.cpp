@@ -33,7 +33,7 @@ class lwbNickHandler : public HandlerBase2<bool, const char*, size_t>
 								 /*,m_reverse_additionalUp[256];*/
 static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256],m_additionalUtf8interval[256];
 
-char utf8checkrest(unsigned char * mb, unsigned char cnt)
+static char utf8checkrest(unsigned char * mb, unsigned char cnt)
 {
 	for (unsigned char * tmp=mb; tmp<mb+cnt; tmp++)
 	{
@@ -45,7 +45,7 @@ char utf8checkrest(unsigned char * mb, unsigned char cnt)
 }
 
 
-char utf8size(unsigned char * mb)
+static char utf8size(unsigned char * mb)
 {
 	if (!*mb)
 		return -1;
