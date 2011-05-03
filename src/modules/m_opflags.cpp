@@ -168,8 +168,8 @@ class FlagCmd : public Command
 
 		if (IS_LOCAL(src))
 		{
-			ModResult res = ServerInstance->CheckExemption(src,chan,"opflags");
 			OpFlagPermissionData perm(src, chan, user, delta);
+			FOR_EACH_MOD(OnPermissionCheck, (perm));
 
 			if (!perm.result.check(chan->GetAccessRank(src) >= conflevel))
 			{
