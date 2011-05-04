@@ -1490,6 +1490,9 @@ struct AllModuleList {
 		return new y; \
 	} \
 	extern "C" const char inspircd_src_version[] = VERSION " r" REVISION;
+
+extern "C" DllExport Module * MODULE_INIT_SYM();
+
 #endif
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)
