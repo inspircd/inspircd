@@ -729,7 +729,7 @@ void InspIRCd::UpdateTime()
 #endif
 }
 
-int InspIRCd::Run()
+void InspIRCd::Run()
 {
 	/* See if we're supposed to be running the test suite rather than entering the mainloop */
 	if (Config->cmdline.testsuite)

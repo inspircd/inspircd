@@ -808,9 +808,8 @@ class CoreExport InspIRCd
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
 	 * it will repeatedly loop.
-	 * @return The return value for this function is undefined.
 	 */
-	int Run();
+	void Run();
 
 	/** Adds an extban char to the 005 token.
 	 */
