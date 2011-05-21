@@ -712,7 +712,7 @@ int gettimeofday(timeval *tv, void *)
 	SYSTEMTIME st;
 	GetSystemTime(&st);
 
-	tv->tv_sec = ServerInstance->Time();
+	tv->tv_sec = time(NULL);
 	tv->tv_usec = st.wMilliseconds;
 
 	return 0;
