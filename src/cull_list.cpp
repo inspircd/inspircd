@@ -17,6 +17,19 @@
 
 void CullList::Apply()
 {
+	std::vector<LocalUser *> working;
+	while (!SQlist.empty())
+	{
+		working.swap(SQlist);
+		for(std::vector<LocalUser *>::iterator a = working.begin(); a != working.end(); a++)
+		{
+			LocalUser *u = *a;
+			ServerInstance->SNO->WriteGlobalSno('a', "User %s SendQ exceeds connect class maximum of %lu",
+				u->nick.c_str(), u->MyClass->hardsendqmax);
+			ServerInstance->Users->QuitUser(u, "SendQ exceeded");
+		}
+		working.clear();
+	}
 	std::set<classbase*> gone;
 	std::vector<classbase*> queue;
 	queue.reserve(list.size() + 32);

@@ -278,6 +278,12 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int quitting:1;
 
+	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
+	 * This can't be handled normally because QuitUser itself calls Write on other
+	 * users, which could trigger their SendQ to overrun.
+	 */
+	unsigned int quitting_sendq:1;
+
 	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
 	 */
 	unsigned int exempt:1;

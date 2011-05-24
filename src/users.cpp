@@ -12,6 +12,7 @@
  */
 
 #include "inspircd.h"
+#include "cull_list.h"
 #include "command_parse.h"
 #include "dns.h"
 #include "inspsocket.h"
@@ -526,16 +527,13 @@ eol_found:
 
 void UserIOHandler::AddWriteBuf(const std::string &data)
 {
+	if (user->quitting_sendq)
+		return;
 	size_t len = getSendQSize() + data.length();
 	if (!user->quitting && len > user->MyClass->hardsendqmax)
 	{
-		/*
-		 * Quit the user FIRST, because otherwise we could recurse
-		 * here and hit the same limit.
-		 */
-		ServerInstance->Users->QuitUser(user, "SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds maximum of %lu (class %s)",
-			user->nick.c_str(), user->MyClass->hardsendqmax, user->MyClass->name.c_str());
+		user->quitting_sendq = true;
+		ServerInstance->GlobalCulls->AddSQItem(user);
 		return;
 	}
 

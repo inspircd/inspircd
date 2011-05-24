@@ -22,11 +22,13 @@
 class CoreExport CullList
 {
 	std::vector<classbase*> list;
+	std::vector<LocalUser*> SQlist;
 
  public:
 	/** Adds an item to the cull list
 	 */
 	void AddItem(classbase* item) { list.push_back(item); }
+	void AddSQItem(LocalUser* item) { SQlist.push_back(item); }
 
 	/** Applies the cull list (deletes the contents)
 	 */
