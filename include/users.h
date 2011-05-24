@@ -472,6 +472,12 @@ class CoreExport User : public EventHandler
 	 */
 	bool quitting;
 
+	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
+	 * This can't be handled normally because QuitUser itself calls Write on other
+	 * users, which could trigger their SendQ to overrun.
+	 */
+	bool quitting_sendq;
+
 	/** IPV4 or IPV6 ip address. Use SetSockAddr to set this and GetProtocolFamily/
 	 * GetIPString/GetPort to obtain its values.
 	 */

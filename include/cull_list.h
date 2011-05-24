@@ -41,6 +41,7 @@ class CoreExport CullList : public classbase
 	 * more information.
 	 */
 	std::vector<User *> list;
+	std::vector<User *> SQlist;
 
  public:
 	/** Constructor.
@@ -55,6 +56,7 @@ class CoreExport CullList : public classbase
 	 * @param o_reason The quit reason to show only to opers
 	 */
 	void AddItem(User* user);
+	void AddSQItem(User* user);
 
 	/* Turn an item into a silent item (don't send out QUIT for this user)
 	 */

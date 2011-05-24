@@ -25,6 +25,11 @@ void CullList::AddItem(User* user)
 	list.push_back(user);
 }
 
+void CullList::AddSQItem(User* user)
+{
+	SQlist.push_back(user);
+}
+
 void CullList::MakeSilent(User* user)
 {
 	user->quietquit = true;
@@ -33,6 +38,19 @@ void CullList::MakeSilent(User* user)
 
 void CullList::Apply()
 {
+	std::vector<User *> working;
+	while (!SQlist.empty())
+	{
+		working.swap(SQlist);
+		for(std::vector<User *>::iterator a = working.begin(); a != working.end(); a++)
+		{
+			User *u = *a;
+			ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds connect class maximum of %lu",
+				u->nick.c_str(), u->MyClass->GetSendqMax());
+			ServerInstance->Users->QuitUser(u, "SendQ exceeded");
+		}
+		working.clear();
+	}
 	for(std::vector<User *>::iterator a = list.begin(); a != list.end(); a++)
 	{
 		User *u = *a;

@@ -214,6 +214,7 @@ User::User(InspIRCd* Instance, const std::string &uid) : ServerInstance(Instance
 	lastping = signon = idle_lastmsg = nping = registered = 0;
 	bytes_in = bytes_out = cmds_in = cmds_out = 0;
 	quietquit = quitting = exempt = haspassed = dns_done = false;
+	quitting_sendq = false;
 	fd = -1;
 	recvq.clear();
 	sendq.clear();
@@ -668,15 +669,12 @@ std::string User::GetBuffer()
 
 void User::AddWriteBuf(const std::string &data)
 {
+	if (quitting_sendq)
+		return;
 	if (!this->quitting && this->MyClass && !this->HasPrivPermission("users/flood/increased-buffers") && sendq.length() + data.length() > this->MyClass->GetSendqMax())
 	{
-		/*
-		 * Fix by brain - Set the error text BEFORE calling, because
-		 * if we dont it'll recursively  call here over and over again trying
-		 * to repeatedly add the text to the sendq!
-		 */
-		ServerInstance->Users->QuitUser(this, "SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ of %lu exceeds connect class maximum of %lu",this->nick.c_str(),(unsigned long int)sendq.length() + data.length(),this->MyClass->GetSendqMax());
+		quitting_sendq = true;
+		ServerInstance->GlobalCulls.AddSQItem(this);
 		return;
 	}
 
