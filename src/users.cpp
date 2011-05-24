@@ -193,6 +193,7 @@ User::User(const std::string &uid, const std::string& sid, int type)
 	signon = idle_lastmsg = 0;
 	registered = 0;
 	quietquit = quitting = exempt = dns_done = false;
+	quitting_sendq = false;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
@@ -519,16 +520,13 @@ eol_found:
 
 void UserIOHandler::AddWriteBuf(const std::string &data)
 {
+	if (user->quitting_sendq)
+		return;
 	if (!user->quitting && getSendQSize() + data.length() > user->MyClass->GetSendqHardMax() &&
 		!user->HasPrivPermission("users/flood/increased-buffers"))
 	{
-		/*
-		 * Quit the user FIRST, because otherwise we could recurse
-		 * here and hit the same limit.
-		 */
-		ServerInstance->Users->QuitUser(user, "SendQ exceeded");
-		ServerInstance->SNO->WriteToSnoMask('a', "User %s SendQ exceeds connect class maximum of %lu",
-			user->nick.c_str(), user->MyClass->GetSendqHardMax());
+		user->quitting_sendq = true;
+		ServerInstance->GlobalCulls.AddSQItem(user);
 		return;
 	}
 
