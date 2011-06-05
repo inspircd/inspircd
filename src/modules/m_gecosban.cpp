@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b r: - realname (gecos) bans */
+/* $ModDesc: Implements extban +b g: - gecos bans */
 
 class ModuleGecosBan : public Module
 {
@@ -30,12 +30,12 @@ class ModuleGecosBan : public Module
 
 	Version GetVersion()
 	{
-		return Version("Extban 'r' - realname (gecos) ban", VF_OPTCOMMON|VF_VENDOR);
+		return Version("Implements extban +b g: - gecos bans", VF_OPTCOMMON|VF_VENDOR);
 	}
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		if (mask[0] == 'r' && mask[1] == ':')
+		if (mask[0] == 'g' && mask[1] == ':')
 		{
 			if (InspIRCd::Match(user->fullname, mask.substr(2)))
 				return MOD_RES_DENY;
@@ -45,7 +45,7 @@ class ModuleGecosBan : public Module
 
 	void On005Numeric(std::string &output)
 	{
-		ServerInstance->AddExtBanChar('r');
+		ServerInstance->AddExtBanChar('g');
 	}
 };
 

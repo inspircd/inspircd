@@ -60,7 +60,7 @@ class ModuleAccountModes : public Module
 
 	void On005Numeric(std::string &t)
 	{
-		ServerInstance->AddExtBanChar('R');
+		ServerInstance->AddExtBanChar('r');
 	}
 
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -94,9 +94,10 @@ class ModuleAccountModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+	// XXX: Does this belong in m_services_account?
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
-		if (mask[0] == 'R' && mask[1] == ':')
+		if (mask[0] == 'r' && mask[1] == ':')
 		{
 			std::string acctname = account ? account->GetAccountName(user) : "";
 			if (acctname == mask.substr(2))
