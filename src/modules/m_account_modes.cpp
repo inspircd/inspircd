@@ -99,7 +99,7 @@ class ModuleAccountModes : public Module
 	{
 		if (mask[0] == 'r' && mask[1] == ':')
 		{
-			std::string acctname = account ? account->GetAccountName(user) : "";
+			irc::string acctname = account ? account->GetAccountName(user) : "";
 			if (acctname == mask.substr(2))
 				return MOD_RES_DENY;
 		}
