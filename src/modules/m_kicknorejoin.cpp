@@ -15,7 +15,7 @@
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
-typedef std::map<User*, time_t> delaylist;
+typedef std::map<std::string, time_t> delaylist;
 
 /** Handles channel mode +J
  */
@@ -58,7 +58,7 @@ public:
 	{
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Extensions.Register(&kr.ext);
-		Implementation eventlist[] = { I_OnCheckJoin, I_OnUserKick };
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnGarbageCollect, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -66,35 +66,38 @@ public:
 	{
 		if (!join.chan || join.result != MOD_RES_PASSTHRU)
 			return;
-		delaylist* dl = kr.ext.get(join.chan);
+		const delaylist* dl = kr.ext.get(join.chan);
 		if (!dl)
 			return;
-		std::vector<User*> itemstoremove;
 
-		for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
+		delaylist::const_iterator iter = dl->find(join.user->uuid);
+		if(iter != dl->end() && iter->second > ServerInstance->Time())
 		{
-			if (iter->second > ServerInstance->Time())
-			{
-				if (iter->first == join.user)
-				{
-					join.ErrorNumeric(ERR_DELAYREJOIN, "%s :You must wait %s seconds after being kicked to rejoin (+J)",
-						join.chan->name.c_str(), join.chan->GetModeParameter(&kr).c_str());
-					join.result = MOD_RES_DENY;
-					return;
-				}
-			}
-			else
-			{
-				// Expired record, remove.
-				itemstoremove.push_back(iter->first);
-			}
+			join.ErrorNumeric(ERR_DELAYREJOIN, "%s :You must wait %s seconds after being kicked to rejoin (+J)",
+				join.chan->name.c_str(), join.chan->GetModeParameter(&kr).c_str());
+			join.result = MOD_RES_DENY;
 		}
+	}
 
-		for (unsigned int i = 0; i < itemstoremove.size(); i++)
-			dl->erase(itemstoremove[i]);
+	void OnGarbageCollect()
+	{
+		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
+		{
+			delaylist* dl = kr.ext.get(i->second);
+			if (!dl)
+				continue;
 
-		if (!dl->size())
-			kr.ext.unset(join.chan);
+			for (delaylist::iterator iter = dl->begin(); iter != dl->end();)
+			{
+				if (iter->second <= ServerInstance->Time())
+					dl->erase(iter++);
+				else
+					++iter;
+			}
+
+			if (dl->empty())
+				kr.ext.unset(i->second);
+		}
 	}
 
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
@@ -107,7 +110,7 @@ public:
 				dl = new delaylist;
 				kr.ext.set(memb->chan, dl);
 			}
-			(*dl)[memb->user] = ServerInstance->Time() + atoi(memb->chan->GetModeParameter(&kr).c_str());
+			(*dl)[memb->user->uuid] = ServerInstance->Time() + atoi(memb->chan->GetModeParameter(&kr).c_str());
 		}
 	}
 
