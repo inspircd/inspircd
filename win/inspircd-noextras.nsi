@@ -2,7 +2,7 @@
 ; *       | Inspire Internet Relay Chat Daemon |
 ; *       +------------------------------------+
 ; *
-; *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
+; *  InspIRCd: (C) 2002-2011 InspIRCd Development Team
 ; * See: http://wiki.inspircd.org/Credits
 ; *
 ; * This program is free but copyrighted software; see
@@ -50,9 +50,6 @@ Page directory
 !insertmacro MUI_PAGE_COMPONENTS
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
-; Finish page
-!define MUI_FINISHPAGE_RUN "$INSTDIR\InspGUI.exe"
-!insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -66,7 +63,7 @@ Page directory
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "Setup.exe"
+OutFile "${PRODUCT_NAME}-${PRODUCT_VERSION}-Setup.exe"
 InstallDir "$PROGRAMFILES\InspIRCd"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
@@ -133,42 +130,25 @@ FunctionEnd
 
 Section "Binary Executable" SEC01
   Call IsDotNetInstalled
-  SetOutPath "$TEMP"
-  SetOverwrite ifnewer
-  File "vcredist_x86.exe"
-  ExecWait "$TEMP\vcredist_x86.exe"
-  SetOutPath "$INSTDIR"
-  SetOverwrite ifnewer
-  File "..\bin\${BUILD}\InspGUI.exe"
   CreateDirectory "$SMPROGRAMS\InspIRCd"
-  CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd.lnk" "$INSTDIR\InspGUI.exe"
-  SetOutPath "$INSTDIR\bin"
+  CreateDirectory "$INSTDIR\logs"
+  CreateDirectory "$INSTDIR\data"
+  CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd.lnk" "$INSTDIR\inspircd.exe"
+  SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "..\bin\${BUILD}\bin\inspircd.exe"
   DetailPrint "Installing InspIRCd service..."
-  nsExec::Exec /TIMEOUT=30000 '"$INSTDIR\bin\inspircd.exe" --installservice'
+  nsExec::Exec /TIMEOUT=30000 '"$INSTDIR\inspircd.exe" --installservice'
 SectionEnd
 
 Section "Config Files" SEC02
   SetOutPath "$INSTDIR\conf"
-  File "..\conf\inspircd.motd.example"
-  File "..\conf\inspircd.helpop-full.example"
-  File "..\conf\inspircd.helpop.example"
-  File "..\conf\inspircd.filter.example"
-  File "..\conf\inspircd.conf.example"
-  File "..\conf\opers.conf.example"
-  File "..\conf\modules.conf.example"
-  File "..\conf\links.conf.example"
-  File "..\conf\inspircd.censor.example"
-  File "..\conf\inspircd.rules.example"
-  File "..\conf\inspircd.quotes.example"
-  SetOutPath "$INSTDIR\conf\test"
-  File "..\conf\test\test.conf"
+  File "..\docs\*.example"
 SectionEnd
 
 Section "Command Handlers" SEC03
-  SetOutPath "$INSTDIR\lib"
-  File "..\bin\${BUILD}\lib\cmd_*.so"
+  SetOutPath "$INSTDIR\modules"
+  File "..\bin\${BUILD}\modules\cmd_*.so"
 SectionEnd
 
 Section "Modules" SEC04
@@ -185,10 +165,10 @@ SectionEnd
 
 Section -Post
   WriteUninstaller "$INSTDIR\uninst.exe"
-  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\bin\inspircd.exe"
+  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\inspircd.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\bin\inspircd.exe"
+  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\inspircd.exe"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
   WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
@@ -222,30 +202,24 @@ FunctionEnd
 
 Section Uninstall
   DetailPrint "Uninstalling InspIRCd service..."
-  nsExec::Exec /TIMEOUT=30000 '"$INSTDIR\bin\inspircd.exe" --removeservice'
+  nsExec::Exec /TIMEOUT=30000 '"$INSTDIR\inspircd.exe" --removeservice'
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\modules\m_*.so"
-  Delete "$INSTDIR\lib\cmd_*.so"
-  Delete "$INSTDIR\conf\inspircd.quotes.example"
-  Delete "$INSTDIR\conf\inspircd.rules.example"
-  Delete "$INSTDIR\conf\inspircd.censor.example"
-  Delete "$INSTDIR\conf\inspircd.conf.example"
-  Delete "$INSTDIR\conf\inspircd.filter.example"
-  Delete "$INSTDIR\conf\inspircd.helpop.example"
-  Delete "$INSTDIR\conf\inspircd.helpop-full.example"
-  Delete "$INSTDIR\conf\inspircd.motd.example"
-  Delete "$INSTDIR\bin\inspircd.exe"
-  Delete "$INSTDIR\InspGUI.exe"
+  Delete "$INSTDIR\modules\*.so"
+  Delete "$INSTDIR\conf\*.example"
+  Delete "$INSTDIR\*.log"
+  Delete "$INSTDIR\logs\*"
+  Delete "$INSTDIR\data\*"
+  Delete "$INSTDIR\inspircd.exe"
   Delete "$SMPROGRAMS\InspIRCd\Uninstall.lnk"
   Delete "$SMPROGRAMS\InspIRCd\InspIRCd Website.lnk"
   Delete "$SMPROGRAMS\InspIRCd\InspIRCd.lnk"
 
   RMDir "$SMPROGRAMS\InspIRCd"
   RMDir "$INSTDIR\modules"
-  RMDir "$INSTDIR\lib"
   RMDir "$INSTDIR\conf"
-  RMDir "$INSTDIR\bin"
+  RMDir "$INSTDIR\logs"
+  RMDir "$INSTDIR\data"
   RMDir "$INSTDIR"
 
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
