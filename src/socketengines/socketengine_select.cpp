@@ -31,6 +31,9 @@
  */
 class SelectEngine : public SocketEngine
 {
+	fd_set ReadSet, WriteSet, ErrSet;
+	int MaxFD;
+
 public:
 	/** Create a new SelectEngine
 	 */
@@ -52,6 +55,11 @@ SelectEngine::SelectEngine()
 
 	ref = new EventHandler* [GetMaxFds()];
 	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
+
+	FD_ZERO(&ReadSet);
+	FD_ZERO(&WriteSet);
+	FD_ZERO(&ErrSet);
+	MaxFD = 0;
 }
 
 SelectEngine::~SelectEngine()
@@ -69,7 +77,13 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 
 	ref[fd] = eh;
+
 	SocketEngine::SetEventMask(eh, event_mask);
+	OnSetEvent(eh, 0, event_mask);
+	FD_SET(fd, &ErrSet);
+	if (fd > MaxFD)
+		MaxFD = fd;
+
 	CurrentSetSize++;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
@@ -86,86 +100,87 @@ void SelectEngine::DelFd(EventHandler* eh)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
+	FD_CLR(fd, &ReadSet);
+	FD_CLR(fd, &WriteSet);
+	FD_CLR(fd, &ErrSet);
+	if (fd == MaxFD)
+		--MaxFD;
+
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
 }
 
 void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
-	// deal with it later
+	int fd = eh->GetFd();
+	int diff = old_mask ^ new_mask;
+
+	if (diff & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
+	{
+		if (new_mask & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
+			FD_SET(fd, &ReadSet);
+		else
+			FD_CLR(fd, &ReadSet);
+	}
+	if (diff & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
+	{
+		if (new_mask & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
+			FD_SET(fd, &WriteSet);
+		else
+			FD_CLR(fd, &WriteSet);
+	}
 }
 
 int SelectEngine::DispatchEvents()
 {
-	timeval tval;
-	int sresult = 0;
-	socklen_t codesize = sizeof(int);
-	int errcode = 0;
+	static timeval tval = { 1, 0 };
 
-	fd_set wfdset, rfdset, errfdset;
-	FD_ZERO(&wfdset);
-	FD_ZERO(&rfdset);
-	FD_ZERO(&errfdset);
+	fd_set rfdset = ReadSet, wfdset = WriteSet, errfdset = ErrSet;
 
-	/* Populate the select FD sets (this is why select sucks compared to epoll, kqueue) */
-	for (unsigned int i = 0; i < FD_SETSIZE; i++)
-	{
-		EventHandler* eh = ref[i];
-		if (!eh)
-			continue;
-		int state = eh->GetEventMask();
-		if (state & (FD_WANT_POLL_READ | FD_WANT_FAST_READ))
-			FD_SET (i, &rfdset);
-		if (state & (FD_WANT_POLL_WRITE | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE))
-			FD_SET (i, &wfdset);
-		FD_SET (i, &errfdset);
-	}
-
-	/* One second wait */
-	tval.tv_sec = 1;
-	tval.tv_usec = 0;
-
-	sresult = select(FD_SETSIZE, &rfdset, &wfdset, &errfdset, &tval);
+	int sresult = select(MaxFD + 1, &rfdset, &wfdset, &errfdset, &tval);
 	ServerInstance->UpdateTime();
 
 	/* Nothing to process this time around */
 	if (sresult < 1)
 		return 0;
 
-	for (int i = 0; i < FD_SETSIZE; i++)
+	for (int i = 0, j = sresult; i <= MaxFD && j > 0; i++)
 	{
-		EventHandler* ev = ref[i];
-		if (ev)
+		int has_read = FD_ISSET(i, &rfdset), has_write = FD_ISSET(i, &wfdset), has_error = FD_ISSET(i, &errfdset);
+
+		if (has_read || has_write || has_error)
 		{
-			if (FD_ISSET (i, &errfdset))
+			--j;
+
+			EventHandler* ev = ref[i];
+			if (!ev)
+				continue;
+
+			if (has_error)
 			{
 				ErrorEvents++;
+
+				socklen_t codesize = sizeof(int);
+				int errcode = 0;
 				if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
 					errcode = errno;
 
 				ev->HandleEvent(EVENT_ERROR, errcode);
 				continue;
 			}
-			else
+
+			if (has_read)
 			{
-				/* NOTE: This is a pair of seperate if statements as the socket
-				 * may be in both read and writeable state at the same time.
-				 * If an error event occurs above it is not worth processing the
-				 * read and write states even if set.
-				 */
-				if (FD_ISSET (i, &rfdset))
-				{
-					ReadEvents++;
-					SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
-					ev->HandleEvent(EVENT_READ);
-					if (ev != ref[i])
-						continue;
-				}
-				if (FD_ISSET (i, &wfdset))
-				{
-					WriteEvents++;
-					SetEventMask(ev, ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
-					ev->HandleEvent(EVENT_WRITE);
-				}
+				ReadEvents++;
+				SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
+				ev->HandleEvent(EVENT_READ);
+				if (ev != ref[i])
+					continue;
+			}
+			if (has_write)
+			{
+				WriteEvents++;
+				SetEventMask(ev, ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
+				ev->HandleEvent(EVENT_WRITE);
 			}
 		}
 	}
