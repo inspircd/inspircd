@@ -136,7 +136,7 @@ Section "Binary Executable" SEC01
   CreateShortCut "$SMPROGRAMS\InspIRCd\InspIRCd.lnk" "$INSTDIR\inspircd.exe"
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
-  File "..\bin\${BUILD}\bin\inspircd.exe"
+  File "..\bin\${BUILD}\inspircd.exe"
   DetailPrint "Installing InspIRCd service..."
   nsExec::Exec /TIMEOUT=30000 '"$INSTDIR\inspircd.exe" --installservice'
 SectionEnd
@@ -154,34 +154,6 @@ SectionEnd
 Section "Modules" SEC04
   SetOutPath "$INSTDIR\modules"
   File "..\bin\${BUILD}\modules\m_*.so"
-SectionEnd
-
-Section  "SSL Modules" SEC05
-  SetOutPath "$INSTDIR"
-  SetOverwrite ifnewer
-  File "..\bin\${BUILD}\bin\libgcrypt-11.dll"
-  File "..\bin\${BUILD}\bin\libgnutls-13.dll"
-  File "..\bin\${BUILD}\bin\libgnutls-extra-13.dll"
-  File "..\bin\${BUILD}\bin\libgnutls-openssl-13.dll"
-  File "..\bin\${BUILD}\bin\libgpg-error-0.dll"
-  File "..\bin\${BUILD}\bin\libopencdk-8.dll"
-  File "..\bin\${BUILD}\bin\libtasn1-3.dll"
-  SetOutPath "$INSTDIR\modules"
-  File "c:\temp\m_ssl_gnutls.so"
-  File "c:\temp\m_sslinfo.so"
-  File "c:\temp\m_ssl_oper_cert.so"
-  SetOutPath "$INSTDIR\conf"
-  SetOverwrite off
-  File "key.pem"
-  File "cert.pem"
-SectionEnd
-
-Section  "Regexp Modules" SEC06
-  SetOutPath "$INSTDIR"
-  SetOverwrite ifnewer
-  File "..\bin\${BUILD}\bin\pcre.dll"
-  SetOutPath "$INSTDIR\modules"
-  File "c:\temp\m_filter_pcre.so"
 SectionEnd
 
 Section -AdditionalIcons
@@ -209,8 +181,6 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Command modules"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Default configuration files"
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} "Optional non-SSL modules"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} "SSL modules and GnuTLS DLL libraries"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} "Regular expression module and PCRE DLL library"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
@@ -237,7 +207,6 @@ Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\modules\*.so"
   Delete "$INSTDIR\conf\*.example"
-  Delete "$INSTDIR\*.dll"
   Delete "$INSTDIR\*.log"
   Delete "$INSTDIR\logs\*"
   Delete "$INSTDIR\data\*"

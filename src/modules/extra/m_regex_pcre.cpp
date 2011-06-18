@@ -21,7 +21,7 @@
 /* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */
 
 #ifdef WINDOWS
-#pragma comment(lib, "pcre.lib")
+# pragma comment(lib, "libpcre.lib")
 #endif
 
 class PCREException : public ModuleException

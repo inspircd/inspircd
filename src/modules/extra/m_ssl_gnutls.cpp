@@ -18,10 +18,6 @@
 #include "ssl.h"
 #include "m_cap.h"
 
-#ifdef WINDOWS
-#pragma comment(lib, "libgnutls-13.lib")
-#endif
-
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") */
@@ -50,7 +46,7 @@ static ssize_t gnutls_pull_wrapper(gnutls_transport_ptr_t user_wrap, void* buffe
 		errno = EAGAIN;
 		return -1;
 	}
-	int rv = recv(user->GetFd(), buffer, size, 0);
+	int rv = recv(user->GetFd(), reinterpret_cast<char *>(buffer), size, 0);
 	if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_READ_WILL_BLOCK);
 	return rv;
@@ -64,7 +60,7 @@ static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void*
 		errno = EAGAIN;
 		return -1;
 	}
-	int rv = send(user->GetFd(), buffer, size, 0);
+	int rv = send(user->GetFd(), reinterpret_cast<const char *>(buffer), size, 0);
 	if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_WRITE_WILL_BLOCK);
 	return rv;

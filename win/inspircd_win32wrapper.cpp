@@ -2,7 +2,7 @@
  *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
- *  InspIRCd: (C) 2002-2009 InspIRCd Development Team
+ *  InspIRCd: (C) 2002-2011 InspIRCd Development Team
  * See: http://wiki.inspircd.org/Credits
  *
  * This program is free but copyrighted software; see
@@ -718,27 +718,35 @@ int gettimeofday(timeval *tv, void *)
 	return 0;
 }
 
-/* World's largest hack to make m_spanningtree work */
+/* World's largest hack to make reference<> work */
 #include "../src/modules/m_spanningtree/link.h"
-static void unused_Function()
+#include "../src/modules/ssl.h"
+static void unused_function()
 {
 	reference<Link> unused_Link;
 	reference<Autoconnect> unused_Autoconnect;
+	reference<ssl_cert> unused_Cert;
 
 	if (unused_Link)
 		unused_Link->Port = -1;
 	if (unused_Autoconnect)
 		unused_Autoconnect->NextConnectTime = -1;
+	if (unused_Cert)
+		unused_Cert->dn = "";
 
 	Autoconnect *a = unused_Autoconnect;
 	Link *l = unused_Link;
+	ssl_cert *s = unused_Cert;
 
 	unused_Link = reference<Link>(unused_Link);
 	unused_Autoconnect = reference<Autoconnect>(unused_Autoconnect);
+	unused_Cert = reference<ssl_cert>(unused_Cert);
 
 	unused_Link = reference<Link>(l);
 	unused_Autoconnect = reference<Autoconnect>(a);
+	unused_Cert = reference<ssl_cert>(s);
 
 	delete unused_Link;
 	delete unused_Autoconnect;
+	delete unused_Cert;
 }
