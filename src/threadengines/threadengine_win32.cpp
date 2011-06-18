@@ -89,6 +89,7 @@ SocketThread::SocketThread()
 	socklen_t sz = sizeof(addr);
 	getsockname(listenFD, reinterpret_cast<struct sockaddr*>(&addr), &sz);
 	connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sz);
+	ServerInstance->SE->Blocking(listenFD);
 	int nfd = accept(listenFD, reinterpret_cast<struct sockaddr*>(&addr), &sz);
 	if (nfd < 0)
 		throw CoreException("Could not create ITC pipe");
