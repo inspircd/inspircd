@@ -206,7 +206,7 @@ class ModuleShun : public Module
 
 	virtual ModResult OnStats(char symbol, User* user, string_list& out)
 	{
-		if (symbol != 'S')
+		if (symbol != 'H')
 			return MOD_RES_PASSTHRU;
 
 		ServerInstance->XLines->InvokeStats("SHUN", 223, user, out);
