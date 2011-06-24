@@ -558,7 +558,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void VerifyCertificate(issl_session* session, StreamSocket* user)
 	{
-		if (!session->sess || !user || session->cert)
+		if (!session->sess || !user)
 			return;
 
 		X509* cert;
