@@ -41,7 +41,7 @@ bool TreeSocket::LocalPing(const std::string &prefix, parameterlist &params)
 			// this is a ping for us, send back PONG to the requesting server
 			params[1] = params[0];
 			params[0] = forwardto;
-			Utils->DoOneToOne(forwardto,"PONG",params,params[1]);
+			Utils->DoOneToOne(ServerInstance->Config->GetSID(),"PONG",params,params[1]);
 		}
 		else
 		{
