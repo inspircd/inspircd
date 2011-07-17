@@ -556,38 +556,42 @@ void ServerConfig::Read()
 
 void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 {
-	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
-	try
+	if (status.errors.str().empty())
 	{
-		ConfigTagList binds = GetTags("bind");
-		if (binds.first == binds.second)
-			status.errors << "Config error: you must define at least one <bind> block\n";
-		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
+		/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
+		try
 		{
-			std::string dummy;
-			if (GetTag(ChangedConfig[Index].tag)->readString(ChangedConfig[Index].value, dummy, true))
-				status.errors << "Your configuration contains a deprecated value: <"
-					<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
-					<< " (at " << GetTag(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
+			ConfigTagList binds = GetTags("bind");
+			if (binds.first == binds.second)
+				status.errors << "Config error: you must define at least one <bind> block\n";
+			for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
+			{
+				std::string dummy;
+				if (GetTag(ChangedConfig[Index].tag)->readString(ChangedConfig[Index].value, dummy, true))
+					status.errors << "Your configuration contains a deprecated value: <"
+						<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
+						<< " (at " << GetTag(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
+			}
+
+			Fill();
+
+			// Handle special items
+			CrossCheckOperClassType();
+			CrossCheckConnectBlocks(old);
 		}
-
-		Fill();
-
-		// Handle special items
-		CrossCheckOperClassType();
-		CrossCheckConnectBlocks(old);
+		catch (CoreException &ce)
+		{
+			status.errors << ce.GetReason() << "\n";
+		}
 	}
-	catch (CoreException &ce)
-	{
-		status.errors << ce.GetReason() << "\n";
-	}
-
-	// write once here, to try it out and make sure its ok
-	ServerInstance->WritePID(this->PID);
 
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
 	if (!status.errors.str().empty())
 		status.fatal = true;
+
+	// write once here, to try it out and make sure its ok
+	if (!status.fatal)
+		ServerInstance->WritePID(this->PID);
 
 	/*
 	 * These values can only be set on boot. Keep their old values. Do it before we send messages so we actually have a servername.
