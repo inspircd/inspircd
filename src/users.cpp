@@ -1597,7 +1597,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 
 			/* check if host matches.. */
-			if (c->GetHost().length() && !InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
+			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
 			    !InspIRCd::MatchCIDR(this->host, c->GetHost(), NULL))
 			{
 				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
