@@ -1621,19 +1621,16 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 
 			/* check if host matches.. */
-			if (!c->host.empty())
+			irc::spacesepstream HostList(c->host);
+			std::string h;
+			while (HostList.GetToken(h))
 			{
-				irc::spacesepstream HostList(c->host);
-				std::string h;
-				while (HostList.GetToken(h))
-				{
-					if (InspIRCd::MatchCIDR(this->GetIPString(), h, NULL))
-						goto host_found;
-					if (InspIRCd::Match(this->host, h, NULL))
-						goto host_found;
-				}
-				continue;
+				if (InspIRCd::MatchCIDR(this->GetIPString(), h, NULL))
+					goto host_found;
+				if (InspIRCd::Match(this->host, h, NULL))
+					goto host_found;
 			}
+			continue;
 host_found:
 
 			/*
