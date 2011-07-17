@@ -657,11 +657,12 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		errstr << ce.GetReason();
 	}
 
-	// write once here, to try it out and make sure its ok
-	ServerInstance->WritePID(this->PID);
-
 	// Check errors before dealing with failed binds, since continuing on failed bind is wanted in some circumstances.
 	valid = errstr.str().empty();
+
+	// write once here, to try it out and make sure its ok
+	if (valid)
+		ServerInstance->WritePID(this->PID);
 
 	if (old)
 	{
