@@ -249,7 +249,8 @@ class ModuleNationalChars : public Module
 		ConfigTag* tag = ServerInstance->Config->GetTag("nationalchars");
 		charset = tag->getString("file");
 		casemapping = tag->getString("casemapping", charset);
-		charset.insert(0, "../locales/");
+		if(charset[0] != '/')
+			charset.insert(0, "../locales/");
 		unsigned char * tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
 		loadtables(charset, tables, 8, 5);
 		forcequit = tag->getBool("forcequit");
