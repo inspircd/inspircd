@@ -255,7 +255,8 @@ class ModuleNationalChars : public Module
 		ConfigReader* conf = new ConfigReader(ServerInstance);
 		charset = conf->ReadValue("nationalchars", "file", 0);
 		casemapping = conf->ReadValue("nationalchars", "casemapping", charset, 0, false);
-		charset.insert(0, "../locales/");
+		if(charset[0] != '/')
+			charset.insert(0, "../locales/");
 		unsigned char * tables[8] = { m_additional, m_additionalMB, m_additionalUp, m_lower, m_upper, m_additionalUtf8, m_additionalUtf8range, m_additionalUtf8interval };
 		loadtables(charset, tables, 8, 5);
 		forcequit = conf->ReadFlag("nationalchars", "forcequit", 0);
