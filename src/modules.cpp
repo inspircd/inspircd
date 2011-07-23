@@ -423,8 +423,6 @@ bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, Us
 
 void ModuleManager::AddService(ServiceProvider& item)
 {
-	Module* owner = item.creator;
-
 	switch (item.service)
 	{
 		case SERVICE_COMMAND:
