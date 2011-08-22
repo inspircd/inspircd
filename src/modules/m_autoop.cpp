@@ -241,7 +241,7 @@ public:
 				if (colon == std::string::npos)
 					continue;
 				std::string mask = it->mask.substr(colon + 1);
-				if(mask.length() < 2 || mask[0] != 'R' || mask[1] != ':')
+				if(mask.length() < 2 || mask[0] != 'r' || mask[1] != ':')
 					continue;
 				if(!db->GetAccount(mask.substr(2), false))
 					ms.sequence.push_back(irc::modechange(mh.id, it->mask, false));
