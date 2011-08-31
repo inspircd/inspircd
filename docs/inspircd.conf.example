@@ -602,6 +602,8 @@
           # of the server a user is on when whoised by a non-oper. Most
           # networks will want to set this to something like "*.netname.net"
           # to conceal the actual server a user is on.
+          # Note that enabling this will cause users' idle times to only be
+          # shown when the format /WHOIS <nick> <nick> is used.
           hidewhois=""
 
           # hidebans: If this value is set to yes, when a user is banned ([gkz]lined)
