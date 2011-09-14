@@ -904,6 +904,8 @@
 #           setaccount="no"                                           #
 #           verbose="yes">                                            #
 #                                                                     #
+# <ldapwhitelist cidr="10.42.0.0/16">                                 #
+#                                                                     #
 # The baserdn indicates the base DN to search in for users. Usually   #
 # this is 'ou=People,dc=yourdomain,dc=yourtld'.                       #
 #                                                                     #
@@ -934,6 +936,10 @@
 #                                                                     #
 # If setaccount is yes, the account name in m_services_account is set #
 # to the LDAP username that was authenticated                         #
+#                                                                     #
+# ldapwhitelist indicates that clients connecting from an IP in the   *
+* provided CIDR do not need to authenticate against LDAP. It can be   *
+* repeated to whitelist multiple CIDRs.                               #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP oper configuration module: Adds the ability to authenticate    #
