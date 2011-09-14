@@ -960,6 +960,8 @@
 #           bindauth="mysecretpass"                                   #
 #           verbose="yes">                                            #
 #                                                                     #
+# <ldapwhitelist cidr="10.42.0.0/16">                                 #
+#                                                                     #
 # The baserdn indicates the base DN to search in for users. Usually   #
 # this is 'ou=People,dc=yourdomain,dc=yourtld'.                       #
 #                                                                     #
@@ -987,6 +989,14 @@
 # allow anonymous searching in which case these two values do not     #
 # need defining, otherwise they should be set similar to the examples #
 # above.                                                              #
+#                                                                     #
+# ldapwhitelist indicates that clients connecting from an IP in the   #
+# provided CIDR do not need to authenticate against LDAP. It can be   #
+# repeated to whitelist multiple CIDRs.                               #
+
+# ldapwhitelist indicates that clients connecting from the associated #
+# CIDR do  to authenticate against LDAP. It can be used multiple      #
+# times.                                                              #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP oper configuration module: Adds the ability to authenticate    #
