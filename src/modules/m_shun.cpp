@@ -202,6 +202,12 @@ class ModuleShun : public Module
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
+	void Prioritize()
+	{
+		Module* alias = ServerInstance->Modules->Find("m_alias.so");
+		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, &alias);
+	}
+
 	virtual ModResult OnStats(char symbol, User* user, string_list& out)
 	{
 		if (symbol != 'H')
