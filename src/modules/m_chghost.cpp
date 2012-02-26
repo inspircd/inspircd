@@ -33,6 +33,12 @@ class CommandChghost : public Command
 	{
 		const char* x = parameters[1].c_str();
 
+		if (parameters[1].length() > 63)
+		{
+			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+
 		for (; *x; x++)
 		{
 			if (!hostmap[(unsigned char)*x])
@@ -42,11 +48,6 @@ class CommandChghost : public Command
 			}
 		}
 
-		if ((parameters[1].c_str() - x) > 63)
-		{
-			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick.c_str());
-			return CMD_FAILURE;
-		}
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
 		if (!dest)
