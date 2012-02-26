@@ -77,6 +77,11 @@ class RemoveBase : public Command
 
 		hasnokicks = (ServerInstance->Modules->Find("m_nokicks.so") && channel->IsModeSet('Q'));
 
+		if((ServerInstance->ULine(target->server) || ServerInstance->ULine(target->nick.c_str()))){
+			user->WriteNumeric(482, "%s %s :Only a u-line may remove a u-line from a channel.", user->nick.c_str(), channame);
+			return CMD_FAILURE;
+		}
+
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
 		if ((!IS_LOCAL(user)) || (!supportnokicks || !hasnokicks))
 		{
