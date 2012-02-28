@@ -9,6 +9,6 @@ The first stable release of InspIRCd was in 2002.
 
 ### Links
 
-Website: http://www.inspircd.org
-GitHub: https://github.com/danieldg/inspircd
-Gitorious: http://www.gitorious.org/inspircd
+Website: http://www.inspircd.org  
+GitHub: https://github.com/danieldg/inspircd  
+Gitorious: http://www.gitorious.org/inspircd  
