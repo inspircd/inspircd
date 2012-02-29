@@ -63,10 +63,37 @@ class SSLMode : public ModeHandler
 	}
 };
 
+class SSLModeUser : public ModeHandler
+{
+	SSLModeUser(InspIRCd* Instance) : ModeHandler(Instance, 'z', 0, 0, false, MODETYPE_USER, false) { }
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('z'))
+			{
+				dest->SetMode('z', true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('z'))
+			{
+				dest->SetMode('x',false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleSSLModes : public Module
 {
 
 	SSLMode* sslm;
+	SSLModeUser* sslpm;
 
  public:
 	ModuleSSLModes(InspIRCd* Me)
@@ -75,10 +102,11 @@ class ModuleSSLModes : public Module
 
 
 		sslm = new SSLMode(ServerInstance);
-		if (!ServerInstance->Modes->AddMode(sslm))
+		sslpm = new SSLModeUser(ServerInstance);
+		if (!ServerInstance->Modes->AddMode(sslm) || !ServerInstance->Modes->AddMode(sslpm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserPreNotice, I_OnUserPreMessage };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 
@@ -106,6 +134,7 @@ class ModuleSSLModes : public Module
 	{
 		ServerInstance->Modes->DelMode(sslm);
 		delete sslm;
+		delete sslpm;
 	}
 
 	virtual Version GetVersion()
