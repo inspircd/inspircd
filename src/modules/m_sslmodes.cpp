@@ -148,7 +148,7 @@ class ModuleSSLModes : public Module
 			{
 				if (t->GetExt("ssl", dummy))
 				{
-					uset->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send privates messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send privates messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
 					return 1;
 				}
 			}
@@ -173,7 +173,7 @@ class ModuleSSLModes : public Module
 			{
 				if (t->GetExt("ssl", dummy))
 				{
-					uset->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send privates messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send privates messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
 					return 1;
 				}
 			}
