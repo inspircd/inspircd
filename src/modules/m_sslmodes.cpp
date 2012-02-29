@@ -81,7 +81,7 @@ public:
 		{
 			if (dest->IsModeSet('z'))
 			{
-				dest->SetMode('x',false);
+				dest->SetMode('z',false);
 				return MODEACTION_ALLOW;
 			}
 		}
