@@ -144,7 +144,7 @@ class ModuleSSLModes : public Module
 					return 1;
 				}
 			}
-			else if (user->IsModeSet('z') && !ServerInstance->Uline(t->server))
+			else if (user->IsModeSet('z') && !ServerInstance->ULine(t->server))
 			{
 				if (t->GetExt("ssl", dummy))
 				{
