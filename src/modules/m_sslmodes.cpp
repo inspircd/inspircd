@@ -69,21 +69,12 @@ public:
 	SSLModeUser(InspIRCd* Instance) : ModeHandler(Instance, 'z', 0, 0, false, MODETYPE_USER, false) { }
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
-		if (adding)
+		bool isSet = dest->IsModeSet('z');
+
+		if ((adding && !isSet) || (!adding && isSet))
 		{
-			if (!dest->IsModeSet('z'))
-			{
-				dest->SetMode('z', true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('z'))
-			{
-				dest->SetMode('z',false);
-				return MODEACTION_ALLOW;
-			}
+			dest->SetMode('z', adding);
+			return MODEACTION_ALLOW;
 		}
 
 		return MODEACTION_DENY;
