@@ -155,6 +155,31 @@ class ModuleSSLModes : public Module
 		}
 		return 0;
 	}
+	
+	virtual int OnUserNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type == TYPE_USER)
+		{
+			User* t = (User*)dest;
+			if (t->IsModeSet('z') && !ServerInstance->ULine(user->server))
+			{
+				if (!user->GetExt("ssl", dummy))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+z set)", user->nick.c_str(), t->nick.c_str());
+					return 1;
+				}
+			}
+			else if (user->IsModeSet('z') && !ServerInstance->ULine(t->server))
+			{
+				if (t->GetExt("ssl", dummy))
+				{
+					uset->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send privates messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
+					return 1;
+				}
+			}
+		}
+		return 0;
+	}
 
 	virtual ~ModuleSSLModes()
 	{
