@@ -845,16 +845,21 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 			res[o] = 0;
 		break;
 		case DNS_QUERY_AAAA:
+			if (rr.rdlength != sizeof(struct in6_addr))
+				return std::make_pair((unsigned char *) NULL, "rr.rdlength is larger than 16 bytes for an ipv6 entry -- malformed/hostile packet?");
+
 			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = 0;
 		break;
 		case DNS_QUERY_A:
+			if (rr.rdlength != sizeof(struct in_addr))
+				return std::make_pair((unsigned char *) NULL, "rr.rdlength is larger than 4 bytes for an ipv4 entry -- malformed/hostile packet?");
+
 			memcpy(res,&header.payload[i],rr.rdlength);
 			res[rr.rdlength] = 0;
 		break;
 		default:
-			memcpy(res,&header.payload[i],rr.rdlength);
-			res[rr.rdlength] = 0;
+			return std::make_pair((unsigned char *) NULL, "don't know how to handle undefined type (" + ConvToStr(rr.type) + ") -- rejecting");
 		break;
 	}
 	return std::make_pair(res,"No error");
