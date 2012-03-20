@@ -40,6 +40,8 @@ looks like this, walks like this or tastes like this.
 #include "configreader.h"
 #include "socket.h"
 
+#define DN_COMP_BITMASK	0xC000		/* highest 6 bits in a DN label header */
+
 /** Masks to mask off the responses we get from the DNSRequest methods
  */
 enum QueryInfo
@@ -151,7 +153,10 @@ class RequestTimeout : public Timer
 /* Allocate the processing buffer */
 DNSRequest::DNSRequest(InspIRCd* Instance, DNS* dns, int rid, const std::string &original) : dnsobj(dns), ServerInstance(Instance)
 {
-	res = new unsigned char[512];
+	/* hardening against overflow here:  make our work buffer twice the theoretical
+	 * maximum size so that hostile input doesn't screw us over.
+	 */
+	res = new unsigned char[sizeof(DNSHeader) * 2];
 	*res = 0;
 	orig = original;
 	RequestTimeout* RT = new RequestTimeout(Instance->Config->dns_timeout ? Instance->Config->dns_timeout : 5, Instance, this, rid);
@@ -775,9 +780,9 @@ DNSResult DNS::GetResult()
 /** A result is ready, process it */
 DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 {
-	unsigned i = 0;
+	unsigned i = 0, o;
 	int q = 0;
-	int curanswer, o;
+	int curanswer;
 	ResourceRecord rr;
  	unsigned short ptr;
 
@@ -802,7 +807,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	/* Subtract the length of the header from the length of the packet */
 	length -= 12;
 
-	while ((unsigned int)q < header.qdcount && i < length)
+	while ((unsigned int)q < header.qdcount && i < (unsigned) length)
 	{
 		if (header.payload[i] > 63)
 		{
@@ -823,7 +828,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	while ((unsigned)curanswer < header.ancount)
 	{
 		q = 0;
-		while (q == 0 && i < length)
+		while (q == 0 && i < (unsigned) length)
 		{
 			if (header.payload[i] > 63)
 			{
@@ -840,7 +845,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 				else i += header.payload[i] + 1; /* skip length and label */
 			}
 		}
-		if (length - i < 10)
+		if ((unsigned) length - i < 10)
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
 		/* XXX: We actually initialise 'rr' here including its ttl field */
@@ -875,17 +880,31 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 
 	switch (rr.type)
 	{
+		/*
+		 * CNAME and PTR are compressed.  We need to decompress them.
+		 */
 		case DNS_QUERY_CNAME:
-			/* CNAME and PTR have the same processing code */
 		case DNS_QUERY_PTR:
 			o = 0;
 			q = 0;
-			while (q == 0 && i < length && o + 256 < 1023)
+			while (q == 0 && i < (unsigned) length && o + 256 < 1023)
 			{
+				/* DN label found (byte over 63) */
 				if (header.payload[i] > 63)
 				{
 					memcpy(&ptr,&header.payload[i],2);
-					i = ntohs(ptr) - 0xC000 - 12;
+
+					i = ntohs(ptr);
+
+					/* check that highest two bits are set. if not, we've been had */
+					if (!(i & DN_COMP_BITMASK))
+						return std::make_pair((unsigned char *) NULL, "DN label decompression header is bogus");
+
+					/* mask away the two highest bits. */
+					i &= ~DN_COMP_BITMASK;
+
+					/* and decrease length by 12 bytes. */
+					i =- 12;
 				}
 				else
 				{
@@ -898,7 +917,11 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 						res[o] = 0;
 						if (o != 0)
 							res[o++] = '.';
-						memcpy(&res[o],&header.payload[i + 1],header.payload[i]);
+
+						if (o + header.payload[i] > sizeof(DNSHeader))
+							return std::make_pair((unsigned char *) NULL, "DN label decompression is impossible -- malformed/hostile packet?");
+
+						memcpy(&res[o], &header.payload[i + 1], header.payload[i]);
 						o += header.payload[i];
 						i += header.payload[i] + 1;
 					}
