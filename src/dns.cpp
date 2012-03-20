@@ -687,7 +687,7 @@ DNSResult DNS::GetResult()
 /** A result is ready, process it */
 DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 {
-	int i = 0;
+	unsigned i = 0;
 	int q = 0;
 	int curanswer, o;
 	ResourceRecord rr;
