@@ -100,7 +100,7 @@ class DNSRequest
 
 	DNSRequest(DNS* dns, int id, const std::string &original);
 	~DNSRequest();
-	DNSInfo ResultIsReady(DNSHeader &h, int length);
+	DNSInfo ResultIsReady(DNSHeader &h, unsigned length);
 	int SendRequests(const DNSHeader *header, const int length, QueryType qt);
 };
 
@@ -693,7 +693,7 @@ DNSResult DNS::GetResult()
 }
 
 /** A result is ready, process it */
-DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
+DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, unsigned length)
 {
 	unsigned i = 0, o;
 	int q = 0;
@@ -722,7 +722,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	/* Subtract the length of the header from the length of the packet */
 	length -= 12;
 
-	while ((unsigned int)q < header.qdcount && i < (unsigned) length)
+	while ((unsigned int)q < header.qdcount && i < length)
 	{
 		if (header.payload[i] > 63)
 		{
@@ -743,7 +743,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 	while ((unsigned)curanswer < header.ancount)
 	{
 		q = 0;
-		while (q == 0 && i < (unsigned) length)
+		while (q == 0 && i < length)
 		{
 			if (header.payload[i] > 63)
 			{
@@ -760,7 +760,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 				else i += header.payload[i] + 1; /* skip length and label */
 			}
 		}
-		if ((unsigned) length - i < 10)
+		if (length - i < 10)
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
 		/* XXX: We actually initialise 'rr' here including its ttl field */
@@ -802,7 +802,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, int length)
 		case DNS_QUERY_PTR:
 			o = 0;
 			q = 0;
-			while (q == 0 && i < (unsigned) length && o + 256 < 1023)
+			while (q == 0 && i < length && o + 256 < 1023)
 			{
 				/* DN label found (byte over 63) */
 				if (header.payload[i] > 63)
