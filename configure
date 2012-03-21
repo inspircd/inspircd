@@ -229,8 +229,12 @@ if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{IS_DARWIN} = "YES";
 	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
+	$config{CC} 		    = "clang++";					# C++ compiler for OSX.
 }
-$config{CC} 		    = "g++";						# C++ compiler
+else
+{
+	$config{CC} 		    = "g++";						# C++ compiler
+}
 if (defined $opt_cc)
 {
 	$config{CC} = $opt_cc;
@@ -248,7 +252,11 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
 }
 
 if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
-	print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";
+	if ($config{IS_DARWIN} eq "YES") {
+		print $config{CC} . " was not found! You require clang++ (the LLVN C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
+	} else {
+		print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";		
+	}
 	exit;
 }
 
