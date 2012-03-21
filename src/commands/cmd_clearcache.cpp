@@ -18,7 +18,7 @@
 #include "channels.h"
 #include "ctables.h"
 
-/** Handle /ADMIN. These command handlers can be reloaded by the core,
+/** Handle /CLEARCACHE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
  * may not.

@@ -253,7 +253,7 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
 
 if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
 	if ($config{IS_DARWIN} eq "YES") {
-		print $config{CC} . " was not found! You require clang++ (the LLVN C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
+		print $config{CC} . " was not found! You require clang++ (the LLVM C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
 	} else {
 		print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";		
 	}
