@@ -720,7 +720,6 @@ class ModuleSSLGnuTLS : public Module
 	GnuTLSProvider iohook;
 	CommandStartTLS starttls;
 
-	int once_in_a_while;
 	std::string sslports;
 
 	reference<DH_info> dh;
@@ -728,7 +727,7 @@ class ModuleSSLGnuTLS : public Module
  public:
 
 	ModuleSSLGnuTLS()
-		: capHandler(this, "tls"), iohook(this), starttls(this, iohook), once_in_a_while(0)
+		: capHandler(this, "tls"), iohook(this), starttls(this, iohook)
 	{
 		gnutls_global_init(); // This must be called once in the program
 	}
@@ -739,7 +738,7 @@ class ModuleSSLGnuTLS : public Module
 
 		ServerInstance->GenRandom = &randhandler;
 
-		Implementation eventlist[] = { I_On005Numeric, I_OnModuleRehash, I_OnUserConnect, I_OnEvent, I_OnGarbageCollect };
+		Implementation eventlist[] = { I_On005Numeric, I_OnModuleRehash, I_OnUserConnect, I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->Modules->AddService(iohook);
@@ -821,25 +820,6 @@ class ModuleSSLGnuTLS : public Module
 			iohook.creds[name] = new x509_cred(tag, ca_list, crl_list, dh);
 
 			tags.first++;
-		}
-	}
-
-	void OnGarbageCollect()
-	{
- 		// Generate Diffie Hellman parameters - for use with DHE
-		// kx algorithms. These should be discarded and regenerated
-		// once a day, once a week or once a month. Depending on the
-		// security requirements.
-		if (once_in_a_while++ & 0xFF)
-			return;
-
-		dh = new DH_info(dh->bits);
-		reference<x509_cred> cred = iohook.def_creds;
-		iohook.def_creds = new x509_cred(cred, dh);
-		for(std::map<std::string, reference<x509_cred> >::iterator i = iohook.creds.begin(); i != iohook.creds.end(); i++)
-		{
-			cred = i->second;
-			i->second = new x509_cred(cred, dh);
 		}
 	}
 
