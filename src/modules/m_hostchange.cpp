@@ -74,7 +74,7 @@ class ModuleHostChange : public Module
 		for (int index = 0; index < Conf.Enumerate("hostchange"); index++)
 		{
 			std::string mask = Conf.ReadValue("hostchange", "mask", index);
-			std::string ports = Conf.ReadValue("hosthange", "ports", index);
+			std::string ports = Conf.ReadValue("hostchange", "ports", index);
 			std::string action = Conf.ReadValue("hostchange", "action", index);
 			std::string newhost = Conf.ReadValue("hostchange", "value", index);
 			Host* x = new Host;
