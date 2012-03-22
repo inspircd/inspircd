@@ -321,7 +321,7 @@ if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{IS_DARWIN} = "YES";
 	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
-	$config{CC} 		    = "clang++";					# C++ compiler for OSX.
+	$config{CC} 		    = "xcrun clang++";					# C++ compiler for OSX.
 }
 else
 {
