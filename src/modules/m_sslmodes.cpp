@@ -71,10 +71,21 @@ public:
 	{
 		bool isSet = dest->IsModeSet('z');
 
-		if ((adding && !isSet) || (!adding && isSet))
+		if (adding)
 		{
-			dest->SetMode('z', adding);
-			return MODEACTION_ALLOW;
+			if (isSet)
+			{
+				dest->SetMode('z', true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (!isSet)
+			{
+				dest->SetMode('z', false);
+				return MODEACTION_ALLOW;
+			}
 		}
 
 		return MODEACTION_DENY;
