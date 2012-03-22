@@ -269,6 +269,7 @@ class ModuleIdent : public Module
 			I_OnUserDisconnect, I_OnSetConnectClass
 		};
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modules->AddService(ext);
 	}
 
 	~ModuleIdent()
