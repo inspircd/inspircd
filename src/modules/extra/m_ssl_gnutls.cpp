@@ -76,37 +76,6 @@ public:
 	std::string outbuf;
 };
 
-class CommandStartTLS : public Command
-{
-	Module* Caller;
- public:
-	CommandStartTLS (InspIRCd* Instance, Module* mod) : Command(Instance,"STARTTLS", 0, 0, true), Caller(mod)
-	{
-		this->source = "m_ssl_gnutls.so";
-	}
-
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
-	{
-		if (user->registered == REG_ALL)
-		{
-			user->WriteNumeric(691, "%s :STARTTLS is not permitted after client registration is complete", user->nick.c_str());
-		}
-		else
-		{
-			if (!user->GetIOHook())
-			{
-				user->WriteNumeric(670, "%s :STARTTLS successful, go ahead with TLS handshake", user->nick.c_str());
-				user->AddIOHook(Caller);
-				Caller->OnRawSocketAccept(user->GetFd(), user->GetIPString(), user->GetPort());
-			}
-			else
-				user->WriteNumeric(691, "%s :STARTTLS failure", user->nick.c_str());
-		}
-
-		return CMD_FAILURE;
-	}
-};
-
 class ModuleSSLGnuTLS : public Module
 {
 	std::vector<std::string> listenports;
@@ -125,8 +94,6 @@ class ModuleSSLGnuTLS : public Module
 
 	int clientactive;
 	bool cred_alloc;
-
-	CommandStartTLS* starttls;
 
  public:
 
@@ -151,9 +118,6 @@ class ModuleSSLGnuTLS : public Module
 			I_OnBufferFlushed, I_OnRequest, I_OnUnloadModule, I_OnRehash, I_OnModuleRehash,
 			I_OnPostConnect, I_OnEvent, I_OnHookUserIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
-		starttls = new CommandStartTLS(ServerInstance, this);
-		ServerInstance->AddCommand(starttls);
 	}
 
 	virtual void OnRehash(User* user)
@@ -391,7 +355,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if (!sslports.empty())
 			output.append(" SSL=" + sslports);
-		output.append(" STARTTLS");
 	}
 
 	virtual void OnHookUserIO(User* user, const std::string &targetip)
