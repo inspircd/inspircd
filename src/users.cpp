@@ -734,13 +734,15 @@ void LocalUser::CheckClass()
 	else if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
+		if (a->maxconnwarn)
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
 		return;
 	}
 	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
+		if (a->maxconnwarn)
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
 		return;
 	}
 
@@ -827,8 +829,8 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
-	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d: %s!%s@%s [%s] [%s]",
-		this->GetServerPort(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), this->GetIPString(), this->fullname.c_str());
+	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s!%s@%s [%s] [%s]",
+		this->GetServerPort(), this->MyClass->name.c_str(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), this->GetIPString(), this->fullname.c_str());
 	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
@@ -1693,7 +1695,7 @@ const std::string& FakeUser::GetFullRealHost()
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
 	pingtime(0), softsendqmax(0), hardsendqmax(0), recvqmax(0),
-	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxchans(0), limit(0)
+	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxconnwarn(true), maxchans(0), limit(0)
 {
 }
 
@@ -1702,7 +1704,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime),
 	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
 	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
-	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxchans(parent.maxchans),
+	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxconnwarn(parent.maxconnwarn), maxchans(parent.maxchans),
 	limit(parent.limit)
 {
 }
@@ -1723,6 +1725,7 @@ void ConnectClass::Update(const ConnectClass* src)
 	commandrate = src->commandrate;
 	maxlocal = src->maxlocal;
 	maxglobal = src->maxglobal;
+	maxconnwarn = src->maxconnwarn;
 	maxchans = src->maxchans;
 	limit = src->limit;
 }

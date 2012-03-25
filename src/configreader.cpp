@@ -375,6 +375,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxlocal = tag->getInt("localmax", me->maxlocal);
 			me->maxglobal = tag->getInt("globalmax", me->maxglobal);
 			me->maxchans = tag->getInt("maxchans", me->maxchans);
+			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getInt("limit", me->limit);
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
