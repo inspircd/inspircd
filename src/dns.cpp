@@ -760,7 +760,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, unsigned length)
 				else i += header.payload[i] + 1; /* skip length and label */
 			}
 		}
-		if (length - i < 10)
+		if (static_cast<int>(length - i) < 10)
 			return std::make_pair((unsigned char*)NULL,"Incorrectly sized DNS reply");
 
 		/* XXX: We actually initialise 'rr' here including its ttl field */
