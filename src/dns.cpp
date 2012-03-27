@@ -695,7 +695,7 @@ DNSResult DNS::GetResult()
 /** A result is ready, process it */
 DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, unsigned length)
 {
-	unsigned i = 0, o;
+	unsigned i = 0, o, record_base_index, record_ceil_index;
 	int q = 0;
 	int curanswer;
 	ResourceRecord rr;
@@ -800,6 +800,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, unsigned length)
 		 */
 		case DNS_QUERY_CNAME:
 		case DNS_QUERY_PTR:
+			record_base_index = i;
+			record_ceil_index = i+rr.rdlength;
 			o = 0;
 			q = 0;
 			while (q == 0 && i < length && o + 256 < 1023)
@@ -812,14 +814,20 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, unsigned length)
 					i = ntohs(ptr);
 
 					/* check that highest two bits are set. if not, we've been had */
-					if (!(i & DN_COMP_BITMASK))
+					if ( (i & DN_COMP_BITMASK) != DN_COMP_BITMASK )
 						return std::make_pair((unsigned char *) NULL, "DN label decompression header is bogus");
 
 					/* mask away the two highest bits. */
 					i &= ~DN_COMP_BITMASK;
 
 					/* and decrease length by 12 bytes. */
-					i =- 12;
+					i -= 12;
+
+					/* prevent circular dependencies */
+					if ( (i >= record_base_index) || (i <= record_ceil_index) )
+						 return std::make_pair((unsigned char *) NULL, "DN label decompression header is bogus");
+					record_ceil_index = record_base_index;
+					record_base_index = i;
 				}
 				else
 				{
@@ -833,7 +841,8 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, unsigned length)
 						if (o != 0)
 							res[o++] = '.';
 
-						if (o + header.payload[i] > sizeof(DNSHeader))
+						if ( (o + header.payload[i] > sizeof(DNSHeader)) ||
+						     (i + header.payload[i] > record_ceil_index) )
 							return std::make_pair((unsigned char *) NULL, "DN label decompression is impossible -- malformed/hostile packet?");
 
 						memcpy(&res[o], &header.payload[i + 1], header.payload[i]);
