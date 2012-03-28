@@ -14,7 +14,7 @@
 #include "inspircd.h"
 #include "ssl.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +z */
+/* $ModDesc: Provides support for secure-only channels, queries and notices. */
 
 /** Handle channel mode +z
  */
@@ -64,18 +64,51 @@ class SSLMode : public ModeHandler
 	}
 };
 
+/** Handles umode z
+*/
+class SSLModeUser : public ModeHandler
+{
+	public:
+		dynamic_reference<UserCertificateProvider> sslinfo;
+		SSLModeUser(Module* Creator) : ModeHandler(Creator, "ssl_umode", 'z', PARAM_NONE, MODETYPE_USER), sslinfo("sslinfo") { fixed_letter = false; }
+
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet('z') && sslinfo->GetCert(dest))
+			{
+				dest->SetMode('z', true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet('z'))
+			{
+				dest->SetMode('z', false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleSSLModes : public Module
 {
 
 	SSLMode sslm;
+	SSLModeUser sslpm;
 
  public:
-	ModuleSSLModes() : sslm(this) {}
+	ModuleSSLModes() : sslm(this), sslpm(this) {}
 
 	void init()
 	{
 		ServerInstance->Modules->AddService(sslm);
-		Implementation eventlist[] = { I_OnCheckJoin, I_OnCheckBan, I_On005Numeric };
+		ServerInstance->Modules->AddService(sslpm);
+		Implementation eventlist[] = { I_OnCheckJoin, I_OnCheckBan, I_On005Numeric, I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -100,6 +133,38 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type == TYPE_USER)
+		{
+			User* t = (User*)dest;
+			// If recieving is +z and sending is not ulined
+			if (t->IsModeSet('z') && !ServerInstance->ULine(user->server))
+			{
+				if (!sslpm.sslinfo || !sslpm.sslinfo->GetCert(user))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+z set)", user->nick.c_str(), t->nick.c_str());
+					return MOD_RES_DENY;
+				}
+			}
+			// If sending is +z and recieving is not ulined
+			else if (user->IsModeSet('z') && !ServerInstance->ULine(t->server))
+			{
+				if (!sslpm.sslinfo || !sslpm.sslinfo->GetCert(t))
+				{
+					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send private messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
+					return MOD_RES_DENY;
+				}
+			}
+		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
+	}
+
 	~ModuleSSLModes()
 	{
 	}
@@ -111,7 +176,7 @@ class ModuleSSLModes : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +z", VF_VENDOR);
+		return Version("Provides support for secure-only channels, queries and notices.", VF_VENDOR);
 	}
 };
 
