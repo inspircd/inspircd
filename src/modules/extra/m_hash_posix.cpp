@@ -12,7 +12,7 @@
  */
 
 /* $ModDesc: Allows for POSIX hashing of passwords */
-/* $LinkerFlags: -lcrypt */
+/* $LinkerFlags: if(!"IS_DARWIN") -lcrypt */
 
 #include "inspircd.h"
 #include "hash.h"
