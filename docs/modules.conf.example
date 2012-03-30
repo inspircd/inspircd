@@ -254,10 +254,11 @@
 #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel create module: Adds snomask +j, which will notify opers of
-# any new channels that are created.
+# Channel create module: Adds snomask +j and +p, which will notify opers of
+# any new channels that are created, as well as when users join and
+# part channels
 # This module is oper-only.
-#<module name="m_chancreate.so">
+#<module name="m_joinpartsno.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel filter module: Allows channel-op defined message
