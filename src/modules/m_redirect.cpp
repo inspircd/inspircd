@@ -107,17 +107,17 @@ class RedirectUMode : public ModeHandler
 class ModuleRedirect : public Module
 {
 
-	Redirect re;
-	RedirectUMode re_u;
+	Redirect redirect_chmode;
+	RedirectUMode redirect_umode;
 
  public:
 
-	ModuleRedirect() : re(this), re_u(this) {}
+	ModuleRedirect() : redirect_chmode(this), redirect_umode(this) {}
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(re);
-		ServerInstance->Modules->AddService(re_u);
+		ServerInstance->Modules->AddService(redirect_chmode);
+		ServerInstance->Modules->AddService(redirect_umode);
 		Implementation eventlist[] = { I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
@@ -130,12 +130,12 @@ class ModuleRedirect : public Module
 		// already in a redirect, don't double-redirect
 		if (ServerInstance->RedirectJoin.get(perm.source))
 			return;
-		// not +L
-		if (!perm.chan->IsModeSet(&re))
+		// not +L (channel)
+		if (!perm.chan->IsModeSet(&redirect_chmode))
 			return;
 
 		// ok, now actually do the redirect
-		std::string channel = perm.chan->GetModeParameter(&re);
+		std::string channel = perm.chan->GetModeParameter(&redirect_chmode);
 
 		// If umode L is set they don't want auto-redirection.
 		if (perm.source->IsModeSet('L'))
