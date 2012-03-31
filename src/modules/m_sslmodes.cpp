@@ -70,7 +70,7 @@ class SSLModeUser : public ModeHandler
 {
 	public:
 		dynamic_reference<UserCertificateProvider> sslinfo;
-		SSLModeUser(Module* Creator) : ModeHandler(Creator, "ssl_umode", 'z', PARAM_NONE, MODETYPE_USER), sslinfo("sslinfo") { fixed_letter = false; }
+		SSLModeUser(Module* Creator) : ModeHandler(Creator, "secure_queries", 'z', PARAM_NONE, MODETYPE_USER), sslinfo("sslinfo") { fixed_letter = false; }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
@@ -147,9 +147,9 @@ class ModuleSSLModes : public Module
 					return MOD_RES_DENY;
 				}
 			}
-			// If sending is +z and recieving is not ulined
 			else if (user->IsModeSet('z') && !ServerInstance->ULine(t->server))
 			{
+				// If sending is +z and recieving is not ulined
 				if (!sslpm.sslinfo || !sslpm.sslinfo->GetCert(t))
 				{
 					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send private messages to a non-ssl user.", user->nick.c_str(), t->nick.c_str());
