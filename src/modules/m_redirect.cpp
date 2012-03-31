@@ -76,10 +76,10 @@ class Redirect : public ModeHandler
 	}
 };
 
-class RedirectUMode : public ModeHandler
+class AntiRedirect : public ModeHandler
 {
 	public:
-		RedirectUMode(Module* Creator) : ModeHandler(Creator, "redirect_u", 'L', PARAM_NONE, MODETYPE_USER) {}
+		AntiRedirect(Module* Creator) : ModeHandler(Creator, "antiredirect", 'L', PARAM_NONE, MODETYPE_USER) {}
 
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &paramater, bool adding)
 		{
@@ -108,7 +108,7 @@ class ModuleRedirect : public Module
 {
 
 	Redirect redirect_chmode;
-	RedirectUMode redirect_umode;
+	AntiRedirect redirect_umode;
 
  public:
 
