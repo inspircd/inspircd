@@ -799,7 +799,7 @@ Closes all unregistered connections to the local server.">
               (IRCop only, requires invisible module).
  R            Blocks private messages from unregistered users
               (requires services account module).
- S            Strips mIRC colour/bold/underline codes out of private
+ S            Strips mIRC color/bold/underline codes out of private
               messages to the user (requires stripcolor module).
  W            Receives notification when a user uses WHOIS on them
               (IRCop only, requires showwhois module).">
@@ -826,7 +826,7 @@ Closes all unregistered connections to the local server.">
                     users to join while the channel is invite-only
                     (requires inviteexception module).
 
- c                  Blocks messages containing mIRC colour codes
+ c                  Blocks messages containing mIRC color codes
                     (requires blockcolor module).
  d [time]           Blocks messages to a channel from new users
                     until they have been in the channel for [time]
@@ -899,7 +899,7 @@ Closes all unregistered connections to the local server.">
                     (requires nokicks module)
  R                  Blocks unregistered users from joining (requires
                     services account module).
- S                  Strips mIRC colour codes from messages to the
+ S                  Strips mIRC color codes from messages to the
                     channel (requirs stripcolor module).
  T                  Blocks /NOTICEs to the channel from users who are
                     not at least halfop (requires nonotice module).
@@ -1024,7 +1024,7 @@ Matching extbans:
 
 Acting extbans:
 
- c:<ban>       Blocks any messages that contain colour codes from
+ c:<ban>       Blocks any messages that contain color codes from
                matching users (requires blockcolor module).
  m:<ban>       Blocks messages from matching users (requires muteban
                module). Users with +v or above are not affected.
