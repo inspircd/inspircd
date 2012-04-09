@@ -121,6 +121,10 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned long maxglobal;
 
+	/** True if max connections for this class is hit and a warning is wanted
+	 */
+	bool maxconnwarn;
+
 	/** Max channels for this class
 	 */
 	unsigned int maxchans;
