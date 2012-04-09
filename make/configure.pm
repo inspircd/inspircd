@@ -22,7 +22,7 @@ use POSIX;
 use make::utilities;
 our @EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s);
 
-my $no_svn = 0;
+my $no_git = 0;
 
 sub yesno {
 	my ($flag,$prompt) = @_;
@@ -52,29 +52,18 @@ sub resolve_directory
 }
 
 sub getrevision {
-	if ($no_svn)
+	if ($no_git)
 	{
 		return "0";
 	}
-	my $data = `svn info 2>/dev/null`;
+	my $data = `git describe --tags 2>/dev/null`;
 	if ($data eq "")
 	{
-		$data = `git describe --tags 2>/dev/null`;
-		if ($data eq "")
-		{
-			$no_svn = 1;
-			return '0';
-		}
-		chomp $data; # remove \n
-		return $data;
+		$no_git = 1;
+		return '0';
 	}
-	$data =~ /Revision: (\d+)/;
-	my $rev = $1;
-	if (!defined($rev))
-	{
-		$rev = "0";
-	}
-	return $rev;
+	chomp $data; # remove \n
+	return $data;
 }
 
 sub getcompilerflags {
@@ -262,9 +251,6 @@ InspIRCd 1.0.x, are also allowed.
                                YOU KNOW WHAT YOU ARE DOING!
   --update                     Update makefiles and dependencies
   --modupdate                  Detect new modules and write makefiles
-  --svnupdate {--rebuild}      Update working copy via subversion
-                                {and optionally rebuild if --rebuild
-                                 is also specified}
   --clean                      Remove .config.cache file and go interactive
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
