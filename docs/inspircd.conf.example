@@ -268,6 +268,9 @@
          # globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
          globalmax="3"
 
+         # maxconnwarn: Enable warnings when localmax or globalmax is hit (defaults to on)
+         maxconnwarn="off"
+
          # useident: Defines if users in this class MUST respond to a ident query or not.
          useident="no"
 
