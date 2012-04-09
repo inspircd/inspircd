@@ -23,13 +23,13 @@ class BlockColor : public SimpleChannelModeHandler
 	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcolor", 'c') { }
 };
 
-class ModuleBlockColour : public Module
+class ModuleBlockColor : public Module
 {
 	bool AllowChanOps;
 	BlockColor bc;
  public:
 
-	ModuleBlockColour() : bc(this)
+	ModuleBlockColor() : bc(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&bc))
 			throw ModuleException("Could not add new modes!");
@@ -64,7 +64,7 @@ class ModuleBlockColour : public Module
 						case 21:
 						case 22:
 						case 31:
-							user->WriteNumeric(404, "%s %s :Can't send colours to channel (+c set)",user->nick.c_str(), c->name.c_str());
+							user->WriteNumeric(404, "%s %s :Can't send colors to channel (+c set)",user->nick.c_str(), c->name.c_str());
 							return MOD_RES_DENY;
 						break;
 					}
@@ -79,7 +79,7 @@ class ModuleBlockColour : public Module
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual ~ModuleBlockColour()
+	virtual ~ModuleBlockColor()
 	{
 	}
 
@@ -89,4 +89,4 @@ class ModuleBlockColour : public Module
 	}
 };
 
-MODULE_INIT(ModuleBlockColour)
+MODULE_INIT(ModuleBlockColor)

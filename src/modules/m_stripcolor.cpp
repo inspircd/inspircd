@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel +S mode (strip ansi colour) */
+/* $ModDesc: Provides channel +S mode (strip ansi color) */
 
 /** Handles channel mode +S
  */
@@ -137,7 +137,7 @@ class ModuleStripColor : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides channel +S mode (strip ansi colour)", VF_VENDOR);
+		return Version("Provides channel +S mode (strip ansi color)", VF_VENDOR);
 	}
 
 };
