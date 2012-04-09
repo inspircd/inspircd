@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +L (limit redirection) */
+/* $ModDesc: Provides channel mode +L (limit redirection) and usermode +L (no forced redirection) */
 
 /** Handle channel mode +L
  */
@@ -76,18 +76,48 @@ class Redirect : public ModeHandler
 	}
 };
 
+class AntiRedirect : public ModeHandler
+{
+	public:
+		AntiRedirect(Module* Creator) : ModeHandler(Creator, "antiredirect", 'L', PARAM_NONE, MODETYPE_USER) {}
+
+		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &paramater, bool adding)
+		{
+			if (adding)
+			{
+				if (!dest->IsModeSet('L'))
+				{
+					dest->SetMode('L', true);
+					return MODEACTION_ALLOW;
+				}
+			}
+			else
+			{
+				if (dest->IsModeSet('L'))
+				{
+					dest->SetMode('L', false);
+					return MODEACTION_ALLOW;
+				}
+			}
+
+			return MODEACTION_DENY;
+		}
+};
+
 class ModuleRedirect : public Module
 {
 
-	Redirect re;
+	Redirect redirect_chmode;
+	AntiRedirect redirect_umode;
 
  public:
 
-	ModuleRedirect() : re(this) {}
+	ModuleRedirect() : redirect_chmode(this), redirect_umode(this) {}
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(re);
+		ServerInstance->Modules->AddService(redirect_chmode);
+		ServerInstance->Modules->AddService(redirect_umode);
 		Implementation eventlist[] = { I_OnPermissionCheck };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
@@ -100,18 +130,27 @@ class ModuleRedirect : public Module
 		// already in a redirect, don't double-redirect
 		if (ServerInstance->RedirectJoin.get(perm.source))
 			return;
-		// not +L
-		if (!perm.chan->IsModeSet(&re))
+		// not +L (channel)
+		if (!perm.chan->IsModeSet(&redirect_chmode))
 			return;
 
 		// ok, now actually do the redirect
-		std::string channel = perm.chan->GetModeParameter(&re);
+		std::string channel = perm.chan->GetModeParameter(&redirect_chmode);
 
-		perm.ErrorNumeric(470, "%s %s :You have been transferred by a channel redirection from %s to %s.",
-			perm.chan->name.c_str(), channel.c_str(), perm.chan->name.c_str(), channel.c_str());
-		ServerInstance->RedirectJoin.set(perm.source, 1);
-		Channel::JoinUser(perm.source, channel.c_str(), false, "", false, ServerInstance->Time());
-		ServerInstance->RedirectJoin.set(perm.source, 0);
+		// If umode L is set they don't want auto-redirection.
+		if (perm.source->IsModeSet('L'))
+		{
+			perm.ErrorNumeric(470, "%s %s :Trying to redirect you from %s to %s, stopped because of +L",
+				perm.chan->name.c_str(), channel.c_str(), perm.chan->name.c_str(), channel.c_str());
+		}
+		else
+		{
+			perm.ErrorNumeric(470, "%s %s :You have been transferred by a channel redirection from %s to %s.",
+				perm.chan->name.c_str(), channel.c_str(), perm.chan->name.c_str(), channel.c_str());
+			ServerInstance->RedirectJoin.set(perm.source, 1);
+			Channel::JoinUser(perm.source, channel.c_str(), false, "", false, ServerInstance->Time());
+			ServerInstance->RedirectJoin.set(perm.source, 0);
+		}
 	}
 
 	virtual ~ModuleRedirect()
@@ -125,7 +164,7 @@ class ModuleRedirect : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides channel mode +L (channel redirection)", VF_VENDOR);
+		return Version("Provides channel mode +L (channel redirection) and user mode +L (no forced redirection)", VF_VENDOR);
 	}
 };
 
