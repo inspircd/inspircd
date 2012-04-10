@@ -15,6 +15,10 @@
 #include <sqlite3.h>
 #include "sql.h"
 
+#ifdef WINDOWS
+# pragma comment(lib, "sqlite3.lib")
+#endif
+
 /* $ModDesc: sqlite3 provider */
 /* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") */
 /* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
