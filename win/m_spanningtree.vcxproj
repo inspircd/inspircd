@@ -279,7 +279,7 @@
     <ClInclude Include="..\src\modules\m_spanningtree\utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="inspircdVC90.vcxproj">
+    <ProjectReference Include="inspircd.vcxproj">
       <Project>{fe82a6fc-41c7-4cb1-aa46-6dbcb6c682c8}</Project>
     </ProjectReference>
   </ItemGroup>
