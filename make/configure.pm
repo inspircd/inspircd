@@ -258,17 +258,10 @@ InspIRCd 1.0.x, are also allowed.
 
   --disable-interactive        Sets no options itself, but
                                will disable any interactive prompting.
-  --disable-rpath              Disable runtime paths. DO NOT USE UNLESS
-                               YOU KNOW WHAT YOU ARE DOING!
   --update                     Update makefiles and dependencies
-  --modupdate                  Detect new modules and write makefiles
-  --svnupdate {--rebuild}      Update working copy via subversion
-                                {and optionally rebuild if --rebuild
-                                 is also specified}
   --clean                      Remove .config.cache file and go interactive
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
-  --enable-optimization=[n]    Optimize using -O[n] gcc flag
   --enable-epoll               Enable epoll() where supported [set]
   --enable-kqueue              Enable kqueue() where supported [set]
   --disable-epoll              Do not enable epoll(), fall back
@@ -283,7 +276,7 @@ InspIRCd 1.0.x, are also allowed.
                                AS IT *WILL* BREAK CLIENTS!!!
   --prefix=[directory]         Base directory to install into (if defined,
                                can automatically define config, module, bin
-			       and library dirs as subdirectories of prefix)
+                               and library dirs as subdirectories of prefix)
                                [$PWD]
   --config-dir=[directory]     Config file directory for config and SSL certs
                                [$PWD/conf]
