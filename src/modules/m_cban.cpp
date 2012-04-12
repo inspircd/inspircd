@@ -175,6 +175,7 @@ class ModuleCBan : public Module
 	{
 		ServerInstance->XLines->DelAll("CBAN");
 		ServerInstance->XLines->UnregisterFactory(f);
+		delete f;
 	}
 
 	virtual int OnStats(char symbol, User* user, string_list &out)

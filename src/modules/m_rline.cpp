@@ -216,6 +216,8 @@ class ModuleRLine : public Module
 		ServerInstance->Modules->DoneWithInterface("RegularExpression");
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(f);
+		delete f;
+		delete r;
 	}
 
 	virtual Version GetVersion()
