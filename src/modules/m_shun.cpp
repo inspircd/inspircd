@@ -198,6 +198,7 @@ class ModuleShun : public Module
 	{
 		ServerInstance->XLines->DelAll("SHUN");
 		ServerInstance->XLines->UnregisterFactory(f);
+		delete f;
 	}
 
 	virtual int OnStats(char symbol, User* user, string_list& out)
