@@ -239,7 +239,8 @@ sub is_dir
 sub showhelp
 {
 	chomp(my $PWD = `pwd`);
-	print "Usage: configure [options]
+	print <<EOH;
+Usage: configure [options]
 
 *** NOTE: NON-INTERACTIVE CONFIGURE IS *NOT* SUPPORTED BY THE ***
 *** INSPIRCD DEVELOPMENT TEAM. DO NOT ASK FOR HELP REGARDING  ***
@@ -268,8 +269,8 @@ InspIRCd 1.0.x, are also allowed.
                                to select() [not set]
   --disable-kqueue             Do not enable kqueue(), fall back
                                to select() [not set]
-  --disable-ipv6               Do not build ipv6 native InspIRCd [not set]
-  --with-cc=[filename]         Use an alternative g++ binary to
+  --disable-ipv6               Do not build IPv6 native InspIRCd [not set]
+  --with-cc=[filename]         Use an alternative compiler to
                                build InspIRCd [g++]
   --with-maxbuf=[n]            Change the per message buffer size [512]
                                DO NOT ALTER THIS OPTION WITHOUT GOOD REASON
@@ -291,7 +292,7 @@ InspIRCd 1.0.x, are also allowed.
   --disable-extras=[extras]    Disable the specified list of extras
   --help                       Show this help text and exit
 
-";
+EOH
 	exit(0);
 }
 
