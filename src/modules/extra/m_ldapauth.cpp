@@ -46,6 +46,7 @@ class ModuleLDAPAuth : public Module
 	std::string killreason;
 	std::string username;
 	std::string password;
+	std::vector<std::string> whitelistedcidrs;
 	int searchscope;
 	bool verbose;
 	bool useusername;
@@ -73,6 +74,7 @@ public:
 	void OnRehash(User* user)
 	{
 		ConfigReader Conf;
+		whitelistedcidrs.clear();
 
 		base 			= Conf.ReadValue("ldapauth", "baserdn", 0);
 		attribute		= Conf.ReadValue("ldapauth", "attribute", 0);
@@ -84,6 +86,16 @@ public:
 		password		= Conf.ReadValue("ldapauth", "bindauth", 0);
 		verbose			= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
 		useusername		= Conf.ReadFlag("ldapauth", "userfield", 0);
+
+		ConfigTagList whitelisttags = ServerInstance->Config->ConfTags("ldapwhitelist");
+
+		for (ConfigIter i = whitelisttags.first; i != whitelisttags.second; ++i)
+		{
+			std::string cidr = i->second->getString("cidr");
+			if (!cidr.empty()) {
+				whitelistedcidrs.push_back(cidr);
+			}
+		}
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
@@ -126,6 +138,15 @@ public:
 		{
 			ldapAuthed.set(user,1);
 			return MOD_RES_PASSTHRU;
+		}
+
+		for (std::vector<std::string>::iterator i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++)
+		{
+			if (InspIRCd::MatchCIDR(user->GetIPString(), *i, ascii_case_insensitive_map))
+			{
+				ldapAuthed.set(user,1);
+				return MOD_RES_PASSTHRU;
+			}
 		}
 
 		if (!CheckCredentials(user))
