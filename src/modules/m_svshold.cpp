@@ -184,6 +184,7 @@ class ModuleSVSHold : public Module
 	{
 		ServerInstance->XLines->DelAll("SVSHOLD");
 		ServerInstance->XLines->UnregisterFactory(s);
+		delete s;
 	}
 
 	virtual Version GetVersion()
