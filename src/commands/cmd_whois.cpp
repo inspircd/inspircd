@@ -78,7 +78,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 	{
 		/* no such nick/channel */
 		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
-		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick.c_str(), parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
+		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick.c_str(), !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
 		return CMD_FAILURE;
 	}
 
