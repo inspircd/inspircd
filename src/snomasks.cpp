@@ -88,7 +88,7 @@ void Snomask::SendMessage(const std::string &message, char mysnomask)
 		new if to do this job. Since as long as the config returns true every time
 		'Count' will never get above 1, and when it does Flush() it wont print the
 		stack line. - Shawn */
-	if (message != LastMessage || mysnomask != LastLetter || ServerInstance->Config->NoSnoticeStack)
+	if (ServerInstance->Config->NoSnoticeStack || message != LastMessage || mysnomask != LastLetter)
 	{
 		this->Flush();
 		LastMessage = message;
