@@ -488,6 +488,10 @@ class CoreExport ServerConfig
 	 */
 	bool InvBypassModes;
 
+	/** If this value is true, snotices will not stack when repeats are sent
+	 */
+	bool NoSnoticeStack;
+
 	/** If this value is true, modes can have their letters removed (enables +Z)
 	 */
 	bool NameOnlyModes;
