@@ -93,7 +93,6 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			parameterlist param_list;
 			if (Utils->AnnounceTSChange)
 				chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), channel.c_str(), (unsigned long) ourTS, (unsigned long) TS);
-			ourTS = TS;
 			// while the name is equal in case-insensitive compare, it might differ in case; use the remote version
 			chan->name = channel;
 			chan->age = TS;
