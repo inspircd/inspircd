@@ -57,7 +57,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 {
 	std::string sn(ServerInstance->Config->ServerName);
 
-	if (!user->HasPrivPermission("servers/auspex") && !strchr(ServerInstance->Config->UserStats, statschar))
+	if (((!IS_LOCAL(user) && !IS_OPER(user)) || !user->HasPrivPermission("servers/auspex")) && !strchr(ServerInstance->Config->UserStats, statschar))
 	{
 		ServerInstance->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
