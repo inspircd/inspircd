@@ -217,7 +217,6 @@ class ModuleRLine : public Module
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(f);
 		delete f;
-		delete r;
 	}
 
 	virtual Version GetVersion()
