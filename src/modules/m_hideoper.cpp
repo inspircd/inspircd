@@ -24,25 +24,15 @@ class HideOper : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 	{
-		if (adding)
+		if (adding != dest->IsModeSet('H'))
 		{
-			if (!dest->IsModeSet('H'))
-			{
-				dest->SetMode('H',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('H'))
-			{
-				dest->SetMode('H',false);
-				return MODEACTION_ALLOW;
-			}
+			dest->SetMode('H', adding);
+			return MODEACTION_ALLOW;
 		}
 
 		return MODEACTION_DENY;
 	}
+
 };
 
 class ModuleHideOper : public Module
