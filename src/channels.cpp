@@ -754,7 +754,6 @@ void Channel::UserList(User *user)
 			dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick.c_str(), this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name.c_str());
 			ptr = list + dlen;
 
-			ptrlen = 0;
 			numusers = 0;
 		}
 
