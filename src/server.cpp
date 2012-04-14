@@ -100,7 +100,6 @@ void InspIRCd::IncrementUID(int pos)
 			for (int i = 3; i < (UUID_LENGTH - 1); i++)
 			{
 				current_uid[i] = 'A';
-				pos  = UUID_LENGTH - 1;
 			}
 		}
 		else
