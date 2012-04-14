@@ -42,10 +42,9 @@ struct DH_info : public refcountbase
 {
 	int bits;
 	gnutls_dh_params params;
-	DH_info()
+	DH_info(int Bits) : bits(Bits)
 	{
 		gnutls_dh_params_init(&params);
-		bits = gnutls_sec_param_to_pk_bits(GNUTLS_PK_DH, GNUTLS_SEC_PARAM_NORMAL);
 		int ret = gnutls_dh_params_generate2(params, bits);
 		if (ret < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s",
@@ -780,9 +779,12 @@ class ModuleSSLGnuTLS : public Module
 
 		ConfigTag* Conf = ServerInstance->Config->GetTag("gnutls");
 
+		int dh_bits = Conf->getInt("dhbits");
 		std::string hashname = Conf->getString("hash", "md5");
 
-		dh = new DH_info();
+		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
+			dh_bits = 1024;
+		dh = new DH_info(dh_bits);
 
 		if (hashname == "md5")
 			hash = GNUTLS_DIG_MD5;
