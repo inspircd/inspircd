@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __LINK_H__
-#define __LINK_H__
+#ifndef LINK_H
+#define LINK_H
 
 class Link : public refcountbase
 {

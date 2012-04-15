@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __RESOLVERS__H__
-#define __RESOLVERS__H__
+#ifndef RESOLVERS_H
+#define RESOLVERS_H
 
 #include "socket.h"
 #include "inspircd.h"

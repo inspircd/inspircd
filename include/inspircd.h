@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __INSPIRCD_H__
-#define __INSPIRCD_H__
+#ifndef INSPIRCD_H
+#define INSPIRCD_H
 
 #define _FILE_OFFSET_BITS 64
 #ifndef _LARGEFILE_SOURCE

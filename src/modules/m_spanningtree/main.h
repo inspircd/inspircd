@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __ST_MAIN__
-#define __ST_MAIN__
+#ifndef ST_MAIN
+#define ST_MAIN
 
 #include "inspircd.h"
 #include <stdarg.h>

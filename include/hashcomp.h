@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef _HASHCOMP_H_
-#define _HASHCOMP_H_
+#ifndef HASHCOMP_H
+#define HASHCOMP_H
 
 #include <cstring>
 #include <string>

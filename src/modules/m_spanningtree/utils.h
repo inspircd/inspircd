@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __ST__UTIL__
-#define __ST__UTIL__
+#ifndef ST__UTIL
+#define ST__UTIL
 
 #include "inspircd.h"
 #include "cull_list.h"

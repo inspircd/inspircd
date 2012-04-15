@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __TIMESYNC_H__
-#define __TIMESYNC_H__
+#ifndef TIMESYNC_H
+#define TIMESYNC_H
 
 #include "timer.h"
 
