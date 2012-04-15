@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef THREADENGINE_PTHREAD
-#define THREADENGINE_PTHREAD
+#ifndef THREADENGINE_PTHREAD_H
+#define THREADENGINE_PTHREAD_H
 
 #include <pthread.h>
 

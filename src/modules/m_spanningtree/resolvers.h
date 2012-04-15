@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef RESOLVERS_H
-#define RESOLVERS_H
+#ifndef M_SPANNINGTREE_RESOLVERS_H
+#define M_SPANNINGTREE_RESOLVERS_H
 
 #include "socket.h"
 #include "inspircd.h"

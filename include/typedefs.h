@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef TYPEDEF_H
-#define TYPEDEF_H
+#ifndef TYPEDEFS_H
+#define TYPEDEFS_H
 
 #if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
 	typedef nspace::hash_map<std::string, User*, nspace::hash_compare<std::string, std::less<std::string> > > user_hash;

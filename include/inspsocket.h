@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef INSP_SOCKET_H
-#define INSP_SOCKET_H
+#ifndef INSPSOCKET_H
+#define INSPSOCKET_H
 
 /**
  * States which a socket may be in
