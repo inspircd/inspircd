@@ -133,7 +133,7 @@ void SnomaskManager::SetupDefaults()
 
 void Snomask::SendMessage(const std::string &message)
 {
-	if (message != LastMessage)
+	if (ServerInstance->Config->NoSnoticeStack || message != LastMessage)
 	{
 		this->Flush();
 		LastMessage = message;
