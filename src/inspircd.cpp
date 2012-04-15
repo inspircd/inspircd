@@ -646,23 +646,37 @@ InspIRCd::InspIRCd(int argc, char** argv)
 		}
 	}
 
-	if (isatty(0) && isatty(1) && isatty(2))
-	{
-		/* We didn't start from a TTY, we must have started from a background process -
-		 * e.g. we are restarting, or being launched by cron. Dont kill parent, and dont
-		 * close stdin/stdout
-		 */
-		if ((!do_nofork) && (!do_testsuite))
-		{
-			fclose(stdin);
-			fclose(stderr);
-			fclose(stdout);
-		}
-		else
-		{
-			Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
-		}
-	}
+    /* Explicitly shut down stdio's stdin/stdout/stderr.
+     *
+     * The previous logic here was to only do this if stdio was connected to a controlling
+     * terminal.  However, we must do this always to avoid information leaks and other
+     * problems related to stdio.
+     *
+     * The only exception is if we are in debug mode.
+     *
+     *    -- nenolod
+     */
+    if ((!do_nofork) && (!do_testsuite) && (!Config->forcedebug))
+    {
+        int fd;
+
+        fclose(stdin);
+        fclose(stderr);
+        fclose(stdout);
+
+        fd = open("/dev/null", O_RDWR);
+        if (dup2(fd, 0) < 0)
+            Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdin.");
+        if (dup2(fd, 1) < 0)
+            Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdout.");
+        if (dup2(fd, 2) < 0)
+            Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stderr.");
+        close(fd);
+    }
+    else
+    {
+        Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+    }
 #else
 	WindowsIPC = new IPC(this);
 	if(!Config->nofork)
