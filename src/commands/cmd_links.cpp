@@ -13,8 +13,8 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_LINKS_H__
-#define __CMD_LINKS_H__
+#ifndef CMD_LINKS_H
+#define CMD_LINKS_H
 
 // include the common header files
 

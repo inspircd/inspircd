@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __SSL_H__
-#define __SSL_H__
+#ifndef SSL_H
+#define SSL_H
 
 #include <map>
 #include <string>

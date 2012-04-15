@@ -15,8 +15,8 @@
 #include "exitcodes.h"
 #include <port.h>
 
-#ifndef __SOCKETENGINE_PORTS__
-#define __SOCKETENGINE_PORTS__
+#ifndef SOCKETENGINE_PORTS
+#define SOCKETENGINE_PORTS
 
 #ifndef __sun
 # error You need Solaris 10 or later to make use of this code.

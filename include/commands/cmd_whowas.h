@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __CMD_WHOWAS_H__
-#define __CMD_WHOWAS_H__
+#ifndef CMD_WHOWAS_H
+#define CMD_WHOWAS_H
 #include "modules.h"
 
 struct WhowasRequest : public Request

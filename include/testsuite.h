@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __TESTSUITE_H__
-#define __TESTSUITE_H__
+#ifndef TESTSUITE_H
+#define TESTSUITE_H
 
 class TestSuite
 {

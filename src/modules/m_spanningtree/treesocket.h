@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __TREESOCKET_H__
-#define __TREESOCKET_H__
+#ifndef M_SPANNINGTREE_TREESOCKET_H
+#define M_SPANNINGTREE_TREESOCKET_H
 
 #include "socket.h"
 #include "inspircd.h"
