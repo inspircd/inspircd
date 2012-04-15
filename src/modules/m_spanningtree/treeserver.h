@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef TREESERVER_H
-#define TREESERVER_H
+#ifndef M_SPANNINGTREE_TREESERVER_H
+#define M_SPANNINGTREE_TREESERVER_H
 
 #include "treesocket.h"
 

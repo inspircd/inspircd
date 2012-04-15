@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef ST__UTIL
-#define ST__UTIL
+#ifndef M_SPANNINGTREE_UTILS_H
+#define M_SPANNINGTREE_UTILS_H
 
 #include "inspircd.h"
 

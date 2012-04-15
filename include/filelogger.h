@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef LOG_H
-#define LOG_H
+#ifndef FILELOGGER_H
+#define FILELOGGER_H
 
 #include "logger.h"
 

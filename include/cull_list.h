@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef CULLLIST_H
-#define CULLLIST_H
+#ifndef CULL_LIST_H
+#define CULL_LIST_H
 
 /**
  * The CullList class is used to delete objects at the end of the main loop to

@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef THREADENGINE_WIN32THREAD
-#define THREADENGINE_WIN32THREAD
+#ifndef THREADENGINE_WIN32_H
+#define THREADENGINE_WIN32_H
 
 #include "inspircd_config.h"
 #include "base.h"
