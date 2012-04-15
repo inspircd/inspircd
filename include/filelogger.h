@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef LOG_H
+#define LOG_H
 
 #include "logger.h"
 

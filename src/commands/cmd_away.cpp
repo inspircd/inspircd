@@ -13,8 +13,8 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_AWAY_H__
-#define __CMD_AWAY_H__
+#ifndef CMD_AWAY_H
+#define CMD_AWAY_H
 
 // include the common header files
 

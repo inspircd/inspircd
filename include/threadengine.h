@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __THREADENGINE__
-#define __THREADENGINE__
+#ifndef THREADENGINE
+#define THREADENGINE
 
 #include <vector>
 #include <string>

@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __COMMANDS_H__
-#define __COMMANDS_H__
+#ifndef COMMANDS_H
+#define COMMANDS_H
 
 #include "main.h"
 

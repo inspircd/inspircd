@@ -13,8 +13,8 @@
 
 #include "base.h"
 
-#ifndef __HTTPD_H__
-#define __HTTPD_H__
+#ifndef HTTPD_H
+#define HTTPD_H
 
 #include <string>
 #include <sstream>

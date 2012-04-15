@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __EXITCODE_H__
-#define __EXITCODE_H__
+#ifndef EXITCODE_H
+#define EXITCODE_H
 
 /** Valid exit codes to be used with InspIRCd::Exit()
  */

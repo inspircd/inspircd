@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __SOCKETENGINE__
-#define __SOCKETENGINE__
+#ifndef SOCKETENGINE
+#define SOCKETENGINE
 
 #include <vector>
 #include <string>
