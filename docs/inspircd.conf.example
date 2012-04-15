@@ -598,7 +598,11 @@
 
          # invitebypassmodes: This allows /invite to bypass other channel modes.
          # (Such as +k, +j, +l, etc)
-         invitebypassmodes="yes">
+         invitebypassmodes="yes"
+
+         # nosnoticestack: This prevents snotices from 'stacking' and giving you
+         # the message saying '(last message repeated X times)'. Defaults to no.
+         nosnoticestack="no">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
