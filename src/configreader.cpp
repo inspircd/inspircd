@@ -505,6 +505,7 @@ void ServerConfig::Fill()
 	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
+	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
 	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
 	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");

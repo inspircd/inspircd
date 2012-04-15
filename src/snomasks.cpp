@@ -83,7 +83,7 @@ SnomaskManager::SnomaskManager()
 
 void Snomask::SendMessage(const std::string &message, char mysnomask)
 {
-	if (message != LastMessage || mysnomask != LastLetter)
+	if (ServerInstance->Config->NoSnoticeStack || message != LastMessage || mysnomask != LastLetter)
 	{
 		this->Flush();
 		LastMessage = message;
