@@ -39,6 +39,7 @@ class ModuleLDAPAuth : public Module
 	std::string killreason;
 	std::string username;
 	std::string password;
+	std::vector<std::string> whitelistedcidrs;
 	int searchscope;
 	bool verbose;
 	bool useusername;
@@ -66,6 +67,7 @@ public:
 
 	void ReadConfig(ConfigReadStatus&)
 	{
+		whitelistedcidrs.clear();
 
 		base 			= ServerInstance->Config->GetTag("ldapauth")->getString("baserdn");
 		attribute		= ServerInstance->Config->GetTag("ldapauth")->getString("attribute");
@@ -78,6 +80,14 @@ public:
 		verbose			= ServerInstance->Config->GetTag("ldapauth")->getBool("verbose");		/* Set to true if failed connects should be reported to operators */
 		useusername		= ServerInstance->Config->GetTag("ldapauth")->getBool("userfield");
 		setaccount		= ServerInstance->Config->GetTag("ldapauth")->getBool("setaccount");
+		ConfigTagList whitelisttags	= ServerInstance->Config->GetTags("ldapwhitelist");
+
+		for (ConfigIter i = whitelisttags.first; i != whitelisttags.second; ++i)
+		{
+			std::string cidr = i->second->getString("cidr");
+			if (!cidr.empty())
+				whitelistedcidrs.push_back(cidr);
+		}
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
@@ -120,6 +130,15 @@ public:
 		{
 			ldapAuthed.set(user,1);
 			return;
+		}
+
+		for (std::vector<std::string>::iterator i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++)
+		{
+			if (InspIRCd::MatchCIDR(user->GetIPString(), *i, ascii_case_insensitive_map))
+			{
+				ldapAuthed.set(user,1);
+				return;
+			}
 		}
 
 		if (!CheckCredentials(user))

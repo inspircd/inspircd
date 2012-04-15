@@ -442,6 +442,7 @@ void ServerConfig::Fill()
 	Limits.MaxGecos = GetTag("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = GetTag("limits")->getInt("maxaway", 200);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
+	NoSnoticeStack = options->getBool("nosnoticestack", false);
 	NameOnlyModes = options->getBool("nameonlymodes", true);
 	AnnounceTSChange = options->getBool("announcets");
 
