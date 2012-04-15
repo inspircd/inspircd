@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __NUMERICS_H
-#define __NUMERICS_H
+#ifndef NUMERICS_H
+#define NUMERICS_H
 
 /*
  * This file is aimed providing a string that is easier to use than using the numeric

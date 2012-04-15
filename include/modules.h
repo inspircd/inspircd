@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __MODULES_H
-#define __MODULES_H
+#ifndef MODULES_H
+#define MODULES_H
 
 #include <string>
 #include <deque>

@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __COMMAND_PARSE_H
-#define __COMMAND_PARSE_H
+#ifndef COMMAND_PARSE_H
+#define COMMAND_PARSE_H
 
 /** A list of dll/so files containing the command handlers for the core
  */

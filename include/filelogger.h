@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __LOG_H__
-#define __LOG_H__
+#ifndef FILELOGGER_H
+#define FILELOGGER_H
 
 /** Debug levels for use with InspIRCd::Log()
  *  */

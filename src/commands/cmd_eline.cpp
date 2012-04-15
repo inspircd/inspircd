@@ -26,8 +26,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __CMD_ELINE_H__
-#define __CMD_ELINE_H__
+#ifndef CMD_ELINE_H
+#define CMD_ELINE_H
 
 // include the common header files
 
