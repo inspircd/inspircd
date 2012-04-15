@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __COMMANDS_H__
-#define __COMMANDS_H__
+#ifndef M_SPANNINGTREE_COMMANDS_H
+#define M_SPANNINGTREE_COMMANDS_H
 
 #include "main.h"
 

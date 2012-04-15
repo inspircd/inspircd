@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __BANCACHE_H
-#define __BANCACHE_H
+#ifndef BANCACHE_H
+#define BANCACHE_H
 
 /** Stores a cached ban entry.
  * Each ban has one of these hashed in a hash_map to make for faster removal

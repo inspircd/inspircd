@@ -14,8 +14,8 @@
 #include "inspircd.h"
 #include "exitcodes.h"
 
-#ifndef __SOCKETENGINE_POLL__
-#define __SOCKETENGINE_POLL__
+#ifndef SOCKETENGINE_POLL
+#define SOCKETENGINE_POLL
 
 #include <vector>
 #include <string>

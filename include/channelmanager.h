@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __CHANNELMANAGER_H
-#define __CHANNELMANAGER_H
+#ifndef CHANNELMANAGER_H
+#define CHANNELMANAGER_H
 
 /** THe channel manager class allocates and deallocates channels and manages
  * the container which holds them. For some reason, nobody finished this.

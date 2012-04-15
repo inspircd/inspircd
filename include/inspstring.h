@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __IN_INSPSTRING_H
-#define __IN_INSPSTRING_H
+#ifndef INSPSTRING_H
+#define INSPSTRING_H
 
 // This (inspircd_config) is needed as inspstring doesn't pull in the central header
 #include "inspircd_config.h"

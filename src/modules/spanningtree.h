@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __SPANNINGTREE_H__
-#define __SPANNINGTREE_H__
+#ifndef SPANNINGTREE_H
+#define SPANNINGTREE_H
 
 struct AddServerEvent : public Event
 {

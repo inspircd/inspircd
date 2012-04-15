@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __TYPEDEF_H__
-#define __TYPEDEF_H__
+#ifndef TYPEDEFS_H
+#define TYPEDEFS_H
 
 class BanCacheManager;
 class BanItem;

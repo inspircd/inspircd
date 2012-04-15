@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __SNOMASKS_H__
-#define __SNOMASKS_H__
+#ifndef SNOMASKS_H
+#define SNOMASKS_H
 
 class Snomask
 {

@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __CTABLES_H__
-#define __CTABLES_H__
+#ifndef CTABLES_H
+#define CTABLES_H
 
 /** Used to indicate command success codes
  */

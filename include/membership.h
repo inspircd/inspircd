@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __MEMBERSHIP_H__
-#define __MEMBERSHIP_H__
+#ifndef MEMBERSHIP_H
+#define MEMBERSHIP_H
 
 class CoreExport Membership : public Extensible
 {

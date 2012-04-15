@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __XLINE_H
-#define __XLINE_H
+#ifndef XLINE_H
+#define XLINE_H
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  * Modules may derive from this, and their xlines will automatically be

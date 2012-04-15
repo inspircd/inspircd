@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __USERS_H__
-#define __USERS_H__
+#ifndef USERS_H
+#define USERS_H
 
 #include "socket.h"
 #include "inspsocket.h"
