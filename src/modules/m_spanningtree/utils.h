@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __ST__UTIL__
-#define __ST__UTIL__
+#ifndef M_SPANNINGTREE_UTILS_H
+#define M_SPANNINGTREE_UTILS_H
 
 #include "inspircd.h"
 #include "cull_list.h"

@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __SASL_H__
-#define __SASL_H__
+#ifndef SASL_H
+#define SASL_H
 
 class SASLHook : public classbase
 {

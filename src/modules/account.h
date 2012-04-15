@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __ACCOUNT_H__
-#define __ACCOUNT_H__
+#ifndef ACCOUNT_H
+#define ACCOUNT_H
 
 class AccountEvent : public Event
 {

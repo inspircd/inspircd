@@ -1,4 +1,5 @@
-
+#ifndef M_SPANNINGTREE_REMOTEUSER_H
+#define M_SPANNINGTREE_REMOTEUSER_H
 class CoreExport RemoteUser : public User
 {
  public:
@@ -11,4 +12,4 @@ class CoreExport RemoteUser : public User
 	virtual void DoWhois(User* src);
 };
 
-
+#endif

@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __LINK_H__
-#define __LINK_H__
+#ifndef M_SPANNINGTREE_LINK_H
+#define M_SPANNINGTREE_LINK_H
 
 class Link : public refcountbase
 {

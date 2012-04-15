@@ -1,5 +1,5 @@
-#ifndef _SPANNINGTREE_PROTOCOL_INT_
-#define _SPANNINGTREE_PROTOCOL_INT_
+#ifndef M_SPANNINGTREE_PROTOCOLINTERFACE_H
+#define M_SPANNINGTREE_PROTOCOLINTERFACE_H
 
 class SpanningTreeUtilities;
 class ModuleSpanningTree;

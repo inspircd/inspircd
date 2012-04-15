@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __TIMESYNC_H__
-#define __TIMESYNC_H__
+#ifndef M_SPANNINGTREE_CACHETIMER_H
+#define M_SPANNINGTREE_CACHETIMER_H
 
 #include "timer.h"
 

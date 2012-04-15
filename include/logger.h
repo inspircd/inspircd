@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __LOGMANAGER_H
-#define __LOGMANAGER_H
+#ifndef LOGGER_H
+#define LOGGER_H
 
 /** This class implements a nonblocking writer.
  * Most people writing an ircd give little thought to their disk

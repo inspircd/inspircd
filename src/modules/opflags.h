@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __OPFLAGS_H__
-#define __OPFLAGS_H__
+#ifndef OPFLAGS_H
+#define OPFLAGS_H
 
 class OpFlagProvider : public DataProvider
 {

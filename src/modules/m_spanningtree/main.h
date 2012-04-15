@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __ST_MAIN__
-#define __ST_MAIN__
+#ifndef M_SPANNINGTREE_MAIN_H
+#define M_SPANNINGTREE_MAIN_H
 
 #include "inspircd.h"
 #include <stdarg.h>

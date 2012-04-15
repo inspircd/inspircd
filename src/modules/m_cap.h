@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __CAP_H__
-#define __CAP_H__
+#ifndef M_CAP_H
+#define M_CAP_H
 
 #include <map>
 #include <string>

@@ -13,8 +13,8 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_ISON_H__
-#define __CMD_ISON_H__
+#ifndef CMD_ISON_H
+#define CMD_ISON_H
 
 // include the common header files
 

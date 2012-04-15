@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __BASE_H__
-#define __BASE_H__
+#ifndef BASE_H
+#define BASE_H
 
 /** The server instance - global variable */
 CoreExport extern InspIRCd* ServerInstance;

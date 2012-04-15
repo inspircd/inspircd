@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __THREADENGINE__
-#define __THREADENGINE__
+#ifndef THREADENGINE_H
+#define THREADENGINE_H
 
 #ifdef WINDOWS
 // #include "threadengines/threadengine_win32.h"
