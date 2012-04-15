@@ -13,8 +13,8 @@
 
 #include "inspircd.h"
 
-#ifndef __CMD_USERHOST_H__
-#define __CMD_USERHOST_H__
+#ifndef CMD_USERHOST_H
+#define CMD_USERHOST_H
 
 // include the common header files
 

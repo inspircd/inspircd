@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __MODE_H
-#define __MODE_H
+#ifndef MODE_H
+#define MODE_H
 
 #define MODE_ID_MAX 128
 

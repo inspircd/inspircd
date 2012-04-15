@@ -14,8 +14,8 @@
 #include "inspircd.h"
 #include "protocol.h"
 
-#ifndef __CMD_LUSERS_H__
-#define __CMD_LUSERS_H__
+#ifndef CMD_LUSERS_H
+#define CMD_LUSERS_H
 
 // include the common header files
 

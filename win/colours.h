@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __COLOURS_H
-#define __COLOURS_H
+#ifndef COLORS_H
+#define COLORS_H
 
 #define TRED FOREGROUND_RED | FOREGROUND_INTENSITY
 #define TGREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY

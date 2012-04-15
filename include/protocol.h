@@ -11,8 +11,8 @@
  * ---------------------------------------------------
  */
 
-#ifndef __PROTOCOL_H__
-#define __PROTOCOL_H__
+#ifndef PROTOCOL_H
+#define PROTOCOL_H
 
 class User;
 

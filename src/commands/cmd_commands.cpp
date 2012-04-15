@@ -14,8 +14,8 @@
 #include "inspircd.h"
 #include "command_parse.h"
 
-#ifndef __CMD_COMMANDS_H__
-#define __CMD_COMMANDS_H__
+#ifndef CMD_COMMANDS_H
+#define CMD_COMMANDS_H
 
 // include the common header files
 
