@@ -843,6 +843,7 @@ static const InitialConfig Values[] = {
 	{"limits",	"maxgecos",	"128",			new ValueContainerLimit (&ServerLimits::MaxGecos),		DT_LIMIT,  NULL},
 	{"limits",	"maxaway",	"200",			new ValueContainerLimit (&ServerLimits::MaxAway),		DT_LIMIT,  NULL},
 	{"options",	"invitebypassmodes",	"1",			new ValueContainerBool (&ServerConfig::InvBypassModes),		DT_BOOLEAN,  NULL},
+	{"options",	"nosnoticestack",	"0",			new ValueContainerBool (&ServerConfig::NoSnoticeStack),		DT_BOOLEAN,  NULL},
 };
 
 /* These tags can occur multiple times, and therefore they have special code to read them

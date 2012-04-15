@@ -710,6 +710,10 @@ class CoreExport ServerConfig : public Extensible
 	 */
 	bool InvBypassModes;
 
+	/** If this value is true, snotices will not stack when repeats are sent
+	 */
+	bool NoSnoticeStack;
+
 };
 
 
