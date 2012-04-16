@@ -1,4 +1,4 @@
- *       +------------------------------------+
+ /*       +------------------------------------+
  *
  *  InspIRCd: (C) 2002-2011 InspIRCd Development Team
  * See: http://wiki.inspircd.org/Credits
