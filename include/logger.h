@@ -14,17 +14,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
-/** This class implements a nonblocking writer.
- * Most people writing an ircd give little thought to their disk
- * i/o. On a congested system, disk writes can block for long
- * periods of time (e.g. if the system is busy and/or swapping
- * a lot). If we just use a blocking fprintf() call, this could
- * block for undesirable amounts of time (half of a second through
- * to whole seconds). We DO NOT want this, so we make our logfile
- * nonblocking and hook it into the SocketEngine.
- * NB: If the operating system does not support nonblocking file
- * I/O (linux seems to, as does freebsd) this will default to
- * blocking behaviour.
+/** Simple wrapper providing periodic flushing to a disk-backed file.
  */
 class CoreExport FileWriter
 {
