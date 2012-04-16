@@ -1,5 +1,3 @@
-/*       +------------------------------------+
- *       | Inspire Internet Relay Chat Daemon |
  *       +------------------------------------+
  *
  *  InspIRCd: (C) 2002-2011 InspIRCd Development Team
@@ -18,6 +16,7 @@ class ModulePassForward : public Module
 {
  private:
 	std::string nickrequired, forwardmsg, forwardcmd;
+	bool uline = true;
 
  public:
 	void init()
@@ -37,6 +36,8 @@ class ModulePassForward : public Module
 		nickrequired = tag->getString("nick", "NickServ");
 		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding PASS to $nickrequired");
 		forwardcmd = tag->getString("cmd", "PRIVMSG $nickrequired :IDENTIFY $pass");
+		uline = tag->getBool("uline", true);
+		//Allow for configuring whether or not we want to check for a U:LINE
 	}
 
 	virtual void OnPostConnect(User* ruser)
@@ -49,7 +50,9 @@ class ModulePassForward : public Module
 		{
 			/* Check if nick exists and its server is ulined */
 			User* u = ServerInstance->FindNick(nickrequired.c_str());
-			if (!u || !ServerInstance->ULine(u->server))
+			if (!u)
+				return;
+			if (uline && !ServerInstance->ULine(u->server))
 				return;
 		}
 
@@ -64,4 +67,3 @@ class ModulePassForward : public Module
 };
 
 MODULE_INIT(ModulePassForward)
-
