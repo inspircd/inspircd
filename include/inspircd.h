@@ -44,6 +44,7 @@
 #include <cstring>
 #include <climits>
 #include <cstdio>
+#include <unistd.h>
 
 #include <sstream>
 #include <string>
