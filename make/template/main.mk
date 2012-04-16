@@ -40,6 +40,9 @@ INSTMODE_LIB = 0644
 @IFEQ $(SYSTEM) linux
   LDLIBS += -ldl -lrt
 @ENDIF
+@IFEQ $(SYSTEM) gnukfreebsd
+  LDLIBS += -ldl -lrt
+@ENDIF
 @IFEQ $(SYSTEM) openbsd
   LDLIBS += -Wl,--export-dynamic
 @ENDIF
