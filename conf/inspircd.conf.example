@@ -710,12 +710,33 @@
 #
 # There are many different types which may be used, and modules may
 # generate their own. A list of useful types:
-#	- USERS - information relating to user connection and disconnection
-#	- CHANNELS - information relating to joining and parting of channels.
-# XXX someone doc more on this
+#  - USERS - information relating to user connection and disconnection
+#  - OPER - succesful and failed oper attempts
+#  - KILL - kill related messages
+#  - snomask - server notices (*all* snomasks will be logged)
+#  - FILTER - messages related to filter matches (m_filter)
+#  - CONFIG - configuration related messages
+#  - COMMAND - die and restart messages, and also core command loading error messages
+#  - SOCKET - socket engine errors
+#  - MODULE - module related messages
 #
 # You may also log *everything* by using a type of *, and subtract things out
 # of that by using -TYPE - for example "* -USERINPUT -USEROUTPUT".
+#
+# Useful levels are:
+#  - default (general messages, including errors)
+#  - sparse (misc error messages)
+#  - debug (debug messages)
+#
+# Some types only produce output in the debug level, those are:
+#  - BANCACHE - ban cache debug messages
+#  - CHANNELS - debug messages related to TS issues and default modes
+#  - EXTBANS - extban debug messages
+#  - CULLLIST - debug messages related to issues with removing users
+#  - RESOLVER - DNS related debug messages
+#  - CONNECTCLASS - Connection class debug messages
+#  - USERINPUT
+#  - USEROUTPUT
 #
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
