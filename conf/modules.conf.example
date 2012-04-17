@@ -405,25 +405,25 @@
 #<module name="m_chanprotect.so">
 
 <chanprotect
-	# noservices: With this set to yes, when a user joins a empty channel,
-	# the server will set +q on them. If set to no, it will only set +o
-	# on them until they register the channel.
-	noservices="no"
+    # noservices: With this set to yes, when a user joins a empty channel,
+    # the server will set +q on them. If set to no, it will only set +o
+    # on them until they register the channel.
+    noservices="no"
 
-	# qprefix: Prefix (symbol) to use for +q users.
-	qprefix="~"
+    # qprefix: Prefix (symbol) to use for +q users.
+    qprefix="~"
 
-	# aprefix: Prefix (symbol) to use for +a users.
-	aprefix="&"
+    # aprefix: Prefix (symbol) to use for +a users.
+    aprefix="&"
 
-	# deprotectself: If this value is set (true, yes or 1), it will allow
-	# +a and +q users to remove the +a and +q from themselves, otherwise,
-	# the status will have to be removed by services.
-	deprotectself="yes"
+    # deprotectself: If this value is set (true, yes or 1), it will allow
+    # +a and +q users to remove the +a and +q from themselves, otherwise,
+    # the status will have to be removed by services.
+    deprotectself="yes"
 
-	# deprotectothers: If this value is set to yes, true, or 1, then any
-	# user with +q or +a may remove the +q or +a from other users.
-	deprotectothers="yes">
+    # deprotectothers: If this value is set to yes, true, or 1, then any
+    # user with +q or +a may remove the +q or +a from other users.
+    deprotectothers="yes">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1733,9 +1733,10 @@
 # user       - Username for the vhost.                                #
 #                                                                     #
 # pass       - Password for the vhost.                                #
-#								      #
-# hash       - The hash for the specific user (optional)
-#              m_password_hash.so and a hashing module must be loaded for this to work
+#                                                                     #
+# hash       - The hash for the specific user (optional).             #
+#              m_password_hash.so and a hashing module must be loaded #
+#              for this to work.                                       #
 #                                                                     #
 # host       - Vhost to set.                                          #
 #
@@ -1798,5 +1799,3 @@
 # You will almost always want to load this.
 #
 #<module name="m_spanningtree.so">
-
-
