@@ -1736,7 +1736,7 @@
 #                                                                     #
 # hash       - The hash for the specific user (optional).             #
 #              m_password_hash.so and a hashing module must be loaded #
-#              for this to work.                                       #
+#              for this to work.                                      #
 #                                                                     #
 # host       - Vhost to set.                                          #
 #
