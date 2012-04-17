@@ -110,7 +110,6 @@ class CommandShun : public Command
 			}
 			else
 			{
-				// XXX todo implement stats
 				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats H.",user->nick.c_str(),target.c_str());
 			}
 
