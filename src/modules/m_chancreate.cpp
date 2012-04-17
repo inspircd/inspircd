@@ -36,7 +36,7 @@ class ModuleChanCreate : public Module
 	{
 		if (created)
 		{
-			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(memb->user) ? 'j' : 'J', "Channel %s created by %s!%s@%s",
+			ServerInstance->SNO->WriteGlobalSno('j', "Channel %s created by %s!%s@%s",
 				memb->chan->name.c_str(), memb->user->nick.c_str(), memb->user->ident.c_str(), memb->user->host.c_str());
 		}
 	}
