@@ -13,7 +13,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel +S mode (strip ansi colour) */
+/* $ModDesc: Provides channel +S mode (strip ansi color) */
 
 /** Handles channel mode +S
  */

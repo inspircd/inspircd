@@ -863,7 +863,7 @@ void InspIRCd::BufferedSocketCull()
 {
 	for (std::map<BufferedSocket*,BufferedSocket*>::iterator x = SocketCull.begin(); x != SocketCull.end(); ++x)
 	{
-		this->Logs->Log("MISC",DEBUG,"Cull socket");
+		this->Logs->Log("CULLLIST",DEBUG,"Cull socket");
 		SE->DelFd(x->second);
 		x->second->Close();
 		delete x->second;
