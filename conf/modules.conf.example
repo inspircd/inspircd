@@ -277,7 +277,7 @@
 #           capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block colour module: Blocking colour-coded messages with cmode +c
+# Block color module: Blocking color-coded messages with cmode +c
 #<module name="m_blockcolor.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1579,7 +1579,7 @@
 # your configuration file!                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Strip colour module: Adds the channel mode +S
+# Strip color module: Adds the channel mode +S
 #<module name="m_stripcolor.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

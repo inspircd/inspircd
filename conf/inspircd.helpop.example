@@ -105,7 +105,7 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
               (IRCop only, requires invisible module).
  R            Blocks private messages from unregistered users
               (requires services account module).
- S            Strips mIRC colour/bold/underline codes out of private
+ S            Strips mIRC color/bold/underline codes out of private
               messages to the user (requires stripcolor module).
  W            Receives notification when a user uses WHOIS on them
               (IRCop only, requires showwhois module).">
@@ -132,7 +132,7 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
                     users to join while the channel is invite-only
                     (requires inviteexception module).
 
- c                  Blocks messages containing mIRC colour codes
+ c                  Blocks messages containing mIRC color codes
                     (requires blockcolor module).
  f [*][lines]:[sec] Kicks on text flood equal to or above the
                     specified rate. With *, the user is banned
@@ -199,7 +199,7 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
                     (requires nokicks module)
  R                  Blocks unregistered users from joining (requires
                     services account module).
- S                  Strips mIRC colour codes from messages to the
+ S                  Strips mIRC color codes from messages to the
                     channel (requirs stripcolor module).
  T                  Blocks /NOTICEs to the channel from users who are
                     not at least halfop (requires nonotice module).
@@ -245,8 +245,8 @@ help channel if you have any questions.">
 
 <helpop key="extbans" value="Extended Bans
 ----------
- 
- c:n!u@h      Blocks any messages that contain colour codes from
+
+ c:n!u@h      Blocks any messages that contain color codes from
               matching users (requires blockcolor module).
  j:#channel   Prevents anyone in #channel from joining the channel
               (requires channelban module).
