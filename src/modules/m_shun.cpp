@@ -200,6 +200,12 @@ class ModuleShun : public Module
 		delete f;
 	}
 
+	void Prioritize()
+	{
+		Module* alias = ServerInstance->Modules->Find("m_alias.so");
+		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, &alias);
+	}
+
 	virtual int OnStats(char symbol, User* user, string_list& out)
 	{
 		if (symbol != 'H')
