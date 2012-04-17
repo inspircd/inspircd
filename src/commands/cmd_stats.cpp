@@ -79,7 +79,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 	switch (statschar)
 	{
-		/* stats p (show listening ports and registered clients on each) */
+		/* stats p (show listening ports) */
 		case 'p':
 		{
 			for (size_t i = 0; i < ServerInstance->ports.size(); i++)
@@ -302,7 +302,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 			}
 		break;
 
-	/* stats L (show user I/O stats with IP addresses) */
+		/* stats L (show user I/O stats with IP addresses) */
 		case 'L':
 			results.push_back(sn+" 211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
 			for (std::vector<User*>::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)

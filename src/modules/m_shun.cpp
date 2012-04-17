@@ -203,7 +203,7 @@ class ModuleShun : public Module
 
 	virtual int OnStats(char symbol, User* user, string_list& out)
 	{
-		if (symbol != 'S')
+		if (symbol != 'H')
 			return 0;
 
 		ServerInstance->XLines->InvokeStats("SHUN", 223, user, out);
