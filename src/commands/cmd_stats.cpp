@@ -57,6 +57,9 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 {
 	std::string sn(ServerInstance->Config->ServerName);
 
+	/* Only allow the /STATS if the requested stats symbol is configured to be readable by everyone or the requester is either a remote oper or
+	 * a local oper with the servers/auspex privilige
+	 */
 	if (((!IS_LOCAL(user) && !IS_OPER(user)) || !user->HasPrivPermission("servers/auspex")) && !strchr(ServerInstance->Config->UserStats, statschar))
 	{
 		ServerInstance->SNO->WriteToSnoMask('t',
