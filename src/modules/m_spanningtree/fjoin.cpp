@@ -134,11 +134,13 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			while ((*unparsedmodes) && (*unparsedmodes != ','))
 			{
 				ModeHandler *mh = ServerInstance->Modes->FindMode(*unparsedmodes, MODETYPE_CHANNEL);
-				if (mh)
-					modes += *unparsedmodes;
-				else
+				if (!mh)
+				{
+					ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Unrecognised mode %c, dropping link", *unparsedmodes);
 					return CMD_INVALID;
+				}
 
+				modes += *unparsedmodes;
 				usr++;
 				unparsedmodes++;
 			}
