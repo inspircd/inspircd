@@ -879,7 +879,6 @@ void ConfigReaderThread::Finish()
 		 * thoroughly!!!
 		 */
 		ServerInstance->XLines->CheckELines();
-		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
 		ServerInstance->ResetMaxBans();
