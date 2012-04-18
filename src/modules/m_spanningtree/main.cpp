@@ -800,7 +800,7 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 
 void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 {
-	if (x->type == "K")
+	if (!x->IsBurstable() || loopCall)
 		return;
 
 	char data[MAXBUF];
