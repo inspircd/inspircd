@@ -421,18 +421,31 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else
 	{
 		Command* cmd = ServerInstance->Parser->GetHandler(command);
-		CmdResult res = CMD_INVALID;
-		if (cmd && params.size() >= cmd->min_params)
+		
+		if (!cmd)
 		{
-			res = cmd->Handle(params, who);
+			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
+			ServerInstance->Logs->Log("spanningtree", SPARSE, "Unrecognised S2S command :%s %s %s",
+				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
+			SendError("Unrecognised command '" + command + "' -- possibly loaded mismatched modules");
 		}
+
+		if (params.size() < cmd->min_params)
+		{
+			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
+			ServerInstance->Logs->Log("spanningtree", SPARSE, "Insufficient parameters for S2S command :%s %s %s",
+				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
+			SendError("Insufficient parameters for command '" + command + "'");
+		}
+
+		CmdResult res = cmd->Handle(params, who);
 
 		if (res == CMD_INVALID)
 		{
 			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
-			ServerInstance->Logs->Log("spanningtree", SPARSE, "Invalid S2S command :%s %s %s",
+			ServerInstance->Logs->Log("spanningtree", SPARSE, "Error handing S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
-			SendError("Unrecognised or malformed command '" + command + "' -- possibly loaded mismatched modules");
+			SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
 		}
 		if (res == CMD_SUCCESS)
 			Utils->RouteCommand(route_back_again, command, params, who);
