@@ -932,24 +932,30 @@ e  Show e-lines (local ban exemptions)
 g  Show g-lines (host bans)
 k  Show k-lines (local host bans)
 q  Show q-lines (nick mask bans)
-Z  Show z-lines (ip mask bans)
+Z  Show z-lines (IP mask bans)
+R  Show R-lines (regular expression bans)
 
+H  Show shuns
 s  Show filters
 C  Show channel bans
 
 c  Show link blocks
-l  Show all inbound and outbound server and client connections
+d  Show configured DNSBLs and related statistics
 m  Show command statistics, number of times commands have been used
 o  Show a list of all valid oper usernames and hostmasks
-p  Show open client ports, and the port type (ssl, plaintext, etc) plus number of users on each port
+p  Show open client ports, and the port type (ssl, plaintext, etc)
 u  Show server uptime
 z  Show memory usage statistics
-I  Show connect class permissions
+i  Show connect class permissions
+l  Show all client connections with information (sendq, commands, bytes, time connected)
 L  Show all client connections with information and IP address
 P  Show online opers and their idle times
 T  Show bandwidth/socket statistics
-U  Show u-lined servers
+U  Show U-lined servers
 Y  Show connection classes
+O  Show opertypes and the allowed user and channel modes it can set
+E  Show socket engine events
+S  Show currently held registered nicknames
 
 Note that all /STATS use is broadcast to online IRC operators.">
 
@@ -989,7 +995,7 @@ Note that all /STATS use is broadcast to online IRC operators.">
  Q      Allows receipt of remote quit messages.
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires override module).
- x      Allows receipt of Xline notice (g/z/q/k/e).">
+ x      Allows receipt of Xline notices (g/z/q/k/e/R/shuns).">
 
 ######################
 #      EXTBANS       #
