@@ -23,13 +23,13 @@ class BlockColor : public SimpleChannelModeHandler
 	BlockColor(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcolor", 'c') { fixed_letter = false; }
 };
 
-class ModuleBlockColour : public Module
+class ModuleBlockColor : public Module
 {
 	bool AllowChanOps;
 	BlockColor bc;
  public:
 
-	ModuleBlockColour() : bc(this)
+	ModuleBlockColor() : bc(this)
 	{
 	}
 
@@ -54,7 +54,7 @@ class ModuleBlockColour : public Module
 			if (ServerInstance->CheckExemption(user,c,"blockcolor") != MOD_RES_ALLOW && !c->GetExtBanStatus(user, 'c').check(!c->IsModeSet(&bc)))
 				if (text.find_first_of("\x02\x03\x0f\x15\x16\x1f") != std::string::npos)
 				{
-					user->WriteNumeric(404, "%s %s :Can't send colours to channel (+c set)",user->nick.c_str(), c->name.c_str());
+					user->WriteNumeric(404, "%s %s :Can't send colors to channel (+c set)",user->nick.c_str(), c->name.c_str());
 					return MOD_RES_DENY;
 				}
 		}
@@ -79,7 +79,7 @@ class ModuleBlockColour : public Module
 				partmessage = "";
 	}
 
-	virtual ~ModuleBlockColour()
+	virtual ~ModuleBlockColor()
 	{
 	}
 
@@ -89,4 +89,4 @@ class ModuleBlockColour : public Module
 	}
 };
 
-MODULE_INIT(ModuleBlockColour)
+MODULE_INIT(ModuleBlockColor)

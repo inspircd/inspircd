@@ -71,7 +71,7 @@
 <module name="m_chancreate.so">
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel Names module: Allows disabling channels which have certain
-# characters in the channel name such as bold, colourcodes, etc which
+# characters in the channel name such as bold, colorcodes, etc which
 # can be quite annoying and allow users to on occasion have a channel
 # that looks like the name of another channel on the network.
 <module name="m_channames.so">
