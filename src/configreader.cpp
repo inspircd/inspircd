@@ -630,7 +630,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 		 * thoroughly!!!
 		 */
 		ServerInstance->XLines->CheckELines();
-		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
 		ServerInstance->ResetMaxBans();
