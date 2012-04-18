@@ -136,7 +136,7 @@ class ModuleZLib : public Module
 	/* Handle stats z (misc stats) */
 	virtual int OnStats(char symbol, User* user, string_list &results)
 	{
-		if (symbol == 'z')
+		if (symbol == 'I')
 		{
 			std::string sn = ServerInstance->Config->ServerName;
 

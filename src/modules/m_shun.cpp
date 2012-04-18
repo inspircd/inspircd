@@ -110,8 +110,7 @@ class CommandShun : public Command
 			}
 			else
 			{
-				// XXX todo implement stats
-				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats S.",user->nick.c_str(),target.c_str());
+				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats H.",user->nick.c_str(),target.c_str());
 			}
 
 			return CMD_SUCCESS;
@@ -201,9 +200,15 @@ class ModuleShun : public Module
 		delete f;
 	}
 
+	void Prioritize()
+	{
+		Module* alias = ServerInstance->Modules->Find("m_alias.so");
+		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, &alias);
+	}
+
 	virtual int OnStats(char symbol, User* user, string_list& out)
 	{
-		if (symbol != 'S')
+		if (symbol != 'H')
 			return 0;
 
 		ServerInstance->XLines->InvokeStats("SHUN", 223, user, out);
