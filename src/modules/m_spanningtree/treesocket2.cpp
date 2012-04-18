@@ -437,7 +437,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		if (res == CMD_INVALID)
 		{
 			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
-			ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Error handing S2S command :%s %s %s",
+			ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Error handling S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
 		}
