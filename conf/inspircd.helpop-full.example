@@ -967,7 +967,7 @@ Note that all /STATS use is broadcast to online IRC operators.">
  q      Allows receipt of local quit messages.
  Q      Allows receipt of remote quit messages.
  t      Allows receipt of attempts to use /STATS (local and remote).
- x      Allows receipt of Xline notices (g/z/q/k/e).">
+ x      Allows receipt of Xline notices (g/z/q/k/e/R/shuns).">
 
 ######################
 #      EXTBANS       #
