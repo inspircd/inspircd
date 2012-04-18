@@ -57,10 +57,11 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 {
 	std::string sn(ServerInstance->Config->ServerName);
 
-	/* Only allow the /STATS if the requested stats symbol is configured to be readable by everyone or the requester is either a remote oper or
-	 * a local oper with the servers/auspex privilige
-	 */
-	if (((!IS_LOCAL(user) && !IS_OPER(user)) || !user->HasPrivPermission("servers/auspex")) && !strchr(ServerInstance->Config->UserStats, statschar))
+	bool isPublic = strchr(ServerInstance->Config->UserStats, statschar);
+	bool isRemoteOper = IS_REMOTE(user) && IS_OPER(user);
+	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
+
+	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
 	{
 		ServerInstance->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
