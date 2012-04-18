@@ -19,7 +19,11 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 {
 	std::string sn(this->Config->ServerName);
 
-	if (!user->HasPrivPermission("servers/auspex") && Config->UserStats.find(statschar) == std::string::npos)
+	bool isPublic = Config->UserStats.find(statschar) != std::string::npos;
+	bool isRemoteOper = IS_REMOTE(user) && IS_OPER(user);
+	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
+
+	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
 	{
 		this->SNO->WriteToSnoMask('t',
 				"%s '%c' denied for %s (%s@%s)",
