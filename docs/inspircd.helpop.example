@@ -9,7 +9,7 @@
 #   -- w00t 16/dec/2006
 #
 
-<alias text="HELPOP" replace="HELP $2-">
+<alias text="HELP" replace="HELPOP $2-">
 
 <helpop key="start" value="InspIRCd Help System
 
@@ -17,12 +17,12 @@ This system provides help for commands and modes.
 Specify your question or a command name as the
 parameter for this command.
 
-/HELP CUSER    -      To see a list of user commands
-/HELP COPER    -      To see a list of oper commands
-/HELP UMODES   -      To see a list of user modes
-/HELP CHMODES  -      To see a list of channel modes
-/HELP SNOMASKS -      To see a list of oper snotice masks
-/HELP EXTBANS  -      To see a list of extended bans">
+/HELPOP CUSER    -      To see a list of user commands
+/HELPOP COPER    -      To see a list of oper commands
+/HELPOP UMODES   -      To see a list of user modes
+/HELPOP CHMODES  -      To see a list of channel modes
+/HELPOP SNOMASKS -      To see a list of oper snotice masks
+/HELPOP EXTBANS  -      To see a list of extended bans">
 
 <helpop key="nohelp" value="There is no help for the topic
 you searched for. Please try again.">
