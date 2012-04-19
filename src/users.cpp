@@ -1541,7 +1541,7 @@ void User::SplitChanList(User* dest, const std::string &cl)
 		}
 	}
 
-	if (line.length())
+	if (line.length() != prefix.str().length())
 	{
 		ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
 	}
