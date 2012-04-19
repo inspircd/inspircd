@@ -190,14 +190,13 @@ class ModuleRLine : public Module
 	RLineFactory *f;
 	bool MatchOnNickChange;
 	std::string RegexEngine;
+	bool usedinterface;
 
  public:
-	ModuleRLine(InspIRCd* Me) : Module(Me)
+	ModuleRLine(InspIRCd* Me) : Module(Me), usedinterface(false)
 	{
 		mymodule = this;
 		OnRehash(NULL);
-
-		Me->Modules->UseInterface("RegularExpression");
 
 		// Create a new command
 		r = new CommandRLine(ServerInstance);
@@ -213,7 +212,8 @@ class ModuleRLine : public Module
 
 	virtual ~ModuleRLine()
 	{
-		ServerInstance->Modules->DoneWithInterface("RegularExpression");
+		if (usedinterface)
+			ServerInstance->Modules->DoneWithInterface("RegularExpression");
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(f);
 		delete f;
@@ -262,6 +262,11 @@ class ModuleRLine : public Module
 				{
 					ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
 					rxengine = *i;
+					if (!usedinterface)
+					{
+						ServerInstance->Modules->UseInterface("RegularExpression");
+						usedinterface = true;
+					}
 				}
 			}
 		}
@@ -289,6 +294,11 @@ class ModuleRLine : public Module
 			{
 				ServerInstance->SNO->WriteToSnoMask('x', "R-Line now using engine '%s'", RegexEngine.c_str());
 				rxengine = mod;
+				if (!usedinterface)
+				{
+					ServerInstance->Modules->UseInterface("RegularExpression");
+					usedinterface = true;
+				}
 			}
 		}
 	}
