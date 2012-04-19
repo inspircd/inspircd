@@ -1199,6 +1199,14 @@
 		# nick: nick to forward connect passwords to.
 		#nick="NickServ"
 
+		# uline: Is $nick U:Lined?
+		# If $nick is NickServ, or ends in Serv (i.e. AuthServ)
+		# then this is most likely a yes.
+		# Set it to "yes" unless you know for a fact
+		# that $nick should not be U:Lined.
+		# In that case, set it to "no".
+		#uline="yes"
+
 		# forwardmsg: Message to send to users using a connect password.
 		# $nick will be the users' nick, $nickrequired will be the nick
 		# of where the password is going (the nick above).
