@@ -777,12 +777,12 @@
 # specify below the path to the helpop.conf file, or if you like to   #
 # make a mess, define your helpop tags in this conf.                  #
 #                                                                     #
-#<include file="helpop.conf">
+#<include file="inspircd.helpop-full.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDECHANS module: Allows opers to hide their channels list from non-
 # opers by setting user mode +I on themselves.
-# <module name="m_hidechans.so">
+#<module name="m_hidechans.so">
 #
 # HIDECHANS can optionally prevent opers from seeing channels on a +I
 # user, for more privacy if set to true.
@@ -793,7 +793,7 @@
 # HIDEOPER module: Allows opers to hide their oper status from non-
 # opers by setting user mode +H on themselves.
 # This module is oper-only.
-# <module name="m_hideoper.so">
+#<module name="m_hideoper.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hostchange module: Allows a different style of cloaking
