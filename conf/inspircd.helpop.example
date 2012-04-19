@@ -9,6 +9,8 @@
 #   -- w00t 16/dec/2006
 #
 
+<alias text="HELP" replace="HELPOP $2-">
+
 <helpop key="start" value="InspIRCd Help System
 
 This system provides help for commands and modes.
