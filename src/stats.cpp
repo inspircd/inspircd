@@ -22,7 +22,7 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 	std::string sn(this->Config->ServerName);
 
 	bool isPublic = Config->UserStats.find(statschar) != std::string::npos;
-	bool isRemoteOper = IS_REMOTE(user) && IS_OPER(user);
+	bool isRemoteOper = !IS_LOCAL(user) && IS_OPER(user);
 	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
 
 	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
