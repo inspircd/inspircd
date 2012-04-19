@@ -53,7 +53,7 @@ class Helpop : public ModeHandler
 class CommandHelpop : public Command
 {
  public:
-	CommandHelpop(Module* Creator) : Command(Creator, "HELP", 0)
+	CommandHelpop(Module* Creator) : Command(Creator, "HELPOP", 0)
 	{
 		syntax = "<any-text>";
 	}
@@ -176,7 +176,7 @@ class ModuleHelpop : public Module
 
 		Version GetVersion()
 		{
-			return Version("/help command, works like Unreal helpop", VF_VENDOR);
+			return Version("Provides the /HELPOP command, works like UnrealIRCd's helpop", VF_VENDOR);
 		}
 };
 
