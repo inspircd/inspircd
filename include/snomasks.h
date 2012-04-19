@@ -38,7 +38,7 @@ class Snomask
 	void Flush();
 };
 
-/** Snomask manager handles routing of SNOMASK (usermode +n) messages to opers.
+/** Snomask manager handles routing of SNOMASK (usermode +s) messages to opers.
  * Modules and the core can enable and disable snomask characters. If they do,
  * then sending snomasks using these characters becomes possible.
  */

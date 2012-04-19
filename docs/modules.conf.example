@@ -210,7 +210,7 @@
 # specify some censor tags. See also:                                 #
 # http://wiki.inspircd.org/Modules/censor                             #
 #
-#<include file="censor.conf">
+#<include file="conf/censor.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Adds support for automatic host changing in CGI:IRC
@@ -692,7 +692,7 @@
 # specfiy below the path to the filter.conf file, or define some      #
 # <filter> tags.                                                      #
 #                                                                     #
-#<include file="filter.conf">
+#<include file="conf/filter.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Gecosban: Implements extended ban r:, which stops anyone matching
@@ -750,12 +750,12 @@
 # specify below the path to the helpop.conf file, or if you like to   #
 # make a mess, define your helpop tags in this conf.                  #
 #                                                                     #
-#<include file="inspircd.helpop-full.example">
+#<include file="conf/inspircd.helpop-full.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDECHANS module: Allows opers to hide their channels list from non-
 # opers by setting user mode +I on themselves.
-# <module name="m_hidechans.so">
+#<module name="m_hidechans.so">
 #
 # HIDECHANS can optionally prevent opers from seeing channels on a +I
 # user, for more privacy if set to true.
@@ -766,7 +766,7 @@
 # HIDEOPER module: Allows opers to hide their oper status from non-
 # opers by setting user mode +H on themselves.
 # This module is oper-only.
-# <module name="m_hideoper.so">
+#<module name="m_hideoper.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hostchange module: Allows a different style of cloaking
@@ -944,9 +944,9 @@
 # If setaccount is yes, the account name in m_services_account is set #
 # to the LDAP username that was authenticated                         #
 #                                                                     #
-# ldapwhitelist indicates that clients connecting from an IP in the   *
-* provided CIDR do not need to authenticate against LDAP. It can be   *
-* repeated to whitelist multiple CIDRs.                               #
+# ldapwhitelist indicates that clients connecting from an IP in the   #
+# provided CIDR do not need to authenticate against LDAP. It can be   #
+# repeated to whitelist multiple CIDRs.                               #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP oper configuration module: Adds the ability to authenticate    #
