@@ -20,7 +20,6 @@
  */
 
 
-
 #include "inspircd.h"
 #include "configreader.h"
 #include "mode.h"

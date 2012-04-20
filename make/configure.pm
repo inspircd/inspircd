@@ -19,6 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
 package make::configure;
 
 require 5.8.0;

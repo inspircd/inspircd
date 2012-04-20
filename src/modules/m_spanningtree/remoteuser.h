@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef M_SPANNINGTREE_REMOTEUSER_H
 #define M_SPANNINGTREE_REMOTEUSER_H
 class CoreExport RemoteUser : public User
