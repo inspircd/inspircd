@@ -20,6 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #define _CRT_SECURE_NO_DEPRECATE
 
 #define CONFIGURE_BUILD

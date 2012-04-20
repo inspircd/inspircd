@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 /* $ModDesc: Provides a spanning tree server link protocol */
 
 #include "inspircd.h"

@@ -19,7 +19,6 @@
  */
 
 
-
 #include "inspircd.h"
 #include "account.h"
 
