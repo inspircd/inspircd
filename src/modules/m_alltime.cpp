@@ -31,15 +31,14 @@ class CommandAlltime : public Command
 		time_t now = ServerInstance->Time();
 		strftime(fmtdate, sizeof(fmtdate), "%Y-%m-%d %H:%M:%S", gmtime(&now));
 
-		std::string msg = ":" + std::string(ServerInstance->Config->ServerName) + " NOTICE " + user->nick + " :System time is " + fmtdate + "(" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
-
+		std::string msg = "System time is " + std::string(fmtdate) + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 		if (IS_LOCAL(user))
 		{
-			user->Write(msg);
+			user->WriteServ("NOTICE %s :%s", user->nick.c_str(), msg.c_str());
 		}
 		else
 		{
-			ServerInstance->PI->PushToClient(user, ":" + msg);
+			ServerInstance->PI->SendUserNotice(user, msg);
 		}
 
 		/* we want this routed out! */

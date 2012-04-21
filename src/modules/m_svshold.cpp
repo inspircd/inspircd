@@ -153,8 +153,8 @@ class ModuleSVSHold : public Module
 		ServerInstance->XLines->RegisterFactory(s);
 		mycommand = new CommandSvshold(Me);
 		ServerInstance->AddCommand(mycommand);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnSyncOtherMetaData, I_OnDecodeMetaData, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 
