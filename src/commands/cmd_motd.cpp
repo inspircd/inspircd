@@ -23,7 +23,7 @@ class CommandMotd : public Command
  public:
 	/** Constructor for motd.
 	 */
-	CommandMotd ( Module* parent) : Command(parent,"MOTD",0,1) { syntax = "[<servername>]"; }
+	CommandMotd ( Module* parent) : Command(parent,"MOTD",0,1) { ServerInstance->ProcessedMotdEscapes = false; syntax = "[<servername>]"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -57,7 +57,7 @@ inline std::string replace_all(const std::string &str, const std::string &orig, 
  * can append other chars to replace if you like (such as %U
  * being underline). -- Justasic
  */
-std::string ProcessColors(const std::string &string)
+void ProcessColors(ConfigFileCache::iterator &file)
 {
 	static struct special_chars
 	{
@@ -78,17 +78,20 @@ std::string ProcessColors(const std::string &string)
                 special_chars("", "")
 	};
 
-	std::string ret = string;
-	for(int i = 0; special[i].character.empty() == false; ++i)
+	for(file_cache::iterator it = file->second.begin(); it != file->second.end(); it++)
 	{
-		std::string::size_type pos = ret.find(special[i].character);
-		if(pos != std::string::npos && ret[pos-1] == '\\' && ret[pos] == '\\')
-			continue; // Skip double slashes.
+		std::string ret = *it;
+		for(int i = 0; special[i].character.empty() == false; ++i)
+		{
+			std::string::size_type pos = ret.find(special[i].character);
+			if(pos != std::string::npos && ret[pos-1] == '\\' && ret[pos] == '\\')
+				continue; // Skip double slashes.
 
-		ret = replace_all(ret, special[i].character, special[i].replace);
+			ret = replace_all(ret, special[i].character, special[i].replace);
+		}
+		// Replace double slashes with a single slash before we return
+		*it = replace_all(ret, "\\\\", "\\");
 	}
-	// Replace double slashes with a single slash before we return
-	return replace_all(ret, "\\\\", "\\");
 }
 
 /** Handle /MOTD
@@ -110,11 +113,17 @@ CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_SUCCESS;
 	}
 
+	if(!ServerInstance->ProcessedMotdEscapes)
+	{
+		ProcessColors(motd);
+		ServerInstance->ProcessedMotdEscapes = true;
+	}
+
 	user->SendText(":%s %03d %s :%s message of the day", ServerInstance->Config->ServerName.c_str(),
 		RPL_MOTDSTART, user->nick.c_str(), ServerInstance->Config->ServerName.c_str());
 
 	for (file_cache::iterator i = motd->second.begin(); i != motd->second.end(); i++)
-		user->SendText(":%s %03d %s :- %s", ServerInstance->Config->ServerName.c_str(), RPL_MOTD, user->nick.c_str(), ProcessColors(*i).c_str());
+		user->SendText(":%s %03d %s :- %s", ServerInstance->Config->ServerName.c_str(), RPL_MOTD, user->nick.c_str(), i->c_str());
 
 	user->SendText(":%s %03d %s :End of message of the day.", ServerInstance->Config->ServerName.c_str(), RPL_ENDOFMOTD, user->nick.c_str());
 
