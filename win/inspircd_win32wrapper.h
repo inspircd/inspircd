@@ -18,6 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef INSPIRCD_WIN32WRAPPER_H
 #define INSPIRCD_WIN32WRAPPER_H
 

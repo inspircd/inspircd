@@ -18,7 +18,6 @@
  */
 
 
-
 #include "inspircd.h"
 #include "protocol.h"
 
