@@ -212,7 +212,7 @@ install: target
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
 	@-install -d -m $(INSTMODE_DIR) $(BINPATH)
-	@-install -d -m $(INSTMODE_DIR) $(CONPATH)
+	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples
 	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
 @IFNDEF PURE_STATIC
@@ -220,7 +220,7 @@ install: target
 @ENDIF
 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
 	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
-	-install -m $(INSTMODE_LIB) docs/*.example $(CONPATH)
+	-install -m $(INSTMODE_LIB) docs/*.example $(CONPATH)/examples
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
