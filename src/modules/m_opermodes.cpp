@@ -49,9 +49,9 @@ class ModuleModesOnOper : public Module
 
 	virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
 	{
-		// whenever a user opers, go through the oper types, find their <type:modes>,
-		// and if they have one apply their modes. The mode string can contain +modes
-		// to add modes to the user or -modes to take modes from the user.
+		/* whenever a user opers, go through the oper types, find their <type:automodes>,
+			and if they have one apply their modes. The mode string can contain +modes
+			to add modes to the user or -modes to take modes from the user. */
 		std::string ThisOpersModes = user->oper->getConfig("automodes");
 		if (!ThisOpersModes.empty())
 		{
