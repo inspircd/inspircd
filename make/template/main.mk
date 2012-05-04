@@ -231,7 +231,8 @@ install: target
 	@echo '  Binaries:' $(BINPATH)
 	@echo '  Modules:' $(MODPATH)
 	@echo 'To start the ircd, run:' $(BASE)/inspircd start
-	@echo 'Remember to edit your config file:' $(CONPATH)/inspircd.conf
+	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
+	@echo 'Examples are available at:' $(CONPATH)/examples/
 
 @GNU_ONLY RCS_FILES = $(wildcard .git/index src/version.sh)
 @BSD_ONLY RCS_FILES = src/version.sh
