@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef WIN32SERVICE_H
 #define WIN32SERVICE_H
 

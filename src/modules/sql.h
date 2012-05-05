@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #ifndef INSPIRCD_SQLAPI_3
 #define INSPIRCD_SQLAPI_3
 

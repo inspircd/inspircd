@@ -17,7 +17,6 @@
  */
 
 
-
 #include "inspircd.h"
 #include "sql.h"
 
