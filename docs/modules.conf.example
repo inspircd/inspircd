@@ -1164,8 +1164,8 @@
 #
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_override.so is too complex it describe here, see the wiki:        #
-# http://wiki.inspircd.org/Modules/override                           #
+# m_override.so is too complex to describe here. See the wiki:        #
+# https://github.com/inspircd/wiki/wiki/Override-Module               #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents
