@@ -825,6 +825,14 @@
 #<module name="m_httpd_stats.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# http rehash module: Allows the configs to be rehashed over HTTP.
+# Requires m_httpd.so to be loaded for it to function.
+# Suggest to have m_httpd_acl loaded to enhance the security.
+#<module name="m_httpd_rehash.so">
+#<httpdacl path="/rehash*" types="whitelist" whitelist="127.0.0.*,192.168.*">
+#<httpdacl path="/rehash*" types="password" username="rehashuser" password="topsecret">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Ident: Provides RFC 1413 ident lookup support
 # When this module is loaded <connect:allow> tags may have an optional
 # useident="yes|no" boolean value, determining whether or not to lookup
