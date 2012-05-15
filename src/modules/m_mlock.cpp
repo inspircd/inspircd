@@ -47,7 +47,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		std::string *mlock_str = mlock.get(channel);
-		if (mlock_str->empty())
+		if (!mlock_str || mlock_str->empty())
 			return MOD_RES_PASSTHRU;
 
 		for (const char *modes = parameters[1].c_str(); *modes; modes++)
