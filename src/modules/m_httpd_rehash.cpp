@@ -45,7 +45,7 @@ public:
 				if (!ServerInstance->PendingRehash)
 				{
 					data << "Rehashed";
-					ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s from Admin Panel",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()));
+					ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s from HTTP request from %s", ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), http->GetIP().c_str());
 					ServerInstance->PendingRehash = new ConfigReaderThread("");
 					ServerInstance->Threads->Submit(ServerInstance->PendingRehash);
 				} else {
@@ -72,4 +72,3 @@ public:
 };
 
 MODULE_INIT(ModuleHttpRehash)
-
