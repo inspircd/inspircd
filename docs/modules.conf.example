@@ -1038,6 +1038,12 @@
 #<module name="m_messageflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MLOCK module: Adds support for server-side enforcement of services
+# side MLOCKs.  Basically, this module suppresses any mode change that
+# would likely be immediately bounced by services.
+#<module name="m_mlock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MsSQL module: Allows other SQL modules to access MS SQL Server 
 # through a unified API. You must copy the source for this module
 # from the directory src/modules/extra, plus the file m_sqlv2.h
