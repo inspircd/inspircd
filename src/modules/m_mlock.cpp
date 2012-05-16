@@ -18,7 +18,8 @@
 
 #include "inspircd.h"
 
-class ModuleMLock : public Module {
+class ModuleMLock : public Module
+{
 private:
 	StringExtItem mlock;
 
@@ -27,8 +28,7 @@ public:
 
 	void init()
 	{
-		Implementation eventlist[] = { I_OnPreMode };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(I_OnPreMode, this);
 	}
 
 	Version GetVersion()
