@@ -46,6 +46,61 @@ class CommandRules : public Command
 	}
 };
 
+/*
+ * Replace all color codes from the special[] array to actual
+ * color code chars using C++ style escape sequences. You
+ * can append other chars to replace if you like (such as %U
+ * being underline). -- Justasic
+ */
+void ProcessColors(ConfigFileCache::iterator &file)
+{
+  static struct special_chars
+  {
+    std::string character;
+    std::string replace;
+    special_chars(const std::string &c, const std::string &r) : character(c), replace(r) { }
+  }
+  
+  special[] = {
+    special_chars("\\002", "\002"),  // Bold
+    special_chars("\\037", "\037"),  // underline
+    special_chars("\\003", "\003"),  // Color
+    special_chars("\\0017", "\017"), // Stop colors
+    special_chars("\\u", "\037"),    // Alias for underline
+    special_chars("\\b", "\002"),    // Alias for Bold
+    special_chars("\\x", "\017"),    // Alias for stop
+    special_chars("\\c", "\003"),    // Alias for color
+    special_chars("", "")
+  };
+  
+  for(file_cache::iterator it = file->second.begin(); it != file->second.end(); it++)
+  {
+    std::string ret = *it;
+    for(int i = 0; special[i].character.empty() == false; ++i)
+    {
+      std::string::size_type pos = ret.find(special[i].character);
+      if(pos != std::string::npos && ret[pos-1] == '\\' && ret[pos] == '\\')
+	continue; // Skip double slashes.
+	
+	// Replace all our characters in the array
+	while(pos != std::string::npos)
+	{
+	  ret = ret.substr(0, pos) + special[i].replace + ret.substr(pos + special[i].character.size());
+	  pos = ret.find(special[i].character, pos + special[i].replace.size());
+	}
+    }
+    
+    // Replace double slashes with a single slash before we return
+    std::string::size_type pos = ret.find("\\\\");
+    while(pos != std::string::npos)
+    {
+      ret = ret.substr(0, pos) + "\\" + ret.substr(pos + 2);
+      pos = ret.find("\\\\", pos + 1);
+    }
+    *it = ret;
+  }
+}
+
 CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
@@ -62,6 +117,13 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 			ServerInstance->Config->ServerName.c_str(), ERR_NORULES, user->nick.c_str());
 		return CMD_SUCCESS;
 	}
+
+	if(!ServerInstance->ProcessedRulesEscapes)
+	{
+		ProcessColors(rules);
+		ServerInstance->ProcessedRulesEscapes = true;
+	}
+
 	user->SendText(":%s %03d %s :%s server rules:", ServerInstance->Config->ServerName.c_str(),
 		RPL_RULESTART, user->nick.c_str(), ServerInstance->Config->ServerName.c_str());
 

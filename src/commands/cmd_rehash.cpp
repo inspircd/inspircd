@@ -90,6 +90,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		 */
 
 		ServerInstance->ProcessedMotdEscapes = false; // Reprocess our motd file --Justasic
+		ServerInstance->ProcessedRulesEscapes = false; // Reprocess our rules file --Justasic
 		ServerInstance->RehashUsersAndChans();
 		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 
