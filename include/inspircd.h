@@ -453,6 +453,10 @@ class CoreExport InspIRCd
 	 */
 	bool ProcessedMotdEscapes;
 
+	/** Holds whether the RULES has been parsed for color codes
+	*/
+	bool ProcessedRulesEscapes;
+
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
 	 * it is much faster than calling time() directly.
