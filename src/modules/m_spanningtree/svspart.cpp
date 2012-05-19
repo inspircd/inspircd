@@ -37,21 +37,23 @@ bool TreeSocket::ServicePart(const std::string &prefix, std::deque<std::string> 
 	if (params.size() < 2)
 		return true;
 
-	std::string reason = "Services forced part";
-
-	if (params.size() == 3)
-		reason = params[2];
-
 	User* u = this->ServerInstance->FindNick(params[0]);
 	Channel* c = this->ServerInstance->FindChan(params[1]);
 
-	if (u)
+	if (u && c)
 	{
 		/* only part if it's local, otherwise just pass it on! */
 		if (IS_LOCAL(u))
+		{
+			std::string reason;
+			reason = (params.size() == 3) ? params[2] : "Services forced part";
 			if (!c->PartUser(u, reason))
 				delete c;
-		Utils->DoOneToAllButSender(prefix,"SVSPART",params,prefix);
+		}
+		else
+		{
+			Utils->DoOneToOne(prefix,"SVSPART",params,u->server);
+		}
 	}
 
 	return true;
