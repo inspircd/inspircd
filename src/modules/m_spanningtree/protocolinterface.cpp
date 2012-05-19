@@ -48,7 +48,14 @@ void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 
 void SpanningTreeProtocolInterface::SendEncapsulatedData(parameterlist &encap)
 {
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);
+	if (encap.size() < 2)
+		return;
+
+	const std::string& target = encap[0];
+	if (target.find_first_of("*?") == std::string::npos)
+		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "ENCAP", encap, target);
+	else
+		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);
 }
 
 void SpanningTreeProtocolInterface::SendMetaData(void* target, TargetTypeFlags type, const std::string &key, const std::string &data)
@@ -63,11 +70,9 @@ void SpanningTreeProtocolInterface::SendMetaData(void* target, TargetTypeFlags t
 		case TYPE_CHANNEL:
 			params.push_back(((Channel*)target)->name);
 			break;
+		case TYPE_OTHER:
 		case TYPE_SERVER:
 			params.push_back("*");
-			break;
-		default:
-			throw CoreException("I don't know how to handle TYPE_OTHER.");
 			break;
 	}
 	params.push_back(key);
@@ -179,7 +184,7 @@ void SpanningTreeProtocolInterface::SendUserPrivmsg(User* target, const std::str
 		TreeSocket* sock = serv->GetSocket();
 		if (sock)
 		{
-			sock->WriteLine(":" + ServerInstance->Config->GetSID() + " PRIVMSG " + target->nick + " :"+text);
+			sock->WriteLine(":" + ServerInstance->Config->GetSID() + " PRIVMSG " + target->uuid + " :"+text);
 		}
 	}
 }
@@ -192,7 +197,7 @@ void SpanningTreeProtocolInterface::SendUserNotice(User* target, const std::stri
 		TreeSocket* sock = serv->GetSocket();
 		if (sock)
 		{
-			sock->WriteLine(":" + ServerInstance->Config->GetSID() + " NOTICE " + target->nick + " :"+text);
+			sock->WriteLine(":" + ServerInstance->Config->GetSID() + " NOTICE " + target->uuid + " :"+text);
 		}
 	}
 }
