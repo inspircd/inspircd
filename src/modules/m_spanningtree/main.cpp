@@ -43,7 +43,7 @@
 /* $ModDep: m_spanningtree/cachetimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h m_spanningtree/protocolinterface.h */
 
 ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
-	: Module(Me), max_local(0), max_global(0)
+	: Module(Me), max_local(0), max_global(0), loopCall(false)
 {
 	ServerInstance->Modules->UseInterface("BufferedSocketHook");
 	Utils = new SpanningTreeUtilities(ServerInstance, this);
@@ -67,7 +67,6 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
-	loopCall = false;
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
@@ -611,7 +610,7 @@ void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, boo
 		params.push_back(channel->name);
 		params.push_back(ConvToStr(channel->age));
 		params.push_back(std::string("+") + channel->ChanModes(true));
-		params.push_back(ServerInstance->Modes->ModeString(user, channel, false)+","+std::string(user->uuid));
+		params.push_back(ServerInstance->Modes->ModeString(user, channel, false) + "," + user->uuid);
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 	}
 }
@@ -638,7 +637,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	Utils->DoOneToMany(user->uuid,"FNAME",params);
 }
 
-void ModuleSpanningTree::OnUserPart(User* user, Channel* channel,  std::string &partmessage, bool &silent)
+void ModuleSpanningTree::OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
 {
 	if (IS_LOCAL(user))
 	{
@@ -660,8 +659,8 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		{
 			params.push_back(":"+oper_message);
 			Utils->DoOneToMany(user->uuid,"OPERQUIT",params);
+			params.clear();
 		}
-		params.clear();
 		params.push_back(":"+reason);
 		Utils->DoOneToMany(user->uuid,"QUIT",params);
 	}
@@ -834,7 +833,6 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
 		std::deque<std::string> params;
-		std::string command;
 		std::string output_text;
 
 		ServerInstance->Parser->TranslateUIDs(translate, text, output_text);
@@ -844,7 +842,7 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 			User* u = (User*)dest;
 			params.push_back(u->uuid);
 			params.push_back(output_text);
-			command = "MODE";
+			Utils->DoOneToMany(user->uuid, "MODE", params);
 		}
 		else
 		{
@@ -852,10 +850,8 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 			params.push_back(c->name);
 			params.push_back(ConvToStr(c->age));
 			params.push_back(output_text);
-			command = "FMODE";
+			Utils->DoOneToMany(user->uuid, "FMODE", params);
 		}
-
-		Utils->DoOneToMany(user->uuid, command, params);
 	}
 }
 
@@ -863,18 +859,10 @@ int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 {
 	if (IS_LOCAL(user))
 	{
-		if (awaymsg.empty())
-		{
-			std::deque<std::string> params;
-			params.clear();
-			Utils->DoOneToMany(user->uuid,"AWAY",params);
-		}
-		else
-		{
-			std::deque<std::string> params;
+		std::deque<std::string> params;
+		if (!awaymsg.empty())
 			params.push_back(":" + awaymsg);
-			Utils->DoOneToMany(user->uuid,"AWAY",params);
-		}
+		Utils->DoOneToMany(user->uuid,"AWAY",params);
 	}
 
 	return 0;
