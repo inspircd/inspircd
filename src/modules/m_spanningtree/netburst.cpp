@@ -229,9 +229,9 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 		FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannel,OnSyncChannel(c->second,(Module*)Utils->Creator,(void*)this));
 		list.clear();
 		c->second->GetExtList(list);
-		for (unsigned int j = 0; j < list.size(); j++)
+		for (std::deque<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
-			FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)Utils->Creator,(void*)this,list[j]));
+			FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)Utils->Creator,(void*)this,*i));
 		}
 	}
 }
@@ -277,9 +277,9 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			FOREACH_MOD_I(this->ServerInstance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
 			list.clear();
 			u->second->GetExtList(list);
-			for (unsigned int j = 0; j < list.size(); j++)
+			for (std::deque<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
 			{
-				FOREACH_MOD_I(this->ServerInstance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,list[j]));
+				FOREACH_MOD_I(this->ServerInstance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,*i));
 			}
 		}
 	}

@@ -55,9 +55,9 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 375 "+source->nick+" :"+ServerInstance->Config->ServerName+" message of the day";
 				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 
-				for (unsigned int i = 0; i < ServerInstance->Config->MOTD.size(); i++)
+				for (file_cache::const_iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); ++i)
 				{
-					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 372 "+source->nick+" :- "+ServerInstance->Config->MOTD[i];
+					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 372 "+source->nick+" :- "+*i;
 					Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 				}
 
@@ -75,4 +75,3 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 	}
 	return true;
 }
-

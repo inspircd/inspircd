@@ -78,18 +78,17 @@ int ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results
 	if (statschar == 'p')
 	{
 		/* show all server ports, after showing client ports. -- w00t */
-
-		for (unsigned int i = 0; i < Utils->Bindings.size(); i++)
+		for (std::vector<ServerSocketListener*>::const_iterator i = Utils->Bindings.begin(); i != Utils->Bindings.end(); ++i)
 		{
-			std::string ip = Utils->Bindings[i]->GetIP();
+			std::string ip = (*i)->GetIP();
 			if (ip.empty())
 				ip = "*";
 
 			std::string transport("plaintext");
-			if (Utils->Bindings[i]->GetIOHook())
-				transport = BufferedSocketNameRequest(this, Utils->Bindings[i]->GetIOHook()).Send();
+			if ((*i)->GetIOHook())
+				transport = BufferedSocketNameRequest(this, (*i)->GetIOHook()).Send();
 
-			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr(Utils->Bindings[i]->GetPort())+
+			results.push_back(ConvToStr(ServerInstance->Config->ServerName) + " 249 "+user->nick+" :" + ip + ":" + ConvToStr((*i)->GetPort())+
 				" (server, " + transport + ")");
 		}
 	}

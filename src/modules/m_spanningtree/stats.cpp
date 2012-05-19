@@ -51,9 +51,9 @@ bool TreeSocket::Stats(const std::string &prefix, std::deque<std::string> &param
 				par.push_back(prefix);
 				par.push_back("");
 				DoStats(this->ServerInstance, *(params[0].c_str()), source, results);
-				for (size_t i = 0; i < results.size(); i++)
+				for (string_list::const_iterator i = results.begin(); i != results.end(); ++i)
 				{
-					par[1] = "::" + results[i];
+					par[1] = "::" + *i;
 					Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
 				}
 			}
