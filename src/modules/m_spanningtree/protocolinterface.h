@@ -27,7 +27,6 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 {
 	SpanningTreeUtilities* Utils;
 	ModuleSpanningTree* Module;
-	void SendChannel(Channel* target, char status, const std::string &text);
  public:
 	SpanningTreeProtocolInterface(ModuleSpanningTree* mod, SpanningTreeUtilities* util, InspIRCd* Instance) : ProtocolInterface(Instance), Utils(util), Module(mod) { }
 	virtual ~SpanningTreeProtocolInterface() { }

@@ -149,31 +149,16 @@ void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string
 	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", p, target->server);
 }
 
-void SpanningTreeProtocolInterface::SendChannel(Channel* target, char status, const std::string &text)
-{
-	std::string cname = target->name;
-	if (status)
-		cname = status + cname;
-	TreeServerList list;
-	CUList exempt_list;
-	Utils->GetListOfServersForChannel(target,list,status,exempt_list);
-	for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-	{
-		TreeSocket* Sock = i->second->GetSocket();
-		if (Sock)
-			Sock->WriteLine(text);
-	}
-}
-
-
 void SpanningTreeProtocolInterface::SendChannelPrivmsg(Channel* target, char status, const std::string &text)
 {
-	SendChannel(target, status, ":" + ServerInstance->Config->GetSID()+" PRIVMSG "+target->name+" :"+text);
+	CUList exempt_list;
+	Utils->SendChannelMessage(ServerInstance->Config->GetSID(), target, text, status, exempt_list, "PRIVMSG");
 }
 
 void SpanningTreeProtocolInterface::SendChannelNotice(Channel* target, char status, const std::string &text)
 {
-	SendChannel(target, status, ":" + ServerInstance->Config->GetSID()+" NOTICE "+target->name+" :"+text);
+	CUList exempt_list;
+	Utils->SendChannelMessage(ServerInstance->Config->GetSID(), target, text, status, exempt_list, "NOTICE");
 }
 
 void SpanningTreeProtocolInterface::SendUserPrivmsg(User* target, const std::string &text)

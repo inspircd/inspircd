@@ -58,6 +58,7 @@ class ModuleSpanningTree : public Module
 	SpanningTreeUtilities* Utils;
 
 	void RedoConfig(Module* mod, const std::string &name);
+	void LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const std::string& message_type);
 
  public:
 	CacheRefreshTimer *RefreshTimer;
