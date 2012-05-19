@@ -41,9 +41,6 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 	}
 
 	char strbuf[MAXBUF];
-	std::deque<std::string> par;
-	par.push_back(prefix);
-	par.push_back("");
 
 	User* source = this->ServerInstance->FindNick(prefix);
 	if (!source)
@@ -57,7 +54,7 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 
 		if (IS_OPER(source))
 		{
-                        std::string flags("Svsc");
+			std::string flags("Svsc");
 			int pos = 0;
 			for (int mult = 1; mult <= VF_SERVICEPROVIDER; mult *= 2, ++pos)
 				if (!(V.Flags & mult))
@@ -69,12 +66,10 @@ bool TreeSocket::Modules(const std::string &prefix, std::deque<std::string> &par
 		{
 			snprintf(strbuf, MAXBUF, "::%s 702 %s :%s", ServerInstance->Config->ServerName, source->nick.c_str(), i->c_str());
 		}
-		par[1] = strbuf;
-		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", par, source->server);
+		ServerInstance->PI->PushToClient(source, std::string(strbuf));
 	}
 	snprintf(strbuf, MAXBUF, "::%s 703 %s :End of MODULES list", ServerInstance->Config->ServerName, source->nick.c_str());
-	par[1] = strbuf;
-	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", par, source->server);
+	ServerInstance->PI->PushToClient(source, std::string(strbuf));
 	return true;
 }
 

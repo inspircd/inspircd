@@ -36,33 +36,24 @@ bool TreeSocket::Motd(const std::string &prefix, std::deque<std::string> &params
 		if (InspIRCd::Match(this->ServerInstance->Config->ServerName, params[0]))
 		{
 			/* It's for our server */
-			string_list results;
 			User* source = this->ServerInstance->FindNick(prefix);
 
 			if (source)
 			{
-				std::deque<std::string> par;
-				par.push_back(prefix);
-				par.push_back("");
-
 				if (!ServerInstance->Config->MOTD.size())
 				{
-					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 422 "+source->nick+" :Message of the day file is missing.";
-					Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
+					ServerInstance->PI->PushToClient(source, std::string("::")+ServerInstance->Config->ServerName+" 422 "+source->nick+" :Message of the day file is missing.");
 					return true;
 				}
 
-				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 375 "+source->nick+" :"+ServerInstance->Config->ServerName+" message of the day";
-				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
+				ServerInstance->PI->PushToClient(source, std::string("::")+ServerInstance->Config->ServerName+" 375 "+source->nick+" :"+ServerInstance->Config->ServerName+" message of the day");
 
+				std::string lineprefix = std::string("::") + ServerInstance->Config->ServerName + " 372 " + source->nick + " :- ";
 				for (file_cache::const_iterator i = ServerInstance->Config->MOTD.begin(); i != ServerInstance->Config->MOTD.end(); ++i)
 				{
-					par[1] = std::string("::")+ServerInstance->Config->ServerName+" 372 "+source->nick+" :- "+*i;
-					Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
+					ServerInstance->PI->PushToClient(source, lineprefix + *i);
 				}
-
-				par[1] = std::string("::")+ServerInstance->Config->ServerName+" 376 "+source->nick+" :End of message of the day.";
-				Utils->DoOneToOne(this->ServerInstance->Config->GetSID(), "PUSH",par, source->server);
+				ServerInstance->PI->PushToClient(source, std::string("::")+ServerInstance->Config->ServerName+" 376 "+source->nick+" :End of message of the day.");
 			}
 		}
 		else

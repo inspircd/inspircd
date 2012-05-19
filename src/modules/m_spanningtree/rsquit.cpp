@@ -53,7 +53,11 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 
 	if (server_target == Utils->TreeRoot)
 	{
-		NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+parameters[0]+" matches local server name)");
+		std::string msg = ":"+std::string(ServerInstance->Config->ServerName)+" NOTICE "+user->nick+" :*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+parameters[0]+" matches local server name)";
+		if (IS_LOCAL(user))
+			user->Write(msg);
+		else
+			ServerInstance->PI->PushToClient(user, ":" + msg);
 		return CMD_FAILURE;
 	}
 
@@ -76,20 +80,3 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 
 	return CMD_SUCCESS;
 }
-
-// XXX use protocol interface instead of rolling our own :)
-void CommandRSQuit::NoticeUser(User* user, const std::string &msg)
-{
-	if (IS_LOCAL(user))
-	{
-		user->WriteServ("NOTICE %s :%s",user->nick.c_str(),msg.c_str());
-	}
-	else
-	{
-		std::deque<std::string> params;
-		params.push_back(user->nick);
-		params.push_back("NOTICE "+ConvToStr(user->nick)+" :"+msg);
-		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", params, user->server);
-	}
-}
-
