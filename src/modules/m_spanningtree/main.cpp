@@ -788,22 +788,17 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 	if (!x->IsBurstable() || loopCall)
 		return;
 
-	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(),
-	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason);
 	std::deque<std::string> params;
-	params.push_back(data);
+	params.push_back(x->type);
+	params.push_back(x->Displayable());
+	params.push_back(ServerInstance->Config->ServerName);
+	params.push_back(ConvToStr(x->set_time));
+	params.push_back(ConvToStr(x->duration));
+	params.push_back(":" + std::string(x->reason));
 
-	if (!user)
-	{
-		/* Server-set lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ADDLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-set lines */
-		Utils->DoOneToMany(user->uuid, "ADDLINE", params);
-	}
+	/* Server-set lines doesn't have a setter user */
+	const std::string& source = user ? user->uuid : ServerInstance->Config->GetSID();
+	Utils->DoOneToMany(source, "ADDLINE", params);
 }
 
 void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
@@ -811,21 +806,13 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	if (!x->IsBurstable() || loopCall)
 		return;
 
-	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s", x->type.c_str(), x->Displayable());
 	std::deque<std::string> params;
-	params.push_back(data);
+	params.push_back(x->type);
+	params.push_back(x->Displayable());
 
-	if (!user)
-	{
-		/* Server-unset lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "DELLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-unset lines */
-		Utils->DoOneToMany(user->uuid, "DELLINE", params);
-	}
+	/* Server-set lines doesn't have a setter user */
+	const std::string& source = user ? user->uuid : ServerInstance->Config->GetSID();
+	Utils->DoOneToMany(source, "DELLINE", params);
 }
 
 void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::deque<std::string> &text, const std::deque<TranslateType> &translate)
