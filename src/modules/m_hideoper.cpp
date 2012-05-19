@@ -101,9 +101,9 @@ class ModuleHideOper : public Module
 		if (user->IsModeSet('H') && !source->HasPrivPermission("users/auspex"))
 		{
 			// hide the "*" that marks the user as an oper from the /WHO line
-			std::string::size_type pos = line.find("* ");
+			std::string::size_type pos = line.find("*");
 			if (pos != std::string::npos)
-				line.erase(pos);
+				line.erase(pos, 1);
 			// hide the line completely if doing a "/who * o" query
 			if (params.size() > 1 && params[1].find('o') != std::string::npos)
 				line.clear();
