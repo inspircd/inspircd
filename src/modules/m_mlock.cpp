@@ -24,7 +24,7 @@ private:
 	StringExtItem mlock;
 
 public:
-	ModuleMLock() : mlock("mlock", this) {};
+	ModuleMLock() : mlock(EXTENSIBLE_CHANNEL, "mlock", this) {};
 
 	void init()
 	{
@@ -41,24 +41,29 @@ public:
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
 	}
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters)
+	ModResult OnPreMode(User* source, Extensible *e, irc::modestacker &ms)
 	{
-		if (!channel)
+		Channel *ch = dynamic_cast<Channel *>(e);
+
+		if (!ch)
 			return MOD_RES_PASSTHRU;
 
 		if (!IS_LOCAL(source))
 			return MOD_RES_PASSTHRU;
 
-		std::string *mlock_str = mlock.get(channel);
+		std::string *mlock_str = mlock.get(e);
 		if (!mlock_str || mlock_str->empty())
 			return MOD_RES_PASSTHRU;
 
-		for (const char *modes = parameters[1].c_str(); *modes; modes++)
+		for(std::vector<irc::modechange>::iterator iter = ms.sequence.begin(); iter != ms.sequence.end(); ++iter)
 		{
-			if (mlock_str->find(*modes))
+			ModeHandler *mh = ServerInstance->Modes->FindMode(iter->mode);
+			char modechar = mh->GetModeChar();
+
+			if (mlock_str->find(modechar))
 			{
 				source->WriteNumeric(742, "%s %c %s :MODE cannot be set due to channel having an active MLOCK restriction policy",
-						     channel->name.c_str(), *modes, mlock_str->c_str());
+						     ch->name.c_str(), modechar, mlock_str->c_str());
 				return MOD_RES_DENY;
 			}
 		}
