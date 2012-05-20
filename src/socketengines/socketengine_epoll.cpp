@@ -90,9 +90,9 @@ EPollEngine::~EPollEngine()
 	delete[] events;
 }
 
-static int mask_to_epoll(int event_mask)
+static unsigned mask_to_epoll(int event_mask)
 {
-	int rv = 0;
+	unsigned rv = 0;
 	if (event_mask & (FD_WANT_POLL_READ | FD_WANT_POLL_WRITE | FD_WANT_SINGLE_WRITE))
 	{
 		// we need to use standard polling on this FD
@@ -149,8 +149,8 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 
 void EPollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
-	int old_events = mask_to_epoll(old_mask);
-	int new_events = mask_to_epoll(new_mask);
+	unsigned old_events = mask_to_epoll(old_mask);
+	unsigned new_events = mask_to_epoll(new_mask);
 	if (old_events != new_events)
 	{
 		// ok, we actually have something to tell the kernel about
