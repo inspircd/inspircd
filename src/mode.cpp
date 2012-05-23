@@ -1008,7 +1008,7 @@ std::string ModeParser::ModeString(User* user, Channel* channel, bool nick_suffi
 	{
 		unsigned char pos = (mode-65) | MASK_CHANNEL;
 		ModeHandler* mh = modehandlers[pos];
-		if ((mh) && (mh->GetNumParams(true)) && (mh->GetNumParams(false)))
+		if ((mh) && (mh->GetPrefixRank() > 0))
 		{
 			ModePair ret;
 			ret = mh->ModeSet(NULL, user, channel, user->nick);
