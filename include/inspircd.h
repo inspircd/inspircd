@@ -55,7 +55,9 @@
 #include <cstring>
 #include <climits>
 #include <cstdio>
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 #include <sstream>
 #include <string>
