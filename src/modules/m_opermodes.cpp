@@ -116,7 +116,7 @@ class ModuleModesOnOper : public Module
 			modes.push_back(tokens[k]);
 		}
 
-		ServerInstance->SendGlobalMode(modes, u);
+		ServerInstance->Modes->Process(modes, u, true);
 	}
 };
 

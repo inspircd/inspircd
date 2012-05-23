@@ -372,8 +372,9 @@ public:
 			throw ModuleException("Could not add command!");
 		}
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnCleanup };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnCleanup,
+									   I_OnSyncUserMetaData, I_OnDecodeMetaData };
+		ServerInstance->Modules->Attach(eventlist, this, 9);
 	}
 
 	virtual ~ModuleCallerID()
