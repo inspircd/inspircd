@@ -29,6 +29,7 @@ public:
 	void init()
 	{
 		ServerInstance->Modules->Attach(I_OnPreMode, this);
+		ServerInstance->Extensions.Register(&this->mlock);
 	}
 
 	Version GetVersion()
@@ -55,7 +56,7 @@ public:
 
 		for (const char *modes = parameters[1].c_str(); *modes; modes++)
 		{
-			if (mlock_str->find(*modes))
+			if (mlock_str->find(*modes) != std::string::npos)
 			{
 				source->WriteNumeric(742, "%s %c %s :MODE cannot be set due to channel having an active MLOCK restriction policy",
 						     channel->name.c_str(), *modes, mlock_str->c_str());
