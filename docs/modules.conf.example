@@ -1000,6 +1000,12 @@
 #<module name="m_messageflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# MLOCK module: Adds support for server-side enforcement of services
+# side MLOCKs.  Basically, this module suppresses any mode change that
+# would likely be immediately bounced by services.
+#<module name="m_mlock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API. 
 # This modules is in extras. Run ./configure --enable-extras=m_mysql.cpp
