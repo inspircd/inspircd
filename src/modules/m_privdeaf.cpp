@@ -22,31 +22,31 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for blocking any private messages (umode +p) */
+/* $ModDesc: Provides support for blocking any private messages (umode +D) */
 
-/** User mode +p - filter out any private messages (non-channel)
+/** User mode +D - filter out any private messages (non-channel)
  */
-class User_d : public ModeHandler
+class User_D : public ModeHandler
 {
  public:
-	User_d(Module* Creator) : ModeHandler(Creator, "privdeaf", 'p', PARAM_NONE, MODETYPE_USER) { }
+	User_D(Module* Creator) : ModeHandler(Creator, "privdeaf", 'D', PARAM_NONE, MODETYPE_USER) { }
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		if (adding)
 		{
-			if (!dest->IsModeSet('d'))
+			if (!dest->IsModeSet('D'))
 			{
-				dest->WriteServ("NOTICE %s :*** You have enabled usermode +p, private deaf mode. This mode means you WILL NOT receive any messages from any nicks. If you did NOT mean to do this, use /mode %s -p.", dest->nick.c_str(), dest->nick.c_str());
-				dest->SetMode('p',true);
+				dest->WriteServ("NOTICE %s :*** You have enabled usermode +D, private deaf mode. This mode means you WILL NOT receive any messages from any nicks. If you did NOT mean to do this, use /mode %s -p.", dest->nick.c_str(), dest->nick.c_str());
+				dest->SetMode('D',true);
 				return MODEACTION_ALLOW;
 			}
 		}
 		else
 		{
-			if (dest->IsModeSet('p'))
+			if (dest->IsModeSet('D'))
 			{
-				dest->SetMode('p',false);
+				dest->SetMode('D',false);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -56,7 +56,7 @@ class User_d : public ModeHandler
 
 class ModulePrivdeaf : public Module
 {
-	User_d m1;
+	User_D m1;
 
 	std::string deaf_bypasschars;
 	std::string deaf_bypasschars_uline;
@@ -135,8 +135,8 @@ class ModulePrivdeaf : public Module
 
 		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 		{
-			/* not +p ? */
-			if (!i->first->IsModeSet('p'))
+			/* not +D ? */
+			if (!i->first->IsModeSet('D'))
 				continue; /* deliver message */
 			/* matched both U-line only and regular bypasses */
 			if (is_bypasschar && is_bypasschar_uline)
@@ -164,7 +164,7 @@ class ModulePrivdeaf : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for blocking any private messages (umode +p)");
+		return Version("Provides support for blocking any private messages (umode +D)");
 	}
 
 };
