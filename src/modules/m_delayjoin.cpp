@@ -60,7 +60,7 @@ class ModuleDelayJoin : public Module
 	ModResult OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt);
 };
 
-/* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
+/* $ModDesc: Allows for delay-join channels (+D) where users don't appear to join until they speak */
 
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
@@ -88,7 +88,7 @@ ModuleDelayJoin::~ModuleDelayJoin()
 
 Version ModuleDelayJoin::GetVersion()
 {
-	return Version("Allows for delay-join channels (+D) where users dont appear to join until they speak", VF_VENDOR);
+	return Version("Allows for delay-join channels (+D) where users don't appear to join until they speak", VF_VENDOR);
 }
 
 void ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
