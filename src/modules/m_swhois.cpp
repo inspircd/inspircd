@@ -26,7 +26,7 @@
 #include "inspircd.h"
 #include "protocol.h"
 
-/* $ModDesc: Provides the SWHOIS command which allows setting of arbitary WHOIS lines */
+/* $ModDesc: Provides the SWHOIS command which allows setting of arbitrary WHOIS lines */
 
 /** Handle /SWHOIS
  */
@@ -135,7 +135,7 @@ class ModuleSWhois : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides the SWHOIS command which allows setting of arbitary WHOIS lines", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the SWHOIS command which allows setting of arbitrary WHOIS lines", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

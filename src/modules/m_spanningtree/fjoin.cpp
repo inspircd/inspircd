@@ -83,7 +83,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 		chan = new Channel(channel, TS);
 		if (incremental)
 		{
-			ServerInstance->SNO->WriteToSnoMask('d', "Incremental creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
+			ServerInstance->SNO->WriteToSnoMask('d', "Incremental creation FJOIN received for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
 			parameterlist resync;
 			resync.push_back(channel);
 			Utils->DoOneToOne(ServerInstance->Config->GetSID().c_str(), "RESYNC", resync, srcuser->uuid);
@@ -94,7 +94,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 		time_t ourTS = chan->age;
 
 		if (TS != ourTS)
-			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %ld",
+			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %ld",
 				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (long)(ourTS - TS));
 		/* If our TS is less than theirs, we dont accept their modes */
 		if (ourTS < TS)
@@ -107,7 +107,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			chan = Channel::Nuke(chan, channel, TS);
 			if (incremental)
 			{
-				ServerInstance->SNO->WriteToSnoMask('d', "Incremental merge FJOIN recieved for %s", chan->name.c_str());
+				ServerInstance->SNO->WriteToSnoMask('d', "Incremental merge FJOIN received for %s", chan->name.c_str());
 				parameterlist resync;
 				resync.push_back(channel);
 				Utils->DoOneToOne(ServerInstance->Config->GetSID().c_str(), "RESYNC", resync, srcuser->uuid);
