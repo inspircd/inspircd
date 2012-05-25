@@ -162,7 +162,7 @@ class ModuleSQLAuth : public Module
 
 	Version GetVersion()
 	{
-		return Version("Allow/Deny connections based upon an arbitary SQL table", VF_VENDOR);
+		return Version("Allow/Deny connections based upon an arbitrary SQL table", VF_VENDOR);
 	}
 };
 
