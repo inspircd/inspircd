@@ -267,7 +267,6 @@ nmake -f modules.mak
   <ItemGroup>
     <ClCompile Include="..\src\bancache.cpp" />
     <ClCompile Include="..\src\base.cpp" />
-    <ClCompile Include="..\src\channelmanager.cpp" />
     <ClCompile Include="..\src\channels.cpp" />
     <ClCompile Include="..\src\cidr.cpp" />
     <ClCompile Include="..\src\commands.cpp" />
@@ -1053,7 +1052,6 @@ nmake -f modules.mak
     <ClInclude Include="..\include\bancache.h" />
     <ClInclude Include="..\include\base.h" />
     <ClInclude Include="..\include\caller.h" />
-    <ClInclude Include="..\include\channelmanager.h" />
     <ClInclude Include="..\include\channels.h" />
     <ClInclude Include="..\include\commands\cmd_admin.h" />
     <ClInclude Include="..\include\commands\cmd_away.h" />
