@@ -146,7 +146,7 @@ void InspIRCd::IncrementUID(int pos)
 	if ((pos == 3) && (current_uid[3] == '9'))
 	{
 		// At pos 3, if we hit '9', we've run out of available UIDs, and need to reset to AAA..AAA.
-		for (int i = 3; i < UUID_LENGTH; i++)
+		for (int i = 3; i < UUID_LENGTH-1; i++)
 		{
 			current_uid[i] = 'A';
 		}
