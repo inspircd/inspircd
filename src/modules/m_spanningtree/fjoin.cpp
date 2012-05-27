@@ -80,14 +80,14 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	if (created)
 	{
 		chan = new Channel(channel, TS);
-		ServerInstance->SNO->WriteToSnoMask('d', "Creation FJOIN recieved for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
+		ServerInstance->SNO->WriteToSnoMask('d', "Creation FJOIN received for %s, timestamp: %lu", chan->name.c_str(), (unsigned long)TS);
 	}
 	else
 	{
 		time_t ourTS = chan->age;
 
 		if (TS != ourTS)
-			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN recieved for %s, ourTS: %lu, TS: %lu, difference: %lu",
+			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %lu",
 				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (unsigned long)(ourTS - TS));
 		/* If our TS is less than theirs, we dont accept their modes */
 		if (ourTS < TS)
