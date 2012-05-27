@@ -838,6 +838,9 @@ class CoreExport InspIRCd
 	{
 		return this->ReadBuffer;
 	}
+
+	friend bool RealGenerateUIDTests();
+	friend bool DoGenerateUIDTests();
 };
 
 ENTRYPOINT;
