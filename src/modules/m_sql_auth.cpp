@@ -22,7 +22,7 @@
 #include "sql.h"
 #include "hash.h"
 
-/* $ModDesc: Allow/Deny connections based upon an arbitary SQL table */
+/* $ModDesc: Allow/Deny connections based upon an arbitrary SQL table */
 
 enum AuthState {
 	AUTH_STATE_NONE = 0,
@@ -173,7 +173,7 @@ class ModuleSQLAuth : public Module
 
 	Version GetVersion()
 	{
-		return Version("Allow/Deny connections based upon an arbitary SQL table", VF_VENDOR);
+		return Version("Allow/Deny connections based upon an arbitrary SQL table", VF_VENDOR);
 	}
 };
 
