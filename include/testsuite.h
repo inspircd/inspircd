@@ -21,6 +21,7 @@
 
 class TestSuite
 {
+	bool RealGenerateUIDTests();
  public:
 	TestSuite();
 	~TestSuite();
@@ -29,6 +30,7 @@ class TestSuite
 	bool DoWildTests();
 	bool DoCommaSepStreamTests();
 	bool DoSpaceSepStreamTests();
+	bool DoGenerateUIDTests();
 };
 
 #endif
