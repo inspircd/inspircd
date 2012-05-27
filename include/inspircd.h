@@ -297,6 +297,7 @@ DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 /* Forward declaration - required */
 class XLineManager;
 class BanCacheManager;
+class TestSuite;
 
 /** The background thread for config reading, so that reading from executable includes
  * does not block.
@@ -942,6 +943,8 @@ class CoreExport InspIRCd : public classbase
 	{
 		return this->ReadBuffer;
 	}
+
+	friend class TestSuite;
 };
 
 ENTRYPOINT;

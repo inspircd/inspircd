@@ -25,6 +25,8 @@ class TestSuite : public Extensible
 {
  private:
 	InspIRCd* ServerInstance;
+	bool RealGenerateUIDTests();
+
  public:
 	TestSuite(InspIRCd* Instance);
 	~TestSuite();
@@ -33,6 +35,7 @@ class TestSuite : public Extensible
 	bool DoWildTests();
 	bool DoCommaSepStreamTests();
 	bool DoSpaceSepStreamTests();
+	bool DoGenerateUIDTests();
 };
 
 #endif
