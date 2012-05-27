@@ -94,8 +94,6 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 				ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()));
 
 		ServerInstance->DoGarbageCollect();
-		ServerInstance->ProcessedMotdEscapes = false; // Reprocess our motd file --Justasic
-		ServerInstance->ProcessedRulesEscapes = false; // Reprocess our rules file --Justasic
 		ServerInstance->PendingRehash = new ConfigReaderThread(user->uuid);
 		ServerInstance->Threads->Submit(ServerInstance->PendingRehash);
 

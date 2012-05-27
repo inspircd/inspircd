@@ -550,7 +550,11 @@ class CoreExport ServerConfig
 
 	void Fill();
 
-	/* Returns true if the given string starts with a windows drive letter
+	/** Parses color codes from string values to actual color codes
+	 */
+	void ProcessColors(ConfigFileCache::iterator &file);
+
+	/** Returns true if the given string starts with a windows drive letter
 	 */
 	bool StartsWithWindowsDriveLetter(const std::string &path);
 
