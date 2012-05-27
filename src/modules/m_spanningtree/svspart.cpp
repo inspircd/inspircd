@@ -52,7 +52,14 @@ bool TreeSocket::ServicePart(const std::string &prefix, std::deque<std::string> 
 		}
 		else
 		{
-			Utils->DoOneToOne(prefix,"SVSPART",params,u->server);
+			/* Only forward when the route to the target is not the same as the sender.
+			 * This occurs with 1.2.9 and older servers, as they broadcast SVSJOIN/SVSPART,
+			 * so we can end up here with a user who is reachable via the sender.
+			 * If that's the case, just drop the command.
+			 */
+			TreeServer* routeserver = Utils->BestRouteTo(u->server);
+			if ((routeserver) && (routeserver->GetSocket() != this))
+				Utils->DoOneToOne(prefix,"SVSPART",params,u->server);
 		}
 	}
 
