@@ -256,6 +256,8 @@ DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
+class TestSuite;
+
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
  * Amongst other things, it contains a ModeParser, a DNS object, a CommandParser
@@ -855,6 +857,8 @@ class CoreExport InspIRCd
 	{
 		return this->ReadBuffer;
 	}
+
+	friend class TestSuite;
 };
 
 ENTRYPOINT;
