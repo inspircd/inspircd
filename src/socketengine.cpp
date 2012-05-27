@@ -176,26 +176,34 @@ void SocketEngine::SetReuse(int fd)
 
 int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen)
 {
-	this->UpdateStats(len, 0);
-	return recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
+	int nbRecvd = recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
+	if (nbRecvd > 0)
+		this->UpdateStats(nbRecvd, 0);
+	return nbRecvd;
 }
 
 int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {
-	this->UpdateStats(0, len);
-	return send(fd->GetFd(), (char*)buf, len, flags);
+	int nbSent = send(fd->GetFd(), (const char*)buf, len, flags);
+	if (nbSent > 0)
+		this->UpdateStats(0, nbSent);
+	return nbSent;
 }
 
 int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 {
-	this->UpdateStats(len, 0);
-	return recv(fd->GetFd(), (char*)buf, len, flags);
+	int nbRecvd = recv(fd->GetFd(), (char*)buf, len, flags);
+	if (nbRecvd > 0)
+		this->UpdateStats(nbRecvd, 0);
+	return nbRecvd;
 }
 
 int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen)
 {
-	this->UpdateStats(0, len);
-	return sendto(fd->GetFd(), (char*)buf, len, flags, to, tolen);
+	int nbSent = sendto(fd->GetFd(), (const char*)buf, len, flags, to, tolen);
+	if (nbSent > 0)
+		this->UpdateStats(0, nbSent);
+	return nbSent;
 }
 
 int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
