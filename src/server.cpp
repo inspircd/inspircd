@@ -99,20 +99,12 @@ void InspIRCd::IncrementUID(int pos)
 	 * A again, in an iterative fashion.. so..
 	 * AAA9 -> AABA, and so on. -- w00t
 	 */
-	if (pos == 3)
+	if ((pos == 3) && (current_uid[3] == '9'))
 	{
 		// At pos 3, if we hit '9', we've run out of available UIDs, and need to reset to AAA..AAA.
-		if (current_uid[pos] == '9')
+		for (int i = 3; i < UUID_LENGTH-1; i++)
 		{
-			for (int i = 3; i < (UUID_LENGTH - 1); i++)
-			{
-				current_uid[i] = 'A';
-			}
-		}
-		else
-		{
-			// Buf if we haven't, just keep incrementing merrily.
-			current_uid[pos]++;
+			current_uid[i] = 'A';
 		}
 	}
 	else
