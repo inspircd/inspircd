@@ -81,6 +81,9 @@ class WhoisNoticeCmd : public Command
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
+		if (!dest)
+			return CMD_FAILURE;
+
 		User* source = ServerInstance->FindNick(parameters[1]);
 
 		if (IS_LOCAL(dest) && source)
