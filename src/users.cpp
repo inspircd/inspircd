@@ -380,13 +380,7 @@ char* User::MakeWildHost()
 int User::ReadData(void* buffer, size_t size)
 {
 	if (IS_LOCAL(this))
-	{
-#ifndef WIN32
-		return read(this->fd, buffer, size);
-#else
-		return recv(this->fd, (char*)buffer, size, 0);
-#endif
-	}
+		return ServerInstance->SE->Recv(this, buffer, size, 0)
 	else
 		return 0;
 }
