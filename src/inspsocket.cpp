@@ -349,7 +349,7 @@ const char* BufferedSocket::Read()
 	}
 	else
 	{
-		n = recv(this->fd, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
+		n = ServerInstance->SE->Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
 	}
 
 	/*
