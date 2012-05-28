@@ -56,7 +56,7 @@ static ssize_t gnutls_pull_wrapper(gnutls_transport_ptr_t user_wrap, void* buffe
 		errno = EAGAIN;
 		return -1;
 	}
-	int rv = recv(user->GetFd(), reinterpret_cast<char *>(buffer), size, 0);
+	int rv = ServerInstance->SE->Recv(user, reinterpret_cast<char *>(buffer), size, 0);
 	if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_READ_WILL_BLOCK);
 	return rv;
@@ -70,7 +70,7 @@ static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void*
 		errno = EAGAIN;
 		return -1;
 	}
-	int rv = send(user->GetFd(), reinterpret_cast<const char *>(buffer), size, 0);
+	int rv = ServerInstance->SE->Send(user, reinterpret_cast<const char *>(buffer), size, 0);
 	if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_WRITE_WILL_BLOCK);
 	return rv;
