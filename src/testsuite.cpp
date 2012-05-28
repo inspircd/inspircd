@@ -207,6 +207,81 @@ static bool DoTokenStreamTests()
 	return !failed;
 }
 
+bool RealGenerateUIDTests()
+{
+	std::string first_uid = ServerInstance->GetUID();
+	if (first_uid.length() != UUID_LENGTH-1)
+	{
+		std::cout << "GENERATEUID: Generated UID is " << first_uid.length() << " characters long instead of " << UUID_LENGTH-1 << std::endl;
+		return false;
+	}
+
+	if (ServerInstance->current_uid[UUID_LENGTH-1] != '\0')
+	{
+		std::cout << "GENERATEUID: The null terminator is missing from the end of current_uid" << std::endl;
+		return false;
+	}
+
+	// The correct UID when generating one for the first time is ...AAAAAA
+	std::string correct_uid = ServerInstance->Config->sid + std::string(UUID_LENGTH - 4, 'A');
+	if (first_uid != correct_uid)
+	{
+		std::cout << "GENERATEUID: Generated an invalid first UID: " << first_uid << " instead of " << correct_uid << std::endl;
+		return false;
+	}
+
+	// Set current_uid to be ...Z99999
+	ServerInstance->current_uid[3] = 'Z';
+	for (unsigned int i = 4; i < UUID_LENGTH-1; i++)
+		ServerInstance->current_uid[i] = '9';
+
+	// Store the UID we'll be incrementing so we can display what's wrong later if necessary
+	std::string before_increment(ServerInstance->current_uid);
+	std::string generated_uid = ServerInstance->GetUID();
+
+	// Correct UID after incrementing ...Z99999 is ...0AAAAA
+	correct_uid = ServerInstance->Config->sid + "0" + std::string(UUID_LENGTH - 5, 'A');
+
+	if (generated_uid != correct_uid)
+	{
+		std::cout << "GENERATEUID: Generated an invalid UID after incrementing " << before_increment << ": " << generated_uid << " instead of " << correct_uid << std::endl;
+		return false;
+	}
+
+	// Set current_uid to be ...999999 to see if it rolls over correctly
+	for (unsigned int i = 3; i < UUID_LENGTH-1; i++)
+		ServerInstance->current_uid[i] = '9';
+
+	before_increment.assign(ServerInstance->current_uid);
+	generated_uid = ServerInstance->GetUID();
+
+	// Correct UID after rolling over is the first UID we've generated (...AAAAAA)
+	if (generated_uid != first_uid)
+	{
+		std::cout << "GENERATEUID: Generated an invalid UID after incrementing " << before_increment << ": " << generated_uid << " instead of " << first_uid << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
+bool DoGenerateUIDTests()
+{
+	bool failed = !RealGenerateUIDTests();
+
+	// Reset the UID generation state so running the tests multiple times won't mess things up
+	for (unsigned int i = 0; i < 3; i++)
+		ServerInstance->current_uid[i] = ServerInstance->Config->sid[i];
+	for (unsigned int i = 3; i < UUID_LENGTH-1; i++)
+		ServerInstance->current_uid[i] = '9';
+
+	ServerInstance->current_uid[UUID_LENGTH-1] = '\0';
+
+	std::cout << "Result of UID generation tests:";
+	COUTFAILED();
+	return !failed;
+}
+
 TestSuite::TestSuite()
 {
 	std::cout << std::endl << "*** STARTING TESTSUITE ***" << std::endl;
@@ -224,6 +299,7 @@ TestSuite::TestSuite()
 		std::cout << "(4) Run comma sepstream tests" << std::endl;
 		std::cout << "(5) Run space sepstream tests" << std::endl;
 		std::cout << "(6) Run token stream tests" << std::endl;
+		std::cout << "(7) Run UID generation tests" << std::endl;
 
 		std::cout << std::endl << "(L) Load a module" << std::endl;
 		std::cout << "(U) Unload a module" << std::endl;
@@ -257,6 +333,7 @@ TestSuite::TestSuite()
 				failed = !DoCommaSepStreamTests() || failed;
 				failed = !DoSpaceSepStreamTests() || failed;
 				failed = !DoTokenStreamTests() || failed;
+				failed = !DoGenerateUIDTests() || failed;
 				std::cout << "Final result of all tests:";
 				COUTFAILED();
 				break;
@@ -275,6 +352,10 @@ TestSuite::TestSuite()
 
 			case '6':
 				DoTokenStreamTests();
+				break;
+
+			case '7':
+				DoGenerateUIDTests();
 				break;
 
 			case 'L':
