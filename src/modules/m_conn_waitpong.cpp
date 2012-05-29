@@ -89,7 +89,18 @@ class ModuleWaitPong : public Module
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		if (ext.get(user))
+		{
+			if (Time() > (time_t)(user->age + user->MyClass->registration_timeout))
+			{
+				ServerInstance->Users->QuitUser(user, "Registration timeout");
+			}
+			return MOD_RES_DENY;
+		}
+		else
+		{
+			return MOD_RES_PASSTHRU;
+		}
 	}
 
 	~ModuleWaitPong()
