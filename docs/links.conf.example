@@ -10,9 +10,7 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module! Please see the modules list below for    #
-#  information on how to load this module! If you do not load this    #
-#  module, server links will NOT work!                                #
+#  m_spanningtree.so module!                                          #
 #                                                                     #
 #                                                                     #
 
@@ -96,8 +94,9 @@
 
 # Failover autoconnect block. If you have multiple hubs, or want your network
 # to automatically link even if the hub is down, you can specify multiple
-# servers to autoconnect; they will be tried in a round robin fashion until
-# one succeeds. Period defines the time for restarting a single loop.
+# space seperated servers to autoconnect; they will be tried in a round
+# robin fashion until one succeeds. Period defines the time for restarting
+# a single loop.
 <autoconnect period="120"
 	server="hub.us.penguin.org hub.eu.penguin.org leaf.eu.penguin.org">
 

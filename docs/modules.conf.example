@@ -515,8 +515,8 @@
 #  quitmsg           -  The message that users get if they attempt to
 #                       connect while the throttle is active.
 #
-#  bootwait          -  Amount of time to wait before enforcing the
-#                       throttling when the server just booted.
+#  bootwait          -  Amount of time in seconds to wait before enforcing
+#                       the throttling when the server just booted.
 #
 #<connflood seconds="30" maxconns="3" timeout="30"
 #   quitmsg="Throttled" bootwait="10">
@@ -1782,9 +1782,10 @@
 # user       - Username for the vhost.                                #
 #                                                                     #
 # pass       - Password for the vhost.                                #
-#								      #
-# hash       - The hash for the specific user (optional)
-#              m_password_hash.so and a hashing module must be loaded for this to work
+#                                                                     #
+# hash       - The hash for the specific user (optional)              #
+#              m_password_hash.so and a hashing module must be loaded #
+#              for this to work                                       #
 #                                                                     #
 # host       - Vhost to set.                                          #
 #

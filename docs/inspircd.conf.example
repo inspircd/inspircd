@@ -160,7 +160,7 @@
       # for ssl to work. If you do not want this bind section to support ssl,
       # just remove or comment out this option.
       ssl="gnutls"
-      >
+>
 
 <bind address="" port="6660-6669" type="clients">
 
@@ -230,7 +230,7 @@
 	# useident: if m_ident is loaded, send an ident query for these users.
 	# See requireident below to enforce a valid reply
 	#useident="no"
-	>
+>
 
 <connect
 	# name: Name to use for this connect block. Mainly used for
@@ -369,7 +369,7 @@
 #                                                                     #
 
 <cidr
-	  # ipv4clone: specifies how many bits of an IP address should be
+      # ipv4clone: specifies how many bits of an IP address should be
       # looked at for clones. The default only looks for clones on a
       # single IP address of a user. You do not want to set this
       # extremely low. (Values are 0-32).
@@ -458,9 +458,9 @@
 # Note that any disabled commands take effect only after the user has #
 # 'registered' (e.g. after the initial USER/NICK/PASS on connection)  #
 # so for example disabling NICK will not cripple your network.        #
-#								      #
+#                                                                     #
 # You can also define if you want to disable any channelmodes         #
-# or usermodes from your users.					      #
+# or usermodes from your users.                                       #
 #                                                                     #
 # `fakenonexistant' will make the ircd pretend that nonexistant       #
 # commands simply don't exist to non-opers ("no such command").       #
@@ -517,10 +517,10 @@
 	# without cycling them.
 	cyclehosts="yes"
 
-	 # cyclehostsfromuser: If enabled, the source of the mode change for
-	 # cyclehosts will be the user who cycled. This can look nicer, but
-	 # triggers anti-takeover mechanisms of some obsolete bots.
-	 cyclehostsfromuser="no"
+	# cyclehostsfromuser: If enabled, the source of the mode change for
+	# cyclehosts will be the user who cycled. This can look nicer, but
+	# triggers anti-takeover mechanisms of some obsolete bots.
+	cyclehostsfromuser="no"
 
 	# ircumsgprefix: Use undernet-style message prefixing for NOTICE and
 	# PRIVMSG. If enabled, it will add users' prefix to the line, if not,
@@ -635,11 +635,11 @@
           # the ircd. This may be set for security reasons or vanity reasons.
           customversion=""
 
-	# operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
-	#  splitmsg  Split with an explanatory message
-	#  yes       Split with no explanatory message
-	#  no        Do not show
-	operspywhois="no"
+          # operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
+          #  splitmsg  Split with an explanatory message
+          #  yes       Split with no explanatory message
+          #  no        Do not show
+          operspywhois="no"
 
           # runasuser: If this is set, InspIRCd will attempt to setuid
           # to run as this user- allows binding of ports under 1024.
@@ -748,18 +748,39 @@
 # to do what they want.
 #
 # An example log tag would be:
-#	<log method="file" type="OPER" level="default" target="opers.log">
-# which  would log all information on /oper (failed and successful) to
+#  <log method="file" type="OPER" level="default" target="opers.log">
+# which would log all information on /oper (failed and successful) to
 # a file called opers.log.
 #
 # There are many different types which may be used, and modules may
 # generate their own. A list of useful types:
-#	- USERS - information relating to user connection and disconnection
-#	- CHANNELS - information relating to joining and parting of channels.
-# XXX someone doc more on this
+#  - USERS - information relating to user connection and disconnection
+#  - OPER - succesful and failed oper attempts
+#  - KILL - kill related messages
+#  - snomask - server notices (*all* snomasks will be logged)
+#  - FILTER - messages related to filter matches (m_filter)
+#  - CONFIG - configuration related messages
+#  - COMMAND - die and restart messages, and messages related to unknown user types
+#  - SOCKET - socket engine informational/error messages
+#  - MODULE - module related messages
+#  - STARTUP - messages related to starting up the server
 #
 # You may also log *everything* by using a type of *, and subtract things out
 # of that by using -TYPE - for example "* -m_spanningtree -m_cgiirc".
+#
+# Useful levels are:
+#  - default (general messages, including errors)
+#  - sparse (misc error messages)
+#  - debug (debug messages)
+#
+# Some types only produce output in the debug level, those are:
+#  - BANCACHE - ban cache debug messages
+#  - CHANNELS - information relating to joining and parting of channels.
+#  - CULLLIST - debug messages related to issues with removing users
+#  - RESOLVER - DNS related debug messages
+#  - CONNECTCLASS - Connection class debug messages
+#  - USERINPUT
+#  - USEROUTPUT
 #
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
