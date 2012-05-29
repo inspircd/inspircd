@@ -90,18 +90,24 @@ class ModuleWaitPong : public Module
 					return MOD_RES_DENY;
 				}
 			}
-			else if (ServerInstance->Time() > (cur->age + curr->MyClass->GetRegTimeout()))
-			{
-				ServerInstance->Users->QuitUser(user, "Registration timeout");
-				return MOD_RES_DENY;
-			}
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnCheckReady(LocalUser* user)
 	{
-		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		if (ext.get(user))
+		{
+			if (ServerInstance->Time() > (user->age + user->MyClass->GetRegTimeout()))
+			{
+				ServerInstance->Users->QuitUser(user, "Registration timeout");
+			}
+			return MOD_RES_DENY;
+		}
+		else
+		{
+			return MOD_RES_PASSTHRU;
+		}
 	}
 
 	~ModuleWaitPong()
