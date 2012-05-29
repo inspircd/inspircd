@@ -361,12 +361,16 @@ Channel* Channel::JoinUser(User *user, const std::string& cn, bool override, con
 
 	Ptr->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", Ptr->name.c_str());
 
-	/* Show the on-join modes to everyone else */
-	std::string ms = memb->modes;
-	for(unsigned int i=0; i < memb->modes.length(); i++)
-		ms.append(" ").append(user->nick);
-	if ((Ptr->GetUserCounter() > 1) && (ms.length()))
-		Ptr->WriteAllExceptSender(user, ServerInstance->Config->CycleHostsFromUser, 0, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
+	/* Show the on-join modes to everyone who got the JOIN */
+	if ((Ptr->GetUserCounter() > 1) && (!memb->modes.empty()))
+	{
+		std::string ms = memb->modes;
+		for(unsigned int i=0; i < memb->modes.length(); i++)
+			ms.append(" ").append(user->nick);
+
+		except_list.insert(user);
+		Ptr->WriteAllExcept(user, !ServerInstance->Config->CycleHostsFromUser, 0, except_list, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
+	}
 
 	if (IS_LOCAL(user))
 	{
