@@ -326,6 +326,7 @@ enum Implementation
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnNamesListItem,
 	I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
+	I_OnUserDNSCompletion,
 	I_END
 };
 
@@ -1126,6 +1127,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param line The raw line to send; modifiable, if empty no line will be returned.
 	 */
 	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line);
+
+	/** Called when the ircd has determined what the user's hostname is going to be.
+	 * This may be called multiple times, by third-party modules which override the DNS resolver, such as
+	 * m_cgiirc.
+	 */
+	virtual void OnUserDNSCompletion(LocalUser* user);
 
 	/** Add test suite hooks here. These are used for testing functionality of a module
 	 * via the --testsuite debugging parameter.
