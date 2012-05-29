@@ -140,6 +140,11 @@ class CGIResolver : public Resolver
 			them->dhost = result;
 			them->InvalidateCache();
 			them->CheckLines(true);
+
+			/* re-fire the OnUserInit hook so that we can recheck DNSBLs etc. --nenolod */
+			LocalUser *u = IS_LOCAL(them);
+			if (u)
+				FOREACH_MOD(I_OnUserInit, OnUserInit(u));
 		}
 	}
 
@@ -308,6 +313,9 @@ public:
 		user->CheckLines(true);
 		cmd.webirc_ip.unset(user);
 		cmd.webirc_hostname.unset(user);
+
+		/* re-fire the OnUserInit hook so that we can recheck DNSBLs etc. --nenolod */
+		FOREACH_MOD(I_OnUserInit, OnUserInit(user));
 	}
 
 	bool CheckPass(LocalUser* user)
