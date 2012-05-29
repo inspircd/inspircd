@@ -194,7 +194,7 @@ void StreamSocket::DoRead()
 	else
 	{
 		char* ReadBuffer = ServerInstance->GetReadBuffer();
-		int n = recv(fd, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
+		int n = ServerInstance->SE->Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
 		if (n == ServerInstance->Config->NetBufferSize)
 		{
 			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);

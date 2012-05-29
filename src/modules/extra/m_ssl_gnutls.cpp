@@ -275,7 +275,7 @@ static ssize_t gnutls_pull_wrapper(gnutls_transport_ptr_t user_wrap, void* buffe
 		errno = EAGAIN;
 		return -1;
 	}
-	int rv = recv(user->GetFd(), buffer, size, 0);
+	int rv = ServerInstance->SE->Recv(user, buffer, size, 0);
 	if (rv < 0)
 	{
 		if (errno == EAGAIN || errno == EINTR)
@@ -298,7 +298,7 @@ static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void*
 		errno = EAGAIN;
 		return -1;
 	}
-	int rv = send(user->GetFd(), buffer, size, 0);
+	int rv = ServerInstance->SE->Send(user, buffer, size, 0);
 	if (rv < 0)
 	{
 		if (errno == EAGAIN || errno == EINTR)
