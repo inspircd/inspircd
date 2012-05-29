@@ -377,10 +377,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\channelmanager.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\channels.cpp"
 				>
 			</File>
@@ -576,10 +572,6 @@
 			</File>
 			<File
 				RelativePath="..\include\caller.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\channelmanager.h"
 				>
 			</File>
 			<File
