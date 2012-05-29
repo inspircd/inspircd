@@ -36,7 +36,7 @@ void SpanningTreeSyncTarget::SendMetaData(Extensible* target, const std::string 
 	if (u)
 		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 	else if (c)
-		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
+		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+ConvToStr(c->age)+" "+extname+" :"+extdata);
 	else if (!target)
 		ts.WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 }
@@ -94,7 +94,10 @@ void SpanningTreeProtocolInterface::SendMetaData(Extensible* target, const std::
 	if (u)
 		params.push_back(u->uuid);
 	else if (c)
+	{
 		params.push_back(c->name);
+		params.push_back(ConvToStr(c->age));
+	}
 	else
 		params.push_back("*");
 
@@ -109,6 +112,7 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	parameterlist params;
 
 	params.push_back(channel->name);
+	params.push_back(ConvToStr(channel->age));
 	params.push_back(ConvToStr(ServerInstance->Time()));
 	params.push_back(ServerInstance->Config->ServerName);
 	params.push_back(":" + topic);

@@ -207,6 +207,46 @@ void TreeSocket::WriteLine(std::string line)
 				}
 			}
 		}
+		else if (proto_version < 1204 && command == "METADATA")
+		{
+			// Drop TS for channel METADATA
+			// :sid METADATA #target TS extname ...
+			//     A        B       C  D
+			if (b == std::string::npos)
+				return;
+			std::string::size_type c = line.find(' ', b + 1);
+			if (c == std::string::npos)
+				return;
+
+			if (line[b + 1] == '#')
+			{
+				// We're sending a channel metadata indeed
+				std::string::size_type d = line.find(' ', c + 1);
+				if (d == std::string::npos)
+					return;
+
+				ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Stripping channel TS in METADATA for pre-1204-protocol server");
+				line.erase(c, d-c);
+			}
+		}
+		else if (proto_version < 1204 && command == "FTOPIC")
+		{
+			// Drop channel TS for FTOPIC
+			// :sid FTOPIC #target TS TopicTS ...
+			//     A      B       C  D
+			if (b == std::string::npos)
+				return;
+			std::string::size_type c = line.find(' ', b + 1);
+			if (c == std::string::npos)
+				return;
+
+			std::string::size_type d = line.find(' ', c + 1);
+			if (d == std::string::npos)
+				return;
+
+			ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Stripping channel TS in FTOPIC for pre-1204-protocol server");
+			line.erase(c, d-c);
+		}
 	}
 
 	ServerInstance->Logs->Log("m_spanningtree", RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());

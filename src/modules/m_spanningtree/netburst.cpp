@@ -156,7 +156,7 @@ void TreeSocket::SendFJoins(Channel* c)
 
 	if (!c->topic.empty())
 	{
-		snprintf(list,MAXBUF,":%s FTOPIC %s %lu %s :%s", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->topicset, c->setby.c_str(), c->topic.c_str());
+		snprintf(list,MAXBUF,":%s FTOPIC %s %lu %lu %s :%s", ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long) c->age, (unsigned long) c->topicset, c->setby.c_str(), c->topic.c_str());
 		WriteLine(list);
 	}
 
