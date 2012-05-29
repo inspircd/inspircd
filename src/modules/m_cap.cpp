@@ -153,7 +153,13 @@ class ModuleCAP : public Module
 	{
 		/* Users in CAP state get held until CAP END */
 		if (cmd.reghold.get(user))
+		{
+			if (ServerInstance->Time() > (cur->age + curr->MyClass->GetRegTimeout()))
+			{
+				ServerInstance->Users->QuitUser(user, "Registration timeout");
+			}
 			return MOD_RES_DENY;
+		}
 
 		return MOD_RES_PASSTHRU;
 	}
