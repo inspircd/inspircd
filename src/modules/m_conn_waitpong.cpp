@@ -93,6 +93,7 @@ class ModuleWaitPong : public Module
 			else if (ServerInstance->Time() > (cur->age + curr->MyClass->GetRegTimeout()))
 			{
 				ServerInstance->Users->QuitUser(user, "Registration timeout");
+				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
