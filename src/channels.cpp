@@ -454,12 +454,14 @@ Channel* Channel::ForceChan(InspIRCd* Instance, Channel* Ptr, User* user, const 
 	FOREACH_MOD_I(Instance,I_OnUserJoin,OnUserJoin(user, Ptr, bursting, silent));
 
 	if (!silent)
+	{
 		Ptr->WriteChannel(user,"JOIN :%s",Ptr->name.c_str());
 
-	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
-	std::string ms = Instance->Modes->ModeString(user, Ptr);
-	if ((Ptr->GetUserCounter() > 1) && (ms.length()))
-		Ptr->WriteAllExceptSender(user, true, 0, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
+		/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
+		std::string ms = Instance->Modes->ModeString(user, Ptr);
+		if ((Ptr->GetUserCounter() > 1) && (ms.length()))
+			Ptr->WriteAllExceptSender(user, true, 0, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
+	}
 
 	/* Major improvement by Brain - we dont need to be calculating all this pointlessly for remote users */
 	if (IS_LOCAL(user))
