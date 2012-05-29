@@ -274,7 +274,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		if (!IS_LOCAL(user))
 		{
 			if (!TS)
-				ServerInstance->Logs->Log("CHANNEL",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn);
+				ServerInstance->Logs->Log("CHANNELS",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cn);
 		}
 		else
 		{
