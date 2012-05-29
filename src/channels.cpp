@@ -659,7 +659,7 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 	if (!text)
 		return;
 
-	int offset = snprintf(textbuffer,MAXBUF,":%s ", user->GetFullHost().c_str());
+	int offset = snprintf(textbuffer,MAXBUF,":%s ", serversource ? ServerInstance->Config->ServerName.c_str() : user->GetFullHost().c_str());
 
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer + offset, MAXBUF - offset, text, argsPtr);
