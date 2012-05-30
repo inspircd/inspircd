@@ -16,6 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+/* $ModDesc: Implements the ability to have server-side MLOCK enforcement. */
+
 #include "inspircd.h"
 
 class ModuleMLock : public Module

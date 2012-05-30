@@ -17,6 +17,8 @@
  */
 
 
+/* $ModDesc: Nick registration tracking */
+
 #include "inspircd.h"
 #include "account.h"
 

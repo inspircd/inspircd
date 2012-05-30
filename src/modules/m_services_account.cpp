@@ -21,11 +21,11 @@
  */
 
 
+/* $ModDesc: Provides support for accounts. */
+
 #include "inspircd.h"
 #include "protocol.h"
 #include "account.h"
-
-/* $ModDesc: Povides support for accounts. */
 
 struct AccountItem
 {
@@ -181,7 +181,7 @@ class ModuleServicesAccount : public Module
 
 	Version GetVersion()
 	{
-		return Version("Povides support for accounts.",VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides support for accounts.",VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

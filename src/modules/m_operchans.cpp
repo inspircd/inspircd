@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for oper-only chans via the +O channel mode */
+/* $ModDesc: Provides support for oper-only chans via the +O channel mode and 'O' extban */
 
 class OperChans : public SimpleChannelModeHandler
 {

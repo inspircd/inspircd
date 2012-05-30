@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "m_regex.h"
 
-/* $ModDesc: Provides /rmatch command used to view users a regular expression matches */
+/* $ModDesc: Provides the /RMATCH command used to view users a regular expression matches */
 
 /** Handle /RMATCH
  */
@@ -85,9 +85,8 @@ class ModuleRmatch : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides /rmatch command used to view users a regular expression matches", VF_VENDOR);
+		return Version("Provides the /RMATCH command used to view users a regular expression matches", VF_VENDOR);
 	}
 };
 
 MODULE_INIT(ModuleRmatch)
-

@@ -17,6 +17,8 @@
  */
 
 
+/* $ModDesc: Add commands that execute arbitrary SQL queries */
+
 #include "inspircd.h"
 #include "command_parse.h"
 #include "sql.h"
