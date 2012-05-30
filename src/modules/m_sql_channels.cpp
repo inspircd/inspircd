@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "sql.h"
 
-/* $ModDesc: Provides channel mode +r for channel registration */
+/* $ModDesc: Provides channel state updates to an SQL database */
 
 namespace m_sql_channels
 {

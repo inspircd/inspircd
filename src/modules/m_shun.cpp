@@ -23,7 +23,7 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Provides the /shun command, which stops a user executing all commands except PING and PONG. */
+/* $ModDesc: Provides the /SHUN command, which stops a user from executing all except configured commands. */
 
 class Shun : public XLine
 {
@@ -309,7 +309,7 @@ class ModuleShun : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the /shun command, which stops a user executing all commands except PING and PONG.",VF_VENDOR|VF_COMMON);
+		return Version("Provides the /SHUN command, which stops a user from executing all except configured commands.",VF_VENDOR|VF_COMMON);
 	}
 };
 

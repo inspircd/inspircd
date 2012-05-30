@@ -17,6 +17,8 @@
  */
 
 
+/* $ModDesc: Forwards a password users can send on connect (for example for NickServ identification). */
+
 #include "inspircd.h"
 #include "command_parse.h"
 
@@ -70,4 +72,3 @@ class ModulePassForward : public Module
 };
 
 MODULE_INIT(ModulePassForward)
-

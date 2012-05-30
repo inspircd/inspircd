@@ -17,7 +17,7 @@
  */
 
 
-/* $ModDesc: Adds timed modes */
+/* $ModDesc: Adds timed mode changes */
 
 #include "inspircd.h"
 #include "protocol.h"

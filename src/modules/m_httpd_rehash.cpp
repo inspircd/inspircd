@@ -17,6 +17,8 @@
  */
 
 
+/* $ModDesc: Provides rehash over HTTP via m_httpd.so */
+
 #include "inspircd.h"
 #include "threadengine.h"
 #include "httpd.h"

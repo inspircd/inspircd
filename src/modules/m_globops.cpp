@@ -19,11 +19,11 @@
  */
 
 
-// Globops and +g support module by C.J.Edwards
+// Globops and snomask +g module by C.J.Edwards
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for GLOBOPS and user mode +g */
+/* $ModDesc: Provides support for GLOBOPS and snomask +g */
 
 /** Handle /GLOBOPS
  */
@@ -63,7 +63,7 @@ class ModuleGlobops : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for GLOBOPS and user mode +g", VF_VENDOR);
+		return Version("Provides support for GLOBOPS and snomask +g", VF_VENDOR);
 	}
 
 };

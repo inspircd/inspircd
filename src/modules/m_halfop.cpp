@@ -17,6 +17,8 @@
  */
 
 
+/* $ModDesc: Channel half-operator mode provider */
+
 #include "inspircd.h"
 
 class ModeChannelHalfOp : public PrefixModeHandler

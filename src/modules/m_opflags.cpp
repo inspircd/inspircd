@@ -18,6 +18,8 @@
  */
 
 
+/* $ModDesc: Provides per-channel access flags */
+
 #include "inspircd.h"
 #include "protocol.h"
 #include "opflags.h"
