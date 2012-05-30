@@ -231,7 +231,7 @@ class IdentRequestSocket : public EventHandler
 		const char* i = strrchr(ibuf, ':');
 		if(i)
 		{
-			std::string token(i);
+			std::string token(++i);
 			std::string ident;
 
 			/* Truncate the ident at any characters we don't like, skip leading spaces */
