@@ -30,7 +30,7 @@ bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &param
 {
 	if (params.size() > 1)
 	{
-		if (InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
+		if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 		{
 			Event event((char*) &params, (Module*)this->Utils->Creator, "encap_received");
 			event.Send(ServerInstance);
@@ -43,7 +43,16 @@ bool TreeSocket::Encap(const std::string &prefix, std::deque<std::string> &param
 			Utils->DoOneToAllButSender(prefix, "ENCAP", params, prefix);
 		}
 		else
-			Utils->DoOneToOne(prefix, "ENCAP", params, params[0]);
+		{
+			/* Only forward when the route to the target is not the same as the sender.
+			 * This occurs with 1.2.9 and older servers, as they broadcast ENCAP even when
+			 * it is targetted to a single server only.
+			 * If we were the only target of this ENCAP, it won't be propagated.
+			 */
+			TreeServer* routeserver = Utils->BestRouteTo(params[0]);
+			if ((routeserver) && (routeserver->GetSocket() != this))
+				Utils->DoOneToOne(prefix, "ENCAP", params, params[0]);
+		}
 	}
 	return true;
 }
