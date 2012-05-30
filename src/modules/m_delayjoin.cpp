@@ -19,6 +19,8 @@
  */
 
 
+/* $ModDesc: Allows for delay-join channels (+D) where users don't appear to join until they speak */
+
 #include "inspircd.h"
 #include <stdarg.h>
 
@@ -59,8 +61,6 @@ class ModuleDelayJoin : public Module
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
 	void WriteCommonFrom(User *user, Channel* channel, const char* text, ...) CUSTOM_PRINTF(4, 5);
 };
-
-/* $ModDesc: Allows for delay-join channels (+D) where users dont appear to join until they speak */
 
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, bool)
 {
@@ -249,4 +249,3 @@ void ModuleDelayJoin::WriteCommonFrom(User *user, Channel* channel, const char* 
 }
 
 MODULE_INIT(ModuleDelayJoin)
-

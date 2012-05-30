@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the RPL_REDIR numeric */
+/* $ModDesc: Provides support for the RPL_REDIR numeric and the /JUMPSERVER command. */
 
 /** Handle /JUMPSERVER
  */

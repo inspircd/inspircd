@@ -21,7 +21,6 @@
 #include "u_listmode.h"
 
 /* $ModDep: ../../include/u_listmode.h */
-
 /* $ModDesc: Implements extban/invex +I O: - opertype bans */
 
 class ModuleOperInvex : public Module

@@ -28,7 +28,7 @@ std::string q_file;
 std::string prefix;
 std::string suffix;
 
-/* $ModDesc: Provides random Quotes on Connect. */
+/* $ModDesc: Provides random quotes on connect. */
 
 /** Handle /RANDQUOTE
  */

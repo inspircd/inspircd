@@ -19,14 +19,14 @@
  */
 
 
+/* $ModDesc: RLINE: Regexp user banning. */
+
 #include "inspircd.h"
 #include "m_regex.h"
 #include "xline.h"
 
 static Module* rxengine = NULL;
 static Module* mymodule = NULL; /* Needed to let RLine send request! */
-
-/* $ModDesc: RLINE: Regexp user banning. */
 
 class RLine : public XLine
 {
