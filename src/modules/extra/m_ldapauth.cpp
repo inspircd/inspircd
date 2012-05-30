@@ -256,9 +256,17 @@ public:
 		}
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user, bool& suspend_timeout)
 	{
-		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
+		if (ldapAuthed.get(user))
+		{
+			return MOD_RES_PASSTHRU;
+		}
+		else
+		{
+			suspend_timeout = true;
+			return MOD_RES_DENY;
+		}
 	}
 
 	Version GetVersion()

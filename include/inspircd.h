@@ -295,9 +295,10 @@ class CoreExport InspIRCd
 
 	/** Returns true when all modules have done pre-registration checks on a user
 	 * @param user The user to verify
+	 * @param suspend_timeout is set to true by modules to prevent Registration Timeout
 	 * @return True if all modules have finished checking this user
 	 */
-	bool AllModulesReportReady(LocalUser* user);
+	bool AllModulesReportReady(LocalUser* user, bool& suspend_timeout);
 
 	/** The current time, updated in the mainloop
 	 */

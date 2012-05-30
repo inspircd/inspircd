@@ -53,12 +53,14 @@ void FloodQuitUserHandler::Call(User* current)
  */
 void InspIRCd::DoBackgroundUserStuff()
 {
+	bool suspend_timeout;
 	/*
 	 * loop over all local users..
 	 */
 	std::vector<LocalUser*>::reverse_iterator count2 = this->Users->local_users.rbegin();
 	while (count2 != this->Users->local_users.rend())
 	{
+		suspend_timeout = false;
 		LocalUser *curr = *count2;
 		count2++;
 
@@ -98,7 +100,7 @@ void InspIRCd::DoBackgroundUserStuff()
 				}
 				break;
 			case REG_NICKUSER:
-				if (AllModulesReportReady(curr) && curr->dns_done)
+				if (AllModulesReportReady(curr, suspend_timeout) && curr->dns_done)
 				{
 					/* User has sent NICK/USER, modules are okay, DNS finished. */
 					curr->FullConnect();
@@ -107,7 +109,9 @@ void InspIRCd::DoBackgroundUserStuff()
 				break;
 		}
 
-		if ((curr->registered & REG_NICKUSER) != REG_NICKUSER && (Time() > (curr->age + curr->MyClass->GetRegTimeout())))
+		if (((curr->registered & REG_NICKUSER) != REG_NICKUSER || //NICK/USER not sent
+				(!suspend_timeout && curr->registered != REG_ALL)) && // No modules holding timeout and not registered.
+				(Time() > (curr->age + curr->MyClass->GetRegTimeout())))
 		{
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
