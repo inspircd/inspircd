@@ -229,7 +229,7 @@ class ModuleChanHistory : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides channel history replayed on join", VF_VENDOR);
+		return Version("Provides channel history replayed on join, stored in an SQL database", VF_VENDOR);
 	}
 };
 

@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Creates a snomask with notices whenever a new channel is created */
+/* $ModDesc: Provides snomasks 'j' and 'J', to which notices about newly created channels are sent */
 
 class ModuleChanCreate : public Module
 {
@@ -36,7 +36,7 @@ class ModuleChanCreate : public Module
 
 	Version GetVersion()
 	{
-		return Version("Creates a snomask with notices whenever a new channel is created",VF_VENDOR);
+		return Version("Provides snomasks 'j' and 'J', to which notices about newly created channels are sent",VF_VENDOR);
 	}
 
 

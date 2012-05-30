@@ -20,7 +20,7 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Throttles the connections of any users who try connect flood */
+/* $ModDesc: Throttles the connections of IP ranges who try to connect flood. */
 
 class ModuleConnectBan : public Module
 {
@@ -43,7 +43,7 @@ class ModuleConnectBan : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Throttles the connections of any users who try connect flood", VF_VENDOR);
+		return Version("Throttles the connections of IP ranges who try to connect flood.", VF_VENDOR);
 	}
 
 	void ReadConfig(ConfigReadStatus&)

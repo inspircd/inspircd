@@ -22,7 +22,7 @@
 #include "httpd.h"
 #include "protocol.h"
 
-/* $ModDesc: Provides statistics over HTTP via m_httpd.so */
+/* $ModDesc: Allows for the server configuration to be viewed over HTTP via m_httpd.so */
 
 class ModuleHttpConfig : public Module
 {
@@ -107,7 +107,7 @@ class ModuleHttpConfig : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides configuration over HTTP via m_httpd.so", VF_VENDOR);
+		return Version("Allows for the server configuration to be viewed over HTTP via m_httpd.so", VF_VENDOR);
 	}
 };
 

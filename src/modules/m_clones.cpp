@@ -21,9 +21,9 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the /clones command to retrieve information on clones. */
+/* $ModDesc: Provides the /CLONES command to retrieve information on clones. */
 
-/** Handle /CHECK
+/** Handle /CLONES
  */
 class CommandClones : public Command
 {
@@ -44,7 +44,7 @@ class CommandClones : public Command
 		 * Syntax of a /clones reply:
 		 *  :server.name 304 target :CLONES START
 		 *  :server.name 304 target :CLONES <count> <ip>
-		 *  :server.name 304 target :CHECK END
+		 *  :server.name 304 target :CLONES END
 		 */
 
 		user->WriteServ("%s START", clonesstr.c_str());
@@ -83,7 +83,7 @@ class ModuleClones : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides the /clones command to retrieve information on clones.", VF_VENDOR);
+		return Version("Provides the /CLONES command to retrieve information on clones.", VF_VENDOR);
 	}
 
 

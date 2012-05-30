@@ -18,6 +18,8 @@
  */
 
 
+/* $ModDesc: Provides channel database storage in a flat-file format */
+
 #include "inspircd.h"
 #include "protocol.h"
 

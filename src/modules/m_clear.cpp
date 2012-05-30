@@ -17,9 +17,10 @@
  */
 
 
+/* $ModDesc: Provides commands to clear a given list mode or kick all users */
+
 #include "inspircd.h"
 #include "protocol.h"
-/* $MODDESC: provides commands to clear a given list mode or kick all users */
 
 class ClearBase : public Command
 {

@@ -21,14 +21,14 @@
  */
 
 
+/* $ModDesc: Provides random quotes on connect. */
+
 #include "inspircd.h"
 
 static FileReader *quotes = NULL;
 
 std::string prefix;
 std::string suffix;
-
-/* $ModDesc: Provides random Quotes on Connect. */
 
 /** Handle /RANDQUOTE
  */
@@ -88,7 +88,7 @@ class ModuleRandQuote : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides random Quotes on Connect.",VF_VENDOR);
+		return Version("Provides random quotes on connect.",VF_VENDOR);
 	}
 
 	virtual void OnUserConnect(LocalUser* user)

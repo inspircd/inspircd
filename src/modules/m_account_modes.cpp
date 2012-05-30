@@ -17,6 +17,8 @@
  */
 
 
+/* $ModDesc: Provides support for modes related to accounts. */
+
 #include "inspircd.h"
 #include "account.h"
 
@@ -132,7 +134,7 @@ class ModuleAccountModes : public Module
 
 	Version GetVersion()
 	{
-		return Version("Povides support for modes related to accounts.", VF_VENDOR);
+		return Version("Provides support for modes related to accounts.", VF_VENDOR);
 	}
 };
 
