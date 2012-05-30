@@ -21,7 +21,7 @@
 #include "httpd.h"
 #include "protocol.h"
 
-/* $ModDesc: Provides statistics over HTTP via m_httpd.so */
+/* $ModDesc: Allows for the server configuration to be viewed over HTTP via m_httpd.so */
 /* $ModDep: httpd.h */
 
 class ModuleHttpStats : public Module

@@ -19,6 +19,8 @@
  */
 
 
+/* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
+
 #include "inspircd.h"
 
 /** Holds a users m_safelist state
@@ -36,8 +38,6 @@ class ListData : public classbase
 	ListData() : list_start(0), list_position(0), list_ended(false) {};
 	ListData(long pos, time_t t, const std::string &pattern, int mi, int ma) : list_start(t), list_position(pos), list_ended(false), glob(pattern), minusers(mi), maxusers(ma) {};
 };
-
-/* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
 
 class ModuleSafeList : public Module
 {

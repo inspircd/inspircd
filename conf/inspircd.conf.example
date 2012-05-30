@@ -704,7 +704,7 @@
 #
 # An example log tag would be:
 #  <log method="file" type="OPER" level="default" target="opers.log">
-# which  would log all information on /oper (failed and successful) to
+# which would log all information on /oper (failed and successful) to
 # a file called opers.log.
 #
 # There are many different types which may be used, and modules may

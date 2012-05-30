@@ -21,11 +21,11 @@
  */
 
 
+/* $ModDesc: Provides support for ircu-style services accounts, including chmode +R, etc. */
+
 #include "inspircd.h"
 #include "account.h"
 #include "u_listmode.h"
-
-/* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
 /** Channel mode +r - mark a channel as identified
  */

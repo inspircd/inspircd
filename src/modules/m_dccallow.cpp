@@ -24,7 +24,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Povides support for the /DCCALLOW command */
+/* $ModDesc: Provides support for the /DCCALLOW command */
 
 static ConfigReader *Conf;
 
