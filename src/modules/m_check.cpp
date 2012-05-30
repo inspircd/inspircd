@@ -20,9 +20,9 @@
  */
 
 
-#include "inspircd.h"
+/* $ModDesc: Provides the /CHECK command to retrieve information on a user, channel, hostname or IP address */
 
-/* $ModDesc: Provides the /check command to retrieve information on a user, channel, or IP address */
+#include "inspircd.h"
 
 /** Handle /CHECK
  */
@@ -288,7 +288,7 @@ class ModuleCheck : public Module
 
 	Version GetVersion()
 	{
-		return Version("CHECK command, view user/channel details", VF_VENDOR|VF_OPTCOMMON);
+		return Version("CHECK command, view user, channel, IP address or hostname information", VF_VENDOR|VF_OPTCOMMON);
 	}
 };
 
