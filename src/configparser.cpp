@@ -390,7 +390,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	{
 		int len = strlen(linebuf);
 		if (len)
-			cache.push_back(std::string(linebuf, len - 1));
+			cache.push_back(std::string(linebuf, len));
 	}
 }
 
