@@ -119,7 +119,7 @@ public:
 			for(std::string::size_type i = modeline.length(); i > 1; --i) // we use "i > 1" instead of "i" so we skip the +
 				modechange.push_back(memb->user->nick);
 			if(modechange.size() >= 3)
-				ServerInstance->SendMode(modechange,ServerInstance->FakeClient);
+				ServerInstance->SendGlobalMode(modechange, ServerInstance->FakeClient);
 		}
 	}
 
