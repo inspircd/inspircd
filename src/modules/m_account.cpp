@@ -408,15 +408,15 @@ class ModuleAccount : public Module
 		for (AccountDB::const_iterator i = cmd.prov.db.begin(); i != cmd.prov.db.end(); ++i)
 		{
 			std::string name = i->first, ts = ConvToStr(i->second->ts);
-			target->SendCommand("ENCAP * SVSACCOUNT ADD " + name + " :" + ts);
-			target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " hash_password "
+			target->SendEncap("SVSACCOUNT ADD " + name + " :" + ts);
+			target->SendEncap("SVSACCOUNT SET " + name + " " + ts + " hash_password "
 				+ ConvToStr(i->second->hash_password_ts) + " :" + i->second->hash + " " + i->second->password);
 			for(Extensible::ExtensibleStore::const_iterator it = i->second->GetExtList().begin(); it != i->second->GetExtList().end(); ++it)
 			{
 				ExtensionItem* item = it->first;
 				std::string value = item->serialize(FORMAT_NETWORK, i->second, it->second);
 				if (!value.empty())
-					target->SendCommand("ENCAP * SVSACCOUNT SET " + name + " " + ts + " " + item->name + " " + value);
+					target->SendEncap("SVSACCOUNT SET " + name + " " + ts + " " + item->name + " " + value);
 			}
 		}
 	}

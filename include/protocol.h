@@ -53,10 +53,10 @@ class SyncTarget : public classbase
 	 */
 	virtual void SendEncap(const std::string& cmd, const parameterlist &params) = 0;
 	/**
-	 * Send a line s2s during netburst. The line should begin with the command you
-	 * are sending; ":SID " will be prepended prior to sending.
+	 * Send an ENCAP * command during netburst (for network sync)
+	 * @param line The rest of the line to send after ENCAP * (the receiver should have a handler for this)
 	 */
-	virtual void SendCommand(const std::string &line) = 0;
+	virtual void SendEncap(const std::string &line) = 0;
 };
 
 class ProtocolInterface

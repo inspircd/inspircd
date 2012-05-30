@@ -54,9 +54,9 @@ void SpanningTreeSyncTarget::SendEncap(const std::string& cmd, const parameterli
 	ts.WriteLine(line);
 }
 
-void SpanningTreeSyncTarget::SendCommand(const std::string &line)
+void SpanningTreeSyncTarget::SendEncap(const std::string &line)
 {
-	ts.WriteLine(":" + ServerInstance->Config->GetSID() + " " + line);
+	ts.WriteLine(":" + ServerInstance->Config->GetSID() + " ENCAP * " + line);
 }
 
 void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)

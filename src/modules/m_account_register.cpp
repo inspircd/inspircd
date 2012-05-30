@@ -554,7 +554,7 @@ class ModuleAccountRegister : public Module
 	virtual void OnSyncNetwork(SyncTarget* target)
 	{
 		for (std::set<irc::string>::const_iterator i = recentlydropped.begin(); i != recentlydropped.end(); ++i)
-			target->SendCommand("ENCAP * RECENTLYDROPPED " + i->value);
+			target->SendEncap("RECENTLYDROPPED " + i->value);
 	}
 
 	void OnGarbageCollect()
