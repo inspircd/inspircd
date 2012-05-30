@@ -1568,8 +1568,8 @@
 # showfromopers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Shun module: Provides the /shun command, which stops a user executing 
-# most commands.
+# Shun module: Provides the /SHUN command, which stops a user from
+# executing all except configured commands.
 # This module is oper-only.
 # To use, SHUN must be in one of your oper class blocks.
 #<module name="m_shun.so">

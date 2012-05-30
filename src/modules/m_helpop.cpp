@@ -21,6 +21,8 @@
  */
 
 
+/* $ModDesc: Provides the /HELPOP command, works like UnrealIRCd's helpop */
+
 #include "inspircd.h"
 
 static std::map<irc::string, std::string> helpop_map;

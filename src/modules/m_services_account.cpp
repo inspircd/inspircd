@@ -21,10 +21,10 @@
  */
 
 
+/* $ModDesc: Provides support for ircu-style services accounts, including chmode +R, etc. */
+
 #include "inspircd.h"
 #include "account.h"
-
-/* $ModDesc: Povides support for ircu-style services accounts, including chmode +R, etc. */
 
 /** Channel mode +r - mark a channel as identified
  */
@@ -289,7 +289,7 @@ class ModuleServicesAccount : public Module
 
 	Version GetVersion()
 	{
-		return Version("Povides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
+		return Version("Provides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
 	}
 };
 

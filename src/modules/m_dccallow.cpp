@@ -25,7 +25,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Povides support for the /DCCALLOW command */
+/* $ModDesc: Provides support for the /DCCALLOW command */
 
 class BannedFileList
 {
@@ -479,7 +479,7 @@ class ModuleDCCAllow : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Povides support for the /DCCALLOW command", VF_COMMON | VF_VENDOR);
+		return Version("Provides support for the /DCCALLOW command", VF_COMMON | VF_VENDOR);
 	}
 };
 

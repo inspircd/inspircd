@@ -20,9 +20,10 @@
  */
 
 
+/* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
+
 #include "inspircd.h"
 
-/* $ModDesc: Gives each oper type a 'level', cannot kill opers 'above' your level. */
 class ModuleOperLevels : public Module
 {
 	public:

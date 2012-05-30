@@ -20,6 +20,8 @@
  */
 
 
+/* $ModDesc: Provides user and channel +G mode */
+
 #define _CRT_SECURE_NO_DEPRECATE
 #define _SCL_SECURE_NO_DEPRECATE
 
@@ -27,8 +29,6 @@
 #include <iostream>
 
 typedef std::map<irc::string,irc::string> censor_t;
-
-/* $ModDesc: Provides user and channel +G mode */
 
 /** Handles usermode +G
  */
