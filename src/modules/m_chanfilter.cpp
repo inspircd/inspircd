@@ -23,13 +23,13 @@
  */
 
 
+/* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
+
 #define _CRT_SECURE_NO_DEPRECATE
 #define _SCL_SECURE_NO_DEPRECATE
 
 #include "inspircd.h"
 #include "u_listmode.h"
-
-/* $ModDesc: Provides channel-specific censor lists (like mode +G but varies from channel to channel) */
 
 /** Handles channel mode +g
  */

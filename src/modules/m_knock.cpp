@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for /KNOCK and mode +K */
+/* $ModDesc: Provides support for /KNOCK and channel mode +K */
 
 /** Handles the /KNOCK command
  */
@@ -109,7 +109,7 @@ class ModuleKnock : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for /KNOCK and mode +K", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides support for /KNOCK and channel mode +K", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 

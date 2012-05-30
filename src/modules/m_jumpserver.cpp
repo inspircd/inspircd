@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the RPL_REDIR numeric */
+/* $ModDesc: Provides support for the RPL_REDIR numeric and the /JUMPSERVER command. */
 
 /** Handle /JUMPSERVER
  */
@@ -174,7 +174,7 @@ class ModuleJumpServer : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for the RPL_REDIR numeric", VF_VENDOR);
+		return Version("Provides support for the RPL_REDIR numeric and the /JUMPSERVER command.", VF_VENDOR);
 	}
 
 };

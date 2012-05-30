@@ -20,14 +20,14 @@
  */
 
 
+/* $ModDesc: RLINE: Regexp user banning. */
+
 #include "inspircd.h"
 #include "m_regex.h"
 #include "xline.h"
 
 static bool ZlineOnMatch = false;
 static std::vector<ZLine *> background_zlines;
-
-/* $ModDesc: RLINE: Regexp user banning. */
 
 class RLine : public XLine
 {
@@ -316,4 +316,3 @@ class ModuleRLine : public Module
 };
 
 MODULE_INIT(ModuleRLine)
-
