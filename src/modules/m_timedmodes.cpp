@@ -357,7 +357,7 @@ class ModuleTimedModes : public Module
 			int maxModeLength = MAXBUF - 24 - channel->name.length() - ConvToStr(i->expire).length();
 			irc::modestacker modes = i->modes;
 			while(!modes.sequence.empty())
-				target->SendCommand("ENCAP * TMODE " + channel->name + " " + ConvToStr(i->expire) + " " + modes.popModeLine(FORMAT_NETWORK, maxModeLength, INT_MAX));
+				target->SendEncap("TMODE " + channel->name + " " + ConvToStr(i->expire) + " " + modes.popModeLine(FORMAT_NETWORK, maxModeLength, INT_MAX));
 		}
 	}
 

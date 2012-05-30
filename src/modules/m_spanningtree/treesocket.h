@@ -90,7 +90,7 @@ class SpanningTreeSyncTarget : public SyncTarget
 	SpanningTreeSyncTarget(TreeSocket* t) : ts(*t) {}
 	void SendMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 	void SendEncap(const std::string& cmd, const parameterlist &encap);
-	void SendCommand(const std::string& line);
+	void SendEncap(const std::string& line);
 };
 
 /** Every SERVER connection inbound or outbound is represented by an object of
