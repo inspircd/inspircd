@@ -183,10 +183,14 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 	{
 		DelServerEvent(Utils->Creator, Current->GetName());
 
-		parameterlist params;
-		params.push_back(Current->GetName());
-		params.push_back(":"+reason);
-		Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
+		if (!Current->GetSocket() || Current->GetSocket()->GetLinkState() == CONNECTED)
+		{
+			parameterlist params;
+			params.push_back(Current->GetName());
+			params.push_back(":"+reason);
+			Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
+		}
+
 		if (Current->GetParent() == Utils->TreeRoot)
 		{
 			ServerInstance->SNO->WriteGlobalSno('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
