@@ -216,53 +216,45 @@ class IdentRequestSocket : public EventHandler
 		char ibuf[MAXBUF];
 		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
 
+		/* Close (but don't delete from memory) our socket
+		 * and flag as done since the ident lookup has finished
+		 */
+		Close();
+		done = true;
+
 		/* Cant possibly be a valid response shorter than 3 chars,
 		 * because the shortest possible response would look like: '1,1'
 		 */
 		if (recvresult < 3)
-		{
-			Close();
-			done = true;
 			return;
-		}
+
+		ibuf[recvresult] = '\0';
 
 		ServerInstance->Logs->Log("m_ident",DEBUG,"ReadResponse()");
 
 		const char* i = strrchr(ibuf, ':');
 		if(i)
 		{
-			std::string token(i);
-			std::string ident;
+			std::string token(++i);
 
 			/* Truncate the ident at any characters we don't like, skip leading spaces */
-			size_t k = 0;
-			for (const char *j = token.c_str(); *j && (k++ < ServerInstance->Config->Limits.IdentMax); j++)
+			for (std::string::const_iterator j = token.begin(); j != token.end() && (result.size() < ServerInstance->Config->Limits.IdentMax); ++j)
 			{
 				if (*j == ' ')
 					continue;
 
-				/* Rules taken from InspIRCd::IsIdent */
-				if (((*j >= 'A') && (*j <= '}')) || ((*j >= '0') && (*j <= '9')) || (*j == '-') || (*j == '.'))
+				/* Add the next char to the result and see if it's still a valid ident,
+				 * according to IsIdent(). If it isn't, then erase what we just added and
+				 * we're done.
+				 */
+				result += *j;
+				if (!ServerInstance->IsIdent(result.c_str()))
 				{
-					ident += *j;
-					continue;
+					result.erase(result.end()-1);
+					break;
 				}
-
-				break;
-			}
-
-			if (!ident.empty() && ServerInstance->IsIdent(ident.c_str()))
-			{
-				result = ident;
 			}
 		}
-
-		/* Close (but dont delete from memory) our socket
-		 * and flag as done
-		 */
-		Close();
-		done = true;
-		return;
 	}
 };
 
@@ -382,7 +374,11 @@ class ModuleIdent : public Module
 	{
 		/* Module unloading, tidy up users */
 		if (target_type == TYPE_USER)
-			OnUserDisconnect((LocalUser*)item);
+		{
+			LocalUser* user = IS_LOCAL((User*) item);
+			if (user)
+				OnUserDisconnect(user);
+		}
 	}
 
 	virtual void OnUserDisconnect(LocalUser *user)
