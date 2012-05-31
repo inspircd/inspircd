@@ -53,11 +53,10 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 			{
 				// Special case, Fake a /nick UIDHERE. Useful for evading "ERR: NICK IN USE" on connect etc.
 				std::vector<std::string> p2;
-				std::deque<classbase*> dummy;
 				p2.push_back(user->uuid);
-				this->HandleInternal(1, dummy);
+				allowinvalid = true;
 				this->Handle(p2, user);
-				this->HandleInternal(0, dummy);
+				allowinvalid = false;
 				return CMD_SUCCESS;
 			}
 
