@@ -156,6 +156,7 @@ class ModuleSSLGnuTLS : public Module
 	int dh_bits;
 
 	bool cred_alloc;
+	bool dh_alloc;
 
 	RandGen randhandler;
 	CommandStartTLS starttls;
@@ -173,6 +174,7 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_x509_privkey_init(&x509_key);
 
 		cred_alloc = false;
+		dh_alloc = false;
 	}
 
 	void init()
@@ -252,20 +254,25 @@ class ModuleSSLGnuTLS : public Module
 
 		int ret;
 
+		if (dh_alloc)
+		{
+			gnutls_dh_params_deinit(dh_params);
+			dh_alloc = false;
+		}
+
 		if (cred_alloc)
 		{
 			// Deallocate the old credentials
-			gnutls_dh_params_deinit(dh_params);
 			gnutls_certificate_free_credentials(x509_cred);
 
 			for(unsigned int i=0; i < x509_certs.size(); i++)
 				gnutls_x509_crt_deinit(x509_certs[i]);
 			x509_certs.clear();
 		}
-		else
-			cred_alloc = true;
 
-		if((ret = gnutls_certificate_allocate_credentials(&x509_cred)) < 0)
+		ret = gnutls_certificate_allocate_credentials(&x509_cred);
+		cred_alloc = (ret >= 0);
+		if (!cred_alloc)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
 
 		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
@@ -300,7 +307,9 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_certificate_client_set_retrieve_function (x509_cred, cert_callback);
 
-		if((ret = gnutls_dh_params_init(&dh_params)) < 0)
+		ret = gnutls_dh_params_init(&dh_params);
+		dh_alloc = (ret >= 0);
+		if (!dh_alloc)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
 
 		// This may be on a large (once a day or week) timer eventually.
@@ -324,13 +333,14 @@ class ModuleSSLGnuTLS : public Module
 	{
 		for(unsigned int i=0; i < x509_certs.size(); i++)
 			gnutls_x509_crt_deinit(x509_certs[i]);
-		x509_certs.clear();
+
 		gnutls_x509_privkey_deinit(x509_key);
-		if (cred_alloc)
-		{
+
+		if (dh_alloc)
 			gnutls_dh_params_deinit(dh_params);
+		if (cred_alloc)
 			gnutls_certificate_free_credentials(x509_cred);
-		}
+
 		gnutls_global_deinit();
 		delete[] sessions;
 		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
