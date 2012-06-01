@@ -323,6 +323,9 @@ class ModuleSSLGnuTLS : public Module
 		// once a day, once a week or once a month. Depending on the
 		// security requirements.
 
+		if (!dh_alloc)
+			return;
+
 		int ret;
 
 		if((ret = gnutls_dh_params_generate2(dh_params, dh_bits)) < 0)
