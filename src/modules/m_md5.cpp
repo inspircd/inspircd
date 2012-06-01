@@ -158,7 +158,7 @@ class ModuleMD5 : public Module
 
 		byteSwap(ctx->buf, 4);
 		memcpy(digest, ctx->buf, 16);
-		memset(ctx, 0, sizeof(ctx));
+		memset(ctx, 0, sizeof(*ctx));
 	}
 
 	void MD5Transform(word32 buf[4], word32 const in[16])
