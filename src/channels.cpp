@@ -325,6 +325,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		 * remote users are allowed us to bypass channel modes
 		 * and bans (used by servers)
 		 */
+		bool invited = user->IsInvited(Ptr->name.c_str());
 		if (IS_LOCAL(user) && override == false)
 		{
 			MOD_RESULT = 0;
@@ -336,7 +337,6 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			else if (MOD_RESULT == 0)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
-				bool invited = user->IsInvited(Ptr->name.c_str());
 				bool can_bypass = Instance->Config->InvBypassModes && invited;
 
 				if (!ckey.empty())
@@ -389,16 +389,16 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
 					return NULL;
 				}
-
-				/*
-				 * If the user has invites for this channel, remove them now
-				 * after a successful join so they don't build up.
-				 */
-				if (invited)
-				{
-					user->RemoveInvite(Ptr->name.c_str());
-				}
 			}
+		}
+
+		/*
+		 * If the user has invites for this channel, remove them now
+		 * after a successful join so they don't build up.
+		 */
+		if (invited)
+		{
+			user->RemoveInvite(Ptr->name.c_str());
 		}
 	}
 
