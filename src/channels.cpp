@@ -165,6 +165,8 @@ unsigned long Channel::DelUser(User* user)
 			if (MOD_RESULT == 1)
 				return 1; // delete halted by module
 
+			// Uninvite every user who were invited but haven't joined
+			ClearInvites();
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
@@ -1120,5 +1122,32 @@ void Channel::RemoveAllPrefixes(User* user)
 	if (n != prefixes.end())
 	{
 		prefixes.erase(n);
+	}
+}
+
+void Channel::AddInvitedUser(User* user)
+{
+	invitedusers.push_back(user);
+}
+
+void Channel::RemoveInvitedUser(User* user)
+{
+	InvitedUserList::iterator it = std::find(invitedusers.begin(), invitedusers.end(), user);
+	if (it != invitedusers.end())
+		invitedusers.erase(it);
+}
+
+void Channel::ClearInvites()
+{
+	InvitedUserList inv;
+
+	/* This causes Channel::RemoveInvitedUser() to do nothing when
+	 * User::RemoveInvite() calls it
+	 */
+	inv.swap(invitedusers);
+
+	for (InvitedUserList::iterator i = inv.begin(); i != inv.end(); ++i)
+	{
+		(*i)->RemoveInvite(this->name.c_str());
 	}
 }

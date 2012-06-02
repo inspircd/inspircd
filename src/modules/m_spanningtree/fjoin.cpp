@@ -111,6 +111,7 @@ bool TreeSocket::ForceJoin(const std::string &source, std::deque<std::string> &p
 				chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), chan->name.c_str(), (unsigned long) ourTS, (unsigned long) TS);
 			ourTS = TS;
 			chan->age = TS;
+			chan->ClearInvites();
 			param_list.push_back(channel);
 			this->RemoveStatus(ServerInstance->Config->GetSID(), param_list);
 		}

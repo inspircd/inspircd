@@ -416,19 +416,20 @@ const std::string User::GetFullRealHost()
 
 bool User::IsInvited(const irc::string &channel)
 {
-	time_t now = ServerInstance->Time();
-	InvitedList::iterator safei;
+	Channel* chan = ServerInstance->FindChan(channel.c_str());
+	if (!chan)
+		return false;
+
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
 	{
-		if (channel == i->first)
+		if (chan == i->first)
 		{
-			if (i->second != 0 && now > i->second)
+			if (i->second != 0 && ServerInstance->Time() > i->second)
 			{
-				/* Expired invite, remove it. */
-				safei = i;
-				--i;
-				invites.erase(safei);
-				continue;
+				/* This user is invited but the invite has expired, remove it and return. */
+				invites.erase(i);
+				chan->RemoveInvitedUser(this);
+				return false;
 			}
 			return true;
 		}
@@ -446,6 +447,7 @@ InvitedList* User::GetInviteList()
 		if (i->second != 0 && now > i->second)
 		{
 			/* Expired invite, remove it. */
+			i->first->RemoveInvitedUser(this);
 			safei = i;
 			--i;
 			invites.erase(safei);
@@ -456,11 +458,15 @@ InvitedList* User::GetInviteList()
 
 void User::InviteTo(const irc::string &channel, time_t invtimeout)
 {
+	Channel* chan = ServerInstance->FindChan(channel.c_str());
+	if (!chan)
+		return;
+
 	time_t now = ServerInstance->Time();
 	if (invtimeout != 0 && now > invtimeout) return; /* Don't add invites that are expired from the get-go. */
 	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
 	{
-		if (channel == i->first)
+		if (chan == i->first)
 		{
 			if (i->second != 0 && invtimeout > i->second)
 			{
@@ -470,16 +476,22 @@ void User::InviteTo(const irc::string &channel, time_t invtimeout)
 			return;
 		}
 	}
-	invites.push_back(std::make_pair(channel, invtimeout));
+	invites.push_back(std::make_pair(chan, invtimeout));
+	chan->AddInvitedUser(this);
 }
 
 void User::RemoveInvite(const irc::string &channel)
 {
-	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+	Channel* chan = ServerInstance->FindChan(channel.c_str());
+	if (!chan)
+		return;
+
+	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
 	{
-		if (channel == i->first)
+		if (chan == i->first)
 		{
 			invites.erase(i);
+			chan->RemoveInvitedUser(this);
 			return;
 	 	}
 	}
