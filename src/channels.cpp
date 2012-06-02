@@ -150,9 +150,27 @@ unsigned long Channel::DelUser(User* user)
 		DelOppedUser(user);
 		DelHalfoppedUser(user);
 		DelVoicedUser(user);
+		RemoveAllPrefixes(user);
 	}
 
-	return internal_userlist.size();
+	unsigned long remaining_users = internal_userlist.size();
+	if (remaining_users == 0)
+	{
+		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
+		/* kill the record */
+		if (iter != ServerInstance->chanlist->end())
+		{
+			int MOD_RESULT = 0;
+			FOREACH_RESULT_I(ServerInstance, I_OnChannelPreDelete, OnChannelPreDelete(this));
+			if (MOD_RESULT == 1)
+				return 1; // delete halted by module
+
+			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
+			ServerInstance->chanlist->erase(iter);
+		}
+	}
+
+	return remaining_users;
 }
 
 bool Channel::HasUser(User* user)
@@ -566,26 +584,9 @@ long Channel::PartUser(User *user, std::string &reason)
 			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
 		user->chans.erase(i);
-		this->RemoveAllPrefixes(user);
 	}
 
-	if (!this->DelUser(user)) /* if there are no users left on the channel... */
-	{
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
-			if (MOD_RESULT == 1)
-				return 1; // delete halted by module
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		return 0;
-	}
-
-	return this->GetUserCounter();
+	return this->DelUser(user);
 }
 
 long Channel::ServerKickUser(User* user, const char* reason, const char* servername)
@@ -655,28 +656,9 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 			this->WriteChannel(src, "KICK %s %s :%s", this->name.c_str(), user->nick.c_str(), reason);
 
 		user->chans.erase(i);
-		this->RemoveAllPrefixes(user);
 	}
 
-	if (!this->DelUser(user))
-	/* if there are no users left on the channel */
-	{
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name.c_str());
-
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
-			if (MOD_RESULT == 1)
-				return 1; // delete halted by module
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		return 0;
-	}
-
-	return this->GetUserCounter();
+	return this->DelUser(user);
 }
 
 void Channel::WriteChannel(User* user, const char* text, ...)

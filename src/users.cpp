@@ -1945,41 +1945,10 @@ ConnectClass* User::GetClass()
 
 void User::PurgeEmptyChannels()
 {
-	std::vector<Channel*> to_delete;
-
-	// firstly decrement the count on each channel
 	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
 	{
-		f->first->RemoveAllPrefixes(this);
 		if (f->first->DelUser(this) == 0)
-		{
-			/* No users left in here, mark it for deletion */
-			try
-			{
-				to_delete.push_back(f->first);
-			}
-			catch (...)
-			{
-				ServerInstance->Logs->Log("USERS", DEBUG,"Exception in User::PurgeEmptyChannels to_delete.push_back()");
-			}
-		}
-	}
-
-	for (std::vector<Channel*>::iterator n = to_delete.begin(); n != to_delete.end(); n++)
-	{
-		Channel* thischan = *n;
-		chan_hash::iterator i2 = ServerInstance->chanlist->find(thischan->name);
-		if (i2 != ServerInstance->chanlist->end())
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(i2->second));
-			if (MOD_RESULT == 1)
-				continue; // delete halted by module
-			FOREACH_MOD(I_OnChannelDelete,OnChannelDelete(i2->second));
-			delete i2->second;
-			ServerInstance->chanlist->erase(i2);
-			this->chans.erase(*n);
-		}
+			delete f->first;
 	}
 
 	this->UnOper();
