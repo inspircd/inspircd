@@ -176,7 +176,8 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 	if (parameters.size() == 1)
 	{
 		/* Deleting a filter */
-		if (static_cast<ModuleFilter&>(*creator).DeleteFilter(parameters[0]))
+		Module *me = creator;
+		if (static_cast<ModuleFilter *>(me)->DeleteFilter(parameters[0]))
 		{
 			user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
 			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
@@ -223,7 +224,9 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			{
 				reason = parameters[3];
 			}
-			std::pair<bool, std::string> result = static_cast<ModuleFilter&>(*creator).AddFilter(freeform, type, reason, duration, flags);
+			
+			Module *me = creator;
+			std::pair<bool, std::string> result = static_cast<ModuleFilter *>(me)->AddFilter(freeform, type, reason, duration, flags);
 			if (result.first)
 			{
 				user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),

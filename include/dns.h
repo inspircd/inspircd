@@ -103,7 +103,7 @@ class CoreExport CachedQuery
 #if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
 typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash_compare<irc::string> > dnscache;
 #else
-typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash<irc::string> > dnscache;
+typedef nspace::hash_map<irc::string, CachedQuery, irc::hash> dnscache;
 #endif
 
 /**

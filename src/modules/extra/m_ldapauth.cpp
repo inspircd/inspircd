@@ -27,6 +27,11 @@
 
 #include <ldap.h>
 
+#ifdef WINDOWS
+# pragma comment(lib, "ldap.lib")
+# pragma comment(lib, "lber.lib")
+#endif
+
 /* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
 /* $LinkerFlags: -lldap */
 

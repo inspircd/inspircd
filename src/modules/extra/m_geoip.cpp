@@ -23,6 +23,10 @@
 
 #include <GeoIP.h>
 
+#ifdef WINDOWS
+# pragma comment(lib, "GeoIP.lib")
+#endif
+
 /* $ModDesc: Provides a way to restrict users by country using GeoIP lookup */
 /* $LinkerFlags: -lGeoIP */
 
@@ -32,13 +36,16 @@ class ModuleGeoIP : public Module
 	GeoIP* gi;
 
  public:
-	ModuleGeoIP() : ext(EXTENSIBLE_USER, "geoip_cc", this)
+	ModuleGeoIP() : ext(EXTENSIBLE_USER, "geoip_cc", this), gi(NULL)
 	{
-		gi = GeoIP_new(GEOIP_STANDARD);
 	}
 
 	void init()
 	{
+		gi = GeoIP_new(GEOIP_STANDARD);
+		if (gi == NULL)
+			throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
+
 		ServerInstance->Modules->AddService(ext);
 		Implementation eventlist[] = { I_OnSetConnectClass };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

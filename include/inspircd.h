@@ -291,10 +291,6 @@ class CoreExport InspIRCd
 	 */
 	char ReadBuffer[65535];
 
-#ifdef WIN32
-	IPC* WindowsIPC;
-#endif
-
  public:
 
 	/** Global cull list, will be processed on next iteration

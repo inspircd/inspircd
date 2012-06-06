@@ -28,7 +28,9 @@
 #include "sql.h"
 
 #ifdef WINDOWS
-#pragma comment(lib, "mysqlclient.lib")
+# pragma comment(lib, "mysqlclient.lib")
+# pragma comment(lib, "advapi32.lib")
+# pragma comment(linker, "/NODEFAULTLIB:LIBCMT")
 #endif
 
 namespace m_mysql {

@@ -28,7 +28,9 @@
 #include <windows.h>
 #include <stdio.h>
 #include <process.h>
+#include <iostream>
 #include <string>
+#include <vector>
 #include <time.h>
 #include "inspircd_win32wrapper.h"
 #include "colours.h"
@@ -36,7 +38,7 @@
 using namespace std;
 void Run();
 void Banner();
-void WriteCompileModules();
+void WriteCompileModules(const vector<string> &, const vector<string> &);
 void WriteCompileCommands();
 void Rebase();
 void CopyExtras();
@@ -79,80 +81,69 @@ bool get_bool_option(const char * text, bool def)
 	return !strncmp(ret, "y", 1);
 }
 
-void get_string_option(const char * text, char * def, char * buf)
+string get_string_option(const char * text, char * def)
 {
-	static char buffer[500];
-	if (*def)
+	if (def && *def)
 		printf_c("%s\n[\033[1;32m%s\033[0m] -> ", text, def);
 	else
 		printf_c("%s\n[] -> ", text);
-	fgets(buffer, 500, stdin);
-	if(sscanf(buffer, "%s", buf) != 1)
+	
+	char buffer[1000], buf[1000];
+	fgets(buffer, sizeof(buffer), stdin);
+	if (sscanf(buffer, "%s", buf) != 1)
 		strcpy(buf, def);
-
+	
 	printf("\n");
+	return buf;
 }
 
 // escapes a string for use in a c++ file
-bool escape_string(char * str, size_t size)
+void escape_string(string &str)
 {
-	size_t len = strlen(str);
-	char * d_str = (char*)malloc(len * 2);
+	string copy = str;
+	str.clear();
 	
-	size_t i = 0;
-	size_t j = 0;
-
-	for(; i < len; ++i)
+	for (unsigned i = 0; i < copy.size(); ++i)
 	{
-		if(str[i] == '\\')
-		{
-			d_str[j++] = '\\';
-			d_str[j++] = '\\';
-		}
-		else
-		{
-			d_str[j++] = str[i];
-		}
+		str += copy[i];
+		if (copy[i] == '\\')
+			str += '\\';
 	}
-
-	d_str[j++] = 0;
-
-	if(j > size)
-	{
-		free(d_str);
-		return false;
-	}
-
-	strcpy(str, d_str);
-	free(d_str);
-	return true;
 }
 
-/* gets the svn revision */
-int get_svn_revision(char * buffer, size_t len)
+string get_git_commit()
 {
-	/* again.. I am lazy :p cbf to pipe output of svn info to us, so i'll just read the file */
-	/*
-	8
-
-	dir
-	7033
-	*/
-	char buf[1000];
-	int rev = 0;
-	
-	FILE * f = fopen("..\\.svn\\entries", "r");
+	char buf[128];
+	char *ref = NULL, *commit = NULL;
+	FILE *f = fopen("../.git/HEAD", "r");
 	if (f)
 	{
-		for (int q = 0; q < 4; ++q)
-			fgets(buf, 1000, f);
-
-		rev = atoi(buf);
-		sprintf(buffer, "%u", rev);
+		if (fgets(buf, sizeof(buf), f))
+		{
+			while (isspace(buf[strlen(buf) - 1]))
+				buf[strlen(buf) - 1] = 0;
+			char *p = strchr(buf, ' ');
+			if (p)
+				ref = ++p;
+		}
 		fclose(f);
 	}
-	
-	return rev;
+	if (ref == NULL)
+		return "";
+	string ref_file = string("../.git/") + string(ref);
+	f = fopen(ref_file.c_str(), "r");
+	if (f)
+	{
+		if (fgets(buf, sizeof(buf), f))
+		{
+			while (isspace(buf[strlen(buf) - 1]))
+				buf[strlen(buf) - 1] = 0;
+			commit = buf;
+		}
+		fclose(f);
+	}
+
+	return commit != NULL ? commit : "";
 }
 
 void get_machine_info(char * buffer, size_t len)
@@ -188,6 +179,26 @@ void get_machine_info(char * buffer, size_t len)
 		*b2++;
 	}
 	*b = 0;
+}
+
+vector<string> get_dir_list(const string &path_list)
+{
+	char *paths = strdup(path_list.c_str());
+	char *paths_save = paths;
+	char *p = paths;
+	vector<string> paths_return;
+
+	while ((p = strchr(paths, ';')))
+	{
+		*p++ = 0;
+		paths_return.push_back(paths);
+		paths = p;
+	}
+	if (paths != NULL)
+		paths_return.push_back(paths);
+	free(paths_save);
+	
+	return paths_return;
 }
 
 int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPSTR lpCmdLine, IN int nShowCmd )
@@ -239,17 +250,8 @@ void Banner()
 
 void Run()
 {
-	bool use_openssl = false;
-	bool ipv6 = true;
-	char mod_path[MAX_PATH];
-	char config_file[MAX_PATH];
-	char library_dir[MAX_PATH];
-	char base_path[MAX_PATH];
-	char bin_dir[MAX_PATH];
-	char revision_text[MAX_PATH];
-	char openssl_inc_path[MAX_PATH];
-	char openssl_lib_path[MAX_PATH];
-	int revision = get_svn_revision(revision_text, MAX_PATH);
+	vector<string> extra_include_paths, extra_lib_paths;
+	string revision = get_git_commit();
 	char version[514];
 	char machine_text[MAX_PATH];
 	get_machine_info(machine_text, MAX_PATH);
@@ -278,71 +280,32 @@ void Run()
 #else
 	printf_c("Your operating system is: \033[1;32mwindows_x32 \033[0m\n");
 #endif
-	printf_c("InspIRCd revision ID: \033[1;32m%s \033[0m\n\n", revision ? revision_text : "(Non-SVN build)");
-
-	ipv6 = get_bool_option("Do you want to enable IPv6?", false);
+	printf_c("InspIRCd revision ID: \033[1;32m%s \033[0m\n\n", !revision.empty() ? revision.c_str() : "(Non-GIT build)");
+	
+	printf_c("\033[1mExtra modules.\033[0m\n");
+	if (get_bool_option("Do you want to compile any extra non-core modules?", false))
+	{
+		string extra_i_path = get_string_option("Extra include search paths separate by \";\"", ".");
+		string extra_l_path = get_string_option("Extra library search paths, separate by \";\"", ".");
+		
+		extra_include_paths = get_dir_list(extra_i_path);
+		extra_lib_paths = get_dir_list(extra_l_path);
+	}
 
 	printf_c("\033[1mAll paths are relative to the binary directory.\033[0m\n");
-	get_string_option("In what directory do you wish to install the InspIRCd base?", "..", base_path);
-	get_string_option("In what directory are the configuration files?", "../conf", config_file);
-	get_string_option("In what directory are the modules to be compiled to?", "../modules", mod_path);
-	get_string_option("In what directory is the IRCd binary to be placed?", ".", bin_dir);
-	get_string_option("In what directory are the IRCd libraries to be placed?", "../lib", library_dir);
-
-	// NOTE: this may seem hackish (generating a batch build script), but it assures the user knows
-	// what they're doing, and we don't have to mess with copying files and changing around modules.mak
-	// for the extra libraries. --fez
-	// in case it exists, remove old m_ssl_openssl.cpp
-	remove("..\\src\\modules\\m_ssl_openssl.cpp");
-	printf_c("You can compile InspIRCd modules that add OpenSSL or GnuTLS support for SSL functionality.\n"
-		"To do so you will need the appropriate link libraries and header files on your system.\n");
-	use_openssl = get_bool_option("Would you like to compile the IRCd with OpenSSL support?", false);
-	if (use_openssl)
-	{
-		get_string_option("Please enter the full path to your OpenSSL include directory\n"
-			"(e.g., C:\\openssl\\include, but NOT the openssl subdirectory under include\\)\n"
-			"(also, path should not end in '\\')",
-			"C:\\openssl\\include", openssl_inc_path);
-
-		// NOTE: if inspircd ever changes so that it compiles with /MT instead of the /MTd switch, then
-		// the dependency on libeay32mtd.lib and ssleay32mtd.lib will change to just libeay32.lib and
-		// ssleay32.lib. --fez
-
-		get_string_option("Please enter the full path to your OpenSSL library directory\n"
-			"(e.g., C:\\openssl\\lib, which should contain libeay32mtd.lib and ssleay32mtd.lib)",
-			"C:\\openssl\\lib", openssl_lib_path);
-
-		// write batch file
-		FILE *fp = fopen("compile_openssl.bat", "w");
-		fprintf(fp, "@echo off\n");
-		fprintf(fp, "echo This batch script compiles m_ssl_openssl for InspIRCd.\n");
-		fprintf(fp, "echo NOTE: this batch file should be invoked from the Visual Studio Command Prompt (vsvars32.bat)\n");
-		fprintf(fp, "set OPENSSL_INC_PATH=\"%s\"\n", openssl_inc_path);
-		fprintf(fp, "set OPENSSL_LIB_PATH=\"%s\"\n", openssl_lib_path);
-		fprintf(fp, "set COMPILE=cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Wp64 /Zi /TP /I %%OPENSSL_INC_PATH%% m_ssl_openssl.cpp ..\\..\\win\\inspircd_memory_functions.cpp %%OPENSSL_INC_PATH%%\\openssl\\applink.c /link /LIBPATH:%%OPENSSL_LIB_PATH%% ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.so\" /PDB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\m_ssl_openssl.lib\"\n");
-		fprintf(fp, "cd ..\\src\\modules\n");
-		fprintf(fp, "copy extra\\m_ssl_openssl.cpp .\n");
-		fprintf(fp, "echo \t%%COMPILE%%\n");
-		fprintf(fp, "%%COMPILE%%\n");
-		fprintf(fp, "cd ..\\..\\win\n");
-		fprintf(fp, "echo done... now check for errors.\n");
-		fclose(fp);
-
-		printf_c("\033[1;32m!!!NOTICE!!! The file 'compile_openssl.bat' has been written to your 'win' directory.  Launch it\n"
-			"!!! from the Visual Studio Command Prompt !!! to compile the m_ssl_openssl module.\n"
-			"Wait until after compiling inspircd to run it.\n"
-			"Also, ssleay32.dll and libeay32.dll will be required for the IRCd to run.\033[0m\n");
-	}
+	string base_path = get_string_option("In what directory do you wish to install the InspIRCd base?", "..");
+	string config_file = get_string_option("In what directory are the configuration files?", "conf");
+	string mod_path = get_string_option("In what directory are the modules to be compiled to?", "modules");
+	string bin_dir = get_string_option("In what directory is the IRCd binary to be placed?", ".");
 
 	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
 
 	CopyExtras();
 
 	// dump all the options back out
-	printf_c("\033[0mBase install path:\033[1;32m        %s\n", base_path);
-	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_file);
-	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path);
-	printf_c("\033[0mLibrary path:\033[1;32m             %s\n", library_dir);
+	printf_c("\033[0mBase install path:\033[1;32m        %s\n", base_path.c_str());
+	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_file.c_str());
+	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path.c_str());
 	printf_c("\033[0mSocket Engine:\033[1;32m            %s\n", "select");
 
 	printf("\n"); sc(TNORMAL);
@@ -354,9 +317,8 @@ void Run()
 	printf("\n");
 
 	// escape the pathes
-	escape_string(config_file, MAX_PATH);
-	escape_string(mod_path, MAX_PATH);
-	escape_string(library_dir, MAX_PATH);
+	escape_string(config_file);
+	escape_string(mod_path);
 
 	printf("\nWriting inspircd_config.h...");
 	FILE * f = fopen("inspircd_config.h", "w");
@@ -364,13 +326,10 @@ void Run()
 	fprintf(f, "#ifndef __CONFIGURATION_AUTO__\n");
 	fprintf(f, "#define __CONFIGURATION_AUTO__\n\n");
 
-	fprintf(f, "#define CONFIG_FILE \"%s/inspircd.conf\"\n", config_file);
-	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path);
+	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path.c_str());
 	fprintf(f, "#define SOMAXCONN_S \"128\"\n");
-	fprintf(f, "#define LIBRARYDIR \"%s\"\n", library_dir);
 	fprintf(f, "#define MAXBUF 514\n");
 
-	fprintf(f, "\n#include \"inspircd_namedpipe.h\"");
 	fprintf(f, "#endif\n\n");
 	fclose(f);
 
@@ -389,14 +348,14 @@ void Run()
 	printf("Writing inspircd_version.h...");
 	f = fopen("inspircd_version.h", "w");
 	fprintf(f, "#define VERSION \"%s\"\n", version);
-	fprintf(f, "#define REVISION \"%d\"\n", revision);
+	fprintf(f, "#define REVISION \"%s\"\n", revision.c_str());
 	fprintf(f, "#define SYSTEM \"%s\"\n", machine_text);
 	fclose(f);
 
 	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
 	printf("Writing command and module compilation scripts...");
 	WriteCompileCommands();
-	WriteCompileModules();
+	WriteCompileModules(extra_include_paths, extra_lib_paths);
 	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
 
 	printf("\nconfigure is done.. exiting!\n");
@@ -444,38 +403,12 @@ void Rebase()
 	char dest[65535];
 	char command[65535];
 
-	*dest = 0;
-
 	WIN32_FIND_DATA fd;
-#ifdef _DEBUG
-	HANDLE fh = FindFirstFile("..\\bin\\debug\\lib\\*.so", &fd);
-#else
-	HANDLE fh = FindFirstFile("..\\bin\\release\\lib\\*.so", &fd);
-#endif
-	if(fh == INVALID_HANDLE_VALUE)
-		return;
-
-	do
-	{
-#ifdef _DEBUG
-		strcat(dest, " ..\\bin\\debug\\lib\\");
-#else
-		strcat(dest, " ..\\bin\\release\\lib\\");
-#endif
-		strcat(dest, fd.cFileName);
-	}
-	while (FindNextFile(fh, &fd));
-
-	FindClose(fh);
-
-	sprintf(command, "rebase.exe -v -b 10000000 -c baseaddr_commands.txt %s", dest);
-	printf("%s\n", command);
-	system(command);
 
 #ifdef _DEBUG
-	fh = FindFirstFile("..\\bin\\debug\\modules\\*.so", &fd);
+	HANDLE fh = FindFirstFile("..\\bin\\debug\\modules\\*.so", &fd);
 #else
-	fh = FindFirstFile("..\\bin\\release\\modules\\*.so", &fd);
+	HANDLE fh = FindFirstFile("..\\bin\\release\\modules\\*.so", &fd);
 #endif
 	if(fh == INVALID_HANDLE_VALUE)
 		return;
@@ -498,7 +431,6 @@ void Rebase()
 	system(command);
 
 	FindClose(fh);
-
 }
 
 void WriteCompileCommands()
@@ -539,38 +471,37 @@ void WriteCompileCommands()
 #ifdef WIN64
 	// /MACHINE:X64
 	#ifdef _DEBUG
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug_x64\\bin\\inspircd.lib /OUT:\"..\\..\\bin\\debug_x64\\lib\\$*.so\" /PDB:\"..\\..\\bin\\debug_x64\\lib\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\debug_x64\\lib\\$*.lib\"\n\n");
-		CreateDirectory("..\\src\\debug", NULL);
-		CreateDirectory("..\\bin\\debug\\bin", NULL);
-		CreateDirectory("..\\bin\\debug\\lib", NULL);
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug_x64\\inspircd.lib /OUT:\"..\\..\\bin\\debug_x64\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug_x64\\modules\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\debug_x64\\modules\\$*.lib\"\n\n");
+		CreateDirectory("..\\src\\commands\\debug", NULL);
 		CreateDirectory("..\\bin\\debug\\modules", NULL);
 	#else
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release_x64\\bin\\inspircd.lib /OUT:\"..\\..\\bin\\release_x64\\lib\\$*.so\" /PDB:\"..\\..\\bin\\release_x64\\lib\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\release_x64\\lib\\$*.lib\"\n\n");
-		CreateDirectory("..\\src\\release", NULL);
-		CreateDirectory("..\\bin\\release\\bin", NULL);
-		CreateDirectory("..\\bin\\release\\lib", NULL);
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release_x64\\inspircd.lib /OUT:\"..\\..\\bin\\release_x64\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release_x64\\modules\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\release_x64\\modules\\$*.lib\"\n\n");
+		CreateDirectory("..\\src\\commands\\release", NULL);
 		CreateDirectory("..\\bin\\release\\modules", NULL);
 	#endif
 #else
 	#ifdef _DEBUG
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\bin\\inspircd.lib /OUT:\"..\\..\\bin\\debug\\lib\\$*.so\" /PDB:\"..\\..\\bin\\debug\\lib\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\lib\\$*.lib\"\n\n");
-		CreateDirectory("..\\src\\debug", NULL);
-		CreateDirectory("..\\bin\\debug\\bin", NULL);
-		CreateDirectory("..\\bin\\debug\\lib", NULL);
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\inspircd.lib /OUT:\"..\\..\\bin\\debug\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\modules\\$*.lib\"\n\n");
+		CreateDirectory("..\\src\\commands\\debug", NULL);
 		CreateDirectory("..\\bin\\debug\\modules", NULL);
 	#else
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\bin\\inspircd.lib /OUT:\"..\\..\\bin\\release\\lib\\$*.so\" /PDB:\"..\\..\\bin\\release\\lib\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\lib\\$*.lib\"\n\n");
-		CreateDirectory("..\\src\\release", NULL);
-		CreateDirectory("..\\bin\\release\\bin", NULL);
-		CreateDirectory("..\\bin\\release\\lib", NULL);
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/commands\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\inspircd.lib /OUT:\"..\\..\\bin\\release\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\$*.lib\"\n\n");
+		CreateDirectory("..\\src\\commands\\release", NULL);
 		CreateDirectory("..\\bin\\release\\modules", NULL);
 	#endif
 #endif
 
+	fprintf(f, "makedir:\n");
 #ifdef _DEBUG
-	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n  if not exist ..\\..\\bin\\debug\\lib mkdir ..\\..\\bin\\debug\\lib\n\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\debug mkdir ..\\..\\bin\\debug\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\debug\\modules mkdir ..\\..\\bin\\debug\\modules\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\debug\\data mkdir ..\\..\\bin\\debug\\data\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\debug\\logs mkdir ..\\..\\bin\\debug\\logs\n");
 #else
-	fprintf(f, "makedir:\n  if not exist release mkdir release\n  if not exist ..\\..\\bin\\release\\lib mkdir ..\\..\\bin\\release\\lib\n\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\release mkdir ..\\..\\bin\\release\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\release\\modules mkdir ..\\..\\bin\\release\\modules\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\release\\data mkdir ..\\..\\bin\\release\\data\n");
+	fprintf(f, "	if not exist ..\\..\\bin\\release\\logs mkdir ..\\..\\bin\\release\\logs\n");
 #endif
 	
 	// dump modules.. again the second and last time :)
@@ -581,7 +512,7 @@ void WriteCompileCommands()
 	fclose(f);
 }
 
-void WriteCompileModules()
+void WriteCompileModules(const vector<string> &includes, const vector<string> &libs)
 {
 	char modules[300][100];
 	int module_count = 0;
@@ -603,6 +534,12 @@ void WriteCompileModules()
 		} while(FindNextFile(fh, &fd));
 		sc(TNORMAL);
 	}
+	
+	string extra_include, extra_lib;
+	for (unsigned i = 0; i < includes.size(); ++i)
+		extra_include += " /I \"" + includes[i] + "\" ";
+	for (unsigned i = 0; i < libs.size(); ++i)
+		extra_lib += " /LIBPATH:\"" + libs[i] + "\" ";
 
 	// Write our spiffy new makefile :D
 	// I am such a lazy fucker :P
@@ -620,32 +557,26 @@ void WriteCompileModules()
 #ifdef WIN64
 	// /MACHINE:X64
 	#ifdef _DEBUG
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug_x64\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug_x64\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug_x64\\modules\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\debug_x64\\modules\\$*.lib\"\n\n");
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" %s /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link %s ..\\..\\bin\\debug_x64\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug_x64\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug_x64\\modules\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\debug_x64\\modules\\$*.lib\"\n\n", extra_include.c_str(), extra_lib.c_str());
 		CreateDirectory("..\\src\\modules\\debug_x64", NULL);
 	#else
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release_x64\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release_x64\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release_x64\\modules\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\release_x64\\modules\\$*.lib\"\n\n");
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" %s /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link %s ..\\..\\bin\\release_x64\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release_x64\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release_x64\\modules\\$*.pdb\" /MACHINE:X64 /IMPLIB:\"..\\..\\bin\\release_x64\\modules\\$*.lib\"\n\n", extra_include.c_str(), extra_lib.c_str());
 		CreateDirectory("..\\src\\modules\\release_x64", NULL);
 	#endif
 #else
 	#ifdef _DEBUG
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\debug\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\modules\\$*.lib\"\n\n");
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" %s /D \"WIN32\" /D \"_DEBUG\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /RTC1 /MDd /Fo\"Debug/\" /Fd\"Debug/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link %s ..\\..\\bin\\debug\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\debug\\modules\\$*.so\" /PDB:\"..\\..\\bin\\debug\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\debug\\modules\\$*.lib\"\n\n", extra_include.c_str(), extra_lib.c_str());
 		CreateDirectory("..\\src\\modules\\debug", NULL);
-		CreateDirectory("..\\src\\modules\\debug\\lib", NULL);
-		CreateDirectory("..\\src\\modules\\debug\\modules", NULL);
-		CreateDirectory("..\\src\\modules\\debug\\bin", NULL);
 	#else
-		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link ..\\..\\bin\\release\\bin\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\$*.lib\"\n\n");
+		fprintf(f, "  cl /nologo /LD /Od /I \".\" /I \"../../include\" /I \"../../include/modes\" /I \"../../include/modules\" /I \"../../win\" %s /D \"WIN32\" /D \"_CONSOLE\" /D \"_MBCS\" /D \"DLL_BUILD\" /Gm /EHsc /GL /MD /Fo\"Release/\" /Fd\"Release/vc90.pdb\" /W2 /Zi /TP $*.cpp ..\\..\\win\\inspircd_memory_functions.cpp /link %s ..\\..\\bin\\release\\inspircd.lib ws2_32.lib /OUT:\"..\\..\\bin\\release\\modules\\$*.so\" /PDB:\"..\\..\\bin\\release\\modules\\$*.pdb\" /IMPLIB:\"..\\..\\bin\\release\\modules\\$*.lib\"\n\n", extra_include.c_str(), extra_lib.c_str());
 		CreateDirectory("..\\src\\modules\\release", NULL);
-		CreateDirectory("..\\src\\modules\\release\\lib", NULL);
-		CreateDirectory("..\\src\\modules\\release\\modules", NULL);
-		CreateDirectory("..\\src\\modules\\release\\bin", NULL);
 	#endif
 #endif
 	
 #ifdef _DEBUG
-	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n  if not exist ..\\..\\bin\\debug\\modules mkdir ..\\..\\bin\\debug\\modules\n\n");
+	fprintf(f, "makedir:\n  if not exist debug mkdir debug\n\n");
 #else
-	fprintf(f, "makedir:\n  if not exist release mkdir release\n  if not exist ..\\..\\bin\\release\\modules mkdir ..\\..\\bin\\release\\modules\n\n");
+	fprintf(f, "makedir:\n  if not exist release mkdir release\n\n");
 #endif
 
 	// dump modules.. again the second and last time :)

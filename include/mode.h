@@ -409,7 +409,7 @@ class CoreExport ParamChannelModeHandler : public ModeHandler
 	virtual bool ParamValidate(std::string& parameter);
 };
 
-class PrefixModeHandler : public ModeHandler
+class CoreExport PrefixModeHandler : public ModeHandler
 {
  public:
 	PrefixModeHandler(Module* Creator, const std::string& Name, char modeletter)

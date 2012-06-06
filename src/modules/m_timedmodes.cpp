@@ -23,6 +23,7 @@
 #include "protocol.h"
 // This isn't a listmode, but we need this anyway for the limit of the number of timed modes allowed.
 #include "u_listmode.h"
+#include <iterator> // For std::back_inserter
 
 /** Holds a timed mode
  */

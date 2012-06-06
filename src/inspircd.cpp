@@ -346,9 +346,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #ifdef WIN32
 	// Strict, frequent checking of memory on debug builds
 	_CrtSetDbgFlag ( _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-
-	// Avoid erroneous frees on early exit
-	WindowsIPC = 0;
 #endif
 
 	ServerInstance = this;
@@ -686,8 +683,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
-	WindowsIPC = new IPC;
-	if(!Config->nofork)
+	if(!Config->cmdline.nofork)
 	{
 		WindowsForkKillOwner();
 		FreeConsole();
@@ -809,8 +805,6 @@ void InspIRCd::Run()
 			getrusage(RUSAGE_SELF, &ru);
 			stats->LastSampled = TIME;
 			stats->LastCPU = ru.ru_utime;
-#else
-			WindowsIPC->Check();
 #endif
 
 			/* Allow a buffer of two seconds drift on this so that ntpdate etc dont harass admins */

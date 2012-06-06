@@ -53,5 +53,4 @@ class Autoconnect : public refcountbase
 	Autoconnect(ConfigTag* Tag) : tag(Tag), Enabled(true) {}
 };
 
-
 #endif

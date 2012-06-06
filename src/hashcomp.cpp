@@ -154,7 +154,7 @@ void nspace::strlower(char *n)
 #if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
 	size_t nspace::hash_compare<irc::string, std::less<irc::string> >::operator()(const irc::string &s) const
 #else
-	size_t CoreExport nspace::hash<irc::string>::operator()(const irc::string &s) const
+	size_t CoreExport irc::hash::operator()(const irc::string &s) const
 #endif
 {
 	register size_t t = 0;

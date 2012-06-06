@@ -18,7 +18,7 @@
 
 #ifndef M_SPANNINGTREE_REMOTEUSER_H
 #define M_SPANNINGTREE_REMOTEUSER_H
-class CoreExport RemoteUser : public User
+class RemoteUser : public User
 {
  public:
 	TreeServer* srv;

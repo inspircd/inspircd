@@ -1246,7 +1246,6 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		}
 
 		parameter = "";
-		return MODEACTION_DENY;
 	}
 	else
 	{
@@ -1268,14 +1267,12 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 			/* Tried to remove something that wasn't set */
 			TellNotSet(source, channel, parameter);
 			parameter = "";
-			return MODEACTION_DENY;
 		}
 		else
 		{
 			/* Hmm, taking an exception off a non-existant list, DIE */
 			TellNotSet(source, channel, parameter);
 			parameter = "";
-			return MODEACTION_DENY;
 		}
 	}
 	return MODEACTION_DENY;

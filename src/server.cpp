@@ -41,7 +41,6 @@ void InspIRCd::SignalHandler(int signal)
 void InspIRCd::Exit(int status)
 {
 #ifdef WINDOWS
-	delete WindowsIPC;
 	SetServiceStopped(status);
 #endif
 	if (this)

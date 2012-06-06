@@ -29,10 +29,6 @@
 #include "ssl.h"
 #include "m_cap.h"
 
-#ifdef WINDOWS
-#pragma comment(lib, "libgnutls-13.lib")
-#endif
-
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") -lgcrypt */

@@ -1,0 +1,393 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>inspircd</ProjectName>
+    <ProjectGUID>{FE82A6FC-41C7-4CB1-AA46-6DBCB6C682C8}</ProjectGUID>
+    <RootNamespace>inspircd</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props" Condition="exists('$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props" Condition="exists('$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
+    <Import Project="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props" Condition="exists('$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <Import Project="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props" Condition="exists('$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\bin\debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">inspircd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\bin\release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">inspircd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">..\bin\debug_x64\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">x64DebugVc80\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">inspircd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">..\bin\release_x64\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">x64ReleaseVc80\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|X64'">inspircd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|X64'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|X64'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Message>running configure...</Message>
+      <Command>"$(ProjectDir)\configure.exe"</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100; 4512; 4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>psapi.lib;ws2_32.lib;mswsock.lib;kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>LinkVerbose</ShowProgress>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)inspircd.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>@echo off
+echo Compiling Command Modules...
+cd ..\src\commands
+nmake -f commands.mak
+echo Compiling Modules...
+cd ..\modules
+nmake -f modules.mak
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Message>running configure...</Message>
+      <Command>"$(ProjectDir)\configure.exe"</Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MinSpace</Optimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>psapi.lib;ws2_32.lib;mswsock.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EmbedManagedResourceFile>inspircd.ico;%(EmbedManagedResourceFile)</EmbedManagedResourceFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>@echo off
+echo Compiling Command Modules...
+cd ..\src\commands
+nmake -f commands.mak
+echo Compiling Modules...
+cd ..\modules
+nmake -f modules.mak
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ShowProgress>NotSet</ShowProgress>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)inspircd.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <PreBuildEvent>
+      <Message>running configure...</Message>
+      <Command>$(ProjectDir)\configure.exe
+</Command>
+    </PreBuildEvent>
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>@echo off
+echo Compiling Command Modules...
+cd ..\src
+nmake -f commands.mak
+echo Compiling Modules...
+cd modules
+nmake -f modules.mak
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\bancache.cpp" />
+    <ClCompile Include="..\src\base.cpp" />
+    <ClCompile Include="..\src\channels.cpp" />
+    <ClCompile Include="..\src\cidr.cpp" />
+    <ClCompile Include="..\src\command_parse.cpp" />
+    <ClCompile Include="..\src\commands.cpp" />
+    <ClCompile Include="..\src\configparser.cpp" />
+    <ClCompile Include="..\src\configreader.cpp" />
+    <ClCompile Include="..\src\cull_list.cpp" />
+    <ClCompile Include="..\src\dns.cpp" />
+    <ClCompile Include="..\src\dynamic.cpp" />
+    <ClCompile Include="..\src\filelogger.cpp" />
+    <ClCompile Include="..\src\hashcomp.cpp" />
+    <ClCompile Include="..\src\helperfuncs.cpp" />
+    <ClCompile Include="..\src\inspircd.cpp" />
+    <ClCompile Include="..\src\inspsocket.cpp" />
+    <ClCompile Include="..\src\inspstring.cpp" />
+    <ClCompile Include="..\src\listensocket.cpp" />
+    <ClCompile Include="..\src\logger.cpp" />
+    <ClCompile Include="..\src\mode.cpp" />
+    <ClCompile Include="..\src\modes\cmode_b.cpp" />
+    <ClCompile Include="..\src\modes\cmode_i.cpp" />
+    <ClCompile Include="..\src\modes\cmode_k.cpp" />
+    <ClCompile Include="..\src\modes\cmode_l.cpp" />
+    <ClCompile Include="..\src\modes\cmode_m.cpp" />
+    <ClCompile Include="..\src\modes\cmode_n.cpp" />
+    <ClCompile Include="..\src\modes\cmode_o.cpp" />
+    <ClCompile Include="..\src\modes\cmode_p.cpp" />
+    <ClCompile Include="..\src\modes\cmode_s.cpp" />
+    <ClCompile Include="..\src\modes\cmode_t.cpp" />
+    <ClCompile Include="..\src\modes\cmode_v.cpp" />
+    <ClCompile Include="..\src\modes\umode_i.cpp" />
+    <ClCompile Include="..\src\modes\umode_o.cpp" />
+    <ClCompile Include="..\src\modes\umode_s.cpp" />
+    <ClCompile Include="..\src\modes\umode_w.cpp" />
+    <ClCompile Include="..\src\modmanager_dynamic.cpp" />
+    <ClCompile Include="..\src\modules.cpp" />
+    <ClCompile Include="..\src\server.cpp" />
+    <ClCompile Include="..\src\snomasks.cpp" />
+    <ClCompile Include="..\src\socket.cpp" />
+    <ClCompile Include="..\src\socketengine.cpp" />
+    <ClCompile Include="..\src\socketengines\socketengine_select.cpp" />
+    <ClCompile Include="..\src\stats.cpp" />
+    <ClCompile Include="..\src\testsuite.cpp" />
+    <ClCompile Include="..\src\threadengine.cpp" />
+    <ClCompile Include="..\src\timer.cpp" />
+    <ClCompile Include="..\src\user_resolver.cpp" />
+    <ClCompile Include="..\src\usermanager.cpp" />
+    <ClCompile Include="..\src\userprocess.cpp" />
+    <ClCompile Include="..\src\users.cpp" />
+    <ClCompile Include="..\src\whois.cpp" />
+    <ClCompile Include="..\src\wildcard.cpp" />
+    <ClCompile Include="..\src\xline.cpp" />
+    <ClCompile Include="inspircd_memory_functions.cpp" />
+    <ClCompile Include="inspircd_win32wrapper.cpp" />
+    <ClCompile Include="pipe.cpp" />
+    <ClCompile Include="pthread.cpp" />
+    <ClCompile Include="win32service.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\src\modules\httpd.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\bancache.h" />
+    <ClInclude Include="..\include\base.h" />
+    <ClInclude Include="..\include\builtin-modes.h" />
+    <ClInclude Include="..\include\caller.h" />
+    <ClInclude Include="..\include\channels.h" />
+    <ClInclude Include="..\include\command_parse.h" />
+    <ClInclude Include="..\include\configparse.h" />
+    <ClInclude Include="..\include\configreader.h" />
+    <ClInclude Include="..\include\ctables.h" />
+    <ClInclude Include="..\include\cull_list.h" />
+    <ClInclude Include="..\include\dns.h" />
+    <ClInclude Include="..\include\dynamic.h" />
+    <ClInclude Include="..\include\exitcodes.h" />
+    <ClInclude Include="..\include\filelogger.h" />
+    <ClInclude Include="..\include\hash_map.h" />
+    <ClInclude Include="..\include\hashcomp.h" />
+    <ClInclude Include="..\include\inline.h" />
+    <ClInclude Include="..\include\inspircd.h" />
+    <ClInclude Include="..\include\inspsocket.h" />
+    <ClInclude Include="..\include\inspstring.h" />
+    <ClInclude Include="..\include\logger.h" />
+    <ClInclude Include="..\include\membership.h" />
+    <ClInclude Include="..\include\mode.h" />
+    <ClInclude Include="..\include\modules.h" />
+    <ClInclude Include="..\include\numerics.h" />
+    <ClInclude Include="..\include\protocol.h" />
+    <ClInclude Include="..\include\snomasks.h" />
+    <ClInclude Include="..\include\socket.h" />
+    <ClInclude Include="..\include\testsuite.h" />
+    <ClInclude Include="..\include\threadengine.h" />
+    <ClInclude Include="..\include\timer.h" />
+    <ClInclude Include="..\include\typedefs.h" />
+    <ClInclude Include="..\include\types.h" />
+    <ClInclude Include="..\include\u_listmode.h" />
+    <ClInclude Include="..\include\usermanager.h" />
+    <ClInclude Include="..\include\users.h" />
+    <ClInclude Include="..\include\xline.h" />
+    <ClInclude Include="inspircd_config.h" />
+    <ClInclude Include="inspircd_se_config.h" />
+    <ClInclude Include="inspircd_win32wrapper.h" />
+    <ClInclude Include="pipe.h" />
+    <ClInclude Include="pthread.h" />
+    <ClInclude Include="win32service.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\version.sh" />
+    <None Include="inspircd.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="configure.vcxproj">
+      <Project>{b922b569-727e-4eb0-827a-04e133a91de7}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

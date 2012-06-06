@@ -127,11 +127,13 @@ ThreadEngine::~ThreadEngine()
 
 void* ThreadEngine::Runner::entry_point(void* parameter)
 {
+#ifndef WINDOWS
 	/* Recommended by nenolod, signal safety on a per-thread basis */
 	sigset_t set;
 	sigemptyset(&set);
 	sigaddset(&set, SIGPIPE);
 	pthread_sigmask(SIG_BLOCK, &set, NULL);
+#endif
 
 	Runner* te = static_cast<Runner*>(parameter);
 	te->main_loop();
