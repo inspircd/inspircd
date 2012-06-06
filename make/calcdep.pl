@@ -75,7 +75,7 @@ all: inspircd commands modules
 
 END
 	my(@core_deps, @cmdlist, @modlist);
-	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
+	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>) {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
 		next if $file =~ m#^socketengines/# && $file ne "socketengines/$ENV{SOCKETENGINE}.cpp";
@@ -142,7 +142,7 @@ all: inspircd
 END
 	my(@deps, @srcs);
 	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, <commands/*.cpp>,
-			<modules/*.cpp>, <modules/m_*/*.cpp>, "threadengines/threadengine_pthread.cpp") {
+			<modules/*.cpp>, <modules/m_*/*.cpp>) {
 		my $out = find_output $file, 1;
 		if ($out =~ m#obj/([^/]+)/[^/]+.o$#) {
 			mkdir "$ENV{BUILDPATH}/obj/$1";
