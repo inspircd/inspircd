@@ -45,24 +45,45 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	if (((!ServerInstance->IsNick(parameters[0].c_str(), ServerInstance->Config->Limits.NickMax))) && (IS_LOCAL(user)))
+	if ((IS_LOCAL(user)) && (!allowinvalid) && (!ServerInstance->IsNick(parameters[0].c_str(), ServerInstance->Config->Limits.NickMax)) && (parameters[0] != user->uuid))
 	{
-		if (!allowinvalid)
+		if (parameters[0] == "0")
 		{
-			if (parameters[0] == "0")
+			// Special case, fake a /nick UIDHERE. Useful for evading "ERR: NICK IN USE" on connect etc.
+			if (user->registered & REG_NICK)
 			{
-				// Special case, Fake a /nick UIDHERE. Useful for evading "ERR: NICK IN USE" on connect etc.
+				/* The user has either registered OR still in the registration phase but already sent
+				 * at least one NICK that changed his nick from his uuid (see below).
+				 * Pretend him doing a NICK <uuid>.
+				 */
 				std::vector<std::string> p2;
 				p2.push_back(user->uuid);
 				allowinvalid = true;
-				this->Handle(p2, user);
+				CmdResult result = this->Handle(p2, user);
 				allowinvalid = false;
+				return result;
+			}
+			else
+			{
+				/* If the user hasn't registered yet and wants to register with his UID, allow him.
+				 * By default every user gets his uuid as his nick even without sending any commands,
+				 * that means in this case it's enough to just flip the REG_NICK bit.
+				 */
+
+				user->registered |= REG_NICK;
+				if (user->registered == REG_NICKUSER)
+				{
+					int MOD_RESULT = 0;
+					FOREACH_RESULT(I_OnUserRegister,OnUserRegister(user));
+					if (MOD_RESULT > 0)
+						return CMD_FAILURE;
+				}
 				return CMD_SUCCESS;
 			}
-
-			user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick.c_str(),parameters[0].c_str());
-			return CMD_FAILURE;
 		}
+
+		user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick.c_str(),parameters[0].c_str());
+		return CMD_FAILURE;
 	}
 
 	if (assign(user->nick) == parameters[0])
