@@ -243,7 +243,7 @@ class ModuleDNSBL : public Module
 	{
 		ServerInstance->Modules->AddService(nameExt);
 		ServerInstance->Modules->AddService(countExt);
-		Implementation eventlist[] = { I_OnUserInit, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
+		Implementation eventlist[] = { I_OnUserDNSCompletion, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -348,7 +348,7 @@ class ModuleDNSBL : public Module
 		ReadConf();
 	}
 
-	void OnUserInit(LocalUser* user)
+	void OnUserDNSCompletion(LocalUser* user)
 	{
 		if (user->exempt)
 			return;

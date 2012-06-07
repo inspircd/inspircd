@@ -107,6 +107,8 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 					bound_user->host = hostname;
 					/* Invalidate cache */
 					bound_user->InvalidateCache();
+
+					FOREACH_MOD(I_OnUserDNSCompletion, OnUserDNSCompletion(bound_user));
 				}
 			}
 			else
@@ -115,6 +117,8 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				{
 					bound_user->WriteServ("NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", bound_user->GetIPString());
 					bound_user->dns_done = true;
+
+					FOREACH_MOD(I_OnUserDNSCompletion, OnUserDNSCompletion(bound_user));
 				}
 			}
 		}
@@ -124,6 +128,8 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 			{
 				bound_user->WriteServ("NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", bound_user->GetIPString());
 				bound_user->dns_done = true;
+
+				FOREACH_MOD(I_OnUserDNSCompletion, OnUserDNSCompletion(bound_user));
 			}
 		}
 
@@ -141,5 +147,7 @@ void UserResolver::OnError(ResolverError e, const std::string &errormessage)
 		bound_user->dns_done = true;
 		bound_user->stored_host.resize(0);
 		ServerInstance->stats->statsDnsBad++;
+
+		FOREACH_MOD(I_OnUserDNSCompletion, OnUserDNSCompletion(bound_user));
 	}
 }

@@ -130,6 +130,8 @@ void UserManager::AddUser(LocalUser* New, ListenSocket* via)
 	{
 		New->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", New->nick.c_str());
 		New->dns_done = true;
+
+		FOREACH_MOD(I_OnUserDNSCompletion, OnUserDNSCompletion(New));
 	}
 	else
 	{

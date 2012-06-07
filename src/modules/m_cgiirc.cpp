@@ -122,6 +122,11 @@ class CommandWebirc : public Command
 						ServerInstance->Users->AddLocalClone(user);
 						ServerInstance->Users->AddGlobalClone(user);
 						user->CheckLines(true);
+
+						LocalUser *u = IS_LOCAL(user);
+						if (u)
+							FOREACH_MOD(I_OnUserDNSCompletion, OnUserDNSCompletion(u));
+
 						return CMD_SUCCESS;
 					}
 				}
@@ -164,6 +169,10 @@ class CGIResolver : public Resolver
 			them->dhost = result;
 			them->InvalidateCache();
 			them->CheckLines(true);
+
+			LocalUser *u = IS_LOCAL(them);
+			if (u)
+				FOREACH_MOD(I_OnUserDNSCompletion, OnUserDNSCompletion(u));
 		}
 	}
 
