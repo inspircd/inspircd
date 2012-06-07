@@ -277,6 +277,10 @@ class ModuleServicesAccount : public Module
 
 				AccountEvent(this, dest, *account).Send();
 			}
+			else
+			{
+				AccountEvent(this, dest, "").Send();
+			}
 		}
 	}
 
