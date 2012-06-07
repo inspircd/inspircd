@@ -131,6 +131,7 @@ class ModuleChanProtect : public Module
 
 	void init()
 	{
+		ServerInstance->Logs->Log("m_chanprotect", DEFAULT, "m_chanprotect is deprecated as of 2.1 in favour of m_customprefix, please consider switching");
 		ConfigTag* tag = ServerInstance->Config->GetTag("chanprotect");
 
 		std::string qpre = tag->getString("qprefix");

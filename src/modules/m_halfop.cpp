@@ -58,6 +58,7 @@ class ModuleHalfop : public Module
 
 	void init()
 	{
+		ServerInstance->Logs->Log("m_halfop", DEFAULT, "m_halfop is deprecated as of 2.1 in favour of m_customprefix, please consider switching");
 		ServerInstance->Modules->AddService(mh);
 	}
 
