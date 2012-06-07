@@ -59,19 +59,16 @@ class GenericCap
 				ext.set(data->user, 1);
 			}
 		}
-
-		if (ev.id == "cap_ls")
+		else if (ev.id == "cap_ls")
 		{
 			data->wanted.push_back(cap);
 		}
-
-		if (ev.id == "cap_list")
+		else if (ev.id == "cap_list")
 		{
 			if (ext.get(data->user))
 				data->wanted.push_back(cap);
 		}
-
-		if (ev.id == "cap_clear")
+		else if (ev.id == "cap_clear")
 		{
 			data->ack.push_back("-" + cap);
 			ext.set(data->user, 0);
