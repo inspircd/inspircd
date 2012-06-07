@@ -541,7 +541,7 @@ class ModuleAccountRegister : public Module
 	{
 		if(event.id == "account_login"){
 			AccountEvent& acct_event = static_cast<AccountEvent&>(event);
-			if(!IS_LOCAL(acct_event.user))
+			if (!IS_LOCAL(acct_event.user) || (acct_event.account.empty()))
 				return;
 			AccountDBEntry* entry = db->GetAccount(acct_event.account, false);
 			if(!entry)

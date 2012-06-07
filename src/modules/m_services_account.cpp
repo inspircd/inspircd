@@ -170,6 +170,10 @@ class ModuleServicesAccount : public Module
 
 			AccountEvent(this, dest, acct).Send();
 		}
+		else
+		{
+			AccountEvent(this, dest, "").Send();
+		}
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
