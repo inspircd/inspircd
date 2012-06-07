@@ -1963,6 +1963,11 @@ void User::PurgeEmptyChannels()
 			delete f->first;
 	}
 
+	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
+	{
+		i->first->RemoveInvitedUser(this);
+	}
+
 	this->UnOper();
 }
 
