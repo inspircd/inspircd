@@ -28,12 +28,10 @@
 #include "ssl.h"
 
 #ifdef WINDOWS
-# pragma comment(lib, "libcrypto.lib")
-# pragma comment(lib, "libssl.lib")
+# pragma comment(lib, "VC/static/libeay32MD.lib")
+# pragma comment(lib, "VC/static/ssleay32MD.lib")
 # pragma comment(lib, "user32.lib")
 # pragma comment(lib, "advapi32.lib")
-# pragma comment(lib, "libgcc.lib")
-# pragma comment(lib, "libmingwex.lib")
 # pragma comment(lib, "gdi32.lib")
 # undef MAX_DESCRIPTORS
 # define MAX_DESCRIPTORS 10000
