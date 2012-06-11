@@ -402,6 +402,12 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (L->SendPass.empty())
 			throw ModuleException("Invalid configuration for server '"+assign(L->Name)+"', sendpass not defined");
 
+		if ((L->SendPass.find(' ') != std::string::npos) || (L->RecvPass.find(' ') != std::string::npos))
+			throw ModuleException("Link block '" + assign(L->Name) + "' has a password set that contains a space character which is invalid");
+
+		if ((L->SendPass[0] == ':') || (L->RecvPass[0] == ':'))
+			throw ModuleException("Link block '" + assign(L->Name) + "' has a password set that begins with a colon (:) which is invalid");
+
 		if (L->IPAddr.empty())
 		{
 			L->IPAddr = "*";

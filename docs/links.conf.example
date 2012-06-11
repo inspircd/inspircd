@@ -65,6 +65,8 @@
 
       # passwords: the passwords we send and receive.
       # The remote server will have these passwords reversed.
+      # Passwords that contain a space character or begin with
+      # a colon (:) are invalid and may not be used.
       sendpass="outgoing!password"
       recvpass="incoming!password">
 
