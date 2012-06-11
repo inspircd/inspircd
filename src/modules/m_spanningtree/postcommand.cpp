@@ -53,15 +53,15 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 
 	if (routing.type == ROUTE_TYPE_LOCALONLY)
 	{
-		Module* srcmodule = thiscmd->creator;
-		Version ver = srcmodule->GetVersion();
+		/* Broadcast when it's a core command with the default route descriptor and the source is a
+		 * remote user or a remote server
+		 */
 
-		if ((ver.Flags & VF_CORE) && !IS_LOCAL(user))
-			routing = ROUTE_BROADCAST;
-		else
+		Version ver = thiscmd->creator->GetVersion();
+		if ((!(ver.Flags & VF_CORE)) || (IS_LOCAL(user)) || (IS_SERVER(user) == ServerInstance->FakeClient))
 			return;
-		if (IS_SERVER(user) && user != ServerInstance->FakeClient)
-			return;
+
+		routing = ROUTE_BROADCAST;
 	}
 	else if (routing.type == ROUTE_TYPE_OPT_BCAST)
 	{
