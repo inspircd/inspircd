@@ -61,6 +61,9 @@ INSTMODE_LIB = 0644
 @IFEQ $(SYSTEM) gnukfreebsd
   LDLIBS += -ldl -lrt
 @ENDIF
+@IFEQ $(SYSTEM) gnu
+  LDLIBS += -ldl -lrt
+@ENDIF
 @IFEQ $(SYSTEM) solaris
   LDLIBS += -lsocket -lnsl -lrt -lresolv
 @ENDIF
