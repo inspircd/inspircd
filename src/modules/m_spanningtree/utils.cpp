@@ -319,17 +319,9 @@ void SpanningTreeUtilities::RefreshIPCache()
 	for (std::vector<reference<Link> >::iterator i = LinkBlocks.begin(); i != LinkBlocks.end(); ++i)
 	{
 		Link* L = *i;
-		if (L->IPAddr.empty() || L->RecvPass.empty() || L->SendPass.empty() || L->Name.empty() || !L->Port)
+		if (!L->Port)
 		{
-			if (L->Name.empty())
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Ignoring a malformed link block (all link blocks require a name!)");
-			}
-			else
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Ignoring a link block missing recvpass, sendpass, port or ipaddr.");
-			}
-
+			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Ignoring a link block without a port.");
 			/* Invalid link block */
 			continue;
 		}
@@ -339,7 +331,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 		irc::sockets::sockaddrs dummy;
 		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);
-		if (ipvalid)
+		if ((L->IPAddr == "*") || (ipvalid))
 			ValidIPs.push_back(L->IPAddr);
 		else
 		{
@@ -377,7 +369,6 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 	AutoconnectBlocks.clear();
 	LinkBlocks.clear();
-	ValidIPs.clear();
 	ConfigTagList tags = ServerInstance->Config->ConfTags("link");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
 	{
@@ -396,55 +387,31 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->Bind = tag->getString("bind");
 		L->Hidden = tag->getBool("hidden");
 
+		if (L->Name.empty())
+			throw ModuleException("Invalid configuration, found a link tag without a name!" + (!L->IPAddr.empty() ? " IP address: "+L->IPAddr : ""));
+
 		if (L->Name.find('.') == std::string::npos)
-			throw CoreException("The link name '"+assign(L->Name)+"' is invalid and must contain at least one '.' character");
+			throw ModuleException("The link name '"+assign(L->Name)+"' is invalid as it must contain at least one '.' character");
 
 		if (L->Name.length() > 64)
-			throw CoreException("The link name '"+assign(L->Name)+"' is longer than 64 characters!");
+			throw ModuleException("The link name '"+assign(L->Name)+"' is invalid as it is longer than 64 characters");
 
-		if (L->Fingerprint.find(':') != std::string::npos)
+		if (L->RecvPass.empty())
+			throw ModuleException("Invalid configuration for server '"+assign(L->Name)+"', recvpass not defined");
+
+		if (L->SendPass.empty())
+			throw ModuleException("Invalid configuration for server '"+assign(L->Name)+"', sendpass not defined");
+
+		if (L->IPAddr.empty())
 		{
-			std::string tmp = L->Fingerprint;
-			L->Fingerprint.clear();
-			for(unsigned int j=0; j < tmp.length(); j++)
-				if (tmp[j] != ':')
-					L->Fingerprint.push_back(tmp[j]);
+			L->IPAddr = "*";
+			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 		}
 
-		if ((!L->IPAddr.empty()) && (!L->RecvPass.empty()) && (!L->SendPass.empty()) && (!L->Name.empty()) && (L->Port))
-		{
-			ValidIPs.push_back(L->IPAddr);
-		}
-		else
-		{
-			if (L->IPAddr.empty())
-			{
-				L->IPAddr = "*";
-				ValidIPs.push_back("*");
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L->Name) + " has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
-			}
+		if (!L->Port)
+			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no port defined, you will not be able to /connect it.");
 
-			if (L->RecvPass.empty())
-			{
-				throw CoreException("Invalid configuration for server '"+assign(L->Name)+"', recvpass not defined!");
-			}
-
-			if (L->SendPass.empty())
-			{
-				throw CoreException("Invalid configuration for server '"+assign(L->Name)+"', sendpass not defined!");
-			}
-
-			if (L->Name.empty())
-			{
-				throw CoreException("Invalid configuration, link tag without a name! IP address: "+L->IPAddr);
-			}
-
-			if (!L->Port)
-			{
-				ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block " + assign(L->Name) + " has no port defined, you will not be able to /connect it.");
-			}
-		}
-
+		L->Fingerprint.erase(std::remove(L->Fingerprint.begin(), L->Fingerprint.end(), ':'), L->Fingerprint.end());
 		LinkBlocks.push_back(L);
 	}
 
@@ -465,12 +432,12 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 		if (A->Period <= 0)
 		{
-			throw CoreException("Invalid configuration for autoconnect, period not a positive integer!");
+			throw ModuleException("Invalid configuration for autoconnect, period not a positive integer!");
 		}
 
 		if (A->servers.empty())
 		{
-			throw CoreException("Invalid configuration for autoconnect, server cannot be empty!");
+			throw ModuleException("Invalid configuration for autoconnect, server cannot be empty!");
 		}
 
 		AutoconnectBlocks.push_back(A);
