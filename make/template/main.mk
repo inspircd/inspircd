@@ -66,6 +66,9 @@ INSTMODE_LIB = 0644
 @IFEQ $(SYSTEM) openbsd
   LDLIBS += -Wl,--export-dynamic
 @ENDIF
+@IFEQ $(SYSTEM) gnu
+  LDLIBS += -ldl -lrt
+@ENDIF
 @IFEQ $(SYSTEM) solaris
   LDLIBS += -lsocket -lnsl -lrt -lresolv
 @ENDIF
