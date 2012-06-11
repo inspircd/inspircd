@@ -35,6 +35,16 @@ class ModuleGeoIP : public Module
 	LocalStringExt ext;
 	GeoIP* gi;
 
+	void SetExt(LocalUser* user)
+	{
+		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
+		if (!c)
+			c = "UNK";
+
+		std::string* cc = new std::string(c);
+		ext.set(user, cc);
+	}
+
  public:
 	ModuleGeoIP() : ext("geoip_cc", this), gi(NULL)
 	{
@@ -47,13 +57,23 @@ class ModuleGeoIP : public Module
 				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
 
 		ServerInstance->Modules->AddService(ext);
-		Implementation eventlist[] = { I_OnSetConnectClass };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		Implementation eventlist[] = { I_OnSetConnectClass, I_OnStats };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
+
+		for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+		{
+			LocalUser* user = *i;
+			if ((user->registered == REG_ALL) && (!ext.get(user)))
+			{
+				SetExt(user);
+			}
+		}
 	}
 
 	~ModuleGeoIP()
 	{
-		GeoIP_delete(gi);
+		if (gi)
+			GeoIP_delete(gi);
 	}
 
 	Version GetVersion()
@@ -65,13 +85,8 @@ class ModuleGeoIP : public Module
 	{
 		std::string* cc = ext.get(user);
 		if (!cc)
-		{
-			const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
-			if (!c)
-				c = "UNK";
-			cc = new std::string(c);
-			ext.set(user, cc);
-		}
+			SetExt(user);
+
 		std::string geoip = myclass->config->getString("geoip");
 		if (geoip.empty())
 			return MOD_RES_PASSTHRU;
@@ -80,6 +95,34 @@ class ModuleGeoIP : public Module
 		while (list.GetToken(country))
 			if (country == *cc)
 				return MOD_RES_PASSTHRU;
+		return MOD_RES_DENY;
+	}
+
+	ModResult OnStats(char symbol, User* user, string_list &out)
+	{
+		if (symbol != 'G')
+			return MOD_RES_PASSTHRU;
+
+		unsigned int unknown = 0;
+		std::map<std::string, unsigned int> results;
+		for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+		{
+			std::string* cc = ext.get(*i);
+			if (cc)
+				results[*cc]++;
+			else
+				unknown++;
+		}
+
+		std::string p = ServerInstance->Config->ServerName + " 801 " + user->nick + " :GeoIPSTATS ";
+		for (std::map<std::string, unsigned int>::const_iterator i = results.begin(); i != results.end(); ++i)
+		{
+			out.push_back(p + i->first + " " + ConvToStr(i->second));
+		}
+
+		if (unknown)
+			out.push_back(p + "Unknown " + ConvToStr(unknown));
+
 		return MOD_RES_DENY;
 	}
 };
