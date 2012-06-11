@@ -80,3 +80,25 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 	Utils->Creator->ConnectServer(myautoconnect, false);
 }
 
+SecurityIPResolver::SecurityIPResolver(Module* me, SpanningTreeUtilities* U, const std::string &hostname, Link* x, bool &cached, QueryType qt)
+		: Resolver(hostname, qt, cached, me), MyLink(x), Utils(U), mine(me), host(hostname), query(qt)
+{
+}
+
+void SecurityIPResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+{
+	Utils->ValidIPs.push_back(result);
+}
+
+void SecurityIPResolver::OnError(ResolverError e, const std::string &errormessage)
+{
+	if (query == DNS_QUERY_AAAA)
+	{
+		bool cached;
+		SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, host, MyLink, cached, DNS_QUERY_A);
+		ServerInstance->AddResolver(res, cached);
+		return;
+	}
+	ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Could not resolve IP associated with Link '%s': %s",
+		MyLink->Name.c_str(),errormessage.c_str());
+}
