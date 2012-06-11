@@ -87,7 +87,15 @@ SecurityIPResolver::SecurityIPResolver(Module* me, SpanningTreeUtilities* U, con
 
 void SecurityIPResolver::OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
 {
-	Utils->ValidIPs.push_back(result);
+	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i != Utils->LinkBlocks.end(); ++i)
+	{
+		Link* L = *i;
+		if (L->IPAddr == host)
+		{
+			Utils->ValidIPs.push_back(result);
+			break;
+		}
+	}
 }
 
 void SecurityIPResolver::OnError(ResolverError e, const std::string &errormessage)
