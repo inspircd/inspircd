@@ -150,9 +150,29 @@ unsigned long Channel::DelUser(User* user)
 		DelOppedUser(user);
 		DelHalfoppedUser(user);
 		DelVoicedUser(user);
+		RemoveAllPrefixes(user);
 	}
 
-	return internal_userlist.size();
+	unsigned long remaining_users = internal_userlist.size();
+	if (remaining_users == 0)
+	{
+		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
+		/* kill the record */
+		if (iter != ServerInstance->chanlist->end())
+		{
+			int MOD_RESULT = 0;
+			FOREACH_RESULT_I(ServerInstance, I_OnChannelPreDelete, OnChannelPreDelete(this));
+			if (MOD_RESULT == 1)
+				return 1; // delete halted by module
+
+			// Uninvite every user who were invited but haven't joined
+			ClearInvites();
+			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
+			ServerInstance->chanlist->erase(iter);
+		}
+	}
+
+	return remaining_users;
 }
 
 bool Channel::HasUser(User* user)
@@ -325,6 +345,7 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 		 * remote users are allowed us to bypass channel modes
 		 * and bans (used by servers)
 		 */
+		bool invited = user->IsInvited(Ptr->name.c_str());
 		if (IS_LOCAL(user) && override == false)
 		{
 			MOD_RESULT = 0;
@@ -336,7 +357,6 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 			else if (MOD_RESULT == 0)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
-				bool invited = user->IsInvited(Ptr->name.c_str());
 				bool can_bypass = Instance->Config->InvBypassModes && invited;
 
 				if (!ckey.empty())
@@ -389,16 +409,16 @@ Channel* Channel::JoinUser(InspIRCd* Instance, User *user, const char* cn, bool 
 					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
 					return NULL;
 				}
-
-				/*
-				 * If the user has invites for this channel, remove them now
-				 * after a successful join so they don't build up.
-				 */
-				if (invited)
-				{
-					user->RemoveInvite(Ptr->name.c_str());
-				}
 			}
+		}
+
+		/*
+		 * If the user has invites for this channel, remove them now
+		 * after a successful join so they don't build up.
+		 */
+		if (invited)
+		{
+			user->RemoveInvite(Ptr->name.c_str());
 		}
 	}
 
@@ -568,26 +588,9 @@ long Channel::PartUser(User *user, std::string &reason)
 			this->WriteChannel(user, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
 		user->chans.erase(i);
-		this->RemoveAllPrefixes(user);
 	}
 
-	if (!this->DelUser(user)) /* if there are no users left on the channel... */
-	{
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
-			if (MOD_RESULT == 1)
-				return 1; // delete halted by module
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		return 0;
-	}
-
-	return this->GetUserCounter();
+	return this->DelUser(user);
 }
 
 long Channel::ServerKickUser(User* user, const char* reason, const char* servername)
@@ -657,28 +660,9 @@ long Channel::KickUser(User *src, User *user, const char* reason)
 			this->WriteChannel(src, "KICK %s %s :%s", this->name.c_str(), user->nick.c_str(), reason);
 
 		user->chans.erase(i);
-		this->RemoveAllPrefixes(user);
 	}
 
-	if (!this->DelUser(user))
-	/* if there are no users left on the channel */
-	{
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name.c_str());
-
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			int MOD_RESULT = 0;
-			FOREACH_RESULT_I(ServerInstance,I_OnChannelPreDelete, OnChannelPreDelete(this));
-			if (MOD_RESULT == 1)
-				return 1; // delete halted by module
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
-		return 0;
-	}
-
-	return this->GetUserCounter();
+	return this->DelUser(user);
 }
 
 void Channel::WriteChannel(User* user, const char* text, ...)
@@ -1140,5 +1124,32 @@ void Channel::RemoveAllPrefixes(User* user)
 	if (n != prefixes.end())
 	{
 		prefixes.erase(n);
+	}
+}
+
+void Channel::AddInvitedUser(User* user)
+{
+	invitedusers.push_back(user);
+}
+
+void Channel::RemoveInvitedUser(User* user)
+{
+	InvitedUserList::iterator it = std::find(invitedusers.begin(), invitedusers.end(), user);
+	if (it != invitedusers.end())
+		invitedusers.erase(it);
+}
+
+void Channel::ClearInvites()
+{
+	InvitedUserList inv;
+
+	/* This causes Channel::RemoveInvitedUser() to do nothing when
+	 * User::RemoveInvite() calls it
+	 */
+	inv.swap(invitedusers);
+
+	for (InvitedUserList::iterator i = inv.begin(); i != inv.end(); ++i)
+	{
+		(*i)->RemoveInvite(this->name.c_str());
 	}
 }

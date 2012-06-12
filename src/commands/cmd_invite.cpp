@@ -112,7 +112,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		InvitedList* il = user->GetInviteList();
 		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
 		{
-			user->WriteNumeric(RPL_INVITELIST, "%s :%s",user->nick.c_str(),i->first.c_str());
+			user->WriteNumeric(RPL_INVITELIST, "%s :%s", user->nick.c_str(), i->first->name.c_str());
 		}
 		user->WriteNumeric(RPL_ENDOFINVITELIST, "%s :End of INVITE list",user->nick.c_str());
 	}
