@@ -388,9 +388,13 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	char linebuf[MAXBUF*10];
 	while (fgets(linebuf, sizeof(linebuf), file))
 	{
-		int len = strlen(linebuf);
+		size_t len = strlen(linebuf);
 		if (len)
+		{
+			if (linebuf[len-1] == '\n')
+				len--;
 			cache.push_back(std::string(linebuf, len));
+		}
 	}
 }
 
