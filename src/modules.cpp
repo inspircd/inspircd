@@ -176,6 +176,7 @@ ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MO
 void		Module::OnHookIO(StreamSocket*, ListenSocket*) { }
 ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return MOD_RES_PASSTHRU; }
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { }
+void		Module::OnSetClientIP(User *) { }
 
 ModuleManager::ModuleManager() : ModCount(0)
 {
