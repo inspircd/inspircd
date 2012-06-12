@@ -43,6 +43,17 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 	FIRST_MOD_RESULT(OnStats, MOD_RESULT, (statschar, user, results));
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
+		// Let modules take a look at the generated lines and give them a chance to alter the final result
+		for (string_list::iterator it = results.begin(); it != results.end();)
+		{
+			FOREACH_MOD(I_OnStatsLine, OnStatsLine(user, statschar, *it, false));
+			if (it->empty())
+				// a module nuked this line
+				it = results.erase(it);
+			else
+				++it;
+		}
+
 		results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
 		this->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
 			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
@@ -348,6 +359,16 @@ void InspIRCd::DoStats(char statschar, User* user, string_list &results)
 
 		default:
 		break;
+	}
+
+	for (string_list::iterator it = results.begin(); it != results.end();)
+	{
+		FOREACH_MOD(I_OnStatsLine, OnStatsLine(user, statschar, *it, true));
+		if (it->empty())
+			// a module nuked this line
+			it = results.erase(it);
+		else
+			++it;
 	}
 
 	results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
