@@ -148,13 +148,13 @@ class CommandCheck : public Command
 				if (InspIRCd::Match(a->second->host, parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->dhost, parameters[0], ascii_case_insensitive_map))
 				{
 					/* host or vhost matches mask */
-					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
 				}
 				/* IP address */
 				else if (InspIRCd::MatchCIDR(a->second->GetIPString(), parameters[0]))
 				{
 					/* same IP. */
-					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost());
+					user->WriteServ(checkstr + " match " + ConvToStr(++x) + " " + a->second->GetFullRealHost() + " " + a->second->GetIPString() + " " + a->second->fullname);
 				}
 			}
 
