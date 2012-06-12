@@ -163,15 +163,15 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		linkID = sname;
 
 		MyRoot = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
-
 		Utils->TreeRoot->AddChild(MyRoot);
+		this->DoBurst(MyRoot);
+
 		params[4] = ":" + params[4];
 
 		/* IMPORTANT: Take password/hmac hash OUT of here before we broadcast the introduction! */
 		params[1] = "*";
 		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,sname);
 
-		this->DoBurst(MyRoot);
 		return true;
 	}
 
@@ -258,10 +258,6 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 		// move to the next state, we are now waiting for THEM.
 		MyRoot = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
 		Utils->TreeRoot->AddChild(MyRoot);
-
-		params[1] = "*";
-		params[4] = ":" + params[4];
-		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,sname);
 
 		this->LinkState = WAIT_AUTH_2;
 		return true;
