@@ -765,7 +765,21 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 void ModuleSpanningTree::OnRehash(User* user)
 {
 	// Re-read config stuff
-	Utils->ReadConfiguration();
+	try
+	{
+		Utils->ReadConfiguration();
+	}
+	catch (ModuleException& e)
+	{
+		// Refresh the IP cache anyway, so servers read before the error will be allowed to connect
+		Utils->RefreshIPCache();
+		// Always warn local opers with snomask +l, also warn globally (snomask +L) if the rehash was issued by a remote user
+		std::string msg = "Error in configuration: ";
+		msg.append(e.GetReason());
+		ServerInstance->SNO->WriteToSnoMask('l', msg);
+		if (!IS_LOCAL(user))
+			ServerInstance->PI->SendSNONotice("L", msg);
+	}
 }
 
 void ModuleSpanningTree::OnLoadModule(Module* mod)
