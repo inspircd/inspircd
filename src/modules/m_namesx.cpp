@@ -31,8 +31,8 @@ class ModuleNamesX : public Module
 	GenericCap cap;
 	ModuleNamesX() : cap(this, "multi-prefix")
 	{
-		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent, I_OnSendWhoLine };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 
@@ -79,6 +79,41 @@ class ModuleNamesX : public Module
 			return;
 
 		prefixes = memb->chan->GetAllPrefixChars(memb->user);
+	}
+
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
+	{
+		if (!cap.ext.get(source) || line.empty())
+			return;
+
+		std::string::size_type pos = line.find(':');
+		if (pos == std::string::npos || pos < 2)
+			return;
+		pos -= 2;
+		// Don't do anything if the user has no prefixes
+		if ((line[pos] == 'H') || (line[pos] == 'G') || (line[pos] == '*'))
+			return;
+
+		// 352 21DAAAAAB #chan ident localhost insp21.test 21DAAAAAB H@ :0 a
+		//              a     b                                       pos
+		std::string::size_type a = 4 + source->nick.length() + 1;
+		std::string::size_type b = line.find(' ', a);
+		if (b == std::string::npos)
+			return;
+
+		// Try to find this channel
+		std::string channame = line.substr(a, b-a);
+		Channel* chan = ServerInstance->FindChan(channame.c_str());
+		if (!chan)
+			return;
+
+		// Don't do anything if the user has only one prefix
+		std::string prefixes = chan->GetAllPrefixChars(user);
+		if (prefixes.length() <= 1)
+			return;
+
+		line.erase(pos, 1);
+		line.insert(pos, prefixes);
 	}
 
 	void OnEvent(Event& ev)
