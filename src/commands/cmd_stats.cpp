@@ -148,6 +148,7 @@ DllExport void DoStats(InspIRCd* ServerInstance, char statschar, User* user, str
 
 		case 'P':
 		{
+			/* This code is duplicated in m_hideoper */
 			int idx = 0;
 		  	for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
 			{
