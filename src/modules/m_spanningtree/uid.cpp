@@ -38,7 +38,7 @@ bool TreeSocket::ParseUID(const std::string &source, std::deque<std::string> &pa
 	 */
 	if (params.size() < 10)
 	{
-		this->SendError("Invalid client introduction (wanted 10 or more parameters, got " + (params.empty() ? "0" : ConvToStr(params.size())) + "!)");
+		this->SendError("Invalid client introduction (wanted 10 or more parameters, got " + ConvToStr(params.size()) + "!)");
 		return false;
 	}
 

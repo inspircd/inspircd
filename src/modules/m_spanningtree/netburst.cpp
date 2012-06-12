@@ -36,15 +36,12 @@
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
-	std::string name = s->GetName();
-	std::string burst = ":" + this->ServerInstance->Config->GetSID() + " BURST " +ConvToStr(ServerInstance->Time());
-	std::string endburst = ":" + this->ServerInstance->Config->GetSID() + " ENDBURST";
 	this->ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
-		name.c_str(),
+		s->GetName().c_str(),
 		this->auth_fingerprint ? "SSL Fingerprint and " : "",
 		this->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
-	this->WriteLine(burst);
+	this->WriteLine(":" + ServerInstance->Config->GetSID() + " BURST " + ConvToStr(ServerInstance->Time()));
 	/* send our version string */
 	this->WriteLine(std::string(":")+this->ServerInstance->Config->GetSID()+" VERSION :"+this->ServerInstance->GetVersionString());
 	/* Send server tree */
@@ -55,8 +52,8 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->SendChannelModes(s);
 	this->SendXLines(s);
 	FOREACH_MOD_I(this->ServerInstance,I_OnSyncOtherMetaData,OnSyncOtherMetaData((Module*)Utils->Creator,(void*)this));
-	this->WriteLine(endburst);
-	this->ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
+	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
+	this->ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+s->GetName()+"\2.");
 }
 
 /** Recursively send the server tree with distances as hops.
@@ -229,9 +226,9 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 		FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannel,OnSyncChannel(c->second,(Module*)Utils->Creator,(void*)this));
 		list.clear();
 		c->second->GetExtList(list);
-		for (unsigned int j = 0; j < list.size(); j++)
+		for (std::deque<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
-			FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)Utils->Creator,(void*)this,list[j]));
+			FOREACH_MOD_I(this->ServerInstance,I_OnSyncChannelMetaData,OnSyncChannelMetaData(c->second,(Module*)Utils->Creator,(void*)this,*i));
 		}
 	}
 }
@@ -277,9 +274,9 @@ void TreeSocket::SendUsers(TreeServer* Current)
 			FOREACH_MOD_I(this->ServerInstance,I_OnSyncUser,OnSyncUser(u->second,(Module*)Utils->Creator,(void*)this));
 			list.clear();
 			u->second->GetExtList(list);
-			for (unsigned int j = 0; j < list.size(); j++)
+			for (std::deque<std::string>::const_iterator i = list.begin(); i != list.end(); ++i)
 			{
-				FOREACH_MOD_I(this->ServerInstance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,list[j]));
+				FOREACH_MOD_I(this->ServerInstance,I_OnSyncUserMetaData,OnSyncUserMetaData(u->second,(Module*)Utils->Creator,(void*)this,*i));
 			}
 		}
 	}

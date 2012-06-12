@@ -48,7 +48,7 @@ bool TreeSocket::MetaData(const std::string &prefix, std::deque<std::string> &pa
 				FOREACH_MOD_I(this->ServerInstance,I_OnDecodeMetaData,OnDecodeMetaData(TYPE_CHANNEL,c,params[1],params[2]));
 			}
 		}
-		else if (*(params[0].c_str()) != '#')
+		else
 		{
 			User* u = this->ServerInstance->FindNick(params[0]);
 			if (u)

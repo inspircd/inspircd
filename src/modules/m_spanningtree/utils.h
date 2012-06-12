@@ -222,6 +222,10 @@ class SpanningTreeUtilities : public classbase
 	/** Refresh the IP cache used for allowing inbound connections
 	 */
 	void RefreshIPCache();
+
+	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
+	 */
+	void SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const std::string& message_type);
 };
 
 #endif
