@@ -113,6 +113,9 @@ typedef std::map<User*, std::vector<prefixtype> > prefixlist;
 class CoreExport Channel : public Extensible
 {
  private:
+	/** A list to hold users with pending invitations to a channel
+	 */
+	typedef std::vector<User*> InvitedUserList;
 
 	/** Pointer to creator object
 	 */
@@ -135,6 +138,9 @@ class CoreExport Channel : public Extensible
 	 */
 	int maxbans;
 
+	/** Users invited to this channel and haven't joined yet
+	 */
+	 InvitedUserList invitedusers;
  public:
 	/** Creates a channel record and initialises it with default values
 	 * @throw Nothing at present.
@@ -545,6 +551,27 @@ class CoreExport Channel : public Extensible
 	/** Clears the cached max bans value
 	 */
 	void ResetMaxBans();
+
+	/** Adds a user to the list of users with pending invitations to this channel.
+	 *  This does NOT touch the user structure, User::InviteTo() calls this upon
+	 *  a new invitation.
+	 *  @param user A user to add to the invite list of this channel
+	 */
+	void AddInvitedUser(User* user);
+
+	/** Removes a user from the list of users with pending invitations to this channel.
+	 *  This does NOT touch the user structure, and is called by User::RemoveInvite()
+	 *  for example upon invite revocation, or when an invite expires
+	 *  @param user A user to remove from the invite list of this channel
+	 */
+	void RemoveInvitedUser(User* user);
+
+	/** Removes this channel from each user's list of pending invitations who
+	 *  are invited but haven't joined here, and also removes reference to
+	 *  those users from the list of this channel. This is called right before
+	 *  channel deletion or when the linking module lowers the TS
+	 */
+	void ClearInvites();
 
 	/** Destructor for Channel
 	 */

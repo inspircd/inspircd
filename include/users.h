@@ -211,7 +211,7 @@ struct CoreExport ConnectClass : public classbase
 
 /** Holds a complete list of all channels to which a user has been invited and has not yet joined, and the time at which they'll expire.
  */
-typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
+typedef std::vector< std::pair<Channel*, time_t> > InvitedList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
@@ -616,13 +616,15 @@ class CoreExport User : public EventHandler
 	virtual bool IsInvited(const irc::string &channel);
 
 	/** Adds a channel to a users invite list (invites them to a channel)
+	 * Adds this user to the list of invited users of the given channel.
 	 * @param channel A channel name to add
 	 * @param timeout When the invite should expire (0 == never)
 	 */
 	virtual void InviteTo(const irc::string &channel, time_t timeout);
 
-	/** Removes a channel from a users invite list.
-	 * This member function is called on successfully joining an invite only channel
+	/** Removes a channel from this user's invite list, also removes this user
+	 * from the invite list of the given channel.
+	 * This member function is called on successfully joining a channel
 	 * to which the user has previously been invited, to clear the invitation.
 	 * @param channel The channel to remove the invite to
 	 */
