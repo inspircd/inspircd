@@ -185,7 +185,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 	/*
 	 * this must come before the ServerInstance->SNO->WriteToSnoMaskso that it doesnt try to fill their buffer with anything
-	 * if they were an oper with +sn +qQ.
+	 * if they were an oper with +s +qQ.
 	 */
 	if (user->registered == REG_ALL)
 	{
@@ -193,16 +193,16 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		{
 			if (!user->quietquit)
 			{
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s [%s] (%s)",
-					user->nick.c_str(), user->ident.c_str(), user->host.c_str(), oper_reason.c_str(), user->GetIPString());
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s (%s) [%s]",
+					user->nick.c_str(), user->ident.c_str(), user->host.c_str(), user->GetIPString(), oper_reason.c_str());
 			}
 		}
 		else
 		{
 			if ((!ServerInstance->SilentULine(user->server)) && (!user->quietquit))
 			{
-				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s [%s] (%s)",
-					user->server.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str(), oper_reason.c_str(), user->GetIPString());
+				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s (%s) [%s]",
+					user->server.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str(), user->GetIPString(), oper_reason.c_str());
 			}
 		}
 
