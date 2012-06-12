@@ -1013,6 +1013,8 @@ bool User::SetClientIP(irc::sockets::sockaddrs *sa)
 {
 	memcpy(&client_sa, sa, sizeof(irc::sockets::sockaddrs));
 
+	FOREACH_MOD(I_OnSetClientIP, OnSetClientIP(this));
+
 	return true;
 }
 
