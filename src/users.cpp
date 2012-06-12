@@ -1008,10 +1008,22 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
+bool User::SetClientIP(irc::sockets::sockaddrs *sa)
+{
+	memcpy(&client_sa, sa, sizeof(irc::sockets::sockaddrs));
+
+	return true;
+}
+
 bool User::SetClientIP(const char* sip)
 {
+	irc::sockets::sockaddrs sa;
+
 	this->cachedip = "";
-	return irc::sockets::aptosa(sip, 0, client_sa);
+	if (!irc::sockets::aptosa(sip, 0, sa))
+		return false;
+
+	return SetClientIP(&sa);
 }
 
 static std::string wide_newline("\r\n");
