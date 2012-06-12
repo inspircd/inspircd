@@ -75,7 +75,7 @@ class ModuleStripColor : public Module
 		std::string::iterator i,safei;
  		for (i = sentence.begin(); i != sentence.end();)
 		{
-			if ((*i == 3))
+			if (*i == 3)
 				seq = 1;
 			else if (seq && (( ((*i >= '0') && (*i <= '9')) || (*i == ',') ) ))
 			{
