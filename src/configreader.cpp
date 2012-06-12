@@ -1960,7 +1960,14 @@ bool ServerConfig::ReadFile(file_cache &F, const char* fname)
 		while (!feof(file))
 		{
 			if (fgets(linebuf, sizeof(linebuf), file))
-				linebuf[strlen(linebuf)-1] = 0;
+			{
+				// Cut off the ending newline, if any
+				size_t len = strlen(linebuf)-1;
+				if (linebuf[len] == '\n')
+				{
+					linebuf[len] = 0;
+				}
+			}
 			else
 				*linebuf = 0;
 
