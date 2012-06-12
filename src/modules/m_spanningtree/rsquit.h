@@ -20,7 +20,7 @@
 #ifndef __RSQUIT_H__
 #define __RSQUIT_H__
 
-/** Handle /RCONNECT
+/** Handle /RSQUIT
  */
 class CommandRSQuit : public Command
 {
@@ -29,7 +29,6 @@ class CommandRSQuit : public Command
  public:
         CommandRSQuit (InspIRCd* Instance, Module* Callback, SpanningTreeUtilities* Util);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-        void NoticeUser(User* user, const std::string &msg);
 };
 
 #endif

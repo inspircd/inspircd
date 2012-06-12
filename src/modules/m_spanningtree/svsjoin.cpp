@@ -50,7 +50,18 @@ bool TreeSocket::ServiceJoin(const std::string &prefix, std::deque<std::string> 
 	/* only join if it's local, otherwise just pass it on! */
 	if (IS_LOCAL(u))
 		Channel::JoinUser(this->ServerInstance, u, params[1].c_str(), false, "", false, ServerInstance->Time());
-	Utils->DoOneToAllButSender(prefix,"SVSJOIN",params,prefix);
+	else
+	{
+		/* Only forward when the route to the target is not the same as the sender.
+		 * This occurs with 1.2.9 and older servers, as they broadcast SVSJOIN/SVSPART,
+		 * so we can end up here with a user who is reachable via the sender.
+		 * If that's the case, just drop the command.
+		 */
+		TreeServer* routeserver = Utils->BestRouteTo(u->server);
+		if ((routeserver) && (routeserver->GetSocket() != this))
+			Utils->DoOneToOne(prefix,"SVSJOIN",params,u->server);
+	}
+
 	return true;
 }
 

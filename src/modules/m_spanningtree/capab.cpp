@@ -35,11 +35,11 @@ std::string TreeSocket::MyCapabilities()
 	std::vector<std::string> modlist = this->ServerInstance->Modules->GetAllModuleNames(VF_COMMON);
 	std::string capabilities;
 	sort(modlist.begin(),modlist.end());
-	for (unsigned int i = 0; i < modlist.size(); i++)
+	for (std::vector<std::string>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
-		if (i)
+		if (i != modlist.begin())
 			capabilities = capabilities + ",";
-		capabilities = capabilities + modlist[i];
+		capabilities = capabilities + *i;
 	}
 	return capabilities;
 }

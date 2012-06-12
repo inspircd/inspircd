@@ -169,9 +169,9 @@ SpanningTreeUtilities::SpanningTreeUtilities(InspIRCd* Instance, ModuleSpanningT
 
 SpanningTreeUtilities::~SpanningTreeUtilities()
 {
-	for (unsigned int i = 0; i < Bindings.size(); i++)
+	for (std::vector<ServerSocketListener*>::iterator i = Bindings.begin(); i != Bindings.end(); ++i)
 	{
-		delete Bindings[i];
+		delete *i;
 	}
 
 	while (TreeRoot->ChildCount())
@@ -300,10 +300,9 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const
 {
 	TreeServer* omitroute = this->BestRouteTo(omit);
 	std::string FullLine = ":" + prefix + " " + command;
-	unsigned int words = params.size();
-	for (unsigned int x = 0; x < words; x++)
+	for (std::deque<std::string>::const_iterator i = params.begin(); i != params.end(); ++i)
 	{
-		FullLine = FullLine + " " + params[x];
+		FullLine = FullLine + " " + *i;
 	}
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
@@ -326,10 +325,9 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const
 bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::string &command, std::deque<std::string> &params)
 {
 	std::string FullLine = ":" + prefix + " " + command;
-	unsigned int words = params.size();
-	for (unsigned int x = 0; x < words; x++)
+	for (std::deque<std::string>::const_iterator i = params.begin(); i != params.end(); ++i)
 	{
-		FullLine = FullLine + " " + params[x];
+		FullLine = FullLine + " " + *i;
 	}
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
@@ -365,10 +363,9 @@ bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::str
 	if (Route)
 	{
 		std::string FullLine = ":" + prefix + " " + command;
-		unsigned int words = params.size();
-		for (unsigned int x = 0; x < words; x++)
+		for (std::deque<std::string>::const_iterator i = params.begin(); i != params.end(); ++i)
 		{
-			FullLine = FullLine + " " + params[x];
+			FullLine = FullLine + " " + *i;
 		}
 		if (Route && Route->GetSocket())
 		{
@@ -472,9 +469,9 @@ void SpanningTreeUtilities::ReadConfiguration(bool rebind)
 
 	if (rebind)
 	{
-		for (unsigned int i = 0; i < Bindings.size(); i++)
+		for (std::vector<ServerSocketListener*>::iterator i = Bindings.begin(); i != Bindings.end(); ++i)
 		{
-			delete Bindings[i];
+			delete *i;
 		}
 		ServerInstance->BufferedSocketCull();
 		Bindings.clear();
@@ -686,4 +683,21 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 		}
 	}
 	return NULL;
+}
+
+void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const std::string& message_type)
+{
+	std::string raw = ":" + prefix + " " + message_type + " ";
+	if (status)
+		raw.append(1, status);
+	raw += target->name + " :" + text;
+
+	TreeServerList list;
+	this->GetListOfServersForChannel(target, list, status, exempt_list);
+	for (TreeServerList::iterator i = list.begin(); i != list.end(); ++i)
+	{
+		TreeSocket* Sock = i->second->GetSocket();
+		if (Sock)
+			Sock->WriteLine(raw);
+	}
 }

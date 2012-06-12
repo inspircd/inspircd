@@ -43,7 +43,7 @@
 /* $ModDep: m_spanningtree/cachetimer.h m_spanningtree/resolvers.h m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/link.h m_spanningtree/treesocket.h m_spanningtree/rconnect.h m_spanningtree/rsquit.h m_spanningtree/protocolinterface.h */
 
 ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
-	: Module(Me), max_local(0), max_global(0)
+	: Module(Me), max_local(0), max_global(0), loopCall(false)
 {
 	ServerInstance->Modules->UseInterface("BufferedSocketHook");
 	Utils = new SpanningTreeUtilities(ServerInstance, this);
@@ -67,7 +67,6 @@ ModuleSpanningTree::ModuleSpanningTree(InspIRCd* Me)
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils, ServerInstance);
-	loopCall = false;
 
 	for (std::vector<User*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
@@ -486,110 +485,47 @@ void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
 	}
 }
 
-void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+void ModuleSpanningTree::LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const std::string& message_type)
 {
-	/* Server origin */
-	if (user == NULL)
-		return;
-
 	if (target_type == TYPE_USER)
 	{
 		User* d = (User*)dest;
-		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
+		if (IS_REMOTE(d))
 		{
 			std::deque<std::string> params;
-			params.clear();
 			params.push_back(d->uuid);
 			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"NOTICE",params,d->server);
+			Utils->DoOneToOne(user->uuid, message_type, params, d->server);
 		}
 	}
 	else if (target_type == TYPE_CHANNEL)
 	{
-		if (IS_LOCAL(user))
+		Channel *c = (Channel*)dest;
+		if (c)
 		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
-				}
-			}
+			Utils->SendChannelMessage(user->uuid, c, text, status, exempt_list, message_type);
 		}
 	}
 	else if (target_type == TYPE_SERVER)
 	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			std::deque<std::string> par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"NOTICE",par);
-		}
+		char* target = (char*)dest;
+		std::deque<std::string> par;
+		par.push_back(target);
+		par.push_back(":"+text);
+		Utils->DoOneToMany(user->uuid, message_type, par);
 	}
+}
+
+void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+{
+	if ((user) && (IS_LOCAL(user)))
+		LocalMessage(user, dest, target_type, text, status, exempt_list, "NOTICE");
 }
 
 void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
-	/* Server origin */
-	if (user == NULL)
-		return;
-
-	if (target_type == TYPE_USER)
-	{
-		// route private messages which are targetted at clients only to the server
-		// which needs to receive them
-		User* d = (User*)dest;
-		if ((d->GetFd() < 0) && (IS_LOCAL(user)))
-		{
-			std::deque<std::string> params;
-			params.clear();
-			params.push_back(d->uuid);
-			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"PRIVMSG",params,d->server);
-		}
-	}
-	else if (target_type == TYPE_CHANNEL)
-	{
-		if (IS_LOCAL(user))
-		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
-				}
-			}
-		}
-	}
-	else if (target_type == TYPE_SERVER)
-	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			std::deque<std::string> par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"PRIVMSG",par);
-		}
-	}
+	if ((user) && (IS_LOCAL(user)))
+		LocalMessage(user, dest, target_type, text, status, exempt_list, "PRIVMSG");
 }
 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
@@ -611,7 +547,7 @@ void ModuleSpanningTree::OnUserJoin(User* user, Channel* channel, bool sync, boo
 		params.push_back(channel->name);
 		params.push_back(ConvToStr(channel->age));
 		params.push_back(std::string("+") + channel->ChanModes(true));
-		params.push_back(ServerInstance->Modes->ModeString(user, channel, false)+","+std::string(user->uuid));
+		params.push_back(ServerInstance->Modes->ModeString(user, channel, false) + "," + user->uuid);
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 	}
 }
@@ -638,7 +574,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	Utils->DoOneToMany(user->uuid,"FNAME",params);
 }
 
-void ModuleSpanningTree::OnUserPart(User* user, Channel* channel,  std::string &partmessage, bool &silent)
+void ModuleSpanningTree::OnUserPart(User* user, Channel* channel, std::string &partmessage, bool &silent)
 {
 	if (IS_LOCAL(user))
 	{
@@ -660,8 +596,8 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		{
 			params.push_back(":"+oper_message);
 			Utils->DoOneToMany(user->uuid,"OPERQUIT",params);
+			params.clear();
 		}
-		params.clear();
 		params.push_back(":"+reason);
 		Utils->DoOneToMany(user->uuid,"QUIT",params);
 	}
@@ -789,22 +725,17 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 	if (!x->IsBurstable() || loopCall)
 		return;
 
-	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(),
-	ServerInstance->Config->ServerName, (unsigned long)x->set_time, (unsigned long)x->duration, x->reason);
 	std::deque<std::string> params;
-	params.push_back(data);
+	params.push_back(x->type);
+	params.push_back(x->Displayable());
+	params.push_back(ServerInstance->Config->ServerName);
+	params.push_back(ConvToStr(x->set_time));
+	params.push_back(ConvToStr(x->duration));
+	params.push_back(":" + std::string(x->reason));
 
-	if (!user)
-	{
-		/* Server-set lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ADDLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-set lines */
-		Utils->DoOneToMany(user->uuid, "ADDLINE", params);
-	}
+	/* Server-set lines doesn't have a setter user */
+	const std::string& source = user ? user->uuid : ServerInstance->Config->GetSID();
+	Utils->DoOneToMany(source, "ADDLINE", params);
 }
 
 void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
@@ -812,21 +743,13 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	if (!x->IsBurstable() || loopCall)
 		return;
 
-	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s", x->type.c_str(), x->Displayable());
 	std::deque<std::string> params;
-	params.push_back(data);
+	params.push_back(x->type);
+	params.push_back(x->Displayable());
 
-	if (!user)
-	{
-		/* Server-unset lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "DELLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-unset lines */
-		Utils->DoOneToMany(user->uuid, "DELLINE", params);
-	}
+	/* Server-set lines doesn't have a setter user */
+	const std::string& source = user ? user->uuid : ServerInstance->Config->GetSID();
+	Utils->DoOneToMany(source, "DELLINE", params);
 }
 
 void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const std::deque<std::string> &text, const std::deque<TranslateType> &translate)
@@ -834,7 +757,6 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
 		std::deque<std::string> params;
-		std::string command;
 		std::string output_text;
 
 		ServerInstance->Parser->TranslateUIDs(translate, text, output_text);
@@ -844,7 +766,7 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 			User* u = (User*)dest;
 			params.push_back(u->uuid);
 			params.push_back(output_text);
-			command = "MODE";
+			Utils->DoOneToMany(user->uuid, "MODE", params);
 		}
 		else
 		{
@@ -852,10 +774,8 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const s
 			params.push_back(c->name);
 			params.push_back(ConvToStr(c->age));
 			params.push_back(output_text);
-			command = "FMODE";
+			Utils->DoOneToMany(user->uuid, "FMODE", params);
 		}
-
-		Utils->DoOneToMany(user->uuid, command, params);
 	}
 }
 
@@ -863,18 +783,10 @@ int ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 {
 	if (IS_LOCAL(user))
 	{
-		if (awaymsg.empty())
-		{
-			std::deque<std::string> params;
-			params.clear();
-			Utils->DoOneToMany(user->uuid,"AWAY",params);
-		}
-		else
-		{
-			std::deque<std::string> params;
+		std::deque<std::string> params;
+		if (!awaymsg.empty())
 			params.push_back(":" + awaymsg);
-			Utils->DoOneToMany(user->uuid,"AWAY",params);
-		}
+		Utils->DoOneToMany(user->uuid,"AWAY",params);
 	}
 
 	return 0;
