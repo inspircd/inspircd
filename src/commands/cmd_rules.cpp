@@ -66,6 +66,7 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 			ServerInstance->Config->ServerName.c_str(), ERR_NORULES, user->nick.c_str());
 		return CMD_SUCCESS;
 	}
+
 	user->SendText(":%s %03d %s :%s server rules:", ServerInstance->Config->ServerName.c_str(),
 		RPL_RULESTART, user->nick.c_str(), ServerInstance->Config->ServerName.c_str());
 

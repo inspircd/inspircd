@@ -717,6 +717,20 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 		status.errors.str(std::string());
 	}
 
+	// Re-parse our MOTD and RULES files for colors -- Justasic
+	for (ClassVector::const_iterator it = this->Classes.begin(), it_end = this->Classes.end(); it != it_end; ++it)
+	{
+	  ConfigTag *tag = (*it)->config;
+	  ConfigFileCache::iterator motdfile = this->Files.find(tag->getString("motd", "motd"));
+	  ConfigFileCache::iterator rulesfile = this->Files.find(tag->getString("rules", "rules"));
+	  
+	  if(motdfile != this->Files.end())
+	    this->ProcessColors(motdfile);
+	  
+	  if(rulesfile != this->Files.end())
+	    this->ProcessColors(rulesfile);
+	}
+
 	/* No old configuration -> initial boot, nothing more to do here */
 	if (!old)
 	{
@@ -725,6 +739,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string& TheUserUID)
 
 		return;
 	}
+
 
 	// If there were errors processing configuration, don't touch modules.
 	if (status.fatal)
@@ -812,6 +827,64 @@ bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
 ConfigTagList ServerConfig::GetTags(const std::string& tag)
 {
 	return config_data.equal_range(tag);
+}
+
+/*
+ * Replace all color codes from the special[] array to actual
+ * color code chars using C++ style escape sequences. You
+ * can append other chars to replace if you like (such as %U
+ * being underline). -- Justasic
+ */
+void ServerConfig::ProcessColors(ConfigFileCache::iterator &file)
+{
+	static struct special_chars
+	{
+		std::string character;
+		std::string replace;
+		special_chars(const std::string &c, const std::string &r) : character(c), replace(r) { }
+	}
+
+	special[] = {
+		special_chars("\\002", "\002"),  // Bold
+		special_chars("\\037", "\037"),  // underline
+		special_chars("\\003", "\003"),  // Color
+		special_chars("\\0017", "\017"), // Stop colors
+		special_chars("\\u", "\037"),    // Alias for underline
+		special_chars("\\b", "\002"),    // Alias for Bold
+		special_chars("\\x", "\017"),    // Alias for stop
+		special_chars("\\c", "\003"),    // Alias for color
+		special_chars("", "")
+	};
+
+	for(file_cache::iterator it = file->second.begin(), it_end = file->second.end(); it != it_end; it++)
+	{
+		std::string ret = *it;
+		for(int i = 0; special[i].character.empty() == false; ++i)
+		{
+			std::string::size_type pos = ret.find(special[i].character);
+			if(pos <= 0) // couldn't find a double slash, skip the line
+			  continue;
+			
+			if(pos != std::string::npos && ret[pos-1] == '\\' && ret[pos] == '\\')
+				continue; // Skip double slashes.
+
+			  // Replace all our characters in the array
+			  while(pos != std::string::npos)
+			  {
+				ret = ret.substr(0, pos) + special[i].replace + ret.substr(pos + special[i].character.size());
+				pos = ret.find(special[i].character, pos + special[i].replace.size());
+			  }
+		}
+
+		// Replace double slashes with a single slash before we return
+		std::string::size_type pos = ret.find("\\\\");
+		while(pos != std::string::npos)
+		{
+			ret = ret.substr(0, pos) + "\\" + ret.substr(pos + 2);
+			pos = ret.find("\\\\", pos + 1);
+		}
+		*it = ret;
+	}
 }
 
 bool ServerConfig::FileExists(const char* file)
