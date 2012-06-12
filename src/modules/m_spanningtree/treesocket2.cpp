@@ -165,12 +165,19 @@ void TreeSocket::ProcessLine(std::string &line)
 					}
 				}
 				this->LinkState = CONNECTED;
-
 				Utils->timeoutlist.erase(this);
-				parameterlist sparams;
-				Utils->DoOneToAllButSender(MyRoot->GetID(), "BURST", params, MyRoot->GetName());
+
 				MyRoot->bursting = true;
 				this->DoBurst(MyRoot);
+
+				parameterlist sparams;
+				sparams.push_back(MyRoot->GetName());
+				sparams.push_back("*");
+				sparams.push_back("0");
+				sparams.push_back(MyRoot->GetID());
+				sparams.push_back(":" + MyRoot->GetDesc());
+				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(), "SERVER", sparams, MyRoot->GetName());
+				Utils->DoOneToAllButSender(MyRoot->GetID(), "BURST", params, MyRoot->GetName());
 			}
 			else if (command == "ERROR")
 			{
