@@ -317,24 +317,6 @@
 #<module name="m_channelban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Chanprotect module: gives +q and +a channel modes
-# Note that m_customprefix provides a more customizable version of this.
-#<module name="m_chanprotect.so">
-
-#<chanprotect
-	# qprefix: Prefix (symbol) to use for +q users.
-	#qprefix="~"
-
-	# aprefix: Prefix (symbol) to use for +a users.
-	#aprefix="&amp;"
-	
-	# grantadmin/grantfounder: when set to yes, +a users will be able to
-	# grant +a on other users (or +q to +q). Founder can always set/unset
-	# admin mode.
-	#grantadmin="no" grantfounder="yes">
-
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Check module: gives /check
 # Check is useful for looking up information on channels,
 # users, IP addresses and hosts.
@@ -734,11 +716,6 @@
 # To use, GLOADMODULE, GUNLOADMODULE and GRELOADMODULE
 # must be in one of your oper class blocks.
 #<module name="m_globalload.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Halfop module: Provides the +h (halfops) channel status mode.
-# Note that m_customprefix provides a more customizable version of this.
-#<module name="m_halfop.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
