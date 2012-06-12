@@ -224,7 +224,8 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 {
 	lastping = 0;
 	eh.SetFd(myfd);
-	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
+
+	SetClientIP(client);
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
 }
 
@@ -1008,10 +1009,24 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
+bool User::SetClientIP(irc::sockets::sockaddrs *sa)
+{
+	memcpy(&client_sa, sa, sizeof(irc::sockets::sockaddrs));
+
+	FOREACH_MOD(I_OnSetClientIP, OnSetClientIP(this));
+
+	return true;
+}
+
 bool User::SetClientIP(const char* sip)
 {
+	irc::sockets::sockaddrs sa;
+
 	this->cachedip = "";
-	return irc::sockets::aptosa(sip, 0, client_sa);
+	if (!irc::sockets::aptosa(sip, 0, sa))
+		return false;
+
+	return SetClientIP(&sa);
 }
 
 static std::string wide_newline("\r\n");
