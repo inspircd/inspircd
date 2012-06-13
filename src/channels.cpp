@@ -917,12 +917,12 @@ void Channel::UserList(User *user, CUList *ulist)
 		if (i->first->Visibility && !i->first->Visibility->VisibleTo(user))
 			continue;
 
-		std::string prefixlist = this->GetPrefixChar(i->first);
+		std::string prelist = this->GetPrefixChar(i->first);
 		std::string nick = i->first->nick;
 
 		if (call_modules)
 		{
-			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prefixlist, nick));
+			FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->first, this, prelist, nick));
 
 			/* Nick was nuked, a module wants us to skip it */
 			if (nick.empty())
@@ -931,7 +931,7 @@ void Channel::UserList(User *user, CUList *ulist)
 
 		size_t ptrlen = 0;
 
-		if (curlen + prefixlist.length() + nick.length() + 1 > 480)
+		if (curlen + prelist.length() + nick.length() + 1 > 480)
 		{
 			/* list overflowed into multiple numerics */
 			user->WriteNumeric(RPL_NAMREPLY, std::string(list));
@@ -944,7 +944,7 @@ void Channel::UserList(User *user, CUList *ulist)
 			numusers = 0;
 		}
 
-		ptrlen = snprintf(ptr, MAXBUF, "%s%s ", prefixlist.c_str(), nick.c_str());
+		ptrlen = snprintf(ptr, MAXBUF, "%s%s ", prelist.c_str(), nick.c_str());
 
 		curlen += ptrlen;
 		ptr += ptrlen;

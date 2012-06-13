@@ -85,7 +85,6 @@ void ProcessUserHandler::Call(User* cu)
 	if ((result) && (result != -EAGAIN))
 	{
 		User *current;
-		int currfd;
 
 		Server->stats->statsRecv += result;
 		/*
@@ -103,7 +102,6 @@ void ProcessUserHandler::Call(User* cu)
 			ReadBuffer[result] = '\0';
 
 		current = cu;
-		currfd = current->GetFd();
 
 		// add the data to the users buffer
 		if (result > 0)

@@ -1532,7 +1532,6 @@ bool ServerConfig::ParseLine(const std::string &filename, std::string &line, lon
 	std::string current_key;
 	std::string current_value;
 	KeyValList results;
-	char last_char = 0;
 	bool got_name;
 	bool got_key;
 	bool in_quote;
@@ -1661,10 +1660,7 @@ bool ServerConfig::ParseLine(const std::string &filename, std::string &line, lon
 				else
 				{
 					if (in_quote)
-					{
-						last_char = *c;
 						current_value += *c;
-					}
 				}
 			}
 		}

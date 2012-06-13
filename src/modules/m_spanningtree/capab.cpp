@@ -50,13 +50,13 @@ void TreeSocket::SendCapabilities()
 		return;
 
 	sentcapab = true;
-	irc::commasepstream modulelist(MyCapabilities());
+	irc::commasepstream modlist(MyCapabilities());
 	this->WriteLine("CAPAB START");
 
 	/* Send module names, split at 509 length */
 	std::string item;
 	std::string line = "CAPAB MODULES ";
-	while (modulelist.GetToken(item))
+	while (modlist.GetToken(item))
 	{
 		if (line.length() + item.length() + 1 > 509)
 		{
