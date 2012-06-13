@@ -1691,12 +1691,12 @@ sub write_dynamic_makefile
 	if ($config{IS_DARWIN} eq "YES")
 	{
 		$libraryext = "dylib";
-		$binary_rule = "	\$(RUNCC) -dynamic -bind_at_load -L. -o inspircd \$(LDLIBS) "
+		$binary_rule = "	\$(RUNCC) -dynamic -bind_at_load -L. -o inspircd "
 	}
 	else
 	{
 		$libraryext = "so";
-		$binary_rule = "	\$(RUNCC) \$(FLAGS) $freebsd4libs -rdynamic -L. -o inspircd \$(LDLIBS) ";
+		$binary_rule = "	\$(RUNCC) \$(FLAGS) $freebsd4libs -rdynamic -L. -o inspircd ";
 	}
 
 	open(FH,">src/Makefile") or die("Could not write src/Makefile");
@@ -1761,7 +1761,7 @@ EOM
 	}
 
 	print FH "inspircd: $all_core\n";
-	print FH "$binary_rule $all_core\n\n";
+	print FH "$binary_rule $all_core \$(LDLIBS)\n\n";
 
 	print FH $buildstring;
 	print FH <<'EOM';
