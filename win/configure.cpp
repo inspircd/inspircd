@@ -61,7 +61,7 @@ int get_int_option(const char * text, int def)
 	static char buffer[500];
 	int ret;
 	printf_c("%s\n[\033[1;32m%u\033[0m] -> ", text, def);
-	fgets(buffer, 500, stdin);
+	fgets(buffer, sizeof(buffer), stdin);
 	if(sscanf(buffer, "%u", &ret) != 1)
 		ret = def;
 
@@ -74,7 +74,7 @@ bool get_bool_option(const char * text, bool def)
 	static char buffer[500];
 	char ret[100];
 	printf_c("%s [\033[1;32m%c\033[0m] -> ", text, def ? 'y' : 'n');
-	fgets(buffer, 500, stdin);
+	fgets(buffer, sizeof(buffer), stdin);
 	if(sscanf(buffer, "%s", ret) != 1)
 		strcpy(ret, def ? "y" : "n");
 
@@ -159,7 +159,7 @@ void get_machine_info(char * buffer, size_t len)
 	FILE * f = fopen("ver.txt.tmp", "r");
 	if (f)
 	{
-		while (fgets(buf2, 500, f)) { }
+		while (fgets(buf2, sizeof(buf2), f)) { }
 		fclose(f);
 		unlink("ver.txt.tmp");
 	}
@@ -261,8 +261,8 @@ void Run()
 	FILE * fI = fopen("..\\src\\version.sh", "r");
 	if(fI)
 	{
-		fgets(version, 514, fI);
-		fgets(version, 514, fI);
+		fgets(version, sizeof(version), fI);
+		fgets(version, sizeof(version), fI);
 		char * p2 = version;
 		while(*p2 != '\"')
 			++p2;
