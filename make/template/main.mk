@@ -215,7 +215,8 @@ install: target
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
 	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
 	@-install -d -m $(INSTMODE_DIR) $(BINPATH)
-	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples
+	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
+	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
 	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
 	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
 @IFNDEF PURE_STATIC
@@ -223,7 +224,9 @@ install: target
 @ENDIF
 	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
 	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
-	-install -m $(INSTMODE_LIB) docs/*.example $(CONPATH)/examples
+	-install -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
+	-install -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
+	-install -m $(INSTMODE_LIB) docs/conf/modules/*.conf.* $(CONPATH)/examples/modules
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
