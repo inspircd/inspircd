@@ -195,24 +195,21 @@ void InspIRCd::ResetMaxBans()
 void InspIRCd::RehashUsersAndChans()
 {
 	user_hash* old_users = Users->clientlist;
-	user_hash* old_uuid  = Users->uuidlist;
-	chan_hash* old_chans = chanlist;
-
-	Users->clientlist = new user_hash();
-	Users->uuidlist = new user_hash();
-	chanlist = new chan_hash();
-
+	Users->clientlist = new user_hash;
 	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
 		Users->clientlist->insert(*n);
+	delete old_users;
 
+	user_hash* old_uuid = Users->uuidlist;
+	Users->uuidlist = new user_hash;
 	for (user_hash::const_iterator n = old_uuid->begin(); n != old_uuid->end(); n++)
 		Users->uuidlist->insert(*n);
+	delete old_uuid;
 
+	chan_hash* old_chans = chanlist;
+	chanlist = new chan_hash;
 	for (chan_hash::const_iterator n = old_chans->begin(); n != old_chans->end(); n++)
 		chanlist->insert(*n);
-
-	delete old_users;
-	delete old_uuid;
 	delete old_chans;
 
 	// Reset the already_sent IDs so we don't wrap it around and drop a message
