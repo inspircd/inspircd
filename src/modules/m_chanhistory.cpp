@@ -79,7 +79,21 @@ class HistoryMode : public ModeHandler
 				len = maxlines;
 			if (parameter == channel->GetModeParameter(this))
 				return MODEACTION_DENY;
-			ext.set(channel, new HistoryList(len, time));
+
+			HistoryList* history = ext.get(channel);
+			if (history)
+			{
+				// Shrink the list if the new line number limit is lower than the old one
+				if (len < history->lines.size())
+					history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - len));
+
+				history->maxlen = len;
+				history->maxtime = time;
+			}
+			else
+			{
+				ext.set(channel, new HistoryList(len, time));
+			}
 			channel->SetModeParam('H', parameter);
 		}
 		else
