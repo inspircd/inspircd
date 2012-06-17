@@ -294,10 +294,10 @@ class ModuleShun : public Module
 			/* Allow QUIT but dont show any quit message */
 			parameters.clear();
 		}
-		else if (command == "PART")
+		else if ((command == "PART") && (parameters.size() > 1))
 		{
 			/* same for PART */
-			parameters[1] = "";
+			parameters[1].clear();
 		}
 
 		/* if we're here, allow the command. */
