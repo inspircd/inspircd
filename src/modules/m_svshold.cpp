@@ -81,6 +81,11 @@ class SVSHoldFactory : public XLineFactory
 	{
 		return new SVSHold(set_time, duration, source, reason, xline_specific_mask);
 	}
+
+	bool AutoApplyToUserList(XLine *x)
+	{
+		return false;
+	}
 };
 
 /** Handle /SVSHold
@@ -115,44 +120,29 @@ class CommandSvshold : public Command
 			{
 				user->WriteServ("NOTICE %s :*** SVSHOLD %s not found in list, try /stats S.",user->nick.c_str(),parameters[0].c_str());
 			}
-
-			return CMD_SUCCESS;
 		}
-		else if (parameters.size() >= 2)
+		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration = ServerInstance->Duration(parameters[1]);
-			SVSHold *r = NULL;
+			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 
-			try
+			if (ServerInstance->XLines->AddLine(r, user))
 			{
-				r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
-			}
-			catch (...)
-			{
-				; // Do nothing.
-			}
-
-			if (r)
-			{
-				if (ServerInstance->XLines->AddLine(r, user))
+				if (!duration)
 				{
-					if (!duration)
-					{
-						ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
-					}
-					else
-					{
-						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
-					}
-
-					ServerInstance->XLines->ApplyLines();
+					ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
 				}
 				else
 				{
-					delete r;
+					time_t c_requires_crap = duration + ServerInstance->Time();
+					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed SVSHOLD for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
 				}
+			}
+			else
+			{
+				delete r;
+				return CMD_FAILURE;
 			}
 		}
 
@@ -161,7 +151,7 @@ class CommandSvshold : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_LOCALONLY;
 	}
 };
 

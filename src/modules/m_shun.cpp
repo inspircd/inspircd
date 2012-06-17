@@ -59,11 +59,6 @@ public:
 		return false;
 	}
 
-	void Apply(User *u)
-	{
-	}
-
-
 	void DisplayExpiry()
 	{
 		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired shun %s (set by %s %ld seconds ago)",
@@ -88,6 +83,11 @@ class ShunFactory : public XLineFactory
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
 		return new Shun(set_time, duration, source, reason, xline_specific_mask);
+	}
+
+	bool AutoApplyToUserList(XLine *x)
+	{
+		return false;
 	}
 };
 
@@ -121,11 +121,10 @@ class CommandShun : public Command
 			else
 			{
 				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats H.",user->nick.c_str(),target.c_str());
+				return CMD_FAILURE;
 			}
-
-			return CMD_SUCCESS;
 		}
-		else if (parameters.size() >= 2)
+		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration;
@@ -140,49 +139,35 @@ class CommandShun : public Command
 				duration = 0;
 				expr = parameters[1];
 			}
-			Shun *r = NULL;
 
-			try
+			Shun* r = new Shun(ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
+			if (ServerInstance->XLines->AddLine(r, user))
 			{
-				r = new Shun(ServerInstance->Time(), duration, user->nick.c_str(), expr.c_str(), target.c_str());
-			}
-			catch (...)
-			{
-				; // Do nothing. If we get here, the regex was fucked up, and they already got told it fucked up.
-			}
-
-			if (r)
-			{
-				if (ServerInstance->XLines->AddLine(r, user))
+				if (!duration)
 				{
-					if (!duration)
-					{
-						ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent SHUN for %s: %s",
-							user->nick.c_str(), target.c_str(), expr.c_str());
-					}
-					else
-					{
-						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
-							user->nick.c_str(), target.c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), expr.c_str());
-					}
-
-					ServerInstance->XLines->ApplyLines();
+					ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent SHUN for %s: %s",
+						user->nick.c_str(), target.c_str(), expr.c_str());
 				}
 				else
 				{
-					delete r;
-					user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), expr.c_str());
+					time_t c_requires_crap = duration + ServerInstance->Time();
+					ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
+						user->nick.c_str(), target.c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), expr.c_str());
 				}
 			}
+			else
+			{
+				delete r;
+				user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), expr.c_str());
+				return CMD_FAILURE;
+			}
 		}
-
-		return CMD_FAILURE;
+		return CMD_SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -200,8 +185,8 @@ class ModuleShun : public Module
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->AddCommand(&cmd);
 
-		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnUserConnect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 		OnRehash(NULL);
 	}
 
@@ -235,8 +220,6 @@ class ModuleShun : public Module
 			cmds = "PING PONG QUIT";
 
 		ShunEnabledCommands.clear();
-		NotifyOfShun = true;
-		affectopers = false;
 
 		std::stringstream dcmds(cmds);
 		std::string thiscmd;
@@ -248,21 +231,6 @@ class ModuleShun : public Module
 
 		NotifyOfShun = MyConf.ReadFlag("shun", "notifyuser", "yes", 0);
 		affectopers = MyConf.ReadFlag("shun", "affectopers", "no", 0);
-	}
-
-	virtual void OnUserConnect(LocalUser* user)
-	{
-		if (!IS_LOCAL(user))
-			return;
-
-		// Apply lines on user connect
-		XLine *rl = ServerInstance->XLines->MatchesLine("SHUN", user);
-
-		if (rl)
-		{
-			// Bang. :P
-			rl->Apply(user);
-		}
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string &original_line)
@@ -296,10 +264,10 @@ class ModuleShun : public Module
 			/* Allow QUIT but dont show any quit message */
 			parameters.clear();
 		}
-		else if (command == "PART")
+		else if ((command == "PART") && (parameters.size() > 1))
 		{
 			/* same for PART */
-			parameters[1] = "";
+			parameters[1].clear();
 		}
 
 		/* if we're here, allow the command. */

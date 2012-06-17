@@ -27,7 +27,7 @@
 #include "xline.h"
 
 static bool ZlineOnMatch = false;
-static std::vector<ZLine *> background_zlines;
+static bool added_zline = false;
 
 class RLine : public XLine
 {
@@ -75,8 +75,17 @@ class RLine : public XLine
 
 	void Apply(User* u)
 	{
-		if (ZlineOnMatch) {
-			background_zlines.push_back(new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName.c_str(), reason.c_str(), u->GetIPString()));
+		if (ZlineOnMatch)
+		{
+			ZLine* zl = new ZLine(ServerInstance->Time(), duration ? expiry - ServerInstance->Time() : 0, ServerInstance->Config->ServerName.c_str(), reason.c_str(), u->GetIPString());
+			if (ServerInstance->XLines->AddLine(zl, NULL))
+			{
+				ServerInstance->SNO->WriteToSnoMask('x', "Z-line added due to R-line match on *@%s%s%s: %s",
+					zl->ipaddr.c_str(), zl->duration ? " to expire on " : "", zl->duration ? ServerInstance->TimeString(zl->expiry).c_str() : "", zl->reason.c_str());
+				added_zline = true;
+			}
+			else
+				delete zl;
 		}
 		DefaultApply(u, "R", false);
 	}
@@ -199,7 +208,7 @@ class CommandRLine : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -254,9 +263,6 @@ class ModuleRLine : public Module
 	{
 		ConfigReader Conf;
 
-		if (!Conf.ReadFlag("rline", "zlineonmatch", 0) && ZlineOnMatch)
-			background_zlines.clear();
-
 		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 0);
 		ZlineOnMatch = Conf.ReadFlag("rline", "zlineonmatch", 0);
 		std::string newrxengine = Conf.ReadValue("rline", "engine", 0);
@@ -299,18 +305,11 @@ class ModuleRLine : public Module
 
 	virtual void OnBackgroundTimer(time_t curtime)
 	{
-		if (!ZlineOnMatch) return;
-		for (std::vector<ZLine *>::iterator i = background_zlines.begin(); i != background_zlines.end(); i++)
+		if (added_zline)
 		{
-			ZLine *zl = *i;
-			if (ServerInstance->XLines->AddLine(zl,NULL))
-			{
-				ServerInstance->SNO->WriteToSnoMask('x',"Z-line added due to R-line match on *@%s%s%s: %s", 
-					zl->ipaddr.c_str(), zl->duration ? " to expire on " : "", zl->duration ? ServerInstance->TimeString(zl->expiry).c_str() : "", zl->reason.c_str());
-				ServerInstance->XLines->ApplyLines();
-			}
+			added_zline = false;
+			ServerInstance->XLines->ApplyLines();
 		}
-		background_zlines.clear();
 	}
 
 };
