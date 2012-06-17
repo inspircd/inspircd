@@ -172,6 +172,8 @@ void Channel::DelUser(User* user)
 			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
 			ServerInstance->chanlist->erase(iter);
 		}
+
+		ClearInvites();
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
 }
@@ -967,5 +969,91 @@ void Channel::RemoveAllPrefixes(User* user)
 	if (m != userlist.end())
 	{
 		m->second->modes.clear();
+	}
+}
+
+void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
+{
+	if ((timeout != 0) && (ServerInstance->Time() >= timeout))
+		// Expired, don't bother
+		return;
+
+	ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Create chan=%s user=%s", c->name.c_str(), u->uuid.c_str());
+
+	Invitation* inv = Invitation::Find(c, u, false);
+	if (inv)
+	{
+		 if ((inv->expiry == 0) || (inv->expiry > timeout))
+			return;
+		inv->expiry = timeout;
+		ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Create changed expiry in existing invitation %p", (void*) inv);
+	}
+	else
+	{
+		inv = new Invitation(c, u, timeout);
+		c->invites.push_back(inv);
+		u->invites.push_back(inv);
+		ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Create created new invitation %p", (void*) inv);
+	}
+}
+
+Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
+{
+	ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find chan=%s user=%s check_expired=%d", c ? c->name.c_str() : "NULL", u ? u->uuid.c_str() : "NULL", check_expired);
+	if (!u || u->invites.empty())
+		return NULL;
+
+	InviteList locallist;
+	locallist.swap(u->invites);
+
+	Invitation* result = NULL;
+	for (InviteList::iterator i = locallist.begin(); i != locallist.end(); )
+	{
+		Invitation* inv = *i;
+		if ((check_expired) && (inv->expiry != 0) && (inv->expiry <= ServerInstance->Time()))
+		{
+			/* Expired invite, remove it. */
+			ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find ecountered expired entry: %p timed out at %lu", (void*) inv, inv->expiry);
+			i = locallist.erase(i);
+			inv->cull();
+			delete inv;
+		}
+		else
+		{
+			/* Is it what we're searching for? */
+			if (inv->chan == c)
+			{
+				result = inv;
+				break;
+			}
+			++i;
+		}
+	}
+
+	locallist.swap(u->invites);
+	ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find result=%p", (void*) result);
+	return result;
+}
+
+Invitation::~Invitation()
+{
+	// Remove this entry from both lists
+	InviteList::iterator it = std::find(chan->invites.begin(), chan->invites.end(), this);
+	if (it != chan->invites.end())
+		chan->invites.erase(it);
+	it = std::find(user->invites.begin(), user->invites.end(), this);
+	if (it != user->invites.end())
+		user->invites.erase(it);
+}
+
+void InviteBase::ClearInvites()
+{
+	ServerInstance->Logs->Log("INVITEBASE", DEBUG, "InviteBase::ClearInvites %p", (void*) this);
+	InviteList locallist;
+	locallist.swap(invites);
+	for (InviteList::const_iterator i = locallist.begin(); i != locallist.end(); ++i)
+	{
+		(*i)->cull();
+		delete *i;
 	}
 }

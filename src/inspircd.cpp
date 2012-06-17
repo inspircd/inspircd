@@ -220,6 +220,7 @@ void InspIRCd::RehashUsersAndChans()
 	for (std::vector<LocalUser*>::const_iterator i = Users->local_users.begin(); i != Users->local_users.end(); i++)
 	{
 		(**i).already_sent = 0;
+		(**i).RemoveExpiredInvites();
 	}
 }
 

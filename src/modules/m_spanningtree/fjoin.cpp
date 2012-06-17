@@ -105,6 +105,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			// while the name is equal in case-insensitive compare, it might differ in case; use the remote version
 			chan->name = channel;
 			chan->age = TS;
+			chan->ClearInvites();
 			param_list.push_back(channel);
 			this->RemoveStatus(ServerInstance->FakeClient, param_list);
 		}

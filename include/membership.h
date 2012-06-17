@@ -35,4 +35,29 @@ class CoreExport Membership : public Extensible
 	unsigned int getRank();
 };
 
+class InviteBase
+{
+ protected:
+	InviteList invites;
+
+ public:
+	void ClearInvites();
+
+	friend class Invitation;
+};
+
+class Invitation : public classbase
+{
+	Invitation(Channel* c, LocalUser* u, time_t timeout) : user(u), chan(c), expiry(timeout) {}
+
+ public:
+	LocalUser* const user;
+	Channel* const chan;
+	time_t expiry;
+
+	~Invitation();
+	static void Create(Channel* c, LocalUser* u, time_t timeout);
+	static Invitation* Find(Channel* c, LocalUser* u, bool check_expired = true);
+};
+
 #endif
