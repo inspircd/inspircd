@@ -77,6 +77,7 @@ class HistoryMode : public ModeHandler
 class ModuleChanHistory : public Module
 {
 	HistoryMode m;
+	bool sendnotice;
  public:
 	ModuleChanHistory() : m(this)
 	{
@@ -93,7 +94,9 @@ class ModuleChanHistory : public Module
 
 	void OnRehash(User*)
 	{
-		m.maxlines = ServerInstance->Config->ConfValue("chanhistory")->getInt("maxlines", 50);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
+		m.maxlines = tag->getInt("maxlines", 50);
+		sendnotice = tag->getInt("notice", true);
 	}
 
 	~ModuleChanHistory()
@@ -121,14 +124,22 @@ class ModuleChanHistory : public Module
 
 	void OnPostJoin(Membership* memb)
 	{
+		if (IS_REMOTE(memb->user))
+			return;
+
 		HistoryList* list = m.ext.get(memb->chan);
 		if (!list)
 			return;
 		time_t mintime = 0;
 		if (list->maxtime)
 			mintime = ServerInstance->Time() - list->maxtime;
-		memb->user->WriteServ("NOTICE %s :Replaying up to %d lines of pre-join history spanning up to %d seconds",
-			memb->chan->name.c_str(), list->maxlen, list->maxtime);
+
+		if (sendnotice)
+		{
+			memb->user->WriteServ("NOTICE %s :Replaying up to %d lines of pre-join history spanning up to %d seconds",
+				memb->chan->name.c_str(), list->maxlen, list->maxtime);
+		}
+
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)
 		{
 			if (i->ts >= mintime)
