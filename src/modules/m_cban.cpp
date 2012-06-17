@@ -74,7 +74,7 @@ class CBanFactory : public XLineFactory
  public:
 	CBanFactory() : XLineFactory("CBAN") { }
 
-	/** Generate a shun
+	/** Generate a CBAN
  	*/
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
 	{
@@ -112,56 +112,41 @@ class CommandCBan : public Command
 			else
 			{
 				user->WriteServ("NOTICE %s :*** CBan %s not found in list, try /stats C.",user->nick.c_str(),parameters[0].c_str());
+				return CMD_FAILURE;
 			}
-
-			return CMD_SUCCESS;
 		}
-		else if (parameters.size() >= 2)
+		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration = ServerInstance->Duration(parameters[1]);
-			CBan *r = NULL;
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
+			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
 
-			try
+			if (ServerInstance->XLines->AddLine(r, user))
 			{
-				r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
-			}
-			catch (...)
-			{
-				; // Do nothing. If we get here, the regex was fucked up, and they already got told it fucked up.
-			}
-
-			if (r)
-			{
-				if (ServerInstance->XLines->AddLine(r, user))
+				if (!duration)
 				{
-					if (!duration)
-					{
-						ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
-					}
-					else
-					{
-						time_t c_requires_crap = duration + ServerInstance->Time();
-						ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), reason);
-					}
-
-					ServerInstance->XLines->ApplyLines();
+					ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent CBan for %s: %s", user->nick.c_str(), parameters[0].c_str(), reason);
 				}
 				else
 				{
-					delete r;
-					user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick.c_str(), parameters[0].c_str());
+					time_t c_requires_crap = duration + ServerInstance->Time();
+					ServerInstance->SNO->WriteGlobalSno('x', "%s added timed CBan for %s, expires on %s: %s", user->nick.c_str(), parameters[0].c_str(), ServerInstance->TimeString(c_requires_crap).c_str(), reason);
 				}
 			}
+			else
+			{
+				delete r;
+				user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick.c_str(), parameters[0].c_str());
+				return CMD_FAILURE;
+			}
 		}
-
-		return CMD_FAILURE;
+		return CMD_SUCCESS;
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -203,9 +188,8 @@ class ModuleCBan : public Module
 		{
 			// Channel is banned.
 			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname, rl->reason.c_str());
-			ServerInstance->SNO->WriteToSnoMask('a', "%s tried to join %s which is CBANed (%s)",
+			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
 				 user->nick.c_str(), cname, rl->reason.c_str());
-			ServerInstance->PI->SendSNONotice("A", user->nick + " tried to join " + std::string(cname) + " which is CBANed (" + rl->reason + ")");
 			return MOD_RES_DENY;
 		}
 
