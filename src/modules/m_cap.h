@@ -57,13 +57,19 @@ class GenericCap
 		CapEvent *data = static_cast<CapEvent*>(&ev);
 		if (data->type == CapEvent::CAPEVENT_REQ)
 		{
-			std::vector<std::string>::iterator it;
-			if ((it = std::find(data->wanted.begin(), data->wanted.end(), cap)) != data->wanted.end())
+			for (std::vector<std::string>::iterator it = data->wanted.begin(); it != data->wanted.end(); ++it)
 			{
-				// we can handle this, so ACK it, and remove it from the wanted list
-				data->ack.push_back(*it);
-				data->wanted.erase(it);
-				ext.set(data->user, 1);
+				if (it->empty())
+					continue;
+				bool enablecap = ((*it)[0] != '-');
+				if (((enablecap) && (*it == cap)) || (*it == "-" + cap))
+				{
+					// we can handle this, so ACK it, and remove it from the wanted list
+					data->ack.push_back(*it);
+					data->wanted.erase(it);
+					ext.set(data->user, enablecap ? 1 : 0);
+					break;
+				}
 			}
 		}
 		else if (data->type == CapEvent::CAPEVENT_LS)
