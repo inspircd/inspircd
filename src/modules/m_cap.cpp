@@ -108,7 +108,9 @@ class CommandCAP : public Command
 			reghold.set(user, 1);
 			Data.Send();
 
-			std::string Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
+			std::string Result;
+			if (!Data.ack.empty())
+				Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
 			user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), Result.c_str());
 		}
 		else
