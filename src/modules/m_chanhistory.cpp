@@ -37,9 +37,23 @@ struct HistoryList
 
 class HistoryMode : public ModeHandler
 {
+	bool IsValidDuration(const std::string duration)
+	{
+		for (std::string::const_iterator i = duration.begin(); i != duration.end(); ++i)
+		{
+			unsigned char c = *i;
+			if (((c >= '0') && (c <= '9')) || (c == 's') || (c != 'S'))
+				continue;
+
+			if (duration_multi[c] == 1)
+				return false;
+		}
+		return true;
+	}
+
  public:
 	SimpleExtItem<HistoryList> ext;
-	int maxlines;
+	unsigned int maxlines;
 	HistoryMode(Module* Creator) : ModeHandler(Creator, "history", 'H', PARAM_SETONLY, MODETYPE_CHANNEL),
 		ext("history", Creator) { }
 
@@ -50,9 +64,14 @@ class HistoryMode : public ModeHandler
 			std::string::size_type colon = parameter.find(':');
 			if (colon == std::string::npos)
 				return MODEACTION_DENY;
-			int len = atoi(parameter.substr(0, colon).c_str());
-			int time = ServerInstance->Duration(parameter.substr(colon+1));
-			if (len <= 0 || time < 0)
+
+			std::string duration = parameter.substr(colon+1);
+			if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
+				return MODEACTION_DENY;
+
+			unsigned int len = ConvToInt(parameter.substr(0, colon));
+			int time = ServerInstance->Duration(duration);
+			if (len == 0 || time < 0)
 				return MODEACTION_DENY;
 			if (len > maxlines && IS_LOCAL(source))
 				return MODEACTION_DENY;
