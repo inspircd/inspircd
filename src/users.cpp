@@ -809,7 +809,6 @@ void LocalUser::FullConnect()
 	this->WriteNumeric(RPL_SERVERVERSION, "%s %s InspIRCd-2.0 %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName.c_str(), ServerInstance->Modes->UserModeList().c_str(), ServerInstance->Modes->ChannelModeList().c_str(), ServerInstance->Modes->ParaModeList().c_str());
 
 	ServerInstance->Config->Send005(this);
-	this->WriteNumeric(RPL_YOURUUID, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());
 
 	/* Now registered */
 	if (ServerInstance->Users->unregistered_count)
