@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2012 Shawn Smith <ShawnSmith0828@gmail.com>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -23,7 +24,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +L (limit redirection) */
+/* $ModDesc: Provides channel mode +L (limit redirection) and usermode +L (no forced redirection) */
 
 /** Handle channel mode +L
  */
@@ -86,19 +87,44 @@ class Redirect : public ModeHandler
 	}
 };
 
+/** Handles usermode +L to stop forced redirection and print an error.
+*/
+class AntiRedirect : public SimpleUserModeHandler
+{
+	public:
+		AntiRedirect(Module* Creator) : SimpleUserModeHandler(Creator, "antiredirect", 'L') {}
+};
+
 class ModuleRedirect : public Module
 {
 
 	Redirect re;
+	AntiRedirect re_u;
+	bool UseUsermode;
 
  public:
 
 	ModuleRedirect()
-		: re(this)
+		: re(this), re_u(this)
 	{
+		/* Setting this here so it isn't changable by rehasing the config later. */
+		UseUsermode = ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect");
 
+		/* Channel mode */
 		if (!ServerInstance->Modes->AddMode(&re))
 			throw ModuleException("Could not add new modes!");
+
+		/* Check to see if the usermode is enabled in the config */
+		if (UseUsermode)
+		{
+			/* Log noting that this breaks compatability. */
+			ServerInstance->Logs->Log("m_redirect", DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
+
+			/* Try to add the usermode */
+			if (!ServerInstance->Modes->AddMode(&re_u))
+				throw ModuleException("Could not add new modes!");
+		}
+
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
@@ -122,10 +148,20 @@ class ModuleRedirect : public Module
 						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
 						return MOD_RES_DENY;
 					}
-
-					user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname, channel.c_str());
-					Channel::JoinUser(user, channel.c_str(), false, "", false, ServerInstance->Time());
-					return MOD_RES_DENY;
+					/* We check the bool value here to make sure we have it enabled, if we don't then
+						usermode +L might be assigned to something else. */
+					if (UseUsermode && user->IsModeSet('L'))
+					{
+						user->WriteNumeric(470, "%s %s %s :Force redirection stopped.",
+						user->nick.c_str(), cname, channel.c_str());
+						return MOD_RES_DENY;
+					}
+					else
+					{
+						user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname, channel.c_str());
+						Channel::JoinUser(user, channel.c_str(), false, "", false, ServerInstance->Time());
+						return MOD_RES_DENY;
+					}
 				}
 			}
 		}
@@ -138,7 +174,7 @@ class ModuleRedirect : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides channel mode +L (limit redirection)", VF_VENDOR);
+		return Version("Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)", VF_VENDOR);
 	}
 };
 
