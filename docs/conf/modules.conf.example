@@ -315,6 +315,16 @@
 # http://wiki.inspircd.org/Modules/censor                             #
 #
 #<include file="conf/censor.conf">
+#
+# Optional - By enabling the following you will be filtering globally #
+# This means that regardless of which server the text originally came #
+# from, you will parse and filter for badwords. This is NOT NEEDED if #
+# you load this module on every server on your network. This can and  #
+# likely will cause problems for larger networks with many users and  #
+# servers.                                                            #
+# An example need for this would be filtering text from a Janus link. #
+#
+#<censor filterglobal="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Adds support for automatic host changing in CGI:IRC
