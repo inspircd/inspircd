@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2012 Shawn Smith <ShawnSmith0828@gmail.com>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2004, 2008-2009 Craig Edwards <craigedwards@brainbox.cc>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -51,6 +52,7 @@ class ModuleCensor : public Module
 	censor_t censors;
 	CensorUser cu;
 	CensorChannel cc;
+	bool FilterGlobal;
 
  public:
 	ModuleCensor() : cu(this), cc(this) { }
@@ -74,7 +76,7 @@ class ModuleCensor : public Module
 	// format of a config entry is <badword text="shit" replace="poo">
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		if (!IS_LOCAL(user))
+		if (!IS_LOCAL(user) && !FilterGlobal)
 			return MOD_RES_PASSTHRU;
 
 		bool active = false;
@@ -132,6 +134,9 @@ class ModuleCensor : public Module
 			irc::string replace = (MyConf.ReadValue("badword","replace",index)).c_str();
 			censors[pattern] = replace;
 		}
+
+		ConfigTag* tag = ServerInstance->Config->ConfValue("censor");
+		FilterGlobal = tag->getBool("filterglobal", false);
 	}
 
 	virtual Version GetVersion()
