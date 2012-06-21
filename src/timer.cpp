@@ -32,6 +32,7 @@ TimerManager::TimerManager()
 TimerManager::~TimerManager()
 {
     Timers.clear();
+    std::vector<Timer*>().swap(Timers);
 }
 
 void TimerManager::TickTimers(time_t TIME)
