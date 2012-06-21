@@ -37,11 +37,10 @@ class CommandModeNotice : public Command
 			for (int n = 0; n < mlen; n++)
 			{
 				if (!user->IsModeSet(parameters[0][n]))
-					goto next_user;
+					continue;
 			}
 			user->Write(":%s NOTICE %s :*** From %s: %s", ServerInstance->Config->ServerName.c_str(),
 				user->nick.c_str(), src->nick.c_str(), parameters[1].c_str());
-next_user:	;
 		}
 		return CMD_SUCCESS;
 	}
