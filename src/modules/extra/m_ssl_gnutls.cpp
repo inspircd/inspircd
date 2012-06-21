@@ -687,7 +687,7 @@ class ModuleSSLGnuTLS : public Module
 		if (cert_list == NULL)
 		{
 			certinfo->error = "No certificate was found";
-			goto info_done_dealloc;
+			gnutls_x509_crt_deinit(cert);
 		}
 
 		/* This is not a real world example, since we only check the first
@@ -698,7 +698,7 @@ class ModuleSSLGnuTLS : public Module
 		if (ret < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
-			goto info_done_dealloc;
+			gnutls_x509_crt_deinit(cert);
 		}
 
 		gnutls_x509_crt_get_dn(cert, name, &name_size);
@@ -722,9 +722,6 @@ class ModuleSSLGnuTLS : public Module
 		{
 			certinfo->error = "Not activated, or expired certificate";
 		}
-
-info_done_dealloc:
-		gnutls_x509_crt_deinit(cert);
 	}
 
 	void OnEvent(Event& ev)
