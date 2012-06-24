@@ -76,6 +76,9 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 	}
 	else
 	{
+		if (!channel->IsModeSet('d'))
+			return MODEACTION_DENY;
+
 		/*
 		 * Clean up metadata
 		 */
