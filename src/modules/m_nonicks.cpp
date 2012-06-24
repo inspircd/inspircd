@@ -23,32 +23,10 @@
 
 /* $ModDesc: Provides support for channel mode +N & extban +b N: which prevents nick changes on channel */
 
-class NoNicks : public ModeHandler
+class NoNicks : public SimpleChannelModeHandler
 {
  public:
-	NoNicks(Module* Creator) : ModeHandler(Creator, "nonick", 'N', PARAM_NONE, MODETYPE_CHANNEL) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('N'))
-			{
-				channel->SetMode('N',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('N'))
-			{
-				channel->SetMode('N',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	NoNicks(Module* Creator) : SimpleChannelModeHandler(Creator, "nonick", 'N') { }
 };
 
 class ModuleNoNickChange : public Module
