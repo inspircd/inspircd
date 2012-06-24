@@ -29,6 +29,9 @@
 class CommandUninvite : public Command
 {
  public:
+	bool notify_target;
+	bool notify_channel;
+
 	CommandUninvite(Module* Creator) : Command(Creator,"UNINVITE", 2)
 	{
 		syntax = "<nick> <channel>";
@@ -79,11 +82,16 @@ class CommandUninvite : public Command
 
 			user->SendText(":%s 494 %s %s %s :Uninvited", user->server.c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
 			lu->RemoveInvite(xname);
-			lu->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
 
-			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE " + c->name + " :" + msg);
-			ServerInstance->PI->SendChannelNotice(c, 0, msg);
+			if (notify_target)
+				lu->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
+
+			if (notify_channel)
+			{
+				std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";
+				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE " + c->name + " :" + msg);
+				ServerInstance->PI->SendChannelNotice(c, 0, msg);
+			}
 		}
 
 		return CMD_SUCCESS;
@@ -104,11 +112,20 @@ class ModuleUninvite : public Module
 
 	ModuleUninvite() : cmd(this)
 	{
+		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->Attach(I_OnRehash, this);
 	}
 
 	virtual ~ModuleUninvite()
 	{
+	}
+
+	void OnRehash(User* user)
+	{
+		ConfigTag* conf = ServerInstance->Config->ConfValue("uninvite");
+		cmd.notify_channel = conf->getBool("notifychannel", true);
+		cmd.notify_target = conf->getBool("notifytarget", true);
 	}
 
 	virtual Version GetVersion()
