@@ -47,7 +47,7 @@ class OperPrefixMode : public ModeHandler
 
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 		{
-			if (IS_SERVER(source) || (source && ServerInstance->ULine(source->server)))
+			if (IS_SERVER(source) || ServerInstance->ULine(source->server))
 				return MODEACTION_ALLOW;
 			else
 			{
@@ -74,44 +74,39 @@ class ModuleOperPrefixMode : public Module
 	{
 		ServerInstance->Modules->AddService(opm);
 
-		Implementation eventlist[] = { I_OnPostJoin, I_OnOper };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPostOper };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
+
+		/* To give clients a chance to learn about the new prefix we don't give +y to opers
+		 * right now. That means if the module was loaded after opers have joined channels
+		 * they need to rejoin them in order to get the oper prefix.
+		 */
 	}
 
-	void PushChanMode(Channel* channel, User* user)
-	{
-		char modeline[] = "+y";
-		std::vector<std::string> modechange;
-		modechange.push_back(channel->name);
-		modechange.push_back(modeline);
-		modechange.push_back(user->nick);
-		ServerInstance->SendMode(modechange,ServerInstance->FakeClient);
-	}
-
-	void OnPostJoin(Membership* memb)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string& privs, const std::string& keygiven)
 	{
 		if (IS_OPER(memb->user) && !memb->user->IsModeSet('H'))
-			PushChanMode(memb->chan, memb->user);
-	}
-
-	// XXX: is there a better way to do this?
-	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
-	{
-		/* force event propagation to its ModeHandler */
-		if (!IS_SERVER(user) && chan && (mode == 'y'))
-			return MOD_RES_ALLOW;
+			privs.push_back('y');
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnOper(User *user, const std::string&)
+	void SetOperPrefix(User* user, bool add)
 	{
-		if (user && !user->IsModeSet('H'))
+		std::vector<std::string> modechange;
+		modechange.push_back("");
+		modechange.push_back(add ? "+y" : "-y");
+		modechange.push_back(user->nick);
+		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 		{
-			for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
-			{
-				PushChanMode(*v, user);
-			}
+			modechange[0] = (*v)->name;
+			ServerInstance->SendGlobalMode(modechange, ServerInstance->FakeClient);
 		}
+	}
+
+	void OnPostOper(User* user, const std::string& opername, const std::string& opertype)
+	{
+		if (IS_LOCAL(user))
+			SetOperPrefix(user, true);
 	}
 
 	~ModuleOperPrefixMode()
