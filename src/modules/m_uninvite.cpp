@@ -63,22 +63,27 @@ class CommandUninvite : public Command
 			}
 		}
 
-		irc::string xname(c->name.c_str());
-
-		if (IS_LOCAL(u))
+		/* Servers remember invites only for their local users, so act
+		 * only if the target is local. Otherwise the command will be
+		 * passed to the target users server.
+		 */
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu)
 		{
-			// TODO send messages & such out to remote servers
-			LocalUser* lu = IS_LOCAL(u);
+			irc::string xname(c->name.c_str());
 			if (!lu->IsInvited(xname))
 			{
-				user->WriteNumeric(505, "%s %s %s :Is not invited to channel %s", user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
+				user->SendText(":%s 505 %s %s %s :Is not invited to channel %s", user->server.c_str(), user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
 				return CMD_FAILURE;
 			}
-			user->WriteNumeric(494, "%s %s %s :Uninvited", user->nick.c_str(), c->name.c_str(), u->nick.c_str());
+
+			user->SendText(":%s 494 %s %s %s :Uninvited", user->server.c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
 			lu->RemoveInvite(xname);
 			lu->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :*** %s uninvited %s.",
-				c->name.c_str(), user->nick.c_str(), u->nick.c_str());
+
+			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";
+			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE " + c->name + " :" + msg);
+			ServerInstance->PI->SendChannelNotice(c, 0, msg);
 		}
 
 		return CMD_SUCCESS;
