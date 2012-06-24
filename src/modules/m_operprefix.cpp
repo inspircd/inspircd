@@ -60,13 +60,24 @@ class OperPrefixMode : public ModeHandler
 		bool NeedsOper() { return true; }
 };
 
+class ModuleOperPrefixMode;
+class HideOperWatcher : public ModeWatcher
+{
+	ModuleOperPrefixMode* parentmod;
+ public:
+	HideOperWatcher(ModuleOperPrefixMode* parent) : ModeWatcher((Module*) parent, 'H', MODETYPE_USER), parentmod(parent) {}
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
+};
+
 class ModuleOperPrefixMode : public Module
 {
  private:
 	OperPrefixMode opm;
+	bool mw_added;
+	HideOperWatcher hideoperwatcher;
  public:
 	ModuleOperPrefixMode()
-		: opm(this)
+		: opm(this), mw_added(false), hideoperwatcher(this)
 	{
 	}
 
@@ -74,18 +85,27 @@ class ModuleOperPrefixMode : public Module
 	{
 		ServerInstance->Modules->AddService(opm);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPostOper };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPostOper, I_OnLoadModule, I_OnUnloadModule };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 
 		/* To give clients a chance to learn about the new prefix we don't give +y to opers
 		 * right now. That means if the module was loaded after opers have joined channels
 		 * they need to rejoin them in order to get the oper prefix.
 		 */
+
+		if (ServerInstance->Modules->Find("m_hideoper.so"))
+			mw_added = ServerInstance->Modes->AddModeWatcher(&hideoperwatcher);
 	}
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string& privs, const std::string& keygiven)
 	{
-		if (IS_OPER(memb->user) && !memb->user->IsModeSet('H'))
+		/* The user may have the +H umode on himself, but +H does not necessarily correspond
+		 * to the +H of m_hideoper.
+		 * However we only add the modewatcher when m_hideoper is loaded, so these
+		 * conditions (mw_added and the user being +H) together mean the user is a hidden oper.
+		 */
+
+		if (IS_OPER(user) && (!mw_added || !user->IsModeSet('H')))
 			privs.push_back('y');
 		return MOD_RES_PASSTHRU;
 	}
@@ -105,18 +125,45 @@ class ModuleOperPrefixMode : public Module
 
 	void OnPostOper(User* user, const std::string& opername, const std::string& opertype)
 	{
-		if (IS_LOCAL(user))
+		if (IS_LOCAL(user) && (!mw_added || !user->IsModeSet('H')))
 			SetOperPrefix(user, true);
+	}
+
+	void OnLoadModule(Module* mod)
+	{
+		if ((!mw_added) && (mod->ModuleSourceFile == "m_hideoper.so"))
+			mw_added = ServerInstance->Modes->AddModeWatcher(&hideoperwatcher);
+	}
+
+	void OnUnloadModule(Module* mod)
+	{
+		if ((mw_added) && (mod->ModuleSourceFile == "m_hideoper.so") && (ServerInstance->Modes->DelModeWatcher(&hideoperwatcher)))
+			mw_added = false;
 	}
 
 	~ModuleOperPrefixMode()
 	{
+		if (mw_added)
+			ServerInstance->Modes->DelModeWatcher(&hideoperwatcher);
 	}
 
 	Version GetVersion()
 	{
 		return Version("Gives opers cmode +y which provides a staff prefix.", VF_VENDOR);
 	}
+
+	void Prioritize()
+	{
+		// m_opermodes may set +H on the oper to hide him, we don't want to set the oper prefix in that case
+		Module* opermodes = ServerInstance->Modules->Find("m_opermodes.so");
+		ServerInstance->Modules->SetPriority(this, I_OnPostOper, PRIORITY_AFTER, opermodes);
+	}
 };
+
+void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding, ModeType type)
+{
+	if (IS_LOCAL(dest))
+		parentmod->SetOperPrefix(dest, !adding);
+}
 
 MODULE_INIT(ModuleOperPrefixMode)
