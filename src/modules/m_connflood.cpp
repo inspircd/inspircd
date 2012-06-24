@@ -23,25 +23,23 @@
 
 /* $ModDesc: Connection throttle */
 
-int conns = 0, throttled = 0;
-
 class ModuleConnFlood : public Module
 {
 private:
-	int seconds, maxconns, timeout, boot_wait;
+	int seconds, timeout, boot_wait;
+	unsigned int conns;
+	unsigned int maxconns;
+	bool throttled;
 	time_t first;
 	std::string quitmsg;
 
 public:
-	ModuleConnFlood() 	{
-
+	ModuleConnFlood()
+		: conns(0), throttled(false)
+	{
 		InitConf();
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-	}
-
-	virtual ~ModuleConnFlood()
-	{
 	}
 
 	virtual Version GetVersion()
@@ -78,12 +76,12 @@ public:
 		/* increase connection count */
 		conns++;
 
-		if (throttled == 1)
+		if (throttled)
 		{
 			if (tdiff > seconds + timeout)
 			{
 				/* expire throttle */
-				throttled = 0;
+				throttled = false;
 				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle deactivated");
 				return MOD_RES_PASSTHRU;
 			}
@@ -96,7 +94,7 @@ public:
 		{
 			if (conns >= maxconns)
 			{
-				throttled = 1;
+				throttled = true;
 				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle activated");
 				ServerInstance->Users->QuitUser(user, quitmsg);
 				return MOD_RES_DENY;
