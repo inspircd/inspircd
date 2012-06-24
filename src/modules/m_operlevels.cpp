@@ -29,17 +29,7 @@ class ModuleOperLevels : public Module
 	public:
 		ModuleOperLevels()
 		{
-			Implementation eventlist[] = { I_OnRehash, I_OnKill };
-			ServerInstance->Modules->Attach(eventlist, this, 2);
-		}
-
-		virtual ~ModuleOperLevels()
-		{
-		}
-
-
-		virtual void OnRehash(User* user)
-		{
+			ServerInstance->Modules->Attach(I_OnKill, this);
 		}
 
 		virtual Version GetVersion()
@@ -64,7 +54,6 @@ class ModuleOperLevels : public Module
 			}
 			return MOD_RES_PASSTHRU;
 		}
-
 };
 
 MODULE_INIT(ModuleOperLevels)
