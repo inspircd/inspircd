@@ -24,42 +24,47 @@
 
 /* $ModDesc: Shows a message to opers after oper-up, adds /opermotd */
 
-static FileReader* opermotd;
-
-CmdResult ShowOperMOTD(User* user)
-{
-	if(!opermotd->FileSize())
-	{
-		user->WriteServ(std::string("425 ") + user->nick + std::string(" :OPERMOTD file is missing"));
-		return CMD_FAILURE;
-	}
-
-	user->WriteServ(std::string("375 ") + user->nick + std::string(" :- IRC Operators Message of the Day"));
-
-	for(int i=0; i != opermotd->FileSize(); i++)
-	{
-		user->WriteServ(std::string("372 ") + user->nick + std::string(" :- ") + opermotd->GetLine(i));
-	}
-
-	user->WriteServ(std::string("376 ") + user->nick + std::string(" :- End of OPERMOTD"));
-
-	/* don't route me */
-	return CMD_SUCCESS;
-}
-
 /** Handle /OPERMOTD
  */
 class CommandOpermotd : public Command
 {
  public:
-	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0)
+	FileReader opermotd;
+
+	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
 	{
 		flags_needed = 'o'; syntax = "[<servername>]";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User* user)
 	{
-		return ShowOperMOTD(user);
+		if ((parameters.empty()) || (parameters[0] == ServerInstance->Config->ServerName))
+			ShowOperMOTD(user);
+		return CMD_SUCCESS;
+	}
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		if (!parameters.empty())
+			return ROUTE_OPT_UCAST(parameters[0]);
+		return ROUTE_LOCALONLY;
+	}
+
+	void ShowOperMOTD(User* user)
+	{
+		const std::string& servername = ServerInstance->Config->ServerName;
+		if (!opermotd.FileSize())
+		{
+			user->SendText(":%s 455 %s :OPERMOTD file is missing", servername.c_str(), user->nick.c_str());
+			return;
+		}
+
+		user->SendText(":%s 375 %s :- IRC Operators Message of the Day", servername.c_str(), user->nick.c_str());
+
+		for (int i=0; i != opermotd.FileSize(); i++)
+			user->SendText(":%s 372 %s :- %s", servername.c_str(), user->nick.c_str(), opermotd.GetLine(i).c_str());
+
+		user->SendText(":%s 376 %s :- End of OPERMOTD", servername.c_str(), user->nick.c_str());
 	}
 };
 
@@ -73,36 +78,28 @@ class ModuleOpermotd : public Module
 	void LoadOperMOTD()
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
-		opermotd->LoadFile(conf->getString("file","opermotd"));
+		cmd.opermotd.LoadFile(conf->getString("file","opermotd"));
 		onoper = conf->getBool("onoper", true);
 	}
 
 	ModuleOpermotd()
 		: cmd(this)
 	{
-		opermotd = NULL;
 		ServerInstance->AddCommand(&cmd);
-		opermotd = new FileReader;
 		LoadOperMOTD();
 		Implementation eventlist[] = { I_OnRehash, I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleOpermotd()
-	{
-		delete opermotd;
-		opermotd = NULL;
-	}
-
 	virtual Version GetVersion()
 	{
-		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR);
+		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR | VF_OPTCOMMON);
 	}
 
 	virtual void OnOper(User* user, const std::string &opertype)
 	{
-		if (onoper)
-			ShowOperMOTD(user);
+		if (onoper && IS_LOCAL(user))
+			cmd.ShowOperMOTD(user);
 	}
 
 	virtual void OnRehash(User* user)
