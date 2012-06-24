@@ -28,12 +28,22 @@
 class Host
 {
  public:
-	std::string action;
+	enum HostChangeAction
+	{
+		HCA_SET,
+		HCA_SUFFIX,
+		HCA_ADDNICK
+	};
+
+	HostChangeAction action;
 	std::string newhost;
 	std::string ports;
+
+	Host(HostChangeAction Action, const std::string& Newhost, const std::string& Ports) :
+		action(Action), newhost(Newhost), ports(Ports) {}
 };
 
-typedef std::map<std::string,Host*> hostchanges_t;
+typedef std::vector<std::pair<std::string, Host> > hostchanges_t;
 
 class ModuleHostChange : public Module
 {
@@ -51,15 +61,6 @@ class ModuleHostChange : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	virtual ~ModuleHostChange()
-	{
-		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
-		{
-			delete i->second;
-		}
-		hostchanges.clear();
-	}
-
 	void Prioritize()
 	{
 		Module* cloak = ServerInstance->Modules->Find("m_cloaking.so");
@@ -73,22 +74,33 @@ class ModuleHostChange : public Module
 		MySuffix = Conf.ReadValue("host","suffix",0);
 		MyPrefix = Conf.ReadValue("host","prefix","",0);
 		MySeparator = Conf.ReadValue("host","separator",".",0);
-		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
-		{
-			delete i->second;
-		}
 		hostchanges.clear();
-		for (int index = 0; index < Conf.Enumerate("hostchange"); index++)
+
+		std::set<std::string> dupecheck;
+		ConfigTagList tags = ServerInstance->Config->ConfTags("hostchange");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			std::string mask = Conf.ReadValue("hostchange", "mask", index);
-			std::string ports = Conf.ReadValue("hostchange", "ports", index);
-			std::string action = Conf.ReadValue("hostchange", "action", index);
-			std::string newhost = Conf.ReadValue("hostchange", "value", index);
-			Host* x = new Host;
-			x->action = action;
-			x->ports = ports;
-			x->newhost = newhost;
-			hostchanges[mask] = x;
+			ConfigTag* tag = i->second;
+			std::string mask = tag->getString("mask");
+			if (!dupecheck.insert(mask).second)
+				throw ModuleException("Duplicate hostchange entry: " + mask);
+
+			Host::HostChangeAction act;
+			std::string newhost;
+			std::string action = tag->getString("action");
+			if (!strcasecmp(action.c_str(), "set"))
+			{
+				act = Host::HCA_SET;
+				newhost = tag->getString("newhost");
+			}
+			else if (!strcasecmp(action.c_str(), "suffix"))
+				act = Host::HCA_SUFFIX;
+			else if (!strcasecmp(action.c_str(), "addnick"))
+				act = Host::HCA_ADDNICK;
+			else
+				throw ModuleException("Invalid hostchange action: " + action);
+
+			hostchanges.push_back(std::make_pair(mask, Host(act, tag->getString("ports"), newhost)));
 		}
 	}
 
@@ -105,11 +117,11 @@ class ModuleHostChange : public Module
 		{
 			if (((InspIRCd::MatchCIDR(user->MakeHost(), i->first)) || (InspIRCd::MatchCIDR(user->MakeHostIP(), i->first))))
 			{
-				Host* h = i->second;
+				const Host& h = i->second;
 
-				if (!h->ports.empty())
+				if (!h.ports.empty())
 				{
-					irc::portparser portrange(h->ports, false);
+					irc::portparser portrange(h.ports, false);
 					long portno = -1;
 					bool foundany = false;
 
@@ -123,15 +135,15 @@ class ModuleHostChange : public Module
 
 				// host of new user matches a hostchange tag's mask
 				std::string newhost;
-				if (h->action == "set")
+				if (h.action == Host::HCA_SET)
 				{
-					newhost = h->newhost;
+					newhost = h.newhost;
 				}
-				else if (h->action == "suffix")
+				else if (h.action == Host::HCA_SUFFIX)
 				{
 					newhost = MySuffix;
 				}
-				else if (h->action == "addnick")
+				else if (h.action == Host::HCA_ADDNICK)
 				{
 					// first take their nick and strip out non-dns, leaving just [A-Z0-9\-]
 					std::string complete;
