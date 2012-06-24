@@ -29,13 +29,7 @@ class ModuleModesOnOper : public Module
  public:
 	ModuleModesOnOper()
 	{
-		Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
-	}
-
-
-	virtual void OnRehash(User* user)
-	{
+		ServerInstance->Modules->Attach(I_OnPostOper, this);
 	}
 
 	virtual ~ModuleModesOnOper()
@@ -49,6 +43,9 @@ class ModuleModesOnOper : public Module
 
 	virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
 	{
+		if (!IS_LOCAL(user))
+			return;
+
 		// whenever a user opers, go through the oper types, find their <type:modes>,
 		// and if they have one apply their modes. The mode string can contain +modes
 		// to add modes to the user or -modes to take modes from the user.
@@ -67,22 +64,14 @@ class ModuleModesOnOper : public Module
 
 		std::string buf;
 		std::stringstream ss(smodes);
-		std::vector<std::string> tokens;
+		std::vector<std::string> modes;
 
+		modes.push_back(u->nick);
 		// split into modes and mode params
 		while (ss >> buf)
-			tokens.push_back(buf);
+			modes.push_back(buf);
 
-		std::vector<std::string> modes;
-		modes.push_back(u->nick);
-
-		// process mode params
-		for (unsigned int k = 0; k < tokens.size(); k++)
-		{
-			modes.push_back(tokens[k]);
-		}
-
-		ServerInstance->SendGlobalMode(modes, u);
+		ServerInstance->SendMode(modes, u);
 	}
 };
 
