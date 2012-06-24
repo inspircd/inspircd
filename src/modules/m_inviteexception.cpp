@@ -47,6 +47,7 @@ class InviteException : public ListModeBase
 
 class ModuleInviteException : public Module
 {
+	bool invite_bypass_key;
 	InviteException ie;
 public:
 	ModuleInviteException() : ie(this)
@@ -54,9 +55,10 @@ public:
 		if (!ServerInstance->Modes->AddMode(&ie))
 			throw ModuleException("Could not add new modes!");
 
+		OnRehash(NULL);
 		ie.DoImplements(this);
-		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnCheckKey };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnCheckKey, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void On005Numeric(std::string &output)
@@ -86,7 +88,7 @@ public:
 
 	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key)
 	{
-		if (ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true))
+		if (invite_bypass_key)
 			return OnCheckInvite(user, chan);
 		return MOD_RES_PASSTHRU;
 	}
@@ -103,6 +105,7 @@ public:
 
 	void OnRehash(User* user)
 	{
+		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
 		ie.DoRehash();
 	}
 
