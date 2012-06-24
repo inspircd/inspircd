@@ -120,6 +120,7 @@ class MsgFlood : public ModeHandler
 class ModuleMsgFlood : public Module
 {
 	MsgFlood mf;
+	bool operoverride;
 
  public:
 
@@ -128,14 +129,18 @@ class ModuleMsgFlood : public Module
 	{
 		if (!ServerInstance->Modes->AddMode(&mf))
 			throw ModuleException("Could not add new modes!");
+		OnRehash(NULL);
 		ServerInstance->Extensions.Register(&mf.ext);
-		Implementation eventlist[] = { I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnUserPreNotice, I_OnUserPreMessage, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
 		if ((!IS_LOCAL(user)) || !dest->IsModeSet('f'))
+			return MOD_RES_PASSTHRU;
+
+		if (operoverride && IS_OPER(user))
 			return MOD_RES_PASSTHRU;
 
 		if (ServerInstance->OnCheckExemption(user,dest,"flood") == MOD_RES_ALLOW)
@@ -183,6 +188,11 @@ class ModuleMsgFlood : public Module
 			return ProcessMessages(user,(Channel*)dest,text);
 
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnRehash(User* user)
+	{
+		operoverride = ServerInstance->Config->ConfValue("messageflood")->getBool("operoverride", false);
 	}
 
 	~ModuleMsgFlood()
