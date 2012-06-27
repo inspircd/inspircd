@@ -333,73 +333,43 @@ const std::string& User::GetFullRealHost()
 
 bool LocalUser::IsInvited(const irc::string &channel)
 {
-	time_t now = ServerInstance->Time();
-	InvitedList::iterator safei;
-	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
-	{
-		if (channel == i->first)
-		{
-			if (i->second != 0 && now > i->second)
-			{
-				/* Expired invite, remove it. */
-				safei = i;
-				--i;
-				invites.erase(safei);
-				continue;
-			}
-			return true;
-		}
-	}
-	return false;
+	Channel* chan = ServerInstance->FindChan(channel.c_str());
+	if (!chan)
+		return false;
+
+	return (Invitation::Find(chan, this) != NULL);
 }
 
-InvitedList* LocalUser::GetInviteList()
+InviteList& LocalUser::GetInviteList()
 {
-	time_t now = ServerInstance->Time();
-	/* Weed out expired invites here. */
-	InvitedList::iterator safei;
-	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
-	{
-		if (i->second != 0 && now > i->second)
-		{
-			/* Expired invite, remove it. */
-			safei = i;
-			--i;
-			invites.erase(safei);
-		}
-	}
-	return &invites;
+	RemoveExpiredInvites();
+	return invites;
 }
 
 void LocalUser::InviteTo(const irc::string &channel, time_t invtimeout)
 {
-	time_t now = ServerInstance->Time();
-	if (invtimeout != 0 && now > invtimeout) return; /* Don't add invites that are expired from the get-go. */
-	for (InvitedList::iterator i = invites.begin(); i != invites.end(); ++i)
-	{
-		if (channel == i->first)
-		{
-			if (i->second != 0 && invtimeout > i->second)
-			{
-				i->second = invtimeout;
-			}
-
-			return;
-		}
-	}
-	invites.push_back(std::make_pair(channel, invtimeout));
+	Channel* chan = ServerInstance->FindChan(channel.c_str());
+	if (chan)
+		Invitation::Create(chan, this, invtimeout);
 }
 
 void LocalUser::RemoveInvite(const irc::string &channel)
 {
-	for (InvitedList::iterator i = invites.begin(); i != invites.end(); i++)
+	Channel* chan = ServerInstance->FindChan(channel.c_str());
+	if (chan)
 	{
-		if (channel == i->first)
+		Invitation* inv = Invitation::Find(chan, this);
+		if (inv)
 		{
-			invites.erase(i);
-			return;
-	 	}
+			inv->cull();
+			delete inv;
+		}
 	}
+}
+
+void LocalUser::RemoveExpiredInvites()
+{
+	Invitation::Find(NULL, this);
 }
 
 bool User::HasModePermission(unsigned char, ModeType)
@@ -560,8 +530,6 @@ CullResult User::cull()
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
 	PurgeEmptyChannels();
 
-	this->InvalidateCache();
-
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
 
@@ -576,6 +544,7 @@ CullResult LocalUser::cull()
 	else
 		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
 
+	ClearInvites();
 	eh.cull();
 	return User::cull();
 }

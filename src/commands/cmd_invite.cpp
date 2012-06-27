@@ -132,10 +132,10 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 	{
 		// pinched from ircu - invite with not enough parameters shows channels
 		// youve been invited to but haven't joined yet.
-		InvitedList* il = IS_LOCAL(user)->GetInviteList();
-		for (InvitedList::iterator i = il->begin(); i != il->end(); i++)
+		InviteList& il = IS_LOCAL(user)->GetInviteList();
+		for (InviteList::const_iterator i = il.begin(); i != il.end(); ++i)
 		{
-			user->WriteNumeric(RPL_INVITELIST, "%s :%s",user->nick.c_str(),i->first.c_str());
+			user->WriteNumeric(RPL_INVITELIST, "%s :%s",user->nick.c_str(), (*i)->chan->name.c_str());
 		}
 		user->WriteNumeric(RPL_ENDOFINVITELIST, "%s :End of INVITE list",user->nick.c_str());
 	}

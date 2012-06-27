@@ -29,6 +29,7 @@
 #include "inspsocket.h"
 #include "dns.h"
 #include "mode.h"
+#include "membership.h"
 
 /** connect class types
  */
@@ -740,14 +741,8 @@ class CoreExport UserIOHandler : public StreamSocket
 
 typedef unsigned int already_sent_t;
 
-class CoreExport LocalUser : public User
+class CoreExport LocalUser : public User, public InviteBase
 {
-	/** A list of channels the user has a pending invite to.
-	 * Upon INVITE channels are added, and upon JOIN, the
-	 * channels are removed from this list.
-	 */
-	InvitedList invites;
-
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
@@ -835,7 +830,7 @@ class CoreExport LocalUser : public User
 	/** Returns the list of channels this user has been invited to but has not yet joined.
 	 * @return A list of channels the user is invited to
 	 */
-	InvitedList* GetInviteList();
+	InviteList& GetInviteList();
 
 	/** Returns true if a user is invited to a channel.
 	 * @param channel A channel name to look up
@@ -855,6 +850,8 @@ class CoreExport LocalUser : public User
 	 * @param channel The channel to remove the invite to
 	 */
 	void RemoveInvite(const irc::string &channel);
+
+	void RemoveExpiredInvites();
 
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
