@@ -55,19 +55,14 @@ class CommandCAP : public Command
 
 		if (subcommand == "REQ")
 		{
-			CapEvent Data(creator, "cap_req");
-
-			Data.type = subcommand;
-			Data.user = user;
-			Data.creator = this->creator;
-
 			if (parameters.size() < 2)
 				return CMD_FAILURE;
 
+			CapEvent Data(creator, user, CapEvent::CAPEVENT_REQ);
+
 			// tokenize the input into a nice list of requested caps
-			std::string param = parameters[1];
 			std::string cap_;
-			irc::spacesepstream cap_stream(param);
+			irc::spacesepstream cap_stream(parameters[1]);
 
 			while (cap_stream.GetToken(cap_))
 			{
@@ -95,11 +90,7 @@ class CommandCAP : public Command
 		}
 		else if ((subcommand == "LS") || (subcommand == "LIST"))
 		{
-			CapEvent Data(creator, subcommand == "LS" ? "cap_ls" : "cap_list");
-
-			Data.type = subcommand;
-			Data.user = user;
-			Data.creator = this->creator;
+			CapEvent Data(creator, user, subcommand == "LS" ? CapEvent::CAPEVENT_LS : CapEvent::CAPEVENT_LIST);
 
 			reghold.set(user, 1);
 			Data.Send();
@@ -107,31 +98,28 @@ class CommandCAP : public Command
 			std::string Result;
 			if (Data.wanted.size() > 0)
 				Result = irc::stringjoiner(" ", Data.wanted, 0, Data.wanted.size() - 1).GetJoined();
-			else
-				Result = "";
 
 			user->WriteServ("CAP %s %s :%s", user->nick.c_str(), subcommand.c_str(), Result.c_str());
 		}
 		else if (subcommand == "CLEAR")
 		{
-			CapEvent Data(creator, "cap_clear");
-
-			Data.type = subcommand;
-			Data.user = user;
-			Data.creator = this->creator;
+			CapEvent Data(creator, user, CapEvent::CAPEVENT_CLEAR);
 
 			reghold.set(user, 1);
 			Data.Send();
 
-			std::string Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
+			std::string Result;
+			if (!Data.ack.empty())
+				Result = irc::stringjoiner(" ", Data.ack, 0, Data.ack.size() - 1).GetJoined();
 			user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), Result.c_str());
 		}
 		else
 		{
 			user->WriteNumeric(ERR_INVALIDCAPSUBCOMMAND, "%s %s :Invalid CAP subcommand", user->nick.c_str(), subcommand.c_str());
+			return CMD_FAILURE;
 		}
 
-		return CMD_FAILURE;
+		return CMD_SUCCESS;
 	}
 };
 
