@@ -34,6 +34,8 @@ class DNSRequest;
 class Extensible;
 class FakeUser;
 class InspIRCd;
+class Invitation;
+class InviteBase;
 class LocalUser;
 class Membership;
 class Module;
@@ -72,7 +74,7 @@ typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
 
 /** Holds a complete list of all channels to which a user has been invited and has not yet joined, and the time at which they'll expire.
  */
-typedef std::vector< std::pair<irc::string, time_t> > InvitedList;
+typedef std::vector<Invitation*> InviteList;
 
 /** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
  */
