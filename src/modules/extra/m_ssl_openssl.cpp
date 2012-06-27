@@ -198,6 +198,13 @@ class ModuleSSLOpenSSL : public Module
 			throw ModuleException("Unknown hash type " + hash);
 		use_sha = (hash == "sha1");
 
+		std::string ciphers = conf->getString("ciphers", "ALL");
+		if ((!SSL_CTX_set_cipher_list(ctx, ciphers.c_str())) || (!SSL_CTX_set_cipher_list(clictx, ciphers.c_str())))
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't set cipher list to %s.", ciphers.c_str());
+			ERR_print_errors_cb(error_callback, this);
+		}
+
 
 		/* Load our keys and certificates
 		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
