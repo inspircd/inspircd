@@ -35,7 +35,7 @@ class CoreExport Membership : public Extensible
 	unsigned int getRank();
 };
 
-class InviteBase
+class CoreExport InviteBase
 {
  protected:
 	InviteList invites;
