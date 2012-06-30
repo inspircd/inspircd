@@ -59,14 +59,15 @@ class HideOper : public ModeHandler
 class ModuleHideOper : public Module
 {
 	HideOper hm;
+	unsigned int opers_to_show;
  public:
 	ModuleHideOper()
-		: hm(this)
+		: hm(this), opers_to_show(0)
 	{
 		if (!ServerInstance->Modes->AddMode(&hm))
 			throw ModuleException("Could not add new modes!");
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine, I_OnStatsLine };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 
@@ -107,6 +108,46 @@ class ModuleHideOper : public Module
 			// hide the line completely if doing a "/who * o" query
 			if (params.size() > 1 && params[1].find('o') != std::string::npos)
 				line.clear();
+		}
+	}
+
+	void OnStatsLine(User* user, char symbol, std::string& line, bool core_generated)
+	{
+		if ((symbol != 'P') || (!core_generated) || (user->HasPrivPermission("users/auspex")))
+			return;
+
+		/**
+		STATS P
+		:insp20.test 249 20DAAAAAA :nick (ident@host.co.uk) Idle: 10 secs
+		:insp20.test 249 20DAAAAAA :1 OPER(s)
+		*/
+
+		std::string::size_type a = line.find(':', 1);
+		if (a == std::string::npos)
+			return;
+
+		a++;
+		std::string::size_type b = line.find(' ', a);
+		if (b == std::string::npos)
+			return;
+
+		if (line[line.size()-1] == ')')
+		{
+			// Last line, remove the original oper count and insert ours
+			while (isdigit(line[a]))
+				line.erase(a, 1);
+
+			line.insert(a, ConvToStr(opers_to_show));
+			opers_to_show = 0;
+		}
+		else
+		{
+			User* oper = ServerInstance->FindNick(line.substr(a, b-a));
+			if ((oper) && (oper->IsModeSet('H')))
+				// Oper with usermode +H, hide the line
+				line.clear();
+			else
+				opers_to_show++;
 		}
 	}
 };
