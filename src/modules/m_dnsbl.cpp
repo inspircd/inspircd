@@ -243,7 +243,7 @@ class ModuleDNSBL : public Module
 		ReadConf();
 		ServerInstance->Modules->AddService(nameExt);
 		ServerInstance->Modules->AddService(countExt);
-		Implementation eventlist[] = { I_OnRehash, I_OnSetClientIP, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserInit, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -348,24 +348,22 @@ class ModuleDNSBL : public Module
 		ReadConf();
 	}
 
-	void OnSetClientIP(User* user)
+	void OnUserInit(LocalUser* user)
 	{
-		LocalUser *luser = IS_LOCAL(user);
-
-		if (!luser || luser->exempt)
+		if (user->exempt)
 			return;
 
 		unsigned char a, b, c, d;
 		char reversedipbuf[128];
 		std::string reversedip;
 
-		if (luser->client_sa.sa.sa_family != AF_INET)
+		if (user->client_sa.sa.sa_family != AF_INET)
 			return;
 
-		d = (unsigned char) (luser->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-		c = (unsigned char) (luser->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
-		b = (unsigned char) (luser->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
-		a = (unsigned char) luser->client_sa.in4.sin_addr.s_addr & 0xFF;
+		d = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
+		c = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
+		b = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
+		a = (unsigned char) user->client_sa.in4.sin_addr.s_addr & 0xFF;
 
 		snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
 		reversedip = std::string(reversedipbuf);
@@ -379,11 +377,11 @@ class ModuleDNSBL : public Module
 
 			/* now we'd need to fire off lookups for `hostname'. */
 			bool cached;
-			DNSBLResolver *r = new DNSBLResolver(this, nameExt, countExt, hostname, luser, DNSBLConfEntries[i], cached);
+			DNSBLResolver *r = new DNSBLResolver(this, nameExt, countExt, hostname, user, DNSBLConfEntries[i], cached);
 			ServerInstance->AddResolver(r, cached);
 			i++;
 		}
-		countExt.set(luser, i);
+		countExt.set(user, i);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
