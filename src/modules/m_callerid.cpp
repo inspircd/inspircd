@@ -21,9 +21,6 @@
 
 
 #include "inspircd.h"
-#include <set>
-#include <sstream>
-#include <algorithm>
 
 /* $ModDesc: Implementation of callerid (umode +g & /accept, ala hybrid etc) */
 
