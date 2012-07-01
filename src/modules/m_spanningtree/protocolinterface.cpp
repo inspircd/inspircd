@@ -48,7 +48,7 @@ void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 
 bool SpanningTreeProtocolInterface::SendEncapsulatedData(const parameterlist &encap)
 {
-	if (encap[0].find('*') != std::string::npos)
+	if (encap[0].find_first_of("*?") != std::string::npos)
 	{
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);
 		return true;

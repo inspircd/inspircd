@@ -38,7 +38,7 @@ void TreeSocket::Encap(User* who, parameterlist &params)
 		
 		params[params.size() - 1] = ":" + params[params.size() - 1];
 
-		if (params[0].find('*') != std::string::npos)
+		if (params[0].find_first_of("*?") != std::string::npos)
 		{
 			Utils->DoOneToAllButSender(who->uuid, "ENCAP", params, who->server);
 		}
