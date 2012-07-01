@@ -451,7 +451,7 @@ int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_l
 irc::stringjoiner::stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end)
 {
 	if (end < begin)
-		throw "stringjoiner logic error, this causes problems.";
+		return; // nothing to do here
 
 	for (int v = begin; v < end; v++)
 		joined.append(sequence[v]).append(seperator);
@@ -461,7 +461,7 @@ irc::stringjoiner::stringjoiner(const std::string &seperator, const std::vector<
 irc::stringjoiner::stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end)
 {
 	if (end < begin)
-		throw "stringjoiner logic error, this causes problems.";
+		return; // nothing to do here
 
 	for (int v = begin; v < end; v++)
 		joined.append(sequence[v]).append(seperator);
@@ -471,7 +471,7 @@ irc::stringjoiner::stringjoiner(const std::string &seperator, const std::deque<s
 irc::stringjoiner::stringjoiner(const std::string &seperator, const char* const* sequence, int begin, int end)
 {
 	if (end < begin)
-		throw "stringjoiner logic error, this causes problems.";
+		return; // nothing to do here
 
 	for (int v = begin; v < end; v++)
 		joined.append(sequence[v]).append(seperator);
