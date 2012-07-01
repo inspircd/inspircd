@@ -30,7 +30,7 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 6)
 	{
-		ServerInstance->SNO->WriteToSnoMask('d',"%s sent me a malformed ADDLINE of type %s.",prefix.c_str(),params[0].c_str());
+		ServerInstance->SNO->WriteToSnoMask('d', "%s sent me a malformed ADDLINE", MyRoot->GetName().c_str());
 		return true;
 	}
 
