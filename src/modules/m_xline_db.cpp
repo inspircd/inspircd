@@ -236,6 +236,8 @@ class ModuleXLineDB : public Module
 				{
 					ServerInstance->SNO->WriteToSnoMask('x', "database: Added a line of type %s", command_p[1].c_str());
 				}
+				else
+					delete xl;
 			}
 		}
 
