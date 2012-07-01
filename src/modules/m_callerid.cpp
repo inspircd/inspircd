@@ -205,7 +205,7 @@ public:
 		{
 			User* whotoremove = ServerInstance->FindNick(tok.substr(1));
 			if (whotoremove)
-				return (RemoveAccept(user, whotoremove, false) ? CMD_SUCCESS : CMD_FAILURE);
+				return (RemoveAccept(user, whotoremove) ? CMD_SUCCESS : CMD_FAILURE);
 			else
 				return CMD_FAILURE;
 		}
@@ -213,7 +213,7 @@ public:
 		{
 			User* whotoadd = ServerInstance->FindNick(tok[0] == '+' ? tok.substr(1) : tok);
 			if (whotoadd)
-				return (AddAccept(user, whotoadd, false) ? CMD_SUCCESS : CMD_FAILURE);
+				return (AddAccept(user, whotoadd) ? CMD_SUCCESS : CMD_FAILURE);
 			else
 			{
 				user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
@@ -238,22 +238,18 @@ public:
 		user->WriteNumeric(282, "%s :End of ACCEPT list", user->nick.c_str());
 	}
 
-	bool AddAccept(User* user, User* whotoadd, bool quiet)
+	bool AddAccept(User* user, User* whotoadd)
 	{
 		// Add this user to my accept list first, so look me up..
 		callerid_data* dat = extInfo.get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
-			if (!quiet)
-				user->WriteNumeric(456, "%s :Accept list is full (limit is %d)", user->nick.c_str(), maxaccepts);
-
+			user->WriteNumeric(456, "%s :Accept list is full (limit is %d)", user->nick.c_str(), maxaccepts);
 			return false;
 		}
 		if (!dat->accepting.insert(whotoadd).second)
 		{
-			if (!quiet)
-				user->WriteNumeric(457, "%s %s :is already on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
-
+			user->WriteNumeric(457, "%s %s :is already on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
 			return false;
 		}
 
@@ -265,23 +261,19 @@ public:
 		return true;
 	}
 
-	bool RemoveAccept(User* user, User* whotoremove, bool quiet)
+	bool RemoveAccept(User* user, User* whotoremove)
 	{
 		// Remove them from my list, so look up my list..
 		callerid_data* dat = extInfo.get(user, false);
 		if (!dat)
 		{
-			if (!quiet)
-				user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
-
+			user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 			return false;
 		}
 		std::set<User*>::iterator i = dat->accepting.find(whotoremove);
 		if (i == dat->accepting.end())
 		{
-			if (!quiet)
-				user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
-
+			user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 			return false;
 		}
 
@@ -372,7 +364,7 @@ public:
 		output += " CALLERID=g";
 	}
 
-	ModResult PreText(User* user, User* dest, std::string& text, bool notice)
+	ModResult PreText(User* user, User* dest, std::string& text)
 	{
 		if (!dest->IsModeSet('g'))
 			return MOD_RES_PASSTHRU;
@@ -403,7 +395,7 @@ public:
 	virtual ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
-			return PreText(user, (User*)dest, text, true);
+			return PreText(user, (User*)dest, text);
 
 		return MOD_RES_PASSTHRU;
 	}
@@ -411,7 +403,7 @@ public:
 	virtual ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
-			return PreText(user, (User*)dest, text, true);
+			return PreText(user, (User*)dest, text);
 
 		return MOD_RES_PASSTHRU;
 	}
