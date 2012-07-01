@@ -54,17 +54,15 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		std::string *mlock_str = mlock.get(channel);
-		if (!mlock_str || mlock_str->empty())
+		if (!mlock_str)
 			return MOD_RES_PASSTHRU;
 
-		for (const char *modes = parameters[1].c_str(); *modes; modes++)
+		std::string::size_type p = parameters[1].find_first_of(*mlock_str);
+		if (p != std::string::npos)
 		{
-			if (mlock_str->find(*modes) != std::string::npos)
-			{
-				source->WriteNumeric(742, "%s %c %s :MODE cannot be set due to channel having an active MLOCK restriction policy",
-						     channel->name.c_str(), *modes, mlock_str->c_str());
-				return MOD_RES_DENY;
-			}
+			source->WriteNumeric(742, "%s %c %s :MODE cannot be set due to channel having an active MLOCK restriction policy",
+					     channel->name.c_str(), parameters[1][p], mlock_str->c_str());
+			return MOD_RES_DENY;
 		}
 
 		return MOD_RES_PASSTHRU;
