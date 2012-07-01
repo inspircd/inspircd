@@ -337,7 +337,7 @@ public:
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.extInfo);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPostNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, 6);
 	}
 
@@ -399,11 +399,10 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreNick(User* user, const std::string& newnick)
+	void OnUserPostNick(User* user, const std::string& oldnick)
 	{
 		if (!tracknick)
 			RemoveFromAllAccepts(user);
-		return MOD_RES_PASSTHRU;
 	}
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)

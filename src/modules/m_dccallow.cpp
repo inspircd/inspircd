@@ -257,7 +257,7 @@ class ModuleDCCAllow : public Module
 		ServerInstance->Extensions.Register(ext);
 		ServerInstance->AddCommand(&cmd);
 		ReadFileConf();
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPreNick, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPostNick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
@@ -284,10 +284,9 @@ class ModuleDCCAllow : public Module
 		RemoveNick(user);
 	}
 
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
+	virtual void OnUserPostNick(User* user, const std::string &oldnick)
 	{
 		RemoveNick(user);
-		return MOD_RES_PASSTHRU;
 	}
 
 	virtual ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
