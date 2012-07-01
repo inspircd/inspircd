@@ -118,14 +118,9 @@ struct CallerIDExtInfo : public ExtensionItem
 			if (!targ)
 				continue; // shouldn't happen, but oh well.
 
-			for (std::list<callerid_data *>::iterator it2 = targ->wholistsme.begin(); it2 != targ->wholistsme.end(); it2++)
-			{
-				if (*it2 == dat)
-				{
-					targ->wholistsme.erase(it2);
-					break;
-				}
-			}
+			std::list<callerid_data*>::iterator it2 = std::find(targ->wholistsme.begin(), targ->wholistsme.end(), dat);
+			if (it2 != targ->wholistsme.end())
+				targ->wholistsme.erase(it2);
 		}
 	}
 };
@@ -300,15 +295,10 @@ public:
 			return false;
 		}
 
-		for (std::list<callerid_data *>::iterator it = dat2->wholistsme.begin(); it != dat2->wholistsme.end(); it++)
-		{
+		std::list<callerid_data*>::iterator it = std::find(dat2->wholistsme.begin(), dat2->wholistsme.end(), dat);
+		if (it != dat2->wholistsme.end())
 			// Found me!
-			if (*it == dat)
-			{
-				dat2->wholistsme.erase(it);
-				break;
-			}
-		}
+			dat2->wholistsme.erase(it);
 
 		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 		return true;
