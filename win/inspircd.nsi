@@ -152,7 +152,7 @@ SectionEnd
 
 Section "Config Files" SEC02
   SetOutPath "$INSTDIR\conf"
-  File "..\docs\*.example"
+  File "..\docs\conf\*.example"
 SectionEnd
 
 Section "Command Handlers" SEC03
