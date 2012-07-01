@@ -224,8 +224,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 {
 	lastping = 0;
 	eh.SetFd(myfd);
-
-	SetClientIP(client);
+	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
 }
 
