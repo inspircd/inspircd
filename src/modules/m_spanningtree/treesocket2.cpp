@@ -440,6 +440,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Unrecognised S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Unrecognised command '" + command + "' -- possibly loaded mismatched modules");
+			return;
 		}
 
 		if (params.size() < cmd->min_params)
@@ -448,6 +449,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Insufficient parameters for S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Insufficient parameters for command '" + command + "'");
+			return;
 		}
 
 		CmdResult res = cmd->Handle(params, who);
@@ -459,7 +461,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
 		}
-		if (res == CMD_SUCCESS)
+		else if (res == CMD_SUCCESS)
 			Utils->RouteCommand(route_back_again, command, params, who);
 	}
 }
