@@ -20,14 +20,6 @@
 
 #include "inspircd.h"
 
-#ifndef CMD_VERSION_H
-#define CMD_VERSION_H
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /VERSION. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -47,11 +39,6 @@ class CommandVersion : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
-
-
 
 CmdResult CommandVersion::Handle (const std::vector<std::string>&, User *user)
 {

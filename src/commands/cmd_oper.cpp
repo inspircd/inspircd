@@ -20,7 +20,6 @@
 
 
 #include "inspircd.h"
-#include "hashcomp.h"
 
 bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
 

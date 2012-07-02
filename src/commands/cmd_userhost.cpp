@@ -20,14 +20,6 @@
 
 #include "inspircd.h"
 
-#ifndef CMD_USERHOST_H
-#define CMD_USERHOST_H
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /USERHOST. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -47,9 +39,6 @@ class CommandUserhost : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, User *user)
 {

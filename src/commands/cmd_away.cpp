@@ -20,14 +20,6 @@
 
 #include "inspircd.h"
 
-#ifndef CMD_AWAY_H
-#define CMD_AWAY_H
-
-// include the common header files
-
-#include "users.h"
-#include "channels.h"
-
 /** Handle /AWAY. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -47,9 +39,6 @@ class CommandAway : public Command
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
-
-#endif
-
 
 /** Handle /AWAY
  */

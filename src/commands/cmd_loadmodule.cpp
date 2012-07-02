@@ -40,7 +40,6 @@ class CommandLoadmodule : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
-
 /** Handle /LOADMODULE
  */
 CmdResult CommandLoadmodule::Handle (const std::vector<std::string>& parameters, User *user)

@@ -20,10 +20,6 @@
 
 #include "inspircd.h"
 
-#include "users.h"
-#include "channels.h"
-#include "ctables.h"
-
 /** Handle /CLEARCACHE. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these

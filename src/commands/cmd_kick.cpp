@@ -40,7 +40,6 @@ class CommandKick : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
-
 /** Handle /KICK
  */
 CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User *user)
