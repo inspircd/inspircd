@@ -18,14 +18,11 @@
 
 
 #include "inspircd.h"
-#include <stdarg.h>
 
 /* $ModDesc: Provides channelmode +d <int>, to deny messages to a channel until <int> seconds. */
 
 class DelayMsgMode : public ModeHandler
 {
- private:
-	CUList empty;
  public:
 	LocalIntExt jointime;
 	DelayMsgMode(Module* Parent) : ModeHandler(Parent, "delaymsg", 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
@@ -55,7 +52,6 @@ class ModuleDelayMsg : public Module
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-	~ModuleDelayMsg();
 	Version GetVersion();
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&);
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
@@ -65,6 +61,9 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 {
 	if (adding)
 	{
+		if ((channel->IsModeSet('d')) && (channel->GetModeParameter('d') == parameter))
+			return MODEACTION_DENY;
+
 		/* Setting a new limit, sanity check */
 		long limit = atoi(parameter.c_str());
 
@@ -90,10 +89,6 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 	return MODEACTION_ALLOW;
 }
 
-ModuleDelayMsg::~ModuleDelayMsg()
-{
-}
-
 Version ModuleDelayMsg::GetVersion()
 {
 	return Version("Provides channelmode +d <int>, to deny messages to a channel until <int> seconds.", VF_VENDOR);
@@ -101,7 +96,7 @@ Version ModuleDelayMsg::GetVersion()
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
-	if (memb->chan->IsModeSet('d'))
+	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet('d')))
 	{
 		djm.jointime.set(memb, ServerInstance->Time());
 	}
@@ -110,7 +105,7 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	/* Server origin */
-	if (!user)
+	if ((!user) || (!IS_LOCAL(user)))
 		return MOD_RES_PASSTHRU;
 
 	if (target_type != TYPE_CHANNEL)
@@ -121,7 +116,7 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 
 	if (!memb)
 		return MOD_RES_PASSTHRU;
-	
+
 	time_t ts = djm.jointime.get(memb);
 
 	if (ts == 0)
