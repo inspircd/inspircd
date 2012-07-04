@@ -96,7 +96,7 @@ Version ModuleDelayMsg::GetVersion()
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
-	if (memb->chan->IsModeSet('d'))
+	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet('d')))
 	{
 		djm.jointime.set(memb, ServerInstance->Time());
 	}
@@ -105,7 +105,7 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 {
 	/* Server origin */
-	if (!user)
+	if ((!user) || (!IS_LOCAL(user)))
 		return MOD_RES_PASSTHRU;
 
 	if (target_type != TYPE_CHANNEL)
