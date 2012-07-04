@@ -202,15 +202,24 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 	return;
 }
 
+std::string SpanningTreeUtilities::ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params)
+{
+	std::string FullLine;
+	FullLine.reserve(MAXBUF);
+	FullLine = ":" + prefix + " " + command;
+	for (parameterlist::const_iterator x = params.begin(); x != params.end(); ++x)
+	{
+		FullLine.push_back(' ');
+		FullLine.append(*x);
+	}
+	return FullLine;
+}
+
 bool SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& omit)
 {
 	TreeServer* omitroute = this->BestRouteTo(omit);
-	std::string FullLine = ":" + prefix + " " + command;
-	unsigned int words = params.size();
-	for (unsigned int x = 0; x < words; x++)
-	{
-		FullLine = FullLine + " " + params[x];
-	}
+	std::string FullLine = ConstructLine(prefix, command, params);
+
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
@@ -231,12 +240,8 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const
 
 bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params)
 {
-	std::string FullLine = ":" + prefix + " " + command;
-	unsigned int words = params.size();
-	for (unsigned int x = 0; x < words; x++)
-	{
-		FullLine = FullLine + " " + params[x];
-	}
+	std::string FullLine = ConstructLine(prefix, command, params);
+
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
@@ -256,17 +261,11 @@ bool SpanningTreeUtilities::DoOneToOne(const std::string& prefix, const std::str
 	TreeServer* Route = this->BestRouteTo(target);
 	if (Route)
 	{
-		std::string FullLine = ":" + prefix + " " + command;
-		unsigned int words = params.size();
-		for (unsigned int x = 0; x < words; x++)
-		{
-			FullLine = FullLine + " " + params[x];
-		}
 		if (Route && Route->GetSocket())
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			if (Sock)
-				Sock->WriteLine(FullLine);
+				Sock->WriteLine(ConstructLine(prefix, command, params));
 		}
 		return true;
 	}

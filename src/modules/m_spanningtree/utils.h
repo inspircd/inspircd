@@ -44,6 +44,10 @@ typedef std::map<TreeServer*,TreeServer*> TreeServerList;
  */
 class SpanningTreeUtilities : public classbase
 {
+	/** Creates a line in the :<prefix> <command> [<params>] format
+	 */
+	std::string ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params);
+
  public:
 	/** Creator module
 	 */
