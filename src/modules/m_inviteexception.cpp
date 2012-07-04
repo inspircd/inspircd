@@ -68,17 +68,14 @@ public:
 
 	ModResult OnCheckInvite(User* user, Channel* chan)
 	{
-		if(chan != NULL)
+		modelist* list = ie.extItem.get(chan);
+		if (list)
 		{
-			modelist* list = ie.extItem.get(chan);
-			if (list)
+			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
-				for (modelist::iterator it = list->begin(); it != list->end(); it++)
+				if (chan->CheckBan(user, it->mask))
 				{
-					if (chan->CheckBan(user, it->mask))
-					{
-						return MOD_RES_ALLOW;
-					}
+					return MOD_RES_ALLOW;
 				}
 			}
 		}
