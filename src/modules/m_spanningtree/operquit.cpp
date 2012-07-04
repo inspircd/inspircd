@@ -32,7 +32,7 @@ bool TreeSocket::OperQuit(const std::string &prefix, parameterlist &params)
 	if (params.size() < 1)
 		return true;
 
-	User* u = ServerInstance->FindNick(prefix);
+	User* u = ServerInstance->FindUUID(prefix);
 
 	if (u)
 	{

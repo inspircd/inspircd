@@ -35,7 +35,7 @@ CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 
 	// Check target exists
-	User* u = ServerInstance->FindNick(parameters[0]);
+	User* u = ServerInstance->FindUUID(parameters[0]);
 	if (!u)
 		return CMD_FAILURE;
 
@@ -47,7 +47,7 @@ CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, Use
 
 RouteDescriptor CommandSVSJoin::GetRouting(User* user, const std::vector<std::string>& parameters)
 {
-	User* u = ServerInstance->FindNick(parameters[0]);
+	User* u = ServerInstance->FindUUID(parameters[0]);
 	if (u)
 		return ROUTE_OPT_UCAST(u->server);
 	return ROUTE_LOCALONLY;
