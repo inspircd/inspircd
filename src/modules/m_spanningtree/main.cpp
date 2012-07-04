@@ -833,11 +833,13 @@ void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 	if (!x->IsBurstable() || loopCall)
 		return;
 
-	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s %s %lu %lu :%s", x->type.c_str(), x->Displayable(),
-	ServerInstance->Config->ServerName.c_str(), (unsigned long)x->set_time, (unsigned long)x->duration, x->reason.c_str());
 	parameterlist params;
-	params.push_back(data);
+	params.push_back(x->type);
+	params.push_back(x->Displayable());
+	params.push_back(ServerInstance->Config->ServerName);
+	params.push_back(ConvToStr(x->set_time));
+	params.push_back(ConvToStr(x->duration));
+	params.push_back(":" + x->reason);
 
 	if (!user)
 	{
@@ -856,10 +858,9 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	if (!x->IsBurstable() || loopCall)
 		return;
 
-	char data[MAXBUF];
-	snprintf(data,MAXBUF,"%s %s", x->type.c_str(), x->Displayable());
 	parameterlist params;
-	params.push_back(data);
+	params.push_back(x->type);
+	params.push_back(x->Displayable());
 
 	if (!user)
 	{
