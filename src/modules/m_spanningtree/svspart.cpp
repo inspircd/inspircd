@@ -30,17 +30,19 @@
 
 CmdResult CommandSVSPart::Handle(const std::vector<std::string>& parameters, User *user)
 {
-	std::string reason = "Services forced part";
+	User* u = ServerInstance->FindUUID(parameters[0]);
+	if (!u)
+		return CMD_FAILURE;
 
-	if (parameters.size() == 3)
-		reason = parameters[2];
-
-	User* u = ServerInstance->FindNick(parameters[0]);
 	Channel* c = ServerInstance->FindChan(parameters[1]);
+	if (!c)
+		return CMD_FAILURE;
 
-	if (u && IS_LOCAL(u))
+	if (IS_LOCAL(u))
+	{
+		std::string reason = (parameters.size() == 3) ? parameters[2] : "Services forced part";
 		c->PartUser(u, reason);
-
+	}
 	return CMD_SUCCESS;
 }
 
