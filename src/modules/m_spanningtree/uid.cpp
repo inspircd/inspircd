@@ -107,31 +107,33 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	std::string::size_type pos = modestr.find_first_not_of('+');
 	for (std::string::const_iterator v = modestr.begin()+pos; v != modestr.end(); ++v)
 	{
-		/* For each mode thats set, increase counter */
+		/* For each mode thats set, find the mode handler and set it on the new user */
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
-
-		if (mh)
+		if (!mh)
 		{
-			if (mh->GetNumParams(true))
-			{
-				if (paramptr >= params.size() - 1)
-					return CMD_INVALID;
-				std::string mp = params[paramptr++];
-				/* IMPORTANT NOTE:
-				 * All modes are assumed to succeed here as they are being set by a remote server.
-				 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
-				 * to note as all but one modules currently cannot ever fail in this situation, except for
-				 * m_servprotect which specifically works this way to prevent the mode being set ANYWHERE
-				 * but here, at client introduction. You may safely assume this behaviour is standard and
-				 * will not change in future versions if you want to make use of this protective behaviour
-				 * yourself.
-				 */
-				mh->OnModeChange(_new, _new, NULL, mp, true);
-			}
-			else
-				mh->OnModeChange(_new, _new, NULL, empty, true);
-			_new->SetMode(*v, true);
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Unrecognised mode '%c' for a user in UID, dropping link", *v);
+			return CMD_INVALID;
 		}
+
+		if (mh->GetNumParams(true))
+		{
+			if (paramptr >= params.size() - 1)
+				return CMD_INVALID;
+			std::string mp = params[paramptr++];
+			/* IMPORTANT NOTE:
+			 * All modes are assumed to succeed here as they are being set by a remote server.
+			 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
+			 * to note as all but one modules currently cannot ever fail in this situation, except for
+			 * m_servprotect which specifically works this way to prevent the mode being set ANYWHERE
+			 * but here, at client introduction. You may safely assume this behaviour is standard and
+			 * will not change in future versions if you want to make use of this protective behaviour
+			 * yourself.
+			 */
+			mh->OnModeChange(_new, _new, NULL, mp, true);
+		}
+		else
+			mh->OnModeChange(_new, _new, NULL, empty, true);
+		_new->SetMode(*v, true);
 	}
 
 	_new->SetClientIP(params[6].c_str());
