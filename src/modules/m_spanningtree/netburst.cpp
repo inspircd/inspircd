@@ -65,19 +65,18 @@ void TreeSocket::DoBurst(TreeServer* s)
  */
 void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
 {
-	char command[1024];
+	char command[MAXBUF];
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
 		TreeServer* recursive_server = Current->GetChild(q);
 		if (recursive_server != s)
 		{
-			std::string servername = Current->GetName();
 			std::string recursive_servername = recursive_server->GetName();
-			snprintf(command,1024,":%s SERVER %s * %d %s :%s", servername.c_str(), recursive_servername.c_str(), hops,
+			snprintf(command, MAXBUF, ":%s SERVER %s * %d %s :%s", Current->GetID().c_str(), recursive_servername.c_str(), hops,
 					recursive_server->GetID().c_str(),
 					recursive_server->GetDesc().c_str());
 			this->WriteLine(command);
-			this->WriteLine(":"+recursive_server->GetName()+" VERSION :"+recursive_server->GetVersion());
+			this->WriteLine(":"+recursive_server->GetID()+" VERSION :"+recursive_server->GetVersion());
 			/* down to next level */
 			this->SendServers(recursive_server, s, hops+1);
 		}
