@@ -39,7 +39,6 @@ class CommandRSQuit : public Command
         CommandRSQuit(Module* Callback, SpanningTreeUtilities* Util);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 		RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
-        void NoticeUser(User* user, const std::string &msg);
 };
 
 class CommandSVSJoin : public Command
