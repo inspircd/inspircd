@@ -45,10 +45,10 @@ void TreeSocket::DoBurst(TreeServer* s)
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot,s,1);
 	/* Send users and their oper status */
-	this->SendUsers(s);
+	this->SendUsers();
 	/* Send everything else (channel modes, xlines etc) */
-	this->SendChannelModes(s);
-	this->SendXLines(s);
+	this->SendChannelModes();
+	this->SendXLines();
 	FOREACH_MOD(I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
 	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
@@ -87,7 +87,7 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
  * If the length of a single line is more than 480-NICKMAX
  * in length, it is split over multiple lines.
  */
-void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
+void TreeSocket::SendFJoins(Channel* c)
 {
 	std::string buffer;
 	char list[MAXBUF];
@@ -167,8 +167,8 @@ void TreeSocket::SendFJoins(TreeServer* Current, Channel* c)
 	this->WriteLine(buffer);
 }
 
-/** Send G, Q, Z and E lines */
-void TreeSocket::SendXLines(TreeServer* Current)
+/** Send all XLines we know about */
+void TreeSocket::SendXLines()
 {
 	char data[MAXBUF];
 	std::string n = ServerInstance->Config->GetSID();
@@ -207,16 +207,16 @@ void TreeSocket::SendXLines(TreeServer* Current)
 	}
 }
 
-/** Send channel modes and topics */
-void TreeSocket::SendChannelModes(TreeServer* Current)
+/** Send channel topic, modes and metadata */
+void TreeSocket::SendChannelModes()
 {
 	char data[MAXBUF];
-	std::deque<std::string> list;
 	std::string n = ServerInstance->Config->GetSID();
 	const char* sn = n.c_str();
+
 	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
 	{
-		SendFJoins(Current, c->second);
+		SendFJoins(c->second);
 		if (!c->second->topic.empty())
 		{
 			snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", sn, c->second->name.c_str(), (unsigned long)c->second->topicset, c->second->setby.c_str(), c->second->topic.c_str());
@@ -236,7 +236,7 @@ void TreeSocket::SendChannelModes(TreeServer* Current)
 }
 
 /** send all users and their oper state/modes */
-void TreeSocket::SendUsers(TreeServer* Current)
+void TreeSocket::SendUsers()
 {
 	char data[MAXBUF];
 	std::string dataline;

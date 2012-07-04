@@ -216,16 +216,16 @@ class TreeSocket : public BufferedSocket
 	 * If the length of a single line is more than 480-NICKMAX
 	 * in length, it is split over multiple lines.
 	 */
-	void SendFJoins(TreeServer* Current, Channel* c);
+	void SendFJoins(Channel* c);
 
 	/** Send G, Q, Z and E lines */
-	void SendXLines(TreeServer* Current);
+	void SendXLines();
 
 	/** Send channel modes and topics */
-	void SendChannelModes(TreeServer* Current);
+	void SendChannelModes();
 
 	/** send all users and their oper state/modes */
-	void SendUsers(TreeServer* Current);
+	void SendUsers();
 
 	/** This function is called when we want to send a netburst to a local
 	 * server. There is a set order we must do this, because for example
