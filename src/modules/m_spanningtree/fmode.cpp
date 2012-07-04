@@ -28,59 +28,47 @@
 /** FMODE command - server mode with timestamp checks */
 CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who)
 {
-	std::string sourceserv = who->server;
-
-	std::vector<std::string> modelist;
-	time_t TS = 0;
-	for (unsigned int q = 0; (q < params.size()) && (q < 64); q++)
+	time_t TS = ConvToInt(params[1]);
+	if (!TS)
 	{
-		if (q == 1)
-		{
-			/* The timestamp is in this position.
-			 * We don't want to pass that up to the
-			 * server->client protocol!
-			 */
-			TS = atoi(params[q].c_str());
-		}
-		else
-		{
-			/* Everything else is fine to append to the modelist */
-			modelist.push_back(params[q]);
-		}
-
+		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropping link.");
+		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq, dropping link.", who->server.c_str());
+		return CMD_INVALID;
 	}
-	/* Extract the TS value of the object, either User or Channel */
-	User* dst = ServerInstance->FindNick(params[0]);
-	Channel* chan = NULL;
-	time_t ourTS = 0;
 
-	if (dst)
+	/* Extract the TS value of the object, either User or Channel */
+	time_t ourTS;
+	if (params[0][0] == '#')
 	{
-		ourTS = dst->age;
+		Channel* chan = ServerInstance->FindChan(params[0]);
+		if (!chan)
+			/* Oops, channel doesn't exist! */
+			return CMD_FAILURE;
+
+		ourTS = chan->age;
 	}
 	else
 	{
-		chan = ServerInstance->FindChan(params[0]);
-		if (chan)
-		{
-			ourTS = chan->age;
-		}
-		else
-			/* Oops, channel doesnt exist! */
+		User* user = ServerInstance->FindUUID(params[0]);
+		if (!user)
 			return CMD_FAILURE;
-	}
 
-	if (!TS)
-	{
-		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
-		return CMD_INVALID;
+		if (IS_SERVER(user))
+			return CMD_INVALID;
+
+		ourTS = user->age;
 	}
 
 	/* TS is equal or less: Merge the mode changes into ours and pass on.
 	 */
 	if (TS <= ourTS)
 	{
+		std::vector<std::string> modelist;
+		modelist.reserve(params.size()-1);
+		/* Insert everything into modelist except the TS (params[1]) */
+		modelist.push_back(params[0]);
+		modelist.insert(modelist.end(), params.begin()+2, params.end());
+
 		bool merge = (TS == ourTS) && IS_SERVER(who);
 		ServerInstance->Modes->Process(modelist, who, merge);
 		return CMD_SUCCESS;
