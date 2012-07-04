@@ -139,7 +139,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	_new->SetClientIP(params[6].c_str());
 
 	ServerInstance->Users->AddGlobalClone(_new);
-	remoteserver->SetUserCount(1); // increment by 1
+	remoteserver->UserCount++;
 
 	bool dosend = true;
 

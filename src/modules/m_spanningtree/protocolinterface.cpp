@@ -38,8 +38,8 @@ void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
 		ps.servername = i->second->GetName();
 		TreeServer* s = i->second->GetParent();
 		ps.parentname = s ? s->GetName() : "";
-		ps.usercount = i->second->GetUserCount();
-		ps.opercount = i->second->GetOperCount();
+		ps.usercount = i->second->UserCount;
+		ps.opercount = i->second->OperCount;
 		ps.gecos = i->second->GetDesc();
 		ps.latencyms = i->second->rtt;
 		sl.push_back(ps);

@@ -87,7 +87,7 @@ void ModuleSpanningTree::init()
 	loopCall = false;
 
 	// update our local user count
-	Utils->TreeRoot->SetUserCount(ServerInstance->Users->local_users.size());
+	Utils->TreeRoot->UserCount = ServerInstance->Users->local_users.size();
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
@@ -548,7 +548,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 			ServerInstance->PI->SendMetaData(user, item->name, value);
 	}
 
-	Utils->TreeRoot->SetUserCount(1); // increment by 1
+	Utils->TreeRoot->UserCount++;
 }
 
 void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
@@ -631,7 +631,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 	TreeServer* SourceServer = Utils->FindServer(user->server);
 	if (SourceServer)
 	{
-		SourceServer->SetUserCount(-1); // decrement by 1
+		SourceServer->UserCount--;
 	}
 }
 

@@ -45,8 +45,6 @@ class TreeServer : public classbase
 	irc::string ServerName;			/* Server's name */
 	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
-	unsigned int ServerUserCount;		/* How many users are on this server? [note: doesn't care about +i] */
-	unsigned int ServerOperCount;		/* How many opers are on this server? */
 	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
@@ -65,6 +63,9 @@ class TreeServer : public classbase
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
 	bool bursting;				/* whether or not this server is bursting */
+
+	unsigned int UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
+	unsigned int OperCount;			/* How many opers are on this server? */
 
 	/** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
 	 * represents our own server. Therefore, it has no route, no parent, and
@@ -141,22 +142,6 @@ class TreeServer : public classbase
 	/** Set the server as responding to its last ping
 	 */
 	void SetPingFlag();
-
-	/** Get the number of users on this server.
-	 */
-	unsigned int GetUserCount();
-
-	/** Increment or decrement the user count by diff.
-	 */
-	void SetUserCount(int diff);
-
-	/** Gets the numbers of opers on this server.
-	 */
-	unsigned int GetOperCount();
-
-	/** Increment or decrement the oper count by diff.
-	 */
-	void SetOperCount(int diff);
 
 	/** Get the TreeSocket pointer for local servers.
 	 * For remote servers, this returns NULL.
