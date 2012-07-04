@@ -37,7 +37,7 @@ class Channel_r : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		// only a u-lined server may add or remove the +r mode.
-		if (!IS_LOCAL(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
+		if (!IS_LOCAL(source) || ServerInstance->ULine(source->server))
 		{
 			// Only change the mode if it's not redundant
 			if ((adding != channel->IsModeSet('r')))
@@ -64,7 +64,7 @@ class User_r : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		if (!IS_LOCAL(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
+		if (!IS_LOCAL(source) || ServerInstance->ULine(source->server))
 		{
 			if ((adding != dest->IsModeSet('r')))
 			{
