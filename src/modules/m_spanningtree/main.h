@@ -52,6 +52,7 @@ class Autoconnect;
 class ModuleSpanningTree : public Module
 {
 	SpanningTreeCommands* commands;
+	void LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type);
 
  public:
 	SpanningTreeUtilities* Utils;

@@ -467,108 +467,45 @@ void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
 	}
 }
 
-void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+void ModuleSpanningTree::LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type)
 {
-	/* Server origin */
-	if (user == NULL)
+	/* Server or remote origin, dest should always be non-null */
+	if ((!user) || (!IS_LOCAL(user)) || (!dest))
 		return;
 
 	if (target_type == TYPE_USER)
 	{
-		User* d = (User*)dest;
-		if (!IS_LOCAL(d) && IS_LOCAL(user))
+		User* d = (User*) dest;
+		if (!IS_LOCAL(d))
 		{
 			parameterlist params;
 			params.push_back(d->uuid);
 			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"NOTICE",params,d->server);
+			Utils->DoOneToOne(user->uuid, message_type, params, d->server);
 		}
 	}
 	else if (target_type == TYPE_CHANNEL)
 	{
-		if (IS_LOCAL(user))
-		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = (*i)->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
-				}
-			}
-		}
+		Utils->SendChannelMessage(user->uuid, (Channel*)dest, text, status, exempt_list, message_type);
 	}
 	else if (target_type == TYPE_SERVER)
 	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			parameterlist par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"NOTICE",par);
-		}
+		char* target = (char*) dest;
+		parameterlist par;
+		par.push_back(target);
+		par.push_back(":"+text);
+		Utils->DoOneToMany(user->uuid, message_type, par);
 	}
+}
+
+void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+{
+	LocalMessage(user, dest, target_type, text, status, exempt_list, "NOTICE");
 }
 
 void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
-	/* Server origin */
-	if (user == NULL)
-		return;
-
-	if (target_type == TYPE_USER)
-	{
-		// route private messages which are targetted at clients only to the server
-		// which needs to receive them
-		User* d = (User*)dest;
-		if (!IS_LOCAL(d) && (IS_LOCAL(user)))
-		{
-			parameterlist params;
-			params.push_back(d->uuid);
-			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"PRIVMSG",params,d->server);
-		}
-	}
-	else if (target_type == TYPE_CHANNEL)
-	{
-		if (IS_LOCAL(user))
-		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = (*i)->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
-				}
-			}
-		}
-	}
-	else if (target_type == TYPE_SERVER)
-	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			parameterlist par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"PRIVMSG",par);
-		}
-	}
+	LocalMessage(user, dest, target_type, text, status, exempt_list, "PRIVMSG");
 }
 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)

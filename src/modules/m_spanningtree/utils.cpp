@@ -421,3 +421,21 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	}
 	return NULL;
 }
+
+void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const char* message_type)
+{
+	std::string raw(":");
+	raw.append(prefix).append(1, ' ').append(message_type).push_back(' ');
+	if (status)
+		raw.push_back(status);
+	raw.append(target->name).append(" :").append(text);
+
+	TreeServerList list;
+	this->GetListOfServersForChannel(target, list, status, exempt_list);
+	for (TreeServerList::iterator i = list.begin(); i != list.end(); ++i)
+	{
+		TreeSocket* Sock = (*i)->GetSocket();
+		if (Sock)
+			Sock->WriteLine(raw);
+	}
+}
