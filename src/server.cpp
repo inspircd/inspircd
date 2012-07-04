@@ -86,7 +86,7 @@ void InspIRCd::BuildISupport()
 	std::stringstream v;
 	v << "WALLCHOPS WALLVOICES MODES=" << Config->Limits.MaxModes << " CHANTYPES=# PREFIX=" << this->Modes->BuildPrefixes() << " MAP MAXCHANNELS=" << Config->MaxChans << " MAXBANS=60 VBANLIST NICKLEN=" << Config->Limits.NickMax;
 	v << " CASEMAPPING=rfc1459 STATUSMSG=" << Modes->BuildPrefixes(false) << " CHARSET=ascii TOPICLEN=" << Config->Limits.MaxTopic << " KICKLEN=" << Config->Limits.MaxKick << " MAXTARGETS=" << Config->MaxTargets;
-	v << " AWAYLEN=" << Config->Limits.MaxAway << " CHANMODES=" << this->Modes->GiveModeList(MASK_CHANNEL) << " FNC NETWORK=" << Config->Network << " MAXPARA=32 ELIST=MU";
+	v << " AWAYLEN=" << Config->Limits.MaxAway << " CHANMODES=" << this->Modes->GiveModeList(MASK_CHANNEL) << " FNC NETWORK=" << Config->Network << " MAXPARA=32 ELIST=MU" << " CHANNELLEN=" << Config->Limits.ChanMax;
 	Config->data005 = v.str();
 	FOREACH_MOD(I_On005Numeric,On005Numeric(Config->data005));
 	Config->Update005();
