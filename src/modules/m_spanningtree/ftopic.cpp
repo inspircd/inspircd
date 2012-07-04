@@ -40,6 +40,15 @@ CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *us
 	if (ts < c->topicset)
 		return CMD_FAILURE;
 
+	/*
+	 * If the topics were updated at the exact same second, accept
+	 * the remote only when it's "bigger" than ours as defined by
+	 * string comparision, so non-empty topics always overridde
+	 * empty topics if their timestamps are equal
+	 */
+	if ((ts == c->topicset) && (c->topic > params[3]))
+		return CMD_FAILURE; // Topics were set at the exact same time, keep our topic and setter
+
 	if (c->topic != params[3])
 	{
 		// Update topic only when it differs from current topic
@@ -47,7 +56,7 @@ CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *us
 		c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
 	}
 
-	// Always update setter and settime.
+	// Update setter and settime
 	c->setby.assign(params[2], 0, 127);
 	c->topicset = ts;
 
