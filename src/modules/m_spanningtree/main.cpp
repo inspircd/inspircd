@@ -816,10 +816,6 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 	}
 }
 
-void ModuleSpanningTree::RedoConfig(Module* mod)
-{
-}
-
 // note: the protocol does not allow direct umode +o except
 // via NICK with 8 params. sending OPERTYPE infers +o modechange
 // locally.

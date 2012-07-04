@@ -53,7 +53,6 @@ class Autoconnect;
 class ModuleSpanningTree : public Module
 {
 	SpanningTreeCommands* commands;
-	void RedoConfig(Module* mod);
 
  public:
 	SpanningTreeUtilities* Utils;
