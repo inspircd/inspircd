@@ -34,17 +34,14 @@
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
-	std::string name = s->GetName();
-	std::string burst = ":" + ServerInstance->Config->GetSID() + " BURST " +ConvToStr(ServerInstance->Time());
-	std::string endburst = ":" + ServerInstance->Config->GetSID() + " ENDBURST";
 	ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
-		name.c_str(),
+		s->GetName().c_str(),
 		capab->auth_fingerprint ? "SSL Fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
-	this->WriteLine(burst);
+	this->WriteLine(":" + ServerInstance->Config->GetSID() + " BURST " + ConvToStr(ServerInstance->Time()));
 	/* send our version string */
-	this->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" VERSION :"+ServerInstance->GetVersionString());
+	this->WriteLine(":" + ServerInstance->Config->GetSID() + " VERSION :"+ServerInstance->GetVersionString());
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot,s,1);
 	/* Send users and their oper status */
@@ -53,8 +50,8 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->SendChannelModes(s);
 	this->SendXLines(s);
 	FOREACH_MOD(I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
-	this->WriteLine(endburst);
-	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+name+"\2.");
+	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
+	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
 }
 
 /** Recursively send the server tree with distances as hops.
