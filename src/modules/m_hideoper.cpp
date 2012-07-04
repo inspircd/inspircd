@@ -25,34 +25,12 @@
 
 /** Handles user mode +H
  */
-class HideOper : public ModeHandler
+class HideOper : public SimpleUserModeHandler
 {
  public:
-	HideOper(Module* Creator) : ModeHandler(Creator, "hideoper", 'H', PARAM_NONE, MODETYPE_USER)
+	HideOper(Module* Creator) : SimpleUserModeHandler(Creator, "hideoper", 'H')
 	{
 		oper = true;
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('H'))
-			{
-				dest->SetMode('H',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('H'))
-			{
-				dest->SetMode('H',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
 	}
 };
 

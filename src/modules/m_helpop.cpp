@@ -29,34 +29,12 @@ static std::map<irc::string, std::string> helpop_map;
 
 /** Handles user mode +h
  */
-class Helpop : public ModeHandler
+class Helpop : public SimpleUserModeHandler
 {
  public:
-	Helpop(Module* Creator) : ModeHandler(Creator, "helpop", 'h', PARAM_NONE, MODETYPE_USER)
+	Helpop(Module* Creator) : SimpleUserModeHandler(Creator, "helpop", 'h')
 	{
 		oper = true;
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('h'))
-			{
-				dest->SetMode('h',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('h'))
-			{
-				dest->SetMode('h',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
 	}
 };
 

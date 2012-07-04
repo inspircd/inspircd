@@ -27,34 +27,12 @@
 
 /** Handle user mode +W
  */
-class SeeWhois : public ModeHandler
+class SeeWhois : public SimpleUserModeHandler
 {
  public:
-	SeeWhois(Module* Creator, bool IsOpersOnly) : ModeHandler(Creator, "showwhois", 'W', PARAM_NONE, MODETYPE_USER)
+	SeeWhois(Module* Creator, bool IsOpersOnly) : SimpleUserModeHandler(Creator, "showwhois", 'W')
 	{
 		oper = IsOpersOnly;
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('W'))
-			{
-				dest->SetMode('W',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('W'))
-			{
-				dest->SetMode('W',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
 	}
 };
 

@@ -23,32 +23,10 @@
 
 /** Handles user mode +c
  */
-class PrivacyMode : public ModeHandler
+class PrivacyMode : public SimpleUserModeHandler
 {
  public:
-	PrivacyMode(Module* Creator) : ModeHandler(Creator, "deaf_commonchan", 'c', PARAM_NONE, MODETYPE_USER) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('c'))
-			{
-				dest->SetMode('c',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('c'))
-			{
-				dest->SetMode('c',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	PrivacyMode(Module* Creator) : SimpleUserModeHandler(Creator, "deaf_commonchan", 'c') { }
 };
 
 class ModulePrivacyMode : public Module

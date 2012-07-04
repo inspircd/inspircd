@@ -24,32 +24,10 @@
 
 /** Handles user mode +I
  */
-class HideChans : public ModeHandler
+class HideChans : public SimpleUserModeHandler
 {
  public:
-	HideChans(Module* Creator) : ModeHandler(Creator, "hidechans", 'I', PARAM_NONE, MODETYPE_USER) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!dest->IsModeSet('I'))
-			{
-				dest->SetMode('I',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('I'))
-			{
-				dest->SetMode('I',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
+	HideChans(Module* Creator) : SimpleUserModeHandler(Creator, "hidechans", 'I') { }
 };
 
 class ModuleHideChans : public Module
