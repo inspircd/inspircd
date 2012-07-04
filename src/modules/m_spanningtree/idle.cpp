@@ -31,49 +31,49 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
 		return true;
-	User* u = ServerInstance->FindNick(prefix);
-	if (u)
+
+	/* If this is a request, this user did the /whois
+	 * If this is a reply, this user's information is in params[1] and params[2]
+	 */
+	User* issuer = ServerInstance->FindUUID(prefix);
+	if ((!issuer) || (IS_SERVER(issuer)))
+		return true;
+
+	/* If this is a request, this is the user whose idle information was requested
+	 * If this is a reply, this user did the /whois
+	 */
+	User* target = ServerInstance->FindUUID(params[0]);
+	if ((!target) || (IS_SERVER(target)))
+		return true;
+
+	LocalUser* localtarget = IS_LOCAL(target);
+	if (!localtarget)
 	{
-		// an incoming request
-		if (params.size() == 1)
-		{
-			User* x = ServerInstance->FindNick(params[0]);
-			if ((x) && (IS_LOCAL(x)))
-			{
-				LocalUser* lu = IS_LOCAL(x);
-				long idle = abs((long)((lu->idle_lastmsg) - ServerInstance->Time()));
-				parameterlist par;
-				par.push_back(prefix);
-				par.push_back(ConvToStr(x->signon));
-				par.push_back(ConvToStr(idle));
-				// ours, we're done, pass it BACK
-				Utils->DoOneToOne(params[0], "IDLE", par, u->server);
-			}
-			else
-			{
-				// not ours pass it on
-				if (x)
-					Utils->DoOneToOne(prefix, "IDLE", params, x->server);
-			}
-		}
-		else if (params.size() == 3)
-		{
-			std::string who_did_the_whois = params[0];
-			User* who_to_send_to = ServerInstance->FindNick(who_did_the_whois);
-			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
-			{
-				// an incoming reply to a whois we sent out
-				ServerInstance->Parser->CallHandler("WHOIS", params, u);
-			}
-			else
-			{
-				// not ours, pass it on
-				if (who_to_send_to)
-					Utils->DoOneToOne(prefix, "IDLE", params, who_to_send_to->server);
-			}
-		}
+		// Forward to target's server
+		Utils->DoOneToOne(prefix, "IDLE", params, target->server);
+		return true;
 	}
+
+	if (params.size() >= 2)
+	{
+		ServerInstance->Parser->CallHandler("WHOIS", params, issuer);
+	}
+	else
+	{
+		// A server is asking us the idle time of our user
+		unsigned int idle;
+		if (localtarget->idle_lastmsg >= ServerInstance->Time())
+			// Possible case when our clock ticked backwards
+			idle = 0;
+		else
+			idle = ((unsigned int) (localtarget->idle_lastmsg - ServerInstance->Time()));
+
+		parameterlist reply;
+		reply.push_back(prefix);
+		reply.push_back(ConvToStr(target->signon));
+		reply.push_back(ConvToStr(idle));
+		Utils->DoOneToOne(params[0], "IDLE", reply, issuer->server);
+	}
+
 	return true;
 }
-
-
