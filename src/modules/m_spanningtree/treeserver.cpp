@@ -321,13 +321,11 @@ void TreeServer::AddChild(TreeServer* Child)
 
 bool TreeServer::DelChild(TreeServer* Child)
 {
-	for (std::vector<TreeServer*>::iterator a = Children.begin(); a != Children.end(); a++)
+	std::vector<TreeServer*>::iterator it = std::find(Children.begin(), Children.end(), Child);
+	if (it != Children.end())
 	{
-		if (*a == Child)
-		{
-			Children.erase(a);
-			return true;
-		}
+		Children.erase(it);
+		return true;
 	}
 	return false;
 }

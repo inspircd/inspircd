@@ -37,12 +37,12 @@ std::string TreeSocket::MyModules(int filter)
 
 	std::string capabilities;
 	sort(modlist.begin(),modlist.end());
-	for (unsigned int i = 0; i < modlist.size(); i++)
+	for (std::vector<std::string>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
-		if (i)
+		if (i != modlist.begin())
 			capabilities.push_back(proto_version > 1201 ? ' ' : ',');
-		capabilities.append(modlist[i]);
-		Module* m = ServerInstance->Modules->Find(modlist[i]);
+		capabilities.append(*i);
+		Module* m = ServerInstance->Modules->Find(*i);
 		if (m && proto_version > 1201)
 		{
 			Version v = m->GetVersion();
