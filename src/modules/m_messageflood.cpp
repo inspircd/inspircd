@@ -41,34 +41,17 @@ class floodsettings
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
 		reset = ServerInstance->Time() + secs;
-	};
+	}
 
-	void addmessage(User* who)
+	bool addmessage(User* who)
 	{
-		std::map<User*,int>::iterator iter = counters.find(who);
-		if (iter != counters.end())
-		{
-			iter->second++;
-		}
-		else
-		{
-			counters[who] = 1;
-		}
 		if (ServerInstance->Time() > reset)
 		{
 			counters.clear();
 			reset = ServerInstance->Time() + secs;
 		}
-	}
 
-	bool shouldkick(User* who)
-	{
-		std::map<User*,int>::iterator iter = counters.find(who);
-		if (iter != counters.end())
-		{
-			return (iter->second >= this->lines);
-		}
-		else return false;
+		return (++counters[who] >= this->lines);
 	}
 
 	void clear(User* who)
@@ -215,8 +198,7 @@ class ModuleMsgFlood : public Module
 		floodsettings *f = mf.ext.get(dest);
 		if (f)
 		{
-			f->addmessage(user);
-			if (f->shouldkick(user))
+			if (f->addmessage(user))
 			{
 				/* Youre outttta here! */
 				f->clear(user);
