@@ -39,19 +39,17 @@ class Channel_r : public ModeHandler
 		if (!IS_LOCAL(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
 		{
 			// Only change the mode if it's not redundant
-			if ((adding && !channel->IsModeSet('r')) || (!adding && channel->IsModeSet('r')))
+			if ((adding != channel->IsModeSet('r')))
 			{
 				channel->SetMode('r',adding);
 				return MODEACTION_ALLOW;
 			}
-
-			return MODEACTION_DENY;
 		}
 		else
 		{
 			source->WriteNumeric(500, "%s :Only a server may modify the +r channel mode", source->nick.c_str());
-			return MODEACTION_DENY;
 		}
+		return MODEACTION_DENY;
 	}
 };
 
@@ -67,18 +65,17 @@ class User_r : public ModeHandler
 	{
 		if (!IS_LOCAL(source) || ServerInstance->ULine(source->nick.c_str()) || ServerInstance->ULine(source->server))
 		{
-			if ((adding && !dest->IsModeSet('r')) || (!adding && dest->IsModeSet('r')))
+			if ((adding != dest->IsModeSet('r')))
 			{
 				dest->SetMode('r',adding);
 				return MODEACTION_ALLOW;
 			}
-			return MODEACTION_DENY;
 		}
 		else
 		{
 			source->WriteNumeric(500, "%s :Only a server may modify the +r user mode", source->nick.c_str());
-			return MODEACTION_DENY;
 		}
+		return MODEACTION_DENY;
 	}
 };
 
