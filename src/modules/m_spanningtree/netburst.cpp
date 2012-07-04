@@ -88,58 +88,30 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
 /** Send one or more FJOINs for a channel of users.
  * If the length of a single line is more than 480-NICKMAX
  * in length, it is split over multiple lines.
+ * Send one or more FMODEs for a channel with the
+ * channel bans, if there's any.
  */
 void TreeSocket::SendFJoins(Channel* c)
 {
-	std::string buffer;
-	char list[MAXBUF];
-
-	size_t curlen, headlen;
-	curlen = headlen = snprintf(list,MAXBUF,":%s FJOIN %s %lu +%s :",
-		ServerInstance->Config->GetSID().c_str(), c->name.c_str(), (unsigned long)c->age, c->ChanModes(true));
-	int numusers = 0;
-	char* ptr = list + curlen;
-	bool looped_once = false;
+	std::string line(":");
+	line.append(ServerInstance->Config->GetSID()).append(" FJOIN ").append(c->name).append(1, ' ').append(ConvToStr(c->age)).append(" +");
+	std::string::size_type erase_from = line.length();
+	line.append(c->ChanModes(true)).append(" :");
 
 	const UserMembList *ulist = c->GetUsers();
-	std::string modes;
-	std::string params;
 
-	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+	for (UserMembCIter i = ulist->begin(); i != ulist->end(); ++i)
 	{
-		size_t ptrlen = 0;
-		std::string modestr = i->second->modes;
-
-		if ((curlen + modestr.length() + i->first->uuid.length() + 4) > 480)
+		const std::string& modestr = i->second->modes;
+		if ((line.length() + modestr.length() + (UUID_LENGTH-1) + 2) > 480)
 		{
-			// remove the final space
-			if (ptr[-1] == ' ')
-				ptr[-1] = '\0';
-			buffer.append(list).append("\r\n");
-			curlen = headlen;
-			ptr = list + headlen;
-			numusers = 0;
+			this->WriteLine(line);
+			line.erase(erase_from);
+			line.append(" :");
 		}
-
-		ptrlen = snprintf(ptr, MAXBUF-curlen, "%s,%s ", modestr.c_str(), i->first->uuid.c_str());
-
-		looped_once = true;
-
-		curlen += ptrlen;
-		ptr += ptrlen;
-
-		numusers++;
+		line.append(modestr).append(1, ',').append(i->first->uuid).push_back(' ');
 	}
-
-	// Okay, permanent channels will (of course) need this \r\n anyway, numusers check is if there
-	// actually were people in the channel (looped_once == true)
-	if (!looped_once || numusers > 0)
-	{
-		// remove the final space
-		if (ptr[-1] == ' ')
-			ptr[-1] = '\0';
-		buffer.append(list).append("\r\n");
-	}
+	this->WriteLine(line);
 
 	ModeReference ban(NULL, "ban");
 	static_cast<ListModeBase*>(*ban)->DoSyncChannel(c, Utils->Creator, this);
