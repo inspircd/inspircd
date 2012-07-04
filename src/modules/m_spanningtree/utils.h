@@ -151,10 +151,6 @@ class SpanningTreeUtilities : public classbase
 	 */
 	bool DoOneToMany(const char* prefix, const char* command, const parameterlist &params);
 
-	/** Send a message from this server to all others, without doing any processing on the command (e.g. send it as-is with colons and all)
-	 */
-	bool DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, const parameterlist &params);
-
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration();
@@ -182,10 +178,6 @@ class SpanningTreeUtilities : public classbase
 	/** Find a server by glob mask
 	 */
 	TreeServer* FindServerMask(const std::string &ServerName);
-
-	/** Returns true if this is a server name we recognise
-	 */
-	bool IsServer(const std::string &ServerName);
 
 	/** Find a link tag from a server name
 	 */

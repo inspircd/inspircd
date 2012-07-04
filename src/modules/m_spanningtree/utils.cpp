@@ -130,12 +130,6 @@ TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 		return NULL;
 }
 
-/* A convenient wrapper that returns true if a server exists */
-bool SpanningTreeUtilities::IsServer(const std::string &ServerName)
-{
-	return (FindServer(ServerName) != NULL);
-}
-
 SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
 {
 	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
@@ -206,23 +200,6 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 		}
 	}
 	return;
-}
-
-bool SpanningTreeUtilities::DoOneToAllButSenderRaw(const std::string &data, const std::string &omit, const std::string &prefix, const irc::string &command, const parameterlist &params)
-{
-	TreeServer* omitroute = this->BestRouteTo(omit);
-	unsigned int items =this->TreeRoot->ChildCount();
-	for (unsigned int x = 0; x < items; x++)
-	{
-		TreeServer* Route = this->TreeRoot->GetChild(x);
-		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
-		{
-			TreeSocket* Sock = Route->GetSocket();
-			if (Sock)
-				Sock->WriteLine(data);
-		}
-	}
-	return true;
 }
 
 bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, std::string omit)
