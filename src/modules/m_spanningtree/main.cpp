@@ -878,7 +878,6 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const p
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
 		parameterlist params;
-		std::string command;
 		std::string output_text;
 
 		ServerInstance->Parser->TranslateUIDs(translate, text, output_text);
@@ -888,7 +887,7 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const p
 			User* u = (User*)dest;
 			params.push_back(u->uuid);
 			params.push_back(output_text);
-			command = "MODE";
+			Utils->DoOneToMany(user->uuid, "MODE", params);
 		}
 		else
 		{
@@ -896,10 +895,8 @@ void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const p
 			params.push_back(c->name);
 			params.push_back(ConvToStr(c->age));
 			params.push_back(output_text);
-			command = "FMODE";
+			Utils->DoOneToMany(user->uuid, "FMODE", params);
 		}
-
-		Utils->DoOneToMany(user->uuid, command, params);
 	}
 }
 
@@ -907,18 +904,13 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 {
 	if (IS_LOCAL(user))
 	{
-		if (awaymsg.empty())
+		parameterlist params;
+		if (!awaymsg.empty())
 		{
-			parameterlist params;
-			Utils->DoOneToMany(user->uuid,"AWAY",params);
-		}
-		else
-		{
-			parameterlist params;
 			params.push_back(ConvToStr(user->awaytime));
 			params.push_back(":" + awaymsg);
-			Utils->DoOneToMany(user->uuid,"AWAY",params);
 		}
+		Utils->DoOneToMany(user->uuid, "AWAY", params);
 	}
 
 	return MOD_RES_PASSTHRU;
