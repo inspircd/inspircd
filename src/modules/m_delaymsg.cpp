@@ -61,6 +61,9 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 {
 	if (adding)
 	{
+		if ((channel->IsModeSet('d')) && (channel->GetModeParameter('d') == parameter))
+			return MODEACTION_DENY;
+
 		/* Setting a new limit, sanity check */
 		long limit = atoi(parameter.c_str());
 
