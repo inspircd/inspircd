@@ -38,7 +38,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	time_t age_t = ConvToInt(params[1]);
 	time_t signon = ConvToInt(params[7]);
 	std::string empty;
-	std::string modestr(params[8]);
+	const std::string& modestr = params[8];
 
 	TreeServer* remoteserver = Utils->FindServer(serversrc->server);
 
@@ -101,13 +101,11 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	_new->signon = signon;
 	_new->age = age_t;
 
-	/* we need to remove the + from the modestring, so we can do our stuff */
-	std::string::size_type pos_after_plus = modestr.find_first_not_of('+');
-	if (pos_after_plus != std::string::npos)
-	modestr = modestr.substr(pos_after_plus);
-
 	unsigned int paramptr = 9;
-	for (std::string::iterator v = modestr.begin(); v != modestr.end(); v++)
+
+	// Accept more '+' chars, for now
+	std::string::size_type pos = modestr.find_first_not_of('+');
+	for (std::string::const_iterator v = modestr.begin()+pos; v != modestr.end(); ++v)
 	{
 		/* For each mode thats set, increase counter */
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
@@ -135,10 +133,6 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 			_new->SetMode(*v, true);
 		}
 	}
-
-	/* now we've done with modes processing, put the + back for remote servers */
-	if (modestr[0] != '+')
-		modestr = "+" + modestr;
 
 	_new->SetClientIP(params[6].c_str());
 
