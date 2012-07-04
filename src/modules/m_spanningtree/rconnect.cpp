@@ -39,14 +39,11 @@ CommandRConnect::CommandRConnect (Module* Creator, SpanningTreeUtilities* Util)
 
 CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (IS_LOCAL(user))
+	/* First see if the server which is being asked to connect to another server in fact exists */
+	if (!Utils->FindServerMask(parameters[0]))
 	{
-		if (!Utils->FindServerMask(parameters[0]))
-		{
-			user->WriteServ("NOTICE %s :*** RCONNECT: Server \002%s\002 isn't connected to the network!", user->nick.c_str(), parameters[0].c_str());
-			return CMD_FAILURE;
-		}
-		user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
+		((ModuleSpanningTree*)(Module*)creator)->RemoteMessage(user, "*** RCONNECT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str());
+		return CMD_FAILURE;
 	}
 
 	/* Is this aimed at our server? */
@@ -57,6 +54,21 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 		std::vector<std::string> para;
 		para.push_back(parameters[1]);
 		((ModuleSpanningTree*)(Module*)creator)->HandleConnect(para, user);
+	}
+	else
+	{
+		/* It's not aimed at our server, but if the request originates from our user
+		 * acknowledge that we sent the request.
+		 *
+		 * It's possible that we're asking a server for something that makes no sense
+		 * (e.g. connect to itself or to an already connected server), but we don't check
+		 * for those conditions here, as ModuleSpanningTree::HandleConnect() (which will run
+		 * on the target) does all the checking and error reporting.
+		 */
+		if (IS_LOCAL(user))
+		{
+			user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
+		}
 	}
 	return CMD_SUCCESS;
 }
