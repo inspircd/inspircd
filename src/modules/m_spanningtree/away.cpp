@@ -34,7 +34,7 @@ bool TreeSocket::Away(const std::string &prefix, parameterlist &params)
 		FOREACH_MOD(I_OnSetAway, OnSetAway(u, params[params.size() - 1]));
 
 		if (params.size() > 1)
-			u->awaytime = atoi(params[0].c_str());
+			u->awaytime = ConvToInt(params[0]);
 		else
 			u->awaytime = ServerInstance->Time();
 

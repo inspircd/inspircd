@@ -46,7 +46,7 @@ bool TreeSocket::LocalPong(const std::string &prefix, parameterlist &params)
 	}
 	else
 	{
-		std::string forwardto = params[1];
+		const std::string& forwardto = params[1];
 		if (forwardto == ServerInstance->Config->GetSID() || forwardto == ServerInstance->Config->ServerName)
 		{
 			/*

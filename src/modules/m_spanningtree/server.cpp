@@ -105,7 +105,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 	std::string password = params[1];
 	std::string sid = params[3];
 	std::string description = params[4];
-	int hops = atoi(params[2].c_str());
+	int hops = ConvToInt(params[2]);
 
 	this->SendCapabilities(2);
 
@@ -197,7 +197,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 	std::string password = params[1];
 	std::string sid = params[3];
 	std::string description = params[4];
-	int hops = atoi(params[2].c_str());
+	int hops = ConvToInt(params[2]);
 
 	this->SendCapabilities(2);
 

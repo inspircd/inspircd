@@ -29,7 +29,7 @@
 CmdResult CommandOpertype::Handle(const std::vector<std::string>& params, User *u)
 {
 	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
-	std::string opertype = params[0];
+	const std::string& opertype = params[0];
 	if (!u->IsOper())
 		ServerInstance->Users->all_opers.push_back(u);
 	u->modes[UM_OPERATOR] = 1;

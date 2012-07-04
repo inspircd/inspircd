@@ -151,7 +151,7 @@ void TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size())
 				{
-					time_t them = atoi(params[0].c_str());
+					time_t them = ConvToInt(params[0]);
 					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
@@ -427,7 +427,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		}
 
 		/* Update timestamp on user when they change nicks */
-		who->age = atoi(params[1].c_str());
+		who->age = ConvToInt(params[1]);
 
 		/*
 		 * On nick messages, check that the nick doesnt already exist here.

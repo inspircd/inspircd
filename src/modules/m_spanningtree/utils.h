@@ -124,23 +124,15 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, std::string target);
+	bool DoOneToOne(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, std::string omit);
-
-	/** Send a message from this server to all but one other, local or remote
-	 */
-	bool DoOneToAllButSender(const char* prefix, const char* command, const parameterlist &params, std::string omit);
+	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist& params, const std::string& omit);
 
 	/** Send a message from this server to all others
 	 */
 	bool DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params);
-
-	/** Send a message from this server to all others
-	 */
-	bool DoOneToMany(const char* prefix, const char* command, const parameterlist &params);
 
 	/** Read the spanningtree module's tags from the config file
 	 */

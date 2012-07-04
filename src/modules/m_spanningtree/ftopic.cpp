@@ -28,7 +28,7 @@
 /** FTOPIC command */
 CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *user)
 {
-	time_t ts = atoi(params[1].c_str());
+	time_t ts = ConvToInt(params[1]);
 	Channel* c = ServerInstance->FindChan(params[0]);
 	if (c)
 	{

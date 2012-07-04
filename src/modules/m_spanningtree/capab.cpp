@@ -194,7 +194,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		capab->OptModuleList.clear();
 		capab->CapKeys.clear();
 		if (params.size() > 1)
-			proto_version = atoi(params[1].c_str());
+			proto_version = ConvToInt(params[1]);
 		SendCapabilities(2);
 	}
 	else if (params[0] == "END")
@@ -248,7 +248,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else
 		{
-			proto_version = atoi(capab->CapKeys.find("PROTOCOL")->second.c_str());
+			proto_version = ConvToInt(capab->CapKeys.find("PROTOCOL")->second);
 			if (proto_version < MinCompatProtocol)
 			{
 				reason = "Server is using protocol version " + ConvToStr(proto_version) +

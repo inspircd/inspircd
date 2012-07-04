@@ -44,7 +44,7 @@ CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, Use
 			}
 		}
 
-		u->age = atoi(parameters[2].c_str());
+		u->age = ConvToInt(parameters[2]);
 	}
 
 	return CMD_SUCCESS;
