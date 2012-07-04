@@ -165,12 +165,6 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	delete TreeRoot;
 }
 
-void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)
-{
-	if (list.find(server) == list.end())
-		list[server] = server;
-}
-
 /* returns a list of DIRECT servernames for a specific channel */
 void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
 {
@@ -196,7 +190,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 		{
 			TreeServer* best = this->BestRouteTo(i->first->server);
 			if (best)
-				AddThisServer(best,list);
+				list.insert(best);
 		}
 	}
 	return;

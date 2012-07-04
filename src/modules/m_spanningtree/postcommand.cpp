@@ -121,7 +121,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 				data += " " + params[x];
 			for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 			{
-				TreeSocket* Sock = i->second->GetSocket();
+				TreeSocket* Sock = (*i)->GetSocket();
 				if (origin && origin->GetSocket() == Sock)
 					continue;
 				if (Sock)

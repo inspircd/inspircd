@@ -145,7 +145,7 @@ void SpanningTreeProtocolInterface::SendChannel(Channel* target, char status, co
 	Utils->GetListOfServersForChannel(target,list,status,exempt_list);
 	for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 	{
-		TreeSocket* Sock = i->second->GetSocket();
+		TreeSocket* Sock = (*i)->GetSocket();
 		if (Sock)
 			Sock->WriteLine(text);
 	}

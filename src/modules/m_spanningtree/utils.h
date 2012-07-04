@@ -37,7 +37,7 @@ class SpanningTreeUtilities;
  */
 typedef std::tr1::unordered_map<std::string, TreeServer*, std::tr1::insensitive, irc::StrHashComp> server_hash;
 
-typedef std::map<TreeServer*,TreeServer*> TreeServerList;
+typedef std::set<TreeServer*> TreeServerList;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
@@ -141,10 +141,6 @@ class SpanningTreeUtilities : public classbase
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration();
-
-	/** Add a server to the server list for GetListOfServersForChannel
-	 */
-	void AddThisServer(TreeServer* server, TreeServerList &list);
 
 	/** Compile a list of servers which contain members of channel c
 	 */

@@ -498,7 +498,7 @@ void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, c
 				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
 				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 				{
-					TreeSocket* Sock = i->second->GetSocket();
+					TreeSocket* Sock = (*i)->GetSocket();
 					if (Sock)
 						Sock->WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
 				}
@@ -551,7 +551,7 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
 				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 				{
-					TreeSocket* Sock = i->second->GetSocket();
+					TreeSocket* Sock = (*i)->GetSocket();
 					if (Sock)
 						Sock->WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
 				}
