@@ -153,12 +153,13 @@ void TreeSocket::SendXLines()
 	const char* sn = n.c_str();
 
 	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
-	time_t current = ServerInstance->Time();
 
-	for (std::vector<std::string>::iterator it = types.begin(); it != types.end(); ++it)
+	for (std::vector<std::string>::const_iterator it = types.begin(); it != types.end(); ++it)
 	{
+		/* Expired lines are removed in XLineManager::GetAll() */
 		XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
 
+		/* lookup cannot be NULL in this case but a check won't hurt */
 		if (lookup)
 		{
 			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
@@ -168,11 +169,6 @@ void TreeSocket::SendXLines()
 				 */
 				if (!i->second->IsBurstable())
 					break;
-
-				/* If it's expired, don't bother to burst it
-				 */
-				if (i->second->duration && current > i->second->expiry)
-					continue;
 
 				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s",sn, it->c_str(), i->second->Displayable(),
 						i->second->source.c_str(),
