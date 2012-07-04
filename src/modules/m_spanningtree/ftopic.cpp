@@ -28,24 +28,29 @@
 /** FTOPIC command */
 CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *user)
 {
-	time_t ts = ConvToInt(params[1]);
 	Channel* c = ServerInstance->FindChan(params[0]);
-	if (c)
-	{
-		if ((ts >= c->topicset) || (c->topic.empty()))
-		{
-			if (c->topic != params[3])
-			{
-				// Update topic only when it differs from current topic
-				c->topic.assign(params[3], 0, ServerInstance->Config->Limits.MaxTopic);
-				c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
-			}
+	if (!c)
+		return CMD_FAILURE;
 
-			// Always update setter and settime.
-			c->setby.assign(params[2], 0, 127);
-			c->topicset = ts;
-		}
+	time_t ts = ConvToInt(params[1]);
+	if (!ts)
+		return CMD_INVALID;
+
+	// Channel::topicset is initialized to 0 on channel creation, so their ts will always win if we never had a topic
+	if (ts < c->topicset)
+		return CMD_FAILURE;
+
+	if (c->topic != params[3])
+	{
+		// Update topic only when it differs from current topic
+		c->topic.assign(params[3], 0, ServerInstance->Config->Limits.MaxTopic);
+		c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
 	}
+
+	// Always update setter and settime.
+	c->setby.assign(params[2], 0, 127);
+	c->topicset = ts;
+
 	return CMD_SUCCESS;
 }
 
