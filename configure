@@ -625,8 +625,8 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	}
 	else
 	{
-		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed if\n";
-		print "you intend to use OpenSSL, or that GnuTLS is in your path if you intend\nto use GnuTLS.\n\n";
+		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed and\n";
+		print "is in your path.\n\n";
 	}
 
 	yesno('MODUPDATE',"Would you like to check for updates to third-party modules?");
