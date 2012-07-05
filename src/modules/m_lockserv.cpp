@@ -39,9 +39,15 @@ public:
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		if (locked)
+		{
+			user->WriteServ("NOTICE %s :The server is already locked.", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+
 		locked = true;
 		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick.c_str(), user->server.c_str());
-		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily close for new connections", user->nick.c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily disallow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}
 };
@@ -59,9 +65,15 @@ public:
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		if (!locked)
+		{
+			user->WriteServ("NOTICE %s :The server isn't locked.", user->nick.c_str());
+			return CMD_FAILURE;
+		}
+
 		locked = false;
 		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick.c_str(), user->server.c_str());
-		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow for new connections", user->nick.c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow new connections", user->nick.c_str());
 		return CMD_SUCCESS;
 	}
 };
