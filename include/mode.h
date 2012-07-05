@@ -154,6 +154,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * The constructor for ModeHandler initalizes the mode handler.
 	 * The constructor of any class you derive from ModeHandler should
 	 * probably call this constructor with the parameters set correctly.
+	 * @param me The module which created this mode
 	 * @param name A one-word name for the mode
 	 * @param modeletter The mode letter you wish to handle
 	 * @param params Parameters taken by the mode
@@ -233,7 +234,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding); /* Can change the mode parameter as its a ref */
 	/**
-	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE #channel +modechar
+	 * If your mode is a listmode, then this method will be called for displaying an item list, e.g. on MODE \#channel +modechar
 	 * without any parameter or other modes in the command.
 	 * @param user The user issuing the command
 	 * @param channel The channel they're requesting an item list of (e.g. a banlist, or an exception list etc)
@@ -274,6 +275,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
 	 * your mode properly from each user.
 	 * @param user The user which the server wants to remove your mode from
+	 * @param stack The mode stack to add the mode change to
 	 */
 	virtual void RemoveMode(User* user, irc::modestacker* stack = NULL);
 
@@ -284,6 +286,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
 	 * your mode properly from each channel. Note that in the case of listmodes, you should remove the entire list of items.
 	 * @param channel The channel which the server wants to remove your mode from
+	 * @param stack The mode stack to add the mode change to
 	 */
 	virtual void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
 
@@ -342,7 +345,7 @@ class CoreExport ModeWatcher : public classbase
 	 */
 	char mode;
 	/**
-	 * The mode type being watched (user or  channel)
+	 * The mode type being watched (user or channel)
 	 */
 	ModeType m_type;
 
@@ -377,7 +380,7 @@ class CoreExport ModeWatcher : public classbase
 	 * If you alter the parameter you are given, the mode handler will see your atered version
 	 * when it handles the mode.
 	 * @param adding True if the mode is being added and false if it is being removed
-	 * @type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
+	 * @param type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
@@ -390,7 +393,7 @@ class CoreExport ModeWatcher : public classbase
 	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
 	 * You cannot alter the parameter here, as the mode handler has already processed it.
 	 * @param adding True if the mode is being added and false if it is being removed
-	 * @type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
+	 * @param type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 */
 	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
 };
@@ -459,9 +462,9 @@ class CoreExport ModeParser
 	 *
 	 * nick!ident -> nick!ident@*
 	 *
-	 * host.name -> *!*@host.name
+	 * host.name -> *!*\@host.name
 	 *
-	 * ident@host.name -> *!ident@host.name
+	 * ident@host.name -> *!ident\@host.name
 	 *
 	 * This method can be used on both IPV4 and IPV6 user masks.
 	 */
@@ -508,14 +511,15 @@ class CoreExport ModeParser
 	 * @param parameters The parameters of the mode change, in the format
 	 * they would be from a MODE command.
 	 * @param user The user setting or removing the modes. When the modes are set
-	 * by a server, an 'uninitialized' User is used, where *user::nick == NULL
+	 * by a server, an 'uninitialized' User is used, where *user\::nick == NULL
 	 * and *user->server == NULL.
+	 * @param merge Should the mode parameters be merged?
 	 */
 	void Process(const std::vector<std::string>& parameters, User *user, bool merge = false);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
-	 * @param type of mode to search for, user or channel
+	 * @param mt type of mode to search for, user or channel
 	 * @returns a pointer to a ModeHandler class, or NULL of there isnt a handler for the given mode
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);

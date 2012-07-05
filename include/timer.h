@@ -137,11 +137,6 @@ class CoreExport TimerManager
 
 	/** Add an Timer
 	 * @param T an Timer derived class to add
-	 * @param secs_from_now You may set this to the number of seconds
-	 * from the current time when the timer will tick, or you may just
-	 * leave this unset and the values set by the Timers constructor
-	 * will be used. This is used internally for re-triggering repeating
-	 * timers.
 	 */
 	void AddTimer(Timer *T);
 

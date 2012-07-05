@@ -105,6 +105,7 @@ namespace irc
 		 * IPV6 addresses.
 		 * @param address The human readable address, e.g. fred\@1.2.3.4
 		 * @param cidr_mask The human readable mask, e.g. *\@1.2.0.0/16
+		 * @param match_with_username Does the  mask include a nickname segment?
 		 * @return True if the mask matches the address
 		 */
 		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);

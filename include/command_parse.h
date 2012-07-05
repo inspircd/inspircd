@@ -60,7 +60,6 @@ class CoreExport CommandParser
 	Commandtable cmdlist;
 
 	/** Default constructor.
-	 * @param Instance The creator of this class
 	 */
 	CommandParser();
 
@@ -97,7 +96,7 @@ class CoreExport CommandParser
 	 * We need a version which takes two potential lists for JOIN, because a JOIN may contain two lists of items at once,
 	 * the channel names and their keys as follows:
 	 *
-	 * JOIN #chan1,#chan2,#chan3 key1,,key3
+	 * JOIN \#chan1,\#chan2,\#chan3 key1,,key3
 	 *
 	 * Therefore, we need to deal with both lists concurrently. The first instance of this method does that by creating
 	 * two instances of irc::commasepstream and reading them both together until the first runs out of tokens.
@@ -107,7 +106,6 @@ class CoreExport CommandParser
 	 * @param user The user who sent the command
 	 * @param CommandObj the command object to call for each parameter in the list
 	 * @param parameters Parameter list as an array of array of char (that's not a typo).
-	 * @param The number of items in the parameters list
 	 * @param splithere The first parameter index to split as a comma seperated list
 	 * @param extra The second parameter index to split as a comma seperated list
 	 * @param usemax Limit the command to MaxTargets targets

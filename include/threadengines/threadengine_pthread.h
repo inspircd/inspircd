@@ -39,7 +39,6 @@ class CoreExport ThreadEngine
  public:
 
 	/** Constructor.
-	 * @param Instance Creator object
 	 */
 	ThreadEngine();
 

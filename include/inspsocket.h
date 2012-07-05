@@ -85,7 +85,6 @@ class CoreExport SocketTimeout : public Timer
  public:
 	/** Create a socket timeout class
 	 * @param fd File descriptor of BufferedSocket
-	 * @pram Instance server instance to attach to
 	 * @param thesock BufferedSocket to attach to
 	 * @param secs_from_now Seconds from now to time out
 	 * @param now The current time
@@ -195,9 +194,10 @@ class CoreExport BufferedSocket : public StreamSocket
 	 * This will create a socket, register with socket engine, and start the asynchronous
 	 * connection process. If an error is detected at this point (such as out of file descriptors),
 	 * OnError will be called; otherwise, the state will become CONNECTING.
-	 * @param dest Address to connect to
-	 * @param bind Address to bind to (if NULL, no bind will be done)
-	 * @param timeout Time to wait for connection
+	 * @param ipaddr Address to connect to
+	 * @param aport Port to connect on
+	 * @param maxtime Time to wait for connection
+	 * @param connectbindip Address to bind to (if NULL, no bind will be done)
 	 */
 	void DoConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
 

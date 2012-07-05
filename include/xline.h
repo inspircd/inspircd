@@ -104,10 +104,10 @@ class CoreExport XLine : public classbase
 	virtual void DisplayExpiry() = 0;
 
 	/** Returns the displayable form of the pattern for this xline,
-	 * e.g. '*@foo' or '*baz*'. This must always return the full pattern
+	 * e.g. '*\@foo' or '*baz*'. This must always return the full pattern
 	 * in a form which can be used to construct an entire derived xline,
 	 * even if it is stored differently internally (e.g. GLine stores the
-	 * ident and host parts seperately but will still return ident@host
+	 * ident and host parts seperately but will still return ident\@host
 	 * for its Displayable() method)
 	 */
 	virtual const char* Displayable() = 0;
@@ -376,7 +376,6 @@ class CoreExport XLineFactory
  public:
 
 	/** Create an XLine factory
-	 * @param Instance creator
 	 * @param t Type of XLine this factory generates
 	 */
 	XLineFactory(const std::string &t) : type(t) { }
@@ -428,7 +427,6 @@ class CoreExport XLineManager
  public:
 
 	/** Constructor
-	 * @param Instance A pointer to the creator object
 	 */
 	XLineManager();
 
@@ -448,7 +446,7 @@ class CoreExport XLineManager
 	/** Get all lines of a certain type to an XLineLookup (std::map<std::string, XLine*>).
 	 * NOTE: When this function runs any expired items are removed from the list before it
 	 * is returned to the caller.
-	 * @param The type to look up
+	 * @param type The type to look up
 	 * @return A list of all XLines of the given type.
 	 */
 	XLineLookup* GetAll(const std::string &type);
@@ -531,6 +529,7 @@ class CoreExport XLineManager
 	/** Handle /STATS for a given type.
 	 * NOTE: Any items in the list for this particular line type which have expired
 	 * will be expired and removed before the list is displayed.
+	 * @param type The type of stats to show
 	 * @param numeric The numeric to give to each result line
 	 * @param user The username making the query
 	 * @param results The string_list to receive the results

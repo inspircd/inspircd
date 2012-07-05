@@ -160,7 +160,7 @@ class CoreExport LogManager
 		}
 	}
 
-	/** Opens all logfiles defined in the configuration file using <log method="file">.
+	/** Opens all logfiles defined in the configuration file using \<log method="file">.
 	 */
 	void OpenFileLogs();
 
@@ -207,7 +207,7 @@ class CoreExport LogManager
 	/** Logs an event, sending it to all LogStreams registered for the type.
 	 * @param type Log message type (ex: "USERINPUT", "MODULE", ...)
 	 * @param loglevel Log message level (DEBUG, VERBOSE, DEFAULT, SPARSE, NONE)
-	 * @param msg The format of the message to be logged. See your C manual on printf() for details.
+	 * @param fmt The format of the message to be logged. See your C manual on printf() for details.
 	 */
 	void Log(const std::string &type, int loglevel, const char *fmt, ...) CUSTOM_PRINTF(4, 5);
 };
