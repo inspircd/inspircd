@@ -383,7 +383,11 @@ class ModuleIdent : public Module
 	{
 		/* Module unloading, tidy up users */
 		if (target_type == TYPE_USER)
-			OnUserDisconnect((LocalUser*)item);
+		{
+			LocalUser* user = IS_LOCAL((User*) item);
+			if (user)
+				OnUserDisconnect(user);
+		}
 	}
 
 	virtual void OnUserDisconnect(LocalUser *user)
