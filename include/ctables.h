@@ -147,15 +147,11 @@ class CoreExport Command : public ServiceProvider
 	int Penalty;
 
 	/** Create a new command.
-	 * @param Instance Pointer to creator class
+	 * @param me The module which created this command.
 	 * @param cmd Command name. This must be UPPER CASE.
-	 * @param flags User mode required to execute the command. May ONLY be one mode - it's a string to give warnings if people mix params up.
-	 * For oper only commands, set this to 'o', otherwise use 0.
 	 * @param minpara Minimum parameters required for the command.
-	 * @param maxpara Maximum number of parameters this command may have - extra parameters will be tossed into one last space-seperated param.
-	 * @param before_reg If this is set to true, the command will
-	 * be allowed before the user is 'registered' (has sent USER,
-	 * NICK, optionally PASS, and been resolved).
+	 * @param maxpara Maximum number of parameters this command may have - extra parameters
+	 * will be tossed into one last space-seperated param.
 	 */
 	Command(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
 		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),

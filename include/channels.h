@@ -122,7 +122,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
-	 * @param mode_on True if you want to set the mode or false if you want to remove it
+	 * @param value True if you want to set the mode or false if you want to remove it
 	 */
 	void SetMode(ModeHandler* mode, bool value);
 	void SetMode(char mode,bool mode_on);
@@ -147,7 +147,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	  * @param mode The mode character you wish to query
 	  *
 	  * For example if "+L #foo" is set, and you pass this method
-	  * 'L', it will return '#foo'. If the mode is not set on the
+	  * 'L', it will return '\#foo'. If the mode is not set on the
 	  * channel, or the mode has no parameters associated with it,
 	  * it will return an empty string.
 	  *
@@ -199,7 +199,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	const UserMembList* GetUsers();
 
 	/** Returns true if the user given is on the given channel.
-	 * @param The user to look for
+	 * @param user The user to look for
 	 * @return True if the user is on this channel
 	 */
 	bool HasUser(User* user);
@@ -261,7 +261,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * Internally, this calls WriteAllExcept().
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user@host of the user.
+	 * use the nick!user\@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param text A printf-style format string which builds the output line without prefix
 	 * @param ... Zero or more POD type
@@ -271,7 +271,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	/** Write to all users on a channel except a list of users, using va_args for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user@host of the user.
+	 * use the nick!user\@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list A list of users NOT to send the text to
 	 * @param text A printf-style format string which builds the output line without prefix
@@ -283,7 +283,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * Internally, this calls WriteAllExcept().
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user@host of the user.
+	 * use the nick!user\@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param text A std::string containing the output line without prefix
 	 */
@@ -292,7 +292,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	/** Write to all users on a channel except a list of users, using std::string for text
 	 * @param user User whos details to prefix the line with, and to omit from receipt of the message
 	 * @param serversource If this parameter is true, use the local server name as the source of the text, otherwise,
-	 * use the nick!user@host of the user.
+	 * use the nick!user\@host of the user.
 	 * @param status The status of the users to write to, e.g. '@' or '%'. Use a value of 0 to write to everyone
 	 * @param except_list A list of users NOT to send the text to
 	 * @param text A std::string containing the output line without prefix

@@ -157,7 +157,7 @@ namespace irc
 
 	/** Compose a hex string from raw data.
 	 * @param raw The raw data to compose hex from
-	 * @pram rawsz The size of the raw data buffer
+	 * @param rawsz The size of the raw data buffer
 	 * @return The hex string.
 	 */
 	CoreExport std::string hex(const unsigned char *raw, size_t rawsz);
@@ -596,7 +596,7 @@ inline std::string& trim(std::string &str)
 }
 
 /** Hashing stuff is totally different on vc++'s hash_map implementation, so to save a buttload of
- * #ifdefs we'll just do it all at once. Except, of course, with TR1, when it's the same as GCC.
+ * \#ifdefs we'll just do it all at once. Except, of course, with TR1, when it's the same as GCC.
  */
 BEGIN_HASHMAP_NAMESPACE
 

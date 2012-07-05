@@ -44,7 +44,7 @@
  *
  * MyNewFunction replaceme(ServerInstance);
  *
- * someclass->MyFunction = &replaceme;
+ * someclass->MyFunction = \&replaceme;
  *
  * After this point, calls to someclass->MyFunction will call the new code in your
  * replacement functor.

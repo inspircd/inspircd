@@ -348,16 +348,16 @@ class CoreExport InspIRCd
 	static const char LogHeader[];
 
 	/** Find a user in the UUID hash
-	 * @param nick The nickname to find
+	 * @param uid The UUID to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	User* FindUUID(const std::string &);
+	User* FindUUID(const std::string &uid);
 
 	/** Find a user in the UUID hash
-	 * @param nick The nickname to find
+	 * @param uid The UUID to find
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
-	User* FindUUID(const char *);
+	User* FindUUID(const char *uid);
 
 	/** Build the ISUPPORT string by triggering all modules On005Numeric events
 	 */
@@ -498,6 +498,7 @@ class CoreExport InspIRCd
 	 * @param sockfd A valid file descriptor of an open socket
 	 * @param port The port number to bind to
 	 * @param addr The address to bind to (IP only)
+	 * @param dolisten Should this port be listened on?
 	 * @return True if the port was bound successfully
 	 */
 	bool BindSocket(int sockfd, int port, const char* addr, bool dolisten = true);
@@ -585,7 +586,7 @@ class CoreExport InspIRCd
 	/** Causes the server to exit after unloading modules and
 	 * closing all open file descriptors.
 	 *
-	 * @param The exit code to give to the operating system
+	 * @param status The exit code to give to the operating system
 	 * (See the ExitStatus enum for valid values)
 	 */
 	void Exit(int status);
@@ -664,6 +665,7 @@ class CoreExport InspIRCd
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
 	 * @param str The literal string to match against
 	 * @param mask The glob pattern to match against.
+	 * @param map The character map to use when matching.
 	 */
 	static bool Match(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
 	static bool Match(const  char *str, const char *mask, unsigned const char *map = NULL);
@@ -673,6 +675,7 @@ class CoreExport InspIRCd
 	 * Supports CIDR patterns as well as globs.
 	 * @param str The literal string to match against
 	 * @param mask The glob or CIDR pattern to match against.
+	 * @param map The character map to use when matching.
 	 */
 	static bool MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
 	static bool MatchCIDR(const  char *str, const char *mask, unsigned const char *map = NULL);
@@ -680,15 +683,14 @@ class CoreExport InspIRCd
 	/** Call the handler for a given command.
 	 * @param commandname The command whos handler you wish to call
 	 * @param parameters The mode parameters
-	 * @param pcnt The number of items you have given in the first parameter
 	 * @param user The user to execute the command as
 	 * @return True if the command handler was called successfully
 	 */
 	CmdResult CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user);
 
 	/** Return true if the command is a module-implemented command and the given parameters are valid for it
-	 * @param parameters The mode parameters
-	 * @param pcnt The number of items you have given in the first parameter
+	 * @param commandname The command name to check
+	 * @param pcnt The parameter count
 	 * @param user The user to test-execute the command as
 	 * @return True if the command handler is a module command, and there are enough parameters and the user has permission to the command
 	 */

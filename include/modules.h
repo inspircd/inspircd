@@ -430,6 +430,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param sync This is set to true if the JOIN is the result of a network sync and the remote user is being introduced
 	 * to a channel due to the network sync.
 	 * @param created This is true if the join created the channel
+	 * @param except_list A list of users not to send to.
 	 */
 	virtual void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except_list);
 
@@ -438,13 +439,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 * seen the join.
 	 * @param memb The channel membership created
 	 */
-	virtual void OnPostJoin(Membership*);
+	virtual void OnPostJoin(Membership* memb);
 
 	/** Called when a user parts a channel.
 	 * The details of the leaving user are available to you in the parameter User *user,
 	 * and the details of the channel they have left is available in the variable Channel *channel
 	 * @param memb The channel membership being destroyed
 	 * @param partmessage The part message, or an empty string (may be modified)
+	 * @param except_list A list of users to not send to.
 	 */
 	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList& except_list);
 
@@ -514,8 +516,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * output to be sent to the user by the core. If you do this you must produce your own numerics,
 	 * notices etc.
 	 * @param source The user issuing the kick
-	 * @param user The user being kicked
-	 * @param chan The channel the user is being kicked from
+	 * @param memb The channel membership of the user who is being kicked.
 	 * @param reason The kick reason
 	 * @return 1 to prevent the kick, 0 to continue normally, -1 to explicitly allow the kick regardless of normal operation
 	 */
@@ -525,9 +526,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * If this method is called, the kick is already underway and cannot be prevented, so
 	 * to prevent a kick, please use Module::OnUserPreKick instead of this method.
 	 * @param source The user issuing the kick
-	 * @param user The user being kicked
-	 * @param chan The channel the user is being kicked from
+	 * @param memb The channel membership of the user who was kicked.
 	 * @param reason The kick reason
+	 * @param except_list A list of users to not send to.
 	 */
 	virtual void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list);
 
@@ -661,6 +662,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. PRIVMSG @#chan has status== '@', 0 to send to everyone.
+	 * @param exempt_list A list of users to not send to.
 	 */
 	virtual void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 
@@ -672,6 +674,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
+	 * @param exempt_list A list of users to not send to.
 	 */
 	virtual void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
 
@@ -686,6 +689,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
 	 * @param text the text being sent by the user
 	 * @param status The status being used, e.g. NOTICE @#chan has status== '@', 0 to send to everyone.
+	 * @param exempt_list A list of users not to send to. For channel messages, this will usually contain just the sender.
 	 */
 	virtual void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
 
@@ -755,7 +759,6 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Allows module data, sent via ProtoSendMetaData, to be decoded again by a receiving module.
 	 * Please see src/modules/m_swhois.cpp for a working example of how to use this method call.
-	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
 	 * @param target The Channel* or User* that data should be added to
 	 * @param extname The extension name which is being sent
 	 * @param extdata The extension data, encoded at the other end by an identical module through OnSyncChannelMetaData or OnSyncUserMetaData
@@ -787,7 +790,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * More documentation to follow soon. Please see src/modules/m_swhois.cpp for example of
 	 * how to use this function.
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
 	 * @param target The Channel* or User* that metadata should be sent for
 	 * @param extname The extension name to send metadata for
 	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
@@ -817,7 +819,7 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Called whenever a user's IDENT is changed.
 	 * This event triggers after the name has been set.
 	 * @param user The user who's IDENT is being changed
-	 * @param gecos The new IDENT being set on the user
+	 * @param ident The new IDENT being set on the user
 	 */
 	virtual void OnChangeIdent(User* user, const std::string &ident);
 
@@ -901,6 +903,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param source The user sending the KILL
 	 * @param dest The user being killed
 	 * @param reason The kill reason
+	 * @param operreason The oper kill reason
 	 */
 	virtual void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
 
@@ -927,7 +930,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * absolutely neccessary (e.g. a module that extends the features of another
 	 * module).
 	 * @param mod Pointer to the module being unloaded (still valid)
-	 * @param name The filename of the module being unloaded
 	 */
 	virtual void OnUnloadModule(Module* mod);
 
@@ -950,7 +952,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * method returns, it will be passed an invalid pointer to the user object and crash!)
 	 * @param command The command being executed
 	 * @param parameters An array of array of characters containing the parameters for the command
-	 * @param pcnt The nuimber of parameters passed to the command
 	 * @param user the user issuing the command
 	 * @param validated True if the command has passed all checks, e.g. it is recognised, has enough parameters, the user has permission to execute it, etc.
 	 * You should only change the parameter list and command string if validated == false (e.g. before the command lookup occurs).
@@ -966,7 +967,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * provided.
 	 * @param command The command being executed
 	 * @param parameters An array of array of characters containing the parameters for the command
-	 * @param pcnt The nuimber of parameters passed to the command
 	 * @param user the user issuing the command
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
 	 * @param original_line The entire original line as passed to the parser from the user
@@ -1032,6 +1032,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * return 1 to explicitly allow the join to go ahead or 0 to ignore the event.
 	 * @param user The user joining the channel
 	 * @param chan The channel being joined
+	 * @param keygiven The key given on joining the channel.
 	 * @return 1 to explicitly allow the join, 0 to proceed as normal
 	 */
 	virtual ModResult OnCheckKey(User* user, Channel* chan, const std::string &keygiven);
@@ -1104,7 +1105,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user changing the topic
 	 * @param chan The channels who's topic is being changed
 	 * @param topic The actual topic text
-	 * @param 1 to block the topic change, 0 to allow
+	 * @return 1 to block the topic change, 0 to allow
 	 */
 	virtual ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic);
 
@@ -1132,7 +1133,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * The password field (from the config file) is in 'password' and is to be compared against
 	 * 'input'. This method allows for encryption of passwords (oper, connect:allow, die/restart, etc).
 	 * You should return a nonzero value to override the normal comparison, or zero to pass it on.
-	 * @param ex The object that's causing the authentication (User* for <oper> <connect:allow> etc, Server* for <link>).
+	 * @param ex The object that's causing the authentication (User* for \<oper> \<connect:allow> etc, Server* for \<link>).
 	 * @param password The password from the configuration file (the password="" value).
 	 * @param input The password entered by the user or whoever.
 	 * @param hashtype The hash value from the config
@@ -1175,62 +1176,61 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual ModResult OnDelBan(User* source, Channel* channel,const std::string &banmask);
 
 	/** Called to install an I/O hook on an event handler
-	 * @param user The item to possibly install the I/O hook on
-	 * @param via The port that <user> connected on
+	 * @param user The socket to possibly install the I/O hook on
+	 * @param via The port that the user connected on
 	 */
-	virtual void OnHookIO(StreamSocket*, ListenSocket* via);
+	virtual void OnHookIO(StreamSocket* user, ListenSocket* via);
 
 	/** Called when a port accepts a connection
 	 * Return MOD_RES_ACCEPT if you have used the file descriptor.
 	 * @param fd The file descriptor returned from accept()
-	 * @param from The local port the user connected to
+	 * @param sock The socket connection for the new user
 	 * @param client The client IP address and port
 	 * @param server The server IP address and port
 	 */
-	virtual ModResult OnAcceptConnection(int fd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Called immediately after any connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
 	 * no information relating to a user record as the connection has not been assigned yet.
 	 * There are no return values from this call as all modules get an opportunity if required to
 	 * process the connection.
-	 * @param fd The file descriptor returned from accept()
+	 * @param sock The socket in question
 	 * @param client The client IP address and port
 	 * @param server The server IP address and port
-	 * @param localport The local port number the user connected to
 	 */
-	virtual void OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	virtual void OnStreamSocketAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/**
 	 * Called when a hooked stream has data to write, or when the socket
 	 * engine returns it as writable
-	 * @param socket The socket in question
+	 * @param sock The socket in question
 	 * @param sendq Data to send to the socket
 	 * @return 1 if the sendq has been completely emptied, 0 if there is
 	 *  still data to send, and -1 if there was an error
 	 */
-	virtual int OnStreamSocketWrite(StreamSocket*, std::string& sendq);
+	virtual int OnStreamSocketWrite(StreamSocket* sock, std::string& sendq);
 
 	/** Called immediately before any socket is closed. When this event is called, shutdown()
 	 * has not yet been called on the socket.
-	 * @param fd The file descriptor of the socket prior to close()
+	 * @param sock The socket in question
 	 */
-	virtual void OnStreamSocketClose(StreamSocket*);
+	virtual void OnStreamSocketClose(StreamSocket* sock);
 
 	/** Called immediately upon connection of an outbound BufferedSocket which has been hooked
 	 * by a module.
-	 * @param fd The file descriptor of the socket immediately after connect()
+	 * @param sock The socket in question
 	 */
-	virtual void OnStreamSocketConnect(StreamSocket*);
+	virtual void OnStreamSocketConnect(StreamSocket* sock);
 
 	/**
 	 * Called when the stream socket has data to read
-	 * @param socket The socket that is ready
+	 * @param sock The socket that is ready
 	 * @param recvq The receive queue that new data should be appended to
 	 * @return 1 if new data has been read, 0 if no new data is ready (but the
 	 *  socket is still connected), -1 if there was an error or close
 	 */
-	virtual int OnStreamSocketRead(StreamSocket*, std::string& recvq);
+	virtual int OnStreamSocketRead(StreamSocket* sock, std::string& recvq);
 
 	/** Called whenever a user sets away or returns from being away.
 	 * The away message is available as a parameter, but should not be modified.
@@ -1558,13 +1558,14 @@ class CoreExport ModuleManager
 	 * automatically detatch your module from all events it is attached to.
 	 * @param i Event type to detach
 	 * @param mod Module to detach event from
-	 * @param Detach true if the event was detached
+	 * @return True if the event was detached
 	 */
 	bool Detach(Implementation i, Module* mod);
 
 	/** Attach an array of events to a module
 	 * @param i Event types (array) to attach
 	 * @param mod Module to attach events to
+	 * @param sz The size of the implementation array
 	 */
 	void Attach(Implementation* i, Module* mod, size_t sz);
 

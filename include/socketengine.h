@@ -202,7 +202,9 @@ class CoreExport EventHandler : public classbase
 	 * class, and it will be called whenever read or write
 	 * events are received.
 	 * @param et either one of EVENT_READ for read events,
-	 * and EVENT_WRITE for write events.
+	 * EVENT_WRITE for write events and EVENT_ERROR for
+	 * error events.
+	 * @param errornum The error code which goes with an EVENT_ERROR.
 	 */
 	virtual void HandleEvent(EventType et, int errornum = 0) = 0;
 
@@ -358,6 +360,8 @@ public:
 	/** Abstraction for BSD sockets accept(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param addr The client IP address and port
+	 * @param addrlen The size of the sockaddr parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
@@ -379,6 +383,9 @@ public:
 	/** Abstraction for BSD sockets send(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param buf The buffer in which the data that is sent is stored.
+	 * @param len The size of the buffer.
+	 * @param flags A flag value that controls the sending of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	int Send(EventHandler* fd, const void *buf, size_t len, int flags);
@@ -386,6 +393,9 @@ public:
 	/** Abstraction for BSD sockets recv(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param buf The buffer in which the data that is read is stored.
+	 * @param len The size of the buffer.
+	 * @param flags A flag value that controls the reception of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	int Recv(EventHandler* fd, void *buf, size_t len, int flags);
@@ -393,6 +403,11 @@ public:
 	/** Abstraction for BSD sockets recvfrom(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param buf The buffer in which the data that is read is stored.
+	 * @param len The size of the buffer.
+	 * @param flags A flag value that controls the reception of the data.
+	 * @param from The remote IP address and port.
+	 * @param fromlen The size of the from parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
@@ -400,6 +415,11 @@ public:
 	/** Abstraction for BSD sockets sendto(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param buf The buffer in which the data that is sent is stored.
+	 * @param len The size of the buffer.
+	 * @param flags A flag value that controls the sending of the data.
+	 * @param to The remote IP address and port.	
+	 * @param tolen The size of the to parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
@@ -407,6 +427,8 @@ public:
 	/** Abstraction for BSD sockets connect(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param serv_addr The server IP address and port.
+	 * @param addrlen The size of the sockaddr parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
@@ -426,6 +448,7 @@ public:
 	/** Abstraction for BSD sockets shutdown(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
+	 * @param how What part of the socket to shut down
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	int Shutdown(EventHandler* fd, int how);

@@ -408,14 +408,14 @@ class CoreExport User : public Extensible
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
-	 * on the server, in nick!ident&at;host form.
+	 * on the server, in nick!ident\@host form.
 	 * @return The full masked host of the user
 	 */
 	virtual const std::string& GetFullHost();
 
 	/** Returns the full real host of the user
 	 * This member function returns the hostname of the user as seen by other users
-	 * on the server, in nick!ident&at;host form. If any form of hostname cloaking is in operation,
+	 * on the server, in nick!ident\@host form. If any form of hostname cloaking is in operation,
 	 * e.g. through a module, then this method will ignore it and return the true hostname.
 	 * @return The full real host of the user
 	 */
@@ -452,7 +452,7 @@ class CoreExport User : public Extensible
 	void SetNoticeMask(unsigned char sm, bool value);
 
 	/** Create a displayable mode string for this users umodes
-	 * @param The mode string
+	 * @param showparameters The mode string
 	 */
 	const char* FormatModes(bool showparameters = false);
 
@@ -496,20 +496,20 @@ class CoreExport User : public Extensible
 	virtual bool HasModePermission(unsigned char mode, ModeType type);
 
 	/** Creates a wildcard host.
-	 * Takes a buffer to use and fills the given buffer with the host in the format *!*@hostname
-	 * @return The wildcarded hostname in *!*@host form
+	 * Takes a buffer to use and fills the given buffer with the host in the format *!*\@hostname
+	 * @return The wildcarded hostname in *!*\@host form
 	 */
 	char* MakeWildHost();
 
 	/** Creates a usermask with real host.
-	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user@host
-	 * @return the usermask in the format user@host
+	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user\@host
+	 * @return the usermask in the format user\@host
 	 */
 	const std::string& MakeHost();
 
 	/** Creates a usermask with real ip.
-	 * Takes a buffer to use and fills the given buffer with the ipmask in the format user@ip
-	 * @return the usermask in the format user@ip
+	 * Takes a buffer to use and fills the given buffer with the ipmask in the format user\@ip
+	 * @return the usermask in the format user\@ip
 	 */
 	const std::string& MakeHostIP();
 
@@ -565,34 +565,35 @@ class CoreExport User : public Extensible
 
 	void WriteNumeric(unsigned int numeric, const std::string &text);
 
-	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
-	 * @param user The user to prepend the :nick!user@host of
+	/** Write text to this user, appending CR/LF and prepending :nick!user\@host of the user provided in the first parameter.
+	 * @param user The user to prepend the :nick!user\@host of
 	 * @param text A std::string to send to the user
 	 */
 	void WriteFrom(User *user, const std::string &text);
 
-	/** Write text to this user, appending CR/LF and prepending :nick!user@host of the user provided in the first parameter.
-	 * @param user The user to prepend the :nick!user@host of
+	/** Write text to this user, appending CR/LF and prepending :nick!user\@host of the user provided in the first parameter.
+	 * @param user The user to prepend the :nick!user\@host of
 	 * @param text The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
 	void WriteFrom(User *user, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
+	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user\@host.
 	 * @param dest The user to route the message to
-	 * @param text A std::string to send to the user
+	 * @param data A std::string to send to the user
 	 */
 	void WriteTo(User *dest, const std::string &data);
 
-	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user@host.
+	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user\@host.
 	 * @param dest The user to route the message to
-	 * @param text The format string for text to send to the user
+	 * @param data The format string for text to send to the user
 	 * @param ... POD-type format arguments
 	 */
 	void WriteTo(User *dest, const char *data, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Write to all users that can see this user (including this user in the list), appending CR/LF
-	 * @param text A std::string to send to the users
+	/** Write to all users that can see this user (including this user in the list if include_self is true), appending CR/LF
+	 * @param line A std::string to send to the users
+	 * @param include_self Should the message be sent back to the author?
 	 */
 	void WriteCommonRaw(const std::string &line, bool include_self = true);
 
@@ -639,7 +640,7 @@ class CoreExport User : public Extensible
 	 * Run this after the item in question has changed.
 	 * You should not need to use this function, call ChangeDisplayedHost instead
 	 *
-	 * @param The entire QUIT line, including the source using the old value
+	 * @param quitline The entire QUIT line, including the source using the old value
 	 */
 	void DoHostCycle(const std::string &quitline);
 
@@ -657,7 +658,7 @@ class CoreExport User : public Extensible
 	 * ALWAYS use this function, rather than writing User::ident directly,
 	 * as this correctly causes the user to seem to quit (where configured)
 	 * before setting their ident field.
-	 * @param host The new ident to set
+	 * @param newident The new ident to set
 	 * @return True if the change succeeded, false if it didn't
 	 */
 	bool ChangeIdent(const char* newident);
@@ -761,7 +762,7 @@ class CoreExport LocalUser : public User, public InviteBase
 	int cmds_out;
 
 	/** Password specified by the user when they registered (if any).
-	 * This is stored even if the <connect> block doesnt need a password, so that
+	 * This is stored even if the \<connect> block doesnt need a password, so that
 	 * modules may check it.
 	 */
 	std::string password;
@@ -772,7 +773,7 @@ class CoreExport LocalUser : public User, public InviteBase
 
 	ConnectClass* GetClass();
 
-	/** Call this method to find the matching <connect> for a user, and to check them against it.
+	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */
 	void CheckClass();
 
@@ -813,7 +814,7 @@ class CoreExport LocalUser : public User, public InviteBase
 	void FullConnect();
 
 	/** Set the connect class to which this user belongs to.
-	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking <connect> tags from the configuration file.
+	 * @param explicit_name Set this string to tie the user to a specific class name. Otherwise, the class is fitted by checking \<connect> tags from the configuration file.
 	 * @return A reference to this user's current connect class.
 	 */
 	void SetClass(const std::string &explicit_name = "");
@@ -932,7 +933,6 @@ class CoreExport UserResolver : public Resolver
 	bool fwd;
  public:
 	/** Create a resolver.
-	 * @param Instance The creating instance
 	 * @param user The user to begin lookup on
 	 * @param to_resolve The IP or host to resolve
 	 * @param qt The query type
