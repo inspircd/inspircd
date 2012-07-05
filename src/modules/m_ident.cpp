@@ -230,40 +230,35 @@ class IdentRequestSocket : public EventHandler
 
 		ServerInstance->Logs->Log("m_ident",DEBUG,"ReadResponse()");
 
-		irc::sepstream sep(ibuf, ':');
-		std::string token;
-		for (int i = 0; sep.GetToken(token); i++)
+		/* Truncate at the first null character, but first make sure
+		 * there is at least one null char (at the end of the buffer).
+		 */
+		ibuf[recvresult] = '\0';
+		std::string buf(ibuf);
+		std::string::size_type lastcolon = buf.rfind(':');
+		if (lastcolon == std::string::npos)
+			return;
+
+		/* Truncate the ident at any characters we don't like, skip leading spaces */
+		for (std::string::const_iterator i = buf.begin()+lastcolon+1; i != buf.end(); ++i)
 		{
-			/* We only really care about the 4th portion */
-			if (i < 3)
+			if (result.size()+1 == ServerInstance->Config->Limits.IdentMax)
+				/* Ident is getting too long */
+				break;
+
+			if (*i == ' ')
 				continue;
 
-			std::string ident;
-
-			/* Truncate the ident at any characters we don't like, skip leading spaces */
-			size_t k = 0;
-			for (const char *j = token.c_str(); *j && (k < ServerInstance->Config->Limits.IdentMax + 1); j++)
+			/* Add the next char to the result and see if it's still a valid ident,
+			 * according to IsIdent(). If it isn't, then erase what we just added and
+			 * we're done.
+			 */
+			result += *i;
+			if (!ServerInstance->IsIdent(result.c_str()))
 			{
-				if (*j == ' ')
-					continue;
-
-				/* Rules taken from InspIRCd::IsIdent */
-				if (((*j >= 'A') && (*j <= '}')) || ((*j >= '0') && (*j <= '9')) || (*j == '-') || (*j == '.'))
-				{
-					ident += *j;
-					continue;
-				}
-
+				result.erase(result.end()-1);
 				break;
 			}
-
-			/* Re-check with IsIdent, in case that changes and this doesn't (paranoia!) */
-			if (!ident.empty() && ServerInstance->IsIdent(ident.c_str()))
-			{
-				result = ident;
-			}
-
-			break;
 		}
 	}
 };
