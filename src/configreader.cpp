@@ -436,8 +436,11 @@ static const Deprecated ChangedConfig[] = {
 	{"options", "somaxconn",		"has been moved to <performance:somaxconn> as of 1.2a3"},
 	{"options", "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
 	{"options", "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
-	{"options",	"loglevel",		"1.2 does not use the loglevel value. Please define <log> tags instead."},
+	{"options",	"loglevel",		"1.2+ does not use the loglevel value. Please define <log> tags instead."},
 	{"die",     "value",            "you need to reread your config"},
+	{"bind",    "transport",		"has been moved to <bind:ssl> as of 2.0a1"},
+	{"link",    "transport",		"has been moved to <link:ssl> as of 2.0a1"},
+	
 };
 
 void ServerConfig::Fill()
