@@ -183,7 +183,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 	{
 		DelServerEvent(Utils->Creator, Current->GetName());
 
-		if (!Current->GetSocket() || Current->GetSocket()->GetLinkState() == CONNECTED)
+		if (!Current->GetSocket() || Current->GetSocket()->Introduced())
 		{
 			parameterlist params;
 			params.push_back(Current->GetName());
@@ -244,4 +244,9 @@ void TreeSocket::OnDataReady()
 	if (LinkState != CONNECTED && recvq.length() > 4096)
 		SendError("RecvQ overrun (line too long)");
 	Utils->Creator->loopCall = false;
+}
+
+bool TreeSocket::Introduced()
+{
+	return (capab == NULL);
 }

@@ -315,6 +315,10 @@ class TreeSocket : public BufferedSocket
 	/** Handle server quit on close
 	 */
 	virtual void Close();
+
+	/** Returns true if this server was introduced to the rest of the network
+	 */
+	bool Introduced();
 };
 
 #endif
