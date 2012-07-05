@@ -53,6 +53,7 @@ class ModuleBlockAmsg : public Module
 	int ForgetDelay;
 	BlockAction action;
 	SimpleExtItem<BlockedMessage> blockamsg;
+	bool operoverride;
 
  public:
 	ModuleBlockAmsg() : blockamsg("blockamsg", this)
@@ -94,12 +95,18 @@ class ModuleBlockAmsg : public Module
 			action = IBLOCK_KILL;
 		else
 			action = IBLOCK_KILLOPERS;
+
+		operoverride = Conf.ReadFlag("blockamsg", "operoverride", "no", 0);
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		// Don't do anything with unregistered users
 		if (user->registered != REG_ALL)
+			return MOD_RES_PASSTHRU;
+
+		// Don't touch opers if operoverride is on
+		if ((operoverride) && (IS_OPER(user)))
 			return MOD_RES_PASSTHRU;
 
 		// We want case insensitive command comparison.
