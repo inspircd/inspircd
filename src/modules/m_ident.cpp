@@ -216,15 +216,17 @@ class IdentRequestSocket : public EventHandler
 		char ibuf[MAXBUF];
 		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
 
+		/* Close (but don't delete from memory) our socket
+		 * and flag as done since the ident lookup has finished
+		 */
+		Close();
+		done = true;
+
 		/* Cant possibly be a valid response shorter than 3 chars,
 		 * because the shortest possible response would look like: '1,1'
 		 */
 		if (recvresult < 3)
-		{
-			Close();
-			done = true;
 			return;
-		}
 
 		ServerInstance->Logs->Log("m_ident",DEBUG,"ReadResponse()");
 
@@ -263,13 +265,6 @@ class IdentRequestSocket : public EventHandler
 
 			break;
 		}
-
-		/* Close (but dont delete from memory) our socket
-		 * and flag as done
-		 */
-		Close();
-		done = true;
-		return;
 	}
 };
 
