@@ -158,7 +158,7 @@ class CommandShun : public Command
 			else
 			{
 				delete r;
-				user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), expr.c_str());
+				user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), target.c_str());
 				return CMD_FAILURE;
 			}
 		}
