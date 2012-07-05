@@ -38,13 +38,7 @@ class CommandGlobops : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		std::string line = "From " + std::string(user->nick) + ": ";
-		for (int i = 0; i < (int)parameters.size(); i++)
-		{
-			line = line + parameters[i] + " ";
-		}
-		ServerInstance->SNO->WriteGlobalSno('g',line);
-
+		ServerInstance->SNO->WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
 		return CMD_SUCCESS;
 	}
 };
