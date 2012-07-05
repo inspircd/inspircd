@@ -98,8 +98,8 @@ class ModuleBlockAmsg : public Module
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
-		// Don't do anything with unregistered users, or remote ones.
-		if(!user || (user->registered != REG_ALL) || !IS_LOCAL(user))
+		// Don't do anything with unregistered users
+		if (user->registered != REG_ALL)
 			return MOD_RES_PASSTHRU;
 
 		// We want case insensitive command comparison.
