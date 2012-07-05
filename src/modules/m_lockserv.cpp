@@ -34,7 +34,7 @@ class CommandLockserv : public Command
 public:
 	CommandLockserv(Module* Creator, bool& lock) : Command(Creator, "LOCKSERV", 0), locked(lock)
 	{
-		flags_needed = 'o'; syntax.clear();
+		flags_needed = 'o';
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -42,7 +42,6 @@ public:
 		locked = true;
 		user->WriteNumeric(988, "%s %s :Closed for new connections", user->nick.c_str(), user->server.c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used LOCKSERV to temporarily close for new connections", user->nick.c_str());
-		/* Dont send to the network */
 		return CMD_SUCCESS;
 	}
 };
@@ -55,7 +54,7 @@ private:
 public:
 	CommandUnlockserv(Module* Creator, bool &lock) : Command(Creator, "UNLOCKSERV", 0), locked(lock)
 	{
-		flags_needed = 'o'; syntax.clear();
+		flags_needed = 'o';
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -63,7 +62,6 @@ public:
 		locked = false;
 		user->WriteNumeric(989, "%s %s :Open for new connections", user->nick.c_str(), user->server.c_str());
 		ServerInstance->SNO->WriteGlobalSno('a', "Oper %s used UNLOCKSERV to allow for new connections", user->nick.c_str());
-		/* Dont send to the network */
 		return CMD_SUCCESS;
 	}
 };
