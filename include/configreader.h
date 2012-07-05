@@ -33,7 +33,7 @@
 #include "socketengine.h"
 #include "socket.h"
 
-/** Structure representing a single <tag> in config */
+/** Structure representing a single \<tag> in config */
 class CoreExport ConfigTag : public refcountbase
 {
 	std::vector<KeyVal> items;
@@ -174,11 +174,11 @@ class CoreExport OperInfo : public refcountbase
 	/** Allowed channel modes from oper classes. */
 	std::bitset<64> AllowedChanModes;
 
-	/** <oper> block used for this oper-up. May be NULL. */
+	/** \<oper> block used for this oper-up. May be NULL. */
 	reference<ConfigTag> oper_block;
-	/** <type> block used for this oper-up. Valid for local users, may be NULL on remote */
+	/** \<type> block used for this oper-up. Valid for local users, may be NULL on remote */
 	reference<ConfigTag> type_block;
-	/** <class> blocks referenced from the <type> block. These define individual permissions */
+	/** \<class> blocks referenced from the \<type> block. These define individual permissions */
 	std::vector<reference<ConfigTag> > class_blocks;
 	/** Name of the oper type; i.e. the one shown in WHOIS */
 	std::string name;
@@ -208,7 +208,6 @@ class CoreExport ServerConfig
 
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get
-	 * @param offset get the Nth occurance of the tag
 	 */
 	ConfigTag* ConfValue(const std::string& tag);
 
@@ -375,7 +374,7 @@ class CoreExport ServerConfig
 	/** The full path to the modules directory.
 	 * This is either set at compile time, or
 	 * overridden in the configuration file via
-	 * the <path> tag.
+	 * the \<path> tag.
 	 */
 	std::string ModPath;
 
@@ -391,7 +390,7 @@ class CoreExport ServerConfig
 	bool RestrictBannedUsers;
 
 	/** If this is set to true, then mode lists (e.g
-	 * MODE #chan b) are hidden from unprivileged
+	 * MODE \#chan b) are hidden from unprivileged
 	 * users.
 	 */
 	bool HideModeLists[256];
@@ -515,7 +514,7 @@ class CoreExport ServerConfig
 	 */
 	bool UndernetMsgPrefix;
 
-	/** If set to true, the full nick!user@host will be shown in the TOPIC command
+	/** If set to true, the full nick!user\@host will be shown in the TOPIC command
 	 * for who set the topic last. If false, only the nick is shown.
 	 */
 	bool FullHostInTopic;

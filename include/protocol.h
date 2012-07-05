@@ -70,7 +70,8 @@ class ProtocolInterface
 
 	/** Send mode changes for an object.
 	 * @param target The channel name or user to send mode changes for.
-	 * @param The mode changes to send.
+	 * @param modedata The mode changes to send.
+	 * @param translate A list of translation types
 	 */
 	virtual void SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &translate) { }
 

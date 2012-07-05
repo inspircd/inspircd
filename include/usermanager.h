@@ -73,7 +73,6 @@ class CoreExport UserManager
 	/** Add a client to the system.
 	 * This will create a new User, insert it into the user_hash,
 	 * initialize it as not yet registered, and add it to the socket engine.
-	 * @param Instance a pointer to the server instance
 	 * @param socket The socket id (file descriptor) this user is on
 	 * @param via The socket that this user connected using
 	 * @param client The IP address and client port of the user
@@ -84,8 +83,8 @@ class CoreExport UserManager
 
 	/** Disconnect a user gracefully
 	 * @param user The user to remove
-	 * @param r The quit reason to show to normal users
-	 * @param oreason The quit reason to show to opers
+	 * @param quitreason The quit reason to show to normal users
+	 * @param operreason The quit reason to show to opers
 	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
 	void QuitUser(User *user, const std::string &quitreason, const char* operreason = "");

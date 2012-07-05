@@ -47,7 +47,6 @@ private:
 	port_event_t* events;
 public:
 	/** Create a new PortsEngine
-	 * @param Instance The creator of this object
 	 */
 	PortsEngine();
 	/** Delete a PortsEngine
