@@ -17,6 +17,11 @@
  */
 
 
+#ifndef EXTENSIBLE_H
+#define EXTENSIBLE_H
+
+#include <stdint.h>
+
 enum SerializeFormat
 {
 	/** Shown to a human (does not need to be unserializable) */
@@ -185,3 +190,5 @@ class CoreExport StringExtItem : public ExtensionItem
 	void unset(Extensible* container);
 	void free(void* item);
 };
+
+#endif
