@@ -72,8 +72,8 @@ class ModuleStripColor : public Module
 	{
 		/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
 		int seq = 0;
-		std::string::iterator i,safei;
- 		for (i = sentence.begin(); i != sentence.end();)
+
+ 		for (std::string::iterator i = sentence.begin(); i != sentence.end();)
 		{
 			if (*i == 3)
 				seq = 1;
@@ -89,20 +89,7 @@ class ModuleStripColor : public Module
 				seq = 0;
 
 			if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
-			{
-				if (i != sentence.begin())
-				{
-					safei = i;
-					--i;
-					sentence.erase(safei);
-					++i;
-				}
-				else
-				{
-					sentence.erase(i);
-					i = sentence.begin();
-				}
-			}
+				i = sentence.erase(i);
 			else
 				++i;
 		}
