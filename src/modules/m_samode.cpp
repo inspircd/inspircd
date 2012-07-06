@@ -20,7 +20,7 @@
  */
 
 
-/* $ModDesc: Provides more advanced UnrealIRCd SAMODE command */
+/* $ModDesc: Provides command SAMODE to allow opers to change modes on channels and users */
 
 #include "inspircd.h"
 
@@ -64,7 +64,7 @@ class ModuleSaMode : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides more advanced UnrealIRCd SAMODE command", VF_VENDOR);
+		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);
 	}
 
 	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
