@@ -32,7 +32,7 @@
 # pragma comment(lib, "lber.lib")
 #endif
 
-/* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
+/* $ModDesc: Adds the ability to authenticate opers via LDAP */
 /* $LinkerFlags: -lldap */
 
 class ModuleLDAPAuth : public Module
@@ -181,7 +181,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR);
+		return Version("Adds the ability to authenticate opers via LDAP", VF_VENDOR);
 	}
 
 };
