@@ -30,7 +30,9 @@ class CommandIson : public Command
  public:
 	/** Constructor for ison.
 	 */
-	CommandIson ( Module* parent) : Command(parent,"ISON",0,0) { syntax = "<nick> {nick}"; }
+	CommandIson ( Module* parent) : Command(parent,"ISON", 1) {
+		syntax = "<nick> {nick}";
+	}
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
