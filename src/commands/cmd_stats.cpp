@@ -21,7 +21,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "commands/cmd_whowas.h"
 
 #ifdef _WIN32
 #include <psapi.h>
@@ -217,18 +216,6 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			results.push_back(sn+" 249 "+user->nick+" :Users: "+ConvToStr(ServerInstance->Users->clientlist->size()));
 			results.push_back(sn+" 249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->chanlist->size()));
 			results.push_back(sn+" 249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
-
-			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
-			{
-				Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-				if (whowas)
-				{
-					WhowasRequest req(NULL, whowas, WhowasRequest::WHOWAS_STATS);
-					req.user = user;
-					req.Send();
-					results.push_back(sn+" 249 "+user->nick+" :"+req.value);
-				}
-			}
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];

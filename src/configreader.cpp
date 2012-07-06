@@ -26,7 +26,6 @@
 #include <fstream>
 #include "xline.h"
 #include "exitcodes.h"
-#include "commands/cmd_whowas.h"
 #include "configparser.h"
 #include <iostream>
 #ifdef _WIN32
@@ -805,10 +804,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 void ServerConfig::ApplyModules(User* user)
 {
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-	if (whowas)
-		WhowasRequest(NULL, whowas, WhowasRequest::WHOWAS_PRUNE).Send();
-
 	const std::vector<std::string> v = ServerInstance->Modules->GetAllModuleNames(0);
 	std::vector<std::string> added_modules;
 	std::set<std::string> removed_modules(v.begin(), v.end());

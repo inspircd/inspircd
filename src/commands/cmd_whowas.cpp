@@ -23,14 +23,10 @@
 #include "inspircd.h"
 #include "commands/cmd_whowas.h"
 
-WhoWasMaintainTimer * timer;
-
 CommandWhowas::CommandWhowas( Module* parent) : Command(parent, "WHOWAS", 1)
 {
 	syntax = "<nick>{,<nick>}";
 	Penalty = 2;
-	timer = new WhoWasMaintainTimer(3600);
-	ServerInstance->Timers->AddTimer(timer);
 }
 
 CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
@@ -257,11 +253,6 @@ void CommandWhowas::MaintainWhoWas(time_t t)
 
 CommandWhowas::~CommandWhowas()
 {
-	if (timer)
-	{
-		ServerInstance->Timers->DelTimer(timer);
-	}
-
 	whowas_users::iterator iter;
 	int fifosize;
 	while ((fifosize = (int)whowas_fifo.size()) > 0)
@@ -303,16 +294,6 @@ WhoWasGroup::~WhoWasGroup()
 {
 }
 
-/* every hour, run this function which removes all entries older than Config->WhoWasMaxKeep */
-void WhoWasMaintainTimer::Tick(time_t)
-{
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-	if (whowas)
-	{
-		WhowasRequest(whowas, whowas, WhowasRequest::WHOWAS_MAINTAIN).Send();
-	}
-}
-
 class ModuleWhoWas : public Module
 {
 	CommandWhowas cmd;
@@ -324,31 +305,37 @@ class ModuleWhoWas : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
+		Implementation eventlist[] = { I_OnGarbageCollect, I_OnUserQuit, I_OnStats, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRequest(Request& request)
+	void OnGarbageCollect()
 	{
-		WhowasRequest& req = static_cast<WhowasRequest&>(request);
-		switch (req.type)
-		{
-			case WhowasRequest::WHOWAS_ADD:
-				cmd.AddToWhoWas(req.user);
-				break;
-			case WhowasRequest::WHOWAS_STATS:
-				req.value = cmd.GetStats();
-				break;
-			case WhowasRequest::WHOWAS_PRUNE:
-				cmd.PruneWhoWas(ServerInstance->Time());
-				break;
-			case WhowasRequest::WHOWAS_MAINTAIN:
-				cmd.MaintainWhoWas(ServerInstance->Time());
-				break;
-		}
+		/* Removes all entries older than WhoWasMaxKeep */
+		cmd.MaintainWhoWas(ServerInstance->Time());
+	}
+
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	{
+		cmd.AddToWhoWas(user);
+	}
+
+	ModResult OnStats(char symbol, User* user, string_list &results)
+	{
+		if (symbol == 'z')
+			results.push_back(ServerInstance->Config->ServerName+" 249 "+user->nick+" :"+cmd.GetStats());
+
+		return MOD_RES_PASSTHRU;
+	}
+
+	void OnRehash(User* user)
+	{
+		cmd.PruneWhoWas(ServerInstance->Time());
 	}
 
 	Version GetVersion()
 	{
-		return Version("WHOWAS Command", VF_VENDOR);
+		return Version("WHOWAS", VF_VENDOR);
 	}
 };
 

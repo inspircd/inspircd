@@ -231,7 +231,6 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 					user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_reason.c_str());
 			}
 		}
-		user->AddToWhoWas();
 	}
 
 	user_hash::iterator iter = this->clientlist->find(user->nick);

@@ -23,34 +23,8 @@
 #define CMD_WHOWAS_H
 #include "modules.h"
 
-struct WhowasRequest : public Request
-{
-	/* list of available internal commands */
-	enum Internals
-	{
-		WHOWAS_ADD = 1,
-		WHOWAS_STATS = 2,
-		WHOWAS_PRUNE = 3,
-		WHOWAS_MAINTAIN = 4
-	};
-
-	const Internals type;
-	std::string value;
-	User* user;
-
-	WhowasRequest(Module* src, Module* whowas, Internals Type) : Request(src, whowas, "WHOWAS"), type(Type)
-	{}
-};
-
-/* Forward ref for timer */
-class WhoWasMaintainTimer;
-
 /* Forward ref for typedefs */
 class WhoWasGroup;
-
-/** Timer that is used to maintain the whowas list, called once an hour
- */
-extern WhoWasMaintainTimer* timer;
 
 /** A group of users related by nickname
  */
@@ -126,16 +100,6 @@ class WhoWasGroup
 	/** Destructor
 	 */
 	~WhoWasGroup();
-};
-
-class WhoWasMaintainTimer : public Timer
-{
-  public:
-	WhoWasMaintainTimer(long interval)
-	: Timer(interval, ServerInstance->Time(), true)
-	{
-	}
-	virtual void Tick(time_t TIME);
 };
 
 #endif

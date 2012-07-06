@@ -28,7 +28,6 @@
 #include "socketengine.h"
 #include "xline.h"
 #include "bancache.h"
-#include "commands/cmd_whowas.h"
 
 already_sent_t LocalUser::already_sent_id = 0;
 
@@ -686,18 +685,6 @@ void User::UnOper()
 	ServerInstance->Users->all_opers.remove(this);
 
 	this->modes[UM_OPERATOR] = 0;
-}
-
-/* adds or updates an entry in the whowas list */
-void User::AddToWhoWas()
-{
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-	if (whowas)
-	{
-		WhowasRequest req(NULL, whowas, WhowasRequest::WHOWAS_ADD);
-		req.user = this;
-		req.Send();
-	}
 }
 
 /*
