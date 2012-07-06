@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style SAJOIN command */
+/* $ModDesc: Provides command SAJOIN to allow opers to force-join users to channels */
 
 /** Handle /SAJOIN
  */
@@ -117,7 +117,7 @@ class ModuleSajoin : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style SAJOIN command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides command SAJOIN to allow opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };

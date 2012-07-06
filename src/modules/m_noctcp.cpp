@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +C */
+/* $ModDesc: Provides channel mode +C to block CTCPs */
 
 class NoCTCP : public SimpleChannelModeHandler
 {
@@ -51,7 +51,7 @@ class ModuleNoCTCP : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +C", VF_VENDOR);
+		return Version("Provides channel mode +C to block CTCPs", VF_VENDOR);
 	}
 
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)

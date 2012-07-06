@@ -26,7 +26,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style oper-override */
+/* $ModDesc: Provides support for allowing opers to override certain things. */
 
 class ModuleOverride : public Module
 {
@@ -194,7 +194,7 @@ class ModuleOverride : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for unreal-style oper-override",VF_VENDOR);
+		return Version("Provides support for allowing opers to override certain things",VF_VENDOR);
 	}
 };
 

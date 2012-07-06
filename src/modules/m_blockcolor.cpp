@@ -23,7 +23,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +c */
+/* $ModDesc: Provides channel mode +c to block color */
 
 /** Handles the +c channel mode
  */
@@ -95,7 +95,7 @@ class ModuleBlockColor : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +c",VF_VENDOR);
+		return Version("Provides channel mode +c to block color",VF_VENDOR);
 	}
 };
 

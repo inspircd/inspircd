@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +T */
+/* $ModDesc: Provides channel mode +T to block notices to the channel */
 
 class NoNotice : public SimpleChannelModeHandler
 {
@@ -80,7 +80,7 @@ class ModuleNoNotice : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +T", VF_VENDOR);
+		return Version("Provides channel mode +T to block notices to the channel", VF_VENDOR);
 	}
 };
 
