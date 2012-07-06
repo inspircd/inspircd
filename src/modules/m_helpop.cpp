@@ -21,7 +21,7 @@
  */
 
 
-/* $ModDesc: Provides the /HELPOP command, works like UnrealIRCd's helpop */
+/* $ModDesc: Provides the /HELPOP command for useful information */
 
 #include "inspircd.h"
 
@@ -188,7 +188,7 @@ class ModuleHelpop : public Module
 
 		Version GetVersion()
 		{
-			return Version("Provides the /HELPOP command, works like UnrealIRCd's helpop", VF_VENDOR);
+			return Version("Provides the /HELPOP command for useful information", VF_VENDOR);
 		}
 };
 

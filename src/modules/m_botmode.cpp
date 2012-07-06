@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style umode +B */
+/* $ModDesc: Provides user mode +B to mark the user as a bot */
 
 /** Handles user mode +B
  */
@@ -51,7 +51,7 @@ class ModuleBotMode : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style umode +B",VF_VENDOR);
+		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
 	}
 
 	virtual void OnWhois(User* src, User* dst)

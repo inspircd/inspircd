@@ -24,7 +24,7 @@
 #include "inspircd.h"
 #include "ssl.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +z */
+/* $ModDesc: Provides channel mode +z to allow for Secure/SSL only channels */
 
 /** Handle channel mode +z
  */
@@ -134,7 +134,7 @@ class ModuleSSLModes : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +z", VF_VENDOR);
+		return Version("Provides channel mode +z to allow for Secure/SSL only channels", VF_VENDOR);
 	}
 };
 

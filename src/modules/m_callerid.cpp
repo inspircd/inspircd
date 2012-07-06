@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implementation of callerid (umode +g & /accept, ala hybrid etc) */
+/* $ModDesc: Implementation of callerid, usermode +g, /accept */
 
 class callerid_data
 {
@@ -347,7 +347,7 @@ public:
 
 	virtual Version GetVersion()
 	{
-		return Version("Implementation of callerid (umode +g & /accept, ala hybrid etc)", VF_COMMON | VF_VENDOR);
+		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
 	}
 
 	virtual void On005Numeric(std::string& output)

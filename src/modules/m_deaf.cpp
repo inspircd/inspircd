@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for ircu style usermode +d (deaf to channel messages and channel notices) */
+/* $ModDesc: Provides usermode +d to block channel messages and channel notices */
 
 /** User mode +d - filter out channel messages and channel notices
  */
@@ -163,7 +163,7 @@ class ModuleDeaf : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for ircu style usermode +d (deaf to channel messages and channel notices)", VF_VENDOR);
+		return Version("Provides usermode +d to block channel messages and channel notices", VF_VENDOR);
 	}
 
 };
