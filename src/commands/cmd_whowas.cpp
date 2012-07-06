@@ -23,7 +23,8 @@
 #include "inspircd.h"
 #include "commands/cmd_whowas.h"
 
-CommandWhowas::CommandWhowas( Module* parent) : Command(parent, "WHOWAS", 1)
+CommandWhowas::CommandWhowas( Module* parent)
+	: Command(parent, "WHOWAS", 1), WhoWasGroupSize(0), WhoWasMaxGroups(0), WhoWasMaxKeep(0)
 {
 	syntax = "<nick>{,<nick>}";
 	Penalty = 2;
@@ -32,7 +33,7 @@ CommandWhowas::CommandWhowas( Module* parent) : Command(parent, "WHOWAS", 1)
 CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
 {
 	/* if whowas disabled in config */
-	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
+	if (this->WhoWasGroupSize == 0 || this->WhoWasMaxGroups == 0)
 	{
 		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick.c_str(),name.c_str());
 		return CMD_FAILURE;
@@ -108,7 +109,7 @@ std::string CommandWhowas::GetStats()
 void CommandWhowas::AddToWhoWas(User* user)
 {
 	/* if whowas disabled */
-	if (ServerInstance->Config->WhoWasGroupSize == 0 || ServerInstance->Config->WhoWasMaxGroups == 0)
+	if (this->WhoWasGroupSize == 0 || this->WhoWasMaxGroups == 0)
 	{
 		return;
 	}
@@ -123,7 +124,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 		whowas[user->nick.c_str()] = n;
 		whowas_fifo.push_back(std::make_pair(ServerInstance->Time(),user->nick.c_str()));
 
-		if ((int)(whowas.size()) > ServerInstance->Config->WhoWasMaxGroups)
+		if ((int)(whowas.size()) > this->WhoWasMaxGroups)
 		{
 			whowas_users::iterator iter2 = whowas.find(whowas_fifo[0].second);
 			if (iter2 != whowas.end())
@@ -152,7 +153,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 		WhoWasGroup *a = new WhoWasGroup(user);
 		group->push_back(a);
 
-		if ((int)(group->size()) > ServerInstance->Config->WhoWasGroupSize)
+		if ((int)(group->size()) > this->WhoWasGroupSize)
 		{
 			WhoWasGroup *a2 = (WhoWasGroup*)*(group->begin());
 			delete a2;
@@ -165,9 +166,9 @@ void CommandWhowas::AddToWhoWas(User* user)
 void CommandWhowas::PruneWhoWas(time_t t)
 {
 	/* config values */
-	int groupsize = ServerInstance->Config->WhoWasGroupSize;
-	int maxgroups = ServerInstance->Config->WhoWasMaxGroups;
-	int maxkeep =   ServerInstance->Config->WhoWasMaxKeep;
+	int groupsize = this->WhoWasGroupSize;
+	int maxgroups = this->WhoWasMaxGroups;
+	int maxkeep =   this->WhoWasMaxKeep;
 
 	/* first cut the list to new size (maxgroups) and also prune entries that are timed out. */
 	whowas_users::iterator iter;
@@ -241,7 +242,7 @@ void CommandWhowas::MaintainWhoWas(time_t t)
 		whowas_set* n = (whowas_set*)iter->second;
 		if (n->size())
 		{
-			while ((n->begin() != n->end()) && ((*n->begin())->signon < t - ServerInstance->Config->WhoWasMaxKeep))
+			while ((n->begin() != n->end()) && ((*n->begin())->signon < t - this->WhoWasMaxKeep))
 			{
 				WhoWasGroup *a = *(n->begin());
 				delete a;
@@ -297,6 +298,17 @@ WhoWasGroup::~WhoWasGroup()
 class ModuleWhoWas : public Module
 {
 	CommandWhowas cmd;
+
+	void RangeCheck(int& value, int min, int max, int def, const char* msg)
+	{
+		// From ConfigReader
+		if (value >= min && value <= max)
+			return;
+
+		ServerInstance->Logs->Log("CONFIG", DEFAULT, "WARNING: %s value of %d is not between %d and %d; set to %d.", msg, value, min, max, def);
+		value = def;
+	}
+
  public:
 	ModuleWhoWas() : cmd(this)
 	{
@@ -307,6 +319,7 @@ class ModuleWhoWas : public Module
 		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnGarbageCollect, I_OnUserQuit, I_OnStats, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		OnRehash(NULL);
 	}
 
 	void OnGarbageCollect()
@@ -330,6 +343,21 @@ class ModuleWhoWas : public Module
 
 	void OnRehash(User* user)
 	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("whowas");
+		int NewGroupSize = tag->getInt("groupsize");
+		int NewMaxGroups = tag->getInt("maxgroups");
+		int NewMaxKeep = InspIRCd::Duration(tag->getString("maxkeep"));
+
+		RangeCheck(NewGroupSize, 0, 10000, 10, "<whowas:groupsize>");
+		RangeCheck(NewMaxGroups, 0, 1000000, 10240, "<whowas:maxgroups>");
+		RangeCheck(NewMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
+
+		if ((NewGroupSize == cmd.WhoWasGroupSize) && (NewMaxGroups == cmd.WhoWasMaxGroups) && (NewMaxKeep == cmd.WhoWasMaxKeep))
+			return;
+
+		cmd.WhoWasGroupSize = NewGroupSize;
+		cmd.WhoWasMaxGroups = NewMaxGroups;
+		cmd.WhoWasMaxKeep = NewMaxKeep;
 		cmd.PruneWhoWas(ServerInstance->Time());
 	}
 

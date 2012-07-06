@@ -240,19 +240,6 @@ class CoreExport ServerConfig
 	 */
 	int c_ipv6_range;
 
-	/** Max number of WhoWas entries per user.
-	 */
-	int WhoWasGroupSize;
-
-	/** Max number of cumulative user-entries in WhoWas.
-	 *  When max reached and added to, push out oldest entry FIFO style.
-	 */
-	int WhoWasMaxGroups;
-
-	/** Max seconds a user is kept in WhoWas before being pruned.
-	 */
-	int WhoWasMaxKeep;
-
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
 	 */

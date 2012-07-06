@@ -35,7 +35,6 @@
 
 ServerConfig::ServerConfig()
 {
-	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	RawLog = NoUserDns = HideBans = HideSplits = UndernetMsgPrefix = false;
 	WildcardIPv6 = CycleHosts = InvBypassModes = true;
 	dns_timeout = 5;
@@ -532,9 +531,6 @@ void ServerConfig::Fill()
 	MaxTargets = security->getInt("maxtargets", 20);
 	DefaultModes = options->getString("defaultmodes", "nt");
 	PID = ConfValue("pid")->getString("file");
-	WhoWasGroupSize = ConfValue("whowas")->getInt("groupsize");
-	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
-	WhoWasMaxKeep = InspIRCd::Duration(ConfValue("whowas")->getString("maxkeep"));
 	MaxChans = ConfValue("channels")->getInt("users", 20);
 	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
@@ -555,9 +551,6 @@ void ServerConfig::Fill()
 	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
 	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
 	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
-	range(WhoWasGroupSize, 0, 10000, 10, "<whowas:groupsize>");
-	range(WhoWasMaxGroups, 0, 1000000, 10240, "<whowas:maxgroups>");
-	range(WhoWasMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
 
 	ValidIP(DNSServer, "<dns:server>");
 
