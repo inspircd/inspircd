@@ -36,7 +36,7 @@ class CommandSetname : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		if (parameters.size() == 0)
+		if (parameters[0].empty())
 		{
 			user->WriteServ("NOTICE %s :*** SETNAME: GECOS must be specified", user->nick.c_str());
 			return CMD_FAILURE;
@@ -51,7 +51,6 @@ class CommandSetname : public Command
 		if (user->ChangeName(parameters[0].c_str()))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their GECOS to %s", user->nick.c_str(), parameters[0].c_str());
-			return CMD_SUCCESS;
 		}
 
 		return CMD_SUCCESS;
