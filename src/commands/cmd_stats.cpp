@@ -20,17 +20,6 @@
 
 
 #include "inspircd.h"
-#ifndef WIN32
-	#include <sys/resource.h>
-	/* This is just to be completely certain that the change which fixed getrusage on RH7 doesn't break anything else -- Om */
-	#ifndef RUSAGE_SELF
-	#define RUSAGE_SELF 0
-	#endif
-#else
-	#include <psapi.h>
-	#include "inspircd_win32wrapper.h"
-	#pragma comment(lib, "psapi.lib")
-#endif
 
 /** Handle /STATS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
