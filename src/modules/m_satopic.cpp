@@ -44,8 +44,7 @@ class CommandSATopic : public Command
 
 			// 3rd parameter overrides access checks
 			target->SetTopic(user, newTopic, true);
-			ServerInstance->SNO->WriteToSnoMask('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
-			ServerInstance->PI->SendSNONotice("A", user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
 			return CMD_SUCCESS;
 		}
