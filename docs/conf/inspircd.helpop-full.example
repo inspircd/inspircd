@@ -1050,6 +1050,8 @@ Acting extbans:
                users (requires stripcolor module).
  T:<ban>       Blocks notices from matching users (requires nonotice
                module).
+ U:<ban>       Blocks unregistered users matching the given ban.
+               (requires m_services_account)
 
 A ban given to an acting extban may either be a nick!user@host mask,
 matched against users as for a normal ban, or a matching extban.
