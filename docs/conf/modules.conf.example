@@ -1535,9 +1535,10 @@
 #
 # This replaces m_services from 1.1 and earlier.
 #
-# Also of note is that this module implements two extbans:
+# Also of note is that this module implements three extbans:
 # +b R: (stop matching account names from joining)
 # +b M: (stop matching account names from speaking)
+# +b U:n!u@h (blocks matching unregistered users)
 #                                                                       
 #<module name="m_services_account.so">
 

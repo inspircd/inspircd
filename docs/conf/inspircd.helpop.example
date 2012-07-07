@@ -288,6 +288,8 @@ help channel if you have any questions.">
               users (requires stripcolor module).
  T:n!u@h      Blocks notices from matching users (requires nonotice
               module).
+ U:n!u@h      Blocks unregistered users matching the given ban.
+              (requires m_services_account)
 
  Redirect     n!u@h#channel will redirect the banned user to #channel
               when they try to join (requires banredirect module).
