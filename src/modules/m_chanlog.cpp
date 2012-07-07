@@ -28,7 +28,8 @@ class ModuleChanLog : public Module
 	/*
 	 * Multimap so people can redirect a snomask to multiple channels.
 	 */
-	std::multimap<char, std::string> logstreams;
+	typedef std::multimap<char, std::string> ChanLogTargets;
+	ChanLogTargets logstreams;
 
  public:
 	ModuleChanLog() 	{
@@ -72,30 +73,21 @@ class ModuleChanLog : public Module
 
 	virtual ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg)
 	{
-		std::multimap<char, std::string>::const_iterator it = logstreams.find(sno);
-		char buf[MAXBUF];
-
-		if (it == logstreams.end())
+		std::pair<ChanLogTargets::const_iterator, ChanLogTargets::const_iterator> itpair = logstreams.equal_range(sno);
+		if (itpair.first == itpair.second)
 			return MOD_RES_PASSTHRU;
 
+		char buf[MAXBUF];
 		snprintf(buf, MAXBUF, "\2%s\2: %s", desc.c_str(), msg.c_str());
 
-		while (it != logstreams.end())
+		for (ChanLogTargets::const_iterator it = itpair.first; it != itpair.second; ++it)
 		{
-			if (it->first != sno)
-			{
-				it++;
-				continue;
-			}
-
 			Channel *c = ServerInstance->FindChan(it->second);
 			if (c)
 			{
 				c->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "PRIVMSG %s :%s", c->name.c_str(), buf);
 				ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
 			}
-
-			it++;
 		}
 
 		return MOD_RES_PASSTHRU;
