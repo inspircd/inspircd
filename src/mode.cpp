@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2012 Shawn Smith <shawn@inspircd.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007, 2009 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2006-2008 Robin Burchell <robin+git@viroteck.net>
@@ -132,47 +133,39 @@ bool ModeHandler::ResolveModeConflict(std::string& theirs, const std::string& ou
 
 ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
-	if (adding)
-	{
-		if (!dest->IsModeSet(this->GetModeChar()))
-		{
-			dest->SetMode(this->GetModeChar(),true);
-			return MODEACTION_ALLOW;
-		}
-	}
-	else
-	{
-		if (dest->IsModeSet(this->GetModeChar()))
-		{
-			dest->SetMode(this->GetModeChar(),false);
-			return MODEACTION_ALLOW;
-		}
-	}
+	/* We're either trying to add a mode we already have or
+		remove a mode we don't have, deny. */
+	if (dest->IsModeSet(this->GetModeChar()) == adding)
+		return MODEACTION_DENY;
 
-	return MODEACTION_DENY;
+	/* adding will be either true or false, depending on if we
+		are adding or removing the mode, since we already checked
+		to make sure we aren't adding a mode we have or that we
+		aren't removing a mode we don't have, we don't have to do any
+		other checks here to see if it's true or false, just add or
+		remove the mode */
+	dest->SetMode(this->GetModeChar(), adding);
+
+	return MODEACTION_ALLOW;
 }
 
 
 ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 {
-	if (adding)
-	{
-		if (!channel->IsModeSet(this->GetModeChar()))
-		{
-			channel->SetMode(this->GetModeChar(),true);
-			return MODEACTION_ALLOW;
-		}
-	}
-	else
-	{
-		if (channel->IsModeSet(this->GetModeChar()))
-		{
-			channel->SetMode(this->GetModeChar(),false);
-			return MODEACTION_ALLOW;
-		}
-	}
+	/* We're either trying to add a mode we already have or
+		remove a mode we don't have, deny. */
+	if (channel->IsModeSet(this->GetModeChar()) == adding)
+		return MODEACTION_DENY;
 
-	return MODEACTION_DENY;
+	/* adding will be either true or false, depending on if we
+		are adding or removing the mode, since we already checked
+		to make sure we aren't adding a mode we have or that we
+		aren't removing a mode we don't have, we don't have to do any
+		other checks here to see if it's true or false, just add or
+		remove the mode */
+	channel->SetMode(this->GetModeChar(), adding);
+
+	return MODEACTION_ALLOW;
 }
 
 ModeAction ParamChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
