@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2012 Shawn Smith <shawn@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2006-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2008 Pippijn van Steenhoven <pip88nl@gmail.com>
@@ -134,6 +135,7 @@ class ModuleServicesAccount : public Module
 	void On005Numeric(std::string &t)
 	{
 		ServerInstance->AddExtBanChar('R');
+		ServerInstance->AddExtBanChar('U');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
@@ -207,12 +209,30 @@ class ModuleServicesAccount : public Module
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
-		if (mask[0] == 'R' && mask[1] == ':')
+		if (mask[1] == ':')
 		{
-			std::string *account = accountname.get(user);
-			if (account && InspIRCd::Match(*account, mask.substr(2)))
-				return MOD_RES_DENY;
+			if (mask[0] == 'R')
+			{
+				std::string *account = accountname.get(user);
+				if (account && InspIRCd::Match(*account, mask.substr(2)))
+					return MOD_RES_DENY;
+			}
+			else if (mask[0] == 'U')
+			{
+				std::string *account = accountname.get(user);
+				/* If the user is registered we don't care. */
+				if (account)
+					return MOD_RES_PASSTHRU;
+
+				/* If we made it this far we know the user isn't registered
+					so just deny if it matches */
+				if (chan->GetExtBanStatus(user, 'U') == MOD_RES_DENY)
+					return MOD_RES_DENY;
+			}
 		}
+
+		/* If we made it this far then the ban wasn't an ExtBan
+			or the user we were checking for didn't match either ExtBan */
 		return MOD_RES_PASSTHRU;
 	}
 
