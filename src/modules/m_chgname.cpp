@@ -52,14 +52,14 @@ class CommandChgname : public Command
 
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxGecos)
 		{
-			user->WriteServ("NOTICE %s :*** GECOS too long", user->nick.c_str());
+			user->WriteServ("NOTICE %s :*** CHGNAME: GECOS too long", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1].c_str());
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's real name to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's GECOS to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
 		}
 
 		return CMD_SUCCESS;
