@@ -447,8 +447,6 @@ void XLineManager::ApplyLines()
 
 void XLineManager::InvokeStats(const std::string &type, int numeric, User* user, string_list &results)
 {
-	std::string sn = ServerInstance->Config->ServerName;
-
 	ContainerIter n = lookup_lines.find(type);
 
 	time_t current = ServerInstance->Time();
@@ -468,8 +466,8 @@ void XLineManager::InvokeStats(const std::string &type, int numeric, User* user,
 				ExpireLine(n, i);
 			}
 			else
-				results.push_back(sn+" "+ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
-					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+std::string(i->second->source)+" :"+(i->second->reason));
+				results.push_back(ServerInstance->Config->ServerName+" "+ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
+					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+i->second->source+" :"+i->second->reason);
 			i = safei;
 		}
 	}
