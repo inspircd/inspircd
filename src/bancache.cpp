@@ -117,7 +117,6 @@ unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positi
 				/* we need to remove this one. */
 				ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + b->IP);
 				delete b;
-				b = NULL;
 				BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
 				removed++;
 			}
@@ -148,7 +147,6 @@ void BanCacheManager::RehashCache()
 		{
 			/* we need to remove this one. */
 			delete b;
-			b = NULL;
 			BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
 		}
 		else
