@@ -252,8 +252,6 @@ IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 
 bool XLineManager::AddLine(XLine* line, User* user)
 {
-	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
-
 	if (line->duration && ServerInstance->Time() > line->expiry)
 		return false; // Don't apply expired XLines.
 
@@ -272,6 +270,8 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	XLineFactory* xlf = GetFactory(line->type);
 	if (!xlf)
 		return false;
+
+	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
 
 	if (xlf->AutoApplyToUserList(line))
 		pending_lines.push_back(line);
