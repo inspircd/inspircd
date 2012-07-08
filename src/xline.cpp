@@ -502,8 +502,6 @@ XLineManager::~XLineManager()
 	for(unsigned int i=0; i < sizeof(gekqz); i++)
 	{
 		XLineFactory* xlf = GetFactory(std::string(1, gekqz[i]));
-		if (xlf)
-			UnregisterFactory(xlf);
 		delete xlf;
 	}
 
@@ -514,10 +512,7 @@ XLineManager::~XLineManager()
 		{
 			delete j->second;
 		}
-		i->second.clear();
 	}
-	lookup_lines.clear();
-
 }
 
 void XLine::Apply(User* u)
