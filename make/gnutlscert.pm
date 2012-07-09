@@ -36,7 +36,7 @@ sub make_gnutls_cert()
 	my $timestr = time();
 	my $org = promptstring_s("Please enter the organization name", "My IRC Network");
 	my $unit = promptstring_s("Please enter the unit Name", "Server Admins");
-	my $state = promptstring_s("Pleae enter your state (two letter code)", "CA");
+	my $state = promptstring_s("Please enter your state (two letter code)", "CA");
 	my $country = promptstring_s("Please enter your country", "Oompa Loompa Land");
 	my $commonname = promptstring_s("Please enter the certificate common name (hostname)", "irc.mynetwork.com");
 	my $email = promptstring_s("Please enter a contact email address", "oompa\@loompa.com");

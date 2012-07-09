@@ -28,6 +28,17 @@
 #include "ssl.h"
 #include "m_cap.h"
 
+#ifdef WINDOWS
+# pragma comment(lib, "libgnutls.lib")
+# pragma comment(lib, "libgcrypt.lib")
+# pragma comment(lib, "libgpg-error.lib")
+# pragma comment(lib, "user32.lib")
+# pragma comment(lib, "advapi32.lib")
+# pragma comment(lib, "libgcc.lib")
+# pragma comment(lib, "libmingwex.lib")
+# pragma comment(lib, "gdi32.lib")
+#endif
+
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") -lgcrypt */

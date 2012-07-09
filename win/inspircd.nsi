@@ -153,6 +153,10 @@ SectionEnd
 Section "Config Files" SEC02
   SetOutPath "$INSTDIR\conf"
   File "..\docs\conf\*.example"
+  SetOutPath "$INSTDIR\conf\aliases"
+  File "..\docs\conf\aliases\*.example"
+  SetOutPath "$INSTDIR\conf\modules"
+  File "..\docs\conf\modules\modules.*"
 SectionEnd
 
 Section "Command Handlers" SEC03
@@ -163,6 +167,10 @@ SectionEnd
 Section "Modules" SEC04
   SetOutPath "$INSTDIR\modules"
   File "..\bin\${BUILD}\modules\m_*.so"
+  ; Copy DLLs required for modules
+  SetOutPath "$INSTDIR"
+  File /nonfatal "*.dll"
+  File "make_gnutls_cert.bat"
 SectionEnd
 
 Section -AdditionalIcons
@@ -216,9 +224,13 @@ Section Uninstall
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\modules\*.so"
   Delete "$INSTDIR\conf\*.example"
+  Delete "$INSTDIR\conf\aliases\*.example"
+  Delete "$INSTDIR\conf\modules\*.example"
   Delete "$INSTDIR\*.log"
   Delete "$INSTDIR\logs\*"
   Delete "$INSTDIR\data\*"
+  Delete "$INSTDIR\*.dll"
+  Delete "$INSTDIR\make_gnutls_cert.bat"
   Delete "$INSTDIR\inspircd.exe"
   Delete "$SMPROGRAMS\InspIRCd\Uninstall.lnk"
   Delete "$SMPROGRAMS\InspIRCd\InspIRCd Website.lnk"
