@@ -395,6 +395,8 @@ class CoreExport User : public Extensible
 	 */
 	bool SetClientIP(const char* sip);
 
+	void SetClientIP(const irc::sockets::sockaddrs& sa);
+
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
@@ -818,6 +820,10 @@ class CoreExport LocalUser : public User, public InviteBase
 	 * @return A reference to this user's current connect class.
 	 */
 	void SetClass(const std::string &explicit_name = "");
+
+	bool SetClientIP(const char* sip);
+
+	void SetClientIP(const irc::sockets::sockaddrs& sa);
 
 	void SendText(const std::string& line);
 	void Write(const std::string& text);

@@ -222,10 +222,22 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
 {
+	ident = "unknown";
 	lastping = 0;
 	eh.SetFd(myfd);
-	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
+
+	/*
+	 * Initialize host and dhost here to the user's IP.
+	 * It is important to do this before calling SetClientIP()
+	 * as that can pass execution to modules that expect these
+	 * fields to be valid.
+	 */
+
+	int port;
+	irc::sockets::satoap(*client, host, port);
+	dhost = host;
+	SetClientIP(*client);
 }
 
 User::~User()
@@ -980,8 +992,34 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 
 bool User::SetClientIP(const char* sip)
 {
-	this->cachedip = "";
+	cachedip.clear();
 	return irc::sockets::aptosa(sip, 0, client_sa);
+}
+
+void User::SetClientIP(const irc::sockets::sockaddrs& sa)
+{
+	cachedip.clear();
+	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
+}
+
+bool LocalUser::SetClientIP(const char* sip)
+{
+	irc::sockets::sockaddrs sa;
+	if (!irc::sockets::aptosa(sip, 0, sa))
+		// Invalid
+		return false;
+
+	LocalUser::SetClientIP(sa);
+	return true;
+}
+
+void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
+{
+	if (sa != client_sa)
+	{
+		User::SetClientIP(sa);
+		FOREACH_MOD(I_OnSetUserIP,OnSetUserIP(this));
+	}
 }
 
 static std::string wide_newline("\r\n");

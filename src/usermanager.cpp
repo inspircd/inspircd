@@ -66,15 +66,9 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
 	(*(this->clientlist))[New->nick] = New;
 
-	New->ident.assign("unknown");
-
 	New->registered = REG_NONE;
 	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
 	New->lastping = 1;
-
-	/* Smarter than your average bear^H^H^H^Hset of strlcpys. */
-	New->dhost.assign(New->GetIPString(), 0, 64);
-	New->host.assign(New->GetIPString(), 0, 64);
 
 	ServerInstance->Users->AddLocalClone(New);
 	ServerInstance->Users->AddGlobalClone(New);
