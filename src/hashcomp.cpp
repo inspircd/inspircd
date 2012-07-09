@@ -486,7 +486,6 @@ std::string& irc::stringjoiner::GetJoined()
 irc::portparser::portparser(const std::string &source, bool allow_overlapped) : in_range(0), range_begin(0), range_end(0), overlapped(allow_overlapped)
 {
 	sep = new irc::commasepstream(source);
-	overlap_set.clear();
 }
 
 irc::portparser::~portparser()
@@ -499,13 +498,7 @@ bool irc::portparser::Overlaps(long val)
 	if (!overlapped)
 		return false;
 
-	if (overlap_set.find(val) == overlap_set.end())
-	{
-		overlap_set[val] = true;
-		return false;
-	}
-	else
-		return true;
+	return (!overlap_set.insert(val).second);
 }
 
 long irc::portparser::GetToken()

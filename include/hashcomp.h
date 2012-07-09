@@ -462,7 +462,7 @@ namespace irc
 		/** Used to determine overlapping of ports
 		 * without O(n) algorithm being used
 		 */
-		std::map<long, bool> overlap_set;
+		std::set<long> overlap_set;
 
 		/** Returns true if val overlaps an existing range
 		 */
