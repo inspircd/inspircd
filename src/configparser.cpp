@@ -307,7 +307,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	if (exec && (flags & FLAG_NO_EXEC))
 		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
 
-	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(name.c_str(), "r"));
+	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(name.c_str(), "r"), exec);
 	if (!file)
 		throw CoreException("Could not read \"" + name + "\" for \"" + key + "\" file");
 
@@ -364,7 +364,7 @@ bool ParseStack::ParseExec(const std::string& name, int flags)
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FileWrapper file(popen(name.c_str(), "r"));
+	FileWrapper file(popen(name.c_str(), "r"), true);
 	if (!file)
 		throw CoreException("Could not open executable \"" + name + "\" for include");
 

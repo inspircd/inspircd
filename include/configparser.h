@@ -61,13 +61,19 @@ struct ParseStack
 struct FileWrapper
 {
 	FILE* const f;
-	FileWrapper(FILE* file) : f(file) {}
+	bool close_with_pclose;
+	FileWrapper(FILE* file, bool use_pclose = false) : f(file), close_with_pclose(use_pclose) {}
 	operator bool() { return f; }
 	operator FILE*() { return f; }
 	~FileWrapper()
 	{
 		if (f)
-			fclose(f);
+		{
+			if (close_with_pclose)
+				pclose(f);
+			else
+				fclose(f);
+		}
 	}
 };
 
