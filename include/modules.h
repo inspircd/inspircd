@@ -116,7 +116,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 1
+#define INSPIRCD_VERSION_API 2
 
 /**
  * This #define allows us to call a method in all
@@ -338,7 +338,7 @@ enum Implementation
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
-	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent,
+	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
 	I_END
 };
 
@@ -1288,6 +1288,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param line The raw line to send; modifiable, if empty no line will be returned.
 	 */
 	virtual void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line);
+
+	/** Called whenever a local user's IP is set for the first time, or when a local user's IP changes due to
+	 * a module like m_cgiirc changing it.
+	 * @param user The user whose IP is being set
+	 */
+	virtual void OnSetUserIP(LocalUser* user);
 };
 
 
