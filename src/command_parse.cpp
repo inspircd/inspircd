@@ -443,31 +443,18 @@ int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std:
 
 int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
 {
-	User* user = NULL;
-	std::string item;
-	int translations = 0;
-	dest.clear();
-
-	switch (to)
+	if (to == TR_NICK)
 	{
-		case TR_NICK:
-			/* Translate single nickname */
-			user = ServerInstance->FindNick(source);
-			if (user)
-			{
-				dest = user->uuid;
-				translations++;
-			}
-			else
-				dest = source;
-		break;
-		case TR_END:
-		case TR_TEXT:
-		default:
-			/* Do nothing */
-			dest = source;
-		break;
+		/* Translate single nickname */
+		User* user = ServerInstance->FindNick(source);
+		if (user)
+		{
+			dest = user->uuid;
+			return 1;
+		}
 	}
 
-	return translations;
+	/* Do nothing*/
+	dest = source;
+	return 0;
 }
