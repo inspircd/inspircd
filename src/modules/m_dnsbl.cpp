@@ -185,7 +185,7 @@ class DNSBLResolver : public Resolver
 						break;
 					}
 
-					ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as being on a DNS blacklist (%s) with result %d", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
+					ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
 				}
 				else
 					ConfEntry->stats_misses++;
