@@ -48,6 +48,10 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 	list.reserve(ServerInstance->Parser->cmdlist.size());
 	for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
 	{
+		// Don't show S2S commands to users
+		if (i->second->flags_needed == FLAG_SERVERONLY)
+			continue;
+
 		Module* src = i->second->creator;
 		char buffer[MAXBUF];
 		snprintf(buffer, MAXBUF, ":%s %03d %s :%s %s %d %d",
