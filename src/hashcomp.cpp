@@ -490,7 +490,7 @@ irc::portparser::portparser(const std::string &source, bool allow_overlapped)
 
 bool irc::portparser::Overlaps(long val)
 {
-	if (!overlapped)
+	if (overlapped)
 		return false;
 
 	return (!overlap_set.insert(val).second);
