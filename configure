@@ -848,6 +848,11 @@ sub writefiles {
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh src/version.sh`);
 	chomp(my $revision2 = getrevision());
+	my $branch = "InspIRCd-0.0";
+	if ($version =~ /^(InspIRCd-[0-9]+\.[0-9]+)\.[0-9]+/)
+	{
+		$branch = $1;
+	}
 	if ($writeheader == 1)
 	{
 		print "Writing \e[1;32minspircd_config.h\e[0m\n";
@@ -933,6 +938,7 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 
 		open(FILEHANDLE, ">include/inspircd_version.h.tmp");
 		print FILEHANDLE <<EOF;
+#define BRANCH "$branch"
 #define VERSION "$version"
 #define REVISION "$revision2"
 #define SYSTEM "$incos"

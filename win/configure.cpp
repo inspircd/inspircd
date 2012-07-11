@@ -275,7 +275,11 @@ void Run()
 		fclose(fI);
 	}
 	else
-		strcpy(version, "InspIRCD-Unknown");
+		strcpy(version, "InspIRCd-0.0.0");
+	
+	string branch(version);
+	branch.erase(branch.find_last_of('.'));
+	
 #ifdef WIN64
 	printf_c("Your operating system is: \033[1;32mwindows_x64 \033[0m\n");
 #else
@@ -351,6 +355,7 @@ void Run()
 	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
 	printf("Writing inspircd_version.h...");
 	f = fopen("inspircd_version.h", "w");
+	fprintf(f, "#define BRANCH \"%s\"\n", branch.c_str());
 	fprintf(f, "#define VERSION \"%s\"\n", version);
 	fprintf(f, "#define REVISION \"%s\"\n", revision.c_str());
 	fprintf(f, "#define SYSTEM \"%s\"\n", machine_text);
