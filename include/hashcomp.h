@@ -441,7 +441,7 @@ namespace irc
 
 		/** Used to split on commas
 		 */
-		commasepstream* sep;
+		commasepstream sep;
 
 		/** Current position in a range of ports
 		 */
@@ -474,10 +474,6 @@ namespace irc
 		 * @param allow_overlapped Allow overlapped ranges
 		 */
 		portparser(const std::string &source, bool allow_overlapped = true);
-
-		/** Frees the internal commasepstream object
-		 */
-		~portparser();
 
 		/** Fetch the next token from the stream
 		 * @return The next port number is returned, or 0 if none remain
