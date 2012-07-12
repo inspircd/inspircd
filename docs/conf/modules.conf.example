@@ -305,7 +305,7 @@
 #<module name="m_cban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Censor module: Adds the channel mode +G
+# Censor module: Adds channel and user mode +G
 #<module name="m_censor.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  CENSOR  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
@@ -378,8 +378,13 @@
 # joining a channel with +H 'X:T' set; 'T' is the maximum time to keep
 # lines in the history buffer. Designed so that the new user knows what
 # the current topic of conversation is when joining the channel.
-# NOTE: Currently hard-limited to a maximum of 50 lines.
 #<module name="m_chanhistory.so">
+#
+# Set the maximum number of lines allowed to be stored per channel below.
+# This is the hard limit for 'X'.
+# If notice is set to yes, joining users will get a NOTICE before playback
+# telling them about the following lines being the pre-join history.
+#<chanhistory maxlines="20" notice="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel logging module: used to send snotice output to channels, to
