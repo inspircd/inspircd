@@ -92,11 +92,6 @@ class ModuleHalfop : public Module
 			throw ModuleException("Could not add new modes!");
 	}
 
-	~ModuleHalfop()
-	{
-		ServerInstance->Modes->DelMode(&mh);
-	}
-
 	Version GetVersion()
 	{
 		return Version("Channel half-operator mode provider", VF_VENDOR);

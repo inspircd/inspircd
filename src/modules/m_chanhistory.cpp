@@ -132,11 +132,6 @@ class ModuleChanHistory : public Module
 		sendnotice = tag->getInt("notice", true);
 	}
 
-	~ModuleChanHistory()
-	{
-		ServerInstance->Modes->DelMode(&m);
-	}
-
 	void OnUserMessage(User* user,void* dest,int target_type, const std::string &text, char status, const CUList&)
 	{
 		if (target_type == TYPE_CHANNEL && status == 0)
