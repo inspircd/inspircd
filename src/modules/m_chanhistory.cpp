@@ -129,7 +129,7 @@ class ModuleChanHistory : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getInt("maxlines", 50);
-		sendnotice = tag->getInt("notice", true);
+		sendnotice = tag->getBool("notice", true);
 	}
 
 	void OnUserMessage(User* user,void* dest,int target_type, const std::string &text, char status, const CUList&)
