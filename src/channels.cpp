@@ -1013,7 +1013,7 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 		if ((check_expired) && (inv->expiry != 0) && (inv->expiry <= ServerInstance->Time()))
 		{
 			/* Expired invite, remove it. */
-			ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find ecountered expired entry: %p timed out at %lu", (void*) inv, inv->expiry);
+			ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find ecountered expired entry: %p expired %s", (void*) inv, ServerInstance->TimeString(inv->expiry).c_str());
 			i = locallist.erase(i);
 			inv->cull();
 			delete inv;
