@@ -790,10 +790,6 @@ class CoreExport InspIRCd
 	 */
 	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
 
-	/** Handle /STATS
-	 */
-	void DoStats(char statschar, User* user, string_list &results);
-
 	/** Handle /WHOIS
 	 */
 	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
