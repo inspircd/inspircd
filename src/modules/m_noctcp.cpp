@@ -67,7 +67,7 @@ class ModuleNoCTCP : public Module
 			if (!c->IsModeSet('C'))
 				return MOD_RES_PASSTHRU;
 
-			if ((text.empty()) || (text[0] != '\001') || (strncmp(text.c_str(),"\1ACTION ",8)))
+			if ((text.empty()) || (text[0] != '\001') || (!strncmp(text.c_str(),"\1ACTION ",8)))
 				return MOD_RES_PASSTHRU;
 
 			ModResult res = ServerInstance->OnCheckExemption(user,c,"noctcp");
