@@ -83,13 +83,16 @@ class ModuleNamesX : public Module
 
 	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
 	{
-		if (!cap.ext.get(source) || line.empty())
+		if (!cap.ext.get(source))
 			return;
 
-		std::string::size_type pos = line.find(':');
-		if (pos == std::string::npos || pos < 2)
+		// Channel names can contain ":", and ":" as a 'start-of-token' delimiter is
+		// only ever valid after whitespace, so... find the actual delimiter first!
+		// Thanks to FxChiP for pointing this out.
+		std::string::size_type pos = line.find(" :");
+		if (pos == std::string::npos || pos == 0)
 			return;
-		pos -= 2;
+		pos--;
 		// Don't do anything if the user has no prefixes
 		if ((line[pos] == 'H') || (line[pos] == 'G') || (line[pos] == '*'))
 			return;
