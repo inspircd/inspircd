@@ -23,6 +23,10 @@
 #include "xline.h"
 #include "commands/cmd_whowas.h"
 
+#ifdef WINDOWS
+# pragma comment(lib, "psapi.lib") // For GetProcessMemoryInfo()
+#endif
+
 /** Handle /STATS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these

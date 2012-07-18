@@ -308,7 +308,6 @@ nmake -f modules.mak
     <ClCompile Include="..\src\socket.cpp" />
     <ClCompile Include="..\src\socketengine.cpp" />
     <ClCompile Include="..\src\socketengines\socketengine_select.cpp" />
-    <ClCompile Include="..\src\stats.cpp" />
     <ClCompile Include="..\src\testsuite.cpp" />
     <ClCompile Include="..\src\threadengine.cpp" />
     <ClCompile Include="..\src\threadengines\threadengine_win32.cpp" />

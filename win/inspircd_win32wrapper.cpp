@@ -738,6 +738,7 @@ static void unused_function()
 	reference<Link> unused_Link;
 	reference<Autoconnect> unused_Autoconnect;
 	reference<ssl_cert> unused_Cert;
+	reference<OperInfo> unused_OperInfo;
 
 	if (unused_Link)
 		unused_Link->Port = -1;
@@ -745,20 +746,26 @@ static void unused_function()
 		unused_Autoconnect->NextConnectTime = -1;
 	if (unused_Cert)
 		unused_Cert->dn = "";
+	if (unused_OperInfo)
+		unused_OperInfo->name = "";
 
 	Autoconnect *a = unused_Autoconnect;
 	Link *l = unused_Link;
 	ssl_cert *s = unused_Cert;
+	OperInfo *o = unused_OperInfo;
 
 	unused_Link = reference<Link>(unused_Link);
 	unused_Autoconnect = reference<Autoconnect>(unused_Autoconnect);
 	unused_Cert = reference<ssl_cert>(unused_Cert);
+	unused_OperInfo = reference<OperInfo>(unused_OperInfo);
 
 	unused_Link = reference<Link>(l);
 	unused_Autoconnect = reference<Autoconnect>(a);
 	unused_Cert = reference<ssl_cert>(s);
+	unused_OperInfo = reference<OperInfo>(o);
 
 	delete unused_Link;
 	delete unused_Autoconnect;
 	delete unused_Cert;
+	delete unused_OperInfo;
 }
