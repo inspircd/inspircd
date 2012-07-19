@@ -214,6 +214,10 @@ class ModuleSSLGnuTLS : public Module
 
 		if (Conf->getBool("showports", true))
 		{
+			sslports = Conf->getString("advertisedports");
+			if (!sslports.empty())
+				return;
+
 			for (size_t i = 0; i < ServerInstance->ports.size(); i++)
 			{
 				ListenSocket* port = ServerInstance->ports[i];
