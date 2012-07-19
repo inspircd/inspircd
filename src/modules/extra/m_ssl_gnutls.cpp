@@ -414,44 +414,39 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
+	void InitSession(StreamSocket* user, bool me_server)
+	{
+		issl_session* session = &sessions[user->GetFd()];
+
+		gnutls_init(&session->sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
+
+		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
+		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
+		gnutls_dh_set_prime_bits(session->sess, dh_bits);
+		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
+		gnutls_transport_set_push_function(session->sess, gnutls_push_wrapper);
+		gnutls_transport_set_pull_function(session->sess, gnutls_pull_wrapper);
+
+		if (me_server)
+			gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
+
+		Handshake(session, user);
+	}
+
 	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	{
-		int fd = user->GetFd();
-		issl_session* session = &sessions[fd];
+		issl_session* session = &sessions[user->GetFd()];
 
 		/* For STARTTLS: Don't try and init a session on a socket that already has a session */
 		if (session->sess)
 			return;
 
-		gnutls_init(&session->sess, GNUTLS_SERVER);
-
-		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
-		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
-		gnutls_dh_set_prime_bits(session->sess, dh_bits);
-
-		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
-		gnutls_transport_set_push_function(session->sess, gnutls_push_wrapper);
-		gnutls_transport_set_pull_function(session->sess, gnutls_pull_wrapper);
-
-		gnutls_certificate_server_set_request(session->sess, GNUTLS_CERT_REQUEST); // Request client certificate if any.
-
-		Handshake(session, user);
+		InitSession(user, true);
 	}
 
 	void OnStreamSocketConnect(StreamSocket* user)
 	{
-		issl_session* session = &sessions[user->GetFd()];
-
-		gnutls_init(&session->sess, GNUTLS_CLIENT);
-
-		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
-		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
-		gnutls_dh_set_prime_bits(session->sess, dh_bits);
-		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
-		gnutls_transport_set_push_function(session->sess, gnutls_push_wrapper);
-		gnutls_transport_set_pull_function(session->sess, gnutls_pull_wrapper);
-
-		Handshake(session, user);
+		InitSession(user, false);
 	}
 
 	void OnStreamSocketClose(StreamSocket* user)
