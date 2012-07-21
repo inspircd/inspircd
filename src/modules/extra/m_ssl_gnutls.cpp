@@ -228,11 +228,20 @@ class ModuleSSLGnuTLS : public Module
 				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %s", portid.c_str());
 
 				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
-					sslports.append(portid).append(";");
+				{
+					/*
+					 * Found an SSL port for clients that is not bound to 127.0.0.1 and handled by us, display
+					 * the IP:port in ISUPPORT.
+					 *
+					 * We used to advertise all ports seperated by a ';' char that matched the above criteria,
+					 * but this resulted in too long ISUPPORT lines if there were lots of ports to be displayed.
+					 * To solve this by default we now only display the first IP:port found and let the user
+					 * configure the exact value for the 005 token, if necessary.
+					 */
+					sslports = portid;
+					break;
+				}
 			}
-
-			if (!sslports.empty())
-				sslports.erase(sslports.end() - 1);
 		}
 	}
 
