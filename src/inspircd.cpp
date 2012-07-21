@@ -303,7 +303,7 @@ void InspIRCd::WritePID(const std::string &filename)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv) :
-	 ConfigFileName("conf/inspircd.conf"),
+	 ConfigFileName(CONFIG_PATH "/inspircd.conf"),
 
 	 /* Functor pointer initialisation.
 	  *

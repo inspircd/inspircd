@@ -861,6 +861,7 @@ sub writefiles {
 #define CoreExport /**/
 #define DllExport /**/
 
+#define CONFIG_PATH "$config{CONFIG_DIR}"
 #define MOD_PATH "$config{MODULE_DIR}"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
 #define ENTRYPOINT int main(int argc, char** argv)
