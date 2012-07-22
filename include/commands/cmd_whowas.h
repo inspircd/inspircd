@@ -46,27 +46,27 @@ typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
 class CommandWhowas : public Command
 {
   private:
-	/** Whowas container, contains a map of vectors of users tracked by WHOWAS
+	/** Primary container, links nicknames tracked by WHOWAS to a list of records
 	 */
 	whowas_users whowas;
 
-	/** Whowas container, contains a map of time_t to users tracked by WHOWAS
+	/** List of nicknames in the order they were inserted into the map
 	 */
 	whowas_users_fifo whowas_fifo;
 
   public:
 	/** Max number of WhoWas entries per user.
 	 */
-	int WhoWasGroupSize;
+	unsigned int GroupSize;
 
 	/** Max number of cumulative user-entries in WhoWas.
 	 *  When max reached and added to, push out oldest entry FIFO style.
 	 */
-	int WhoWasMaxGroups;
+	unsigned int MaxGroups;
 
 	/** Max seconds a user is kept in WhoWas before being pruned.
 	 */
-	int WhoWasMaxKeep;
+	unsigned int MaxKeep;
 
 	CommandWhowas(Module* parent);
 	/** Handle command.
@@ -78,8 +78,8 @@ class CommandWhowas : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 	void AddToWhoWas(User* user);
 	std::string GetStats();
-	void PruneWhoWas(time_t t);
-	void MaintainWhoWas(time_t t);
+	void Prune();
+	void Maintain();
 	~CommandWhowas();
 };
 
@@ -110,7 +110,4 @@ class WhoWasGroup
 	/** Initialize this WhoWasFroup with a user
 	 */
 	WhoWasGroup(User* user);
-	/** Destructor
-	 */
-	~WhoWasGroup();
 };
