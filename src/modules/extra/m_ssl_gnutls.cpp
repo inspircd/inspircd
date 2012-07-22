@@ -162,6 +162,7 @@ class ModuleSSLGnuTLS : public Module
 	gnutls_certificate_credentials x509_cred;
 	gnutls_dh_params dh_params;
 	gnutls_digest_algorithm_t hash;
+	gnutls_priority_t priority;
 
 	std::string sslports;
 	int dh_bits;
@@ -183,6 +184,8 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_global_init(); // This must be called once in the program
 		gnutls_x509_privkey_init(&x509_key);
+		// Init this here so it's always initialized, avoids an extra boolean
+		gnutls_priority_init(&priority, "NORMAL", NULL);
 
 		cred_alloc = false;
 		dh_alloc = false;
@@ -265,6 +268,13 @@ class ModuleSSLGnuTLS : public Module
 		dh_bits	= Conf->getInt("dhbits");
 		std::string hashname = Conf->getString("hash", "md5");
 
+		// The GnuTLS manual states that the gnutls_set_default_priority()
+		// call we used previously when initializing the session is the same
+		// as setting the "NORMAL" priority string.
+		// Thus if the setting below is not in the config we will behave exactly
+		// the same as before, when the priority setting wasn't available.
+		std::string priorities = Conf->getString("priority", "NORMAL");
+
 		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
 			dh_bits = 1024;
 
@@ -329,6 +339,21 @@ class ModuleSSLGnuTLS : public Module
 		if((ret = gnutls_certificate_set_x509_key(x509_cred, &x509_certs[0], certcount, x509_key)) < 0)
 			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
 
+		// It's safe to call this every time as we cannot have this uninitialized, see constructor and below.
+		gnutls_priority_deinit(priority);
+
+		// Try to set the priorities for ciphers, kex methods etc. to the user supplied string
+		// If the user did not supply anything then the string is already set to "NORMAL"
+		const char* priocstr = priorities.c_str();
+		const char* prioerror;
+
+		if ((ret = gnutls_priority_init(&priority, priocstr, &prioerror)) < 0)
+		{
+			// gnutls did not understand the user supplied string, log and fall back to the default priorities
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %d, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (prioerror - priocstr));
+			gnutls_priority_init(&priority, "NORMAL", NULL);
+		}
+
 		gnutls_certificate_client_set_retrieve_function (x509_cred, cert_callback);
 
 		ret = gnutls_dh_params_init(&dh_params);
@@ -362,6 +387,7 @@ class ModuleSSLGnuTLS : public Module
 			gnutls_x509_crt_deinit(x509_certs[i]);
 
 		gnutls_x509_privkey_deinit(x509_key);
+		gnutls_priority_deinit(priority);
 
 		if (dh_alloc)
 			gnutls_dh_params_deinit(dh_params);
@@ -429,7 +455,7 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_init(&session->sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
 
-		gnutls_set_default_priority(session->sess); // Avoid calling all the priority functions, defaults are adequate.
+		gnutls_priority_set(session->sess, priority);
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
