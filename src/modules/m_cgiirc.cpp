@@ -183,15 +183,8 @@ public:
 		ServerInstance->Extensions.Register(&cmd.webirc_ip);
 		ServerInstance->Extensions.Register(&waiting);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
-	}
-
-	void Prioritize()
-	{
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
-		Module* umodes = ServerInstance->Modules->Find("m_conn_umodes.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_BEFORE, &umodes);
+		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
 
 	void OnRehash(User* user)
@@ -246,6 +239,32 @@ public:
 	{
 		if (waiting.get(user))
 			return MOD_RES_DENY;
+
+		std::string *webirc_ip = cmd.webirc_ip.get(user);
+		if (!webirc_ip)
+			return MOD_RES_PASSTHRU;
+
+		ServerInstance->Users->RemoveCloneCounts(user);
+		user->SetClientIP(webirc_ip->c_str());
+		cmd.webirc_ip.unset(user);
+
+		std::string* webirc_hostname = cmd.webirc_hostname.get(user);
+		if (webirc_hostname && webirc_hostname->length() < 64)
+			user->host = user->dhost = *webirc_hostname;
+		else
+			user->host = user->dhost = user->GetIPString();
+
+		user->InvalidateCache();
+		cmd.webirc_hostname.unset(user);
+
+		ServerInstance->Users->AddLocalClone(user);
+		ServerInstance->Users->AddGlobalClone(user);
+		user->SetClass();
+		user->CheckClass();
+		user->CheckLines(true);
+		if (user->quitting)
+			return MOD_RES_DENY;
+
 		return MOD_RES_PASSTHRU;
 	}
 
@@ -286,29 +305,6 @@ public:
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	virtual void OnUserConnect(LocalUser* user)
-	{
-		std::string *webirc_hostname = cmd.webirc_hostname.get(user);
-		std::string *webirc_ip = cmd.webirc_ip.get(user);
-		if (!webirc_ip)
-			return;
-		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetClientIP(webirc_ip->c_str());
-		user->InvalidateCache();
-		if (webirc_hostname && webirc_hostname->length() < 64)
-			user->host = user->dhost = *webirc_hostname;
-		else
-			user->host = user->dhost = user->GetIPString();
-		user->InvalidateCache();
-		ServerInstance->Users->AddLocalClone(user);
-		ServerInstance->Users->AddGlobalClone(user);
-		user->SetClass();
-		user->CheckClass();
-		user->CheckLines(true);
-		cmd.webirc_ip.unset(user);
-		cmd.webirc_hostname.unset(user);
 	}
 
 	bool CheckPass(LocalUser* user)
