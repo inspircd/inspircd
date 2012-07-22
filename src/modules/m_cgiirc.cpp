@@ -181,6 +181,7 @@ public:
 		ServerInstance->Extensions.Register(&cmd.realip);
 		ServerInstance->Extensions.Register(&cmd.webirc_hostname);
 		ServerInstance->Extensions.Register(&cmd.webirc_ip);
+		ServerInstance->Extensions.Register(&waiting);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
