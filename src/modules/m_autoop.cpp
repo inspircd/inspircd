@@ -88,11 +88,11 @@ public:
 		ServerInstance->Modules->AddService(mh);
 		mh.DoImplements(this);
 
-		Implementation list[] = { I_OnPostJoin, };
+		Implementation list[] = { I_OnUserJoin, };
 		ServerInstance->Modules->Attach(list, this, 1);
 	}
 
-	void OnPostJoin(Membership *memb)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 	{
 		if (!IS_LOCAL(memb->user))
 			return;
@@ -100,9 +100,6 @@ public:
 		modelist* list = mh.extItem.get(memb->chan);
 		if (list)
 		{
-			std::string modeline("+");
-			std::vector<std::string> modechange;
-			modechange.push_back(memb->chan->name);
 			for (modelist::iterator it = list->begin(); it != list->end(); it++)
 			{
 				std::string::size_type colon = it->mask.find(':');
@@ -111,15 +108,13 @@ public:
 				if (memb->chan->CheckBan(memb->user, it->mask.substr(colon+1)))
 				{
 					ModeHandler* given = mh.FindMode(it->mask.substr(0, colon));
-					if (given && given->GetPrefixRank())
-						modeline.push_back(given->GetModeChar());
+					if (given && given->GetPrefixRank() && (memb->modes.find(given->GetModeChar()) == std::string::npos))
+					{
+						memb->chan->SetPrefix(memb->user, given->GetModeChar(), true);
+						given->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, memb->chan, memb->user->nick, true);
+					}
 				}
 			}
-			modechange.push_back(modeline);
-			for(std::string::size_type i = modeline.length(); i > 1; --i) // we use "i > 1" instead of "i" so we skip the +
-				modechange.push_back(memb->user->nick);
-			if(modechange.size() >= 3)
-				ServerInstance->SendGlobalMode(modechange, ServerInstance->FakeClient);
 		}
 	}
 
