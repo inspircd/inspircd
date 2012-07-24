@@ -178,7 +178,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 		if (static_cast<ModuleFilter *>(me)->DeleteFilter(parameters[0]))
 		{
 			user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
-			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" removed filter '"+parameters[0]+"'");
+			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" removed filter '"+parameters[0]+"'");
 			return CMD_SUCCESS;
 		}
 		else
@@ -231,7 +231,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 						type.c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
 						flags.c_str(), reason.c_str());
 
-				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', std::string("FILTER: ")+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
+				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" added filter '"+freeform+"', type '"+type+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
 
 				return CMD_SUCCESS;
 			}
@@ -306,7 +306,7 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 		if (target_type == TYPE_USER)
 		{
 			User* t = (User*)dest;
-			target = std::string(t->nick);
+			target = t->nick;
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
@@ -317,18 +317,18 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 		}
 		if (f->action == "block")
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', std::string("FILTER: ")+user->nick+" had their message filtered, target was "+target+": "+f->reason);
+			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
 			else
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
+				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
 		}
 		if (f->action == "silent")
 		{
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(404, "%s %s :Message to channel blocked (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
 			else
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :Your message to "+target+" was blocked: "+f->reason);
+				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked: "+f->reason);
 		}
 		if (f->action == "kill")
 		{

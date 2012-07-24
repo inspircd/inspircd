@@ -254,7 +254,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 		// this is good. Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
 		this->SendCapabilities(2);
-		this->WriteLine(std::string("SERVER ")+ServerInstance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
+		this->WriteLine("SERVER "+ServerInstance->Config->ServerName+" "+this->MakePass(x->SendPass, this->GetTheirChallenge())+" 0 "+ServerInstance->Config->GetSID()+" :"+ServerInstance->Config->ServerDesc);
 		// move to the next state, we are now waiting for THEM.
 		MyRoot = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
 		Utils->TreeRoot->AddChild(MyRoot);

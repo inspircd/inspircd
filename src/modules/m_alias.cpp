@@ -281,7 +281,7 @@ class ModuleAlias : public Module
 			u = ServerInstance->FindNick(a->RequiredNick);
 			if (!u)
 			{
-				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->RequiredNick+" :is currently unavailable. Please try again later.");
+				user->WriteNumeric(401, ""+user->nick+" "+a->RequiredNick+" :is currently unavailable. Please try again later.");
 				return 1;
 			}
 		}
@@ -290,7 +290,7 @@ class ModuleAlias : public Module
 			if (!ServerInstance->ULine(u->server))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+std::string(a->AliasedCommand.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
-				user->WriteNumeric(401, ""+std::string(user->nick)+" "+a->RequiredNick+" :is an imposter! Please inform an IRC operator as soon as possible.");
+				user->WriteNumeric(401, ""+user->nick+" "+a->RequiredNick+" :is an imposter! Please inform an IRC operator as soon as possible.");
 				return 1;
 			}
 		}

@@ -251,7 +251,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 
 	Channel *ch = NULL;
 	std::vector<std::string> whoresults;
-	std::string initial = "352 " + std::string(user->nick) + " ";
+	std::string initial = "352 " + user->nick + " ";
 
 	char matchtext[MAXBUF];
 	bool usingwildcards = false;

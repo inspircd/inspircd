@@ -145,9 +145,9 @@ std::string ModuleSpanningTree::TimeToStr(time_t secs)
 	secs = secs % 60;
 	mins_up = mins_up % 60;
 	hours_up = hours_up % 24;
-	return ((days_up ? (ConvToStr(days_up) + "d") : std::string(""))
-			+ (hours_up ? (ConvToStr(hours_up) + "h") : std::string(""))
-			+ (mins_up ? (ConvToStr(mins_up) + "m") : std::string(""))
+	return ((days_up ? (ConvToStr(days_up) + "d") : "")
+			+ (hours_up ? (ConvToStr(hours_up) + "h") : "")
+			+ (mins_up ? (ConvToStr(mins_up) + "m") : "")
 			+ ConvToStr(secs) + "s");
 }
 
@@ -194,7 +194,7 @@ restart:
 					// ... if we can find a proper route to them
 					if (tsock)
 					{
-						tsock->WriteLine(std::string(":") + ServerInstance->Config->GetSID() + " PING " +
+						tsock->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " +
 								ServerInstance->Config->GetSID() + " " + s->GetID());
 						s->LastPingMsec = ts;
 					}
@@ -592,7 +592,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	params.push_back(user->GetIPString());
 	params.push_back(ConvToStr(user->signon));
 	params.push_back("+"+std::string(user->FormatModes(true)));
-	params.push_back(":"+std::string(user->fullname));
+	params.push_back(":"+user->fullname);
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
 
 	if (IS_OPER(user))
@@ -625,7 +625,7 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, C
 		params.push_back(memb->chan->name);
 		params.push_back(ConvToStr(memb->chan->age));
 		params.push_back(std::string("+") + memb->chan->ChanModes(true));
-		params.push_back(memb->modes+","+std::string(memb->user->uuid));
+		params.push_back(memb->modes+","+memb->user->uuid);
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
 	}
 }
@@ -929,12 +929,12 @@ void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type
 		if (target_type == TYPE_USER)
 		{
 			User* u = (User*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" MODE "+u->uuid+" "+output_text);
+			s->WriteLine(":"+ServerInstance->Config->GetSID()+" MODE "+u->uuid+" "+output_text);
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)target;
-			s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
+			s->WriteLine(":"+ServerInstance->Config->GetSID()+" FMODE "+c->name+" "+ConvToStr(c->age)+" "+output_text);
 		}
 	}
 }
@@ -945,11 +945,11 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 	User* u = dynamic_cast<User*>(target);
 	Channel* c = dynamic_cast<Channel*>(target);
 	if (u)
-		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
+		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 	else if (c)
-		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
+		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
 	else if (!target)
-		s->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
+		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 }
 
 CullResult ModuleSpanningTree::cull()

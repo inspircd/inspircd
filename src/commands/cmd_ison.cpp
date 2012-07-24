@@ -48,7 +48,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 {
 	std::map<User*,User*> ison_already;
 	User *u;
-	std::string reply = std::string("303 ") + user->nick + " :";
+	std::string reply = "303 " + user->nick + " :";
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
@@ -62,7 +62,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 			if (reply.length() > 450)
 			{
 				user->WriteServ(reply);
-				reply = std::string("303 ") + user->nick + " :";
+				reply = "303 " + user->nick + " :";
 			}
 			ison_already[u] = u;
 		}
@@ -87,7 +87,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 						if (reply.length() > 450)
 						{
 							user->WriteServ(reply);
-							reply = std::string("303 ") + user->nick + " :";
+							reply = "303 " + user->nick + " :";
 						}
 						ison_already[u] = u;
 					}

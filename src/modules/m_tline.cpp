@@ -49,7 +49,7 @@ class CommandTline : public Command
 			}
 			else
 			{
-				std::string host = std::string(u->second->ident) + "@" + u->second->GetIPString();
+				std::string host = u->second->ident + "@" + u->second->GetIPString();
 				if (InspIRCd::MatchCIDR(host, parameters[0]))
 				{
 					n_matched++;

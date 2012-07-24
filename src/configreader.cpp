@@ -579,7 +579,7 @@ void ServerConfig::Fill()
 	std::string modes = ConfValue("disabled")->getString("usermodes");
 	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
-		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid usermode ")+(char)*p+" was found.");
+		if (*p < 'A' || *p > ('A' + 64)) throw CoreException("Invalid usermode " + std::string(1, *p) + " was found.");
 		DisabledUModes[*p - 'A'] = 1;
 	}
 
@@ -587,7 +587,7 @@ void ServerConfig::Fill()
 	modes = ConfValue("disabled")->getString("chanmodes");
 	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
-		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid chanmode ")+(char)*p+" was found.");
+		if (*p < 'A' || *p > ('A' + 64)) throw CoreException("Invalid chanmode " + std::string(1, *p) + " was found.");
 		DisabledCModes[*p - 'A'] = 1;
 	}
 

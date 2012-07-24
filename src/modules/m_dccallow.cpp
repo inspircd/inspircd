@@ -149,7 +149,7 @@ class CommandDccallow : public Command
 						}
 					}
 
-					std::string mask = std::string(target->nick)+"!"+std::string(target->ident)+"@"+std::string(target->dhost);
+					std::string mask = target->nick+"!"+target->ident+"@"+target->dhost;
 					ConfigReader Conf;
 					std::string default_length = Conf.ReadValue("dccallow", "length", 0);
 

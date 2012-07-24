@@ -41,7 +41,7 @@ class CommandSamode : public Command
 		this->active = true;
 		ServerInstance->Parser->CallHandler("MODE", parameters, user);
 		if (ServerInstance->Modes->GetLastParse().length())
-			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick) + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
 		this->active = false;
 		return CMD_SUCCESS;
 	}

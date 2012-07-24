@@ -61,7 +61,7 @@ class CommandOjoin : public Command
 		// Make sure the channel name is allowable.
 		if (!ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
 		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name or name too long");
+			user->WriteServ("NOTICE "+user->nick+" :*** Invalid characters in channel name or name too long");
 			return CMD_FAILURE;
 		}
 
@@ -71,19 +71,19 @@ class CommandOjoin : public Command
 
 		if (channel)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used OJOIN to join "+channel->name);
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
 
 			if (notice)
 			{
 				channel = ServerInstance->FindChan(parameters[0]);
 				channel->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "NOTICE %s :%s joined on official network business.",
 					parameters[0].c_str(), user->nick.c_str());
-				ServerInstance->PI->SendChannelNotice(channel, 0, std::string(user->nick) + " joined on official network business.");
+				ServerInstance->PI->SendChannelNotice(channel, 0, user->nick + " joined on official network business.");
 			}
 		}
 		else
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used OJOIN in "+parameters[0]);
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN in "+parameters[0]);
 			// they're already in the channel
 			std::vector<std::string> modes;
 			modes.push_back(parameters[0]);

@@ -127,7 +127,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		 * the UID or halt the propagation of the nick change command,
 		 * so other servers don't need to see the SAVE
 		 */
-		WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
+		WriteLine(":"+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
 
 		if (remote)
 		{

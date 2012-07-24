@@ -51,7 +51,7 @@ class CommandChghost : public Command
 		{
 			if (!hostmap[(unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** CHGHOST: Invalid characters in hostname");
+				user->WriteServ("NOTICE "+user->nick+" :*** CHGHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
 		}
@@ -69,7 +69,7 @@ class CommandChghost : public Command
 			if ((dest->ChangeDisplayedHost(parameters[1].c_str())) && (!ServerInstance->ULine(user->server)))
 			{
 				// fix by brain - ulines set hosts silently
-				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
 			}
 		}
 

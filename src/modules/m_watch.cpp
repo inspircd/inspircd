@@ -406,12 +406,12 @@ class Modulewatch : public Module
 
 		if (awaymsg.empty())
 		{
-			numeric = std::string(user->nick) + " " + user->ident + " " + user->dhost + " " + ConvToStr(ServerInstance->Time()) + " :is no longer away";
+			numeric = user->nick + " " + user->ident + " " + user->dhost + " " + ConvToStr(ServerInstance->Time()) + " :is no longer away";
 			inum = 599;
 		}
 		else
 		{
-			numeric = std::string(user->nick) + " " + user->ident + " " + user->dhost + " " + ConvToStr(ServerInstance->Time()) + " :" + awaymsg;
+			numeric = user->nick + " " + user->ident + " " + user->dhost + " " + ConvToStr(ServerInstance->Time()) + " :" + awaymsg;
 			inum = 598;
 		}
 

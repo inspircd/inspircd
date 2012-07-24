@@ -47,7 +47,7 @@ class CommandSajoin : public Command
 			if (IS_LOCAL(user) && !ServerInstance->IsChannel(parameters[1].c_str(), ServerInstance->Config->Limits.ChanMax))
 			{
 				/* we didn't need to check this for each character ;) */
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Invalid characters in channel name or name too long");
+				user->WriteServ("NOTICE "+user->nick+" :*** Invalid characters in channel name or name too long");
 				return CMD_FAILURE;
 			}
 
@@ -64,30 +64,30 @@ class CommandSajoin : public Command
 				{
 					if (n->HasUser(dest))
 					{
-						ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" used SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+						ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+parameters[1]);
 						return CMD_SUCCESS;
 					}
 					else
 					{
-						user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
+						user->WriteServ("NOTICE "+user->nick+" :*** Could not join "+dest->nick+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
 						return CMD_FAILURE;
 					}
 				}
 				else
 				{
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** Could not join "+std::string(dest->nick)+" to "+parameters[1]);
+					user->WriteServ("NOTICE "+user->nick+" :*** Could not join "+dest->nick+" to "+parameters[1]);
 					return CMD_FAILURE;
 				}
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', std::string(user->nick)+" sent remote SAJOIN to make "+std::string(dest->nick)+" join "+parameters[1]);
+				ServerInstance->SNO->WriteToSnoMask('a', user->nick+" sent remote SAJOIN to make "+dest->nick+" join "+parameters[1]);
 				return CMD_SUCCESS;
 			}
 		}
 		else
 		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :*** No such nickname "+parameters[0]);
+			user->WriteServ("NOTICE "+user->nick+" :*** No such nickname "+parameters[0]);
 			return CMD_FAILURE;
 		}
 	}

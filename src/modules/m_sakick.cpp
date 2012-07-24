@@ -76,7 +76,7 @@ class CommandSakick : public Command
 			if (IS_LOCAL(user))
 			{
 				/* Locally issued command; send the snomasks */
-				ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick) + " SAKICKed " + dest->nick + " on " + parameters[0]);
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " SAKICKed " + dest->nick + " on " + parameters[0]);
 			}
 
 			return CMD_SUCCESS;

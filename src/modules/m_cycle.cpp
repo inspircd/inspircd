@@ -60,7 +60,7 @@ class CommandCycle : public Command
 				if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->IsBanned(user))
 				{
 					/* banned, boned. drop the message. */
-					user->WriteServ("NOTICE "+std::string(user->nick)+" :*** You may not cycle, as you are banned on channel " + channel->name);
+					user->WriteServ("NOTICE "+user->nick+" :*** You may not cycle, as you are banned on channel " + channel->name);
 					return CMD_FAILURE;
 				}
 

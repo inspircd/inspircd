@@ -129,7 +129,7 @@ void TreeSocket::ProcessLine(std::string &line)
 			}
 			else
 			{
-				this->SendError(std::string("Invalid command in negotiation phase: ") + command.c_str());
+				this->SendError("Invalid command in negotiation phase: " + command);
 			}
 		break;
 		case WAIT_AUTH_2:
@@ -394,7 +394,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		if (params.size() != 2)
 		{
-			SendError("Protocol violation: NICK message without TS - :"+std::string(who->uuid)+" NICK "+params[0]);
+			SendError("Protocol violation: NICK message without TS - :"+who->uuid+" NICK "+params[0]);
 			return;
 		}
 

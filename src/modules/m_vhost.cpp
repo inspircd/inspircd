@@ -56,7 +56,7 @@ class CommandVhost : public Command
 			}
 		}
 
-		user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid username or password.");
+		user->WriteServ("NOTICE "+user->nick+" :Invalid username or password.");
 		return CMD_FAILURE;
 	}
 };

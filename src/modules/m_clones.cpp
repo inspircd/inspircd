@@ -36,7 +36,7 @@ class CommandClones : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 
-		std::string clonesstr = "304 " + std::string(user->nick) + " :CLONES";
+		std::string clonesstr = "304 " + user->nick + " :CLONES";
 
 		unsigned long limit = atoi(parameters[0].c_str());
 

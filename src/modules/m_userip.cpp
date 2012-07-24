@@ -35,7 +35,7 @@ class CommandUserip : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		std::string retbuf = std::string("340 ") + user->nick + " :";
+		std::string retbuf = "340 " + user->nick + " :";
 		int nicks = 0;
 
 		for (int i = 0; i < (int)parameters.size(); i++)
@@ -76,7 +76,7 @@ class ModuleUserIP : public Module
 
 	virtual void On005Numeric(std::string &output)
 	{
-		output = output + std::string(" USERIP");
+		output = output + " USERIP";
 	}
 
 	virtual ~ModuleUserIP()

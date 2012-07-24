@@ -35,7 +35,7 @@ class PCREException : public ModuleException
 {
 public:
 	PCREException(const std::string& rx, const std::string& error, int erroffset)
-		: ModuleException(std::string("Error in regex ") + rx + " at offset " + ConvToStr(erroffset) + ": " + error)
+		: ModuleException("Error in regex " + rx + " at offset " + ConvToStr(erroffset) + ": " + error)
 	{
 	}
 };

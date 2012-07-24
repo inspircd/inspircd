@@ -189,7 +189,7 @@ class ModuleServicesAccount : public Module
 			if (c->IsModeSet('M') && !is_registered && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
-				user->WriteNumeric(477, ""+std::string(user->nick)+" "+std::string(c->name)+" :You need to be identified to a registered account to message this channel");
+				user->WriteNumeric(477, user->nick+" "+c->name+" :You need to be identified to a registered account to message this channel");
 				return MOD_RES_DENY;
 			}
 		}

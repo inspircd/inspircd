@@ -49,7 +49,7 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	if (!ServerInstance->PassCompare(user, ServerInstance->Config->diepass, parameters[0].c_str(), ServerInstance->Config->powerhash))
 	{
 		{
-			std::string diebuf = std::string("*** DIE command from ") + user->nick + "!" + user->ident + "@" + user->dhost + ". Terminating.";
+			std::string diebuf = "*** DIE command from " + user->nick + "!" + user->ident + "@" + user->dhost + ". Terminating.";
 			ServerInstance->Logs->Log("COMMAND",SPARSE, diebuf);
 			ServerInstance->SendError(diebuf);
 		}

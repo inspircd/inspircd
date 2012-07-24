@@ -68,7 +68,7 @@ class CommandCheck : public Command
 		std::string checkstr;
 		std::string chliststr;
 
-		checkstr = std::string(":") + ServerInstance->Config->ServerName + " 304 " + std::string(user->nick) + " :CHECK";
+		checkstr = ":" + ServerInstance->Config->ServerName + " 304 " + user->nick + " :CHECK";
 
 		targuser = ServerInstance->FindNick(parameters[0]);
 		targchan = ServerInstance->FindChan(parameters[0]);

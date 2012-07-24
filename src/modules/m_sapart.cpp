@@ -62,14 +62,14 @@ class CommandSapart : public Command
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (!n)
 				{
-					ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+parameters[1]);
 					return CMD_SUCCESS;
 				}
 				else
 				{
 					if (!n->HasUser(dest))
 					{
-						ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used SAPART to make "+dest->nick+" part "+parameters[1]);
+						ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+parameters[1]);
 						return CMD_SUCCESS;
 					}
 					else

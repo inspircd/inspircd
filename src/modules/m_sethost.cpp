@@ -43,7 +43,7 @@ class CommandSethost : public Command
 		{
 			if (!hostmap[(const unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+std::string(user->nick)+" :*** SETHOST: Invalid characters in hostname");
+				user->WriteServ("NOTICE "+user->nick+" :*** SETHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
 		}
@@ -60,7 +60,7 @@ class CommandSethost : public Command
 
 		if (user->ChangeDisplayedHost(parameters[0].c_str()))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', std::string(user->nick)+" used SETHOST to change their displayed host to "+user->dhost);
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->dhost);
 			return CMD_SUCCESS;
 		}
 

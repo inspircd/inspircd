@@ -62,7 +62,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 			 * IDENTMAX here.
 			 */
 			user->ChangeIdent(parameters[0].c_str());
-			user->fullname.assign(parameters[3].empty() ? std::string("No info") : parameters[3], 0, ServerInstance->Config->Limits.MaxGecos);
+			user->fullname.assign(parameters[3].empty() ? "No info" : parameters[3], 0, ServerInstance->Config->Limits.MaxGecos);
 			user->registered = (user->registered | REG_USER);
 		}
 	}

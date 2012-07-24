@@ -74,7 +74,7 @@ class ModuleOverride : public Module
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('v',std::string(source->nick)+" used oper override to change a topic on "+std::string(channel->name));
+				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to change a topic on "+channel->name);
 			}
 
 			// Explicit allow
@@ -91,7 +91,7 @@ class ModuleOverride : public Module
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('v',std::string(source->nick)+" used oper override to kick "+std::string(memb->user->nick)+" on "+std::string(memb->chan->name)+" ("+reason+")");
+				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to kick "+memb->user->nick+" on "+memb->chan->name+" ("+reason+")");
 				return MOD_RES_ALLOW;
 			}
 		}
@@ -109,7 +109,7 @@ class ModuleOverride : public Module
 
 		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
 		{
-			std::string msg = std::string(source->nick)+" overriding modes:";
+			std::string msg = source->nick+" overriding modes:";
 			for(unsigned int i=0; i < parameters.size(); i++)
 				msg += " " + parameters[i];
 			ServerInstance->SNO->WriteGlobalSno('v',msg);

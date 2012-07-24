@@ -30,7 +30,7 @@ class POSIXRegexException : public ModuleException
 {
 public:
 	POSIXRegexException(const std::string& rx, const std::string& error)
-		: ModuleException(std::string("Error in regex ") + rx + ": " + error)
+		: ModuleException("Error in regex " + rx + ": " + error)
 	{
 	}
 };

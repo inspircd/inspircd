@@ -36,7 +36,7 @@ bool TreeSocket::LocalPing(const std::string &prefix, parameterlist &params)
 	if (params.size() == 1)
 	{
 		std::string stufftobounce = params[0];
-		this->WriteLine(std::string(":")+ServerInstance->Config->GetSID()+" PONG "+stufftobounce);
+		this->WriteLine(":"+ServerInstance->Config->GetSID()+" PONG "+stufftobounce);
 		return true;
 	}
 	else

@@ -71,7 +71,7 @@ class ModuleServProtectMode : public Module
 	{
 		if (dst->IsModeSet('k'))
 		{
-			ServerInstance->SendWhoisLine(src, dst, 310, std::string(src->nick)+" "+std::string(dst->nick)+" :is an "+ServerInstance->Config->Network+" Service");
+			ServerInstance->SendWhoisLine(src, dst, 310, src->nick+" "+dst->nick+" :is an "+ServerInstance->Config->Network+" Service");
 		}
 	}
 
@@ -112,7 +112,7 @@ class ModuleServProtectMode : public Module
 		if (dst->IsModeSet('k'))
 		{
 			src->WriteNumeric(485, "%s :You are not permitted to kill %s services!", src->nick.c_str(), ServerInstance->Config->Network.c_str());
-			ServerInstance->SNO->WriteGlobalSno('a', std::string(src->nick)+" tried to kill service "+dst->nick+" ("+reason+")");
+			ServerInstance->SNO->WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

@@ -44,7 +44,7 @@ class CommandUserhost : public Command
 
 CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	std::string retbuf = std::string("302 ") + user->nick + " :";
+	std::string retbuf = "302 " + user->nick + " :";
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{

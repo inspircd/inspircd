@@ -627,7 +627,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 			else
 			{
-				user->SetError(std::string("Handshake Failed - ") + gnutls_strerror(ret));
+				user->SetError("Handshake Failed - " + std::string(gnutls_strerror(ret)));
 				CloseSession(session);
 				session->status = ISSL_CLOSING;
 			}

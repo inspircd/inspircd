@@ -116,7 +116,7 @@ class DNSBLResolver : public Resolver
 					{
 						case DNSBLConfEntry::I_KILL:
 						{
-							ServerInstance->Users->QuitUser(them, std::string("Killed (") + reason + ")");
+							ServerInstance->Users->QuitUser(them, "Killed (" + reason + ")");
 							break;
 						}
 						case DNSBLConfEntry::I_MARK:

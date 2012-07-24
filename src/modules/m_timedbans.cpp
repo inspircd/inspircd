@@ -65,7 +65,7 @@ class CommandTban : public Command
 		}
 		if (!ServerInstance->IsValidMask(parameters[2]))
 		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban mask");
+			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
 			return CMD_FAILURE;
 		}
 		TimedBan T;
@@ -74,7 +74,7 @@ class CommandTban : public Command
 		unsigned long expire = duration + ServerInstance->Time();
 		if (duration < 1)
 		{
-			user->WriteServ("NOTICE "+std::string(user->nick)+" :Invalid ban time");
+			user->WriteServ("NOTICE "+user->nick+" :Invalid ban time");
 			return CMD_FAILURE;
 		}
 		std::string mask = parameters[2];
