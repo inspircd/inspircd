@@ -61,13 +61,6 @@ class ModuleHostChange : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
-	void Prioritize()
-	{
-		Module* cloak = ServerInstance->Modules->Find("m_cloaking.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_AFTER, &cloak);
-	}
-
-
 	virtual void OnRehash(User* user)
 	{
 		ConfigReader Conf;
