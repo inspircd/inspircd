@@ -147,15 +147,14 @@ class ModuleHostChange : public Module
 				{
 					// first take their nick and strip out non-dns, leaving just [A-Z0-9\-]
 					std::string complete;
-					std::string old = user->nick;
-					for (unsigned int j = 0; j < old.length(); j++)
+					for (std::string::const_iterator j = user->nick.begin(); j != user->nick.end(); ++j)
 					{
-						if  (((old[j] >= 'A') && (old[j] <= 'Z')) ||
-						    ((old[j] >= 'a') && (old[j] <= 'z')) ||
-						    ((old[j] >= '0') && (old[j] <= '9')) ||
-						    (old[j] == '-'))
+						if  (((*j >= 'A') && (*j <= 'Z')) ||
+						    ((*j >= 'a') && (*j <= 'z')) ||
+						    ((*j >= '0') && (*j <= '9')) ||
+						    (*j == '-'))
 						{
-							complete = complete + old[j];
+							complete = complete + *j;
 						}
 					}
 					if (complete.empty())
