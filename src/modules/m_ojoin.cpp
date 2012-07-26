@@ -87,8 +87,10 @@ class CommandOjoin : public Command
 			// they're already in the channel
 			std::vector<std::string> modes;
 			modes.push_back(parameters[0]);
-			modes.push_back("+Y");
+			modes.push_back(op ? "+Yo" : "+Y");
 			modes.push_back(user->nick);
+			if (op)
+				modes.push_back(user->nick);
 			ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
 		}
 		return CMD_SUCCESS;
