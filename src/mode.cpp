@@ -899,9 +899,6 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
  */
 void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 {
-	char moderemove[MAXBUF];
-	std::vector<std::string> parameters;
-
 	if (user->IsModeSet(this->GetModeChar()))
 	{
 		if (stack)
@@ -910,9 +907,10 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 		}
 		else
 		{
-			sprintf(moderemove,"-%c",this->GetModeChar());
+			std::vector<std::string> parameters;
 			parameters.push_back(user->nick);
-			parameters.push_back(moderemove);
+			parameters.push_back("-");
+			parameters[1].push_back(this->GetModeChar());
 			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
 		}
 	}
@@ -923,9 +921,6 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
  */
 void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
-	char moderemove[MAXBUF];
-	std::vector<std::string> parameters;
-
 	if (channel->IsModeSet(this->GetModeChar()))
 	{
 		if (stack)
@@ -934,9 +929,10 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
 		}
 		else
 		{
-			sprintf(moderemove,"-%c",this->GetModeChar());
+			std::vector<std::string> parameters;
 			parameters.push_back(channel->name);
-			parameters.push_back(moderemove);
+			parameters.push_back("-");
+			parameters[1].push_back(this->GetModeChar());
 			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
 		}
 	}
