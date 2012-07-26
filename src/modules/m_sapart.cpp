@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style SAPART command */
+/* $ModDesc: Provides command SAPART to force-part users from a channel. */
 
 /** Handle /SAPART
  */
@@ -116,7 +116,7 @@ class ModuleSapart : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("Provides support for unreal-style SAPART command", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides command SAPART to force-part users from a channel.", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 };

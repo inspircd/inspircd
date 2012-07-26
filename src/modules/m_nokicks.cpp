@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for unreal-style channel mode +Q */
+/* $ModDesc: Provides channel mode +Q to prevent kicks on the channel. */
 
 class NoKicks : public SimpleChannelModeHandler
 {
@@ -74,7 +74,7 @@ class ModuleNoKicks : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for unreal-style channel mode +Q", VF_VENDOR);
+		return Version("Provides channel mode +Q to prevent kicks on the channel.", VF_VENDOR);
 	}
 };
 
