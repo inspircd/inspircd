@@ -33,10 +33,10 @@ class floodsettings
 {
  public:
 	bool ban;
-	int secs;
-	int lines;
+	unsigned int secs;
+	unsigned int lines;
 	time_t reset;
-	std::map<User*,int> counters;
+	std::map<User*, unsigned int> counters;
 
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
@@ -56,7 +56,7 @@ class floodsettings
 
 	void clear(User* who)
 	{
-		std::map<User*,int>::iterator iter = counters.find(who);
+		std::map<User*, unsigned int>::iterator iter = counters.find(who);
 		if (iter != counters.end())
 		{
 			counters.erase(iter);
@@ -79,85 +79,32 @@ class MsgFlood : public ModeHandler
 
 		if (adding)
 		{
-			char ndata[MAXBUF];
-			char* data = ndata;
-			strlcpy(ndata,parameter.c_str(),MAXBUF);
-			char* lines = data;
-			char* secs = NULL;
-			bool ban = false;
-			if (*data == '*')
-			{
-				ban = true;
-				lines++;
-			}
-			else
-			{
-				ban = false;
-			}
-			while (*data)
-			{
-				if (*data == ':')
-				{
-					*data = 0;
-					data++;
-					secs = data;
-					break;
-				}
-				else data++;
-			}
-			if (secs)
-			{
-				/* Set up the flood parameters for this channel */
-				int nlines = atoi(lines);
-				int nsecs = atoi(secs);
-				if ((nlines<2) || (nsecs<1))
-				{
-					source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-					parameter.clear();
-					return MODEACTION_DENY;
-				}
-				else
-				{
-					if (!f)
-					{
-						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
-						f = new floodsettings(ban,nsecs,nlines);
-						ext.set(channel, f);
-						channel->SetModeParam('f', parameter);
-						return MODEACTION_ALLOW;
-					}
-					else
-					{
-						std::string cur_param = channel->GetModeParameter('f');
-						parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" +ConvToStr(nsecs);
-						if (cur_param == parameter)
-						{
-							// mode params match
-							return MODEACTION_DENY;
-						}
-						else
-						{
-							if ((((nlines != f->lines) || (nsecs != f->secs) || (ban != f->ban))) && (((nsecs > 0) && (nlines > 0))))
-							{
-								floodsettings *fs = new floodsettings(ban,nsecs,nlines);
-								ext.set(channel, fs);
-								channel->SetModeParam('f', parameter);
-								return MODEACTION_ALLOW;
-							}
-							else
-							{
-								return MODEACTION_DENY;
-							}
-						}
-					}
-				}
-			}
-			else
+			std::string::size_type colon = parameter.find(':');
+			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 			{
 				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-				parameter.clear();
 				return MODEACTION_DENY;
 			}
+
+			/* Set up the flood parameters for this channel */
+			bool ban = (parameter[0] == '*');
+			unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+
+			if ((nlines<2) || (nsecs<1))
+			{
+				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				return MODEACTION_DENY;
+			}
+
+			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
+				// mode params match
+				return MODEACTION_DENY;
+
+			ext.set(channel, new floodsettings(ban, nsecs, nlines));
+			parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
+			channel->SetModeParam('f', parameter);
+			return MODEACTION_ALLOW;
 		}
 		else
 		{
@@ -191,8 +138,10 @@ class ModuleMsgFlood : public Module
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
-		ModResult res = ServerInstance->OnCheckExemption(user,dest,"flood");
-		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
+		if ((!IS_LOCAL(user)) || !dest->IsModeSet('f'))
+			return MOD_RES_PASSTHRU;
+
+		if (ServerInstance->OnCheckExemption(user,dest,"flood") == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
 		floodsettings *f = mf.ext.get(dest);
@@ -212,7 +161,7 @@ class ModuleMsgFlood : public Module
 				}
 
 				char kickmessage[MAXBUF];
-				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %d lines in %d secs)", f->lines, f->secs);
+				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %u lines in %u secs)", f->lines, f->secs);
 
 				dest->KickUser(ServerInstance->FakeClient, user, kickmessage);
 
