@@ -51,13 +51,12 @@ class ModuleUHNames : public Module
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
-		irc::string c = command.c_str();
 		/* We don't actually create a proper command handler class for PROTOCTL,
 		 * because other modules might want to have PROTOCTL hooks too.
 		 * Therefore, we just hook its as an unvalidated command therefore we
 		 * can capture it even if it doesnt exist! :-)
 		 */
-		if (c == "PROTOCTL")
+		if (command == "PROTOCTL")
 		{
 			if ((parameters.size()) && (!strcasecmp(parameters[0].c_str(),"UHNAMES")))
 			{
