@@ -986,9 +986,10 @@ class CoreExport Module : public classbase, public usecountbase
 	 * timeout is reached, the user is disconnected even if modules report that the user is
 	 * not ready to connect.
 	 * @param user The user to check
+	 * @param suspend_timeout false by default, set to true to block "registration timeout" from occuring.
 	 * @return true to indicate readiness, false if otherwise
 	 */
-	virtual ModResult OnCheckReady(LocalUser* user);
+	virtual ModResult OnCheckReady(LocalUser* user, bool& suspend_timeout);
 
 	/** Called whenever a user is about to register their connection (e.g. before the user
 	 * is sent the MOTD etc). Modules can use this method if they are performing a function

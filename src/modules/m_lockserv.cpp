@@ -116,7 +116,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckReady(LocalUser* user)
+	virtual ModResult OnCheckReady(LocalUser* user, bool& suspend_timeout)
 	{
 		return locked ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}

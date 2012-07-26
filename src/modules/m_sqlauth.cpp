@@ -145,13 +145,14 @@ class ModuleSQLAuth : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user, bool& suspend_timeout)
 	{
 		switch (pendingExt.get(user))
 		{
 			case AUTH_STATE_NONE:
 				return MOD_RES_PASSTHRU;
 			case AUTH_STATE_BUSY:
+				suspend_timeout = true;
 				return MOD_RES_DENY;
 			case AUTH_STATE_FAIL:
 				ServerInstance->Users->QuitUser(user, killreason);

@@ -396,10 +396,13 @@ class ModuleDNSBL : public Module
 		return MOD_RES_DENY;
 	}
 	
-	ModResult OnCheckReady(LocalUser *user)
+	ModResult OnCheckReady(LocalUser *user, bool& suspend_timeout)
 	{
 		if (countExt.get(user))
+		{
+			suspend_timeout = true;
 			return MOD_RES_DENY;
+		}
 		return MOD_RES_PASSTHRU;
 	}
 

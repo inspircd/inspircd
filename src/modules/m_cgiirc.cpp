@@ -241,10 +241,13 @@ public:
 		}
 	}
 
-	ModResult OnCheckReady(LocalUser *user)
+	ModResult OnCheckReady(LocalUser *user, bool& suspend_timeout)
 	{
 		if (waiting.get(user))
+		{
+			suspend_timeout = true;
 			return MOD_RES_DENY;
+		}
 		return MOD_RES_PASSTHRU;
 	}
 

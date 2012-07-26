@@ -324,7 +324,7 @@ class ModuleIdent : public Module
 	 * creating a Timer object and especially better than creating a
 	 * Timer per ident lookup!
 	 */
-	virtual ModResult OnCheckReady(LocalUser *user)
+	virtual ModResult OnCheckReady(LocalUser *user, bool& suspend_timeout)
 	{
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
@@ -350,6 +350,7 @@ class ModuleIdent : public Module
 		{
 			// time still good, no result yet... hold the registration
 			ServerInstance->Logs->Log("m_ident",DEBUG, "No result yet");
+			suspend_timeout = true;
 			return MOD_RES_DENY;
 		}
 

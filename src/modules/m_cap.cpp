@@ -137,11 +137,14 @@ class ModuleCAP : public Module
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user, bool& suspend_timeout)
 	{
 		/* Users in CAP state get held until CAP END */
 		if (cmd.reghold.get(user))
+		{
+			suspend_timeout = false;
 			return MOD_RES_DENY;
+		}
 
 		return MOD_RES_PASSTHRU;
 	}

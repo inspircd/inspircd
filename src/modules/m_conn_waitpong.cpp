@@ -94,9 +94,17 @@ class ModuleWaitPong : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user, bool& suspend_timeout)
 	{
-		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+		if (ext.get(user))
+		{
+			suspend_timeout = false;
+			return MOD_RES_DENY;
+		}
+		else
+		{
+			return MOD_RES_PASSTHRU;
+		}
 	}
 
 	~ModuleWaitPong()
