@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for Austhex style +k / UnrealIRCD +S services mode */
+/* $ModDesc: Provides usermode +k to protect services from kicks, kills and mode changes. */
 
 /** Handles user mode +k
  */
@@ -64,7 +64,7 @@ class ModuleServProtectMode : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides support for Austhex style +k / UnrealIRCD +S services mode", VF_VENDOR);
+		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);
 	}
 
 	void OnWhois(User* src, User* dst)
