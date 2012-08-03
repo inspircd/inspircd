@@ -21,6 +21,8 @@
 #include "inspircd.h"
 #include "xline.h"
 
+/* $ModConfig: <xlinedb filename="data/xline.db">
+ *  Specify the filename for the xline database here*/
 /* $ModDesc: Keeps a dynamic log of all XLines created, and stores them in a seperate conf file (xline.db). */
 
 class ModuleXLineDB : public Module
@@ -28,6 +30,7 @@ class ModuleXLineDB : public Module
 	std::vector<XLine *> xlines;
 	bool reading_db;			// If this is true, addlines are as a result of db reading, so don't bother flushing the db to disk.
 						// DO REMEMBER TO SET IT, otherwise it's annoying :P
+	std::string xlinedbpath;
  public:
 	ModuleXLineDB() 	{
 		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine };
@@ -40,6 +43,20 @@ class ModuleXLineDB : public Module
 
 	virtual ~ModuleXLineDB()
 	{
+	}
+
+	void init()
+	{
+		/* Load the configuration
+		 * Note:
+		 * 		this is on purpose not in the OnRehash() method. It would be non-trivial to change the database on-the-fly.
+		 * 		Imagine a scenario where the new file already exists. Merging the current XLines with the existing database is likely a bad idea
+		 * 		...and so is discarding all current in-memory XLines for the ones in the database.
+		 */
+		ConfigTag* Conf = ServerInstance->Config->ConfValue("xlinedb");
+		xlinedbpath = Conf->getString("filename");
+		if(xlinedbpath.empty())
+			xlinedbpath = "data/xline.db";
 	}
 
 	/** Called whenever an xline is added by a local user.
@@ -99,7 +116,8 @@ class ModuleXLineDB : public Module
 		 *		-- w00t
 		 */
 		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Opening temporary database");
-		f = fopen("data/xline.db.new", "w");
+		std::string xlinenewdbpath = xlinedbpath + ".new";
+		f = fopen(xlinenewdbpath.c_str(), "w");
 		if (!f)
 		{
 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
@@ -140,7 +158,7 @@ class ModuleXLineDB : public Module
 		}
 
 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
-		if (rename("data/xline.db.new", "data/xline.db") < 0)
+		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
 			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
@@ -156,7 +174,7 @@ class ModuleXLineDB : public Module
 		char linebuf[MAXBUF];
 		unsigned int lineno = 0;
 
-		f = fopen("data/xline.db", "r");
+		f = fopen(xlinedbpath.c_str(), "r");
 		if (!f)
 		{
 			if (errno == ENOENT)
