@@ -172,10 +172,10 @@ class ModuleSSLOpenSSL : public Module
 				const std::string& portid = port->bind_desc;
 				ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
 
-				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
+				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1" && port->bind_addr != "::1")
 				{
 					/*
-					 * Found an SSL port for clients that is not bound to 127.0.0.1 and handled by us, display
+					 * Found an SSL port for clients that is not bound to 127.0.0.1 or ::1 and handled by us, display
 					 * the IP:port in ISUPPORT.
 					 *
 					 * We used to advertise all ports seperated by a ';' char that matched the above criteria,
