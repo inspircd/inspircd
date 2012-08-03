@@ -53,10 +53,16 @@ enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISS
 
 static std::vector<gnutls_x509_crt_t> x509_certs;
 static gnutls_x509_privkey_t x509_key;
+#if(GNUTLS_VERSION_MAJOR < 3)
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st) {
-
 	st->type = GNUTLS_CRT_X509;
+#else
+static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
+	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr2_st * st) {
+	st->cert_type = GNUTLS_CRT_X509;
+	st->key_type = GNUTLS_PRIVKEY_X509;
+#endif
 	st->ncerts = x509_certs.size();
 	st->cert.x509 = &x509_certs[0];
 	st->key.x509 = x509_key;
@@ -360,8 +366,11 @@ class ModuleSSLGnuTLS : public Module
 			gnutls_priority_init(&priority, "NORMAL", NULL);
 		}
 
+		#if(GNUTLS_VERSION_MAJOR < 3)
 		gnutls_certificate_client_set_retrieve_function (x509_cred, cert_callback);
-
+		#else
+		gnutls_certificate_set_retrieve_function (x509_cred, cert_callback);
+		#endif
 		ret = gnutls_dh_params_init(&dh_params);
 		dh_alloc = (ret >= 0);
 		if (!dh_alloc)
