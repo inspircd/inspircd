@@ -40,8 +40,14 @@
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") -Wno-deprecated-declarations */
+/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") -lgcrypt */
+
+// These don't exist in older GnuTLS versions
+#if(GNUTLS_VERSION_MAJOR < 2)
+typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
+typedef gnutls_dh_params_t gnutls_dh_params;
+#endif
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
@@ -159,8 +165,8 @@ class ModuleSSLGnuTLS : public Module
 {
 	issl_session* sessions;
 
-	gnutls_certificate_credentials x509_cred;
-	gnutls_dh_params dh_params;
+	gnutls_certificate_credentials_t x509_cred;
+	gnutls_dh_params_t dh_params;
 	gnutls_digest_algorithm_t hash;
 	gnutls_priority_t priority;
 
