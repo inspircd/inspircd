@@ -54,9 +54,7 @@ class ModuleXLineDB : public Module
 		 * 		...and so is discarding all current in-memory XLines for the ones in the database.
 		 */
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("xlinedb");
-		xlinedbpath = Conf->getString("filename");
-		if(xlinedbpath.empty())
-			xlinedbpath = "data/xline.db";
+		xlinedbpath = Conf->getString("filename", "data/xline.db");
 	}
 
 	/** Called whenever an xline is added by a local user.
