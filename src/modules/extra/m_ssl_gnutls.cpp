@@ -362,7 +362,7 @@ class ModuleSSLGnuTLS : public Module
 		if ((ret = gnutls_priority_init(&priority, priocstr, &prioerror)) < 0)
 		{
 			// gnutls did not understand the user supplied string, log and fall back to the default priorities
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %d, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (prioerror - priocstr));
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %ld, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (prioerror - priocstr));
 			gnutls_priority_init(&priority, "NORMAL", NULL);
 		}
 
