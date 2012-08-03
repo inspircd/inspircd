@@ -319,11 +319,11 @@ class ModuleSSLGnuTLS : public Module
 
 		reader.LoadFile(certfile);
 		std::string cert_string = reader.Contents();
-		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), cert_string.length() };
+		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), static_cast<unsigned int>(cert_string.length()) };
 
 		reader.LoadFile(keyfile);
 		std::string key_string = reader.Contents();
-		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), key_string.length() };
+		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
 		unsigned int certcount = Conf->getInt("certcount", 3);
