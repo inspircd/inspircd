@@ -19,7 +19,6 @@
 #include "inspircd.h"
 #include "m_regex.h"
 #include <regex>
-#include <iostream>
 
 /* $ModDesc: Regex Provider Module for std::regex Regular Expressions */
 /* $CompileFlags: -std=c++11 */
