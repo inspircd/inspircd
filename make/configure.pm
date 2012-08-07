@@ -281,6 +281,10 @@ InspIRCd 1.0.x, are also allowed.
                                [$PWD]
   --config-dir=[directory]     Config file directory for config and SSL certs
                                [$PWD/conf]
+  --log-dir=[directory]	       Log file directory for logs
+			       [$PWD/logs]
+  --data-dir=[directory]       Data directory for variable data, such as the permchannel configuration and the XLine database
+			       [$PWD/data]
   --module-dir=[directory]     Modules directory for loadable modules
                                [$PWD/modules]
   --binary-dir=[directory]     Binaries directory for core binary
