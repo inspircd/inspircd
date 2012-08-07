@@ -51,7 +51,7 @@ public:
 	
 	virtual bool Matches(const std::string& text)
 	{
-		return std::regex_match(text, regexcl);
+		return std::regex_search(text, regexcl);
 	}
 };
 

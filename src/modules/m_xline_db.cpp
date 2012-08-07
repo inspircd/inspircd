@@ -36,17 +36,6 @@ class ModuleXLineDB : public Module
 		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 
-		reading_db = true;
-		ReadDatabase();
-		reading_db = false;
-	}
-
-	virtual ~ModuleXLineDB()
-	{
-	}
-
-	void init()
-	{
 		/* Load the configuration
 		 * Note:
 		 * 		this is on purpose not in the OnRehash() method. It would be non-trivial to change the database on-the-fly.
@@ -55,6 +44,14 @@ class ModuleXLineDB : public Module
 		 */
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("xlinedb");
 		xlinedbpath = Conf->getString("filename", "data/xline.db");
+		
+		reading_db = true;
+		ReadDatabase();
+		reading_db = false;
+	}
+
+	virtual ~ModuleXLineDB()
+	{
 	}
 
 	/** Called whenever an xline is added by a local user.
