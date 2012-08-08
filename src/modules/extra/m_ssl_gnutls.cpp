@@ -40,17 +40,29 @@
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") -Wno-deprecated-declarations */
+/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") -lgcrypt */
+
+// These don't exist in older GnuTLS versions
+#if(GNUTLS_VERSION_MAJOR < 2)
+typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
+typedef gnutls_dh_params_t gnutls_dh_params;
+#endif
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
 static std::vector<gnutls_x509_crt_t> x509_certs;
 static gnutls_x509_privkey_t x509_key;
+#if(GNUTLS_VERSION_MAJOR < 3)
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st) {
-
 	st->type = GNUTLS_CRT_X509;
+#else
+static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
+	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr2_st * st) {
+	st->cert_type = GNUTLS_CRT_X509;
+	st->key_type = GNUTLS_PRIVKEY_X509;
+#endif
 	st->ncerts = x509_certs.size();
 	st->cert.x509 = &x509_certs[0];
 	st->key.x509 = x509_key;
@@ -159,8 +171,8 @@ class ModuleSSLGnuTLS : public Module
 {
 	issl_session* sessions;
 
-	gnutls_certificate_credentials x509_cred;
-	gnutls_dh_params dh_params;
+	gnutls_certificate_credentials_t x509_cred;
+	gnutls_dh_params_t dh_params;
 	gnutls_digest_algorithm_t hash;
 	gnutls_priority_t priority;
 
@@ -180,6 +192,8 @@ class ModuleSSLGnuTLS : public Module
 	ModuleSSLGnuTLS()
 		: starttls(this), capHandler(this, "tls"), iohook(this, "ssl/gnutls", SERVICE_IOHOOK)
 	{
+	    gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		gnutls_global_init(); // This must be called once in the program
@@ -230,10 +244,10 @@ class ModuleSSLGnuTLS : public Module
 				const std::string& portid = port->bind_desc;
 				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls.so: Enabling SSL for port %s", portid.c_str());
 
-				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
+				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1" && port->bind_addr != "::1")
 				{
 					/*
-					 * Found an SSL port for clients that is not bound to 127.0.0.1 and handled by us, display
+					 * Found an SSL port for clients that is not bound to 127.0.0.1 or ::1 and handled by us, display
 					 * the IP:port in ISUPPORT.
 					 *
 					 * We used to advertise all ports seperated by a ';' char that matched the above criteria,
@@ -261,10 +275,10 @@ class ModuleSSLGnuTLS : public Module
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 
-		cafile = Conf->getString("cafile", "conf/ca.pem");
-		crlfile	= Conf->getString("crlfile", "conf/crl.pem");
-		certfile = Conf->getString("certfile", "conf/cert.pem");
-		keyfile	= Conf->getString("keyfile", "conf/key.pem");
+		cafile = Conf->getString("cafile", CONFIG_PATH "/ca.pem");
+		crlfile	= Conf->getString("crlfile", CONFIG_PATH "/crl.pem");
+		certfile = Conf->getString("certfile", CONFIG_PATH "/cert.pem");
+		keyfile	= Conf->getString("keyfile", CONFIG_PATH "/key.pem");
 		dh_bits	= Conf->getInt("dhbits");
 		std::string hashname = Conf->getString("hash", "md5");
 
@@ -319,11 +333,11 @@ class ModuleSSLGnuTLS : public Module
 
 		reader.LoadFile(certfile);
 		std::string cert_string = reader.Contents();
-		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), cert_string.length() };
+		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), static_cast<unsigned int>(cert_string.length()) };
 
 		reader.LoadFile(keyfile);
 		std::string key_string = reader.Contents();
-		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), key_string.length() };
+		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
 		unsigned int certcount = Conf->getInt("certcount", 3);
@@ -350,12 +364,15 @@ class ModuleSSLGnuTLS : public Module
 		if ((ret = gnutls_priority_init(&priority, priocstr, &prioerror)) < 0)
 		{
 			// gnutls did not understand the user supplied string, log and fall back to the default priorities
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %d, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (prioerror - priocstr));
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %ld, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (prioerror - priocstr));
 			gnutls_priority_init(&priority, "NORMAL", NULL);
 		}
 
+		#if(GNUTLS_VERSION_MAJOR < 3)
 		gnutls_certificate_client_set_retrieve_function (x509_cred, cert_callback);
-
+		#else
+		gnutls_certificate_set_retrieve_function (x509_cred, cert_callback);
+		#endif
 		ret = gnutls_dh_params_init(&dh_params);
 		dh_alloc = (ret >= 0);
 		if (!dh_alloc)
