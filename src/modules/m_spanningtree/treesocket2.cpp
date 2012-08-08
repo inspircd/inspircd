@@ -484,13 +484,13 @@ void TreeSocket::Close()
 	if (MyRoot)
 		Squit(MyRoot,getError());
 
-	if (!linkID.empty())
+	if (!ConnectionFailureShown)
 	{
+		ConnectionFailureShown = true;
 		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",linkID.c_str());
 
 		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
 			ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), Utils->Creator->TimeToStr(server_uptime).c_str());
-		linkID.clear();
 	}
 }
