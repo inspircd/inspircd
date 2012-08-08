@@ -49,6 +49,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
 	capab->capab_phase = 0;
 	MyRoot = NULL;
 	proto_version = 0;
+	ConnectionFailureShown = false;
 	LinkState = CONNECTING;
 	if (!link->Hook.empty())
 	{
@@ -78,6 +79,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via
 	age = ServerInstance->Time();
 	LinkState = WAIT_AUTH_1;
 	proto_version = 0;
+	ConnectionFailureShown = false;
 	linkID = "inbound from " + client->addr();
 
 	FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
