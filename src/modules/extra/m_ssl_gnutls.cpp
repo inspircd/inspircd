@@ -180,6 +180,8 @@ class ModuleSSLGnuTLS : public Module
 	ModuleSSLGnuTLS()
 		: starttls(this), capHandler(this, "tls"), iohook(this, "ssl/gnutls", SERVICE_IOHOOK)
 	{
+		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		gnutls_global_init(); // This must be called once in the program
@@ -319,11 +321,11 @@ class ModuleSSLGnuTLS : public Module
 
 		reader.LoadFile(certfile);
 		std::string cert_string = reader.Contents();
-		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), cert_string.length() };
+		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), static_cast<unsigned int>(cert_string.length()) };
 
 		reader.LoadFile(keyfile);
 		std::string key_string = reader.Contents();
-		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), key_string.length() };
+		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
 		unsigned int certcount = Conf->getInt("certcount", 3);
@@ -350,7 +352,7 @@ class ModuleSSLGnuTLS : public Module
 		if ((ret = gnutls_priority_init(&priority, priocstr, &prioerror)) < 0)
 		{
 			// gnutls did not understand the user supplied string, log and fall back to the default priorities
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %d, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (prioerror - priocstr));
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %ld, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (prioerror - priocstr));
 			gnutls_priority_init(&priority, "NORMAL", NULL);
 		}
 
