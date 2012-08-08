@@ -75,8 +75,6 @@ class MsgFlood : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		floodsettings *f = ext.get(channel);
-
 		if (adding)
 		{
 			std::string::size_type colon = parameter.find(':');
@@ -97,6 +95,7 @@ class MsgFlood : public ModeHandler
 				return MODEACTION_DENY;
 			}
 
+			floodsettings* f = ext.get(channel);
 			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
 				// mode params match
 				return MODEACTION_DENY;
@@ -108,15 +107,13 @@ class MsgFlood : public ModeHandler
 		}
 		else
 		{
-			if (f)
-			{
-				ext.unset(channel);
-				channel->SetModeParam('f', "");
-				return MODEACTION_ALLOW;
-			}
-		}
+			if (!channel->IsModeSet('f'))
+				return MODEACTION_DENY;
 
-		return MODEACTION_DENY;
+			ext.unset(channel);
+			channel->SetModeParam('f', "");
+			return MODEACTION_ALLOW;
+		}
 	}
 };
 
