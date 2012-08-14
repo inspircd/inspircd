@@ -299,7 +299,7 @@ void Run()
 
 	printf_c("\033[1mAll paths are relative to the binary directory.\033[0m\n");
 	string base_path = get_string_option("In what directory do you wish to install the InspIRCd base?", "..");
-	string config_file = get_string_option("In what directory are the configuration files?", "conf");
+	string config_path = get_string_option("In what directory are the configuration files?", "conf");
 	string mod_path = get_string_option("In what directory are the modules to be compiled to?", "modules");
 	string bin_dir = get_string_option("In what directory is the IRCd binary to be placed?", ".");
 
@@ -309,7 +309,7 @@ void Run()
 
 	// dump all the options back out
 	printf_c("\033[0mBase install path:\033[1;32m        %s\n", base_path.c_str());
-	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_file.c_str());
+	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_path.c_str());
 	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path.c_str());
 	printf_c("\033[0mSocket Engine:\033[1;32m            %s\n", "select");
 
@@ -322,7 +322,7 @@ void Run()
 	printf("\n");
 
 	// escape the pathes
-	escape_string(config_file);
+	escape_string(config_path);
 	escape_string(mod_path);
 
 	printf("\nWriting inspircd_config.h...");
@@ -331,6 +331,7 @@ void Run()
 	fprintf(f, "#ifndef __CONFIGURATION_AUTO__\n");
 	fprintf(f, "#define __CONFIGURATION_AUTO__\n\n");
 
+	fprintf(f, "#define CONFIG_PATH \"%s\"\n", config_path.c_str());
 	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path.c_str());
 	fprintf(f, "#define SOMAXCONN_S \"128\"\n");
 	fprintf(f, "#define MAXBUF 514\n");
