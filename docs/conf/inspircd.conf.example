@@ -570,10 +570,10 @@
          # in channel will be sent a NOTICE about it.
          announcets="yes"
 
-         # allowmismatched: Setting this option to yes will allow servers to link even
+         # allowmismatch: Setting this option to yes will allow servers to link even
          # if they don't have the same VF_OPTCOMMON modules loaded. Setting this to
          # yes may introduce some desyncs and weirdness.
-         allowmismatched="no"
+         allowmismatch="no"
 
          # defaultbind: Sets the default for <bind> tags without an address. Choices are
          # ipv4 or ipv6; if not specified, IPv6 will be used if your system has support,
