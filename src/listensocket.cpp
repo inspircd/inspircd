@@ -142,16 +142,14 @@ void ListenSocket::AcceptInternal()
 		{
 			// recreate as a sockaddr_in using the IPv4 IP
 			uint16_t sport = client.in6.sin6_port;
-			uint32_t addr = *reinterpret_cast<uint32_t*>(client.in6.sin6_addr.s6_addr + 12);
 			client.in4.sin_family = AF_INET;
 			client.in4.sin_port = sport;
-			client.in4.sin_addr.s_addr = addr;
+			memcpy(&client.in4.sin_addr.s_addr, client.in6.sin6_addr.s6_addr + 12, sizeof(uint32_t));
 
 			sport = server.in6.sin6_port;
-			addr = *reinterpret_cast<uint32_t*>(server.in6.sin6_addr.s6_addr + 12);
 			server.in4.sin_family = AF_INET;
 			server.in4.sin_port = sport;
-			server.in4.sin_addr.s_addr = addr;
+			memcpy(&server.in4.sin_addr.s_addr, server.in6.sin6_addr.s6_addr + 12, sizeof(uint32_t));
 		}
 	}
 
