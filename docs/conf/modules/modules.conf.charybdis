@@ -311,19 +311,5 @@
 <watch maxentries="32">
 <module name="m_xline_db.so">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# ZipLinks module: Adds support for zlib deflate on server to server
-# connections. Both ends of the connection must load this module.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_ziplink.cpp
-# and run make install, then uncomment this module to enable it.
-#
-#<module name="m_ziplink.so">
-#
-# To use this module, you must enable it as a ssl type in your
-# <link> tags or <bind> tags using the ssl name 'ziplinks'.
-# See the documentation of <link> and <bind>, respectively.
-#
-
-
 <module name="m_spanningtree.so">
 
