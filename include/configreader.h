@@ -598,6 +598,10 @@ class CoreExport ServerConfig
 	 */
 	bool NoSnoticeStack;
 
+	/** If true, a "Welcome to <networkname>!" NOTICE will be sent to
+	 * connecting users
+	 */
+	bool WelcomeNotice;
 };
 
 /** The background thread for config reading, so that reading from executable includes
