@@ -28,7 +28,7 @@
 class CommandKnock : public Command
 {
  public:
-	CommandKnock(Module* Creator) : Command(Creator,"KNOCK", 2)
+	CommandKnock(Module* Creator) : Command(Creator,"KNOCK", 2, 2)
 	{
 		syntax = "<channel> <reason>";
 		Penalty = 5;
@@ -38,8 +38,6 @@ class CommandKnock : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		Channel* c = ServerInstance->FindChan(parameters[0]);
-		std::string line;
-
 		if (!c)
 		{
 			user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
@@ -64,13 +62,7 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
-		for (int i = 1; i < (int)parameters.size() - 1; i++)
-		{
-			line = line + parameters[i] + " ";
-		}
-		line = line + parameters[parameters.size()-1];
-
-		c->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(),  "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name.c_str(), user->nick.c_str(), c->name.c_str(), line.c_str());
+		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name.c_str(), user->nick.c_str(), c->name.c_str(), parameters[1].c_str());
 		user->WriteServ("NOTICE %s :KNOCKing on %s", user->nick.c_str(), c->name.c_str());
 		return CMD_SUCCESS;
 	}
