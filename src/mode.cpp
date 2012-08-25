@@ -64,6 +64,24 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 {
 }
 
+void ModeHandler::setLevelRequired(int level)
+{
+	if(level == levelrequired)
+		return;
+	
+	int oldlevel=levelrequired;
+	levelrequired=level;
+
+	ServerInstance->Logs->Log("MODES", DEBUG, 
+		"Modelevel for character \"%c\" changed to level %d (old: %d)",
+		mode, levelrequired, oldlevel);
+	
+}
+int ModeHandler::getLevelRequired()
+{
+	return levelrequired;
+}
+
 CullResult ModeHandler::cull()
 {
 	if (ServerInstance->Modes)
