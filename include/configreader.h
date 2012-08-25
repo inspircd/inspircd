@@ -50,6 +50,9 @@ class CoreExport ConfigTag : public refcountbase
 	double getFloat(const std::string& key, double def = 0);
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);
+	/** Get the PrefixValue of an option, using def if it does not exist */
+	int getPrefixValue(const std::string& key, int def = 0);
+
 
 	/** Get the value of an option
 	 * @param key The option to get
