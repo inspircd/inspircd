@@ -458,17 +458,19 @@ int ConfigTag::getPrefixValue(const std::string &key, int def)
 	std::string result;
 	if(!readString(key, result))
 		return def;
+	
+	std::transform(result.begin(),result.end(),result.begin(), ::tolower);
 
 	const char* res_cstr = result.c_str();
 	int res = (int) strtol(res_cstr,NULL,0);
 	
-	if(result == "OP" || result == "op")
+	if(result == "op")
 		return OP_VALUE;
 	
-	if(result == "HALFOP" || result == "halfop" || result == "HALF-OP" || result == "half-op")
+	if(result == "halfop" || result == "half-op")
 		return HALFOP_VALUE;
 	
-	if(result == "VOICE" || result == "voice")
+	if(result == "voice")
 		return VOICE_VALUE;
 
 	if(res != 0)
