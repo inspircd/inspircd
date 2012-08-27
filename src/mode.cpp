@@ -64,7 +64,7 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 {
 }
 
-void ModeHandler::setLevelRequired(int level)
+void ModeHandler::SetLevelRequired(int level)
 {
 	if(level == levelrequired)
 		return;
@@ -76,10 +76,6 @@ void ModeHandler::setLevelRequired(int level)
 		"Modelevel for character \"%c\" changed to level %d (old: %d)",
 		mode, levelrequired, oldlevel);
 	
-}
-int ModeHandler::getLevelRequired()
-{
-	return levelrequired;
 }
 
 CullResult ModeHandler::cull()

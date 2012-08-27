@@ -58,7 +58,7 @@ class ModuleModeLevel : public Module
 				int level=tag->getPrefixValue("level");
 				if(level>0)
 				{
-					mh->setLevelRequired(level);
+					mh->SetLevelRequired(level);
 					ServerInstance->Logs->Log("MODULE", DEBUG, "Changing modeletter %c to level %d",letter[0],level);
 				}
 			}
