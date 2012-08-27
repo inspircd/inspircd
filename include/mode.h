@@ -164,11 +164,10 @@ class CoreExport ModeHandler : public ServiceProvider
 	
 	/**
 	 * Instead of allowing direct access to levelrequired, we want modules to
-	 * use setLevelRequired, which refers to config's <modelevel>
+	 * use SetLevelRequired, which refers to config's <modelevel>
 	 * @param level the new level we want
 	 */
-	void setLevelRequired(int level);
-	int getLevelRequired();
+	void SetLevelRequired(int level);
 
 	virtual CullResult cull();
 	virtual ~ModeHandler();
