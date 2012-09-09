@@ -26,8 +26,6 @@
 #include "threadengine.h"
 #include <iostream>
 
-using namespace std;
-
 class TestSuiteThread : public Thread
 {
  public:
@@ -43,7 +41,7 @@ class TestSuiteThread : public Thread
 	{
 		while (GetExitFlag() == false)
 		{
-			cout << "Test suite thread run...\n";
+			std::cout << "Test suite thread run...\n";
 			sleep(5);
 		}
 	}
@@ -51,26 +49,26 @@ class TestSuiteThread : public Thread
 
 TestSuite::TestSuite()
 {
-	cout << "\n\n*** STARTING TESTSUITE ***\n";
+	std::cout << "\n\n*** STARTING TESTSUITE ***\n";
 
 	std::string modname;
 	char choice;
 
 	while (1)
 	{
-		cout << "(1) Call all module OnRunTestSuite() methods\n";
-		cout << "(2) Load a module\n";
-		cout << "(3) Unload a module\n";
-		cout << "(4) Threading tests\n";
-		cout << "(5) Wildcard and CIDR tests\n";
-		cout << "(6) Comma sepstream tests\n";
-		cout << "(7) Space sepstream tests\n";
-		cout << "(8) UID generation tests\n";
+		std::cout << "(1) Call all module OnRunTestSuite() methods\n";
+		std::cout << "(2) Load a module\n";
+		std::cout << "(3) Unload a module\n";
+		std::cout << "(4) Threading tests\n";
+		std::cout << "(5) Wildcard and CIDR tests\n";
+		std::cout << "(6) Comma sepstream tests\n";
+		std::cout << "(7) Space sepstream tests\n";
+		std::cout << "(8) UID generation tests\n";
 
-		cout << endl << "(X) Exit test suite\n";
+		std::cout << std::endl << "(X) Exit test suite\n";
 
-		cout << "\nChoices (Enter one or more options as a list then press enter, e.g. 15X): ";
-		cin >> choice;
+		std::cout << "\nChoices (Enter one or more options as a list then press enter, e.g. 15X): ";
+		std::cin >> choice;
 
 		if (!choice)
 			continue;
@@ -81,58 +79,58 @@ TestSuite::TestSuite()
 				FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
 				break;
 			case '2':
-				cout << "Enter module filename to load: ";
-				cin >> modname;
-				cout << (ServerInstance->Modules->Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				std::cout << "Enter module filename to load: ";
+				std::cin >> modname;
+				std::cout << (ServerInstance->Modules->Load(modname.c_str()) ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '3':
-				cout << "Enter module filename to unload: ";
-				cin >> modname;
+				std::cout << "Enter module filename to unload: ";
+				std::cin >> modname;
 				{
 					Module* m = ServerInstance->Modules->Find(modname);
-					cout << (ServerInstance->Modules->Unload(m) ? "\nSUCCESS!\n" : "\nFAILURE\n");
+					std::cout << (ServerInstance->Modules->Unload(m) ? "\nSUCCESS!\n" : "\nFAILURE\n");
 					ServerInstance->AtomicActions.Run();
 				}
 				break;
 			case '4':
-				cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				std::cout << (DoThreadTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '5':
-				cout << (DoWildTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				std::cout << (DoWildTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '6':
-				cout << (DoCommaSepStreamTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				std::cout << (DoCommaSepStreamTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '7':
-				cout << (DoSpaceSepStreamTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				std::cout << (DoSpaceSepStreamTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case '8':
-				cout << (DoGenerateUIDTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
+				std::cout << (DoGenerateUIDTests() ? "\nSUCCESS!\n" : "\nFAILURE\n");
 				break;
 			case 'X':
 				return;
 				break;
 			default:
-				cout << "Invalid option\n";
+				std::cout << "Invalid option\n";
 				break;
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 }
 
 /* Test that x matches y with match() */
-#define WCTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\") " << ((passed = (InspIRCd::Match(x, y, NULL))) ? " SUCCESS!\n" : " FAILURE\n")
+#define WCTEST(x, y) std::cout << "match(\"" << x << "\",\"" << y "\") " << ((passed = (InspIRCd::Match(x, y, NULL))) ? " SUCCESS!\n" : " FAILURE\n")
 /* Test that x does not match y with match() */
-#define WCTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\") " << ((passed = ((!InspIRCd::Match(x, y, NULL)))) ? " SUCCESS!\n" : " FAILURE\n")
+#define WCTESTNOT(x, y) std::cout << "!match(\"" << x << "\",\"" << y "\") " << ((passed = ((!InspIRCd::Match(x, y, NULL)))) ? " SUCCESS!\n" : " FAILURE\n")
 
 /* Test that x matches y with match() and cidr enabled */
-#define CIDRTEST(x, y) cout << "match(\"" << x << "\",\"" << y "\", true) " << ((passed = (InspIRCd::MatchCIDR(x, y, NULL))) ? " SUCCESS!\n" : " FAILURE\n")
+#define CIDRTEST(x, y) std::cout << "match(\"" << x << "\",\"" << y "\", true) " << ((passed = (InspIRCd::MatchCIDR(x, y, NULL))) ? " SUCCESS!\n" : " FAILURE\n")
 /* Test that x does not match y with match() and cidr enabled */
-#define CIDRTESTNOT(x, y) cout << "!match(\"" << x << "\",\"" << y "\", true) " << ((passed = ((!InspIRCd::MatchCIDR(x, y, NULL)))) ? " SUCCESS!\n" : " FAILURE\n")
+#define CIDRTESTNOT(x, y) std::cout << "!match(\"" << x << "\",\"" << y "\", true) " << ((passed = ((!InspIRCd::MatchCIDR(x, y, NULL)))) ? " SUCCESS!\n" : " FAILURE\n")
 
 bool TestSuite::DoWildTests()
 {
-	cout << "\n\nWildcard and CIDR tests\n\n";
+	std::cout << "\n\nWildcard and CIDR tests\n\n";
 	bool passed = false;
 
 	WCTEST("foobar", "*");
@@ -203,7 +201,7 @@ bool TestSuite::DoWildTests()
 }
 
 
-#define STREQUALTEST(x, y) cout << "==(\"" << x << ",\"" << y "\") " << ((passed = (x == y)) ? "SUCCESS\n" : "FAILURE\n")
+#define STREQUALTEST(x, y) std::cout << "==(\"" << x << ",\"" << y "\") " << ((passed = (x == y)) ? "SUCCESS\n" : "FAILURE\n")
 
 bool TestSuite::DoCommaSepStreamTests()
 {
@@ -234,7 +232,7 @@ bool TestSuite::DoCommaSepStreamTests()
 				STREQUALTEST(item, "stream");
 				break;
 			default:
-				cout << "COMMASEPSTREAM: FAILURE: Got an index too many! " << idx << " items\n";
+				std::cout << "COMMASEPSTREAM: FAILURE: Got an index too many! " << idx << " items\n";
 				break;
 		}
 	}
@@ -272,7 +270,7 @@ bool TestSuite::DoSpaceSepStreamTests()
 				STREQUALTEST(item, "stream");
 				break;
 			default:
-				cout << "SPACESEPSTREAM: FAILURE: Got an index too many! " << idx << " items\n";
+				std::cout << "SPACESEPSTREAM: FAILURE: Got an index too many! " << idx << " items\n";
 				break;
 		}
 	}
@@ -284,22 +282,22 @@ bool TestSuite::DoThreadTests()
 	std::string anything;
 	ThreadEngine* te = NULL;
 
-	cout << "Creating new ThreadEngine class...\n";
+	std::cout << "Creating new ThreadEngine class...\n";
 	try
 	{
 		te = new ThreadEngine;
 	}
 	catch (...)
 	{
-		cout << "Creation failed, test failure.\n";
+		std::cout << "Creation failed, test failure.\n";
 		return false;
 	}
-	cout << "Creation success, type " << te->GetName() << "\n";
+	std::cout << "Creation success, type " << te->GetName() << "\n";
 
-	cout << "Allocate: new TestSuiteThread...\n";
+	std::cout << "Allocate: new TestSuiteThread...\n";
 	TestSuiteThread* tst = new TestSuiteThread();
 
-	cout << "ThreadEngine::Create on TestSuiteThread...\n";
+	std::cout << "ThreadEngine::Create on TestSuiteThread...\n";
 	try
 	{
 		try
@@ -308,25 +306,25 @@ bool TestSuite::DoThreadTests()
 		}
 		catch (CoreException &ce)
 		{
-			cout << "Failure: " << ce.GetReason() << endl;
+			std::cout << "Failure: " << ce.GetReason() << std::endl;
 		}
 	}
 	catch (...)
 	{
-		cout << "Failure, unhandled exception\n";
+		std::cout << "Failure, unhandled exception\n";
 	}
 
-	cout << "Type any line and press enter to end test.\n";
-	cin >> anything;
+	std::cout << "Type any line and press enter to end test.\n";
+	std::cin >> anything;
 
 	/* Thread engine auto frees thread on delete */
-	cout << "Waiting for thread to exit... " << flush;
+	std::cout << "Waiting for thread to exit... " << std::flush;
 	delete tst;
-	cout << "Done!\n";
+	std::cout << "Done!\n";
 
-	cout << "Delete ThreadEngine... ";
+	std::cout << "Delete ThreadEngine... ";
 	delete te;
-	cout << "Done!\n";
+	std::cout << "Done!\n";
 
 	return true;
 }
@@ -351,13 +349,13 @@ bool TestSuite::RealGenerateUIDTests()
 	std::string first_uid = ServerInstance->GetUID();
 	if (first_uid.length() != UUID_LENGTH-1)
 	{
-		cout << "GENERATEUID: Generated UID is " << first_uid.length() << " characters long instead of " << UUID_LENGTH-1 << endl;
+		std::cout << "GENERATEUID: Generated UID is " << first_uid.length() << " characters long instead of " << UUID_LENGTH-1 << std::endl;
 		return false;
 	}
 
 	if (ServerInstance->current_uid[UUID_LENGTH-1] != '\0')
 	{
-		cout << "GENERATEUID: The null terminator is missing from the end of current_uid" << endl;
+		std::cout << "GENERATEUID: The null terminator is missing from the end of current_uid" << std::endl;
 		return false;
 	}
 
@@ -365,7 +363,7 @@ bool TestSuite::RealGenerateUIDTests()
 	std::string correct_uid = ServerInstance->Config->sid + std::string(UUID_LENGTH - 4, 'A');
 	if (first_uid != correct_uid)
 	{
-		cout << "GENERATEUID: Generated an invalid first UID: " << first_uid << " instead of " << correct_uid << endl;
+		std::cout << "GENERATEUID: Generated an invalid first UID: " << first_uid << " instead of " << correct_uid << std::endl;
 		return false;
 	}
 
@@ -383,7 +381,7 @@ bool TestSuite::RealGenerateUIDTests()
 
 	if (generated_uid != correct_uid)
 	{
-		cout << "GENERATEUID: Generated an invalid UID after incrementing " << before_increment << ": " << generated_uid << " instead of " << correct_uid << endl;
+		std::cout << "GENERATEUID: Generated an invalid UID after incrementing " << before_increment << ": " << generated_uid << " instead of " << correct_uid << std::endl;
 		return false;
 	}
 
@@ -397,7 +395,7 @@ bool TestSuite::RealGenerateUIDTests()
 	// Correct UID after rolling over is the first UID we've generated (...AAAAAA)
 	if (generated_uid != first_uid)
 	{
-		cout << "GENERATEUID: Generated an invalid UID after incrementing " << before_increment << ": " << generated_uid << " instead of " << first_uid << endl;
+		std::cout << "GENERATEUID: Generated an invalid UID after incrementing " << before_increment << ": " << generated_uid << " instead of " << first_uid << std::endl;
 		return false;
 	}
 
@@ -406,6 +404,6 @@ bool TestSuite::RealGenerateUIDTests()
 
 TestSuite::~TestSuite()
 {
-	cout << "\n\n*** END OF TEST SUITE ***\n";
+	std::cout << "\n\n*** END OF TEST SUITE ***\n";
 }
 
