@@ -142,6 +142,21 @@ class CoreExport reference
 		if (value && value->refcount_dec())
 			delete value;
 	}
+
+	inline reference<T>& operator=(T* other)
+	{
+		if (value != other)
+		{
+			if (value && value->refcount_dec())
+				delete value;
+			value = other;
+			if (value)
+				value->refcount_inc();
+		}
+
+		return *this;
+	}
+
 	inline operator bool() const { return value; }
 	inline operator T*() const { return value; }
 	inline T* operator->() const { return value; }

@@ -146,7 +146,7 @@ namespace irc
 class CoreExport ListenSocket : public EventHandler
 {
  public:
-	const reference<ConfigTag> bind_tag;
+	reference<ConfigTag> bind_tag;
 	std::string bind_addr;
 	int bind_port;
 	/** Human-readable bind description */
