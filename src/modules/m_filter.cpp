@@ -50,6 +50,7 @@ class FilterResult
 	bool flag_quit_message;
 	bool flag_privmsg;
 	bool flag_notice;
+	bool flag_strip_color;
 
 	FilterResult(const std::string free, const std::string &rea, const std::string &act, long gt, const std::string &fla) :
 			freeform(free), reason(rea), action(act), gline_time(gt), flags(fla)
@@ -60,7 +61,8 @@ class FilterResult
 	int FillFlags(const std::string &fl)
 	{
 		flags = fl;
-		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg = flag_notice = false;
+		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
+			flag_notice = flag_strip_color = false;
 		size_t x = 0;
 
 		for (std::string::const_iterator n = flags.begin(); n != flags.end(); ++n, ++x)
@@ -82,9 +84,12 @@ class FilterResult
 				case 'n':
 					flag_notice = true;
 				break;
+				case 'c':
+					flag_strip_color = true;
+				break;
 				case '*':
 					flag_no_opers = flag_part_message = flag_quit_message =
-						flag_privmsg = flag_notice = true;
+						flag_privmsg = flag_notice = flag_strip_color = true;
 				break;
 				default:
 					return x;
@@ -539,14 +544,25 @@ ImplFilter::ImplFilter(ModuleFilter* mymodule, const std::string &rea, const std
 
 FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)
 {
+	static std::string stripped_text;
+	stripped_text.clear();
+
 	for (std::vector<ImplFilter>::iterator index = filters.begin(); index != filters.end(); index++)
 	{
+		FilterResult* filter = dynamic_cast<FilterResult*>(&(*index));
+
 		/* Skip ones that dont apply to us */
-		if (!AppliesToMe(user, dynamic_cast<FilterResult*>(&(*index)), flgs))
+		if (!AppliesToMe(user, filter, flgs))
 			continue;
 
+		if ((filter->flag_strip_color) && (stripped_text.empty()))
+		{
+			stripped_text = text;
+			InspIRCd::StripColor(stripped_text);
+		}
+
 		//ServerInstance->Logs->Log("m_filter", DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
-		if (index->regex->Matches(text))
+		if (index->regex->Matches(filter->flag_strip_color ? stripped_text : text))
 		{
 			//ServerInstance->Logs->Log("m_filter", DEBUG, "MATCH");
 			ImplFilter fr = *index;

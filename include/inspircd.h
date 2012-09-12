@@ -705,6 +705,11 @@ class CoreExport InspIRCd
 	 * @return True i the mask is valid
 	 */
 	bool IsValidMask(const std::string &mask);
+	
+	/** Strips all color codes from the given string
+	 * @para sentence The string to strip from
+	 */
+	static void StripColor(std::string &sentence);
 
 	/** Rehash the local server
 	 */
