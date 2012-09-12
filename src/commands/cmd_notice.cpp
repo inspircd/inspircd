@@ -110,6 +110,15 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
+
+				if (ServerInstance->Config->RestrictBannedUsers)
+				{
+					if (chan->IsBanned(user))
+					{
+						user->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", user->nick.c_str(), chan->name.c_str());
+						return CMD_FAILURE;
+					}
+				}
 			}
 			ModResult MOD_RESULT;
 
