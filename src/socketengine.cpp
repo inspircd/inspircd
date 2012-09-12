@@ -208,7 +208,12 @@ int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flag
 
 int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
 {
-	return connect(fd->GetFd(), serv_addr, addrlen);
+	int ret = connect(fd->GetFd(), serv_addr, addrlen);
+#ifdef WINDOWS
+	if ((ret == SOCKET_ERROR) && (WSAGetLastError() == WSAEWOULDBLOCK))
+		errno = EINPROGRESS;
+#endif
+	return ret;
 }
 
 int SocketEngine::Shutdown(EventHandler* fd, int how)
