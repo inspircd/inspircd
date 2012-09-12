@@ -943,6 +943,14 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Knock module: adds the /KNOCK command and +K channel mode
 #<module name="m_knock.so">
+# This setting specifes what to do when someone successfully /KNOCKs.
+# If set to "notice", then a NOTICE will be sent to the channel.
+# This is the default and the compatible setting, as it requires no
+# special support from the clients.
+# If set to "numeric" then a 710 numeric will be sent to the channel.
+# This allows easier scripting but not all clients support it.
+# If set to "both" then (surprise!) both will be sent.
+#<knock notify="notice">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP authentication module: Adds the ability to authenticate users  #
