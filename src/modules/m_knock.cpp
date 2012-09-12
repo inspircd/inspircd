@@ -28,6 +28,8 @@
 class CommandKnock : public Command
 {
  public:
+	bool sendnotice;
+	bool sendnumeric;
 	CommandKnock(Module* Creator) : Command(Creator,"KNOCK", 2, 2)
 	{
 		syntax = "<channel> <reason>";
@@ -62,7 +64,12 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
-		c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name.c_str(), user->nick.c_str(), c->name.c_str(), parameters[1].c_str());
+		if (sendnotice)
+			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :User %s is KNOCKing on %s (%s)", c->name.c_str(), user->nick.c_str(), c->name.c_str(), parameters[1].c_str());
+
+		if (sendnumeric)
+			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "710 %s %s %s :is KNOCKing: %s", c->name.c_str(), c->name.c_str(), user->GetFullHost().c_str(), parameters[1].c_str());
+
 		user->WriteServ("NOTICE %s :KNOCKing on %s", user->nick.c_str(), c->name.c_str());
 		return CMD_SUCCESS;
 	}
@@ -92,11 +99,30 @@ class ModuleKnock : public Module
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->AddCommand(&cmd);
 
+		ServerInstance->Modules->Attach(I_OnRehash, this);
+		OnRehash(NULL);
 	}
 
-
-	virtual ~ModuleKnock()
+	void OnRehash(User* user)
 	{
+		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");
+		irc::string notify(knocknotify.c_str());
+
+		if (notify == "numeric")
+		{
+			cmd.sendnotice = false;
+			cmd.sendnumeric = true;
+		}
+		else if (notify == "both")
+		{
+			cmd.sendnotice = true;
+			cmd.sendnumeric = true;
+		}
+		else
+		{
+			cmd.sendnotice = true;
+			cmd.sendnumeric = false;
+		}
 	}
 
 	virtual Version GetVersion()
