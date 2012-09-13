@@ -503,7 +503,7 @@ void DispatcherThread::Run()
 			 */
 
 			this->LockQueue();
-			if (Parent->qq.front().q == i.q)
+			if (!Parent->qq.empty() && Parent->qq.front().q == i.q)
 			{
 				Parent->qq.pop_front();
 				Parent->rq.push_back(RQueueItem(i.q, res));
