@@ -215,6 +215,7 @@ class ModuleShun : public Module
 	{
 		ConfigReader MyConf;
 		std::string cmds = MyConf.ReadValue("shun", "enabledcommands", 0);
+		std::transform(cmds.begin(), cmds.end(), cmds.begin(), ::toupper);
 
 		if (cmds.empty())
 			cmds = "PING PONG QUIT";
