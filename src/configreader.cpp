@@ -657,10 +657,14 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
 		{
 			std::string dummy;
-			if (ConfValue(ChangedConfig[Index].tag)->readString(ChangedConfig[Index].value, dummy, true))
-				errstr << "Your configuration contains a deprecated value: <"
-					<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
-					<< " (at " << ConfValue(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
+			ConfigTagList tags = ServerInstance->Config->ConfTags(ChangedConfig[Index].tag);
+			for(ConfigIter i = tags.first; i != tags.second; ++i)
+			{
+				if (i->second->readString(ChangedConfig[Index].value, dummy, true))
+					errstr << "Your configuration contains a deprecated value: <"
+						<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
+						<< " (at " << ConfValue(ChangedConfig[Index].tag)->getTagLocation() << ")\n";
+			}
 		}
 
 		Fill();
