@@ -174,9 +174,7 @@ class ModuleSSLInfo : public Module
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
-		irc::string pcmd = command.c_str();
-
-		if ((pcmd == "OPER") && (validated))
+		if ((command == "OPER") && (validated))
 		{
 			OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 			if (i != ServerInstance->Config->oper_blocks.end())

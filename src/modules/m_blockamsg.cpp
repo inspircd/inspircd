@@ -102,11 +102,7 @@ class ModuleBlockAmsg : public Module
 		if (user->registered != REG_ALL)
 			return MOD_RES_PASSTHRU;
 
-		// We want case insensitive command comparison.
-		// Add std::string contructor for irc::string :x
-		irc::string cmd = command.c_str();
-
-		if(validated && (cmd == "PRIVMSG" || cmd == "NOTICE") && (parameters.size() >= 2))
+		if ((validated) && (parameters.size() >= 2) && ((command == "PRIVMSG") || (command == "NOTICE")))
 		{
 			// parameters[0] should have the target(s) in it.
 			// I think it will be faster to first check if there are any commas, and if there are then try and parse it out.
