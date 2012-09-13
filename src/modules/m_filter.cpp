@@ -102,10 +102,6 @@ class FilterResult
 	FilterResult()
 	{
 	}
-
-	~FilterResult()
-	{
-	}
 };
 
 class CommandFilter : public Command
@@ -118,11 +114,6 @@ class CommandFilter : public Command
 		this->syntax = "<filter-definition> <action> <flags> [<gline-duration>] :<reason>";
 	}
 	CmdResult Handle(const std::vector<std::string>&, User*);
-
-	void TooFewParams(User* user, const std::string &extra_text)
-	{
-		user->WriteServ("NOTICE %s :*** Not enough parameters%s", user->nick.c_str(), extra_text.c_str());
-	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
@@ -154,12 +145,9 @@ class ModuleFilter : public Module
 
 	ModuleFilter();
 	void init();
-	~ModuleFilter();
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
-	void SyncFilters(Module* proto, void* opaque);
-	void SendFilter(Module* proto, void* opaque, FilterResult* iter);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flags);
 	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	void OnRehash(User* user);
@@ -219,7 +207,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 				}
 				else
 				{
-					this->TooFewParams(user, ": When setting a gline type filter, a gline duration must be specified as the third parameter.");
+					user->WriteServ("NOTICE %s :*** Not enough parameters: When setting a gline type filter, a gline duration must be specified as the third parameter.", user->nick.c_str());
 					return CMD_FAILURE;
 				}
 			}
@@ -227,7 +215,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			{
 				reason = parameters[3];
 			}
-			
+
 			Module *me = creator;
 			std::pair<bool, std::string> result = static_cast<ModuleFilter *>(me)->AddFilter(freeform, type, reason, duration, flags);
 			if (result.first)
@@ -248,7 +236,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 		}
 		else
 		{
-			this->TooFewParams(user, ".");
+			user->WriteServ("NOTICE %s :*** Not enough parameters.", user->nick.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -280,10 +268,6 @@ void ModuleFilter::init()
 	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
 	ServerInstance->Modules->Attach(eventlist, this, 7);
 	OnRehash(NULL);
-}
-
-ModuleFilter::~ModuleFilter()
-{
 }
 
 ModResult ModuleFilter::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -479,7 +463,6 @@ Version ModuleFilter::GetVersion()
 	return Version("Text (spam) filtering", VF_VENDOR | VF_COMMON, RegexEngine ? RegexEngine->name : "");
 }
 
-
 std::string ModuleFilter::EncodeFilter(FilterResult* filter)
 {
 	std::ostringstream stream;
@@ -517,12 +500,10 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 
 void ModuleFilter::OnSyncNetwork(Module* proto, void* opaque)
 {
-	this->SyncFilters(proto, opaque);
-}
-
-void ModuleFilter::SendFilter(Module* proto, void* opaque, FilterResult* iter)
-{
-	proto->ProtoSendMetaData(opaque, NULL, "filter", EncodeFilter(iter));
+	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); ++i)
+	{
+		proto->ProtoSendMetaData(opaque, NULL, "filter", EncodeFilter(&(*i)));
+	}
 }
 
 void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
@@ -593,14 +574,6 @@ bool ModuleFilter::DeleteFilter(const std::string &freeform)
 	return false;
 }
 
-void ModuleFilter::SyncFilters(Module* proto, void* opaque)
-{
-	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
-	{
-		this->SendFilter(proto, opaque, &(*i));
-	}
-}
-
 std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform, const std::string &type, const std::string &reason, long duration, const std::string &flgs)
 {
 	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
@@ -655,14 +628,13 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 {
 	if (symbol == 's')
 	{
-		std::string sn = ServerInstance->Config->ServerName;
 		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			results.push_back(sn+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->flags+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->flags+" "+i->action+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
 		for (std::vector<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
 		{
-			results.push_back(sn+" 223 "+user->nick+" :EXEMPT "+(*i));
+			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :EXEMPT "+(*i));
 		}
 	}
 	return MOD_RES_PASSTHRU;
