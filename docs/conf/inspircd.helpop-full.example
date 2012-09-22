@@ -37,7 +37,7 @@ WHOIS     WHOWAS   ISON      USERHOST  WATCH
 LIST      NAMES    WHO       MOTD      RULES
 ADMIN     MAP      LINKS     LUSERS    TIME
 STATS     VERSION  INFO      MODULES   COMMANDS
-SSLINFO   FINGERPRINT
+SSLINFO
 
 USER      PASS     PING     PONG       QUIT
 
@@ -47,11 +47,6 @@ OPER">
 
 Displays information on the SSL connection and certificate of the
 target user.">
-
-<helpop key="fingerprint" value="/FINGERPRINT [nick]
-
-Shows the SSL fingerprint of a user. This can be used for
-authentication by bots and scripts.">
 
 <helpop key="uninvite" value="/UNINVITE [nick] [channel]
 
