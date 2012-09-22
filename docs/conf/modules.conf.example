@@ -1389,6 +1389,17 @@
 #<module name="m_regex_posix.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular Expression Provider for C++11 std::regex Regular Expressions.
+# This module works on any fully compliant implementation of the C++11
+# std::regex container. Examples for such are Visual C++ 2010 and newer
+# but not libstdc++ (which GCC uses)
+#<module name="m_regex_stdlib.so">
+
+# Specify the Regular Expression engine to use here. Valid settings are
+# bre, ere, awk, grep, egrep, ecmascript (default if not specified)
+#<stdregex type="ecmascript">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular Expression Provider for TRE Regular Expressions.
 # This is the same regular expression engine used by UnrealIRCd, so
 # if you are most familiar with the syntax of /spamfilter from there,
