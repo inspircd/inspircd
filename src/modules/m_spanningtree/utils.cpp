@@ -374,7 +374,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 	{
 		ConfigTag* tag = i->second;
 		reference<Link> L = new Link(tag);
-		L->Name = tag->getString("name").c_str();
+		std::string linkname = tag->getString("name");
+		L->Name = linkname.c_str();
 		L->AllowMask = tag->getString("allowmask");
 		L->IPAddr = tag->getString("ipaddr");
 		L->Port = tag->getInt("port");

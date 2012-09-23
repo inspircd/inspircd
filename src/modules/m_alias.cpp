@@ -87,7 +87,8 @@ class ModuleAlias : public Module
 		{
 			ConfigTag* tag = i->second;
 			Alias a;
-			a.AliasedCommand = tag->getString("text").c_str();
+			std::string aliastext = tag->getString("text");
+			a.AliasedCommand = aliastext.c_str();
 			tag->readString("replace", a.ReplaceFormat, true);
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");

@@ -633,7 +633,8 @@ void OperInfo::init()
 			AllowedPrivs.insert(mypriv);
 		}
 
-		for (unsigned char* c = (unsigned char*)tag->getString("usermodes").c_str(); *c; ++c)
+		std::string modes = tag->getString("usermodes");
+		for (std::string::const_iterator c = modes.begin(); c != modes.end(); ++c)
 		{
 			if (*c == '*')
 			{
@@ -645,7 +646,8 @@ void OperInfo::init()
 			}
 		}
 
-		for (unsigned char* c = (unsigned char*)tag->getString("chanmodes").c_str(); *c; ++c)
+		modes = tag->getString("chanmodes");
+		for (std::string::const_iterator c = modes.begin(); c != modes.end(); ++c)
 		{
 			if (*c == '*')
 			{

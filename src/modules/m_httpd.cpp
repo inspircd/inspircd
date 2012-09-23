@@ -282,7 +282,7 @@ class HttpServerSocket : public BufferedSocket
 			return;
 		}
 
-		if (headers.IsSet("Content-Length") && (postsize = atoi(headers.GetHeader("Content-Length").c_str())) != 0)
+		if (headers.IsSet("Content-Length") && (postsize = ConvToInt(headers.GetHeader("Content-Length"))) != 0)
 		{
 			InternalState = HTTP_SERVE_RECV_POSTDATA;
 
