@@ -61,7 +61,7 @@ our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_p
     $opt_noipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port,
 	$opt_system, $opt_uid);
 
-our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir);
+our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
 
 sub list_extras ();
 
@@ -93,6 +93,8 @@ GetOptions (
 	'config-dir=s' => \$opt_config_dir,
 	'module-dir=s' => \$opt_module_dir,
 	'binary-dir=s' => \$opt_binary_dir,
+	'data-dir=s' => \$opt_data_dir,
+	'log-dir=s' => \$opt_log_dir,
 	'disable-debuginfo' => sub { $opt_disable_debug = 1 },
 	'help'	=> sub { showhelp(); },
 	'update' => sub { update(); },
@@ -120,6 +122,8 @@ our $interactive = !(
 	(defined $opt_module_dir) ||
 	(defined $opt_base_dir) ||
 	(defined $opt_binary_dir) ||
+	(defined $opt_data_dir) ||
+	(defined $opt_log_dir) ||
 	(defined $opt_nointeractive) ||
 	(defined $opt_cc) ||
 	(defined $opt_noipv6) ||
@@ -157,12 +161,16 @@ if (defined $opt_system || defined $opt_uid) {
 	$config{MODULE_DIR}	 = '/usr/lib/inspircd';
 	$config{BINARY_DIR}	 = '/usr/sbin/';
 	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
+	$config{DATA_DIR}	 = '/var/inspircd';
+	$config{LOG_DIR}	 = '/var/log/inspircd';
 } else {
 	$config{UID} = $<;
 	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
 	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
 	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
 	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
+	$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data directory
+	$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log directory
 }
 
 if (defined $opt_config_dir) {
@@ -173,6 +181,12 @@ if (defined $opt_module_dir) {
 }
 if (defined $opt_binary_dir) {
 	$config{BINARY_DIR} = $opt_binary_dir;
+}
+if (defined $opt_data_dir) {
+	$config{DATA_DIR} = $opt_data_dir;
+}
+if (defined $opt_log_dir) {
+	$config{LOG_DIR} = $opt_log_dir;
 }
 chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
 
@@ -531,14 +545,18 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	if ($tmpbase ne $config{BASE_DIR}) {
 		$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	   # Configuration Dir
 		$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
+		$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data Directory
+		$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log Directory
 		$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");	    # Binary Directory
 	}
 
 	dir_check("are the configuration files", "CONFIG_DIR");
 	dir_check("are the modules to be compiled to", "MODULE_DIR");
 	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
+	dir_check("are variable data files to be located in", "DATA_DIR");
+	dir_check("are the logs to be stored in", "LOG_DIR");
 	dir_check("do you want the build to take place", "BUILD_DIR");
-
+		
 	my $chose_hiperf = 0;
 	if ($has_kqueue) {
 		yesno('USE_KQUEUE',"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
@@ -867,6 +885,8 @@ sub writefiles {
 #define DllExport /**/
 
 #define CONFIG_PATH "$config{CONFIG_DIR}"
+#define DATA_PATH "$config{DATA_DIR}"
+#define LOG_PATH "$config{LOG_DIR}"
 #define MOD_PATH "$config{MODULE_DIR}"
 #define SOMAXCONN_S "$config{_SOMAXCONN}"
 #define ENTRYPOINT int main(int argc, char** argv)
@@ -998,7 +1018,7 @@ EOF
 		$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
 
 		for my $var (qw(
-			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR UID
+			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
 			STARTSCRIPT DESTINATION SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;

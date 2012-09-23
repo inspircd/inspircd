@@ -287,7 +287,7 @@ void InspIRCd::WritePID(const std::string &filename)
 {
 	std::string fname(filename);
 	if (fname.empty())
-		fname = "data/inspircd.pid";
+		fname = DATA_PATH "/inspircd.pid";
 	std::ofstream outfile(fname.c_str());
 	if (outfile.is_open())
 	{

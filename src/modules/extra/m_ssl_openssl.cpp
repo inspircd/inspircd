@@ -203,10 +203,10 @@ class ModuleSSLOpenSSL : public Module
 
 		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
 
-		cafile	 = conf->getString("cafile", "conf/ca.pem");
-		certfile = conf->getString("certfile", "conf/cert.pem");
-		keyfile	 = conf->getString("keyfile", "conf/key.pem");
-		dhfile	 = conf->getString("dhfile", "conf/dhparams.pem");
+		cafile	 = conf->getString("cafile", CONFIG_PATH "/ca.pem");
+		certfile = conf->getString("certfile", CONFIG_PATH "/cert.pem");
+		keyfile	 = conf->getString("keyfile", CONFIG_PATH "/key.pem");
+		dhfile	 = conf->getString("dhfile", CONFIG_PATH "/dhparams.pem");
 		std::string hash = conf->getString("hash", "md5");
 		if (hash != "sha1" && hash != "md5")
 			throw ModuleException("Unknown hash type " + hash);

@@ -293,7 +293,7 @@ bool InspIRCd::OpenLog(char**, int)
 	if (!Config->cmdline.writelog) return true; // Skip opening default log if -nolog
 
 	if (Config->cmdline.startup_log.empty())
-		Config->cmdline.startup_log = "logs/startup.log";
+		Config->cmdline.startup_log = LOG_PATH "/startup.log";
 	FILE* startup = fopen(Config->cmdline.startup_log.c_str(), "a+");
 
 	if (!startup)
