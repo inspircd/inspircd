@@ -576,22 +576,25 @@ void ServerConfig::Fill()
 	ReadXLine(this, "exception", "host", ServerInstance->XLines->GetFactory("E"));
 
 	memset(DisabledUModes, 0, sizeof(DisabledUModes));
-	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("usermodes").c_str(); *p; ++p)
+	std::string modes = ConfValue("disabled")->getString("usermodes");
+	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
 		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid usermode ")+(char)*p+" was found.");
 		DisabledUModes[*p - 'A'] = 1;
 	}
 
 	memset(DisabledCModes, 0, sizeof(DisabledCModes));
-	for (const unsigned char* p = (const unsigned char*)ConfValue("disabled")->getString("chanmodes").c_str(); *p; ++p)
+	modes = ConfValue("disabled")->getString("chanmodes");
+	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
 	{
 		if (*p < 'A' || *p > ('A' + 64)) throw CoreException(std::string("Invalid chanmode ")+(char)*p+" was found.");
 		DisabledCModes[*p - 'A'] = 1;
 	}
 
 	memset(HideModeLists, 0, sizeof(HideModeLists));
-	for (const unsigned char* p = (const unsigned char*)ConfValue("security")->getString("hidemodes").c_str(); *p; ++p)
-		HideModeLists[*p] = true;
+	modes = ConfValue("security")->getString("hidemodes");
+	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
+		HideModeLists[(unsigned char) *p] = true;
 
 	std::string v = security->getString("announceinvites");
 

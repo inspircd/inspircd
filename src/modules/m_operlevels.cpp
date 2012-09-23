@@ -42,8 +42,11 @@ class ModuleOperLevels : public Module
 			// oper killing an oper?
 			if (IS_OPER(dest) && IS_OPER(source))
 			{
-				long dest_level = atol(dest->oper->getConfig("level").c_str());
-				long source_level = atol(source->oper->getConfig("level").c_str());
+				std::string level = dest->oper->getConfig("level");
+				long dest_level = atol(level.c_str());
+				level = source->oper->getConfig("level");
+				long source_level = atol(level.c_str());
+
 				if (dest_level > source_level)
 				{
 					if (IS_LOCAL(source)) ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());
