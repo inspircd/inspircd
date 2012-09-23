@@ -42,6 +42,7 @@ PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "$(DESTDIR)@BASE_DIR@"
 CONPATH = "$(DESTDIR)@CONFIG_DIR@"
 MODPATH = "$(DESTDIR)@MODULE_DIR@"
+DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
 INSTUID = @UID@
 INSTMODE_DIR = 0755
@@ -236,6 +237,7 @@ install: target
 	@echo '  Configuration:' $(CONPATH)
 	@echo '  Binaries:' $(BINPATH)
 	@echo '  Modules:' $(MODPATH)
+	@echo '  Data:' $(DATPATH)
 	@echo 'To start the ircd, run:' $(BASE)/inspircd start
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
