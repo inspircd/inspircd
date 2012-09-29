@@ -764,6 +764,11 @@ static void unused_function()
 	unused_Cert = reference<ssl_cert>(s);
 	unused_OperInfo = reference<OperInfo>(o);
 
+	unused_Link = l;
+	unused_Autoconnect = a;
+	unused_Cert = s;
+	unused_OperInfo = o;
+
 	delete unused_Link;
 	delete unused_Autoconnect;
 	delete unused_Cert;
