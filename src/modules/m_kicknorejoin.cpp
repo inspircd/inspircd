@@ -86,8 +86,9 @@ public:
 					{
 						if (iter->first == user)
 						{
+							std::string modeparam = chan->GetModeParameter(&kr);
 							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)",
-								user->nick.c_str(), chan->name.c_str(), chan->GetModeParameter(&kr).c_str());
+								user->nick.c_str(), chan->name.c_str(), modeparam.c_str());
 							return MOD_RES_DENY;
 						}
 					}
@@ -118,7 +119,7 @@ public:
 				dl = new delaylist;
 				kr.ext.set(memb->chan, dl);
 			}
-			(*dl)[memb->user] = ServerInstance->Time() + atoi(memb->chan->GetModeParameter(&kr).c_str());
+			(*dl)[memb->user] = ServerInstance->Time() + ConvToInt(memb->chan->GetModeParameter(&kr));
 		}
 	}
 

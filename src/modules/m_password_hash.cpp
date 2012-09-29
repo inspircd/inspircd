@@ -57,8 +57,9 @@ class CommandMkpasswd : public Command
 		if (hp)
 		{
 			/* Now attempt to generate a hash */
+			std::string hexsum = hp->hexsum(stuff);
 			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
-				user->nick.c_str(), algo.c_str(), stuff.c_str(), hp->hexsum(stuff).c_str());
+				user->nick.c_str(), algo.c_str(), stuff.c_str(), hexsum.c_str());
 		}
 		else
 		{

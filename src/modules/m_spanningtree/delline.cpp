@@ -41,7 +41,7 @@ bool TreeSocket::DelLine(const std::string &prefix, parameterlist &params)
 	{
 		TreeServer* t = Utils->FindServer(prefix);
 		if (t)
-			setter = t->GetName().c_str();
+			setter = t->GetName();
 	}
 
 

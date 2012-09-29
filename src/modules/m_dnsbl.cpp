@@ -142,8 +142,9 @@ class DNSBLResolver : public Resolver
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(kl,NULL))
 							{
-								ServerInstance->SNO->WriteGlobalSno('x',"K:line added due to DNSBL match on *@%s to expire on %s: %s", 
-									them->GetIPString(), ServerInstance->TimeString(kl->expiry).c_str(), reason.c_str());
+								std::string timestr = ServerInstance->TimeString(kl->expiry);
+								ServerInstance->SNO->WriteGlobalSno('x',"K:line added due to DNSBL match on *@%s to expire on %s: %s",
+									them->GetIPString(), timestr.c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -156,8 +157,9 @@ class DNSBLResolver : public Resolver
 									"*", them->GetIPString());
 							if (ServerInstance->XLines->AddLine(gl,NULL))
 							{
-								ServerInstance->SNO->WriteGlobalSno('x',"G:line added due to DNSBL match on *@%s to expire on %s: %s", 
-									them->GetIPString(), ServerInstance->TimeString(gl->expiry).c_str(), reason.c_str());
+								std::string timestr = ServerInstance->TimeString(gl->expiry);
+								ServerInstance->SNO->WriteGlobalSno('x',"G:line added due to DNSBL match on *@%s to expire on %s: %s",
+									them->GetIPString(), timestr.c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -170,8 +172,9 @@ class DNSBLResolver : public Resolver
 									them->GetIPString());
 							if (ServerInstance->XLines->AddLine(zl,NULL))
 							{
-								ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s", 
-									them->GetIPString(), ServerInstance->TimeString(zl->expiry).c_str(), reason.c_str());
+								std::string timestr = ServerInstance->TimeString(zl->expiry);
+								ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
+									them->GetIPString(), timestr.c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -307,29 +310,35 @@ class ModuleDNSBL : public Module
 			/* yeah, logic here is a little messy */
 			if ((e->bitmask <= 0) && (DNSBLConfEntry::A_BITMASK == e->type))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): invalid bitmask",tag->getTagLocation().c_str());
+				std::string location = tag->getTagLocation();
+				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): invalid bitmask", location.c_str());
 			}
 			else if (e->name.empty())
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid name",tag->getTagLocation().c_str());
+				std::string location = tag->getTagLocation();
+				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid name", location.c_str());
 			}
 			else if (e->domain.empty())
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid domain",tag->getTagLocation().c_str());
+				std::string location = tag->getTagLocation();
+				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid domain", location.c_str());
 			}
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid banaction",tag->getTagLocation().c_str());
+				std::string location = tag->getTagLocation();
+				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid banaction", location.c_str());
 			}
 			else if (e->duration <= 0)
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid duration",tag->getTagLocation().c_str());
+				std::string location = tag->getTagLocation();
+				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid duration", location.c_str());
 			}
 			else
 			{
 				if (e->reason.empty())
 				{
-					ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): empty reason, using defaults",tag->getTagLocation().c_str());
+					std::string location = tag->getTagLocation();
+					ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): empty reason, using defaults", location.c_str());
 					e->reason = "Your IP has been blacklisted.";
 				}
 

@@ -42,7 +42,8 @@ class CommandVersion : public Command
 
 CmdResult CommandVersion::Handle (const std::vector<std::string>&, User *user)
 {
-	user->WriteNumeric(RPL_VERSION, "%s :%s",user->nick.c_str(),ServerInstance->GetVersionString(IS_OPER(user)).c_str());
+	std::string version = ServerInstance->GetVersionString(IS_OPER(user));
+	user->WriteNumeric(RPL_VERSION, "%s :%s", user->nick.c_str(), version.c_str());
 	ServerInstance->Config->Send005(user);
 	return CMD_SUCCESS;
 }

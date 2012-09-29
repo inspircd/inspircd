@@ -313,7 +313,7 @@ irc::sockets::cidr_mask::cidr_mask(const std::string& mask)
 	}
 	else
 	{
-		int range = atoi(mask.substr(bits_chars + 1).c_str());
+		int range = ConvToInt(mask.substr(bits_chars + 1));
 		irc::sockets::aptosa(mask.substr(0, bits_chars), 0, sa);
 		sa2cidr(*this, sa, range);
 	}

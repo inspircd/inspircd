@@ -66,10 +66,11 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 			newmod->ModuleSourceFile = filename;
 			newmod->ModuleDLLManager = newhandle;
 			Modules[filename] = newmod;
+			std::string version = newhandle->GetVersion();
 			if (defer)
 			{
 				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)",
-					filename.c_str(), newhandle->GetVersion().c_str());
+					filename.c_str(), version.c_str());
 			}
 			else
 			{
@@ -77,7 +78,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 
 				Version v = newmod->GetVersion();
 				ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s (Module version %s)%s",
-					filename.c_str(), newhandle->GetVersion().c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
+					filename.c_str(), version.c_str(), (!(v.Flags & VF_VENDOR) ? " [3rd Party]" : " [Vendor]"));
 			}
 		}
 		else

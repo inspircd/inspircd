@@ -81,8 +81,9 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
+				std::string timestr = ServerInstance->TimeString(c_requires_crap);
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed E-line for %s, expires on %s: %s",user->nick.c_str(),target.c_str(),
-						ServerInstance->TimeString(c_requires_crap).c_str(), parameters[2].c_str());
+						timestr.c_str(), parameters[2].c_str());
 			}
 		}
 		else

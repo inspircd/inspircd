@@ -128,9 +128,10 @@ class ModuleCensor : public Module
 
 		for (int index = 0; index < MyConf.Enumerate("badword"); index++)
 		{
-			irc::string pattern = (MyConf.ReadValue("badword","text",index)).c_str();
-			irc::string replace = (MyConf.ReadValue("badword","replace",index)).c_str();
-			censors[pattern] = replace;
+			std::string str = MyConf.ReadValue("badword","text",index);
+			irc::string pattern(str.c_str());
+			str = MyConf.ReadValue("badword","replace",index);
+			censors[pattern] = irc::string(str.c_str());
 		}
 	}
 

@@ -596,8 +596,10 @@ DNSResult DNS::GetResult()
 	 */
 	if (from != myserver)
 	{
+		std::string server1 = from.str();
+		std::string server2 = myserver.str();
 		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
-			from.str().c_str(), myserver.str().c_str());
+			server1.c_str(), server2.c_str());
 		return DNSResult(-1,"",0,"");
 	}
 

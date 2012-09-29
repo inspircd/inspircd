@@ -58,13 +58,14 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	memset(myname, ' ', depth);
 	int w = depth;
 
+	std::string servername = Current->GetName();
 	if (IS_OPER(user))
 	{
-		w += snprintf(myname + depth, 99 - depth, "%s (%s)", Current->GetName().c_str(), Current->GetID().c_str());
+		w += snprintf(myname + depth, 99 - depth, "%s (%s)", servername.c_str(), Current->GetID().c_str());
 	}
 	else
 	{
-		w += snprintf(myname + depth, 99 - depth, "%s", Current->GetName().c_str());
+		w += snprintf(myname + depth, 99 - depth, "%s", servername.c_str());
 	}
 	memset(myname + w, ' ', 100 - w);
 	if (w > maxnamew)
@@ -81,7 +82,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 		if (!IS_OPER(user)) {
 			if (child->Hidden)
 				continue;
-			if ((Utils->HideULines) && (ServerInstance->ULine(child->GetName().c_str())))
+			if ((Utils->HideULines) && (ServerInstance->ULine(child->GetName())))
 				continue;
 		}
 		ShowMap(child, user, depth, line, names, maxnamew, stats);

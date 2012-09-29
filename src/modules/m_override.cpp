@@ -158,7 +158,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= atoi(chan->GetModeParameter('l').c_str())) && (CanOverride(user,"LIMIT")))
+				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter('l'))) && (CanOverride(user,"LIMIT")))
 				{
 					if (RequireKey && keygiven != "override")
 					{
