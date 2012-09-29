@@ -30,7 +30,8 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 6)
 	{
-		ServerInstance->SNO->WriteToSnoMask('d', "%s sent me a malformed ADDLINE", MyRoot->GetName().c_str());
+		std::string servername = MyRoot->GetName();
+		ServerInstance->SNO->WriteToSnoMask('d', "%s sent me a malformed ADDLINE", servername.c_str());
 		return true;
 	}
 
@@ -44,7 +45,7 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 	{
 		TreeServer* t = Utils->FindServer(prefix);
 		if (t)
-			setter = t->GetName().c_str();
+			setter = t->GetName();
 	}
 
 	if (!xlf)
@@ -68,8 +69,9 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 	{
 		if (xl->duration)
 		{
+			std::string timestr = ServerInstance->TimeString(xl->expiry);
 			ServerInstance->SNO->WriteToSnoMask('X',"%s added %s%s on %s to expire on %s: %s",setter.c_str(),params[0].c_str(),params[0].length() == 1 ? "-line" : "",
-					params[1].c_str(),ServerInstance->TimeString(xl->expiry).c_str(),params[5].c_str());
+					params[1].c_str(), timestr.c_str(), params[5].c_str());
 		}
 		else
 		{

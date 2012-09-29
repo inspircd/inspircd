@@ -74,7 +74,9 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
 		TreeServer* recursive_server = Current->GetChild(q);
 		if (recursive_server != s)
 		{
-			snprintf(command,1024,":%s SERVER %s * %d %s :%s",Current->GetName().c_str(),recursive_server->GetName().c_str(),hops,
+			std::string servername = Current->GetName();
+			std::string recursive_servername = recursive_server->GetName();
+			snprintf(command,1024,":%s SERVER %s * %d %s :%s", servername.c_str(), recursive_servername.c_str(), hops,
 					recursive_server->GetID().c_str(),
 					recursive_server->GetDesc().c_str());
 			this->WriteLine(command);

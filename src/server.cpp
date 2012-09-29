@@ -70,7 +70,10 @@ std::string InspIRCd::GetVersionString(bool operstring)
 {
 	char versiondata[MAXBUF];
 	if (operstring)
-		snprintf(versiondata,MAXBUF,"%s %s :%s [%s,%s,%s]",VERSION,Config->ServerName.c_str(),SYSTEM,REVISION,SE->GetName().c_str(),Config->sid.c_str());
+	{
+		std::string sename = SE->GetName();
+		snprintf(versiondata,MAXBUF,"%s %s :%s [%s,%s,%s]",VERSION, Config->ServerName.c_str(), SYSTEM,REVISION, sename.c_str(), Config->sid.c_str());
+	}
 	else
 		snprintf(versiondata,MAXBUF,"%s %s :%s",BRANCH,Config->ServerName.c_str(),Config->CustomVersion.c_str());
 	return versiondata;

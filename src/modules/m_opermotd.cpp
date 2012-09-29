@@ -62,7 +62,10 @@ class CommandOpermotd : public Command
 		user->SendText(":%s 375 %s :- IRC Operators Message of the Day", servername.c_str(), user->nick.c_str());
 
 		for (int i=0; i != opermotd.FileSize(); i++)
-			user->SendText(":%s 372 %s :- %s", servername.c_str(), user->nick.c_str(), opermotd.GetLine(i).c_str());
+		{
+			std::string line = opermotd.GetLine(i);
+			user->SendText(":%s 372 %s :- %s", servername.c_str(), user->nick.c_str(), line.c_str());
+		}
 
 		user->SendText(":%s 376 %s :- End of OPERMOTD", servername.c_str(), user->nick.c_str());
 	}

@@ -99,7 +99,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	}
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
-		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName().c_str()))))
+		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName()))))
 		{
 			if (IS_OPER(user))
 			{
@@ -112,13 +112,14 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName().c_str())) && (!IS_OPER(user)))
+	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName())) && (!IS_OPER(user)))
 		return;
 	/* Or if the server is hidden and they're not an oper */
 	else if ((Current->Hidden) && (!IS_OPER(user)))
 		return;
 
-	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(),Current->GetName().c_str(),
+	std::string servername = Current->GetName();
+	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(), servername.c_str(),
 			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
 			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
 			Current->GetDesc().c_str());
@@ -162,7 +163,7 @@ restart:
 	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
 	{
 		TreeServer *s = i->second;
-		
+
 		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
 		{
 			s->GetSocket()->Close();
@@ -215,7 +216,8 @@ restart:
 			if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
 			{
 				/* The server hasnt responded, send a warning to opers */
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
+				std::string servername = s->GetName();
+				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", servername.c_str(), Utils->PingWarnTime);
 				s->Warned = true;
 			}
 		}
@@ -411,7 +413,8 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 			}
 			else
 			{
-				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002",x->Name.c_str(),CheckDupe->GetParent()->GetName().c_str());
+				std::string servername = CheckDupe->GetParent()->GetName();
+				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002", x->Name.c_str(), servername.c_str());
 				return MOD_RES_DENY;
 			}
 		}
