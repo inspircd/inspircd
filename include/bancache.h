@@ -45,6 +45,8 @@ class CoreExport BanCacheHit
 		: Type(type), Reason(reason), Expiry(ServerInstance->Time() + seconds)
 	{
 	}
+
+	bool IsPositive() const { return (!Reason.empty()); }
 };
 
 /* A container of ban cache items.
@@ -73,7 +75,7 @@ class CoreExport BanCacheManager
 	 * @param type The type of bancache entries to remove (e.g. 'G')
 	 * @param positive Remove either positive (true) or negative (false) hits.
 	 */
-	unsigned int RemoveEntries(const std::string &type, bool positive);
+	void RemoveEntries(const std::string& type, bool positive);
 
 	BanCacheManager()
 	{

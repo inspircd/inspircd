@@ -53,43 +53,39 @@ BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
 	}
 }
 
-unsigned int BanCacheManager::RemoveEntries(const std::string &type, bool positive)
+void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 {
-	int removed = 0;
-
-	BanCacheHash::iterator safei;
-
 	if (positive)
 		ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing positive hits for " + type);
 	else
-		ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing negative hits for " + type);
+		ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing all negative hits");
 
-	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); )
+	for (BanCacheHash::iterator i = BanHash->begin(); i != BanHash->end(); )
 	{
-		safei = n;
-		safei++;
+		BanCacheHit* b = i->second;
+		bool remove = false;
 
-		BanCacheHit *b = n->second;
-
-		/* Safe to delete items here through iterator 'n' */
-		if (b->Type == type || !positive) // if removing negative hits, ignore type..
+		if (positive)
 		{
-			if ((positive && !b->Reason.empty()) || b->Reason.empty())
-			{
-				/* we need to remove this one. */
-				ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + n->first);
-				delete b;
-				BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
-				removed++;
-			}
+			// when removing positive hits, remove only if the type matches
+			remove = b->IsPositive() && (b->Type == type);
+		}
+		else
+		{
+			// when removing negative hits, remove all of them
+			remove = !b->IsPositive();
 		}
 
-		/* End of safe section */
-		n = safei;
+		if (remove)
+		{
+			/* we need to remove this one. */
+			ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + i->first);
+			delete b;
+			i = BanHash->erase(i);
+		}
+		else
+			++i;
 	}
-
-
-	return removed;
 }
 
 void BanCacheManager::RehashCache()
