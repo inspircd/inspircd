@@ -105,11 +105,11 @@ class TreeServer : public classbase
 
 	/** Get server description (GECOS)
 	 */
-	std::string GetDesc();
+	const std::string& GetDesc();
 
 	/** Get server version string
 	 */
-	std::string GetVersion();
+	const std::string& GetVersion();
 
 	/** Set time we are next due to ping this server
 	 */
@@ -197,7 +197,7 @@ class TreeServer : public classbase
 
 	/** Get server ID
 	 */
-	std::string& GetID();
+	const std::string& GetID();
 
 	/** Marks a server as having finished bursting and performs appropriate actions.
 	 */
