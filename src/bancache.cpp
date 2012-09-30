@@ -23,19 +23,6 @@
 #include "inspircd.h"
 #include "bancache.h"
 
-BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &type, const std::string &reason)
-{
-	BanCacheHit *b;
-
-	if (this->BanHash->find(ip) != this->BanHash->end()) // can't have two cache entries on the same IP, sorry..
-		return NULL;
-
-	b = new BanCacheHit(ip, type, reason);
-
-	this->BanHash->insert(std::make_pair(ip, b));
-	return b;
-}
-
 BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
 {
 	BanCacheHit *b;
@@ -43,7 +30,7 @@ BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &t
 	if (this->BanHash->find(ip) != this->BanHash->end()) // can't have two cache entries on the same IP, sorry..
 		return NULL;
 
-	b = new BanCacheHit(ip, type, reason, seconds);
+	b = new BanCacheHit(ip, type, reason, (seconds ? seconds : 86400));
 
 	this->BanHash->insert(std::make_pair(ip, b));
 	return b;

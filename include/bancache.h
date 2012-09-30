@@ -44,21 +44,9 @@ class CoreExport BanCacheHit
 	 */
 	time_t Expiry;
 
-	BanCacheHit(const std::string &ip, const std::string &type, const std::string &reason)
-	{
-		this->Type = type;
-		this->Reason = reason;
-		this->IP = ip;
-		this->Expiry = ServerInstance->Time() + 86400; // a day. this might seem long, but entries will be removed as glines/etc expire.
-	}
-
-	// overridden to allow custom time
 	BanCacheHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
+		: Type(type), Reason(reason), IP(ip), Expiry(ServerInstance->Time() + seconds)
 	{
-		this->Type = type;
-		this->Reason = reason;
-		this->IP = ip;
-		this->Expiry = ServerInstance->Time() + seconds;
 	}
 };
 
@@ -79,11 +67,9 @@ class CoreExport BanCacheManager
 	 * @param ip The IP the item is for.
 	 * @param type The type of ban cache item. std::string. .empty() means it's a negative match (user is allowed freely).
 	 * @param reason The reason for the ban. Left .empty() if it's a negative match.
+	 * @param seconds Number of seconds before nuking the bancache entry, the default is a day. This might seem long, but entries will be removed as glines/etc expire.
 	 */
-	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason);
-
-	// Overridden to allow an optional number of seconds before expiry
-	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds);
+	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds = 0);
 	BanCacheHit *GetHit(const std::string &ip);
 	bool RemoveHit(BanCacheHit *b);
 
