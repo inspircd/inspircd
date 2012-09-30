@@ -25,14 +25,11 @@
 
 BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
 {
-	BanCacheHit *b;
-
-	if (this->BanHash->find(ip) != this->BanHash->end()) // can't have two cache entries on the same IP, sorry..
+	BanCacheHit*& b = (*BanHash)[ip];
+	if (b != NULL) // can't have two cache entries on the same IP, sorry..
 		return NULL;
 
-	b = new BanCacheHit(ip, type, reason, (seconds ? seconds : 86400));
-
-	this->BanHash->insert(std::make_pair(ip, b));
+	b = new BanCacheHit(type, reason, (seconds ? seconds : 86400));
 	return b;
 }
 
