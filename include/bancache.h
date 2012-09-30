@@ -37,15 +37,12 @@ class CoreExport BanCacheHit
 	/** Reason, shown as quit message
 	 */
 	std::string Reason;
-	/** IP to match against, no wildcards here (of course)
-	 */
-	std::string IP;
 	/** Time that the ban expires at
 	 */
 	time_t Expiry;
 
-	BanCacheHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
-		: Type(type), Reason(reason), IP(ip), Expiry(ServerInstance->Time() + seconds)
+	BanCacheHit(const std::string &type, const std::string &reason, time_t seconds)
+		: Type(type), Reason(reason), Expiry(ServerInstance->Time() + seconds)
 	{
 	}
 };
@@ -71,7 +68,6 @@ class CoreExport BanCacheManager
 	 */
 	BanCacheHit *AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds = 0);
 	BanCacheHit *GetHit(const std::string &ip);
-	bool RemoveHit(BanCacheHit *b);
 
 	/** Removes all entries of a given type, either positive or negative. Returns the number of hits removed.
 	 * @param type The type of bancache entries to remove (e.g. 'G')
