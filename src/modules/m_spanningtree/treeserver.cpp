@@ -128,7 +128,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
 	SetID(id);
 }
 
-std::string& TreeServer::GetID()
+const std::string& TreeServer::GetID()
 {
 	return sid;
 }
@@ -226,12 +226,12 @@ std::string TreeServer::GetName()
 	return ServerName.c_str();
 }
 
-std::string TreeServer::GetDesc()
+const std::string& TreeServer::GetDesc()
 {
 	return ServerDesc;
 }
 
-std::string TreeServer::GetVersion()
+const std::string& TreeServer::GetVersion()
 {
 	return VersionString;
 }
