@@ -230,12 +230,18 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	/*
 	 * Initialize host and dhost here to the user's IP.
 	 * It is important to do this before calling SetClientIP()
-	 * as that can pass execution to modules that expect these
+	 * as that passes execution to modules that expect these
 	 * fields to be valid.
+	 *
+	 * We cannot call GetIPString() now as that will access
+	 * client_sa, and that's only initialized after the first
+	 * SetClientIP() call.
 	 */
 
 	int port;
 	irc::sockets::satoap(*client, host, port);
+	if (host[0] == ':')
+		host.insert(0, 1, '0');
 	dhost = host;
 	SetClientIP(*client);
 }
