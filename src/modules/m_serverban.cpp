@@ -41,7 +41,7 @@ class ModuleServerBan : public Module
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		if (mask[0] == 's' && mask[1] == ':')
+		if ((mask.length() > 2) && (mask[0] == 's') && (mask[1] == ':'))
 		{
 			if (InspIRCd::Match(user->server, mask.substr(2)))
 				return MOD_RES_DENY;

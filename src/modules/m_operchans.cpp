@@ -59,7 +59,7 @@ class ModuleOperChans : public Module
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		if (mask[0] == 'O' && mask[1] == ':')
+		if ((mask.length() > 2) && (mask[0] == 'O') && (mask[1] == ':'))
 		{
 			if (IS_OPER(user) && InspIRCd::Match(user->oper->name, mask.substr(2)))
 				return MOD_RES_DENY;

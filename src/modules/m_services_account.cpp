@@ -213,7 +213,7 @@ class ModuleServicesAccount : public Module
 		if (checking)
 			return MOD_RES_PASSTHRU;
 
-		if (mask[1] == ':')
+		if ((mask.length() > 2) && (mask[1] == ':'))
 		{
 			if (mask[0] == 'R')
 			{

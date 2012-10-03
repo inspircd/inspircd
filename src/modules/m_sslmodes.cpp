@@ -113,7 +113,7 @@ class ModuleSSLModes : public Module
 
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
 	{
-		if (mask[0] == 'z' && mask[1] == ':')
+		if ((mask.length() > 2) && (mask[0] == 'z') && (mask[1] == ':'))
 		{
 			UserCertificateRequest req(user, this);
 			req.Send();
