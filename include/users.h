@@ -393,9 +393,9 @@ class CoreExport User : public Extensible
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
-	bool SetClientIP(const char* sip);
+	virtual bool SetClientIP(const char* sip);
 
-	void SetClientIP(const irc::sockets::sockaddrs& sa);
+	virtual void SetClientIP(const irc::sockets::sockaddrs& sa);
 
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
