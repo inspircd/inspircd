@@ -209,6 +209,10 @@ class ModuleServicesAccount : public Module
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
+		static bool checking = false;
+		if (checking)
+			return MOD_RES_PASSTHRU;
+
 		if (mask[1] == ':')
 		{
 			if (mask[0] == 'R')
@@ -226,7 +230,11 @@ class ModuleServicesAccount : public Module
 
 				/* If we made it this far we know the user isn't registered
 					so just deny if it matches */
-				if (chan->GetExtBanStatus(user, 'U') == MOD_RES_DENY)
+				checking = true;
+				bool result = chan->CheckBan(user, mask.substr(2));
+				checking = false;
+
+				if (result)
 					return MOD_RES_DENY;
 			}
 		}
