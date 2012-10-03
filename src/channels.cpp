@@ -449,7 +449,7 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 		return (result == MOD_RES_DENY);
 
 	// extbans were handled above, if this is one it obviously didn't match
-	if (mask[1] == ':')
+	if ((mask.length() <= 2) || (mask[1] == ':'))
 		return false;
 
 	std::string::size_type at = mask.find('@');
