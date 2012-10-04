@@ -226,6 +226,8 @@ Section Uninstall
   Delete "$INSTDIR\conf\*.example"
   Delete "$INSTDIR\conf\aliases\*.example"
   Delete "$INSTDIR\conf\modules\*.example"
+  Delete "$INSTDIR\conf\modules\modules.conf.charybdis"
+  Delete "$INSTDIR\conf\modules\modules.conf.unreal"
   Delete "$INSTDIR\*.log"
   Delete "$INSTDIR\logs\*"
   Delete "$INSTDIR\data\*"
@@ -238,6 +240,8 @@ Section Uninstall
 
   RMDir "$SMPROGRAMS\InspIRCd"
   RMDir "$INSTDIR\modules"
+  RMDir "$INSTDIR\conf\aliases"
+  RMDir "$INSTDIR\conf\modules"
   RMDir "$INSTDIR\conf"
   RMDir "$INSTDIR\logs"
   RMDir "$INSTDIR\data"
