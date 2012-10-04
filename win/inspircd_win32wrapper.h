@@ -242,9 +242,6 @@ void ::operator delete(void * ptr);
 class ValueItem;
 class ServerConfig;
 
-/* Look up the nameserver in use from the registry on windows */
-CoreExport std::string FindNameServerWin();
-
 #define DISABLE_WRITEV
 
 /* Clear a windows console */
