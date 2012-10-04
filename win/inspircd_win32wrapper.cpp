@@ -29,6 +29,7 @@
 #include <string>
 #include <errno.h>
 #include <assert.h>
+#include <Iphlpapi.h>
 #define _WIN32_DCOM
 #include <comdef.h>
 #include <Wbemidl.h>
@@ -36,6 +37,7 @@
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "comsuppwd.lib")
 #pragma comment(lib, "winmm.lib")
+#pragma comment(lib, "Iphlpapi.lib")
 using namespace std;
 
 #ifndef INADDR_NONE
@@ -320,77 +322,6 @@ int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, cons
 	return 1;
 }
 
-/* These three functions were created from looking at how ares does it
- * (...and they look far tidier in C++)
- */
-
-/* Get active nameserver */
-bool GetNameServer(HKEY regkey, const char *key, char* &output)
-{
-	DWORD size = 0;
-	DWORD result = RegQueryValueEx(regkey, key, 0, NULL, NULL, &size);
-	if (((result != ERROR_SUCCESS) && (result != ERROR_MORE_DATA)) || (!size))
-		return false;
-
-	output = new char[size+1];
-
-	if ((RegQueryValueEx(regkey, key, 0, NULL, (LPBYTE)output, &size) != ERROR_SUCCESS) || (!*output))
-	{
-		delete output;
-		return false;
-	}
-	return true;
-}
-
-/* Check a network interface for its nameserver */
-bool GetInterface(HKEY regkey, const char *key, char* &output)
-{
-	char buf[39];
-	DWORD size = 39;
-	int idx = 0;
-	HKEY top;
-
-	while (RegEnumKeyEx(regkey, idx++, buf, &size, 0, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS)
-	{
-		size = 39;
-		if (RegOpenKeyEx(regkey, buf, 0, KEY_QUERY_VALUE, &top) != ERROR_SUCCESS)
-			continue;
-		int rc = GetNameServer(top, key, output);
-		RegCloseKey(top);
-		if (rc)
-			return true;
-	}
-	return false;
-}
-
-
-std::string FindNameServerWin()
-{
-	std::string returnval;
-	HKEY top, key;
-	char* dns = NULL;
-
-	/* Lets see if the correct registry hive and tree exist */
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "System\\CurrentControlSet\\Services\\Tcpip\\Parameters", 0, KEY_READ, &top) == ERROR_SUCCESS)
-	{
-		/* If they do, attempt to get the nameserver name */
-		RegOpenKeyEx(top, "Interfaces", 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &key);
-		if ((GetNameServer(top, "NameServer", dns)) || (GetNameServer(top, "DhcpNameServer", dns))
-			|| (GetInterface(key, "NameServer", dns)) || (GetInterface(key, "DhcpNameServer", dns)))
-		{
-			if (dns)
-			{
-				returnval = dns;
-				delete dns;
-			}
-		}
-		RegCloseKey(key);
-		RegCloseKey(top);
-	}
-	return returnval;
-}
-
-
 void ClearConsole()
 {
 	COORD coordScreen = { 0, 0 };    /* here's where we'll home the cursor */
@@ -534,31 +465,35 @@ void FindDNS(std::string& server)
 	if (!server.empty())
 		return;
 
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in the registry...");
-	std::string nameserver = FindNameServerWin();
+	PFIXED_INFO pFixedInfo;
+	DWORD dwBufferSize = sizeof(FIXED_INFO);
+	pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, sizeof(FIXED_INFO));
 
-	/* If empty use default to 127.0.0.1 */
-	if (nameserver.empty())
+	if(pFixedInfo)
 	{
-		ServerInstance->Logs->Log("CONFIG",DEFAULT,"No viable nameserver found in registry! Defaulting to nameserver '127.0.0.1'!");
-		server = "127.0.0.1";
-		return;
+		if (GetNetworkParams(pFixedInfo, &dwBufferSize) == ERROR_BUFFER_OVERFLOW) {
+			HeapFree(GetProcessHeap(), 0, pFixedInfo);
+			pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, dwBufferSize);
+		}
+
+		if(pFixedInfo) {
+			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == NO_ERROR)
+				server = pFixedInfo->DnsServerList.IpAddress.String;
+
+			HeapFree(GetProcessHeap(), 0, pFixedInfo);
+		}
 	}
-
-	/* Windows stacks multiple nameservers in one registry key, seperated by commas.
-	 * Spotted by Cataclysm.
-	 */
-	if (nameserver.find(',') != std::string::npos)
-		nameserver = nameserver.substr(0, nameserver.find(','));
-
-	/* Just to be FUCKING AKWARD, windows fister... err i mean vista...
-	 * seperates the nameservers with spaces instead.
-	 */
-	if (nameserver.find(' ') != std::string::npos)
-		nameserver = nameserver.substr(0, nameserver.find(' '));
-
-	server = nameserver;
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver in registry.", nameserver.c_str());
+	
+	/* If empty use default to 127.0.0.1 */
+	if(server.empty())
+	{
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
+		server = "127.0.0.1";
+	}
+	else
+	{
+		ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver.", server.c_str());
+	}
 }
 
 int clock_gettime(int clock, struct timespec * tv)
