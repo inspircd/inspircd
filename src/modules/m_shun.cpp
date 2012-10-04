@@ -168,7 +168,7 @@ class CommandShun : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_LOCALONLY;
+		return ROUTE_BROADCAST;
 	}
 };
 
