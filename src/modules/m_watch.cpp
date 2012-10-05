@@ -233,7 +233,7 @@ class CommandWatch : public Command
 			}
 
 			User* target = ServerInstance->FindNick(nick);
-			if (target)
+			if (target && target->registered == REG_ALL && !target->quitting && !IS_FAKE(target))
 			{
 				if (target->Visibility && !target->Visibility->VisibleTo(user))
 				{
