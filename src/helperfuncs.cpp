@@ -435,9 +435,11 @@ bool InspIRCd::SilentULine(const char* sserver)
 	else return false;
 }
 
-std::string InspIRCd::TimeString(time_t curtime)
+const std::string &InspIRCd::TimeString(time_t curtime)
 {
-	return std::string(ctime(&curtime),24);
+	static std::string buf;
+	buf.assign(ctime(&curtime), 24);
+	return buf;
 }
 
 // You should only pass a single character to this.

@@ -153,7 +153,8 @@ public:
 					{
 						if (iter->first == user)
 						{
-							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)", user->nick.c_str(), chan->name.c_str(), chan->GetModeParameter('J').c_str());
+							std::string modeparam = chan->GetModeParameter('J');
+							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)", user->nick.c_str(), chan->name.c_str(), modeparam.c_str());
 							return 1;
 						}
 					}

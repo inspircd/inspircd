@@ -119,7 +119,8 @@ class CommandSilence : public Command
 			{
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
-					user->WriteNumeric(271, "%s %s %s %s",user->nick.c_str(), user->nick.c_str(),c->first.c_str(), DecompPattern(c->second).c_str());
+					std::string pattern = DecompPattern(c->second);
+					user->WriteNumeric(271, "%s %s %s %s",user->nick.c_str(), user->nick.c_str(),c->first.c_str(), pattern.c_str());
 				}
 			}
 			user->WriteNumeric(272, "%s :End of Silence List",user->nick.c_str());

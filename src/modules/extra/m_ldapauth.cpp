@@ -180,7 +180,8 @@ public:
 			size_t pos = user->password.find(":");
 			if (pos != std::string::npos)
 			{
-				res = ldap_search_ext_s(conn, base.c_str(), searchscope, user->password.substr(0, pos).c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
+				std::string user_password = user->password.substr(0, pos);
+				res = ldap_search_ext_s(conn, base.c_str(), searchscope, user_password.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
 
 				if (res)
 				{
