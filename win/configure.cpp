@@ -302,6 +302,7 @@ void Run()
 	string config_path = get_string_option("In what directory are the configuration files?", "conf");
 	string mod_path = get_string_option("In what directory are the modules to be compiled to?", "modules");
 	string data_path = get_string_option("In what directory is the variable data to be placed in?", "data");
+	string log_path = get_string_option("In what directory is the logs to be placed in?", "logs");
 	string bin_dir = get_string_option("In what directory is the IRCd binary to be placed?", ".");
 
 	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
@@ -313,6 +314,7 @@ void Run()
 	printf_c("\033[0mConfig path:\033[1;32m              %s\n", config_path.c_str());
 	printf_c("\033[0mModule path:\033[1;32m              %s\n", mod_path.c_str());
 	printf_c("\033[0mData path:\033[1;32m              %s\n", data_path.c_str());
+	printf_c("\033[0mLog path:\033[1;32m              %s\n", log_path.c_str());
 	printf_c("\033[0mSocket Engine:\033[1;32m            %s\n", "select");
 
 	printf("\n"); sc(TNORMAL);
@@ -325,6 +327,7 @@ void Run()
 
 	// escape the pathes
 	escape_string(data_path);
+	escape_string(log_path);
 	escape_string(config_path);
 	escape_string(mod_path);
 
@@ -337,6 +340,7 @@ void Run()
 	fprintf(f, "#define CONFIG_PATH \"%s\"\n", config_path.c_str());
 	fprintf(f, "#define MOD_PATH \"%s\"\n", mod_path.c_str());
 	fprintf(f, "#define DATA_PATH \"%s\"\n", data_path.c_str());
+	fprintf(f, "#define LOG_PATH \"%s\"\n", log_path.c_str());
 	fprintf(f, "#define SOMAXCONN_S \"128\"\n");
 	fprintf(f, "#define MAXBUF 514\n");
 
