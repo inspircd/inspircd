@@ -1765,6 +1765,11 @@
 #<module name="m_tline.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Topiclock module: implements server-side topic locking to achieve deeper
+# integration with services packages.
+#<module name="m_topiclock.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # UHNAMES support module: Adds support for the IRCX style UHNAMES
 # extension, which displays ident and hostname in the names list for
 # each user, saving clients from doing a WHO on the channel. Note that
