@@ -44,17 +44,9 @@ class ModuleWaitPong : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-
-		sendsnotice = Conf.ReadFlag("waitpong", "sendsnotice", 0);
-
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			sendsnotice = true;
-
-		killonbadreply = Conf.ReadFlag("waitpong", "killonbadreply", 0);
-
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			killonbadreply = true;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("waitpong");
+		sendsnotice = tag->getBool("sendsnotice", true);
+		killonbadreply = tag->getBool("killonbadreply", true);
 	}
 
 	ModResult OnUserRegister(LocalUser* user)

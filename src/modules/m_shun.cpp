@@ -214,8 +214,8 @@ class ModuleShun : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader MyConf;
-		std::string cmds = MyConf.ReadValue("shun", "enabledcommands", 0);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
+		std::string cmds = tag->getString("enabledcommands");
 		std::transform(cmds.begin(), cmds.end(), cmds.begin(), ::toupper);
 
 		if (cmds.empty())
@@ -231,8 +231,8 @@ class ModuleShun : public Module
 			ShunEnabledCommands.insert(thiscmd);
 		}
 
-		NotifyOfShun = MyConf.ReadFlag("shun", "notifyuser", "yes", 0);
-		affectopers = MyConf.ReadFlag("shun", "affectopers", "no", 0);
+		NotifyOfShun = tag->getBool("notifyuser", true);
+		affectopers = tag->getBool("affectopers", false);
 	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string &original_line)

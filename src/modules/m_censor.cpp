@@ -123,14 +123,15 @@ class ModuleCensor : public Module
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
 		 * to call the constructor again and re-read our data.
 		 */
-		ConfigReader MyConf;
 		censors.clear();
 
-		for (int index = 0; index < MyConf.Enumerate("badword"); index++)
+		ConfigTagList badwords = ServerInstance->Config->ConfTags("badword");
+		for (ConfigIter i = badwords.first; i != badwords.second; ++i)
 		{
-			std::string str = MyConf.ReadValue("badword","text",index);
+			ConfigTag* tag = i->second;
+			std::string str = tag->getString("text");
 			irc::string pattern(str.c_str());
-			str = MyConf.ReadValue("badword","replace",index);
+			str = tag->getString("replace");
 			censors[pattern] = irc::string(str.c_str());
 		}
 	}

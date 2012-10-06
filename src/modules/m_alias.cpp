@@ -74,11 +74,9 @@ class ModuleAlias : public Module
 
 	virtual void ReadAliases()
 	{
-		ConfigReader MyConf;
-
-		AllowBots = MyConf.ReadFlag("fantasy", "allowbots", "no", 0);
-
-		std::string fpre = MyConf.ReadValue("fantasy","prefix",0);
+		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
+		AllowBots = fantasy->getBool("allowbots", false);
+		std::string fpre = fantasy->getString("prefix", "!");
 		fprefix = fpre.empty() ? '!' : fpre[0];
 
 		Aliases.clear();

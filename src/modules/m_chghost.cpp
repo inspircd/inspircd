@@ -102,11 +102,7 @@ class ModuleChgHost : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		std::string hmap = Conf.ReadValue("hostname", "charmap", 0);
-
-		if (hmap.empty())
-			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789";
+		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 
 		memset(hostmap, 0, sizeof(hostmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)

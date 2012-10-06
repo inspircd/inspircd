@@ -48,28 +48,23 @@ class ModuleConnectBan : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		std::string duration;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = Conf.ReadInteger("connectban", "ipv4cidr", 0, true);
+		ipv4_cidr = tag->getInt("ipv4cidr", 32);
 		if (ipv4_cidr == 0)
 			ipv4_cidr = 32;
 
-		ipv6_cidr = Conf.ReadInteger("connectban", "ipv6cidr", 0, true);
+		ipv6_cidr = tag->getInt("ipv6cidr", 128);
 		if (ipv6_cidr == 0)
 			ipv6_cidr = 128;
 
-		threshold = Conf.ReadInteger("connectban", "threshold", 0, true);
-
+		threshold = tag->getInt("threshold", 10);
 		if (threshold == 0)
 			threshold = 10;
 
-		duration = Conf.ReadValue("connectban", "duration", 0, true);
-
-		if (duration.empty())
-			duration = "10m";
-
-		banduration = ServerInstance->Duration(duration);
+		banduration = ServerInstance->Duration(tag->getString("duration", "10m"));
+		if (banduration == 0)
+			banduration = 10*60;
 	}
 
 	virtual void OnUserConnect(LocalUser *u)

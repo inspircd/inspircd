@@ -109,12 +109,10 @@ public:
 
 	void ReadConf()
 	{
-		ConfigReader Conf;
-		percent = Conf.ReadInteger("blockcaps", "percent", "100", 0, true);
-		minlen = Conf.ReadInteger("blockcaps", "minlen", "1", 0, true);
-		std::string hmap = Conf.ReadValue("blockcaps", "capsmap", 0);
-		if (hmap.empty())
-			hmap = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
+		percent = tag->getInt("percent", 100);
+		minlen = tag->getInt("minlen", 1);
+		std::string hmap = tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 		memset(capsmap, 0, sizeof(capsmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			capsmap[(unsigned char)*n] = 1;

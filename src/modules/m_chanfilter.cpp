@@ -88,8 +88,7 @@ class ModuleChanFilter : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		hidemask = Conf.ReadFlag("chanfilter", "hidemask", 0);
+		hidemask = ServerInstance->Config->ConfValue("chanfilter")->getBool("hidemask");
 		cf.DoRehash();
 	}
 

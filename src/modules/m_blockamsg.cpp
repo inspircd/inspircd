@@ -75,14 +75,9 @@ class ModuleBlockAmsg : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-
-		ForgetDelay = Conf.ReadInteger("blockamsg", "delay", 0, false);
-
-		if(Conf.GetError() == CONF_VALUE_NOT_FOUND)
-			ForgetDelay = -1;
-
-		std::string act = Conf.ReadValue("blockamsg", "action", 0);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("blockamsg");
+		ForgetDelay = tag->getInt("delay", -1);
+		std::string act = tag->getString("action");
 
 		if(act == "notice")
 			action = IBLOCK_NOTICE;

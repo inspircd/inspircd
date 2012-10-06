@@ -95,9 +95,9 @@ class ModuleChannelNames : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		std::string denyToken = Conf.ReadValue("channames", "denyrange", 0);
-		std::string allowToken = Conf.ReadValue("channames", "allowrange", 0);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("channames");
+		std::string denyToken = tag->getString("denyrange");
+		std::string allowToken = tag->getString("allowrange");
 		allowedmap.set();
 
 		irc::portparser denyrange(denyToken, false);

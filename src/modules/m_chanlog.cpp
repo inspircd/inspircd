@@ -45,16 +45,16 @@ class ModuleChanLog : public Module
 
 	virtual void OnRehash(User *user)
 	{
-		ConfigReader MyConf;
 		std::string snomasks;
 		std::string channel;
 
 		logstreams.clear();
 
-		for (int i = 0; i < MyConf.Enumerate("chanlog"); i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("chanlog");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			channel = MyConf.ReadValue("chanlog", "channel", i);
-			snomasks = MyConf.ReadValue("chanlog", "snomasks", i);
+			channel = i->second->getString("channel");
+			snomasks = i->second->getString("snomasks");
 
 			if (channel.empty() || snomasks.empty())
 			{

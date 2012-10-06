@@ -41,10 +41,10 @@ class ModulePassForward : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		nickrequired = Conf.ReadValue("passforward", "nick", "NickServ", 0);
-		forwardmsg = Conf.ReadValue("passforward", "forwardmsg", "NOTICE $nick :*** Forwarding PASS to $nickrequired", 0);
-		forwardcmd = Conf.ReadValue("passforward", "cmd", "PRIVMSG $nickrequired :IDENTIFY $pass", 0);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("passforward");
+		nickrequired = tag->getString("nick", "NickServ");
+		forwardmsg = tag->getString("forwardmsg", "NOTICE $nick :*** Forwarding PASS to $nickrequired");
+		forwardcmd = tag->getString("cmd", "PRIVMSG $nickrequired :IDENTIFY $pass");
 	}
 
 	void FormatStr(std::string& result, const std::string& format, const LocalUser* user)

@@ -63,10 +63,10 @@ class ModuleHostChange : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		MySuffix = Conf.ReadValue("host","suffix",0);
-		MyPrefix = Conf.ReadValue("host","prefix","",0);
-		MySeparator = Conf.ReadValue("host","separator",".",0);
+		ConfigTag* host = ServerInstance->Config->ConfValue("host");
+		MySuffix = host->getString("suffix");
+		MyPrefix = host->getString("prefix");
+		MySeparator = host->getString("separator", ".");
 		hostchanges.clear();
 
 		std::set<std::string> dupecheck;

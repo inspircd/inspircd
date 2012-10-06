@@ -192,7 +192,7 @@ class ModuleFilter : public Module
 	ModResult OnStats(char symbol, User* user, string_list &results);
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
-	void ReadFilters(ConfigReader &MyConf);
+	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);
 	static std::string FilterActionToString(FilterAction fa);
 };
@@ -449,15 +449,15 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 
 void ModuleFilter::OnRehash(User* user)
 {
-	ConfigReader MyConf;
+	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
 	exemptfromfilter.clear();
-	for (int index = 0; index < MyConf.Enumerate("exemptfromfilter"); ++index)
+	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		std::string chan = MyConf.ReadValue("exemptfromfilter", "channel", index);
+		std::string chan = i->second->getString("channel");
 		if (!chan.empty())
 			exemptfromfilter.insert(chan);
 	}
-	std::string newrxengine = "regex/" + MyConf.ReadValue("filteropts", "engine", 0);
+	std::string newrxengine = "regex/" + ServerInstance->Config->ConfValue("filteropts")->getString("engine");
 	if (newrxengine == "regex/")
 		newrxengine = "regex";
 	if (RegexEngine.GetProvider() == newrxengine)
@@ -471,7 +471,7 @@ void ModuleFilter::OnRehash(User* user)
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
 	}
-	ReadFilters(MyConf);
+	ReadFilters();
 }
 
 Version ModuleFilter::GetVersion()
@@ -650,17 +650,18 @@ std::string ModuleFilter::FilterActionToString(FilterAction fa)
 	}
 }
 
-void ModuleFilter::ReadFilters(ConfigReader &MyConf)
+void ModuleFilter::ReadFilters()
 {
-	for (int index = 0; index < MyConf.Enumerate("keyword"); index++)
+	ConfigTagList tags = ServerInstance->Config->ConfTags("keyword");
+	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		this->DeleteFilter(MyConf.ReadValue("keyword", "pattern", index));
+		std::string pattern = i->second->getString("pattern");
+		this->DeleteFilter(pattern);
 
-		std::string pattern = MyConf.ReadValue("keyword", "pattern", index);
-		std::string reason = MyConf.ReadValue("keyword", "reason", index);
-		std::string action = MyConf.ReadValue("keyword", "action", index);
-		std::string flgs = MyConf.ReadValue("keyword", "flags", index);
-		long gline_time = ServerInstance->Duration(MyConf.ReadValue("keyword", "duration", index));
+		std::string reason = i->second->getString("reason");
+		std::string action = i->second->getString("action");
+		std::string flgs = i->second->getString("flags");
+		long gline_time = ServerInstance->Duration(i->second->getString("duration"));
 		if (flgs.empty())
 			flgs = "*";
 

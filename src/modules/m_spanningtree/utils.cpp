@@ -327,16 +327,16 @@ void SpanningTreeUtilities::RefreshIPCache()
 
 void SpanningTreeUtilities::ReadConfiguration()
 {
-	ConfigReader Conf;
-
-	FlatLinks = Conf.ReadFlag("security","flatlinks",0);
-	HideULines = Conf.ReadFlag("security","hideulines",0);
-	AnnounceTSChange = Conf.ReadFlag("options","announcets",0);
-	AllowOptCommon = Conf.ReadFlag("options", "allowmismatch", 0);
-	ChallengeResponse = !Conf.ReadFlag("security", "disablehmac", 0);
-	quiet_bursts = Conf.ReadFlag("performance", "quietbursts", 0);
-	PingWarnTime = Conf.ReadInteger("options", "pingwarning", 0, true);
-	PingFreq = Conf.ReadInteger("options", "serverpingfreq", 0, true);
+	ConfigTag* security = ServerInstance->Config->ConfValue("security");
+	ConfigTag* options = ServerInstance->Config->ConfValue("options");
+	FlatLinks = security->getBool("flatlinks");
+	HideULines = security->getBool("hideulines");
+	AnnounceTSChange = options->getBool("announcets");
+	AllowOptCommon = options->getBool("allowmismatch");
+	ChallengeResponse = !security->getBool("disablehmac");
+	quiet_bursts = ServerInstance->Config->ConfValue("performance")->getBool("quietbursts");
+	PingWarnTime = options->getInt("pingwarning");
+	PingFreq = options->getInt("serverpingfreq");
 
 	if (PingFreq == 0)
 		PingFreq = 60;

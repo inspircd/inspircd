@@ -34,8 +34,7 @@ class ModuleMapHide : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader MyConf;
-		url = MyConf.ReadValue("security", "maphide", 0);
+		url = ServerInstance->Config->ConfValue("security")->getString("maphide");
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)

@@ -390,8 +390,7 @@ class Modulewatch : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		maxwatch = Conf.ReadInteger("watch", "maxentries", 0, true);
+		maxwatch = ServerInstance->Config->ConfValue("watch")->getInt("maxentries", 32);
 		if (!maxwatch)
 			maxwatch = 32;
 	}

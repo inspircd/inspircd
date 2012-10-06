@@ -91,8 +91,7 @@ class ModuleNoNickChange : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		override = Conf.ReadFlag("nonicks", "operoverride", "no", 0);
+		override = ServerInstance->Config->ConfValue("nonicks")->getBool("operoverride", false);
 	}
 };
 

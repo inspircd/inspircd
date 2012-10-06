@@ -46,13 +46,13 @@ class ModuleSecureList : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader MyConf;
 		allowlist.clear();
 
-		for (int i = 0; i < MyConf.Enumerate("securehost"); i++)
-			allowlist.push_back(MyConf.ReadValue("securehost", "exception", i));
+		ConfigTagList tags = ServerInstance->Config->ConfTags("securehost");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+			allowlist.push_back(i->second->getString("exception"));
 
-		WaitTime = MyConf.ReadInteger("securelist", "waittime", "60", 0, true);
+		WaitTime = ServerInstance->Config->ConfValue("securelist")->getInt("waittime", 60);
 	}
 
 

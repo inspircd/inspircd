@@ -707,16 +707,17 @@ class ModuleMsSQL : public Module
 
 	bool HostInConf(const SQLhost &h)
 	{
-		ConfigReader conf;
-		for(int i = 0; i < conf.Enumerate("database"); i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
+			ConfigTag* tag = i->second;
 			SQLhost host;
-			host.id		= conf.ReadValue("database", "id", i);
-			host.host	= conf.ReadValue("database", "hostname", i);
-			host.port	= conf.ReadInteger("database", "port", "1433", i, true);
-			host.name	= conf.ReadValue("database", "name", i);
-			host.user	= conf.ReadValue("database", "username", i);
-			host.pass	= conf.ReadValue("database", "password", i);
+			host.id		= tag->getString("id");
+			host.host	= tag->getString("hostname");
+			host.port	= tag->getInt("port", 1433);
+			host.name	= tag->getString("name");
+			host.user	= tag->getString("username");
+			host.pass	= tag->getString("password");
 			if (h == host)
 				return true;
 		}
@@ -727,17 +728,18 @@ class ModuleMsSQL : public Module
 	{
 		ClearOldConnections();
 
-		ConfigReader conf;
-		for(int i = 0; i < conf.Enumerate("database"); i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
+			ConfigTag* tag = i->second;
 			SQLhost host;
 
-			host.id		= conf.ReadValue("database", "id", i);
-			host.host	= conf.ReadValue("database", "hostname", i);
-			host.port	= conf.ReadInteger("database", "port", "1433", i, true);
-			host.name	= conf.ReadValue("database", "name", i);
-			host.user	= conf.ReadValue("database", "username", i);
-			host.pass	= conf.ReadValue("database", "password", i);
+			host.id		= tag->getString("id");
+			host.host	= tag->getString("hostname");
+			host.port	= tag->getInt("port", 1433);
+			host.name	= tag->getString("name");
+			host.user	= tag->getString("username");
+			host.pass	= tag->getString("password");
 
 			if (HasHost(host))
 				continue;

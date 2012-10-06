@@ -219,8 +219,7 @@ class ModuleRemove : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader conf;
-		supportnokicks = conf.ReadFlag("remove", "supportnokicks", 0);
+		supportnokicks = ServerInstance->Config->ConfValue("remove")->getBool("supportnokicks");
 	}
 
 	virtual ~ModuleRemove()

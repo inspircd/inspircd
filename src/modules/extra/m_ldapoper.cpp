@@ -61,13 +61,13 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapoper");
 
-		base 			= Conf.ReadValue("ldapoper", "baserdn", 0);
-		ldapserver		= Conf.ReadValue("ldapoper", "server", 0);
-		std::string scope	= Conf.ReadValue("ldapoper", "searchscope", 0);
-		username		= Conf.ReadValue("ldapoper", "binddn", 0);
-		password		= Conf.ReadValue("ldapoper", "bindauth", 0);
+		base 			= tag->getString("baserdn");
+		ldapserver		= tag->getString("server");
+		std::string scope	= tag->getString("searchscope");
+		username		= tag->getString("binddn");
+		password		= tag->getString("bindaut");
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;

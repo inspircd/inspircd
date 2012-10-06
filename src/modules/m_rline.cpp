@@ -263,11 +263,11 @@ class ModuleRLine : public Module
 
 	virtual void OnRehash(User *user)
 	{
-		ConfigReader Conf;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
 
-		MatchOnNickChange = Conf.ReadFlag("rline", "matchonnickchange", 0);
-		ZlineOnMatch = Conf.ReadFlag("rline", "zlineonmatch", 0);
-		std::string newrxengine = Conf.ReadValue("rline", "engine", 0);
+		MatchOnNickChange = tag->getBool("matchonnickchange");
+		ZlineOnMatch = tag->getBool("zlineonmatch");
+		std::string newrxengine = tag->getString("engine");
 
 		if (newrxengine.empty())
 			rxfactory.SetProvider("regex");

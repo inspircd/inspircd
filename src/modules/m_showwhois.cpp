@@ -76,9 +76,10 @@ class ModuleShowwhois : public Module
 
 	ModuleShowwhois() : cmd(this)
 	{
-		ConfigReader conf;
-		bool OpersOnly = conf.ReadFlag("showwhois", "opersonly", "yes", 0);
-		ShowWhoisFromOpers = conf.ReadFlag("showwhois", "showfromopers", "yes", 0);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
+
+		bool OpersOnly = tag->getBool("opersonly", true);
+		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
 
 		sw = new SeeWhois(this, OpersOnly);
 		if (!ServerInstance->Modes->AddMode(sw))

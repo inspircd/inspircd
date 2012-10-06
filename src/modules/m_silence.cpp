@@ -310,8 +310,7 @@ class ModuleSilence : public Module
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		maxsilence = Conf.ReadInteger("silence", "maxentries", 0, true);
+		maxsilence = ServerInstance->Config->ConfValue("showwhois")->getInt("maxentries", 32);
 		if (!maxsilence)
 			maxsilence = 32;
 	}

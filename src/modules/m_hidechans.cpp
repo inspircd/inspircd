@@ -55,8 +55,7 @@ class ModuleHideChans : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader conf;
-		AffectsOpers = conf.ReadFlag("hidechans", "affectsopers", 0);
+		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
 	}
 
 	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)

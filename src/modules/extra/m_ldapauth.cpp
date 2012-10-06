@@ -76,20 +76,20 @@ public:
 
 	void OnRehash(User* user)
 	{
-		ConfigReader Conf;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
 		whitelistedcidrs.clear();
 		requiredattributes.clear();
 
-		base 			= Conf.ReadValue("ldapauth", "baserdn", 0);
-		attribute		= Conf.ReadValue("ldapauth", "attribute", 0);
-		ldapserver		= Conf.ReadValue("ldapauth", "server", 0);
-		allowpattern		= Conf.ReadValue("ldapauth", "allowpattern", 0);
-		killreason		= Conf.ReadValue("ldapauth", "killreason", 0);
-		std::string scope	= Conf.ReadValue("ldapauth", "searchscope", 0);
-		username		= Conf.ReadValue("ldapauth", "binddn", 0);
-		password		= Conf.ReadValue("ldapauth", "bindauth", 0);
-		verbose			= Conf.ReadFlag("ldapauth", "verbose", 0);		/* Set to true if failed connects should be reported to operators */
-		useusername		= Conf.ReadFlag("ldapauth", "userfield", 0);
+		base 			= tag->getString("baserdn");
+		attribute		= tag->getString("attribute");
+		ldapserver		= tag->getString("server");
+		allowpattern	= tag->getString("allowpattern");
+		killreason		= tag->getString("killreason");
+		std::string scope	= tag->getString("searchscope");
+		username		= tag->getString("binddn");
+		password		= tag->getString("bindauth");
+		verbose			= tag->getBool("verbose");		/* Set to true if failed connects should be reported to operators */
+		useusername		= tag->getBool("userfield");
 
 		ConfigTagList whitelisttags = ServerInstance->Config->ConfTags("ldapwhitelist");
 

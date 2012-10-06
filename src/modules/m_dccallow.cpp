@@ -150,8 +150,7 @@ class CommandDccallow : public Command
 					}
 
 					std::string mask = target->nick+"!"+target->ident+"@"+target->dhost;
-					ConfigReader Conf;
-					std::string default_length = Conf.ReadValue("dccallow", "length", 0);
+					std::string default_length = ServerInstance->Config->ConfValue("dccallow")->getString("length");
 
 					long length;
 					if (parameters.size() < 2)
@@ -334,12 +333,12 @@ class ModuleDCCAllow : public Module
 
 					irc::string type = tokens[1].c_str();
 
-					ConfigReader Conf;
-					bool blockchat = Conf.ReadFlag("dccallow", "blockchat", 0);
+					ConfigTag* conftag = ServerInstance->Config->ConfValue("dccallow");
+					bool blockchat = conftag->getBool("blockchat");
 
 					if (type == "SEND")
 					{
-						std::string defaultaction = Conf.ReadValue("dccallow", "action", 0);
+						std::string defaultaction = conftag->getString("action");
 						std::string filename = tokens[2];
 
 						bool found = false;
@@ -461,18 +460,15 @@ class ModuleDCCAllow : public Module
 
 	void ReadFileConf()
 	{
-		ConfigReader Conf;
 		bfl.clear();
-		for (int i = 0; i < Conf.Enumerate("banfile"); i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
 			BannedFileList bf;
-			std::string fileglob = Conf.ReadValue("banfile", "pattern", i);
-			std::string action = Conf.ReadValue("banfile", "action", i);
-			bf.filemask = fileglob;
-			bf.action = action;
+			bf.filemask = i->second->getString("pattern");
+			bf.action = i->second->getString("action");
 			bfl.push_back(bf);
 		}
-
 	}
 
 	virtual ~ModuleDCCAllow()

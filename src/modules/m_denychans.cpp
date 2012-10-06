@@ -34,12 +34,12 @@ class ModuleDenyChannels : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
 		/* check for redirect validity and loops/chains */
-		for (int i =0; i < Conf.Enumerate("badchan"); i++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
 		{
-			std::string name = Conf.ReadValue("badchan","name",i);
-			std::string redirect = Conf.ReadValue("badchan","redirect",i);
+			std::string name = i->second->getString("name");
+			std::string redirect = i->second->getString("redirect");
 
 			if (!redirect.empty())
 			{
@@ -51,14 +51,15 @@ class ModuleDenyChannels : public Module
 					throw ModuleException("Invalid badchan redirect, not a channel");
 				}
 
-				for (int j =0; j < Conf.Enumerate("badchan"); j++)
+				for (ConfigIter j = tags.first; j != tags.second; ++j)
 				{
-					if (InspIRCd::Match(redirect, Conf.ReadValue("badchan","name",j)))
+					if (InspIRCd::Match(redirect, j->second->getString("name")))
 					{
 						bool goodchan = false;
-						for (int k =0; k < Conf.Enumerate("goodchan"); k++)
+						ConfigTagList goodchans = ServerInstance->Config->ConfTags("badchan");
+						for (ConfigIter k = goodchans.first; k != goodchans.second; ++k)
 						{
-							if (InspIRCd::Match(redirect, Conf.ReadValue("goodchan","name",k)))
+							if (InspIRCd::Match(redirect, k->second->getString("name")))
 								goodchan = true;
 						}
 
@@ -87,23 +88,24 @@ class ModuleDenyChannels : public Module
 
 	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
-		ConfigReader Conf;
-		for (int j =0; j < Conf.Enumerate("badchan"); j++)
+		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
+		for (ConfigIter j = tags.first; j != tags.second; ++j)
 		{
-			if (InspIRCd::Match(cname, Conf.ReadValue("badchan","name",j)))
+			if (InspIRCd::Match(cname, j->second->getString("name")))
 			{
-				if (IS_OPER(user) && Conf.ReadFlag("badchan","allowopers",j))
+				if (IS_OPER(user) && j->second->getBool("allowopers"))
 				{
 					return MOD_RES_PASSTHRU;
 				}
 				else
 				{
-					std::string reason = Conf.ReadValue("badchan","reason",j);
-					std::string redirect = Conf.ReadValue("badchan","redirect",j);
+					std::string reason = j->second->getString("reason");
+					std::string redirect = j->second->getString("redirect");
 
-					for (int i = 0; i < Conf.Enumerate("goodchan"); i++)
+					ConfigTagList goodchans = ServerInstance->Config->ConfTags("goodchan");
+					for (ConfigIter i = goodchans.first; i != goodchans.second; ++i)
 					{
-						if (InspIRCd::Match(cname, Conf.ReadValue("goodchan", "name", i)))
+						if (InspIRCd::Match(cname, i->second->getString("name")))
 						{
 							return MOD_RES_PASSTHRU;
 						}

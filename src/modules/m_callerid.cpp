@@ -412,11 +412,11 @@ public:
 
 	virtual void OnRehash(User* user)
 	{
-		ConfigReader Conf;
-		cmd.maxaccepts = Conf.ReadInteger("callerid", "maxaccepts", "16", 0, true);
-		operoverride = Conf.ReadFlag("callerid", "operoverride", "0", 0);
-		tracknick = Conf.ReadFlag("callerid", "tracknick", "0", 0);
-		notify_cooldown = Conf.ReadInteger("callerid", "cooldown", "60", 0, true);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
+		cmd.maxaccepts = tag->getInt("maxaccepts", 16);
+		operoverride = tag->getBool("operoverride");
+		tracknick = tag->getBool("tracknick");
+		notify_cooldown = tag->getInt("cooldown", 60);
 	}
 };
 

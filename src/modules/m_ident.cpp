@@ -289,9 +289,7 @@ class ModuleIdent : public Module
 
 	virtual void OnRehash(User *user)
 	{
-		ConfigReader Conf;
-
-		RequestTimeout = Conf.ReadInteger("ident", "timeout", 0, true);
+		RequestTimeout = ServerInstance->Config->ConfValue("ident")->getInt("timeout", 5);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
 	}
