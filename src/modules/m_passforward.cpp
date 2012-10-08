@@ -47,7 +47,7 @@ class ModulePassForward : public Module
 		forwardcmd = Conf.ReadValue("passforward", "cmd", "PRIVMSG $nickrequired :IDENTIFY $pass", 0);
 	}
 
-	void FormatStr(std::string& result, const std::string& format, const std::string &nick, const std::string &pass)
+	void FormatStr(std::string& result, const std::string& format, const LocalUser* user)
 	{
 		for (unsigned int i = 0; i < format.length(); i++)
 		{
@@ -61,12 +61,17 @@ class ModulePassForward : public Module
 				}
 				else if (format.substr(i, 5) == "$nick")
 				{
-					result.append(nick);
+					result.append(user->nick);
+					i += 4;
+				}
+				else if (format.substr(i, 5) == "$user")
+				{
+					result.append(user->ident);
 					i += 4;
 				}
 				else if (format.substr(i,5) == "$pass")
 				{
-					result.append(pass);
+					result.append(user->password);
 					i += 4;
 				}
 				else
@@ -92,11 +97,11 @@ class ModulePassForward : public Module
 		}
 
 		std::string tmp;
-		FormatStr(tmp,forwardmsg, user->nick, user->password);
+		FormatStr(tmp,forwardmsg, user);
 		user->WriteServ(tmp);
 
 		tmp.clear();
-		FormatStr(tmp,forwardcmd, user->nick, user->password);
+		FormatStr(tmp,forwardcmd, user);
 		ServerInstance->Parser->ProcessBuffer(tmp,user);
 	}
 };
