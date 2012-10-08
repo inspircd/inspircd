@@ -1267,6 +1267,7 @@
 		# forwardmsg: Message to send to users using a connect password.
 		# $nick will be the users' nick, $nickrequired will be the nick
 		# of where the password is going (the nick above).
+		# You can also use $user for the user ident string.
 		forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
 
 		# cmd: Command for the nick to run when it recieves a connect
