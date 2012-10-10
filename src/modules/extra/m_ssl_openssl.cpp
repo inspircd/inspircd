@@ -203,8 +203,8 @@ class ModuleSSLOpenSSL : public Module
 
 		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
 
-		cafile	 = conf->getString("cafile", "conf/ca.pem");
 		certfile = conf->getString("certfile", "conf/cert.pem");
+		cafile = conf->getString("cafile", certfile);
 		keyfile	 = conf->getString("keyfile", "conf/key.pem");
 		dhfile	 = conf->getString("dhfile", "conf/dhparams.pem");
 		std::string hash = conf->getString("hash", "md5");
