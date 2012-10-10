@@ -991,6 +991,8 @@
 #                                                                     #
 # <ldapwhitelist cidr="10.42.0.0/16">                                 #
 #                                                                     #
+# <ldaprequire attribute="attr" value="val">                          #
+#                                                                     #
 # The baserdn indicates the base DN to search in for users. Usually   #
 # this is 'ou=People,dc=yourdomain,dc=yourtld'.                       #
 #                                                                     #
@@ -1022,6 +1024,12 @@
 # ldapwhitelist indicates that clients connecting from an IP in the   #
 # provided CIDR do not need to authenticate against LDAP. It can be   #
 # repeated to whitelist multiple CIDRs.                               #
+#                                                                     #
+# ldaprequire allows further filtering on the LDAP user, by requiring #
+# certain LDAP attibutes to have a given value. It can be repeated,   #
+# in which case the list will act as an OR list, that is, the         #
+# authentication will succeed if any of the requirements in the list  #
+# is satisfied.                                                       #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP oper configuration module: Adds the ability to authenticate    #

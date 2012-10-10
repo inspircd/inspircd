@@ -49,6 +49,7 @@ class ModuleLDAPAuth : public Module
 	std::string username;
 	std::string password;
 	std::vector<std::string> whitelistedcidrs;
+	std::vector<std::pair<std::string, std::string> > requiredattributes;
 	int searchscope;
 	bool verbose;
 	bool useusername;
@@ -77,6 +78,7 @@ public:
 	{
 		ConfigReader Conf;
 		whitelistedcidrs.clear();
+		requiredattributes.clear();
 
 		base 			= Conf.ReadValue("ldapauth", "baserdn", 0);
 		attribute		= Conf.ReadValue("ldapauth", "attribute", 0);
@@ -97,6 +99,17 @@ public:
 			if (!cidr.empty()) {
 				whitelistedcidrs.push_back(cidr);
 			}
+		}
+
+		ConfigTagList attributetags = ServerInstance->Config->ConfTags("ldaprequire");
+
+		for (ConfigIter i = attributetags.first; i != attributetags.second; ++i)
+		{
+			const std::string attr = i->second->getString("attribute");
+			const std::string val = i->second->getString("value");
+
+			if (!attr.empty() && !val.empty())
+				requiredattributes.push_back(make_pair(attr, val));
 		}
 
 		if (scope == "base")
@@ -242,19 +255,47 @@ public:
 		}
 		cred.bv_val = (char*)user->password.data();
 		cred.bv_len = user->password.length();
-		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
-		{
-			ldap_msgfree(msg);
-			ldapAuthed.set(user,1);
-			return true;
-		}
-		else
+		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (%s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
 			return false;
 		}
+
+		if (requiredattributes.empty())
+		{
+			ldap_msgfree(msg);
+			ldapAuthed.set(user,1);
+			return true;
+		}
+
+		bool authed = false;
+
+		for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it)
+		{
+			const std::string &attr = it->first;
+			const std::string &val = it->second;
+
+			struct berval attr_value;
+			attr_value.bv_val = const_cast<char*>(val.c_str());
+			attr_value.bv_len = val.length();
+
+			ServerInstance->Logs->Log("m_ldapauth", DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
+
+			authed = (ldap_compare_ext_s(conn, ldap_get_dn(conn, entry), attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
+
+			if (authed)
+				break;
+		}
+
+		ldap_msgfree(msg);
+
+		if (!authed)
+			return false;
+
+		ldapAuthed.set(user,1);
+		return true;
 	}
 
 	ModResult OnCheckReady(LocalUser* user)
