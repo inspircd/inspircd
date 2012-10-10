@@ -189,7 +189,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 	else
 		dest = ServerInstance->FindNick(destnick);
 
-	if (dest)
+	if ((dest) && (dest->registered == REG_ALL))
 	{
 		if (parameters[1].empty())
 		{

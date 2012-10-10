@@ -66,7 +66,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 				timeout = ConvToInt(parameters[2]);
 		}
 
-		if ((!c) || (!u))
+		if ((!c) || (!u) || (u->registered != REG_ALL))
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), c ? parameters[0].c_str() : parameters[1].c_str());
 			return CMD_FAILURE;
