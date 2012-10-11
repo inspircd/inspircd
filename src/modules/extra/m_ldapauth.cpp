@@ -211,7 +211,7 @@ public:
 				std::string cutpassword = user->password.substr(0, pos);
 				res = ldap_search_ext_s(conn, base.c_str(), searchscope, cutpassword.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
 
-				if (res)
+				if (res == LDAP_SUCCESS)
 				{
 					// Trim the user: prefix, leaving just 'pass' for later password check
 					user->password = user->password.substr(pos + 1);
@@ -219,7 +219,7 @@ public:
 			}
 
 			// It may have found based on user:pass check above.
-			if (!res)
+			if (res != LDAP_SUCCESS)
 			{
 				if (verbose)
 					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
