@@ -25,13 +25,15 @@
 
 class ModuleOperLog : public Module
 {
- private:
+	bool tosnomask;
 
  public:
 	ModuleOperLog() 	{
 
-		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
+		OnRehash(NULL);
 	}
 
 	virtual ~ModuleOperLog()
@@ -43,6 +45,10 @@ class ModuleOperLog : public Module
 		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
 	}
 
+	void OnRehash(User* user)
+	{
+		tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
+	}
 
 	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
@@ -58,7 +64,10 @@ class ModuleOperLog : public Module
 				std::string line;
 				if (!parameters.empty())
 					line = irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined();
-				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s] %s %s", user->GetFullRealHost().c_str(), command.c_str(), line.c_str());
+				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + line;
+				ServerInstance->Logs->Log("m_operlog", DEFAULT, "OPERLOG: " + msg);
+				if (tosnomask)
+					ServerInstance->SNO->WriteGlobalSno('r', msg);
 			}
 		}
 
