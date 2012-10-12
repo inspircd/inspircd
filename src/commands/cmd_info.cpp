@@ -75,6 +75,7 @@ static const char* const lines[] = {
 	"   Adremelech      John2           jilles         HiroP",
 	"   eggy            Bricker         AnMaster       djGrrr",
 	"   nenolod         Quension        praetorian     pippijn",
+	"   Adam",
 	" ",
 	"\2Former Contributors\2:",
 	"   CC              jamie           typobox43      Burlex (win32)",
