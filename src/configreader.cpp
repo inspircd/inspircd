@@ -28,6 +28,10 @@
 #include "exitcodes.h"
 #include "commands/cmd_whowas.h"
 #include "configparser.h"
+#ifdef _WIN32
+#include <Iphlpapi.h>
+#pragma comment(lib, "Iphlpapi.lib")
+#endif
 
 ServerConfig::ServerConfig()
 {
@@ -140,15 +144,41 @@ bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 	return true;
 }
 
-#ifdef WINDOWS
-// Note: the windows validator is in win32wrapper.cpp
-void FindDNS(std::string& server);
-#else
 static void FindDNS(std::string& server)
 {
 	if (!server.empty())
 		return;
+#ifdef _WIN32
+	// attempt to look up their nameserver from the system
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find a working server in the system settings...");
 
+	PFIXED_INFO pFixedInfo;
+	DWORD dwBufferSize = sizeof(FIXED_INFO);
+	pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, sizeof(FIXED_INFO));
+
+	if(pFixedInfo)
+	{
+		if (GetNetworkParams(pFixedInfo, &dwBufferSize) == ERROR_BUFFER_OVERFLOW) {
+			HeapFree(GetProcessHeap(), 0, pFixedInfo);
+			pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, dwBufferSize);
+		}
+
+		if(pFixedInfo) {
+			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == NO_ERROR)
+				server = pFixedInfo->DnsServerList.IpAddress.String;
+
+			HeapFree(GetProcessHeap(), 0, pFixedInfo);
+		}
+
+		if(!server.empty())
+		{
+			ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver in the system settings.", server.c_str());
+			return;
+		}
+	}
+
+	ServerInstance->Logs->Log("CONFIG",DEFAULT,"No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
+#else
 	// attempt to look up their nameserver from /etc/resolv.conf
 	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 
@@ -168,9 +198,9 @@ static void FindDNS(std::string& server)
 	}
 
 	ServerInstance->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+#endif
 	server = "127.0.0.1";
 }
-#endif
 
 static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
 {

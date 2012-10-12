@@ -30,7 +30,7 @@
 
 #include <ldap.h>
 
-#ifdef WINDOWS
+#ifdef _WIN32
 # pragma comment(lib, "ldap.lib")
 # pragma comment(lib, "lber.lib")
 #endif

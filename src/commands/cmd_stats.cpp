@@ -23,8 +23,9 @@
 #include "xline.h"
 #include "commands/cmd_whowas.h"
 
-#ifdef WINDOWS
-# pragma comment(lib, "psapi.lib") // For GetProcessMemoryInfo()
+#ifdef _WIN32
+#include <psapi.h>
+#pragma comment(lib, "psapi.lib") // For GetProcessMemoryInfo()
 #endif
 
 /** Handle /STATS. These command handlers can be reloaded by the core,
@@ -240,7 +241,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			results.push_back(sn+" 249 "+user->nick+" :Bandwidth out:    "+ConvToStr(kbitpersec_out_s)+" kilobits/sec");
 			results.push_back(sn+" 249 "+user->nick+" :Bandwidth in:     "+ConvToStr(kbitpersec_in_s)+" kilobits/sec");
 
-#ifndef WIN32
+#ifndef _WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
 			 * Also cuts out some identical code in both branches of the ifndef. -- Om
 			 */
@@ -278,7 +279,32 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr((MemCounters.WorkingSetSize + MemCounters.PagefileUsage) / 1024)+"K");
 				results.push_back(sn+" 249 "+user->nick+" :Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage / 1024)+"K");
 				results.push_back(sn+" 249 "+user->nick+" :Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
-				results.push_back(sn+" 249 "+user->nick+" :CPU Usage: " + ConvToStr(getcpu()) + "%");
+			}
+
+			FILETIME CreationTime;
+  		FILETIME ExitTime;
+  		FILETIME KernelTime;
+  		FILETIME UserTime;
+			LARGE_INTEGER ThisSample;
+			if(GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime) &&
+				QueryPerformanceCounter(&ThisSample))
+			{
+				KernelTime.dwHighDateTime += UserTime.dwHighDateTime;
+				KernelTime.dwLowDateTime += UserTime.dwLowDateTime;
+				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats->LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats->LastCPU.dwLowDateTime) )/100000;
+				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats->LastSampled.QuadPart) / ServerInstance->stats->QPFrequency.QuadPart;
+				double per = (n_eaten/n_elapsed);
+				
+				char percent[30];
+
+				snprintf(percent, 30, "%03.5f%%", per);
+				results.push_back(sn+" 249 "+user->nick+" :CPU Use (now):    "+percent);
+
+				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
+				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
+				per = (n_eaten / n_elapsed);
+				snprintf(percent, 30, "%03.5f%%", per);
+				results.push_back(sn+" 249 "+user->nick+" :CPU Use (total):  "+percent);
 			}
 #endif
 		}

@@ -22,45 +22,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 #include "configreader.h"
+#include "colors.h"
 #include <string>
 #include <errno.h>
 #include <assert.h>
-#include <Iphlpapi.h>
-#define _WIN32_DCOM
-#include <comdef.h>
-#include <Wbemidl.h>
-
-#pragma comment(lib, "wbemuuid.lib")
-#pragma comment(lib, "comsuppwd.lib")
-#pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "Iphlpapi.lib")
-using namespace std;
-
-#ifndef INADDR_NONE
-#define INADDR_NONE 0xffffffff
-#endif
-
 #include <mmsystem.h>
+#pragma comment(lib, "Winmm.lib")
 
-IWbemLocator *pLoc = NULL;
-IWbemServices *pSvc = NULL;
-
-/* This MUST remain static and delcared outside the class, so that WriteProcessMemory can reference it properly */
-static DWORD owner_processid = 0;
-
-
-int inet_aton(const char *cp, struct in_addr *addr)
-{
-	unsigned long ip = inet_addr(cp);
-	addr->s_addr = ip;
-	return (addr->s_addr == INADDR_NONE) ? 0 : 1;
-}
-
-const char *insp_inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
+CoreExport const char *insp_inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
 {
 
 	if (af == AF_INET)
@@ -84,19 +56,14 @@ const char *insp_inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
 	return NULL;
 }
 
-int geteuid()
-{
-	return 1;
-}
-
-int insp_inet_pton(int af, const char *src, void *dst)
+CoreExport int insp_inet_pton(int af, const char *src, void *dst)
 {
 	sockaddr_in sa;
 	int len = sizeof(SOCKADDR);
-	int rv = WSAStringToAddress((LPSTR)src, af, NULL, (LPSOCKADDR)&sa, &len);
+	int rv = WSAStringToAddressA((LPSTR)src, af, NULL, (LPSOCKADDR)&sa, &len);
 	if(rv >= 0)
 	{
-		if(WSAGetLastError() == 10022)			// Invalid Argument
+		if(WSAGetLastError() == WSAEINVAL)
 			rv = 0;
 		else
 			rv = 1;
@@ -105,16 +72,11 @@ int insp_inet_pton(int af, const char *src, void *dst)
 	return rv;
 }
 
-void setcolor(int color_code)
+CoreExport DIR * opendir(const char * path)
 {
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color_code);
-}
-
-DIR * opendir(const char * path)
-{
-	std::string search_path = string(path) + "\\*.*";
-	WIN32_FIND_DATA fd;
-	HANDLE f = FindFirstFile(search_path.c_str(), &fd);
+	std::string search_path = std::string(path) + "\\*.*";
+	WIN32_FIND_DATAA fd;
+	HANDLE f = FindFirstFileA(search_path.c_str(), &fd);
 	if (f != INVALID_HANDLE_VALUE)
 	{
 		DIR * d = new DIR;
@@ -129,13 +91,13 @@ DIR * opendir(const char * path)
 	}
 }
 
-dirent * readdir(DIR * handle)
+CoreExport dirent * readdir(DIR * handle)
 {
 	if (handle->first)
 		handle->first = false;
 	else
 	{
-		if (!FindNextFile(handle->find_handle, &handle->find_data))
+		if (!FindNextFileA(handle->find_handle, &handle->find_data))
 			return 0;
 	}
 
@@ -143,111 +105,10 @@ dirent * readdir(DIR * handle)
 	return &handle->dirent_pointer;
 }
 
-void closedir(DIR * handle)
+CoreExport void closedir(DIR * handle)
 {
 	FindClose(handle->find_handle);
 	delete handle;
-}
-
-const char * dlerror()
-{
-	static char errormessage[500];
-	DWORD error = GetLastError();
-	SetLastError(0);
-	if (error == 0)
-		return 0;
-
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)errormessage, 500, 0);
-	return errormessage;
-}
-
-#define TRED FOREGROUND_RED | FOREGROUND_INTENSITY
-#define TGREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
-#define TYELLOW FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_INTENSITY
-#define TNORMAL FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE
-#define TWHITE TNORMAL | FOREGROUND_INTENSITY
-#define TBLUE FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
-
-/* Handles colors in printf */
-int printf_c(const char * format, ...)
-{
-	// Better hope we're not multithreaded, otherwise we'll have chickens crossing the road other side to get the to :P
-	static char message[MAXBUF];
-	static char temp[MAXBUF];
-	int color1, color2;
-
-	/* parse arguments */
-	va_list ap;
-	va_start(ap, format);
-	vsnprintf(message, 500, format, ap);
-	va_end(ap);
-
-	/* search for unix-style escape sequences */
-	int t;
-	int c = 0;
-	const char * p = message;
-	while (*p != 0)
-	{
-		if (*p == '\033')
-		{
-			// Escape sequence -> copy into the temp buffer, and parse the color.
-			p++;
-			t = 0;
-			while ((*p) && (*p != 'm'))
-			{
-				temp[t++] = *p;
-				++p;
-			}
-
-			temp[t] = 0;
-			p++;
-
-			if (*temp == '[')
-			{
-				if (sscanf(temp, "[%u;%u", &color1, &color2) == 2)
-				{
-					switch(color2)
-					{
-					case 32:		// Green
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_GREEN | FOREGROUND_INTENSITY);		// Yellow
-						break;
-
-					default:		// Unknown
-						// White
-						SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-						break;
-					}
-				}
-				else
-				{
-					switch (*(temp+1))
-					{
-						case '0':
-							// Returning to normal colour.
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-							break;
-
-						case '1':
-							// White
-							SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), TWHITE);
-							break;
-
-						default:
-							char message[50];
-							sprintf(message, "Unknown color code: %s", temp);
-							MessageBox(0, message, message, MB_OK);
-							break;
-					}
-				}
-			}
-		}
-
-		putchar(*p);
-		++c;
-		++p;
-	}
-
-	return c;
 }
 
 int optind = 1;
@@ -322,350 +183,6 @@ int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, cons
 	return 1;
 }
 
-void ClearConsole()
-{
-	COORD coordScreen = { 0, 0 };    /* here's where we'll home the cursor */
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	DWORD cCharsWritten;
-	CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */ 
-	DWORD dwConSize;                 /* number of character cells in the current buffer */ 
-
-	/* get the number of character cells in the current buffer */ 
-
-	if (GetConsoleScreenBufferInfo( hConsole, &csbi ))
-	{
-		dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
-		/* fill the entire screen with blanks */ 
-		if (FillConsoleOutputCharacter( hConsole, (TCHAR) ' ', dwConSize, coordScreen, &cCharsWritten ))
-		{
-			/* get the current text attribute */ 
-			if (GetConsoleScreenBufferInfo( hConsole, &csbi ))
-			{
-				/* now set the buffer's attributes accordingly */
-				if (FillConsoleOutputAttribute( hConsole, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten ))
-				{
-					/* put the cursor at (0, 0) */
-					SetConsoleCursorPosition( hConsole, coordScreen );
-				}
-			}
-		}
-	}
-	return;
-}
-
-/* Many inspircd classes contain function pointers/functors which can be changed to point at platform specific implementations
- * of code. This function repoints these pointers and functors so that calls are windows specific.
- */
-void ChangeWindowsSpecificPointers()
-{
-	ServerInstance->Logs->Log("win32",DEBUG,"Changing to windows specific pointer and functor set");
-}
-
-DWORD WindowsForkStart()
-{
-        /* Windows implementation of fork() :P */
-	if (owner_processid)
-		return 0;
-
-        char module[MAX_PATH];
-        if(!GetModuleFileName(NULL, module, MAX_PATH))
-        {
-                printf("GetModuleFileName() failed.\n");
-                return false;
-        }
-
-        STARTUPINFO startupinfo;
-        PROCESS_INFORMATION procinfo;
-        ZeroMemory(&startupinfo, sizeof(STARTUPINFO));
-        ZeroMemory(&procinfo, sizeof(PROCESS_INFORMATION));
-
-        // Fill in the startup info struct
-        GetStartupInfo(&startupinfo);
-
-        /* Default creation flags create the processes suspended */
-        DWORD startupflags = CREATE_SUSPENDED;
-
-        /* On windows 2003/XP and above, we can use the value
-         * CREATE_PRESERVE_CODE_AUTHZ_LEVEL which gives more access
-         * to the process which we may require on these operating systems.
-         */
-        OSVERSIONINFO vi;
-        vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-        GetVersionEx(&vi);
-        if ((vi.dwMajorVersion >= 5) && (vi.dwMinorVersion > 0))
-                startupflags |= CREATE_PRESERVE_CODE_AUTHZ_LEVEL;
-
-        // Launch our "forked" process.
-        BOOL bSuccess = CreateProcess ( module, // Module (exe) filename
-                strdup(GetCommandLine()),       // Command line (exe plus parameters from the OS)
-                                                // NOTE: We cannot return the direct value of the
-                                                // GetCommandLine function here, as the pointer is
-                                                // passed straight to the child process, and will be
-                                                // invalid once we exit as it goes out of context.
-                                                // strdup() seems ok, though.
-                0,                              // PROCESS_SECURITY_ATTRIBUTES
-                0,                              // THREAD_SECURITY_ATTRIBUTES
-                TRUE,                           // We went to inherit handles.
-                startupflags,                   // Allow us full access to the process and suspend it.
-                0,                              // ENVIRONMENT
-                0,                              // CURRENT_DIRECTORY
-                &startupinfo,                   // startup info
-                &procinfo);                     // process info
-
-        if(!bSuccess)
-        {
-                printf("CreateProcess() error: %s\n", dlerror());
-                return false;
-        }
-
-        // Set the owner process id in the target process.
-        SIZE_T written = 0;
-        DWORD pid = GetCurrentProcessId();
-        if(!WriteProcessMemory(procinfo.hProcess, &owner_processid, &pid, sizeof(DWORD), &written) || written != sizeof(DWORD))
-        {
-                printf("WriteProcessMemory() failed: %s\n", dlerror());
-                return false;
-        }
-
-        // Resume the other thread (let it start)
-        ResumeThread(procinfo.hThread);
-
-        // Wait for the new process to kill us. If there is some error, the new process will end and we will end up at the next line.
-        WaitForSingleObject(procinfo.hProcess, INFINITE);
-
-        // If we hit this it means startup failed, default to 14 if this fails.
-        DWORD ExitCode = 14;
-        GetExitCodeProcess(procinfo.hProcess, &ExitCode);
-        CloseHandle(procinfo.hThread);
-        CloseHandle(procinfo.hProcess);
-        return ExitCode;
-}
-
-void WindowsForkKillOwner()
-{
-        HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, owner_processid);
-        if(!hProcess || !owner_processid)
-        {
-                printf("Could not open process id %u: %s.\n", owner_processid, dlerror());
-                ServerInstance->Exit(14);
-        }
-
-        // die die die
-        if(!TerminateProcess(hProcess, 0))
-        {
-                printf("Could not TerminateProcess(): %s\n", dlerror());
-                ServerInstance->Exit(14);
-        }
-
-        CloseHandle(hProcess);
-}
-
-void FindDNS(std::string& server)
-{
-	if (!server.empty())
-		return;
-
-	PFIXED_INFO pFixedInfo;
-	DWORD dwBufferSize = sizeof(FIXED_INFO);
-	pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, sizeof(FIXED_INFO));
-
-	if(pFixedInfo)
-	{
-		if (GetNetworkParams(pFixedInfo, &dwBufferSize) == ERROR_BUFFER_OVERFLOW) {
-			HeapFree(GetProcessHeap(), 0, pFixedInfo);
-			pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, dwBufferSize);
-		}
-
-		if(pFixedInfo) {
-			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == NO_ERROR)
-				server = pFixedInfo->DnsServerList.IpAddress.String;
-
-			HeapFree(GetProcessHeap(), 0, pFixedInfo);
-		}
-	}
-	
-	/* If empty use default to 127.0.0.1 */
-	if(server.empty())
-	{
-		ServerInstance->Logs->Log("CONFIG",DEFAULT,"No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
-		server = "127.0.0.1";
-	}
-	else
-	{
-		ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver.", server.c_str());
-	}
-}
-
-int clock_gettime(int clock, struct timespec * tv)
-{
-	if(tv == NULL)
-		return -1;
-
-	DWORD mstime = timeGetTime();
-	tv->tv_sec   = time(NULL);
-	tv->tv_nsec  = (mstime - (tv->tv_sec * 1000)) * 1000000;
-	return 0;	
-}
-
-/* Initialise WMI. Microsoft have the silliest ideas about easy ways to
- * obtain the CPU percentage of a running process!
- * The whole API for this uses evil DCOM and is entirely unicode, giving
- * all results and accepting queries as wide strings.
- */
-bool initwmi()
-{
-	HRESULT hres;
-
-	/* Initialise COM. This can kill babies. */
-	hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
-	if (FAILED(hres))
-		return false;
-
-	/* COM security. This stuff kills kittens */
-	hres =  CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
-		RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
-
-	if (FAILED(hres))
-	{
-		CoUninitialize();
-		return false;
-	}
-    
-	/* Instance to COM object */
-	pLoc = NULL;
-	hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
- 
-	if (FAILED(hres))
-	{
-		CoUninitialize();
-		return false;
-	}
-
-	pSvc = NULL;
-
-	/* Connect to DCOM server */
-	hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
-    
-	/* That didn't work, maybe no kittens found to kill? */
-	if (FAILED(hres))
-	{
-		pLoc->Release();
-		CoUninitialize();
-		return false;
-	}
-
-	/* Don't even ASK what this does. I'm still not too sure myself. */
-	hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL,
-		RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
-
-	if (FAILED(hres))
-	{
-		pSvc->Release();
-		pLoc->Release();     
-		CoUninitialize();
-		return false;
-	}
-	return true;
-}
-
-void donewmi()
-{
-	pSvc->Release();
-	pLoc->Release();
-	CoUninitialize();
-}
-
-/* Return the CPU usage in percent of this process */
-int getcpu()
-{
-	HRESULT hres;
-	int cpu = -1;
-
-	/* Use WQL, similar to SQL, to construct a query that lists the cpu usage and pid of all processes */
-	IEnumWbemClassObject* pEnumerator = NULL;
-
-	BSTR Language = SysAllocString(L"WQL");
-	BSTR Query    = SysAllocString(L"Select PercentProcessorTime,IDProcess from Win32_PerfFormattedData_PerfProc_Process");
-
-	hres = pSvc->ExecQuery(Language, Query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
-
-	/* Query didn't work */
-	if (!FAILED(hres))
-	{
-		IWbemClassObject *pclsObj = NULL;
-		ULONG uReturn = 0;
-
-		/* Iterate the query results */
-		while (pEnumerator)
-		{
-			VARIANT vtProp;
-			VariantInit(&vtProp);
-			/* Next item */
-			HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-
-			/* No more items left */
-			if (uReturn == 0)
-				break;
-
-			/* Find process ID */
-			hr = pclsObj->Get(L"IDProcess", 0, &vtProp, 0, 0);
-			if (!FAILED(hr))
-			{
-				/* Matches our process ID? */
-				UINT pid = vtProp.uintVal;
-				VariantClear(&vtProp);
-				if (pid == GetCurrentProcessId())
-				{					
-					/* Get CPU percentage for this process */
-					hr = pclsObj->Get(L"PercentProcessorTime", 0, &vtProp, 0, 0);
-					if (!FAILED(hr))
-					{
-						/* Deal with wide string ickyness. Who in their right
-						 * mind puts a number in a bstrVal wide string item?!
-						 */
-						cpu = 0;
-						std::wstringstream out(vtProp.bstrVal);
-						out >> cpu;
-						VariantClear(&vtProp);
-					}
-					pclsObj->Release();
-					break;
-				}
-				pclsObj->Release();
-			}
-		}
-
-		pEnumerator->Release();
-	}
-
-	SysFreeString(Language);
-	SysFreeString(Query);
-
-	return cpu;
-}
-
-int random()
-{
-	return rand();
-}
-
-void srandom(unsigned int seed)
-{
-	srand(seed);
-}
-
-int gettimeofday(timeval *tv, void *)
-{
-	SYSTEMTIME st;
-	GetSystemTime(&st);
-
-	tv->tv_sec = time(NULL);
-	tv->tv_usec = st.wMilliseconds;
-
-	return 0;
-}
-
-/* World's largest hack to make reference<> work */
 #include "../src/modules/m_spanningtree/link.h"
 #include "../src/modules/ssl.h"
 template class reference<Link>;

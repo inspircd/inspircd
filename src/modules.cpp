@@ -32,7 +32,7 @@
 #include "dns.h"
 #include "exitcodes.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 	#include <dirent.h>
 #endif
 
@@ -558,7 +558,7 @@ dynamic_reference_base::operator bool()
 		if (i != ServerInstance->Modules->DataProviders.end())
 			value = static_cast<DataProvider*>(i->second);
 	}
-	return value;
+	return (value != NULL);
 }
 
 void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)

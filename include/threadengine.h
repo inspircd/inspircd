@@ -27,10 +27,6 @@
 #include "inspircd_config.h"
 #include "base.h"
 
-#ifdef WINDOWS
-#include "threadengines/threadengine_win32.h"
-#endif
-
 class ThreadData;
 
 /** Derive from this class to implement your own threaded sections of

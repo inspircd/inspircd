@@ -121,7 +121,7 @@ class ssl_cert : public refcountbase
 	std::string GetMetaLine()
 	{
 		std::stringstream value;
-		bool hasError = error.length();
+		bool hasError = !error.empty();
 		value << (IsInvalid() ? "v" : "V") << (IsTrusted() ? "T" : "t") << (IsRevoked() ? "R" : "r")
 			<< (IsUnknownSigner() ? "s" : "S") << (hasError ? "E" : "e") << " ";
 		if (hasError)

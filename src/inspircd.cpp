@@ -31,7 +31,7 @@
 #include "inspircd_version.h"
 #include <signal.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 	#include <dirent.h>
 	#include <unistd.h>
 	#include <sys/resource.h>
@@ -163,9 +163,9 @@ void InspIRCd::Restart(const std::string &reason)
 
 	char** argv = Config->cmdline.argv;
 
-#ifdef WINDOWS
+#ifdef _WIN32
 	char module[MAX_PATH];
-	if (GetModuleFileName(NULL, module, MAX_PATH))
+	if (GetModuleFileNameA(NULL, module, MAX_PATH))
 		me = module;
 #else
 	me = argv[0];
@@ -223,7 +223,7 @@ void InspIRCd::RehashUsersAndChans()
 
 void InspIRCd::SetSignals()
 {
-#ifndef WIN32
+#ifndef _WIN32
 	signal(SIGALRM, SIG_IGN);
 	signal(SIGHUP, InspIRCd::SetSignal);
 	signal(SIGPIPE, SIG_IGN);
@@ -241,7 +241,7 @@ void InspIRCd::QuickExit(int status)
 
 bool InspIRCd::DaemonSeed()
 {
-#ifdef WINDOWS
+#ifdef _WIN32
 	printf_c("InspIRCd Process ID: \033[1;32m%lu\033[0m\n", GetCurrentProcessId());
 	return true;
 #else
@@ -285,6 +285,7 @@ bool InspIRCd::DaemonSeed()
 
 void InspIRCd::WritePID(const std::string &filename)
 {
+#ifndef _WIN32
 	std::string fname(filename);
 	if (fname.empty())
 		fname = DATA_PATH "/inspircd.pid";
@@ -300,6 +301,7 @@ void InspIRCd::WritePID(const std::string &filename)
 		this->Logs->Log("STARTUP",DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
+#endif
 }
 
 InspIRCd::InspIRCd(int argc, char** argv) :
@@ -321,14 +323,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 FloodQuitUser(&HandleFloodQuitUser),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
-#ifdef WIN32
-	// Strict, frequent checking of memory on debug builds
-	_CrtSetDbgFlag ( _CRTDBG_CHECK_ALWAYS_DF | _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-
-	// Avoid erroneous frees on early exit
-	WindowsIPC = 0;
-#endif
-
 	ServerInstance = this;
 
 	Extensions.Register(&NICKForced);
@@ -393,7 +387,11 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->cmdline.argv = argv;
 	this->Config->cmdline.argc = argc;
 
+#ifdef _WIN32
+	srand(TIME.tv_nsec ^ TIME.tv_sec);
+#else
 	srandom(TIME.tv_nsec ^ TIME.tv_sec);
+#endif
 
 	struct option longopts[] =
 	{
@@ -444,27 +442,17 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
-#ifdef WIN32
-
-	// Handle forking
-	if(!do_nofork)
-	{
-		DWORD ExitCode = WindowsForkStart();
-		if(ExitCode)
-			exit(ExitCode);
-	}
-
+#ifdef _WIN32
 	// Set up winsock
 	WSADATA wsadata;
-	WSAStartup(MAKEWORD(2,0), &wsadata);
-	ChangeWindowsSpecificPointers();
+	WSAStartup(MAKEWORD(2,2), &wsadata);
 #endif
 
 	/* Set the finished argument values */
-	Config->cmdline.nofork = do_nofork;
-	Config->cmdline.forcedebug = do_debug;
-	Config->cmdline.writelog = !do_nolog;
-	Config->cmdline.TestSuite = do_testsuite;
+	Config->cmdline.nofork = (do_nofork != 0);
+	Config->cmdline.forcedebug = (do_debug != 0);
+	Config->cmdline.writelog = (!do_nolog != 0);
+	Config->cmdline.TestSuite = (do_testsuite != 0);
 
 	if (do_debug)
 	{
@@ -480,7 +468,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (!ServerConfig::FileExists(ConfigFileName.c_str()))
 	{
-#ifdef WIN32
+#ifdef _WIN32
 		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
 		std::string txtconf = this->ConfigFileName;
 		txtconf.append(".txt");
@@ -507,6 +495,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->Modes = new ModeParser;
 
+#ifndef _WIN32
 	if (!do_root)
 		this->CheckRoot();
 	else
@@ -521,6 +510,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		printf("\nInspIRCd starting in 20 seconds, ctrl+c to abort...\n");
 		sleep(20);
 	}
+#endif
 
 	this->SetSignals();
 
@@ -598,7 +588,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n",
 		Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
-#ifndef WINDOWS
+#ifndef _WIN32
 	if (!Config->cmdline.nofork)
 	{
 		if (kill(getppid(), SIGTERM) == -1)
@@ -640,19 +630,21 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
-	WindowsIPC = new IPC;
-	if(!Config->cmdline.nofork)
-	{
-		WindowsForkKillOwner();
-		FreeConsole();
-	}
 	/* Set win32 service as running, if we are running as a service */
 	SetServiceRunning();
+
+	// Handle forking
+	if(!do_nofork)
+	{
+		FreeConsole();
+	}
+
+	QueryPerformanceFrequency(&stats->QPFrequency);
 #endif
 
 	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
-#ifndef WIN32
+#ifndef _WIN32
 	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
 	std::string SetGroup = Config->ConfValue("security")->getString("runasgroup");
 	if (!SetGroup.empty())
@@ -711,20 +703,28 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 			this->QuickExit(0);
 		}
 	}
-#endif
 
 	this->WritePID(Config->PID);
+#endif
 }
 
 void InspIRCd::UpdateTime()
 {
-#ifdef HAS_CLOCK_GETTIME
-	clock_gettime(CLOCK_REALTIME, &TIME);
+#ifdef _WIN32
+	SYSTEMTIME st;
+	GetSystemTime(&st);
+
+	TIME.tv_sec = time(NULL);
+	TIME.tv_nsec = st.wMilliseconds;
 #else
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	TIME.tv_sec = tv.tv_sec;
-	TIME.tv_nsec = tv.tv_usec * 1000;
+	#ifdef HAS_CLOCK_GETTIME
+		clock_gettime(CLOCK_REALTIME, &TIME);
+	#else
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		TIME.tv_sec = tv.tv_sec;
+		TIME.tv_nsec = tv.tv_usec * 1000;
+	#endif
 #endif
 }
 
@@ -743,12 +743,8 @@ int InspIRCd::Run()
 
 	while (true)
 	{
-#ifndef WIN32
+#ifndef _WIN32
 		static rusage ru;
-#else
-		static time_t uptime;
-		static struct tm * stime;
-		static char window_title[100];
 #endif
 
 		/* Check if there is a config thread which has finished executing but has not yet been freed */
@@ -774,12 +770,21 @@ int InspIRCd::Run()
 		if (TIME.tv_sec != OLDTIME)
 		{
 			OLDTIME = TIME.tv_sec;
-#ifndef WIN32
+#ifndef _WIN32
 			getrusage(RUSAGE_SELF, &ru);
 			stats->LastSampled = TIME;
 			stats->LastCPU = ru.ru_utime;
 #else
-			WindowsIPC->Check();
+			if(QueryPerformanceCounter(&stats->LastSampled))
+			{
+				FILETIME CreationTime;
+  			FILETIME ExitTime;
+  			FILETIME KernelTime;
+  			FILETIME UserTime;
+				GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
+				stats->LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
+				stats->LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
+			}
 #endif
 
 			/* Allow a buffer of two seconds drift on this so that ntpdate etc dont harass admins */

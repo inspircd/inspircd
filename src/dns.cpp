@@ -34,7 +34,7 @@ Please do not assume that firedns works like this,
 looks like this, walks like this or tastes like this.
 */
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <errno.h>

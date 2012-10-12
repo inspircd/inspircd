@@ -27,11 +27,15 @@
 
 void InspIRCd::SignalHandler(int signal)
 {
+#ifdef _WIN32
+	if (signal == SIGTERM)
+#else
 	if (signal == SIGHUP)
 	{
 		Rehash("Caught SIGHUP");
 	}
 	else if (signal == SIGTERM)
+#endif
 	{
 		Exit(signal);
 	}
@@ -39,9 +43,7 @@ void InspIRCd::SignalHandler(int signal)
 
 void InspIRCd::Exit(int status)
 {
-#ifdef WINDOWS
-	if (WindowsIPC)
-		delete WindowsIPC;
+#ifdef _WIN32
 	SetServiceStopped(status);
 #endif
 	if (this)

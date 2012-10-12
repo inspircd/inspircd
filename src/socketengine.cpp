@@ -98,7 +98,7 @@ bool SocketEngine::HasFd(int fd)
 {
 	if ((fd < 0) || (fd > GetMaxFds()))
 		return false;
-	return ref[fd];
+	return (ref[fd] != NULL);
 }
 
 EventHandler* SocketEngine::GetRef(int fd)
@@ -125,7 +125,7 @@ int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 
 int SocketEngine::Close(EventHandler* fd)
 {
-#ifdef WINDOWS
+#ifdef _WIN32
 	return closesocket(fd->GetFd());
 #else
 	return close(fd->GetFd());
@@ -134,7 +134,7 @@ int SocketEngine::Close(EventHandler* fd)
 
 int SocketEngine::Close(int fd)
 {
-#ifdef WINDOWS
+#ifdef _WIN32
 	return closesocket(fd);
 #else
 	return close(fd);
@@ -143,7 +143,7 @@ int SocketEngine::Close(int fd)
 
 int SocketEngine::Blocking(int fd)
 {
-#ifdef WINDOWS
+#ifdef _WIN32
 	unsigned long opt = 0;
 	return ioctlsocket(fd, FIONBIO, &opt);
 #else
@@ -154,7 +154,7 @@ int SocketEngine::Blocking(int fd)
 
 int SocketEngine::NonBlocking(int fd)
 {
-#ifdef WINDOWS
+#ifdef _WIN32
 	unsigned long opt = 1;
 	return ioctlsocket(fd, FIONBIO, &opt);
 #else
@@ -209,7 +209,7 @@ int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flag
 int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
 {
 	int ret = connect(fd->GetFd(), serv_addr, addrlen);
-#ifdef WINDOWS
+#ifdef _WIN32
 	if ((ret == SOCKET_ERROR) && (WSAGetLastError() == WSAEWOULDBLOCK))
 		errno = EINPROGRESS;
 #endif

@@ -71,7 +71,7 @@ void ServernameResolver::OnError(ResolverError e, const std::string &errormessag
 	/* Ooops! */
 	if (query == DNS_QUERY_AAAA)
 	{
-		bool cached;
+		bool cached = false;
 		ServernameResolver* snr = new ServernameResolver(Utils, host, MyLink, cached, DNS_QUERY_A, myautoconnect);
 		ServerInstance->AddResolver(snr, cached);
 		return;
@@ -102,7 +102,7 @@ void SecurityIPResolver::OnError(ResolverError e, const std::string &errormessag
 {
 	if (query == DNS_QUERY_AAAA)
 	{
-		bool cached;
+		bool cached = false;
 		SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, host, MyLink, cached, DNS_QUERY_A);
 		ServerInstance->AddResolver(res, cached);
 		return;

@@ -27,7 +27,7 @@
 #include <openssl/err.h>
 #include "ssl.h"
 
-#ifdef WINDOWS
+#ifdef _WIN32
 # pragma comment(lib, "libcrypto.lib")
 # pragma comment(lib, "libssl.lib")
 # pragma comment(lib, "user32.lib")

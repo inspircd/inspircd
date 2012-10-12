@@ -598,7 +598,7 @@ BEGIN_HASHMAP_NAMESPACE
 
 	/** Hashing function to hash irc::string
 	 */
-#if defined(WINDOWS) && !defined(HAS_TR1_UNORDERED)
+#if defined(_WIN32) && !defined(HAS_TR1_UNORDERED)
 	template<> class CoreExport hash_compare<irc::string, std::less<irc::string> >
 	{
 	public:
