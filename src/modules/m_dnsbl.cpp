@@ -22,6 +22,7 @@
 
 
 #include "inspircd.h"
+#include "xline.h"
 
 /* $ModDesc: Provides handling of DNS blacklists */
 
