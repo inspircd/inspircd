@@ -108,12 +108,15 @@ class ThreadQueueData
  public:
 	ThreadQueueData()
 	{
-		InitializeCriticalSection(&mutex);
 		event = CreateEvent(NULL, false, false, NULL);
+		if (event == NULL)
+			throw CoreException("CreateEvent() failed in ThreadQueueData::ThreadQueueData()!");
+		InitializeCriticalSection(&mutex);
 	}
 
 	~ThreadQueueData()
 	{
+		CloseHandle(event);
 		DeleteCriticalSection(&mutex);
 	}
 

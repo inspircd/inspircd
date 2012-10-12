@@ -127,15 +127,12 @@ void nspace::strlower(char *n)
 	}
 }
 
-#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
-	size_t nspace::hash_compare<std::string, std::less<std::string> >::operator()(const std::string &s) const
+#ifdef HASHMAP_DEPRECATED
+	size_t CoreExport nspace::insensitive::operator()(const std::string &s) const
 #else
-	#ifdef HASHMAP_DEPRECATED
-		size_t CoreExport nspace::insensitive::operator()(const std::string &s) const
-	#else
-		size_t nspace::hash<std::string>::operator()(const std::string &s) const
-	#endif
+	size_t nspace::hash<std::string>::operator()(const std::string &s) const
 #endif
+
 {
 	/* XXX: NO DATA COPIES! :)
 	 * The hash function here is practically
@@ -150,11 +147,7 @@ void nspace::strlower(char *n)
 }
 
 
-#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
-	size_t nspace::hash_compare<irc::string, std::less<irc::string> >::operator()(const irc::string &s) const
-#else
-	size_t CoreExport irc::hash::operator()(const irc::string &s) const
-#endif
+size_t CoreExport irc::hash::operator()(const irc::string &s) const
 {
 	register size_t t = 0;
 	for (irc::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */

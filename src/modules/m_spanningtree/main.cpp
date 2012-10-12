@@ -306,7 +306,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	{
 		try
 		{
-			bool cached;
+			bool cached = false;
 			ServernameResolver* snr = new ServernameResolver(Utils, x->IPAddr, x, cached, start_type, y);
 			ServerInstance->AddResolver(snr, cached);
 		}

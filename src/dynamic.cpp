@@ -23,8 +23,12 @@
 
 #include "inspircd.h"
 #include "dynamic.h"
-#ifndef WIN32
+#ifndef _WIN32
 #include <dlfcn.h>
+#else
+#define dlopen(path, state) (void*)LoadLibraryA(path)
+#define dlsym(handle, export) (void*)GetProcAddress((HMODULE)handle, export)
+#define dlclose(handle) FreeLibrary((HMODULE)handle)
 #endif
 
 DLLManager::DLLManager(const char *fname)
@@ -39,7 +43,11 @@ DLLManager::DLLManager(const char *fname)
 	h = dlopen(fname, RTLD_NOW|RTLD_LOCAL);
 	if (!h)
 	{
+#ifdef _WIN32
+		RetrieveLastError();
+#else
 		err = dlerror();
+#endif
 	}
 }
 
@@ -64,7 +72,11 @@ Module* DLLManager::CallInit()
 	initfn.vptr = dlsym(h, MODULE_INIT_STR);
 	if (!initfn.vptr)
 	{
+#ifdef _WIN32
+		RetrieveLastError();
+#else
 		err = dlerror();
+#endif
 		return NULL;
 	}
 
@@ -81,3 +93,13 @@ std::string DLLManager::GetVersion()
 		return srcver;
 	return "Unversioned module";
 }
+
+#ifdef _WIN32
+void DLLManager::RetrieveLastError()
+{
+	CHAR errmsg[100];
+	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errmsg, 100, 0);
+	SetLastError(ERROR_SUCCESS);
+	err = errmsg;
+}
+#endif

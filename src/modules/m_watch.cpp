@@ -96,11 +96,8 @@
  * Before you start screaming, this definition is only used here, so moving it to a header is pointless.
  * Yes, it's horrid. Blame cl for being different. -- w00t
  */
-#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
-	typedef nspace::hash_map<irc::string, std::deque<User*>, nspace::hash_compare<irc::string, std::less<irc::string> > > watchentries;
-#else
-	typedef nspace::hash_map<irc::string, std::deque<User*>, irc::hash> watchentries;
-#endif
+
+typedef nspace::hash_map<irc::string, std::deque<User*>, irc::hash> watchentries;
 typedef std::map<irc::string, std::string> watchlist;
 
 /* Who's watching each nickname.

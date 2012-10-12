@@ -24,6 +24,11 @@
 
 /* $Core */
 
+#ifdef _WIN32
+#define _CRT_RAND_S
+#include <stdlib.h>
+#endif
+
 #include "inspircd.h"
 #include "xline.h"
 #include "exitcodes.h"
@@ -311,12 +316,14 @@ bool InspIRCd::OpenLog(char**, int)
 
 void InspIRCd::CheckRoot()
 {
+#ifndef _WIN32
 	if (geteuid() == 0)
 	{
 		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
 		this->Logs->Log("STARTUP",DEFAULT,"Cant start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
+#endif
 }
 
 void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::string &text)
@@ -451,7 +458,17 @@ unsigned long InspIRCd::GenRandomInt(unsigned long max)
 void GenRandomHandler::Call(char *output, size_t max)
 {
 	for(unsigned int i=0; i < max; i++)
+#ifdef _WIN32
+	{
+		unsigned int uTemp;
+		if(rand_s(&uTemp) != 0)
+			output[i] = rand();
+		else
+			output[i] = uTemp;
+	}
+#else
 		output[i] = random();
+#endif
 }
 
 ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::string& restriction)

@@ -33,7 +33,7 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
-#ifndef WINDOWS
+#ifndef _WIN32
 	#ifndef __USE_XOPEN
     	    #define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
 	#endif

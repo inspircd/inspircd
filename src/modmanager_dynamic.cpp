@@ -25,7 +25,7 @@
 #include "dns.h"
 #include "exitcodes.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <dirent.h>
 #endif
 

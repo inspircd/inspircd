@@ -25,7 +25,7 @@
 #ifndef INSPIRCD_SOCKET_H
 #define INSPIRCD_SOCKET_H
 
-#ifndef WIN32
+#ifndef _WIN32
 
 #include <arpa/inet.h>
 #include <sys/time.h>

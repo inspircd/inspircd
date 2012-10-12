@@ -102,11 +102,7 @@ class CoreExport CachedQuery
 
 /** DNS cache information. Holds IPs mapped to hostnames, and hostnames mapped to IPs.
  */
-#if defined(WINDOWS) && !defined(HASHMAP_DEPRECATED)
-typedef nspace::hash_map<irc::string, CachedQuery, nspace::hash_compare<irc::string> > dnscache;
-#else
 typedef nspace::hash_map<irc::string, CachedQuery, irc::hash> dnscache;
-#endif
 
 /**
  * Error types that class Resolver can emit to its error method.

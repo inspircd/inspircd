@@ -51,6 +51,14 @@ struct Commandline
 /* A function pointer for dynamic linking tricks */
 SETSERVDESC ChangeServiceConf;
 
+LPCSTR RetrieveLastError()
+{
+	static char err[100];
+	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)err, sizeof(err), 0);
+	SetLastError(ERROR_SUCCESS);
+	return err;
+}
+
 /* Returns true if this program is running as a service, false if it is running interactive */
 bool IsAService()
 {
@@ -76,7 +84,7 @@ void KillService()
 DWORD WINAPI WorkerThread(LPDWORD param)
 {
 	char modname[MAX_PATH];
-	GetModuleFileName(NULL, modname, sizeof(modname));
+	GetModuleFileNameA(NULL, modname, sizeof(modname));
 	char* argv[] = { modname, "--nofork" };
 	smain(2, argv);
 	KillService();
@@ -189,7 +197,7 @@ VOID ServiceMain(DWORD argc, LPTSTR *argv)
 {
 	BOOL success;
 
-	serviceStatusHandle = RegisterServiceCtrlHandler("InspIRCd", (LPHANDLER_FUNCTION)ServiceCtrlHandler);
+	serviceStatusHandle = RegisterServiceCtrlHandler(TEXT("InspIRCd"), (LPHANDLER_FUNCTION)ServiceCtrlHandler);
 	if (!serviceStatusHandle)
 	{
 		terminateService(EXIT_STATUS_RSCH_FAILED, GetLastError());
@@ -230,22 +238,22 @@ void InstallService()
 	SERVICE_DESCRIPTION svDesc;
 	HINSTANCE advapi32;
 
-	char modname[MAX_PATH];
+	TCHAR modname[MAX_PATH];
 	GetModuleFileName(NULL, modname, sizeof(modname));
 
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
 	{
-		printf("Unable to open service control manager: %s\n", dlerror());
+		printf("Unable to open service control manager: %s\n", RetrieveLastError());
 		return;
 	}
 
-	myService = CreateService(scm,"InspIRCd","Inspire IRC Daemon", SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
+	myService = CreateService(scm,TEXT("InspIRCd"),TEXT("Inspire IRC Daemon"), SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
 		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, modname, 0, 0, 0, NULL, NULL);
 
 	if (!myService)
 	{
-		printf("Unable to create service: %s\n", dlerror());
+		printf("Unable to create service: %s\n", RetrieveLastError());
 		CloseServiceHandle(scm);
 		return;
 	}
@@ -254,19 +262,19 @@ void InstallService()
 	// this is supported from 5.0 (win2k) onwards only, so we can't link to the definition of
 	// this function in advapi32.lib, otherwise the program will not run on windows NT 4. We
 	// must use LoadLibrary and GetProcAddress to export the function name from advapi32.dll
-	advapi32 = LoadLibrary("advapi32.dll");
+	advapi32 = LoadLibrary(TEXT("advapi32.dll"));
 	if (advapi32)
 	{
 		ChangeServiceConf = (SETSERVDESC)GetProcAddress(advapi32,"ChangeServiceConfig2A");
 		if (ChangeServiceConf)
 		{
-			char desc[] = "The Inspire Internet Relay Chat Daemon hosts IRC channels and conversations.\
- If this service is stopped, the IRC server will not run.";
+			TCHAR desc[] = TEXT("The Inspire Internet Relay Chat Daemon hosts IRC channels and conversations.\
+ If this service is stopped, the IRC server will not run.");
 			svDesc.lpDescription = desc;
 			BOOL success = ChangeServiceConf(myService,SERVICE_CONFIG_DESCRIPTION, &svDesc);
 			if (!success)
 			{
-				printf("Unable to set service description: %s\n", dlerror());
+				printf("Unable to set service description: %s\n", RetrieveLastError());
 				CloseServiceHandle(myService);
 				CloseServiceHandle(scm);
 				return;
@@ -288,21 +296,21 @@ void RemoveService()
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
 	{
-		printf("Unable to open service control manager: %s\n", dlerror());
+		printf("Unable to open service control manager: %s\n", RetrieveLastError());
 		return;
 	}
 
-	myService = OpenService(scm,"InspIRCd",SERVICE_ALL_ACCESS);
+	myService = OpenService(scm,TEXT("InspIRCd"),SERVICE_ALL_ACCESS);
 	if (!myService)
 	{
-		printf("Unable to open service: %s\n", dlerror());
+		printf("Unable to open service: %s\n", RetrieveLastError());
 		CloseServiceHandle(scm);
 		return;
 	}
 
 	if (!DeleteService(myService))
 	{
-		printf("Unable to delete service: %s\n", dlerror());
+		printf("Unable to delete service: %s\n", RetrieveLastError());
 		CloseServiceHandle(myService);
 		CloseServiceHandle(scm);
 		return;
@@ -345,7 +353,7 @@ int main(int argc, char** argv)
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (scm)
 	{
-		myService = OpenService(scm,"InspIRCd",SERVICE_ALL_ACCESS);
+		myService = OpenService(scm,TEXT("InspIRCd"),SERVICE_ALL_ACCESS);
 		if (!myService)
 		{
 			/* Service not installed or no permission to modify it */
@@ -372,7 +380,7 @@ int main(int argc, char** argv)
 
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
-		{"InspIRCd", (LPSERVICE_MAIN_FUNCTION) ServiceMain },
+		{TEXT("InspIRCd"), (LPSERVICE_MAIN_FUNCTION) ServiceMain },
 		{NULL, NULL}
 	};
 

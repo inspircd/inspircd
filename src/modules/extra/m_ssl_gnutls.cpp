@@ -28,7 +28,7 @@
 #include "ssl.h"
 #include "m_cap.h"
 
-#ifdef WINDOWS
+#ifdef _WIN32
 # pragma comment(lib, "libgnutls.lib")
 # pragma comment(lib, "libgcrypt.lib")
 # pragma comment(lib, "libgpg-error.lib")

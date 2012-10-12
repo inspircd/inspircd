@@ -23,7 +23,7 @@
 
 #include <GeoIP.h>
 
-#ifdef WINDOWS
+#ifdef _WIN32
 # pragma comment(lib, "GeoIP.lib")
 #endif
 

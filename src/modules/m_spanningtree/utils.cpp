@@ -314,7 +314,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 		{
 			try
 			{
-				bool cached;
+				bool cached = false;
 				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, DNS_QUERY_AAAA);
 				ServerInstance->AddResolver(sr, cached);
 			}

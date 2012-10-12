@@ -88,13 +88,13 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">inspircd</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">..\bin\debug_x64\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">x64DebugVc80\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">..\bin\debug_x64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">x64Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">inspircd</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">..\bin\release_x64\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">x64ReleaseVc80\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">..\bin\release_x64\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|X64'">x64Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|X64'">inspircd</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|X64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|X64'">false</LinkIncremental>
@@ -106,8 +106,8 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -115,17 +115,17 @@
       </PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4100; 4512; 4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>psapi.lib;ws2_32.lib;mswsock.lib;kernel32.lib;user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>LinkVerbose</ShowProgress>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)inspircd.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <FixedBaseAddress>false</FixedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
@@ -149,10 +149,10 @@ nmake -f modules.mak
     </PreBuildEvent>
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>MinSpace</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -160,16 +160,17 @@ nmake -f modules.mak
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>
       </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>psapi.lib;ws2_32.lib;mswsock.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <EmbedManagedResourceFile>inspircd.ico;%(EmbedManagedResourceFile)</EmbedManagedResourceFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
@@ -187,69 +188,34 @@ nmake -f modules.mak
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|X64'">
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Message>running configure...</Message>
+      <Command>"$(ProjectDir)\configure.exe"</Command>
     </PreBuildEvent>
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ws2_32.lib;mswsock.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)inspircd.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
       <FixedBaseAddress>false</FixedBaseAddress>
-      <DataExecutionPrevention>
-      </DataExecutionPrevention>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
-    <PreBuildEvent>
-      <Message>running configure...</Message>
-      <Command>$(ProjectDir)\configure.exe
-</Command>
-    </PreBuildEvent>
-    <Midl>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>ws2_32.lib;mswsock.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Console</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX64</TargetMachine>
@@ -257,10 +223,55 @@ nmake -f modules.mak
     <PostBuildEvent>
       <Command>@echo off
 echo Compiling Command Modules...
-cd ..\src
+cd ..\src\commands
 nmake -f commands.mak
 echo Compiling Modules...
-cd modules
+cd ..\modules
+nmake -f modules.mak
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|X64'">
+    <PreBuildEvent>
+      <Message>running configure...</Message>
+      <Command>$(ProjectDir)\configure.exe
+		</Command>
+    </PreBuildEvent>
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>../include;../../include;../include/modes;../include/commands;../../include/modes;../../include/commands;../win;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level2</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EmbedManagedResourceFile>inspircd.ico;%(EmbedManagedResourceFile)</EmbedManagedResourceFile>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>@echo off
+echo Compiling Command Modules...
+cd ..\src\commands
+nmake -f commands.mak
+echo Compiling Modules...
+cd ..\modules
 nmake -f modules.mak
 </Command>
     </PostBuildEvent>
@@ -287,20 +298,12 @@ nmake -f modules.mak
     <ClCompile Include="..\src\logger.cpp" />
     <ClCompile Include="..\src\mode.cpp" />
     <ClCompile Include="..\src\modes\cmode_b.cpp" />
-    <ClCompile Include="..\src\modes\cmode_i.cpp" />
     <ClCompile Include="..\src\modes\cmode_k.cpp" />
     <ClCompile Include="..\src\modes\cmode_l.cpp" />
-    <ClCompile Include="..\src\modes\cmode_m.cpp" />
-    <ClCompile Include="..\src\modes\cmode_n.cpp" />
     <ClCompile Include="..\src\modes\cmode_o.cpp" />
-    <ClCompile Include="..\src\modes\cmode_p.cpp" />
-    <ClCompile Include="..\src\modes\cmode_s.cpp" />
-    <ClCompile Include="..\src\modes\cmode_t.cpp" />
     <ClCompile Include="..\src\modes\cmode_v.cpp" />
-    <ClCompile Include="..\src\modes\umode_i.cpp" />
     <ClCompile Include="..\src\modes\umode_o.cpp" />
     <ClCompile Include="..\src\modes\umode_s.cpp" />
-    <ClCompile Include="..\src\modes\umode_w.cpp" />
     <ClCompile Include="..\src\modmanager_dynamic.cpp" />
     <ClCompile Include="..\src\modules.cpp" />
     <ClCompile Include="..\src\server.cpp" />
@@ -320,7 +323,6 @@ nmake -f modules.mak
     <ClCompile Include="..\src\wildcard.cpp" />
     <ClCompile Include="..\src\xline.cpp" />
     <ClCompile Include="inspircd_memory_functions.cpp" />
-    <ClCompile Include="inspircd_namedpipe.cpp" />
     <ClCompile Include="inspircd_win32wrapper.cpp" />
     <ClCompile Include="win32service.cpp" />
   </ItemGroup>
@@ -368,9 +370,7 @@ nmake -f modules.mak
     <ClInclude Include="..\include\u_listmode.h" />
     <ClInclude Include="..\include\wildcard.h" />
     <ClInclude Include="..\include\xline.h" />
-    <ClInclude Include="inspircd_config.h" />
-    <ClInclude Include="inspircd_namedpipe.h" />
-    <ClInclude Include="inspircd_se_config.h" />
+    <ClInclude Include="colors.h" />
     <ClInclude Include="inspircd_win32wrapper.h" />
     <ClInclude Include="win32service.h" />
   </ItemGroup>
