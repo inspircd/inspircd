@@ -42,16 +42,9 @@ class ModuleChanCreate : public Module
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 	{
-		if (created)
+		if ((created) && (IS_LOCAL(memb->user)))
 		{
-			if (IS_LOCAL(memb->user))
-				ServerInstance->SNO->WriteToSnoMask('j', "Channel %s created by %s!%s@%s",
-					memb->chan->name.c_str(), memb->user->nick.c_str(),
-					memb->user->ident.c_str(), memb->user->host.c_str());
-			else
-				ServerInstance->SNO->WriteGlobalSno('J', "Channel %s created by %s!%s@%s",
-					memb->chan->name.c_str(), memb->user->nick.c_str(),
-					memb->user->ident.c_str(), memb->user->host.c_str());
+			ServerInstance->SNO->WriteGlobalSno('j', "Channel %s created by %s", memb->chan->name.c_str(), memb->user->GetFullRealHost().c_str());
 		}
 	}
 };
