@@ -25,12 +25,6 @@
 
 #include "inspircd.h"
 
-#ifndef WINDOWS
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif
-
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
 enum CGItype { INVALID, PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };

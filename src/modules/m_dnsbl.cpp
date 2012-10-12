@@ -22,14 +22,6 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
-
-#ifndef WINDOWS
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#endif
 
 /* $ModDesc: Provides handling of DNS blacklists */
 
