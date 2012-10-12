@@ -115,11 +115,6 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnCleanup(int target_type, void* item)
-	{
-		be.DoCleanup(target_type, item);
-	}
-
 	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		be.DoSyncChannel(chan, proto, opaque);

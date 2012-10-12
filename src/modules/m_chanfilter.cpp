@@ -128,11 +128,6 @@ class ModuleChanFilter : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
-	{
-		cf.DoCleanup(target_type, item);
-	}
-
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);

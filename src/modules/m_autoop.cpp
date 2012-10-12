@@ -123,11 +123,6 @@ public:
 		}
 	}
 
-	void OnCleanup(int target_type, void* item)
-	{
-		mh.DoCleanup(target_type, item);
-	}
-
 	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
 	{
 		mh.DoSyncChannel(chan, proto, opaque);
