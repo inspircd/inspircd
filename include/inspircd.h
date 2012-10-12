@@ -31,7 +31,7 @@
 #define _LARGEFILE_SOURCE
 #endif
 
-#ifndef WIN32
+#ifndef _WIN32
 #define DllExport
 #define CoreExport
 #define printf_c printf
@@ -55,7 +55,7 @@
 #include <cstring>
 #include <climits>
 #include <cstdio>
-#ifndef WIN32
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 
@@ -232,12 +232,24 @@ class serverstats
 	/** Total bytes of data received
 	 */
 	unsigned long statsRecv;
+#ifdef _WIN32
+	/** Cpu usage at last sample
+	*/
+	FILETIME LastCPU;
+	/** Time QP sample was read
+	*/
+	LARGE_INTEGER LastSampled;
+	/** QP frequency
+	*/
+	LARGE_INTEGER QPFrequency;
+#else
 	/** Cpu usage at last sample
 	 */
 	timeval LastCPU;
 	/** Time last sample was read
 	 */
 	timespec LastSampled;
+#endif
 	/** The constructor initializes all the counts to zero
 	 */
 	serverstats()
@@ -307,10 +319,6 @@ class CoreExport InspIRCd
 	 * NOTE: update ValidateNetBufferSize if you change this
 	 */
 	char ReadBuffer[65535];
-
-#ifdef WIN32
-	IPC* WindowsIPC;
-#endif
 
  public:
 

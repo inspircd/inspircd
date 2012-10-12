@@ -33,6 +33,12 @@ class CoreExport DLLManager : public classbase
 	 */
 	std::string err;
 
+#ifdef _WIN32
+	/** Sets the last error string
+	*/
+	void RetrieveLastError();
+#endif
+
  public:
 	/** This constructor loads the module using dlopen()
 	 * @param fname The filename to load. This should be within

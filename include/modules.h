@@ -1696,7 +1696,7 @@ struct AllModuleList {
  * and functions needed to make a module loadable by the OS.
  * It defines the class factory and external init_module function.
  */
-#ifdef WINDOWS
+#ifdef _WIN32
 
 #define MODULE_INIT(y) \
 	extern "C" DllExport Module * MODULE_INIT_SYM() \

@@ -60,7 +60,7 @@ enum UserModes {
  */
 enum RegistrationState {
 
-#ifndef WIN32   // Burlex: This is already defined in win32, luckily it is still 0.
+#ifndef _WIN32   // Burlex: This is already defined in win32, luckily it is still 0.
 	REG_NONE = 0,		/* Has sent nothing */
 #endif
 

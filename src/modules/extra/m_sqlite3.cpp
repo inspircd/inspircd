@@ -24,7 +24,7 @@
 #include <sqlite3.h>
 #include "sql.h"
 
-#ifdef WINDOWS
+#ifdef _WIN32
 # pragma comment(lib, "sqlite3.lib")
 #endif
 

@@ -28,8 +28,6 @@
 #define TWHITE TNORMAL | FOREGROUND_INTENSITY
 #define TBLUE FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY
 
-inline void sc(WORD color) { SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color); }
-
 /* Handles colors in printf */
 int printf_c(const char * format, ...)
 {
@@ -97,7 +95,7 @@ int printf_c(const char * format, ...)
 						default:
 							char message[50];
 							sprintf(message, "Unknown color code: %s", temp);
-							MessageBox(0, message, message, MB_OK);
+							MessageBoxA(0, message, message, MB_OK);
 							break;
 					}
 				}

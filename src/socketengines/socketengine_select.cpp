@@ -23,9 +23,9 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
-#ifndef WINDOWS
+#ifndef _WIN32
 #include <sys/select.h>
-#endif // WINDOWS
+#endif // _WIN32
 
 /** A specialisation of the SocketEngine class, designed to use traditional select().
  */

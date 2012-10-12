@@ -157,7 +157,7 @@ class CoreExport reference
 		return *this;
 	}
 
-	inline operator bool() const { return value; }
+	inline operator bool() const { return (value != NULL); }
 	inline operator T*() const { return value; }
 	inline T* operator->() const { return value; }
 	inline T& operator*() const { return *value; }
@@ -165,7 +165,7 @@ class CoreExport reference
 	inline bool operator>(const reference<T>& other) const { return value > other.value; }
 	static inline void* operator new(size_t, void* m) { return m; }
  private:
-#ifndef WIN32
+#ifndef _WIN32
 	static void* operator new(size_t);
 	static void operator delete(void*);
 #endif

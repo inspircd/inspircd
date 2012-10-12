@@ -63,7 +63,7 @@ struct FileWrapper
 	FILE* const f;
 	bool close_with_pclose;
 	FileWrapper(FILE* file, bool use_pclose = false) : f(file), close_with_pclose(use_pclose) {}
-	operator bool() { return f; }
+	operator bool() { return (f != NULL); }
 	operator FILE*() { return f; }
 	~FileWrapper()
 	{
