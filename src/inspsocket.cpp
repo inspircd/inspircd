@@ -122,8 +122,6 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout, ServerInstance->Time());
 	ServerInstance->Timers->AddTimer(this->Timeout);
 
-	IncreaseOSBuffers(fd);
-
 	ServerInstance->Logs->Log("SOCKET", DEBUG,"BufferedSocket::DoConnect success");
 	return I_ERR_NONE;
 }
