@@ -85,6 +85,10 @@ class ModuleAutoOp : public Module
 public:
 	ModuleAutoOp() : mh(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->Modules->AddService(mh);
 		mh.DoImplements(this);
 

@@ -27,7 +27,8 @@
 class ModuleDenyChannels : public Module
 {
  public:
-	ModuleDenyChannels() 	{
+	void init()
+	{
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

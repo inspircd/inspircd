@@ -69,6 +69,10 @@ class ModuleVHost : public Module
  public:
 	ModuleVHost() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

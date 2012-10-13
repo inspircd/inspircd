@@ -83,6 +83,10 @@ class ModuleSSLModes : public Module
 	ModuleSSLModes()
 		: sslm(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&sslm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric };

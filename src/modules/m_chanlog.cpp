@@ -32,7 +32,8 @@ class ModuleChanLog : public Module
 	ChanLogTargets logstreams;
 
  public:
-	ModuleChanLog() 	{
+	void init()
+	{
 		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 

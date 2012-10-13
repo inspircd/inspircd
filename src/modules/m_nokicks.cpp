@@ -38,6 +38,10 @@ class ModuleNoKicks : public Module
 	ModuleNoKicks()
 		: nk(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&nk))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreKick, I_On005Numeric };

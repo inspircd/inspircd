@@ -88,6 +88,10 @@ class ModuleHalfop : public Module
  public:
 	ModuleHalfop() : mh(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&mh))
 			throw ModuleException("Could not add new modes!");
 	}

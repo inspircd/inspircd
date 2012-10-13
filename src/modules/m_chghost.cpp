@@ -93,12 +93,15 @@ class ModuleChgHost : public Module
  public:
 	ModuleChgHost() : cmd(this, hostmap)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-
 
 	void OnRehash(User* user)
 	{

@@ -139,6 +139,10 @@ class ModuleNickFlood : public Module
 	ModuleNickFlood()
 		: nf(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&nf))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&nf.ext);

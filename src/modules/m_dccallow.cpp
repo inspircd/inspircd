@@ -252,6 +252,11 @@ class ModuleDCCAllow : public Module
 	ModuleDCCAllow()
 		: cmd(this)
 	{
+		ext = NULL;
+	}
+
+	void init()
+	{
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
 		ServerInstance->Extensions.Register(ext);
 		ServerInstance->AddCommand(&cmd);
@@ -259,7 +264,6 @@ class ModuleDCCAllow : public Module
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPostNick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
-
 
 	virtual void OnRehash(User* user)
 	{

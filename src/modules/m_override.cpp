@@ -35,8 +35,8 @@ class ModuleOverride : public Module
 
  public:
 
-	ModuleOverride()
-			{
+	void init()
+	{
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");

@@ -64,6 +64,10 @@ public:
 	ModuleKickNoRejoin()
 		: kr(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&kr))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&kr.ext);

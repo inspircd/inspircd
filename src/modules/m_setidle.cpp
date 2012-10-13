@@ -61,6 +61,10 @@ class ModuleSetIdle : public Module
 	ModuleSetIdle()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

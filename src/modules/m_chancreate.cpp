@@ -27,8 +27,8 @@ class ModuleChanCreate : public Module
 {
  private:
  public:
-	ModuleChanCreate()
-			{
+	void init()
+	{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
 		Implementation eventlist[] = { I_OnUserJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);

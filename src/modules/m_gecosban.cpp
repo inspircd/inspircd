@@ -24,7 +24,7 @@
 class ModuleGecosBan : public Module
 {
  public:
-	ModuleGecosBan()
+	void init()
 	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

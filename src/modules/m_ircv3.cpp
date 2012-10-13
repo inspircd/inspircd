@@ -76,6 +76,10 @@ class ModuleIRCv3 : public Module
 					cap_awaynotify(this, "away-notify"),
 					cap_extendedjoin(this, "extended-join")
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 5);

@@ -27,7 +27,7 @@
 class ModuleModesOnOper : public Module
 {
  public:
-	ModuleModesOnOper()
+	void init()
 	{
 		ServerInstance->Modules->Attach(I_OnPostOper, this);
 	}

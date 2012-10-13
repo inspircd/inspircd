@@ -54,6 +54,10 @@ class ModuleSaMode : public Module
 	ModuleSaMode()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Modules->Attach(I_OnPreMode, this);
 	}

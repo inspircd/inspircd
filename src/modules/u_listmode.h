@@ -100,8 +100,6 @@ class ListModeBase : public ModeHandler
 		configtag(ctag), extItem("listbase_mode_" + name + "_list", Creator)
 	{
 		list = true;
-		this->DoRehash();
-		ServerInstance->Extensions.Register(&extItem);
 	}
 
 	/** See mode.h
@@ -216,6 +214,8 @@ class ListModeBase : public ModeHandler
 	 */
 	virtual void DoImplements(Module* m)
 	{
+		ServerInstance->Modules->AddService(extItem);
+		this->DoRehash();
 		Implementation eventlist[] = { I_OnSyncChannel, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, m, 2);
 	}

@@ -52,13 +52,16 @@ class ModuleBanException : public Module
 public:
 	ModuleBanException() : be(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&be))
 			throw ModuleException("Could not add new modes!");
 
 		be.DoImplements(this);
 		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
 		ServerInstance->Modules->Attach(list, this, 4);
-
 	}
 
 	void On005Numeric(std::string &output)

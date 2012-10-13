@@ -152,7 +152,7 @@ class SQLConn : public SQLProvider, public EventHandler
 	{
 		if (!DoConnect())
 		{
-			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database " + tag->getString("id")); 
+			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
 			DelayReconnect();
 		}
 	}

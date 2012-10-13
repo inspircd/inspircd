@@ -31,6 +31,10 @@ class ModuleNamesX : public Module
 	GenericCap cap;
 	ModuleNamesX() : cap(this, "multi-prefix")
 	{
+	}
+
+	void init()
+	{
 		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent, I_OnSendWhoLine };
 		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}

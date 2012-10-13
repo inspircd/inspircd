@@ -27,7 +27,8 @@
 class ModuleHttpConfig : public Module
 {
  public:
-	ModuleHttpConfig() 	{
+	void init()
+	{
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}

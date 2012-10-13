@@ -165,12 +165,15 @@ class ModuleSVSHold : public Module
  public:
 	ModuleSVSHold() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-
 
 	virtual ModResult OnStats(char symbol, User* user, string_list &out)
 	{

@@ -65,6 +65,10 @@ class ModuleSetName : public Module
 	ModuleSetName()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

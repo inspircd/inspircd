@@ -46,6 +46,10 @@ class ModuleDelayMsg : public Module
  public:
 	ModuleDelayMsg() : djm(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&djm))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&djm.jointime);

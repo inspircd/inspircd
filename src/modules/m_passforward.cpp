@@ -27,7 +27,7 @@ class ModulePassForward : public Module
 	std::string nickrequired, forwardmsg, forwardcmd;
 
  public:
-	ModulePassForward()
+	void init()
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };

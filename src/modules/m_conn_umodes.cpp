@@ -27,7 +27,8 @@
 class ModuleModesOnConnect : public Module
 {
  public:
-	ModuleModesOnConnect() 	{
+	void init()
+	{
 		ServerInstance->Modules->Attach(I_OnUserConnect, this);
 	}
 

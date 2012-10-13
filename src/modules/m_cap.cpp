@@ -130,6 +130,10 @@ class ModuleCAP : public Module
 	ModuleCAP()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 		ServerInstance->Extensions.Register(&cmd.reghold);
 

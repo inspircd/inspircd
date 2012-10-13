@@ -57,12 +57,15 @@ class ModuleBlockAmsg : public Module
  public:
 	ModuleBlockAmsg() : blockamsg("blockamsg", this)
 	{
+	}
+
+	void init()
+	{
 		this->OnRehash(NULL);
 		ServerInstance->Extensions.Register(&blockamsg);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-
 
 	virtual ~ModuleBlockAmsg()
 	{

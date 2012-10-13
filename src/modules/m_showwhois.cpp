@@ -74,7 +74,12 @@ class ModuleShowwhois : public Module
 
  public:
 
-	ModuleShowwhois() : cmd(this)
+	ModuleShowwhois()
+		: sw(NULL), cmd(this)
+	{
+	}
+
+	void init()
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
 

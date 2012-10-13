@@ -214,6 +214,10 @@ class ModuleTest : public Module
  public:
 	ModuleTest() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		if (!strstr(ServerInstance->Config->ServerName.c_str(), ".test"))
 			throw ModuleException("Don't load modules without reading their descriptions!");
 		ServerInstance->AddCommand(&cmd);

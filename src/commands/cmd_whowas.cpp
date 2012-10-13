@@ -319,6 +319,10 @@ class ModuleWhoWas : public Module
  public:
 	ModuleWhoWas() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

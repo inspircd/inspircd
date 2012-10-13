@@ -41,7 +41,7 @@ class ModuleRestrictChans : public Module
 	}
 
  public:
-	ModuleRestrictChans()
+	void init()
 	{
 		ReadConfig();
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };

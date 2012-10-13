@@ -60,6 +60,10 @@ class Modulealltime : public Module
 	Modulealltime()
 		: mycommand(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&mycommand);
 	}
 

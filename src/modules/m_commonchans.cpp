@@ -35,12 +35,15 @@ class ModulePrivacyMode : public Module
  public:
 	ModulePrivacyMode() : pm(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&pm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
-
 
 	virtual ~ModulePrivacyMode()
 	{

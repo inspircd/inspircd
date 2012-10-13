@@ -270,6 +270,10 @@ class ModuleIdent : public Module
  public:
 	ModuleIdent() : ext("ident_socket", this)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 		Implementation eventlist[] = {
 			I_OnRehash, I_OnUserInit, I_OnCheckReady,

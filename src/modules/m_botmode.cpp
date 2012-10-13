@@ -38,12 +38,15 @@ class ModuleBotMode : public Module
 	ModuleBotMode()
 		: bm(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&bm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhois };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-
 
 	virtual ~ModuleBotMode()
 	{

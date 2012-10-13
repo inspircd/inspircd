@@ -54,8 +54,8 @@ class ModuleHostChange : public Module
 	std::string MySeparator;
 
  public:
-	ModuleHostChange()
-			{
+	void init()
+	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

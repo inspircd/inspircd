@@ -45,8 +45,8 @@ class ModuleLDAPAuth : public Module
 	LDAP *conn;
 
 public:
-	ModuleLDAPAuth()
-		{
+	void init()
+	{
 		conn = NULL;
 		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

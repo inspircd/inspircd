@@ -43,6 +43,10 @@ public:
 
 	ModuleBlockCAPS() : bc(this)
 	{
+	}
+
+	void init()
+	{
 		OnRehash(NULL);
 		if (!ServerInstance->Modes->AddMode(&bc))
 			throw ModuleException("Could not add new modes!");

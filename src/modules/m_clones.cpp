@@ -71,6 +71,10 @@ class ModuleClones : public Module
  public:
 	ModuleClones() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

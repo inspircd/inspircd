@@ -63,6 +63,10 @@ class ModuleDeVoice : public Module
  public:
 	ModuleDeVoice() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

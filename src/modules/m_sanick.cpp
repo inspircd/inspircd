@@ -95,6 +95,10 @@ class ModuleSanick : public Module
 	ModuleSanick()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

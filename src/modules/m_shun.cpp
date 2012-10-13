@@ -183,6 +183,10 @@ class ModuleShun : public Module
  public:
 	ModuleShun() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->AddCommand(&cmd);
 

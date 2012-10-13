@@ -105,6 +105,10 @@ class ModuleSakick : public Module
 	ModuleSakick()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

@@ -377,10 +377,14 @@ class Modulewatch : public Module
 
  public:
 	Modulewatch()
-		: maxwatch(32), cmdw(this, maxwatch), sw(this) 
+		: maxwatch(32), cmdw(this, maxwatch), sw(this)
+	{
+		whos_watching_me = new watchentries();
+	}
+
+	void init()
 	{
 		OnRehash(NULL);
-		whos_watching_me = new watchentries();
 		ServerInstance->AddCommand(&cmdw);
 		ServerInstance->AddCommand(&sw);
 		ServerInstance->Extensions.Register(&cmdw.ext);

@@ -68,11 +68,14 @@ class ModuleUserIP : public Module
 	ModuleUserIP()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 		Implementation eventlist[] = { I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-
 
 	virtual void On005Numeric(std::string &output)
 	{

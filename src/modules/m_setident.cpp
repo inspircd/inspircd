@@ -70,6 +70,10 @@ class ModuleSetIdent : public Module
  public:
 	ModuleSetIdent() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

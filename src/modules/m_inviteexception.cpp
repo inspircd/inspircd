@@ -52,6 +52,10 @@ class ModuleInviteException : public Module
 public:
 	ModuleInviteException() : ie(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&ie))
 			throw ModuleException("Could not add new modes!");
 

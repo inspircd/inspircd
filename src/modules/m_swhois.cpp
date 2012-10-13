@@ -36,7 +36,6 @@ class CommandSwhois : public Command
 	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois("swhois", Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
-		ServerInstance->Extensions.Register(&swhois);
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
@@ -89,7 +88,12 @@ class ModuleSWhois : public Module
  public:
 	ModuleSWhois() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd.swhois);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostOper };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}

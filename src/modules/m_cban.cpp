@@ -159,6 +159,10 @@ class ModuleCBan : public Module
  public:
 	ModuleCBan() : mycommand(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->XLines->RegisterFactory(&f);
 
 		ServerInstance->AddCommand(&mycommand);

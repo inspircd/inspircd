@@ -198,7 +198,10 @@ class ModuleJoinFlood : public Module
 	ModuleJoinFlood()
 		: jf(this)
 	{
+	}
 
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&jf))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&jf.ext);

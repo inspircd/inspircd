@@ -37,6 +37,10 @@ public:
 	ModuleConnFlood()
 		: conns(0), throttled(false)
 	{
+	}
+
+	void init()
+	{
 		InitConf();
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, 2);

@@ -80,6 +80,10 @@ class ModuleOpermotd : public Module
 	ModuleOpermotd()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnOper };

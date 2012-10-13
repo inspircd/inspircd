@@ -126,6 +126,10 @@ class ModuleMsgFlood : public Module
 	ModuleMsgFlood()
 		: mf(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&mf))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&mf.ext);

@@ -64,6 +64,10 @@ class ModuleDeaf : public Module
 	ModuleDeaf()
 		: m1(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&m1))
 			throw ModuleException("Could not add new modes!");
 
@@ -71,7 +75,6 @@ class ModuleDeaf : public Module
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 	}
-
 
 	virtual void OnRehash(User* user)
 	{

@@ -77,6 +77,10 @@ class ModuleSaquit : public Module
 	ModuleSaquit()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

@@ -63,6 +63,10 @@ class ModuleSATopic : public Module
 	ModuleSATopic()
 	: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

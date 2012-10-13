@@ -27,7 +27,7 @@
 class ModuleOperLevels : public Module
 {
 	public:
-		ModuleOperLevels()
+		void init()
 		{
 			ServerInstance->Modules->Attach(I_OnKill, this);
 		}

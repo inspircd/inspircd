@@ -41,6 +41,10 @@ class ModuleHideOper : public Module
 	ModuleHideOper()
 		: hm(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&hm))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine };

@@ -95,6 +95,10 @@ class ModuleKnock : public Module
  public:
 	ModuleKnock() : cmd(this), kn(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&kn))
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->AddCommand(&cmd);

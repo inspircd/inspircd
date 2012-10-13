@@ -101,7 +101,7 @@ class ModuleAlias : public Module
 
  public:
 
-	ModuleAlias()
+	void init()
 	{
 		ReadAliases();
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);

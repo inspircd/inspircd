@@ -69,6 +69,10 @@ class ModuleClose : public Module
 	ModuleClose()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

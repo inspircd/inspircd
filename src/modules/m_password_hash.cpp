@@ -82,6 +82,10 @@ class ModuleOperHash : public Module
 
 	ModuleOperHash() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		/* Read the config file first */
 		OnRehash(NULL);
 

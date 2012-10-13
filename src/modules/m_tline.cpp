@@ -73,9 +73,12 @@ class ModuleTLine : public Module
 	ModuleTLine()
 		: cmd(this)
 	{
-		ServerInstance->AddCommand(&cmd);
 	}
 
+	void init()
+	{
+		ServerInstance->AddCommand(&cmd);
+	}
 
 	virtual ~ModuleTLine()
 	{

@@ -32,7 +32,8 @@ class ModuleXLineDB : public Module
 						// DO REMEMBER TO SET IT, otherwise it's annoying :P
 	std::string xlinedbpath;
  public:
-	ModuleXLineDB() 	{
+	void init()
+	{
 		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 

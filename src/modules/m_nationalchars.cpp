@@ -230,9 +230,13 @@ class ModuleNationalChars : public Module
 	const unsigned char * lowermap_rememberer;
 
  public:
-	ModuleNationalChars() : rememberer(ServerInstance->IsNick)
+	ModuleNationalChars()
+		: rememberer(ServerInstance->IsNick), lowermap_rememberer(national_case_insensitive_map)
 	{
-		lowermap_rememberer = national_case_insensitive_map;
+	}
+
+	void init()
+	{
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
 

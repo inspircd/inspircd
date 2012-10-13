@@ -86,6 +86,10 @@ class ModuleChgIdent : public Module
 public:
 	ModuleChgIdent() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

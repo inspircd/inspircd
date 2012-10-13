@@ -104,6 +104,10 @@ class ModuleUninvite : public Module
 
 	ModuleUninvite() : cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

@@ -40,6 +40,10 @@ class ModuleOperChans : public Module
  public:
 	ModuleOperChans() : oc(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&oc))
 			throw ModuleException("Could not add new modes!");
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnUserPreJoin };

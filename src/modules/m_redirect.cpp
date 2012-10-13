@@ -107,6 +107,10 @@ class ModuleRedirect : public Module
 	ModuleRedirect()
 		: re(this), re_u(this)
 	{
+	}
+
+	void init()
+	{
 		/* Setting this here so it isn't changable by rehasing the config later. */
 		UseUsermode = ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect");
 
@@ -128,7 +132,6 @@ class ModuleRedirect : public Module
 		Implementation eventlist[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, 1);
 	}
-
 
 	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{

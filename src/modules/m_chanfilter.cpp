@@ -76,6 +76,10 @@ class ModuleChanFilter : public Module
 	ModuleChanFilter()
 		: cf(this)
 	{
+	}
+
+	void init()
+	{
 		if (!ServerInstance->Modes->AddMode(&cf))
 			throw ModuleException("Could not add new modes!");
 

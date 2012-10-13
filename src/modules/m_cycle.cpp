@@ -88,6 +88,10 @@ class ModuleCycle : public Module
 	ModuleCycle()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

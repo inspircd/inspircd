@@ -178,6 +178,10 @@ class ModuleGlobalLoad : public Module
 	ModuleGlobalLoad()
 		: cmd1(this), cmd2(this), cmd3(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd1);
 		ServerInstance->AddCommand(&cmd2);
 		ServerInstance->AddCommand(&cmd3);

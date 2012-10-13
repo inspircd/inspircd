@@ -88,6 +88,10 @@ private:
 public:
 	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked)
 	{
+	}
+
+	void init()
+	{
 		locked = false;
 		ServerInstance->AddCommand(&lockcommand);
 		ServerInstance->AddCommand(&unlockcommand);

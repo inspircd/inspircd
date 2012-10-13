@@ -31,6 +31,10 @@ class ModuleUHNames : public Module
 
 	ModuleUHNames() : cap(this, "userhost-in-names")
 	{
+	}
+
+	void init()
+	{
 		Implementation eventlist[] = { I_OnEvent, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}

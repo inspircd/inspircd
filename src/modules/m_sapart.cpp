@@ -107,6 +107,10 @@ class ModuleSapart : public Module
 	ModuleSapart()
 		: cmd(this)
 	{
+	}
+
+	void init()
+	{
 		ServerInstance->AddCommand(&cmd);
 	}
 

@@ -28,8 +28,8 @@ class ModuleOperLog : public Module
 	bool tosnomask;
 
  public:
-	ModuleOperLog() 	{
-
+	void init()
+	{
 		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, 3);
 		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");

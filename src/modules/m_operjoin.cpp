@@ -53,7 +53,7 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		ModuleOperjoin()
+		void init()
 		{
 			OnRehash(NULL);
 			Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
