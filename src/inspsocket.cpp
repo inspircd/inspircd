@@ -82,16 +82,6 @@ BufferedSocketError BufferedSocket::BeginConnect(const std::string &ipaddr, int 
 	return BeginConnect(addr, bind, maxtime);
 }
 
-static void IncreaseOSBuffers(int fd)
-{
-	// attempt to increase socket sendq and recvq as high as its possible
-	int sendbuf = 32768;
-	int recvbuf = 32768;
-	setsockopt(fd,SOL_SOCKET,SO_SNDBUF,(const char *)&sendbuf,sizeof(sendbuf));
-	setsockopt(fd,SOL_SOCKET,SO_RCVBUF,(const char *)&recvbuf,sizeof(recvbuf));
-	// on failure, do nothing. I'm a little sick of people trying to interpret this message as a result of why their incorrect setups don't work.
-}
-
 BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& dest, const irc::sockets::sockaddrs& bind, unsigned long timeout)
 {
 	if (fd < 0)
