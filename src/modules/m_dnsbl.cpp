@@ -352,15 +352,20 @@ class ModuleDNSBL : public Module
 
 	void OnSetUserIP(LocalUser* user)
 	{
-		if (user->exempt)
+		if ((user->exempt) || (user->client_sa.sa.sa_family != AF_INET))
 			return;
+
+		if (user->MyClass)
+		{
+			if (!user->MyClass->config->getBool("usednsbl", true))
+				return;
+		}
+		else
+			ServerInstance->Logs->Log("m_dnsbl", DEBUG, "User has no connect class in OnSetUserIP");
 
 		unsigned char a, b, c, d;
 		char reversedipbuf[128];
 		std::string reversedip;
-
-		if (user->client_sa.sa.sa_family != AF_INET)
-			return;
 
 		d = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
 		c = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
