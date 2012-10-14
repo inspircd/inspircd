@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <iostream>
 
 static SERVICE_STATUS_HANDLE serviceStatusHandle;
 static HANDLE hThreadEvent;
@@ -244,7 +245,7 @@ void InstallService()
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
 	{
-		printf("Unable to open service control manager: %s\n", RetrieveLastError());
+		std::cout << "Unable to open service control manager: " << RetrieveLastError() << std::endl;
 		return;
 	}
 
@@ -253,7 +254,7 @@ void InstallService()
 
 	if (!myService)
 	{
-		printf("Unable to create service: %s\n", RetrieveLastError());
+		std::cout << "Unable to create service: " << RetrieveLastError() << std::endl;
 		CloseServiceHandle(scm);
 		return;
 	}
@@ -274,7 +275,7 @@ void InstallService()
 			BOOL success = ChangeServiceConf(myService,SERVICE_CONFIG_DESCRIPTION, &svDesc);
 			if (!success)
 			{
-				printf("Unable to set service description: %s\n", RetrieveLastError());
+				std::cout << "Unable to set service description: " << RetrieveLastError() << std::endl;
 				CloseServiceHandle(myService);
 				CloseServiceHandle(scm);
 				return;
@@ -283,7 +284,7 @@ void InstallService()
 		FreeLibrary(advapi32);
 	}
 
-	printf("Service installed.\n");
+	std::cout << "Service installed." << std::endl;
 	CloseServiceHandle(myService);
 	CloseServiceHandle(scm);
 }
@@ -296,27 +297,27 @@ void RemoveService()
 	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
 	if (!scm)
 	{
-		printf("Unable to open service control manager: %s\n", RetrieveLastError());
+		std::cout << "Unable to open service control manager: " << RetrieveLastError() << std::endl;
 		return;
 	}
 
 	myService = OpenService(scm,TEXT("InspIRCd"),SERVICE_ALL_ACCESS);
 	if (!myService)
 	{
-		printf("Unable to open service: %s\n", RetrieveLastError());
+		std::cout << "Unable to open service: " << RetrieveLastError() << std::endl;
 		CloseServiceHandle(scm);
 		return;
 	}
 
 	if (!DeleteService(myService))
 	{
-		printf("Unable to delete service: %s\n", RetrieveLastError());
+		std::cout << "Unable to delete service: " << RetrieveLastError() << std::endl;
 		CloseServiceHandle(myService);
 		CloseServiceHandle(scm);
 		return;
 	}
 
-	printf("Service removed.\n");
+	std::cout << "Service removed." << std::endl;
 	CloseServiceHandle(myService);
 	CloseServiceHandle(scm);
 }

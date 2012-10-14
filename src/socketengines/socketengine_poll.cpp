@@ -26,6 +26,7 @@
 #ifndef SOCKETENGINE_POLL
 #define SOCKETENGINE_POLL
 
+#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -92,7 +93,7 @@ PollEngine::PollEngine()
 	else
 	{
 		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
-		printf("ERROR: Can't determine maximum number of open sockets: %s\n", strerror(errno));
+		std::cout << "ERROR: Can't determine maximum number of open sockets: " << strerror(errno) << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 #else

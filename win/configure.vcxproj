@@ -203,9 +203,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="colors.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="configure.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

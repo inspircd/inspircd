@@ -25,12 +25,9 @@
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 #include "configreader.h"
-#include "colors.h"
 #include <string>
 #include <errno.h>
 #include <assert.h>
-#include <mmsystem.h>
-#pragma comment(lib, "Winmm.lib")
 
 CoreExport const char *insp_inet_ntop(int af, const void *src, char *dst, socklen_t cnt)
 {

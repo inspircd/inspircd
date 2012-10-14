@@ -21,6 +21,7 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
+#include <iostream>
 
 #ifdef PURE_STATIC
 
@@ -188,12 +189,12 @@ void ModuleManager::LoadAll()
 	{
 		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
-		printf_c("[\033[1;32m*\033[0m] Loading module:\t\033[1;32m%s\033[0m\n",name.c_str());
+		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 
 		if (!this->Load(name, true))
 		{
 			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
-			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", this->LastError().c_str());
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "]" << this->LastError() << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
@@ -209,7 +210,7 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
 			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-			printf_c("\n[\033[1;31m*\033[0m] %s\n\n", LastModuleError.c_str());
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "]" << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}

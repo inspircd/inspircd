@@ -26,6 +26,7 @@
 #include "socketengine.h"
 #include <sys/epoll.h>
 #include <ulimit.h>
+#include <iostream>
 #define EP_DELAY 5
 
 /** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
@@ -61,7 +62,7 @@ EPollEngine::EPollEngine()
 	else
 	{
 		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 
@@ -72,8 +73,8 @@ EPollEngine::EPollEngine()
 	{
 		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
 		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
-		printf("ERROR: Could not initialize epoll socket engine: %s\n", strerror(errno));
-		printf("ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.\n");
+		std::cout << "ERROR: Could not initialize epoll socket engine: " << strerror(errno) << std::endl;
+		std::cout << "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now." << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 
