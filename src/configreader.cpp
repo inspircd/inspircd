@@ -28,6 +28,7 @@
 #include "exitcodes.h"
 #include "commands/cmd_whowas.h"
 #include "configparser.h"
+#include <iostream>
 #ifdef _WIN32
 #include <Iphlpapi.h>
 #pragma comment(lib, "Iphlpapi.lib")
@@ -750,7 +751,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 			continue;
 		// On startup, print out to console (still attached at this point)
 		if (!old)
-			printf("%s\n", line.c_str());
+			std::cout << line << std::endl;
 		// If a user is rehashing, tell them directly
 		if (user)
 			user->SendText(":%s NOTICE %s :*** %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), line.c_str());

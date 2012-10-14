@@ -25,6 +25,7 @@
 #include <sys/event.h>
 #include <sys/time.h>
 #include "socketengine.h"
+#include <iostream>
 
 /** A specialisation of the SocketEngine class, designed to use FreeBSD kqueue().
  */
@@ -68,7 +69,7 @@ KQueueEngine::KQueueEngine()
 	if (MAX_DESCRIPTORS <= 0)
 	{
 		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 
@@ -90,8 +91,8 @@ void KQueueEngine::RecoverFromFork()
 	{
 		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
 		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: this is a fatal error, exiting now.");
-		printf("ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.\n");
-		printf("ERROR: this is a fatal error, exiting now.\n");
+		std::cout << "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features." << std::endl;
+		std::cout << "ERROR: this is a fatal error, exiting now." << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;

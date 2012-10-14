@@ -32,6 +32,7 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "exitcodes.h"
+#include <iostream>
 
 std::string InspIRCd::GetServerDescription(const std::string& servername)
 {
@@ -319,8 +320,8 @@ void InspIRCd::CheckRoot()
 #ifndef _WIN32
 	if (geteuid() == 0)
 	{
-		printf("WARNING!!! You are running an irc server as ROOT!!! DO NOT DO THIS!!!\n\n");
-		this->Logs->Log("STARTUP",DEFAULT,"Cant start as root");
+		std::cout << "ERROR: You are running an irc server as root! DO NOT DO THIS!" << std::endl << std::endl;
+		this->Logs->Log("STARTUP",DEFAULT,"Can't start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
 #endif

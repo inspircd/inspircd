@@ -34,7 +34,6 @@
 #ifndef _WIN32
 #define DllExport
 #define CoreExport
-#define printf_c printf
 #else
 #include "inspircd_win32wrapper.h"
 /** Windows defines these already */
@@ -71,6 +70,7 @@
 #include "inspircd_config.h"
 #include "inspircd_version.h"
 #include "typedefs.h"
+#include "consolecolors.h"
 
 CoreExport extern InspIRCd* ServerInstance;
 
