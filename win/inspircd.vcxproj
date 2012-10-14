@@ -338,6 +338,7 @@ nmake -f modules.mak
     <ClInclude Include="..\include\channels.h" />
     <ClInclude Include="..\include\command_parse.h" />
     <ClInclude Include="..\include\configreader.h" />
+    <ClInclude Include="..\include\consolecolors.h" />
     <ClInclude Include="..\include\ctables.h" />
     <ClInclude Include="..\include\cull_list.h" />
     <ClInclude Include="..\include\dns.h" />
@@ -370,7 +371,6 @@ nmake -f modules.mak
     <ClInclude Include="..\include\u_listmode.h" />
     <ClInclude Include="..\include\wildcard.h" />
     <ClInclude Include="..\include\xline.h" />
-    <ClInclude Include="colors.h" />
     <ClInclude Include="inspircd_win32wrapper.h" />
     <ClInclude Include="win32service.h" />
   </ItemGroup>

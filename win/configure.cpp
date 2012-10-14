@@ -29,12 +29,17 @@
 #include <windows.h>
 #include <stdio.h>
 #include <process.h>
+#include "../include/consolecolors.h"
+
+WORD g_wOriginalColors;
+WORD g_wBackgroundColor;
+HANDLE g_hStdout;
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <time.h>
 #include "inspircd_win32wrapper.h"
-#include "colors.h"
 
 using namespace std;
 void Run();
@@ -42,8 +47,6 @@ void Banner();
 void WriteCompileModules(const vector<string> &, const vector<string> &);
 void WriteCompileCommands();
 void CopyExtras();
-
-inline void sc(WORD color) { SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color); }
 
 #ifdef _WIN64
 	// /MACHINE:X64
@@ -64,12 +67,12 @@ int get_int_option(const char * text, int def)
 {
 	static char buffer[500];
 	int ret;
-	printf_c("%s\n[\033[1;32m%u\033[0m] -> ", text, def);
+	std::cout << text << std::endl << " [" << con_green << def << con_reset << "] -> ";
 	fgets(buffer, sizeof(buffer), stdin);
 	if(sscanf(buffer, "%u", &ret) != 1)
 		ret = def;
 
-	printf("\n");
+	std::cout << std::endl;
 	return ret;
 }
 
@@ -77,28 +80,28 @@ bool get_bool_option(const char * text, bool def)
 {
 	static char buffer[500];
 	char ret[100];
-	printf_c("%s [\033[1;32m%c\033[0m] -> ", text, def ? 'y' : 'n');
+	std::cout << text << " [" << con_green << (def ? 'y' : 'n') << con_reset << "] -> ";
 	fgets(buffer, sizeof(buffer), stdin);
 	if(sscanf(buffer, "%s", ret) != 1)
 		strcpy(ret, def ? "y" : "n");
 
-	printf("\n");
+	std::cout << std::endl;
 	return !strnicmp(ret, "y", 1);
 }
 
 string get_string_option(const char * text, char * def)
 {
 	if (def && *def)
-		printf_c("%s\n[\033[1;32m%s\033[0m] -> ", text, def);
+		std::cout << text << std::endl << "[" << con_green << def << con_reset << "] -> ";
 	else
-		printf_c("%s\n[] -> ", text);
+		std::cout << text << std::endl << "[] -> ";
 	
 	char buffer[1000], buf[1000];
 	fgets(buffer, sizeof(buffer), stdin);
 	if (sscanf(buffer, "%s", buf) != 1)
 		strcpy(buf, def);
 	
-	printf("\n");
+	std::cout << std::endl;
 	return buf;
 }
 
@@ -228,6 +231,20 @@ int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPS
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
 
+	// Initialize the console values
+	g_hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO bufinf;
+	if(GetConsoleScreenBufferInfo(g_hStdout, &bufinf))
+	{
+		g_wOriginalColors = bufinf.wAttributes & 0x00FF;
+		g_wBackgroundColor = bufinf.wAttributes & 0x00F0;
+	}
+	else
+	{
+		g_wOriginalColors = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
+		g_wBackgroundColor = 0;
+	}
+
 	Banner();
 	Run();
 	FreeConsole();
@@ -236,14 +253,14 @@ int __stdcall WinMain(IN HINSTANCE hInstance, IN HINSTANCE hPrevInstance, IN LPS
 
 void Banner()
 {
-	printf_c("\nWelcome to the \033[1mInspIRCd\033[0m Configuration program! (\033[1minteractive mode\033[0m)\n"
-			 "\033[1mPackage maintainers: Type ./configure --help for non-interactive help\033[0m\n\n");
-	printf_c("*** If you are unsure of any of these values, leave it blank for	***\n"
-			 "*** standard settings that will work, and your server will run	  ***\n"
-			 "*** using them. Please consult your IRC network admin if in doubt.  ***\n\n"
-			 "Press \033[1m<RETURN>\033[0m to accept the default for any option, or enter\n"
-			 "a new value. Please note: You will \033[1mHAVE\033[0m to read the docs\n"
-			 "dir, otherwise you won't have a config file!\n\n");
+	std::cout << std::endl << "Welcome to the " << con_white_bright << "InspIRCd" << con_reset << " Configuration program! (" << con_white_bright << "interactive mode" << con_reset << ")" << std::endl
+			 << con_white_bright << "Package maintainers: Type ./configure --help for non-interactive help" << con_reset << std::endl << std::endl
+		     << "*** If you are unsure of any of these values, leave it blank for	***" << std::endl
+			 << "*** standard settings that will work, and your server will run	  ***" << std::endl
+			 << "*** using them. Please consult your IRC network admin if in doubt.  ***" << std::endl << std::endl
+			 << "Press " << con_white_bright << "<RETURN>" << con_reset << " to accept the default for any option, or enter" << std::endl
+			 << "a new value. Please note: You will " << con_white_bright << "HAVE" << con_reset << " to read the docs" << std::endl
+			 << "dir, otherwise you won't have a config file!" << std::endl << std::endl;
 
 }
 
@@ -278,14 +295,14 @@ void Run()
 	string branch(version);
 	branch.erase(branch.find_last_of('.'));
 	
+	std::cout << "Your operating system is: " << con_green << "Windows " <<
 #ifdef _WIN64
-	printf_c("Your operating system is: \033[1;32mWindows x64\033[0m\n");
+	"x64 (64-bit)"
 #else
-	printf_c("Your operating system is: \033[1;32mWindows x86\033[0m\n");
+	"x86 (32-bit)"
 #endif
-	printf_c("InspIRCd revision ID: \033[1;32m%s \033[0m\n\n", (!revision.empty() && revision != "0") ? revision.c_str() : "(Non-GIT build)");
-	
-	printf_c("\033[1mExtra modules.\033[0m\n");
+	<< con_reset << std::endl << "InspIRCd revision ID: " << con_green << ( (!revision.empty() && revision != "0") ? revision : "(Non-GIT build)" ) << con_reset << std::endl << std::endl
+	<< con_white_bright << "Extra modules." << con_reset << std::endl;
 	if (get_bool_option("Do you want to compile any extra non-core modules?", false))
 	{
 		string extra_i_path = get_string_option("Extra include search paths separate by \";\"", ".");
@@ -295,7 +312,7 @@ void Run()
 		extra_lib_paths = get_dir_list(extra_l_path);
 	}
 
-	printf_c("\033[1mAll paths are relative to the binary directory.\033[0m\n");
+	std::cout << con_white_bright << "All paths are relative to the binary directory." << con_reset << std::endl;
 	string base_path = get_string_option("In what directory do you wish to install the InspIRCd base?", "..");
 	string config_path = get_string_option("In what directory are the configuration files?", "conf");
 	string mod_path = get_string_option("In what directory are the modules to be compiled to?", "modules");
@@ -303,25 +320,24 @@ void Run()
 	string log_path = get_string_option("In what directory is the logs to be placed in?", "logs");
 	string bin_dir = get_string_option("In what directory is the IRCd binary to be placed?", ".");
 
-	printf_c("\n\033[1;32mPre-build configuration is complete!\n\n");	sc(TNORMAL);
+	std::cout << std::endl << con_green << "Pre-build configuration is complete!" << std::endl << std::endl;
 
 	CopyExtras();
 
 	// dump all the options back out
-	printf_c("\033[0mBase install path:\033[1;32m\t%s\n", base_path.c_str());
-	printf_c("\033[0mConfig path:\033[1;32m\t\t%s\n", config_path.c_str());
-	printf_c("\033[0mModule path:\033[1;32m\t\t%s\n", mod_path.c_str());
-	printf_c("\033[0mData path:\033[1;32m\t\t%s\n", data_path.c_str());
-	printf_c("\033[0mLog path:\033[1;32m\t\t%s\n", log_path.c_str());
-	printf_c("\033[0mSocket Engine:\033[1;32m\t\t%s\n", "select");
+	std::cout << con_reset << "Base install path:\t" << con_green << base_path << std::endl
+	<< con_reset << "Config path:\t" << con_green << config_path << std::endl
+	<< con_reset << "Module path:\t" << con_green << mod_path << std::endl
+	<< con_reset << "Data path:\t"<< con_green << data_path << std::endl
+	<< con_reset << "Log path:\t" << con_green << log_path << std::endl
+	<< con_reset << "Socket Engine:\t" << con_green << "select" << con_reset << std::endl;
 
-	printf("\n"); sc(TNORMAL);
 	if(get_bool_option("Are these settings correct?", true) == false)
 	{
 		Run();
 		return;
 	}
-	printf("\n");
+	std::cout << std::endl;
 
 	// escape the pathes
 	escape_string(data_path);
@@ -347,7 +363,7 @@ void Run()
 	fprintf(f, "#endif\n\n");
 	fclose(f);
 
-	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
+	std::cout << con_green << "done" << con_reset << std::endl;
 	printf("Writing inspircd_version.h...");
 	f = fopen("..\\include\\inspircd_version.h", "w");
 	fprintf(f, "#define BRANCH \"%s\"\n", branch.c_str());
@@ -356,11 +372,11 @@ void Run()
 	fprintf(f, "#define SYSTEM \"%s\"\n", machine_text);
 	fclose(f);
 
-	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
+	std::cout << con_green << "done" << con_reset << std::endl;
 	printf("Writing command and module compilation scripts...");
 	WriteCompileCommands();
 	WriteCompileModules(extra_include_paths, extra_lib_paths);
-	sc(TGREEN); printf(" done\n"); sc(TNORMAL);
+	std::cout << con_green << "done" << con_reset << std::endl;
 
 	printf("\nconfigure is done.. exiting!\n");
 }
@@ -390,8 +406,7 @@ void CopyExtras()
 		{
 			fclose(x);
 			CopyFileA(src, dest, false);
-			sc(TGREEN); printf("    %s", fd.cFileName); sc(TNORMAL);
-			printf("...\n");
+			std::cout << con_green << "\t" << fd.cFileName << con_reset << "..." << std::endl;
 		}
 	}
 	while (FindNextFileA(fh, &fd));
@@ -409,10 +424,10 @@ void WriteCompileCommands()
 	WIN32_FIND_DATAA fd;
 	HANDLE fh = FindFirstFileA("..\\src\\commands\\cmd_*.cpp", &fd);
 	if(fh == INVALID_HANDLE_VALUE)
-		printf_c("\033[1;32m  No command sources could be found! This \033[1m*could*\033[1;32m be a bad thing.. :P\033[0m");
+		std::cout << con_green << "  No command sources could be found! This *could* be a bad thing.. :P" << con_reset << std::endl;
 	else
 	{
-		sc(TGREEN);
+		std::cout << con_green;
 		do 
 		{
 			strcpy(commands[command_count], fd.cFileName);
@@ -420,7 +435,7 @@ void WriteCompileCommands()
 			printf("	%s\n", commands[command_count]);
 			++command_count;
 		} while(FindNextFileA(fh, &fd));
-		sc(TNORMAL);
+		std::cout << con_reset;
 	}
 	
 	// Write our spiffy new makefile :D
@@ -476,10 +491,10 @@ void WriteCompileModules(const vector<string> &includes, const vector<string> &l
 	WIN32_FIND_DATAA fd;
 	HANDLE fh = FindFirstFileA("..\\src\\modules\\m_*.cpp", &fd);
 	if(fh == INVALID_HANDLE_VALUE)
-		printf_c("\033[1;32m  No module sources could be found! This \033[1m*could*\033[1;32m be a bad thing.. :P\033[0m");
+		std::cout << con_green << "  No module sources could be found! This *could* be a bad thing.. :P" << con_reset << std::endl;
 	else
 	{
-		sc(TGREEN);
+		std::cout << con_green;
 		do 
 		{
 			strcpy(modules[module_count], fd.cFileName);
@@ -487,7 +502,7 @@ void WriteCompileModules(const vector<string> &includes, const vector<string> &l
 			printf("  %s\n", modules[module_count]);
 			++module_count;
 		} while(FindNextFileA(fh, &fd));
-		sc(TNORMAL);
+		std::cout << con_reset;
 	}
 	
 	string extra_include, extra_lib;

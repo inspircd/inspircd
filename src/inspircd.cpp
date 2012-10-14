@@ -45,9 +45,14 @@
 
 	#include <pwd.h> // setuid
 	#include <grp.h> // setgid
+#else
+	WORD g_wOriginalColors;
+	WORD g_wBackgroundColor;
+	HANDLE g_hStdout;
 #endif
 
 #include <fstream>
+#include <iostream>
 #include "xline.h"
 #include "bancache.h"
 #include "socketengine.h"
@@ -242,7 +247,7 @@ void InspIRCd::QuickExit(int status)
 bool InspIRCd::DaemonSeed()
 {
 #ifdef _WIN32
-	printf_c("InspIRCd Process ID: \033[1;32m%lu\033[0m\n", GetCurrentProcessId());
+	std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
 	return true;
 #else
 	signal(SIGTERM, InspIRCd::QuickExit);
@@ -264,7 +269,7 @@ bool InspIRCd::DaemonSeed()
 		exit(0);
 	}
 	setsid ();
-	printf("InspIRCd Process ID: \033[1;32m%lu\033[0m\n",(unsigned long)getpid());
+	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
 
 	signal(SIGTERM, InspIRCd::SetSignal);
 
@@ -297,7 +302,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	}
 	else
 	{
-		printf("Failed to write PID-file '%s', exiting.\n",fname.c_str());
+		std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
 		this->Logs->Log("STARTUP",DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
@@ -389,6 +394,20 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 #ifdef _WIN32
 	srand(TIME.tv_nsec ^ TIME.tv_sec);
+
+	// Initialize the console values
+	g_hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO bufinf;
+	if(GetConsoleScreenBufferInfo(g_hStdout, &bufinf))
+	{
+		g_wOriginalColors = bufinf.wAttributes & 0x00FF;
+		g_wBackgroundColor = bufinf.wAttributes & 0x00F0;
+	}
+	else
+	{
+		g_wOriginalColors = FOREGROUND_RED|FOREGROUND_BLUE|FOREGROUND_GREEN;
+		g_wBackgroundColor = 0;
+	}
 #else
 	srandom(TIME.tv_nsec ^ TIME.tv_sec);
 #endif
@@ -426,8 +445,9 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 				/* Unknown parameter */
 			default:
 				/* Fall through to handle other weird values too */
-				printf("Unknown parameter '%s'\n", argv[optind-1]);
-				printf("Usage: %s [--nofork] [--nolog] [--debug] [--logfile <filename>]\n%*s[--runasroot] [--version] [--config <config>] [--testsuite]\n", argv[0], static_cast<int>(8+strlen(argv[0])), " ");
+				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
+				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--logfile <filename>] " << std::endl <<
+					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version] [--config <config>] [--testsuite]" << std::endl;
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
@@ -438,7 +458,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (do_version)
 	{
-		printf("\n%s r%s\n", VERSION, REVISION);
+		std::cout << std::endl << VERSION << " r" << REVISION << std::endl;
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
@@ -462,7 +482,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	}
 	else if (!this->OpenLog(argv, argc))
 	{
-		printf("ERROR: Could not open initial logfile %s: %s\n\n", Config->cmdline.startup_log.c_str(), strerror(errno));
+		std::cout << "ERROR: Could not open initial logfile " << Config->cmdline.startup_log << ": " << strerror(errno) << std::endl << std::endl;
 		Exit(EXIT_STATUS_LOG);
 	}
 
@@ -480,18 +500,18 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		else
 #endif
 		{
-			printf("ERROR: Cannot open config file: %s\nExiting...\n", ConfigFileName.c_str());
+			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
 			this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
 			Exit(EXIT_STATUS_CONFIG);
 		}
 	}
 
-	printf_c("\033[1;32mInspire Internet Relay Chat Server, compiled %s at %s\n",__DATE__,__TIME__);
-	printf_c("(C) InspIRCd Development Team.\033[0m\n\n");
-	printf_c("Developers:\n");
-	printf_c("\t\033[1;32mBrain, FrostyCoolSlug, w00t, Om, Special, peavey\n");
-	printf_c("\t\033[1;32maquanight, psychon, dz, danieldg, jackmcbarn\033[0m\n\n");
-	printf_c("Others:\t\t\t\033[1;32mSee /INFO Output\033[0m\n");
+	std::cout << con_green << "Inspire Internet Relay Chat Server" << con_reset << ", compiled on " __DATE__ " at " __TIME__ << std::endl;
+	std::cout << con_green << "(C) InspIRCd Development Team." << con_reset << std::endl << std::endl;
+	std::cout << "Developers:" << std::endl;
+	std::cout << con_green << "\tBrain, FrostyCoolSlug, w00t, Om, Special, peavey" << std::endl;
+	std::cout << "\taquanight, psychon, dz, danieldg, jackmcbarn" << con_reset << std::endl << std::endl;
+	std::cout << "Others:\t\t\t" << con_green << "See /INFO Output" << con_reset << std::endl;
 
 	this->Modes = new ModeParser;
 
@@ -500,14 +520,14 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		this->CheckRoot();
 	else
 	{
-		printf("* WARNING * WARNING * WARNING * WARNING * WARNING * \n\n");
-		printf("YOU ARE RUNNING INSPIRCD AS ROOT. THIS IS UNSUPPORTED\n");
-		printf("AND IF YOU ARE HACKED, CRACKED, SPINDLED OR MUTILATED\n");
-		printf("OR ANYTHING ELSE UNEXPECTED HAPPENS TO YOU OR YOUR\n");
-		printf("SERVER, THEN IT IS YOUR OWN FAULT. IF YOU DID NOT MEAN\n");
-		printf("TO START INSPIRCD AS ROOT, HIT CTRL+C NOW AND RESTART\n");
-		printf("THE PROGRAM AS A NORMAL USER. YOU HAVE BEEN WARNED!\n");
-		printf("\nInspIRCd starting in 20 seconds, ctrl+c to abort...\n");
+		std::cout << "* WARNING * WARNING * WARNING * WARNING * WARNING *" << std::endl
+		<< "YOU ARE RUNNING INSPIRCD AS ROOT. THIS IS UNSUPPORTED" << std::endl
+		<< "AND IF YOU ARE HACKED, CRACKED, SPINDLED OR MUTILATED" << std::endl
+		<< "OR ANYTHING ELSE UNEXPECTED HAPPENS TO YOU OR YOUR" << std::endl
+		<< "SERVER, THEN IT IS YOUR OWN FAULT. IF YOU DID NOT MEAN" << std::endl
+		<< "TO START INSPIRCD AS ROOT, HIT CTRL+C NOW AND RESTART" << std::endl
+		<< "THE PROGRAM AS A NORMAL USER. YOU HAVE BEEN WARNED!" << std::endl << std::endl
+		<< "InspIRCd starting in 20 seconds, ctrl+c to abort..." << std::endl;
 		sleep(20);
 	}
 #endif
@@ -518,7 +538,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	{
 		if (!this->DaemonSeed())
 		{
-			printf("ERROR: could not go into daemon mode. Shutting down.\n");
+			std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
 			Logs->Log("STARTUP", DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
 			Exit(EXIT_STATUS_FORK);
 		}
@@ -564,7 +584,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	int bounditems = BindPorts(pl);
 
-	printf("\n");
+	std::cout << std::endl;
 
 	this->Modules->LoadAll();
 
@@ -574,26 +594,26 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (!pl.empty())
 	{
-		printf("\nWARNING: Not all your client ports could be bound --\nstarting anyway with %d of %d client ports bound.\n\n",
-			bounditems, bounditems + (int)pl.size());
-		printf("The following port(s) failed to bind:\n");
-		printf("Hint: Try using a public IP instead of blank or *\n\n");
+		std::cout << std::endl << "WARNING: Not all your client ports could be bound -- " << std::endl << "starting anyway with " << bounditems
+			<< " of " << bounditems + (int)pl.size() << " client ports bound." << std::endl << std::endl;
+		std::cout << "The following port(s) failed to bind:" << std::endl << std::endl;
 		int j = 1;
 		for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 		{
-			printf("%d.\tAddress: %s\tReason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
+			std::cout << j << ".\tAddress: " << (i->first.empty() ? "<all>" : i->first) << " \tReason: " << i->second << std::endl;
 		}
+
+		std::cout << std::endl << "Hint: Try using a public IP instead of blank or *" << std::endl;
 	}
 
-	printf("\nInspIRCd is now running as '%s'[%s] with %d max open sockets\n",
-		Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
+	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SE->GetMaxFds() << " max open sockets" << std::endl;
 
 #ifndef _WIN32
 	if (!Config->cmdline.nofork)
 	{
 		if (kill(getppid(), SIGTERM) == -1)
 		{
-			printf("Error killing parent process: %s\n",strerror(errno));
+			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
 			Logs->Log("STARTUP", DEFAULT, "Error killing parent process: %s",strerror(errno));
 		}
 	}
@@ -778,9 +798,9 @@ int InspIRCd::Run()
 			if(QueryPerformanceCounter(&stats->LastSampled))
 			{
 				FILETIME CreationTime;
-  			FILETIME ExitTime;
-  			FILETIME KernelTime;
-  			FILETIME UserTime;
+				FILETIME ExitTime;
+				FILETIME KernelTime;
+				FILETIME UserTime;
 				GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
 				stats->LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
 				stats->LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;

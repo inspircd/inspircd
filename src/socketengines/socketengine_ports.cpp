@@ -36,6 +36,7 @@
 #include "inspircd.h"
 #include "socketengine.h"
 #include <port.h>
+#include <iostream>
 
 /** A specialisation of the SocketEngine class, designed to use solaris 10 I/O completion ports
  */
@@ -75,7 +76,7 @@ PortsEngine::PortsEngine()
 	else
 	{
 		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		printf("ERROR: Can't determine maximum number of open sockets!\n");
+		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	EngineHandle = port_create();
@@ -84,8 +85,8 @@ PortsEngine::PortsEngine()
 	{
 		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
 		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: This is a fatal error, exiting now.");
-		printf("ERROR: Could not initialize socket engine: %s\n", strerror(errno));
-		printf("ERROR: This is a fatal error, exiting now.\n");
+		std::cout << "ERROR: Could not initialize socket engine: " << strerror(errno) << std::endl;
+		std::cout << "ERROR: This is a fatal error, exiting now." << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;

@@ -106,9 +106,6 @@ __inline int inet_aton(const char *cp, struct in_addr *addr)
 	return (addr->s_addr == INADDR_NONE) ? 0 : 1;
 };
 
-/* Handles colors in printf */
-int printf_c(const char * format, ...);
-
 /* getopt() wrapper */
 #define no_argument            0
 #define required_argument      1
