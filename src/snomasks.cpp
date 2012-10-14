@@ -100,7 +100,7 @@ void Snomask::SendMessage(const std::string &message, char mysnomask)
 
 		std::string desc = Description;
 		if (desc.empty())
-			desc = "SNO-" + tolower(mysnomask);
+			desc = std::string("SNO-") + (char)tolower(mysnomask);
 		if (isupper(mysnomask))
 			desc = "REMOTE" + desc;
 		ModResult MOD_RESULT;
@@ -136,7 +136,7 @@ void Snomask::Flush()
 	{
 		std::string desc = Description;
 		if (desc.empty())
-			desc = "SNO-" + tolower(LastLetter);
+			desc = std::string("SNO-") + (char)tolower(LastLetter);
 		if (isupper(LastLetter))
 			desc = "REMOTE" + desc;
 		std::string mesg = "(last message repeated "+ConvToStr(Count)+" times)";
