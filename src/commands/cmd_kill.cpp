@@ -61,10 +61,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_SUCCESS;
 
 	User *u = ServerInstance->FindNick(parameters[0]);
-	char killreason[MAXBUF];
-	ModResult MOD_RESULT;
-
-	if (u)
+	if ((u) && (!IS_SERVER(u)))
 	{
 		/*
 		 * Here, we need to decide how to munge kill messages. Whether to hide killer, what to show opers, etc.
@@ -73,32 +70,38 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		 * This conditional is so that we only append the "Killed (" prefix ONCE. If killer is remote, then the kill
 		 * just gets processed and passed on, otherwise, if they are local, it gets prefixed. Makes sense :-) -- w00t
 		 */
+
+		std::string killreason;
 		if (IS_LOCAL(user))
 		{
 			/*
 			 * Moved this event inside the IS_LOCAL check also, we don't want half the network killing a user
 			 * and the other half not. This would be a bad thing. ;p -- w00t
 			 */
+	 		ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnKill, MOD_RESULT, (user, u, parameters[1]));
 
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
+			killreason = "Killed (";
 			if (!ServerInstance->Config->HideKillsServer.empty())
 			{
 				// hidekills is on, use it
-				snprintf(killreason, ServerInstance->Config->Limits.MaxQuit, "Killed (%s (%s))", ServerInstance->Config->HideKillsServer.c_str(), parameters[1].c_str());
+				killreason += ServerInstance->Config->HideKillsServer;
 			}
 			else
 			{
 				// hidekills is off, do nothing
-				snprintf(killreason, ServerInstance->Config->Limits.MaxQuit, "Killed (%s (%s))", user->nick.c_str(), parameters[1].c_str());
+				killreason += user->nick;
 			}
+
+			killreason += " (" + parameters[1] + "))";
 		}
 		else
 		{
 			/* Leave it alone, remote server has already formatted it */
-			strlcpy(killreason, parameters[1].c_str(), ServerInstance->Config->Limits.MaxQuit);
+			killreason.assign(parameters[1], 0, ServerInstance->Config->Limits.MaxQuit);
 		}
 
 		/*
