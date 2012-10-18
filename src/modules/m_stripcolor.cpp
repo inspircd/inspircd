@@ -68,33 +68,6 @@ class ModuleStripColor : public Module
 		ServerInstance->AddExtBanChar('S');
 	}
 
-	virtual void ReplaceLine(std::string &sentence)
-	{
-		/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
-		int seq = 0;
-
- 		for (std::string::iterator i = sentence.begin(); i != sentence.end();)
-		{
-			if (*i == 3)
-				seq = 1;
-			else if (seq && (( ((*i >= '0') && (*i <= '9')) || (*i == ',') ) ))
-			{
-				seq++;
-				if ( (seq <= 4) && (*i == ',') )
-					seq = 1;
-				else if (seq > 3)
-					seq = 0;
-			}
-			else
-				seq = 0;
-
-			if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
-				i = sentence.erase(i);
-			else
-				++i;
-		}
-	}
-
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		if (!IS_LOCAL(user))
@@ -119,7 +92,7 @@ class ModuleStripColor : public Module
 
 		if (active)
 		{
-			this->ReplaceLine(text);
+			InspIRCd::StripColor(text);
 		}
 
 		return MOD_RES_PASSTHRU;
