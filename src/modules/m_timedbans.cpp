@@ -82,9 +82,9 @@ class CommandTban : public Command
 		setban.push_back(parameters[0]);
 		setban.push_back("+b");
 		setban.push_back(parameters[2]);
-		// use CallCommandHandler to make it so that the user sets the mode
+		// use CallHandler to make it so that the user sets the mode
 		// themselves
-		ServerInstance->CallCommandHandler("MODE",setban,user);
+		ServerInstance->Parser->CallHandler("MODE",setban,user);
 		for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
 			if (!strcasecmp(i->data.c_str(), mask.c_str()))
 				goto found;

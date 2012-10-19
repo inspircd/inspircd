@@ -39,10 +39,10 @@ void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::ve
 
 void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &command, const parameterlist& parameters, User *user)
 {
-	if (!ServerInstance->IsValidModuleCommand(command, parameters.size(), user))
+	if (!ServerInstance->Parser->IsValidCommand(command, parameters.size(), user))
 		return;
 
-	/* We know it's non-null because IsValidModuleCommand returned true */
+	/* We know it's non-null because IsValidCommand returned true */
 	Command* thiscmd = ServerInstance->Parser->GetHandler(command);
 
 	RouteDescriptor routing = thiscmd->GetRouting(user, parameters);

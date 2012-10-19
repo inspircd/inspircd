@@ -32,7 +32,7 @@ void TreeSocket::Encap(User* who, parameterlist &params)
 		if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 		{
 			parameterlist plist(params.begin() + 2, params.end());
-			ServerInstance->CallCommandHandler(params[1].c_str(), plist, who);
+			ServerInstance->Parser->CallHandler(params[1], plist, who);
 			// discard return value, ENCAP shall succeed even if the command does not exist
 		}
 		
