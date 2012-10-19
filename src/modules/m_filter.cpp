@@ -594,14 +594,7 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 		if (index->regex->Matches(filter->flag_strip_color ? stripped_text : text))
 		{
 			//ServerInstance->Logs->Log("m_filter", DEBUG, "MATCH");
-			ImplFilter fr = *index;
-			if (index != filters.begin())
-			{
-				/* Move to head of list for efficiency */
-				filters.erase(index);
-				filters.insert(filters.begin(), fr);
-			}
-			return &*filters.begin();
+			return &*index;
 		}
 		//ServerInstance->Logs->Log("m_filter", DEBUG, "NO MATCH");
 	}
