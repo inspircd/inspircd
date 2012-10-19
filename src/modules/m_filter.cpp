@@ -52,7 +52,6 @@ class FilterResult
 	std::string reason;
 	FilterAction action;
 	long gline_time;
-	std::string flags;
 
 	bool flag_no_opers;
 	bool flag_part_message;
@@ -62,19 +61,17 @@ class FilterResult
 	bool flag_strip_color;
 
 	FilterResult(const std::string free, const std::string &rea, FilterAction act, long gt, const std::string &fla) :
-			freeform(free), reason(rea), action(act), gline_time(gt), flags(fla)
+			freeform(free), reason(rea), action(act), gline_time(gt)
 	{
 		this->FillFlags(fla);
 	}
 
-	int FillFlags(const std::string &fl)
+	char FillFlags(const std::string &fl)
 	{
-		flags = fl;
 		flag_no_opers = flag_part_message = flag_quit_message = flag_privmsg =
 			flag_notice = flag_strip_color = false;
-		size_t x = 0;
 
-		for (std::string::const_iterator n = flags.begin(); n != flags.end(); ++n, ++x)
+		for (std::string::const_iterator n = fl.begin(); n != fl.end(); ++n)
 		{
 			switch (*n)
 			{
@@ -101,11 +98,38 @@ class FilterResult
 						flag_privmsg = flag_notice = flag_strip_color = true;
 				break;
 				default:
-					return x;
+					return *n;
 				break;
 			}
 		}
 		return 0;
+	}
+
+	std::string GetFlags()
+	{
+		std::string flags;
+		if (flag_no_opers)
+			flags.push_back('o');
+		if (flag_part_message)
+			flags.push_back('p');
+		if (flag_quit_message)
+			flags.push_back('q');
+		if (flag_privmsg);
+			flags.push_back('p');
+		if (flag_notice)
+			flags.push_back('n');
+
+		/* Order is important here, 'c' must be the last char in the string as it is unsupported
+		 * on < 2.0.10, and the logic in FillFlags() stops parsing when it ecounters an unknown
+		 * character.
+		 */
+		if (flag_strip_color)
+			flags.push_back('c');
+
+		if (flags.empty())
+			flags.push_back('-');
+
+		return flags;
 	}
 
 	FilterResult()
@@ -484,7 +508,7 @@ std::string ModuleFilter::EncodeFilter(FilterResult* filter)
 		if (*n == ' ')
 			*n = '\7';
 
-	stream << x << " " << FilterActionToString(filter->action) << " " << (filter->flags.empty() ? "-" : filter->flags) << " " << filter->gline_time << " :" << filter->reason;
+	stream << x << " " << FilterActionToString(filter->action) << " " << filter->GetFlags() << " " << filter->gline_time << " :" << filter->reason;
 	return stream.str();
 }
 
@@ -498,10 +522,12 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	if (!StringToFilterAction(filteraction, res.action))
 		throw ModuleException("Invalid action: " + filteraction);
 
-	tokens.GetToken(res.flags);
-	if (res.flags == "-")
-		res.flags.clear();
-	res.FillFlags(res.flags);
+	std::string filterflags;
+	tokens.GetToken(filterflags);
+	char c = res.FillFlags(filterflags);
+	if (c != 0)
+		throw ModuleException("Invalid flag: '" + std::string(1, c) + "'");
+
 	tokens.GetToken(res.gline_time);
 	tokens.GetToken(res.reason);
 
@@ -528,7 +554,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 		try
 		{
 			FilterResult data = DecodeFilter(extdata);
-			this->AddFilter(data.freeform, data.action, data.reason, data.gline_time, data.flags);
+			this->AddFilter(data.freeform, data.action, data.reason, data.gline_time, data.GetFlags());
 		}
 		catch (ModuleException& e)
 		{
@@ -686,7 +712,7 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 	{
 		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->flags+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
 		for (std::set<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
 		{
