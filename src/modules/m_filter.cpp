@@ -150,7 +150,7 @@ class ModuleFilter : public Module
 	int erroffset;
 	int flags;
 
-	std::vector<std::string> exemptfromfilter; // List of channel names excluded from filtering.
+	std::set<std::string> exemptfromfilter; // List of channel names excluded from filtering.
 
 	ModuleFilter();
 	void init();
@@ -301,7 +301,7 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 	FilterResult* f = this->FilterMatch(user, text, flags);
 	if (f)
 	{
-		std::string target = "";
+		std::string target;
 		if (target_type == TYPE_USER)
 		{
 			User* t = (User*)dest;
@@ -310,9 +310,10 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* t = (Channel*)dest;
-			target = std::string(t->name);
-			std::vector<std::string>::iterator i = find(exemptfromfilter.begin(), exemptfromfilter.end(), target);
-			if (i != exemptfromfilter.end()) return MOD_RES_PASSTHRU;
+			if (exemptfromfilter.find(t->name) != exemptfromfilter.end())
+				return MOD_RES_PASSTHRU;
+
+			target = t->name;
 		}
 		if (f->action == FA_BLOCK)
 		{
@@ -376,8 +377,9 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			if (parameters.size() < 2)
 				return MOD_RES_PASSTHRU;
 
-			std::vector<std::string>::iterator i = find(exemptfromfilter.begin(), exemptfromfilter.end(), parameters[0]);
-			if (i != exemptfromfilter.end()) return MOD_RES_PASSTHRU;
+			if (exemptfromfilter.find(parameters[0]) != exemptfromfilter.end())
+				return MOD_RES_PASSTHRU;
+
 			checkline = parameters[1];
 			replacepoint = 1;
 			parting = true;
@@ -443,13 +445,12 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 void ModuleFilter::OnRehash(User* user)
 {
 	ConfigReader MyConf;
-	std::vector<std::string>().swap(exemptfromfilter);
+	exemptfromfilter.clear();
 	for (int index = 0; index < MyConf.Enumerate("exemptfromfilter"); ++index)
 	{
 		std::string chan = MyConf.ReadValue("exemptfromfilter", "channel", index);
-		if (!chan.empty()) {
-			exemptfromfilter.push_back(chan);
-		}
+		if (!chan.empty())
+			exemptfromfilter.insert(chan);
 	}
 	std::string newrxengine = "regex/" + MyConf.ReadValue("filteropts", "engine", 0);
 	if (newrxengine == "regex/")
@@ -687,7 +688,7 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 		{
 			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->flags+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
-		for (std::vector<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
+		for (std::set<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
 		{
 			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :EXEMPT "+(*i));
 		}
