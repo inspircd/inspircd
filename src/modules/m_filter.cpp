@@ -111,7 +111,7 @@ class FilterResult
 		if (flag_no_opers)
 			flags.push_back('o');
 		if (flag_part_message)
-			flags.push_back('p');
+			flags.push_back('P');
 		if (flag_quit_message)
 			flags.push_back('q');
 		if (flag_privmsg);
@@ -220,10 +220,10 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 		/* Adding a filter */
 		if (parameters.size() >= 4)
 		{
-			std::string freeform = parameters[0];
+			const std::string& freeform = parameters[0];
 			FilterAction type;
-			std::string flags = parameters[2];
-			std::string reason;
+			const std::string& flags = parameters[2];
+			unsigned int reasonindex;
 			long duration = 0;
 
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
@@ -237,7 +237,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 				if (parameters.size() >= 5)
 				{
 					duration = ServerInstance->Duration(parameters[3]);
-					reason = parameters[4];
+					reasonindex = 4;
 				}
 				else
 				{
@@ -247,18 +247,18 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			}
 			else
 			{
-				reason = parameters[3];
+				reasonindex = 3;
 			}
 
 			Module *me = creator;
-			std::pair<bool, std::string> result = static_cast<ModuleFilter *>(me)->AddFilter(freeform, type, reason, duration, flags);
+			std::pair<bool, std::string> result = static_cast<ModuleFilter *>(me)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
 			if (result.first)
 			{
 				user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
 						parameters[1].c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
-						flags.c_str(), reason.c_str());
+						flags.c_str(), parameters[reasonindex].c_str());
 
-				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" added filter '"+freeform+"', type '"+parameters[1]+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+reason);
+				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" added filter '"+freeform+"', type '"+parameters[1]+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+parameters[reasonindex]);
 
 				return CMD_SUCCESS;
 			}
@@ -377,12 +377,10 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 
 ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
-	flags = 0;
 	if (validated && IS_LOCAL(user))
 	{
-		std::string checkline;
-		int replacepoint = 0;
-		bool parting = false;
+		flags = 0;
+		bool parting;
 
 		if (command == "QUIT")
 		{
@@ -390,8 +388,6 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			if (parameters.size() < 1)
 				return MOD_RES_PASSTHRU;
 
-			checkline = parameters[0];
-			replacepoint = 0;
 			parting = false;
 			flags = FLAG_QUIT;
 		}
@@ -404,8 +400,6 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			if (exemptfromfilter.find(parameters[0]) != exemptfromfilter.end())
 				return MOD_RES_PASSTHRU;
 
-			checkline = parameters[1];
-			replacepoint = 1;
 			parting = true;
 			flags = FLAG_PART;
 		}
@@ -413,55 +407,42 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			/* We're only messing with PART and QUIT */
 			return MOD_RES_PASSTHRU;
 
-		FilterResult* f = NULL;
-
-		if (flags)
-			f = this->FilterMatch(user, checkline, flags);
-
+		FilterResult* f = this->FilterMatch(user, parameters[parting ? 1 : 0], flags);
 		if (!f)
 			/* PART or QUIT reason doesnt match a filter */
 			return MOD_RES_PASSTHRU;
 
 		/* We cant block a part or quit, so instead we change the reason to 'Reason filtered' */
-		Command* c = ServerInstance->Parser->GetHandler(command);
-		if (c)
-		{
-			std::vector<std::string> params;
-			for (int item = 0; item < (int)parameters.size(); item++)
-				params.push_back(parameters[item]);
-			params[replacepoint] = "Reason filtered";
+		parameters[parting ? 1 : 0] = "Reason filtered";
 
-			/* We're blocking, OR theyre quitting and its a KILL action
-			 * (we cant kill someone whos already quitting, so filter them anyway)
-			 */
-			if ((f->action == FA_BLOCK) || (((!parting) && (f->action == FA_KILL))) || (f->action == FA_SILENT))
-			{
-				c->Handle(params, user);
-				return MOD_RES_DENY;
-			}
-			else
-			{
-				/* Are they parting, if so, kill is applicable */
-				if ((parting) && (f->action == FA_KILL))
-				{
-					user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick.c_str(), f->reason.c_str());
-					ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
-				}
-				if (f->action == FA_GLINE)
-				{
-					/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
-					GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
-					if (ServerInstance->XLines->AddLine(gl,NULL))
-					{
-						ServerInstance->XLines->ApplyLines();
-					}
-					else
-						delete gl;
-				}
-				return MOD_RES_DENY;
-			}
+		/* We're blocking, OR theyre quitting and its a KILL action
+		 * (we cant kill someone whos already quitting, so filter them anyway)
+		 */
+		if ((f->action == FA_BLOCK) || (((!parting) && (f->action == FA_KILL))) || (f->action == FA_SILENT))
+		{
+			return MOD_RES_PASSTHRU;
 		}
-		return MOD_RES_PASSTHRU;
+		else
+		{
+			/* Are they parting, if so, kill is applicable */
+			if ((parting) && (f->action == FA_KILL))
+			{
+				user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick.c_str(), f->reason.c_str());
+				ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
+			}
+			if (f->action == FA_GLINE)
+			{
+				/* Note: We gline *@IP so that if their host doesnt resolve the gline still applies. */
+				GLine* gl = new GLine(ServerInstance->Time(), f->gline_time, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
+				if (ServerInstance->XLines->AddLine(gl,NULL))
+				{
+					ServerInstance->XLines->ApplyLines();
+				}
+				else
+					delete gl;
+			}
+			return MOD_RES_DENY;
+		}
 	}
 	return MOD_RES_PASSTHRU;
 }
