@@ -27,28 +27,27 @@
 class nickfloodsettings
 {
  public:
-	int secs;
-	int nicks;
+	unsigned int secs;
+	unsigned int nicks;
 	time_t reset;
 	time_t unlocktime;
-	int counter;
-	bool locked;
+	unsigned int counter;
 
-	nickfloodsettings(int b, int c) : secs(b), nicks(c)
+	nickfloodsettings(unsigned int b, unsigned int c)
+		: secs(b), nicks(c), unlocktime(0), counter(0)
 	{
 		reset = ServerInstance->Time() + secs;
-		counter = 0;
-		locked = false;
-	};
+	}
 
 	void addnick()
 	{
-		counter++;
 		if (ServerInstance->Time() > reset)
 		{
-			counter = 0;
+			counter = 1;
 			reset = ServerInstance->Time() + secs;
 		}
+		else
+			counter++;
 	}
 
 	bool shouldlock()
@@ -67,30 +66,19 @@ class nickfloodsettings
 
 	bool islocked()
 	{
-		if (locked)
-		{
-			if (ServerInstance->Time() > unlocktime)
-			{
-				locked = false;
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
-		return false;
+		if (ServerInstance->Time() > unlocktime)
+			unlocktime = 0;
+
+		return (unlocktime != 0);
 	}
 
 	void lock()
 	{
-		locked = true;
 		unlocktime = ServerInstance->Time() + 60;
 	}
-
 };
 
-/** Handles channel mode +j
+/** Handles channel mode +F
  */
 class NickFlood : public ModeHandler
 {
@@ -101,89 +89,44 @@ class NickFlood : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		nickfloodsettings *f = ext.get(channel);
 		if (adding)
 		{
-			char ndata[MAXBUF];
-			char* data = ndata;
-			strlcpy(ndata,parameter.c_str(),MAXBUF);
-			char* nicks = data;
-			char* secs = NULL;
-			while (*data)
-			{
-				if (*data == ':')
-				{
-					*data = 0;
-					data++;
-					secs = data;
-					break;
-				}
-				else data++;
-			}
-			if (secs)
-			{
-				/* Set up the flood parameters for this channel */
-				int nnicks = atoi(nicks);
-				int nsecs = atoi(secs);
-				if ((nnicks<1) || (nsecs<1))
-				{
-					source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-					parameter.clear();
-					return MODEACTION_DENY;
-				}
-				else
-				{
-					if (!f)
-					{
-						parameter = ConvToStr(nnicks) + ":" +ConvToStr(nsecs);
-						f = new nickfloodsettings(nsecs, nnicks);
-						ext.set(channel, f);
-						channel->SetModeParam('F', parameter);
-						return MODEACTION_ALLOW;
-					}
-					else
-					{
-						std::string cur_param = channel->GetModeParameter('F');
-						parameter = ConvToStr(nnicks) + ":" +ConvToStr(nsecs);
-						if (cur_param == parameter)
-						{
-							// mode params match
-							return MODEACTION_DENY;
-						}
-						else
-						{
-							// new mode param, replace old with new
-							if ((nsecs > 0) && (nnicks > 0))
-							{
-								f = new nickfloodsettings(nsecs, nnicks);
-								ext.set(channel, f);
-								channel->SetModeParam('F', parameter);
-								return MODEACTION_ALLOW;
-							}
-							else
-							{
-								return MODEACTION_DENY;
-							}
-						}
-					}
-				}
-			}
-			else
+			std::string::size_type colon = parameter.find(':');
+			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 			{
 				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
 				return MODEACTION_DENY;
 			}
+
+			/* Set up the flood parameters for this channel */
+			unsigned int nnicks = ConvToInt(parameter.substr(0, colon));
+			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+
+			if ((nnicks<1) || (nsecs<1))
+			{
+				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				return MODEACTION_DENY;
+			}
+
+			nickfloodsettings* f = ext.get(channel);
+			if ((f) && (nnicks == f->nicks) && (nsecs == f->secs))
+				// mode params match
+				return MODEACTION_DENY;
+
+			ext.set(channel, new nickfloodsettings(nsecs, nnicks));
+			parameter = ConvToStr(nnicks) + ":" + ConvToStr(nsecs);
+			channel->SetModeParam('F', parameter);
+			return MODEACTION_ALLOW;
 		}
 		else
 		{
-			if (f)
-			{
-				ext.unset(channel);
-				channel->SetModeParam('F', "");
-				return MODEACTION_ALLOW;
-			}
+			if (!channel->IsModeSet('F'))
+				return MODEACTION_DENY;
+
+			ext.unset(channel);
+			channel->SetModeParam('F', "");
+			return MODEACTION_ALLOW;
 		}
-		return MODEACTION_DENY;
 	}
 };
 
@@ -222,7 +165,7 @@ class ModuleNickFlood : public Module
 
 				if (f->islocked())
 				{
-					user->WriteNumeric(447, "%s :%s has been locked for nickchanges for 60 seconds because there have been more than %d nick changes in %d seconds", user->nick.c_str(), channel->name.c_str(), f->nicks, f->secs);
+					user->WriteNumeric(447, "%s :%s has been locked for nickchanges for 60 seconds because there have been more than %u nick changes in %u seconds", user->nick.c_str(), channel->name.c_str(), f->nicks, f->secs);
 					return MOD_RES_DENY;
 				}
 
@@ -230,7 +173,7 @@ class ModuleNickFlood : public Module
 				{
 					f->clear();
 					f->lock();
-					channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(), "NOTICE %s :No nick changes are allowed for 60 seconds because there have been more than %d nick changes in %d seconds.", channel->name.c_str(), f->nicks, f->secs);
+					channel->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(), "NOTICE %s :No nick changes are allowed for 60 seconds because there have been more than %u nick changes in %u seconds.", channel->name.c_str(), f->nicks, f->secs);
 					return MOD_RES_DENY;
 				}
 			}
@@ -258,7 +201,7 @@ class ModuleNickFlood : public Module
 				res = ServerInstance->OnCheckExemption(user,channel,"nickflood");
 				if (res == MOD_RES_ALLOW)
 					return;
-				
+
 				/* moved this here to avoid incrementing the counter for nick
 				 * changes that are denied for some other reason (bans, +N, etc.)
 				 * per bug #874.
@@ -266,7 +209,6 @@ class ModuleNickFlood : public Module
 				f->addnick();
 			}
 		}
-		return;
 	}
 
 	~ModuleNickFlood()
