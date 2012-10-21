@@ -56,7 +56,7 @@ class nickfloodsettings
 		 * on successful nick changes; this will be checked before the counter is
 		 * incremented.
 		 */
-		return (counter + 1 >= this->nicks);
+		return ((ServerInstance->Time() <= reset) && (counter == this->nicks));
 	}
 
 	void clear()
