@@ -83,16 +83,19 @@ class CommandOpertype : public Command
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
+class TreeSocket;
 class CommandFJoin : public Command
 {
+	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
+	 * This does not update the timestamp of the target channel, this must be done seperately.
+	 */
+	static void RemoveStatus(Channel* c);
+	static void ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack);
+	bool ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack);
  public:
 	CommandFJoin(Module* Creator) : Command(Creator, "FJOIN", 3) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
-	 * This does not update the timestamp of the target channel, this must be done seperately.
-	 */
-	void RemoveStatus(User* source, parameterlist &params);
 };
 class CommandFMode : public Command
 {
