@@ -217,8 +217,8 @@ class TreeSocket : public BufferedSocket
 	/** Send G, Q, Z and E lines */
 	void SendXLines();
 
-	/** Send channel modes and topics */
-	void SendChannelModes();
+	/** Send all known information about a channel */
+	void SyncChannel(Channel* chan);
 
 	/** send all users and their oper state/modes */
 	void SendUsers();

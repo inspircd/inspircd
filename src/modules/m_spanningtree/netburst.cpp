@@ -48,8 +48,10 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->SendServers(Utils->TreeRoot,s,1);
 	/* Send users and their oper status */
 	this->SendUsers();
-	/* Send everything else (channel modes, xlines etc) */
-	this->SendChannelModes();
+
+	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
+		SyncChannel(i->second);
+
 	this->SendXLines();
 	FOREACH_MOD(I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
 	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
@@ -121,8 +123,7 @@ void TreeSocket::SendFJoins(Channel* c)
 void TreeSocket::SendXLines()
 {
 	char data[MAXBUF];
-	std::string n = ServerInstance->Config->GetSID();
-	const char* sn = n.c_str();
+	const char* sn = ServerInstance->Config->GetSID().c_str();
 
 	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
 
@@ -154,31 +155,26 @@ void TreeSocket::SendXLines()
 }
 
 /** Send channel topic, modes and metadata */
-void TreeSocket::SendChannelModes()
+void TreeSocket::SyncChannel(Channel* chan)
 {
 	char data[MAXBUF];
-	std::string n = ServerInstance->Config->GetSID();
-	const char* sn = n.c_str();
 
-	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
+	SendFJoins(chan);
+	if (!chan->topic.empty())
 	{
-		SendFJoins(c->second);
-		if (!c->second->topic.empty())
-		{
-			snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", sn, c->second->name.c_str(), (unsigned long)c->second->topicset, c->second->setby.c_str(), c->second->topic.c_str());
-			this->WriteLine(data);
-		}
-
-		for(Extensible::ExtensibleStore::const_iterator i = c->second->GetExtList().begin(); i != c->second->GetExtList().end(); i++)
-		{
-			ExtensionItem* item = i->first;
-			std::string value = item->serialize(FORMAT_NETWORK, c->second, i->second);
-			if (!value.empty())
-				Utils->Creator->ProtoSendMetaData(this, c->second, item->name, value);
-		}
-
-		FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(c->second,Utils->Creator,this));
+		snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", ServerInstance->Config->GetSID().c_str(), chan->name.c_str(), (unsigned long)chan->topicset, chan->setby.c_str(), chan->topic.c_str());
+		this->WriteLine(data);
 	}
+
+	for (Extensible::ExtensibleStore::const_iterator i = chan->GetExtList().begin(); i != chan->GetExtList().end(); i++)
+	{
+		ExtensionItem* item = i->first;
+		std::string value = item->serialize(FORMAT_NETWORK, chan, i->second);
+		if (!value.empty())
+			Utils->Creator->ProtoSendMetaData(this, chan, item->name, value);
+	}
+
+	FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(chan, Utils->Creator, this));
 }
 
 /** send all users and their oper state/modes */
