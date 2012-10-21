@@ -42,7 +42,7 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 	ServerInstance->Logs->Log("COMMAND",DEFAULT,"Restart: %s",user->nick.c_str());
 	if (!ServerInstance->PassCompare(user, ServerInstance->Config->restartpass, parameters[0].c_str(), ServerInstance->Config->powerhash))
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s!%s@%s, restarting server.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
 
 		ServerInstance->SendError("Server restarting.");
 		execv(ServerInstance->Config->cmdline.argv[0], ServerInstance->Config->cmdline.argv);
@@ -51,7 +51,7 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 	}
 	else
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "Failed RESTART Command from %s!%s@%s.", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "Failed RESTART Command from %s.", user->GetFullRealHost().c_str());
 	}
 	return CMD_FAILURE;
 }

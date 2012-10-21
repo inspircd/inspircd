@@ -49,7 +49,7 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	if (!ServerInstance->PassCompare(user, ServerInstance->Config->diepass, parameters[0].c_str(), ServerInstance->Config->powerhash))
 	{
 		{
-			std::string diebuf = "*** DIE command from " + user->nick + "!" + user->ident + "@" + user->dhost + ". Terminating.";
+			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";
 			ServerInstance->Logs->Log("COMMAND",SPARSE, diebuf);
 			ServerInstance->SendError(diebuf);
 		}
@@ -58,8 +58,8 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	}
 	else
 	{
-		ServerInstance->Logs->Log("COMMAND",SPARSE, "Failed /DIE command from %s!%s@%s", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		ServerInstance->SNO->WriteGlobalSno('a', "Failed DIE Command from %s!%s@%s.",user->nick.c_str(),user->ident.c_str(),user->host.c_str());
+		ServerInstance->Logs->Log("COMMAND",SPARSE, "Failed /DIE command from %s", user->GetFullRealHost().c_str());
+		ServerInstance->SNO->WriteGlobalSno('a', "Failed DIE Command from %s.", user->GetFullRealHost().c_str());
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;

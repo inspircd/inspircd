@@ -58,7 +58,7 @@ class ModuleOperLog : public Module
 				std::string line;
 				if (!parameters.empty())
 					line = irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined();
-				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s!%s@%s] %s %s",user->nick.c_str(), user->ident.c_str(), user->host.c_str(), command.c_str(), line.c_str());
+				ServerInstance->Logs->Log("m_operlog",DEFAULT,"OPERLOG: [%s] %s %s", user->GetFullRealHost().c_str(), command.c_str(), line.c_str());
 			}
 		}
 

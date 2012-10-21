@@ -181,7 +181,7 @@ public:
 		if (user->password.empty())
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (No password provided)", user->nick.c_str(), user->ident.c_str(), user->host.c_str());
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (No password provided)", user->GetFullRealHost().c_str());
 			return false;
 		}
 
@@ -205,7 +205,7 @@ public:
 			if (res != LDAP_SUCCESS)
 			{
 				if (verbose)
-					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP bind failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP bind failed: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
 				ldap_unbind_ext(conn, NULL, NULL);
 				conn = NULL;
 				return false;
@@ -235,21 +235,21 @@ public:
 			if (res != LDAP_SUCCESS)
 			{
 				if (verbose)
-					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search failed: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search failed: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
 				return false;
 			}
 		}
 		if (ldap_count_entries(conn, msg) > 1)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search returned more than one result: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search returned more than one result: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
 			return false;
 		}
 		if ((entry = ldap_first_entry(conn, msg)) == NULL)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (LDAP search returned no results: %s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search returned no results: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
 			return false;
 		}
@@ -258,7 +258,7 @@ public:
 		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s!%s@%s (%s)", user->nick.c_str(), user->ident.c_str(), user->host.c_str(), ldap_err2string(res));
+				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
 			ldap_msgfree(msg);
 			return false;
 		}

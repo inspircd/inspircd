@@ -215,16 +215,16 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		{
 			if (!user->quietquit)
 			{
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s!%s@%s (%s) [%s]",
-					user->nick.c_str(), user->ident.c_str(), user->host.c_str(), user->GetIPString(), oper_reason.c_str());
+				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]",
+					user->GetFullRealHost().c_str(), user->GetIPString(), oper_reason.c_str());
 			}
 		}
 		else
 		{
 			if ((!ServerInstance->SilentULine(user->server)) && (!user->quietquit))
 			{
-				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s!%s@%s (%s) [%s]",
-					user->server.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str(), user->GetIPString(), oper_reason.c_str());
+				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s (%s) [%s]",
+					user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString(), oper_reason.c_str());
 			}
 		}
 		user->AddToWhoWas();

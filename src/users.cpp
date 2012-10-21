@@ -604,7 +604,7 @@ void User::Oper(OperInfo* info)
 		nick.c_str(), ident.c_str(), host.c_str(), oper->NameStr(), opername.c_str());
 	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->NameStr());
 
-	ServerInstance->Logs->Log("OPER", DEFAULT, "%s!%s@%s opered as type: %s", this->nick.c_str(), this->ident.c_str(), this->host.c_str(), oper->NameStr());
+	ServerInstance->Logs->Log("OPER", DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->NameStr());
 	ServerInstance->Users->all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup
@@ -792,7 +792,7 @@ void LocalUser::FullConnect()
 
 	if (ServerInstance->Config->WelcomeNotice)
 		this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network.c_str());
-	this->WriteNumeric(RPL_WELCOME, "%s :Welcome to the %s IRC Network %s!%s@%s",this->nick.c_str(), ServerInstance->Config->Network.c_str(), this->nick.c_str(), this->ident.c_str(), this->host.c_str());
+	this->WriteNumeric(RPL_WELCOME, "%s :Welcome to the %s IRC Network %s",this->nick.c_str(), ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
 	this->WriteNumeric(RPL_YOURHOSTIS, "%s :Your host is %s, running version %s",this->nick.c_str(),ServerInstance->Config->ServerName.c_str(),BRANCH);
 	this->WriteNumeric(RPL_SERVERCREATED, "%s :This server was created %s %s", this->nick.c_str(), __TIME__, __DATE__);
 
@@ -835,8 +835,8 @@ void LocalUser::FullConnect()
 
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
-	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s!%s@%s (%s) [%s]",
-		this->GetServerPort(), this->MyClass->name.c_str(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), this->GetIPString(), this->fullname.c_str());
+	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
+		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString(), this->fullname.c_str());
 	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
@@ -891,8 +891,8 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 			{
 				if (this->registered == REG_ALL)
 				{
-					ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s!%s@%s: %s",
-						newnick.c_str(), this->nick.c_str(), this->ident.c_str(), this->host.c_str(), mq->reason.c_str());
+					ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s: %s",
+						newnick.c_str(), GetFullRealHost().c_str(), mq->reason.c_str());
 				}
 				this->WriteNumeric(432, "%s %s :Invalid nickname: %s",this->nick.c_str(), newnick.c_str(), mq->reason.c_str());
 				return false;
