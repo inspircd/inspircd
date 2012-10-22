@@ -31,6 +31,8 @@ class ModuleIRCv3 : public Module
 	bool awaynotify;
 	bool extendedjoin;
 
+	CUList last_excepts;
+
 	void WriteNeighboursWithExt(User* user, const std::string& line, const LocalIntExt& ext)
 	{
 		UserChanList chans(user->chans);
@@ -75,8 +77,8 @@ class ModuleIRCv3 : public Module
 					cap_extendedjoin(this, "extended-join")
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnSetAway, I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 	}
 
 	void OnRehash(User* user)
@@ -118,6 +120,10 @@ class ModuleIRCv3 : public Module
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 	{
+		// Remember who is not going to see the JOIN because of other modules
+		if ((awaynotify) && (IS_AWAY(memb->user)))
+			last_excepts = excepts;
+
 		if (!extendedjoin)
 			return;
 
@@ -198,6 +204,27 @@ class ModuleIRCv3 : public Module
 			WriteNeighboursWithExt(user, line, cap_awaynotify.ext);
 		}
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnPostJoin(Membership *memb)
+	{
+		if ((!awaynotify) || (!IS_AWAY(memb->user)))
+			return;
+
+		std::string line = ":" + memb->user->GetFullHost() + " AWAY :" + memb->user->awaymsg;
+
+		const UserMembList* userlist = memb->chan->GetUsers();
+		for (UserMembCIter it = userlist->begin(); it != userlist->end(); ++it)
+		{
+			// Send the away notify line if the current member is local, has the away-notify cap and isn't excepted
+			User* member = IS_LOCAL(it->first);
+			if ((member) && (cap_awaynotify.ext.get(member)) && (last_excepts.find(member) == last_excepts.end()))
+			{
+				member->Write(line);
+			}
+		}
+
+		last_excepts.clear();
 	}
 
 	void Prioritize()
