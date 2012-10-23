@@ -77,8 +77,8 @@ class ModuleIRCv3 : public Module
 					cap_extendedjoin(this, "extended-join")
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, 5);
 	}
 
 	void OnRehash(User* user)
