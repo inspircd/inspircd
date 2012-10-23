@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit */
+/* $ModDesc: Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit */
 
 /** Handle /NICKLOCK
  */
@@ -161,7 +161,7 @@ class ModuleNickLock : public Module
 
 	Version GetVersion()
 	{
-		return Version("Provides the NICKLOCK command, allows an oper to chage a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
 	}
 
 	ModResult OnUserPreNick(User* user, const std::string &newnick)
