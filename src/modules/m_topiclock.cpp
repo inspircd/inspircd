@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ModDesc: Implements server-side topic locks and the server-to-server command SVSTOPIC */
+/* $ModDesc: Implements server-side topic locks and the server-to-server command SVSTOPIC */
 
 #include "inspircd.h"
 
