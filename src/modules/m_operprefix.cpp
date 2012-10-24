@@ -31,10 +31,11 @@
 class OperPrefixMode : public ModeHandler
 {
 	public:
-		OperPrefixMode(Module* Creator, char pfx) : ModeHandler(Creator, "operprefix", 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+		OperPrefixMode(Module* Creator) : ModeHandler(Creator, "operprefix", 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
 		{
+			std::string pfx = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!");
 			list = true;
-			prefix = pfx;
+			prefix = pfx.empty() ? '!' : pfx[0];
 			levelrequired = OPERPREFIX_VALUE;
 			m_paramtype = TR_NICK;
 		}
@@ -62,18 +63,19 @@ class OperPrefixMode : public ModeHandler
 class ModuleOperPrefixMode : public Module
 {
  private:
-	OperPrefixMode* opm;
+	OperPrefixMode opm;
  public:
-	ModuleOperPrefixMode() 	{
-		ConfigReader Conf;
-		std::string pfx = Conf.ReadValue("operprefix", "prefix", "!", 0, false);
+	ModuleOperPrefixMode()
+		: opm(this)
+	{
+	}
 
-		opm = new OperPrefixMode(this, pfx[0]);
-		if ((!ServerInstance->Modes->AddMode(opm)))
-			throw ModuleException("Could not add a new mode!");
+	void init()
+	{
+		ServerInstance->Modules->AddService(opm);
 
-		Implementation eventlist[] = { I_OnPostJoin, I_OnUserQuit, I_OnUserKick, I_OnUserPart, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		Implementation eventlist[] = { I_OnPostJoin, I_OnOper };
+		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
 
 	void PushChanMode(Channel* channel, User* user)
@@ -114,7 +116,6 @@ class ModuleOperPrefixMode : public Module
 
 	~ModuleOperPrefixMode()
 	{
-		delete opm;
 	}
 
 	Version GetVersion()
