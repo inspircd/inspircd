@@ -145,6 +145,7 @@ chomp(our $topdir = getcwd());
 our $this = resolve_directory($topdir);						# PWD, Regardless.
 our @modlist = ();							  		# Declare for Module List..
 our %config = ();						   			# Initiate Configuration Hash..
+our $cache_loaded = getcache();
 $config{ME} = resolve_directory($topdir);				# Present Working Directory
 
 $config{BASE_DIR} = $config{ME}."/run";
@@ -344,7 +345,7 @@ sub test_compile {
 
 print "Running non-interactive configure...\n" unless $interactive;
 print "Checking for cache from previous configure... ";
-print ((!getcache()) ? "not found\n" : "found\n");
+print ($cache_loaded ? "found\n" : "not found\n");
 $config{SYSTEM} = lc $^O;
 print "Checking operating system version... $config{SYSTEM}\n";
 
