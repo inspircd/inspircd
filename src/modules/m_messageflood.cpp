@@ -29,16 +29,24 @@
 
 /** Holds flood settings and state for mode +f
  */
+ 
+enum MessageFloodAction
+{
+	MF_KICK = 0,
+	MF_BAN = 1,
+	MF_MUTE = 2
+};
+ 
 class floodsettings
 {
  public:
-	bool ban;
+	short action;
 	unsigned int secs;
 	unsigned int lines;
 	time_t reset;
 	std::map<User*, unsigned int> counters;
 
-	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
+	floodsettings(short a, int b, int c) : action(a), secs(b), lines(c)
 	{
 		reset = ServerInstance->Time() + secs;
 	}
@@ -67,7 +75,7 @@ class floodsettings
 /** Handles channel mode +f
  */
 class MsgFlood : public ModeHandler
-{
+{	
  public:
 	SimpleExtItem<floodsettings> ext;
 	MsgFlood(Module* Creator) : ModeHandler(Creator, "flood", 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
@@ -85,8 +93,19 @@ class MsgFlood : public ModeHandler
 			}
 
 			/* Set up the flood parameters for this channel */
-			bool ban = (parameter[0] == '*');
-			unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+			/* Backwards compability, so one can still use asterix */
+			if (parameter[0] == '*')
+				parameter[0] = 'b';
+			
+			short action = ((parameter[0] == 'b') ? MF_BAN : (parameter[0] == 'm' ? MF_MUTE : MF_KICK));
+			
+			if (action == MF_MUTE && !ServerInstance->Modules->Find("m_muteban.so"))
+			{
+				source->WriteNumeric(608, "%s %s :Can not use mutebans. The server is not configured for it.",source->nick.c_str(),channel->name.c_str());
+				return MODEACTION_DENY;
+			}
+			
+			unsigned int nlines = ConvToInt(parameter.substr((action != MF_KICK ? 1 : 0), (action != MF_KICK) ? colon-1 : colon));
 			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
 
 			if ((nlines<2) || (nsecs<1))
@@ -96,12 +115,12 @@ class MsgFlood : public ModeHandler
 			}
 
 			floodsettings* f = ext.get(channel);
-			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
+			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (action == f->action))
 				// mode params match
 				return MODEACTION_DENY;
 
-			ext.set(channel, new floodsettings(ban, nsecs, nlines));
-			parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
+			ext.set(channel, new floodsettings(action, nsecs, nlines));
+			parameter = std::string(action == MF_BAN ? "b" : (action == MF_MUTE ? "m" : "")) + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
 			channel->SetModeParam('f', parameter);
 			return MODEACTION_ALLOW;
 		}
@@ -122,9 +141,7 @@ class ModuleMsgFlood : public Module
 	MsgFlood mf;
 
  public:
-
-	ModuleMsgFlood()
-		: mf(this)
+	ModuleMsgFlood() : mf(this)
 	{
 		if (!ServerInstance->Modes->AddMode(&mf))
 			throw ModuleException("Could not add new modes!");
@@ -141,21 +158,29 @@ class ModuleMsgFlood : public Module
 		if (ServerInstance->OnCheckExemption(user,dest,"flood") == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
+		if (dest->GetExtBanStatus(user, 'm') == MOD_RES_DENY)
+			return MOD_RES_PASSTHRU;
+
 		floodsettings *f = mf.ext.get(dest);
+
 		if (f)
 		{
 			if (f->addmessage(user))
 			{
 				/* Youre outttta here! */
 				f->clear(user);
-				if (f->ban)
+				if (f->action > MF_KICK)
 				{
 					std::vector<std::string> parameters;
 					parameters.push_back(dest->name);
 					parameters.push_back("+b");
-					parameters.push_back(user->MakeWildHost());
+					parameters.push_back(((std::string)user->MakeWildHost()).insert(0, (f->action == MF_MUTE ? "m:" : "")));
 					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
 				}
+				
+				/* It would be redundant to send a message. m_muteban already does that */
+				if (f->action == MF_MUTE)
+					return MOD_RES_DENY;
 
 				char kickmessage[MAXBUF];
 				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %u lines in %u secs)", f->lines, f->secs);
@@ -183,10 +208,6 @@ class ModuleMsgFlood : public Module
 			return ProcessMessages(user,(Channel*)dest,text);
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	~ModuleMsgFlood()
-	{
 	}
 
 	Version GetVersion()
