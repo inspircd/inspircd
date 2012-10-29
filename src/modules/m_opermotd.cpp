@@ -29,7 +29,7 @@
 class CommandOpermotd : public Command
 {
  public:
-	FileReader opermotd;
+	file_cache opermotd;
 
 	CommandOpermotd(Module* Creator) : Command(Creator,"OPERMOTD", 0, 1)
 	{
@@ -53,7 +53,7 @@ class CommandOpermotd : public Command
 	void ShowOperMOTD(User* user)
 	{
 		const std::string& servername = ServerInstance->Config->ServerName;
-		if (!opermotd.FileSize())
+		if (opermotd.empty())
 		{
 			user->SendText(":%s 455 %s :OPERMOTD file is missing", servername.c_str(), user->nick.c_str());
 			return;
@@ -61,10 +61,9 @@ class CommandOpermotd : public Command
 
 		user->SendText(":%s 375 %s :- IRC Operators Message of the Day", servername.c_str(), user->nick.c_str());
 
-		for (int i=0; i != opermotd.FileSize(); i++)
+		for (file_cache::const_iterator i = opermotd.begin(); i != opermotd.end(); ++i)
 		{
-			std::string line = opermotd.GetLine(i);
-			user->SendText(":%s 372 %s :- %s", servername.c_str(), user->nick.c_str(), line.c_str());
+			user->SendText(":%s 372 %s :- %s", servername.c_str(), user->nick.c_str(), i->c_str());
 		}
 
 		user->SendText(":%s 376 %s :- End of OPERMOTD", servername.c_str(), user->nick.c_str());
@@ -78,18 +77,11 @@ class ModuleOpermotd : public Module
 	bool onoper;
  public:
 
-	void LoadOperMOTD()
-	{
-		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
-		cmd.opermotd.LoadFile(conf->getString("file","opermotd"));
-		onoper = conf->getBool("onoper", true);
-	}
-
 	ModuleOpermotd()
 		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
-		LoadOperMOTD();
+		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 	}
@@ -107,7 +99,16 @@ class ModuleOpermotd : public Module
 
 	virtual void OnRehash(User* user)
 	{
-		LoadOperMOTD();
+		cmd.opermotd.clear();
+		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
+		onoper = conf->getBool("onoper", true);
+
+		FileReader f(conf->getString("file", "opermotd"));
+		for (int i=0, filesize = f.FileSize(); i < filesize; i++)
+			cmd.opermotd.push_back(f.GetLine(i));
+
+		if (conf->getBool("processcolors"))
+			InspIRCd::ProcessColors(cmd.opermotd);
 	}
 };
 

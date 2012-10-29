@@ -1252,10 +1252,14 @@
 #                                                                     #
 # If you are using the m_opermotd.so module, specify the motd here    #
 #                                                                     #
-# onoper      -      Should the message be sent on /OPER or only when #
-#                    /OPERMOTD is used. Use "yes" or "no".            #
+# onoper        - Should the message be sent on /OPER or only when    #
+#                 /OPERMOTD is used. Use "yes" or "no".               #
 #                                                                     #
-#<opermotd file="oper.motd" onoper="yes">
+# processcolors - Allow color codes to be processed in the opermotd.  #
+#                 Read the comment above <connect:allowmotdcolors> in #
+#                 inspircd.conf.example for details.                  #
+#                                                                     #
+#<opermotd file="conf/oper.motd" onoper="yes" processcolors="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override
