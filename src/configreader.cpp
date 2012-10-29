@@ -389,7 +389,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 				throw CoreException("Two connect classes with name \"" + name + "\" defined!");
 			names[name] = i;
 
-			ConnectClass* me = parent ? 
+			ConnectClass* me = parent ?
 				new ConnectClass(tag, type, mask, *parent) :
 				new ConnectClass(tag, type, mask);
 
@@ -471,7 +471,6 @@ static const Deprecated ChangedConfig[] = {
 	{"die",     "value",            "you need to reread your config"},
 	{"bind",    "transport",		"has been moved to <bind:ssl> as of 2.0a1"},
 	{"link",    "transport",		"has been moved to <link:ssl> as of 2.0a1"},
-	
 };
 
 void ServerConfig::Fill()
