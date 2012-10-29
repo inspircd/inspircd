@@ -711,6 +711,11 @@ class CoreExport InspIRCd
 	 */
 	static void StripColor(std::string &sentence);
 
+	/** Parses color codes from string values to actual color codes
+	 * @param input The data to process
+	 */
+	static void ProcessColors(file_cache& input);
+
 	/** Rehash the local server
 	 */
 	void RehashServer();
