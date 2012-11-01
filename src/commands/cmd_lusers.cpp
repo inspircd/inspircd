@@ -24,10 +24,12 @@ struct LusersCounters
 {
 	unsigned int max_local;
 	unsigned int max_global;
+	unsigned int invisible;
 
 	LusersCounters()
 		: max_local(ServerInstance->Users->LocalUserCount() - ServerInstance->Users->UnregisteredUserCount())
 		, max_global(ServerInstance->Users->RegisteredUserCount())
+		, invisible(ServerInstance->Users->ModeCount('i'))
 	{
 	}
 
@@ -71,7 +73,6 @@ class CommandLusers : public Command
 CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 {
 	unsigned int n_users = ServerInstance->Users->UserCount();
-	unsigned int n_invis = ServerInstance->Users->ModeCount('i');
 	ProtoServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
 	unsigned int n_serv = serverlist.size();
@@ -88,7 +89,7 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 	counters.UpdateMaxUsers();
 
 	user->WriteNumeric(251, "%s :There are %d users and %d invisible on %d servers",user->nick.c_str(),
-			n_users-n_invis, n_invis, n_serv);
+			n_users - counters.invisible, counters.invisible, n_serv);
 
 	if (ServerInstance->Users->OperCount())
 		user->WriteNumeric(252, "%s %d :operator(s) online",user->nick.c_str(),ServerInstance->Users->OperCount());
@@ -104,27 +105,63 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 	return CMD_SUCCESS;
 }
 
+class InvisibleWatcher : public ModeWatcher
+{
+	unsigned int& invisible;
+public:
+	InvisibleWatcher(Module* mod, unsigned int& Invisible)
+		: ModeWatcher(mod, 'i', MODETYPE_USER), invisible(Invisible)
+	{
+	}
+
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding, ModeType type)
+	{
+		if (dest->registered != REG_ALL)
+			return;
+
+		if (adding)
+			invisible++;
+		else
+			invisible--;
+	}
+};
+
 class ModuleLusers : public Module
 {
 	LusersCounters counters;
 	CommandLusers cmd;
+	InvisibleWatcher mw;
 
  public:
 	ModuleLusers()
-		: cmd(this, counters)
+		: cmd(this, counters), mw(this, counters.invisible)
 	{
 	}
 
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		Implementation events[] = { I_OnPostConnect };
+		Implementation events[] = { I_OnPostConnect, I_OnUserQuit };
 		ServerInstance->Modules->Attach(events, this, sizeof(events)/sizeof(Implementation));
+		ServerInstance->Modes->AddModeWatcher(&mw);
 	}
 
 	void OnPostConnect(User* user)
 	{
 		counters.UpdateMaxUsers();
+		if (user->IsModeSet('i'))
+			counters.invisible++;
+	}
+
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	{
+		if (user->IsModeSet('i'))
+			counters.invisible--;
+	}
+
+	~ModuleLusers()
+	{
+		ServerInstance->Modes->DelModeWatcher(&mw);
 	}
 
 	Version GetVersion()
