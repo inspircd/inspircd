@@ -300,7 +300,7 @@ void StreamSocket::DoWrite()
 					else if (rv < itemlen)
 					{
 						ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
-						front = front.substr(itemlen - rv);
+						front = front.substr(rv);	//bug!
 						sendq_len -= rv;
 						return;
 					}
@@ -379,7 +379,7 @@ void StreamSocket::DoWrite()
 					else
 					{
 						// stopped in the middle of this string
-						front = front.substr(rv);
+						front = front.substr(rv);	// or in this place :)
 						rv = 0;
 					}
 				}
