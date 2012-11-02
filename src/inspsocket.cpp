@@ -300,7 +300,7 @@ void StreamSocket::DoWrite()
 					else if (rv < itemlen)
 					{
 						ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
-						front = front.substr(itemlen - rv);
+						front = front.substr(rv);
 						sendq_len -= rv;
 						return;
 					}
