@@ -31,7 +31,7 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s);
+our @EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
 
 my $no_git = 0;
 
@@ -191,6 +191,13 @@ sub promptnumeric($$)
 			print "You must enter a number in this field. Please try again.\n\n";
 		}
 	}
+}
+
+sub module_installed($)
+{
+	my $module = shift;
+	eval("use $module;");
+	return !$@;
 }
 
 sub promptstring_s($$)
