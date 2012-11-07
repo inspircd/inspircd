@@ -114,7 +114,7 @@ class FilterResult
 			flags.push_back('P');
 		if (flag_quit_message)
 			flags.push_back('q');
-		if (flag_privmsg);
+		if (flag_privmsg)
 			flags.push_back('p');
 		if (flag_notice)
 			flags.push_back('n');
