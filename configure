@@ -908,6 +908,8 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 			(($config{GCCVER} == 4) && ($config{GCCMINOR} >= 3))
 				||
 			($config{GCCVER} > 4)
+				|| # HACK: temporary fix for non-GCC (i.e. clang) builds
+			($config{CC} !~ /gcc/)
 		) {
 			print FILEHANDLE "#define HASHMAP_DEPRECATED\n";
 		}
