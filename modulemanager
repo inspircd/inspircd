@@ -21,9 +21,21 @@
 
 use strict;
 use warnings FATAL => qw(all);
-use LWP::Simple;
 
 use make::configure;
+
+
+if (!module_installed("LWP::Simple"))
+{
+	die "Your system is missing the LWP::Simple Perl module!";
+}
+
+if (!module_installed("Crypt::SSLeay") && !module_installed("IO::Socket::SSL"))
+{
+	die "Your system is missing the Crypt::SSLeay or IO::Socket::SSL Perl modules!";
+}
+
+use LWP::Simple;
 
 our @modlist;
 
