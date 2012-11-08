@@ -548,7 +548,7 @@ class ModuleSSLGnuTLS : public Module
 			}
 			else if (ret == 0)
 			{
-				user->SetError("SSL Connection closed");
+				user->SetError("Connection closed");
 				CloseSession(session);
 				return -1;
 			}

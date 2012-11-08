@@ -423,6 +423,7 @@ class ModuleSSLOpenSSL : public Module
 			{
 				// Client closed connection.
 				CloseSession(session);
+				user->SetError("Connection closed");
 				return -1;
 			}
 			else if (ret < 0)
