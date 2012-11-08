@@ -68,7 +68,6 @@ public:
 	issl_status status;
 	reference<ssl_cert> cert;
 
-	int fd;
 	bool outbound;
 	bool data_to_write;
 
@@ -95,13 +94,10 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 
 class ModuleSSLOpenSSL : public Module
 {
-	int inbufsize;
 	issl_session* sessions;
 
 	SSL_CTX* ctx;
 	SSL_CTX* clictx;
-
-	char cipher[MAXBUF];
 
 	std::string sslports;
 	bool use_sha;
@@ -112,9 +108,6 @@ class ModuleSSLOpenSSL : public Module
 	ModuleSSLOpenSSL() : iohook(this, "ssl/openssl", SERVICE_IOHOOK)
 	{
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
-
-		// Not rehashable...because I cba to reduce all the sizes of existing buffers.
-		inbufsize = ServerInstance->Config->NetBufferSize;
 
 		/* Global SSL library initialization*/
 		SSL_library_init();
@@ -156,7 +149,7 @@ class ModuleSSLOpenSSL : public Module
 		sslports.clear();
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("openssl");
-		
+
 		if (Conf->getBool("showports", true))
 		{
 			sslports = Conf->getString("advertisedports");
@@ -332,7 +325,6 @@ class ModuleSSLOpenSSL : public Module
 
 		issl_session* session = &sessions[fd];
 
-		session->fd = fd;
 		session->sess = SSL_new(ctx);
 		session->status = ISSL_NONE;
 		session->outbound = false;
@@ -359,7 +351,6 @@ class ModuleSSLOpenSSL : public Module
 
 		issl_session* session = &sessions[fd];
 
-		session->fd = fd;
 		session->sess = SSL_new(clictx);
 		session->status = ISSL_NONE;
 		session->outbound = true;
