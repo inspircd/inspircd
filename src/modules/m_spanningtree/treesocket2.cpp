@@ -394,13 +394,19 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		if (params.size() != 2)
 		{
-			SendError("Protocol violation: NICK message without TS - :"+who->uuid+" NICK "+params[0]);
+			SendError("Protocol violation: Wrong number of parameters for NICK message");
 			return;
 		}
 
 		if (IS_SERVER(who))
 		{
 			SendError("Protocol violation: Server changing nick");
+			return;
+		}
+
+		if ((isdigit(params[0][0])) && (params[0] != who->uuid))
+		{
+			SendError("Protocol violation: User changing nick to an invalid UID - " + params[0]);
 			return;
 		}
 
