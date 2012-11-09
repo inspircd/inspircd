@@ -84,7 +84,7 @@ class ModuleHostChange : public Module
 			if (!strcasecmp(action.c_str(), "set"))
 			{
 				act = Host::HCA_SET;
-				newhost = tag->getString("newhost");
+				newhost = tag->getString("value");
 			}
 			else if (!strcasecmp(action.c_str(), "suffix"))
 				act = Host::HCA_SUFFIX;
