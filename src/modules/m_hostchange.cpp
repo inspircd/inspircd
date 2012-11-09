@@ -84,7 +84,7 @@ class ModuleHostChange : public Module
 			if (!strcasecmp(action.c_str(), "set"))
 			{
 				act = Host::HCA_SET;
-				newhost = tag->getString("newhost");
+				newhost = tag->getString("value");
 			}
 			else if (!strcasecmp(action.c_str(), "suffix"))
 				act = Host::HCA_SUFFIX;
@@ -93,7 +93,7 @@ class ModuleHostChange : public Module
 			else
 				throw ModuleException("Invalid hostchange action: " + action);
 
-			hostchanges.push_back(std::make_pair(mask, Host(act, tag->getString("ports"), newhost)));
+			hostchanges.push_back(std::make_pair(mask, Host(act, newhost, tag->getString("ports"))));
 		}
 	}
 
