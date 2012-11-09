@@ -60,7 +60,7 @@ class CommandSVSPart : public Command
 class CommandSVSNick : public Command
 {
  public:
-	CommandSVSNick(Module* Creator) : Command(Creator, "SVSNICK", 2) { flags_needed = FLAG_SERVERONLY; }
+	CommandSVSNick(Module* Creator) : Command(Creator, "SVSNICK", 3) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
