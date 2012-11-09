@@ -165,7 +165,7 @@ if (defined $opt_system) {
 	$config{DATA_DIR}	 = '/var/inspircd';
 	$config{LOG_DIR}	 = '/var/log/inspircd';
 } else {
-	$config{UID} = $<;
+	$config{UID} = $opt_uid || $<;
 	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
 	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
 	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
