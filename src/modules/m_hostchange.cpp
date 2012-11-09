@@ -93,7 +93,7 @@ class ModuleHostChange : public Module
 			else
 				throw ModuleException("Invalid hostchange action: " + action);
 
-			hostchanges.push_back(std::make_pair(mask, Host(act, tag->getString("ports"), newhost)));
+			hostchanges.push_back(std::make_pair(mask, Host(act, newhost, tag->getString("ports"))));
 		}
 	}
 
