@@ -152,11 +152,11 @@ $config{BASE_DIR} = $config{ME}."/run";
 
 if (defined $opt_base_dir) {
 	$config{BASE_DIR} = $opt_base_dir;
-} elsif (defined $opt_system || defined $opt_uid) {
+} elsif (defined $opt_system) {
 	$config{BASE_DIR} = '/var/lib/inspircd';
 }
 
-if (defined $opt_system || defined $opt_uid) {
+if (defined $opt_system) {
 	$config{UID} = $opt_uid || 'ircd';
 	$config{CONFIG_DIR}	 = '/etc/inspircd';
 	$config{MODULE_DIR}	 = '/usr/lib/inspircd';
