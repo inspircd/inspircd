@@ -1449,14 +1449,14 @@ EOCHEESE
 		{
 			print FILEHANDLE "
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
-	\$(RUNCC) \$(NICEFLAGS) $cmflags \$(PICLDFLAGS) $liflags $SHARED -o m_$i.so m_$i.cpp
+	\$(RUNCC) \$(NICEFLAGS) $cmflags \$(PICLDFLAGS) $SHARED -o m_$i.so m_$i.cpp $liflags
 ";
 		}
 		else
 		{
 			print FILEHANDLE "
 m_$i.so: m_$i.cpp ../../include/modules.h ../../include/users.h ../../include/channels.h ../../include/base.h ../../include/inspircd_config.h ../../include/inspircd.h ../../include/configreader.h $deps
-	\$(RUNCC) \$(FLAGS) $cmflags \$(PICLDFLAGS) $liflags $SHARED -o m_$i.so m_$i.cpp
+	\$(RUNCC) \$(FLAGS) $cmflags \$(PICLDFLAGS) $SHARED -o m_$i.so m_$i.cpp $liflags
 ";
 		}
 		$install_list = $install_list . "	install -m \$(INSTMODE) src/modules/m_$i.so \$(MODPATH)\n";
