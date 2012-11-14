@@ -152,11 +152,11 @@ $config{BASE_DIR} = $config{ME}."/run";
 
 if (defined $opt_base_dir) {
 	$config{BASE_DIR} = $opt_base_dir;
-} elsif (defined $opt_system || defined $opt_uid) {
+} elsif (defined $opt_system) {
 	$config{BASE_DIR} = '/var/lib/inspircd';
 }
 
-if (defined $opt_system || defined $opt_uid) {
+if (defined $opt_system) {
 	$config{UID} = $opt_uid || 'ircd';
 	$config{CONFIG_DIR}	 = '/etc/inspircd';
 	$config{MODULE_DIR}	 = '/usr/lib/inspircd';
@@ -165,7 +165,7 @@ if (defined $opt_system || defined $opt_uid) {
 	$config{DATA_DIR}	 = '/var/inspircd';
 	$config{LOG_DIR}	 = '/var/log/inspircd';
 } else {
-	$config{UID} = $<;
+	$config{UID} = $opt_uid || $<;
 	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
 	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
 	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
