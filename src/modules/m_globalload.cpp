@@ -84,16 +84,21 @@ class CommandGunloadmodule : public Command
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
 		{
 			Module* m = ServerInstance->Modules->Find(parameters[0]);
-			if (m && ServerInstance->Modules->Unload(m))
+			if (m)
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				user->SendText(":%s 973 %s %s :Module successfully unloaded.",
-					ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+				if (ServerInstance->Modules->Unload(m))
+				{
+					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
+					user->SendText(":%s 973 %s %s :Module successfully unloaded.",
+						ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+				}
+				else
+				{
+					user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+				}
 			}
 			else
-			{
-				user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
-			}
+				user->SendText(":%s 972 %s %s :No such module", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
