@@ -38,7 +38,7 @@ class CommandSapart : public Command
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
-		std::string reason = "";
+		std::string reason;
 
 		if (dest && channel)
 		{

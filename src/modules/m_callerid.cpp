@@ -144,7 +144,7 @@ public:
 	{
 		if (index != 0)
 			return;
-		std::string out = "";
+		std::string out;
 		irc::commasepstream nicks(parameter);
 		std::string tok;
 		while (nicks.GetToken(tok))

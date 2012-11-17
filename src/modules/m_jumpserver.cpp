@@ -38,8 +38,6 @@ class CommandJumpserver : public Command
 	CommandJumpserver(Module* Creator) : Command(Creator, "JUMPSERVER", 0, 4)
 	{
 		flags_needed = 'o'; syntax = "[<server> <port> <+/-an> <reason>]";
-		redirect_to.clear();
-		reason.clear();
 		port = 0;
 		redirect_all_immediately = redirect_new_users = false;
 	}

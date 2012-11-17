@@ -47,7 +47,7 @@ class ModulePartMsgBan : public Module
 			return;
 
 		if (memb->chan->GetExtBanStatus(memb->user, 'p') == MOD_RES_DENY)
-			partmessage = "";
+			partmessage.clear();
 
 		return;
 	}

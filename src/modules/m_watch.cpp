@@ -249,7 +249,7 @@ class CommandWatch : public Command
 			}
 			else
 			{
-				(*wl)[nick] = "";
+				(*wl)[nick].clear();
 				user->WriteNumeric(605, "%s %s * * 0 :is offline",user->nick.c_str(), nick);
 			}
 		}
@@ -435,7 +435,7 @@ class Modulewatch : public Module
 				watchlist* wl = cmdw.ext.get(*n);
 				if (wl)
 					/* We were on somebody's notify list, set ourselves offline */
-					(*wl)[user->nick.c_str()] = "";
+					(*wl)[user->nick.c_str()].clear();
 			}
 		}
 
@@ -504,7 +504,7 @@ class Modulewatch : public Module
 				if (wl)
 				{
 					(*n)->WriteNumeric(601, "%s %s %s %s %lu :went offline", (*n)->nick.c_str(), oldnick.c_str(), user->ident.c_str(), user->dhost.c_str(), (unsigned long) user->age);
-					(*wl)[oldnick.c_str()] = "";
+					(*wl)[oldnick.c_str()].clear();
 				}
 			}
 		}
