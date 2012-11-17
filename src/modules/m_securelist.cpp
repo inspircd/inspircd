@@ -21,7 +21,7 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: A module overriding /list, and making it safe - stop those sendq problems. */
+/* $ModDesc: Disallows /LIST for recently connected clients to hinder spam bots */
 
 class ModuleSecureList : public Module
 {
@@ -41,7 +41,7 @@ class ModuleSecureList : public Module
 
 	virtual Version GetVersion()
 	{
-		return Version("A module overriding /list, and making it safe - stop those sendq problems.",VF_VENDOR);
+		return Version("Disallows /LIST for recently connected clients to hinder spam bots", VF_VENDOR);
 	}
 
 	void OnRehash(User* user)
