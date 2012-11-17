@@ -47,8 +47,6 @@ class RemoveBase : public Command
 
 	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool neworder)
 	{
-		const char* channame;
-		const char* username;
 		User* target;
 		Channel* channel;
 		std::string reason;
@@ -61,8 +59,8 @@ class RemoveBase : public Command
 		 * /remove <nick> <channel> [reason ...]
 		 * /fpart <channel> <nick> [reason ...]
 		 */
-		channame = parameters[ neworder ? 0 : 1].c_str();
-		username = parameters[ neworder ? 1 : 0].c_str();
+		const std::string& channame = parameters[neworder ? 0 : 1];
+		const std::string& username = parameters[neworder ? 1 : 0];
 
 		/* Look up the user we're meant to be removing from the channel */
 		target = ServerInstance->FindNick(username);
@@ -73,7 +71,7 @@ class RemoveBase : public Command
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if (!target || !channel)
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), !target ? username : channame);
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), !target ? username.c_str() : channame.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -90,7 +88,7 @@ class RemoveBase : public Command
 
 		if (ServerInstance->ULine(target->server))
 		{
-			user->WriteNumeric(482, "%s %s :Only a u-line may remove a u-line from a channel.", user->nick.c_str(), channame);
+			user->WriteNumeric(482, "%s %s :Only a u-line may remove a u-line from a channel.", user->nick.c_str(), channame.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -104,18 +102,13 @@ class RemoveBase : public Command
 			 */
 			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && (tlevel != 50000)))
 			{
-				// no you can't just go from a std::ostringstream to a std::string, Om. -nenolod
-				// but you can do this, nenolod -brain
-
-				std::string reasonparam("No reason given");
+				std::string reasonparam;
 
 				/* If a reason is given, use it */
 				if(parameters.size() > 2)
-				{
-					/* Join params 2 ... pcnt - 1 (inclusive) into one */
-					irc::stringjoiner reason_join(" ", parameters, 2, parameters.size() - 1);
-					reasonparam = reason_join.GetJoined();
-				}
+					reasonparam = parameters[2];
+				else
+					reasonparam = "No reason given";
 
 				/* Build up the part reason string. */
 				reason = "Removed by " + user->nick + ": " + reasonparam;
