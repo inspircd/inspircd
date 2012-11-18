@@ -28,9 +28,7 @@
 class CommandJumpserver : public Command
 {
  public:
-	bool redirect_all_immediately;
 	bool redirect_new_users;
-	bool direction;
 	std::string redirect_to;
 	std::string reason;
 	int port;
@@ -39,16 +37,16 @@ class CommandJumpserver : public Command
 	{
 		flags_needed = 'o'; syntax = "[<server> <port> <+/-an> <reason>]";
 		port = 0;
-		redirect_all_immediately = redirect_new_users = false;
+		redirect_new_users = false;
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		int n_done = 0;
 		reason = (parameters.size() < 4) ? "Please use this server/port instead" : parameters[3];
-		redirect_all_immediately = false;
+		bool redirect_all_immediately = false;
 		redirect_new_users = true;
-		direction = true;
+		bool direction = true;
 		std::string n_done_s;
 
 		/* No parameters: jumpserver disabled */
@@ -57,7 +55,7 @@ class CommandJumpserver : public Command
 			if (port)
 				user->WriteServ("NOTICE %s :*** Disabled jumpserver (previously set to '%s:%d')", user->nick.c_str(), redirect_to.c_str(), port);
 			else
-				user->WriteServ("NOTICE %s :*** jumpserver was not enabled.", user->nick.c_str());
+				user->WriteServ("NOTICE %s :*** Jumpserver was not enabled.", user->nick.c_str());
 
 			port = 0;
 			redirect_to.clear();
@@ -69,7 +67,7 @@ class CommandJumpserver : public Command
 
 		if (parameters.size() >= 3)
 		{
-			for (const char* n = parameters[2].c_str(); *n; n++)
+			for (std::string::const_iterator n = parameters[2].begin(); n != parameters[2].end(); ++n)
 			{
 				switch (*n)
 				{
@@ -106,7 +104,7 @@ class CommandJumpserver : public Command
 					User* t = *i;
 					if (!IS_OPER(t))
 					{
-						t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
+						t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", t->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
 						ServerInstance->Users->QuitUser(t, reason);
 						n_done++;
 					}
