@@ -417,12 +417,12 @@ class ModuleDNSBL : public Module
 			total_hits += (*i)->stats_hits;
 			total_misses += (*i)->stats_misses;
 
-			results.push_back(std::string(ServerInstance->Config->ServerName.c_str()) + " 304 " + user->nick + " :DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
+			results.push_back(ServerInstance->Config->ServerName + " 304 " + user->nick + " :DNSBLSTATS DNSbl \"" + (*i)->name + "\" had " +
 					ConvToStr((*i)->stats_hits) + " hits and " + ConvToStr((*i)->stats_misses) + " misses");
 		}
 
-		results.push_back(std::string(ServerInstance->Config->ServerName.c_str()) + " 304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
-		results.push_back(std::string(ServerInstance->Config->ServerName.c_str()) + " 304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
+		results.push_back(ServerInstance->Config->ServerName + " 304 " + user->nick + " :DNSBLSTATS Total hits: " + ConvToStr(total_hits));
+		results.push_back(ServerInstance->Config->ServerName + " 304 " + user->nick + " :DNSBLSTATS Total misses: " + ConvToStr(total_misses));
 
 		return MOD_RES_PASSTHRU;
 	}

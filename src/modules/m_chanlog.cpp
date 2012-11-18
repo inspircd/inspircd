@@ -85,7 +85,7 @@ class ModuleChanLog : public Module
 			Channel *c = ServerInstance->FindChan(it->second);
 			if (c)
 			{
-				c->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "PRIVMSG %s :%s", c->name.c_str(), buf);
+				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), buf);
 				ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
 			}
 		}
@@ -147,7 +147,7 @@ class ChannelLogStream : public LogStream
 			char buf[MAXBUF];
 			snprintf(buf, MAXBUF, "\2%s\2: %s", type.c_str(), msg.c_str());
 
-			c->WriteChannelWithServ(ServerInstance->Config->ServerName.c_str(), "PRIVMSG %s :%s", c->name.c_str(), buf);
+			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), buf);
 			ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
 			Logging = false;
 		}

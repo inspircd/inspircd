@@ -38,7 +38,7 @@ class CommandAlltime : public Command
 		time_t now = ServerInstance->Time();
 		strftime(fmtdate, sizeof(fmtdate), "%Y-%m-%d %H:%M:%S", gmtime(&now));
 
-		std::string msg = ":" + std::string(ServerInstance->Config->ServerName.c_str()) + " NOTICE " + user->nick + " :System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
+		std::string msg = ":" + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 
 		user->SendText(msg);
 
