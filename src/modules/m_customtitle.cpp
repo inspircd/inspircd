@@ -33,7 +33,6 @@ class CommandTitle : public Command
 		ctitle("ctitle", Creator)
 	{
 		syntax = "<user> <password>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
@@ -68,7 +67,7 @@ class CommandTitle : public Command
 			std::string title = i->second->getString("title");
 			std::string vhost = i->second->getString("vhost");
 
-			if (!strcmp(Name.c_str(),parameters[0].c_str()) && !ServerInstance->PassCompare(user, pass.c_str(), parameters[1].c_str(), hash.c_str()) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
+			if (Name == parameters[0] && !ServerInstance->PassCompare(user, pass, parameters[1], hash) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
 			{
 				ctitle.set(user, title);
 
