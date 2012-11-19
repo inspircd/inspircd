@@ -53,17 +53,9 @@ class ModuleNoKicks : public Module
 	{
 		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet('Q')))
 		{
-			if ((ServerInstance->ULine(source->nick.c_str())) || ServerInstance->ULine(source->server))
-			{
-				// ulines can still kick with +Q in place
-				return MOD_RES_PASSTHRU;
-			}
-			else
-			{
-				// nobody else can (not even opers with override, and founders)
-				source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), memb->chan->name.c_str(), memb->user->nick.c_str());
-				return MOD_RES_DENY;
-			}
+			// Can't kick with Q in place, not even opers with override, and founders
+			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), memb->chan->name.c_str(), memb->user->nick.c_str());
+			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
