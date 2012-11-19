@@ -342,12 +342,23 @@ class ModuleSSLGnuTLS : public Module
 		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
-		unsigned int certcount = Conf->getInt("certcount", 3);
+		unsigned int certcount = 3;
 		x509_certs.resize(certcount);
 		ret = gnutls_x509_crt_list_import(&x509_certs[0], &certcount, &cert_datum, GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
-		if (ret < 0)
-			throw ModuleException("Unable to load GnuTLS server certificate (" + certfile + "): " + std::string(gnutls_strerror(ret)));
-		x509_certs.resize(certcount);
+		if (ret == GNUTLS_E_SHORT_MEMORY_BUFFER)
+		{
+			// the buffer wasn't big enough to hold all certs but gnutls updated certcount to the number of available certs, try again with a bigger buffer
+			x509_certs.resize(certcount);
+			ret = gnutls_x509_crt_list_import(&x509_certs[0], &certcount, &cert_datum, GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
+		}
+
+		if (ret <= 0)
+		{
+			// clear the vector so we won't call gnutls_x509_crt_deinit() on the (uninited) certs later
+			x509_certs.clear();
+			throw ModuleException("Unable to load GnuTLS server certificate (" + certfile + "): " + ((ret < 0) ? (std::string(gnutls_strerror(ret))) : "No certs could be read"));
+		}
+		x509_certs.resize(ret);
 
 		if((ret = gnutls_x509_privkey_import(x509_key, &key_datum, GNUTLS_X509_FMT_PEM)) < 0)
 			throw ModuleException("Unable to load GnuTLS server private key (" + keyfile + "): " + std::string(gnutls_strerror(ret)));
