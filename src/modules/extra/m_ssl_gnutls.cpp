@@ -42,6 +42,7 @@
 /* $ModDesc: Provides SSL support for clients */
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") exec("libgcrypt-config --cflags") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") exec("libgcrypt-config --libs") */
+/* $NoPedantic */
 
 // These don't exist in older GnuTLS versions
 #if(GNUTLS_VERSION_MAJOR < 2)
