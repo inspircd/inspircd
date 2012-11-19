@@ -64,7 +64,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 	else
 		dest = ServerInstance->FindNick(parameters[userindex]);
 
-	if (dest)
+	if ((dest) && (dest->registered == REG_ALL))
 	{
 		/*
 		 * Okay. Umpteenth attempt at doing this, so let's re-comment...

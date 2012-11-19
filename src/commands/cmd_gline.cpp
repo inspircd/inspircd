@@ -51,15 +51,15 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 	if (parameters.size() >= 3)
 	{
 		IdentHostPair ih;
-		User* find = ServerInstance->FindNick(target.c_str());
-		if (find)
+		User* find = ServerInstance->FindNick(target);
+		if ((find) && (find->registered == REG_ALL))
 		{
 			ih.first = "*";
 			ih.second = find->GetIPString();
 			target = std::string("*@") + find->GetIPString();
 		}
 		else
-			ih = ServerInstance->XLines->IdentSplit(target.c_str());
+			ih = ServerInstance->XLines->IdentSplit(target);
 
 		if (ih.first.empty())
 		{

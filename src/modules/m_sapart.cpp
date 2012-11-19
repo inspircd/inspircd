@@ -40,7 +40,7 @@ class CommandSapart : public Command
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
 		std::string reason;
 
-		if (dest && channel)
+		if ((dest) && (dest->registered == REG_ALL) && (channel))
 		{
 			if (parameters.size() > 2)
 				reason = parameters[2];

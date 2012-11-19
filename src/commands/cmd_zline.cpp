@@ -53,9 +53,9 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 			return CMD_FAILURE;
 		}
 
-		User *u = ServerInstance->FindNick(target.c_str());
+		User *u = ServerInstance->FindNick(target);
 
-		if (u)
+		if ((u) && (u->registered == REG_ALL))
 		{
 			target = u->GetIPString();
 		}

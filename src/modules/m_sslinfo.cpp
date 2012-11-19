@@ -91,7 +91,7 @@ class CommandSSLInfo : public Command
 	{
 		User* target = ServerInstance->FindNickOnly(parameters[0]);
 
-		if (!target)
+		if ((!target) || (target->registered != REG_ALL))
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;

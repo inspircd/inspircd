@@ -38,7 +38,7 @@ class CommandChgname : public Command
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
-		if (!dest)
+		if ((!dest) || (dest->registered != REG_ALL))
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;

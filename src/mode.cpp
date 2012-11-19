@@ -387,7 +387,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 	LastParseParams.clear();
 	LastParseTranslate.clear();
 
-	if (!targetchannel && !targetuser)
+	if ((!targetchannel) && ((!targetuser) || (IS_SERVER(targetuser))))
 	{
 		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(),target.c_str());
 		return;

@@ -37,7 +37,7 @@ class CommandSajoin : public Command
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
+		if ((dest) && (dest->registered == REG_ALL))
 		{
 			if (ServerInstance->ULine(dest->server))
 			{

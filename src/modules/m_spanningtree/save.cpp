@@ -40,7 +40,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, parameterlist &params)
 	User* u = ServerInstance->FindNick(params[0]);
 	time_t ts = atol(params[1].c_str());
 
-	if (u && u->age == ts)
+	if ((u) && (!IS_SERVER(u)) && (u->age == ts))
 	{
 		Utils->DoOneToAllButSender(prefix,"SAVE",params,prefix);
 

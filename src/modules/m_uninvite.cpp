@@ -40,7 +40,7 @@ class CommandUninvite : public Command
 		User* u = ServerInstance->FindNick(parameters[0]);
 		Channel* c = ServerInstance->FindChan(parameters[1]);
 
-		if ((!c) || (!u))
+		if ((!c) || (!u) || (u->registered != REG_ALL))
 		{
 			if (!c)
 			{

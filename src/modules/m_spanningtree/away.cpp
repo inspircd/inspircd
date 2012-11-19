@@ -27,7 +27,7 @@
 bool TreeSocket::Away(const std::string &prefix, parameterlist &params)
 {
 	User* u = ServerInstance->FindNick(prefix);
-	if (!u)
+	if ((!u) || (IS_SERVER(u)))
 		return true;
 	if (params.size())
 	{

@@ -47,7 +47,7 @@ class CommandSanick : public Command
 				return CMD_FAILURE;
 			}
 
-			if (!target)
+			if ((!target) || (target->registered != REG_ALL))
 			{
 				user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;

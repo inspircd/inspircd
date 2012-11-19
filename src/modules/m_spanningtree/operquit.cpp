@@ -34,7 +34,7 @@ bool TreeSocket::OperQuit(const std::string &prefix, parameterlist &params)
 
 	User* u = ServerInstance->FindUUID(prefix);
 
-	if (u)
+	if ((u) && (!IS_SERVER(u)))
 	{
 		ServerInstance->OperQuit.set(u, params[0]);
 		params[0] = ":" + params[0];

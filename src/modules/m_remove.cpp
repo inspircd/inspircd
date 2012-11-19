@@ -69,9 +69,9 @@ class RemoveBase : public Command
 		channel = ServerInstance->FindChan(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
-		if (!target || !channel)
+		if ((!target) || (target->registered != REG_ALL) || (!channel))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), !target ? username.c_str() : channame.c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), !channel ? channame.c_str() : username.c_str());
 			return CMD_FAILURE;
 		}
 

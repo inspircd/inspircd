@@ -39,7 +39,7 @@ class CommandSakick : public Command
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		const char* reason = "";
 
-		if (dest && channel)
+		if ((dest) && (dest->registered == REG_ALL) && (channel))
 		{
 			if (parameters.size() > 2)
 			{

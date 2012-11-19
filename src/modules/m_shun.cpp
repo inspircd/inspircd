@@ -108,8 +108,8 @@ class CommandShun : public Command
 
 		std::string target = parameters[0];
 		
-		User *find = ServerInstance->FindNick(target.c_str());
-		if (find)
+		User *find = ServerInstance->FindNick(target);
+		if ((find) && (find->registered == REG_ALL))
 			target = std::string("*!*@") + find->GetIPString();
 
 		if (parameters.size() == 1)

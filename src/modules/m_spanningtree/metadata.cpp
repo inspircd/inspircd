@@ -46,7 +46,7 @@ CmdResult CommandMetadata::Handle(const std::vector<std::string>& params, User *
 	else if (*(params[0].c_str()) != '#')
 	{
 		User* u = ServerInstance->FindUUID(params[0]);
-		if (u)
+		if ((u) && (!IS_SERVER(u)))
 		{
 			if (item)
 				item->unserialize(FORMAT_NETWORK, u, value);
