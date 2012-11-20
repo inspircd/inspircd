@@ -56,7 +56,7 @@ void InspIRCd::DoBackgroundUserStuff()
 	/*
 	 * loop over all local users..
 	 */
-	std::vector<LocalUser*>::reverse_iterator count2 = this->Users->local_users.rbegin();
+	LocalUserList::reverse_iterator count2 = this->Users->local_users.rbegin();
 	while (count2 != this->Users->local_users.rend())
 	{
 		LocalUser *curr = *count2;

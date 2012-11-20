@@ -156,7 +156,7 @@ void XLineManager::CheckELines()
 	if (ELines.empty())
 		return;
 
-	for (std::vector<LocalUser*>::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
 
@@ -321,7 +321,7 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 void ELine::Unset()
 {
 	/* remove exempt from everyone and force recheck after deleting eline */
-	for (std::vector<LocalUser*>::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
 		u->exempt = false;
@@ -425,7 +425,7 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
-	std::vector<LocalUser*>::reverse_iterator u2 = ServerInstance->Users->local_users.rbegin();
+	LocalUserList::reverse_iterator u2 = ServerInstance->Users->local_users.rbegin();
 	while (u2 != ServerInstance->Users->local_users.rend())
 	{
 		User* u = *u2++;
@@ -674,7 +674,7 @@ bool GLine::Matches(const std::string &str)
 void ELine::OnAdd()
 {
 	/* When adding one eline, only check the one eline */
-	for (std::vector<LocalUser*>::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
 		User* u = (User*)(*u2);
 		if (this->Matches(u))

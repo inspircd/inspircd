@@ -268,7 +268,7 @@ class ModuleNationalChars : public Module
 		if (!forcequit)
 			return;
 
-		for (std::vector<LocalUser*>::iterator iter = ServerInstance->Users->local_users.begin(); iter != ServerInstance->Users->local_users.end(); ++iter)
+		for (LocalUserList::const_iterator iter = ServerInstance->Users->local_users.begin(); iter != ServerInstance->Users->local_users.end(); ++iter)
 		{
 			/* Fix by Brain: Dont quit UID users */
 			User* n = *iter;

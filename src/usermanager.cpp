@@ -346,7 +346,7 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 
 	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
 
-	for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		User* t = *i;
 		t->WriteServ(std::string(formatbuffer));
@@ -367,7 +367,7 @@ void UserManager::ServerPrivmsgAll(const char* text, ...)
 
 	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
 
-	for (std::vector<LocalUser*>::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		User* t = *i;
 		t->WriteServ(std::string(formatbuffer));

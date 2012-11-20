@@ -119,7 +119,7 @@ void InspIRCd::Cleanup()
 	ports.clear();
 
 	/* Close all client sockets, or the new process inherits them */
-	std::vector<LocalUser*>::reverse_iterator i = Users->local_users.rbegin();
+	LocalUserList::reverse_iterator i = Users->local_users.rbegin();
 	while (i != this->Users->local_users.rend())
 	{
 		User* u = *i++;
@@ -219,7 +219,7 @@ void InspIRCd::RehashUsersAndChans()
 
 	// Reset the already_sent IDs so we don't wrap it around and drop a message
 	LocalUser::already_sent_id = 0;
-	for (std::vector<LocalUser*>::const_iterator i = Users->local_users.begin(); i != Users->local_users.end(); i++)
+	for (LocalUserList::const_iterator i = Users->local_users.begin(); i != Users->local_users.end(); i++)
 	{
 		(**i).already_sent = 0;
 		(**i).RemoveExpiredInvites();

@@ -36,10 +36,9 @@ class CommandClose : public Command
 	{
 		std::map<std::string,int> closed;
 
-		std::vector<LocalUser*>::reverse_iterator u = ServerInstance->Users->local_users.rbegin();
-		while (u != ServerInstance->Users->local_users.rend())
+		for (LocalUserList::const_iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); ++u)
 		{
-			LocalUser* user = *u++;
+			LocalUser* user = *u;
 			if (user->registered != REG_ALL)
 			{
 				ServerInstance->Users->QuitUser(user, "Closing all unknown connections per request");

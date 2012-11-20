@@ -60,7 +60,7 @@ class ModuleGeoIP : public Module
 		Implementation eventlist[] = { I_OnSetConnectClass, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
 
-		for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 		{
 			LocalUser* user = *i;
 			if ((user->registered == REG_ALL) && (!ext.get(user)))

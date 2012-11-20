@@ -539,7 +539,7 @@ CullResult User::cull()
 
 CullResult LocalUser::cull()
 {
-	std::vector<LocalUser*>::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
+	LocalUserList::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
 	if (x != ServerInstance->Users->local_users.end())
 		ServerInstance->Users->local_users.erase(x);
 	else
@@ -1504,7 +1504,7 @@ void User::SendAll(const char* command, const char* text, ...)
 	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost().c_str(), command, textbuffer);
 	std::string fmt = formatbuffer;
 
-	for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+	for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
 		if ((*i)->registered == REG_ALL)
 			(*i)->Write(fmt);

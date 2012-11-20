@@ -54,7 +54,7 @@ class CoreExport UserManager
 
 	/** Local client list, a vector containing only local clients
 	 */
-	std::vector<LocalUser*> local_users;
+	LocalUserList local_users;
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */

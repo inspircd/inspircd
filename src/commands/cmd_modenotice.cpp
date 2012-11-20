@@ -31,7 +31,7 @@ class CommandModeNotice : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *src)
 	{
 		int mlen = parameters[0].length();
-		for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 		{
 			User* user = *i;
 			for (int n = 0; n < mlen; n++)
