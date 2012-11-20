@@ -747,6 +747,10 @@ class CoreExport LocalUser : public User, public InviteBase
 
 	UserIOHandler eh;
 
+	/** Position in UserManager::local_users
+	 */
+	LocalUserList::iterator localuseriter;
+
 	/** Stats counter for bytes inbound
 	 */
 	int bytes_in;

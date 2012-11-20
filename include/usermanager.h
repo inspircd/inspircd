@@ -52,7 +52,7 @@ class CoreExport UserManager
 	 */
 	user_hash* uuidlist;
 
-	/** Local client list, a vector containing only local clients
+	/** Local client list, a list containing only local clients
 	 */
 	LocalUserList local_users;
 

@@ -219,6 +219,7 @@ User::User(const std::string &uid, const std::string& sid, int type)
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
 	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
+	localuseriter(ServerInstance->Users->local_users.end()),
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
 {
@@ -539,11 +540,11 @@ CullResult User::cull()
 
 CullResult LocalUser::cull()
 {
-	LocalUserList::iterator x = find(ServerInstance->Users->local_users.begin(),ServerInstance->Users->local_users.end(),this);
-	if (x != ServerInstance->Users->local_users.end())
-		ServerInstance->Users->local_users.erase(x);
-	else
-		ServerInstance->Logs->Log("USERS", DEBUG, "Failed to remove user from vector");
+	// The iterator is initialized to local_users.end() in the constructor. It is
+	// overwritten in UserManager::AddUser() with the real iterator so this check
+	// is only a precaution currently.
+	if (localuseriter != ServerInstance->Users->local_users.end())
+		ServerInstance->Users->local_users.erase(localuseriter);
 
 	ClearInvites();
 	eh.cull();

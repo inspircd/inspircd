@@ -73,7 +73,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	ServerInstance->Users->AddLocalClone(New);
 	ServerInstance->Users->AddGlobalClone(New);
 
-	this->local_users.push_back(New);
+	New->localuseriter = this->local_users.insert(local_users.end(), New);
 
 	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)ServerInstance->SE->GetMaxFds()))
 	{
