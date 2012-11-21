@@ -24,6 +24,7 @@
 
 
 #include "inspircd.h"
+#include "xline.h"
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
@@ -90,7 +91,13 @@ class CommandWebirc : public Command
 						realip.set(user, user->GetIPString());
 						if (notify)
 							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
-						webirc_hostname.set(user, parameters[2]);
+
+						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
+						if (parameters[2].length() < 64)
+							webirc_hostname.set(user, parameters[2]);
+						else
+							webirc_hostname.unset(user);
+
 						webirc_ip.set(user, parameters[3]);
 						return CMD_SUCCESS;
 					}
@@ -162,6 +169,48 @@ class ModuleCgiIRC : public Module
 {
 	CommandWebirc cmd;
 	LocalIntExt waiting;
+
+	static void RecheckElineAndClass(LocalUser* user)
+	{
+		user->exempt = (ServerInstance->XLines->MatchesLine("E", user) != NULL);
+		user->SetClass();
+		user->CheckClass();
+	}
+
+	static void ChangeIP(LocalUser* user, const std::string& newip)
+	{
+		ServerInstance->Users->RemoveCloneCounts(user);
+		user->SetClientIP(newip.c_str());
+		ServerInstance->Users->AddLocalClone(user);
+		ServerInstance->Users->AddGlobalClone(user);
+	}
+
+	void HandleIdentOrPass(LocalUser* user, const std::string& newip, bool was_pass)
+	{
+		cmd.realhost.set(user, user->host);
+		cmd.realip.set(user, user->GetIPString());
+		ChangeIP(user, newip);
+		user->host = user->dhost = user->GetIPString();
+		user->InvalidateCache();
+		RecheckElineAndClass(user);
+		// Don't create the resolver if the core couldn't put the user in a connect class
+		if (user->quitting)
+			return;
+
+		try
+		{
+			bool cached;
+			CGIResolver* r = new CGIResolver(this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), cached, waiting);
+			ServerInstance->AddResolver(r, cached);
+			waiting.set(user, waiting.get(user) + 1);
+		}
+		catch (...)
+		{
+			if (cmd.notify)
+				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
+		}
+	}
+
 public:
 	ModuleCgiIRC() : cmd(this), waiting("cgiirc-delay", this)
 	{
@@ -239,26 +288,21 @@ public:
 		if (!webirc_ip)
 			return MOD_RES_PASSTHRU;
 
-		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetClientIP(webirc_ip->c_str());
-		cmd.webirc_ip.unset(user);
+		ChangeIP(user, *webirc_ip);
 
 		std::string* webirc_hostname = cmd.webirc_hostname.get(user);
-		if (webirc_hostname && webirc_hostname->length() < 64)
-			user->host = user->dhost = *webirc_hostname;
-		else
-			user->host = user->dhost = user->GetIPString();
+		user->host = user->dhost = (webirc_hostname ? *webirc_hostname : user->GetIPString());
 
-		user->InvalidateCache();
-		cmd.webirc_hostname.unset(user);
+		RecheckElineAndClass(user);
+		if (user->quitting)
+			return MOD_RES_DENY;
 
-		ServerInstance->Users->AddLocalClone(user);
-		ServerInstance->Users->AddGlobalClone(user);
-		user->SetClass();
-		user->CheckClass();
 		user->CheckLines(true);
 		if (user->quitting)
 			return MOD_RES_DENY;
+
+		cmd.webirc_hostname.unset(user);
+		cmd.webirc_ip.unset(user);
 
 		return MOD_RES_PASSTHRU;
 	}
@@ -306,32 +350,7 @@ public:
 	{
 		if(IsValidHost(user->password))
 		{
-			cmd.realhost.set(user, user->host);
-			cmd.realip.set(user, user->GetIPString());
-			user->host = user->password;
-			user->dhost = user->password;
-			user->InvalidateCache();
-
-			ServerInstance->Users->RemoveCloneCounts(user);
-			user->SetClientIP(user->password.c_str());
-			ServerInstance->Users->AddLocalClone(user);
-			ServerInstance->Users->AddGlobalClone(user);
-			user->SetClass();
-			user->CheckClass();
-
-			try
-			{
-				bool cached;
-				CGIResolver* r = new CGIResolver(this, cmd.notify, user->password, user, "PASS", cached, waiting);
-				ServerInstance->AddResolver(r, cached);
-				waiting.set(user, waiting.get(user) + 1);
-			}
-			catch (...)
-			{
-				if (cmd.notify)
-					ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
-			}
-
+			HandleIdentOrPass(user, user->password, true);
 			user->password.clear();
 			return true;
 		}
@@ -342,12 +361,11 @@ public:
 	bool CheckIdent(LocalUser* user)
 	{
 		const char* ident;
-		int len = user->ident.length();
 		in_addr newip;
 
-		if(len == 8)
+		if (user->ident.length() == 8)
 			ident = user->ident.c_str();
-		else if(len == 9 && user->ident[0] == '~')
+		else if (user->ident.length() == 9 && user->ident[0] == '~')
 			ident = user->ident.c_str() + 1;
 		else
 			return false;
@@ -357,33 +375,10 @@ public:
 		if (errno)
 			return false;
 		newip.s_addr = htonl(ipaddr);
-		char* newipstr = inet_ntoa(newip);
+		std::string newipstr(inet_ntoa(newip));
 
-		cmd.realhost.set(user, user->host);
-		cmd.realip.set(user, user->GetIPString());
-		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetClientIP(newipstr);
-		ServerInstance->Users->AddLocalClone(user);
-		ServerInstance->Users->AddGlobalClone(user);
-		user->SetClass();
-		user->CheckClass();
-		user->host = newipstr;
-		user->dhost = newipstr;
-		user->ident.assign("~cgiirc", 0, 8);
-		try
-		{
-			bool cached;
-			CGIResolver* r = new CGIResolver(this, cmd.notify, newipstr, user, "IDENT", cached, waiting);
-			ServerInstance->AddResolver(r, cached);
-			waiting.set(user, waiting.get(user) + 1);
-		}
-		catch (...)
-		{
-			user->InvalidateCache();
-
-			if(cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
-		}
+		user->ident = "~cgiirc";
+		HandleIdentOrPass(user, newipstr, false);
 
 		return true;
 	}
