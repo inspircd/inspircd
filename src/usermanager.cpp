@@ -243,23 +243,12 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 void UserManager::AddLocalClone(User *user)
 {
-	clonemap::iterator x;
-	x = local_clones.find(user->GetCIDRMask());
-	if (x != local_clones.end())
-		x->second++;
-	else
-		local_clones[user->GetCIDRMask()] = 1;
+	local_clones[user->GetCIDRMask()]++;
 }
 
 void UserManager::AddGlobalClone(User *user)
 {
-	clonemap::iterator x;
-
-	x = global_clones.find(user->GetCIDRMask());
-	if (x != global_clones.end())
-		x->second++;
-	else
-		global_clones[user->GetCIDRMask()] = 1;
+	global_clones[user->GetCIDRMask()]++;
 }
 
 void UserManager::RemoveCloneCounts(User *user)
