@@ -27,7 +27,7 @@
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
-enum CGItype { INVALID, PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
+enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
 
 /** Holds a CGI site's details
@@ -39,7 +39,7 @@ public:
 	CGItype type;
 	std::string password;
 
-	CGIhost(const std::string &mask = "", CGItype t = IDENTFIRST, const std::string &spassword ="")
+	CGIhost(const std::string &mask, CGItype t, const std::string &spassword)
 	: hostmask(mask), type(t), password(spassword)
 	{
 	}
@@ -112,9 +112,9 @@ class CGIResolver : public Resolver
 	LocalIntExt& waiting;
 	bool notify;
  public:
-	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, bool forward, LocalUser* u,
+	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, LocalUser* u,
 			const std::string &type, bool &cached, LocalIntExt& ext)
-		: Resolver(source, forward ? DNS_QUERY_A : DNS_QUERY_PTR4, cached, me), typ(type), theiruid(u->uuid),
+		: Resolver(source, DNS_QUERY_PTR4, cached, me), typ(type), theiruid(u->uuid),
 		waiting(ext), notify(NotifyOpers)
 	{
 	}
@@ -198,12 +198,13 @@ public:
 
 			if(hostmask.length())
 			{
-				if (type == "webirc" && !password.length()) {
-						ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
+				if (type == "webirc" && password.empty())
+				{
+					ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
 				}
 				else
 				{
-					CGItype cgitype = INVALID;
+					CGItype cgitype;
 					if (type == "pass")
 						cgitype = PASS;
 					else if (type == "ident")
@@ -211,14 +212,14 @@ public:
 					else if (type == "passfirst")
 						cgitype = PASSFIRST;
 					else if (type == "webirc")
-					{
 						cgitype = WEBIRC;
+					else
+					{
+						cgitype = PASS;
+						ServerInstance->Logs->Log("CONFIG",DEFAULT, "m_cgiirc.so: Invalid <cgihost:type> value in config: %s, setting it to \"pass\"", type.c_str());
 					}
 
-					if (cgitype == INVALID)
-						cgitype = PASS;
-
-					cmd.Hosts.push_back(CGIhost(hostmask,cgitype, password.length() ? password : "" ));
+					cmd.Hosts.push_back(CGIhost(hostmask, cgitype, password));
 				}
 			}
 			else
@@ -321,7 +322,7 @@ public:
 			try
 			{
 				bool cached;
-				CGIResolver* r = new CGIResolver(this, cmd.notify, user->password, false, user, "PASS", cached, waiting);
+				CGIResolver* r = new CGIResolver(this, cmd.notify, user->password, user, "PASS", cached, waiting);
 				ServerInstance->AddResolver(r, cached);
 				waiting.set(user, waiting.get(user) + 1);
 			}
@@ -371,9 +372,8 @@ public:
 		user->ident.assign("~cgiirc", 0, 8);
 		try
 		{
-
 			bool cached;
-			CGIResolver* r = new CGIResolver(this, cmd.notify, newipstr, false, user, "IDENT", cached, waiting);
+			CGIResolver* r = new CGIResolver(this, cmd.notify, newipstr, user, "IDENT", cached, waiting);
 			ServerInstance->AddResolver(r, cached);
 			waiting.set(user, waiting.get(user) + 1);
 		}
@@ -407,45 +407,6 @@ public:
 		}
 
 		return true;
-	}
-
-	bool IsValidIP(const std::string &ip)
-	{
-		if(ip.size() < 7 || ip.size() > 15)
-			return false;
-
-		short sincedot = 0;
-		short dots = 0;
-
-		for(unsigned int i = 0; i < ip.size(); i++)
-		{
-			if((dots <= 3) && (sincedot <= 3))
-			{
-				if((ip[i] >= '0') && (ip[i] <= '9'))
-				{
-					sincedot++;
-				}
-				else if(ip[i] == '.')
-				{
-					sincedot = 0;
-					dots++;
-				}
-			}
-			else
-			{
-				return false;
-
-			}
-		}
-
-		if(dots != 3)
-			return false;
-
-		return true;
-	}
-
-	virtual ~ModuleCgiIRC()
-	{
 	}
 
 	virtual Version GetVersion()
