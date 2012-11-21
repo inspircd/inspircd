@@ -225,25 +225,9 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	ident = "unknown";
 	lastping = 0;
 	eh.SetFd(myfd);
+	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
-
-	/*
-	 * Initialize host and dhost here to the user's IP.
-	 * It is important to do this before calling SetClientIP()
-	 * as that passes execution to modules that expect these
-	 * fields to be valid.
-	 *
-	 * We cannot call GetIPString() now as that will access
-	 * client_sa, and that's only initialized after the first
-	 * SetClientIP() call.
-	 */
-
-	int port;
-	irc::sockets::satoap(*client, host, port);
-	if (host[0] == ':')
-		host.insert(0, 1, '0');
-	dhost = host;
-	SetClientIP(*client);
+	dhost = host = GetIPString();
 }
 
 User::~User()
@@ -1005,12 +989,14 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 bool User::SetClientIP(const char* sip)
 {
 	cachedip.clear();
+	cached_hostip.clear();
 	return irc::sockets::aptosa(sip, 0, client_sa);
 }
 
 void User::SetClientIP(const irc::sockets::sockaddrs& sa)
 {
 	cachedip.clear();
+	cached_hostip.clear();
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 }
 
