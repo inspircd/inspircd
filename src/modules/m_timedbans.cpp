@@ -113,14 +113,8 @@ class ModuleTimedBans : public Module
 		: cmd(this)
 	{
 		ServerInstance->AddCommand(&cmd);
-		TimedBanList.clear();
 		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, 2);
-	}
-
-	virtual ~ModuleTimedBans()
-	{
-		TimedBanList.clear();
 	}
 
 	virtual ModResult OnDelBan(User* source, Channel* chan, const std::string &banmask)

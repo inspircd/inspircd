@@ -105,7 +105,7 @@ class ModuleNamesX : public Module
 
 		// Try to find this channel
 		std::string channame = line.substr(a, b-a);
-		Channel* chan = ServerInstance->FindChan(channame.c_str());
+		Channel* chan = ServerInstance->FindChan(channame);
 		if (!chan)
 			return;
 

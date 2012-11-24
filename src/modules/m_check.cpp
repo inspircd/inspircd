@@ -42,7 +42,7 @@ class CommandCheck : public Command
 		return std::string(timebuf);
 	}
 
-	void dumpExt(User* user, std::string checkstr, Extensible* ext)
+	void dumpExt(User* user, const std::string& checkstr, Extensible* ext)
 	{
 		std::stringstream dumpkeys;
 		for(Extensible::ExtensibleStore::const_iterator i = ext->GetExtList().begin(); i != ext->GetExtList().end(); i++)
@@ -199,7 +199,6 @@ class CommandCheck : public Command
 			}
 
 			irc::modestacker modestack(true);
-			std::string letter_b("b");
 			for(BanList::iterator b = targchan->bans.begin(); b != targchan->bans.end(); ++b)
 			{
 				modestack.Push('b', b->data);
