@@ -64,9 +64,6 @@ class ModuleNoCTCP : public Module
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if (!c->IsModeSet('C'))
-				return MOD_RES_PASSTHRU;
-
 			if ((text.empty()) || (text[0] != '\001') || (!strncmp(text.c_str(),"\1ACTION ",8)))
 				return MOD_RES_PASSTHRU;
 
@@ -74,7 +71,7 @@ class ModuleNoCTCP : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'C'))
+			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet('C')))
 			{
 				user->WriteNumeric(ERR_NOCTCPALLOWED, "%s %s :Can't send CTCP to channel (+C set)",user->nick.c_str(), c->name.c_str());
 				return MOD_RES_DENY;
