@@ -21,7 +21,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+ /* HACK: This prevents OpenSSL on OS X 10.7 and later from spewing deprecation
+  * warnings for every single function call. As far as I (SaberUK) know, Apple
+  * have no plans to remove OpenSSL so this warning just causes needless spam.
+  */
+#ifdef __APPLE__
+# define __AVAILABILITYMACROS__
+# define DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER
+#endif
+ 
 #include "inspircd.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
