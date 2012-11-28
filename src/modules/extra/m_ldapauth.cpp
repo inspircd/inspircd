@@ -41,6 +41,7 @@
 class ModuleLDAPAuth : public Module
 {
 	LocalIntExt ldapAuthed;
+	LocalStringExt ldapVhost;
 	std::string base;
 	std::string attribute;
 	std::string ldapserver;
@@ -48,6 +49,7 @@ class ModuleLDAPAuth : public Module
 	std::string killreason;
 	std::string username;
 	std::string password;
+	std::string vhost;
 	std::vector<std::string> whitelistedcidrs;
 	std::vector<std::pair<std::string, std::string> > requiredattributes;
 	int searchscope;
@@ -56,15 +58,17 @@ class ModuleLDAPAuth : public Module
 	LDAP *conn;
 
 public:
-	ModuleLDAPAuth() : ldapAuthed("ldapauth", this)
+	ModuleLDAPAuth()
+		: ldapAuthed("ldapauth", this)
+		, ldapVhost("ldapauth_vhost", this)
 	{
 		conn = NULL;
 	}
 
 	void init()
 	{
-		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash,I_OnUserRegister, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 		OnRehash(NULL);
 	}
 
@@ -88,6 +92,7 @@ public:
 		std::string scope	= tag->getString("searchscope");
 		username		= tag->getString("binddn");
 		password		= tag->getString("bindauth");
+		vhost			= tag->getString("host");
 		verbose			= tag->getBool("verbose");		/* Set to true if failed connects should be reported to operators */
 		useusername		= tag->getBool("userfield");
 
@@ -145,6 +150,42 @@ public:
 			return false;
 		}
 		return true;
+	}
+
+	std::string SafeReplace(const std::string &text, std::map<std::string,
+			std::string> &replacements)
+	{
+		std::string result;
+		result.reserve(MAXBUF);
+
+		for (unsigned int i = 0; i < text.length(); ++i) {
+			char c = text[i];
+			if (c == '$') {
+				// find the first nonalpha
+				i++;
+				unsigned int start = i;
+
+				while (i < text.length() - 1 && isalpha(text[i + 1]))
+					++i;
+
+				std::string key = text.substr(start, (i - start) + 1);
+				result.append(replacements[key]);
+			} else {
+				result.push_back(c);
+			}
+		}
+
+	   return result;
+	}
+
+	virtual void OnUserConnect(LocalUser *user)
+	{
+		std::string* cc = ldapVhost.get(user);
+		if (cc)
+		{
+			user->ChangeDisplayedHost(cc->c_str());
+			ldapVhost.unset(user);
+		}
 	}
 
 	ModResult OnUserRegister(LocalUser* user)
@@ -291,6 +332,29 @@ public:
 				ldap_msgfree(msg);
 				return false;
 			}
+		}
+
+		if (!vhost.empty())
+		{
+			irc::commasepstream stream(ldap_get_dn(conn, entry));
+
+			// mashed map of key:value parts of the DN
+			std::map<std::string, std::string> dnParts;
+
+			std::string dnPart;
+			while (stream.GetToken(dnPart))
+			{
+				std::string::size_type pos = dnPart.find('=');
+				if (pos == std::string::npos) // malformed
+					continue;
+
+				std::string key = dnPart.substr(0, pos);
+				std::string value = dnPart.substr(pos + 1, dnPart.length() - pos + 1); // +1s to skip the = itself
+				dnParts[key] = value;
+			}
+
+			// change host according to config key
+			ldapVhost.set(user, SafeReplace(vhost, dnParts));
 		}
 
 		ldap_msgfree(msg);
