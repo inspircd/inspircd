@@ -131,8 +131,14 @@ ocsp_signing_key
 time_stamping_key
 __END__
 close(FH);
-if ( (my $status = system("certtool --generate-privkey --outfile key.pem")) ne 0) { return 1; }
-if ( (my $status = system("certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template certtool.template")) ne 0) { return 1; }
+my $certtool = "certtool";
+if (`uname -s` eq "Darwin\n") {
+	# On OS X the certtool binary name is different to prevent
+	# collisions with the system certtool from NSS.
+	$certtool = "gnutls-certtool";
+}
+if ( (my $status = system("$certtool --generate-privkey --outfile key.pem")) ne 0) { return 1; }
+if ( (my $status = system("$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template certtool.template")) ne 0) { return 1; }
 unlink("certtool.template");
 return 0;
 }
