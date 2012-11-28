@@ -37,7 +37,7 @@ int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::st
 		return 1;
 
 	/* We dont handle any hash types except for plaintext - Thanks tra26 */
-	if (hashtype != "" && hashtype != "plaintext")
+	if (!hashtype.empty() && hashtype != "plaintext")
 		/* See below. 1 because they dont match */
 		return 1;
 
@@ -93,7 +93,7 @@ int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<s
 			std::vector<std::string> new_parameters(parameters);
 
 			if (!items2.GetToken(extrastuff))
-				extrastuff = "";
+				extrastuff.clear();
 
 			new_parameters[splithere] = item;
 			if (extra >= 0)
@@ -243,7 +243,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 *	a
 		 *	test
 		 */
-		std::string lparam = "";
+		std::string lparam;
 
 		/*
 		 * The '-1' here is a clever trick, we'll go backwards throwing everything into a temporary param

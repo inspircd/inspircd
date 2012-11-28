@@ -331,7 +331,7 @@ restart:
 			}
 			else
 			{
-				qinprog.q = "";
+				qinprog.q.clear();
 			}
 		}
 		else

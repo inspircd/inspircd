@@ -241,7 +241,7 @@ IdentHostPair XLineManager::IdentSplit(const std::string &ident_and_host)
 	}
 	else
 	{
-		n.first = "";
+		n.first.clear();
 		n.second = ident_and_host;
 	}
 

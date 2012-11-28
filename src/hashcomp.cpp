@@ -326,7 +326,7 @@ bool irc::sepstream::GetToken(std::string &token)
 		n++;
 	}
 
-	token = "";
+	token.clear();
 	return false;
 }
 

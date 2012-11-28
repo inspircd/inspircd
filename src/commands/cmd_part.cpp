@@ -48,17 +48,13 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 	{
 		if (!ServerInstance->Config->FixedPart.empty())
 			reason = ServerInstance->Config->FixedPart;
-		else
-		{
-			if (parameters.size() > 1)
-				reason = ServerInstance->Config->PrefixPart + parameters[1] + ServerInstance->Config->SuffixPart;
-			else
-				reason = "";
-		}
+		else if (parameters.size() > 1)
+			reason = ServerInstance->Config->PrefixPart + parameters[1] + ServerInstance->Config->SuffixPart;
 	}
 	else
 	{
-		reason = parameters.size() > 1 ? parameters[1] : "";
+		if (parameters.size() > 1)
+			reason = parameters[1];
 	}
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))

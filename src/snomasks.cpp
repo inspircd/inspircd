@@ -163,7 +163,7 @@ void Snomask::Flush()
 		}
 
 	}
-	LastMessage = "";
+	LastMessage.clear();
 	LastBlocked = false;
 	Count = 0;
 }

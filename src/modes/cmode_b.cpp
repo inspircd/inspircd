@@ -43,11 +43,11 @@ ModeAction ModeChannelBan::OnModeChange(User* source, User*, Channel* channel, s
 	/* Call the correct method depending on wether we're adding or removing the mode */
 	if (adding)
 	{
-		parameter = this->AddBan(source, parameter, channel, status);
+		this->AddBan(source, parameter, channel, status);
 	}
 	else
 	{
-		parameter = this->DelBan(source, parameter, channel, status);
+		this->DelBan(source, parameter, channel, status);
 	}
 	/* If the method above 'ate' the parameter by reducing it to an empty string, then
 	 * it won't matter wether we return ALLOW or DENY here, as an empty string overrides
@@ -105,21 +105,21 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	if ((!user) || (!chan))
 	{
 		ServerInstance->Logs->Log("MODE",DEFAULT,"*** BUG *** AddBan was given an invalid parameter");
-		dest = "";
+		dest.clear();
 		return dest;
 	}
 
 	/* Attempt to tidy the mask */
 	ModeParser::CleanMask(dest);
 	/* If the mask was invalid, we exit */
-	if (dest == "" || dest.length() > 250)
+	if (dest.empty() || dest.length() > 250)
 		return dest;
 
 	long maxbans = chan->GetMaxBans();
 	if (IS_LOCAL(user) && ((unsigned)chan->bans.size() > (unsigned)maxbans))
 	{
 		user->WriteServ("478 %s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)",user->nick.c_str(), chan->name.c_str(), chan->name.c_str(), maxbans);
-		dest = "";
+		dest.clear();
 		return dest;
 	}
 
@@ -127,7 +127,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 	FIRST_MOD_RESULT(OnAddBan, MOD_RESULT, (user,chan,dest));
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
-		dest = "";
+		dest.clear();
 		return dest;
 	}
 
@@ -136,7 +136,7 @@ std::string& ModeChannelBan::AddBan(User *user, std::string &dest, Channel *chan
 		if (i->data == dest)
 		{
 			/* dont allow a user to set the same ban twice */
-			dest = "";
+			dest.clear();
 			return dest;
 		}
 	}
@@ -153,7 +153,7 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 	if ((!user) || (!chan))
 	{
 		ServerInstance->Logs->Log("MODE",DEFAULT,"*** BUG *** TakeBan was given an invalid parameter");
-		dest = "";
+		dest.clear();
 		return dest;
 	}
 
@@ -165,14 +165,14 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 			FIRST_MOD_RESULT(OnDelBan, MOD_RESULT, (user, chan, dest));
 			if (MOD_RESULT == MOD_RES_DENY)
 			{
-				dest = "";
+				dest.clear();
 				return dest;
 			}
 			chan->bans.erase(i);
 			return dest;
 		}
 	}
-	dest = "";
+	dest.clear();
 	return dest;
 }
 

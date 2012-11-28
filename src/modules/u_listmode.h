@@ -303,7 +303,7 @@ class ListModeBase : public ModeHandler
 				source->WriteNumeric(478, "%s %s %s :Channel ban/ignore list is full", source->nick.c_str(), channel->name.c_str(), parameter.c_str());
 			}
 
-			parameter = "";
+			parameter.clear();
 			return MODEACTION_DENY;
 		}
 		else
@@ -325,14 +325,14 @@ class ListModeBase : public ModeHandler
 				}
 				/* Tried to remove something that wasn't set */
 				TellNotSet(source, channel, parameter);
-				parameter = "";
+				parameter.clear();
 				return MODEACTION_DENY;
 			}
 			else
 			{
 				/* Hmm, taking an exception off a non-existant list, DIE */
 				TellNotSet(source, channel, parameter);
-				parameter = "";
+				parameter.clear();
 				return MODEACTION_DENY;
 			}
 		}

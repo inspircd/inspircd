@@ -442,7 +442,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			continue;
 		}
 
-		std::string parameter = "";
+		std::string parameter;
 		int pcnt = mh->GetNumParams(adding);
 		if (pcnt && param_at == parameters.size())
 		{
