@@ -38,16 +38,16 @@
 /* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
 /* $LinkerFlags: -lldap */
 
-struct LDAPString
+struct RAIILDAPString
 {
 	char *str;
 
-	LDAPString(char *Str)
+	RAIILDAPString(char *Str)
 		: str(Str)
 	{
 	}
 
-	~LDAPString()
+	~RAIILDAPString()
 	{
 		ldap_memfree(str);
 	}
@@ -61,6 +61,35 @@ struct LDAPString
 	{
 		return str;
 	}
+};
+
+struct RAIILDAPMessage
+{
+	RAIILDAPMessage()
+	{
+	}
+
+	~RAIILDAPMessage()
+	{
+		dealloc();
+	}
+
+	void dealloc()
+	{
+		ldap_msgfree(msg);
+	}
+
+	operator LDAPMessage*()
+	{
+		return msg;
+	}
+
+	LDAPMessage **operator &()
+	{
+		return &msg;
+	}
+
+	LDAPMessage *msg;
 };
 
 class ModuleLDAPAuth : public Module
@@ -278,7 +307,7 @@ public:
 			}
 		}
 
-		LDAPMessage *msg, *entry;
+		RAIILDAPMessage msg;
 		std::string what = (attribute + "=" + (useusername ? user->ident : user->nick));
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
@@ -287,6 +316,11 @@ public:
 			size_t pos = user->password.find(":");
 			if (pos != std::string::npos)
 			{
+				// manpage says we must deallocate regardless of success or failure
+				// since we're about to do another query (and reset msg), first
+				// free the old one.
+				msg.dealloc();
+
 				std::string cutpassword = user->password.substr(0, pos);
 				res = ldap_search_ext_s(conn, base.c_str(), searchscope, cutpassword.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
 
@@ -309,24 +343,23 @@ public:
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search returned more than one result: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
-			ldap_msgfree(msg);
 			return false;
 		}
+
+		LDAPMessage *entry;
 		if ((entry = ldap_first_entry(conn, msg)) == NULL)
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search returned no results: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
-			ldap_msgfree(msg);
 			return false;
 		}
 		cred.bv_val = (char*)user->password.data();
 		cred.bv_len = user->password.length();
-		LDAPString DN(ldap_get_dn(conn, entry));
+		RAIILDAPString DN(ldap_get_dn(conn, entry));
 		if ((res = ldap_sasl_bind_s(conn, DN, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
-			ldap_msgfree(msg);
 			return false;
 		}
 
@@ -355,7 +388,6 @@ public:
 			{
 				if (verbose)
 					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (Lacks required LDAP attributes)", user->GetFullRealHost().c_str());
-				ldap_msgfree(msg);
 				return false;
 			}
 		}
@@ -383,7 +415,6 @@ public:
 			ldapVhost.set(user, SafeReplace(vhost, dnParts));
 		}
 
-		ldap_msgfree(msg);
 		ldapAuthed.set(user,1);
 		return true;
 	}
