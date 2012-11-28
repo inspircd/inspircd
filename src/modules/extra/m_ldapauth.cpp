@@ -38,6 +38,31 @@
 /* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
 /* $LinkerFlags: -lldap */
 
+struct LDAPString
+{
+	char *str;
+
+	LDAPString(char *Str)
+		: str(Str)
+	{
+	}
+
+	~LDAPString()
+	{
+		ldap_memfree(str);
+	}
+
+	operator char*()
+	{
+		return str;
+	}
+
+	operator std::string()
+	{
+		return str;
+	}
+};
+
 class ModuleLDAPAuth : public Module
 {
 	LocalIntExt ldapAuthed;
@@ -296,7 +321,8 @@ public:
 		}
 		cred.bv_val = (char*)user->password.data();
 		cred.bv_len = user->password.length();
-		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
+		LDAPString DN(ldap_get_dn(conn, entry));
+		if ((res = ldap_sasl_bind_s(conn, DN, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
@@ -319,7 +345,7 @@ public:
 
 				ServerInstance->Logs->Log("m_ldapauth", DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
 
-				authed = (ldap_compare_ext_s(conn, ldap_get_dn(conn, entry), attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
+				authed = (ldap_compare_ext_s(conn, DN, attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
 
 				if (authed)
 					break;
@@ -336,7 +362,7 @@ public:
 
 		if (!vhost.empty())
 		{
-			irc::commasepstream stream(ldap_get_dn(conn, entry));
+			irc::commasepstream stream(DN);
 
 			// mashed map of key:value parts of the DN
 			std::map<std::string, std::string> dnParts;
