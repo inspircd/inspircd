@@ -35,9 +35,6 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
 	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :gecos
 	 */
-	if (params.size() < 10)
-		return CMD_INVALID;
-
 	time_t age_t = ConvToInt(params[1]);
 	time_t signon = ConvToInt(params[7]);
 	std::string empty;
@@ -163,8 +160,6 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 
 CmdResult CommandFHost::Handle(const parameterlist &params, User* src)
 {
-	if (params.size() < 1)
-		return CMD_INVALID;
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
 	src->ChangeDisplayedHost(params[0].c_str());
@@ -173,8 +168,6 @@ CmdResult CommandFHost::Handle(const parameterlist &params, User* src)
 
 CmdResult CommandFIdent::Handle(const parameterlist &params, User* src)
 {
-	if (params.size() < 1)
-		return CMD_INVALID;
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
 	src->ChangeIdent(params[0].c_str());
@@ -183,8 +176,6 @@ CmdResult CommandFIdent::Handle(const parameterlist &params, User* src)
 
 CmdResult CommandFName::Handle(const parameterlist &params, User* src)
 {
-	if (params.size() < 1)
-		return CMD_INVALID;
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
 	src->ChangeName(params[0].c_str());

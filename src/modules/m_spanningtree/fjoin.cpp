@@ -55,8 +55,6 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	 * losing side, so only its own modes get applied. Life is simple for those
 	 * who succeed at internets. :-)
 	 */
-	if (params.size() < 3)
-		return CMD_INVALID;
 
 	irc::modestacker modestack(true);			/* Modes to apply from the users in the user list */
 	User* who = NULL;		   				/* User we are currently checking */
