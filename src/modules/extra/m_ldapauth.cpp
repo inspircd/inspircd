@@ -286,6 +286,8 @@ public:
 
 			if (!authed)
 			{
+				if (verbose)
+					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (Lacks required LDAP attributes)", user->GetFullRealHost().c_str());
 				ldap_msgfree(msg);
 				return false;
 			}
