@@ -263,37 +263,35 @@ public:
 			return false;
 		}
 
-		if (requiredattributes.empty())
+		if (!requiredattributes.empty())
 		{
-			ldap_msgfree(msg);
-			ldapAuthed.set(user,1);
-			return true;
-		}
+			bool authed = false;
 
-		bool authed = false;
+			for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it)
+			{
+				const std::string &attr = it->first;
+				const std::string &val = it->second;
 
-		for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it)
-		{
-			const std::string &attr = it->first;
-			const std::string &val = it->second;
+				struct berval attr_value;
+				attr_value.bv_val = const_cast<char*>(val.c_str());
+				attr_value.bv_len = val.length();
 
-			struct berval attr_value;
-			attr_value.bv_val = const_cast<char*>(val.c_str());
-			attr_value.bv_len = val.length();
+				ServerInstance->Logs->Log("m_ldapauth", DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
 
-			ServerInstance->Logs->Log("m_ldapauth", DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
+				authed = (ldap_compare_ext_s(conn, ldap_get_dn(conn, entry), attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
 
-			authed = (ldap_compare_ext_s(conn, ldap_get_dn(conn, entry), attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
+				if (authed)
+					break;
+			}
 
-			if (authed)
-				break;
+			if (!authed)
+			{
+				ldap_msgfree(msg);
+				return false;
+			}
 		}
 
 		ldap_msgfree(msg);
-
-		if (!authed)
-			return false;
-
 		ldapAuthed.set(user,1);
 		return true;
 	}
