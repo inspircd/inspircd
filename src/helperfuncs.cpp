@@ -101,17 +101,17 @@ User* InspIRCd::FindNickOnly(const char* nick)
 
 User *InspIRCd::FindUUID(const std::string &uid)
 {
-	return FindUUID(uid.c_str());
-}
-
-User *InspIRCd::FindUUID(const char *uid)
-{
 	user_hash::iterator finduuid = this->Users->uuidlist->find(uid);
 
 	if (finduuid == this->Users->uuidlist->end())
 		return NULL;
 
 	return finduuid->second;
+}
+
+User *InspIRCd::FindUUID(const char *uid)
+{
+	return FindUUID(std::string(uid));
 }
 
 /* find a channel record by channel name and return a pointer to it */
