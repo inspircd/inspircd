@@ -94,8 +94,6 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 
 		ServerInstance->ConfigThread = new ConfigReaderThread(user->uuid);
 		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
-
-		return CMD_SUCCESS;
 	}
 	else
 	{
@@ -107,9 +105,10 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 			user->WriteServ("NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick.c_str());
 		else
 			ServerInstance->PI->SendUserNotice(user, "*** Could not rehash: A rehash is already in progress.");
-
-		return CMD_FAILURE;
 	}
+
+	// Always return success so spanningtree forwards an incoming REHASH even if we failed
+	return CMD_SUCCESS;
 }
 
 

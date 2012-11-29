@@ -754,6 +754,9 @@ void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::strin
 
 void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 {
+	if (loopCall)
+		return; // Don't generate a REHASH here if we're in the middle of processing a message that generated this one
+
 	ServerInstance->Logs->Log("remoterehash", DEBUG, "called with param %s", parameter.c_str());
 
 	// Send out to other servers
