@@ -130,7 +130,7 @@ class CGIResolver : public Resolver
 	{
 		/* Check the user still exists */
 		User* them = ServerInstance->FindUUID(theiruid);
-		if (them)
+		if ((them) && (!them->quitting))
 		{
 			if (notify)
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
@@ -146,11 +146,13 @@ class CGIResolver : public Resolver
 
 	virtual void OnError(ResolverError e, const std::string &errormessage)
 	{
+		if (!notify)
+			return;
+
 		User* them = ServerInstance->FindUUID(theiruid);
-		if (them)
+		if ((them) && (!them->quitting))
 		{
-			if (notify)
-				ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
+			ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
 		}
 	}
 
