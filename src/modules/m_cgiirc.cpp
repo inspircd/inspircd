@@ -193,8 +193,8 @@ class ModuleCgiIRC : public Module
 		user->host = user->dhost = user->GetIPString();
 		user->InvalidateCache();
 		RecheckElineAndClass(user);
-		// Don't create the resolver if the core couldn't put the user in a connect class
-		if (user->quitting)
+		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
+		if (user->quitting || ServerInstance->Config->NoUserDns)
 			return;
 
 		try
