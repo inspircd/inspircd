@@ -972,8 +972,9 @@
 # LDAP authentication module: Adds the ability to authenticate users  #
 # via LDAP. This is an extra module which must be enabled explicitly  #
 # by symlinking it from modules/extra, and requires the OpenLDAP libs #
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_ldapauth.cpp
-# and run make install, then uncomment this module to enable it.      #
+# This modules is in extras. To enable it, Re-run configure with:     #
+# ./configure --enable-extras=m_ldapauth.cpp                          #
+# and run make install, then uncomment this module.                   #
 #                                                                     #
 #<module name="m_ldapauth.so">                                        #
 #                                                                     #
@@ -987,7 +988,8 @@
 #           searchscope="subtree"                                     #
 #           binddn="cn=Manager,dc=brainbox,dc=cc"                     #
 #           bindauth="mysecretpass"                                   #
-#           verbose="yes">                                            #
+#           verbose="yes"                                             #
+#           host="$uid.$ou.inspircd.org">                             #
 #                                                                     #
 # <ldapwhitelist cidr="10.42.0.0/16">                                 #
 #                                                                     #
@@ -1030,6 +1032,13 @@
 # in which case the list will act as an OR list, that is, the         #
 # authentication will succeed if any of the requirements in the list  #
 # is satisfied.                                                       #
+#                                                                     #
+# host allows you to change the displayed host of users connecting    #
+# from ldap. The string supplied takes formatters which are replaced  #
+# from the DN. For instance, if your DN looks like:                   #
+# uid=w00t,ou=people,dc=inspircd,dc=org, then the formatters uid, ou  #
+# and dc will be available to you. If a key is given multiple times   #
+# in the DN, the last appearance will take precedence.                #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # LDAP oper configuration module: Adds the ability to authenticate    #

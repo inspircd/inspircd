@@ -38,9 +38,64 @@
 /* $ModDesc: Allow/Deny connections based upon answer from LDAP server */
 /* $LinkerFlags: -lldap */
 
+struct RAIILDAPString
+{
+	char *str;
+
+	RAIILDAPString(char *Str)
+		: str(Str)
+	{
+	}
+
+	~RAIILDAPString()
+	{
+		ldap_memfree(str);
+	}
+
+	operator char*()
+	{
+		return str;
+	}
+
+	operator std::string()
+	{
+		return str;
+	}
+};
+
+struct RAIILDAPMessage
+{
+	RAIILDAPMessage()
+	{
+	}
+
+	~RAIILDAPMessage()
+	{
+		dealloc();
+	}
+
+	void dealloc()
+	{
+		ldap_msgfree(msg);
+	}
+
+	operator LDAPMessage*()
+	{
+		return msg;
+	}
+
+	LDAPMessage **operator &()
+	{
+		return &msg;
+	}
+
+	LDAPMessage *msg;
+};
+
 class ModuleLDAPAuth : public Module
 {
 	LocalIntExt ldapAuthed;
+	LocalStringExt ldapVhost;
 	std::string base;
 	std::string attribute;
 	std::string ldapserver;
@@ -48,6 +103,7 @@ class ModuleLDAPAuth : public Module
 	std::string killreason;
 	std::string username;
 	std::string password;
+	std::string vhost;
 	std::vector<std::string> whitelistedcidrs;
 	std::vector<std::pair<std::string, std::string> > requiredattributes;
 	int searchscope;
@@ -56,15 +112,19 @@ class ModuleLDAPAuth : public Module
 	LDAP *conn;
 
 public:
-	ModuleLDAPAuth() : ldapAuthed("ldapauth", this)
+	ModuleLDAPAuth()
+		: ldapAuthed("ldapauth", this)
+		, ldapVhost("ldapauth_vhost", this)
 	{
 		conn = NULL;
 	}
 
 	void init()
 	{
-		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->AddService(ldapAuthed);
+		ServerInstance->Modules->AddService(ldapVhost);
+		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash,I_OnUserRegister, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, 4);
 		OnRehash(NULL);
 	}
 
@@ -88,6 +148,7 @@ public:
 		std::string scope	= tag->getString("searchscope");
 		username		= tag->getString("binddn");
 		password		= tag->getString("bindauth");
+		vhost			= tag->getString("host");
 		verbose			= tag->getBool("verbose");		/* Set to true if failed connects should be reported to operators */
 		useusername		= tag->getBool("userfield");
 
@@ -145,6 +206,42 @@ public:
 			return false;
 		}
 		return true;
+	}
+
+	std::string SafeReplace(const std::string &text, std::map<std::string,
+			std::string> &replacements)
+	{
+		std::string result;
+		result.reserve(MAXBUF);
+
+		for (unsigned int i = 0; i < text.length(); ++i) {
+			char c = text[i];
+			if (c == '$') {
+				// find the first nonalpha
+				i++;
+				unsigned int start = i;
+
+				while (i < text.length() - 1 && isalpha(text[i + 1]))
+					++i;
+
+				std::string key = text.substr(start, (i - start) + 1);
+				result.append(replacements[key]);
+			} else {
+				result.push_back(c);
+			}
+		}
+
+	   return result;
+	}
+
+	virtual void OnUserConnect(LocalUser *user)
+	{
+		std::string* cc = ldapVhost.get(user);
+		if (cc)
+		{
+			user->ChangeDisplayedHost(cc->c_str());
+			ldapVhost.unset(user);
+		}
 	}
 
 	ModResult OnUserRegister(LocalUser* user)
@@ -212,7 +309,7 @@ public:
 			}
 		}
 
-		LDAPMessage *msg, *entry;
+		RAIILDAPMessage msg;
 		std::string what = (attribute + "=" + (useusername ? user->ident : user->nick));
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
@@ -221,6 +318,11 @@ public:
 			size_t pos = user->password.find(":");
 			if (pos != std::string::npos)
 			{
+				// manpage says we must deallocate regardless of success or failure
+				// since we're about to do another query (and reset msg), first
+				// free the old one.
+				msg.dealloc();
+
 				std::string cutpassword = user->password.substr(0, pos);
 				res = ldap_search_ext_s(conn, base.c_str(), searchscope, cutpassword.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg);
 
@@ -243,56 +345,77 @@ public:
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search returned more than one result: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
-			ldap_msgfree(msg);
 			return false;
 		}
+
+		LDAPMessage *entry;
 		if ((entry = ldap_first_entry(conn, msg)) == NULL)
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (LDAP search returned no results: %s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
-			ldap_msgfree(msg);
 			return false;
 		}
 		cred.bv_val = (char*)user->password.data();
 		cred.bv_len = user->password.length();
-		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
+		RAIILDAPString DN(ldap_get_dn(conn, entry));
+		if ((res = ldap_sasl_bind_s(conn, DN, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) != LDAP_SUCCESS)
 		{
 			if (verbose)
 				ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (%s)", user->GetFullRealHost().c_str(), ldap_err2string(res));
-			ldap_msgfree(msg);
 			return false;
 		}
 
-		if (requiredattributes.empty())
+		if (!requiredattributes.empty())
 		{
-			ldap_msgfree(msg);
-			ldapAuthed.set(user,1);
-			return true;
+			bool authed = false;
+
+			for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it)
+			{
+				const std::string &attr = it->first;
+				const std::string &val = it->second;
+
+				struct berval attr_value;
+				attr_value.bv_val = const_cast<char*>(val.c_str());
+				attr_value.bv_len = val.length();
+
+				ServerInstance->Logs->Log("m_ldapauth", DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
+
+				authed = (ldap_compare_ext_s(conn, DN, attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
+
+				if (authed)
+					break;
+			}
+
+			if (!authed)
+			{
+				if (verbose)
+					ServerInstance->SNO->WriteToSnoMask('c', "Forbidden connection from %s (Lacks required LDAP attributes)", user->GetFullRealHost().c_str());
+				return false;
+			}
 		}
 
-		bool authed = false;
-
-		for (std::vector<std::pair<std::string, std::string> >::const_iterator it = requiredattributes.begin(); it != requiredattributes.end(); ++it)
+		if (!vhost.empty())
 		{
-			const std::string &attr = it->first;
-			const std::string &val = it->second;
+			irc::commasepstream stream(DN);
 
-			struct berval attr_value;
-			attr_value.bv_val = const_cast<char*>(val.c_str());
-			attr_value.bv_len = val.length();
+			// mashed map of key:value parts of the DN
+			std::map<std::string, std::string> dnParts;
 
-			ServerInstance->Logs->Log("m_ldapauth", DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
+			std::string dnPart;
+			while (stream.GetToken(dnPart))
+			{
+				std::string::size_type pos = dnPart.find('=');
+				if (pos == std::string::npos) // malformed
+					continue;
 
-			authed = (ldap_compare_ext_s(conn, ldap_get_dn(conn, entry), attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
+				std::string key = dnPart.substr(0, pos);
+				std::string value = dnPart.substr(pos + 1, dnPart.length() - pos + 1); // +1s to skip the = itself
+				dnParts[key] = value;
+			}
 
-			if (authed)
-				break;
+			// change host according to config key
+			ldapVhost.set(user, SafeReplace(vhost, dnParts));
 		}
-
-		ldap_msgfree(msg);
-
-		if (!authed)
-			return false;
 
 		ldapAuthed.set(user,1);
 		return true;
