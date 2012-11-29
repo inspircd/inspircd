@@ -89,11 +89,15 @@ class CommandWebirc : public Command
 					{
 						realhost.set(user, user->host);
 						realip.set(user, user->GetIPString());
+
+						bool host_ok = (parameters[2].length() < 64);
+						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
+
 						if (notify)
-							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), parameters[2].c_str(), user->host.c_str());
+							ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
 
 						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
-						if (parameters[2].length() < 64)
+						if (host_ok)
 							webirc_hostname.set(user, parameters[2]);
 						else
 							webirc_hostname.unset(user);
