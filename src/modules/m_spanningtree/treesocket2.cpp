@@ -458,6 +458,14 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			return;
 		}
 
+		if ((!params.empty()) && (params.back().empty()) && (!cmd->allow_empty_last_param))
+		{
+			// the last param is empty and the command handler doesn't allow that, check if there will be enough params if we drop the last
+			if (params.size()-1 < cmd->min_params)
+				return;
+			params.pop_back();
+		}
+
 		CmdResult res = cmd->Handle(params, who);
 
 		if (res == CMD_INVALID)

@@ -32,6 +32,7 @@ class CommandSethost : public Command
  public:
 	CommandSethost(Module* Creator, char* hmap) : Command(Creator,"SETHOST", 1), hostmap(hmap)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o'; syntax = "<new-hostname>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
@@ -47,11 +48,7 @@ class CommandSethost : public Command
 				return CMD_FAILURE;
 			}
 		}
-		if (len == 0)
-		{
-			user->WriteServ("NOTICE %s :*** SETHOST: Host must be specified", user->nick.c_str());
-			return CMD_FAILURE;
-		}
+
 		if (len > 64)
 		{
 			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick.c_str());

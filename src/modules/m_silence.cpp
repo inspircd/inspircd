@@ -110,6 +110,7 @@ class CommandSilence : public Command
 	CommandSilence(Module* Creator, unsigned int &max) : Command(Creator, "SILENCE", 0),
 		maxsilence(max), ext("silence_list", Creator)
 	{
+		allow_empty_last_param = false;
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}

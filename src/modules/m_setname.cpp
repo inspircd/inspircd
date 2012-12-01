@@ -30,18 +30,13 @@ class CommandSetname : public Command
  public:
 	CommandSetname(Module* Creator) : Command(Creator,"SETNAME", 1, 1)
 	{
+		allow_empty_last_param = false;
 		syntax = "<new-gecos>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		if (parameters[0].empty())
-		{
-			user->WriteServ("NOTICE %s :*** SETNAME: GECOS must be specified", user->nick.c_str());
-			return CMD_FAILURE;
-		}
-
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxGecos)
 		{
 			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick.c_str());

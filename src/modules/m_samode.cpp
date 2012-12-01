@@ -32,6 +32,7 @@ class CommandSamode : public Command
 	bool active;
 	CommandSamode(Module* Creator) : Command(Creator,"SAMODE", 2)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o'; Penalty = 0; syntax = "<target> <modes> {<mode-parameters>}";
 		active = false;
 	}

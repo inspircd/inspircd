@@ -148,6 +148,9 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 
 	if (n != cmdlist.end())
 	{
+		if ((!parameters.empty()) && (parameters.back().empty()) && (!n->second->allow_empty_last_param))
+			return CMD_INVALID;
+
 		if (parameters.size() >= n->second->min_params)
 		{
 			bool bOkay = false;
@@ -314,6 +317,10 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return do_more;
 	}
+
+	if ((!command_p.empty()) && (command_p.back().empty()) && (!cm->second->allow_empty_last_param))
+		command_p.pop_back();
+
 	if (command_p.size() < cm->second->min_params)
 	{
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());

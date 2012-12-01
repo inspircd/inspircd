@@ -32,6 +32,7 @@ class CommandChghost : public Command
  public:
 	CommandChghost(Module* Creator, char* hmap) : Command(Creator,"CHGHOST", 2), hostmap(hmap)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<nick> <newhost>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);

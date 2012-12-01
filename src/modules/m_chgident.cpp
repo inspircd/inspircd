@@ -31,6 +31,7 @@ class CommandChgident : public Command
  public:
 	CommandChgident(Module* Creator) : Command(Creator,"CHGIDENT", 2)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<nick> <newident>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);

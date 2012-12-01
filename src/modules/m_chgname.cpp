@@ -29,6 +29,7 @@ class CommandChgname : public Command
  public:
 	CommandChgname(Module* Creator) : Command(Creator,"CHGNAME", 2, 2)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<nick> <newname>";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);

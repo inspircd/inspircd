@@ -31,18 +31,13 @@ class CommandSetident : public Command
  public:
  CommandSetident(Module* Creator) : Command(Creator,"SETIDENT", 1)
 	{
+		allow_empty_last_param = false;
 		flags_needed = 'o'; syntax = "<new-ident>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
-		if (parameters.size() == 0)
-		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Ident must be specified", user->nick.c_str());
-			return CMD_FAILURE;
-		}
-
 		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{
 			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick.c_str());

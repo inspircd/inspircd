@@ -136,6 +136,7 @@ public:
 	CommandAccept(Module* Creator) : Command(Creator, "ACCEPT", 1),
 		extInfo(Creator)
 	{
+		allow_empty_last_param = false;
 		syntax = "{[+|-]<nicks>}|*}";
 		TRANSLATE2(TR_CUSTOM, TR_END);
 	}

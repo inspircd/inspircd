@@ -132,6 +132,15 @@ class CoreExport Command : public ServiceProvider
 	 */
 	bool works_before_reg;
 
+	/** True if the command allows an empty last parameter.
+	 * When false and the last parameter is empty, it's popped BEFORE
+	 * checking there are enough params, etc. (i.e. the handler won't
+	 * be called if there aren't enough params after popping the empty
+	 * param).
+	 * True by default
+	 */
+	bool allow_empty_last_param;
+
 	/** Syntax string for the command, displayed if non-empty string.
 	 * This takes place of the text in the 'not enough parameters' numeric.
 	 */
@@ -155,7 +164,8 @@ class CoreExport Command : public ServiceProvider
 	 */
 	Command(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
 		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),
-		use_count(0), total_bytes(0), disabled(false), works_before_reg(false), Penalty(1)
+		use_count(0), total_bytes(0), disabled(false), works_before_reg(false), allow_empty_last_param(true),
+		Penalty(1)
 	{
 	}
 
