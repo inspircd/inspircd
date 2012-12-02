@@ -630,18 +630,17 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 */
 	if ((!do_nofork) && (!do_testsuite) && (!Config->cmdline.forcedebug))
 	{
-		int fd;
+		int fd = open("/dev/null", O_RDWR);
 
 		fclose(stdin);
 		fclose(stderr);
 		fclose(stdout);
 
-		fd = open("/dev/null", O_RDWR);
-		if (dup2(fd, 0) < 0)
+		if (dup2(fd, STDIN_FILENO) < 0)
 			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdin.");
-		if (dup2(fd, 1) < 0)
+		if (dup2(fd, STDOUT_FILENO) < 0)
 			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdout.");
-		if (dup2(fd, 2) < 0)
+		if (dup2(fd, STDERR_FILENO) < 0)
 			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stderr.");
 		close(fd);
 	}
