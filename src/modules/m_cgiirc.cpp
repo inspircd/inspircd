@@ -225,12 +225,8 @@ public:
 	void init()
 	{
 		OnRehash(NULL);
-		ServerInstance->AddCommand(&cmd);
-		ServerInstance->Extensions.Register(&cmd.realhost);
-		ServerInstance->Extensions.Register(&cmd.realip);
-		ServerInstance->Extensions.Register(&cmd.webirc_hostname);
-		ServerInstance->Extensions.Register(&cmd.webirc_ip);
-		ServerInstance->Extensions.Register(&waiting);
+		ServiceProvider* providerlist[] = { &cmd, &cmd.realhost, &cmd.realip, &cmd.webirc_hostname, &cmd.webirc_ip, &waiting };
+		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

@@ -84,7 +84,7 @@ class ModuleOpermotd : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnOper };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

@@ -62,7 +62,7 @@ class ModuleBlockAmsg : public Module
 	void init()
 	{
 		this->OnRehash(NULL);
-		ServerInstance->Extensions.Register(&blockamsg);
+		ServerInstance->Modules->AddService(blockamsg);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

@@ -80,8 +80,7 @@ class ModuleChanFilter : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&cf))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(cf);
 
 		cf.DoImplements(this);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };

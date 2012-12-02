@@ -50,9 +50,8 @@ class ModuleDelayMsg : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&djm))
-			throw ModuleException("Could not add new modes!");
-		ServerInstance->Extensions.Register(&djm.jointime);
+		ServerInstance->Modules->AddService(djm);
+		ServerInstance->Modules->AddService(djm.jointime);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

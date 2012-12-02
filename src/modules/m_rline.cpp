@@ -231,7 +231,7 @@ class ModuleRLine : public Module
 	{
 		OnRehash(NULL);
 
-		ServerInstance->AddCommand(&r);
+		ServerInstance->Modules->AddService(r);
 		ServerInstance->XLines->RegisterFactory(&f);
 
 		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer };

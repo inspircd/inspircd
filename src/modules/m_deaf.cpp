@@ -68,8 +68,7 @@ class ModuleDeaf : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&m1))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(m1);
 
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };

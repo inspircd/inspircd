@@ -188,7 +188,7 @@ class ModuleShun : public Module
 	void init()
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 
 		Implementation eventlist[] = { I_OnStats, I_OnPreCommand, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

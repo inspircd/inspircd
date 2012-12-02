@@ -120,12 +120,8 @@ class ModuleServicesAccount : public Module
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(m1);
-		ServerInstance->Modules->AddService(m2);
-		ServerInstance->Modules->AddService(m3);
-		ServerInstance->Modules->AddService(m4);
-		ServerInstance->Modules->AddService(m5);
-		ServerInstance->Modules->AddService(accountname);
+		ServiceProvider* providerlist[] = { &m1, &m2, &m3, &m4, &m5, &accountname };
+		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
 		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
 			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick, I_OnSetConnectClass };
 

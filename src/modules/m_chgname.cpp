@@ -86,7 +86,7 @@ public:
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 	}
 
 	virtual ~ModuleChgName()

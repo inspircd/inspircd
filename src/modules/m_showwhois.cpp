@@ -87,9 +87,8 @@ class ModuleShowwhois : public Module
 		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
 
 		sw = new SeeWhois(this, OpersOnly);
-		if (!ServerInstance->Modes->AddMode(sw))
-			throw ModuleException("Could not add new modes!");
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(*sw);
+		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnWhois };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

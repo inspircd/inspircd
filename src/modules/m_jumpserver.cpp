@@ -145,7 +145,7 @@ class ModuleJumpServer : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&js);
+		ServerInstance->Modules->AddService(js);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

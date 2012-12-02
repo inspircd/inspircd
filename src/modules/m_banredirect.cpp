@@ -229,7 +229,7 @@ class ModuleBanRedirect : public Module
 
 		OnRehash(NULL);
 
-		ServerInstance->Extensions.Register(&re.extItem);
+		ServerInstance->Modules->AddService(re.extItem);
 		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete };
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}

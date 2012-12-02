@@ -92,7 +92,7 @@ class ModuleSWhois : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.swhois);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnPostOper };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

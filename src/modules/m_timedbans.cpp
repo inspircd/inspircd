@@ -116,7 +116,7 @@ class ModuleTimedBans : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

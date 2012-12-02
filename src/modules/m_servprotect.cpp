@@ -55,8 +55,7 @@ class ModuleServProtectMode : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&bm))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(bm);
 		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnUserPreKick };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

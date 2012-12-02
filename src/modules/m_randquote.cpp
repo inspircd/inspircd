@@ -75,7 +75,7 @@ class ModuleRandQuote : public Module
 		{
 			throw ModuleException("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
 		}
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

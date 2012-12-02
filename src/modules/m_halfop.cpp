@@ -92,8 +92,7 @@ class ModuleHalfop : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&mh))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(mh);
 	}
 
 	Version GetVersion()

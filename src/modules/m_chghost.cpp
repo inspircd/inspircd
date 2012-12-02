@@ -98,7 +98,7 @@ class ModuleChgHost : public Module
 	void init()
 	{
 		OnRehash(NULL);
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

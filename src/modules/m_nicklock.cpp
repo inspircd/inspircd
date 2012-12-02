@@ -153,9 +153,9 @@ class ModuleNickLock : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd1);
-		ServerInstance->AddCommand(&cmd2);
-		ServerInstance->Extensions.Register(&locked);
+		ServerInstance->Modules->AddService(cmd1);
+		ServerInstance->Modules->AddService(cmd2);
+		ServerInstance->Modules->AddService(locked);
 		ServerInstance->Modules->Attach(I_OnUserPreNick, this);
 	}
 

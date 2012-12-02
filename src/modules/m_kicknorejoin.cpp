@@ -68,9 +68,8 @@ public:
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&kr))
-			throw ModuleException("Could not add new modes!");
-		ServerInstance->Extensions.Register(&kr.ext);
+		ServerInstance->Modules->AddService(kr);
+		ServerInstance->Modules->AddService(kr.ext);
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

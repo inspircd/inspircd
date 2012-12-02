@@ -182,9 +182,9 @@ class ModuleGlobalLoad : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd1);
-		ServerInstance->AddCommand(&cmd2);
-		ServerInstance->AddCommand(&cmd3);
+		ServerInstance->Modules->AddService(cmd1);
+		ServerInstance->Modules->AddService(cmd2);
+		ServerInstance->Modules->AddService(cmd3);
 	}
 
 	~ModuleGlobalLoad()

@@ -56,8 +56,7 @@ public:
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&ie))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(ie);
 
 		OnRehash(NULL);
 		ie.DoImplements(this);

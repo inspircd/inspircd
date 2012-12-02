@@ -51,7 +51,7 @@ class ModuleGlobops : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 	}
 

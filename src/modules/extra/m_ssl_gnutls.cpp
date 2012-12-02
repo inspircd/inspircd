@@ -221,7 +221,7 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->Modules->AddService(iohook);
-		ServerInstance->AddCommand(&starttls);
+		ServerInstance->Modules->AddService(starttls);
 	}
 
 	void OnRehash(User* user)

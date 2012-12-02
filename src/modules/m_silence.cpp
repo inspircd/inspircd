@@ -304,9 +304,9 @@ class ModuleSilence : public Module
 	void init()
 	{
 		OnRehash(NULL);
-		ServerInstance->AddCommand(&cmdsilence);
-		ServerInstance->AddCommand(&cmdsvssilence);
-		ServerInstance->Extensions.Register(&cmdsilence.ext);
+		ServerInstance->Modules->AddService(cmdsilence);
+		ServerInstance->Modules->AddService(cmdsvssilence);
+		ServerInstance->Modules->AddService(cmdsilence.ext);
 
 		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnUserPreInvite };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

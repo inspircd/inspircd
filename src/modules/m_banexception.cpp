@@ -56,8 +56,7 @@ public:
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&be))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(be);
 
 		be.DoImplements(this);
 		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };

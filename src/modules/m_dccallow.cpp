@@ -258,8 +258,8 @@ class ModuleDCCAllow : public Module
 	void init()
 	{
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
-		ServerInstance->Extensions.Register(ext);
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(*ext);
+		ServerInstance->Modules->AddService(cmd);
 		ReadFileConf();
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPostNick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

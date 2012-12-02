@@ -89,7 +89,7 @@ class ModuleOperHash : public Module
 		/* Read the config file first */
 		OnRehash(NULL);
 
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnPassCompare };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

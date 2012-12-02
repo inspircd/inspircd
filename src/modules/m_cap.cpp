@@ -134,8 +134,8 @@ class ModuleCAP : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
-		ServerInstance->Extensions.Register(&cmd.reghold);
+		ServerInstance->Modules->AddService(cmd);
+		ServerInstance->Modules->AddService(cmd.reghold);
 
 		Implementation eventlist[] = { I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

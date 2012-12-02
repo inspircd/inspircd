@@ -44,8 +44,7 @@ class ModuleOperChans : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&oc))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(oc);
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric, I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

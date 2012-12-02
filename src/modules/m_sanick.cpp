@@ -99,7 +99,7 @@ class ModuleSanick : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(cmd);
 	}
 
 	virtual ~ModuleSanick()

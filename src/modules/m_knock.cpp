@@ -99,9 +99,8 @@ class ModuleKnock : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&kn))
-			throw ModuleException("Could not add new modes!");
-		ServerInstance->AddCommand(&cmd);
+		ServerInstance->Modules->AddService(kn);
+		ServerInstance->Modules->AddService(cmd);
 
 		ServerInstance->Modules->Attach(I_OnRehash, this);
 		OnRehash(NULL);

@@ -45,8 +45,7 @@ class ModuleBlockColor : public Module
 
 	void init()
 	{
-		if (!ServerInstance->Modes->AddMode(&bc))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(bc);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}

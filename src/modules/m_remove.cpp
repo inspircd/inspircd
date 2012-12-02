@@ -202,8 +202,8 @@ class ModuleRemove : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&cmd1);
-		ServerInstance->AddCommand(&cmd2);
+		ServerInstance->Modules->AddService(cmd1);
+		ServerInstance->Modules->AddService(cmd2);
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

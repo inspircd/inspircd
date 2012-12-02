@@ -115,8 +115,7 @@ class ModuleRedirect : public Module
 		UseUsermode = ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect");
 
 		/* Channel mode */
-		if (!ServerInstance->Modes->AddMode(&re))
-			throw ModuleException("Could not add new modes!");
+		ServerInstance->Modules->AddService(re);
 
 		/* Check to see if the usermode is enabled in the config */
 		if (UseUsermode)
@@ -125,8 +124,7 @@ class ModuleRedirect : public Module
 			ServerInstance->Logs->Log("m_redirect", DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
 
 			/* Try to add the usermode */
-			if (!ServerInstance->Modes->AddMode(&re_u))
-				throw ModuleException("Could not add new modes!");
+			ServerInstance->Modules->AddService(re_u);
 		}
 
 		Implementation eventlist[] = { I_OnUserPreJoin };

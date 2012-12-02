@@ -64,7 +64,7 @@ class Modulealltime : public Module
 
 	void init()
 	{
-		ServerInstance->AddCommand(&mycommand);
+		ServerInstance->Modules->AddService(mycommand);
 	}
 
 	virtual ~Modulealltime()

@@ -32,7 +32,7 @@ public:
 	void init()
 	{
 		ServerInstance->Modules->Attach(I_OnPreMode, this);
-		ServerInstance->Extensions.Register(&this->mlock);
+		ServerInstance->Modules->AddService(this->mlock);
 	}
 
 	Version GetVersion()
