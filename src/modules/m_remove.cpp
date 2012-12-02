@@ -102,6 +102,10 @@ class RemoveBase : public Command
 			 */
 			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && (tlevel != 50000)))
 			{
+				// REMOVE/FPART will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
+				if (!IS_LOCAL(target))
+					return CMD_SUCCESS;
+
 				std::string reasonparam;
 
 				/* If a reason is given, use it */
