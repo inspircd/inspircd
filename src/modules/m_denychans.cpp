@@ -30,7 +30,7 @@ class ModuleDenyChannels : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void OnRehash(User* user)

@@ -62,7 +62,7 @@ public:
 		OnRehash(NULL);
 		ie.DoImplements(this);
 		Implementation eventlist[] = { I_On005Numeric, I_OnCheckInvite, I_OnCheckKey, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::string &output)

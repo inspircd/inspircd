@@ -104,9 +104,8 @@ class ModuleAlias : public Module
 	void init()
 	{
 		ReadAliases();
-		ServerInstance->Modules->Attach(I_OnPreCommand, this);
-		ServerInstance->Modules->Attach(I_OnRehash, this);
-		ServerInstance->Modules->Attach(I_OnUserMessage, this);
+		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash, I_OnUserMessage };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleAlias()

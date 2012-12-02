@@ -43,7 +43,7 @@ class ModuleWaitPong : public Module
 		ServerInstance->Modules->AddService(ext);
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnCheckReady, I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user)

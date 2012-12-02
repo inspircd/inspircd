@@ -383,7 +383,7 @@ void ModuleSQL::init()
 	ServerInstance->Threads->Start(Dispatcher);
 
 	Implementation eventlist[] = { I_OnRehash, I_OnUnloadModule };
-	ServerInstance->Modules->Attach(eventlist, this, 2);
+	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 	OnRehash(NULL);
 }

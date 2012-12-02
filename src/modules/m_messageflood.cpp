@@ -134,7 +134,7 @@ class ModuleMsgFlood : public Module
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&mf.ext);
 		Implementation eventlist[] = { I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)

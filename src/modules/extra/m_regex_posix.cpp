@@ -96,7 +96,7 @@ public:
 	ModuleRegexPOSIX() : ref(this) {
 		ServerInstance->Modules->AddService(ref);
 		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

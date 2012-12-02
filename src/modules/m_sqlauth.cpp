@@ -87,8 +87,8 @@ class ModuleSQLAuth : public Module
 	{
 		ServerInstance->Modules->AddService(pendingExt);
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserDisconnect, I_OnCheckReady, I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, 4);
+		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash, I_OnUserRegister };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user)

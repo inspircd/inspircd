@@ -389,7 +389,7 @@ class Modulewatch : public Module
 		ServerInstance->AddCommand(&sw);
 		ServerInstance->Extensions.Register(&cmdw.ext);
 		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
-		ServerInstance->Modules->Attach(eventlist, this, 7);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void OnRehash(User* user)

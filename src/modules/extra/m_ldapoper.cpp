@@ -49,7 +49,7 @@ public:
 	{
 		conn = NULL;
 		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

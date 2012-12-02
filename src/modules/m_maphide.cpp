@@ -28,7 +28,7 @@ class ModuleMapHide : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

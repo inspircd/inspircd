@@ -279,7 +279,7 @@ class ModuleIdent : public Module
 			I_OnRehash, I_OnUserInit, I_OnCheckReady,
 			I_OnUserDisconnect, I_OnSetConnectClass
 		};
-		ServerInstance->Modules->Attach(eventlist, this, 5);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleIdent()

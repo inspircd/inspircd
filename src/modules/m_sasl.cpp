@@ -249,7 +249,7 @@ class ModuleSASL : public Module
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServiceProvider* providelist[] = { &auth, &sasl, &authExt };
 		ServerInstance->Modules->AddServices(providelist, 3);

@@ -34,7 +34,7 @@ class ModuleConnectBan : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

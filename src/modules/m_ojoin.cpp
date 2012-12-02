@@ -190,7 +190,7 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->AddService(mycommand);
 
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserPreKick, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)

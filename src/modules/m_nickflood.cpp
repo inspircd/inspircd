@@ -147,7 +147,7 @@ class ModuleNickFlood : public Module
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&nf.ext);
 		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserPostNick };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserPreNick(User* user, const std::string &newnick)

@@ -31,7 +31,7 @@ class ModuleOperLog : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
 		OnRehash(NULL);
 	}

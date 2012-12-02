@@ -58,7 +58,7 @@ class ModuleGeoIP : public Module
 
 		ServerInstance->Modules->AddService(ext);
 		Implementation eventlist[] = { I_OnSetConnectClass, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 		{

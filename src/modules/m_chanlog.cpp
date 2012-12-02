@@ -35,7 +35,7 @@ class ModuleChanLog : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
 	}

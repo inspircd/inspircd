@@ -513,7 +513,7 @@ class ModulePgSQL : public Module
 		ReadConf();
 
 		Implementation eventlist[] = { I_OnUnloadModule, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModulePgSQL()

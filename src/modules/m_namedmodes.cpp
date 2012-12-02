@@ -112,7 +112,7 @@ class ModuleNamedModes : public Module
 		ServerInstance->Modules->AddService(dummyZ);
 
 		Implementation eventlist[] = { I_OnPreMode };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion()

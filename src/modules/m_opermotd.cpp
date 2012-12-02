@@ -87,7 +87,7 @@ class ModuleOpermotd : public Module
 		ServerInstance->AddCommand(&cmd);
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual Version GetVersion()

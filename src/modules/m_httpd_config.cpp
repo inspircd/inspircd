@@ -30,7 +30,7 @@ class ModuleHttpConfig : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	std::string Sanitize(const std::string &str)

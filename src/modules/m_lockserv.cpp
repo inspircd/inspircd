@@ -96,7 +96,7 @@ public:
 		ServerInstance->AddCommand(&lockcommand);
 		ServerInstance->AddCommand(&unlockcommand);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleLockserv()

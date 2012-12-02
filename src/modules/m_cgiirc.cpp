@@ -233,7 +233,7 @@ public:
 		ServerInstance->Extensions.Register(&waiting);
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user)

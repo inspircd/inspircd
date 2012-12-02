@@ -64,7 +64,7 @@ class ModuleBlockAmsg : public Module
 		this->OnRehash(NULL);
 		ServerInstance->Extensions.Register(&blockamsg);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual ~ModuleBlockAmsg()

@@ -217,7 +217,7 @@ class ListModeBase : public ModeHandler
 		ServerInstance->Modules->AddService(extItem);
 		this->DoRehash();
 		Implementation eventlist[] = { I_OnSyncChannel, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, m, 2);
+		ServerInstance->Modules->Attach(eventlist, m, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	/** Handle the list mode.

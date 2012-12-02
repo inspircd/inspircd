@@ -63,7 +63,7 @@ class ModuleCensor : public Module
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(cc);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 

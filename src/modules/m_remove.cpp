@@ -206,7 +206,7 @@ class ModuleRemove : public Module
 		ServerInstance->AddCommand(&cmd2);
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual void On005Numeric(std::string &output)

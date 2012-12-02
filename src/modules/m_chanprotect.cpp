@@ -255,7 +255,7 @@ class ModuleChanProtect : public Module
 		ServerInstance->Modules->AddService(cp);
 
 		Implementation eventlist[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void LoadSettings()

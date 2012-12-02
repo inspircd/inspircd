@@ -35,7 +35,7 @@ class ModuleXLineDB : public Module
 	void init()
 	{
 		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine };
-		ServerInstance->Modules->Attach(eventlist, this, 3);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		/* Load the configuration
 		 * Note:

@@ -206,7 +206,7 @@ class ModuleJoinFlood : public Module
 			throw ModuleException("Could not add new modes!");
 		ServerInstance->Extensions.Register(&jf.ext);
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserJoin };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)

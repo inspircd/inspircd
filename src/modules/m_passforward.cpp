@@ -31,7 +31,7 @@ class ModulePassForward : public Module
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion()

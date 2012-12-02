@@ -30,7 +30,7 @@ class ModuleSeeNicks : public Module
 	{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
 		Implementation eventlist[] = { I_OnUserPostNick };
-		ServerInstance->Modules->Attach(eventlist, this, 1);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	virtual Version GetVersion()

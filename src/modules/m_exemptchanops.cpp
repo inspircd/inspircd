@@ -121,7 +121,7 @@ class ModuleExemptChanOps : public Module
 	{
 		ServerInstance->Modules->AddService(eh.ec);
 		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->OnCheckExemption = &eh;
 
 		OnRehash(NULL);

@@ -63,7 +63,7 @@ class ModuleChannelNames : public Module
 	{
 		ServerInstance->IsChannel = &myhandler;
 		Implementation eventlist[] = { I_OnRehash, I_OnUserKick };
-		ServerInstance->Modules->Attach(eventlist, this, 2);
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 
