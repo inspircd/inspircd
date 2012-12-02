@@ -274,6 +274,7 @@ class ModuleIdent : public Module
 
 	void init()
 	{
+		ServerInstance->Modules->AddService(ext);
 		OnRehash(NULL);
 		Implementation eventlist[] = {
 			I_OnRehash, I_OnUserInit, I_OnCheckReady,

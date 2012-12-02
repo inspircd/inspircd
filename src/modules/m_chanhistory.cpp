@@ -119,6 +119,7 @@ class ModuleChanHistory : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(m);
+		ServerInstance->Modules->AddService(m.ext);
 
 		Implementation eventlist[] = { I_OnPostJoin, I_OnUserMessage, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
