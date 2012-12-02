@@ -448,7 +448,8 @@ void ModuleManager::AddService(ServiceProvider& item)
 				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
 			return;
 		case SERVICE_METADATA:
-			ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item));
+			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
+				throw ModuleException("Extension " + std::string(item.name) + " already exists.");
 			return;
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:

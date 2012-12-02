@@ -132,9 +132,9 @@ void* ExtensionItem::unset_raw(Extensible* container)
 	return rv;
 }
 
-void ExtensionManager::Register(ExtensionItem* item)
+bool ExtensionManager::Register(ExtensionItem* item)
 {
-	types.insert(std::make_pair(item->name, item));
+	return types.insert(std::make_pair(item->name, item)).second;
 }
 
 void ExtensionManager::BeginUnregister(Module* module, std::vector<reference<ExtensionItem> >& list)
