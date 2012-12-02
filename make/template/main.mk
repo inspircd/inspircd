@@ -257,23 +257,26 @@ clean:
 	@echo Completed.
 
 deinstall:
-	-rm $(BINPATH)/inspircd
-	-rm $(MODPATH)/*.so
+	-rm -f $(BINPATH)/inspircd
+	-rm -rf $(CONPATH)/examples
+	-rm -f $(MODPATH)/*.so
+	-rm -f $(BASE)/.gdbargs
+	-rm -f $(BASE)/org.inspircd.plist
 
 squeakyclean: distclean
 
 configureclean:
 	rm -f .config.cache
-	rm -f src/modules/Makefile
-	rm -f src/commands/Makefile
-	rm -f src/Makefile
-	-rm -f Makefile
 	rm -f BSDmakefile
 	rm -f GNUmakefile
 	rm -f include/inspircd_config.h
 	rm -f include/inspircd_version.h
+	rm -f inspircd
+	-rm -f org.inspircd.plist
 
 distclean: clean configureclean
+	rm -rf $(BASE)
+	find src/modules/ -type l | xargs rm -f
 
 help:
 	@echo 'InspIRCd Makefile'
