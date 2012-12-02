@@ -81,9 +81,7 @@ public:
 			delaylist* dl = kr.ext.get(chan);
 			if (dl)
 			{
-				std::vector<User*> itemstoremove;
-
-				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
+				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); )
 				{
 					if (iter->second > ServerInstance->Time())
 					{
@@ -94,16 +92,14 @@ public:
 								user->nick.c_str(), chan->name.c_str(), modeparam.c_str());
 							return MOD_RES_DENY;
 						}
+						++iter;
 					}
 					else
 					{
 						// Expired record, remove.
-						itemstoremove.push_back(iter->first);
+						dl->erase(iter++);
 					}
 				}
-
-				for (unsigned int i = 0; i < itemstoremove.size(); i++)
-					dl->erase(itemstoremove[i]);
 
 				if (!dl->size())
 					kr.ext.unset(chan);
@@ -114,7 +110,7 @@ public:
 
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 	{
-		if (memb->chan->IsModeSet(&kr) && (source != memb->user))
+		if (memb->chan->IsModeSet(&kr) && (IS_LOCAL(memb->user)) && (source != memb->user))
 		{
 			delaylist* dl = kr.ext.get(memb->chan);
 			if (!dl)
