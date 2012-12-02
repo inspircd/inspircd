@@ -94,7 +94,10 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	{
 		// failure in module constructor
 		if (newmod)
+		{
 			DoSafeUnload(newmod);
+			ServerInstance->GlobalCulls.AddItem(newhandle);
+		}
 		else
 			delete newhandle;
 		LastModuleError = "Unable to load " + filename + ": " + modexcept.GetReason();
@@ -228,7 +231,7 @@ void ModuleManager::LoadAll()
 	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
 	{
 		Module* mod = i->second;
-		try 
+		try
 		{
 			ServerInstance->Logs->Log("MODULE", DEBUG, "Initializing %s", i->first.c_str());
 			mod->init();
