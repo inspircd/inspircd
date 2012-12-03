@@ -194,7 +194,7 @@ void ModuleManager::LoadAll()
 		if (!this->Load(name, true))
 		{
 			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "]" << this->LastError() << std::endl << std::endl;
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
@@ -210,7 +210,7 @@ void ModuleManager::LoadAll()
 		{
 			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
 			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
-			std::cout << std::endl << "[" << con_red << "*" << con_reset << "]" << LastModuleError << std::endl << std::endl;
+			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}
