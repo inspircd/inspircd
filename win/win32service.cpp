@@ -55,7 +55,9 @@ SETSERVDESC ChangeServiceConf;
 LPCSTR RetrieveLastError()
 {
 	static char err[100];
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)err, sizeof(err), 0);
+	DWORD LastError = GetLastError();
+	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 0, LastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)err, sizeof(err), 0) == 0)
+		snprintf(err, sizeof(err), "Error code: %d", LastError);
 	SetLastError(ERROR_SUCCESS);
 	return err;
 }
