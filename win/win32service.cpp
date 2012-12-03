@@ -113,8 +113,9 @@ void SetServiceRunning()
 /** Starts the worker thread above */
 void StartServiceThread()
 {
-	DWORD dwd;
-	CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)WorkerThread,NULL,0,&dwd);
+	HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)WorkerThread,NULL,0,NULL);
+	if (hThread != NULL)
+		CloseHandle(hThread);
 }
 
 /** This function updates the status of the service in the SCM
