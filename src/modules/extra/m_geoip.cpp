@@ -105,7 +105,7 @@ class ModuleGeoIP : public Module
 
 		unsigned int unknown = 0;
 		std::map<std::string, unsigned int> results;
-		for (std::vector<LocalUser*>::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 		{
 			std::string* cc = ext.get(*i);
 			if (cc)
