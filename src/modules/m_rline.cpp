@@ -210,6 +210,9 @@ class CommandRLine : public Command
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
+		if (IS_LOCAL(user))
+			return ROUTE_LOCALONLY; // spanningtree will send ADDLINE
+
 		return ROUTE_BROADCAST;
 	}
 };
