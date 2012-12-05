@@ -123,6 +123,9 @@ class CommandSvshold : public Command
 		}
 		else
 		{
+			if (parameters.size() < 3)
+				return CMD_FAILURE;
+
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 			long duration = ServerInstance->Duration(parameters[1]);
 			SVSHold* r = new SVSHold(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
