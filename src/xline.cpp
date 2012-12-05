@@ -262,7 +262,12 @@ bool XLineManager::AddLine(XLine* line, User* user)
 		LookupIter i = x->second.find(line->Displayable());
 		if (i != x->second.end())
 		{
-			return false;
+			// XLine propagation bug was here, if the line to be added already exists and
+			// it's expired then expire it and add the new one instead of returning false
+			if ((!i->second->duration) || (ServerInstance->Time() < i->second->expiry))
+				return false;
+
+			ExpireLine(x, i);
 		}
 	}
 
