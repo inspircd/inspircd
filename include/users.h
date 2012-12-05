@@ -753,19 +753,19 @@ class CoreExport LocalUser : public User, public InviteBase
 
 	/** Stats counter for bytes inbound
 	 */
-	int bytes_in;
+	unsigned int bytes_in;
 
 	/** Stats counter for bytes outbound
 	 */
-	int bytes_out;
+	unsigned int bytes_out;
 
 	/** Stats counter for commands inbound
 	 */
-	int cmds_in;
+	unsigned int cmds_in;
 
 	/** Stats counter for commands outbound
 	 */
-	int cmds_out;
+	unsigned int cmds_out;
 
 	/** Password specified by the user when they registered (if any).
 	 * This is stored even if the \<connect> block doesnt need a password, so that

@@ -118,11 +118,11 @@ class CoreExport Command : public ServiceProvider
 
 	/** used by /stats m
 	 */
-	long use_count;
+	unsigned long use_count;
 
 	/** used by /stats m
 	 */
-	long total_bytes;
+	unsigned long total_bytes;
 
 	/** True if the command is disabled to non-opers
 	 */
