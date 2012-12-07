@@ -88,9 +88,9 @@ INSTMODE_LIB = 0644
 DBGOK=0
 @IFEQ $(D) 0
   CXXFLAGS += -O2
-  @IFEQ $(CC) gcc
+@IFEQ $(CC) gcc
     CXXFLAGS += -g1
-  @ENDIF
+@ENDIF
   HEADER = std-header
   DBGOK=1
 @ENDIF
