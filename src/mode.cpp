@@ -675,15 +675,20 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	switch (mh->GetModeType())
 	{
 		case MODETYPE_USER:
-			for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
+			for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); )
 			{
-				mh->RemoveMode(i->second);
+				User* user = i->second;
+				++i;
+				mh->RemoveMode(user);
 			}
 		break;
 		case MODETYPE_CHANNEL:
-			for (chan_hash::iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
+			for (chan_hash::iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); )
 			{
-				mh->RemoveMode(i->second);
+				// The channel may not be in the hash after RemoveMode(), see m_permchannels
+				Channel* chan = i->second;
+				++i;
+				mh->RemoveMode(chan);
 			}
 		break;
 	}
