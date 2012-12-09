@@ -339,8 +339,8 @@ bool IsNickHandler::Call(const char* n, size_t max)
 		return false;
 	}
 
-	/* too long? or not -- pointer arithmetic rocks */
-	return (p < max);
+	/* too long? or not */
+	return (p <= max);
 }
 
 /* return true for good ident, false else */

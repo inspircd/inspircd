@@ -648,8 +648,6 @@ void ServerConfig::Fill()
 		OperSpyWhois = SPYWHOIS_SINGLEMSG;
 	else
 		OperSpyWhois = SPYWHOIS_NONE;
-
-	Limits.Finalise();
 }
 
 // WARNING: it is not safe to use most of the codebase in this function, as it

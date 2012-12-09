@@ -242,7 +242,7 @@ class IdentRequestSocket : public EventHandler
 		/* Truncate the ident at any characters we don't like, skip leading spaces */
 		for (std::string::const_iterator i = buf.begin()+lastcolon+1; i != buf.end(); ++i)
 		{
-			if (result.size()+1 == ServerInstance->Config->Limits.IdentMax)
+			if (result.size() == ServerInstance->Config->Limits.IdentMax)
 				/* Ident is getting too long */
 				break;
 

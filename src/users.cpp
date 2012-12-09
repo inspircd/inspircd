@@ -1483,7 +1483,7 @@ bool User::ChangeIdent(const char* newident)
 
 	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing ident";
 
-	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax + 1);
+	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax);
 
 	this->InvalidateCache();
 
