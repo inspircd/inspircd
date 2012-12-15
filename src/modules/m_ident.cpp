@@ -235,9 +235,15 @@ class IdentRequestSocket : public EventHandler
 		 */
 		ibuf[recvresult] = '\0';
 		std::string buf(ibuf);
-		std::string::size_type lastcolon = buf.rfind(':');
-		if (lastcolon == std::string::npos)
+
+		/* <2 colons: invalid
+		 *  2 colons: reply is an error
+		 * >3 colons: there is a colon in the ident
+		 */
+		if (std::count(buf.begin(), buf.end(), ':') != 3)
 			return;
+
+		std::string::size_type lastcolon = buf.rfind(':');
 
 		/* Truncate the ident at any characters we don't like, skip leading spaces */
 		for (std::string::const_iterator i = buf.begin()+lastcolon+1; i != buf.end(); ++i)
