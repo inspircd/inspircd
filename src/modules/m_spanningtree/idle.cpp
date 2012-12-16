@@ -18,13 +18,7 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
-
-#include "main.h"
 #include "utils.h"
-#include "treeserver.h"
 #include "treesocket.h"
 
 bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)

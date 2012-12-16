@@ -19,11 +19,7 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
 #include "utils.h"
 #include "link.h"
 #include "treeserver.h"

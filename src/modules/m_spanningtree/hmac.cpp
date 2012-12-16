@@ -19,18 +19,12 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 #include "modules/hash.h"
 #include "modules/ssl.h"
-#include "socketengine.h"
 
 #include "main.h"
-#include "utils.h"
-#include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
-#include "resolvers.h"
 
 const std::string& TreeSocket::GetOurChallenge()
 {

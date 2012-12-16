@@ -21,9 +21,6 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
 #include "main.h"
 #include "modules/spanningtree.h"
@@ -31,7 +28,6 @@
 #include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
-#include "resolvers.h"
 
 /** Because most of the I/O gubbins are encapsulated within
  * BufferedSocket, we just call the superclass constructor for

@@ -19,13 +19,9 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
-#include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
 #include "commands.h"
 
 CommandRSQuit::CommandRSQuit (Module* Creator, SpanningTreeUtilities* Util)

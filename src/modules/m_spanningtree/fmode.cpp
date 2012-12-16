@@ -21,10 +21,6 @@
 #include "inspircd.h"
 #include "commands.h"
 
-#include "treesocket.h"
-#include "treeserver.h"
-#include "utils.h"
-
 /** FMODE command - server mode with timestamp checks */
 CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who)
 {

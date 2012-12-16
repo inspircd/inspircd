@@ -25,7 +25,6 @@
 
 #include "treesocket.h"
 #include "treeserver.h"
-#include "utils.h"
 #include "main.h"
 
 /** This function is called when we want to send a netburst to a local

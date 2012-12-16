@@ -21,7 +21,6 @@
 
 #include "main.h"
 #include "utils.h"
-#include "treeserver.h"
 #include "treesocket.h"
 
 bool TreeSocket::Away(const std::string &prefix, parameterlist &params)

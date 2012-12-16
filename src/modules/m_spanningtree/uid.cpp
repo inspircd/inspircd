@@ -23,10 +23,7 @@
 #include "commands.h"
 
 #include "utils.h"
-#include "link.h"
-#include "treesocket.h"
 #include "treeserver.h"
-#include "resolvers.h"
 
 CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 {

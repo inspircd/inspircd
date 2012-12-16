@@ -21,10 +21,6 @@
 #include "inspircd.h"
 #include "commands.h"
 
-#include "treesocket.h"
-#include "treeserver.h"
-#include "utils.h"
-
 /** FTOPIC command */
 CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *user)
 {

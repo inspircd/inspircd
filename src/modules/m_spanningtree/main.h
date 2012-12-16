@@ -24,7 +24,6 @@
 #pragma once
 
 #include "inspircd.h"
-#include <stdarg.h>
 
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.

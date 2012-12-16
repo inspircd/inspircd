@@ -19,13 +19,7 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
-#include "utils.h"
-#include "treeserver.h"
 #include "commands.h"
 
 CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, User *user)

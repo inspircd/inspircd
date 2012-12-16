@@ -20,9 +20,7 @@
 
 #pragma once
 
-#include "socket.h"
 #include "inspircd.h"
-#include "xline.h"
 
 #include "utils.h"
 #include "link.h"

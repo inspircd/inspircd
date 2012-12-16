@@ -21,10 +21,6 @@
 #include "inspircd.h"
 #include "commands.h"
 
-#include "treesocket.h"
-#include "treeserver.h"
-#include "utils.h"
-
 CmdResult CommandMetadata::Handle(const std::vector<std::string>& params, User *srcuser)
 {
 	std::string value = params.size() < 3 ? "" : params[2];

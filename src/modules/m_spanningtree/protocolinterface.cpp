@@ -19,10 +19,8 @@
 
 
 #include "inspircd.h"
-#include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
 #include "protocolinterface.h"
 
 /*

@@ -19,8 +19,6 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
 #include "resolvers.h"
 #include "main.h"

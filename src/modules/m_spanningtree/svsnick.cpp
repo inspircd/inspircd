@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-#include "main.h"
-#include "utils.h"
 #include "commands.h"
 
 CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, User *user)

@@ -19,15 +19,9 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
-#include "resolvers.h"
 #include "main.h"
 #include "utils.h"
-#include "treeserver.h"
-#include "link.h"
-#include "treesocket.h"
 #include "commands.h"
 
 CommandRConnect::CommandRConnect (Module* Creator, SpanningTreeUtilities* Util)

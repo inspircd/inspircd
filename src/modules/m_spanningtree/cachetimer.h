@@ -19,9 +19,6 @@
 
 #pragma once
 
-#include "timer.h"
-
-class ModuleSpanningTree;
 class SpanningTreeUtilities;
 
 /** Create a timer which recurs every second, we inherit from Timer.
