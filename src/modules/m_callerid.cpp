@@ -119,6 +119,7 @@ struct CallerIDExtInfo : public ExtensionItem
 			if (it2 != targ->wholistsme.end())
 				targ->wholistsme.erase(it2);
 		}
+		delete dat;
 	}
 };
 
