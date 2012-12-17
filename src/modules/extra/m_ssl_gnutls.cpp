@@ -22,9 +22,9 @@
 
 
 #include "inspircd.h"
+#include <gcrypt.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
-#include <gcrypt.h>
 #include "ssl.h"
 #include "m_cap.h"
 
