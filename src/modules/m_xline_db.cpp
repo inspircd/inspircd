@@ -27,16 +27,11 @@
 
 class ModuleXLineDB : public Module
 {
-	std::vector<XLine *> xlines;
-	bool reading_db;			// If this is true, addlines are as a result of db reading, so don't bother flushing the db to disk.
-						// DO REMEMBER TO SET IT, otherwise it's annoying :P
+	bool dirty;
 	std::string xlinedbpath;
  public:
 	void init()
 	{
-		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
 		/* Load the configuration
 		 * Note:
 		 * 		this is on purpose not in the OnRehash() method. It would be non-trivial to change the database on-the-fly.
@@ -45,10 +40,13 @@ class ModuleXLineDB : public Module
 		 */
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("xlinedb");
 		xlinedbpath = Conf->getString("filename", DATA_PATH "/xline.db");
-		
-		reading_db = true;
+
+		// Read xlines before attaching to events
 		ReadDatabase();
-		reading_db = false;
+
+		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine, I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		dirty = false;
 	}
 
 	virtual ~ModuleXLineDB()
@@ -62,13 +60,7 @@ class ModuleXLineDB : public Module
 	 */
 	void OnAddLine(User* source, XLine* line)
 	{
-		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Adding a line");
-		xlines.push_back(line);
-
-		if (!reading_db)
-		{
-			WriteDatabase();
-		}
+		dirty = true;
 	}
 
 	/** Called whenever an xline is deleted.
@@ -78,27 +70,21 @@ class ModuleXLineDB : public Module
 	 */
 	void OnDelLine(User* source, XLine* line)
 	{
-		RemoveLine(line);
+		dirty = true;
 	}
 
 	void OnExpireLine(XLine *line)
 	{
-		RemoveLine(line);
+		dirty = true;
 	}
 
-	void RemoveLine(XLine *line)
+	void OnBackgroundTimer(time_t now)
 	{
-		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Removing a line");
-		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
+		if (dirty)
 		{
-			if ((*i) == line)
-			{
-				xlines.erase(i);
-				break;
-			}
+			if (WriteDatabase())
+				dirty = false;
 		}
-
-		WriteDatabase();
 	}
 
 	bool WriteDatabase()
@@ -133,12 +119,19 @@ class ModuleXLineDB : public Module
 		fprintf(f, "VERSION 1\n");
 
 		// Now, let's write.
-		XLine *line;
-		for (std::vector<XLine *>::iterator i = xlines.begin(); i != xlines.end(); i++)
+		std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
+		for (std::vector<std::string>::const_iterator it = types.begin(); it != types.end(); ++it)
 		{
-			line = (*i);
-			fprintf(f, "LINE %s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
-				ServerInstance->Config->ServerName.c_str(), (unsigned long)line->set_time, (unsigned long)line->duration, line->reason.c_str());
+			XLineLookup* lookup = ServerInstance->XLines->GetAll(*it);
+			if (!lookup)
+				continue; // Not possible as we just obtained the list from XLineManager
+
+			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
+			{
+				XLine* line = i->second;
+				fprintf(f, "LINE %s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
+					ServerInstance->Config->ServerName.c_str(), (unsigned long)line->set_time, (unsigned long)line->duration, line->reason.c_str());
+			}
 		}
 
 		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
