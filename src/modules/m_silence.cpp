@@ -127,7 +127,7 @@ class CommandSilence : public Command
 
 			return CMD_LOCALONLY;
 		}
-		else if (parameters.size() > 0)
+		else if (parameters.size() > 0 && !parameters[0].empty())
 		{
 			// one or more parameters, add or delete entry from the list (only the first parameter is used)
 			std::string mask = parameters[0].substr(1);
