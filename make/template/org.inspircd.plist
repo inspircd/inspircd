@@ -17,7 +17,7 @@
 	<key>ProgramArguments</key>
 	<array>
 		<string>inspircd</string>
-		<string>-nofork</string>
+		<string>--nofork</string>
 	</array>
 	<key>ServiceIPC</key>
 	<false/>
