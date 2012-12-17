@@ -169,7 +169,6 @@ class ModuleXLineDB : public Module
 	{
 		FILE *f;
 		char linebuf[MAXBUF];
-		unsigned int lineno = 0;
 
 		f = fopen(xlinedbpath.c_str(), "r");
 		if (!f)
@@ -201,16 +200,14 @@ class ModuleXLineDB : public Module
 
 				c++;
 			}
-			// Smart man might think of initing to 1, and moving this to the bottom. Don't. We use continue in this loop.
-			lineno++;
 
 			// Inspired by the command parser. :)
 			irc::tokenstream tokens(linebuf);
 			int items = 0;
-			std::string command_p[MAXPARAMETERS];
+			std::string command_p[7];
 			std::string tmp;
 
-			while (tokens.GetToken(tmp) && (items < MAXPARAMETERS))
+			while (tokens.GetToken(tmp) && (items < 7))
 			{
 				command_p[items] = tmp;
 				items++;
