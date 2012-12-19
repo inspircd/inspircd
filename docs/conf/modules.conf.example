@@ -314,7 +314,7 @@
 # specify some censor tags. See also:                                 #
 # http://wiki.inspircd.org/Modules/censor                             #
 #
-#<include file="conf/censor.conf">
+#<include file="&configpath;/censor.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Adds support for automatic host changing in CGI:IRC
@@ -632,7 +632,7 @@
 # ranktoset  The numeric rank required to set/unset this mode. Defaults to rank.
 # depriv     Can you remove the mode from yourself? Defaults to yes.
 #<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
-#<customprefix name="admin" letter="a" prefix="&" rank="40000" ranktoset="50000">
+#<customprefix name="admin" letter="a" prefix="&amp;" rank="40000" ranktoset="50000">
 #<customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">
 #<customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
 
@@ -770,7 +770,7 @@
 # specfiy below the path to the filter.conf file, or define some      #
 # <filter> tags.                                                      #
 #                                                                     #
-#<include file="conf/filter.conf">
+#<include file="&configpath;/filter.conf">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Gecosban: Implements extended ban r:, which stops anyone matching
@@ -827,7 +827,7 @@
 # specify below the path to the helpop.conf file, or if you like to   #
 # make a mess, define your helpop tags in this conf.                  #
 #                                                                     #
-#<include file="conf/inspircd.helpop-full.example">
+#<include file="&configpath;/inspircd.helpop-full.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDECHANS module: Allows opers to hide their channels list from non-
@@ -1268,7 +1268,7 @@
 #                 Read the comment above <connect:allowmotdcolors> in #
 #                 inspircd.conf.example for details.                  #
 #                                                                     #
-#<opermotd file="conf/oper.motd" onoper="yes" processcolors="false">
+#<opermotd file="&configpath;/oper.motd" onoper="yes" processcolors="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override
