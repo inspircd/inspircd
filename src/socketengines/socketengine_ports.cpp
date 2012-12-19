@@ -46,6 +46,7 @@ private:
 	/** These are used by epoll() to hold socket events
 	 */
 	port_event_t* events;
+	int EngineHandle;
 public:
 	/** Create a new PortsEngine
 	 */
@@ -54,11 +55,10 @@ public:
 	 */
 	virtual ~PortsEngine();
 	virtual bool AddFd(EventHandler* eh, int event_mask);
-	void OnSetEvent(EventHandler* eh, int old_event, int new_event);
+	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
 	virtual std::string GetName();
-	virtual void WantWrite(EventHandler* eh);
 };
 
 #endif
@@ -131,7 +131,7 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	return true;
 }
 
-void PortsEngine::WantWrite(EventHandler* eh, int old_mask, int new_mask)
+void PortsEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	if (mask_to_events(new_mask) != mask_to_events(old_mask))
 		port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), mask_to_events(new_mask), eh);
@@ -149,7 +149,6 @@ void PortsEngine::DelFd(EventHandler* eh)
 	ref[fd] = NULL;
 
 	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
-	return true;
 }
 
 int PortsEngine::DispatchEvents()
@@ -160,15 +159,16 @@ int PortsEngine::DispatchEvents()
 	poll_time.tv_nsec = 0;
 
 	unsigned int nget = 1; // used to denote a retrieve request.
-	int i = port_getn(EngineHandle, this->events, GetMaxFds() - 1, &nget, &poll_time);
+	int ret = port_getn(EngineHandle, this->events, GetMaxFds() - 1, &nget, &poll_time);
 	ServerInstance->UpdateTime();
 
 	// first handle an error condition
-	if (i == -1)
-		return i;
+	if (ret == -1)
+		return -1;
 
 	TotalEvents += nget;
 
+	unsigned int i;
 	for (i = 0; i < nget; i++)
 	{
 		switch (this->events[i].portev_source)
@@ -185,7 +185,7 @@ int PortsEngine::DispatchEvents()
 					if (events[i].portev_events & POLLRDNORM)
 						mask &= ~FD_READ_WILL_BLOCK;
 					// reinsert port for next time around, pretending to be one-shot for writes
-					SetEventMask(ev, mask);
+					SetEventMask(eh, mask);
 					port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
 					if (events[i].portev_events & POLLRDNORM)
 					{
@@ -206,7 +206,7 @@ int PortsEngine::DispatchEvents()
 		}
 	}
 
-	return i;
+	return (int)i;
 }
 
 std::string PortsEngine::GetName()
