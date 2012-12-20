@@ -27,7 +27,7 @@
 #include "socketengine.h"
 #include <iostream>
 
-/** A specialisation of the SocketEngine class, designed to use FreeBSD kqueue().
+/** A specialisation of the SocketEngine class, designed to use BSD kqueue().
  */
 class KQueueEngine : public SocketEngine
 {
@@ -63,7 +63,11 @@ KQueueEngine::KQueueEngine()
 	size_t len;
 
 	mib[0] = CTL_KERN;
+#ifdef KERN_MAXFILESPERPROC
 	mib[1] = KERN_MAXFILESPERPROC;
+#else
+	mib[1] = KERN_MAXFILES;
+#endif
 	len = sizeof(MAX_DESCRIPTORS);
 	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
 	if (MAX_DESCRIPTORS <= 0)
