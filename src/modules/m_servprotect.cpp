@@ -70,11 +70,13 @@ class ModuleServProtectMode : public Module
 		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);
 	}
 
-	void OnWhois(User* src, User* dst)
+	void OnWhois(User* user, User* dest)
 	{
-		if (dst->IsModeSet('k'))
+		if (dest->IsModeSet('k'))
 		{
-			ServerInstance->SendWhoisLine(src, dst, 310, src->nick+" "+dst->nick+" :is an "+ServerInstance->Config->Network+" Service");
+			/* Changed this from what it was because it was making the Grammar Nazi
+			in me cry each and every time I saw it. */
+			ServerInstance->SendWhoisLine(user, dest, 310, "%s %s :is a Network Service on %s", user->nick.c_str(), dest->nick.c_str(), ServerInstance->Config->Network.c_str());
 		}
 	}
 

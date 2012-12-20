@@ -59,10 +59,13 @@ void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned lon
 		this->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
 	}
 
-	if (IS_OPER(dest))
+	/* Check to make sure the user isn't a 'Network Service' as that oper-line is printed by
+	m_servprotect. This isn't a great fix, but it's easier than modifying the oper-name given by
+	services to make it grammatically correct. -Shawn */
+	if (IS_OPER(dest) && !strcmp(dest->oper->NameStr(), "Services"))
 	{
 		if (this->Config->GenericOper)
-			this->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());
+			this->SendWhoisLine(user, dest, 313, "%s %s :is an IRC Operator",user->nick.c_str(), dest->nick.c_str());
 		else
 			this->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"),dest->oper->NameStr(), this->Config->Network.c_str());
 	}
