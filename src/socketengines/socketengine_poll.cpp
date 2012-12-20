@@ -76,15 +76,28 @@ public:
 
 #endif
 
-#include <ulimit.h>
-#ifdef __FreeBSD__
+#ifdef BSD
 	#include <sys/sysctl.h>
+#else
+	#include <ulimit.h>
 #endif
 
 PollEngine::PollEngine()
 {
 	CurrentSetSize = 0;
-#ifndef __FreeBSD__
+#ifdef BSD
+	int mib[2];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+#ifdef KERN_MAXFILESPERPROC
+	mib[1] = KERN_MAXFILESPERPROC;
+#else
+	mib[1] = KERN_MAXFILES;
+#endif
+	len = sizeof(MAX_DESCRIPTORS);
+	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
+#else
 	int max = ulimit(4, 0);
 	if (max > 0)
 	{
@@ -96,14 +109,6 @@ PollEngine::PollEngine()
 		std::cout << "ERROR: Can't determine maximum number of open sockets: " << strerror(errno) << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
-#else
-	int mib[2];
-	size_t len;
-
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_MAXFILES;
-	len = sizeof(MAX_DESCRIPTORS);
-	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
 #endif
 
 	ref = new EventHandler* [GetMaxFds()];
