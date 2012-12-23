@@ -225,7 +225,7 @@ sub dep_cpp($$$) {
 	gendep $file;
 
 	print MAKE "$out: $file $f2dep{$file}\n";
-	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl $type\$(VERBOSE) \$\@ \$< \$>\n";
+	print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl $type\$(VERBOSE) \$\@ \$(SOURCEPATH)/src/$file \$>\n";
 }
 
 sub dep_so($) {
@@ -236,7 +236,7 @@ sub dep_so($) {
 	if ($ENV{SPLIT_CC}) {
 		dep_cpp $file, $split, 'gen-o';
 		print MAKE "$out: $split\n";
-		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-so\$(VERBOSE) \$\@ \$< \$>\n";
+		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-so\$(VERBOSE) \$\@ \$(SOURCEPATH)/src/$file \$>\n";
 	} else {
 		dep_cpp $file, $out, 'gen-so';
 	}
