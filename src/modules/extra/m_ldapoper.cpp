@@ -67,7 +67,7 @@ public:
 		ldapserver		= tag->getString("server");
 		std::string scope	= tag->getString("searchscope");
 		username		= tag->getString("binddn");
-		password		= tag->getString("bindaut");
+		password		= tag->getString("bindauth");
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
