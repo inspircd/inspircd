@@ -139,7 +139,7 @@ class BanRedirect : public ModeWatcher
 						return false;
 					}
 
-					Channel *c = ServerInstance->FindChan(mask[CHAN].c_str());
+					Channel *c = ServerInstance->FindChan(mask[CHAN]);
 					if (!c)
 					{
 						source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),mask[CHAN].c_str());
@@ -169,7 +169,7 @@ class BanRedirect : public ModeWatcher
 					}
 
 					/* Here 'param' doesn't have the channel on it yet */
-					redirects->push_back(BanRedirectEntry(mask[CHAN].c_str(), param.c_str()));
+					redirects->push_back(BanRedirectEntry(mask[CHAN], param));
 
 					/* Now it does */
 					param.append(mask[CHAN]);
@@ -227,16 +227,9 @@ class ModuleBanRedirect : public Module
 		if(!ServerInstance->Modes->AddModeWatcher(&re))
 			throw ModuleException("Could not add mode watcher");
 
-		OnRehash(NULL);
-
 		ServerInstance->Modules->AddService(re.extItem);
-		Implementation list[] = { I_OnRehash, I_OnUserPreJoin, I_OnChannelDelete };
+		Implementation list[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
-	}
-
-	virtual void OnChannelDelete(Channel* chan)
-	{
-		OnCleanup(TYPE_CHANNEL, chan);
 	}
 
 	virtual void OnCleanup(int target_type, void* item)
@@ -272,10 +265,6 @@ class ModuleBanRedirect : public Module
 				}
 			}
 		}
-	}
-
-	virtual void OnRehash(User* user)
-	{
 	}
 
 	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
@@ -352,12 +341,6 @@ class ModuleBanRedirect : public Module
 	virtual Version GetVersion()
 	{
 		return Version("Allows an extended ban (+b) syntax redirecting banned users to another channel", VF_COMMON|VF_VENDOR);
-	}
-
-	void Prioritize()
-	{
-		Module* banex = ServerInstance->Modules->Find("m_banexception.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_BEFORE, &banex);
 	}
 };
 
