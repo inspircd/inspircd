@@ -269,13 +269,6 @@ class ModuleBanRedirect : public Module
 
 	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
 	{
-		/* This prevents recursion when a user sets multiple ban redirects in a chain
-		 * (thanks Potter)
-		 */
-		if (nofollow)
-			return MOD_RES_PASSTHRU;
-
-		/* Return 1 to prevent the join, 0 to allow it */
 		if (chan)
 		{
 			BanRedirectList* redirects = re.extItem.get(chan);
@@ -303,6 +296,16 @@ class ModuleBanRedirect : public Module
 				{
 					if(InspIRCd::Match(user->GetFullRealHost(), redir->banmask) || InspIRCd::Match(user->GetFullHost(), redir->banmask) || InspIRCd::MatchCIDR(ipmask, redir->banmask))
 					{
+						/* This prevents recursion when a user sets multiple ban redirects in a chain
+						 * (thanks Potter)
+						 *
+						 * If we're here and nofollow is true then we're already redirecting this user
+						 * and there's a redirecting ban set on this channel that matches him, too.
+						 * Deny both joins.
+						 */
+						if (nofollow)
+							return MOD_RES_DENY;
+
 						/* tell them they're banned and are being transferred */
 						Channel* destchan = ServerInstance->FindChan(redir->targetchan);
 						std::string destlimit;
