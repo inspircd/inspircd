@@ -126,7 +126,6 @@ class ModuleSSLModes : public Module
 			UserCertificateRequest req(memb->user, this);
 			req.Send();
 
-			/* User is not SSL, KICK THEM, otherwise do nothing. */
 			if (!req.cert)
 			{
 				/* If we want to kick the user. */
