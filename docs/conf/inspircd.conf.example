@@ -741,9 +741,17 @@
           # userstats: /stats commands that users can run (opers can run all).
           userstats="Pu"
 
-          # securekick: Automatically kicks non-ssl users who are forced into ssl-only
-          # channels for some reason. Like by certain modules (m_sajoin, etc)
-          securekick="true">
+          # handleinsecure: Defines how inspircd handles non-ssl users if they
+          # are forced into an ssl-only channel by some unknown force.
+          # (like a module, eg: m_sajoin, m_ojoin)
+          #
+          # Available options:
+          # kick = Kicks the user from the channel.
+          # notice = Notices the channel that an insecure user has joined and
+          # removes channel mode +z
+          #
+          # NOTE: This requires a rehash and a /reloadmodule to be changed.
+          handleinsecure="kick">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
