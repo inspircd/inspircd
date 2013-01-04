@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2013 Shawn Smith <shawn@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -78,6 +79,7 @@ class ModuleSSLModes : public Module
 {
 
 	SSLMode sslm;
+	bool ForceSecureChannel;
 
  public:
 	ModuleSSLModes()
@@ -87,9 +89,27 @@ class ModuleSSLModes : public Module
 
 	void init()
 	{
+		ForceSecureChannel = ServerInstance->Config->ConfValue("security")->getBool("securekick");
+
 		ServerInstance->Modules->AddService(sslm);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric, I_OnPostJoin };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+	}
+
+	/* Using OnPostJoin so that we can issue a kick even if other modules
+		are forcing a non-ssl user into an ssl channel for some reason
+		(m_sajoin, I'm looking at you.) */
+	void OnPostJoin(Membership* memb)
+	{
+		if (memb->chan->IsModeSet('z') && ForceSecureChannel)
+		{
+			UserCertificateRequest req(memb->user, this);
+			req.Send();
+
+			/* User is not SSL, KICK THEM, otherwise do nothing. */
+			if (!req.cert)
+				memb->chan->KickUser(ServerInstance->FakeClient, memb->user, "This is an SSL-only channel and you're not on an SSL connection.");
+		}
 	}
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
