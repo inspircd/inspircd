@@ -101,7 +101,7 @@ class ModuleSSLModes : public Module
 		(m_sajoin, I'm looking at you.) */
 	void OnPostJoin(Membership* memb)
 	{
-		if (memb->chan->IsModeSet('z') && ForceSecureChannel)
+		if (IS_LOCAL(memb->user) && memb->chan->IsModeSet('z') && ForceSecureChannel)
 		{
 			UserCertificateRequest req(memb->user, this);
 			req.Send();
