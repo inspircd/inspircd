@@ -244,9 +244,25 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			 * due to various race conditions such as the KILL message for a user somehow
 			 * crossing the users QUIT further upstream from the server. Thanks jilles!
 			 */
-			ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Command '%s' from unknown prefix '%s'! Dropping entire command.",
-				command.c_str(), prefix.c_str());
-			return;
+
+			if ((prefix.length() == UUID_LENGTH-1) && (isdigit(prefix[0])) &&
+				((command == "FMODE") || (command == "MODE") || (command == "KICK") || (command == "TOPIC") || (command == "KILL") || (command == "ADDLINE") || (command == "DELLINE")))
+			{
+				/* Special case, we cannot drop these commands as they've been committed already on a
+				 * part of the network by the time we receive them, so in this scenario pretend the
+				 * command came from a server to avoid desync.
+				 */
+
+				who = ServerInstance->FindUUID(prefix.substr(0, 3));
+				if (!who)
+					who = this->MyRoot->ServerUser;
+			}
+			else
+			{
+				ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Command '%s' from unknown prefix '%s'! Dropping entire command.",
+					command.c_str(), prefix.c_str());
+				return;
+			}
 		}
 	}
 
