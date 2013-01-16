@@ -148,7 +148,7 @@ class CoreExport StreamSocket : public EventHandler
 	 */
 	bool GetNextLine(std::string& line, char delim = '\n');
 	/** Useful for implementing sendq exceeded */
-	inline const size_t getSendQSize() const { return sendq_len; }
+	inline size_t getSendQSize() const { return sendq_len; }
 
 	/**
 	 * Close the socket, remove from socket engine, etc
