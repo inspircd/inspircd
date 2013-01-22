@@ -273,7 +273,7 @@ $exec = $config{CC} . " -dumpversion | cut -c 3";
 chomp($config{GCCMINOR}		= `$exec`);
 $config{MAXBUF}			= "512";				# Max buffer size
 
-if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)([a-z])?(\-[a-z][0-9])?$/) {
+if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 	$config{HAS_OPENSSL} = $1;
 } else {
 	$config{HAS_OPENSSL} = "";
