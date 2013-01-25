@@ -44,6 +44,7 @@ CONPATH = "$(DESTDIR)@CONFIG_DIR@"
 MODPATH = "$(DESTDIR)@MODULE_DIR@"
 DATPATH = "$(DESTDIR)@DATA_DIR@"
 BINPATH = "$(DESTDIR)@BINARY_DIR@"
+INSTALL = install
 INSTUID = @UID@
 INSTMODE_DIR = 0755
 INSTMODE_BIN = 0755
@@ -67,9 +68,11 @@ INSTMODE_LIB = 0644
 @ENDIF
 @IFEQ $(SYSTEM) solaris
   LDLIBS += -lsocket -lnsl -lrt -lresolv
+  INSTALL = ginstall
 @ENDIF
 @IFEQ $(SYSTEM) sunos
   LDLIBS += -lsocket -lnsl -lrt -lresolv
+	INSTALL = ginstall
 @ENDIF
 @IFEQ $(SYSTEM) darwin
   CXXFLAGS += -DDARWIN -frtti
@@ -215,22 +218,22 @@ install: target
 		echo ""; \
 		exit 1; \
 	fi
-	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
-	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
-	@-install -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
-	@-install -d -m $(INSTMODE_DIR) $(BINPATH)
-	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
-	@-install -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
-	@-install -d -m $(INSTMODE_DIR) $(MODPATH)
-	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || install -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/data
+	@-$(INSTALL) -d -o $(INSTUID) -m $(INSTMODE_DIR) $(BASE)/logs
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(BINPATH)
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/aliases
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(CONPATH)/examples/modules
+	@-$(INSTALL) -d -m $(INSTMODE_DIR) $(MODPATH)
+	[ $(BUILDPATH)/bin/ -ef $(BINPATH) ] || $(INSTALL) -m $(INSTMODE_BIN) $(BUILDPATH)/bin/inspircd $(BINPATH)
 @IFNDEF PURE_STATIC
-	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || install -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
+	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 @ENDIF
-	-install -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
-	-install -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
-	-install -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
-	-install -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
-	-install -m $(INSTMODE_LIB) docs/conf/modules/*.conf.* $(CONPATH)/examples/modules
+	-$(INSTALL) -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
+	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/modules/*.conf.* $(CONPATH)/examples/modules
 	@echo ""
 	@echo "*************************************"
 	@echo "*        INSTALL COMPLETE!          *"
