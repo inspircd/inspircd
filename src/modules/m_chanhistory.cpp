@@ -37,12 +37,12 @@ struct HistoryList
 
 class HistoryMode : public ModeHandler
 {
-	bool IsValidDuration(const std::string duration)
+	bool IsValidDuration(const std::string& duration)
 	{
 		for (std::string::const_iterator i = duration.begin(); i != duration.end(); ++i)
 		{
 			unsigned char c = *i;
-			if (((c >= '0') && (c <= '9')) || (c == 's') || (c != 'S'))
+			if (((c >= '0') && (c <= '9')) || (c == 's') || (c == 'S'))
 				continue;
 
 			if (duration_multi[c] == 1)
