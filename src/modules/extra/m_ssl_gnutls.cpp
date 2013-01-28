@@ -45,6 +45,10 @@
 /* $NoPedantic */
 
 // These don't exist in older GnuTLS versions
+#if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 1) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 1 && GNUTLS_VERSION_MICRO >= 7))
+#define GNUTLS_NEW_PRIO_API
+#endif
+
 #if(GNUTLS_VERSION_MAJOR < 2)
 typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
 typedef gnutls_dh_params_t gnutls_dh_params;
@@ -176,7 +180,9 @@ class ModuleSSLGnuTLS : public Module
 	gnutls_certificate_credentials_t x509_cred;
 	gnutls_dh_params_t dh_params;
 	gnutls_digest_algorithm_t hash;
+	#ifdef GNUTLS_NEW_PRIO_API
 	gnutls_priority_t priority;
+	#endif
 
 	std::string sslports;
 	int dh_bits;
@@ -200,8 +206,11 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_global_init(); // This must be called once in the program
 		gnutls_x509_privkey_init(&x509_key);
+
+		#ifdef GNUTLS_NEW_PRIO_API
 		// Init this here so it's always initialized, avoids an extra boolean
 		gnutls_priority_init(&priority, "NORMAL", NULL);
+		#endif
 
 		cred_alloc = false;
 		dh_alloc = false;
@@ -366,6 +375,7 @@ class ModuleSSLGnuTLS : public Module
 		if((ret = gnutls_certificate_set_x509_key(x509_cred, &x509_certs[0], certcount, x509_key)) < 0)
 			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
 
+		#ifdef GNUTLS_NEW_PRIO_API
 		// It's safe to call this every time as we cannot have this uninitialized, see constructor and below.
 		gnutls_priority_deinit(priority);
 
@@ -380,6 +390,11 @@ class ModuleSSLGnuTLS : public Module
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %u, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (unsigned int) (prioerror - priocstr));
 			gnutls_priority_init(&priority, "NORMAL", NULL);
 		}
+
+		#else
+		if (priorities != "NORMAL")
+			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: You've set <gnutls:priority> to a value other than the default, but this is only supported with GnuTLS v2.1.7 or newer. Your GnuTLS version is older than that so the option will have no effect.");
+		#endif
 
 		#if(GNUTLS_VERSION_MAJOR < 2 || ( GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR < 12 ) )
 		gnutls_certificate_client_set_retrieve_function (x509_cred, cert_callback);
@@ -417,7 +432,9 @@ class ModuleSSLGnuTLS : public Module
 			gnutls_x509_crt_deinit(x509_certs[i]);
 
 		gnutls_x509_privkey_deinit(x509_key);
+		#ifdef GNUTLS_NEW_PRIO_API
 		gnutls_priority_deinit(priority);
+		#endif
 
 		if (dh_alloc)
 			gnutls_dh_params_deinit(dh_params);
@@ -485,7 +502,9 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_init(&session->sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
 
+		#ifdef GNUTLS_NEW_PRIO_API
 		gnutls_priority_set(session->sess, priority);
+		#endif
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
