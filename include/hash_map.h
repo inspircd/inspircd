@@ -22,17 +22,19 @@
 
 #ifndef INSPIRCD_HASHMAP_H
 #define INSPIRCD_HASHMAP_H
-
-#include "inspircd_config.h"
-
+ 
 	/** Where hash_map is varies from compiler to compiler
 	 * as it is not standard unless we have tr1.
+	 *
+	 * TODO: in 2.2 if we drop support for libstdc++ older than 3.4.7 and GCC older
+	 *       than 4.1 this can be cleaned up massively.
 	 */
 	#ifndef _WIN32
-		#ifdef HASHMAP_DEPRECATED
+		#if __GLIBCXX__ > 20060309
 			// GCC4+ has deprecated hash_map and uses tr1. But of course, uses a different include to MSVC. FOR FUCKS SAKE.
 			#include <tr1/unordered_map>
 			#define HAS_TR1_UNORDERED
+			#define HASHMAP_DEPRECATED
 		#else
 			#include <ext/hash_map>
 			/** Oddball linux namespace for hash_map */
