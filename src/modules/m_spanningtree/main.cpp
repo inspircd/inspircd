@@ -83,7 +83,7 @@ void ModuleSpanningTree::init()
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 	delete ServerInstance->PI;
-	ServerInstance->PI = new SpanningTreeProtocolInterface(this, Utils);
+	ServerInstance->PI = new SpanningTreeProtocolInterface(Utils);
 	loopCall = false;
 
 	// update our local user count

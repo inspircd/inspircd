@@ -26,10 +26,9 @@ class ModuleSpanningTree;
 class SpanningTreeProtocolInterface : public ProtocolInterface
 {
 	SpanningTreeUtilities* Utils;
-	ModuleSpanningTree* Module;
 	void SendChannel(Channel* target, char status, const std::string &text);
  public:
-	SpanningTreeProtocolInterface(ModuleSpanningTree* mod, SpanningTreeUtilities* util) : Utils(util), Module(mod) { }
+	SpanningTreeProtocolInterface(SpanningTreeUtilities* util) : Utils(util) { }
 	virtual ~SpanningTreeProtocolInterface() { }
 
 	virtual bool SendEncapsulatedData(const parameterlist &encap);
