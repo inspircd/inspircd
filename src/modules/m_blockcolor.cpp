@@ -35,7 +35,6 @@ class BlockColor : public SimpleChannelModeHandler
 
 class ModuleBlockColor : public Module
 {
-	bool AllowChanOps;
 	BlockColor bc;
  public:
 

@@ -42,7 +42,6 @@ class UserStripColor : public SimpleUserModeHandler
 
 class ModuleStripColor : public Module
 {
-	bool AllowChanOps;
 	ChannelStripColor csc;
 	UserStripColor usc;
 
