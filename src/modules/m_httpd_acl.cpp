@@ -45,7 +45,6 @@ class ModuleHTTPAccessList : public Module
 {
 
 	std::string stylesheet;
-	bool changed;
 	std::vector<HTTPACL> acl_list;
 
  public:
