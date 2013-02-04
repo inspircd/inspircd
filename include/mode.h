@@ -161,6 +161,15 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param type Type of the mode (MODETYPE_USER or MODETYPE_CHANNEL)
 	 */
 	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type);
+	
+	/**
+	 * Instead of allowing direct access to levelrequired, we want modules to
+	 * use setLevelRequired, which refers to config's <modelevel>
+	 * @param level the new level we want
+	 */
+	void setLevelRequired(int level);
+	int getLevelRequired();
+
 	virtual CullResult cull();
 	virtual ~ModeHandler();
 	/**
