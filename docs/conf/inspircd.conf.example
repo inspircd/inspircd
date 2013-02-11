@@ -660,13 +660,13 @@
 
 <security
 
-          # announceinvites: If this option is set, then invites are announced
-          # to the channel when a user invites another user. If you consider
-          # this to be unnecessary noise, set this to 'none'.
-          # To announce to all ops, set this to 'ops' and to announce to all users,
-          # set the value to 'all'. The value 'dynamic' will make the messages
-          # go to every user who has power of INVITE on the channel. This
-          # is the recommended setting.
+          # announceinvites: This option controls which members of the channel
+          # receive an announcement when someone is INVITEd. Available values:
+          # 'none' - don't send invite announcements
+          # 'all' - send invite announcements to all members
+          # 'ops' - send invite announcements to ops and higher ranked users
+          # 'dynamic' - send invite announcements to halfops (if available) and
+          #             higher ranked users. This is the recommended setting.
           announceinvites="dynamic"
 
           # hidemodes: If enabled, then the listmodes given will be hidden
