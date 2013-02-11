@@ -94,11 +94,13 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		{
 			if (IS_LOCAL(user))
 			{
-				int rank = c->GetPrefixValue(user);
+				unsigned int rank = c->GetPrefixValue(user);
 				if (rank < HALFOP_VALUE)
 				{
+					// Check whether halfop mode is available and phrase error message accordingly
+					ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
 					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",
-						user->nick.c_str(), c->name.c_str(), rank >= HALFOP_VALUE ? "" : "half-");
+						user->nick.c_str(), c->name.c_str(), (mh && mh->name == "halfop" ? "half-" : ""));
 					return CMD_FAILURE;
 				}
 			}
