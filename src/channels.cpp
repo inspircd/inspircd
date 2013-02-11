@@ -231,7 +231,6 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 	if (!user || !cn || user->registered != REG_ALL)
 		return NULL;
 
-	char cname[MAXBUF];
 	std::string privs;
 	Channel *Ptr;
 
@@ -264,7 +263,8 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		}
 	}
 
-	strlcpy(cname, cn, ServerInstance->Config->Limits.ChanMax);
+	std::string cname;
+	cname.assign(std::string(cn), 0, ServerInstance->Config->Limits.ChanMax);
 	Ptr = ServerInstance->FindChan(cname);
 	bool created_by_local = false;
 
@@ -287,7 +287,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname.c_str(), privs, key ? key : ""));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return NULL;
 		}
@@ -307,7 +307,7 @@ Channel* Channel::JoinUser(User *user, const char* cn, bool override, const char
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cname, privs, key ? key : ""));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cname.c_str(), privs, key ? key : ""));
 			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				return NULL;
