@@ -55,14 +55,23 @@ class ModuleHttpStats : public Module
 				ret += it->second;
 				ret += ';';
 			}
-			else if (*x < 32 || *x > 126)
+			else if (*x == 0x9 ||  *x == 0xA || *x == 0xD ||
+			        (*x >= 0x20 && *x <= 0xD7FF) || (*x >= 0xE000 && *x <= 0x10FFFF))
 			{
-				int n = (unsigned char)*x;
-				ret += ("&#" + ConvToStr(n) + ";");
+				// The XML specification defines the following characters as valid inside an XML document:
+				// Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+				ret += *x;
 			}
 			else
 			{
-				ret += *x;
+				// If we reached this point then the string contains characters which can
+				// not be represented in XML, even using a numeric escape. Therefore, we
+				// Base64 encode the entire string and wrap it in a CDATA.
+				ret.clear();
+				ret += "<![CDATA[";
+				ret += BinToBase64(str);
+				ret += "]]>";
+				break;
 			}
 		}
 		return ret;
@@ -145,7 +154,7 @@ class ModuleHttpStats : public Module
 					Channel* c = a->second;
 
 					data << "<channel>";
-					data << "<usercount>" << c->GetUsers()->size() << "</usercount><channelname>" << c->name << "</channelname>";
+					data << "<usercount>" << c->GetUsers()->size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";
 					data << "<channeltopic>";
 					data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
 					data << "<setby>" << Sanitize(c->setby) << "</setby>";
