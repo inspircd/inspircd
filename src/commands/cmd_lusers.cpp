@@ -74,11 +74,10 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 	unsigned int n_invis = ServerInstance->Users->ModeCount('i');
 	ProtoServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
-	int n_serv = 0;
-	int n_local_servs = 0;
+	unsigned int n_serv = serverlist.size();
+	unsigned int n_local_servs = 0;
 	for(ProtoServerList::iterator i = serverlist.begin(); i != serverlist.end(); ++i)
 	{
-		n_serv++;
 		if (i->parentname == ServerInstance->Config->ServerName)
 			n_local_servs++;
 	}
