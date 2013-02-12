@@ -86,5 +86,25 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 	return CMD_SUCCESS;
 }
 
+class ModuleLusers : public Module
+{
+	CommandLusers cmd;
 
-COMMAND_INIT(CommandLusers)
+ public:
+	ModuleLusers()
+		: cmd(this)
+	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(cmd);
+	}
+
+	Version GetVersion()
+	{
+		return Version("LUSERS", VF_VENDOR | VF_CORE);
+	}
+};
+
+MODULE_INIT(ModuleLusers)
