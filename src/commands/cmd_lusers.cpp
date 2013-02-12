@@ -20,6 +20,29 @@
 
 #include "inspircd.h"
 
+struct LusersCounters
+{
+	unsigned int max_local;
+	unsigned int max_global;
+
+	LusersCounters()
+		: max_local(ServerInstance->Users->LocalUserCount() - ServerInstance->Users->UnregisteredUserCount())
+		, max_global(ServerInstance->Users->RegisteredUserCount())
+	{
+	}
+
+	inline void UpdateMaxUsers()
+	{
+		unsigned int current = ServerInstance->Users->LocalUserCount() - ServerInstance->Users->UnregisteredUserCount();
+		if (current > max_local)
+			max_local = current;
+
+		current = ServerInstance->Users->RegisteredUserCount();
+		if (current > max_global)
+			max_global = current;
+	}
+};
+
 /** Handle /LUSERS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -27,12 +50,12 @@
  */
 class CommandLusers : public Command
 {
-	unsigned int max_local, max_global;
+	LusersCounters& counters;
  public:
 	/** Constructor for lusers.
 	 */
-	CommandLusers ( Module* parent) : Command(parent,"LUSERS",0,0),
-		max_local(0), max_global(0)
+	CommandLusers(Module* parent, LusersCounters& Counters)
+		: Command(parent,"LUSERS",0,0), counters(Counters)
 	{ }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
@@ -63,11 +86,7 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 	if (!n_serv)
 		n_serv = 1;
 
-	// these are updated on every connect (or /lusers invocation), which is good enough
-	if (ServerInstance->Users->LocalUserCount() > max_local)
-		max_local = ServerInstance->Users->LocalUserCount();
-	if (n_users > max_global)
-		max_global = n_users;
+	counters.UpdateMaxUsers();
 
 	user->WriteNumeric(251, "%s :There are %d users and %d invisible on %d servers",user->nick.c_str(),
 			n_users-n_invis, n_invis, n_serv);
@@ -80,25 +99,33 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 
 	user->WriteNumeric(254, "%s %ld :channels formed",user->nick.c_str(),ServerInstance->ChannelCount());
 	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),n_local_servs);
-	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),max_local);
-	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d",user->nick.c_str(),n_users,max_global);
+	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d", user->nick.c_str(), ServerInstance->Users->LocalUserCount(), counters.max_local);
+	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d", user->nick.c_str(), n_users, counters.max_global);
 
 	return CMD_SUCCESS;
 }
 
 class ModuleLusers : public Module
 {
+	LusersCounters counters;
 	CommandLusers cmd;
 
  public:
 	ModuleLusers()
-		: cmd(this)
+		: cmd(this, counters)
 	{
 	}
 
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
+		Implementation events[] = { I_OnPostConnect };
+		ServerInstance->Modules->Attach(events, this, sizeof(events)/sizeof(Implementation));
+	}
+
+	void OnPostConnect(User* user)
+	{
+		counters.UpdateMaxUsers();
 	}
 
 	Version GetVersion()
