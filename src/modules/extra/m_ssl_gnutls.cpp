@@ -195,6 +195,12 @@ class ModuleSSLGnuTLS : public Module
 
 	GenericCap capHandler;
 	ServiceProvider iohook;
+
+	inline static const char* UnknownIfNULL(const char* str)
+	{
+		return str ? str : "UNKNOWN";
+	}
+
  public:
 
 	ModuleSSLGnuTLS()
@@ -701,10 +707,12 @@ class ModuleSSLGnuTLS : public Module
 		{
 			if (sessions[user->eh.GetFd()].sess)
 			{
+				const gnutls_session_t& sess = sessions[user->eh.GetFd()].sess;
+				std::string cipher = UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)));
+				cipher.append("-").append(UnknownIfNULL(gnutls_cipher_get_name(gnutls_cipher_get(sess)))).append("-");
+				cipher.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess))));
+
 				ssl_cert* cert = sessions[user->eh.GetFd()].cert;
-				std::string cipher = gnutls_kx_get_name(gnutls_kx_get(sessions[user->eh.GetFd()].sess));
-				cipher.append("-").append(gnutls_cipher_get_name(gnutls_cipher_get(sessions[user->eh.GetFd()].sess))).append("-");
-				cipher.append(gnutls_mac_get_name(gnutls_mac_get(sessions[user->eh.GetFd()].sess)));
 				if (cert->fingerprint.empty())
 					user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
 				else
