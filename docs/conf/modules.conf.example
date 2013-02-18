@@ -954,6 +954,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
 #<module name="m_kicknorejoin.so">
+# Set the maximum time that is accepted as a parameter for +J here.
+#<kicknorejoin maxtime="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Knock module: adds the /KNOCK command and +K channel mode

@@ -31,27 +31,42 @@ typedef std::map<User*, time_t> delaylist;
 
 /** Handles channel mode +J
  */
-class KickRejoin : public ParamChannelModeHandler
+class KickRejoin : public ModeHandler
 {
  public:
+	unsigned int max;
 	SimpleExtItem<delaylist> ext;
-	KickRejoin(Module* Creator) : ParamChannelModeHandler(Creator, "kicknorejoin", 'J'), ext("norejoinusers", Creator) { }
-
-	bool ParamValidate(std::string& parameter)
+	KickRejoin(Module* Creator)
+		: ModeHandler(Creator, "kicknorejoin", 'J', PARAM_SETONLY, MODETYPE_CHANNEL)
+		, ext("norejoinusers", Creator)
 	{
-		int v = atoi(parameter.c_str());
-		if (v <= 0)
-			return false;
-		parameter = ConvToStr(v);
-		return true;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding)
 	{
-		ModeAction rv = ParamChannelModeHandler::OnModeChange(source, dest, channel, parameter, adding);
-		if (rv == MODEACTION_ALLOW && !adding)
+		if (adding)
+		{
+			int v = ConvToInt(parameter);
+			if (v <= 0)
+				return MODEACTION_DENY;
+			if (parameter == channel->GetModeParameter(this))
+				return MODEACTION_DENY;
+
+			if ((IS_LOCAL(source) && ((unsigned int)v > max)))
+				v = max;
+
+			parameter = ConvToStr(v);
+			channel->SetModeParam(this, parameter);
+		}
+		else
+		{
+			if (!channel->IsModeSet(this))
+				return MODEACTION_DENY;
+
 			ext.unset(channel);
-		return rv;
+			channel->SetModeParam(this, "");
+		}
+		return MODEACTION_ALLOW;
 	}
 };
 
@@ -70,8 +85,16 @@ public:
 	{
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Modules->AddService(kr.ext);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		OnRehash(NULL);
+	}
+
+	void OnRehash(User* user)
+	{
+		kr.max = ServerInstance->Duration(ServerInstance->Config->ConfValue("kicknorejoin")->getString("maxtime"));
+		if (!kr.max)
+			kr.max = 30*60;
 	}
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
