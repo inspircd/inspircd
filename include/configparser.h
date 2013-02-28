@@ -50,6 +50,11 @@ struct ParseStack
 		vars["amp"] = "&";
 		vars["quot"] = "\"";
 		vars["newline"] = vars["nl"] = "\n";
+		
+		vars["configpath"] = CONFIG_PATH;
+		vars["datapath"] = DATA_PATH;
+		vars["logpath"] = LOG_PATH;
+		vars["modulepath"] = MOD_PATH;
 	}
 	bool ParseFile(const std::string& name, int flags);
 	bool ParseExec(const std::string& name, int flags);
