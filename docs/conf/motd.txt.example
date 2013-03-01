@@ -24,12 +24,12 @@
                     `-.__  `----"""    __.-'
                          `--..____..--'
   
-        -- To change, see inspircd.motd.example --
+        ---- To change, see motd.txt.example -----
        /                                          \
-      /     * Web: http://www.inspircd.org         \
-      |     * IRC: irc.inspircd.org #inspircd      |
-      |     * Docs: http://wiki.inspircd.org       |
-      |     * Bugs: http://inspircd.org/bugtrack/  |
+      /   * Web: http://www.inspircd.org           \
+      |   * IRC: irc.inspircd.org #inspircd        |
+      |   * Docs: http://wiki.inspircd.org         |
+      |   * Bugs: http://inspircd.github.com/bugs  |
       |                                            |
       | We hope you like this software. Please do  |
       | make  sure  you  put  some  effort  into   |

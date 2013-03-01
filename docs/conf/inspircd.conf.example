@@ -416,11 +416,11 @@
 
 # This file has all the information about oper classes, types and o:lines.
 # You *MUST* edit it.
-<include file="conf/opers.conf.example">
+<include file="conf/examples/opers.conf.example">
 
 # This file has all the information about server links and ulined servers.
 # You *MUST* edit it if you intend to link servers.
-<include file="conf/links.conf.example">
+<include file="conf/examples/links.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -430,7 +430,7 @@
 #   motd - displayed on connect and when a user executes /MOTD
 #   rules - displayed when the user executes /RULES
 # Modules can also define their own files
-<files motd="conf/inspircd.motd.example" rules="conf/inspircd.rules.example">
+<files motd="conf/examples/motd.txt.example" rules="conf/examples/rules.txt.example">
 
 # Example of an executable file include. Note this will be read on rehash,
 # not when the command is run.
@@ -954,7 +954,7 @@
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
 # The default does nothing -- we include it for simplicity for you.   #
-<include file="conf/modules.conf.example">
+<include file="conf/examples/modules.conf.example">
 
 # Here are some pre-built modules.conf files that closely match the
 # default configurations of some popular IRCd's. You still may want to
@@ -966,10 +966,10 @@
 # recommended that you make your own modules file based on modules.conf.example.
 
 # Settings similar to UnrealIRCd defaults.
-#<include file="conf/modules/modules.conf.unreal">
+#<include file="conf/examples/modules/unrealircd.conf.example">
 
 # Settings similar to Charybdis IRCd defaults.
-#<include file="conf/modules/modules.conf.charybdis">
+#<include file="conf/examples/modules/charybdis.conf.example">
 
 
 #########################################################################
