@@ -375,6 +375,8 @@ class ModuleDNSBL : public Module
 		snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
 		reversedip = std::string(reversedipbuf);
 
+		countExt.set(user, DNSBLConfEntries.size());
+
 		// For each DNSBL, we will run through this lookup
 		unsigned int i = 0;
 		while (i < DNSBLConfEntries.size())
@@ -386,9 +388,10 @@ class ModuleDNSBL : public Module
 			bool cached;
 			DNSBLResolver *r = new DNSBLResolver(this, nameExt, countExt, hostname, user, DNSBLConfEntries[i], cached);
 			ServerInstance->AddResolver(r, cached);
+			if (user->quitting)
+				break;
 			i++;
 		}
-		countExt.set(user, i);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
