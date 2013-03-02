@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2008 Craig Edwards <craigedwards@brainbox.cc>
+ *   Copyright (C) 2013 Manuel Leiner <satmd@euirc.net>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -19,24 +19,23 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Hide /MAP and /LINKS in the same form as ircu (mostly useless) */
+/* $ModDesc: Implement JOIN 0 */
 
-class ModuleMapHide : public Module
+class ModuleJoinZero : public Module
 {
-	std::string url;
+ private:
  public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
-		if (command == "JOIN" && parameters.size() && parameters[0] == "0")
+		if (validated && command == "JOIN" && parameters.size() && parameters[0] == "0")
 		{
-			std::string reason="Left all channels";
+			std::string reason("Left all channels");
 			UserChanList cl(user->chans);
 			for(UCListIter ci=cl.begin();ci != cl.end(); ++ci) {
 				(*ci)->PartUser(user, reason);
@@ -47,15 +46,15 @@ class ModuleMapHide : public Module
 			return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleMapHide()
+	virtual ~ModuleJoinZero()
 	{
 	}
 
 	virtual Version GetVersion()
 	{
-		return Version("Implement rfc1452 JOIN 0");
+		return Version("Implement JOIN 0");
 	}
 };
 
-MODULE_INIT(ModuleMapHide)
+MODULE_INIT(ModuleJoinZero)
 
