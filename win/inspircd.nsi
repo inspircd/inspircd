@@ -156,7 +156,7 @@ Section "Config Files" SEC02
   SetOutPath "$INSTDIR\conf\aliases"
   File "..\docs\conf\aliases\*.example"
   SetOutPath "$INSTDIR\conf\modules"
-  File "..\docs\conf\modules\modules.*"
+  File "..\docs\conf\modules\*.example"
 SectionEnd
 
 Section "Command Handlers" SEC03
