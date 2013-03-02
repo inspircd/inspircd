@@ -1068,20 +1068,13 @@ bool DNS::AddResolverClass(Resolver* r)
 			Classes[r->GetId()] = r;
 			return true;
 		}
-		else
-			/* Duplicate id */
-			return false;
 	}
-	else
-	{
-		/* Pointer or id not valid.
-		 * Free the item and return
-		 */
-		if (r)
-			delete r;
 
-		return false;
-	}
+	/* Pointer or id not valid, or duplicate id.
+	 * Free the item and return
+	 */
+	delete r;
+	return false;
 }
 
 void DNS::CleanResolvers(Module* module)
