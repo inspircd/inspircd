@@ -314,7 +314,7 @@
 # specify some censor tags. See also:                                 #
 # http://wiki.inspircd.org/Modules/censor                             #
 #
-#<include file="conf/censor.conf">
+#<include file="conf/examples/censor.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Adds support for automatic host changing in CGI:IRC
@@ -770,7 +770,7 @@
 # specfiy below the path to the filter.conf file, or define some      #
 # <filter> tags.                                                      #
 #                                                                     #
-#<include file="conf/filter.conf">
+#<include file="conf/examples/filter.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Gecosban: Implements extended ban r:, which stops anyone matching
@@ -827,7 +827,7 @@
 # specify below the path to the helpop.conf file, or if you like to   #
 # make a mess, define your helpop tags in this conf.                  #
 #                                                                     #
-#<include file="conf/inspircd.helpop-full.example">
+#<include file="conf/examples/inspircd.helpop-full.example">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HIDECHANS module: Allows opers to hide their channels list from non-
@@ -1268,7 +1268,7 @@
 #                 Read the comment above <connect:allowmotdcolors> in #
 #                 inspircd.conf.example for details.                  #
 #                                                                     #
-#<opermotd file="conf/oper.motd" onoper="yes" processcolors="false">
+#<opermotd file="conf/examples/opermotd.txt.example" onoper="yes" processcolors="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override
