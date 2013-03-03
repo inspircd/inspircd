@@ -987,36 +987,39 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 	return irc::sockets::cidr_mask(client_sa, range);
 }
 
-bool User::SetClientIP(const char* sip)
+bool User::SetClientIP(const char* sip, bool recheck_eline)
 {
 	cachedip.clear();
 	cached_hostip.clear();
 	return irc::sockets::aptosa(sip, 0, client_sa);
 }
 
-void User::SetClientIP(const irc::sockets::sockaddrs& sa)
+void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 {
 	cachedip.clear();
 	cached_hostip.clear();
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 }
 
-bool LocalUser::SetClientIP(const char* sip)
+bool LocalUser::SetClientIP(const char* sip, bool recheck_eline)
 {
 	irc::sockets::sockaddrs sa;
 	if (!irc::sockets::aptosa(sip, 0, sa))
 		// Invalid
 		return false;
 
-	LocalUser::SetClientIP(sa);
+	LocalUser::SetClientIP(sa, recheck_eline);
 	return true;
 }
 
-void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa)
+void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 {
 	if (sa != client_sa)
 	{
 		User::SetClientIP(sa);
+		if (recheck_eline)
+			this->exempt = (ServerInstance->XLines->MatchesLine("E", this) != NULL);
+
 		FOREACH_MOD(I_OnSetUserIP,OnSetUserIP(this));
 	}
 }

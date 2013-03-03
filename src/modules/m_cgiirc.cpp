@@ -176,9 +176,9 @@ class ModuleCgiIRC : public Module
 	CommandWebirc cmd;
 	LocalIntExt waiting;
 
-	static void RecheckElineAndClass(LocalUser* user)
+	static void RecheckClass(LocalUser* user)
 	{
-		user->exempt = (ServerInstance->XLines->MatchesLine("E", user) != NULL);
+		user->MyClass = NULL;
 		user->SetClass();
 		user->CheckClass();
 	}
@@ -198,7 +198,7 @@ class ModuleCgiIRC : public Module
 		ChangeIP(user, newip);
 		user->host = user->dhost = user->GetIPString();
 		user->InvalidateCache();
-		RecheckElineAndClass(user);
+		RecheckClass(user);
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
 		if (user->quitting || ServerInstance->Config->NoUserDns)
 			return;
@@ -295,7 +295,7 @@ public:
 		std::string* webirc_hostname = cmd.webirc_hostname.get(user);
 		user->host = user->dhost = (webirc_hostname ? *webirc_hostname : user->GetIPString());
 
-		RecheckElineAndClass(user);
+		RecheckClass(user);
 		if (user->quitting)
 			return MOD_RES_DENY;
 

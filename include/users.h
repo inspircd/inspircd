@@ -393,9 +393,9 @@ class CoreExport User : public Extensible
 	/** Sets the client IP for this user
 	 * @return true if the conversion was successful
 	 */
-	virtual bool SetClientIP(const char* sip);
+	virtual bool SetClientIP(const char* sip, bool recheck_eline = true);
 
-	virtual void SetClientIP(const irc::sockets::sockaddrs& sa);
+	virtual void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true);
 
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
@@ -825,9 +825,9 @@ class CoreExport LocalUser : public User, public InviteBase
 	 */
 	void SetClass(const std::string &explicit_name = "");
 
-	bool SetClientIP(const char* sip);
+	bool SetClientIP(const char* sip, bool recheck_eline = true);
 
-	void SetClientIP(const irc::sockets::sockaddrs& sa);
+	void SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline = true);
 
 	void SendText(const std::string& line);
 	void Write(const std::string& text);
