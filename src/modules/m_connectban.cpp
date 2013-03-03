@@ -33,7 +33,7 @@ class ModuleConnectBan : public Module
  public:
 	void init()
 	{
-		Implementation eventlist[] = { I_OnUserConnect, I_OnGarbageCollect, I_OnRehash };
+		Implementation eventlist[] = { I_OnSetUserIP, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
@@ -68,8 +68,11 @@ class ModuleConnectBan : public Module
 			banduration = 10*60;
 	}
 
-	virtual void OnUserConnect(LocalUser *u)
+	virtual void OnSetUserIP(LocalUser* u)
 	{
+		if (u->exempt)
+			return;
+
 		int range = 32;
 		clonemap::iterator i;
 
