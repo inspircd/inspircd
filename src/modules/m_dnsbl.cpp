@@ -67,7 +67,7 @@ class DNSBLResolver : public Resolver
 		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
 		if (them)
 		{
-			int i = countExt.get(them);
+			size_t i = countExt.get(them);
 			if (i)
 				countExt.set(them, i - 1);
 			// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
@@ -196,7 +196,7 @@ class DNSBLResolver : public Resolver
 		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
 		if (them)
 		{
-			int i = countExt.get(them);
+			size_t i = countExt.get(them);
 			if (i)
 				countExt.set(them, i - 1);
 		}
@@ -376,8 +376,9 @@ class ModuleDNSBL : public Module
 		reversedip = std::string(reversedipbuf);
 
 		// For each DNSBL, we will run through this lookup
-		unsigned int i = 0;
-		while (i < DNSBLConfEntries.size())
+		size_t i = DNSBLConfEntries.size();
+		countExt.set(user, i);
+		while (i--)
 		{
 			// Fill hostname with a dnsbl style host (d.c.b.a.domain.tld)
 			std::string hostname = reversedip + "." + DNSBLConfEntries[i]->domain;
@@ -385,10 +386,15 @@ class ModuleDNSBL : public Module
 			/* now we'd need to fire off lookups for `hostname'. */
 			bool cached;
 			DNSBLResolver *r = new DNSBLResolver(this, nameExt, countExt, hostname, user, DNSBLConfEntries[i], cached);
-			ServerInstance->AddResolver(r, cached);
-			i++;
+			/* AddResolver can fail, even if unlikely */
+			if (!ServerInstance->AddResolver(r, cached)) {
+				size_t count = countExt.get(user);
+				if (count)
+					countExt.set(user, count - 1);
+				if (r)
+					delete r;
+			}
 		}
-		countExt.set(user, i);
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
