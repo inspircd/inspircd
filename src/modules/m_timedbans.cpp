@@ -62,12 +62,8 @@ class CommandTban : public Command
 			user->WriteNumeric(482, "%s %s :You do not have permission to set bans on this channel",
 				user->nick.c_str(), channel->name.c_str());
 			return CMD_FAILURE;
-		}
-		if (!ServerInstance->IsValidMask(parameters[2]))
-		{
-			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
-			return CMD_FAILURE;
-		}
+		}		
+
 		TimedBan T;
 		std::string channelname = parameters[0];
 		long duration = ServerInstance->Duration(parameters[1]);
@@ -82,6 +78,13 @@ class CommandTban : public Command
 		setban.push_back(parameters[0]);
 		setban.push_back("+b");
 		setban.push_back(parameters[2]);
+
+		if (parameters[2].find(':') == std::string::npos && !ServerInstance->IsValidMask(parameters[2]))
+		{
+			mask.append("!*@*");
+			setban.push_back("!*@*");
+		}
+
 		// use CallHandler to make it so that the user sets the mode
 		// themselves
 		ServerInstance->Parser->CallHandler("MODE",setban,user);
