@@ -335,6 +335,7 @@ class ModuleSSLGnuTLS : public Module
 		{
 			gnutls_dh_params_deinit(dh_params);
 			dh_alloc = false;
+			dh_params = NULL;
 		}
 
 		if (cred_alloc)
@@ -422,10 +423,30 @@ class ModuleSSLGnuTLS : public Module
 		ret = gnutls_dh_params_init(&dh_params);
 		dh_alloc = (ret >= 0);
 		if (!dh_alloc)
+		{
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
+			return;
+		}
 
-		// This may be on a large (once a day or week) timer eventually.
-		GenerateDHParams();
+		std::string dhfile = Conf->getString("dhfile");
+		if (!dhfile.empty())
+		{
+			// Try to load DH params from file
+			reader.LoadFile(dhfile);
+			std::string dhstring = reader.Contents();
+			gnutls_datum_t dh_datum = { (unsigned char*)dhstring.data(), static_cast<unsigned int>(dhstring.length()) };
+
+			if ((ret = gnutls_dh_params_import_pkcs3(dh_params, &dh_datum, GNUTLS_X509_FMT_PEM)) < 0)
+			{
+				// File unreadable or GnuTLS was unhappy with the contents, generate the DH primes now
+				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls.so: Generating DH parameters because I failed to load them from file '%s': %s", dhfile.c_str(), gnutls_strerror(ret));
+				GenerateDHParams();
+			}
+		}
+		else
+		{
+			GenerateDHParams();
+		}
 	}
 
 	void GenerateDHParams()
