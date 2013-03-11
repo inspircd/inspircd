@@ -295,11 +295,6 @@ class CoreExport DNS : public EventHandler
 	static const int MAX_REQUEST_ID = 0xFFFF;
 
 	/**
-	 * A counter used to form part of the pseudo-random id
-	 */
-	int currid;
-
-	/**
 	 * Currently cached items
 	 */
 	dnscache* cache;

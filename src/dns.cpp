@@ -371,10 +371,6 @@ DNS::DNS()
 	/* Clear the requests class table */
 	memset(requests,0,sizeof(requests));
 
-	/* Set the id of the next request to 0
-	 */
-	currid = 0;
-
 	/* DNS::Rehash() sets this to a valid ptr
 	 */
 	this->cache = NULL;
