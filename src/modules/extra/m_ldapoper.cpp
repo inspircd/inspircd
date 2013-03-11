@@ -35,6 +35,31 @@
 /* $ModDesc: Adds the ability to authenticate opers via LDAP */
 /* $LinkerFlags: -lldap */
 
+struct RAIILDAPString
+{
+	char *str;
+
+	RAIILDAPString(char *Str)
+		: str(Str)
+	{
+	}
+
+	~RAIILDAPString()
+	{
+		ldap_memfree(str);
+	}
+
+	operator char*()
+	{
+		return str;
+	}
+
+	operator std::string()
+	{
+		return str;
+	}
+};
+
 class ModuleLDAPAuth : public Module
 {
 	std::string base;
@@ -165,7 +190,8 @@ public:
 		authpass = strdup(opassword.c_str());
 		cred.bv_val = authpass;
 		cred.bv_len = opassword.length();
-		if ((res = ldap_sasl_bind_s(conn, ldap_get_dn(conn, entry), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
+		RAIILDAPString DN(ldap_get_dn(conn, entry));
+		if ((res = ldap_sasl_bind_s(conn, DN, LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL)) == LDAP_SUCCESS)
 		{
 			free(authpass);
 			ldap_msgfree(msg);
