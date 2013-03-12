@@ -30,9 +30,10 @@ struct Parser
 	fpos last_tag;
 	reference<ConfigTag> tag;
 	int ungot;
+	std::string mandatory_tag;
 
-	Parser(ParseStack& me, int myflags, FILE* conf, const std::string& name)
-		: stack(me), flags(myflags), file(conf), current(name), last_tag(name), ungot(-1)
+	Parser(ParseStack& me, int myflags, FILE* conf, const std::string& name, const std::string& mandatorytag)
+		: stack(me), flags(myflags), file(conf), current(name), last_tag(name), ungot(-1), mandatory_tag(mandatorytag)
 	{ }
 
 	int next(bool eof_ok = false)
@@ -184,6 +185,12 @@ struct Parser
 
 		while (kv(items, seen));
 
+		if (name == mandatory_tag)
+		{
+			// Found the mandatory tag
+			mandatory_tag.clear();
+		}
+
 		if (name == "include")
 		{
 			stack.DoInclude(tag, flags);
@@ -241,6 +248,8 @@ struct Parser
 				{
 					case EOF:
 						// this is the one place where an EOF is not an error
+						if (!mandatory_tag.empty())
+							throw CoreException("Mandatory tag \"" + mandatory_tag + "\" not found");
 						return true;
 					case '#':
 						comment();
@@ -277,6 +286,10 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 {
 	if (flags & FLAG_NO_INC)
 		throw CoreException("Invalid <include> tag in file included with noinclude=\"yes\"");
+
+	std::string mandatorytag;
+	tag->readString("mandatorytag", mandatorytag);
+
 	std::string name;
 	if (tag->readString("file", name))
 	{
@@ -284,7 +297,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", false))
 			flags |= FLAG_NO_EXEC;
-		if (!ParseFile(name, flags))
+		if (!ParseFile(name, flags, mandatorytag))
 			throw CoreException("Included");
 	}
 	else if (tag->readString("executable", name))
@@ -295,7 +308,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", true))
 			flags |= FLAG_NO_EXEC;
-		if (!ParseExec(name, flags))
+		if (!ParseExec(name, flags, mandatorytag))
 			throw CoreException("Included");
 	}
 }
@@ -327,7 +340,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	}
 }
 
-bool ParseStack::ParseFile(const std::string& name, int flags)
+bool ParseStack::ParseFile(const std::string& name, int flags, const std::string& mandatory_tag)
 {
 	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading file %s", name.c_str());
 	for (unsigned int t = 0; t < reading.size(); t++)
@@ -345,13 +358,13 @@ bool ParseStack::ParseFile(const std::string& name, int flags)
 		throw CoreException("Could not read \"" + name + "\" for include");
 
 	reading.push_back(name);
-	Parser p(*this, flags, file, name);
+	Parser p(*this, flags, file, name, mandatory_tag);
 	bool ok = p.outer_parse();
 	reading.pop_back();
 	return ok;
 }
 
-bool ParseStack::ParseExec(const std::string& name, int flags)
+bool ParseStack::ParseExec(const std::string& name, int flags, const std::string& mandatory_tag)
 {
 	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading executable %s", name.c_str());
 	for (unsigned int t = 0; t < reading.size(); t++)
@@ -369,7 +382,7 @@ bool ParseStack::ParseExec(const std::string& name, int flags)
 		throw CoreException("Could not open executable \"" + name + "\" for include");
 
 	reading.push_back(name);
-	Parser p(*this, flags, file, name);
+	Parser p(*this, flags, file, name, mandatory_tag);
 	bool ok = p.outer_parse();
 	reading.pop_back();
 	return ok;
