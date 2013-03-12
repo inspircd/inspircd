@@ -172,6 +172,14 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
+
+		// Load only when there are no linked servers - we set the TS of the channels we
+		// create to the current time, this can lead to desync because spanningtree has
+		// no way of knowing what we do
+		ProtoServerList serverlist;
+		ServerInstance->PI->GetServerList(serverlist);
+		if (serverlist.size() < 2)
+			LoadDatabase();
 	}
 
 	CullResult cull()
@@ -202,13 +210,15 @@ public:
 
 	virtual void OnRehash(User *user)
 	{
+		permchannelsconf = ServerInstance->Config->ConfValue("permchanneldb")->getString("filename");
+	}
+
+	void LoadDatabase()
+	{
 		/*
 		 * Process config-defined list of permanent channels.
 		 * -- w00t
 		 */
-
-		permchannelsconf = ServerInstance->Config->ConfValue("permchanneldb")->getString("filename");
-
 		ConfigTagList permchannels = ServerInstance->Config->ConfTags("permchannels");
 		for (ConfigIter i = permchannels.first; i != permchannels.second; ++i)
 		{
@@ -219,7 +229,7 @@ public:
 
 			if (channel.empty())
 			{
-				ServerInstance->Logs->Log("blah", DEBUG, "Malformed permchannels tag with empty channel name.");
+				ServerInstance->Logs->Log("m_permchannels", DEBUG, "Malformed permchannels tag with empty channel name.");
 				continue;
 			}
 
@@ -240,7 +250,7 @@ public:
 					 */
 					c->topicset = 42;
 				}
-				ServerInstance->Logs->Log("blah", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
+				ServerInstance->Logs->Log("m_permchannels", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
 				if (modes.empty())
 					continue;
