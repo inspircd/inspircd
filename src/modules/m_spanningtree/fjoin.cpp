@@ -106,6 +106,14 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			chan->ClearInvites();
 			param_list.push_back(channel);
 			this->RemoveStatus(ServerInstance->FakeClient, param_list);
+
+			// XXX: If the channel does not exist in the chan hash at this point, create it so the remote modes can be applied on it.
+			// This happens to 0-user permanent channels on the losing side, because those are removed (from the chan hash, then
+			// deleted later) as soon as the permchan mode is removed from them.
+			if (ServerInstance->FindChan(channel) == NULL)
+			{
+				chan = new Channel(channel, TS);
+			}
 		}
 		// The silent case here is ourTS == TS, we don't need to remove modes here, just to merge them later on.
 	}
