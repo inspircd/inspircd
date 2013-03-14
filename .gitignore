@@ -28,26 +28,3 @@
 /src/modules/m_ssl_gnutls.cpp
 /src/modules/m_ssl_openssl.cpp
 
-*.ilk
-*.lib
-*.pdb
-*.exp
-*.dll
-*.exe
-/src/commands/debug
-/src/commands/release
-/src/commands/debug_x64
-/src/commands/release_x64
-/src/commands/commands.mak
-/src/modules/debug
-/src/modules/release
-/src/modules/debug_x64
-/src/modules/release_x64
-/src/modules/modules.mak
-/win/x64*
-/win/debug*
-/win/release*
-/win/*.suo
-/win/*.sdf
-/win/*.user
-/win/*.opensdf

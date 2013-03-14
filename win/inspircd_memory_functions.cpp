@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "inspircd_win32wrapper.h"
+#include <windows.h>
 #include <exception>
 #include <new>
 #include <new.h>
@@ -50,7 +49,8 @@ void ::operator delete(void * ptr)
 		HeapFree(GetProcessHeap(), 0, ptr);
 }
 
-void * operator new[] (size_t iSize) {
+void * operator new[] (size_t iSize)
+{
 	void* ptr = HeapAlloc(GetProcessHeap(), 0, iSize);
 	if (!ptr)
 		throw std::bad_alloc();
