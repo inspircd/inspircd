@@ -36,8 +36,12 @@ if(MSVC)
 	set(CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
 endif(MSVC)
 
-file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIRCD_BASE}/win/inspircd_win32wrapper.cpp" "${INSPIRCD_BASE}/win/win32service.cpp" "${INSPIRCD_BASE}/src/*.cpp" "${INSPIRCD_BASE}/src/modes/*.cpp" "${INSPIRCD_BASE}/src/socketengines/socketengine_select.cpp")
-list(APPEND INSPIRCD_SOURCES "${INSPIRCD_BASE}/src/threadengines/threadengine_win32.cpp")
+file(GLOB INSPIRCD_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+"${INSPIRCD_BASE}/win/inspircd_win32wrapper.cpp"
+"${INSPIRCD_BASE}/win/win32service.cpp" "${INSPIRCD_BASE}/src/*.cpp"
+"${INSPIRCD_BASE}/src/modes/*.cpp"
+"${INSPIRCD_BASE}/src/socketengines/socketengine_select.cpp"
+"${INSPIRCD_BASE}/src/threadengines/threadengine_win32.cpp")
 list(SORT INSPIRCD_SOURCES)
 
 include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
@@ -45,14 +49,16 @@ include_directories("${INSPIRCD_BASE}/win" "${INSPIRCD_BASE}/include")
 include_directories(${EXTRA_INCLUDES})
 link_directories(${EXTRA_LIBS})
 
-configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
-add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
-set_target_properties(inspircd PROPERTIES ENABLE_EXPORTS ON)
-install(TARGETS inspircd DESTINATION .)
-
 if(MSVC)
 	add_library(win32_memory STATIC "${INSPIRCD_BASE}/win/inspircd_memory_functions.cpp")
 endif(MSVC)
+
+configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
+add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
+target_link_libraries(inspircd win32_memory)
+set_target_properties(inspircd PROPERTIES ENABLE_EXPORTS ON)
+install(TARGETS inspircd DESTINATION .)
+
 add_subdirectory(modules)
 
 # Package any DLLs in win/
