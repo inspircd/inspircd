@@ -69,6 +69,9 @@ public:
 
 	virtual ModResult OnUserRegister(LocalUser* user)
 	{
+		if (user->exempt)
+			return MOD_RES_PASSTHRU;
+
 		time_t next = ServerInstance->Time();
 
 		if ((ServerInstance->startup_time + boot_wait) > next)
