@@ -258,8 +258,28 @@ DNSRequest* DNS::AddQuery(DNSHeader *header, int &id, const char* original)
 		return NULL;
 
 	/* Create an id */
+	unsigned int tries = 0;
 	do {
 		id = ServerInstance->GenRandomInt(DNS::MAX_REQUEST_ID);
+		if (++tries == DNS::MAX_REQUEST_ID*5)
+		{
+			// If we couldn't find an empty slot this many times, do a sequential scan as a last
+			// resort. If an empty slot is found that way, go on, otherwise throw an exception
+			id = -1;
+			for (int i = 0; i < DNS::MAX_REQUEST_ID; i++)
+			{
+				if (!requests[i])
+				{
+					id = i;
+					break;
+				}
+			}
+
+			if (id == -1)
+				throw ModuleException("DNS: All ids are in use");
+
+			break;
+		}
 	} while (requests[id]);
 
 	DNSRequest* req = new DNSRequest(this, id, original);
