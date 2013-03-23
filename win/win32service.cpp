@@ -21,159 +21,61 @@
 #include "inspircd.h"
 #include "exitcodes.h"
 #include <windows.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 #include <iostream>
 
-static SERVICE_STATUS_HANDLE serviceStatusHandle;
-static HANDLE hThreadEvent;
-static HANDLE killServiceEvent;
-static int serviceCurrentStatus;
+static SERVICE_STATUS_HANDLE g_ServiceStatusHandle;
+static SERVICE_STATUS g_ServiceStatus;
+static bool g_bRunningAsService;
 
-/** This is used to define ChangeServiceConf2() as we can't link
- * directly against this symbol (see below where it is used)
- */
-typedef BOOL (CALLBACK* SETSERVDESC)(SC_HANDLE,DWORD,LPVOID);
-
-BOOL UpdateSCMStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint);
-void terminateService(int code, int wincode);
-
-/* A commandline parameter handler for service specific commandline parameters */
-typedef void (*CommandlineParameterHandler)(void);
-
-/* Represents a commandline and its handler */
-struct Commandline
-{
-	const char* Switch;
-	CommandlineParameterHandler Handler;
+struct Service_Data {
+	DWORD argc;
+	LPSTR *argv;
 };
 
-/* A function pointer for dynamic linking tricks */
-SETSERVDESC ChangeServiceConf;
-
-LPCSTR RetrieveLastError()
-{
-	static char err[100];
-	DWORD LastError = GetLastError();
-	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, 0, LastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)err, sizeof(err), 0) == 0)
-		snprintf(err, sizeof(err), "Error code: %d", LastError);
-	SetLastError(ERROR_SUCCESS);
-	return err;
-}
-
-/* Returns true if this program is running as a service, false if it is running interactive */
-bool IsAService()
-{
-	USEROBJECTFLAGS uoflags;
-	HWINSTA winstation = GetProcessWindowStation();
-	if (GetUserObjectInformation(winstation, UOI_FLAGS, &uoflags, sizeof(uoflags), NULL))
-		return ((uoflags.dwFlags & WSF_VISIBLE) == 0);
-	else
-		return false;
-}
-
-/* Kills the service by setting an event which the other thread picks up and exits */
-void KillService()
-{
-	SetEvent(hThreadEvent);
-	Sleep(2000);
-	SetEvent(killServiceEvent);
-}
+static Service_Data g_ServiceData;
 
 /** The main part of inspircd runs within this thread function. This allows the service part to run
  * seperately on its own and to be able to kill the worker thread when its time to quit.
  */
-DWORD WINAPI WorkerThread(LPDWORD param)
+DWORD WINAPI WorkerThread(LPVOID param)
 {
-	char modname[MAX_PATH];
-	GetModuleFileNameA(NULL, modname, sizeof(modname));
-	char* argv[] = { modname, "--nofork" };
-	smain(2, argv);
-	KillService();
+	smain(g_ServiceData.argc, g_ServiceData.argv);
 	return 0;
 }
 
 /* This is called when all startup is done */
 void SetServiceRunning()
 {
-	if (!IsAService())
+	if (!g_bRunningAsService)
 		return;
 
-	serviceCurrentStatus = SERVICE_RUNNING;
-	BOOL success = UpdateSCMStatus(SERVICE_RUNNING, NO_ERROR, 0, 0, 0);
-	if (!success)
-	{
-		terminateService(EXIT_STATUS_UPDATESCM_FAILED, GetLastError());
-		return;
-	}
-}
+	g_ServiceStatus.dwCurrentState = SERVICE_RUNNING;
+	g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
 
-
-/** Starts the worker thread above */
-void StartServiceThread()
-{
-	HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)WorkerThread,NULL,0,NULL);
-	if (hThread != NULL)
-		CloseHandle(hThread);
-}
-
-/** This function updates the status of the service in the SCM
- * (service control manager, the services.msc applet)
- */
-BOOL UpdateSCMStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode, DWORD dwServiceSpecificExitCode, DWORD dwCheckPoint, DWORD dwWaitHint)
-{
-	BOOL success;
-	SERVICE_STATUS serviceStatus;
-	serviceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
-	serviceStatus.dwCurrentState = dwCurrentState;
-
-	if (dwCurrentState == SERVICE_START_PENDING)
-	{
-		serviceStatus.dwControlsAccepted = 0;
-	}
-	else
-	{
-		serviceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
-	}
-
-	if (dwServiceSpecificExitCode == 0)
-	{
-		serviceStatus.dwWin32ExitCode = dwWin32ExitCode;
-	}
-	else
-	{
-		serviceStatus.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
-	}
-	serviceStatus.dwServiceSpecificExitCode =   dwServiceSpecificExitCode;
-	serviceStatus.dwCheckPoint = dwCheckPoint;
-	serviceStatus.dwWaitHint = dwWaitHint;
-
-	success = SetServiceStatus (serviceStatusHandle, &serviceStatus);
-	if (!success)
-	{
-		KillService();
-	}
-	return success;
-}
-
-/** This function is called by us when the service is being shut down or when it can't be started */
-void terminateService(int code, int wincode)
-{
-	UpdateSCMStatus(SERVICE_STOPPED, wincode ? wincode : ERROR_SERVICE_SPECIFIC_ERROR, wincode ? 0 : code, 0, 0);
-	return;
+	if( !SetServiceStatus( g_ServiceStatusHandle, &g_ServiceStatus ) )
+		throw CWin32Exception();
 }
 
 /* In windows we hook this to InspIRCd::Exit() */
-void SetServiceStopped(int status)
+void SetServiceStopped(DWORD dwStatus)
 {
-	if (!IsAService())
-		exit(status);
+	if (!g_bRunningAsService)
+		return;
 
-	/* Are we running as a service? If so, trigger the service specific exit code */
-	terminateService(status, 0);
-	KillService();
-	exit(status);
+	g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+	if(dwStatus != EXIT_STATUS_NOERROR)
+	{
+		g_ServiceStatus.dwServiceSpecificExitCode = dwStatus;
+		g_ServiceStatus.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
+	}
+	else
+	{
+		g_ServiceStatus.dwWin32ExitCode = ERROR_SUCCESS;
+	}
+	SetServiceStatus( g_ServiceStatusHandle, &g_ServiceStatus );
 }
 
 /** This callback is called by windows when the state of the service has been changed */
@@ -181,213 +83,205 @@ VOID ServiceCtrlHandler(DWORD controlCode)
 {
 	switch(controlCode)
 	{
-		case SERVICE_CONTROL_INTERROGATE:
-		break;
 		case SERVICE_CONTROL_SHUTDOWN:
 		case SERVICE_CONTROL_STOP:
-			serviceCurrentStatus = SERVICE_STOP_PENDING;
-			UpdateSCMStatus(SERVICE_STOP_PENDING, NO_ERROR, 0, 1, 5000);
-			KillService();
-			UpdateSCMStatus(SERVICE_STOPPED, NO_ERROR, 0, 0, 0);
-			return;
-		default:
-		break;
+			g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+			SetServiceStatus( g_ServiceStatusHandle, &g_ServiceStatus );
+			break;
 	}
-	UpdateSCMStatus(serviceCurrentStatus, NO_ERROR, 0, 0, 0);
 }
 
 /** This callback is called by windows when the service is started */
-VOID ServiceMain(DWORD argc, LPTSTR *argv)
+VOID ServiceMain(DWORD argc, LPCSTR *argv)
 {
-	BOOL success;
-
-	serviceStatusHandle = RegisterServiceCtrlHandler(TEXT("InspIRCd"), (LPHANDLER_FUNCTION)ServiceCtrlHandler);
-	if (!serviceStatusHandle)
-	{
-		terminateService(EXIT_STATUS_RSCH_FAILED, GetLastError());
+	g_ServiceStatusHandle = RegisterServiceCtrlHandler(TEXT("InspIRCd"), (LPHANDLER_FUNCTION)ServiceCtrlHandler);
+	if( !g_ServiceStatusHandle )
 		return;
-	}
 
-	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 1, 1000);
-	if (!success)
-	{
-		terminateService(EXIT_STATUS_UPDATESCM_FAILED, GetLastError());
+	g_ServiceStatus.dwCheckPoint = 1;
+	g_ServiceStatus.dwControlsAccepted = 0;
+	g_ServiceStatus.dwServiceType = SERVICE_WIN32_OWN_PROCESS;
+	g_ServiceStatus.dwWaitHint = 5000;
+	g_ServiceStatus.dwWin32ExitCode = NO_ERROR;
+	g_ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+
+	if( !SetServiceStatus( g_ServiceStatusHandle, &g_ServiceStatus ) )
 		return;
-	}
 
-	killServiceEvent = CreateEvent(NULL, true, false, NULL);
-	hThreadEvent = CreateEvent(NULL, true, false, NULL);
-
-	if (!killServiceEvent || !hThreadEvent)
+	char szModuleName[MAX_PATH];
+	if(GetModuleFileNameA(NULL, szModuleName, MAX_PATH))
 	{
-		terminateService(EXIT_STATUS_CREATE_EVENT_FAILED, GetLastError());
-		return;
-	}
+		if(!argc)
+			argc = 1;
 
-	success = UpdateSCMStatus(SERVICE_START_PENDING, NO_ERROR, 0, 2, 1000);
-	if (!success)
-	{
-		terminateService(EXIT_STATUS_UPDATESCM_FAILED, GetLastError());
-		return;
-	}
+		g_ServiceData.argc = argc;
 
-	StartServiceThread();
-	WaitForSingleObject (killServiceEvent, INFINITE);
+		// Note: since this memory is going to stay allocated for the rest of the execution,
+		//		 it doesn't make sense to free it, as it's going to be "freed" on process termination
+		try {
+			g_ServiceData.argv = new char*[argc];
+
+			uint32_t allocsize = strnlen_s(szModuleName, MAX_PATH) + 1;
+			g_ServiceData.argv[0] = new char[allocsize];
+			strcpy_s(g_ServiceData.argv[0], allocsize, szModuleName);
+
+			for(uint32_t i = 1; i < argc; i++)
+			{
+				allocsize = strnlen_s(argv[i], MAX_PATH) + 1;
+				g_ServiceData.argv[i] = new char[allocsize];
+				strcpy_s(g_ServiceData.argv[i], allocsize, argv[i]);
+			}
+
+			*(strrchr(szModuleName, '\\') + 1) = NULL;
+			SetCurrentDirectoryA(szModuleName);
+
+			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)WorkerThread, NULL, 0, NULL);
+			if (hThread != NULL)
+			{
+				WaitForSingleObject(hThread, INFINITE);
+				CloseHandle(hThread);
+			}
+		}
+		catch(...)
+		{
+			g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+			g_ServiceStatus.dwWin32ExitCode = ERROR_OUTOFMEMORY;
+			SetServiceStatus( g_ServiceStatusHandle, &g_ServiceStatus );
+		}
+	}
+	if(g_ServiceStatus.dwCurrentState == SERVICE_STOPPED)
+		return;
+
+	g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+	g_ServiceStatus.dwWin32ExitCode = GetLastError();
+	SetServiceStatus( g_ServiceStatusHandle, &g_ServiceStatus );
 }
 
 /** Install the windows service. This requires administrator privileges. */
 void InstallService()
 {
-	SC_HANDLE myService, scm;
-	SERVICE_DESCRIPTION svDesc;
-	HINSTANCE advapi32;
+	SC_HANDLE InspServiceHandle = 0, SCMHandle = 0;
 
-	TCHAR modname[MAX_PATH];
-	GetModuleFileName(NULL, modname, sizeof(modname));
-
-	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
-	if (!scm)
-	{
-		std::cout << "Unable to open service control manager: " << RetrieveLastError() << std::endl;
-		return;
-	}
-
-	myService = CreateService(scm,TEXT("InspIRCd"),TEXT("Inspire IRC Daemon"), SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
-		SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, modname, 0, 0, 0, NULL, NULL);
-
-	if (!myService)
-	{
-		std::cout << "Unable to create service: " << RetrieveLastError() << std::endl;
-		CloseServiceHandle(scm);
-		return;
-	}
-
-	// *** Set service description ***
-	// this is supported from 5.0 (win2k) onwards only, so we can't link to the definition of
-	// this function in advapi32.lib, otherwise the program will not run on windows NT 4. We
-	// must use LoadLibrary and GetProcAddress to export the function name from advapi32.dll
-	advapi32 = LoadLibrary(TEXT("advapi32.dll"));
-	if (advapi32)
-	{
-		ChangeServiceConf = (SETSERVDESC)GetProcAddress(advapi32,"ChangeServiceConfig2A");
-		if (ChangeServiceConf)
+	try {
+		TCHAR tszBinaryPath[MAX_PATH];
+		if(!GetModuleFileName(NULL, tszBinaryPath, _countof(tszBinaryPath)))
 		{
-			TCHAR desc[] = TEXT("The Inspire Internet Relay Chat Daemon hosts IRC channels and conversations.\
- If this service is stopped, the IRC server will not run.");
-			svDesc.lpDescription = desc;
-			BOOL success = ChangeServiceConf(myService,SERVICE_CONFIG_DESCRIPTION, &svDesc);
-			if (!success)
-			{
-				std::cout << "Unable to set service description: " << RetrieveLastError() << std::endl;
-				CloseServiceHandle(myService);
-				CloseServiceHandle(scm);
-				return;
-			}
+			throw CWin32Exception();
 		}
-		FreeLibrary(advapi32);
-	}
 
-	std::cout << "Service installed." << std::endl;
-	CloseServiceHandle(myService);
-	CloseServiceHandle(scm);
+		SCMHandle = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS);
+		if (!SCMHandle)
+		{
+			throw CWin32Exception();
+		}
+
+		InspServiceHandle = CreateService(SCMHandle, TEXT("InspIRCd"),TEXT("InspIRCd Daemon"), SERVICE_CHANGE_CONFIG, SERVICE_WIN32_OWN_PROCESS,
+			SERVICE_AUTO_START, SERVICE_ERROR_NORMAL, tszBinaryPath, 0, 0, 0, TEXT("NT AUTHORITY\\NetworkService"), NULL);
+
+		if (!InspServiceHandle)
+		{
+			throw CWin32Exception();
+		}
+
+		TCHAR tszDescription[] = TEXT("The InspIRCd service hosts IRC channels and conversations. If this service is stopped, the IRC server will be unavailable.");
+		SERVICE_DESCRIPTION svDescription = { tszDescription };
+		if(!ChangeServiceConfig2(InspServiceHandle, SERVICE_CONFIG_DESCRIPTION, &svDescription))
+		{
+			throw CWin32Exception();
+		}
+
+		CloseServiceHandle(InspServiceHandle);
+		CloseServiceHandle(SCMHandle);
+		std::cout << "Service installed." << std::endl;
+	}
+	catch(CWin32Exception e)
+	{
+		if(InspServiceHandle)
+			CloseServiceHandle(InspServiceHandle);
+
+		if(SCMHandle)
+			CloseServiceHandle(SCMHandle);
+
+		std::cout << "Service installation failed: " << e.what() << std::endl;
+	}
 }
 
 /** Remove the windows service. This requires administrator privileges. */
-void RemoveService()
+void UninstallService()
 {
-	SC_HANDLE myService, scm;
+	SC_HANDLE InspServiceHandle = 0, SCMHandle = 0;
 
-	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
-	if (!scm)
+	try
 	{
-		std::cout << "Unable to open service control manager: " << RetrieveLastError() << std::endl;
-		return;
-	}
+		SCMHandle = OpenSCManager(NULL, SERVICES_ACTIVE_DATABASE, DELETE);
+		if (!SCMHandle)
+			throw CWin32Exception();
 
-	myService = OpenService(scm,TEXT("InspIRCd"),SERVICE_ALL_ACCESS);
-	if (!myService)
+		InspServiceHandle = OpenService(SCMHandle, TEXT("InspIRCd"), DELETE);
+		if (!InspServiceHandle)
+			throw CWin32Exception();
+
+		if (!DeleteService(InspServiceHandle) && GetLastError() != ERROR_SERVICE_MARKED_FOR_DELETE)
+		{
+			throw CWin32Exception();
+		}
+
+		CloseServiceHandle(InspServiceHandle);
+		CloseServiceHandle(SCMHandle);
+		std::cout << "Service removed." << std::endl;
+	}
+	catch(CWin32Exception e)
 	{
-		std::cout << "Unable to open service: " << RetrieveLastError() << std::endl;
-		CloseServiceHandle(scm);
-		return;
-	}
+		if(InspServiceHandle)
+			CloseServiceHandle(InspServiceHandle);
 
-	if (!DeleteService(myService))
-	{
-		std::cout << "Unable to delete service: " << RetrieveLastError() << std::endl;
-		CloseServiceHandle(myService);
-		CloseServiceHandle(scm);
-		return;
-	}
+		if(SCMHandle)
+			CloseServiceHandle(SCMHandle);
 
-	std::cout << "Service removed." << std::endl;
-	CloseServiceHandle(myService);
-	CloseServiceHandle(scm);
+		std::cout << "Service deletion failed: " << e.what() << std::endl;
+	}
 }
 
 /* In windows, our main() flows through here, before calling the 'real' main, smain() in inspircd.cpp */
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
-	/* List of parameters and handlers */
-	Commandline params[] = {
-		{ "--installservice", InstallService },
-		{ "--removeservice", RemoveService },
-		{ NULL }
-	};
-
 	/* Check for parameters */
 	if (argc > 1)
 	{
-		for (int z = 0; params[z].Switch; ++z)
+		for (int i = 1; i < argc; i++)
 		{
-			if (!_stricmp(argv[1], params[z].Switch))
+			if(!_stricmp(argv[i], "--installservice"))
 			{
-				params[z].Handler();
+				InstallService();
+				return 0;
+			}
+			if(!_stricmp(argv[i], "--uninstallservice") || !_stricmp(argv[i], "--removeservice"))
+			{
+				UninstallService();
 				return 0;
 			}
 		}
 	}
 
-	/* First, check if the service is installed.
-	 * if it is not, or we're starting as non-administrator,
-	 * just call smain() and start as normal non-service
-	 * process.
-	 */
-	SC_HANDLE myService, scm;
-	scm = OpenSCManager(0,0,SC_MANAGER_CREATE_SERVICE);
-	if (scm)
-	{
-		myService = OpenService(scm,TEXT("InspIRCd"),SERVICE_ALL_ACCESS);
-		if (!myService)
-		{
-			/* Service not installed or no permission to modify it */
-			CloseServiceHandle(scm);
-			return smain(argc, argv);
-		}
-	}
-	else
-	{
-		/* Not enough privileges to open the SCM */
-		return smain(argc, argv);
-	}
-
-	CloseServiceHandle(myService);
-	CloseServiceHandle(scm);
-
-	/* Check if the process is running interactively. InspIRCd does not run interactively
-	 * as a service so if this is true, we just run the non-service inspircd.
-	 */
-	if (!IsAService())
-		return smain(argc, argv);
-
-	/* If we get here, we know the service is installed so we can start it */
-
 	SERVICE_TABLE_ENTRY serviceTable[] =
 	{
-		{TEXT("InspIRCd"), (LPSERVICE_MAIN_FUNCTION) ServiceMain },
-		{NULL, NULL}
+		{ TEXT("InspIRCd"), (LPSERVICE_MAIN_FUNCTION)ServiceMain },
+		{ NULL, NULL }
 	};
 
-	StartServiceCtrlDispatcher(serviceTable);
+	g_bRunningAsService = true;
+	if( !StartServiceCtrlDispatcher(serviceTable) )
+	{
+		// This error means that the program was not started as service.
+		if( GetLastError() == ERROR_FAILED_SERVICE_CONTROLLER_CONNECT )
+		{
+			g_bRunningAsService = false;
+			return smain(argc, argv);
+		}
+		else
+		{
+			return EXIT_STATUS_INTERNAL;
+		}
+	}
 	return 0;
 }
