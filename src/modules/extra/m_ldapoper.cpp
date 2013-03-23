@@ -35,6 +35,21 @@
 /* $ModDesc: Adds the ability to authenticate opers via LDAP */
 /* $LinkerFlags: -lldap */
 
+// Duplicated code, also found in cmd_oper and m_sqloper
+static bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
+{
+	std::stringstream hl(hostlist);
+	std::string xhost;
+	while (hl >> xhost)
+	{
+		if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 struct RAIILDAPString
 {
 	char *str;
@@ -66,14 +81,41 @@ class ModuleLDAPAuth : public Module
 	std::string ldapserver;
 	std::string username;
 	std::string password;
+	std::string attribute;
 	int searchscope;
 	LDAP *conn;
 
+	bool HandleOper(LocalUser* user, const std::string& opername, const std::string& inputpass)
+	{
+		OperIndex::iterator it = ServerInstance->Config->oper_blocks.find(opername);
+		if (it == ServerInstance->Config->oper_blocks.end())
+			return false;
+
+		ConfigTag* tag = it->second->oper_block;
+		if (!tag)
+			return false;
+
+		std::string acceptedhosts = tag->getString("host");
+		std::string hostname = user->ident + "@" + user->host;
+		if (!OneOfMatches(hostname.c_str(), user->GetIPString(), acceptedhosts))
+			return false;
+
+		if (!LookupOper(opername, inputpass))
+			return false;
+
+		user->Oper(it->second);
+		return true;
+	}
+
 public:
+	ModuleLDAPAuth()
+		: conn(NULL)
+	{
+	}
+
 	void init()
 	{
-		conn = NULL;
-		Implementation eventlist[] = { I_OnRehash, I_OnPassCompare };
+		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
@@ -93,6 +135,7 @@ public:
 		std::string scope	= tag->getString("searchscope");
 		username		= tag->getString("binddn");
 		password		= tag->getString("bindauth");
+		attribute		= tag->getString("attribute");
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
@@ -125,21 +168,17 @@ public:
 		return true;
 	}
 
-	virtual ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
+	ModResult OnPreCommand(std::string& command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string& original_line)
 	{
-		if (hashtype == "ldap")
+		if (validated && command == "OPER" && parameters.size() >= 2)
 		{
-			if (LookupOper(data, input))
-				/* This is an ldap oper and has been found, claim the OPER command */
-				return MOD_RES_ALLOW;
-			else
+			if (HandleOper(user, parameters[0], parameters[1]))
 				return MOD_RES_DENY;
 		}
-		/* We don't know this oper! */
 		return MOD_RES_PASSTHRU;
 	}
 
-	bool LookupOper(const std::string &what, const std::string &opassword)
+	bool LookupOper(const std::string& opername, const std::string& opassword)
 	{
 		if (conn == NULL)
 			if (!Connect())
@@ -173,6 +212,7 @@ public:
 		free(authpass);
 
 		LDAPMessage *msg, *entry;
+		std::string what = attribute + "=" + opername;
 		if ((res = ldap_search_ext_s(conn, base.c_str(), searchscope, what.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msg)) != LDAP_SUCCESS)
 		{
 			return false;
