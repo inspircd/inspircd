@@ -186,5 +186,20 @@ void ::operator delete(void * ptr);
 
 #define DISABLE_WRITEV
 
+#include <exception>
+
+class CWin32Exception : public std::exception
+{
+public:
+	CWin32Exception();
+	CWin32Exception(const CWin32Exception& other);
+	virtual const char* what() const throw();
+	DWORD GetErrorCode();
+
+private:
+	char szErrorString[500];
+	DWORD dwErrorCode;
+};
+
 #endif
 
