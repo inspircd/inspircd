@@ -355,6 +355,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Modes = 0;
 	this->Res = 0;
 	this->ConfigThread = NULL;
+	this->FakeClient = NULL;
 
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
