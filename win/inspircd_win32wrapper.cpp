@@ -180,6 +180,28 @@ int getopt_long(int ___argc, char *const *___argv, const char *__shortopts, cons
 	return 1;
 }
 
+CWin32Exception::CWin32Exception() : exception()
+{
+	dwErrorCode = GetLastError();
+	if( FormatMessageA( FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), NULL) == 0 )
+		sprintf_s(szErrorString, _countof(szErrorString), "Error code: %u", dwErrorCode);
+}
+
+CWin32Exception::CWin32Exception(const CWin32Exception& other)
+{
+	strcpy_s(szErrorString, _countof(szErrorString), other.szErrorString);
+}
+
+const char* CWin32Exception::what() const throw()
+{
+	return szErrorString;
+}
+
+DWORD CWin32Exception::GetErrorCode()
+{
+	return dwErrorCode;
+}
+
 #include "../src/modules/m_spanningtree/link.h"
 #include "../src/modules/ssl.h"
 template class reference<Link>;
