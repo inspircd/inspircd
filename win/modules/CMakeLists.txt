@@ -1,3 +1,7 @@
+# m_regex_stdlib is supported by every version of Visual Studio we support,
+# so copy the file out of extra/
+file(COPY "${INSPIRCD_BASE}/src/modules/extra/m_regex_stdlib.cpp" DESTINATION "${INSPIRCD_BASE}/src/modules/")
+
 file(GLOB INSPIRCD_MODULES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIRCD_BASE}/src/commands/*.cpp" "${INSPIRCD_BASE}/src/modules/*.cpp")
 list(SORT INSPIRCD_MODULES)
 

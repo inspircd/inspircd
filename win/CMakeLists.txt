@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 
 project(InspIRCd CXX)
 
+set(CONF_PATH "conf" CACHE PATH "Configuration file path")
+set(MODULE_PATH "modules" CACHE PATH "Module path")
+set(DATA_PATH "data" CACHE PATH "Data path")
+set(LOG_PATH "log" CACHE PATH "Log file path")
+
+set(EXTRA_INCLUDES "" CACHE PATH "Extra include paths")
+set(EXTRA_LIBS "" CACHE PATH "Extra library paths")
+
 set(INSPIRCD_BASE "${CMAKE_CURRENT_SOURCE_DIR}/../")
 
 # Use our own NSIS template
@@ -13,12 +21,6 @@ string(REGEX REPLACE ".*InspIRCd-([0-9]*).*" "\\1" MAJOR_VERSION "${VERSIONSH}")
 string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.([0-9]*).*" "\\1" MINOR_VERSION "${VERSIONSH}")
 string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.[0-9]*\\.([0-9]*).*" "\\1" PATCH_VERSION "${VERSIONSH}")
 set(FULL_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
-
-# Write out inspircd_version.h
-file(WRITE "${INSPIRCD_BASE}/win/inspircd_version.h" "#define BRANCH \"${MAJOR_VERSION}.${MINOR_VERSION}\"\n")
-file(APPEND "${INSPIRCD_BASE}/win/inspircd_version.h" "#define VERSION \"${FULL_VERSION}\"\n")
-file(APPEND "${INSPIRCD_BASE}/win/inspircd_version.h" "#define REVISION \"0\"\n")
-file(APPEND "${INSPIRCD_BASE}/win/inspircd_version.h" "#define SYSTEM \"${CMAKE_SYSTEM}\"\n")
 
 if(MSVC)
 	# Without /SAFESEH:NO old libraries compiled with VS 2010 or older won't link correctly to VS2012 (eg, extra module libs)
@@ -54,6 +56,9 @@ if(MSVC)
 endif(MSVC)
 
 configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
+configure_file("${INSPIRCD_BASE}/win/inspircd_version.h.cmake" "${INSPIRCD_BASE}/win/inspircd_version.h")
+configure_file("${INSPIRCD_BASE}/win/inspircd_config.h.cmake" "${INSPIRCD_BASE}/win/inspircd_config.h")
+
 add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
 target_link_libraries(inspircd win32_memory)
 set_target_properties(inspircd PROPERTIES ENABLE_EXPORTS ON)

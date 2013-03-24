@@ -8,9 +8,12 @@ Prerequisites:
 Configuring:
 	First copy any extra modules from extras (such as m_mysql) to the modules directory that you want to build.
 
-	Run CMake to generate build files. The CMake scripts are set up to do an out of source build from the
-	"win\build" directory, so navigate there before running CMake, eg:
-
+	Run CMake to generate build files. This can be done using the CMake GUI by setting the source code path to "win",
+	and the binary path to "win/build", followed by pressing "Configure". Modify any variables you need, such as install
+	prefix, and then press "Generate".
+	
+	Alternatively CMake can be run from Command Prompt from the "win\build" directory, eg:
+	
 	c:\Users\Adam\Desktop\inspircd\win\build>cmake -G "Visual Studio 11" ..
 	-- Check for working CXX compiler using: Visual Studio 11
 	-- Check for working CXX compiler using: Visual Studio 11 -- works
@@ -28,6 +31,8 @@ Configuring:
 	EXTRA_LIBS when configuring, eg;
 	
 	cmake -DEXTRA_INCLUDES:STRING="C:\inspircd-includes" -DEXTRA_LIBS:STRING="C:\inspircd-libs" -G "Visual Studio 11" ..
+	
+	See the CMake GUI for a full list of variables that can be set.
 	
 	Additionally, place any DLL files required by any extra modules in to the win directory for the installer to pick up.
 
