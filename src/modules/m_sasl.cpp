@@ -22,6 +22,7 @@
 #include "m_cap.h"
 #include "account.h"
 #include "sasl.h"
+#include "ssl.h"
 
 /* $ModDesc: Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE. */
 
@@ -61,6 +62,15 @@ class SaslAuthenticator
 		params.push_back("*");
 		params.push_back("S");
 		params.push_back(method);
+
+		if (method == "EXTERNAL" && IS_LOCAL(user_))
+		{
+			SocketCertificateRequest req(&((LocalUser*)user_)->eh, ServerInstance->Modules->Find("m_sasl.so"));
+			std::string fp = req.GetFingerprint();
+
+			if (fp.size())
+				params.push_back(fp);
+		}
 
 		SendSASL(params);
 	}
