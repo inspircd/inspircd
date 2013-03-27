@@ -27,7 +27,7 @@ struct LusersCounters
 	unsigned int invisible;
 
 	LusersCounters()
-		: max_local(ServerInstance->Users->LocalUserCount() - ServerInstance->Users->UnregisteredUserCount())
+		: max_local(ServerInstance->Users->LocalUserCount())
 		, max_global(ServerInstance->Users->RegisteredUserCount())
 		, invisible(ServerInstance->Users->ModeCount('i'))
 	{
@@ -35,7 +35,7 @@ struct LusersCounters
 
 	inline void UpdateMaxUsers()
 	{
-		unsigned int current = ServerInstance->Users->LocalUserCount() - ServerInstance->Users->UnregisteredUserCount();
+		unsigned int current = ServerInstance->Users->LocalUserCount();
 		if (current > max_local)
 			max_local = current;
 
@@ -72,7 +72,7 @@ class CommandLusers : public Command
  */
 CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 {
-	unsigned int n_users = ServerInstance->Users->UserCount();
+	unsigned int n_users = ServerInstance->Users->RegisteredUserCount();
 	ProtoServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
 	unsigned int n_serv = serverlist.size();
