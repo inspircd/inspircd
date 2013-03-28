@@ -789,7 +789,6 @@ int InspIRCd::Run()
 		 */
 		if (TIME.tv_sec != OLDTIME)
 		{
-			OLDTIME = TIME.tv_sec;
 #ifndef _WIN32
 			getrusage(RUSAGE_SELF, &ru);
 			stats->LastSampled = TIME;
@@ -816,6 +815,8 @@ int InspIRCd::Run()
 			{
 				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)TIME.tv_sec - OLDTIME);
 			}
+
+			OLDTIME = TIME.tv_sec;
 
 			if ((TIME.tv_sec % 3600) == 0)
 			{
