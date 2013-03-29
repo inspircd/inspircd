@@ -178,16 +178,16 @@
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
 #   You can configure the passwords here which you wish to use for    #
-#   the die and restart commands. Only trusted IRCop's who will       #
-#   need this ability should know the die and restart password.       #
+#   the die and restart commands. Only trusted IRC Ops who will       #
+#   need this ability should know the die and restart password(s).    #
 #                                                                     #
 
 <power
-       # hash: what hash these passwords are hashed with. requires the module
-       # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-       # loaded and the password hashing module (m_password_hash.so)
-       # loaded. Options here are: "md5", "sha256" and "ripemd160".
-       # Optional, but recommended. Create hashed password with:
+       # hash: specifies with which hash these passwords are hashed.
+       # Requires the module for chosen hash (m_sha256.so, m_ripemd160.so,
+       # or m_md5.so) be loaded and the password-hashing module
+       # (m_password_hash.so) loaded. Options are: "sha256", "ripemd160",
+       # and "md5". Optional, but recommended. Create hashed password with:
        # /mkpasswd <hash> <password>
        #hash="sha256"
 
