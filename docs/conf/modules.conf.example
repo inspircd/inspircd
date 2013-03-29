@@ -1055,10 +1055,15 @@
 #           server="ldap://brainwave.brainbox.cc"
 #           searchscope="subtree"
 #           binddn="cn=Manager,dc=brainbox,dc=cc"
-#           bindauth="mysecretpass">
+#           bindauth="mysecretpass"
+#           attribute="uid">
 #                                                                     #
 # Available configuration items are identical to the same items in    #
-# m_ldapauth above.                                                   #
+# m_ldapauth above (except for the verbose setting, that is only      #
+# supported in m_ldapauth).                                           #
+# Please always specify a password in your <oper> tags even if the    #
+# opers are to be authenticated via LDAP, so in case this module is   #
+# not loaded the oper accounts are still protected by a password.     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Lock server module: Adds /LOCKSERV and /UNLOCKSERV commands that is #
@@ -1091,8 +1096,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MsSQL module: Allows other SQL modules to access MS SQL Server 
-# through a unified API. You must copy the source for this module
-# from the directory src/modules/extra, plus the file m_sqlv2.h
+# through a unified API.
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mssql.cpp
 # and run make install, then uncomment this module to enable it.
 #
@@ -1107,8 +1111,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
-# through a unified API. You must copy the source for this module
-# from the directory src/modules/extra, plus the file m_sqlv2.h
+# through a unified API.
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mysql.cpp
 # and run make install, then uncomment this module to enable it.
 #
@@ -1361,8 +1364,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
-# through a unified API. You must copy the source for this module
-# from the directory src/modules/extra, plus the file m_sqlv2.h
+# through a unified API.
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_pgsql.cpp
 # and run make install, then uncomment this module to enable it.
 #
@@ -1730,10 +1732,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
-# databases through a unified API. You must link the source for this  #
-# module from the directory src/modules/extra to src/modules, plus    #
-# the file m_sqlv2.h                                                  #
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_aqlite.cpp
+# databases through a unified API. 
+# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlite.cpp
 # and run make install, then uncomment this module to enable it.      #
 #
 #<module name="m_sqlite3.so">
@@ -1747,9 +1747,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL authentication module: Allows IRCd connections to be tied into
-# a database table (for example a forum). You must copy the source for
-# this module from the directory src/modules/extra
-# Depends on the SQLutils module being loaded first.
+# a database table (for example a forum).
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlauth.cpp
 # and run make install, then uncomment this module to enable it.
 #
@@ -1762,8 +1760,6 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
-# You must copy the source for this module from the directory src/modules/extra
-# Depends on the SQLutils module being loaded first.
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqloper.cpp
 # and run make install, then uncomment this module to enable it.
 #

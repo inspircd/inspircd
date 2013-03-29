@@ -641,7 +641,6 @@
 
              # softlimit: This optional feature allows a defined softlimit for
              # connections. If defined, it sets a soft max connections value.
-             # must be lower than ./configure maxclients.
              softlimit="12800"
 
              # quietbursts: When syncing or splitting from a network, a server
