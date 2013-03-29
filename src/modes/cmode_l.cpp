@@ -36,7 +36,8 @@ bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::
 ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
 {
 	int limit = ConvToInt(parameter);
-	if (limit < 0)
+	int minimum = ServerInstance->Config->LegacyMode ? 0 : 1;
+	if (limit < minimum)
 		return MODEACTION_DENY;
 
 	ext.set(chan, limit);
