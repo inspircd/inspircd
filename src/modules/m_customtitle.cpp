@@ -55,7 +55,7 @@ class CommandTitle : public Command
 		char TheIP[MAXBUF];
 
 		snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(), user->host.c_str());
-		snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(), user->GetIPString());
+		snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(), user->GetIPString().c_str());
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("title");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)

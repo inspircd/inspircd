@@ -384,7 +384,7 @@ class CoreExport User : public Extensible
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */
-	const char* GetIPString();
+	const std::string& GetIPString();
 
 	/** Get CIDR mask, using default range, for this user
 	 */

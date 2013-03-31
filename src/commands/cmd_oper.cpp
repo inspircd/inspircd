@@ -66,7 +66,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	bool match_hosts = false;
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
-	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
+	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString().c_str());
 
 	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 	if (i != ServerInstance->Config->oper_blocks.end())

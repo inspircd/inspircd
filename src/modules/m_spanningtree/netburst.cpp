@@ -256,7 +256,7 @@ void TreeSocket::SendUsers()
 						u->second->host.c_str(),	/* 3: Displayed Host */
 						u->second->dhost.c_str(),	/* 4: Real host */
 						u->second->ident.c_str(),	/* 5: Ident */
-						u->second->GetIPString(),	/* 6: IP string */
+						u->second->GetIPString().c_str(),	/* 6: IP string */
 						(unsigned long)u->second->signon, /* 7: Signon time for WHOWAS */
 						u->second->FormatModes(true),	/* 8...n: Modes and params */
 						u->second->fullname.c_str());	/* size-1: GECOS */

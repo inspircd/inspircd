@@ -151,7 +151,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		dosend = false;
 
 	if (dosend)
-		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", _new->server.c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString(), _new->fullname.c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", _new->server.c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->fullname.c_str());
 
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(_new));
 

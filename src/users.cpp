@@ -114,11 +114,10 @@ void LocalUser::StartDNSLookup()
 	try
 	{
 		bool cached = false;
-		const char* sip = this->GetIPString();
 		UserResolver *res_reverse;
 
 		QueryType resolvtype = this->client_sa.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
-		res_reverse = new UserResolver(this, sip, resolvtype, cached);
+		res_reverse = new UserResolver(this, this->GetIPString(), resolvtype, cached);
 
 		ServerInstance->AddResolver(res_reverse, cached);
 	}
@@ -268,7 +267,7 @@ const std::string& User::MakeHostIP()
 	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(const char* n = this->GetIPString(); *n; n++)
+	for(const char* n = this->GetIPString().c_str(); *n; n++)
 		*t++ = *n;
 	*t = 0;
 
@@ -721,14 +720,14 @@ void LocalUser::CheckClass()
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 		if (a->maxconnwarn)
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
 		return;
 	}
 	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 		if (a->maxconnwarn)
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
 		return;
 	}
 
@@ -819,8 +818,8 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
-		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString(), this->fullname.c_str());
-	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
+		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->fullname.c_str());
+	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
@@ -956,18 +955,18 @@ int LocalUser::GetServerPort()
 	return 0;
 }
 
-const char* User::GetIPString()
+const std::string& User::GetIPString()
 {
 	int port;
 	if (cachedip.empty())
 	{
 		irc::sockets::satoap(client_sa, cachedip, port);
 		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
-		if (cachedip.c_str()[0] == ':')
+		if (cachedip[0] == ':')
 			cachedip.insert(0,1,'0');
 	}
 
-	return cachedip.c_str();
+	return cachedip;
 }
 
 irc::sockets::cidr_mask User::GetCIDRMask()

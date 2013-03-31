@@ -97,7 +97,7 @@ class ModuleLDAPAuth : public Module
 
 		std::string acceptedhosts = tag->getString("host");
 		std::string hostname = user->ident + "@" + user->host;
-		if (!OneOfMatches(hostname.c_str(), user->GetIPString(), acceptedhosts))
+		if (!OneOfMatches(hostname.c_str(), user->GetIPString().c_str(), acceptedhosts))
 			return false;
 
 		if (!LookupOper(opername, inputpass))

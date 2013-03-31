@@ -24,7 +24,7 @@ void InspIRCd::DoWhois(User* user, User* dest,unsigned long signon, unsigned lon
 	this->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
 	if (user == dest || user->HasPrivPermission("users/auspex"))
 	{
-		this->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString());
+		this->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString().c_str());
 	}
 
 	std::string cl = dest->ChannelList(user, false);

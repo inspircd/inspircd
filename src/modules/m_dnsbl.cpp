@@ -137,7 +137,7 @@ class DNSBLResolver : public Resolver
 							{
 								std::string timestr = ServerInstance->TimeString(kl->expiry);
 								ServerInstance->SNO->WriteGlobalSno('x',"K:line added due to DNSBL match on *@%s to expire on %s: %s",
-									them->GetIPString(), timestr.c_str(), reason.c_str());
+									them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -152,7 +152,7 @@ class DNSBLResolver : public Resolver
 							{
 								std::string timestr = ServerInstance->TimeString(gl->expiry);
 								ServerInstance->SNO->WriteGlobalSno('x',"G:line added due to DNSBL match on *@%s to expire on %s: %s",
-									them->GetIPString(), timestr.c_str(), reason.c_str());
+									them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -167,7 +167,7 @@ class DNSBLResolver : public Resolver
 							{
 								std::string timestr = ServerInstance->TimeString(zl->expiry);
 								ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
-									them->GetIPString(), timestr.c_str(), reason.c_str());
+									them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 								ServerInstance->XLines->ApplyLines();
 							}
 							else
@@ -405,7 +405,7 @@ class ModuleDNSBL : public Module
 			return MOD_RES_PASSTHRU;
 		return MOD_RES_DENY;
 	}
-	
+
 	ModResult OnCheckReady(LocalUser *user)
 	{
 		if (countExt.get(user))

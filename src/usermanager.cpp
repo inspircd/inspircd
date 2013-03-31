@@ -108,7 +108,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
+			ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Positive hit for " + New->GetIPString());
 			if (!ServerInstance->Config->MoronBanner.empty())
 				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), ServerInstance->Config->MoronBanner.c_str());
 			this->QuitUser(New, b->Reason);
@@ -116,7 +116,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 		else
 		{
-			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Negative hit for ") + New->GetIPString());
+			ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Negative hit for " + New->GetIPString());
 		}
 	}
 	else
@@ -220,7 +220,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			if (!user->quietquit)
 			{
 				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]",
-					user->GetFullRealHost().c_str(), user->GetIPString(), oper_reason.c_str());
+					user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_reason.c_str());
 			}
 		}
 		else
@@ -228,7 +228,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			if ((!ServerInstance->SilentULine(user->server)) && (!user->quietquit))
 			{
 				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s (%s) [%s]",
-					user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString(), oper_reason.c_str());
+					user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_reason.c_str());
 			}
 		}
 		user->AddToWhoWas();
