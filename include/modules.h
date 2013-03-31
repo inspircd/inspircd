@@ -109,14 +109,14 @@ struct ModResult {
 /** InspIRCd major version.
  * 1.2 -> 102; 2.1 -> 201; 2.12 -> 212
  */
-#define INSPIRCD_VERSION_MAJ 200
+#define INSPIRCD_VERSION_MAJ 202
 /** InspIRCd API version.
  * If you change any API elements, increment this value. This counter should be
  * reset whenever the major version is changed. Modules can use these two values
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 4
+#define INSPIRCD_VERSION_API 1
 
 /**
  * This #define allows us to call a method in all
