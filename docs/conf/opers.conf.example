@@ -24,6 +24,7 @@
      #   - servers/auspex: allows opers with this priv to see more detail about server information than normal users.
      # ACTIONS:
      #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*)
+     #   - users/samode-usermodes: allows opers with this priv to change the user modes of any other user using /SAMODE
      #   - channels/high-join-limit: allows opers with this priv to join <channels:opers> total channels instead of <channels:users> total channels.
      # PERMISSIONS:
      #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE)
