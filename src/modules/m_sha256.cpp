@@ -263,11 +263,6 @@ class HashSHA256 : public HashProvider
 		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		return "";
-	}
-
 	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256", 32, 64) {}
 };
 

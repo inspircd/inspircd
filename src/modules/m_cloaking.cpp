@@ -30,10 +30,6 @@
 
 enum CloakMode
 {
-	/** 1.2-compatible host-based cloak */
-	MODE_COMPAT_HOST,
-	/** 1.2-compatible IP-only cloak */
-	MODE_COMPAT_IPONLY,
 	/** 2.0 cloak of "half" of the hostname plus the full IP hash */
 	MODE_HALF_CLOAK,
 	/** 2.0 cloak of IP hash, split at 2 common CIDR range points */
@@ -147,7 +143,6 @@ class ModuleCloaking : public Module
 	std::string prefix;
 	std::string suffix;
 	std::string key;
-	unsigned int compatkey[4];
 	const char* xtab[4];
 	dynamic_reference<HashProvider> Hash;
 
@@ -222,63 +217,6 @@ class ModuleCloaking : public Module
 			rv[i] = base32[rv[i] & 0x1F];
 		}
 		return rv;
-	}
-
-	std::string CompatCloak4(const char* ip)
-	{
-		irc::sepstream seps(ip, '.');
-		std::string octet[4];
-		int i[4];
-
-		for (int j = 0; j < 4; j++)
-		{
-			seps.GetToken(octet[j]);
-			i[j] = atoi(octet[j].c_str());
-		}
-
-		octet[3] = octet[0] + "." + octet[1] + "." + octet[2] + "." + octet[3];
-		octet[2] = octet[0] + "." + octet[1] + "." + octet[2];
-		octet[1] = octet[0] + "." + octet[1];
-
-		/* Reset the Hash module and send it our IV */
-
-		std::string rv;
-
-		/* Send the Hash module a different hex table for each octet group's Hash sum */
-		for (int k = 0; k < 4; k++)
-		{
-			rv.append(Hash->sumIV(compatkey, xtab[(compatkey[k]+i[k]) % 4], octet[k]).substr(0,6));
-			if (k < 3)
-				rv.append(".");
-		}
-		/* Stick them all together */
-		return rv;
-	}
-
-	std::string CompatCloak6(const char* ip)
-	{
-		std::vector<std::string> hashies;
-		std::string item;
-		int rounds = 0;
-
-		/* Reset the Hash module and send it our IV */
-
-		for (const char* input = ip; *input; input++)
-		{
-			item += *input;
-			if (item.length() > 7)
-			{
-				hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[0]+rounds) % 4], item).substr(0,8));
-				item.clear();
-			}
-			rounds++;
-		}
-		if (!item.empty())
-		{
-			hashies.push_back(Hash->sumIV(compatkey, xtab[(compatkey[0]+rounds) % 4], item).substr(0,8));
-		}
-		/* Stick them all together */
-		return irc::stringjoiner(":", hashies, 0, hashies.size() - 1).GetJoined();
 	}
 
 	std::string SegmentIP(const irc::sockets::sockaddrs& ip, bool full)
@@ -395,12 +333,6 @@ class ModuleCloaking : public Module
 		{
 			switch (mode)
 			{
-				case MODE_COMPAT_HOST:
-					testcloak = prefix + "-" + Hash->sumIV(compatkey, xtab[0], "*").substr(0,10);
-					break;
-				case MODE_COMPAT_IPONLY:
-					testcloak = Hash->sumIV(compatkey, xtab[0], "*").substr(0,10);
-					break;
 				case MODE_HALF_CLOAK:
 					testcloak = prefix + SegmentCloak("*", 3, 8) + suffix;
 					break;
@@ -418,75 +350,16 @@ class ModuleCloaking : public Module
 		suffix = tag->getString("suffix", ".IP");
 
 		std::string modestr = tag->getString("mode");
-		if (modestr == "compat-host")
-			mode = MODE_COMPAT_HOST;
-		else if (modestr == "compat-ip")
-			mode = MODE_COMPAT_IPONLY;
-		else if (modestr == "half")
+		if (modestr == "half")
 			mode = MODE_HALF_CLOAK;
 		else if (modestr == "full")
 			mode = MODE_OPAQUE;
 		else
-			throw ModuleException("Bad value for <cloak:mode>; must be one of compat-host, compat-ip, half, full");
+			throw ModuleException("Bad value for <cloak:mode>; must be half or full");
 
-		if (mode == MODE_COMPAT_HOST || mode == MODE_COMPAT_IPONLY)
-		{
-			bool lowercase = tag->getBool("lowercase");
-
-			/* These are *not* using the need_positive parameter of ReadInteger -
-			 * that will limit the valid values to only the positive values in a
-			 * signed int. Instead, accept any value that fits into an int and
-			 * cast it to an unsigned int. That will, a bit oddly, give us the full
-			 * spectrum of an unsigned integer. - Special
-			 *
-			 * We must limit the keys or else we get different results on
-			 * amd64/x86 boxes. - psychon */
-			const unsigned int limit = 0x80000000;
-			compatkey[0] = (unsigned int) tag->getInt("key1");
-			compatkey[1] = (unsigned int) tag->getInt("key2");
-			compatkey[2] = (unsigned int) tag->getInt("key3");
-			compatkey[3] = (unsigned int) tag->getInt("key4");
-
-			if (!lowercase)
-			{
-				xtab[0] = "F92E45D871BCA630";
-				xtab[1] = "A1B9D80C72E653F4";
-				xtab[2] = "1ABC078934DEF562";
-				xtab[3] = "ABCDEF5678901234";
-			}
-			else
-			{
-				xtab[0] = "f92e45d871bca630";
-				xtab[1] = "a1b9d80c72e653f4";
-				xtab[2] = "1abc078934def562";
-				xtab[3] = "abcdef5678901234";
-			}
-
-			if (prefix.empty())
-				prefix = ServerInstance->Config->Network;
-
-			if (!compatkey[0] || !compatkey[1] || !compatkey[2] || !compatkey[3] ||
-				compatkey[0] >= limit || compatkey[1] >= limit || compatkey[2] >= limit || compatkey[3] >= limit)
-			{
-				std::string detail;
-				if (!compatkey[0] || compatkey[0] >= limit)
-					detail = "<cloak:key1> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[1] || compatkey[1] >= limit)
-					detail = "<cloak:key2> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[2] || compatkey[2] >= limit)
-					detail = "<cloak:key3> is not valid, it may be set to a too high/low value, or it may not exist.";
-				else if (!compatkey[3] || compatkey[3] >= limit)
-					detail = "<cloak:key4> is not valid, it may be set to a too high/low value, or it may not exist.";
-
-				throw ModuleException("You have not defined cloak keys for m_cloaking!!! THIS IS INSECURE AND SHOULD BE CHECKED! - " + detail);
-			}
-		}
-		else
-		{
-			key = tag->getString("key");
-			if (key.empty() || key == "secret")
-				throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
-		}
+		key = tag->getString("key");
+		if (key.empty() || key == "secret")
+			throw ModuleException("You have not defined cloak keys for m_cloaking. Define <cloak:key> as a network-wide secret.");
 	}
 
 	std::string GenCloak(const irc::sockets::sockaddrs& ip, const std::string& ipstr, const std::string& host)
@@ -495,29 +368,6 @@ class ModuleCloaking : public Module
 
 		switch (mode)
 		{
-			case MODE_COMPAT_HOST:
-			{
-				if (ipstr != host)
-				{
-					std::string tail = LastTwoDomainParts(host);
-
-					// xtab is not used here due to a bug in 1.2 cloaking
-					chost = prefix + "-" + Hash->sumIV(compatkey, "0123456789abcdef", host).substr(0,8) + tail;
-
-					/* Fix by brain - if the cloaked host is > the max length of a host (64 bytes
-					 * according to the DNS RFC) then they get cloaked as an IP.
-					 */
-					if (chost.length() <= 64)
-						break;
-				}
-				// fall through to IP cloak
-			}
-			case MODE_COMPAT_IPONLY:
-				if (ip.sa.sa_family == AF_INET6)
-					chost = CompatCloak6(ipstr.c_str());
-				else
-					chost = CompatCloak4(ipstr.c_str());
-				break;
 			case MODE_HALF_CLOAK:
 			{
 				if (ipstr != host)

@@ -451,11 +451,6 @@ public:
 		return std::string(rv, RMDsize / 8);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		return "";
-	}
-
 	RIProv(Module* m) : HashProvider(m, "hash/ripemd160", 20, 64) {}
 };
 

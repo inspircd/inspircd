@@ -40,17 +40,14 @@ std::string TreeSocket::MyModules(int filter)
 	for (std::vector<std::string>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
 		if (i != modlist.begin())
-			capabilities.push_back(proto_version > 1201 ? ' ' : ',');
+			capabilities.push_back(' ');
 		capabilities.append(*i);
 		Module* m = ServerInstance->Modules->Find(*i);
-		if (m && proto_version > 1201)
+		Version v = m->GetVersion();
+		if (!v.link_data.empty())
 		{
-			Version v = m->GetVersion();
-			if (!v.link_data.empty())
-			{
-				capabilities.push_back('=');
-				capabilities.append(v.link_data);
-			}
+			capabilities.push_back('=');
+			capabilities.append(v.link_data);
 		}
 	}
 	return capabilities;
@@ -90,7 +87,7 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
-	char sep = proto_version > 1201 ? ' ' : ',';
+	const char sep = ' ';
 	irc::sepstream modulelist(MyModules(VF_COMMON), sep);
 	irc::sepstream optmodulelist(MyModules(VF_OPTCOMMON), sep);
 	/* Send module names, split at 509 length */
@@ -139,8 +136,6 @@ void TreeSocket::SendCapabilities(int phase)
 		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
-	if (proto_version < 1202)
-		extra += ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL) ? " HALFOP=1" : " HALFOP=0";
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
@@ -212,7 +207,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		if ((this->capab->ModuleList != this->MyModules(VF_COMMON)) && (this->capab->ModuleList.length()))
 		{
 			std::string diffIneed, diffUneed;
-			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), proto_version > 1201 ? ' ' : ',', diffIneed, diffUneed);
+			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), ' ', diffIneed, diffUneed);
 			if (diffIneed.length() || diffUneed.length())
 			{
 				reason = "Modules incorrectly matched on these servers.";
@@ -348,7 +343,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else
 		{
-			capab->ModuleList.push_back(proto_version > 1201 ? ' ' : ',');
+			capab->ModuleList.push_back(' ');
 			capab->ModuleList.append(params[1]);
 		}
 	}

@@ -275,13 +275,6 @@ class MD5Provider : public HashProvider
 		return std::string(res, 16);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		char res[33];
-		GenHash(sdata.data(), res, HexMap, IV, sdata.length());
-		return res;
-	}
-
 	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5", 16, 64) {}
 };
 

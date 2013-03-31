@@ -494,7 +494,7 @@
 # cloak prefix as shown below. The cloak key must be shared across    #
 # the network for correct cloaking.                                   #
 #                                                                     #
-# There are four methods of cloaking:                                 #
+# There are two methods of cloaking:                                  #
 #                                                                     #
 #   half           Cloak only the "unique" portion of a host; show    #
 #                  the last 2 parts of the domain, /16 subnet of IPv4 #
@@ -503,19 +503,8 @@
 #   full           Cloak the users completely, using three slices for #
 #                  common CIDR bans (IPv4: /16, /24; IPv6: /48, /64)  #
 #                                                                     #
-# These methods use a single key that can be any length of text.      #
+# The methods use a single key that can be any length of text.        #
 # An optional prefix may be specified to mark cloaked hosts.          #
-#                                                                     #
-# The following methods are maintained for backwards compatibility;   #
-# they are slightly less secure, and always hide unresolved IPs       #
-#                                                                     #
-#   compat-host    InspIRCd 1.2-compatible host-based cloaking        #
-#   compat-ip      InspIRCd 1.2-compatible ip-always cloaking         #
-#                                                                     #
-# If you use a compat cloaking mode then you must specify key1, key2, #
-# key3, key4; the values must be less than 0x80000000 and should be   #
-# picked at random. Prefix is mandatory, will default to network name #
-# if not specified, and will always have a "-" appended.              #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<cloak mode="half"
@@ -618,9 +607,7 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Custom prefixes: allows for channel prefixes to be added. 
-# This can replace m_chanprotect and m_halfop, except for services that
-# recognise those modules by name
+# Custom prefixes: allows for channel prefixes to be added.
 #<module name="m_customprefix.so">
 #
 # name       The name of the mode, must be unique from other modes
@@ -811,10 +798,6 @@
 # To use, GLOADMODULE, GUNLOADMODULE and GRELOADMODULE
 # must be in one of your oper class blocks.
 #<module name="m_globalload.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Halfop module: Provides the +h (halfops) channel status mode.
-#<module name="m_halfop.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command

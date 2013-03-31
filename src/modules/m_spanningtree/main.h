@@ -37,7 +37,7 @@
  * painful death by pain. You have been warned.
  */
 const long ProtocolVersion = 1202;
-const long MinCompatProtocol = 1201;
+const long MinCompatProtocol = 1202;
 
 /** Forward declarations
  */

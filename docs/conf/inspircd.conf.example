@@ -614,12 +614,7 @@
 
          # nosnoticestack: This prevents snotices from 'stacking' and giving you
          # the message saying '(last message repeated X times)'. Defaults to no.
-         nosnoticestack="no"
-
-         # welcomenotice: When turned on, this sends a NOTICE to connecting users 
-         # with the text Welcome to <networkname>! after successful registration.
-         # Defaults to yes.
-         welcomenotice="yes">
+         nosnoticestack="no">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#

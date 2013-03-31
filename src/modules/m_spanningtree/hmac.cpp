@@ -62,38 +62,9 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	 */
 	HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
-	{
-		if (proto_version < 1202)
-		{
-			/* This is how HMAC is done in InspIRCd 1.2:
-			 *
-			 * sha256( (pass xor 0x5c) + sha256((pass xor 0x36) + m) )
-			 *
-			 * 5c and 36 were chosen as part of the HMAC standard, because they
-			 * flip the bits in a way likely to strengthen the function.
-			 */
-			std::string hmac1, hmac2;
+		return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
 
-			for (size_t n = 0; n < password.length(); n++)
-			{
-				hmac1.push_back(static_cast<char>(password[n] ^ 0x5C));
-				hmac2.push_back(static_cast<char>(password[n] ^ 0x36));
-			}
-
-			hmac2.append(challenge);
-			hmac2 = sha256->hexsum(hmac2);
-		
-			std::string hmac = hmac1 + hmac2;
-			hmac = sha256->hexsum(hmac);
-
-			return "HMAC-SHA256:"+ hmac;
-		}
-		else
-		{
-			return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
-		}
-	}
-	else if (!challenge.empty() && !sha256)
+	if (!challenge.empty() && !sha256)
 		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");
 
 	return password;
