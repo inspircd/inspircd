@@ -483,17 +483,16 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Cloaking module: Adds usermode +x and cloaking support.
-# Relies on the module m_md5.so being loaded before m_cloaking.so in
-# the configuration file.
+# Relies on the module m_md5.so being loaded.
 # To use, you should enable m_conn_umodes and add +x as
 # an enabled mode. See the m_conn_umodes module for more information.
 #<module name="m_cloaking.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you specify the m_cloaking.so module as above, you must define   #
-# cloak keys, and optionally a cloak prefix as shown below. The cloak #
-# keys must be shared across the network for correct cloaking.        #
+# To use m_cloaking, you must define a cloak key, and optionally a    #
+# cloak prefix as shown below. The cloak key must be shared across    #
+# the network for correct cloaking.                                   #
 #                                                                     #
 # There are four methods of cloaking:                                 #
 #                                                                     #
@@ -513,10 +512,10 @@
 #   compat-host    InspIRCd 1.2-compatible host-based cloaking        #
 #   compat-ip      InspIRCd 1.2-compatible ip-always cloaking         #
 #                                                                     #
-# You must specify key1, key2, key3, key4 for the compat cloaking     #
-# modes; the values must be less than 0x80000000 and should be picked #
-# at random. Prefix is mandatory, will default to network name if not #
-# specified, and will always have a "-" appended.                     #
+# If you use a compat cloaking mode then you must specify key1, key2, #
+# key3, key4; the values must be less than 0x80000000 and should be   #
+# picked at random. Prefix is mandatory, will default to network name #
+# if not specified, and will always have a "-" appended.              #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<cloak mode="half"
@@ -602,7 +601,7 @@
 # Connection throttle module. Configuration:
 #<module name="m_connflood.so">
 #
-#-#-#-#-#-#-#-#-#-#-#- CONTHROTTLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#- CONNTHROTTLE CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #  seconds, maxconns -  Amount of connections per <seconds>.
 #
 #  timeout           -  Time to wait after the throttle was activated
@@ -619,7 +618,7 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Custom prefixes : allows for channel prefixes to be added. 
+# Custom prefixes: allows for channel prefixes to be added. 
 # This can replace m_chanprotect and m_halfop, except for services that
 # recognise those modules by name
 #<module name="m_customprefix.so">
