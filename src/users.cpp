@@ -793,14 +793,14 @@ void LocalUser::FullConnect()
 
 	/* Trigger MOTD and LUSERS output, give modules a chance too */
 	ModResult MOD_RESULT;
-	std::string command("MOTD");
+	std::string command("LUSERS");
 	std::vector<std::string> parameters;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
 		ServerInstance->Parser->CallHandler(command, parameters, this);
 
 	MOD_RESULT = MOD_RES_PASSTHRU;
-	command = "LUSERS";
+	command = "MOTD";
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
 		ServerInstance->Parser->CallHandler(command, parameters, this);
