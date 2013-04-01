@@ -55,8 +55,7 @@ class ModuleHttpStats : public Module
 				ret += it->second;
 				ret += ';';
 			}
-			else if (*x == 0x9 ||  *x == 0xA || *x == 0xD ||
-			        (*x >= 0x20 && *x <= 0xD7FF) || (*x >= 0xE000 && *x <= 0x10FFFF))
+			else if (*x == 0x9 ||  *x == 0xA || *x == 0xD || *x >= 0x20)
 			{
 				// The XML specification defines the following characters as valid inside an XML document:
 				// Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]

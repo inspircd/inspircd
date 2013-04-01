@@ -43,7 +43,6 @@ class BanRedirectEntry
 };
 
 typedef std::vector<BanRedirectEntry> BanRedirectList;
-typedef std::deque<std::string> StringDeque;
 
 class BanRedirect : public ModeWatcher
 {
@@ -242,7 +241,7 @@ class ModuleBanRedirect : public Module
 			if(redirects)
 			{
 				irc::modestacker modestack(false);
-				StringDeque stackresult;
+				std::vector<std::string> stackresult;
 				std::vector<std::string> mode_junk;
 				mode_junk.push_back(chan->name);
 
