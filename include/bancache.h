@@ -65,7 +65,7 @@ class CoreExport BanCacheHit
 /* A container of ban cache items.
  * must be defined after class BanCacheHit.
  */
-typedef nspace::hash_map<std::string, BanCacheHit*, nspace::hash<std::string> > BanCacheHash;
+typedef std::tr1::unordered_map<std::string, BanCacheHit*, std::tr1::hash<std::string> > BanCacheHash;
 
 /** A manager for ban cache, which allocates and deallocates and checks cached bans.
  */

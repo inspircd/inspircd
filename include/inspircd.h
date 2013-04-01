@@ -58,6 +58,11 @@
 #include <unistd.h>
 #endif
 
+#ifdef _WIN32
+# include <unordered_map>
+#else
+# include <tr1/unordered_map>
+#endif
 #include <sstream>
 #include <string>
 #include <vector>
@@ -896,3 +901,4 @@ class CommandModule : public Module
 };
 
 #endif
+
