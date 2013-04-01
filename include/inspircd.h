@@ -263,10 +263,10 @@ class serverstats
 	}
 };
 
-DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
+DEFINE_HANDLER2(IsNickHandler, bool, const std::string&, size_t);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
-DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
+DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
+DEFINE_HANDLER2(IsChannelHandler, bool, const std::string&, size_t);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
@@ -566,7 +566,7 @@ class CoreExport InspIRCd
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
 	 */
-	caller2<bool, const char*, size_t> IsChannel;
+	caller2<bool, const std::string&, size_t> IsChannel;
 
 	/** Return true if str looks like a server ID
 	 * @param string to check against
@@ -614,13 +614,13 @@ class CoreExport InspIRCd
 	 * @param n A nickname to verify
 	 * @return True if the nick is valid
 	 */
-	caller2<bool, const char*, size_t> IsNick;
+	caller2<bool, const std::string&, size_t> IsNick;
 
 	/** Return true if an ident is valid
 	 * @param An ident to verify
 	 * @return True if the ident is valid
 	 */
-	caller1<bool, const char*> IsIdent;
+	caller1<bool, const std::string&> IsIdent;
 
 	/** Add a dns Resolver class to this server's active set
 	 * @param r The resolver to add

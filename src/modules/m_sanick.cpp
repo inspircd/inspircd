@@ -54,7 +54,7 @@ class CommandSanick : public Command
 				return CMD_FAILURE;
 			}
 
-			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+			if (!ServerInstance->IsNick(parameters[1], ServerInstance->Config->Limits.NickMax))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
 				return CMD_FAILURE;

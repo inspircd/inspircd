@@ -281,47 +281,35 @@ void InspIRCd::ProcessColors(file_cache& input)
 }
 
 /* true for valid channel name, false else */
-bool IsChannelHandler::Call(const char *chname, size_t max)
+bool IsChannelHandler::Call(const std::string& chname, size_t max)
 {
-	const char *c = chname + 1;
-
-	/* check for no name - don't check for !*chname, as if it is empty, it won't be '#'! */
-	if (!chname || *chname != '#')
-	{
+	if (chname.empty() || chname.length() > max)
 		return false;
-	}
 
-	while (*c)
+	if (chname[0] != '#')
+		return false;
+
+	for (std::string::const_iterator i = chname.begin()+1; i != chname.end(); ++i)
 	{
-		switch (*c)
+		switch (*i)
 		{
 			case ' ':
 			case ',':
 			case 7:
 				return false;
 		}
-
-		c++;
-	}
-
-	size_t len = c - chname;
-	/* too long a name - note funky pointer arithmetic here. */
-	if (len > max)
-	{
-			return false;
 	}
 
 	return true;
 }
 
 /* true for valid nickname, false else */
-bool IsNickHandler::Call(const char* n, size_t max)
+bool IsNickHandler::Call(const std::string& n, size_t max)
 {
-	if (!n || !*n)
+	if (n.empty() || n.length() > max)
 		return false;
 
-	unsigned int p = 0;
-	for (const char* i = n; *i; i++, p++)
+	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
@@ -329,7 +317,7 @@ bool IsNickHandler::Call(const char* n, size_t max)
 			continue;
 		}
 
-		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i > n))
+		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i != n.begin()))
 		{
 			/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
 			continue;
@@ -339,17 +327,16 @@ bool IsNickHandler::Call(const char* n, size_t max)
 		return false;
 	}
 
-	/* too long? or not */
-	return (p <= max);
+	return true;
 }
 
 /* return true for good ident, false else */
-bool IsIdentHandler::Call(const char* n)
+bool IsIdentHandler::Call(const std::string& n)
 {
-	if (!n || !*n)
+	if (n.empty())
 		return false;
 
-	for (const char* i = n; *i; i++)
+	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
