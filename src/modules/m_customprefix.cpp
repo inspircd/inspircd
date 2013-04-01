@@ -59,7 +59,7 @@ class CustomPrefixMode : public ModeHandler
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
 		irc::modestacker modestack(false);
-		std::deque<std::string> stackresult;
+		std::vector<std::string> stackresult;
 
 		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
 		{

@@ -280,15 +280,7 @@ namespace irc
 		 * mode changes to be obtained.
 		 */
 		int GetStackedLine(std::vector<std::string> &result, int max_line_size = 360);
-
-		/** deprecated compatability interface - TODO remove */
-		int GetStackedLine(std::deque<std::string> &result, int max_line_size = 360) {
-			std::vector<std::string> r;
-			int n = GetStackedLine(r, max_line_size);
-			result.clear();
-			result.insert(result.end(), r.begin(), r.end());
-			return n;
-		}
+		
 	};
 
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
