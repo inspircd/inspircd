@@ -57,21 +57,8 @@ class OpMeQuery : public SQLQuery
 		SQLEntries row;
 		while (res.GetRow(row))
 		{
-#if 0
-			parameterlist cols;
-			res.GetCols(cols);
-
-			std::vector<KeyVal>* items;
-			reference<ConfigTag> tag = ConfigTag::create("oper", "<m_sqloper>", 0, items);
-			for(unsigned int i=0; i < cols.size(); i++)
-			{
-				if (!row[i].nul)
-					items->insert(std::make_pair(cols[i], row[i]));
-			}
-#else
 			if (OperUser(user, row[0], row[1]))
 				return;
-#endif
 		}
 		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER

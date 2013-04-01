@@ -112,11 +112,6 @@ CoreExport extern InspIRCd* ServerInstance;
  */
 #define ERROR -1
 
-/** Support for librodent -
- * see http://www.chatspike.net/index.php?z=64
- */
-#define ETIREDHAMSTERS EAGAIN
-
 /** Template function to convert any input type to std::string
  */
 template<typename T> inline std::string ConvNumeric(const T &in)
