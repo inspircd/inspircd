@@ -32,9 +32,6 @@ std::string TreeSocket::MyModules(int filter)
 {
 	std::vector<std::string> modlist = ServerInstance->Modules->GetAllModuleNames(filter);
 
-	if (filter == VF_COMMON && proto_version != ProtocolVersion)
-		CompatAddModules(modlist);
-
 	std::string capabilities;
 	sort(modlist.begin(),modlist.end());
 	for (std::vector<std::string>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)

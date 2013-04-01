@@ -186,9 +186,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	void SendCapabilities(int phase);
 
-	/** Add modules to VF_COMMON list for backwards compatability */
-	void CompatAddModules(std::vector<std::string>& modlist);
-
 	/* Isolate and return the elements that are different between two lists */
 	void ListDifference(const std::string &one, const std::string &two, char sep,
 		std::string& mleft, std::string& mright);
