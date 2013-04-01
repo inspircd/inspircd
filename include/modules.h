@@ -736,8 +736,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * (see below). This function will be called for every user visible on your side
 	 * of the burst, allowing you to for example set modes, etc.
 	 *
-	 * For a good example of how to use this function, please see src/modules/m_chanprotect.cpp
-	 *
 	 * @param chan The channel being syncronized
 	 * @param proto A pointer to the module handling network protocol
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
@@ -769,9 +767,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * These modules will implement this method, which allows transparent sending of servermodes
 	 * down the network link as a broadcast, without a module calling it having to know the format
 	 * of the MODE command before the actual mode string.
-	 *
-	 * More documentation to follow soon. Please see src/modules/m_chanprotect.cpp for examples
-	 * of how to use this function.
 	 *
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
