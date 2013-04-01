@@ -55,7 +55,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, parameterlist &params)
 		this->SendError("Protocol error - Introduced remote server from unknown server "+prefix);
 		return false;
 	}
-	if (!ServerInstance->IsSID(sid))
+	if (!InspIRCd::IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
 		return false;

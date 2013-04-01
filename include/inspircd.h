@@ -267,7 +267,6 @@ DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
-DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
@@ -337,7 +336,6 @@ class CoreExport InspIRCd
 	IsIdentHandler HandleIsIdent;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
-	IsSIDHandler HandleIsSID;
 	RehashHandler HandleRehash;
 	GenRandomHandler HandleGenRandom;
 
@@ -573,7 +571,7 @@ class CoreExport InspIRCd
 	/** Return true if str looks like a server ID
 	 * @param string to check against
 	 */
-	caller1<bool, const std::string&> IsSID;
+	static bool IsSID(const std::string& sid);
 
 	/** Rehash the local server
 	 */

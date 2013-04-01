@@ -61,7 +61,7 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
  */
 TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
-	if (ServerInstance->IsSID(ServerName))
+	if (InspIRCd::IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
 	server_hash::iterator iter = serverlist.find(ServerName.c_str());

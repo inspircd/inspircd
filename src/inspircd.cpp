@@ -321,7 +321,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 OperQuit("OperQuit", NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
-	 IsSID(&HandleIsSID),
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),

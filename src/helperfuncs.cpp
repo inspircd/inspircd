@@ -367,7 +367,7 @@ bool IsIdentHandler::Call(const char* n)
 	return true;
 }
 
-bool IsSIDHandler::Call(const std::string &str)
+bool InspIRCd::IsSID(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits

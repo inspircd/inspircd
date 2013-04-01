@@ -483,7 +483,7 @@ void ServerConfig::Fill()
 		ServerName = ConfValue("server")->getString("name");
 		sid = ConfValue("server")->getString("id");
 		ValidHost(ServerName, "<server:name>");
-		if (!sid.empty() && !ServerInstance->IsSID(sid))
+		if (!InspIRCd::IsSID(sid))
 			throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
 	else
