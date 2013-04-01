@@ -56,13 +56,8 @@ struct ResourceRecord;
 #include "hashcomp.h"
 #include "base.h"
 
-#ifdef HASHMAP_DEPRECATED
-	typedef nspace::hash_map<std::string, User*, nspace::insensitive, irc::StrHashComp> user_hash;
-	typedef nspace::hash_map<std::string, Channel*, nspace::insensitive, irc::StrHashComp> chan_hash;
-#else
-	typedef nspace::hash_map<std::string, User*, nspace::hash<std::string>, irc::StrHashComp> user_hash;
-	typedef nspace::hash_map<std::string, Channel*, nspace::hash<std::string>, irc::StrHashComp> chan_hash;
-#endif
+typedef std::tr1::unordered_map<std::string, User*, std::tr1::insensitive, irc::StrHashComp> user_hash;
+typedef std::tr1::unordered_map<std::string, Channel*, std::tr1::insensitive, irc::StrHashComp> chan_hash;
 
 /** A list holding local users, this is the type of UserManager::local_users
  */
@@ -120,7 +115,7 @@ typedef std::map<std::string, file_cache> ConfigFileCache;
 
 /** A hash of commands used by the core
  */
-typedef nspace::hash_map<std::string,Command*> Commandtable;
+typedef std::tr1::unordered_map<std::string,Command*> Commandtable;
 
 /** Membership list of a channel */
 typedef std::map<User*, Membership*> UserMembList;
