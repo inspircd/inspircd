@@ -71,7 +71,6 @@ class HideOperWatcher : public ModeWatcher
 
 class ModuleOperPrefixMode : public Module
 {
- private:
 	OperPrefixMode opm;
 	bool mw_added;
 	HideOperWatcher hideoperwatcher;

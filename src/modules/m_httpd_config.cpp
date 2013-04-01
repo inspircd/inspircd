@@ -102,10 +102,6 @@ class ModuleHttpConfig : public Module
 		}
 	}
 
-	virtual ~ModuleHttpConfig()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Allows for the server configuration to be viewed over HTTP via m_httpd.so", VF_VENDOR);

@@ -121,10 +121,6 @@ class ModuleCustomTitle : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleCustomTitle()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Custom Title for users", VF_OPTCOMMON | VF_VENDOR);

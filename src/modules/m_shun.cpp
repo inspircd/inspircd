@@ -36,10 +36,6 @@ public:
 		this->matchtext = shunmask;
 	}
 
-	~Shun()
-	{
-	}
-
 	bool Matches(User *u)
 	{
 		// E: overrides shun
@@ -291,4 +287,3 @@ class ModuleShun : public Module
 };
 
 MODULE_INIT(ModuleShun)
-

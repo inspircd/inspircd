@@ -87,7 +87,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 				rev_match = !memcmp(&user_ip->in4.sin_addr, &res_bin, sizeof(res_bin));
 			}
 		}
-		
+
 		if (rev_match)
 		{
 			std::string hostname = bound_user->stored_host;

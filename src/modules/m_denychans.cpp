@@ -77,10 +77,6 @@ class ModuleDenyChannels : public Module
 		}
 	}
 
-	virtual ~ModuleDenyChannels()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Implements config tags which allow blocking of joins to channels", VF_VENDOR);

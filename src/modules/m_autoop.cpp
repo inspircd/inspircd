@@ -82,7 +82,7 @@ class ModuleAutoOp : public Module
 {
 	AutoOpList mh;
 
-public:
+ public:
 	ModuleAutoOp() : mh(this)
 	{
 	}

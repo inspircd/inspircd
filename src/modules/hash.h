@@ -59,4 +59,3 @@ class HashProvider : public DataProvider
 };
 
 #endif
-

@@ -30,10 +30,6 @@ class ModuleGecosBan : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	~ModuleGecosBan()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Extban 'r' - realname (gecos) ban", VF_OPTCOMMON|VF_VENDOR);

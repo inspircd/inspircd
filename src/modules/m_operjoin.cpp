@@ -28,7 +28,6 @@
 
 class ModuleOperjoin : public Module
 {
-	private:
 		std::string operChan;
 		std::vector<std::string> operChans;
 		bool override;
@@ -70,10 +69,6 @@ class ModuleOperjoin : public Module
 			operChans.clear();
 			if (!operChan.empty())
 				tokenize(operChan,operChans);
-		}
-
-		virtual ~ModuleOperjoin()
-		{
 		}
 
 		virtual Version GetVersion()

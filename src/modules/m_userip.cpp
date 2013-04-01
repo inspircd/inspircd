@@ -82,16 +82,10 @@ class ModuleUserIP : public Module
 		output = output + " USERIP";
 	}
 
-	virtual ~ModuleUserIP()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for USERIP command",VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleUserIP)
-

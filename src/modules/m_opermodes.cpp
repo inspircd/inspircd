@@ -32,10 +32,6 @@ class ModuleModesOnOper : public Module
 		ServerInstance->Modules->Attach(I_OnPostOper, this);
 	}
 
-	virtual ~ModuleModesOnOper()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Sets (and unsets) modes on opers when they oper up", VF_VENDOR);

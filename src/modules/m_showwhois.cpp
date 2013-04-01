@@ -125,7 +125,7 @@ class ModuleShowwhois : public Module
 			ServerInstance->PI->SendEncapsulatedData(params);
 		}
 	}
-
 };
 
 MODULE_INIT(ModuleShowwhois)
+

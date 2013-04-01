@@ -39,10 +39,6 @@ class ModuleUHNames : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	~ModuleUHNames()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides the UHNAMES facility.",VF_VENDOR);

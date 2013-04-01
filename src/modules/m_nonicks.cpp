@@ -46,15 +46,10 @@ class ModuleNoNickChange : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleNoNickChange()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
 	}
-
 
 	virtual void On005Numeric(std::string &output)
 	{

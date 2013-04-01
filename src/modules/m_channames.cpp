@@ -48,7 +48,6 @@ bool NewIsChannelHandler::Call(const std::string& channame, size_t max)
 
 class ModuleChannelNames : public Module
 {
- private:
 	NewIsChannelHandler myhandler;
 	caller2<bool, const std::string&, size_t> rememberer;
 	bool badchan;

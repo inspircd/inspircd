@@ -24,22 +24,18 @@
 
 class ModuleConnectBan : public Module
 {
- private:
 	clonemap connects;
 	unsigned int threshold;
 	unsigned int banduration;
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
+
  public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnSetUserIP, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
-	}
-
-	virtual ~ModuleConnectBan()
-	{
 	}
 
 	virtual Version GetVersion()

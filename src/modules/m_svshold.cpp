@@ -38,10 +38,6 @@ public:
 		this->nickname = nick.c_str();
 	}
 
-	~SVSHold()
-	{
-	}
-
 	bool Matches(User *u)
 	{
 		if (u->nick == nickname)

@@ -393,10 +393,6 @@ class ModuleSilence : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleSilence()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides support for the /SILENCE command", VF_OPTCOMMON | VF_VENDOR);

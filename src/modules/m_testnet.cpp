@@ -230,4 +230,3 @@ class ModuleTest : public Module
 };
 
 MODULE_INIT(ModuleTest)
-

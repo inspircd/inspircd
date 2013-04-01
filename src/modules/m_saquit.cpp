@@ -48,7 +48,7 @@ class CommandSaquit : public Command
 			// Pass the command on, so the client's server can quit it properly.
 			if (!IS_LOCAL(dest))
 				return CMD_SUCCESS;
-			
+
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAQUIT to make "+dest->nick+" quit with a reason of "+parameters[1]);
 
 			ServerInstance->Users->QuitUser(dest, parameters[1]);
@@ -84,15 +84,11 @@ class ModuleSaquit : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSaquit()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for an SAQUIT command, exits user with a reason", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSaquit)
+

@@ -49,10 +49,6 @@ class ModuleXLineDB : public Module
 		dirty = false;
 	}
 
-	virtual ~ModuleXLineDB()
-	{
-	}
-
 	/** Called whenever an xline is added by a local user.
 	 * This method is triggered after the line is added.
 	 * @param source The sender of the line or NULL for local server
@@ -256,8 +252,6 @@ class ModuleXLineDB : public Module
 		return true;
 	}
 
-
-
 	virtual Version GetVersion()
 	{
 		return Version("Keeps a dynamic log of all XLines created, and stores them in a separate conf file (xline.db).", VF_VENDOR);
@@ -265,4 +259,3 @@ class ModuleXLineDB : public Module
 };
 
 MODULE_INIT(ModuleXLineDB)
-

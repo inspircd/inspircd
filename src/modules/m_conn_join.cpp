@@ -62,5 +62,4 @@ class ModuleConnJoin : public Module
 		}
 };
 
-
 MODULE_INIT(ModuleConnJoin)

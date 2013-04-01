@@ -48,10 +48,6 @@ class ModuleMapHide : public Module
 			return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleMapHide()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Hide /MAP and /LINKS in the same form as ircu (mostly useless)", VF_VENDOR);
@@ -59,4 +55,3 @@ class ModuleMapHide : public Module
 };
 
 MODULE_INIT(ModuleMapHide)
-

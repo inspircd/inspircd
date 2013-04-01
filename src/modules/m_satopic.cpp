@@ -70,10 +70,6 @@ class ModuleSATopic : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSATopic()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides a SATOPIC command", VF_VENDOR);

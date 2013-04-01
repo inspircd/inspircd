@@ -545,4 +545,3 @@ class Modulewatch : public Module
 };
 
 MODULE_INIT(Modulewatch)
-

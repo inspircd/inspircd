@@ -112,16 +112,10 @@ class ModuleSakick : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSakick()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides a SAKICK command", VF_OPTCOMMON|VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSakick)
-

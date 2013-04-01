@@ -98,7 +98,6 @@ class CommandHelpop : public Command
 
 class ModuleHelpop : public Module
 {
-	private:
 		std::string  h_file;
 		CommandHelpop cmd;
 		Helpop ho;

@@ -103,15 +103,11 @@ class ModuleSanick : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSanick()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for SANICK command", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSanick)
+

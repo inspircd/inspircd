@@ -44,10 +44,6 @@ class ModulePrivacyMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModulePrivacyMode()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Adds user mode +c, which if set, users must be on a common channel with you to private message you", VF_VENDOR);
@@ -72,6 +68,5 @@ class ModulePrivacyMode : public Module
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 };
-
 
 MODULE_INIT(ModulePrivacyMode)

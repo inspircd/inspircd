@@ -250,10 +250,8 @@ class CommandCheck : public Command
 	}
 };
 
-
 class ModuleCheck : public Module
 {
- private:
 	CommandCheck mycommand;
  public:
 	ModuleCheck() : mycommand(this)
@@ -263,10 +261,6 @@ class ModuleCheck : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(mycommand);
-	}
-
-	~ModuleCheck()
-	{
 	}
 
 	void ProtoSendMode(void* uv, TargetTypeFlags, void*, const std::vector<std::string>& result, const std::vector<TranslateType>&)

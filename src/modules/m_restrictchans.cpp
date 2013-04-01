@@ -72,10 +72,6 @@ class ModuleRestrictChans : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleRestrictChans()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Only opers may create new channels if this module is loaded",VF_VENDOR);

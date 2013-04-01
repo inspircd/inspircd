@@ -39,7 +39,7 @@ class AuthQuery : public SQLQuery
 		: SQLQuery(me), uid(u), pendingExt(e), verbose(v)
 	{
 	}
-	
+
 	void OnResult(SQLResult& res)
 	{
 		User* user = ServerInstance->FindNick(uid);

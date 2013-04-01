@@ -114,16 +114,10 @@ class ModuleSapart : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSapart()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides command SAPART to force-part users from a channel.", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSapart)
-

@@ -84,6 +84,7 @@ class CommandCycle : public Command
 class ModuleCycle : public Module
 {
 	CommandCycle cmd;
+
  public:
 	ModuleCycle()
 		: cmd(this)
@@ -95,15 +96,10 @@ class ModuleCycle : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleCycle()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides command CYCLE, acts as a server-side HOP command to part and rejoin a channel.", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleCycle)

@@ -28,7 +28,7 @@
 
 class POSIXRegexException : public ModuleException
 {
-public:
+ public:
 	POSIXRegexException(const std::string& rx, const std::string& error)
 		: ModuleException("Error in regex " + rx + ": " + error)
 	{
@@ -37,10 +37,9 @@ public:
 
 class POSIXRegex : public Regex
 {
-private:
 	regex_t regbuf;
 
-public:
+ public:
 	POSIXRegex(const std::string& rx, bool extended) : Regex(rx)
 	{
 		int flags = (extended ? REG_EXTENDED : 0) | REG_NOSUB;
@@ -92,8 +91,10 @@ class PosixFactory : public RegexFactory
 class ModuleRegexPOSIX : public Module
 {
 	PosixFactory ref;
-public:
-	ModuleRegexPOSIX() : ref(this) {
+
+ public:
+	ModuleRegexPOSIX() : ref(this)
+	{
 		ServerInstance->Modules->AddService(ref);
 		Implementation eventlist[] = { I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));

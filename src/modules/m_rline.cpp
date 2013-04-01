@@ -131,10 +131,6 @@ class RLineFactory : public XLineFactory
 
 		return new RLine(set_time, duration, source, reason, xline_specific_mask, rxfactory);
 	}
-
-	~RLineFactory()
-	{
-	}
 };
 
 /** Handle /RLINE
@@ -220,7 +216,6 @@ class CommandRLine : public Command
 
 class ModuleRLine : public Module
 {
- private:
 	dynamic_reference<RegexFactory> rxfactory;
 	RLineFactory f;
 	CommandRLine r;

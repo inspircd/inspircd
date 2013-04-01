@@ -45,7 +45,6 @@ class CloakUser : public ModeHandler
 {
  public:
 	LocalStringExt ext;
-
 	std::string debounce_uid;
 	time_t debounce_ts;
 	int debounce_count;
@@ -119,7 +118,6 @@ class CloakUser : public ModeHandler
 			return MODEACTION_ALLOW;
 		}
 	}
-
 };
 
 class CommandCloak : public Command
@@ -320,10 +318,6 @@ class ModuleCloaking : public Module
 			u->SetMode('x', false);
 			u->WriteServ("MODE %s -x", u->nick.c_str());
 		}
-	}
-
-	~ModuleCloaking()
-	{
 	}
 
 	Version GetVersion()

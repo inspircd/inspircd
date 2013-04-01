@@ -24,7 +24,6 @@
 
 class ModuleChanLog : public Module
 {
- private:
 	/*
 	 * Multimap so people can redirect a snomask to multiple channels.
 	 */
@@ -38,10 +37,6 @@ class ModuleChanLog : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
-	}
-
-	virtual ~ModuleChanLog()
-	{
 	}
 
 	virtual void OnRehash(User *user)
@@ -155,4 +150,3 @@ class ChannelLogStream : public LogStream
 	}
 };
 #endif
-

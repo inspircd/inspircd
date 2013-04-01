@@ -467,8 +467,6 @@ class ModuleRIPEMD160 : public Module
 	{
 		return Version("Provides RIPEMD-160 hashing", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleRIPEMD160)
-

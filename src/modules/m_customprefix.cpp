@@ -97,10 +97,6 @@ class ModuleCustomPrefix : public Module
 {
 	std::vector<CustomPrefixMode*> modes;
  public:
-	ModuleCustomPrefix()
-	{
-	}
-
 	void init()
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("customprefix");

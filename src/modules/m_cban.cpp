@@ -38,10 +38,6 @@ public:
 		this->matchtext = ch.c_str();
 	}
 
-	~CBan()
-	{
-	}
-
 	// XXX I shouldn't have to define this
 	bool Matches(User *u)
 	{
@@ -211,4 +207,3 @@ class ModuleCBan : public Module
 };
 
 MODULE_INIT(ModuleCBan)
-

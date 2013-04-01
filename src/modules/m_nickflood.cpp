@@ -135,7 +135,6 @@ class ModuleNickFlood : public Module
 	NickFlood nf;
 
  public:
-
 	ModuleNickFlood()
 		: nf(this)
 	{
@@ -212,10 +211,6 @@ class ModuleNickFlood : public Module
 				f->addnick();
 			}
 		}
-	}
-
-	~ModuleNickFlood()
-	{
 	}
 
 	Version GetVersion()

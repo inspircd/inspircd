@@ -95,7 +95,7 @@ class ListModeBase : public ModeHandler
 	 * @param ctag Configuration tag to get limits from
 	 */
 	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist")
-		: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL), 
+		: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL),
 		listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
 		configtag(ctag), extItem("listbase_mode_" + name + "_list", Creator)
 	{

@@ -47,10 +47,6 @@ class ModuleBotMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleBotMode()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
@@ -63,8 +59,6 @@ class ModuleBotMode : public Module
 			ServerInstance->SendWhoisLine(src, dst, 335, src->nick+" "+dst->nick+" :is a bot on "+ServerInstance->Config->Network);
 		}
 	}
-
 };
-
 
 MODULE_INIT(ModuleBotMode)

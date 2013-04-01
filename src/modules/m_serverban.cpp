@@ -23,16 +23,11 @@
 
 class ModuleServerBan : public Module
 {
- private:
  public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleServerBan()
-	{
 	}
 
 	Version GetVersion()
@@ -56,6 +51,4 @@ class ModuleServerBan : public Module
 	}
 };
 
-
 MODULE_INIT(ModuleServerBan)
-

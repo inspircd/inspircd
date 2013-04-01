@@ -91,10 +91,6 @@ class ModuleBlockColor : public Module
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual ~ModuleBlockColor()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides channel mode +c to block color",VF_VENDOR);

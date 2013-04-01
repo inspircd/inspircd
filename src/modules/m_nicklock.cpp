@@ -139,7 +139,6 @@ class CommandNickunlock : public Command
 	}
 };
 
-
 class ModuleNickLock : public Module
 {
 	LocalIntExt locked;
@@ -157,10 +156,6 @@ class ModuleNickLock : public Module
 		ServerInstance->Modules->AddService(cmd2);
 		ServerInstance->Modules->AddService(locked);
 		ServerInstance->Modules->Attach(I_OnUserPreNick, this);
-	}
-
-	~ModuleNickLock()
-	{
 	}
 
 	Version GetVersion()

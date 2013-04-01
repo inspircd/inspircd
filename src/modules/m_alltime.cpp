@@ -52,7 +52,6 @@ class CommandAlltime : public Command
 	}
 };
 
-
 class Modulealltime : public Module
 {
 	CommandAlltime mycommand;
@@ -65,10 +64,6 @@ class Modulealltime : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(mycommand);
-	}
-
-	virtual ~Modulealltime()
-	{
 	}
 
 	virtual Version GetVersion()

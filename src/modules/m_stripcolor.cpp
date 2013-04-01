@@ -58,10 +58,6 @@ class ModuleStripColor : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleStripColor()
-	{
-	}
-
 	virtual void On005Numeric(std::string &output)
 	{
 		ServerInstance->AddExtBanChar('S');

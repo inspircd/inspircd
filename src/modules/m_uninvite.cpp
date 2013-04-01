@@ -111,10 +111,6 @@ class ModuleUninvite : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleUninvite()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides the UNINVITE command which lets users un-invite other users from channels", VF_VENDOR | VF_OPTCOMMON);
@@ -122,4 +118,3 @@ class ModuleUninvite : public Module
 };
 
 MODULE_INIT(ModuleUninvite)
-

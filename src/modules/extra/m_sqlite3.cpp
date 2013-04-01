@@ -48,10 +48,6 @@ class SQLite3Result : public SQLResult
 	{
 	}
 
-	~SQLite3Result()
-	{
-	}
-
 	virtual int Rows()
 	{
 		return rows;
@@ -80,7 +76,6 @@ class SQLite3Result : public SQLResult
 
 class SQLConn : public SQLProvider
 {
- private:
 	sqlite3* conn;
 	reference<ConfigTag> config;
 
@@ -206,14 +201,9 @@ class SQLConn : public SQLProvider
 
 class ModuleSQLite3 : public Module
 {
- private:
 	ConnMap conns;
 
  public:
-	ModuleSQLite3()
-	{
-	}
-
 	void init()
 	{
 		ReadConf();

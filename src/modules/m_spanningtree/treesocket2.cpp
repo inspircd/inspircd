@@ -47,7 +47,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 
 	if (!tokens.GetToken(prefix))
 		return;
-	
+
 	if (prefix[0] == ':')
 	{
 		prefix = prefix.substr(1);
@@ -455,7 +455,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else
 	{
 		Command* cmd = ServerInstance->Parser->GetHandler(command);
-		
+
 		if (!cmd)
 		{
 			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);

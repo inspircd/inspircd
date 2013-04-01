@@ -25,19 +25,15 @@
 
 class ModuleSecureList : public Module
 {
- private:
 	std::vector<std::string> allowlist;
 	time_t WaitTime;
+
  public:
 	void init()
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleSecureList()
-	{
 	}
 
 	virtual Version GetVersion()

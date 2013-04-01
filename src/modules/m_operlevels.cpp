@@ -60,4 +60,3 @@ class ModuleOperLevels : public Module
 };
 
 MODULE_INIT(ModuleOperLevels)
-

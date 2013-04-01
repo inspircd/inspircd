@@ -128,4 +128,3 @@ class ModuleGeoIP : public Module
 };
 
 MODULE_INIT(ModuleGeoIP)
-

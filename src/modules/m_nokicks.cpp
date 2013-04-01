@@ -63,15 +63,10 @@ class ModuleNoKicks : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleNoKicks()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides channel mode +Q to prevent kicks on the channel.", VF_VENDOR);
 	}
 };
-
 
 MODULE_INIT(ModuleNoKicks)

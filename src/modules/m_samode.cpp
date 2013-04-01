@@ -69,10 +69,6 @@ class ModuleSaMode : public Module
 		ServerInstance->Modules->Attach(I_OnPreMode, this);
 	}
 
-	~ModuleSaMode()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);

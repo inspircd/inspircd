@@ -60,11 +60,6 @@ class ModuleServProtectMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-
-	~ModuleServProtectMode()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);

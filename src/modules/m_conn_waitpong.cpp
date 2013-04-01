@@ -95,15 +95,10 @@ class ModuleWaitPong : public Module
 		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	~ModuleWaitPong()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Require pong prior to registration", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleWaitPong)

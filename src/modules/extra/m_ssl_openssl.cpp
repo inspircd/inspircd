@@ -29,7 +29,7 @@
 # define __AVAILABILITYMACROS__
 # define DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER
 #endif
- 
+
 #include "inspircd.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>

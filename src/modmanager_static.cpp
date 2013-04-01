@@ -202,7 +202,7 @@ void ModuleManager::LoadAll()
 	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
 	{
 		Module* mod = i->second;
-		try 
+		try
 		{
 			mod->init();
 		}

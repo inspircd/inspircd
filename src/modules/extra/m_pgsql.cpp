@@ -504,10 +504,6 @@ class ModulePgSQL : public Module
 	ConnMap connections;
 	ReconnectTimer* retimer;
 
-	ModulePgSQL()
-	{
-	}
-
 	void init()
 	{
 		ReadConf();

@@ -249,6 +249,7 @@ class ModuleSASL : public Module
 	GenericCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
+
  public:
 	ModuleSASL()
 		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)

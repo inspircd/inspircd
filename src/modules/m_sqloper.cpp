@@ -180,7 +180,6 @@ public:
 	{
 		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSQLOper)

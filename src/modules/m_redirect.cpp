@@ -168,10 +168,6 @@ class ModuleRedirect : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleRedirect()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides channel mode +L (limit redirection) and user mode +L (no forced redirection)", VF_VENDOR);

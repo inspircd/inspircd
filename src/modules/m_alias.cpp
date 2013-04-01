@@ -59,14 +59,12 @@ class Alias
 
 class ModuleAlias : public Module
 {
- private:
-
 	char fprefix;
 
 	/* We cant use a map, there may be multiple aliases with the same name.
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
-   */
+     */
 	std::multimap<irc::string, Alias> Aliases;
 
 	/* whether or not +B users are allowed to use fantasy commands */
@@ -100,16 +98,11 @@ class ModuleAlias : public Module
 	}
 
  public:
-
 	void init()
 	{
 		ReadAliases();
 		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash, I_OnUserMessage };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleAlias()
-	{
 	}
 
 	virtual Version GetVersion()

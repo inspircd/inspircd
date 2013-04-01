@@ -63,7 +63,6 @@ class CommandVhost : public Command
 
 class ModuleVHost : public Module
 {
- private:
 	CommandVhost cmd;
 
  public:
@@ -76,17 +75,10 @@ class ModuleVHost : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleVHost()
-	{
-	}
-
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleVHost)
-

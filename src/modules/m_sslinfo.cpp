@@ -255,4 +255,3 @@ class ModuleSSLInfo : public Module
 };
 
 MODULE_INIT(ModuleSSLInfo)
-

@@ -40,7 +40,6 @@ class DNSBLConfEntry
 		unsigned char records[256];
 		unsigned long stats_hits, stats_misses;
 		DNSBLConfEntry(): type(A_BITMASK),duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
-		~DNSBLConfEntry() { }
 };
 
 
@@ -200,10 +199,6 @@ class DNSBLResolver : public Resolver
 			if (i)
 				countExt.set(them, i - 1);
 		}
-	}
-
-	virtual ~DNSBLResolver()
-	{
 	}
 };
 

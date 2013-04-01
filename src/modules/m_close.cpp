@@ -76,10 +76,6 @@ class ModuleClose : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleClose()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides /CLOSE functionality", VF_VENDOR);

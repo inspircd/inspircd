@@ -36,7 +36,6 @@
  */
 class RemoveBase : public Command
 {
- private:
 	bool& supportnokicks;
 
  public:
@@ -198,7 +197,6 @@ class ModuleRemove : public Module
 	CommandFpart cmd2;
 	bool supportnokicks;
 
-
  public:
 	ModuleRemove() : cmd1(this, supportnokicks), cmd2(this, supportnokicks)
 	{
@@ -223,15 +221,10 @@ class ModuleRemove : public Module
 		supportnokicks = ServerInstance->Config->ConfValue("remove")->getBool("supportnokicks");
 	}
 
-	virtual ~ModuleRemove()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleRemove)

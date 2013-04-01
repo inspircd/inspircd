@@ -187,10 +187,6 @@ class ModuleGlobalLoad : public Module
 		ServerInstance->Modules->AddService(cmd3);
 	}
 
-	~ModuleGlobalLoad()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR);
@@ -198,4 +194,3 @@ class ModuleGlobalLoad : public Module
 };
 
 MODULE_INIT(ModuleGlobalLoad)
-

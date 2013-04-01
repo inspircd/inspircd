@@ -202,7 +202,6 @@ class ModuleSSLGnuTLS : public Module
 	}
 
  public:
-
 	ModuleSSLGnuTLS()
 		: starttls(this), capHandler(this, "tls"), iohook(this, "ssl/gnutls", SERVICE_IOHOOK)
 	{
@@ -471,7 +470,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		return Version("Provides SSL support for clients", VF_VENDOR);
 	}
-
 
 	void On005Numeric(std::string &output)
 	{

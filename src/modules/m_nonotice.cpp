@@ -77,10 +77,6 @@ class ModuleNoNotice : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleNoNotice()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides channel mode +T to block notices to the channel", VF_VENDOR);

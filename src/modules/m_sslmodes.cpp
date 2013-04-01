@@ -126,10 +126,6 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleSSLModes()
-	{
-	}
-
 	void On005Numeric(std::string &output)
 	{
 		ServerInstance->AddExtBanChar('z');
@@ -141,6 +137,4 @@ class ModuleSSLModes : public Module
 	}
 };
 
-
 MODULE_INIT(ModuleSSLModes)
-

@@ -145,10 +145,6 @@ class ModuleChanFilter : public Module
 	{
 		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR);
 	}
-
-	virtual ~ModuleChanFilter()
-	{
-	}
 };
 
 MODULE_INIT(ModuleChanFilter)

@@ -247,8 +247,8 @@ class CommandDccallow : public Command
 class ModuleDCCAllow : public Module
 {
 	CommandDccallow cmd;
- public:
 
+ public:
 	ModuleDCCAllow()
 		: cmd(this)
 	{

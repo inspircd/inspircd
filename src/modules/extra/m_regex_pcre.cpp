@@ -33,7 +33,7 @@
 
 class PCREException : public ModuleException
 {
-public:
+ public:
 	PCREException(const std::string& rx, const std::string& error, int erroffset)
 		: ModuleException("Error in regex " + rx + " at offset " + ConvToStr(erroffset) + ": " + error)
 	{
@@ -42,10 +42,9 @@ public:
 
 class PCRERegex : public Regex
 {
-private:
 	pcre* regex;
 
-public:
+ public:
 	PCRERegex(const std::string& rx) : Regex(rx)
 	{
 		const char* error;
@@ -86,9 +85,10 @@ class PCREFactory : public RegexFactory
 
 class ModuleRegexPCRE : public Module
 {
-public:
+ public:
 	PCREFactory ref;
-	ModuleRegexPCRE() : ref(this) {
+	ModuleRegexPCRE() : ref(this)
+	{
 		ServerInstance->Modules->AddService(ref);
 	}
 

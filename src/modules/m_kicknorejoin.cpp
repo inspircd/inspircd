@@ -60,7 +60,6 @@ class ModuleKickNoRejoin : public Module
 	KickRejoin kr;
 
 public:
-
 	ModuleKickNoRejoin()
 		: kr(this)
 	{
@@ -126,15 +125,10 @@ public:
 		}
 	}
 
-	~ModuleKickNoRejoin()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Channel mode to delay rejoin after kick", VF_VENDOR);
 	}
 };
-
 
 MODULE_INIT(ModuleKickNoRejoin)

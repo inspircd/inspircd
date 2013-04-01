@@ -54,10 +54,6 @@ class ModuleRegOnlyCreate : public Module
 		return MOD_RES_DENY;
 	}
 
-	~ModuleRegOnlyCreate()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Prevents users whose nicks are not registered from creating new channels", VF_VENDOR);

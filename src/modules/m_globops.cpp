@@ -59,7 +59,6 @@ class ModuleGlobops : public Module
 	{
 		return Version("Provides support for GLOBOPS and snomask +g", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleGlobops)

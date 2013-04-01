@@ -79,7 +79,6 @@ class CommandChgident : public Command
 	}
 };
 
-
 class ModuleChgIdent : public Module
 {
 	CommandChgident cmd;
@@ -94,10 +93,6 @@ public:
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleChgIdent()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for the CHGIDENT command", VF_OPTCOMMON | VF_VENDOR);
@@ -106,4 +101,3 @@ public:
 };
 
 MODULE_INIT(ModuleChgIdent)
-

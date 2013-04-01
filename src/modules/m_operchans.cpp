@@ -75,10 +75,6 @@ class ModuleOperChans : public Module
 		ServerInstance->AddExtBanChar('O');
 	}
 
-	~ModuleOperChans()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides support for oper-only chans via the +O channel mode and 'O' extban", VF_VENDOR);

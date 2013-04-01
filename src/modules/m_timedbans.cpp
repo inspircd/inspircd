@@ -62,7 +62,7 @@ class CommandTban : public Command
 			user->WriteNumeric(482, "%s %s :You do not have permission to set bans on this channel",
 				user->nick.c_str(), channel->name.c_str());
 			return CMD_FAILURE;
-		}		
+		}
 
 		TimedBan T;
 		std::string channelname = parameters[0];
@@ -190,4 +190,3 @@ class ModuleTimedBans : public Module
 };
 
 MODULE_INIT(ModuleTimedBans)
-

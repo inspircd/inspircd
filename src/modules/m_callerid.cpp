@@ -292,7 +292,6 @@ public:
 
 class ModuleCallerID : public Module
 {
-private:
 	CommandAccept cmd;
 	User_g myumode;
 
@@ -341,10 +340,6 @@ public:
 
 		Implementation eventlist[] = { I_OnRehash, I_OnUserPostNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleCallerID()
-	{
 	}
 
 	virtual Version GetVersion()
@@ -423,5 +418,3 @@ public:
 };
 
 MODULE_INIT(ModuleCallerID)
-
-

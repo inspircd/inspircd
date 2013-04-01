@@ -69,10 +69,6 @@ class ModuleAllowInvite : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleAllowInvite()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for channel mode +A, allowing /invite freely on a channel and extban A to deny specific users it",VF_VENDOR);

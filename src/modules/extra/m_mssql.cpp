@@ -88,10 +88,6 @@ class MsSQLResult : public SQLresult
 	{
 	}
 
-	~MsSQLResult()
-	{
-	}
-
 	void AddRow(int colsnum, char **dat, char **colname)
 	{
 		colnames.clear();

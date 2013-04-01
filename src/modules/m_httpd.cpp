@@ -58,7 +58,6 @@ class HttpServerSocket : public BufferedSocket
 	std::string http_version;
 
  public:
-
 	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 		: BufferedSocket(newfd), ip(IP), postsize(0)
 	{
@@ -334,8 +333,8 @@ class HttpServerSocket : public BufferedSocket
 class ModuleHttpServer : public Module
 {
 	std::vector<HttpServerSocket *> httpsocks;
- public:
 
+ public:
 	void init()
 	{
 		HttpModule = this;
@@ -361,7 +360,6 @@ class ModuleHttpServer : public Module
 		new HttpServerSocket(nfd, incomingip, from, client, server);
 		return MOD_RES_ALLOW;
 	}
-
 
 	virtual ~ModuleHttpServer()
 	{

@@ -63,7 +63,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
  public:
 	ExemptChanOps ec;
 	ExemptHandler(Module* me) : ec(me) {}
-	
+
 	ModeHandler* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
@@ -112,7 +112,6 @@ class ModuleExemptChanOps : public Module
 	ExemptHandler eh;
 
  public:
-
 	ModuleExemptChanOps() : eh(this)
 	{
 	}

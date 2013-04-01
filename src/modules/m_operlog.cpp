@@ -36,10 +36,6 @@ class ModuleOperLog : public Module
 		OnRehash(NULL);
 	}
 
-	virtual ~ModuleOperLog()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
@@ -80,6 +76,5 @@ class ModuleOperLog : public Module
 	}
 
 };
-
 
 MODULE_INIT(ModuleOperLog)

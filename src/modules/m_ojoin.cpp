@@ -255,4 +255,3 @@ class ModuleOjoin : public Module
 };
 
 MODULE_INIT(ModuleOjoin)
-

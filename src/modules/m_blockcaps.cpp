@@ -39,8 +39,8 @@ class ModuleBlockCAPS : public Module
 	int percent;
 	unsigned int minlen;
 	char capsmap[256];
-public:
 
+public:
 	ModuleBlockCAPS() : bc(this)
 	{
 	}
@@ -129,10 +129,6 @@ public:
 			ServerInstance->Logs->Log("CONFIG",DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
 			minlen = 1;
 		}
-	}
-
-	virtual ~ModuleBlockCAPS()
-	{
 	}
 
 	virtual Version GetVersion()

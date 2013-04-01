@@ -37,18 +37,14 @@ class HTTPACL
 		const std::string &set_whitelist, const std::string &set_blacklist)
 		: path(set_path), username(set_username), password(set_password), whitelist(set_whitelist),
 		blacklist(set_blacklist) { }
-
-	~HTTPACL() { }
 };
 
 class ModuleHTTPAccessList : public Module
 {
-
 	std::string stylesheet;
 	std::vector<HTTPACL> acl_list;
 
  public:
-
 	void ReadConfig()
 	{
 		acl_list.clear();
@@ -220,10 +216,6 @@ class ModuleHTTPAccessList : public Module
 				}
 			}
 		}
-	}
-
-	virtual ~ModuleHTTPAccessList()
-	{
 	}
 
 	virtual Version GetVersion()

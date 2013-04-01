@@ -68,10 +68,6 @@ class ModuleSetIdle : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSetIdle()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Allows opers to set their idle time", VF_VENDOR);

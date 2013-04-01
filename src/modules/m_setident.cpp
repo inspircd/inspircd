@@ -57,7 +57,6 @@ class CommandSetident : public Command
 	}
 };
 
-
 class ModuleSetIdent : public Module
 {
 	CommandSetident cmd;
@@ -72,16 +71,10 @@ class ModuleSetIdent : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSetIdent()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for the SETIDENT command", VF_VENDOR);
 	}
-
 };
-
 
 MODULE_INIT(ModuleSetIdent)

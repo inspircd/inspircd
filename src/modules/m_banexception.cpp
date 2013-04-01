@@ -49,7 +49,7 @@ class ModuleBanException : public Module
 {
 	BanException be;
 
-public:
+ public:
 	ModuleBanException() : be(this)
 	{
 	}

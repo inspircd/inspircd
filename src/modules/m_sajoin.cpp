@@ -116,15 +116,10 @@ class ModuleSajoin : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSajoin()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides command SAJOIN to allow opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSajoin)

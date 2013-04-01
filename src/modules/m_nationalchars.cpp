@@ -222,7 +222,6 @@ bool lwbNickHandler::Call(const std::string& nick, size_t max)
 
 class ModuleNationalChars : public Module
 {
- private:
 	lwbNickHandler myhandler;
 	std::string charset, casemapping;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];

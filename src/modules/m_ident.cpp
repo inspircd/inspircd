@@ -289,10 +289,6 @@ class ModuleIdent : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	~ModuleIdent()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
@@ -407,4 +403,3 @@ class ModuleIdent : public Module
 };
 
 MODULE_INIT(ModuleIdent)
-

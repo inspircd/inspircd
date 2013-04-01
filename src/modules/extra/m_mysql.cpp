@@ -189,10 +189,6 @@ class MySQLresult : public SQLResult
 
 	}
 
-	~MySQLresult()
-	{
-	}
-
 	virtual int Rows()
 	{
 		return rows;

@@ -38,10 +38,6 @@ class ModuleModesOnConnect : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
-	virtual ~ModuleModesOnConnect()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);

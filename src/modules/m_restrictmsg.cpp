@@ -63,10 +63,6 @@ class ModuleRestrictMsg : public Module
 		return this->OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual ~ModuleRestrictMsg()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Forbids users from messaging each other. Users may still message opers and opers may message other opers.",VF_VENDOR);

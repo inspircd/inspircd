@@ -430,7 +430,6 @@ public:
 	{
 		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleLDAPAuth)

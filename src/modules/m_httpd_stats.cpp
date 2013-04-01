@@ -232,10 +232,6 @@ class ModuleHttpStats : public Module
 		}
 	}
 
-	virtual ~ModuleHttpStats()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides statistics over HTTP via m_httpd.so", VF_VENDOR);
