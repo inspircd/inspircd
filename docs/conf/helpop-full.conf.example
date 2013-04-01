@@ -804,15 +804,15 @@ Closes all unregistered connections to the local server.">
 
  v [nickname]       Gives voice to [nickname], allowing them to speak
                     while the channel is +m.
- h [nickname]       Gives halfop status to [nickname] (this mode can
-                    be disabled).
+ h [nickname]       Gives halfop status to [nickname] (requires
+                    customprefix module).
  o [nickname]       Gives op status to [nickname].
  a [nickname]       Gives protected status to [nickname], preventing
                     them from them from being kicked (+q only,
-                    requires chanprotect module).
+                    requires customprefix module).
  q [nickname]       Gives owner status to [nickname], preventing them
                     from being kicked (Services or only, requires
-                    chanprotect module).
+                    customprefix module).
 
  b [hostmask]       Bans [hostmask] from the channel.
  e [hostmask]       Excepts [hostmask] from bans (requires
