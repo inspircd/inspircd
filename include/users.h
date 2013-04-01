@@ -267,10 +267,6 @@ class CoreExport User : public Extensible
 	 */
 	time_t signon;
 
-	/** Time that the connection last sent a message, used to calculate idle time
-	 */
-	time_t idle_lastmsg;
-
 	/** Client address that the user is connected from.
 	 * Do not modify this value directly, use SetClientIP() to change it.
 	 * Port is not valid for remote users.
@@ -347,12 +343,6 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int registered:3;
 
-	/** True when DNS lookups are completed.
-	 * The UserResolver classes res_forward and res_reverse will
-	 * set this value once they complete.
-	 */
-	unsigned int dns_done:1;
-
 	/** Whether or not to send an snotice about this user's quitting
 	 */
 	unsigned int quietquit:1;
@@ -363,20 +353,6 @@ class CoreExport User : public Extensible
 	 * Please note that setting this value alone will NOT cause the user to quit.
 	 */
 	unsigned int quitting:1;
-
-	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
-	 * This can't be handled normally because QuitUser itself calls Write on other
-	 * users, which could trigger their SendQ to overrun.
-	 */
-	unsigned int quitting_sendq:1;
-
-	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
-	 */
-	unsigned int exempt:1;
-
-	/** has the user responded to their previous ping?
-	 */
-	unsigned int lastping:1;
 
 	/** What type of user is this? */
 	const unsigned int usertype:2;
@@ -401,12 +377,6 @@ class CoreExport User : public Extensible
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
 	User(const std::string &uid, const std::string& srv, int objtype);
-
-	/** Check if the user matches a G or K line, and disconnect them if they do.
-	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
-	 * Returns true if the user matched a ban, false else.
-	 */
-	bool CheckLines(bool doZline = false);
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -792,9 +762,33 @@ class CoreExport LocalUser : public User, public InviteBase
 	 */
 	int GetServerPort();
 
+	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
+	 * This can't be handled normally because QuitUser itself calls Write on other
+	 * users, which could trigger their SendQ to overrun.
+	 */
+	unsigned int quitting_sendq:1;
+
+	/** True when DNS lookups are completed.
+	 * The UserResolver classes res_forward and res_reverse will
+	 * set this value once they complete.
+	 */
+	unsigned int dns_done:1;
+
+	/** has the user responded to their previous ping?
+	 */
+	unsigned int lastping:1;
+
+	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
+	 */
+	unsigned int exempt:1;
+
 	/** Used by PING checking code
 	 */
 	time_t nping;
+
+	/** Time that the connection last sent a message, used to calculate idle time
+	 */
+	time_t idle_lastmsg;
 
 	/** This value contains how far into the penalty threshold the user is.
 	 * This is used either to enable fake lag or for excess flood quits
@@ -813,6 +807,12 @@ class CoreExport LocalUser : public User, public InviteBase
 	 * When complete, these objects set User::dns_done to true.
 	 */
 	void StartDNSLookup();
+
+	/** Check if the user matches a G or K line, and disconnect them if they do.
+	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
+	 * Returns true if the user matched a ban, false else.
+	 */
+	bool CheckLines(bool doZline = false);
 
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.

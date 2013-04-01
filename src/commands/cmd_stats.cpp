@@ -167,8 +167,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				User* oper = *i;
 				if (!ServerInstance->ULine(oper->server))
 				{
+					LocalUser* lu = IS_LOCAL(oper);
 					results.push_back(sn+" 249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
-							(IS_LOCAL(oper) ? ConvToStr(ServerInstance->Time() - oper->idle_lastmsg) + " secs" : "unavailable"));
+							(lu ? ConvToStr(ServerInstance->Time() - lu->idle_lastmsg) + " secs" : "unavailable"));
 					idx++;
 				}
 			}

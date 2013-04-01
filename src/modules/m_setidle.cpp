@@ -25,16 +25,16 @@
 
 /** Handle /SETIDLE
  */
-class CommandSetidle : public Command
+class CommandSetidle : public SplitCommand
 {
  public:
-	CommandSetidle(Module* Creator) : Command(Creator,"SETIDLE", 1)
+	CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1)
 	{
 		flags_needed = 'o'; syntax = "<duration>";
 		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 	{
 		time_t idle = ServerInstance->Duration(parameters[0]);
 		if (idle < 1)

@@ -61,7 +61,8 @@ class RLine : public XLine
 
 	bool Matches(User *u)
 	{
-		if (u->exempt)
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu && lu->exempt)
 			return false;
 
 		std::string compare = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
@@ -117,7 +118,7 @@ class RLineFactory : public XLineFactory
 	RLineFactory(dynamic_reference<RegexFactory>& rx) : XLineFactory("R"), rxfactory(rx)
 	{
 	}
-	
+
 	/** Generate a RLine
 	 */
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)

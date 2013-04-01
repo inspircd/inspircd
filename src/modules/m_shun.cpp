@@ -43,7 +43,8 @@ public:
 	bool Matches(User *u)
 	{
 		// E: overrides shun
-		if (u->exempt)
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu && lu->exempt)
 			return false;
 
 		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetIPString(), matchtext))
@@ -107,7 +108,7 @@ class CommandShun : public Command
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
 		std::string target = parameters[0];
-		
+
 		User *find = ServerInstance->FindNick(target);
 		if ((find) && (find->registered == REG_ALL))
 			target = std::string("*!*@") + find->GetIPString();

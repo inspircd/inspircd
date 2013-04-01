@@ -40,7 +40,8 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 			User* x = ServerInstance->FindNick(params[0]);
 			if ((x) && (IS_LOCAL(x)))
 			{
-				long idle = abs((long)((x->idle_lastmsg) - ServerInstance->Time()));
+				LocalUser* lu = IS_LOCAL(x);
+				long idle = abs((long)((lu->idle_lastmsg) - ServerInstance->Time()));
 				parameterlist par;
 				par.push_back(prefix);
 				par.push_back(ConvToStr(x->signon));

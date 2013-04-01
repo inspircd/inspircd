@@ -158,7 +158,7 @@ void XLineManager::CheckELines()
 
 	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
-		User* u = (User*)(*u2);
+		LocalUser* u = *u2;
 
 		/* This uses safe iteration to ensure that if a line expires here, it doenst trash the iterator */
 		LookupIter safei;
@@ -328,7 +328,7 @@ void ELine::Unset()
 	/* remove exempt from everyone and force recheck after deleting eline */
 	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
-		User* u = (User*)(*u2);
+		LocalUser* u = *u2;
 		u->exempt = false;
 	}
 
@@ -433,7 +433,7 @@ void XLineManager::ApplyLines()
 	LocalUserList::reverse_iterator u2 = ServerInstance->Users->local_users.rbegin();
 	while (u2 != ServerInstance->Users->local_users.rend())
 	{
-		User* u = *u2++;
+		LocalUser* u = *u2++;
 
 		// Don't ban people who are exempt.
 		if (u->exempt)
@@ -554,7 +554,8 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 
 bool KLine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
@@ -576,7 +577,8 @@ void KLine::Apply(User* u)
 
 bool GLine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
@@ -598,7 +600,8 @@ void GLine::Apply(User* u)
 
 bool ELine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
@@ -615,7 +618,8 @@ bool ELine::Matches(User *u)
 
 bool ZLine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::MatchCIDR(u->GetIPString(), this->ipaddr))
@@ -681,7 +685,7 @@ void ELine::OnAdd()
 	/* When adding one eline, only check the one eline */
 	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
-		User* u = (User*)(*u2);
+		LocalUser* u = *u2;
 		if (this->Matches(u))
 			u->exempt = true;
 	}

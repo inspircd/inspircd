@@ -201,10 +201,9 @@ User::User(const std::string &uid, const std::string& sid, int type)
 	: uuid(uid), server(sid), usertype(type)
 {
 	age = ServerInstance->Time();
-	signon = idle_lastmsg = 0;
+	signon = 0;
 	registered = 0;
-	quietquit = quitting = exempt = dns_done = false;
-	quitting_sendq = false;
+	quietquit = quitting = false;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
@@ -222,6 +221,8 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
 {
+	exempt = quitting_sendq = dns_done = false;
+	idle_lastmsg = 0;
 	ident = "unknown";
 	lastping = 0;
 	eh.SetFd(myfd);
@@ -734,7 +735,7 @@ void LocalUser::CheckClass()
 	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
 }
 
-bool User::CheckLines(bool doZline)
+bool LocalUser::CheckLines(bool doZline)
 {
 	const char* check[] = { "G" , "K", (doZline) ? "Z" : NULL, NULL };
 

@@ -96,7 +96,7 @@ class CommandCheck : public Command
 			user->SendText(checkstr + " signon " + timestring(targuser->signon));
 			user->SendText(checkstr + " nickts " + timestring(targuser->age));
 			if (loctarg)
-				user->SendText(checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
+				user->SendText(checkstr + " lastmsg " + timestring(loctarg->idle_lastmsg));
 
 			if (IS_AWAY(targuser))
 			{

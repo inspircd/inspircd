@@ -136,6 +136,10 @@ class CGIResolver : public Resolver
 		User* them = ServerInstance->FindUUID(theiruid);
 		if ((them) && (!them->quitting))
 		{
+			LocalUser* lu = IS_LOCAL(them);
+			if (!lu)
+				return;
+
 			if (notify)
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
 
@@ -144,7 +148,7 @@ class CGIResolver : public Resolver
 			them->host = result;
 			them->dhost = result;
 			them->InvalidateCache();
-			them->CheckLines(true);
+			lu->CheckLines(true);
 		}
 	}
 

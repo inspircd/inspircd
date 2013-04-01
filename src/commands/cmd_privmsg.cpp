@@ -56,7 +56,9 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	Channel *chan;
 	CUList except_list;
 
-	user->idle_lastmsg = ServerInstance->Time();
+	LocalUser* localuser = IS_LOCAL(user);
+	if (localuser)
+		localuser->idle_lastmsg = ServerInstance->Time();
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
@@ -99,7 +101,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 
 		if (chan)
 		{
-			if (IS_LOCAL(user) && chan->GetPrefixValue(user) < VOICE_VALUE)
+			if (localuser && chan->GetPrefixValue(user) < VOICE_VALUE)
 			{
 				if (chan->IsModeSet('n') && !chan->HasUser(user))
 				{
@@ -169,7 +171,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 
 	const char* destnick = parameters[0].c_str();
 
-	if (IS_LOCAL(user))
+	if (localuser)
 	{
 		const char* targetserver = strchr(destnick, '@');
 
