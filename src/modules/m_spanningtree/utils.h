@@ -36,11 +36,7 @@ class SpanningTreeUtilities;
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
-#ifdef HASHMAP_DEPRECATED
-	typedef nspace::hash_map<std::string, TreeServer*, nspace::insensitive, irc::StrHashComp> server_hash;
-#else
-	typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<std::string>, irc::StrHashComp> server_hash;
-#endif
+typedef std::tr1::unordered_map<std::string, TreeServer*, std::tr1::insensitive, irc::StrHashComp> server_hash;
 
 typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 

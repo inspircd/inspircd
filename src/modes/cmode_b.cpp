@@ -21,9 +21,8 @@
 #include "inspircd.h"
 #include <string>
 #include <vector>
-#include "inspircd_config.h"
+#include "inspircd.h"
 #include "configreader.h"
-#include "hash_map.h"
 #include "mode.h"
 #include "channels.h"
 #include "users.h"

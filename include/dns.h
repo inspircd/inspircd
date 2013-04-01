@@ -102,7 +102,7 @@ class CoreExport CachedQuery
 
 /** DNS cache information. Holds IPs mapped to hostnames, and hostnames mapped to IPs.
  */
-typedef nspace::hash_map<irc::string, CachedQuery, irc::hash> dnscache;
+typedef std::tr1::unordered_map<irc::string, CachedQuery, irc::hash> dnscache;
 
 /**
  * Error types that class Resolver can emit to its error method.
