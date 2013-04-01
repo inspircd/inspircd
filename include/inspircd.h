@@ -46,6 +46,15 @@
 #define CUSTOM_PRINTF(STRING, FIRST)
 #endif
 
+#if defined __clang__ || defined __GNUC__
+# define DEPRECATED_METHOD(function) function __attribute__((deprecated))
+#elif defined _MSC_VER
+# define DEPRECATED_METHOD(function) __declspec(deprecated) function
+#else
+# pragma message ("Warning! DEPRECATED_METHOD() does not work on your compiler!")
+# define DEPRECATED_METHOD(function) function
+#endif
+
 // Required system headers.
 #include <ctime>
 #include <cstdarg>
