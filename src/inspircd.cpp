@@ -325,7 +325,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
-	 FloodQuitUser(&HandleFloodQuitUser),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
 	ServerInstance = this;

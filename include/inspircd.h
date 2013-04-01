@@ -266,7 +266,6 @@ class serverstats
 DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
-DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
 DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
 DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
@@ -336,7 +335,6 @@ class CoreExport InspIRCd
 
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
-	FloodQuitUserHandler HandleFloodQuitUser;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
 	IsSIDHandler HandleIsSID;
@@ -688,22 +686,6 @@ class CoreExport InspIRCd
 	static bool MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
 	static bool MatchCIDR(const  char *str, const char *mask, unsigned const char *map = NULL);
 
-	/** Call the handler for a given command.
-	 * @param commandname The command whos handler you wish to call
-	 * @param parameters The mode parameters
-	 * @param user The user to execute the command as
-	 * @return True if the command handler was called successfully
-	 */
-	CmdResult CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user);
-
-	/** Return true if the command is a module-implemented command and the given parameters are valid for it
-	 * @param commandname The command name to check
-	 * @param pcnt The parameter count
-	 * @param user The user to test-execute the command as
-	 * @return True if the command handler is a module command, and there are enough parameters and the user has permission to the command
-	 */
-	bool IsValidModuleCommand(const std::string &commandname, int pcnt, User* user);
-
 	/** Return true if the given parameter is a valid nick!user\@host mask
 	 * @param mask A nick!user\@host masak to match against
 	 * @return True i the mask is valid
@@ -815,12 +797,6 @@ class CoreExport InspIRCd
 	/** Handle /WHOIS
 	 */
 	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
-
-	/** Quit a user for excess flood, and if they are not
-	 * fully registered yet, temporarily zline their IP.
-	 * @param current user to quit
-	 */
-	caller1<void, User*> FloodQuitUser;
 
 	/** Called to check whether a channel restriction mode applies to a user
 	 * @param User that is attempting some action

@@ -425,16 +425,6 @@ std::string& ModuleManager::LastError()
 	return LastModuleError;
 }
 
-CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user)
-{
-	return this->Parser->CallHandler(commandname, parameters, user);
-}
-
-bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, User* user)
-{
-	return this->Parser->IsValidCommand(commandname, pcnt, user);
-}
-
 void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
@@ -604,93 +594,6 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 		if (!filter || (x->second->GetVersion().Flags & filter))
 			retval.push_back(x->first);
 	return retval;
-}
-
-ConfigReader::ConfigReader()
-{
-	this->error = 0;
-	ServerInstance->Logs->Log("MODULE", DEBUG, "ConfigReader is deprecated in 2.0; "
-		"use ServerInstance->Config->ConfValue(\"key\") or ->ConfTags(\"key\") instead");
-}
-
-
-ConfigReader::~ConfigReader()
-{
-}
-
-static ConfigTag* SlowGetTag(const std::string &tag, int index)
-{
-	ConfigTagList tags = ServerInstance->Config->ConfTags(tag);
-	while (tags.first != tags.second)
-	{
-		if (!index)
-			return tags.first->second;
-		tags.first++;
-		index--;
-	}
-	return NULL;
-}
-
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
-{
-	std::string result = default_value;
-	if (!SlowGetTag(tag, index)->readString(name, result, allow_linefeeds))
-	{
-		this->error = CONF_VALUE_NOT_FOUND;
-	}
-	return result;
-}
-
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds)
-{
-	return ReadValue(tag, name, "", index, allow_linefeeds);
-}
-
-bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
-{
-	bool def = (default_value == "yes");
-	return SlowGetTag(tag, index)->getBool(name, def);
-}
-
-bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
-{
-	return ReadFlag(tag, name, "", index);
-}
-
-
-int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
-{
-	int v = atoi(default_value.c_str());
-	int result = SlowGetTag(tag, index)->getInt(name, v);
-
-	if ((need_positive) && (result < 0))
-	{
-		this->error = CONF_INT_NEGATIVE;
-		return 0;
-	}
-
-	return result;
-}
-
-int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool need_positive)
-{
-	return ReadInteger(tag, name, "", index, need_positive);
-}
-
-long ConfigReader::GetError()
-{
-	long olderr = this->error;
-	this->error = 0;
-	return olderr;
-}
-
-int ConfigReader::Enumerate(const std::string &tag)
-{
-	ServerInstance->Logs->Log("MODULE", DEBUG, "Module is using ConfigReader::Enumerate on %s; this is slow!",
-		tag.c_str());
-	int i=0;
-	while (SlowGetTag(tag, i)) i++;
-	return i;
 }
 
 FileReader::FileReader(const std::string &filename)

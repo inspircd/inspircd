@@ -367,14 +367,6 @@ class ListModeBase : public ModeHandler
 		}
 	}
 
-	/** Clean up module on unload
-	 * @param target_type Type of target to clean
-	 * @param item Item to clean
-	 */
-	virtual void DoCleanup(int, void*)
-	{
-	}
-
 	/** Validate parameters.
 	 * Overridden by implementing module.
 	 * @param source Source user adding the parameter
