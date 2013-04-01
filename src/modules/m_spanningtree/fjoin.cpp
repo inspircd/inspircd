@@ -177,7 +177,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 
-				Channel::JoinUser(who, channel.c_str(), true, "", route_back_again->bursting, TS);
+				Channel::JoinUser(who, channel, true, "", route_back_again->bursting, TS);
 			}
 			else
 			{

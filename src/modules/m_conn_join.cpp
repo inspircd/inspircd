@@ -57,7 +57,7 @@ class ModuleConnJoin : public Module
 			while (chans.GetToken(chan))
 			{
 				if (ServerInstance->IsChannel(chan.c_str(), ServerInstance->Config->Limits.ChanMax))
-					Channel::JoinUser(user, chan.c_str(), false, "", false, ServerInstance->Time());
+					Channel::JoinUser(user, chan, false, "", false, ServerInstance->Time());
 			}
 		}
 };

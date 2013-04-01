@@ -245,7 +245,7 @@ class ModuleServicesAccount : public Module
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;

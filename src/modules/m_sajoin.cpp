@@ -58,7 +58,7 @@ class CommandSajoin : public Command
 			 */
 			if (IS_LOCAL(dest))
 			{
-				Channel::JoinUser(dest, parameters[1].c_str(), true, "", false, ServerInstance->Time());
+				Channel::JoinUser(dest, parameters[1], true, "", false, ServerInstance->Time());
 				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propagate */
 				Channel* n = ServerInstance->FindChan(parameters[1]);
 				if (n)

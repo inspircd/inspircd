@@ -138,7 +138,7 @@ class ChanFounder : public ModeHandler, public FounderProtectBase
 	void RemoveMode(User* user, irc::modestacker* stack)
 	{
 	}
-	
+
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
 	{
 		User* theuser = ServerInstance->FindNick(parameter);
@@ -288,7 +288,7 @@ class ModuleChanProtect : public Module
 		settings.DeprivOthers = tag->getBool("deprotectothers", true);
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		// if the user is the first user into the channel, mark them as the founder, but only if
 		// the config option for it is set

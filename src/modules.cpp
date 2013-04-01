@@ -95,7 +95,7 @@ void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
 void		Module::OnPreRehash(User*, const std::string&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
-ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreJoin(User*, Channel*, const std::string&, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, void*, int, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }

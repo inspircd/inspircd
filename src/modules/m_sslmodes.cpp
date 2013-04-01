@@ -92,7 +92,7 @@ class ModuleSSLModes : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
@@ -106,7 +106,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname);
+				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname.c_str());
 				return MOD_RES_DENY;
 			}
 		}

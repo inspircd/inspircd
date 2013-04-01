@@ -188,16 +188,16 @@ class ModuleCBan : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname, rl->reason.c_str());
+			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
-				 user->nick.c_str(), cname, rl->reason.c_str());
+				 user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;
 		}
 

@@ -66,7 +66,7 @@ class CommandCycle : public Command
 
 				channel->PartUser(user, reason);
 
-				Channel::JoinUser(user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
+				Channel::JoinUser(user, parameters[0], true, "", false, ServerInstance->Time());
 			}
 
 			return CMD_SUCCESS;

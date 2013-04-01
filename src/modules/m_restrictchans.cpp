@@ -53,10 +53,9 @@ class ModuleRestrictChans : public Module
 		ReadConfig();
 	}
 
-
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
-		irc::string x = cname;
+		irc::string x(cname.c_str());
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
@@ -66,7 +65,7 @@ class ModuleRestrictChans : public Module
 			// user is not an oper and its not in the allow list
 			if ((!IS_OPER(user)) && (allowchans.find(x) == allowchans.end()))
 			{
-				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Only IRC operators may create new channels",user->nick.c_str(),cname);
+				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Only IRC operators may create new channels",user->nick.c_str(),cname.c_str());
 				return MOD_RES_DENY;
 			}
 		}

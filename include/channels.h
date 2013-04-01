@@ -222,14 +222,14 @@ class CoreExport Channel : public Extensible, public InviteBase
 
 	/* Join a user to a channel. May be a channel that doesnt exist yet.
 	 * @param user The user to join to the channel.
-	 * @param cn The channel name to join to. Does not have to exist.
+	 * @param channame The channel name to join to. Does not have to exist.
 	 * @param key The key of the channel, if given
 	 * @param override If true, override all join restrictions such as +bkil
 	 * @return A pointer to the Channel the user was joined to. A new Channel may have
 	 * been created if the channel did not exist before the user was joined to it.
 	 * If the user could not be joined to a channel, the return value may be NULL.
 	 */
-	static Channel* JoinUser(User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS = 0);
+	static Channel* JoinUser(User *user, std::string channame, bool override, const std::string& key, bool bursting, time_t TS = 0);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with

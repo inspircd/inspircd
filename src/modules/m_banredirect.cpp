@@ -267,7 +267,7 @@ class ModuleBanRedirect : public Module
 		}
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string &privs, const std::string &keygiven)
 	{
 		if (chan)
 		{
@@ -323,7 +323,7 @@ class ModuleBanRedirect : public Module
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
 							user->WriteNumeric(470, "%s %s %s :You are banned from this channel, so you are automatically transfered to the redirected channel.", user->nick.c_str(), chan->name.c_str(), redir->targetchan.c_str());
 							nofollow = true;
-							Channel::JoinUser(user, redir->targetchan.c_str(), false, "", false, ServerInstance->Time());
+							Channel::JoinUser(user, redir->targetchan, false, "", false, ServerInstance->Time());
 							nofollow = false;
 							return MOD_RES_DENY;
 						}
