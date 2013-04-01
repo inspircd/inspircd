@@ -124,8 +124,7 @@ class ModuleOverride : public Module
 			{
 				if (chan->IsModeSet('i') && (CanOverride(user,"INVITE")))
 				{
-					irc::string x(chan->name.c_str());
-					if (!IS_LOCAL(user)->IsInvited(x))
+					if (!IS_LOCAL(user)->IsInvited(chan))
 					{
 						if (RequireKey && keygiven != "override")
 						{

@@ -107,9 +107,14 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		}
 
 		if (IS_LOCAL(u))
-			IS_LOCAL(u)->InviteTo(c->name.c_str(), timeout);
-		u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
-		user->WriteNumeric(RPL_INVITING, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+		{
+			Invitation::Create(c, IS_LOCAL(u), timeout);
+			u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
+		}
+
+		if (IS_LOCAL(user))
+			user->WriteNumeric(RPL_INVITING, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+
 		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
 		{
 			char prefix;

@@ -70,15 +70,13 @@ class CommandUninvite : public Command
 		LocalUser* lu = IS_LOCAL(u);
 		if (lu)
 		{
-			irc::string xname(c->name.c_str());
-			if (!lu->IsInvited(xname))
+			if (!lu->RemoveInvite(c))
 			{
 				user->SendText(":%s 505 %s %s %s :Is not invited to channel %s", user->server.c_str(), user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
 				return CMD_FAILURE;
 			}
 
 			user->SendText(":%s 494 %s %s %s :Uninvited", user->server.c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
-			lu->RemoveInvite(xname);
 			lu->WriteNumeric(493, "%s :You were uninvited from %s by %s", u->nick.c_str(), c->name.c_str(), user->nick.c_str());
 
 			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";

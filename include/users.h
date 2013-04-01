@@ -832,23 +832,18 @@ class CoreExport LocalUser : public User, public InviteBase
 	InviteList& GetInviteList();
 
 	/** Returns true if a user is invited to a channel.
-	 * @param channel A channel name to look up
+	 * @param channel A channel to look up
 	 * @return True if the user is invited to the given channel
 	 */
-	bool IsInvited(const irc::string &channel);
-
-	/** Adds a channel to a users invite list (invites them to a channel)
-	 * @param channel A channel name to add
-	 * @param timeout When the invite should expire (0 == never)
-	 */
-	void InviteTo(const irc::string &channel, time_t timeout);
+	bool IsInvited(Channel* chan) { return (Invitation::Find(chan, this) != NULL); }
 
 	/** Removes a channel from a users invite list.
 	 * This member function is called on successfully joining an invite only channel
 	 * to which the user has previously been invited, to clear the invitation.
 	 * @param channel The channel to remove the invite to
+	 * @return True if the user was invited to the channel and the invite was erased, false if the user wasn't invited
 	 */
-	void RemoveInvite(const irc::string &channel);
+	bool RemoveInvite(Channel* chan);
 
 	void RemoveExpiredInvites();
 

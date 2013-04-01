@@ -319,7 +319,7 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 			else if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				std::string ckey = Ptr->GetModeParameter('k');
-				bool invited = IS_LOCAL(user)->IsInvited(Ptr->name.c_str());
+				bool invited = IS_LOCAL(user)->IsInvited(Ptr);
 				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
 
 				if (!ckey.empty())
@@ -366,7 +366,7 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 				 */
 				if (invited)
 				{
-					IS_LOCAL(user)->RemoveInvite(Ptr->name.c_str());
+					IS_LOCAL(user)->RemoveInvite(Ptr);
 				}
 			}
 		}

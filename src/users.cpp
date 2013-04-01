@@ -332,40 +332,22 @@ const std::string& User::GetFullRealHost()
 	return this->cached_fullrealhost;
 }
 
-bool LocalUser::IsInvited(const irc::string &channel)
-{
-	Channel* chan = ServerInstance->FindChan(channel.c_str());
-	if (!chan)
-		return false;
-
-	return (Invitation::Find(chan, this) != NULL);
-}
-
 InviteList& LocalUser::GetInviteList()
 {
 	RemoveExpiredInvites();
 	return invites;
 }
 
-void LocalUser::InviteTo(const irc::string &channel, time_t invtimeout)
+bool LocalUser::RemoveInvite(Channel* chan)
 {
-	Channel* chan = ServerInstance->FindChan(channel.c_str());
-	if (chan)
-		Invitation::Create(chan, this, invtimeout);
-}
-
-void LocalUser::RemoveInvite(const irc::string &channel)
-{
-	Channel* chan = ServerInstance->FindChan(channel.c_str());
-	if (chan)
+	Invitation* inv = Invitation::Find(chan, this);
+	if (inv)
 	{
-		Invitation* inv = Invitation::Find(chan, this);
-		if (inv)
-		{
-			inv->cull();
-			delete inv;
-		}
+		inv->cull();
+		delete inv;
+		return true;
 	}
+	return false;
 }
 
 void LocalUser::RemoveExpiredInvites()
