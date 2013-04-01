@@ -161,13 +161,14 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		case 'P':
 		{
-			int idx = 0;
-			for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
+			unsigned int idx = 0;
+			for (std::list<User*>::const_iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); ++i)
 			{
-				if (IS_OPER(i->second) && !ServerInstance->ULine(i->second->server))
+				User* oper = *i;
+				if (!ServerInstance->ULine(oper->server))
 				{
-					results.push_back(sn+" 249 "+user->nick+" :"+i->second->nick+" ("+i->second->ident+"@"+i->second->dhost+") Idle: "+
-							(IS_LOCAL(i->second) ? ConvToStr(ServerInstance->Time() - i->second->idle_lastmsg) + " secs" : "unavailable"));
+					results.push_back(sn+" 249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
+							(IS_LOCAL(oper) ? ConvToStr(ServerInstance->Time() - oper->idle_lastmsg) + " secs" : "unavailable"));
 					idx++;
 				}
 			}
