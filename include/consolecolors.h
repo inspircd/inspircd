@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CONSOLECOLORS_H
-#define CONSOLECOLORS_H
+
+#pragma once
 
 #include <ostream>
 
@@ -94,7 +94,5 @@ inline std::ostream& con_reset(std::ostream &s)
 {
     return s << "\033[0m";
 }
-
-#endif
 
 #endif

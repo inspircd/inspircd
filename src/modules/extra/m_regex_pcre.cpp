@@ -20,10 +20,10 @@
 
 #include "inspircd.h"
 #include <pcre.h>
-#include "m_regex.h"
+#include "modules/regex.h"
 
 /* $ModDesc: Regex Provider Module for PCRE */
-/* $ModDep: m_regex.h */
+/* $ModDep: modules/regex.h */
 /* $CompileFlags: exec("pcre-config --cflags") */
 /* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */
 

@@ -20,8 +20,7 @@
  */
 
 
-#ifndef CHANNELS_H
-#define CHANNELS_H
+#pragma once
 
 #include "membership.h"
 #include "mode.h"
@@ -354,5 +353,3 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	ModResult GetExtBanStatus(User *u, char type);
 };
-
-#endif

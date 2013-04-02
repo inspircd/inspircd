@@ -20,8 +20,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_UTILS_H
-#define M_SPANNINGTREE_UTILS_H
+#pragma once
 
 #include "inspircd.h"
 
@@ -179,5 +178,3 @@ class SpanningTreeUtilities : public classbase
 	 */
 	void RefreshIPCache();
 };
-
-#endif

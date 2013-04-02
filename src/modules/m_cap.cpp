@@ -19,7 +19,7 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
+#include "modules/cap.h"
 
 /* $ModDesc: Provides the CAP negotiation mechanism seen in ratbox-derived ircds */
 

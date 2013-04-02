@@ -33,7 +33,7 @@
 #include "inspircd.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "ssl.h"
+#include "modules/ssl.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "libcrypto.lib")

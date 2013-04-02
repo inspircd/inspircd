@@ -19,8 +19,7 @@
  */
 
 
-#ifndef CALLER_H
-#define CALLER_H
+#pragma once
 
 /* Pending some sort of C++11 support */
 #if 0
@@ -353,7 +352,5 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 
 #define DEFINE_HANDLER8(NAME, RETURN, V1, V2, V3, V4, V5, V6, V7, V8) \
 	class CoreExport NAME : public HandlerBase8<RETURN, V1, V2, V3, V4, V5, V6, V7, V8> { public: NAME() { } virtual ~NAME() { } virtual RETURN Call(V1, V2, V3, V4, V5, V6, V7, V8); }
-
-#endif
 
 #endif

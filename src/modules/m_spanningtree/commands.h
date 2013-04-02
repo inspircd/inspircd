@@ -17,8 +17,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_COMMANDS_H
-#define M_SPANNINGTREE_COMMANDS_H
+#pragma once
 
 #include "main.h"
 
@@ -151,5 +150,3 @@ class SpanningTreeCommands
 	CommandFName fname;
 	SpanningTreeCommands(ModuleSpanningTree* module);
 };
-
-#endif

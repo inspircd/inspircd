@@ -64,7 +64,7 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "hash.h"
+#include "modules/hash.h"
 
 #define RMDsize 160
 

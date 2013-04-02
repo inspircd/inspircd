@@ -20,8 +20,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_TREESOCKET_H
-#define M_SPANNINGTREE_TREESOCKET_H
+#pragma once
 
 #include "socket.h"
 #include "inspircd.h"
@@ -318,6 +317,3 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool Introduced();
 };
-
-#endif
-

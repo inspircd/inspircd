@@ -23,10 +23,10 @@
 
 
 #include "inspircd.h"
-#include "httpd.h"
+#include "modules/httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
-/* $ModDep: httpd.h */
+/* $ModDep: modules/httpd.h */
 
 class ModuleHttpServer;
 

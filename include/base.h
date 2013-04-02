@@ -20,8 +20,7 @@
  */
 
 
-#ifndef BASE_H
-#define BASE_H
+#pragma once
 
 #include <map>
 #include <deque>
@@ -255,5 +254,3 @@ class CoreExport ServiceProvider : public classbase
 	virtual ~ServiceProvider();
 };
 
-
-#endif

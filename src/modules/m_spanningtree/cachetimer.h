@@ -17,8 +17,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_CACHETIMER_H
-#define M_SPANNINGTREE_CACHETIMER_H
+#pragma once
 
 #include "timer.h"
 
@@ -37,5 +36,3 @@ class CacheRefreshTimer : public Timer
 	CacheRefreshTimer(SpanningTreeUtilities* Util);
 	virtual void Tick(time_t TIME);
 };
-
-#endif

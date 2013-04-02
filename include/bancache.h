@@ -18,8 +18,7 @@
  */
 
 
-#ifndef BANCACHE_H
-#define BANCACHE_H
+#pragma once
 
 /** Stores a cached ban entry.
  * Each ban has one of these hashed in a hash_map to make for faster removal
@@ -84,5 +83,3 @@ class CoreExport BanCacheManager
 	}
 	~BanCacheManager();
 };
-
-#endif

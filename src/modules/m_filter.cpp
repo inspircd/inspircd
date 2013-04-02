@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 
 /* $ModDesc: Text (spam) filtering */
 

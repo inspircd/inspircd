@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2008 Craig Edwards <craigedwards@brainbox.cc>
+ *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,28 +17,24 @@
  */
 
 
-#ifndef ACCOUNT_H
-#define ACCOUNT_H
+#pragma once
 
-#include <map>
-#include <string>
-
-class AccountEvent : public Event
+struct AddServerEvent : public Event
 {
- public:
-	User* const user;
-	const std::string account;
-	AccountEvent(Module* me, User* u, const std::string& name)
-		: Event(me, "account_login"), user(u), account(name)
+	const std::string servername;
+	AddServerEvent(Module* me, const std::string& name)
+		: Event(me, "new_server"), servername(name)
 	{
+		Send();
 	}
 };
 
-typedef StringExtItem AccountExtItem;
-
-inline AccountExtItem* GetAccountExtItem()
+struct DelServerEvent : public Event
 {
-	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
-}
-
-#endif
+	const std::string servername;
+	DelServerEvent(Module* me, const std::string& name)
+		: Event(me, "lost_server"), servername(name)
+	{
+		Send();
+	}
+};

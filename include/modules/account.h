@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2010 Daniel De Graaf <danieldg@inspircd.org>
+ *   Copyright (C) 2008 Craig Edwards <craigedwards@brainbox.cc>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,18 +17,25 @@
  */
 
 
-#ifndef SASL_H
-#define SASL_H
+#pragma once
 
-class SASLFallback : public Event
+#include <map>
+#include <string>
+
+class AccountEvent : public Event
 {
  public:
-	const parameterlist& params;
-	SASLFallback(Module* me, const parameterlist& p)
-		: Event(me, "sasl_fallback"), params(p)
+	User* const user;
+	const std::string account;
+	AccountEvent(Module* me, User* u, const std::string& name)
+		: Event(me, "account_login"), user(u), account(name)
 	{
-		Send();
 	}
 };
 
-#endif
+typedef StringExtItem AccountExtItem;
+
+inline AccountExtItem* GetAccountExtItem()
+{
+	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
+}

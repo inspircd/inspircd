@@ -17,8 +17,7 @@
  */
 
 
-#ifndef USERMANAGER_H
-#define USERMANAGER_H
+#pragma once
 
 #include <list>
 
@@ -168,5 +167,3 @@ class CoreExport UserManager
 	 */
 	void ServerPrivmsgAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
 };
-
-#endif

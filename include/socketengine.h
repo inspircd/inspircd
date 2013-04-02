@@ -20,8 +20,7 @@
  */
 
 
-#ifndef SOCKETENGINE_H
-#define SOCKETENGINE_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -492,6 +491,3 @@ public:
 };
 
 SocketEngine* CreateSocketEngine();
-
-#endif
-

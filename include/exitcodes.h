@@ -19,8 +19,7 @@
  */
 
 
-#ifndef EXITCODE_H
-#define EXITCODE_H
+#pragma once
 
 /** Valid exit codes to be used with InspIRCd::Exit()
  */
@@ -52,6 +51,3 @@ enum ExitStatus
  * human-readable strings to be shown on shutdown.
  */
 extern const char * ExitCodes[];
-
-#endif
-

@@ -19,7 +19,7 @@
 
 
 #include "inspircd.h"
-#include "httpd.h"
+#include "modules/httpd.h"
 #include "protocol.h"
 
 /* $ModDesc: Allows for the server configuration to be viewed over HTTP via m_httpd.so */

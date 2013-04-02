@@ -18,7 +18,7 @@
 
 
 #include "inspircd.h"
-#include "ssl.h"
+#include "modules/ssl.h"
 
 /* $ModDesc: Provides SSL metadata, including /WHOIS information and /SSLINFO command */
 

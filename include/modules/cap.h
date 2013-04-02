@@ -18,8 +18,7 @@
  */
 
 
-#ifndef M_CAP_H
-#define M_CAP_H
+#pragma once
 
 class CapEvent : public Event
 {
@@ -89,4 +88,3 @@ class GenericCap
 	}
 };
 
-#endif

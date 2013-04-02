@@ -21,7 +21,7 @@
 
 
 #include "inspircd.h"
-#include "account.h"
+#include "modules/account.h"
 
 /* $ModDesc: Prevents users whose nicks are not registered from creating new channels */
 

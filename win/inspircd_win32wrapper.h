@@ -19,13 +19,11 @@
  */
 
 
+#pragma once
+
 /* Windows Port
    Wrapper Functions/Definitions
    By Burlex */
-
-#ifndef INSPIRCD_WIN32WRAPPER_H
-#define INSPIRCD_WIN32WRAPPER_H
-
 /*
  * Starting with PSAPI version 2 for Windows 7 and Windows Server 2008 R2, this function is defined as K32GetProcessMemoryInfo in Psapi.h and exported
  * in Kernel32.lib and Kernel32.dll. However, you should always call this function as GetProcessMemoryInfo. To ensure correct resolution of symbols
@@ -200,6 +198,3 @@ private:
 	char szErrorString[500];
 	DWORD dwErrorCode;
 };
-
-#endif
-

@@ -23,8 +23,7 @@
  */
 
 
-#ifndef INSPIRCD_H
-#define INSPIRCD_H
+#pragma once
 
 #define _FILE_OFFSET_BITS 64
 #ifndef _LARGEFILE_SOURCE
@@ -877,6 +876,3 @@ class CommandModule : public Module
 		return Version(cmd.name, VF_VENDOR|VF_CORE);
 	}
 };
-
-#endif
-

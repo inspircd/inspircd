@@ -24,7 +24,7 @@
 #include "socket.h"
 #include "xline.h"
 #include "main.h"
-#include "../spanningtree.h"
+#include "modules/spanningtree.h"
 
 #include "utils.h"
 #include "treeserver.h"

@@ -20,8 +20,7 @@
  */
 
 
-#ifndef COMMAND_PARSE_H
-#define COMMAND_PARSE_H
+#pragma once
 
 /** A list of dll/so files containing the command handlers for the core
  */
@@ -175,5 +174,3 @@ const int duration_multi[] =
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
-
-#endif

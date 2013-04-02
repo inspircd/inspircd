@@ -19,8 +19,7 @@
  */
 
 
-#ifndef TYPEDEFS_H
-#define TYPEDEFS_H
+#pragma once
 
 class BanCacheManager;
 class BanItem;
@@ -154,7 +153,3 @@ typedef XLineContainer::iterator ContainerIter;
 /** An interator in an XLineLookup
  */
 typedef XLineLookup::iterator LookupIter;
-
-
-#endif
-

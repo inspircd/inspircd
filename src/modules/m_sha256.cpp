@@ -62,7 +62,7 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "hash.h"
+#include "modules/hash.h"
 
 #ifndef HAS_STDINT
 typedef unsigned int uint32_t;

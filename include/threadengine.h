@@ -18,8 +18,7 @@
  */
 
 
-#ifndef THREADENGINE_H
-#define THREADENGINE_H
+#pragma once
 
 #include <vector>
 #include <string>
@@ -172,6 +171,3 @@ class CoreExport SocketThread : public Thread
 	 */
 	virtual void OnNotify() = 0;
 };
-
-#endif
-
