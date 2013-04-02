@@ -82,7 +82,7 @@ time_stamping_key
 __GNUTLS_END__
 	close($tmp);
 	my $certtool = `uname -s` eq "Darwin\n" ? 'gnutls-certtool' : 'certtool';
-	$status ||= system "$certtool --version  >/dev/null 2>1";
+	$status ||= system "$certtool --version  >/dev/null 2>&1";
 	$status ||= system "$certtool --generate-privkey --outfile key.pem";
 	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
 } elsif (lc $ARGV[0] eq 'openssl') {
@@ -97,7 +97,7 @@ $common_name
 $email
 __OPENSSL_END__
 	close($tmp);
-	$status ||= system 'openssl version >/dev/null 2>1';
+	$status ||= system 'openssl version >/dev/null 2>&1';
 	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
 	$status ||= system 'openssl dhparam -out dhparams.pem 2048';
 }
