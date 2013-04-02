@@ -1,0 +1,109 @@
+#!/usr/bin/env perl -w
+#
+# InspIRCd -- Internet Relay Chat Daemon
+#
+#   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+#   Copyright (C) 2007 Craig Edwards <craigedwards@brainbox.cc>
+#   Copyright (C) 2013 Peter Powell <petpow@saberuk.com>
+#
+# This file is part of InspIRCd.  InspIRCd is free software: you can
+# redistribute it and/or modify it under the terms of the GNU General Public
+# License as published by the Free Software Foundation, version 2.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+BEGIN {
+	require 5.8.0;
+}
+
+use strict;
+use warnings FATAL => qw(all);
+
+use File::Temp();
+
+# IMPORTANT: This script has to be able to run by itself so that it can be used
+#            by binary distributions where the make/utilities.pm module will not
+#            be available!
+
+sub prompt($$) {
+	my ($question, $default) = @_;
+	print "$question\n";
+	print "[$default] => ";
+	chomp(my $answer = <STDIN>);
+	print "\n";
+	return $answer ? $answer : $default;
+}
+
+if ($#ARGV != 0 || $ARGV[0] !~ /gnutls|openssl/i) {
+	print "Syntax: genssl <gnutls|openssl>\n";
+	exit 1;
+}
+
+my $common_name = prompt('What is the hostname of your server?', 'irc.example.com');
+my $email = prompt('What email address can you be contacted at?', 'example@example.com');
+my $unit = prompt('What is the name of your unit?', 'Server Admins');
+my $organization = prompt('What is the name of your organization?', 'Example IRC Network');
+my $city = prompt('What city are you located in?', 'Example City');
+my $state = prompt('What state are you located in?', 'Example State');
+my $country = prompt('What is the ISO 3166-1 code for the country you are located in?', 'XZ');
+my $days = prompt('How many days do you want your certificate to be valid for?', '365');
+
+# Contains the exit code of openssl/gnutls-certtool.
+my $status = 0;
+
+if (lc $ARGV[0] eq 'gnutls') {
+	my $tmp = new File::Temp();
+	print $tmp <<__GNUTLS_END__;
+cn              = "$common_name"
+email           = "$email"
+unit            = "$unit"
+organization    = "$organization"
+locality        = "$city"
+state           = "$state"
+country         = "$country"
+expiration_days = $days
+tls_www_client
+tls_www_server
+signing_key
+encryption_key
+cert_signing_key
+crl_signing_key
+code_signing_key
+ocsp_signing_key
+time_stamping_key
+__GNUTLS_END__
+	close($tmp);
+	my $certtool = `uname -s` eq "Darwin\n" ? 'gnutls-certtool' : 'certtool';
+	$status ||= system "$certtool --version  >/dev/null 2>1";
+	$status ||= system "$certtool --generate-privkey --outfile key.pem";
+	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
+} elsif (lc $ARGV[0] eq 'openssl') {
+	my $tmp = new File::Temp();
+	print $tmp <<__OPENSSL_END__;
+$country
+$state
+$city
+$organization
+$unit
+$common_name
+$email
+__OPENSSL_END__
+	close($tmp);
+	$status ||= system 'openssl version >/dev/null 2>1';
+	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
+	$status ||= system 'openssl dhparam -out dhparams.pem 2048';
+}
+
+if ($status) {
+	print "SSL generation failed! Are you missing an $ARGV[0] binary package?\n";
+	exit 1;
+}
+
