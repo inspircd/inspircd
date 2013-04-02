@@ -47,8 +47,6 @@ use Getopt::Long;
 # Utility functions for our buildsystem
 use make::utilities;
 use make::configure;
-use make::gnutlscert;
-use make::opensslcert;
 
 ###############################################################################################
 #
@@ -102,8 +100,8 @@ GetOptions (
 	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
 	'enable-extras=s@' => \@opt_enableextras, # ^
 	'disable-extras=s@' => \@opt_disableextras, # ^
-	'generate-openssl-cert' => sub { make_openssl_cert(); exit(0); },
-	'generate-gnutls-cert' => sub { make_gnutls_cert(); exit(0); }
+	'generate-openssl-cert' => sub { exec './tools/genssl openssl'; },
+	'generate-gnutls-cert' => sub { exec './tools/genssl gnutls'; }
 );
 
 if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
@@ -692,7 +690,7 @@ if ($config{USE_GNUTLS} eq "y") {
 * few times and get that HD going :) Then answer the        *
 * Questions which follow. If you are unsure, just hit enter *
 *************************************************************\n\n";
-			$failed = make_gnutls_cert();
+			$failed = system "./tools/genssl gnutls";
 			if ($failed) {
 				print "\n\e[1;32mCertificate generation failed!\e[0m\n\n";
 			} else {
@@ -726,7 +724,7 @@ if ($config{USE_OPENSSL} eq "y") {
 * Generating the certificates may take some time, go grab a *
 * coffee, or something.	                                    *
 *************************************************************\n\n";
-			make_openssl_cert();
+			system "./tools/genssl openssl";
 			print "\nCertificate generation complete, copying to config directory... ";
 			File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
 			File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
