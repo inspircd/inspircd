@@ -445,9 +445,6 @@ class CoreExport ModeParser
 	unsigned int seq;
 
  public:
-
-	/** The constructor initializes all the RFC basic modes by using ModeParserAddMode().
-	 */
 	ModeParser();
 	~ModeParser();
 
@@ -455,6 +452,11 @@ class CoreExport ModeParser
 	 * for example, should 'user A' be able to 'op' on 'channel B'.
 	 */
 	User* SanityChecks(User *user,const char *dest,Channel *chan,int status);
+
+	/** Initialize all built-in modes
+	 */
+	static void InitBuiltinModes();
+
 	/** Tidy a banmask. This makes a banmask 'acceptable' if fields are left out.
 	 * E.g.
 	 *

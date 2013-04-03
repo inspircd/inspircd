@@ -933,27 +933,20 @@ struct builtin_modes
 	ModeUserOperator uo;
 	ModeUserServerNoticeMask us;
 
-	void init(ModeParser* modes)
+	void init()
 	{
-		modes->AddMode(&s);
-		modes->AddMode(&p);
-		modes->AddMode(&m);
-		modes->AddMode(&t);
-		modes->AddMode(&n);
-		modes->AddMode(&i);
-		modes->AddMode(&k);
-		modes->AddMode(&l);
-		modes->AddMode(&b);
-		modes->AddMode(&o);
-		modes->AddMode(&v);
-		modes->AddMode(&uw);
-		modes->AddMode(&ui);
-		modes->AddMode(&uo);
-		modes->AddMode(&us);
+		ServiceProvider* modes[] = { &s, &p, &m, &t, &n, &i, &k, &l, &b, &o, &v,
+									 &uw, &ui, &uo, &us };
+		ServerInstance->Modules->AddServices(modes, sizeof(modes)/sizeof(ServiceProvider*));
 	}
 };
 
 static builtin_modes static_modes;
+
+void ModeParser::InitBuiltinModes()
+{
+	static_modes.init();
+}
 
 ModeParser::ModeParser()
 {
@@ -965,8 +958,6 @@ ModeParser::ModeParser()
 
 	seq = 0;
 	memset(&sent, 0, sizeof(sent));
-
-	static_modes.init(this);
 }
 
 ModeParser::~ModeParser()

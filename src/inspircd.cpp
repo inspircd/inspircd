@@ -516,6 +516,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
+	ModeParser::InitBuiltinModes();
 
 	this->Res = new DNS();
 
