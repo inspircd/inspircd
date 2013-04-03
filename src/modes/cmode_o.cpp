@@ -26,7 +26,7 @@
 #include "channels.h"
 #include "users.h"
 #include "modules.h"
-#include "modes/cmode_o.h"
+#include "builtinmodes.h"
 
 ModeChannelOp::ModeChannelOp() : ModeHandler(NULL, "op", 'o', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {

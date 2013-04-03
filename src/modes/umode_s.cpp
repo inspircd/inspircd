@@ -23,7 +23,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/umode_s.h"
+#include "builtinmodes.h"
 
 ModeUserServerNoticeMask::ModeUserServerNoticeMask() : ModeHandler(NULL, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
 {

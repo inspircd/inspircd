@@ -29,7 +29,7 @@
 #include "modules.h"
 #include "inspstring.h"
 #include "hashcomp.h"
-#include "modes/cmode_b.h"
+#include "builtinmodes.h"
 
 ModeChannelBan::ModeChannelBan() : ModeHandler(NULL, "ban", 'b', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {

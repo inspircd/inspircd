@@ -23,7 +23,7 @@
 #include "mode.h"
 #include "channels.h"
 #include "users.h"
-#include "modes/cmode_l.h"
+#include "builtinmodes.h"
 
 ModeChannelLimit::ModeChannelLimit() : ParamChannelModeHandler(NULL, "limit", 'l')
 {
