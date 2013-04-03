@@ -291,7 +291,7 @@ class ModuleDNSBL : public Module
 			}
 
 			e->banaction = str2banaction(tag->getString("action"));
-			e->duration = ServerInstance->Duration(tag->getString("duration", "60"));
+			e->duration = InspIRCd::Duration(tag->getString("duration", "60"));
 
 			/* Use portparser for record replies */
 

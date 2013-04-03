@@ -236,7 +236,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			{
 				if (parameters.size() >= 5)
 				{
-					duration = ServerInstance->Duration(parameters[3]);
+					duration = InspIRCd::Duration(parameters[3]);
 					reasonindex = 4;
 				}
 				else
@@ -661,7 +661,7 @@ void ModuleFilter::ReadFilters()
 		std::string reason = i->second->getString("reason");
 		std::string action = i->second->getString("action");
 		std::string flgs = i->second->getString("flags");
-		long gline_time = ServerInstance->Duration(i->second->getString("duration"));
+		unsigned long gline_time = InspIRCd::Duration(i->second->getString("duration"));
 		if (flgs.empty())
 			flgs = "*";
 

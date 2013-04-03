@@ -59,7 +59,7 @@ class ModuleConnectBan : public Module
 		if (threshold == 0)
 			threshold = 10;
 
-		banduration = ServerInstance->Duration(tag->getString("duration", "10m"));
+		banduration = InspIRCd::Duration(tag->getString("duration", "10m"));
 		if (banduration == 0)
 			banduration = 10*60;
 	}

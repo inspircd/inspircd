@@ -152,10 +152,10 @@ class CommandDccallow : public Command
 					std::string mask = target->nick+"!"+target->ident+"@"+target->dhost;
 					std::string default_length = ServerInstance->Config->ConfValue("dccallow")->getString("length");
 
-					long length;
+					unsigned long length;
 					if (parameters.size() < 2)
 					{
-						length = ServerInstance->Duration(default_length);
+						length = InspIRCd::Duration(default_length);
 					}
 					else if (!atoi(parameters[1].c_str()))
 					{
@@ -163,7 +163,7 @@ class CommandDccallow : public Command
 					}
 					else
 					{
-						length = ServerInstance->Duration(parameters[1]);
+						length = InspIRCd::Duration(parameters[1]);
 					}
 
 					if (!ServerInstance->IsValidMask(mask.c_str()))

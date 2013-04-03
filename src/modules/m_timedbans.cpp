@@ -66,7 +66,7 @@ class CommandTban : public Command
 
 		TimedBan T;
 		std::string channelname = parameters[0];
-		long duration = ServerInstance->Duration(parameters[1]);
+		unsigned long duration = InspIRCd::Duration(parameters[1]);
 		unsigned long expire = duration + ServerInstance->Time();
 		if (duration < 1)
 		{

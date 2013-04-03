@@ -138,7 +138,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 			match = InspIRCd::Match(user->awaymsg, matchtext);
 		else if (opt_time)
 		{
-			long seconds = ServerInstance->Duration(matchtext);
+			long seconds = InspIRCd::Duration(matchtext);
 
 			// Okay, so time matching, we want all users connected `seconds' ago
 			if (user->age >= ServerInstance->Time() - seconds)
@@ -197,7 +197,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 		wholine.append(ServerInstance->Config->HideWhoisServer);
 	else
 		wholine.append(u->server);
-	
+
 	wholine.append(" " + u->nick + " ");
 
 	/* away? */

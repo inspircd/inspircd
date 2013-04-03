@@ -69,8 +69,7 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
 
-		long duration = ServerInstance->Duration(parameters[1].c_str());
-
+		unsigned long duration = InspIRCd::Duration(parameters[1]);
 		ELine* el = new ELine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(el, user))
 		{

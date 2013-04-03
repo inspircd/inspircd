@@ -735,7 +735,7 @@ class CoreExport InspIRCd
 	 * (one year, two weeks, three days, four hours, six minutes and five seconds)
 	 * @return The total number of seconds
 	 */
-	long Duration(const std::string &str);
+	static unsigned long Duration(const std::string& str);
 
 	/** Attempt to compare a password to a string from the config file.
 	 * This will be passed to handling modules which will compare the data

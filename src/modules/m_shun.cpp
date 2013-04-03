@@ -124,11 +124,11 @@ class CommandShun : public Command
 		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			long duration;
+			unsigned long duration;
 			std::string expr;
 			if (parameters.size() > 2)
 			{
-				duration = ServerInstance->Duration(parameters[1]);
+				duration = InspIRCd::Duration(parameters[1]);
 				expr = parameters[2];
 			}
 			else

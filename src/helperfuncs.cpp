@@ -423,7 +423,7 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* fo
 /** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
  * lookups and pointer maths.
  */
-long InspIRCd::Duration(const std::string &str)
+unsigned long InspIRCd::Duration(const std::string &str)
 {
 	unsigned char multiplier = 0;
 	long total = 0;

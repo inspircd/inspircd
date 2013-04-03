@@ -52,7 +52,7 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 			return CMD_FAILURE;
 		}
 
-		long duration = ServerInstance->Duration(parameters[1].c_str());
+		unsigned long duration = InspIRCd::Duration(parameters[1]);
 		QLine* ql = new QLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), parameters[0].c_str());
 		if (ServerInstance->XLines->AddLine(ql,user))
 		{

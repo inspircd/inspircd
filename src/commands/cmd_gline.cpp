@@ -76,7 +76,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 			return CMD_FAILURE;
 		}
 
-		long duration = ServerInstance->Duration(parameters[1].c_str());
+		unsigned long duration = InspIRCd::Duration(parameters[1]);
 		GLine* gl = new GLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ih.first.c_str(), ih.second.c_str());
 		if (ServerInstance->XLines->AddLine(gl, user))
 		{

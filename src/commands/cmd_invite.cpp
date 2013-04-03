@@ -61,7 +61,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		if (parameters.size() == 3)
 		{
 			if (IS_LOCAL(user))
-				timeout = ServerInstance->Time() + ServerInstance->Duration(parameters[2]);
+				timeout = ServerInstance->Time() + InspIRCd::Duration(parameters[1]);
 			else
 				timeout = ConvToInt(parameters[2]);
 		}

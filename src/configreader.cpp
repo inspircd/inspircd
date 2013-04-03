@@ -535,7 +535,7 @@ void ServerConfig::Fill()
 	PID = ConfValue("pid")->getString("file");
 	WhoWasGroupSize = ConfValue("whowas")->getInt("groupsize");
 	WhoWasMaxGroups = ConfValue("whowas")->getInt("maxgroups");
-	WhoWasMaxKeep = ServerInstance->Duration(ConfValue("whowas")->getString("maxkeep"));
+	WhoWasMaxKeep = InspIRCd::Duration(ConfValue("whowas")->getString("maxkeep"));
 	MaxChans = ConfValue("channels")->getInt("users", 20);
 	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
