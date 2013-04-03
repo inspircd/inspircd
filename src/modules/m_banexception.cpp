@@ -22,10 +22,10 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
+#include "listmode.h"
 
 /* $ModDesc: Provides support for the +e channel mode */
-/* $ModDep: ../../include/u_listmode.h */
+/* $ModDep: ../../include/listmode.h */
 
 /* Written by Om<om@inspircd.org>, April 2005. */
 /* Rewritten to use the listmode utility by Om, December 2005 */
@@ -72,12 +72,12 @@ class ModuleBanException : public Module
 	{
 		if (chan != NULL)
 		{
-			modelist *list = be.extItem.get(chan);
+			ListModeBase::ModeList *list = be.GetList(chan);
 
 			if (!list)
 				return MOD_RES_PASSTHRU;
 
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (it->mask[0] != type || it->mask[1] != ':')
 					continue;
@@ -97,7 +97,7 @@ class ModuleBanException : public Module
 	{
 		if (chan)
 		{
-			modelist *list = be.extItem.get(chan);
+			ListModeBase::ModeList *list = be.GetList(chan);
 
 			if (!list)
 			{
@@ -105,7 +105,7 @@ class ModuleBanException : public Module
 				return MOD_RES_PASSTHRU;
 			}
 
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (chan->CheckBan(user, it->mask))
 				{

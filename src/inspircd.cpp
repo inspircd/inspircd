@@ -184,12 +184,6 @@ void InspIRCd::Restart(const std::string &reason)
 	}
 }
 
-void InspIRCd::ResetMaxBans()
-{
-	for (chan_hash::const_iterator i = chanlist->begin(); i != chanlist->end(); i++)
-		i->second->ResetMaxBans();
-}
-
 void InspIRCd::SetSignals()
 {
 #ifndef _WIN32

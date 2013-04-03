@@ -23,13 +23,17 @@
 /* $ModDesc: Provides the /CHECK command to retrieve information on a user, channel, hostname or IP address */
 
 #include "inspircd.h"
+#include "listmode.h"
 
 /** Handle /CHECK
  */
 class CommandCheck : public Command
 {
+	ModeReference ban;
  public:
-	CommandCheck(Module* parent) : Command(parent,"CHECK", 1)
+	CommandCheck(Module* parent)
+		: Command(parent,"CHECK", 1)
+		, ban(parent, "ban")
 	{
 		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
 	}
@@ -198,18 +202,11 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " member " + tmpbuf);
 			}
 
-			irc::modestacker modestack(true);
-			for(BanList::iterator b = targchan->bans.begin(); b != targchan->bans.end(); ++b)
-			{
-				modestack.Push('b', b->data);
-			}
-			std::vector<std::string> stackresult;
-			std::vector<TranslateType> dummy;
-			while (modestack.GetStackedLine(stackresult))
-			{
-				creator->ProtoSendMode(user, TYPE_CHANNEL, targchan, stackresult, dummy);
-				stackresult.clear();
-			}
+			// We know that the mode handler for bans is in the core and is derived from ListModeBase
+			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+			banlm->DoSyncChannel(targchan, creator, user);
+
+			// Show other listmodes as well
 			FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(targchan,creator,user));
 			dumpExt(user, checkstr, targchan);
 		}

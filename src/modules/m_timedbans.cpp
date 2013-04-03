@@ -80,20 +80,17 @@ class CommandTban : public Command
 		bool isextban = ((mask.size() > 2) && (mask[1] == ':'));
 		if (!isextban && !ServerInstance->IsValidMask(mask))
 			mask.append("!*@*");
-		if ((mask.length() > 250) || (!ServerInstance->IsValidMask(mask) && !isextban))
-		{
-			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
-			return CMD_FAILURE;
-		}
+
 		setban.push_back(mask);
 		// use CallHandler to make it so that the user sets the mode
 		// themselves
 		ServerInstance->Parser->CallHandler("MODE",setban,user);
-		for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-			if (!strcasecmp(i->data.c_str(), mask.c_str()))
-				goto found;
-		return CMD_FAILURE;
-found:
+		if (ServerInstance->Modes->GetLastParse().empty())
+		{
+			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
+			return CMD_FAILURE;
+		}
+
 		CUList tmp;
 		T.channel = channelname;
 		T.mask = mask;

@@ -26,8 +26,11 @@
 /* $Core */
 
 #include "inspircd.h"
+#include "listmode.h"
 #include <cstdarg>
 #include "mode.h"
+
+static ModeReference ban(NULL, "ban");
 
 Channel::Channel(const std::string &cname, time_t ts)
 {
@@ -39,7 +42,7 @@ Channel::Channel(const std::string &cname, time_t ts)
 	this->name.assign(cname, 0, ServerInstance->Config->Limits.ChanMax);
 	this->age = ts ? ts : ServerInstance->Time();
 
-	maxbans = topicset = 0;
+	topicset = 0;
 	modes.reset();
 }
 
@@ -434,10 +437,15 @@ bool Channel::IsBanned(User* user)
 	if (result != MOD_RES_PASSTHRU)
 		return (result == MOD_RES_DENY);
 
-	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+	ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+	const ListModeBase::ModeList* bans = banlm->GetList(this);
+	if (bans)
 	{
-		if (CheckBan(user, i->data))
-			return true;
+		for (ListModeBase::ModeList::const_iterator it = bans->begin(); it != bans->end(); it++)
+		{
+			if (CheckBan(user, it->mask))
+				return true;
+		}
 	}
 	return false;
 }
@@ -477,12 +485,15 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 	FIRST_MOD_RESULT(OnExtBanCheck, rv, (user, this, type));
 	if (rv != MOD_RES_PASSTHRU)
 		return rv;
-	for (BanList::iterator i = this->bans.begin(); i != this->bans.end(); i++)
+
+	ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+	const ListModeBase::ModeList* bans = banlm->GetList(this);
+	if (bans)
+
 	{
-		if (i->data[0] == type && i->data[1] == ':')
+		for (ListModeBase::ModeList::const_iterator it = bans->begin(); it != bans->end(); ++it)
 		{
-			std::string val = i->data.substr(2);
-			if (CheckBan(user, val))
+			if (CheckBan(user, it->mask))
 				return MOD_RES_DENY;
 		}
 	}
@@ -843,32 +854,6 @@ void Channel::UserList(User *user)
 	}
 
 	user->WriteNumeric(RPL_ENDOFNAMES, "%s %s :End of /NAMES list.", user->nick.c_str(), this->name.c_str());
-}
-
-long Channel::GetMaxBans()
-{
-	/* Return the cached value if there is one */
-	if (this->maxbans)
-		return this->maxbans;
-
-	/* If there isnt one, we have to do some O(n) hax to find it the first time. (ick) */
-	for (std::map<std::string,int>::iterator n = ServerInstance->Config->maxbans.begin(); n != ServerInstance->Config->maxbans.end(); n++)
-	{
-		if (InspIRCd::Match(this->name, n->first, NULL))
-		{
-			this->maxbans = n->second;
-			return n->second;
-		}
-	}
-
-	/* Screw it, just return the default of 64 */
-	this->maxbans = 64;
-	return this->maxbans;
-}
-
-void Channel::ResetMaxBans()
-{
-	this->maxbans = 0;
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,

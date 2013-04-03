@@ -459,10 +459,6 @@ class CoreExport ServerConfig
 	 */
 	std::map<irc::string, bool> ulines;
 
-	/** Max banlist sizes for channels (the std::string is a glob)
-	 */
-	std::map<std::string, int> maxbans;
-
 	/** If set to true, no user DNS lookups are to be performed
 	 */
 	bool NoUserDns;

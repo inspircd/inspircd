@@ -29,7 +29,7 @@
 #define _SCL_SECURE_NO_DEPRECATE
 
 #include "inspircd.h"
-#include "u_listmode.h"
+#include "listmode.h"
 
 /** Handles channel mode +g
  */
@@ -49,10 +49,9 @@ class ChanFilter : public ListModeBase
 		return true;
 	}
 
-	virtual bool TellListTooLong(User* user, Channel* chan, std::string &word)
+	virtual void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(939, "%s %s %s :Channel spamfilter list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
-		return true;
 	}
 
 	virtual void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
@@ -102,11 +101,11 @@ class ModuleChanFilter : public Module
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
-		modelist* list = cf.extItem.get(chan);
+		ListModeBase::ModeList* list = cf.GetList(chan);
 
 		if (list)
 		{
-			for (modelist::iterator i = list->begin(); i != list->end(); i++)
+			for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); i++)
 			{
 				if (InspIRCd::Match(text, i->mask))
 				{

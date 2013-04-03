@@ -821,11 +821,6 @@ class CoreExport InspIRCd
 	 */
 	void Cleanup();
 
-	/** Resets the cached max bans value on all channels.
-	 * Called by rehash.
-	 */
-	void ResetMaxBans();
-
 	/** Return a time_t as a human-readable string.
 	 */
 	std::string TimeString(time_t curtime);

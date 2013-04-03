@@ -22,22 +22,17 @@
 
 #include "mode.h"
 #include "channels.h"
+#include "listmode.h"
 
 /** Channel mode +b
  */
-class ModeChannelBan : public ModeHandler
+class ModeChannelBan : public ListModeBase
 {
- private:
-	BanItem b;
  public:
-	ModeChannelBan();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	std::string& AddBan(User *user,std::string& dest,Channel *chan,int status);
-	std::string& DelBan(User *user,std::string& dest,Channel *chan,int status);
-	void DisplayList(User* user, Channel* channel);
-	void DisplayEmptyList(User* user, Channel* channel);
-	void RemoveMode(User* user, irc::modestacker* stack = NULL);
-	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
+	ModeChannelBan()
+		: ListModeBase(NULL, "ban", 'b', "End of channel ban list", 367, 368, true, "maxbans")
+	{
+	}
 };
 
 /** Channel mode +i

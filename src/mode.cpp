@@ -946,6 +946,7 @@ static builtin_modes static_modes;
 void ModeParser::InitBuiltinModes()
 {
 	static_modes.init();
+	static_modes.b.DoRehash();
 }
 
 ModeParser::ModeParser()

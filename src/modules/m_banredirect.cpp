@@ -23,7 +23,7 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
+#include "listmode.h"
 
 /* $ModDesc: Allows an extended ban (+b) syntax redirecting banned users to another channel */
 
@@ -46,10 +46,13 @@ typedef std::vector<BanRedirectEntry> BanRedirectList;
 
 class BanRedirect : public ModeWatcher
 {
+	ModeReference ban;
  public:
 	SimpleExtItem<BanRedirectList> extItem;
-	BanRedirect(Module* parent) : ModeWatcher(parent, 'b', MODETYPE_CHANNEL),
-		extItem("banredirect", parent)
+	BanRedirect(Module* parent)
+		: ModeWatcher(parent, 'b', MODETYPE_CHANNEL)
+		, ban(parent, "ban")
+		, extItem("banredirect", parent)
 	{
 	}
 
@@ -69,14 +72,16 @@ class BanRedirect : public ModeWatcher
 			std::string mask[4];
 			enum { NICK, IDENT, HOST, CHAN } current = NICK;
 			std::string::iterator start_pos = param.begin();
-			long maxbans = channel->GetMaxBans();
 
 			if (param.length() >= 2 && param[1] == ':')
 				return true;
 
-			if(adding && (channel->bans.size() > static_cast<unsigned>(maxbans)))
+			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+			unsigned int maxbans = banlm->GetLimit(channel);
+			ListModeBase::ModeList* list = banlm->GetList(channel);
+			if ((list) && (adding) && (maxbans <= list->size()))
 			{
-				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)", source->nick.c_str(), channel->name.c_str(), channel->name.c_str(), maxbans);
+				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %u)", source->nick.c_str(), channel->name.c_str(), channel->name.c_str(), maxbans);
 				return false;
 			}
 

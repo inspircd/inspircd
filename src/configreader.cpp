@@ -25,6 +25,7 @@
 #include "inspircd.h"
 #include <fstream>
 #include "xline.h"
+#include "listmode.h"
 #include "exitcodes.h"
 #include "configparser.h"
 #include <iostream>
@@ -568,16 +569,6 @@ void ServerConfig::Fill()
 		ulines[assign(server)] = tag->getBool("silent");
 	}
 
-	tags = ConfTags("banlist");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
-	{
-		ConfigTag* tag = i->second;
-		std::string chan;
-		if (!tag->readString("chan", chan))
-			throw CoreException("<banlist> tag missing chan at " + tag->getTagLocation());
-		maxbans[chan] = tag->getInt("limit");
-	}
-
 	ReadXLine(this, "badip", "ipmask", ServerInstance->XLines->GetFactory("Z"));
 	ReadXLine(this, "badnick", "nick", ServerInstance->XLines->GetFactory("Q"));
 	ReadXLine(this, "badhost", "host", ServerInstance->XLines->GetFactory("K"));
@@ -936,7 +927,8 @@ void ConfigReaderThread::Finish()
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
-		ServerInstance->ResetMaxBans();
+		ModeReference ban(NULL, "ban");
+		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
 		User* user = ServerInstance->FindNick(TheUserUID);
 		FOREACH_MOD(I_OnRehash, OnRehash(user));

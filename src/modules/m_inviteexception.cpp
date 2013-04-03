@@ -22,10 +22,10 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
+#include "listmode.h"
 
 /* $ModDesc: Provides support for the +I channel mode */
-/* $ModDep: ../../include/u_listmode.h */
+/* $ModDep: ../../include/listmode.h */
 
 /*
  * Written by Om <om@inspircd.org>, April 2005.
@@ -71,10 +71,10 @@ public:
 
 	ModResult OnCheckInvite(User* user, Channel* chan)
 	{
-		modelist* list = ie.extItem.get(chan);
+		ListModeBase::ModeList* list = ie.GetList(chan);
 		if (list)
 		{
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (chan->CheckBan(user, it->mask))
 				{

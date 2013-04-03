@@ -29,28 +29,6 @@
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
-class HostItem
-{
- public:
-	/** Time the item was added
-	 */
-	time_t set_time;
-	/** Who added the item
-	 */
-	std::string set_by;
-	/** The actual item data
-	 */
-	std::string data;
-
-	HostItem() { /* stub */ }
-	virtual ~HostItem() { /* stub */ }
-};
-
-/** A subclass of HostItem designed to hold channel bans (+b)
- */
-class BanItem : public HostItem
-{
-};
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, topic, topic set time,
@@ -65,10 +43,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();
-
-	/** Maximum number of bans (cached)
-	 */
-	int maxbans;
 
 	/** Modes for the channel.
 	 * This is not a null terminated string! It is a bitset where
@@ -115,10 +89,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * If this member is an empty string, no topic was ever set.
 	 */
 	std::string setby; /* 128 */
-
-	/** The list of all bans set on the channel.
-	 */
-	BanList bans;
 
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
@@ -301,11 +271,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	/** Write a line of text that already includes the source */
 	void RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
 
-	/** Returns the maximum number of bans allowed to be set on this channel
-	 * @return The maximum number of bans allowed
-	 */
-	long GetMaxBans();
-
 	/** Return the channel's modes with parameters.
 	 * @param showkey If this is set to true, the actual key is shown,
 	 * otherwise it is replaced with '&lt;KEY&gt;'
@@ -388,10 +353,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	/** Get the status of an "action" type extban
 	 */
 	ModResult GetExtBanStatus(User *u, char type);
-
-	/** Clears the cached max bans value
-	 */
-	void ResetMaxBans();
 };
 
 #endif

@@ -21,6 +21,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "listmode.h"
 
 #include "treesocket.h"
 #include "treeserver.h"
@@ -140,32 +141,8 @@ void TreeSocket::SendFJoins(Channel* c)
 		buffer.append(list).append("\r\n");
 	}
 
-	int linesize = 1;
-	for (BanList::iterator b = c->bans.begin(); b != c->bans.end(); b++)
-	{
-		int size = b->data.length() + 2;
-		int currsize = linesize + size;
-		if (currsize <= 350)
-		{
-			modes.append("b");
-			params.append(" ").append(b->data);
-			linesize += size;
-		}
-		if ((modes.length() >= ServerInstance->Config->Limits.MaxModes) || (currsize > 350))
-		{
-			/* Wrap at MAXMODES */
-			buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params).append("\r\n");
-			modes.clear();
-			params.clear();
-			linesize = 1;
-		}
-	}
-
-	/* Only send these if there are any */
-	if (!modes.empty())
-		buffer.append(":").append(ServerInstance->Config->GetSID()).append(" FMODE ").append(c->name).append(" ").append(ConvToStr(c->age)).append(" +").append(modes).append(params);
-
-	this->WriteLine(buffer);
+	ModeReference ban(NULL, "ban");
+	static_cast<ListModeBase*>(*ban)->DoSyncChannel(c, Utils->Creator, this);
 }
 
 /** Send all XLines we know about */
