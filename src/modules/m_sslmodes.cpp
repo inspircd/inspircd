@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2013 Shawn Smith <shawn@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -30,16 +31,29 @@ enum
 	ERR_SECUREONLYCHAN = 489
 };
 
+namespace
+{
+	bool IsSSLUser(UserCertificateAPI& api, User* user)
+	{
+		if (!api)
+			return false;
+
+		ssl_cert* cert = api->GetCertificate(user);
+		return (cert != NULL);
+	}
+}
+
 /** Handle channel mode +z
  */
 class SSLMode : public ModeHandler
 {
- public:
-	UserCertificateAPI API;
+ private:
+	UserCertificateAPI& API;
 
-	SSLMode(Module* Creator)
+ public:
+	SSLMode(Module* Creator, UserCertificateAPI& api)
 		: ModeHandler(Creator, "sslonly", 'z', PARAM_NONE, MODETYPE_CHANNEL)
-		, API(Creator)
+		, API(api)
 	{
 	}
 
@@ -86,14 +100,60 @@ class SSLMode : public ModeHandler
 	}
 };
 
+/** Handle user mode +z
+*/
+class SSLModeUser : public ModeHandler
+{
+ private:
+	UserCertificateAPI& API;
+
+ public:
+	SSLModeUser(Module* Creator, UserCertificateAPI& api)
+		: ModeHandler(Creator, "sslqueries", 'z', PARAM_NONE, MODETYPE_USER)
+		, API(api)
+	{
+		if (!ServerInstance->Config->ConfValue("sslmodes")->getBool("enableumode"))
+			DisableAutoRegister();
+	}
+
+	ModeAction OnModeChange(User* user, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
+	{
+		if (adding)
+		{
+			if (!dest->IsModeSet(this))
+			{
+				if (!IsSSLUser(API, user))
+					return MODEACTION_DENY;
+
+				dest->SetMode(this, true);
+				return MODEACTION_ALLOW;
+			}
+		}
+		else
+		{
+			if (dest->IsModeSet(this))
+			{
+				dest->SetMode(this, false);
+				return MODEACTION_ALLOW;
+			}
+		}
+
+		return MODEACTION_DENY;
+	}
+};
+
 class ModuleSSLModes : public Module
 {
-
+ private:
+	UserCertificateAPI api;
 	SSLMode sslm;
+	SSLModeUser sslquery;
 
  public:
 	ModuleSSLModes()
-		: sslm(this)
+		: api(this)
+		, sslm(this, api)
+		, sslquery(this, api)
 	{
 	}
 
@@ -101,10 +161,10 @@ class ModuleSSLModes : public Module
 	{
 		if(chan && chan->IsModeSet(sslm))
 		{
-			if (!sslm.API)
+			if (!api)
 				return MOD_RES_DENY;
 
-			ssl_cert* cert = sslm.API->GetCertificate(user);
+			ssl_cert* cert = api->GetCertificate(user);
 			if (cert)
 			{
 				// Let them in
@@ -121,14 +181,48 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
+	ModResult OnUserPreMessage(User* user, const MessageTarget& msgtarget, MessageDetails& details) CXX11_OVERRIDE
+	{
+		if (msgtarget.type != MessageTarget::TYPE_USER)
+			return MOD_RES_PASSTHRU;
+
+		User* target = msgtarget.Get<User>();
+
+		/* If one or more of the parties involved is a ulined service, we wont stop it. */
+		if (user->server->IsULine() || target->server->IsULine())
+			return MOD_RES_PASSTHRU;
+
+		/* If the target is +z */
+		if (target->IsModeSet(sslquery))
+		{
+			if (!IsSSLUser(api, user))
+			{
+				/* The sending user is not on an SSL connection */
+				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You are not permitted to send private messages to this user (+z set)");
+				return MOD_RES_DENY;
+			}
+		}
+		/* If the user is +z */
+		else if (user->IsModeSet(sslquery))
+		{
+			if (!IsSSLUser(api, target))
+			{
+				user->WriteNumeric(ERR_CANTSENDTOUSER, target->nick, "You must remove usermode 'z' before you are able to send private messages to a non-ssl user.");
+				return MOD_RES_DENY;
+			}
+		}
+
+		return MOD_RES_PASSTHRU;
+	}
+
 	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
 		if ((mask.length() > 2) && (mask[0] == 'z') && (mask[1] == ':'))
 		{
-			if (!sslm.API)
+			if (!api)
 				return MOD_RES_DENY;
 
-			ssl_cert* cert = sslm.API->GetCertificate(user);
+			ssl_cert* cert = api->GetCertificate(user);
 			if (cert && InspIRCd::Match(cert->GetFingerprint(), mask.substr(2)))
 				return MOD_RES_DENY;
 		}
@@ -142,7 +236,7 @@ class ModuleSSLModes : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides channel mode +z to allow for Secure/SSL only channels", VF_VENDOR);
+		return Version("Provides user and channel mode +z to allow for SSL-only channels, queries and notices.", VF_VENDOR);
 	}
 };
 

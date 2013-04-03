@@ -1882,12 +1882,17 @@
 #<shun enabledcommands="ADMIN PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL channel mode module: Adds support for SSL-only channels via
-# channel mode +z and the 'z' extban which matches SSL client
-# certificate fingerprints.
+# SSL mode module: Adds support for SSL-only channels via the '+z'
+# channel mode, SSL-only private messages via the '+z' user mode and
+# the 'z:' extban which matches SSL client certificate fingerprints.
+#
 # Does not do anything useful without a working SSL module and the
 # sslinfo module (see below).
 #<module name="sslmodes">
+#
+# The +z user mode is not enabled by default to enable link compatibility
+# with 2.0 servers. You can enable it by uncommenting this:
+#<sslmodes enableumode="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GnuTLS SSL module: Adds support for SSL connections using GnuTLS,

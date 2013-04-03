@@ -810,6 +810,8 @@ using their cloak when they quit.">
               (requires services account module).
  w            Receives wallops messages.
  x            Gives a cloaked hostname (requires cloaking module).
+ z            Only allow private messages from SSL users (requires
+              sslmode module).
  B            Marks as a bot (requires botmode module).
  G            Censors messages sent to the user based on filters
               configured for the network (requires censor module).
