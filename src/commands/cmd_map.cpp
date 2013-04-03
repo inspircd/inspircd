@@ -45,7 +45,8 @@ CmdResult CommandMap::Handle (const std::vector<std::string>&, User *user)
 
 	if (IS_OPER(user))
 	{
-		user->WriteNumeric(006, "%s :%s [%s]", user->nick.c_str(), ServerInstance->Config->ServerName.c_str(), ServerInstance->Config->GetSID().c_str());
+		std::string version = ServerInstance->GetVersionString(true);
+		user->WriteNumeric(006, "%s :%s [%s] [%s]", user->nick.c_str(), ServerInstance->Config->ServerName.c_str(), ServerInstance->Config->GetSID().c_str(), version.c_str());
 		user->WriteNumeric(007, "%s :End of /MAP", user->nick.c_str());
 		return CMD_SUCCESS;
 	}
