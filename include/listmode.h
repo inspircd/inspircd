@@ -39,6 +39,15 @@ class ListModeBase : public ModeHandler
 	typedef std::list<ListItem> ModeList;
 
  private:
+	class ChanData
+	{
+	public:
+		ModeList list;
+		int maxitems;
+
+		ChanData() : maxitems(-1) { }
+	};
+
 	/** The number of items a listmode's list may contain
 	 */
 	struct ListLimit
@@ -46,11 +55,28 @@ class ListModeBase : public ModeHandler
 		std::string mask;
 		unsigned int limit;
 		ListLimit(const std::string& Mask, unsigned int Limit) : mask(Mask), limit(Limit) { }
+		bool operator==(const ListLimit& other) const { return (this->mask == other.mask && this->limit == other.limit); }
 	};
 
 	/** Max items per channel by name
 	 */
 	typedef std::vector<ListLimit> limitlist;
+
+	/** Finds the limit of modes that can be placed on the given channel name according to the config
+	 * @param channame The channel name to find the limit for
+	 * @return The maximum number of modes of this type that we allow to be set on the given channel name
+	 */
+	unsigned int FindLimit(const std::string& channame);
+
+	/** Returns the limit on the given channel for this mode.
+	 * If the limit is cached then the cached value is returned,
+	 * otherwise the limit is determined using FindLimit() and cached
+	 * for later queries before it is returned
+	 * @param channame The channel name to find the limit for
+	 * @param cd The ChanData associated with channel channame
+	 * @return The maximum number of modes of this type that we allow to be set on the given channel
+	 */
+	unsigned int GetLimitInternal(const std::string& channame, ChanData* cd);
 
  protected:
 	/** Numeric to use when outputting the list
@@ -75,7 +101,7 @@ class ListModeBase : public ModeHandler
 
 	/** Storage key
 	 */
-	SimpleExtItem<ModeList> extItem;
+	SimpleExtItem<ChanData> extItem;
 
  public:
 	/** Constructor.
@@ -183,5 +209,9 @@ class ListModeBase : public ModeHandler
 
 inline ListModeBase::ModeList* ListModeBase::GetList(Channel* channel)
 {
-	return extItem.get(channel);
+	ChanData* cd = extItem.get(channel);
+	if (!cd)
+		return NULL;
+
+	return &cd->list;
 }

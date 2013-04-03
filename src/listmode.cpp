@@ -29,10 +29,10 @@ ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modech
 
 void ListModeBase::DisplayList(User* user, Channel* channel)
 {
-	ModeList* el = extItem.get(channel);
-	if (el)
+	ChanData* cd = extItem.get(channel);
+	if (cd)
 	{
-		for (ModeList::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
+		for (ModeList::reverse_iterator it = cd->list.rbegin(); it != cd->list.rend(); ++it)
 		{
 			user->WriteNumeric(listnumeric, "%s %s %s %s %lu", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (!it->setter.empty() ? it->setter.c_str() : ServerInstance->Config->ServerName.c_str()), (unsigned long) it->time);
 		}
@@ -47,12 +47,12 @@ void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 
 void ListModeBase::RemoveMode(Channel* channel, irc::modestacker* stack)
 {
-	ModeList* el = extItem.get(channel);
-	if (el)
+	ChanData* cd = extItem.get(channel);
+	if (cd)
 	{
 		irc::modestacker modestack(false);
 
-		for (ModeList::iterator it = el->begin(); it != el->end(); it++)
+		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
 		{
 			if (stack)
 				stack->Push(this->GetModeChar(), it->mask);
@@ -83,6 +83,7 @@ void ListModeBase::DoRehash()
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags(configtag);
 
+	limitlist oldlimits = chanlimits;
 	chanlimits.clear();
 
 	for (ConfigIter i = tags.first; i != tags.second; i++)
@@ -97,6 +98,17 @@ void ListModeBase::DoRehash()
 
 	if (chanlimits.empty())
 		chanlimits.push_back(ListLimit("*", 64));
+
+	// Most of the time our settings are unchanged, so we can avoid iterating the chanlist
+	if (oldlimits == chanlimits)
+		return;
+
+	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
+	{
+		ChanData* cd = extItem.get(i->second);
+		if (cd)
+			cd->maxitems = -1;
+	}
 }
 
 void ListModeBase::DoImplements(Module* m)
@@ -107,11 +119,11 @@ void ListModeBase::DoImplements(Module* m)
 	ServerInstance->Modules->Attach(eventlist, m, sizeof(eventlist)/sizeof(Implementation));
 }
 
-unsigned int ListModeBase::GetLimit(Channel* channel)
+unsigned int ListModeBase::FindLimit(const std::string& channame)
 {
 	for (limitlist::iterator it = chanlimits.begin(); it != chanlimits.end(); ++it)
 	{
-		if (InspIRCd::Match(channel->name, it->mask))
+		if (InspIRCd::Match(channame, it->mask))
 		{
 			// We have a pattern matching the channel
 			return it->limit;
@@ -120,10 +132,26 @@ unsigned int ListModeBase::GetLimit(Channel* channel)
 	return 64;
 }
 
+unsigned int ListModeBase::GetLimitInternal(const std::string& channame, ChanData* cd)
+{
+	if (cd->maxitems < 0)
+		cd->maxitems = FindLimit(channame);
+	return cd->maxitems;
+}
+
+unsigned int ListModeBase::GetLimit(Channel* channel)
+{
+	ChanData* cd = extItem.get(channel);
+	if (!cd) // just find the limit
+		return FindLimit(channel->name);
+
+	return GetLimitInternal(channel->name, cd);
+}
+
 ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	// Try and grab the list
-	ModeList* el = extItem.get(channel);
+	ChanData* cd = extItem.get(channel);
 
 	if (adding)
 	{
@@ -134,15 +162,15 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 			return MODEACTION_DENY;
 
 		// If there was no list
-		if (!el)
+		if (!cd)
 		{
 			// Make one
-			el = new ModeList;
-			extItem.set(channel, el);
+			cd = new ChanData;
+			extItem.set(channel, cd);
 		}
 
 		// Check if the item already exists in the list
-		for (ModeList::iterator it = el->begin(); it != el->end(); it++)
+		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
 		{
 			if (parameter == it->mask)
 			{
@@ -154,7 +182,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 			}
 		}
 
-		if ((IS_LOCAL(source)) && (el->size() >= GetLimit(channel)))
+		if ((IS_LOCAL(source)) && (cd->list.size() >= GetLimitInternal(channel->name, cd)))
 		{
 			/* List is full, give subclass a chance to send a custom message */
 			TellListTooLong(source, channel, parameter);
@@ -175,7 +203,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		if (ValidateParam(source, channel, parameter))
 		{
 			// And now add the mask onto the list...
-			el->push_back(ListItem(parameter, source->nick, ServerInstance->Time()));
+			cd->list.push_back(ListItem(parameter, source->nick, ServerInstance->Time()));
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -187,13 +215,13 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 	else
 	{
 		// We're taking the mode off
-		if (el)
+		if (cd)
 		{
-			for (ModeList::iterator it = el->begin(); it != el->end(); it++)
+			for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 			{
 				if (parameter == it->mask)
 				{
-					el->erase(it);
+					cd->list.erase(it);
 					return MODEACTION_ALLOW;
 				}
 			}
@@ -208,8 +236,8 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 
 void ListModeBase::DoSyncChannel(Channel* chan, Module* proto, void* opaque)
 {
-	ModeList* mlist = extItem.get(chan);
-	if (!mlist)
+	ChanData* cd = extItem.get(chan);
+	if (!cd)
 		return;
 
 	irc::modestacker modestack(true);
@@ -217,7 +245,7 @@ void ListModeBase::DoSyncChannel(Channel* chan, Module* proto, void* opaque)
 	std::vector<TranslateType> types;
 	types.push_back(TR_TEXT);
 
-	for (ModeList::iterator it = mlist->begin(); it != mlist->end(); it++)
+	for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
 		modestack.Push(mode, it->mask);
 
 	while (modestack.GetStackedLine(stackresult))
