@@ -25,12 +25,13 @@ class ListModeBase : public ModeHandler
  public:
 	/** An item in a listmode's list
 	 */
-	class ListItem
+	struct ListItem
 	{
-	public:
-		std::string nick;
+		std::string setter;
 		std::string mask;
-		std::string time;
+		time_t time;
+		ListItem(const std::string& Mask, const std::string& Setter, time_t Time)
+			: setter(Setter), mask(Mask), time(Time) { }
 	};
 
 	/** Items stored in the channel's list
@@ -40,16 +41,16 @@ class ListModeBase : public ModeHandler
  private:
 	/** The number of items a listmode's list may contain
 	 */
-	class ListLimit
+	struct ListLimit
 	{
-	public:
 		std::string mask;
 		unsigned int limit;
+		ListLimit(const std::string& Mask, unsigned int Limit) : mask(Mask), limit(Limit) { }
 	};
 
 	/** Max items per channel by name
 	 */
-	typedef std::list<ListLimit> limitlist;
+	typedef std::vector<ListLimit> limitlist;
 
  protected:
 	/** Numeric to use when outputting the list

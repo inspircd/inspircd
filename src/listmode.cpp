@@ -34,7 +34,7 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	{
 		for (ModeList::reverse_iterator it = el->rbegin(); it != el->rend(); ++it)
 		{
-			user->WriteNumeric(listnumeric, "%s %s %s %s %s", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (it->nick.length() ? it->nick.c_str() : ServerInstance->Config->ServerName.c_str()), it->time.c_str());
+			user->WriteNumeric(listnumeric, "%s %s %s %s %lu", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (!it->setter.empty() ? it->setter.c_str() : ServerInstance->Config->ServerName.c_str()), (unsigned long) it->time);
 		}
 	}
 	user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
@@ -89,20 +89,14 @@ void ListModeBase::DoRehash()
 	{
 		// For each <banlist> tag
 		ConfigTag* c = i->second;
-		ListLimit limit;
-		limit.mask = c->getString("chan");
-		limit.limit = c->getInt("limit");
+		ListLimit limit(c->getString("chan"), c->getInt("limit"));
 
 		if (limit.mask.size() && limit.limit > 0)
 			chanlimits.push_back(limit);
 	}
-	if (chanlimits.size() == 0)
-	{
-		ListLimit limit;
-		limit.mask = "*";
-		limit.limit = 64;
-		chanlimits.push_back(limit);
-	}
+
+	if (chanlimits.empty())
+		chanlimits.push_back(ListLimit("*", 64));
 }
 
 void ListModeBase::DoImplements(Module* m)
@@ -181,12 +175,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		if (ValidateParam(source, channel, parameter))
 		{
 			// And now add the mask onto the list...
-			ListItem e;
-			e.mask = parameter;
-			e.nick = source->nick;
-			e.time = ConvToStr(ServerInstance->Time());
-
-			el->push_back(e);
+			el->push_back(ListItem(parameter, source->nick, ServerInstance->Time()));
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -205,10 +194,6 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 				if (parameter == it->mask)
 				{
 					el->erase(it);
-					if (el->size() == 0)
-					{
-						extItem.unset(channel);
-					}
 					return MODEACTION_ALLOW;
 				}
 			}
@@ -224,17 +209,17 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 void ListModeBase::DoSyncChannel(Channel* chan, Module* proto, void* opaque)
 {
 	ModeList* mlist = extItem.get(chan);
+	if (!mlist)
+		return;
+
 	irc::modestacker modestack(true);
 	std::vector<std::string> stackresult;
 	std::vector<TranslateType> types;
 	types.push_back(TR_TEXT);
-	if (mlist)
-	{
-		for (ModeList::iterator it = mlist->begin(); it != mlist->end(); it++)
-		{
-			modestack.Push(std::string(1, mode)[0], it->mask);
-		}
-	}
+
+	for (ModeList::iterator it = mlist->begin(); it != mlist->end(); it++)
+		modestack.Push(mode, it->mask);
+
 	while (modestack.GetStackedLine(stackresult))
 	{
 		types.assign(stackresult.size(), this->GetTranslateType());
