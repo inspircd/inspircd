@@ -345,6 +345,11 @@ bool ModuleManager::CanUnload(Module* mod)
 
 void ModuleManager::DoSafeUnload(Module* mod)
 {
+	// First, notify all modules that a module is about to be unloaded, so in case
+	// they pass execution to the soon to be unloaded module, it will happen now,
+	// i.e. before we unregister the services of the module being unloaded
+	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
+
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
 	std::vector<reference<ExtensionItem> > items;
@@ -384,8 +389,6 @@ void ModuleManager::DoSafeUnload(Module* mod)
 
 	/* Tidy up any dangling resolvers */
 	ServerInstance->Res->CleanResolvers(mod);
-
-	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
 
 	DetachAll(mod);
 
