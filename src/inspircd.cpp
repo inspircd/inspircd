@@ -347,6 +347,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->SNO = new SnomaskManager;
 	this->BanCache = new BanCacheManager;
 	this->Modules = new ModuleManager();
+	dynamic_reference_base::reset_all();
 	this->stats = new serverstats();
 	this->Timers = new TimerManager;
 	this->Parser = new CommandParser;

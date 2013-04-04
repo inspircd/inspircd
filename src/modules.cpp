@@ -37,13 +37,15 @@
 #endif
 
 static std::vector<dynamic_reference_base*>* dynrefs = NULL;
+static bool dynref_init_complete = false;
 
 void dynamic_reference_base::reset_all()
 {
+	dynref_init_complete = true;
 	if (!dynrefs)
 		return;
 	for(unsigned int i = 0; i < dynrefs->size(); i++)
-		(*dynrefs)[i]->ClearCache();
+		(*dynrefs)[i]->resolve();
 }
 
 // Version is a simple class for holding a modules version number
@@ -449,6 +451,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 				DataProviders.insert(std::make_pair(item.name.substr(0, slash), &item));
 				DataProviders.insert(std::make_pair(item.name.substr(slash + 1), &item));
 			}
+			dynamic_reference_base::reset_all();
 			return;
 		}
 		default:
@@ -505,6 +508,8 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 	if (!dynrefs)
 		dynrefs = new std::vector<dynamic_reference_base*>;
 	dynrefs->push_back(this);
+	if (dynref_init_complete)
+		resolve();
 }
 
 dynamic_reference_base::~dynamic_reference_base()
@@ -530,24 +535,16 @@ dynamic_reference_base::~dynamic_reference_base()
 void dynamic_reference_base::SetProvider(const std::string& newname)
 {
 	name = newname;
-	ClearCache();
+	resolve();
 }
 
-void dynamic_reference_base::lookup()
+void dynamic_reference_base::resolve()
 {
-	if (!*this)
-		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve");
-}
-
-dynamic_reference_base::operator bool()
-{
-	if (!value)
-	{
-		std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
-		if (i != ServerInstance->Modules->DataProviders.end())
-			value = static_cast<DataProvider*>(i->second);
-	}
-	return (value != NULL);
+	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
+	if (i != ServerInstance->Modules->DataProviders.end())
+		value = static_cast<DataProvider*>(i->second);
+	else
+		value = NULL;
 }
 
 void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)

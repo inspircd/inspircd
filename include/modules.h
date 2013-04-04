@@ -286,19 +286,25 @@ class CoreExport dynamic_reference_base : public interfacebase
 {
  private:
 	std::string name;
+	void resolve();
  protected:
 	DataProvider* value;
  public:
 	ModuleRef creator;
 	dynamic_reference_base(Module* Creator, const std::string& Name);
 	~dynamic_reference_base();
-	inline void ClearCache() { value = NULL; }
 	inline const std::string& GetProvider() { return name; }
 	void SetProvider(const std::string& newname);
-	void lookup();
-	operator bool();
+	void check();
+	operator bool() { return (value != NULL); }
 	static void reset_all();
 };
+
+inline void dynamic_reference_base::check()
+{
+	if (!value)
+		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve");
+}
 
 template<typename T>
 class dynamic_reference : public dynamic_reference_base
@@ -306,11 +312,34 @@ class dynamic_reference : public dynamic_reference_base
  public:
 	dynamic_reference(Module* Creator, const std::string& Name)
 		: dynamic_reference_base(Creator, Name) {}
+
 	inline T* operator->()
 	{
-		if (!value)
-			lookup();
+		check();
 		return static_cast<T*>(value);
+	}
+
+	T* operator*()
+	{
+		return operator->();
+	}
+};
+
+template<typename T>
+class dynamic_reference_nocheck : public dynamic_reference_base
+{
+ public:
+	dynamic_reference_nocheck(Module* Creator, const std::string& Name)
+		: dynamic_reference_base(Creator, Name) {}
+
+	T* operator->()
+	{
+		return static_cast<T*>(value);
+	}
+
+	T* operator*()
+	{
+		return operator->();
 	}
 };
 
