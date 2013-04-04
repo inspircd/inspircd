@@ -368,10 +368,10 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		ModeHandler* mh;
 		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
 		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
+			this->DelService(*mh);
 		mh = ServerInstance->Modes->FindMode(m, MODETYPE_CHANNEL);
 		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
+			this->DelService(*mh);
 	}
 	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
@@ -436,6 +436,8 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
+			DataProviders.insert(std::make_pair("mode/" + item.name, &item));
+			dynamic_reference_base::reset_all();
 			return;
 		case SERVICE_METADATA:
 			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
@@ -444,6 +446,9 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
+			if (item.name.substr(0, 5) == "mode/")
+				throw ModuleException("The \"mode/\" service name prefix is reserved.");
+
 			DataProviders.insert(std::make_pair(item.name, &item));
 			std::string::size_type slash = item.name.find('/');
 			if (slash != std::string::npos)
@@ -466,7 +471,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes->DelMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" does not exist.");
-			return;
+			// Fall through
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{

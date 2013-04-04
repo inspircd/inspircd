@@ -288,7 +288,7 @@ class CoreExport dynamic_reference_base : public interfacebase
 	std::string name;
 	void resolve();
  protected:
-	DataProvider* value;
+	ServiceProvider* value;
  public:
 	ModuleRef creator;
 	dynamic_reference_base(Module* Creator, const std::string& Name);
@@ -341,6 +341,13 @@ class dynamic_reference_nocheck : public dynamic_reference_base
 	{
 		return operator->();
 	}
+};
+
+class ModeReference : public dynamic_reference_nocheck<ModeHandler>
+{
+ public:
+	ModeReference(Module* mod, const std::string& modename)
+		: dynamic_reference_nocheck<ModeHandler>(mod, "mode/" + modename) {}
 };
 
 /** Priority types which can be used by Module::Prioritize()
