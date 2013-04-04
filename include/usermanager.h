@@ -70,6 +70,12 @@ class CoreExport UserManager
 	 */
 	clonemap global_clones;
 
+	/**
+	 * Reset the already_sent IDs so we don't wrap it around and drop a message
+	 * Also removes all expired invites
+     */
+	void GarbageCollect();
+
 	/** Add a client to the system.
 	 * This will create a new User, insert it into the user_hash,
 	 * initialize it as not yet registered, and add it to the socket engine.

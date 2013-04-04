@@ -389,3 +389,14 @@ int UserManager::ModeCount(const char mode)
 	}
 	return c;
 }
+
+void UserManager::GarbageCollect()
+{
+	// Reset the already_sent IDs so we don't wrap it around and drop a message
+	LocalUser::already_sent_id = 0;
+	for (LocalUserList::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	{
+		(**i).already_sent = 0;
+		(**i).RemoveExpiredInvites();
+	}
+}

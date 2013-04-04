@@ -191,41 +191,6 @@ void InspIRCd::ResetMaxBans()
 		i->second->ResetMaxBans();
 }
 
-/** Because hash_map doesn't free its buckets when we delete items, we occasionally
- * recreate the hash to free them up.
- * We do this by copying the entries from the old hash to a new hash, causing all
- * empty buckets to be weeded out of the hash.
- * Since this is quite expensive, it's not done very often.
- */
-void InspIRCd::RehashUsersAndChans()
-{
-	user_hash* old_users = Users->clientlist;
-	Users->clientlist = new user_hash;
-	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
-		Users->clientlist->insert(*n);
-	delete old_users;
-
-	user_hash* old_uuid = Users->uuidlist;
-	Users->uuidlist = new user_hash;
-	for (user_hash::const_iterator n = old_uuid->begin(); n != old_uuid->end(); n++)
-		Users->uuidlist->insert(*n);
-	delete old_uuid;
-
-	chan_hash* old_chans = chanlist;
-	chanlist = new chan_hash;
-	for (chan_hash::const_iterator n = old_chans->begin(); n != old_chans->end(); n++)
-		chanlist->insert(*n);
-	delete old_chans;
-
-	// Reset the already_sent IDs so we don't wrap it around and drop a message
-	LocalUser::already_sent_id = 0;
-	for (LocalUserList::const_iterator i = Users->local_users.begin(); i != Users->local_users.end(); i++)
-	{
-		(**i).already_sent = 0;
-		(**i).RemoveExpiredInvites();
-	}
-}
-
 void InspIRCd::SetSignals()
 {
 #ifndef _WIN32
@@ -818,7 +783,7 @@ int InspIRCd::Run()
 
 			if ((TIME.tv_sec % 3600) == 0)
 			{
-				this->RehashUsersAndChans();
+				Users->GarbageCollect();
 				FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 			}
 

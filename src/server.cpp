@@ -59,7 +59,6 @@ void InspIRCd::Exit(int status)
 void RehashHandler::Call(const std::string &reason)
 {
 	ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), reason.c_str());
-	ServerInstance->RehashUsersAndChans();
 	FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 	if (!ServerInstance->ConfigThread)
 	{
