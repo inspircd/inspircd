@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2013 Shawn Smith <shawn@inspircd.org>
  *   Copyright (C) 2006, 2008 Craig Edwards <craigedwards@brainbox.cc>
  *   Copyright (C) 2006-2007 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
@@ -25,105 +26,158 @@
 /* $ModDesc: Provides support to block all-CAPS channel messages and notices */
 
 
-/** Handles the +B channel mode
- */
-class BlockCaps : public SimpleChannelModeHandler
+class blockcapssettings
 {
  public:
-	BlockCaps(Module* Creator) : SimpleChannelModeHandler(Creator, "blockcaps", 'B') { }
+	unsigned int percent;
+	unsigned int minlen;
+
+	blockcapssettings(int a, int b) : percent(a), minlen(b) { }
+};
+
+
+/** Handles the +B channel mode
+ */
+class BlockCaps : public ModeHandler
+{
+ public:
+	SimpleExtItem<blockcapssettings> ext;
+	BlockCaps(Module* Creator) : ModeHandler(Creator, "blockcaps", 'B', PARAM_SETONLY, MODETYPE_CHANNEL),
+		ext("blockcaps", Creator) { }
+
+
+	/* "Borrowed" most of this logic from m_messageflood, Thanks. -Shawn */
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	{
+		if (adding)
+		{
+			std::string::size_type colon = parameter.find(':');
+			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
+			{
+				source->WriteNumeric(608, "%s %s :Invalid block-caps parameters", source->nick.c_str(), channel->name.c_str());
+				return MODEACTION_DENY;
+			}
+
+			unsigned int percent = ConvToInt(parameter.substr(0, colon));
+			unsigned int minlen = ConvToInt(parameter.substr(colon+1));
+
+			/* percent must be between 1 and 100, minlen must be greater than 1 and less than MAXBUF-1 */
+			if (percent <= 0 || percent > 100 || minlen < 1 || minlen > MAXBUF-1)
+			{
+				source->WriteNumeric(608, "%s %s :Invalid block-caps parameters", source->nick.c_str(), channel->name.c_str());
+				return MODEACTION_DENY;
+			}
+
+			blockcapssettings* blockcaps = ext.get(channel);
+
+			/* Make sure the settings don't match */
+			if ((blockcaps) && (percent == blockcaps->percent) && (minlen == blockcaps->percent))
+				return MODEACTION_DENY;
+
+			ext.set(channel, new blockcapssettings(percent, minlen));
+			parameter = std::string("" + ConvToStr(percent) + ":" + ConvToStr(minlen));
+			channel->SetModeParam('B', parameter);
+			return MODEACTION_ALLOW;
+		}
+		else
+		{
+			if (!channel->IsModeSet('B'))
+				return MODEACTION_DENY;
+
+			ext.unset(channel);
+			channel->SetModeParam('B', "");
+			return MODEACTION_ALLOW;
+		}
+	}
 };
 
 class ModuleBlockCAPS : public Module
 {
 	BlockCaps bc;
-	int percent;
-	unsigned int minlen;
 	char capsmap[256];
 
 public:
-	ModuleBlockCAPS() : bc(this)
-	{
-	}
+	ModuleBlockCAPS() : bc(this) { }
 
 	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(bc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnRehash, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		tokens["EXTBAN"].push_back('B');
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
+	virtual void OnRehash(User* user)
 	{
 		ReadConf();
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
+	ModResult ProcessMessages(User* user, Channel* channel, const std::string& text)
 	{
-		if (target_type == TYPE_CHANNEL)
+		if ((!IS_LOCAL(user) || !channel->IsModeSet('B')))
+			return MOD_RES_PASSTHRU;
+
+		if (ServerInstance->OnCheckExemption(user, channel, "blockcaps") == MOD_RES_ALLOW)
+			return MOD_RES_PASSTHRU;
+
+		blockcapssettings *blockcaps = bc.ext.get(channel);
+
+		if (text.length() < blockcaps->minlen)
+			return MOD_RES_PASSTHRU;
+
+		if (blockcaps)
 		{
-			if ((!IS_LOCAL(user)) || (text.length() < minlen))
-				return MOD_RES_PASSTHRU;
+			unsigned int caps = 0;
+			int act = 0;
+			const char* actstr = "\1ACTION ";
 
-			Channel* c = (Channel*)dest;
-			ModResult res = ServerInstance->OnCheckExemption(user,c,"blockcaps");
-
-			if (res == MOD_RES_ALLOW)
-				return MOD_RES_PASSTHRU;
-
-			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet('B')))
+			for (std::string::const_iterator i = text.begin(); i != text.end(); i++)
 			{
-				int caps = 0;
-				const char* actstr = "\1ACTION ";
-				int act = 0;
-
-				for (std::string::iterator i = text.begin(); i != text.end(); i++)
+				/* Smart fix for suggestion from Jobe, ignore CTCP ACTION (part of /ME) */
+				if (*actstr && *i == *actstr++ && act != -1)
 				{
-					/* Smart fix for suggestion from Jobe, ignore CTCP ACTION (part of /ME) */
-					if (*actstr && *i == *actstr++ && act != -1)
-					{
-						act++;
-						continue;
-					}
-					else
-						act = -1;
+					act++;
+					continue;
+				}
+				else
+					act = -1;
 
-					caps += capsmap[(unsigned char)*i];
-				}
-				if ( ((caps*100)/(int)text.length()) >= percent )
-				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Your message cannot contain more than %d%% capital letters if it's longer than %d characters", user->nick.c_str(), c->name.c_str(), percent, minlen);
-					return MOD_RES_DENY;
-				}
+				caps += capsmap[(unsigned char)*i];
+			}
+
+			if (((caps*100)/(int)text.length()) >= blockcaps->percent)
+			{
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Your Message cannot contain more than %d%% capital letters if it's longer than %d characters", user->nick.c_str(), channel->name.c_str(), blockcaps->percent, blockcaps->minlen);
+				return MOD_RES_DENY;
 			}
 		}
+
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type == TYPE_CHANNEL)
+			return ProcessMessages(user, (Channel*)dest, text);
+
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	{
+		if (target_type == TYPE_CHANNEL)
+			return ProcessMessages(user,(Channel*)dest, text);
+
 		return MOD_RES_PASSTHRU;
 	}
 
 	void ReadConf()
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
-		percent = tag->getInt("percent", 100);
-		minlen = tag->getInt("minlen", 1);
 		std::string hmap = tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 		memset(capsmap, 0, sizeof(capsmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			capsmap[(unsigned char)*n] = 1;
-		if (percent < 1 || percent > 100)
-		{
-			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
-			percent = 100;
-		}
-		if (minlen < 1 || minlen > MAXBUF-1)
-		{
-			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
-			minlen = 1;
-		}
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

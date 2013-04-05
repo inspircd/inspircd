@@ -174,8 +174,7 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
  A                  Allows anyone to invite users to the channel
                     (normally only chanops can invite, requires
                     allowinvite module).
- B                  Blocks messages with too many capital letters,
-                    as determined by the network configuration
+ B [percent]:[len]  Blocks messages with too many capital letters.
                     (requires blockcaps module).
  C                  Blocks any CTCPs to the channel (requires noctcp
                     module).
@@ -269,8 +268,6 @@ help channel if you have any questions.">
 
  A:n!u@h      Blocks invites by matching users even when +A is set
               (requires allowinvite module).
- B:n!u@h      Blocks all capital or nearly all capital messages from
-              matching users (requires blockcaps module).
  C:n!u@h      Blocks CTCPs from matching users (requires noctcp
               module).
  M:account    Blocks messages from users logged into a matching

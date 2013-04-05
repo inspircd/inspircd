@@ -245,24 +245,31 @@
 #<blockamsg delay="3" action="killopers">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block CAPS module: Blocking all-CAPS messages with cmode +B
-#<module name="m_blockcaps.so">
+# Block CAPS module: Blocking all-CAPS messages with cmode +B         #
+# For strictly 2.2 networks, use m_blockcaps.                         #
+# For networks with 2.0 servers still linked, you MUST use the other. #
+# Syntax for m_blockcaps is +B percentage:minlength                   #
+# Syntax for m_blockcaps_compat is +B, percent/minlength is defined   #
+# below for the legacy compatibility module.                          #
+#<module name="m_blockcaps.so">                                       #
+#<module name="m_blockcaps_compat.so">                                #
 #                                                                     #
 #-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # percent        - How many percent of text must be caps before text  #
-#                  will be blocked.                                   #
+#                  will be blocked. (blockcaps_compat ONLY)           #
 #                                                                     #
 # minlen         - The minimum length a line must be for the block    #
-#                  percent to have any effect.                        #
+#                  percent to have any effect. (blockcaps_compat ONLY)#
 #                                                                     #
 # capsmap        - A list of chars to be considered CAPS, this was    #
 #                  you can add CAPS for your language. Also you can   #
 #                  add things like ! and space to further lock down   #
-#                  on caps usage.                                     #
-#<blockcaps percent="50"
-#           minlen="5"
-#           capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
+#                  on caps usage.(blockcaps and blockcaps_compat both)#
+#<blockcaps
+#	percent="50"
+#	minlen="5"
+#	capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block color module: Blocking color-coded messages with cmode +c
