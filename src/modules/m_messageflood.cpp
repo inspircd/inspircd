@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2013 Shawn Smith <shawn@inspircd.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Pippijn van Steenhoven <pip88nl@gmail.com>
  *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
@@ -25,6 +26,12 @@
 
 #include "inspircd.h"
 
+enum fsetting {
+	FLOOD_DEFAULT,
+	FLOOD_BAN,
+	FLOOD_BLOCK
+};
+
 /* $ModDesc: Provides channel mode +f (message flood protection) */
 
 /** Holds flood settings and state for mode +f
@@ -32,13 +39,13 @@
 class floodsettings
 {
  public:
-	bool ban;
+	fsetting settings;
 	unsigned int secs;
 	unsigned int lines;
 	time_t reset;
 	std::map<User*, unsigned int> counters;
 
-	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
+	floodsettings(fsetting a, int b, int c) : settings(a), secs(b), lines(c)
 	{
 		reset = ServerInstance->Time() + secs;
 	}
@@ -85,8 +92,20 @@ class MsgFlood : public ModeHandler
 			}
 
 			/* Set up the flood parameters for this channel */
-			bool ban = (parameter[0] == '*');
-			unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+			fsetting settings;
+			switch (parameter[0])
+			{
+				case '*':
+					settings = FLOOD_BAN;
+					break;
+				case '~':
+					settings = FLOOD_BLOCK;
+					break;
+				default:
+					settings = FLOOD_DEFAULT;
+					break;
+			}
+			unsigned int nlines = ConvToInt(parameter.substr(settings != FLOOD_DEFAULT ? 1 : 0, settings != FLOOD_DEFAULT ? colon-1 : colon));
 			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
 
 			if ((nlines<2) || (nsecs<1))
@@ -96,13 +115,22 @@ class MsgFlood : public ModeHandler
 			}
 
 			floodsettings* f = ext.get(channel);
-			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
+			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (settings == f->settings))
 				// mode params match
 				return MODEACTION_DENY;
 
-			ext.set(channel, new floodsettings(ban, nsecs, nlines));
-			parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
+			ext.set(channel, new floodsettings(settings, nsecs, nlines));
+
+			if (settings == FLOOD_BAN)
+				parameter = std::string("*");
+			else if (settings == FLOOD_BLOCK)
+				parameter = std::string("~");
+			else
+				parameter = std::string("");
+
+			parameter += ConvToStr(nlines) + ":" + ConvToStr(nsecs);
 			channel->SetModeParam('f', parameter);
+
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -150,8 +178,7 @@ class ModuleMsgFlood : public Module
 			if (f->addmessage(user))
 			{
 				/* Youre outttta here! */
-				f->clear(user);
-				if (f->ban)
+				if (f->settings == FLOOD_BAN)
 				{
 					std::vector<std::string> parameters;
 					parameters.push_back(dest->name);
@@ -160,10 +187,19 @@ class ModuleMsgFlood : public Module
 					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
 				}
 
-				char kickmessage[MAXBUF];
-				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %u lines in %u secs)", f->lines, f->secs);
-
-				dest->KickUser(ServerInstance->FakeClient, user, kickmessage);
+				if (f->settings == FLOOD_BLOCK)
+				{
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Channel flood limit exceeded! (limit is %u lines in %u seconds)", user->nick.c_str(), dest->name.c_str(), f->lines, f->secs);
+				}
+				else
+				{
+					/* Moved f->clear down here so if the block setting is being used it wont clear
+						the user after hitting the flood limit. */
+					f->clear(user);
+					char kickmessage[MAXBUF];
+					snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %u lines in %u secs)", f->lines, f->secs);
+					dest->KickUser(ServerInstance->FakeClient, user, kickmessage);
+				}
 
 				return MOD_RES_DENY;
 			}
