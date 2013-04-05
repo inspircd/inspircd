@@ -826,8 +826,9 @@ Closes all unregistered connections to the local server.">
  d [time]           Blocks messages to a channel from new users
                     until they have been in the channel for [time]
                     seconds (requires delaymsg module).
- f [*][lines]:[sec] Kicks on text flood equal to or above the
+ f [~*][lines]:[sec]Kicks on text flood equal to or above the
                     specified rate. With *, the user is banned
+                    With ~, the message is simply blocked, no kick or ban.
                     (requires messageflood module).
  i                  Makes the channel invite-only.
                     Users can only join if an operator

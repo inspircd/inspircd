@@ -138,6 +138,7 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
                     (requires blockcolor module).
  f [*][lines]:[sec] Kicks on text flood equal to or above the
                     specified rate. With *, the user is banned
+                    With ~, the message is simply blocked, no kick or ban.
                     (requires messageflood module).
  g [mask]           Blocks messages matching the given blob mask
                     (requires chanfilter module).
