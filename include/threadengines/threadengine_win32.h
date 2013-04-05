@@ -21,7 +21,7 @@
 #ifndef THREADENGINE_WIN32_H
 #define THREADENGINE_WIN32_H
 
-#include "inspircd_config.h"
+#include "config.h"
 #include "base.h"
 
 class Thread;

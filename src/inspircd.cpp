@@ -28,7 +28,6 @@
 
 /* $Core */
 #include "inspircd.h"
-#include "inspircd_version.h"
 #include <signal.h>
 
 #ifndef _WIN32
