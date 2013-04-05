@@ -66,6 +66,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 		{
 			newmod->ModuleSourceFile = filename;
 			newmod->ModuleDLLManager = newhandle;
+			newmod->dying = false;
 			Modules[filename] = newmod;
 			std::string version = newhandle->GetVersion();
 			if (defer)

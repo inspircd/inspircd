@@ -328,7 +328,7 @@ bool ModuleManager::CanUnload(Module* mod)
 {
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
-	if (modfind == Modules.end() || modfind->second != mod)
+	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
@@ -340,6 +340,8 @@ bool ModuleManager::CanUnload(Module* mod)
 		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
 		return false;
 	}
+
+	mod->dying = true;
 	return true;
 }
 

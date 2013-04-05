@@ -116,7 +116,7 @@ struct ModResult {
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 4
+#define INSPIRCD_VERSION_API 5
 
 /**
  * This #define allows us to call a method in all
@@ -356,6 +356,11 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Reference to the dlopen() value
 	 */
 	DLLManager* ModuleDLLManager;
+
+	/** If true, this module will be unloaded soon, further unload attempts will fail
+	 * Value is used by the ModuleManager internally, you should not modify it
+	 */
+	bool dying;
 
 	/** Default constructor.
 	 * Creates a module class. Don't do any type of hook registration or checks
