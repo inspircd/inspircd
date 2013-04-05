@@ -81,8 +81,7 @@
 #include <bitset>
 #include <set>
 #include <time.h>
-#include "inspircd_config.h"
-#include "inspircd_version.h"
+#include "config.h"
 #include "typedefs.h"
 #include "consolecolors.h"
 

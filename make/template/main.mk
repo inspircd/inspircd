@@ -276,8 +276,7 @@ configureclean:
 	rm -f .config.cache
 	rm -f BSDmakefile
 	rm -f GNUmakefile
-	rm -f include/inspircd_config.h
-	rm -f include/inspircd_version.h
+	rm -f include/config.h
 	rm -f inspircd
 	-rm -f org.inspircd.plist
 

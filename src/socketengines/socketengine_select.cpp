@@ -18,8 +18,6 @@
  */
 
 
-#include "inspircd_config.h"
-
 #include "inspircd.h"
 #include "socketengine.h"
 
