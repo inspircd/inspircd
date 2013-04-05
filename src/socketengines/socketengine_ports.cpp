@@ -32,7 +32,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "socketengine.h"
 #include <port.h>

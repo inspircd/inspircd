@@ -24,7 +24,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
+#include "config.h"
 #include "base.h"
 
 class ThreadData;
