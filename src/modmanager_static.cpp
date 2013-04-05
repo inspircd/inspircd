@@ -183,6 +183,7 @@ void ModuleManager::LoadAll()
 {
 	Load("cmd_all", true);
 	Load("cmd_whowas.so", true);
+	Load("cmd_lusers.so", true);
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
