@@ -782,6 +782,7 @@ Closes all unregistered connections to the local server.">
               (requires services account module).
  w            Receives wallops messages.
  x            Gives a cloaked hostname (requires cloaking module).
+ z            Only allow notices/queries from SSL users.
  B            Marks as a bot (requires botmode module).
  G            Censors messages sent to the user based on filters
               configured for the network (requires censor module).
