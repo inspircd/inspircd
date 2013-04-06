@@ -434,42 +434,28 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 
 /** Represents a deprecated configuration tag.
  */
-struct Deprecated
+struct DeprecatedConfig
 {
-	/** Tag name
-	 */
-	const char* tag;
-	/** Tag value
-	 */
-	const char* value;
-	/** Reason for deprecation
-	 */
-	const char* reason;
+	/** Tag name. */
+	std::string tag;
+	
+	/** Attribute key. */
+	std::string key;
+	
+	/** Attribute value. */
+	std::string value;
+	
+	/** Reason for deprecation. */
+	std::string reason;
 };
 
-static const Deprecated ChangedConfig[] = {
-	{"options", "hidelinks",		"has been moved to <security:hidelinks> as of 1.2a3"},
-	{"options", "hidewhois",		"has been moved to <security:hidewhois> as of 1.2a3"},
-	{"options", "userstats",		"has been moved to <security:userstats> as of 1.2a3"},
-	{"options", "customversion",	"has been moved to <security:customversion> as of 1.2a3"},
-	{"options", "hidesplits",		"has been moved to <security:hidesplits> as of 1.2a3"},
-	{"options", "hidebans",		"has been moved to <security:hidebans> as of 1.2a3"},
-	{"options", "hidekills",		"has been moved to <security:hidekills> as of 1.2a3"},
-	{"options", "operspywhois",		"has been moved to <security:operspywhois> as of 1.2a3"},
-	{"options", "announceinvites",	"has been moved to <security:announceinvites> as of 1.2a3"},
-	{"options", "hidemodes",		"has been moved to <security:hidemodes> as of 1.2a3"},
-	{"options", "maxtargets",		"has been moved to <security:maxtargets> as of 1.2a3"},
-	{"options",	"nouserdns",		"has been moved to <performance:nouserdns> as of 1.2a3"},
-	{"options",	"maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
-	{"options",	"softlimit",		"has been moved to <performance:softlimit> as of 1.2a3"},
-	{"options", "somaxconn",		"has been moved to <performance:somaxconn> as of 1.2a3"},
-	{"options", "netbuffersize",	"has been moved to <performance:netbuffersize> as of 1.2a3"},
-	{"options", "maxwho",		"has been moved to <performance:maxwho> as of 1.2a3"},
-	{"options",	"loglevel",		"1.2+ does not use the loglevel value. Please define <log> tags instead."},
-	{"die",     "value",            "you need to reread your config"},
-	{"bind",    "transport",		"has been moved to <bind:ssl> as of 2.0a1"},
-	{"link",    "transport",		"has been moved to <link:ssl> as of 2.0a1"},
-	{"link",	"autoconnect",		"2.0+ does not use the autoconnect value. Please define <autoconnect> tags instead."},
+static const DeprecatedConfig ChangedConfig[] = {
+	{ "bind",   "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
+	{ "die",    "value",       "",                 "you need to reread your config" },
+	{ "link",   "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
+	{ "link",   "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
+	{ "module", "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
+	{ "module", "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
 };
 
 void ServerConfig::Fill()
@@ -680,16 +666,26 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	/* The stuff in here may throw CoreException, be sure we're in a position to catch it. */
 	try
 	{
-		for (int Index = 0; Index * sizeof(Deprecated) < sizeof(ChangedConfig); Index++)
+		for (int index = 0; index * sizeof(DeprecatedConfig) < sizeof(ChangedConfig); index++)
 		{
-			std::string dummy;
-			ConfigTagList tags = ConfTags(ChangedConfig[Index].tag);
+			std::string value;
+			ConfigTagList tags = ConfTags(ChangedConfig[index].tag);
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
-				if (i->second->readString(ChangedConfig[Index].value, dummy, true))
-					errstr << "Your configuration contains a deprecated value: <"
-						<< ChangedConfig[Index].tag << ":" << ChangedConfig[Index].value << "> - " << ChangedConfig[Index].reason
-						<< " (at " << i->second->getTagLocation() << ")\n";
+				if (i->second->readString(ChangedConfig[index].key, value, true)
+					&& (ChangedConfig[index].value.empty() || value == ChangedConfig[index].value))
+				{
+					errstr << "Your configuration contains a deprecated value: <"  << ChangedConfig[index].tag;
+					if (ChangedConfig[index].value.empty())
+					{
+						errstr << ':' << ChangedConfig[index].key;
+					}
+					else
+					{
+						errstr << ' ' << ChangedConfig[index].key << "=\"" << ChangedConfig[index].value << "\"";
+					}
+					errstr << "> - " << ChangedConfig[index].reason << " (at " << i->second->getTagLocation() << ")\n";
+				}
 			}
 		}
 
