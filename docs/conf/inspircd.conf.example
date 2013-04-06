@@ -38,6 +38,15 @@
 #                                                                      #
 ########################################################################
 
+#-#-#-#-#-#-#-#-#-#  CONFIGURATION FORMAT  #-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#                                                                     #
+# In order to maintain compatibility with older configuration files,  #
+# you can change the configuration parser to parse as it did in       #
+# previous releases. When using the "compat" format, you need to use  #
+# C++ escape sequences (e.g. \n) instead of XML ones (e.g. &nl;) and  #
+# can not use <define> to create macros.                              #
+#<config format="compat">
+
 #-#-#-#-#-#-#-#-#-#  INCLUDE CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # This optional tag allows you to include another config file         #
@@ -69,11 +78,6 @@
 #                                                                     #
 # Variables may be redefined and may reference other variables.       #
 # Value expansion happens at the time the tag is read.                #
-#                                                                     #
-# Using variable definitions REQUIRES that the config format be       #
-# changed to "xml" from the default "compat" that uses escape         #
-# sequences such as "\"" and "\n", and does not support <define>      #
-<config format="xml">
 <define name="bindip" value="1.2.2.3">
 <define name="localips" value="&bindip;/24">
 
