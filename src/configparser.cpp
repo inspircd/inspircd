@@ -119,7 +119,7 @@ struct Parser
 		while (1)
 		{
 			ch = next();
-			if (ch == '&' && (flags & FLAG_USE_XML))
+			if (ch == '&' && !(flags & FLAG_USE_COMPAT))
 			{
 				std::string varname;
 				while (1)
@@ -141,7 +141,7 @@ struct Parser
 					throw CoreException("Undefined XML entity reference '&" + varname + ";'");
 				value.append(var->second);
 			}
-			else if (ch == '\\' && !(flags & FLAG_USE_XML))
+			else if (ch == '\\' && (flags & FLAG_USE_COMPAT))
 			{
 				int esc = next();
 				if (esc == 'n')
@@ -211,7 +211,7 @@ struct Parser
 		}
 		else if (name == "define")
 		{
-			if (!(flags & FLAG_USE_XML))
+			if (flags & FLAG_USE_COMPAT)
 				throw CoreException("<define> tags may only be used in XML-style config (add <config format=\"xml\">)");
 			std::string varname = tag->getString("name");
 			std::string value = tag->getString("value");
@@ -223,9 +223,9 @@ struct Parser
 		{
 			std::string format = tag->getString("format");
 			if (format == "xml")
-				flags |= FLAG_USE_XML;
+				flags &= ~FLAG_USE_COMPAT;
 			else if (format == "compat")
-				flags &= ~FLAG_USE_XML;
+				flags |= FLAG_USE_COMPAT;
 			else if (!format.empty())
 				throw CoreException("Unknown configuration format " + format);
 		}
