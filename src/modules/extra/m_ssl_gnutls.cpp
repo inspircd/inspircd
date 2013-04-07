@@ -471,12 +471,12 @@ class ModuleSSLGnuTLS : public Module
 		return Version("Provides SSL support for clients", VF_VENDOR);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
 		if (!sslports.empty())
-			output.append(" SSL=" + sslports);
+			tokens["SSL"] = sslports;
 		if (starttls.enabled)
-			output.append(" STARTTLS");
+			tokens["STARTTLS"];
 	}
 
 	void OnHookIO(StreamSocket* user, ListenSocket* lsb)

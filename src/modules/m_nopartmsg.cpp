@@ -44,9 +44,9 @@ class ModulePartMsgBan : public Module
 			partmessage.clear();
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('p');
+		tokens["EXTBAN"].push_back('p');
 	}
 };
 

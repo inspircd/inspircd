@@ -63,9 +63,9 @@ class ModuleBanException : public Module
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" EXCEPTS=e");
+		tokens["EXCEPTS"] = "e";
 	}
 
 	ModResult OnExtBanCheck(User *user, Channel *chan, char type)

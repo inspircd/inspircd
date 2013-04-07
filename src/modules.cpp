@@ -109,7 +109,7 @@ ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&
 ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { }
 ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
-void		Module::On005Numeric(std::string&) { }
+void		Module::On005Numeric(std::map<std::string, std::string>&) { }
 ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnLoadModule(Module*) { }
 void		Module::OnUnloadModule(Module*) { }
@@ -397,7 +397,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 
 	ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
 	this->ModCount--;
-	ServerInstance->BuildISupport();
+	ServerInstance->ISupport.Build();
 }
 
 void ModuleManager::UnloadAll()

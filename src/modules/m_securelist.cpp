@@ -82,9 +82,9 @@ class ModuleSecureList : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" SECURELIST");
+		tokens["SECURELIST"];
 	}
 };
 

@@ -44,9 +44,9 @@ class ModuleNamesX : public Module
 		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" NAMESX");
+		tokens["NAMESX"];
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)

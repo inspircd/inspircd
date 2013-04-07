@@ -267,6 +267,27 @@ class serverstats
 	}
 };
 
+/** This class manages the generation and transmission of ISUPPORT. */
+class CoreExport ISupportManager
+{
+private:
+	/** The generated lines which are sent to clients. */
+	std::vector<std::string> Lines;
+
+public:
+	/** (Re)build the ISUPPORT vector. */
+	void Build();
+
+	/** Returns the std::vector of ISUPPORT lines. */
+	const std::vector<std::string>& GetLines()
+	{
+		return this->Lines;
+	}
+
+	/** Send the 005 numerics (ISUPPORT) to a user. */
+	void SendTo(LocalUser* user);
+};
+
 DEFINE_HANDLER2(IsNickHandler, bool, const std::string&, size_t);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
@@ -371,10 +392,6 @@ class CoreExport InspIRCd
 	 */
 	User* FindUUID(const char *uid);
 
-	/** Build the ISUPPORT string by triggering all modules On005Numeric events
-	 */
-	void BuildISupport();
-
 	/** Time this ircd was booted
 	 */
 	time_t startup_time;
@@ -471,6 +488,9 @@ class CoreExport InspIRCd
 	/** Holds extensible for user operquit
 	 */
 	LocalStringExt OperQuit;
+
+	/** Manages the generation and transmission of ISUPPORT. */
+	ISupportManager ISupport;
 
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
@@ -827,10 +847,6 @@ class CoreExport InspIRCd
 	 * @return The return value for this function is undefined.
 	 */
 	int Run();
-
-	/** Adds an extban char to the 005 token.
-	 */
-	void AddExtBanChar(char c);
 
 	char* GetReadBuffer()
 	{

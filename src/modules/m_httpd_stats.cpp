@@ -119,7 +119,13 @@ class ModuleHttpStats : public Module
 				stime = gmtime(&server_uptime);
 				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
 
-				data << "<isupport>" << Sanitize(ServerInstance->Config->data005) << "</isupport></general><xlines>";
+				data << "<isupport>";
+				const std::vector<std::string>& isupport = ServerInstance->ISupport.GetLines();
+				for (std::vector<std::string>::const_iterator it = isupport.begin(); it != isupport.end(); it++)
+				{
+					data << Sanitize(*it) << std::endl;
+				}
+				data << "</isupport></general><xlines>";
 				std::vector<std::string> xltypes = ServerInstance->XLines->GetAllTypes();
 				for (std::vector<std::string>::iterator it = xltypes.begin(); it != xltypes.end(); ++it)
 				{

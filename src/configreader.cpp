@@ -49,41 +49,6 @@ ServerConfig::ServerConfig()
 	c_ipv6_range = 128;
 }
 
-void ServerConfig::Update005()
-{
-	std::stringstream out(data005);
-	std::vector<std::string> data;
-	std::string token;
-	while (out >> token)
-		data.push_back(token);
-	sort(data.begin(), data.end());
-
-	std::string line5;
-	isupport.clear();
-	for(unsigned int i=0; i < data.size(); i++)
-	{
-		token = data[i];
-		line5 = line5 + token + " ";
-		if (i % 13 == 12)
-		{
-			line5.append(":are supported by this server");
-			isupport.push_back(line5);
-			line5.clear();
-		}
-	}
-	if (!line5.empty())
-	{
-		line5.append(":are supported by this server");
-		isupport.push_back(line5);
-	}
-}
-
-void ServerConfig::Send005(User* user)
-{
-	for (std::vector<std::string>::iterator line = ServerInstance->Config->isupport.begin(); line != ServerInstance->Config->isupport.end(); line++)
-		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
-}
-
 template<typename T, typename V>
 static void range(T& value, V min, V max, V def, const char* msg)
 {
@@ -932,7 +897,7 @@ void ConfigReaderThread::Finish()
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
 		User* user = ServerInstance->FindNick(TheUserUID);
 		FOREACH_MOD(I_OnRehash, OnRehash(user));
-		ServerInstance->BuildISupport();
+		ServerInstance->ISupport.Build();
 
 		ServerInstance->Logs->CloseLogs();
 		ServerInstance->Logs->OpenFileLogs();
