@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
@@ -85,6 +85,7 @@ __GNUTLS_END__
 	$status ||= system "$certtool --version  >/dev/null 2>&1";
 	$status ||= system "$certtool --generate-privkey --outfile key.pem";
 	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
+	$status ||= system "$certtool --generate-dh-params --bits 2048 --outfile dhparams.pem";
 } elsif (lc $ARGV[0] eq 'openssl') {
 	my $tmp = new File::Temp();
 	print $tmp <<__OPENSSL_END__;
