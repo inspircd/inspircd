@@ -114,27 +114,22 @@ found:
 	}
 };
 
-class ModuleTimedBans : public Module
+class BanWatcher : public ModeWatcher
 {
-	CommandTban cmd;
  public:
-	ModuleTimedBans()
-		: cmd(this)
+	BanWatcher(Module* parent)
+		: ModeWatcher(parent, 'b', MODETYPE_CHANNEL)
 	{
 	}
 
-	void init()
+	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding, ModeType type)
 	{
-		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
+		if (adding)
+			return;
 
-	virtual ModResult OnDelBan(User* source, Channel* chan, const std::string &banmask)
-	{
 		irc::string listitem = banmask.c_str();
 		irc::string thischan = chan->name.c_str();
-		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); i++)
+		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); ++i)
 		{
 			irc::string target = i->mask.c_str();
 			irc::string tchan = i->channel.c_str();
@@ -144,7 +139,32 @@ class ModuleTimedBans : public Module
 				break;
 			}
 		}
-		return MOD_RES_PASSTHRU;
+	}
+};
+
+class ModuleTimedBans : public Module
+{
+	CommandTban cmd;
+	BanWatcher banwatcher;
+
+ public:
+	ModuleTimedBans()
+		: cmd(this)
+		, banwatcher(this)
+	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(cmd);
+		Implementation eventlist[] = { I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modes->AddModeWatcher(&banwatcher);
+	}
+
+	~ModuleTimedBans()
+	{
+		ServerInstance->Modes->DelModeWatcher(&banwatcher);
 	}
 
 	virtual void OnBackgroundTimer(time_t curtime)

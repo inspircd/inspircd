@@ -333,8 +333,8 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
-	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
+	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect,
+	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
@@ -1151,24 +1151,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user who is connecting
 	 */
 	virtual void OnPostConnect(User* user);
-
-	/** Called whenever a ban is added to a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being added.
-	 * @param source The user adding the ban
-	 * @param channel The channel the ban is being added to
-	 * @param banmask The ban mask being added
-	 * @return 1 to block the ban, 0 to continue as normal
-	 */
-	virtual ModResult OnAddBan(User* source, Channel* channel,const std::string &banmask);
-
-	/** Called whenever a ban is removed from a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
-	 * @param source The user deleting the ban
-	 * @param channel The channel the ban is being deleted from
-	 * @param banmask The ban mask being deleted
-	 * @return 1 to block the unban, 0 to continue as normal
-	 */
-	virtual ModResult OnDelBan(User* source, Channel* channel,const std::string &banmask);
 
 	/** Called to install an I/O hook on an event handler
 	 * @param user The socket to possibly install the I/O hook on

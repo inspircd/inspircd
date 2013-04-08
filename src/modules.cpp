@@ -135,8 +135,6 @@ void		Module::OnRequest(Request&) { }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
 void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
-ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnDelBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
 void		Module::OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
 int		Module::OnStreamSocketWrite(StreamSocket*, std::string&) { return -1; }
 void		Module::OnStreamSocketClose(StreamSocket*) { }
