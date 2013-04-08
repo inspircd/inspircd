@@ -136,7 +136,7 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
 
  c                  Blocks messages containing mIRC color codes
                     (requires blockcolor module).
- f [*][lines]:[sec] Kicks on text flood equal to or above the
+ f [~*][lines]:[sec]Kicks on text flood equal to or above the
                     specified rate. With *, the user is banned
                     With ~, the message is simply blocked, no kick or ban.
                     (requires messageflood module).
