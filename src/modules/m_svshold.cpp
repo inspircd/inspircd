@@ -52,12 +52,6 @@ public:
 		return false;
 	}
 
-	void DisplayExpiry()
-	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
-			this->nickname.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
-	}
-
 	const char* Displayable()
 	{
 		return nickname.c_str();

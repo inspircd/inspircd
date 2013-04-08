@@ -691,34 +691,11 @@ void ELine::OnAdd()
 	}
 }
 
-void ELine::DisplayExpiry()
+void XLine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired E-Line %s@%s (set by %s %ld seconds ago)",
-		identmask.c_str(),hostmask.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void QLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Q-Line %s (set by %s %ld seconds ago)",
-		nick.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void ZLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Z-Line %s (set by %s %ld seconds ago)",
-		ipaddr.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void KLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired K-Line %s@%s (set by %s %ld seconds ago)",
-		identmask.c_str(),hostmask.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void GLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired G-Line %s@%s (set by %s %ld seconds ago)",
-		identmask.c_str(),hostmask.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
+	bool onechar = (type.length() == 1);
+	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago)",
+		type.c_str(), (onechar ? "-Line" : ""), Displayable(), source.c_str(), (long)(ServerInstance->Time() - set_time));
 }
 
 const char* ELine::Displayable()
