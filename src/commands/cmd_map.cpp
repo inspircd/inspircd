@@ -43,7 +43,7 @@ CmdResult CommandMap::Handle (const std::vector<std::string>&, User *user)
 	// module to override its behaviour and display something
 	// better.
 
-	if (IS_OPER(user))
+	if (user->IsOper())
 	{
 		user->WriteNumeric(006, "%s :%s [%s]", user->nick.c_str(), ServerInstance->Config->ServerName.c_str(), ServerInstance->Config->GetSID().c_str());
 		user->WriteNumeric(007, "%s :End of /MAP", user->nick.c_str());

@@ -215,7 +215,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 		{
 			/* Display user's current mode string */
 			user->WriteNumeric(RPL_UMODEIS, "%s :+%s",targetuser->nick.c_str(),targetuser->FormatModes());
-			if (IS_OPER(targetuser))
+			if ((targetuser->IsOper()))
 				user->WriteNumeric(RPL_SNOMASKIS, "%s +%s :Server notice mask", targetuser->nick.c_str(), targetuser->FormatNoticeMasks());
 			return;
 		}
@@ -296,7 +296,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 			return MODEACTION_DENY;
 	}
 
-	if (IS_LOCAL(user) && !IS_OPER(user))
+	if (IS_LOCAL(user) && !user->IsOper())
 	{
 		char* disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
 		if (disabled[modechar - 'A'])
@@ -310,7 +310,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	if (adding && IS_LOCAL(user) && mh->NeedsOper() && !user->HasModePermission(modechar, type))
 	{
 		/* It's an oper only mode, and they don't have access to it. */
-		if (IS_OPER(user))
+		if (user->IsOper())
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set %s mode %c",
 					user->nick.c_str(), user->oper->NameStr(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);

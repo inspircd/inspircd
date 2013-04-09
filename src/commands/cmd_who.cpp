@@ -201,7 +201,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	wholine.append(" " + u->nick + " ");
 
 	/* away? */
-	if (IS_AWAY(u))
+	if (u->IsAway())
 	{
 		wholine.append("G");
 	}
@@ -211,7 +211,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	}
 
 	/* oper? */
-	if (IS_OPER(u))
+	if (u->IsOper())
 	{
 		wholine.push_back('*');
 	}
@@ -342,7 +342,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				if (user != i->first)
 				{
 					/* opers only, please */
-					if (opt_viewopersonly && !IS_OPER(i->first))
+					if (opt_viewopersonly && !i->first->IsOper())
 						continue;
 
 					/* If we're not inside the channel, hide +i users */

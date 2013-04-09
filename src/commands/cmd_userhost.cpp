@@ -54,12 +54,12 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 		{
 			retbuf = retbuf + u->nick;
 
-			if (IS_OPER(u))
+			if (u->IsOper())
 				retbuf = retbuf + "*";
 
 			retbuf = retbuf + "=";
 
-			if (IS_AWAY(u))
+			if (u->IsAway())
 				retbuf += "-";
 			else
 				retbuf += "+";

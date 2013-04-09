@@ -238,12 +238,12 @@ void TreeSocket::SendUsers()
 						u->second->FormatModes(true),	/* 8...n: Modes and params */
 						u->second->fullname.c_str());	/* size-1: GECOS */
 				this->WriteLine(data);
-				if (IS_OPER(u->second))
+				if (u->second->IsOper())
 				{
 					snprintf(data,MAXBUF,":%s OPERTYPE %s", u->second->uuid.c_str(), u->second->oper->name.c_str());
 					this->WriteLine(data);
 				}
-				if (IS_AWAY(u->second))
+				if (u->second->IsAway())
 				{
 					snprintf(data,MAXBUF,":%s AWAY %ld :%s", u->second->uuid.c_str(), (long)u->second->awaytime, u->second->awaymsg.c_str());
 					this->WriteLine(data);

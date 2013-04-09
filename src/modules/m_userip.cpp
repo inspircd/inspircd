@@ -43,8 +43,8 @@ class CommandUserip : public Command
 			User *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
-				retbuf = retbuf + u->nick + (IS_OPER(u) ? "*" : "") + "=";
-				if (IS_AWAY(u))
+				retbuf = retbuf + u->nick + (u->IsOper() ? "*" : "") + "=";
+				if (u->IsAway())
 					retbuf += "-";
 				else
 					retbuf += "+";

@@ -244,7 +244,7 @@ class ModuleShun : public Module
 			return MOD_RES_PASSTHRU;
 		}
 
-		if (!affectopers && IS_OPER(user))
+		if (!affectopers && user->IsOper())
 		{
 			/* Don't do anything if the user is an operator and affectopers isn't set */
 			return MOD_RES_PASSTHRU;

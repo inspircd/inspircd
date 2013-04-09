@@ -47,7 +47,7 @@ class Redirect : public ModeHandler
 				}
 			}
 
-			if (IS_LOCAL(source) && !IS_OPER(source))
+			if (IS_LOCAL(source) && !source->IsOper())
 			{
 				Channel* c = ServerInstance->FindChan(parameter);
 				if (!c)

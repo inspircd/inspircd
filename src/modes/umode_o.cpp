@@ -32,7 +32,7 @@ ModeUserOperator::ModeUserOperator() : ModeHandler(NULL, "oper", 'o', PARAM_NONE
 ModeAction ModeUserOperator::OnModeChange(User* source, User* dest, Channel*, std::string&, bool adding)
 {
 	/* Only opers can execute this class at all */
-	if (!ServerInstance->ULine(source->nick.c_str()) && !ServerInstance->ULine(source->server) && !IS_OPER(source))
+	if (!ServerInstance->ULine(source->nick.c_str()) && !ServerInstance->ULine(source->server) && !source->IsOper())
 		return MODEACTION_DENY;
 
 	/* Not even opers can GIVE the +o mode, only take it away */

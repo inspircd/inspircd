@@ -52,7 +52,7 @@ class ModuleOperLog : public Module
 		if (!validated)
 			return MOD_RES_PASSTHRU;
 
-		if ((IS_OPER(user)) && (IS_LOCAL(user)) && (user->HasPermission(command)))
+		if ((user->IsOper()) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
 			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))

@@ -59,7 +59,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 	std::string sn(ServerInstance->Config->ServerName);
 
 	bool isPublic = ServerInstance->Config->UserStats.find(statschar) != std::string::npos;
-	bool isRemoteOper = IS_REMOTE(user) && IS_OPER(user);
+	bool isRemoteOper = IS_REMOTE(user) && (user->IsOper());
 	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
 
 	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)

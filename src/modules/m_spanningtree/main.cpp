@@ -101,7 +101,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	{
 		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName()))))
 		{
-			if (IS_OPER(user))
+			if (user->IsOper())
 			{
 				 ShowLinks(Current->GetChild(q),user,hops+1);
 			}
@@ -112,16 +112,16 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName())) && (!IS_OPER(user)))
+	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName())) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */
-	else if ((Current->Hidden) && (!IS_OPER(user)))
+	else if ((Current->Hidden) && (!user->IsOper()))
 		return;
 
 	std::string servername = Current->GetName();
 	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(), servername.c_str(),
-			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
-			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
+			(Utils->FlatLinks && (!user->IsOper())) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
+			(Utils->FlatLinks && (!user->IsOper())) ? 0 : hops,
 			Current->GetDesc().c_str());
 }
 
@@ -595,7 +595,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	params.push_back(":"+user->fullname);
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
 
-	if (IS_OPER(user))
+	if (user->IsOper())
 	{
 		params.clear();
 		params.push_back(user->oper->name);

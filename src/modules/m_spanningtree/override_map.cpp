@@ -51,7 +51,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 		percent = Current->GetUserCount() * 100.0 / ServerInstance->Users->clientlist->size();
 	}
 
-	const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
+	const std::string operdata = user->IsOper() ? MapOperInfo(Current) : "";
 
 	char* myname = names + 100 * line;
 	char* mystat = stats + 50 * line;
@@ -59,7 +59,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	int w = depth;
 
 	std::string servername = Current->GetName();
-	if (IS_OPER(user))
+	if (user->IsOper())
 	{
 		w += snprintf(myname + depth, 99 - depth, "%s (%s)", servername.c_str(), Current->GetID().c_str());
 	}
@@ -74,12 +74,12 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 
 	line++;
 
-	if (IS_OPER(user) || !Utils->FlatLinks)
+	if (user->IsOper() || !Utils->FlatLinks)
 		depth = depth + 2;
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
 		TreeServer* child = Current->GetChild(q);
-		if (!IS_OPER(user)) {
+		if (!user->IsOper()) {
 			if (child->Hidden)
 				continue;
 			if ((Utils->HideULines) && (ServerInstance->ULine(child->GetName())))

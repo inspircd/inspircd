@@ -85,7 +85,7 @@ class ModuleOperjoin : public Module
 				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
 					Channel::JoinUser(user, it->c_str(), override, "", false, ServerInstance->Time());
 
-			std::string chanList = IS_OPER(user)->getConfig("autojoin");
+			std::string chanList = user->oper->getConfig("autojoin");
 			if (!chanList.empty())
 			{
 				std::vector<std::string> typechans;

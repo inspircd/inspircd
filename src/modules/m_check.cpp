@@ -102,14 +102,14 @@ class CommandCheck : public Command
 			if (loctarg)
 				user->SendText(checkstr + " lastmsg " + timestring(loctarg->idle_lastmsg));
 
-			if (IS_AWAY(targuser))
+			if (targuser->IsAway())
 			{
 				/* user is away */
 				user->SendText(checkstr + " awaytime " + timestring(targuser->awaytime));
 				user->SendText(checkstr + " awaymsg " + targuser->awaymsg);
 			}
 
-			if (IS_OPER(targuser))
+			if (targuser->IsOper())
 			{
 				OperInfo* oper = targuser->oper;
 				/* user is an oper of type ____ */

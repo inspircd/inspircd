@@ -202,7 +202,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			return CMD_FAILURE;
 		}
 
-		if (IS_AWAY(dest))
+		if (dest->IsAway())
 		{
 			/* auto respond with aweh msg */
 			user->WriteNumeric(301, "%s %s :%s", user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());

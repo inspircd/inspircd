@@ -125,7 +125,7 @@ class ModuleIRCv3 : public Module
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
 	{
 		// Remember who is not going to see the JOIN because of other modules
-		if ((awaynotify) && (IS_AWAY(memb->user)))
+		if ((awaynotify) && (memb->user->IsAway()))
 			last_excepts = excepts;
 
 		if (!extendedjoin)
@@ -212,7 +212,7 @@ class ModuleIRCv3 : public Module
 
 	void OnPostJoin(Membership *memb)
 	{
-		if ((!awaynotify) || (!IS_AWAY(memb->user)))
+		if ((!awaynotify) || (!memb->user->IsAway()))
 			return;
 
 		std::string line = ":" + memb->user->GetFullHost() + " AWAY :" + memb->user->awaymsg;

@@ -329,7 +329,7 @@ class CoreExport User : public Extensible
 	std::string awaymsg;
 
 	/** Time the user last went away.
-	 * This is ONLY RELIABLE if user IS_AWAY()!
+	 * This is ONLY RELIABLE if user IsAway()!
 	 */
 	time_t awaytime;
 
@@ -410,6 +410,18 @@ class CoreExport User : public Extensible
 	 * valid, this function will return +ab-d
 	 */
 	std::string ProcessNoticeMasks(const char *sm);
+
+	/** Returns whether this user is currently away or not. If true,
+	 * further information can be found in User::awaymsg and User::awaytime
+	 * @return True if the user is away, false otherwise
+	 */
+	bool IsAway() const { return (!awaymsg.empty()); }
+
+	/** Returns whether this user is an oper or not. If true,
+	 * oper information can be obtained from User::oper
+	 * @return True if the user is an oper, false otherwise
+	 */
+	bool IsOper() const { return (oper != NULL); }
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check
@@ -908,10 +920,6 @@ inline FakeUser* IS_SERVER(User* u)
 {
 	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
 }
-/** Is an oper */
-#define IS_OPER(x) (x->oper)
-/** Is away */
-#define IS_AWAY(x) (!x->awaymsg.empty())
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
  */

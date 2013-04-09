@@ -357,7 +357,7 @@ public:
 		if (!dest->IsModeSet('g'))
 			return MOD_RES_PASSTHRU;
 
-		if (operoverride && IS_OPER(user))
+		if (operoverride && user->IsOper())
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);

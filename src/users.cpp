@@ -380,7 +380,7 @@ bool User::HasModePermission(unsigned char, ModeType)
 
 bool LocalUser::HasModePermission(unsigned char mode, ModeType type)
 {
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 		return false;
 
 	if (mode < 'A' || mode > ('A' + 64)) return false;
@@ -403,7 +403,7 @@ bool User::HasPermission(const std::string&)
 bool LocalUser::HasPermission(const std::string &command)
 {
 	// are they even an oper at all?
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 	{
 		return false;
 	}
@@ -423,7 +423,7 @@ bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 
 bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 {
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 	{
 		if (noisy)
 			this->WriteServ("NOTICE %s :You are not an oper", this->nick.c_str());
@@ -653,7 +653,7 @@ void OperInfo::init()
 
 void User::UnOper()
 {
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 		return;
 
 	/*
@@ -1248,7 +1248,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		{
 			u->already_sent = uniq_id;
 			if (i->second)
-				u->Write(IS_OPER(u) ? out2 : out1);
+				u->Write(u->IsOper() ? out2 : out1);
 		}
 	}
 	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
@@ -1260,7 +1260,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 			if (u && !u->quitting && (u->already_sent != uniq_id))
 			{
 				u->already_sent = uniq_id;
-				u->Write(IS_OPER(u) ? out2 : out1);
+				u->Write(u->IsOper() ? out2 : out1);
 			}
 		}
 	}

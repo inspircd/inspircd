@@ -68,7 +68,7 @@ class ModuleOverride : public Module
 
 	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic)
 	{
-		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, "TOPIC"))
+		if (IS_LOCAL(source) && source->IsOper() && CanOverride(source, "TOPIC"))
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
@@ -84,7 +84,7 @@ class ModuleOverride : public Module
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
-		if (IS_OPER(source) && CanOverride(source,"KICK"))
+		if (source->IsOper() && CanOverride(source,"KICK"))
 		{
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE))
@@ -100,7 +100,7 @@ class ModuleOverride : public Module
 	{
 		if (!source || !channel)
 			return MOD_RES_PASSTHRU;
-		if (!IS_OPER(source) || !IS_LOCAL(source))
+		if (!source->IsOper() || !IS_LOCAL(source))
 			return MOD_RES_PASSTHRU;
 
 		unsigned int mode = channel->GetPrefixValue(source);
@@ -118,7 +118,7 @@ class ModuleOverride : public Module
 
 	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
-		if (IS_LOCAL(user) && IS_OPER(user))
+		if (IS_LOCAL(user) && user->IsOper())
 		{
 			if (chan)
 			{

@@ -263,7 +263,7 @@ class ModuleAlias : public Module
 			}
 		}
 
-		if ((a->OperOnly) && (!IS_OPER(user)))
+		if ((a->OperOnly) && (!user->IsOper()))
 			return 0;
 
 		if (!a->RequiredNick.empty())

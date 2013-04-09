@@ -279,7 +279,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 
 bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
-	if ((filter->flag_no_opers) && IS_OPER(user))
+	if ((filter->flag_no_opers) && user->IsOper())
 		return false;
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;

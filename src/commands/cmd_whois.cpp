@@ -135,12 +135,12 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->server.c_str(), serverdesc.c_str());
 	}
 
-	if (IS_AWAY(dest))
+	if (dest->IsAway())
 	{
 		ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
 	}
 
-	if (IS_OPER(dest))
+	if (dest->IsOper())
 	{
 		if (ServerInstance->Config->GenericOper)
 			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());

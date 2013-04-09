@@ -300,7 +300,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 			return do_more;
 		}
 	}
-	if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
+	if ((user->registered == REG_ALL) && (!user->IsOper()) && (cm->second->IsDisabled()))
 	{
 		/* command is disabled! */
 		if (ServerInstance->Config->DisabledDontExist)

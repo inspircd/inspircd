@@ -39,7 +39,7 @@ class ModuleRegOnlyCreate : public Module
 		if (chan)
 			return MOD_RES_PASSTHRU;
 
-		if (IS_OPER(user))
+		if (user->IsOper())
 			return MOD_RES_PASSTHRU;
 
 		if (user->IsModeSet('r'))

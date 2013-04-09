@@ -39,7 +39,7 @@ class ModuleMapHide : public Module
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
-		if (validated && !IS_OPER(user) && !url.empty() && (command == "MAP" || command == "LINKS"))
+		if (validated && !user->IsOper() && !url.empty() && (command == "MAP" || command == "LINKS"))
 		{
 			user->WriteServ("NOTICE %s :/%s has been disabled; visit %s", user->nick.c_str(), command.c_str(), url.c_str());
 			return MOD_RES_DENY;

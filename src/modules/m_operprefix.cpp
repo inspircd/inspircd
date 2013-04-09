@@ -104,7 +104,7 @@ class ModuleOperPrefixMode : public Module
 		 * conditions (mw_added and the user being +H) together mean the user is a hidden oper.
 		 */
 
-		if (IS_OPER(user) && (!mw_added || !user->IsModeSet('H')))
+		if (user->IsOper() && (!mw_added || !user->IsModeSet('H')))
 			privs.push_back('y');
 		return MOD_RES_PASSTHRU;
 	}

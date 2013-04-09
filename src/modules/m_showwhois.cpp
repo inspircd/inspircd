@@ -108,7 +108,7 @@ class ModuleShowwhois : public Module
 		if (!dest->IsModeSet('W') || source == dest)
 			return;
 
-		if (!ShowWhoisFromOpers && IS_OPER(source))
+		if (!ShowWhoisFromOpers && source->IsOper())
 			return;
 
 		if (IS_LOCAL(dest))

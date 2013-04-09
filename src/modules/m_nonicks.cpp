@@ -74,7 +74,7 @@ class ModuleNoNickChange : public Module
 			if (res == MOD_RES_ALLOW)
 				continue;
 
-			if (override && IS_OPER(user))
+			if (override && user->IsOper())
 				continue;
 
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))

@@ -90,7 +90,7 @@ class ModuleDenyChannels : public Module
 		{
 			if (InspIRCd::Match(cname, j->second->getString("name")))
 			{
-				if (IS_OPER(user) && j->second->getBool("allowopers"))
+				if (user->IsOper() && j->second->getBool("allowopers"))
 				{
 					return MOD_RES_PASSTHRU;
 				}

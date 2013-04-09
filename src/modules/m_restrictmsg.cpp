@@ -46,7 +46,7 @@ class ModuleRestrictMsg : public Module
 			// (1) the sender is opered
 			// (2) the recipient is opered
 			// anything else, blocked.
-			if (IS_OPER(u) || IS_OPER(user))
+			if (u->IsOper() || user->IsOper())
 			{
 				return MOD_RES_PASSTHRU;
 			}

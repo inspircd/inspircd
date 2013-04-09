@@ -102,7 +102,7 @@ class CommandJumpserver : public Command
 				for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 				{
 					User* t = *i;
-					if (!IS_OPER(t))
+					if (!t->IsOper())
 					{
 						t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", t->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
 						ServerInstance->Users->QuitUser(t, reason);
