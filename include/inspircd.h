@@ -796,10 +796,6 @@ class CoreExport InspIRCd
 	 */
 	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
 
-	/** Handle /WHOIS
-	 */
-	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
-
 	/** Called to check whether a channel restriction mode applies to a user
 	 * @param User that is attempting some action
 	 * @param Channel that the action is being performed on

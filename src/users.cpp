@@ -1500,61 +1500,6 @@ void User::SendAll(const char* command, const char* text, ...)
 	}
 }
 
-
-std::string User::ChannelList(User* source, bool spy)
-{
-	std::string list;
-
-	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
-	{
-		Channel* c = *i;
-		/* If the target is the sender, neither +p nor +s is set, or
-		 * the channel contains the user, it is not a spy channel
-		 */
-		if (spy != (source == this || !(c->IsModeSet('p') || c->IsModeSet('s')) || c->HasUser(source)))
-			list.append(c->GetPrefixChar(this)).append(c->name).append(" ");
-	}
-
-	return list;
-}
-
-void User::SplitChanList(User* dest, const std::string &cl)
-{
-	std::string line;
-	std::ostringstream prefix;
-	std::string::size_type start, pos, length;
-
-	prefix << this->nick << " " << dest->nick << " :";
-	line = prefix.str();
-	int namelen = ServerInstance->Config->ServerName.length() + 6;
-
-	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
-	{
-		length = (pos == std::string::npos) ? cl.length() : pos;
-
-		if (line.length() + namelen + length - start > 510)
-		{
-			ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
-			line = prefix.str();
-		}
-
-		if(pos == std::string::npos)
-		{
-			line.append(cl.substr(start, length - start));
-			break;
-		}
-		else
-		{
-			line.append(cl.substr(start, length - start + 1));
-		}
-	}
-
-	if (line.length() != prefix.str().length())
-	{
-		ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
-	}
-}
-
 /*
  * Sets a user's connection class.
  * If the class name is provided, it will be used. Otherwise, the class will be guessed using host/ip/ident/etc.

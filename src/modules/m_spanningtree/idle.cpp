@@ -63,13 +63,7 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
 			{
 				// an incoming reply to a whois we sent out
-				std::string nick_whoised = prefix;
-				unsigned long signon = atoi(params[1].c_str());
-				unsigned long idle = atoi(params[2].c_str());
-				if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
-				{
-					ServerInstance->DoWhois(who_to_send_to, u, signon, idle, nick_whoised.c_str());
-				}
+				ServerInstance->Parser->CallHandler("WHOIS", params, u);
 			}
 			else
 			{

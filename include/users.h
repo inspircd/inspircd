@@ -657,20 +657,6 @@ class CoreExport User : public Extensible
 	 */
 	void SendAll(const char* command, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Compile a channel list for this user.  Used internally by WHOIS
-	 * @param source The user to prepare the channel list for
-	 * @param spy Whether to return the spy channel list rather than the normal one
-	 * @return This user's channel list
-	 */
-	std::string ChannelList(User* source, bool spy);
-
-	/** Split the channel list in cl which came from dest, and spool it to this user
-	 * Used internally by WHOIS
-	 * @param dest The user the original channel list came from
-	 * @param cl The  channel list as a string obtained from User::ChannelList()
-	 */
-	void SplitChanList(User* dest, const std::string &cl);
-
 	/** Remove this user from all channels they are on, and delete any that are now empty.
 	 * This is used by QUIT, and will not send part messages!
 	 */

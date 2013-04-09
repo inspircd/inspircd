@@ -26,23 +26,170 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class CommandWhois : public Command
+class CommandWhois : public SplitCommand
 {
+	void SplitChanList(User* source, User* dest, const std::string& cl);
+	void DoWhois(User* user, User* dest, unsigned long signon, unsigned long idle);
+	std::string ChannelList(User* source, User* dest, bool spy);
+
  public:
 	/** Constructor for whois.
 	 */
-	CommandWhois ( Module* parent) : Command(parent,"WHOIS",1) { Penalty = 2; syntax = "<nick>{,<nick>}"; }
+	CommandWhois ( Module* parent) : SplitCommand(parent,"WHOIS", 1) { Penalty = 2; syntax = "<nick>{,<nick>}"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
+	CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target);
 };
 
+std::string CommandWhois::ChannelList(User* source, User* dest, bool spy)
+{
+	std::string list;
 
-CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User *user)
+	for (UCListIter i = dest->chans.begin(); i != dest->chans.end(); i++)
+	{
+		Channel* c = *i;
+		/* If the target is the sender, neither +p nor +s is set, or
+		 * the channel contains the user, it is not a spy channel
+		 */
+		if (spy != (source == dest || !(c->IsModeSet('p') || c->IsModeSet('s')) || c->HasUser(source)))
+			list.append(c->GetPrefixChar(dest)).append(c->name).append(" ");
+	}
+
+	return list;
+}
+
+void CommandWhois::SplitChanList(User* source, User* dest, const std::string& cl)
+{
+	std::string line;
+	std::ostringstream prefix;
+	std::string::size_type start, pos, length;
+
+	prefix << source->nick << " " << dest->nick << " :";
+	line = prefix.str();
+	int namelen = ServerInstance->Config->ServerName.length() + 6;
+
+	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
+	{
+		length = (pos == std::string::npos) ? cl.length() : pos;
+
+		if (line.length() + namelen + length - start > 510)
+		{
+			ServerInstance->SendWhoisLine(source, dest, 319, "%s", line.c_str());
+			line = prefix.str();
+		}
+
+		if(pos == std::string::npos)
+		{
+			line.append(cl.substr(start, length - start));
+			break;
+		}
+		else
+		{
+			line.append(cl.substr(start, length - start + 1));
+		}
+	}
+
+	if (line.length() != prefix.str().length())
+	{
+		ServerInstance->SendWhoisLine(source, dest, 319, "%s", line.c_str());
+	}
+}
+
+void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigned long idle)
+{
+	ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
+	if (user == dest || user->HasPrivPermission("users/auspex"))
+	{
+		ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString().c_str());
+	}
+
+	std::string cl = ChannelList(user, dest, false);
+	const ServerConfig::OperSpyWhoisState state = user->HasPrivPermission("users/auspex") ? ServerInstance->Config->OperSpyWhois : ServerConfig::SPYWHOIS_NONE;
+
+	if (state == ServerConfig::SPYWHOIS_SINGLEMSG)
+		cl.append(ChannelList(user, dest, true));
+
+	SplitChanList(user, dest, cl);
+
+	if (state == ServerConfig::SPYWHOIS_SPLITMSG)
+	{
+		std::string scl = ChannelList(user, dest, true);
+		if (scl.length())
+		{
+			ServerInstance->SendWhoisLine(user, dest, 336, "%s %s :is on private/secret channels:",user->nick.c_str(), dest->nick.c_str());
+			SplitChanList(user, dest, scl);
+		}
+	}
+	if (user != dest && !ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
+	{
+		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), ServerInstance->Config->HideWhoisServer.c_str(), ServerInstance->Config->Network.c_str());
+	}
+	else
+	{
+		std::string serverdesc = ServerInstance->GetServerDescription(dest->server);
+		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->server.c_str(), serverdesc.c_str());
+	}
+
+	if (IS_AWAY(dest))
+	{
+		ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
+	}
+
+	if (IS_OPER(dest))
+	{
+		if (ServerInstance->Config->GenericOper)
+			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());
+		else
+			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"),dest->oper->NameStr(), ServerInstance->Config->Network.c_str());
+	}
+
+	if (user == dest || user->HasPrivPermission("users/auspex"))
+	{
+		if (dest->IsModeSet('s') != 0)
+		{
+			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes(), dest->FormatNoticeMasks());
+		}
+		else
+		{
+			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes());
+		}
+	}
+
+	FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
+
+	/*
+	 * We only send these if we've been provided them. That is, if hidewhois is turned off, and user is local, or
+	 * if remote whois is queried, too. This is to keep the user hidden, and also since you can't reliably tell remote time. -- w00t
+	 */
+	if ((idle) || (signon))
+	{
+		ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %lu %lu :seconds idle, signon time",user->nick.c_str(), dest->nick.c_str(), idle, signon);
+	}
+
+	ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick.c_str(), dest->nick.c_str());
+}
+
+CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target)
+{
+	if (parameters.size() < 2)
+		return CMD_FAILURE;
+
+	User* user = ServerInstance->FindUUID(parameters[0]);
+	if (!user)
+		return CMD_FAILURE;
+
+	unsigned long idle = ConvToInt(parameters[1]);
+	DoWhois(user, target, target->signon, idle);
+
+	return CMD_SUCCESS;
+}
+
+CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	User *dest;
 	int userindex = 0;
@@ -51,7 +198,6 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
-
 	/*
 	 * If 2 paramters are specified (/whois nick nick), ignore the first one like spanningtree
 	 * does, and use the second one, otherwise, use the only paramter. -- djGrrr
@@ -59,10 +205,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 	if (parameters.size() > 1)
 		userindex = 1;
 
-	if (IS_LOCAL(user))
-		dest = ServerInstance->FindNickOnly(parameters[userindex]);
-	else
-		dest = ServerInstance->FindNick(parameters[userindex]);
+	dest = ServerInstance->FindNickOnly(parameters[userindex]);
 
 	if ((dest) && (dest->registered == REG_ALL))
 	{
@@ -81,7 +224,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 			signon = dest->signon;
 		}
 
-		ServerInstance->DoWhois(user,dest,signon,idle,parameters[userindex].c_str());
+		DoWhois(user,dest,signon,idle);
 	}
 	else
 	{
@@ -93,7 +236,5 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-
-
 
 COMMAND_INIT(CommandWhois)
