@@ -20,6 +20,7 @@
 
 #include "inspircd.h"
 
+#include "cachetimer.h"
 #include "resolvers.h"
 #include "main.h"
 #include "utils.h"
@@ -107,4 +108,15 @@ void SecurityIPResolver::OnError(ResolverError e, const std::string &errormessag
 	}
 	ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Could not resolve IP associated with Link '%s': %s",
 		MyLink->Name.c_str(),errormessage.c_str());
+}
+
+CacheRefreshTimer::CacheRefreshTimer(SpanningTreeUtilities* Util)
+	: Timer(3, ServerInstance->Time(), true), Utils(Util)
+{
+}
+
+bool CacheRefreshTimer::Tick(time_t TIME)
+{
+	Utils->RefreshIPCache();
+	return true;
 }

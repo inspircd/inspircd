@@ -27,7 +27,6 @@
 #include "socket.h"
 #include "xline.h"
 
-#include "cachetimer.h"
 #include "resolvers.h"
 #include "main.h"
 #include "utils.h"
@@ -38,10 +37,8 @@
 #include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
+	: commands(NULL), Utils(NULL)
 {
-	Utils = new SpanningTreeUtilities(this);
-	commands = new SpanningTreeCommands(this);
-	RefreshTimer = NULL;
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
@@ -54,6 +51,8 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 
 void ModuleSpanningTree::init()
 {
+	Utils = new SpanningTreeUtilities(this);
+	commands = new SpanningTreeCommands(this);
 	ServerInstance->Modules->AddService(commands->rconnect);
 	ServerInstance->Modules->AddService(commands->rsquit);
 	ServerInstance->Modules->AddService(commands->svsjoin);
@@ -70,8 +69,6 @@ void ModuleSpanningTree::init()
 	ServerInstance->Modules->AddService(commands->fhost);
 	ServerInstance->Modules->AddService(commands->fident);
 	ServerInstance->Modules->AddService(commands->fname);
-	RefreshTimer = new CacheRefreshTimer(this, Utils);
-	ServerInstance->Timers->AddTimer(RefreshTimer);
 
 	Implementation eventlist[] =
 	{
@@ -906,8 +903,6 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 CullResult ModuleSpanningTree::cull()
 {
 	Utils->cull();
-	ServerInstance->Timers->DelTimer(RefreshTimer);
-	delete RefreshTimer;
 	return this->Module::cull();
 }
 

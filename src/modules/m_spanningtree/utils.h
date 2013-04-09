@@ -23,6 +23,7 @@
 #pragma once
 
 #include "inspircd.h"
+#include "cachetimer.h"
 
 /* Foward declarations */
 class TreeServer;
@@ -47,6 +48,8 @@ class SpanningTreeUtilities : public classbase
 	/** Creates a line in the :<prefix> <command> [<params>] format
 	 */
 	std::string ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params);
+
+	CacheRefreshTimer RefreshTimer;
 
  public:
 	/** Creator module
