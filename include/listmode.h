@@ -20,7 +20,7 @@
 
 /** The base class for list modes, should be inherited.
  */
-class ListModeBase : public ModeHandler
+class CoreExport ListModeBase : public ModeHandler
 {
  public:
 	/** An item in a listmode's list
