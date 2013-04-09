@@ -123,9 +123,10 @@ class CacheTimer : public Timer
 	CacheTimer(DNS* thisdns)
 		: Timer(3600, ServerInstance->Time(), true), dns(thisdns) { }
 
-	virtual void Tick(time_t)
+	virtual bool Tick(time_t)
 	{
 		dns->PruneCache();
+		return true;
 	}
 };
 
@@ -143,7 +144,7 @@ class RequestTimeout : public Timer
 			Tick(0);
 	}
 
-	void Tick(time_t)
+	bool Tick(time_t)
 	{
 		if (ServerInstance->Res->requests[watchid] == watch)
 		{
@@ -157,6 +158,7 @@ class RequestTimeout : public Timer
 			ServerInstance->Res->requests[watchid] = NULL;
 			delete watch;
 		}
+		return false;
 	}
 };
 

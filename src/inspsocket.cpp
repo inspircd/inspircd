@@ -431,12 +431,12 @@ void StreamSocket::WriteData(const std::string &data)
 	ServerInstance->SE->ChangeEventMask(this, FD_ADD_TRIAL_WRITE);
 }
 
-void SocketTimeout::Tick(time_t)
+bool SocketTimeout::Tick(time_t)
 {
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"SocketTimeout::Tick");
 
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
-		return;
+		return false;
 
 	if (this->sock->state == I_CONNECTING)
 	{
@@ -452,6 +452,7 @@ void SocketTimeout::Tick(time_t)
 	}
 
 	this->sock->Timeout = NULL;
+	return false;
 }
 
 void BufferedSocket::OnConnected() { }
@@ -476,8 +477,8 @@ BufferedSocket::~BufferedSocket()
 	this->Close();
 	if (Timeout)
 	{
-		ServerInstance->Timers->DelTimer(Timeout);
-		Timeout = NULL;
+		// The timer is removed from the TimerManager in Timer::~Timer()
+		delete Timeout;
 	}
 }
 

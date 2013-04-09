@@ -62,7 +62,7 @@ class ReconnectTimer : public Timer
 	ReconnectTimer(ModulePgSQL* m) : Timer(5, ServerInstance->Time(), false), mod(m)
 	{
 	}
-	virtual void Tick(time_t TIME);
+	virtual bool Tick(time_t TIME);
 };
 
 struct QueueItem
@@ -504,6 +504,11 @@ class ModulePgSQL : public Module
 	ConnMap connections;
 	ReconnectTimer* retimer;
 
+	ModulePgSQL()
+		: retimer(NULL)
+	{
+	}
+
 	void init()
 	{
 		ReadConf();
@@ -514,8 +519,7 @@ class ModulePgSQL : public Module
 
 	virtual ~ModulePgSQL()
 	{
-		if (retimer)
-			ServerInstance->Timers->DelTimer(retimer);
+		delete retimer;
 		ClearAllConnections();
 	}
 
@@ -594,10 +598,11 @@ class ModulePgSQL : public Module
 	}
 };
 
-void ReconnectTimer::Tick(time_t time)
+bool ReconnectTimer::Tick(time_t time)
 {
 	mod->retimer = NULL;
 	mod->ReadConf();
+	return false;
 }
 
 void SQLConn::DelayReconnect()

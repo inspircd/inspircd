@@ -25,55 +25,54 @@
 #include "inspircd.h"
 #include "timer.h"
 
-TimerManager::TimerManager()
+void Timer::SetInterval(time_t newinterval)
 {
+	ServerInstance->Timers->DelTimer(this);
+	secs = newinterval;
+	SetTrigger(ServerInstance->Time() + newinterval);
+	ServerInstance->Timers->AddTimer(this);
 }
 
-TimerManager::~TimerManager()
+Timer::~Timer()
 {
-	for(std::vector<Timer *>::iterator i = Timers.begin(); i != Timers.end(); i++)
-		delete *i;
+	ServerInstance->Timers->DelTimer(this);
 }
 
 void TimerManager::TickTimers(time_t TIME)
 {
-	while ((Timers.size()) && (TIME > (*Timers.begin())->GetTimer()))
+	for (TimerMap::iterator i = Timers.begin(); i != Timers.end(); )
 	{
-		std::vector<Timer *>::iterator i = Timers.begin();
-		Timer *t = (*i);
+		Timer* t = i->second;
+		if (t->GetTrigger() > TIME)
+			break;
 
-		// Probable fix: move vector manipulation to *before* we modify the vector.
-		Timers.erase(i);
+		Timers.erase(i++);
 
-		t->Tick(TIME);
-		if (t->GetRepeat())
+		if (!t->Tick(TIME))
+			delete t;
+		else if (t->GetRepeat())
 		{
-			t->SetTimer(TIME + t->GetSecs());
+			t->SetTrigger(TIME + t->GetInterval());
 			AddTimer(t);
 		}
-		else
-			delete t;
 	}
 }
 
-void TimerManager::DelTimer(Timer* T)
+void TimerManager::DelTimer(Timer* t)
 {
-	std::vector<Timer *>::iterator i = std::find(Timers.begin(), Timers.end(), T);
+	std::pair<TimerMap::iterator, TimerMap::iterator> itpair = Timers.equal_range(t->GetTrigger());
 
-	if (i != Timers.end())
+	for (TimerMap::iterator i = itpair.first; i != itpair.second; ++i)
 	{
-		delete (*i);
-		Timers.erase(i);
+		if (i->second == t)
+		{
+			Timers.erase(i);
+			break;
+		}
 	}
 }
 
-void TimerManager::AddTimer(Timer* T)
+void TimerManager::AddTimer(Timer* t)
 {
-	Timers.push_back(T);
-	sort(Timers.begin(), Timers.end(), TimerManager::TimerComparison);
-}
-
-bool TimerManager::TimerComparison( Timer *one, Timer *two)
-{
-	return (one->GetTimer()) < (two->GetTimer());
+	Timers.insert(std::make_pair(t->GetTrigger(), t));
 }

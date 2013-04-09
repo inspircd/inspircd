@@ -70,7 +70,7 @@ void ModuleSpanningTree::init()
 	ServerInstance->Modules->AddService(commands->fhost);
 	ServerInstance->Modules->AddService(commands->fident);
 	ServerInstance->Modules->AddService(commands->fname);
-	RefreshTimer = new CacheRefreshTimer(Utils);
+	RefreshTimer = new CacheRefreshTimer(this, Utils);
 	ServerInstance->Timers->AddTimer(RefreshTimer);
 
 	Implementation eventlist[] =
@@ -907,6 +907,7 @@ CullResult ModuleSpanningTree::cull()
 {
 	Utils->cull();
 	ServerInstance->Timers->DelTimer(RefreshTimer);
+	delete RefreshTimer;
 	return this->Module::cull();
 }
 

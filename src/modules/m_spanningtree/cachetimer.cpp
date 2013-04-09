@@ -24,12 +24,13 @@
 
 /* $ModDep: m_spanningtree/cachetimer.h m_spanningtree/utils.h */
 
-CacheRefreshTimer::CacheRefreshTimer(SpanningTreeUtilities *Util) : Timer(3600, ServerInstance->Time(), true), Utils(Util)
+CacheRefreshTimer::CacheRefreshTimer(SpanningTreeUtilities* Util) : Timer(3600, ServerInstance->Time(), true), Utils(Util)
 {
 }
 
-void CacheRefreshTimer::Tick(time_t TIME)
+bool CacheRefreshTimer::Tick(time_t TIME)
 {
 	Utils->RefreshIPCache();
+	return true;
 }
 

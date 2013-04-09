@@ -92,7 +92,7 @@ class CoreExport SocketTimeout : public Timer
 
 	/** Handle tick event
 	 */
-	virtual void Tick(time_t now);
+	virtual bool Tick(time_t now);
 };
 
 /**
