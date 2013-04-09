@@ -37,7 +37,7 @@ class Channel_r : public ModeHandler
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		// only a u-lined server may add or remove the +r mode.
-		if (!IS_LOCAL(source) || ServerInstance->ULine(source->server))
+		if (!IS_LOCAL(source))
 		{
 			// Only change the mode if it's not redundant
 			if ((adding != channel->IsModeSet('r')))
@@ -64,7 +64,7 @@ class User_r : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
-		if (!IS_LOCAL(source) || ServerInstance->ULine(source->server))
+		if (!IS_LOCAL(source))
 		{
 			if ((adding != dest->IsModeSet('r')))
 			{
@@ -171,12 +171,6 @@ class ModuleServicesAccount : public Module
 		std::string *account = accountname.get(user);
 		bool is_registered = account && !account->empty();
 
-		if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
-		{
-			// user is ulined, can speak regardless
-			return MOD_RES_PASSTHRU;
-		}
-
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* c = (Channel*)dest;
@@ -255,12 +249,6 @@ class ModuleServicesAccount : public Module
 
 		if (chan)
 		{
-			if ((ServerInstance->ULine(user->nick.c_str())) || (ServerInstance->ULine(user->server)))
-			{
-				// user is ulined, won't be stopped from joining
-				return MOD_RES_PASSTHRU;
-			}
-
 			if (chan->IsModeSet('R'))
 			{
 				if (!is_registered)
