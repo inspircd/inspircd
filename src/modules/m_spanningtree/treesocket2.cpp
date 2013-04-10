@@ -164,8 +164,20 @@ void TreeSocket::ProcessLine(std::string &line)
 						ServerInstance->SNO->WriteGlobalSno('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs((long)delta));
 					}
 				}
+
+				// Check for duplicate server name/sid again, it's possible that a new
+				// server was introduced while we were waiting for them to send BURST.
+				// (we do not reserve their server name/sid when they send SERVER, we do it now)
+				if (!CheckDuplicate(capab->name, capab->sid))
+					return;
+
 				this->LinkState = CONNECTED;
 				Utils->timeoutlist.erase(this);
+
+				linkID = capab->name;
+
+				MyRoot = new TreeServer(Utils, capab->name, capab->description, capab->sid, Utils->TreeRoot, this, capab->hidden);
+				Utils->TreeRoot->AddChild(MyRoot);
 
 				MyRoot->bursting = true;
 				this->DoBurst(MyRoot);
