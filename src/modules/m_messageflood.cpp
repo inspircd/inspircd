@@ -26,11 +26,6 @@
 
 #include "inspircd.h"
 
-enum fsetting {
-	FLOOD_DEFAULT,
-	FLOOD_BAN,
-	FLOOD_BLOCK
-};
 
 /* $ModDesc: Provides channel mode +f (message flood protection) */
 
@@ -39,7 +34,12 @@ enum fsetting {
 class floodsettings
 {
  public:
-	fsetting settings;
+	enum fsetting {
+		FLOOD_DEFAULT,
+		FLOOD_BAN,
+		FLOOD_BLOCK
+	} settings;
+
 	unsigned int secs;
 	unsigned int lines;
 	time_t reset;
@@ -92,20 +92,20 @@ class MsgFlood : public ModeHandler
 			}
 
 			/* Set up the flood parameters for this channel */
-			fsetting settings;
+			floodsettings::fsetting settings;
 			switch (parameter[0])
 			{
 				case '*':
-					settings = FLOOD_BAN;
+					settings = floodsettings::FLOOD_BAN;
 					break;
 				case '~':
-					settings = FLOOD_BLOCK;
+					settings = floodsettings::FLOOD_BLOCK;
 					break;
 				default:
-					settings = FLOOD_DEFAULT;
+					settings = floodsettings::FLOOD_DEFAULT;
 					break;
 			}
-			unsigned int nlines = ConvToInt(parameter.substr(settings != FLOOD_DEFAULT ? 1 : 0, settings != FLOOD_DEFAULT ? colon-1 : colon));
+			unsigned int nlines = ConvToInt(parameter.substr(settings != floodsettings::FLOOD_DEFAULT ? 1 : 0, settings != floodsettings::FLOOD_DEFAULT ? colon-1 : colon));
 			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
 
 			if ((nlines<2) || (nsecs<1))
@@ -124,10 +124,10 @@ class MsgFlood : public ModeHandler
 
 			switch (settings)
 			{
-				case FLOOD_BAN:
+				case floodsettings::FLOOD_BAN:
 					parameter = std::string("*");
 					break;
-				case FLOOD_BLOCK:
+				case floodsettings::FLOOD_BLOCK:
 					parameter = std::string("~");
 					break;
 				default:
@@ -184,7 +184,7 @@ class ModuleMsgFlood : public Module
 			if (f->addmessage(user))
 			{
 				/* Youre outttta here! */
-				if (f->settings == FLOOD_BAN)
+				if (f->settings == floodsettings::FLOOD_BAN)
 				{
 					std::vector<std::string> parameters;
 					parameters.push_back(dest->name);
@@ -193,7 +193,7 @@ class ModuleMsgFlood : public Module
 					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
 				}
 
-				if (f->settings == FLOOD_BLOCK)
+				if (f->settings == floodsettings::FLOOD_BLOCK)
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Channel flood limit exceeded! (limit is %u lines in %u seconds)", user->nick.c_str(), dest->name.c_str(), f->lines, f->secs);
 				}
