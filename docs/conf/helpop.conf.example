@@ -174,7 +174,9 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
  A                  Allows anyone to invite users to the channel
                     (normally only chanops can invite, requires
                     allowinvite module).
- B [percent]:[len]  Blocks messages with too many capital letters.
+ B [~*][percent]:[len] Kicks users for messages with too many capital letters.
+                    If the ~ is used it will block instead of kick.
+                    If the * is used it will kickban instead of kick.
                     (requires blockcaps module).
  C                  Blocks any CTCPs to the channel (requires noctcp
                     module).
