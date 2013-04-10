@@ -29,10 +29,15 @@
 class blockcapssettings
 {
  public:
+	enum bsetting {
+		CAPS_BLOCK,
+		CAPS_BAN,
+		CAPS_DEFAULT
+	} settings;
 	unsigned int percent;
 	unsigned int minlen;
 
-	blockcapssettings(int a, int b) : percent(a), minlen(b) { }
+	blockcapssettings(bsetting a, int b, int c) : settings(a),  percent(b), minlen(c) { }
 };
 
 
@@ -58,7 +63,20 @@ class BlockCaps : public ModeHandler
 				return MODEACTION_DENY;
 			}
 
-			unsigned int percent = ConvToInt(parameter.substr(0, colon));
+			blockcapssettings::bsetting settings;
+			switch (parameter[0])
+			{
+				case '*':
+					settings = blockcapssettings::CAPS_BAN;
+					break;
+				case '~':
+					settings = blockcapssettings::CAPS_BLOCK;
+					break;
+				default:
+					settings = blockcapssettings::CAPS_DEFAULT;
+			}
+
+			unsigned int percent = ConvToInt(parameter.substr(settings != blockcapssettings::CAPS_DEFAULT ? 1 : 0, settings != blockcapssettings::CAPS_DEFAULT ? colon-1 : colon));
 			unsigned int minlen = ConvToInt(parameter.substr(colon+1));
 
 			/* percent must be between 1 and 100, minlen must be greater than 1 and less than MAXBUF-1 */
@@ -71,12 +89,26 @@ class BlockCaps : public ModeHandler
 			blockcapssettings* blockcaps = ext.get(channel);
 
 			/* Make sure the settings don't match */
-			if ((blockcaps) && (percent == blockcaps->percent) && (minlen == blockcaps->percent))
+			if ((blockcaps) && (percent == blockcaps->percent) && (minlen == blockcaps->percent) && (settings == blockcaps->settings))
 				return MODEACTION_DENY;
 
-			ext.set(channel, new blockcapssettings(percent, minlen));
-			parameter = std::string("" + ConvToStr(percent) + ":" + ConvToStr(minlen));
+			ext.set(channel, new blockcapssettings(settings, percent, minlen));
+
+			switch (settings)
+			{
+				case blockcapssettings::CAPS_BAN:
+					parameter = std::string("*");
+					break;
+				case blockcapssettings::CAPS_BLOCK:
+					parameter = std::string("~");
+					break;
+				default:
+					parameter = std::string("");
+			}
+
+			parameter += std::string(ConvToStr(percent) + ":" + ConvToStr(minlen));
 			channel->SetModeParam('B', parameter);
+
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -147,7 +179,25 @@ public:
 
 			if (((caps*100)/(int)text.length()) >= blockcaps->percent)
 			{
-				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Your Message cannot contain more than %d%% capital letters if it's longer than %d characters", user->nick.c_str(), channel->name.c_str(), blockcaps->percent, blockcaps->minlen);
+				if (blockcaps->settings == blockcapssettings::CAPS_BAN)
+				{
+					std::vector<std::string> parameters;
+					parameters.push_back(channel->name);
+					parameters.push_back("+b");
+					parameters.push_back(user->MakeWildHost());
+					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
+				}
+
+				if (blockcaps->settings == blockcapssettings::CAPS_BLOCK)
+				{
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Your Message cannot contain more than %d%% capital letters if it's longer than %d characters", user->nick.c_str(), channel->name.c_str(), blockcaps->percent, blockcaps->minlen);
+				}
+				else {
+					char kickmessage[MAXBUF];
+					snprintf(kickmessage, MAXBUF, "Your message cannot contain more than %d%% capital letters if it's longer than %d characters", blockcaps->percent, blockcaps->minlen);
+					channel->KickUser(ServerInstance->FakeClient, user, kickmessage);
+				}
+
 				return MOD_RES_DENY;
 			}
 		}
