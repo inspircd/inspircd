@@ -121,12 +121,18 @@ class MsgFlood : public ModeHandler
 
 			ext.set(channel, new floodsettings(settings, nsecs, nlines));
 
-			if (settings == FLOOD_BAN)
-				parameter = std::string("*");
-			else if (settings == FLOOD_BLOCK)
-				parameter = std::string("~");
-			else
-				parameter = std::string("");
+
+			switch (settings)
+			{
+				case FLOOD_BAN:
+					parameter = std::string("*");
+					break;
+				case FLOOD_BLOCK:
+					parameter = std::string("~");
+					break;
+				default:
+					parameter = std::string("");
+			}
 
 			parameter += ConvToStr(nlines) + ":" + ConvToStr(nsecs);
 			channel->SetModeParam('f', parameter);
