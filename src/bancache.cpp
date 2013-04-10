@@ -39,18 +39,22 @@ BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
 
 	if (i == this->BanHash->end())
 		return NULL; // free and safe
-	else
-	{
-		if (ServerInstance->Time() > i->second->Expiry)
-		{
-			ServerInstance->Logs->Log("BANCACHE", DEBUG, "Hit on " + ip + " is out of date, removing!");
-			delete i->second;
-			BanHash->erase(i);
-			return NULL; // out of date
-		}
 
-		return i->second; // hit.
-	}
+	if (RemoveIfExpired(i))
+		return NULL; // expired
+
+	return i->second; // hit.
+}
+
+bool BanCacheManager::RemoveIfExpired(BanCacheHash::iterator& it)
+{
+	if (ServerInstance->Time() < it->second->Expiry)
+		return false;
+
+	ServerInstance->Logs->Log("BANCACHE", DEBUG, "Hit on " + it->first + " is out of date, removing!");
+	delete it->second;
+	it = BanHash->erase(it);
+	return true;
 }
 
 void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
@@ -62,6 +66,9 @@ void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 
 	for (BanCacheHash::iterator i = BanHash->begin(); i != BanHash->end(); )
 	{
+		if (RemoveIfExpired(i))
+			continue; // updates the iterator if expired
+
 		BanCacheHit* b = i->second;
 		bool remove = false;
 

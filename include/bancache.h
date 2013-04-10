@@ -58,8 +58,9 @@ typedef std::tr1::unordered_map<std::string, BanCacheHit*, std::tr1::hash<std::s
  */
 class CoreExport BanCacheManager
 {
- private:
 	BanCacheHash* BanHash;
+	bool RemoveIfExpired(BanCacheHash::iterator& it);
+
  public:
 
 	/** Creates and adds a Ban Cache item.
