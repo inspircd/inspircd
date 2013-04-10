@@ -82,7 +82,6 @@ class CoreExport BanCacheManager
 		this->BanHash = new BanCacheHash();
 	}
 	~BanCacheManager();
-	void RehashCache();
 };
 
 #endif

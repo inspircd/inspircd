@@ -88,40 +88,6 @@ void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 	}
 }
 
-void BanCacheManager::RehashCache()
-{
-	BanCacheHash* NewHash = new BanCacheHash();
-
-	BanCacheHash::iterator safei;
-	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); )
-	{
-		safei = n;
-		safei++;
-
-		/* Safe to delete items here through iterator 'n' */
-		BanCacheHit *b = n->second;
-
-		if (ServerInstance->Time() > b->Expiry)
-		{
-			/* we need to remove this one. */
-			delete b;
-			BanHash->erase(n); // WORD TO THE WISE: don't use RemoveHit here, because we MUST remove the iterator in a safe way.
-		}
-		else
-		{
-			/* Actually inserts a std::pair */
-			NewHash->insert(*n);
-		}
-
-		/* End of safe section */
-
-		n = safei;
-	}
-
-	delete BanHash;
-	BanHash = NewHash;
-}
-
 BanCacheManager::~BanCacheManager()
 {
 	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); ++n)
