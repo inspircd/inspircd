@@ -1,3 +1,2 @@
-inspircd_version.h
-inspircd_config.h
+config.h
 inspircd.rc
