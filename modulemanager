@@ -262,7 +262,7 @@ sub resolve_deps {
 	}
 }
 
-my $action = lc shift @ARGV;
+my $action = $#ARGV > 0 ? lc shift @ARGV : 'help';
 
 if ($action eq 'install') {
 	for my $mod (@ARGV) {
