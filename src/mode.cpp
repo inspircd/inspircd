@@ -94,7 +94,7 @@ ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel
 {
 	/* We're either trying to add a mode we already have or
 		remove a mode we don't have, deny. */
-	if (dest->IsModeSet(this->GetModeChar()) == adding)
+	if (dest->IsModeSet(this) == adding)
 		return MODEACTION_DENY;
 
 	/* adding will be either true or false, depending on if we
@@ -103,7 +103,7 @@ ModeAction SimpleUserModeHandler::OnModeChange(User* source, User* dest, Channel
 		aren't removing a mode we don't have, we don't have to do any
 		other checks here to see if it's true or false, just add or
 		remove the mode */
-	dest->SetMode(this->GetModeChar(), adding);
+	dest->SetMode(this, adding);
 
 	return MODEACTION_ALLOW;
 }
@@ -113,7 +113,7 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 {
 	/* We're either trying to add a mode we already have or
 		remove a mode we don't have, deny. */
-	if (channel->IsModeSet(this->GetModeChar()) == adding)
+	if (channel->IsModeSet(this) == adding)
 		return MODEACTION_DENY;
 
 	/* adding will be either true or false, depending on if we
@@ -122,7 +122,7 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 		aren't removing a mode we don't have, we don't have to do any
 		other checks here to see if it's true or false, just add or
 		remove the mode */
-	channel->SetMode(this->GetModeChar(), adding);
+	channel->SetMode(this, adding);
 
 	return MODEACTION_ALLOW;
 }
@@ -410,9 +410,9 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			/* Make sure the user isn't trying to slip in an invalid parameter */
 			if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
 				continue;
-			if ((flags & MODE_MERGE) && targetchannel && targetchannel->IsModeSet(modechar) && !mh->IsListMode())
+			if ((flags & MODE_MERGE) && targetchannel && targetchannel->IsModeSet(mh) && !mh->IsListMode())
 			{
-				std::string ours = targetchannel->GetModeParameter(modechar);
+				std::string ours = targetchannel->GetModeParameter(mh);
 				if (!mh->ResolveModeConflict(parameter, ours, targetchannel))
 					/* we won the mode merge, don't apply this mode */
 					continue;
@@ -828,11 +828,11 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker& stack)
 	{
 		RemovePrefixMode(channel, stack);
 	}
-	else if (channel->IsModeSet(this->GetModeChar()))
+	else if (channel->IsModeSet(this))
 	{
 		if (this->GetNumParams(false))
 			// Removing this mode requires a parameter
-			stack.Push(this->GetModeChar(), channel->GetModeParameter(this->GetModeChar()));
+			stack.Push(this->GetModeChar(), channel->GetModeParameter(this));
 		else
 			stack.Push(this->GetModeChar());
 	}

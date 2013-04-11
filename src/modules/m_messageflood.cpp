@@ -106,7 +106,7 @@ class MsgFlood : public ModeHandler
 		}
 		else
 		{
-			if (!channel->IsModeSet('f'))
+			if (!channel->IsModeSet(this))
 				return MODEACTION_DENY;
 
 			ext.unset(channel);
@@ -135,7 +135,7 @@ class ModuleMsgFlood : public Module
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
-		if ((!IS_LOCAL(user)) || !dest->IsModeSet('f'))
+		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 
 		if (ServerInstance->OnCheckExemption(user,dest,"flood") == MOD_RES_ALLOW)

@@ -29,11 +29,11 @@ static void DisplayList(User* user, Channel* channel)
 		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
 		if (!mh || mh->IsListMode())
 			continue;
-		if (!channel->IsModeSet(letter))
+		if (!channel->IsModeSet(mh))
 			continue;
 		items << " +" << mh->name;
 		if (mh->GetNumParams(true))
-			items << " " << channel->GetModeParameter(letter);
+			items << " " << channel->GetModeParameter(mh);
 	}
 	const std::string line = ":" + ServerInstance->Config->ServerName + " 961 " + user->nick + " " + channel->name;
 	user->SendText(line, items);

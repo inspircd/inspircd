@@ -59,7 +59,7 @@ class ModuleAllowInvite : public Module
 				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You are banned from using INVITE", user->nick.c_str(), channel->name.c_str());
 				return res;
 			}
-			if (channel->IsModeSet('A') || res == MOD_RES_ALLOW)
+			if (channel->IsModeSet(ni) || res == MOD_RES_ALLOW)
 			{
 				// Explicitly allow /invite
 				return MOD_RES_ALLOW;

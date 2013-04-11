@@ -73,7 +73,7 @@ class ModuleNoNickChange : public Module
 			if (override && user->IsOper())
 				continue;
 
-			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))
+			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet(nn)))
 			{
 				user->WriteNumeric(ERR_CANTCHANGENICK, "%s :Can't change nickname while on %s (+N is set)",
 					user->nick.c_str(), curr->name.c_str());

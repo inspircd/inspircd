@@ -44,11 +44,6 @@ Channel::Channel(const std::string &cname, time_t ts)
 	modes.reset();
 }
 
-void Channel::SetMode(char mode,bool mode_on)
-{
-	modes[mode-65] = mode_on;
-}
-
 void Channel::SetMode(ModeHandler* mh, bool on)
 {
 	modes[mh->GetModeChar() - 65] = on;

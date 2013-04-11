@@ -63,7 +63,7 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 {
 	if (adding)
 	{
-		if ((channel->IsModeSet('d')) && (channel->GetModeParameter('d') == parameter))
+		if ((channel->IsModeSet(this)) && (channel->GetModeParameter(this) == parameter))
 			return MODEACTION_DENY;
 
 		/* Setting a new limit, sanity check */
@@ -77,7 +77,7 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 	}
 	else
 	{
-		if (!channel->IsModeSet('d'))
+		if (!channel->IsModeSet(this))
 			return MODEACTION_DENY;
 
 		/*
@@ -97,7 +97,7 @@ Version ModuleDelayMsg::GetVersion()
 
 void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CUList&)
 {
-	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet('d')))
+	if ((IS_LOCAL(memb->user)) && (memb->chan->IsModeSet(djm)))
 	{
 		djm.jointime.set(memb, ServerInstance->Time());
 	}
@@ -123,7 +123,7 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 	if (ts == 0)
 		return MOD_RES_PASSTHRU;
 
-	std::string len = channel->GetModeParameter('d');
+	std::string len = channel->GetModeParameter(&djm);
 
 	if (ts + atoi(len.c_str()) > ServerInstance->Time())
 	{

@@ -40,9 +40,9 @@ class Channel_r : public ModeHandler
 		if (!IS_LOCAL(source))
 		{
 			// Only change the mode if it's not redundant
-			if ((adding != channel->IsModeSet('r')))
+			if ((adding != channel->IsModeSet(this)))
 			{
-				channel->SetMode('r',adding);
+				channel->SetMode(this, adding);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -66,9 +66,9 @@ class User_r : public ModeHandler
 	{
 		if (!IS_LOCAL(source))
 		{
-			if ((adding != dest->IsModeSet('r')))
+			if ((adding != dest->IsModeSet(this)))
 			{
-				dest->SetMode('r',adding);
+				dest->SetMode(this, adding);
 				return MODEACTION_ALLOW;
 			}
 		}
@@ -144,7 +144,7 @@ class ModuleServicesAccount : public Module
 			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as", source->nick.c_str(), dest->nick.c_str(), account->c_str());
 		}
 
-		if (dest->IsModeSet('r'))
+		if (dest->IsModeSet(m5))
 		{
 			/* user is registered */
 			ServerInstance->SendWhoisLine(source, dest, 307, "%s %s :is a registered nick", source->nick.c_str(), dest->nick.c_str());
@@ -154,7 +154,7 @@ class ModuleServicesAccount : public Module
 	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		/* On nickchange, if they have +r, remove it */
-		if (user->IsModeSet('r') && assign(user->nick) != oldnick)
+		if (user->IsModeSet(m5) && assign(user->nick) != oldnick)
 		{
 			std::vector<std::string> modechange;
 			modechange.push_back(user->nick);
@@ -176,7 +176,7 @@ class ModuleServicesAccount : public Module
 			Channel* c = (Channel*)dest;
 			ModResult res = ServerInstance->OnCheckExemption(user,c,"regmoderated");
 
-			if (c->IsModeSet('M') && !is_registered && res != MOD_RES_ALLOW)
+			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
 				user->WriteNumeric(477, user->nick+" "+c->name+" :You need to be identified to a registered account to message this channel");
@@ -187,7 +187,7 @@ class ModuleServicesAccount : public Module
 		{
 			User* u = (User*)dest;
 
-			if (u->IsModeSet('R') && !is_registered)
+			if (u->IsModeSet(m3) && !is_registered)
 			{
 				// user messaging a +R user and is not registered
 				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
@@ -241,7 +241,7 @@ class ModuleServicesAccount : public Module
 
 		if (chan)
 		{
-			if (chan->IsModeSet('R'))
+			if (chan->IsModeSet(m1))
 			{
 				if (!is_registered)
 				{

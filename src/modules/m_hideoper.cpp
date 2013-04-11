@@ -63,7 +63,7 @@ class ModuleHideOper : public Module
 		if (numeric != 313)
 			return MOD_RES_PASSTHRU;
 
-		if (!dest->IsModeSet('H'))
+		if (!dest->IsModeSet(hm))
 			return MOD_RES_PASSTHRU;
 
 		if (!user->HasPrivPermission("users/auspex"))
@@ -74,7 +74,7 @@ class ModuleHideOper : public Module
 
 	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line) CXX11_OVERRIDE
 	{
-		if (user->IsModeSet('H') && !source->HasPrivPermission("users/auspex"))
+		if (user->IsModeSet(hm) && !source->HasPrivPermission("users/auspex"))
 		{
 			// hide the "*" that marks the user as an oper from the /WHO line
 			std::string::size_type pos = line.find("*");

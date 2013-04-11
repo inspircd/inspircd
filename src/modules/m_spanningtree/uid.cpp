@@ -132,7 +132,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		}
 		else
 			mh->OnModeChange(_new, _new, NULL, empty, true);
-		_new->SetMode(*v, true);
+		_new->SetMode(mh, true);
 	}
 
 	_new->SetClientIP(params[6].c_str());

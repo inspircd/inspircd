@@ -110,7 +110,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * @param value True if you want to set the mode or false if you want to remove it
 	 */
 	void SetMode(ModeHandler* mode, bool value);
-	void SetMode(char mode,bool mode_on);
 
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
@@ -126,7 +125,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	  */
 	inline bool IsModeSet(char mode) { return modes[mode-'A']; }
 	inline bool IsModeSet(ModeHandler* mode) { return modes[mode->GetModeChar()-'A']; }
-
+	bool IsModeSet(ModeHandler& mode) { return IsModeSet(&mode); }
 
 	/** Returns the parameter for a custom mode on a channel.
 	  * @param mode The mode character you wish to query

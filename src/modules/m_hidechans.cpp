@@ -68,7 +68,7 @@ class ModuleHideChans : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* don't touch if -I */
-		if (!dest->IsModeSet('I'))
+		if (!dest->IsModeSet(hm))
 			return MOD_RES_PASSTHRU;
 
 		/* if it affects opers, we don't care if they are opered */

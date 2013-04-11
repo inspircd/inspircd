@@ -76,7 +76,7 @@ public:
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet('B')))
+			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet(bc)))
 			{
 				int caps = 0;
 				const char* actstr = "\1ACTION ";

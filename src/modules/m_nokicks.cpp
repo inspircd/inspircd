@@ -54,7 +54,7 @@ class ModuleNoKicks : public Module
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
-		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet('Q')))
+		if (!memb->chan->GetExtBanStatus(source, 'Q').check(!memb->chan->IsModeSet(nk)))
 		{
 			// Can't kick with Q in place, not even opers with override, and founders
 			source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Can't kick user %s from channel (+Q set)",source->nick.c_str(), memb->chan->name.c_str(), memb->user->nick.c_str());

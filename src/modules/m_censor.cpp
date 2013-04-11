@@ -75,11 +75,11 @@ class ModuleCensor : public Module
 		bool active = false;
 
 		if (target_type == TYPE_USER)
-			active = ((User*)dest)->IsModeSet('G');
+			active = ((User*)dest)->IsModeSet(cu);
 		else if (target_type == TYPE_CHANNEL)
 		{
-			active = ((Channel*)dest)->IsModeSet('G');
 			Channel* c = (Channel*)dest;
+			active = c->IsModeSet(cc);
 			ModResult res = ServerInstance->OnCheckExemption(user,c,"censor");
 
 			if (res == MOD_RES_ALLOW)

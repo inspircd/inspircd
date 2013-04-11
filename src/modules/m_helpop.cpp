@@ -157,7 +157,7 @@ class ModuleHelpop : public Module
 
 		void OnWhois(User* src, User* dst) CXX11_OVERRIDE
 		{
-			if (dst->IsModeSet('h'))
+			if (dst->IsModeSet(ho))
 			{
 				ServerInstance->SendWhoisLine(src, dst, 310, src->nick+" "+dst->nick+" :is available for help.");
 			}

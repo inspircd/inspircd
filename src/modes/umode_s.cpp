@@ -36,18 +36,18 @@ ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Chan
 	if (adding)
 	{
 		/* Fix for bug #310 reported by Smartys */
-		if (!dest->modes[UM_SNOMASK])
+		if (!dest->IsModeSet(this))
 			dest->snomasks.reset();
 
-		dest->modes[UM_SNOMASK] = true;
+		dest->SetMode(this, true);
 		parameter = dest->ProcessNoticeMasks(parameter.c_str());
 		return MODEACTION_ALLOW;
 	}
 	else
 	{
-		if (dest->modes[UM_SNOMASK] != false)
+		if (dest->IsModeSet(this))
 		{
-			dest->modes[UM_SNOMASK] = false;
+			dest->SetMode(this, false);
 			return MODEACTION_ALLOW;
 		}
 	}

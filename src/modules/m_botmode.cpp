@@ -54,7 +54,7 @@ class ModuleBotMode : public Module
 
 	void OnWhois(User* src, User* dst) CXX11_OVERRIDE
 	{
-		if (dst->IsModeSet('B'))
+		if (dst->IsModeSet(bm))
 		{
 			ServerInstance->SendWhoisLine(src, dst, 335, src->nick+" "+dst->nick+" :is a bot on "+ServerInstance->Config->Network);
 		}

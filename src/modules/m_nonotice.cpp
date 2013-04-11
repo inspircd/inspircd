@@ -57,7 +57,7 @@ class ModuleNoNotice : public Module
 		if ((msgtype == MSG_NOTICE) && (target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
-			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet('T')))
+			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet(nt)))
 			{
 				res = ServerInstance->OnCheckExemption(user,c,"nonotice");
 				if (res == MOD_RES_ALLOW)

@@ -64,7 +64,7 @@ class Redirect : public ModeHandler
 				}
 			}
 
-			if (channel->GetModeParameter('L') == parameter)
+			if (channel->GetModeParameter(this) == parameter)
 				return MODEACTION_DENY;
 			/*
 			 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
@@ -74,7 +74,7 @@ class Redirect : public ModeHandler
 		}
 		else
 		{
-			if (channel->IsModeSet('L'))
+			if (channel->IsModeSet(this))
 			{
 				return MODEACTION_ALLOW;
 			}
@@ -95,15 +95,14 @@ class AntiRedirect : public SimpleUserModeHandler
 
 class ModuleRedirect : public Module
 {
-
 	Redirect re;
 	AntiRedirect re_u;
 	bool UseUsermode;
 
  public:
-
 	ModuleRedirect()
-		: re(this), re_u(this)
+		: re(this)
+		, re_u(this)
 	{
 	}
 
@@ -133,22 +132,22 @@ class ModuleRedirect : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsModeSet('L') && chan->IsModeSet('l'))
+			if (chan->IsModeSet(re) && chan->IsModeSet('l'))
 			{
 				if (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter('l')))
 				{
-					std::string channel = chan->GetModeParameter('L');
+					std::string channel = chan->GetModeParameter(&re);
 
 					/* sometimes broken ulines can make circular or chained +L, avoid this */
 					Channel* destchan = ServerInstance->FindChan(channel);
-					if (destchan && destchan->IsModeSet('L'))
+					if (destchan && destchan->IsModeSet(re))
 					{
 						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname.c_str());
 						return MOD_RES_DENY;
 					}
 					/* We check the bool value here to make sure we have it enabled, if we don't then
 						usermode +L might be assigned to something else. */
-					if (UseUsermode && user->IsModeSet('L'))
+					if (UseUsermode && user->IsModeSet(re_u))
 					{
 						user->WriteNumeric(470, "%s %s %s :Force redirection stopped.", user->nick.c_str(), cname.c_str(), channel.c_str());
 						return MOD_RES_DENY;

@@ -43,7 +43,7 @@ class SSLMode : public ModeHandler
 	{
 		if (adding)
 		{
-			if (!channel->IsModeSet('z'))
+			if (!channel->IsModeSet(this))
 			{
 				if (IS_LOCAL(source))
 				{
@@ -61,7 +61,7 @@ class SSLMode : public ModeHandler
 						}
 					}
 				}
-				channel->SetMode('z',true);
+				channel->SetMode(this, true);
 				return MODEACTION_ALLOW;
 			}
 			else
@@ -71,9 +71,9 @@ class SSLMode : public ModeHandler
 		}
 		else
 		{
-			if (channel->IsModeSet('z'))
+			if (channel->IsModeSet(this))
 			{
-				channel->SetMode('z',false);
+				channel->SetMode(this, false);
 				return MODEACTION_ALLOW;
 			}
 
@@ -102,7 +102,7 @@ class ModuleSSLModes : public Module
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
-		if(chan && chan->IsModeSet('z'))
+		if(chan && chan->IsModeSet(sslm))
 		{
 			if (!sslm.API)
 				return MOD_RES_DENY;

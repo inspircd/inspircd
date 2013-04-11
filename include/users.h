@@ -447,12 +447,16 @@ class CoreExport User : public Extensible
 	 * @return True if the mode is set
 	 */
 	bool IsModeSet(unsigned char m);
+	bool IsModeSet(ModeHandler* mh);
+	bool IsModeSet(ModeHandler& mh) { return IsModeSet(&mh); }
 
 	/** Set a specific usermode to on or off
 	 * @param m The user mode
 	 * @param value On or off setting of the mode
 	 */
 	void SetMode(unsigned char m, bool value);
+	void SetMode(ModeHandler* mh, bool value);
+	void SetMode(ModeHandler& mh, bool value) { SetMode(&mh, value); }
 
 	/** Returns true or false for if a user can execute a privilaged oper command.
 	 * This is done by looking up their oper type from User::oper, then referencing
@@ -901,3 +905,14 @@ inline FakeUser* IS_SERVER(User* u)
 	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
 }
 
+inline bool User::IsModeSet(ModeHandler* mh)
+{
+	char m = mh->GetModeChar();
+	return (modes[m-65]);
+}
+
+inline void User::SetMode(ModeHandler* mh, bool value)
+{
+	char m = mh->GetModeChar();
+	modes[m-65] = value;
+}

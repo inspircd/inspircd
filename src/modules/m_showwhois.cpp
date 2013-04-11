@@ -105,7 +105,7 @@ class ModuleShowwhois : public Module
 
 	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
 	{
-		if (!dest->IsModeSet('W') || source == dest)
+		if (!dest->IsModeSet(*sw) || source == dest)
 			return;
 
 		if (!ShowWhoisFromOpers && source->IsOper())

@@ -32,18 +32,18 @@ ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, "key", 'k', PARAM_ALWAYS, M
 
 ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
-	bool exists = channel->IsModeSet('k');
+	bool exists = channel->IsModeSet(this);
 	if (IS_LOCAL(source))
 	{
 		if (exists == adding)
 			return MODEACTION_DENY;
-		if (exists && (parameter != channel->GetModeParameter('k')))
+		if (exists && (parameter != channel->GetModeParameter(this)))
 		{
 			/* Key is currently set and the correct key wasnt given */
 			return MODEACTION_DENY;
 		}
 	} else {
-		if (exists && adding && parameter == channel->GetModeParameter('k'))
+		if (exists && adding && parameter == channel->GetModeParameter(this))
 		{
 			/* no-op, don't show */
 			return MODEACTION_DENY;

@@ -67,7 +67,7 @@ class CommandRMode : public Command
 
 		if (!mh->IsListMode())
 		{
-			if (chan->IsModeSet(modeletter))
+			if (chan->IsModeSet(mh))
 				modestack.Push(modeletter);
 		}
 		else if (((prefixrank = mh->GetPrefixRank()) && (prefixchar = mh->GetPrefix())))

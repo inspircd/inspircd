@@ -32,24 +32,14 @@ class User_d : public ModeHandler
 
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
+		if (adding == dest->IsModeSet(this))
+			return MODEACTION_DENY;
+
 		if (adding)
-		{
-			if (!dest->IsModeSet('d'))
-			{
-				dest->WriteNotice("*** You have enabled usermode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
-				dest->SetMode('d',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (dest->IsModeSet('d'))
-			{
-				dest->SetMode('d',false);
-				return MODEACTION_ALLOW;
-			}
-		}
-		return MODEACTION_DENY;
+			dest->WriteNotice("*** You have enabled usermode +d, deaf mode. This mode means you WILL NOT receive any messages from any channels you are in. If you did NOT mean to do this, use /mode " + dest->nick + " -d.");
+
+		dest->SetMode(this, adding);
+		return MODEACTION_ALLOW;
 	}
 };
 
@@ -124,7 +114,7 @@ class ModuleDeaf : public Module
 		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 		{
 			/* not +d ? */
-			if (!i->first->IsModeSet('d'))
+			if (!i->first->IsModeSet(m1))
 				continue; /* deliver message */
 			/* matched both U-line only and regular bypasses */
 			if (is_bypasschar && is_bypasschar_uline)

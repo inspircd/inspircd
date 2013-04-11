@@ -51,7 +51,7 @@ class ModuleOperChans : public Module
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
-		if (chan && chan->IsModeSet('O') && !user->IsOper())
+		if (chan && chan->IsModeSet(oc) && !user->IsOper())
 		{
 			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join %s (+O is set)",
 				user->nick.c_str(), chan->name.c_str(), chan->name.c_str());

@@ -97,7 +97,7 @@ class HistoryMode : public ModeHandler
 		}
 		else
 		{
-			if (!channel->IsModeSet('H'))
+			if (!channel->IsModeSet(this))
 				return MODEACTION_DENY;
 			ext.unset(channel);
 		}

@@ -23,9 +23,34 @@
 
 /* $ModDesc: Provides support for channel mode +P to provide permanent channels */
 
+
+/** Handles the +P channel mode
+ */
+class PermChannel : public ModeHandler
+{
+ public:
+	PermChannel(Module* Creator)
+		: ModeHandler(Creator, "permanent", 'P', PARAM_NONE, MODETYPE_CHANNEL)
+	{
+		oper = true;
+	}
+
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding)
+	{
+		if (adding == channel->IsModeSet(this))
+			return MODEACTION_DENY;
+
+		channel->SetMode(this, adding);
+		if (!adding)
+			channel->CheckDestroy();
+
+		return MODEACTION_ALLOW;
+	}
+};
+
 // Not in a class due to circular dependancy hell.
 static std::string permchannelsconf;
-static bool WriteDatabase()
+static bool WriteDatabase(PermChannel& permchanmode)
 {
 	/*
 	 * We need to perform an atomic write so as not to fuck things up.
@@ -52,7 +77,7 @@ static bool WriteDatabase()
 	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
 	{
 		Channel* chan = i->second;
-		if (!chan->IsModeSet('P'))
+		if (!chan->IsModeSet(permchanmode))
 			continue;
 
 		stream << "<permchannels channel=\"" << ServerConfig::Escape(chan->name)
@@ -87,38 +112,6 @@ static bool WriteDatabase()
 
 	return true;
 }
-
-
-/** Handles the +P channel mode
- */
-class PermChannel : public ModeHandler
-{
- public:
-	PermChannel(Module* Creator) : ModeHandler(Creator, "permanent", 'P', PARAM_NONE, MODETYPE_CHANNEL) { oper = true; }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (adding)
-		{
-			if (!channel->IsModeSet('P'))
-			{
-				channel->SetMode('P',true);
-				return MODEACTION_ALLOW;
-			}
-		}
-		else
-		{
-			if (channel->IsModeSet('P'))
-			{
-				channel->SetMode(this,false);
-				channel->CheckDestroy();
-				return MODEACTION_ALLOW;
-			}
-		}
-
-		return MODEACTION_DENY;
-	}
-};
 
 class ModulePermanentChannels : public Module
 {
@@ -238,7 +231,7 @@ public:
 
 	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE
 	{
-		if (chan && (chan->IsModeSet('P') || mode == 'P'))
+		if (chan && (chan->IsModeSet(p) || mode == p.GetModeChar()))
 			dirty = true;
 
 		return MOD_RES_PASSTHRU;
@@ -246,14 +239,14 @@ public:
 
 	void OnPostTopicChange(User*, Channel *c, const std::string&) CXX11_OVERRIDE
 	{
-		if (c->IsModeSet('P'))
+		if (c->IsModeSet(p))
 			dirty = true;
 	}
 
 	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
 	{
 		if (dirty)
-			WriteDatabase();
+			WriteDatabase(p);
 		dirty = false;
 	}
 
@@ -296,7 +289,7 @@ public:
 
 	ModResult OnChannelPreDelete(Channel *c) CXX11_OVERRIDE
 	{
-		if (c->IsModeSet('P'))
+		if (c->IsModeSet(p))
 			return MOD_RES_DENY;
 
 		return MOD_RES_PASSTHRU;

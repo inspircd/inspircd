@@ -119,7 +119,7 @@ class NickFlood : public ModeHandler
 		}
 		else
 		{
-			if (!channel->IsModeSet('F'))
+			if (!channel->IsModeSet(this))
 				return MODEACTION_DENY;
 
 			ext.unset(channel);

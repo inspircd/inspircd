@@ -65,7 +65,7 @@ class CloakUser : public ModeHandler
 		 */
 		if (!user)
 		{
-			dest->SetMode('x',adding);
+			dest->SetMode(this, adding);
 			return MODEACTION_ALLOW;
 		}
 
@@ -82,7 +82,7 @@ class CloakUser : public ModeHandler
 			debounce_ts = ServerInstance->Time();
 		}
 
-		if (adding == user->IsModeSet('x'))
+		if (adding == user->IsModeSet(this))
 			return MODEACTION_DENY;
 
 		/* don't allow this user to spam modechanges */
@@ -102,7 +102,7 @@ class CloakUser : public ModeHandler
 			if (cloak)
 			{
 				user->ChangeDisplayedHost(cloak->c_str());
-				user->SetMode('x',true);
+				user->SetMode(this, true);
 				return MODEACTION_ALLOW;
 			}
 			else
@@ -113,7 +113,7 @@ class CloakUser : public ModeHandler
 			/* User is removing the mode, so restore their real host
 			 * and make it match the displayed one.
 			 */
-			user->SetMode('x',false);
+			user->SetMode(this, false);
 			user->ChangeDisplayedHost(user->host.c_str());
 			return MODEACTION_ALLOW;
 		}
@@ -312,10 +312,10 @@ class ModuleCloaking : public Module
 	// mode change, we will call SetMode back to true AFTER the host change is done.
 	void OnChangeHost(User* u, const std::string& host) CXX11_OVERRIDE
 	{
-		if(u->IsModeSet('x'))
+		if (u->IsModeSet(cu))
 		{
-			u->SetMode('x', false);
-			u->WriteServ("MODE %s -x", u->nick.c_str());
+			u->SetMode(cu, false);
+			u->WriteServ("MODE %s -%c", u->nick.c_str(), cu.GetModeChar());
 		}
 	}
 

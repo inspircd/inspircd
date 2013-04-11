@@ -63,7 +63,7 @@ class ModuleNoCTCP : public Module
 			if (res == MOD_RES_ALLOW)
 				return MOD_RES_PASSTHRU;
 
-			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet('C')))
+			if (!c->GetExtBanStatus(user, 'C').check(!c->IsModeSet(nc)))
 			{
 				user->WriteNumeric(ERR_NOCTCPALLOWED, "%s %s :Can't send CTCP to channel (+C set)",user->nick.c_str(), c->name.c_str());
 				return MOD_RES_DENY;
