@@ -53,9 +53,9 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('B');
+		tokens["EXTBAN"].push_back('B');
 	}
 
 	virtual void OnRehash(User* user)

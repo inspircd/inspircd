@@ -548,7 +548,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Modules->LoadAll();
 
 	/* Just in case no modules were loaded - fix for bug #101 */
-	this->BuildISupport();
+	this->ISupport.Build();
 	Config->ApplyDisabledCommands(Config->DisabledCommands);
 
 	if (!pl.empty())

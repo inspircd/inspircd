@@ -360,12 +360,13 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 	TreeServer* found = Utils->FindServerMask(parameters[0]);
 	if (found)
 	{
-		std::string Version = found->GetVersion();
-		user->WriteNumeric(351, "%s :%s",user->nick.c_str(),Version.c_str());
 		if (found == Utils->TreeRoot)
 		{
-			ServerInstance->Config->Send005(user);
+			// Pass to default VERSION handler.
+			return MOD_RES_PASSTHRU;
 		}
+		std::string Version = found->GetVersion();
+		user->WriteNumeric(351, "%s :%s",user->nick.c_str(),Version.c_str());
 	}
 	else
 	{

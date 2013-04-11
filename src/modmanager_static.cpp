@@ -128,7 +128,7 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + name);
 	}
 
-	ServerInstance->BuildISupport();
+	ServerInstance->ISupport.Build();
 	return true;
 }
 

@@ -52,9 +52,9 @@ class ModuleOverride : public Module
 		RequireKey = tag->getBool("requirekey");
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" OVERRIDE");
+		tokens["OVERRIDE"];
 	}
 
 	bool CanOverride(User* source, const char* token)

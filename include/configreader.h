@@ -432,16 +432,6 @@ class CoreExport ServerConfig
 	 */
 	ClassVector Classes;
 
-	/** The 005 tokens of this server (ISUPPORT)
-	 * populated/repopulated upon loading or unloading
-	 * modules.
-	 */
-	std::string data005;
-
-	/** isupport strings
-	 */
-	std::vector<std::string> isupport;
-
 	/** STATS characters in this list are available
 	 * only to operators.
 	 */
@@ -514,14 +504,6 @@ class CoreExport ServerConfig
 	/** Get server ID as string with required leading zeroes
 	 */
 	const std::string& GetSID();
-
-	/** Update the 005 vector
-	 */
-	void Update005();
-
-	/** Send the 005 numerics (ISUPPORT) to a user
-	 */
-	void Send005(User* user);
 
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods

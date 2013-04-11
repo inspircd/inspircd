@@ -485,26 +485,6 @@ std::string InspIRCd::TimeString(time_t curtime)
 	return std::string(ctime(&curtime),24);
 }
 
-// You should only pass a single character to this.
-void InspIRCd::AddExtBanChar(char c)
-{
-	std::string &tok = Config->data005;
-	std::string::size_type ebpos = tok.find(" EXTBAN=,");
-
-	if (ebpos == std::string::npos)
-	{
-		tok.append(" EXTBAN=,");
-		tok.push_back(c);
-	}
-	else
-	{
-		ebpos += 9;
-		while (isalpha(tok[ebpos]) && tok[ebpos] < c)
-			ebpos++;
-		tok.insert(ebpos, 1, c);
-	}
-}
-
 std::string InspIRCd::GenRandomStr(int length, bool printable)
 {
 	char* buf = new char[length];

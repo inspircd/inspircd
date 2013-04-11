@@ -64,9 +64,9 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" INVEX=I");
+		tokens["INVEX"] = "I";
 	}
 
 	ModResult OnCheckInvite(User* user, Channel* chan)
