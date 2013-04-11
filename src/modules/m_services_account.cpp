@@ -128,10 +128,10 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::string &t)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('R');
-		ServerInstance->AddExtBanChar('U');
+		tokens["EXTBAN"].push_back('R');
+		tokens["EXTBAN"].push_back('U');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */

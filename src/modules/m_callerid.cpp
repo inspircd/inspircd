@@ -347,9 +347,9 @@ public:
 		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
 	}
 
-	virtual void On005Numeric(std::string& output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output += " CALLERID=g";
+		tokens["CALLERID"] = "g";
 	}
 
 	ModResult PreText(User* user, User* dest, std::string& text)

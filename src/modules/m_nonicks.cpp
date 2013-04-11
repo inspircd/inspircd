@@ -51,9 +51,9 @@ class ModuleNoNickChange : public Module
 		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('N');
+		tokens["EXTBAN"].push_back('N');
 	}
 
 	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)

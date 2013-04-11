@@ -267,10 +267,10 @@ class ModuleSSLOpenSSL : public Module
 		fclose(dhpfile);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
 		if (!sslports.empty())
-			output.append(" SSL=" + sslports);
+			tokens["SSL"] = sslports;
 	}
 
 	~ModuleSSLOpenSSL()

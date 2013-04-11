@@ -45,9 +45,9 @@ class ModuleServerBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('s');
+		tokens["EXTBAN"].push_back('s');
 	}
 };
 

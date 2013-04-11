@@ -247,11 +247,9 @@ class ModuleNationalChars : public Module
 		OnRehash(NULL);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		std::string tmp(casemapping);
-		tmp.insert(0, "CASEMAPPING=");
-		SearchAndReplace(output, std::string("CASEMAPPING=rfc1459"), tmp);
+		tokens["CASEMAPPING"] = casemapping;
 	}
 
 	virtual void OnRehash(User* user)

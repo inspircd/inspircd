@@ -527,10 +527,9 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		// we don't really have a limit...
-		output = output + " WATCH=" + ConvToStr(maxwatch);
+		tokens["WATCH"] = ConvToStr(maxwatch);
 	}
 
 	virtual ~Modulewatch()

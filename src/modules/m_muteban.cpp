@@ -56,9 +56,9 @@ class ModuleQuietBan : public Module
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('m');
+		tokens["EXTBAN"].push_back('m');
 	}
 };
 

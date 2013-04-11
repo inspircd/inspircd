@@ -44,9 +44,9 @@ class ModuleUHNames : public Module
 		return Version("Provides the UHNAMES facility.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" UHNAMES");
+		tokens["UHNAMES"];
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)

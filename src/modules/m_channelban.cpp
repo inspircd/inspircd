@@ -66,9 +66,9 @@ class ModuleBadChannelExtban : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('j');
+		tokens["EXTBAN"].push_back('j');
 	}
 };
 

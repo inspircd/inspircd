@@ -911,9 +911,9 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
-	 * @param output The 005 string to be modified if neccessary.
-	 */
-	virtual void On005Numeric(std::string &output);
+	* @param output The 005 map to be modified if neccessary.
+	*/
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens);
 
 	/** Called when a client is disconnected by KILL.
 	 * If a client is killed by a server, e.g. a nickname collision or protocol error,

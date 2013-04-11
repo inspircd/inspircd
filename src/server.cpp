@@ -83,18 +83,6 @@ const char InspIRCd::LogHeader[] =
 	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
 	" - compiled on " SYSTEM;
 
-void InspIRCd::BuildISupport()
-{
-	// the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
-	std::stringstream v;
-	v << "WALLCHOPS WALLVOICES MODES=" << Config->Limits.MaxModes << " CHANTYPES=# PREFIX=" << this->Modes->BuildPrefixes() << " MAP MAXCHANNELS=" << Config->MaxChans << " MAXBANS=60 VBANLIST NICKLEN=" << Config->Limits.NickMax;
-	v << " CASEMAPPING=rfc1459 STATUSMSG=" << Modes->BuildPrefixes(false) << " CHARSET=ascii TOPICLEN=" << Config->Limits.MaxTopic << " KICKLEN=" << Config->Limits.MaxKick << " MAXTARGETS=" << Config->MaxTargets;
-	v << " AWAYLEN=" << Config->Limits.MaxAway << " CHANMODES=" << this->Modes->GiveModeList(MASK_CHANNEL) << " FNC NETWORK=" << Config->Network << " MAXPARA=32 ELIST=MU" << " CHANNELLEN=" << Config->Limits.ChanMax;
-	Config->data005 = v.str();
-	FOREACH_MOD(I_On005Numeric,On005Numeric(Config->data005));
-	Config->Update005();
-}
-
 void InspIRCd::IncrementUID(int pos)
 {
 	/*
@@ -184,5 +172,67 @@ std::string InspIRCd::GetUID()
 	return "";
 }
 
+void ISupportManager::Build()
+{
+	/**
+	 * This is currently the neatest way we can build the initial ISUPPORT map. In
+	 * the future we can use an initializer list here.
+	 */
+	std::map<std::string, std::string> tokens;
+	std::vector<std::string> lines;
+	int token_count = 0;
+	std::string line;
 
+	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
+	tokens["CASEMAPPING"] = "rfc1459";
+	tokens["CHANMODES"] = ConvToStr(ServerInstance->Modes->GiveModeList(MASK_CHANNEL));
+	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
+	tokens["CHANTYPES"] = "#";
+	tokens["CHARSET"] = "ascii";
+	tokens["ELIST"] = "MU";
+	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
+	tokens["MAXBANS"] = "64"; // TODO: make this a config setting.
+	tokens["MAXCHANNELS"] = ConvToStr(ServerInstance->Config->MaxChans);
+	tokens["MAXPARA"] = ConvToStr(MAXPARAMETERS);
+	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
+	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
+	tokens["NETWORK"] = ConvToStr(ServerInstance->Config->Network);
+	tokens["NICKLEN"] = ConvToStr(ServerInstance->Config->Limits.NickMax);
+	tokens["PREFIX"] = ServerInstance->Modes->BuildPrefixes();
+	tokens["STATUSMSG"] = ServerInstance->Modes->BuildPrefixes(false);
+	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
 
+	tokens["FNC"] = tokens["MAP"] = tokens["VBANLIST"] =
+		tokens["WALLCHOPS"] = tokens["WALLVOICES"];
+
+	FOREACH_MOD(I_On005Numeric, On005Numeric(tokens));
+
+	// EXTBAN is a special case as we need to sort it and prepend a comma.
+	std::map<std::string, std::string>::iterator extban = tokens.find("EXTBAN");
+	if (extban != tokens.end())
+	{
+		sort(extban->second.begin(), extban->second.end());
+		extban->second.insert(0, ",");
+	}
+
+	for (std::map<std::string, std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)
+	{
+		line.append(it->first + (it->second.empty() ? " " : "=" + it->second + " "));
+		token_count++;
+
+		if (token_count % 13 == 12 || it == --tokens.end())
+		{
+			line.append(":are supported by this server");
+			lines.push_back(line);
+			line.clear();
+		}
+	}
+
+	this->Lines = lines;
+}
+
+void ISupportManager::SendTo(LocalUser* user)
+{
+	for (std::vector<std::string>::iterator line = this->Lines.begin(); line != this->Lines.end(); line++)
+		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
+}

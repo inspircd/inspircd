@@ -47,9 +47,9 @@ class ModuleNoKicks : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('Q');
+		tokens["EXTBAN"].push_back('Q');
 	}
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
