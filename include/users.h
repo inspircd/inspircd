@@ -421,7 +421,7 @@ class CoreExport User : public Extensible
 	 * oper information can be obtained from User::oper
 	 * @return True if the user is an oper, false otherwise
 	 */
-	bool IsOper() const { return (oper != NULL); }
+	bool IsOper() const { return oper; }
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check
