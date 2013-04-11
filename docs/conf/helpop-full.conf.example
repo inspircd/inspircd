@@ -97,6 +97,11 @@ Removes a user from a channel you specify. You must be at least a
 channel halfoperator to remove a user. A removed user will part with
 a message stating they were removed from the channel and by whom.">
 
+<helpop key="rmode" value="/RMODE [channel] [modeletter] {[pattern]}
+
+Removes listmodes from a channel.
+E.g. /RMODE #Chan b m:* will remove all mute extbans.">
+
 <helpop key="fpart" value="/FPART [channel] [nick] {[reason]}
 
 This behaves identically to /REMOVE, the only difference is that that

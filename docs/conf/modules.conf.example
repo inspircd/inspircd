@@ -1463,6 +1463,13 @@
 # so that at least \s or [[:space:]] is available.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# RMODE module: Adds the /RMODE command
+# Allows channel mods to remove list modes en masse.
+# Syntax: /rmode <channel> <mode> [pattern]
+# E.g. '/rmode #Channel b m:*' will remove all mute-extbans on the channel.
+#<module name="m_rmode.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAJOIN module: Adds the /SAJOIN command
 # This module is oper-only.
 # To use, SAJOIN must be in one of your oper class blocks.
