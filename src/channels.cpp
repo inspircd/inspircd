@@ -291,7 +291,7 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (IS_LOCAL(user), NULL, cname, privs, key));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return NULL;
 		}
@@ -311,7 +311,7 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 		if (IS_LOCAL(user) && override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, Ptr, cname, privs, key));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (IS_LOCAL(user), Ptr, cname, privs, key));
 			if (MOD_RESULT == MOD_RES_DENY)
 			{
 				return NULL;

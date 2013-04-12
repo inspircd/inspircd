@@ -178,7 +178,7 @@ class ModuleCBan : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 

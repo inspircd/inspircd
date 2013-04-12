@@ -53,11 +53,9 @@ class ModuleRestrictChans : public Module
 		ReadConfig();
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		irc::string x(cname.c_str());
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
 
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
 		if (!chan)

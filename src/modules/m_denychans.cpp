@@ -83,7 +83,7 @@ class ModuleDenyChannels : public Module
 	}
 
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
 		for (ConfigIter j = tags.first; j != tags.second; ++j)
