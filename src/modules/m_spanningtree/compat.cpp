@@ -112,6 +112,24 @@ void TreeSocket::WriteLine(std::string line)
 						line.erase(c, d-c);
 					}
 				}
+				else if (command == "FTOPIC")
+				{
+					// Drop channel TS for FTOPIC
+					// :sid FTOPIC #target TS TopicTS ...
+					//     A      B       C  D
+					if (b == std::string::npos)
+						return;
+
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = line.find(' ', c + 1);
+					if (d == std::string::npos)
+						return;
+
+					line.erase(c, d-c);
+				}
 			}
 		}
 	}
@@ -140,6 +158,11 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	if ((cmd == "METADATA") && (params.size() >= 3))
 	{
 		// :20D METADATA #channel extname :extdata
+		return InsertCurrentChannelTS(params);
+	}
+	else if ((cmd == "FTOPIC") && (params.size() >= 4))
+	{
+		// :20D FTOPIC #channel 100 Attila :topic text
 		return InsertCurrentChannelTS(params);
 	}
 

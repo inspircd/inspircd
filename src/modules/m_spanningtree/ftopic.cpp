@@ -28,7 +28,15 @@ CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *us
 	if (!c)
 		return CMD_FAILURE;
 
-	time_t ts = ConvToInt(params[1]);
+	time_t ChanTS = ConvToInt(params[1]);
+	if (!ChanTS)
+		return CMD_INVALID;
+
+	if (c->age < ChanTS)
+		// Our channel TS is older, nothing to do
+		return CMD_FAILURE;
+
+	time_t ts = ConvToInt(params[2]);
 	if (!ts)
 		return CMD_INVALID;
 
@@ -42,18 +50,18 @@ CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *us
 	 * string comparision, so non-empty topics always overridde
 	 * empty topics if their timestamps are equal
 	 */
-	if ((ts == c->topicset) && (c->topic > params[3]))
+	if ((ts == c->topicset) && (c->topic > params[4]))
 		return CMD_FAILURE; // Topics were set at the exact same time, keep our topic and setter
 
-	if (c->topic != params[3])
+	if (c->topic != params[4])
 	{
 		// Update topic only when it differs from current topic
-		c->topic.assign(params[3], 0, ServerInstance->Config->Limits.MaxTopic);
+		c->topic.assign(params[4], 0, ServerInstance->Config->Limits.MaxTopic);
 		c->WriteChannel(user, "TOPIC %s :%s", c->name.c_str(), c->topic.c_str());
 	}
 
 	// Update setter and settime
-	c->setby.assign(params[2], 0, 127);
+	c->setby.assign(params[3], 0, 127);
 	c->topicset = ts;
 
 	return CMD_SUCCESS;

@@ -81,6 +81,7 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	parameterlist params;
 
 	params.push_back(channel->name);
+	params.push_back(ConvToStr(channel->age));
 	params.push_back(ConvToStr(ServerInstance->Time()));
 	params.push_back(ServerInstance->Config->ServerName);
 	params.push_back(":" + topic);

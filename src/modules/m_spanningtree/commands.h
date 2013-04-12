@@ -107,7 +107,7 @@ class CommandFMode : public Command
 class CommandFTopic : public Command
 {
  public:
-	CommandFTopic(Module* Creator) : Command(Creator, "FTOPIC", 4) { flags_needed = FLAG_SERVERONLY; }
+	CommandFTopic(Module* Creator) : Command(Creator, "FTOPIC", 5) { flags_needed = FLAG_SERVERONLY; }
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };

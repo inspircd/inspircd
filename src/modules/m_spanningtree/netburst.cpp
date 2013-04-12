@@ -161,7 +161,7 @@ void TreeSocket::SyncChannel(Channel* chan)
 	SendFJoins(chan);
 	if (!chan->topic.empty())
 	{
-		snprintf(data,MAXBUF,":%s FTOPIC %s %lu %s :%s", ServerInstance->Config->GetSID().c_str(), chan->name.c_str(), (unsigned long)chan->topicset, chan->setby.c_str(), chan->topic.c_str());
+		snprintf(data,MAXBUF,":%s FTOPIC %s %lu %lu %s :%s", ServerInstance->Config->GetSID().c_str(), chan->name.c_str(), (unsigned long) chan->age, (unsigned long)chan->topicset, chan->setby.c_str(), chan->topic.c_str());
 		this->WriteLine(data);
 	}
 
