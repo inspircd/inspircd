@@ -132,6 +132,10 @@ void TreeSocket::SendCapabilities(int phase)
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
 
+	// 2.0 needs this key
+	if (proto_version == 1202)
+		extra.append(" PROTOCOL="+ConvToStr(ProtocolVersion));
+
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
 			" CHANMAX="+ConvToStr(ServerInstance->Config->Limits.ChanMax)+
@@ -142,12 +146,11 @@ void TreeSocket::SendCapabilities(int phase)
 			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
 			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
-			" IP6SUPPORT=1"+
-			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
+			extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
 			" CHANMODES="+ServerInstance->Modes->GiveModeList(MASK_CHANNEL)+
-			" USERMODES="+ServerInstance->Modes->GiveModeList(MASK_USER)+
-			" SVSPART=1");
+			" USERMODES="+ServerInstance->Modes->GiveModeList(MASK_USER)
+			);
 
 	this->WriteLine("CAPAB END");
 }
@@ -193,6 +196,22 @@ bool TreeSocket::Capab(const parameterlist &params)
 		capab->CapKeys.clear();
 		if (params.size() > 1)
 			proto_version = ConvToInt(params[1]);
+
+		if (proto_version < MinCompatProtocol)
+		{
+			SendError("CAPAB negotiation failed: Server is using protocol version " + (proto_version ? ConvToStr(proto_version) : "1201 or older")
+				+ " which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
+				+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")"));
+			return false;
+		}
+
+		// Special case, may be removed in the future
+		if (proto_version == 1203 || proto_version == 1204)
+		{
+			SendError("CAPAB negotiation failed: InspIRCd 2.1 beta is not supported");
+			return false;
+		}
+
 		SendCapabilities(2);
 	}
 	else if (params[0] == "END")
@@ -237,21 +256,6 @@ bool TreeSocket::Capab(const parameterlist &params)
 					this->SendError("CAPAB negotiation failed: "+reason);
 					return false;
 				}
-			}
-		}
-
-		if (this->capab->CapKeys.find("PROTOCOL") == this->capab->CapKeys.end())
-		{
-			reason = "Protocol version not specified";
-		}
-		else
-		{
-			proto_version = ConvToInt(capab->CapKeys.find("PROTOCOL")->second);
-			if (proto_version < MinCompatProtocol)
-			{
-				reason = "Server is using protocol version " + ConvToStr(proto_version) +
-					" which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
-					+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")");
 			}
 		}
 
