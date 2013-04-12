@@ -19,8 +19,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_TREESERVER_H
-#define M_SPANNINGTREE_TREESERVER_H
+#pragma once
 
 #include "treesocket.h"
 
@@ -210,5 +209,3 @@ class TreeServer : public classbase
 	 */
 	~TreeServer();
 };
-
-#endif

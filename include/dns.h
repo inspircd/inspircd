@@ -18,7 +18,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /*
 dns.h - dns library very very loosely based on
 firedns, Copyright (C) 2002 Ian Gulliver
@@ -37,8 +36,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifndef DNS_H
-#define DNS_H
+
+#pragma once
 
 #include "socket.h"
 #include "hashcomp.h"
@@ -438,6 +437,3 @@ class CoreExport DNS : public EventHandler
 	 */
 	int PruneCache();
 };
-
-#endif
-

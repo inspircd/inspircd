@@ -23,7 +23,7 @@
 /* $ModDesc: RLINE: Regexp user banning. */
 
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include "xline.h"
 
 static bool ZlineOnMatch = false;

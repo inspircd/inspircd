@@ -20,8 +20,7 @@
  */
 
 
-#ifndef SNOMASKS_H
-#define SNOMASKS_H
+#pragma once
 
 class Snomask
 {
@@ -106,5 +105,3 @@ class CoreExport SnomaskManager
 	 */
 	void FlushSnotices();
 };
-
-#endif

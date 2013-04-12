@@ -17,8 +17,7 @@
  */
 
 
-#ifndef HASH_H
-#define HASH_H
+#pragma once
 
 #include "modules.h"
 
@@ -57,5 +56,3 @@ class HashProvider : public DataProvider
 		return sum(hmac1);
 	}
 };
-
-#endif

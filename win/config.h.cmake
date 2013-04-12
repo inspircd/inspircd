@@ -1,5 +1,4 @@
-#ifndef INSPIRCD_CONFIG_H
-#define INSPIRCD_CONFIG_H
+#pragma once
 
 #define BRANCH "@MAJOR_VERSION@.@MINOR_VERSION@"
 #define VERSION "@FULL_VERSION@"
@@ -14,5 +13,3 @@
 
 #include "inspircd_win32wrapper.h"
 #include "threadengines/threadengine_win32.h"
-
-#endif

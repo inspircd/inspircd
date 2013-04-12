@@ -19,10 +19,10 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
-#include "account.h"
-#include "sasl.h"
-#include "ssl.h"
+#include "modules/cap.h"
+#include "modules/account.h"
+#include "modules/sasl.h"
+#include "modules/ssl.h"
 
 /* $ModDesc: Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE. */
 

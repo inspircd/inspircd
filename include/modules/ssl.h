@@ -18,8 +18,7 @@
  */
 
 
-#ifndef SSL_H
-#define SSL_H
+#pragma once
 
 #include <map>
 #include <string>
@@ -171,5 +170,3 @@ struct UserCertificateRequest : public Request
 		return "";
 	}
 };
-
-#endif

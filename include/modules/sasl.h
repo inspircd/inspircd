@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
+ *   Copyright (C) 2010 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,27 +17,15 @@
  */
 
 
-#ifndef SPANNINGTREE_H
-#define SPANNINGTREE_H
+#pragma once
 
-struct AddServerEvent : public Event
+class SASLFallback : public Event
 {
-	const std::string servername;
-	AddServerEvent(Module* me, const std::string& name)
-		: Event(me, "new_server"), servername(name)
+ public:
+	const parameterlist& params;
+	SASLFallback(Module* me, const parameterlist& p)
+		: Event(me, "sasl_fallback"), params(p)
 	{
 		Send();
 	}
 };
-
-struct DelServerEvent : public Event
-{
-	const std::string servername;
-	DelServerEvent(Module* me, const std::string& name)
-		: Event(me, "lost_server"), servername(name)
-	{
-		Send();
-	}
-};
-
-#endif

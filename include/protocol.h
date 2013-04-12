@@ -18,8 +18,7 @@
  */
 
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#pragma once
 
 #include "hashcomp.h"
 
@@ -135,6 +134,3 @@ class ProtocolInterface
 	 */
 	virtual void GetServerList(ProtoServerList &sl) { }
 };
-
-#endif
-

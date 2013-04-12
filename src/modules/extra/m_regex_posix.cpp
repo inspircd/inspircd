@@ -19,12 +19,12 @@
 
 
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include <sys/types.h>
 #include <regex.h>
 
 /* $ModDesc: Regex Provider Module for POSIX Regular Expressions */
-/* $ModDep: m_regex.h */
+/* $ModDep: modules/regex.h */
 
 class POSIXRegexException : public ModuleException
 {

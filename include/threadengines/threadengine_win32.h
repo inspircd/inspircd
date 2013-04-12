@@ -18,8 +18,7 @@
  */
 
 
-#ifndef THREADENGINE_WIN32_H
-#define THREADENGINE_WIN32_H
+#pragma once
 
 #include "config.h"
 #include "base.h"
@@ -152,6 +151,3 @@ class ThreadSignalData
 		connFD = -1;
 	}
 };
-
-#endif
-

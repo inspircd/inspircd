@@ -18,8 +18,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_LINK_H
-#define M_SPANNINGTREE_LINK_H
+#pragma once
 
 class Link : public refcountbase
 {
@@ -51,5 +50,3 @@ class Autoconnect : public refcountbase
 	int position;
 	Autoconnect(ConfigTag* Tag) : tag(Tag) {}
 };
-
-#endif

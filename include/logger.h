@@ -18,8 +18,7 @@
  */
 
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 /** Simple wrapper providing periodic flushing to a disk-backed file.
  */
@@ -211,5 +210,3 @@ class CoreExport LogManager
 	 */
 	void Log(const std::string &type, int loglevel, const char *fmt, ...) CUSTOM_PRINTF(4, 5);
 };
-
-#endif

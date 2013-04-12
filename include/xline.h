@@ -20,8 +20,7 @@
  */
 
 
-#ifndef XLINE_H
-#define XLINE_H
+#pragma once
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  * Modules may derive from this, and their xlines will automatically be
@@ -527,4 +526,3 @@ class CoreExport XLineManager
 	void InvokeStats(const std::string &type, int numeric, User* user, string_list &results);
 };
 
-#endif

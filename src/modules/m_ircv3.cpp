@@ -19,8 +19,8 @@
 /* $ModDesc: Provides support for extended-join, away-notify and account-notify CAP capabilities */
 
 #include "inspircd.h"
-#include "account.h"
-#include "m_cap.h"
+#include "modules/account.h"
+#include "modules/cap.h"
 
 class ModuleIRCv3 : public Module
 {

@@ -22,8 +22,7 @@
  */
 
 
-#ifndef INSPIRCD_SOCKET_H
-#define INSPIRCD_SOCKET_H
+#pragma once
 
 #ifndef _WIN32
 
@@ -165,6 +164,3 @@ class CoreExport ListenSocket : public EventHandler
 	 */
 	void AcceptInternal();
 };
-
-#endif
-

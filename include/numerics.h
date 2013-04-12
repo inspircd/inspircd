@@ -18,8 +18,7 @@
  */
 
 
-#ifndef NUMERICS_H
-#define NUMERICS_H
+#pragma once
 
 /*
  * This file is aimed providing a string that is easier to use than using the numeric
@@ -157,5 +156,3 @@ enum Numerics
 	ERR_CANTLOADMODULE				=	974, // insp-specific
 	RPL_LOADEDMODULE				=	975 // insp-specific
 };
-
-#endif

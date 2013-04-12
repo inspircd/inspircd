@@ -16,8 +16,7 @@
  */
 
 
-#ifndef TESTSUITE_H
-#define TESTSUITE_H
+#pragma once
 
 class TestSuite
 {
@@ -32,5 +31,3 @@ class TestSuite
 	bool DoSpaceSepStreamTests();
 	bool DoGenerateUIDTests();
 };
-
-#endif

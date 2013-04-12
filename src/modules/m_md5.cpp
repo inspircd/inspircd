@@ -27,7 +27,7 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "hash.h"
+#include "modules/hash.h"
 
 /* The four core functions - F1 is optimized somewhat */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))

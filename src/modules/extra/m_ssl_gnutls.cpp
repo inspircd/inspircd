@@ -25,8 +25,8 @@
 #include <gcrypt.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
-#include "ssl.h"
-#include "m_cap.h"
+#include "modules/ssl.h"
+#include "modules/cap.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "libgnutls.lib")

@@ -25,7 +25,7 @@
 
 #include "inspircd.h"
 #include <mysql.h>
-#include "sql.h"
+#include "modules/sql.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "mysqlclient.lib")

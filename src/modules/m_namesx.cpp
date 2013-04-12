@@ -21,7 +21,7 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
+#include "modules/cap.h"
 
 /* $ModDesc: Provides the NAMESX (CAP multi-prefix) capability. */
 

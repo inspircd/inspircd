@@ -21,8 +21,8 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
-#include "../hash.h"
-#include "../ssl.h"
+#include "modules/hash.h"
+#include "modules/ssl.h"
 #include "socketengine.h"
 
 #include "main.h"

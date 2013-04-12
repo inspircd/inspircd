@@ -18,8 +18,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_RESOLVERS_H
-#define M_SPANNINGTREE_RESOLVERS_H
+#pragma once
 
 #include "socket.h"
 #include "inspircd.h"
@@ -63,5 +62,3 @@ class ServernameResolver : public Resolver
 	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
 	void OnError(ResolverError e, const std::string &errormessage);
 };
-
-#endif

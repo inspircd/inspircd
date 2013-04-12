@@ -18,8 +18,7 @@
  */
 
 
-#ifndef M_REGEX_H
-#define M_REGEX_H
+#pragma once
 
 #include "inspircd.h"
 
@@ -54,5 +53,3 @@ class RegexFactory : public DataProvider
 
 	virtual Regex* Create(const std::string& expr) = 0;
 };
-
-#endif

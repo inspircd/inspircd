@@ -17,8 +17,7 @@
  */
 
 
-#ifndef MEMBERSHIP_H
-#define MEMBERSHIP_H
+#pragma once
 
 class CoreExport Membership : public Extensible
 {
@@ -59,5 +58,3 @@ class Invitation : public classbase
 	static void Create(Channel* c, LocalUser* u, time_t timeout);
 	static Invitation* Find(Channel* c, LocalUser* u, bool check_expired = true);
 };
-
-#endif
