@@ -298,6 +298,12 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	if (command == "SVSMODE") // This isn't in an "else if" so we still force FMODE for changes on channels.
 		command = "MODE";
 
+	if (proto_version < ProtocolVersion)
+	{
+		if (!PreProcessOldProtocolMessage(who, command, params))
+			return;
+	}
+
 	// TODO move all this into Commands
 	if (command == "MAP")
 	{

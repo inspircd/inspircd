@@ -63,7 +63,10 @@ void SpanningTreeProtocolInterface::SendMetaData(Extensible* target, const std::
 	if (u)
 		params.push_back(u->uuid);
 	else if (c)
+	{
 		params.push_back(c->name);
+		params.push_back(ConvToStr(c->age));
+	}
 	else
 		params.push_back("*");
 

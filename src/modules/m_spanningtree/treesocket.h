@@ -314,4 +314,8 @@ class TreeSocket : public BufferedSocket
 	/** Returns true if this server was introduced to the rest of the network
 	 */
 	bool Introduced();
+
+	/** Fixes messages coming from old servers so the new command handlers understand them
+	 */
+	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, std::vector<std::string>& params);
 };

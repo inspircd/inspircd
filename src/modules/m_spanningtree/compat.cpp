@@ -90,6 +90,28 @@ void TreeSocket::WriteLine(std::string line)
 				}
 				else if (command == "RESYNC")
 					return;
+				else if (command == "METADATA")
+				{
+					// Drop TS for channel METADATA
+					// :sid METADATA #target TS extname ...
+					//     A        B       C  D
+					if (b == std::string::npos)
+						return;
+
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					if (line[b + 1] == '#')
+					{
+						// We're sending channel metadata
+						std::string::size_type d = line.find(' ', c + 1);
+						if (d == std::string::npos)
+							return;
+
+						line.erase(c, d-c);
+					}
+				}
 			}
 		}
 	}
@@ -97,4 +119,29 @@ void TreeSocket::WriteLine(std::string line)
 	ServerInstance->Logs->Log("m_spanningtree", LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 	this->WriteData(line);
 	this->WriteData(newline);
+}
+
+namespace
+{
+	bool InsertCurrentChannelTS(std::vector<std::string>& params)
+	{
+		Channel* chan = ServerInstance->FindChan(params[0]);
+		if (!chan)
+			return false;
+
+		// Insert the current TS of the channel between the first and the second parameters
+		params.insert(params.begin()+1, ConvToStr(chan->age));
+		return true;
+	}
+}
+
+bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std::vector<std::string>& params)
+{
+	if ((cmd == "METADATA") && (params.size() >= 3))
+	{
+		// :20D METADATA #channel extname :extdata
+		return InsertCurrentChannelTS(params);
+	}
+
+	return true; // Passthru
 }

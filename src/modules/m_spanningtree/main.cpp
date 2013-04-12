@@ -899,7 +899,7 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 	if (u)
 		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 	else if (c)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
+		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+ConvToStr(c->age)+" "+extname+" :"+extdata);
 	else if (!target)
 		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 }
