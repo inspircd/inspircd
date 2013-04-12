@@ -121,7 +121,7 @@ class ModuleRedirect : public Module
 		if (UseUsermode)
 		{
 			/* Log noting that this breaks compatability. */
-			ServerInstance->Logs->Log("m_redirect", DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
+			ServerInstance->Logs->Log("m_redirect", LOG_DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
 
 			/* Try to add the usermode */
 			ServerInstance->Modules->AddService(re_u);

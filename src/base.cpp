@@ -28,13 +28,13 @@
 classbase::classbase()
 {
 	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::+ @%p", (void*)this);
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::+ @%p", (void*)this);
 }
 
 CullResult classbase::cull()
 {
 	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::-%s @%p",
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p",
 			typeid(*this).name(), (void*)this);
 	return CullResult();
 }
@@ -42,7 +42,7 @@ CullResult classbase::cull()
 classbase::~classbase()
 {
 	if (ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "classbase::~ @%p", (void*)this);
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::~ @%p", (void*)this);
 }
 
 CullResult::CullResult()
@@ -74,14 +74,14 @@ refcountbase::refcountbase() : refcount(0)
 refcountbase::~refcountbase()
 {
 	if (refcount && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "refcountbase::~ @%p with refcount %d",
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "refcountbase::~ @%p with refcount %d",
 			(void*)this, refcount);
 }
 
 usecountbase::~usecountbase()
 {
 	if (usecount && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG, "usecountbase::~ @%p with refcount %d",
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "usecountbase::~ @%p with refcount %d",
 			(void*)this, usecount);
 }
 
@@ -198,7 +198,7 @@ CullResult Extensible::cull()
 Extensible::~Extensible()
 {
 	if (!extensions.empty() && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", DEBUG,
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG,
 			"Extensible destructor called without cull @%p", (void*)this);
 }
 

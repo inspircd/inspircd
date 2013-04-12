@@ -48,7 +48,7 @@ class OpMeQuery : public SQLQuery
 
 	void OnResult(SQLResult& res)
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result for %s", uid.c_str());
+		ServerInstance->Logs->Log("m_sqloper",LOG_DEBUG, "SQLOPER: result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
@@ -60,14 +60,14 @@ class OpMeQuery : public SQLQuery
 			if (OperUser(user, row[0], row[1]))
 				return;
 		}
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
+		ServerInstance->Logs->Log("m_sqloper",LOG_DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER
 		fallback();
 	}
 
 	void OnError(SQLerror& error)
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: query failed (%s)", error.Str());
+		ServerInstance->Logs->Log("m_sqloper",LOG_DEFAULT, "SQLOPER: query failed (%s)", error.Str());
 		fallback();
 	}
 
@@ -88,7 +88,7 @@ class OpMeQuery : public SQLQuery
 		}
 		else
 		{
-			ServerInstance->Logs->Log("m_sqloper",SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
+			ServerInstance->Logs->Log("m_sqloper",LOG_SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
 		}
 	}
 
@@ -97,7 +97,7 @@ class OpMeQuery : public SQLQuery
 		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
 		if (iter == ServerInstance->Config->oper_blocks.end())
 		{
-			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
+			ServerInstance->Logs->Log("m_sqloper",LOG_DEFAULT, "SQLOPER: bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
 			return false;
 		}
 		OperInfo* ifo = iter->second;
@@ -159,7 +159,7 @@ public:
 				/* Query is in progress, it will re-invoke OPER if needed */
 				return MOD_RES_DENY;
 			}
-			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: database not present");
+			ServerInstance->Logs->Log("m_sqloper",LOG_DEFAULT, "SQLOPER: database not present");
 		}
 		return MOD_RES_PASSTHRU;
 	}

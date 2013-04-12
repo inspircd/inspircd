@@ -31,11 +31,11 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 	LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 	if (!bound_user)
 	{
-		ServerInstance->Logs->Log("RESOLVER", DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
+		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
 		return;
 	}
 
-	ServerInstance->Logs->Log("RESOLVER", DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), input.c_str(), result.c_str());
+	ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), input.c_str(), result.c_str());
 
 	if (!fwd)
 	{
@@ -62,7 +62,7 @@ void UserResolver::OnLookupComplete(const std::string &result, unsigned int ttl,
 		}
 		catch (CoreException& e)
 		{
-			ServerInstance->Logs->Log("RESOLVER", DEBUG,"Error in resolver: %s",e.GetReason());
+			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG,"Error in resolver: %s",e.GetReason());
 		}
 	}
 	else

@@ -125,7 +125,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 				ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
 			else
 				ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-			ServerInstance->Logs->Log("KILL",DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
+			ServerInstance->Logs->Log("KILL",LOG_DEFAULT,"LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());
 			/* Bug #419, make sure this message can only occur once even in the case of multiple KILL messages crossing the network, and change to show
 			 * hidekillsserver as source if possible
 			 */

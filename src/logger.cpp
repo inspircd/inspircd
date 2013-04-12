@@ -82,31 +82,31 @@ void LogManager::OpenFileLogs()
 		}
 		std::string type = tag->getString("type");
 		std::string level = tag->getString("level");
-		int loglevel = DEFAULT;
+		int loglevel = LOG_DEFAULT;
 		if (level == "rawio")
 		{
-			loglevel = RAWIO;
+			loglevel = LOG_RAWIO;
 			ServerInstance->Config->RawLog = true;
 		}
 		else if (level == "debug")
 		{
-			loglevel = DEBUG;
+			loglevel = LOG_DEBUG;
 		}
 		else if (level == "verbose")
 		{
-			loglevel = VERBOSE;
+			loglevel = LOG_VERBOSE;
 		}
 		else if (level == "default")
 		{
-			loglevel = DEFAULT;
+			loglevel = LOG_DEFAULT;
 		}
 		else if (level == "sparse")
 		{
-			loglevel = SPARSE;
+			loglevel = LOG_SPARSE;
 		}
 		else if (level == "none")
 		{
-			loglevel = NONE;
+			loglevel = LOG_NONE;
 		}
 		FileWriter* fw;
 		std::string target = tag->getString("target");
@@ -126,7 +126,7 @@ void LogManager::OpenFileLogs()
 			fw = fwi->second;
 		}
 		FileLogStream* fls = new FileLogStream(loglevel, fw);
-		fls->OnLog(SPARSE, "HEADER", InspIRCd::LogHeader);
+		fls->OnLog(LOG_SPARSE, "HEADER", InspIRCd::LogHeader);
 		AddLogTypes(type, fls, true);
 	}
 }

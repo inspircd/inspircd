@@ -122,7 +122,7 @@ void LocalUser::StartDNSLookup()
 	}
 	catch (CoreException& e)
 	{
-		ServerInstance->Logs->Log("USERS", DEBUG,"Error in resolver: %s",e.GetReason());
+		ServerInstance->Logs->Log("USERS", LOG_DEBUG,"Error in resolver: %s",e.GetReason());
 		dns_done = true;
 		ServerInstance->stats->statsDnsBad++;
 	}
@@ -205,7 +205,7 @@ User::User(const std::string &uid, const std::string& sid, int type)
 	quietquit = quitting = false;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
-	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
+	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
 	user_hash::iterator finduuid = ServerInstance->Users->uuidlist->find(uuid);
 	if (finduuid == ServerInstance->Users->uuidlist->end())
@@ -233,7 +233,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 User::~User()
 {
 	if (ServerInstance->Users->uuidlist->find(uuid) != ServerInstance->Users->uuidlist->end())
-		ServerInstance->Logs->Log("USERS", DEFAULT, "User destructor for %s called without cull", uuid.c_str());
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "User destructor for %s called without cull", uuid.c_str());
 }
 
 const std::string& User::MakeHost()
@@ -588,7 +588,7 @@ void User::Oper(OperInfo* info)
 		nick.c_str(), ident.c_str(), host.c_str(), oper->NameStr(), opername.c_str());
 	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->NameStr());
 
-	ServerInstance->Logs->Log("OPER", DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->NameStr());
+	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->NameStr());
 	ServerInstance->Users->all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup
@@ -807,7 +807,7 @@ void LocalUser::FullConnect()
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
 		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->fullname.c_str());
-	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
+	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
@@ -1032,7 +1032,7 @@ void LocalUser::Write(const std::string& text)
 		return;
 	}
 
-	ServerInstance->Logs->Log("USEROUTPUT", RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
+	ServerInstance->Logs->Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
 
 	eh.AddWriteBuf(text);
 	eh.AddWriteBuf(wide_newline);
@@ -1511,7 +1511,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 {
 	ConnectClass *found = NULL;
 
-	ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
+	ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
 
 	if (!explicit_name.empty())
 	{
@@ -1521,7 +1521,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			if (explicit_name == c->name)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Explicitly set to %s", explicit_name.c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Explicitly set to %s", explicit_name.c_str());
 				found = c;
 			}
 		}
@@ -1531,7 +1531,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			ConnectClass* c = *i;
-			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Checking %s", c->GetName().c_str());
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());
 
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
@@ -1539,7 +1539,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class forced by module to %s", c->GetName().c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class forced by module to %s", c->GetName().c_str());
 				found = c;
 				break;
 			}
@@ -1555,7 +1555,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
 			    !InspIRCd::MatchCIDR(this->host, c->GetHost(), NULL))
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "No host match (for %s)", c->GetHost().c_str());
 				continue;
 			}
 
@@ -1565,7 +1565,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			 */
 			if (c->limit && (c->GetReferenceCount() >= c->limit))
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
 				continue;
 			}
 
@@ -1573,7 +1573,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			int port = c->config->getInt("port");
 			if (port)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port (%d)", port);
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Requires port (%d)", port);
 
 				/* and our port doesn't match, fail. */
 				if (this->GetServerPort() != port)
@@ -1584,7 +1584,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			{
 				if (ServerInstance->PassCompare(this, c->config->getString("password"), password, c->config->getString("hash")))
 				{
-					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Bad password, skipping");
+					ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Bad password, skipping");
 					continue;
 				}
 			}
