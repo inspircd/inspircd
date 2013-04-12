@@ -39,6 +39,58 @@ void TreeSocket::WriteLine(std::string line)
 			std::string command = line.substr(a + 1, b-a-1);
 			// now try to find a translation entry
 			// TODO a more efficient lookup method will be needed later
+			if (proto_version < 1205)
+			{
+				if (command == "IJOIN")
+				{
+					// Convert
+					// :<uid> IJOIN <chan> [<ts> [<flags>]]
+					// to
+					// :<sid> FJOIN <chan> <ts> + [<flags>],<uuid>
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+					{
+						// No TS or modes in the command
+						// :22DAAAAAB IJOIN #chan
+						const std::string channame = line.substr(b+1, c-b-1);
+						Channel* chan = ServerInstance->FindChan(channame);
+						if (!chan)
+							return;
+
+						line.push_back(' ');
+						line.append(ConvToStr(chan->age));
+						line.append(" + ,");
+					}
+					else
+					{
+						std::string::size_type d = line.find(' ', c + 1);
+						if (d == std::string::npos)
+						{
+							// TS present, no modes
+							// :22DAAAAAC IJOIN #chan 12345
+							line.append(" + ,");
+						}
+						else
+						{
+							// Both TS and modes are present
+							// :22DAAAAAC IJOIN #chan 12345 ov
+							std::string::size_type e = line.find(' ', d + 1);
+							if (e != std::string::npos)
+								line.erase(e);
+
+							line.insert(d, " +");
+							line.push_back(',');
+						}
+					}
+
+					// Move the uuid to the end and replace the I with an F
+					line.append(line.substr(1, 9));
+					line.erase(4, 6);
+					line[5] = 'F';
+				}
+				else if (command == "RESYNC")
+					return;
+			}
 		}
 	}
 

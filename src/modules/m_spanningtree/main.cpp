@@ -47,8 +47,8 @@ ModuleSpanningTree::ModuleSpanningTree()
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	: rconnect(module, module->Utils), rsquit(module, module->Utils),
 	svsjoin(module), svspart(module), svsnick(module), metadata(module),
-	uid(module), opertype(module), fjoin(module), fmode(module), ftopic(module),
-	fhost(module), fident(module), fname(module)
+	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
+	fmode(module), ftopic(module), fhost(module), fident(module), fname(module)
 {
 }
 
@@ -63,6 +63,8 @@ void ModuleSpanningTree::init()
 	ServerInstance->Modules->AddService(commands->uid);
 	ServerInstance->Modules->AddService(commands->opertype);
 	ServerInstance->Modules->AddService(commands->fjoin);
+	ServerInstance->Modules->AddService(commands->ijoin);
+	ServerInstance->Modules->AddService(commands->resync);
 	ServerInstance->Modules->AddService(commands->fmode);
 	ServerInstance->Modules->AddService(commands->ftopic);
 	ServerInstance->Modules->AddService(commands->fhost);
@@ -551,20 +553,29 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	Utils->TreeRoot->UserCount++;
 }
 
-void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
+void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts)
 {
 	// Only do this for local users
 	if (IS_LOCAL(memb->user))
 	{
 		parameterlist params;
-		// set up their permissions and the channel TS with FJOIN.
-		// All users are FJOINed now, because a module may specify
-		// new joining permissions for the user.
 		params.push_back(memb->chan->name);
-		params.push_back(ConvToStr(memb->chan->age));
-		params.push_back(std::string("+") + memb->chan->ChanModes(true));
-		params.push_back(memb->modes+","+memb->user->uuid);
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
+		if (created_by_local)
+		{
+			params.push_back(ConvToStr(memb->chan->age));
+			params.push_back(std::string("+") + memb->chan->ChanModes(true));
+			params.push_back(memb->modes+","+memb->user->uuid);
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
+		}
+		else
+		{
+			if (!memb->modes.empty())
+			{
+				params.push_back(ConvToStr(memb->chan->age));
+				params.push_back(memb->modes);
+			}
+			Utils->DoOneToMany(memb->user->uuid, "IJOIN", params);
+		}
 	}
 }
 

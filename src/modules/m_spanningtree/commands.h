@@ -133,6 +133,21 @@ class CommandFName : public Command
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
 };
 
+class CommandIJoin : public SplitCommand
+{
+ public:
+	CommandIJoin(Module* Creator) : SplitCommand(Creator, "IJOIN", 1) { flags_needed = FLAG_SERVERONLY; }
+	CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
+};
+
+class CommandResync : public SplitCommand
+{
+ public:
+	CommandResync(Module* Creator) : SplitCommand(Creator, "RESYNC", 1) { flags_needed = FLAG_SERVERONLY; }
+	CmdResult HandleServer(const std::vector<std::string>& parameters, FakeUser* user);
+};
+
 class SpanningTreeCommands
 {
  public:
@@ -145,6 +160,8 @@ class SpanningTreeCommands
 	CommandUID uid;
 	CommandOpertype opertype;
 	CommandFJoin fjoin;
+	CommandIJoin ijoin;
+	CommandResync resync;
 	CommandFMode fmode;
 	CommandFTopic ftopic;
 	CommandFHost fhost;
