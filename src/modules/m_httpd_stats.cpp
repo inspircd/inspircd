@@ -22,7 +22,7 @@
 
 
 #include "inspircd.h"
-#include "httpd.h"
+#include "modules/httpd.h"
 #include "xline.h"
 #include "protocol.h"
 

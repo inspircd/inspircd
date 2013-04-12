@@ -17,8 +17,7 @@
  */
 
 
-#ifndef INSPIRCD_SQLAPI_3
-#define INSPIRCD_SQLAPI_3
+#pragma once
 
 /** Defines the error types which SQLerror may be set to
  */
@@ -183,5 +182,3 @@ class SQLProvider : public DataProvider
 		userinfo["uuid"] = user->uuid;
 	}
 };
-
-#endif

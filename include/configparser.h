@@ -17,6 +17,8 @@
  */
 
 
+#pragma once
+
 struct fpos
 {
 	std::string filename;
@@ -76,5 +78,3 @@ struct FileWrapper
 		}
 	}
 };
-
-

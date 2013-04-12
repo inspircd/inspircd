@@ -23,8 +23,7 @@
  */
 
 
-#ifndef MODULES_H
-#define MODULES_H
+#pragma once
 
 #include "dynamic.h"
 #include "base.h"
@@ -1643,7 +1642,5 @@ struct AllModuleList {
 #endif
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)
-
-#endif
 
 #endif

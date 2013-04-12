@@ -18,8 +18,7 @@
  */
 
 
-#ifndef THREADENGINE_PTHREAD_H
-#define THREADENGINE_PTHREAD_H
+#pragma once
 
 #include <pthread.h>
 #include "typedefs.h"
@@ -153,6 +152,3 @@ class ThreadSignalData
  public:
 	ThreadSignalSocket* sock;
 };
-
-
-#endif

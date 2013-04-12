@@ -19,7 +19,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-
 #include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"

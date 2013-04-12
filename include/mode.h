@@ -20,8 +20,7 @@
  */
 
 
-#ifndef MODE_H
-#define MODE_H
+#pragma once
 
 #include "ctables.h"
 
@@ -563,5 +562,3 @@ class CoreExport ModeParser
 	 */
 	std::string BuildPrefixes(bool lettersAndModes = true);
 };
-
-#endif

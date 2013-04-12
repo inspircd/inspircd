@@ -21,8 +21,7 @@
  */
 
 
-#ifndef INSPIRCD_CONFIGREADER
-#define INSPIRCD_CONFIGREADER
+#pragma once
 
 #include <sstream>
 #include <string>
@@ -569,5 +568,3 @@ class CoreExport ConfigReaderThread : public Thread
 	void Finish();
 	bool IsDone() { return done; }
 };
-
-#endif

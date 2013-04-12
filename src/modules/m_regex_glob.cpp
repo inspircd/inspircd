@@ -18,7 +18,7 @@
  */
 
 
-#include "m_regex.h"
+#include "modules/regex.h"
 #include "inspircd.h"
 
 /* $ModDesc: Regex module using plain wildcard matching. */

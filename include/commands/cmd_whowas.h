@@ -19,8 +19,8 @@
  */
 
 
-#ifndef CMD_WHOWAS_H
-#define CMD_WHOWAS_H
+#pragma once
+
 #include "modules.h"
 
 /* Forward ref for typedefs */
@@ -114,5 +114,3 @@ class WhoWasGroup
 	 */
 	~WhoWasGroup();
 };
-
-#endif

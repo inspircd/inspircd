@@ -22,8 +22,7 @@
  */
 
 
-#ifndef USERS_H
-#define USERS_H
+#pragma once
 
 #include "socket.h"
 #include "inspsocket.h"
@@ -953,5 +952,3 @@ class CoreExport UserResolver : public Resolver
 	 */
 	void OnError(ResolverError e, const std::string &errormessage);
 };
-
-#endif

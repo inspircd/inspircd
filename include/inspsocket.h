@@ -21,8 +21,7 @@
  */
 
 
-#ifndef INSPSOCKET_H
-#define INSPSOCKET_H
+#pragma once
 
 #include "timer.h"
 
@@ -234,4 +233,3 @@ class CoreExport BufferedSocket : public StreamSocket
 inline Module* StreamSocket::GetIOHook() { return IOHook; }
 inline void StreamSocket::AddIOHook(Module* m) { IOHook = m; }
 inline void StreamSocket::DelIOHook() { IOHook = NULL; }
-#endif

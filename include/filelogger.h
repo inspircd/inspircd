@@ -18,8 +18,7 @@
  */
 
 
-#ifndef FILELOGGER_H
-#define FILELOGGER_H
+#pragma once
 
 #include "logger.h"
 
@@ -51,6 +50,3 @@ class CoreExport FileLogStream : public LogStream
 
 	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg);
 };
-
-#endif
-

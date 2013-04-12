@@ -18,8 +18,8 @@
 
 
 #include "inspircd.h"
-#include "sql.h"
-#include "hash.h"
+#include "modules/sql.h"
+#include "modules/hash.h"
 
 /* $ModDesc: Allow/Deny connections based upon an arbitrary SQL table */
 

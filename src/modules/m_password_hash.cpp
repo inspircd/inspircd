@@ -21,7 +21,7 @@
 /* $ModDesc: Allows for hashed oper passwords */
 
 #include "inspircd.h"
-#include "hash.h"
+#include "modules/hash.h"
 
 /* Handle /MKPASSWD
  */

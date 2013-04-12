@@ -18,8 +18,8 @@
 
 
 #include "inspircd.h"
-#include "sql.h"
-#include "hash.h"
+#include "modules/sql.h"
+#include "modules/hash.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 

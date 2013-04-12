@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
 /**
  * This is the maximum length of a UUID (unique user identifier).
@@ -23,5 +24,4 @@
  * It allows for a lot of clients as-is. -- w00t.
  */
 #define UUID_LENGTH 10
-
 

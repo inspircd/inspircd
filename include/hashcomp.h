@@ -22,8 +22,7 @@
  */
 
 
-#ifndef HASHCOMP_H
-#define HASHCOMP_H
+#pragma once
 
 #include <cstring>
 #include <string>
@@ -600,5 +599,3 @@ namespace std
 		
 	}
 }
-
-#endif

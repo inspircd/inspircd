@@ -17,7 +17,7 @@
  */
 
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include <regex>
 
 /* $ModDesc: Regex Provider Module for std::regex Regular Expressions */
@@ -25,7 +25,7 @@
  *  Specify the Regular Expression engine to use here. Valid settings are
  *  bre, ere, awk, grep, egrep, ecmascript (default if not specified)*/
 /* $CompileFlags: -std=c++11 */
-/* $ModDep: m_regex.h */
+/* $ModDep: modules/regex.h */
 
 class StdRegexException : public ModuleException
 {

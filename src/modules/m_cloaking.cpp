@@ -24,7 +24,7 @@
 
 
 #include "inspircd.h"
-#include "hash.h"
+#include "modules/hash.h"
 
 /* $ModDesc: Provides masking of user hostnames */
 

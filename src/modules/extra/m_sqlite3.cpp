@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 #include <sqlite3.h>
-#include "sql.h"
+#include "modules/sql.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "sqlite3.lib")

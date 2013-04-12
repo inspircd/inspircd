@@ -21,8 +21,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_MAIN_H
-#define M_SPANNINGTREE_MAIN_H
+#pragma once
 
 #include "inspircd.h"
 #include <stdarg.h>
@@ -178,5 +177,3 @@ class ModuleSpanningTree : public Module
 	Version GetVersion();
 	void Prioritize();
 };
-
-#endif
