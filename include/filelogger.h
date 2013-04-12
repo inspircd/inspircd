@@ -23,18 +23,17 @@
 
 #include "logger.h"
 
-/** Debug levels for use with InspIRCd::Log()
+/** Logging levels for use with InspIRCd::Log()
  *  */
-enum DebugLevel
+enum LogLevel
 {
-    RAWIO       =   5,
-    DEBUG       =   10,
-    VERBOSE     =   20,
-    DEFAULT     =   30,
-    SPARSE      =   40,
-    NONE        =   50
+	LOG_RAWIO   = 5,
+	LOG_DEBUG   = 10,
+	LOG_VERBOSE = 20,
+	LOG_DEFAULT = 30,
+	LOG_SPARSE  = 40,
+	LOG_NONE    = 50
 };
-
 
 /* Forward declaration -- required */
 class InspIRCd;

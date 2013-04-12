@@ -237,7 +237,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 		}
 
 		/* Check for fully initialized instances of the server by id */
-		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
+		ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"Looking for dupe SID %s", sid.c_str());
 		CheckDupe = Utils->FindServerID(sid);
 
 		if (CheckDupe)

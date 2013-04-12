@@ -104,7 +104,7 @@ void Snomask::SendMessage(const std::string &message, char mysnomask)
 		if (isupper(mysnomask))
 			desc = "REMOTE" + desc;
 		ModResult MOD_RESULT;
-		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", desc.c_str(), message.c_str());
+		ServerInstance->Logs->Log("snomask", LOG_DEFAULT, "%s: %s", desc.c_str(), message.c_str());
 
 		FIRST_MOD_RESULT(OnSendSnotice, MOD_RESULT, (mysnomask, desc, message));
 
@@ -141,7 +141,7 @@ void Snomask::Flush()
 			desc = "REMOTE" + desc;
 		std::string mesg = "(last message repeated "+ConvToStr(Count)+" times)";
 
-		ServerInstance->Logs->Log("snomask", DEFAULT, "%s: %s", desc.c_str(), mesg.c_str());
+		ServerInstance->Logs->Log("snomask", LOG_DEFAULT, "%s: %s", desc.c_str(), mesg.c_str());
 
 		FOREACH_MOD(I_OnSendSnotice, OnSendSnotice(LastLetter, desc, mesg));
 

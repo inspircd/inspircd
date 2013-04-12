@@ -379,7 +379,7 @@ bool InspIRCd::OpenLog(char**, int)
 	}
 
 	FileWriter* fw = new FileWriter(startup);
-	FileLogStream *f = new FileLogStream((Config->cmdline.forcedebug ? DEBUG : DEFAULT), fw);
+	FileLogStream *f = new FileLogStream((Config->cmdline.forcedebug ? LOG_DEBUG : LOG_DEFAULT), fw);
 
 	this->Logs->AddLogType("*", f, true);
 
@@ -392,7 +392,7 @@ void InspIRCd::CheckRoot()
 	if (geteuid() == 0)
 	{
 		std::cout << "ERROR: You are running an irc server as root! DO NOT DO THIS!" << std::endl << std::endl;
-		this->Logs->Log("STARTUP",DEFAULT,"Can't start as root");
+		this->Logs->Log("STARTUP",LOG_DEFAULT,"Can't start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
 #endif

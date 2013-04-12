@@ -29,7 +29,7 @@ void TreeSocket::WriteLine(std::string line)
 	{
 		if (line[0] != ':')
 		{
-			ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Sending line without server prefix!");
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Sending line without server prefix!");
 			line = ":" + ServerInstance->Config->GetSID() + " " + line;
 		}
 		if (proto_version != ProtocolVersion)
@@ -42,7 +42,7 @@ void TreeSocket::WriteLine(std::string line)
 		}
 	}
 
-	ServerInstance->Logs->Log("m_spanningtree", RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log("m_spanningtree", LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 	this->WriteData(line);
 	this->WriteData(newline);
 }

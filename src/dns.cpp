@@ -234,7 +234,7 @@ inline void DNS::EmptyHeader(unsigned char *output, const DNSHeader *header, con
 /** Send requests we have previously built down the UDP socket */
 int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryType qt)
 {
-	ServerInstance->Logs->Log("RESOLVER", DEBUG,"DNSRequest::SendRequests");
+	ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG,"DNSRequest::SendRequests");
 
 	unsigned char payload[sizeof(DNSHeader)];
 
@@ -246,7 +246,7 @@ int DNSRequest::SendRequests(const DNSHeader *header, const int length, QueryTyp
 	if (ServerInstance->SE->SendTo(dnsobj, payload, length + 12, 0, &(dnsobj->myserver.sa), sa_size(dnsobj->myserver)) != length+12)
 		return -1;
 
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Sent OK");
+	ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"Sent OK");
 	return 0;
 }
 
@@ -362,14 +362,14 @@ void DNS::Rehash()
 		if (ServerInstance->SE->Bind(this->GetFd(), bindto) < 0)
 		{
 			/* Failed to bind */
-			ServerInstance->Logs->Log("RESOLVER",SPARSE,"Error binding dns socket - hostnames will NOT resolve");
+			ServerInstance->Logs->Log("RESOLVER",LOG_SPARSE,"Error binding dns socket - hostnames will NOT resolve");
 			ServerInstance->SE->Shutdown(this, 2);
 			ServerInstance->SE->Close(this);
 			this->SetFd(-1);
 		}
 		else if (!ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 		{
-			ServerInstance->Logs->Log("RESOLVER",SPARSE,"Internal error starting DNS - hostnames will NOT resolve.");
+			ServerInstance->Logs->Log("RESOLVER",LOG_SPARSE,"Internal error starting DNS - hostnames will NOT resolve.");
 			ServerInstance->SE->Shutdown(this, 2);
 			ServerInstance->SE->Close(this);
 			this->SetFd(-1);
@@ -377,14 +377,14 @@ void DNS::Rehash()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("RESOLVER",SPARSE,"Error creating DNS socket - hostnames will NOT resolve");
+		ServerInstance->Logs->Log("RESOLVER",LOG_SPARSE,"Error creating DNS socket - hostnames will NOT resolve");
 	}
 }
 
 /** Initialise the DNS UDP socket so that we can send requests */
 DNS::DNS()
 {
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::DNS");
+	ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS::DNS");
 	/* Clear the Resolver class table */
 	memset(Classes,0,sizeof(Classes));
 
@@ -517,7 +517,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 		}
 		else
 		{
-			ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce IPv6 bad format for '%s'", ip);
+			ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS::GetNameForce IPv6 bad format for '%s'", ip);
 			/* Invalid IP address */
 			return -1;
 		}
@@ -532,7 +532,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 		}
 		else
 		{
-			ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce IPv4 bad format for '%s'", ip);
+			ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS::GetNameForce IPv4 bad format for '%s'", ip);
 			/* Invalid IP address */
 			return -1;
 		}
@@ -541,7 +541,7 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 	length = this->MakePayload(query, DNS_QUERY_PTR, 1, (unsigned char*)&h.payload);
 	if (length == -1)
 	{
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce can't query '%s' using '%s' because it's too long", ip, query);
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS::GetNameForce can't query '%s' using '%s' because it's too long", ip, query);
 		return -1;
 	}
 
@@ -549,13 +549,13 @@ int DNS::GetNameForce(const char *ip, ForceProtocol fp)
 
 	if (!req)
 	{
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce can't add query (resolver down?)");
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS::GetNameForce can't add query (resolver down?)");
 		return -1;
 	}
 
 	if (req->SendRequests(&h, length, DNS_QUERY_PTR) == -1)
 	{
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS::GetNameForce can't send (firewall?)");
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS::GetNameForce can't send (firewall?)");
 		return -1;
 	}
 
@@ -596,7 +596,7 @@ DNSResult DNS::GetResult()
 	/* Did we get the whole header? */
 	if (length < 12)
 	{
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"GetResult didn't get a full packet (len=%d)", length);
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"GetResult didn't get a full packet (len=%d)", length);
 		/* Nope - something screwed up. */
 		return DNSResult(-1,"",0,"");
 	}
@@ -614,7 +614,7 @@ DNSResult DNS::GetResult()
 	{
 		std::string server1 = from.str();
 		std::string server2 = myserver.str();
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
 			server1.c_str(), server2.c_str());
 		return DNSResult(-1,"",0,"");
 	}
@@ -632,7 +632,7 @@ DNSResult DNS::GetResult()
 	if (!requests[this_id])
 	{
 		/* Somehow we got a DNS response for a request we never made... */
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Hmm, got a result that we didn't ask for (id=%lx). Ignoring.", this_id);
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"Hmm, got a result that we didn't ask for (id=%lx). Ignoring.", this_id);
 		return DNSResult(-1,"",0,"");
 	}
 	else
@@ -796,7 +796,7 @@ DNSInfo DNSRequest::ResultIsReady(DNSHeader &header, unsigned length)
 		DNS::FillResourceRecord(&rr,&header.payload[i]);
 
 		i += 10;
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"Resolver: rr.type is %d and this.type is %d rr.class %d this.class %d", rr.type, this->type, rr.rr_class, this->rr_class);
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"Resolver: rr.type is %d and this.type is %d rr.class %d this.class %d", rr.type, this->type, rr.rr_class, this->rr_class);
 		if (rr.type != this->type)
 		{
 			curanswer++;
@@ -934,7 +934,7 @@ void Resolver::TriggerCachedResult()
 /** High level abstraction of dns used by application at large */
 Resolver::Resolver(const std::string &source, QueryType qt, bool &cached, Module* creator) : Creator(creator), input(source), querytype(qt)
 {
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Resolver::Resolver");
+	ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"Resolver::Resolver");
 	cached = false;
 
 	CQ = ServerInstance->Res->GetCache(source);
@@ -977,7 +977,7 @@ Resolver::Resolver(const std::string &source, QueryType qt, bool &cached, Module
 		break;
 
 		default:
-			ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS request with unknown query type %d", querytype);
+			ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS request with unknown query type %d", querytype);
 			this->myid = -1;
 		break;
 	}
@@ -987,7 +987,7 @@ Resolver::Resolver(const std::string &source, QueryType qt, bool &cached, Module
 	}
 	else
 	{
-		ServerInstance->Logs->Log("RESOLVER",DEBUG,"DNS request id %d", this->myid);
+		ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"DNS request id %d", this->myid);
 	}
 }
 
@@ -1020,11 +1020,11 @@ void DNS::HandleEvent(EventType, int)
 	/* Fetch the id and result of the next available packet */
 	DNSResult res(0,"",0,"");
 	res.id = 0;
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Handle DNS event");
+	ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"Handle DNS event");
 
 	res = this->GetResult();
 
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"Result id %d", res.id);
+	ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"Result id %d", res.id);
 
 	/* Is there a usable request id? */
 	if (res.id != -1)
@@ -1070,7 +1070,7 @@ void DNS::HandleEvent(EventType, int)
 /** Add a derived Resolver to the working set */
 bool DNS::AddResolverClass(Resolver* r)
 {
-	ServerInstance->Logs->Log("RESOLVER",DEBUG,"AddResolverClass 0x%08lx", (unsigned long)r);
+	ServerInstance->Logs->Log("RESOLVER",LOG_DEBUG,"AddResolverClass 0x%08lx", (unsigned long)r);
 	/* Check the pointers validity and the id's validity */
 	if ((r) && (r->GetId() > -1))
 	{

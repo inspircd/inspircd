@@ -234,13 +234,13 @@ bool InspIRCd::DaemonSeed()
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		this->Logs->Log("STARTUP",DEFAULT,"Failed to getrlimit()!");
+		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to getrlimit()!");
 		return false;
 	}
 	rl.rlim_cur = rl.rlim_max;
 
 	if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Logs->Log("STARTUP",DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+			this->Logs->Log("STARTUP",LOG_DEFAULT,"setrlimit() failed, cannot increase coredump size.");
 
 	return true;
 #endif
@@ -261,7 +261,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	else
 	{
 		std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
-		this->Logs->Log("STARTUP",DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
+		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
 #endif
@@ -435,7 +435,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	if (do_debug)
 	{
 		FileWriter* fw = new FileWriter(stdout);
-		FileLogStream* fls = new FileLogStream(RAWIO, fw);
+		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}
 	else if (!this->OpenLog(argv, argc))
@@ -459,7 +459,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #endif
 		{
 			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
-			this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
+			this->Logs->Log("STARTUP",LOG_DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
 			Exit(EXIT_STATUS_CONFIG);
 		}
 	}
@@ -497,7 +497,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (!this->DaemonSeed())
 		{
 			std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
-			Logs->Log("STARTUP", DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
 			Exit(EXIT_STATUS_FORK);
 		}
 	}
@@ -573,7 +573,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
-			Logs->Log("STARTUP", DEFAULT, "Error killing parent process: %s",strerror(errno));
+			Logs->Log("STARTUP", LOG_DEFAULT, "Error killing parent process: %s",strerror(errno));
 		}
 	}
 
@@ -596,16 +596,16 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		fclose(stdout);
 
 		if (dup2(fd, STDIN_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdin.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdin.");
 		if (dup2(fd, STDOUT_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdout.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdout.");
 		if (dup2(fd, STDERR_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stderr.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stderr.");
 		close(fd);
 	}
 	else
 	{
-		Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+		Logs->Log("STARTUP", LOG_DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
 	/* Set win32 service as running, if we are running as a service */
@@ -620,7 +620,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	QueryPerformanceFrequency(&stats->QPFrequency);
 #endif
 
-	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
+	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef _WIN32
 	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
@@ -634,7 +634,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGROUPS", DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
+			this->Logs->Log("SETGROUPS", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -646,7 +646,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!g)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -654,7 +654,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -669,7 +669,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!u)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -677,7 +677,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -729,7 +729,7 @@ int InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
-			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
+			this->Logs->Log("CONFIG",LOG_DEBUG,"Detected ConfigThread exiting, tidying up...");
 
 			this->ConfigThread->Finish();
 

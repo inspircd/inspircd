@@ -54,7 +54,7 @@ static void range(T& value, V min, V max, V def, const char* msg)
 {
 	if (value >= (T)min && value <= (T)max)
 		return;
-	ServerInstance->Logs->Log("CONFIG", DEFAULT,
+	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT,
 		"WARNING: %s value of %ld is not between %ld and %ld; set to %ld.",
 		msg, (long)value, (long)min, (long)max, (long)def);
 	value = def;
@@ -115,7 +115,7 @@ static void FindDNS(std::string& server)
 		return;
 #ifdef _WIN32
 	// attempt to look up their nameserver from the system
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find a working server in the system settings...");
+	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"WARNING: <dns:server> not defined, attempting to find a working server in the system settings...");
 
 	PFIXED_INFO pFixedInfo;
 	DWORD dwBufferSize = sizeof(FIXED_INFO);
@@ -137,15 +137,15 @@ static void FindDNS(std::string& server)
 
 		if(!server.empty())
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first active resolver in the system settings.", server.c_str());
+			ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"<dns:server> set to '%s' as first active resolver in the system settings.", server.c_str());
 			return;
 		}
 	}
 
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
+	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
 #else
 	// attempt to look up their nameserver from /etc/resolv.conf
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
+	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
 
 	std::ifstream resolv("/etc/resolv.conf");
 
@@ -156,13 +156,13 @@ static void FindDNS(std::string& server)
 			resolv >> server;
 			if (server.find_first_not_of("0123456789.") == std::string::npos)
 			{
-				ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",server.c_str());
+				ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",server.c_str());
 				return;
 			}
 		}
 	}
 
-	ServerInstance->Logs->Log("CONFIG",DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
+	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
 #endif
 	server = "127.0.0.1";
 }
@@ -685,7 +685,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
 
 	if (!valid)
-		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
+		ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "There were errors in your configuration file:");
 
 	while (errstr.good())
 	{
@@ -827,7 +827,7 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 	ConfigTag* rv = found.first->second;
 	found.first++;
 	if (found.first != found.second)
-		ServerInstance->Logs->Log("CONFIG",DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
+		ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
 			"(first at " + rv->getTagLocation() + "; second at " + found.first->second->getTagLocation() + ")");
 	return rv;
 }
@@ -877,7 +877,7 @@ void ConfigReaderThread::Run()
 void ConfigReaderThread::Finish()
 {
 	ServerConfig* old = ServerInstance->Config;
-	ServerInstance->Logs->Log("CONFIG",DEBUG,"Switching to new configuration...");
+	ServerInstance->Logs->Log("CONFIG",LOG_DEBUG,"Switching to new configuration...");
 	ServerInstance->Config = this->Config;
 	Config->Apply(old, TheUserUID);
 

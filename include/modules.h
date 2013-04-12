@@ -135,7 +135,7 @@ struct ModResult {
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Logs->Log("MODULE",LOG_DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 		_i = safei; \
 	} \
@@ -162,7 +162,7 @@ do { \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
+			ServerInstance->Logs->Log("MODULE",LOG_DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
 			(void) mod_ ## n; /* catch mismatched pairs */ \
 		} \
 	} \

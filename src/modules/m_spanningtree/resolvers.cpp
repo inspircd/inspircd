@@ -107,6 +107,6 @@ void SecurityIPResolver::OnError(ResolverError e, const std::string &errormessag
 		ServerInstance->AddResolver(res, cached);
 		return;
 	}
-	ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Could not resolve IP associated with Link '%s': %s",
+	ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Could not resolve IP associated with Link '%s': %s",
 		MyLink->Name.c_str(),errormessage.c_str());
 }

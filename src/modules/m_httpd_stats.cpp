@@ -97,7 +97,7 @@ class ModuleHttpStats : public Module
 
 		if (event.id == "httpd_url")
 		{
-			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd event");
+			ServerInstance->Logs->Log("m_http_stats", LOG_DEBUG,"Handling httpd event");
 			HTTPRequest* http = (HTTPRequest*)&event;
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
