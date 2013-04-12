@@ -356,7 +356,7 @@ class ModuleDNSBL : public Module
 				return;
 		}
 		else
-			ServerInstance->Logs->Log("m_dnsbl", DEBUG, "User has no connect class in OnSetUserIP");
+			ServerInstance->Logs->Log("m_dnsbl", LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
 		unsigned char a, b, c, d;
 		char reversedipbuf[128];

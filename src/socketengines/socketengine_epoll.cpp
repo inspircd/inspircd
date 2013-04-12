@@ -61,7 +61,7 @@ EPollEngine::EPollEngine()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
 		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
@@ -71,8 +71,8 @@ EPollEngine::EPollEngine()
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT, "ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize epoll socket engine: " << strerror(errno) << std::endl;
 		std::cout << "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now." << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -119,13 +119,13 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return false;
 	}
 
 	if (ref[fd])
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Attempt to add duplicate fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Attempt to add duplicate fd: %d", fd);
 		return false;
 	}
 
@@ -136,11 +136,11 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Error adding fd: %d to socketengine: %s", fd, strerror(errno));
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Error adding fd: %d to socketengine: %s", fd, strerror(errno));
 		return false;
 	}
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"New file descriptor: %d", fd);
 
 	ref[fd] = eh;
 	SocketEngine::SetEventMask(eh, event_mask);
@@ -168,7 +168,7 @@ void EPollEngine::DelFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return;
 	}
 
@@ -179,12 +179,12 @@ void EPollEngine::DelFd(EventHandler* eh)
 
 	if (i < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"epoll_ctl can't remove socket: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"epoll_ctl can't remove socket: %s", strerror(errno));
 	}
 
 	ref[fd] = NULL;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Remove file descriptor: %d", fd);
 	CurrentSetSize--;
 }
 
@@ -202,7 +202,7 @@ int EPollEngine::DispatchEvents()
 		EventHandler* eh = ref[events[j].data.fd];
 		if (!eh)
 		{
-			ServerInstance->Logs->Log("SOCKET",DEBUG,"Got event on unknown fd: %d", events[j].data.fd);
+			ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Got event on unknown fd: %d", events[j].data.fd);
 			epoll_ctl(EngineHandle, EPOLL_CTL_DEL, events[j].data.fd, &events[j]);
 			continue;
 		}

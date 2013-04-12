@@ -70,7 +70,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 
 	if (!TS)
 	{
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server.c_str());
 		return CMD_INVALID;
 	}
@@ -152,7 +152,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 				ModeHandler *mh = ServerInstance->Modes->FindMode(*unparsedmodes, MODETYPE_CHANNEL);
 				if (!mh)
 				{
-					ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Unrecognised mode %c, dropping link", *unparsedmodes);
+					ServerInstance->Logs->Log("m_spanningtree", LOG_SPARSE, "Unrecognised mode %c, dropping link", *unparsedmodes);
 					return CMD_INVALID;
 				}
 
@@ -181,7 +181,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 			}
 			else
 			{
-				ServerInstance->Logs->Log("m_spanningtree",SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
+				ServerInstance->Logs->Log("m_spanningtree",LOG_SPARSE, "Ignored nonexistant user %s in fjoin to %s (probably quit?)", usr, channel.c_str());
 				continue;
 			}
 		}

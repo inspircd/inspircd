@@ -201,7 +201,7 @@ const UserMembList* Channel::GetUsers()
 
 void Channel::SetDefaultModes()
 {
-	ServerInstance->Logs->Log("CHANNELS", DEBUG, "SetDefaultModes %s",
+	ServerInstance->Logs->Log("CHANNELS", LOG_DEBUG, "SetDefaultModes %s",
 		ServerInstance->Config->DefaultModes.c_str());
 	irc::spacesepstream list(ServerInstance->Config->DefaultModes);
 	std::string modeseq;
@@ -280,7 +280,7 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 		if (!IS_LOCAL(user))
 		{
 			if (!TS)
-				ServerInstance->Logs->Log("CHANNELS",DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cname.c_str());
+				ServerInstance->Logs->Log("CHANNELS",LOG_DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cname.c_str());
 		}
 		else
 		{
@@ -966,7 +966,7 @@ void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
 		// Expired, don't bother
 		return;
 
-	ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Create chan=%s user=%s", c->name.c_str(), u->uuid.c_str());
+	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Create chan=%s user=%s", c->name.c_str(), u->uuid.c_str());
 
 	Invitation* inv = Invitation::Find(c, u, false);
 	if (inv)
@@ -974,20 +974,20 @@ void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
 		 if ((inv->expiry == 0) || (inv->expiry > timeout))
 			return;
 		inv->expiry = timeout;
-		ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Create changed expiry in existing invitation %p", (void*) inv);
+		ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Create changed expiry in existing invitation %p", (void*) inv);
 	}
 	else
 	{
 		inv = new Invitation(c, u, timeout);
 		c->invites.push_back(inv);
 		u->invites.push_back(inv);
-		ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Create created new invitation %p", (void*) inv);
+		ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Create created new invitation %p", (void*) inv);
 	}
 }
 
 Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 {
-	ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find chan=%s user=%s check_expired=%d", c ? c->name.c_str() : "NULL", u ? u->uuid.c_str() : "NULL", check_expired);
+	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find chan=%s user=%s check_expired=%d", c ? c->name.c_str() : "NULL", u ? u->uuid.c_str() : "NULL", check_expired);
 	if (!u || u->invites.empty())
 		return NULL;
 
@@ -1002,7 +1002,7 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 		{
 			/* Expired invite, remove it. */
 			std::string expiration = ServerInstance->TimeString(inv->expiry);
-			ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find ecountered expired entry: %p expired %s", (void*) inv, expiration.c_str());
+			ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find ecountered expired entry: %p expired %s", (void*) inv, expiration.c_str());
 			i = locallist.erase(i);
 			inv->cull();
 			delete inv;
@@ -1020,7 +1020,7 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 	}
 
 	locallist.swap(u->invites);
-	ServerInstance->Logs->Log("INVITATION", DEBUG, "Invitation::Find result=%p", (void*) result);
+	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find result=%p", (void*) result);
 	return result;
 }
 
@@ -1037,7 +1037,7 @@ Invitation::~Invitation()
 
 void InviteBase::ClearInvites()
 {
-	ServerInstance->Logs->Log("INVITEBASE", DEBUG, "InviteBase::ClearInvites %p", (void*) this);
+	ServerInstance->Logs->Log("INVITEBASE", LOG_DEBUG, "InviteBase::ClearInvites %p", (void*) this);
 	InviteList locallist;
 	locallist.swap(invites);
 	for (InviteList::const_iterator i = locallist.begin(); i != locallist.end(); ++i)

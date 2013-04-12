@@ -216,7 +216,7 @@ class HttpServerSocket : public BufferedSocket
 
 			if (reqbuffer.length() >= 8192)
 			{
-				ServerInstance->Logs->Log("m_httpd",DEBUG, "m_httpd dropped connection due to an oversized request buffer");
+				ServerInstance->Logs->Log("m_httpd",LOG_DEBUG, "m_httpd dropped connection due to an oversized request buffer");
 				reqbuffer.clear();
 				SetError("Buffer");
 			}

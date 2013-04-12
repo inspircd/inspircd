@@ -72,7 +72,7 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 
 	if (!TS)
 	{
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq. Mode was dropped.", sourceserv.c_str());
 		return CMD_INVALID;
 	}

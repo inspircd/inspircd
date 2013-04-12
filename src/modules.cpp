@@ -331,13 +331,13 @@ bool ModuleManager::CanUnload(Module* mod)
 	if (modfind == Modules.end() || modfind->second != mod)
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 	if (mod->GetVersion().Flags & VF_STATIC)
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " not unloadable (marked static)";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 	return true;
@@ -395,7 +395,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
+	ServerInstance->Logs->Log("MODULE", LOG_DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
 	this->ModCount--;
 	ServerInstance->ISupport.Build();
 }
