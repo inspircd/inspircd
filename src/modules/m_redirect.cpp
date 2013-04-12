@@ -39,7 +39,7 @@ class Redirect : public ModeHandler
 		{
 			if (IS_LOCAL(source))
 			{
-				if (!ServerInstance->IsChannel(parameter.c_str(), ServerInstance->Config->Limits.ChanMax))
+				if (!ServerInstance->IsChannel(parameter, ServerInstance->Config->Limits.ChanMax))
 				{
 					source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
 					parameter.clear();
@@ -142,8 +142,7 @@ class ModuleRedirect : public Module
 					std::string channel = chan->GetModeParameter('L');
 
 					/* sometimes broken ulines can make circular or chained +L, avoid this */
-					Channel* destchan = NULL;
-					destchan = ServerInstance->FindChan(channel);
+					Channel* destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet('L'))
 					{
 						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname.c_str());
@@ -159,7 +158,7 @@ class ModuleRedirect : public Module
 					else
 					{
 						user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname.c_str(), channel.c_str());
-						Channel::JoinUser(user, channel, false, "", false, ServerInstance->Time());
+						Channel::JoinUser(user, channel);
 						return MOD_RES_DENY;
 					}
 				}

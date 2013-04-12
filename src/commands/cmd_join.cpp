@@ -25,33 +25,39 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class CommandJoin : public Command
+class CommandJoin : public SplitCommand
 {
  public:
 	/** Constructor for join.
 	 */
-	CommandJoin ( Module* parent) : Command(parent,"JOIN", 1, 2) { syntax = "<channel>{,<channel>} {<key>{,<key>}}"; Penalty = 2; }
+	CommandJoin(Module* parent)
+		: SplitCommand(parent, "JOIN", 1, 2)
+	{
+		syntax = "<channel>{,<channel>} {<key>{,<key>}}";
+		Penalty = 2;
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
 };
 
 /** Handle /JOIN
  */
-CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
 	if (parameters.size() > 1)
 	{
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, 1, false))
 			return CMD_SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
+		if (ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
 		{
-			Channel::JoinUser(user, parameters[0], false, parameters[1].c_str(), false);
+			Channel::JoinUser(user, parameters[0], false, parameters[1]);
 			return CMD_SUCCESS;
 		}
 	}
@@ -60,9 +66,9 @@ CmdResult CommandJoin::Handle (const std::vector<std::string>& parameters, User 
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, -1, false))
 			return CMD_SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
+		if (ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
 		{
-			Channel::JoinUser(user, parameters[0], false, "", false);
+			Channel::JoinUser(user, parameters[0]);
 			return CMD_SUCCESS;
 		}
 	}

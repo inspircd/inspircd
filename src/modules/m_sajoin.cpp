@@ -52,15 +52,14 @@ class CommandSajoin : public Command
 				return CMD_FAILURE;
 			}
 
-			/* For local users, we send the JoinUser which may create a channel and set its TS.
+			/* For local users, we call Channel::JoinUser which may create a channel and set its TS.
 			 * For non-local users, we just return CMD_SUCCESS, knowing this will propagate it where it needs to be
-			 * and then that server will generate the users JOIN or FJOIN instead.
+			 * and then that server will handle the command.
 			 */
-			if (IS_LOCAL(dest))
+			LocalUser* localuser = IS_LOCAL(dest);
+			if (localuser)
 			{
-				Channel::JoinUser(dest, parameters[1], true, "", false, ServerInstance->Time());
-				/* Fix for dotslasher and w00t - if the join didnt succeed, return CMD_FAILURE so that it doesnt propagate */
-				Channel* n = ServerInstance->FindChan(parameters[1]);
+				Channel* n = Channel::JoinUser(localuser, parameters[1], true);
 				if (n)
 				{
 					if (n->HasUser(dest))

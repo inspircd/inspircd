@@ -34,8 +34,9 @@ CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 
 	/* only join if it's local, otherwise just pass it on! */
-	if (IS_LOCAL(u))
-		Channel::JoinUser(u, parameters[1], false, "", false, ServerInstance->Time());
+	LocalUser* localuser = IS_LOCAL(u);
+	if (localuser)
+		Channel::JoinUser(localuser, parameters[1]);
 	return CMD_SUCCESS;
 }
 

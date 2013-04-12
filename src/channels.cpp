@@ -146,8 +146,11 @@ long Channel::GetUserCounter()
 
 Membership* Channel::AddUser(User* user)
 {
-	Membership* memb = new Membership(user, this);
-	userlist[user] = memb;
+	Membership*& memb = userlist[user];
+	if (memb)
+		return NULL;
+
+	memb = new Membership(user, this);
 	return memb;
 }
 
@@ -228,14 +231,13 @@ void Channel::SetDefaultModes()
  * add a channel to a user, creating the record for it if needed and linking
  * it to the user record
  */
-Channel* Channel::JoinUser(User* user, std::string cname, bool override, const std::string& key, bool bursting, time_t TS)
+Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, const std::string& key)
 {
-	// Fix: unregistered users could be joined using /SAJOIN
-	if (!user || user->registered != REG_ALL)
+	if (user->registered != REG_ALL)
+	{
+		ServerInstance->Logs->Log("CHANNELS", LOG_DEBUG, "Attempted to join unregistered user " + user->uuid + " to channel " + cname);
 		return NULL;
-
-	std::string privs;
-	Channel *Ptr;
+	}
 
 	/*
 	 * We don't restrict the number of channels that remote users or users that are override-joining may be in.
@@ -243,7 +245,7 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 	 * We restrict local operators to OperMaxChans channels.
 	 * This is a lot more logical than how it was formerly. -- w00t
 	 */
-	if (IS_LOCAL(user) && !override)
+	if (!override)
 	{
 		if (user->HasPrivPermission("channels/high-join-limit"))
 		{
@@ -266,97 +268,93 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 		}
 	}
 
+	// Crop channel name if it's too long
 	if (cname.length() > ServerInstance->Config->Limits.ChanMax)
 		cname.resize(ServerInstance->Config->Limits.ChanMax);
 
-	Ptr = ServerInstance->FindChan(cname);
-	bool created_by_local = false;
+	Channel* chan = ServerInstance->FindChan(cname);
+	bool created_by_local = (chan == NULL); // Flag that will be passed to modules in the OnUserJoin() hook later
+	std::string privs; // Prefix mode(letter)s to give to the joining user
 
-	if (!Ptr)
+	if (!chan)
 	{
-		/*
-		 * Fix: desync bug was here, don't set @ on remote users - spanningtree handles their permissions. bug #358. -- w00t
-		 */
-		if (!IS_LOCAL(user))
-		{
-			if (!TS)
-				ServerInstance->Logs->Log("CHANNELS",LOG_DEBUG,"*** BUG *** Channel::JoinUser called for REMOTE user '%s' on channel '%s' but no TS given!", user->nick.c_str(), cname.c_str());
-		}
-		else
-		{
-			privs = "o";
-			created_by_local = true;
-		}
+		privs = "o";
 
-		if (IS_LOCAL(user) && override == false)
+		if (override == false)
 		{
+			// Ask the modules whether they're ok with the join, pass NULL as Channel* as the channel is yet to be created
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (IS_LOCAL(user), NULL, cname, privs, key));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, NULL, cname, privs, key));
 			if (MOD_RESULT == MOD_RES_DENY)
-				return NULL;
+				return NULL; // A module wasn't happy with the join, abort
 		}
 
-		Ptr = new Channel(cname, TS);
+		chan = new Channel(cname, ServerInstance->Time());
+		// Set the default modes on the channel (<options:defaultmodes>)
+		chan->SetDefaultModes();
 	}
 	else
 	{
 		/* Already on the channel */
-		if (Ptr->HasUser(user))
+		if (chan->HasUser(user))
 			return NULL;
 
-		/*
-		 * remote users are allowed us to bypass channel modes
-		 * and bans (used by servers)
-		 */
-		if (IS_LOCAL(user) && override == false)
+		if (override == false)
 		{
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (IS_LOCAL(user), Ptr, cname, privs, key));
+			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, chan, cname, privs, key));
+
+			// A module explicitly denied the join and (hopefully) generated a message
+			// describing the situation, so we may stop here without sending anything
 			if (MOD_RESULT == MOD_RES_DENY)
-			{
 				return NULL;
-			}
-			else if (MOD_RESULT == MOD_RES_PASSTHRU)
+
+			// If no module returned MOD_RES_DENY or MOD_RES_ALLOW (which is the case
+			// most of the time) then proceed to check channel modes +k, +i, +l and bans,
+			// in this order.
+			// If a module explicitly allowed the join (by returning MOD_RES_ALLOW),
+			// then this entire section is skipped
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				std::string ckey = Ptr->GetModeParameter('k');
-				bool invited = IS_LOCAL(user)->IsInvited(Ptr);
+				std::string ckey = chan->GetModeParameter('k');
+				bool invited = user->IsInvited(chan);
 				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
 
 				if (!ckey.empty())
 				{
-					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, Ptr, key));
+					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, key));
 					if (!MOD_RESULT.check((ckey == key) || can_bypass))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-						user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), Ptr->name.c_str());
+						user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), chan->name.c_str());
 						return NULL;
 					}
 				}
 
-				if (Ptr->IsModeSet('i'))
+				if (chan->IsModeSet('i'))
 				{
-					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, Ptr));
+					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
 					if (!MOD_RESULT.check(invited))
 					{
-						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), Ptr->name.c_str());
+						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), chan->name.c_str());
 						return NULL;
 					}
 				}
 
-				std::string limit = Ptr->GetModeParameter('l');
+				std::string limit = chan->GetModeParameter('l');
 				if (!limit.empty())
 				{
-					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, Ptr));
-					if (!MOD_RESULT.check((Ptr->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
+					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
+					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
 					{
-						user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), Ptr->name.c_str());
+						user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), chan->name.c_str());
 						return NULL;
 					}
 				}
 
-				if (Ptr->IsBanned(user) && !can_bypass)
+				if (chan->IsBanned(user) && !can_bypass)
 				{
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), Ptr->name.c_str());
+					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), chan->name.c_str());
 					return NULL;
 				}
 
@@ -366,67 +364,78 @@ Channel* Channel::JoinUser(User* user, std::string cname, bool override, const s
 				 */
 				if (invited)
 				{
-					IS_LOCAL(user)->RemoveInvite(Ptr);
+					user->RemoveInvite(chan);
 				}
 			}
 		}
 	}
 
-	if (created_by_local)
-	{
-		/* As spotted by jilles, dont bother to set this on remote users */
-		Ptr->SetDefaultModes();
-	}
-
-	return Channel::ForceChan(Ptr, user, privs, bursting, created_by_local);
+	// We figured that this join is allowed and also created the
+	// channel if it didn't exist before, now do the actual join
+	chan->ForceJoin(user, &privs, false, created_by_local);
+	return chan;
 }
 
-Channel* Channel::ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created)
+void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
 {
-	std::string nick = user->nick;
+	Membership* memb = this->AddUser(user);
+	if (!memb)
+		return; // Already on the channel
 
-	Membership* memb = Ptr->AddUser(user);
-	user->chans.insert(Ptr);
-
-	for (std::string::const_iterator x = privs.begin(); x != privs.end(); x++)
+	if (IS_SERVER(user))
 	{
-		const char status = *x;
-		ModeHandler* mh = ServerInstance->Modes->FindMode(status, MODETYPE_CHANNEL);
-		if (mh)
+		ServerInstance->Logs->Log("CHANNELS", LOG_DEBUG, "Attempted to join server user " + user->uuid + " to channel " + this->name);
+		return;
+	}
+
+	user->chans.insert(this);
+
+	if (privs)
+	{
+		// If the user was granted prefix modes (in the OnUserPreJoin hook, or he's a
+		// remote user and his own server set the modes), then set them internally now
+		memb->modes = *privs;
+		for (std::string::const_iterator i = privs->begin(); i != privs->end(); ++i)
 		{
-			/* Set, and make sure that the mode handler knows this mode was now set */
-			Ptr->SetPrefix(user, mh->GetModeChar(), true);
-			mh->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, Ptr, nick, true);
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
+			if (mh)
+			{
+				std::string nick = user->nick;
+				/* Set, and make sure that the mode handler knows this mode was now set */
+				this->SetPrefix(user, mh->GetModeChar(), true);
+				mh->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, nick, true);
+			}
 		}
 	}
 
+	// Tell modules about this join, they have the chance now to populate except_list with users we won't send the JOIN (and possibly MODE) to
 	CUList except_list;
-	FOREACH_MOD(I_OnUserJoin,OnUserJoin(memb, bursting, created, except_list));
+	FOREACH_MOD(I_OnUserJoin,OnUserJoin(memb, bursting, created_by_local, except_list));
 
-	Ptr->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", Ptr->name.c_str());
+	this->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", this->name.c_str());
 
 	/* Theyre not the first ones in here, make sure everyone else sees the modes we gave the user */
-	if ((Ptr->GetUserCounter() > 1) && (!memb->modes.empty()))
+	if ((GetUserCounter() > 1) && (!memb->modes.empty()))
 	{
 		std::string ms = memb->modes;
 		for(unsigned int i=0; i < memb->modes.length(); i++)
 			ms.append(" ").append(user->nick);
 
 		except_list.insert(user);
-		Ptr->WriteAllExcept(user, !ServerInstance->Config->CycleHostsFromUser, 0, except_list, "MODE %s +%s", Ptr->name.c_str(), ms.c_str());
+		this->WriteAllExcept(user, !ServerInstance->Config->CycleHostsFromUser, 0, except_list, "MODE %s +%s", this->name.c_str(), ms.c_str());
 	}
 
 	if (IS_LOCAL(user))
 	{
-		if (Ptr->topicset)
+		if (this->topicset)
 		{
-			user->WriteNumeric(RPL_TOPIC, "%s %s :%s", user->nick.c_str(), Ptr->name.c_str(), Ptr->topic.c_str());
-			user->WriteNumeric(RPL_TOPICTIME, "%s %s %s %lu", user->nick.c_str(), Ptr->name.c_str(), Ptr->setby.c_str(), (unsigned long)Ptr->topicset);
+			user->WriteNumeric(RPL_TOPIC, "%s %s :%s", user->nick.c_str(), this->name.c_str(), this->topic.c_str());
+			user->WriteNumeric(RPL_TOPICTIME, "%s %s %s %lu", user->nick.c_str(), this->name.c_str(), this->setby.c_str(), (unsigned long)this->topicset);
 		}
-		Ptr->UserList(user);
+		this->UserList(user);
 	}
+
 	FOREACH_MOD(I_OnPostJoin,OnPostJoin(memb));
-	return Ptr;
 }
 
 bool Channel::IsBanned(User* user)

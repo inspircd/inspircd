@@ -35,10 +35,6 @@
  */
 class CoreExport Channel : public Extensible, public InviteBase
 {
-	/** Connect a Channel to a User
-	 */
-	static Channel* ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created);
-
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();
@@ -189,16 +185,24 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	void PartUser(User *user, std::string &reason);
 
-	/* Join a user to a channel. May be a channel that doesnt exist yet.
+	/** Join a local user to a channel, with or without permission checks. May be a channel that doesn't exist yet.
 	 * @param user The user to join to the channel.
 	 * @param channame The channel name to join to. Does not have to exist.
 	 * @param key The key of the channel, if given
 	 * @param override If true, override all join restrictions such as +bkil
 	 * @return A pointer to the Channel the user was joined to. A new Channel may have
 	 * been created if the channel did not exist before the user was joined to it.
-	 * If the user could not be joined to a channel, the return value may be NULL.
+	 * If the user could not be joined to a channel, the return value is NULL.
 	 */
-	static Channel* JoinUser(User *user, std::string channame, bool override, const std::string& key, bool bursting, time_t TS = 0);
+	static Channel* JoinUser(LocalUser* user, std::string channame, bool override = false, const std::string& key = "");
+
+	/** Join a user to an existing channel, without doing any permission checks
+	 * @param user The user to join to the channel
+	 * @param privs Priviliges (prefix mode letters) to give to this user, may be NULL
+	 * @param bursting True if this join is the result of a netburst (passed to modules in the OnUserJoin hook)
+	 * @param created True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
+	 */
+	void ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with

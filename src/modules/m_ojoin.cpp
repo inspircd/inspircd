@@ -45,28 +45,30 @@ bool op;
 
 /** Handle /OJOIN
  */
-class CommandOjoin : public Command
+class CommandOjoin : public SplitCommand
 {
  public:
 	bool active;
-	CommandOjoin(Module* parent) : Command(parent,"OJOIN", 1)
+	CommandOjoin(Module* parent) :
+		SplitCommand(parent, "OJOIN", 1)
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<channel>";
 		active = false;
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 	{
 		// Make sure the channel name is allowable.
-		if (!ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
+		if (!ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
 		{
 			user->WriteServ("NOTICE "+user->nick+" :*** Invalid characters in channel name or name too long");
 			return CMD_FAILURE;
 		}
 
 		active = true;
-		Channel* channel = Channel::JoinUser(user, parameters[0].c_str(), false, "", false);
+		// override is false because we want OnUserPreJoin to run
+		Channel* channel = Channel::JoinUser(user, parameters[0], false);
 		active = false;
 
 		if (channel)

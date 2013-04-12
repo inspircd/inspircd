@@ -192,7 +192,7 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 		}
 	}
 
-	Channel::JoinUser(who, chan->name, true, "", route_back_again->bursting, chan->age);
+	chan->ForceJoin(who, NULL, route_back_again->bursting);
 	return true;
 }
 

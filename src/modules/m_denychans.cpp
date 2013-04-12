@@ -45,7 +45,7 @@ class ModuleDenyChannels : public Module
 			if (!redirect.empty())
 			{
 
-				if (!ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
+				if (!ServerInstance->IsChannel(redirect, ServerInstance->Config->Limits.ChanMax))
 				{
 					if (user)
 						user->WriteServ("NOTICE %s :Invalid badchan redirect '%s'", user->nick.c_str(), redirect.c_str());
@@ -115,7 +115,7 @@ class ModuleDenyChannels : public Module
 						if ((!newchan) || (!(newchan->IsModeSet('L'))))
 						{
 							user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname.c_str(),cname.c_str(),redirect.c_str(), reason.c_str());
-							Channel::JoinUser(user, redirect, false, "", false, ServerInstance->Time());
+							Channel::JoinUser(user, redirect);
 							return MOD_RES_DENY;
 						}
 					}
