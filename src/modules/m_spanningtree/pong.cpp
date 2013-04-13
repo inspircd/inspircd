@@ -30,49 +30,23 @@ bool TreeSocket::LocalPong(const std::string &prefix, parameterlist &params)
 	if (params.size() < 1)
 		return true;
 
-	if (params.size() == 1)
+	const std::string& forwardto = params[0];
+	if (forwardto == ServerInstance->Config->GetSID())
 	{
+		// PONG for us
 		TreeServer* ServerSource = Utils->FindServer(prefix);
 		if (ServerSource)
 		{
-			ServerSource->SetPingFlag();
 			long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 			ServerSource->rtt = ts - ServerSource->LastPingMsec;
+			ServerSource->SetPingFlag();
 		}
 	}
 	else
 	{
-		const std::string& forwardto = params[1];
-		if (forwardto == ServerInstance->Config->GetSID() || forwardto == ServerInstance->Config->ServerName)
-		{
-			/*
-			 * this is a PONG for us
-			 * if the prefix is a user, check theyre local, and if they are,
-			 * dump the PONG reply back to their fd. If its a server, do nowt.
-			 * Services might want to send these s->s, but we dont need to yet.
-			 */
-			User* u = ServerInstance->FindNick(prefix);
-			if (u)
-			{
-				u->WriteServ("PONG %s %s",params[0].c_str(),params[1].c_str());
-			}
-
-			TreeServer *ServerSource = Utils->FindServer(params[0]);
-
-			if (ServerSource)
-			{
-				long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-				ServerSource->rtt = ts - ServerSource->LastPingMsec;
-				ServerSource->SetPingFlag();
-			}
-		}
-		else
-		{
-			// not for us, pass it on :)
-			Utils->DoOneToOne(prefix,"PONG",params,forwardto);
-		}
+		// not for us, pass it on :)
+		Utils->DoOneToOne(prefix,"PONG",params,forwardto);
 	}
-
 	return true;
 }
 

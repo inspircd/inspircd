@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "main.h"
 #include "treesocket.h"
+#include "treeserver.h"
 
 static std::string newline("\n");
 
@@ -130,6 +131,15 @@ void TreeSocket::WriteLine(std::string line)
 
 					line.erase(c, d-c);
 				}
+				else if ((command == "PING") || (command == "PONG"))
+				{
+					// :22D PING 20D
+					if (line.length() < 13)
+						return;
+
+					// Insert the source SID (and a space) between the command and the first parameter
+					line.insert(10, line.substr(1, 4));
+				}
 			}
 		}
 	}
@@ -164,6 +174,37 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	{
 		// :20D FTOPIC #channel 100 Attila :topic text
 		return InsertCurrentChannelTS(params);
+	}
+	else if ((cmd == "PING") || (cmd == "PONG"))
+	{
+		if (params.size() == 1)
+		{
+			// If it's a PING with 1 parameter, reply with a PONG now, if it's a PONG with 1 parameter (weird), do nothing
+			if (cmd[1] == 'I')
+				this->WriteData(":" + ServerInstance->Config->GetSID() + " PONG " + params[0] + newline);
+
+			// Don't process this message further
+			return false;
+		}
+
+		// :20D PING 20D 22D
+		// :20D PONG 20D 22D
+		// Drop the first parameter
+		params.erase(params.begin());
+
+		// If the target is a server name, translate it to a SID
+		if (!InspIRCd::IsSID(params[0]))
+		{
+			TreeServer* server = Utils->FindServer(params[0]);
+			if (!server)
+			{
+				// We've no idea what this is, log and stop processing
+				ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Received a " + cmd + " with an unknown target: \"" + params[0] + "\", command dropped");
+				return false;
+			}
+
+			params[0] = server->GetID();
+		}
 	}
 
 	return true; // Passthru

@@ -196,8 +196,7 @@ restart:
 					// ... if we can find a proper route to them
 					if (tsock)
 					{
-						tsock->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " +
-								ServerInstance->Config->GetSID() + " " + s->GetID());
+						tsock->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " + s->GetID());
 						s->LastPingMsec = ts;
 					}
 				}
