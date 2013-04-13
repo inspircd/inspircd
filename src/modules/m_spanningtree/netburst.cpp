@@ -159,7 +159,10 @@ void TreeSocket::SyncChannel(Channel* chan)
 	char data[MAXBUF];
 
 	SendFJoins(chan);
-	if (!chan->topic.empty())
+
+	// If the topic was ever set, send it, even if it's empty now
+	// because a new empty topic should override an old non-empty topic
+	if (chan->topicset != 0)
 	{
 		snprintf(data,MAXBUF,":%s FTOPIC %s %lu %lu %s :%s", ServerInstance->Config->GetSID().c_str(), chan->name.c_str(), (unsigned long) chan->age, (unsigned long)chan->topicset, chan->setby.c_str(), chan->topic.c_str());
 		this->WriteLine(data);
