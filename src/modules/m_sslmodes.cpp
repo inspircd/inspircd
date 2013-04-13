@@ -152,37 +152,37 @@ class ModuleSSLModes : public Module
 
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
 	{
-		if (target_type == TYPE_USER)
+		if (target_type =! TYPE_USER)
+			return MOD_RES_PASSTHRU;
+
+		User* target = (User*)dest;
+
+		/* If one or more of the parties involved is a ulined service, we wont stop it. */
+		if (ServerInstance->ULine(user->server) || ServerInstance->ULine(target->server))
+			return MOD_RES_PASSTHRU;
+
+		/* If the target is +z */
+		if (target->IsModeSet('z'))
 		{
-			User* target = (User*)dest;
-
-			/* If one or more of the parties involved is a ulined service, we wont stop it. */
-			if (ServerInstance->ULine(user->server) || ServerInstance->ULine(target->server))
-				return MOD_RES_PASSTHRU;
-
-			/* If the target is +z */
-			if (target->IsModeSet('z'))
+			UserCertificateRequest req(user, this);
+			req.Send();
+			/* The sending user is not on an SSL connection */
+			if (!req.cert)
 			{
-				UserCertificateRequest req(user, this);
-				req.Send();
-				/* The sending user is not on an SSL connection */
-				if (!req.cert)
-				{
-					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+z set)", user->nick.c_str(), target->nick.c_str());
-					return MOD_RES_DENY;
-				}
+				user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+z set)", user->nick.c_str(), target->nick.c_str());
+				return MOD_RES_DENY;
 			}
-			/* If the user is +z */
-			else if (user->IsModeSet('z'))
-			{
-				UserCertificateRequest req(target, this);
-				req.Send();
+		}
+		/* If the user is +z */
+		else if (user->IsModeSet('z'))
+		{
+			UserCertificateRequest req(target, this);
+			req.Send();
 
-				if (!req.cert)
-				{
-					user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send private messages to a non-ssl user.", user->nick.c_str(), target->nick.c_str());
-					return MOD_RES_DENY;
-				}
+			if (!req.cert)
+			{
+				user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You must remove usermode 'z' before you are able to send private messages to a non-ssl user.", user->nick.c_str(), target->nick.c_str());
+				return MOD_RES_DENY;
 			}
 		}
 
