@@ -79,6 +79,13 @@ class CommandGunloadmodule : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
+		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
+			InspIRCd::Match(parameters[0], "cmd_*.so", ascii_case_insensitive_map))
+		{
+			user->WriteNumeric(972, "%s %s :You cannot unload core commands!", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+
 		std::string servername = parameters.size() > 1 ? parameters[1] : "*";
 
 		if (InspIRCd::Match(ServerInstance->Config->ServerName.c_str(), servername))
