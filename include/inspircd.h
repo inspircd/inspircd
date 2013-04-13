@@ -385,12 +385,6 @@ class CoreExport InspIRCd
 	 */
 	User* FindUUID(const std::string &uid);
 
-	/** Find a user in the UUID hash
-	 * @param uid The UUID to find
-	 * @return A pointer to the user, or NULL if the user does not exist
-	 */
-	User* FindUUID(const char *uid);
-
 	/** Time this ircd was booted
 	 */
 	time_t startup_time;
@@ -546,17 +540,6 @@ class CoreExport InspIRCd
 	 */
 	User* FindNick(const std::string &nick);
 
-	/** Find a user in the nick hash.
-	 * If the user cant be found in the nick hash check the uuid hash
-	 * @param nick The nickname to find
-	 * @return A pointer to the user, or NULL if the user does not exist
-	 */
-	User* FindNick(const char* nick);
-
-	/** Find a user in the nick hash ONLY
-	 */
-	User* FindNickOnly(const char* nick);
-
 	/** Find a user in the nick hash ONLY
 	 */
 	User* FindNickOnly(const std::string &nick);
@@ -566,12 +549,6 @@ class CoreExport InspIRCd
 	 * @return A pointer to the channel, or NULL if the channel does not exist
 	 */
 	Channel* FindChan(const std::string &chan);
-
-	/** Find a channel in the channels hash
-	 * @param chan The channel to find
-	 * @return A pointer to the channel, or NULL if the channel does not exist
-	 */
-	Channel* FindChan(const char* chan);
 
 	/** Check we aren't running as root, and exit if we are
 	 * @return Depending on the configuration, this function may never return

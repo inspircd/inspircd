@@ -66,30 +66,7 @@ User* InspIRCd::FindNick(const std::string &nick)
 	return iter->second;
 }
 
-User* InspIRCd::FindNick(const char* nick)
-{
-	if (isdigit(*nick))
-		return FindUUID(nick);
-
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		return NULL;
-
-	return iter->second;
-}
-
 User* InspIRCd::FindNickOnly(const std::string &nick)
-{
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		return NULL;
-
-	return iter->second;
-}
-
-User* InspIRCd::FindNickOnly(const char* nick)
 {
 	user_hash::iterator iter = this->Users->clientlist->find(nick);
 
@@ -108,23 +85,7 @@ User *InspIRCd::FindUUID(const std::string &uid)
 
 	return finduuid->second;
 }
-
-User *InspIRCd::FindUUID(const char *uid)
-{
-	return FindUUID(std::string(uid));
-}
-
 /* find a channel record by channel name and return a pointer to it */
-Channel* InspIRCd::FindChan(const char* chan)
-{
-	chan_hash::iterator iter = chanlist->find(chan);
-
-	if (iter == chanlist->end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
-}
 
 Channel* InspIRCd::FindChan(const std::string &chan)
 {
