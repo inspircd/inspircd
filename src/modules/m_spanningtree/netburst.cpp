@@ -44,7 +44,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 	/* send our version string */
 	this->WriteLine(":" + ServerInstance->Config->GetSID() + " VERSION :"+ServerInstance->GetVersionString());
 	/* Send server tree */
-	this->SendServers(Utils->TreeRoot,s,1);
+	this->SendServers(Utils->TreeRoot, s);
 	/* Send users and their oper status */
 	this->SendUsers();
 
@@ -57,16 +57,14 @@ void TreeSocket::DoBurst(TreeServer* s)
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
 }
 
-/** Recursively send the server tree with distances as hops.
+/** Recursively send the server tree.
  * This is used during network burst to inform the other server
  * (and any of ITS servers too) of what servers we know about.
  * If at any point any of these servers already exist on the other
- * end, our connection may be terminated. The hopcounts given
- * by this function are relative, this doesn't matter so long as
- * they are all >1, as all the remote servers re-calculate them
- * to be relative too, with themselves as hop 0.
+ * end, our connection may be terminated.
+ * The hopcount parameter (3rd) is deprecated, and is always 0.
  */
-void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
+void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
 	char command[MAXBUF];
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
@@ -75,13 +73,13 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s, int hops)
 		if (recursive_server != s)
 		{
 			std::string recursive_servername = recursive_server->GetName();
-			snprintf(command, MAXBUF, ":%s SERVER %s * %d %s :%s", Current->GetID().c_str(), recursive_servername.c_str(), hops,
+			snprintf(command, MAXBUF, ":%s SERVER %s * 0 %s :%s", Current->GetID().c_str(), recursive_servername.c_str(),
 					recursive_server->GetID().c_str(),
 					recursive_server->GetDesc().c_str());
 			this->WriteLine(command);
 			this->WriteLine(":"+recursive_server->GetID()+" VERSION :"+recursive_server->GetVersion());
 			/* down to next level */
-			this->SendServers(recursive_server, s, hops+1);
+			this->SendServers(recursive_server, s);
 		}
 	}
 }

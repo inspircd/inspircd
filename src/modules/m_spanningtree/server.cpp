@@ -101,16 +101,8 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 	std::string password = params[1];
 	std::string sid = params[3];
 	std::string description = params[4];
-	int hops = ConvToInt(params[2]);
 
 	this->SendCapabilities(2);
-
-	if (hops)
-	{
-		this->SendError("Server too far away for authentication");
-		ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
-		return false;
-	}
 
 	if (!ServerInstance->IsSID(sid))
 	{
@@ -193,16 +185,8 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 	std::string password = params[1];
 	std::string sid = params[3];
 	std::string description = params[4];
-	int hops = ConvToInt(params[2]);
 
 	this->SendCapabilities(2);
-
-	if (hops)
-	{
-		this->SendError("Server too far away for authentication");
-		ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
-		return false;
-	}
 
 	if (!ServerInstance->IsSID(sid))
 	{

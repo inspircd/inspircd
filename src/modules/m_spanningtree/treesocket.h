@@ -166,13 +166,8 @@ class TreeSocket : public BufferedSocket
 	/** Recursively send the server tree with distances as hops.
 	 * This is used during network burst to inform the other server
 	 * (and any of ITS servers too) of what servers we know about.
-	 * If at any point any of these servers already exist on the other
-	 * end, our connection may be terminated. The hopcounts given
-	 * by this function are relative, this doesn't matter so long as
-	 * they are all >1, as all the remote servers re-calculate them
-	 * to be relative too, with themselves as hop 0.
 	 */
-	void SendServers(TreeServer* Current, TreeServer* s, int hops);
+	void SendServers(TreeServer* Current, TreeServer* s);
 
 	/** Returns module list as a string, filtered by filter
 	 * @param filter a module version bitmask, such as VF_COMMON or VF_OPTCOMMON
