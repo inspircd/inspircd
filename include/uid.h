@@ -18,13 +18,6 @@
 
 #pragma once
 
-/**
- * This is the maximum length of a UUID (unique user identifier).
- * This length is set in compliance with TS6 protocol, and really should not be changed. Ever.
- * It allows for a lot of clients as-is. -- w00t.
- */
-#define UUID_LENGTH 10
-
 class TestSuite;
 
 class CoreExport UIDGenerator
@@ -33,13 +26,20 @@ class CoreExport UIDGenerator
 
 	/** Holds the current UID. Used to generate the next one.
 	 */
-	char current_uid[UUID_LENGTH];
+	std::string current_uid;
 
 	/** Increments the current UID by one.
 	 */
 	void IncrementUID(unsigned int pos);
 
  public:
+	/**
+	* This is the maximum length of a UUID (unique user identifier).
+	* This length is set in compliance with TS6 protocol, and really should not be changed. Ever.
+	* It allows for a lot of clients as-is. -- w00t.
+	*/
+	static const unsigned int UUID_LENGTH = 9;
+
 	/** Initializes this UID generator with the given SID
 	 * @param sid SID that conforms to InspIRCd::IsSID()
 	 */

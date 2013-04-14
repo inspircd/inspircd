@@ -143,15 +143,10 @@ void UIDGenerator::init(const std::string& sid)
 	 *		-- w
 	 */
 
+	current_uid.resize(UUID_LENGTH, '9');
 	current_uid[0] = sid[0];
 	current_uid[1] = sid[1];
 	current_uid[2] = sid[2];
-
-	for (int i = 3; i < (UUID_LENGTH - 1); i++)
-		current_uid[i] = '9';
-
-	// Null terminator. Important.
-	current_uid[UUID_LENGTH - 1] = '\0';
 }
 
 /*
@@ -162,7 +157,7 @@ std::string UIDGenerator::GetUID()
 	while (1)
 	{
 		// Add one to the last UID
-		this->IncrementUID(UUID_LENGTH - 2);
+		this->IncrementUID(UUID_LENGTH - 1);
 
 		if (!ServerInstance->FindUUID(current_uid))
 			break;

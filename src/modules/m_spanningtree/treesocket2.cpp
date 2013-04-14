@@ -241,7 +241,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			 * crossing the users QUIT further upstream from the server. Thanks jilles!
 			 */
 
-			if ((prefix.length() == UUID_LENGTH-1) && (isdigit(prefix[0])) &&
+			if ((prefix.length() == UIDGenerator::UUID_LENGTH) && (isdigit(prefix[0])) &&
 				((command == "FMODE") || (command == "MODE") || (command == "KICK") || (command == "TOPIC") || (command == "KILL") || (command == "ADDLINE") || (command == "DELLINE")))
 			{
 				/* Special case, we cannot drop these commands as they've been committed already on a

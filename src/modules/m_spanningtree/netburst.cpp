@@ -102,7 +102,7 @@ void TreeSocket::SendFJoins(Channel* c)
 	for (UserMembCIter i = ulist->begin(); i != ulist->end(); ++i)
 	{
 		const std::string& modestr = i->second->modes;
-		if ((line.length() + modestr.length() + (UUID_LENGTH-1) + 2) > 480)
+		if ((line.length() + modestr.length() + UIDGenerator::UUID_LENGTH + 2) > 480)
 		{
 			this->WriteLine(line);
 			line.erase(erase_from);
