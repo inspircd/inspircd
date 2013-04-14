@@ -83,7 +83,21 @@ const char InspIRCd::LogHeader[] =
 	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
 	" - compiled on " SYSTEM;
 
-void InspIRCd::IncrementUID(int pos)
+
+std::string UIDGenerator::GenerateSID(const std::string& servername, const std::string& serverdesc)
+{
+	unsigned int sid = 0;
+
+	for (std::string::const_iterator i = servername.begin(); i != servername.end(); ++i)
+		sid = 5 * sid + *i;
+	for (std::string::const_iterator i = serverdesc.begin(); i != serverdesc.end(); ++i)
+		sid = 5 * sid + *i;
+
+	std::string sidstr = ConvToStr(sid % 1000);
+	return sidstr;
+}
+
+void UIDGenerator::IncrementUID(unsigned int pos)
 {
 	/*
 	 * Okay. The rules for generating a UID go like this...
@@ -124,52 +138,46 @@ void InspIRCd::IncrementUID(int pos)
 	}
 }
 
-/*
- * Retrieve the next valid UUID that is free for this server.
- */
-std::string InspIRCd::GetUID()
+void UIDGenerator::init(const std::string& sid)
 {
-	static bool inited = false;
-
 	/*
-	 * If we're setting up, copy SID into the first three digits, 9's to the rest, null term at the end
+	 * Copy SID into the first three digits, 9's to the rest, null term at the end
 	 * Why 9? Well, we increment before we find, otherwise we have an unnecessary copy, and I want UID to start at AAA..AA
 	 * and not AA..AB. So by initialising to 99999, we force it to rollover to AAAAA on the first IncrementUID call.
 	 * Kind of silly, but I like how it looks.
 	 *		-- w
 	 */
-	if (!inited)
-	{
-		inited = true;
-		current_uid[0] = Config->sid[0];
-		current_uid[1] = Config->sid[1];
-		current_uid[2] = Config->sid[2];
 
-		for (int i = 3; i < (UUID_LENGTH - 1); i++)
-			current_uid[i] = '9';
+	current_uid[0] = sid[0];
+	current_uid[1] = sid[1];
+	current_uid[2] = sid[2];
 
-		// Null terminator. Important.
-		current_uid[UUID_LENGTH - 1] = '\0';
-	}
+	for (int i = 3; i < (UUID_LENGTH - 1); i++)
+		current_uid[i] = '9';
 
+	// Null terminator. Important.
+	current_uid[UUID_LENGTH - 1] = '\0';
+}
+
+/*
+ * Retrieve the next valid UUID that is free for this server.
+ */
+std::string UIDGenerator::GetUID()
+{
 	while (1)
 	{
 		// Add one to the last UID
 		this->IncrementUID(UUID_LENGTH - 2);
 
-		if (this->FindUUID(current_uid))
-		{
-			/*
-			 * It's in use. We need to try the loop again.
-			 */
-			continue;
-		}
+		if (!ServerInstance->FindUUID(current_uid))
+			break;
 
-		return current_uid;
+		/*
+		 * It's in use. We need to try the loop again.
+		 */
 	}
 
-	/* not reached. */
-	return "";
+	return current_uid;
 }
 
 void ISupportManager::Build()

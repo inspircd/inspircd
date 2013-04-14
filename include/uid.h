@@ -25,3 +25,35 @@
  */
 #define UUID_LENGTH 10
 
+class TestSuite;
+
+class CoreExport UIDGenerator
+{
+	friend class TestSuite;
+
+	/** Holds the current UID. Used to generate the next one.
+	 */
+	char current_uid[UUID_LENGTH];
+
+	/** Increments the current UID by one.
+	 */
+	void IncrementUID(unsigned int pos);
+
+ public:
+	/** Initializes this UID generator with the given SID
+	 * @param sid SID that conforms to InspIRCd::IsSID()
+	 */
+	void init(const std::string& sid);
+
+	/** Returns the next available UID for this server.
+	 */
+	std::string GetUID();
+
+	/** Generates a pseudorandom SID based on a servername and a description
+	 * Guaranteed to return the same if invoked with the same parameters
+	 * @param servername The server name to use as seed
+	 * @param serverdesc The server description to use as seed
+	 * @return A valid SID
+	 */
+	static std::string GenerateSID(const std::string& servername, const std::string& serverdesc);
+};

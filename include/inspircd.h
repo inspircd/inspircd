@@ -294,8 +294,6 @@ DEFINE_HANDLER2(IsChannelHandler, bool, const std::string&, size_t);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
-class TestSuite;
-
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
  * Amongst other things, it contains a ModeParser, a DNS object, a CommandParser
@@ -305,10 +303,6 @@ class TestSuite;
 class CoreExport InspIRCd
 {
  private:
-	/** Holds the current UID. Used to generate the next one.
-	 */
-	char current_uid[UUID_LENGTH];
-
 	/** Set up the signal handlers
 	 */
 	void SetSignals();
@@ -322,10 +316,6 @@ class CoreExport InspIRCd
 	 * @param TIME the current time
 	 */
 	void DoSocketTimeouts(time_t TIME);
-
-	/** Increments the current UID by one.
-	 */
-	void IncrementUID(int pos);
 
 	/** Perform background user events such as PING checks
 	 */
@@ -347,6 +337,8 @@ class CoreExport InspIRCd
 	char ReadBuffer[65535];
 
  public:
+
+	UIDGenerator UIDGen;
 
 	/** Global cull list, will be processed on next iteration
 	 */
@@ -372,10 +364,6 @@ class CoreExport InspIRCd
 	 * falls into the abyss :p
 	 */
 	FakeUser* FakeClient;
-
-	/** Returns the next available UID for this server.
-	 */
-	std::string GetUID();
 
 	static const char LogHeader[];
 
@@ -828,8 +816,6 @@ class CoreExport InspIRCd
 	{
 		return this->ReadBuffer;
 	}
-
-	friend class TestSuite;
 };
 
 ENTRYPOINT;

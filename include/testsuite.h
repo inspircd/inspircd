@@ -20,7 +20,6 @@
 
 class TestSuite
 {
-	bool RealGenerateUIDTests();
  public:
 	TestSuite();
 	~TestSuite();

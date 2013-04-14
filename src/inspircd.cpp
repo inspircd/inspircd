@@ -514,25 +514,12 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->Res = new DNS();
 
-	/*
-	 * Initialise SID/UID.
- 	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
-	 *   -- w00t
- 	 */
+	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->sid.empty())
-	{
-		// Generate one
-		unsigned int sid = 0;
-		char sidstr[4];
+		Config->sid = UIDGenerator::GenerateSID(Config->ServerName, Config->ServerDesc);
 
-		for (const char* x = Config->ServerName.c_str(); *x; ++x)
-			sid = 5 * sid + *x;
-		for (const char* y = Config->ServerDesc.c_str(); *y; ++y)
-			sid = 5 * sid + *y;
-		sprintf(sidstr, "%03d", sid % 1000);
-
-		Config->sid = sidstr;
-	}
+	// Initialize the UID generator with our sid
+	this->UIDGen.init(Config->sid);
 
 	/* set up fake client again this time with the correct uid */
 	this->FakeClient = new FakeUser(Config->sid, Config->ServerName);

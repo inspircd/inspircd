@@ -331,29 +331,16 @@ bool TestSuite::DoThreadTests()
 
 bool TestSuite::DoGenerateUIDTests()
 {
-	bool success = RealGenerateUIDTests();
-
-	// Reset the UID generation state so running the tests multiple times won't mess things up
-	for (unsigned int i = 0; i < 3; i++)
-		ServerInstance->current_uid[i] = ServerInstance->Config->sid[i];
-	for (unsigned int i = 3; i < UUID_LENGTH-1; i++)
-		ServerInstance->current_uid[i] = '9';
-
-	ServerInstance->current_uid[UUID_LENGTH-1] = '\0';
-
-	return success;
-}
-
-bool TestSuite::RealGenerateUIDTests()
-{
-	std::string first_uid = ServerInstance->GetUID();
+	UIDGenerator uidgen;
+	uidgen.init(ServerInstance->Config->GetSID());
+	std::string first_uid = uidgen.GetUID();
 	if (first_uid.length() != UUID_LENGTH-1)
 	{
 		std::cout << "GENERATEUID: Generated UID is " << first_uid.length() << " characters long instead of " << UUID_LENGTH-1 << std::endl;
 		return false;
 	}
 
-	if (ServerInstance->current_uid[UUID_LENGTH-1] != '\0')
+	if (uidgen.current_uid[UUID_LENGTH-1] != '\0')
 	{
 		std::cout << "GENERATEUID: The null terminator is missing from the end of current_uid" << std::endl;
 		return false;
@@ -368,13 +355,13 @@ bool TestSuite::RealGenerateUIDTests()
 	}
 
 	// Set current_uid to be ...Z99999
-	ServerInstance->current_uid[3] = 'Z';
+	uidgen.current_uid[3] = 'Z';
 	for (unsigned int i = 4; i < UUID_LENGTH-1; i++)
-		ServerInstance->current_uid[i] = '9';
+		uidgen.current_uid[i] = '9';
 
 	// Store the UID we'll be incrementing so we can display what's wrong later if necessary
-	std::string before_increment(ServerInstance->current_uid);
-	std::string generated_uid = ServerInstance->GetUID();
+	std::string before_increment(uidgen.current_uid);
+	std::string generated_uid = uidgen.GetUID();
 
 	// Correct UID after incrementing ...Z99999 is ...0AAAAA
 	correct_uid = ServerInstance->Config->sid + "0" + std::string(UUID_LENGTH - 5, 'A');
@@ -387,10 +374,10 @@ bool TestSuite::RealGenerateUIDTests()
 
 	// Set current_uid to be ...999999 to see if it rolls over correctly
 	for (unsigned int i = 3; i < UUID_LENGTH-1; i++)
-		ServerInstance->current_uid[i] = '9';
+		uidgen.current_uid[i] = '9';
 
-	before_increment.assign(ServerInstance->current_uid);
-	generated_uid = ServerInstance->GetUID();
+	before_increment.assign(uidgen.current_uid);
+	generated_uid = uidgen.GetUID();
 
 	// Correct UID after rolling over is the first UID we've generated (...AAAAAA)
 	if (generated_uid != first_uid)
