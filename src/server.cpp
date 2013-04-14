@@ -106,35 +106,30 @@ void UIDGenerator::IncrementUID(unsigned int pos)
 	 * A again, in an iterative fashion.. so..
 	 * AAA9 -> AABA, and so on. -- w00t
 	 */
-	if ((pos == 3) && (current_uid[3] == '9'))
+
+	// If we hit Z, wrap around to 0.
+	if (current_uid[pos] == 'Z')
 	{
-		// At pos 3, if we hit '9', we've run out of available UIDs, and need to reset to AAA..AAA.
-		for (int i = 3; i < UUID_LENGTH-1; i++)
+		current_uid[pos] = '0';
+	}
+	else if (current_uid[pos] == '9')
+	{
+		/*
+		 * Or, if we hit 9, wrap around to pos = 'A' and (pos - 1)++,
+		 * e.g. A9 -> BA -> BB ..
+		 */
+		current_uid[pos] = 'A';
+		if (pos == 3)
 		{
-			current_uid[i] = 'A';
+			// At pos 3, if we hit '9', we've run out of available UIDs, and reset to AAA..AAA.
+			return;
 		}
+		this->IncrementUID(pos - 1);
 	}
 	else
 	{
-		// If we hit Z, wrap around to 0.
-		if (current_uid[pos] == 'Z')
-		{
-			current_uid[pos] = '0';
-		}
-		else if (current_uid[pos] == '9')
-		{
-			/*
-			 * Or, if we hit 9, wrap around to pos = 'A' and (pos - 1)++,
-			 * e.g. A9 -> BA -> BB ..
-			 */
-			current_uid[pos] = 'A';
-			this->IncrementUID(pos - 1);
-		}
-		else
-		{
-			// Anything else, nobody gives a shit. Just increment.
-			current_uid[pos]++;
-		}
+		// Anything else, nobody gives a shit. Just increment.
+		current_uid[pos]++;
 	}
 }
 
