@@ -66,9 +66,11 @@
 #include <unistd.h>
 #endif
 
-#ifdef _WIN32
+#if defined _LIBCPP_VERSION || defined _WIN32
+# define TR1NS std
 # include <unordered_map>
 #else
+# define TR1NS std::tr1
 # include <tr1/unordered_map>
 #endif
 #include <sstream>
