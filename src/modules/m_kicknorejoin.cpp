@@ -27,7 +27,7 @@
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
-typedef std::map<User*, time_t> delaylist;
+typedef std::map<std::string, time_t> delaylist;
 
 /** Handles channel mode +J
  */
@@ -108,7 +108,7 @@ public:
 				{
 					if (iter->second > ServerInstance->Time())
 					{
-						if (iter->first == user)
+						if (iter->first == user->uuid)
 						{
 							std::string modeparam = chan->GetModeParameter(&kr);
 							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)",
@@ -141,7 +141,7 @@ public:
 				dl = new delaylist;
 				kr.ext.set(memb->chan, dl);
 			}
-			(*dl)[memb->user] = ServerInstance->Time() + ConvToInt(memb->chan->GetModeParameter(&kr));
+			(*dl)[memb->user->uuid] = ServerInstance->Time() + ConvToInt(memb->chan->GetModeParameter(&kr));
 		}
 	}
 
