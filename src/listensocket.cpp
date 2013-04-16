@@ -75,7 +75,8 @@ ListenSocket::~ListenSocket()
 	{
 		ServerInstance->SE->DelFd(this);
 		ServerInstance->Logs->Log("SOCKET", DEBUG,"Shut down listener on fd %d", this->fd);
-		if (ServerInstance->SE->Shutdown(this, 2) || ServerInstance->SE->Close(this))
+		ServerInstance->SE->Shutdown(this, 2);
+		if (ServerInstance->SE->Close(this) != 0)
 			ServerInstance->Logs->Log("SOCKET", DEBUG,"Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
