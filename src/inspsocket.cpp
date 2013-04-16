@@ -200,7 +200,7 @@ void StreamSocket::DoRead()
 			error = "Connection closed";
 			ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 		}
-		else if (errno == EAGAIN)
+		else if (SocketEngine::IgnoreError())
 		{
 			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_READ_WILL_BLOCK);
 		}
@@ -291,7 +291,7 @@ void StreamSocket::DoWrite()
 					}
 					else if (rv < 0)
 					{
-						if (errno == EAGAIN || errno == EINTR)
+						if (errno == EINTR || SocketEngine::IgnoreError())
 							ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
 						else
 							SetError(strerror(errno));
@@ -388,7 +388,7 @@ void StreamSocket::DoWrite()
 			{
 				error = "Connection closed";
 			}
-			else if (errno == EAGAIN)
+			else if (SocketEngine::IgnoreError())
 			{
 				eventChange = FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 			}

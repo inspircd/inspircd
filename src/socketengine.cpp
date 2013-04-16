@@ -255,3 +255,17 @@ void SocketEngine::GetStats(float &kbitpersec_in, float &kbitpersec_out, float &
 	kbitpersec_in = in_kbit / 1024;
 	kbitpersec_out = out_kbit / 1024;
 }
+
+bool SocketEngine::IgnoreError()
+{
+	if (errno == EAGAIN)
+		return true;
+
+#ifdef _WIN32
+	if (WSAGetLastError() == WSAEWOULDBLOCK)
+		return true;
+#endif
+
+	return false;
+}
+

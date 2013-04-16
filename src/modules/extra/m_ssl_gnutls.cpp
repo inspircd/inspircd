@@ -86,6 +86,12 @@ static ssize_t gnutls_pull_wrapper(gnutls_transport_ptr_t user_wrap, void* buffe
 		return -1;
 	}
 	int rv = ServerInstance->SE->Recv(user, reinterpret_cast<char *>(buffer), size, 0);
+	if (rv < 0)
+	{
+		/* On Windows we need to set errno for gnutls */
+		if (SocketEngine::IgnoreError())
+			errno = EAGAIN;
+	}
 	if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_READ_WILL_BLOCK);
 	return rv;
@@ -100,6 +106,12 @@ static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void*
 		return -1;
 	}
 	int rv = ServerInstance->SE->Send(user, reinterpret_cast<const char *>(buffer), size, 0);
+	if (rv < 0)
+	{
+		/* On Windows we need to set errno for gnutls */
+		if (SocketEngine::IgnoreError())
+			errno = EAGAIN;
+	}
 	if (rv < (int)size)
 		ServerInstance->SE->ChangeEventMask(user, FD_WRITE_WILL_BLOCK);
 	return rv;
