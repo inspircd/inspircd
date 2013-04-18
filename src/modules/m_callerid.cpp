@@ -82,9 +82,11 @@ struct CallerIDExtInfo : public ExtensionItem
 			User *u = ServerInstance->FindNick(tok);
 			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
 			{
-				callerid_data* other = this->get(u, true);
-				other->wholistsme.push_back(dat);
-				dat->accepting.insert(u);
+				if (dat->accepting.insert(u).second)
+				{
+					callerid_data* other = this->get(u, true);
+					other->wholistsme.push_back(dat);
+				}
 			}
 		}
 
