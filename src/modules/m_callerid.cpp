@@ -38,26 +38,6 @@ class callerid_data
 	std::list<callerid_data *> wholistsme;
 
 	callerid_data() : lastnotify(0) { }
-	callerid_data(const std::string& str)
-	{
-		irc::commasepstream s(str);
-		std::string tok;
-		if (s.GetToken(tok))
-		{
-			lastnotify = ConvToInt(tok);
-		}
-		while (s.GetToken(tok))
-		{
-			if (tok.empty())
-			{
-				continue;
-			}
-
-			User *u = ServerInstance->FindNick(tok);
-			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
-				accepting.insert(u);
-		}
-	}
 
 	std::string ToString(SerializeFormat format) const
 	{
@@ -88,8 +68,29 @@ struct CallerIDExtInfo : public ExtensionItem
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
-		callerid_data* dat = new callerid_data(value);
-		set_raw(container, dat);
+		callerid_data* dat = new callerid_data;
+		irc::commasepstream s(value);
+		std::string tok;
+		if (s.GetToken(tok))
+			dat->lastnotify = ConvToInt(tok);
+
+		while (s.GetToken(tok))
+		{
+			if (tok.empty())
+				continue;
+
+			User *u = ServerInstance->FindNick(tok);
+			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
+			{
+				callerid_data* other = this->get(u, true);
+				other->wholistsme.push_back(dat);
+				dat->accepting.insert(u);
+			}
+		}
+
+		void* old = set_raw(container, dat);
+		if (old)
+			this->free(old);
 	}
 
 	callerid_data* get(User* user, bool create)
