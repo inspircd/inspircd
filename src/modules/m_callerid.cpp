@@ -362,7 +362,7 @@ public:
 
 	ModResult PreText(User* user, User* dest, std::string& text)
 	{
-		if (!dest->IsModeSet('g'))
+		if (!dest->IsModeSet('g') || (user == dest))
 			return MOD_RES_PASSTHRU;
 
 		if (operoverride && IS_OPER(user))
