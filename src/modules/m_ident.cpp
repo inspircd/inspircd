@@ -371,6 +371,7 @@ class ModuleIdent : public Module
 			user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", user->ident.c_str());
 		}
 
+		user->InvalidateCache();
 		isock->Close();
 		ext.unset(user);
 		return MOD_RES_PASSTHRU;
