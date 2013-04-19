@@ -455,6 +455,7 @@ void UserIOHandler::OnDataReady()
 		ServerInstance->Users->QuitUser(user, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
 			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
+		return;
 	}
 	unsigned long sendqmax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/increased-buffers"))
