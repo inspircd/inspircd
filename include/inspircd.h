@@ -492,13 +492,6 @@ class CoreExport InspIRCd
 	 */
 	void CheckRoot();
 
-	/** Determine the right path for, and open, the logfile
-	 * @param argv The argv passed to main() initially, used to calculate program path
-	 * @param argc The argc passed to main() initially, used to calculate program path
-	 * @return True if the log could be opened, false if otherwise
-	 */
-	bool OpenLog(char** argv, int argc);
-
 	/** Return true if a channel name is valid
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid

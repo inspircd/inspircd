@@ -142,8 +142,6 @@ struct CommandLineConf
 	/** Saved argv from startup
 	 */
 	char** argv;
-
-	std::string startup_log;
 };
 
 class CoreExport OperInfo : public refcountbase
