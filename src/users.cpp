@@ -360,7 +360,7 @@ CullResult FakeUser::cull()
 {
 	// Fake users don't quit, they just get culled.
 	quitting = true;
-	ServerInstance->Users->clientlist->erase(nick);
+	// Fake users are not inserted into UserManager::clientlist, they're only in the uuidlist
 	ServerInstance->Users->uuidlist->erase(uuid);
 	return User::cull();
 }
