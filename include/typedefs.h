@@ -55,8 +55,8 @@ struct ResourceRecord;
 #include "hashcomp.h"
 #include "base.h"
 
-typedef std::tr1::unordered_map<std::string, User*, std::tr1::insensitive, irc::StrHashComp> user_hash;
-typedef std::tr1::unordered_map<std::string, Channel*, std::tr1::insensitive, irc::StrHashComp> chan_hash;
+typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
+typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
 
 /** A list holding local users, this is the type of UserManager::local_users
  */
@@ -114,7 +114,7 @@ typedef std::map<std::string, file_cache> ConfigFileCache;
 
 /** A hash of commands used by the core
  */
-typedef std::tr1::unordered_map<std::string,Command*> Commandtable;
+typedef TR1NS::unordered_map<std::string, Command*> Commandtable;
 
 /** Membership list of a channel */
 typedef std::map<User*, Membership*> UserMembList;

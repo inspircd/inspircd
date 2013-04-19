@@ -154,29 +154,6 @@ unsigned const char rfc_case_sensitive_map[256] = {
 	250, 251, 252, 253, 254, 255,                     // 250-255
 };
 
-void std::tr1::strlower(char *n)
-{
-	if (n)
-	{
-		for (char* t = n; *t; t++)
-			*t = national_case_insensitive_map[(unsigned char)*t];
-	}
-}
-
-size_t std::tr1::insensitive::operator()(const std::string &s) const
-{
-	/* XXX: NO DATA COPIES! :)
-	 * The hash function here is practically
-	 * a copy of the one in STL's hash_fun.h,
-	 * only with *x replaced with national_case_insensitive_map[*x].
-	 * This avoids a copy to use hash<const char*>
-	 */
-	register size_t t = 0;
-	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
-		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
-	return t;
-}
-
 size_t CoreExport irc::hash::operator()(const irc::string &s) const
 {
 	register size_t t = 0;
@@ -193,6 +170,20 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
 		if (national_case_insensitive_map[*n1] != national_case_insensitive_map[*n2])
 			return false;
 	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
+}
+
+size_t irc::insensitive::operator()(const std::string &s) const
+{
+	/* XXX: NO DATA COPIES! :)
+	 * The hash function here is practically
+	 * a copy of the one in STL's hash_fun.h,
+	 * only with *x replaced with national_case_insensitive_map[*x].
+	 * This avoids a copy to use hash<const char*>
+	 */
+	register size_t t = 0;
+	for (std::string::const_iterator x = s.begin(); x != s.end(); ++x) /* ++x not x++, as its faster */
+		t = 5 * t + national_case_insensitive_map[(unsigned char)*x];
+	return t;
 }
 
 /******************************************************

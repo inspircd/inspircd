@@ -92,12 +92,7 @@
  * of users using WATCH.
  */
 
-/*
- * Before you start screaming, this definition is only used here, so moving it to a header is pointless.
- * Yes, it's horrid. Blame cl for being different. -- w00t
- */
-
-typedef std::tr1::unordered_map<irc::string, std::deque<User*>, irc::hash> watchentries;
+typedef TR1NS::unordered_map<irc::string, std::deque<User*>, irc::hash> watchentries;
 typedef std::map<irc::string, std::string> watchlist;
 
 /* Who's watching each nickname.
