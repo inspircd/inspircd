@@ -21,7 +21,6 @@
 
 
 #include "inspircd.h"
-
 #include "filelogger.h"
 
 /*
@@ -86,7 +85,7 @@ void LogManager::OpenFileLogs()
 		}
 		std::string type = tag->getString("type");
 		std::string level = tag->getString("level");
-		int loglevel = LOG_DEFAULT;
+		LogLevel loglevel = LOG_DEFAULT;
 		if (level == "rawio")
 		{
 			loglevel = LOG_RAWIO;
@@ -297,7 +296,7 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 	return true;
 }
 
-void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...)
+void LogManager::Log(const std::string &type, LogLevel loglevel, const char *fmt, ...)
 {
 	if (Logging)
 	{
@@ -314,7 +313,7 @@ void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...
 	this->Log(type, loglevel, std::string(buf));
 }
 
-void LogManager::Log(const std::string &type, int loglevel, const std::string &msg)
+void LogManager::Log(const std::string &type, LogLevel loglevel, const std::string &msg)
 {
 	if (Logging)
 	{

@@ -29,9 +29,9 @@ class CoreExport FileLogStream : public LogStream
  private:
 	FileWriter *f;
  public:
-	FileLogStream(int loglevel, FileWriter *fw);
+	FileLogStream(LogLevel loglevel, FileWriter *fw);
 
 	virtual ~FileLogStream();
 
-	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg);
+	virtual void OnLog(LogLevel loglevel, const std::string &type, const std::string &msg);
 };

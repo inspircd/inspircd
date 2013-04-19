@@ -26,8 +26,7 @@
 #include "socketengine.h"
 #include "filelogger.h"
 
-FileLogStream::FileLogStream(int loglevel, FileWriter *fw)
-	: LogStream(loglevel), f(fw)
+FileLogStream::FileLogStream(LogLevel loglevel, FileWriter *fw) : LogStream(loglevel), f(fw)
 {
 	ServerInstance->Logs->AddLoggerRef(f);
 }
@@ -38,7 +37,7 @@ FileLogStream::~FileLogStream()
 	ServerInstance->Logs->DelLoggerRef(f);
 }
 
-void FileLogStream::OnLog(int loglevel, const std::string &type, const std::string &text)
+void FileLogStream::OnLog(LogLevel loglevel, const std::string &type, const std::string &text)
 {
 	static std::string TIMESTR;
 	static time_t LAST = 0;
