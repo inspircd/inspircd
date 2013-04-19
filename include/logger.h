@@ -89,6 +89,8 @@ class CoreExport LogStream : public classbase
  protected:
 	int loglvl;
  public:
+	static const char LogHeader[];
+
 	LogStream(int loglevel) : loglvl(loglevel)
 	{
 	}
@@ -137,7 +139,6 @@ class CoreExport LogManager
 	FileLogMap FileLogs;
 
  public:
-
 	LogManager();
 	~LogManager();
 

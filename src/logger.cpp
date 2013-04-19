@@ -51,6 +51,10 @@
  *
  */
 
+const char LogStream::LogHeader[] =
+	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
+	" - compiled on " SYSTEM;
+
 LogManager::LogManager()
 {
 	Logging = false;
@@ -126,7 +130,7 @@ void LogManager::OpenFileLogs()
 			fw = fwi->second;
 		}
 		FileLogStream* fls = new FileLogStream(loglevel, fw);
-		fls->OnLog(LOG_SPARSE, "HEADER", InspIRCd::LogHeader);
+		fls->OnLog(LOG_SPARSE, "HEADER", LogStream::LogHeader);
 		AddLogTypes(type, fls, true);
 	}
 }

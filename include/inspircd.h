@@ -324,8 +324,6 @@ class CoreExport InspIRCd
 	 */
 	FakeUser* FakeClient;
 
-	static const char LogHeader[];
-
 	/** Find a user in the UUID hash
 	 * @param uid The UUID to find
 	 * @return A pointer to the user, or NULL if the user does not exist
