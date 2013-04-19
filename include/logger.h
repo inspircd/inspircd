@@ -20,6 +20,17 @@
 
 #pragma once
 
+/** Levels at which messages can be logged. */
+enum LogLevel
+{
+	LOG_RAWIO   = 5,
+	LOG_DEBUG   = 10,
+	LOG_VERBOSE = 20,
+	LOG_DEFAULT = 30,
+	LOG_SPARSE  = 40,
+	LOG_NONE    = 50
+};
+
 /** Simple wrapper providing periodic flushing to a disk-backed file.
  */
 class CoreExport FileWriter

@@ -22,21 +22,6 @@
 
 #include "logger.h"
 
-/** Logging levels for use with InspIRCd::Log()
- *  */
-enum LogLevel
-{
-	LOG_RAWIO   = 5,
-	LOG_DEBUG   = 10,
-	LOG_VERBOSE = 20,
-	LOG_DEFAULT = 30,
-	LOG_SPARSE  = 40,
-	LOG_NONE    = 50
-};
-
-/* Forward declaration -- required */
-class InspIRCd;
-
 /** A logging class which logs to a streamed file.
  */
 class CoreExport FileLogStream : public LogStream
