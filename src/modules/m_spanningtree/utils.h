@@ -35,7 +35,7 @@ class SpanningTreeUtilities;
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
-typedef std::tr1::unordered_map<std::string, TreeServer*, std::tr1::insensitive, irc::StrHashComp> server_hash;
+typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp> server_hash;
 
 typedef std::set<TreeServer*> TreeServerList;
 

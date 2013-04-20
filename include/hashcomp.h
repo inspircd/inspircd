@@ -109,6 +109,11 @@ namespace irc
 		bool operator()(const std::string& s1, const std::string& s2) const;
 	};
 
+	struct insensitive
+	{
+		size_t CoreExport operator()(const std::string &s) const;
+	};
+
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
 	 * This class is used to implement irc::string, a case-insensitive, RFC-
 	 * comparing string class.
@@ -580,22 +585,4 @@ inline std::string& trim(std::string &str)
 		str = str.substr(start, end-start+1);
 
 	return str;
-}
-
-namespace std
-{
-	namespace tr1
-	{
-		
-		struct insensitive
-		{
-			size_t CoreExport operator()(const std::string &s) const;
-		};
-		
-        /** Convert a string to lower case respecting RFC1459
-        * @param n A string to lowercase
-        */
-        void strlower(char *n);
-		
-	}
 }
