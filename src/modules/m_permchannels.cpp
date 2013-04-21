@@ -172,14 +172,6 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
-
-		// Load only when there are no linked servers - we set the TS of the channels we
-		// create to the current time, this can lead to desync because spanningtree has
-		// no way of knowing what we do
-		ProtoServerList serverlist;
-		ServerInstance->PI->GetServerList(serverlist);
-		if (serverlist.size() < 2)
-			LoadDatabase();
 	}
 
 	CullResult cull()
@@ -298,6 +290,38 @@ public:
 		if (dirty)
 			WriteDatabase();
 		dirty = false;
+	}
+
+	void Prioritize()
+	{
+		// XXX: Load the DB here because the order in which modules are init()ed at boot is
+		// alphabetical, this means we must wait until all modules have done their init()
+		// to be able to set the modes they provide (e.g.: m_stripcolor is inited after us)
+		// Prioritize() is called after all module initialization is complete, consequently
+		// all modes are available now
+
+		static bool loaded = false;
+		if (loaded)
+			return;
+
+		loaded = true;
+
+		// Load only when there are no linked servers - we set the TS of the channels we
+		// create to the current time, this can lead to desync because spanningtree has
+		// no way of knowing what we do
+		ProtoServerList serverlist;
+		ServerInstance->PI->GetServerList(serverlist);
+		if (serverlist.size() < 2)
+		{
+			try
+			{
+				LoadDatabase();
+			}
+			catch (CoreException& e)
+			{
+				ServerInstance->Logs->Log("m_permchannels", DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
+			}
+		}
 	}
 
 	virtual Version GetVersion()
