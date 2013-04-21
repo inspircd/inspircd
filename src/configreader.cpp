@@ -313,6 +313,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxchans = tag->getInt("maxchans", me->maxchans);
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getInt("limit", me->limit);
+			me->nouserdns = tag->getBool("nouserdns", me->nouserdns);
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
@@ -346,12 +347,13 @@ struct DeprecatedConfig
 };
 
 static const DeprecatedConfig ChangedConfig[] = {
-	{ "bind",   "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
-	{ "die",    "value",       "",                 "you need to reread your config" },
-	{ "link",   "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
-	{ "link",   "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
-	{ "module", "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
-	{ "module", "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
+	{ "bind",        "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
+	{ "die",         "value",       "",                 "you need to reread your config" },
+	{ "link",        "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
+	{ "link",        "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
+	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
+	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
+	{ "performance", "nouserdns",   "",                 "has been moved to <connect:nouserdns> as of 2.2" }
 };
 
 void ServerConfig::Fill()

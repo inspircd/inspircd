@@ -144,6 +144,10 @@ struct CoreExport ConnectClass : public refcountbase
 	 */
 	unsigned long limit;
 
+	/** If set to true, no user DNS lookups are to be performed
+	 */
+	bool nouserdns;
+
 	/** Create a new connect class with no settings.
 	 */
 	ConnectClass(ConfigTag* tag, char type, const std::string& mask);

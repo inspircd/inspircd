@@ -182,7 +182,6 @@ class ModuleCgiIRC : public Module
 	CommandWebirc cmd;
 	LocalIntExt waiting;
 	dynamic_reference<DNS::Manager> DNS;
-	bool nouserdns;
 
 	static void RecheckClass(LocalUser* user)
 	{
@@ -207,8 +206,9 @@ class ModuleCgiIRC : public Module
 		user->host = user->dhost = user->GetIPString();
 		user->InvalidateCache();
 		RecheckClass(user);
+
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
-		if (user->quitting || !DNS || nouserdns)
+		if (user->quitting || !DNS || user->MyClass->nouserdns)
 			return;
 
 		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), waiting);
@@ -248,7 +248,6 @@ public:
 
 	void OnRehash(User* user)
 	{
-		nouserdns =	ServerInstance->Config->ConfValue("performance")->getBool("nouserdns");
 		cmd.Hosts.clear();
 
 		// Do we send an oper notice when a CGI:IRC has their host changed?
