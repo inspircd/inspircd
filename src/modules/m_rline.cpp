@@ -241,7 +241,7 @@ class ModuleRLine : public Module
 		ServerInstance->Modules->AddService(r);
 		ServerInstance->XLines->RegisterFactory(&f);
 
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer, I_OnUnloadModule };
+		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -256,7 +256,7 @@ class ModuleRLine : public Module
 		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user)
 	{
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
@@ -265,7 +265,9 @@ class ModuleRLine : public Module
 		{
 			// Bang. :P
 			rl->Apply(user);
+			return MOD_RES_DENY;
 		}
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnRehash(User *user)
@@ -348,6 +350,12 @@ class ModuleRLine : public Module
 			factory = rxfactory.operator->();
 			ServerInstance->XLines->DelAll(f.GetType());
 		}
+	}
+
+	void Prioritize()
+	{
+		Module* mod = ServerInstance->Modules->Find("m_cgiirc.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
 	}
 };
 
