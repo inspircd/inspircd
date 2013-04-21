@@ -116,11 +116,16 @@ struct CallerIDExtInfo : public ExtensionItem
 			callerid_data *targ = this->get(*it, false);
 
 			if (!targ)
+			{
+				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
+			}
 
 			std::list<callerid_data*>::iterator it2 = std::find(targ->wholistsme.begin(), targ->wholistsme.end(), dat);
 			if (it2 != targ->wholistsme.end())
 				targ->wholistsme.erase(it2);
+			else
+				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
 	}
@@ -280,6 +285,7 @@ public:
 		if (!dat2)
 		{
 			// How the fuck is this possible.
+			ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
 			return false;
 		}
 
@@ -287,6 +293,9 @@ public:
 		if (it != dat2->wholistsme.end())
 			// Found me!
 			dat2->wholistsme.erase(it);
+		else
+			ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
+
 
 		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 		return true;
@@ -324,6 +333,8 @@ private:
 
 			if (it2 != dat->accepting.end())
 				dat->accepting.erase(it2);
+			else
+				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
 		userdata->wholistsme.clear();

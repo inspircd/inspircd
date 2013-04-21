@@ -167,13 +167,13 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs->Log("CULLLIST",DEBUG, "*** Warning *** - You tried to quit a user (%s) twice. Did your module call QuitUser twice?", user->nick.c_str());
+		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Tried to quit quitting user: " + user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs->Log("CULLLIST",DEBUG, "*** Warning *** - You tried to quit a fake user (%s)", user->nick.c_str());
+		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Tried to quit server user: " + user->nick);
 		return;
 	}
 
@@ -239,7 +239,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	if (iter != this->clientlist->end())
 		this->clientlist->erase(iter);
 	else
-		ServerInstance->Logs->Log("USERS", DEBUG, "iter == clientlist->end, can't remove them from hash... problematic..");
+		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	ServerInstance->Users->uuidlist->erase(user->uuid);
 }

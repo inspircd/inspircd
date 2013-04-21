@@ -546,6 +546,8 @@ CullResult LocalUser::cull()
 	// is only a precaution currently.
 	if (localuseriter != ServerInstance->Users->local_users.end())
 		ServerInstance->Users->local_users.erase(localuseriter);
+	else
+		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: LocalUserIter does not point to a valid entry for " + this->nick);
 
 	ClearInvites();
 	eh.cull();
@@ -840,6 +842,12 @@ void User::InvalidateCache()
 
 bool User::ChangeNick(const std::string& newnick, bool force)
 {
+	if (quitting)
+	{
+		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Attempted to change nick of a quitting user: " + this->nick);
+		return false;
+	}
+
 	ModResult MOD_RESULT;
 
 	if (force)
