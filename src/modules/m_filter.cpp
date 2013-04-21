@@ -165,6 +165,8 @@ class ImplFilter : public FilterResult
 
 class ModuleFilter : public Module
 {
+	void FreeFilters();
+
  public:
 	CommandFilter filtcommand;
 	dynamic_reference<RegexFactory> RegexEngine;
@@ -178,6 +180,7 @@ class ModuleFilter : public Module
 
 	ModuleFilter();
 	void init();
+	CullResult cull();
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
@@ -302,6 +305,20 @@ void ModuleFilter::init()
 	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	OnRehash(NULL);
+}
+
+CullResult ModuleFilter::cull()
+{
+	FreeFilters();
+	return Module::cull();
+}
+
+void ModuleFilter::FreeFilters()
+{
+	for (std::vector<ImplFilter>::const_iterator i = filters.begin(); i != filters.end(); ++i)
+		delete i->regex;
+
+	filters.clear();
 }
 
 ModResult ModuleFilter::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
