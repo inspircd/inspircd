@@ -37,7 +37,7 @@
 #include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: commands(NULL), Utils(NULL)
+	: commands(NULL), DNS(this, "DNS"), Utils(NULL)
 {
 }
 
@@ -269,8 +269,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		return;
 	}
 
-	QueryType start_type = DNS_QUERY_A;
-	start_type = DNS_QUERY_AAAA;
+	DNS::QueryType start_type = DNS::QUERY_AAAA;
 	if (strchr(x->IPAddr.c_str(),':'))
 	{
 		in6_addr n;
@@ -300,16 +299,20 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
+	else if (!DNS)
+	{
+		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and m_dns.so is not loaded, unable to resolve.", x->Name.c_str());
+	}
 	else
 	{
+		ServernameResolver* snr = new ServernameResolver(Utils, *DNS, x->IPAddr, x, start_type, y);
 		try
 		{
-			bool cached = false;
-			ServernameResolver* snr = new ServernameResolver(Utils, x->IPAddr, x, cached, start_type, y);
-			ServerInstance->AddResolver(snr, cached);
+			DNS->Process(snr);
 		}
-		catch (ModuleException& e)
+		catch (DNS::Exception& e)
 		{
+			delete snr;
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
 			ConnectServer(y, false);
 		}

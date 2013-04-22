@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 
+#include "modules/dns.h"
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  *
@@ -54,6 +55,8 @@ class ModuleSpanningTree : public Module
 	void LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type);
 
  public:
+	dynamic_reference<DNS::Manager> DNS;
+
 	SpanningTreeUtilities* Utils;
 
 	/** Set to true if inside a spanningtree call, to prevent sending

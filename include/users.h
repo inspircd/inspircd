@@ -26,7 +26,6 @@
 
 #include "socket.h"
 #include "inspsocket.h"
-#include "dns.h"
 #include "mode.h"
 #include "membership.h"
 
@@ -761,12 +760,6 @@ class CoreExport LocalUser : public User, public InviteBase
 	 */
 	unsigned int quitting_sendq:1;
 
-	/** True when DNS lookups are completed.
-	 * The UserResolver classes res_forward and res_reverse will
-	 * set this value once they complete.
-	 */
-	unsigned int dns_done:1;
-
 	/** has the user responded to their previous ping?
 	 */
 	unsigned int lastping:1;
@@ -790,16 +783,6 @@ class CoreExport LocalUser : public User, public InviteBase
 
 	static already_sent_t already_sent_id;
 	already_sent_t already_sent;
-
-	/** Stored reverse lookup from res_forward. Should not be used after resolution.
-	 */
-	std::string stored_host;
-
-	/** Starts a DNS lookup of the user's IP.
-	 * This will cause two UserResolver classes to be instantiated.
-	 * When complete, these objects set User::dns_done to true.
-	 */
-	void StartDNSLookup();
 
 	/** Check if the user matches a G or K line, and disconnect them if they do.
 	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
@@ -915,35 +898,3 @@ inline FakeUser* IS_SERVER(User* u)
 	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
 }
 
-/** Derived from Resolver, and performs user forward/reverse lookups.
- */
-class CoreExport UserResolver : public Resolver
-{
- private:
-	/** UUID we are looking up */
-	std::string uuid;
-	/** True if the lookup is forward, false if is a reverse lookup
-	 */
-	bool fwd;
- public:
-	/** Create a resolver.
-	 * @param user The user to begin lookup on
-	 * @param to_resolve The IP or host to resolve
-	 * @param qt The query type
-	 * @param cache Modified by the constructor if the result was cached
-	 */
-	UserResolver(LocalUser* user, std::string to_resolve, QueryType qt, bool &cache);
-
-	/** Called on successful lookup
-	 * @param result Result string
-	 * @param ttl Time to live for result
-	 * @param cached True if the result was found in the cache
-	 */
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
-
-	/** Called on failed lookup
-	 * @param e Error code
-	 * @param errormessage Error message string
-	 */
-	void OnError(ResolverError e, const std::string &errormessage);
-};

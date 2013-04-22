@@ -287,16 +287,16 @@ void SpanningTreeUtilities::RefreshIPCache()
 		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);
 		if ((L->IPAddr == "*") || (ipvalid))
 			ValidIPs.push_back(L->IPAddr);
-		else
+		else if (this->Creator->DNS)
 		{
+			SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
 			try
 			{
-				bool cached = false;
-				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, DNS_QUERY_AAAA);
-				ServerInstance->AddResolver(sr, cached);
+				this->Creator->DNS->Process(sr);
 			}
-			catch (...)
+			catch (DNS::Exception &)
 			{
+				delete sr;
 			}
 		}
 	}

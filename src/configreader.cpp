@@ -29,14 +29,10 @@
 #include "exitcodes.h"
 #include "configparser.h"
 #include <iostream>
-#ifdef _WIN32
-#include <Iphlpapi.h>
-#pragma comment(lib, "Iphlpapi.lib")
-#endif
 
 ServerConfig::ServerConfig()
 {
-	RawLog = NoUserDns = HideBans = HideSplits = UndernetMsgPrefix = false;
+	RawLog = HideBans = HideSplits = UndernetMsgPrefix = false;
 	WildcardIPv6 = CycleHosts = InvBypassModes = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
@@ -58,14 +54,6 @@ static void range(T& value, V min, V max, V def, const char* msg)
 		"WARNING: %s value of %ld is not between %ld and %ld; set to %ld.",
 		msg, (long)value, (long)min, (long)max, (long)def);
 	value = def;
-}
-
-
-static void ValidIP(const std::string& ip, const std::string& key)
-{
-	irc::sockets::sockaddrs dummy;
-	if (!irc::sockets::aptosa(ip, 0, dummy))
-		throw CoreException("The value of "+key+" is not an IP address");
 }
 
 static void ValidHost(const std::string& p, const std::string& msg)
@@ -107,64 +95,6 @@ bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 		}
 	}
 	return true;
-}
-
-static void FindDNS(std::string& server)
-{
-	if (!server.empty())
-		return;
-#ifdef _WIN32
-	// attempt to look up their nameserver from the system
-	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"WARNING: <dns:server> not defined, attempting to find a working server in the system settings...");
-
-	PFIXED_INFO pFixedInfo;
-	DWORD dwBufferSize = sizeof(FIXED_INFO);
-	pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, sizeof(FIXED_INFO));
-
-	if(pFixedInfo)
-	{
-		if (GetNetworkParams(pFixedInfo, &dwBufferSize) == ERROR_BUFFER_OVERFLOW) {
-			HeapFree(GetProcessHeap(), 0, pFixedInfo);
-			pFixedInfo = (PFIXED_INFO) HeapAlloc(GetProcessHeap(), 0, dwBufferSize);
-		}
-
-		if(pFixedInfo) {
-			if (GetNetworkParams(pFixedInfo, &dwBufferSize) == NO_ERROR)
-				server = pFixedInfo->DnsServerList.IpAddress.String;
-
-			HeapFree(GetProcessHeap(), 0, pFixedInfo);
-		}
-
-		if(!server.empty())
-		{
-			ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"<dns:server> set to '%s' as first active resolver in the system settings.", server.c_str());
-			return;
-		}
-	}
-
-	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"No viable nameserver found! Defaulting to nameserver '127.0.0.1'!");
-#else
-	// attempt to look up their nameserver from /etc/resolv.conf
-	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"WARNING: <dns:server> not defined, attempting to find working server in /etc/resolv.conf...");
-
-	std::ifstream resolv("/etc/resolv.conf");
-
-	while (resolv >> server)
-	{
-		if (server == "nameserver")
-		{
-			resolv >> server;
-			if (server.find_first_not_of("0123456789.") == std::string::npos)
-			{
-				ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",server.c_str());
-				return;
-			}
-		}
-	}
-
-	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT,"/etc/resolv.conf contains no viable nameserver entries! Defaulting to nameserver '127.0.0.1'!");
-#endif
-	server = "127.0.0.1";
 }
 
 static void ReadXLine(ServerConfig* conf, const std::string& tag, const std::string& key, XLineFactory* make)
@@ -474,7 +404,6 @@ void ServerConfig::Fill()
 	HideKillsServer = security->getString("hidekills");
 	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
-	NoUserDns = ConfValue("performance")->getBool("nouserdns");
 	SyntaxHints = options->getBool("syntaxhints");
 	CycleHosts = options->getBool("cyclehosts");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
@@ -503,8 +432,6 @@ void ServerConfig::Fill()
 	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
 	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
 	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
-
-	ValidIP(DNSServer, "<dns:server>");
 
 	std::string defbind = options->getString("defaultbind");
 	if (assign(defbind) == "ipv4")
@@ -598,11 +525,6 @@ void ServerConfig::Read()
 	{
 		valid = false;
 		errstr << err.GetReason();
-	}
-	if (valid)
-	{
-		DNSServer = ConfValue("dns")->getString("server");
-		FindDNS(DNSServer);
 	}
 }
 
@@ -891,7 +813,6 @@ void ConfigReaderThread::Finish()
 		 */
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		ServerInstance->Res->Rehash();
 		ModeReference ban(NULL, "ban");
 		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);

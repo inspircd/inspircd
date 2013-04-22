@@ -132,8 +132,6 @@ void InspIRCd::Cleanup()
 	/* Must be deleted before modes as it decrements modelines */
 	if (FakeClient)
 		FakeClient->cull();
-	if (Res)
-		Res->cull();
 	DeleteZero(this->FakeClient);
 	DeleteZero(this->Users);
 	DeleteZero(this->Modes);
@@ -144,7 +142,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->BanCache);
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
-	DeleteZero(this->Res);
 	DeleteZero(this->chanlist);
 	DeleteZero(this->PI);
 	DeleteZero(this->Threads);
@@ -309,7 +306,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Parser = 0;
 	this->XLines = 0;
 	this->Modes = 0;
-	this->Res = 0;
 	this->ConfigThread = NULL;
 	this->FakeClient = NULL;
 
@@ -511,8 +507,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
 	ModeParser::InitBuiltinModes();
-
-	this->Res = new DNS();
 
 	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->sid.empty())

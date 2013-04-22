@@ -98,7 +98,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 	ServerInstance->SE->NonBlocking(fd);
 
-	if (ServerInstance->SE->Connect(this, &dest.sa, sa_size(dest)) == -1)
+	if (ServerInstance->SE->Connect(this, &dest.sa, dest.sa_size()) == -1)
 	{
 		if (errno != EINPROGRESS)
 			return I_ERR_CONNECT;

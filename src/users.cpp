@@ -108,26 +108,6 @@ std::string User::ProcessNoticeMasks(const char *sm)
 	return output;
 }
 
-void LocalUser::StartDNSLookup()
-{
-	try
-	{
-		bool cached = false;
-		UserResolver *res_reverse;
-
-		QueryType resolvtype = this->client_sa.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
-		res_reverse = new UserResolver(this, this->GetIPString(), resolvtype, cached);
-
-		ServerInstance->AddResolver(res_reverse, cached);
-	}
-	catch (CoreException& e)
-	{
-		ServerInstance->Logs->Log("USERS", LOG_DEBUG,"Error in resolver: %s",e.GetReason());
-		dns_done = true;
-		ServerInstance->stats->statsDnsBad++;
-	}
-}
-
 bool User::IsNoticeMaskSet(unsigned char sm)
 {
 	if (!isalpha(sm))
@@ -220,7 +200,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
 {
-	exempt = quitting_sendq = dns_done = false;
+	exempt = quitting_sendq = false;
 	idle_lastmsg = 0;
 	ident = "unknown";
 	lastping = 0;

@@ -28,8 +28,6 @@ class Channel;
 class Command;
 class ConfigReader;
 class ConfigTag;
-class DNSHeader;
-class DNSRequest;
 class Extensible;
 class FakeUser;
 class InspIRCd;
@@ -44,13 +42,11 @@ class ServerConfig;
 class ServerLimits;
 class Thread;
 class User;
-class UserResolver;
 class XLine;
 class XLineManager;
 class XLineFactory;
 struct ConnectClass;
 struct ModResult;
-struct ResourceRecord;
 
 #include "hashcomp.h"
 #include "base.h"

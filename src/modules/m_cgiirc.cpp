@@ -25,6 +25,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "modules/dns.h"
 
 /* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
 
@@ -116,21 +117,21 @@ class CommandWebirc : public Command
 
 /** Resolver for CGI:IRC hostnames encoded in ident/GECOS
  */
-class CGIResolver : public Resolver
+class CGIResolver : public DNS::Request
 {
 	std::string typ;
 	std::string theiruid;
 	LocalIntExt& waiting;
 	bool notify;
  public:
-	CGIResolver(Module* me, bool NotifyOpers, const std::string &source, LocalUser* u,
-			const std::string &type, bool &cached, LocalIntExt& ext)
-		: Resolver(source, DNS_QUERY_PTR4, cached, me), typ(type), theiruid(u->uuid),
+	CGIResolver(DNS::Manager *mgr, Module* me, bool NotifyOpers, const std::string &source, LocalUser* u,
+			const std::string &ttype, LocalIntExt& ext)
+		: DNS::Request(mgr, me, source, DNS::QUERY_PTR), typ(ttype), theiruid(u->uuid),
 		waiting(ext), notify(NotifyOpers)
 	{
 	}
 
-	virtual void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached)
+	void OnLookupComplete(const DNS::Query *r)
 	{
 		/* Check the user still exists */
 		User* them = ServerInstance->FindUUID(theiruid);
@@ -140,19 +141,20 @@ class CGIResolver : public Resolver
 			if (!lu)
 				return;
 
-			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), result.c_str(), typ.c_str());
-
-			if (result.length() > 64)
+			const DNS::ResourceRecord &ans_record = r->answers[0];
+			if (ans_record.rdata.empty() || ans_record.rdata.length() > 64)
 				return;
-			them->host = result;
-			them->dhost = result;
+
+			if (notify)
+				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str(), typ.c_str());
+
+			them->host = them->dhost = ans_record.rdata;
 			them->InvalidateCache();
 			lu->CheckLines(true);
 		}
 	}
 
-	virtual void OnError(ResolverError e, const std::string &errormessage)
+	void OnError(const DNS::Query *r)
 	{
 		if (!notify)
 			return;
@@ -179,6 +181,8 @@ class ModuleCgiIRC : public Module
 {
 	CommandWebirc cmd;
 	LocalIntExt waiting;
+	dynamic_reference<DNS::Manager> DNS;
+	bool nouserdns;
 
 	static void RecheckClass(LocalUser* user)
 	{
@@ -204,25 +208,31 @@ class ModuleCgiIRC : public Module
 		user->InvalidateCache();
 		RecheckClass(user);
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
-		if (user->quitting || ServerInstance->Config->NoUserDns)
+		if (user->quitting || !DNS || nouserdns)
 			return;
 
+		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), waiting);
 		try
 		{
-			bool cached;
-			CGIResolver* r = new CGIResolver(this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), cached, waiting);
-			ServerInstance->AddResolver(r, cached);
 			waiting.set(user, waiting.get(user) + 1);
+			this->DNS->Process(r);
 		}
-		catch (...)
+		catch (DNS::Exception &ex)
 		{
+			int count = waiting.get(user);
+			if (count)
+				waiting.set(user, count - 1);
+			delete r;
 			if (cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname!", user->nick.c_str(), user->host.c_str());
+				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason());
 		}
 	}
 
 public:
-	ModuleCgiIRC() : cmd(this), waiting("cgiirc-delay", this)
+	ModuleCgiIRC()
+		: cmd(this)
+		, waiting("cgiirc-delay", this)
+		, DNS(this, "DNS")
 	{
 	}
 
@@ -238,6 +248,7 @@ public:
 
 	void OnRehash(User* user)
 	{
+		nouserdns =	ServerInstance->Config->ConfValue("performance")->getBool("nouserdns");
 		cmd.Hosts.clear();
 
 		// Do we send an oper notice when a CGI:IRC has their host changed?

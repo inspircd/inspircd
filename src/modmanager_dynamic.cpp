@@ -22,7 +22,6 @@
 #include "socket.h"
 #include "socketengine.h"
 #include "command_parse.h"
-#include "dns.h"
 #include "exitcodes.h"
 #include <iostream>
 

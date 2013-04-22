@@ -320,10 +320,6 @@ class CoreExport ServerConfig
 	 */
 	std::string FixedPart;
 
-	/** The DNS server to use for DNS queries
-	 */
-	std::string DNSServer;
-
 	/** Pretend disabled commands don't exist.
 	 */
 	bool DisabledDontExist;
@@ -447,10 +443,6 @@ class CoreExport ServerConfig
 	/** List of u-lined servers
 	 */
 	std::map<irc::string, bool> ulines;
-
-	/** If set to true, no user DNS lookups are to be performed
-	 */
-	bool NoUserDns;
 
 	/** If set to true, provide syntax hints for unknown commands
 	 */

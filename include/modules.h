@@ -34,7 +34,6 @@
 #include <sstream>
 #include "timer.h"
 #include "mode.h"
-#include "dns.h"
 
 /** Used to define a set of behavior bits for a module
  */

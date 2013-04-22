@@ -29,7 +29,6 @@
 #include "socket.h"
 #include "socketengine.h"
 #include "command_parse.h"
-#include "dns.h"
 #include "exitcodes.h"
 
 #ifndef _WIN32
@@ -387,9 +386,6 @@ void ModuleManager::DoSafeUnload(Module* mod)
 
 	dynamic_reference_base::reset_all();
 
-	/* Tidy up any dangling resolvers */
-	ServerInstance->Res->CleanResolvers(mod);
-
 	DetachAll(mod);
 
 	Modules.erase(modfind);
@@ -566,18 +562,6 @@ void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *
 	Modes->Process(parameters, user);
 	if (!Modes->GetLastParse().empty())
 		this->PI->SendMode(parameters[0], Modes->GetLastParseParams(), Modes->GetLastParseTranslate());
-}
-
-bool InspIRCd::AddResolver(Resolver* r, bool cached)
-{
-	if (!cached)
-		return this->Res->AddResolverClass(r);
-	else
-	{
-		r->TriggerCachedResult();
-		delete r;
-		return true;
-	}
 }
 
 Module* ModuleManager::Find(const std::string &name)

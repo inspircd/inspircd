@@ -432,10 +432,6 @@ class CoreExport InspIRCd
 	 */
 	SnomaskManager* SNO;
 
-	/** DNS class, provides resolver facilities to the core and modules
-	 */
-	DNS* Res;
-
 	/** Timer manager class, triggers Timer timer events
 	 */
 	TimerManager* Timers;
@@ -611,24 +607,6 @@ class CoreExport InspIRCd
 	 * @return True if the ident is valid
 	 */
 	caller1<bool, const std::string&> IsIdent;
-
-	/** Add a dns Resolver class to this server's active set
-	 * @param r The resolver to add
-	 * @param cached If this value is true, then the cache will
-	 * be searched for the DNS result, immediately. If the value is
-	 * false, then a request will be sent to the nameserver, and the
-	 * result will not be immediately available. You should usually
-	 * use the boolean value which you passed to the Resolver
-	 * constructor, which Resolver will set appropriately depending
-	 * on if cached results are available and haven't expired. It is
-	 * however safe to force this value to false, forcing a remote DNS
-	 * lookup, but not an update of the cache.
-	 * @return True if the operation completed successfully. Note that
-	 * if this method returns true, you should not attempt to access
-	 * the resolver class you pass it after this call, as depending upon
-	 * the request given, the object may be deleted!
-	 */
-	bool AddResolver(Resolver* r, bool cached);
 
 	/** Add a command to this server's command parser
 	 * @param f A Command command handler object to add

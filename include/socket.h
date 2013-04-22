@@ -109,9 +109,6 @@ namespace irc
 		 */
 		CoreExport bool MatchCIDR(const std::string &address, const std::string &cidr_mask, bool match_with_username);
 
-		/** Return the size of the structure for syscall passing */
-		inline int sa_size(const irc::sockets::sockaddrs& sa) { return sa.sa_size(); }
-
 		/** Convert an address-port pair into a binary sockaddr
 		 * @param addr The IP address, IPv4 or IPv6
 		 * @param port The port, 0 for unspecified

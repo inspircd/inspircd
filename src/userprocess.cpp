@@ -80,7 +80,7 @@ void InspIRCd::DoBackgroundUserStuff()
 				}
 				break;
 			case REG_NICKUSER:
-				if (AllModulesReportReady(curr) && curr->dns_done)
+				if (AllModulesReportReady(curr))
 				{
 					/* User has sent NICK/USER, modules are okay, DNS finished. */
 					curr->FullConnect();
