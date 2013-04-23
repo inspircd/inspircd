@@ -639,6 +639,12 @@
              # to 5, while others (such as linux and *BSD) default to 128.
              somaxconn="128"
 
+             # limitsomaxconn: By default, somaxconn (see above) is limited to a
+             # safe maximum value in the 2.0 branch for compatibility reasons.
+             # This setting can be used to disable this limit, forcing InspIRCd
+             # to use the value specifed above.
+             limitsomaxconn="true"
+
              # softlimit: This optional feature allows a defined softlimit for
              # connections. If defined, it sets a soft max connections value.
              softlimit="12800"
