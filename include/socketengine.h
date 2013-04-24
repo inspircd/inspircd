@@ -496,6 +496,19 @@ public:
 	static bool IgnoreError();
 };
 
+inline bool SocketEngine::IgnoreError()
+{
+	if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+		return true;
+
+#ifdef _WIN32
+	if (WSAGetLastError() == WSAEWOULDBLOCK)
+		return true;
+#endif
+
+	return false;
+}
+
 SocketEngine* CreateSocketEngine();
 
 #endif
