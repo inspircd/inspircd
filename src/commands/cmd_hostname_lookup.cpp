@@ -28,7 +28,7 @@ namespace
 
 /** Derived from Resolver, and performs user forward/reverse lookups.
  */
-class CoreExport UserResolver : public DNS::Request
+class UserResolver : public DNS::Request
 {
 	/** UUID we are looking up */
 	const std::string uuid;
