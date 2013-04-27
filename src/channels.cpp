@@ -34,12 +34,10 @@ static ModeReference ban(NULL, "ban");
 
 Channel::Channel(const std::string &cname, time_t ts)
 {
-	chan_hash::iterator findchan = ServerInstance->chanlist->find(cname);
-	if (findchan != ServerInstance->chanlist->end())
+	if (!ServerInstance->chanlist->insert(std::make_pair(cname, this)).second)
 		throw CoreException("Cannot create duplicate channel " + cname);
 
-	(*(ServerInstance->chanlist))[cname.c_str()] = this;
-	this->name.assign(cname, 0, ServerInstance->Config->Limits.ChanMax);
+	this->name = cname;
 	this->age = ts ? ts : ServerInstance->Time();
 
 	topicset = 0;

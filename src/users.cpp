@@ -416,6 +416,7 @@ void UserIOHandler::OnDataReady()
 		ServerInstance->Users->QuitUser(user, "RecvQ exceeded");
 		ServerInstance->SNO->WriteToSnoMask('a', "User %s RecvQ of %lu exceeds connect class maximum of %lu",
 			user->nick.c_str(), (unsigned long)recvq.length(), user->MyClass->GetRecvqMax());
+		return;
 	}
 	unsigned long sendqmax = ULONG_MAX;
 	if (!user->HasPrivPermission("users/flood/increased-buffers"))
@@ -506,6 +507,8 @@ CullResult LocalUser::cull()
 	// is only a precaution currently.
 	if (localuseriter != ServerInstance->Users->local_users.end())
 		ServerInstance->Users->local_users.erase(localuseriter);
+	else
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: LocalUserIter does not point to a valid entry for " + this->nick);
 
 	ClearInvites();
 	eh.cull();
@@ -786,6 +789,12 @@ void User::InvalidateCache()
 
 bool User::ChangeNick(const std::string& newnick, bool force)
 {
+	if (quitting)
+	{
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Attempted to change nick of a quitting user: " + this->nick);
+		return false;
+	}
+
 	ModResult MOD_RESULT;
 
 	if (force)

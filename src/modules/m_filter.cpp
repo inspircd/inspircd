@@ -165,19 +165,22 @@ class ImplFilter : public FilterResult
 
 class ModuleFilter : public Module
 {
+	bool initing;
+	RegexFactory* factory;
+	void FreeFilters();
+
  public:
 	CommandFilter filtcommand;
 	dynamic_reference<RegexFactory> RegexEngine;
 
 	std::vector<ImplFilter> filters;
-	const char *error;
-	int erroffset;
 	int flags;
 
 	std::set<std::string> exemptfromfilter; // List of channel names excluded from filtering.
 
 	ModuleFilter();
 	void init();
+	CullResult cull();
 	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
@@ -191,6 +194,7 @@ class ModuleFilter : public Module
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 	ModResult OnStats(char symbol, User* user, string_list &results);
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line);
+	void OnUnloadModule(Module* mod);
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);
@@ -292,16 +296,31 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 	return true;
 }
 
-ModuleFilter::ModuleFilter() : filtcommand(this), RegexEngine(this, "regex")
+ModuleFilter::ModuleFilter()
+	: initing(true), filtcommand(this), RegexEngine(this, "regex")
 {
 }
 
 void ModuleFilter::init()
 {
 	ServerInstance->Modules->AddService(filtcommand);
-	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
+	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnUnloadModule };
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	OnRehash(NULL);
+}
+
+CullResult ModuleFilter::cull()
+{
+	FreeFilters();
+	return Module::cull();
+}
+
+void ModuleFilter::FreeFilters()
+{
+	for (std::vector<ImplFilter>::const_iterator i = filters.begin(); i != filters.end(); ++i)
+		delete i->regex;
+
+	filters.clear();
 }
 
 ModResult ModuleFilter::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
@@ -457,20 +476,35 @@ void ModuleFilter::OnRehash(User* user)
 		if (!chan.empty())
 			exemptfromfilter.insert(chan);
 	}
-	std::string newrxengine = "regex/" + ServerInstance->Config->ConfValue("filteropts")->getString("engine");
-	if (newrxengine == "regex/")
-		newrxengine = "regex";
-	if (RegexEngine.GetProvider() == newrxengine)
-		return;
 
-	//ServerInstance->SNO->WriteGlobalSno('a', "Dumping all filters due to regex engine change (was '%s', now '%s')", RegexEngine.GetProvider().c_str(), newrxengine.c_str());
-	//ServerInstance->XLines->DelAll("R");
+	std::string newrxengine = ServerInstance->Config->ConfValue("filteropts")->getString("engine");
 
-	RegexEngine.SetProvider(newrxengine);
+	factory = RegexEngine ? (RegexEngine.operator->()) : NULL;
+
+	if (newrxengine.empty())
+		RegexEngine.SetProvider("regex");
+	else
+		RegexEngine.SetProvider("regex/" + newrxengine);
+
 	if (!RegexEngine)
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
+		if (newrxengine.empty())
+			ServerInstance->SNO->WriteGlobalSno('a', "WARNING: No regex engine loaded - Filter functionality disabled until this is corrected.");
+		else
+			ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
+
+		initing = false;
+		FreeFilters();
+		return;
 	}
+
+	if ((!initing) && (RegexEngine.operator->() != factory))
+	{
+		ServerInstance->SNO->WriteGlobalSno('a', "Dumping all filters due to regex engine change");
+		FreeFilters();
+	}
+
+	initing = false;
 	ReadFilters();
 }
 
@@ -695,6 +729,20 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 		}
 	}
 	return MOD_RES_PASSTHRU;
+}
+
+void ModuleFilter::OnUnloadModule(Module* mod)
+{
+	// If the regex engine became unavailable or has changed, remove all filters
+	if (!RegexEngine)
+	{
+		FreeFilters();
+	}
+	else if (RegexEngine.operator->() != factory)
+	{
+		factory = RegexEngine.operator->();
+		FreeFilters();
+	}
 }
 
 MODULE_INIT(ModuleFilter)

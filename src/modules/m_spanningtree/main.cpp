@@ -731,7 +731,7 @@ void ModuleSpanningTree::OnRehash(User* user)
 		std::string msg = "Error in configuration: ";
 		msg.append(e.GetReason());
 		ServerInstance->SNO->WriteToSnoMask('l', msg);
-		if (!IS_LOCAL(user))
+		if (user && !IS_LOCAL(user))
 			ServerInstance->PI->SendSNONotice("L", msg);
 	}
 }

@@ -63,7 +63,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	this->unregistered_count++;
 
 	/* The users default nick is their UUID */
-	New->nick.assign(New->uuid, 0, ServerInstance->Config->Limits.NickMax);
+	New->nick = New->uuid;
 	(*(this->clientlist))[New->nick] = New;
 
 	New->registered = REG_NONE;
@@ -153,13 +153,13 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs->Log("CULLLIST",LOG_DEBUG, "*** Warning *** - You tried to quit a user (%s) twice. Did your module call QuitUser twice?", user->nick.c_str());
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit quitting user: " + user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs->Log("CULLLIST",LOG_DEBUG, "*** Warning *** - You tried to quit a fake user (%s)", user->nick.c_str());
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit server user: " + user->nick);
 		return;
 	}
 
@@ -224,7 +224,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	if (iter != this->clientlist->end())
 		this->clientlist->erase(iter);
 	else
-		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "iter == clientlist->end, can't remove them from hash... problematic..");
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	ServerInstance->Users->uuidlist->erase(user->uuid);
 }

@@ -27,31 +27,46 @@
 
 /* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
 
-typedef std::map<User*, time_t> delaylist;
+typedef std::map<std::string, time_t> delaylist;
 
 /** Handles channel mode +J
  */
-class KickRejoin : public ParamChannelModeHandler
+class KickRejoin : public ModeHandler
 {
+	static const unsigned int max = 60;
  public:
 	SimpleExtItem<delaylist> ext;
-	KickRejoin(Module* Creator) : ParamChannelModeHandler(Creator, "kicknorejoin", 'J'), ext("norejoinusers", Creator) { }
-
-	bool ParamValidate(std::string& parameter)
+	KickRejoin(Module* Creator)
+		: ModeHandler(Creator, "kicknorejoin", 'J', PARAM_SETONLY, MODETYPE_CHANNEL)
+		, ext("norejoinusers", Creator)
 	{
-		int v = atoi(parameter.c_str());
-		if (v <= 0)
-			return false;
-		parameter = ConvToStr(v);
-		return true;
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding)
 	{
-		ModeAction rv = ParamChannelModeHandler::OnModeChange(source, dest, channel, parameter, adding);
-		if (rv == MODEACTION_ALLOW && !adding)
+		if (adding)
+		{
+			int v = ConvToInt(parameter);
+			if (v <= 0)
+				return MODEACTION_DENY;
+			if (parameter == channel->GetModeParameter(this))
+				return MODEACTION_DENY;
+
+			if ((IS_LOCAL(source) && ((unsigned int)v > max)))
+				v = max;
+
+			parameter = ConvToStr(v);
+			channel->SetModeParam(this, parameter);
+		}
+		else
+		{
+			if (!channel->IsModeSet(this))
+				return MODEACTION_DENY;
+
 			ext.unset(channel);
-		return rv;
+			channel->SetModeParam(this, "");
+		}
+		return MODEACTION_ALLOW;
 	}
 };
 
@@ -80,29 +95,25 @@ public:
 			delaylist* dl = kr.ext.get(chan);
 			if (dl)
 			{
-				std::vector<User*> itemstoremove;
-
-				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); iter++)
+				for (delaylist::iterator iter = dl->begin(); iter != dl->end(); )
 				{
 					if (iter->second > ServerInstance->Time())
 					{
-						if (iter->first == user)
+						if (iter->first == user->uuid)
 						{
 							std::string modeparam = chan->GetModeParameter(&kr);
 							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)",
 								user->nick.c_str(), chan->name.c_str(), modeparam.c_str());
 							return MOD_RES_DENY;
 						}
+						++iter;
 					}
 					else
 					{
 						// Expired record, remove.
-						itemstoremove.push_back(iter->first);
+						dl->erase(iter++);
 					}
 				}
-
-				for (unsigned int i = 0; i < itemstoremove.size(); i++)
-					dl->erase(itemstoremove[i]);
 
 				if (!dl->size())
 					kr.ext.unset(chan);
@@ -113,7 +124,7 @@ public:
 
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 	{
-		if (memb->chan->IsModeSet(&kr) && (source != memb->user))
+		if (memb->chan->IsModeSet(&kr) && (IS_LOCAL(memb->user)) && (source != memb->user))
 		{
 			delaylist* dl = kr.ext.get(memb->chan);
 			if (!dl)
@@ -121,7 +132,7 @@ public:
 				dl = new delaylist;
 				kr.ext.set(memb->chan, dl);
 			}
-			(*dl)[memb->user] = ServerInstance->Time() + ConvToInt(memb->chan->GetModeParameter(&kr));
+			(*dl)[memb->user->uuid] = ServerInstance->Time() + ConvToInt(memb->chan->GetModeParameter(&kr));
 		}
 	}
 

@@ -38,26 +38,6 @@ class callerid_data
 	std::list<callerid_data *> wholistsme;
 
 	callerid_data() : lastnotify(0) { }
-	callerid_data(const std::string& str)
-	{
-		irc::commasepstream s(str);
-		std::string tok;
-		if (s.GetToken(tok))
-		{
-			lastnotify = ConvToInt(tok);
-		}
-		while (s.GetToken(tok))
-		{
-			if (tok.empty())
-			{
-				continue;
-			}
-
-			User *u = ServerInstance->FindNick(tok);
-			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
-				accepting.insert(u);
-		}
-	}
 
 	std::string ToString(SerializeFormat format) const
 	{
@@ -88,8 +68,31 @@ struct CallerIDExtInfo : public ExtensionItem
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
-		callerid_data* dat = new callerid_data(value);
-		set_raw(container, dat);
+		callerid_data* dat = new callerid_data;
+		irc::commasepstream s(value);
+		std::string tok;
+		if (s.GetToken(tok))
+			dat->lastnotify = ConvToInt(tok);
+
+		while (s.GetToken(tok))
+		{
+			if (tok.empty())
+				continue;
+
+			User *u = ServerInstance->FindNick(tok);
+			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
+			{
+				if (dat->accepting.insert(u).second)
+				{
+					callerid_data* other = this->get(u, true);
+					other->wholistsme.push_back(dat);
+				}
+			}
+		}
+
+		void* old = set_raw(container, dat);
+		if (old)
+			this->free(old);
 	}
 
 	callerid_data* get(User* user, bool create)
@@ -113,11 +116,16 @@ struct CallerIDExtInfo : public ExtensionItem
 			callerid_data *targ = this->get(*it, false);
 
 			if (!targ)
+			{
+				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
+			}
 
 			std::list<callerid_data*>::iterator it2 = std::find(targ->wholistsme.begin(), targ->wholistsme.end(), dat);
 			if (it2 != targ->wholistsme.end())
 				targ->wholistsme.erase(it2);
+			else
+				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
 	}
@@ -277,6 +285,7 @@ public:
 		if (!dat2)
 		{
 			// How the fuck is this possible.
+			ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
 			return false;
 		}
 
@@ -284,6 +293,9 @@ public:
 		if (it != dat2->wholistsme.end())
 			// Found me!
 			dat2->wholistsme.erase(it);
+		else
+			ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
+
 
 		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
 		return true;
@@ -320,6 +332,8 @@ class ModuleCallerID : public Module
 
 			if (it2 != dat->accepting.end())
 				dat->accepting.erase(it2);
+			else
+				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
 		userdata->wholistsme.clear();
@@ -354,7 +368,7 @@ public:
 
 	ModResult PreText(User* user, User* dest, std::string& text)
 	{
-		if (!dest->IsModeSet('g'))
+		if (!dest->IsModeSet('g') || (user == dest))
 			return MOD_RES_PASSTHRU;
 
 		if (operoverride && user->IsOper())

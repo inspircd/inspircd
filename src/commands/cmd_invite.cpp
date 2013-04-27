@@ -72,16 +72,16 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			return CMD_FAILURE;
 		}
 
-		if (c->HasUser(u))
-	 	{
-	 		user->WriteNumeric(ERR_USERONCHANNEL, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
-	 		return CMD_FAILURE;
+		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
+		{
+			user->WriteNumeric(ERR_NOTONCHANNEL, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
+			return CMD_FAILURE;
 		}
 
-		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
-	 	{
-			user->WriteNumeric(ERR_NOTONCHANNEL, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
-	  		return CMD_FAILURE;
+		if (c->HasUser(u))
+		{
+			user->WriteNumeric(ERR_USERONCHANNEL, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+			return CMD_FAILURE;
 		}
 
 		FIRST_MOD_RESULT(OnUserPreInvite, MOD_RESULT, (user,u,c,timeout));

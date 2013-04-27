@@ -214,9 +214,13 @@ class ModuleRLine : public Module
 	RLineFactory f;
 	CommandRLine r;
 	bool MatchOnNickChange;
+	bool initing;
+	RegexFactory* factory;
 
  public:
-	ModuleRLine() : rxfactory(this, "regex"), f(rxfactory), r(this, f)
+	ModuleRLine()
+		: rxfactory(this, "regex"), f(rxfactory), r(this, f)
+		, initing(true)
 	{
 	}
 
@@ -227,7 +231,7 @@ class ModuleRLine : public Module
 		ServerInstance->Modules->AddService(r);
 		ServerInstance->XLines->RegisterFactory(&f);
 
-		Implementation eventlist[] = { I_OnUserConnect, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer };
+		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -242,7 +246,7 @@ class ModuleRLine : public Module
 		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user)
 	{
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
@@ -251,7 +255,9 @@ class ModuleRLine : public Module
 		{
 			// Bang. :P
 			rl->Apply(user);
+			return MOD_RES_DENY;
 		}
+		return MOD_RES_PASSTHRU;
 	}
 
 	virtual void OnRehash(User *user)
@@ -262,14 +268,29 @@ class ModuleRLine : public Module
 		ZlineOnMatch = tag->getBool("zlineonmatch");
 		std::string newrxengine = tag->getString("engine");
 
+		factory = rxfactory ? (rxfactory.operator->()) : NULL;
+
 		if (newrxengine.empty())
 			rxfactory.SetProvider("regex");
 		else
 			rxfactory.SetProvider("regex/" + newrxengine);
+
 		if (!rxfactory)
 		{
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", newrxengine.c_str());
+			if (newrxengine.empty())
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: No regex engine loaded - R-Line functionality disabled until this is corrected.");
+			else
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: Regex engine '%s' is not loaded - R-Line functionality disabled until this is corrected.", newrxengine.c_str());
+
+			ServerInstance->XLines->DelAll(f.GetType());
 		}
+		else if ((!initing) && (rxfactory.operator->() != factory))
+		{
+			ServerInstance->SNO->WriteToSnoMask('a', "Regex engine has changed, removing all R-Lines");
+			ServerInstance->XLines->DelAll(f.GetType());
+		}
+
+		initing = false;
 	}
 
 	virtual ModResult OnStats(char symbol, User* user, string_list &results)
@@ -307,6 +328,25 @@ class ModuleRLine : public Module
 		}
 	}
 
+	void OnUnloadModule(Module* mod)
+	{
+		// If the regex engine became unavailable or has changed, remove all rlines
+		if (!rxfactory)
+		{
+			ServerInstance->XLines->DelAll(f.GetType());
+		}
+		else if (rxfactory.operator->() != factory)
+		{
+			factory = rxfactory.operator->();
+			ServerInstance->XLines->DelAll(f.GetType());
+		}
+	}
+
+	void Prioritize()
+	{
+		Module* mod = ServerInstance->Modules->Find("m_cgiirc.so");
+		ServerInstance->Modules->SetPriority(this, I_OnUserRegister, PRIORITY_AFTER, mod);
+	}
 };
 
 MODULE_INIT(ModuleRLine)

@@ -59,11 +59,6 @@ class ModuleNoNotice : public Module
 			Channel* c = (Channel*)dest;
 			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet('T')))
 			{
-				if (ServerInstance->ULine(user->server))
-				{
-					// ulines are exempt.
-					return MOD_RES_PASSTHRU;
-				}
 				res = ServerInstance->OnCheckExemption(user,c,"nonotice");
 				if (res == MOD_RES_ALLOW)
 					return MOD_RES_PASSTHRU;

@@ -75,6 +75,12 @@ struct CapabData
 	int capab_phase;			/* Have sent CAPAB already */
 	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
+
+	// Data saved from incoming SERVER command, for later use when our credentials have been accepted by the other party
+	std::string description;
+	std::string sid;
+	std::string name;
+	bool hidden;
 };
 
 /** Every SERVER connection inbound or outbound is represented by an object of
@@ -92,6 +98,11 @@ class TreeSocket : public BufferedSocket
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
 	int proto_version;			/* Remote protocol version */
 	bool ConnectionFailureShown; /* Set to true if a connection failure message was shown */
+
+	/** Checks if the given servername and sid are both free
+	 */
+	bool CheckDuplicate(const std::string& servername, const std::string& sid);
+
  public:
 	time_t age;
 

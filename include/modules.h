@@ -391,6 +391,11 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	DLLManager* ModuleDLLManager;
 
+	/** If true, this module will be unloaded soon, further unload attempts will fail
+	 * Value is used by the ModuleManager internally, you should not modify it
+	 */
+	bool dying;
+
 	/** Default constructor.
 	 * Creates a module class. Don't do any type of hook registration or checks
 	 * for other modules here; do that in init().

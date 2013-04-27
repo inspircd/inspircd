@@ -431,7 +431,8 @@ void ServerConfig::Fill()
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
 	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
-	range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
+	if (ConfValue("performance")->getBool("limitsomaxconn", true))
+		range(MaxConn, 0, SOMAXCONN, SOMAXCONN, "<performance:somaxconn>");
 	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
 	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
 

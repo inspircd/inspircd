@@ -488,6 +488,24 @@ public:
 	/** Get data transfer statistics, kilobits per second in and out and total.
 	 */
 	void GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total);
+
+	/** Should we ignore the error in errno?
+	 * Checks EAGAIN and WSAEWOULDBLOCK
+	 */
+	static bool IgnoreError();
 };
+
+inline bool SocketEngine::IgnoreError()
+{
+	if ((errno == EAGAIN) || (errno == EWOULDBLOCK))
+		return true;
+
+#ifdef _WIN32
+	if (WSAGetLastError() == WSAEWOULDBLOCK)
+		return true;
+#endif
+
+	return false;
+}
 
 SocketEngine* CreateSocketEngine();
