@@ -177,7 +177,6 @@ class UserResolver : public DNS::Request
 
 class ModuleHostnameLookup : public Module
 {
-	bool nouserdns;
 	LocalIntExt dnsLookup;
 	LocalStringExt ptrHosts;
 	dynamic_reference<DNS::Manager> DNS;
@@ -198,18 +197,13 @@ class ModuleHostnameLookup : public Module
 		ServerInstance->Modules->AddService(this->dnsLookup);
 		ServerInstance->Modules->AddService(this->ptrHosts);
 
-		Implementation i[] = { I_OnUserInit, I_OnCheckReady, I_OnRehash };
+		Implementation i[] = { I_OnUserInit, I_OnCheckReady };
 		ServerInstance->Modules->Attach(i, this, sizeof(i) / sizeof(Implementation));
-	}
-
-	void OnRehash(User* user)
-	{
-		nouserdns =	ServerInstance->Config->ConfValue("performance")->getBool("nouserdns");
 	}
 
 	void OnUserInit(LocalUser *user)
 	{
-		if (!DNS || nouserdns)
+		if (!DNS || user->MyClass->nouserdns)
 		{
 			user->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", user->nick.c_str());
 			return;
