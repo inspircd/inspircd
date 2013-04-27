@@ -275,6 +275,10 @@
          # maxconnwarn: Enable warnings when localmax or globalmax is hit (defaults to on)
          maxconnwarn="off"
 
+         # nouserdns: If enabled, no DNS lookups will be performed on connecting users
+         # in this class. This can save a lot of resources on very busy servers.
+         nouserdns="no"
+
          # usednsbl: Defines whether or not users in this class are subject to DNSBL. Default is yes.
          # This setting only has effect when m_dnsbl is loaded.
          #usednsbl="yes"
@@ -379,6 +383,10 @@
 
          # globalmax: Maximum global (network-wide) connections per IP.
          globalmax="3"
+
+         # nouserdns: If enabled, no DNS lookups will be performed on connecting users
+         # in this class. This can save a lot of resources on very busy servers.
+         nouserdns="no"
 
          # useident: Defines if users in this class must respond to a ident query or not.
          useident="no"
@@ -647,11 +655,7 @@
              # +C and +Q snomasks. Setting this to yes squelches those messages,
              # which makes it easier for opers, but degrades the functionality of
              # bots like BOPM during netsplits.
-             quietbursts="yes"
-
-             # nouserdns: If enabled, no DNS lookups will be performed on
-             # connecting users. This can save a lot of resources on very busy servers.
-             nouserdns="no">
+             quietbursts="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-# SECURITY CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
