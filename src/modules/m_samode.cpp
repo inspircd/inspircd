@@ -39,13 +39,13 @@ class CommandSamode : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		this->active = true;
 		User* target = ServerInstance->FindNick(parameters[0]);
 		if ((target) && (target != user))
 		{
 			if (!user->HasPrivPermission("users/samode-usermodes", true))
 				return CMD_FAILURE;
 		}
+		this->active = true;
 		ServerInstance->Parser->CallHandler("MODE", parameters, user);
 		if (ServerInstance->Modes->GetLastParse().length())
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
