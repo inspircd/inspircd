@@ -106,8 +106,8 @@ void InspIRCd::SendError(const std::string &s)
 		User* u = *i;
 		if (u->registered == REG_ALL)
 		{
-		   	u->WriteServ("NOTICE %s :%s",u->nick.c_str(),s.c_str());
-	   	}
+			u->WriteNotice(s);
+		}
 		else
 		{
 			/* Unregistered connections receive ERROR, not a NOTICE */

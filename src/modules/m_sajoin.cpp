@@ -48,7 +48,7 @@ class CommandSajoin : public Command
 			if (IS_LOCAL(user) && !ServerInstance->IsChannel(parameters[1].c_str(), ServerInstance->Config->Limits.ChanMax))
 			{
 				/* we didn't need to check this for each character ;) */
-				user->WriteServ("NOTICE "+user->nick+" :*** Invalid characters in channel name or name too long");
+				user->WriteNotice("*** Invalid characters in channel name or name too long");
 				return CMD_FAILURE;
 			}
 
@@ -69,13 +69,13 @@ class CommandSajoin : public Command
 					}
 					else
 					{
-						user->WriteServ("NOTICE "+user->nick+" :*** Could not join "+dest->nick+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
+						user->WriteNotice("*** Could not join "+dest->nick+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
 						return CMD_FAILURE;
 					}
 				}
 				else
 				{
-					user->WriteServ("NOTICE "+user->nick+" :*** Could not join "+dest->nick+" to "+parameters[1]);
+					user->WriteNotice("*** Could not join "+dest->nick+" to "+parameters[1]);
 					return CMD_FAILURE;
 				}
 			}
@@ -87,7 +87,7 @@ class CommandSajoin : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE "+user->nick+" :*** No such nickname "+parameters[0]);
+			user->WriteNotice("*** No such nickname "+parameters[0]);
 			return CMD_FAILURE;
 		}
 	}

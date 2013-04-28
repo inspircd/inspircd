@@ -388,7 +388,7 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 	if (!this->IsOper())
 	{
 		if (noisy)
-			this->WriteServ("NOTICE %s :You are not an oper", this->nick.c_str());
+			this->WriteNotice("You are not an oper");
 		return false;
 	}
 
@@ -402,7 +402,8 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 	}
 
 	if (noisy)
-		this->WriteServ("NOTICE %s :Oper type %s does not have access to priv %s", this->nick.c_str(), oper->NameStr(), privstr.c_str());
+		this->WriteNotice("Oper type " + std::string(oper->NameStr()) + " does not have access to priv " + privstr);
+
 	return false;
 }
 
@@ -1047,6 +1048,10 @@ void User::WriteServ(const char* text, ...)
 	this->WriteServ(std::string(textbuffer));
 }
 
+void User::WriteNotice(const std::string& text)
+{
+	this->WriteServ("NOTICE " + (this->registered == REG_ALL ? this->nick : "*") + " :" + text);
+}
 
 void User::WriteNumeric(unsigned int numeric, const char* text, ...)
 {

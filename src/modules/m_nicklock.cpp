@@ -44,7 +44,7 @@ class CommandNicklock : public Command
 
 		if ((!target) || (target->registered != REG_ALL))
 		{
-			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
 			return CMD_FAILURE;
 		}
 
@@ -53,7 +53,7 @@ class CommandNicklock : public Command
 		{
 			if (!ServerInstance->IsNick(parameters[1], ServerInstance->Config->Limits.NickMax))
 			{
-				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
+				user->WriteNotice("*** Invalid nickname '" + parameters[1] + "'");
 				return CMD_FAILURE;
 			}
 
@@ -107,7 +107,7 @@ class CommandNickunlock : public Command
 
 		if (!target)
 		{
-			user->WriteServ("NOTICE %s :*** No such nickname: '%s'", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** No such nickname: '" + parameters[0] + "'");
 			return CMD_FAILURE;
 		}
 

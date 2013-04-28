@@ -108,7 +108,7 @@ class CommandSvshold : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** SVSHOLD %s not found in list, try /stats S.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteNotice("*** SVSHOLD " + parameters[0] + " not found in list, try /stats S.");
 			}
 		}
 		else

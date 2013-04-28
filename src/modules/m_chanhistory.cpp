@@ -165,8 +165,7 @@ class ModuleChanHistory : public Module
 
 		if (sendnotice)
 		{
-			memb->user->WriteServ("NOTICE %s :Replaying up to %d lines of pre-join history spanning up to %d seconds",
-				memb->chan->name.c_str(), list->maxlen, list->maxtime);
+			memb->user->WriteNotice("Replaying up to " + ConvToStr(list->maxlen) + " lines of pre-join history spanning up to " + ConvToStr(list->maxtime) + " seconds");
 		}
 
 		for(std::deque<HistoryItem>::iterator i = list->lines.begin(); i != list->lines.end(); ++i)

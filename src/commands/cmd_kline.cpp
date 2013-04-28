@@ -63,7 +63,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 
         if (ih.first.empty())
         {
-            user->WriteServ("NOTICE %s :*** Target not found", user->nick.c_str());
+            user->WriteNotice("*** Target not found");
             return CMD_FAILURE;
         }
 
@@ -72,7 +72,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 
 		if (target.find('!') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** K-Line cannot operate on nick!user@host masks",user->nick.c_str());
+			user->WriteNotice("*** K-Line cannot operate on nick!user@host masks");
 			return CMD_FAILURE;
 		}
 
@@ -97,7 +97,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete kl;
-			user->WriteServ("NOTICE %s :*** K-Line for %s already exists",user->nick.c_str(),target.c_str());
+			user->WriteNotice("*** K-Line for " + target + " already exists");
 		}
 	}
 	else
@@ -108,7 +108,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** K-Line %s not found in list, try /stats k.",user->nick.c_str(),target.c_str());
+			user->WriteNotice("*** K-Line " + target + " not found in list, try /stats k.");
 		}
 	}
 

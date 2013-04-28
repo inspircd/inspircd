@@ -101,7 +101,7 @@ class CommandCBan : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** CBan %s not found in list, try /stats C.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteNotice("*** CBan " + parameters[0] + " not found in list, try /stats C.");
 				return CMD_FAILURE;
 			}
 		}
@@ -128,7 +128,7 @@ class CommandCBan : public Command
 			else
 			{
 				delete r;
-				user->WriteServ("NOTICE %s :*** CBan for %s already exists", user->nick.c_str(), parameters[0].c_str());
+				user->WriteNotice("*** CBan for " + parameters[0] + " already exists");
 				return CMD_FAILURE;
 			}
 		}

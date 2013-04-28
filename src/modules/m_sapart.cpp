@@ -74,7 +74,7 @@ class CommandSapart : public Command
 					}
 					else
 					{
-						user->WriteServ("NOTICE %s :*** Unable to make %s part %s",user->nick.c_str(), dest->nick.c_str(), parameters[1].c_str());
+						user->WriteNotice("*** Unable to make " + dest->nick + " part " + parameters[1]);
 						return CMD_FAILURE;
 					}
 				}
@@ -84,7 +84,7 @@ class CommandSapart : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname or channel", user->nick.c_str());
+			user->WriteNotice("*** Invalid nickname or channel");
 		}
 
 		return CMD_FAILURE;

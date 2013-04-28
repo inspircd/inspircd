@@ -46,9 +46,9 @@ class WhoisNoticeCmd : public Command
 
 	void HandleFast(User* dest, User* src)
 	{
-		dest->WriteServ("NOTICE %s :*** %s (%s@%s) did a /whois on you",
-			dest->nick.c_str(), src->nick.c_str(), src->ident.c_str(),
-			dest->HasPrivPermission("users/auspex") ? src->host.c_str() : src->dhost.c_str());
+		dest->WriteNotice("*** " + src->nick + " (" + src->ident + "@" +
+			(dest->HasPrivPermission("users/auspex") ? src->host : src->dhost) +
+			") did a /whois on you");
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)

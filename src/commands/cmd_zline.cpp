@@ -49,7 +49,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (target.find('!') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** You cannot include a nickname in a zline, a zline must ban only an IP mask",user->nick.c_str());
+			user->WriteNotice("*** You cannot include a nickname in a zline, a zline must ban only an IP mask");
 			return CMD_FAILURE;
 		}
 
@@ -92,7 +92,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete zl;
-			user->WriteServ("NOTICE %s :*** Z-Line for %s already exists",user->nick.c_str(),ipaddr);
+			user->WriteNotice("*** Z-Line for " + std::string(ipaddr) + " already exists");
 		}
 	}
 	else
@@ -103,7 +103,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Z-Line %s not found in list, try /stats Z.",user->nick.c_str(),target.c_str());
+			user->WriteNotice("*** Z-Line " + target + " not found in list, try /stats Z.");
 			return CMD_FAILURE;
 		}
 	}

@@ -42,15 +42,14 @@ class CommandMkpasswd : public Command
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 			{
-				user->WriteServ("NOTICE %s :Unknown hash type", user->nick.c_str());
+				user->WriteNotice("Unknown hash type");
 				return;
 			}
 			std::string salt = ServerInstance->GenRandomStr(6, false);
 			std::string target = hp->hmac(salt, stuff);
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
 
-			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
-				user->nick.c_str(), algo.c_str(), stuff.c_str(), str.c_str());
+			user->WriteNotice(algo + " hashed password for " + stuff + " is " + str);
 			return;
 		}
 		HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + algo);
@@ -58,12 +57,11 @@ class CommandMkpasswd : public Command
 		{
 			/* Now attempt to generate a hash */
 			std::string hexsum = hp->hexsum(stuff);
-			user->WriteServ("NOTICE %s :%s hashed password for %s is %s",
-				user->nick.c_str(), algo.c_str(), stuff.c_str(), hexsum.c_str());
+			user->WriteNotice(algo + " hashed password for " + stuff + " is " + hexsum);
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :Unknown hash type", user->nick.c_str());
+			user->WriteNotice("Unknown hash type");
 		}
 	}
 
