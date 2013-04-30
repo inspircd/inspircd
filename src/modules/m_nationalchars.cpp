@@ -35,8 +35,8 @@ class lwbNickHandler : public HandlerBase2<bool, const std::string&, size_t>
 {
  public:
 	lwbNickHandler() { }
-	virtual ~lwbNickHandler() { }
-	virtual bool Call(const std::string&, size_t);
+	~lwbNickHandler() { }
+	bool Call(const std::string&, size_t);
 };
 
 								 /*,m_reverse_additionalUp[256];*/
@@ -235,7 +235,7 @@ class ModuleNationalChars : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
@@ -247,12 +247,12 @@ class ModuleNationalChars : public Module
 		OnRehash(NULL);
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["CASEMAPPING"] = casemapping;
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");
@@ -279,14 +279,14 @@ class ModuleNationalChars : public Module
 		}
 	}
 
-	virtual ~ModuleNationalChars()
+	~ModuleNationalChars()
 	{
 		ServerInstance->IsNick = rememberer;
 		national_case_insensitive_map = lowermap_rememberer;
 		CheckForceQuit("National characters module unloaded");
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING", VF_VENDOR | VF_COMMON, charset);
 	}

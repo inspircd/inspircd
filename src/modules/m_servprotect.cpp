@@ -53,19 +53,19 @@ class ModuleServProtectMode : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(bm);
 		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnUserPreKick };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);
 	}
 
-	void OnWhois(User* user, User* dest)
+	void OnWhois(User* user, User* dest) CXX11_OVERRIDE
 	{
 		if (dest->IsModeSet('k'))
 		{
@@ -73,7 +73,7 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
@@ -102,7 +102,7 @@ class ModuleServProtectMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnKill(User* src, User* dst, const std::string &reason)
+	ModResult OnKill(User* src, User* dst, const std::string &reason) CXX11_OVERRIDE
 	{
 		if (src == NULL)
 			return MOD_RES_PASSTHRU;
@@ -116,7 +116,7 @@ class ModuleServProtectMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreKick(User *src, Membership* memb, const std::string &reason)
+	ModResult OnUserPreKick(User *src, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
 		if (memb->user->IsModeSet('k'))
 		{
@@ -128,7 +128,7 @@ class ModuleServProtectMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* src, User* dst, int &numeric, std::string &text) CXX11_OVERRIDE
 	{
 		return ((src != dst) && (numeric == 319) && dst->IsModeSet('k')) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}

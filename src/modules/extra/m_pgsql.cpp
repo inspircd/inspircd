@@ -62,7 +62,7 @@ class ReconnectTimer : public Timer
 	ReconnectTimer(ModulePgSQL* m) : Timer(5, ServerInstance->Time(), false), mod(m)
 	{
 	}
-	virtual bool Tick(time_t TIME);
+	bool Tick(time_t TIME);
 };
 
 struct QueueItem
@@ -97,12 +97,12 @@ class PgSQLresult : public SQLResult
 		PQclear(res);
 	}
 
-	virtual int Rows()
+	int Rows()
 	{
 		return rows;
 	}
 
-	virtual void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result)
 	{
 		result.resize(PQnfields(res));
 		for(unsigned int i=0; i < result.size(); i++)
@@ -111,7 +111,7 @@ class PgSQLresult : public SQLResult
 		}
 	}
 
-	virtual SQLEntry GetValue(int row, int column)
+	SQLEntry GetValue(int row, int column)
 	{
 		char* v = PQgetvalue(res, row, column);
 		if (!v || PQgetisnull(res, row, column))
@@ -120,7 +120,7 @@ class PgSQLresult : public SQLResult
 		return SQLEntry(std::string(v, PQgetlength(res, row, column)));
 	}
 
-	virtual bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result)
 	{
 		if (currentrow >= PQntuples(res))
 			return false;
@@ -180,7 +180,7 @@ class SQLConn : public SQLProvider, public EventHandler
 		}
 	}
 
-	virtual void HandleEvent(EventType et, int errornum)
+	void HandleEvent(EventType et, int errornum)
 	{
 		switch (et)
 		{
@@ -509,7 +509,7 @@ class ModulePgSQL : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ReadConf();
 
@@ -517,13 +517,13 @@ class ModulePgSQL : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModulePgSQL()
+	~ModulePgSQL()
 	{
 		delete retimer;
 		ClearAllConnections();
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ReadConf();
 	}
@@ -564,7 +564,7 @@ class ModulePgSQL : public Module
 		connections.clear();
 	}
 
-	void OnUnloadModule(Module* mod)
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
 		SQLerror err(SQL_BAD_DBID);
 		for(ConnMap::iterator i = connections.begin(); i != connections.end(); i++)
@@ -592,7 +592,7 @@ class ModulePgSQL : public Module
 		}
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API", VF_VENDOR);
 	}

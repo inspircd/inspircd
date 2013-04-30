@@ -165,7 +165,7 @@ public:
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(p);
 		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash, I_OnBackgroundTimer };
@@ -200,7 +200,7 @@ public:
 		return Module::cull();
 	}
 
-	virtual void OnRehash(User *user)
+	void OnRehash(User *user) CXX11_OVERRIDE
 	{
 		permchannelsconf = ServerInstance->Config->ConfValue("permchanneldb")->getString("filename");
 	}
@@ -271,7 +271,7 @@ public:
 		}
 	}
 
-	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt)
+	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE
 	{
 		if (chan && (chan->IsModeSet('P') || mode == 'P'))
 			dirty = true;
@@ -279,13 +279,13 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnPostTopicChange(User*, Channel *c, const std::string&)
+	void OnPostTopicChange(User*, Channel *c, const std::string&) CXX11_OVERRIDE
 	{
 		if (c->IsModeSet('P'))
 			dirty = true;
 	}
 
-	void OnBackgroundTimer(time_t)
+	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
 	{
 		if (dirty)
 			WriteDatabase();
@@ -324,12 +324,12 @@ public:
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for channel mode +P to provide permanent channels",VF_VENDOR);
 	}
 
-	virtual ModResult OnChannelPreDelete(Channel *c)
+	ModResult OnChannelPreDelete(Channel *c) CXX11_OVERRIDE
 	{
 		if (c->IsModeSet('P'))
 			return MOD_RES_DENY;

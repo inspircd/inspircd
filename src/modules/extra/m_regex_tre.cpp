@@ -63,12 +63,12 @@ public:
 		}
 	}
 
-	virtual ~TRERegex()
+	~TRERegex()
 	{
 		regfree(&regbuf);
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text)
 	{
 		if (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0)
 		{
@@ -99,7 +99,7 @@ class ModuleRegexTRE : public Module
 		ServerInstance->Modules->AddService(trf);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex Provider Module for TRE Regular Expressions", VF_VENDOR);
 	}

@@ -50,7 +50,7 @@ class ModuleGeoIP : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		gi = GeoIP_new(GEOIP_STANDARD);
 		if (gi == NULL)
@@ -76,12 +76,12 @@ class ModuleGeoIP : public Module
 			GeoIP_delete(gi);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_VENDOR);
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		std::string* cc = ext.get(user);
 		if (!cc)
@@ -98,7 +98,7 @@ class ModuleGeoIP : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &out)
+	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
 	{
 		if (symbol != 'G')
 			return MOD_RES_PASSTHRU;

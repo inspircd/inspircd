@@ -159,7 +159,7 @@ class ModuleSVSHold : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->Modules->AddService(cmd);
@@ -167,7 +167,7 @@ class ModuleSVSHold : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ModResult OnStats(char symbol, User* user, string_list &out)
+	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
 	{
 		if(symbol != 'S')
 			return MOD_RES_PASSTHRU;
@@ -176,7 +176,7 @@ class ModuleSVSHold : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual ModResult OnUserPreNick(User *user, const std::string &newnick)
+	ModResult OnUserPreNick(User *user, const std::string &newnick) CXX11_OVERRIDE
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("SVSHOLD", newnick);
 
@@ -189,13 +189,13 @@ class ModuleSVSHold : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleSVSHold()
+	~ModuleSVSHold()
 	{
 		ServerInstance->XLines->DelAll("SVSHOLD");
 		ServerInstance->XLines->UnregisterFactory(&s);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services.", VF_COMMON | VF_VENDOR);
 	}

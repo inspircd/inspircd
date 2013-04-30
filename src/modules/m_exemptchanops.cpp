@@ -115,7 +115,7 @@ class ModuleExemptChanOps : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(eh.ec);
 		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
@@ -130,17 +130,17 @@ class ModuleExemptChanOps : public Module
 		ServerInstance->OnCheckExemption = &ServerInstance->HandleOnCheckExemption;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		eh.ec.DoRehash();
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
 	{
 		eh.ec.DoSyncChannel(chan, proto, opaque);
 	}

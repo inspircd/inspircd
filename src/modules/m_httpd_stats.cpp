@@ -34,7 +34,7 @@ class ModuleHttpStats : public Module
 
  public:
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnEvent };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -91,7 +91,7 @@ class ModuleHttpStats : public Module
 		data << "</metadata>";
 	}
 
-	void OnEvent(Event& event)
+	void OnEvent(Event& event) CXX11_OVERRIDE
 	{
 		std::stringstream data("");
 
@@ -238,7 +238,7 @@ class ModuleHttpStats : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides statistics over HTTP via m_httpd.so", VF_VENDOR);
 	}

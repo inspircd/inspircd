@@ -255,7 +255,7 @@ class ModuleCheck : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(mycommand);
 	}
@@ -276,7 +276,7 @@ class ModuleCheck : public Module
 		user->SendText(checkstr);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("CHECK command, view user, channel, IP address or hostname information", VF_VENDOR|VF_OPTCOMMON);
 	}

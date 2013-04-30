@@ -302,7 +302,7 @@ class ModuleSilence : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cmdsilence);
@@ -313,14 +313,14 @@ class ModuleSilence : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		maxsilence = ServerInstance->Config->ConfValue("showwhois")->getInt("maxentries", 32);
 		if (!maxsilence)
 			maxsilence = 32;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["ESILENCE"];
 		tokens["SILENCE"] = ConvToStr(maxsilence);
@@ -360,17 +360,17 @@ class ModuleSilence : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_PRIVATE);
 	}
 
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
 	}
 
-	ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout)
+	ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout) CXX11_OVERRIDE
 	{
 		return MatchPattern(dest, source, SILENCE_INVITE);
 	}
@@ -393,7 +393,7 @@ class ModuleSilence : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the /SILENCE command", VF_OPTCOMMON | VF_VENDOR);
 	}

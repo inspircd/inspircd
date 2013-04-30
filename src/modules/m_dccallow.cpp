@@ -255,7 +255,7 @@ class ModuleDCCAllow : public Module
 		ext = NULL;
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
 		ServerInstance->Modules->AddService(*ext);
@@ -265,12 +265,12 @@ class ModuleDCCAllow : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ReadFileConf();
 	}
 
-	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE
 	{
 		dccallowlist* udl = ext->get(user);
 
@@ -287,17 +287,17 @@ class ModuleDCCAllow : public Module
 		RemoveNick(user);
 	}
 
-	virtual void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		RemoveNick(user);
 	}
 
-	virtual ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
-		return OnUserPreNotice(user, dest, target_type, text, status, exempt_list);
+		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	virtual ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -475,12 +475,12 @@ class ModuleDCCAllow : public Module
 		}
 	}
 
-	virtual ~ModuleDCCAllow()
+	~ModuleDCCAllow()
 	{
 		delete ext;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the /DCCALLOW command", VF_COMMON | VF_VENDOR);
 	}

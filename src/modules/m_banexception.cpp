@@ -53,7 +53,7 @@ class ModuleBanException : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(be);
 
@@ -62,12 +62,12 @@ class ModuleBanException : public Module
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXCEPTS"] = "e";
 	}
 
-	ModResult OnExtBanCheck(User *user, Channel *chan, char type)
+	ModResult OnExtBanCheck(User *user, Channel *chan, char type) CXX11_OVERRIDE
 	{
 		if (chan != NULL)
 		{
@@ -92,7 +92,7 @@ class ModuleBanException : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckChannelBan(User* user, Channel* chan)
+	ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE
 	{
 		if (chan)
 		{
@@ -116,17 +116,17 @@ class ModuleBanException : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
 	{
 		be.DoSyncChannel(chan, proto, opaque);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		be.DoRehash();
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the +e channel mode", VF_VENDOR);
 	}

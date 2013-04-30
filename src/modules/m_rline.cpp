@@ -224,7 +224,7 @@ class ModuleRLine : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 
@@ -235,18 +235,18 @@ class ModuleRLine : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleRLine()
+	~ModuleRLine()
 	{
 		ServerInstance->XLines->DelAll("R");
 		ServerInstance->XLines->UnregisterFactory(&f);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("RLINE: Regexp user banning.", VF_COMMON | VF_VENDOR, rxfactory ? rxfactory->name : "");
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		// Apply lines on user connect
 		XLine *rl = ServerInstance->XLines->MatchesLine("R", user);
@@ -260,7 +260,7 @@ class ModuleRLine : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnRehash(User *user)
+	void OnRehash(User *user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
 
@@ -293,7 +293,7 @@ class ModuleRLine : public Module
 		initing = false;
 	}
 
-	virtual ModResult OnStats(char symbol, User* user, string_list &results)
+	ModResult OnStats(char symbol, User* user, string_list &results) CXX11_OVERRIDE
 	{
 		if (symbol != 'R')
 			return MOD_RES_PASSTHRU;
@@ -302,7 +302,7 @@ class ModuleRLine : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual void OnUserPostNick(User *user, const std::string &oldnick)
+	void OnUserPostNick(User *user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -319,7 +319,7 @@ class ModuleRLine : public Module
 		}
 	}
 
-	virtual void OnBackgroundTimer(time_t curtime)
+	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
 	{
 		if (added_zline)
 		{
@@ -328,7 +328,7 @@ class ModuleRLine : public Module
 		}
 	}
 
-	void OnUnloadModule(Module* mod)
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
 		// If the regex engine became unavailable or has changed, remove all rlines
 		if (!rxfactory)

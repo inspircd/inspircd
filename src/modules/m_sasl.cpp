@@ -256,7 +256,7 @@ class ModuleSASL : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnEvent, I_OnUserRegister, I_OnRehash };
@@ -269,12 +269,12 @@ class ModuleSASL : public Module
 			ServerInstance->Logs->Log("m_sasl", LOG_DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
-	void OnRehash(User*)
+	void OnRehash(User*) CXX11_OVERRIDE
 	{
 		sasl_target = ServerInstance->Config->ConfValue("sasl")->getString("target", "*");
 	}
 
-	ModResult OnUserRegister(LocalUser *user)
+	ModResult OnUserRegister(LocalUser *user) CXX11_OVERRIDE
 	{
 		SaslAuthenticator *sasl_ = authExt.get(user);
 		if (sasl_)
@@ -286,12 +286,12 @@ class ModuleSASL : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE.",VF_VENDOR);
 	}
 
-	void OnEvent(Event &ev)
+	void OnEvent(Event &ev) CXX11_OVERRIDE
 	{
 		cap.HandleEvent(ev);
 	}

@@ -132,7 +132,7 @@ class ModuleCAP : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.reghold);
@@ -141,7 +141,7 @@ class ModuleCAP : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		/* Users in CAP state get held until CAP END */
 		if (cmd.reghold.get(user))
@@ -150,7 +150,7 @@ class ModuleCAP : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Client CAP extension support", VF_VENDOR);
 	}

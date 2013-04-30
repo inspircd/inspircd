@@ -38,7 +38,7 @@ class ModuleNoNickChange : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(nn);
@@ -46,17 +46,17 @@ class ModuleNoNickChange : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXTBAN"].push_back('N');
 	}
 
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
+	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -88,7 +88,7 @@ class ModuleNoNickChange : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		override = ServerInstance->Config->ConfValue("nonicks")->getBool("operoverride", false);
 	}

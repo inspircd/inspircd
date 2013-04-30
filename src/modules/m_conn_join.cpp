@@ -27,7 +27,7 @@
 class ModuleConnJoin : public Module
 {
 	public:
-		void init()
+		void init() CXX11_OVERRIDE
 		{
 			Implementation eventlist[] = { I_OnPostConnect };
 			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -38,12 +38,12 @@ class ModuleConnJoin : public Module
 			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
 		}
 
-		Version GetVersion()
+		Version GetVersion() CXX11_OVERRIDE
 		{
 			return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
 		}
 
-		void OnPostConnect(User* user)
+		void OnPostConnect(User* user) CXX11_OVERRIDE
 		{
 			LocalUser* localuser = IS_LOCAL(user);
 			if (!localuser)

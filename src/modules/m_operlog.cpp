@@ -28,7 +28,7 @@ class ModuleOperLog : public Module
 	bool tosnomask;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -36,17 +36,17 @@ class ModuleOperLog : public Module
 		OnRehash(NULL);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -70,7 +70,7 @@ class ModuleOperLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["OPERLOG"];
 	}

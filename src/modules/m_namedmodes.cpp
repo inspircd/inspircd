@@ -105,7 +105,7 @@ class ModuleNamedModes : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(dummyZ);
@@ -114,7 +114,7 @@ class ModuleNamedModes : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the ability to manipulate modes via long names.",VF_VENDOR);
 	}
@@ -124,7 +124,7 @@ class ModuleNamedModes : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
 	}
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters)
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;

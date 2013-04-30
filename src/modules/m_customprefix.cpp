@@ -97,7 +97,7 @@ class ModuleCustomPrefix : public Module
 {
 	std::vector<CustomPrefixMode*> modes;
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("customprefix");
 		while (tags.first != tags.second)
@@ -127,7 +127,7 @@ class ModuleCustomPrefix : public Module
 			delete *i;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides custom prefix channel modes", VF_VENDOR);
 	}

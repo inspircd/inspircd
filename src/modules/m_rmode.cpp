@@ -115,12 +115,12 @@ class ModuleRMode : public Module
  public:
 	ModuleRMode() : cmd(this) { }
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows glob-based removal of list modes", VF_VENDOR);
 	}

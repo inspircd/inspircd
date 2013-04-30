@@ -88,7 +88,7 @@ class ModuleLockserv : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		locked = false;
 		ServerInstance->Modules->AddService(lockcommand);
@@ -97,13 +97,13 @@ class ModuleLockserv : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		// Emergency way to unlock
 		if (!user) locked = false;
 	}
 
-	virtual ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (locked)
 		{
@@ -113,12 +113,12 @@ class ModuleLockserv : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		return locked ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows locking of the server to stop all incoming connections until unlocked again", VF_VENDOR);
 	}

@@ -163,11 +163,11 @@ class TreeSocket : public BufferedSocket
 	 * to server docs on the inspircd.org site, the other side
 	 * will then send back its own server string.
 	 */
-	virtual void OnConnected();
+	void OnConnected();
 
 	/** Handle socket error event
 	 */
-	virtual void OnError(BufferedSocketError e);
+	void OnError(BufferedSocketError e) CXX11_OVERRIDE;
 
 	/** Sends an error to the remote server, and displays it locally to show
 	 * that it was sent.
@@ -312,10 +312,10 @@ class TreeSocket : public BufferedSocket
 
 	/** Handle socket timeout from connect()
 	 */
-	virtual void OnTimeout();
+	void OnTimeout();
 	/** Handle server quit on close
 	 */
-	virtual void Close();
+	void Close();
 
 	/** Returns true if this server was introduced to the rest of the network
 	 */

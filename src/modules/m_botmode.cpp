@@ -40,19 +40,19 @@ class ModuleBotMode : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(bm);
 		Implementation eventlist[] = { I_OnWhois };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);
 	}
 
-	virtual void OnWhois(User* src, User* dst)
+	void OnWhois(User* src, User* dst) CXX11_OVERRIDE
 	{
 		if (dst->IsModeSet('B'))
 		{

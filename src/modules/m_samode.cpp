@@ -63,18 +63,18 @@ class ModuleSaMode : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->Attach(I_OnPreMode, this);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);
 	}
 
-	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters)
+	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if (cmd.active)
 			return MOD_RES_ALLOW;

@@ -463,7 +463,7 @@ class ModuleRIPEMD160 : public Module
 		ServerInstance->Modules->AddService(mr);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides RIPEMD-160 hashing", VF_VENDOR);
 	}

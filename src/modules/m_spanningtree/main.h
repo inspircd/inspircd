@@ -67,7 +67,7 @@ class ModuleSpanningTree : public Module
 	/** Constructor
 	 */
 	ModuleSpanningTree();
-	void init();
+	void init() CXX11_OVERRIDE;
 
 	/** Shows /LINKS
 	 */
@@ -141,41 +141,41 @@ class ModuleSpanningTree : public Module
 	 ** *** MODULE EVENTS ***
 	 **/
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line);
-	void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line);
-	void OnGetServerDescription(const std::string &servername,std::string &description);
-	void OnUserConnect(LocalUser* source);
-	void OnUserInvite(User* source,User* dest,Channel* channel, time_t);
-	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
-	void OnWallops(User* user, const std::string &text);
-	void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
-	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list);
-	void OnBackgroundTimer(time_t curtime);
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts);
-	void OnChangeHost(User* user, const std::string &newhost);
-	void OnChangeName(User* user, const std::string &gecos);
-	void OnChangeIdent(User* user, const std::string &ident);
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts);
-	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message);
-	void OnUserPostNick(User* user, const std::string &oldnick);
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts);
-	void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
-	void OnPreRehash(User* user, const std::string &parameter);
-	void OnRehash(User* user);
-	void OnOper(User* user, const std::string &opertype);
+	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
+	void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line) CXX11_OVERRIDE;
+	void OnGetServerDescription(const std::string &servername,std::string &description) CXX11_OVERRIDE;
+	void OnUserConnect(LocalUser* source) CXX11_OVERRIDE;
+	void OnUserInvite(User* source,User* dest,Channel* channel, time_t) CXX11_OVERRIDE;
+	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE;
+	void OnWallops(User* user, const std::string &text) CXX11_OVERRIDE;
+	void OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) CXX11_OVERRIDE;
+	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list) CXX11_OVERRIDE;
+	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE;
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE;
+	void OnChangeHost(User* user, const std::string &newhost) CXX11_OVERRIDE;
+	void OnChangeName(User* user, const std::string &gecos) CXX11_OVERRIDE;
+	void OnChangeIdent(User* user, const std::string &ident) CXX11_OVERRIDE;
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE;
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE;
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE;
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE;
+	void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason) CXX11_OVERRIDE;
+	void OnPreRehash(User* user, const std::string &parameter) CXX11_OVERRIDE;
+	void OnRehash(User* user) CXX11_OVERRIDE;
+	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE;
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
-	void OnAddLine(User *u, XLine *x);
-	void OnDelLine(User *u, XLine *x);
-	void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate);
-	ModResult OnStats(char statschar, User* user, string_list &results);
-	ModResult OnSetAway(User* user, const std::string &awaymsg);
+	void OnAddLine(User *u, XLine *x) CXX11_OVERRIDE;
+	void OnDelLine(User *u, XLine *x) CXX11_OVERRIDE;
+	void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate) CXX11_OVERRIDE;
+	ModResult OnStats(char statschar, User* user, string_list &results) CXX11_OVERRIDE;
+	ModResult OnSetAway(User* user, const std::string &awaymsg) CXX11_OVERRIDE;
 	void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
 	void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
-	void OnLoadModule(Module* mod);
-	void OnUnloadModule(Module* mod);
-	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	void OnLoadModule(Module* mod) CXX11_OVERRIDE;
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
+	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;
 	CullResult cull();
 	~ModuleSpanningTree();
-	Version GetVersion();
+	Version GetVersion() CXX11_OVERRIDE;
 	void Prioritize();
 };

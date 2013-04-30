@@ -32,7 +32,7 @@ class OpMeQuery : public SQLQuery
 	{
 	}
 
-	void OnResult(SQLResult& res)
+	void OnResult(SQLResult& res) CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log("m_sqloper",LOG_DEBUG, "SQLOPER: result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
@@ -51,7 +51,7 @@ class OpMeQuery : public SQLQuery
 		fallback();
 	}
 
-	void OnError(SQLerror& error)
+	void OnError(SQLerror& error) CXX11_OVERRIDE
 	{
 		ServerInstance->Logs->Log("m_sqloper",LOG_DEFAULT, "SQLOPER: query failed (%s)", error.Str());
 		fallback();
@@ -113,7 +113,7 @@ class ModuleSQLOper : public Module
 public:
 	ModuleSQLOper() : SQL(this, "SQL") {}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 
@@ -121,7 +121,7 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("sqloper");
 
@@ -135,7 +135,7 @@ public:
 		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password'");
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if (validated && command == "OPER" && parameters.size() >= 2)
 		{
@@ -162,7 +162,7 @@ public:
 		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
 	}

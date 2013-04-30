@@ -28,13 +28,13 @@ class ModuleMLock : public Module
 public:
 	ModuleMLock() : mlock("mlock", this) {};
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->Attach(I_OnPreMode, this);
 		ServerInstance->Modules->AddService(this->mlock);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements the ability to have server-side MLOCK enforcement.", VF_VENDOR);
 	}
@@ -44,7 +44,7 @@ public:
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
 	}
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters)
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
