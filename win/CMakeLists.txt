@@ -5,7 +5,7 @@ project(InspIRCd CXX)
 set(CONF_PATH "conf" CACHE PATH "Configuration file path")
 set(MODULE_PATH "modules" CACHE PATH "Module path")
 set(DATA_PATH "data" CACHE PATH "Data path")
-set(LOG_PATH "log" CACHE PATH "Log file path")
+set(LOG_PATH "logs" CACHE PATH "Log file path")
 
 set(EXTRA_INCLUDES "" CACHE PATH "Extra include paths")
 set(EXTRA_LIBS "" CACHE PATH "Extra library paths")
@@ -74,10 +74,10 @@ file(GLOB_RECURSE EXAMPLE_CONFIGS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIR
 install(FILES ${EXAMPLE_CONFIGS} DESTINATION conf)
 
 # Create an empty data and logs directory and install them
-file(MAKE_DIRECTORY data)
-install(DIRECTORY "data" DESTINATION .)
-file(MAKE_DIRECTORY logs)
-install(DIRECTORY "logs" DESTINATION .)
+file(MAKE_DIRECTORY ${DATA_PATH})
+install(DIRECTORY ${DATA_PATH} DESTINATION .)
+file(MAKE_DIRECTORY ${LOG_PATH})
+install(DIRECTORY ${LOG_PATH} DESTINATION .)
 
 if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 	include(InstallRequiredSystemLibraries)
