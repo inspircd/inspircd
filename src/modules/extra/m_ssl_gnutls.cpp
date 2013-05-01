@@ -77,46 +77,6 @@ static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_c
 	return 0;
 }
 
-static ssize_t gnutls_pull_wrapper(gnutls_transport_ptr_t user_wrap, void* buffer, size_t size)
-{
-	StreamSocket* user = reinterpret_cast<StreamSocket*>(user_wrap);
-	if (user->GetEventMask() & FD_READ_WILL_BLOCK)
-	{
-		errno = EAGAIN;
-		return -1;
-	}
-	int rv = ServerInstance->SE->Recv(user, reinterpret_cast<char *>(buffer), size, 0);
-	if (rv < 0)
-	{
-		/* On Windows we need to set errno for gnutls */
-		if (SocketEngine::IgnoreError())
-			errno = EAGAIN;
-	}
-	if (rv < (int)size)
-		ServerInstance->SE->ChangeEventMask(user, FD_READ_WILL_BLOCK);
-	return rv;
-}
-
-static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t user_wrap, const void* buffer, size_t size)
-{
-	StreamSocket* user = reinterpret_cast<StreamSocket*>(user_wrap);
-	if (user->GetEventMask() & FD_WRITE_WILL_BLOCK)
-	{
-		errno = EAGAIN;
-		return -1;
-	}
-	int rv = ServerInstance->SE->Send(user, reinterpret_cast<const char *>(buffer), size, 0);
-	if (rv < 0)
-	{
-		/* On Windows we need to set errno for gnutls */
-		if (SocketEngine::IgnoreError())
-			errno = EAGAIN;
-	}
-	if (rv < (int)size)
-		ServerInstance->SE->ChangeEventMask(user, FD_WRITE_WILL_BLOCK);
-	return rv;
-}
-
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
  public:
@@ -132,10 +92,12 @@ class RandGen : public HandlerBase2<void, char*, size_t>
 class issl_session
 {
 public:
+	StreamSocket* socket;
 	gnutls_session_t sess;
 	issl_status status;
 	reference<ssl_cert> cert;
-	issl_session() : sess(NULL) {}
+
+	issl_session() : socket(NULL), sess(NULL) {}
 };
 
 class CommandStartTLS : public SplitCommand
@@ -211,6 +173,56 @@ class ModuleSSLGnuTLS : public Module
 	inline static const char* UnknownIfNULL(const char* str)
 	{
 		return str ? str : "UNKNOWN";
+	}
+
+	static ssize_t gnutls_pull_wrapper(gnutls_transport_ptr_t session_wrap, void* buffer, size_t size)
+	{
+		issl_session* session = reinterpret_cast<issl_session*>(session_wrap);
+		if (session->socket->GetEventMask() & FD_READ_WILL_BLOCK)
+		{
+			gnutls_transport_set_errno(session->sess, EAGAIN);
+			return -1;
+		}
+
+		int rv = ServerInstance->SE->Recv(session->socket, reinterpret_cast<char *>(buffer), size, 0);
+		if (rv < 0)
+		{
+			/* Windows doesn't use errno, but gnutls does, so check SocketEngine::IgnoreError()
+			 * and then set errno appropriately.
+			 * The gnutls library may also have a different errno variable than us, see
+			 * gnutls_transport_set_errno(3).
+			 */
+			gnutls_transport_set_errno(session->sess, SocketEngine::IgnoreError() ? EAGAIN : errno);
+		}
+
+		if (rv < (int)size)
+			ServerInstance->SE->ChangeEventMask(session->socket, FD_READ_WILL_BLOCK);
+		return rv;
+	}
+
+	static ssize_t gnutls_push_wrapper(gnutls_transport_ptr_t session_wrap, const void* buffer, size_t size)
+	{
+		issl_session* session = reinterpret_cast<issl_session*>(session_wrap);
+		if (session->socket->GetEventMask() & FD_WRITE_WILL_BLOCK)
+		{
+			gnutls_transport_set_errno(session->sess, EAGAIN);
+			return -1;
+		}
+
+		int rv = ServerInstance->SE->Send(session->socket, reinterpret_cast<const char *>(buffer), size, 0);
+		if (rv < 0)
+		{
+			/* Windows doesn't use errno, but gnutls does, so check SocketEngine::IgnoreError()
+			 * and then set errno appropriately.
+			 * The gnutls library may also have a different errno variable than us, see
+			 * gnutls_transport_set_errno(3).
+			 */
+			gnutls_transport_set_errno(session->sess, SocketEngine::IgnoreError() ? EAGAIN : errno);
+		}
+
+		if (rv < (int)size)
+			ServerInstance->SE->ChangeEventMask(session->socket, FD_WRITE_WILL_BLOCK);
+		return rv;
 	}
 
  public:
@@ -540,13 +552,14 @@ class ModuleSSLGnuTLS : public Module
 		issl_session* session = &sessions[user->GetFd()];
 
 		gnutls_init(&session->sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
+		session->socket = user;
 
 		#ifdef GNUTLS_NEW_PRIO_API
 		gnutls_priority_set(session->sess, priority);
 		#endif
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
-		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(user));
+		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(session));
 		gnutls_transport_set_push_function(session->sess, gnutls_push_wrapper);
 		gnutls_transport_set_pull_function(session->sess, gnutls_pull_wrapper);
 
@@ -762,6 +775,7 @@ class ModuleSSLGnuTLS : public Module
 			gnutls_bye(session->sess, GNUTLS_SHUT_WR);
 			gnutls_deinit(session->sess);
 		}
+		session->socket = NULL;
 		session->sess = NULL;
 		session->cert = NULL;
 		session->status = ISSL_NONE;
