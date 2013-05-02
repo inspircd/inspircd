@@ -180,11 +180,17 @@ class ModuleSSLGnuTLS : public Module
 		issl_session* session = reinterpret_cast<issl_session*>(session_wrap);
 		if (session->socket->GetEventMask() & FD_READ_WILL_BLOCK)
 		{
+#ifdef _WIN32
 			gnutls_transport_set_errno(session->sess, EAGAIN);
+#else
+			errno = EAGAIN;
+#endif
 			return -1;
 		}
 
 		int rv = ServerInstance->SE->Recv(session->socket, reinterpret_cast<char *>(buffer), size, 0);
+
+#ifdef _WIN32
 		if (rv < 0)
 		{
 			/* Windows doesn't use errno, but gnutls does, so check SocketEngine::IgnoreError()
@@ -194,6 +200,7 @@ class ModuleSSLGnuTLS : public Module
 			 */
 			gnutls_transport_set_errno(session->sess, SocketEngine::IgnoreError() ? EAGAIN : errno);
 		}
+#endif
 
 		if (rv < (int)size)
 			ServerInstance->SE->ChangeEventMask(session->socket, FD_READ_WILL_BLOCK);
@@ -205,11 +212,17 @@ class ModuleSSLGnuTLS : public Module
 		issl_session* session = reinterpret_cast<issl_session*>(session_wrap);
 		if (session->socket->GetEventMask() & FD_WRITE_WILL_BLOCK)
 		{
+#ifdef _WIN32
 			gnutls_transport_set_errno(session->sess, EAGAIN);
+#else
+			errno = EAGAIN;
+#endif
 			return -1;
 		}
 
 		int rv = ServerInstance->SE->Send(session->socket, reinterpret_cast<const char *>(buffer), size, 0);
+
+#ifdef _WIN32
 		if (rv < 0)
 		{
 			/* Windows doesn't use errno, but gnutls does, so check SocketEngine::IgnoreError()
@@ -219,6 +232,7 @@ class ModuleSSLGnuTLS : public Module
 			 */
 			gnutls_transport_set_errno(session->sess, SocketEngine::IgnoreError() ? EAGAIN : errno);
 		}
+#endif
 
 		if (rv < (int)size)
 			ServerInstance->SE->ChangeEventMask(session->socket, FD_WRITE_WILL_BLOCK);
