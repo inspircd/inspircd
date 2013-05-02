@@ -1628,7 +1628,8 @@
 #<shun enabledcommands="PING PONG QUIT PART JOIN" notifyuser="yes" affectopers="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL channel mode module: Adds support for SSL-only channels (+z).
+# SSL channel mode module: Adds support for SSL-only channels, queries,
+# and notices, user/channel mode +z
 # does not do anything useful without a working SSL module (see below)
 #<module name="m_sslmodes.so">
 
