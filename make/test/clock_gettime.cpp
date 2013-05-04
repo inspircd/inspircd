@@ -16,9 +16,10 @@
  */
 
 
-#include <sys/epoll.h>
+#include <time.h>
 
 int main() {
-	int fd = epoll_create(1);
-	return (fd < 0);
+	timespec time_spec;
+	clock_gettime(CLOCK_REALTIME, &time_spec);
+	return 0;
 }

@@ -31,9 +31,28 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
+our @EXPORT = qw(test_file test_header promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
 
 my $no_git = 0;
+
+sub test_file($$;$) {
+	my ($cc, $file, $args) = @_;
+	my $status = 0;
+	$args ||= '';
+	$status ||= system "$cc -o __test_$file make/test/$file $args >/dev/null 2>&1";
+	$status ||= system "./__test_$file >/dev/null 2>&1";
+	unlink  "./__test_$file";
+	return !$status;
+}
+
+sub test_header($$;$) {
+	my ($cc, $header, $args) = @_;
+	$args ||= '';
+	open(CC, "| $cc -E - $args >/dev/null 2>&1") or return 0;
+	print CC "#include <$header>";
+	close(CC);
+	return !$?;
+}
 
 sub yesno {
 	my ($flag,$prompt) = @_;
