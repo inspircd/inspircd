@@ -259,7 +259,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	ContainerIter x = lookup_lines.find(line->type);
 	if (x != lookup_lines.end())
 	{
-		LookupIter i = x->second.find(line->Displayable());
+		LookupIter i = x->second.find(line->Displayable().c_str());
 		if (i != x->second.end())
 		{
 			// XLine propagation bug was here, if the line to be added already exists and
@@ -281,7 +281,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	if (xlf->AutoApplyToUserList(line))
 		pending_lines.push_back(line);
 
-	lookup_lines[line->type][line->Displayable()] = line;
+	lookup_lines[line->type][line->Displayable().c_str()] = line;
 	line->OnAdd();
 
 	FOREACH_MOD(I_OnAddLine,OnAddLine(user, line));
@@ -692,32 +692,32 @@ void XLine::DisplayExpiry()
 {
 	bool onechar = (type.length() == 1);
 	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago)",
-		type.c_str(), (onechar ? "-Line" : ""), Displayable(), source.c_str(), (long)(ServerInstance->Time() - set_time));
+		type.c_str(), (onechar ? "-Line" : ""), Displayable().c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time));
 }
 
-const char* ELine::Displayable()
+const std::string& ELine::Displayable()
 {
-	return matchtext.c_str();
+	return matchtext;
 }
 
-const char* KLine::Displayable()
+const std::string& KLine::Displayable()
 {
-	return matchtext.c_str();
+	return matchtext;
 }
 
-const char* GLine::Displayable()
+const std::string& GLine::Displayable()
 {
-	return matchtext.c_str();
+	return matchtext;
 }
 
-const char* ZLine::Displayable()
+const std::string& ZLine::Displayable()
 {
-	return ipaddr.c_str();
+	return ipaddr;
 }
 
-const char* QLine::Displayable()
+const std::string& QLine::Displayable()
 {
-	return nick.c_str();
+	return nick;
 }
 
 bool KLine::IsBurstable()

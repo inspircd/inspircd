@@ -29,12 +29,15 @@
  */
 class CBan : public XLine
 {
-public:
+private:
+	std::string displaytext;
 	irc::string matchtext;
 
+public:
 	CBan(time_t s_time, long d, std::string src, std::string re, std::string ch)
 		: XLine(s_time, d, src, re, "CBAN")
 	{
+		this->displaytext = ch;
 		this->matchtext = ch.c_str();
 	}
 
@@ -51,9 +54,9 @@ public:
 		return false;
 	}
 
-	const char* Displayable()
+	const std::string& Displayable()
 	{
-		return matchtext.c_str();
+		return displaytext;
 	}
 };
 

@@ -56,9 +56,9 @@ public:
 		return false;
 	}
 
-	const char* Displayable()
+	const std::string& Displayable()
 	{
-		return matchtext.c_str();
+		return matchtext;
 	}
 };
 
