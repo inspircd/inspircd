@@ -361,16 +361,12 @@ class ModuleDNSBL : public Module
 			ServerInstance->Logs->Log("m_dnsbl", LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
 		unsigned char a, b, c, d;
-		char reversedipbuf[128];
-		std::string reversedip;
-
 		d = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
 		c = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
 		b = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
 		a = (unsigned char) user->client_sa.in4.sin_addr.s_addr & 0xFF;
 
-		snprintf(reversedipbuf, 128, "%d.%d.%d.%d", d, c, b, a);
-		reversedip = std::string(reversedipbuf);
+		const std::string reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
 
 		countExt.set(user, DNSBLConfEntries.size());
 

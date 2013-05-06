@@ -66,17 +66,11 @@ void RehashHandler::Call(const std::string &reason)
 	}
 }
 
-std::string InspIRCd::GetVersionString(bool operstring)
+std::string InspIRCd::GetVersionString(bool getFullVersion)
 {
-	char versiondata[MAXBUF];
-	if (operstring)
-	{
-		std::string sename = SE->GetName();
-		snprintf(versiondata,MAXBUF,"%s %s :%s [%s,%s,%s]",VERSION, Config->ServerName.c_str(), SYSTEM,REVISION, sename.c_str(), Config->sid.c_str());
-	}
-	else
-		snprintf(versiondata,MAXBUF,"%s %s :%s",BRANCH,Config->ServerName.c_str(),Config->CustomVersion.c_str());
-	return versiondata;
+	if (getFullVersion)
+		return VERSION " " + Config->ServerName + " :" SYSTEM " [" REVISION "," + SE->GetName() + "," + Config->sid + "]";
+	return BRANCH " " + Config->ServerName + " :" + Config->CustomVersion;
 }
 
 const char InspIRCd::LogHeader[] =

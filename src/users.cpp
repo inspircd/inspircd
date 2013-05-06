@@ -1081,11 +1081,8 @@ void User::WriteNumeric(unsigned int numeric, const std::string &text)
 
 void User::WriteFrom(User *user, const std::string &text)
 {
-	char tb[MAXBUF];
-
-	snprintf(tb,MAXBUF,":%s %s",user->GetFullHost().c_str(),text.c_str());
-
-	this->Write(std::string(tb));
+	const std::string message = ":" + user->GetFullHost() + " " + text;
+	this->Write(message);
 }
 
 
@@ -1199,18 +1196,13 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 
 void User::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
 {
-	char tb1[MAXBUF];
-	char tb2[MAXBUF];
-
 	if (this->registered != REG_ALL)
 		return;
 
 	already_sent_t uniq_id = ++LocalUser::already_sent_id;
 
-	snprintf(tb1,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),normal_text.c_str());
-	snprintf(tb2,MAXBUF,":%s QUIT :%s",this->GetFullHost().c_str(),oper_text.c_str());
-	std::string out1 = tb1;
-	std::string out2 = tb2;
+	const std::string normalMessage = ":" + this->GetFullHost() + " QUIT :" + normal_text;
+	const std::string operMessage = ":" + this->GetFullHost() + " QUIT :" + oper_text;
 
 	UserChanList include_c(chans);
 	std::map<User*,bool> exceptions;
@@ -1224,7 +1216,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		{
 			u->already_sent = uniq_id;
 			if (i->second)
-				u->Write(u->IsOper() ? out2 : out1);
+				u->Write(u->IsOper() ? operMessage : normalMessage);
 		}
 	}
 	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
@@ -1236,7 +1228,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 			if (u && !u->quitting && (u->already_sent != uniq_id))
 			{
 				u->already_sent = uniq_id;
-				u->Write(u->IsOper() ? out2 : out1);
+				u->Write(u->IsOper() ? operMessage : normalMessage);
 			}
 		}
 	}
@@ -1341,8 +1333,6 @@ bool User::ChangeName(const char* gecos)
 
 void User::DoHostCycle(const std::string &quitline)
 {
-	char buffer[MAXBUF];
-
 	if (!ServerInstance->Config->CycleHosts)
 		return;
 
@@ -1373,18 +1363,17 @@ void User::DoHostCycle(const std::string &quitline)
 	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
 	{
 		Channel* c = *v;
-		snprintf(buffer, MAXBUF, ":%s JOIN %s", GetFullHost().c_str(), c->name.c_str());
-		std::string joinline(buffer);
 		Membership* memb = c->GetUser(this);
-		std::string modeline = memb->modes;
-		if (modeline.length() > 0)
+		const std::string joinline = ":" + GetFullHost() + " JOIN " + c->name;
+		std::string modeline;
+
+		if (!memb->modes.empty())
 		{
-			for(unsigned int i=0; i < memb->modes.length(); i++)
+			modeline = ":" + (ServerInstance->Config->CycleHostsFromUser ? GetFullHost() : ServerInstance->Config->ServerName)
+				+ " MODE " + c->name + " +" + memb->modes;
+
+			for (size_t i = 0; i < memb->modes.length(); i++)
 				modeline.append(" ").append(nick);
-			snprintf(buffer, MAXBUF, ":%s MODE %s +%s",
-				ServerInstance->Config->CycleHostsFromUser ? GetFullHost().c_str() : ServerInstance->Config->ServerName.c_str(),
-				c->name.c_str(), modeline.c_str());
-			modeline = buffer;
 		}
 
 		const UserMembList *ulist = c->GetUsers();
@@ -1402,7 +1391,7 @@ void User::DoHostCycle(const std::string &quitline)
 				u->already_sent = seen_id;
 			}
 			u->Write(joinline);
-			if (modeline.length() > 0)
+			if (!memb->modes.empty())
 				u->Write(modeline);
 		}
 	}
@@ -1459,20 +1448,18 @@ bool User::ChangeIdent(const char* newident)
 void User::SendAll(const char* command, const char* text, ...)
 {
 	char textbuffer[MAXBUF];
-	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 
 	va_start(argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,":%s %s $* :%s", this->GetFullHost().c_str(), command, textbuffer);
-	std::string fmt = formatbuffer;
+	const std::string message = ":" + this->GetFullHost() + " " + command + " $* :" + textbuffer;
 
 	for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
 		if ((*i)->registered == REG_ALL)
-			(*i)->Write(fmt);
+			(*i)->Write(message);
 	}
 }
 

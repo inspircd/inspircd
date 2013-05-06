@@ -597,7 +597,7 @@ class CoreExport InspIRCd
 	 * @param map The character map to use when matching.
 	 */
 	static bool Match(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
-	static bool Match(const  char *str, const char *mask, unsigned const char *map = NULL);
+	static bool Match(const char *str, const char *mask, unsigned const char *map = NULL);
 
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
@@ -607,7 +607,14 @@ class CoreExport InspIRCd
 	 * @param map The character map to use when matching.
 	 */
 	static bool MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
-	static bool MatchCIDR(const  char *str, const char *mask, unsigned const char *map = NULL);
+	static bool MatchCIDR(const char *str, const char *mask, unsigned const char *map = NULL);
+
+	/** Matches a hostname and IP against a space delimited list of hostmasks.
+	 * @param masks The space delimited masks to match against.
+	 * @param hostname The hostname to try and match.
+	 * @param ipaddr The IP address to try and match.
+	 */
+	static bool MatchMask(const std::string& masks, const std::string& hostname, const std::string& ipaddr);
 
 	/** Return true if the given parameter is a valid nick!user\@host mask
 	 * @param mask A nick!user\@host masak to match against
@@ -683,7 +690,7 @@ class CoreExport InspIRCd
 	/** Returns the full version string of this ircd
 	 * @return The version string
 	 */
-	std::string GetVersionString(bool rawversion = false);
+	std::string GetVersionString(bool getFullVersion = false);
 
 	/** Attempt to write the process id to a given file
 	 * @param filename The PID file to attempt to write to

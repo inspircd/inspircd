@@ -283,7 +283,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats->LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats->LastCPU.dwLowDateTime) )/100000;
 				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats->LastSampled.QuadPart) / ServerInstance->stats->QPFrequency.QuadPart;
 				double per = (n_eaten/n_elapsed);
-				
+
 				char percent[30];
 
 				snprintf(percent, 30, "%03.5f%%", per);

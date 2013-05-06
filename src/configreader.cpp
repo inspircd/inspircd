@@ -335,13 +335,13 @@ struct DeprecatedConfig
 {
 	/** Tag name. */
 	std::string tag;
-	
+
 	/** Attribute key. */
 	std::string key;
-	
+
 	/** Attribute value. */
 	std::string value;
-	
+
 	/** Reason for deprecation. */
 	std::string reason;
 };
@@ -595,14 +595,14 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ServerInstance->BindPorts(pl);
 		if (pl.size())
 		{
-			errstr << "Not all your client ports could be bound.\nThe following port(s) failed to bind:\n";
+			errstr << "Not all your client ports could be bound." << std::endl
+				<< "The following port(s) failed to bind:" << std::endl;
 
 			int j = 1;
 			for (FailedPortList::iterator i = pl.begin(); i != pl.end(); i++, j++)
 			{
-				char buf[MAXBUF];
-				snprintf(buf, MAXBUF, "%d.   Address: %s   Reason: %s\n", j, i->first.empty() ? "<all>" : i->first.c_str(), i->second.c_str());
-				errstr << buf;
+				errstr << j << ".\tAddress: " << (i->first.empty() ? "<all>" : i->first.c_str()) << "\tReason: "
+					<< i->second << std::endl;
 			}
 		}
 	}

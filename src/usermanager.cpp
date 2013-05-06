@@ -326,18 +326,17 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 		return;
 
 	char textbuffer[MAXBUF];
-	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"NOTICE $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
+	const std::string message = "NOTICE $" + ServerInstance->Config->ServerName + " :" + textbuffer;
 
 	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		User* t = *i;
-		t->WriteServ(std::string(formatbuffer));
+		t->WriteServ(message);
 	}
 }
 
@@ -347,18 +346,17 @@ void UserManager::ServerPrivmsgAll(const char* text, ...)
 		return;
 
 	char textbuffer[MAXBUF];
-	char formatbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
 	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
 	va_end(argsPtr);
 
-	snprintf(formatbuffer,MAXBUF,"PRIVMSG $%s :%s", ServerInstance->Config->ServerName.c_str(), textbuffer);
+	const std::string message = "PRIVMSG $" + ServerInstance->Config->ServerName + " :" + textbuffer;
 
 	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
 		User* t = *i;
-		t->WriteServ(std::string(formatbuffer));
+		t->WriteServ(message);
 	}
 }
 

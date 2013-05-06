@@ -272,7 +272,7 @@ int PollEngine::DispatchEvents()
 					// whoops, deleted out from under us
 					continue;
 			}
-			
+
 			if (events[index].revents & POLLOUT)
 			{
 				int mask = eh->GetEventMask();

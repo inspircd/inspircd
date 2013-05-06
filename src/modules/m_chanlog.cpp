@@ -73,16 +73,15 @@ class ModuleChanLog : public Module
 		if (itpair.first == itpair.second)
 			return MOD_RES_PASSTHRU;
 
-		char buf[MAXBUF];
-		snprintf(buf, MAXBUF, "\2%s\2: %s", desc.c_str(), msg.c_str());
+		const std::string snotice = "\2" + desc + "\2: " + msg;
 
 		for (ChanLogTargets::const_iterator it = itpair.first; it != itpair.second; ++it)
 		{
 			Channel *c = ServerInstance->FindChan(it->second);
 			if (c)
 			{
-				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), buf);
-				ServerInstance->PI->SendChannelPrivmsg(c, 0, buf);
+				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), snotice.c_str());
+				ServerInstance->PI->SendChannelPrivmsg(c, 0, snotice);
 			}
 		}
 

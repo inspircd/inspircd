@@ -35,21 +35,6 @@
 /* $ModDesc: Adds the ability to authenticate opers via LDAP */
 /* $LinkerFlags: -lldap */
 
-// Duplicated code, also found in cmd_oper and m_sqloper
-static bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
-{
-	std::stringstream hl(hostlist);
-	std::string xhost;
-	while (hl >> xhost)
-	{
-		if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 struct RAIILDAPString
 {
 	char *str;
@@ -97,7 +82,7 @@ class ModuleLDAPAuth : public Module
 
 		std::string acceptedhosts = tag->getString("host");
 		std::string hostname = user->ident + "@" + user->host;
-		if (!OneOfMatches(hostname.c_str(), user->GetIPString().c_str(), acceptedhosts))
+		if (!InspIRCd::MatchMask(acceptedhosts, hostname, user->GetIPString()))
 			return false;
 
 		if (!LookupOper(opername, inputpass))

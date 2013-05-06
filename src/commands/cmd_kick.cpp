@@ -77,7 +77,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		reason.assign(user->nick, 0, ServerInstance->Config->Limits.MaxKick);
 	}
 
-	c->KickUser(user, u, reason.c_str());
+	c->KickUser(user, u, reason);
 
 	return CMD_SUCCESS;
 }

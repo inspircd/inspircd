@@ -295,9 +295,8 @@ class ModuleCloaking : public Module
 		/* Check if they have a cloaked host, but are not using it */
 		if (cloak && *cloak != user->dhost)
 		{
-			char cmask[MAXBUF];
-			snprintf(cmask, MAXBUF, "%s!%s@%s", user->nick.c_str(), user->ident.c_str(), cloak->c_str());
-			if (InspIRCd::Match(cmask,mask))
+			const std::string cloakMask = user->nick + "!" + user->ident + "@" + *cloak;
+			if (InspIRCd::Match(cloakMask, mask))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
