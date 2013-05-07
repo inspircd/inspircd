@@ -43,9 +43,6 @@
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 
-/* They just have to be *different*, don't they. */
-#define PATH_MAX MAX_PATH
-
 /* Macros for exporting symbols - dependant on what is being compiled */
 
 #ifdef DLL_BUILD
@@ -71,6 +68,9 @@
 #include <sys/stat.h>
 #include <direct.h>
 #include <process.h>
+
+/* Windows defines this already. */
+#undef ERROR
 
 /* strcasecmp is not defined on windows by default */
 #define strcasecmp _stricmp

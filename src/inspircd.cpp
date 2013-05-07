@@ -62,7 +62,6 @@
 #include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
-int* mysig = NULL;
 
 /** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
  * if it must.
@@ -321,8 +320,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	/* Default implementation does nothing */
 	this->PI = new ProtocolInterface;
-
-	this->s_signal = 0;
 
 	// Create base manager classes early, so nothing breaks
 	this->Users = new UserManager;
@@ -787,10 +784,10 @@ int InspIRCd::Run()
 		GlobalCulls.Apply();
 		AtomicActions.Run();
 
-		if (this->s_signal)
+		if (s_signal)
 		{
 			this->SignalHandler(s_signal);
-			this->s_signal = 0;
+			s_signal = 0;
 		}
 	}
 
@@ -798,10 +795,6 @@ int InspIRCd::Run()
 }
 
 /**********************************************************************************/
-
-/**
- * An ircd in five lines! bwahahaha. ahahahahaha. ahahah *cough*.
- */
 
 /* this returns true when all modules are satisfied that the user should be allowed onto the irc server
  * (until this returns true, a user will block in the waiting state, waiting to connect up to the
@@ -814,9 +807,11 @@ bool InspIRCd::AllModulesReportReady(LocalUser* user)
 	return (res == MOD_RES_PASSTHRU);
 }
 
+sig_atomic_t InspIRCd::s_signal = 0;
+
 void InspIRCd::SetSignal(int signal)
 {
-	*mysig = signal;
+	s_signal = signal;
 }
 
 /* On posix systems, the flow of the program starts right here, with
@@ -828,7 +823,6 @@ void InspIRCd::SetSignal(int signal)
 ENTRYPOINT
 {
 	new InspIRCd(argc, argv);
-	mysig = &ServerInstance->s_signal;
 	ServerInstance->Run();
 	delete ServerInstance;
 	return 0;
