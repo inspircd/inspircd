@@ -320,10 +320,10 @@ class ModuleSilence : public Module
 			maxsilence = 32;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		// we don't really have a limit...
-		output = output + " ESILENCE SILENCE=" + ConvToStr(maxsilence);
+		tokens["ESILENCE"];
+		tokens["SILENCE"] = ConvToStr(maxsilence);
 	}
 
 	void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
@@ -391,10 +391,6 @@ class ModuleSilence : public Module
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	~ModuleSilence()
-	{
 	}
 
 	Version GetVersion()

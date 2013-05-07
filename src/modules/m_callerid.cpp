@@ -117,7 +117,7 @@ struct CallerIDExtInfo : public ExtensionItem
 
 			if (!targ)
 			{
-				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
+				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
 			}
 
@@ -125,7 +125,7 @@ struct CallerIDExtInfo : public ExtensionItem
 			if (it2 != targ->wholistsme.end())
 				targ->wholistsme.erase(it2);
 			else
-				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
+				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
 	}
@@ -285,7 +285,7 @@ public:
 		if (!dat2)
 		{
 			// How the fuck is this possible.
-			ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
+			ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
 			return false;
 		}
 
@@ -294,7 +294,7 @@ public:
 			// Found me!
 			dat2->wholistsme.erase(it);
 		else
-			ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
+			ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 
 		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
@@ -304,7 +304,6 @@ public:
 
 class ModuleCallerID : public Module
 {
-private:
 	CommandAccept cmd;
 	User_g myumode;
 
@@ -334,7 +333,7 @@ private:
 			if (it2 != dat->accepting.end())
 				dat->accepting.erase(it2);
 			else
-				ServerInstance->Logs->Log("m_callerid", DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
+				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
 		userdata->wholistsme.clear();
@@ -357,18 +356,14 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleCallerID()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
 	}
 
-	virtual void On005Numeric(std::string& output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output += " CALLERID=g";
+		tokens["CALLERID"] = "g";
 	}
 
 	ModResult PreText(User* user, User* dest, std::string& text)
@@ -376,7 +371,7 @@ public:
 		if (!dest->IsModeSet('g') || (user == dest))
 			return MOD_RES_PASSTHRU;
 
-		if (operoverride && IS_OPER(user))
+		if (operoverride && user->IsOper())
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);
@@ -437,5 +432,3 @@ public:
 };
 
 MODULE_INIT(ModuleCallerID)
-
-

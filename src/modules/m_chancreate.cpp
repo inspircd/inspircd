@@ -25,7 +25,6 @@
 
 class ModuleChanCreate : public Module
 {
- private:
  public:
 	void init()
 	{
@@ -38,7 +37,6 @@ class ModuleChanCreate : public Module
 	{
 		return Version("Provides snomasks 'j' and 'J', to which notices about newly created channels are sent",VF_VENDOR);
 	}
-
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except)
 	{

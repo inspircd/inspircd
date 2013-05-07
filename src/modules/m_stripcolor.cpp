@@ -58,13 +58,9 @@ class ModuleStripColor : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleStripColor()
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-	}
-
-	virtual void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('S');
+		tokens["EXTBAN"].push_back('S');
 	}
 
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)

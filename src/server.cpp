@@ -23,7 +23,6 @@
 #include <signal.h>
 #include "exitcodes.h"
 #include "inspircd.h"
-#include "inspircd_version.h"
 
 void InspIRCd::SignalHandler(int signal)
 {
@@ -59,7 +58,6 @@ void InspIRCd::Exit(int status)
 void RehashHandler::Call(const std::string &reason)
 {
 	ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), reason.c_str());
-	ServerInstance->RehashUsersAndChans();
 	FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 	if (!ServerInstance->ConfigThread)
 	{
@@ -85,19 +83,21 @@ const char InspIRCd::LogHeader[] =
 	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
 	" - compiled on " SYSTEM;
 
-void InspIRCd::BuildISupport()
+
+std::string UIDGenerator::GenerateSID(const std::string& servername, const std::string& serverdesc)
 {
-	// the neatest way to construct the initial 005 numeric, considering the number of configure constants to go in it...
-	std::stringstream v;
-	v << "WALLCHOPS WALLVOICES MODES=" << Config->Limits.MaxModes << " CHANTYPES=# PREFIX=" << this->Modes->BuildPrefixes() << " MAP MAXCHANNELS=" << Config->MaxChans << " MAXBANS=60 VBANLIST NICKLEN=" << Config->Limits.NickMax;
-	v << " CASEMAPPING=rfc1459 STATUSMSG=" << Modes->BuildPrefixes(false) << " CHARSET=ascii TOPICLEN=" << Config->Limits.MaxTopic << " KICKLEN=" << Config->Limits.MaxKick << " MAXTARGETS=" << Config->MaxTargets;
-	v << " AWAYLEN=" << Config->Limits.MaxAway << " CHANMODES=" << this->Modes->GiveModeList(MASK_CHANNEL) << " FNC NETWORK=" << Config->Network << " MAXPARA=32 ELIST=MU" << " CHANNELLEN=" << Config->Limits.ChanMax;
-	Config->data005 = v.str();
-	FOREACH_MOD(I_On005Numeric,On005Numeric(Config->data005));
-	Config->Update005();
+	unsigned int sid = 0;
+
+	for (std::string::const_iterator i = servername.begin(); i != servername.end(); ++i)
+		sid = 5 * sid + *i;
+	for (std::string::const_iterator i = serverdesc.begin(); i != serverdesc.end(); ++i)
+		sid = 5 * sid + *i;
+
+	std::string sidstr = ConvToStr(sid % 1000);
+	return sidstr;
 }
 
-void InspIRCd::IncrementUID(int pos)
+void UIDGenerator::IncrementUID(unsigned int pos)
 {
 	/*
 	 * Okay. The rules for generating a UID go like this...
@@ -106,85 +106,131 @@ void InspIRCd::IncrementUID(int pos)
 	 * A again, in an iterative fashion.. so..
 	 * AAA9 -> AABA, and so on. -- w00t
 	 */
-	if ((pos == 3) && (current_uid[3] == '9'))
+
+	// If we hit Z, wrap around to 0.
+	if (current_uid[pos] == 'Z')
 	{
-		// At pos 3, if we hit '9', we've run out of available UIDs, and need to reset to AAA..AAA.
-		for (int i = 3; i < UUID_LENGTH-1; i++)
+		current_uid[pos] = '0';
+	}
+	else if (current_uid[pos] == '9')
+	{
+		/*
+		 * Or, if we hit 9, wrap around to pos = 'A' and (pos - 1)++,
+		 * e.g. A9 -> BA -> BB ..
+		 */
+		current_uid[pos] = 'A';
+		if (pos == 3)
 		{
-			current_uid[i] = 'A';
+			// At pos 3, if we hit '9', we've run out of available UIDs, and reset to AAA..AAA.
+			return;
 		}
+		this->IncrementUID(pos - 1);
 	}
 	else
 	{
-		// If we hit Z, wrap around to 0.
-		if (current_uid[pos] == 'Z')
-		{
-			current_uid[pos] = '0';
-		}
-		else if (current_uid[pos] == '9')
-		{
-			/*
-			 * Or, if we hit 9, wrap around to pos = 'A' and (pos - 1)++,
-			 * e.g. A9 -> BA -> BB ..
-			 */
-			current_uid[pos] = 'A';
-			this->IncrementUID(pos - 1);
-		}
-		else
-		{
-			// Anything else, nobody gives a shit. Just increment.
-			current_uid[pos]++;
-		}
+		// Anything else, nobody gives a shit. Just increment.
+		current_uid[pos]++;
 	}
 }
 
-/*
- * Retrieve the next valid UUID that is free for this server.
- */
-std::string InspIRCd::GetUID()
+void UIDGenerator::init(const std::string& sid)
 {
-	static bool inited = false;
-
 	/*
-	 * If we're setting up, copy SID into the first three digits, 9's to the rest, null term at the end
+	 * Copy SID into the first three digits, 9's to the rest, null term at the end
 	 * Why 9? Well, we increment before we find, otherwise we have an unnecessary copy, and I want UID to start at AAA..AA
 	 * and not AA..AB. So by initialising to 99999, we force it to rollover to AAAAA on the first IncrementUID call.
 	 * Kind of silly, but I like how it looks.
 	 *		-- w
 	 */
-	if (!inited)
-	{
-		inited = true;
-		current_uid[0] = Config->sid[0];
-		current_uid[1] = Config->sid[1];
-		current_uid[2] = Config->sid[2];
 
-		for (int i = 3; i < (UUID_LENGTH - 1); i++)
-			current_uid[i] = '9';
+	current_uid.resize(UUID_LENGTH, '9');
+	current_uid[0] = sid[0];
+	current_uid[1] = sid[1];
+	current_uid[2] = sid[2];
+}
 
-		// Null terminator. Important.
-		current_uid[UUID_LENGTH - 1] = '\0';
-	}
-
+/*
+ * Retrieve the next valid UUID that is free for this server.
+ */
+std::string UIDGenerator::GetUID()
+{
 	while (1)
 	{
 		// Add one to the last UID
-		this->IncrementUID(UUID_LENGTH - 2);
+		this->IncrementUID(UUID_LENGTH - 1);
 
-		if (this->FindUUID(current_uid))
-		{
-			/*
-			 * It's in use. We need to try the loop again.
-			 */
-			continue;
-		}
+		if (!ServerInstance->FindUUID(current_uid))
+			break;
 
-		return current_uid;
+		/*
+		 * It's in use. We need to try the loop again.
+		 */
 	}
 
-	/* not reached. */
-	return "";
+	return current_uid;
 }
 
+void ISupportManager::Build()
+{
+	/**
+	 * This is currently the neatest way we can build the initial ISUPPORT map. In
+	 * the future we can use an initializer list here.
+	 */
+	std::map<std::string, std::string> tokens;
+	std::vector<std::string> lines;
+	int token_count = 0;
+	std::string line;
 
+	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
+	tokens["CASEMAPPING"] = "rfc1459";
+	tokens["CHANMODES"] = ConvToStr(ServerInstance->Modes->GiveModeList(MASK_CHANNEL));
+	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
+	tokens["CHANTYPES"] = "#";
+	tokens["CHARSET"] = "ascii";
+	tokens["ELIST"] = "MU";
+	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
+	tokens["MAXBANS"] = "64"; // TODO: make this a config setting.
+	tokens["MAXCHANNELS"] = ConvToStr(ServerInstance->Config->MaxChans);
+	tokens["MAXPARA"] = ConvToStr(MAXPARAMETERS);
+	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
+	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
+	tokens["NETWORK"] = ConvToStr(ServerInstance->Config->Network);
+	tokens["NICKLEN"] = ConvToStr(ServerInstance->Config->Limits.NickMax);
+	tokens["PREFIX"] = ServerInstance->Modes->BuildPrefixes();
+	tokens["STATUSMSG"] = ServerInstance->Modes->BuildPrefixes(false);
+	tokens["TOPICLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxTopic);
 
+	tokens["FNC"] = tokens["MAP"] = tokens["VBANLIST"] =
+		tokens["WALLCHOPS"] = tokens["WALLVOICES"];
+
+	FOREACH_MOD(I_On005Numeric, On005Numeric(tokens));
+
+	// EXTBAN is a special case as we need to sort it and prepend a comma.
+	std::map<std::string, std::string>::iterator extban = tokens.find("EXTBAN");
+	if (extban != tokens.end())
+	{
+		sort(extban->second.begin(), extban->second.end());
+		extban->second.insert(0, ",");
+	}
+
+	for (std::map<std::string, std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)
+	{
+		line.append(it->first + (it->second.empty() ? " " : "=" + it->second + " "));
+		token_count++;
+
+		if (token_count % 13 == 12 || it == --tokens.end())
+		{
+			line.append(":are supported by this server");
+			lines.push_back(line);
+			line.clear();
+		}
+	}
+
+	this->Lines = lines;
+}
+
+void ISupportManager::SendTo(LocalUser* user)
+{
+	for (std::vector<std::string>::iterator line = this->Lines.begin(); line != this->Lines.end(); line++)
+		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
+}

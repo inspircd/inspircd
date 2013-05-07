@@ -22,7 +22,7 @@
 
 
 #include "inspircd.h"
-#include "ssl.h"
+#include "modules/ssl.h"
 
 /* $ModDesc: Provides channel mode +z to allow for Secure/SSL only channels */
 
@@ -92,7 +92,7 @@ class ModuleSSLModes : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
@@ -106,7 +106,7 @@ class ModuleSSLModes : public Module
 			else
 			{
 				// Deny
-				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname);
+				user->WriteServ( "489 %s %s :Cannot join channel; SSL users only (+z)", user->nick.c_str(), cname.c_str());
 				return MOD_RES_DENY;
 			}
 		}
@@ -126,13 +126,9 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleSSLModes()
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-	}
-
-	void On005Numeric(std::string &output)
-	{
-		ServerInstance->AddExtBanChar('z');
+		tokens["EXTBAN"].push_back('z');
 	}
 
 	Version GetVersion()
@@ -141,6 +137,4 @@ class ModuleSSLModes : public Module
 	}
 };
 
-
 MODULE_INIT(ModuleSSLModes)
-

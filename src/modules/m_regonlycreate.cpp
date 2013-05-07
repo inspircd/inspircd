@@ -21,7 +21,7 @@
 
 
 #include "inspircd.h"
-#include "account.h"
+#include "modules/account.h"
 
 /* $ModDesc: Prevents users whose nicks are not registered from creating new channels */
 
@@ -34,12 +34,12 @@ class ModuleRegOnlyCreate : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if (chan)
 			return MOD_RES_PASSTHRU;
 
-		if (IS_OPER(user))
+		if (user->IsOper())
 			return MOD_RES_PASSTHRU;
 
 		if (user->IsModeSet('r'))
@@ -50,12 +50,8 @@ class ModuleRegOnlyCreate : public Module
 			return MOD_RES_PASSTHRU;
 
 		// XXX. there may be a better numeric for this..
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have a registered nickname to create a new channel", user->nick.c_str(), cname);
+		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have a registered nickname to create a new channel", user->nick.c_str(), cname.c_str());
 		return MOD_RES_DENY;
-	}
-
-	~ModuleRegOnlyCreate()
-	{
 	}
 
 	Version GetVersion()

@@ -199,7 +199,7 @@ sub gendep($) {
 	while (<$in>) {
 		if (/^\s*#\s*include\s*"([^"]+)"/) {
 			my $inc = $1;
-			next if $inc eq 'inspircd_version.h' && $f eq '../include/inspircd.h';
+			next if $inc eq 'config.h' && $f eq '../include/inspircd.h';
 			my $found = 0;
 			for my $loc ("$basedir/$inc", "../include/$inc") {
 				next unless -e $loc;

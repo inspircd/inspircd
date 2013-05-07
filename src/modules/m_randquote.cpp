@@ -54,7 +54,6 @@ class CommandRandquote : public Command
 
 class ModuleRandQuote : public Module
 {
- private:
 	CommandRandquote cmd;
  public:
 	ModuleRandQuote()
@@ -79,7 +78,6 @@ class ModuleRandQuote : public Module
 		Implementation eventlist[] = { I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
-
 
 	virtual ~ModuleRandQuote()
 	{

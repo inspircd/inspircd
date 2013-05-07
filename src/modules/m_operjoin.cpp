@@ -28,7 +28,6 @@
 
 class ModuleOperjoin : public Module
 {
-	private:
 		std::string operChan;
 		std::vector<std::string> operChans;
 		bool override;
@@ -72,10 +71,6 @@ class ModuleOperjoin : public Module
 				tokenize(operChan,operChans);
 		}
 
-		virtual ~ModuleOperjoin()
-		{
-		}
-
 		virtual Version GetVersion()
 		{
 			return Version("Forces opers to join the specified channel(s) on oper-up", VF_VENDOR);
@@ -83,23 +78,24 @@ class ModuleOperjoin : public Module
 
 		virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
 		{
-			if (!IS_LOCAL(user))
+			LocalUser* localuser = IS_LOCAL(user);
+			if (!localuser)
 				return;
 
-			for(std::vector<std::string>::iterator it = operChans.begin(); it != operChans.end(); it++)
-				if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
-					Channel::JoinUser(user, it->c_str(), override, "", false, ServerInstance->Time());
+			for (std::vector<std::string>::const_iterator i = operChans.begin(); i != operChans.end(); ++i)
+				if (ServerInstance->IsChannel(*i, ServerInstance->Config->Limits.ChanMax))
+					Channel::JoinUser(localuser, *i, override);
 
-			std::string chanList = IS_OPER(user)->getConfig("autojoin");
+			std::string chanList = localuser->oper->getConfig("autojoin");
 			if (!chanList.empty())
 			{
 				std::vector<std::string> typechans;
 				tokenize(chanList, typechans);
 				for (std::vector<std::string>::const_iterator it = typechans.begin(); it != typechans.end(); ++it)
 				{
-					if (ServerInstance->IsChannel(it->c_str(), ServerInstance->Config->Limits.ChanMax))
+					if (ServerInstance->IsChannel(*it, ServerInstance->Config->Limits.ChanMax))
 					{
-						Channel::JoinUser(user, it->c_str(), override, "", false, ServerInstance->Time());
+						Channel::JoinUser(localuser, *it, override);
 					}
 				}
 			}

@@ -22,7 +22,7 @@
 
 
 #include "inspircd.h"
-#include "httpd.h"
+#include "modules/httpd.h"
 #include "xline.h"
 #include "protocol.h"
 
@@ -55,8 +55,7 @@ class ModuleHttpStats : public Module
 				ret += it->second;
 				ret += ';';
 			}
-			else if (*x == 0x9 ||  *x == 0xA || *x == 0xD ||
-			        (*x >= 0x20 && *x <= 0xD7FF) || (*x >= 0xE000 && *x <= 0x10FFFF))
+			else if (*x == 0x9 ||  *x == 0xA || *x == 0xD || *x >= 0x20)
 			{
 				// The XML specification defines the following characters as valid inside an XML document:
 				// Char ::= #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
@@ -98,7 +97,7 @@ class ModuleHttpStats : public Module
 
 		if (event.id == "httpd_url")
 		{
-			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd event");
+			ServerInstance->Logs->Log("m_http_stats", LOG_DEBUG,"Handling httpd event");
 			HTTPRequest* http = (HTTPRequest*)&event;
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
@@ -120,7 +119,13 @@ class ModuleHttpStats : public Module
 				stime = gmtime(&server_uptime);
 				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
 
-				data << "<isupport>" << Sanitize(ServerInstance->Config->data005) << "</isupport></general><xlines>";
+				data << "<isupport>";
+				const std::vector<std::string>& isupport = ServerInstance->ISupport.GetLines();
+				for (std::vector<std::string>::const_iterator it = isupport.begin(); it != isupport.end(); it++)
+				{
+					data << Sanitize(*it) << std::endl;
+				}
+				data << "</isupport></general><xlines>";
 				std::vector<std::string> xltypes = ServerInstance->XLines->GetAllTypes();
 				for (std::vector<std::string>::iterator it = xltypes.begin(); it != xltypes.end(); ++it)
 				{
@@ -188,9 +193,9 @@ class ModuleHttpStats : public Module
 					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
 						<< u->host << "</realhost><displayhost>" << u->dhost << "</displayhost><gecos>"
 						<< Sanitize(u->fullname) << "</gecos><server>" << u->server << "</server>";
-					if (IS_AWAY(u))
+					if (u->IsAway())
 						data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
-					if (IS_OPER(u))
+					if (u->IsOper())
 						data << "<opertype>" << Sanitize(u->oper->NameStr()) << "</opertype>";
 					data << "<modes>" << u->FormatModes() << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
 					LocalUser* lu = IS_LOCAL(u);
@@ -231,10 +236,6 @@ class ModuleHttpStats : public Module
 				response.Send();
 			}
 		}
-	}
-
-	virtual ~ModuleHttpStats()
-	{
 	}
 
 	virtual Version GetVersion()

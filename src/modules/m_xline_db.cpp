@@ -49,10 +49,6 @@ class ModuleXLineDB : public Module
 		dirty = false;
 	}
 
-	virtual ~ModuleXLineDB()
-	{
-	}
-
 	/** Called whenever an xline is added by a local user.
 	 * This method is triggered after the line is added.
 	 * @param source The sender of the line or NULL for local server
@@ -97,17 +93,17 @@ class ModuleXLineDB : public Module
 		 * Technically, that means that this can block, but I have *never* seen that.
 		 *		-- w00t
 		 */
-		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Opening temporary database");
+		ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Opening temporary database");
 		std::string xlinenewdbpath = xlinedbpath + ".new";
 		f = fopen(xlinenewdbpath.c_str(), "w");
 		if (!f)
 		{
-			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
-		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Opened. Writing..");
+		ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Opened. Writing..");
 
 		/*
 		 * Now, much as I hate writing semi-unportable formats, additional
@@ -134,14 +130,14 @@ class ModuleXLineDB : public Module
 			}
 		}
 
-		ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
+		ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
 
 		int write_error = 0;
 		write_error = ferror(f);
 		write_error |= fclose(f);
 		if (write_error)
 		{
-			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -149,7 +145,7 @@ class ModuleXLineDB : public Module
 #ifdef _WIN32
 		if (remove(xlinedbpath.c_str()))
 		{
-			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot remove old database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Cannot remove old database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -157,7 +153,7 @@ class ModuleXLineDB : public Module
 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
-			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -181,7 +177,7 @@ class ModuleXLineDB : public Module
 			else
 			{
 				/* this might be slightly more problematic. */
-				ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
+				ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
 				ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
 				return false;
 			}
@@ -213,18 +209,18 @@ class ModuleXLineDB : public Module
 				items++;
 			}
 
-			ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Processing %s", linebuf);
+			ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Processing %s", linebuf);
 
 			if (command_p[0] == "VERSION")
 			{
 				if (command_p[1] == "1")
 				{
-					ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: Reading db version %s", command_p[1].c_str());
+					ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: Reading db version %s", command_p[1].c_str());
 				}
 				else
 				{
 					fclose(f);
-					ServerInstance->Logs->Log("m_xline_db",DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
+					ServerInstance->Logs->Log("m_xline_db",LOG_DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
 					ServerInstance->SNO->WriteToSnoMask('a', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
 					return false;
 				}
@@ -256,8 +252,6 @@ class ModuleXLineDB : public Module
 		return true;
 	}
 
-
-
 	virtual Version GetVersion()
 	{
 		return Version("Keeps a dynamic log of all XLines created, and stores them in a separate conf file (xline.db).", VF_VENDOR);
@@ -265,4 +259,3 @@ class ModuleXLineDB : public Module
 };
 
 MODULE_INIT(ModuleXLineDB)
-

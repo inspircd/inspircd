@@ -21,14 +21,14 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
+#include "modules/cap.h"
 
 /* $ModDesc: Provides the NAMESX (CAP multi-prefix) capability. */
 
 class ModuleNamesX : public Module
 {
- public:
 	GenericCap cap;
+ public:
 	ModuleNamesX() : cap(this, "multi-prefix")
 	{
 	}
@@ -39,19 +39,14 @@ class ModuleNamesX : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-
-	~ModuleNamesX()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" NAMESX");
+		tokens["NAMESX"];
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)

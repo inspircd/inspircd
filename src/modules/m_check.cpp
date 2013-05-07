@@ -23,13 +23,17 @@
 /* $ModDesc: Provides the /CHECK command to retrieve information on a user, channel, hostname or IP address */
 
 #include "inspircd.h"
+#include "listmode.h"
 
 /** Handle /CHECK
  */
 class CommandCheck : public Command
 {
+	ModeReference ban;
  public:
-	CommandCheck(Module* parent) : Command(parent,"CHECK", 1)
+	CommandCheck(Module* parent)
+		: Command(parent,"CHECK", 1)
+		, ban(parent, "ban")
 	{
 		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
 	}
@@ -96,16 +100,16 @@ class CommandCheck : public Command
 			user->SendText(checkstr + " signon " + timestring(targuser->signon));
 			user->SendText(checkstr + " nickts " + timestring(targuser->age));
 			if (loctarg)
-				user->SendText(checkstr + " lastmsg " + timestring(targuser->idle_lastmsg));
+				user->SendText(checkstr + " lastmsg " + timestring(loctarg->idle_lastmsg));
 
-			if (IS_AWAY(targuser))
+			if (targuser->IsAway())
 			{
 				/* user is away */
 				user->SendText(checkstr + " awaytime " + timestring(targuser->awaytime));
 				user->SendText(checkstr + " awaymsg " + targuser->awaymsg);
 			}
 
-			if (IS_OPER(targuser))
+			if (targuser->IsOper())
 			{
 				OperInfo* oper = targuser->oper;
 				/* user is an oper of type ____ */
@@ -198,18 +202,11 @@ class CommandCheck : public Command
 				user->SendText(checkstr + " member " + tmpbuf);
 			}
 
-			irc::modestacker modestack(true);
-			for(BanList::iterator b = targchan->bans.begin(); b != targchan->bans.end(); ++b)
-			{
-				modestack.Push('b', b->data);
-			}
-			std::vector<std::string> stackresult;
-			std::vector<TranslateType> dummy;
-			while (modestack.GetStackedLine(stackresult))
-			{
-				creator->ProtoSendMode(user, TYPE_CHANNEL, targchan, stackresult, dummy);
-				stackresult.clear();
-			}
+			// We know that the mode handler for bans is in the core and is derived from ListModeBase
+			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
+			banlm->DoSyncChannel(targchan, creator, user);
+
+			// Show other listmodes as well
 			FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(targchan,creator,user));
 			dumpExt(user, checkstr, targchan);
 		}
@@ -250,10 +247,8 @@ class CommandCheck : public Command
 	}
 };
 
-
 class ModuleCheck : public Module
 {
- private:
 	CommandCheck mycommand;
  public:
 	ModuleCheck() : mycommand(this)
@@ -263,10 +258,6 @@ class ModuleCheck : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(mycommand);
-	}
-
-	~ModuleCheck()
-	{
 	}
 
 	void ProtoSendMode(void* uv, TargetTypeFlags, void*, const std::vector<std::string>& result, const std::vector<TranslateType>&)

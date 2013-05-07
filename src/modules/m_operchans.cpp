@@ -49,9 +49,9 @@ class ModuleOperChans : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
-		if (chan && chan->IsModeSet('O') && !IS_OPER(user))
+		if (chan && chan->IsModeSet('O') && !user->IsOper())
 		{
 			user->WriteNumeric(ERR_CANTJOINOPERSONLY, "%s %s :Only IRC operators may join %s (+O is set)",
 				user->nick.c_str(), chan->name.c_str(), chan->name.c_str());
@@ -64,19 +64,15 @@ class ModuleOperChans : public Module
 	{
 		if ((mask.length() > 2) && (mask[0] == 'O') && (mask[1] == ':'))
 		{
-			if (IS_OPER(user) && InspIRCd::Match(user->oper->name, mask.substr(2)))
+			if (user->IsOper() && InspIRCd::Match(user->oper->name, mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('O');
-	}
-
-	~ModuleOperChans()
-	{
+		tokens["EXTBAN"].push_back('O');
 	}
 
 	Version GetVersion()

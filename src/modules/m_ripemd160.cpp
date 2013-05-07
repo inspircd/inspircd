@@ -64,7 +64,7 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "hash.h"
+#include "modules/hash.h"
 
 #define RMDsize 160
 
@@ -164,7 +164,7 @@ class RIProv : public HashProvider
 	{
 		if (key)
 		{
-			ServerInstance->Logs->Log("m_ripemd160.so", DEBUG, "initialize with custom mdbuf");
+			ServerInstance->Logs->Log("m_ripemd160.so", LOG_DEBUG, "initialize with custom mdbuf");
 			MDbuf[0] = key[0];
 			MDbuf[1] = key[1];
 			MDbuf[2] = key[2];
@@ -173,7 +173,7 @@ class RIProv : public HashProvider
 		}
 		else
 		{
-			ServerInstance->Logs->Log("m_ripemd160.so", DEBUG, "initialize with default mdbuf");
+			ServerInstance->Logs->Log("m_ripemd160.so", LOG_DEBUG, "initialize with default mdbuf");
 			MDbuf[0] = 0x67452301UL;
 			MDbuf[1] = 0xefcdab89UL;
 			MDbuf[2] = 0x98badcfeUL;
@@ -414,7 +414,7 @@ class RIProv : public HashProvider
 
 	byte *RMD(byte *message, dword length, unsigned int* key)
 	{
-		ServerInstance->Logs->Log("m_ripemd160", DEBUG, "RMD: '%s' length=%u", (const char*)message, length);
+		ServerInstance->Logs->Log("m_ripemd160", LOG_DEBUG, "RMD: '%s' length=%u", (const char*)message, length);
 		dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(E))   */
 		static byte   hashcode[RMDsize/8]; /* for final hash-value         */
 		dword         X[16];               /* current 16-word chunk        */
@@ -451,11 +451,6 @@ public:
 		return std::string(rv, RMDsize / 8);
 	}
 
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		return "";
-	}
-
 	RIProv(Module* m) : HashProvider(m, "hash/ripemd160", 20, 64) {}
 };
 
@@ -472,8 +467,6 @@ class ModuleRIPEMD160 : public Module
 	{
 		return Version("Provides RIPEMD-160 hashing", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleRIPEMD160)
-

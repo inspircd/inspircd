@@ -23,7 +23,6 @@
 
 class ModulePartMsgBan : public Module
 {
- private:
  public:
 	void init()
 	{
@@ -31,15 +30,10 @@ class ModulePartMsgBan : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModulePartMsgBan()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Implements extban +b p: - part message bans", VF_OPTCOMMON|VF_VENDOR);
 	}
-
 
 	virtual void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
 	{
@@ -48,16 +42,12 @@ class ModulePartMsgBan : public Module
 
 		if (memb->chan->GetExtBanStatus(memb->user, 'p') == MOD_RES_DENY)
 			partmessage.clear();
-
-		return;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('p');
+		tokens["EXTBAN"].push_back('p');
 	}
 };
 
-
 MODULE_INIT(ModulePartMsgBan)
-

@@ -31,11 +31,9 @@ class NoCTCP : public SimpleChannelModeHandler
 
 class ModuleNoCTCP : public Module
 {
-
 	NoCTCP nc;
 
  public:
-
 	ModuleNoCTCP()
 		: nc(this)
 	{
@@ -46,10 +44,6 @@ class ModuleNoCTCP : public Module
 		ServerInstance->Modules->AddService(nc);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleNoCTCP()
-	{
 	}
 
 	virtual Version GetVersion()
@@ -83,9 +77,9 @@ class ModuleNoCTCP : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('C');
+		tokens["EXTBAN"].push_back('C');
 	}
 };
 

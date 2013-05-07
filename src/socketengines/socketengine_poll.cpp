@@ -20,9 +20,6 @@
  */
 
 
-#include "inspircd.h"
-#include "exitcodes.h"
-
 #ifndef SOCKETENGINE_POLL
 #define SOCKETENGINE_POLL
 
@@ -30,7 +27,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
+#include "config.h"
 #include "inspircd.h"
 #include "socketengine.h"
 
@@ -105,7 +102,7 @@ PollEngine::PollEngine()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
 		std::cout << "ERROR: Can't determine maximum number of open sockets: " << strerror(errno) << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
@@ -140,13 +137,13 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return false;
 	}
 
 	if (fd_mappings.find(fd) != fd_mappings.end())
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"Attempt to add duplicate fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Attempt to add duplicate fd: %d", fd);
 		return false;
 	}
 
@@ -157,7 +154,7 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 	events[index].fd = fd;
 	events[index].events = mask_to_poll(event_mask);
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);
 	SocketEngine::SetEventMask(eh, event_mask);
 	CurrentSetSize++;
 	return true;
@@ -176,7 +173,7 @@ void PollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	std::map<int, unsigned int>::iterator it = fd_mappings.find(eh->GetFd());
 	if (it == fd_mappings.end())
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"SetEvents() on unknown fd: %d", eh->GetFd());
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"SetEvents() on unknown fd: %d", eh->GetFd());
 		return;
 	}
 
@@ -188,14 +185,14 @@ void PollEngine::DelFd(EventHandler* eh)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > MAX_DESCRIPTORS))
 	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return;
 	}
 
 	std::map<int, unsigned int>::iterator it = fd_mappings.find(fd);
 	if (it == fd_mappings.end())
 	{
-		ServerInstance->Logs->Log("SOCKET",DEBUG,"DelFd() on unknown fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"DelFd() on unknown fd: %d", fd);
 		return;
 	}
 
@@ -226,7 +223,7 @@ void PollEngine::DelFd(EventHandler* eh)
 
 	CurrentSetSize--;
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG, "Remove file descriptor: %d (index: %d) "
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d (index: %d) "
 			"(Filled gap with: %d (index: %d))", fd, index, last_fd, last_index);
 }
 

@@ -66,7 +66,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const std::string &ipaddr, int 
 	irc::sockets::sockaddrs addr, bind;
 	if (!irc::sockets::aptosa(ipaddr, aport, addr))
 	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "BUG: Hostname passed to BufferedSocket, rather than an IP address!");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BUG: Hostname passed to BufferedSocket, rather than an IP address!");
 		return I_ERR_CONNECT;
 	}
 
@@ -98,7 +98,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 	ServerInstance->SE->NonBlocking(fd);
 
-	if (ServerInstance->SE->Connect(this, &dest.sa, sa_size(dest)) == -1)
+	if (ServerInstance->SE->Connect(this, &dest.sa, dest.sa_size()) == -1)
 	{
 		if (errno != EINPROGRESS)
 			return I_ERR_CONNECT;
@@ -112,7 +112,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout, ServerInstance->Time());
 	ServerInstance->Timers->AddTimer(this->Timeout);
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG,"BufferedSocket::DoConnect success");
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"BufferedSocket::DoConnect success");
 	return I_ERR_NONE;
 }
 
@@ -130,7 +130,7 @@ void StreamSocket::Close()
 			}
 			catch (CoreException& modexcept)
 			{
-				ServerInstance->Logs->Log("SOCKET", DEFAULT,"%s threw an exception: %s",
+				ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT,"%s threw an exception: %s",
 					modexcept.GetSource(), modexcept.GetReason());
 			}
 			IOHook = NULL;
@@ -170,7 +170,7 @@ void StreamSocket::DoRead()
 		}
 		catch (CoreException& modexcept)
 		{
-			ServerInstance->Logs->Log("SOCKET", DEFAULT, "%s threw an exception: %s",
+			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
 				modexcept.GetSource(), modexcept.GetReason());
 			return;
 		}
@@ -225,7 +225,7 @@ void StreamSocket::DoWrite()
 		return;
 	if (!error.empty() || fd < 0 || fd == INT_MAX)
 	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "DoWrite on errored or closed socket");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
 		return;
 	}
 
@@ -317,7 +317,7 @@ void StreamSocket::DoWrite()
 		}
 		catch (CoreException& modexcept)
 		{
-			ServerInstance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s",
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"%s threw an exception: %s",
 				modexcept.GetSource(), modexcept.GetReason());
 		}
 	}
@@ -419,7 +419,7 @@ void StreamSocket::WriteData(const std::string &data)
 {
 	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "Attempt to write data to dead socket: %s",
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to write data to dead socket: %s",
 			data.c_str());
 		return;
 	}
@@ -431,12 +431,12 @@ void StreamSocket::WriteData(const std::string &data)
 	ServerInstance->SE->ChangeEventMask(this, FD_ADD_TRIAL_WRITE);
 }
 
-void SocketTimeout::Tick(time_t)
+bool SocketTimeout::Tick(time_t)
 {
-	ServerInstance->Logs->Log("SOCKET", DEBUG,"SocketTimeout::Tick");
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"SocketTimeout::Tick");
 
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
-		return;
+		return false;
 
 	if (this->sock->state == I_CONNECTING)
 	{
@@ -452,6 +452,7 @@ void SocketTimeout::Tick(time_t)
 	}
 
 	this->sock->Timeout = NULL;
+	return false;
 }
 
 void BufferedSocket::OnConnected() { }
@@ -476,8 +477,8 @@ BufferedSocket::~BufferedSocket()
 	this->Close();
 	if (Timeout)
 	{
-		ServerInstance->Timers->DelTimer(Timeout);
-		Timeout = NULL;
+		// The timer is removed from the TimerManager in Timer::~Timer()
+		delete Timeout;
 	}
 }
 
@@ -528,13 +529,13 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 	}
 	catch (CoreException& ex)
 	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "Caught exception in socket processing on FD %d - '%s'",
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Caught exception in socket processing on FD %d - '%s'",
 			fd, ex.GetReason());
 		SetError(ex.GetReason());
 	}
 	if (!error.empty())
 	{
-		ServerInstance->Logs->Log("SOCKET", DEBUG, "Error on FD %d - '%s'", fd, error.c_str());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Error on FD %d - '%s'", fd, error.c_str());
 		OnError(errcode);
 	}
 }

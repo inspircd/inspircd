@@ -20,8 +20,7 @@
  */
 
 
-#ifndef DLL_H
-#define DLL_H
+#pragma once
 
 /** The DLLManager class is able to load a module file by filename,
  * and locate its init_module symbol.
@@ -65,6 +64,3 @@ class CoreExport DLLManager : public classbase
 	/** Get detailed version information from the module file */
 	std::string GetVersion();
 };
-
-#endif
-

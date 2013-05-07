@@ -21,7 +21,6 @@
 #include "xline.h"
 
 #include "treesocket.h"
-#include "treeserver.h"
 #include "utils.h"
 
 /** ENCAP */
@@ -35,7 +34,7 @@ void TreeSocket::Encap(User* who, parameterlist &params)
 			ServerInstance->Parser->CallHandler(params[1], plist, who);
 			// discard return value, ENCAP shall succeed even if the command does not exist
 		}
-		
+
 		params[params.size() - 1] = ":" + params[params.size() - 1];
 
 		if (params[0].find_first_of("*?") != std::string::npos)

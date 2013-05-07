@@ -19,7 +19,7 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
+#include "listmode.h"
 
 /* $ModDesc: Provides support for the +w channel mode, autoop list */
 
@@ -82,7 +82,7 @@ class ModuleAutoOp : public Module
 {
 	AutoOpList mh;
 
-public:
+ public:
 	ModuleAutoOp() : mh(this)
 	{
 	}
@@ -101,13 +101,13 @@ public:
 		if (!IS_LOCAL(memb->user))
 			return;
 
-		modelist* list = mh.extItem.get(memb->chan);
+		ListModeBase::ModeList* list = mh.GetList(memb->chan);
 		if (list)
 		{
 			std::string modeline("+");
 			std::vector<std::string> modechange;
 			modechange.push_back(memb->chan->name);
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				std::string::size_type colon = it->mask.find(':');
 				if (colon == std::string::npos)

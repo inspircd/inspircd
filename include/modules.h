@@ -23,8 +23,7 @@
  */
 
 
-#ifndef MODULES_H
-#define MODULES_H
+#pragma once
 
 #include "dynamic.h"
 #include "base.h"
@@ -35,7 +34,6 @@
 #include <sstream>
 #include "timer.h"
 #include "mode.h"
-#include "dns.h"
 
 /** Used to define a set of behavior bits for a module
  */
@@ -109,14 +107,14 @@ struct ModResult {
 /** InspIRCd major version.
  * 1.2 -> 102; 2.1 -> 201; 2.12 -> 212
  */
-#define INSPIRCD_VERSION_MAJ 200
+#define INSPIRCD_VERSION_MAJ 202
 /** InspIRCd API version.
  * If you change any API elements, increment this value. This counter should be
  * reset whenever the major version is changed. Modules can use these two values
  * and numerical comparisons in preprocessor macros if they wish to support
  * multiple versions of InspIRCd in one file.
  */
-#define INSPIRCD_VERSION_API 5
+#define INSPIRCD_VERSION_API 1
 
 /**
  * This #define allows us to call a method in all
@@ -135,7 +133,7 @@ struct ModResult {
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Logs->Log("MODULE",LOG_DEFAULT,"Exception caught: %s",modexcept.GetReason()); \
 		} \
 		_i = safei; \
 	} \
@@ -162,7 +160,7 @@ do { \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
-			ServerInstance->Logs->Log("MODULE",DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
+			ServerInstance->Logs->Log("MODULE",LOG_DEFAULT,"Exception caught: %s", (except_ ## n).GetReason()); \
 			(void) mod_ ## n; /* catch mismatched pairs */ \
 		} \
 	} \
@@ -286,19 +284,25 @@ class CoreExport dynamic_reference_base : public interfacebase
 {
  private:
 	std::string name;
+	void resolve();
  protected:
-	DataProvider* value;
+	ServiceProvider* value;
  public:
 	ModuleRef creator;
 	dynamic_reference_base(Module* Creator, const std::string& Name);
 	~dynamic_reference_base();
-	inline void ClearCache() { value = NULL; }
 	inline const std::string& GetProvider() { return name; }
 	void SetProvider(const std::string& newname);
-	void lookup();
-	operator bool();
+	void check();
+	operator bool() { return (value != NULL); }
 	static void reset_all();
 };
+
+inline void dynamic_reference_base::check()
+{
+	if (!value)
+		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve");
+}
 
 template<typename T>
 class dynamic_reference : public dynamic_reference_base
@@ -306,12 +310,42 @@ class dynamic_reference : public dynamic_reference_base
  public:
 	dynamic_reference(Module* Creator, const std::string& Name)
 		: dynamic_reference_base(Creator, Name) {}
+
 	inline T* operator->()
 	{
-		if (!value)
-			lookup();
+		check();
 		return static_cast<T*>(value);
 	}
+
+	T* operator*()
+	{
+		return operator->();
+	}
+};
+
+template<typename T>
+class dynamic_reference_nocheck : public dynamic_reference_base
+{
+ public:
+	dynamic_reference_nocheck(Module* Creator, const std::string& Name)
+		: dynamic_reference_base(Creator, Name) {}
+
+	T* operator->()
+	{
+		return static_cast<T*>(value);
+	}
+
+	T* operator*()
+	{
+		return operator->();
+	}
+};
+
+class ModeReference : public dynamic_reference_nocheck<ModeHandler>
+{
+ public:
+	ModeReference(Module* mod, const std::string& modename)
+		: dynamic_reference_nocheck<ModeHandler>(mod, "mode/" + modename) {}
 };
 
 /** Priority types which can be used by Module::Prioritize()
@@ -333,8 +367,8 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect, I_OnAddBan,
-	I_OnDelBan, I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
+	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect,
+	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
@@ -514,7 +548,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param keygiven The key given to join the channel, or an empty string if none was provided
 	 * @return 1 To prevent the join, 0 to allow it.
 	 */
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven);
+	virtual ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven);
 
 	/** Called whenever a user is about to be kicked.
 	 * Returning a value of 1 from this function stops the process immediately, causing no
@@ -741,8 +775,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * (see below). This function will be called for every user visible on your side
 	 * of the burst, allowing you to for example set modes, etc.
 	 *
-	 * For a good example of how to use this function, please see src/modules/m_chanprotect.cpp
-	 *
 	 * @param chan The channel being syncronized
 	 * @param proto A pointer to the module handling network protocol
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
@@ -774,9 +806,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * These modules will implement this method, which allows transparent sending of servermodes
 	 * down the network link as a broadcast, without a module calling it having to know the format
 	 * of the MODE command before the actual mode string.
-	 *
-	 * More documentation to follow soon. Please see src/modules/m_chanprotect.cpp for examples
-	 * of how to use this function.
 	 *
 	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
 	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
@@ -885,9 +914,9 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
-	 * @param output The 005 string to be modified if neccessary.
-	 */
-	virtual void On005Numeric(std::string &output);
+	* @param output The 005 map to be modified if neccessary.
+	*/
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens);
 
 	/** Called when a client is disconnected by KILL.
 	 * If a client is killed by a server, e.g. a nickname collision or protocol error,
@@ -1162,24 +1191,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnPostConnect(User* user);
 
-	/** Called whenever a ban is added to a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being added.
-	 * @param source The user adding the ban
-	 * @param channel The channel the ban is being added to
-	 * @param banmask The ban mask being added
-	 * @return 1 to block the ban, 0 to continue as normal
-	 */
-	virtual ModResult OnAddBan(User* source, Channel* channel,const std::string &banmask);
-
-	/** Called whenever a ban is removed from a channel's list.
-	 * Return a non-zero value to 'eat' the mode change and prevent the ban from being removed.
-	 * @param source The user deleting the ban
-	 * @param channel The channel the ban is being deleted from
-	 * @param banmask The ban mask being deleted
-	 * @return 1 to block the unban, 0 to continue as normal
-	 */
-	virtual ModResult OnDelBan(User* source, Channel* channel,const std::string &banmask);
-
 	/** Called to install an I/O hook on an event handler
 	 * @param user The socket to possibly install the I/O hook on
 	 * @param via The port that the user connected on
@@ -1300,101 +1311,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnSetUserIP(LocalUser* user);
 };
-
-
-#define CONF_NO_ERROR		0x000000
-#define CONF_NOT_A_NUMBER	0x000010
-#define CONF_INT_NEGATIVE	0x000080
-#define CONF_VALUE_NOT_FOUND	0x000100
-#define CONF_FILE_NOT_FOUND	0x000200
-
-
-/** Allows reading of values from configuration files
- * This class allows a module to read from either the main configuration file (inspircd.conf) or from
- * a module-specified configuration file. It may either be instantiated with one parameter or none.
- * Constructing the class using one parameter allows you to specify a path to your own configuration
- * file, otherwise, inspircd.conf is read.
- */
-class CoreExport ConfigReader : public interfacebase
-{
-  protected:
-	/** Error code
-	 */
-	long error;
-
-  public:
-	/** Default constructor.
-	 * This constructor initialises the ConfigReader class to read the inspircd.conf file
-	 * as specified when running ./configure.
-	 */
-	ConfigReader();
-	/** Default destructor.
-	 * This method destroys the ConfigReader class.
-	 */
-	~ConfigReader();
-
-	/** Retrieves a value from the config file.
-	 * This method retrieves a value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve.
-	 */
-	std::string ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds = false);
-	/** Retrieves a value from the config file.
-	 * This method retrieves a value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. If the
-	 * tag is not found the default value is returned instead.
-	 */
-	std::string ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds = false);
-
-	/** Retrieves a boolean value from the config file.
-	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
-	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
-	 */
-	bool ReadFlag(const std::string &tag, const std::string &name, int index);
-	/** Retrieves a boolean value from the config file.
-	 * This method retrieves a boolean value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. The values "1", "yes"
-	 * and "true" in the config file count as true to ReadFlag, and any other value counts as false.
-	 * If the tag is not found, the default value is used instead.
-	 */
-	bool ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index);
-
-	/** Retrieves an integer value from the config file.
-	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
-	 * values in the tag will cause the objects error value to be set, and any call to GetError() will
-	 * return CONF_INVALID_NUMBER to be returned. need_positive is set if the number must be non-negative.
-	 * If a negative number is placed into a tag which is specified positive, 0 will be returned and GetError()
-	 * will return CONF_INT_NEGATIVE. Note that need_positive is not suitable to get an unsigned int - you
-	 * should cast the result to achieve that effect.
-	 */
-	int ReadInteger(const std::string &tag, const std::string &name, int index, bool need_positive);
-	/** Retrieves an integer value from the config file.
-	 * This method retrieves an integer value from the config file. Where multiple copies of the tag
-	 * exist in the config file, index indicates which of the values to retrieve. Any invalid integer
-	 * values in the tag will cause the objects error value to be set, and any call to GetError() will
-	 * return CONF_INVALID_NUMBER to be returned. needs_unsigned is set if the number must be unsigned.
-	 * If a signed number is placed into a tag which is specified unsigned, 0 will be returned and GetError()
-	 * will return CONF_NOT_UNSIGNED. If the tag is not found, the default value is used instead.
-	 */
-	int ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive);
-
-	/** Returns the last error to occur.
-	 * Valid errors can be found by looking in modules.h. Any nonzero value indicates an error condition.
-	 * A call to GetError() resets the error flag back to 0.
-	 */
-	long GetError();
-
-	/** Counts the number of times a given tag appears in the config file.
-	 * This method counts the number of times a tag appears in a config file, for use where
-	 * there are several tags of the same kind, e.g. with opers and connect types. It can be
-	 * used with the index value of ConfigReader::ReadValue to loop through all copies of a
-	 * multiple instance tag.
-	 */
-	int Enumerate(const std::string &tag);
-};
-
-
 
 /** Caches a text file into memory and can be used to retrieve lines from it.
  * This class contains methods for read-only manipulation of a text file in memory.
@@ -1730,7 +1646,5 @@ struct AllModuleList {
 #endif
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)
-
-#endif
 
 #endif

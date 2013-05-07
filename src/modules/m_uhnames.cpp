@@ -20,7 +20,7 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
+#include "modules/cap.h"
 
 /* $ModDesc: Provides the UHNAMES facility. */
 
@@ -39,18 +39,14 @@ class ModuleUHNames : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	~ModuleUHNames()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides the UHNAMES facility.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" UHNAMES");
+		tokens["UHNAMES"];
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)

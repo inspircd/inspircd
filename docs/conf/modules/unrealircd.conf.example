@@ -93,15 +93,6 @@
 <module name="m_chanfilter.so">
 <chanfilter hidemask="yes">
 
-<module name="m_chanprotect.so">
-
-<chanprotect
-	noservices="no"
-	qprefix="~"
-	aprefix="&amp;"
-	deprotectself="yes"
-	deprotectothers="yes">
-
 <module name="m_check.so">
 <module name="m_chghost.so">
 <hostname charmap="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_/0123456789">

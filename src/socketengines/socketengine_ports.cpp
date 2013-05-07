@@ -32,7 +32,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
 #include "inspircd.h"
 #include "socketengine.h"
 #include <port.h>
@@ -75,7 +74,7 @@ PortsEngine::PortsEngine()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
 		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
@@ -83,8 +82,8 @@ PortsEngine::PortsEngine()
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Logs->Log("SOCKET",SPARSE,"ERROR: This is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET",LOG_SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET",LOG_SPARSE,"ERROR: This is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize socket engine: " << strerror(errno) << std::endl;
 		std::cout << "ERROR: This is a fatal error, exiting now." << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -126,7 +125,7 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	SocketEngine::SetEventMask(eh, event_mask);
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(event_mask), eh);
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"New file descriptor: %d", fd);
 	CurrentSetSize++;
 	return true;
 }
@@ -148,7 +147,7 @@ void PortsEngine::DelFd(EventHandler* eh)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Remove file descriptor: %d", fd);
 }
 
 int PortsEngine::DispatchEvents()

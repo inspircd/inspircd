@@ -39,6 +39,12 @@ class CommandSamode : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
+		User* target = ServerInstance->FindNick(parameters[0]);
+		if ((target) && (target != user))
+		{
+			if (!user->HasPrivPermission("users/samode-usermodes", true))
+				return CMD_FAILURE;
+		}
 		this->active = true;
 		ServerInstance->Parser->CallHandler("MODE", parameters, user);
 		if (ServerInstance->Modes->GetLastParse().length())
@@ -61,10 +67,6 @@ class ModuleSaMode : public Module
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->Attach(I_OnPreMode, this);
-	}
-
-	~ModuleSaMode()
-	{
 	}
 
 	Version GetVersion()

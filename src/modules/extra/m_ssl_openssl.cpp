@@ -29,11 +29,11 @@
 # define __AVAILABILITYMACROS__
 # define DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER
 #endif
- 
+
 #include "inspircd.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "ssl.h"
+#include "modules/ssl.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "libcrypto.lib")
@@ -171,7 +171,7 @@ class ModuleSSLOpenSSL : public Module
 					continue;
 
 				const std::string& portid = port->bind_desc;
-				ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
+				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
 
 				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
 				{
@@ -219,7 +219,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			if ((!SSL_CTX_set_cipher_list(ctx, ciphers.c_str())) || (!SSL_CTX_set_cipher_list(clictx, ciphers.c_str())))
 			{
-				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't set cipher list to %s.", ciphers.c_str());
+				ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "m_ssl_openssl.so: Can't set cipher list to %s.", ciphers.c_str());
 				ERR_print_errors_cb(error_callback, this);
 			}
 		}
@@ -229,20 +229,20 @@ class ModuleSSLOpenSSL : public Module
 		 */
 		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
 		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
 		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
 		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
 		/* Load the CAs we trust*/
 		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
 		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", cafile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", cafile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
@@ -251,7 +251,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (dhpfile == NULL)
 		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
+			ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
 			throw ModuleException("Couldn't open DH file " + dhfile + ": " + strerror(errno));
 		}
 		else
@@ -259,7 +259,7 @@ class ModuleSSLOpenSSL : public Module
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
 			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
 			{
-				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
+				ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
 				ERR_print_errors_cb(error_callback, this);
 			}
 		}
@@ -267,10 +267,10 @@ class ModuleSSLOpenSSL : public Module
 		fclose(dhpfile);
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
 		if (!sslports.empty())
-			output.append(" SSL=" + sslports);
+			tokens["SSL"] = sslports;
 	}
 
 	~ModuleSSLOpenSSL()
@@ -343,7 +343,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (SSL_set_fd(session->sess, fd) == 0)
 		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
+			ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
 			return;
 		}
 
@@ -368,7 +368,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (SSL_set_fd(session->sess, fd) == 0)
 		{
-			ServerInstance->Logs->Log("m_ssl_openssl",DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
+			ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEBUG,"BUG: Can't set fd with SSL_set_fd: %d", fd);
 			return;
 		}
 
@@ -649,7 +649,7 @@ class ModuleSSLOpenSSL : public Module
 
 static int error_callback(const char *str, size_t len, void *u)
 {
-	ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "SSL error: " + std::string(str, len - 1));
+	ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "SSL error: " + std::string(str, len - 1));
 
 	//
 	// XXX: Remove this line, it causes valgrind warnings...

@@ -56,8 +56,7 @@ if(MSVC)
 endif(MSVC)
 
 configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
-configure_file("${INSPIRCD_BASE}/win/inspircd_version.h.cmake" "${INSPIRCD_BASE}/win/inspircd_version.h")
-configure_file("${INSPIRCD_BASE}/win/inspircd_config.h.cmake" "${INSPIRCD_BASE}/win/inspircd_config.h")
+configure_file("${INSPIRCD_BASE}/win/config.h.cmake" "${INSPIRCD_BASE}/win/config.h")
 
 add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
 target_link_libraries(inspircd win32_memory)

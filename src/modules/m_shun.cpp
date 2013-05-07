@@ -36,14 +36,11 @@ public:
 		this->matchtext = shunmask;
 	}
 
-	~Shun()
-	{
-	}
-
 	bool Matches(User *u)
 	{
 		// E: overrides shun
-		if (u->exempt)
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu && lu->exempt)
 			return false;
 
 		if (InspIRCd::Match(u->GetFullHost(), matchtext) || InspIRCd::Match(u->GetFullRealHost(), matchtext) || InspIRCd::Match(u->nick+"!"+u->ident+"@"+u->GetIPString(), matchtext))
@@ -57,12 +54,6 @@ public:
 		if (matchtext == s)
 			return true;
 		return false;
-	}
-
-	void DisplayExpiry()
-	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired shun %s (set by %s %ld seconds ago)",
-			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
 	}
 
 	const char* Displayable()
@@ -107,7 +98,7 @@ class CommandShun : public Command
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
 		std::string target = parameters[0];
-		
+
 		User *find = ServerInstance->FindNick(target);
 		if ((find) && (find->registered == REG_ALL))
 			target = std::string("*!*@") + find->GetIPString();
@@ -127,11 +118,11 @@ class CommandShun : public Command
 		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			long duration;
+			unsigned long duration;
 			std::string expr;
 			if (parameters.size() > 2)
 			{
-				duration = ServerInstance->Duration(parameters[1]);
+				duration = InspIRCd::Duration(parameters[1]);
 				expr = parameters[2];
 			}
 			else
@@ -253,7 +244,7 @@ class ModuleShun : public Module
 			return MOD_RES_PASSTHRU;
 		}
 
-		if (!affectopers && IS_OPER(user))
+		if (!affectopers && user->IsOper())
 		{
 			/* Don't do anything if the user is an operator and affectopers isn't set */
 			return MOD_RES_PASSTHRU;
@@ -290,4 +281,3 @@ class ModuleShun : public Module
 };
 
 MODULE_INIT(ModuleShun)
-

@@ -24,16 +24,11 @@
 
 class ModuleQuietBan : public Module
 {
- private:
  public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleQuietBan()
-	{
 	}
 
 	virtual Version GetVersion()
@@ -61,12 +56,10 @@ class ModuleQuietBan : public Module
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('m');
+		tokens["EXTBAN"].push_back('m');
 	}
 };
 
-
 MODULE_INIT(ModuleQuietBan)
-

@@ -45,28 +45,30 @@ bool op;
 
 /** Handle /OJOIN
  */
-class CommandOjoin : public Command
+class CommandOjoin : public SplitCommand
 {
  public:
 	bool active;
-	CommandOjoin(Module* parent) : Command(parent,"OJOIN", 1)
+	CommandOjoin(Module* parent) :
+		SplitCommand(parent, "OJOIN", 1)
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<channel>";
 		active = false;
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 	{
 		// Make sure the channel name is allowable.
-		if (!ServerInstance->IsChannel(parameters[0].c_str(), ServerInstance->Config->Limits.ChanMax))
+		if (!ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
 		{
 			user->WriteServ("NOTICE "+user->nick+" :*** Invalid characters in channel name or name too long");
 			return CMD_FAILURE;
 		}
 
 		active = true;
-		Channel* channel = Channel::JoinUser(user, parameters[0].c_str(), false, "", false);
+		// override is false because we want OnUserPreJoin to run
+		Channel* channel = Channel::JoinUser(user, parameters[0], false);
 		active = false;
 
 		if (channel)
@@ -116,7 +118,7 @@ class NetworkPrefix : public ModeHandler
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
 		irc::modestacker modestack(false);
-		std::deque<std::string> stackresult;
+		std::vector<std::string> stackresult;
 
 		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
 		{
@@ -193,7 +195,7 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if (mycommand.active)
 		{
@@ -255,4 +257,3 @@ class ModuleOjoin : public Module
 };
 
 MODULE_INIT(ModuleOjoin)
-

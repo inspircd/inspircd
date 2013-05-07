@@ -17,19 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-/* $ModDesc: Provides a spanning tree server link protocol */
-
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
+/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h */
 
 void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line)
 {
@@ -73,7 +67,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 		TreeServer* sdest = FindServer(routing.serverdest);
 		if (!sdest)
 		{
-			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Trying to route ENCAP to nonexistant server %s",
+			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Trying to route ENCAP to nonexistant server %s",
 				routing.serverdest.c_str());
 			return;
 		}
@@ -88,7 +82,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 
 		if (!(ver.Flags & (VF_COMMON | VF_CORE)) && srcmodule != Creator)
 		{
-			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Routed command %s from non-VF_COMMON module %s",
+			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Routed command %s from non-VF_COMMON module %s",
 				command.c_str(), srcmodule->ModuleSourceFile.c_str());
 			return;
 		}
@@ -121,7 +115,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 				data += " " + params[x];
 			for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
 			{
-				TreeSocket* Sock = i->second->GetSocket();
+				TreeSocket* Sock = (*i)->GetSocket();
 				if (origin && origin->GetSocket() == Sock)
 					continue;
 				if (Sock)

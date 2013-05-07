@@ -23,10 +23,7 @@
 #include "commands.h"
 
 #include "utils.h"
-#include "link.h"
-#include "treesocket.h"
 #include "treeserver.h"
-#include "resolvers.h"
 
 CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 {
@@ -38,7 +35,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	time_t age_t = ConvToInt(params[1]);
 	time_t signon = ConvToInt(params[7]);
 	std::string empty;
-	std::string modestr(params[8]);
+	const std::string& modestr = params[8];
 
 	TreeServer* remoteserver = Utils->FindServer(serversrc->server);
 
@@ -65,7 +62,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		 * Nick collision.
 		 */
 		int collide = sock->DoCollision(iter->second, age_t, params[5], params[6], params[0]);
-		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s, collide=%d", params[2].c_str(), collide);
+		ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)
 		{
@@ -88,7 +85,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	}
 	catch (...)
 	{
-		ServerInstance->Logs->Log("m_spanningtree", DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
+		ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
 		return CMD_INVALID;
 	}
 	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
@@ -101,49 +98,45 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	_new->signon = signon;
 	_new->age = age_t;
 
-	/* we need to remove the + from the modestring, so we can do our stuff */
-	std::string::size_type pos_after_plus = modestr.find_first_not_of('+');
-	if (pos_after_plus != std::string::npos)
-	modestr = modestr.substr(pos_after_plus);
-
 	unsigned int paramptr = 9;
-	for (std::string::iterator v = modestr.begin(); v != modestr.end(); v++)
+
+	// Accept more '+' chars, for now
+	std::string::size_type pos = modestr.find_first_not_of('+');
+	for (std::string::const_iterator v = modestr.begin()+pos; v != modestr.end(); ++v)
 	{
-		/* For each mode thats set, increase counter */
+		/* For each mode thats set, find the mode handler and set it on the new user */
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
-
-		if (mh)
+		if (!mh)
 		{
-			if (mh->GetNumParams(true))
-			{
-				if (paramptr >= params.size() - 1)
-					return CMD_INVALID;
-				std::string mp = params[paramptr++];
-				/* IMPORTANT NOTE:
-				 * All modes are assumed to succeed here as they are being set by a remote server.
-				 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
-				 * to note as all but one modules currently cannot ever fail in this situation, except for
-				 * m_servprotect which specifically works this way to prevent the mode being set ANYWHERE
-				 * but here, at client introduction. You may safely assume this behaviour is standard and
-				 * will not change in future versions if you want to make use of this protective behaviour
-				 * yourself.
-				 */
-				mh->OnModeChange(_new, _new, NULL, mp, true);
-			}
-			else
-				mh->OnModeChange(_new, _new, NULL, empty, true);
-			_new->SetMode(*v, true);
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Unrecognised mode '%c' for a user in UID, dropping link", *v);
+			return CMD_INVALID;
 		}
-	}
 
-	/* now we've done with modes processing, put the + back for remote servers */
-	if (modestr[0] != '+')
-		modestr = "+" + modestr;
+		if (mh->GetNumParams(true))
+		{
+			if (paramptr >= params.size() - 1)
+				return CMD_INVALID;
+			std::string mp = params[paramptr++];
+			/* IMPORTANT NOTE:
+			 * All modes are assumed to succeed here as they are being set by a remote server.
+			 * Modes CANNOT FAIL here. If they DO fail, then the failure is ignored. This is important
+			 * to note as all but one modules currently cannot ever fail in this situation, except for
+			 * m_servprotect which specifically works this way to prevent the mode being set ANYWHERE
+			 * but here, at client introduction. You may safely assume this behaviour is standard and
+			 * will not change in future versions if you want to make use of this protective behaviour
+			 * yourself.
+			 */
+			mh->OnModeChange(_new, _new, NULL, mp, true);
+		}
+		else
+			mh->OnModeChange(_new, _new, NULL, empty, true);
+		_new->SetMode(*v, true);
+	}
 
 	_new->SetClientIP(params[6].c_str());
 
 	ServerInstance->Users->AddGlobalClone(_new);
-	remoteserver->SetUserCount(1); // increment by 1
+	remoteserver->UserCount++;
 
 	bool dosend = true;
 
@@ -151,7 +144,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		dosend = false;
 
 	if (dosend)
-		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", _new->server.c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString(), _new->fullname.c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", _new->server.c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->fullname.c_str());
 
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(_new));
 

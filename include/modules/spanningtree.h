@@ -17,8 +17,7 @@
  */
 
 
-#ifndef SPANNINGTREE_H
-#define SPANNINGTREE_H
+#pragma once
 
 struct AddServerEvent : public Event
 {
@@ -39,5 +38,3 @@ struct DelServerEvent : public Event
 		Send();
 	}
 };
-
-#endif

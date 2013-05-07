@@ -24,7 +24,6 @@
 
 class ModuleChanLog : public Module
 {
- private:
 	/*
 	 * Multimap so people can redirect a snomask to multiple channels.
 	 */
@@ -38,10 +37,6 @@ class ModuleChanLog : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
-	}
-
-	virtual ~ModuleChanLog()
-	{
 	}
 
 	virtual void OnRehash(User *user)
@@ -59,14 +54,14 @@ class ModuleChanLog : public Module
 
 			if (channel.empty() || snomasks.empty())
 			{
-				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Malformed chanlog tag, ignoring");
+				ServerInstance->Logs->Log("m_chanlog", LOG_DEFAULT, "Malformed chanlog tag, ignoring");
 				continue;
 			}
 
 			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
 			{
 				logstreams.insert(std::make_pair(*it, channel));
-				ServerInstance->Logs->Log("m_chanlog", DEFAULT, "Logging %c to %s", *it, channel.c_str());
+				ServerInstance->Logs->Log("m_chanlog", LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
 			}
 		}
 
@@ -155,4 +150,3 @@ class ChannelLogStream : public LogStream
 	}
 };
 #endif
-

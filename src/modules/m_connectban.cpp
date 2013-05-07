@@ -24,22 +24,18 @@
 
 class ModuleConnectBan : public Module
 {
- private:
 	clonemap connects;
 	unsigned int threshold;
 	unsigned int banduration;
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
+
  public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnSetUserIP, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
-	}
-
-	virtual ~ModuleConnectBan()
-	{
 	}
 
 	virtual Version GetVersion()
@@ -63,7 +59,7 @@ class ModuleConnectBan : public Module
 		if (threshold == 0)
 			threshold = 10;
 
-		banduration = ServerInstance->Duration(tag->getString("duration", "10m"));
+		banduration = InspIRCd::Duration(tag->getString("duration", "10m"));
 		if (banduration == 0)
 			banduration = 10*60;
 	}
@@ -119,7 +115,7 @@ class ModuleConnectBan : public Module
 
 	virtual void OnGarbageCollect()
 	{
-		ServerInstance->Logs->Log("m_connectban",DEBUG, "Clearing map.");
+		ServerInstance->Logs->Log("m_connectban",LOG_DEBUG, "Clearing map.");
 		connects.clear();
 	}
 };

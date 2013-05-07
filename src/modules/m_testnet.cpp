@@ -152,8 +152,6 @@ static void checkall(Module* noimpl)
 	CHK(OnEvent);
 	CHK(OnGlobalOper);
 	CHK(OnPostConnect);
-	CHK(OnAddBan);
-	CHK(OnDelBan);
 	CHK(OnChangeLocalUserGECOS);
 	CHK(OnUserRegister);
 	CHK(OnChannelPreDelete);
@@ -230,4 +228,3 @@ class ModuleTest : public Module
 };
 
 MODULE_INIT(ModuleTest)
-

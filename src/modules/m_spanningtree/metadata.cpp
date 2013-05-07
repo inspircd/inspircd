@@ -21,33 +21,49 @@
 #include "inspircd.h"
 #include "commands.h"
 
-#include "treesocket.h"
-#include "treeserver.h"
-#include "utils.h"
-
 CmdResult CommandMetadata::Handle(const std::vector<std::string>& params, User *srcuser)
 {
-	std::string value = params.size() < 3 ? "" : params[2];
-	ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
 	if (params[0] == "*")
 	{
+		std::string value = params.size() < 3 ? "" : params[2];
 		FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(NULL,params[1],value));
+		return CMD_SUCCESS;
 	}
-	else if (*(params[0].c_str()) == '#')
+
+	if (params[0][0] == '#')
 	{
+		// Channel METADATA has an additional parameter: the channel TS
+		// :22D METADATA #channel 12345 extname :extdata
+		if (params.size() < 3)
+			return CMD_INVALID;
+
 		Channel* c = ServerInstance->FindChan(params[0]);
-		if (c)
-		{
-			if (item)
-				item->unserialize(FORMAT_NETWORK, c, value);
-			FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(c,params[1],value));
-		}
+		if (!c)
+			return CMD_FAILURE;
+
+		time_t ChanTS = ConvToInt(params[1]);
+		if (!ChanTS)
+			return CMD_INVALID;
+
+		if (c->age < ChanTS)
+			// Their TS is newer than ours, discard this command and do not propagate
+			return CMD_FAILURE;
+
+		std::string value = params.size() < 4 ? "" : params[3];
+
+		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
+		if (item)
+			item->unserialize(FORMAT_NETWORK, c, value);
+		FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(c,params[2],value));
 	}
-	else if (*(params[0].c_str()) != '#')
+	else
 	{
 		User* u = ServerInstance->FindUUID(params[0]);
 		if ((u) && (!IS_SERVER(u)))
 		{
+			ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
+			std::string value = params.size() < 3 ? "" : params[2];
+
 			if (item)
 				item->unserialize(FORMAT_NETWORK, u, value);
 			FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(u,params[1],value));

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2010 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,17 +17,15 @@
  */
 
 
-#include "mode.h"
+#pragma once
 
-class InspIRCd;
-
-/** Channel mode +k
- */
-class ModeChannelKey : public ModeHandler
+class SASLFallback : public Event
 {
  public:
-	ModeChannelKey();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
-	void RemoveMode(User* user, irc::modestacker* stack = NULL);
+	const parameterlist& params;
+	SASLFallback(Module* me, const parameterlist& p)
+		: Event(me, "sasl_fallback"), params(p)
+	{
+		Send();
+	}
 };

@@ -25,13 +25,13 @@
 /** Adds numerics
  * 988 <nick> <servername> :Closed for new connections
  * 989 <nick> <servername> :Open for new connections
-*/
-
+ */
 
 class CommandLockserv : public Command
 {
 	bool& locked;
-public:
+
+ public:
 	CommandLockserv(Module* Creator, bool& lock) : Command(Creator, "LOCKSERV", 0), locked(lock)
 	{
 		flags_needed = 'o';
@@ -54,10 +54,9 @@ public:
 
 class CommandUnlockserv : public Command
 {
-private:
 	bool& locked;
 
-public:
+ public:
 	CommandUnlockserv(Module* Creator, bool &lock) : Command(Creator, "UNLOCKSERV", 0), locked(lock)
 	{
 		flags_needed = 'o';
@@ -80,12 +79,11 @@ public:
 
 class ModuleLockserv : public Module
 {
-private:
 	bool locked;
 	CommandLockserv lockcommand;
 	CommandUnlockserv unlockcommand;
 
-public:
+ public:
 	ModuleLockserv() : lockcommand(this, locked), unlockcommand(this, locked)
 	{
 	}
@@ -98,11 +96,6 @@ public:
 		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
-
-	virtual ~ModuleLockserv()
-	{
-	}
-
 
 	virtual void OnRehash(User* user)
 	{

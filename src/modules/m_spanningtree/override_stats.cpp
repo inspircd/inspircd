@@ -18,16 +18,11 @@
  */
 
 
-/* $ModDesc: Provides a spanning tree server link protocol */
-
 #include "inspircd.h"
-#include "socket.h"
 
 #include "main.h"
 #include "utils.h"
-#include "treeserver.h"
 #include "link.h"
-#include "treesocket.h"
 
 ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &results)
 {

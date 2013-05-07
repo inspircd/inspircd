@@ -23,14 +23,10 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "link.h"
 #include "treesocket.h"
 #include "resolvers.h"
 
@@ -47,7 +43,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 
 	if (!tokens.GetToken(prefix))
 		return;
-	
+
 	if (prefix[0] == ':')
 	{
 		prefix = prefix.substr(1);
@@ -84,7 +80,7 @@ void TreeSocket::ProcessLine(std::string &line)
 	std::string command;
 	parameterlist params;
 
-	ServerInstance->Logs->Log("m_spanningtree", RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log("m_spanningtree", LOG_RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
 
 	Split(line, prefix, command, params);
 
@@ -151,7 +147,7 @@ void TreeSocket::ProcessLine(std::string &line)
 			{
 				if (params.size())
 				{
-					time_t them = atoi(params[0].c_str());
+					time_t them = ConvToInt(params[0]);
 					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
@@ -257,7 +253,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			 * crossing the users QUIT further upstream from the server. Thanks jilles!
 			 */
 
-			if ((prefix.length() == UUID_LENGTH-1) && (isdigit(prefix[0])) &&
+			if ((prefix.length() == UIDGenerator::UUID_LENGTH) && (isdigit(prefix[0])) &&
 				((command == "FMODE") || (command == "MODE") || (command == "KICK") || (command == "TOPIC") || (command == "KILL") || (command == "ADDLINE") || (command == "DELLINE")))
 			{
 				/* Special case, we cannot drop these commands as they've been committed already on a
@@ -271,7 +267,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			}
 			else
 			{
-				ServerInstance->Logs->Log("m_spanningtree", DEBUG, "Command '%s' from unknown prefix '%s'! Dropping entire command.",
+				ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Command '%s' from unknown prefix '%s'! Dropping entire command.",
 					command.c_str(), prefix.c_str());
 				return;
 			}
@@ -302,7 +298,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	if ((!route_back_again) || (route_back_again->GetSocket() != this))
 	{
 		if (route_back_again)
-			ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Protocol violation: Fake direction '%s' from connection '%s'",
+			ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"Protocol violation: Fake direction '%s' from connection '%s'",
 				prefix.c_str(),linkID.c_str());
 		return;
 	}
@@ -313,6 +309,12 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	 */
 	if (command == "SVSMODE") // This isn't in an "else if" so we still force FMODE for changes on channels.
 		command = "MODE";
+
+	if (proto_version < ProtocolVersion)
+	{
+		if (!PreProcessOldProtocolMessage(who, command, params))
+			return;
+	}
 
 	// TODO move all this into Commands
 	if (command == "MAP")
@@ -439,7 +441,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		}
 
 		/* Update timestamp on user when they change nicks */
-		who->age = atoi(params[1].c_str());
+		who->age = ConvToInt(params[1]);
 
 		/*
 		 * On nick messages, check that the nick doesnt already exist here.
@@ -467,11 +469,11 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	else
 	{
 		Command* cmd = ServerInstance->Parser->GetHandler(command);
-		
+
 		if (!cmd)
 		{
 			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
-			ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Unrecognised S2S command :%s %s %s",
+			ServerInstance->Logs->Log("m_spanningtree", LOG_SPARSE, "Unrecognised S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Unrecognised command '" + command + "' -- possibly loaded mismatched modules");
 			return;
@@ -480,7 +482,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		if (params.size() < cmd->min_params)
 		{
 			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
-			ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Insufficient parameters for S2S command :%s %s %s",
+			ServerInstance->Logs->Log("m_spanningtree", LOG_SPARSE, "Insufficient parameters for S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Insufficient parameters for command '" + command + "'");
 			return;
@@ -499,7 +501,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		if (res == CMD_INVALID)
 		{
 			irc::stringjoiner pmlist(" ", params, 0, params.size() - 1);
-			ServerInstance->Logs->Log("m_spanningtree", SPARSE, "Error handling S2S command :%s %s %s",
+			ServerInstance->Logs->Log("m_spanningtree", LOG_SPARSE, "Error handling S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
 		}

@@ -37,7 +37,7 @@ enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOP
  */
 class BlockedMessage
 {
-public:
+ public:
 	std::string message;
 	irc::string target;
 	time_t sent;
@@ -65,10 +65,6 @@ class ModuleBlockAmsg : public Module
 		ServerInstance->Modules->AddService(blockamsg);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleBlockAmsg()
-	{
 	}
 
 	virtual Version GetVersion()
@@ -168,6 +164,5 @@ class ModuleBlockAmsg : public Module
 		return MOD_RES_PASSTHRU;
 	}
 };
-
 
 MODULE_INIT(ModuleBlockAmsg)

@@ -23,8 +23,7 @@
  */
 
 
-#ifndef INSPIRCD_H
-#define INSPIRCD_H
+#pragma once
 
 #define _FILE_OFFSET_BITS 64
 #ifndef _LARGEFILE_SOURCE
@@ -46,6 +45,15 @@
 #define CUSTOM_PRINTF(STRING, FIRST)
 #endif
 
+#if defined __clang__ || defined __GNUC__
+# define DEPRECATED_METHOD(function) function __attribute__((deprecated))
+#elif defined _MSC_VER
+# define DEPRECATED_METHOD(function) __declspec(deprecated) function
+#else
+# pragma message ("Warning! DEPRECATED_METHOD() does not work on your compiler!")
+# define DEPRECATED_METHOD(function) function
+#endif
+
 // Required system headers.
 #include <ctime>
 #include <cstdarg>
@@ -58,6 +66,13 @@
 #include <unistd.h>
 #endif
 
+#if defined _LIBCPP_VERSION || defined _WIN32
+# define TR1NS std
+# include <unordered_map>
+#else
+# define TR1NS std::tr1
+# include <tr1/unordered_map>
+#endif
 #include <sstream>
 #include <string>
 #include <vector>
@@ -67,8 +82,7 @@
 #include <bitset>
 #include <set>
 #include <time.h>
-#include "inspircd_config.h"
-#include "inspircd_version.h"
+#include "config.h"
 #include "typedefs.h"
 #include "consolecolors.h"
 
@@ -111,11 +125,6 @@ CoreExport extern InspIRCd* ServerInstance;
 /** Returned by some functions to indicate failure.
  */
 #define ERROR -1
-
-/** Support for librodent -
- * see http://www.chatspike.net/index.php?z=64
- */
-#define ETIREDHAMSTERS EAGAIN
 
 /** Template function to convert any input type to std::string
  */
@@ -259,16 +268,33 @@ class serverstats
 	}
 };
 
-DEFINE_HANDLER2(IsNickHandler, bool, const char*, size_t);
+/** This class manages the generation and transmission of ISUPPORT. */
+class CoreExport ISupportManager
+{
+private:
+	/** The generated lines which are sent to clients. */
+	std::vector<std::string> Lines;
+
+public:
+	/** (Re)build the ISUPPORT vector. */
+	void Build();
+
+	/** Returns the std::vector of ISUPPORT lines. */
+	const std::vector<std::string>& GetLines()
+	{
+		return this->Lines;
+	}
+
+	/** Send the 005 numerics (ISUPPORT) to a user. */
+	void SendTo(LocalUser* user);
+};
+
+DEFINE_HANDLER2(IsNickHandler, bool, const std::string&, size_t);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-DEFINE_HANDLER1(IsIdentHandler, bool, const char*);
-DEFINE_HANDLER1(FloodQuitUserHandler, void, User*);
-DEFINE_HANDLER2(IsChannelHandler, bool, const char*, size_t);
-DEFINE_HANDLER1(IsSIDHandler, bool, const std::string&);
+DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
+DEFINE_HANDLER2(IsChannelHandler, bool, const std::string&, size_t);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
-
-class TestSuite;
 
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
@@ -279,10 +305,6 @@ class TestSuite;
 class CoreExport InspIRCd
 {
  private:
-	/** Holds the current UID. Used to generate the next one.
-	 */
-	char current_uid[UUID_LENGTH];
-
 	/** Set up the signal handlers
 	 */
 	void SetSignals();
@@ -296,10 +318,6 @@ class CoreExport InspIRCd
 	 * @param TIME the current time
 	 */
 	void DoSocketTimeouts(time_t TIME);
-
-	/** Increments the current UID by one.
-	 */
-	void IncrementUID(int pos);
 
 	/** Perform background user events such as PING checks
 	 */
@@ -322,6 +340,8 @@ class CoreExport InspIRCd
 
  public:
 
+	UIDGenerator UIDGen;
+
 	/** Global cull list, will be processed on next iteration
 	 */
 	CullList GlobalCulls;
@@ -332,10 +352,8 @@ class CoreExport InspIRCd
 
 	IsNickHandler HandleIsNick;
 	IsIdentHandler HandleIsIdent;
-	FloodQuitUserHandler HandleFloodQuitUser;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
-	IsSIDHandler HandleIsSID;
 	RehashHandler HandleRehash;
 	GenRandomHandler HandleGenRandom;
 
@@ -349,10 +367,6 @@ class CoreExport InspIRCd
 	 */
 	FakeUser* FakeClient;
 
-	/** Returns the next available UID for this server.
-	 */
-	std::string GetUID();
-
 	static const char LogHeader[];
 
 	/** Find a user in the UUID hash
@@ -360,16 +374,6 @@ class CoreExport InspIRCd
 	 * @return A pointer to the user, or NULL if the user does not exist
 	 */
 	User* FindUUID(const std::string &uid);
-
-	/** Find a user in the UUID hash
-	 * @param uid The UUID to find
-	 * @return A pointer to the user, or NULL if the user does not exist
-	 */
-	User* FindUUID(const char *uid);
-
-	/** Build the ISUPPORT string by triggering all modules On005Numeric events
-	 */
-	void BuildISupport();
 
 	/** Time this ircd was booted
 	 */
@@ -428,10 +432,6 @@ class CoreExport InspIRCd
 	 */
 	SnomaskManager* SNO;
 
-	/** DNS class, provides resolver facilities to the core and modules
-	 */
-	DNS* Res;
-
 	/** Timer manager class, triggers Timer timer events
 	 */
 	TimerManager* Timers;
@@ -467,6 +467,9 @@ class CoreExport InspIRCd
 	/** Holds extensible for user operquit
 	 */
 	LocalStringExt OperQuit;
+
+	/** Manages the generation and transmission of ISUPPORT. */
+	ISupportManager ISupport;
 
 	/** Get the current time
 	 * Because this only calls time() once every time around the mainloop,
@@ -523,17 +526,6 @@ class CoreExport InspIRCd
 	 */
 	User* FindNick(const std::string &nick);
 
-	/** Find a user in the nick hash.
-	 * If the user cant be found in the nick hash check the uuid hash
-	 * @param nick The nickname to find
-	 * @return A pointer to the user, or NULL if the user does not exist
-	 */
-	User* FindNick(const char* nick);
-
-	/** Find a user in the nick hash ONLY
-	 */
-	User* FindNickOnly(const char* nick);
-
 	/** Find a user in the nick hash ONLY
 	 */
 	User* FindNickOnly(const std::string &nick);
@@ -543,12 +535,6 @@ class CoreExport InspIRCd
 	 * @return A pointer to the channel, or NULL if the channel does not exist
 	 */
 	Channel* FindChan(const std::string &chan);
-
-	/** Find a channel in the channels hash
-	 * @param chan The channel to find
-	 * @return A pointer to the channel, or NULL if the channel does not exist
-	 */
-	Channel* FindChan(const char* chan);
 
 	/** Check we aren't running as root, and exit if we are
 	 * @return Depending on the configuration, this function may never return
@@ -566,12 +552,12 @@ class CoreExport InspIRCd
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
 	 */
-	caller2<bool, const char*, size_t> IsChannel;
+	caller2<bool, const std::string&, size_t> IsChannel;
 
 	/** Return true if str looks like a server ID
 	 * @param string to check against
 	 */
-	caller1<bool, const std::string&> IsSID;
+	static bool IsSID(const std::string& sid);
 
 	/** Rehash the local server
 	 */
@@ -614,31 +600,13 @@ class CoreExport InspIRCd
 	 * @param n A nickname to verify
 	 * @return True if the nick is valid
 	 */
-	caller2<bool, const char*, size_t> IsNick;
+	caller2<bool, const std::string&, size_t> IsNick;
 
 	/** Return true if an ident is valid
 	 * @param An ident to verify
 	 * @return True if the ident is valid
 	 */
-	caller1<bool, const char*> IsIdent;
-
-	/** Add a dns Resolver class to this server's active set
-	 * @param r The resolver to add
-	 * @param cached If this value is true, then the cache will
-	 * be searched for the DNS result, immediately. If the value is
-	 * false, then a request will be sent to the nameserver, and the
-	 * result will not be immediately available. You should usually
-	 * use the boolean value which you passed to the Resolver
-	 * constructor, which Resolver will set appropriately depending
-	 * on if cached results are available and haven't expired. It is
-	 * however safe to force this value to false, forcing a remote DNS
-	 * lookup, but not an update of the cache.
-	 * @return True if the operation completed successfully. Note that
-	 * if this method returns true, you should not attempt to access
-	 * the resolver class you pass it after this call, as depending upon
-	 * the request given, the object may be deleted!
-	 */
-	bool AddResolver(Resolver* r, bool cached);
+	caller1<bool, const std::string&> IsIdent;
 
 	/** Add a command to this server's command parser
 	 * @param f A Command command handler object to add
@@ -683,22 +651,6 @@ class CoreExport InspIRCd
 	 */
 	static bool MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map = NULL);
 	static bool MatchCIDR(const  char *str, const char *mask, unsigned const char *map = NULL);
-
-	/** Call the handler for a given command.
-	 * @param commandname The command whos handler you wish to call
-	 * @param parameters The mode parameters
-	 * @param user The user to execute the command as
-	 * @return True if the command handler was called successfully
-	 */
-	CmdResult CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user);
-
-	/** Return true if the command is a module-implemented command and the given parameters are valid for it
-	 * @param commandname The command name to check
-	 * @param pcnt The parameter count
-	 * @param user The user to test-execute the command as
-	 * @return True if the command handler is a module command, and there are enough parameters and the user has permission to the command
-	 */
-	bool IsValidModuleCommand(const std::string &commandname, int pcnt, User* user);
 
 	/** Return true if the given parameter is a valid nick!user\@host mask
 	 * @param mask A nick!user\@host masak to match against
@@ -746,7 +698,7 @@ class CoreExport InspIRCd
 	 * (one year, two weeks, three days, four hours, six minutes and five seconds)
 	 * @return The total number of seconds
 	 */
-	long Duration(const std::string &str);
+	static unsigned long Duration(const std::string& str);
 
 	/** Attempt to compare a password to a string from the config file.
 	 * This will be passed to handling modules which will compare the data
@@ -808,16 +760,6 @@ class CoreExport InspIRCd
 	 */
 	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
 
-	/** Handle /WHOIS
-	 */
-	void DoWhois(User* user, User* dest,unsigned long signon, unsigned long idle, const char* nick);
-
-	/** Quit a user for excess flood, and if they are not
-	 * fully registered yet, temporarily zline their IP.
-	 * @param current user to quit
-	 */
-	caller1<void, User*> FloodQuitUser;
-
 	/** Called to check whether a channel restriction mode applies to a user
 	 * @param User that is attempting some action
 	 * @param Channel that the action is being performed on
@@ -839,17 +781,6 @@ class CoreExport InspIRCd
 	 */
 	void Cleanup();
 
-	/** This copies the user and channel hash_maps into new hash maps.
-	 * This frees memory used by the hash_map allocator (which it neglects
-	 * to free, most of the time, using tons of ram)
-	 */
-	void RehashUsersAndChans();
-
-	/** Resets the cached max bans value on all channels.
-	 * Called by rehash.
-	 */
-	void ResetMaxBans();
-
 	/** Return a time_t as a human-readable string.
 	 */
 	std::string TimeString(time_t curtime);
@@ -861,16 +792,10 @@ class CoreExport InspIRCd
 	 */
 	int Run();
 
-	/** Adds an extban char to the 005 token.
-	 */
-	void AddExtBanChar(char c);
-
 	char* GetReadBuffer()
 	{
 		return this->ReadBuffer;
 	}
-
-	friend class TestSuite;
 };
 
 ENTRYPOINT;
@@ -894,5 +819,3 @@ class CommandModule : public Module
 		return Version(cmd.name, VF_VENDOR|VF_CORE);
 	}
 };
-
-#endif

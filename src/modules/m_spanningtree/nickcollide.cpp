@@ -19,13 +19,11 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
 
 #include "treesocket.h"
-#include "treeserver.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
+/* $ModDep: m_spanningtree/utils.h m_spanningtree/treesocket.h */
 
 
 /*

@@ -27,7 +27,7 @@
 #ifdef HAS_STDINT
 #include <stdint.h>
 #endif
-#include "hash.h"
+#include "modules/hash.h"
 
 /* The four core functions - F1 is optimized somewhat */
 #define F1(x, y, z) (z ^ (x & (y ^ z)))
@@ -273,13 +273,6 @@ class MD5Provider : public HashProvider
 		char res[16];
 		MyMD5(res, (void*)data.data(), data.length(), NULL);
 		return std::string(res, 16);
-	}
-
-	std::string sumIV(unsigned int* IV, const char* HexMap, const std::string &sdata)
-	{
-		char res[33];
-		GenHash(sdata.data(), res, HexMap, IV, sdata.length());
-		return res;
 	}
 
 	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5", 16, 64) {}

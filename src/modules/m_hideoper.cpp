@@ -50,11 +50,6 @@ class ModuleHideOper : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-
-	virtual ~ModuleHideOper()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
@@ -91,6 +86,5 @@ class ModuleHideOper : public Module
 		}
 	}
 };
-
 
 MODULE_INIT(ModuleHideOper)

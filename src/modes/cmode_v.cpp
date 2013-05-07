@@ -26,7 +26,7 @@
 #include "channels.h"
 #include "users.h"
 #include "modules.h"
-#include "modes/cmode_v.h"
+#include "builtinmodes.h"
 
 ModeChannelVoice::ModeChannelVoice() : ModeHandler(NULL, "voice", 'v', PARAM_ALWAYS, MODETYPE_CHANNEL)
 {

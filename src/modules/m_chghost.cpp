@@ -27,7 +27,6 @@
  */
 class CommandChghost : public Command
 {
- private:
 	char* hostmap;
  public:
 	CommandChghost(Module* Creator, char* hmap) : Command(Creator,"CHGHOST", 2), hostmap(hmap)
@@ -91,6 +90,7 @@ class ModuleChgHost : public Module
 {
 	CommandChghost cmd;
 	char hostmap[256];
+
  public:
 	ModuleChgHost() : cmd(this, hostmap)
 	{
@@ -113,15 +113,10 @@ class ModuleChgHost : public Module
 			hostmap[(unsigned char)*n] = 1;
 	}
 
-	~ModuleChgHost()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides support for the CHGHOST command", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleChgHost)

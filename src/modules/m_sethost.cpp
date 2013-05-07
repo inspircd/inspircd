@@ -27,8 +27,8 @@
  */
 class CommandSethost : public Command
 {
- private:
 	char* hostmap;
+
  public:
 	CommandSethost(Module* Creator, char* hmap) : Command(Creator,"SETHOST", 1), hostmap(hmap)
 	{
@@ -70,6 +70,7 @@ class ModuleSetHost : public Module
 {
 	CommandSethost cmd;
 	char hostmap[256];
+
  public:
 	ModuleSetHost()
 		: cmd(this, hostmap)
@@ -93,15 +94,10 @@ class ModuleSetHost : public Module
 			hostmap[(unsigned char)*n] = 1;
 	}
 
-	virtual ~ModuleSetHost()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for the SETHOST command", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSetHost)

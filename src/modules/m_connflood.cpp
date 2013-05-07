@@ -25,7 +25,6 @@
 
 class ModuleConnFlood : public Module
 {
-private:
 	int seconds, timeout, boot_wait;
 	unsigned int conns;
 	unsigned int maxconns;

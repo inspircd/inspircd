@@ -27,7 +27,6 @@
 
 class DelayJoinMode : public ModeHandler
 {
- private:
 	CUList empty;
  public:
 	DelayJoinMode(Module* Parent) : ModeHandler(Parent, "delayjoin", 'D', PARAM_NONE, MODETYPE_CHANNEL)
@@ -54,7 +53,6 @@ class ModuleDelayJoin : public Module
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText, I_OnRawMode };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
-	~ModuleDelayJoin();
 	Version GetVersion();
 	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick);
 	void OnUserJoin(Membership*, bool, bool, CUList&);
@@ -84,10 +82,6 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 	}
 	channel->SetMode('D', adding);
 	return MODEACTION_ALLOW;
-}
-
-ModuleDelayJoin::~ModuleDelayJoin()
-{
 }
 
 Version ModuleDelayJoin::GetVersion()

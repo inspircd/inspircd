@@ -97,6 +97,11 @@ Removes a user from a channel you specify. You must be at least a
 channel halfoperator to remove a user. A removed user will part with
 a message stating they were removed from the channel and by whom.">
 
+<helpop key="rmode" value="/RMODE [channel] [modeletter] {[pattern]}
+
+Removes listmodes from a channel.
+E.g. /RMODE #Chan b m:* will remove all mute extbans.">
+
 <helpop key="fpart" value="/FPART [channel] [nick] {[reason]}
 
 This behaves identically to /REMOVE, the only difference is that that
@@ -804,15 +809,15 @@ Closes all unregistered connections to the local server.">
 
  v [nickname]       Gives voice to [nickname], allowing them to speak
                     while the channel is +m.
- h [nickname]       Gives halfop status to [nickname] (this mode can
-                    be disabled).
+ h [nickname]       Gives halfop status to [nickname] (requires
+                    customprefix module).
  o [nickname]       Gives op status to [nickname].
  a [nickname]       Gives protected status to [nickname], preventing
                     them from them from being kicked (+q only,
-                    requires chanprotect module).
+                    requires customprefix module).
  q [nickname]       Gives owner status to [nickname], preventing them
                     from being kicked (Services or only, requires
-                    chanprotect module).
+                    customprefix module).
 
  b [hostmask]       Bans [hostmask] from the channel.
  e [hostmask]       Excepts [hostmask] from bans (requires

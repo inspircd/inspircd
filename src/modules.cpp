@@ -29,7 +29,6 @@
 #include "socket.h"
 #include "socketengine.h"
 #include "command_parse.h"
-#include "dns.h"
 #include "exitcodes.h"
 
 #ifndef _WIN32
@@ -37,13 +36,15 @@
 #endif
 
 static std::vector<dynamic_reference_base*>* dynrefs = NULL;
+static bool dynref_init_complete = false;
 
 void dynamic_reference_base::reset_all()
 {
+	dynref_init_complete = true;
 	if (!dynrefs)
 		return;
 	for(unsigned int i = 0; i < dynrefs->size(); i++)
-		(*dynrefs)[i]->ClearCache();
+		(*dynrefs)[i]->resolve();
 }
 
 // Version is a simple class for holding a modules version number
@@ -95,7 +96,7 @@ void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
 void		Module::OnPreRehash(User*, const std::string&) { }
 void		Module::OnModuleRehash(User*, const std::string&) { }
 void		Module::OnRehash(User*) { }
-ModResult	Module::OnUserPreJoin(User*, Channel*, const char*, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, void*, int, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
 void		Module::OnOper(User*, const std::string&) { }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
@@ -107,7 +108,7 @@ ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&
 ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { }
 ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
-void		Module::On005Numeric(std::string&) { }
+void		Module::On005Numeric(std::map<std::string, std::string>&) { }
 ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnLoadModule(Module*) { }
 void		Module::OnUnloadModule(Module*) { }
@@ -135,8 +136,6 @@ void		Module::OnRequest(Request&) { }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
 void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
-ModResult	Module::OnAddBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnDelBan(User*, Channel*, const std::string &) { return MOD_RES_PASSTHRU; }
 void		Module::OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
 int		Module::OnStreamSocketWrite(StreamSocket*, std::string&) { return -1; }
 void		Module::OnStreamSocketClose(StreamSocket*) { }
@@ -331,13 +330,13 @@ bool ModuleManager::CanUnload(Module* mod)
 	if ((modfind == Modules.end()) || (modfind->second != mod) || (mod->dying))
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " is not loaded, cannot unload it!";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 	if (mod->GetVersion().Flags & VF_STATIC)
 	{
 		LastModuleError = "Module " + mod->ModuleSourceFile + " not unloadable (marked static)";
-		ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 		return false;
 	}
 
@@ -347,6 +346,11 @@ bool ModuleManager::CanUnload(Module* mod)
 
 void ModuleManager::DoSafeUnload(Module* mod)
 {
+	// First, notify all modules that a module is about to be unloaded, so in case
+	// they pass execution to the soon to be unloaded module, it will happen now,
+	// i.e. before we unregister the services of the module being unloaded
+	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
+
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 
 	std::vector<reference<ExtensionItem> > items;
@@ -370,10 +374,10 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		ModeHandler* mh;
 		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
 		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
+			this->DelService(*mh);
 		mh = ServerInstance->Modes->FindMode(m, MODETYPE_CHANNEL);
 		if (mh && mh->creator == mod)
-			ServerInstance->Modes->DelMode(mh);
+			this->DelService(*mh);
 	}
 	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
@@ -384,19 +388,14 @@ void ModuleManager::DoSafeUnload(Module* mod)
 
 	dynamic_reference_base::reset_all();
 
-	/* Tidy up any dangling resolvers */
-	ServerInstance->Res->CleanResolvers(mod);
-
-	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
-
 	DetachAll(mod);
 
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs->Log("MODULE", DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
+	ServerInstance->Logs->Log("MODULE", LOG_DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
 	this->ModCount--;
-	ServerInstance->BuildISupport();
+	ServerInstance->ISupport.Build();
 }
 
 void ModuleManager::UnloadAll()
@@ -427,16 +426,6 @@ std::string& ModuleManager::LastError()
 	return LastModuleError;
 }
 
-CmdResult InspIRCd::CallCommandHandler(const std::string &commandname, const std::vector<std::string>& parameters, User* user)
-{
-	return this->Parser->CallHandler(commandname, parameters, user);
-}
-
-bool InspIRCd::IsValidModuleCommand(const std::string &commandname, int pcnt, User* user)
-{
-	return this->Parser->IsValidCommand(commandname, pcnt, user);
-}
-
 void ModuleManager::AddService(ServiceProvider& item)
 {
 	switch (item.service)
@@ -448,6 +437,8 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
+			DataProviders.insert(std::make_pair("mode/" + item.name, &item));
+			dynamic_reference_base::reset_all();
 			return;
 		case SERVICE_METADATA:
 			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
@@ -456,6 +447,9 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
+			if (item.name.substr(0, 5) == "mode/")
+				throw ModuleException("The \"mode/\" service name prefix is reserved.");
+
 			DataProviders.insert(std::make_pair(item.name, &item));
 			std::string::size_type slash = item.name.find('/');
 			if (slash != std::string::npos)
@@ -463,6 +457,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 				DataProviders.insert(std::make_pair(item.name.substr(0, slash), &item));
 				DataProviders.insert(std::make_pair(item.name.substr(slash + 1), &item));
 			}
+			dynamic_reference_base::reset_all();
 			return;
 		}
 		default:
@@ -477,7 +472,7 @@ void ModuleManager::DelService(ServiceProvider& item)
 		case SERVICE_MODE:
 			if (!ServerInstance->Modes->DelMode(static_cast<ModeHandler*>(&item)))
 				throw ModuleException("Mode "+std::string(item.name)+" does not exist.");
-			return;
+			// Fall through
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
@@ -519,6 +514,8 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 	if (!dynrefs)
 		dynrefs = new std::vector<dynamic_reference_base*>;
 	dynrefs->push_back(this);
+	if (dynref_init_complete)
+		resolve();
 }
 
 dynamic_reference_base::~dynamic_reference_base()
@@ -544,24 +541,16 @@ dynamic_reference_base::~dynamic_reference_base()
 void dynamic_reference_base::SetProvider(const std::string& newname)
 {
 	name = newname;
-	ClearCache();
+	resolve();
 }
 
-void dynamic_reference_base::lookup()
+void dynamic_reference_base::resolve()
 {
-	if (!*this)
-		throw ModuleException("Dynamic reference to '" + name + "' failed to resolve");
-}
-
-dynamic_reference_base::operator bool()
-{
-	if (!value)
-	{
-		std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
-		if (i != ServerInstance->Modules->DataProviders.end())
-			value = static_cast<DataProvider*>(i->second);
-	}
-	return (value != NULL);
+	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
+	if (i != ServerInstance->Modules->DataProviders.end())
+		value = static_cast<DataProvider*>(i->second);
+	else
+		value = NULL;
 }
 
 void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
@@ -575,18 +564,6 @@ void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *
 	Modes->Process(parameters, user);
 	if (!Modes->GetLastParse().empty())
 		this->PI->SendMode(parameters[0], Modes->GetLastParseParams(), Modes->GetLastParseTranslate());
-}
-
-bool InspIRCd::AddResolver(Resolver* r, bool cached)
-{
-	if (!cached)
-		return this->Res->AddResolverClass(r);
-	else
-	{
-		r->TriggerCachedResult();
-		delete r;
-		return true;
-	}
 }
 
 Module* ModuleManager::Find(const std::string &name)
@@ -606,93 +583,6 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 		if (!filter || (x->second->GetVersion().Flags & filter))
 			retval.push_back(x->first);
 	return retval;
-}
-
-ConfigReader::ConfigReader()
-{
-	this->error = 0;
-	ServerInstance->Logs->Log("MODULE", DEBUG, "ConfigReader is deprecated in 2.0; "
-		"use ServerInstance->Config->ConfValue(\"key\") or ->ConfTags(\"key\") instead");
-}
-
-
-ConfigReader::~ConfigReader()
-{
-}
-
-static ConfigTag* SlowGetTag(const std::string &tag, int index)
-{
-	ConfigTagList tags = ServerInstance->Config->ConfTags(tag);
-	while (tags.first != tags.second)
-	{
-		if (!index)
-			return tags.first->second;
-		tags.first++;
-		index--;
-	}
-	return NULL;
-}
-
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool allow_linefeeds)
-{
-	std::string result = default_value;
-	if (!SlowGetTag(tag, index)->readString(name, result, allow_linefeeds))
-	{
-		this->error = CONF_VALUE_NOT_FOUND;
-	}
-	return result;
-}
-
-std::string ConfigReader::ReadValue(const std::string &tag, const std::string &name, int index, bool allow_linefeeds)
-{
-	return ReadValue(tag, name, "", index, allow_linefeeds);
-}
-
-bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, const std::string &default_value, int index)
-{
-	bool def = (default_value == "yes");
-	return SlowGetTag(tag, index)->getBool(name, def);
-}
-
-bool ConfigReader::ReadFlag(const std::string &tag, const std::string &name, int index)
-{
-	return ReadFlag(tag, name, "", index);
-}
-
-
-int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, const std::string &default_value, int index, bool need_positive)
-{
-	int v = atoi(default_value.c_str());
-	int result = SlowGetTag(tag, index)->getInt(name, v);
-
-	if ((need_positive) && (result < 0))
-	{
-		this->error = CONF_INT_NEGATIVE;
-		return 0;
-	}
-
-	return result;
-}
-
-int ConfigReader::ReadInteger(const std::string &tag, const std::string &name, int index, bool need_positive)
-{
-	return ReadInteger(tag, name, "", index, need_positive);
-}
-
-long ConfigReader::GetError()
-{
-	long olderr = this->error;
-	this->error = 0;
-	return olderr;
-}
-
-int ConfigReader::Enumerate(const std::string &tag)
-{
-	ServerInstance->Logs->Log("MODULE", DEBUG, "Module is using ConfigReader::Enumerate on %s; this is slow!",
-		tag.c_str());
-	int i=0;
-	while (SlowGetTag(tag, i)) i++;
-	return i;
 }
 
 FileReader::FileReader(const std::string &filename)

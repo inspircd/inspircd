@@ -23,16 +23,11 @@
 
 class ModuleServerBan : public Module
 {
- private:
  public:
 	void init()
 	{
 		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleServerBan()
-	{
 	}
 
 	Version GetVersion()
@@ -50,12 +45,10 @@ class ModuleServerBan : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('s');
+		tokens["EXTBAN"].push_back('s');
 	}
 };
 
-
 MODULE_INIT(ModuleServerBan)
-

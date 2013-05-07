@@ -21,17 +21,13 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
 #include "main.h"
-#include "../spanningtree.h"
+#include "modules/spanningtree.h"
 #include "utils.h"
 #include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
-#include "resolvers.h"
 
 /** Because most of the I/O gubbins are encapsulated within
  * BufferedSocket, we just call the superclass constructor for
@@ -158,7 +154,7 @@ void TreeSocket::SendError(const std::string &errormessage)
 void TreeSocket::SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users)
 {
 	std::string servername = Current->GetName();
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"SquitServer for %s from %s",
+	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"SquitServer for %s from %s",
 		servername.c_str(), from.c_str());
 	/* recursively squit the servers attached to 'Current'.
 	 * We're going backwards so we don't remove users
@@ -189,9 +185,9 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		if (!Current->GetSocket() || Current->GetSocket()->Introduced())
 		{
 			parameterlist params;
-			params.push_back(Current->GetName());
+			params.push_back(Current->GetID());
 			params.push_back(":"+reason);
-			Utils->DoOneToAllButSender(Current->GetParent()->GetName(),"SQUIT",params,Current->GetName());
+			Utils->DoOneToAllButSender(Current->GetParent()->GetID(),"SQUIT",params,Current->GetName());
 		}
 
 		if (Current->GetParent() == Utils->TreeRoot)
@@ -220,7 +216,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		}
 	}
 	else
-		ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Squit from unknown server");
+		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Squit from unknown server");
 }
 
 /** This function is called when we receive data from a remote

@@ -22,12 +22,10 @@
  */
 
 
-#ifndef USERS_H
-#define USERS_H
+#pragma once
 
 #include "socket.h"
 #include "inspsocket.h"
-#include "dns.h"
 #include "mode.h"
 #include "membership.h"
 
@@ -145,6 +143,10 @@ struct CoreExport ConnectClass : public refcountbase
 	 * (0 = no limit = default)
 	 */
 	unsigned long limit;
+
+	/** If set to true, no user DNS lookups are to be performed
+	 */
+	bool nouserdns;
 
 	/** Create a new connect class with no settings.
 	 */
@@ -267,10 +269,6 @@ class CoreExport User : public Extensible
 	 */
 	time_t signon;
 
-	/** Time that the connection last sent a message, used to calculate idle time
-	 */
-	time_t idle_lastmsg;
-
 	/** Client address that the user is connected from.
 	 * Do not modify this value directly, use SetClientIP() to change it.
 	 * Port is not valid for remote users.
@@ -333,7 +331,7 @@ class CoreExport User : public Extensible
 	std::string awaymsg;
 
 	/** Time the user last went away.
-	 * This is ONLY RELIABLE if user IS_AWAY()!
+	 * This is ONLY RELIABLE if user IsAway()!
 	 */
 	time_t awaytime;
 
@@ -347,12 +345,6 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int registered:3;
 
-	/** True when DNS lookups are completed.
-	 * The UserResolver classes res_forward and res_reverse will
-	 * set this value once they complete.
-	 */
-	unsigned int dns_done:1;
-
 	/** Whether or not to send an snotice about this user's quitting
 	 */
 	unsigned int quietquit:1;
@@ -364,27 +356,13 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int quitting:1;
 
-	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
-	 * This can't be handled normally because QuitUser itself calls Write on other
-	 * users, which could trigger their SendQ to overrun.
-	 */
-	unsigned int quitting_sendq:1;
-
-	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
-	 */
-	unsigned int exempt:1;
-
-	/** has the user responded to their previous ping?
-	 */
-	unsigned int lastping:1;
-
 	/** What type of user is this? */
 	const unsigned int usertype:2;
 
 	/** Get client IP string from sockaddr, using static internal buffer
 	 * @return The IP string
 	 */
-	const char* GetIPString();
+	const std::string& GetIPString();
 
 	/** Get CIDR mask, using default range, for this user
 	 */
@@ -401,12 +379,6 @@ class CoreExport User : public Extensible
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
 	User(const std::string &uid, const std::string& srv, int objtype);
-
-	/** Check if the user matches a G or K line, and disconnect them if they do.
-	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
-	 * Returns true if the user matched a ban, false else.
-	 */
-	bool CheckLines(bool doZline = false);
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -440,6 +412,18 @@ class CoreExport User : public Extensible
 	 * valid, this function will return +ab-d
 	 */
 	std::string ProcessNoticeMasks(const char *sm);
+
+	/** Returns whether this user is currently away or not. If true,
+	 * further information can be found in User::awaymsg and User::awaytime
+	 * @return True if the user is away, false otherwise
+	 */
+	bool IsAway() const { return (!awaymsg.empty()); }
+
+	/** Returns whether this user is an oper or not. If true,
+	 * oper information can be obtained from User::oper
+	 * @return True if the user is an oper, false otherwise
+	 */
+	bool IsOper() const { return oper; }
 
 	/** Returns true if a notice mask is set
 	 * @param sm A notice mask character to check
@@ -514,10 +498,6 @@ class CoreExport User : public Extensible
 	 * @return the usermask in the format user\@ip
 	 */
 	const std::string& MakeHostIP();
-
-	/** Add the user to WHOWAS system
-	 */
-	void AddToWhoWas();
 
 	/** Oper up the user using the given opertype.
 	 * This will also give the +o usermode.
@@ -691,20 +671,6 @@ class CoreExport User : public Extensible
 	 */
 	void SendAll(const char* command, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Compile a channel list for this user.  Used internally by WHOIS
-	 * @param source The user to prepare the channel list for
-	 * @param spy Whether to return the spy channel list rather than the normal one
-	 * @return This user's channel list
-	 */
-	std::string ChannelList(User* source, bool spy);
-
-	/** Split the channel list in cl which came from dest, and spool it to this user
-	 * Used internally by WHOIS
-	 * @param dest The user the original channel list came from
-	 * @param cl The  channel list as a string obtained from User::ChannelList()
-	 */
-	void SplitChanList(User* dest, const std::string &cl);
-
 	/** Remove this user from all channels they are on, and delete any that are now empty.
 	 * This is used by QUIT, and will not send part messages!
 	 */
@@ -792,9 +758,27 @@ class CoreExport LocalUser : public User, public InviteBase
 	 */
 	int GetServerPort();
 
+	/** Recursion fix: user is out of SendQ and will be quit as soon as possible.
+	 * This can't be handled normally because QuitUser itself calls Write on other
+	 * users, which could trigger their SendQ to overrun.
+	 */
+	unsigned int quitting_sendq:1;
+
+	/** has the user responded to their previous ping?
+	 */
+	unsigned int lastping:1;
+
+	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
+	 */
+	unsigned int exempt:1;
+
 	/** Used by PING checking code
 	 */
 	time_t nping;
+
+	/** Time that the connection last sent a message, used to calculate idle time
+	 */
+	time_t idle_lastmsg;
 
 	/** This value contains how far into the penalty threshold the user is.
 	 * This is used either to enable fake lag or for excess flood quits
@@ -804,15 +788,11 @@ class CoreExport LocalUser : public User, public InviteBase
 	static already_sent_t already_sent_id;
 	already_sent_t already_sent;
 
-	/** Stored reverse lookup from res_forward. Should not be used after resolution.
+	/** Check if the user matches a G or K line, and disconnect them if they do.
+	 * @param doZline True if ZLines should be checked (if IP has changed since initial connect)
+	 * Returns true if the user matched a ban, false else.
 	 */
-	std::string stored_host;
-
-	/** Starts a DNS lookup of the user's IP.
-	 * This will cause two UserResolver classes to be instantiated.
-	 * When complete, these objects set User::dns_done to true.
-	 */
-	void StartDNSLookup();
+	bool CheckLines(bool doZline = false);
 
 	/** Use this method to fully connect a user.
 	 * This will send the message of the day, check G/K/E lines, etc.
@@ -839,23 +819,18 @@ class CoreExport LocalUser : public User, public InviteBase
 	InviteList& GetInviteList();
 
 	/** Returns true if a user is invited to a channel.
-	 * @param channel A channel name to look up
+	 * @param channel A channel to look up
 	 * @return True if the user is invited to the given channel
 	 */
-	bool IsInvited(const irc::string &channel);
-
-	/** Adds a channel to a users invite list (invites them to a channel)
-	 * @param channel A channel name to add
-	 * @param timeout When the invite should expire (0 == never)
-	 */
-	void InviteTo(const irc::string &channel, time_t timeout);
+	bool IsInvited(Channel* chan) { return (Invitation::Find(chan, this) != NULL); }
 
 	/** Removes a channel from a users invite list.
 	 * This member function is called on successfully joining an invite only channel
 	 * to which the user has previously been invited, to clear the invitation.
 	 * @param channel The channel to remove the invite to
+	 * @return True if the user was invited to the channel and the invite was erased, false if the user wasn't invited
 	 */
-	void RemoveInvite(const irc::string &channel);
+	bool RemoveInvite(Channel* chan);
 
 	void RemoveExpiredInvites();
 
@@ -926,42 +901,4 @@ inline FakeUser* IS_SERVER(User* u)
 {
 	return u->usertype == USERTYPE_SERVER ? static_cast<FakeUser*>(u) : NULL;
 }
-/** Is an oper */
-#define IS_OPER(x) (x->oper)
-/** Is away */
-#define IS_AWAY(x) (!x->awaymsg.empty())
 
-/** Derived from Resolver, and performs user forward/reverse lookups.
- */
-class CoreExport UserResolver : public Resolver
-{
- private:
-	/** UUID we are looking up */
-	std::string uuid;
-	/** True if the lookup is forward, false if is a reverse lookup
-	 */
-	bool fwd;
- public:
-	/** Create a resolver.
-	 * @param user The user to begin lookup on
-	 * @param to_resolve The IP or host to resolve
-	 * @param qt The query type
-	 * @param cache Modified by the constructor if the result was cached
-	 */
-	UserResolver(LocalUser* user, std::string to_resolve, QueryType qt, bool &cache);
-
-	/** Called on successful lookup
-	 * @param result Result string
-	 * @param ttl Time to live for result
-	 * @param cached True if the result was found in the cache
-	 */
-	void OnLookupComplete(const std::string &result, unsigned int ttl, bool cached);
-
-	/** Called on failed lookup
-	 * @param e Error code
-	 * @param errormessage Error message string
-	 */
-	void OnError(ResolverError e, const std::string &errormessage);
-};
-
-#endif

@@ -418,32 +418,6 @@
 #<module name="m_channelban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Chanprotect module: gives +q and +a channel modes
-#<module name="m_chanprotect.so">
-
-<chanprotect
-	# noservices: With this set to yes, when a user joins a empty channel,
-	# the server will set +q on them. If set to no, it will only set +o
-	# on them until they register the channel.
-	noservices="no"
-
-	# qprefix: Prefix (symbol) to use for +q users.
-	qprefix="~"
-
-	# aprefix: Prefix (symbol) to use for +a users.
-	aprefix="&amp;"
-
-	# deprotectself: If this value is set (true, yes or 1), it will allow
-	# +a and +q users to remove the +a and +q from themselves, otherwise,
-	# the status will have to be removed by services.
-	deprotectself="yes"
-
-	# deprotectothers: If this value is set to yes, true, or 1, then any
-	# user with +q or +a may remove the +q or +a from other users.
-	deprotectothers="yes">
-
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Check module: gives /check
 # Check is useful for looking up information on channels,
 # users, IP addresses and hosts.
@@ -494,7 +468,7 @@
 # cloak prefix as shown below. The cloak key must be shared across    #
 # the network for correct cloaking.                                   #
 #                                                                     #
-# There are four methods of cloaking:                                 #
+# There are two methods of cloaking:                                  #
 #                                                                     #
 #   half           Cloak only the "unique" portion of a host; show    #
 #                  the last 2 parts of the domain, /16 subnet of IPv4 #
@@ -503,19 +477,8 @@
 #   full           Cloak the users completely, using three slices for #
 #                  common CIDR bans (IPv4: /16, /24; IPv6: /48, /64)  #
 #                                                                     #
-# These methods use a single key that can be any length of text.      #
+# The methods use a single key that can be any length of text.        #
 # An optional prefix may be specified to mark cloaked hosts.          #
-#                                                                     #
-# The following methods are maintained for backwards compatibility;   #
-# they are slightly less secure, and always hide unresolved IPs       #
-#                                                                     #
-#   compat-host    InspIRCd 1.2-compatible host-based cloaking        #
-#   compat-ip      InspIRCd 1.2-compatible ip-always cloaking         #
-#                                                                     #
-# If you use a compat cloaking mode then you must specify key1, key2, #
-# key3, key4; the values must be less than 0x80000000 and should be   #
-# picked at random. Prefix is mandatory, will default to network name #
-# if not specified, and will always have a "-" appended.              #
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<cloak mode="half"
@@ -618,9 +581,7 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Custom prefixes: allows for channel prefixes to be added. 
-# This can replace m_chanprotect and m_halfop, except for services that
-# recognise those modules by name
+# Custom prefixes: allows for channel prefixes to be added.
 #<module name="m_customprefix.so">
 #
 # name       The name of the mode, must be unique from other modes
@@ -631,7 +592,7 @@
 # ranktoset  The numeric rank required to set/unset this mode. Defaults to rank.
 # depriv     Can you remove the mode from yourself? Defaults to yes.
 #<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
-#<customprefix name="admin" letter="a" prefix="&" rank="40000" ranktoset="50000">
+#<customprefix name="admin" letter="a" prefix="&amp;" rank="40000" ranktoset="50000">
 #<customprefix name="halfop" letter="h" prefix="%" rank="20000" ranktoset="30000">
 #<customprefix name="halfvoice" letter="V" prefix="-" rank="1" ranktoset="20000">
 
@@ -813,10 +774,6 @@
 #<module name="m_globalload.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Halfop module: Provides the +h (halfops) channel status mode.
-#<module name="m_halfop.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # HELPOP module: Provides the /HELPOP command
 #<module name="m_helpop.so">
 #
@@ -954,8 +911,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
 #<module name="m_kicknorejoin.so">
-# Set the maximum time that is accepted as a parameter for +J here.
-#<kicknorejoin maxtime="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Knock module: adds the /KNOCK command and +K channel mode
@@ -1506,6 +1461,13 @@
 # and are the only way to specify where the space can occur if you do
 # use glob. For this reason, is recommended to use a real regex engine
 # so that at least \s or [[:space:]] is available.
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# RMODE module: Adds the /RMODE command
+# Allows channel mods to remove list modes en masse.
+# Syntax: /rmode <channel> <mode> [pattern]
+# E.g. '/rmode #Channel b m:*' will remove all mute-extbans on the channel.
+#<module name="m_rmode.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SAJOIN module: Adds the /SAJOIN command

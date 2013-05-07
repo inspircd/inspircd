@@ -43,9 +43,9 @@ class ModuleAllowInvite : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('A');
+		tokens["EXTBAN"].push_back('A');
 	}
 
 	virtual ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
@@ -67,10 +67,6 @@ class ModuleAllowInvite : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ~ModuleAllowInvite()
-	{
 	}
 
 	virtual Version GetVersion()

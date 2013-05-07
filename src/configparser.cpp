@@ -119,7 +119,7 @@ struct Parser
 		while (1)
 		{
 			ch = next();
-			if (ch == '&' && (flags & FLAG_USE_XML))
+			if (ch == '&' && !(flags & FLAG_USE_COMPAT))
 			{
 				std::string varname;
 				while (1)
@@ -141,7 +141,7 @@ struct Parser
 					throw CoreException("Undefined XML entity reference '&" + varname + ";'");
 				value.append(var->second);
 			}
-			else if (ch == '\\' && !(flags & FLAG_USE_XML))
+			else if (ch == '\\' && (flags & FLAG_USE_COMPAT))
 			{
 				int esc = next();
 				if (esc == 'n')
@@ -211,7 +211,7 @@ struct Parser
 		}
 		else if (name == "define")
 		{
-			if (!(flags & FLAG_USE_XML))
+			if (flags & FLAG_USE_COMPAT)
 				throw CoreException("<define> tags may only be used in XML-style config (add <config format=\"xml\">)");
 			std::string varname = tag->getString("name");
 			std::string value = tag->getString("value");
@@ -223,9 +223,9 @@ struct Parser
 		{
 			std::string format = tag->getString("format");
 			if (format == "xml")
-				flags |= FLAG_USE_XML;
+				flags &= ~FLAG_USE_COMPAT;
 			else if (format == "compat")
-				flags &= ~FLAG_USE_XML;
+				flags |= FLAG_USE_COMPAT;
 			else if (!format.empty())
 				throw CoreException("Unknown configuration format " + format);
 		}
@@ -342,7 +342,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 
 bool ParseStack::ParseFile(const std::string& name, int flags, const std::string& mandatory_tag)
 {
-	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading file %s", name.c_str());
+	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading file %s", name.c_str());
 	for (unsigned int t = 0; t < reading.size(); t++)
 	{
 		if (std::string(name) == reading[t])
@@ -366,7 +366,7 @@ bool ParseStack::ParseFile(const std::string& name, int flags, const std::string
 
 bool ParseStack::ParseExec(const std::string& name, int flags, const std::string& mandatory_tag)
 {
-	ServerInstance->Logs->Log("CONFIG", DEBUG, "Reading executable %s", name.c_str());
+	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading executable %s", name.c_str());
 	for (unsigned int t = 0; t < reading.size(); t++)
 	{
 		if (std::string(name) == reading[t])
@@ -399,7 +399,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = j->second;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+			ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 			for (std::string::iterator n = value.begin(); n != value.end(); n++)
 				if (*n == '\n')
@@ -462,7 +462,7 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	if (result == "no" || result == "false" || result == "0" || result == "off")
 		return false;
 
-	ServerInstance->Logs->Log("CONFIG",DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 		" is not valid, ignoring");
 	return def;
 }

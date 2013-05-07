@@ -19,13 +19,9 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
 
-#include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
 #include "commands.h"
 
 CommandRSQuit::CommandRSQuit (Module* Creator, SpanningTreeUtilities* Util)
@@ -43,13 +39,13 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 	server_target = Utils->FindServerMask(parameters[0]);
 	if (!server_target)
 	{
-		user->WriteServ("NOTICE %s :*** RSQUIT: Server \002%s\002 isn't connected to the network!", user->nick.c_str(), parameters[0].c_str());
+		((ModuleSpanningTree*)(Module*)creator)->RemoteMessage(user, "*** RSQUIT: Server \002%s\002 isn't connected to the network!", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
 	if (server_target == Utils->TreeRoot)
 	{
-		NoticeUser(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! ("+parameters[0]+" matches local server name)");
+		((ModuleSpanningTree*)(Module*)creator)->RemoteMessage(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
@@ -75,20 +71,3 @@ RouteDescriptor CommandRSQuit::GetRouting(User* user, const std::vector<std::str
 {
 	return ROUTE_UNICAST(parameters[0]);
 }
-
-// XXX use protocol interface instead of rolling our own :)
-void CommandRSQuit::NoticeUser(User* user, const std::string &msg)
-{
-	if (IS_LOCAL(user))
-	{
-		user->WriteServ("NOTICE %s :%s",user->nick.c_str(),msg.c_str());
-	}
-	else
-	{
-		parameterlist params;
-		params.push_back(user->nick);
-		params.push_back("NOTICE "+ConvToStr(user->nick)+" :"+msg);
-		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", params, user->server);
-	}
-}
-

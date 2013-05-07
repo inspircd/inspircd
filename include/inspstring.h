@@ -18,13 +18,11 @@
  */
 
 
-#ifndef INSPSTRING_H
-#define INSPSTRING_H
+#pragma once
 
-// This (inspircd_config) is needed as inspstring doesn't pull in the central header
-#include "inspircd_config.h"
+// This (config) is needed as inspstring doesn't pull in the central header
+#include "config.h"
 #include <cstring>
-//#include <cstddef>
 
 #ifndef HAS_STRLCPY
 /** strlcpy() implementation for systems that don't have it (linux) */
@@ -52,6 +50,3 @@ CoreExport std::string BinToHex(const std::string& data);
 CoreExport std::string BinToBase64(const std::string& data, const char* table = NULL, char pad = 0);
 /** Base64 decode */
 CoreExport std::string Base64ToBin(const std::string& data, const char* table = NULL);
-
-#endif
-

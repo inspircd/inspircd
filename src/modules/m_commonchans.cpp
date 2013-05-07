@@ -44,10 +44,6 @@ class ModulePrivacyMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModulePrivacyMode()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Adds user mode +c, which if set, users must be on a common channel with you to private message you", VF_VENDOR);
@@ -58,7 +54,7 @@ class ModulePrivacyMode : public Module
 		if (target_type == TYPE_USER)
 		{
 			User* t = (User*)dest;
-			if (!IS_OPER(user) && (t->IsModeSet('c')) && (!ServerInstance->ULine(user->server)) && !user->SharesChannelWith(t))
+			if (!user->IsOper() && (t->IsModeSet('c')) && (!ServerInstance->ULine(user->server)) && !user->SharesChannelWith(t))
 			{
 				user->WriteNumeric(ERR_CANTSENDTOUSER, "%s %s :You are not permitted to send private messages to this user (+c set)", user->nick.c_str(), t->nick.c_str());
 				return MOD_RES_DENY;
@@ -72,6 +68,5 @@ class ModulePrivacyMode : public Module
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 };
-
 
 MODULE_INIT(ModulePrivacyMode)

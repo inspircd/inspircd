@@ -24,30 +24,7 @@
 
 
 #include "inspircd.h"
-
-/* +s (secret) */
-/* +p (private) */
-/* +m (moderated) */
-/* +t (only (half) ops can change topic) */
-/* +n (no external messages) */
-/* +i (invite only) */
-/* +w (see wallops) */
-/* +i (invisible) */
-#include "modes/simplemodes.h"
-/* +b (bans) */
-#include "modes/cmode_b.h"
-/* +k (keyed channel) */
-#include "modes/cmode_k.h"
-/* +l (channel user limit) */
-#include "modes/cmode_l.h"
-/* +o (channel op) */
-#include "modes/cmode_o.h"
-/* +v (channel voice) */
-#include "modes/cmode_v.h"
-/* +o (operator) */
-#include "modes/umode_o.h"
-/* +s (server notice masks) */
-#include "modes/umode_s.h"
+#include "builtinmodes.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type)
 	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT),
@@ -238,7 +215,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 		{
 			/* Display user's current mode string */
 			user->WriteNumeric(RPL_UMODEIS, "%s :+%s",targetuser->nick.c_str(),targetuser->FormatModes());
-			if (IS_OPER(targetuser))
+			if ((targetuser->IsOper()))
 				user->WriteNumeric(RPL_SNOMASKIS, "%s +%s :Server notice mask", targetuser->nick.c_str(), targetuser->FormatNoticeMasks());
 			return;
 		}
@@ -319,7 +296,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 			return MODEACTION_DENY;
 	}
 
-	if (IS_LOCAL(user) && !IS_OPER(user))
+	if (IS_LOCAL(user) && !user->IsOper())
 	{
 		char* disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
 		if (disabled[modechar - 'A'])
@@ -333,7 +310,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	if (adding && IS_LOCAL(user) && mh->NeedsOper() && !user->HasModePermission(modechar, type))
 	{
 		/* It's an oper only mode, and they don't have access to it. */
-		if (IS_OPER(user))
+		if (user->IsOper())
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set %s mode %c",
 					user->nick.c_str(), user->oper->NameStr(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
@@ -956,27 +933,21 @@ struct builtin_modes
 	ModeUserOperator uo;
 	ModeUserServerNoticeMask us;
 
-	void init(ModeParser* modes)
+	void init()
 	{
-		modes->AddMode(&s);
-		modes->AddMode(&p);
-		modes->AddMode(&m);
-		modes->AddMode(&t);
-		modes->AddMode(&n);
-		modes->AddMode(&i);
-		modes->AddMode(&k);
-		modes->AddMode(&l);
-		modes->AddMode(&b);
-		modes->AddMode(&o);
-		modes->AddMode(&v);
-		modes->AddMode(&uw);
-		modes->AddMode(&ui);
-		modes->AddMode(&uo);
-		modes->AddMode(&us);
+		ServiceProvider* modes[] = { &s, &p, &m, &t, &n, &i, &k, &l, &b, &o, &v,
+									 &uw, &ui, &uo, &us };
+		ServerInstance->Modules->AddServices(modes, sizeof(modes)/sizeof(ServiceProvider*));
 	}
 };
 
 static builtin_modes static_modes;
+
+void ModeParser::InitBuiltinModes()
+{
+	static_modes.init();
+	static_modes.b.DoRehash();
+}
 
 ModeParser::ModeParser()
 {
@@ -988,8 +959,6 @@ ModeParser::ModeParser()
 
 	seq = 0;
 	memset(&sent, 0, sizeof(sent));
-
-	static_modes.init(this);
 }
 
 ModeParser::~ModeParser()

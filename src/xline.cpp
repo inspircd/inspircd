@@ -158,7 +158,7 @@ void XLineManager::CheckELines()
 
 	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
-		User* u = (User*)(*u2);
+		LocalUser* u = *u2;
 
 		/* This uses safe iteration to ensure that if a line expires here, it doenst trash the iterator */
 		LookupIter safei;
@@ -328,7 +328,7 @@ void ELine::Unset()
 	/* remove exempt from everyone and force recheck after deleting eline */
 	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
-		User* u = (User*)(*u2);
+		LocalUser* u = *u2;
 		u->exempt = false;
 	}
 
@@ -433,7 +433,7 @@ void XLineManager::ApplyLines()
 	LocalUserList::reverse_iterator u2 = ServerInstance->Users->local_users.rbegin();
 	while (u2 != ServerInstance->Users->local_users.rend())
 	{
-		User* u = *u2++;
+		LocalUser* u = *u2++;
 
 		// Don't ban people who are exempt.
 		if (u->exempt)
@@ -544,17 +544,15 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 
 	if (bancache)
 	{
-		ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
-		if (this->duration > 0)
-			ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason, this->duration);
-		else
-			ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason);
+		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
+		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason, this->duration);
 	}
 }
 
 bool KLine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
@@ -576,7 +574,8 @@ void KLine::Apply(User* u)
 
 bool GLine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
@@ -598,7 +597,8 @@ void GLine::Apply(User* u)
 
 bool ELine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::Match(u->ident, this->identmask, ascii_case_insensitive_map))
@@ -615,7 +615,8 @@ bool ELine::Matches(User *u)
 
 bool ZLine::Matches(User *u)
 {
-	if (u->exempt)
+	LocalUser* lu = IS_LOCAL(u);
+	if (lu && lu->exempt)
 		return false;
 
 	if (InspIRCd::MatchCIDR(u->GetIPString(), this->ipaddr))
@@ -681,40 +682,17 @@ void ELine::OnAdd()
 	/* When adding one eline, only check the one eline */
 	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
 	{
-		User* u = (User*)(*u2);
+		LocalUser* u = *u2;
 		if (this->Matches(u))
 			u->exempt = true;
 	}
 }
 
-void ELine::DisplayExpiry()
+void XLine::DisplayExpiry()
 {
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired E-Line %s@%s (set by %s %ld seconds ago)",
-		identmask.c_str(),hostmask.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void QLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Q-Line %s (set by %s %ld seconds ago)",
-		nick.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void ZLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired Z-Line %s (set by %s %ld seconds ago)",
-		ipaddr.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void KLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired K-Line %s@%s (set by %s %ld seconds ago)",
-		identmask.c_str(),hostmask.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
-}
-
-void GLine::DisplayExpiry()
-{
-	ServerInstance->SNO->WriteToSnoMask('x',"Removing expired G-Line %s@%s (set by %s %ld seconds ago)",
-		identmask.c_str(),hostmask.c_str(),source.c_str(),(long)(ServerInstance->Time() - this->set_time));
+	bool onechar = (type.length() == 1);
+	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago)",
+		type.c_str(), (onechar ? "-Line" : ""), Displayable(), source.c_str(), (long)(ServerInstance->Time() - set_time));
 }
 
 const char* ELine::Displayable()

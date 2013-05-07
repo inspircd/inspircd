@@ -21,10 +21,9 @@
  */
 
 
-#include "base.h"
+#pragma once
 
-#ifndef HTTPD_H
-#define HTTPD_H
+#include "base.h"
 
 #include <string>
 #include <sstream>
@@ -202,6 +201,3 @@ class HTTPDocumentResponse : public Request
 	{
 	}
 };
-
-#endif
-

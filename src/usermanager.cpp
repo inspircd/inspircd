@@ -37,7 +37,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	}
 	catch (...)
 	{
-		ServerInstance->Logs->Log("USERS", DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkeys have been unleashed.");
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkeys have been unleashed.");
 		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
@@ -54,11 +54,11 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 		catch (CoreException& modexcept)
 		{
-			ServerInstance->Logs->Log("SOCKET", DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 	}
 
-	ServerInstance->Logs->Log("USERS", DEBUG,"New user fd: %d", socket);
+	ServerInstance->Logs->Log("USERS", LOG_DEBUG,"New user fd: %d", socket);
 
 	this->unregistered_count++;
 
@@ -108,7 +108,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		if (!b->Type.empty() && !New->exempt)
 		{
 			/* user banned */
-			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Positive hit for ") + New->GetIPString());
+			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Positive hit for " + New->GetIPString());
 			if (!ServerInstance->Config->MoronBanner.empty())
 				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), ServerInstance->Config->MoronBanner.c_str());
 			this->QuitUser(New, b->Reason);
@@ -116,7 +116,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 		else
 		{
-			ServerInstance->Logs->Log("BANCACHE", DEBUG, std::string("BanCache: Negative hit for ") + New->GetIPString());
+			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Negative hit for " + New->GetIPString());
 		}
 	}
 	else
@@ -135,14 +135,10 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	if (!ServerInstance->SE->AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
-		ServerInstance->Logs->Log("USERS", DEBUG,"Internal error on new connection");
+		ServerInstance->Logs->Log("USERS", LOG_DEBUG,"Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
 	}
 
-	/* NOTE: even if dns lookups are *off*, we still need to display this.
-	 * BOPM and other stuff requires it.
-	 */
-	New->WriteServ("NOTICE Auth :*** Looking up your hostname...");
 	if (ServerInstance->Config->RawLog)
 		New->WriteServ("NOTICE Auth :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
@@ -151,35 +147,25 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		return;
 
 	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
-
-	if (ServerInstance->Config->NoUserDns)
-	{
-		New->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", New->nick.c_str());
-		New->dns_done = true;
-	}
-	else
-	{
-		New->StartDNSLookup();
-	}
 }
 
 void UserManager::QuitUser(User *user, const std::string &quitreason, const char* operreason)
 {
 	if (user->quitting)
 	{
-		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Tried to quit quitting user: " + user->nick);
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit quitting user: " + user->nick);
 		return;
 	}
 
 	if (IS_SERVER(user))
 	{
-		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Tried to quit server user: " + user->nick);
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Tried to quit server user: " + user->nick);
 		return;
 	}
 
 	user->quitting = true;
 
-	ServerInstance->Logs->Log("USERS", DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
+	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
 	user->Write("ERROR :Closing link: (%s@%s) [%s]", user->ident.c_str(), user->host.c_str(), *operreason ? operreason : quitreason.c_str());
 
 	std::string reason;
@@ -220,7 +206,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			if (!user->quietquit)
 			{
 				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]",
-					user->GetFullRealHost().c_str(), user->GetIPString(), oper_reason.c_str());
+					user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_reason.c_str());
 			}
 		}
 		else
@@ -228,10 +214,9 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 			if ((!ServerInstance->SilentULine(user->server)) && (!user->quietquit))
 			{
 				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s (%s) [%s]",
-					user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString(), oper_reason.c_str());
+					user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_reason.c_str());
 			}
 		}
-		user->AddToWhoWas();
 	}
 
 	user_hash::iterator iter = this->clientlist->find(user->nick);
@@ -239,7 +224,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	if (iter != this->clientlist->end())
 		this->clientlist->erase(iter);
 	else
-		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	ServerInstance->Users->uuidlist->erase(user->uuid);
 }
@@ -389,4 +374,15 @@ int UserManager::ModeCount(const char mode)
 			c++;
 	}
 	return c;
+}
+
+void UserManager::GarbageCollect()
+{
+	// Reset the already_sent IDs so we don't wrap it around and drop a message
+	LocalUser::already_sent_id = 0;
+	for (LocalUserList::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	{
+		(**i).already_sent = 0;
+		(**i).RemoveExpiredInvites();
+	}
 }

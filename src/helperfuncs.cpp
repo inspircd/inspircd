@@ -66,30 +66,7 @@ User* InspIRCd::FindNick(const std::string &nick)
 	return iter->second;
 }
 
-User* InspIRCd::FindNick(const char* nick)
-{
-	if (isdigit(*nick))
-		return FindUUID(nick);
-
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		return NULL;
-
-	return iter->second;
-}
-
 User* InspIRCd::FindNickOnly(const std::string &nick)
-{
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		return NULL;
-
-	return iter->second;
-}
-
-User* InspIRCd::FindNickOnly(const char* nick)
 {
 	user_hash::iterator iter = this->Users->clientlist->find(nick);
 
@@ -108,23 +85,7 @@ User *InspIRCd::FindUUID(const std::string &uid)
 
 	return finduuid->second;
 }
-
-User *InspIRCd::FindUUID(const char *uid)
-{
-	return FindUUID(std::string(uid));
-}
-
 /* find a channel record by channel name and return a pointer to it */
-Channel* InspIRCd::FindChan(const char* chan)
-{
-	chan_hash::iterator iter = chanlist->find(chan);
-
-	if (iter == chanlist->end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
-}
 
 Channel* InspIRCd::FindChan(const std::string &chan)
 {
@@ -281,47 +242,35 @@ void InspIRCd::ProcessColors(file_cache& input)
 }
 
 /* true for valid channel name, false else */
-bool IsChannelHandler::Call(const char *chname, size_t max)
+bool IsChannelHandler::Call(const std::string& chname, size_t max)
 {
-	const char *c = chname + 1;
-
-	/* check for no name - don't check for !*chname, as if it is empty, it won't be '#'! */
-	if (!chname || *chname != '#')
-	{
+	if (chname.empty() || chname.length() > max)
 		return false;
-	}
 
-	while (*c)
+	if (chname[0] != '#')
+		return false;
+
+	for (std::string::const_iterator i = chname.begin()+1; i != chname.end(); ++i)
 	{
-		switch (*c)
+		switch (*i)
 		{
 			case ' ':
 			case ',':
 			case 7:
 				return false;
 		}
-
-		c++;
-	}
-
-	size_t len = c - chname;
-	/* too long a name - note funky pointer arithmetic here. */
-	if (len > max)
-	{
-			return false;
 	}
 
 	return true;
 }
 
 /* true for valid nickname, false else */
-bool IsNickHandler::Call(const char* n, size_t max)
+bool IsNickHandler::Call(const std::string& n, size_t max)
 {
-	if (!n || !*n)
+	if (n.empty() || n.length() > max)
 		return false;
 
-	unsigned int p = 0;
-	for (const char* i = n; *i; i++, p++)
+	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
@@ -329,7 +278,7 @@ bool IsNickHandler::Call(const char* n, size_t max)
 			continue;
 		}
 
-		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i > n))
+		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i != n.begin()))
 		{
 			/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
 			continue;
@@ -339,17 +288,16 @@ bool IsNickHandler::Call(const char* n, size_t max)
 		return false;
 	}
 
-	/* too long? or not */
-	return (p <= max);
+	return true;
 }
 
 /* return true for good ident, false else */
-bool IsIdentHandler::Call(const char* n)
+bool IsIdentHandler::Call(const std::string& n)
 {
-	if (!n || !*n)
+	if (n.empty())
 		return false;
 
-	for (const char* i = n; *i; i++)
+	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
 	{
 		if ((*i >= 'A') && (*i <= '}'))
 		{
@@ -367,7 +315,7 @@ bool IsIdentHandler::Call(const char* n)
 	return true;
 }
 
-bool IsSIDHandler::Call(const std::string &str)
+bool InspIRCd::IsSID(const std::string &str)
 {
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits
@@ -392,7 +340,7 @@ bool InspIRCd::OpenLog(char**, int)
 	}
 
 	FileWriter* fw = new FileWriter(startup);
-	FileLogStream *f = new FileLogStream((Config->cmdline.forcedebug ? DEBUG : DEFAULT), fw);
+	FileLogStream *f = new FileLogStream((Config->cmdline.forcedebug ? LOG_DEBUG : LOG_DEFAULT), fw);
 
 	this->Logs->AddLogType("*", f, true);
 
@@ -405,7 +353,7 @@ void InspIRCd::CheckRoot()
 	if (geteuid() == 0)
 	{
 		std::cout << "ERROR: You are running an irc server as root! DO NOT DO THIS!" << std::endl << std::endl;
-		this->Logs->Log("STARTUP",DEFAULT,"Can't start as root");
+		this->Logs->Log("STARTUP",LOG_DEFAULT,"Can't start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
 #endif
@@ -436,7 +384,7 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* fo
 /** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
  * lookups and pointer maths.
  */
-long InspIRCd::Duration(const std::string &str)
+unsigned long InspIRCd::Duration(const std::string &str)
 {
 	unsigned char multiplier = 0;
 	long total = 0;
@@ -496,26 +444,6 @@ bool InspIRCd::SilentULine(const std::string& sserver)
 std::string InspIRCd::TimeString(time_t curtime)
 {
 	return std::string(ctime(&curtime),24);
-}
-
-// You should only pass a single character to this.
-void InspIRCd::AddExtBanChar(char c)
-{
-	std::string &tok = Config->data005;
-	std::string::size_type ebpos = tok.find(" EXTBAN=,");
-
-	if (ebpos == std::string::npos)
-	{
-		tok.append(" EXTBAN=,");
-		tok.push_back(c);
-	}
-	else
-	{
-		ebpos += 9;
-		while (isalpha(tok[ebpos]) && tok[ebpos] < c)
-			ebpos++;
-		tok.insert(ebpos, 1, c);
-	}
 }
 
 std::string InspIRCd::GenRandomStr(int length, bool printable)

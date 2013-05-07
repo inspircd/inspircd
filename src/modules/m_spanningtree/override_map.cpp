@@ -19,16 +19,13 @@
  */
 
 
-/* $ModDesc: Provides a spanning tree server link protocol */
-
 #include "inspircd.h"
 
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
+/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h */
 
 const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 {
@@ -38,7 +35,7 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 
 void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats)
 {
-	ServerInstance->Logs->Log("map",DEBUG,"ShowMap depth %d on line %d", depth, line);
+	ServerInstance->Logs->Log("map",LOG_DEBUG,"ShowMap depth %d on line %d", depth, line);
 	float percent;
 
 	if (ServerInstance->Users->clientlist->size() == 0)
@@ -48,10 +45,10 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	}
 	else
 	{
-		percent = Current->GetUserCount() * 100.0 / ServerInstance->Users->clientlist->size();
+		percent = Current->UserCount * 100.0 / ServerInstance->Users->clientlist->size();
 	}
 
-	const std::string operdata = IS_OPER(user) ? MapOperInfo(Current) : "";
+	const std::string operdata = user->IsOper() ? MapOperInfo(Current) : "";
 
 	char* myname = names + 100 * line;
 	char* mystat = stats + 50 * line;
@@ -59,7 +56,7 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	int w = depth;
 
 	std::string servername = Current->GetName();
-	if (IS_OPER(user))
+	if (user->IsOper())
 	{
 		w += snprintf(myname + depth, 99 - depth, "%s (%s)", servername.c_str(), Current->GetID().c_str());
 	}
@@ -70,16 +67,16 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	memset(myname + w, ' ', 100 - w);
 	if (w > maxnamew)
 		maxnamew = w;
-	snprintf(mystat, 49, "%5d [%5.2f%%]%s", Current->GetUserCount(), percent, operdata.c_str());
+	snprintf(mystat, 49, "%5d [%5.2f%%]%s", Current->UserCount, percent, operdata.c_str());
 
 	line++;
 
-	if (IS_OPER(user) || !Utils->FlatLinks)
+	if (user->IsOper() || !Utils->FlatLinks)
 		depth = depth + 2;
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
 		TreeServer* child = Current->GetChild(q);
-		if (!IS_OPER(user)) {
+		if (!user->IsOper()) {
 			if (child->Hidden)
 				continue;
 			if ((Utils->HideULines) && (ServerInstance->ULine(child->GetName())))
@@ -174,7 +171,7 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 
 	float avg_users = totusers * 1.0 / line;
 
-	ServerInstance->Logs->Log("map",DEBUG,"local");
+	ServerInstance->Logs->Log("map",LOG_DEBUG,"local");
 	for (int t = 0; t < line; t++)
 	{
 		// terminate the string at maxnamew characters

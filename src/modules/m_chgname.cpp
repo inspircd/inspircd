@@ -75,7 +75,6 @@ class CommandChgname : public Command
 	}
 };
 
-
 class ModuleChgName : public Module
 {
 	CommandChgname cmd;
@@ -88,10 +87,6 @@ public:
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-	}
-
-	virtual ~ModuleChgName()
-	{
 	}
 
 	virtual Version GetVersion()

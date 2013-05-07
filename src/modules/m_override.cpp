@@ -52,9 +52,9 @@ class ModuleOverride : public Module
 		RequireKey = tag->getBool("requirekey");
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" OVERRIDE");
+		tokens["OVERRIDE"];
 	}
 
 	bool CanOverride(User* source, const char* token)
@@ -68,7 +68,7 @@ class ModuleOverride : public Module
 
 	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic)
 	{
-		if (IS_LOCAL(source) && IS_OPER(source) && CanOverride(source, "TOPIC"))
+		if (IS_LOCAL(source) && source->IsOper() && CanOverride(source, "TOPIC"))
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
@@ -84,7 +84,7 @@ class ModuleOverride : public Module
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
 	{
-		if (IS_OPER(source) && CanOverride(source,"KICK"))
+		if (source->IsOper() && CanOverride(source,"KICK"))
 		{
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE))
@@ -100,7 +100,7 @@ class ModuleOverride : public Module
 	{
 		if (!source || !channel)
 			return MOD_RES_PASSTHRU;
-		if (!IS_OPER(source) || !IS_LOCAL(source))
+		if (!source->IsOper() || !IS_LOCAL(source))
 			return MOD_RES_PASSTHRU;
 
 		unsigned int mode = channel->GetPrefixValue(source);
@@ -116,16 +116,15 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
-		if (IS_LOCAL(user) && IS_OPER(user))
+		if (user->IsOper())
 		{
 			if (chan)
 			{
 				if (chan->IsModeSet('i') && (CanOverride(user,"INVITE")))
 				{
-					irc::string x(chan->name.c_str());
-					if (!IS_LOCAL(user)->IsInvited(x))
+					if (!IS_LOCAL(user)->IsInvited(chan))
 					{
 						if (RequireKey && keygiven != "override")
 						{
@@ -135,8 +134,8 @@ class ModuleOverride : public Module
 						}
 
 						if (NoisyOverride)
-							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname, user->nick.c_str());
-						ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +i on "+std::string(cname));
+							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname.c_str(), user->nick.c_str());
+						ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +i on " + cname);
 					}
 					return MOD_RES_ALLOW;
 				}
@@ -151,8 +150,8 @@ class ModuleOverride : public Module
 					}
 
 					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +k on "+std::string(cname));
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname.c_str(), user->nick.c_str());
+					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +k on " + cname);
 					return MOD_RES_ALLOW;
 				}
 
@@ -166,8 +165,8 @@ class ModuleOverride : public Module
 					}
 
 					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +l on "+std::string(cname));
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname.c_str(), user->nick.c_str());
+					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +l on " + cname);
 					return MOD_RES_ALLOW;
 				}
 
@@ -181,8 +180,8 @@ class ModuleOverride : public Module
 					}
 
 					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname, user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname);
+						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname.c_str(), user->nick.c_str());
+					ServerInstance->SNO->WriteGlobalSno('v',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname.c_str());
 					return MOD_RES_ALLOW;
 				}
 			}

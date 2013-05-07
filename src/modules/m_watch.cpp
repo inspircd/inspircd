@@ -92,12 +92,7 @@
  * of users using WATCH.
  */
 
-/*
- * Before you start screaming, this definition is only used here, so moving it to a header is pointless.
- * Yes, it's horrid. Blame cl for being different. -- w00t
- */
-
-typedef nspace::hash_map<irc::string, std::deque<User*>, irc::hash> watchentries;
+typedef TR1NS::unordered_map<irc::string, std::deque<User*>, irc::hash> watchentries;
 typedef std::map<irc::string, std::string> watchlist;
 
 /* Who's watching each nickname.
@@ -242,7 +237,7 @@ class CommandWatch : public Command
 			{
 				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
 				user->WriteNumeric(604, "%s %s %s :is online",user->nick.c_str(), nick, (*wl)[nick].c_str());
-				if (IS_AWAY(target))
+				if (target->IsAway())
 				{
 					user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick.c_str(), target->nick.c_str(), target->ident.c_str(), target->dhost.c_str(), (unsigned long) target->awaytime);
 				}
@@ -320,7 +315,7 @@ class CommandWatch : public Command
 							{
 								user->WriteNumeric(604, "%s %s %s :is online", user->nick.c_str(), q->first.c_str(), q->second.c_str());
 								User *targ = ServerInstance->FindNick(q->first.c_str());
-								if (IS_AWAY(targ))
+								if (targ->IsAway())
 								{
 									user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick.c_str(), targ->nick.c_str(), targ->ident.c_str(), targ->dhost.c_str(), (unsigned long) targ->awaytime);
 								}
@@ -527,10 +522,9 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		// we don't really have a limit...
-		output = output + " WATCH=" + ConvToStr(maxwatch);
+		tokens["WATCH"] = ConvToStr(maxwatch);
 	}
 
 	virtual ~Modulewatch()
@@ -545,4 +539,3 @@ class Modulewatch : public Module
 };
 
 MODULE_INIT(Modulewatch)
-

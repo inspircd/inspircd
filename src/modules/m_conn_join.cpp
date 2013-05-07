@@ -45,22 +45,22 @@ class ModuleConnJoin : public Module
 
 		void OnPostConnect(User* user)
 		{
-			if (!IS_LOCAL(user))
+			LocalUser* localuser = IS_LOCAL(user);
+			if (!localuser)
 				return;
 
 			std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
-			chanlist = user->GetClass()->config->getString("autojoin", chanlist);
+			chanlist = localuser->GetClass()->config->getString("autojoin", chanlist);
 
 			irc::commasepstream chans(chanlist);
 			std::string chan;
 
 			while (chans.GetToken(chan))
 			{
-				if (ServerInstance->IsChannel(chan.c_str(), ServerInstance->Config->Limits.ChanMax))
-					Channel::JoinUser(user, chan.c_str(), false, "", false, ServerInstance->Time());
+				if (ServerInstance->IsChannel(chan, ServerInstance->Config->Limits.ChanMax))
+					Channel::JoinUser(localuser, chan);
 			}
 		}
 };
-
 
 MODULE_INIT(ModuleConnJoin)

@@ -24,16 +24,17 @@
 
 /** Handle /CYCLE
  */
-class CommandCycle : public Command
+class CommandCycle : public SplitCommand
 {
  public:
-	CommandCycle(Module* Creator) : Command(Creator,"CYCLE", 1)
+	CommandCycle(Module* Creator)
+		: SplitCommand(Creator, "CYCLE", 1)
 	{
 		Penalty = 3; syntax = "<channel> :[reason]";
 		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
-	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
+	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser* user)
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		std::string reason = ConvToStr("Cycling");
@@ -65,8 +66,7 @@ class CommandCycle : public Command
 				}
 
 				channel->PartUser(user, reason);
-
-				Channel::JoinUser(user, parameters[0].c_str(), true, "", false, ServerInstance->Time());
+				Channel::JoinUser(user, parameters[0], true);
 			}
 
 			return CMD_SUCCESS;
@@ -84,6 +84,7 @@ class CommandCycle : public Command
 class ModuleCycle : public Module
 {
 	CommandCycle cmd;
+
  public:
 	ModuleCycle()
 		: cmd(this)
@@ -95,15 +96,10 @@ class ModuleCycle : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleCycle()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides command CYCLE, acts as a server-side HOP command to part and rejoin a channel.", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleCycle)

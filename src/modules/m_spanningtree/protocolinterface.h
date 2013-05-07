@@ -17,8 +17,7 @@
  */
 
 
-#ifndef M_SPANNINGTREE_PROTOCOLINTERFACE_H
-#define M_SPANNINGTREE_PROTOCOLINTERFACE_H
+#pragma once
 
 class SpanningTreeUtilities;
 class ModuleSpanningTree;
@@ -43,6 +42,3 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 	virtual void SendUserNotice(User* target, const std::string &text);
 	virtual void GetServerList(ProtoServerList &sl);
 };
-
-#endif
-

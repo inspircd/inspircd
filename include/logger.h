@@ -18,8 +18,7 @@
  */
 
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#pragma once
 
 /** Simple wrapper providing periodic flushing to a disk-backed file.
  */
@@ -199,17 +198,15 @@ class CoreExport LogManager
 
 	/** Logs an event, sending it to all LogStreams registered for the type.
 	 * @param type Log message type (ex: "USERINPUT", "MODULE", ...)
-	 * @param loglevel Log message level (DEBUG, VERBOSE, DEFAULT, SPARSE, NONE)
+	 * @param loglevel Log message level (LOG_DEBUG, LOG_VERBOSE, LOG_DEFAULT, LOG_SPARSE, LOG_NONE)
 	 * @param msg The message to be logged (literal).
 	 */
 	void Log(const std::string &type, int loglevel, const std::string &msg);
 
 	/** Logs an event, sending it to all LogStreams registered for the type.
 	 * @param type Log message type (ex: "USERINPUT", "MODULE", ...)
-	 * @param loglevel Log message level (DEBUG, VERBOSE, DEFAULT, SPARSE, NONE)
+	 * @param loglevel Log message level (LOG_DEBUG, LOG_VERBOSE, LOG_DEFAULT, LOG_SPARSE, LOG_NONE)
 	 * @param fmt The format of the message to be logged. See your C manual on printf() for details.
 	 */
 	void Log(const std::string &type, int loglevel, const char *fmt, ...) CUSTOM_PRINTF(4, 5);
 };
-
-#endif

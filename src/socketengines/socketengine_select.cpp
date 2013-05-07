@@ -18,8 +18,6 @@
  */
 
 
-#include "inspircd_config.h"
-
 #include "inspircd.h"
 #include "socketengine.h"
 
@@ -86,7 +84,7 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 
 	CurrentSetSize++;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"New file descriptor: %d", fd);
 	return true;
 }
 
@@ -106,7 +104,7 @@ void SelectEngine::DelFd(EventHandler* eh)
 	if (fd == MaxFD)
 		--MaxFD;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Remove file descriptor: %d", fd);
 }
 
 void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)

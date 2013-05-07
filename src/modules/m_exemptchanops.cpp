@@ -18,7 +18,7 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
+#include "listmode.h"
 
 /* $ModDesc: Provides the ability to allow channel operators to be exempt from certain modes. */
 
@@ -41,10 +41,9 @@ class ExemptChanOps : public ListModeBase
 		return true;
 	}
 
-	bool TellListTooLong(User* user, Channel* chan, std::string &word)
+	void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(959, "%s %s %s :Channel exemptchanops list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
-		return true;
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
@@ -63,7 +62,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
  public:
 	ExemptChanOps ec;
 	ExemptHandler(Module* me) : ec(me) {}
-	
+
 	ModeHandler* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
@@ -82,11 +81,11 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 		unsigned int mypfx = chan->GetPrefixValue(user);
 		std::string minmode;
 
-		modelist* list = ec.extItem.get(chan);
+		ListModeBase::ModeList* list = ec.GetList(chan);
 
 		if (list)
 		{
-			for (modelist::iterator i = list->begin(); i != list->end(); ++i)
+			for (ListModeBase::ModeList::iterator i = list->begin(); i != list->end(); ++i)
 			{
 				std::string::size_type pos = (*i).mask.find(':');
 				if (pos == std::string::npos)
@@ -112,7 +111,6 @@ class ModuleExemptChanOps : public Module
 	ExemptHandler eh;
 
  public:
-
 	ModuleExemptChanOps() : eh(this)
 	{
 	}

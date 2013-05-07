@@ -21,8 +21,7 @@
  */
 
 
-#ifndef CTABLES_H
-#define CTABLES_H
+#pragma once
 
 /** Used to indicate command success codes
  */
@@ -252,5 +251,3 @@ class CoreExport SplitCommand : public Command
 	translation.push_back(x5);translation.push_back(x6);translation.push_back(x7);
 #define TRANSLATE8(x1,x2,x3,x4,x5,x6,x7,x8)  translation.push_back(x1);translation.push_back(x2);translation.push_back(x3);translation.push_back(x4);\
 	translation.push_back(x5);translation.push_back(x6);translation.push_back(x7);translation.push_back(x8);
-
-#endif

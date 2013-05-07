@@ -28,7 +28,6 @@
 #include "socketengine.h"
 #include "xline.h"
 #include "bancache.h"
-#include "commands/cmd_whowas.h"
 
 already_sent_t LocalUser::already_sent_id = 0;
 
@@ -109,27 +108,6 @@ std::string User::ProcessNoticeMasks(const char *sm)
 	return output;
 }
 
-void LocalUser::StartDNSLookup()
-{
-	try
-	{
-		bool cached = false;
-		const char* sip = this->GetIPString();
-		UserResolver *res_reverse;
-
-		QueryType resolvtype = this->client_sa.sa.sa_family == AF_INET6 ? DNS_QUERY_PTR6 : DNS_QUERY_PTR4;
-		res_reverse = new UserResolver(this, sip, resolvtype, cached);
-
-		ServerInstance->AddResolver(res_reverse, cached);
-	}
-	catch (CoreException& e)
-	{
-		ServerInstance->Logs->Log("USERS", DEBUG,"Error in resolver: %s",e.GetReason());
-		dns_done = true;
-		ServerInstance->stats->statsDnsBad++;
-	}
-}
-
 bool User::IsNoticeMaskSet(unsigned char sm)
 {
 	if (!isalpha(sm))
@@ -202,13 +180,12 @@ User::User(const std::string &uid, const std::string& sid, int type)
 	: uuid(uid), server(sid), usertype(type)
 {
 	age = ServerInstance->Time();
-	signon = idle_lastmsg = 0;
+	signon = 0;
 	registered = 0;
-	quietquit = quitting = exempt = dns_done = false;
-	quitting_sendq = false;
+	quietquit = quitting = false;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
-	ServerInstance->Logs->Log("USERS", DEBUG, "New UUID for user: %s", uuid.c_str());
+	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
 	user_hash::iterator finduuid = ServerInstance->Users->uuidlist->find(uuid);
 	if (finduuid == ServerInstance->Users->uuidlist->end())
@@ -218,11 +195,13 @@ User::User(const std::string &uid, const std::string& sid, int type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
+	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
 	localuseriter(ServerInstance->Users->local_users.end()),
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
 {
+	exempt = quitting_sendq = false;
+	idle_lastmsg = 0;
 	ident = "unknown";
 	lastping = 0;
 	eh.SetFd(myfd);
@@ -234,7 +213,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 User::~User()
 {
 	if (ServerInstance->Users->uuidlist->find(uuid) != ServerInstance->Users->uuidlist->end())
-		ServerInstance->Logs->Log("USERS", DEFAULT, "User destructor for %s called without cull", uuid.c_str());
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "User destructor for %s called without cull", uuid.c_str());
 }
 
 const std::string& User::MakeHost()
@@ -268,7 +247,7 @@ const std::string& User::MakeHostIP()
 	for(const char* n = ident.c_str(); *n; n++)
 		*t++ = *n;
 	*t++ = '@';
-	for(const char* n = this->GetIPString(); *n; n++)
+	for(const char* n = this->GetIPString().c_str(); *n; n++)
 		*t++ = *n;
 	*t = 0;
 
@@ -333,40 +312,22 @@ const std::string& User::GetFullRealHost()
 	return this->cached_fullrealhost;
 }
 
-bool LocalUser::IsInvited(const irc::string &channel)
-{
-	Channel* chan = ServerInstance->FindChan(channel.c_str());
-	if (!chan)
-		return false;
-
-	return (Invitation::Find(chan, this) != NULL);
-}
-
 InviteList& LocalUser::GetInviteList()
 {
 	RemoveExpiredInvites();
 	return invites;
 }
 
-void LocalUser::InviteTo(const irc::string &channel, time_t invtimeout)
+bool LocalUser::RemoveInvite(Channel* chan)
 {
-	Channel* chan = ServerInstance->FindChan(channel.c_str());
-	if (chan)
-		Invitation::Create(chan, this, invtimeout);
-}
-
-void LocalUser::RemoveInvite(const irc::string &channel)
-{
-	Channel* chan = ServerInstance->FindChan(channel.c_str());
-	if (chan)
+	Invitation* inv = Invitation::Find(chan, this);
+	if (inv)
 	{
-		Invitation* inv = Invitation::Find(chan, this);
-		if (inv)
-		{
-			inv->cull();
-			delete inv;
-		}
+		inv->cull();
+		delete inv;
+		return true;
 	}
+	return false;
 }
 
 void LocalUser::RemoveExpiredInvites()
@@ -381,7 +342,7 @@ bool User::HasModePermission(unsigned char, ModeType)
 
 bool LocalUser::HasModePermission(unsigned char mode, ModeType type)
 {
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 		return false;
 
 	if (mode < 'A' || mode > ('A' + 64)) return false;
@@ -404,7 +365,7 @@ bool User::HasPermission(const std::string&)
 bool LocalUser::HasPermission(const std::string &command)
 {
 	// are they even an oper at all?
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 	{
 		return false;
 	}
@@ -424,7 +385,7 @@ bool User::HasPrivPermission(const std::string &privstr, bool noisy)
 
 bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 {
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 	{
 		if (noisy)
 			this->WriteServ("NOTICE %s :You are not an oper", this->nick.c_str());
@@ -547,7 +508,7 @@ CullResult LocalUser::cull()
 	if (localuseriter != ServerInstance->Users->local_users.end())
 		ServerInstance->Users->local_users.erase(localuseriter);
 	else
-		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: LocalUserIter does not point to a valid entry for " + this->nick);
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: LocalUserIter does not point to a valid entry for " + this->nick);
 
 	ClearInvites();
 	eh.cull();
@@ -592,7 +553,7 @@ void User::Oper(OperInfo* info)
 		nick.c_str(), ident.c_str(), host.c_str(), oper->NameStr(), opername.c_str());
 	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->NameStr());
 
-	ServerInstance->Logs->Log("OPER", DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->NameStr());
+	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->NameStr());
 	ServerInstance->Users->all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup
@@ -657,7 +618,7 @@ void OperInfo::init()
 
 void User::UnOper()
 {
-	if (!IS_OPER(this))
+	if (!this->IsOper())
 		return;
 
 	/*
@@ -691,18 +652,6 @@ void User::UnOper()
 	this->modes[UM_OPERATOR] = 0;
 }
 
-/* adds or updates an entry in the whowas list */
-void User::AddToWhoWas()
-{
-	Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
-	if (whowas)
-	{
-		WhowasRequest req(NULL, whowas, WhowasRequest::WHOWAS_ADD);
-		req.user = this;
-		req.Send();
-	}
-}
-
 /*
  * Check class restrictions
  */
@@ -724,21 +673,21 @@ void LocalUser::CheckClass()
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
 		if (a->maxconnwarn)
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString());
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
 		return;
 	}
 	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
 	{
 		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
 		if (a->maxconnwarn)
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString());
+			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
 		return;
 	}
 
 	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
 }
 
-bool User::CheckLines(bool doZline)
+bool LocalUser::CheckLines(bool doZline)
 {
 	const char* check[] = { "G" , "K", (doZline) ? "Z" : NULL, NULL };
 
@@ -778,8 +727,6 @@ void LocalUser::FullConnect()
 	if (quitting)
 		return;
 
-	if (ServerInstance->Config->WelcomeNotice)
-		this->WriteServ("NOTICE Auth :Welcome to \002%s\002!",ServerInstance->Config->Network.c_str());
 	this->WriteNumeric(RPL_WELCOME, "%s :Welcome to the %s IRC Network %s",this->nick.c_str(), ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
 	this->WriteNumeric(RPL_YOURHOSTIS, "%s :Your host is %s, running version %s",this->nick.c_str(),ServerInstance->Config->ServerName.c_str(),BRANCH);
 	this->WriteNumeric(RPL_SERVERCREATED, "%s :This server was created %s %s", this->nick.c_str(), __TIME__, __DATE__);
@@ -789,7 +736,7 @@ void LocalUser::FullConnect()
 	std::string pmlist = ServerInstance->Modes->ParaModeList();
 	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName.c_str(), BRANCH, umlist.c_str(), cmlist.c_str(), pmlist.c_str());
 
-	ServerInstance->Config->Send005(this);
+	ServerInstance->ISupport.SendTo(this);
 	this->WriteNumeric(RPL_YOURUUID, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());
 
 	/* Now registered */
@@ -798,14 +745,14 @@ void LocalUser::FullConnect()
 
 	/* Trigger MOTD and LUSERS output, give modules a chance too */
 	ModResult MOD_RESULT;
-	std::string command("MOTD");
+	std::string command("LUSERS");
 	std::vector<std::string> parameters;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
 		ServerInstance->Parser->CallHandler(command, parameters, this);
 
 	MOD_RESULT = MOD_RES_PASSTHRU;
-	command = "LUSERS";
+	command = "MOTD";
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
 		ServerInstance->Parser->CallHandler(command, parameters, this);
@@ -824,8 +771,8 @@ void LocalUser::FullConnect()
 	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
-		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString(), this->fullname.c_str());
-	ServerInstance->Logs->Log("BANCACHE", DEBUG, "BanCache: Adding NEGATIVE hit for %s", this->GetIPString());
+		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->fullname.c_str());
+	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
@@ -844,7 +791,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 {
 	if (quitting)
 	{
-		ServerInstance->Logs->Log("USERS", DEFAULT, "ERROR: Attempted to change nick of a quitting user: " + this->nick);
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Attempted to change nick of a quitting user: " + this->nick);
 		return false;
 	}
 
@@ -967,18 +914,18 @@ int LocalUser::GetServerPort()
 	return 0;
 }
 
-const char* User::GetIPString()
+const std::string& User::GetIPString()
 {
 	int port;
 	if (cachedip.empty())
 	{
 		irc::sockets::satoap(client_sa, cachedip, port);
 		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
-		if (cachedip.c_str()[0] == ':')
+		if (cachedip[0] == ':')
 			cachedip.insert(0,1,'0');
 	}
 
-	return cachedip.c_str();
+	return cachedip;
 }
 
 irc::sockets::cidr_mask User::GetCIDRMask()
@@ -1056,7 +1003,7 @@ void LocalUser::Write(const std::string& text)
 		return;
 	}
 
-	ServerInstance->Logs->Log("USEROUTPUT", RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
+	ServerInstance->Logs->Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
 
 	eh.AddWriteBuf(text);
 	eh.AddWriteBuf(wide_newline);
@@ -1272,7 +1219,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		{
 			u->already_sent = uniq_id;
 			if (i->second)
-				u->Write(IS_OPER(u) ? out2 : out1);
+				u->Write(u->IsOper() ? out2 : out1);
 		}
 	}
 	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
@@ -1284,7 +1231,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 			if (u && !u->quitting && (u->already_sent != uniq_id))
 			{
 				u->already_sent = uniq_id;
-				u->Write(IS_OPER(u) ? out2 : out1);
+				u->Write(u->IsOper() ? out2 : out1);
 			}
 		}
 	}
@@ -1524,61 +1471,6 @@ void User::SendAll(const char* command, const char* text, ...)
 	}
 }
 
-
-std::string User::ChannelList(User* source, bool spy)
-{
-	std::string list;
-
-	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
-	{
-		Channel* c = *i;
-		/* If the target is the sender, neither +p nor +s is set, or
-		 * the channel contains the user, it is not a spy channel
-		 */
-		if (spy != (source == this || !(c->IsModeSet('p') || c->IsModeSet('s')) || c->HasUser(source)))
-			list.append(c->GetPrefixChar(this)).append(c->name).append(" ");
-	}
-
-	return list;
-}
-
-void User::SplitChanList(User* dest, const std::string &cl)
-{
-	std::string line;
-	std::ostringstream prefix;
-	std::string::size_type start, pos, length;
-
-	prefix << this->nick << " " << dest->nick << " :";
-	line = prefix.str();
-	int namelen = ServerInstance->Config->ServerName.length() + 6;
-
-	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
-	{
-		length = (pos == std::string::npos) ? cl.length() : pos;
-
-		if (line.length() + namelen + length - start > 510)
-		{
-			ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
-			line = prefix.str();
-		}
-
-		if(pos == std::string::npos)
-		{
-			line.append(cl.substr(start, length - start));
-			break;
-		}
-		else
-		{
-			line.append(cl.substr(start, length - start + 1));
-		}
-	}
-
-	if (line.length() != prefix.str().length())
-	{
-		ServerInstance->SendWhoisLine(this, dest, 319, "%s", line.c_str());
-	}
-}
-
 /*
  * Sets a user's connection class.
  * If the class name is provided, it will be used. Otherwise, the class will be guessed using host/ip/ident/etc.
@@ -1590,7 +1482,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 {
 	ConnectClass *found = NULL;
 
-	ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
+	ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Setting connect class for UID %s", this->uuid.c_str());
 
 	if (!explicit_name.empty())
 	{
@@ -1600,7 +1492,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 			if (explicit_name == c->name)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Explicitly set to %s", explicit_name.c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Explicitly set to %s", explicit_name.c_str());
 				found = c;
 			}
 		}
@@ -1610,7 +1502,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 		{
 			ConnectClass* c = *i;
-			ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Checking %s", c->GetName().c_str());
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());
 
 			ModResult MOD_RESULT;
 			FIRST_MOD_RESULT(OnSetConnectClass, MOD_RESULT, (this,c));
@@ -1618,7 +1510,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 				continue;
 			if (MOD_RESULT == MOD_RES_ALLOW)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Class forced by module to %s", c->GetName().c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class forced by module to %s", c->GetName().c_str());
 				found = c;
 				break;
 			}
@@ -1634,7 +1526,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			if (!InspIRCd::MatchCIDR(this->GetIPString(), c->GetHost(), NULL) &&
 			    !InspIRCd::MatchCIDR(this->host, c->GetHost(), NULL))
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "No host match (for %s)", c->GetHost().c_str());
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "No host match (for %s)", c->GetHost().c_str());
 				continue;
 			}
 
@@ -1644,7 +1536,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			 */
 			if (c->limit && (c->GetReferenceCount() >= c->limit))
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "OOPS: Connect class limit (%lu) hit, denying", c->limit);
 				continue;
 			}
 
@@ -1652,7 +1544,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			int port = c->config->getInt("port");
 			if (port)
 			{
-				ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Requires port (%d)", port);
+				ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Requires port (%d)", port);
 
 				/* and our port doesn't match, fail. */
 				if (this->GetServerPort() != port)
@@ -1663,7 +1555,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 			{
 				if (ServerInstance->PassCompare(this, c->config->getString("password"), password, c->config->getString("hash")))
 				{
-					ServerInstance->Logs->Log("CONNECTCLASS", DEBUG, "Bad password, skipping");
+					ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Bad password, skipping");
 					continue;
 				}
 			}
@@ -1727,7 +1619,8 @@ const std::string& FakeUser::GetFullRealHost()
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
 	pingtime(0), softsendqmax(0), hardsendqmax(0), recvqmax(0),
-	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxconnwarn(true), maxchans(0), limit(0)
+	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxconnwarn(true), maxchans(0),
+	limit(0), nouserdns(false)
 {
 }
 
@@ -1737,7 +1630,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
 	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
 	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxconnwarn(parent.maxconnwarn), maxchans(parent.maxchans),
-	limit(parent.limit)
+	limit(parent.limit), nouserdns(parent.nouserdns)
 {
 }
 
@@ -1760,4 +1653,5 @@ void ConnectClass::Update(const ConnectClass* src)
 	maxconnwarn = src->maxconnwarn;
 	maxchans = src->maxchans;
 	limit = src->limit;
+	nouserdns = src->nouserdns;
 }

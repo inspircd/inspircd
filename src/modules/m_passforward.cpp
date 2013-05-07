@@ -23,7 +23,6 @@
 
 class ModulePassForward : public Module
 {
- private:
 	std::string nickrequired, forwardmsg, forwardcmd;
 
  public:

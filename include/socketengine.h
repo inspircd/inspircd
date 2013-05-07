@@ -20,13 +20,12 @@
  */
 
 
-#ifndef SOCKETENGINE_H
-#define SOCKETENGINE_H
+#pragma once
 
 #include <vector>
 #include <string>
 #include <map>
-#include "inspircd_config.h"
+#include "config.h"
 #include "socket.h"
 #include "base.h"
 
@@ -128,7 +127,7 @@ enum EventMask
 	/** Add a trial write. During the next DispatchEvents invocation, this
 	 * will call HandleEvent with EVENT_WRITE unless writes are known to be
 	 * blocking.
-	 * 
+	 *
 	 * This could be used to group several writes together into a single
 	 * send() syscall, or to ensure that writes are blocking when attempting
 	 * to use FD_WANT_FAST_WRITE.
@@ -137,7 +136,7 @@ enum EventMask
 	/** Assert that writes are known to block. This cancels FD_ADD_TRIAL_WRITE.
 	 * Reset by SE before running EVENT_WRITE
 	 */
-	FD_WRITE_WILL_BLOCK = 0x8000, 
+	FD_WRITE_WILL_BLOCK = 0x8000,
 
 	/** Mask for trial read/trial write */
 	FD_TRIAL_NOTE_MASK = 0x5000
@@ -418,7 +417,7 @@ public:
 	 * @param buf The buffer in which the data that is sent is stored.
 	 * @param len The size of the buffer.
 	 * @param flags A flag value that controls the sending of the data.
-	 * @param to The remote IP address and port.	
+	 * @param to The remote IP address and port.
 	 * @param tolen The size of the to parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
@@ -510,6 +509,3 @@ inline bool SocketEngine::IgnoreError()
 }
 
 SocketEngine* CreateSocketEngine();
-
-#endif
-

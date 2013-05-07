@@ -17,6 +17,8 @@
  */
 
 
+#pragma once
+
 struct fpos
 {
 	std::string filename;
@@ -31,7 +33,7 @@ struct fpos
 
 enum ParseFlags
 {
-	FLAG_USE_XML = 1,
+	FLAG_USE_COMPAT = 1,
 	FLAG_NO_EXEC = 2,
 	FLAG_NO_INC = 4
 };
@@ -76,5 +78,3 @@ struct FileWrapper
 		}
 	}
 };
-
-

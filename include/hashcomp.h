@@ -22,8 +22,7 @@
  */
 
 
-#ifndef HASHCOMP_H
-#define HASHCOMP_H
+#pragma once
 
 #include <cstring>
 #include <string>
@@ -31,7 +30,7 @@
 #include <deque>
 #include <map>
 #include <set>
-#include "hash_map.h"
+#include "inspircd.h"
 
 /*******************************************************
  * This file contains classes and templates that deal
@@ -108,6 +107,11 @@ namespace irc
 		/** The operator () does the actual comparison in hash_map
 		 */
 		bool operator()(const std::string& s1, const std::string& s2) const;
+	};
+
+	struct insensitive
+	{
+		size_t CoreExport operator()(const std::string &s) const;
 	};
 
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
@@ -280,15 +284,7 @@ namespace irc
 		 * mode changes to be obtained.
 		 */
 		int GetStackedLine(std::vector<std::string> &result, int max_line_size = 360);
-
-		/** deprecated compatability interface - TODO remove */
-		int GetStackedLine(std::deque<std::string> &result, int max_line_size = 360) {
-			std::vector<std::string> r;
-			int n = GetStackedLine(r, max_line_size);
-			result.clear();
-			result.insert(result.end(), r.begin(), r.end());
-			return n;
-		}
+		
 	};
 
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
@@ -590,72 +586,3 @@ inline std::string& trim(std::string &str)
 
 	return str;
 }
-
-/** Hashing stuff is totally different on vc++'s hash_map implementation, so to save a buttload of
- * \#ifdefs we'll just do it all at once. Except, of course, with TR1, when it's the same as GCC.
- */
-BEGIN_HASHMAP_NAMESPACE
-
-	/** Hashing function to hash irc::string
-	 */
-#if defined(_WIN32) && !defined(HAS_TR1_UNORDERED)
-	template<> class CoreExport hash_compare<irc::string, std::less<irc::string> >
-	{
-	public:
-		enum { bucket_size = 4, min_buckets = 8 }; /* Got these numbers from the CRT source, if anyone wants to change them feel free. */
-
-		/** Compare two irc::string values for hashing in hash_map
-		 */
-		bool operator()(const irc::string & s1, const irc::string & s2) const
-		{
-			if(s1.length() != s2.length()) return true;
-			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), (size_t)s1.length()) < 0);
-		}
-
-		/** Hash an irc::string value for hash_map
-		 */
-		size_t operator()(const irc::string & s) const;
-	};
-
-	template<> class CoreExport hash_compare<std::string, std::less<std::string> >
-	{
-	public:
-		enum { bucket_size = 4, min_buckets = 8 }; /* Again, from the CRT source */
-
-		/** Compare two std::string values for hashing in hash_map
-		 */
-		bool operator()(const std::string & s1, const std::string & s2) const
-		{
-			if(s1.length() != s2.length()) return true;
-			return (irc::irc_char_traits::compare(s1.c_str(), s2.c_str(), (size_t)s1.length()) < 0);
-		}
-
-		/** Hash a std::string using RFC1459 case sensitivity rules
-		* @param s A string to hash
-		* @return The hash value
-		*/
-		size_t operator()(const std::string & s) const;
-	};
-#else
-
-	/* XXX FIXME: Implement a hash function overriding std::string's that works with TR1! */
-
-#ifdef HASHMAP_DEPRECATED
-	struct insensitive
-#else
-	CoreExport template<> struct hash<std::string>
-#endif
-	{
-		size_t CoreExport operator()(const std::string &s) const;
-	};
-
-#endif
-
-	/** Convert a string to lower case respecting RFC1459
-	* @param n A string to lowercase
-	*/
-	void strlower(char *n);
-
-END_HASHMAP_NAMESPACE
-
-#endif

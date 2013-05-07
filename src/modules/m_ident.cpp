@@ -144,7 +144,7 @@ class IdentRequestSocket : public EventHandler
 
 	virtual void OnConnected()
 	{
-		ServerInstance->Logs->Log("m_ident",DEBUG,"OnConnected()");
+		ServerInstance->Logs->Log("m_ident",LOG_DEBUG,"OnConnected()");
 		ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		char req[32];
@@ -179,7 +179,7 @@ class IdentRequestSocket : public EventHandler
 			break;
 			case EVENT_ERROR:
 				/* fd error event, ohshi- */
-				ServerInstance->Logs->Log("m_ident",DEBUG,"EVENT_ERROR");
+				ServerInstance->Logs->Log("m_ident",LOG_DEBUG,"EVENT_ERROR");
 				/* We *must* Close() here immediately or we get a
 				 * huge storm of EVENT_ERROR events!
 				 */
@@ -196,7 +196,7 @@ class IdentRequestSocket : public EventHandler
 		 */
 		if (GetFd() > -1)
 		{
-			ServerInstance->Logs->Log("m_ident",DEBUG,"Close ident socket %d", GetFd());
+			ServerInstance->Logs->Log("m_ident",LOG_DEBUG,"Close ident socket %d", GetFd());
 			ServerInstance->SE->DelFd(this);
 			ServerInstance->SE->Close(GetFd());
 			this->SetFd(-1);
@@ -228,7 +228,7 @@ class IdentRequestSocket : public EventHandler
 		if (recvresult < 3)
 			return;
 
-		ServerInstance->Logs->Log("m_ident",DEBUG,"ReadResponse()");
+		ServerInstance->Logs->Log("m_ident",LOG_DEBUG,"ReadResponse()");
 
 		/* Truncate at the first null character, but first make sure
 		 * there is at least one null char (at the end of the buffer).
@@ -289,10 +289,6 @@ class ModuleIdent : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	~ModuleIdent()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
@@ -320,7 +316,7 @@ class ModuleIdent : public Module
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_ident",DEBUG,"Ident exception: %s", e.GetReason());
+			ServerInstance->Logs->Log("m_ident",LOG_DEBUG,"Ident exception: %s", e.GetReason());
 		}
 	}
 
@@ -334,11 +330,11 @@ class ModuleIdent : public Module
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
 		{
-			ServerInstance->Logs->Log("m_ident",DEBUG, "No ident socket :(");
+			ServerInstance->Logs->Log("m_ident",LOG_DEBUG, "No ident socket :(");
 			return MOD_RES_PASSTHRU;
 		}
 
-		ServerInstance->Logs->Log("m_ident",DEBUG, "Has ident_socket");
+		ServerInstance->Logs->Log("m_ident",LOG_DEBUG, "Has ident_socket");
 
 		time_t compare = isock->age;
 		compare += RequestTimeout;
@@ -348,16 +344,16 @@ class ModuleIdent : public Module
 		{
 			/* Ident timeout */
 			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
-			ServerInstance->Logs->Log("m_ident",DEBUG, "Timeout");
+			ServerInstance->Logs->Log("m_ident",LOG_DEBUG, "Timeout");
 		}
 		else if (!isock->HasResult())
 		{
 			// time still good, no result yet... hold the registration
-			ServerInstance->Logs->Log("m_ident",DEBUG, "No result yet");
+			ServerInstance->Logs->Log("m_ident",LOG_DEBUG, "No result yet");
 			return MOD_RES_DENY;
 		}
 
-		ServerInstance->Logs->Log("m_ident",DEBUG, "Yay, result!");
+		ServerInstance->Logs->Log("m_ident",LOG_DEBUG, "Yay, result!");
 
 		/* wooo, got a result (it will be good, or bad) */
 		if (isock->result.empty())
@@ -408,4 +404,3 @@ class ModuleIdent : public Module
 };
 
 MODULE_INIT(ModuleIdent)
-

@@ -22,10 +22,9 @@
 
 
 #include "inspircd.h"
-#include "u_listmode.h"
+#include "listmode.h"
 
 /* $ModDesc: Provides support for the +e channel mode */
-/* $ModDep: ../../include/u_listmode.h */
 
 /* Written by Om<om@inspircd.org>, April 2005. */
 /* Rewritten to use the listmode utility by Om, December 2005 */
@@ -49,7 +48,7 @@ class ModuleBanException : public Module
 {
 	BanException be;
 
-public:
+ public:
 	ModuleBanException() : be(this)
 	{
 	}
@@ -63,21 +62,21 @@ public:
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::string &output)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" EXCEPTS=e");
+		tokens["EXCEPTS"] = "e";
 	}
 
 	ModResult OnExtBanCheck(User *user, Channel *chan, char type)
 	{
 		if (chan != NULL)
 		{
-			modelist *list = be.extItem.get(chan);
+			ListModeBase::ModeList *list = be.GetList(chan);
 
 			if (!list)
 				return MOD_RES_PASSTHRU;
 
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (it->mask[0] != type || it->mask[1] != ':')
 					continue;
@@ -97,7 +96,7 @@ public:
 	{
 		if (chan)
 		{
-			modelist *list = be.extItem.get(chan);
+			ListModeBase::ModeList *list = be.GetList(chan);
 
 			if (!list)
 			{
@@ -105,7 +104,7 @@ public:
 				return MOD_RES_PASSTHRU;
 			}
 
-			for (modelist::iterator it = list->begin(); it != list->end(); it++)
+			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				if (chan->CheckBan(user, it->mask))
 				{

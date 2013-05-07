@@ -23,7 +23,6 @@
 
 class ModuleMLock : public Module
 {
-private:
 	StringExtItem mlock;
 
 public:
@@ -67,7 +66,6 @@ public:
 
 		return MOD_RES_PASSTHRU;
 	}
-
 };
 
 MODULE_INIT(ModuleMLock)

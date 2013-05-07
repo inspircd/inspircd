@@ -102,7 +102,7 @@ class CommandJumpserver : public Command
 				for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 				{
 					User* t = *i;
-					if (!IS_OPER(t))
+					if (!t->IsOper())
 					{
 						t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", t->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
 						ServerInstance->Users->QuitUser(t, reason);
@@ -134,7 +134,6 @@ class CommandJumpserver : public Command
 	}
 };
 
-
 class ModuleJumpServer : public Module
 {
 	CommandJumpserver js;
@@ -148,10 +147,6 @@ class ModuleJumpServer : public Module
 		ServerInstance->Modules->AddService(js);
 		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleJumpServer()
-	{
 	}
 
 	virtual ModResult OnUserRegister(LocalUser* user)
@@ -176,7 +171,6 @@ class ModuleJumpServer : public Module
 	{
 		return Version("Provides support for the RPL_REDIR numeric and the /JUMPSERVER command.", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleJumpServer)

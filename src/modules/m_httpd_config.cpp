@@ -19,7 +19,7 @@
 
 
 #include "inspircd.h"
-#include "httpd.h"
+#include "modules/httpd.h"
 #include "protocol.h"
 
 /* $ModDesc: Allows for the server configuration to be viewed over HTTP via m_httpd.so */
@@ -73,7 +73,7 @@ class ModuleHttpConfig : public Module
 
 		if (event.id == "httpd_url")
 		{
-			ServerInstance->Logs->Log("m_http_stats", DEBUG,"Handling httpd event");
+			ServerInstance->Logs->Log("m_http_stats", LOG_DEBUG,"Handling httpd event");
 			HTTPRequest* http = (HTTPRequest*)&event;
 
 			if ((http->GetURI() == "/config") || (http->GetURI() == "/config/"))
@@ -100,10 +100,6 @@ class ModuleHttpConfig : public Module
 				response.Send();
 			}
 		}
-	}
-
-	virtual ~ModuleHttpConfig()
-	{
 	}
 
 	virtual Version GetVersion()

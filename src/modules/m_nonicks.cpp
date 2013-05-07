@@ -46,19 +46,14 @@ class ModuleNoNickChange : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleNoNickChange()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);
 	}
 
-
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('N');
+		tokens["EXTBAN"].push_back('N');
 	}
 
 	virtual ModResult OnUserPreNick(User* user, const std::string &newnick)
@@ -79,7 +74,7 @@ class ModuleNoNickChange : public Module
 			if (res == MOD_RES_ALLOW)
 				continue;
 
-			if (override && IS_OPER(user))
+			if (override && user->IsOper())
 				continue;
 
 			if (!curr->GetExtBanStatus(user, 'N').check(!curr->IsModeSet('N')))

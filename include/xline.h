@@ -20,8 +20,7 @@
  */
 
 
-#ifndef XLINE_H
-#define XLINE_H
+#pragma once
 
 /** XLine is the base class for ban lines such as G lines and K lines.
  * Modules may derive from this, and their xlines will automatically be
@@ -101,7 +100,7 @@ class CoreExport XLine : public classbase
 	 * line. Usually a line in the form 'expiring Xline blah, set by...'
 	 * see the DisplayExpiry methods of GLine, ELine etc.
 	 */
-	virtual void DisplayExpiry() = 0;
+	virtual void DisplayExpiry();
 
 	/** Returns the displayable form of the pattern for this xline,
 	 * e.g. '*\@foo' or '*baz*'. This must always return the full pattern
@@ -177,8 +176,6 @@ class CoreExport KLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual void DisplayExpiry();
-
 	virtual const char* Displayable();
 
 	virtual bool IsBurstable();
@@ -225,8 +222,6 @@ class CoreExport GLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual void DisplayExpiry();
-
 	virtual const char* Displayable();
 
 	/** Ident mask (ident part only)
@@ -268,8 +263,6 @@ class CoreExport ELine : public XLine
 	virtual bool Matches(const std::string &str);
 
 	virtual void Unset();
-
-	virtual void DisplayExpiry();
 
 	virtual void OnAdd();
 
@@ -314,8 +307,6 @@ class CoreExport ZLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual void DisplayExpiry();
-
 	virtual const char* Displayable();
 
 	/** IP mask (no ident part)
@@ -350,8 +341,6 @@ class CoreExport QLine : public XLine
 	virtual bool Matches(const std::string &str);
 
 	virtual void Apply(User* u);
-
-	virtual void DisplayExpiry();
 
 	virtual const char* Displayable();
 
@@ -537,4 +526,3 @@ class CoreExport XLineManager
 	void InvokeStats(const std::string &type, int numeric, User* user, string_list &results);
 };
 
-#endif

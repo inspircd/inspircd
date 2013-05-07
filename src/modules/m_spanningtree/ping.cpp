@@ -18,44 +18,34 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
 #include "utils.h"
-#include "treeserver.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
+/* $ModDep: m_spanningtree/utils.h m_spanningtree/treesocket.h */
 
 bool TreeSocket::LocalPing(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
 		return true;
-	if (params.size() == 1)
+
+	const std::string& forwardto = params[0];
+	if (forwardto == ServerInstance->Config->GetSID())
 	{
-		std::string stufftobounce = params[0];
-		this->WriteLine(":"+ServerInstance->Config->GetSID()+" PONG "+stufftobounce);
-		return true;
+		// PING for us, reply with a PONG
+		std::string reply = ":" + forwardto + " PONG " + prefix;
+		if (params.size() >= 2)
+			// If there is a second parameter, append it
+			reply.append(" :").append(params[1]);
+
+		this->WriteLine(reply);
 	}
 	else
 	{
-		std::string forwardto = params[1];
-		if (forwardto == ServerInstance->Config->ServerName || forwardto == ServerInstance->Config->GetSID())
-		{
-			// this is a ping for us, send back PONG to the requesting server
-			params[1] = params[0];
-			params[0] = forwardto;
-			Utils->DoOneToOne(ServerInstance->Config->GetSID(),"PONG",params,params[1]);
-		}
-		else
-		{
-			// not for us, pass it on :)
-			Utils->DoOneToOne(prefix,"PING",params,forwardto);
-		}
-		return true;
+		// not for us, pass it on :)
+		Utils->DoOneToOne(prefix,"PING",params,forwardto);
 	}
+	return true;
 }
 
 

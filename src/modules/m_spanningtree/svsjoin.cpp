@@ -19,13 +19,7 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
-#include "utils.h"
-#include "treeserver.h"
 #include "commands.h"
 
 CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, User *user)
@@ -40,8 +34,9 @@ CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 
 	/* only join if it's local, otherwise just pass it on! */
-	if (IS_LOCAL(u))
-		Channel::JoinUser(u, parameters[1].c_str(), false, "", false, ServerInstance->Time());
+	LocalUser* localuser = IS_LOCAL(u);
+	if (localuser)
+		Channel::JoinUser(localuser, parameters[1]);
 	return CMD_SUCCESS;
 }
 

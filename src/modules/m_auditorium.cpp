@@ -43,11 +43,11 @@ class AuditoriumMode : public ModeHandler
 
 class ModuleAuditorium : public Module
 {
- private:
 	AuditoriumMode aum;
 	bool OpsVisible;
 	bool OpsCanSee;
 	bool OperCanSee;
+
  public:
 	ModuleAuditorium() : aum(this)
 	{
@@ -64,10 +64,6 @@ class ModuleAuditorium : public Module
 			I_OnBuildNeighborList, I_OnNamesListItem, I_OnSendWhoLine,
 			I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	~ModuleAuditorium()
-	{
 	}
 
 	void OnRehash(User* user)

@@ -17,12 +17,8 @@
  */
 
 
-#ifndef M_SPANNINGTREE_CACHETIMER_H
-#define M_SPANNINGTREE_CACHETIMER_H
+#pragma once
 
-#include "timer.h"
-
-class ModuleSpanningTree;
 class SpanningTreeUtilities;
 
 /** Create a timer which recurs every second, we inherit from Timer.
@@ -35,7 +31,5 @@ class CacheRefreshTimer : public Timer
 	SpanningTreeUtilities *Utils;
  public:
 	CacheRefreshTimer(SpanningTreeUtilities* Util);
-	virtual void Tick(time_t TIME);
+	virtual bool Tick(time_t TIME);
 };
-
-#endif

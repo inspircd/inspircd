@@ -70,10 +70,6 @@ class ModuleDeVoice : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleDeVoice()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides voiced users with the ability to devoice themselves.", VF_VENDOR);

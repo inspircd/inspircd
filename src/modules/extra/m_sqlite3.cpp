@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 #include <sqlite3.h>
-#include "sql.h"
+#include "modules/sql.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "sqlite3.lib")
@@ -45,10 +45,6 @@ class SQLite3Result : public SQLResult
 	std::vector<SQLEntries> fieldlists;
 
 	SQLite3Result() : currentrow(0), rows(0)
-	{
-	}
-
-	~SQLite3Result()
 	{
 	}
 
@@ -80,7 +76,6 @@ class SQLite3Result : public SQLResult
 
 class SQLConn : public SQLProvider
 {
- private:
 	sqlite3* conn;
 	reference<ConfigTag> config;
 
@@ -90,7 +85,7 @@ class SQLConn : public SQLProvider
 		std::string host = tag->getString("hostname");
 		if (sqlite3_open_v2(host.c_str(), &conn, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
 		{
-			ServerInstance->Logs->Log("m_sqlite3",DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
+			ServerInstance->Logs->Log("m_sqlite3",LOG_DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
 			conn = NULL;
 		}
 	}
@@ -206,14 +201,9 @@ class SQLConn : public SQLProvider
 
 class ModuleSQLite3 : public Module
 {
- private:
 	ConnMap conns;
 
  public:
-	ModuleSQLite3()
-	{
-	}
-
 	void init()
 	{
 		ReadConf();

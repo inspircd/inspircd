@@ -66,7 +66,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	bool match_hosts = false;
 
 	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
-	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString());
+	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString().c_str());
 
 	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 	if (i != ServerInstance->Config->oper_blocks.end())
@@ -98,7 +98,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	user->CommandFloodPenalty += 10000;
 
 	ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
-	ServerInstance->Logs->Log("OPER",DEFAULT,"OPER: Failed oper attempt by %s using login '%s': The following fields did not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
+	ServerInstance->Logs->Log("OPER",LOG_DEFAULT,"OPER: Failed oper attempt by %s using login '%s': The following fields did not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
 	return CMD_FAILURE;
 }
 

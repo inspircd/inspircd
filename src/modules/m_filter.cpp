@@ -22,7 +22,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 
 /* $ModDesc: Text (spam) filtering */
 
@@ -240,7 +240,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			{
 				if (parameters.size() >= 5)
 				{
-					duration = ServerInstance->Duration(parameters[3]);
+					duration = InspIRCd::Duration(parameters[3]);
 					reasonindex = 4;
 				}
 				else
@@ -283,7 +283,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 
 bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 {
-	if ((filter->flag_no_opers) && IS_OPER(user))
+	if ((filter->flag_no_opers) && user->IsOper())
 		return false;
 	if ((iflags & FLAG_PRIVMSG) && (!filter->flag_privmsg))
 		return false;
@@ -388,7 +388,7 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 				delete gl;
 		}
 
-		ServerInstance->Logs->Log("FILTER",DEFAULT,"FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		ServerInstance->Logs->Log("FILTER",LOG_DEFAULT,"FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
@@ -573,7 +573,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 		}
 		catch (ModuleException& e)
 		{
-			ServerInstance->Logs->Log("m_filter", DEBUG, "Error when unserializing filter: " + std::string(e.GetReason()));
+			ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "Error when unserializing filter: " + std::string(e.GetReason()));
 		}
 	}
 }
@@ -605,13 +605,13 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 			InspIRCd::StripColor(stripped_text);
 		}
 
-		//ServerInstance->Logs->Log("m_filter", DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
+		//ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
 		if (index->regex->Matches(filter->flag_strip_color ? stripped_text : text))
 		{
-			//ServerInstance->Logs->Log("m_filter", DEBUG, "MATCH");
+			//ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "MATCH");
 			return &*index;
 		}
-		//ServerInstance->Logs->Log("m_filter", DEBUG, "NO MATCH");
+		//ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "NO MATCH");
 	}
 	return NULL;
 }
@@ -646,7 +646,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 	}
 	catch (ModuleException &e)
 	{
-		ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
+		ServerInstance->Logs->Log("m_filter", LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
 		return std::make_pair(false, e.GetReason());
 	}
 	return std::make_pair(true, "");
@@ -695,7 +695,7 @@ void ModuleFilter::ReadFilters()
 		std::string reason = i->second->getString("reason");
 		std::string action = i->second->getString("action");
 		std::string flgs = i->second->getString("flags");
-		long gline_time = ServerInstance->Duration(i->second->getString("duration"));
+		unsigned long gline_time = InspIRCd::Duration(i->second->getString("duration"));
 		if (flgs.empty())
 			flgs = "*";
 
@@ -706,11 +706,11 @@ void ModuleFilter::ReadFilters()
 		try
 		{
 			filters.push_back(ImplFilter(this, reason, fa, gline_time, pattern, flgs));
-			ServerInstance->Logs->Log("m_filter", DEFAULT, "Regular expression %s loaded.", pattern.c_str());
+			ServerInstance->Logs->Log("m_filter", LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_filter", DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
+			ServerInstance->Logs->Log("m_filter", LOG_DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
 		}
 	}
 }

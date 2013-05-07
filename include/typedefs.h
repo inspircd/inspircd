@@ -19,8 +19,7 @@
  */
 
 
-#ifndef TYPEDEFS_H
-#define TYPEDEFS_H
+#pragma once
 
 class BanCacheManager;
 class BanItem;
@@ -29,8 +28,6 @@ class Channel;
 class Command;
 class ConfigReader;
 class ConfigTag;
-class DNSHeader;
-class DNSRequest;
 class Extensible;
 class FakeUser;
 class InspIRCd;
@@ -45,24 +42,17 @@ class ServerConfig;
 class ServerLimits;
 class Thread;
 class User;
-class UserResolver;
 class XLine;
 class XLineManager;
 class XLineFactory;
 struct ConnectClass;
 struct ModResult;
-struct ResourceRecord;
 
 #include "hashcomp.h"
 #include "base.h"
 
-#ifdef HASHMAP_DEPRECATED
-	typedef nspace::hash_map<std::string, User*, nspace::insensitive, irc::StrHashComp> user_hash;
-	typedef nspace::hash_map<std::string, Channel*, nspace::insensitive, irc::StrHashComp> chan_hash;
-#else
-	typedef nspace::hash_map<std::string, User*, nspace::hash<std::string>, irc::StrHashComp> user_hash;
-	typedef nspace::hash_map<std::string, Channel*, nspace::hash<std::string>, irc::StrHashComp> chan_hash;
-#endif
+typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
+typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
 
 /** A list holding local users, this is the type of UserManager::local_users
  */
@@ -120,7 +110,7 @@ typedef std::map<std::string, file_cache> ConfigFileCache;
 
 /** A hash of commands used by the core
  */
-typedef nspace::hash_map<std::string,Command*> Commandtable;
+typedef TR1NS::unordered_map<std::string, Command*> Commandtable;
 
 /** Membership list of a channel */
 typedef std::map<User*, Membership*> UserMembList;
@@ -159,7 +149,3 @@ typedef XLineContainer::iterator ContainerIter;
 /** An interator in an XLineLookup
  */
 typedef XLineLookup::iterator LookupIter;
-
-
-#endif
-

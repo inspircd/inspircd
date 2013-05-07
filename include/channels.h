@@ -20,8 +20,7 @@
  */
 
 
-#ifndef CHANNELS_H
-#define CHANNELS_H
+#pragma once
 
 #include "membership.h"
 #include "mode.h"
@@ -29,28 +28,6 @@
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
  */
-class HostItem
-{
- public:
-	/** Time the item was added
-	 */
-	time_t set_time;
-	/** Who added the item
-	 */
-	std::string set_by;
-	/** The actual item data
-	 */
-	std::string data;
-
-	HostItem() { /* stub */ }
-	virtual ~HostItem() { /* stub */ }
-};
-
-/** A subclass of HostItem designed to hold channel bans (+b)
- */
-class BanItem : public HostItem
-{
-};
 
 /** Holds all relevent information for a channel.
  * This class represents a channel, and contains its name, modes, topic, topic set time,
@@ -58,17 +35,9 @@ class BanItem : public HostItem
  */
 class CoreExport Channel : public Extensible, public InviteBase
 {
-	/** Connect a Channel to a User
-	 */
-	static Channel* ForceChan(Channel* Ptr, User* user, const std::string &privs, bool bursting, bool created);
-
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();
-
-	/** Maximum number of bans (cached)
-	 */
-	int maxbans;
 
 	/** Modes for the channel.
 	 * This is not a null terminated string! It is a bitset where
@@ -115,10 +84,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * If this member is an empty string, no topic was ever set.
 	 */
 	std::string setby; /* 128 */
-
-	/** The list of all bans set on the channel.
-	 */
-	BanList bans;
 
 	/** Sets or unsets a custom mode in the channels info
 	 * @param mode The mode character to set or unset
@@ -220,16 +185,24 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	void PartUser(User *user, std::string &reason);
 
-	/* Join a user to a channel. May be a channel that doesnt exist yet.
+	/** Join a local user to a channel, with or without permission checks. May be a channel that doesn't exist yet.
 	 * @param user The user to join to the channel.
-	 * @param cn The channel name to join to. Does not have to exist.
+	 * @param channame The channel name to join to. Does not have to exist.
 	 * @param key The key of the channel, if given
 	 * @param override If true, override all join restrictions such as +bkil
 	 * @return A pointer to the Channel the user was joined to. A new Channel may have
 	 * been created if the channel did not exist before the user was joined to it.
-	 * If the user could not be joined to a channel, the return value may be NULL.
+	 * If the user could not be joined to a channel, the return value is NULL.
 	 */
-	static Channel* JoinUser(User *user, const char* cn, bool override, const char* key, bool bursting, time_t TS = 0);
+	static Channel* JoinUser(LocalUser* user, std::string channame, bool override = false, const std::string& key = "");
+
+	/** Join a user to an existing channel, without doing any permission checks
+	 * @param user The user to join to the channel
+	 * @param privs Priviliges (prefix mode letters) to give to this user, may be NULL
+	 * @param bursting True if this join is the result of a netburst (passed to modules in the OnUserJoin hook)
+	 * @param created True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
+	 */
+	void ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with
@@ -300,11 +273,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	void WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
 	/** Write a line of text that already includes the source */
 	void RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string& text);
-
-	/** Returns the maximum number of bans allowed to be set on this channel
-	 * @return The maximum number of bans allowed
-	 */
-	long GetMaxBans();
 
 	/** Return the channel's modes with parameters.
 	 * @param showkey If this is set to true, the actual key is shown,
@@ -388,10 +356,4 @@ class CoreExport Channel : public Extensible, public InviteBase
 	/** Get the status of an "action" type extban
 	 */
 	ModResult GetExtBanStatus(User *u, char type);
-
-	/** Clears the cached max bans value
-	 */
-	void ResetMaxBans();
 };
-
-#endif

@@ -46,7 +46,7 @@ class ModuleRestrictMsg : public Module
 			// (1) the sender is opered
 			// (2) the recipient is opered
 			// anything else, blocked.
-			if (IS_OPER(u) || IS_OPER(user))
+			if (u->IsOper() || user->IsOper())
 			{
 				return MOD_RES_PASSTHRU;
 			}
@@ -61,10 +61,6 @@ class ModuleRestrictMsg : public Module
 	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{
 		return this->OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
-	}
-
-	virtual ~ModuleRestrictMsg()
-	{
 	}
 
 	virtual Version GetVersion()

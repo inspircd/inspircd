@@ -23,7 +23,7 @@
 /* $ModDesc: RLINE: Regexp user banning. */
 
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include "xline.h"
 
 static bool ZlineOnMatch = false;
@@ -61,7 +61,8 @@ class RLine : public XLine
 
 	bool Matches(User *u)
 	{
-		if (u->exempt)
+		LocalUser* lu = IS_LOCAL(u);
+		if (lu && lu->exempt)
 			return false;
 
 		std::string compare = u->nick + "!" + u->ident + "@" + u->host + " " + u->fullname;
@@ -91,12 +92,6 @@ class RLine : public XLine
 		DefaultApply(u, "R", false);
 	}
 
-	void DisplayExpiry()
-	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired R-line %s (set by %s %ld seconds ago)",
-			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
-	}
-
 	const char* Displayable()
 	{
 		return matchtext.c_str();
@@ -117,7 +112,7 @@ class RLineFactory : public XLineFactory
 	RLineFactory(dynamic_reference<RegexFactory>& rx) : XLineFactory("R"), rxfactory(rx)
 	{
 	}
-	
+
 	/** Generate a RLine
 	 */
 	XLine* Generate(time_t set_time, long duration, std::string source, std::string reason, std::string xline_specific_mask)
@@ -129,10 +124,6 @@ class RLineFactory : public XLineFactory
 		}
 
 		return new RLine(set_time, duration, source, reason, xline_specific_mask, rxfactory);
-	}
-
-	~RLineFactory()
-	{
 	}
 };
 
@@ -157,7 +148,7 @@ class CommandRLine : public Command
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
 
-			long duration = ServerInstance->Duration(parameters[1]);
+			unsigned long duration = InspIRCd::Duration(parameters[1]);
 			XLine *r = NULL;
 
 			try
@@ -219,7 +210,6 @@ class CommandRLine : public Command
 
 class ModuleRLine : public Module
 {
- private:
 	dynamic_reference<RegexFactory> rxfactory;
 	RLineFactory f;
 	CommandRLine r;

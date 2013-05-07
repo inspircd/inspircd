@@ -20,9 +20,7 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
 
-#include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
 #include "link.h"
@@ -32,25 +30,19 @@ std::string TreeSocket::MyModules(int filter)
 {
 	std::vector<std::string> modlist = ServerInstance->Modules->GetAllModuleNames(filter);
 
-	if (filter == VF_COMMON && proto_version != ProtocolVersion)
-		CompatAddModules(modlist);
-
 	std::string capabilities;
 	sort(modlist.begin(),modlist.end());
 	for (std::vector<std::string>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
 		if (i != modlist.begin())
-			capabilities.push_back(proto_version > 1201 ? ' ' : ',');
+			capabilities.push_back(' ');
 		capabilities.append(*i);
 		Module* m = ServerInstance->Modules->Find(*i);
-		if (m && proto_version > 1201)
+		Version v = m->GetVersion();
+		if (!v.link_data.empty())
 		{
-			Version v = m->GetVersion();
-			if (!v.link_data.empty())
-			{
-				capabilities.push_back('=');
-				capabilities.append(v.link_data);
-			}
+			capabilities.push_back('=');
+			capabilities.append(v.link_data);
 		}
 	}
 	return capabilities;
@@ -90,7 +82,7 @@ void TreeSocket::SendCapabilities(int phase)
 	if (phase < 2)
 		return;
 
-	char sep = proto_version > 1201 ? ' ' : ',';
+	const char sep = ' ';
 	irc::sepstream modulelist(MyModules(VF_COMMON), sep);
 	irc::sepstream optmodulelist(MyModules(VF_OPTCOMMON), sep);
 	/* Send module names, split at 509 length */
@@ -139,8 +131,10 @@ void TreeSocket::SendCapabilities(int phase)
 		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
 	}
-	if (proto_version < 1202)
-		extra += ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL) ? " HALFOP=1" : " HALFOP=0";
+
+	// 2.0 needs this key
+	if (proto_version == 1202)
+		extra.append(" PROTOCOL="+ConvToStr(ProtocolVersion));
 
 	this->WriteLine("CAPAB CAPABILITIES " /* Preprocessor does this one. */
 			":NICKMAX="+ConvToStr(ServerInstance->Config->Limits.NickMax)+
@@ -152,12 +146,11 @@ void TreeSocket::SendCapabilities(int phase)
 			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
 			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
-			" IP6SUPPORT=1"+
-			" PROTOCOL="+ConvToStr(ProtocolVersion)+extra+
+			extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
 			" CHANMODES="+ServerInstance->Modes->GiveModeList(MASK_CHANNEL)+
-			" USERMODES="+ServerInstance->Modes->GiveModeList(MASK_USER)+
-			" SVSPART=1");
+			" USERMODES="+ServerInstance->Modes->GiveModeList(MASK_USER)
+			);
 
 	this->WriteLine("CAPAB END");
 }
@@ -202,7 +195,23 @@ bool TreeSocket::Capab(const parameterlist &params)
 		capab->OptModuleList.clear();
 		capab->CapKeys.clear();
 		if (params.size() > 1)
-			proto_version = atoi(params[1].c_str());
+			proto_version = ConvToInt(params[1]);
+
+		if (proto_version < MinCompatProtocol)
+		{
+			SendError("CAPAB negotiation failed: Server is using protocol version " + (proto_version ? ConvToStr(proto_version) : "1201 or older")
+				+ " which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
+				+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")"));
+			return false;
+		}
+
+		// Special case, may be removed in the future
+		if (proto_version == 1203 || proto_version == 1204)
+		{
+			SendError("CAPAB negotiation failed: InspIRCd 2.1 beta is not supported");
+			return false;
+		}
+
 		SendCapabilities(2);
 	}
 	else if (params[0] == "END")
@@ -212,7 +221,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		if ((this->capab->ModuleList != this->MyModules(VF_COMMON)) && (this->capab->ModuleList.length()))
 		{
 			std::string diffIneed, diffUneed;
-			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), proto_version > 1201 ? ' ' : ',', diffIneed, diffUneed);
+			ListDifference(this->capab->ModuleList, this->MyModules(VF_COMMON), ' ', diffIneed, diffUneed);
 			if (diffIneed.length() || diffUneed.length())
 			{
 				reason = "Modules incorrectly matched on these servers.";
@@ -247,21 +256,6 @@ bool TreeSocket::Capab(const parameterlist &params)
 					this->SendError("CAPAB negotiation failed: "+reason);
 					return false;
 				}
-			}
-		}
-
-		if (this->capab->CapKeys.find("PROTOCOL") == this->capab->CapKeys.end())
-		{
-			reason = "Protocol version not specified";
-		}
-		else
-		{
-			proto_version = atoi(capab->CapKeys.find("PROTOCOL")->second.c_str());
-			if (proto_version < MinCompatProtocol)
-			{
-				reason = "Server is using protocol version " + ConvToStr(proto_version) +
-					" which is too old to link with this server (version " + ConvToStr(ProtocolVersion)
-					+ (ProtocolVersion != MinCompatProtocol ? ", links with " + ConvToStr(MinCompatProtocol) + " and above)" : ")");
 			}
 		}
 
@@ -348,7 +342,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 		}
 		else
 		{
-			capab->ModuleList.push_back(proto_version > 1201 ? ' ' : ',');
+			capab->ModuleList.push_back(' ');
 			capab->ModuleList.append(params[1]);
 		}
 	}

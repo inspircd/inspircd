@@ -56,7 +56,6 @@ class User_d : public ModeHandler
 class ModuleDeaf : public Module
 {
 	User_d m1;
-
 	std::string deaf_bypasschars;
 	std::string deaf_bypasschars_uline;
 
@@ -159,15 +158,10 @@ class ModuleDeaf : public Module
 		}
 	}
 
-	virtual ~ModuleDeaf()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides usermode +d to block channel messages and channel notices", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleDeaf)

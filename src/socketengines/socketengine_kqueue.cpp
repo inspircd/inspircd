@@ -72,7 +72,7 @@ KQueueEngine::KQueueEngine()
 	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
 	if (MAX_DESCRIPTORS <= 0)
 	{
-		ServerInstance->Logs->Log("SOCKET", DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
 		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
 	}
@@ -93,8 +93,8 @@ void KQueueEngine::RecoverFromFork()
 	EngineHandle = kqueue();
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
-		ServerInstance->Logs->Log("SOCKET",DEFAULT, "ERROR: this is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT, "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features.");
+		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT, "ERROR: this is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features." << std::endl;
 		std::cout << "ERROR: this is a fatal error, exiting now." << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -126,7 +126,7 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 	if (i == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to add fd: %d %s",
+		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"Failed to add fd: %d %s",
 					  fd, strerror(errno));
 		return false;
 	}
@@ -136,7 +136,7 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 	OnSetEvent(eh, 0, event_mask);
 	CurrentSetSize++;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"New file descriptor: %d", fd);
 	return true;
 }
 
@@ -146,7 +146,7 @@ void KQueueEngine::DelFd(EventHandler* eh)
 
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"DelFd() on invalid fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"DelFd() on invalid fd: %d", fd);
 		return;
 	}
 
@@ -163,14 +163,14 @@ void KQueueEngine::DelFd(EventHandler* eh)
 
 	if (j < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to remove fd: %d %s",
+		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"Failed to remove fd: %d %s",
 					  fd, strerror(errno));
 	}
 
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	ServerInstance->Logs->Log("SOCKET",DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Remove file descriptor: %d", fd);
 }
 
 void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
@@ -182,7 +182,7 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 		if (i < 0) {
-			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
+			ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"Failed to mark for writing: %d %s",
 						  eh->GetFd(), strerror(errno));
 		}
 	}
@@ -193,7 +193,7 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 		if (i < 0) {
-			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
+			ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"Failed to mark for writing: %d %s",
 						  eh->GetFd(), strerror(errno));
 		}
 	}
@@ -204,7 +204,7 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
 		if (i < 0) {
-			ServerInstance->Logs->Log("SOCKET",DEFAULT,"Failed to mark for writing: %d %s",
+			ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"Failed to mark for writing: %d %s",
 						  eh->GetFd(), strerror(errno));
 		}
 	}

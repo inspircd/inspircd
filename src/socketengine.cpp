@@ -60,7 +60,7 @@ void SocketEngine::ChangeEventMask(EventHandler* eh, int change)
 		new_m &= ~FD_WANT_READ_MASK;
 	if (change & FD_WANT_WRITE_MASK)
 		new_m &= ~FD_WANT_WRITE_MASK;
-	
+
 	// if adding a trial read/write, insert it into the set
 	if (change & FD_TRIAL_NOTE_MASK && !(old_m & FD_TRIAL_NOTE_MASK))
 		trials.insert(eh->GetFd());

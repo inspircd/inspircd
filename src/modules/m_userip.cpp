@@ -43,8 +43,8 @@ class CommandUserip : public Command
 			User *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
-				retbuf = retbuf + u->nick + (IS_OPER(u) ? "*" : "") + "=";
-				if (IS_AWAY(u))
+				retbuf = retbuf + u->nick + (u->IsOper() ? "*" : "") + "=";
+				if (u->IsAway())
 					retbuf += "-";
 				else
 					retbuf += "+";
@@ -77,21 +77,15 @@ class ModuleUserIP : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output = output + " USERIP";
-	}
-
-	virtual ~ModuleUserIP()
-	{
+		tokens["USERIP"];
 	}
 
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for USERIP command",VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleUserIP)
-

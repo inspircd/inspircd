@@ -18,8 +18,8 @@
 
 
 #include "inspircd.h"
-#include "sql.h"
-#include "hash.h"
+#include "modules/sql.h"
+#include "modules/hash.h"
 
 /* $ModDesc: Allow/Deny connections based upon an arbitrary SQL table */
 
@@ -39,7 +39,7 @@ class AuthQuery : public SQLQuery
 		: SQLQuery(me), uid(u), pendingExt(e), verbose(v)
 	{
 	}
-	
+
 	void OnResult(SQLResult& res)
 	{
 		User* user = ServerInstance->FindNick(uid);

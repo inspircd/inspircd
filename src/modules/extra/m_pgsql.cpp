@@ -26,7 +26,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <libpq-fe.h>
-#include "sql.h"
+#include "modules/sql.h"
 
 /* $ModDesc: PostgreSQL Service Provider module for all other m_sql* modules, uses v2 of the SQL API */
 /* $CompileFlags: -Iexec("pg_config --includedir") eval("my $s = `pg_config --version`;$s =~ /^.*?(\d+)\.(\d+)\.(\d+).*?$/;my $v = hex(sprintf("0x%02x%02x%02x", $1, $2, $3));print "-DPGSQL_HAS_ESCAPECONN" if(($v >= 0x080104) || ($v >= 0x07030F && $v < 0x070400) || ($v >= 0x07040D && $v < 0x080000) || ($v >= 0x080008 && $v < 0x080100));") */
@@ -62,7 +62,7 @@ class ReconnectTimer : public Timer
 	ReconnectTimer(ModulePgSQL* m) : Timer(5, ServerInstance->Time(), false), mod(m)
 	{
 	}
-	virtual void Tick(time_t TIME);
+	virtual bool Tick(time_t TIME);
 };
 
 struct QueueItem
@@ -152,7 +152,7 @@ class SQLConn : public SQLProvider, public EventHandler
 	{
 		if (!DoConnect())
 		{
-			ServerInstance->Logs->Log("m_pgsql",DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
+			ServerInstance->Logs->Log("m_pgsql",LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
 			DelayReconnect();
 		}
 	}
@@ -244,7 +244,7 @@ class SQLConn : public SQLProvider, public EventHandler
 
 		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
 		{
-			ServerInstance->Logs->Log("m_pgsql",DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
+			ServerInstance->Logs->Log("m_pgsql",LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
 		}
 
@@ -417,7 +417,7 @@ restart:
 					int error;
 					PQescapeStringConn(sql, buffer, parm.c_str(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs->Log("m_pgsql", LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 #else
 					PQescapeString         (buffer, parm.c_str(), parm.length());
 #endif
@@ -452,7 +452,7 @@ restart:
 					int error;
 					PQescapeStringConn(sql, buffer, parm.c_str(), parm.length(), &error);
 					if (error)
-						ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
+						ServerInstance->Logs->Log("m_pgsql", LOG_DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 #else
 					PQescapeString         (buffer, parm.c_str(), parm.length());
 #endif
@@ -505,6 +505,7 @@ class ModulePgSQL : public Module
 	ReconnectTimer* retimer;
 
 	ModulePgSQL()
+		: retimer(NULL)
 	{
 	}
 
@@ -518,8 +519,7 @@ class ModulePgSQL : public Module
 
 	virtual ~ModulePgSQL()
 	{
-		if (retimer)
-			ServerInstance->Timers->DelTimer(retimer);
+		delete retimer;
 		ClearAllConnections();
 	}
 
@@ -598,10 +598,11 @@ class ModulePgSQL : public Module
 	}
 };
 
-void ReconnectTimer::Tick(time_t time)
+bool ReconnectTimer::Tick(time_t time)
 {
 	mod->retimer = NULL;
 	mod->ReadConf();
+	return false;
 }
 
 void SQLConn::DelayReconnect()

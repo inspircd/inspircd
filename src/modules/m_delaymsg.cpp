@@ -41,7 +41,6 @@ class DelayMsgMode : public ModeHandler
 
 class ModuleDelayMsg : public Module
 {
- private:
 	DelayMsgMode djm;
  public:
 	ModuleDelayMsg() : djm(this)
@@ -145,4 +144,3 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 }
 
 MODULE_INIT(ModuleDelayMsg)
-

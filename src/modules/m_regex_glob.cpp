@@ -18,7 +18,7 @@
  */
 
 
-#include "m_regex.h"
+#include "modules/regex.h"
 #include "inspircd.h"
 
 /* $ModDesc: Regex module using plain wildcard matching. */
@@ -27,10 +27,6 @@ class GlobRegex : public Regex
 {
 public:
 	GlobRegex(const std::string& rx) : Regex(rx)
-	{
-	}
-
-	virtual ~GlobRegex()
 	{
 	}
 

@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
+ *   Copyright (C) 2008 Craig Edwards <craigedwards@brainbox.cc>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,14 +17,25 @@
  */
 
 
-#include "mode.h"
+#pragma once
 
-/** Channel mode +l
- */
-class ModeChannelLimit : public ParamChannelModeHandler
+#include <map>
+#include <string>
+
+class AccountEvent : public Event
 {
  public:
-	ModeChannelLimit();
-	bool ParamValidate(std::string& parameter);
-	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
+	User* const user;
+	const std::string account;
+	AccountEvent(Module* me, User* u, const std::string& name)
+		: Event(me, "account_login"), user(u), account(name)
+	{
+	}
 };
+
+typedef StringExtItem AccountExtItem;
+
+inline AccountExtItem* GetAccountExtItem()
+{
+	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
+}

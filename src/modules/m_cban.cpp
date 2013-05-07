@@ -38,10 +38,6 @@ public:
 		this->matchtext = ch.c_str();
 	}
 
-	~CBan()
-	{
-	}
-
 	// XXX I shouldn't have to define this
 	bool Matches(User *u)
 	{
@@ -53,12 +49,6 @@ public:
 		if (matchtext == s)
 			return true;
 		return false;
-	}
-
-	void DisplayExpiry()
-	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired CBan %s (set by %s %ld seconds ago)",
-			this->matchtext.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
 	}
 
 	const char* Displayable()
@@ -118,7 +108,7 @@ class CommandCBan : public Command
 		else
 		{
 			// Adding - XXX todo make this respect <insane> tag perhaps..
-			long duration = ServerInstance->Duration(parameters[1]);
+			unsigned long duration = InspIRCd::Duration(parameters[1]);
 			const char *reason = (parameters.size() > 2) ? parameters[2].c_str() : "No reason supplied";
 			CBan* r = new CBan(ServerInstance->Time(), duration, user->nick.c_str(), reason, parameters[0].c_str());
 
@@ -188,16 +178,16 @@ class ModuleCBan : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual ModResult OnUserPreJoin(User *user, Channel *chan, const char *cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("CBAN", cname);
 
 		if (rl)
 		{
 			// Channel is banned.
-			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname, rl->reason.c_str());
+			user->WriteServ( "384 %s %s :Cannot join channel, CBANed (%s)", user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			ServerInstance->SNO->WriteGlobalSno('a', "%s tried to join %s which is CBANed (%s)",
-				 user->nick.c_str(), cname, rl->reason.c_str());
+				 user->nick.c_str(), cname.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;
 		}
 
@@ -211,4 +201,3 @@ class ModuleCBan : public Module
 };
 
 MODULE_INIT(ModuleCBan)
-

@@ -40,7 +40,7 @@ class ModuleOperLevels : public Module
 		virtual ModResult OnKill(User* source, User* dest, const std::string &reason)
 		{
 			// oper killing an oper?
-			if (IS_OPER(dest) && IS_OPER(source))
+			if (dest->IsOper() && source->IsOper())
 			{
 				std::string level = dest->oper->getConfig("level");
 				long dest_level = atol(level.c_str());
@@ -60,4 +60,3 @@ class ModuleOperLevels : public Module
 };
 
 MODULE_INIT(ModuleOperLevels)
-

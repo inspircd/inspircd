@@ -39,7 +39,7 @@ class Redirect : public ModeHandler
 		{
 			if (IS_LOCAL(source))
 			{
-				if (!ServerInstance->IsChannel(parameter.c_str(), ServerInstance->Config->Limits.ChanMax))
+				if (!ServerInstance->IsChannel(parameter, ServerInstance->Config->Limits.ChanMax))
 				{
 					source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
 					parameter.clear();
@@ -47,7 +47,7 @@ class Redirect : public ModeHandler
 				}
 			}
 
-			if (IS_LOCAL(source) && !IS_OPER(source))
+			if (IS_LOCAL(source) && !source->IsOper())
 			{
 				Channel* c = ServerInstance->FindChan(parameter);
 				if (!c)
@@ -121,7 +121,7 @@ class ModuleRedirect : public Module
 		if (UseUsermode)
 		{
 			/* Log noting that this breaks compatability. */
-			ServerInstance->Logs->Log("m_redirect", DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
+			ServerInstance->Logs->Log("m_redirect", LOG_DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
 
 			/* Try to add the usermode */
 			ServerInstance->Modules->AddService(re_u);
@@ -131,7 +131,7 @@ class ModuleRedirect : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if (chan)
 		{
@@ -142,35 +142,29 @@ class ModuleRedirect : public Module
 					std::string channel = chan->GetModeParameter('L');
 
 					/* sometimes broken ulines can make circular or chained +L, avoid this */
-					Channel* destchan = NULL;
-					destchan = ServerInstance->FindChan(channel);
+					Channel* destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet('L'))
 					{
-						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname);
+						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname.c_str());
 						return MOD_RES_DENY;
 					}
 					/* We check the bool value here to make sure we have it enabled, if we don't then
 						usermode +L might be assigned to something else. */
 					if (UseUsermode && user->IsModeSet('L'))
 					{
-						user->WriteNumeric(470, "%s %s %s :Force redirection stopped.",
-						user->nick.c_str(), cname, channel.c_str());
+						user->WriteNumeric(470, "%s %s %s :Force redirection stopped.", user->nick.c_str(), cname.c_str(), channel.c_str());
 						return MOD_RES_DENY;
 					}
 					else
 					{
-						user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname, channel.c_str());
-						Channel::JoinUser(user, channel.c_str(), false, "", false, ServerInstance->Time());
+						user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname.c_str(), channel.c_str());
+						Channel::JoinUser(user, channel);
 						return MOD_RES_DENY;
 					}
 				}
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	virtual ~ModuleRedirect()
-	{
 	}
 
 	virtual Version GetVersion()

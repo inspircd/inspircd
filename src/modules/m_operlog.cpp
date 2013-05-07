@@ -36,10 +36,6 @@ class ModuleOperLog : public Module
 		OnRehash(NULL);
 	}
 
-	virtual ~ModuleOperLog()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
@@ -56,7 +52,7 @@ class ModuleOperLog : public Module
 		if (!validated)
 			return MOD_RES_PASSTHRU;
 
-		if ((IS_OPER(user)) && (IS_LOCAL(user)) && (user->HasPermission(command)))
+		if ((user->IsOper()) && (IS_LOCAL(user)) && (user->HasPermission(command)))
 		{
 			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
@@ -65,7 +61,7 @@ class ModuleOperLog : public Module
 				if (!parameters.empty())
 					line = irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined();
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + line;
-				ServerInstance->Logs->Log("m_operlog", DEFAULT, "OPERLOG: " + msg);
+				ServerInstance->Logs->Log("m_operlog", LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
 					ServerInstance->SNO->WriteGlobalSno('r', msg);
 			}
@@ -74,12 +70,11 @@ class ModuleOperLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" OPERLOG");
+		tokens["OPERLOG"];
 	}
 
 };
-
 
 MODULE_INIT(ModuleOperLog)

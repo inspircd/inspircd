@@ -27,7 +27,6 @@
 #include "socket.h"
 #include "xline.h"
 
-#include "cachetimer.h"
 #include "resolvers.h"
 #include "main.h"
 #include "utils.h"
@@ -38,22 +37,22 @@
 #include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
+	: commands(NULL), DNS(this, "DNS"), Utils(NULL)
 {
-	Utils = new SpanningTreeUtilities(this);
-	commands = new SpanningTreeCommands(this);
-	RefreshTimer = NULL;
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	: rconnect(module, module->Utils), rsquit(module, module->Utils),
 	svsjoin(module), svspart(module), svsnick(module), metadata(module),
-	uid(module), opertype(module), fjoin(module), fmode(module), ftopic(module),
-	fhost(module), fident(module), fname(module)
+	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
+	fmode(module), ftopic(module), fhost(module), fident(module), fname(module)
 {
 }
 
 void ModuleSpanningTree::init()
 {
+	Utils = new SpanningTreeUtilities(this);
+	commands = new SpanningTreeCommands(this);
 	ServerInstance->Modules->AddService(commands->rconnect);
 	ServerInstance->Modules->AddService(commands->rsquit);
 	ServerInstance->Modules->AddService(commands->svsjoin);
@@ -63,13 +62,13 @@ void ModuleSpanningTree::init()
 	ServerInstance->Modules->AddService(commands->uid);
 	ServerInstance->Modules->AddService(commands->opertype);
 	ServerInstance->Modules->AddService(commands->fjoin);
+	ServerInstance->Modules->AddService(commands->ijoin);
+	ServerInstance->Modules->AddService(commands->resync);
 	ServerInstance->Modules->AddService(commands->fmode);
 	ServerInstance->Modules->AddService(commands->ftopic);
 	ServerInstance->Modules->AddService(commands->fhost);
 	ServerInstance->Modules->AddService(commands->fident);
 	ServerInstance->Modules->AddService(commands->fname);
-	RefreshTimer = new CacheRefreshTimer(Utils);
-	ServerInstance->Timers->AddTimer(RefreshTimer);
 
 	Implementation eventlist[] =
 	{
@@ -87,7 +86,7 @@ void ModuleSpanningTree::init()
 	loopCall = false;
 
 	// update our local user count
-	Utils->TreeRoot->SetUserCount(ServerInstance->Users->local_users.size());
+	Utils->TreeRoot->UserCount = ServerInstance->Users->local_users.size();
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
@@ -101,7 +100,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	{
 		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName()))))
 		{
-			if (IS_OPER(user))
+			if (user->IsOper())
 			{
 				 ShowLinks(Current->GetChild(q),user,hops+1);
 			}
@@ -112,16 +111,16 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName())) && (!IS_OPER(user)))
+	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName())) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */
-	else if ((Current->Hidden) && (!IS_OPER(user)))
+	else if ((Current->Hidden) && (!user->IsOper()))
 		return;
 
 	std::string servername = Current->GetName();
 	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(), servername.c_str(),
-			(Utils->FlatLinks && (!IS_OPER(user))) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
-			(Utils->FlatLinks && (!IS_OPER(user))) ? 0 : hops,
+			(Utils->FlatLinks && (!user->IsOper())) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
+			(Utils->FlatLinks && (!user->IsOper())) ? 0 : hops,
 			Current->GetDesc().c_str());
 }
 
@@ -194,8 +193,7 @@ restart:
 					// ... if we can find a proper route to them
 					if (tsock)
 					{
-						tsock->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " +
-								ServerInstance->Config->GetSID() + " " + s->GetID());
+						tsock->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " + s->GetID());
 						s->LastPingMsec = ts;
 					}
 				}
@@ -271,8 +269,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		return;
 	}
 
-	QueryType start_type = DNS_QUERY_A;
-	start_type = DNS_QUERY_AAAA;
+	DNS::QueryType start_type = DNS::QUERY_AAAA;
 	if (strchr(x->IPAddr.c_str(),':'))
 	{
 		in6_addr n;
@@ -302,16 +299,20 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
 	}
+	else if (!DNS)
+	{
+		ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Hostname given and m_dns.so is not loaded, unable to resolve.", x->Name.c_str());
+	}
 	else
 	{
+		ServernameResolver* snr = new ServernameResolver(Utils, *DNS, x->IPAddr, x, start_type, y);
 		try
 		{
-			bool cached = false;
-			ServernameResolver* snr = new ServernameResolver(Utils, x->IPAddr, x, cached, start_type, y);
-			ServerInstance->AddResolver(snr, cached);
+			DNS->Process(snr);
 		}
-		catch (ModuleException& e)
+		catch (DNS::Exception& e)
 		{
+			delete snr;
 			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
 			ConnectServer(y, false);
 		}
@@ -360,12 +361,13 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 	TreeServer* found = Utils->FindServerMask(parameters[0]);
 	if (found)
 	{
-		std::string Version = found->GetVersion();
-		user->WriteNumeric(351, "%s :%s",user->nick.c_str(),Version.c_str());
 		if (found == Utils->TreeRoot)
 		{
-			ServerInstance->Config->Send005(user);
+			// Pass to default VERSION handler.
+			return MOD_RES_PASSTHRU;
 		}
+		std::string Version = found->GetVersion();
+		user->WriteNumeric(351, "%s :%s",user->nick.c_str(),Version.c_str());
 	}
 	else
 	{
@@ -466,108 +468,45 @@ void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
 	}
 }
 
-void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+void ModuleSpanningTree::LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type)
 {
-	/* Server origin */
-	if (user == NULL)
+	/* Server or remote origin, dest should always be non-null */
+	if ((!user) || (!IS_LOCAL(user)) || (!dest))
 		return;
 
 	if (target_type == TYPE_USER)
 	{
-		User* d = (User*)dest;
-		if (!IS_LOCAL(d) && IS_LOCAL(user))
+		User* d = (User*) dest;
+		if (!IS_LOCAL(d))
 		{
 			parameterlist params;
 			params.push_back(d->uuid);
 			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"NOTICE",params,d->server);
+			Utils->DoOneToOne(user->uuid, message_type, params, d->server);
 		}
 	}
 	else if (target_type == TYPE_CHANNEL)
 	{
-		if (IS_LOCAL(user))
-		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" NOTICE "+cname+" :"+text);
-				}
-			}
-		}
+		Utils->SendChannelMessage(user->uuid, (Channel*)dest, text, status, exempt_list, message_type);
 	}
 	else if (target_type == TYPE_SERVER)
 	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			parameterlist par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"NOTICE",par);
-		}
+		char* target = (char*) dest;
+		parameterlist par;
+		par.push_back(target);
+		par.push_back(":"+text);
+		Utils->DoOneToMany(user->uuid, message_type, par);
 	}
+}
+
+void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+{
+	LocalMessage(user, dest, target_type, text, status, exempt_list, "NOTICE");
 }
 
 void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
 {
-	/* Server origin */
-	if (user == NULL)
-		return;
-
-	if (target_type == TYPE_USER)
-	{
-		// route private messages which are targetted at clients only to the server
-		// which needs to receive them
-		User* d = (User*)dest;
-		if (!IS_LOCAL(d) && (IS_LOCAL(user)))
-		{
-			parameterlist params;
-			params.push_back(d->uuid);
-			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid,"PRIVMSG",params,d->server);
-		}
-	}
-	else if (target_type == TYPE_CHANNEL)
-	{
-		if (IS_LOCAL(user))
-		{
-			Channel *c = (Channel*)dest;
-			if (c)
-			{
-				std::string cname = c->name;
-				if (status)
-					cname = status + cname;
-				TreeServerList list;
-				Utils->GetListOfServersForChannel(c,list,status,exempt_list);
-				for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-				{
-					TreeSocket* Sock = i->second->GetSocket();
-					if (Sock)
-						Sock->WriteLine(":"+std::string(user->uuid)+" PRIVMSG "+cname+" :"+text);
-				}
-			}
-		}
-	}
-	else if (target_type == TYPE_SERVER)
-	{
-		if (IS_LOCAL(user))
-		{
-			char* target = (char*)dest;
-			parameterlist par;
-			par.push_back(target);
-			par.push_back(":"+text);
-			Utils->DoOneToMany(user->uuid,"PRIVMSG",par);
-		}
-	}
+	LocalMessage(user, dest, target_type, text, status, exempt_list, "PRIVMSG");
 }
 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
@@ -595,7 +534,7 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	params.push_back(":"+user->fullname);
 	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
 
-	if (IS_OPER(user))
+	if (user->IsOper())
 	{
 		params.clear();
 		params.push_back(user->oper->name);
@@ -610,23 +549,32 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 			ServerInstance->PI->SendMetaData(user, item->name, value);
 	}
 
-	Utils->TreeRoot->SetUserCount(1); // increment by 1
+	Utils->TreeRoot->UserCount++;
 }
 
-void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
+void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts)
 {
 	// Only do this for local users
 	if (IS_LOCAL(memb->user))
 	{
 		parameterlist params;
-		// set up their permissions and the channel TS with FJOIN.
-		// All users are FJOINed now, because a module may specify
-		// new joining permissions for the user.
 		params.push_back(memb->chan->name);
-		params.push_back(ConvToStr(memb->chan->age));
-		params.push_back(std::string("+") + memb->chan->ChanModes(true));
-		params.push_back(memb->modes+","+memb->user->uuid);
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
+		if (created_by_local)
+		{
+			params.push_back(ConvToStr(memb->chan->age));
+			params.push_back(std::string("+") + memb->chan->ChanModes(true));
+			params.push_back(memb->modes+","+memb->user->uuid);
+			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
+		}
+		else
+		{
+			if (!memb->modes.empty())
+			{
+				params.push_back(ConvToStr(memb->chan->age));
+				params.push_back(memb->modes);
+			}
+			Utils->DoOneToMany(memb->user->uuid, "IJOIN", params);
+		}
 	}
 }
 
@@ -693,7 +641,7 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 	TreeServer* SourceServer = Utils->FindServer(user->server);
 	if (SourceServer)
 	{
-		SourceServer->SetUserCount(-1); // decrement by 1
+		SourceServer->UserCount--;
 	}
 }
 
@@ -757,7 +705,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	if (loopCall)
 		return; // Don't generate a REHASH here if we're in the middle of processing a message that generated this one
 
-	ServerInstance->Logs->Log("remoterehash", DEBUG, "called with param %s", parameter.c_str());
+	ServerInstance->Logs->Log("remoterehash", LOG_DEBUG, "called with param %s", parameter.c_str());
 
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')
@@ -950,7 +898,7 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 	if (u)
 		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
 	else if (c)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+extname+" :"+extdata);
+		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+ConvToStr(c->age)+" "+extname+" :"+extdata);
 	else if (!target)
 		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
 }
@@ -958,7 +906,6 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 CullResult ModuleSpanningTree::cull()
 {
 	Utils->cull();
-	ServerInstance->Timers->DelTimer(RefreshTimer);
 	return this->Module::cull();
 }
 

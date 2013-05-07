@@ -33,8 +33,8 @@ typedef std::map<std::string, time_t> delaylist;
  */
 class KickRejoin : public ModeHandler
 {
+	static const unsigned int max = 60;
  public:
-	unsigned int max;
 	SimpleExtItem<delaylist> ext;
 	KickRejoin(Module* Creator)
 		: ModeHandler(Creator, "kicknorejoin", 'J', PARAM_SETONLY, MODETYPE_CHANNEL)
@@ -75,7 +75,6 @@ class ModuleKickNoRejoin : public Module
 	KickRejoin kr;
 
 public:
-
 	ModuleKickNoRejoin()
 		: kr(this)
 	{
@@ -85,19 +84,11 @@ public:
 	{
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Modules->AddService(kr.ext);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user)
-	{
-		kr.max = ServerInstance->Duration(ServerInstance->Config->ConfValue("kicknorejoin")->getString("maxtime"));
-		if (!kr.max)
-			kr.max = 30*60;
-	}
-
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if (chan)
 		{
@@ -145,15 +136,10 @@ public:
 		}
 	}
 
-	~ModuleKickNoRejoin()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Channel mode to delay rejoin after kick", VF_VENDOR);
 	}
 };
-
 
 MODULE_INIT(ModuleKickNoRejoin)

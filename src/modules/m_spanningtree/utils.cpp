@@ -21,14 +21,10 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "link.h"
 #include "treesocket.h"
 #include "resolvers.h"
 
@@ -61,7 +57,7 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
  */
 TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 {
-	if (ServerInstance->IsSID(ServerName))
+	if (InspIRCd::IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
 	server_hash::iterator iter = serverlist.find(ServerName.c_str());
@@ -130,9 +126,11 @@ TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 		return NULL;
 }
 
-SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C) : Creator(C)
+SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
+	: RefreshTimer(this), Creator(C)
 {
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
+	ServerInstance->Timers->AddTimer(&RefreshTimer);
+	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
 
 	this->TreeRoot = new TreeServer(this, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 	this->ReadConfiguration();
@@ -165,12 +163,6 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 	delete TreeRoot;
 }
 
-void SpanningTreeUtilities::AddThisServer(TreeServer* server, TreeServerList &list)
-{
-	if (list.find(server) == list.end())
-		list[server] = server;
-}
-
 /* returns a list of DIRECT servernames for a specific channel */
 void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
 {
@@ -196,21 +188,30 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 		{
 			TreeServer* best = this->BestRouteTo(i->first->server);
 			if (best)
-				AddThisServer(best,list);
+				list.insert(best);
 		}
 	}
 	return;
 }
 
-bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, std::string omit)
+std::string SpanningTreeUtilities::ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params)
+{
+	std::string FullLine;
+	FullLine.reserve(MAXBUF);
+	FullLine = ":" + prefix + " " + command;
+	for (parameterlist::const_iterator x = params.begin(); x != params.end(); ++x)
+	{
+		FullLine.push_back(' ');
+		FullLine.append(*x);
+	}
+	return FullLine;
+}
+
+bool SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& omit)
 {
 	TreeServer* omitroute = this->BestRouteTo(omit);
-	std::string FullLine = ":" + prefix + " " + command;
-	unsigned int words = params.size();
-	for (unsigned int x = 0; x < words; x++)
-	{
-		FullLine = FullLine + " " + params[x];
-	}
+	std::string FullLine = ConstructLine(prefix, command, params);
+
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
@@ -231,12 +232,8 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const
 
 bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params)
 {
-	std::string FullLine = ":" + prefix + " " + command;
-	unsigned int words = params.size();
-	for (unsigned int x = 0; x < words; x++)
-	{
-		FullLine = FullLine + " " + params[x];
-	}
+	std::string FullLine = ConstructLine(prefix, command, params);
+
 	unsigned int items = this->TreeRoot->ChildCount();
 	for (unsigned int x = 0; x < items; x++)
 	{
@@ -251,36 +248,16 @@ bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::st
 	return true;
 }
 
-bool SpanningTreeUtilities::DoOneToMany(const char* prefix, const char* command, const parameterlist &params)
-{
-	std::string spfx = prefix;
-	std::string scmd = command;
-	return this->DoOneToMany(spfx, scmd, params);
-}
-
-bool SpanningTreeUtilities::DoOneToAllButSender(const char* prefix, const char* command, const parameterlist &params, std::string omit)
-{
-	std::string spfx = prefix;
-	std::string scmd = command;
-	return this->DoOneToAllButSender(spfx, scmd, params, omit);
-}
-
-bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, std::string target)
+bool SpanningTreeUtilities::DoOneToOne(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& target)
 {
 	TreeServer* Route = this->BestRouteTo(target);
 	if (Route)
 	{
-		std::string FullLine = ":" + prefix + " " + command;
-		unsigned int words = params.size();
-		for (unsigned int x = 0; x < words; x++)
-		{
-			FullLine = FullLine + " " + params[x];
-		}
 		if (Route && Route->GetSocket())
 		{
 			TreeSocket* Sock = Route->GetSocket();
 			if (Sock)
-				Sock->WriteLine(FullLine);
+				Sock->WriteLine(ConstructLine(prefix, command, params));
 		}
 		return true;
 	}
@@ -298,7 +275,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 		Link* L = *i;
 		if (!L->Port)
 		{
-			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"m_spanningtree: Ignoring a link block without a port.");
+			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"m_spanningtree: Ignoring a link block without a port.");
 			/* Invalid link block */
 			continue;
 		}
@@ -310,16 +287,16 @@ void SpanningTreeUtilities::RefreshIPCache()
 		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);
 		if ((L->IPAddr == "*") || (ipvalid))
 			ValidIPs.push_back(L->IPAddr);
-		else
+		else if (this->Creator->DNS)
 		{
+			SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
 			try
 			{
-				bool cached = false;
-				SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, L->IPAddr, L, cached, DNS_QUERY_AAAA);
-				ServerInstance->AddResolver(sr, cached);
+				this->Creator->DNS->Process(sr);
 			}
-			catch (...)
+			catch (DNS::Exception &)
 			{
+				delete sr;
 			}
 		}
 	}
@@ -389,11 +366,11 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (L->IPAddr.empty())
 		{
 			L->IPAddr = "*";
-			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
+			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 		}
 
 		if (!L->Port)
-			ServerInstance->Logs->Log("m_spanningtree",DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no port defined, you will not be able to /connect it.");
+			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no port defined, you will not be able to /connect it.");
 
 		L->Fingerprint.erase(std::remove(L->Fingerprint.begin(), L->Fingerprint.end(), ':'), L->Fingerprint.end());
 		LinkBlocks.push_back(L);
@@ -441,4 +418,22 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 		}
 	}
 	return NULL;
+}
+
+void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const char* message_type)
+{
+	std::string raw(":");
+	raw.append(prefix).append(1, ' ').append(message_type).push_back(' ');
+	if (status)
+		raw.push_back(status);
+	raw.append(target->name).append(" :").append(text);
+
+	TreeServerList list;
+	this->GetListOfServersForChannel(target, list, status, exempt_list);
+	for (TreeServerList::iterator i = list.begin(); i != list.end(); ++i)
+	{
+		TreeSocket* Sock = (*i)->GetSocket();
+		if (Sock)
+			Sock->WriteLine(raw);
+	}
 }

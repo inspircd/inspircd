@@ -23,10 +23,10 @@
 
 
 #include "inspircd.h"
-#include "httpd.h"
+#include "modules/httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */
-/* $ModDep: httpd.h */
+/* $ModDep: modules/httpd.h */
 
 class ModuleHttpServer;
 
@@ -58,7 +58,6 @@ class HttpServerSocket : public BufferedSocket
 	std::string http_version;
 
  public:
-
 	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 		: BufferedSocket(newfd), ip(IP), postsize(0)
 	{
@@ -217,7 +216,7 @@ class HttpServerSocket : public BufferedSocket
 
 			if (reqbuffer.length() >= 8192)
 			{
-				ServerInstance->Logs->Log("m_httpd",DEBUG, "m_httpd dropped connection due to an oversized request buffer");
+				ServerInstance->Logs->Log("m_httpd",LOG_DEBUG, "m_httpd dropped connection due to an oversized request buffer");
 				reqbuffer.clear();
 				SetError("Buffer");
 			}
@@ -334,8 +333,8 @@ class HttpServerSocket : public BufferedSocket
 class ModuleHttpServer : public Module
 {
 	std::vector<HttpServerSocket *> httpsocks;
- public:
 
+ public:
 	void init()
 	{
 		HttpModule = this;
@@ -361,7 +360,6 @@ class ModuleHttpServer : public Module
 		new HttpServerSocket(nfd, incomingip, from, client, server);
 		return MOD_RES_ALLOW;
 	}
-
 
 	virtual ~ModuleHttpServer()
 	{

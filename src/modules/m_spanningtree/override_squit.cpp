@@ -21,7 +21,6 @@
 
 #include "inspircd.h"
 #include "socket.h"
-#include "xline.h"
 
 #include "main.h"
 #include "utils.h"

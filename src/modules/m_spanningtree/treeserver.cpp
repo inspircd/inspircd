@@ -21,10 +21,9 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
 #include "xline.h"
 #include "main.h"
-#include "../spanningtree.h"
+#include "modules/spanningtree.h"
 
 #include "utils.h"
 #include "treeserver.h"
@@ -42,7 +41,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
 	bursting = false;
 	Parent = NULL;
 	VersionString.clear();
-	ServerUserCount = ServerOperCount = 0;
+	UserCount = OperCount = 0;
 	VersionString = ServerInstance->GetVersionString();
 	Route = NULL;
 	Socket = NULL; /* Fix by brain */
@@ -62,7 +61,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
 	age = ServerInstance->Time();
 	bursting = true;
 	VersionString.clear();
-	ServerUserCount = ServerOperCount = 0;
+	UserCount = OperCount = 0;
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	SetPingFlag();
 	Warned = false;
@@ -70,7 +69,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
 
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	this->StartBurst = ts;
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Started bursting at time %lu", ts);
+	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG, "Started bursting at time %lu", ts);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -158,7 +157,7 @@ void TreeServer::FinishBurst()
 
 void TreeServer::SetID(const std::string &id)
 {
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG, "Setting SID to " + id);
+	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG, "Setting SID to " + id);
 	sid = id;
 	Utils->sidlist[sid] = this;
 }
@@ -255,26 +254,6 @@ bool TreeServer::AnsweredLastPing()
 void TreeServer::SetPingFlag()
 {
 	LastPingWasGood = true;
-}
-
-unsigned int TreeServer::GetUserCount()
-{
-	return ServerUserCount;
-}
-
-void TreeServer::SetUserCount(int diff)
-{
-	ServerUserCount += diff;
-}
-
-void TreeServer::SetOperCount(int diff)
-{
-	ServerOperCount += diff;
-}
-
-unsigned int TreeServer::GetOperCount()
-{
-	return ServerOperCount;
 }
 
 TreeSocket* TreeServer::GetSocket()

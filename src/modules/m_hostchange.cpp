@@ -47,7 +47,6 @@ typedef std::vector<std::pair<std::string, Host> > hostchanges_t;
 
 class ModuleHostChange : public Module
 {
- private:
 	hostchanges_t hostchanges;
 	std::string MySuffix;
 	std::string MyPrefix;

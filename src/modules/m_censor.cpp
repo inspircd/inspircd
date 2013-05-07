@@ -66,11 +66,6 @@ class ModuleCensor : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-
-	virtual ~ModuleCensor()
-	{
-	}
-
 	// format of a config entry is <badword text="shit" replace="poo">
 	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
 	{

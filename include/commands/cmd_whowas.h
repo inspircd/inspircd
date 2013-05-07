@@ -19,38 +19,12 @@
  */
 
 
-#ifndef CMD_WHOWAS_H
-#define CMD_WHOWAS_H
+#pragma once
+
 #include "modules.h"
-
-struct WhowasRequest : public Request
-{
-	/* list of available internal commands */
-	enum Internals
-	{
-		WHOWAS_ADD = 1,
-		WHOWAS_STATS = 2,
-		WHOWAS_PRUNE = 3,
-		WHOWAS_MAINTAIN = 4
-	};
-
-	const Internals type;
-	std::string value;
-	User* user;
-
-	WhowasRequest(Module* src, Module* whowas, Internals Type) : Request(src, whowas, "WHOWAS"), type(Type)
-	{}
-};
-
-/* Forward ref for timer */
-class WhoWasMaintainTimer;
 
 /* Forward ref for typedefs */
 class WhoWasGroup;
-
-/** Timer that is used to maintain the whowas list, called once an hour
- */
-extern WhoWasMaintainTimer* timer;
 
 /** A group of users related by nickname
  */
@@ -81,6 +55,19 @@ class CommandWhowas : public Command
 	whowas_users_fifo whowas_fifo;
 
   public:
+	/** Max number of WhoWas entries per user.
+	 */
+	int WhoWasGroupSize;
+
+	/** Max number of cumulative user-entries in WhoWas.
+	 *  When max reached and added to, push out oldest entry FIFO style.
+	 */
+	int WhoWasMaxGroups;
+
+	/** Max seconds a user is kept in WhoWas before being pruned.
+	 */
+	int WhoWasMaxKeep;
+
 	CommandWhowas(Module* parent);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
@@ -127,15 +114,3 @@ class WhoWasGroup
 	 */
 	~WhoWasGroup();
 };
-
-class WhoWasMaintainTimer : public Timer
-{
-  public:
-	WhoWasMaintainTimer(long interval)
-	: Timer(interval, ServerInstance->Time(), true)
-	{
-	}
-	virtual void Tick(time_t TIME);
-};
-
-#endif

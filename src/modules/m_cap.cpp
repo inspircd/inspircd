@@ -19,7 +19,7 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
+#include "modules/cap.h"
 
 /* $ModDesc: Provides the CAP negotiation mechanism seen in ratbox-derived ircds */
 
@@ -150,10 +150,6 @@ class ModuleCAP : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	~ModuleCAP()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Client CAP extension support", VF_VENDOR);
@@ -161,4 +157,3 @@ class ModuleCAP : public Module
 };
 
 MODULE_INIT(ModuleCAP)
-

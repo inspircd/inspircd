@@ -80,10 +80,6 @@ class ModuleTLine : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleTLine()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides /tline command used to test who a mask matches", VF_VENDOR);
@@ -91,4 +87,3 @@ class ModuleTLine : public Module
 };
 
 MODULE_INIT(ModuleTLine)
-

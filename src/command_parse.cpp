@@ -300,7 +300,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 			return do_more;
 		}
 	}
-	if ((user->registered == REG_ALL) && (!IS_OPER(user)) && (cm->second->IsDisabled()))
+	if ((user->registered == REG_ALL) && (!user->IsOper()) && (cm->second->IsDisabled()))
 	{
 		/* command is disabled! */
 		if (ServerInstance->Config->DisabledDontExist)
@@ -371,7 +371,7 @@ bool CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
 	if (!user || buffer.empty())
 		return true;
 
-	ServerInstance->Logs->Log("USERINPUT", RAWIO, "C[%s] I :%s %s",
+	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I :%s %s",
 		user->uuid.c_str(), user->nick.c_str(), buffer.c_str());
 	return ProcessCommand(user,buffer);
 }

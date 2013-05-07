@@ -22,6 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include "inspircd_win32wrapper.h"
 #include "inspircd.h"
 #include "configreader.h"
@@ -203,7 +204,7 @@ DWORD CWin32Exception::GetErrorCode()
 }
 
 #include "../src/modules/m_spanningtree/link.h"
-#include "../src/modules/ssl.h"
+#include "modules/ssl.h"
 template class reference<Link>;
 template class reference<Autoconnect>;
 template class reference<ssl_cert>;

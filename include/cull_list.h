@@ -20,8 +20,7 @@
  */
 
 
-#ifndef CULL_LIST_H
-#define CULL_LIST_H
+#pragma once
 
 /**
  * The CullList class is used to delete objects at the end of the main loop to
@@ -58,6 +57,3 @@ class CoreExport ActionList
 	void Run();
 
 };
-
-#endif
-

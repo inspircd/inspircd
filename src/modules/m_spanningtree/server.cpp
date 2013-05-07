@@ -19,11 +19,7 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "xline.h"
-#include "socketengine.h"
 
-#include "main.h"
 #include "utils.h"
 #include "link.h"
 #include "treeserver.h"
@@ -55,7 +51,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, parameterlist &params)
 		this->SendError("Protocol error - Introduced remote server from unknown server "+prefix);
 		return false;
 	}
-	if (!ServerInstance->IsSID(sid))
+	if (!InspIRCd::IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
 		return false;
@@ -105,16 +101,8 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 	std::string password = params[1];
 	std::string sid = params[3];
 	std::string description = params[4];
-	int hops = atoi(params[2].c_str());
 
 	this->SendCapabilities(2);
-
-	if (hops)
-	{
-		this->SendError("Server too far away for authentication");
-		ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
-		return false;
-	}
 
 	if (!ServerInstance->IsSID(sid))
 	{
@@ -194,7 +182,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 	}
 
 	/* Check for fully initialized instances of the server by id */
-	ServerInstance->Logs->Log("m_spanningtree",DEBUG,"Looking for dupe SID %s", sid.c_str());
+	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Looking for dupe SID %s", sid.c_str());
 	CheckDupe = Utils->FindServerID(sid);
 
 	if (CheckDupe)
@@ -225,16 +213,8 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 	std::string password = params[1];
 	std::string sid = params[3];
 	std::string description = params[4];
-	int hops = atoi(params[2].c_str());
 
 	this->SendCapabilities(2);
-
-	if (hops)
-	{
-		this->SendError("Server too far away for authentication");
-		ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server is too far away for authentication");
-		return false;
-	}
 
 	if (!ServerInstance->IsSID(sid))
 	{

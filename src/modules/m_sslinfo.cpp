@@ -18,7 +18,7 @@
 
 
 #include "inspircd.h"
-#include "ssl.h"
+#include "modules/ssl.h"
 
 /* $ModDesc: Provides SSL metadata, including /WHOIS information and /SSLINFO command */
 
@@ -97,7 +97,7 @@ class CommandSSLInfo : public Command
 			return CMD_FAILURE;
 		}
 		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
-		if (operonlyfp && !IS_OPER(user) && target != user)
+		if (operonlyfp && !user->IsOper() && target != user)
 		{
 			user->WriteServ("NOTICE %s :*** You cannot view SSL certificate information for other users", user->nick.c_str());
 			return CMD_FAILURE;
@@ -152,7 +152,7 @@ class ModuleSSLInfo : public Module
 		{
 			ServerInstance->SendWhoisLine(source, dest, 671, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
-			if ((!operonlyfp || source == dest || IS_OPER(source)) && !cert->fingerprint.empty())
+			if ((!operonlyfp || source == dest || source->IsOper()) && !cert->fingerprint.empty())
 				ServerInstance->SendWhoisLine(source, dest, 276, "%s %s :has client certificate fingerprint %s",
 					source->nick.c_str(), dest->nick.c_str(), cert->fingerprint.c_str());
 		}
@@ -255,4 +255,3 @@ class ModuleSSLInfo : public Module
 };
 
 MODULE_INIT(ModuleSSLInfo)
-

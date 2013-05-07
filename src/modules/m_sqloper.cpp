@@ -18,8 +18,8 @@
 
 
 #include "inspircd.h"
-#include "sql.h"
-#include "hash.h"
+#include "modules/sql.h"
+#include "modules/hash.h"
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
@@ -48,7 +48,7 @@ class OpMeQuery : public SQLQuery
 
 	void OnResult(SQLResult& res)
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: result for %s", uid.c_str());
+		ServerInstance->Logs->Log("m_sqloper",LOG_DEBUG, "SQLOPER: result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
@@ -57,30 +57,17 @@ class OpMeQuery : public SQLQuery
 		SQLEntries row;
 		while (res.GetRow(row))
 		{
-#if 0
-			parameterlist cols;
-			res.GetCols(cols);
-
-			std::vector<KeyVal>* items;
-			reference<ConfigTag> tag = ConfigTag::create("oper", "<m_sqloper>", 0, items);
-			for(unsigned int i=0; i < cols.size(); i++)
-			{
-				if (!row[i].nul)
-					items->insert(std::make_pair(cols[i], row[i]));
-			}
-#else
 			if (OperUser(user, row[0], row[1]))
 				return;
-#endif
 		}
-		ServerInstance->Logs->Log("m_sqloper",DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
+		ServerInstance->Logs->Log("m_sqloper",LOG_DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER
 		fallback();
 	}
 
 	void OnError(SQLerror& error)
 	{
-		ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: query failed (%s)", error.Str());
+		ServerInstance->Logs->Log("m_sqloper",LOG_DEFAULT, "SQLOPER: query failed (%s)", error.Str());
 		fallback();
 	}
 
@@ -101,7 +88,7 @@ class OpMeQuery : public SQLQuery
 		}
 		else
 		{
-			ServerInstance->Logs->Log("m_sqloper",SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
+			ServerInstance->Logs->Log("m_sqloper",LOG_SPARSE, "BUG: WHAT?! Why do we have no OPER command?!");
 		}
 	}
 
@@ -110,7 +97,7 @@ class OpMeQuery : public SQLQuery
 		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
 		if (iter == ServerInstance->Config->oper_blocks.end())
 		{
-			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
+			ServerInstance->Logs->Log("m_sqloper",LOG_DEFAULT, "SQLOPER: bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
 			return false;
 		}
 		OperInfo* ifo = iter->second;
@@ -119,7 +106,7 @@ class OpMeQuery : public SQLQuery
 
 		hostname.append("@").append(user->host);
 
-		if (OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
+		if (OneOfMatches(hostname.c_str(), user->GetIPString().c_str(), pattern.c_str()))
 		{
 			/* Opertype and host match, looks like this is it. */
 
@@ -172,7 +159,7 @@ public:
 				/* Query is in progress, it will re-invoke OPER if needed */
 				return MOD_RES_DENY;
 			}
-			ServerInstance->Logs->Log("m_sqloper",DEFAULT, "SQLOPER: database not present");
+			ServerInstance->Logs->Log("m_sqloper",LOG_DEFAULT, "SQLOPER: database not present");
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -193,7 +180,6 @@ public:
 	{
 		return Version("Allows storage of oper credentials in an SQL table", VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleSQLOper)

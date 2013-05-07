@@ -59,7 +59,7 @@ class CustomPrefixMode : public ModeHandler
 		std::vector<std::string> mode_junk;
 		mode_junk.push_back(channel->name);
 		irc::modestacker modestack(false);
-		std::deque<std::string> stackresult;
+		std::vector<std::string> stackresult;
 
 		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
 		{
@@ -97,10 +97,6 @@ class ModuleCustomPrefix : public Module
 {
 	std::vector<CustomPrefixMode*> modes;
  public:
-	ModuleCustomPrefix()
-	{
-	}
-
 	void init()
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("customprefix");

@@ -60,21 +60,16 @@ class ModuleServProtectMode : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-
-	~ModuleServProtectMode()
-	{
-	}
-
 	Version GetVersion()
 	{
 		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);
 	}
 
-	void OnWhois(User* src, User* dst)
+	void OnWhois(User* user, User* dest)
 	{
-		if (dst->IsModeSet('k'))
+		if (dest->IsModeSet('k'))
 		{
-			ServerInstance->SendWhoisLine(src, dst, 310, src->nick+" "+dst->nick+" :is an "+ServerInstance->Config->Network+" Service");
+			ServerInstance->SendWhoisLine(user, dest, 310, user->nick+" "+dest->nick+" :is a Network Service on "+ServerInstance->Config->Network);
 		}
 	}
 

@@ -21,8 +21,7 @@
  */
 
 
-#ifndef INSPIRCD_CONFIGREADER
-#define INSPIRCD_CONFIGREADER
+#pragma once
 
 #include <sstream>
 #include <string>
@@ -240,19 +239,6 @@ class CoreExport ServerConfig
 	 */
 	int c_ipv6_range;
 
-	/** Max number of WhoWas entries per user.
-	 */
-	int WhoWasGroupSize;
-
-	/** Max number of cumulative user-entries in WhoWas.
-	 *  When max reached and added to, push out oldest entry FIFO style.
-	 */
-	int WhoWasMaxGroups;
-
-	/** Max seconds a user is kept in WhoWas before being pruned.
-	 */
-	int WhoWasMaxKeep;
-
 	/** Holds the server name of the local server
 	 * as defined by the administrator.
 	 */
@@ -333,10 +319,6 @@ class CoreExport ServerConfig
 	/** The fixed part message in use, or an empty string
 	 */
 	std::string FixedPart;
-
-	/** The DNS server to use for DNS queries
-	 */
-	std::string DNSServer;
 
 	/** Pretend disabled commands don't exist.
 	 */
@@ -445,16 +427,6 @@ class CoreExport ServerConfig
 	 */
 	ClassVector Classes;
 
-	/** The 005 tokens of this server (ISUPPORT)
-	 * populated/repopulated upon loading or unloading
-	 * modules.
-	 */
-	std::string data005;
-
-	/** isupport strings
-	 */
-	std::vector<std::string> isupport;
-
 	/** STATS characters in this list are available
 	 * only to operators.
 	 */
@@ -471,14 +443,6 @@ class CoreExport ServerConfig
 	/** List of u-lined servers
 	 */
 	std::map<irc::string, bool> ulines;
-
-	/** Max banlist sizes for channels (the std::string is a glob)
-	 */
-	std::map<std::string, int> maxbans;
-
-	/** If set to true, no user DNS lookups are to be performed
-	 */
-	bool NoUserDns;
 
 	/** If set to true, provide syntax hints for unknown commands
 	 */
@@ -532,14 +496,6 @@ class CoreExport ServerConfig
 	 */
 	const std::string& GetSID();
 
-	/** Update the 005 vector
-	 */
-	void Update005();
-
-	/** Send the 005 numerics (ISUPPORT) to a user
-	 */
-	void Send005(User* user);
-
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods
 	 * should be used only by the core.
@@ -578,11 +534,6 @@ class CoreExport ServerConfig
 	/** If this value is true, snotices will not stack when repeats are sent
 	 */
 	bool NoSnoticeStack;
-
-	/** If true, a "Welcome to <networkname>!" NOTICE will be sent to
-	 * connecting users
-	 */
-	bool WelcomeNotice;
 };
 
 /** The background thread for config reading, so that reading from executable includes
@@ -609,5 +560,3 @@ class CoreExport ConfigReaderThread : public Thread
 	void Finish();
 	bool IsDone() { return done; }
 };
-
-#endif

@@ -19,18 +19,18 @@
 
 
 #include "inspircd.h"
-#include "m_regex.h"
+#include "modules/regex.h"
 #include <sys/types.h>
 #include <tre/regex.h>
 
 /* $ModDesc: Regex Provider Module for TRE Regular Expressions */
 /* $CompileFlags: pkgconfincludes("tre","tre/regex.h","") */
 /* $LinkerFlags: pkgconflibs("tre","/libtre.so","-ltre") rpath("pkg-config --libs tre") */
-/* $ModDep: m_regex.h */
+/* $ModDep: modules/regex.h */
 
 class TRERegexException : public ModuleException
 {
-public:
+ public:
 	TRERegexException(const std::string& rx, const std::string& error)
 		: ModuleException("Error in regex " + rx + ": " + error)
 	{
@@ -39,7 +39,6 @@ public:
 
 class TRERegex : public Regex
 {
-private:
 	regex_t regbuf;
 
 public:
@@ -80,7 +79,8 @@ public:
 	}
 };
 
-class TREFactory : public RegexFactory {
+class TREFactory : public RegexFactory
+{
  public:
 	TREFactory(Module* m) : RegexFactory(m, "regex/tre") {}
 	Regex* Create(const std::string& expr)
@@ -92,18 +92,16 @@ class TREFactory : public RegexFactory {
 class ModuleRegexTRE : public Module
 {
 	TREFactory trf;
-public:
-	ModuleRegexTRE() : trf(this) {
+
+ public:
+	ModuleRegexTRE() : trf(this)
+	{
 		ServerInstance->Modules->AddService(trf);
 	}
 
 	Version GetVersion()
 	{
 		return Version("Regex Provider Module for TRE Regular Expressions", VF_VENDOR);
-	}
-
-	~ModuleRegexTRE()
-	{
 	}
 };
 

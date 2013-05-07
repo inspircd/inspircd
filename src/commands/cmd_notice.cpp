@@ -57,7 +57,9 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 	CUList exempt_list;
 
-	user->idle_lastmsg = ServerInstance->Time();
+	LocalUser* localuser = IS_LOCAL(user);
+	if (localuser)
+		localuser->idle_lastmsg = ServerInstance->Time();
 
 	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
@@ -98,7 +100,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 		if (chan)
 		{
-			if (IS_LOCAL(user))
+			if (localuser)
 			{
 				if ((chan->IsModeSet('n')) && (!chan->HasUser(user)))
 				{
@@ -166,7 +168,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 	const char* destnick = parameters[0].c_str();
 
-	if (IS_LOCAL(user))
+	if (localuser)
 	{
 		const char* targetserver = strchr(destnick, '@');
 

@@ -20,12 +20,9 @@
  */
 
 
-#ifndef M_SPANNINGTREE_TREESOCKET_H
-#define M_SPANNINGTREE_TREESOCKET_H
+#pragma once
 
-#include "socket.h"
 #include "inspircd.h"
-#include "xline.h"
 
 #include "utils.h"
 
@@ -180,13 +177,8 @@ class TreeSocket : public BufferedSocket
 	/** Recursively send the server tree with distances as hops.
 	 * This is used during network burst to inform the other server
 	 * (and any of ITS servers too) of what servers we know about.
-	 * If at any point any of these servers already exist on the other
-	 * end, our connection may be terminated. The hopcounts given
-	 * by this function are relative, this doesn't matter so long as
-	 * they are all >1, as all the remote servers re-calculate them
-	 * to be relative too, with themselves as hop 0.
 	 */
-	void SendServers(TreeServer* Current, TreeServer* s, int hops);
+	void SendServers(TreeServer* Current, TreeServer* s);
 
 	/** Returns module list as a string, filtered by filter
 	 * @param filter a module version bitmask, such as VF_COMMON or VF_OPTCOMMON
@@ -196,9 +188,6 @@ class TreeSocket : public BufferedSocket
 	/** Send my capabilities to the remote side
 	 */
 	void SendCapabilities(int phase);
-
-	/** Add modules to VF_COMMON list for backwards compatability */
-	void CompatAddModules(std::vector<std::string>& modlist);
 
 	/* Isolate and return the elements that are different between two lists */
 	void ListDifference(const std::string &one, const std::string &two, char sep,
@@ -232,8 +221,8 @@ class TreeSocket : public BufferedSocket
 	/** Send G, Q, Z and E lines */
 	void SendXLines();
 
-	/** Send channel modes and topics */
-	void SendChannelModes();
+	/** Send all known information about a channel */
+	void SyncChannel(Channel* chan);
 
 	/** send all users and their oper state/modes */
 	void SendUsers();
@@ -331,7 +320,8 @@ class TreeSocket : public BufferedSocket
 	/** Returns true if this server was introduced to the rest of the network
 	 */
 	bool Introduced();
+
+	/** Fixes messages coming from old servers so the new command handlers understand them
+	 */
+	bool PreProcessOldProtocolMessage(User*& who, std::string& cmd, std::vector<std::string>& params);
 };
-
-#endif
-

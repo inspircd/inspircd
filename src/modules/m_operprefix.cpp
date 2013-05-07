@@ -71,7 +71,6 @@ class HideOperWatcher : public ModeWatcher
 
 class ModuleOperPrefixMode : public Module
 {
- private:
 	OperPrefixMode opm;
 	bool mw_added;
 	HideOperWatcher hideoperwatcher;
@@ -97,7 +96,7 @@ class ModuleOperPrefixMode : public Module
 			mw_added = ServerInstance->Modes->AddModeWatcher(&hideoperwatcher);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		/* The user may have the +H umode on himself, but +H does not necessarily correspond
 		 * to the +H of m_hideoper.
@@ -105,7 +104,7 @@ class ModuleOperPrefixMode : public Module
 		 * conditions (mw_added and the user being +H) together mean the user is a hidden oper.
 		 */
 
-		if (IS_OPER(user) && (!mw_added || !user->IsModeSet('H')))
+		if (user->IsOper() && (!mw_added || !user->IsModeSet('H')))
 			privs.push_back('y');
 		return MOD_RES_PASSTHRU;
 	}

@@ -20,10 +20,10 @@
 
 #include "inspircd.h"
 #include <pcre.h>
-#include "m_regex.h"
+#include "modules/regex.h"
 
 /* $ModDesc: Regex Provider Module for PCRE */
-/* $ModDep: m_regex.h */
+/* $ModDep: modules/regex.h */
 /* $CompileFlags: exec("pcre-config --cflags") */
 /* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */
 
@@ -33,7 +33,7 @@
 
 class PCREException : public ModuleException
 {
-public:
+ public:
 	PCREException(const std::string& rx, const std::string& error, int erroffset)
 		: ModuleException("Error in regex " + rx + " at offset " + ConvToStr(erroffset) + ": " + error)
 	{
@@ -42,10 +42,9 @@ public:
 
 class PCRERegex : public Regex
 {
-private:
 	pcre* regex;
 
-public:
+ public:
 	PCRERegex(const std::string& rx) : Regex(rx)
 	{
 		const char* error;
@@ -53,7 +52,7 @@ public:
 		regex = pcre_compile(rx.c_str(), 0, &error, &erroffset, NULL);
 		if (!regex)
 		{
-			ServerInstance->Logs->Log("REGEX", DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
+			ServerInstance->Logs->Log("REGEX", LOG_DEBUG, "pcre_compile failed: /%s/ [%d] %s", rx.c_str(), erroffset, error);
 			throw PCREException(rx, error, erroffset);
 		}
 	}
@@ -86,9 +85,10 @@ class PCREFactory : public RegexFactory
 
 class ModuleRegexPCRE : public Module
 {
-public:
+ public:
 	PCREFactory ref;
-	ModuleRegexPCRE() : ref(this) {
+	ModuleRegexPCRE() : ref(this)
+	{
 		ServerInstance->Modules->AddService(ref);
 	}
 

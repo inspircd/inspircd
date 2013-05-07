@@ -21,8 +21,7 @@
  */
 
 
-#ifndef INSPSOCKET_H
-#define INSPSOCKET_H
+#pragma once
 
 #include "timer.h"
 
@@ -93,7 +92,7 @@ class CoreExport SocketTimeout : public Timer
 
 	/** Handle tick event
 	 */
-	virtual void Tick(time_t now);
+	virtual bool Tick(time_t now);
 };
 
 /**
@@ -234,4 +233,3 @@ class CoreExport BufferedSocket : public StreamSocket
 inline Module* StreamSocket::GetIOHook() { return IOHook; }
 inline void StreamSocket::AddIOHook(Module* m) { IOHook = m; }
 inline void StreamSocket::DelIOHook() { IOHook = NULL; }
-#endif

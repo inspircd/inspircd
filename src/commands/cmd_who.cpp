@@ -138,7 +138,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 			match = InspIRCd::Match(user->awaymsg, matchtext);
 		else if (opt_time)
 		{
-			long seconds = ServerInstance->Duration(matchtext);
+			long seconds = InspIRCd::Duration(matchtext);
 
 			// Okay, so time matching, we want all users connected `seconds' ago
 			if (user->age >= ServerInstance->Time() - seconds)
@@ -197,11 +197,11 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 		wholine.append(ServerInstance->Config->HideWhoisServer);
 	else
 		wholine.append(u->server);
-	
+
 	wholine.append(" " + u->nick + " ");
 
 	/* away? */
-	if (IS_AWAY(u))
+	if (u->IsAway())
 	{
 		wholine.append("G");
 	}
@@ -211,7 +211,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	}
 
 	/* oper? */
-	if (IS_OPER(u))
+	if (u->IsOper())
 	{
 		wholine.push_back('*');
 	}
@@ -342,7 +342,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				if (user != i->first)
 				{
 					/* opers only, please */
-					if (opt_viewopersonly && !IS_OPER(i->first))
+					if (opt_viewopersonly && !i->first->IsOper())
 						continue;
 
 					/* If we're not inside the channel, hide +i users */

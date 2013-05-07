@@ -25,7 +25,7 @@
 /* $ModDesc: Provides support for ircu-style services accounts, including chmode +R, etc. */
 
 #include "inspircd.h"
-#include "account.h"
+#include "modules/account.h"
 
 /** Channel mode +r - mark a channel as identified
  */
@@ -128,10 +128,10 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::string &t)
+	void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('R');
-		ServerInstance->AddExtBanChar('U');
+		tokens["EXTBAN"].push_back('R');
+		tokens["EXTBAN"].push_back('U');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
@@ -239,11 +239,8 @@ class ModuleServicesAccount : public Module
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
-
 		std::string *account = accountname.get(user);
 		bool is_registered = account && !account->empty();
 
@@ -307,3 +304,4 @@ class ModuleServicesAccount : public Module
 };
 
 MODULE_INIT(ModuleServicesAccount)
+

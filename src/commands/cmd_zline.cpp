@@ -72,8 +72,7 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 		if (ServerInstance->IPMatchesEveryone(ipaddr,user))
 			return CMD_FAILURE;
 
-		long duration = ServerInstance->Duration(parameters[1].c_str());
-
+		unsigned long duration = InspIRCd::Duration(parameters[1]);
 		ZLine* zl = new ZLine(ServerInstance->Time(), duration, user->nick.c_str(), parameters[2].c_str(), ipaddr);
 		if (ServerInstance->XLines->AddLine(zl,user))
 		{

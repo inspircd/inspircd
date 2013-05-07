@@ -67,10 +67,6 @@ class ModuleSetName : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleSetName()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for the SETNAME command", VF_VENDOR);

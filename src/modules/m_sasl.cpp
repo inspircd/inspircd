@@ -19,10 +19,10 @@
 
 
 #include "inspircd.h"
-#include "m_cap.h"
-#include "account.h"
-#include "sasl.h"
-#include "ssl.h"
+#include "modules/cap.h"
+#include "modules/account.h"
+#include "modules/sasl.h"
+#include "modules/ssl.h"
 
 /* $ModDesc: Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE. */
 
@@ -112,7 +112,7 @@ class SaslAuthenticator
 		 case SASL_DONE:
 			break;
 		 default:
-			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
+			ServerInstance->Logs->Log("m_sasl", LOG_DEFAULT, "WTF: SaslState is not a known state (%d)", this->state);
 			break;
 		}
 
@@ -220,7 +220,7 @@ class CommandSASL : public Command
 		User* target = ServerInstance->FindNick(parameters[1]);
 		if ((!target) || (IS_SERVER(target)))
 		{
-			ServerInstance->Logs->Log("m_sasl", DEBUG,"User not found in sasl ENCAP event: %s", parameters[1].c_str());
+			ServerInstance->Logs->Log("m_sasl", LOG_DEBUG,"User not found in sasl ENCAP event: %s", parameters[1].c_str());
 			return CMD_FAILURE;
 		}
 
@@ -249,6 +249,7 @@ class ModuleSASL : public Module
 	GenericCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
+
  public:
 	ModuleSASL()
 		: authExt("sasl_auth", this), cap(this, "sasl"), auth(this, authExt, cap), sasl(this, authExt)
@@ -265,7 +266,7 @@ class ModuleSASL : public Module
 		ServerInstance->Modules->AddServices(providelist, 3);
 
 		if (!ServerInstance->Modules->Find("m_services_account.so") || !ServerInstance->Modules->Find("m_cap.so"))
-			ServerInstance->Logs->Log("m_sasl", DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
+			ServerInstance->Logs->Log("m_sasl", LOG_DEFAULT, "WARNING: m_services_account.so and m_cap.so are not loaded! m_sasl.so will NOT function correctly until these two modules are loaded!");
 	}
 
 	void OnRehash(User*)

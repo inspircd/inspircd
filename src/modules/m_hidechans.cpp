@@ -47,10 +47,6 @@ class ModuleHideChans : public Module
 		OnRehash(NULL);
 	}
 
-	virtual ~ModuleHideChans()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides support for hiding channels with user mode +I", VF_VENDOR);
@@ -87,6 +83,5 @@ class ModuleHideChans : public Module
 		return MOD_RES_DENY;
 	}
 };
-
 
 MODULE_INIT(ModuleHideChans)

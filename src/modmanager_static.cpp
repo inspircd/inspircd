@@ -97,7 +97,7 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 		Modules[name] = mod;
 		if (defer)
 		{
-			ServerInstance->Logs->Log("MODULE", DEFAULT,"New module introduced: %s", name.c_str());
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT,"New module introduced: %s", name.c_str());
 			return true;
 		}
 		else
@@ -109,7 +109,7 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 	{
 		if (mod)
 			DoSafeUnload(mod);
-		ServerInstance->Logs->Log("MODULE", DEFAULT, "Unable to load " + name + ": " + modexcept.GetReason());
+		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Unable to load " + name + ": " + modexcept.GetReason());
 		return false;
 	}
 	FOREACH_MOD(I_OnLoadModule,OnLoadModule(mod));
@@ -126,10 +126,10 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 		if (prioritizationState == PRIO_STATE_LAST)
 			break;
 		if (tries == 19)
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected while loading " + name);
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Hook priority dependency loop detected while loading " + name);
 	}
 
-	ServerInstance->BuildISupport();
+	ServerInstance->ISupport.Build();
 	return true;
 }
 
@@ -195,7 +195,7 @@ void ModuleManager::LoadAll()
 
 		if (!this->Load(name, true))
 		{
-			ServerInstance->Logs->Log("MODULE", DEFAULT, this->LastError());
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
 			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
@@ -204,14 +204,14 @@ void ModuleManager::LoadAll()
 	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
 	{
 		Module* mod = i->second;
-		try 
+		try
 		{
 			mod->init();
 		}
 		catch (CoreException& modexcept)
 		{
 			LastModuleError = "Unable to initialize " + mod->ModuleSourceFile + ": " + modexcept.GetReason();
-			ServerInstance->Logs->Log("MODULE", DEFAULT, LastModuleError);
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
 			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << LastModuleError << std::endl << std::endl;
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
@@ -231,7 +231,7 @@ void ModuleManager::LoadAll()
 			break;
 		if (tries == 19)
 		{
-			ServerInstance->Logs->Log("MODULE", DEFAULT, "Hook priority dependency loop detected");
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Hook priority dependency loop detected");
 			ServerInstance->Exit(EXIT_STATUS_MODULE);
 		}
 	}

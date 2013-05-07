@@ -61,7 +61,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		if (parameters.size() == 3)
 		{
 			if (IS_LOCAL(user))
-				timeout = ServerInstance->Time() + ServerInstance->Duration(parameters[2]);
+				timeout = ServerInstance->Time() + InspIRCd::Duration(parameters[1]);
 			else
 				timeout = ConvToInt(parameters[2]);
 		}
@@ -107,9 +107,14 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		}
 
 		if (IS_LOCAL(u))
-			IS_LOCAL(u)->InviteTo(c->name.c_str(), timeout);
-		u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
-		user->WriteNumeric(RPL_INVITING, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+		{
+			Invitation::Create(c, IS_LOCAL(u), timeout);
+			u->WriteFrom(user,"INVITE %s :%s",u->nick.c_str(),c->name.c_str());
+		}
+
+		if (IS_LOCAL(user))
+			user->WriteNumeric(RPL_INVITING, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+
 		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
 		{
 			char prefix;

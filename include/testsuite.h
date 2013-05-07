@@ -16,12 +16,10 @@
  */
 
 
-#ifndef TESTSUITE_H
-#define TESTSUITE_H
+#pragma once
 
 class TestSuite
 {
-	bool RealGenerateUIDTests();
  public:
 	TestSuite();
 	~TestSuite();
@@ -32,5 +30,3 @@ class TestSuite
 	bool DoSpaceSepStreamTests();
 	bool DoGenerateUIDTests();
 };
-
-#endif

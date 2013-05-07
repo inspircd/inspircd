@@ -20,10 +20,10 @@
  */
 
 
-#ifndef M_SPANNINGTREE_UTILS_H
-#define M_SPANNINGTREE_UTILS_H
+#pragma once
 
 #include "inspircd.h"
+#include "cachetimer.h"
 
 /* Foward declarations */
 class TreeServer;
@@ -36,19 +36,21 @@ class SpanningTreeUtilities;
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */
-#ifdef HASHMAP_DEPRECATED
-	typedef nspace::hash_map<std::string, TreeServer*, nspace::insensitive, irc::StrHashComp> server_hash;
-#else
-	typedef nspace::hash_map<std::string, TreeServer*, nspace::hash<std::string>, irc::StrHashComp> server_hash;
-#endif
+typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp> server_hash;
 
-typedef std::map<TreeServer*,TreeServer*> TreeServerList;
+typedef std::set<TreeServer*> TreeServerList;
 
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
 class SpanningTreeUtilities : public classbase
 {
+	/** Creates a line in the :<prefix> <command> [<params>] format
+	 */
+	std::string ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params);
+
+	CacheRefreshTimer RefreshTimer;
+
  public:
 	/** Creator module
 	 */
@@ -129,31 +131,19 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, std::string target);
+	bool DoOneToOne(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, std::string omit);
-
-	/** Send a message from this server to all but one other, local or remote
-	 */
-	bool DoOneToAllButSender(const char* prefix, const char* command, const parameterlist &params, std::string omit);
+	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist& params, const std::string& omit);
 
 	/** Send a message from this server to all others
 	 */
 	bool DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params);
 
-	/** Send a message from this server to all others
-	 */
-	bool DoOneToMany(const char* prefix, const char* command, const parameterlist &params);
-
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration();
-
-	/** Add a server to the server list for GetListOfServersForChannel
-	 */
-	void AddThisServer(TreeServer* server, TreeServerList &list);
 
 	/** Compile a list of servers which contain members of channel c
 	 */
@@ -182,6 +172,8 @@ class SpanningTreeUtilities : public classbase
 	/** Refresh the IP cache used for allowing inbound connections
 	 */
 	void RefreshIPCache();
-};
 
-#endif
+	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
+	 */
+	void SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const char* message_type);
+};

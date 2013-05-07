@@ -39,8 +39,8 @@ class ModuleBlockCAPS : public Module
 	int percent;
 	unsigned int minlen;
 	char capsmap[256];
-public:
 
+public:
 	ModuleBlockCAPS() : bc(this)
 	{
 	}
@@ -53,9 +53,9 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		ServerInstance->AddExtBanChar('B');
+		tokens["EXTBAN"].push_back('B');
 	}
 
 	virtual void OnRehash(User* user)
@@ -121,18 +121,14 @@ public:
 			capsmap[(unsigned char)*n] = 1;
 		if (percent < 1 || percent > 100)
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
+			ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
 			percent = 100;
 		}
 		if (minlen < 1 || minlen > MAXBUF-1)
 		{
-			ServerInstance->Logs->Log("CONFIG",DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
+			ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
 			minlen = 1;
 		}
-	}
-
-	virtual ~ModuleBlockCAPS()
-	{
 	}
 
 	virtual Version GetVersion()

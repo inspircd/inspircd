@@ -63,10 +63,8 @@ class CommandClones : public Command
 	}
 };
 
-
 class ModuleClones : public Module
 {
- private:
 	CommandClones cmd;
  public:
 	ModuleClones() : cmd(this)
@@ -78,16 +76,10 @@ class ModuleClones : public Module
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual ~ModuleClones()
-	{
-	}
-
 	virtual Version GetVersion()
 	{
 		return Version("Provides the /CLONES command to retrieve information on clones.", VF_VENDOR);
 	}
-
-
 };
 
 MODULE_INIT(ModuleClones)

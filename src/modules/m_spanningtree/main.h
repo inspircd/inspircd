@@ -21,12 +21,11 @@
  */
 
 
-#ifndef M_SPANNINGTREE_MAIN_H
-#define M_SPANNINGTREE_MAIN_H
+#pragma once
 
 #include "inspircd.h"
-#include <stdarg.h>
 
+#include "modules/dns.h"
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  *
@@ -36,8 +35,8 @@
  * Failure to document your protocol changes will result in a painfully
  * painful death by pain. You have been warned.
  */
-const long ProtocolVersion = 1202;
-const long MinCompatProtocol = 1201;
+const long ProtocolVersion = 1205;
+const long MinCompatProtocol = 1202;
 
 /** Forward declarations
  */
@@ -53,11 +52,13 @@ class Autoconnect;
 class ModuleSpanningTree : public Module
 {
 	SpanningTreeCommands* commands;
+	void LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type);
 
  public:
+	dynamic_reference<DNS::Manager> DNS;
+
 	SpanningTreeUtilities* Utils;
 
-	CacheRefreshTimer *RefreshTimer;
 	/** Set to true if inside a spanningtree call, to prevent sending
 	 * xlines and other things back to their source
 	 */
@@ -178,5 +179,3 @@ class ModuleSpanningTree : public Module
 	Version GetVersion();
 	void Prioritize();
 };
-
-#endif

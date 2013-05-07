@@ -17,8 +17,7 @@
  */
 
 
-#ifndef USERMANAGER_H
-#define USERMANAGER_H
+#pragma once
 
 #include <list>
 
@@ -69,6 +68,12 @@ class CoreExport UserManager
 	 * XXX - this should be private, but m_clones depends on it currently.
 	 */
 	clonemap global_clones;
+
+	/**
+	 * Reset the already_sent IDs so we don't wrap it around and drop a message
+	 * Also removes all expired invites
+     */
+	void GarbageCollect();
 
 	/** Add a client to the system.
 	 * This will create a new User, insert it into the user_hash,
@@ -162,5 +167,3 @@ class CoreExport UserManager
 	 */
 	void ServerPrivmsgAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
 };
-
-#endif

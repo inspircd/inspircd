@@ -51,7 +51,7 @@ class CommandNicklock : public Command
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (!ServerInstance->IsNick(parameters[1].c_str(), ServerInstance->Config->Limits.NickMax))
+			if (!ServerInstance->IsNick(parameters[1], ServerInstance->Config->Limits.NickMax))
 			{
 				user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[1].c_str());
 				return CMD_FAILURE;
@@ -139,7 +139,6 @@ class CommandNickunlock : public Command
 	}
 };
 
-
 class ModuleNickLock : public Module
 {
 	LocalIntExt locked;
@@ -157,10 +156,6 @@ class ModuleNickLock : public Module
 		ServerInstance->Modules->AddService(cmd2);
 		ServerInstance->Modules->AddService(locked);
 		ServerInstance->Modules->Attach(I_OnUserPreNick, this);
-	}
-
-	~ModuleNickLock()
-	{
 	}
 
 	Version GetVersion()

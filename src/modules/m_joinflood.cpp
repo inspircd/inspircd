@@ -86,7 +86,6 @@ class joinfloodsettings
 		locked = true;
 		unlocktime = ServerInstance->Time() + 60;
 	}
-
 };
 
 /** Handles channel mode +j
@@ -190,11 +189,9 @@ class JoinFlood : public ModeHandler
 
 class ModuleJoinFlood : public Module
 {
-
 	JoinFlood jf;
 
  public:
-
 	ModuleJoinFlood()
 		: jf(this)
 	{
@@ -208,7 +205,7 @@ class ModuleJoinFlood : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(User* user, Channel* chan, const char* cname, std::string &privs, const std::string &keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
 	{
 		if (chan)
 		{
@@ -241,10 +238,6 @@ class ModuleJoinFlood : public Module
 				memb->chan->WriteChannelWithServ((char*)ServerInstance->Config->ServerName.c_str(), "NOTICE %s :This channel has been closed to new users for 60 seconds because there have been more than %d joins in %d seconds.", memb->chan->name.c_str(), f->joins, f->secs);
 			}
 		}
-	}
-
-	~ModuleJoinFlood()
-	{
 	}
 
 	Version GetVersion()

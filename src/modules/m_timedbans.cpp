@@ -62,11 +62,11 @@ class CommandTban : public Command
 			user->WriteNumeric(482, "%s %s :You do not have permission to set bans on this channel",
 				user->nick.c_str(), channel->name.c_str());
 			return CMD_FAILURE;
-		}		
+		}
 
 		TimedBan T;
 		std::string channelname = parameters[0];
-		long duration = ServerInstance->Duration(parameters[1]);
+		unsigned long duration = InspIRCd::Duration(parameters[1]);
 		unsigned long expire = duration + ServerInstance->Time();
 		if (duration < 1)
 		{
@@ -80,20 +80,17 @@ class CommandTban : public Command
 		bool isextban = ((mask.size() > 2) && (mask[1] == ':'));
 		if (!isextban && !ServerInstance->IsValidMask(mask))
 			mask.append("!*@*");
-		if ((mask.length() > 250) || (!ServerInstance->IsValidMask(mask) && !isextban))
-		{
-			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
-			return CMD_FAILURE;
-		}
+
 		setban.push_back(mask);
 		// use CallHandler to make it so that the user sets the mode
 		// themselves
 		ServerInstance->Parser->CallHandler("MODE",setban,user);
-		for (BanList::iterator i = channel->bans.begin(); i != channel->bans.end(); i++)
-			if (!strcasecmp(i->data.c_str(), mask.c_str()))
-				goto found;
-		return CMD_FAILURE;
-found:
+		if (ServerInstance->Modes->GetLastParse().empty())
+		{
+			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
+			return CMD_FAILURE;
+		}
+
 		CUList tmp;
 		T.channel = channelname;
 		T.mask = mask;
@@ -114,27 +111,22 @@ found:
 	}
 };
 
-class ModuleTimedBans : public Module
+class BanWatcher : public ModeWatcher
 {
-	CommandTban cmd;
  public:
-	ModuleTimedBans()
-		: cmd(this)
+	BanWatcher(Module* parent)
+		: ModeWatcher(parent, 'b', MODETYPE_CHANNEL)
 	{
 	}
 
-	void init()
+	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding, ModeType type)
 	{
-		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnDelBan, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
+		if (adding)
+			return;
 
-	virtual ModResult OnDelBan(User* source, Channel* chan, const std::string &banmask)
-	{
 		irc::string listitem = banmask.c_str();
 		irc::string thischan = chan->name.c_str();
-		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); i++)
+		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end(); ++i)
 		{
 			irc::string target = i->mask.c_str();
 			irc::string tchan = i->channel.c_str();
@@ -144,7 +136,32 @@ class ModuleTimedBans : public Module
 				break;
 			}
 		}
-		return MOD_RES_PASSTHRU;
+	}
+};
+
+class ModuleTimedBans : public Module
+{
+	CommandTban cmd;
+	BanWatcher banwatcher;
+
+ public:
+	ModuleTimedBans()
+		: cmd(this)
+		, banwatcher(this)
+	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(cmd);
+		Implementation eventlist[] = { I_OnBackgroundTimer };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modes->AddModeWatcher(&banwatcher);
+	}
+
+	~ModuleTimedBans()
+	{
+		ServerInstance->Modes->DelModeWatcher(&banwatcher);
 	}
 
 	virtual void OnBackgroundTimer(time_t curtime)
@@ -190,4 +207,3 @@ class ModuleTimedBans : public Module
 };
 
 MODULE_INIT(ModuleTimedBans)
-

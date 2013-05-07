@@ -25,19 +25,15 @@
 
 class ModuleSecureList : public Module
 {
- private:
 	std::vector<std::string> allowlist;
 	time_t WaitTime;
+
  public:
 	void init()
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
-	virtual ~ModuleSecureList()
-	{
 	}
 
 	virtual Version GetVersion()
@@ -67,7 +63,7 @@ class ModuleSecureList : public Module
 		if (!validated)
 			return MOD_RES_PASSTHRU;
 
-		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!IS_OPER(user)))
+		if ((command == "LIST") && (ServerInstance->Time() < (user->signon+WaitTime)) && (!user->IsOper()))
 		{
 			/* Normally wouldnt be allowed here, are they exempt? */
 			for (std::vector<std::string>::iterator x = allowlist.begin(); x != allowlist.end(); x++)
@@ -86,9 +82,9 @@ class ModuleSecureList : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		output.append(" SECURELIST");
+		tokens["SECURELIST"];
 	}
 };
 

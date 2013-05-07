@@ -17,8 +17,7 @@
  */
 
 
-#ifndef EXTENSIBLE_H
-#define EXTENSIBLE_H
+#pragma once
 
 #include <stdint.h>
 
@@ -190,5 +189,3 @@ class CoreExport StringExtItem : public ExtensionItem
 	void unset(Extensible* container);
 	void free(void* item);
 };
-
-#endif

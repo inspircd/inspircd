@@ -31,12 +31,12 @@
 
 /* $ModDesc: Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING */
 
-class lwbNickHandler : public HandlerBase2<bool, const char*, size_t>
+class lwbNickHandler : public HandlerBase2<bool, const std::string&, size_t>
 {
  public:
 	lwbNickHandler() { }
 	virtual ~lwbNickHandler() { }
-	virtual bool Call(const char*, size_t);
+	virtual bool Call(const std::string&, size_t);
 };
 
 								 /*,m_reverse_additionalUp[256];*/
@@ -71,11 +71,12 @@ char utf8size(unsigned char * mb)
 
 
 /* Conditions added */
-bool lwbNickHandler::Call(const char* n, size_t max)
+bool lwbNickHandler::Call(const std::string& nick, size_t max)
 {
-	if (!n || !*n)
+	if (nick.empty())
 		return false;
 
+	const char* n = nick.c_str();
 	unsigned int p = 0;
 	for (const char* i = n; *i; i++, p++)
 	{
@@ -221,11 +222,10 @@ bool lwbNickHandler::Call(const char* n, size_t max)
 
 class ModuleNationalChars : public Module
 {
- private:
 	lwbNickHandler myhandler;
 	std::string charset, casemapping;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	caller2<bool, const char*, size_t> rememberer;
+	caller2<bool, const std::string&, size_t> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 
@@ -247,11 +247,9 @@ class ModuleNationalChars : public Module
 		OnRehash(NULL);
 	}
 
-	virtual void On005Numeric(std::string &output)
+	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
 	{
-		std::string tmp(casemapping);
-		tmp.insert(0, "CASEMAPPING=");
-		SearchAndReplace(output, std::string("CASEMAPPING=rfc1459"), tmp);
+		tokens["CASEMAPPING"] = casemapping;
 	}
 
 	virtual void OnRehash(User* user)
@@ -276,7 +274,7 @@ class ModuleNationalChars : public Module
 		{
 			/* Fix by Brain: Dont quit UID users */
 			User* n = *iter;
-			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick.c_str(), ServerInstance->Config->Limits.NickMax))
+			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick, ServerInstance->Config->Limits.NickMax))
 				ServerInstance->Users->QuitUser(n, message);
 		}
 	}
@@ -307,7 +305,7 @@ class ModuleNationalChars : public Module
 		std::ifstream ifs(filename.c_str());
 		if (ifs.fail())
 		{
-			ServerInstance->Logs->Log("m_nationalchars",DEFAULT,"loadtables() called for missing file: %s", filename.c_str());
+			ServerInstance->Logs->Log("m_nationalchars",LOG_DEFAULT,"loadtables() called for missing file: %s", filename.c_str());
 			return;
 		}
 
@@ -322,7 +320,7 @@ class ModuleNationalChars : public Module
 		{
 			if (loadtable(ifs, tables[n], 255) && (n < faillimit))
 			{
-				ServerInstance->Logs->Log("m_nationalchars",DEFAULT,"loadtables() called for illegal file: %s (line %d)", filename.c_str(), n+1);
+				ServerInstance->Logs->Log("m_nationalchars",LOG_DEFAULT,"loadtables() called for illegal file: %s (line %d)", filename.c_str(), n+1);
 				return;
 			}
 		}

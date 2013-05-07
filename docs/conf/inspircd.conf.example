@@ -38,6 +38,15 @@
 #                                                                      #
 ########################################################################
 
+#-#-#-#-#-#-#-#-#-#  CONFIGURATION FORMAT  #-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#                                                                     #
+# In order to maintain compatibility with older configuration files,  #
+# you can change the configuration parser to parse as it did in       #
+# previous releases. When using the "compat" format, you need to use  #
+# C++ escape sequences (e.g. \n) instead of XML ones (e.g. &nl;) and  #
+# can not use <define> to create macros.                              #
+#<config format="compat">
+
 #-#-#-#-#-#-#-#-#-#  INCLUDE CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # This optional tag allows you to include another config file         #
@@ -69,11 +78,6 @@
 #                                                                     #
 # Variables may be redefined and may reference other variables.       #
 # Value expansion happens at the time the tag is read.                #
-#                                                                     #
-# Using variable definitions REQUIRES that the config format be       #
-# changed to "xml" from the default "compat" that uses escape         #
-# sequences such as "\"" and "\n", and does not support <define>      #
-<config format="xml">
 <define name="bindip" value="1.2.2.3">
 <define name="localips" value="&bindip;/24">
 
@@ -271,6 +275,10 @@
          # maxconnwarn: Enable warnings when localmax or globalmax is hit (defaults to on)
          maxconnwarn="off"
 
+         # nouserdns: If enabled, no DNS lookups will be performed on connecting users
+         # in this class. This can save a lot of resources on very busy servers.
+         nouserdns="no"
+
          # usednsbl: Defines whether or not users in this class are subject to DNSBL. Default is yes.
          # This setting only has effect when m_dnsbl is loaded.
          #usednsbl="yes"
@@ -375,6 +383,10 @@
 
          # globalmax: Maximum global (network-wide) connections per IP.
          globalmax="3"
+
+         # nouserdns: If enabled, no DNS lookups will be performed on connecting users
+         # in this class. This can save a lot of resources on very busy servers.
+         nouserdns="no"
 
          # useident: Defines if users in this class must respond to a ident query or not.
          useident="no"
@@ -558,7 +570,7 @@
          # cyclehosts: If enabled, when a user gets a host set, it will cycle
          # them in all their channels. If not, it will simply change their host
          # without cycling them.
-         cyclehosts="yes"
+         cyclehosts="no"
 
          # cyclehostsfromuser: If enabled, the source of the mode change for
          # cyclehosts will be the user who cycled. This can look nicer, but
@@ -614,12 +626,7 @@
 
          # nosnoticestack: This prevents snotices from 'stacking' and giving you
          # the message saying '(last message repeated X times)'. Defaults to no.
-         nosnoticestack="no"
-
-         # welcomenotice: When turned on, this sends a NOTICE to connecting users 
-         # with the text Welcome to <networkname>! after successful registration.
-         # Defaults to yes.
-         welcomenotice="yes">
+         nosnoticestack="no">
 
 
 #-#-#-#-#-#-#-#-#-#-#-# PERFORMANCE CONFIGURATION #-#-#-#-#-#-#-#-#-#-#
@@ -654,16 +661,15 @@
              # +C and +Q snomasks. Setting this to yes squelches those messages,
              # which makes it easier for opers, but degrades the functionality of
              # bots like BOPM during netsplits.
-             quietbursts="yes"
-
-             # nouserdns: If enabled, no DNS lookups will be performed on
-             # connecting users. This can save a lot of resources on very busy servers.
-             nouserdns="no">
+             quietbursts="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-# SECURITY CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 
 <security
+          # allowcoreunload: If this value is set to yes, Opers will be able to
+          # unload core modules (e.g. cmd_privmsg.so).
+          allowcoreunload="no"
 
           # announceinvites: This option controls which members of the channel
           # receive an announcement when someone is INVITEd. Available values:

@@ -28,7 +28,6 @@
 
 /* $Core */
 #include "inspircd.h"
-#include "inspircd_version.h"
 #include <signal.h>
 
 #ifndef _WIN32
@@ -133,8 +132,6 @@ void InspIRCd::Cleanup()
 	/* Must be deleted before modes as it decrements modelines */
 	if (FakeClient)
 		FakeClient->cull();
-	if (Res)
-		Res->cull();
 	DeleteZero(this->FakeClient);
 	DeleteZero(this->Users);
 	DeleteZero(this->Modes);
@@ -145,7 +142,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->BanCache);
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
-	DeleteZero(this->Res);
 	DeleteZero(this->chanlist);
 	DeleteZero(this->PI);
 	DeleteZero(this->Threads);
@@ -182,47 +178,6 @@ void InspIRCd::Restart(const std::string &reason)
 	{
 		/* Will raise a SIGABRT if not trapped */
 		throw CoreException(std::string("Failed to execv()! error: ") + strerror(errno));
-	}
-}
-
-void InspIRCd::ResetMaxBans()
-{
-	for (chan_hash::const_iterator i = chanlist->begin(); i != chanlist->end(); i++)
-		i->second->ResetMaxBans();
-}
-
-/** Because hash_map doesn't free its buckets when we delete items, we occasionally
- * recreate the hash to free them up.
- * We do this by copying the entries from the old hash to a new hash, causing all
- * empty buckets to be weeded out of the hash.
- * Since this is quite expensive, it's not done very often.
- */
-void InspIRCd::RehashUsersAndChans()
-{
-	user_hash* old_users = Users->clientlist;
-	Users->clientlist = new user_hash;
-	for (user_hash::const_iterator n = old_users->begin(); n != old_users->end(); n++)
-		Users->clientlist->insert(*n);
-	delete old_users;
-
-	user_hash* old_uuid = Users->uuidlist;
-	Users->uuidlist = new user_hash;
-	for (user_hash::const_iterator n = old_uuid->begin(); n != old_uuid->end(); n++)
-		Users->uuidlist->insert(*n);
-	delete old_uuid;
-
-	chan_hash* old_chans = chanlist;
-	chanlist = new chan_hash;
-	for (chan_hash::const_iterator n = old_chans->begin(); n != old_chans->end(); n++)
-		chanlist->insert(*n);
-	delete old_chans;
-
-	// Reset the already_sent IDs so we don't wrap it around and drop a message
-	LocalUser::already_sent_id = 0;
-	for (LocalUserList::const_iterator i = Users->local_users.begin(); i != Users->local_users.end(); i++)
-	{
-		(**i).already_sent = 0;
-		(**i).RemoveExpiredInvites();
 	}
 }
 
@@ -276,13 +231,13 @@ bool InspIRCd::DaemonSeed()
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		this->Logs->Log("STARTUP",DEFAULT,"Failed to getrlimit()!");
+		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to getrlimit()!");
 		return false;
 	}
 	rl.rlim_cur = rl.rlim_max;
 
 	if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Logs->Log("STARTUP",DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+			this->Logs->Log("STARTUP",LOG_DEFAULT,"setrlimit() failed, cannot increase coredump size.");
 
 	return true;
 #endif
@@ -303,7 +258,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	else
 	{
 		std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
-		this->Logs->Log("STARTUP",DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
+		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
 #endif
@@ -321,11 +276,9 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 OperQuit("OperQuit", NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
-	 IsSID(&HandleIsSID),
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
-	 FloodQuitUser(&HandleFloodQuitUser),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
 	ServerInstance = this;
@@ -353,7 +306,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Parser = 0;
 	this->XLines = 0;
 	this->Modes = 0;
-	this->Res = 0;
 	this->ConfigThread = NULL;
 	this->FakeClient = NULL;
 
@@ -385,6 +337,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->SNO = new SnomaskManager;
 	this->BanCache = new BanCacheManager;
 	this->Modules = new ModuleManager();
+	dynamic_reference_base::reset_all();
 	this->stats = new serverstats();
 	this->Timers = new TimerManager;
 	this->Parser = new CommandParser;
@@ -478,7 +431,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	if (do_debug)
 	{
 		FileWriter* fw = new FileWriter(stdout);
-		FileLogStream* fls = new FileLogStream(RAWIO, fw);
+		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}
 	else if (!this->OpenLog(argv, argc))
@@ -502,7 +455,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #endif
 		{
 			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
-			this->Logs->Log("STARTUP",DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
+			this->Logs->Log("STARTUP",LOG_DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
 			Exit(EXIT_STATUS_CONFIG);
 		}
 	}
@@ -540,7 +493,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (!this->DaemonSeed())
 		{
 			std::cout << "ERROR: could not go into daemon mode. Shutting down." << std::endl;
-			Logs->Log("STARTUP", DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "ERROR: could not go into daemon mode. Shutting down.");
 			Exit(EXIT_STATUS_FORK);
 		}
 	}
@@ -553,28 +506,14 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
 	Logs->OpenFileLogs();
+	ModeParser::InitBuiltinModes();
 
-	this->Res = new DNS();
-
-	/*
-	 * Initialise SID/UID.
- 	 * For an explanation as to exactly how this works, and why it works this way, see GetUID().
-	 *   -- w00t
- 	 */
+	// If we don't have a SID, generate one based on the server name and the server description
 	if (Config->sid.empty())
-	{
-		// Generate one
-		unsigned int sid = 0;
-		char sidstr[4];
+		Config->sid = UIDGenerator::GenerateSID(Config->ServerName, Config->ServerDesc);
 
-		for (const char* x = Config->ServerName.c_str(); *x; ++x)
-			sid = 5 * sid + *x;
-		for (const char* y = Config->ServerDesc.c_str(); *y; ++y)
-			sid = 5 * sid + *y;
-		sprintf(sidstr, "%03d", sid % 1000);
-
-		Config->sid = sidstr;
-	}
+	// Initialize the UID generator with our sid
+	this->UIDGen.init(Config->sid);
 
 	/* set up fake client again this time with the correct uid */
 	this->FakeClient = new FakeUser(Config->sid, Config->ServerName);
@@ -590,7 +529,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Modules->LoadAll();
 
 	/* Just in case no modules were loaded - fix for bug #101 */
-	this->BuildISupport();
+	this->ISupport.Build();
 	Config->ApplyDisabledCommands(Config->DisabledCommands);
 
 	if (!pl.empty())
@@ -615,7 +554,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (kill(getppid(), SIGTERM) == -1)
 		{
 			std::cout << "Error killing parent process: " << strerror(errno) << std::endl;
-			Logs->Log("STARTUP", DEFAULT, "Error killing parent process: %s",strerror(errno));
+			Logs->Log("STARTUP", LOG_DEFAULT, "Error killing parent process: %s",strerror(errno));
 		}
 	}
 
@@ -638,16 +577,16 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		fclose(stdout);
 
 		if (dup2(fd, STDIN_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdin.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdin.");
 		if (dup2(fd, STDOUT_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stdout.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stdout.");
 		if (dup2(fd, STDERR_FILENO) < 0)
-			Logs->Log("STARTUP", DEFAULT, "Failed to dup /dev/null to stderr.");
+			Logs->Log("STARTUP", LOG_DEFAULT, "Failed to dup /dev/null to stderr.");
 		close(fd);
 	}
 	else
 	{
-		Logs->Log("STARTUP", DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+		Logs->Log("STARTUP", LOG_DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
 	/* Set win32 service as running, if we are running as a service */
@@ -662,7 +601,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	QueryPerformanceFrequency(&stats->QPFrequency);
 #endif
 
-	Logs->Log("STARTUP", DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
+	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
 
 #ifndef _WIN32
 	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
@@ -676,7 +615,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGROUPS", DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
+			this->Logs->Log("SETGROUPS", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -688,7 +627,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!g)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -696,7 +635,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -711,7 +650,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!u)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -719,7 +658,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", LOG_DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -771,7 +710,7 @@ int InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
-			this->Logs->Log("CONFIG",DEBUG,"Detected ConfigThread exiting, tidying up...");
+			this->Logs->Log("CONFIG",LOG_DEBUG,"Detected ConfigThread exiting, tidying up...");
 
 			this->ConfigThread->Finish();
 
@@ -820,7 +759,7 @@ int InspIRCd::Run()
 
 			if ((TIME.tv_sec % 3600) == 0)
 			{
-				this->RehashUsersAndChans();
+				Users->GarbageCollect();
 				FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
 			}
 
