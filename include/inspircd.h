@@ -25,69 +25,31 @@
 
 #pragma once
 
-#define _FILE_OFFSET_BITS 64
-#ifndef _LARGEFILE_SOURCE
-#define _LARGEFILE_SOURCE
-#endif
-
-#ifndef _WIN32
-#define DllExport
-#define CoreExport
-#else
-#include "inspircd_win32wrapper.h"
-/** Windows defines these already */
-#undef ERROR
-#endif
-
-#ifdef __GNUC__
-#define CUSTOM_PRINTF(STRING, FIRST) __attribute__((format(printf, STRING, FIRST)))
-#else
-#define CUSTOM_PRINTF(STRING, FIRST)
-#endif
-
-#if defined __clang__ || defined __GNUC__
-# define DEPRECATED_METHOD(function) function __attribute__((deprecated))
-#elif defined _MSC_VER
-# define DEPRECATED_METHOD(function) __declspec(deprecated) function
-#else
-# pragma message ("Warning! DEPRECATED_METHOD() does not work on your compiler!")
-# define DEPRECATED_METHOD(function) function
-#endif
-
-// Required system headers.
-#include <ctime>
-#include <cstdarg>
-#include <algorithm>
-#include <cmath>
-#include <cstring>
 #include <climits>
+#include <cmath>
+#include <csignal>
+#include <cstdarg>
 #include <cstdio>
-#ifndef _WIN32
-#include <unistd.h>
-#endif
+#include <cstring>
+#include <ctime>
 
-#if defined _LIBCPP_VERSION || defined _WIN32
-# define TR1NS std
-# include <unordered_map>
-#else
-# define TR1NS std::tr1
-# include <tr1/unordered_map>
-#endif
+#include <algorithm>
+#include <bitset>
+#include <deque>
+#include <list>
+#include <map>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <list>
-#include <deque>
-#include <map>
-#include <bitset>
-#include <set>
-#include <time.h>
-#include "config.h"
+
+#include "compat.h"
 #include "typedefs.h"
-#include "consolecolors.h"
 
 CoreExport extern InspIRCd* ServerInstance;
 
+#include "config.h"
+#include "consolecolors.h"
 #include "caller.h"
 #include "cull_list.h"
 #include "extensible.h"
@@ -111,11 +73,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
-
-#ifndef PATH_MAX
-#warning Potentially broken system, PATH_MAX undefined
-#define PATH_MAX 4096
-#endif
 
 /**
  * Used to define the maximum number of parameters a command may have.
@@ -454,7 +411,7 @@ class CoreExport InspIRCd
 
 	/** Set to the current signal recieved
 	 */
-	int s_signal;
+	static sig_atomic_t s_signal;
 
 	/** Protocol interface, overridden by server protocol modules
 	 */
