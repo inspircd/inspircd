@@ -541,6 +541,14 @@ class CoreExport InspIRCd
 	/** Causes the server to exit immediately with exit code 0.
 	 * The status code is required for signal handlers, and ignored.
 	 */
+
+	/** Printf-wrapper.
+	* @param How you want it formated
+	* @param ...
+	* @return The formated string
+	*/
+	static const char* Format(const char* formatString, ...);
+
 	static void QuickExit(int status);
 
 	/** Return a count of channels on the network
