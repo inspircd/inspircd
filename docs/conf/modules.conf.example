@@ -418,6 +418,11 @@
 #<module name="m_channelban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Changecap: Allows channel ops to change the capitalization of their
+# channel, so they don't have to recreate the channel for it.
+#<module name="m_changecap.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Check module: gives /check
 # Check is useful for looking up information on channels,
 # users, IP addresses and hosts.
