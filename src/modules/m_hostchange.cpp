@@ -159,9 +159,9 @@ class ModuleHostChange : public Module
 				}
 				if (!newhost.empty())
 				{
-					user->WriteServ("NOTICE "+user->nick+" :Setting your virtual host: " + newhost);
+					user->WriteNotice("Setting your virtual host: " + newhost);
 					if (!user->ChangeDisplayedHost(newhost.c_str()))
-						user->WriteServ("NOTICE "+user->nick+" :Could not set your virtual host: " + newhost);
+						user->WriteNotice("Could not set your virtual host: " + newhost);
 					return;
 				}
 			}

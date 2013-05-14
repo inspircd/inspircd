@@ -44,14 +44,14 @@ class CommandSethost : public Command
 		{
 			if (!hostmap[(const unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+user->nick+" :*** SETHOST: Invalid characters in hostname");
+				user->WriteNotice("*** SETHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
 		}
 
 		if (len > 64)
 		{
-			user->WriteServ("NOTICE %s :*** SETHOST: Host too long",user->nick.c_str());
+			user->WriteNotice("*** SETHOST: Host too long");
 			return CMD_FAILURE;
 		}
 

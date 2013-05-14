@@ -149,7 +149,7 @@ class CommandSilence : public Command
 
 			if (pattern == 0)
 			{
-				user->WriteServ("NOTICE %s :Bad SILENCE pattern",user->nick.c_str());
+				user->WriteNotice("Bad SILENCE pattern");
 				return CMD_INVALID;
 			}
 

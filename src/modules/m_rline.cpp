@@ -180,7 +180,7 @@ class CommandRLine : public Command
 				else
 				{
 					delete r;
-					user->WriteServ("NOTICE %s :*** R-Line for %s already exists", user->nick.c_str(), parameters[0].c_str());
+					user->WriteNotice("*** R-Line for " + parameters[0] + " already exists");
 				}
 			}
 		}
@@ -192,7 +192,7 @@ class CommandRLine : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** R-Line %s not found in list, try /stats R.",user->nick.c_str(),parameters[0].c_str());
+				user->WriteNotice("*** R-Line " + parameters[0] + " not found in list, try /stats R.");
 			}
 		}
 

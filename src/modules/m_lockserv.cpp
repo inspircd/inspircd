@@ -41,7 +41,7 @@ class CommandLockserv : public Command
 	{
 		if (locked)
 		{
-			user->WriteServ("NOTICE %s :The server is already locked.", user->nick.c_str());
+			user->WriteNotice("The server is already locked.");
 			return CMD_FAILURE;
 		}
 
@@ -66,7 +66,7 @@ class CommandUnlockserv : public Command
 	{
 		if (!locked)
 		{
-			user->WriteServ("NOTICE %s :The server isn't locked.", user->nick.c_str());
+			user->WriteNotice("The server isn't locked.");
 			return CMD_FAILURE;
 		}
 

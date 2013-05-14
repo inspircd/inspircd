@@ -36,7 +36,7 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 	{
 		if (s == Utils->TreeRoot)
 		{
-			user->WriteServ("NOTICE %s :*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)",user->nick.c_str(),parameters[0].c_str());
+			user->WriteNotice("*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (" + parameters[0] + " matches local server name)");
 			return MOD_RES_DENY;
 		}
 
@@ -51,12 +51,12 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** SQUIT may not be used to remove remote servers. Please use RSQUIT instead.",user->nick.c_str());
+			user->WriteNotice("*** SQUIT may not be used to remove remote servers. Please use RSQUIT instead.");
 		}
 	}
 	else
 	{
-		 user->WriteServ("NOTICE %s :*** SQUIT: The server \002%s\002 does not exist on the network.",user->nick.c_str(),parameters[0].c_str());
+		 user->WriteNotice("*** SQUIT: The server \002" + parameters[0] + "\002 does not exist on the network.");
 	}
 	return MOD_RES_DENY;
 }

@@ -99,23 +99,23 @@ class CommandSSLInfo : public Command
 		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 		if (operonlyfp && !user->IsOper() && target != user)
 		{
-			user->WriteServ("NOTICE %s :*** You cannot view SSL certificate information for other users", user->nick.c_str());
+			user->WriteNotice("*** You cannot view SSL certificate information for other users");
 			return CMD_FAILURE;
 		}
 		ssl_cert* cert = CertExt.get(target);
 		if (!cert)
 		{
-			user->WriteServ("NOTICE %s :*** No SSL certificate for this user", user->nick.c_str());
+			user->WriteNotice("*** No SSL certificate for this user");
 		}
 		else if (cert->GetError().length())
 		{
-			user->WriteServ("NOTICE %s :*** No SSL certificate information for this user (%s).", user->nick.c_str(), cert->GetError().c_str());
+			user->WriteNotice("*** No SSL certificate information for this user (" + cert->GetError() + ").");
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Distinguished Name: %s", user->nick.c_str(), cert->GetDN().c_str());
-			user->WriteServ("NOTICE %s :*** Issuer:             %s", user->nick.c_str(), cert->GetIssuer().c_str());
-			user->WriteServ("NOTICE %s :*** Key Fingerprint:    %s", user->nick.c_str(), cert->GetFingerprint().c_str());
+			user->WriteNotice("*** Distinguished Name: " + cert->GetDN());
+			user->WriteNotice("*** Issuer:             " + cert->GetIssuer());
+			user->WriteNotice("*** Key Fingerprint:    " + cert->GetFingerprint());
 		}
 		return CMD_SUCCESS;
 	}

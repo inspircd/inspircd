@@ -68,7 +68,7 @@ class CommandSakick : public Command
 				if (n && n->HasUser(dest))
 				{
 					/* Sort-of-bug: If the command was issued remotely, this message won't be sent */
-					user->WriteServ("NOTICE %s :*** Unable to kick %s from %s", user->nick.c_str(), dest->nick.c_str(), parameters[0].c_str());
+					user->WriteNotice("*** Unable to kick " + dest->nick + " from " + parameters[0]);
 					return CMD_FAILURE;
 				}
 			}
@@ -83,7 +83,7 @@ class CommandSakick : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname or channel", user->nick.c_str());
+			user->WriteNotice("*** Invalid nickname or channel");
 		}
 
 		return CMD_FAILURE;

@@ -40,13 +40,13 @@ class CommandSetident : public Command
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.IdentMax)
 		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Ident is too long", user->nick.c_str());
+			user->WriteNotice("*** SETIDENT: Ident is too long");
 			return CMD_FAILURE;
 		}
 
 		if (!ServerInstance->IsIdent(parameters[0].c_str()))
 		{
-			user->WriteServ("NOTICE %s :*** SETIDENT: Invalid characters in ident", user->nick.c_str());
+			user->WriteNotice("*** SETIDENT: Invalid characters in ident");
 			return CMD_FAILURE;
 		}
 

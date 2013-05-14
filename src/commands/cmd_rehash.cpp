@@ -101,7 +101,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		 * XXX, todo: we should find some way to kill runaway rehashes that are blocking, this is a major problem for unrealircd users
 		 */
 		if (IS_LOCAL(user))
-			user->WriteServ("NOTICE %s :*** Could not rehash: A rehash is already in progress.", user->nick.c_str());
+			user->WriteNotice("*** Could not rehash: A rehash is already in progress.");
 		else
 			ServerInstance->PI->SendUserNotice(user, "*** Could not rehash: A rehash is already in progress.");
 	}

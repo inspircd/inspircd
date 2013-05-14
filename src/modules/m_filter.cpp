@@ -209,13 +209,13 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 		Module *me = creator;
 		if (static_cast<ModuleFilter *>(me)->DeleteFilter(parameters[0]))
 		{
-			user->WriteServ("NOTICE %s :*** Removed filter '%s'", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** Removed filter '" + parameters[0] + "'");
 			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" removed filter '"+parameters[0]+"'");
 			return CMD_SUCCESS;
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Filter '%s' not found in list, try /stats s.", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** Filter '" + parameters[0] + "' not found in list, try /stats s.");
 			return CMD_FAILURE;
 		}
 	}
@@ -232,7 +232,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
 			{
-				user->WriteServ("NOTICE %s :*** Invalid filter type '%s'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.", user->nick.c_str(), parameters[1].c_str());
+				user->WriteNotice("*** Invalid filter type '" + parameters[1] + "'. Supported types are 'gline', 'none', 'block', 'silent' and 'kill'.");
 				return CMD_FAILURE;
 			}
 
@@ -245,7 +245,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 				}
 				else
 				{
-					user->WriteServ("NOTICE %s :*** Not enough parameters: When setting a gline type filter, a gline duration must be specified as the third parameter.", user->nick.c_str());
+					user->WriteNotice("*** Not enough parameters: When setting a gline type filter, a gline duration must be specified as the third parameter.");
 					return CMD_FAILURE;
 				}
 			}
@@ -258,9 +258,9 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			std::pair<bool, std::string> result = static_cast<ModuleFilter *>(me)->AddFilter(freeform, type, parameters[reasonindex], duration, flags);
 			if (result.first)
 			{
-				user->WriteServ("NOTICE %s :*** Added filter '%s', type '%s'%s%s, flags '%s', reason: '%s'", user->nick.c_str(), freeform.c_str(),
-						parameters[1].c_str(), (duration ? ", duration " : ""), (duration ? parameters[3].c_str() : ""),
-						flags.c_str(), parameters[reasonindex].c_str());
+				user->WriteNotice("*** Added filter '" + freeform + "', type '" + parameters[1] + "'" +
+					(duration ? ", duration " +  parameters[3] : "") + ", flags '" + flags + "', reason: '" +
+					parameters[reasonindex] + "'");
 
 				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" added filter '"+freeform+"', type '"+parameters[1]+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+parameters[reasonindex]);
 
@@ -268,13 +268,13 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Filter '%s' could not be added: %s", user->nick.c_str(), freeform.c_str(), result.second.c_str());
+				user->WriteNotice("*** Filter '" + freeform + "' could not be added: " + result.second);
 				return CMD_FAILURE;
 			}
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Not enough parameters.", user->nick.c_str());
+			user->WriteNotice("*** Not enough parameters.");
 			return CMD_FAILURE;
 		}
 
@@ -364,14 +364,14 @@ ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, s
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(404, "%s %s :Message to channel blocked and opers notified (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
 			else
-				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked and opers notified: "+f->reason);
+				user->WriteNotice("Your message to "+target+" was blocked and opers notified: "+f->reason);
 		}
 		else if (f->action == FA_SILENT)
 		{
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(404, "%s %s :Message to channel blocked (%s)",user->nick.c_str(), target.c_str(), f->reason.c_str());
 			else
-				user->WriteServ("NOTICE "+user->nick+" :Your message to "+target+" was blocked: "+f->reason);
+				user->WriteNotice("Your message to "+target+" was blocked: "+f->reason);
 		}
 		else if (f->action == FA_KILL)
 		{
@@ -446,7 +446,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			/* Are they parting, if so, kill is applicable */
 			if ((parting) && (f->action == FA_KILL))
 			{
-				user->WriteServ("NOTICE %s :*** Your PART message was filtered: %s", user->nick.c_str(), f->reason.c_str());
+				user->WriteNotice("*** Your PART message was filtered: " + f->reason);
 				ServerInstance->Users->QuitUser(user, "Filtered: " + f->reason);
 			}
 			if (f->action == FA_GLINE)

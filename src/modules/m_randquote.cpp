@@ -46,7 +46,7 @@ class CommandRandquote : public Command
 
 		fsize = quotes->FileSize();
 		str = quotes->GetLine(ServerInstance->GenRandomInt(fsize));
-		user->WriteServ("NOTICE %s :%s%s%s",user->nick.c_str(),prefix.c_str(),str.c_str(),suffix.c_str());
+		user->WriteNotice(prefix + str + suffix);
 
 		return CMD_SUCCESS;
 	}

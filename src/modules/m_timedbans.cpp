@@ -70,7 +70,7 @@ class CommandTban : public Command
 		unsigned long expire = duration + ServerInstance->Time();
 		if (duration < 1)
 		{
-			user->WriteServ("NOTICE "+user->nick+" :Invalid ban time");
+			user->WriteNotice("Invalid ban time");
 			return CMD_FAILURE;
 		}
 		std::string mask = parameters[2];
@@ -87,7 +87,7 @@ class CommandTban : public Command
 		ServerInstance->Parser->CallHandler("MODE",setban,user);
 		if (ServerInstance->Modes->GetLastParse().empty())
 		{
-			user->WriteServ("NOTICE "+user->nick+" :Invalid ban mask");
+			user->WriteNotice("Invalid ban mask");
 			return CMD_FAILURE;
 		}
 

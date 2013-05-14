@@ -398,7 +398,7 @@ CmdResult CommandCloak::Handle(const std::vector<std::string> &parameters, User 
 	else
 		cloak = mod->GenCloak(sa, "", parameters[0]);
 
-	user->WriteServ("NOTICE %s :*** Cloak for %s is %s", user->nick.c_str(), parameters[0].c_str(), cloak.c_str());
+	user->WriteNotice("*** Cloak for " + parameters[0] + " is " + cloak);
 
 	return CMD_SUCCESS;
 }

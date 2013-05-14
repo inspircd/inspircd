@@ -543,6 +543,11 @@ class CoreExport User : public Extensible
 	 */
 	void WriteServ(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
+	/** Sends a server notice to this user.
+	 * @param text The contents of the message to send.
+	 */
+	void WriteNotice(const std::string& text);
+
 	void WriteNumeric(unsigned int numeric, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	void WriteNumeric(unsigned int numeric, const std::string &text);

@@ -61,7 +61,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 		 */
 		if (IS_LOCAL(user))
 		{
-			user->WriteServ("NOTICE %s :*** RCONNECT: Sending remote connect to \002%s\002 to connect server \002%s\002.",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
+			user->WriteNotice("*** RCONNECT: Sending remote connect to \002 " + parameters[0] + "\002 to connect server \002" + parameters[1] + "\002.");
 		}
 	}
 	return CMD_SUCCESS;

@@ -111,7 +111,7 @@ class CommandShun : public Command
 			}
 			else
 			{
-				user->WriteServ("NOTICE %s :*** Shun %s not found in list, try /stats H.",user->nick.c_str(),target.c_str());
+				user->WriteNotice("*** Shun " + target + " not found in list, try /stats H.");
 				return CMD_FAILURE;
 			}
 		}
@@ -150,7 +150,7 @@ class CommandShun : public Command
 			else
 			{
 				delete r;
-				user->WriteServ("NOTICE %s :*** Shun for %s already exists", user->nick.c_str(), target.c_str());
+				user->WriteNotice("*** Shun for " + target + " already exists");
 				return CMD_FAILURE;
 			}
 		}
@@ -255,7 +255,7 @@ class ModuleShun : public Module
 		if (i == ShunEnabledCommands.end())
 		{
 			if (NotifyOfShun)
-				user->WriteServ("NOTICE %s :*** Command %s not processed, as you have been blocked from issuing commands (SHUN)", user->nick.c_str(), command.c_str());
+				user->WriteNotice("*** Command " + command + " not processed, as you have been blocked from issuing commands (SHUN)");
 			return MOD_RES_DENY;
 		}
 

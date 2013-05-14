@@ -53,9 +53,9 @@ class CommandJumpserver : public Command
 		if (!parameters.size())
 		{
 			if (port)
-				user->WriteServ("NOTICE %s :*** Disabled jumpserver (previously set to '%s:%d')", user->nick.c_str(), redirect_to.c_str(), port);
+				user->WriteNotice("*** Disabled jumpserver (previously set to '" + redirect_to + ":" + ConvToStr(port) + "')");
 			else
-				user->WriteServ("NOTICE %s :*** Jumpserver was not enabled.", user->nick.c_str());
+				user->WriteNotice("*** Jumpserver was not enabled.");
 
 			port = 0;
 			redirect_to.clear();
@@ -84,7 +84,7 @@ class CommandJumpserver : public Command
 						redirect_new_users = direction;
 					break;
 					default:
-						user->WriteServ("NOTICE %s :*** Invalid JUMPSERVER flag: %c", user->nick.c_str(), *n);
+						user->WriteNotice("*** Invalid JUMPSERVER flag: " + ConvToStr(*n));
 						return CMD_FAILURE;
 					break;
 				}
@@ -92,7 +92,7 @@ class CommandJumpserver : public Command
 
 			if (!atoi(parameters[1].c_str()))
 			{
-				user->WriteServ("NOTICE %s :*** Invalid port number", user->nick.c_str());
+				user->WriteNotice("*** Invalid port number");
 				return CMD_FAILURE;
 			}
 
@@ -121,13 +121,9 @@ class CommandJumpserver : public Command
 				port = atoi(parameters[1].c_str());
 			}
 
-			user->WriteServ("NOTICE %s :*** Set jumpserver to server '%s' port '%s', flags '+%s%s'%s%s%s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[1].c_str(),
-					redirect_all_immediately ? "a" : "",
-					redirect_new_users ? "n" : "",
-					n_done ? " (" : "",
-					n_done ? n_done_s.c_str() : "",
-					n_done ? " user(s) redirected)" : "",
-					reason.c_str());
+			user->WriteNotice("*** Set jumpserver to server '" + parameters[0] + "' port '" + parameters[1] + "', flags '+" +
+				(redirect_all_immediately ? "a" : "") + (redirect_new_users ? "n'" : "'") +
+				(n_done ? " (" + n_done_s + "user(s) redirected): " : ": ") + reason);
 		}
 
 		return CMD_SUCCESS;

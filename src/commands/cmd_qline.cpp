@@ -48,7 +48,7 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 
 		if (parameters[0].find('@') != std::string::npos || parameters[0].find('!') != std::string::npos || parameters[0].find('.') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** A Q-Line only bans a nick pattern, not a nick!user@host pattern.",user->nick.c_str());
+			user->WriteNotice("*** A Q-Line only bans a nick pattern, not a nick!user@host pattern.");
 			return CMD_FAILURE;
 		}
 
@@ -72,7 +72,7 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete ql;
-			user->WriteServ("NOTICE %s :*** Q-Line for %s already exists",user->nick.c_str(),parameters[0].c_str());
+			user->WriteNotice("*** Q-Line for " + parameters[0] + " already exists");
 		}
 	}
 	else
@@ -83,7 +83,7 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Q-Line %s not found in list, try /stats q.",user->nick.c_str(),parameters[0].c_str());
+			user->WriteNotice("*** Q-Line " + parameters[0] + " not found in list, try /stats q.");
 			return CMD_FAILURE;
 		}
 	}

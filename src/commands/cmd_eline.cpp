@@ -60,11 +60,11 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 		else
 			ih = ServerInstance->XLines->IdentSplit(target);
 
-        if (ih.first.empty())
-        {
-            user->WriteServ("NOTICE %s :*** Target not found", user->nick.c_str());
-            return CMD_FAILURE;
-        }
+		if (ih.first.empty())
+		{
+			user->WriteNotice("*** Target not found");
+			return CMD_FAILURE;
+		}
 
 		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
 			return CMD_FAILURE;
@@ -88,7 +88,7 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete el;
-			user->WriteServ("NOTICE %s :*** E-Line for %s already exists",user->nick.c_str(),target.c_str());
+			user->WriteNotice("*** E-Line for " + target + " already exists");
 		}
 	}
 	else
@@ -99,7 +99,7 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** E-Line %s not found in list, try /stats e.",user->nick.c_str(),target.c_str());
+			user->WriteNotice("*** E-Line " + target + " not found in list, try /stats e");
 		}
 	}
 
