@@ -100,10 +100,12 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 
 	unsigned int paramptr = 9;
 
-	// Accept more '+' chars, for now
-	std::string::size_type pos = modestr.find_first_not_of('+');
-	for (std::string::const_iterator v = modestr.begin()+pos; v != modestr.end(); ++v)
+	for (std::string::const_iterator v = modestr.begin(); v != modestr.end(); ++v)
 	{
+		// Accept more '+' chars, for now
+		if (*v == '+')
+			continue;
+
 		/* For each mode thats set, find the mode handler and set it on the new user */
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
 		if (!mh)
