@@ -307,7 +307,7 @@ class ModuleIdent : public Module
 		if (!tag->getBool("useident", true))
 			return;
 
-		user->WriteServ("NOTICE Auth :*** Looking up your ident...");
+		user->WriteNotice("*** Looking up your ident...");
 
 		try
 		{
@@ -343,7 +343,7 @@ class ModuleIdent : public Module
 		if (ServerInstance->Time() >= compare)
 		{
 			/* Ident timeout */
-			user->WriteServ("NOTICE Auth :*** Ident request timed out.");
+			user->WriteNotice("*** Ident request timed out.");
 			ServerInstance->Logs->Log("m_ident",LOG_DEBUG, "Timeout");
 		}
 		else if (!isock->HasResult())
@@ -359,12 +359,12 @@ class ModuleIdent : public Module
 		if (isock->result.empty())
 		{
 			user->ident.insert(0, 1, '~');
-			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident.c_str());
+			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
 		}
 		else
 		{
 			user->ident = isock->result;
-			user->WriteServ("NOTICE Auth :*** Found your ident, '%s'", user->ident.c_str());
+			user->WriteNotice("*** Found your ident, '" + user->ident + "'");
 		}
 
 		user->InvalidateCache();

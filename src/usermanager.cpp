@@ -110,7 +110,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 			/* user banned */
 			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Positive hit for " + New->GetIPString());
 			if (!ServerInstance->Config->MoronBanner.empty())
-				New->WriteServ("NOTICE %s :*** %s", New->nick.c_str(), ServerInstance->Config->MoronBanner.c_str());
+				New->WriteNotice("*** " +  ServerInstance->Config->MoronBanner);
 			this->QuitUser(New, b->Reason);
 			return;
 		}
@@ -140,7 +140,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	}
 
 	if (ServerInstance->Config->RawLog)
-		New->WriteServ("NOTICE Auth :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
+		New->WriteNotice("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
 	FOREACH_MOD(I_OnSetUserIP,OnSetUserIP(New));
 	if (New->quitting)

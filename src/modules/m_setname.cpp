@@ -39,7 +39,7 @@ class CommandSetname : public Command
 	{
 		if (parameters[0].size() > ServerInstance->Config->Limits.MaxGecos)
 		{
-			user->WriteServ("NOTICE %s :*** SETNAME: GECOS too long", user->nick.c_str());
+			user->WriteNotice("*** SETNAME: GECOS too long");
 			return CMD_FAILURE;
 		}
 

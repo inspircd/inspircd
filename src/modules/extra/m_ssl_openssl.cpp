@@ -287,10 +287,10 @@ class ModuleSSLOpenSSL : public Module
 			if (sessions[user->eh.GetFd()].sess)
 			{
 				if (!sessions[user->eh.GetFd()].cert->fingerprint.empty())
-					user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\""
-						" and your SSL fingerprint is %s", user->nick.c_str(), SSL_get_cipher(sessions[user->eh.GetFd()].sess), sessions[user->eh.GetFd()].cert->fingerprint.c_str());
+					user->WriteNotice("*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sessions[user->eh.GetFd()].sess)) +
+						"' and your SSL fingerprint is " + sessions[user->eh.GetFd()].cert->fingerprint);
 				else
-					user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), SSL_get_cipher(sessions[user->eh.GetFd()].sess));
+					user->WriteNotice("*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sessions[user->eh.GetFd()].sess)) + "'");
 			}
 		}
 	}

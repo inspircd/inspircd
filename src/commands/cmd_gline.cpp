@@ -63,7 +63,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 
 		if (ih.first.empty())
 		{
-			user->WriteServ("NOTICE %s :*** Target not found", user->nick.c_str());
+			user->WriteNotice("*** Target not found");
 			return CMD_FAILURE;
 		}
 
@@ -72,7 +72,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 
 		else if (target.find('!') != std::string::npos)
 		{
-			user->WriteServ("NOTICE %s :*** G-Line cannot operate on nick!user@host masks",user->nick.c_str());
+			user->WriteNotice("*** G-Line cannot operate on nick!user@host masks");
 			return CMD_FAILURE;
 		}
 
@@ -97,7 +97,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 		else
 		{
 			delete gl;
-			user->WriteServ("NOTICE %s :*** G-Line for %s already exists",user->nick.c_str(),target.c_str());
+			user->WriteNotice("** G-Line for " + target + " already exists");
 		}
 
 	}
@@ -109,7 +109,7 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** G-line %s not found in list, try /stats g.",user->nick.c_str(),target.c_str());
+			user->WriteNotice("*** G-Line " + target + " not found in list, try /stats g.");
 		}
 	}
 

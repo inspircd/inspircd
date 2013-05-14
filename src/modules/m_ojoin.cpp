@@ -62,7 +62,7 @@ class CommandOjoin : public SplitCommand
 		// Make sure the channel name is allowable.
 		if (!ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
 		{
-			user->WriteServ("NOTICE "+user->nick+" :*** Invalid characters in channel name or name too long");
+			user->WriteNotice("*** Invalid characters in channel name or name too long");
 			return CMD_FAILURE;
 		}
 

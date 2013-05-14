@@ -41,7 +41,7 @@ class ModuleMapHide : public Module
 	{
 		if (validated && !user->IsOper() && !url.empty() && (command == "MAP" || command == "LINKS"))
 		{
-			user->WriteServ("NOTICE %s :/%s has been disabled; visit %s", user->nick.c_str(), command.c_str(), url.c_str());
+			user->WriteNotice("/" + command + " has been disabled; visit " + url);
 			return MOD_RES_DENY;
 		}
 		else

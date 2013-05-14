@@ -94,7 +94,7 @@ class UserResolver : public DNS::Request
 				delete res_forward;
 				ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG,"Error in resolver: %s",e.GetReason());
 
-				bound_user->WriteServ("NOTICE Auth :*** There was an internal error resolving your host, using your IP address (%s) instead.", bound_user->GetIPString().c_str());
+				bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
 				dl->set(bound_user, 0);
 			}
 		}
@@ -130,7 +130,7 @@ class UserResolver : public DNS::Request
 				if (hostname == NULL)
 				{
 					ServerInstance->Logs->Log("RESOLVER", LOG_DEFAULT, "ERROR: User has no hostname attached when doing a forward lookup");
-					bound_user->WriteServ("NOTICE Auth :*** There was an internal error resolving your host, using your IP address (%s) instead.", bound_user->GetIPString().c_str());
+					bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
 					return;
 				}
 				else if (hostname->length() < 65)
@@ -139,7 +139,7 @@ class UserResolver : public DNS::Request
 					if ((*hostname)[0] == ':')
 						hostname->insert(0, "0");
 
-					bound_user->WriteServ("NOTICE Auth :*** Found your hostname (%s)%s", hostname->c_str(), (r->cached ? " -- cached" : ""));
+					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
 					bound_user->host.assign(*hostname, 0, 64);
 					bound_user->dhost = bound_user->host;
 
@@ -148,14 +148,14 @@ class UserResolver : public DNS::Request
 				}
 				else
 				{
-					bound_user->WriteServ("NOTICE Auth :*** Your hostname is longer than the maximum of 64 characters, using your IP address (%s) instead.", bound_user->GetIPString().c_str());
+					bound_user->WriteNotice("*** Your hostname is longer than the maximum of 64 characters, using your IP address (" + bound_user->GetIPString() + ") instead.");
 				}
 
 				ph->unset(bound_user);
 			}
 			else
 			{
-				bound_user->WriteServ("NOTICE Auth :*** Your hostname does not match up with your IP address. Sorry, using your IP address (%s) instead.", bound_user->GetIPString().c_str());
+				bound_user->WriteNotice("*** Your hostname does not match up with your IP address. Sorry, using your IP address (" + bound_user->GetIPString() + ") instead.");
 			}
 		}
 	}
@@ -168,7 +168,7 @@ class UserResolver : public DNS::Request
 		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 		if (bound_user)
 		{
-			bound_user->WriteServ("NOTICE Auth :*** Could not resolve your hostname: %s; using your IP address (%s) instead.", this->manager->GetErrorStr(query->error).c_str(), bound_user->GetIPString().c_str());
+			bound_user->WriteNotice("*** Could not resolve your hostname: " + this->manager->GetErrorStr(query->error) + "; using your IP address (" + bound_user->GetIPString() + ") instead.");
 			dl->set(bound_user, 0);
 			ServerInstance->stats->statsDnsBad++;
 		}
@@ -205,11 +205,11 @@ class ModuleHostnameLookup : public Module
 	{
 		if (!DNS || user->MyClass->nouserdns)
 		{
-			user->WriteServ("NOTICE %s :*** Skipping host resolution (disabled by server administrator)", user->nick.c_str());
+			user->WriteNotice("*** Skipping host resolution (disabled by server administrator)");
 			return;
 		}
 
-		user->WriteServ("NOTICE Auth :*** Looking up your hostname...");
+		user->WriteNotice("*** Looking up your hostname...");
 
 		UserResolver* res_reverse = new UserResolver(*this->DNS, this, user, user->GetIPString(), DNS::QUERY_PTR);
 		try

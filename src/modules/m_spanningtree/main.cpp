@@ -388,7 +388,7 @@ void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 	va_end(argsPtr);
 
 	if (IS_LOCAL(user))
-		user->WriteServ("NOTICE %s :%s", user->nick.c_str(), text);
+		user->WriteNotice(text);
 	else
 		ServerInstance->PI->SendUserNotice(user, text);
 }

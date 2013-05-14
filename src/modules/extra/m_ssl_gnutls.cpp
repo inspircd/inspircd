@@ -745,10 +745,10 @@ class ModuleSSLGnuTLS : public Module
 
 				ssl_cert* cert = sessions[user->eh.GetFd()].cert;
 				if (cert->fingerprint.empty())
-					user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\"", user->nick.c_str(), cipher.c_str());
+					user->WriteNotice("*** You are connected using SSL cipher '" + cipher + "'");
 				else
-					user->WriteServ("NOTICE %s :*** You are connected using SSL cipher \"%s\""
-						" and your SSL fingerprint is %s", user->nick.c_str(), cipher.c_str(), cert->fingerprint.c_str());
+					user->WriteNotice("*** You are connected using SSL cipher '" + cipher +
+						"' and your SSL fingerprint is " + cert->fingerprint);
 			}
 		}
 	}

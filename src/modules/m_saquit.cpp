@@ -56,7 +56,7 @@ class CommandSaquit : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :*** Invalid nickname '%s'", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("*** Invalid nickname '" + parameters[0] + "'");
 			return CMD_FAILURE;
 		}
 	}

@@ -49,14 +49,14 @@ class CommandVhost : public Command
 			{
 				if (!mask.empty())
 				{
-					user->WriteServ("NOTICE "+user->nick+" :Setting your VHost: " + mask);
+					user->WriteNotice("Setting your VHost: " + mask);
 					user->ChangeDisplayedHost(mask.c_str());
 					return CMD_SUCCESS;
 				}
 			}
 		}
 
-		user->WriteServ("NOTICE "+user->nick+" :Invalid username or password.");
+		user->WriteNotice("Invalid username or password.");
 		return CMD_FAILURE;
 	}
 };

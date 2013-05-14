@@ -76,13 +76,13 @@ class CommandTitle : public Command
 				if (!vhost.empty())
 					user->ChangeDisplayedHost(vhost.c_str());
 
-				user->WriteServ("NOTICE %s :Custom title set to '%s'",user->nick.c_str(), title.c_str());
+				user->WriteNotice("Custom title set to '" + title + "'");
 
 				return CMD_SUCCESS;
 			}
 		}
 
-		user->WriteServ("NOTICE %s :Invalid title credentials",user->nick.c_str());
+		user->WriteNotice("Invalid title credentials");
 		return CMD_SUCCESS;
 	}
 

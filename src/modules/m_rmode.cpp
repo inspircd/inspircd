@@ -41,20 +41,20 @@ class CommandRMode : public Command
 
 		if (chan == NULL)
 		{
-			user->WriteServ("NOTICE %s :The channel %s does not exist.", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNotice("The channel " + parameters[0] + " does not exist.");
 			return CMD_FAILURE;
 		}
 
 		mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
 		if (mh == NULL || parameters[1].size() > 1)
 		{
-			user->WriteServ("NOTICE %s :%s is not a valid channel mode.", user->nick.c_str(), parameters[1].c_str());
+			user->WriteNotice(parameters[1] + " is not a valid channel mode.");
 			return CMD_FAILURE;
 		}
 
 		if (chan->GetPrefixValue(user) < mh->GetLevelRequired())
 		{
-			user->WriteServ("NOTICE %s :You do not have access to unset %c on %s.", user->nick.c_str(), modeletter, chan->name.c_str());
+			user->WriteNotice("You do not have access to unset " + ConvToStr(modeletter) + " on " +  chan->name + ".");
 			return CMD_FAILURE;
 		}
 
@@ -92,7 +92,7 @@ class CommandRMode : public Command
 		}
 		else
 		{
-			user->WriteServ("NOTICE %s :Could not remove channel mode %c", user->nick.c_str(), modeletter);
+			user->WriteNotice("Could not remove channel mode " + ConvToStr(modeletter));
 			return CMD_FAILURE;
 		}
 

@@ -43,7 +43,7 @@ class CommandChghost : public Command
 
 		if (parameters[1].length() > 63)
 		{
-			user->WriteServ("NOTICE %s :*** CHGHOST: Host too long", user->nick.c_str());
+			user->WriteNotice("*** CHGHOST: Host too long");
 			return CMD_FAILURE;
 		}
 
@@ -51,7 +51,7 @@ class CommandChghost : public Command
 		{
 			if (!hostmap[(unsigned char)*x])
 			{
-				user->WriteServ("NOTICE "+user->nick+" :*** CHGHOST: Invalid characters in hostname");
+				user->WriteNotice("*** CHGHOST: Invalid characters in hostname");
 				return CMD_FAILURE;
 			}
 		}

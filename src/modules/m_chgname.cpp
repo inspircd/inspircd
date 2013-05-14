@@ -47,13 +47,13 @@ class CommandChgname : public Command
 
 		if (parameters[1].empty())
 		{
-			user->WriteServ("NOTICE %s :*** CHGNAME: GECOS must be specified", user->nick.c_str());
+			user->WriteNotice("*** CHGNAME: GECOS must be specified");
 			return CMD_FAILURE;
 		}
 
 		if (parameters[1].length() > ServerInstance->Config->Limits.MaxGecos)
 		{
-			user->WriteServ("NOTICE %s :*** CHGNAME: GECOS too long", user->nick.c_str());
+			user->WriteNotice("*** CHGNAME: GECOS too long");
 			return CMD_FAILURE;
 		}
 

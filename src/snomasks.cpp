@@ -120,7 +120,7 @@ void Snomask::SendMessage(const std::string &message, char mysnomask)
 				User* a = *i;
 				if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(mysnomask) && !a->quitting)
 				{
-					a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), desc.c_str(), message.c_str());
+					a->WriteNotice("*** " + desc + ": " + message);
 				}
 
 				i++;
@@ -155,7 +155,7 @@ void Snomask::Flush()
 				User* a = *i;
 				if (IS_LOCAL(a) && a->IsModeSet('s') && a->IsNoticeMaskSet(LastLetter) && !a->quitting)
 				{
-					a->WriteServ("NOTICE %s :*** %s: %s", a->nick.c_str(), desc.c_str(), mesg.c_str());
+					a->WriteNotice("*** " + desc + ": " + mesg);
 				}
 
 				i++;

@@ -258,7 +258,7 @@ public:
 		callerid_data *targ = extInfo.get(whotoadd, true);
 		targ->wholistsme.push_back(dat);
 
-		user->WriteServ("NOTICE %s :%s is now on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
+		user->WriteNotice(whotoadd->nick + " is now on your accept list");
 		return true;
 	}
 
@@ -297,7 +297,7 @@ public:
 			ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 
-		user->WriteServ("NOTICE %s :%s is no longer on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
+		user->WriteNotice(whotoremove->nick + " is no longer on your accept list");
 		return true;
 	}
 };

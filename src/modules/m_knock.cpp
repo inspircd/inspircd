@@ -70,7 +70,7 @@ class CommandKnock : public Command
 		if (sendnumeric)
 			c->WriteChannelWithServ(ServerInstance->Config->ServerName, "710 %s %s %s :is KNOCKing: %s", c->name.c_str(), c->name.c_str(), user->GetFullHost().c_str(), parameters[1].c_str());
 
-		user->WriteServ("NOTICE %s :KNOCKing on %s", user->nick.c_str(), c->name.c_str());
+		user->WriteNotice("KNOCKing on " + c->name);
 		return CMD_SUCCESS;
 	}
 
