@@ -66,8 +66,7 @@ void InspIRCd::DoBackgroundUserStuff()
 					if (!curr->lastping)
 					{
 						time_t time = this->Time() - (curr->nping - curr->MyClass->GetPingTime());
-						char message[MAXBUF];
-						snprintf(message, MAXBUF, "Ping timeout: %ld second%s", (long)time, time > 1 ? "s" : "");
+						const std::string message = "Ping timeout: " + ConvToStr(time) + (time == 1 ? " seconds" : " second");
 						curr->lastping = 1;
 						curr->nping = Time() + curr->MyClass->GetPingTime();
 						this->Users->QuitUser(curr, message);

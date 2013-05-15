@@ -23,20 +23,6 @@
 
 /* $ModDesc: Allows storage of oper credentials in an SQL table */
 
-static bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
-{
-	std::stringstream hl(hostlist);
-	std::string xhost;
-	while (hl >> xhost)
-	{
-		if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 class OpMeQuery : public SQLQuery
 {
  public:
@@ -106,7 +92,7 @@ class OpMeQuery : public SQLQuery
 
 		hostname.append("@").append(user->host);
 
-		if (OneOfMatches(hostname.c_str(), user->GetIPString().c_str(), pattern.c_str()))
+		if (InspIRCd::MatchMask(pattern, hostname, user->GetIPString()))
 		{
 			/* Opertype and host match, looks like this is it. */
 

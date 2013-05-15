@@ -35,9 +35,8 @@ static void DisplayList(User* user, Channel* channel)
 		if (mh->GetNumParams(true))
 			items << " " << channel->GetModeParameter(letter);
 	}
-	char pfx[MAXBUF];
-	snprintf(pfx, MAXBUF, ":%s 961 %s %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), channel->name.c_str());
-	user->SendText(std::string(pfx), items);
+	const std::string line = ":" + ServerInstance->Config->ServerName + " 961 " + user->nick + " " + channel->name;
+	user->SendText(line, items);
 	user->WriteNumeric(960, "%s %s :End of mode list", user->nick.c_str(), channel->name.c_str());
 }
 

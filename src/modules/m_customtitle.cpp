@@ -35,27 +35,10 @@ class CommandTitle : public Command
 		syntax = "<user> <password>";
 	}
 
-	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
-	{
-		std::stringstream hl(hostlist);
-		std::string xhost;
-		while (hl >> xhost)
-		{
-			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
-		char TheHost[MAXBUF];
-		char TheIP[MAXBUF];
-
-		snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(), user->host.c_str());
-		snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(), user->GetIPString().c_str());
+		const std::string userHost = user->ident + "@" + user->host;
+		const std::string userIP = user->ident + "@" + user->GetIPString();
 
 		ConfigTagList tags = ServerInstance->Config->ConfTags("title");
 		for (ConfigIter i = tags.first; i != tags.second; ++i)
@@ -67,7 +50,8 @@ class CommandTitle : public Command
 			std::string title = i->second->getString("title");
 			std::string vhost = i->second->getString("vhost");
 
-			if (Name == parameters[0] && !ServerInstance->PassCompare(user, pass, parameters[1], hash) && OneOfMatches(TheHost,TheIP,host.c_str()) && !title.empty())
+			if (Name == parameters[0] && !ServerInstance->PassCompare(user, pass, parameters[1], hash) &&
+				InspIRCd::MatchMask(host, userHost, userIP) && !title.empty())
 			{
 				ctitle.set(user, title);
 

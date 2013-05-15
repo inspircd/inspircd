@@ -176,7 +176,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * @param user The user being kicked (must be on this channel)
 	 * @param reason The reason for the kick
 	 */
-	void KickUser(User *src, User *user, const char* reason);
+	void KickUser(User *src, User *user, const std::string& reason);
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.

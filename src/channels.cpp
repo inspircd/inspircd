@@ -472,10 +472,9 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 	if (at == std::string::npos)
 		return false;
 
-	char tomatch[MAXBUF];
-	snprintf(tomatch, MAXBUF, "%s!%s", user->nick.c_str(), user->ident.c_str());
+	const std::string nickIdent = user->nick + "!" + user->ident;
 	std::string prefix = mask.substr(0, at);
-	if (InspIRCd::Match(tomatch, prefix, NULL))
+	if (InspIRCd::Match(nickIdent, prefix, NULL))
 	{
 		std::string suffix = mask.substr(at + 1);
 		if (InspIRCd::Match(user->host, suffix, NULL) ||
@@ -532,9 +531,9 @@ void Channel::PartUser(User *user, std::string &reason)
 	this->DelUser(user);
 }
 
-void Channel::KickUser(User *src, User *user, const char* reason)
+void Channel::KickUser(User *src, User *user, const std::string& reason)
 {
-	if (!src || !user || !reason)
+	if (!src || !user)
 		return;
 
 	Membership* memb = GetUser(user);
@@ -585,7 +584,7 @@ void Channel::KickUser(User *src, User *user, const char* reason)
 		CUList except_list;
 		FOREACH_MOD(I_OnUserKick,OnUserKick(src, memb, reason, except_list));
 
-		WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), user->nick.c_str(), reason);
+		WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), user->nick.c_str(), reason.c_str());
 
 		user->chans.erase(this);
 		this->RemoveAllPrefixes(user);
@@ -611,18 +610,15 @@ void Channel::WriteChannel(User* user, const char* text, ...)
 
 void Channel::WriteChannel(User* user, const std::string &text)
 {
-	char tb[MAXBUF];
-
 	if (!user)
 		return;
 
-	snprintf(tb,MAXBUF,":%s %s", user->GetFullHost().c_str(), text.c_str());
-	std::string out = tb;
+	const std::string message = ":" + user->GetFullHost() + " " + text;
 
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
-			i->first->Write(out);
+			i->first->Write(message);
 	}
 }
 
@@ -643,15 +639,12 @@ void Channel::WriteChannelWithServ(const std::string& ServName, const char* text
 
 void Channel::WriteChannelWithServ(const std::string& ServName, const std::string &text)
 {
-	char tb[MAXBUF];
-
-	snprintf(tb,MAXBUF,":%s %s", ServName.empty() ? ServerInstance->Config->ServerName.c_str() : ServName.c_str(), text.c_str());
-	std::string out = tb;
+	const std::string message = ":" + (ServName.empty() ? ServerInstance->Config->ServerName : ServName) + " " + text;
 
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
-			i->first->Write(out);
+			i->first->Write(message);
 	}
 }
 
@@ -691,12 +684,8 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 
 void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &text)
 {
-	char tb[MAXBUF];
-
-	snprintf(tb,MAXBUF,":%s %s", serversource ? ServerInstance->Config->ServerName.c_str() : user->GetFullHost().c_str(), text.c_str());
-	std::string out = tb;
-
-	this->RawWriteAllExcept(user, serversource, status, except_list, std::string(tb));
+	const std::string message = ":" + (serversource ? ServerInstance->Config->ServerName : user->GetFullHost()) + " " + text;
+	this->RawWriteAllExcept(user, serversource, status, except_list, message);
 }
 
 void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &out)

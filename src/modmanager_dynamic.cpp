@@ -37,10 +37,9 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	if (filename.find('/') != std::string::npos)
 		return false;
 
-	char modfile[MAXBUF];
-	snprintf(modfile,MAXBUF,"%s/%s",ServerInstance->Config->ModPath.c_str(),filename.c_str());
+	const std::string moduleFile = ServerInstance->Config->ModPath + "/" + filename;
 
-	if (!ServerConfig::FileExists(modfile))
+	if (!ServerConfig::FileExists(moduleFile.c_str()))
 	{
 		LastModuleError = "Module file could not be found: " + filename;
 		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, LastModuleError);
@@ -55,7 +54,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	}
 
 	Module* newmod = NULL;
-	DLLManager* newhandle = new DLLManager(modfile);
+	DLLManager* newhandle = new DLLManager(moduleFile.c_str());
 
 	try
 	{

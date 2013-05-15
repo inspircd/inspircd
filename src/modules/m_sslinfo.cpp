@@ -158,20 +158,6 @@ class ModuleSSLInfo : public Module
 		}
 	}
 
-	bool OneOfMatches(const char* host, const char* ip, const char* hostlist)
-	{
-		std::stringstream hl(hostlist);
-		std::string xhost;
-		while (hl >> xhost)
-		{
-			if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 	{
 		if ((command == "OPER") && (validated))

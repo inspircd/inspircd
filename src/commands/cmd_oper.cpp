@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-bool OneOfMatches(const char* host, const char* ip, const char* hostlist);
-
 /** Handle /OPER. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
  * the same way, however, they can be fully unloaded, where these
@@ -43,30 +41,14 @@ class CommandOper : public SplitCommand
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
 };
 
-bool OneOfMatches(const char* host, const char* ip, const std::string& hostlist)
-{
-	std::stringstream hl(hostlist);
-	std::string xhost;
-	while (hl >> xhost)
-	{
-		if (InspIRCd::Match(host, xhost, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(ip, xhost, ascii_case_insensitive_map))
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
-	char TheHost[MAXBUF];
-	char TheIP[MAXBUF];
 	bool match_login = false;
 	bool match_pass = false;
 	bool match_hosts = false;
 
-	snprintf(TheHost,MAXBUF,"%s@%s",user->ident.c_str(),user->host.c_str());
-	snprintf(TheIP, MAXBUF,"%s@%s",user->ident.c_str(),user->GetIPString().c_str());
+	const std::string userHost = user->ident + "@" + user->host;
+	const std::string userIP = user->ident + "@" + user->GetIPString();
 
 	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 	if (i != ServerInstance->Config->oper_blocks.end())
@@ -75,7 +57,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 		ConfigTag* tag = ifo->oper_block;
 		match_login = true;
 		match_pass = !ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
-		match_hosts = OneOfMatches(TheHost,TheIP,tag->getString("host"));
+		match_hosts = InspIRCd::MatchMask(tag->getString("host"), userHost, userIP);
 
 		if (match_pass && match_hosts)
 		{

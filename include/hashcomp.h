@@ -284,7 +284,7 @@ namespace irc
 		 * mode changes to be obtained.
 		 */
 		int GetStackedLine(std::vector<std::string> &result, int max_line_size = 360);
-		
+
 	};
 
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
