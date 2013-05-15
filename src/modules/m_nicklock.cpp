@@ -150,7 +150,7 @@ class ModuleNickLock : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd1);
 		ServerInstance->Modules->AddService(cmd2);
@@ -158,12 +158,12 @@ class ModuleNickLock : public Module
 		ServerInstance->Modules->Attach(I_OnUserPreNick, this);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
 	}
 
-	ModResult OnUserPreNick(User* user, const std::string &newnick)
+	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;

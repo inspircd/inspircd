@@ -80,7 +80,7 @@ class ModuleOperPrefixMode : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(opm);
 
@@ -96,7 +96,7 @@ class ModuleOperPrefixMode : public Module
 			mw_added = ServerInstance->Modes->AddModeWatcher(&hideoperwatcher);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		/* The user may have the +H umode on himself, but +H does not necessarily correspond
 		 * to the +H of m_hideoper.
@@ -122,19 +122,19 @@ class ModuleOperPrefixMode : public Module
 		}
 	}
 
-	void OnPostOper(User* user, const std::string& opername, const std::string& opertype)
+	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user) && (!mw_added || !user->IsModeSet('H')))
 			SetOperPrefix(user, true);
 	}
 
-	void OnLoadModule(Module* mod)
+	void OnLoadModule(Module* mod) CXX11_OVERRIDE
 	{
 		if ((!mw_added) && (mod->ModuleSourceFile == "m_hideoper.so"))
 			mw_added = ServerInstance->Modes->AddModeWatcher(&hideoperwatcher);
 	}
 
-	void OnUnloadModule(Module* mod)
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE
 	{
 		if ((mw_added) && (mod->ModuleSourceFile == "m_hideoper.so") && (ServerInstance->Modes->DelModeWatcher(&hideoperwatcher)))
 			mw_added = false;
@@ -146,7 +146,7 @@ class ModuleOperPrefixMode : public Module
 			ServerInstance->Modes->DelModeWatcher(&hideoperwatcher);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Gives opers cmode +y which provides a staff prefix.", VF_VENDOR);
 	}

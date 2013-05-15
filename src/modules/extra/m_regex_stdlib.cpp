@@ -52,7 +52,7 @@ class StdRegex : public Regex
 		}
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text)
 	{
 		return std::regex_search(text, regexcl);
 	}
@@ -81,12 +81,12 @@ public:
 		OnRehash(NULL);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex Provider Module for std::regex", VF_VENDOR);
 	}
 
-	void OnRehash(User* u)
+	void OnRehash(User* u) CXX11_OVERRIDE
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("stdregex");
 		std::string regextype = Conf->getString("type", "ecmascript");

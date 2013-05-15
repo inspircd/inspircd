@@ -37,19 +37,19 @@ class ModulePrivacyMode : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(pm);
 		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Adds user mode +c, which if set, users must be on a common channel with you to private message you", VF_VENDOR);
 	}
 
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_USER)
 		{
@@ -63,7 +63,7 @@ class ModulePrivacyMode : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}

@@ -98,20 +98,20 @@ public:
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 
-	virtual ~ModuleLDAPAuth()
+	~ModuleLDAPAuth()
 	{
 		if (conn)
 			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapoper");
 
@@ -153,7 +153,7 @@ public:
 		return true;
 	}
 
-	ModResult OnPreCommand(std::string& command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string& original_line)
+	ModResult OnPreCommand(std::string& command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string& original_line) CXX11_OVERRIDE
 	{
 		if (validated && command == "OPER" && parameters.size() >= 2)
 		{
@@ -230,7 +230,7 @@ public:
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Adds the ability to authenticate opers via LDAP", VF_VENDOR);
 	}

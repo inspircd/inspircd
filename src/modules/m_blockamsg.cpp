@@ -59,7 +59,7 @@ class ModuleBlockAmsg : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		this->OnRehash(NULL);
 		ServerInstance->Modules->AddService(blockamsg);
@@ -67,12 +67,12 @@ class ModuleBlockAmsg : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockamsg");
 		ForgetDelay = tag->getInt("delay", -1);
@@ -90,7 +90,7 @@ class ModuleBlockAmsg : public Module
 			action = IBLOCK_KILLOPERS;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		// Don't do anything with unregistered users
 		if (user->registered != REG_ALL)

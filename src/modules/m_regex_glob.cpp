@@ -30,7 +30,7 @@ public:
 	{
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text)
 	{
 		return InspIRCd::Match(text, this->regex_string);
 	}
@@ -55,7 +55,7 @@ public:
 		ServerInstance->Modules->AddService(gf);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex module using plain wildcard matching.", VF_VENDOR);
 	}

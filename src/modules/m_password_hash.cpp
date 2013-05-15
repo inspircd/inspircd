@@ -82,7 +82,7 @@ class ModuleOperHash : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		/* Read the config file first */
 		OnRehash(NULL);
@@ -92,7 +92,7 @@ class ModuleOperHash : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
+	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) CXX11_OVERRIDE
 	{
 		if (hashtype.substr(0,5) == "hmac-")
 		{
@@ -130,7 +130,7 @@ class ModuleOperHash : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows for hashed oper passwords",VF_VENDOR);
 	}

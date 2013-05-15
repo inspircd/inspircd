@@ -214,14 +214,14 @@ class ModuleTest : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		if (!strstr(ServerInstance->Config->ServerName.c_str(), ".test"))
 			throw ModuleException("Don't load modules without reading their descriptions!");
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides a module for testing the server while linked in a network", VF_VENDOR|VF_OPTCOMMON);
 	}

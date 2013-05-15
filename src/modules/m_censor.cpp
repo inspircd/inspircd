@@ -55,7 +55,7 @@ class ModuleCensor : public Module
  public:
 	ModuleCensor() : cu(this), cc(this) { }
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		/* Read the configuration file on startup.
 		 */
@@ -67,7 +67,7 @@ class ModuleCensor : public Module
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -107,12 +107,12 @@ class ModuleCensor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes
@@ -131,7 +131,7 @@ class ModuleCensor : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides user and channel +G mode",VF_VENDOR);
 	}

@@ -53,7 +53,7 @@ public:
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ie);
 
@@ -63,12 +63,12 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["INVEX"] = "I";
 	}
 
-	ModResult OnCheckInvite(User* user, Channel* chan)
+	ModResult OnCheckInvite(User* user, Channel* chan) CXX11_OVERRIDE
 	{
 		ListModeBase::ModeList* list = ie.GetList(chan);
 		if (list)
@@ -85,25 +85,25 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key)
+	ModResult OnCheckKey(User* user, Channel* chan, const std::string& key) CXX11_OVERRIDE
 	{
 		if (invite_bypass_key)
 			return OnCheckInvite(user, chan);
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
 	{
 		ie.DoSyncChannel(chan, proto, opaque);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
 		ie.DoRehash();
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the +I channel mode", VF_VENDOR);
 	}

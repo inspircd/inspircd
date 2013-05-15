@@ -30,7 +30,7 @@ class ModuleXLineDB : public Module
 	bool dirty;
 	std::string xlinedbpath;
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		/* Load the configuration
 		 * Note:
@@ -54,7 +54,7 @@ class ModuleXLineDB : public Module
 	 * @param source The sender of the line or NULL for local server
 	 * @param line The xline being added
 	 */
-	void OnAddLine(User* source, XLine* line)
+	void OnAddLine(User* source, XLine* line) CXX11_OVERRIDE
 	{
 		dirty = true;
 	}
@@ -64,17 +64,17 @@ class ModuleXLineDB : public Module
 	 * @param source The user removing the line or NULL for local server
 	 * @param line the line being deleted
 	 */
-	void OnDelLine(User* source, XLine* line)
+	void OnDelLine(User* source, XLine* line) CXX11_OVERRIDE
 	{
 		dirty = true;
 	}
 
-	void OnExpireLine(XLine *line)
+	void OnExpireLine(XLine *line) CXX11_OVERRIDE
 	{
 		dirty = true;
 	}
 
-	void OnBackgroundTimer(time_t now)
+	void OnBackgroundTimer(time_t now) CXX11_OVERRIDE
 	{
 		if (dirty)
 		{
@@ -252,7 +252,7 @@ class ModuleXLineDB : public Module
 		return true;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Keeps a dynamic log of all XLines created, and stores them in a separate conf file (xline.db).", VF_VENDOR);
 	}

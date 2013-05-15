@@ -48,12 +48,12 @@ class SQLite3Result : public SQLResult
 	{
 	}
 
-	virtual int Rows()
+	int Rows()
 	{
 		return rows;
 	}
 
-	virtual bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result)
 	{
 		if (currentrow < rows)
 		{
@@ -68,7 +68,7 @@ class SQLite3Result : public SQLResult
 		}
 	}
 
-	virtual void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result)
 	{
 		result.assign(columns.begin(), columns.end());
 	}
@@ -144,13 +144,13 @@ class SQLConn : public SQLProvider
 		sqlite3_finalize(stmt);
 	}
 
-	virtual void submit(SQLQuery* query, const std::string& q)
+	void submit(SQLQuery* query, const std::string& q)
 	{
 		Query(query, q);
 		delete query;
 	}
 
-	virtual void submit(SQLQuery* query, const std::string& q, const ParamL& p)
+	void submit(SQLQuery* query, const std::string& q, const ParamL& p)
 	{
 		std::string res;
 		unsigned int param = 0;
@@ -171,7 +171,7 @@ class SQLConn : public SQLProvider
 		submit(query, res);
 	}
 
-	virtual void submit(SQLQuery* query, const std::string& q, const ParamM& p)
+	void submit(SQLQuery* query, const std::string& q, const ParamM& p)
 	{
 		std::string res;
 		for(std::string::size_type i = 0; i < q.length(); i++)
@@ -204,7 +204,7 @@ class ModuleSQLite3 : public Module
 	ConnMap conns;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ReadConf();
 
@@ -212,7 +212,7 @@ class ModuleSQLite3 : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleSQLite3()
+	~ModuleSQLite3()
 	{
 		ClearConns();
 	}
@@ -242,12 +242,12 @@ class ModuleSQLite3 : public Module
 		}
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ReadConf();
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("sqlite3 provider", VF_VENDOR);
 	}

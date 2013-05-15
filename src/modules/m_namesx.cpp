@@ -33,23 +33,23 @@ class ModuleNamesX : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent, I_OnSendWhoLine };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["NAMESX"];
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* We don't actually create a proper command handler class for PROTOCTL,
 		 * because other modules might want to have PROTOCTL hooks too.
@@ -67,7 +67,7 @@ class ModuleNamesX : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick) CXX11_OVERRIDE
 	{
 		if (!cap.ext.get(issuer))
 			return;
@@ -79,7 +79,7 @@ class ModuleNamesX : public Module
 		prefixes = memb->chan->GetAllPrefixChars(memb->user);
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line) CXX11_OVERRIDE
 	{
 		if (!cap.ext.get(source))
 			return;
@@ -117,7 +117,7 @@ class ModuleNamesX : public Module
 		line.insert(pos, prefixes);
 	}
 
-	void OnEvent(Event& ev)
+	void OnEvent(Event& ev) CXX11_OVERRIDE
 	{
 		cap.HandleEvent(ev);
 	}

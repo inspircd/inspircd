@@ -151,7 +151,7 @@ class ModuleTimedBans : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnBackgroundTimer };
@@ -164,7 +164,7 @@ class ModuleTimedBans : public Module
 		ServerInstance->Modes->DelModeWatcher(&banwatcher);
 	}
 
-	virtual void OnBackgroundTimer(time_t curtime)
+	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
 	{
 		timedbans expired;
 		for (timedbans::iterator i = TimedBanList.begin(); i != TimedBanList.end();)
@@ -200,7 +200,7 @@ class ModuleTimedBans : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Adds timed bans", VF_COMMON | VF_VENDOR);
 	}

@@ -68,7 +68,7 @@ class HttpServerSocket : public BufferedSocket
 			GetIOHook()->OnStreamSocketAccept(this, client, server);
 	}
 
-	virtual void OnError(BufferedSocketError)
+	void OnError(BufferedSocketError) CXX11_OVERRIDE
 	{
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
@@ -335,13 +335,13 @@ class ModuleHttpServer : public Module
 	std::vector<HttpServerSocket *> httpsocks;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		HttpModule = this;
 		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
 	}
 
-	void OnRequest(Request& request)
+	void OnRequest(Request& request) CXX11_OVERRIDE
 	{
 		if (strcmp(request.id, "HTTP-DOC") != 0)
 			return;
@@ -350,7 +350,7 @@ class ModuleHttpServer : public Module
 		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 
-	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
 		if (from->bind_tag->getString("type") != "httpd")
 			return MOD_RES_PASSTHRU;
@@ -361,7 +361,7 @@ class ModuleHttpServer : public Module
 		return MOD_RES_ALLOW;
 	}
 
-	virtual ~ModuleHttpServer()
+	~ModuleHttpServer()
 	{
 		for (size_t i = 0; i < httpsocks.size(); i++)
 		{
@@ -370,7 +370,7 @@ class ModuleHttpServer : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides HTTP serving facilities to modules", VF_VENDOR);
 	}

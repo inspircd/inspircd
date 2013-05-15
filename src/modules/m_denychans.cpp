@@ -27,13 +27,13 @@
 class ModuleDenyChannels : public Module
 {
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		/* check for redirect validity and loops/chains */
 		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
@@ -77,13 +77,13 @@ class ModuleDenyChannels : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements config tags which allow blocking of joins to channels", VF_VENDOR);
 	}
 
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
 		for (ConfigIter j = tags.first; j != tags.second; ++j)

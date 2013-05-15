@@ -29,19 +29,19 @@ class ModuleSecureList : public Module
 	time_t WaitTime;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Disallows /LIST for recently connected clients to hinder spam bots", VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		allowlist.clear();
 
@@ -57,7 +57,7 @@ class ModuleSecureList : public Module
 	 * OnPreCommand()
 	 *   Intercept the LIST command.
 	 */
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* If the command doesnt appear to be valid, we dont want to mess with it. */
 		if (!validated)
@@ -82,7 +82,7 @@ class ModuleSecureList : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["SECURELIST"];
 	}

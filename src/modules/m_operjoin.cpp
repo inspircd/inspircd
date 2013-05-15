@@ -52,7 +52,7 @@ class ModuleOperjoin : public Module
 		}
 
 	public:
-		void init()
+		void init() CXX11_OVERRIDE
 		{
 			OnRehash(NULL);
 			Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
@@ -60,7 +60,7 @@ class ModuleOperjoin : public Module
 		}
 
 
-		virtual void OnRehash(User* user)
+		void OnRehash(User* user) CXX11_OVERRIDE
 		{
 			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
 
@@ -71,12 +71,12 @@ class ModuleOperjoin : public Module
 				tokenize(operChan,operChans);
 		}
 
-		virtual Version GetVersion()
+		Version GetVersion() CXX11_OVERRIDE
 		{
 			return Version("Forces opers to join the specified channel(s) on oper-up", VF_VENDOR);
 		}
 
-		virtual void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
+		void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
 		{
 			LocalUser* localuser = IS_LOCAL(user);
 			if (!localuser)

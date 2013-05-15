@@ -49,13 +49,13 @@ class ModuleGlobops : public Module
  public:
 	ModuleGlobops() : cmd(this) {}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for GLOBOPS and snomask +g", VF_VENDOR);
 	}

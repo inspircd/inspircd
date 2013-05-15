@@ -31,19 +31,19 @@ class ModuleConnectBan : public Module
 	unsigned int ipv6_cidr;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnSetUserIP, I_OnGarbageCollect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Throttles the connections of IP ranges who try to connect flood.", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
@@ -64,7 +64,7 @@ class ModuleConnectBan : public Module
 			banduration = 10*60;
 	}
 
-	virtual void OnSetUserIP(LocalUser* u)
+	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE
 	{
 		if (u->exempt)
 			return;
@@ -112,7 +112,7 @@ class ModuleConnectBan : public Module
 		}
 	}
 
-	virtual void OnGarbageCollect()
+	void OnGarbageCollect()
 	{
 		ServerInstance->Logs->Log("m_connectban",LOG_DEBUG, "Clearing map.");
 		connects.clear();

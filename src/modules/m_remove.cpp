@@ -136,7 +136,7 @@ class RemoveBase : public Command
 
 		return CMD_SUCCESS;
 	}
-	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) = 0;
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) = 0;
 };
 
 /** Handle /REMOVE
@@ -202,7 +202,7 @@ class ModuleRemove : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd1);
 		ServerInstance->Modules->AddService(cmd2);
@@ -211,17 +211,17 @@ class ModuleRemove : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["REMOVE"];
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		supportnokicks = ServerInstance->Config->ConfValue("remove")->getBool("supportnokicks");
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel", VF_OPTCOMMON | VF_VENDOR);
 	}

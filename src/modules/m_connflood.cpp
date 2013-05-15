@@ -38,14 +38,14 @@ public:
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		InitConf();
 		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Connection throttle", VF_VENDOR);
 	}
@@ -66,7 +66,7 @@ public:
 		first = ServerInstance->Time();
 	}
 
-	virtual ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (user->exempt)
 			return MOD_RES_PASSTHRU;
@@ -114,7 +114,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		InitConf();
 	}

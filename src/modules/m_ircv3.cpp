@@ -78,14 +78,14 @@ class ModuleIRCv3 : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
 		accountnotify = conf->getBool("accoutnotify", true);
@@ -93,7 +93,7 @@ class ModuleIRCv3 : public Module
 		extendedjoin = conf->getBool("extendedjoin", true);
 	}
 
-	void OnEvent(Event& ev)
+	void OnEvent(Event& ev) CXX11_OVERRIDE
 	{
 		if (awaynotify)
 			cap_awaynotify.HandleEvent(ev);
@@ -122,7 +122,7 @@ class ModuleIRCv3 : public Module
 		}
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
 	{
 		// Remember who is not going to see the JOIN because of other modules
 		if ((awaynotify) && (memb->user->IsAway()))
@@ -195,7 +195,7 @@ class ModuleIRCv3 : public Module
 		}
 	}
 
-	ModResult OnSetAway(User* user, const std::string &awaymsg)
+	ModResult OnSetAway(User* user, const std::string &awaymsg) CXX11_OVERRIDE
 	{
 		if (awaynotify)
 		{
@@ -210,7 +210,7 @@ class ModuleIRCv3 : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostJoin(Membership *memb)
+	void OnPostJoin(Membership *memb) CXX11_OVERRIDE
 	{
 		if ((!awaynotify) || (!memb->user->IsAway()))
 			return;
@@ -236,7 +236,7 @@ class ModuleIRCv3 : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserJoin, PRIORITY_LAST);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for extended-join, away-notify and account-notify CAP capabilities", VF_VENDOR);
 	}

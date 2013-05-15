@@ -65,7 +65,7 @@ class ModuleDeaf : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(m1);
 
@@ -74,14 +74,14 @@ class ModuleDeaf : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("deaf");
 		deaf_bypasschars = tag->getString("bypasschars");
 		deaf_bypasschars_uline = tag->getString("bypasscharsuline");
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -93,7 +93,7 @@ class ModuleDeaf : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -105,7 +105,7 @@ class ModuleDeaf : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
+	void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
 	{
 		const UserMembList *ulist = chan->GetUsers();
 		bool is_a_uline;
@@ -158,7 +158,7 @@ class ModuleDeaf : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides usermode +d to block channel messages and channel notices", VF_VENDOR);
 	}

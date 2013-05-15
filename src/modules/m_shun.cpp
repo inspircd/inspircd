@@ -179,7 +179,7 @@ class ModuleShun : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->Modules->AddService(cmd);
@@ -189,7 +189,7 @@ class ModuleShun : public Module
 		OnRehash(NULL);
 	}
 
-	virtual ~ModuleShun()
+	~ModuleShun()
 	{
 		ServerInstance->XLines->DelAll("SHUN");
 		ServerInstance->XLines->UnregisterFactory(&f);
@@ -201,7 +201,7 @@ class ModuleShun : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_BEFORE, &alias);
 	}
 
-	virtual ModResult OnStats(char symbol, User* user, string_list& out)
+	ModResult OnStats(char symbol, User* user, string_list& out) CXX11_OVERRIDE
 	{
 		if (symbol != 'H')
 			return MOD_RES_PASSTHRU;
@@ -210,7 +210,7 @@ class ModuleShun : public Module
 		return MOD_RES_DENY;
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 		std::string cmds = tag->getString("enabledcommands");
@@ -233,7 +233,7 @@ class ModuleShun : public Module
 		affectopers = tag->getBool("affectopers", false);
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser* user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if (validated)
 			return MOD_RES_PASSTHRU;
@@ -274,7 +274,7 @@ class ModuleShun : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the /SHUN command, which stops a user from executing all except configured commands.",VF_VENDOR|VF_COMMON);
 	}

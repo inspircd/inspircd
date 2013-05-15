@@ -89,7 +89,7 @@ class ModuleHTTPAccessList : public Module
 		}
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ReadConfig();
 		Implementation eventlist[] = { I_OnEvent };
@@ -108,7 +108,7 @@ class ModuleHTTPAccessList : public Module
 		response.Send();
 	}
 
-	void OnEvent(Event& event)
+	void OnEvent(Event& event) CXX11_OVERRIDE
 	{
 		if (event.id == "httpd_acl")
 		{
@@ -218,7 +218,7 @@ class ModuleHTTPAccessList : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides access control lists (passwording of resources, ip restrictions etc) to m_httpd.so dependent modules", VF_VENDOR);
 	}

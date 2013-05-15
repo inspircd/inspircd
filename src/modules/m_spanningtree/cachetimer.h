@@ -31,5 +31,5 @@ class CacheRefreshTimer : public Timer
 	SpanningTreeUtilities *Utils;
  public:
 	CacheRefreshTimer(SpanningTreeUtilities* Util);
-	virtual bool Tick(time_t TIME);
+	bool Tick(time_t TIME);
 };

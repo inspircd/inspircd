@@ -64,8 +64,8 @@ class QueryThread : public SocketThread
   public:
 	QueryThread(ModuleMsSQL* mod) : Parent(mod) { }
 	~QueryThread() { }
-	virtual void Run();
-	virtual void OnNotify();
+	void Run();
+	void OnNotify();
 };
 
 class MsSQLResult : public SQLresult
@@ -107,17 +107,17 @@ class MsSQLResult : public SQLresult
 		rows++;
 	}
 
-	virtual int Rows()
+	int Rows()
 	{
 		return rows;
 	}
 
-	virtual int Cols()
+	int Cols()
 	{
 		return cols;
 	}
 
-	virtual std::string ColName(int column)
+	std::string ColName(int column)
 	{
 		if (column < (int)colnames.size())
 		{
@@ -130,7 +130,7 @@ class MsSQLResult : public SQLresult
 		return "";
 	}
 
-	virtual int ColNum(const std::string &column)
+	int ColNum(const std::string &column)
 	{
 		for (unsigned int i = 0; i < colnames.size(); i++)
 		{
@@ -141,7 +141,7 @@ class MsSQLResult : public SQLresult
 		return 0;
 	}
 
-	virtual SQLfield GetValue(int row, int column)
+	SQLfield GetValue(int row, int column)
 	{
 		if ((row >= 0) && (row < rows) && (column >= 0) && (column < Cols()))
 		{
@@ -154,7 +154,7 @@ class MsSQLResult : public SQLresult
 		return SQLfield("",true);
 	}
 
-	virtual SQLfieldList& GetRow()
+	SQLfieldList& GetRow()
 	{
 		if (currentrow < rows)
 			return fieldlists[currentrow];
@@ -162,7 +162,7 @@ class MsSQLResult : public SQLresult
 			return emptyfieldlist;
 	}
 
-	virtual SQLfieldMap& GetRowMap()
+	SQLfieldMap& GetRowMap()
 	{
 		/* In an effort to reduce overhead we don't actually allocate the map
 		 * until the first time it's needed...so...
@@ -188,7 +188,7 @@ class MsSQLResult : public SQLresult
 		return *fieldmap;
 	}
 
-	virtual SQLfieldList* GetRowPtr()
+	SQLfieldList* GetRowPtr()
 	{
 		fieldlist = new SQLfieldList();
 
@@ -203,7 +203,7 @@ class MsSQLResult : public SQLresult
 		return fieldlist;
 	}
 
-	virtual SQLfieldMap* GetRowMapPtr()
+	SQLfieldMap* GetRowMapPtr()
 	{
 		fieldmap = new SQLfieldMap();
 
@@ -219,12 +219,12 @@ class MsSQLResult : public SQLresult
 		return fieldmap;
 	}
 
-	virtual void Free(SQLfieldMap* fm)
+	void Free(SQLfieldMap* fm)
 	{
 		delete fm;
 	}
 
-	virtual void Free(SQLfieldList* fl)
+	void Free(SQLfieldList* fl)
 	{
 		delete fl;
 	}
@@ -653,7 +653,7 @@ class ModuleMsSQL : public Module
 		queryDispatcher = new QueryThread(this);
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ReadConf();
 
@@ -664,7 +664,7 @@ class ModuleMsSQL : public Module
 		ServerInstance->Modules->AddService(sqlserv);
 	}
 
-	virtual ~ModuleMsSQL()
+	~ModuleMsSQL()
 	{
 		queryDispatcher->join();
 		delete queryDispatcher;
@@ -783,14 +783,14 @@ class ModuleMsSQL : public Module
 		connections.clear();
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		queryDispatcher->LockQueue();
 		ReadConf();
 		queryDispatcher->UnlockQueueWakeup();
 	}
 
-	void OnRequest(Request& request)
+	void OnRequest(Request& request) CXX11_OVERRIDE
 	{
 		if(strcmp(SQLREQID, request.id) == 0)
 		{
@@ -821,7 +821,7 @@ class ModuleMsSQL : public Module
 		return ++currid;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("MsSQL provider", VF_VENDOR);
 	}

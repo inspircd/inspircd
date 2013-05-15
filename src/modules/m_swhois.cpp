@@ -90,7 +90,7 @@ class ModuleSWhois : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.swhois);
@@ -99,7 +99,7 @@ class ModuleSWhois : public Module
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text) CXX11_OVERRIDE
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
 		if (numeric == 312)
@@ -116,7 +116,7 @@ class ModuleSWhois : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnPostOper(User* user, const std::string &opertype, const std::string &opername)
+	void OnPostOper(User* user, const std::string &opertype, const std::string &opername) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return;
@@ -130,7 +130,7 @@ class ModuleSWhois : public Module
 		ServerInstance->PI->SendMetaData(user, "swhois", swhois);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the SWHOIS command which allows setting of arbitrary WHOIS lines", VF_OPTCOMMON | VF_VENDOR);
 	}

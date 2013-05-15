@@ -233,7 +233,7 @@ class ModuleSSLGnuTLS : public Module
 		dh_alloc = false;
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
@@ -250,7 +250,7 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->Modules->AddService(starttls);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		sslports.clear();
 
@@ -290,7 +290,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	void OnModuleRehash(User* user, const std::string &param)
+	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
 	{
 		if(param != "ssl")
 			return;
@@ -484,7 +484,7 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
 	}
 
-	void OnCleanup(int target_type, void* item)
+	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
 	{
 		if(target_type == TYPE_USER)
 		{
@@ -499,12 +499,12 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides SSL support for clients", VF_VENDOR);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		if (!sslports.empty())
 			tokens["SSL"] = sslports;
@@ -512,7 +512,7 @@ class ModuleSSLGnuTLS : public Module
 			tokens["STARTTLS"];
 	}
 
-	void OnHookIO(StreamSocket* user, ListenSocket* lsb)
+	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE
 	{
 		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "gnutls")
 		{
@@ -521,7 +521,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	void OnRequest(Request& request)
+	void OnRequest(Request& request) CXX11_OVERRIDE
 	{
 		if (strcmp("GET_SSL_CERT", request.id) == 0)
 		{
@@ -554,7 +554,7 @@ class ModuleSSLGnuTLS : public Module
 		Handshake(session, user);
 	}
 
-	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
 		issl_session* session = &sessions[user->GetFd()];
 
@@ -565,17 +565,17 @@ class ModuleSSLGnuTLS : public Module
 		InitSession(user, true);
 	}
 
-	void OnStreamSocketConnect(StreamSocket* user)
+	void OnStreamSocketConnect(StreamSocket* user) CXX11_OVERRIDE
 	{
 		InitSession(user, false);
 	}
 
-	void OnStreamSocketClose(StreamSocket* user)
+	void OnStreamSocketClose(StreamSocket* user) CXX11_OVERRIDE
 	{
 		CloseSession(&sessions[user->GetFd()]);
 	}
 
-	int OnStreamSocketRead(StreamSocket* user, std::string& recvq)
+	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) CXX11_OVERRIDE
 	{
 		issl_session* session = &sessions[user->GetFd()];
 
@@ -633,7 +633,7 @@ class ModuleSSLGnuTLS : public Module
 		return 0;
 	}
 
-	int OnStreamSocketWrite(StreamSocket* user, std::string& sendq)
+	int OnStreamSocketWrite(StreamSocket* user, std::string& sendq) CXX11_OVERRIDE
 	{
 		issl_session* session = &sessions[user->GetFd()];
 
@@ -732,7 +732,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 	}
 
-	void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
 		if (user->eh.GetIOHook() == this)
 		{
@@ -860,7 +860,7 @@ info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
 	}
 
-	void OnEvent(Event& ev)
+	void OnEvent(Event& ev) CXX11_OVERRIDE
 	{
 		if (starttls.enabled)
 			capHandler.HandleEvent(ev);

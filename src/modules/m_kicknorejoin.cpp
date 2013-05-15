@@ -42,7 +42,7 @@ class KickRejoin : public ModeHandler
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding)
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding) CXX11_OVERRIDE
 	{
 		if (adding)
 		{
@@ -80,7 +80,7 @@ public:
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Modules->AddService(kr.ext);
@@ -88,7 +88,7 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if (chan)
 		{
@@ -122,7 +122,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE
 	{
 		if (memb->chan->IsModeSet(&kr) && (IS_LOCAL(memb->user)) && (source != memb->user))
 		{
@@ -136,7 +136,7 @@ public:
 		}
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Channel mode to delay rejoin after kick", VF_VENDOR);
 	}

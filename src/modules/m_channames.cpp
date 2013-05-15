@@ -27,8 +27,8 @@ class NewIsChannelHandler : public HandlerBase2<bool, const std::string&, size_t
 {
  public:
 	NewIsChannelHandler() { }
-	virtual ~NewIsChannelHandler() { }
-	virtual bool Call(const std::string&, size_t);
+	~NewIsChannelHandler() { }
+	bool Call(const std::string&, size_t);
 };
 
 bool NewIsChannelHandler::Call(const std::string& channame, size_t max)
@@ -57,7 +57,7 @@ class ModuleChannelNames : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->IsChannel = &myhandler;
 		Implementation eventlist[] = { I_OnRehash, I_OnUserKick };
@@ -94,7 +94,7 @@ class ModuleChannelNames : public Module
 		badchan = false;
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("channames");
 		std::string denyToken = tag->getString("denyrange");
@@ -118,7 +118,7 @@ class ModuleChannelNames : public Module
 		ValidateChans();
 	}
 
-	virtual void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list)
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& except_list) CXX11_OVERRIDE
 	{
 		if (badchan)
 		{
@@ -129,13 +129,13 @@ class ModuleChannelNames : public Module
 		}
 	}
 
-	virtual ~ModuleChannelNames()
+	~ModuleChannelNames()
 	{
 		ServerInstance->IsChannel = rememberer;
 		ValidateChans();
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements config tags which allow changing characters allowed in channel names", VF_VENDOR);
 	}

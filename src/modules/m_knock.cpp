@@ -97,7 +97,7 @@ class ModuleKnock : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(kn);
 		ServerInstance->Modules->AddService(cmd);
@@ -106,7 +106,7 @@ class ModuleKnock : public Module
 		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");
 		irc::string notify(knocknotify.c_str());
@@ -128,7 +128,7 @@ class ModuleKnock : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for /KNOCK and channel mode +K", VF_OPTCOMMON | VF_VENDOR);
 	}

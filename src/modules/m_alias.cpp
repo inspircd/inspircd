@@ -70,7 +70,7 @@ class ModuleAlias : public Module
 	/* whether or not +B users are allowed to use fantasy commands */
 	bool AllowBots;
 
-	virtual void ReadAliases()
+	void ReadAliases()
 	{
 		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
 		AllowBots = fantasy->getBool("allowbots", false);
@@ -98,14 +98,14 @@ class ModuleAlias : public Module
 	}
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ReadAliases();
 		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash, I_OnUserMessage };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides aliases of commands.", VF_VENDOR);
 	}
@@ -135,7 +135,7 @@ class ModuleAlias : public Module
 		return word;
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		std::multimap<irc::string, Alias>::iterator i, upperbound;
 
@@ -175,7 +175,7 @@ class ModuleAlias : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+	void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (target_type != TYPE_CHANNEL)
 		{
@@ -367,12 +367,12 @@ class ModuleAlias : public Module
 		ServerInstance->Parser->CallHandler(command, pars, user);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ReadAliases();
  	}
 
-	virtual void Prioritize()
+	void Prioritize()
 	{
 		// Prioritise after spanningtree so that channel aliases show the alias before the effects.
 		Module* linkmod = ServerInstance->Modules->Find("m_spanningtree.so");
