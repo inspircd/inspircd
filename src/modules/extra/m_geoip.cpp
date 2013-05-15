@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2013 Filippo Cortigiani <simos@simosnap.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Craig Edwards <craigedwards@brainbox.cc>
  *
@@ -15,8 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
-
 
 #include "inspircd.h"
 #include "xline.h"
@@ -27,13 +28,19 @@
 # pragma comment(lib, "GeoIP.lib")
 #endif
 
-/* $ModDesc: Provides a way to restrict users by country using GeoIP lookup */
+/* $ModDesc: Provides a way to restrict users by country using GeoIP lookup, and gecos country code suffix */
 /* $LinkerFlags: -lGeoIP */
 
 class ModuleGeoIP : public Module
 {
 	LocalStringExt ext;
 	GeoIP* gi;
+
+private:
+	std::string exclude;
+	int maxgecos;
+	bool geoipgecos;
+	bool debug;
 
 	void SetExt(LocalUser* user)
 	{
@@ -57,7 +64,7 @@ class ModuleGeoIP : public Module
 				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
 
 		ServerInstance->Modules->AddService(ext);
-		Implementation eventlist[] = { I_OnSetConnectClass, I_OnStats };
+		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_OnSetConnectClass, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
@@ -79,6 +86,44 @@ class ModuleGeoIP : public Module
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides a way to assign users to connect classes by country using GeoIP lookup", VF_VENDOR);
+	}
+
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string &original_line) CXX11_OVERRIDE
+		{
+			std::string* cc = ext.get(user);
+			if (!cc)
+				SetExt(user);			
+
+			if (validated && !(user->registered & REG_USER) && (command == "USER"))
+			{
+
+				if (!parameters.empty() && (geoipgecos))
+				{
+					size_t found = exclude.find(*cc);
+					if (found == std::string::npos)
+					{
+						maxgecos = ServerInstance->Config->Limits.MaxGecos;
+						int gecoslen = parameters[3].length();
+						
+						std::string suffix = " *** (Country Code: "+*cc+")";
+						int global = gecoslen+suffix.length();
+						int totrim = global - maxgecos;
+						int gecoslimit = gecoslen - totrim;
+
+						if (global > maxgecos) 
+						{
+							parameters[3] = parameters[3].substr(0,gecoslimit);
+							if(debug)
+							ServerInstance->SNO->WriteGlobalSno('a', "GEOIP GECOS: original gecos has be trimmed : "+ ConvToStr(totrim) +" chars");
+						}
+						std::string username = parameters[3]+suffix;
+						if(debug)
+						ServerInstance->SNO->WriteGlobalSno('a', "GEOIP GECOS: changing original GECOS \""+parameters[3]+"\" to \""+username+"\"");
+						parameters[3] = username;
+					}
+				}
+			}
+			return MOD_RES_PASSTHRU;
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
@@ -125,6 +170,16 @@ class ModuleGeoIP : public Module
 
 		return MOD_RES_DENY;
 	}
+	
+	virtual void OnRehash(User* user)
+	{
+
+		ConfigTag* Conf = ServerInstance->Config->ConfValue("geoip");
+		exclude = Conf->getString("exclude");
+		geoipgecos = Conf->getBool("geoipgecos", false);
+		debug = Conf->getBool("debug");
+
+	}	
 };
 
 MODULE_INIT(ModuleGeoIP)
