@@ -170,11 +170,6 @@ class CoreExport OperInfo : public refcountbase
 	/** Get a configuration item, searching in the oper, type, and class blocks (in that order) */
 	std::string getConfig(const std::string& key);
 	void init();
-
-	inline const char* NameStr()
-	{
-		return irc::Spacify(name.c_str());
-	}
 };
 
 /** This class holds the bulk of the runtime configuration for the ircd.

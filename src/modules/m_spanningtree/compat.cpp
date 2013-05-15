@@ -140,6 +140,19 @@ void TreeSocket::WriteLine(std::string line)
 					// Insert the source SID (and a space) between the command and the first parameter
 					line.insert(10, line.substr(1, 4));
 				}
+				else if (command == "OPERTYPE")
+				{
+					std::string::size_type colon = line.find(':', b);
+					if (colon != std::string::npos)
+					{
+						for (std::string::iterator i = line.begin()+colon; i != line.end(); ++i)
+						{
+							if (*i == ' ')
+								*i = '_';
+						}
+						line.erase(colon, 1);
+					}
+				}
 			}
 		}
 	}

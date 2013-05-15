@@ -135,8 +135,6 @@ void ServerConfig::CrossCheckOperClassType()
 		std::string name = tag->getString("name");
 		if (name.empty())
 			throw CoreException("<type:name> is missing from tag at " + tag->getTagLocation());
-		if (!ServerInstance->IsNick(name, Limits.NickMax))
-			throw CoreException("<type:name> is invalid (value '" + name + "')");
 		if (oper_blocks.find(" " + name) != oper_blocks.end())
 			throw CoreException("Duplicate type block with name " + name + " at " + tag->getTagLocation());
 

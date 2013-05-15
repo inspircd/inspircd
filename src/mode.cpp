@@ -313,7 +313,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		if (user->IsOper())
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set %s mode %c",
-					user->nick.c_str(), user->oper->NameStr(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
+					user->nick.c_str(), user->oper->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
 		}
 		else
 		{

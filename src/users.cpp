@@ -402,7 +402,7 @@ bool LocalUser::HasPrivPermission(const std::string &privstr, bool noisy)
 	}
 
 	if (noisy)
-		this->WriteNotice("Oper type " + std::string(oper->NameStr()) + " does not have access to priv " + privstr);
+		this->WriteNotice("Oper type " + oper->name + " does not have access to priv " + privstr);
 
 	return false;
 }
@@ -551,10 +551,10 @@ void User::Oper(OperInfo* info)
 	}
 
 	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
-		nick.c_str(), ident.c_str(), host.c_str(), oper->NameStr(), opername.c_str());
-	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->NameStr());
+		nick.c_str(), ident.c_str(), host.c_str(), oper->name.c_str(), opername.c_str());
+	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str());
 
-	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->NameStr());
+	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->name.c_str());
 	ServerInstance->Users->all_opers.push_back(this);
 
 	// Expand permissions from config for faster lookup

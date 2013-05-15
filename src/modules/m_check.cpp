@@ -113,7 +113,7 @@ class CommandCheck : public Command
 			{
 				OperInfo* oper = targuser->oper;
 				/* user is an oper of type ____ */
-				user->SendText(checkstr + " opertype " + oper->NameStr());
+				user->SendText(checkstr + " opertype " + oper->name);
 				if (loctarg)
 				{
 					std::string umodes;

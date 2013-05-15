@@ -537,7 +537,8 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->IsOper())
 	{
 		params.clear();
-		params.push_back(user->oper->name);
+		params.push_back(":");
+		params[0].append(user->oper->name);
 		Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
 	}
 
@@ -775,7 +776,8 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 	parameterlist params;
-	params.push_back(opertype);
+	params.push_back(":");
+	params[0].append(opertype);
 	Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
 }
 

@@ -296,7 +296,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		if (!user->HasPermission(command))
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to command %s",
-				user->nick.c_str(), user->oper->NameStr(), command.c_str());
+				user->nick.c_str(), user->oper->name.c_str(), command.c_str());
 			return do_more;
 		}
 	}

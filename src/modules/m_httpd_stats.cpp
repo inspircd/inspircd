@@ -196,7 +196,7 @@ class ModuleHttpStats : public Module
 					if (u->IsAway())
 						data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
 					if (u->IsOper())
-						data << "<opertype>" << Sanitize(u->oper->NameStr()) << "</opertype>";
+						data << "<opertype>" << Sanitize(u->oper->name) << "</opertype>";
 					data << "<modes>" << u->FormatModes() << "</modes><ident>" << Sanitize(u->ident) << "</ident>";
 					LocalUser* lu = IS_LOCAL(u);
 					if (lu)

@@ -145,7 +145,7 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 		if (ServerInstance->Config->GenericOper)
 			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());
 		else
-			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"),dest->oper->NameStr(), ServerInstance->Config->Network.c_str());
+			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"),dest->oper->name.c_str(), ServerInstance->Config->Network.c_str());
 	}
 
 	if (user == dest || user->HasPrivPermission("users/auspex"))
