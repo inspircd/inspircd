@@ -65,6 +65,7 @@ void ThreadData::FreeThread(Thread* thread)
 {
 	thread->SetExitFlag();
 	WaitForSingleObject(handle,INFINITE);
+	CloseHandle(handle);
 }
 
 class ThreadSignalSocket : public BufferedSocket
