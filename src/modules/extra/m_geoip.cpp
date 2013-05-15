@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *
+ *   Copyright (C) 2013 Filippo Cortigiani <simos@simosnap.org>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Craig Edwards <craigedwards@brainbox.cc>
  *
@@ -52,7 +52,6 @@ private:
 		std::string* cc = new std::string(c);
 		ext.set(user, cc);
 	}
-
 
  public:
 	ModuleGeoIP() : ext("geoip_cc", this), gi(NULL)
