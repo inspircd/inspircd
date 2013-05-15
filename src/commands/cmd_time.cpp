@@ -50,16 +50,13 @@ CmdResult CommandTime::Handle (const std::vector<std::string>& parameters, User 
 {
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;
-	struct tm* timeinfo;
+
 	time_t local = ServerInstance->Time();
+	struct tm* timeinfo = localtime(&local);
+	const std::string& humanTime = asctime(timeinfo);
 
-	timeinfo = localtime(&local);
-
-	char tms[26];
-	snprintf(tms,26,"%s",asctime(timeinfo));
-	tms[24] = 0;
-
-	user->SendText(":%s %03d %s %s :%s", ServerInstance->Config->ServerName.c_str(), RPL_TIME, user->nick.c_str(),ServerInstance->Config->ServerName.c_str(),tms);
+	user->SendText(":%s %03d %s %s :%s", ServerInstance->Config->ServerName.c_str(), RPL_TIME, user->nick.c_str(),
+		ServerInstance->Config->ServerName.c_str(), humanTime.c_str());
 
 	return CMD_SUCCESS;
 }

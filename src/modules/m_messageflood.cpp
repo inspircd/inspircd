@@ -160,10 +160,10 @@ class ModuleMsgFlood : public Module
 					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
 				}
 
-				char kickmessage[MAXBUF];
-				snprintf(kickmessage, MAXBUF, "Channel flood triggered (limit is %u lines in %u secs)", f->lines, f->secs);
+				const std::string kickMessage = "Channel flood triggered (limit is " + ConvToStr(f->lines) +
+					" in " + ConvToStr(f->secs) + " secs)";
 
-				dest->KickUser(ServerInstance->FakeClient, user, kickmessage);
+				dest->KickUser(ServerInstance->FakeClient, user, kickMessage);
 
 				return MOD_RES_DENY;
 			}

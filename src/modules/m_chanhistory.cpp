@@ -133,7 +133,7 @@ class ModuleChanHistory : public Module
 		sendnotice = tag->getBool("notice", true);
 	}
 
-	void OnUserMessage(User* user,void* dest,int target_type, const std::string &text, char status, const CUList&)
+	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList&)
 	{
 		if (target_type == TYPE_CHANNEL && status == 0)
 		{
@@ -141,10 +141,8 @@ class ModuleChanHistory : public Module
 			HistoryList* list = m.ext.get(c);
 			if (list)
 			{
-				char buf[MAXBUF];
-				snprintf(buf, MAXBUF, ":%s PRIVMSG %s :%s",
-					user->GetFullHost().c_str(), c->name.c_str(), text.c_str());
-				list->lines.push_back(HistoryItem(buf));
+				const std::string line = ":" + user->GetFullHost() + " PRIVMSG " + c->name + " :" + text;
+				list->lines.push_back(HistoryItem(line));
 				if (list->lines.size() > list->maxlen)
 					list->lines.pop_front();
 			}

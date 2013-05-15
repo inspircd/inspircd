@@ -531,15 +531,15 @@ bool XLine::IsBurstable()
 
 void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 {
-	char sreason[MAXBUF];
-	snprintf(sreason, MAXBUF, "%s-Lined: %s", line.c_str(), this->reason.c_str());
+	const std::string banReason = line + "-Lined: " + reason;
+
 	if (!ServerInstance->Config->MoronBanner.empty())
 		u->WriteNotice("*** " + ServerInstance->Config->MoronBanner);
 
 	if (ServerInstance->Config->HideBans)
-		ServerInstance->Users->QuitUser(u, line + "-Lined", sreason);
+		ServerInstance->Users->QuitUser(u, line + "-Lined", banReason.c_str());
 	else
-		ServerInstance->Users->QuitUser(u, sreason);
+		ServerInstance->Users->QuitUser(u, banReason);
 
 
 	if (bancache)

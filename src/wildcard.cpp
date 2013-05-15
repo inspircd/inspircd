@@ -78,7 +78,7 @@ static bool match_internal(const unsigned char *str, const unsigned char *mask, 
  * Below here is all wrappers around match_internal
  ********************************************************************/
 
-CoreExport bool InspIRCd::Match(const std::string &str, const std::string &mask, unsigned const char *map)
+bool InspIRCd::Match(const std::string &str, const std::string &mask, unsigned const char *map)
 {
 	if (!map)
 		map = national_case_insensitive_map;
@@ -86,14 +86,14 @@ CoreExport bool InspIRCd::Match(const std::string &str, const std::string &mask,
 	return match_internal((const unsigned char *)str.c_str(), (const unsigned char *)mask.c_str(), map);
 }
 
-CoreExport bool InspIRCd::Match(const  char *str, const char *mask, unsigned const char *map)
+bool InspIRCd::Match(const char *str, const char *mask, unsigned const char *map)
 {
 	if (!map)
 		map = national_case_insensitive_map;
 	return match_internal((const unsigned char *)str, (const unsigned char *)mask, map);
 }
 
-CoreExport bool InspIRCd::MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map)
+bool InspIRCd::MatchCIDR(const std::string &str, const std::string &mask, unsigned const char *map)
 {
 	if (irc::sockets::MatchCIDR(str, mask, true))
 		return true;
@@ -105,7 +105,7 @@ CoreExport bool InspIRCd::MatchCIDR(const std::string &str, const std::string &m
 	return InspIRCd::Match(str, mask, map);
 }
 
-CoreExport bool InspIRCd::MatchCIDR(const  char *str, const char *mask, unsigned const char *map)
+bool InspIRCd::MatchCIDR(const char *str, const char *mask, unsigned const char *map)
 {
 	if (irc::sockets::MatchCIDR(str, mask, true))
 		return true;
@@ -117,3 +117,17 @@ CoreExport bool InspIRCd::MatchCIDR(const  char *str, const char *mask, unsigned
 	return InspIRCd::Match(str, mask, map);
 }
 
+bool InspIRCd::MatchMask(const std::string& masks, const std::string& hostname, const std::string& ipaddr)
+{
+	std::stringstream masklist(masks);
+	std::string mask;
+	while (masklist >> mask)
+	{
+		if (InspIRCd::Match(hostname, mask, ascii_case_insensitive_map) || 
+			InspIRCd::MatchCIDR(ipaddr, mask, ascii_case_insensitive_map))
+		{
+			return true;
+		}
+	}
+	return false;
+}
