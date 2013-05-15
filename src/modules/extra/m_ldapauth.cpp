@@ -119,7 +119,7 @@ public:
 		conn = NULL;
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ldapAuthed);
 		ServerInstance->Modules->AddService(ldapVhost);
@@ -134,7 +134,7 @@ public:
 			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
 		whitelistedcidrs.clear();
@@ -234,7 +234,7 @@ public:
 	   return result;
 	}
 
-	virtual void OnUserConnect(LocalUser *user)
+	void OnUserConnect(LocalUser *user) CXX11_OVERRIDE
 	{
 		std::string* cc = ldapVhost.get(user);
 		if (cc)
@@ -244,7 +244,7 @@ public:
 		}
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
 		{
@@ -421,12 +421,12 @@ public:
 		return true;
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		return ldapAuthed.get(user) ? MOD_RES_PASSTHRU : MOD_RES_DENY;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allow/Deny connections based upon answer from LDAP server", VF_VENDOR);
 	}

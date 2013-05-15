@@ -179,22 +179,22 @@ class ModuleFilter : public Module
 	std::set<std::string> exemptfromfilter; // List of channel names excluded from filtering.
 
 	ModuleFilter();
-	void init();
+	void init() CXX11_OVERRIDE;
 	CullResult cull();
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flags);
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list);
-	void OnRehash(User* user);
-	Version GetVersion();
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
+	void OnRehash(User* user) CXX11_OVERRIDE;
+	Version GetVersion() CXX11_OVERRIDE;
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	void OnSyncNetwork(Module* proto, void* opaque);
-	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
-	ModResult OnStats(char symbol, User* user, string_list &results);
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line);
-	void OnUnloadModule(Module* mod);
+	void OnSyncNetwork(Module* proto, void* opaque) CXX11_OVERRIDE;
+	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE;
+	ModResult OnStats(char symbol, User* user, string_list &results) CXX11_OVERRIDE;
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	bool AppliesToMe(User* user, FilterResult* filter, int flags);
 	void ReadFilters();
 	static bool StringToFilterAction(const std::string& str, FilterAction& fa);

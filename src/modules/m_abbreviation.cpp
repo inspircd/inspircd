@@ -24,7 +24,7 @@
 class ModuleAbbreviation : public Module
 {
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->Attach(I_OnPreCommand, this);
 	}
@@ -34,12 +34,12 @@ class ModuleAbbreviation : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the ability to abbreviate commands a-la BBC BASIC keywords.",VF_VENDOR);
 	}
 
-	virtual ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		/* Command is already validated, has a length of 0, or last character is not a . */
 		if (validated || command.empty() || *command.rbegin() != '.')

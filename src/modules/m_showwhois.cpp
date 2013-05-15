@@ -79,7 +79,7 @@ class ModuleShowwhois : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
 
@@ -98,12 +98,12 @@ class ModuleShowwhois : public Module
 		delete sw;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows opers to set +W to see when a user uses WHOIS on them",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	void OnWhois(User* source, User* dest)
+	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
 	{
 		if (!dest->IsModeSet('W') || source == dest)
 			return;

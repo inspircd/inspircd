@@ -53,7 +53,7 @@ class ModuleAuditorium : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(aum);
 
@@ -66,7 +66,7 @@ class ModuleAuditorium : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("auditorium");
 		OpsVisible = tag->getBool("opvisible");
@@ -74,7 +74,7 @@ class ModuleAuditorium : public Module
 		OperCanSee = tag->getBool("opercansee", true);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list", VF_VENDOR);
 	}
@@ -108,7 +108,7 @@ class ModuleAuditorium : public Module
 		return false;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick) CXX11_OVERRIDE
 	{
 		// Some module already hid this from being displayed, don't bother
 		if (nick.empty())
@@ -137,22 +137,22 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts)
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
+	void OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts) CXX11_OVERRIDE
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
+	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE
 	{
 		BuildExcept(memb, excepts);
 	}
 
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
+	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception) CXX11_OVERRIDE
 	{
 		UCListIter i = include.begin();
 		while (i != include.end())
@@ -173,7 +173,7 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line)
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line) CXX11_OVERRIDE
 	{
 		Channel* channel = ServerInstance->FindChan(params[0]);
 		if (!channel)

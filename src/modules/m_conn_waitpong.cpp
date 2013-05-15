@@ -38,7 +38,7 @@ class ModuleWaitPong : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ext);
 		OnRehash(NULL);
@@ -46,14 +46,14 @@ class ModuleWaitPong : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("waitpong");
 		sendsnotice = tag->getBool("sendsnotice", true);
 		killonbadreply = tag->getBool("killonbadreply", true);
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		std::string pingrpl = ServerInstance->GenRandomStr(10);
 
@@ -66,7 +66,7 @@ class ModuleWaitPong : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser* user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if (command == "PONG")
 		{
@@ -90,12 +90,12 @@ class ModuleWaitPong : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckReady(LocalUser* user)
+	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		return ext.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Require pong prior to registration", VF_VENDOR);
 	}

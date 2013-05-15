@@ -150,7 +150,7 @@ public:
 		TRANSLATE2(TR_CUSTOM, TR_END);
 	}
 
-	virtual void EncodeParameter(std::string& parameter, int index)
+	void EncodeParameter(std::string& parameter, int index)
 	{
 		if (index != 0)
 			return;
@@ -344,7 +344,7 @@ public:
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 
@@ -356,12 +356,12 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["CALLERID"] = "g";
 	}
@@ -394,7 +394,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text);
@@ -402,7 +402,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text);
@@ -410,18 +410,18 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserPostNick(User* user, const std::string& oldnick)
+	void OnUserPostNick(User* user, const std::string& oldnick) CXX11_OVERRIDE
 	{
 		if (!tracknick)
 			RemoveFromAllAccepts(user);
 	}
 
-	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
+	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message) CXX11_OVERRIDE
 	{
 		RemoveFromAllAccepts(user);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
 		cmd.maxaccepts = tag->getInt("maxaccepts", 16);

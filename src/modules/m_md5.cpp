@@ -287,7 +287,7 @@ class ModuleMD5 : public Module
 		ServerInstance->Modules->AddService(md5);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements MD5 hashing",VF_VENDOR);
 	}

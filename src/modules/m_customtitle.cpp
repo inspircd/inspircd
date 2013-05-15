@@ -81,7 +81,7 @@ class ModuleCustomTitle : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.ctitle);
@@ -89,7 +89,7 @@ class ModuleCustomTitle : public Module
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text) CXX11_OVERRIDE
 	{
 		/* We use this and not OnWhois because this triggers for remote, too */
 		if (numeric == 312)
@@ -105,7 +105,7 @@ class ModuleCustomTitle : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Custom Title for users", VF_OPTCOMMON | VF_VENDOR);
 	}

@@ -82,7 +82,7 @@ class ModuleOpermotd : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		OnRehash(NULL);
@@ -90,18 +90,18 @@ class ModuleOpermotd : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Shows a message to opers after oper-up, adds /opermotd", VF_VENDOR | VF_OPTCOMMON);
 	}
 
-	virtual void OnOper(User* user, const std::string &opertype)
+	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE
 	{
 		if (onoper && IS_LOCAL(user))
 			cmd.ShowOperMOTD(user);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		cmd.opermotd.clear();
 		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");

@@ -226,7 +226,7 @@ class ModuleBanRedirect : public Module
 	}
 
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		if(!ServerInstance->Modes->AddModeWatcher(&re))
 			throw ModuleException("Could not add mode watcher");
@@ -236,7 +236,7 @@ class ModuleBanRedirect : public Module
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
-	virtual void OnCleanup(int target_type, void* item)
+	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
 	{
 		if(target_type == TYPE_CHANNEL)
 		{
@@ -271,7 +271,7 @@ class ModuleBanRedirect : public Module
 		}
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if (chan)
 		{
@@ -338,14 +338,14 @@ class ModuleBanRedirect : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ~ModuleBanRedirect()
+	~ModuleBanRedirect()
 	{
 		/* XXX is this the best place to do this? */
 		if (!ServerInstance->Modes->DelModeWatcher(&re))
 			ServerInstance->Logs->Log("m_banredirect.so", LOG_DEBUG, "Failed to delete modewatcher!");
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows an extended ban (+b) syntax redirecting banned users to another channel", VF_COMMON|VF_VENDOR);
 	}

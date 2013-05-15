@@ -107,11 +107,11 @@ class ModuleSQL : public Module
 	ConnMap connections; // main thread only
 
 	ModuleSQL();
-	void init();
+	void init() CXX11_OVERRIDE;
 	~ModuleSQL();
-	void OnRehash(User* user);
-	void OnUnloadModule(Module* mod);
-	Version GetVersion();
+	void OnRehash(User* user) CXX11_OVERRIDE;
+	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
+	Version GetVersion() CXX11_OVERRIDE;
 };
 
 class DispatcherThread : public SocketThread
@@ -121,8 +121,8 @@ class DispatcherThread : public SocketThread
  public:
 	DispatcherThread(ModuleSQL* CreatorModule) : Parent(CreatorModule) { }
 	~DispatcherThread() { }
-	virtual void Run();
-	virtual void OnNotify();
+	void Run();
+	void OnNotify();
 };
 
 #if !defined(MYSQL_VERSION_ID) || MYSQL_VERSION_ID<32224
@@ -189,17 +189,17 @@ class MySQLresult : public SQLResult
 
 	}
 
-	virtual int Rows()
+	int Rows()
 	{
 		return rows;
 	}
 
-	virtual void GetCols(std::vector<std::string>& result)
+	void GetCols(std::vector<std::string>& result)
 	{
 		result.assign(colnames.begin(), colnames.end());
 	}
 
-	virtual SQLEntry GetValue(int row, int column)
+	SQLEntry GetValue(int row, int column)
 	{
 		if ((row >= 0) && (row < rows) && (column >= 0) && (column < (int)fieldlists[row].size()))
 		{
@@ -208,7 +208,7 @@ class MySQLresult : public SQLResult
 		return SQLEntry();
 	}
 
-	virtual bool GetRow(SQLEntries& result)
+	bool GetRow(SQLEntries& result)
 	{
 		if (currentrow < rows)
 		{

@@ -180,7 +180,7 @@ class ModuleOjoin : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		/* Load config stuff */
 		OnRehash(NULL);
@@ -195,7 +195,7 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if (mycommand.active)
 		{
@@ -208,7 +208,7 @@ class ModuleOjoin : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
 
@@ -226,7 +226,7 @@ class ModuleOjoin : public Module
 		op = Conf->getBool("op", true);
 	}
 
-	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason)
+	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
 		// Don't do anything if they're not +Y
 		if (!memb->hasMode('Y'))
@@ -250,7 +250,7 @@ class ModuleOjoin : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_FIRST);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Network Business Join", VF_VENDOR);
 	}

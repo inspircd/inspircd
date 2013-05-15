@@ -61,7 +61,7 @@ class DNSBLResolver : public DNS::Request
 	}
 
 	/* Note: This may be called multiple times for multiple A record results */
-	void OnLookupComplete(const DNS::Query *r)
+	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE
 	{
 		/* Check the user still exists */
 		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
@@ -188,7 +188,7 @@ class DNSBLResolver : public DNS::Request
 			ConfEntry->stats_misses++;
 	}
 
-	void OnError(const DNS::Query *q)
+	void OnError(const DNS::Query *q) CXX11_OVERRIDE
 	{
 		LocalUser* them = (LocalUser*)ServerInstance->FindUUID(theiruid);
 		if (!them)
@@ -231,7 +231,7 @@ class ModuleDNSBL : public Module
  public:
 	ModuleDNSBL() : DNS(this, "DNS"), nameExt("dnsbl_match", this), countExt("dnsbl_pending", this) { }
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ReadConf();
 		ServerInstance->Modules->AddService(nameExt);
@@ -240,12 +240,12 @@ class ModuleDNSBL : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleDNSBL()
+	~ModuleDNSBL()
 	{
 		ClearEntries();
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides handling of DNS blacklists", VF_VENDOR);
 	}
@@ -342,12 +342,12 @@ class ModuleDNSBL : public Module
 		}
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ReadConf();
 	}
 
-	void OnSetUserIP(LocalUser* user)
+	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE
 	{
 		if ((user->exempt) || (user->client_sa.sa.sa_family != AF_INET) || !DNS)
 			return;
@@ -393,7 +393,7 @@ class ModuleDNSBL : public Module
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		std::string dnsbl;
 		if (!myclass->config->readString("dnsbl", dnsbl))
@@ -405,14 +405,14 @@ class ModuleDNSBL : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnCheckReady(LocalUser *user)
+	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
 		if (countExt.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnStats(char symbol, User* user, string_list &results)
+	ModResult OnStats(char symbol, User* user, string_list &results) CXX11_OVERRIDE
 	{
 		if (symbol != 'd')
 			return MOD_RES_PASSTHRU;

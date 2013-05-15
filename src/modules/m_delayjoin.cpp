@@ -46,22 +46,22 @@ class ModuleDelayJoin : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(djm);
 		ServerInstance->Modules->AddService(unjoined);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText, I_OnRawMode };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
-	Version GetVersion();
-	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick);
-	void OnUserJoin(Membership*, bool, bool, CUList&);
+	Version GetVersion() CXX11_OVERRIDE;
+	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick) CXX11_OVERRIDE;
+	void OnUserJoin(Membership*, bool, bool, CUList&) CXX11_OVERRIDE;
 	void CleanUser(User* user);
-	void OnUserPart(Membership*, std::string &partmessage, CUList&);
-	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&);
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception);
-	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
-	ModResult OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt);
+	void OnUserPart(Membership*, std::string &partmessage, CUList&) CXX11_OVERRIDE;
+	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) CXX11_OVERRIDE;
+	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception) CXX11_OVERRIDE;
+	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
+	ModResult OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE;
 };
 
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)

@@ -39,7 +39,7 @@ class ModuleHideChans : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(hm);
 		Implementation eventlist[] = { I_OnWhoisLine, I_OnRehash };
@@ -47,17 +47,17 @@ class ModuleHideChans : public Module
 		OnRehash(NULL);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for hiding channels with user mode +I", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
 	}
 
-	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text)
+	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text) CXX11_OVERRIDE
 	{
 		/* always show to self */
 		if (user == dest)

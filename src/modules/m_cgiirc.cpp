@@ -131,7 +131,7 @@ class CGIResolver : public DNS::Request
 	{
 	}
 
-	void OnLookupComplete(const DNS::Query *r)
+	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE
 	{
 		/* Check the user still exists */
 		User* them = ServerInstance->FindUUID(theiruid);
@@ -154,7 +154,7 @@ class CGIResolver : public DNS::Request
 		}
 	}
 
-	void OnError(const DNS::Query *r)
+	void OnError(const DNS::Query *r) CXX11_OVERRIDE
 	{
 		if (!notify)
 			return;
@@ -166,7 +166,7 @@ class CGIResolver : public DNS::Request
 		}
 	}
 
-	virtual ~CGIResolver()
+	~CGIResolver()
 	{
 		User* them = ServerInstance->FindUUID(theiruid);
 		if (!them)
@@ -236,7 +236,7 @@ public:
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		ServiceProvider* providerlist[] = { &cmd, &cmd.realhost, &cmd.realip, &cmd.webirc_hostname, &cmd.webirc_ip, &waiting };
@@ -246,7 +246,7 @@ public:
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		cmd.Hosts.clear();
 
@@ -295,7 +295,7 @@ public:
 		}
 	}
 
-	ModResult OnCheckReady(LocalUser *user)
+	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
 		if (waiting.get(user))
 			return MOD_RES_DENY;
@@ -323,7 +323,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserRegister(LocalUser* user)
+	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
 		for(CGIHostlist::iterator iter = cmd.Hosts.begin(); iter != cmd.Hosts.end(); iter++)
 		{
@@ -420,7 +420,7 @@ public:
 		return true;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Change user's hosts connecting from known CGI:IRC hosts",VF_VENDOR);
 	}

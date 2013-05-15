@@ -36,19 +36,19 @@ class ModuleAllowInvite : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ni);
 		Implementation eventlist[] = { I_OnUserPreInvite, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXTBAN"].push_back('A');
 	}
 
-	virtual ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout)
+	ModResult OnUserPreInvite(User* user,User* dest,Channel* channel, time_t timeout) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user))
 		{
@@ -69,7 +69,7 @@ class ModuleAllowInvite : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for channel mode +A, allowing /invite freely on a channel and extban A to deny specific users it",VF_VENDOR);
 	}

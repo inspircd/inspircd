@@ -128,7 +128,7 @@ class ModuleMsgFlood : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(mf);
 		ServerInstance->Modules->AddService(mf.ext);
@@ -172,7 +172,7 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
@@ -180,7 +180,7 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
@@ -195,7 +195,7 @@ class ModuleMsgFlood : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreNotice, PRIORITY_LAST);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +f (message flood protection)", VF_VENDOR);
 	}

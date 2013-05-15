@@ -118,7 +118,7 @@ class ModuleServicesAccount : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServiceProvider* providerlist[] = { &m1, &m2, &m3, &m4, &m5, &accountname };
 		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
@@ -128,14 +128,14 @@ class ModuleServicesAccount : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXTBAN"].push_back('R');
 		tokens["EXTBAN"].push_back('U');
 	}
 
 	/* <- :twisted.oscnet.org 330 w00t2 w00t2 w00t :is logged in as */
-	void OnWhois(User* source, User* dest)
+	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
 	{
 		std::string *account = accountname.get(dest);
 
@@ -151,7 +151,7 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		/* On nickchange, if they have +r, remove it */
 		if (user->IsModeSet('r') && assign(user->nick) != oldnick)
@@ -163,7 +163,7 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -197,7 +197,7 @@ class ModuleServicesAccount : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
+	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask) CXX11_OVERRIDE
 	{
 		static bool checking = false;
 		if (checking)
@@ -234,12 +234,12 @@ class ModuleServicesAccount : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		std::string *account = accountname.get(user);
 		bool is_registered = account && !account->empty();
@@ -266,7 +266,7 @@ class ModuleServicesAccount : public Module
 	// In our case we're only sending a single string around, so we just construct a std::string.
 	// Some modules will probably get much more complex and format more detailed structs and classes
 	// in a textual way for sending over the link.
-	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata)
+	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE
 	{
 		User* dest = dynamic_cast<User*>(target);
 		// check if its our metadata key, and its associated with a user
@@ -290,14 +290,14 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		if (myclass->config->getBool("requireaccount") && !accountname.get(user))
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for ircu-style services accounts, including chmode +R, etc.",VF_OPTCOMMON|VF_VENDOR);
 	}

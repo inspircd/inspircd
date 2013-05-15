@@ -142,7 +142,7 @@ class IdentRequestSocket : public EventHandler
 		}
 	}
 
-	virtual void OnConnected()
+	void OnConnected()
 	{
 		ServerInstance->Logs->Log("m_ident",LOG_DEBUG,"OnConnected()");
 		ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
@@ -165,7 +165,7 @@ class IdentRequestSocket : public EventHandler
 			done = true;
 	}
 
-	virtual void HandleEvent(EventType et, int errornum = 0)
+	void HandleEvent(EventType et, int errornum = 0)
 	{
 		switch (et)
 		{
@@ -278,7 +278,7 @@ class ModuleIdent : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ext);
 		OnRehash(NULL);
@@ -289,19 +289,19 @@ class ModuleIdent : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
 	}
 
-	virtual void OnRehash(User *user)
+	void OnRehash(User *user) CXX11_OVERRIDE
 	{
 		RequestTimeout = ServerInstance->Config->ConfValue("ident")->getInt("timeout", 5);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
 	}
 
-	void OnUserInit(LocalUser *user)
+	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = user->MyClass->config;
 		if (!tag->getBool("useident", true))
@@ -324,7 +324,7 @@ class ModuleIdent : public Module
 	 * creating a Timer object and especially better than creating a
 	 * Timer per ident lookup!
 	 */
-	virtual ModResult OnCheckReady(LocalUser *user)
+	ModResult OnCheckReady(LocalUser *user) CXX11_OVERRIDE
 	{
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
@@ -373,14 +373,14 @@ class ModuleIdent : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		if (myclass->config->getBool("requireident") && user->ident[0] == '~')
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnCleanup(int target_type, void *item)
+	void OnCleanup(int target_type, void *item) CXX11_OVERRIDE
 	{
 		/* Module unloading, tidy up users */
 		if (target_type == TYPE_USER)
@@ -391,7 +391,7 @@ class ModuleIdent : public Module
 		}
 	}
 
-	virtual void OnUserDisconnect(LocalUser *user)
+	void OnUserDisconnect(LocalUser *user) CXX11_OVERRIDE
 	{
 		/* User disconnect (generic socket detatch event) */
 		IdentRequestSocket *isock = ext.get(user);

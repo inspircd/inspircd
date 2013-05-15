@@ -96,7 +96,7 @@ class FlagExtItem : public ExtensionItem
 	{
 	}
 
-	virtual ~FlagExtItem()
+	~FlagExtItem()
 	{
 	}
 
@@ -151,14 +151,14 @@ class ModuleTopicLock : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(topiclock);
 		ServerInstance->Modules->Attach(I_OnPreTopicChange, this);
 	}
 
-	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic)
+	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE
 	{
 		// Only fired for local users currently, but added a check anyway
 		if ((IS_LOCAL(user)) && (topiclock.get(chan)))
@@ -170,7 +170,7 @@ class ModuleTopicLock : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements server-side topic locks and the server-to-server command SVSTOPIC", VF_COMMON | VF_VENDOR);
 	}

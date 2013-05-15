@@ -72,12 +72,12 @@ class ModuleClose : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides /CLOSE functionality", VF_VENDOR);
 	}

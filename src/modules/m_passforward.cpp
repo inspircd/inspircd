@@ -26,19 +26,19 @@ class ModulePassForward : public Module
 	std::string nickrequired, forwardmsg, forwardcmd;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnPostConnect, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Sends server password to NickServ", VF_VENDOR);
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("passforward");
 		nickrequired = tag->getString("nick", "NickServ");
@@ -81,7 +81,7 @@ class ModulePassForward : public Module
 		}
 	}
 
-	virtual void OnPostConnect(User* ruser)
+	void OnPostConnect(User* ruser) CXX11_OVERRIDE
 	{
 		LocalUser* user = IS_LOCAL(ruser);
 		if (!user || user->password.empty())

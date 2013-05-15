@@ -61,7 +61,7 @@ class ModuleRandQuote : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
 
@@ -79,17 +79,17 @@ class ModuleRandQuote : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual ~ModuleRandQuote()
+	~ModuleRandQuote()
 	{
 		delete quotes;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides random quotes on connect.",VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
 		cmd.Handle(std::vector<std::string>(), user);
 	}

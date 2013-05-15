@@ -61,12 +61,12 @@ class POSIXRegex : public Regex
 		}
 	}
 
-	virtual ~POSIXRegex()
+	~POSIXRegex()
 	{
 		regfree(&regbuf);
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text)
 	{
 		if (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0)
 		{
@@ -101,12 +101,12 @@ class ModuleRegexPOSIX : public Module
 		OnRehash(NULL);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
 	}
 
-	void OnRehash(User* u)
+	void OnRehash(User* u) CXX11_OVERRIDE
 	{
 		ref.extended = ServerInstance->Config->ConfValue("posix")->getBool("extended");
 	}

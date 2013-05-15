@@ -27,7 +27,7 @@
 class ModuleModesOnConnect : public Module
 {
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->Attach(I_OnUserConnect, this);
 	}
@@ -38,12 +38,12 @@ class ModuleModesOnConnect : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnUserConnect, PRIORITY_FIRST);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Sets (and unsets) modes on users when they connect", VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
 		// Backup and zero out the disabled usermodes, so that we can override them here.
 		char save[64];

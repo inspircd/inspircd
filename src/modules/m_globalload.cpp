@@ -187,14 +187,14 @@ class ModuleGlobalLoad : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd1);
 		ServerInstance->Modules->AddService(cmd2);
 		ServerInstance->Modules->AddService(cmd3);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows global loading of a module.", VF_COMMON | VF_VENDOR);
 	}

@@ -130,7 +130,7 @@ class ModuleSSLInfo : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
 
@@ -140,12 +140,12 @@ class ModuleSSLInfo : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("SSL Certificate Utilities", VF_VENDOR);
 	}
 
-	void OnWhois(User* source, User* dest)
+	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
 	{
 		ssl_cert* cert = cmd.CertExt.get(dest);
 		if (cert)
@@ -158,7 +158,7 @@ class ModuleSSLInfo : public Module
 		}
 	}
 
-	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
+	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
 		if ((command == "OPER") && (validated))
 		{
@@ -189,7 +189,7 @@ class ModuleSSLInfo : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
 		SocketCertificateRequest req(&user->eh, this);
 		if (!req.cert)
@@ -197,7 +197,7 @@ class ModuleSSLInfo : public Module
 		cmd.CertExt.set(user, req.cert);
 	}
 
-	void OnPostConnect(User* user)
+	void OnPostConnect(User* user) CXX11_OVERRIDE
 	{
 		ssl_cert *cert = cmd.CertExt.get(user);
 		if (!cert || cert->fingerprint.empty())
@@ -212,7 +212,7 @@ class ModuleSSLInfo : public Module
 		}
 	}
 
-	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
+	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
 		SocketCertificateRequest req(&user->eh, this);
 		bool ok = true;
@@ -230,7 +230,7 @@ class ModuleSSLInfo : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRequest(Request& request)
+	void OnRequest(Request& request) CXX11_OVERRIDE
 	{
 		if (strcmp("GET_USER_CERT", request.id) == 0)
 		{

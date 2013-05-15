@@ -53,14 +53,14 @@ class ModuleHostChange : public Module
 	std::string MySeparator;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		Implementation eventlist[] = { I_OnRehash, I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* host = ServerInstance->Config->ConfValue("host");
 		MySuffix = host->getString("suffix");
@@ -96,14 +96,14 @@ class ModuleHostChange : public Module
 		}
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		// returns the version number of the module to be
 		// listed in /MODULES
 		return Version("Provides masking of user hostnames in a different way to m_cloaking", VF_VENDOR);
 	}
 
-	virtual void OnUserConnect(LocalUser* user)
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{

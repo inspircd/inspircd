@@ -38,7 +38,7 @@ class ChanFilter : public ListModeBase
  public:
 	ChanFilter(Module* Creator) : ListModeBase(Creator, "filter", 'g', "End of channel spamfilter list", 941, 940, false, "chanfilter") { }
 
-	virtual bool ValidateParam(User* user, Channel* chan, std::string &word)
+	bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
 		if ((word.length() > 35) || (word.empty()))
 		{
@@ -49,17 +49,17 @@ class ChanFilter : public ListModeBase
 		return true;
 	}
 
-	virtual void TellListTooLong(User* user, Channel* chan, std::string &word)
+	void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(939, "%s %s %s :Channel spamfilter list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
 	}
 
-	virtual void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
+	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(937, "%s %s :The word %s is already on the spamfilter list",user->nick.c_str(), chan->name.c_str(), word.c_str());
 	}
 
-	virtual void TellNotSet(User* user, Channel* chan, std::string &word)
+	void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
 		user->WriteNumeric(938, "%s %s :No such spamfilter word is set",user->nick.c_str(), chan->name.c_str());
 	}
@@ -77,7 +77,7 @@ class ModuleChanFilter : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cf);
 
@@ -88,13 +88,13 @@ class ModuleChanFilter : public Module
 		OnRehash(NULL);
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		hidemask = ServerInstance->Config->ConfValue("chanfilter")->getBool("hidemask");
 		cf.DoRehash();
 	}
 
-	virtual ModResult ProcessMessages(User* user,Channel* chan,std::string &text)
+	ModResult ProcessMessages(User* user,Channel* chan,std::string &text)
 	{
 		ModResult res = ServerInstance->OnCheckExemption(user,chan,"filter");
 
@@ -121,7 +121,7 @@ class ModuleChanFilter : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -130,17 +130,17 @@ class ModuleChanFilter : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
 	{
 		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
-	virtual void OnSyncChannel(Channel* chan, Module* proto, void* opaque)
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
 	{
 		cf.DoSyncChannel(chan, proto, opaque);
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR);
 	}

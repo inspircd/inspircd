@@ -85,14 +85,14 @@ class ModuleSSLModes : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(sslm);
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnCheckBan, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if(chan && chan->IsModeSet('z'))
 		{
@@ -114,7 +114,7 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask)
+	ModResult OnCheckBan(User *user, Channel *c, const std::string& mask) CXX11_OVERRIDE
 	{
 		if ((mask.length() > 2) && (mask[0] == 'z') && (mask[1] == ':'))
 		{
@@ -126,12 +126,12 @@ class ModuleSSLModes : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXTBAN"].push_back('z');
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +z to allow for Secure/SSL only channels", VF_VENDOR);
 	}

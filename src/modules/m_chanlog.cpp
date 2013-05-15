@@ -31,7 +31,7 @@ class ModuleChanLog : public Module
 	ChanLogTargets logstreams;
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -39,7 +39,7 @@ class ModuleChanLog : public Module
 		OnRehash(NULL);
 	}
 
-	virtual void OnRehash(User *user)
+	void OnRehash(User *user) CXX11_OVERRIDE
 	{
 		std::string snomasks;
 		std::string channel;
@@ -67,7 +67,7 @@ class ModuleChanLog : public Module
 
 	}
 
-	virtual ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg)
+	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) CXX11_OVERRIDE
 	{
 		std::pair<ChanLogTargets::const_iterator, ChanLogTargets::const_iterator> itpair = logstreams.equal_range(sno);
 		if (itpair.first == itpair.second)
@@ -88,7 +88,7 @@ class ModuleChanLog : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Logs snomask output to channel(s).", VF_VENDOR);
 	}
@@ -125,7 +125,7 @@ class ChannelLogStream : public LogStream
 	{
 	}
 
-	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg)
+	void OnLog(int loglevel, const std::string &type, const std::string &msg)
 	{
 		Channel *c = ServerInstance->FindChan(channel);
 		static bool Logging = false;

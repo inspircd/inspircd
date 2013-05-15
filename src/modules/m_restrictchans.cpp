@@ -41,19 +41,19 @@ class ModuleRestrictChans : public Module
 	}
 
  public:
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ReadConfig();
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ReadConfig();
 	}
 
-	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven)
+	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		irc::string x(cname.c_str());
 
@@ -70,7 +70,7 @@ class ModuleRestrictChans : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Only opers may create new channels if this module is loaded",VF_VENDOR);
 	}

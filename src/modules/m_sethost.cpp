@@ -77,7 +77,7 @@ class ModuleSetHost : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cmd);
@@ -85,7 +85,7 @@ class ModuleSetHost : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 
@@ -94,7 +94,7 @@ class ModuleSetHost : public Module
 			hostmap[(unsigned char)*n] = 1;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the SETHOST command", VF_VENDOR);
 	}

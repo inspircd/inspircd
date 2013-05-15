@@ -108,7 +108,7 @@ class ModuleHelpop : public Module
 		{
 		}
 
-		void init()
+		void init() CXX11_OVERRIDE
 		{
 			ReadConfig();
 			ServerInstance->Modules->AddService(ho);
@@ -150,12 +150,12 @@ class ModuleHelpop : public Module
 
 		}
 
-		void OnRehash(User* user)
+		void OnRehash(User* user) CXX11_OVERRIDE
 		{
 			ReadConfig();
 		}
 
-		void OnWhois(User* src, User* dst)
+		void OnWhois(User* src, User* dst) CXX11_OVERRIDE
 		{
 			if (dst->IsModeSet('h'))
 			{
@@ -163,7 +163,7 @@ class ModuleHelpop : public Module
 			}
 		}
 
-		Version GetVersion()
+		Version GetVersion() CXX11_OVERRIDE
 		{
 			return Version("Provides the /HELPOP command for useful information", VF_VENDOR);
 		}

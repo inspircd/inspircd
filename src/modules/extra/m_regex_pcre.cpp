@@ -57,12 +57,12 @@ class PCRERegex : public Regex
 		}
 	}
 
-	virtual ~PCRERegex()
+	~PCRERegex()
 	{
 		pcre_free(regex);
 	}
 
-	virtual bool Matches(const std::string& text)
+	bool Matches(const std::string& text)
 	{
 		if (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
 		{
@@ -92,7 +92,7 @@ class ModuleRegexPCRE : public Module
 		ServerInstance->Modules->AddService(ref);
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Regex Provider Module for PCRE", VF_VENDOR);
 	}

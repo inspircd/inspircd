@@ -377,7 +377,7 @@ class Modulewatch : public Module
 		whos_watching_me = new watchentries();
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cmdw);
@@ -387,14 +387,14 @@ class Modulewatch : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	virtual void OnRehash(User* user)
+	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		maxwatch = ServerInstance->Config->ConfValue("watch")->getInt("maxentries", 32);
 		if (!maxwatch)
 			maxwatch = 32;
 	}
 
-	virtual ModResult OnSetAway(User *user, const std::string &awaymsg)
+	ModResult OnSetAway(User *user, const std::string &awaymsg) CXX11_OVERRIDE
 	{
 		std::string numeric;
 		int inum;
@@ -422,7 +422,7 @@ class Modulewatch : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	virtual void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
+	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE
 	{
 		watchentries::iterator x = whos_watching_me->find(user->nick.c_str());
 		if (x != whos_watching_me->end())
@@ -462,7 +462,7 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void OnGarbageCollect()
+	void OnGarbageCollect()
 	{
 		watchentries* old_watch = whos_watching_me;
 		whos_watching_me = new watchentries();
@@ -473,7 +473,7 @@ class Modulewatch : public Module
 		delete old_watch;
 	}
 
-	virtual void OnPostConnect(User* user)
+	void OnPostConnect(User* user) CXX11_OVERRIDE
 	{
 		watchentries::iterator x = whos_watching_me->find(user->nick.c_str());
 		if (x != whos_watching_me->end())
@@ -490,7 +490,7 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		watchentries::iterator new_offline = whos_watching_me->find(oldnick.c_str());
 		watchentries::iterator new_online = whos_watching_me->find(user->nick.c_str());
@@ -522,17 +522,17 @@ class Modulewatch : public Module
 		}
 	}
 
-	virtual void On005Numeric(std::map<std::string, std::string>& tokens)
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["WATCH"] = ConvToStr(maxwatch);
 	}
 
-	virtual ~Modulewatch()
+	~Modulewatch()
 	{
 		delete whos_watching_me;
 	}
 
-	virtual Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the /WATCH command", VF_OPTCOMMON | VF_VENDOR);
 	}

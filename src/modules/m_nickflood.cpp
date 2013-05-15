@@ -140,7 +140,7 @@ class ModuleNickFlood : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(nf);
 		ServerInstance->Modules->AddService(nf.ext);
@@ -148,7 +148,7 @@ class ModuleNickFlood : public Module
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	ModResult OnUserPreNick(User* user, const std::string &newnick)
+	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE
 	{
 		if (ServerInstance->NICKForced.get(user)) /* Allow forced nick changes */
 			return MOD_RES_PASSTHRU;
@@ -187,7 +187,7 @@ class ModuleNickFlood : public Module
 	/*
 	 * XXX: HACK: We do the increment on the *POST* event here (instead of all together) because we have no way of knowing whether other modules would block a nickchange.
 	 */
-	void OnUserPostNick(User* user, const std::string &oldnick)
+	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
@@ -213,7 +213,7 @@ class ModuleNickFlood : public Module
 		}
 	}
 
-	Version GetVersion()
+	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Channel mode F - nick flood protection", VF_VENDOR);
 	}

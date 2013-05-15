@@ -47,16 +47,16 @@ class ModuleDelayMsg : public Module
 	{
 	}
 
-	void init()
+	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(djm);
 		ServerInstance->Modules->AddService(djm.jointime);
 		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
-	Version GetVersion();
-	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&);
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
+	Version GetVersion() CXX11_OVERRIDE;
+	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
 };
 
 ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
