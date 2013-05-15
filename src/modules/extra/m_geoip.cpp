@@ -2,8 +2,6 @@
  * InspIRCd -- Internet Relay Chat Daemon
  *
  *
- *   Copyright 2013 Simos <simos@simosnap.org>
- *     - Added geoip gecos suffix support
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Craig Edwards <craigedwards@brainbox.cc>
  *
@@ -18,18 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Example config:
- * 
- * <geoip 
-         exclude="US,UNK" (don't apply to this countries) 
-         geoipgecos="true" (disable or enable gecos country code)
-         debug="false">
- *
  * 
  */
-
-
 
 #include "inspircd.h"
 #include "xline.h"
@@ -42,8 +30,6 @@
 
 /* $ModDesc: Provides a way to restrict users by country using GeoIP lookup, and gecos country code suffix */
 /* $LinkerFlags: -lGeoIP */
-/* $ModAuthor: simos */
-/* $ModAuthorMail: simos@simosnap.org */
 /* $ModDepends: core 2.0 */
 
 class ModuleGeoIP : public Module
@@ -109,34 +95,30 @@ private:
 			std::string* cc = ext.get(user);
 			if (!cc)
 				SetExt(user);			
-					
+
 			if (validated && !(user->registered & REG_USER) && (command == "USER"))
 			{
 
 				if (!parameters.empty() && (geoipgecos))
 				{
-					/* if (exclude != *cc) */
-					/* need to read from a comma separated strings values ex. exclude="IT,FR,DE" */
-										
-					unsigned found = exclude.find(*cc);
+					size_t found = exclude.find(*cc);
 					if (found == std::string::npos)
-					
 					{
-						ConfigTag* Conf = ServerInstance->Config->ConfValue("limits");
-						maxgecos = Conf->getInt("maxgecos");
-						int gecoslen = strlen(parameters[3].c_str());
+						maxgecos = ServerInstance->Config->Limits.MaxGecos;
+						int gecoslen = parameters[3].length();
 						
-						int global = gecoslen+24;
+						std::string suffix = " *** (Country Code: "+*cc+")";
+						int global = gecoslen+suffix.length();
 						int totrim = global - maxgecos;
 						int gecoslimit = gecoslen - totrim;
-						
+
 						if (global > maxgecos) 
 						{
 							parameters[3] = parameters[3].substr(0,gecoslimit);
 							if(debug)
 							ServerInstance->SNO->WriteGlobalSno('a', "GEOIP GECOS: original gecos has be trimmed : "+ ConvToStr(totrim) +" chars");
 						}
-						std::string username = parameters[3]+" *** (Country Code: "+*cc+")";
+						std::string username = parameters[3]+suffix;
 						if(debug)
 						ServerInstance->SNO->WriteGlobalSno('a', "GEOIP GECOS: changing original GECOS \""+parameters[3]+"\" to \""+username+"\"");
 						parameters[3] = username;
@@ -145,7 +127,7 @@ private:
 			}
 			return MOD_RES_PASSTHRU;
 	}
-	
+
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass)
 	{
 		std::string* cc = ext.get(user);
@@ -203,4 +185,3 @@ private:
 };
 
 MODULE_INIT(ModuleGeoIP)
-
