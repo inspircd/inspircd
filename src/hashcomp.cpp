@@ -386,17 +386,6 @@ std::string irc::hex(const unsigned char *raw, size_t rawsz)
 	return hexbuf;
 }
 
-CoreExport const char* irc::Spacify(const char* n)
-{
-	static char x[MAXBUF];
-	strlcpy(x,n,MAXBUF);
-	for (char* y = x; *y; y++)
-		if (*y == '_')
-			*y = ' ';
-	return x;
-}
-
-
 irc::modestacker::modestacker(bool add) : adding(add)
 {
 	sequence.clear();

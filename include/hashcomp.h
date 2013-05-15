@@ -477,12 +477,6 @@ namespace irc
 		long GetToken();
 	};
 
-	/** Turn _ characters in a string into spaces
-	 * @param n String to translate
-	 * @return The new value with _ translated to space.
-	 */
-	CoreExport const char* Spacify(const char* n);
-
 	struct hash
 	{
 		/** Hash an irc::string using RFC1459 case sensitivity rules
