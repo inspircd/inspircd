@@ -229,7 +229,6 @@ if (!defined $opt_disable_debug) {
 	$config{OPTIMISATI}	 = "-O2";
 }
 
-$config{HAS_STRLCPY}	= "false";			  		# strlcpy Check.
 $config{HAS_STDINT}	 = "false";					# stdint.h check
 $config{USE_KQUEUE}	 = "y";						# kqueue enabled
 if (defined $opt_nokqueue) {
@@ -331,16 +330,6 @@ sub update
 	exit;
 }
 
-
-sub test_compile {
-	my $feature = shift;
-	my $fail = 0;
-	$fail ||= system "$config{CC} -o test_$feature make/check_$feature.cpp >/dev/null 2>&1";
-	$fail ||= system "./test_$feature";
-	unlink "test_$feature";
-	return !$fail;
-}
-
 print "Running non-interactive configure...\n" unless $interactive;
 print "Checking for cache from previous configure... ";
 print ($cache_loaded ? "found\n" : "not found\n");
@@ -352,76 +341,45 @@ chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
 $exec = $config{CC} . " -dumpversion | cut -c 3";
 chomp($config{GCCMINOR}		= `$exec`);
 
-printf "Checking if stdint.h exists... ";
-$config{HAS_STDINT} = "true";
-our $fail = 0;
-open(STDINT, "</usr/include/stdint.h") or $config{HAS_STDINT} = "false";
-if ($config{HAS_STDINT} eq "true") {
-	close(STDINT);
-}
-print "yes\n" if $config{HAS_STDINT} eq "true";
-print "no\n" if $config{HAS_STDINT} eq "false";
 
-printf "Checking if strlcpy exists... ";
-# Perform the strlcpy() test..
-$config{HAS_STRLCPY} = "false";
-$fail = 0;
-open(STRLCPY, "</usr/include/string.h") or $fail = 1;
-if (!$fail) {
-	while (defined(my $line = <STRLCPY>)) {
-		chomp($line);
-		# try and find the delcaration of:
-		# size_t strlcpy(...)
-		if ($line =~ /size_t(\0x9|\s)+strlcpy/)	{
-			$config{HAS_STRLCPY} = "true";
-		}
-	}
-	close(STRLCPY);
+print "Checking whether <stdint.h> exists... ";
+if (test_header($config{CC}, "stdint.h")) {
+	$config{HAS_STDINT} = "true";
+	print "yes\n";
+} else {
+	$config{HAS_STDINT} = "false";
+	print "no\n";
 }
-print "yes\n" if $config{HAS_STRLCPY} eq "true";
-print "no\n" if $config{HAS_STRLCPY} eq "false";
 
-printf "Checking if kqueue exists... ";
-$has_kqueue = 0;
-$fail = 0;
-open(KQUEUE, "</usr/include/sys/event.h") or $fail = 1;
-if (!$fail) {
-	while (defined(my $line = <KQUEUE>)) {
-		chomp($line);
-		# try and find the delcaration of:
-		# int kqueue(void);
-		if ($line =~ /int(\0x9|\s)+kqueue/) {
-			$has_kqueue = 1;
-		}
-	}
-	close(KQUEUE);
+printf "Checking whether clock_gettime() exists... ";
+if (test_file($config{CC}, "clock_gettime.cpp", "-lrt")) {
+	$config{HAS_CLOCK_GETTIME} = "true";
+	print "yes\n";
+} else {
+	$config{HAS_CLOCK_GETTIME} = "false";
+	print "no\n";
 }
-print "yes\n" if $has_kqueue == 1;
-print "no\n" if $has_kqueue == 0;
 
-printf "Checking for epoll support... ";
-$has_epoll = test_compile('epoll');
+printf "Checking whether eventfd() exists... ";
+if (test_file($config{CC}, "eventfd.cpp")) {
+	$config{HAS_EVENTFD} = "true";
+	print "yes\n";
+} else {
+	$config{HAS_EVENTFD} = "false";
+	print "no\n";
+}
+
+print "Checking whether epoll is available... ";
+$has_epoll = test_header($config{CC}, "sys/epoll.h");
 print $has_epoll ? "yes\n" : "no\n";
 
-printf "Checking for eventfd support... ";
-$config{HAS_EVENTFD} = test_compile('eventfd') ? 'true' : 'false';
-print $config{HAS_EVENTFD} eq 'true' ? "yes\n" : "no\n";
+print "Checking whether Kqueue is available... ";
+$has_kqueue = test_file($config{CC}, "kqueue.cpp");
+print $has_kqueue ? "yes\n" : "no\n";
 
-printf "Checking if Solaris I/O completion ports are available... ";
-$has_ports = 0;
-our $system = `uname -s`;
-chomp ($system);
-$has_ports = 1 if ($system eq "SunOS");
-
-if ($has_ports) {
-	my $kernel = `uname -r`;
-	chomp($kernel);
-	if (($kernel !~ /^5\.1./)) {
-		$has_ports = 0;
-	}
-}
-print "yes\n" if $has_ports == 1;
-print "no\n" if $has_ports == 0;
+print 'Checking whether Solaris IOCP is available... ';
+$has_ports = test_header($config{CC}, 'port.h');
+print $has_ports ? "yes\n" : "no\n";
 
 $config{HAS_EPOLL} = $has_epoll;
 $config{HAS_KQUEUE} = $has_kqueue;
@@ -902,16 +860,13 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 		if ($config{GCCVER} >= 3) {
 			print FILEHANDLE "#define GCC3\n";
 		}
-		if ($config{HAS_STRLCPY} eq "true") {
-			print FILEHANDLE "#define HAS_STRLCPY\n";
-		}
 		if ($config{HAS_STDINT} eq "true") {
 			print FILEHANDLE "#define HAS_STDINT\n";
 		}
 		if ($config{HAS_EVENTFD} eq 'true') {
 			print FILEHANDLE "#define HAS_EVENTFD\n";
 		}
-		if ($config{OSNAME} !~ /DARWIN/i) {
+		if ($config{HAS_CLOCK_GETTIME} eq 'true') {
 			print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
 		}
 		my $use_hiperf = 0;
