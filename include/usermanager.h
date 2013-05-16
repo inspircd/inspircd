@@ -63,7 +63,11 @@ class CoreExport UserManager
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)
 	 */
-	int unregistered_count;
+	unsigned int unregistered_count;
+
+	/** Number of elements in local_users
+	 */
+	unsigned int local_count;
 
 	/** Map of global ip addresses for clone counting
 	 * XXX - this should be private, but m_clones depends on it currently.
