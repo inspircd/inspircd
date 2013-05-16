@@ -88,6 +88,7 @@ std::string UIDGenerator::GenerateSID(const std::string& servername, const std::
 		sid = 5 * sid + *i;
 
 	std::string sidstr = ConvToStr(sid % 1000);
+	sidstr.insert(0, 3 - sidstr.length(), '0');
 	return sidstr;
 }
 
