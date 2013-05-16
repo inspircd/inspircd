@@ -39,7 +39,7 @@ bool TreeSocket::ForceNick(const std::string &prefix, parameterlist &params)
 	{
 		Utils->DoOneToAllButSender(prefix,"SAVE",params,prefix);
 
-		if (!u->ForceNickChange(u->uuid.c_str()))
+		if (!u->ForceNickChange(u->uuid))
 		{
 			ServerInstance->Users->QuitUser(u, "Nickname collision");
 		}

@@ -642,7 +642,7 @@ bool QLine::Matches(User *u)
 void QLine::Apply(User* u)
 {
 	/* Force to uuid on apply of qline, no need to disconnect any more :) */
-	u->ForceNickChange(u->uuid.c_str());
+	u->ForceNickChange(u->uuid);
 }
 
 

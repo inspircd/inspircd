@@ -112,7 +112,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		params.push_back(ConvToStr(u->age));
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
 
-		u->ForceNickChange(u->uuid.c_str());
+		u->ForceNickChange(u->uuid);
 
 		if (!bChangeRemote)
 			return 1;
@@ -130,7 +130,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		if (remote)
 		{
 			/* nick change collide. Force change their nick. */
-			remote->ForceNickChange(remoteuid.c_str());
+			remote->ForceNickChange(remoteuid);
 		}
 
 		if (!bChangeLocal)

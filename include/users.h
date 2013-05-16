@@ -511,7 +511,7 @@ class CoreExport User : public Extensible
 	 * @param newnick The nickname to change to
 	 * @return True if the nickchange was successful.
 	 */
-	inline bool ForceNickChange(const char* newnick) { return ChangeNick(newnick, true); }
+	bool ForceNickChange(const std::string& newnick) { return ChangeNick(newnick, true); }
 
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type

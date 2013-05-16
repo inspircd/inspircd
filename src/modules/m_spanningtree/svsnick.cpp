@@ -32,10 +32,10 @@ CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, Use
 		if (isdigit(nick[0]))
 			nick = u->uuid;
 
-		if (!u->ForceNickChange(nick.c_str()))
+		if (!u->ForceNickChange(nick))
 		{
 			/* buh. UID them */
-			if (!u->ForceNickChange(u->uuid.c_str()))
+			if (!u->ForceNickChange(u->uuid))
 			{
 				ServerInstance->Users->QuitUser(u, "Nickname collision");
 				return CMD_SUCCESS;

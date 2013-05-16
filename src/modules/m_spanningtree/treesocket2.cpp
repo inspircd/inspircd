@@ -463,7 +463,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 				return;
 			}
 		}
-		who->ForceNickChange(params[0].c_str());
+		who->ForceNickChange(params[0]);
 		Utils->RouteCommand(route_back_again, command, params, who);
 	}
 	else
