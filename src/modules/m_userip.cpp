@@ -30,19 +30,37 @@ class CommandUserip : public Command
  public:
 	CommandUserip(Module* Creator) : Command(Creator,"USERIP", 1)
 	{
-		flags_needed = 'o'; syntax = "<nick>{,<nick>}";
+		syntax = "<nick>{,<nick>}";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		std::string retbuf = "340 " + user->nick + " :";
 		int nicks = 0;
+		bool checked_privs = false;
+		bool has_privs;
 
 		for (int i = 0; i < (int)parameters.size(); i++)
 		{
 			User *u = ServerInstance->FindNick(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
+				// Anyone may query their own IP
+				if (u != user)
+				{
+					if (!checked_privs)
+					{
+						// Do not trigger the insufficient priviliges message more than once
+						checked_privs = true;
+						has_privs = user->HasPrivPermission("users/auspex");
+						if (!has_privs)
+							user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
+					}
+
+					if (!has_privs)
+						continue;
+				}
+
 				retbuf = retbuf + u->nick + (IS_OPER(u) ? "*" : "") + "=";
 				if (IS_AWAY(u))
 					retbuf += "-";
@@ -56,7 +74,6 @@ class CommandUserip : public Command
 		if (nicks != 0)
 			user->WriteServ(retbuf);
 
-		/* Dont send to the network */
 		return CMD_SUCCESS;
 	}
 };
