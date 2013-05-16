@@ -107,9 +107,15 @@ class ModuleOpermotd : public Module
 		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
 		onoper = conf->getBool("onoper", true);
 
-		FileReader f(conf->getString("file", "opermotd"));
-		for (int i=0, filesize = f.FileSize(); i < filesize; i++)
-			cmd.opermotd.push_back(f.GetLine(i));
+		std::ifstream stream(conf->getString("file", "conf/opermotd.txt").c_str());
+		if (!stream.is_open())
+			return;
+
+		std::string line;
+		while (std::getline(stream, line))
+			cmd.opermotd.push_back(line);
+
+		stream.close();
 
 		if (conf->getBool("processcolors"))
 			InspIRCd::ProcessColors(cmd.opermotd);

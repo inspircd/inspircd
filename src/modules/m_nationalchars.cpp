@@ -26,8 +26,6 @@
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
 #include "inspircd.h"
-#include "caller.h"
-#include <fstream>
 
 /* $ModDesc: Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING */
 

@@ -358,15 +358,21 @@ class ModuleSSLGnuTLS : public Module
 		if((ret = gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",LOG_DEBUG, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
 
-		FileReader reader;
+		std::ifstream certStream(certfile.c_str());
+		if (!certStream.is_open())
+			throw ModuleException("Unable to set certificate: '" + certfile + "' is not readable!");
 
-		reader.LoadFile(certfile);
-		std::string cert_string = reader.Contents();
+		std::string cert_string((std::istreambuf_iterator<char>(certStream)), std::istreambuf_iterator<char>());
 		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), static_cast<unsigned int>(cert_string.length()) };
+		certStream.close();
 
-		reader.LoadFile(keyfile);
-		std::string key_string = reader.Contents();
+		std::ifstream keyStream(keyfile.c_str());
+		if (!keyStream.is_open())
+			throw ModuleException("Unable to set key: '" + keyfile + "' is not readable!");
+
+		std::string key_string((std::istreambuf_iterator<char>(keyStream)), std::istreambuf_iterator<char>());
 		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
+		keyStream.close();
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
 		unsigned int certcount = 3;
@@ -430,10 +436,13 @@ class ModuleSSLGnuTLS : public Module
 		std::string dhfile = Conf->getString("dhfile");
 		if (!dhfile.empty())
 		{
-			// Try to load DH params from file
-			reader.LoadFile(dhfile);
-			std::string dhstring = reader.Contents();
+			std::ifstream dhStream(dhfile.c_str());
+			if (!dhStream.is_open())
+				throw ModuleException("Unable to set dhparams: '" + dhfile + "' is not readable!");
+
+			std::string dhstring((std::istreambuf_iterator<char>(dhStream)), std::istreambuf_iterator<char>());
 			gnutls_datum_t dh_datum = { (unsigned char*)dhstring.data(), static_cast<unsigned int>(dhstring.length()) };
+			dhStream.close();
 
 			if ((ret = gnutls_dh_params_import_pkcs3(dh_params, &dh_datum, GNUTLS_X509_FMT_PEM)) < 0)
 			{

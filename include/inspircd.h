@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <bitset>
 #include <deque>
+#include <fstream>
 #include <list>
 #include <map>
 #include <set>
