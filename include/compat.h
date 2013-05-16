@@ -49,12 +49,16 @@
  * These macros enable the use of the C++11 override control keywords in
  * compilers which support them.
  */
-#if defined __clang__
+#if __cplusplus >= 201103L
+# define HAS_CXX11_FINAL_OVERRIDE
+#elif defined __clang__
 # if __has_feature(cxx_override_control)
 #  define HAS_CXX11_FINAL_OVERRIDE
 # endif
 #elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
-# define HAS_CXX11_FINAL_OVERRIDE
+# if defined __GXX_EXPERIMENTAL_CXX0X__
+#  define HAS_CXX11_FINAL_OVERRIDE
+# endif
 #elif _MSC_VER >= 1700
 # define HAS_CXX11_FINAL_OVERRIDE
 #endif
