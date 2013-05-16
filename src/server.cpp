@@ -87,8 +87,7 @@ std::string UIDGenerator::GenerateSID(const std::string& servername, const std::
 	for (std::string::const_iterator i = serverdesc.begin(); i != serverdesc.end(); ++i)
 		sid = 5 * sid + *i;
 
-	std::string sidstr = ConvToStr(sid % 1000);
-	return sidstr;
+	return InspIRCd::Format("%03d", sid % 1000);
 }
 
 void UIDGenerator::IncrementUID(unsigned int pos)
