@@ -846,7 +846,7 @@ class ModuleSSLGnuTLS : public Module
 		}
 		else
 		{
-			certinfo->fingerprint = irc::hex(digest, digest_size);
+			certinfo->fingerprint = BinToHex(digest, digest_size);
 		}
 
 		/* Beware here we do not check for errors.

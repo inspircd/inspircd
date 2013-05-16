@@ -23,16 +23,16 @@
 
 static const char hextable[] = "0123456789abcdef";
 
-std::string BinToHex(const std::string& data)
+std::string BinToHex(const void* raw, size_t l)
 {
-	int l = data.length();
+	const char* data = static_cast<const char*>(raw);
 	std::string rv;
 	rv.reserve(l * 2);
-	for(int i=0; i < l; i++)
+	for (size_t i = 0; i < l; i++)
 	{
 		unsigned char c = data[i];
-		rv.append(1, hextable[c >> 4]);
-		rv.append(1, hextable[c & 0xF]);
+		rv.push_back(hextable[c >> 4]);
+		rv.push_back(hextable[c & 0xF]);
 	}
 	return rv;
 }

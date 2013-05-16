@@ -24,9 +24,23 @@
 #include "config.h"
 #include <cstring>
 
-/** Binary to hexadecimal conversion */
-CoreExport std::string BinToHex(const std::string& data);
+/** Compose a hex string from raw data.
+ * @param raw The raw data to compose hex from (can be NULL if rawsize is 0)
+ * @param rawsize The size of the raw data buffer
+ * @return The hex string
+ */
+CoreExport std::string BinToHex(const void* raw, size_t rawsize);
+
 /** Base64 encode */
 CoreExport std::string BinToBase64(const std::string& data, const char* table = NULL, char pad = 0);
 /** Base64 decode */
 CoreExport std::string Base64ToBin(const std::string& data, const char* table = NULL);
+
+/** Compose a hex string from the data in a std::string.
+ * @param data The data to compose hex from
+ * @return The hex string.
+ */
+inline std::string BinToHex(const std::string& data)
+{
+	return BinToHex(data.data(), data.size());
+}

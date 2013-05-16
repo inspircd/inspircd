@@ -159,13 +159,6 @@ namespace irc
 		static CoreExport const char* find(const char* s1, int  n, char c);
 	};
 
-	/** Compose a hex string from raw data.
-	 * @param raw The raw data to compose hex from
-	 * @param rawsz The size of the raw data buffer
-	 * @return The hex string.
-	 */
-	CoreExport std::string hex(const unsigned char *raw, size_t rawsz);
-
 	/** This typedef declares irc::string based upon irc_char_traits.
 	 */
 	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;

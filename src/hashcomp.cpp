@@ -365,27 +365,6 @@ irc::sepstream::~sepstream()
 {
 }
 
-std::string irc::hex(const unsigned char *raw, size_t rawsz)
-{
-	if (!rawsz)
-		return "";
-
-	/* EWW! This used to be using sprintf, which is WAY inefficient. -Special */
-
-	const char *hex = "0123456789abcdef";
-	static char hexbuf[MAXBUF];
-
-	size_t i, j;
-	for (i = 0, j = 0; j < rawsz; ++j)
-	{
-		hexbuf[i++] = hex[raw[j] / 16];
-		hexbuf[i++] = hex[raw[j] % 16];
-	}
-	hexbuf[i] = 0;
-
-	return hexbuf;
-}
-
 irc::modestacker::modestacker(bool add) : adding(add)
 {
 	sequence.clear();

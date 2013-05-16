@@ -635,7 +635,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else
 		{
-			certinfo->fingerprint = irc::hex(md, n);
+			certinfo->fingerprint = BinToHex(md, n);
 		}
 
 		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
