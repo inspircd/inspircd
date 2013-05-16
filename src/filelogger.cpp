@@ -40,7 +40,7 @@ FileLogStream::~FileLogStream()
 
 void FileLogStream::OnLog(int loglevel, const std::string &type, const std::string &text)
 {
-	static char TIMESTR[26];
+	static std::string TIMESTR;
 	static time_t LAST = 0;
 
 	if (loglevel < this->loglvl)
@@ -53,11 +53,13 @@ void FileLogStream::OnLog(int loglevel, const std::string &type, const std::stri
 		time_t local = ServerInstance->Time();
 		struct tm *timeinfo = localtime(&local);
 
-		strlcpy(TIMESTR,asctime(timeinfo),26);
-		TIMESTR[24] = ':';
+		TIMESTR.assign(asctime(timeinfo), 24);
+		TIMESTR += ": ";
 		LAST = ServerInstance->Time();
 	}
 
-	std::string out = std::string(TIMESTR) + " " + text.c_str() + "\n";
+	std::string out = TIMESTR;
+	out += text;
+	out += '\n';
 	this->f->WriteLogLine(out);
 }

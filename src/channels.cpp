@@ -733,43 +733,37 @@ int Channel::CountInvisible()
 	return count;
 }
 
-char* Channel::ChanModes(bool showkey)
+const char* Channel::ChanModes(bool showkey)
 {
-	static char scratch[MAXBUF];
-	static char sparam[MAXBUF];
-	char* offset = scratch;
-	std::string extparam;
+	static std::string scratch;
+	std::string sparam;
 
-	*scratch = '\0';
-	*sparam = '\0';
+	scratch.clear();
 
 	/* This was still iterating up to 190, Channel::modes is only 64 elements -- Om */
 	for(int n = 0; n < 64; n++)
 	{
 		if(this->modes[n])
 		{
-			*offset++ = n + 65;
-			extparam.clear();
+			scratch.push_back(n + 65);
 			if (n == 'k' - 65 && !showkey)
 			{
-				extparam = "<key>";
+				sparam += " <key>";
 			}
 			else
 			{
-				extparam = this->GetModeParameter(n + 65);
-			}
-			if (!extparam.empty())
-			{
-				charlcat(sparam,' ',MAXBUF);
-				strlcat(sparam,extparam.c_str(),MAXBUF);
+				const std::string param = this->GetModeParameter(n + 65);
+				if (!param.empty())
+				{
+					sparam += ' ';
+					sparam += param;
+				}
 			}
 		}
 	}
 
-	/* Null terminate scratch */
-	*offset = '\0';
-	strlcat(scratch,sparam,MAXBUF);
-	return scratch;
+	scratch += sparam;
+	return scratch.c_str();
 }
 
 /* compile a userlist of a channel into a string, each nick seperated by

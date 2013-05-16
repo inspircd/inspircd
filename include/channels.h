@@ -279,7 +279,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * otherwise it is replaced with '&lt;KEY&gt;'
 	 * @return The channel mode string
 	 */
-	char* ChanModes(bool showkey);
+	const char* ChanModes(bool showkey);
 
 	/** Spool the NAMES list for this channel to the given user
 	 * @param user The user to spool the NAMES list to

@@ -249,33 +249,17 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 	opt_far = false;
 	opt_time = false;
 
-	Channel *ch = NULL;
 	std::vector<std::string> whoresults;
 	std::string initial = "352 " + user->nick + " ";
 
-	char matchtext[MAXBUF];
-	bool usingwildcards = false;
-
 	/* Change '0' into '*' so the wildcard matcher can grok it */
-	if (parameters[0] == "0")
-		strlcpy(matchtext, "*", MAXBUF);
-	else
-		strlcpy(matchtext, parameters[0].c_str(), MAXBUF);
+	std::string matchtext = ((parameters[0] == "0") ? "*" : parameters[0]);
 
-	for (const char* check = matchtext; *check; check++)
-	{
-		if (*check == '*' || *check == '?')
-		{
-			usingwildcards = true;
-			break;
-		}
-	}
+	// WHO flags count as a wildcard
+	bool usingwildcards = ((parameters.size() > 1) || (matchtext.find_first_of("*?") != std::string::npos));
 
 	if (parameters.size() > 1)
 	{
-		/* Fix for bug #444, WHO flags count as a wildcard */
-		usingwildcards = true;
-
 		for (std::string::const_iterator iter = parameters[1].begin(); iter != parameters[1].end(); ++iter)
 		{
 			switch (*iter)
@@ -325,7 +309,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 
 
 	/* who on a channel? */
-	ch = ServerInstance->FindChan(matchtext);
+	Channel* ch = ServerInstance->FindChan(matchtext);
 
 	if (ch)
 	{
@@ -364,7 +348,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 			{
 				User* oper = *i;
 
-				if (whomatch(user, oper, matchtext))
+				if (whomatch(user, oper, matchtext.c_str()))
 				{
 					if (!user->SharesChannelWith(oper))
 					{
@@ -380,7 +364,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		{
 			for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
 			{
-				if (whomatch(user, i->second, matchtext))
+				if (whomatch(user, i->second, matchtext.c_str()))
 				{
 					if (!user->SharesChannelWith(i->second))
 					{
