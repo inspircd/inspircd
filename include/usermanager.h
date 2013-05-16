@@ -148,9 +148,6 @@ class CoreExport UserManager
 	 */
 	unsigned int LocalUserCount();
 
-
-
-
 	/** Number of users with a certain mode set on them
 	 */
 	int ModeCount(const char mode);
@@ -160,10 +157,4 @@ class CoreExport UserManager
 	 * @param ... The format arguments
 	 */
 	void ServerNoticeAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
-
-	/** Send a server message (PRIVMSG) to all local users
-	 * @param text The text format string to send
-	 * @param ... The format arguments
-	 */
-	void ServerPrivmsgAll(const char* text, ...) CUSTOM_PRINTF(2, 3);
 };

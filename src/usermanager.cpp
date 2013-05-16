@@ -322,9 +322,6 @@ unsigned int UserManager::LocalUserCount()
 
 void UserManager::ServerNoticeAll(const char* text, ...)
 {
-	if (!text)
-		return;
-
 	char textbuffer[MAXBUF];
 	va_list argsPtr;
 	va_start (argsPtr, text);
@@ -339,27 +336,6 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 		t->WriteServ(message);
 	}
 }
-
-void UserManager::ServerPrivmsgAll(const char* text, ...)
-{
-	if (!text)
-		return;
-
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-	va_start (argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	const std::string message = "PRIVMSG $" + ServerInstance->Config->ServerName + " :" + textbuffer;
-
-	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
-	{
-		User* t = *i;
-		t->WriteServ(message);
-	}
-}
-
 
 /* return how many users have a given mode e.g. 'a' */
 int UserManager::ModeCount(const char mode)
