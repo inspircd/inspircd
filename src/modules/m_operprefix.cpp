@@ -51,7 +51,7 @@ class OperPrefixMode : public ModeHandler
 				return MODEACTION_ALLOW;
 			else
 			{
-				if (source && channel)
+				if (channel)
 					source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only servers are permitted to change channel mode '%c'", source->nick.c_str(), channel->name.c_str(), 'y');
 				return MODEACTION_DENY;
 			}

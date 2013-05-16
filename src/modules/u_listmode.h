@@ -201,7 +201,7 @@ class ListModeBase : public ModeHandler
 			if (limit.mask.size() && limit.limit > 0)
 				chanlimits.push_back(limit);
 		}
-		if (chanlimits.size() == 0)
+		if (chanlimits.empty())
 		{
 			ListLimit limit;
 			limit.mask = "*";
@@ -316,7 +316,7 @@ class ListModeBase : public ModeHandler
 					if (parameter == it->mask)
 					{
 						el->erase(it);
-						if (el->size() == 0)
+						if (el->empty())
 						{
 							extItem.unset(channel);
 						}

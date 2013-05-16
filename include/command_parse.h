@@ -23,10 +23,6 @@
 #ifndef COMMAND_PARSE_H
 #define COMMAND_PARSE_H
 
-/** A list of dll/so files containing the command handlers for the core
- */
-typedef std::map<std::string, void*> SharedObjectList;
-
 /** This class handles command management and parsing.
  * It allows you to add and remove commands from the map,
  * call command handlers by name, and chop up comma seperated
@@ -35,10 +31,6 @@ typedef std::map<std::string, void*> SharedObjectList;
 class CoreExport CommandParser
 {
  private:
-	/** Parameter buffer
-	 */
-	std::vector<std::string> para;
-
 	/** Process a parameter string into a list of items
 	 * @param command_p The output list of items
 	 * @param parameters The input string
@@ -51,8 +43,6 @@ class CoreExport CommandParser
 	 * @param cmd The command string to process
 	 */
 	bool ProcessCommand(LocalUser *user, std::string &cmd);
-
-
 
  public:
 	/** Command list, a hash_map of command names to Command*

@@ -673,7 +673,6 @@ void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList 
 	char tb[MAXBUF];
 
 	snprintf(tb,MAXBUF,":%s %s", serversource ? ServerInstance->Config->ServerName.c_str() : user->GetFullHost().c_str(), text.c_str());
-	std::string out = tb;
 
 	this->RawWriteAllExcept(user, serversource, status, except_list, std::string(tb));
 }

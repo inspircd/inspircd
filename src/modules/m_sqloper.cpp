@@ -119,7 +119,7 @@ class OpMeQuery : public SQLQuery
 
 		hostname.append("@").append(user->host);
 
-		if (OneOfMatches(hostname.c_str(), user->GetIPString(), pattern.c_str()))
+		if (OneOfMatches(hostname.c_str(), user->GetIPString(), pattern))
 		{
 			/* Opertype and host match, looks like this is it. */
 
