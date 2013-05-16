@@ -27,7 +27,7 @@
 #include <vector>
 #include <string>
 #include <map>
-#include "config.h"
+#include "exitcodes.h"
 #include "inspircd.h"
 #include "socketengine.h"
 
