@@ -795,17 +795,16 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 		return false;
 	}
 
-	ModResult MOD_RESULT;
-
-	if (force)
-		ServerInstance->NICKForced.set(this, 1);
-	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
-	ServerInstance->NICKForced.set(this, 0);
-
-	if (MOD_RESULT == MOD_RES_DENY)
+	if (!force)
 	{
-		ServerInstance->stats->statsCollisions++;
-		return false;
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
+
+		if (MOD_RESULT == MOD_RES_DENY)
+		{
+			ServerInstance->stats->statsCollisions++;
+			return false;
+		}
 	}
 
 	if (assign(newnick) == assign(nick))

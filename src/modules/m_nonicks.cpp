@@ -61,10 +61,6 @@ class ModuleNoNickChange : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		// Allow forced nick changes.
-		if (ServerInstance->NICKForced.get(user))
-			return MOD_RES_PASSTHRU;
-
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
 			Channel* curr = *i;

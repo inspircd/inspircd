@@ -271,7 +271,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
-	 NICKForced("NICKForced", NULL),
 	 OperQuit("OperQuit", NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
@@ -282,7 +281,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 {
 	ServerInstance = this;
 
-	Extensions.Register(&NICKForced);
 	Extensions.Register(&OperQuit);
 
 	FailedPortList pl;

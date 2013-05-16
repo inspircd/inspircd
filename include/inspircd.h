@@ -417,10 +417,6 @@ class CoreExport InspIRCd
 	 */
 	ProtocolInterface* PI;
 
-	/** Holds extensible for user nickforced
-	 */
-	LocalIntExt NICKForced;
-
 	/** Holds extensible for user operquit
 	 */
 	LocalStringExt OperQuit;

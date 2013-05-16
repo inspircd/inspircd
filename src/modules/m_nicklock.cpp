@@ -168,9 +168,6 @@ class ModuleNickLock : public Module
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		if (ServerInstance->NICKForced.get(user)) /* Allow forced nick changes */
-			return MOD_RES_PASSTHRU;
-
 		if (locked.get(user))
 		{
 			user->WriteNumeric(447, "%s :You cannot change your nickname (your nick is locked)",user->nick.c_str());
