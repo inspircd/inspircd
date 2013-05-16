@@ -245,10 +245,6 @@ irc::tokenstream::tokenstream(const std::string &source) : tokens(source), last_
 	n = tokens.begin();
 }
 
-irc::tokenstream::~tokenstream()
-{
-}
-
 bool irc::tokenstream::GetToken(std::string &token)
 {
 	std::string::iterator lsp = last_starting_position;
@@ -359,10 +355,6 @@ const std::string irc::sepstream::GetRemaining()
 bool irc::sepstream::StreamEnd()
 {
 	return ((n + 1) == tokens.end());
-}
-
-irc::sepstream::~sepstream()
-{
 }
 
 irc::modestacker::modestacker(bool add) : adding(add)

@@ -301,10 +301,6 @@ namespace irc
 		 */
 		tokenstream(const std::string &source);
 
-		/** Destructor
-		 */
-		~tokenstream();
-
 		/** Fetch the next token from the stream as a std::string
 		 * @param token The next token available, or an empty string if none remain
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
@@ -355,25 +351,21 @@ namespace irc
 		 */
 		sepstream(const std::string &source, char seperator);
 
-		/** Destructor
-		 */
-		virtual ~sepstream();
-
 		/** Fetch the next token from the stream
 		 * @param token The next token from the stream is placed here
 		 * @return True if tokens still remain, false if there are none left
 		 */
-		virtual bool GetToken(std::string &token);
+		bool GetToken(std::string& token);
 
 		/** Fetch the entire remaining stream, without tokenizing
 		 * @return The remaining part of the stream
 		 */
-		virtual const std::string GetRemaining();
+		const std::string GetRemaining();
 
 		/** Returns true if the end of the stream has been reached
 		 * @return True if the end of the stream has been reached, otherwise false
 		 */
-		virtual bool StreamEnd();
+		bool StreamEnd();
 	};
 
 	/** A derived form of sepstream, which seperates on commas
