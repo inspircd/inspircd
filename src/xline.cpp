@@ -531,21 +531,27 @@ bool XLine::IsBurstable()
 
 void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 {
-	const std::string banReason = line + "-Lined: " + reason;
+	// If an oper reason is provided, let's strip it and the whitespaces before |
+	// Note: The | separator requires a space in front of and after, to not risk mistaking nicks for a delimiter.
+	size_t delimpos = reason.find(" | ");
+	if (delimpos != std::string::npos)
+		delimpos = reason.find_last_not_of(" ", delimpos) + 1;
+
+	const std::string banReason = line + "-Lined: " + reason.substr(0, delimpos);
+	const std::string oBanReason = line + "-Lined: " + reason;
 
 	if (!ServerInstance->Config->XLineMessage.empty())
 		u->WriteNotice("*** " + ServerInstance->Config->XLineMessage);
 
 	if (ServerInstance->Config->HideBans)
-		ServerInstance->Users->QuitUser(u, line + "-Lined", banReason.c_str());
+		ServerInstance->Users->QuitUser(u, line + "-Lined", oBanReason);
 	else
-		ServerInstance->Users->QuitUser(u, banReason);
-
+		ServerInstance->Users->QuitUser(u, banReason, oBanReason);
 
 	if (bancache)
 	{
 		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
-		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason, this->duration);
+		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, banReason, this->duration);
 	}
 }
 
