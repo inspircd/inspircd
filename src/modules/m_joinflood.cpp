@@ -30,28 +30,27 @@
 class joinfloodsettings
 {
  public:
-	int secs;
-	int joins;
+	unsigned int secs;
+	unsigned int joins;
 	time_t reset;
 	time_t unlocktime;
-	int counter;
-	bool locked;
+	unsigned int counter;
 
-	joinfloodsettings(int b, int c) : secs(b), joins(c)
+	joinfloodsettings(unsigned int b, unsigned int c)
+		: secs(b), joins(c), unlocktime(0), counter(0)
 	{
 		reset = ServerInstance->Time() + secs;
-		counter = 0;
-		locked = false;
-	};
+	}
 
 	void addjoin()
 	{
-		counter++;
 		if (ServerInstance->Time() > reset)
 		{
-			counter = 0;
+			counter = 1;
 			reset = ServerInstance->Time() + secs;
 		}
+		else
+			counter++;
 	}
 
 	bool shouldlock()
@@ -66,25 +65,20 @@ class joinfloodsettings
 
 	bool islocked()
 	{
-		if (locked)
-		{
-			if (ServerInstance->Time() > unlocktime)
-			{
-				locked = false;
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
-		return false;
+		if (ServerInstance->Time() > unlocktime)
+			unlocktime = 0;
+
+		return (unlocktime != 0);
 	}
 
 	void lock()
 	{
-		locked = true;
 		unlocktime = ServerInstance->Time() + 60;
+	}
+
+	bool operator==(const joinfloodsettings& other) const
+	{
+		return ((this->secs == other.secs) && (this->joins == other.joins));
 	}
 };
 
@@ -101,85 +95,43 @@ class JoinFlood : public ModeHandler
 	{
 		if (adding)
 		{
-			char ndata[MAXBUF];
-			char* data = ndata;
-			strlcpy(ndata,parameter.c_str(),MAXBUF);
-			char* joins = data;
-			char* secs = NULL;
-			while (*data)
-			{
-				if (*data == ':')
-				{
-					*data = 0;
-					data++;
-					secs = data;
-					break;
-				}
-				else data++;
-			}
-			if (secs)
-
-			{
-				/* Set up the flood parameters for this channel */
-				int njoins = atoi(joins);
-				int nsecs = atoi(secs);
-				if ((njoins<1) || (nsecs<1))
-				{
-					source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
-					parameter.clear();
-					return MODEACTION_DENY;
-				}
-				else
-				{
-					joinfloodsettings* f = ext.get(channel);
-					if (!f)
-					{
-						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
-						f = new joinfloodsettings(nsecs, njoins);
-						ext.set(channel, f);
-						channel->SetModeParam('j', parameter);
-						return MODEACTION_ALLOW;
-					}
-					else
-					{
-						std::string cur_param = channel->GetModeParameter('j');
-						parameter = ConvToStr(njoins) + ":" +ConvToStr(nsecs);
-						if (cur_param == parameter)
-						{
-							// mode params match
-							return MODEACTION_DENY;
-						}
-						else
-						{
-							// new mode param, replace old with new
-							if ((nsecs > 0) && (njoins > 0))
-							{
-								f = new joinfloodsettings(nsecs, njoins);
-								ext.set(channel, f);
-								channel->SetModeParam('j', parameter);
-								return MODEACTION_ALLOW;
-							}
-							else
-							{
-								return MODEACTION_DENY;
-							}
-						}
-					}
-				}
-			}
-			else
+			std::string::size_type colon = parameter.find(':');
+			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 			{
 				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
 				return MODEACTION_DENY;
 			}
+
+			/* Set up the flood parameters for this channel */
+			unsigned int njoins = ConvToInt(parameter.substr(0, colon));
+			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+			if ((njoins<1) || (nsecs<1))
+			{
+				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				return MODEACTION_DENY;
+			}
+
+			joinfloodsettings jfs(nsecs, njoins);
+			joinfloodsettings* f = ext.get(channel);
+			if ((f) && (*f == jfs))
+				// mode params match
+				return MODEACTION_DENY;
+
+			ext.set(channel, jfs);
+			parameter = ConvToStr(njoins) + ":" + ConvToStr(nsecs);
+			channel->SetModeParam(this, parameter);
+			return MODEACTION_ALLOW;
 		}
 		else
 		{
+			if (!channel->IsModeSet(this))
+				return MODEACTION_DENY;
+
 			joinfloodsettings* f = ext.get(channel);
 			if (f)
 			{
 				ext.unset(channel);
-				channel->SetModeParam('j', "");
+				channel->SetModeParam(this, "");
 				return MODEACTION_ALLOW;
 			}
 		}
