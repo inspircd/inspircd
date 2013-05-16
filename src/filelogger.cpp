@@ -22,7 +22,6 @@
 /* $Core */
 
 #include "inspircd.h"
-#include <fstream>
 #include "socketengine.h"
 #include "filelogger.h"
 

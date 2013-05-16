@@ -18,7 +18,6 @@
 
 
 #include "inspircd.h"
-#include <fstream>
 #include "configparser.h"
 
 struct Parser

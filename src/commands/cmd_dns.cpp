@@ -20,7 +20,6 @@
 #include "inspircd.h"
 #include "modules/dns.h"
 #include <iostream>
-#include <fstream>
 
 #ifdef _WIN32
 #include <Iphlpapi.h>

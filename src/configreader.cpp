@@ -23,7 +23,6 @@
 
 
 #include "inspircd.h"
-#include <fstream>
 #include "xline.h"
 #include "listmode.h"
 #include "exitcodes.h"
