@@ -185,28 +185,12 @@ namespace irc
 		 * @param begin The starting element in the sequence to be joined
 		 * @param end The ending element in the sequence to be joined
 		 */
-		stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end);
-
-		/** Join elements of a deque, between (and including) begin and end
-		 * @param seperator The string to seperate values with
-		 * @param sequence One or more items to seperate
-		 * @param begin The starting element in the sequence to be joined
-		 * @param end The ending element in the sequence to be joined
-		 */
-		stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end);
-
-		/** Join elements of an array of char arrays, between (and including) begin and end
-		 * @param seperator The string to seperate values with
-		 * @param sequence One or more items to seperate
-		 * @param begin The starting element in the sequence to be joined
-		 * @param end The ending element in the sequence to be joined
-		 */
-		stringjoiner(const std::string &seperator, const char* const* sequence, int begin, int end);
+		stringjoiner(const std::string& seperator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end);
 
 		/** Get the joined sequence
-		 * @return A reference to the joined string
+		 * @return A constant reference to the joined string
 		 */
-		std::string& GetJoined();
+		const std::string& GetJoined() const;
 	};
 
 	/** irc::modestacker stacks mode sequences into a list.

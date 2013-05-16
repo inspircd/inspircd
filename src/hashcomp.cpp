@@ -430,37 +430,17 @@ int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_l
 	return n;
 }
 
-irc::stringjoiner::stringjoiner(const std::string &seperator, const std::vector<std::string> &sequence, int begin, int end)
+irc::stringjoiner::stringjoiner(const std::string& seperator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end)
 {
 	if (end < begin)
 		return; // nothing to do here
 
-	for (int v = begin; v < end; v++)
+	for (unsigned int v = begin; v < end; v++)
 		joined.append(sequence[v]).append(seperator);
 	joined.append(sequence[end]);
 }
 
-irc::stringjoiner::stringjoiner(const std::string &seperator, const std::deque<std::string> &sequence, int begin, int end)
-{
-	if (end < begin)
-		return; // nothing to do here
-
-	for (int v = begin; v < end; v++)
-		joined.append(sequence[v]).append(seperator);
-	joined.append(sequence[end]);
-}
-
-irc::stringjoiner::stringjoiner(const std::string &seperator, const char* const* sequence, int begin, int end)
-{
-	if (end < begin)
-		return; // nothing to do here
-
-	for (int v = begin; v < end; v++)
-		joined.append(sequence[v]).append(seperator);
-	joined.append(sequence[end]);
-}
-
-std::string& irc::stringjoiner::GetJoined()
+const std::string& irc::stringjoiner::GetJoined() const
 {
 	return joined;
 }
