@@ -70,7 +70,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreNotice, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, exempt_list));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, exempt_list, MSG_NOTICE));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 		const char* text = temp.c_str();
@@ -81,7 +81,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 		{
 			user->SendAll("NOTICE", "%s", text);
 		}
-		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, exempt_list));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, exempt_list, MSG_NOTICE));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
@@ -125,7 +125,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			ModResult MOD_RESULT;
 
 			std::string temp = parameters[1];
-			FIRST_MOD_RESULT(OnUserPreNotice, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status, exempt_list));
+			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status, exempt_list, MSG_NOTICE));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
@@ -155,7 +155,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 				chan->WriteAllExcept(user, false, status, exempt_list, "NOTICE %s :%s", chan->name.c_str(), text);
 			}
 
-			FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,chan,TYPE_CHANNEL,text,status,exempt_list));
+			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,text,status,exempt_list,MSG_NOTICE));
 		}
 		else
 		{
@@ -201,7 +201,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 
 		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreNotice, MOD_RESULT, (user,dest,TYPE_USER,temp,0,exempt_list));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, exempt_list, MSG_NOTICE));
 		if (MOD_RESULT == MOD_RES_DENY) {
 			return CMD_FAILURE;
 		}
@@ -215,7 +215,7 @@ CmdResult CommandNotice::Handle (const std::vector<std::string>& parameters, Use
 			user->WriteTo(dest, "NOTICE %s :%s", dest->nick.c_str(), text);
 		}
 
-		FOREACH_MOD(I_OnUserNotice,OnUserNotice(user,dest,TYPE_USER,text,0,exempt_list));
+		FOREACH_MOD(I_OnUserMessage, OnUserMessage(user, dest, TYPE_USER, text, 0, exempt_list, MSG_NOTICE));
 	}
 	else
 	{

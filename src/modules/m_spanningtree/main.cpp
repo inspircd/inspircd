@@ -73,7 +73,7 @@ void ModuleSpanningTree::init()
 	Implementation eventlist[] =
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
-		I_OnWallops, I_OnUserNotice, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
+		I_OnWallops, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
@@ -495,14 +495,9 @@ void ModuleSpanningTree::LocalMessage(User* user, void* dest, int target_type, c
 	}
 }
 
-void ModuleSpanningTree::OnUserNotice(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
+void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype)
 {
-	LocalMessage(user, dest, target_type, text, status, exempt_list, "NOTICE");
-}
-
-void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list)
-{
-	LocalMessage(user, dest, target_type, text, status, exempt_list, "PRIVMSG");
+	LocalMessage(user, dest, target_type, text, status, exempt_list, (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE"));
 }
 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)

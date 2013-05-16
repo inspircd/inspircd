@@ -175,9 +175,9 @@ class ModuleAlias : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list) CXX11_OVERRIDE
+	void OnUserMessage(User *user, void *dest, int target_type, const std::string &text, char status, const CUList &exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
-		if (target_type != TYPE_CHANNEL)
+		if ((target_type != TYPE_CHANNEL) || (msgtype != MSG_PRIVMSG))
 		{
 			return;
 		}

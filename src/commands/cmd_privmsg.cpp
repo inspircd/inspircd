@@ -70,7 +70,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 
 		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list, MSG_PRIVMSG));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
@@ -82,7 +82,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		{
 			user->SendAll("PRIVMSG", "%s", text);
 		}
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list, MSG_PRIVMSG));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
@@ -127,7 +127,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			ModResult MOD_RESULT;
 
 			std::string temp = parameters[1];
-			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user,chan,TYPE_CHANNEL,temp,status,except_list));
+			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, chan, TYPE_CHANNEL, temp, status, except_list, MSG_PRIVMSG));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
@@ -158,7 +158,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name.c_str(), text);
 			}
 
-			FOREACH_MOD(I_OnUserMessage,OnUserMessage(user,chan,TYPE_CHANNEL,text,status,except_list));
+			FOREACH_MOD(I_OnUserMessage, OnUserMessage(user,chan, TYPE_CHANNEL, text, status, except_list, MSG_PRIVMSG));
 		}
 		else
 		{
@@ -211,7 +211,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		ModResult MOD_RESULT;
 
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list, MSG_PRIVMSG));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
@@ -225,7 +225,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick.c_str(), text);
 		}
 
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, dest, TYPE_USER, text, 0, except_list));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, dest, TYPE_USER, text, 0, except_list, MSG_PRIVMSG));
 	}
 	else
 	{

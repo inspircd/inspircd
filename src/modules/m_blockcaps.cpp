@@ -49,7 +49,7 @@ public:
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(bc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnRehash, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -63,7 +63,7 @@ public:
 		ReadConf();
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
@@ -103,11 +103,6 @@ public:
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
 	void ReadConf()

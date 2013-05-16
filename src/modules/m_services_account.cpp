@@ -122,7 +122,7 @@ class ModuleServicesAccount : public Module
 	{
 		ServiceProvider* providerlist[] = { &m1, &m2, &m3, &m4, &m5, &accountname };
 		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
-		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserPreJoin, I_OnCheckBan,
+		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreJoin, I_OnCheckBan,
 			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick, I_OnSetConnectClass };
 
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -163,7 +163,7 @@ class ModuleServicesAccount : public Module
 		}
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -232,11 +232,6 @@ class ModuleServicesAccount : public Module
 		/* If we made it this far then the ban wasn't an ExtBan
 			or the user we were checking for didn't match either ExtBan */
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE

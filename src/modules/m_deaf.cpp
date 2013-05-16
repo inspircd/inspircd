@@ -70,7 +70,7 @@ class ModuleDeaf : public Module
 		ServerInstance->Modules->AddService(m1);
 
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -81,25 +81,13 @@ class ModuleDeaf : public Module
 		deaf_bypasschars_uline = tag->getString("bypasscharsuline");
 	}
 
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
 			Channel* chan = (Channel*)dest;
 			if (chan)
-				this->BuildDeafList(MSG_NOTICE, chan, user, status, text, exempt_list);
-		}
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			Channel* chan = (Channel*)dest;
-			if (chan)
-				this->BuildDeafList(MSG_PRIVMSG, chan, user, status, text, exempt_list);
+				this->BuildDeafList(msgtype, chan, user, status, text, exempt_list);
 		}
 
 		return MOD_RES_PASSTHRU;

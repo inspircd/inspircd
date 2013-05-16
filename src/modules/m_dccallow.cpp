@@ -261,7 +261,7 @@ class ModuleDCCAllow : public Module
 		ServerInstance->Modules->AddService(*ext);
 		ServerInstance->Modules->AddService(cmd);
 		ReadFileConf();
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_OnUserQuit, I_OnUserPostNick, I_OnRehash };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserQuit, I_OnUserPostNick, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -292,12 +292,7 @@ class ModuleDCCAllow : public Module
 		RemoveNick(user);
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
-	}
-
-	ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;

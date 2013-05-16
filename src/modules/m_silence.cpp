@@ -309,7 +309,7 @@ class ModuleSilence : public Module
 		ServerInstance->Modules->AddService(cmdsvssilence);
 		ServerInstance->Modules->AddService(cmdsilence.ext);
 
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage, I_OnUserPreInvite };
+		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreMessage, I_OnUserPreInvite };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -343,31 +343,21 @@ class ModuleSilence : public Module
 		}
 	}
 
-	ModResult PreText(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list, int silence_type)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_USER && IS_LOCAL(((User*)dest)))
 		{
-			return MatchPattern((User*)dest, user, silence_type);
+			return MatchPattern((User*)dest, user, ((msgtype == MSG_PRIVMSG) ? SILENCE_PRIVATE : SILENCE_NOTICE));
 		}
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* chan = (Channel*)dest;
 			if (chan)
 			{
-				this->OnBuildExemptList((silence_type == SILENCE_PRIVATE ? MSG_PRIVMSG : MSG_NOTICE), chan, user, status, exempt_list, "");
+				this->OnBuildExemptList(msgtype, chan, user, status, exempt_list, "");
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_PRIVATE);
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return PreText(user, dest, target_type, text, status, exempt_list, SILENCE_NOTICE);
 	}
 
 	ModResult OnUserPreInvite(User* source,User* dest,Channel* channel, time_t timeout) CXX11_OVERRIDE

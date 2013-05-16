@@ -42,7 +42,7 @@ class ModuleNoCTCP : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(nc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -51,12 +51,7 @@ class ModuleNoCTCP : public Module
 		return Version("Provides channel mode +C to block CTCPs", VF_VENDOR);
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{

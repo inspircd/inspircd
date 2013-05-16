@@ -62,12 +62,12 @@ class ModuleCensor : public Module
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(cc);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -105,11 +105,6 @@ class ModuleCensor : public Module
 		}
 		text = text2.c_str();
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

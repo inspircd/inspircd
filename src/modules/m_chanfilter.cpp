@@ -82,7 +82,7 @@ class ModuleChanFilter : public Module
 		ServerInstance->Modules->AddService(cf);
 
 		cf.DoImplements(this);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnUserPreNotice, I_OnSyncChannel };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnSyncChannel };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
@@ -121,18 +121,13 @@ class ModuleChanFilter : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 		{
 			return ProcessMessages(user,(Channel*)dest,text);
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
 	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE

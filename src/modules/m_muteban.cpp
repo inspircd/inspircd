@@ -27,7 +27,7 @@ class ModuleQuietBan : public Module
  public:
 	void init() CXX11_OVERRIDE
 	{
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -36,7 +36,7 @@ class ModuleQuietBan : public Module
 		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);
 	}
 
-	ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user) || target_type != TYPE_CHANNEL)
 			return MOD_RES_PASSTHRU;
@@ -49,11 +49,6 @@ class ModuleQuietBan : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

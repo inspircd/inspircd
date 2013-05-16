@@ -54,7 +54,7 @@ class ModuleStripColor : public Module
 	{
 		ServerInstance->Modules->AddService(usc);
 		ServerInstance->Modules->AddService(csc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserPreNotice, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -63,7 +63,7 @@ class ModuleStripColor : public Module
 		tokens["EXTBAN"].push_back('S');
 	}
 
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
@@ -91,11 +91,6 @@ class ModuleStripColor : public Module
 		}
 
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		return OnUserPreMessage(user,dest,target_type,text,status,exempt_list);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

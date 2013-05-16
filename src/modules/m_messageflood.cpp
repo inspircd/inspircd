@@ -132,8 +132,7 @@ class ModuleMsgFlood : public Module
 	{
 		ServerInstance->Modules->AddService(mf);
 		ServerInstance->Modules->AddService(mf.ext);
-		Implementation eventlist[] = { I_OnUserPreNotice, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modules->Attach(I_OnUserPreMessage, this);
 	}
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
@@ -172,15 +171,7 @@ class ModuleMsgFlood : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		if (target_type == TYPE_CHANNEL)
-			return ProcessMessages(user,(Channel*)dest,text);
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User *user, void *dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (target_type == TYPE_CHANNEL)
 			return ProcessMessages(user,(Channel*)dest,text);
@@ -192,7 +183,6 @@ class ModuleMsgFlood : public Module
 	{
 		// we want to be after all modules that might deny the message (e.g. m_muteban, m_noctcp, m_blockcolor, etc.)
 		ServerInstance->Modules->SetPriority(this, I_OnUserPreMessage, PRIORITY_LAST);
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreNotice, PRIORITY_LAST);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

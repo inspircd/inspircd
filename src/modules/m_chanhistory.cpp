@@ -133,9 +133,9 @@ class ModuleChanHistory : public Module
 		sendnotice = tag->getBool("notice", true);
 	}
 
-	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList&) CXX11_OVERRIDE
+	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList&, MessageType msgtype) CXX11_OVERRIDE
 	{
-		if (target_type == TYPE_CHANNEL && status == 0)
+		if ((target_type == TYPE_CHANNEL) && (status == 0) && (msgtype == MSG_PRIVMSG))
 		{
 			Channel* c = (Channel*)dest;
 			HistoryList* list = m.ext.get(c);

@@ -352,7 +352,7 @@ public:
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.extInfo);
 
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPostNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreNotice, I_OnUserPreMessage };
+		Implementation eventlist[] = { I_OnRehash, I_OnUserPostNick, I_OnUserQuit, I_On005Numeric, I_OnUserPreMessage };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -394,15 +394,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list) CXX11_OVERRIDE
-	{
-		if (IS_LOCAL(user) && target_type == TYPE_USER)
-			return PreText(user, (User*)dest, text);
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		if (IS_LOCAL(user) && target_type == TYPE_USER)
 			return PreText(user, (User*)dest, text);

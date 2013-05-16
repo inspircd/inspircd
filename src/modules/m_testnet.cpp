@@ -112,10 +112,8 @@ static void checkall(Module* noimpl)
 	CHK(OnUserPreInvite);
 	CHK(OnUserInvite);
 	CHK(OnUserPreMessage);
-	CHK(OnUserPreNotice);
 	CHK(OnUserPreNick);
 	CHK(OnUserMessage);
-	CHK(OnUserNotice);
 	CHK(OnMode);
 	CHK(OnGetServerDescription);
 	CHK(OnSyncUser);

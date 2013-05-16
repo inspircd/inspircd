@@ -181,11 +181,10 @@ class ModuleFilter : public Module
 	ModuleFilter();
 	void init() CXX11_OVERRIDE;
 	CullResult cull();
-	ModResult OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flags);
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
 	void OnRehash(User* user) CXX11_OVERRIDE;
 	Version GetVersion() CXX11_OVERRIDE;
 	std::string EncodeFilter(FilterResult* filter);
@@ -304,7 +303,7 @@ ModuleFilter::ModuleFilter()
 void ModuleFilter::init()
 {
 	ServerInstance->Modules->AddService(filtcommand);
-	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnUserPreNotice, I_OnRehash, I_OnUnloadModule };
+	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnRehash, I_OnUnloadModule };
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	OnRehash(NULL);
 }
@@ -323,23 +322,13 @@ void ModuleFilter::FreeFilters()
 	filters.clear();
 }
 
-ModResult ModuleFilter::OnUserPreMessage(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
-{
-	if (!IS_LOCAL(user))
-		return MOD_RES_PASSTHRU;
-
-	flags = FLAG_PRIVMSG;
-	return OnUserPreNotice(user,dest,target_type,text,status,exempt_list);
-}
-
-ModResult ModuleFilter::OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
 {
 	/* Leave ulines alone */
 	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
 		return MOD_RES_PASSTHRU;
 
-	if (!flags)
-		flags = FLAG_NOTICE;
+	flags = (msgtype == MSG_PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
 
 	FilterResult* f = this->FilterMatch(user, text, flags);
 	if (f)

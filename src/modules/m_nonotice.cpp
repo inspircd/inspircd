@@ -42,7 +42,7 @@ class ModuleNoNotice : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(nt);
-		Implementation eventlist[] = { I_OnUserPreNotice, I_On005Numeric };
+		Implementation eventlist[] = { I_OnUserPreMessage, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -51,10 +51,10 @@ class ModuleNoNotice : public Module
 		tokens["EXTBAN"].push_back('T');
 	}
 
-	ModResult OnUserPreNotice(User* user,void* dest,int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
 		ModResult res;
-		if ((target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
+		if ((msgtype == MSG_NOTICE) && (target_type == TYPE_CHANNEL) && (IS_LOCAL(user)))
 		{
 			Channel* c = (Channel*)dest;
 			if (!c->GetExtBanStatus(user, 'T').check(!c->IsModeSet('T')))

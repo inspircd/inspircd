@@ -56,7 +56,7 @@ class ModuleDelayMsg : public Module
 	}
 	Version GetVersion() CXX11_OVERRIDE;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
 };
 
 ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
@@ -104,13 +104,13 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 	}
 }
 
-ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list)
+ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
 {
 	/* Server origin */
 	if ((!user) || (!IS_LOCAL(user)))
 		return MOD_RES_PASSTHRU;
 
-	if (target_type != TYPE_CHANNEL)
+	if ((target_type != TYPE_CHANNEL) || (msgtype != MSG_PRIVMSG))
 		return MOD_RES_PASSTHRU;
 
 	Channel* channel = (Channel*) dest;

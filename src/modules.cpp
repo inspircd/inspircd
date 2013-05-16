@@ -103,8 +103,7 @@ void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
 void		Module::OnInfo(User*) { }
 void		Module::OnWhois(User*, User*) { }
 ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreNotice(User*, void*, int, std::string&, char, CUList&) { return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { }
 ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
@@ -141,8 +140,7 @@ int		Module::OnStreamSocketWrite(StreamSocket*, std::string&) { return -1; }
 void		Module::OnStreamSocketClose(StreamSocket*) { }
 void		Module::OnStreamSocketConnect(StreamSocket*) { }
 int		Module::OnStreamSocketRead(StreamSocket*, std::string&) { return -1; }
-void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&) { }
-void		Module::OnUserNotice(User*, void*, int, const std::string&, char, const CUList&) { }
+void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { }
 void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
 void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { }
