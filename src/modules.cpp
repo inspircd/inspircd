@@ -765,7 +765,7 @@ bool FileReader::Exists()
 
 std::string FileReader::GetLine(int x)
 {
-	if ((x<0) || ((unsigned)x>fc.size()))
+	if ((x<0) || ((unsigned)x>=fc.size()))
 		return "";
 	return fc[x];
 }

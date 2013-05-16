@@ -41,12 +41,13 @@ class CommandRandquote : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		std::string str;
-		int fsize;
-
-		fsize = quotes->FileSize();
-		str = quotes->GetLine(ServerInstance->GenRandomInt(fsize));
-		user->WriteServ("NOTICE %s :%s%s%s",user->nick.c_str(),prefix.c_str(),str.c_str(),suffix.c_str());
+		int fsize = quotes->FileSize();
+		if (fsize)
+		{
+			std::string str = quotes->GetLine(ServerInstance->GenRandomInt(fsize));
+			if (!str.empty())
+				user->WriteServ("NOTICE %s :%s%s%s",user->nick.c_str(),prefix.c_str(),str.c_str(),suffix.c_str());
+		}
 
 		return CMD_SUCCESS;
 	}
