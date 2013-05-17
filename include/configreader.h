@@ -93,14 +93,16 @@ class ServerLimits
 	size_t MaxGecos;
 	/** Maximum away message length */
 	size_t MaxAway;
+	/** Maximum line length */
+	size_t MaxLine;
 
 	/** Creating the class initialises it to the defaults
 	 * as in 1.1's ./configure script. Reading other values
 	 * from the config will change these values.
 	 */
-	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12), MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200)
-	{
-	}
+	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12),
+		MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200),
+		MaxLine(512) { }
 };
 
 struct CommandLineConf

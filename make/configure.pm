@@ -297,9 +297,6 @@ InspIRCd 1.0.x, are also allowed.
                                to select() [not set]
   --with-cc=[filename]         Use an alternative compiler to
                                build InspIRCd [g++]
-  --with-maxbuf=[n]            Change the per message buffer size [512]
-                               DO NOT ALTER THIS OPTION WITHOUT GOOD REASON
-                               AS IT *WILL* BREAK CLIENTS!!!
   --prefix=[directory]         Base directory to install into (if defined,
                                can automatically define config, module, bin
                                and library dirs as subdirectories of prefix)
