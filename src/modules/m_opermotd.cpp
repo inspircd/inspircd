@@ -107,9 +107,15 @@ class ModuleOpermotd : public Module
 		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");
 		onoper = conf->getBool("onoper", true);
 
-		FileReader f(conf->getString("file", "opermotd"));
-		for (int i=0, filesize = f.FileSize(); i < filesize; i++)
-			cmd.opermotd.push_back(f.GetLine(i));
+		try
+		{
+			FileReader reader(conf->getString("file", "opermotd"));
+			cmd.opermotd = reader.GetVector();
+		}
+		catch (CoreException&)
+		{
+			// Nothing happens here as we do the error handling in ShowOperMOTD.
+		}
 
 		if (conf->getBool("processcolors"))
 			InspIRCd::ProcessColors(cmd.opermotd);

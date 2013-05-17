@@ -24,6 +24,7 @@
  */
 
 
+#include <fstream>
 #include "inspircd.h"
 #include "xline.h"
 #include "socket.h"
@@ -583,82 +584,45 @@ const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
 	return retval;
 }
 
-FileReader::FileReader(const std::string &filename)
+FileReader::FileReader(const std::string& filename)
 {
-	LoadFile(filename);
+	Load(filename);
 }
 
-FileReader::FileReader()
+void FileReader::Load(const std::string& filename)
 {
-}
-
-std::string FileReader::Contents()
-{
-	std::string x;
-	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
+	// If the file is stored in the file cache then we used that version instead.
+	ConfigFileCache::iterator it = ServerInstance->Config->Files.find(filename);
+	if (it != ServerInstance->Config->Files.end())
 	{
-		x.append(*a);
-		x.append("\r\n");
-	}
-	return x;
-}
-
-unsigned long FileReader::ContentSize()
-{
-	return this->contentsize;
-}
-
-void FileReader::CalcSize()
-{
-	unsigned long n = 0;
-	for (file_cache::iterator a = this->fc.begin(); a != this->fc.end(); a++)
-		n += (a->length() + 2);
-	this->contentsize = n;
-}
-
-void FileReader::LoadFile(const std::string &filename)
-{
-	std::map<std::string, file_cache>::iterator file = ServerInstance->Config->Files.find(filename);
-	if (file != ServerInstance->Config->Files.end())
-	{
-		this->fc = file->second;
+		this->lines = it->second;
 	}
 	else
 	{
-		fc.clear();
-		FILE* f = fopen(filename.c_str(), "r");
-		if (!f)
-			return;
-		char linebuf[MAXBUF*10];
-		while (fgets(linebuf, sizeof(linebuf), f))
+		lines.clear();
+
+		std::ifstream stream(filename.c_str());
+		if (!stream.is_open())
+			throw CoreException(filename + " does not exist or is not readable!");
+
+		std::string line;
+		while (std::getline(stream, line))
 		{
-			int len = strlen(linebuf);
-			if (len)
-				fc.push_back(std::string(linebuf, len - 1));
+			lines.push_back(line);
+			totalSize += line.size() + 2;
 		}
-		fclose(f);
+
+		stream.close();
 	}
-	CalcSize();
 }
 
-
-FileReader::~FileReader()
+std::string FileReader::GetString()
 {
-}
-
-bool FileReader::Exists()
-{
-	return (!(fc.size() == 0));
-}
-
-std::string FileReader::GetLine(int x)
-{
-	if ((x<0) || ((unsigned)x>fc.size()))
-		return "";
-	return fc[x];
-}
-
-int FileReader::FileSize()
-{
-	return fc.size();
+	std::string buffer;
+	for (file_cache::iterator it = this->lines.begin(); it != this->lines.end(); ++it)
+	{
+		buffer.append(*it);
+		buffer.append("\r\n");
+	}
+	return buffer;
 }

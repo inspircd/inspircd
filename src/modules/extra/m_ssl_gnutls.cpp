@@ -360,12 +360,12 @@ class ModuleSSLGnuTLS : public Module
 
 		FileReader reader;
 
-		reader.LoadFile(certfile);
-		std::string cert_string = reader.Contents();
+		reader.Load(certfile);
+		std::string cert_string = reader.GetString();
 		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), static_cast<unsigned int>(cert_string.length()) };
 
-		reader.LoadFile(keyfile);
-		std::string key_string = reader.Contents();
+		reader.Load(keyfile);
+		std::string key_string = reader.GetString();
 		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
@@ -431,8 +431,8 @@ class ModuleSSLGnuTLS : public Module
 		if (!dhfile.empty())
 		{
 			// Try to load DH params from file
-			reader.LoadFile(dhfile);
-			std::string dhstring = reader.Contents();
+			reader.Load(dhfile);
+			std::string dhstring = reader.GetString();
 			gnutls_datum_t dh_datum = { (unsigned char*)dhstring.data(), static_cast<unsigned int>(dhstring.length()) };
 
 			if ((ret = gnutls_dh_params_import_pkcs3(dh_params, &dh_datum, GNUTLS_X509_FMT_PEM)) < 0)
