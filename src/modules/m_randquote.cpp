@@ -25,73 +25,38 @@
 
 #include "inspircd.h"
 
-static FileReader *quotes = NULL;
-
-std::string prefix;
-std::string suffix;
-
-/** Handle /RANDQUOTE
- */
-class CommandRandquote : public Command
-{
- public:
-	CommandRandquote(Module* Creator) : Command(Creator,"RANDQUOTE", 0)
-	{
-	}
-
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
-	{
-		std::string str;
-		int fsize;
-
-		fsize = quotes->FileSize();
-		str = quotes->GetLine(ServerInstance->GenRandomInt(fsize));
-		user->WriteNotice(prefix + str + suffix);
-
-		return CMD_SUCCESS;
-	}
-};
-
 class ModuleRandQuote : public Module
 {
-	CommandRandquote cmd;
- public:
-	ModuleRandQuote()
-		: cmd(this)
-	{
-	}
+private:
+	std::string prefix;
+	std::string suffix;
+	std::vector<std::string> quotes;
 
+ public:
 	void init() CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("randquote");
-
-		std::string q_file = conf->getString("file","quotes");
 		prefix = conf->getString("prefix");
 		suffix = conf->getString("suffix");
+		FileReader reader(conf->getString("file", "quotes"));
+		quotes = reader.GetVector();
 
-		quotes = new FileReader(q_file);
-		if (!quotes->Exists())
-		{
-			throw ModuleException("m_randquote: QuoteFile not Found!! Please check your config - module will not function.");
-		}
-		ServerInstance->Modules->AddService(cmd);
 		Implementation eventlist[] = { I_OnUserConnect };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
-	~ModuleRandQuote()
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		delete quotes;
+		if (!quotes.empty())
+		{
+			unsigned long random = ServerInstance->GenRandomInt(quotes.size());
+			user->WriteNotice(prefix + quotes[random] + suffix);
+		}
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides random quotes on connect.",VF_VENDOR);
-	}
-
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		cmd.Handle(std::vector<std::string>(), user);
+		return Version("Provides random quotes on connect.", VF_VENDOR);
 	}
 };
 
