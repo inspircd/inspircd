@@ -428,7 +428,7 @@ void UserIOHandler::OnDataReady()
 	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
 		std::string line;
-		line.reserve(MAXBUF);
+		line.reserve(ServerInstance->Config->Limits.MaxLine);
 		std::string::size_type qpos = 0;
 		while (qpos < recvq.length())
 		{
