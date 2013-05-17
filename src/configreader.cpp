@@ -773,14 +773,31 @@ bool ServerConfig::FileExists(const char* file)
 	if ((sb.st_mode & S_IFDIR) > 0)
 		return false;
 
-	FILE *input = fopen(file, "r");
-	if (input == NULL)
-		return false;
-	else
+	return !access(file, F_OK);
+}
+
+std::string ServerConfig::Escape(const std::string& str, bool xml)
+{
+	std::string escaped;
+	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
 	{
-		fclose(input);
-		return true;
+		switch (*it)
+		{
+			case '"':
+				escaped += xml ? "&quot;" : "\"";
+				break;
+			case '&':
+				escaped += xml ? "&amp;" : "&";
+				break;
+			case '\\':
+				escaped += xml ? "\\" : "\\\\";
+				break;
+			default:
+				escaped += *it;
+				break;
+		}
 	}
+	return escaped;
 }
 
 const char* ServerConfig::CleanFilename(const char* name)

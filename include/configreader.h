@@ -521,6 +521,12 @@ class CoreExport ServerConfig
 	 * @return True if the file exists and is readable.
 	 */
 	static bool FileExists(const char* file);
+	
+	/** Escapes a value for storage in a configuration key.
+	 * @param str The string to escape.
+	 * @param xml Are we using the XML config format?
+	 */
+	static std::string Escape(const std::string& str, bool xml = true);
 
 	/** If this value is true, invites will bypass more than just +i
 	 */
