@@ -309,7 +309,7 @@ class ModuleAlias : public Module
 	void DoCommand(const std::string& newline, User* user, Channel *chan, const std::string &original_line)
 	{
 		std::string result;
-		result.reserve(ServerInstance->Config->Limits.MaxLine);
+		result.reserve(newline.length());
 		for (unsigned int i = 0; i < newline.length(); i++)
 		{
 			char c = newline[i];

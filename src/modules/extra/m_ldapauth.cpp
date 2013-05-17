@@ -212,7 +212,7 @@ public:
 			std::string> &replacements)
 	{
 		std::string result;
-		result.reserve(ServerInstance->Config->Limits.MaxLine);
+		result.reserve(text.length());
 
 		for (unsigned int i = 0; i < text.length(); ++i) {
 			char c = text[i];

@@ -443,7 +443,7 @@ void UserIOHandler::OnDataReady()
 			case '\n':
 				goto eol_found;
 			}
-			if (line.length() < MAXBUF - 2)
+			if (line.length() < ServerInstance->Config->Limits.MaxLine - 2)
 				line.push_back(c);
 		}
 		// if we got here, the recvq ran out before we found a newline
@@ -995,10 +995,10 @@ void LocalUser::Write(const std::string& text)
 	if (!ServerInstance->SE->BoundsCheckFd(&eh))
 		return;
 
-	if (text.length() > MAXBUF - 2)
+	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)
 	{
 		// this should happen rarely or never. Crop the string at 512 and try again.
-		std::string try_again = text.substr(0, MAXBUF - 2);
+		std::string try_again = text.substr(0, ServerInstance->Config->Limits.MaxLine - 2);
 		Write(try_again);
 		return;
 	}
