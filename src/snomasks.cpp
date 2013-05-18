@@ -52,26 +52,16 @@ void SnomaskManager::WriteGlobalSno(char letter, const std::string& text)
 
 void SnomaskManager::WriteToSnoMask(char letter, const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteToSnoMask(letter, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteToSnoMask(letter, textbuffer);
 }
 
 void SnomaskManager::WriteGlobalSno(char letter, const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteGlobalSno(letter, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteGlobalSno(letter, textbuffer);
 }
 
 SnomaskManager::SnomaskManager()

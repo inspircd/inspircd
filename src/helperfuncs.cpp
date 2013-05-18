@@ -372,13 +372,9 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::str
 
 void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-	va_start (argsPtr, format);
-	vsnprintf(textbuffer, MAXBUF, format, argsPtr);
-	va_end(argsPtr);
-
-	this->SendWhoisLine(user, dest, numeric, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, format, format)
+	this->SendWhoisLine(user, dest, numeric, textbuffer);
 }
 
 /** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
