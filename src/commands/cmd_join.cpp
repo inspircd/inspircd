@@ -55,7 +55,7 @@ CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, L
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, 1, false))
 			return CMD_SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
+		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			Channel::JoinUser(user, parameters[0], false, parameters[1]);
 			return CMD_SUCCESS;
@@ -66,7 +66,7 @@ CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, L
 		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, -1, false))
 			return CMD_SUCCESS;
 
-		if (ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
+		if (ServerInstance->IsChannel(parameters[0]))
 		{
 			Channel::JoinUser(user, parameters[0]);
 			return CMD_SUCCESS;

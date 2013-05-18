@@ -45,7 +45,7 @@ class ModuleDenyChannels : public Module
 			if (!redirect.empty())
 			{
 
-				if (!ServerInstance->IsChannel(redirect, ServerInstance->Config->Limits.ChanMax))
+				if (!ServerInstance->IsChannel(redirect))
 				{
 					if (user)
 						user->WriteNotice("Invalid badchan redirect '" + redirect + "'");
@@ -108,7 +108,7 @@ class ModuleDenyChannels : public Module
 						}
 					}
 
-					if (ServerInstance->IsChannel(redirect.c_str(), ServerInstance->Config->Limits.ChanMax))
+					if (ServerInstance->IsChannel(redirect))
 					{
 						/* simple way to avoid potential loops: don't redirect to +L channels */
 						Channel *newchan = ServerInstance->FindChan(redirect);

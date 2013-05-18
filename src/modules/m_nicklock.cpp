@@ -51,7 +51,7 @@ class CommandNicklock : public Command
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (!ServerInstance->IsNick(parameters[1], ServerInstance->Config->Limits.NickMax))
+			if (!ServerInstance->IsNick(parameters[1]))
 			{
 				user->WriteNotice("*** Invalid nickname '" + parameters[1] + "'");
 				return CMD_FAILURE;

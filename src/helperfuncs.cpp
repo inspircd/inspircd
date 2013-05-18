@@ -242,9 +242,9 @@ void InspIRCd::ProcessColors(file_cache& input)
 }
 
 /* true for valid channel name, false else */
-bool IsChannelHandler::Call(const std::string& chname, size_t max)
+bool IsChannelHandler::Call(const std::string& chname)
 {
-	if (chname.empty() || chname.length() > max)
+	if (chname.empty() || chname.length() > ServerInstance->Config->Limits.ChanMax)
 		return false;
 
 	if (chname[0] != '#')
@@ -265,9 +265,9 @@ bool IsChannelHandler::Call(const std::string& chname, size_t max)
 }
 
 /* true for valid nickname, false else */
-bool IsNickHandler::Call(const std::string& n, size_t max)
+bool IsNickHandler::Call(const std::string& n)
 {
-	if (n.empty() || n.length() > max)
+	if (n.empty() || n.length() > ServerInstance->Config->Limits.NickMax)
 		return false;
 
 	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)

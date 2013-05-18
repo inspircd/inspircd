@@ -23,17 +23,17 @@
 
 static std::bitset<256> allowedmap;
 
-class NewIsChannelHandler : public HandlerBase2<bool, const std::string&, size_t>
+class NewIsChannelHandler : public HandlerBase1<bool, const std::string&>
 {
  public:
 	NewIsChannelHandler() { }
 	~NewIsChannelHandler() { }
-	bool Call(const std::string&, size_t);
+	bool Call(const std::string&);
 };
 
-bool NewIsChannelHandler::Call(const std::string& channame, size_t max)
+bool NewIsChannelHandler::Call(const std::string& channame)
 {
-	if (channame.empty() || channame.length() > max || channame[0] != '#')
+	if (channame.empty() || channame.length() > ServerInstance->Config->Limits.ChanMax || channame[0] != '#')
 		return false;
 
 	for (std::string::const_iterator c = channame.begin(); c != channame.end(); ++c)
@@ -49,7 +49,7 @@ bool NewIsChannelHandler::Call(const std::string& channame, size_t max)
 class ModuleChannelNames : public Module
 {
 	NewIsChannelHandler myhandler;
-	caller2<bool, const std::string&, size_t> rememberer;
+	caller1<bool, const std::string&> rememberer;
 	bool badchan;
 
  public:
@@ -71,7 +71,7 @@ class ModuleChannelNames : public Module
 		std::vector<Channel*> chanvec;
 		for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
 		{
-			if (!ServerInstance->IsChannel(i->second->name, MAXBUF))
+			if (!ServerInstance->IsChannel(i->second->name))
 				chanvec.push_back(i->second);
 		}
 		std::vector<Channel*>::reverse_iterator c2 = chanvec.rbegin();

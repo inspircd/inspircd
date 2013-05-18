@@ -146,7 +146,7 @@ class CommandWatch : public Command
 	CmdResult remove_watch(User* user, const char* nick)
 	{
 		// removing an item from the list
-		if (!ServerInstance->IsNick(nick, ServerInstance->Config->Limits.NickMax))
+		if (!ServerInstance->IsNick(nick))
 		{
 			user->WriteNumeric(942, "%s %s :Invalid nickname", user->nick.c_str(), nick);
 			return CMD_FAILURE;
@@ -196,7 +196,7 @@ class CommandWatch : public Command
 
 	CmdResult add_watch(User* user, const char* nick)
 	{
-		if (!ServerInstance->IsNick(nick, ServerInstance->Config->Limits.NickMax))
+		if (!ServerInstance->IsNick(nick))
 		{
 			user->WriteNumeric(942, "%s %s :Invalid nickname",user->nick.c_str(),nick);
 			return CMD_FAILURE;

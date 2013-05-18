@@ -39,7 +39,7 @@ class Redirect : public ModeHandler
 		{
 			if (IS_LOCAL(source))
 			{
-				if (!ServerInstance->IsChannel(parameter, ServerInstance->Config->Limits.ChanMax))
+				if (!ServerInstance->IsChannel(parameter))
 				{
 					source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
 					parameter.clear();
