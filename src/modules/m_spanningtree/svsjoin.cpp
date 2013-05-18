@@ -25,7 +25,7 @@
 CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, User *user)
 {
 	// Check for valid channel name
-	if (!ServerInstance->IsChannel(parameters[1].c_str(), ServerInstance->Config->Limits.ChanMax))
+	if (!ServerInstance->IsChannel(parameters[1]))
 		return CMD_FAILURE;
 
 	// Check target exists

@@ -137,7 +137,7 @@ class BanRedirect : public ModeWatcher
 			{
 				if (adding && IS_LOCAL(source))
 				{
-					if (!ServerInstance->IsChannel(mask[CHAN].c_str(),  ServerInstance->Config->Limits.ChanMax))
+					if (!ServerInstance->IsChannel(mask[CHAN]))
 					{
 						source->WriteNumeric(403, "%s %s :Invalid channel name in redirection (%s)", source->nick.c_str(), channel->name.c_str(), mask[CHAN].c_str());
 						return false;

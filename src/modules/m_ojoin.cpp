@@ -60,7 +60,7 @@ class CommandOjoin : public SplitCommand
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 	{
 		// Make sure the channel name is allowable.
-		if (!ServerInstance->IsChannel(parameters[0], ServerInstance->Config->Limits.ChanMax))
+		if (!ServerInstance->IsChannel(parameters[0]))
 		{
 			user->WriteNotice("*** Invalid characters in channel name or name too long");
 			return CMD_FAILURE;
