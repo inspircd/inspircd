@@ -424,17 +424,20 @@ unsigned long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
-const char* InspIRCd::Format(const char* formatString, ...)
+const char* InspIRCd::Format(const va_list &vaList, const char* formatString)
 {
 	static std::vector<char> formatBuffer(1024);
 	int vsnret = 0;
-
-	va_list vaList;
-	va_start(vaList, formatString);
 	while ((vsnret = vsnprintf(&formatBuffer[0], formatBuffer.size(), formatString, vaList)) < 0 || static_cast<unsigned int>(vsnret) >= formatBuffer.size())
 		formatBuffer.resize(formatBuffer.size() * 2);
-	va_end(vaList);
 	return &formatBuffer[0];
+}
+
+const char* InspIRCd::Format(const char* formatString, ...)
+{
+	const char* ret;
+	VAFORMAT(ret, formatString, formatString);
+	return ret;
 }
 
 bool InspIRCd::ULine(const std::string& sserver)

@@ -543,7 +543,8 @@ class CoreExport InspIRCd
 	* @param ...
 	* @return The formatted string
 	*/
-	static const char* Format(const char* formatString, ...);
+	static const char* Format(const char* formatString, ...) CUSTOM_PRINTF(1, 2);
+	static const char* Format(const va_list &vaList, const char* formatString) CUSTOM_PRINTF(2, 0);
 
 	static void QuickExit(int status);
 
