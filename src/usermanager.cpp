@@ -322,13 +322,9 @@ unsigned int UserManager::LocalUserCount()
 
 void UserManager::ServerNoticeAll(const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-	va_start (argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	const std::string message = "NOTICE $" + ServerInstance->Config->ServerName + " :" + textbuffer;
+	std::string message;
+	VAFORMAT(message, text, text);
+	message = "NOTICE $" + ServerInstance->Config->ServerName + " :" + message;
 
 	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
 	{
