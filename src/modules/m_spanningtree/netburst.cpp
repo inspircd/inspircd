@@ -66,18 +66,14 @@ void TreeSocket::DoBurst(TreeServer* s)
  */
 void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
-	char command[MAXBUF];
 	for (unsigned int q = 0; q < Current->ChildCount(); q++)
 	{
 		TreeServer* recursive_server = Current->GetChild(q);
 		if (recursive_server != s)
 		{
-			std::string recursive_servername = recursive_server->GetName();
-			snprintf(command, MAXBUF, ":%s SERVER %s * 0 %s :%s", Current->GetID().c_str(), recursive_servername.c_str(),
-					recursive_server->GetID().c_str(),
-					recursive_server->GetDesc().c_str());
-			this->WriteLine(command);
-			this->WriteLine(":"+recursive_server->GetID()+" VERSION :"+recursive_server->GetVersion());
+			this->WriteLine(InspIRCd::Format(":%s SERVER %s * 0 %s :%s", Current->GetID().c_str(),
+				recursive_server->GetName().c_str(), recursive_server->GetID().c_str(), recursive_server->GetDesc().c_str()));
+			this->WriteLine(":" + recursive_server->GetID() + " VERSION :" + recursive_server->GetVersion());
 			/* down to next level */
 			this->SendServers(recursive_server, s);
 		}
@@ -119,8 +115,6 @@ void TreeSocket::SendFJoins(Channel* c)
 /** Send all XLines we know about */
 void TreeSocket::SendXLines()
 {
-	char data[MAXBUF];
-
 	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
 
 	for (std::vector<std::string>::const_iterator it = types.begin(); it != types.end(); ++it)
@@ -139,15 +133,14 @@ void TreeSocket::SendXLines()
 				if (!i->second->IsBurstable())
 					break;
 
-				snprintf(data, MAXBUF, ":%s ADDLINE %s %s %s %lu %lu :%s",
-						ServerInstance->Config->GetSID().c_str(),
-						it->c_str(),
-						i->second->Displayable().c_str(),
-						i->second->source.c_str(),
-						(unsigned long)i->second->set_time,
-						(unsigned long)i->second->duration,
-						i->second->reason.c_str());
-				this->WriteLine(data);
+				this->WriteLine(InspIRCd::Format(":%s ADDLINE %s %s %s %lu %lu :%s",
+					ServerInstance->Config->GetSID().c_str(),
+					it->c_str(),
+					i->second->Displayable().c_str(),
+					i->second->source.c_str(),
+					(unsigned long)i->second->set_time,
+					(unsigned long)i->second->duration,
+					i->second->reason.c_str()));
 			}
 		}
 	}
@@ -156,16 +149,15 @@ void TreeSocket::SendXLines()
 /** Send channel topic, modes and metadata */
 void TreeSocket::SyncChannel(Channel* chan)
 {
-	char data[MAXBUF];
-
 	SendFJoins(chan);
 
 	// If the topic was ever set, send it, even if it's empty now
 	// because a new empty topic should override an old non-empty topic
 	if (chan->topicset != 0)
 	{
-		snprintf(data,MAXBUF,":%s FTOPIC %s %lu %lu %s :%s", ServerInstance->Config->GetSID().c_str(), chan->name.c_str(), (unsigned long) chan->age, (unsigned long)chan->topicset, chan->setby.c_str(), chan->topic.c_str());
-		this->WriteLine(data);
+		this->WriteLine(InspIRCd::Format(":%s FTOPIC %s %lu %lu %s :%s", ServerInstance->Config->GetSID().c_str(),
+			chan->name.c_str(), (unsigned long)chan->age, (unsigned long)chan->topicset,
+			chan->setby.c_str(), chan->topic.c_str()));
 	}
 
 	for (Extensible::ExtensibleStore::const_iterator i = chan->GetExtList().begin(); i != chan->GetExtList().end(); i++)
@@ -182,7 +174,6 @@ void TreeSocket::SyncChannel(Channel* chan)
 /** send all users and their oper state/modes */
 void TreeSocket::SendUsers()
 {
-	char data[MAXBUF];
 	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 	{
 		if (u->second->registered == REG_ALL)
@@ -190,28 +181,27 @@ void TreeSocket::SendUsers()
 			TreeServer* theirserver = Utils->FindServer(u->second->server);
 			if (theirserver)
 			{
-				snprintf(data,MAXBUF,":%s UID %s %lu %s %s %s %s %s %lu +%s :%s",
-						theirserver->GetID().c_str(),	/* Prefix: SID */
-						u->second->uuid.c_str(),	/* 0: UUID */
-						(unsigned long)u->second->age,	/* 1: TS */
-						u->second->nick.c_str(),	/* 2: Nick */
-						u->second->host.c_str(),	/* 3: Displayed Host */
-						u->second->dhost.c_str(),	/* 4: Real host */
-						u->second->ident.c_str(),	/* 5: Ident */
-						u->second->GetIPString().c_str(),	/* 6: IP string */
-						(unsigned long)u->second->signon, /* 7: Signon time for WHOWAS */
-						u->second->FormatModes(true),	/* 8...n: Modes and params */
-						u->second->fullname.c_str());	/* size-1: GECOS */
-				this->WriteLine(data);
+				this->WriteLine(InspIRCd::Format(":%s UID %s %lu %s %s %s %s %s %lu +%s :%s",
+					theirserver->GetID().c_str(),     // Prefix: SID
+					u->second->uuid.c_str(),          // 0: UUID
+					(unsigned long)u->second->age,    // 1: TS
+					u->second->nick.c_str(),          // 2: Nick
+					u->second->host.c_str(),          // 3: Real host
+					u->second->dhost.c_str(),         // 4: Display host
+					u->second->ident.c_str(),         // 5: Ident
+					u->second->GetIPString().c_str(), // 6: IP address
+					(unsigned long)u->second->signon, // 7: Signon time
+					u->second->FormatModes(true),     // 8...n: User modes and params
+					u->second->fullname.c_str()));    // size-1: GECOS
+
 				if (u->second->IsOper())
 				{
-					snprintf(data,MAXBUF,":%s OPERTYPE :%s", u->second->uuid.c_str(), u->second->oper->name.c_str());
-					this->WriteLine(data);
+					this->WriteLine(InspIRCd::Format(":%s OPERTYPE :%s", u->second->uuid.c_str(), u->second->oper->name.c_str()));
 				}
 				if (u->second->IsAway())
 				{
-					snprintf(data,MAXBUF,":%s AWAY %ld :%s", u->second->uuid.c_str(), (long)u->second->awaytime, u->second->awaymsg.c_str());
-					this->WriteLine(data);
+					this->WriteLine(InspIRCd::Format(":%s AWAY %ld :%s", u->second->uuid.c_str(), (long)u->second->awaytime,
+						u->second->awaymsg.c_str()));
 				}
 			}
 

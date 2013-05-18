@@ -194,12 +194,13 @@ class CommandCheck : public Command
 			/* note that unlike /names, we do NOT check +i vs in the channel */
 			for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 			{
-				char tmpbuf[MAXBUF];
 				/*
-				 * Unlike Asuka, I define a clone as coming from the same host. --w00t
-				 */
-				snprintf(tmpbuf, MAXBUF, "%-3lu %s%s (%s@%s) %s ", ServerInstance->Users->GlobalCloneCount(i->first), targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(), i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
-				user->SendText(checkstr + " member " + tmpbuf);
+			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t
+			 	 */
+				user->SendText("%s member %-3lu %s%s (%s@%s) %s ",
+					checkstr.c_str(), ServerInstance->Users->GlobalCloneCount(i->first),
+					targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(),
+					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
 			}
 
 			// We know that the mode handler for bans is in the core and is derived from ListModeBase
