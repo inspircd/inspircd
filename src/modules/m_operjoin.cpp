@@ -83,7 +83,7 @@ class ModuleOperjoin : public Module
 				return;
 
 			for (std::vector<std::string>::const_iterator i = operChans.begin(); i != operChans.end(); ++i)
-				if (ServerInstance->IsChannel(*i, ServerInstance->Config->Limits.ChanMax))
+				if (ServerInstance->IsChannel(*i))
 					Channel::JoinUser(localuser, *i, override);
 
 			std::string chanList = localuser->oper->getConfig("autojoin");
@@ -93,7 +93,7 @@ class ModuleOperjoin : public Module
 				tokenize(chanList, typechans);
 				for (std::vector<std::string>::const_iterator it = typechans.begin(); it != typechans.end(); ++it)
 				{
-					if (ServerInstance->IsChannel(*it, ServerInstance->Config->Limits.ChanMax))
+					if (ServerInstance->IsChannel(*it))
 					{
 						Channel::JoinUser(localuser, *it, override);
 					}

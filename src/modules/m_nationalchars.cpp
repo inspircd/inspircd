@@ -31,12 +31,12 @@
 
 /* $ModDesc: Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING */
 
-class lwbNickHandler : public HandlerBase2<bool, const std::string&, size_t>
+class lwbNickHandler : public HandlerBase1<bool, const std::string&>
 {
  public:
 	lwbNickHandler() { }
 	~lwbNickHandler() { }
-	bool Call(const std::string&, size_t);
+	bool Call(const std::string&);
 };
 
 								 /*,m_reverse_additionalUp[256];*/
@@ -71,7 +71,7 @@ char utf8size(unsigned char * mb)
 
 
 /* Conditions added */
-bool lwbNickHandler::Call(const std::string& nick, size_t max)
+bool lwbNickHandler::Call(const std::string& nick)
 {
 	if (nick.empty())
 		return false;
@@ -216,7 +216,7 @@ bool lwbNickHandler::Call(const std::string& nick, size_t max)
 	}
 
 	/* too long? or not -- pointer arithmetic rocks */
-	return (p < max);
+	return (p < ServerInstance->Config->Limits.NickMax);
 }
 
 
@@ -225,7 +225,7 @@ class ModuleNationalChars : public Module
 	lwbNickHandler myhandler;
 	std::string charset, casemapping;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	caller2<bool, const std::string&, size_t> rememberer;
+	caller1<bool, const std::string&> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 
@@ -274,7 +274,7 @@ class ModuleNationalChars : public Module
 		{
 			/* Fix by Brain: Dont quit UID users */
 			User* n = *iter;
-			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick, ServerInstance->Config->Limits.NickMax))
+			if (!isdigit(n->nick[0]) && !ServerInstance->IsNick(n->nick))
 				ServerInstance->Users->QuitUser(n, message);
 		}
 	}
