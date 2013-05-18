@@ -49,7 +49,7 @@ class ModuleHTTPAccessList : public Module
 
  public:
 
-	void ReadConfig()
+	void OnRehash(User* user)
 	{
 		acl_list.clear();
 		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
@@ -95,8 +95,8 @@ class ModuleHTTPAccessList : public Module
 
 	void init()
 	{
-		ReadConfig();
-		Implementation eventlist[] = { I_OnEvent };
+		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnEvent, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
