@@ -220,18 +220,8 @@ const std::string& User::MakeHost()
 	if (!this->cached_makehost.empty())
 		return this->cached_makehost;
 
-	char nhost[MAXBUF];
-	/* This is much faster than snprintf */
-	char* t = nhost;
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = host.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_makehost.assign(nhost);
-
+	// XXX: Is there really a need to cache this?
+	this->cached_makehost = ident + "@" + host;
 	return this->cached_makehost;
 }
 
@@ -240,18 +230,8 @@ const std::string& User::MakeHostIP()
 	if (!this->cached_hostip.empty())
 		return this->cached_hostip;
 
-	char ihost[MAXBUF];
-	/* This is much faster than snprintf */
-	char* t = ihost;
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = this->GetIPString().c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_hostip = ihost;
-
+	// XXX: Is there really a need to cache this?
+	this->cached_hostip = ident + "@" + this->GetIPString();
 	return this->cached_hostip;
 }
 
@@ -260,33 +240,9 @@ const std::string& User::GetFullHost()
 	if (!this->cached_fullhost.empty())
 		return this->cached_fullhost;
 
-	char result[MAXBUF];
-	char* t = result;
-	for(const char* n = nick.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '!';
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = dhost.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_fullhost = result;
-
+	// XXX: Is there really a need to cache this?
+	this->cached_fullhost = nick + "!" + ident + "@" + dhost;
 	return this->cached_fullhost;
-}
-
-char* User::MakeWildHost()
-{
-	static char nresult[MAXBUF];
-	char* t = nresult;
-	*t++ = '*';	*t++ = '!';
-	*t++ = '*';	*t++ = '@';
-	for(const char* n = dhost.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-	return nresult;
 }
 
 const std::string& User::GetFullRealHost()
@@ -294,20 +250,8 @@ const std::string& User::GetFullRealHost()
 	if (!this->cached_fullrealhost.empty())
 		return this->cached_fullrealhost;
 
-	char fresult[MAXBUF];
-	char* t = fresult;
-	for(const char* n = nick.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '!';
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = host.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_fullrealhost = fresult;
-
+	// XXX: Is there really a need to cache this?
+	this->cached_fullrealhost = nick + "!" + ident + "@" + host;
 	return this->cached_fullrealhost;
 }
 

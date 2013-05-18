@@ -155,7 +155,7 @@ class ModuleMsgFlood : public Module
 					std::vector<std::string> parameters;
 					parameters.push_back(dest->name);
 					parameters.push_back("+b");
-					parameters.push_back(user->MakeWildHost());
+					parameters.push_back("*!*@" + user->dhost);
 					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
 				}
 

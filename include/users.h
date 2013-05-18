@@ -481,12 +481,6 @@ class CoreExport User : public Extensible
 	 */
 	virtual bool HasModePermission(unsigned char mode, ModeType type);
 
-	/** Creates a wildcard host.
-	 * Takes a buffer to use and fills the given buffer with the host in the format *!*\@hostname
-	 * @return The wildcarded hostname in *!*\@host form
-	 */
-	char* MakeWildHost();
-
 	/** Creates a usermask with real host.
 	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user\@host
 	 * @return the usermask in the format user\@host
