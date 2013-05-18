@@ -32,6 +32,8 @@ class CoreExport UserManager
 	 */
 	clonemap local_clones;
  public:
+	UserManager();
+
 	~UserManager()
 	{
 		for (user_hash::iterator i = clientlist->begin();i != clientlist->end();i++)

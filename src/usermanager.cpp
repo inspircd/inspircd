@@ -24,6 +24,11 @@
 #include "xline.h"
 #include "bancache.h"
 
+UserManager::UserManager()
+	: unregistered_count(0), local_count(0)
+{
+}
+
 /* add a client connection to the sockets list */
 void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
