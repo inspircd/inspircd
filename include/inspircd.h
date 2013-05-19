@@ -82,20 +82,19 @@ CoreExport extern InspIRCd* ServerInstance;
  */
 template<typename T> inline std::string ConvNumeric(const T &in)
 {
-	if (in == 0) return "0";
-	char res[MAXBUF];
-	char* out = res;
+	if (in == 0)
+		return "0";
 	T quotient = in;
-	while (quotient) {
-		*out = "0123456789"[ std::abs( (long)quotient % 10 ) ];
-		++out;
+	std::string out;
+	while (quotient)
+	{
+		out += "0123456789"[ std::abs( (long)quotient % 10 ) ];
 		quotient /= 10;
 	}
 	if (in < 0)
-		*out++ = '-';
-	*out = 0;
-	std::reverse(res,out);
-	return res;
+		out += '-';
+	std::reverse(out.begin(), out.end());
+	return out;
 }
 
 /** Template function to convert any input type to std::string
