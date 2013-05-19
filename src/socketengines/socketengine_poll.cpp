@@ -137,13 +137,13 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 	{
-		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
 		return false;
 	}
 
 	if (fd_mappings.find(fd) != fd_mappings.end())
 	{
-		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Attempt to add duplicate fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
 		return false;
 	}
 
@@ -154,7 +154,7 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 	events[index].fd = fd;
 	events[index].events = mask_to_poll(event_mask);
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);
 	SocketEngine::SetEventMask(eh, event_mask);
 	CurrentSetSize++;
 	return true;
@@ -173,7 +173,7 @@ void PollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	std::map<int, unsigned int>::iterator it = fd_mappings.find(eh->GetFd());
 	if (it == fd_mappings.end())
 	{
-		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"SetEvents() on unknown fd: %d", eh->GetFd());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "SetEvents() on unknown fd: %d", eh->GetFd());
 		return;
 	}
 
@@ -192,7 +192,7 @@ void PollEngine::DelFd(EventHandler* eh)
 	std::map<int, unsigned int>::iterator it = fd_mappings.find(fd);
 	if (it == fd_mappings.end())
 	{
-		ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"DelFd() on unknown fd: %d", fd);
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DelFd() on unknown fd: %d", fd);
 		return;
 	}
 

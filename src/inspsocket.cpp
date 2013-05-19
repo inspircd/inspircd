@@ -112,7 +112,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout, ServerInstance->Time());
 	ServerInstance->Timers->AddTimer(this->Timeout);
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"BufferedSocket::DoConnect success");
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BufferedSocket::DoConnect success");
 	return I_ERR_NONE;
 }
 
@@ -130,7 +130,7 @@ void StreamSocket::Close()
 			}
 			catch (CoreException& modexcept)
 			{
-				ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT,"%s threw an exception: %s",
+				ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
 					modexcept.GetSource(), modexcept.GetReason());
 			}
 			IOHook = NULL;
@@ -317,7 +317,7 @@ void StreamSocket::DoWrite()
 		}
 		catch (CoreException& modexcept)
 		{
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"%s threw an exception: %s",
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "%s threw an exception: %s",
 				modexcept.GetSource(), modexcept.GetReason());
 		}
 	}
@@ -433,7 +433,7 @@ void StreamSocket::WriteData(const std::string &data)
 
 bool SocketTimeout::Tick(time_t)
 {
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"SocketTimeout::Tick");
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "SocketTimeout::Tick");
 
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
 		return false;

@@ -35,7 +35,7 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 
 void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats)
 {
-	ServerInstance->Logs->Log("map",LOG_DEBUG,"ShowMap depth %d on line %d", depth, line);
+	ServerInstance->Logs->Log("map", LOG_DEBUG, "ShowMap depth %d on line %d", depth, line);
 	float percent;
 
 	if (ServerInstance->Users->clientlist->size() == 0)
@@ -171,7 +171,7 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 
 	float avg_users = totusers * 1.0 / line;
 
-	ServerInstance->Logs->Log("map",LOG_DEBUG,"local");
+	ServerInstance->Logs->Log("map", LOG_DEBUG, "local");
 	for (int t = 0; t < line; t++)
 	{
 		// terminate the string at maxnamew characters

@@ -154,7 +154,7 @@ void TreeSocket::SendError(const std::string &errormessage)
 void TreeSocket::SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users)
 {
 	std::string servername = Current->GetName();
-	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"SquitServer for %s from %s",
+	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "SquitServer for %s from %s",
 		servername.c_str(), from.c_str());
 	/* recursively squit the servers attached to 'Current'.
 	 * We're going backwards so we don't remove users
@@ -216,7 +216,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		}
 	}
 	else
-		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Squit from unknown server");
+		ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Squit from unknown server");
 }
 
 /** This function is called when we receive data from a remote

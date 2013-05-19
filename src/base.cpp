@@ -198,8 +198,7 @@ CullResult Extensible::cull()
 Extensible::~Extensible()
 {
 	if (!extensions.empty() && ServerInstance && ServerInstance->Logs)
-		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG,
-			"Extensible destructor called without cull @%p", (void*)this);
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
 }
 
 LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)

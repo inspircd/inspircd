@@ -112,7 +112,7 @@ class ModuleHTTPAccessList : public Module
 	{
 		if (event.id == "httpd_acl")
 		{
-			ServerInstance->Logs->Log("m_http_stats", LOG_DEBUG,"Handling httpd acl event");
+			ServerInstance->Logs->Log("m_http_stats", LOG_DEBUG, "Handling httpd acl event");
 			HTTPRequest* http = (HTTPRequest*)&event;
 
 			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)

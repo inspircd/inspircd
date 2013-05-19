@@ -230,13 +230,13 @@ bool InspIRCd::DaemonSeed()
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to getrlimit()!");
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to getrlimit()!");
 		return false;
 	}
 	rl.rlim_cur = rl.rlim_max;
 
 	if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Logs->Log("STARTUP",LOG_DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setrlimit() failed, cannot increase coredump size.");
 
 	return true;
 #endif
@@ -257,7 +257,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	else
 	{
 		std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
-		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
 #endif
@@ -440,7 +440,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #endif
 		{
 			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
-			this->Logs->Log("STARTUP",LOG_DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
 			Exit(EXIT_STATUS_CONFIG);
 		}
 	}
@@ -571,7 +571,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	}
 	else
 	{
-		Logs->Log("STARTUP", LOG_DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+		Logs->Log("STARTUP", LOG_DEFAULT, "Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
 	/* Set win32 service as running, if we are running as a service */
@@ -695,7 +695,7 @@ int InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
-			this->Logs->Log("CONFIG",LOG_DEBUG,"Detected ConfigThread exiting, tidying up...");
+			this->Logs->Log("CONFIG", LOG_DEBUG, "Detected ConfigThread exiting, tidying up...");
 
 			this->ConfigThread->Finish();
 

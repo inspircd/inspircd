@@ -37,7 +37,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	}
 	catch (...)
 	{
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT,"*** WTF *** Duplicated UUID! -- Crack smoking monkeys have been unleashed.");
+		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "*** WTF *** Duplicated UUID! -- Crack smoking monkeys have been unleashed.");
 		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
@@ -54,11 +54,11 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 		catch (CoreException& modexcept)
 		{
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
 		}
 	}
 
-	ServerInstance->Logs->Log("USERS", LOG_DEBUG,"New user fd: %d", socket);
+	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
 
 	this->unregistered_count++;
 
@@ -135,7 +135,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	if (!ServerInstance->SE->AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
-		ServerInstance->Logs->Log("USERS", LOG_DEBUG,"Internal error on new connection");
+		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");
 	}
 

@@ -44,7 +44,7 @@ static bool WriteDatabase()
 	f = fopen(tempname.c_str(), "w");
 	if (!f)
 	{
-		ServerInstance->Logs->Log("m_permchannels",LOG_DEFAULT, "permchannels: Cannot create database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot create database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}
@@ -95,7 +95,7 @@ static bool WriteDatabase()
 	write_error |= fclose(f);
 	if (write_error)
 	{
-		ServerInstance->Logs->Log("m_permchannels",LOG_DEFAULT, "permchannels: Cannot write to new database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot write to new database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}
@@ -103,7 +103,7 @@ static bool WriteDatabase()
 #ifdef _WIN32
 	if (remove(permchannelsconf.c_str()))
 	{
-		ServerInstance->Logs->Log("m_permchannels",LOG_DEFAULT, "permchannels: Cannot remove old database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot remove old database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
 		return false;
 	}
@@ -111,7 +111,7 @@ static bool WriteDatabase()
 	// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 	if (rename(tempname.c_str(), permchannelsconf.c_str()) < 0)
 	{
-		ServerInstance->Logs->Log("m_permchannels",LOG_DEFAULT, "permchannels: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot move new to old database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}

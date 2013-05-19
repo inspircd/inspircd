@@ -97,7 +97,7 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 		Modules[name] = mod;
 		if (defer)
 		{
-			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT,"New module introduced: %s", name.c_str());
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s", name.c_str());
 			return true;
 		}
 		else

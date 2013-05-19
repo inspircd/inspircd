@@ -62,7 +62,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		 * Nick collision.
 		 */
 		int collide = sock->DoCollision(iter->second, age_t, params[5], params[6], params[0]);
-		ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"*** Collision on %s, collide=%d", params[2].c_str(), collide);
+		ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)
 		{

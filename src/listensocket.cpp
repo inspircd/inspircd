@@ -74,10 +74,10 @@ ListenSocket::~ListenSocket()
 	if (this->GetFd() > -1)
 	{
 		ServerInstance->SE->DelFd(this);
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"Shut down listener on fd %d", this->fd);
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
 		ServerInstance->SE->Shutdown(this, 2);
 		if (ServerInstance->SE->Close(this) != 0)
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG,"Failed to cancel listener: %s", strerror(errno));
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
 }
@@ -91,7 +91,7 @@ void ListenSocket::AcceptInternal()
 	socklen_t length = sizeof(client);
 	int incomingSockfd = ServerInstance->SE->Accept(this, &client.sa, &length);
 
-	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
 		ServerInstance->stats->statsRefused++;
@@ -174,7 +174,7 @@ void ListenSocket::AcceptInternal()
 	else
 	{
 		ServerInstance->stats->statsRefused++;
-		ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"Refusing connection on %s - %s",
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
 			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 		ServerInstance->SE->Close(incomingSockfd);
 	}
@@ -185,10 +185,10 @@ void ListenSocket::HandleEvent(EventType e, int err)
 	switch (e)
 	{
 		case EVENT_ERROR:
-			ServerInstance->Logs->Log("SOCKET",LOG_DEFAULT,"ListenSocket::HandleEvent() received a socket engine error event! well shit! '%s'", strerror(err));
+			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ListenSocket::HandleEvent() received a socket engine error event! well shit! '%s'", strerror(err));
 			break;
 		case EVENT_WRITE:
-			ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"*** BUG *** ListenSocket::HandleEvent() got a WRITE event!!!");
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "*** BUG *** ListenSocket::HandleEvent() got a WRITE event!!!");
 			break;
 		case EVENT_READ:
 			this->AcceptInternal();

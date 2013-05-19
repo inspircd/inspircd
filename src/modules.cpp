@@ -393,7 +393,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	Modules.erase(modfind);
 	ServerInstance->GlobalCulls.AddItem(mod);
 
-	ServerInstance->Logs->Log("MODULE", LOG_DEFAULT,"Module %s unloaded",mod->ModuleSourceFile.c_str());
+	ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Module %s unloaded",mod->ModuleSourceFile.c_str());
 	this->ModCount--;
 	ServerInstance->ISupport.Build();
 }
