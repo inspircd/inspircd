@@ -601,7 +601,7 @@ class CoreExport User : public Extensible
 	 * @param LinePrefix text to prefix each complete line with
 	 * @param TextStream the text to send to the user
 	 */
-	void SendText(const std::string &LinePrefix, std::stringstream &TextStream);
+	void SendText(const std::string& linePrefix, std::stringstream& textStream);
 
 	/** Write to the user, routing the line if the user is remote.
 	 */

@@ -1159,28 +1159,21 @@ void User::SendText(const char *text, ...)
 	SendText(line);
 }
 
-void User::SendText(const std::string &LinePrefix, std::stringstream &TextStream)
+void User::SendText(const std::string& linePrefix, std::stringstream& textStream)
 {
-	char line[MAXBUF];
-	int start_pos = LinePrefix.length();
-	int pos = start_pos;
-	memcpy(line, LinePrefix.data(), pos);
-	std::string Word;
-	while (TextStream >> Word)
+	std::string line;
+	std::string word;
+	while (textStream >> word)
 	{
-		int len = Word.length();
-		if (pos + len + 12 > MAXBUF)
+		size_t lineLength = linePrefix.length() + line.length() + word.length() + 3; // "\s\n\r"
+		if (lineLength > ServerInstance->Config->Limits.MaxLine)
 		{
-			line[pos] = '\0';
-			SendText(std::string(line));
-			pos = start_pos;
+			SendText(linePrefix + line);
+			line.clear();
 		}
-		line[pos] = ' ';
-		memcpy(line + pos + 1, Word.data(), len);
-		pos += len + 1;
+		line += " " + word;
 	}
-	line[pos] = '\0';
-	SendText(std::string(line));
+	SendText(linePrefix + line);
 }
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels
