@@ -595,17 +595,12 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 
 void Channel::WriteChannel(User* user, const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
 	if (!user || !text)
 		return;
 
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteChannel(user, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteChannel(user, textbuffer);
 }
 
 void Channel::WriteChannel(User* user, const std::string &text)
@@ -624,17 +619,12 @@ void Channel::WriteChannel(User* user, const std::string &text)
 
 void Channel::WriteChannelWithServ(const std::string& ServName, const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
 	if (!text)
 		return;
 
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteChannelWithServ(ServName, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteChannelWithServ(ServName, textbuffer);
 }
 
 void Channel::WriteChannelWithServ(const std::string& ServName, const std::string &text)
@@ -652,34 +642,23 @@ void Channel::WriteChannelWithServ(const std::string& ServName, const std::strin
  * for the sender (for privmsg etc) */
 void Channel::WriteAllExceptSender(User* user, bool serversource, char status, const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
 	if (!text)
 		return;
 
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteAllExceptSender(user, serversource, status, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteAllExceptSender(user, serversource, status, textbuffer);
 }
 
 void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
 	if (!text)
 		return;
 
-	int offset = snprintf(textbuffer,MAXBUF,":%s ", serversource ? ServerInstance->Config->ServerName.c_str() : user->GetFullHost().c_str());
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer + offset, MAXBUF - offset, text, argsPtr);
-	va_end(argsPtr);
-
-	this->RawWriteAllExcept(user, serversource, status, except_list, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	textbuffer = ":" + (serversource ? ServerInstance->Config->ServerName : user->GetFullHost()) + " " + textbuffer;
+	this->RawWriteAllExcept(user, serversource, status, except_list, textbuffer);
 }
 
 void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const std::string &text)

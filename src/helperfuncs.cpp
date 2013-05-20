@@ -372,13 +372,9 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const std::str
 
 void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-	va_start (argsPtr, format);
-	vsnprintf(textbuffer, MAXBUF, format, argsPtr);
-	va_end(argsPtr);
-
-	this->SendWhoisLine(user, dest, numeric, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, format, format)
+	this->SendWhoisLine(user, dest, numeric, textbuffer);
 }
 
 /** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
@@ -424,17 +420,20 @@ unsigned long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
-const char* InspIRCd::Format(const char* formatString, ...)
+const char* InspIRCd::Format(const va_list &vaList, const char* formatString)
 {
 	static std::vector<char> formatBuffer(1024);
 	int vsnret = 0;
-
-	va_list vaList;
-	va_start(vaList, formatString);
 	while ((vsnret = vsnprintf(&formatBuffer[0], formatBuffer.size(), formatString, vaList)) < 0 || static_cast<unsigned int>(vsnret) >= formatBuffer.size())
 		formatBuffer.resize(formatBuffer.size() * 2);
-	va_end(vaList);
 	return &formatBuffer[0];
+}
+
+const char* InspIRCd::Format(const char* formatString, ...)
+{
+	const char* ret;
+	VAFORMAT(ret, formatString, formatString);
+	return ret;
 }
 
 bool InspIRCd::ULine(const std::string& sserver)

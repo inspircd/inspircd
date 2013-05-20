@@ -1016,14 +1016,9 @@ void LocalUser::Write(const std::string& text)
  */
 void LocalUser::Write(const char *text, ...)
 {
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->Write(std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->Write(textbuffer);
 }
 
 void User::WriteServ(const std::string& text)
@@ -1036,14 +1031,9 @@ void User::WriteServ(const std::string& text)
  */
 void User::WriteServ(const char* text, ...)
 {
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteServ(std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteServ(textbuffer);
 }
 
 void User::WriteNotice(const std::string& text)
@@ -1053,14 +1043,9 @@ void User::WriteNotice(const std::string& text)
 
 void User::WriteNumeric(unsigned int numeric, const char* text, ...)
 {
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteNumeric(numeric, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteNumeric(numeric, textbuffer);
 }
 
 void User::WriteNumeric(unsigned int numeric, const std::string &text)
@@ -1088,14 +1073,9 @@ void User::WriteFrom(User *user, const std::string &text)
 
 void User::WriteFrom(User *user, const char* text, ...)
 {
-	va_list argsPtr;
-	char textbuffer[MAXBUF];
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteFrom(user, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	this->WriteFrom(user, textbuffer);
 }
 
 
@@ -1103,14 +1083,9 @@ void User::WriteFrom(User *user, const char* text, ...)
 
 void User::WriteTo(User *dest, const char *data, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
-	va_start(argsPtr, data);
-	vsnprintf(textbuffer, MAXBUF, data, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteTo(dest, std::string(textbuffer));
+	std::string textbuffer;
+	VAFORMAT(textbuffer, data, data);
+	this->WriteTo(dest, textbuffer);
 }
 
 void User::WriteTo(User *dest, const std::string &data)
@@ -1120,36 +1095,24 @@ void User::WriteTo(User *dest, const std::string &data)
 
 void User::WriteCommon(const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
 	if (this->registered != REG_ALL || quitting)
 		return;
 
-	int len = snprintf(textbuffer,MAXBUF,":%s ",this->GetFullHost().c_str());
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer + len, MAXBUF - len, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteCommonRaw(std::string(textbuffer), true);
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	textbuffer = ":" + this->GetFullHost() + " " + textbuffer;
+	this->WriteCommonRaw(textbuffer, true);
 }
 
 void User::WriteCommonExcept(const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
 	if (this->registered != REG_ALL || quitting)
 		return;
 
-	int len = snprintf(textbuffer,MAXBUF,":%s ",this->GetFullHost().c_str());
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer + len, MAXBUF - len, text, argsPtr);
-	va_end(argsPtr);
-
-	this->WriteCommonRaw(std::string(textbuffer), false);
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
+	textbuffer = ":" + this->GetFullHost() + " " + textbuffer;
+	this->WriteCommonRaw(textbuffer, false);
 }
 
 void User::WriteCommonRaw(const std::string &line, bool include_self)
@@ -1248,14 +1211,9 @@ void FakeUser::SendText(const std::string& line)
 
 void User::SendText(const char *text, ...)
 {
-	va_list argsPtr;
-	char line[MAXBUF];
-
-	va_start(argsPtr, text);
-	vsnprintf(line, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
-	SendText(std::string(line));
+	std::string line;
+	VAFORMAT(line, text, text);
+	SendText(line);
 }
 
 void User::SendText(const std::string &LinePrefix, std::stringstream &TextStream)
@@ -1445,13 +1403,8 @@ bool User::ChangeIdent(const char* newident)
 
 void User::SendAll(const char* command, const char* text, ...)
 {
-	char textbuffer[MAXBUF];
-	va_list argsPtr;
-
-	va_start(argsPtr, text);
-	vsnprintf(textbuffer, MAXBUF, text, argsPtr);
-	va_end(argsPtr);
-
+	std::string textbuffer;
+	VAFORMAT(textbuffer, text, text);
 	const std::string message = ":" + this->GetFullHost() + " " + command + " $* :" + textbuffer;
 
 	for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)

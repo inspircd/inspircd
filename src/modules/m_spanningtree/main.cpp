@@ -380,12 +380,8 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
  */
 void ModuleSpanningTree::RemoteMessage(User* user, const char* format, ...)
 {
-	char text[MAXBUF];
-	va_list argsPtr;
-
-	va_start(argsPtr, format);
-	vsnprintf(text, MAXBUF, format, argsPtr);
-	va_end(argsPtr);
+	std::string text;
+	VAFORMAT(text, format, format);
 
 	if (IS_LOCAL(user))
 		user->WriteNotice(text);

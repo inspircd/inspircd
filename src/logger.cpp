@@ -296,18 +296,11 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...)
 {
 	if (Logging)
-	{
 		return;
-	}
 
-	va_list a;
-	static char buf[65536];
-
-	va_start(a, fmt);
-	vsnprintf(buf, 65536, fmt, a);
-	va_end(a);
-
-	this->Log(type, loglevel, std::string(buf));
+	std::string buf;
+	VAFORMAT(buf, fmt, fmt);
+	this->Log(type, loglevel, buf);
 }
 
 void LogManager::Log(const std::string &type, int loglevel, const std::string &msg)
