@@ -403,7 +403,7 @@ class CoreExport User : public Extensible
 	/** Create a displayable mode string for this users snomasks
 	 * @return The notice mask character sequence
 	 */
-	const char* FormatNoticeMasks();
+	std::string FormatNoticeMasks();
 
 	/** Process a snomask modifier string, e.g. +abc-de
 	 * @param sm A sequence of notice mask characters

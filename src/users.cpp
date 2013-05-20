@@ -122,18 +122,16 @@ void User::SetNoticeMask(unsigned char sm, bool value)
 	snomasks[sm-65] = value;
 }
 
-const char* User::FormatNoticeMasks()
+std::string User::FormatNoticeMasks()
 {
-	static char data[MAXBUF];
-	int offset = 0;
+	std::string data;
 
-	for (int n = 0; n < 64; n++)
+	for (unsigned char n = 0; n < 64; n++)
 	{
 		if (snomasks[n])
-			data[offset++] = n+65;
+			data.push_back(n + 65); 
 	}
 
-	data[offset] = 0;
 	return data;
 }
 

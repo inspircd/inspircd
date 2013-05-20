@@ -190,7 +190,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 			/* Display user's current mode string */
 			user->WriteNumeric(RPL_UMODEIS, "%s :+%s",targetuser->nick.c_str(),targetuser->FormatModes());
 			if ((targetuser->IsOper()))
-				user->WriteNumeric(RPL_SNOMASKIS, "%s +%s :Server notice mask", targetuser->nick.c_str(), targetuser->FormatNoticeMasks());
+				user->WriteNumeric(RPL_SNOMASKIS, "%s +%s :Server notice mask", targetuser->nick.c_str(), targetuser->FormatNoticeMasks().c_str());
 			return;
 		}
 		else

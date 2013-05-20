@@ -152,7 +152,7 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 	{
 		if (dest->IsModeSet('s') != 0)
 		{
-			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes(), dest->FormatNoticeMasks());
+			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes(), dest->FormatNoticeMasks().c_str());
 		}
 		else
 		{
