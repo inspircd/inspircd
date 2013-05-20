@@ -420,7 +420,7 @@ unsigned long InspIRCd::Duration(const std::string &str)
 	return total + subtotal;
 }
 
-const char* InspIRCd::Format(const va_list &vaList, const char* formatString)
+const char* InspIRCd::Format(va_list &vaList, const char* formatString)
 {
 	static std::vector<char> formatBuffer(1024);
 	int vsnret = 0;
