@@ -85,7 +85,7 @@
 # if defined __GXX_EXPERIMENTAL_CXX0X__
 #  define HAS_CXX11_VARIADIC_TEMPLATES
 # endif
-#elif _MSC_VER >= 1700
+#elif _MSC_FULL_VER >= 170051025
 # define HAS_CXX11_VARIADIC_TEMPLATES
 #endif
 
