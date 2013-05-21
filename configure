@@ -3,6 +3,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
+#   Copyright (C) 2013 InspIRCd.org
 #   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
 #   Copyright (C) 2007, 2009 Dennis Friis <peavey@inspircd.org>
 #   Copyright (C) 2003, 2006-2008 Craig Edwards <craigedwards@brainbox.cc>
@@ -99,9 +100,9 @@ GetOptions (
 	'help'	=> sub { showhelp(); },
 	'update' => sub { update(); },
 	'clean' => sub { clean(); },
-	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
-	'enable-extras=s@' => \@opt_enableextras, # ^
-	'disable-extras=s@' => \@opt_disableextras, # ^
+	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, & --disable-extras are for non-interactive managing
+	'enable-extras=s@' => \@opt_enableextras, #     " "
+	'disable-extras=s@' => \@opt_disableextras, #    " "
 	'generate-openssl-cert' => sub { make_openssl_cert(); exit(0); },
 	'generate-gnutls-cert' => sub { make_gnutls_cert(); exit(0); }
 );
@@ -112,7 +113,7 @@ if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
 	enable_extras(@opt_enableextras);
 	disable_extras(@opt_disableextras);
 	list_extras;
-	print "Remember: YOU are responsible for making sure any libraries needed have been installed!\n";
+	print "Remember: YOU are responsible for making sure any required libraries have been installed!\n";
 	exit 0;
 }
 
@@ -142,11 +143,11 @@ our $interactive = !(
 );
 
 chomp(our $topdir = getcwd());
-our $this = resolve_directory($topdir);						# PWD, Regardless.
-our @modlist = ();							  		# Declare for Module List..
-our %config = ();						   			# Initiate Configuration Hash..
+our $this = resolve_directory($topdir);							# PWD, regardless...
+our @modlist = ();							  		# Declare for Module list...
+our %config = ();						   			# Initiate configuration hash...
 our $cache_loaded = getcache();
-$config{ME} = resolve_directory($topdir);				# Present Working Directory
+$config{ME} = resolve_directory($topdir);						# Present working directory
 
 $config{BASE_DIR} = $config{ME}."/run";
 
@@ -161,15 +162,15 @@ if (defined $opt_system) {
 	$config{CONFIG_DIR}	 = '/etc/inspircd';
 	$config{MODULE_DIR}	 = '/usr/lib/inspircd';
 	$config{BINARY_DIR}	 = '/usr/sbin/';
-	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
+	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");		# Build directory
 	$config{DATA_DIR}	 = '/var/inspircd';
 	$config{LOG_DIR}	 = '/var/log/inspircd';
 } else {
 	$config{UID} = $opt_uid || $<;
-	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
-	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
-	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
-	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
+	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration directory
+	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules directory
+	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary directory
+	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         	# Build directory
 	$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data directory
 	$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log directory
 }
@@ -189,7 +190,7 @@ if (defined $opt_data_dir) {
 if (defined $opt_log_dir) {
 	$config{LOG_DIR} = $opt_log_dir;
 }
-chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
+chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null | cut -c 1,2,3`);	# GnuTLS version
 
 if (defined $opt_freebsd_port)
 {
@@ -201,13 +202,13 @@ else
 {
 	if ($^O eq "freebsd")
 	{
-		# default: use base ssl
-		chomp($config{HAS_OPENSSL} = `openssl version | cut -d ' ' -f 2`);			# OpenSSL version, freebsd specific
-		chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);	# Port version, may be different
+		# Default: use base SSL
+		chomp($config{HAS_OPENSSL} = `openssl version | cut -d ' ' -f 2`);			# OpenSSL version, FreeBSD-specific
+		chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);	# Port version, may differ
 	}
 	else
 	{
-		chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version, others
+		chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# OpenSSL version, others
 		$config{HAS_OPENSSL_PORT} = "";
 	}
 }
@@ -217,27 +218,27 @@ chomp(our $openssl_ver = $config{HAS_OPENSSL});
 $config{USE_GNUTLS}	    = "n";
 if (defined $opt_use_gnutls)
 {
-	$config{USE_GNUTLS} = "y";					# Use gnutls.
+	$config{USE_GNUTLS} = "y";					# use GnuTLS
 }
-$config{USE_OPENSSL}	= "n";						# Use openssl.
+$config{USE_OPENSSL}	= "n";						# use OpenSSL
 if (defined $opt_use_openssl)
 {
 	$config{USE_OPENSSL} = "y";
 }
 
 if (!defined $opt_disable_debug) {
-	$config{OPTIMISATI}	 = "-g1";			     	# Optimisation Flag
+	$config{OPTIMISATI}	 = "-g1";			     	# optimisation flag
 } else {
 	$config{OPTIMISATI}	 = "-O2";
 }
 
-$config{HAS_STRLCPY}	= "false";			  		# strlcpy Check.
-$config{HAS_STDINT}	 = "false";					# stdint.h check
+$config{HAS_STRLCPY}	= "false";			  		# check for strlcpy
+$config{HAS_STDINT}	 = "false";					# check for stdint.h
 $config{USE_KQUEUE}	 = "y";						# kqueue enabled
 if (defined $opt_nokqueue) {
 	$config{USE_KQUEUE} = "n";
 }
-$config{USE_POLL}     = "y";					# poll enabled
+$config{USE_POLL}     = "y";						# poll enabled
 $config{USE_EPOLL}	  = "y";					# epoll enabled
 if (defined $opt_noepoll)
 {
@@ -248,30 +249,30 @@ if (defined $opt_noports)
 {
 	$config{USE_PORTS} = "n";
 }
-$config{_SOMAXCONN} = SOMAXCONN;					# Max connections in accept queue
-$config{OSNAME}       	    = $^O;			      		# Operating System Name
-$config{IS_DARWIN}	  = "NO";					# Is OSX?
-$config{STARTSCRIPT}	  = "inspircd";			# start script?
-$config{DESTINATION}	  = "BASE";				# Is target path.
+$config{_SOMAXCONN} = SOMAXCONN;					# maximum connections in accept queue
+$config{OSNAME}       	    = $^O;			      		# operating system name
+$config{IS_DARWIN}	  = "NO";					# Darwin OS?
+$config{STARTSCRIPT}	  = "inspircd";					# initiate script?
+$config{DESTINATION}	  = "BASE";					# Base path
 if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{IS_DARWIN} = "YES";
-	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
-	$config{CC} 		    = "xcrun clang++";					# C++ compiler for OSX.
+	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# initiate script for Darwin OS X
+	$config{CC} 		    = "xcrun clang++";			# C++ compiler for OS X
 }
 else
 {
-	$config{CC} 		    = "g++";						# C++ compiler
+	$config{CC} 		    = "g++";				# C++ compiler
 }
 if (defined $opt_cc)
 {
 	$config{CC} = $opt_cc;
 }
 our $exec = $config{CC} . " -dumpversion | cut -c 1";
-chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
+chomp($config{GCCVER}		= `$exec`);				# major GCC version
 $exec = $config{CC} . " -dumpversion | cut -c 3";
 chomp($config{GCCMINOR}		= `$exec`);
-$config{MAXBUF}			= "512";				# Max buffer size
+$config{MAXBUF}			= "512";				# maximum buffer size
 
 if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 	$config{HAS_OPENSSL} = $1;
@@ -281,14 +282,14 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 
 if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
 	if ($config{IS_DARWIN} eq "YES") {
-		print $config{CC} . " was not found! You require clang++ (the LLVM C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
+		print $config{CC} . " was not found! You require clang++ (the LLVM C++ compiler, part of the OS X developer tools) to build InspIRCd!\n";
 	} else {
 		print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";		
 	}
 	exit;
 }
 
-# Get and Set some important vars..
+# Get & set some important variables..
 getmodules();
 
 sub clean
@@ -302,15 +303,15 @@ sub update
 {
 	eval {
 		chomp($topdir = getcwd());
-		$this = resolve_directory($topdir);					     # PWD, Regardless.
+		$this = resolve_directory($topdir);					     # PWD, regardless...
 		getmodules();
 		# Does the cache file exist?
 		if (!getcache()) {
-			# No, No it doesn't.. *BASH*
-			print "You have not run ./configure before. Please do this before trying to run the update script.\n";
+			# No, it does not exist :`( => *BASH*
+			print "You have not executed ./configure as of yet. Please run ./configure before trying to run the update script.\n";
 			exit 0;
 		} else {
-			# We've Loaded the cache file and all our variables..
+			# loaded cache file and all our variables..
 			print "Updating files...\n";
 			if (defined($opt_disable_debug) && $opt_disable_debug == 1)
 			{
@@ -344,13 +345,13 @@ sub test_compile {
 }
 
 print "Running non-interactive configure...\n" unless $interactive;
-print "Checking for cache from previous configure... ";
+print "Checking for previous configuration cache file... ";
 print ($cache_loaded ? "found\n" : "not found\n");
 $config{SYSTEM} = lc $^O;
-print "Checking operating system version... $config{SYSTEM}\n";
+print "Acquirng operating system version... $config{SYSTEM}\n";
 
 $exec = $config{CC} . " -dumpversion | cut -c 1";
-chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
+chomp($config{GCCVER}		= `$exec`);				# major GCC version
 $exec = $config{CC} . " -dumpversion | cut -c 3";
 chomp($config{GCCMINOR}		= `$exec`);
 
@@ -409,7 +410,7 @@ printf "Checking for eventfd support... ";
 $config{HAS_EVENTFD} = test_compile('eventfd') ? 'true' : 'false';
 print $config{HAS_EVENTFD} eq 'true' ? "yes\n" : "no\n";
 
-printf "Checking if Solaris I/O completion ports are available... ";
+printf "Examining if Solaris I/O completion ports are available... ";
 $has_ports = 0;
 our $system = `uname -s`;
 chomp ($system);
@@ -456,7 +457,7 @@ if (defined($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL}) || ($config{HAS_OPE
 	$config{HAS_OPENSSL} = "n";
 }
 
-printf "Checking if you are running an ancient, unsupported OS... ";
+printf "Checking to see if you are running an ancient, unsupported O.S. ... ";
 if ($config{OSNAME} =~ /FreeBSD/i)
 {
 	my $version = `uname -r`;
@@ -481,16 +482,16 @@ else
 #			  BEGIN INTERACTIVE PART			      #
 ################################################################################
 
-# Clear the Screen..
+# clear screen
 if ($interactive)
 {
 	print "\e[2J\e[0G\e[0d"; # J = Erase in Display, 2 = Entire Screen, (G, d) = Move cursor to (..,..)
 	my $wholeos = $^O;
 
 	my $rev = getrevision();
-	# Display Introduction Message..
+	# display introduction message
 	print <<"STOP" ;
-Welcome to the \e[1mInspIRCd\e[0m Configuration program! (\e[1minteractive mode\e[0m)
+Welcome to the \e[1mInspIRCd\e[0m configuration program! (\e[1minteractive mode\e[0m)
 \e[1mPackage maintainers: Type ./configure --help for non-interactive help\e[0m
 
 *** If you are unsure of any of these values, leave it blank for    ***
@@ -499,7 +500,7 @@ Welcome to the \e[1mInspIRCd\e[0m Configuration program! (\e[1minteractive mode\
 
 Press \e[1m<RETURN>\e[0m to accept the default for any option, or enter
 a new value. Please note: You will \e[1mHAVE\e[0m to read the docs
-dir, otherwise you won't have a config file!
+directory, otherwise you won't have a configuration file!
 
 Your operating system is: \e[1;32m$config{OSNAME}\e[0m ($wholeos)
 Your InspIRCd revision ID is \e[1;32mr$rev\e[0m
@@ -514,10 +515,10 @@ STOP
 
 	while (($config{GCCVER} < 3) || ($config{GCCVER} eq "")) {
 		print "\e[1;32mIMPORTANT!\e[0m A GCC 2.x compiler has been detected, and
-should NOT be used. You should probably specify a newer compiler.\n\n";
+should NOT be used. It is strongly encouraged you specify a newer compiler.\n\n";
 		yesno('CHANGE_COMPILER',"Do you want to change the compiler?");
 		if ($config{CHANGE_COMPILER} =~ /y/i) {
-			print "What command do you want to use to invoke your compiler?\n";
+			print "What command do you wish to use to invoke your compiler?\n";
 			print "[\e[1;32m$config{CC}\e[0m] -> ";
 			chomp($config{CC} = <STDIN>);
 			if ($config{CC} eq "") {
@@ -533,48 +534,48 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 				}
 			}
 			else {
-				print "\e[1;32mWARNING!\e[0m Could not execute the compiler you specified. You may want to try again.\n";
+				print "\e[1;32mWARNING!\e[0m Failure to execute the compiler you specified. You may want to try again.\n";
 			}
 		}
 	}
 
 	print "\n";
 
-	# Directory Settings..
+	# Directory settings
 	my $tmpbase = $config{BASE_DIR};
 	dir_check("do you wish to install the InspIRCd base", "BASE_DIR");
 	if ($tmpbase ne $config{BASE_DIR}) {
-		$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	   # Configuration Dir
-		$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
-		$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data Directory
-		$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log Directory
-		$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");	    # Binary Directory
+		$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration directory
+		$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules directory
+		$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data directory
+		$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log directory
+		$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary directory
 	}
 
 	dir_check("are the configuration files", "CONFIG_DIR");
 	dir_check("are the modules to be compiled to", "MODULE_DIR");
 	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
-	dir_check("are variable data files to be located in", "DATA_DIR");
-	dir_check("are the logs to be stored in", "LOG_DIR");
+	dir_check("are variable data files to be located", "DATA_DIR");
+	dir_check("are the logs to be stored", "LOG_DIR");
 	dir_check("do you want the build to take place", "BUILD_DIR");
 		
 	my $chose_hiperf = 0;
 	if ($has_kqueue) {
-		yesno('USE_KQUEUE',"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
+		yesno('USE_KQUEUE',"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, choose yes.\n\nEnable kqueue?");
 		print "\n";
 		if ($config{USE_KQUEUE} eq "y") {
 			$chose_hiperf = 1;
 		}
 	}
 	if ($has_epoll) {
-		yesno('USE_EPOLL',"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
+		yesno('USE_EPOLL',"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, choose yes.\n\nEnable epoll?");
 		print "\n";
 		if ($config{USE_EPOLL} eq "y") {
 			$chose_hiperf = 1;
 		}
 	}
 	if ($has_ports) {
-		yesno('USE_PORTS',"You are running Solaris 10.\nWould you like to enable I/O completion ports support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable support for I/O completion ports?");
+		yesno('USE_PORTS',"You are running Solaris 10.\nWould you like to enable I/O completion ports support?\nThis is likely to increase performance.\nIf you are unsure, choose yes.\n\nEnable support for I/O completion ports?");
 		print "\n";
 		if ($config{USE_PORTS} eq "y") {
 			$chose_hiperf = 1;
@@ -582,10 +583,10 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	}
 
 	if (!$chose_hiperf) {
-		yesno('USE_POLL', "Would you like to use poll?\n This is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable poll?");
+		yesno('USE_POLL', "Would you like to use poll?\n This is likely to increase performance.\nIf you are unsure, choose yes.\n\nEnable poll?");
 		if ($config{USE_POLL} ne "y")
 		{
-			print "No high-performance socket engines are available, or you chose\n";
+			print "No high-performance socket engines are available, or you have chose\n";
 			print "not to enable one. Defaulting to select() engine.\n\n";
 		}
 	}
@@ -625,56 +626,56 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 		{
 			if ($config{HAS_GNUTLS} eq "y")
 			{
-				yesno('USE_GNUTLS',"Would you like to enable SSL with m_ssl_gnutls? (recommended)");
+				yesno('USE_GNUTLS',"Would you like to enable SSL through module m_ssl_gnutls? (recommended)");
 				if ($config{USE_GNUTLS} eq "y")
 				{
-					print "\nUsing GnuTLS SSL module.\n";
+					print "\nUtilizing GnuTLS SSL module.\n";
 				}
 			}
 
 			if ($config{HAS_OPENSSL} eq "y")
 			{
-				yesno('USE_OPENSSL', "Would you like to enable SSL with m_ssl_openssl?");
+				yesno('USE_OPENSSL', "Would you like to enable SSL through module m_ssl_openssl?");
 				if ($config{USE_OPENSSL} eq "y")
 				{
-					print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
+					print "\nUtilizing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
 				}
 			}
 		}
 	}
 	else
 	{
-		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed and\n";
+		print "\nNeither OpenSSL nor GnuTLS could be detected. Make sure pkg-config is installed and\n";
 		print "is in your path.\n\n";
 	}
 
 	yesno('MODUPDATE',"Would you like to check for updates to third-party modules?");
 	print "\n";
 	if ($config{MODUPDATE} eq "y") {
-		print "Checking for upgrades to extra and third party modules... ";
+		print "Checking for upgrades to extra- and third-party modules... ";
 		system "./modulemanager upgrade";
 	}
 }
 
-# We are on a POSIX system, we can enable POSIX extras without asking
+# we are on a POSIX system => we can enable POSIX extras without asking
 symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
 
 dumphash();
 
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
 {
-	print "Sorry, but i couldn't detect gnutls. Make sure gnutls-config is in your path.\n";
+	print "Sorry, but I couldn't detect GnuTLS. Make sure gnutls-config is in your path.\n";
 	exit(0);
 }
 if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 {
-	print "Sorry, but i couldn't detect openssl. Make sure openssl is in your path.\n";
+	print "Sorry, but I couldn't detect OpenSSL. Make sure openssl is in your path.\n";
 	exit(0);
 }
 our $failed = 0;
 
 $config{CERTGEN} ||= 'y';
-yesno('CERTGEN',"Would you like generate SSL certificates now?") if ($interactive && ($config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y"));
+yesno('CERTGEN',"Would you like to generate SSL certificates now?") if ($interactive && ($config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y"));
 
 if ($config{USE_GNUTLS} eq "y") {
 	unless (-r "src/modules/m_ssl_gnutls.cpp") {
@@ -684,14 +685,14 @@ if ($config{USE_GNUTLS} eq "y") {
 	if ($interactive && $config{CERTGEN} eq 'y')
 	{
 		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
-			print "SSL Certificates Not found, Generating.. \n\n
-*************************************************************
-* Generating the Private Key may take some time, go grab a  *
-* Coffee. Even better, to generate some more entropy if it  *
-* is taking a while, open another console and type du / a   *
-* few times and get that HD going :) Then answer the        *
-* Questions which follow. If you are unsure, just hit enter *
-*************************************************************\n\n";
+			print "No current SSL certificates found, Generating.. \n\n
+**************************************************************
+* Generating the Private Key may take some time, go grab a   *
+* coffee. Even better, to generate some more entropy if it   *
+* is taking a while, open another console and type du / a    *
+* few times and get that HD going :) Then, answer the        *
+* questions which follow. If you are unsure, just hit enter! *
+**************************************************************\n\n";
 			$failed = make_gnutls_cert();
 			if ($failed) {
 				print "\n\e[1;32mCertificate generation failed!\e[0m\n\n";
@@ -703,7 +704,7 @@ if ($config{USE_GNUTLS} eq "y") {
 			}
 		}
 		else {
-			print "SSL Certificates found, skipping.\n\n";
+			print "Current SSL certificates detected, therefore skipping.\n\n";
 		}
 	}
 	else
@@ -724,7 +725,7 @@ if ($config{USE_OPENSSL} eq "y") {
 			print "SSL Certificates Not found, Generating.. \n\n
 *************************************************************
 * Generating the certificates may take some time, go grab a *
-* coffee, or something.	                                    *
+* chair to throw at someone, or something.		    *
 *************************************************************\n\n";
 			make_openssl_cert();
 			print "\nCertificate generation complete, copying to config directory... ";
@@ -733,7 +734,7 @@ if ($config{USE_OPENSSL} eq "y") {
 			File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
 			print "Done.\n\n";
 		} else {
-			print "SSL Certificates found, skipping.\n\n"
+			print "Current SSL certificates detected, therefore skipping.\n\n"
 		}
 	}
 	else
@@ -742,7 +743,7 @@ if ($config{USE_OPENSSL} eq "y") {
 	}
 }
 if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
-	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
+	print "Skipping SSL certificate generation as SSL support is not available.\n\n";
 }
 
 depcheck();
@@ -750,25 +751,25 @@ writefiles(1);
 makecache();
 
 print "\n\n";
-print "To build your server with these settings, please run '\e[1;32mmake\e[0m' now.\n";
+print "To build your server with these settings, simply run '\e[1;32mmake\e[0m' now.\n";
 if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
 	print "modules in your config. This configure script has added those modules to the\n";
-	print "build process. For more info please refer to:\n";
+	print "build process. For more info, please refer to:\n";
 	print "\e[1;32mhttp://wiki.inspircd.org/Installation_From_Tarball\e[0m\n";
 }
 print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n\n";
 if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
-	print "\e[1;32mWARNING!\e[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
+	print "\e[1;32mWARNING!\e[0m You are running OpenBSD but you are using the base GCC package\nrather than eg++. This compile will most likely fail, but we will proceed anyway - you\ngo ahead with it just so you can prove to yourself you are indeed mortal\n";
 }
 
 if ($config{GCCVER} < "3") {
 	print <<FOO2;
 \e[1;32mWARNING!\e[0m You are attempting to compile InspIRCd on GCC 2.x!
 GCC 2.x series compilers only had partial (read as broken) C++ support, and
-your compile will most likely fail horribly! If you have any problems, do NOT
-report them to the bugtracker or forums without first upgrading your compiler
-to a newer 3.x or 4.x (or whatever is available currently) version.
+your compile will most likely fail catastrophically! If you have any problems, do NOT
+report them to the bugtracker or forum without first upgrading your compiler
+to a newer 3.x or 4.x (or whatever is available currently) version. Or just do that first.
 FOO2
 }
 
@@ -776,11 +777,11 @@ FOO2
 #			      HELPER FUNCTIONS				#
 ################################################################################
 sub getcache {
-	# Retrieves the .config.cache file, and loads values into the main config hash.
+	# retrieves .config.cache file, loads values into main configuration hash
 	open(CACHE, ".config.cache") or return 0;
 	while (<CACHE>) {
 		chomp;
-		# Ignore Blank lines, and comments..
+		# ignore blank lines & comments..
 		next if /^\s*$/;
 		next if /^\s*#/;
 		my ($key, $value) = split("=", $_, 2);
@@ -793,7 +794,7 @@ sub getcache {
 }
 
 sub makecache {
-	# Dump the contents of %config
+	# dump contents of %config
 	print "Writing \e[1;32mcache file\e[0m for future ./configures ...\n";
 	open(FILEHANDLE, ">.config.cache");
 	foreach my $key (keys %config) {
@@ -813,12 +814,12 @@ sub dir_check {
 			$var = $config{$hash_key};
 		}
 		if ($var =~ /^\~\/(.+)$/) {
-			# Convert it to a full path..
+			# convert it to a full path
 			$var = resolve_directory($ENV{HOME} . "/" . $1);
 		}
 		elsif ((($config{OSNAME} =~ /MINGW32/i) and ($var !~ /^[A-Z]{1}:\\.*/)) and (substr($var,0,1) ne "/"))
 		{
-			# Assume relative Path was given.. fill in the rest.
+			# assume relative path was given, fill-in the rest
 			$var = $this . "/$var";
 		}
 
@@ -827,7 +828,7 @@ sub dir_check {
 			print "$var does not exist. Create it?\n[\e[1;32my\e[0m] ";
 			chomp(my $tmp = <STDIN>);
 			if (($tmp eq "") || ($tmp =~ /^y/i)) {
-				# Attempt to Create the Dir..
+				# attempt to create directory
 				my $chk = eval {
 					use File::Path ();
 					File::Path::mkpath($var, 0, 0777);
@@ -835,22 +836,22 @@ sub dir_check {
 				};
 				unless (defined($chk) && -d $var) {
 					print "Unable to create directory. ($var)\n\n";
-					# Restart Loop..
+					# restart loop
 					next;
 				}
 			} else {
-				# They said they don't want to create, and we can't install there.
+				# Situation: They said they don't want to create, and we can't install there.
 				print "\n\n";
 				next;
 			}
 		} else {
 			if (!is_dir($var)) {
-				# Target exists, but is not a directory.
+				# Situation: Target exists, but is not a directory.
 				print "File $var exists, but is not a directory.\n\n";
 				next;
 			}
 		}
-		# Either Dir Exists, or was created fine.
+		# either directory exists, or was created without issue
 		$config{$hash_key} = $var;
 		$complete = 1;
 		print "\n";
@@ -863,7 +864,7 @@ my ($mliflags, $mfrules, $mobjs, $mfcount) = ("", "", "", 0);
 
 sub writefiles {
 	my($writeheader) = @_;
-	# First File.. inspircd_config.h
+	# First file: inspircd_config.h
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh src/version.sh`);
 	chomp(my $revision2 = getrevision());
@@ -877,11 +878,11 @@ sub writefiles {
 		print "Writing \e[1;32minspircd_config.h\e[0m\n";
 		open(FILEHANDLE, ">include/inspircd_config.h.tmp");
 		print FILEHANDLE <<EOF;
-/* Auto generated by configure, do not modify! */
+/* Auto-generated by configure, do not modify! */
 #ifndef __CONFIGURATION_AUTO__
 #define __CONFIGURATION_AUTO__
 
-/* this is for windows support. */
+/* Windows support hereafter. */
 #define CoreExport /**/
 #define DllExport /**/
 
@@ -932,8 +933,8 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 			$config{SOCKETENGINE} = "socketengine_ports";
 			$use_hiperf = 1;
 		}
-		# user didn't choose either epoll or select for their OS.
-		# default them to USE_SELECT (ewwy puke puke)
+		# user didn't choose either epoll or select for their OS
+		#   => default them to USE_SELECT [ewwy puke puke]
 		if (!$use_hiperf) {
 			print "no hi-perf, " . $config{USE_POLL};
 			if ($config{USE_POLL} eq "y")
@@ -962,7 +963,7 @@ EOF
 		for my $file (qw(include/inspircd_config.h include/inspircd_version.h)) {
 			my $diff = 0;
 			open my $fh1, $file or $diff = 1;
-			open my $fh2, $file.'.tmp' or die "Can't read $file.tmp that we just wrote: $!";
+			open my $fh2, $file.'.tmp' or die "Can't read $file.tmp that was just written: $!";
 			while (!$diff) {
 				my $line1 = <$fh1>;
 				my $line2 = <$fh2>;
@@ -983,7 +984,7 @@ EOF
 		}
 	}
 
-	# Write all .in files.
+	# write all .in files
 	my $tmp = "";
 	my $file = "";
 	my $exe = "inspircd";
@@ -1033,7 +1034,7 @@ EOF
 			s/ *\@BSD_ONLY .*\n//g;
 			s/\@GNU_ONLY //g;
 			s/\@DO_EXPORT (.*)/export $1/g;
-			open MKF, '>GNUmakefile' or die "Can't write to GNUmakefile: $!";
+			open MKF, '>GNUmakefile' or die "Cannot write to GNUmakefile: $!";
 			print MKF $_;
 			close MKF;
 
@@ -1049,12 +1050,12 @@ EOF
 			s/ *\@GNU_ONLY .*\n//g;
 			$mk_tmp = $_;
 			$mk_tmp =~ s#\@DO_EXPORT (.*)#"MAKEENV += ".join ' ', map "$_='\${$_}'", split /\s/, $1#eg;
-			open MKF, '>BSDmakefile' or die "Can't write to BSDmakefile: $!";
+			open MKF, '>BSDmakefile' or die "Cannot write to BSDmakefile: $!";
 			print MKF $mk_tmp;
 			close MKF;
 		} else {
 			print "Writing \e[1;32m$file\e[0m ...\n";
-			open(FILEHANDLE, ">$file") or die("Can't write to $file: $!\n");
+			open(FILEHANDLE, ">$file") or die("Cannot write to $file: $!\n");
 			print FILEHANDLE $_;
 			close(FILEHANDLE);
 		}
@@ -1090,11 +1091,11 @@ sub prepare_dynamic_makefile
 	}
 }
 
-# Routine to list out the extra/ modules that have been enabled.
-# Note: when getting any filenames out and comparing, it's important to lc it if the
-# file system is not case-sensitive (== Epoc, MacOS, OS/2 (incl DOS/DJGPP), VMS, Win32
-# (incl NetWare, Symbian)). Cygwin may or may not be case-sensitive, depending on
-# configuration, however, File::Spec does not currently tell us (it assumes Unix behavior).
+# Routine is to list the extra/ modules that have been enabled
+# Note: when getting any filenames out & comparing, it's important to lc it if the
+#  filesystem is not case-sensitive (== Epoc, MacOS, OS/2 (incl. DOS/DJGPP), VMS, Win32
+#  (incl NetWare, Symbian)). Cygwin may or may not be case-sensitive, depending on
+#  configuration, however, File::Spec does not currently tell us (it assumes Unix behavior).
 sub list_extras () {
 	use File::Spec;
 	# @_ not used
@@ -1118,7 +1119,7 @@ EXTRA:	for my $extra (@extras) {
 		my $abs_source = File::Spec->catfile($abs_srcdir, $extra);
 		next unless ($extra =~ m/\.(cpp|h)$/ || (-d $abs_extra)); # C++ Source/Header, or directory
 		if (-l $abs_source) {
-			# Symlink, is it in the right place?
+			# Is the symlink in the correct place?
 			my $targ = readlink($abs_source);
 			my $abs_targ = File::Spec->rel2abs($targ, $abs_srcdir);
 			if ($abs_targ eq $abs_extra) {
@@ -1142,27 +1143,27 @@ EXTRA:	for my $extra (@extras) {
 				if (scalar(<$extfd>) eq scalar(<$srcfd>)) {
 					$extras{$extra} = "\e[32;1menabled\e[0m";
 				} else {
-					$extras{$extra} = sprintf("\e[31;1mout of synch (re-copy)\e[0m");
+					$extras{$extra} = sprintf("\e[31;1mout of sync (re-copy)\e[0m");
 				}
 			}
 		} else {
 			$extras{$extra} = "\e[33;1mdisabled\e[0m";
 		}
 	}
-	# Now let's add dependency info
+	# add dependency info
 	for my $extra (keys(%extras)) {
-		next unless $extras{$extra} =~ m/enabled/; # only process enabled extras.
+		next unless $extras{$extra} =~ m/enabled/; # only process enabled extras
 		my $abs_extra = File::Spec->catfile($abs_srcdir, "extra", $extra);
 		my @deps = split / +/, getdependencies($abs_extra);
 		for my $dep (@deps) {
 			if (exists($extras{$dep})) {
-				my $ref = \$extras{$dep}; # Take reference.
+				my $ref = \$extras{$dep}; # take reference
 				if ($$ref !~ m/needed by/) {
-					# First dependency found.
+					# 1st dependency found
 					if ($$ref =~ m/enabled/) {
 						$$ref .= " (needed by \e[32;1m$extra\e[0m";
 					} else {
-						$$ref =~ s/\e\[.*?m//g; # Strip out previous coloring. Will be set in bold+red+blink later.
+						$$ref =~ s/\e\[.*?m//g; # strip all former colorization -- set in bold+red+blink later
 						$$ref .= " (needed by \e[0;32;1;5m$extra\e[0;31;1;5m";
 					}
 				} else {
@@ -1183,7 +1184,7 @@ EXTRA:	for my $extra (@extras) {
 			printf "%-*s = %s%s\n", $maxlen, $extra, $text, ($text =~ m/needed by/ ? "\e[0m)" : "");
 		}
 	}
-	return keys(%extras) if wantarray; # Can be used by manage_extras.
+	return keys(%extras) if wantarray; # can be used by manage_extras
 }
 
 sub enable_extras (@) {
@@ -1196,13 +1197,13 @@ sub enable_extras (@) {
 		}
 		my $source = "src/modules/$extra";
 		if (-e $source) {
-			print STDERR "Cannot enable \e[32;1m$extra\e[0m : destination in src/modules exists (might already be enabled?)\n";
+			print STDERR "Cannot enable \e[32;1m$extra\e[0m : destination in src/modules exists (may already be enabled?)\n";
 			next;
 		}
-		# Get dependencies, and add them to be processed.
+		# obtain dependencies & add them to processing queue
 		my @deps = split / +/, getdependencies($extrapath);
 		for my $dep (@deps) {
-			next if scalar(grep { $_ eq $dep } (@extras)) > 0; # Skip if we're going to be enabling it anyway.
+			next if scalar(grep { $_ eq $dep } (@extras)) > 0; # omit this step if they are to be enabled
 			if (!-e "src/modules/$dep") {
 				if (-e "src/modules/extra/$dep") {
 					print STDERR "Will also enable extra \e[32;1m$dep\e[0m (needed by \e[32;1m$extra\e[0m)\n";
@@ -1231,22 +1232,22 @@ EXTRA:	for my $extra (@extras) {
 			next;
 		}
 		if ((! -l $source) || readlink($source) ne "extra/$extra") {
-			print STDERR "Cannot disable \e[32;1m$extra\e[0m : Source is not a link or doesn't refer to the right file. Remove manually if this is in error.\n";
+			print STDERR "Cannot disable \e[32;1m$extra\e[0m : Source is not a link or doesn't refer to the correct file. Remove manually if this is in error.\n";
 			next;
 		}
-		# Check if anything needs this.
+		# check if anything requires this...
 		for my $file (@files) {
 			my @deps = split / +/, getdependencies("src/modules/extra/$file");
-			# File depends on this extra...
+			# file depends on this extra...
 			if (scalar(grep { $_ eq $extra } @deps) > 0) {
-				# And is both enabled and not about to be disabled.
+				# ...and is both enabled, and not about to be disabled.
 				if (-e "src/modules/$file" && scalar(grep { $_ eq $file } @extras) < 1) {
 					print STDERR "Cannot disable \e[32;1m$extra\e[0m : is needed by \e[32;1m$file\e[0m\n";
 					next EXTRA;
 				}
 			}
 		}
-		# Now remove.
+		# now safe to remove
 		print "Disabling $extra ... \n";
 		unlink "src/modules/$extra" or print STDERR "Cannot disable \e[32;1m$extra\e[0m : $!\n";
 	}

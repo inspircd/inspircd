@@ -1,9 +1,11 @@
-######
-# sources.list
+####################
+##  sources.list  ##
 #
-# This file lists sources of third party modules that are available for installation with inspircd.
-# To manage these, you want the ./modulemanager binary.
+# This file lists repositories (or sources) of third-party modules that are available for installation with InspIRCd.
+#   To manage these modules, utilize the ./modulemanager binary also in this directory.
 #
-# Feel free to add additional sources! :)
-# official repository
+# Feel free to include additional repositories below beneath the official one, but take care -
+#   "third-party" means NOT maintained, verified, or in any other way validated by the official InspIRCd developers.
+#
+# Official repository
 https://raw.github.com/inspircd/inspircd-extras/master/modules.lst
