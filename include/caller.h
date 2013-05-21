@@ -21,8 +21,7 @@
 
 #pragma once
 
-/* Pending some sort of C++11 support */
-#if 0
+#if defined HAS_CXX11_VARIADIC_TEMPLATES
 
 template<typename ReturnType, typename... Args> class CoreExport Handler : public classbase
 {
