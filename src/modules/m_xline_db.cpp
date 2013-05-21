@@ -125,8 +125,12 @@ class ModuleXLineDB : public Module
 			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
 			{
 				XLine* line = i->second;
-				fprintf(f, "LINE %s %s %s %lu %lu :%s\n", line->type.c_str(), line->Displayable(),
-					ServerInstance->Config->ServerName.c_str(), (unsigned long)line->set_time, (unsigned long)line->duration, line->reason.c_str());
+				fprintf(f, "LINE %s %s %s %lu %lu :%s\n",
+					line->type.c_str(),
+					line->Displayable().c_str(),
+					ServerInstance->Config->ServerName.c_str(),
+					(unsigned long)line->set_time,
+					(unsigned long)line->duration, line->reason.c_str());
 			}
 		}
 

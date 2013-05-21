@@ -92,9 +92,9 @@ class RLine : public XLine
 		DefaultApply(u, "R", false);
 	}
 
-	const char* Displayable()
+	const std::string& Displayable()
 	{
-		return matchtext.c_str();
+		return matchtext;
 	}
 
 	std::string matchtext;
