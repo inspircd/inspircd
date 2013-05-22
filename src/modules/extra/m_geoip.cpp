@@ -44,7 +44,7 @@ private:
 
 	std::string* SetExt(LocalUser* user)
 	{
-		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
+		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString().c_str());
 		if (!c)
 			c = "UNK";
 
