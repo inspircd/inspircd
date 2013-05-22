@@ -42,14 +42,15 @@ private:
 	bool geoipgecos;
 	bool debug;
 
-	void SetExt(LocalUser* user)
+	std::string* SetExt(LocalUser* user)
 	{
-		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString().c_str());
+		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString());
 		if (!c)
 			c = "UNK";
 
 		std::string* cc = new std::string(c);
 		ext.set(user, cc);
+		return cc;
 	}
 
  public:
@@ -92,8 +93,8 @@ private:
 		{
 			std::string* cc = ext.get(user);
 			if (!cc)
-				SetExt(user);			
-
+				cc = SetExt(user);
+			
 			if (validated && !(user->registered & REG_USER) && (command == "USER"))
 			{
 
@@ -128,9 +129,9 @@ private:
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
-		std::string* cc = ext.get(user);
-		if (!cc)
-			SetExt(user);
+			std::string* cc = ext.get(user);
+			if (!cc)
+				cc = SetExt(user);
 
 		std::string geoip = myclass->config->getString("geoip");
 		if (geoip.empty())
