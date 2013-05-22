@@ -833,7 +833,6 @@ sub writefiles {
 #define MOD_PATH "$config{MODULE_DIR}"
 
 EOF
-print FILEHANDLE "#define MAXBUF 514\n";
 
 		if ($config{OSNAME} =~ /SunOS/i) {
 			print FILEHANDLE "#define IS_SOLARIS\n";
