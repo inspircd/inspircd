@@ -691,29 +691,29 @@ const char* Channel::ChanModes(bool showkey)
  */
 void Channel::UserList(User *user)
 {
-	char list[MAXBUF];
-	size_t dlen, curlen;
-
-	if (!IS_LOCAL(user))
-		return;
-
 	if (this->IsModeSet('s') && !this->HasUser(user) && !user->HasPrivPermission("channels/auspex"))
 	{
 		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
 		return;
 	}
 
-	dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick.c_str(), this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=',  this->name.c_str());
+	std::string list = user->nick;
+	list.push_back(' ');
+	list.push_back(this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=');
+	list.push_back(' ');
+	list.append(this->name).append(" :");
+	std::string::size_type pos = list.size();
 
-	int numusers = 0;
-	char* ptr = list + dlen;
+	bool has_one = false;
 
 	/* Improvement by Brain - this doesnt change in value, so why was it inside
 	 * the loop?
 	 */
 	bool has_user = this->HasUser(user);
 
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
+	std::string prefixlist;
+	std::string nick;
+	for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
 	{
 		if (i->first->quitting)
 			continue;
@@ -726,8 +726,8 @@ void Channel::UserList(User *user)
 			continue;
 		}
 
-		std::string prefixlist = this->GetPrefixChar(i->first);
-		std::string nick = i->first->nick;
+		prefixlist = this->GetPrefixChar(i->first);
+		nick = i->first->nick;
 
 		FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->second, prefixlist, nick));
 
@@ -735,32 +735,25 @@ void Channel::UserList(User *user)
 		if (nick.empty())
 			continue;
 
-		size_t ptrlen = 0;
-
-		if (curlen + prefixlist.length() + nick.length() + 1 > 480)
+		if (list.size() + prefixlist.length() + nick.length() + 1 > 480)
 		{
 			/* list overflowed into multiple numerics */
-			user->WriteNumeric(RPL_NAMREPLY, std::string(list));
+			user->WriteNumeric(RPL_NAMREPLY, list);
 
-			/* reset our lengths */
-			dlen = curlen = snprintf(list,MAXBUF,"%s %c %s :", user->nick.c_str(), this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=', this->name.c_str());
-			ptr = list + dlen;
-
-			numusers = 0;
+			// Erase all nicks, keep the constant part
+			list.erase(pos);
+			has_one = false;
 		}
 
-		ptrlen = snprintf(ptr, MAXBUF, "%s%s ", prefixlist.c_str(), nick.c_str());
+		list.append(prefixlist).append(nick).push_back(' ');
 
-		curlen += ptrlen;
-		ptr += ptrlen;
-
-		numusers++;
+		has_one = true;
 	}
 
 	/* if whats left in the list isnt empty, send it */
-	if (numusers)
+	if (has_one)
 	{
-		user->WriteNumeric(RPL_NAMREPLY, std::string(list));
+		user->WriteNumeric(RPL_NAMREPLY, list);
 	}
 
 	user->WriteNumeric(RPL_ENDOFNAMES, "%s %s :End of /NAMES list.", user->nick.c_str(), this->name.c_str());
