@@ -435,13 +435,14 @@ void ModuleSQL::OnRehash(User* user)
 		i->second->lock.Lock();
 		i->second->lock.Unlock();
 		// now remove all active queries to this DB
-		for(unsigned int j = qq.size() - 1; j >= 0; j--)
+		for (size_t j = qq.size(); j > 0; j--)
 		{
-			if (qq[j].c == i->second)
+			size_t k = j - 1;
+			if (qq[k].c == i->second)
 			{
-				qq[j].q->OnError(err);
-				delete qq[j].q;
-				qq.erase(qq.begin() + j);
+				qq[k].q->OnError(err);
+				delete qq[k].q;
+				qq.erase(qq.begin() + k);
 			}
 		}
 		// finally, nuke the connection
