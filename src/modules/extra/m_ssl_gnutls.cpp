@@ -350,13 +350,13 @@ class ModuleSSLGnuTLS : public Module
 		ret = gnutls_certificate_allocate_credentials(&x509_cred);
 		cred_alloc = (ret >= 0);
 		if (!cred_alloc)
-			ServerInstance->Logs->Log("m_ssl_gnutls",LOG_DEBUG, "m_ssl_gnutls.so: Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
+			ServerInstance->Logs->Log("m_ssl_gnutls", LOG_DEBUG, "m_ssl_gnutls.so: Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
 
 		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",LOG_DEBUG, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
+			ServerInstance->Logs->Log("m_ssl_gnutls", LOG_DEBUG, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
 
 		if((ret = gnutls_certificate_set_x509_crl_file (x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",LOG_DEBUG, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
+			ServerInstance->Logs->Log("m_ssl_gnutls", LOG_DEBUG, "m_ssl_gnutls.so: Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
 
 		FileReader reader;
 
@@ -405,13 +405,13 @@ class ModuleSSLGnuTLS : public Module
 		if ((ret = gnutls_priority_init(&priority, priocstr, &prioerror)) < 0)
 		{
 			// gnutls did not understand the user supplied string, log and fall back to the default priorities
-			ServerInstance->Logs->Log("m_ssl_gnutls",LOG_DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %u, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (unsigned int) (prioerror - priocstr));
+			ServerInstance->Logs->Log("m_ssl_gnutls", LOG_DEFAULT, "m_ssl_gnutls.so: Failed to set priorities to \"%s\": %s Syntax error at position %u, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (unsigned int) (prioerror - priocstr));
 			gnutls_priority_init(&priority, "NORMAL", NULL);
 		}
 
 		#else
 		if (priorities != "NORMAL")
-			ServerInstance->Logs->Log("m_ssl_gnutls",LOG_DEFAULT, "m_ssl_gnutls.so: You've set <gnutls:priority> to a value other than the default, but this is only supported with GnuTLS v2.1.7 or newer. Your GnuTLS version is older than that so the option will have no effect.");
+			ServerInstance->Logs->Log("m_ssl_gnutls", LOG_DEFAULT, "m_ssl_gnutls.so: You've set <gnutls:priority> to a value other than the default, but this is only supported with GnuTLS v2.1.7 or newer. Your GnuTLS version is older than that so the option will have no effect.");
 		#endif
 
 		#if(GNUTLS_VERSION_MAJOR < 2 || ( GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR < 12 ) )
@@ -461,7 +461,7 @@ class ModuleSSLGnuTLS : public Module
 		int ret;
 
 		if((ret = gnutls_dh_params_generate2(dh_params, dh_bits)) < 0)
-			ServerInstance->Logs->Log("m_ssl_gnutls",LOG_DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
+			ServerInstance->Logs->Log("m_ssl_gnutls", LOG_DEFAULT, "m_ssl_gnutls.so: Failed to generate DH parameters (%d bits): %s", dh_bits, gnutls_strerror(ret));
 	}
 
 	~ModuleSSLGnuTLS()

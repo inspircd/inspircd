@@ -58,19 +58,19 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 		{
 			if (SE->Listen(sockfd, Config->MaxConn) == -1)
 			{
-				this->Logs->Log("SOCKET",LOG_DEFAULT,"ERROR in listen(): %s",strerror(errno));
+				this->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR in listen(): %s",strerror(errno));
 				return false;
 			}
 			else
 			{
-				this->Logs->Log("SOCKET",LOG_DEBUG,"New socket binding for %d with listen: %s:%d", sockfd, addr, port);
+				this->Logs->Log("SOCKET", LOG_DEBUG, "New socket binding for %d with listen: %s:%d", sockfd, addr, port);
 				SE->NonBlocking(sockfd);
 				return true;
 			}
 		}
 		else
 		{
-			this->Logs->Log("SOCKET",LOG_DEBUG,"New socket binding for %d without listen: %s:%d", sockfd, addr, port);
+			this->Logs->Log("SOCKET", LOG_DEBUG, "New socket binding for %d without listen: %s:%d", sockfd, addr, port);
 			return true;
 		}
 	}
@@ -89,7 +89,7 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 		std::string Addr = tag->getString("address");
 
 		if (strncasecmp(Addr.c_str(), "::ffff:", 7) == 0)
-			this->Logs->Log("SOCKET",LOG_DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
+			this->Logs->Log("SOCKET", LOG_DEFAULT, "Using 4in6 (::ffff:) isn't recommended. You should bind IPv4 addresses directly instead.");
 
 		irc::portparser portrange(porttag, false);
 		int portno = -1;
@@ -136,11 +136,11 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 			n++;
 		if (n == ports.end())
 		{
-			this->Logs->Log("SOCKET",LOG_DEFAULT,"Port bindings slipped out of vector, aborting close!");
+			this->Logs->Log("SOCKET", LOG_DEFAULT, "Port bindings slipped out of vector, aborting close!");
 			break;
 		}
 
-		this->Logs->Log("SOCKET",LOG_DEFAULT, "Port binding %s was removed from the config file, closing.",
+		this->Logs->Log("SOCKET", LOG_DEFAULT, "Port binding %s was removed from the config file, closing.",
 			(**n).bind_desc.c_str());
 		delete *n;
 

@@ -325,35 +325,13 @@ bool InspIRCd::IsSID(const std::string &str)
 			 ((str[2] >= 'A' && str[2] <= 'Z') || isdigit(str[2])));
 }
 
-/* open the proper logfile */
-bool InspIRCd::OpenLog(char**, int)
-{
-	if (!Config->cmdline.writelog) return true; // Skip opening default log if -nolog
-
-	if (Config->cmdline.startup_log.empty())
-		Config->cmdline.startup_log = LOG_PATH "/startup.log";
-	FILE* startup = fopen(Config->cmdline.startup_log.c_str(), "a+");
-
-	if (!startup)
-	{
-		return false;
-	}
-
-	FileWriter* fw = new FileWriter(startup);
-	FileLogStream *f = new FileLogStream((Config->cmdline.forcedebug ? LOG_DEBUG : LOG_DEFAULT), fw);
-
-	this->Logs->AddLogType("*", f, true);
-
-	return true;
-}
-
 void InspIRCd::CheckRoot()
 {
 #ifndef _WIN32
 	if (geteuid() == 0)
 	{
 		std::cout << "ERROR: You are running an irc server as root! DO NOT DO THIS!" << std::endl << std::endl;
-		this->Logs->Log("STARTUP",LOG_DEFAULT,"Can't start as root");
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Can't start as root");
 		Exit(EXIT_STATUS_ROOT);
 	}
 #endif

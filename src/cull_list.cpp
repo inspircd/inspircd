@@ -53,7 +53,7 @@ void CullList::Apply()
 		}
 		else
 		{
-			ServerInstance->Logs->Log("CULLLIST",LOG_DEBUG, "WARNING: Object @%p culled twice!",
+			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "WARNING: Object @%p culled twice!",
 				(void*)c);
 		}
 	}
@@ -65,7 +65,7 @@ void CullList::Apply()
 	}
 	if (list.size())
 	{
-		ServerInstance->Logs->Log("CULLLIST",LOG_DEBUG, "WARNING: Objects added to cull list in a destructor");
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "WARNING: Objects added to cull list in a destructor");
 		Apply();
 	}
 }

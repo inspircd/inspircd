@@ -324,8 +324,6 @@ class CoreExport InspIRCd
 	 */
 	FakeUser* FakeClient;
 
-	static const char LogHeader[];
-
 	/** Find a user in the UUID hash
 	 * @param uid The UUID to find
 	 * @return A pointer to the user, or NULL if the user does not exist
@@ -493,13 +491,6 @@ class CoreExport InspIRCd
 	 * @return Depending on the configuration, this function may never return
 	 */
 	void CheckRoot();
-
-	/** Determine the right path for, and open, the logfile
-	 * @param argv The argv passed to main() initially, used to calculate program path
-	 * @param argc The argc passed to main() initially, used to calculate program path
-	 * @return True if the log could be opened, false if otherwise
-	 */
-	bool OpenLog(char** argv, int argc);
 
 	/** Return true if a channel name is valid
 	 * @param chname A channel name to verify

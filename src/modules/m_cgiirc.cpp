@@ -265,7 +265,7 @@ public:
 			{
 				if (type == "webirc" && password.empty())
 				{
-					ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
+					ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "m_cgiirc: Missing password in config: %s", hostmask.c_str());
 				}
 				else
 				{
@@ -281,7 +281,7 @@ public:
 					else
 					{
 						cgitype = PASS;
-						ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "m_cgiirc.so: Invalid <cgihost:type> value in config: %s, setting it to \"pass\"", type.c_str());
+						ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "m_cgiirc.so: Invalid <cgihost:type> value in config: %s, setting it to \"pass\"", type.c_str());
 					}
 
 					cmd.Hosts.push_back(CGIhost(hostmask, cgitype, password));
@@ -289,7 +289,7 @@ public:
 			}
 			else
 			{
-				ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
+				ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "m_cgiirc.so: Invalid <cgihost:mask> value in config: %s", hostmask.c_str());
 				continue;
 			}
 		}

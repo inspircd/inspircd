@@ -50,8 +50,7 @@ static void range(T& value, V min, V max, V def, const char* msg)
 {
 	if (value >= (T)min && value <= (T)max)
 		return;
-	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT,
-		"WARNING: %s value of %ld is not between %ld and %ld; set to %ld.",
+	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: %s value of %ld is not between %ld and %ld; set to %ld.",
 		msg, (long)value, (long)min, (long)max, (long)def);
 	value = def;
 }
@@ -608,7 +607,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
 
 	if (!valid)
-		ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "There were errors in your configuration file:");
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "There were errors in your configuration file:");
 
 	while (errstr.good())
 	{
@@ -750,7 +749,7 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 	ConfigTag* rv = found.first->second;
 	found.first++;
 	if (found.first != found.second)
-		ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Multiple <" + tag + "> tags found; only first will be used "
 			"(first at " + rv->getTagLocation() + "; second at " + found.first->second->getTagLocation() + ")");
 	return rv;
 }
@@ -800,7 +799,7 @@ void ConfigReaderThread::Run()
 void ConfigReaderThread::Finish()
 {
 	ServerConfig* old = ServerInstance->Config;
-	ServerInstance->Logs->Log("CONFIG",LOG_DEBUG,"Switching to new configuration...");
+	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Switching to new configuration...");
 	ServerInstance->Config = this->Config;
 	Config->Apply(old, TheUserUID);
 

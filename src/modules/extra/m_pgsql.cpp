@@ -152,7 +152,7 @@ class SQLConn : public SQLProvider, public EventHandler
 	{
 		if (!DoConnect())
 		{
-			ServerInstance->Logs->Log("m_pgsql",LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
+			ServerInstance->Logs->Log("m_pgsql", LOG_DEFAULT, "WARNING: Could not connect to database " + tag->getString("id"));
 			DelayReconnect();
 		}
 	}
@@ -244,7 +244,7 @@ class SQLConn : public SQLProvider, public EventHandler
 
 		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
 		{
-			ServerInstance->Logs->Log("m_pgsql",LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
+			ServerInstance->Logs->Log("m_pgsql", LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
 		}
 

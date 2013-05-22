@@ -377,7 +377,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 				delete gl;
 		}
 
-		ServerInstance->Logs->Log("FILTER",LOG_DEFAULT,"FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		ServerInstance->Logs->Log("FILTER", LOG_DEFAULT, "FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;

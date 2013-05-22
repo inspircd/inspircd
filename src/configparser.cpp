@@ -399,7 +399,7 @@ bool ConfigTag::readString(const std::string& key, std::string& value, bool allo
 		value = j->second;
  		if (!allow_lf && (value.find('\n') != std::string::npos))
 		{
-			ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 				" contains a linefeed, and linefeeds in this value are not permitted -- stripped to spaces.");
 			for (std::string::iterator n = value.begin(); n != value.end(); n++)
 				if (*n == '\n')
@@ -462,7 +462,7 @@ bool ConfigTag::getBool(const std::string &key, bool def)
 	if (result == "no" || result == "false" || result == "0" || result == "off")
 		return false;
 
-	ServerInstance->Logs->Log("CONFIG",LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
+	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Value of <" + tag + ":" + key + "> at " + getTagLocation() +
 		" is not valid, ignoring");
 	return def;
 }

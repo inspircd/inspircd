@@ -22,21 +22,6 @@
 
 #include "logger.h"
 
-/** Logging levels for use with InspIRCd::Log()
- *  */
-enum LogLevel
-{
-	LOG_RAWIO   = 5,
-	LOG_DEBUG   = 10,
-	LOG_VERBOSE = 20,
-	LOG_DEFAULT = 30,
-	LOG_SPARSE  = 40,
-	LOG_NONE    = 50
-};
-
-/* Forward declaration -- required */
-class InspIRCd;
-
 /** A logging class which logs to a streamed file.
  */
 class CoreExport FileLogStream : public LogStream
@@ -44,9 +29,9 @@ class CoreExport FileLogStream : public LogStream
  private:
 	FileWriter *f;
  public:
-	FileLogStream(int loglevel, FileWriter *fw);
+	FileLogStream(LogLevel loglevel, FileWriter *fw);
 
 	virtual ~FileLogStream();
 
-	virtual void OnLog(int loglevel, const std::string &type, const std::string &msg);
+	virtual void OnLog(LogLevel loglevel, const std::string &type, const std::string &msg);
 };
