@@ -107,9 +107,9 @@ class CoreExport XLine : public classbase
 	 * in a form which can be used to construct an entire derived xline,
 	 * even if it is stored differently internally (e.g. GLine stores the
 	 * ident and host parts seperately but will still return ident\@host
-	 * for its Displayable() method)
+	 * for its Displayable() method).
 	 */
-	virtual const char* Displayable() = 0;
+	virtual const std::string& Displayable() = 0;
 
 	/** Called when the xline has just been added.
 	 */
@@ -176,7 +176,7 @@ class CoreExport KLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	virtual bool IsBurstable();
 
@@ -222,7 +222,7 @@ class CoreExport GLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** Ident mask (ident part only)
 	 */
@@ -266,7 +266,7 @@ class CoreExport ELine : public XLine
 
 	virtual void OnAdd();
 
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** Ident mask (ident part only)
 	 */
@@ -307,7 +307,7 @@ class CoreExport ZLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** IP mask (no ident part)
 	 */
@@ -342,7 +342,7 @@ class CoreExport QLine : public XLine
 
 	virtual void Apply(User* u);
 
-	virtual const char* Displayable();
+	virtual const std::string& Displayable();
 
 	/** Nickname mask
 	 */

@@ -30,12 +30,12 @@
 class SVSHold : public XLine
 {
 public:
-	irc::string nickname;
+	std::string nickname;
 
 	SVSHold(time_t s_time, long d, std::string src, std::string re, std::string nick)
 		: XLine(s_time, d, src, re, "SVSHOLD")
 	{
-		this->nickname = nick.c_str();
+		this->nickname = nick;
 	}
 
 	bool Matches(User *u)
@@ -47,14 +47,12 @@ public:
 
 	bool Matches(const std::string &s)
 	{
-		if (nickname == s)
-			return true;
-		return false;
+		return InspIRCd::Match(s, nickname);
 	}
 
-	const char* Displayable()
+	const std::string& Displayable()
 	{
-		return nickname.c_str();
+		return nickname;
 	}
 };
 

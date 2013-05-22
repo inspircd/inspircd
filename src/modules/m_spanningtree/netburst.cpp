@@ -120,7 +120,6 @@ void TreeSocket::SendFJoins(Channel* c)
 void TreeSocket::SendXLines()
 {
 	char data[MAXBUF];
-	const char* sn = ServerInstance->Config->GetSID().c_str();
 
 	std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
 
@@ -140,7 +139,10 @@ void TreeSocket::SendXLines()
 				if (!i->second->IsBurstable())
 					break;
 
-				snprintf(data,MAXBUF,":%s ADDLINE %s %s %s %lu %lu :%s",sn, it->c_str(), i->second->Displayable(),
+				snprintf(data, MAXBUF, ":%s ADDLINE %s %s %s %lu %lu :%s",
+						ServerInstance->Config->GetSID().c_str(),
+						it->c_str(),
+						i->second->Displayable().c_str(),
 						i->second->source.c_str(),
 						(unsigned long)i->second->set_time,
 						(unsigned long)i->second->duration,
