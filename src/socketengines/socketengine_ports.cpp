@@ -82,8 +82,8 @@ PortsEngine::PortsEngine()
 
 	if (EngineHandle == -1)
 	{
-		ServerInstance->Logs->Log("SOCKET",LOG_SPARSE,"ERROR: Could not initialize socket engine: %s", strerror(errno));
-		ServerInstance->Logs->Log("SOCKET",LOG_SPARSE,"ERROR: This is a fatal error, exiting now.");
+		ServerInstance->Logs->Log("SOCKET", LOG_SPARSE, "ERROR: Could not initialize socket engine: %s", strerror(errno));
+		ServerInstance->Logs->Log("SOCKET", LOG_SPARSE, "ERROR: This is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize socket engine: " << strerror(errno) << std::endl;
 		std::cout << "ERROR: This is a fatal error, exiting now." << std::endl;
 		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
@@ -125,7 +125,7 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	SocketEngine::SetEventMask(eh, event_mask);
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(event_mask), eh);
 
-	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"New file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 	CurrentSetSize++;
 	return true;
 }
@@ -147,7 +147,7 @@ void PortsEngine::DelFd(EventHandler* eh)
 	CurrentSetSize--;
 	ref[fd] = NULL;
 
-	ServerInstance->Logs->Log("SOCKET",LOG_DEBUG,"Remove file descriptor: %d", fd);
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
 int PortsEngine::DispatchEvents()

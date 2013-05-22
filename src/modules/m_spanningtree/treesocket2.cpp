@@ -298,7 +298,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	if ((!route_back_again) || (route_back_again->GetSocket() != this))
 	{
 		if (route_back_again)
-			ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"Protocol violation: Fake direction '%s' from connection '%s'",
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Protocol violation: Fake direction '%s' from connection '%s'",
 				prefix.c_str(),linkID.c_str());
 		return;
 	}

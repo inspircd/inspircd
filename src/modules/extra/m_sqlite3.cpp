@@ -85,7 +85,7 @@ class SQLConn : public SQLProvider
 		std::string host = tag->getString("hostname");
 		if (sqlite3_open_v2(host.c_str(), &conn, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK)
 		{
-			ServerInstance->Logs->Log("m_sqlite3",LOG_DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
+			ServerInstance->Logs->Log("m_sqlite3", LOG_DEFAULT, "WARNING: Could not open DB with id: " + tag->getString("id"));
 			conn = NULL;
 		}
 	}

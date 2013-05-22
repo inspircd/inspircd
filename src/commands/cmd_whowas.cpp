@@ -183,7 +183,7 @@ void CommandWhowas::PruneWhoWas(time_t t)
 			if (iter == whowas.end())
 			{
 				/* this should never happen, if it does maps are corrupt */
-				ServerInstance->Logs->Log("WHOWAS",LOG_DEFAULT, "BUG: Whowas maps got corrupted! (1)");
+				ServerInstance->Logs->Log("WHOWAS", LOG_DEFAULT, "BUG: Whowas maps got corrupted! (1)");
 				return;
 			}
 
@@ -216,7 +216,7 @@ void CommandWhowas::PruneWhoWas(time_t t)
 		if (iter == whowas.end())
 		{
 			/* this should never happen, if it does maps are corrupt */
-			ServerInstance->Logs->Log("WHOWAS",LOG_DEFAULT, "BUG: Whowas maps got corrupted! (2)");
+			ServerInstance->Logs->Log("WHOWAS", LOG_DEFAULT, "BUG: Whowas maps got corrupted! (2)");
 			return;
 		}
 		whowas_set* n = (whowas_set*)iter->second;
@@ -264,7 +264,7 @@ CommandWhowas::~CommandWhowas()
 		if (iter == whowas.end())
 		{
 			/* this should never happen, if it does maps are corrupt */
-			ServerInstance->Logs->Log("WHOWAS",LOG_DEFAULT, "BUG: Whowas maps got corrupted! (3)");
+			ServerInstance->Logs->Log("WHOWAS", LOG_DEFAULT, "BUG: Whowas maps got corrupted! (3)");
 			return;
 		}
 

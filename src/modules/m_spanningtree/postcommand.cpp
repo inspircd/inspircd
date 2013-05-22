@@ -67,7 +67,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 		TreeServer* sdest = FindServer(routing.serverdest);
 		if (!sdest)
 		{
-			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Trying to route ENCAP to nonexistant server %s",
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Trying to route ENCAP to nonexistant server %s",
 				routing.serverdest.c_str());
 			return;
 		}
@@ -82,7 +82,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &
 
 		if (!(ver.Flags & (VF_COMMON | VF_CORE)) && srcmodule != Creator)
 		{
-			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Routed command %s from non-VF_COMMON module %s",
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Routed command %s from non-VF_COMMON module %s",
 				command.c_str(), srcmodule->ModuleSourceFile.c_str());
 			return;
 		}

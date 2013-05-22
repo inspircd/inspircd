@@ -69,7 +69,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
 
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	this->StartBurst = ts;
-	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG, "Started bursting at time %lu", ts);
+	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Started bursting at time %lu", ts);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -157,7 +157,7 @@ void TreeServer::FinishBurst()
 
 void TreeServer::SetID(const std::string &id)
 {
-	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG, "Setting SID to " + id);
+	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Setting SID to " + id);
 	sid = id;
 	Utils->sidlist[sid] = this;
 }

@@ -27,7 +27,7 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 	time_t TS = ConvToInt(params[1]);
 	if (!TS)
 	{
-		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropping link.");
+		ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropping link.");
 		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq, dropping link.", who->server.c_str());
 		return CMD_INVALID;
 	}

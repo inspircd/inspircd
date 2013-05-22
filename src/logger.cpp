@@ -21,7 +21,6 @@
 
 
 #include "inspircd.h"
-
 #include "filelogger.h"
 
 /*
@@ -50,6 +49,10 @@
  *       can we accomplish this easily? I guess with a map of pre-loved logpaths, and a pointer of FILE *..
  *
  */
+
+const char LogStream::LogHeader[] =
+	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
+	" - compiled on " SYSTEM;
 
 LogManager::LogManager()
 {
@@ -82,7 +85,7 @@ void LogManager::OpenFileLogs()
 		}
 		std::string type = tag->getString("type");
 		std::string level = tag->getString("level");
-		int loglevel = LOG_DEFAULT;
+		LogLevel loglevel = LOG_DEFAULT;
 		if (level == "rawio")
 		{
 			loglevel = LOG_RAWIO;
@@ -126,7 +129,7 @@ void LogManager::OpenFileLogs()
 			fw = fwi->second;
 		}
 		FileLogStream* fls = new FileLogStream(loglevel, fw);
-		fls->OnLog(LOG_SPARSE, "HEADER", InspIRCd::LogHeader);
+		fls->OnLog(LOG_SPARSE, "HEADER", LogStream::LogHeader);
 		AddLogTypes(type, fls, true);
 	}
 }
@@ -293,7 +296,7 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 	return true;
 }
 
-void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...)
+void LogManager::Log(const std::string &type, LogLevel loglevel, const char *fmt, ...)
 {
 	if (Logging)
 		return;
@@ -303,7 +306,7 @@ void LogManager::Log(const std::string &type, int loglevel, const char *fmt, ...
 	this->Log(type, loglevel, buf);
 }
 
-void LogManager::Log(const std::string &type, int loglevel, const std::string &msg)
+void LogManager::Log(const std::string &type, LogLevel loglevel, const std::string &msg)
 {
 	if (Logging)
 	{

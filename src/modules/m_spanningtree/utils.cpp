@@ -130,7 +130,7 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 	: RefreshTimer(this), Creator(C)
 {
 	ServerInstance->Timers->AddTimer(&RefreshTimer);
-	ServerInstance->Logs->Log("m_spanningtree",LOG_DEBUG,"***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
+	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
 
 	this->TreeRoot = new TreeServer(this, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
 	this->ReadConfiguration();
@@ -275,7 +275,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 		Link* L = *i;
 		if (!L->Port)
 		{
-			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"m_spanningtree: Ignoring a link block without a port.");
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "m_spanningtree: Ignoring a link block without a port.");
 			/* Invalid link block */
 			continue;
 		}
@@ -366,11 +366,11 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (L->IPAddr.empty())
 		{
 			L->IPAddr = "*";
-			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Configuration warning: Link block '" + assign(L->Name) + "' has no IP defined! This will allow any IP to connect as this server, and MAY not be what you want.");
 		}
 
 		if (!L->Port)
-			ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"Configuration warning: Link block '" + assign(L->Name) + "' has no port defined, you will not be able to /connect it.");
+			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Configuration warning: Link block '" + assign(L->Name) + "' has no port defined, you will not be able to /connect it.");
 
 		L->Fingerprint.erase(std::remove(L->Fingerprint.begin(), L->Fingerprint.end(), ':'), L->Fingerprint.end());
 		LinkBlocks.push_back(L);

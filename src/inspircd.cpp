@@ -230,13 +230,13 @@ bool InspIRCd::DaemonSeed()
 	rlimit rl;
 	if (getrlimit(RLIMIT_CORE, &rl) == -1)
 	{
-		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to getrlimit()!");
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to getrlimit()!");
 		return false;
 	}
 	rl.rlim_cur = rl.rlim_max;
 
 	if (setrlimit(RLIMIT_CORE, &rl) == -1)
-			this->Logs->Log("STARTUP",LOG_DEFAULT,"setrlimit() failed, cannot increase coredump size.");
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setrlimit() failed, cannot increase coredump size.");
 
 	return true;
 #endif
@@ -257,7 +257,7 @@ void InspIRCd::WritePID(const std::string &filename)
 	else
 	{
 		std::cout << "Failed to write PID-file '" << fname << "', exiting." << std::endl;
-		this->Logs->Log("STARTUP",LOG_DEFAULT,"Failed to write PID-file '%s', exiting.",fname.c_str());
+		this->Logs->Log("STARTUP", LOG_DEFAULT, "Failed to write PID-file '%s', exiting.",fname.c_str());
 		Exit(EXIT_STATUS_PID);
 	}
 #endif
@@ -364,7 +364,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	struct option longopts[] =
 	{
 		{ "nofork",	no_argument,		&do_nofork,	1	},
-		{ "logfile",	required_argument,	NULL,		'f'	},
 		{ "config",	required_argument,	NULL,		'c'	},
 		{ "debug",	no_argument,		&do_debug,	1	},
 		{ "nolog",	no_argument,		&do_nolog,	1	},
@@ -375,14 +374,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	};
 
 	int index;
-	while ((c = getopt_long(argc, argv, ":c:f:", longopts, &index)) != -1)
+	while ((c = getopt_long(argc, argv, ":c:", longopts, &index)) != -1)
 	{
 		switch (c)
 		{
-			case 'f':
-				/* Log filename was set */
-				Config->cmdline.startup_log = optarg;
-			break;
 			case 'c':
 				/* Config filename was set */
 				ConfigFileName = optarg;
@@ -395,8 +390,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 			default:
 				/* Fall through to handle other weird values too */
 				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
-				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--logfile <filename>] " << std::endl <<
-					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version] [--config <config>] [--testsuite]" << std::endl;
+				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--config <config>]" << std::endl <<
+					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version] [--testsuite]" << std::endl;
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
@@ -429,11 +424,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		FileLogStream* fls = new FileLogStream(LOG_RAWIO, fw);
 		Logs->AddLogTypes("*", fls, true);
 	}
-	else if (!this->OpenLog(argv, argc))
-	{
-		std::cout << "ERROR: Could not open initial logfile " << Config->cmdline.startup_log << ": " << strerror(errno) << std::endl << std::endl;
-		Exit(EXIT_STATUS_LOG);
-	}
 
 	if (!ServerConfig::FileExists(ConfigFileName.c_str()))
 	{
@@ -450,7 +440,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 #endif
 		{
 			std::cout << "ERROR: Cannot open config file: " << ConfigFileName << std::endl << "Exiting..." << std::endl;
-			this->Logs->Log("STARTUP",LOG_DEFAULT,"Unable to open config file %s", ConfigFileName.c_str());
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "Unable to open config file %s", ConfigFileName.c_str());
 			Exit(EXIT_STATUS_CONFIG);
 		}
 	}
@@ -581,7 +571,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	}
 	else
 	{
-		Logs->Log("STARTUP", LOG_DEFAULT,"Keeping pseudo-tty open as we are running in the foreground.");
+		Logs->Log("STARTUP", LOG_DEFAULT, "Keeping pseudo-tty open as we are running in the foreground.");
 	}
 #else
 	/* Set win32 service as running, if we are running as a service */
@@ -705,7 +695,7 @@ int InspIRCd::Run()
 		if (this->ConfigThread && this->ConfigThread->IsDone())
 		{
 			/* Rehash has completed */
-			this->Logs->Log("CONFIG",LOG_DEBUG,"Detected ConfigThread exiting, tidying up...");
+			this->Logs->Log("CONFIG", LOG_DEBUG, "Detected ConfigThread exiting, tidying up...");
 
 			this->ConfigThread->Finish();
 

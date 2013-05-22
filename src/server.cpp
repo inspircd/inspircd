@@ -73,11 +73,6 @@ std::string InspIRCd::GetVersionString(bool getFullVersion)
 	return BRANCH " " + Config->ServerName + " :" + Config->CustomVersion;
 }
 
-const char InspIRCd::LogHeader[] =
-	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
-	" - compiled on " SYSTEM;
-
-
 std::string UIDGenerator::GenerateSID(const std::string& servername, const std::string& serverdesc)
 {
 	unsigned int sid = 0;

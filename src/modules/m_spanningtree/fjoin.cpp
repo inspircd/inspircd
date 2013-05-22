@@ -73,7 +73,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	time_t TS = ConvToInt(params[1]);
 	if (!TS)
 	{
-		ServerInstance->Logs->Log("m_spanningtree",LOG_DEFAULT,"*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
+		ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
 		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server.c_str());
 		return CMD_INVALID;
 	}
