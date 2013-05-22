@@ -213,8 +213,8 @@ class IdentRequestSocket : public EventHandler
 		/* We don't really need to buffer for incomplete replies here, since IDENT replies are
 		 * extremely short - there is *no* sane reason it'd be in more than one packet
 		 */
-		char ibuf[MAXBUF];
-		int recvresult = ServerInstance->SE->Recv(this, ibuf, MAXBUF-1, 0);
+		char ibuf[256];
+		int recvresult = ServerInstance->SE->Recv(this, ibuf, sizeof(ibuf)-1, 0);
 
 		/* Close (but don't delete from memory) our socket
 		 * and flag as done since the ident lookup has finished

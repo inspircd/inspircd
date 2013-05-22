@@ -327,7 +327,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	file_cache& cache = FilesOutput[key];
 	cache.clear();
 
-	char linebuf[MAXBUF*10];
+	char linebuf[5120];
 	while (fgets(linebuf, sizeof(linebuf), file))
 	{
 		size_t len = strlen(linebuf);
