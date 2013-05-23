@@ -90,6 +90,10 @@ CoreExport const char * insp_inet_ntop(int af, const void * src, char * dst, soc
 #define snprintf _snprintf
 #define vsnprintf _vsnprintf
 
+#ifndef va_copy
+#define va_copy(dest, src) (dest = src)
+#endif
+
 /* Unix-style sleep (argument is in seconds) */
 __inline void sleep(int seconds) { Sleep(seconds * 1000); }
 
