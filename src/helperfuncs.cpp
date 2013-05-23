@@ -401,10 +401,22 @@ unsigned long InspIRCd::Duration(const std::string &str)
 const char* InspIRCd::Format(va_list &vaList, const char* formatString)
 {
 	static std::vector<char> formatBuffer(1024);
-	int vsnret = 0;
-	while ((vsnret = vsnprintf(&formatBuffer[0], formatBuffer.size(), formatString, vaList)) < 0 || static_cast<unsigned int>(vsnret) >= formatBuffer.size())
+
+	while (true)
+	{
+		va_list dst;
+		va_copy(dst, vaList);
+
+		int vsnret = vsnprintf(&formatBuffer[0], formatBuffer.size(), formatString, dst);
+		if (vsnret > 0 && static_cast<unsigned>(vsnret) < formatBuffer.size())
+		{
+			return &formatBuffer[0];
+		}
+
 		formatBuffer.resize(formatBuffer.size() * 2);
-	return &formatBuffer[0];
+	}
+
+	throw CoreException();
 }
 
 const char* InspIRCd::Format(const char* formatString, ...)
