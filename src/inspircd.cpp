@@ -509,7 +509,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	std::cout << con_green << "(C) InspIRCd Development Team." << con_reset << std::endl << std::endl;
 	std::cout << "Developers:" << std::endl;
 	std::cout << con_green << "\tBrain, FrostyCoolSlug, w00t, Om, Special, peavey" << std::endl;
-	std::cout << "\taquanight, psychon, dz, danieldg, jackmcbarn" << con_reset << std::endl << std::endl;
+	std::cout << "\taquanight, psychon, dz, danieldg, jackmcbarn" << std::endl;
+	std::cout << "\tAttila" << con_reset << std::endl << std::endl;
 	std::cout << "Others:\t\t\t" << con_green << "See /INFO Output" << con_reset << std::endl;
 
 	this->Modes = new ModeParser;
