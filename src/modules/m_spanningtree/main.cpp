@@ -26,6 +26,7 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"
+#include "iohook.h"
 
 #include "resolvers.h"
 #include "main.h"
@@ -740,7 +741,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 	{
 		TreeServer* srv = Utils->TreeRoot->GetChild(x);
 		TreeSocket* sock = srv->GetSocket();
-		if (sock && sock->GetIOHook() == mod)
+		if (sock && sock->GetIOHook() && sock->GetIOHook()->creator == mod)
 		{
 			sock->SendError("SSL module unloaded");
 			sock->Close();

@@ -31,6 +31,7 @@
 #endif
 
 #include "inspircd.h"
+#include "iohook.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include "modules/ssl.h"
@@ -100,231 +101,142 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 	return 1;
 }
 
-class ModuleSSLOpenSSL : public Module
+class OpenSSLIOHook : public IOHook
 {
-	issl_session* sessions;
-
-	SSL_CTX* ctx;
-	SSL_CTX* clictx;
-
-	std::string sslports;
-	bool use_sha;
-
-	ServiceProvider iohook;
- public:
-
-	ModuleSSLOpenSSL() : iohook(this, "ssl/openssl", SERVICE_IOHOOK)
+ private:
+	bool Handshake(StreamSocket* user, issl_session* session)
 	{
-		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
+		int ret;
 
-		/* Global SSL library initialization*/
-		SSL_library_init();
-		SSL_load_error_strings();
+		if (session->outbound)
+			ret = SSL_connect(session->sess);
+		else
+			ret = SSL_accept(session->sess);
 
-		/* Build our SSL contexts:
-		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
-		 */
-		ctx = SSL_CTX_new( SSLv23_server_method() );
-		clictx = SSL_CTX_new( SSLv23_client_method() );
-
-		SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-		SSL_CTX_set_mode(clictx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-
-		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
-		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		// Needs the flag as it ignores a plain /rehash
-		OnModuleRehash(NULL,"ssl");
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		ServerInstance->Modules->AddService(iohook);
-	}
-
-	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE
-	{
-		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "openssl")
+		if (ret < 0)
 		{
-			/* Hook the user with our module */
-			user->AddIOHook(this);
-		}
-	}
+			int err = SSL_get_error(session->sess, ret);
 
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		sslports.clear();
-
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("openssl");
-
-		if (Conf->getBool("showports", true))
-		{
-			sslports = Conf->getString("advertisedports");
-			if (!sslports.empty())
-				return;
-
-			for (size_t i = 0; i < ServerInstance->ports.size(); i++)
+			if (err == SSL_ERROR_WANT_READ)
 			{
-				ListenSocket* port = ServerInstance->ports[i];
-				if (port->bind_tag->getString("ssl") != "openssl")
-					continue;
-
-				const std::string& portid = port->bind_desc;
-				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
-
-				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
-				{
-					/*
-					 * Found an SSL port for clients that is not bound to 127.0.0.1 and handled by us, display
-					 * the IP:port in ISUPPORT.
-					 *
-					 * We used to advertise all ports seperated by a ';' char that matched the above criteria,
-					 * but this resulted in too long ISUPPORT lines if there were lots of ports to be displayed.
-					 * To solve this by default we now only display the first IP:port found and let the user
-					 * configure the exact value for the 005 token, if necessary.
-					 */
-					sslports = portid;
-					break;
-				}
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				session->status = ISSL_HANDSHAKING;
+				return true;
 			}
+			else if (err == SSL_ERROR_WANT_WRITE)
+			{
+				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
+				session->status = ISSL_HANDSHAKING;
+				return true;
+			}
+			else
+			{
+				CloseSession(session);
+			}
+
+			return false;
 		}
+		else if (ret > 0)
+		{
+			// Handshake complete.
+			VerifyCertificate(session, user);
+
+			session->status = ISSL_OPEN;
+
+			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
+
+			return true;
+		}
+		else if (ret == 0)
+		{
+			CloseSession(session);
+			return true;
+		}
+
+		return true;
 	}
 
-	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
+	void CloseSession(issl_session* session)
 	{
-		if (param != "ssl")
+		if (session->sess)
+		{
+			SSL_shutdown(session->sess);
+			SSL_free(session->sess);
+		}
+
+		session->sess = NULL;
+		session->status = ISSL_NONE;
+		errno = EIO;
+	}
+
+	void VerifyCertificate(issl_session* session, StreamSocket* user)
+	{
+		if (!session->sess || !user)
 			return;
 
-		std::string keyfile;
-		std::string certfile;
-		std::string cafile;
-		std::string dhfile;
-		OnRehash(user);
+		X509* cert;
+		ssl_cert* certinfo = new ssl_cert;
+		session->cert = certinfo;
+		unsigned int n;
+		unsigned char md[EVP_MAX_MD_SIZE];
+		const EVP_MD *digest = use_sha ? EVP_sha1() : EVP_md5();
 
-		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
+		cert = SSL_get_peer_certificate((SSL*)session->sess);
 
-		cafile	 = conf->getString("cafile", CONFIG_PATH "/ca.pem");
-		certfile = conf->getString("certfile", CONFIG_PATH "/cert.pem");
-		keyfile	 = conf->getString("keyfile", CONFIG_PATH "/key.pem");
-		dhfile	 = conf->getString("dhfile", CONFIG_PATH "/dhparams.pem");
-		std::string hash = conf->getString("hash", "md5");
-		if (hash != "sha1" && hash != "md5")
-			throw ModuleException("Unknown hash type " + hash);
-		use_sha = (hash == "sha1");
-
-		std::string ciphers = conf->getString("ciphers", "");
-
-		if (!ciphers.empty())
+		if (!cert)
 		{
-			if ((!SSL_CTX_set_cipher_list(ctx, ciphers.c_str())) || (!SSL_CTX_set_cipher_list(clictx, ciphers.c_str())))
-			{
-				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Can't set cipher list to %s.", ciphers.c_str());
-				ERR_print_errors_cb(error_callback, this);
-			}
+			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
+			return;
 		}
 
-		/* Load our keys and certificates
-		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
-		 */
-		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
-		{
-			ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
-			ERR_print_errors_cb(error_callback, this);
-		}
+		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
 
-		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
+		if (SelfSigned)
 		{
-			ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
-			ERR_print_errors_cb(error_callback, this);
-		}
-
-		/* Load the CAs we trust*/
-		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
-		{
-			ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", cafile.c_str(), strerror(errno));
-			ERR_print_errors_cb(error_callback, this);
-		}
-
-		FILE* dhpfile = fopen(dhfile.c_str(), "r");
-		DH* ret;
-
-		if (dhpfile == NULL)
-		{
-			ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
-			throw ModuleException("Couldn't open DH file " + dhfile + ": " + strerror(errno));
+			certinfo->unknownsigner = false;
+			certinfo->trusted = true;
 		}
 		else
 		{
-			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
-			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
-			{
-				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
-				ERR_print_errors_cb(error_callback, this);
-			}
+			certinfo->unknownsigner = true;
+			certinfo->trusted = false;
 		}
 
-		fclose(dhpfile);
+		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
+		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
+
+		if (!X509_digest(cert, digest, md, &n))
+		{
+			certinfo->error = "Out of memory generating fingerprint";
+		}
+		else
+		{
+			certinfo->fingerprint = BinToHex(md, n);
+		}
+
+		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
+		{
+			certinfo->error = "Not activated, or expired certificate";
+		}
+
+		X509_free(cert);
 	}
 
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+ public:
+	issl_session* sessions;
+	SSL_CTX* ctx;
+	SSL_CTX* clictx;
+	bool use_sha;
+
+	OpenSSLIOHook(Module* mod)
+		: IOHook(mod, "ssl/openssl")
 	{
-		if (!sslports.empty())
-			tokens["SSL"] = sslports;
+		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 	}
 
-	~ModuleSSLOpenSSL()
+	~OpenSSLIOHook()
 	{
-		SSL_CTX_free(ctx);
-		SSL_CTX_free(clictx);
 		delete[] sessions;
-	}
-
-	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
-	{
-		if (user->eh.GetIOHook() == this)
-		{
-			if (sessions[user->eh.GetFd()].sess)
-			{
-				if (!sessions[user->eh.GetFd()].cert->fingerprint.empty())
-					user->WriteNotice("*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sessions[user->eh.GetFd()].sess)) +
-						"' and your SSL fingerprint is " + sessions[user->eh.GetFd()].cert->fingerprint);
-				else
-					user->WriteNotice("*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sessions[user->eh.GetFd()].sess)) + "'");
-			}
-		}
-	}
-
-	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
-	{
-		if (target_type == TYPE_USER)
-		{
-			LocalUser* user = IS_LOCAL((User*)item);
-
-			if (user && user->eh.GetIOHook() == this)
-			{
-				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
-				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Users->QuitUser(user, "SSL module unloading");
-			}
-		}
-	}
-
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides SSL support for clients", VF_VENDOR);
-	}
-
-	void OnRequest(Request& request) CXX11_OVERRIDE
-	{
-		if (strcmp("GET_SSL_CERT", request.id) == 0)
-		{
-			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
-			int fd = req.sock->GetFd();
-			issl_session* session = &sessions[fd];
-
-			req.cert = session->cert;
-		}
 	}
 
 	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
@@ -528,122 +440,230 @@ class ModuleSSLOpenSSL : public Module
 		return 0;
 	}
 
-	bool Handshake(StreamSocket* user, issl_session* session)
+	void TellCiphersAndFingerprint(LocalUser* user)
 	{
-		int ret;
-
-		if (session->outbound)
-			ret = SSL_connect(session->sess);
-		else
-			ret = SSL_accept(session->sess);
-
-		if (ret < 0)
+		issl_session& s = sessions[user->eh.GetFd()];
+		if (s.sess)
 		{
-			int err = SSL_get_error(session->sess, ret);
+			std::string text = "*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(s.sess)) + "'";
+			const std::string& fingerprint = s.cert->fingerprint;
+			if (!fingerprint.empty())
+				text += " and your SSL fingerprint is " + fingerprint;
 
-			if (err == SSL_ERROR_WANT_READ)
-			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				session->status = ISSL_HANDSHAKING;
-				return true;
-			}
-			else if (err == SSL_ERROR_WANT_WRITE)
-			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
-				session->status = ISSL_HANDSHAKING;
-				return true;
-			}
-			else
-			{
-				CloseSession(session);
-			}
-
-			return false;
+			user->WriteNotice(text);
 		}
-		else if (ret > 0)
-		{
-			// Handshake complete.
-			VerifyCertificate(session, user);
+	}
+};
 
-			session->status = ISSL_OPEN;
+class ModuleSSLOpenSSL : public Module
+{
+	std::string sslports;
+	OpenSSLIOHook iohook;
 
-			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
+ public:
+	ModuleSSLOpenSSL() : iohook(this)
+	{
+		/* Global SSL library initialization*/
+		SSL_library_init();
+		SSL_load_error_strings();
 
-			return true;
-		}
-		else if (ret == 0)
-		{
-			CloseSession(session);
-			return true;
-		}
+		/* Build our SSL contexts:
+		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
+		 */
+		iohook.ctx = SSL_CTX_new( SSLv23_server_method() );
+		iohook.clictx = SSL_CTX_new( SSLv23_client_method() );
 
-		return true;
+		SSL_CTX_set_mode(iohook.ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+		SSL_CTX_set_mode(iohook.clictx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+
+		SSL_CTX_set_verify(iohook.ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+		SSL_CTX_set_verify(iohook.clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 	}
 
-	void CloseSession(issl_session* session)
+	~ModuleSSLOpenSSL()
 	{
-		if (session->sess)
-		{
-			SSL_shutdown(session->sess);
-			SSL_free(session->sess);
-		}
-
-		session->sess = NULL;
-		session->status = ISSL_NONE;
-		errno = EIO;
+		SSL_CTX_free(iohook.ctx);
+		SSL_CTX_free(iohook.clictx);
 	}
 
-	void VerifyCertificate(issl_session* session, StreamSocket* user)
+	void init() CXX11_OVERRIDE
 	{
-		if (!session->sess || !user)
-			return;
+		// Needs the flag as it ignores a plain /rehash
+		OnModuleRehash(NULL,"ssl");
+		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnHookIO, I_OnUserConnect };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->Modules->AddService(iohook);
+	}
 
-		X509* cert;
-		ssl_cert* certinfo = new ssl_cert;
-		session->cert = certinfo;
-		unsigned int n;
-		unsigned char md[EVP_MAX_MD_SIZE];
-		const EVP_MD *digest = use_sha ? EVP_sha1() : EVP_md5();
-
-		cert = SSL_get_peer_certificate((SSL*)session->sess);
-
-		if (!cert)
+	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE
+	{
+		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "openssl")
 		{
-			certinfo->error = "Could not get peer certificate: "+std::string(get_error());
+			/* Hook the user with our module */
+			user->AddIOHook(&iohook);
+		}
+	}
+
+	void OnRehash(User* user) CXX11_OVERRIDE
+	{
+		sslports.clear();
+
+		ConfigTag* Conf = ServerInstance->Config->ConfValue("openssl");
+
+		if (Conf->getBool("showports", true))
+		{
+			sslports = Conf->getString("advertisedports");
+			if (!sslports.empty())
+				return;
+
+			for (size_t i = 0; i < ServerInstance->ports.size(); i++)
+			{
+				ListenSocket* port = ServerInstance->ports[i];
+				if (port->bind_tag->getString("ssl") != "openssl")
+					continue;
+
+				const std::string& portid = port->bind_desc;
+				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Enabling SSL for port %s", portid.c_str());
+
+				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
+				{
+					/*
+					 * Found an SSL port for clients that is not bound to 127.0.0.1 and handled by us, display
+					 * the IP:port in ISUPPORT.
+					 *
+					 * We used to advertise all ports seperated by a ';' char that matched the above criteria,
+					 * but this resulted in too long ISUPPORT lines if there were lots of ports to be displayed.
+					 * To solve this by default we now only display the first IP:port found and let the user
+					 * configure the exact value for the 005 token, if necessary.
+					 */
+					sslports = portid;
+					break;
+				}
+			}
+		}
+	}
+
+	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
+	{
+		if (param != "ssl")
 			return;
+
+		std::string keyfile;
+		std::string certfile;
+		std::string cafile;
+		std::string dhfile;
+		OnRehash(user);
+
+		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
+
+		cafile	 = conf->getString("cafile", CONFIG_PATH "/ca.pem");
+		certfile = conf->getString("certfile", CONFIG_PATH "/cert.pem");
+		keyfile	 = conf->getString("keyfile", CONFIG_PATH "/key.pem");
+		dhfile	 = conf->getString("dhfile", CONFIG_PATH "/dhparams.pem");
+		std::string hash = conf->getString("hash", "md5");
+		if (hash != "sha1" && hash != "md5")
+			throw ModuleException("Unknown hash type " + hash);
+		iohook.use_sha = (hash == "sha1");
+
+		std::string ciphers = conf->getString("ciphers", "");
+
+		SSL_CTX* ctx = iohook.ctx;
+		SSL_CTX* clictx = iohook.clictx;
+
+		if (!ciphers.empty())
+		{
+			if ((!SSL_CTX_set_cipher_list(ctx, ciphers.c_str())) || (!SSL_CTX_set_cipher_list(clictx, ciphers.c_str())))
+			{
+				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Can't set cipher list to %s.", ciphers.c_str());
+				ERR_print_errors_cb(error_callback, this);
+			}
 		}
 
-		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
-
-		if (SelfSigned)
+		/* Load our keys and certificates
+		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
+		 */
+		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
 		{
-			certinfo->unknownsigner = false;
-			certinfo->trusted = true;
+			ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
+			ERR_print_errors_cb(error_callback, this);
+		}
+
+		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
+			ERR_print_errors_cb(error_callback, this);
+		}
+
+		/* Load the CAs we trust*/
+		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl",LOG_DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", cafile.c_str(), strerror(errno));
+			ERR_print_errors_cb(error_callback, this);
+		}
+
+		FILE* dhpfile = fopen(dhfile.c_str(), "r");
+		DH* ret;
+
+		if (dhpfile == NULL)
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
+			throw ModuleException("Couldn't open DH file " + dhfile + ": " + strerror(errno));
 		}
 		else
 		{
-			certinfo->unknownsigner = true;
-			certinfo->trusted = false;
+			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
+			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
+			{
+				ServerInstance->Logs->Log("m_ssl_openssl", LOG_DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
+				ERR_print_errors_cb(error_callback, this);
+			}
 		}
 
-		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
-		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
+		fclose(dhpfile);
+	}
 
-		if (!X509_digest(cert, digest, md, &n))
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
+	{
+		if (!sslports.empty())
+			tokens["SSL"] = sslports;
+	}
+
+	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
+	{
+		if (user->eh.GetIOHook() == &iohook)
+			iohook.TellCiphersAndFingerprint(user);
+	}
+
+	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
+	{
+		if (target_type == TYPE_USER)
 		{
-			certinfo->error = "Out of memory generating fingerprint";
-		}
-		else
-		{
-			certinfo->fingerprint = BinToHex(md, n);
-		}
+			LocalUser* user = IS_LOCAL((User*)item);
 
-		if ((ASN1_UTCTIME_cmp_time_t(X509_get_notAfter(cert), ServerInstance->Time()) == -1) || (ASN1_UTCTIME_cmp_time_t(X509_get_notBefore(cert), ServerInstance->Time()) == 0))
-		{
-			certinfo->error = "Not activated, or expired certificate";
+			if (user && user->eh.GetIOHook() == &iohook)
+			{
+				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
+				// Potentially there could be multiple SSL modules loaded at once on different ports.
+				ServerInstance->Users->QuitUser(user, "SSL module unloading");
+			}
 		}
+	}
 
-		X509_free(cert);
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides SSL support for clients", VF_VENDOR);
+	}
+
+	void OnRequest(Request& request) CXX11_OVERRIDE
+	{
+		if (strcmp("GET_SSL_CERT", request.id) == 0)
+		{
+			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
+			int fd = req.sock->GetFd();
+			issl_session* session = &iohook.sessions[fd];
+
+			req.cert = session->cert;
+		}
 	}
 };
 

@@ -23,6 +23,7 @@
 
 
 #include "inspircd.h"
+#include "iohook.h"
 #include "modules/httpd.h"
 
 /* $ModDesc: Provides HTTP serving facilities to modules */

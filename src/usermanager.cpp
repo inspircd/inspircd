@@ -23,6 +23,7 @@
 #include "inspircd.h"
 #include "xline.h"
 #include "bancache.h"
+#include "iohook.h"
 
 UserManager::UserManager()
 	: clientlist(new user_hash)

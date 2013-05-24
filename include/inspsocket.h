@@ -25,6 +25,8 @@
 
 #include "timer.h"
 
+class IOHook;
+
 /**
  * States which a socket may be in
  */
@@ -101,8 +103,9 @@ class CoreExport SocketTimeout : public Timer
  */
 class CoreExport StreamSocket : public EventHandler
 {
-	/** Module that handles raw I/O for this socket, or NULL */
-	reference<Module> IOHook;
+	/** The IOHook that handles raw I/O for this socket, or NULL */
+	IOHook* iohook;
+
 	/** Private send queue. Note that individual strings may be shared
 	 */
 	std::deque<std::string> sendq;
@@ -113,10 +116,10 @@ class CoreExport StreamSocket : public EventHandler
  protected:
 	std::string recvq;
  public:
-	StreamSocket() : sendq_len(0) {}
-	inline Module* GetIOHook();
-	inline void AddIOHook(Module* m);
-	inline void DelIOHook();
+	StreamSocket() : iohook(NULL), sendq_len(0) {}
+	IOHook* GetIOHook() const;
+	void AddIOHook(IOHook* hook);
+	void DelIOHook();
 	/** Handle event from socket engine.
 	 * This will call OnDataReady if there is *new* data in recvq
 	 */
@@ -228,8 +231,6 @@ class CoreExport BufferedSocket : public StreamSocket
 	BufferedSocketError BeginConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip);
 };
 
-#include "modules.h"
-
-inline Module* StreamSocket::GetIOHook() { return IOHook; }
-inline void StreamSocket::AddIOHook(Module* m) { IOHook = m; }
-inline void StreamSocket::DelIOHook() { IOHook = NULL; }
+inline IOHook* StreamSocket::GetIOHook() const { return iohook; }
+inline void StreamSocket::AddIOHook(IOHook* hook) { iohook = hook; }
+inline void StreamSocket::DelIOHook() { iohook = NULL; }

@@ -26,6 +26,7 @@
 #include "socket.h"
 #include "inspstring.h"
 #include "socketengine.h"
+#include "iohook.h"
 
 #ifndef DISABLE_WRITEV
 #include <sys/uio.h>
@@ -122,18 +123,18 @@ void StreamSocket::Close()
 	{
 		// final chance, dump as much of the sendq as we can
 		DoWrite();
-		if (IOHook)
+		if (GetIOHook())
 		{
 			try
 			{
-				IOHook->OnStreamSocketClose(this);
+				GetIOHook()->OnStreamSocketClose(this);
 			}
 			catch (CoreException& modexcept)
 			{
 				ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
 					modexcept.GetSource(), modexcept.GetReason());
 			}
-			IOHook = NULL;
+			DelIOHook();
 		}
 		ServerInstance->SE->Shutdown(this, 2);
 		ServerInstance->SE->DelFd(this);
@@ -161,12 +162,12 @@ bool StreamSocket::GetNextLine(std::string& line, char delim)
 
 void StreamSocket::DoRead()
 {
-	if (IOHook)
+	if (GetIOHook())
 	{
 		int rv = -1;
 		try
 		{
-			rv = IOHook->OnStreamSocketRead(this, recvq);
+			rv = GetIOHook()->OnStreamSocketRead(this, recvq);
 		}
 		catch (CoreException& modexcept)
 		{
@@ -230,7 +231,7 @@ void StreamSocket::DoWrite()
 	}
 
 #ifndef DISABLE_WRITEV
-	if (IOHook)
+	if (GetIOHook())
 #endif
 	{
 		int rv = -1;
@@ -256,9 +257,9 @@ void StreamSocket::DoWrite()
 				}
 				std::string& front = sendq.front();
 				int itemlen = front.length();
-				if (IOHook)
+				if (GetIOHook())
 				{
-					rv = IOHook->OnStreamSocketWrite(this, front);
+					rv = GetIOHook()->OnStreamSocketWrite(this, front);
 					if (rv > 0)
 					{
 						// consumed the entire string, and is ready for more

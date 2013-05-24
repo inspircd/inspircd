@@ -136,11 +136,6 @@ void		Module::OnRequest(Request&) { }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
 void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
-void		Module::OnStreamSocketAccept(StreamSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { }
-int		Module::OnStreamSocketWrite(StreamSocket*, std::string&) { return -1; }
-void		Module::OnStreamSocketClose(StreamSocket*) { }
-void		Module::OnStreamSocketConnect(StreamSocket*) { }
-int		Module::OnStreamSocketRead(StreamSocket*, std::string&) { return -1; }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { }
 void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
 void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }

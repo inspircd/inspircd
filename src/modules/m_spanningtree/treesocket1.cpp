@@ -21,6 +21,7 @@
 
 
 #include "inspircd.h"
+#include "iohook.h"
 
 #include "main.h"
 #include "modules/spanningtree.h"
@@ -55,7 +56,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
 			SetError("Could not find hook '" + link->Hook + "' for connection to " + linkID);
 			return;
 		}
-		AddIOHook(prov->creator);
+		AddIOHook(static_cast<IOHook*>(prov));
 	}
 	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, link->Timeout);

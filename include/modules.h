@@ -1169,48 +1169,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnAcceptConnection(int fd, ListenSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
-	/** Called immediately after any connection is accepted. This is intended for raw socket
-	 * processing (e.g. modules which wrap the tcp connection within another library) and provides
-	 * no information relating to a user record as the connection has not been assigned yet.
-	 * There are no return values from this call as all modules get an opportunity if required to
-	 * process the connection.
-	 * @param sock The socket in question
-	 * @param client The client IP address and port
-	 * @param server The server IP address and port
-	 */
-	virtual void OnStreamSocketAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
-
-	/**
-	 * Called when a hooked stream has data to write, or when the socket
-	 * engine returns it as writable
-	 * @param sock The socket in question
-	 * @param sendq Data to send to the socket
-	 * @return 1 if the sendq has been completely emptied, 0 if there is
-	 *  still data to send, and -1 if there was an error
-	 */
-	virtual int OnStreamSocketWrite(StreamSocket* sock, std::string& sendq);
-
-	/** Called immediately before any socket is closed. When this event is called, shutdown()
-	 * has not yet been called on the socket.
-	 * @param sock The socket in question
-	 */
-	virtual void OnStreamSocketClose(StreamSocket* sock);
-
-	/** Called immediately upon connection of an outbound BufferedSocket which has been hooked
-	 * by a module.
-	 * @param sock The socket in question
-	 */
-	virtual void OnStreamSocketConnect(StreamSocket* sock);
-
-	/**
-	 * Called when the stream socket has data to read
-	 * @param sock The socket that is ready
-	 * @param recvq The receive queue that new data should be appended to
-	 * @return 1 if new data has been read, 0 if no new data is ready (but the
-	 *  socket is still connected), -1 if there was an error or close
-	 */
-	virtual int OnStreamSocketRead(StreamSocket* sock, std::string& recvq);
-
 	/** Called whenever a user sets away or returns from being away.
 	 * The away message is available as a parameter, but should not be modified.
 	 * At this stage, it has already been copied into the user record.
