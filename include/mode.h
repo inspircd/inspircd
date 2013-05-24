@@ -447,11 +447,6 @@ class CoreExport ModeParser
 	ModeParser();
 	~ModeParser();
 
-	/** Used to check if user 'd' should be allowed to do operation 'MASK' on channel 'chan'.
-	 * for example, should 'user A' be able to 'op' on 'channel B'.
-	 */
-	User* SanityChecks(User *user,const char *dest,Channel *chan,int status);
-
 	/** Initialize all built-in modes
 	 */
 	static void InitBuiltinModes();
@@ -554,8 +549,6 @@ class CoreExport ModeParser
 	 *  4; Modes that dont take a param
 	 */
 	std::string GiveModeList(ModeMasks m);
-
-	static bool PrefixComparison(ModeHandler* one, ModeHandler* two);
 
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric, or
 	 * just the "@%+" part if the parameter false

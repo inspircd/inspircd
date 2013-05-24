@@ -184,22 +184,6 @@ void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, Mo
 {
 }
 
-User* ModeParser::SanityChecks(User *user, const char *dest, Channel *chan, int)
-{
-	User *d;
-	if ((!user) || (!dest) || (!chan) || (!*dest))
-	{
-		return NULL;
-	}
-	d = ServerInstance->FindNick(dest);
-	if (!d)
-	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), dest);
-		return NULL;
-	}
-	return d;
-}
-
 void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text)
 {
 	if (targetchannel)
