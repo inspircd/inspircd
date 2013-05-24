@@ -138,13 +138,16 @@ void LogManager::CloseLogs()
 {
 	if (ServerInstance->Config && ServerInstance->Config->cmdline.forcedebug)
 		return;
-	std::map<std::string, std::vector<LogStream*> >().swap(LogStreams); /* Clear it */
-	std::map<LogStream*, std::vector<std::string> >().swap(GlobalLogStreams); /* Clear it */
+
+	LogStreams.clear();
+	GlobalLogStreams.clear();
+
 	for (std::map<LogStream*, int>::iterator i = AllLogStreams.begin(); i != AllLogStreams.end(); ++i)
 	{
 		delete i->first;
 	}
-	std::map<LogStream*, int>().swap(AllLogStreams); /* And clear it */
+
+	AllLogStreams.clear();
 }
 
 void LogManager::AddLogTypes(const std::string &types, LogStream* l, bool autoclose)
@@ -190,36 +193,13 @@ void LogManager::AddLogTypes(const std::string &types, LogStream* l, bool autocl
 
 bool LogManager::AddLogType(const std::string &type, LogStream *l, bool autoclose)
 {
-	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
-
-	if (i != LogStreams.end())
-	{
-		i->second.push_back(l);
-	}
-	else
-	{
-		std::vector<LogStream *> v;
-		v.push_back(l);
-		LogStreams[type] = v;
-	}
+	LogStreams[type].push_back(l);
 
 	if (type == "*")
-	{
 		GlobalLogStreams.insert(std::make_pair(l, std::vector<std::string>()));
-	}
 
 	if (autoclose)
-	{
-		std::map<LogStream*, int>::iterator ai = AllLogStreams.find(l);
-		if (ai == AllLogStreams.end())
-		{
-			AllLogStreams.insert(std::make_pair(l, 1));
-		}
-		else
-		{
-			++ai->second;
-		}
-	}
+		AllLogStreams[l]++;
 
 	return true;
 }
@@ -231,21 +211,18 @@ void LogManager::DelLogStream(LogStream* l)
 		std::vector<LogStream*>::iterator it;
 		while ((it = std::find(i->second.begin(), i->second.end(), l)) != i->second.end())
 		{
-			if (it == i->second.end())
-				continue;
 			i->second.erase(it);
 		}
 	}
-	std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.find(l);
-	if (gi != GlobalLogStreams.end())
-	{
-		GlobalLogStreams.erase(gi);
-	}
+
+	GlobalLogStreams.erase(l);
+
 	std::map<LogStream*, int>::iterator ai = AllLogStreams.begin();
 	if (ai == AllLogStreams.end())
 	{
 		return; /* Done. */
 	}
+
 	delete ai->first;
 	AllLogStreams.erase(ai);
 }
@@ -255,8 +232,7 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 	std::map<std::string, std::vector<LogStream *> >::iterator i = LogStreams.find(type);
 	if (type == "*")
 	{
-		std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.find(l);
-		if (gi != GlobalLogStreams.end()) GlobalLogStreams.erase(gi);
+		GlobalLogStreams.erase(l);
 	}
 
 	if (i != LogStreams.end())
@@ -350,8 +326,8 @@ void FileWriter::WriteLogLine(const std::string &line)
 // XXX: For now, just return. Don't throw an exception. It'd be nice to find out if this is happening, but I'm terrified of breaking so close to final release. -- w00t
 //		throw CoreException("FileWriter::WriteLogLine called with a closed logfile");
 
-	fprintf(log,"%s",line.c_str());
-	if (writeops++ % 20)
+	fputs(line.c_str(), log);
+	if (++writeops % 20 == 0)
 	{
 		fflush(log);
 	}
