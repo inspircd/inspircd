@@ -132,20 +132,67 @@ class ssl_cert : public refcountbase
 	}
 };
 
-/** Get certificate from a socket (only useful with an SSL module) */
-struct SocketCertificateRequest : public Request
+class SSLIOHook : public IOHook
 {
-	StreamSocket* const sock;
-	ssl_cert* cert;
-
-	SocketCertificateRequest(StreamSocket* ss, Module* Me)
-		: Request(Me, (ss->GetIOHook() ? (Module*)ss->GetIOHook()->creator : NULL), "GET_SSL_CERT"), sock(ss), cert(NULL)
+ public:
+	SSLIOHook(Module* mod, const std::string& Name)
+		: IOHook(mod, Name, IOHook::IOH_SSL)
 	{
-		Send();
 	}
 
-	std::string GetFingerprint()
+	/**
+	 * Get the client certificate from a socket
+	 * @param sock The socket to get the certificate from, must be using this IOHook
+	 * @return The SSL client certificate information
+	 */
+	virtual ssl_cert* GetCertificate(StreamSocket* sock) = 0;
+
+	/**
+	 * Get the fingerprint of a client certificate from a socket
+	 * @param sock The socket to get the certificate fingerprint from, must be using this IOHook
+	 * @return The fingerprint of the SSL client certificate sent by the peer,
+	 * empty if no cert was sent
+	 */
+	std::string GetFingerprint(StreamSocket* sock)
 	{
+		ssl_cert* cert = GetCertificate(sock);
+		if (cert)
+			return cert->GetFingerprint();
+		return "";
+	}
+};
+
+/** Helper functions for obtaining SSL client certificates and key fingerprints
+ * from StreamSockets
+ */
+class SSLClientCert
+{
+ public:
+ 	/**
+	 * Get the client certificate from a socket
+	 * @param sock The socket to get the certificate from, the socket does not have to use SSL
+	 * @return The SSL client certificate information, NULL if the peer is not using SSL
+	 */
+	static ssl_cert* GetCertificate(StreamSocket* sock)
+	{
+		IOHook* iohook = sock->GetIOHook();
+		if ((!iohook) || (iohook->type != IOHook::IOH_SSL))
+			return NULL;
+
+		SSLIOHook* ssliohook = static_cast<SSLIOHook*>(iohook);
+		return ssliohook->GetCertificate(sock);
+	}
+
+	/**
+	 * Get the fingerprint of a client certificate from a socket
+	 * @param sock The socket to get the certificate fingerprint from, the
+	 * socket does not have to use SSL
+	 * @return The key fingerprint from the SSL certificate sent by the peer,
+	 * empty if no cert was sent or the peer is not using SSL
+	 */
+	static std::string GetFingerprint(StreamSocket* sock)
+	{
+		ssl_cert* cert = SSLClientCert::GetCertificate(sock);
 		if (cert)
 			return cert->GetFingerprint();
 		return "";

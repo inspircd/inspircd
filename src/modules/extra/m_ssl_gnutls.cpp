@@ -100,7 +100,7 @@ public:
 	issl_session() : socket(NULL), sess(NULL) {}
 };
 
-class GnuTLSIOHook : public IOHook
+class GnuTLSIOHook : public SSLIOHook
 {
  private:
 	void InitSession(StreamSocket* user, bool me_server)
@@ -359,7 +359,7 @@ info_done_dealloc:
 	int dh_bits;
 
 	GnuTLSIOHook(Module* parent)
-		: IOHook(parent, "ssl/gnutls")
+		: SSLIOHook(parent, "ssl/gnutls")
 	{
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 	}
@@ -499,6 +499,13 @@ info_done_dealloc:
 		}
 
 		return 0;
+	}
+
+	ssl_cert* GetCertificate(StreamSocket* sock) CXX11_OVERRIDE
+	{
+		int fd = sock->GetFd();
+		issl_session* session = &sessions[fd];
+		return session->cert;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)
@@ -892,18 +899,6 @@ class ModuleSSLGnuTLS : public Module
 		{
 			/* Hook the user with our module */
 			user->AddIOHook(&iohook);
-		}
-	}
-
-	void OnRequest(Request& request) CXX11_OVERRIDE
-	{
-		if (strcmp("GET_SSL_CERT", request.id) == 0)
-		{
-			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
-			int fd = req.sock->GetFd();
-			issl_session* session = &iohook.sessions[fd];
-
-			req.cert = session->cert;
 		}
 	}
 

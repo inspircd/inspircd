@@ -24,8 +24,16 @@ class StreamSocket;
 class IOHook : public ServiceProvider
 {
  public:
-	IOHook(Module* mod, const std::string& Name)
-		: ServiceProvider(mod, Name, SERVICE_IOHOOK) { }
+	enum Type
+	{
+		IOH_UNKNOWN,
+		IOH_SSL
+	};
+
+	const Type type;
+
+	IOHook(Module* mod, const std::string& Name, Type hooktype = IOH_UNKNOWN)
+		: ServiceProvider(mod, Name, SERVICE_IOHOOK), type(hooktype) { }
 
 	/** Called immediately after any connection is accepted. This is intended for raw socket
 	 * processing (e.g. modules which wrap the tcp connection within another library) and provides

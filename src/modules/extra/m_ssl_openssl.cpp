@@ -101,7 +101,7 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 	return 1;
 }
 
-class OpenSSLIOHook : public IOHook
+class OpenSSLIOHook : public SSLIOHook
 {
  private:
 	bool Handshake(StreamSocket* user, issl_session* session)
@@ -229,7 +229,7 @@ class OpenSSLIOHook : public IOHook
 	bool use_sha;
 
 	OpenSSLIOHook(Module* mod)
-		: IOHook(mod, "ssl/openssl")
+		: SSLIOHook(mod, "ssl/openssl")
 	{
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 	}
@@ -438,6 +438,13 @@ class OpenSSLIOHook : public IOHook
 			}
 		}
 		return 0;
+	}
+
+	ssl_cert* GetCertificate(StreamSocket* sock) CXX11_OVERRIDE
+	{
+		int fd = sock->GetFd();
+		issl_session* session = &sessions[fd];
+		return session->cert;
 	}
 
 	void TellCiphersAndFingerprint(LocalUser* user)
@@ -652,18 +659,6 @@ class ModuleSSLOpenSSL : public Module
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides SSL support for clients", VF_VENDOR);
-	}
-
-	void OnRequest(Request& request) CXX11_OVERRIDE
-	{
-		if (strcmp("GET_SSL_CERT", request.id) == 0)
-		{
-			SocketCertificateRequest& req = static_cast<SocketCertificateRequest&>(request);
-			int fd = req.sock->GetFd();
-			issl_session* session = &iohook.sessions[fd];
-
-			req.cert = session->cert;
-		}
 	}
 };
 

@@ -69,16 +69,6 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	capab->auth_fingerprint = !link.Fingerprint.empty();
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
-	std::string fp;
-	if (GetIOHook())
-	{
-		SocketCertificateRequest req(this, Utils->Creator);
-		if (req.cert)
-		{
-			fp = req.cert->GetFingerprint();
-		}
-	}
-
 	if (capab->auth_challenge)
 	{
 		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
@@ -94,6 +84,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 			return false;
 	}
 
+	std::string fp = SSLClientCert::GetFingerprint(this);
 	if (capab->auth_fingerprint)
 	{
 		/* Require fingerprint to exist and match */

@@ -63,10 +63,10 @@ class SaslAuthenticator
 		params.push_back("S");
 		params.push_back(method);
 
-		if (method == "EXTERNAL" && IS_LOCAL(user_))
+		LocalUser* localuser = IS_LOCAL(user);
+		if (method == "EXTERNAL" && localuser)
 		{
-			SocketCertificateRequest req(&((LocalUser*)user_)->eh, ServerInstance->Modules->Find("m_sasl.so"));
-			std::string fp = req.GetFingerprint();
+			std::string fp = SSLClientCert::GetFingerprint(&localuser->eh);
 
 			if (fp.size())
 				params.push_back(fp);

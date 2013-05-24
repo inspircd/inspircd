@@ -191,10 +191,9 @@ class ModuleSSLInfo : public Module
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		SocketCertificateRequest req(&user->eh, this);
-		if (!req.cert)
-			return;
-		cmd.CertExt.set(user, req.cert);
+		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
+		if (cert)
+			cmd.CertExt.set(user, cert);
 	}
 
 	void OnPostConnect(User* user) CXX11_OVERRIDE
@@ -214,15 +213,15 @@ class ModuleSSLInfo : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
-		SocketCertificateRequest req(&user->eh, this);
+		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
 		bool ok = true;
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
-			ok = (req.cert && req.cert->IsCAVerified());
+			ok = (cert && cert->IsCAVerified());
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
-			ok = (req.cert != NULL);
+			ok = (cert != NULL);
 		}
 
 		if (!ok)
