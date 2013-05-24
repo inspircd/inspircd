@@ -26,7 +26,14 @@
 
 class ModuleHttpConfig : public Module
 {
+	HTTPdAPI API;
+
  public:
+	ModuleHttpConfig()
+		: API(this)
+	{
+	}
+
 	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnEvent };
@@ -97,7 +104,7 @@ class ModuleHttpConfig : public Module
 				HTTPDocumentResponse response(this, *http, &data, 200);
 				response.headers.SetHeader("X-Powered-By", "m_httpd_config.so");
 				response.headers.SetHeader("Content-Type", "text/html");
-				response.Send();
+				API->SendResponse(response);
 			}
 		}
 	}

@@ -177,27 +177,63 @@ class HTTPRequest : public Event
 	}
 };
 
-/** You must return a HTTPDocument to the httpd module by using the Request class.
- * When you initialize this class you may initialize it with all components required to
- * form a valid HTTP response, including document data, headers, and a response code.
+/** If you want to reply to HTTP requests, you must return a HTTPDocumentResponse to
+ * the httpd module via the HTTPdAPI.
+ * When you initialize this class you initialize it with all components required to
+ * form a valid HTTP response: the document data and a response code.
+ * You can add additional HTTP headers, if you want.
  */
-class HTTPDocumentResponse : public Request
+class HTTPDocumentResponse
 {
+	/** Module that generated this reply
+	 */
+	Module* const module;
+
  public:
 	std::stringstream* document;
-	int responsecode;
+	unsigned int responsecode;
+
+	/** Any extra headers to include with the defaults
+	 */
 	HTTPHeaders headers;
+
 	HTTPRequest& src;
 
-	/** Initialize a HTTPRequest ready for sending to m_httpd.so.
-	 * @param opaque The socket pointer you obtained from the HTTPRequest at an earlier time
+	/** Initialize a HTTPDocumentResponse ready for sending to the httpd module.
+	 * @param mod A pointer to the module who responded to the request
+	 * @param req The request you obtained from the HTTPRequest at an earlier time
 	 * @param doc A stringstream containing the document body
 	 * @param response A valid HTTP/1.0 or HTTP/1.1 response code. The response text will be determined for you
 	 * based upon the response code.
-	 * @param extra Any extra headers to include with the defaults, seperated by carriage return and linefeed.
 	 */
-	HTTPDocumentResponse(Module* me, HTTPRequest& req, std::stringstream* doc, int response)
-		: Request(me, req.source, "HTTP-DOC"), document(doc), responsecode(response), src(req)
+	HTTPDocumentResponse(Module* mod, HTTPRequest& req, std::stringstream* doc, unsigned int response)
+		: module(mod), document(doc), responsecode(response), src(req)
+	{
+	}
+};
+
+class HTTPdAPIBase : public DataProvider
+{
+ public:
+	HTTPdAPIBase(Module* parent)
+		: DataProvider(parent, "m_httpd_api")
+	{
+	}
+
+	/** Answer an incoming HTTP request with the provided document
+	 * @param response The response created by your module that will be sent to the client
+	 */
+	virtual void SendResponse(HTTPDocumentResponse& response) = 0;
+};
+
+/** The API provided by the httpd module that allows other modules to respond to incoming
+ * HTTP requests
+ */
+class HTTPdAPI : public dynamic_reference<HTTPdAPIBase>
+{
+ public:
+	HTTPdAPI(Module* parent)
+		: dynamic_reference<HTTPdAPIBase>(parent, "m_httpd_api")
 	{
 	}
 };

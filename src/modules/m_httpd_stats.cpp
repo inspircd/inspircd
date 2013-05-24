@@ -31,8 +31,13 @@
 class ModuleHttpStats : public Module
 {
 	static std::map<char, char const*> const &entities;
+	HTTPdAPI API;
 
  public:
+	ModuleHttpStats()
+		: API(this)
+	{
+	}
 
 	void init() CXX11_OVERRIDE
 	{
@@ -233,7 +238,7 @@ class ModuleHttpStats : public Module
 				HTTPDocumentResponse response(this, *http, &data, 200);
 				response.headers.SetHeader("X-Powered-By", "m_httpd_stats.so");
 				response.headers.SetHeader("Content-Type", "text/xml");
-				response.Send();
+				API->SendResponse(response);
 			}
 		}
 	}

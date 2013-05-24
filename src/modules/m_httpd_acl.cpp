@@ -43,8 +43,14 @@ class ModuleHTTPAccessList : public Module
 {
 	std::string stylesheet;
 	std::vector<HTTPACL> acl_list;
+	HTTPdAPI API;
 
  public:
+ 	ModuleHTTPAccessList()
+		: API(this)
+	{
+	}
+
 	void OnRehash(User* user)
 	{
 		acl_list.clear();
@@ -105,7 +111,7 @@ class ModuleHTTPAccessList : public Module
 		response.headers.SetHeader("X-Powered-By", "m_httpd_acl.so");
 		if (!extraheaderkey.empty())
 			response.headers.SetHeader(extraheaderkey, extraheaderval);
-		response.Send();
+		API->SendResponse(response);
 	}
 
 	void OnEvent(Event& event) CXX11_OVERRIDE

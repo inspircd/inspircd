@@ -331,24 +331,37 @@ class HttpServerSocket : public BufferedSocket
 	}
 };
 
+class HTTPdAPIImpl : public HTTPdAPIBase
+{
+ public:
+	HTTPdAPIImpl(Module* parent)
+		: HTTPdAPIBase(parent)
+	{
+	}
+
+	void SendResponse(HTTPDocumentResponse& resp) CXX11_OVERRIDE
+	{
+		claimed = true;
+		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
+	}
+};
+
 class ModuleHttpServer : public Module
 {
 	std::vector<HttpServerSocket *> httpsocks;
+	HTTPdAPIImpl APIImpl;
 
  public:
+	ModuleHttpServer()
+		: APIImpl(this)
+	{
+	}
+
 	void init() CXX11_OVERRIDE
 	{
 		HttpModule = this;
+		ServerInstance->Modules->AddService(APIImpl);
 		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
-	}
-
-	void OnRequest(Request& request) CXX11_OVERRIDE
-	{
-		if (strcmp(request.id, "HTTP-DOC") != 0)
-			return;
-		HTTPDocumentResponse& resp = static_cast<HTTPDocumentResponse&>(request);
-		claimed = true;
-		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
