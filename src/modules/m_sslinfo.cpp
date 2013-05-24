@@ -121,19 +121,37 @@ class CommandSSLInfo : public Command
 	}
 };
 
+class UserCertificateAPIImpl : public UserCertificateAPIBase
+{
+	SSLCertExt& ext;
+
+ public:
+	UserCertificateAPIImpl(Module* mod, SSLCertExt& certext)
+		: UserCertificateAPIBase(mod), ext(certext)
+	{
+	}
+
+ 	ssl_cert* GetCertificate(User* user) CXX11_OVERRIDE
+ 	{
+ 		return ext.get(user);
+ 	}
+};
+
 class ModuleSSLInfo : public Module
 {
 	CommandSSLInfo cmd;
+	UserCertificateAPIImpl APIImpl;
 
  public:
-	ModuleSSLInfo() : cmd(this)
+	ModuleSSLInfo()
+		: cmd(this), APIImpl(this, cmd.CertExt)
 	{
 	}
 
 	void init() CXX11_OVERRIDE
 	{
+		ServerInstance->Modules->AddService(APIImpl);
 		ServerInstance->Modules->AddService(cmd);
-
 		ServerInstance->Modules->AddService(cmd.CertExt);
 
 		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
@@ -227,15 +245,6 @@ class ModuleSSLInfo : public Module
 		if (!ok)
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnRequest(Request& request) CXX11_OVERRIDE
-	{
-		if (strcmp("GET_USER_CERT", request.id) == 0)
-		{
-			UserCertificateRequest& req = static_cast<UserCertificateRequest&>(request);
-			req.cert = cmd.CertExt.get(req.user);
-		}
 	}
 };
 

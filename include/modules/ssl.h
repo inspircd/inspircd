@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <map>
 #include <string>
 #include "iohook.h"
 
@@ -199,22 +198,43 @@ class SSLClientCert
 	}
 };
 
-/** Get certificate from a user (requires m_sslinfo) */
-struct UserCertificateRequest : public Request
+class UserCertificateAPIBase : public DataProvider
 {
-	User* const user;
-	ssl_cert* cert;
-
-	UserCertificateRequest(User* u, Module* Me, Module* info = ServerInstance->Modules->Find("m_sslinfo.so"))
-		: Request(Me, info, "GET_USER_CERT"), user(u), cert(NULL)
+ public:
+ 	UserCertificateAPIBase(Module* parent)
+		: DataProvider(parent, "m_sslinfo_api")
 	{
-		Send();
 	}
 
-	std::string GetFingerprint()
+	/** Get the SSL certificate of a user
+	 * @param user The user whose certificate to get, user may be remote
+	 * @return The SSL certificate of the user or NULL if the user is not using SSL
+	 */
+	virtual ssl_cert* GetCertificate(User* user) = 0;
+
+	/** Get the key fingerprint from a user's certificate
+	 * @param user The user whose key fingerprint to get, user may be remote
+	 * @return The key fingerprint from the user's SSL certificate or an empty string
+	 * if the user is not using SSL or did not provide a client certificate
+	 */
+	std::string GetFingerprint(User* user)
 	{
+		ssl_cert* cert = GetCertificate(user);
 		if (cert)
 			return cert->GetFingerprint();
 		return "";
+	}
+};
+
+/** API implemented by m_sslinfo that allows modules to retrive the SSL certificate
+ * information of local and remote users. It can also be used to find out whether a
+ * user is using SSL or not.
+ */
+class UserCertificateAPI : public dynamic_reference<UserCertificateAPIBase>
+{
+ public:
+	UserCertificateAPI(Module* parent)
+		: dynamic_reference<UserCertificateAPIBase>(parent, "m_sslinfo_api")
+	{
 	}
 };
