@@ -432,6 +432,20 @@ class CoreExport ModeParser
 	 */
 	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool SkipACL);
 
+	/** Returns a list of user or channel mode characters.
+	 * Used for constructing the parts of the mode list in the 004 numeric.
+	 * @param mt Controls whether to list user modes or channel modes
+	 * @param needparam Return modes only if they require a parameter to be set
+	 * @return The available mode letters that satisfy the given conditions
+	 */
+	std::string CreateModeList(ModeType mt, bool needparam = false);
+
+	/** Recreate the cached mode list that is displayed in the 004 numeric
+	 * in Cached004ModeList.
+	 * Called when a mode handler is added or removed.
+	 */
+	void RecreateModeListFor004Numeric();
+
 	/** The string representing the last set of modes to be parsed.
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
 	 */
@@ -442,6 +456,10 @@ class CoreExport ModeParser
 	unsigned int sent[256];
 
 	unsigned int seq;
+
+	/** Cached mode list for use in 004 numeric
+	 */
+	std::string Cached004ModeList;
 
  public:
 	ModeParser();
@@ -527,20 +545,13 @@ class CoreExport ModeParser
 	 */
 	ModeHandler* FindPrefix(unsigned const char pfxletter);
 
-	/** Returns a list of mode characters which are usermodes.
-	 * This is used in the 004 numeric when users connect.
+	/** Returns a list of modes, space seperated by type:
+	 * 1. User modes
+	 * 2. Channel modes
+	 * 3. Channel modes that require a parameter when set
+	 * This is sent to users as the last part of the 004 numeric
 	 */
-	std::string UserModeList();
-
-	/** Returns a list of channel mode characters which are listmodes.
-	 * This is used in the 004 numeric when users connect.
-	 */
-	std::string ChannelModeList();
-
-	/** Returns a list of channel mode characters which take parameters.
-	 * This is used in the 004 numeric when users connect.
-	 */
-	std::string ParaModeList();
+	const std::string& GetModeListFor004Numeric();
 
 	/** Generates a list of modes, comma seperated by type:
 	 *  1; Listmodes EXCEPT those with a prefix
@@ -555,3 +566,8 @@ class CoreExport ModeParser
 	 */
 	std::string BuildPrefixes(bool lettersAndModes = true);
 };
+
+inline const std::string& ModeParser::GetModeListFor004Numeric()
+{
+	return Cached004ModeList;
+}

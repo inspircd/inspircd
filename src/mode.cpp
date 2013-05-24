@@ -613,6 +613,7 @@ bool ModeParser::AddMode(ModeHandler* mh)
 		return false;
 
 	modehandlers[pos] = mh;
+	RecreateModeListFor004Numeric();
 	return true;
 }
 
@@ -655,6 +656,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	}
 
 	modehandlers[pos] = NULL;
+	RecreateModeListFor004Numeric();
 
 	return true;
 }
@@ -673,52 +675,25 @@ ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
 	return modehandlers[pos];
 }
 
-std::string ModeParser::UserModeList()
+std::string ModeParser::CreateModeList(ModeType mt, bool needparam)
 {
-	char modestr[256];
-	int pointer = 0;
+	std::string modestr;
+	unsigned char mask = ((mt == MODETYPE_CHANNEL) ? MASK_CHANNEL : MASK_USER);
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		unsigned char pos = (mode-65) | MASK_USER;
+		unsigned char pos = (mode-65) | mask;
 
-		if (modehandlers[pos])
-			modestr[pointer++] = mode;
+		if ((modehandlers[pos]) && ((!needparam) || (modehandlers[pos]->GetNumParams(true))))
+			modestr.push_back(mode);
 	}
-	modestr[pointer++] = 0;
+
 	return modestr;
 }
 
-std::string ModeParser::ChannelModeList()
+void ModeParser::RecreateModeListFor004Numeric()
 {
-	char modestr[256];
-	int pointer = 0;
-
-	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
-	{
-		unsigned char pos = (mode-65) | MASK_CHANNEL;
-
-		if (modehandlers[pos])
-			modestr[pointer++] = mode;
-	}
-	modestr[pointer++] = 0;
-	return modestr;
-}
-
-std::string ModeParser::ParaModeList()
-{
-	char modestr[256];
-	int pointer = 0;
-
-	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
-	{
-		unsigned char pos = (mode-65) | MASK_CHANNEL;
-
-		if ((modehandlers[pos]) && (modehandlers[pos]->GetNumParams(true)))
-			modestr[pointer++] = mode;
-	}
-	modestr[pointer++] = 0;
-	return modestr;
+	Cached004ModeList = CreateModeList(MODETYPE_USER) + " " + CreateModeList(MODETYPE_CHANNEL) + " " + CreateModeList(MODETYPE_CHANNEL, true);
 }
 
 ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
