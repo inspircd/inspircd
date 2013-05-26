@@ -55,10 +55,14 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 
 	Module* newmod = NULL;
 	DLLManager* newhandle = new DLLManager(moduleFile.c_str());
+	ServiceList newservices;
+	if (!defer)
+		this->NewServices = &newservices;
 
 	try
 	{
 		newmod = newhandle->CallInit();
+		this->NewServices = NULL;
 
 		if (newmod)
 		{
@@ -77,6 +81,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 				ConfigStatus confstatus;
 
 				AttachAll(newmod);
+				AddServices(newservices);
 				newmod->init();
 				newmod->ReadConfig(confstatus);
 
@@ -95,6 +100,8 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	}
 	catch (CoreException& modexcept)
 	{
+		this->NewServices = NULL;
+
 		// failure in module constructor
 		if (newmod)
 		{
@@ -118,7 +125,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 }
 
 /* We must load the modules AFTER initializing the socket engine, now */
-void ModuleManager::LoadCoreModules()
+void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
 {
 	std::cout << std::endl << "Loading core commands";
 	fflush(stdout);
@@ -133,6 +140,8 @@ void ModuleManager::LoadCoreModules()
 			{
 				std::cout << ".";
 				fflush(stdout);
+
+				this->NewServices = &servicemap[entry->d_name];
 
 				if (!Load(entry->d_name, true))
 				{

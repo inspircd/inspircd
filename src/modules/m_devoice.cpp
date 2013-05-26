@@ -56,11 +56,6 @@ class ModuleDeVoice : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides voiced users with the ability to devoice themselves.", VF_VENDOR);

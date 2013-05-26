@@ -68,11 +68,6 @@ class ModuleVHost : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides masking of user hostnames via traditional /VHOST command",VF_VENDOR);

@@ -57,11 +57,6 @@ class ModuleBlockAmsg : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(blockamsg);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR);

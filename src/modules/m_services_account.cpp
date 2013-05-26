@@ -116,12 +116,6 @@ class ModuleServicesAccount : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServiceProvider* providerlist[] = { &m1, &m2, &m3, &m4, &m5, &accountname };
-		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
-	}
-
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXTBAN"].push_back('R');

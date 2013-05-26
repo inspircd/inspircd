@@ -138,7 +138,6 @@ class ModuleOjoin : public Module
 		mycommand.npmh = np;
 
 		ServerInstance->Modules->AddService(*np);
-		ServerInstance->Modules->AddService(mycommand);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE

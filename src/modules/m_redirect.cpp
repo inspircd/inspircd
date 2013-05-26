@@ -88,7 +88,11 @@ class Redirect : public ModeHandler
 class AntiRedirect : public SimpleUserModeHandler
 {
 	public:
-		AntiRedirect(Module* Creator) : SimpleUserModeHandler(Creator, "antiredirect", 'L') {}
+		AntiRedirect(Module* Creator) : SimpleUserModeHandler(Creator, "antiredirect", 'L')
+		{
+			if (!ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect"))
+				DisableAutoRegister();
+		}
 };
 
 class ModuleRedirect : public Module
@@ -110,19 +114,6 @@ class ModuleRedirect : public Module
 	{
 		/* Setting this here so it isn't changable by rehasing the config later. */
 		UseUsermode = ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect");
-
-		/* Channel mode */
-		ServerInstance->Modules->AddService(re);
-
-		/* Check to see if the usermode is enabled in the config */
-		if (UseUsermode)
-		{
-			/* Log noting that this breaks compatability. */
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "REDIRECT: Enabled usermode +L. This breaks linking with servers that do not have this enabled. This is disabled by default in the 2.0 branch but will be enabled in the next version.");
-
-			/* Try to add the usermode */
-			ServerInstance->Modules->AddService(re_u);
-		}
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE

@@ -299,13 +299,6 @@ class ModuleSilence : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmdsilence);
-		ServerInstance->Modules->AddService(cmdsvssilence);
-		ServerInstance->Modules->AddService(cmdsilence.ext);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		maxsilence = ServerInstance->Config->ConfValue("showwhois")->getInt("maxentries", 32);

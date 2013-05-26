@@ -714,11 +714,6 @@ class CommandModule : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion()
 	{
 		return Version(cmd.name, VF_VENDOR|VF_CORE);

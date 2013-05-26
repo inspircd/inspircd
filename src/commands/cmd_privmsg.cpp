@@ -269,12 +269,6 @@ class ModuleCoreMessage : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(CommandPrivmsg);
-		ServerInstance->Modules->AddService(CommandNotice);
-	}
-
 	Version GetVersion()
 	{
 		return Version("PRIVMSG, NOTICE", VF_CORE|VF_VENDOR);

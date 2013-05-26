@@ -150,7 +150,6 @@ class ModuleTimedBans : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modes->AddModeWatcher(&banwatcher);
 	}
 

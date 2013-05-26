@@ -51,11 +51,6 @@ class ModuleServProtectMode : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(bm);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides usermode +k to protect services from kicks, kills, and mode changes.", VF_VENDOR);

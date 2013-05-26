@@ -157,7 +157,6 @@ class ModuleSVSHold : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
-		ServerInstance->Modules->AddService(cmd);
 	}
 
 	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE

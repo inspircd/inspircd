@@ -38,11 +38,6 @@ class ModuleBotMode : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(bm);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides user mode +B to mark the user as a bot",VF_VENDOR);

@@ -146,13 +146,6 @@ class ModuleCloaking : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cu);
-		ServerInstance->Modules->AddService(ck);
-		ServerInstance->Modules->AddService(cu.ext);
-	}
-
 	/** This function takes a domain name string and returns just the last two domain parts,
 	 * or the last domain part if only two are available. Failing that it just returns what it was given.
 	 *

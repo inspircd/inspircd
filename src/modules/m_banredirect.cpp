@@ -232,7 +232,6 @@ class ModuleBanRedirect : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modes->AddModeWatcher(&re);
-		ServerInstance->Modules->AddService(re.extItem);
 	}
 
 	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE

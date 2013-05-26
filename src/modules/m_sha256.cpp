@@ -263,7 +263,6 @@ class ModuleSHA256 : public Module
  public:
 	ModuleSHA256() : sha(this)
 	{
-		ServerInstance->Modules->AddService(sha);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

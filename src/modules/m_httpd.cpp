@@ -357,7 +357,6 @@ class ModuleHttpServer : public Module
 	void init() CXX11_OVERRIDE
 	{
 		HttpModule = this;
-		ServerInstance->Modules->AddService(APIImpl);
 	}
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE

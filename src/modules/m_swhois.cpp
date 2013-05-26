@@ -88,12 +88,6 @@ class ModuleSWhois : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.swhois);
-	}
-
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.
 	ModResult OnWhoisLine(User* user, User* dest, int &numeric, std::string &text) CXX11_OVERRIDE
 	{

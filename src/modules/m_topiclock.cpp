@@ -149,12 +149,6 @@ class ModuleTopicLock : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(topiclock);
-	}
-
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE
 	{
 		// Only fired for local users currently, but added a check anyway

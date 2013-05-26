@@ -48,7 +48,6 @@ class ModuleGlobops : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
 	}
 

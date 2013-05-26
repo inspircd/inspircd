@@ -48,12 +48,6 @@ class ModuleStripColor : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(usc);
-		ServerInstance->Modules->AddService(csc);
-	}
-
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXTBAN"].push_back('S');

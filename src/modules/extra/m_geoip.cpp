@@ -56,8 +56,6 @@ class ModuleGeoIP : public Module
 		if (gi == NULL)
 				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
 
-		ServerInstance->Modules->AddService(ext);
-
 		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 		{
 			LocalUser* user = *i;

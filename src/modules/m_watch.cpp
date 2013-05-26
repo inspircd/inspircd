@@ -374,13 +374,6 @@ class Modulewatch : public Module
 		whos_watching_me = new watchentries();
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmdw);
-		ServerInstance->Modules->AddService(sw);
-		ServerInstance->Modules->AddService(cmdw.ext);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		maxwatch = ServerInstance->Config->ConfValue("watch")->getInt("maxentries", 32);

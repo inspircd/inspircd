@@ -63,11 +63,6 @@ class ModuleSetIdent : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for the SETIDENT command", VF_VENDOR);

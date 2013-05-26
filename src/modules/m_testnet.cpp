@@ -56,7 +56,6 @@ class ModuleTest : public Module
 	{
 		if (!strstr(ServerInstance->Config->ServerName.c_str(), ".test"))
 			throw ModuleException("Don't load modules without reading their descriptions!");
-		ServerInstance->Modules->AddService(cmd);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

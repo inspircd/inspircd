@@ -177,7 +177,6 @@ class ModuleFilter : public Module
 	std::set<std::string> exemptfromfilter; // List of channel names excluded from filtering.
 
 	ModuleFilter();
-	void init() CXX11_OVERRIDE;
 	CullResult cull();
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
@@ -296,11 +295,6 @@ bool ModuleFilter::AppliesToMe(User* user, FilterResult* filter, int iflags)
 ModuleFilter::ModuleFilter()
 	: initing(true), filtcommand(this), RegexEngine(this, "regex")
 {
-}
-
-void ModuleFilter::init()
-{
-	ServerInstance->Modules->AddService(filtcommand);
 }
 
 CullResult ModuleFilter::cull()

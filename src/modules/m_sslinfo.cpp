@@ -146,13 +146,6 @@ class ModuleSSLInfo : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(APIImpl);
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.CertExt);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("SSL Certificate Utilities", VF_VENDOR);

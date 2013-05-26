@@ -58,7 +58,6 @@ class AllModule : public Module
 			{
 				Command* c = (*i)(this);
 				cmds.push_back(c);
-				ServerInstance->Modules->AddService(*c);
 			}
 		}
 		catch (...)
@@ -88,6 +87,11 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 	if (it == modlist->end())
 		return false;
 	Module* mod = NULL;
+
+	ServiceList newservices;
+	if (!defer)
+		this->NewServices = &newservices;
+
 	try
 	{
 		mod = (*it->second->init)();
@@ -95,6 +99,7 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 		mod->ModuleDLLManager = NULL;
 		mod->dying = false;
 		Modules[name] = mod;
+		this->NewServices = NULL;
 		if (defer)
 		{
 			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s", name.c_str());
@@ -105,12 +110,15 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 			ConfigStatus confstatus;
 
 			AttachAll(mod);
+			AddServices(newservices);
 			mod->init();
 			mod->ReadConfig(confstatus);
 		}
 	}
 	catch (CoreException& modexcept)
 	{
+		this->NewServices = NULL;
+
 		if (mod)
 			DoSafeUnload(mod);
 		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Unable to load " + name + ": " + modexcept.GetReason());
@@ -123,12 +131,18 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 	return true;
 }
 
-void ModuleManager::LoadCoreModules()
+void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicemap)
 {
-	Load("cmd_all.so", true);
-	Load("cmd_whowas.so", true);
-	Load("cmd_lusers.so", true);
-	Load("cmd_privmsg.so", true);
+	for (modmap::const_iterator i = modlist->begin(); i != modlist->end(); ++i)
+	{
+		const std::string modname = i->first;
+		if (modname[0] == 'c')
+		{
+			this->NewServices = &servicemap[modname];
+			Load(modname, true);
+		}
+	}
+	this->NewServices = NULL;
 }
 
 #endif

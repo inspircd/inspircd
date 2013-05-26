@@ -103,12 +103,6 @@ class ModuleNamedModes : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(dummyZ);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the ability to manipulate modes via long names.",VF_VENDOR);

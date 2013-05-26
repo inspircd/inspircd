@@ -118,12 +118,6 @@ public:
 		conn = NULL;
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(ldapAuthed);
-		ServerInstance->Modules->AddService(ldapVhost);
-	}
-
 	~ModuleLDAPAuth()
 	{
 		if (conn)

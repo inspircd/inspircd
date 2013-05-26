@@ -86,7 +86,6 @@ class ModuleShowwhois : public Module
 
 		sw = new SeeWhois(this, OpersOnly);
 		ServerInstance->Modules->AddService(*sw);
-		ServerInstance->Modules->AddService(cmd);
 	}
 
 	~ModuleShowwhois()

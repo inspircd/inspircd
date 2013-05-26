@@ -124,12 +124,6 @@ class ModuleMsgFlood : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(mf);
-		ServerInstance->Modules->AddService(mf.ext);
-	}
-
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
 	{
 		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))

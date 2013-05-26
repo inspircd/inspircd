@@ -361,13 +361,6 @@ public:
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(myumode);
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.extInfo);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implementation of callerid, usermode +g, /accept", VF_COMMON | VF_VENDOR);

@@ -105,11 +105,6 @@ class ModuleSakick : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides a SAKICK command", VF_OPTCOMMON|VF_VENDOR);

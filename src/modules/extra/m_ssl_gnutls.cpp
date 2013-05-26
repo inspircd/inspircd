@@ -633,9 +633,6 @@ class ModuleSSLGnuTLS : public Module
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(iohook.x509_cred, dh_params);
-
-		ServerInstance->Modules->AddService(iohook);
-		ServerInstance->Modules->AddService(starttls);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

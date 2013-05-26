@@ -114,12 +114,6 @@ class ModuleChanHistory : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(m);
-		ServerInstance->Modules->AddService(m.ext);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");

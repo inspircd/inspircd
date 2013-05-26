@@ -51,13 +51,6 @@ class ModuleBanException : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(be);
-
-		be.DoImplements(this);
-	}
-
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXCEPTS"] = "e";

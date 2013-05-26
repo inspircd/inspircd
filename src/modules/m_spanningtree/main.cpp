@@ -59,9 +59,6 @@ void ModuleSpanningTree::init()
 	Utils = new SpanningTreeUtilities(this);
 	Utils->TreeRoot = new TreeServer;
 	commands = new SpanningTreeCommands(this);
-	ServerInstance->Modules->AddService(commands->rconnect);
-	ServerInstance->Modules->AddService(commands->rsquit);
-	ServerInstance->Modules->AddService(commands->map);
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface;

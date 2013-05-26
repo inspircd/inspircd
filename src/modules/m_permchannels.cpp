@@ -166,11 +166,6 @@ public:
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(p);
-	}
-
 	CullResult cull()
 	{
 		/*

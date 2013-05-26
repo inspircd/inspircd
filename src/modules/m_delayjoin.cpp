@@ -44,11 +44,6 @@ class ModuleDelayJoin : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(djm);
-		ServerInstance->Modules->AddService(unjoined);
-	}
 	Version GetVersion() CXX11_OVERRIDE;
 	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick) CXX11_OVERRIDE;
 	void OnUserJoin(Membership*, bool, bool, CUList&) CXX11_OVERRIDE;

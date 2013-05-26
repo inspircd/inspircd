@@ -108,11 +108,6 @@ class ModuleSajoin : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides command SAJOIN to allow opers to force-join users to channels", VF_OPTCOMMON | VF_VENDOR);

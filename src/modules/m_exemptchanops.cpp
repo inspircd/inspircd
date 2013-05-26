@@ -115,7 +115,6 @@ class ModuleExemptChanOps : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(eh.ec);
 		ServerInstance->OnCheckExemption = &eh;
 	}
 

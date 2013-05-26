@@ -75,13 +75,6 @@ class ModuleChanFilter : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cf);
-
-		cf.DoImplements(this);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		hidemask = ServerInstance->Config->ConfValue("chanfilter")->getBool("hidemask");

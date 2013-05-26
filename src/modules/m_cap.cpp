@@ -125,12 +125,6 @@ class ModuleCAP : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->AddService(cmd.reghold);
-	}
-
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE
 	{
 		/* Users in CAP state get held until CAP END */

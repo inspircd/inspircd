@@ -228,11 +228,6 @@ class ModuleWhoWas : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	void OnGarbageCollect()
 	{
 		// Remove all entries older than MaxKeep

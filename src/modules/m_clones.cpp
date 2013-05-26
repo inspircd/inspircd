@@ -69,11 +69,6 @@ class ModuleClones : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the /CLONES command to retrieve information on clones.", VF_VENDOR);

@@ -61,7 +61,6 @@ public:
 	StdRegexFactory ref;
 	ModuleRegexStd() : ref(this)
 	{
-		ServerInstance->Modules->AddService(ref);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

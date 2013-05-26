@@ -490,7 +490,6 @@ class ModuleSSLOpenSSL : public Module
 	{
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
-		ServerInstance->Modules->AddService(iohook);
 	}
 
 	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE

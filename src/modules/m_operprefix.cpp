@@ -79,8 +79,6 @@ class ModuleOperPrefixMode : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->AddService(opm);
-
 		/* To give clients a chance to learn about the new prefix we don't give +y to opers
 		 * right now. That means if the module was loaded after opers have joined channels
 		 * they need to rejoin them in order to get the oper prefix.

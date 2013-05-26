@@ -106,12 +106,6 @@ class ModuleHelpop : public Module
 		{
 		}
 
-		void init() CXX11_OVERRIDE
-		{
-			ServerInstance->Modules->AddService(ho);
-			ServerInstance->Modules->AddService(cmd);
-		}
-
 		void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 		{
 			helpop_map.clear();

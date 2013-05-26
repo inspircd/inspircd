@@ -156,7 +156,6 @@ class ModuleLusers : public Module
 
 	void init()
 	{
-		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modes->AddModeWatcher(&mw);
 	}
 

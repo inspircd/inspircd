@@ -73,7 +73,6 @@ class ModuleRegexPCRE : public Module
 	PCREFactory ref;
 	ModuleRegexPCRE() : ref(this)
 	{
-		ServerInstance->Modules->AddService(ref);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

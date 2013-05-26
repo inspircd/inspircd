@@ -268,11 +268,6 @@ class ModuleCheck : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(mycommand);
-	}
-
 	void ProtoSendMode(void* uv, TargetTypeFlags, void*, const std::vector<std::string>& result, const std::vector<TranslateType>&)
 	{
 		User* user = (User*)uv;

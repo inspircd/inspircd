@@ -447,7 +447,6 @@ class ModuleRIPEMD160 : public Module
 	RIProv mr;
 	ModuleRIPEMD160() : mr(this)
 	{
-		ServerInstance->Modules->AddService(mr);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

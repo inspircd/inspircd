@@ -60,11 +60,6 @@ class ModuleSetIdle : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Allows opers to set their idle time", VF_VENDOR);

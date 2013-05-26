@@ -37,11 +37,6 @@ class ModuleNoCTCP : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(nc);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel mode +C to block CTCPs", VF_VENDOR);

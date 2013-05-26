@@ -80,7 +80,6 @@ class ModuleRegexTRE : public Module
  public:
 	ModuleRegexTRE() : trf(this)
 	{
-		ServerInstance->Modules->AddService(trf);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

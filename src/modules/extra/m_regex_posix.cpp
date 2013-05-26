@@ -78,7 +78,6 @@ class ModuleRegexPOSIX : public Module
  public:
 	ModuleRegexPOSIX() : ref(this)
 	{
-		ServerInstance->Modules->AddService(ref);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

@@ -89,8 +89,6 @@ class ModuleLockserv : public Module
 	void init() CXX11_OVERRIDE
 	{
 		locked = false;
-		ServerInstance->Modules->AddService(lockcommand);
-		ServerInstance->Modules->AddService(unlockcommand);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

@@ -95,12 +95,6 @@ class ModuleKnock : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(kn);
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");

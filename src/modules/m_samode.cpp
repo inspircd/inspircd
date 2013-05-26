@@ -61,11 +61,6 @@ class ModuleSaMode : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);

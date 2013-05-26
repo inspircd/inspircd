@@ -24,6 +24,7 @@
 ServerCommand::ServerCommand(Module* Creator, const std::string& Name, unsigned int MinParams, unsigned int MaxParams)
 	: CommandBase(Creator, Name, MinParams, MaxParams)
 {
+	this->ServiceProvider::DisableAutoRegister();
 	ModuleSpanningTree* st = static_cast<ModuleSpanningTree*>(Creator);
 	st->CmdManager.AddCommand(this);
 }

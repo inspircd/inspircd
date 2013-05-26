@@ -36,11 +36,6 @@ class ModuleNoNickChange : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(nn);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for channel mode +N & extban +b N: which prevents nick changes on channel", VF_VENDOR);

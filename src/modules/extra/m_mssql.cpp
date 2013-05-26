@@ -656,8 +656,6 @@ class ModuleMsSQL : public Module
 		ReadConf();
 
 		ServerInstance->Threads->Start(queryDispatcher);
-
-		ServerInstance->Modules->AddService(sqlserv);
 	}
 
 	~ModuleMsSQL()

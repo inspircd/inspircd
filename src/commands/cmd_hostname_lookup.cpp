@@ -191,12 +191,6 @@ class ModuleHostnameLookup : public Module
 		ph = &ptrHosts;
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(this->dnsLookup);
-		ServerInstance->Modules->AddService(this->ptrHosts);
-	}
-
 	void OnUserInit(LocalUser *user)
 	{
 		if (!DNS || !user->MyClass->resolvehostnames)

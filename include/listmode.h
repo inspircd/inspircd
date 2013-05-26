@@ -157,10 +157,6 @@ class CoreExport ListModeBase : public ModeHandler
 	 */
 	virtual void DoRehash();
 
-	/** Populate the Implements list with the correct events for a List Mode
-	 */
-	virtual void DoImplements(Module* m);
-
 	/** Handle the list mode.
 	 * See mode.h
 	 */

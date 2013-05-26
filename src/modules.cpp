@@ -163,6 +163,24 @@ ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockadd
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { DetachEvent(I_OnSendWhoLine); }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 
+ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
+	: creator(Creator), name(Name), service(Type)
+{
+	if ((ServerInstance) && (ServerInstance->Modules->NewServices))
+		ServerInstance->Modules->NewServices->push_back(this);
+}
+
+void ServiceProvider::DisableAutoRegister()
+{
+	if ((ServerInstance) && (ServerInstance->Modules->NewServices))
+	{
+		ModuleManager::ServiceList& list = *ServerInstance->Modules->NewServices;
+		ModuleManager::ServiceList::iterator it = std::find(list.begin(), list.end(), this);
+		if (it != list.end())
+			list.erase(it);
+	}
+}
+
 ModuleManager::ModuleManager()
 {
 }
@@ -494,13 +512,15 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 
 void ModuleManager::LoadAll()
 {
-	LoadCoreModules();
+	std::map<std::string, ServiceList> servicemap;
+	LoadCoreModules(servicemap);
 
 	ConfigTagList tags = ServerInstance->Config->ConfTags("module");
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
 		std::string name = tag->getString("name");
+		this->NewServices = &servicemap[name];
 		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 
 		if (!this->Load(name, true))
@@ -520,6 +540,7 @@ void ModuleManager::LoadAll()
 		{
 			ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Initializing %s", i->first.c_str());
 			AttachAll(mod);
+			AddServices(servicemap[i->first]);
 			mod->init();
 			mod->ReadConfig(confstatus);
 		}
@@ -539,6 +560,15 @@ void ModuleManager::LoadAll()
 std::string& ModuleManager::LastError()
 {
 	return LastModuleError;
+}
+
+void ModuleManager::AddServices(const ServiceList& list)
+{
+	for (ServiceList::const_iterator i = list.begin(); i != list.end(); ++i)
+	{
+		ServiceProvider& s = **i;
+		AddService(s);
+	}
 }
 
 void ModuleManager::AddService(ServiceProvider& item)

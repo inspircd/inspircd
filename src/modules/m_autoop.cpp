@@ -85,12 +85,6 @@ class ModuleAutoOp : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(mh);
-		mh.DoImplements(this);
-	}
-
 	void OnPostJoin(Membership *memb) CXX11_OVERRIDE
 	{
 		if (!IS_LOCAL(memb->user))

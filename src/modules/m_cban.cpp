@@ -157,8 +157,6 @@ class ModuleCBan : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
-
-		ServerInstance->Modules->AddService(mycommand);
 	}
 
 	~ModuleCBan()

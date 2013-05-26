@@ -136,12 +136,6 @@ class ModuleNickFlood : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(nf);
-		ServerInstance->Modules->AddService(nf.ext);
-	}
-
 	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE
 	{
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)

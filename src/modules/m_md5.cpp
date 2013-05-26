@@ -275,7 +275,6 @@ class ModuleMD5 : public Module
  public:
 	ModuleMD5() : md5(this)
 	{
-		ServerInstance->Modules->AddService(md5);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

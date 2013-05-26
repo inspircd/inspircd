@@ -795,11 +795,6 @@ class ModuleDNS : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modules->AddService(this->manager);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string oldserver = DNSServer;

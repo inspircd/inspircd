@@ -45,11 +45,6 @@ class ModuleDelayMsg : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(djm);
-		ServerInstance->Modules->AddService(djm.jointime);
-	}
 	Version GetVersion() CXX11_OVERRIDE;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;

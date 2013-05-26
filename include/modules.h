@@ -1168,6 +1168,9 @@ typedef IntModuleList::iterator EventHandlerIter;
  */
 class CoreExport ModuleManager
 {
+ public:
+	typedef std::vector<ServiceProvider*> ServiceList;
+
  private:
 	/** Holds a string describing the last module error to occur
 	 */
@@ -1189,7 +1192,7 @@ class CoreExport ModuleManager
 
 	/** Loads all core modules (cmd_*)
 	 */
-	void LoadCoreModules();
+	void LoadCoreModules(std::map<std::string, ServiceList>& servicemap);
 
 	/** Calls the Prioritize() method in all loaded modules
 	 * @return True if all went well, false if a dependency loop was detected
@@ -1206,6 +1209,16 @@ class CoreExport ModuleManager
 
 	/** List of data services keyed by name */
 	std::multimap<std::string, ServiceProvider*> DataProviders;
+
+	/** A list of ServiceProviders waiting to be registered.
+	 * Non-NULL when constructing a Module, NULL otherwise.
+	 * When non-NULL ServiceProviders add themselves to this list on creation and the core
+	 * automatically registers them (that is, call AddService()) after the Module is constructed,
+	 * and before Module::init() is called.
+	 * If a service is created after the construction of the Module (for example in init()) it
+	 * has to be registered manually.
+	 */
+	ServiceList* NewServices;
 
 	/** Simple, bog-standard, boring constructor.
 	 */
@@ -1327,6 +1340,11 @@ class CoreExport ModuleManager
 
 	/** Unregister a service provided by a module */
 	void DelService(ServiceProvider&);
+
+	/** Register all services in a given ServiceList
+	 * @param list The list containing the services to register
+	 */
+	void AddServices(const ServiceList& list);
 
 	inline void AddServices(ServiceProvider** list, int count)
 	{

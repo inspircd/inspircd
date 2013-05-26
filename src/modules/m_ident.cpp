@@ -276,11 +276,6 @@ class ModuleIdent : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(ext);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);

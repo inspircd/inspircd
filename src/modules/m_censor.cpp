@@ -53,12 +53,6 @@ class ModuleCensor : public Module
  public:
 	ModuleCensor() : cu(this), cc(this) { }
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cu);
-		ServerInstance->Modules->AddService(cc);
-	}
-
 	// format of a config entry is <badword text="shit" replace="poo">
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{

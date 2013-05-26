@@ -229,12 +229,6 @@ class ModuleDNSBL : public Module
  public:
 	ModuleDNSBL() : DNS(this, "DNS"), nameExt("dnsbl_match", this), countExt("dnsbl_pending", this) { }
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(nameExt);
-		ServerInstance->Modules->AddService(countExt);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides handling of DNS blacklists", VF_VENDOR);

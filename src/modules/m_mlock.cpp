@@ -26,11 +26,6 @@ class ModuleMLock : public Module
 public:
 	ModuleMLock() : mlock("mlock", this) {};
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(this->mlock);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements the ability to have server-side MLOCK enforcement.", VF_VENDOR);

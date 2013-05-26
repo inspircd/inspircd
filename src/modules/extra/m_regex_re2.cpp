@@ -66,7 +66,6 @@ class ModuleRegexRE2 : public Module
  public:
 	ModuleRegexRE2() : ref(this)
 	{
-		ServerInstance->Modules->AddService(ref);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

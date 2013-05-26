@@ -49,8 +49,9 @@ class ModuleRegexGlob : public Module
 {
 	GlobFactory gf;
 public:
-	ModuleRegexGlob() : gf(this) {
-		ServerInstance->Modules->AddService(gf);
+	ModuleRegexGlob()
+		: gf(this)
+	{
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

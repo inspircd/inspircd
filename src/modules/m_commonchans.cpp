@@ -35,11 +35,6 @@ class ModulePrivacyMode : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(pm);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Adds user mode +c, which if set, users must be on a common channel with you to private message you", VF_VENDOR);

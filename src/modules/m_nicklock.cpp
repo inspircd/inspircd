@@ -148,13 +148,6 @@ class ModuleNickLock : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(cmd1);
-		ServerInstance->Modules->AddService(cmd2);
-		ServerInstance->Modules->AddService(locked);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);

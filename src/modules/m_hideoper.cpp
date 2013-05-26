@@ -41,11 +41,6 @@ class ModuleHideOper : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(hm);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides support for hiding oper status with user mode +H", VF_VENDOR);
