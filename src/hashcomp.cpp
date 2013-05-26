@@ -288,7 +288,7 @@ bool irc::tokenstream::GetToken(long &token)
 	return returnval;
 }
 
-irc::sepstream::sepstream(const std::string& source, char seperator, bool allowempty)
+irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
 	: tokens(source), sep(separator), pos(0), allow_empty(allowempty)
 {
 }
@@ -397,13 +397,13 @@ int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_l
 	return n;
 }
 
-irc::stringjoiner::stringjoiner(const std::string& seperator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end)
+irc::stringjoiner::stringjoiner(const std::string& separator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end)
 {
 	if (end < begin)
 		return; // nothing to do here
 
 	for (unsigned int v = begin; v < end; v++)
-		joined.append(sequence[v]).append(seperator);
+		joined.append(sequence[v]).append(separator);
 	joined.append(sequence[end]);
 }
 

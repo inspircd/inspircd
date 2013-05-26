@@ -164,7 +164,7 @@ namespace irc
 	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;
 
 	/** irc::stringjoiner joins string lists into a string, using
-	 * the given seperator string.
+	 * the given separator string.
 	 * This class can join a vector of std::string, a deque of
 	 * std::string, or a const char* const* array, using overloaded
 	 * constructors.
@@ -180,12 +180,12 @@ namespace irc
 	 public:
 
 		/** Join elements of a vector, between (and including) begin and end
-		 * @param seperator The string to seperate values with
+		 * @param separator The string to seperate values with
 		 * @param sequence One or more items to seperate
 		 * @param begin The starting element in the sequence to be joined
 		 * @param end The ending element in the sequence to be joined
 		 */
-		stringjoiner(const std::string& seperator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end);
+		stringjoiner(const std::string& separator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end);
 
 		/** Get the joined sequence
 		 * @return A constant reference to the joined string
@@ -287,7 +287,7 @@ namespace irc
 	 public:
 		/** Create a sepstream and fill it with the provided data
 		 */
-		sepstream(const std::string &source, char seperator, bool allowempty = false);
+		sepstream(const std::string &source, char separator, bool allowempty = false);
 
 		/** Fetch the next token from the stream
 		 * @param token The next token from the stream is placed here
@@ -311,7 +311,7 @@ namespace irc
 	class CoreExport commasepstream : public sepstream
 	{
 	 public:
-		/** Initialize with comma seperator
+		/** Initialize with comma separator
 		 */
 		commasepstream(const std::string &source, bool allowempty = false) : sepstream(source, ',', allowempty)
 		{
@@ -323,7 +323,7 @@ namespace irc
 	class CoreExport spacesepstream : public sepstream
 	{
 	 public:
-		/** Initialize with space seperator
+		/** Initialize with space separator
 		 */
 		spacesepstream(const std::string &source, bool allowempty = false) : sepstream(source, ' ', allowempty)
 		{
