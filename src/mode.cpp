@@ -838,24 +838,16 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 	return true;
 }
 
-/** This default implementation can remove simple user modes
- */
-void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
+void ModeHandler::RemoveMode(User* user)
 {
+	// Remove the mode if it's set on the user
 	if (user->IsModeSet(this->GetModeChar()))
 	{
-		if (stack)
-		{
-			stack->Push(this->GetModeChar());
-		}
-		else
-		{
-			std::vector<std::string> parameters;
-			parameters.push_back(user->nick);
-			parameters.push_back("-");
-			parameters[1].push_back(this->GetModeChar());
-			ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
-		}
+		std::vector<std::string> parameters;
+		parameters.push_back(user->nick);
+		parameters.push_back("-");
+		parameters[1].push_back(this->GetModeChar());
+		ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
 	}
 }
 

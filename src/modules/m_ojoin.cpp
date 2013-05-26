@@ -117,10 +117,6 @@ class NetworkPrefix : public ModeHandler
 		return NETWORK_VALUE;
 	}
 
-	void RemoveMode(User* user, irc::modestacker* stack)
-	{
-	}
-
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
 	{
 		User* theuser = ServerInstance->FindNick(parameter);

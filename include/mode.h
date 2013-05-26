@@ -275,15 +275,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	virtual bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
 
 	/**
-	 * When a MODETYPE_USER mode handler is being removed, the server will call this method for every user on the server.
-	 * Your mode handler should remove its user mode from the user by sending the appropriate server modes using
-	 * InspIRCd::SendMode(). The default implementation of this method can remove simple modes which have no parameters,
-	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
-	 * your mode properly from each user.
+	 * When a MODETYPE_USER mode handler is being removed, the core will call this method for every user on the server.
+	 * The usermode will be removed using the appropiate server mode using InspIRCd::SendMode().
 	 * @param user The user which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
 	 */
-	virtual void RemoveMode(User* user, irc::modestacker* stack = NULL);
+	void RemoveMode(User* user);
 
 	/**
 	 * When a MODETYPE_CHANNEL mode handler is being removed, the server will call this method for every channel on the server.

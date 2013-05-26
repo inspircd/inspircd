@@ -30,10 +30,6 @@ ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, "key", 'k', PARAM_ALWAYS, M
 {
 }
 
-void ModeChannelKey::RemoveMode(User*, irc::modestacker* stack)
-{
-}
-
 ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	bool exists = channel->IsModeSet('k');

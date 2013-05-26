@@ -53,10 +53,6 @@ class CustomPrefixMode : public ModeHandler
 		return MOD_RES_PASSTHRU;
 	}
 
-	void RemoveMode(User* user, irc::modestacker* stack)
-	{
-	}
-
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
 	{
 		return MODEACTION_ALLOW;

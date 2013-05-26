@@ -57,11 +57,6 @@ void ListModeBase::RemoveMode(Channel* channel, irc::modestacker& stack)
 	}
 }
 
-void ListModeBase::RemoveMode(User*, irc::modestacker* stack)
-{
-	/* Listmodes dont get set on users */
-}
-
 void ListModeBase::DoRehash()
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags(configtag);

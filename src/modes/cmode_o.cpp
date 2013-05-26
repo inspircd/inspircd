@@ -41,10 +41,6 @@ unsigned int ModeChannelOp::GetPrefixRank()
 	return OP_VALUE;
 }
 
-void ModeChannelOp::RemoveMode(User*, irc::modestacker* stack)
-{
-}
-
 ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	return MODEACTION_ALLOW;

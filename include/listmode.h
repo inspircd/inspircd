@@ -152,10 +152,6 @@ class CoreExport ListModeBase : public ModeHandler
 	 */
 	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
 
-	/** Listmodes don't get set on users, no-op
-	*/
-	virtual void RemoveMode(User*, irc::modestacker* stack);
-
 	/** Perform a rehash of this mode's configuration data
 	 */
 	virtual void DoRehash();

@@ -41,10 +41,6 @@ unsigned int ModeChannelVoice::GetPrefixRank()
 	return VOICE_VALUE;
 }
 
-void ModeChannelVoice::RemoveMode(User*, irc::modestacker* stack)
-{
-}
-
 ModeAction ModeChannelVoice::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
 	return MODEACTION_ALLOW;
