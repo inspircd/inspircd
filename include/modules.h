@@ -1281,76 +1281,38 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnSetUserIP(LocalUser* user);
 };
 
-/** Caches a text file into memory and can be used to retrieve lines from it.
- * This class contains methods for read-only manipulation of a text file in memory.
- * Either use the constructor type with one parameter to load a file into memory
- * at construction, or use the LoadFile method to load a file.
- */
+/** Provides an easy method of reading a text file into memory. */
 class CoreExport FileReader : public classbase
 {
-	/** The file contents
-	 */
-	std::vector<std::string> fc;
+	/** The lines of text in the file. */
+	std::vector<std::string> lines;
 
-	/** Content size in bytes
-	 */
-	unsigned long contentsize;
-
-	/** Calculate content size in bytes
-	 */
-	void CalcSize();
+	/** Content size in bytes */
+	unsigned long totalSize;
 
  public:
-	/** Default constructor.
-	 * This method does not load any file into memory, you must use the LoadFile method
-	 * after constructing the class this way.
-	 */
-	FileReader();
+	/** Initializes a new file reader. */
+	FileReader() { }
 
-	/** Secondary constructor.
-	 * This method initialises the class with a file loaded into it ready for GetLine and
-	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
-	 * returns 0.
+	/** Initializes a new file reader and reads the specified file.
+	 * @param file The file to read into memory.
 	 */
-	FileReader(const std::string &filename);
+	FileReader(const std::string& filename);
 
-	/** Default destructor.
-	 * This deletes the memory allocated to the file.
+	/** Loads a text file from disk.
+	 * @param filename The file to read into memory.
+	 * @throw CoreException The file can not be loaded.
 	 */
-	~FileReader();
+	void Load(const std::string& filename);
 
-	/** Used to load a file.
-	 * This method loads a file into the class ready for GetLine and
-	 * and other methods to be called. If the file could not be loaded, FileReader::FileSize
-	 * returns 0.
+	/** Retrieves the entire contents of the file cache as a single string.
 	 */
-	void LoadFile(const std::string &filename);
+	std::string GetString();
 
-	/** Returns the whole content of the file as std::string
-	 */
-	std::string Contents();
+	/** Retrieves the entire contents of the file cache as a vector of strings. */
+	const std::vector<std::string>& GetVector() { return lines; }
 
-	/** Returns the entire size of the file as std::string
-	 */
-	unsigned long ContentSize();
-
-	/** Returns true if the file exists
-	 * This function will return false if the file could not be opened.
-	 */
-	bool Exists();
-
-	/** Retrieve one line from the file.
-	 * This method retrieves one line from the text file. If an empty non-NULL string is returned,
-	 * the index was out of bounds, or the line had no data on it.
-	 */
-	std::string GetLine(int x);
-
-	/** Returns the size of the file in lines.
-	 * This method returns the number of lines in the read file. If it is 0, no lines have been
-	 * read into memory, either because the file is empty or it does not exist, or cannot be
-	 * opened due to permission problems.
-	 */
-	int FileSize();
+	unsigned long TotalSize() { return totalSize; }
 };
 
 /** A list of modules
