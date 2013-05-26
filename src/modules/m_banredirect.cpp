@@ -50,7 +50,7 @@ class BanRedirect : public ModeWatcher
  public:
 	SimpleExtItem<BanRedirectList> extItem;
 	BanRedirect(Module* parent)
-		: ModeWatcher(parent, 'b', MODETYPE_CHANNEL)
+		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
 		, ban(parent, "ban")
 		, extItem("banredirect", parent)
 	{
@@ -228,9 +228,7 @@ class ModuleBanRedirect : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		if(!ServerInstance->Modes->AddModeWatcher(&re))
-			throw ModuleException("Could not add mode watcher");
-
+		ServerInstance->Modes->AddModeWatcher(&re);
 		ServerInstance->Modules->AddService(re.extItem);
 		Implementation list[] = { I_OnUserPreJoin };
 		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));

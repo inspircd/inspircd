@@ -110,7 +110,7 @@ class InvisibleWatcher : public ModeWatcher
 	unsigned int& invisible;
 public:
 	InvisibleWatcher(Module* mod, unsigned int& Invisible)
-		: ModeWatcher(mod, 'i', MODETYPE_USER), invisible(Invisible)
+		: ModeWatcher(mod, "invisible", MODETYPE_USER), invisible(Invisible)
 	{
 	}
 

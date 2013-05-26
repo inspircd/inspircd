@@ -115,7 +115,7 @@ class BanWatcher : public ModeWatcher
 {
  public:
 	BanWatcher(Module* parent)
-		: ModeWatcher(parent, 'b', MODETYPE_CHANNEL)
+		: ModeWatcher(parent, "ban", MODETYPE_CHANNEL)
 	{
 	}
 

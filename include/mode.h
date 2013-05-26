@@ -342,11 +342,12 @@ class CoreExport ParamChannelModeHandler : public ModeHandler
  */
 class CoreExport ModeWatcher : public classbase
 {
- protected:
+ private:
 	/**
-	 * The mode letter this class is watching
+	 * The mode name this class is watching
 	 */
-	char mode;
+	const std::string mode;
+
 	/**
 	 * The mode type being watched (user or channel)
 	 */
@@ -357,17 +358,18 @@ class CoreExport ModeWatcher : public classbase
 	/**
 	 * The constructor initializes the mode and the mode type
 	 */
-	ModeWatcher(Module* creator, char modeletter, ModeType type);
+	ModeWatcher(Module* creator, const std::string& modename, ModeType type);
 	/**
 	 * The default destructor does nothing.
 	 */
 	virtual ~ModeWatcher();
 
 	/**
-	 * Get the mode character being watched
-	 * @return The mode character being watched
+	 * Get the mode name being watched
+	 * @return The mode name being watched
 	 */
-	char GetModeChar();
+	const std::string& GetModeName() const { return mode; }
+
 	/**
 	 * Get the mode type being watched
 	 * @return The mode type being watched (user or channel)
@@ -399,7 +401,7 @@ class CoreExport ModeWatcher : public classbase
 	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding);
 };
 
-typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
+typedef std::multimap<std::string, ModeWatcher*>::iterator ModeWatchIter;
 
 /** The mode parser handles routing of modes and handling of mode strings.
  * It marshalls, controls and maintains both ModeWatcher and ModeHandler classes,
@@ -415,11 +417,11 @@ class CoreExport ModeParser
 	 * or a channel mode, so we have 256 of them not 64.
 	 */
 	ModeHandler* modehandlers[256];
-	/** Mode watcher classes arranged in the same way as the
-	 * mode handlers, except for instead of having 256 of them
-	 * we have 256 lists of them.
+
+	/** Mode watcher classes
 	 */
-	std::vector<ModeWatcher*> modewatchers[256];
+	std::multimap<std::string, ModeWatcher*> modewatchermap;
+
 	/** Displays the current modes of a channel or user.
 	 * Used by ModeParser::Process.
 	 */
@@ -512,9 +514,9 @@ class CoreExport ModeParser
 	 * triggered. See the documentation of class ModeWatcher for more
 	 * information.
 	 * @param mw The ModeWatcher you want to add
-	 * @return True if the ModeWatcher was added correctly
 	 */
-	bool AddModeWatcher(ModeWatcher* mw);
+	void AddModeWatcher(ModeWatcher* mw);
+
 	/** Delete a mode watcher.
 	 * A mode watcher is triggered before and after a mode handler is
 	 * triggered. See the documentation of class ModeWatcher for more
