@@ -30,29 +30,6 @@ ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, "key", 'k', PARAM_ALWAYS, M
 {
 }
 
-void ModeChannelKey::RemoveMode(Channel* channel, irc::modestacker* stack)
-{
-	/** +k needs a parameter when being removed,
-	 * so we have a special-case RemoveMode here for it
-	 */
-
-	if (channel->IsModeSet('k'))
-	{
-		if (stack)
-		{
-			stack->Push('k', channel->GetModeParameter('k'));
-		}
-		else
-		{
-			std::vector<std::string> parameters;
-			parameters.push_back(channel->name);
-			parameters.push_back("-k");
-			parameters.push_back(channel->GetModeParameter('k'));
-			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
-		}
-	}
-}
-
 void ModeChannelKey::RemoveMode(User*, irc::modestacker* stack)
 {
 }

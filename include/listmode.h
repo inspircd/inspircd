@@ -144,10 +144,13 @@ class CoreExport ListModeBase : public ModeHandler
 	virtual void DisplayEmptyList(User* user, Channel* channel);
 
 	/** Remove all instances of the mode from a channel.
-	 * See mode.h
+	 * Populates the given modestack with modes that remove every instance of
+	 * this mode from the channel.
+	 * See mode.h for more details.
 	 * @param channel The channel to remove all instances of the mode from
+	 * @param stack The mode stack to add the mode change to
 	 */
-	virtual void RemoveMode(Channel* channel, irc::modestacker* stack);
+	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
 
 	/** Listmodes don't get set on users, no-op
 	*/

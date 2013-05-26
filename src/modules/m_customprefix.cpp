@@ -53,36 +53,6 @@ class CustomPrefixMode : public ModeHandler
 		return MOD_RES_PASSTHRU;
 	}
 
-	void RemoveMode(Channel* channel, irc::modestacker* stack)
-	{
-		const UserMembList* cl = channel->GetUsers();
-		std::vector<std::string> mode_junk;
-		mode_junk.push_back(channel->name);
-		irc::modestacker modestack(false);
-		std::vector<std::string> stackresult;
-
-		for (UserMembCIter i = cl->begin(); i != cl->end(); i++)
-		{
-			if (i->second->hasMode(mode))
-			{
-				if (stack)
-					stack->Push(this->GetModeChar(), i->first->nick);
-				else
-					modestack.Push(this->GetModeChar(), i->first->nick);
-			}
-		}
-
-		if (stack)
-			return;
-
-		while (modestack.GetStackedLine(stackresult))
-		{
-			mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-			ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
-			mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
-		}
-	}
-
 	void RemoveMode(User* user, irc::modestacker* stack)
 	{
 	}

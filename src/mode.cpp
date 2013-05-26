@@ -650,7 +650,17 @@ bool ModeParser::DelMode(ModeHandler* mh)
 				// The channel may not be in the hash after RemoveMode(), see m_permchannels
 				Channel* chan = i->second;
 				++i;
-				mh->RemoveMode(chan);
+
+				irc::modestacker stack(false);
+				mh->RemoveMode(chan, stack);
+
+				std::vector<std::string> stackresult;
+				stackresult.push_back(chan->name);
+				while (stack.GetStackedLine(stackresult))
+				{
+					ServerInstance->SendMode(stackresult, ServerInstance->FakeClient);
+					stackresult.erase(stackresult.begin() + 1, stackresult.end());
+				}
 			}
 		break;
 	}
@@ -849,25 +859,29 @@ void ModeHandler::RemoveMode(User* user, irc::modestacker* stack)
 	}
 }
 
-/** This default implementation can remove simple channel modes
- * (no parameters)
- */
-void ModeHandler::RemoveMode(Channel* channel, irc::modestacker* stack)
+void ModeHandler::RemoveMode(Channel* channel, irc::modestacker& stack)
 {
-	if (channel->IsModeSet(this->GetModeChar()))
+	if (this->GetPrefixRank())
 	{
-		if (stack)
-		{
-			stack->Push(this->GetModeChar());
-		}
+		RemovePrefixMode(channel, stack);
+	}
+	else if (channel->IsModeSet(this->GetModeChar()))
+	{
+		if (this->GetNumParams(false))
+			// Removing this mode requires a parameter
+			stack.Push(this->GetModeChar(), channel->GetModeParameter(this->GetModeChar()));
 		else
-		{
-			std::vector<std::string> parameters;
-			parameters.push_back(channel->name);
-			parameters.push_back("-");
-			parameters[1].push_back(this->GetModeChar());
-			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
-		}
+			stack.Push(this->GetModeChar());
+	}
+}
+
+void ModeHandler::RemovePrefixMode(Channel* chan, irc::modestacker& stack)
+{
+	const UserMembList* userlist = chan->GetUsers();
+	for (UserMembCIter i = userlist->begin(); i != userlist->end(); ++i)
+	{
+		if (i->second->hasMode(this->GetModeChar()))
+			stack.Push(this->GetModeChar(), i->first->nick);
 	}
 }
 

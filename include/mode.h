@@ -100,6 +100,13 @@ enum ParamSpec
  */
 class CoreExport ModeHandler : public ServiceProvider
 {
+	/**
+	 * Removes this prefix mode from all users on the given channel
+	 * @param channel The channel which the server wants to remove your mode from
+	 * @param stack The mode stack to add the mode change to
+	 */
+	void RemovePrefixMode(Channel* chan, irc::modestacker& stack);
+
  protected:
 	/**
 	 * The mode parameter translation type
@@ -280,14 +287,15 @@ class CoreExport ModeHandler : public ServiceProvider
 
 	/**
 	 * When a MODETYPE_CHANNEL mode handler is being removed, the server will call this method for every channel on the server.
-	 * Your mode handler should remove its user mode from the channel by sending the appropriate server modes using
-	 * InspIRCd::SendMode(). The default implementation of this method can remove simple modes which have no parameters,
-	 * and can be used when your mode is of this type, otherwise you must implement a more advanced version of it to remove
-	 * your mode properly from each channel. Note that in the case of listmodes, you should remove the entire list of items.
+	 * The mode handler has to populate the given modestacker with mode changes that remove the mode from the channel.
+	 * The default implementation of this method can remove all kinds of channel modes except listmodes.
+	 * In the case of listmodes, the entire list of items must be added to the modestacker (which is handled by ListModeBase,
+	 * so if you inherit from it or your mode can be removed by the default implementation then you do not have to implement
+	 * this function).
 	 * @param channel The channel which the server wants to remove your mode from
 	 * @param stack The mode stack to add the mode change to
 	 */
-	virtual void RemoveMode(Channel* channel, irc::modestacker* stack = NULL);
+	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
 
 	inline unsigned int GetLevelRequired() const { return levelrequired; }
 };

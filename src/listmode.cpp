@@ -45,31 +45,14 @@ void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 	user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
 }
 
-void ListModeBase::RemoveMode(Channel* channel, irc::modestacker* stack)
+void ListModeBase::RemoveMode(Channel* channel, irc::modestacker& stack)
 {
 	ChanData* cd = extItem.get(channel);
 	if (cd)
 	{
-		irc::modestacker modestack(false);
-
 		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
 		{
-			if (stack)
-				stack->Push(this->GetModeChar(), it->mask);
-			else
-				modestack.Push(this->GetModeChar(), it->mask);
-		}
-
-		if (stack)
-			return;
-
-		std::vector<std::string> stackresult;
-		stackresult.push_back(channel->name);
-		while (modestack.GetStackedLine(stackresult))
-		{
-			ServerInstance->SendMode(stackresult, ServerInstance->FakeClient);
-			stackresult.clear();
-			stackresult.push_back(channel->name);
+			stack.Push(this->GetModeChar(), it->mask);
 		}
 	}
 }

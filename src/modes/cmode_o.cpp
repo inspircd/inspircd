@@ -41,25 +41,6 @@ unsigned int ModeChannelOp::GetPrefixRank()
 	return OP_VALUE;
 }
 
-void ModeChannelOp::RemoveMode(Channel* channel, irc::modestacker* stack)
-{
-	const UserMembList* clist = channel->GetUsers();
-
-	for (UserMembCIter i = clist->begin(); i != clist->end(); i++)
-	{
-		if (stack)
-			stack->Push(this->GetModeChar(), i->first->nick);
-		else
-		{
-			std::vector<std::string> parameters;
-			parameters.push_back(channel->name);
-			parameters.push_back("-o");
-			parameters.push_back(i->first->nick);
-			ServerInstance->SendMode(parameters, ServerInstance->FakeClient);
-		}
-	}
-}
-
 void ModeChannelOp::RemoveMode(User*, irc::modestacker* stack)
 {
 }

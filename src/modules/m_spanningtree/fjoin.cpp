@@ -209,7 +209,7 @@ void CommandFJoin::RemoveStatus(Channel* c)
 		 * for this function we require tidyness instead. Fixes bug #493
 		 */
 		if (mh)
-			mh->RemoveMode(c, &stack);
+			mh->RemoveMode(c, stack);
 	}
 
 	ApplyModeStack(ServerInstance->FakeClient, c, stack);
