@@ -114,7 +114,7 @@ public:
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding, ModeType type)
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding)
 	{
 		if (dest->registered != REG_ALL)
 			return;

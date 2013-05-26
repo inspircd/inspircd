@@ -175,12 +175,12 @@ ModeType ModeWatcher::GetModeType()
 	return m_type;
 }
 
-bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool, ModeType)
+bool ModeWatcher::BeforeMode(User*, User*, Channel*, std::string&, bool)
 {
 	return true;
 }
 
-void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool, ModeType)
+void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool)
 {
 }
 
@@ -273,7 +273,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
 	{
-		if ((*watchers)->BeforeMode(user, targetuser, chan, parameter, adding, type) == false)
+		if ((*watchers)->BeforeMode(user, targetuser, chan, parameter, adding) == false)
 			return MODEACTION_DENY;
 		/* A module whacked the parameter completely, and there was one. abort. */
 		if (pcnt && parameter.empty())
@@ -332,7 +332,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		return ma;
 
 	for (ModeWatchIter watchers = modewatchers[handler_id].begin(); watchers != modewatchers[handler_id].end(); watchers++)
-		(*watchers)->AfterMode(user, targetuser, chan, parameter, adding, type);
+		(*watchers)->AfterMode(user, targetuser, chan, parameter, adding);
 
 	return MODEACTION_ALLOW;
 }
@@ -533,7 +533,7 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 		{
 			std::string dummyparam;
 
-			if (!((*watchers)->BeforeMode(user, NULL, chan, dummyparam, true, MODETYPE_CHANNEL)))
+			if (!((*watchers)->BeforeMode(user, NULL, chan, dummyparam, true)))
 				display = false;
 		}
 		if (display)

@@ -56,7 +56,7 @@ class BanRedirect : public ModeWatcher
 	{
 	}
 
-	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding, ModeType type)
+	bool BeforeMode(User* source, User* dest, Channel* channel, std::string &param, bool adding)
 	{
 		/* nick!ident@host -> nick!ident@host
 		 * nick!ident@host#chan -> nick!ident@host#chan
@@ -65,7 +65,7 @@ class BanRedirect : public ModeWatcher
 		 * nick#chan -> nick!*@*#chan
 		 */
 
-		if(channel && (type == MODETYPE_CHANNEL) && param.length())
+		if ((channel) && !param.empty())
 		{
 			BanRedirectList* redirects;
 

@@ -119,7 +119,7 @@ class BanWatcher : public ModeWatcher
 	{
 	}
 
-	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding, ModeType type)
+	void AfterMode(User* source, User* dest, Channel* chan, const std::string& banmask, bool adding)
 	{
 		if (adding)
 			return;

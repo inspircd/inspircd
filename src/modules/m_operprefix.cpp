@@ -66,7 +66,7 @@ class HideOperWatcher : public ModeWatcher
 	ModuleOperPrefixMode* parentmod;
  public:
 	HideOperWatcher(ModuleOperPrefixMode* parent) : ModeWatcher((Module*) parent, 'H', MODETYPE_USER), parentmod(parent) {}
-	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
+	void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding);
 };
 
 class ModuleOperPrefixMode : public Module
@@ -159,7 +159,7 @@ class ModuleOperPrefixMode : public Module
 	}
 };
 
-void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding, ModeType type)
+void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding)
 {
 	if (IS_LOCAL(dest))
 		parentmod->SetOperPrefix(dest, !adding);

@@ -383,11 +383,10 @@ class CoreExport ModeWatcher : public classbase
 	 * If you alter the parameter you are given, the mode handler will see your atered version
 	 * when it handles the mode.
 	 * @param adding True if the mode is being added and false if it is being removed
-	 * @param type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 * @return True to allow the mode change to go ahead, false to abort it. If you abort the
 	 * change, the mode handler (and ModeWatcher::AfterMode()) will never see the mode change.
 	 */
-	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string &parameter, bool adding, ModeType type);
+	virtual bool BeforeMode(User* source, User* dest, Channel* channel, std::string& parameter, bool adding);
 	/**
 	 * After the mode character has been processed by the ModeHandler, this method will be called.
 	 * @param source The sender of the mode
@@ -396,9 +395,8 @@ class CoreExport ModeWatcher : public classbase
 	 * @param parameter The parameter of the mode, if the mode is supposed to have a parameter.
 	 * You cannot alter the parameter here, as the mode handler has already processed it.
 	 * @param adding True if the mode is being added and false if it is being removed
-	 * @param type The mode type, either MODETYPE_USER or MODETYPE_CHANNEL
 	 */
-	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string &parameter, bool adding, ModeType type);
+	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding);
 };
 
 typedef std::vector<ModeWatcher*>::iterator ModeWatchIter;
