@@ -867,8 +867,9 @@ Closes all unregistered connections to the local server.">
  A                  Allows anyone to invite users to the channel
                     (normally only chanops can invite, requires
                     allowinvite module).
- B                  Blocks messages with too many capital letters,
-                    as determined by the network configuration
+ B [~*][percent]:[len] kicks users for messages with too many capital letters.
+                    If the ~ is used it will block instead of kick.
+                    If the * is used it will kickban instead of kick.
                     (requires blockcaps module).
  C                  Blocks any CTCPs to the channel (requires noctcp
                     module).
@@ -1039,8 +1040,6 @@ Acting extbans:
                nopartmsg module).
  A:<ban>       Blocks invites by matching users even when +A is set
                (requires allowinvite module).
- B:<ban>       Blocks all capital or nearly all capital messages from
-               matching users (requires blockcaps module).
  C:<ban>       Blocks CTCPs from matching users (requires noctcp
                module).
  N:<ban>       Blocks nick changes from matching users (requires
