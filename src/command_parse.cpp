@@ -181,7 +181,7 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 	return CMD_INVALID;
 }
 
-bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
+void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 {
 	std::vector<std::string> command_p;
 	irc::tokenstream tokens(cmd);
@@ -202,23 +202,21 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 
 	/* find the command, check it exists */
-	Commandtable::iterator cm = cmdlist.find(command);
+	Command* handler = GetHandler(command);
 
 	/* Modify the user's penalty regardless of whether or not the command exists */
-	bool do_more = true;
 	if (!user->HasPrivPermission("users/flood/no-throttle"))
 	{
 		// If it *doesn't* exist, give it a slightly heftier penalty than normal to deter flooding us crap
-		user->CommandFloodPenalty += cm != cmdlist.end() ? cm->second->Penalty * 1000 : 2000;
+		user->CommandFloodPenalty += handler ? handler->Penalty * 1000 : 2000;
 	}
 
-
-	if (cm == cmdlist.end())
+	if (!handler)
 	{
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
 		if (MOD_RESULT == MOD_RES_DENY)
-			return true;
+			return;
 
 		/*
 		 * This double lookup is in case a module (abbreviation) wishes to change a command.
@@ -227,19 +225,19 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 * Thanks dz for making me actually understand why this is necessary!
 		 * -- w00t
 		 */
-		cm = cmdlist.find(command);
-		if (cm == cmdlist.end())
+		handler = GetHandler(command);
+		if (!handler)
 		{
 			if (user->registered == REG_ALL)
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
 			ServerInstance->stats->statsUnknown++;
-			return true;
+			return;
 		}
 	}
 
 	// If we were given more parameters than max_params then append the excess parameter(s)
 	// to command_p[maxparams-1], i.e. to the last param that is still allowed
-	if (cm->second->max_params && command_p.size() > cm->second->max_params)
+	if (handler->max_params && command_p.size() > handler->max_params)
 	{
 		/*
 		 * command_p input (assuming max_params 1):
@@ -250,7 +248,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 */
 
 		// Iterator to the last parameter that will be kept
-		const std::vector<std::string>::iterator lastkeep = command_p.begin() + (cm->second->max_params - 1);
+		const std::vector<std::string>::iterator lastkeep = command_p.begin() + (handler->max_params - 1);
 		// Iterator to the first excess parameter
 		const std::vector<std::string>::iterator firstexcess = lastkeep + 1;
 
@@ -272,26 +270,28 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, false, cmd));
 	if (MOD_RESULT == MOD_RES_DENY)
-		return true;
+		return;
 
 	/* activity resets the ping pending timer */
 	user->nping = ServerInstance->Time() + user->MyClass->GetPingTime();
 
-	if (cm->second->flags_needed)
+	if (handler->flags_needed)
 	{
-		if (!user->IsModeSet(cm->second->flags_needed))
+		if (!user->IsModeSet(handler->flags_needed))
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
-			return do_more;
+			return;
 		}
+
 		if (!user->HasPermission(command))
 		{
 			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to command %s",
 				user->nick.c_str(), user->oper->name.c_str(), command.c_str());
-			return do_more;
+			return;
 		}
 	}
-	if ((user->registered == REG_ALL) && (!user->IsOper()) && (cm->second->IsDisabled()))
+
+	if ((user->registered == REG_ALL) && (!user->IsOper()) && (handler->IsDisabled()))
 	{
 		/* command is disabled! */
 		if (ServerInstance->Config->DisabledDontExist)
@@ -306,41 +306,40 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 
 		ServerInstance->SNO->WriteToSnoMask('t', "%s denied for %s (%s@%s)",
 				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		return do_more;
+		return;
 	}
 
-	if ((!command_p.empty()) && (command_p.back().empty()) && (!cm->second->allow_empty_last_param))
+	if ((!command_p.empty()) && (command_p.back().empty()) && (!handler->allow_empty_last_param))
 		command_p.pop_back();
 
-	if (command_p.size() < cm->second->min_params)
+	if (command_p.size() < handler->min_params)
 	{
 		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
-		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (cm->second->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, "%s :SYNTAX %s %s", user->nick.c_str(), cm->second->name.c_str(), cm->second->syntax.c_str());
-		return do_more;
+		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
+			user->WriteNumeric(RPL_SYNTAX, "%s :SYNTAX %s %s", user->nick.c_str(), handler->name.c_str(), handler->syntax.c_str());
+		return;
 	}
-	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
+
+	if ((user->registered != REG_ALL) && (!handler->WorksBeforeReg()))
 	{
 		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You have not registered",command.c_str());
-		return do_more;
 	}
 	else
 	{
 		/* passed all checks.. first, do the (ugly) stats counters. */
-		cm->second->use_count++;
+		handler->use_count++;
 
 		/* module calls too */
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true, cmd));
 		if (MOD_RESULT == MOD_RES_DENY)
-			return do_more;
+			return;
 
 		/*
 		 * WARNING: be careful, the user may be deleted soon
 		 */
-		CmdResult result = cm->second->Handle(command_p, user);
+		CmdResult result = handler->Handle(command_p, user);
 
 		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, user, result,cmd));
-		return do_more;
 	}
 }
 
@@ -356,14 +355,14 @@ Command::~Command()
 	ServerInstance->Parser->RemoveCommand(this);
 }
 
-bool CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
+void CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
 {
 	if (!user || buffer.empty())
-		return true;
+		return;
 
 	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I :%s %s",
 		user->uuid.c_str(), user->nick.c_str(), buffer.c_str());
-	return ProcessCommand(user,buffer);
+	ProcessCommand(user,buffer);
 }
 
 bool CommandParser::AddCommand(Command *f)

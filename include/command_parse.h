@@ -49,7 +49,7 @@ class CoreExport CommandParser
 	 * @param user The user to parse the command for
 	 * @param cmd The command string to process
 	 */
-	bool ProcessCommand(LocalUser *user, std::string &cmd);
+	void ProcessCommand(LocalUser* user, std::string& cmd);
 
 
 
@@ -117,7 +117,7 @@ class CoreExport CommandParser
 	 * @param buffer The buffer line to process
 	 * @param user The user to whom this line belongs
 	 */
-	bool ProcessBuffer(std::string &buffer,LocalUser *user);
+	void ProcessBuffer(std::string &buffer,LocalUser *user);
 
 	/** Add a new command to the commands hash
 	 * @param f The new Command to add to the list
