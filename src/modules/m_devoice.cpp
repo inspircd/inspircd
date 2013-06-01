@@ -41,19 +41,13 @@ class CommandDevoice : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		Channel* c = ServerInstance->FindChan(parameters[0]);
-		if (c && c->HasUser(user))
-		{
-			std::vector<std::string> modes;
-			modes.push_back(parameters[0]);
-			modes.push_back("-v");
-			modes.push_back(user->nick);
+		std::vector<std::string> modes;
+		modes.push_back(parameters[0]);
+		modes.push_back("-v");
+		modes.push_back(user->nick);
 
-			ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
-			return CMD_SUCCESS;
-		}
-
-		return CMD_FAILURE;
+		ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
+		return CMD_SUCCESS;
 	}
 };
 
