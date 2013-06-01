@@ -237,6 +237,8 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		}
 	}
 
+	// If we were given more parameters than max_params then append the excess parameter(s)
+	// to command_p[maxparams-1], i.e. to the last param that is still allowed
 	if (cm->second->max_params && command_p.size() > cm->second->max_params)
 	{
 		/*
@@ -246,32 +248,21 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 *	a
 		 *	test
 		 */
-		std::string lparam;
 
-		/*
-		 * The '-1' here is a clever trick, we'll go backwards throwing everything into a temporary param
-		 * and then just toss that into the array.
-		 * -- w00t
-		 */
-		while (command_p.size() > (cm->second->max_params - 1))
+		// Iterator to the last parameter that will be kept
+		const std::vector<std::string>::iterator lastkeep = command_p.begin() + (cm->second->max_params - 1);
+		// Iterator to the first excess parameter
+		const std::vector<std::string>::iterator firstexcess = lastkeep + 1;
+
+		// Append all excess parameter(s) to the last parameter, seperated by spaces
+		for (std::vector<std::string>::const_iterator i = firstexcess; i != command_p.end(); ++i)
 		{
-			// BE CAREFUL: .end() returns past the end of the vector, hence decrement.
-			std::vector<std::string>::iterator it = --command_p.end();
-
-			lparam.insert(0, " " + *(it));
-			command_p.erase(it); // remove last element
+			lastkeep->push_back(' ');
+			lastkeep->append(*i);
 		}
 
-		/* we now have (each iteration):
-		 *	' test'
-		 *	' a test'
-		 *	' is a test' <-- final string
-		 * ...now remove the ' ' at the start...
-		 */
-		lparam.erase(lparam.begin());
-
-		/* param is now 'is a test', which is exactly what we wanted! */
-		command_p.push_back(lparam);
+		// Erase the excess parameter(s)
+		command_p.erase(firstexcess, command_p.end());
 	}
 
 	/*
