@@ -295,7 +295,6 @@ InspIRCd 1.0.x, are also allowed.
                                to select() [not set]
   --disable-kqueue             Do not enable kqueue(), fall back
                                to select() [not set]
-  --disable-ipv6               Do not build IPv6 native InspIRCd [not set]
   --with-cc=[filename]         Use an alternative compiler to
                                build InspIRCd [g++]
   --with-maxbuf=[n]            Change the per message buffer size [512]

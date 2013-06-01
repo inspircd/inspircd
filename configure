@@ -40,7 +40,6 @@ BEGIN {
 };
 
 use File::Copy ();
-use Socket;
 use Cwd;
 use Getopt::Long;
 
@@ -54,10 +53,8 @@ use make::configure;
 #
 ###############################################################################################
 
-our ($opt_use_gnutls, $opt_rebuild, $opt_use_openssl, $opt_nointeractive, $opt_ports,
-    $opt_epoll, $opt_kqueue, $opt_noports, $opt_noepoll, $opt_nokqueue,
-    $opt_noipv6, $opt_maxbuf, $opt_disable_debug, $opt_freebsd_port,
-	$opt_system, $opt_uid);
+our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_ports, $opt_epoll, $opt_kqueue,
+     $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_maxbuf, $opt_freebsd_port, $opt_system, $opt_uid);
 
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
 
@@ -72,7 +69,6 @@ my @opt_disableextras;
 
 GetOptions (
 	'enable-gnutls' => \$opt_use_gnutls,
-	'rebuild' => \$opt_rebuild,
 	'system' => \$opt_system,
 	'uid=s' => \$opt_uid,
 	'enable-openssl' => \$opt_use_openssl,
@@ -83,7 +79,6 @@ GetOptions (
 	'disable-ports' => \$opt_noports,
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
-	'disable-ipv6' => \$opt_noipv6,
 	'with-cc=s' => \$opt_cc,
 	'with-maxbuf=i' => \$opt_maxbuf,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
@@ -93,15 +88,12 @@ GetOptions (
 	'binary-dir=s' => \$opt_binary_dir,
 	'data-dir=s' => \$opt_data_dir,
 	'log-dir=s' => \$opt_log_dir,
-	'disable-debuginfo' => sub { $opt_disable_debug = 1 },
 	'help'	=> sub { showhelp(); },
 	'update' => sub { update(); },
 	'clean' => sub { clean(); },
 	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
 	'enable-extras=s@' => \@opt_enableextras, # ^
 	'disable-extras=s@' => \@opt_disableextras, # ^
-	'generate-openssl-cert' => sub { exec './tools/genssl openssl'; },
-	'generate-gnutls-cert' => sub { exec './tools/genssl gnutls'; }
 );
 
 if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
@@ -124,7 +116,6 @@ our $interactive = !(
 	(defined $opt_log_dir) ||
 	(defined $opt_nointeractive) ||
 	(defined $opt_cc) ||
-	(defined $opt_noipv6) ||
 	(defined $opt_kqueue) ||
 	(defined $opt_epoll) ||
 	(defined $opt_ports) ||
@@ -223,12 +214,6 @@ if (defined $opt_use_openssl)
 	$config{USE_OPENSSL} = "y";
 }
 
-if (!defined $opt_disable_debug) {
-	$config{OPTIMISATI}	 = "-g1";			     	# Optimisation Flag
-} else {
-	$config{OPTIMISATI}	 = "-O2";
-}
-
 $config{HAS_STDINT}	 = "false";					# stdint.h check
 $config{USE_KQUEUE}	 = "y";						# kqueue enabled
 if (defined $opt_nokqueue) {
@@ -245,14 +230,11 @@ if (defined $opt_noports)
 {
 	$config{USE_PORTS} = "n";
 }
-$config{_SOMAXCONN} = SOMAXCONN;					# Max connections in accept queue
 $config{OSNAME}       	    = $^O;			      		# Operating System Name
-$config{IS_DARWIN}	  = "NO";					# Is OSX?
 $config{STARTSCRIPT}	  = "inspircd";			# start script?
 $config{DESTINATION}	  = "BASE";				# Is target path.
 if ($config{OSNAME} =~ /darwin/i)
 {
-	$config{IS_DARWIN} = "YES";
 	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
 	$config{CC} 		    = "xcrun clang++";					# C++ compiler for OSX.
 }
@@ -277,7 +259,7 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 }
 
 if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
-	if ($config{IS_DARWIN} eq "YES") {
+	if ($config{OSNAME} eq 'darwin') {
 		print $config{CC} . " was not found! You require clang++ (the LLVM C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
 	} else {
 		print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";		
@@ -309,11 +291,6 @@ sub update
 		} else {
 			# We've Loaded the cache file and all our variables..
 			print "Updating files...\n";
-			if (defined($opt_disable_debug) && $opt_disable_debug == 1)
-			{
-				print "Disabling debug information (-g).\n";
-				$config{OPTIMISATI} = "";
-			}
 			$has_epoll = $config{HAS_EPOLL};
 			$has_ports = $config{HAS_PORTS};
 			$has_kqueue = $config{HAS_KQUEUE};
@@ -484,8 +461,8 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 				chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
 				chomp($config{GCCMINOR}     = `$config{CC} -dumpversion | cut -c 3`);
 				print "Queried compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.$config{GCCMINOR}\e[0m)\n";
-				if ($config{GCCVER} < 3) {
-					print "\e[1;32mGCC 2.x WILL NOT WORK!\e[0m. Let's try that again, shall we?\n";
+				if ($config{GCCVER} < 4 || $config{GCCVER} == 4 && $config{GCCMINOR} < 1) {
+					print "\e[1;32mGCC 4.1 and earlier WILL NOT WORK!\e[0m. Let's try that again, shall we?\n";
 				}
 			}
 			else {
@@ -845,8 +822,6 @@ sub writefiles {
 #define DATA_PATH "$config{DATA_DIR}"
 #define LOG_PATH "$config{LOG_DIR}"
 #define MOD_PATH "$config{MODULE_DIR}"
-#define SOMAXCONN_S "$config{_SOMAXCONN}"
-#define ENTRYPOINT int main(int argc, char** argv)
 
 EOF
 print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
