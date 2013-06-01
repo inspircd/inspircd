@@ -360,7 +360,7 @@ class ModuleAlias : public Module
 		std::string command, token;
 
 		ss.GetToken(command);
-		while (ss.GetToken(token) && (pars.size() <= MAXPARAMETERS))
+		while (ss.GetToken(token))
 		{
 			pars.push_back(token);
 		}

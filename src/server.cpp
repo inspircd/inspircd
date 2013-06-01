@@ -181,7 +181,6 @@ void ISupportManager::Build()
 	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
 	tokens["MAXBANS"] = "64"; // TODO: make this a config setting.
 	tokens["MAXCHANNELS"] = ConvToStr(ServerInstance->Config->MaxChans);
-	tokens["MAXPARA"] = ConvToStr(MAXPARAMETERS);
 	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
 	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
 	tokens["NETWORK"] = ConvToStr(ServerInstance->Config->Network);

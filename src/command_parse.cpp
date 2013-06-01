@@ -196,7 +196,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	if (command[0] == ':')
 		tokens.GetToken(command);
 
-	while (tokens.GetToken(token) && (command_p.size() <= MAXPARAMETERS))
+	while (tokens.GetToken(token))
 		command_p.push_back(token);
 
 	std::transform(command.begin(), command.end(), command.begin(), ::toupper);
