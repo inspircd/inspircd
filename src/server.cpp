@@ -167,13 +167,10 @@ void ISupportManager::Build()
 	 * the future we can use an initializer list here.
 	 */
 	std::map<std::string, std::string> tokens;
-	std::vector<std::string> lines;
-	int token_count = 0;
-	std::string line;
 
 	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
 	tokens["CASEMAPPING"] = "rfc1459";
-	tokens["CHANMODES"] = ConvToStr(ServerInstance->Modes->GiveModeList(MASK_CHANNEL));
+	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MASK_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
 	tokens["CHANTYPES"] = "#";
 	tokens["CHARSET"] = "ascii";
@@ -183,7 +180,7 @@ void ISupportManager::Build()
 	tokens["MAXCHANNELS"] = ConvToStr(ServerInstance->Config->MaxChans);
 	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
 	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
-	tokens["NETWORK"] = ConvToStr(ServerInstance->Config->Network);
+	tokens["NETWORK"] = ServerInstance->Config->Network;
 	tokens["NICKLEN"] = ConvToStr(ServerInstance->Config->Limits.NickMax);
 	tokens["PREFIX"] = ServerInstance->Modes->BuildPrefixes();
 	tokens["STATUSMSG"] = ServerInstance->Modes->BuildPrefixes(false);
@@ -192,6 +189,7 @@ void ISupportManager::Build()
 	tokens["FNC"] = tokens["MAP"] = tokens["VBANLIST"] =
 		tokens["WALLCHOPS"] = tokens["WALLVOICES"];
 
+	// Modules can add new tokens and also edit or remove existing tokens
 	FOREACH_MOD(I_On005Numeric, On005Numeric(tokens));
 
 	// EXTBAN is a special case as we need to sort it and prepend a comma.
@@ -202,24 +200,37 @@ void ISupportManager::Build()
 		extban->second.insert(0, ",");
 	}
 
-	for (std::map<std::string, std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)
+	// Transform the map into a list of lines, ready to be sent to clients
+	std::vector<std::string>& lines = this->Lines;
+	std::string line;
+	unsigned int token_count = 0;
+	lines.clear();
+
+	for (std::map<std::string, std::string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
 	{
-		line.append(it->first + (it->second.empty() ? " " : "=" + it->second + " "));
+		line.append(it->first);
+
+		// If this token has a value then append a '=' char after the name and then the value itself
+		if (!it->second.empty())
+			line.append(1, '=').append(it->second);
+
+		// Always append a space, even if it's the last token because all lines will be suffixed
+		line.push_back(' ');
 		token_count++;
 
 		if (token_count % 13 == 12 || it == --tokens.end())
 		{
+			// Reached maximum number of tokens for this line or the current token
+			// is the last one; finalize the line and store it for later use
 			line.append(":are supported by this server");
 			lines.push_back(line);
 			line.clear();
 		}
 	}
-
-	this->Lines = lines;
 }
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	for (std::vector<std::string>::iterator line = this->Lines.begin(); line != this->Lines.end(); line++)
-		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), line->c_str());
+	for (std::vector<std::string>::const_iterator i = this->Lines.begin(); i != this->Lines.end(); ++i)
+		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), i->c_str());
 }
