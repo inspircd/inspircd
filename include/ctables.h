@@ -119,10 +119,6 @@ class CoreExport Command : public ServiceProvider
 	 */
 	unsigned long use_count;
 
-	/** used by /stats m
-	 */
-	unsigned long total_bytes;
-
 	/** True if the command is disabled to non-opers
 	 */
 	bool disabled;
@@ -163,7 +159,7 @@ class CoreExport Command : public ServiceProvider
 	 */
 	Command(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
 		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),
-		use_count(0), total_bytes(0), disabled(false), works_before_reg(false), allow_empty_last_param(true),
+		use_count(0), disabled(false), works_before_reg(false), allow_empty_last_param(true),
 		Penalty(1)
 	{
 	}

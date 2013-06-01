@@ -337,7 +337,6 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	{
 		/* passed all checks.. first, do the (ugly) stats counters. */
 		cm->second->use_count++;
-		cm->second->total_bytes += cmd.length();
 
 		/* module calls too */
 		FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, command_p, user, true, cmd));
