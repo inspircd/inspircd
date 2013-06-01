@@ -537,7 +537,7 @@ class CoreExport InspIRCd
 	/** Return a count of channels on the network
 	 * @return The number of channels
 	 */
-	long ChannelCount();
+	long ChannelCount() const { return chanlist->size(); }
 
 	/** Send an error notice to all local users, opered and unopered
 	 * @param s The error string to send
@@ -774,3 +774,8 @@ class CommandModule : public Module
 		return Version(cmd.name, VF_VENDOR|VF_CORE);
 	}
 };
+
+inline void InspIRCd::SendMode(const std::vector<std::string>& parameters, User* user)
+{
+	this->Modes->Process(parameters, user);
+}

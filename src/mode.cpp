@@ -44,11 +44,6 @@ ModeHandler::~ModeHandler()
 {
 }
 
-bool ModeHandler::IsListMode()
-{
-	return list;
-}
-
 unsigned int ModeHandler::GetPrefixRank()
 {
 	return 0;
@@ -554,11 +549,6 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 		else
 			mh->DisplayEmptyList(user, chan);
 	}
-}
-
-const std::string& ModeParser::GetLastParse()
-{
-	return LastParse;
 }
 
 void ModeParser::CleanMask(std::string &mask)

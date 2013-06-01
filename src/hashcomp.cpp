@@ -432,11 +432,6 @@ irc::stringjoiner::stringjoiner(const std::string& seperator, const std::vector<
 	joined.append(sequence[end]);
 }
 
-const std::string& irc::stringjoiner::GetJoined() const
-{
-	return joined;
-}
-
 irc::portparser::portparser(const std::string &source, bool allow_overlapped)
 	: sep(source), in_range(0), range_begin(0), range_end(0), overlapped(allow_overlapped)
 {

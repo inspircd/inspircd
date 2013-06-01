@@ -552,12 +552,6 @@ void dynamic_reference_base::resolve()
 		value = NULL;
 }
 
-void InspIRCd::SendMode(const std::vector<std::string>& parameters, User *user)
-{
-	this->Modes->Process(parameters, user);
-}
-
-
 void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *user)
 {
 	Modes->Process(parameters, user);

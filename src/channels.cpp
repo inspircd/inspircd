@@ -137,11 +137,6 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 	return CMD_SUCCESS;
 }
 
-long Channel::GetUserCounter()
-{
-	return userlist.size();
-}
-
 Membership* Channel::AddUser(User* user)
 {
 	Membership*& memb = userlist[user];
@@ -182,22 +177,12 @@ void Channel::DelUser(User* user)
 	}
 }
 
-bool Channel::HasUser(User* user)
-{
-	return (userlist.find(user) != userlist.end());
-}
-
 Membership* Channel::GetUser(User* user)
 {
 	UserMembIter i = userlist.find(user);
 	if (i == userlist.end())
 		return NULL;
 	return i->second;
-}
-
-const UserMembList* Channel::GetUsers()
-{
-	return &userlist;
 }
 
 void Channel::SetDefaultModes()

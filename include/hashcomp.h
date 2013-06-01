@@ -190,7 +190,7 @@ namespace irc
 		/** Get the joined sequence
 		 * @return A constant reference to the joined string
 		 */
-		const std::string& GetJoined() const;
+		const std::string& GetJoined() const { return joined; }
 	};
 
 	/** irc::modestacker stacks mode sequences into a list.

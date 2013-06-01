@@ -784,11 +784,6 @@ const char* ServerConfig::CleanFilename(const char* name)
 	return (p != name ? ++p : p);
 }
 
-const std::string& ServerConfig::GetSID()
-{
-	return sid;
-}
-
 void ConfigReaderThread::Run()
 {
 	Config->Read();

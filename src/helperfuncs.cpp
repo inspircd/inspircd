@@ -116,12 +116,6 @@ void InspIRCd::SendError(const std::string &s)
 	}
 }
 
-/* return channel count */
-long InspIRCd::ChannelCount()
-{
-	return chanlist->size();
-}
-
 bool InspIRCd::IsValidMask(const std::string &mask)
 {
 	const char* dest = mask.c_str();

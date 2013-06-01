@@ -172,7 +172,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	/**
 	 * Returns true if the mode is a list mode
 	 */
-	bool IsListMode();
+	bool IsListMode() const { return list; }
 	/**
 	 * Mode prefix or 0. If this is defined, you should
 	 * also implement GetPrefixRank() to return an integer
@@ -492,7 +492,7 @@ class CoreExport ModeParser
 	 * may be different to what you sent after it has been 'cleaned up' by the parser.
 	 * @return Last parsed string, as seen by users.
 	 */
-	const std::string& GetLastParse();
+	const std::string& GetLastParse() const { return LastParse; }
 	const std::vector<std::string>& GetLastParseParams() { return LastParseParams; }
 	const std::vector<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
 	/** Add a mode to the mode parser.

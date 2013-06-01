@@ -487,7 +487,7 @@ class CoreExport ServerConfig
 
 	/** Get server ID as string with required leading zeroes
 	 */
-	const std::string& GetSID();
+	const std::string& GetSID() const { return sid; }
 
 	/** Read the entire configuration into memory
 	 * and initialize this class. All other methods

@@ -129,13 +129,11 @@ class CoreExport Channel : public Extensible, public InviteBase
 	int SetTopic(User *u, std::string &t, bool forceset = false);
 
 	/** Obtain the channel "user counter"
-	 * This returns the channel reference counter, which is initialized
-	 * to 0 when the channel is created and incremented/decremented
-	 * upon joins, parts quits and kicks.
+	 * This returns the number of users on this channel
 	 *
 	 * @return The number of users on this channel
 	 */
-	long GetUserCounter();
+	long GetUserCounter() const { return userlist.size(); }
 
 	/** Add a user pointer to the internal reference list
 	 * @param user The user to add
@@ -161,7 +159,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 *
 	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
-	const UserMembList* GetUsers();
+	const UserMembList* GetUsers() const { return &userlist; }
 
 	/** Returns true if the user given is on the given channel.
 	 * @param user The user to look for
@@ -357,3 +355,8 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	ModResult GetExtBanStatus(User *u, char type);
 };
+
+inline bool Channel::HasUser(User* user)
+{
+	return (userlist.find(user) != userlist.end());
+}
