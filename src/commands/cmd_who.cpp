@@ -264,7 +264,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 
 	for (const char* check = matchtext; *check; check++)
 	{
-		if (*check == '*' || *check == '?')
+		if (*check == '*' || *check == '?' || *check == '.')
 		{
 			usingwildcards = true;
 			break;
