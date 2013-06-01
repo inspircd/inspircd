@@ -110,6 +110,7 @@
 # include "inspircd_win32wrapper.h"
 #else
 # include <unistd.h>
+# define ENTRYPOINT int main(int argc, char** argv)
 # define DllExport
 # define CoreExport
 #endif
