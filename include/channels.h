@@ -305,11 +305,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	void UserList(User *user);
 
-	/** Get the number of invisible users on this channel
-	 * @return Number of invisible users
-	 */
-	int CountInvisible();
-
 	/** Get a users prefix on this channel in a string.
 	 * @param user The user to look up
 	 * @return A character array containing the prefix string.
@@ -343,13 +338,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * VOICE_VALUE is of lesser 'worth' than a voice.
 	 */
 	unsigned int GetPrefixValue(User* user);
-
-	/** This method removes all prefix characters from a user.
-	 * It will not inform the user or the channel of the removal of prefixes,
-	 * and should be used when the user parts or quits.
-	 * @param user The user to remove all prefixes from
-	 */
-	void RemoveAllPrefixes(User* user);
 
 	/** Add a prefix character to a user.
 	 * Only the core should call this method, usually  from

@@ -653,22 +653,6 @@ void Channel::WriteAllExceptSender(User* user, bool serversource, char status, c
 	this->WriteAllExcept(user, serversource, status, except_list, std::string(text));
 }
 
-/*
- * return a count of the users on a specific channel accounting for
- * invisible users who won't increase the count. e.g. for /LIST
- */
-int Channel::CountInvisible()
-{
-	int count = 0;
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
-	{
-		if (!i->first->quitting && !i->first->IsModeSet('i'))
-			count++;
-	}
-
-	return count;
-}
-
 const char* Channel::ChanModes(bool showkey)
 {
 	static std::string scratch;
@@ -875,15 +859,6 @@ bool Channel::SetPrefix(User* user, char prefix, bool adding)
 	if (adding)
 		m->second->modes += std::string(1, prefix);
 	return adding;
-}
-
-void Channel::RemoveAllPrefixes(User* user)
-{
-	UserMembIter m = userlist.find(user);
-	if (m != userlist.end())
-	{
-		m->second->modes.clear();
-	}
 }
 
 void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
