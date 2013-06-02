@@ -62,10 +62,19 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	if ((IS_LOCAL(user)) && (!c->HasUser(user)) && (!ServerInstance->ULine(user->server)))
+	if (IS_LOCAL(user))
 	{
-		user->WriteServ( "442 %s %s :You're not on that channel!", user->nick.c_str(), parameters[0].c_str());
-		return CMD_FAILURE;
+		if (!c->HasUser(user))
+		{
+			user->WriteServ( "442 %s %s :You're not on that channel!", user->nick.c_str(), parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+
+		if (ServerInstance->ULine(u->server))
+		{
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You may not kick a u-lined client", user->nick.c_str(), c->name.c_str());
+			return CMD_FAILURE;
+		}
 	}
 
 	if (parameters.size() > 2)

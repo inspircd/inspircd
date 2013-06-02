@@ -502,28 +502,19 @@ void Channel::PartUser(User *user, std::string &reason)
 	this->DelUser(user);
 }
 
-void Channel::KickUser(User *src, User *user, const std::string& reason)
+void Channel::KickUser(User* src, User* victim, const std::string& reason)
 {
-	Membership* memb = GetUser(user);
+	Membership* memb = GetUser(victim);
+	if (!memb)
+	{
+		src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), victim->nick.c_str(), this->name.c_str());
+		return;
+	}
+
 	if (IS_LOCAL(src))
 	{
-		if (!memb)
-		{
-			src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), user->nick.c_str(), this->name.c_str());
-			return;
-		}
-		if ((ServerInstance->ULine(user->server)) && (!ServerInstance->ULine(src->server)))
-		{
-			src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only a u-line may kick a u-line from a channel.",src->nick.c_str(), this->name.c_str());
-			return;
-		}
-
 		ModResult res;
-		if (ServerInstance->ULine(src->server))
-			res = MOD_RES_ALLOW;
-		else
-			FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
-
+		FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
 		if (res == MOD_RES_DENY)
 			return;
 
@@ -547,18 +538,13 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 		}
 	}
 
-	if (memb)
-	{
-		CUList except_list;
-		FOREACH_MOD(I_OnUserKick,OnUserKick(src, memb, reason, except_list));
+	CUList except_list;
+	FOREACH_MOD(I_OnUserKick,OnUserKick(src, memb, reason, except_list));
 
-		WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), user->nick.c_str(), reason.c_str());
+	WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), victim->nick.c_str(), reason.c_str());
 
-		user->chans.erase(this);
-		this->RemoveAllPrefixes(user);
-	}
-
-	this->DelUser(user);
+	victim->chans.erase(this);
+	this->DelUser(victim);
 }
 
 void Channel::WriteChannel(User* user, const char* text, ...)
