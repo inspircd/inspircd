@@ -94,8 +94,6 @@ std::string Channel::GetModeParameter(ModeHandler* mode)
 
 int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 {
-	if (!u)
-		u = ServerInstance->FakeClient;
 	if (IS_LOCAL(u) && !forceset)
 	{
 		ModResult res;
@@ -119,17 +117,8 @@ int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
 	}
 
 	this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
-	if (u)
-	{
-		this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
-		this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
-	}
-	else
-	{
-		this->setby.assign(ServerInstance->Config->ServerName);
-		this->WriteChannelWithServ(ServerInstance->Config->ServerName, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
-	}
-
+	this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
+	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
 	this->topicset = ServerInstance->Time();
 
 	FOREACH_MOD(I_OnPostTopicChange,OnPostTopicChange(u, this, this->topic));
@@ -497,9 +486,6 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
  */
 void Channel::PartUser(User *user, std::string &reason)
 {
-	if (!user)
-		return;
-
 	Membership* memb = GetUser(user);
 
 	if (memb)
@@ -518,9 +504,6 @@ void Channel::PartUser(User *user, std::string &reason)
 
 void Channel::KickUser(User *src, User *user, const std::string& reason)
 {
-	if (!src || !user)
-		return;
-
 	Membership* memb = GetUser(user);
 	if (IS_LOCAL(src))
 	{
@@ -580,9 +563,6 @@ void Channel::KickUser(User *src, User *user, const std::string& reason)
 
 void Channel::WriteChannel(User* user, const char* text, ...)
 {
-	if (!user || !text)
-		return;
-
 	std::string textbuffer;
 	VAFORMAT(textbuffer, text, text);
 	this->WriteChannel(user, textbuffer);
@@ -590,9 +570,6 @@ void Channel::WriteChannel(User* user, const char* text, ...)
 
 void Channel::WriteChannel(User* user, const std::string &text)
 {
-	if (!user)
-		return;
-
 	const std::string message = ":" + user->GetFullHost() + " " + text;
 
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
@@ -604,9 +581,6 @@ void Channel::WriteChannel(User* user, const std::string &text)
 
 void Channel::WriteChannelWithServ(const std::string& ServName, const char* text, ...)
 {
-	if (!text)
-		return;
-
 	std::string textbuffer;
 	VAFORMAT(textbuffer, text, text);
 	this->WriteChannelWithServ(ServName, textbuffer);
@@ -627,9 +601,6 @@ void Channel::WriteChannelWithServ(const std::string& ServName, const std::strin
  * for the sender (for privmsg etc) */
 void Channel::WriteAllExceptSender(User* user, bool serversource, char status, const char* text, ...)
 {
-	if (!text)
-		return;
-
 	std::string textbuffer;
 	VAFORMAT(textbuffer, text, text);
 	this->WriteAllExceptSender(user, serversource, status, textbuffer);
@@ -637,9 +608,6 @@ void Channel::WriteAllExceptSender(User* user, bool serversource, char status, c
 
 void Channel::WriteAllExcept(User* user, bool serversource, char status, CUList &except_list, const char* text, ...)
 {
-	if (!text)
-		return;
-
 	std::string textbuffer;
 	VAFORMAT(textbuffer, text, text);
 	textbuffer = ":" + (serversource ? ServerInstance->Config->ServerName : user->GetFullHost()) + " " + textbuffer;

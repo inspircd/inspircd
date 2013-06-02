@@ -232,7 +232,7 @@ public:
 				c = new Channel(channel, ServerInstance->Time());
 				if (!topic.empty())
 				{
-					c->SetTopic(NULL, topic, true);
+					c->SetTopic(ServerInstance->FakeClient, topic, true);
 
 					/*
 					 * Due to the way protocol works in 1.2, we need to hack the topic TS in such a way that this
