@@ -119,7 +119,6 @@ static void checkall(Module* noimpl)
 	CHK(OnSyncUser);
 	CHK(OnSyncChannel);
 	CHK(OnDecodeMetaData);
-	CHK(OnWallops);
 	CHK(OnAcceptConnection);
 	CHK(OnChangeHost);
 	CHK(OnChangeName);

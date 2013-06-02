@@ -38,6 +38,11 @@ class CommandWallops : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return ROUTE_BROADCAST;
+	}
 };
 
 CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, User *user)
@@ -52,7 +57,6 @@ CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, Us
 			user->WriteTo(t,wallop);
 	}
 
-	FOREACH_MOD(I_OnWallops,OnWallops(user,parameters[0]));
 	return CMD_SUCCESS;
 }
 

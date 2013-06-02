@@ -361,7 +361,7 @@ enum Implementation
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserMessage, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
-	I_OnSyncChannel, I_OnDecodeMetaData, I_OnWallops, I_OnAcceptConnection, I_OnUserInit,
+	I_OnSyncChannel, I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
@@ -798,12 +798,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param extdata Encoded data for this extension name, which will be encoded at the oppsite end by an identical module using OnDecodeMetaData
 	 */
 	virtual void ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata);
-
-	/** Called after every WALLOPS command.
-	 * @param user The user sending the WALLOPS
-	 * @param text The content of the WALLOPS message
-	 */
-	virtual void OnWallops(User* user, const std::string &text);
 
 	/** Called whenever a user's hostname is changed.
 	 * This event triggers after the host has been set.

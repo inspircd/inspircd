@@ -73,7 +73,7 @@ void ModuleSpanningTree::init()
 	Implementation eventlist[] =
 	{
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
-		I_OnWallops, I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
+		I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
@@ -452,16 +452,6 @@ void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std:
 	params.push_back(chan->name);
 	params.push_back(":"+topic);
 	Utils->DoOneToMany(user->uuid,"TOPIC",params);
-}
-
-void ModuleSpanningTree::OnWallops(User* user, const std::string &text)
-{
-	if (IS_LOCAL(user))
-	{
-		parameterlist params;
-		params.push_back(":"+text);
-		Utils->DoOneToMany(user->uuid,"WALLOPS",params);
-	}
 }
 
 void ModuleSpanningTree::LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type)

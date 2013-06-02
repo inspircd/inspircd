@@ -152,7 +152,6 @@ void		Module::OnSyncNetwork(Module*, void*) { }
 void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
 void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
-void		Module::OnWallops(User*, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { }
 void		Module::OnChangeName(User*, const std::string&) { }
 void		Module::OnChangeIdent(User*, const std::string&) { }
