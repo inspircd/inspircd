@@ -62,9 +62,11 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
+	Membership* srcmemb = NULL;
 	if (IS_LOCAL(user))
 	{
-		if (!c->HasUser(user))
+		srcmemb = c->GetUser(user);
+		if (!srcmemb)
 		{
 			user->WriteServ( "442 %s %s :You're not on that channel!", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
@@ -86,7 +88,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		reason.assign(user->nick, 0, ServerInstance->Config->Limits.MaxKick);
 	}
 
-	c->KickUser(user, u, reason);
+	c->KickUser(user, u, reason, srcmemb);
 
 	return CMD_SUCCESS;
 }

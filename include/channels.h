@@ -52,11 +52,31 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	CustomModeList custom_mode_params;
 
+	/** Remove the given membership from the channel's internal map of
+	 * memberships and destroy the Membership object.
+	 * This function does not remove the channel from User::chanlist.
+	 * Since the parameter is an iterator to the target, the complexity
+	 * of this function is constant.
+	 * @param membiter The UserMembIter to remove, must be valid
+	 */
+	void DelUser(const UserMembIter& membiter);
+
  public:
 	/** Creates a channel record and initialises it with default values
 	 * @throw Nothing at present.
 	 */
 	Channel(const std::string &name, time_t ts);
+
+	/** Checks whether the channel should be destroyed, and if yes, begins
+	 * the teardown procedure.
+	 *
+	 * If there are users on the channel or a module vetoes the deletion
+	 * (OnPreChannelDelete hook) then nothing else happens.
+	 * Otherwise, first the OnChannelDelete event is fired, then the channel is
+	 * removed from the channel list. All pending invites are destroyed and
+	 * finally the channel is added to the cull list.
+	 */
+	void CheckDestroy();
 
 	/** The channel's name.
 	 */
@@ -173,8 +193,9 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * @param src The source of the kick
 	 * @param user The user being kicked (must be on this channel)
 	 * @param reason The reason for the kick
+	 * @param srcmemb The membership of the user who does the kick, can be NULL
 	 */
-	void KickUser(User *src, User *user, const std::string& reason);
+	void KickUser(User* src, User* user, const std::string& reason, Membership* srcmemb = NULL);
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.

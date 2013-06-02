@@ -143,10 +143,7 @@ class PermChannel : public ModeHandler
 			if (channel->IsModeSet('P'))
 			{
 				channel->SetMode(this,false);
-				if (channel->GetUserCounter() == 0)
-				{
-					channel->DelUser(ServerInstance->FakeClient);
-				}
+				channel->CheckDestroy();
 				return MODEACTION_ALLOW;
 			}
 		}

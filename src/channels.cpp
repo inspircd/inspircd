@@ -138,32 +138,42 @@ Membership* Channel::AddUser(User* user)
 
 void Channel::DelUser(User* user)
 {
-	UserMembIter a = userlist.find(user);
+	UserMembIter it = userlist.find(user);
+	if (it != userlist.end())
+		DelUser(it);
+}
 
-	if (a != userlist.end())
+void Channel::CheckDestroy()
+{
+	if (!userlist.empty())
+		return;
+
+	ModResult res;
+	FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
+	if (res == MOD_RES_DENY)
+		return;
+
+	chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
+	/* kill the record */
+	if (iter != ServerInstance->chanlist->end())
 	{
-		a->second->cull();
-		delete a->second;
-		userlist.erase(a);
+		FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
+		ServerInstance->chanlist->erase(iter);
 	}
 
-	if (userlist.empty())
-	{
-		ModResult res;
-		FIRST_MOD_RESULT(OnChannelPreDelete, res, (this));
-		if (res == MOD_RES_DENY)
-			return;
-		chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
-		/* kill the record */
-		if (iter != ServerInstance->chanlist->end())
-		{
-			FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
-			ServerInstance->chanlist->erase(iter);
-		}
+	ClearInvites();
+	ServerInstance->GlobalCulls.AddItem(this);
+}
 
-		ClearInvites();
-		ServerInstance->GlobalCulls.AddItem(this);
-	}
+void Channel::DelUser(const UserMembIter& membiter)
+{
+	Membership* memb = membiter->second;
+	memb->cull();
+	delete memb;
+	userlist.erase(membiter);
+
+	// If this channel became empty then it should be removed
+	CheckDestroy();
 }
 
 Membership* Channel::GetUser(User* user)
@@ -481,38 +491,44 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 }
 
 /* Channel::PartUser
- * remove a channel from a users record, and return the number of users left.
- * Therefore, if this function returns 0 the caller should delete the Channel.
+ * Remove a channel from a users record, remove the reference to the Membership object
+ * from the channel and destroy it.
  */
 void Channel::PartUser(User *user, std::string &reason)
 {
-	Membership* memb = GetUser(user);
+	UserMembIter membiter = userlist.find(user);
 
-	if (memb)
+	if (membiter != userlist.end())
 	{
+		Membership* memb = membiter->second;
 		CUList except_list;
 		FOREACH_MOD(I_OnUserPart,OnUserPart(memb, reason, except_list));
 
 		WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
+		// Remove this channel from the user's chanlist
 		user->chans.erase(this);
-		this->RemoveAllPrefixes(user);
+		// Remove the Membership from this channel's userlist and destroy it
+		this->DelUser(membiter);
 	}
-
-	this->DelUser(user);
 }
 
-void Channel::KickUser(User* src, User* victim, const std::string& reason)
+void Channel::KickUser(User* src, User* victim, const std::string& reason, Membership* srcmemb)
 {
-	Membership* memb = GetUser(victim);
+	UserMembIter victimiter = userlist.find(victim);
+	Membership* memb = ((victimiter != userlist.end()) ? victimiter->second : NULL);
+
 	if (!memb)
 	{
 		src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), victim->nick.c_str(), this->name.c_str());
 		return;
 	}
 
+	// Do the following checks only if the KICK is done by a local user;
+	// each server enforces its own rules.
 	if (IS_LOCAL(src))
 	{
+		// Modules are allowed to explicitly allow or deny kicks done by local users
 		ModResult res;
 		FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
 		if (res == MOD_RES_DENY)
@@ -520,7 +536,9 @@ void Channel::KickUser(User* src, User* victim, const std::string& reason)
 
 		if (res == MOD_RES_PASSTHRU)
 		{
-			unsigned int them = this->GetPrefixValue(src);
+			if (!srcmemb)
+				srcmemb = GetUser(src);
+			unsigned int them = srcmemb ? srcmemb->getRank() : 0;
 			unsigned int req = HALFOP_VALUE;
 			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
 			{
@@ -544,7 +562,7 @@ void Channel::KickUser(User* src, User* victim, const std::string& reason)
 	WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), victim->nick.c_str(), reason.c_str());
 
 	victim->chans.erase(this);
-	this->DelUser(victim);
+	this->DelUser(victimiter);
 }
 
 void Channel::WriteChannel(User* user, const char* text, ...)
