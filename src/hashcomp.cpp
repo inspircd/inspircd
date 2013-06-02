@@ -238,56 +238,30 @@ const char* irc::irc_char_traits::find(const char* s1, int  n, char c)
 	return (n >= 0) ? s1 : NULL;
 }
 
-irc::tokenstream::tokenstream(const std::string &source) : tokens(source), last_pushed(false)
+irc::tokenstream::tokenstream(const std::string &source) : spacesepstream(source)
 {
-	/* Record starting position and current position */
-	last_starting_position = tokens.begin();
-	n = tokens.begin();
 }
 
 bool irc::tokenstream::GetToken(std::string &token)
 {
-	std::string::iterator lsp = last_starting_position;
+	bool first = !pos;
 
-	while (n != tokens.end())
+	if (!spacesepstream::GetToken(token))
+		return false;
+
+	/* This is the last parameter */
+	if (token[0] == ':' && !first)
 	{
-		/** Skip multi space, converting "  " into " "
-		 */
-		while ((n+1 != tokens.end()) && (*n == ' ') && (*(n+1) == ' '))
-			n++;
-
-		if ((last_pushed) && (*n == ':'))
+		token = token.substr(1);
+		if (!StreamEnd())
 		{
-			/* If we find a token thats not the first and starts with :,
-			 * this is the last token on the line
-			 */
-			std::string::iterator curr = ++n;
-			n = tokens.end();
-			token = std::string(curr, tokens.end());
-			return true;
+			token += ' ';
+			token += GetRemaining();
 		}
-
-		last_pushed = false;
-
-		if ((*n == ' ') || (n+1 == tokens.end()))
-		{
-			/* If we find a space, or end of string, this is the end of a token.
-			 */
-			last_starting_position = n+1;
-			last_pushed = *n == ' ';
-
-			std::string strip(lsp, n+1 == tokens.end() ? n+1  : n++);
-			while ((strip.length()) && (strip.find_last_of(' ') == strip.length() - 1))
-				strip.erase(strip.end() - 1);
-
-			token = strip;
-			return !token.empty();
-		}
-
-		n++;
+		pos = tokens.length() + 1;
 	}
-	token.clear();
-	return false;
+
+	return true;
 }
 
 bool irc::tokenstream::GetToken(irc::string &token)
@@ -314,47 +288,48 @@ bool irc::tokenstream::GetToken(long &token)
 	return returnval;
 }
 
-irc::sepstream::sepstream(const std::string &source, char seperator) : tokens(source), sep(seperator)
+irc::sepstream::sepstream(const std::string& source, char separator, bool allowempty)
+	: tokens(source), sep(separator), pos(0), allow_empty(allowempty)
 {
-	last_starting_position = tokens.begin();
-	n = tokens.begin();
 }
 
 bool irc::sepstream::GetToken(std::string &token)
 {
-	std::string::iterator lsp = last_starting_position;
-
-	while (n != tokens.end())
+	if (this->StreamEnd())
 	{
-		if ((*n == sep) || (n+1 == tokens.end()))
-		{
-			last_starting_position = n+1;
-			token = std::string(lsp, n+1 == tokens.end() ? n+1  : n++);
-
-			while ((token.length()) && (token.find_last_of(sep) == token.length() - 1))
-				token.erase(token.end() - 1);
-
-			if (token.empty())
-				n++;
-
-			return n == tokens.end() ? false : true;
-		}
-
-		n++;
+		token.clear();
+		return false;
 	}
 
-	token.clear();
-	return false;
+	if (!this->allow_empty)
+	{
+		this->pos = this->tokens.find_first_not_of(this->sep, this->pos);
+		if (this->pos == std::string::npos)
+		{
+			this->pos = this->tokens.length() + 1;
+			token.clear();
+			return false;
+		}
+	}
+
+	size_t p = this->tokens.find(this->sep, this->pos);
+	if (p == std::string::npos)
+		p = this->tokens.length();
+
+	token = this->tokens.substr(this->pos, p - this->pos);
+	this->pos = p + 1;
+
+	return true;
 }
 
 const std::string irc::sepstream::GetRemaining()
 {
-	return std::string(n, tokens.end());
+	return !this->StreamEnd() ? this->tokens.substr(this->pos) : "";
 }
 
 bool irc::sepstream::StreamEnd()
 {
-	return ((n + 1) == tokens.end());
+	return this->pos > this->tokens.length();
 }
 
 irc::modestacker::modestacker(bool add) : adding(add)
@@ -422,13 +397,13 @@ int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_l
 	return n;
 }
 
-irc::stringjoiner::stringjoiner(const std::string& seperator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end)
+irc::stringjoiner::stringjoiner(const std::string& separator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end)
 {
 	if (end < begin)
 		return; // nothing to do here
 
 	for (unsigned int v = begin; v < end; v++)
-		joined.append(sequence[v]).append(seperator);
+		joined.append(sequence[v]).append(separator);
 	joined.append(sequence[end]);
 }
 

@@ -164,7 +164,7 @@ namespace irc
 	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;
 
 	/** irc::stringjoiner joins string lists into a string, using
-	 * the given seperator string.
+	 * the given separator string.
 	 * This class can join a vector of std::string, a deque of
 	 * std::string, or a const char* const* array, using overloaded
 	 * constructors.
@@ -180,12 +180,12 @@ namespace irc
 	 public:
 
 		/** Join elements of a vector, between (and including) begin and end
-		 * @param seperator The string to seperate values with
+		 * @param separator The string to seperate values with
 		 * @param sequence One or more items to seperate
 		 * @param begin The starting element in the sequence to be joined
 		 * @param end The ending element in the sequence to be joined
 		 */
-		stringjoiner(const std::string& seperator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end);
+		stringjoiner(const std::string& separator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end);
 
 		/** Get the joined sequence
 		 * @return A constant reference to the joined string
@@ -264,6 +264,72 @@ namespace irc
 
 	};
 
+	/** irc::sepstream allows for splitting token seperated lists.
+	 * Each successive call to sepstream::GetToken() returns
+	 * the next token, until none remain, at which point the method returns
+	 * an empty string.
+	 */
+	class CoreExport sepstream
+	{
+	 protected:
+		/** Original string.
+		 */
+		std::string tokens;
+		/** Separator value
+		 */
+		char sep;
+		/** Current string position
+		 */
+		size_t pos;
+		/** If set then GetToken() can return an empty string
+		 */
+		bool allow_empty;
+	 public:
+		/** Create a sepstream and fill it with the provided data
+		 */
+		sepstream(const std::string &source, char separator, bool allowempty = false);
+
+		/** Fetch the next token from the stream
+		 * @param token The next token from the stream is placed here
+		 * @return True if tokens still remain, false if there are none left
+		 */
+		bool GetToken(std::string& token);
+
+		/** Fetch the entire remaining stream, without tokenizing
+		 * @return The remaining part of the stream
+		 */
+		const std::string GetRemaining();
+
+		/** Returns true if the end of the stream has been reached
+		 * @return True if the end of the stream has been reached, otherwise false
+		 */
+		bool StreamEnd();
+	};
+
+	/** A derived form of sepstream, which seperates on commas
+	 */
+	class CoreExport commasepstream : public sepstream
+	{
+	 public:
+		/** Initialize with comma separator
+		 */
+		commasepstream(const std::string &source, bool allowempty = false) : sepstream(source, ',', allowempty)
+		{
+		}
+	};
+
+	/** A derived form of sepstream, which seperates on spaces
+	 */
+	class CoreExport spacesepstream : public sepstream
+	{
+	 public:
+		/** Initialize with space separator
+		 */
+		spacesepstream(const std::string &source, bool allowempty = false) : sepstream(source, ' ', allowempty)
+		{
+		}
+	};
+
 	/** irc::tokenstream reads a string formatted as per RFC1459 and RFC2812.
 	 * It will split the string into 'tokens' each containing one parameter
 	 * from the string.
@@ -276,27 +342,9 @@ namespace irc
 	 * list will be ":item". This is to allow for parsing 'source' fields
 	 * from data.
 	 */
-	class CoreExport tokenstream
+	class CoreExport tokenstream : private spacesepstream
 	{
-	 private:
-
-		/** Original string
-		 */
-		std::string tokens;
-
-		/** Last position of a seperator token
-		 */
-		std::string::iterator last_starting_position;
-
-		/** Current string position
-		 */
-		std::string::iterator n;
-
-		/** True if the last value was an ending value
-		 */
-		bool last_pushed;
 	 public:
-
 		/** Create a tokenstream and fill it with the provided data
 		 */
 		tokenstream(const std::string &source);
@@ -324,72 +372,6 @@ namespace irc
 		 * @return True if tokens are left to be read, false if the last token was just retrieved.
 		 */
 		bool GetToken(long &token);
-	};
-
-	/** irc::sepstream allows for splitting token seperated lists.
-	 * Each successive call to sepstream::GetToken() returns
-	 * the next token, until none remain, at which point the method returns
-	 * an empty string.
-	 */
-	class CoreExport sepstream
-	{
-	 private:
-		/** Original string.
-		 */
-		std::string tokens;
-		/** Last position of a seperator token
-		 */
-		std::string::iterator last_starting_position;
-		/** Current string position
-		 */
-		std::string::iterator n;
-		/** Seperator value
-		 */
-		char sep;
-	 public:
-		/** Create a sepstream and fill it with the provided data
-		 */
-		sepstream(const std::string &source, char seperator);
-
-		/** Fetch the next token from the stream
-		 * @param token The next token from the stream is placed here
-		 * @return True if tokens still remain, false if there are none left
-		 */
-		bool GetToken(std::string& token);
-
-		/** Fetch the entire remaining stream, without tokenizing
-		 * @return The remaining part of the stream
-		 */
-		const std::string GetRemaining();
-
-		/** Returns true if the end of the stream has been reached
-		 * @return True if the end of the stream has been reached, otherwise false
-		 */
-		bool StreamEnd();
-	};
-
-	/** A derived form of sepstream, which seperates on commas
-	 */
-	class CoreExport commasepstream : public sepstream
-	{
-	 public:
-		/** Initialize with comma seperator
-		 */
-		commasepstream(const std::string &source) : sepstream(source, ',')
-		{
-		}
-	};
-
-	/** A derived form of sepstream, which seperates on spaces
-	 */
-	class CoreExport spacesepstream : public sepstream
-	{
-	 public:
-		/** Initialize with space seperator
-		 */
-		spacesepstream(const std::string &source) : sepstream(source, ' ')
-		{
-		}
 	};
 
 	/** The portparser class seperates out a port range into integers.
