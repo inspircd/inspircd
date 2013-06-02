@@ -1424,6 +1424,27 @@
 #<module name="m_remove.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# A module to block, kick or ban upon similiar messages being uttered several times.
+# Syntax [~*][lines]:[sec]{[:difference]}{[:matchlines]}
+# ~ is to block, * is to ban, default is kick.
+# lines - In mode 1 the amount of lines that has to match consecutively - In mode 2 the size of the backlog to keep foo matching
+# seconds - How old the message has to be before it's invalidated.
+# distance - Edit distance, in percent, between two strings to trigger on.
+# matchlines - When set, the function goes into mode 2. In this mode the function will trigger if this many of the last <lines> matches.
+#
+# As this module can be rather CPU-intensive, it comes with some options.
+# maxbacklog - Maximum size that can be specified for backlog. 0 disables multiline matching.
+# maxdistance - Max percentage of difference between two lines we'll allow to match. Set to 0 to disable edit-distance matching.
+# maxlines - Max lines of backlog to match against.
+# maxsecs - Maximum value of seconds a user can set. 0 to allow any.
+# size - Maximum number of characters to check for. NB! The number of
+# bytes allocated increases exponentially. 512 chars = 256KiB, 1024 = 1MiB, 2048 = 4MiB.
+# it is adviced to leave this at 512, as this is the largest lines most IRC clients
+# will send as of today.
+#<repeat maxbacklog="20" maxlines="20" maxdistance="50" maxsecs="0" size="512">
+#<module name="m_repeat.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Restricted channels module: Allows only opers to create channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
