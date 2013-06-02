@@ -90,23 +90,25 @@ class BanRedirect : public ModeWatcher
 				switch(*curr)
 				{
 					case '!':
+						if (current != NICK)
+							break;
 						mask[current].assign(start_pos, curr);
 						current = IDENT;
 						start_pos = curr+1;
 						break;
 					case '@':
+						if (current != IDENT)
+							break;
 						mask[current].assign(start_pos, curr);
 						current = HOST;
 						start_pos = curr+1;
 						break;
 					case '#':
-						/* bug #921: don't barf when redirecting to ## channels */
-						if (current != CHAN)
-						{
-							mask[current].assign(start_pos, curr);
-							current = CHAN;
-							start_pos = curr;
-						}
+						if (current == CHAN)
+							break;
+						mask[current].assign(start_pos, curr);
+						current = CHAN;
+						start_pos = curr;
 						break;
 				}
 			}
