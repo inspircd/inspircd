@@ -55,18 +55,38 @@ CoreExport const char *insp_inet_ntop(int af, const void *src, char *dst, sockle
 
 CoreExport int insp_inet_pton(int af, const char *src, void *dst)
 {
-	sockaddr_in sa;
-	int len = sizeof(SOCKADDR);
-	int rv = WSAStringToAddressA((LPSTR)src, af, NULL, (LPSOCKADDR)&sa, &len);
-	if(rv >= 0)
+	int address_length;
+	sockaddr_storage sa;
+	sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(&sa);
+	sockaddr_in6* sin6 = reinterpret_cast<sockaddr_in6*>(&sa);
+
+	switch (af)
 	{
-		if(WSAGetLastError() == WSAEINVAL)
-			rv = 0;
-		else
-			rv = 1;
+		case AF_INET:
+			address_length = sizeof(sockaddr_in);
+			break;
+		case AF_INET6:
+			address_length = sizeof(sockaddr_in6);
+			break;
+		default:
+			return -1;
 	}
-	memcpy(dst, &sa.sin_addr, sizeof(struct in_addr));
-	return rv;
+
+	if (!WSAStringToAddress(static_cast<LPSTR>(const_cast<char *>(src)), af, NULL, reinterpret_cast<LPSOCKADDR>(&sa), &address_length))
+	{
+		switch (af)
+		{
+			case AF_INET:
+				memcpy(dst, &sin->sin_addr, sizeof(in_addr));
+				break;
+			case AF_INET6:
+				memcpy(dst, &sin6->sin6_addr, sizeof(in6_addr));
+				break;
+		}
+		return 1;
+	}
+	
+	return 0;
 }
 
 CoreExport DIR * opendir(const char * path)
