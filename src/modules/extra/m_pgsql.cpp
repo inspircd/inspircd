@@ -412,16 +412,16 @@ restart:
 				if (param < p.size())
 				{
 					std::string parm = p[param++];
-					char buffer[MAXBUF];
+					std::vector<char> buffer(parm.length() * 2 + 1);
 #ifdef PGSQL_HAS_ESCAPECONN
 					int error;
-					PQescapeStringConn(sql, buffer, parm.c_str(), parm.length(), &error);
+					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
 						ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 #else
-					PQescapeString         (buffer, parm.c_str(), parm.length());
+					size_t escapedsize = PQescapeString(&buffer[0], parm.data(), parm.length());
 #endif
-					res.append(buffer);
+					res.append(&buffer[0], escapedsize);
 				}
 			}
 		}
@@ -447,16 +447,16 @@ restart:
 				if (it != p.end())
 				{
 					std::string parm = it->second;
-					char buffer[MAXBUF];
+					std::vector<char> buffer(parm.length() * 2 + 1);
 #ifdef PGSQL_HAS_ESCAPECONN
 					int error;
-					PQescapeStringConn(sql, buffer, parm.c_str(), parm.length(), &error);
+					size_t escapedsize = PQescapeStringConn(sql, &buffer[0], parm.data(), parm.length(), &error);
 					if (error)
 						ServerInstance->Logs->Log("m_pgsql", DEBUG, "BUG: Apparently PQescapeStringConn() failed");
 #else
-					PQescapeString         (buffer, parm.c_str(), parm.length());
+					size_t escapedsize = PQescapeString(&buffer[0], parm.data(), parm.length());
 #endif
-					res.append(buffer);
+					res.append(&buffer[0], escapedsize);
 				}
 			}
 		}
