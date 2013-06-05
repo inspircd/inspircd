@@ -189,7 +189,7 @@ if (defined $opt_data_dir) {
 if (defined $opt_log_dir) {
 	$config{LOG_DIR} = $opt_log_dir;
 }
-chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null | cut -c 1,2,3`); # GNUTLS Version.
+chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null`); # GNUTLS Version.
 
 if (defined $opt_freebsd_port)
 {
