@@ -115,7 +115,7 @@ public:
 					}
 				}
 
-				if (!dl->size())
+				if (dl->empty())
 					kr.ext.unset(chan);
 			}
 		}

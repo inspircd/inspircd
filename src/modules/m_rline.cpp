@@ -41,11 +41,10 @@ class RLine : public XLine
 	 * @param regex Pattern to match with
 	 * @
 	 */
-	RLine(time_t s_time, long d, std::string src, std::string re, std::string regexs, dynamic_reference<RegexFactory>& rxfactory)
+	RLine(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& regexs, dynamic_reference<RegexFactory>& rxfactory)
 		: XLine(s_time, d, src, re, "R")
+		, matchtext(regexs)
 	{
-		matchtext = regexs;
-
 		/* This can throw on failure, but if it does we DONT catch it here, we catch it and display it
 		 * where the object is created, we might not ALWAYS want it to output stuff to snomask x all the time
 		 */

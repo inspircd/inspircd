@@ -32,7 +32,7 @@ class SVSHold : public XLine
 public:
 	std::string nickname;
 
-	SVSHold(time_t s_time, long d, std::string src, std::string re, std::string nick)
+	SVSHold(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& nick)
 		: XLine(s_time, d, src, re, "SVSHOLD")
 	{
 		this->nickname = nick;

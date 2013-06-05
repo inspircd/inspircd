@@ -35,7 +35,7 @@ class ModuleGeoIP : public Module
 	LocalStringExt ext;
 	GeoIP* gi;
 
-	void SetExt(LocalUser* user)
+	std::string* SetExt(LocalUser* user)
 	{
 		const char* c = GeoIP_country_code_by_addr(gi, user->GetIPString().c_str());
 		if (!c)
@@ -43,6 +43,7 @@ class ModuleGeoIP : public Module
 
 		std::string* cc = new std::string(c);
 		ext.set(user, cc);
+		return cc;
 	}
 
  public:
@@ -85,7 +86,7 @@ class ModuleGeoIP : public Module
 	{
 		std::string* cc = ext.get(user);
 		if (!cc)
-			SetExt(user);
+			cc = SetExt(user);
 
 		std::string geoip = myclass->config->getString("geoip");
 		if (geoip.empty())

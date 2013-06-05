@@ -60,7 +60,7 @@ class FilterResult
 	bool flag_notice;
 	bool flag_strip_color;
 
-	FilterResult(const std::string free, const std::string &rea, FilterAction act, long gt, const std::string &fla) :
+	FilterResult(const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla) :
 			freeform(free), reason(rea), action(act), gline_time(gt)
 	{
 		this->FillFlags(fla);

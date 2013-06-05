@@ -582,8 +582,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 
 void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
 {
-	// only occurs for local clients
-	if (user->registered != REG_ALL)
+	if ((user->registered != REG_ALL) || (!IS_LOCAL(user)))
 		return;
 
 	parameterlist params;

@@ -281,8 +281,8 @@ configureclean:
 	-rm -f org.inspircd.plist
 
 distclean: clean configureclean
-	rm -rf $(BASE)
-	find src/modules/ -type l | xargs rm -f
+	-rm -rf $(SOURCEPATH)/run
+	find $(SOURCEPATH)/src/modules -type l | xargs rm -f
 
 help:
 	@echo 'InspIRCd Makefile'
@@ -308,8 +308,7 @@ help:
 	@echo '           Multiple targets may be separated by a space'
 	@echo ''
 	@echo ' clean     Cleans object files produced by the compile'
-	@echo ' distclean Cleans all files produced by compile and ./configure'
-	@echo '           Note: this includes the Makefile'
+	@echo ' distclean Cleans all generated files (build, configure, run, etc)'
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 

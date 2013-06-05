@@ -93,11 +93,12 @@ class ModuleConnectBan : public Module
 			{
 				// Create zline for set duration.
 				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.", mask.str());
-				if (ServerInstance->XLines->AddLine(zl,NULL))
-					ServerInstance->XLines->ApplyLines();
-				else
+				if (!ServerInstance->XLines->AddLine(zl, NULL))
+				{
 					delete zl;
-
+					return;
+				}
+				ServerInstance->XLines->ApplyLines();
 				std::string maskstr = mask.str();
 				std::string timestr = ServerInstance->TimeString(zl->expiry);
 				ServerInstance->SNO->WriteGlobalSno('x',"Module m_connectban added Z:line on *@%s to expire on %s: Connect flooding",

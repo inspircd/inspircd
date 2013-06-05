@@ -179,7 +179,7 @@ class ModuleNickLock : public Module
 	void Prioritize()
 	{
 		Module *nflood = ServerInstance->Modules->Find("m_nickflood.so");
-		ServerInstance->Modules->SetPriority(this, I_OnUserPreJoin, PRIORITY_BEFORE, &nflood);
+		ServerInstance->Modules->SetPriority(this, I_OnUserPreNick, PRIORITY_BEFORE, &nflood);
 	}
 };
 

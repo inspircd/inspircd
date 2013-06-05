@@ -45,7 +45,7 @@ class ModuleHTTPAccessList : public Module
 	std::vector<HTTPACL> acl_list;
 
  public:
-	void ReadConfig()
+	void OnRehash(User* user)
 	{
 		acl_list.clear();
 		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
@@ -91,8 +91,8 @@ class ModuleHTTPAccessList : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ReadConfig();
-		Implementation eventlist[] = { I_OnEvent };
+		OnRehash(NULL);
+		Implementation eventlist[] = { I_OnEvent, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 

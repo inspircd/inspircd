@@ -180,7 +180,6 @@ class MySQLresult : public SQLResult
 				rows++;
 			}
 			mysql_free_result(res);
-			res = NULL;
 		}
 	}
 
@@ -329,10 +328,15 @@ class SQLConnection : public SQLProvider
 				if (param < p.size())
 				{
 					std::string parm = p[param++];
-					char buffer[MAXBUF];
-					mysql_escape_string(buffer, parm.c_str(), parm.length());
+					// In the worst case, each character may need to be encoded as using two bytes,
+					// and one byte is the terminating null
+					std::vector<char> buffer(parm.length() * 2 + 1);
+
+					// The return value of mysql_escape_string() is the length of the encoded string,
+					// not including the terminating null
+					unsigned long escapedsize = mysql_escape_string(&buffer[0], parm.c_str(), parm.length());
 //					mysql_real_escape_string(connection, queryend, paramscopy[paramnum].c_str(), paramscopy[paramnum].length());
-					res.append(buffer);
+					res.append(&buffer[0], escapedsize);
 				}
 			}
 		}
@@ -358,9 +362,10 @@ class SQLConnection : public SQLProvider
 				if (it != p.end())
 				{
 					std::string parm = it->second;
-					char buffer[MAXBUF];
-					mysql_escape_string(buffer, parm.c_str(), parm.length());
-					res.append(buffer);
+					// NOTE: See above
+					std::vector<char> buffer(parm.length() * 2 + 1);
+					unsigned long escapedsize = mysql_escape_string(&buffer[0], parm.c_str(), parm.length());
+					res.append(&buffer[0], escapedsize);
 				}
 			}
 		}
@@ -431,13 +436,14 @@ void ModuleSQL::OnRehash(User* user)
 		i->second->lock.Lock();
 		i->second->lock.Unlock();
 		// now remove all active queries to this DB
-		for(unsigned int j = qq.size() - 1; j >= 0; j--)
+		for (size_t j = qq.size(); j > 0; j--)
 		{
-			if (qq[j].c == i->second)
+			size_t k = j - 1;
+			if (qq[k].c == i->second)
 			{
-				qq[j].q->OnError(err);
-				delete qq[j].q;
-				qq.erase(qq.begin() + j);
+				qq[k].q->OnError(err);
+				delete qq[k].q;
+				qq.erase(qq.begin() + k);
 			}
 		}
 		// finally, nuke the connection

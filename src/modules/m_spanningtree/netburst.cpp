@@ -183,7 +183,6 @@ void TreeSocket::SyncChannel(Channel* chan)
 void TreeSocket::SendUsers()
 {
 	char data[MAXBUF];
-	std::string dataline;
 	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 	{
 		if (u->second->registered == REG_ALL)

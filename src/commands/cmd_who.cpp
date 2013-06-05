@@ -256,7 +256,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 	std::string matchtext = ((parameters[0] == "0") ? "*" : parameters[0]);
 
 	// WHO flags count as a wildcard
-	bool usingwildcards = ((parameters.size() > 1) || (matchtext.find_first_of("*?") != std::string::npos));
+	bool usingwildcards = ((parameters.size() > 1) || (matchtext.find_first_of("*?.") != std::string::npos));
 
 	if (parameters.size() > 1)
 	{

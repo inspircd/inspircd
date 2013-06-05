@@ -87,9 +87,17 @@ class ModuleChannelNames : public Module
 				ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
 			}
 			const UserMembList* users = c->GetUsers();
-			for(UserMembCIter j = users->begin(); j != users->end(); ++j)
+			for(UserMembCIter j = users->begin(); j != users->end(); )
+			{
 				if (IS_LOCAL(j->first))
-					c->KickUser(ServerInstance->FakeClient, j->first, "Channel name no longer valid");
+				{
+					// KickUser invalidates the iterator
+					UserMembCIter it = j++;
+					c->KickUser(ServerInstance->FakeClient, it->first, "Channel name no longer valid");
+				}
+				else
+					++j;
+			}
 		}
 		badchan = false;
 	}

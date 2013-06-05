@@ -34,7 +34,7 @@ private:
 	irc::string matchtext;
 
 public:
-	CBan(time_t s_time, long d, std::string src, std::string re, std::string ch)
+	CBan(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& ch)
 		: XLine(s_time, d, src, re, "CBAN")
 	{
 		this->displaytext = ch;

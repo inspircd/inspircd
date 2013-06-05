@@ -37,6 +37,24 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	if (this->fd == -1)
 		return;
 
+#ifdef IPV6_V6ONLY
+	/* This OS supports IPv6 sockets that can also listen for IPv4
+	 * connections. If our address is "*" or empty, enable both v4 and v6 to
+	 * allow for simpler configuration on dual-stack hosts. Otherwise, if it
+	 * is "::" or an IPv6 address, disable support so that an IPv4 bind will
+	 * work on the port (by us or another application).
+	 */
+	if (bind_to.sa.sa_family == AF_INET6)
+	{
+		std::string addr = tag->getString("address");
+		/* This must be >= sizeof(DWORD) on Windows */
+		const int enable = (addr.empty() || addr == "*") ? 0 : 1;
+		/* This must be before bind() */
+		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char *>(&enable), sizeof(enable));
+		// errors ignored intentionally
+	}
+#endif
+
 	ServerInstance->SE->SetReuse(fd);
 	int rv = ServerInstance->SE->Bind(this->fd, bind_to);
 	if (rv >= 0)
@@ -54,22 +72,6 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 		setsockopt(fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
 #endif
 	}
-
-#ifdef IPV6_V6ONLY
-	/* This OS supports IPv6 sockets that can also listen for IPv4
-	 * connections. If our address is "*" or empty, enable both v4 and v6 to
-	 * allow for simpler configuration on dual-stack hosts. Otherwise, if it
-	 * is "::" or an IPv6 address, disable support so that an IPv4 bind will
-	 * work on the port (by us or another application).
-	 */
-	if (bind_to.sa.sa_family == AF_INET6)
-	{
-		std::string addr = tag->getString("address");
-		const char enable = (addr.empty() || addr == "*") ? 0 : 1;
-		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &enable, sizeof(enable));
-		// errors ignored intentionally
-	}
-#endif
 
 	if (rv < 0)
 	{

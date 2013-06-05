@@ -506,7 +506,10 @@ CullResult LocalUser::cull()
 	// overwritten in UserManager::AddUser() with the real iterator so this check
 	// is only a precaution currently.
 	if (localuseriter != ServerInstance->Users->local_users.end())
+	{
+		ServerInstance->Users->local_count--;
 		ServerInstance->Users->local_users.erase(localuseriter);
+	}
 	else
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: LocalUserIter does not point to a valid entry for " + this->nick);
 
