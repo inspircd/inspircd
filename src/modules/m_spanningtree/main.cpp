@@ -271,8 +271,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		return;
 	}
 
-	QueryType start_type = DNS_QUERY_A;
-	start_type = DNS_QUERY_AAAA;
+	QueryType start_type = DNS_QUERY_AAAA;
 	if (strchr(x->IPAddr.c_str(),':'))
 	{
 		in6_addr n;

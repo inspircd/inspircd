@@ -44,7 +44,7 @@ class CommandLoadmodule : public Command
  */
 CmdResult CommandLoadmodule::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (ServerInstance->Modules->Load(parameters[0].c_str()))
+	if (ServerInstance->Modules->Load(parameters[0]))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());

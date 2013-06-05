@@ -202,7 +202,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 	return;
 }
 
-bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, std::string omit)
+bool SpanningTreeUtilities::DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, const std::string& omit)
 {
 	TreeServer* omitroute = this->BestRouteTo(omit);
 	std::string FullLine = ":" + prefix + " " + command;
@@ -251,21 +251,7 @@ bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::st
 	return true;
 }
 
-bool SpanningTreeUtilities::DoOneToMany(const char* prefix, const char* command, const parameterlist &params)
-{
-	std::string spfx = prefix;
-	std::string scmd = command;
-	return this->DoOneToMany(spfx, scmd, params);
-}
-
-bool SpanningTreeUtilities::DoOneToAllButSender(const char* prefix, const char* command, const parameterlist &params, std::string omit)
-{
-	std::string spfx = prefix;
-	std::string scmd = command;
-	return this->DoOneToAllButSender(spfx, scmd, params, omit);
-}
-
-bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, std::string target)
+bool SpanningTreeUtilities::DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, const std::string& target)
 {
 	TreeServer* Route = this->BestRouteTo(target);
 	if (Route)

@@ -180,7 +180,6 @@ class MySQLresult : public SQLResult
 				rows++;
 			}
 			mysql_free_result(res);
-			res = NULL;
 		}
 	}
 

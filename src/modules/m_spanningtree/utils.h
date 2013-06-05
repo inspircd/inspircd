@@ -88,9 +88,6 @@ class SpanningTreeUtilities : public classbase
 	/** Hash of currently known server ids
 	 */
 	server_hash sidlist;
-	/** Hash of servers currently bursting but not initialized as connected
-	 */
-	std::map<irc::string,TreeSocket*> burstingserverlist;
 	/** List of all outgoing sockets and their timeouts
 	 */
 	std::map<TreeSocket*, std::pair<std::string, int> > timeoutlist;
@@ -129,23 +126,15 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, std::string target);
+	bool DoOneToOne(const std::string &prefix, const std::string &command, const parameterlist &params, const std::string& target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, std::string omit);
-
-	/** Send a message from this server to all but one other, local or remote
-	 */
-	bool DoOneToAllButSender(const char* prefix, const char* command, const parameterlist &params, std::string omit);
+	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist &params, const std::string& omit);
 
 	/** Send a message from this server to all others
 	 */
 	bool DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params);
-
-	/** Send a message from this server to all others
-	 */
-	bool DoOneToMany(const char* prefix, const char* command, const parameterlist &params);
 
 	/** Read the spanningtree module's tags from the config file
 	 */

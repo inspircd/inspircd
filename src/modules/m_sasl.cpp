@@ -52,7 +52,7 @@ class SaslAuthenticator
 	bool state_announced;
 
  public:
-	SaslAuthenticator(User *user_, std::string method, Module *ctor)
+	SaslAuthenticator(User* user_, const std::string& method)
 		: user(user_), state(SASL_INIT), state_announced(false)
 	{
 		parameterlist params;
@@ -195,7 +195,7 @@ class CommandAuthenticate : public Command
 
 			SaslAuthenticator *sasl = authExt.get(user);
 			if (!sasl)
-				authExt.set(user, new SaslAuthenticator(user, parameters[0], creator));
+				authExt.set(user, new SaslAuthenticator(user, parameters[0]));
 			else if (sasl->SendClientMessage(parameters) == false)	// IAL abort extension --nenolod
 			{
 				sasl->AnnounceState();

@@ -30,10 +30,10 @@ class Shun : public XLine
 public:
 	std::string matchtext;
 
-	Shun(time_t s_time, long d, std::string src, std::string re, std::string shunmask)
+	Shun(time_t s_time, long d, const std::string& src, const std::string& re, const std::string& shunmask)
 		: XLine(s_time, d, src, re, "SHUN")
+		, matchtext(shunmask)
 	{
-		this->matchtext = shunmask;
 	}
 
 	~Shun()
