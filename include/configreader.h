@@ -93,14 +93,16 @@ class ServerLimits
 	size_t MaxGecos;
 	/** Maximum away message length */
 	size_t MaxAway;
+	/** Maximum line length */
+	size_t MaxLine;
 
 	/** Creating the class initialises it to the defaults
 	 * as in 1.1's ./configure script. Reading other values
 	 * from the config will change these values.
 	 */
-	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12), MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200)
-	{
-	}
+	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12),
+		MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200),
+		MaxLine(512) { }
 };
 
 struct CommandLineConf
@@ -519,6 +521,12 @@ class CoreExport ServerConfig
 	 * @return True if the file exists and is readable.
 	 */
 	static bool FileExists(const char* file);
+	
+	/** Escapes a value for storage in a configuration key.
+	 * @param str The string to escape.
+	 * @param xml Are we using the XML config format?
+	 */
+	static std::string Escape(const std::string& str, bool xml = true);
 
 	/** If this value is true, invites will bypass more than just +i
 	 */

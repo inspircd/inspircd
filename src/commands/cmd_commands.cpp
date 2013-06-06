@@ -53,12 +53,9 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 			continue;
 
 		Module* src = i->second->creator;
-		char buffer[MAXBUF];
-		snprintf(buffer, MAXBUF, ":%s %03d %s :%s %s %d %d",
-			ServerInstance->Config->ServerName.c_str(), RPL_COMMANDS, user->nick.c_str(),
-			i->second->name.c_str(), src->ModuleSourceFile.c_str(),
-			i->second->min_params, i->second->Penalty);
-		list.push_back(buffer);
+		list.push_back(InspIRCd::Format(":%s %03d %s :%s %s %d %d", ServerInstance->Config->ServerName.c_str(),
+			RPL_COMMANDS, user->nick.c_str(), i->second->name.c_str(), src->ModuleSourceFile.c_str(),
+			i->second->min_params, i->second->Penalty));
 	}
 	sort(list.begin(), list.end());
 	for(unsigned int i=0; i < list.size(); i++)

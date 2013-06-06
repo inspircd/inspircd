@@ -271,9 +271,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			}
 
 			FILETIME CreationTime;
-  		FILETIME ExitTime;
-  		FILETIME KernelTime;
-  		FILETIME UserTime;
+			FILETIME ExitTime;
+			FILETIME KernelTime;
+			FILETIME UserTime;
 			LARGE_INTEGER ThisSample;
 			if(GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime) &&
 				QueryPerformanceCounter(&ThisSample))
@@ -301,15 +301,13 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		case 'T':
 		{
-			char buffer[MAXBUF];
 			results.push_back(sn+" 249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats->statsAccept)+" refused "+ConvToStr(ServerInstance->stats->statsRefused));
 			results.push_back(sn+" 249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats->statsUnknown));
 			results.push_back(sn+" 249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats->statsCollisions));
 			results.push_back(sn+" 249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats->statsDnsGood+ServerInstance->stats->statsDnsBad)+" succeeded "+ConvToStr(ServerInstance->stats->statsDnsGood)+" failed "+ConvToStr(ServerInstance->stats->statsDnsBad));
 			results.push_back(sn+" 249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats->statsConnects));
-			snprintf(buffer,MAXBUF," 249 %s :bytes sent %5.2fK recv %5.2fK",
-				user->nick.c_str(),ServerInstance->stats->statsSent / 1024.0,ServerInstance->stats->statsRecv / 1024.0);
-			results.push_back(sn+buffer);
+			results.push_back(InspIRCd::Format("%s 249 %s :bytes sent %5.2fK recv %5.2fK", sn.c_str(), user->nick.c_str(),
+				ServerInstance->stats->statsSent / 1024.0, ServerInstance->stats->statsRecv / 1024.0));
 		}
 		break;
 
@@ -382,15 +380,15 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			 * Craig suggested this, and it seemed a good idea so in it went */
 			if (stime->tm_year > 70)
 			{
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF," 242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",user->nick.c_str(),(stime->tm_year-70),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
-				results.push_back(sn+buffer);
+				results.push_back(InspIRCd::Format("%s 242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",
+					sn.c_str(), user->nick.c_str(), stime->tm_year - 70, stime->tm_yday, stime->tm_hour,
+					stime->tm_min, stime->tm_sec));
 			}
 			else
 			{
-				char buffer[MAXBUF];
-				snprintf(buffer,MAXBUF," 242 %s :Server up %d days, %.2d:%.2d:%.2d",user->nick.c_str(),stime->tm_yday,stime->tm_hour,stime->tm_min,stime->tm_sec);
-				results.push_back(sn+buffer);
+				results.push_back(InspIRCd::Format("%s 242 %s :Server up %d days, %.2d:%.2d:%.2d",
+					sn.c_str(), user->nick.c_str(), stime->tm_yday, stime->tm_hour, stime->tm_min,
+					stime->tm_sec));
 			}
 		}
 		break;

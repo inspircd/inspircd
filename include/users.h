@@ -403,7 +403,7 @@ class CoreExport User : public Extensible
 	/** Create a displayable mode string for this users snomasks
 	 * @return The notice mask character sequence
 	 */
-	const char* FormatNoticeMasks();
+	std::string FormatNoticeMasks();
 
 	/** Process a snomask modifier string, e.g. +abc-de
 	 * @param sm A sequence of notice mask characters
@@ -480,12 +480,6 @@ class CoreExport User : public Extensible
 	 * @return True if the user can set or unset this mode.
 	 */
 	virtual bool HasModePermission(unsigned char mode, ModeType type);
-
-	/** Creates a wildcard host.
-	 * Takes a buffer to use and fills the given buffer with the host in the format *!*\@hostname
-	 * @return The wildcarded hostname in *!*\@host form
-	 */
-	char* MakeWildHost();
 
 	/** Creates a usermask with real host.
 	 * Takes a buffer to use and fills the given buffer with the hostmask in the format user\@host
@@ -607,7 +601,7 @@ class CoreExport User : public Extensible
 	 * @param LinePrefix text to prefix each complete line with
 	 * @param TextStream the text to send to the user
 	 */
-	void SendText(const std::string &LinePrefix, std::stringstream &TextStream);
+	void SendText(const std::string& linePrefix, std::stringstream& textStream);
 
 	/** Write to the user, routing the line if the user is remote.
 	 */

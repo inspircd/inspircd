@@ -54,7 +54,7 @@ use make::configure;
 ###############################################################################################
 
 our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_ports, $opt_epoll, $opt_kqueue,
-     $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_maxbuf, $opt_freebsd_port, $opt_system, $opt_uid);
+     $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_freebsd_port, $opt_system, $opt_uid);
 
 our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
 
@@ -80,7 +80,6 @@ GetOptions (
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
 	'with-cc=s' => \$opt_cc,
-	'with-maxbuf=i' => \$opt_maxbuf,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
 	'prefix=s' => \$opt_base_dir,
 	'config-dir=s' => \$opt_config_dir,
@@ -123,7 +122,6 @@ our $interactive = !(
 	(defined $opt_nokqueue) ||
 	(defined $opt_noepoll) ||
 	(defined $opt_noports) ||
-	(defined $opt_maxbuf) ||
 	(defined $opt_system) ||
 	(defined $opt_uid) ||
 	(defined $opt_use_gnutls) ||
@@ -250,7 +248,6 @@ our $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
 $exec = $config{CC} . " -dumpversion | cut -c 3";
 chomp($config{GCCMINOR}		= `$exec`);
-$config{MAXBUF}			= "512";				# Max buffer size
 
 if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 	$config{HAS_OPENSSL} = $1;
@@ -836,7 +833,6 @@ sub writefiles {
 #define MOD_PATH "$config{MODULE_DIR}"
 
 EOF
-print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 
 		if ($config{OSNAME} =~ /SunOS/i) {
 			print FILEHANDLE "#define IS_SOLARIS\n";
