@@ -30,19 +30,16 @@ class CoreExport UserManager
 	/** Map of local ip addresses for clone counting
 	 */
 	clonemap local_clones;
+
  public:
+	/** Constructor, initializes variables and allocates the hashmaps
+	 */
 	UserManager();
 
-	~UserManager()
-	{
-		for (user_hash::iterator i = clientlist->begin();i != clientlist->end();i++)
-		{
-			delete i->second;
-		}
-		clientlist->clear();
-		delete clientlist;
-		delete uuidlist;
-	}
+	/** Destructor, destroys all users in clientlist and then deallocates
+	 * the hashmaps
+	 */
+	~UserManager();
 
 	/** Client list, a hash_map containing all clients, local and remote
 	 */
@@ -139,30 +136,30 @@ class CoreExport UserManager
 	 */
 	unsigned long LocalCloneCount(User *user);
 
-	/** Return a count of users, unknown and known connections
-	 * @return The number of users
+	/** Return a count of all global users, unknown and known connections
+	 * @return The number of users on the network, including local unregistered users
 	 */
-	unsigned int UserCount();
+	unsigned int UserCount() const { return this->clientlist->size(); }
 
-	/** Return a count of fully registered connections only
-	 * @return The number of registered users
+	/** Return a count of fully registered connections on the network
+	 * @return The number of registered users on the network
 	 */
-	unsigned int RegisteredUserCount();
+	unsigned int RegisteredUserCount() { return this->clientlist->size() - this->UnregisteredUserCount(); }
 
-	/** Return a count of opered (umode +o) users only
-	 * @return The number of opers
+	/** Return a count of opered (umode +o) users on the network
+	 * @return The number of opers on the network
 	 */
-	unsigned int OperCount();
+	unsigned int OperCount() const { return this->all_opers.size(); }
 
-	/** Return a count of unregistered (before NICK/USER) users only
-	 * @return The number of unregistered (unknown) connections
+	/** Return a count of local unregistered (before NICK/USER) users
+	 * @return The number of local unregistered (unknown) connections
 	 */
-	unsigned int UnregisteredUserCount();
+	unsigned int UnregisteredUserCount() const { return this->unregistered_count; }
 
-	/** Return a count of local users on this server only
-	 * @return The number of local users
+	/** Return a count of local registered users
+	 * @return The number of registered local users
 	 */
-	unsigned int LocalUserCount();
+	unsigned int LocalUserCount() const { return (this->local_count - this->UnregisteredUserCount()); }
 
 	/** Number of users with a certain mode set on them
 	 */

@@ -25,8 +25,21 @@
 #include "bancache.h"
 
 UserManager::UserManager()
-	: unregistered_count(0), local_count(0)
+	: clientlist(new user_hash)
+	, uuidlist(new user_hash)
+	, unregistered_count(0), local_count(0)
 {
+}
+
+UserManager::~UserManager()
+{
+	for (user_hash::iterator i = clientlist->begin(); i != clientlist->end(); ++i)
+	{
+		delete i->second;
+	}
+
+	delete clientlist;
+	delete uuidlist;
 }
 
 /* add a client connection to the sockets list */
@@ -235,7 +248,6 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	ServerInstance->Users->uuidlist->erase(user->uuid);
 }
 
-
 void UserManager::AddLocalClone(User *user)
 {
 	local_clones[user->GetCIDRMask()]++;
@@ -288,42 +300,6 @@ unsigned long UserManager::LocalCloneCount(User *user)
 		return x->second;
 	else
 		return 0;
-}
-
-/* this function counts all users connected, wether they are registered or NOT. */
-unsigned int UserManager::UserCount()
-{
-	/*
-	 * XXX: Todo:
-	 *  As part of this restructuring, move clientlist/etc fields into usermanager.
-	 * 	-- w00t
-	 */
-	return this->clientlist->size();
-}
-
-/* this counts only registered users, so that the percentages in /MAP don't mess up */
-unsigned int UserManager::RegisteredUserCount()
-{
-	return this->clientlist->size() - this->UnregisteredUserCount();
-}
-
-/* return how many users are opered */
-unsigned int UserManager::OperCount()
-{
-	return this->all_opers.size();
-}
-
-/* return how many users are unregistered */
-unsigned int UserManager::UnregisteredUserCount()
-{
-	return this->unregistered_count;
-}
-
-/* return how many local registered users there are */
-unsigned int UserManager::LocalUserCount()
-{
-	/* Doesnt count unregistered clients */
-	return (this->local_count - this->UnregisteredUserCount());
 }
 
 void UserManager::ServerNoticeAll(const char* text, ...)

@@ -322,8 +322,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// Create base manager classes early, so nothing breaks
 	this->Users = new UserManager;
 
-	this->Users->clientlist = new user_hash();
-	this->Users->uuidlist = new user_hash();
 	this->chanlist = new chan_hash();
 
 	this->Config = new ServerConfig;
