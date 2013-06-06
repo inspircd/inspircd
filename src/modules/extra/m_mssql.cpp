@@ -472,8 +472,8 @@ class SQLConn : public classbase
 						if (sock->res_info->row_count > 0)
 						{
 							int cols = sock->res_info->num_cols;
-							char** name = new char*[MAXBUF];
-							char** data = new char*[MAXBUF];
+							char** name = new char*[512];
+							char** data = new char*[512];
 							for (int j=0; j<cols; j++)
 							{
 								TDSCOLUMN* col = sock->current_results->columns[j];

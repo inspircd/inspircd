@@ -197,7 +197,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 std::string SpanningTreeUtilities::ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params)
 {
 	std::string FullLine;
-	FullLine.reserve(MAXBUF);
+	FullLine.reserve(1024);
 	FullLine = ":" + prefix + " " + command;
 	for (parameterlist::const_iterator x = params.begin(); x != params.end(); ++x)
 	{

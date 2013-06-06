@@ -20,6 +20,7 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include <fstream>
 
 /* $ModConfig: <xlinedb filename="data/xline.db">
  *  Specify the filename for the xline database here*/
@@ -85,18 +86,16 @@ class ModuleXLineDB : public Module
 
 	bool WriteDatabase()
 	{
-		FILE *f;
-
 		/*
 		 * We need to perform an atomic write so as not to fuck things up.
-		 * So, let's write to a temporary file, flush and sync the FD, then rename the file..
+		 * So, let's write to a temporary file, flush it, then rename the file..
 		 * Technically, that means that this can block, but I have *never* seen that.
-		 *		-- w00t
+		 *     -- w00t
 		 */
 		ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Opening temporary database");
 		std::string xlinenewdbpath = xlinedbpath + ".new";
-		f = fopen(xlinenewdbpath.c_str(), "w");
-		if (!f)
+		std::ofstream stream(xlinenewdbpath.c_str());
+		if (!stream.is_open())
 		{
 			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
@@ -112,7 +111,7 @@ class ModuleXLineDB : public Module
 		 * semblance of backwards compatibility for reading on startup..
 		 * 		-- w00t
 		 */
-		fprintf(f, "VERSION 1\n");
+		stream << "VERSION 1" << std::endl;
 
 		// Now, let's write.
 		std::vector<std::string> types = ServerInstance->XLines->GetAllTypes();
@@ -125,26 +124,21 @@ class ModuleXLineDB : public Module
 			for (LookupIter i = lookup->begin(); i != lookup->end(); ++i)
 			{
 				XLine* line = i->second;
-				fprintf(f, "LINE %s %s %s %lu %lu :%s\n",
-					line->type.c_str(),
-					line->Displayable().c_str(),
-					ServerInstance->Config->ServerName.c_str(),
-					(unsigned long)line->set_time,
-					(unsigned long)line->duration, line->reason.c_str());
+				stream << "LINE " << line->type << " " << line->Displayable() << " "
+					<< ServerInstance->Config->ServerName << " " << line->set_time << " "
+					<< line->duration << " " << line->reason << std::endl;
 			}
 		}
 
 		ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
 
-		int write_error = 0;
-		write_error = ferror(f);
-		write_error |= fclose(f);
-		if (write_error)
+		if (stream.fail())
 		{
 			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
+		stream.close();
 
 #ifdef _WIN32
 		if (remove(xlinedbpath.c_str()))
@@ -167,42 +161,23 @@ class ModuleXLineDB : public Module
 
 	bool ReadDatabase()
 	{
-		FILE *f;
-		char linebuf[MAXBUF];
+		// If the xline database doesn't exist then we don't need to load it.
+		if (!ServerConfig::FileExists(xlinedbpath.c_str()))
+			return true;
 
-		f = fopen(xlinedbpath.c_str(), "r");
-		if (!f)
+		std::ifstream stream(xlinedbpath.c_str());
+		if (!stream.is_open())
 		{
-			if (errno == ENOENT)
-			{
-				/* xline.db doesn't exist, fake good return value (we don't care about this) */
-				return true;
-			}
-			else
-			{
-				/* this might be slightly more problematic. */
-				ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
-				ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
-				return false;
-			}
+			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
+			return false;
 		}
-
-		while (fgets(linebuf, MAXBUF, f))
+		
+		std::string line;
+		while (std::getline(stream, line))
 		{
-			char *c = linebuf;
-
-			while (c && *c)
-			{
-				if (*c == '\n')
-				{
-					*c = '\0';
-				}
-
-				c++;
-			}
-
 			// Inspired by the command parser. :)
-			irc::tokenstream tokens(linebuf);
+			irc::tokenstream tokens(line);
 			int items = 0;
 			std::string command_p[7];
 			std::string tmp;
@@ -213,7 +188,7 @@ class ModuleXLineDB : public Module
 				items++;
 			}
 
-			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Processing %s", linebuf);
+			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Processing %s", line.c_str());
 
 			if (command_p[0] == "VERSION")
 			{
@@ -223,7 +198,7 @@ class ModuleXLineDB : public Module
 				}
 				else
 				{
-					fclose(f);
+					stream.close();
 					ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
 					ServerInstance->SNO->WriteToSnoMask('a', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
 					return false;
@@ -251,8 +226,7 @@ class ModuleXLineDB : public Module
 					delete xl;
 			}
 		}
-
-		fclose(f);
+		stream.close();
 		return true;
 	}
 

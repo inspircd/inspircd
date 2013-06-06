@@ -221,24 +221,22 @@ static const char all_zero[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
 
 std::string irc::sockets::sockaddrs::str() const
 {
-	char buffer[MAXBUF];
 	if (sa.sa_family == AF_INET)
 	{
-		const uint8_t* bits = reinterpret_cast<const uint8_t*>(&in4.sin_addr);
-		sprintf(buffer, "%d.%d.%d.%d:%u", bits[0], bits[1], bits[2], bits[3], ntohs(in4.sin_port));
+		char ipaddr[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &in4.sin_addr, ipaddr, sizeof(ipaddr));
+		return InspIRCd::Format("%s:%u", ipaddr, ntohs(in4.sin_port));
 	}
-	else if (sa.sa_family == AF_INET6)
+
+	if (sa.sa_family == AF_INET6)
 	{
-		buffer[0] = '[';
-		if (!inet_ntop(AF_INET6, &in6.sin6_addr, buffer+1, MAXBUF - 10))
-			return "<unknown>"; // should never happen, buffer is large enough
-		int len = strlen(buffer);
-		// no need for snprintf, buffer has at least 9 chars left, max short len = 5
-		sprintf(buffer + len, "]:%u", ntohs(in6.sin6_port));
+		char ipaddr[INET6_ADDRSTRLEN];
+		inet_ntop(AF_INET6, &in6.sin6_addr, ipaddr, sizeof(ipaddr));
+		return InspIRCd::Format("[%s]:%u", ipaddr, ntohs(in6.sin6_port));
 	}
-	else
-		return "<unknown>";
-	return std::string(buffer);
+
+	// This should never happen.
+	return "<unknown>";
 }
 
 int irc::sockets::sockaddrs::sa_size() const

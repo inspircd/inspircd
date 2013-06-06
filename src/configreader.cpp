@@ -367,10 +367,15 @@ void ServerConfig::Fill()
 	else
 	{
 		if (ServerName != ConfValue("server")->getString("name"))
-			throw CoreException("You must restart to change the server name or SID");
+			throw CoreException("You must restart to change the server name");
+
 		std::string nsid = ConfValue("server")->getString("id");
 		if (!nsid.empty() && nsid != sid)
-			throw CoreException("You must restart to change the server name or SID");
+			throw CoreException("You must restart to change the server id");
+
+		if (Limits.MaxLine != static_cast<size_t>(ConfValue("limits")->getInt("maxline", 512)))
+			throw CoreException("You must restart to change the maximum line length");
+
 	}
 	diepass = ConfValue("power")->getString("diepass");
 	restartpass = ConfValue("power")->getString("restartpass");
@@ -423,6 +428,7 @@ void ServerConfig::Fill()
 	Limits.MaxKick = ConfValue("limits")->getInt("maxkick", 255);
 	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
+	Limits.MaxLine = ConfValue("limits")->getInt("maxline", 512);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
@@ -767,14 +773,31 @@ bool ServerConfig::FileExists(const char* file)
 	if ((sb.st_mode & S_IFDIR) > 0)
 		return false;
 
-	FILE *input = fopen(file, "r");
-	if (input == NULL)
-		return false;
-	else
+	return !access(file, F_OK);
+}
+
+std::string ServerConfig::Escape(const std::string& str, bool xml)
+{
+	std::string escaped;
+	for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
 	{
-		fclose(input);
-		return true;
+		switch (*it)
+		{
+			case '"':
+				escaped += xml ? "&quot;" : "\"";
+				break;
+			case '&':
+				escaped += xml ? "&amp;" : "&";
+				break;
+			case '\\':
+				escaped += xml ? "\\" : "\\\\";
+				break;
+			default:
+				escaped += *it;
+				break;
+		}
 	}
+	return escaped;
 }
 
 const char* ServerConfig::CleanFilename(const char* name)

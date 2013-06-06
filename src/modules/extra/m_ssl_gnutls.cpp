@@ -803,8 +803,8 @@ class ModuleSSLGnuTLS : public Module
 		int ret;
 		unsigned int cert_list_size;
 		gnutls_x509_crt_t cert;
-		char name[MAXBUF];
-		unsigned char digest[MAXBUF];
+		char name[512];
+		unsigned char digest[512];
 		size_t digest_size = sizeof(digest);
 		size_t name_size = sizeof(name);
 		ssl_cert* certinfo = new ssl_cert;

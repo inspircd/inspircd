@@ -119,7 +119,7 @@ public:
 			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
 			percent = 100;
 		}
-		if (minlen < 1 || minlen > MAXBUF-1)
+		if (minlen < 1 || minlen > ServerInstance->Config->Limits.MaxLine)
 		{
 			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
 			minlen = 1;

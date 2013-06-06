@@ -122,18 +122,16 @@ void User::SetNoticeMask(unsigned char sm, bool value)
 	snomasks[sm-65] = value;
 }
 
-const char* User::FormatNoticeMasks()
+std::string User::FormatNoticeMasks()
 {
-	static char data[MAXBUF];
-	int offset = 0;
+	std::string data;
 
-	for (int n = 0; n < 64; n++)
+	for (unsigned char n = 0; n < 64; n++)
 	{
 		if (snomasks[n])
-			data[offset++] = n+65;
+			data.push_back(n + 65); 
 	}
 
-	data[offset] = 0;
 	return data;
 }
 
@@ -220,18 +218,8 @@ const std::string& User::MakeHost()
 	if (!this->cached_makehost.empty())
 		return this->cached_makehost;
 
-	char nhost[MAXBUF];
-	/* This is much faster than snprintf */
-	char* t = nhost;
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = host.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_makehost.assign(nhost);
-
+	// XXX: Is there really a need to cache this?
+	this->cached_makehost = ident + "@" + host;
 	return this->cached_makehost;
 }
 
@@ -240,18 +228,8 @@ const std::string& User::MakeHostIP()
 	if (!this->cached_hostip.empty())
 		return this->cached_hostip;
 
-	char ihost[MAXBUF];
-	/* This is much faster than snprintf */
-	char* t = ihost;
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = this->GetIPString().c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_hostip = ihost;
-
+	// XXX: Is there really a need to cache this?
+	this->cached_hostip = ident + "@" + this->GetIPString();
 	return this->cached_hostip;
 }
 
@@ -260,33 +238,9 @@ const std::string& User::GetFullHost()
 	if (!this->cached_fullhost.empty())
 		return this->cached_fullhost;
 
-	char result[MAXBUF];
-	char* t = result;
-	for(const char* n = nick.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '!';
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = dhost.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_fullhost = result;
-
+	// XXX: Is there really a need to cache this?
+	this->cached_fullhost = nick + "!" + ident + "@" + dhost;
 	return this->cached_fullhost;
-}
-
-char* User::MakeWildHost()
-{
-	static char nresult[MAXBUF];
-	char* t = nresult;
-	*t++ = '*';	*t++ = '!';
-	*t++ = '*';	*t++ = '@';
-	for(const char* n = dhost.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-	return nresult;
 }
 
 const std::string& User::GetFullRealHost()
@@ -294,20 +248,8 @@ const std::string& User::GetFullRealHost()
 	if (!this->cached_fullrealhost.empty())
 		return this->cached_fullrealhost;
 
-	char fresult[MAXBUF];
-	char* t = fresult;
-	for(const char* n = nick.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '!';
-	for(const char* n = ident.c_str(); *n; n++)
-		*t++ = *n;
-	*t++ = '@';
-	for(const char* n = host.c_str(); *n; n++)
-		*t++ = *n;
-	*t = 0;
-
-	this->cached_fullrealhost = fresult;
-
+	// XXX: Is there really a need to cache this?
+	this->cached_fullrealhost = nick + "!" + ident + "@" + host;
 	return this->cached_fullrealhost;
 }
 
@@ -428,7 +370,7 @@ void UserIOHandler::OnDataReady()
 	while (user->CommandFloodPenalty < penaltymax && getSendQSize() < sendqmax)
 	{
 		std::string line;
-		line.reserve(MAXBUF);
+		line.reserve(ServerInstance->Config->Limits.MaxLine);
 		std::string::size_type qpos = 0;
 		while (qpos < recvq.length())
 		{
@@ -443,7 +385,7 @@ void UserIOHandler::OnDataReady()
 			case '\n':
 				goto eol_found;
 			}
-			if (line.length() < MAXBUF - 2)
+			if (line.length() < ServerInstance->Config->Limits.MaxLine - 2)
 				line.push_back(c);
 		}
 		// if we got here, the recvq ran out before we found a newline
@@ -995,10 +937,10 @@ void LocalUser::Write(const std::string& text)
 	if (!ServerInstance->SE->BoundsCheckFd(&eh))
 		return;
 
-	if (text.length() > MAXBUF - 2)
+	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)
 	{
 		// this should happen rarely or never. Crop the string at 512 and try again.
-		std::string try_again = text.substr(0, MAXBUF - 2);
+		std::string try_again = text.substr(0, ServerInstance->Config->Limits.MaxLine - 2);
 		Write(try_again);
 		return;
 	}
@@ -1051,16 +993,16 @@ void User::WriteNumeric(unsigned int numeric, const char* text, ...)
 
 void User::WriteNumeric(unsigned int numeric, const std::string &text)
 {
-	char textbuffer[MAXBUF];
 	ModResult MOD_RESULT;
 
 	FIRST_MOD_RESULT(OnNumeric, MOD_RESULT, (this, numeric, text));
 
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
-
-	snprintf(textbuffer,MAXBUF,":%s %03u %s",ServerInstance->Config->ServerName.c_str(), numeric, text.c_str());
-	this->Write(std::string(textbuffer));
+	
+	const std::string message = InspIRCd::Format(":%s %03u %s", ServerInstance->Config->ServerName.c_str(),
+		numeric, text.c_str());
+	this->Write(message);
 }
 
 void User::WriteFrom(User *user, const std::string &text)
@@ -1217,28 +1159,21 @@ void User::SendText(const char *text, ...)
 	SendText(line);
 }
 
-void User::SendText(const std::string &LinePrefix, std::stringstream &TextStream)
+void User::SendText(const std::string& linePrefix, std::stringstream& textStream)
 {
-	char line[MAXBUF];
-	int start_pos = LinePrefix.length();
-	int pos = start_pos;
-	memcpy(line, LinePrefix.data(), pos);
-	std::string Word;
-	while (TextStream >> Word)
+	std::string line;
+	std::string word;
+	while (textStream >> word)
 	{
-		int len = Word.length();
-		if (pos + len + 12 > MAXBUF)
+		size_t lineLength = linePrefix.length() + line.length() + word.length() + 3; // "\s\n\r"
+		if (lineLength > ServerInstance->Config->Limits.MaxLine)
 		{
-			line[pos] = '\0';
-			SendText(std::string(line));
-			pos = start_pos;
+			SendText(linePrefix + line);
+			line.clear();
 		}
-		line[pos] = ' ';
-		memcpy(line + pos + 1, Word.data(), len);
-		pos += len + 1;
+		line += " " + word;
 	}
-	line[pos] = '\0';
-	SendText(std::string(line));
+	SendText(linePrefix + line);
 }
 
 /* return 0 or 1 depending if users u and u2 share one or more common channels

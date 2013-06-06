@@ -101,6 +101,9 @@ __inline void sleep(int seconds) { Sleep(seconds * 1000); }
 #define popen _popen
 #define pclose _pclose
 
+/* _access */
+#define access _access
+
 /* IPV4 only convert string to address struct */
 __inline int inet_aton(const char *cp, struct in_addr *addr)
 { 
