@@ -25,8 +25,8 @@ class CustomPrefixMode : public ModeHandler
 {
  public:
 	reference<ConfigTag> tag;
-	int rank;
 	bool depriv;
+
 	CustomPrefixMode(Module* parent, ConfigTag* Tag)
 		: ModeHandler(parent, Tag->getString("name"), 0, PARAM_ALWAYS, MODETYPE_CHANNEL), tag(Tag)
 	{
@@ -36,14 +36,9 @@ class CustomPrefixMode : public ModeHandler
 		prefix = v.c_str()[0];
 		v = tag->getString("letter");
 		mode = v.c_str()[0];
-		rank = tag->getInt("rank");
-		levelrequired = tag->getInt("ranktoset", rank);
+		prefixrank = tag->getInt("rank");
+		levelrequired = tag->getInt("ranktoset", prefixrank);
 		depriv = tag->getBool("depriv", true);
-	}
-
-	unsigned int GetPrefixRank()
-	{
-		return rank;
 	}
 
 	ModResult AccessCheck(User* src, Channel*, std::string& value, bool adding)
@@ -72,7 +67,7 @@ class ModuleCustomPrefix : public Module
 			tags.first++;
 			CustomPrefixMode* mh = new CustomPrefixMode(this, tag);
 			modes.push_back(mh);
-			if (mh->rank <= 0)
+			if (mh->GetPrefixRank() == 0)
 				throw ModuleException("Rank must be specified for prefix at " + tag->getTagLocation());
 			if (!isalpha(mh->GetModeChar()))
 				throw ModuleException("Mode must be a letter for prefix at " + tag->getTagLocation());

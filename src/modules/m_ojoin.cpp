@@ -110,11 +110,7 @@ class NetworkPrefix : public ModeHandler
 		prefix = NPrefix;
 		levelrequired = INT_MAX;
 		m_paramtype = TR_NICK;
-	}
-
-	unsigned int GetPrefixRank()
-	{
-		return NETWORK_VALUE;
+		prefixrank = NETWORK_VALUE;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)

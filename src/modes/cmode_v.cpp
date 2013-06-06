@@ -34,11 +34,7 @@ ModeChannelVoice::ModeChannelVoice() : ModeHandler(NULL, "voice", 'v', PARAM_ALW
 	prefix = '+';
 	levelrequired = HALFOP_VALUE;
 	m_paramtype = TR_NICK;
-}
-
-unsigned int ModeChannelVoice::GetPrefixRank()
-{
-	return VOICE_VALUE;
+	prefixrank = VOICE_VALUE;
 }
 
 ModeAction ModeChannelVoice::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)

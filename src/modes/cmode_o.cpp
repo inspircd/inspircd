@@ -34,11 +34,7 @@ ModeChannelOp::ModeChannelOp() : ModeHandler(NULL, "op", 'o', PARAM_ALWAYS, MODE
 	prefix = '@';
 	levelrequired = OP_VALUE;
 	m_paramtype = TR_NICK;
-}
-
-unsigned int ModeChannelOp::GetPrefixRank()
-{
-	return OP_VALUE;
+	prefixrank = OP_VALUE;
 }
 
 ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)

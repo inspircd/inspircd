@@ -155,6 +155,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	int levelrequired;
 
+	/** The prefix rank of this mode, used to compare prefix
+	 * modes
+	 */
+	unsigned int prefixrank;
+
  public:
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
@@ -186,7 +191,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * PrefixModeValue enum and Channel::GetPrefixValue() for
 	 * more information.
 	 */
-	virtual unsigned int GetPrefixRank();
+	unsigned int GetPrefixRank() const { return prefixrank; }
 	/**
 	 * Returns the mode's type
 	 */

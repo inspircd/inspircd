@@ -38,11 +38,7 @@ class OperPrefixMode : public ModeHandler
 			prefix = pfx.empty() ? '!' : pfx[0];
 			levelrequired = OPERPREFIX_VALUE;
 			m_paramtype = TR_NICK;
-		}
-
-		unsigned int GetPrefixRank()
-		{
-			return OPERPREFIX_VALUE;
+			prefixrank = OPERPREFIX_VALUE;
 		}
 
 		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
