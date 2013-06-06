@@ -748,7 +748,7 @@ int InspIRCd::Run()
 			}
 
 			Timers->TickTimers(TIME.tv_sec);
-			this->DoBackgroundUserStuff();
+			Users->DoBackgroundUserStuff();
 
 			if ((TIME.tv_sec % 5) == 0)
 			{
@@ -779,19 +779,6 @@ int InspIRCd::Run()
 	}
 
 	return 0;
-}
-
-/**********************************************************************************/
-
-/* this returns true when all modules are satisfied that the user should be allowed onto the irc server
- * (until this returns true, a user will block in the waiting state, waiting to connect up to the
- * registration timeout maximum seconds)
- */
-bool InspIRCd::AllModulesReportReady(LocalUser* user)
-{
-	ModResult res;
-	FIRST_MOD_RESULT(OnCheckReady, res, (user));
-	return (res == MOD_RES_PASSTHRU);
 }
 
 sig_atomic_t InspIRCd::s_signal = 0;

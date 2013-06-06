@@ -81,6 +81,16 @@ class CoreExport UserManager
      */
 	void GarbageCollect();
 
+	/** Perform background user events such as PING checks
+	 */
+	void DoBackgroundUserStuff();
+
+	/** Returns true when all modules have done pre-registration checks on a user
+	 * @param user The user to verify
+	 * @return True if all modules have finished checking this user
+	 */
+	bool AllModulesReportReady(LocalUser* user);
+
 	/** Add a client to the system.
 	 * This will create a new User, insert it into the user_hash,
 	 * initialize it as not yet registered, and add it to the socket engine.

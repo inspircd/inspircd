@@ -270,16 +270,6 @@ class CoreExport InspIRCd
 	 */
 	void DoSocketTimeouts(time_t TIME);
 
-	/** Perform background user events such as PING checks
-	 */
-	void DoBackgroundUserStuff();
-
-	/** Returns true when all modules have done pre-registration checks on a user
-	 * @param user The user to verify
-	 * @return True if all modules have finished checking this user
-	 */
-	bool AllModulesReportReady(LocalUser* user);
-
 	/** The current time, updated in the mainloop
 	 */
 	struct timespec TIME;

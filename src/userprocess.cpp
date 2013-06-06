@@ -33,16 +33,14 @@
  * It is intended to do background checking on all the user structs, e.g.
  * stuff like ping checks, registration timeouts, etc.
  */
-void InspIRCd::DoBackgroundUserStuff()
+void UserManager::DoBackgroundUserStuff()
 {
 	/*
 	 * loop over all local users..
 	 */
-	LocalUserList::reverse_iterator count2 = this->Users->local_users.rbegin();
-	while (count2 != this->Users->local_users.rend())
+	for (LocalUserList::iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
-		LocalUser *curr = *count2;
-		count2++;
+		LocalUser* curr = *i;
 
 		if (curr->quitting)
 			continue;
@@ -60,22 +58,20 @@ void InspIRCd::DoBackgroundUserStuff()
 		switch (curr->registered)
 		{
 			case REG_ALL:
-				if (Time() > curr->nping)
+				if (ServerInstance->Time() > curr->nping)
 				{
 					// This user didn't answer the last ping, remove them
 					if (!curr->lastping)
 					{
-						time_t time = this->Time() - (curr->nping - curr->MyClass->GetPingTime());
+						time_t time = ServerInstance->Time() - (curr->nping - curr->MyClass->GetPingTime());
 						const std::string message = "Ping timeout: " + ConvToStr(time) + (time == 1 ? " seconds" : " second");
-						curr->lastping = 1;
-						curr->nping = Time() + curr->MyClass->GetPingTime();
-						this->Users->QuitUser(curr, message);
+						this->QuitUser(curr, message);
 						continue;
 					}
 
-					curr->Write("PING :%s",this->Config->ServerName.c_str());
+					curr->Write("PING :" + ServerInstance->Config->ServerName);
 					curr->lastping = 0;
-					curr->nping = Time()  +curr->MyClass->GetPingTime();
+					curr->nping = ServerInstance->Time() + curr->MyClass->GetPingTime();
 				}
 				break;
 			case REG_NICKUSER:
@@ -88,15 +84,14 @@ void InspIRCd::DoBackgroundUserStuff()
 				break;
 		}
 
-		if (curr->registered != REG_ALL && (Time() > (curr->age + curr->MyClass->GetRegTimeout())))
+		if (curr->registered != REG_ALL && (ServerInstance->Time() > (curr->age + curr->MyClass->GetRegTimeout())))
 		{
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
 			 * in the time specified in their connection class.
 			 */
-			this->Users->QuitUser(curr, "Registration timeout");
+			this->QuitUser(curr, "Registration timeout");
 			continue;
 		}
 	}
 }
-
