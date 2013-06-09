@@ -179,7 +179,9 @@ int SelectEngine::DispatchEvents()
 			if (has_write)
 			{
 				WriteEvents++;
-				SetEventMask(ev, ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
+				int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
+				this->OnSetEvent(ev, ev->GetEventMask(), newmask);
+				SetEventMask(ev, newmask);
 				ev->HandleEvent(EVENT_WRITE);
 			}
 		}
