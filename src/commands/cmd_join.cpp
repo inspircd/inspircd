@@ -52,7 +52,7 @@ CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, L
 {
 	if (parameters.size() > 1)
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, 1, false))
+		if (CommandParser::LoopCall(user, this, parameters, 0, 1, false))
 			return CMD_SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0]))
@@ -63,7 +63,7 @@ CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, L
 	}
 	else
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0, -1, false))
+		if (CommandParser::LoopCall(user, this, parameters, 0, -1, false))
 			return CMD_SUCCESS;
 
 		if (ServerInstance->IsChannel(parameters[0]))

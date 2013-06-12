@@ -57,7 +57,7 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 			reason = parameters[1];
 	}
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	Channel* c = ServerInstance->FindChan(parameters[0]);

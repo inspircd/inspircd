@@ -57,7 +57,7 @@ class CommandKill : public Command
 CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	User *u = ServerInstance->FindNick(parameters[0]);

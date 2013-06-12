@@ -195,7 +195,7 @@ CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, 
 	int userindex = 0;
 	unsigned long idle = 0, signon = 0;
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	/*

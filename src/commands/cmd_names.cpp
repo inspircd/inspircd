@@ -52,7 +52,7 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 		return CMD_SUCCESS;
 	}
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	c = ServerInstance->FindChan(parameters[0]);

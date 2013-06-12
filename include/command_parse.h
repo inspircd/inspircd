@@ -80,28 +80,40 @@ class CoreExport CommandParser
 	 */
 	bool IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user);
 
-	/** LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
-	 * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
-	 * We need a version which takes two potential lists for JOIN, because a JOIN may contain two lists of items at once,
+	/** LoopCall is used to call a command handler repeatedly based on the contents of a comma seperated list.
+	 * There are two ways to call this method, either with one potential list or with two potential lists.
+	 * We need to handle two potential lists for JOIN, because a JOIN may contain two lists of items at once:
 	 * the channel names and their keys as follows:
 	 *
 	 * JOIN \#chan1,\#chan2,\#chan3 key1,,key3
 	 *
-	 * Therefore, we need to deal with both lists concurrently. The first instance of this method does that by creating
-	 * two instances of irc::commasepstream and reading them both together until the first runs out of tokens.
-	 * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
-	 * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
+	 * Therefore, we need to deal with both lists concurrently. If there are two lists then the method reads
+	 * them both together until the first runs out of tokens.
+	 * With one list it is much simpler, and is used in NAMES, WHOIS, PRIVMSG etc.
+	 *
+	 * If there is only one list and there are duplicates in it, then the command handler is only called for
+	 * unique items. Entries are compared using "irc comparision" (see irc::string).
+	 * If the usemax parameter is true (the default) the function only parses until it reaches
+	 * ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
+	 *
+	 * If there are two lists and the second list runs out of tokens before the first list then parameters[extra]
+	 * will be an EMPTY string when Handle() is called for the remaining tokens in the first list, even if it is
+	 * in the middle of parameters[]! Moreover, empty tokens in the second list are allowed, and those will also
+	 * result in the appropiate entry being empty in parameters[].
+	 * This is different than what command handlers usually expect; the command parser only allows an empty param
+	 * as the last item in the vector.
 	 *
 	 * @param user The user who sent the command
 	 * @param CommandObj the command object to call for each parameter in the list
-	 * @param parameters Parameter list as an array of array of char (that's not a typo).
+	 * @param parameters Parameter list as a vector of strings
 	 * @param splithere The first parameter index to split as a comma seperated list
-	 * @param extra The second parameter index to split as a comma seperated list
-	 * @param usemax Limit the command to MaxTargets targets
-	 * @return This function will return 1 when there are no more parameters to process. When this occurs, its
-	 * caller should return without doing anything, otherwise it should continue into its main section of code.
+	 * @param extra The second parameter index to split as a comma seperated list, or -1 (the default) if there is only one list
+	 * @param usemax True to limit the command to MaxTargets targets (default), or false to process all tokens
+	 * @return This function returns true when it identified a list in the given parameter and finished calling the
+	 * command handler for each entry on the list. When this occurs, the caller should return without doing anything,
+	 * otherwise it should continue into its main section of code.
 	 */
-	int LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra = -1, bool usemax = true);
+	static bool LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra = -1, bool usemax = true);
 
 	/** Take a raw input buffer from a recvq, and process it on behalf of a user.
 	 * @param buffer The buffer line to process

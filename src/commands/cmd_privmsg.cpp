@@ -62,7 +62,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 	if (localuser)
 		localuser->idle_lastmsg = ServerInstance->Time();
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
 	if (parameters[0][0] == '$')

@@ -48,7 +48,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u;
 
-	if (ServerInstance->Parser->LoopCall(user, this, parameters, 1))
+	if (CommandParser::LoopCall(user, this, parameters, 1))
 		return CMD_SUCCESS;
 
 	if (IS_LOCAL(user))

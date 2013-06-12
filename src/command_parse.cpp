@@ -44,67 +44,60 @@ int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::st
 	return (data != input); // this seems back to front, but returns 0 if they *match*, 1 else
 }
 
-/* LoopCall is used to call a command classes handler repeatedly based on the contents of a comma seperated list.
- * There are two overriden versions of this method, one of which takes two potential lists and the other takes one.
- * We need a version which takes two potential lists for JOIN, because a JOIN may contain two lists of items at once,
- * the channel names and their keys as follows:
- * JOIN #chan1,#chan2,#chan3 key1,,key3
- * Therefore, we need to deal with both lists concurrently. The first instance of this method does that by creating
- * two instances of irc::commasepstream and reading them both together until the first runs out of tokens.
- * The second version is much simpler and just has the one stream to read, and is used in NAMES, WHOIS, PRIVMSG etc.
- * Both will only parse until they reach ServerInstance->Config->MaxTargets number of targets, to stop abuse via spam.
- */
-int CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
+bool CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
 {
 	if (splithere >= parameters.size())
-		return 0;
+		return false;
 
-	if (extra >= (signed)parameters.size())
-		extra = -1;
-
-	/* First check if we have more than one item in the list, if we don't we return zero here and the handler
+	/* First check if we have more than one item in the list, if we don't we return false here and the handler
 	 * which called us just carries on as it was.
 	 */
 	if (parameters[splithere].find(',') == std::string::npos)
-		return 0;
+		return false;
 
 	/** Some lame ircds will weed out dupes using some shitty O(n^2) algorithm.
 	 * By using std::set (thanks for the idea w00t) we can cut this down a ton.
 	 * ...VOOODOOOO!
+	 *
+	 * Only check for duplicates if there is one list (allow them in JOIN).
 	 */
 	std::set<irc::string> dupes;
+	bool check_dupes = (extra < 0);
 
-	/* Create two lists, one for channel names, one for keys
+	/* Create two sepstreams, if we have only one list, then initialize the second sepstream with
+	 * an empty string. The second parameter of the constructor of the sepstream tells whether
+	 * or not to allow empty tokens.
+	 * We allow empty keys, so "JOIN #a,#b ,bkey" will be interpreted as "JOIN #a", "JOIN #b bkey"
 	 */
 	irc::commasepstream items1(parameters[splithere]);
-	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "");
-	std::string extrastuff;
+	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "", true);
 	std::string item;
 	unsigned int max = 0;
 
-	/* Attempt to iterate these lists and call the command objech
-	 * which called us, for every parameter pair until there are
-	 * no more left to parse.
+	/* Attempt to iterate these lists and call the command handler
+	 * for every parameter or parameter pair until there are no more
+	 * left to parse.
 	 */
 	while (items1.GetToken(item) && (!usemax || max++ < ServerInstance->Config->MaxTargets))
 	{
-		if (dupes.find(item.c_str()) == dupes.end())
+		if ((!check_dupes) || (dupes.insert(item.c_str()).second))
 		{
 			std::vector<std::string> new_parameters(parameters);
-
-			if (!items2.GetToken(extrastuff))
-				extrastuff.clear();
-
 			new_parameters[splithere] = item;
+
 			if (extra >= 0)
-				new_parameters[extra] = extrastuff;
+			{
+				// If we have two lists then get the next item from the second list.
+				// In case it runs out of elements then 'item' will be an empty string.
+				items2.GetToken(item);
+				new_parameters[extra] = item;
+			}
 
 			CommandObj->Handle(new_parameters, user);
-
-			dupes.insert(item.c_str());
 		}
 	}
-	return 1;
+
+	return true;
 }
 
 bool CommandParser::IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user)

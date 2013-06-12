@@ -189,7 +189,7 @@ public:
 	 */
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)
 	{
-		if (ServerInstance->Parser->LoopCall(user, this, parameters, 0))
+		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
