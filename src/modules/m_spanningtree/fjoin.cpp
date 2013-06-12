@@ -121,19 +121,38 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	/* First up, apply their modes if they won the TS war */
 	if (apply_other_sides_modes)
 	{
-		unsigned int idx = 2;
+		// Need to use a modestacker here due to maxmodes
+		irc::modestacker stack(true);
+		std::vector<std::string>::const_iterator paramit = params.begin() + 3;
+		const std::vector<std::string>::const_iterator lastparamit = ((params.size() > 3) ? (params.end() - 1) : params.end());
+		for (std::string::const_iterator i = params[2].begin(); i != params[2].end(); ++i)
+		{
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
+			if (!mh)
+				continue;
+
+			std::string modeparam;
+			if ((paramit != lastparamit) && (mh->GetNumParams(true)))
+			{
+				modeparam = *paramit;
+				++paramit;
+			}
+
+			stack.Push(*i, modeparam);
+		}
+
 		std::vector<std::string> modelist;
 
 		// Mode parser needs to know what channel to act on.
 		modelist.push_back(params[0]);
 
-		/* Remember, params[params.size() - 1] is nicklist, and we don't want to apply *that* */
-		for (idx = 2; idx != (params.size() - 1); idx++)
+		while (stack.GetStackedLine(modelist))
 		{
-			modelist.push_back(params[idx]);
+			ServerInstance->Modes->Process(modelist, srcuser, true);
+			modelist.erase(modelist.begin() + 1, modelist.end());
 		}
 
-		ServerInstance->SendMode(modelist, srcuser);
+		ServerInstance->Modes->Process(modelist, srcuser, true);
 	}
 
 	/* Now, process every 'modes,nick' pair */
