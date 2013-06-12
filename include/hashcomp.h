@@ -164,10 +164,8 @@ namespace irc
 	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;
 
 	/** irc::stringjoiner joins string lists into a string, using
-	 * the given separator string.
-	 * This class can join a vector of std::string, a deque of
-	 * std::string, or a const char* const* array, using overloaded
-	 * constructors.
+	 * space as the separator.
+	 * This class can join a vector of std::string.
 	 */
 	class CoreExport stringjoiner
 	{
@@ -179,13 +177,11 @@ namespace irc
 
 	 public:
 
-		/** Join elements of a vector, between (and including) begin and end
-		 * @param separator The string to seperate values with
-		 * @param sequence One or more items to seperate
-		 * @param begin The starting element in the sequence to be joined
-		 * @param end The ending element in the sequence to be joined
+		/** Join all elements of a vector, in the resulting string
+		 * each element will be seperated by a single space character.
+		 * @param sequence Zero or more items to seperate
 		 */
-		stringjoiner(const std::string& separator, const std::vector<std::string>& sequence, unsigned int begin, unsigned int end);
+		stringjoiner(const std::vector<std::string>& sequence);
 
 		/** Get the joined sequence
 		 * @return A constant reference to the joined string

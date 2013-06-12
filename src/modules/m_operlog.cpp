@@ -57,9 +57,7 @@ class ModuleOperLog : public Module
 			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
-				std::string line;
-				if (!parameters.empty())
-					line = irc::stringjoiner(" ", parameters, 0, parameters.size() - 1).GetJoined();
+				std::string line = irc::stringjoiner(parameters).GetJoined();
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + line;
 				ServerInstance->Logs->Log("m_operlog", LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
