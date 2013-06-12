@@ -76,7 +76,7 @@ void ModuleSpanningTree::init()
 		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
 		I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
-		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRemoteKill, I_OnRehash, I_OnPreRehash,
+		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRehash, I_OnPreRehash,
 		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
 		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
 	};
@@ -665,21 +665,6 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 	{
 		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"KICK",params);
 	}
-}
-
-void ModuleSpanningTree::OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason)
-{
-	if (!IS_LOCAL(source))
-		return; // Only start routing if we're origin.
-
-	ServerInstance->OperQuit.set(dest, operreason);
-	parameterlist params;
-	params.push_back(":"+operreason);
-	Utils->DoOneToMany(dest->uuid,"OPERQUIT",params);
-	params.clear();
-	params.push_back(dest->uuid);
-	params.push_back(":"+reason);
-	Utils->DoOneToMany(source->uuid,"KILL",params);
 }
 
 void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)

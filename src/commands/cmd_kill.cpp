@@ -28,13 +28,16 @@
  */
 class CommandKill : public Command
 {
+	std::string lastuuid;
+	std::string killreason;
+
  public:
 	/** Constructor for kill.
 	 */
 	CommandKill ( Module* parent) : Command(parent,"KILL",2,2) {
 		flags_needed = 'o';
 		syntax = "<nickname> <reason>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE3(TR_CUSTOM, TR_CUSTOM, TR_END);
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
@@ -45,10 +48,20 @@ class CommandKill : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		// local kills of remote users are routed via the OnRemoteKill hook
-		if (IS_LOCAL(user))
+		// FindNick() doesn't work here because we quit the target user in Handle() which
+		// removes it from the nicklist, so we check lastuuid: if it's empty then this KILL
+		// was for a local user, otherwise it contains the uuid of the user who was killed.
+		if (lastuuid.empty())
 			return ROUTE_LOCALONLY;
 		return ROUTE_BROADCAST;
+	}
+
+	void EncodeParameter(std::string& param, int index)
+	{
+		// Manually translate the nick -> uuid (see above), and also the reason (params[1])
+		// because we decorate it if the oper is local and want remote servers to see the
+		// decorated reason not the original.
+		param = ((index == 0) ? lastuuid : killreason);
 	}
 };
 
@@ -58,7 +71,11 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 {
 	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
 	if (CommandParser::LoopCall(user, this, parameters, 0))
-		return CMD_SUCCESS;
+	{
+		// If we got a colon delimited list of nicks then the handler ran for each nick,
+		// and KILL commands were broadcast for remote targets.
+		return CMD_FAILURE;
+	}
 
 	User *u = ServerInstance->FindNick(parameters[0]);
 	if ((u) && (!IS_SERVER(u)))
@@ -71,7 +88,6 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		 * just gets processed and passed on, otherwise, if they are local, it gets prefixed. Makes sense :-) -- w00t
 		 */
 
-		std::string killreason;
 		if (IS_LOCAL(user))
 		{
 			/*
@@ -112,7 +128,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		{
 			// remote kill
 			ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-			FOREACH_MOD(I_OnRemoteKill, OnRemoteKill(user, u, killreason, killreason));
+			this->lastuuid = u->uuid;
 		}
 		else
 		{
@@ -138,6 +154,8 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 						ServerInstance->Config->HideKillsServer.empty() ? user->nick.c_str() : ServerInstance->Config->HideKillsServer.c_str(),
 						parameters[1].c_str());
 			}
+
+			this->lastuuid.clear();
 		}
 
 		// send the quit out

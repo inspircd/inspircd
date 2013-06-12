@@ -125,7 +125,6 @@ ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, con
 void		Module::OnGlobalOper(User*) { }
 void		Module::OnPostConnect(User*) { }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { }
-void 		Module::OnRemoteKill(User*, User*, const std::string&, const std::string&) { }
 void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { }
 void		Module::OnGetServerDescription(const std::string&, std::string&) { }

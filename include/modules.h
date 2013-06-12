@@ -328,7 +328,7 @@ enum Implementation
 	I_OnUserMessage, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
 	I_OnSyncChannel, I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
-	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnRemoteKill, I_OnLoadModule,
+	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
@@ -860,14 +860,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return 1 to prevent the kill, 0 to allow
 	 */
 	virtual ModResult OnKill(User* source, User* dest, const std::string &reason);
-
-	/** Called when an oper wants to disconnect a remote user via KILL
-	 * @param source The user sending the KILL
-	 * @param dest The user being killed
-	 * @param reason The kill reason
-	 * @param operreason The oper kill reason
-	 */
-	virtual void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason);
 
 	/** Called whenever a module is loaded.
 	 * mod will contain a pointer to the module, and string will contain its name,

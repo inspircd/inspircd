@@ -129,7 +129,6 @@ static void checkall(Module* noimpl)
 	CHK(OnPreMode);
 	CHK(On005Numeric);
 	CHK(OnKill);
-	CHK(OnRemoteKill);
 	CHK(OnLoadModule);
 	CHK(OnUnloadModule);
 	CHK(OnBackgroundTimer);

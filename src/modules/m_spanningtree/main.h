@@ -157,7 +157,6 @@ class ModuleSpanningTree : public Module
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE;
 	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE;
 	void OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts) CXX11_OVERRIDE;
-	void OnRemoteKill(User* source, User* dest, const std::string &reason, const std::string &operreason) CXX11_OVERRIDE;
 	void OnPreRehash(User* user, const std::string &parameter) CXX11_OVERRIDE;
 	void OnRehash(User* user) CXX11_OVERRIDE;
 	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE;
