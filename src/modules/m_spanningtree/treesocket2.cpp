@@ -303,13 +303,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		return;
 	}
 
-	/*
-	 * First up, check for any malformed commands (e.g. MODE without a timestamp)
-	 * and rewrite commands where necessary (SVSMODE -> MODE for services). -- w
-	 */
-	if (command == "SVSMODE") // This isn't in an "else if" so we still force FMODE for changes on channels.
-		command = "MODE";
-
+	// Translate commands coming from servers using an older protocol
 	if (proto_version < ProtocolVersion)
 	{
 		if (!PreProcessOldProtocolMessage(who, command, params))

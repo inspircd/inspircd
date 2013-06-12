@@ -178,7 +178,7 @@ namespace
 
 bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std::vector<std::string>& params)
 {
-	if ((cmd == "METADATA") && (params.size() >= 3))
+	if ((cmd == "METADATA") && (params.size() >= 3) && (params[0][0] == '#'))
 	{
 		// :20D METADATA #channel extname :extdata
 		return InsertCurrentChannelTS(params);
@@ -241,6 +241,10 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 			cmd = "DELLINE";
 
 		params.swap(p);
+	}
+	else if (cmd == "SVSMODE")
+	{
+		cmd = "MODE";
 	}
 
 	return true; // Passthru
