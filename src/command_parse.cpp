@@ -44,7 +44,7 @@ int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::st
 	return (data != input); // this seems back to front, but returns 0 if they *match*, 1 else
 }
 
-bool CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
+bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
 {
 	if (splithere >= parameters.size())
 		return false;
@@ -73,6 +73,7 @@ bool CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<
 	irc::commasepstream items2(extra >= 0 ? parameters[extra] : "", true);
 	std::string item;
 	unsigned int max = 0;
+	LocalUser* localuser = IS_LOCAL(user);
 
 	/* Attempt to iterate these lists and call the command handler
 	 * for every parameter or parameter pair until there are no more
@@ -93,7 +94,14 @@ bool CommandParser::LoopCall(User* user, Command* CommandObj, const std::vector<
 				new_parameters[extra] = item;
 			}
 
-			CommandObj->Handle(new_parameters, user);
+			CmdResult result = handler->Handle(new_parameters, user);
+			if (localuser)
+			{
+				// Run the OnPostCommand hook with the last parameter (original line) being empty
+				// to indicate that the command had more targets in its original form.
+				item.clear();
+				FOREACH_MOD(I_OnPostCommand, OnPostCommand(handler, new_parameters, localuser, result, item));
+			}
 		}
 	}
 
