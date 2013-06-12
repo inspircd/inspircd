@@ -933,7 +933,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param result The return code given by the command handler, one of CMD_SUCCESS or CMD_FAILURE
 	 * @param original_line The entire original line as passed to the parser from the user
 	 */
-	virtual void OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line);
+	virtual void OnPostCommand(Command* command, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line);
 
 	/** Called when a user is first connecting, prior to starting DNS lookups, checking initial
 	 * connect class, or accepting any commands.

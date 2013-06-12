@@ -339,7 +339,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 */
 		CmdResult result = handler->Handle(command_p, user);
 
-		FOREACH_MOD(I_OnPostCommand,OnPostCommand(command, command_p, user, result,cmd));
+		FOREACH_MOD(I_OnPostCommand, OnPostCommand(handler, command_p, user, result, cmd));
 	}
 }
 

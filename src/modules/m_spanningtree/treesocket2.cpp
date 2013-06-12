@@ -464,7 +464,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			}
 		}
 		who->ForceNickChange(params[0]);
-		Utils->RouteCommand(route_back_again, command, params, who);
+		Utils->DoOneToAllButSender(prefix, command, params, prefix);
 	}
 	else
 	{
@@ -506,7 +506,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
 		}
 		else if (res == CMD_SUCCESS)
-			Utils->RouteCommand(route_back_again, command, params, who);
+			Utils->RouteCommand(route_back_again, cmd, params, who);
 	}
 }
 

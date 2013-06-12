@@ -25,20 +25,15 @@
 
 /* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h */
 
-void ModuleSpanningTree::OnPostCommand(const std::string &command, const std::vector<std::string>& parameters, LocalUser *user, CmdResult result, const std::string &original_line)
+void ModuleSpanningTree::OnPostCommand(Command* command, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line)
 {
 	if (result == CMD_SUCCESS)
 		Utils->RouteCommand(NULL, command, parameters, user);
 }
 
-void SpanningTreeUtilities::RouteCommand(TreeServer* origin, const std::string &command, const parameterlist& parameters, User *user)
+void SpanningTreeUtilities::RouteCommand(TreeServer* origin, Command* thiscmd, const parameterlist& parameters, User* user)
 {
-	if (!ServerInstance->Parser->IsValidCommand(command, parameters.size(), user))
-		return;
-
-	/* We know it's non-null because IsValidCommand returned true */
-	Command* thiscmd = ServerInstance->Parser->GetHandler(command);
-
+	const std::string& command = thiscmd->name;
 	RouteDescriptor routing = thiscmd->GetRouting(user, parameters);
 
 	std::string sent_cmd = command;
