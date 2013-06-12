@@ -244,9 +244,6 @@ class ModuleBanRedirect : public Module
 			if(redirects)
 			{
 				irc::modestacker modestack(false);
-				std::vector<std::string> stackresult;
-				std::vector<std::string> mode_junk;
-				mode_junk.push_back(chan->name);
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
 				{
@@ -259,11 +256,12 @@ class ModuleBanRedirect : public Module
 					modestack.Push('b', i->banmask);
 				}
 
-				while(modestack.GetStackedLine(stackresult))
+				std::vector<std::string> stackresult;
+				stackresult.push_back(chan->name);
+				while (modestack.GetStackedLine(stackresult))
 				{
-					mode_junk.insert(mode_junk.end(), stackresult.begin(), stackresult.end());
-					ServerInstance->SendMode(mode_junk, ServerInstance->FakeClient);
-					mode_junk.erase(mode_junk.begin() + 1, mode_junk.end());
+					ServerInstance->Modes->Process(stackresult, ServerInstance->FakeClient);
+					stackresult.erase(stackresult.begin() + 1, stackresult.end());
 				}
 			}
 		}
