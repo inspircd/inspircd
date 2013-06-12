@@ -21,24 +21,26 @@
 
 #include "inspircd.h"
 
-/** Handle /PRIVMSG. These command handlers can be reloaded by the core,
- * and handle basic RFC1459 commands. Commands within modules work
- * the same way, however, they can be fully unloaded, where these
- * may not.
- */
-class CommandPrivmsg : public Command
+namespace
+{
+	const char* MessageTypeString[] = { "PRIVMSG", "NOTICE" };
+}
+
+class MessageCommandBase : public Command
 {
  public:
-	/** Constructor for privmsg.
-	 */
-	CommandPrivmsg ( Module* parent) : Command(parent,"PRIVMSG",2,2) { syntax = "<target>{,<target>} <message>"; }
+	MessageCommandBase(Module* parent, MessageType mt)
+		: Command(parent, MessageTypeString[mt], 2, 2)
+	{
+		syntax = "<target>{,<target>} <message>";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
-	 * @param pcnt The number of parameters passed to teh command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleMessage(const std::vector<std::string>& parameters, User* user, MessageType mt);
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
@@ -50,7 +52,7 @@ class CommandPrivmsg : public Command
 	}
 };
 
-CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& parameters, User* user, MessageType mt)
 {
 	User *dest;
 	Channel *chan;
@@ -70,7 +72,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 
 		ModResult MOD_RESULT;
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list, MSG_PRIVMSG));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, (void*)parameters[0].c_str(), TYPE_SERVER, temp, 0, except_list, mt));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
@@ -80,9 +82,9 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		FOREACH_MOD(I_OnText,OnText(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servermask, NULL))
 		{
-			user->SendAll("PRIVMSG", "%s", text);
+			user->SendAll(MessageTypeString[mt], "%s", text);
 		}
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list, MSG_PRIVMSG));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list, mt));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
@@ -127,7 +129,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			ModResult MOD_RESULT;
 
 			std::string temp = parameters[1];
-			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, chan, TYPE_CHANNEL, temp, status, except_list, MSG_PRIVMSG));
+			FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, chan, TYPE_CHANNEL, temp, status, except_list, mt));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 
@@ -146,19 +148,19 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			{
 				if (ServerInstance->Config->UndernetMsgPrefix)
 				{
-					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%c %s", status, chan->name.c_str(), status, text);
+					chan->WriteAllExcept(user, false, status, except_list, "%s %c%s :%c %s", MessageTypeString[mt], status, chan->name.c_str(), status, text);
 				}
 				else
 				{
-					chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %c%s :%s", status, chan->name.c_str(), text);
+					chan->WriteAllExcept(user, false, status, except_list, "%s %c%s :%s", MessageTypeString[mt], status, chan->name.c_str(), text);
 				}
 			}
 			else
 			{
-				chan->WriteAllExcept(user, false, status, except_list, "PRIVMSG %s :%s", chan->name.c_str(), text);
+				chan->WriteAllExcept(user, false, status, except_list, "%s %s :%s", MessageTypeString[mt], chan->name.c_str(), text);
 			}
 
-			FOREACH_MOD(I_OnUserMessage, OnUserMessage(user,chan, TYPE_CHANNEL, text, status, except_list, MSG_PRIVMSG));
+			FOREACH_MOD(I_OnUserMessage, OnUserMessage(user,chan, TYPE_CHANNEL, text, status, except_list, mt));
 		}
 		else
 		{
@@ -202,7 +204,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 			return CMD_FAILURE;
 		}
 
-		if (dest->IsAway())
+		if ((dest->IsAway()) && (mt == MSG_PRIVMSG))
 		{
 			/* auto respond with aweh msg */
 			user->WriteNumeric(301, "%s %s :%s", user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
@@ -211,7 +213,7 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		ModResult MOD_RESULT;
 
 		std::string temp = parameters[1];
-		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list, MSG_PRIVMSG));
+		FIRST_MOD_RESULT(OnUserPreMessage, MOD_RESULT, (user, dest, TYPE_USER, temp, 0, except_list, mt));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return CMD_FAILURE;
 
@@ -222,10 +224,10 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
-			user->WriteTo(dest, "PRIVMSG %s :%s", dest->nick.c_str(), text);
+			user->WriteTo(dest, "%s %s :%s", MessageTypeString[mt], dest->nick.c_str(), text);
 		}
 
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, dest, TYPE_USER, text, 0, except_list, MSG_PRIVMSG));
+		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, dest, TYPE_USER, text, 0, except_list, mt));
 	}
 	else
 	{
@@ -236,4 +238,42 @@ CmdResult CommandPrivmsg::Handle (const std::vector<std::string>& parameters, Us
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandPrivmsg)
+template<MessageType MT>
+class CommandMessage : public MessageCommandBase
+{
+ public:
+	CommandMessage(Module* parent)
+		: MessageCommandBase(parent, MT)
+	{
+	}
+
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
+	{
+		return HandleMessage(parameters, user, MT);
+	}
+};
+
+class ModuleCoreMessage : public Module
+{
+	CommandMessage<MSG_PRIVMSG> CommandPrivmsg;
+	CommandMessage<MSG_NOTICE> CommandNotice;
+
+ public:
+	ModuleCoreMessage()
+		: CommandPrivmsg(this), CommandNotice(this)
+	{
+	}
+
+	void init()
+	{
+		ServerInstance->Modules->AddService(CommandPrivmsg);
+		ServerInstance->Modules->AddService(CommandNotice);
+	}
+
+	Version GetVersion()
+	{
+		return Version("PRIVMSG, NOTICE", VF_CORE|VF_VENDOR);
+	}
+};
+
+MODULE_INIT(ModuleCoreMessage)
