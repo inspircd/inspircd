@@ -62,12 +62,20 @@ struct CallerIDExtInfo : public ExtensionItem
 
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const
 	{
-		callerid_data* dat = static_cast<callerid_data*>(item);
-		return dat->ToString(format);
+		std::string ret;
+		if (format != FORMAT_NETWORK)
+		{
+			callerid_data* dat = static_cast<callerid_data*>(item);
+			ret = dat->ToString(format);
+		}
+		return ret;
 	}
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
+		if (format == FORMAT_NETWORK)
+			return;
+
 		callerid_data* dat = new callerid_data;
 		irc::commasepstream s(value);
 		std::string tok;
@@ -76,9 +84,6 @@ struct CallerIDExtInfo : public ExtensionItem
 
 		while (s.GetToken(tok))
 		{
-			if (tok.empty())
-				continue;
-
 			User *u = ServerInstance->FindNick(tok);
 			if ((u) && (u->registered == REG_ALL) && (!u->quitting) && (!IS_SERVER(u)))
 			{
@@ -139,6 +144,23 @@ public:
 
 class CommandAccept : public Command
 {
+	/** Pair: first is the target, second is true to add, false to remove
+	 */
+	typedef std::pair<User*, bool> ACCEPTAction;
+
+	ACCEPTAction GetTargetAndAction(std::string& tok)
+	{
+		bool remove = (tok[0] == '-');
+		if ((remove) || (tok[0] == '+'))
+			tok.erase(tok.begin());
+
+		User* target = ServerInstance->FindNick(tok);
+		if ((!target) || (target->registered != REG_ALL) || (target->quitting) || (IS_SERVER(target)))
+			target = NULL;
+
+		return std::make_pair(target, !remove);
+	}
+
 public:
 	CallerIDExtInfo extInfo;
 	unsigned int maxaccepts;
@@ -152,34 +174,16 @@ public:
 
 	void EncodeParameter(std::string& parameter, int index)
 	{
-		if (index != 0)
+		// Send lists as-is (part of 2.0 compat)
+		if (parameter.find(',') != std::string::npos)
 			return;
-		std::string out;
-		irc::commasepstream nicks(parameter);
-		std::string tok;
-		while (nicks.GetToken(tok))
-		{
-			if (tok == "*")
-			{
-				continue; // Drop list requests, since remote servers ignore them anyway.
-			}
-			if (!out.empty())
-				out.append(",");
-			bool dash = false;
-			if (tok[0] == '-')
-			{
-				dash = true;
-				tok.erase(0, 1); // Remove the dash.
-			}
-			User* u = ServerInstance->FindNick(tok);
-			if ((!u) || (u->registered != REG_ALL) || (u->quitting) || (IS_SERVER(u)))
-				continue;
 
-			if (dash)
-				out.append("-");
-			out.append(u->uuid);
-		}
-		parameter = out;
+		// Convert a [+|-]<nick> into a [-]<uuid>
+		ACCEPTAction action = GetTargetAndAction(parameter);
+		if (!action.first)
+			return;
+
+		parameter = (action.second ? "" : "-") + action.first->uuid;
 	}
 
 	/** Will take any number of nicks (up to MaxTargets), which can be seperated by commas.
@@ -191,41 +195,56 @@ public:
 	{
 		if (CommandParser::LoopCall(user, this, parameters, 0))
 			return CMD_SUCCESS;
+
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
 
-		std::string tok = parameters[0];
-
-		if (tok == "*")
+		if (parameters[0] == "*")
 		{
-			if (IS_LOCAL(user))
-				ListAccept(user);
+			ListAccept(user);
 			return CMD_SUCCESS;
 		}
-		else if (tok[0] == '-')
+
+		std::string tok = parameters[0];
+		ACCEPTAction action = GetTargetAndAction(tok);
+		if (!action.first)
 		{
-			User* whotoremove = ServerInstance->FindNick(tok.substr(1));
-			if (whotoremove)
-				return (RemoveAccept(user, whotoremove) ? CMD_SUCCESS : CMD_FAILURE);
-			else
-				return CMD_FAILURE;
+			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
+			return CMD_FAILURE;
 		}
+
+		if ((!IS_LOCAL(user)) && (!IS_LOCAL(action.first)))
+			// Neither source nor target is local, forward the command to the server of target
+			return CMD_SUCCESS;
+
+		// The second item in the pair is true if the first char is a '+' (or nothing), false if it's a '-'
+		if (action.second)
+			return (AddAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
 		else
-		{
-			User* whotoadd = ServerInstance->FindNick(tok[0] == '+' ? tok.substr(1) : tok);
-			if ((whotoadd) && (whotoadd->registered == REG_ALL) && (!whotoadd->quitting) && (!IS_SERVER(whotoadd)))
-				return (AddAccept(user, whotoadd) ? CMD_SUCCESS : CMD_FAILURE);
-			else
-			{
-				user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
-				return CMD_FAILURE;
-			}
-		}
+			return (RemoveAccept(user, action.first) ? CMD_SUCCESS : CMD_FAILURE);
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		// There is a list in parameters[0] in two cases:
+		// Either when the source is remote, this happens because 2.0 servers send comma seperated uuid lists,
+		// we don't split those but broadcast them, as before.
+		//
+		// Or if the source is local then LoopCall() runs OnPostCommand() after each entry in the list,
+		// meaning the linking module has sent an ACCEPT already for each entry in the list to the
+		// appropiate server and the ACCEPT with the list of nicks (this) doesn't need to be sent anywhere.
+		if ((!IS_LOCAL(user)) && (parameters[0].find(',') != std::string::npos))
+			return ROUTE_BROADCAST;
+
+		// Find the target
+		std::string targetstring = parameters[0];
+		ACCEPTAction action = GetTargetAndAction(targetstring);
+		if (!action.first)
+			// Target is a "*" or source is local and the target is a list of nicks
+			return ROUTE_LOCALONLY;
+
+		// Route to the server of the target
+		return ROUTE_UNICAST(action.first->server);
 	}
 
 	void ListAccept(User* user)
