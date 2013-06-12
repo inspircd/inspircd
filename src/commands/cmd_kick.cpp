@@ -38,6 +38,10 @@ class CommandKick : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
+	{
+		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+	}
 };
 
 /** Handle /KICK
