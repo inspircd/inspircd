@@ -219,6 +219,29 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 			params[0] = server->GetID();
 		}
 	}
+	else if ((cmd == "GLINE") || (cmd == "KLINE") || (cmd == "ELINE") || (cmd == "ZLINE") || (cmd == "QLINE"))
+	{
+		// Fix undocumented protocol usage: translate GLINE, ZLINE, etc. into ADDLINE or DELLINE
+		if ((params.size() != 1) && (params.size() != 3))
+			return false;
+
+		parameterlist p;
+		p.push_back(cmd.substr(0, 1));
+		p.push_back(params[0]);
+
+		if (params.size() == 3)
+		{
+			cmd = "ADDLINE";
+			p.push_back(who->nick);
+			p.push_back(ConvToStr(ServerInstance->Time()));
+			p.push_back(ConvToStr(InspIRCd::Duration(params[1])));
+			p.push_back(params[2]);
+		}
+		else
+			cmd = "DELLINE";
+
+		params.swap(p);
+	}
 
 	return true; // Passthru
 }
