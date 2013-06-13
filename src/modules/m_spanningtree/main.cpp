@@ -812,9 +812,7 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const parameterlist &modeline, const std::vector<TranslateType> &translate)
 {
 	TreeSocket* s = (TreeSocket*)opaque;
-	std::string output_text;
-
-	ServerInstance->Parser->TranslateUIDs(translate, modeline, output_text);
+	std::string output_text = CommandParser::TranslateUIDs(translate, modeline);
 
 	if (target)
 	{

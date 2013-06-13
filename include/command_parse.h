@@ -135,23 +135,22 @@ class CoreExport CommandParser
 	 */
 	void RemoveCommand(Command* x);
 
-	/** Translate nicknames in a string into UIDs, based on the TranslationType given.
-	 * @param to The translation type to use for the process.
-	 * @param source The input string
-	 * @param dest The output string, it is safe to pass source and dest as the same variable only for translation type TR_TEXT.
-	 * @return returns the number of substitutions made. Will always be 0 or 1
+	/** Translate a single item based on the TranslationType given.
+	 * @param to The translation type to use for the process
+	 * @param item The input string
+	 * @param dest The output string. The translation result will be appended to this string
+	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
 	 */
-	int TranslateUIDs(TranslateType to, const std::string &source, std::string &dest);
+	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, Command* custom_translator = NULL, unsigned int paramnumber = 0);
 
 	/** Translate nicknames in a list of strings into UIDs, based on the TranslateTypes given.
 	 * @param to The translation types to use for the process. If this list is too short, TR_TEXT is assumed for the rest.
 	 * @param source The strings to translate
-	 * @param dest The output string
 	 * @param prefix_final True if the final source argument should have a colon prepended (if it could contain a space)
-	 * @param custom_translator Used to translate the parameter if the TR_CUSTOM type is found in to
-	 * @return returns the number of substitutions made.
+	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
+	 * @return dest The output string
 	 */
-	int TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final = false, Command* custom_translator = NULL);
+	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final = false, Command* custom_translator = NULL);
 };
 
 /** A lookup table of values for multiplier characters used by

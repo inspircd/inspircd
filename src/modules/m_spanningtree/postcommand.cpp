@@ -75,8 +75,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, Command* thiscmd, c
 		}
 	}
 
-	std::string output_text;
-	ServerInstance->Parser->TranslateUIDs(thiscmd->translation, parameters, output_text, true, thiscmd);
+	std::string output_text = CommandParser::TranslateUIDs(thiscmd->translation, parameters, true, thiscmd);
 
 	params.push_back(output_text);
 

@@ -104,12 +104,9 @@ void SpanningTreeProtocolInterface::SendMode(User* source, User* u, Channel* c, 
 	}
 	else
 	{
-		std::string output_text;
-		ServerInstance->Parser->TranslateUIDs(translate, modedata, output_text);
-
 		params.push_back(c->name);
 		params.push_back(ConvToStr(c->age));
-		params.push_back(output_text);
+		params.push_back(CommandParser::TranslateUIDs(translate, modedata));
 		Utils->DoOneToMany(source->uuid, "FMODE", params);
 	}
 }

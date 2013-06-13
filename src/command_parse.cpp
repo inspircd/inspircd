@@ -381,88 +381,65 @@ CommandParser::CommandParser()
 {
 }
 
-int CommandParser::TranslateUIDs(const std::vector<TranslateType> to, const std::vector<std::string> &source, std::string &dest, bool prefix_final, Command* custom_translator)
+std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final, Command* custom_translator)
 {
 	std::vector<TranslateType>::const_iterator types = to.begin();
-	User* user = NULL;
-	unsigned int i;
-	int translations = 0;
-	dest.clear();
+	std::string dest;
 
-	for(i=0; i < source.size(); i++)
+	for (unsigned int i = 0; i < source.size(); i++)
 	{
-		TranslateType t;
-		std::string item = source[i];
-
-		if (types == to.end())
-			t = TR_TEXT;
-		else
+		TranslateType t = TR_TEXT;
+		// They might supply less translation types than parameters,
+		// in that case pretend that all remaining types are TR_TEXT
+		if (types != to.end())
 		{
 			t = *types;
 			types++;
 		}
 
-		if (prefix_final && i == source.size() - 1)
-			dest.append(":");
+		bool last = (i == (source.size() - 1));
+		if (prefix_final && last)
+			dest.push_back(':');
 
-		switch (t)
-		{
-			case TR_NICK:
-				/* Translate single nickname */
-				user = ServerInstance->FindNick(item);
-				if (user)
-				{
-					dest.append(user->uuid);
-					translations++;
-				}
-				else
-					dest.append(item);
-			break;
-			case TR_CUSTOM:
-				if (custom_translator)
-					custom_translator->EncodeParameter(item, i);
-				dest.append(item);
-			break;
-			case TR_END:
-			case TR_TEXT:
-			default:
-				/* Do nothing */
-				dest.append(item);
-			break;
-		}
-		if (i != source.size() - 1)
-			dest.append(" ");
+		TranslateSingleParam(t, source[i], dest, custom_translator, i);
+
+		if (!last)
+			dest.push_back(' ');
 	}
 
-	return translations;
+	return dest;
 }
 
-int CommandParser::TranslateUIDs(TranslateType to, const std::string &source, std::string &dest)
+void CommandParser::TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, Command* custom_translator, unsigned int paramnumber)
 {
-	User* user = NULL;
-	int translations = 0;
-	dest.clear();
-
 	switch (to)
 	{
 		case TR_NICK:
+		{
 			/* Translate single nickname */
-			user = ServerInstance->FindNick(source);
+			User* user = ServerInstance->FindNick(item);
 			if (user)
-			{
-				dest = user->uuid;
-				translations++;
-			}
+				dest.append(user->uuid);
 			else
-				dest = source;
-		break;
+				dest.append(item);
+			break;
+		}
+		case TR_CUSTOM:
+		{
+			if (custom_translator)
+			{
+				std::string translated = item;
+				custom_translator->EncodeParameter(translated, paramnumber);
+				dest.append(translated);
+				break;
+			}
+			// If no custom translator was given, fall through
+		}
 		case TR_END:
 		case TR_TEXT:
 		default:
 			/* Do nothing */
-			dest = source;
+			dest.append(item);
 		break;
 	}
-
-	return translations;
 }
