@@ -115,7 +115,6 @@ class NickFlood : public ModeHandler
 
 			ext.set(channel, new nickfloodsettings(nsecs, nnicks));
 			parameter = ConvToStr(nnicks) + ":" + ConvToStr(nsecs);
-			channel->SetModeParam('F', parameter);
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -124,7 +123,6 @@ class NickFlood : public ModeHandler
 				return MODEACTION_DENY;
 
 			ext.unset(channel);
-			channel->SetModeParam('F', "");
 			return MODEACTION_ALLOW;
 		}
 	}

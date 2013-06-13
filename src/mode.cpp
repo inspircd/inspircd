@@ -134,10 +134,6 @@ ModeAction ParamChannelModeHandler::OnModeChange(User* source, User* dest, Chann
 	std::string now = channel->GetModeParameter(this);
 	if (parameter == now)
 		return MODEACTION_DENY;
-	if (adding)
-		channel->SetModeParam(this, parameter);
-	else
-		channel->SetModeParam(this, "");
 	return MODEACTION_ALLOW;
 }
 
@@ -319,6 +315,9 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	if (ma != MODEACTION_ALLOW)
 		return ma;
+
+	if ((!mh->IsListMode()) && (mh->GetNumParams(true)) && (chan))
+		chan->SetModeParam(mh, (adding ? parameter : ""));
 
 	itpair = modewatchermap.equal_range(mh->name);
 	for (ModeWatchIter i = itpair.first; i != itpair.second; ++i)

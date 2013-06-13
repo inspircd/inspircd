@@ -56,7 +56,6 @@ class KickRejoin : public ModeHandler
 				v = max;
 
 			parameter = ConvToStr(v);
-			channel->SetModeParam(this, parameter);
 		}
 		else
 		{
@@ -64,7 +63,6 @@ class KickRejoin : public ModeHandler
 				return MODEACTION_DENY;
 
 			ext.unset(channel);
-			channel->SetModeParam(this, "");
 		}
 		return MODEACTION_ALLOW;
 	}

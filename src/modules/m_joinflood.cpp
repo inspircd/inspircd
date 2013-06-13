@@ -119,7 +119,6 @@ class JoinFlood : public ModeHandler
 
 			ext.set(channel, jfs);
 			parameter = ConvToStr(njoins) + ":" + ConvToStr(nsecs);
-			channel->SetModeParam(this, parameter);
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -131,7 +130,6 @@ class JoinFlood : public ModeHandler
 			if (f)
 			{
 				ext.unset(channel);
-				channel->SetModeParam(this, "");
 				return MODEACTION_ALLOW;
 			}
 		}

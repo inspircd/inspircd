@@ -87,7 +87,6 @@ ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel
 		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
 			jointime.set(n->second, 0);
 	}
-	channel->SetModeParam('d', adding ? parameter : "");
 	return MODEACTION_ALLOW;
 }
 

@@ -102,7 +102,6 @@ class MsgFlood : public ModeHandler
 
 			ext.set(channel, new floodsettings(ban, nsecs, nlines));
 			parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
-			channel->SetModeParam('f', parameter);
 			return MODEACTION_ALLOW;
 		}
 		else
@@ -111,7 +110,6 @@ class MsgFlood : public ModeHandler
 				return MODEACTION_DENY;
 
 			ext.unset(channel);
-			channel->SetModeParam('f', "");
 			return MODEACTION_ALLOW;
 		}
 	}

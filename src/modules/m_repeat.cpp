@@ -131,7 +131,6 @@ class RepeatMode : public ModeHandler
 				MemberInfoExt.unset(i->second);
 
 			ChanSet.unset(channel);
-			channel->SetModeParam(this, "");
 			return MODEACTION_ALLOW;
 		}
 
@@ -156,7 +155,6 @@ class RepeatMode : public ModeHandler
 			return MODEACTION_DENY;
 
 		ChanSet.set(channel, settings);
-		channel->SetModeParam(this, parameter);
 
 		return MODEACTION_ALLOW;
 	}

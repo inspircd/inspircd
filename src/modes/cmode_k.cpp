@@ -50,23 +50,8 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 		}
 	}
 
-	/* invalid keys */
-	if (!parameter.length())
-		return MODEACTION_DENY;
-
-	if (parameter.rfind(' ') != std::string::npos)
-		return MODEACTION_DENY;
-
 	if (adding)
-	{
-		std::string ckey;
-		ckey.assign(parameter, 0, 32);
-		parameter = ckey;
-		channel->SetModeParam('k', parameter);
-	}
-	else
-	{
-		channel->SetModeParam('k', "");
-	}
+		parameter = parameter.substr(0, 32);
+
 	return MODEACTION_ALLOW;
 }

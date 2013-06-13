@@ -94,14 +94,12 @@ class HistoryMode : public ModeHandler
 			{
 				ext.set(channel, new HistoryList(len, time));
 			}
-			channel->SetModeParam('H', parameter);
 		}
 		else
 		{
 			if (!channel->IsModeSet('H'))
 				return MODEACTION_DENY;
 			ext.unset(channel);
-			channel->SetModeParam('H', "");
 		}
 		return MODEACTION_ALLOW;
 	}
