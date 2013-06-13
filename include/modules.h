@@ -667,16 +667,17 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list);
 
 	/** Called after every MODE command sent from a user
-	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
-	 * if target_type is TYPE_CHANNEL. The text variable contains the remainder of the
-	 * mode string after the target, e.g. "+wsi" or "+ooo nick1 nick2 nick3".
+	 * Either the usertarget or the chantarget variable contains the target of the modes,
+	 * the actual target will have a non-NULL pointer.
+	 * The modes vector contains the remainder of the mode string after the target,
+	 * e.g.: "+wsi" or ["+ooo", "nick1", "nick2", "nick3"].
 	 * @param user The user sending the MODEs
-	 * @param dest The target of the modes (User* or Channel*)
-	 * @param target_type The type of target (TYPE_USER or TYPE_CHANNEL)
-	 * @param text The actual modes and their parameters if any
+	 * @param usertarget The target user of the modes, NULL if the target is a channel
+	 * @param chantarget The target channel of the modes, NULL if the target is a user
+	 * @param modes The actual modes and their parameters if any
 	 * @param translate The translation types of the mode parameters
 	 */
-	virtual void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate);
+	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const std::vector<std::string>& modes, const std::vector<TranslateType>& translate);
 
 	/** Allows modules to alter or create server descriptions
 	 * Whenever a module requires a server description, for example for display in

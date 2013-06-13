@@ -469,15 +469,11 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			ServerInstance->PI->SendMode(user, targetuser, targetchannel, LastParseParams, LastParseTranslate);
 
 		if (targetchannel)
-		{
-			targetchannel->WriteChannel(user, "MODE %s", LastParse.c_str());
-			FOREACH_MOD(I_OnMode,OnMode(user, targetchannel, TYPE_CHANNEL, LastParseParams, LastParseTranslate));
-		}
+			targetchannel->WriteChannel(user, "MODE " + LastParse);
 		else
-		{
-			targetuser->WriteFrom(user, "MODE %s", LastParse.c_str());
-			FOREACH_MOD(I_OnMode,OnMode(user, targetuser, TYPE_USER, LastParseParams, LastParseTranslate));
-		}
+			targetuser->WriteFrom(user, "MODE " + LastParse);
+
+		FOREACH_MOD(I_OnMode,OnMode(user, targetuser, targetchannel, LastParseParams, LastParseTranslate));
 	}
 	else if (targetchannel && parameters.size() == 2)
 	{
