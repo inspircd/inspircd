@@ -35,7 +35,6 @@ class CommandGloadmodule : public Command
 	{
 		flags_needed = 'o';
 		syntax = "<modulename> [servermask]";
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

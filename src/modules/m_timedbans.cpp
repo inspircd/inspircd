@@ -45,7 +45,6 @@ class CommandTban : public Command
 	CommandTban(Module* Creator) : Command(Creator,"TBAN", 3)
 	{
 		syntax = "<channel> <duration> <banmask>";
-		TRANSLATE4(TR_TEXT, TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

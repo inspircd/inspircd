@@ -169,7 +169,7 @@ public:
 	{
 		allow_empty_last_param = false;
 		syntax = "{[+|-]<nicks>}|*}";
-		TRANSLATE2(TR_CUSTOM, TR_END);
+		TRANSLATE1(TR_CUSTOM);
 	}
 
 	void EncodeParameter(std::string& parameter, int index)

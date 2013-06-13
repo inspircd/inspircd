@@ -29,7 +29,6 @@ class CommandAlltime : public Command
 	CommandAlltime(Module* Creator) : Command(Creator, "ALLTIME", 0)
 	{
 		flags_needed = 'o';
-		translation.push_back(TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)

@@ -88,7 +88,6 @@ class CommandCBan : public Command
 	CommandCBan(Module* Creator) : Command(Creator, "CBAN", 1, 3)
 	{
 		flags_needed = 'o'; this->syntax = "<channel> [<duration> :<reason>]";
-		TRANSLATE4(TR_TEXT,TR_TEXT,TR_TEXT,TR_END);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)

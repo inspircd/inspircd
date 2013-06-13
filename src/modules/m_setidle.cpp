@@ -31,7 +31,6 @@ class CommandSetidle : public SplitCommand
 	CommandSetidle(Module* Creator) : SplitCommand(Creator,"SETIDLE", 1)
 	{
 		flags_needed = 'o'; syntax = "<duration>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)

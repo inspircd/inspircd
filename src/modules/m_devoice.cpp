@@ -36,7 +36,6 @@ class CommandDevoice : public Command
 	CommandDevoice(Module* Creator) : Command(Creator,"DEVOICE", 1)
 	{
 		syntax = "<channel>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

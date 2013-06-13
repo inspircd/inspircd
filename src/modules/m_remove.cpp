@@ -148,7 +148,7 @@ class CommandRemove : public RemoveBase
 		: RemoveBase(Creator, snk, "REMOVE")
 	{
 		syntax = "<nick> <channel> [<reason>]";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -174,7 +174,7 @@ class CommandFpart : public RemoveBase
 		: RemoveBase(Creator, snk, "FPART")
 	{
 		syntax = "<channel> <nick> [<reason>]";
-		TRANSLATE4(TR_TEXT, TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

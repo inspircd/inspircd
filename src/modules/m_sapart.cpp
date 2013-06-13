@@ -31,7 +31,7 @@ class CommandSapart : public Command
 	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel> [reason]";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END);
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

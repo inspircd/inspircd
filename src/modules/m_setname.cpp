@@ -32,7 +32,6 @@ class CommandSetname : public Command
 	{
 		allow_empty_last_param = false;
 		syntax = "<new-gecos>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

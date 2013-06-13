@@ -30,7 +30,7 @@ class CommandSakick : public Command
 	CommandSakick(Module* Creator) : Command(Creator,"SAKICK", 2, 3)
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<channel> <nick> [reason]";
-		TRANSLATE4(TR_TEXT, TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

@@ -34,7 +34,6 @@ class CommandKnock : public Command
 	{
 		syntax = "<channel> <reason>";
 		Penalty = 5;
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

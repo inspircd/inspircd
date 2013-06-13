@@ -31,7 +31,6 @@ class CommandCycle : public SplitCommand
 		: SplitCommand(Creator, "CYCLE", 1)
 	{
 		Penalty = 3; syntax = "<channel> :[reason]";
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser* user)

@@ -54,7 +54,6 @@ class CommandOjoin : public SplitCommand
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<channel>";
 		active = false;
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
 	}
 
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)

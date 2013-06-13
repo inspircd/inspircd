@@ -37,7 +37,7 @@ class CommandKill : public Command
 	CommandKill ( Module* parent) : Command(parent,"KILL",2,2) {
 		flags_needed = 'o';
 		syntax = "<nickname> <reason>";
-		TRANSLATE3(TR_CUSTOM, TR_CUSTOM, TR_END);
+		TRANSLATE2(TR_CUSTOM, TR_CUSTOM);
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd

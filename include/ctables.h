@@ -43,7 +43,6 @@ const char FLAG_SERVERONLY = 7; // technically anything nonzero below 'A' works
  */
 enum TranslateType
 {
-	TR_END,			/* End of known parameters, everything after this is TR_TEXT */
 	TR_TEXT,		/* Raw text, leave as-is */
 	TR_NICK,		/* Nickname, translate to UUID for server->server */
 	TR_CUSTOM		/* Custom translation handled by EncodeParameter/DecodeParameter */

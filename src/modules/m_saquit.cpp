@@ -31,7 +31,7 @@ class CommandSaquit : public Command
 	CommandSaquit(Module* Creator) : Command(Creator, "SAQUIT", 2, 2)
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <reason>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

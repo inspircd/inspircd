@@ -32,7 +32,7 @@ class CommandUninvite : public Command
 	CommandUninvite(Module* Creator) : Command(Creator,"UNINVITE", 2)
 	{
 		syntax = "<nick> <channel>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

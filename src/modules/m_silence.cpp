@@ -66,7 +66,7 @@ class CommandSVSSilence : public Command
 	CommandSVSSilence(Module* Creator) : Command(Creator,"SVSSILENCE", 2)
 	{
 		syntax = "<target> {[+|-]<mask> <p|c|i|n|t|a|x>}";
-		TRANSLATE4(TR_NICK, TR_TEXT, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
+		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
@@ -112,7 +112,6 @@ class CommandSilence : public Command
 	{
 		allow_empty_last_param = false;
 		syntax = "{[+|-]<mask> <p|c|i|n|t|a|x>}";
-		TRANSLATE3(TR_TEXT, TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

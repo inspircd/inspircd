@@ -36,7 +36,7 @@ class CommandSwhois : public Command
 	CommandSwhois(Module* Creator) : Command(Creator,"SWHOIS", 2,2), swhois("swhois", Creator)
 	{
 		flags_needed = 'o'; syntax = "<nick> :<swhois>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User* user)

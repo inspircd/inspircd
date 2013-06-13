@@ -107,7 +107,7 @@ class CommandSVSWatch : public Command
 	CommandSVSWatch(Module* Creator) : Command(Creator,"SVSWATCH", 2)
 	{
 		syntax = "<target> [C|L|S]|[+|-<nick>]";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
+		TRANSLATE2(TR_NICK, TR_TEXT); /* we watch for a nick. not a UID. */
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
@@ -255,7 +255,6 @@ class CommandWatch : public Command
 	CommandWatch(Module* parent, unsigned int &maxwatch) : Command(parent,"WATCH", 0), MAX_WATCH(maxwatch), ext("watchlist", parent)
 	{
 		syntax = "[C|L|S]|[+|-<nick>]";
-		TRANSLATE2(TR_TEXT, TR_END); /* we watch for a nick. not a UID. */
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

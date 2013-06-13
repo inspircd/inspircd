@@ -33,7 +33,6 @@ class CommandGlobops : public Command
 	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
 	{
 		flags_needed = 'o'; syntax = "<any-text>";
-		TRANSLATE2(TR_TEXT, TR_END);
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

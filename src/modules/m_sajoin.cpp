@@ -32,7 +32,7 @@ class CommandSajoin : public Command
 	{
 		allow_empty_last_param = false;
 		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

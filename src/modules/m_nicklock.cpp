@@ -35,7 +35,7 @@ class CommandNicklock : public Command
 	{
 		flags_needed = 'o';
 		syntax = "<oldnick> <newnick>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
@@ -98,7 +98,7 @@ class CommandNickunlock : public Command
 	{
 		flags_needed = 'o';
 		syntax = "<locked-nick>";
-		TRANSLATE2(TR_NICK, TR_END);
+		TRANSLATE1(TR_NICK);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)

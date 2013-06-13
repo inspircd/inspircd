@@ -435,7 +435,6 @@ void CommandParser::TranslateSingleParam(TranslateType to, const std::string& it
 			}
 			// If no custom translator was given, fall through
 		}
-		case TR_END:
 		case TR_TEXT:
 		default:
 			/* Do nothing */

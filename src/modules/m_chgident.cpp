@@ -34,7 +34,7 @@ class CommandChgident : public Command
 		allow_empty_last_param = false;
 		flags_needed = 'o';
 		syntax = "<nick> <newident>";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_END);
+		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
