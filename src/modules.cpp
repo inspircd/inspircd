@@ -533,13 +533,6 @@ void dynamic_reference_base::resolve()
 		value = NULL;
 }
 
-void InspIRCd::SendGlobalMode(const std::vector<std::string>& parameters, User *user)
-{
-	Modes->Process(parameters, user);
-	if (!Modes->GetLastParse().empty())
-		this->PI->SendMode(parameters[0], Modes->GetLastParseParams(), Modes->GetLastParseTranslate());
-}
-
 Module* ModuleManager::Find(const std::string &name)
 {
 	std::map<std::string, Module*>::iterator modfind = Modules.find(name);

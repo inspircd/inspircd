@@ -195,7 +195,7 @@ class ModuleTimedBans : public Module
 				cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
 				ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
 
-				ServerInstance->SendGlobalMode(setban, ServerInstance->FakeClient);
+				ServerInstance->Modes->Process(setban, ServerInstance->FakeClient);
 			}
 		}
 	}

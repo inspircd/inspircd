@@ -471,6 +471,29 @@ class CoreExport ModeParser
 	std::string Cached004ModeList;
 
  public:
+	typedef unsigned int ModeProcessFlag;
+	enum ModeProcessFlags
+	{
+		/** If only this flag is specified, the mode change will be global
+		 * and parameter modes will have their parameters explicitly set
+		 * (not merged). This is the default.
+		 */
+		MODE_NONE = 0,
+
+		/** If this flag is set then the parameters of non-listmodes will be
+		 * merged according to their conflict resolution rules.
+		 * Does not affect user modes, channel modes without a parameter and
+		 * listmodes.
+		 */
+		MODE_MERGE = 1,
+
+		/** If this flag is set then the mode change won't be handed over to
+		 * the linking module to be sent to other servers, but will be processed
+		 * locally and sent to local user(s) as usual.
+		 */
+		MODE_LOCALONLY = 2
+	};
+
 	ModeParser();
 	~ModeParser();
 
@@ -533,12 +556,11 @@ class CoreExport ModeParser
 	/** Process a set of mode changes from a server or user.
 	 * @param parameters The parameters of the mode change, in the format
 	 * they would be from a MODE command.
-	 * @param user The user setting or removing the modes. When the modes are set
-	 * by a server, an 'uninitialized' User is used, where *user\::nick == NULL
-	 * and *user->server == NULL.
-	 * @param merge Should the mode parameters be merged?
+	 * @param user The source of the mode change, can be a server user.
+	 * @param flags Optional flags controlling how the mode change is processed,
+	 * defaults to MODE_NONE.
 	 */
-	void Process(const std::vector<std::string>& parameters, User *user, bool merge = false);
+	void Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags = MODE_NONE);
 
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for

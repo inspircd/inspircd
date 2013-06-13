@@ -25,14 +25,13 @@ class ModuleSpanningTree;
 class SpanningTreeProtocolInterface : public ProtocolInterface
 {
 	SpanningTreeUtilities* Utils;
-	void SendChannel(Channel* target, char status, const std::string &text);
  public:
 	SpanningTreeProtocolInterface(SpanningTreeUtilities* util) : Utils(util) { }
 
 	bool SendEncapsulatedData(const parameterlist &encap);
 	void SendMetaData(Extensible* target, const std::string &key, const std::string &data);
 	void SendTopic(Channel* channel, std::string &topic);
-	void SendMode(const std::string &target, const parameterlist &modedata, const std::vector<TranslateType> &types);
+	void SendMode(User* source, User* usertarget, Channel* chantarget, const parameterlist& modedata, const std::vector<TranslateType>& types);
 	void SendSNONotice(const std::string &snomask, const std::string &text);
 	void PushToClient(User* target, const std::string &rawline);
 	void SendChannelPrivmsg(Channel* target, char status, const std::string &text);

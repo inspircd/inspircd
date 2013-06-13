@@ -401,7 +401,7 @@ class RepeatModule : public Module
 				parameters.push_back(memb->chan->name);
 				parameters.push_back("+b");
 				parameters.push_back("*!*@" + user->dhost);
-				ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
+				ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
 			}
 
 			memb->chan->KickUser(ServerInstance->FakeClient, user, "Repeat flood");

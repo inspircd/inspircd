@@ -77,7 +77,7 @@ void ModuleSpanningTree::init()
 		I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
 		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
 		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRehash, I_OnPreRehash,
-		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnMode, I_OnLoadModule, I_OnStats,
+		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnLoadModule, I_OnStats,
 		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
 	};
 	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -790,33 +790,6 @@ void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 	{
 		/* User-unset lines */
 		Utils->DoOneToMany(user->uuid, "DELLINE", params);
-	}
-}
-
-void ModuleSpanningTree::OnMode(User* user, void* dest, int target_type, const parameterlist &text, const std::vector<TranslateType> &translate)
-{
-	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
-	{
-		parameterlist params;
-		std::string output_text;
-
-		ServerInstance->Parser->TranslateUIDs(translate, text, output_text);
-
-		if (target_type == TYPE_USER)
-		{
-			User* u = (User*)dest;
-			params.push_back(u->uuid);
-			params.push_back(output_text);
-			Utils->DoOneToMany(user->uuid, "MODE", params);
-		}
-		else
-		{
-			Channel* c = (Channel*)dest;
-			params.push_back(c->name);
-			params.push_back(ConvToStr(c->age));
-			params.push_back(output_text);
-			Utils->DoOneToMany(user->uuid, "FMODE", params);
-		}
 	}
 }
 

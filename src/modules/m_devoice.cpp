@@ -46,7 +46,7 @@ class CommandDevoice : public Command
 		modes.push_back("-v");
 		modes.push_back(user->nick);
 
-		ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
+		ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 		return CMD_SUCCESS;
 	}
 };

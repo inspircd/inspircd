@@ -156,7 +156,7 @@ class ModuleMsgFlood : public Module
 					parameters.push_back(dest->name);
 					parameters.push_back("+b");
 					parameters.push_back("*!*@" + user->dhost);
-					ServerInstance->SendGlobalMode(parameters, ServerInstance->FakeClient);
+					ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
 				}
 
 				const std::string kickMessage = "Channel flood triggered (limit is " + ConvToStr(f->lines) +

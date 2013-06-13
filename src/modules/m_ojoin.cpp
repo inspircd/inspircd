@@ -93,7 +93,7 @@ class CommandOjoin : public SplitCommand
 			modes.push_back(user->nick);
 			if (op)
 				modes.push_back(user->nick);
-			ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
+			ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 		}
 		return CMD_SUCCESS;
 	}

@@ -100,7 +100,7 @@ class CommandRMode : public Command
 		stackresult.push_back(chan->name);
 		while (modestack.GetStackedLine(stackresult))
 		{
-			ServerInstance->SendMode(stackresult, user);
+			ServerInstance->Modes->Process(stackresult, user);
 			stackresult.erase(stackresult.begin() + 1, stackresult.end());
 		}
 

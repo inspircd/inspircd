@@ -108,7 +108,7 @@ class ModuleOperPrefixMode : public Module
 		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 		{
 			modechange[0] = (*v)->name;
-			ServerInstance->SendGlobalMode(modechange, ServerInstance->FakeClient);
+			ServerInstance->Modes->Process(modechange, ServerInstance->FakeClient);
 		}
 	}
 

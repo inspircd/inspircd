@@ -130,7 +130,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 
 		/* Remember, params[params.size() - 1] is userlist, and we don't want to apply *that* */
 		modelist.insert(modelist.end(), params.begin()+2, params.end()-1);
-		ServerInstance->SendMode(modelist, srcuser);
+		ServerInstance->Modes->Process(modelist, srcuser, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
 	}
 
 	irc::modestacker modestack(true);
@@ -222,7 +222,7 @@ void CommandFJoin::ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& s
 
 	while (stack.GetStackedLine(stackresult))
 	{
-		ServerInstance->SendMode(stackresult, srcuser);
+		ServerInstance->Modes->Process(stackresult, srcuser, ModeParser::MODE_LOCALONLY);
 		stackresult.erase(stackresult.begin() + 1, stackresult.end());
 	}
 }

@@ -331,7 +331,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 	return MODEACTION_ALLOW;
 }
 
-void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool merge)
+void ModeParser::Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags)
 {
 	std::string target = parameters[0];
 	Channel* targetchannel = ServerInstance->FindChan(target);
@@ -411,7 +411,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 			/* Make sure the user isn't trying to slip in an invalid parameter */
 			if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
 				continue;
-			if (merge && targetchannel && targetchannel->IsModeSet(modechar) && !mh->IsListMode())
+			if ((flags & MODE_MERGE) && targetchannel && targetchannel->IsModeSet(modechar) && !mh->IsListMode())
 			{
 				std::string ours = targetchannel->GetModeParameter(modechar);
 				if (!mh->ResolveModeConflict(parameter, ours, targetchannel))
@@ -464,6 +464,9 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		LastParse.append(" ");
 		LastParse.append(output_mode);
 		LastParse.append(output_parameters.str());
+
+		if (!(flags & MODE_LOCALONLY))
+			ServerInstance->PI->SendMode(user, targetuser, targetchannel, LastParseParams, LastParseTranslate);
 
 		if (targetchannel)
 		{
@@ -656,7 +659,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 				stackresult.push_back(chan->name);
 				while (stack.GetStackedLine(stackresult))
 				{
-					ServerInstance->SendMode(stackresult, ServerInstance->FakeClient);
+					this->Process(stackresult, ServerInstance->FakeClient, MODE_LOCALONLY);
 					stackresult.erase(stackresult.begin() + 1, stackresult.end());
 				}
 			}

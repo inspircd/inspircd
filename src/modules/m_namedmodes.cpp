@@ -82,7 +82,7 @@ class CommandProp : public Command
 				}
 			}
 		}
-		ServerInstance->SendGlobalMode(modes, src);
+		ServerInstance->Modes->Process(modes, src);
 		return CMD_SUCCESS;
 	}
 };
@@ -196,7 +196,7 @@ class ModuleNamedModes : public Module
 			}
 		}
 		newparms[1] = modelist;
-		ServerInstance->Modes->Process(newparms, source, false);
+		ServerInstance->Modes->Process(newparms, source);
 		return MOD_RES_DENY;
 	}
 };

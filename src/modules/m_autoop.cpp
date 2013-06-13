@@ -123,7 +123,7 @@ class ModuleAutoOp : public Module
 			for(std::string::size_type i = modeline.length(); i > 1; --i) // we use "i > 1" instead of "i" so we skip the +
 				modechange.push_back(memb->user->nick);
 			if(modechange.size() >= 3)
-				ServerInstance->SendGlobalMode(modechange, ServerInstance->FakeClient);
+				ServerInstance->Modes->Process(modechange, ServerInstance->FakeClient);
 		}
 	}
 

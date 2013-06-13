@@ -84,7 +84,7 @@ class ModuleChannelNames : public Module
 				modes.push_back(c->name);
 				modes.push_back("-P");
 
-				ServerInstance->SendGlobalMode(modes, ServerInstance->FakeClient);
+				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 			}
 			const UserMembList* users = c->GetUsers();
 			for(UserMembCIter j = users->begin(); j != users->end(); )

@@ -260,7 +260,7 @@ class ModuleBanRedirect : public Module
 				stackresult.push_back(chan->name);
 				while (modestack.GetStackedLine(stackresult))
 				{
-					ServerInstance->Modes->Process(stackresult, ServerInstance->FakeClient);
+					ServerInstance->Modes->Process(stackresult, ServerInstance->FakeClient, ModeParser::MODE_LOCALONLY);
 					stackresult.erase(stackresult.begin() + 1, stackresult.end());
 				}
 			}

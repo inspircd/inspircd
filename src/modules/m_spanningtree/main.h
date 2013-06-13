@@ -163,7 +163,6 @@ class ModuleSpanningTree : public Module
 	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
 	void OnAddLine(User *u, XLine *x) CXX11_OVERRIDE;
 	void OnDelLine(User *u, XLine *x) CXX11_OVERRIDE;
-	void OnMode(User* user, void* dest, int target_type, const std::vector<std::string> &text, const std::vector<TranslateType> &translate) CXX11_OVERRIDE;
 	ModResult OnStats(char statschar, User* user, string_list &results) CXX11_OVERRIDE;
 	ModResult OnSetAway(User* user, const std::string &awaymsg) CXX11_OVERRIDE;
 	void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);

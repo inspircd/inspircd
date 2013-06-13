@@ -55,23 +55,25 @@ CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who
 		ourTS = user->age;
 	}
 
+	/* If the TS is greater than ours, we drop the mode and don't pass it anywhere.
+	 */
+	if (TS > ourTS)
+		return CMD_FAILURE;
+
 	/* TS is equal or less: Merge the mode changes into ours and pass on.
 	 */
-	if (TS <= ourTS)
-	{
-		std::vector<std::string> modelist;
-		modelist.reserve(params.size()-1);
-		/* Insert everything into modelist except the TS (params[1]) */
-		modelist.push_back(params[0]);
-		modelist.insert(modelist.end(), params.begin()+2, params.end());
+	std::vector<std::string> modelist;
+	modelist.reserve(params.size()-1);
+	/* Insert everything into modelist except the TS (params[1]) */
+	modelist.push_back(params[0]);
+	modelist.insert(modelist.end(), params.begin()+2, params.end());
 
-		bool merge = (TS == ourTS) && IS_SERVER(who);
-		ServerInstance->Modes->Process(modelist, who, merge);
-		return CMD_SUCCESS;
-	}
-	/* If the TS is greater than ours, we drop the mode and dont pass it anywhere.
-	 */
-	return CMD_FAILURE;
+	ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
+	if ((TS == ourTS) && IS_SERVER(who))
+		flags |= ModeParser::MODE_MERGE;
+
+	ServerInstance->Modes->Process(modelist, who, flags);
+	return CMD_SUCCESS;
 }
 
 

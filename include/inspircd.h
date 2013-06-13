@@ -554,22 +554,6 @@ class CoreExport InspIRCd
 		Modules->AddService(*f);
 	}
 
-	/** Send a modechange.
-	 * The parameters provided are identical to that sent to the
-	 * handler for class cmd_mode.
-	 * @param parameters The mode parameters
-	 * @param user The user to send error messages to
-	 */
-	void SendMode(const std::vector<std::string>& parameters, User *user);
-
-	/** Send a modechange and route it to the network.
-	 * The parameters provided are identical to that sent to the
-	 * handler for class cmd_mode.
-	 * @param parameters The mode parameters
-	 * @param user The user to send error messages to
-	 */
-	void SendGlobalMode(const std::vector<std::string>& parameters, User *user);
-
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
 	 * @param str The literal string to match against
@@ -763,8 +747,3 @@ class CommandModule : public Module
 		return Version(cmd.name, VF_VENDOR|VF_CORE);
 	}
 };
-
-inline void InspIRCd::SendMode(const std::vector<std::string>& parameters, User* user)
-{
-	this->Modes->Process(parameters, user);
-}
