@@ -70,18 +70,11 @@ INSTMODE_LIB = 0644
   LDLIBS += -lsocket -lnsl -lrt -lresolv
   INSTALL = ginstall
 @ENDIF
-@IFEQ $(SYSTEM) sunos
-  LDLIBS += -lsocket -lnsl -lrt -lresolv
-	INSTALL = ginstall
-@ENDIF
 @IFEQ $(SYSTEM) darwin
   CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
   CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
-@ENDIF
-@IFEQ $(SYSTEM) interix
-  CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
 @ENDIF
 
 @IFNDEF D
