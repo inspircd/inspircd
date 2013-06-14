@@ -34,9 +34,8 @@ CC = @CC@
 SYSTEM = @SYSTEM@
 BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
-CXXFLAGS = -pipe -fPIC -DPIC
+CXXFLAGS = -fPIC -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -pthread -lstdc++
-LDFLAGS = 
 CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
 PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "$(DESTDIR)@BASE_DIR@"
@@ -51,11 +50,9 @@ INSTMODE_BIN = 0755
 INSTMODE_LIB = 0644
 
 @IFEQ $(CC) icc
-  CXXFLAGS += -Wshadow
 @ELSE
-  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall
+  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
 @ENDIF
-
 
 @IFEQ $(SYSTEM) linux
   LDLIBS += -ldl -lrt
@@ -71,7 +68,6 @@ INSTMODE_LIB = 0644
   INSTALL = ginstall
 @ENDIF
 @IFEQ $(SYSTEM) darwin
-  CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
   CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
@@ -101,8 +97,6 @@ DBGOK=0
   DBGOK=1
 @ENDIF
 FOOTER = finishmessage
-
-CXXFLAGS += -Iinclude
 
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
