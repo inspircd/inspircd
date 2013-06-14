@@ -30,7 +30,7 @@
 #
 
 
-CC = @CC@
+CXX = @CC@
 SYSTEM = @SYSTEM@
 BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
@@ -49,7 +49,7 @@ INSTMODE_DIR = 0755
 INSTMODE_BIN = 0755
 INSTMODE_LIB = 0644
 
-@IFNEQ $(CC) icc
+@IFNEQ $(CXX) icc
   CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
 @ENDIF
 
@@ -83,7 +83,7 @@ INSTMODE_LIB = 0644
 DBGOK=0
 @IFEQ $(D) 0
   CXXFLAGS += -O2
-@IFEQ $(CC) gcc
+@IFEQ $(CXX) g++
     CXXFLAGS += -g1
 @ENDIF
   HEADER = std-header
@@ -107,14 +107,14 @@ FOOTER = finishmessage
 @BSD_ONLY SOURCEPATH != /bin/pwd
 
 @IFDEF V
-  RUNCC = $(CC)
-  RUNLD = $(CC)
+  RUNCC = $(CXX)
+  RUNLD = $(CXX)
   VERBOSE = -v
 @ELSE
   @GNU_ONLY MAKEFLAGS += --silent
   @BSD_ONLY MAKE += -s
-  RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
-  RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
+  RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
+  RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
 @ENDIF
 
 @IFDEF PURE_STATIC
