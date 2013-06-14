@@ -49,9 +49,12 @@ INSTMODE_DIR = 0755
 INSTMODE_BIN = 0755
 INSTMODE_LIB = 0644
 
-@IFEQ $(CC) icc
-@ELSE
+@IFNEQ $(CC) icc
   CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
+@ENDIF
+
+@IFNEQ $(SYSTEM) darwin
+  LDLIBS += -pthread
 @ENDIF
 
 @IFEQ $(SYSTEM) linux
