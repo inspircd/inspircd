@@ -257,8 +257,6 @@ deinstall:
 	-rm -f $(BASE)/.gdbargs
 	-rm -f $(BASE)/org.inspircd.plist
 
-squeakyclean: distclean
-
 configureclean:
 	rm -f .config.cache
 	rm -f BSDmakefile
@@ -299,4 +297,4 @@ help:
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean configureclean help
+.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall configureclean help
