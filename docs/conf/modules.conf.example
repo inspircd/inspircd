@@ -1380,6 +1380,12 @@
 #<module name="m_regex_pcre.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Regular Expression Provider for RE2 Regular Expressions.
+# You need libre2 installed and in your include/library paths in order
+# to compile and load this module.
+#<module name="m_regex_re2.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular Expression Provider for POSIX Regular Expressions.
 # You shouldn't need any additional libraries on a POSIX-compatible
 # system (ie: any Linux, BSD, but not Windows). You must have at least
