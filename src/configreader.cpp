@@ -343,13 +343,16 @@ struct DeprecatedConfig
 };
 
 static const DeprecatedConfig ChangedConfig[] = {
-	{ "bind",        "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
-	{ "die",         "value",       "",                 "you need to reread your config" },
-	{ "link",        "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
-	{ "link",        "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
-	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
-	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
-	{ "performance", "nouserdns",   "",                 "has been moved to <connect:nouserdns> as of 2.2" }
+	{ "bind",        "transport",     "",                 "has been moved to <bind:ssl> as of 2.0" },
+	{ "die",         "value",         "",                 "you need to reread your config" },
+	{ "cloak",       "mode",          "compat-host",      "has been removed as of 2.2 - use half or full cloaking instead" },
+	{ "cloak",       "mode",          "compat-ip",        "has been removed as of 2.2 - use half or full cloaking instead" },
+	{ "link",        "autoconnect",   "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
+	{ "link",        "transport",     "",                 "has been moved to <link:ssl> as of 2.0" },
+	{ "options",     "welcomenotice", "",                 "has been removed with no replacement as of 2.2" },
+	{ "module",      "name",          "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
+	{ "module",      "name",          "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
+	{ "performance", "nouserdns",     "",                 "has been moved to <connect:nouserdns> as of 2.2" }
 };
 
 void ServerConfig::Fill()
