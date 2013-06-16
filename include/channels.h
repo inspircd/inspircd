@@ -142,11 +142,10 @@ class CoreExport Channel : public Extensible, public InviteBase
 	std::string GetModeParameter(ModeHandler* mode);
 
 	/** Sets the channel topic.
-	 * @param u The user setting the topic
-	 * @param t The topic to set it to. Non-const, as it may be modified by a hook.
-	 * @param forceset If set to true then all access checks will be bypassed.
+	 * @param user The user setting the topic.
+	 * @param topic The topic to set it to.
 	 */
-	int SetTopic(User *u, std::string &t, bool forceset = false);
+	void SetTopic(User* user, const std::string& topic);
 
 	/** Obtain the channel "user counter"
 	 * This returns the number of users on this channel

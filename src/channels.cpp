@@ -89,38 +89,14 @@ std::string Channel::GetModeParameter(ModeHandler* mode)
 	return "";
 }
 
-int Channel::SetTopic(User *u, std::string &ntopic, bool forceset)
+void Channel::SetTopic(User* u, const std::string& ntopic)
 {
-	if (IS_LOCAL(u) && !forceset)
-	{
-		ModResult res;
-		FIRST_MOD_RESULT(OnPreTopicChange, res, (u,this,ntopic));
-
-		if (res == MOD_RES_DENY)
-			return CMD_FAILURE;
-		if (res != MOD_RES_ALLOW)
-		{
-			if (!this->HasUser(u))
-			{
-				u->WriteNumeric(442, "%s %s :You're not on that channel!",u->nick.c_str(), this->name.c_str());
-				return CMD_FAILURE;
-			}
-			if (IsModeSet('t') && !ServerInstance->OnCheckExemption(u,this,"topiclock").check(GetPrefixValue(u) >= HALFOP_VALUE))
-			{
-				u->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", u->nick.c_str(), this->name.c_str());
-				return CMD_FAILURE;
-			}
-		}
-	}
-
 	this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
 	this->setby.assign(ServerInstance->Config->FullHostInTopic ? u->GetFullHost() : u->nick, 0, 128);
 	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
 	this->topicset = ServerInstance->Time();
 
 	FOREACH_MOD(I_OnPostTopicChange,OnPostTopicChange(u, this, this->topic));
-
-	return CMD_SUCCESS;
 }
 
 Membership* Channel::AddUser(User* user)

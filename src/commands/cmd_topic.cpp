@@ -48,9 +48,7 @@ class CommandTopic : public Command
 
 CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	Channel* c;
-
-	c = ServerInstance->FindChan(parameters[0]);
+	Channel* c = ServerInstance->FindChan(parameters[0]);
 	if (!c)
 	{
 		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
@@ -79,12 +77,35 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 		}
 		return CMD_SUCCESS;
 	}
-	else if (parameters.size()>1)
+
+	// Access checks are skipped for non-local users
+	if (!IS_LOCAL(user))
 	{
-		std::string t = parameters[1]; // needed, in case a module wants to change it
-		c->SetTopic(user, t);
+		c->SetTopic(user, parameters[1]);
+		return CMD_SUCCESS;
 	}
 
+	std::string t = parameters[1]; // needed, in case a module wants to change it
+	ModResult res;
+	FIRST_MOD_RESULT(OnPreTopicChange, res, (user,c,t));
+
+	if (res == MOD_RES_DENY)
+		return CMD_FAILURE;
+	if (res != MOD_RES_ALLOW)
+	{
+		if (!c->HasUser(user))
+		{
+			user->WriteNumeric(442, "%s %s :You're not on that channel!", user->nick.c_str(), c->name.c_str());
+			return CMD_FAILURE;
+		}
+		if (c->IsModeSet('t') && !ServerInstance->OnCheckExemption(user, c, "topiclock").check(c->GetPrefixValue(user) >= HALFOP_VALUE))
+		{
+			user->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", user->nick.c_str(), c->name.c_str());
+			return CMD_FAILURE;
+		}
+	}
+
+	c->SetTopic(user, t);
 	return CMD_SUCCESS;
 }
 
