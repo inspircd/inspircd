@@ -21,16 +21,15 @@
 
 #define NETWORK_VALUE 9000000
 
-char NPrefix;
-bool notice;
-bool op;
-
 /** Handle /OJOIN
  */
 class CommandOjoin : public SplitCommand
 {
  public:
 	bool active;
+	bool notice;
+	bool op;
+	ModeHandler* npmh;
 	CommandOjoin(Module* parent) :
 		SplitCommand(parent, "OJOIN", 1)
 	{
@@ -70,10 +69,13 @@ class CommandOjoin : public SplitCommand
 			// they're already in the channel
 			std::vector<std::string> modes;
 			modes.push_back(parameters[0]);
-			modes.push_back(op ? "+Yo" : "+Y");
-			modes.push_back(user->nick);
+			modes.push_back("+" + npmh->GetModeChar());
 			if (op)
+			{
+				modes[1].push_back('o');
 				modes.push_back(user->nick);
+			}
+			modes.push_back(user->nick);
 			ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 		}
 		return CMD_SUCCESS;
@@ -85,7 +87,8 @@ class CommandOjoin : public SplitCommand
 class NetworkPrefix : public ModeHandler
 {
  public:
-	NetworkPrefix(Module* parent) : ModeHandler(parent, "official-join", 'Y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+	NetworkPrefix(Module* parent, char NPrefix)
+		: ModeHandler(parent, "official-join", 'Y', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		list = true;
 		prefix = NPrefix;
@@ -128,8 +131,14 @@ class ModuleOjoin : public Module
 		/* Load config stuff */
 		OnRehash(NULL);
 
+		std::string npre = ServerInstance->Config->ConfValue("ojoin")->getString("prefix");
+		char NPrefix = npre.empty() ? 0 : npre[0];
+		if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
+			throw ModuleException("Looks like the prefix you picked for m_ojoin is already in use. Pick another.");
+
 		/* Initialise module variables */
-		np = new NetworkPrefix(this);
+		np = new NetworkPrefix(this, NPrefix);
+		mycommand.npmh = np;
 
 		ServerInstance->Modules->AddService(*np);
 		ServerInstance->Modules->AddService(mycommand);
@@ -142,8 +151,8 @@ class ModuleOjoin : public Module
 	{
 		if (mycommand.active)
 		{
-			privs += 'Y';
-			if (op)
+			privs += np->GetModeChar();
+			if (mycommand.op)
 				privs += 'o';
 			return MOD_RES_ALLOW;
 		}
@@ -154,25 +163,14 @@ class ModuleOjoin : public Module
 	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
-
-		if (!np)
-		{
-			// This is done on module load only
-			std::string npre = Conf->getString("prefix");
-			NPrefix = npre.empty() ? 0 : npre[0];
-
-			if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
-				throw ModuleException("Looks like the +Y prefix you picked for m_ojoin is already in use. Pick another.");
-		}
-
-		notice = Conf->getBool("notice", true);
-		op = Conf->getBool("op", true);
+		mycommand.notice = Conf->getBool("notice", true);
+		mycommand.op = Conf->getBool("op", true);
 	}
 
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
 		// Don't do anything if they're not +Y
-		if (!memb->hasMode('Y'))
+		if (!memb->hasMode(np->GetModeChar()))
 			return MOD_RES_PASSTHRU;
 
 		// Let them do whatever they want to themselves.
