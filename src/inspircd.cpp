@@ -99,9 +99,9 @@ template<typename T> static void DeleteZero(T*&n)
 
 void InspIRCd::Cleanup()
 {
+	// Close all listening sockets
 	for (unsigned int i = 0; i < ports.size(); i++)
 	{
-		/* This calls the constructor and closes the listening socket */
 		ports[i]->cull();
 		delete ports[i];
 	}
@@ -137,8 +137,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Threads);
 	DeleteZero(this->Timers);
 	DeleteZero(this->SE);
-	/* Close logging */
-	this->Logs->CloseLogs();
 	DeleteZero(this->Logs);
 }
 
@@ -197,8 +195,8 @@ bool InspIRCd::DaemonSeed()
 #else
 	signal(SIGTERM, InspIRCd::QuickExit);
 
-	int childpid;
-	if ((childpid = fork ()) < 0)
+	int childpid = fork();
+	if (childpid < 0)
 		return false;
 	else if (childpid > 0)
 	{
@@ -277,7 +275,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	FailedPortList pl;
 	int do_version = 0, do_nofork = 0, do_debug = 0,
 	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
-	int c = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Logs = 0;
@@ -360,6 +357,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{ 0, 0, 0, 0 }
 	};
 
+	int c;
 	int index;
 	while ((c = getopt_long(argc, argv, ":c:", longopts, &index)) != -1)
 	{
@@ -473,8 +471,8 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	SE->RecoverFromFork();
 
-	/* During startup we don't actually initialize this
-	 * in the thread engine.
+	/* During startup we read the configuration now, not in
+	 * a seperate thread
 	 */
 	this->Config->Read();
 	this->Config->Apply(NULL, "");
@@ -488,11 +486,10 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// Initialize the UID generator with our sid
 	this->UIDGen.init(Config->sid);
 
-	/* set up fake client again this time with the correct uid */
+	// Create the server user for this server
 	this->FakeClient = new FakeUser(Config->sid, Config->ServerName);
 
-	// Get XLine to do it's thing.
-	this->XLines->CheckELines();
+	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();
 
 	int bounditems = BindPorts(pl);
@@ -501,7 +498,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->Modules->LoadAll();
 
-	/* Just in case no modules were loaded - fix for bug #101 */
+	// Build ISupport as ModuleManager::LoadAll() does not do it
 	this->ISupport.Build();
 	Config->ApplyDisabledCommands(Config->DisabledCommands);
 
@@ -588,7 +585,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGROUPS", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -600,7 +597,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!g)
 		{
-			this->Logs->Log("SETGUID", LOG_DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -608,7 +605,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", LOG_DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -623,7 +620,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!u)
 		{
-			this->Logs->Log("SETGUID", LOG_DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -631,7 +628,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", LOG_DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -660,14 +657,14 @@ void InspIRCd::UpdateTime()
 #endif
 }
 
-int InspIRCd::Run()
+void InspIRCd::Run()
 {
 	/* See if we're supposed to be running the test suite rather than entering the mainloop */
 	if (Config->cmdline.TestSuite)
 	{
 		TestSuite* ts = new TestSuite;
 		delete ts;
-		Exit(0);
+		return;
 	}
 
 	UpdateTime();
@@ -766,8 +763,6 @@ int InspIRCd::Run()
 			s_signal = 0;
 		}
 	}
-
-	return 0;
 }
 
 sig_atomic_t InspIRCd::s_signal = 0;

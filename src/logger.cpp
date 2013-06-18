@@ -55,12 +55,13 @@ const char LogStream::LogHeader[] =
 	" - compiled on " SYSTEM;
 
 LogManager::LogManager()
+	: Logging(false)
 {
-	Logging = false;
 }
 
 LogManager::~LogManager()
 {
+	CloseLogs();
 }
 
 void LogManager::OpenFileLogs()

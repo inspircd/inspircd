@@ -279,6 +279,11 @@ class CoreExport InspIRCd
 	 */
 	char ReadBuffer[65535];
 
+	/** Check we aren't running as root, and exit if we are
+	 * with exit code EXIT_STATUS_ROOT.
+	 */
+	void CheckRoot();
+
  public:
 
 	UIDGenerator UIDGen;
@@ -471,11 +476,6 @@ class CoreExport InspIRCd
 	 */
 	Channel* FindChan(const std::string &chan);
 
-	/** Check we aren't running as root, and exit if we are
-	 * @return Depending on the configuration, this function may never return
-	 */
-	void CheckRoot();
-
 	/** Return true if a channel name is valid
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
@@ -512,6 +512,7 @@ class CoreExport InspIRCd
 	/** Causes the server to exit immediately with exit code 0.
 	 * The status code is required for signal handlers, and ignored.
 	 */
+	static void QuickExit(int status);
 
 	/** Printf-wrapper.
 	* @param How you want it formatted
@@ -520,8 +521,6 @@ class CoreExport InspIRCd
 	*/
 	static const char* Format(const char* formatString, ...) CUSTOM_PRINTF(1, 2);
 	static const char* Format(va_list &vaList, const char* formatString) CUSTOM_PRINTF(2, 0);
-
-	static void QuickExit(int status);
 
 	/** Return a count of channels on the network
 	 * @return The number of channels
@@ -716,9 +715,8 @@ class CoreExport InspIRCd
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
 	 * it will repeatedly loop.
-	 * @return The return value for this function is undefined.
 	 */
-	int Run();
+	void Run();
 
 	char* GetReadBuffer()
 	{
