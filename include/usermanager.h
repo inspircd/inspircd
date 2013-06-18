@@ -161,10 +161,6 @@ class CoreExport UserManager
 	 */
 	unsigned int LocalUserCount() const { return (this->local_count - this->UnregisteredUserCount()); }
 
-	/** Number of users with a certain mode set on them
-	 */
-	int ModeCount(const char mode);
-
 	/** Send a server notice to all local users
 	 * @param text The text format string to send
 	 * @param ... The format arguments

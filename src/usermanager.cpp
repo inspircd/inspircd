@@ -316,19 +316,6 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 	}
 }
 
-/* return how many users have a given mode e.g. 'a' */
-int UserManager::ModeCount(const char mode)
-{
-	int c = 0;
-	for(user_hash::iterator i = clientlist->begin(); i != clientlist->end(); ++i)
-	{
-		User* u = i->second;
-		if (u->modes[mode-65])
-			c++;
-	}
-	return c;
-}
-
 void UserManager::GarbageCollect()
 {
 	// Reset the already_sent IDs so we don't wrap it around and drop a message

@@ -25,7 +25,14 @@
 
 class ModuleRegOnlyCreate : public Module
 {
+	UserModeReference regusermode;
+
  public:
+	ModuleRegOnlyCreate()
+		: regusermode(this, "u_registered")
+	{
+	}
+
 	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnUserPreJoin };
@@ -40,7 +47,7 @@ class ModuleRegOnlyCreate : public Module
 		if (user->IsOper())
 			return MOD_RES_PASSTHRU;
 
-		if (user->IsModeSet('r'))
+		if (user->IsModeSet(regusermode))
 			return MOD_RES_PASSTHRU;
 
 		const AccountExtItem* ext = GetAccountExtItem();

@@ -26,10 +26,10 @@ struct LusersCounters
 	unsigned int max_global;
 	unsigned int invisible;
 
-	LusersCounters()
+	LusersCounters(unsigned int inv)
 		: max_local(ServerInstance->Users->LocalUserCount())
 		, max_global(ServerInstance->Users->RegisteredUserCount())
-		, invisible(ServerInstance->Users->ModeCount('i'))
+		, invisible(inv)
 	{
 	}
 
@@ -128,13 +128,29 @@ public:
 
 class ModuleLusers : public Module
 {
+	UserModeReference invisiblemode;
 	LusersCounters counters;
 	CommandLusers cmd;
 	InvisibleWatcher mw;
 
+	unsigned int CountInvisible()
+	{
+		unsigned int c = 0;
+		for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
+		{
+			User* u = i->second;
+			if (u->IsModeSet(invisiblemode))
+				c++;
+		}
+		return c;
+	}
+
  public:
 	ModuleLusers()
-		: cmd(this, counters), mw(this, counters.invisible)
+		: invisiblemode(this, "invisible")
+		, counters(CountInvisible())
+		, cmd(this, counters)
+		, mw(this, counters.invisible)
 	{
 	}
 
@@ -149,13 +165,13 @@ class ModuleLusers : public Module
 	void OnPostConnect(User* user)
 	{
 		counters.UpdateMaxUsers();
-		if (user->IsModeSet('i'))
+		if (user->IsModeSet(invisiblemode))
 			counters.invisible++;
 	}
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
 	{
-		if (user->IsModeSet('i'))
+		if (user->IsModeSet(invisiblemode))
 			counters.invisible--;
 	}
 

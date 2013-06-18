@@ -436,7 +436,6 @@ class CoreExport User : public Extensible
 	 * @param m The user mode
 	 * @param value On or off setting of the mode
 	 */
-	void SetMode(unsigned char m, bool value);
 	void SetMode(ModeHandler* mh, bool value);
 	void SetMode(ModeHandler& mh, bool value) { SetMode(&mh, value); }
 

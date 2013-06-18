@@ -27,10 +27,19 @@
  */
 class CommandWallops : public Command
 {
+	UserModeReference wallopsmode;
+
  public:
 	/** Constructor for wallops.
 	 */
-	CommandWallops ( Module* parent) : Command(parent,"WALLOPS",1,1) { flags_needed = 'o'; syntax = "<any-text>"; }
+	CommandWallops(Module* parent)
+		: Command(parent, "WALLOPS", 1, 1)
+		, wallopsmode(parent, "wallops")
+	{
+		flags_needed = 'o';
+		syntax = "<any-text>";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -53,7 +62,7 @@ CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, Us
 	for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 	{
 		User* t = *i;
-		if (t->IsModeSet('w'))
+		if (t->IsModeSet(wallopsmode))
 			user->WriteTo(t,wallop);
 	}
 

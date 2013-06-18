@@ -36,6 +36,7 @@ namespace
 	ChanModeReference limitmode(NULL, "limit");
 	ChanModeReference secretmode(NULL, "secret");
 	ChanModeReference privatemode(NULL, "private");
+	UserModeReference invisiblemode(NULL, "invisible");
 }
 
 Channel::Channel(const std::string &cname, time_t ts)
@@ -683,7 +684,7 @@ void Channel::UserList(User *user)
 	{
 		if (i->first->quitting)
 			continue;
-		if ((!has_user) && (i->first->IsModeSet('i')))
+		if ((!has_user) && (i->first->IsModeSet(invisiblemode)))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show

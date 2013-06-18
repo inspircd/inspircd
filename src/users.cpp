@@ -45,13 +45,6 @@ bool User::IsModeSet(unsigned char m)
 	return (modes[m-65]);
 }
 
-void User::SetMode(unsigned char m, bool value)
-{
-	if (!isalpha(m))
-		return;
-	modes[m-65] = value;
-}
-
 const char* User::FormatModes(bool showparameters)
 {
 	static std::string data;

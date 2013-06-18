@@ -41,6 +41,7 @@ class CommandWho : public Command
 	bool opt_time;
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
+	UserModeReference invisiblemode;
 
 	Channel* get_first_visible_channel(User *u)
 	{
@@ -61,6 +62,7 @@ class CommandWho : public Command
 		: Command(parent, "WHO", 1)
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
+		, invisiblemode(parent, "invisible")
 	{
 		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
 	}
@@ -336,7 +338,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 						continue;
 
 					/* If we're not inside the channel, hide +i users */
-					if (i->first->IsModeSet('i') && !inside && !user->HasPrivPermission("users/auspex"))
+					if (i->first->IsModeSet(invisiblemode) && !inside && !user->HasPrivPermission("users/auspex"))
 						continue;
 				}
 
@@ -358,7 +360,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				{
 					if (!user->SharesChannelWith(oper))
 					{
-						if (usingwildcards && (!oper->IsModeSet('i')) && (!user->HasPrivPermission("users/auspex")))
+						if (usingwildcards && (!oper->IsModeSet(invisiblemode)) && (!user->HasPrivPermission("users/auspex")))
 							continue;
 					}
 
@@ -374,7 +376,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				{
 					if (!user->SharesChannelWith(i->second))
 					{
-						if (usingwildcards && (i->second->IsModeSet('i')) && (!user->HasPrivPermission("users/auspex")))
+						if (usingwildcards && (i->second->IsModeSet(invisiblemode)) && (!user->HasPrivPermission("users/auspex")))
 							continue;
 					}
 

@@ -67,6 +67,7 @@ class ModuleAlias : public Module
 
 	/* whether or not +B users are allowed to use fantasy commands */
 	bool AllowBots;
+	UserModeReference botmode;
 
 	void ReadAliases()
 	{
@@ -96,6 +97,11 @@ class ModuleAlias : public Module
 	}
 
  public:
+	ModuleAlias()
+		: botmode(this, "bot")
+	{
+	}
+
 	void init() CXX11_OVERRIDE
 	{
 		ReadAliases();
@@ -187,7 +193,7 @@ class ModuleAlias : public Module
 		}
 
 		/* Stop here if the user is +B and allowbot is set to no. */
-		if (!AllowBots && user->IsModeSet('B'))
+		if (!AllowBots && user->IsModeSet(botmode))
 		{
 			return;
 		}

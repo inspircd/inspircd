@@ -68,10 +68,12 @@ class ModuleOperPrefixMode : public Module
 {
 	OperPrefixMode opm;
 	HideOperWatcher hideoperwatcher;
+	UserModeReference hideopermode;
 
  public:
 	ModuleOperPrefixMode()
 		: opm(this), hideoperwatcher(this)
+		, hideopermode(this, "hideoper")
 	{
 	}
 
@@ -92,7 +94,7 @@ class ModuleOperPrefixMode : public Module
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
-		if ((user->IsOper()) && (user->IsModeSet('H')))
+		if ((user->IsOper()) && (!user->IsModeSet(hideopermode)))
 			privs.push_back('y');
 		return MOD_RES_PASSTHRU;
 	}
@@ -101,7 +103,8 @@ class ModuleOperPrefixMode : public Module
 	{
 		std::vector<std::string> modechange;
 		modechange.push_back("");
-		modechange.push_back(add ? "+y" : "-y");
+		modechange.push_back(add ? "+" : "-");
+		modechange[1].push_back(opm.GetModeChar());
 		modechange.push_back(user->nick);
 		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 		{
@@ -112,7 +115,7 @@ class ModuleOperPrefixMode : public Module
 
 	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) CXX11_OVERRIDE
 	{
-		if (IS_LOCAL(user) && (!user->IsModeSet('H')))
+		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);
 	}
 
