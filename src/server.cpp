@@ -36,7 +36,7 @@ void InspIRCd::SignalHandler(int signal)
 	else if (signal == SIGTERM)
 #endif
 	{
-		Exit(signal);
+		Exit(EXIT_STATUS_SIGTERM);
 	}
 }
 

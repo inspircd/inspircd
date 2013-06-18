@@ -77,26 +77,17 @@ unsigned const char *national_case_insensitive_map = rfc_case_insensitive_map;
  */
 const char* ExitCodes[] =
 {
-		"No error", /* 0 */
-		"DIE command", /* 1 */
-		"execv() failed", /* 2 */
-		"Internal error", /* 3 */
-		"Config file error", /* 4 */
-		"Logfile error", /* 5 */
-		"POSIX fork failed", /* 6 */
-		"Bad commandline parameters", /* 7 */
-		"No ports could be bound", /* 8 */
-		"Can't write PID file", /* 9 */
-		"SocketEngine could not initialize", /* 10 */
-		"Refusing to start up as root", /* 11 */
-		"Found a <die> tag!", /* 12 */
-		"Couldn't load module on startup", /* 13 */
-		"Could not create windows forked process", /* 14 */
-		"Received SIGTERM", /* 15 */
-		"Bad command handler loaded", /* 16 */
-		"RegisterServiceCtrlHandler failed", /* 17 */
-		"UpdateSCMStatus failed", /* 18 */
-		"CreateEvent failed" /* 19 */
+		"No error",								// 0
+		"DIE command",							// 1
+		"Config file error",					// 2
+		"Logfile error",						// 3
+		"POSIX fork failed",					// 4
+		"Bad commandline parameters",			// 5
+		"Can't write PID file",					// 6
+		"SocketEngine could not initialize",	// 7
+		"Refusing to start up as root",			// 8
+		"Couldn't load module on startup",		// 9
+		"Received SIGTERM"						// 10
 };
 
 template<typename T> static void DeleteZero(T*&n)
