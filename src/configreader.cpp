@@ -62,17 +62,9 @@ ServerConfig::ServerConfig()
 	: EmptyTag(CreateEmptyTag())
 	, Limits(EmptyTag)
 	, Paths(EmptyTag)
+	, RawLog(false)
 	, NoSnoticeStack(false)
 {
-	RawLog = HideBans = HideSplits = false;
-	WildcardIPv6 = true;
-	MaxTargets = 20;
-	NetBufferSize = 10240;
-	MaxConn = SOMAXCONN;
-	MaxChans = 20;
-	OperMaxChans = 30;
-	c_ipv4_range = 32;
-	c_ipv6_range = 128;
 }
 
 ServerConfig::~ServerConfig()

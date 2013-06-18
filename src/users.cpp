@@ -1172,13 +1172,11 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, const ConnectClass& parent)
-	: config(tag), type(t), fakelag(parent.fakelag), name("unnamed"),
-	registration_timeout(parent.registration_timeout), host(mask), pingtime(parent.pingtime),
-	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
-	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
-	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxconnwarn(parent.maxconnwarn), maxchans(parent.maxchans),
-	limit(parent.limit), resolvehostnames(parent.resolvehostnames), ports(parent.ports)
 {
+	Update(&parent);
+	name = "unnamed";
+	type = t;
+	config = tag;
 }
 
 void ConnectClass::Update(const ConnectClass* src)
