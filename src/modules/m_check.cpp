@@ -28,10 +28,24 @@
 class CommandCheck : public Command
 {
 	ChanModeReference ban;
+	UserModeReference snomaskmode;
+
+	std::string GetSnomasks(User* user)
+	{
+		std::string ret;
+		if (snomaskmode)
+			ret = snomaskmode->GetUserParameter(user);
+
+		if (ret.empty())
+			ret = "+";
+		return ret;
+	}
+
  public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)
 		, ban(parent, "ban")
+		, snomaskmode(parent, "snomask")
 	{
 		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
 	}
@@ -92,7 +106,7 @@ class CommandCheck : public Command
 			user->SendText(checkstr + " realnuh " + targuser->GetFullRealHost());
 			user->SendText(checkstr + " realname " + targuser->fullname);
 			user->SendText(checkstr + " modes +" + targuser->FormatModes());
-			user->SendText(checkstr + " snomasks +" + targuser->FormatNoticeMasks());
+			user->SendText(checkstr + " snomasks " + GetSnomasks(targuser));
 			user->SendText(checkstr + " server " + targuser->server);
 			user->SendText(checkstr + " uid " + targuser->uuid);
 			user->SendText(checkstr + " signon " + timestring(targuser->signon));

@@ -31,108 +31,11 @@
 
 already_sent_t LocalUser::already_sent_id = 0;
 
-std::string User::ProcessNoticeMasks(const char *sm)
-{
-	bool adding = true, oldadding = false;
-	const char *c = sm;
-	std::string output;
-
-	while (c && *c)
-	{
-		switch (*c)
-		{
-			case '+':
-				adding = true;
-			break;
-			case '-':
-				adding = false;
-			break;
-			case '*':
-				for (unsigned char d = 'a'; d <= 'z'; d++)
-				{
-					if (!ServerInstance->SNO->masks[d - 'a'].Description.empty())
-					{
-						if ((!IsNoticeMaskSet(d) && adding) || (IsNoticeMaskSet(d) && !adding))
-						{
-							if ((oldadding != adding) || (!output.length()))
-								output += (adding ? '+' : '-');
-
-							this->SetNoticeMask(d, adding);
-
-							output += d;
-						}
-						oldadding = adding;
-						char u = toupper(d);
-						if ((!IsNoticeMaskSet(u) && adding) || (IsNoticeMaskSet(u) && !adding))
-						{
-							if ((oldadding != adding) || (!output.length()))
-								output += (adding ? '+' : '-');
-
-							this->SetNoticeMask(u, adding);
-
-							output += u;
-						}
-						oldadding = adding;
-					}
-				}
-			break;
-			default:
-				if (isalpha(*c))
-				{
-					if ((!IsNoticeMaskSet(*c) && adding) || (IsNoticeMaskSet(*c) && !adding))
-					{
-						if ((oldadding != adding) || (!output.length()))
-							output += (adding ? '+' : '-');
-
-						this->SetNoticeMask(*c, adding);
-
-						output += *c;
-					}
-				}
-				else
-					this->WriteNumeric(ERR_UNKNOWNSNOMASK, "%s %c :is unknown snomask char to me", this->nick.c_str(), *c);
-
-				oldadding = adding;
-			break;
-		}
-
-		c++;
-	}
-
-	std::string s = this->FormatNoticeMasks();
-	if (s.length() == 0)
-	{
-		this->modes[UM_SNOMASK] = false;
-	}
-
-	return output;
-}
-
 bool User::IsNoticeMaskSet(unsigned char sm)
 {
 	if (!isalpha(sm))
 		return false;
 	return (snomasks[sm-65]);
-}
-
-void User::SetNoticeMask(unsigned char sm, bool value)
-{
-	if (!isalpha(sm))
-		return;
-	snomasks[sm-65] = value;
-}
-
-std::string User::FormatNoticeMasks()
-{
-	std::string data;
-
-	for (unsigned char n = 0; n < 64; n++)
-	{
-		if (snomasks[n])
-			data.push_back(n + 65); 
-	}
-
-	return data;
 }
 
 bool User::IsModeSet(unsigned char m)

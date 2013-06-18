@@ -400,19 +400,6 @@ class CoreExport User : public Extensible
 	 */
 	void InvalidateCache();
 
-	/** Create a displayable mode string for this users snomasks
-	 * @return The notice mask character sequence
-	 */
-	std::string FormatNoticeMasks();
-
-	/** Process a snomask modifier string, e.g. +abc-de
-	 * @param sm A sequence of notice mask characters
-	 * @return The cleaned mode sequence which can be output,
-	 * e.g. in the above example if masks c and e are not
-	 * valid, this function will return +ab-d
-	 */
-	std::string ProcessNoticeMasks(const char *sm);
-
 	/** Returns whether this user is currently away or not. If true,
 	 * further information can be found in User::awaymsg and User::awaytime
 	 * @return True if the user is away, false otherwise
@@ -431,12 +418,6 @@ class CoreExport User : public Extensible
 	 */
 	bool IsNoticeMaskSet(unsigned char sm);
 
-	/** Changed a specific notice mask value
-	 * @param sm The server notice mask to change
-	 * @param value An on/off value for this mask
-	 */
-	void SetNoticeMask(unsigned char sm, bool value);
-
 	/** Create a displayable mode string for this users umodes
 	 * @param showparameters The mode string
 	 */
@@ -449,6 +430,7 @@ class CoreExport User : public Extensible
 	bool IsModeSet(unsigned char m);
 	bool IsModeSet(ModeHandler* mh);
 	bool IsModeSet(ModeHandler& mh) { return IsModeSet(&mh); }
+	bool IsModeSet(UserModeReference& moderef);
 
 	/** Set a specific usermode to on or off
 	 * @param m The user mode
@@ -909,6 +891,13 @@ inline bool User::IsModeSet(ModeHandler* mh)
 {
 	char m = mh->GetModeChar();
 	return (modes[m-65]);
+}
+
+inline bool User::IsModeSet(UserModeReference& moderef)
+{
+	if (!moderef)
+		return false;
+	return IsModeSet(*moderef);
 }
 
 inline void User::SetMode(ModeHandler* mh, bool value)
