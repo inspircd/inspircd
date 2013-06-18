@@ -40,19 +40,6 @@ enum ClassTypes {
 	CC_NAMED = 2
 };
 
-/** RFC1459 channel modes
- */
-enum UserModes {
-	/** +s: Server notice mask */
-	UM_SNOMASK = 's' - 65,
-	/** +w: WALLOPS */
-	UM_WALLOPS = 'w' - 65,
-	/** +i: Invisible */
-	UM_INVISIBLE = 'i' - 65,
-	/** +o: Operator */
-	UM_OPERATOR = 'o' - 65
-};
-
 /** Registration state of a user, e.g.
  * have they sent USER, NICK, PASS yet?
  */
@@ -252,6 +239,14 @@ class CoreExport User : public Extensible
 	 */
 	std::string cachedip;
 
+	/** The user's mode list.
+	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
+	 * if (modes[modeletter-65]) is set, then the mode is
+	 * set, for example, to work out if mode +s is set, we check the field
+	 * User::modes['s'-65] != 0.
+	 */
+	std::bitset<64> modes;
+
  public:
 
 	/** Hostname of connection.
@@ -299,18 +294,6 @@ class CoreExport User : public Extensible
 	/** The users full name (GECOS).
 	 */
 	std::string fullname;
-
-	/** The user's mode list.
-	 * NOT a null terminated string.
-	 * Also NOT an array.
-	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
-	 * if (modes[modeletter-65]) is set, then the mode is
-	 * set, for example, to work out if mode +s is set, we  check the field
-	 * User::modes['s'-65] != 0.
-	 * The following RFC characters o, w, s, i have constants defined via an
-	 * enum, such as UM_SERVERNOTICE and UM_OPETATOR.
-	 */
-	std::bitset<64> modes;
 
 	/** What snomasks are set on this user.
 	 * This functions the same as the above modes.

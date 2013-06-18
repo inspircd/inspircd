@@ -367,10 +367,11 @@ CullResult FakeUser::cull()
 
 void User::Oper(OperInfo* info)
 {
-	if (this->IsModeSet('o'))
+	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
+	if (this->IsModeSet(opermh))
 		this->UnOper();
 
-	this->modes[UM_OPERATOR] = 1;
+	this->SetMode(opermh, true);
 	this->oper = info;
 	this->WriteServ("MODE %s :+o", this->nick.c_str());
 	FOREACH_MOD(I_OnOper, OnOper(this, info->name));
@@ -490,7 +491,8 @@ void User::UnOper()
 	/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
 	ServerInstance->Users->all_opers.remove(this);
 
-	this->modes[UM_OPERATOR] = 0;
+	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
+	this->SetMode(opermh, false);
 }
 
 /*
