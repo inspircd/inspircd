@@ -28,6 +28,9 @@
  */
 class CommandWhois : public SplitCommand
 {
+	ChanModeReference secretmode;
+	ChanModeReference privatemode;
+
 	void SplitChanList(User* source, User* dest, const std::string& cl);
 	void DoWhois(User* user, User* dest, unsigned long signon, unsigned long idle);
 	std::string ChannelList(User* source, User* dest, bool spy);
@@ -35,7 +38,15 @@ class CommandWhois : public SplitCommand
  public:
 	/** Constructor for whois.
 	 */
-	CommandWhois ( Module* parent) : SplitCommand(parent,"WHOIS", 1) { Penalty = 2; syntax = "<nick>{,<nick>}"; }
+	CommandWhois(Module* parent)
+		: SplitCommand(parent, "WHOIS", 1)
+		, secretmode(parent, "secret")
+		, privatemode(parent, "private")
+	{
+		Penalty = 2;
+		syntax = "<nick>{,<nick>}";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -56,7 +67,7 @@ std::string CommandWhois::ChannelList(User* source, User* dest, bool spy)
 		/* If the target is the sender, neither +p nor +s is set, or
 		 * the channel contains the user, it is not a spy channel
 		 */
-		if (spy != (source == dest || !(c->IsModeSet('p') || c->IsModeSet('s')) || c->HasUser(source)))
+		if (spy != (source == dest || !(c->IsModeSet(privatemode) || c->IsModeSet(secretmode)) || c->HasUser(source)))
 			list.append(c->GetPrefixChar(dest)).append(c->name).append(" ");
 	}
 

@@ -39,13 +39,32 @@ class CommandWho : public Command
 	bool opt_local;
 	bool opt_far;
 	bool opt_time;
+	ChanModeReference secretmode;
+	ChanModeReference privatemode;
+
+	Channel* get_first_visible_channel(User *u)
+	{
+		UCListIter i = u->chans.begin();
+		while (i != u->chans.end())
+		{
+			Channel* c = *i++;
+			if (!c->IsModeSet(secretmode))
+				return c;
+		}
+		return NULL;
+	}
 
  public:
 	/** Constructor for who.
 	 */
-	CommandWho ( Module* parent) : Command(parent,"WHO", 1) {
+	CommandWho(Module* parent)
+		: Command(parent, "WHO", 1)
+		, secretmode(parent, "secret")
+		, privatemode(parent, "private")
+	{
 		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
 	}
+
 	void SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
@@ -56,19 +75,6 @@ class CommandWho : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 	bool whomatch(User* cuser, User* user, const char* matchtext);
 };
-
-
-static Channel* get_first_visible_channel(User *u)
-{
-	UCListIter i = u->chans.begin();
-	while (i != u->chans.end())
-	{
-		Channel* c = *i++;
-		if (!c->IsModeSet('s'))
-			return c;
-	}
-	return NULL;
-}
 
 bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 {
@@ -180,7 +186,7 @@ bool CommandWho::CanView(Channel* chan, User* user)
 	if (user->HasPrivPermission("users/auspex"))
 		return true;
 	/* Cant see inside a +s or a +p channel unless we are a member (see above) */
-	else if (!chan->IsModeSet('s') && !chan->IsModeSet('p'))
+	else if (!chan->IsModeSet(secretmode) && !chan->IsModeSet(privatemode))
 		return true;
 
 	return false;

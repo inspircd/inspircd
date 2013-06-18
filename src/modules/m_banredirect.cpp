@@ -217,14 +217,17 @@ class ModuleBanRedirect : public Module
 {
 	BanRedirect re;
 	bool nofollow;
+	ChanModeReference limitmode;
+	ChanModeReference redirectmode;
 
  public:
 	ModuleBanRedirect()
-	: re(this)
+		: re(this)
+		, nofollow(false)
+		, limitmode(this, "limit")
+		, redirectmode(this, "redirect")
 	{
-		nofollow = false;
 	}
-
 
 	void init() CXX11_OVERRIDE
 	{
@@ -311,9 +314,9 @@ class ModuleBanRedirect : public Module
 						std::string destlimit;
 
 						if (destchan)
-							destlimit = destchan->GetModeParameter('l');
+							destlimit = destchan->GetModeParameter(limitmode);
 
-						if(destchan && ServerInstance->Modules->Find("m_redirect.so") && destchan->IsModeSet('L') && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
+						if(destchan && destchan->IsModeSet(redirectmode) && !destlimit.empty() && (destchan->GetUserCounter() >= atoi(destlimit.c_str())))
 						{
 							user->WriteNumeric(474, "%s %s :Cannot join channel (You are banned)", user->nick.c_str(), chan->name.c_str());
 							return MOD_RES_DENY;

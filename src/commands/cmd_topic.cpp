@@ -29,10 +29,21 @@
  */
 class CommandTopic : public Command
 {
+	ChanModeReference secretmode;
+	ChanModeReference topiclockmode;
+
  public:
 	/** Constructor for topic.
 	 */
-	CommandTopic ( Module* parent) : Command(parent,"TOPIC",1, 2) { syntax = "<channel> [<topic>]"; Penalty = 2; }
+	CommandTopic(Module* parent)
+		: Command(parent, "TOPIC", 1, 2)
+		, secretmode(parent, "secret")
+		, topiclockmode(parent, "topiclock")
+	{
+		syntax = "<channel> [<topic>]";
+		Penalty = 2;
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -59,7 +70,7 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (c)
 		{
-			if ((c->IsModeSet('s')) && (!c->HasUser(user)))
+			if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
 			{
 				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), c->name.c_str());
 				return CMD_FAILURE;
@@ -98,7 +109,7 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 			user->WriteNumeric(442, "%s %s :You're not on that channel!", user->nick.c_str(), c->name.c_str());
 			return CMD_FAILURE;
 		}
-		if (c->IsModeSet('t') && !ServerInstance->OnCheckExemption(user, c, "topiclock").check(c->GetPrefixValue(user) >= HALFOP_VALUE))
+		if (c->IsModeSet(topiclockmode) && !ServerInstance->OnCheckExemption(user, c, "topiclock").check(c->GetPrefixValue(user) >= HALFOP_VALUE))
 		{
 			user->WriteNumeric(482, "%s %s :You do not have access to change the topic on this channel", user->nick.c_str(), c->name.c_str());
 			return CMD_FAILURE;

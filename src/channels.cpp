@@ -28,7 +28,15 @@
 #include <cstdarg>
 #include "mode.h"
 
-static ChanModeReference ban(NULL, "ban");
+namespace
+{
+	ChanModeReference ban(NULL, "ban");
+	ChanModeReference inviteonlymode(NULL, "inviteonly");
+	ChanModeReference keymode(NULL, "key");
+	ChanModeReference limitmode(NULL, "limit");
+	ChanModeReference secretmode(NULL, "secret");
+	ChanModeReference privatemode(NULL, "private");
+}
 
 Channel::Channel(const std::string &cname, time_t ts)
 {
@@ -47,8 +55,9 @@ void Channel::SetMode(ModeHandler* mh, bool on)
 	modes[mh->GetModeChar() - 65] = on;
 }
 
-void Channel::SetModeParam(char mode, const std::string& parameter)
+void Channel::SetModeParam(ModeHandler* mh, const std::string& parameter)
 {
+	char mode = mh->GetModeChar();
 	if (parameter.empty())
 	{
 		custom_mode_params.erase(mode);
@@ -59,19 +68,6 @@ void Channel::SetModeParam(char mode, const std::string& parameter)
 		custom_mode_params[mode] = parameter;
 		modes[mode-65] = true;
 	}
-}
-
-void Channel::SetModeParam(ModeHandler* mode, const std::string& parameter)
-{
-	SetModeParam(mode->GetModeChar(), parameter);
-}
-
-std::string Channel::GetModeParameter(char mode)
-{
-	CustomModeList::iterator n = custom_mode_params.find(mode);
-	if (n != custom_mode_params.end())
-		return n->second;
-	return "";
 }
 
 std::string Channel::GetModeParameter(ModeHandler* mode)
@@ -264,7 +260,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 			// then this entire section is skipped
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
-				std::string ckey = chan->GetModeParameter('k');
+				std::string ckey = chan->GetModeParameter(keymode);
 				bool invited = user->IsInvited(chan);
 				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
 
@@ -279,7 +275,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					}
 				}
 
-				if (chan->IsModeSet('i'))
+				if (chan->IsModeSet(inviteonlymode))
 				{
 					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
 					if (!MOD_RESULT.check(invited))
@@ -289,7 +285,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					}
 				}
 
-				std::string limit = chan->GetModeParameter('l');
+				std::string limit = chan->GetModeParameter(limitmode);
 				if (!limit.empty())
 				{
 					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
@@ -632,13 +628,17 @@ const char* Channel::ChanModes(bool showkey)
 		if(this->modes[n])
 		{
 			scratch.push_back(n + 65);
+			ModeHandler* mh = ServerInstance->Modes->FindMode(n+'A', MODETYPE_CHANNEL);
+			if (!mh)
+				continue;
+
 			if (n == 'k' - 65 && !showkey)
 			{
 				sparam += " <key>";
 			}
 			else
 			{
-				const std::string param = this->GetModeParameter(n + 65);
+				const std::string param = this->GetModeParameter(mh);
 				if (!param.empty())
 				{
 					sparam += ' ';
@@ -657,7 +657,7 @@ const char* Channel::ChanModes(bool showkey)
  */
 void Channel::UserList(User *user)
 {
-	if (this->IsModeSet('s') && !this->HasUser(user) && !user->HasPrivPermission("channels/auspex"))
+	if (this->IsModeSet(secretmode) && !this->HasUser(user) && !user->HasPrivPermission("channels/auspex"))
 	{
 		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
 		return;
@@ -665,7 +665,7 @@ void Channel::UserList(User *user)
 
 	std::string list = user->nick;
 	list.push_back(' ');
-	list.push_back(this->IsModeSet('s') ? '@' : this->IsModeSet('p') ? '*' : '=');
+	list.push_back(this->IsModeSet(secretmode) ? '@' : this->IsModeSet(privatemode) ? '*' : '=');
 	list.push_back(' ');
 	list.append(this->name).append(" :");
 	std::string::size_type pos = list.size();

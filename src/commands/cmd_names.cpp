@@ -27,10 +27,18 @@
  */
 class CommandNames : public Command
 {
+	ChanModeReference secretmode;
+
  public:
 	/** Constructor for names.
 	 */
-	CommandNames ( Module* parent) : Command(parent,"NAMES",0,0) { syntax = "{<channel>{,<channel>}}"; }
+	CommandNames(Module* parent)
+		: Command(parent, "NAMES", 0, 0)
+		, secretmode(parent, "secret")
+	{
+		syntax = "{<channel>{,<channel>}}";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -58,7 +66,7 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 	c = ServerInstance->FindChan(parameters[0]);
 	if (c)
 	{
-		if ((c->IsModeSet('s')) && (!c->HasUser(user)))
+		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
 		{
 		      user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), c->name.c_str());
 		      return CMD_FAILURE;

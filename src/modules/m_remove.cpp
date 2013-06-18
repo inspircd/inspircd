@@ -35,10 +35,13 @@
 class RemoveBase : public Command
 {
 	bool& supportnokicks;
+	ChanModeReference& nokicksmode;
 
  public:
-	RemoveBase(Module* Creator, bool& snk, const char* cmdn)
-		: Command(Creator, cmdn, 2, 3), supportnokicks(snk)
+	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
+		: Command(Creator, cmdn, 2, 3)
+		, supportnokicks(snk)
+		, nokicksmode(nkm)
 	{
 	}
 
@@ -47,9 +50,6 @@ class RemoveBase : public Command
 		User* target;
 		Channel* channel;
 		std::string reason;
-		std::string protectkey;
-		std::string founderkey;
-		bool hasnokicks;
 
 		/* Set these to the parameters needed, the new version of this module switches it's parameters around
 		 * supplying a new command with the new order while keeping the old /remove with the older order.
@@ -81,8 +81,6 @@ class RemoveBase : public Command
 		int ulevel = channel->GetPrefixValue(user);
 		int tlevel = channel->GetPrefixValue(target);
 
-		hasnokicks = (ServerInstance->Modules->Find("m_nokicks.so") && channel->IsModeSet('Q'));
-
 		if (ServerInstance->ULine(target->server))
 		{
 			user->WriteNumeric(482, "%s %s :Only a u-line may remove a u-line from a channel.", user->nick.c_str(), channame.c_str());
@@ -90,7 +88,7 @@ class RemoveBase : public Command
 		}
 
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
-		if ((!IS_LOCAL(user)) || (!supportnokicks || !hasnokicks))
+		if ((!IS_LOCAL(user)) || (!supportnokicks) || (!channel->IsModeSet(nokicksmode)))
 		{
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
@@ -128,7 +126,7 @@ class RemoveBase : public Command
 		else
 		{
 			/* m_nokicks.so was loaded and +Q was set, block! */
-			user->WriteServ( "484 %s %s :Can't remove user %s from channel (+Q set)", user->nick.c_str(), channel->name.c_str(), target->nick.c_str());
+			user->WriteServ( "484 %s %s :Can't remove user %s from channel (nokicks mode is set)", user->nick.c_str(), channel->name.c_str(), target->nick.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -142,8 +140,8 @@ class RemoveBase : public Command
 class CommandRemove : public RemoveBase
 {
  public:
-	CommandRemove(Module* Creator, bool& snk)
-		: RemoveBase(Creator, snk, "REMOVE")
+	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
+		: RemoveBase(Creator, snk, nkm, "REMOVE")
 	{
 		syntax = "<nick> <channel> [<reason>]";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
@@ -168,8 +166,8 @@ class CommandRemove : public RemoveBase
 class CommandFpart : public RemoveBase
 {
  public:
-	CommandFpart(Module* Creator, bool& snk)
-		: RemoveBase(Creator, snk, "FPART")
+	CommandFpart(Module* Creator, bool& snk, ChanModeReference& nkm)
+		: RemoveBase(Creator, snk, nkm, "FPART")
 	{
 		syntax = "<channel> <nick> [<reason>]";
 		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
@@ -191,12 +189,16 @@ class CommandFpart : public RemoveBase
 
 class ModuleRemove : public Module
 {
+	ChanModeReference nokicksmode;
 	CommandRemove cmd1;
 	CommandFpart cmd2;
 	bool supportnokicks;
 
  public:
-	ModuleRemove() : cmd1(this, supportnokicks), cmd2(this, supportnokicks)
+	ModuleRemove()
+		: nokicksmode(this, "nokick")
+		, cmd1(this, supportnokicks, nokicksmode)
+		, cmd2(this, supportnokicks, nokicksmode)
 	{
 	}
 

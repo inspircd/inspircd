@@ -24,7 +24,14 @@
 
 class ModuleDenyChannels : public Module
 {
+	ChanModeReference redirectmode;
+
  public:
+	ModuleDenyChannels()
+		: redirectmode(this, "redirect")
+	{
+	}
+
 	void init() CXX11_OVERRIDE
 	{
 		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
@@ -110,7 +117,7 @@ class ModuleDenyChannels : public Module
 					{
 						/* simple way to avoid potential loops: don't redirect to +L channels */
 						Channel *newchan = ServerInstance->FindChan(redirect);
-						if ((!newchan) || (!(newchan->IsModeSet('L'))))
+						if ((!newchan) || (!newchan->IsModeSet(redirectmode)))
 						{
 							user->WriteNumeric(926, "%s %s :Channel %s is forbidden, redirecting to %s: %s",user->nick.c_str(),cname.c_str(),cname.c_str(),redirect.c_str(), reason.c_str());
 							Channel::JoinUser(user, redirect);

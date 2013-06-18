@@ -49,9 +49,13 @@ class ModuleChannelNames : public Module
 	NewIsChannelHandler myhandler;
 	caller1<bool, const std::string&> rememberer;
 	bool badchan;
+	ChanModeReference permchannelmode;
 
  public:
-	ModuleChannelNames() : rememberer(ServerInstance->IsChannel), badchan(false)
+	ModuleChannelNames()
+		: rememberer(ServerInstance->IsChannel)
+		, badchan(false)
+		, permchannelmode(this, "permanent")
 	{
 	}
 
@@ -76,11 +80,11 @@ class ModuleChannelNames : public Module
 		while (c2 != chanvec.rend())
 		{
 			Channel* c = *c2++;
-			if (c->IsModeSet('P') && c->GetUserCounter())
+			if (c->IsModeSet(permchannelmode) && c->GetUserCounter())
 			{
 				std::vector<std::string> modes;
 				modes.push_back(c->name);
-				modes.push_back("-P");
+				modes.push_back("-" + permchannelmode->GetModeChar());
 
 				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 			}

@@ -28,9 +28,14 @@ namespace
 
 class MessageCommandBase : public Command
 {
+	ChanModeReference moderatedmode;
+	ChanModeReference noextmsgmode;
+
  public:
 	MessageCommandBase(Module* parent, MessageType mt)
 		: Command(parent, MessageTypeString[mt], 2, 2)
+		, moderatedmode(parent, "moderated")
+		, noextmsgmode(parent, "noextmsg")
 	{
 		syntax = "<target>{,<target>} <message>";
 	}
@@ -105,13 +110,13 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		{
 			if (localuser && chan->GetPrefixValue(user) < VOICE_VALUE)
 			{
-				if (chan->IsModeSet('n') && !chan->HasUser(user))
+				if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
 				{
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;
 				}
 
-				if (chan->IsModeSet('m'))
+				if (chan->IsModeSet(moderatedmode))
 				{
 					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
 					return CMD_FAILURE;

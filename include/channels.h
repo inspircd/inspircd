@@ -117,15 +117,14 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * If it is empty, the mode is unset; if it is nonempty, the mode is set.
 	 */
 	void SetModeParam(ModeHandler* mode, const std::string& parameter);
-	void SetModeParam(char mode, const std::string& parameter);
 
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
 	  */
-	inline bool IsModeSet(char mode) { return modes[mode-'A']; }
 	inline bool IsModeSet(ModeHandler* mode) { return modes[mode->GetModeChar()-'A']; }
 	bool IsModeSet(ModeHandler& mode) { return IsModeSet(&mode); }
+	bool IsModeSet(ChanModeReference& mode);
 
 	/** Returns the parameter for a custom mode on a channel.
 	  * @param mode The mode character you wish to query
@@ -137,8 +136,8 @@ class CoreExport Channel : public Extensible, public InviteBase
 	  *
 	  * @return The parameter for this mode is returned, or an empty string
 	  */
-	std::string GetModeParameter(char mode);
 	std::string GetModeParameter(ModeHandler* mode);
+	std::string GetModeParameter(ChanModeReference& mode);
 
 	/** Sets the channel topic.
 	 * @param user The user setting the topic.
@@ -366,4 +365,18 @@ class CoreExport Channel : public Extensible, public InviteBase
 inline bool Channel::HasUser(User* user)
 {
 	return (userlist.find(user) != userlist.end());
+}
+
+inline std::string Channel::GetModeParameter(ChanModeReference& mode)
+{
+	if (!mode)
+		return "";
+	return GetModeParameter(*mode);
+}
+
+inline bool Channel::IsModeSet(ChanModeReference& mode)
+{
+	if (!mode)
+		return false;
+	return IsModeSet(*mode);
 }

@@ -95,12 +95,14 @@ class ModuleRedirect : public Module
 {
 	Redirect re;
 	AntiRedirect re_u;
+	ChanModeReference limitmode;
 	bool UseUsermode;
 
  public:
 	ModuleRedirect()
 		: re(this)
 		, re_u(this)
+		, limitmode(this, "limit")
 	{
 	}
 
@@ -130,9 +132,9 @@ class ModuleRedirect : public Module
 	{
 		if (chan)
 		{
-			if (chan->IsModeSet(re) && chan->IsModeSet('l'))
+			if (chan->IsModeSet(re) && chan->IsModeSet(limitmode))
 			{
-				if (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter('l')))
+				if (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter(limitmode)))
 				{
 					std::string channel = chan->GetModeParameter(&re);
 

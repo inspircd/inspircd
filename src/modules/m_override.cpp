@@ -30,8 +30,19 @@ class ModuleOverride : public Module
 {
 	bool RequireKey;
 	bool NoisyOverride;
+	ChanModeReference topiclock;
+	ChanModeReference inviteonly;
+	ChanModeReference key;
+	ChanModeReference limit;
 
  public:
+	ModuleOverride()
+		: topiclock(this, "topiclock")
+		, inviteonly(this, "inviteonly")
+		, key(this, "key")
+		, limit(this, "limit")
+	{
+	}
 
 	void init() CXX11_OVERRIDE
 	{
@@ -68,7 +79,7 @@ class ModuleOverride : public Module
 	{
 		if (IS_LOCAL(source) && source->IsOper() && CanOverride(source, "TOPIC"))
 		{
-			if (!channel->HasUser(source) || (channel->IsModeSet('t') && channel->GetPrefixValue(source) < HALFOP_VALUE))
+			if (!channel->HasUser(source) || (channel->IsModeSet(topiclock) && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
 				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to change a topic on "+channel->name);
 			}
@@ -120,7 +131,7 @@ class ModuleOverride : public Module
 		{
 			if (chan)
 			{
-				if (chan->IsModeSet('i') && (CanOverride(user,"INVITE")))
+				if (chan->IsModeSet(inviteonly) && (CanOverride(user,"INVITE")))
 				{
 					if (!IS_LOCAL(user)->IsInvited(chan))
 					{
@@ -138,7 +149,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet('k') && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter('k'))
+				if (chan->IsModeSet(key) && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter(key))
 				{
 					if (RequireKey && keygiven != "override")
 					{
@@ -153,7 +164,7 @@ class ModuleOverride : public Module
 					return MOD_RES_ALLOW;
 				}
 
-				if (chan->IsModeSet('l') && (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter('l'))) && (CanOverride(user,"LIMIT")))
+				if (chan->IsModeSet(limit) && (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter(limit))) && (CanOverride(user,"LIMIT")))
 				{
 					if (RequireKey && keygiven != "override")
 					{

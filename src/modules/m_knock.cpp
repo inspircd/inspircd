@@ -25,10 +25,16 @@
  */
 class CommandKnock : public Command
 {
+	SimpleChannelModeHandler& noknockmode;
+	ChanModeReference inviteonlymode;
+
  public:
 	bool sendnotice;
 	bool sendnumeric;
-	CommandKnock(Module* Creator) : Command(Creator,"KNOCK", 2, 2)
+	CommandKnock(Module* Creator, SimpleChannelModeHandler& Noknockmode)
+		: Command(Creator,"KNOCK", 2, 2)
+		, noknockmode(Noknockmode)
+		, inviteonlymode(Creator, "inviteonly")
 	{
 		syntax = "<channel> <reason>";
 		Penalty = 5;
@@ -49,13 +55,13 @@ class CommandKnock : public Command
 			return CMD_FAILURE;
 		}
 
-		if (c->IsModeSet('K'))
+		if (c->IsModeSet(noknockmode))
 		{
 			user->WriteNumeric(480, "%s :Can't KNOCK on %s, +K is set.",user->nick.c_str(), c->name.c_str());
 			return CMD_FAILURE;
 		}
 
-		if (!c->IsModeSet('i'))
+		if (!c->IsModeSet(inviteonlymode))
 		{
 			user->WriteNumeric(480, "%s :Can't KNOCK on %s, channel is not invite only so knocking is pointless!",user->nick.c_str(), c->name.c_str());
 			return CMD_FAILURE;
@@ -77,20 +83,15 @@ class CommandKnock : public Command
 	}
 };
 
-/** Handles channel mode +K
- */
-class Knock : public SimpleChannelModeHandler
-{
- public:
-	Knock(Module* Creator) : SimpleChannelModeHandler(Creator, "noknock", 'K') { }
-};
-
 class ModuleKnock : public Module
 {
+	SimpleChannelModeHandler kn;
 	CommandKnock cmd;
-	Knock kn;
+
  public:
-	ModuleKnock() : cmd(this), kn(this)
+	ModuleKnock()
+		: kn(this, "noknock", 'K')
+		, cmd(this, kn)
 	{
 	}
 
