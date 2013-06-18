@@ -22,11 +22,9 @@
 #pragma once
 
 class BanCacheManager;
-class BanItem;
 class BufferedSocket;
 class Channel;
 class Command;
-class ConfigReader;
 class ConfigTag;
 class Extensible;
 class FakeUser;
@@ -76,10 +74,6 @@ typedef std::set<Channel*> UserChanList;
 /** Shorthand for an iterator into a UserChanList
  */
 typedef UserChanList::iterator UCListIter;
-
-/** Holds a complete ban list
- */
-typedef std::vector<BanItem> BanList;
 
 /** A list of custom modes parameters on a channel
  */

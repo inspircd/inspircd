@@ -140,35 +140,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Logs);
 }
 
-void InspIRCd::Restart(const std::string &reason)
-{
-	/* SendError flushes each client's queue,
-	 * regardless of writeability state
-	 */
-	this->SendError(reason);
-
-	/* Figure out our filename (if theyve renamed it, we're boned) */
-	std::string me;
-
-	char** argv = Config->cmdline.argv;
-
-#ifdef _WIN32
-	char module[MAX_PATH];
-	if (GetModuleFileNameA(NULL, module, MAX_PATH))
-		me = module;
-#else
-	me = argv[0];
-#endif
-
-	this->Cleanup();
-
-	if (execv(me.c_str(), argv) == -1)
-	{
-		/* Will raise a SIGABRT if not trapped */
-		throw CoreException(std::string("Failed to execv()! error: ") + strerror(errno));
-	}
-}
-
 void InspIRCd::SetSignals()
 {
 #ifndef _WIN32

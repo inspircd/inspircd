@@ -58,7 +58,7 @@ class AllModule : public Module
 			{
 				Command* c = (*i)(this);
 				cmds.push_back(c);
-				ServerInstance->AddCommand(c);
+				ServerInstance->Modules->AddService(*c);
 			}
 		}
 		catch (...)

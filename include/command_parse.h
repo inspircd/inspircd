@@ -30,13 +30,6 @@
 class CoreExport CommandParser
 {
  private:
-	/** Process a parameter string into a list of items
-	 * @param command_p The output list of items
-	 * @param parameters The input string
-	 * @return The number of parameters parsed into command_p
-	 */
-	int ProcessParameters(std::vector<std::string>& command_p, char* parameters);
-
 	/** Process a command from a user.
 	 * @param user The user to parse the command for
 	 * @param cmd The command string to process
@@ -69,16 +62,6 @@ class CoreExport CommandParser
 	 * @return a pointer to the command handler, or NULL
 	 */
 	Command* GetHandler(const std::string &commandname);
-
-	/** This function returns true if a command is valid with the given number of parameters and user.
-	 * @param commandname The command name to check
-	 * @param pcnt The parameter count
-	 * @param user The user to check against
-	 * @return If the user given has permission to execute the command, and the parameter count is
-	 * equal to or greater than the minimum number of parameters to the given command, then this
-	 * function will return true, otherwise it will return false.
-	 */
-	bool IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user);
 
 	/** LoopCall is used to call a command handler repeatedly based on the contents of a comma seperated list.
 	 * There are two ways to call this method, either with one potential list or with two potential lists.

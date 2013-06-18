@@ -265,11 +265,6 @@ class CoreExport InspIRCd
 	 */
 	bool DaemonSeed();
 
-	/** Iterate the list of BufferedSocket objects, removing ones which have timed out
-	 * @param TIME the current time
-	 */
-	void DoSocketTimeouts(time_t TIME);
-
 	/** The current time, updated in the mainloop
 	 */
 	struct timespec TIME;
@@ -544,15 +539,6 @@ class CoreExport InspIRCd
 	 */
 	caller1<bool, const std::string&> IsIdent;
 
-	/** Add a command to this server's command parser
-	 * @param f A Command command handler object to add
-	 * @throw ModuleException Will throw ModuleExcption if the command already exists
-	 */
-	inline void AddCommand(Command *f)
-	{
-		Modules->AddService(*f);
-	}
-
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
 	 * @param str The literal string to match against
@@ -693,14 +679,6 @@ class CoreExport InspIRCd
 	 * @param Action name
 	 */
 	caller3<ModResult, User*, Channel*, const std::string&> OnCheckExemption;
-
-	/** Restart the server.
-	 * This function will not return. If an error occurs,
-	 * it will throw an instance of CoreException.
-	 * @param reason The restart reason to show to all clients
-	 * @throw CoreException An instance of CoreException indicating the error from execv().
-	 */
-	void Restart(const std::string &reason);
 
 	/** Prepare the ircd for restart or shutdown.
 	 * This function unloads all modules which can be unloaded,

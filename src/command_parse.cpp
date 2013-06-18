@@ -108,30 +108,6 @@ bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std
 	return true;
 }
 
-bool CommandParser::IsValidCommand(const std::string &commandname, unsigned int pcnt, User * user)
-{
-	Commandtable::iterator n = cmdlist.find(commandname);
-
-	if (n != cmdlist.end())
-	{
-		if ((pcnt >= n->second->min_params))
-		{
-			if (IS_LOCAL(user) && n->second->flags_needed)
-			{
-				if (user->IsModeSet(n->second->flags_needed))
-				{
-					return (user->HasPermission(commandname));
-				}
-			}
-			else
-			{
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
 Command* CommandParser::GetHandler(const std::string &commandname)
 {
 	Commandtable::iterator n = cmdlist.find(commandname);
