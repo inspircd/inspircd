@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			return EXIT_STATUS_INTERNAL;
+			return EXIT_STATUS_SERVICE;
 		}
 	}
 	return 0;
