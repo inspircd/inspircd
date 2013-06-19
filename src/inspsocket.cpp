@@ -248,11 +248,13 @@ void StreamSocket::DoWrite()
 					// The length limit of 1024 is to prevent merging strings
 					// more than once when writes begin to block.
 					std::string tmp;
-					tmp.reserve(sendq_len);
-					for(unsigned int i=0; i < sendq.size(); i++)
-						tmp.append(sendq[i]);
-					sendq.clear();
-					sendq.push_back(tmp);
+					tmp.reserve(1280);
+					while (!sendq.empty() && tmp.length() < 1024)
+					{
+						tmp.append(sendq.front());
+						sendq.pop_front();
+					}
+					sendq.push_front(tmp);
 				}
 				std::string& front = sendq.front();
 				int itemlen = front.length();
