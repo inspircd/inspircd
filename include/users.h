@@ -598,8 +598,8 @@ class CoreExport User : public Extensible
 	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
 
 	/** Dump text to a user target, splitting it appropriately to fit
-	 * @param LinePrefix text to prefix each complete line with
-	 * @param TextStream the text to send to the user
+	 * @param linePrefix text to prefix each complete line with
+	 * @param textStream the text to send to the user
 	 */
 	void SendText(const std::string& linePrefix, std::stringstream& textStream);
 
@@ -818,7 +818,7 @@ class CoreExport LocalUser : public User, public InviteBase
 	InviteList& GetInviteList();
 
 	/** Returns true if a user is invited to a channel.
-	 * @param channel A channel to look up
+	 * @param chan A channel to look up
 	 * @return True if the user is invited to the given channel
 	 */
 	bool IsInvited(Channel* chan) { return (Invitation::Find(chan, this) != NULL); }
@@ -826,7 +826,7 @@ class CoreExport LocalUser : public User, public InviteBase
 	/** Removes a channel from a users invite list.
 	 * This member function is called on successfully joining an invite only channel
 	 * to which the user has previously been invited, to clear the invitation.
-	 * @param channel The channel to remove the invite to
+	 * @param chan The channel to remove the invite to
 	 * @return True if the user was invited to the channel and the invite was erased, false if the user wasn't invited
 	 */
 	bool RemoveInvite(Channel* chan);

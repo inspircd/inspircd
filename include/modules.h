@@ -843,7 +843,7 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
-	* @param output The 005 map to be modified if neccessary.
+	* @param tokens The 005 map to be modified if neccessary.
 	*/
 	virtual void On005Numeric(std::map<std::string, std::string>& tokens);
 
@@ -1202,7 +1202,7 @@ class CoreExport FileReader : public classbase
 	FileReader() : totalSize(0) { }
 
 	/** Initializes a new file reader and reads the specified file.
-	 * @param file The file to read into memory.
+	 * @param filename The file to read into memory.
 	 */
 	FileReader(const std::string& filename);
 

@@ -49,7 +49,6 @@ class CoreExport Timer
 
  public:
 	/** Default constructor, initializes the triggering time
-	 * @param mod The module that created this timer
 	 * @param secs_from_now The number of seconds from now to trigger the timer
 	 * @param now The time now
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true

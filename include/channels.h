@@ -218,7 +218,7 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 * @param user The user to join to the channel
 	 * @param privs Priviliges (prefix mode letters) to give to this user, may be NULL
 	 * @param bursting True if this join is the result of a netburst (passed to modules in the OnUserJoin hook)
-	 * @param created True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
+	 * @param created_by_local True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
 	 */
 	void ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
 
