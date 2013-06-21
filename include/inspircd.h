@@ -478,7 +478,7 @@ class CoreExport InspIRCd
 	caller1<bool, const std::string&> IsChannel;
 
 	/** Return true if str looks like a server ID
-	 * @param string to check against
+	 * @param sid string to check against
 	 */
 	static bool IsSID(const std::string& sid);
 
@@ -509,9 +509,9 @@ class CoreExport InspIRCd
 	 */
 	static void QuickExit(int status);
 
-	/** Printf-wrapper.
-	* @param How you want it formatted
-	* @param ...
+	/** Formats the input string with the specified arguments.
+	* @param formatString The string to format
+	* @param ... A variable number of format arguments.
 	* @return The formatted string
 	*/
 	static const char* Format(const char* formatString, ...) CUSTOM_PRINTF(1, 2);
