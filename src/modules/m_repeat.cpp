@@ -49,18 +49,21 @@ class RepeatMode : public ModeHandler
 		unsigned int MaxSecs;
 		unsigned int MaxBacklog;
 		unsigned int MaxDiff;
+		unsigned int MaxMessageSize;
 		ModuleSettings() : MaxLines(0), MaxSecs(0), MaxBacklog(0), MaxDiff() { }
 	};
 
-	std::vector<std::vector<unsigned int> > mx;
+	std::vector<unsigned int> mx[2];
 	ModuleSettings ms;
 
 	bool CompareLines(const std::string& message, const std::string& historyline, unsigned int trigger)
 	{
-		if (trigger)
+		if (message == historyline)
+			return true;
+		else if (trigger)
 			return (Levenshtein(message, historyline) <= trigger);
-		else
-			return (message == historyline);
+
+		return false;
 	}
 
 	unsigned int Levenshtein(const std::string& s1, const std::string& s2)
@@ -68,14 +71,17 @@ class RepeatMode : public ModeHandler
 		unsigned int l1 = s1.size();
 		unsigned int l2 = s2.size();
 
-		for (unsigned int i = 0; i <= l1; i++)
-			mx[i][0] = i;
-		for (unsigned int i = 0; i <= l2; i++)
+		for (unsigned int i = 0; i < l2; i++)
 			mx[0][i] = i;
-		for (unsigned int i = 1; i <= l1; i++)
-			for (unsigned int j = 1; j <= l2; j++)
-				mx[i][j] = std::min(std::min(mx[i - 1][j] + 1, mx[i][j - 1] + 1), mx[i - 1][j - 1] + (s1[i - 1] == s2[j - 1] ? 0 : 1));
-		return (mx[l1][l2]);
+		for (unsigned int i = 0; i < l1; i++)
+		{
+			mx[1][0] = i + 1;
+			for (unsigned int j = 0; j < l2; j++)
+	            mx[1][j + 1] = std::min(std::min(mx[1][j] + 1, mx[0][j + 1] + 1), mx[0][j] + ((s1[i] == s2[j]) ? 0 : 1));
+
+			mx[0].swap(mx[1]);
+		}
+		return mx[0][l2];
 	}
 
  public:
@@ -163,8 +169,8 @@ class RepeatMode : public ModeHandler
 	{
 		// If the message is larger than whatever size it's set to,
 		// let's pretend it isn't. If the first 512 (def. setting) match, it's probably spam.
-		if (message.size() > mx.size())
-			message.erase(mx.size());
+		if (message.size() > ms.MaxMessageSize)
+			message.erase(ms.MaxMessageSize);
 
 		MemberInfo* rp = MemberInfoExt.get(memb);
 		if (!rp)
@@ -220,25 +226,12 @@ class RepeatMode : public ModeHandler
 
 	void Resize(size_t size)
 	{
-		if (size == mx.size())
+		size_t newsize = size+1;
+		if (newsize <= mx[0].size())
 			return;
-		mx.resize(size);
-
-		if (mx.size() > size)
-		{
-			mx.resize(size);
-			for (unsigned int i = 0; i < mx.size(); i++)
-				mx[i].resize(size);
-		}
-		else
-		{
-			for (unsigned int i = 0; i < mx.size(); i++)
-			{
-				mx[i].resize(size);
-				std::vector<unsigned int>(mx[i]).swap(mx[i]);
-			}
-			std::vector<std::vector<unsigned int> >(mx).swap(mx);
-		}
+		ms.MaxMessageSize = size;
+		mx[0].resize(newsize);
+		mx[1].resize(newsize);
 	}
 
 	void ReadConfig()
