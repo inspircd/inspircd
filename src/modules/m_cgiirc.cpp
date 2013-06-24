@@ -207,8 +207,8 @@ class ModuleCgiIRC : public Module
 		{
 			bool cached;
 			CGIResolver* r = new CGIResolver(this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), cached, waiting);
-			ServerInstance->AddResolver(r, cached);
 			waiting.set(user, waiting.get(user) + 1);
+			ServerInstance->AddResolver(r, cached);
 		}
 		catch (...)
 		{
