@@ -123,6 +123,7 @@ class CoreExport CommandParser
 	 * @param item The input string
 	 * @param dest The output string. The translation result will be appended to this string
 	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
+	 * @param paramnumber The index of the parameter we are translating.
 	 */
 	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, Command* custom_translator = NULL, unsigned int paramnumber = 0);
 

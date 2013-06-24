@@ -106,7 +106,8 @@ class CoreExport ListModeBase : public ModeHandler
 
  public:
 	/** Constructor.
-	 * @param Instance The creator of this class
+	 * @param Creator The creator of this class
+	 * @param Name Mode name
 	 * @param modechar Mode character
 	 * @param eolstr End of list string
 	 * @param lnum List numeric
@@ -175,7 +176,7 @@ class CoreExport ListModeBase : public ModeHandler
 
 	/** Validate parameters.
 	 * Overridden by implementing module.
-	 * @param source Source user adding the parameter
+	 * @param user Source user adding the parameter
 	 * @param channel Channel the parameter is being added to
 	 * @param parameter The actual parameter being added
 	 * @return true if the parameter is valid
