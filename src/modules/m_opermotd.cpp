@@ -84,8 +84,6 @@ class ModuleOpermotd : public Module
 	{
 		ServerInstance->Modules->AddService(cmd);
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnOper };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

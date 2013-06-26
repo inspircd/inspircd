@@ -93,8 +93,6 @@ void ListModeBase::DoImplements(Module* m)
 {
 	ServerInstance->Modules->AddService(extItem);
 	this->DoRehash();
-	Implementation eventlist[] = { I_OnSyncChannel, I_OnRehash };
-	ServerInstance->Modules->Attach(eventlist, m, sizeof(eventlist)/sizeof(Implementation));
 }
 
 unsigned int ListModeBase::FindLimit(const std::string& channame)

@@ -25,11 +25,6 @@
 class ModuleOperLevels : public Module
 {
 	public:
-		void init() CXX11_OVERRIDE
-		{
-			ServerInstance->Modules->Attach(I_OnKill, this);
-		}
-
 		Version GetVersion() CXX11_OVERRIDE
 		{
 			return Version("Gives each oper type a 'level', cannot kill opers 'above' your level.", VF_VENDOR);

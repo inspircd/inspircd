@@ -305,9 +305,6 @@ class ModuleSilence : public Module
 		ServerInstance->Modules->AddService(cmdsilence);
 		ServerInstance->Modules->AddService(cmdsvssilence);
 		ServerInstance->Modules->AddService(cmdsilence.ext);
-
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric, I_OnUserPreMessage, I_OnUserPreInvite };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

@@ -153,9 +153,6 @@ class ModuleCloaking : public Module
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(ck);
 		ServerInstance->Modules->AddService(cu.ext);
-
-		Implementation eventlist[] = { I_OnRehash, I_OnCheckBan, I_OnUserConnect, I_OnChangeHost };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	/** This function takes a domain name string and returns just the last two domain parts,

@@ -158,8 +158,6 @@ class ModuleSVSHold : public Module
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE

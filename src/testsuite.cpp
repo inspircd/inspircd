@@ -74,7 +74,7 @@ TestSuite::TestSuite()
 		switch (choice)
 		{
 			case '1':
-				FOREACH_MOD(I_OnRunTestSuite, OnRunTestSuite());
+				FOREACH_MOD(OnRunTestSuite, ());
 				break;
 			case '2':
 				std::cout << "Enter module filename to load: ";

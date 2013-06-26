@@ -100,7 +100,6 @@ class ModuleKnock : public Module
 		ServerInstance->Modules->AddService(kn);
 		ServerInstance->Modules->AddService(cmd);
 
-		ServerInstance->Modules->Attach(I_OnRehash, this);
 		OnRehash(NULL);
 	}
 

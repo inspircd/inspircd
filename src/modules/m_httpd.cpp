@@ -63,7 +63,7 @@ class HttpServerSocket : public BufferedSocket
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 
-		FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
+		FOREACH_MOD(OnHookIO, (this, via));
 		if (GetIOHook())
 			GetIOHook()->OnStreamSocketAccept(this, client, server);
 	}
@@ -360,7 +360,6 @@ class ModuleHttpServer : public Module
 	{
 		HttpModule = this;
 		ServerInstance->Modules->AddService(APIImpl);
-		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
 	}
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE

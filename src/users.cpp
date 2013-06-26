@@ -374,7 +374,7 @@ void User::Oper(OperInfo* info)
 	this->SetMode(opermh, true);
 	this->oper = info;
 	this->WriteServ("MODE %s :+o", this->nick.c_str());
-	FOREACH_MOD(I_OnOper, OnOper(this, info->name));
+	FOREACH_MOD(OnOper, (this, info->name));
 
 	std::string opername;
 	if (info->oper_block)
@@ -402,7 +402,7 @@ void User::Oper(OperInfo* info)
 	if (IS_LOCAL(this))
 		oper->init();
 
-	FOREACH_MOD(I_OnPostOper,OnPostOper(this, oper->name, opername));
+	FOREACH_MOD(OnPostOper, (this, oper->name, opername));
 }
 
 void OperInfo::init()
@@ -608,11 +608,11 @@ void LocalUser::FullConnect()
 	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
 	 * for a user that doesn't exist yet.
 	 */
-	FOREACH_MOD(I_OnUserConnect,OnUserConnect(this));
+	FOREACH_MOD(OnUserConnect, (this));
 
 	this->registered = REG_ALL;
 
-	FOREACH_MOD(I_OnPostConnect,OnPostConnect(this));
+	FOREACH_MOD(OnPostConnect, (this));
 
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
 		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->fullname.c_str());
@@ -740,7 +740,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 	(*(ServerInstance->Users->clientlist))[newnick] = this;
 
 	if (registered == REG_ALL)
-		FOREACH_MOD(I_OnUserPostNick,OnUserPostNick(this,oldnick));
+		FOREACH_MOD(OnUserPostNick, (this,oldnick));
 
 	return true;
 }
@@ -819,7 +819,7 @@ void LocalUser::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_elin
 		if (recheck_eline)
 			this->exempt = (ServerInstance->XLines->MatchesLine("E", this) != NULL);
 
-		FOREACH_MOD(I_OnSetUserIP,OnSetUserIP(this));
+		FOREACH_MOD(OnSetUserIP, (this));
 	}
 }
 
@@ -971,7 +971,7 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 
 	exceptions[this] = include_self;
 
-	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
+	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
 
 	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
@@ -1012,7 +1012,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	UserChanList include_c(chans);
 	std::map<User*,bool> exceptions;
 
-	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
+	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
 
 	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
@@ -1117,7 +1117,7 @@ bool User::ChangeName(const char* gecos)
 		FIRST_MOD_RESULT(OnChangeLocalUserGECOS, MOD_RESULT, (IS_LOCAL(this),gecos));
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
-		FOREACH_MOD(I_OnChangeName,OnChangeName(this,gecos));
+		FOREACH_MOD(OnChangeName, (this,gecos));
 	}
 	this->fullname.assign(gecos, 0, ServerInstance->Config->Limits.MaxGecos);
 
@@ -1135,7 +1135,7 @@ void User::DoHostCycle(const std::string &quitline)
 	UserChanList include_c(chans);
 	std::map<User*,bool> exceptions;
 
-	FOREACH_MOD(I_OnBuildNeighborList,OnBuildNeighborList(this, include_c, exceptions));
+	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
 
 	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
@@ -1203,7 +1203,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 			return false;
 	}
 
-	FOREACH_MOD(I_OnChangeHost, OnChangeHost(this,shost));
+	FOREACH_MOD(OnChangeHost, (this,shost));
 
 	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing host";
 
@@ -1225,7 +1225,7 @@ bool User::ChangeIdent(const char* newident)
 	if (this->ident == newident)
 		return true;
 
-	FOREACH_MOD(I_OnChangeIdent, OnChangeIdent(this,newident));
+	FOREACH_MOD(OnChangeIdent, (this,newident));
 
 	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing ident";
 

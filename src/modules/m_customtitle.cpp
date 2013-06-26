@@ -83,7 +83,6 @@ class ModuleCustomTitle : public Module
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.ctitle);
-		ServerInstance->Modules->Attach(I_OnWhoisLine, this);
 	}
 
 	// :kenny.chatspike.net 320 Brain Azhrarn :is getting paid to play games.

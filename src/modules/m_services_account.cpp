@@ -120,10 +120,6 @@ class ModuleServicesAccount : public Module
 	{
 		ServiceProvider* providerlist[] = { &m1, &m2, &m3, &m4, &m5, &accountname };
 		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
-		Implementation eventlist[] = { I_OnWhois, I_OnUserPreMessage, I_OnUserPreJoin, I_OnCheckBan,
-			I_OnDecodeMetaData, I_On005Numeric, I_OnUserPostNick, I_OnSetConnectClass };
-
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

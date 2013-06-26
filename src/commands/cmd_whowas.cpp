@@ -317,8 +317,6 @@ class ModuleWhoWas : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnGarbageCollect, I_OnUserQuit, I_OnStats, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

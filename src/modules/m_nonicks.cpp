@@ -40,8 +40,6 @@ class ModuleNoNickChange : public Module
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(nn);
-		Implementation eventlist[] = { I_OnUserPreNick, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

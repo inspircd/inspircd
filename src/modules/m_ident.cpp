@@ -280,11 +280,6 @@ class ModuleIdent : public Module
 	{
 		ServerInstance->Modules->AddService(ext);
 		OnRehash(NULL);
-		Implementation eventlist[] = {
-			I_OnRehash, I_OnUserInit, I_OnCheckReady,
-			I_OnUserDisconnect, I_OnSetConnectClass
-		};
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

@@ -151,9 +151,6 @@ class ModuleSSLInfo : public Module
 		ServerInstance->Modules->AddService(APIImpl);
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.CertExt);
-
-		Implementation eventlist[] = { I_OnWhois, I_OnPreCommand, I_OnSetConnectClass, I_OnUserConnect, I_OnPostConnect };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

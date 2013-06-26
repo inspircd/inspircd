@@ -41,8 +41,6 @@ class ModuleNoKicks : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(nk);
-		Implementation eventlist[] = { I_OnUserPreKick, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

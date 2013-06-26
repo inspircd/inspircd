@@ -207,8 +207,6 @@ class ModuleRemove : public Module
 		ServerInstance->Modules->AddService(cmd1);
 		ServerInstance->Modules->AddService(cmd2);
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

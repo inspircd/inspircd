@@ -143,7 +143,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 			}
 			c->WriteAllExceptSender(user, true, prefix, "NOTICE %s :*** %s invited %s into the channel", c->name.c_str(), user->nick.c_str(), u->nick.c_str());
 		}
-		FOREACH_MOD(I_OnUserInvite,OnUserInvite(user,u,c,timeout));
+		FOREACH_MOD(OnUserInvite, (user,u,c,timeout));
 	}
 	else if (IS_LOCAL(user))
 	{

@@ -31,9 +31,6 @@ class ModuleChanLog : public Module
  public:
 	void init() CXX11_OVERRIDE
 	{
-		Implementation eventlist[] = { I_OnRehash, I_OnSendSnotice };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
 		OnRehash(NULL);
 	}
 

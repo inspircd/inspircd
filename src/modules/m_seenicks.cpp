@@ -27,8 +27,6 @@ class ModuleSeeNicks : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->SNO->EnableSnomask('n',"NICK");
-		Implementation eventlist[] = { I_OnUserPostNick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

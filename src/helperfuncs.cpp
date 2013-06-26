@@ -36,7 +36,7 @@ std::string InspIRCd::GetServerDescription(const std::string& servername)
 {
 	std::string description;
 
-	FOREACH_MOD(I_OnGetServerDescription,OnGetServerDescription(servername,description));
+	FOREACH_MOD(OnGetServerDescription, (servername,description));
 
 	if (!description.empty())
 	{

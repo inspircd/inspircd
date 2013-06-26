@@ -22,12 +22,6 @@
 class ModuleServerBan : public Module
 {
  public:
-	void init() CXX11_OVERRIDE
-	{
-		Implementation eventlist[] = { I_OnCheckBan, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Extban 's' - server ban",VF_OPTCOMMON|VF_VENDOR);

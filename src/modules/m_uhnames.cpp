@@ -31,12 +31,6 @@ class ModuleUHNames : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		Implementation eventlist[] = { I_OnEvent, I_OnPreCommand, I_OnNamesListItem, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the UHNAMES facility.",VF_VENDOR);

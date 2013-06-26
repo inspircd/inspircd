@@ -41,8 +41,6 @@ class ModuleXLineDB : public Module
 		// Read xlines before attaching to events
 		ReadDatabase();
 
-		Implementation eventlist[] = { I_OnAddLine, I_OnDelLine, I_OnExpireLine, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		dirty = false;
 	}
 

@@ -220,7 +220,7 @@ class CommandCheck : public Command
 			banlm->DoSyncChannel(targchan, creator, user);
 
 			// Show other listmodes as well
-			FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(targchan,creator,user));
+			FOREACH_MOD(OnSyncChannel, (targchan,creator,user));
 			dumpExt(user, checkstr, targchan);
 		}
 		else

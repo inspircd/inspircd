@@ -53,8 +53,6 @@ class ModuleOperjoin : public Module
 		void init() CXX11_OVERRIDE
 		{
 			OnRehash(NULL);
-			Implementation eventlist[] = { I_OnPostOper, I_OnRehash };
-			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		}
 
 

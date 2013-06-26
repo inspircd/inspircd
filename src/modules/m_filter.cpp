@@ -301,8 +301,6 @@ ModuleFilter::ModuleFilter()
 void ModuleFilter::init()
 {
 	ServerInstance->Modules->AddService(filtcommand);
-	Implementation eventlist[] = { I_OnPreCommand, I_OnStats, I_OnSyncNetwork, I_OnDecodeMetaData, I_OnUserPreMessage, I_OnRehash, I_OnUnloadModule };
-	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	OnRehash(NULL);
 }
 

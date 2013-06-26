@@ -30,8 +30,6 @@ class ModuleSecureList : public Module
 	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

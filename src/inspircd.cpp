@@ -701,7 +701,7 @@ void InspIRCd::Run()
 			if ((TIME.tv_sec % 3600) == 0)
 			{
 				Users->GarbageCollect();
-				FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+				FOREACH_MOD(OnGarbageCollect, ());
 			}
 
 			Timers->TickTimers(TIME.tv_sec);
@@ -709,7 +709,7 @@ void InspIRCd::Run()
 
 			if ((TIME.tv_sec % 5) == 0)
 			{
-				FOREACH_MOD(I_OnBackgroundTimer,OnBackgroundTimer(TIME.tv_sec));
+				FOREACH_MOD(OnBackgroundTimer, (TIME.tv_sec));
 				SNO->FlushSnotices();
 			}
 		}

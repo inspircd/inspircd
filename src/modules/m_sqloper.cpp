@@ -114,9 +114,6 @@ public:
 	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
-
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

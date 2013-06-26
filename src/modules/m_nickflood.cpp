@@ -140,8 +140,6 @@ class ModuleNickFlood : public Module
 	{
 		ServerInstance->Modules->AddService(nf);
 		ServerInstance->Modules->AddService(nf.ext);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnUserPostNick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE

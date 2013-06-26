@@ -49,8 +49,6 @@ class ModuleOverride : public Module
 		// read our config options (main config file)
 		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
-		Implementation eventlist[] = { I_OnRehash, I_OnPreMode, I_On005Numeric, I_OnUserPreJoin, I_OnUserPreKick, I_OnPreTopicChange };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

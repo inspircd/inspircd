@@ -157,8 +157,6 @@ class ModuleLusers : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		Implementation events[] = { I_OnPostConnect, I_OnUserQuit };
-		ServerInstance->Modules->Attach(events, this, sizeof(events)/sizeof(Implementation));
 		ServerInstance->Modes->AddModeWatcher(&mw);
 	}
 

@@ -36,7 +36,7 @@ class ModuleIRCv3 : public Module
 		UserChanList chans(user->chans);
 
 		std::map<User*, bool> exceptions;
-		FOREACH_MOD(I_OnBuildNeighborList, OnBuildNeighborList(user, chans, exceptions));
+		FOREACH_MOD(OnBuildNeighborList, (user, chans, exceptions));
 
 		// Send it to all local users who were explicitly marked as neighbours by modules and have the required ext
 		for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
@@ -79,8 +79,6 @@ class ModuleIRCv3 : public Module
 	void init() CXX11_OVERRIDE
 	{
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnPostJoin, I_OnSetAway, I_OnEvent, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

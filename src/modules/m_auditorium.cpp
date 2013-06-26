@@ -54,14 +54,7 @@ class ModuleAuditorium : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(aum);
-
 		OnRehash(NULL);
-
-		Implementation eventlist[] = {
-			I_OnUserJoin, I_OnUserPart, I_OnUserKick,
-			I_OnBuildNeighborList, I_OnNamesListItem, I_OnSendWhoLine,
-			I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

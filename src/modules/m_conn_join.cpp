@@ -25,12 +25,6 @@
 class ModuleConnJoin : public Module
 {
 	public:
-		void init() CXX11_OVERRIDE
-		{
-			Implementation eventlist[] = { I_OnPostConnect };
-			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		}
-
 		void Prioritize()
 		{
 			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);

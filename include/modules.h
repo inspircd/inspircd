@@ -119,23 +119,26 @@ struct ModResult {
 /**
  * This #define allows us to call a method in all
  * loaded modules in a readable simple way, e.g.:
- * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
+ * 'FOREACH_MOD(OnConnect,(user));'
  */
 #define FOREACH_MOD(y,x) do { \
-	EventHandlerIter safei; \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
+	IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
+	for (EventHandlerIter _i = _handlers.begin(); _i != _handlers.end(); ) \
 	{ \
-		safei = _i; \
-		++safei; \
 		try \
 		{ \
-			(*_i)->x ; \
+			(*_i)->y x ; \
+		} \
+		catch (const NotImplementedException &) \
+		{ \
+			_i = _handlers.erase(_i); \
+			continue; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
 			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: %s",modexcept.GetReason()); \
 		} \
-		_i = safei; \
+		++_i; \
 	} \
 } while (0);
 
@@ -147,22 +150,25 @@ struct ModResult {
  */
 #define DO_EACH_HOOK(n,v,args) \
 do { \
-	EventHandlerIter iter_ ## n = ServerInstance->Modules->EventHandlers[I_ ## n].begin(); \
-	while (iter_ ## n != ServerInstance->Modules->EventHandlers[I_ ## n].end()) \
+	IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
+	for (EventHandlerIter _i = _handlers.begin(); _i != _handlers.end(); ) \
 	{ \
-		Module* mod_ ## n = *iter_ ## n; \
-		iter_ ## n ++; \
 		try \
 		{ \
-			v = (mod_ ## n)->n args;
+			v = (*_i)->n args;
 
 #define WHILE_EACH_HOOK(n) \
+		} \
+		catch (const NotImplementedException &) \
+		{ \
+			_i = _handlers.erase(_i); \
+			continue; \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
 			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: %s", (except_ ## n).GetReason()); \
-			(void) mod_ ## n; /* catch mismatched pairs */ \
 		} \
+		++_i; \
 	} \
 } while(0)
 
@@ -272,6 +278,8 @@ enum Implementation
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
 	I_END
 };
+
+class NotImplementedException : public CoreException { };
 
 /** Base class for all InspIRCd modules
  *  This class is the base class for InspIRCd modules. All modules must inherit from this class,

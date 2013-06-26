@@ -80,8 +80,6 @@ public:
 	{
 		ServerInstance->Modules->AddService(kr);
 		ServerInstance->Modules->AddService(kr.ext);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnUserKick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
