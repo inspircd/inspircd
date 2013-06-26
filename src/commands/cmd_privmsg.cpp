@@ -84,12 +84,12 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		const char* text = temp.c_str();
 		const char* servermask = (parameters[0].c_str()) + 1;
 
-		FOREACH_MOD(I_OnText,OnText(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
+		FOREACH_MOD(OnText, (user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servermask, NULL))
 		{
 			user->SendAll(MessageTypeString[mt], "%s", text);
 		}
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list, mt));
+		FOREACH_MOD(OnUserMessage, (user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list, mt));
 		return CMD_SUCCESS;
 	}
 	char status = 0;
@@ -147,7 +147,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 				return CMD_FAILURE;
 			}
 
-			FOREACH_MOD(I_OnText,OnText(user,chan,TYPE_CHANNEL,text,status,except_list));
+			FOREACH_MOD(OnText, (user,chan,TYPE_CHANNEL,text,status,except_list));
 
 			if (status)
 			{
@@ -165,7 +165,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 				chan->WriteAllExcept(user, false, status, except_list, "%s %s :%s", MessageTypeString[mt], chan->name.c_str(), text);
 			}
 
-			FOREACH_MOD(I_OnUserMessage, OnUserMessage(user,chan, TYPE_CHANNEL, text, status, except_list, mt));
+			FOREACH_MOD(OnUserMessage, (user,chan, TYPE_CHANNEL, text, status, except_list, mt));
 		}
 		else
 		{
@@ -224,7 +224,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 
 		const char* text = temp.c_str();
 
-		FOREACH_MOD(I_OnText,OnText(user, dest, TYPE_USER, text, 0, except_list));
+		FOREACH_MOD(OnText, (user, dest, TYPE_USER, text, 0, except_list));
 
 		if (IS_LOCAL(dest))
 		{
@@ -232,7 +232,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 			user->WriteTo(dest, "%s %s :%s", MessageTypeString[mt], dest->nick.c_str(), text);
 		}
 
-		FOREACH_MOD(I_OnUserMessage,OnUserMessage(user, dest, TYPE_USER, text, 0, except_list, mt));
+		FOREACH_MOD(OnUserMessage, (user, dest, TYPE_USER, text, 0, except_list, mt));
 	}
 	else
 	{

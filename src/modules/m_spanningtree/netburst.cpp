@@ -51,7 +51,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 		SyncChannel(i->second);
 
 	this->SendXLines();
-	FOREACH_MOD(I_OnSyncNetwork,OnSyncNetwork(Utils->Creator,(void*)this));
+	FOREACH_MOD(OnSyncNetwork, (Utils->Creator,(void*)this));
 	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
 }
@@ -167,7 +167,7 @@ void TreeSocket::SyncChannel(Channel* chan)
 			Utils->Creator->ProtoSendMetaData(this, chan, item->name, value);
 	}
 
-	FOREACH_MOD(I_OnSyncChannel,OnSyncChannel(chan, Utils->Creator, this));
+	FOREACH_MOD(OnSyncChannel, (chan, Utils->Creator, this));
 }
 
 /** send all users and their oper state/modes */
@@ -212,7 +212,7 @@ void TreeSocket::SendUsers()
 					Utils->Creator->ProtoSendMetaData(this, u->second, item->name, value);
 			}
 
-			FOREACH_MOD(I_OnSyncUser,OnSyncUser(u->second,Utils->Creator,this));
+			FOREACH_MOD(OnSyncUser, (u->second,Utils->Creator,this));
 		}
 	}
 }

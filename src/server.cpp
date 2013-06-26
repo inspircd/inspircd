@@ -58,7 +58,7 @@ void InspIRCd::Exit(int status)
 void RehashHandler::Call(const std::string &reason)
 {
 	ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), reason.c_str());
-	FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+	FOREACH_MOD(OnGarbageCollect, ());
 	if (!ServerInstance->ConfigThread)
 	{
 		ServerInstance->ConfigThread = new ConfigReaderThread("");
@@ -190,7 +190,7 @@ void ISupportManager::Build()
 		tokens["WALLCHOPS"] = tokens["WALLVOICES"];
 
 	// Modules can add new tokens and also edit or remove existing tokens
-	FOREACH_MOD(I_On005Numeric, On005Numeric(tokens));
+	FOREACH_MOD(On005Numeric, (tokens));
 
 	// EXTBAN is a special case as we need to sort it and prepend a comma.
 	std::map<std::string, std::string>::iterator extban = tokens.find("EXTBAN");

@@ -45,7 +45,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 {
 	std::string param = parameters.size() ? parameters[0] : "";
 
-	FOREACH_MOD(I_OnPreRehash,OnPreRehash(user, param));
+	FOREACH_MOD(OnPreRehash, (user, param));
 
 	if (param.empty())
 	{
@@ -68,7 +68,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		if (param[0] == '-')
 			param = param.substr(1);
 
-		FOREACH_MOD(I_OnModuleRehash,OnModuleRehash(user, param));
+		FOREACH_MOD(OnModuleRehash, (user, param));
 		return CMD_SUCCESS;
 	}
 
@@ -88,7 +88,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		/* Don't do anything with the logs here -- logs are restarted
 		 * after the config thread has completed.
 		 */
-		FOREACH_MOD(I_OnGarbageCollect, OnGarbageCollect());
+		FOREACH_MOD(OnGarbageCollect, ());
 
 
 		ServerInstance->ConfigThread = new ConfigReaderThread(user->uuid);

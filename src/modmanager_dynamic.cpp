@@ -108,7 +108,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	if (defer)
 		return true;
 
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(newmod));
+	FOREACH_MOD(OnLoadModule, (newmod));
 	/* We give every module a chance to re-prioritize when we introduce a new one,
 	 * not just the one thats loading, as the new module could affect the preference
 	 * of others

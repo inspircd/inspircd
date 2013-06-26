@@ -119,17 +119,18 @@ struct ModResult {
 /**
  * This #define allows us to call a method in all
  * loaded modules in a readable simple way, e.g.:
- * 'FOREACH_MOD(I_OnConnect,OnConnect(user));'
+ * 'FOREACH_MOD(OnConnect,(user));'
  */
 #define FOREACH_MOD(y,x) do { \
 	EventHandlerIter safei; \
-	for (EventHandlerIter _i = ServerInstance->Modules->EventHandlers[y].begin(); _i != ServerInstance->Modules->EventHandlers[y].end(); ) \
+	IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
+	for (EventHandlerIter _i = _handlers.begin(); _i != _handlers.end(); ) \
 	{ \
 		safei = _i; \
 		++safei; \
 		try \
 		{ \
-			(*_i)->x ; \
+			(*_i)->y x ; \
 		} \
 		catch (CoreException& modexcept) \
 		{ \
@@ -147,21 +148,18 @@ struct ModResult {
  */
 #define DO_EACH_HOOK(n,v,args) \
 do { \
-	EventHandlerIter iter_ ## n = ServerInstance->Modules->EventHandlers[I_ ## n].begin(); \
-	while (iter_ ## n != ServerInstance->Modules->EventHandlers[I_ ## n].end()) \
+	IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
+	for (EventHandlerIter _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
 	{ \
-		Module* mod_ ## n = *iter_ ## n; \
-		iter_ ## n ++; \
 		try \
 		{ \
-			v = (mod_ ## n)->n args;
+			v = (*_i)->n args;
 
 #define WHILE_EACH_HOOK(n) \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
 			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: %s", (except_ ## n).GetReason()); \
-			(void) mod_ ## n; /* catch mismatched pairs */ \
 		} \
 	} \
 } while(0)

@@ -62,7 +62,7 @@ Event::Event(Module* src, const std::string &eventid) : source(src), id(eventid)
 
 void Event::Send()
 {
-	FOREACH_MOD(I_OnEvent,OnEvent(*this));
+	FOREACH_MOD(OnEvent, (*this));
 }
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
@@ -329,7 +329,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	// First, notify all modules that a module is about to be unloaded, so in case
 	// they pass execution to the soon to be unloaded module, it will happen now,
 	// i.e. before we unregister the services of the module being unloaded
-	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
+	FOREACH_MOD(OnUnloadModule, (mod));
 
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 

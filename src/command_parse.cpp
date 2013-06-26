@@ -100,7 +100,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std
 				// Run the OnPostCommand hook with the last parameter (original line) being empty
 				// to indicate that the command had more targets in its original form.
 				item.clear();
-				FOREACH_MOD(I_OnPostCommand, OnPostCommand(handler, new_parameters, localuser, result, item));
+				FOREACH_MOD(OnPostCommand, (handler, new_parameters, localuser, result, item));
 			}
 		}
 	}
@@ -316,7 +316,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		 */
 		CmdResult result = handler->Handle(command_p, user);
 
-		FOREACH_MOD(I_OnPostCommand, OnPostCommand(handler, command_p, user, result, cmd));
+		FOREACH_MOD(OnPostCommand, (handler, command_p, user, result, cmd));
 	}
 }
 

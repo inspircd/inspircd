@@ -145,7 +145,7 @@ public:
 			{
 				chan_hash::iterator at = iter;
 				iter++;
-				FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(c));
+				FOREACH_MOD(OnChannelDelete, (c));
 				ServerInstance->chanlist->erase(at);
 				ServerInstance->GlobalCulls.AddItem(c);
 			}

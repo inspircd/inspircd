@@ -112,7 +112,7 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 		ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Unable to load " + name + ": " + modexcept.GetReason());
 		return false;
 	}
-	FOREACH_MOD(I_OnLoadModule,OnLoadModule(mod));
+	FOREACH_MOD(OnLoadModule, (mod));
 	/* We give every module a chance to re-prioritize when we introduce a new one,
 	 * not just the one thats loading, as the new module could affect the preference
 	 * of others
