@@ -27,9 +27,11 @@
  */
 #if defined _LIBCPP_VERSION || defined _WIN32
 # define TR1NS std
+# include <functional>
 # include <unordered_map>
 #else
 # define TR1NS std::tr1
+# include <tr1/functional>
 # include <tr1/unordered_map>
 #endif
 
