@@ -235,12 +235,12 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
 	 Rehash(&HandleRehash),
-	 IsNick(&HandleIsNick),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
 	ServerInstance = this;
 
 	IsIdent = &InspIRCd::HandleIsIdent;
+	IsNick = &InspIRCd::HandleIsNick;
 
 	Extensions.Register(&OperQuit);
 

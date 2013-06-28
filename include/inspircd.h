@@ -240,7 +240,6 @@ public:
 	void SendTo(LocalUser* user);
 };
 
-DEFINE_HANDLER1(IsNickHandler, bool, const std::string&);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
@@ -290,7 +289,7 @@ class CoreExport InspIRCd
 
 	/**** Functors ****/
 
-	IsNickHandler HandleIsNick;
+	TR1NS::function<bool(const std::string&)> IsNick;
 	TR1NS::function<bool(const std::string&)> IsIdent;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
@@ -527,10 +526,10 @@ class CoreExport InspIRCd
 	void SendError(const std::string &s);
 
 	/** Return true if a nickname is valid
-	 * @param n A nickname to verify
+	 * @param nick A nickname to verify
 	 * @return True if the nick is valid
 	 */
-	caller1<bool, const std::string&> IsNick;
+	static bool HandleIsNick(const std::string& nick);
 
 	/** Return true if an ident is valid
 	 * @param ident An ident to verify

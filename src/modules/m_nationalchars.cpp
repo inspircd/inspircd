@@ -29,15 +29,6 @@
 #include "caller.h"
 #include <fstream>
 
-class lwbNickHandler : public HandlerBase1<bool, const std::string&>
-{
- public:
-	lwbNickHandler() { }
-	~lwbNickHandler() { }
-	bool Call(const std::string&);
-};
-
-								 /*,m_reverse_additionalUp[256];*/
 static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256],m_additionalUtf8interval[256];
 
 char utf8checkrest(unsigned char * mb, unsigned char cnt)
@@ -69,7 +60,7 @@ char utf8size(unsigned char * mb)
 
 
 /* Conditions added */
-bool lwbNickHandler::Call(const std::string& nick)
+bool HandleNationalCharsNick(const std::string& nick)
 {
 	if (nick.empty())
 		return false;
@@ -220,10 +211,9 @@ bool lwbNickHandler::Call(const std::string& nick)
 
 class ModuleNationalChars : public Module
 {
-	lwbNickHandler myhandler;
 	std::string charset, casemapping;
 	unsigned char m_additional[256], m_additionalUp[256], m_lower[256], m_upper[256];
-	caller1<bool, const std::string&> rememberer;
+	TR1NS::function<bool(const std::string&)> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
 
@@ -238,7 +228,7 @@ class ModuleNationalChars : public Module
 		memcpy(m_lower, rfc_case_insensitive_map, 256);
 		national_case_insensitive_map = m_lower;
 
-		ServerInstance->IsNick = &myhandler;
+		ServerInstance->IsNick = &HandleNationalCharsNick;
 
 		Implementation eventlist[] = { I_OnRehash, I_On005Numeric };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
