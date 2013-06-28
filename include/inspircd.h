@@ -241,7 +241,6 @@ public:
 };
 
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
@@ -292,7 +291,7 @@ class CoreExport InspIRCd
 	TR1NS::function<bool(const std::string&)> IsNick;
 	TR1NS::function<bool(const std::string&)> IsIdent;
 	OnCheckExemptionHandler HandleOnCheckExemption;
-	IsChannelHandler HandleIsChannel;
+	TR1NS::function<bool(const std::string&)> IsChannel;
 	RehashHandler HandleRehash;
 	GenRandomHandler HandleGenRandom;
 
@@ -473,7 +472,7 @@ class CoreExport InspIRCd
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
 	 */
-	caller1<bool, const std::string&> IsChannel;
+	static bool HandleIsChannel(const std::string& chname);
 
 	/** Return true if str looks like a server ID
 	 * @param sid string to check against
