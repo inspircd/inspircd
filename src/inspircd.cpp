@@ -232,12 +232,12 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * themselves within the class.
 	  */
 	 OperQuit("OperQuit", NULL),
-	 GenRandom(&HandleGenRandom),
 	 Rehash(&HandleRehash),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
 	ServerInstance = this;
 
+	GenRandom = &InspIRCd::HandleGenRandom;
 	IsChannel = &InspIRCd::HandleIsChannel;
 	IsIdent = &InspIRCd::HandleIsIdent;
 	IsNick = &InspIRCd::HandleIsNick;

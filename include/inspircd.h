@@ -240,7 +240,6 @@ public:
 	void SendTo(LocalUser* user);
 };
 
-DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
@@ -288,12 +287,12 @@ class CoreExport InspIRCd
 
 	/**** Functors ****/
 
+	TR1NS::function<void(char*, size_t)> GenRandom;
 	TR1NS::function<bool(const std::string&)> IsNick;
 	TR1NS::function<bool(const std::string&)> IsIdent;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	TR1NS::function<bool(const std::string&)> IsChannel;
 	RehashHandler HandleRehash;
-	GenRandomHandler HandleGenRandom;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -426,7 +425,7 @@ class CoreExport InspIRCd
 	unsigned long GenRandomInt(unsigned long max);
 
 	/** Fill a buffer with random bits */
-	caller2<void, char*, size_t> GenRandom;
+	static void HandleGenRandom(char* buffer, size_t size);
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error
