@@ -45,7 +45,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))
 	{
-		if (!ServerInstance->IsIdent(parameters[0].c_str()))
+		if (!ServerInstance->IsIdent(parameters[0]))
 		{
 			/*
 			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)

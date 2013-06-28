@@ -51,7 +51,7 @@ class CommandChgident : public Command
 			return CMD_FAILURE;
 		}
 
-		if (!ServerInstance->IsIdent(parameters[1].c_str()))
+		if (!ServerInstance->IsIdent(parameters[1]))
 		{
 			user->WriteNotice("*** CHGIDENT: Invalid characters in ident");
 			return CMD_FAILURE;

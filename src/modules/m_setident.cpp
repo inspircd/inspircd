@@ -41,7 +41,7 @@ class CommandSetident : public Command
 			return CMD_FAILURE;
 		}
 
-		if (!ServerInstance->IsIdent(parameters[0].c_str()))
+		if (!ServerInstance->IsIdent(parameters[0]))
 		{
 			user->WriteNotice("*** SETIDENT: Invalid characters in ident");
 			return CMD_FAILURE;

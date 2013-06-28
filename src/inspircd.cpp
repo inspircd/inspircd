@@ -236,10 +236,11 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 IsChannel(&HandleIsChannel),
 	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
-	 IsIdent(&HandleIsIdent),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
 	ServerInstance = this;
+
+	IsIdent = &InspIRCd::HandleIsIdent;
 
 	Extensions.Register(&OperQuit);
 

@@ -242,7 +242,6 @@ public:
 
 DEFINE_HANDLER1(IsNickHandler, bool, const std::string&);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
 DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
 DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
@@ -292,7 +291,7 @@ class CoreExport InspIRCd
 	/**** Functors ****/
 
 	IsNickHandler HandleIsNick;
-	IsIdentHandler HandleIsIdent;
+	TR1NS::function<bool(const std::string&)> IsIdent;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
 	RehashHandler HandleRehash;
@@ -534,10 +533,10 @@ class CoreExport InspIRCd
 	caller1<bool, const std::string&> IsNick;
 
 	/** Return true if an ident is valid
-	 * @param An ident to verify
+	 * @param ident An ident to verify
 	 * @return True if the ident is valid
 	 */
-	caller1<bool, const std::string&> IsIdent;
+	static bool HandleIsIdent(const std::string& ident);
 
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
