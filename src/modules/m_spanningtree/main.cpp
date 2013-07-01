@@ -844,7 +844,8 @@ void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, con
 
 CullResult ModuleSpanningTree::cull()
 {
-	Utils->cull();
+	if (Utils)
+		Utils->cull();
 	return this->Module::cull();
 }
 

@@ -818,7 +818,7 @@ void ModeHandler::RemoveMode(User* user)
 		parameters.push_back(user->nick);
 		parameters.push_back("-");
 		parameters[1].push_back(this->GetModeChar());
-		ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
+		ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient, ModeParser::MODE_LOCALONLY);
 	}
 }
 

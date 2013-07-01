@@ -61,7 +61,6 @@ LogManager::LogManager()
 
 LogManager::~LogManager()
 {
-	CloseLogs();
 }
 
 void LogManager::OpenFileLogs()

@@ -137,6 +137,7 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Threads);
 	DeleteZero(this->Timers);
 	DeleteZero(this->SE);
+	Logs->CloseLogs();
 	DeleteZero(this->Logs);
 }
 

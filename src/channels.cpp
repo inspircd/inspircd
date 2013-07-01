@@ -333,15 +333,15 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 
 void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
 {
-	Membership* memb = this->AddUser(user);
-	if (!memb)
-		return; // Already on the channel
-
 	if (IS_SERVER(user))
 	{
 		ServerInstance->Logs->Log("CHANNELS", LOG_DEBUG, "Attempted to join server user " + user->uuid + " to channel " + this->name);
 		return;
 	}
+
+	Membership* memb = this->AddUser(user);
+	if (!memb)
+		return; // Already on the channel
 
 	user->chans.insert(this);
 
