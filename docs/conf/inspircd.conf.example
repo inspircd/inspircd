@@ -663,6 +663,15 @@
              # connections. If defined, it sets a soft max connections value.
              softlimit="12800"
 
+             # clonesonconnect: If this is set to false, we won't check for clones
+             # on initial connection, but only after the DNS check is done.
+             # This can be useful where your main class is more restrictive
+             # than some other class a user can be assigned after DNS lookup is complete.
+             # Turning this option off will make the server spend more time on users we may
+             # potentially not want. Normally this should be neglible, though.
+             # Default value is true
+             clonesonconnect="true"
+
              # quietbursts: When syncing or splitting from a network, a server
              # can generate a lot of connect and quit messages to opers with
              # +C and +Q snomasks. Setting this to yes squelches those messages,

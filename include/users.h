@@ -750,7 +750,7 @@ class CoreExport LocalUser : public User, public InviteBase
 
 	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */
-	void CheckClass();
+	void CheckClass(bool clone_count = true);
 
 	/** Server address and port that this user is connected to.
 	 */

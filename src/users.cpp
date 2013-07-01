@@ -600,7 +600,7 @@ void User::UnOper()
 /*
  * Check class restrictions
  */
-void LocalUser::CheckClass()
+void LocalUser::CheckClass(bool clone_count)
 {
 	ConnectClass* a = this->MyClass;
 
@@ -614,19 +614,22 @@ void LocalUser::CheckClass()
 		ServerInstance->Users->QuitUser(this, a->config->getString("reason", "Unauthorised connection"));
 		return;
 	}
-	else if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))
+	else if (clone_count)
 	{
-		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
-		if (a->maxconnwarn)
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
-		return;
-	}
-	else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
-	{
-		ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
-		if (a->maxconnwarn)
-			ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
-		return;
+		if ((a->GetMaxLocal()) && (ServerInstance->Users->LocalCloneCount(this) > a->GetMaxLocal()))
+		{
+			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (local)");
+			if (a->maxconnwarn)
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum LOCAL connections (%ld) exceeded for IP %s", a->GetMaxLocal(), this->GetIPString().c_str());
+			return;
+		}
+		else if ((a->GetMaxGlobal()) && (ServerInstance->Users->GlobalCloneCount(this) > a->GetMaxGlobal()))
+		{
+			ServerInstance->Users->QuitUser(this, "No more connections allowed from your host via this connect class (global)");
+			if (a->maxconnwarn)
+				ServerInstance->SNO->WriteToSnoMask('a', "WARNING: maximum GLOBAL connections (%ld) exceeded for IP %s", a->GetMaxGlobal(), this->GetIPString().c_str());
+			return;
+		}
 	}
 
 	this->nping = ServerInstance->Time() + a->GetPingTime() + ServerInstance->Config->dns_timeout;
