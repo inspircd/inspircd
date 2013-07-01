@@ -36,10 +36,6 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	{
 		return this->HandleSquit(parameters,user);
 	}
-	else if (command == "MAP")
-	{
-		return this->HandleMap(parameters,user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
-	}
 	else if (command == "LINKS")
 	{
 		this->HandleLinks(parameters,user);

@@ -77,14 +77,6 @@ class ModuleSpanningTree : public Module
 	 */
 	void HandleLinks(const std::vector<std::string>& parameters, User* user);
 
-	/** Show MAP output to a user (recursive)
-	 */
-	void ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats);
-
-	/** Handle MAP command
-	 */
-	bool HandleMap(const std::vector<std::string>& parameters, User* user);
-
 	/** Handle SQUIT
 	 */
 	ModResult HandleSquit(const std::vector<std::string>& parameters, User* user);
@@ -125,10 +117,6 @@ class ModuleSpanningTree : public Module
 	 */
 	void RemoteMessage(User* user, const char* format, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Returns oper-specific MAP information
-	 */
-	const std::string MapOperInfo(TreeServer* Current);
-
 	/** Display a time as a human readable string
 	 */
 	static std::string TimeToStr(time_t secs);
@@ -166,6 +154,7 @@ class ModuleSpanningTree : public Module
 	void OnLoadModule(Module* mod) CXX11_OVERRIDE;
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;
+	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE;
 	CullResult cull();
 	~ModuleSpanningTree();
 	Version GetVersion() CXX11_OVERRIDE;

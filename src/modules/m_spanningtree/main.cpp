@@ -41,7 +41,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
-	: rconnect(module), rsquit(module),
+	: rconnect(module), rsquit(module), map(module),
 	svsjoin(module), svspart(module), svsnick(module), metadata(module),
 	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
 	fmode(module), ftopic(module), fhost(module), fident(module), fname(module),
@@ -61,6 +61,7 @@ void ModuleSpanningTree::init()
 	commands = new SpanningTreeCommands(this);
 	ServerInstance->Modules->AddService(commands->rconnect);
 	ServerInstance->Modules->AddService(commands->rsquit);
+	ServerInstance->Modules->AddService(commands->map);
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(Utils);
@@ -391,6 +392,11 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 	}
 	RemoteMessage(user, "*** CONNECT: No server matching \002%s\002 could be found in the config file.",parameters[0].c_str());
 	return MOD_RES_DENY;
+}
+
+void ModuleSpanningTree::On005Numeric(std::map<std::string, std::string>& tokens)
+{
+	tokens["MAP"];
 }
 
 void ModuleSpanningTree::OnGetServerDescription(const std::string &servername,std::string &description)

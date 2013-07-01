@@ -24,14 +24,21 @@
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
+#include "commands.h"
 
-const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
+CommandMap::CommandMap(Module* Creator)
+	: Command(Creator, "MAP", 0, 1)
 {
-	time_t secs_up = ServerInstance->Time() - Current->age;
-	return " [Up: " + TimeToStr(secs_up) + (Current->rtt == 0 ? "]" : " Lag: " + ConvToStr(Current->rtt) + "ms]");
+	Penalty = 2;
 }
 
-void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats)
+std::string CommandMap::MapOperInfo(TreeServer* Current)
+{
+	time_t secs_up = ServerInstance->Time() - Current->age;
+	return " [Up: " + ModuleSpanningTree::TimeToStr(secs_up) + (Current->rtt == 0 ? "]" : " Lag: " + ConvToStr(Current->rtt) + "ms]");
+}
+
+void CommandMap::ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "ShowMap depth %d on line %d", depth, line);
 	float percent;
@@ -92,31 +99,20 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 // and divisons, we instead render the map onto a backplane of characters
 // (a character matrix), then draw the branches as a series of "L" shapes
 // from the nodes. This is not only friendlier on CPU it uses less stack.
-bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, User* user)
+CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* user)
 {
 	if (parameters.size() > 0)
 	{
 		/* Remote MAP, the server is within the 1st parameter */
 		TreeServer* s = Utils->FindServerMask(parameters[0]);
-		bool ret = false;
 		if (!s)
 		{
 			user->WriteNumeric(ERR_NOSUCHSERVER, "%s %s :No such server", user->nick.c_str(), parameters[0].c_str());
-			ret = true;
-		}
-		else if (s && s != Utils->TreeRoot)
-		{
-			parameterlist params;
-			params.push_back(parameters[0]);
-
-			params[0] = s->GetName();
-			Utils->DoOneToOne(user->uuid, "MAP", params, s->GetName());
-			ret = true;
+			return CMD_FAILURE;
 		}
 
-		// Don't return if s == Utils->TreeRoot (us)
-		if (ret)
-			return true;
+		if (s != Utils->TreeRoot)
+			return CMD_SUCCESS;
 	}
 
 	// These arrays represent a virtual screen which we will
@@ -184,6 +180,12 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 	delete[] names;
 	delete[] stats;
 
-	return true;
+	return CMD_SUCCESS;
 }
 
+RouteDescriptor CommandMap::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	if (!parameters.empty())
+		return ROUTE_UNICAST(parameters[0]);
+	return ROUTE_LOCALONLY;
+}
