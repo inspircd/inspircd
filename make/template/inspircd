@@ -33,7 +33,7 @@ my $executable	=	"@EXECUTABLE@";
 my $version	=	"@VERSION@";
 my $uid = "@UID@";
 
-if ($< == 0 || $> == 0) {
+if (!("--runasroot" ~~ @ARGV) && ($< == 0 || $> == 0)) {
 	if ($uid !~ /^\d+$/) {
 		# Named UID, look it up
 		$uid = getpwnam $uid;
