@@ -112,7 +112,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 * Check connect class settings and initialise settings into User.
 	 * This will be done again after DNS resolution. -- w00t
 	 */
-	New->CheckClass();
+	New->CheckClass(ServerInstance->Config->CCOnConnect);
 	if (New->quitting)
 		return;
 

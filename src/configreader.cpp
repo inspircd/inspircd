@@ -387,6 +387,7 @@ void ServerConfig::Fill()
 	SuffixPart = options->getString("suffixpart");
 	FixedPart = options->getString("fixedpart");
 	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
+	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
 	MoronBanner = options->getString("moronbanner", "You're banned!");
 	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
