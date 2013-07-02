@@ -373,6 +373,13 @@ class CoreExport ServerConfig
 	 */
 	int MaxConn;
 
+	/** If we should check for clones during CheckClass() in AddUser()
+	 * Setting this to false allows to not trigger on maxclones for users
+	 * that may belong to another class after DNS-lookup is complete.
+	 * It does, however, make the server spend more time on users we may potentially not want.
+	 */
+	bool CCOnConnect;
+
 	/** The soft limit value assigned to the irc server.
 	 * The IRC server will not allow more than this
 	 * number of local users.
