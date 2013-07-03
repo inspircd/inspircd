@@ -885,9 +885,9 @@ EOF
 		}
 
 		if ($config{HAS_DEFER} eq "TCP_DEFER_ACCEPT") {
-			print FILEHANDLE "#define USE_TCP_DEFER_ACCEPT";
+			print FILEHANDLE "#define USE_TCP_DEFER_ACCEPT\n";
 		} elsif ($config{HAS_DEFER} eq "SO_ACCEPTFILTER") {
-			print FILEHANDLE "#define USE_SO_ACCEPTFILTER"
+			print FILEHANDLE "#define USE_SO_ACCEPTFILTER\n"
 		}
 
 		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n";
