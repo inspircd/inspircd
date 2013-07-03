@@ -255,3 +255,26 @@ void SocketEngine::GetStats(float &kbitpersec_in, float &kbitpersec_out, float &
 	kbitpersec_in = in_kbit / 1024;
 	kbitpersec_out = out_kbit / 1024;
 }
+
+std::string SocketEngine::LastError()
+{
+#ifndef _WIN32
+	return strerror(errno);
+#else
+	DWORD err = WSAGetLastError();
+	CHAR errdetail[100];
+	if (!FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errdetail, sizeof(errdetail), NULL))
+		sprintf_s(errdetail, _countof(errdetail), "Error code: %u", err);
+	return errbuf;
+#endif
+}
+
+std::string SocketEngine::GetError(int errnum)
+{
+#ifndef _WIN32
+	errno = errnum;
+#else
+	WSASetLastError(errnum);
+#endif
+	return LastError();
+}
