@@ -24,8 +24,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/* $ModDesc: Provides support for the +e channel mode */
-
 /* Written by Om<om@inspircd.org>, April 2005. */
 /* Rewritten to use the listmode utility by Om, December 2005 */
 /* Adapted from m_exception, which was originally based on m_chanprotect and m_silence */

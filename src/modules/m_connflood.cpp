@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Connection throttle */
-
 class ModuleConnFlood : public Module
 {
 	int seconds, timeout, boot_wait;

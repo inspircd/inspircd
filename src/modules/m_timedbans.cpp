@@ -20,8 +20,6 @@
  */
 
 
-/* $ModDesc: Adds timed bans */
-
 #include "inspircd.h"
 
 /** Holds a timed ban

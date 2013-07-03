@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides masking of user hostnames via traditional /VHOST command */
-
 /** Handle /VHOST
  */
 class CommandVhost : public Command

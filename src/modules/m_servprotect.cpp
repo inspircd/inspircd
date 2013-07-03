@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides usermode +k to protect services from kicks, kills and mode changes. */
-
 /** Handles user mode +k
  */
 class ServProtectMode : public ModeHandler

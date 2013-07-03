@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Allows locking of the server to stop all incoming connections till unlocked again */
-
 /** Adds numerics
  * 988 <nick> <servername> :Closed for new connections
  * 989 <nick> <servername> :Open for new connections

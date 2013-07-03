@@ -23,8 +23,6 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/* $ModDesc: Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services. */
-
 /** Holds a SVSHold item
  */
 class SVSHold : public XLine

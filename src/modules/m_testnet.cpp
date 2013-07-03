@@ -17,8 +17,6 @@
  */
 
 
-/* $ModDesc: Provides a module for testing the server while linked in a network */
-
 #include "inspircd.h"
 
 struct vtbase

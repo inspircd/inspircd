@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b m: - mute bans */
-
 class ModuleQuietBan : public Module
 {
  public:

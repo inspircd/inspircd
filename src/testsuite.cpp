@@ -19,8 +19,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 #include "testsuite.h"
 #include "threadengine.h"

@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for RFC1413 ident lookups */
-
 /* --------------------------------------------------------------
  * Note that this is the third incarnation of m_ident. The first
  * two attempts were pretty crashy, mainly due to the fact we tried

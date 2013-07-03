@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit */
-
 /** Handle /NICKLOCK
  */
 class CommandNicklock : public Command

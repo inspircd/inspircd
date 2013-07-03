@@ -21,8 +21,6 @@
 #include "modules/sql.h"
 #include "modules/hash.h"
 
-/* $ModDesc: Allow/Deny connections based upon an arbitrary SQL table */
-
 enum AuthState {
 	AUTH_STATE_NONE = 0,
 	AUTH_STATE_BUSY = 1,

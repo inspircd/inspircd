@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the SETIDENT command */
-
 /** Handle /SETIDENT
  */
 class CommandSetident : public Command

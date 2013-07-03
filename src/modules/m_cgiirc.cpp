@@ -27,8 +27,6 @@
 #include "xline.h"
 #include "modules/dns.h"
 
-/* $ModDesc: Change user's hosts connecting from known CGI:IRC hosts */
-
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
 

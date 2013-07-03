@@ -48,8 +48,6 @@
 # define MAX_DESCRIPTORS 10000
 #endif
 
-/* $ModDesc: Provides SSL support for clients */
-
 /* $LinkerFlags: if("USE_FREEBSD_BASE_SSL") -lssl -lcrypto */
 /* $CompileFlags: if(!"USE_FREEBSD_BASE_SSL") pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: if(!"USE_FREEBSD_BASE_SSL") rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto -ldl") */

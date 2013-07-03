@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the SETNAME command */
-
 
 
 class CommandSetname : public Command

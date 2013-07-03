@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +j (join flood protection) */
-
 /** Holds settings and state associated with channel mode +j
  */
 class joinfloodsettings

@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +F (nick flood protection) */
-
 /** Holds settings and state associated with channel mode +F
  */
 class nickfloodsettings

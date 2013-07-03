@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Disallows /LIST for recently connected clients to hinder spam bots */
-
 class ModuleSecureList : public Module
 {
 	std::vector<std::string> allowlist;

@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +J (delay rejoin after kick) */
-
 typedef std::map<std::string, time_t> delaylist;
 
 /** Handles channel mode +J

@@ -21,8 +21,6 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 
-/* $ModDesc: Provides the CAP negotiation mechanism seen in ratbox-derived ircds */
-
 /*
 CAP LS
 :alfred.staticbox.net CAP * LS :multi-prefix sasl

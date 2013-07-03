@@ -17,8 +17,6 @@
  */
 
 
-/* $Core */
-
 /*********        DEFAULTS       **********/
 /* $ExtraSources: threadengines/threadengine_pthread.cpp */
 /* $ExtraObjects: threadengine_pthread.o */

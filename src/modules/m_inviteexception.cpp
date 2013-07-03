@@ -24,8 +24,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/* $ModDesc: Provides support for the +I channel mode */
-
 /*
  * Written by Om <om@inspircd.org>, April 2005.
  * Based on m_exception, which was originally based on m_chanprotect and m_silence

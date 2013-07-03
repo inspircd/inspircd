@@ -24,8 +24,6 @@
  *  Syntax: /DEVOICE <#chan>
  */
 
-/* $ModDesc: Provides voiced users with the ability to devoice themselves. */
-
 #include "inspircd.h"
 
 /** Handle /DEVOICE

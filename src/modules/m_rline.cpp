@@ -20,8 +20,6 @@
  */
 
 
-/* $ModDesc: RLINE: Regexp user banning. */
-
 #include "inspircd.h"
 #include "modules/regex.h"
 #include "xline.h"

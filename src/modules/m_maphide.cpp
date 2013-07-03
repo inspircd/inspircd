@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Hide /MAP and /LINKS in the same form as ircu (mostly useless) */
-
 class ModuleMapHide : public Module
 {
 	std::string url;

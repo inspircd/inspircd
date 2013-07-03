@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +f (message flood protection) */
-
 /** Holds flood settings and state for mode +f
  */
 class floodsettings

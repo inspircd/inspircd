@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the /WATCH command */
-
 
 /*
  * Okay, it's nice that this was documented and all, but I at least understood very little

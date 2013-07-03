@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b s: - server name bans */
-
 class ModuleServerBan : public Module
 {
  public:

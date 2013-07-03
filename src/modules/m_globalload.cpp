@@ -22,8 +22,6 @@
  */
 
 
-/* $ModDesc: Allows global loading of a module. */
-
 #include "inspircd.h"
 
 /** Handle /GLOADMODULE

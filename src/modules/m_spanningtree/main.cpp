@@ -21,8 +21,6 @@
  */
 
 
-/* $ModDesc: Provides a spanning tree server link protocol */
-
 #include "inspircd.h"
 #include "socket.h"
 #include "xline.h"

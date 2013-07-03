@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides snomasks 'j' and 'J', to which notices about newly created channels are sent */
-
 class ModuleChanCreate : public Module
 {
  public:

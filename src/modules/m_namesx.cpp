@@ -23,8 +23,6 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 
-/* $ModDesc: Provides the NAMESX (CAP multi-prefix) capability. */
-
 class ModuleNamesX : public Module
 {
 	GenericCap cap;

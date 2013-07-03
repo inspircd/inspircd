@@ -32,7 +32,6 @@
 # pragma comment(lib, "lber.lib")
 #endif
 
-/* $ModDesc: Adds the ability to authenticate opers via LDAP */
 /* $LinkerFlags: -lldap */
 
 struct RAIILDAPString

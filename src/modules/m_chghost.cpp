@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the CHGHOST command */
-
 /** Handle /CHGHOST
  */
 class CommandChghost : public Command

@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for hiding channels with user mode +I */
-
 /** Handles user mode +I
  */
 class HideChans : public SimpleUserModeHandler

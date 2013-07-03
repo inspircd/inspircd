@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides command SAPART to force-part users from a channel. */
-
 /** Handle /SAPART
  */
 class CommandSapart : public Command

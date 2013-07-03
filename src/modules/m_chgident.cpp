@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the CHGIDENT command */
-
 /** Handle /CHGIDENT
  */
 class CommandChgident : public Command

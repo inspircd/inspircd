@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides aliases of commands. */
-
 /** An alias definition
  */
 class Alias

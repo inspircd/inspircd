@@ -27,7 +27,6 @@
 # pragma comment(lib, "GeoIP.lib")
 #endif
 
-/* $ModDesc: Provides a way to restrict users by country using GeoIP lookup */
 /* $LinkerFlags: -lGeoIP */
 
 class ModuleGeoIP : public Module

@@ -19,8 +19,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 
 /* Used when comparing CIDR masks for the modulus bits left over.

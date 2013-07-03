@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Display timestamps from all servers connected to the network */
-
 class CommandAlltime : public Command
 {
  public:

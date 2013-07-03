@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the ability to abbreviate commands a-la BBC BASIC keywords. */
-
 class ModuleAbbreviation : public Module
 {
  public:

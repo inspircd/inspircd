@@ -56,8 +56,6 @@
  */
 
 
-/* $ModDesc: Allows for RIPEMD-160 encrypted oper passwords */
-
 /* macro definitions */
 
 #include "inspircd.h"

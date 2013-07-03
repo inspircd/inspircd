@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the /CLONES command to retrieve information on clones. */
-
 /** Handle /CLONES
  */
 class CommandClones : public Command

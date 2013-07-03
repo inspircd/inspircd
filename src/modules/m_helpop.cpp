@@ -21,8 +21,6 @@
  */
 
 
-/* $ModDesc: Provides the /HELPOP command for useful information */
-
 #include "inspircd.h"
 
 static std::map<irc::string, std::string> helpop_map;

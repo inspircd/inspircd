@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for /KNOCK and channel mode +K */
-
 /** Handles the /KNOCK command
  */
 class CommandKnock : public Command

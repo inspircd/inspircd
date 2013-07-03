@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Forces connecting clients to send a PONG message back to the server before they can complete their connection */
-
 class ModuleWaitPong : public Module
 {
 	bool sendsnotice;

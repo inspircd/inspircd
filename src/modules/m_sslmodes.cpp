@@ -24,8 +24,6 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 
-/* $ModDesc: Provides channel mode +z to allow for Secure/SSL only channels */
-
 /** Handle channel mode +z
  */
 class SSLMode : public ModeHandler

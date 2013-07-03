@@ -20,8 +20,6 @@
  */
 
 
-/* $ModDesc: Allows for delay-join channels (+D) where users don't appear to join until they speak */
-
 #include "inspircd.h"
 #include <stdarg.h>
 

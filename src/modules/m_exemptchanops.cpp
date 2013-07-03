@@ -20,8 +20,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/* $ModDesc: Provides the ability to allow channel operators to be exempt from certain modes. */
-
 /** Handles channel mode +X
  */
 class ExemptChanOps : public ListModeBase

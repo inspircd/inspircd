@@ -23,8 +23,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 #include "listmode.h"
 #include <cstdarg>

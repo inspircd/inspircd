@@ -26,8 +26,6 @@
 #include "xline.h"
 #include "protocol.h"
 
-/* $ModDesc: Provides statistics over HTTP via m_httpd.so */
-
 class ModuleHttpStats : public Module
 {
 	static std::map<char, char const*> const &entities;
