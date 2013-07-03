@@ -56,7 +56,7 @@ void BufferedSocket::DoConnect(const std::string &ipaddr, int aport, unsigned lo
 	if (err != I_ERR_NONE)
 	{
 		state = I_ERROR;
-		SetError(strerror(errno));
+		SetError(SocketEngine::LastError());
 		OnError(err);
 	}
 }
@@ -210,7 +210,7 @@ void StreamSocket::DoRead()
 		}
 		else
 		{
-			error = strerror(errno);
+			error = SocketEngine::LastError();
 			ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 		}
 	}
@@ -296,7 +296,7 @@ void StreamSocket::DoWrite()
 						if (errno == EINTR || SocketEngine::IgnoreError())
 							ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
 						else
-							SetError(strerror(errno));
+							SetError(SocketEngine::LastError());
 						return;
 					}
 					else if (rv < itemlen)
@@ -401,7 +401,7 @@ void StreamSocket::DoWrite()
 			}
 			else
 			{
-				error = strerror(errno);
+				error = SocketEngine::LastError();
 			}
 		}
 		if (!error.empty())
@@ -496,7 +496,7 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 				if (errornum == 0)
 					SetError("Connection closed");
 				else
-					SetError(strerror(errornum));
+					SetError(SocketEngine::GetError(errornum));
 				switch (errornum)
 				{
 					case ETIMEDOUT:

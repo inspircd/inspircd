@@ -494,6 +494,14 @@ public:
 	 * Checks EAGAIN and WSAEWOULDBLOCK
 	 */
 	static bool IgnoreError();
+
+	/** Return the last socket related error. strrerror(errno) on *nix
+	 */
+	static std::string LastError();
+
+	/** Returns the error for the given error num, strerror(errnum) on *nix
+	 */
+	static std::string GetError(int errnum);
 };
 
 inline bool SocketEngine::IgnoreError()
