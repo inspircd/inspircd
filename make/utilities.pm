@@ -305,16 +305,6 @@ sub translate_functions($$)
 		$module =~ /modules*\/(.+?)$/;
 		$module = $1;
 
-		# This is only a cursory check, just designed to catch casual accidental use of backticks.
-		# There are pleanty of ways around it, but its not supposed to be for security, just checking
-		# that people are using the new configuration api as theyre supposed to and not just using
-		# backticks instead of eval(), being as eval has accountability. People wanting to get around
-		# the accountability will do so anyway.
-		if (($line =~ /`/) && ($line !~ /eval\(.+?`.+?\)/))
-		{
-			die "Developers should no longer use backticks in configuration macros. Please use exec() and eval() macros instead. Offending line: $line (In module: $module)";
-		}
-
 		if ($line =~ /ifuname\(\!"(\w+)"\)/)
 		{
 			my $uname = $1;
