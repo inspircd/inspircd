@@ -31,11 +31,12 @@
 
 
 CXX = @CXX@
+COMPILER = @COMPILER@
 SYSTEM = @SYSTEM@
 BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
-LDLIBS = -pthread -lstdc++
+LDLIBS = -lstdc++
 CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
 PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "$(DESTDIR)@BASE_DIR@"
@@ -49,7 +50,7 @@ INSTMODE_DIR = 0755
 INSTMODE_BIN = 0755
 INSTMODE_LIB = 0644
 
-@IFNEQ $(CXX) icc
+@IFNEQ $(COMPILER) icc
   CORECXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
 @ENDIF
 

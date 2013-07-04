@@ -882,9 +882,10 @@ EOF
 		close(FILEHANDLE);
 
 		$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
+		$config{COMPILER} = lc $cxx{NAME};
 
 		for my $var (qw(
-			CXX SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
+			CXX COMPILER SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
 			STARTSCRIPT DESTINATION SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;
