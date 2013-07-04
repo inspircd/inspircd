@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b p: - part message bans */
-
 class ModulePartMsgBan : public Module
 {
  public:

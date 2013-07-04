@@ -885,9 +885,9 @@ EOF
 		}
 
 		if ($config{HAS_DEFER} eq "TCP_DEFER_ACCEPT") {
-			print FILEHANDLE "#define USE_TCP_DEFER_ACCEPT";
+			print FILEHANDLE "#define USE_TCP_DEFER_ACCEPT\n";
 		} elsif ($config{HAS_DEFER} eq "SO_ACCEPTFILTER") {
-			print FILEHANDLE "#define USE_SO_ACCEPTFILTER"
+			print FILEHANDLE "#define USE_SO_ACCEPTFILTER\n"
 		}
 
 		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n";
@@ -1136,7 +1136,7 @@ sub enable_extras (@) {
 		my @deps = split / +/, getdependencies($extrapath);
 		for my $dep (@deps) {
 			next if scalar(grep { $_ eq $dep } (@extras)) > 0; # Skip if we're going to be enabling it anyway.
-			if (!-e "src/modules/$dep") {
+			if (!-e "src/modules/$dep" && !-e "include/$dep") {
 				if (-e "src/modules/extra/$dep") {
 					print STDERR "Will also enable extra \e[32;1m$dep\e[0m (needed by \e[32;1m$extra\e[0m)\n";
 					push @extras, $dep;

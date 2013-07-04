@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel */
-
 /*
  * This module supports the use of the +q and +a usermodes, but should work without them too.
  * Usage of the command is restricted to +hoaq, and you cannot remove a user with a "higher" level than yourself.

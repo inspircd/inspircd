@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Forces users to join the specified channel(s) on connect */
-
 class ModuleConnJoin : public Module
 {
 	public:

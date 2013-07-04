@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2009 Taros <taros34@hotmail.com>
  *   Copyright (C) 2009-2010 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -16,26 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-/*
- * Written for InspIRCd-1.2 by Taros on the Tel'Laerad M&D Team
- * <http://tellaerad.net>
- */
-
 #include "inspircd.h"
-
-/* $ModConfig: <ojoin prefix="!" notice="yes" op="yes">
- *  Specify the prefix that +Y will grant here, it should be unused.
- *  Leave prefix empty if you do not wish +Y to grant a prefix
- *  If notice is set to on, upon ojoin, the server will notice
- *  the channel saying that the oper is joining on network business
- *  If op is set to on, it will give them +o along with +Y */
-/* $ModDesc: Provides the /ojoin command, which joins a user to a channel on network business, and gives them +Y, which makes them immune to kick / deop and so on. */
-/* $ModAuthor: Taros */
-/* $ModAuthorMail: taros34@hotmail.com */
-
-/* A note: This will not protect against kicks from services,
- * ulines, or operoverride. */
 
 #define NETWORK_VALUE 9000000
 

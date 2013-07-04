@@ -16,8 +16,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* $ModDesc: Provides support for extended-join, away-notify and account-notify CAP capabilities */
-
 #include "inspircd.h"
 #include "modules/account.h"
 #include "modules/cap.h"

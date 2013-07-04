@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the /DCCALLOW command */
-
 class BannedFileList
 {
  public:

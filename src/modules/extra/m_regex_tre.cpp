@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <tre/regex.h>
 
-/* $ModDesc: Regex Provider Module for TRE Regular Expressions */
 /* $CompileFlags: pkgconfincludes("tre","tre/regex.h","") */
 /* $LinkerFlags: pkgconflibs("tre","/libtre.so","-ltre") rpath("pkg-config --libs tre") */
 /* $ModDep: modules/regex.h */

@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Sets (and unsets) modes on opers when they oper up */
-
 class ModuleModesOnOper : public Module
 {
  public:

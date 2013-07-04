@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b j: - matching channel bans */
-
 class ModuleBadChannelExtban : public Module
 {
  public:

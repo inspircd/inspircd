@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Allows for auditorium channels (+u) where nobody can see others joining and parting or the nick list */
-
 class AuditoriumMode : public ModeHandler
 {
  public:

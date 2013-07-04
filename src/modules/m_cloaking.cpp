@@ -26,8 +26,6 @@
 #include "inspircd.h"
 #include "modules/hash.h"
 
-/* $ModDesc: Provides masking of user hostnames */
-
 enum CloakMode
 {
 	/** 2.0 cloak of "half" of the hostname plus the full IP hash */

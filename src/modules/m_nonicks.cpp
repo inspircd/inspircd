@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for channel mode +N & extban +b N: which prevents nick changes on channel */
-
 class NoNicks : public SimpleChannelModeHandler
 {
  public:

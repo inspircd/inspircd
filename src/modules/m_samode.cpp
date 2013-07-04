@@ -20,8 +20,6 @@
  */
 
 
-/* $ModDesc: Provides command SAMODE to allow opers to change modes on channels and users */
-
 #include "inspircd.h"
 
 /** Handle /SAMODE

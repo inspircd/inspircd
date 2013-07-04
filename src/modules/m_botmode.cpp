@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides user mode +B to mark the user as a bot */
-
 /** Handles user mode +B
  */
 class BotMode : public SimpleUserModeHandler

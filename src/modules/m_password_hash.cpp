@@ -18,8 +18,6 @@
  */
 
 
-/* $ModDesc: Allows for hashed oper passwords */
-
 #include "inspircd.h"
 #include "modules/hash.h"
 

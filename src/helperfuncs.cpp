@@ -22,8 +22,6 @@
  */
 
 
-/* $Core */
-
 #ifdef _WIN32
 #define _CRT_RAND_S
 #include <stdlib.h>

@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +L (limit redirection) and usermode +L (no forced redirection) */
-
 /** Handle channel mode +L
  */
 class Redirect : public ModeHandler

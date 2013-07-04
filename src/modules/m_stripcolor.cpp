@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel +S mode (strip ansi color) */
-
 /** Handles channel mode +S
  */
 class ChannelStripColor : public SimpleChannelModeHandler

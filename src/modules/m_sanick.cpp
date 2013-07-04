@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for SANICK command */
-
 /** Handle /SANICK
  */
 class CommandSanick : public Command

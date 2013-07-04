@@ -21,8 +21,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/* $ModDesc: Provides support for the +w channel mode, autoop list */
-
 /** Handles +w channel mode
  */
 class AutoOpList : public ListModeBase

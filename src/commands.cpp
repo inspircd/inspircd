@@ -21,8 +21,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 #include "xline.h"
 #include "command_parse.h"

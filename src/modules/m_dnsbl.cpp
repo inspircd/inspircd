@@ -25,8 +25,6 @@
 #include "xline.h"
 #include "modules/dns.h"
 
-/* $ModDesc: Provides handling of DNS blacklists */
-
 /* Class holding data for a single entry */
 class DNSBLConfEntry
 {

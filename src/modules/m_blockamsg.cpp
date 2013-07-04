@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Attempt to block /amsg, at least some of the irritating mIRC scripts. */
-
 enum BlockAction { IBLOCK_KILL, IBLOCK_KILLOPERS, IBLOCK_NOTICE, IBLOCK_NOTICEOPERS, IBLOCK_SILENT };
 /*	IBLOCK_NOTICE		- Send a notice to the user informing them of what happened.
  *	IBLOCK_NOTICEOPERS	- Send a notice to the user informing them and send an oper notice.

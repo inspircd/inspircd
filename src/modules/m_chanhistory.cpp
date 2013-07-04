@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel history for a given number of lines */
-
 struct HistoryItem
 {
 	time_t ts;

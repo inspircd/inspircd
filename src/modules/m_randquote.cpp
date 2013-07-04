@@ -21,8 +21,6 @@
  */
 
 
-/* $ModDesc: Provides random quotes on connect. */
-
 #include "inspircd.h"
 
 class ModuleRandQuote : public Module

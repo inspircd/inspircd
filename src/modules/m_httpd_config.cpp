@@ -22,8 +22,6 @@
 #include "modules/httpd.h"
 #include "protocol.h"
 
-/* $ModDesc: Allows for the server configuration to be viewed over HTTP via m_httpd.so */
-
 class ModuleHttpConfig : public Module
 {
 	HTTPdAPI API;

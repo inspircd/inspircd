@@ -22,10 +22,6 @@
 #include "xline.h"
 #include <fstream>
 
-/* $ModConfig: <xlinedb filename="data/xline.db">
- *  Specify the filename for the xline database here*/
-/* $ModDesc: Keeps a dynamic log of all XLines created, and stores them in a seperate conf file (xline.db). */
-
 class ModuleXLineDB : public Module
 {
 	bool dirty;

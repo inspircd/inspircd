@@ -20,8 +20,6 @@
 #include "inspircd.h"
 #include "modules/ssl.h"
 
-/* $ModDesc: Provides SSL metadata, including /WHOIS information and /SSLINFO command */
-
 class SSLCertExt : public ExtensionItem {
  public:
 	SSLCertExt(Module* parent) : ExtensionItem("ssl_cert", parent) {}

@@ -21,8 +21,6 @@
 #include "inspircd.h"
 #include <fstream>
 
-/* $ModDesc: Provides support for channel mode +P to provide permanent channels */
-
 
 /** Handles the +P channel mode
  */

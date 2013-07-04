@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the SWHOIS command which allows setting of arbitrary WHOIS lines */
-
 /** Handle /SWHOIS
  */
 class CommandSwhois : public Command

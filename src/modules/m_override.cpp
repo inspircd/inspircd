@@ -26,8 +26,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for allowing opers to override certain things. */
-
 class ModuleOverride : public Module
 {
 	bool RequireKey;

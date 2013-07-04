@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for seeing local and remote nickchanges via snomasks 'n' and 'N'. */
-
 class ModuleSeeNicks : public Module
 {
  public:

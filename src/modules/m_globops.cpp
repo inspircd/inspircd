@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for GLOBOPS and snomask +g */
-
 /** Handle /GLOBOPS
  */
 class CommandGlobops : public Command

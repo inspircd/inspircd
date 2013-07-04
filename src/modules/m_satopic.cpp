@@ -17,8 +17,6 @@
  */
 
 
-/* $ModDesc: Provides a SATOPIC command */
-
 #include "inspircd.h"
 
 /** Handle /SATOPIC

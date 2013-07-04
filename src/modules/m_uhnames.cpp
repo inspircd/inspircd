@@ -22,8 +22,6 @@
 #include "inspircd.h"
 #include "modules/cap.h"
 
-/* $ModDesc: Provides the UHNAMES facility. */
-
 class ModuleUHNames : public Module
 {
  public:

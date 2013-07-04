@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implementation of callerid, usermode +g, /accept */
-
 class callerid_data
 {
  public:

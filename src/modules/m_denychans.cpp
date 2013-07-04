@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements config tags which allow blocking of joins to channels */
-
 class ModuleDenyChannels : public Module
 {
  public:

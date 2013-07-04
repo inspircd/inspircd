@@ -23,7 +23,6 @@
 #include <sys/types.h>
 #include <regex.h>
 
-/* $ModDesc: Regex Provider Module for POSIX Regular Expressions */
 /* $ModDep: modules/regex.h */
 
 class POSIXRegexException : public ModuleException

@@ -22,7 +22,6 @@
 #include <pcre.h>
 #include "modules/regex.h"
 
-/* $ModDesc: Regex Provider Module for PCRE */
 /* $ModDep: modules/regex.h */
 /* $CompileFlags: exec("pcre-config --cflags") */
 /* $LinkerFlags: exec("pcre-config --libs") rpath("pcre-config --libs") -lpcre */

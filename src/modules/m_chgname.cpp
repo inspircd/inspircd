@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the CHGNAME command */
-
 /** Handle /CHGNAME
  */
 class CommandChgname : public Command

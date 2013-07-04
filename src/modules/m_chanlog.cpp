@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Logs snomask output to channel(s). */
-
 class ModuleChanLog : public Module
 {
 	/*

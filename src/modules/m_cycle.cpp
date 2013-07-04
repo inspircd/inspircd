@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides command CYCLE, acts as a server-side HOP command to part and rejoin a channel. */
-
 /** Handle /CYCLE
  */
 class CommandCycle : public SplitCommand

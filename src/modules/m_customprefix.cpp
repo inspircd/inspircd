@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Allows custom prefix modes to be created. */
-
 class CustomPrefixMode : public ModeHandler
 {
  public:

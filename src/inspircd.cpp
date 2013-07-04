@@ -26,7 +26,6 @@
  */
 
 
-/* $Core */
 #include "inspircd.h"
 #include <signal.h>
 
