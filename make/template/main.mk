@@ -34,7 +34,7 @@ CXX = @CC@
 SYSTEM = @SYSTEM@
 BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
-CXXFLAGS = -fPIC -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
+CORECXXFLAGS = -fPIC -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -pthread -lstdc++
 CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
 PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
@@ -50,7 +50,7 @@ INSTMODE_BIN = 0755
 INSTMODE_LIB = 0644
 
 @IFNEQ $(CXX) icc
-  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
+  CORECXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
 @ENDIF
 
 @IFNEQ $(SYSTEM) darwin
@@ -82,20 +82,20 @@ INSTMODE_LIB = 0644
 
 DBGOK=0
 @IFEQ $(D) 0
-  CXXFLAGS += -O2
+  CORECXXFLAGS += -O2
 @IFEQ $(CXX) g++
-    CXXFLAGS += -g1
+    CORECXXFLAGS += -g1
 @ENDIF
   HEADER = std-header
   DBGOK=1
 @ENDIF
 @IFEQ $(D) 1
-  CXXFLAGS += -O0 -g3 -Werror
+  CORECXXFLAGS += -O0 -g3 -Werror
   HEADER = debug-header
   DBGOK=1
 @ENDIF
 @IFEQ $(D) 2
-  CXXFLAGS += -O2 -g3
+  CORECXXFLAGS += -O2 -g3
   HEADER = debug-header
   DBGOK=1
 @ENDIF
@@ -118,10 +118,14 @@ FOOTER = finishmessage
 @ENDIF
 
 @IFDEF PURE_STATIC
-  CXXFLAGS += -DPURE_STATIC
+  CORECXXFLAGS += -DPURE_STATIC
 @ENDIF
 
-@DO_EXPORT RUNCC RUNLD CXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
+# Add the users CXXFLAGS to the base ones to allow them to override
+# things like -Wfatal-errors if they wish to.
+CORECXXFLAGS += $(CXXFLAGS)
+
+@DO_EXPORT RUNCC RUNLD CORECXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
 @DO_EXPORT SOURCEPATH BUILDPATH PURE_STATIC SPLIT_CC
 
 # Default target
