@@ -30,13 +30,12 @@
 #
 
 
-CC = @CC@
+CXX = @CC@
 SYSTEM = @SYSTEM@
 BUILDPATH = @BUILD_DIR@
 SOCKETENGINE = @SOCKETENGINE@
-CXXFLAGS = -pipe -fPIC -DPIC
+CORECXXFLAGS = -fPIC -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -pthread -lstdc++
-LDFLAGS = 
 CORELDFLAGS = -rdynamic -L. $(LDFLAGS)
 PICLDFLAGS = -fPIC -shared -rdynamic $(LDFLAGS)
 BASE = "$(DESTDIR)@BASE_DIR@"
@@ -50,12 +49,13 @@ INSTMODE_DIR = 0755
 INSTMODE_BIN = 0755
 INSTMODE_LIB = 0644
 
-@IFEQ $(CC) icc
-  CXXFLAGS += -Wshadow
-@ELSE
-  CXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute -Wall
+@IFNEQ $(CXX) icc
+  CORECXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
 @ENDIF
 
+@IFNEQ $(SYSTEM) darwin
+  LDLIBS += -pthread
+@ENDIF
 
 @IFEQ $(SYSTEM) linux
   LDLIBS += -ldl -lrt
@@ -70,18 +70,10 @@ INSTMODE_LIB = 0644
   LDLIBS += -lsocket -lnsl -lrt -lresolv
   INSTALL = ginstall
 @ENDIF
-@IFEQ $(SYSTEM) sunos
-  LDLIBS += -lsocket -lnsl -lrt -lresolv
-	INSTALL = ginstall
-@ENDIF
 @IFEQ $(SYSTEM) darwin
-  CXXFLAGS += -DDARWIN -frtti
   LDLIBS += -ldl
   CORELDFLAGS = -dynamic -bind_at_load -L. $(LDFLAGS)
   PICLDFLAGS = -fPIC -shared -twolevel_namespace -undefined dynamic_lookup $(LDFLAGS)
-@ENDIF
-@IFEQ $(SYSTEM) interix
-  CXXFLAGS += -D_ALL_SOURCE -I/usr/local/include
 @ENDIF
 
 @IFNDEF D
@@ -90,26 +82,24 @@ INSTMODE_LIB = 0644
 
 DBGOK=0
 @IFEQ $(D) 0
-  CXXFLAGS += -O2
-@IFEQ $(CC) gcc
-    CXXFLAGS += -g1
+  CORECXXFLAGS += -O2
+@IFEQ $(CXX) g++
+    CORECXXFLAGS += -g1
 @ENDIF
   HEADER = std-header
   DBGOK=1
 @ENDIF
 @IFEQ $(D) 1
-  CXXFLAGS += -O0 -g3 -Werror
+  CORECXXFLAGS += -O0 -g3 -Werror
   HEADER = debug-header
   DBGOK=1
 @ENDIF
 @IFEQ $(D) 2
-  CXXFLAGS += -O2 -g3
+  CORECXXFLAGS += -O2 -g3
   HEADER = debug-header
   DBGOK=1
 @ENDIF
 FOOTER = finishmessage
-
-CXXFLAGS += -Iinclude
 
 @GNU_ONLY MAKEFLAGS += --no-print-directory
 
@@ -117,21 +107,25 @@ CXXFLAGS += -Iinclude
 @BSD_ONLY SOURCEPATH != /bin/pwd
 
 @IFDEF V
-  RUNCC = $(CC)
-  RUNLD = $(CC)
+  RUNCC = $(CXX)
+  RUNLD = $(CXX)
   VERBOSE = -v
 @ELSE
   @GNU_ONLY MAKEFLAGS += --silent
   @BSD_ONLY MAKE += -s
-  RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
-  RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CC)
+  RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
+  RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
 @ENDIF
 
 @IFDEF PURE_STATIC
-  CXXFLAGS += -DPURE_STATIC
+  CORECXXFLAGS += -DPURE_STATIC
 @ENDIF
 
-@DO_EXPORT RUNCC RUNLD CXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
+# Add the users CXXFLAGS to the base ones to allow them to override
+# things like -Wfatal-errors if they wish to.
+CORECXXFLAGS += $(CXXFLAGS)
+
+@DO_EXPORT RUNCC RUNLD CORECXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
 @DO_EXPORT SOURCEPATH BUILDPATH PURE_STATIC SPLIT_CC
 
 # Default target
@@ -270,8 +264,6 @@ deinstall:
 	-rm -f $(BASE)/.gdbargs
 	-rm -f $(BASE)/org.inspircd.plist
 
-squeakyclean: distclean
-
 configureclean:
 	rm -f .config.cache
 	rm -f BSDmakefile
@@ -312,4 +304,4 @@ help:
 	@echo ' deinstall Removes the files created by "make install"'
 	@echo
 
-.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall squeakyclean configureclean help
+.PHONY: all target debug debug-header mod-header mod-footer std-header finishmessage install clean deinstall configureclean help

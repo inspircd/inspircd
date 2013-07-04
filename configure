@@ -960,6 +960,7 @@ EOF
 			s/\@IFDEF (\S+)/ifdef $1/g;
 			s/\@IFNDEF (\S+)/ifndef $1/g;
 			s/\@IFEQ (\S+) (\S+)/ifeq ($1,$2)/g;
+			s/\@IFNEQ (\S+) (\S+)/ifneq ($1,$2)/g;
 			s/\@ELSIFEQ (\S+) (\S+)/else ifeq ($1,$2)/g;
 			s/\@ELSE/else/g;
 			s/\@ENDIF/endif/g;
@@ -975,6 +976,7 @@ EOF
 			s/\@IFDEF (\S+)/.if defined($1)/g;
 			s/\@IFNDEF (\S+)/.if !defined($1)/g;
 			s/\@IFEQ (\S+) (\S+)/.if $1 == $2/g;
+			s/\@IFNEQ (\S+) (\S+)/.if $1 != $2/g;
 			s/\@ELSIFEQ (\S+) (\S+)/.elif $1 == $2/g;
 			s/\@ELSE/.else/g;
 			s/\@ENDIF/.endif/g;
