@@ -232,16 +232,15 @@ $config{DESTINATION}	  = "BASE";				# Is target path.
 if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
-	$config{CC} 		    = "xcrun clang++";					# C++ compiler for OSX.
 }
-else
-{
-	$config{CC} 		    = "g++";						# C++ compiler
+
+$config{CC} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
+if ($config{CC} eq "") {
+	print "A C++ compiler could not be detected on your system!\n";
+	print "Set the CXX environment variable to the full path if this is incorrect.\n";
+	exit 1;	
 }
-if (defined $ENV{CXX})
-{
-	$config{CC} = $ENV{CXX};
-}
+
 our $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
 $exec = $config{CC} . " -dumpversion | cut -c 3";
@@ -251,15 +250,6 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 	$config{HAS_OPENSSL} = $1;
 } else {
 	$config{HAS_OPENSSL} = "";
-}
-
-if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
-	if ($config{OSNAME} eq 'darwin') {
-		print $config{CC} . " was not found! You require clang++ (the LLVM C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
-	} else {
-		print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";		
-	}
-	exit;
 }
 
 # Get and Set some important vars..

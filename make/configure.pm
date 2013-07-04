@@ -31,9 +31,19 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(test_file test_header promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
+our @EXPORT = qw(find_compiler test_file test_header promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
 
 my $no_git = 0;
+
+sub find_compiler {
+	foreach my $compiler ('c++', 'g++', 'clang++', 'icpc') {
+		return $compiler unless system "$compiler -v > /dev/null 2>&1";
+		if ($^O eq 'Darwin') {
+			return $compiler unless system "xcrun $compiler -v > /dev/null 2>&1";
+		}
+	}
+	return "";
+}
 
 sub test_file($$;$) {
 	my ($cc, $file, $args) = @_;
