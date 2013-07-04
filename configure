@@ -56,7 +56,7 @@ use make::configure;
 our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_ports, $opt_epoll, $opt_kqueue,
      $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_freebsd_port, $opt_system, $opt_uid);
 
-our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
+our ($opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
 
 sub list_extras ();
 
@@ -79,7 +79,6 @@ GetOptions (
 	'disable-ports' => \$opt_noports,
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
-	'with-cc=s' => \$opt_cc,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
 	'prefix=s' => \$opt_base_dir,
 	'config-dir=s' => \$opt_config_dir,
@@ -114,7 +113,6 @@ our $interactive = !(
 	(defined $opt_data_dir) ||
 	(defined $opt_log_dir) ||
 	(defined $opt_nointeractive) ||
-	(defined $opt_cc) ||
 	(defined $opt_kqueue) ||
 	(defined $opt_epoll) ||
 	(defined $opt_ports) ||
@@ -240,9 +238,9 @@ else
 {
 	$config{CC} 		    = "g++";						# C++ compiler
 }
-if (defined $opt_cc)
+if (defined $ENV{CXX})
 {
-	$config{CC} = $opt_cc;
+	$config{CC} = $ENV{CXX};
 }
 our $exec = $config{CC} . " -dumpversion | cut -c 1";
 chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
