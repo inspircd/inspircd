@@ -234,14 +234,14 @@ if ($config{OSNAME} =~ /darwin/i)
 	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
 }
 
-$config{CC} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
-if ($config{CC} eq "") {
+$config{CXX} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
+if ($config{CXX} eq "") {
 	print "A C++ compiler could not be detected on your system!\n";
 	print "Set the CXX environment variable to the full path if this is incorrect.\n";
 	exit 1;	
 }
 
-our %cxx = get_compiler_info($config{CC});
+our %cxx = get_compiler_info($config{CXX});
 if ($cxx{UNSUPPORTED}) {
 	print "Your C++ compiler is too old to build InspIRCd!\n";
 	print "Reason: $cxx{REASON}\n";
@@ -301,7 +301,7 @@ $config{SYSTEM} = lc $^O;
 print "Checking operating system version... $config{SYSTEM}\n";
 
 print "Checking whether <stdint.h> exists... ";
-if (test_header($config{CC}, "stdint.h")) {
+if (test_header($config{CXX}, "stdint.h")) {
 	$config{HAS_STDINT} = "true";
 	print "yes\n";
 } else {
@@ -310,7 +310,7 @@ if (test_header($config{CC}, "stdint.h")) {
 }
 
 printf "Checking whether clock_gettime() exists... ";
-if (test_file($config{CC}, "clock_gettime.cpp", "-lrt")) {
+if (test_file($config{CXX}, "clock_gettime.cpp", "-lrt")) {
 	$config{HAS_CLOCK_GETTIME} = "true";
 	print "yes\n";
 } else {
@@ -319,7 +319,7 @@ if (test_file($config{CC}, "clock_gettime.cpp", "-lrt")) {
 }
 
 printf "Checking whether eventfd() exists... ";
-if (test_file($config{CC}, "eventfd.cpp")) {
+if (test_file($config{CXX}, "eventfd.cpp")) {
 	$config{HAS_EVENTFD} = "true";
 	print "yes\n";
 } else {
@@ -328,10 +328,10 @@ if (test_file($config{CC}, "eventfd.cpp")) {
 }
 
 printf "Checking if a TCP deferring mechanism is available... ";
-if (test_file($config{CC}, "tcp_defer_accept.cpp")) {
+if (test_file($config{CXX}, "tcp_defer_accept.cpp")) {
 	$config{HAS_DEFER} = "TCP_DEFER_ACCEPT";
 	print "yes (TCP_DEFER_ACCEPT)\n";
-} elsif (test_file($config{CC}, "so_acceptfilter.cpp")) {
+} elsif (test_file($config{CXX}, "so_acceptfilter.cpp")) {
 	$config{HAS_DEFER} = "SO_ACCEPTFILTER";
 	print "yes (SO_ACCEPTFILTER)\n";
 } else {
@@ -340,15 +340,15 @@ if (test_file($config{CC}, "tcp_defer_accept.cpp")) {
 }
 
 print "Checking whether epoll is available... ";
-$has_epoll = test_header($config{CC}, "sys/epoll.h");
+$has_epoll = test_header($config{CXX}, "sys/epoll.h");
 print $has_epoll ? "yes\n" : "no\n";
 
 print "Checking whether Kqueue is available... ";
-$has_kqueue = test_file($config{CC}, "kqueue.cpp");
+$has_kqueue = test_file($config{CXX}, "kqueue.cpp");
 print $has_kqueue ? "yes\n" : "no\n";
 
 print 'Checking whether Solaris IOCP is available... ';
-$has_ports = test_header($config{CC}, 'port.h');
+$has_ports = test_header($config{CXX}, 'port.h');
 print $has_ports ? "yes\n" : "no\n";
 
 $config{HAS_EPOLL} = $has_epoll;
@@ -884,7 +884,7 @@ EOF
 		$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
 
 		for my $var (qw(
-			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
+			CXX SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
 			STARTSCRIPT DESTINATION SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;
