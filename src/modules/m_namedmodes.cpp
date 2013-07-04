@@ -17,8 +17,6 @@
  */
 
 
-/* $ModDesc: Provides the ability to manipulate modes via long names. */
-
 #include "inspircd.h"
 
 static void DisplayList(User* user, Channel* channel)

@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for USERIP command */
-
 /** Handle /USERIP
  */
 class CommandUserip : public Command

@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Sets (and unsets) modes on users when they connect */
-
 class ModuleModesOnConnect : public Module
 {
  public:

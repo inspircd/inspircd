@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +Q to prevent kicks on the channel. */
-
 class NoKicks : public SimpleChannelModeHandler
 {
  public:

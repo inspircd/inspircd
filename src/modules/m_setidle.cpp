@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Allows opers to set their idle time */
-
 /** Handle /SETIDLE
  */
 class CommandSetidle : public SplitCommand

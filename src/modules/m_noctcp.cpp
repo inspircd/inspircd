@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +C to block CTCPs */
-
 class NoCTCP : public SimpleChannelModeHandler
 {
  public:

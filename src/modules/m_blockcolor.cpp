@@ -23,8 +23,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +c to block color */
-
 /** Handles the +c channel mode
  */
 class BlockColor : public SimpleChannelModeHandler

@@ -20,10 +20,6 @@
 #include "modules/regex.h"
 #include <regex>
 
-/* $ModDesc: Regex Provider Module for std::regex Regular Expressions */
-/* $ModConfig: <stdregex type="ecmascript">
- *  Specify the Regular Expression engine to use here. Valid settings are
- *  bre, ere, awk, grep, egrep, ecmascript (default if not specified)*/
 /* $CompileFlags: -std=c++11 */
 /* $ModDep: modules/regex.h */
 

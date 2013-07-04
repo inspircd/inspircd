@@ -22,8 +22,6 @@
  * Originally by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru
  */
 
-/* $ModDesc: Gives opers cmode +y which provides a staff prefix. */
-
 #include "inspircd.h"
 
 #define OPERPREFIX_VALUE 1000000

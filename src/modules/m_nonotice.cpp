@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channel mode +T to block notices to the channel */
-
 class NoNotice : public SimpleChannelModeHandler
 {
  public:

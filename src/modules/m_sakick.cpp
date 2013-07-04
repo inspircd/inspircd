@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides a SAKICK command */
-
 /** Handle /SAKICK
  */
 class CommandSakick : public Command

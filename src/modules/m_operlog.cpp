@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: A module which logs all oper commands to the ircd log at default loglevel. */
-
 class ModuleOperLog : public Module
 {
 	bool tosnomask;

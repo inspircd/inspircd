@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Shows a message to opers after oper-up, adds /opermotd */
-
 /** Handle /OPERMOTD
  */
 class CommandOpermotd : public Command

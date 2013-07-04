@@ -19,8 +19,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 #include "hashcomp.h"
 #include "inspstring.h"

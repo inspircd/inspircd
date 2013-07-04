@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides channelmode +d <int>, to deny messages to a channel until <int> seconds. */
-
 class DelayMsgMode : public ModeHandler
 {
  public:

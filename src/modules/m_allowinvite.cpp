@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for channel mode +A, allowing /invite freely on a channel and extban A to deny specific users it */
-
 class AllowInvite : public SimpleChannelModeHandler
 {
  public:

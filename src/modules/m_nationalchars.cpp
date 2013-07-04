@@ -29,8 +29,6 @@
 #include "caller.h"
 #include <fstream>
 
-/* $ModDesc: Provides an ability to have non-RFC1459 nicks & support for national CASEMAPPING */
-
 class lwbNickHandler : public HandlerBase1<bool, const std::string&>
 {
  public:

@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides /tline command used to test who a mask matches */
-
 /** Handle /TLINE
  */
 class CommandTline : public Command

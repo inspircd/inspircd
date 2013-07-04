@@ -20,8 +20,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides /CLOSE functionality */
-
 /** Handle /CLOSE
  */
 class CommandClose : public Command

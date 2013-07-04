@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for oper-only chans via the +O channel mode */
-
 class OperChans : public SimpleChannelModeHandler
 {
  public:

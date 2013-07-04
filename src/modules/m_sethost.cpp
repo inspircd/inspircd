@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support for the SETHOST command */
-
 /** Handle /SETHOST
  */
 class CommandSethost : public Command

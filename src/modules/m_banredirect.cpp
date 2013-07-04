@@ -25,8 +25,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/* $ModDesc: Allows an extended ban (+b) syntax redirecting banned users to another channel */
-
 /* Originally written by Om, January 2009
  */
 

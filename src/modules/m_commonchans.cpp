@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Adds user mode +c, which if set, users must be on a common channel with you to private message you */
-
 /** Handles user mode +c
  */
 class PrivacyMode : public SimpleUserModeHandler

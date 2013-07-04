@@ -24,8 +24,6 @@
 #include "xline.h"
 #include "modules/regex.h"
 
-/* $ModDesc: Text (spam) filtering */
-
 class ModuleFilter;
 
 enum FilterFlags

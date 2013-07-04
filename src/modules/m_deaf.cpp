@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides usermode +d to block channel messages and channel notices */
-
 /** User mode +d - filter out channel messages and channel notices
  */
 class User_d : public ModeHandler

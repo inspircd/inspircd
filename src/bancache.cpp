@@ -18,8 +18,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 #include "bancache.h"
 

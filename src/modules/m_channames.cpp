@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements config tags which allow changing characters allowed in channel names */
-
 static std::bitset<256> allowedmap;
 
 class NewIsChannelHandler : public HandlerBase1<bool, const std::string&>

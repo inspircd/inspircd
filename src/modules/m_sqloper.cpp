@@ -21,8 +21,6 @@
 #include "modules/sql.h"
 #include "modules/hash.h"
 
-/* $ModDesc: Allows storage of oper credentials in an SQL table */
-
 class OpMeQuery : public SQLQuery
 {
  public:

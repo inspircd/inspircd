@@ -21,8 +21,6 @@
  */
 
 
-/* $ModDesc: Allows for MD5 encrypted oper passwords */
-
 #include "inspircd.h"
 #ifdef HAS_STDINT
 #include <stdint.h>

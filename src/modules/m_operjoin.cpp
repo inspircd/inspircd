@@ -24,8 +24,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Forces opers to join the specified channel(s) on oper-up */
-
 class ModuleOperjoin : public Module
 {
 		std::string operChan;

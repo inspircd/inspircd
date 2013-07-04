@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides command SAJOIN to allow opers to force-join users to channels */
-
 /** Handle /SAJOIN
  */
 class CommandSajoin : public Command

@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Only opers may create new channels if this module is loaded */
-
 class ModuleRestrictChans : public Module
 {
 	std::set<irc::string> allowchans;

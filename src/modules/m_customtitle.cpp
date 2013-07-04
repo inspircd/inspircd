@@ -21,8 +21,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides the TITLE command which allows setting of CUSTOM WHOIS TITLE line */
-
 /** Handle /TITLE
  */
 class CommandTitle : public Command

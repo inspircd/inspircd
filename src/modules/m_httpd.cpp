@@ -26,7 +26,6 @@
 #include "iohook.h"
 #include "modules/httpd.h"
 
-/* $ModDesc: Provides HTTP serving facilities to modules */
 /* $ModDep: modules/httpd.h */
 
 class ModuleHttpServer;

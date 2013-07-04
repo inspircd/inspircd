@@ -22,8 +22,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Provides support to block all-CAPS channel messages and notices */
-
 
 /** Handles the +B channel mode
  */

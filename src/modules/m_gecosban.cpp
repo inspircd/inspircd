@@ -19,8 +19,6 @@
 
 #include "inspircd.h"
 
-/* $ModDesc: Implements extban +b r: - realname (gecos) bans */
-
 class ModuleGecosBan : public Module
 {
  public:

@@ -56,8 +56,6 @@
  * SUCH DAMAGE.
  */
 
-/* $ModDesc: Allows for SHA-256 encrypted oper passwords */
-
 #include "inspircd.h"
 #ifdef HAS_STDINT
 #include <stdint.h>

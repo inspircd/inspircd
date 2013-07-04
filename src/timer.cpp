@@ -20,8 +20,6 @@
  */
 
 
-/* $Core */
-
 #include "inspircd.h"
 #include "timer.h"
 

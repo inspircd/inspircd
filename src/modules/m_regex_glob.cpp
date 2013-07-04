@@ -21,8 +21,6 @@
 #include "modules/regex.h"
 #include "inspircd.h"
 
-/* $ModDesc: Regex module using plain wildcard matching. */
-
 class GlobRegex : public Regex
 {
 public:

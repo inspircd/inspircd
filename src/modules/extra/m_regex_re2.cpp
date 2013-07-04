@@ -27,7 +27,6 @@
 #include <re2/re2.h>
 
 
-/* $ModDesc: Regex Provider Module for RE2 Regular Expressions */
 /* $CompileFlags: -std=c++11 */
 /* $LinkerFlags: -lre2 */
 /* $ModDep: modules/regex.h */

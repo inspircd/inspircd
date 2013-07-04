@@ -20,8 +20,6 @@
 #include "inspircd.h"
 #include "listmode.h"
 
-/* $ModDesc: Provides support for the RMODE command - Makes mass removal of chan listmodes by glob pattern possible */
-
 /** Handle /RMODE
  */
 class CommandRMode : public Command
