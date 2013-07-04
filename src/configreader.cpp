@@ -433,6 +433,9 @@ void ServerConfig::Fill()
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
+	if (Network.find(' ') != std::string::npos)
+		throw CoreException(Network + " is not a valid network name. A network name must not contain spaces.");
+
 	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
 	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
 	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
