@@ -97,7 +97,7 @@ sub do_compile {
 	my $libs = '';
 	my $binary = $ENV{RUNCC};
 	if ($do_compile) {
-		$flags = $ENV{CXXFLAGS};
+		$flags = $ENV{CORECXXFLAGS};
 		$flags =~ s/ -pedantic// if nopedantic($file);
 		$flags .= ' ' . getcompilerflags($file);
 
