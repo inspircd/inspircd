@@ -372,10 +372,6 @@ void ServerConfig::Fill()
 		std::string nsid = ConfValue("server")->getString("id");
 		if (!nsid.empty() && nsid != sid)
 			throw CoreException("You must restart to change the server id");
-
-		if (Limits.MaxLine != static_cast<size_t>(ConfValue("limits")->getInt("maxline", 512)))
-			throw CoreException("You must restart to change the maximum line length");
-
 	}
 	diepass = ConfValue("power")->getString("diepass");
 	restartpass = ConfValue("power")->getString("restartpass");
