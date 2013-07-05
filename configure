@@ -53,8 +53,8 @@ use make::configure;
 #
 ###############################################################################################
 
-our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_ports, $opt_epoll, $opt_kqueue,
-     $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_freebsd_port, $opt_system, $opt_uid);
+our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_socketengine, $opt_freebsd_port,
+     $opt_system, $opt_uid);
 
 our ($opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
 
@@ -73,12 +73,7 @@ GetOptions (
 	'uid=s' => \$opt_uid,
 	'enable-openssl' => \$opt_use_openssl,
 	'disable-interactive' => \$opt_nointeractive,
-	'enable-ports' => \$opt_ports,
-	'enable-epoll' => \$opt_epoll,
-	'enable-kqueue' => \$opt_kqueue,
-	'disable-ports' => \$opt_noports,
-	'disable-epoll' => \$opt_noepoll,
-	'disable-kqueue' => \$opt_nokqueue,
+	'socketengine=s' => \$opt_socketengine,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
 	'prefix=s' => \$opt_base_dir,
 	'config-dir=s' => \$opt_config_dir,
@@ -113,13 +108,8 @@ our $interactive = !(
 	(defined $opt_data_dir) ||
 	(defined $opt_log_dir) ||
 	(defined $opt_nointeractive) ||
-	(defined $opt_kqueue) ||
-	(defined $opt_epoll) ||
-	(defined $opt_ports) ||
+	(defined $opt_socketengine) ||
 	(defined $opt_use_openssl) ||
-	(defined $opt_nokqueue) ||
-	(defined $opt_noepoll) ||
-	(defined $opt_noports) ||
 	(defined $opt_system) ||
 	(defined $opt_uid) ||
 	(defined $opt_use_gnutls) ||
@@ -211,21 +201,6 @@ if (defined $opt_use_openssl)
 }
 
 $config{HAS_STDINT}	 = "false";					# stdint.h check
-$config{USE_KQUEUE}	 = "y";						# kqueue enabled
-if (defined $opt_nokqueue) {
-	$config{USE_KQUEUE} = "n";
-}
-$config{USE_POLL}     = "y";					# poll enabled
-$config{USE_EPOLL}	  = "y";					# epoll enabled
-if (defined $opt_noepoll)
-{
-	$config{USE_EPOLL} = "n";
-}
-$config{USE_PORTS}	  = "y";					# epoll enabled
-if (defined $opt_noports)
-{
-	$config{USE_PORTS} = "n";
-}
 $config{OSNAME}       	    = $^O;			      		# Operating System Name
 $config{STARTSCRIPT}	  = "inspircd";			# start script?
 $config{DESTINATION}	  = "BASE";				# Is target path.
@@ -262,8 +237,6 @@ sub clean
 	unlink(".config.cache");
 }
 
-our ($has_epoll, $has_ports, $has_kqueue) = (0, 0, 0);
-
 sub update
 {
 	eval {
@@ -278,9 +251,7 @@ sub update
 		} else {
 			# We've Loaded the cache file and all our variables..
 			print "Updating files...\n";
-			$has_epoll = $config{HAS_EPOLL};
-			$has_ports = $config{HAS_PORTS};
-			$has_kqueue = $config{HAS_KQUEUE};
+			%cxx = get_compiler_info($config{CXX});
 			writefiles(1);
 			makecache();
 			print "Complete.\n";
@@ -340,19 +311,44 @@ if (test_file($config{CXX}, "tcp_defer_accept.cpp")) {
 }
 
 print "Checking whether epoll is available... ";
-$has_epoll = test_header($config{CXX}, "sys/epoll.h");
-print $has_epoll ? "yes\n" : "no\n";
+$config{HAS_EPOLL} = test_header($config{CXX}, "sys/epoll.h");
+print $config{HAS_EPOLL} ? "yes\n" : "no\n";
+$config{SOCKETENGINE} ||= "epoll" if $config{HAS_EPOLL};
 
 print "Checking whether Kqueue is available... ";
-$has_kqueue = test_file($config{CXX}, "kqueue.cpp");
-print $has_kqueue ? "yes\n" : "no\n";
+$config{HAS_KQUEUE} = test_file($config{CXX}, "kqueue.cpp");
+print $config{HAS_KQUEUE} ? "yes\n" : "no\n";
+$config{SOCKETENGINE} ||= "kqueue" if $config{HAS_KQUEUE};
 
 print 'Checking whether Solaris IOCP is available... ';
-$has_ports = test_header($config{CXX}, 'port.h');
-print $has_ports ? "yes\n" : "no\n";
+$config{HAS_PORTS} = test_header($config{CXX}, 'port.h');
+print $config{HAS_PORTS} ? "yes\n" : "no\n";
+$config{SOCKETENGINE} ||= "ports" if $config{HAS_PORTS};
 
-$config{HAS_EPOLL} = $has_epoll;
-$config{HAS_KQUEUE} = $has_kqueue;
+print 'Checking whether poll is available... ';
+$config{HAS_POLL} = test_header($config{CXX}, 'poll.h');
+print $config{HAS_POLL} ? "yes\n" : "no\n";
+$config{SOCKETENGINE} ||= "poll" if $config{HAS_POLL};
+
+# Select is available on all platforms
+$config{HAS_SELECT} = 1;
+$config{SOCKETENGINE} ||= "select";
+
+if (defined $opt_socketengine) {
+	my $cfgkey = "HAS_" . uc $opt_socketengine;
+	if ($config{$cfgkey} && -f "src/socketengines/socketengine_$opt_socketengine.cpp") {
+		$config{SOCKETENGINE} = $opt_socketengine;
+	} else {
+		print "Unable to use a socket engine which is not supported on this platform ($opt_socketengine)!\n";
+		print "Available socket engines are:";
+		foreach (<src/socketengines/socketengine_*.cpp>) {
+			s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
+			print " $1" if $config{"HAS_" . uc $1};
+		}
+		print "\n";	
+		exit 1;
+	}
+}
 
 printf "Checking for libgnutls... ";
 if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y"))) {
@@ -456,35 +452,46 @@ STOP
 	dir_check("do you want the build to take place", "BUILD_DIR");
 		
 	my $chose_hiperf = 0;
-	if ($has_kqueue) {
+	if ($config{HAS_KQUEUE}) {
+		$config{USE_KQUEUE} = "y";
 		yesno('USE_KQUEUE',"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
 		print "\n";
 		if ($config{USE_KQUEUE} eq "y") {
+			$config{SOCKETENGINE} = "kqueue";
 			$chose_hiperf = 1;
 		}
 	}
-	if ($has_epoll) {
+	if ($config{HAS_EPOLL}) {
+		$config{USE_EPOLL} = "y";
 		yesno('USE_EPOLL',"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
 		print "\n";
 		if ($config{USE_EPOLL} eq "y") {
+			$config{SOCKETENGINE} = "epoll";
 			$chose_hiperf = 1;
 		}
 	}
-	if ($has_ports) {
+	if ($config{HAS_PORTS}) {
+		$config{USE_PORTS} = "y";
 		yesno('USE_PORTS',"You are running Solaris 10.\nWould you like to enable I/O completion ports support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable support for I/O completion ports?");
 		print "\n";
 		if ($config{USE_PORTS} eq "y") {
+			$config{SOCKETENGINE} = "ports";
 			$chose_hiperf = 1;
 		}
 	}
 
-	if (!$chose_hiperf) {
-		yesno('USE_POLL', "Would you like to use poll?\n This is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable poll?");
-		if ($config{USE_POLL} ne "y")
-		{
-			print "No high-performance socket engines are available, or you chose\n";
-			print "not to enable one. Defaulting to select() engine.\n\n";
+	if (!$chose_hiperf && $config{HAS_POLL}) {
+		$config{USE_POLL} = "y";
+		yesno('USE_POLL', "Would you like to use poll?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable poll?");
+		if ($config{USE_POLL} eq "y") {
+			$config{SOCKETENGINE} = "poll";
 		}
+	}
+	if (!$chose_hiperf && $config{USE_POLL} ne "y")
+	{
+		print "No high-performance socket engines are available, or you chose\n";
+		print "not to enable one. Defaulting to select() engine.\n\n";
+		$config{SOCKETENGINE} = "select";
 	}
 
 	$config{USE_FREEBSD_BASE_SSL} = "n";
@@ -555,8 +562,6 @@ STOP
 
 # We are on a POSIX system, we can enable POSIX extras without asking
 symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
-
-dumphash();
 
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
 {
@@ -645,8 +650,9 @@ if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
 depcheck();
 writefiles(1);
 makecache();
+dumphash();
 
-print "\n\n";
+print "\n";
 print "To build your server with these settings, please run '\e[1;32mmake\e[0m' now.\n";
 if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
@@ -654,7 +660,7 @@ if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 	print "build process. For more info please refer to:\n";
 	print "\e[1;32mhttp://wiki.inspircd.org/Installation_From_Tarball\e[0m\n";
 }
-print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n\n";
+print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n";
 
 ################################################################################
 #			      HELPER FUNCTIONS				#
@@ -776,12 +782,6 @@ sub writefiles {
 
 EOF
 
-		if ($config{OSNAME} =~ /SunOS/i) {
-			print FILEHANDLE "#define IS_SOLARIS\n";
-		}
-		if ($config{OSNAME} =~ /MINGW32/i) {
-			print FILEHANDLE "#define IS_MINGW\n";
-		}
 		if ($config{HAS_STDINT} eq "true") {
 			print FILEHANDLE "#define HAS_STDINT\n";
 		}
@@ -791,38 +791,6 @@ EOF
 		if ($config{HAS_CLOCK_GETTIME} eq 'true') {
 			print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
 		}
-		my $use_hiperf = 0;
-		if (($has_kqueue) && ($config{USE_KQUEUE} eq "y")) {
-			print FILEHANDLE "#define USE_KQUEUE\n";
-			$config{SOCKETENGINE} = "socketengine_kqueue";
-			$use_hiperf = 1;
-		}
-		if (($has_epoll) && ($config{USE_EPOLL} eq "y")) {
-			print FILEHANDLE "#define USE_EPOLL\n";
-			$config{SOCKETENGINE} = "socketengine_epoll";
-			$use_hiperf = 1;
-		}
-		if (($has_ports) && ($config{USE_PORTS} eq "y")) {
-			print FILEHANDLE "#define USE_PORTS\n";
-			$config{SOCKETENGINE} = "socketengine_ports";
-			$use_hiperf = 1;
-		}
-		# user didn't choose either epoll or select for their OS.
-		# default them to USE_SELECT (ewwy puke puke)
-		if (!$use_hiperf) {
-			print "no hi-perf, " . $config{USE_POLL};
-			if ($config{USE_POLL} eq "y")
-			{
-				print FILEHANDLE "#define USE_POLL\n";
-				$config{SOCKETENGINE} = "socketengine_poll";
-			}
-			else
-			{
-				print FILEHANDLE "#define USE_SELECT\n";
-				$config{SOCKETENGINE} = "socketengine_select";
-			}
-		}
-
 		if ($config{HAS_DEFER} eq "TCP_DEFER_ACCEPT") {
 			print FILEHANDLE "#define USE_TCP_DEFER_ACCEPT\n";
 		} elsif ($config{HAS_DEFER} eq "SO_ACCEPTFILTER") {
@@ -868,10 +836,6 @@ EOF
 	chomp($version = `sh ./src/version.sh`);
 	chomp(my $revision = getrevision());
 	$version = "$version(r$revision)";
-
-	# We can actually parse any file starting with . and ending with .inc,
-	# but right now we only parse .inspircd.inc to form './inspircd'
-	prepare_dynamic_makefile();
 
 	my @dotfiles = qw(main.mk inspircd);
 	push @dotfiles, 'org.inspircd.plist' if $config{OSNAME} eq 'darwin';
@@ -944,24 +908,6 @@ sub depcheck
 	for my $mod (@modlist) {
 		getcompilerflags("src/modules/m_$mod.cpp");
 		getlinkerflags("src/modules/m_$mod.cpp");
-	}
-}
-
-sub prepare_dynamic_makefile
-{
-	my $i = 0;
-
-	if (!$has_epoll)
-	{
-		$config{USE_EPOLL} = 0;
-	}
-	if (!$has_kqueue)
-	{
-		$config{USE_KQUEUE} = 0;
-	}
-	if (!$has_ports)
-	{
-		$config{USE_PORTS} = 0;
 	}
 }
 
