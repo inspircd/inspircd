@@ -55,11 +55,46 @@ class ExemptChanOps : public ListModeBase
 	}
 };
 
-class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std::string&>
+class ModuleExemptChanOps : public Module
 {
- public:
+	std::string defaults;
 	ExemptChanOps ec;
-	ExemptHandler(Module* me) : ec(me) {}
+
+ public:
+	ModuleExemptChanOps() : ec(this)
+	{
+	}
+
+	void init() CXX11_OVERRIDE
+	{
+		ServerInstance->Modules->AddService(ec);
+		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		ServerInstance->OnCheckExemption = TR1NS::bind(&ModuleExemptChanOps::HandleOnCheckExemption,
+			this, TR1NS::placeholders::_1, TR1NS::placeholders::_2, TR1NS::placeholders::_3);
+
+		OnRehash(NULL);
+	}
+
+	~ModuleExemptChanOps()
+	{
+		ServerInstance->OnCheckExemption = &InspIRCd::HandleOnCheckExemption;
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
+	}
+
+	void OnRehash(User* user) CXX11_OVERRIDE
+	{
+		ec.DoRehash();
+	}
+
+	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
+	{
+		ec.DoSyncChannel(chan, proto, opaque);
+	}
 
 	ModeHandler* FindMode(const std::string& mid)
 	{
@@ -74,7 +109,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 		return NULL;
 	}
 
-	ModResult Call(User* user, Channel* chan, const std::string& restriction)
+	ModResult HandleOnCheckExemption(User* user, Channel* chan, const std::string& restriction)
 	{
 		unsigned int mypfx = chan->GetPrefixValue(user);
 		std::string minmode;
@@ -99,48 +134,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 		if (mh || minmode == "*")
 			return MOD_RES_DENY;
 
-		return ServerInstance->HandleOnCheckExemption.Call(user, chan, restriction);
-	}
-};
-
-class ModuleExemptChanOps : public Module
-{
-	std::string defaults;
-	ExemptHandler eh;
-
- public:
-	ModuleExemptChanOps() : eh(this)
-	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->AddService(eh.ec);
-		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-		ServerInstance->OnCheckExemption = &eh;
-
-		OnRehash(NULL);
-	}
-
-	~ModuleExemptChanOps()
-	{
-		ServerInstance->OnCheckExemption = &ServerInstance->HandleOnCheckExemption;
-	}
-
-	Version GetVersion() CXX11_OVERRIDE
-	{
-		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		eh.ec.DoRehash();
-	}
-
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
-	{
-		eh.ec.DoSyncChannel(chan, proto, opaque);
+		return InspIRCd::HandleOnCheckExemption(user, chan, restriction);
 	}
 };
 

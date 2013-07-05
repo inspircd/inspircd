@@ -240,8 +240,6 @@ public:
 	void SendTo(LocalUser* user);
 };
 
-DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
-
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
  * Amongst other things, it contains a ModeParser, a DNS object, a CommandParser
@@ -289,8 +287,8 @@ class CoreExport InspIRCd
 	TR1NS::function<void(char*, size_t)> GenRandom;
 	TR1NS::function<bool(const std::string&)> IsNick;
 	TR1NS::function<bool(const std::string&)> IsIdent;
-	OnCheckExemptionHandler HandleOnCheckExemption;
 	TR1NS::function<bool(const std::string&)> IsChannel;
+	TR1NS::function<ModResult(User*, Channel*, const std::string&)> OnCheckExemption;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -664,11 +662,11 @@ class CoreExport InspIRCd
 	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
 
 	/** Called to check whether a channel restriction mode applies to a user
-	 * @param User that is attempting some action
-	 * @param Channel that the action is being performed on
-	 * @param Action name
+	 * @param u User that is attempting some action
+	 * @param c Channel that the action is being performed on
+	 * @param a Action name
 	 */
-	caller3<ModResult, User*, Channel*, const std::string&> OnCheckExemption;
+	static ModResult HandleOnCheckExemption(User* u, Channel* c, const std::string& a);
 
 	/** Prepare the ircd for restart or shutdown.
 	 * This function unloads all modules which can be unloaded,

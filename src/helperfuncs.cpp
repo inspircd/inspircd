@@ -478,7 +478,7 @@ void InspIRCd::HandleGenRandom(char *output, size_t max)
 #endif
 }
 
-ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::string& restriction)
+ModResult InspIRCd::HandleOnCheckExemption(User* user, Channel* chan, const std::string& restriction)
 {
 	unsigned int mypfx = chan->GetPrefixValue(user);
 	char minmode = 0;
