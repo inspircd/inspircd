@@ -1363,7 +1363,7 @@ class CoreExport ModuleManager
 	 * complete, the callback will be run with true if the reload succeeded
 	 * and false if it did not.
 	 */
-	void Reload(Module* module, HandlerBase1<void, bool>* callback);
+	void Reload(Module* module, TR1NS::function<void(bool)> callback);
 
 	/** Called by the InspIRCd constructor to load all modules from the config file.
 	 */

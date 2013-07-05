@@ -33,25 +33,8 @@ class CommandReloadmodule : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
 
-class ReloadModuleWorker : public HandlerBase1<void, bool>
-{
- public:
-	const std::string name;
-	const std::string uid;
-	ReloadModuleWorker(const std::string& uuid, const std::string& modn)
-		: name(modn), uid(uuid) {}
-	void Call(bool result)
-	{
-		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded",
-			name.c_str(), result ? "" : "un");
-		User* user = ServerInstance->FindNick(uid);
-		if (user)
-			user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
-				user->nick.c_str(), name.c_str(), result ? "" : "un");
-		ServerInstance->GlobalCulls.AddItem(this);
-	}
+	static void HandleReloadModule(const std::string& uuid, const std::string& module, bool result);
 };
 
 CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameters, User *user)
@@ -66,7 +49,9 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m)
 	{
-		ServerInstance->Modules->Reload(m, new ReloadModuleWorker(user->uuid, parameters[0]));
+		ServerInstance->Modules->Reload(m, TR1NS::bind(&CommandReloadmodule::HandleReloadModule,
+			user->uuid, parameters[0], TR1NS::placeholders::_1));
+
 		return CMD_SUCCESS;
 	}
 	else
@@ -74,6 +59,16 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 		user->WriteNumeric(975, "%s %s :Could not find module by that name", user->nick.c_str(), parameters[0].c_str());
 		return CMD_FAILURE;
 	}
+}
+
+void CommandReloadmodule::HandleReloadModule(const std::string& uuid, const std::string& module, bool result)
+{
+	ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded",
+		module.c_str(), result ? "" : "un");
+	User* user = ServerInstance->FindNick(uuid);
+	if (user)
+		user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
+			user->nick.c_str(), module.c_str(), result ? "" : "un");
 }
 
 COMMAND_INIT(CommandReloadmodule)
