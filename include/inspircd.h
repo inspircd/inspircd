@@ -50,7 +50,6 @@ CoreExport extern InspIRCd* ServerInstance;
 
 #include "config.h"
 #include "consolecolors.h"
-#include "caller.h"
 #include "cull_list.h"
 #include "extensible.h"
 #include "numerics.h"

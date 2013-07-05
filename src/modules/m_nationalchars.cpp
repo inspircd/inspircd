@@ -26,7 +26,6 @@
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
 #include "inspircd.h"
-#include "caller.h"
 #include <fstream>
 
 static unsigned char m_reverse_additional[256],m_additionalMB[256],m_additionalUtf8[256],m_additionalUtf8range[256],m_additionalUtf8interval[256];
