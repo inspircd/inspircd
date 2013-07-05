@@ -232,7 +232,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * themselves within the class.
 	  */
 	 OperQuit("OperQuit", NULL),
-	 Rehash(&HandleRehash),
 	 OnCheckExemption(&HandleOnCheckExemption)
 {
 	ServerInstance = this;
