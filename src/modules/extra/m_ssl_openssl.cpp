@@ -177,7 +177,6 @@ class OpenSSLIOHook : public SSLIOHook
 		session->cert = certinfo;
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
-		const EVP_MD *digest = use_sha ? EVP_sha1() : EVP_md5();
 
 		cert = SSL_get_peer_certificate((SSL*)session->sess);
 
@@ -224,7 +223,7 @@ class OpenSSLIOHook : public SSLIOHook
 	issl_session* sessions;
 	SSL_CTX* ctx;
 	SSL_CTX* clictx;
-	bool use_sha;
+	const EVP_MD *digest;
 
 	OpenSSLIOHook(Module* mod)
 		: SSLIOHook(mod, "ssl/openssl")
@@ -566,9 +565,10 @@ class ModuleSSLOpenSSL : public Module
 		keyfile	 = conf->getString("keyfile", CONFIG_PATH "/key.pem");
 		dhfile	 = conf->getString("dhfile", CONFIG_PATH "/dhparams.pem");
 		std::string hash = conf->getString("hash", "md5");
-		if (hash != "sha1" && hash != "md5")
+
+		iohook.digest = EVP_get_digestbyname(hash.c_str());
+		if (iohook.digest == NULL)
 			throw ModuleException("Unknown hash type " + hash);
-		iohook.use_sha = (hash == "sha1");
 
 		std::string ciphers = conf->getString("ciphers", "");
 
