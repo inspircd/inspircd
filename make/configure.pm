@@ -31,9 +31,42 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(test_file test_header promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
+our @EXPORT = qw(get_compiler_info find_compiler test_file test_header promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
 
 my $no_git = 0;
+
+sub get_compiler_info($) {
+        my %info = (NAME => shift, VERSION => '0.0');
+        my $version = `$info{NAME} -v 2>&1`;
+		return (ERROR => 1) if $?;
+        if ($version =~ /(?:clang|llvm)\sversion\s(\d+\.\d+)/i) {
+                $info{NAME} = 'Clang';
+                $info{VERSION} = $1;
+                $info{UNSUPPORTED} = $1 lt '3.0';
+                $info{REASON} = 'Clang 2.9 and older do not have adequate C++ support.';
+        } elsif ($version =~ /gcc\sversion\s(\d+\.\d+)/i) {
+                $info{NAME} = 'GCC';
+                $info{VERSION} = $1;
+                $info{UNSUPPORTED} = $1 lt '4.1';
+                $info{REASON} = 'GCC 4.0 and older do not have adequate C++ support.';
+        } elsif ($version =~ /(?:icc|icpc)\sversion\s(\d+\.\d+).\d+\s\(gcc\sversion\s(\d+\.\d+).\d+/i) {
+                $info{NAME} = 'ICC';
+                $info{VERSION} = $1;
+                $info{UNSUPPORTED} = $2 lt '4.1';
+                $info{REASON} = "ICC $1 (GCC $2 compatibility mode) does not have adequate C++ support."
+        }
+        return %info;
+}  
+
+sub find_compiler {
+	foreach my $compiler ('c++', 'g++', 'clang++', 'icpc') {
+		return $compiler unless system "$compiler -v > /dev/null 2>&1";
+		if ($^O eq 'Darwin') {
+			return $compiler unless system "xcrun $compiler -v > /dev/null 2>&1";
+		}
+	}
+	return "";
+}
 
 sub test_file($$;$) {
 	my ($cc, $file, $args) = @_;
@@ -237,8 +270,7 @@ sub dumphash()
 	print "\e[0mBase install path:\e[1;32m\t\t$main::config{BASE_DIR}\e[0m\n";
 	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
 	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
-	print "\e[0mGCC Version Found:\e[1;32m\t\t$main::config{GCCVER}.$main::config{GCCMINOR}\e[0m\n";
-	print "\e[0mCompiler program:\e[1;32m\t\t$main::config{CC}\e[0m\n";
+	print "\e[0mCompiler:\e[1;32m\t\t\t$main::cxx{NAME} $main::cxx{VERSION}\e[0m\n";
 	print "\e[0mGnuTLS Support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
 	print "\e[0mOpenSSL Support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n\n";
 	print "\e[1;32mImportant note: The maximum length values are now configured in the\e[0m\n";
@@ -295,8 +327,6 @@ InspIRCd 1.0.x, are also allowed.
                                to select() [not set]
   --disable-kqueue             Do not enable kqueue(), fall back
                                to select() [not set]
-  --with-cc=[filename]         Use an alternative compiler to
-                               build InspIRCd [g++]
   --prefix=[directory]         Base directory to install into (if defined,
                                can automatically define config, module, bin
                                and library dirs as subdirectories of prefix)
