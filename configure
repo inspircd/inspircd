@@ -56,7 +56,7 @@ use make::configure;
 our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_ports, $opt_epoll, $opt_kqueue,
      $opt_noports, $opt_noepoll, $opt_nokqueue, $opt_freebsd_port, $opt_system, $opt_uid);
 
-our ($opt_cc, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
+our ($opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
 
 sub list_extras ();
 
@@ -79,7 +79,6 @@ GetOptions (
 	'disable-ports' => \$opt_noports,
 	'disable-epoll' => \$opt_noepoll,
 	'disable-kqueue' => \$opt_nokqueue,
-	'with-cc=s' => \$opt_cc,
 	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
 	'prefix=s' => \$opt_base_dir,
 	'config-dir=s' => \$opt_config_dir,
@@ -114,7 +113,6 @@ our $interactive = !(
 	(defined $opt_data_dir) ||
 	(defined $opt_log_dir) ||
 	(defined $opt_nointeractive) ||
-	(defined $opt_cc) ||
 	(defined $opt_kqueue) ||
 	(defined $opt_epoll) ||
 	(defined $opt_ports) ||
@@ -234,34 +232,26 @@ $config{DESTINATION}	  = "BASE";				# Is target path.
 if ($config{OSNAME} =~ /darwin/i)
 {
 	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
-	$config{CC} 		    = "xcrun clang++";					# C++ compiler for OSX.
 }
-else
-{
-	$config{CC} 		    = "g++";						# C++ compiler
+
+$config{CXX} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
+if ($config{CXX} eq "") {
+	print "A C++ compiler could not be detected on your system!\n";
+	print "Set the CXX environment variable to the full path if this is incorrect.\n";
+	exit 1;	
 }
-if (defined $opt_cc)
-{
-	$config{CC} = $opt_cc;
+
+our %cxx = get_compiler_info($config{CXX});
+if ($cxx{UNSUPPORTED}) {
+	print "Your C++ compiler is too old to build InspIRCd!\n";
+	print "Reason: $cxx{REASON}\n";
+	exit 1;
 }
-our $exec = $config{CC} . " -dumpversion | cut -c 1";
-chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
-$exec = $config{CC} . " -dumpversion | cut -c 3";
-chomp($config{GCCMINOR}		= `$exec`);
 
 if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 	$config{HAS_OPENSSL} = $1;
 } else {
 	$config{HAS_OPENSSL} = "";
-}
-
-if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
-	if ($config{OSNAME} eq 'darwin') {
-		print $config{CC} . " was not found! You require clang++ (the LLVM C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
-	} else {
-		print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";		
-	}
-	exit;
 }
 
 # Get and Set some important vars..
@@ -310,14 +300,8 @@ print ($cache_loaded ? "found\n" : "not found\n");
 $config{SYSTEM} = lc $^O;
 print "Checking operating system version... $config{SYSTEM}\n";
 
-$exec = $config{CC} . " -dumpversion | cut -c 1";
-chomp($config{GCCVER}		= `$exec`);				# Major GCC Version
-$exec = $config{CC} . " -dumpversion | cut -c 3";
-chomp($config{GCCMINOR}		= `$exec`);
-
-
 print "Checking whether <stdint.h> exists... ";
-if (test_header($config{CC}, "stdint.h")) {
+if (test_header($config{CXX}, "stdint.h")) {
 	$config{HAS_STDINT} = "true";
 	print "yes\n";
 } else {
@@ -326,7 +310,7 @@ if (test_header($config{CC}, "stdint.h")) {
 }
 
 printf "Checking whether clock_gettime() exists... ";
-if (test_file($config{CC}, "clock_gettime.cpp", "-lrt")) {
+if (test_file($config{CXX}, "clock_gettime.cpp", "-lrt")) {
 	$config{HAS_CLOCK_GETTIME} = "true";
 	print "yes\n";
 } else {
@@ -335,7 +319,7 @@ if (test_file($config{CC}, "clock_gettime.cpp", "-lrt")) {
 }
 
 printf "Checking whether eventfd() exists... ";
-if (test_file($config{CC}, "eventfd.cpp")) {
+if (test_file($config{CXX}, "eventfd.cpp")) {
 	$config{HAS_EVENTFD} = "true";
 	print "yes\n";
 } else {
@@ -344,10 +328,10 @@ if (test_file($config{CC}, "eventfd.cpp")) {
 }
 
 printf "Checking if a TCP deferring mechanism is available... ";
-if (test_file($config{CC}, "tcp_defer_accept.cpp")) {
+if (test_file($config{CXX}, "tcp_defer_accept.cpp")) {
 	$config{HAS_DEFER} = "TCP_DEFER_ACCEPT";
 	print "yes (TCP_DEFER_ACCEPT)\n";
-} elsif (test_file($config{CC}, "so_acceptfilter.cpp")) {
+} elsif (test_file($config{CXX}, "so_acceptfilter.cpp")) {
 	$config{HAS_DEFER} = "SO_ACCEPTFILTER";
 	print "yes (SO_ACCEPTFILTER)\n";
 } else {
@@ -356,15 +340,15 @@ if (test_file($config{CC}, "tcp_defer_accept.cpp")) {
 }
 
 print "Checking whether epoll is available... ";
-$has_epoll = test_header($config{CC}, "sys/epoll.h");
+$has_epoll = test_header($config{CXX}, "sys/epoll.h");
 print $has_epoll ? "yes\n" : "no\n";
 
 print "Checking whether Kqueue is available... ";
-$has_kqueue = test_file($config{CC}, "kqueue.cpp");
+$has_kqueue = test_file($config{CXX}, "kqueue.cpp");
 print $has_kqueue ? "yes\n" : "no\n";
 
 print 'Checking whether Solaris IOCP is available... ';
-$has_ports = test_header($config{CC}, 'port.h');
+$has_ports = test_header($config{CXX}, 'port.h');
 print $has_ports ? "yes\n" : "no\n";
 
 $config{HAS_EPOLL} = $has_epoll;
@@ -451,36 +435,7 @@ STOP
 	}
 	print ".\n\n";
 
-	$config{CHANGE_COMPILER} = "n";
-	print "I have detected the following compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.$config{GCCMINOR}\e[0m)\n";
-
-	while (($config{GCCVER} < 3) || ($config{GCCVER} eq "")) {
-		print "\e[1;32mIMPORTANT!\e[0m A GCC 2.x compiler has been detected, and
-should NOT be used. You should probably specify a newer compiler.\n\n";
-		yesno('CHANGE_COMPILER',"Do you want to change the compiler?");
-		if ($config{CHANGE_COMPILER} =~ /y/i) {
-			print "What command do you want to use to invoke your compiler?\n";
-			print "[\e[1;32m$config{CC}\e[0m] -> ";
-			chomp($config{CC} = <STDIN>);
-			if ($config{CC} eq "") {
-				$config{CC} = "g++";
-			}
-			chomp(my $foo = `$config{CC} -dumpversion | cut -c 1`);
-			if ($foo ne "") {
-				chomp($config{GCCVER}       = `$config{CC} -dumpversion | cut -c 1`); # we must redo these if we change compilers
-				chomp($config{GCCMINOR}     = `$config{CC} -dumpversion | cut -c 3`);
-				print "Queried compiler: \e[1;32m$config{CC}\e[0m (version \e[1;32m$config{GCCVER}.$config{GCCMINOR}\e[0m)\n";
-				if ($config{GCCVER} < 4 || $config{GCCVER} == 4 && $config{GCCMINOR} < 1) {
-					print "\e[1;32mGCC 4.1 and earlier WILL NOT WORK!\e[0m. Let's try that again, shall we?\n";
-				}
-			}
-			else {
-				print "\e[1;32mWARNING!\e[0m Could not execute the compiler you specified. You may want to try again.\n";
-			}
-		}
-	}
-
-	print "\n";
+	print "I have detected the following compiler: \e[1;32m$cxx{NAME}\e[0m (version \e[1;32m$cxx{VERSION}\e[0m)\n\n";
 
 	# Directory Settings..
 	my $tmpbase = $config{BASE_DIR};
@@ -700,19 +655,6 @@ if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 	print "\e[1;32mhttp://wiki.inspircd.org/Installation_From_Tarball\e[0m\n";
 }
 print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n\n";
-if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
-	print "\e[1;32mWARNING!\e[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
-}
-
-if ($config{GCCVER} < "3") {
-	print <<FOO2;
-\e[1;32mWARNING!\e[0m You are attempting to compile InspIRCd on GCC 2.x!
-GCC 2.x series compilers only had partial (read as broken) C++ support, and
-your compile will most likely fail horribly! If you have any problems, do NOT
-report them to the bugtracker or forums without first upgrading your compiler
-to a newer 3.x or 4.x (or whatever is available currently) version.
-FOO2
-}
 
 ################################################################################
 #			      HELPER FUNCTIONS				#
@@ -840,9 +782,6 @@ EOF
 		if ($config{OSNAME} =~ /MINGW32/i) {
 			print FILEHANDLE "#define IS_MINGW\n";
 		}
-		if ($config{GCCVER} >= 3) {
-			print FILEHANDLE "#define GCC3\n";
-		}
 		if ($config{HAS_STDINT} eq "true") {
 			print FILEHANDLE "#define HAS_STDINT\n";
 		}
@@ -943,9 +882,10 @@ EOF
 		close(FILEHANDLE);
 
 		$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
+		$config{COMPILER} = lc $cxx{NAME};
 
 		for my $var (qw(
-			CC SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
+			CXX COMPILER SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
 			STARTSCRIPT DESTINATION SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;
