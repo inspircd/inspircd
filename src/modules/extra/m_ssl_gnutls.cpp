@@ -28,6 +28,11 @@
 #include "modules/ssl.h"
 #include "modules/cap.h"
 
+#if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 9) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 9 && GNUTLS_VERSION_PATCH >= 8))
+#define GNUTLS_HAS_MAC_GET_ID
+#include <gnutls/crypto.h>
+#endif
+
 #ifdef _WIN32
 # pragma comment(lib, "libgnutls.lib")
 # pragma comment(lib, "libgcrypt.lib")
@@ -701,13 +706,28 @@ class ModuleSSLGnuTLS : public Module
 
 		iohook.dh_bits = dh_bits;
 
+		// As older versions of gnutls can't do this, let's disable it where needed.
+#ifdef GNUTLS_HAS_MAC_GET_ID
+		// As gnutls_digest_algorithm_t and gnutls_mac_algorithm_t are mapped 1:1, we can do this
+		// There is no gnutls_dig_get_id() at the moment, but it may come later
+		iohook.hash = (gnutls_digest_algorithm_t)gnutls_mac_get_id(hashname.c_str());
+		if (iohook.hash == GNUTLS_DIG_UNKNOWN)
+			throw ModuleException("Unknown hash type " + hashname);
+
+		// Check if the user is walking around with their head in the ass,
+		// giving us something that is a valid MAC but not digest
+		gnutls_hash_hd_t is_digest;
+		if (gnutls_hash_init(&is_digest, iohook.hash) < 0)
+			throw ModuleException("Unknown hash type " + hashname);
+		gnutls_hash_deinit(is_digest, NULL);
+#else
 		if (hashname == "md5")
 			iohook.hash = GNUTLS_DIG_MD5;
 		else if (hashname == "sha1")
 			iohook.hash = GNUTLS_DIG_SHA1;
 		else
 			throw ModuleException("Unknown hash type " + hashname);
-
+#endif
 
 		int ret;
 
