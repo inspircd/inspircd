@@ -21,10 +21,7 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "socketengine.h"
-
-#ifdef USE_TCP_DEFER_ACCEPT
 #include <netinet/tcp.h>
-#endif
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
@@ -63,9 +60,9 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	int timeout = tag->getInt("defer", 0);
 	if (timeout && !rv)
 	{
-#ifdef USE_TCP_DEFER_ACCEPT
+#if defined TCP_DEFER_ACCEPT
 		setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout, sizeof(timeout));
-#elif defined USE_SO_ACCEPTFILTER
+#elif defined SO_ACCEPTFILTER
 		struct accept_filter_arg afa;
 		memset(&afa, 0, sizeof(afa));
 		strcpy(afa.af_name, "dataready");
