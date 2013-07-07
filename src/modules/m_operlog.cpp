@@ -57,7 +57,7 @@ class ModuleOperLog : public Module
 			{
 				std::string line = irc::stringjoiner(parameters).GetJoined();
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + line;
-				ServerInstance->Logs->Log("m_operlog", LOG_DEFAULT, "OPERLOG: " + msg);
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
 					ServerInstance->SNO->WriteGlobalSno('r', msg);
 			}

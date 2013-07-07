@@ -64,7 +64,7 @@ static bool WriteDatabase(PermChannel& permchanmode)
 	std::ofstream stream(permchannelsnewconf.c_str());
 	if (!stream.is_open())
 	{
-		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot create database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "permchannels: Cannot create database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}
@@ -86,7 +86,7 @@ static bool WriteDatabase(PermChannel& permchanmode)
 
 	if (stream.fail())
 	{
-		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot write to new database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "permchannels: Cannot write to new database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}
@@ -95,7 +95,7 @@ static bool WriteDatabase(PermChannel& permchanmode)
 #ifdef _WIN32
 	if (remove(permchannelsconf.c_str()))
 	{
-		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot remove old database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "permchannels: Cannot remove old database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
 		return false;
 	}
@@ -103,7 +103,7 @@ static bool WriteDatabase(PermChannel& permchanmode)
 	// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 	if (rename(permchannelsnewconf.c_str(), permchannelsconf.c_str()) < 0)
 	{
-		ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "permchannels: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "permchannels: Cannot move new to old database! %s (%d)", strerror(errno), errno);
 		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 		return false;
 	}
@@ -177,7 +177,7 @@ public:
 
 			if (channel.empty())
 			{
-				ServerInstance->Logs->Log("m_permchannels", LOG_DEBUG, "Malformed permchannels tag with empty channel name.");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Malformed permchannels tag with empty channel name.");
 				continue;
 			}
 
@@ -198,7 +198,7 @@ public:
 					 */
 					c->topicset = 42;
 				}
-				ServerInstance->Logs->Log("m_permchannels", LOG_DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
 				if (modes.empty())
 					continue;
@@ -275,7 +275,7 @@ public:
 			}
 			catch (CoreException& e)
 			{
-				ServerInstance->Logs->Log("m_permchannels", LOG_DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
 			}
 		}
 	}

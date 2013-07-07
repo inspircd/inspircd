@@ -142,7 +142,7 @@ class IdentRequestSocket : public EventHandler
 
 	void OnConnected()
 	{
-		ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "OnConnected()");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnConnected()");
 		ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		char req[32];
@@ -177,7 +177,7 @@ class IdentRequestSocket : public EventHandler
 			break;
 			case EVENT_ERROR:
 				/* fd error event, ohshi- */
-				ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "EVENT_ERROR");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "EVENT_ERROR");
 				/* We *must* Close() here immediately or we get a
 				 * huge storm of EVENT_ERROR events!
 				 */
@@ -194,7 +194,7 @@ class IdentRequestSocket : public EventHandler
 		 */
 		if (GetFd() > -1)
 		{
-			ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "Close ident socket %d", GetFd());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
 			ServerInstance->SE->DelFd(this);
 			ServerInstance->SE->Close(GetFd());
 			this->SetFd(-1);
@@ -226,7 +226,7 @@ class IdentRequestSocket : public EventHandler
 		if (recvresult < 3)
 			return;
 
-		ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "ReadResponse()");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "ReadResponse()");
 
 		/* Truncate at the first null character, but first make sure
 		 * there is at least one null char (at the end of the buffer).
@@ -314,7 +314,7 @@ class ModuleIdent : public Module
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "Ident exception: %s", e.GetReason());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Ident exception: %s", e.GetReason());
 		}
 	}
 

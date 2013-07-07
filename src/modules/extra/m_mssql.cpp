@@ -253,7 +253,7 @@ class SQLConn : public classbase
 				if (tds_process_simple_query(sock) != TDS_SUCCEED)
 				{
 					LoggingMutex->Lock();
-					ServerInstance->Logs->Log("m_mssql", LOG_DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
 					LoggingMutex->Unlock();
 					CloseDB();
 				}
@@ -261,7 +261,7 @@ class SQLConn : public classbase
 			else
 			{
 				LoggingMutex->Lock();
-				ServerInstance->Logs->Log("m_mssql", LOG_DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not select database " + host.name + " for DB with id: " + host.id);
 				LoggingMutex->Unlock();
 				CloseDB();
 			}
@@ -269,7 +269,7 @@ class SQLConn : public classbase
 		else
 		{
 			LoggingMutex->Lock();
-			ServerInstance->Logs->Log("m_mssql", LOG_DEFAULT, "WARNING: Could not connect to DB with id: " + host.id);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not connect to DB with id: " + host.id);
 			LoggingMutex->Unlock();
 			CloseDB();
 		}
@@ -428,7 +428,7 @@ class SQLConn : public classbase
 
 		char* msquery = strdup(req->query.q.data());
 		LoggingMutex->Lock();
-		ServerInstance->Logs->Log("m_mssql", LOG_DEBUG, "doing Query: %s",msquery);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "doing Query: %s",msquery);
 		LoggingMutex->Unlock();
 		if (tds_submit_query(sock, msquery) != TDS_SUCCEED)
 		{
@@ -444,8 +444,8 @@ class SQLConn : public classbase
 		int tds_res;
 		while (tds_process_tokens(sock, &tds_res, NULL, TDS_TOKEN_RESULTS) == TDS_SUCCEED)
 		{
-			//ServerInstance->Logs->Log("m_mssql", LOG_DEBUG, "<******> result type: %d", tds_res);
-			//ServerInstance->Logs->Log("m_mssql", LOG_DEBUG, "AFFECTED ROWS: %d", sock->rows_affected);
+			//ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "<******> result type: %d", tds_res);
+			//ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "AFFECTED ROWS: %d", sock->rows_affected);
 			switch (tds_res)
 			{
 				case TDS_ROWFMT_RESULT:
@@ -511,7 +511,7 @@ class SQLConn : public classbase
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
 		LoggingMutex->Lock();
-		ServerInstance->Logs->Log("m_mssql", LOG_DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Message for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		LoggingMutex->Unlock();
 		return 0;
 	}
@@ -520,7 +520,7 @@ class SQLConn : public classbase
 	{
 		SQLConn* sc = (SQLConn*)pContext->parent;
 		LoggingMutex->Lock();
-		ServerInstance->Logs->Log("m_mssql", LOG_DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error for DB with id: %s -> %s", sc->host.id.c_str(), pMessage->message);
 		LoggingMutex->Unlock();
 		return 0;
 	}
@@ -748,7 +748,7 @@ class ModuleMsSQL : public Module
 		if (HasHost(hi))
 		{
 			LoggingMutex->Lock();
-			ServerInstance->Logs->Log("m_mssql", LOG_DEFAULT, "WARNING: A MsSQL connection with id: %s already exists. Aborting database open attempt.", hi.id.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: A MsSQL connection with id: %s already exists. Aborting database open attempt.", hi.id.c_str());
 			LoggingMutex->Unlock();
 			return;
 		}
