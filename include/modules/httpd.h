@@ -185,11 +185,11 @@ class HTTPRequest : public Event
  */
 class HTTPDocumentResponse
 {
+ public:
 	/** Module that generated this reply
 	 */
 	Module* const module;
 
- public:
 	std::stringstream* document;
 	unsigned int responsecode;
 
