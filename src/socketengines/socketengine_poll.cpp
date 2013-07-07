@@ -35,15 +35,15 @@
 #include "socketengine.h"
 
 #ifndef _WIN32
-	#ifndef __USE_XOPEN
-    	    #define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
-	#endif
-	#include <poll.h>
-	#include <sys/poll.h>
+# ifndef __USE_XOPEN
+#  define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
+# endif
+# include <poll.h>
+# include <sys/poll.h>
+# include <sys/resource.h>
 #else
-	/* *grumble* */
-	#define struct pollfd WSAPOLLFD
-	#define poll WSAPoll
+# define struct pollfd WSAPOLLFD
+# define poll WSAPoll
 #endif
 
 class InspIRCd;
@@ -76,32 +76,13 @@ public:
 
 #endif
 
-#ifdef BSD
-	#include <sys/sysctl.h>
-#else
-	#include <ulimit.h>
-#endif
-
 PollEngine::PollEngine()
 {
 	CurrentSetSize = 0;
-#ifdef BSD
-	int mib[2];
-	size_t len;
-
-	mib[0] = CTL_KERN;
-#ifdef KERN_MAXFILESPERPROC
-	mib[1] = KERN_MAXFILESPERPROC;
-#else
-	mib[1] = KERN_MAXFILES;
-#endif
-	len = sizeof(MAX_DESCRIPTORS);
-	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
-#else
-	int max = ulimit(4, 0);
-	if (max > 0)
+	struct rlimit limits;
+	if (!getrlimit(RLIMIT_NOFILE, &limits))
 	{
-		MAX_DESCRIPTORS = max;
+		MAX_DESCRIPTORS = limits.rlim_cur;
 	}
 	else
 	{
@@ -109,7 +90,6 @@ PollEngine::PollEngine()
 		std::cout << "ERROR: Can't determine maximum number of open sockets: " << strerror(errno) << std::endl;
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
-#endif
 
 	ref = new EventHandler* [GetMaxFds()];
 	events = new struct pollfd[GetMaxFds()];
