@@ -78,7 +78,7 @@ END
 	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
-		next if $file =~ m#^socketengines/# && $file ne "socketengines/$ENV{SOCKETENGINE}.cpp";
+		next if $file =~ m#^socketengines/# && $file ne "socketengines/socketengine_$ENV{SOCKETENGINE}.cpp";
 		push @core_deps, $out;
 	}
 
@@ -148,7 +148,7 @@ END
 			mkdir "$ENV{BUILDPATH}/obj/$1";
 		}
 		dep_cpp $file, $out, 'gen-o';
-		next if $file =~ m#^socketengines/# && $file ne "socketengines/$ENV{SOCKETENGINE}.cpp";
+		next if $file =~ m#^socketengines/# && $file ne "socketengines/socketengine_$ENV{SOCKETENGINE}.cpp";
 		push @deps, $out;
 		push @srcs, $file;
 	}

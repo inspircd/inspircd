@@ -271,11 +271,9 @@ sub dumphash()
 	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
 	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
 	print "\e[0mCompiler:\e[1;32m\t\t\t$main::cxx{NAME} $main::cxx{VERSION}\e[0m\n";
-	print "\e[0mGnuTLS Support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
-	print "\e[0mOpenSSL Support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n\n";
-	print "\e[1;32mImportant note: The maximum length values are now configured in the\e[0m\n";
-	print "\e[1;32m                configuration file, not in ./configure! See the <limits>\e[0m\n";
-	print "\e[1;32m                tag in the configuration file for more information.\e[0m\n\n";
+	print "\e[0mSocket engine:\e[1;32m\t\t\t$main::config{SOCKETENGINE}\e[0m\n";
+	print "\e[0mGnuTLS support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
+	print "\e[0mOpenSSL support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n";
 }
 
 sub is_dir
@@ -297,6 +295,12 @@ sub is_dir
 sub showhelp
 {
 	chomp(my $PWD = `pwd`);
+	my (@socketengines, $SELIST);
+	foreach (<src/socketengines/socketengine_*.cpp>) {
+		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
+		push(@socketengines, $1);
+	}
+	$SELIST = join(", ", @socketengines);
 	print <<EOH;
 Usage: configure [options]
 
@@ -321,12 +325,8 @@ InspIRCd 1.0.x, are also allowed.
   --clean                      Remove .config.cache file and go interactive
   --enable-gnutls              Enable GnuTLS module [no]
   --enable-openssl             Enable OpenSSL module [no]
-  --enable-epoll               Enable epoll() where supported [set]
-  --enable-kqueue              Enable kqueue() where supported [set]
-  --disable-epoll              Do not enable epoll(), fall back
-                               to select() [not set]
-  --disable-kqueue             Do not enable kqueue(), fall back
-                               to select() [not set]
+  --socketengine=[name]        Sets the socket engine to be used. Possible values are
+                               $SELIST.
   --prefix=[directory]         Base directory to install into (if defined,
                                can automatically define config, module, bin
                                and library dirs as subdirectories of prefix)
@@ -334,9 +334,10 @@ InspIRCd 1.0.x, are also allowed.
   --config-dir=[directory]     Config file directory for config and SSL certs
                                [$PWD/conf]
   --log-dir=[directory]	       Log file directory for logs
-			       [$PWD/logs]
-  --data-dir=[directory]       Data directory for variable data, such as the permchannel configuration and the XLine database
-			       [$PWD/data]
+                               [$PWD/logs]
+  --data-dir=[directory]       Data directory for variable data, such as the permchannel
+                               configuration and the XLine database
+                               [$PWD/data]
   --module-dir=[directory]     Modules directory for loadable modules
                                [$PWD/modules]
   --binary-dir=[directory]     Binaries directory for core binary
