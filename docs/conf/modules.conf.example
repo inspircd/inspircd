@@ -1357,7 +1357,9 @@
 # whenever +P is set, unset, or the topic/modes on a +P channel is changed.
 # If you want to do this, set the filename below, and uncomment the include.
 #
-#<permchanneldb filename="data/permchannels.conf">
+# If 'listmodes' is true then all list modes (+b, +I, +e, +g...) will be
+# saved. Defaults to false.
+#<permchanneldb filename="data/permchannels.conf" listmodes="true">
 #<include file="data/permchannels.conf">
 #
 # You may also create channels on startup by using the <permchannels> block.
