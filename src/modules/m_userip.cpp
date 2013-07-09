@@ -38,7 +38,7 @@ class CommandUserip : public Command
 		std::string retbuf = "340 " + user->nick + " :";
 		int nicks = 0;
 		bool checked_privs = false;
-		bool has_privs;
+		bool has_privs = false;
 
 		for (int i = 0; i < (int)parameters.size(); i++)
 		{
