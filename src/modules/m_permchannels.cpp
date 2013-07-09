@@ -58,12 +58,20 @@ static bool WriteDatabase()
 		if (!chan->IsModeSet('P'))
 			continue;
 
+		std::string chants = ConvToStr(chan->age);
+		std::string topicts = ConvToStr(chan->topicset);
 		const char* items[] =
 		{
 			"<permchannels channel=",
 			chan->name.c_str(),
+			" ts=",
+			chants.c_str(),
 			" topic=",
 			chan->topic.c_str(),
+			" topicts=",
+			topicts.c_str(),
+			" topicsetby=",
+			chan->setby.c_str(),
 			" modes=",
 			chan->ChanModes(true),
 			">\n"
@@ -71,7 +79,7 @@ static bool WriteDatabase()
 
 		line.clear();
 		int item = 0, ipos = 0;
-		while (item < 7)
+		while (item < 13)
 		{
 			char c = items[item][ipos++];
 			if (c == 0)
@@ -222,9 +230,9 @@ public:
 			std::string topic = tag->getString("topic");
 			std::string modes = tag->getString("modes");
 
-			if (channel.empty())
+			if ((channel.empty()) || (channel.length() > ServerInstance->Config->Limits.ChanMax))
 			{
-				ServerInstance->Logs->Log("m_permchannels", DEBUG, "Malformed permchannels tag with empty channel name.");
+				ServerInstance->Logs->Log("m_permchannels", DEFAULT, "Ignoring permchannels tag with empty or too long channel name (\"" + channel + "\")");
 				continue;
 			}
 
@@ -232,19 +240,16 @@ public:
 
 			if (!c)
 			{
-				c = new Channel(channel, ServerInstance->Time());
-				if (!topic.empty())
-				{
-					c->SetTopic(NULL, topic, true);
+				time_t TS = tag->getInt("ts");
+				c = new Channel(channel, ((TS > 0) ? TS : ServerInstance->Time()));
 
-					/*
-					 * Due to the way protocol works in 1.2, we need to hack the topic TS in such a way that this
-					 * topic will always win over others.
-					 *
-					 * This is scheduled for (proper) fixing in a later release, and can be removed at a later date.
-					 */
-					c->topicset = 42;
-				}
+				c->SetTopic(NULL, topic, true);
+				c->setby = tag->getString("topicsetby");
+				unsigned int topicset = tag->getInt("topicts");
+				// SetTopic() sets the topic TS to now, if there was no topicts saved then don't overwrite that with a 0
+				if (topicset > 0)
+					c->topicset = topicset;
+
 				ServerInstance->Logs->Log("m_permchannels", DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
 
 				if (modes.empty())
