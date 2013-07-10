@@ -533,8 +533,8 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 {
 	const std::string banReason = line + "-Lined: " + reason;
 
-	if (!ServerInstance->Config->MoronBanner.empty())
-		u->WriteNotice("*** " + ServerInstance->Config->MoronBanner);
+	if (!ServerInstance->Config->XLineMessage.empty())
+		u->WriteNotice("*** " + ServerInstance->Config->XLineMessage);
 
 	if (ServerInstance->Config->HideBans)
 		ServerInstance->Users->QuitUser(u, line + "-Lined", banReason.c_str());

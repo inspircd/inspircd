@@ -377,7 +377,7 @@ void ServerConfig::Fill()
 	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds(), 10, ServerInstance->SE->GetMaxFds());
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
-	MoronBanner = options->getString("moronbanner", "You're banned!");
+	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));
 	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
 	Network = ConfValue("server")->getString("network", "Network");
 	AdminName = ConfValue("admin")->getString("name", "");

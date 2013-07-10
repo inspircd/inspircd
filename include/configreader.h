@@ -239,9 +239,9 @@ class CoreExport ServerConfig
 	 */
 	std::string ServerName;
 
-	/** Notice to give to users when they are Xlined
+	/** Notice to give to users when they are banned by an XLine
 	 */
-	std::string MoronBanner;
+	std::string XLineMessage;
 
 	/* Holds the network name the local server
 	 * belongs to. This is an arbitary field defined
