@@ -104,22 +104,12 @@ public:
 	void ReadConf()
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
-		percent = tag->getInt("percent", 100);
-		minlen = tag->getInt("minlen", 1);
+		percent = tag->getInt("percent", 100, 1, 100);
+		minlen = tag->getInt("minlen", 1, 1, ServerInstance->Config->Limits.MaxLine);
 		std::string hmap = tag->getString("capsmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 		memset(capsmap, 0, sizeof(capsmap));
 		for (std::string::iterator n = hmap.begin(); n != hmap.end(); n++)
 			capsmap[(unsigned char)*n] = 1;
-		if (percent < 1 || percent > 100)
-		{
-			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<blockcaps:percent> out of range, setting to default of 100.");
-			percent = 100;
-		}
-		if (minlen < 1 || minlen > ServerInstance->Config->Limits.MaxLine)
-		{
-			ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "<blockcaps:minlen> out of range, setting to default of 1.");
-			minlen = 1;
-		}
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

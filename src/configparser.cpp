@@ -420,7 +420,7 @@ std::string ConfigTag::getString(const std::string& key, const std::string& def)
 	return res;
 }
 
-long ConfigTag::getInt(const std::string &key, long def)
+long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 {
 	std::string result;
 	if(!readString(key, result))
@@ -434,14 +434,20 @@ long ConfigTag::getInt(const std::string &key, long def)
 	switch (toupper(*res_tail))
 	{
 		case 'K':
-			res= res* 1024;
+			res = res * 1024;
 			break;
 		case 'M':
-			res= res* 1024 * 1024;
+			res = res * 1024 * 1024;
 			break;
 		case 'G':
-			res= res* 1024 * 1024 * 1024;
+			res = res * 1024 * 1024 * 1024;
 			break;
+	}
+	if (res < min || res > max)
+	{
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <%s:%s> value of %ld is not between %ld and %ld; set to %ld.",
+			tag.c_str(), key.c_str(), res, min, max, def);
+		res = def;
 	}
 	return res;
 }

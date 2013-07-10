@@ -44,16 +44,6 @@ ServerConfig::ServerConfig()
 	c_ipv6_range = 128;
 }
 
-template<typename T, typename V>
-static void range(T& value, V min, V max, V def, const char* msg)
-{
-	if (value >= (T)min && value <= (T)max)
-		return;
-	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: %s value of %ld is not between %ld and %ld; set to %ld.",
-		msg, (long)value, (long)min, (long)max, (long)def);
-	value = def;
-}
-
 static void ValidHost(const std::string& p, const std::string& msg)
 {
 	int num_dots = 0;
@@ -384,7 +374,7 @@ void ServerConfig::Fill()
 	PrefixPart = options->getString("prefixpart");
 	SuffixPart = options->getString("suffixpart");
 	FixedPart = options->getString("fixedpart");
-	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
+	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds(), 10, ServerInstance->SE->GetMaxFds());
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
 	MoronBanner = options->getString("moronbanner", "You're banned!");
@@ -394,7 +384,7 @@ void ServerConfig::Fill()
 	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
 	AdminNick = ConfValue("admin")->getString("nick", "admin");
 	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
-	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
+	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
@@ -410,7 +400,7 @@ void ServerConfig::Fill()
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
 	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
-	MaxTargets = security->getInt("maxtargets", 20);
+	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "nt");
 	PID = ConfValue("pid")->getString("file");
 	MaxChans = ConfValue("channels")->getInt("users", 20);
@@ -432,10 +422,6 @@ void ServerConfig::Fill()
 
 	if (Network.find(' ') != std::string::npos)
 		throw CoreException(Network + " is not a valid network name. A network name must not contain spaces.");
-
-	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
-	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
-	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
 
 	std::string defbind = options->getString("defaultbind");
 	if (assign(defbind) == "ipv4")
