@@ -309,7 +309,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxchans = tag->getInt("maxchans", me->maxchans);
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getInt("limit", me->limit);
-			me->nouserdns = tag->getBool("nouserdns", me->nouserdns);
+			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
@@ -350,7 +350,7 @@ static const DeprecatedConfig ChangedConfig[] = {
 	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
 	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
 	{ "options",     "cyclehosts",  "",                 "has been replaced with m_hostcycle as of 2.2" },
-	{ "performance", "nouserdns",   "",                 "has been moved to <connect:nouserdns> as of 2.2" }
+	{ "performance", "nouserdns",   "",                 "has been moved to <connect:resolvehostnames> as of 2.2" }
 };
 
 void ServerConfig::Fill()

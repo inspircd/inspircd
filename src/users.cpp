@@ -1308,7 +1308,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)
 	: config(tag), type(t), fakelag(true), name("unnamed"), registration_timeout(0), host(mask),
 	pingtime(0), softsendqmax(0), hardsendqmax(0), recvqmax(0),
 	penaltythreshold(0), commandrate(0), maxlocal(0), maxglobal(0), maxconnwarn(true), maxchans(0),
-	limit(0), nouserdns(false)
+	limit(0), resolvehostnames(true)
 {
 }
 
@@ -1318,7 +1318,7 @@ ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask, cons
 	softsendqmax(parent.softsendqmax), hardsendqmax(parent.hardsendqmax), recvqmax(parent.recvqmax),
 	penaltythreshold(parent.penaltythreshold), commandrate(parent.commandrate),
 	maxlocal(parent.maxlocal), maxglobal(parent.maxglobal), maxconnwarn(parent.maxconnwarn), maxchans(parent.maxchans),
-	limit(parent.limit), nouserdns(parent.nouserdns)
+	limit(parent.limit), resolvehostnames(parent.resolvehostnames)
 {
 }
 
@@ -1341,5 +1341,5 @@ void ConnectClass::Update(const ConnectClass* src)
 	maxconnwarn = src->maxconnwarn;
 	maxchans = src->maxchans;
 	limit = src->limit;
-	nouserdns = src->nouserdns;
+	resolvehostnames = src->resolvehostnames;
 }

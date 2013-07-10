@@ -206,7 +206,7 @@ class ModuleCgiIRC : public Module
 		RecheckClass(user);
 
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled
-		if (user->quitting || !DNS || user->MyClass->nouserdns)
+		if (user->quitting || !DNS || !user->MyClass->resolvehostnames)
 			return;
 
 		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), waiting);

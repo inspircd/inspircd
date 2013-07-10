@@ -133,7 +133,7 @@ struct CoreExport ConnectClass : public refcountbase
 
 	/** If set to true, no user DNS lookups are to be performed
 	 */
-	bool nouserdns;
+	bool resolvehostnames;
 
 	/** Create a new connect class with no settings.
 	 */
