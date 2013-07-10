@@ -359,9 +359,10 @@ void ServerConfig::Fill()
 	ConfigTag* security = ConfValue("security");
 	if (sid.empty())
 	{
-		ServerName = ConfValue("server")->getString("name");
-		sid = ConfValue("server")->getString("id");
+		ServerName = ConfValue("server")->getString("name", "irc.example.com");
 		ValidHost(ServerName, "<server:name>");
+
+		sid = ConfValue("server")->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))
 			throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
