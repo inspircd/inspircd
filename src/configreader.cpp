@@ -401,7 +401,7 @@ void ServerConfig::Fill()
 	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
 	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
-	DefaultModes = options->getString("defaultmodes", "nt");
+	DefaultModes = options->getString("defaultmodes", "not");
 	PID = ConfValue("pid")->getString("file");
 	MaxChans = ConfValue("channels")->getInt("users", 20);
 	OperMaxChans = ConfValue("channels")->getInt("opers", 60);

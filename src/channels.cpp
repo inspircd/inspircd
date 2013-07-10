@@ -162,6 +162,9 @@ void Channel::SetDefaultModes()
 		ModeHandler* mode = ServerInstance->Modes->FindMode(*n, MODETYPE_CHANNEL);
 		if (mode)
 		{
+			if (mode->GetPrefixRank())
+				continue;
+
 			if (mode->GetNumParams(true))
 				list.GetToken(parameter);
 			else
@@ -223,7 +226,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 
 	if (!chan)
 	{
-		privs = "o";
+		privs = ServerInstance->Config->DefaultModes.substr(0, ServerInstance->Config->DefaultModes.find(' '));
 
 		if (override == false)
 		{
@@ -343,7 +346,7 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 		for (std::string::const_iterator i = privs->begin(); i != privs->end(); ++i)
 		{
 			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
-			if (mh)
+			if (mh && mh->GetPrefixRank())
 			{
 				std::string nick = user->nick;
 				/* Set, and make sure that the mode handler knows this mode was now set */
