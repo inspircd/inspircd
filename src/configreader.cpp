@@ -462,6 +462,10 @@ void ServerConfig::Fill()
 		std::string server;
 		if (!tag->readString("server", server))
 			throw CoreException("<uline> tag missing server at " + tag->getTagLocation());
+
+		if (ServerName == server)
+			throw CoreException("Servers should not uline themselves (at " + tag->getTagLocation() + ")");
+
 		ulines[assign(server)] = tag->getBool("silent");
 	}
 
