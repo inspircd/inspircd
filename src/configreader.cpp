@@ -399,7 +399,7 @@ void ServerConfig::Fill()
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");
-	CustomVersion = security->getString("customversion", Network + " IRCd");
+	CustomVersion = security->getString("customversion");
 	HideSplits = security->getBool("hidesplits");
 	HideBans = security->getBool("hidebans");
 	HideWhoisServer = security->getString("hidewhois");

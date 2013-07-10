@@ -729,8 +729,8 @@
           # (Commands like /notice, /privmsg, /kick, etc)
           maxtargets="20"
 
-          # customversion: Displays a custom string when a user /version's
-          # the ircd. This may be set for security reasons or vanity reasons.
+          # customversion: A custom message to be displayed in the comments field
+          # of the VERSION command response. This does not hide the InspIRCd version.
           customversion=""
 
           # operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
