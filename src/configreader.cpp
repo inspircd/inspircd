@@ -566,7 +566,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 					{
 						errstr << ' ' << ChangedConfig[index].key << "=\"" << ChangedConfig[index].value << "\"";
 					}
-					errstr << "> - " << ChangedConfig[index].reason << " (at " << i->second->getTagLocation() << ")\n";
+					errstr << "> - " << ChangedConfig[index].reason << " (at " << i->second->getTagLocation() << ")" << std::endl;
 				}
 			}
 		}
@@ -588,6 +588,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	// write once here, to try it out and make sure its ok
 	if (valid)
 		ServerInstance->WritePID(this->PID);
+
+	ConfigTagList binds = ConfTags("bind");
+	if (binds.first == binds.second)
+		 errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
+			 << "You will need to do this if you want clients to be able to connect!" << std::endl;
 
 	if (old)
 	{
