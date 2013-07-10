@@ -298,7 +298,7 @@ class ModuleNationalChars : public Module
 	/*so Bynets Unreal distribution stuff*/
 	void loadtables(std::string filename, unsigned char ** tables, unsigned char cnt, char faillimit)
 	{
-		std::ifstream ifs(filename.c_str());
+		std::ifstream ifs(ServerInstance->Config->Paths.PrependConfig(filename).c_str());
 		if (ifs.fail())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "loadtables() called for missing file: %s", filename.c_str());

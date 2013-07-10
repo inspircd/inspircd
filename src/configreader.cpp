@@ -383,7 +383,6 @@ void ServerConfig::Fill()
 	AdminName = ConfValue("admin")->getString("name", "");
 	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
 	AdminNick = ConfValue("admin")->getString("nick", "admin");
-	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
@@ -417,6 +416,10 @@ void ServerConfig::Fill()
 	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
 	Limits.MaxLine = ConfValue("limits")->getInt("maxline", 512);
+	Paths.Config = ConfValue("path")->getString("configdir", CONFIG_PATH);
+	Paths.Data = ConfValue("path")->getString("datadir", DATA_PATH);
+	Paths.Log = ConfValue("path")->getString("logdir", LOG_PATH);
+	Paths.Module = ConfValue("path")->getString("moduledir", MOD_PATH);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
@@ -789,6 +792,15 @@ std::string ServerConfig::Escape(const std::string& str, bool xml)
 		}
 	}
 	return escaped;
+}
+
+std::string ServerConfig::ExpandPath(const std::string& base, const std::string& fragment)
+{
+	// The fragment is an absolute path, don't modify it.
+	if (fragment[0] == '/' || ServerConfig::StartsWithWindowsDriveLetter(fragment))
+		return fragment;
+
+	return base + '/' + fragment;
 }
 
 const char* ServerConfig::CleanFilename(const char* name)

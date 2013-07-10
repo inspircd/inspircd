@@ -323,9 +323,10 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	if (exec && (flags & FLAG_NO_EXEC))
 		throw CoreException("Invalid <execfiles> tag in file included with noexec=\"yes\"");
 
-	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(name.c_str(), "r"), exec);
+	std::string path = ServerInstance->Config->Paths.PrependConfig(name);
+	FileWrapper file(exec ? popen(name.c_str(), "r") : fopen(path.c_str(), "r"), exec);
 	if (!file)
-		throw CoreException("Could not read \"" + name + "\" for \"" + key + "\" file");
+		throw CoreException("Could not read \"" + path + "\" for \"" + key + "\" file");
 
 	file_cache& cache = FilesOutput[key];
 	cache.clear();
@@ -345,23 +346,24 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 
 bool ParseStack::ParseFile(const std::string& name, int flags, const std::string& mandatory_tag)
 {
-	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading file %s", name.c_str());
+	std::string path = ServerInstance->Config->Paths.PrependConfig(name);
+	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading file %s", path.c_str());
 	for (unsigned int t = 0; t < reading.size(); t++)
 	{
 		if (std::string(name) == reading[t])
 		{
-			throw CoreException("File " + name + " is included recursively (looped inclusion)");
+			throw CoreException("File " + path + " is included recursively (looped inclusion)");
 		}
 	}
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FileWrapper file(fopen(name.c_str(), "r"));
+	FileWrapper file(fopen(path.c_str(), "r"));
 	if (!file)
-		throw CoreException("Could not read \"" + name + "\" for include");
+		throw CoreException("Could not read \"" + path + "\" for include");
 
-	reading.push_back(name);
-	Parser p(*this, flags, file, name, mandatory_tag);
+	reading.push_back(path);
+	Parser p(*this, flags, file, path, mandatory_tag);
 	bool ok = p.outer_parse();
 	reading.pop_back();
 	return ok;
