@@ -241,7 +241,7 @@ void InspIRCd::SetSignals()
 
 void InspIRCd::QuickExit(int status)
 {
-	exit(0);
+	exit(status);
 }
 
 bool InspIRCd::DaemonSeed()
