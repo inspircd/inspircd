@@ -27,7 +27,7 @@
  */
 class CommandCheck : public Command
 {
-	ModeReference ban;
+	ChanModeReference ban;
  public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)

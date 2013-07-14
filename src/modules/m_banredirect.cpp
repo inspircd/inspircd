@@ -44,7 +44,7 @@ typedef std::vector<BanRedirectEntry> BanRedirectList;
 
 class BanRedirect : public ModeWatcher
 {
-	ModeReference ban;
+	ChanModeReference ban;
  public:
 	SimpleExtItem<BanRedirectList> extItem;
 	BanRedirect(Module* parent)

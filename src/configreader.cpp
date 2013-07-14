@@ -825,7 +825,7 @@ void ConfigReaderThread::Finish()
 		 */
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
-		ModeReference ban(NULL, "ban");
+		ChanModeReference ban(NULL, "ban");
 		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
 		User* user = ServerInstance->FindNick(TheUserUID);

@@ -108,7 +108,7 @@ void TreeSocket::SendFJoins(Channel* c)
 	}
 	this->WriteLine(line);
 
-	ModeReference ban(NULL, "ban");
+	ChanModeReference ban(NULL, "ban");
 	static_cast<ListModeBase*>(*ban)->DoSyncChannel(c, Utils->Creator, this);
 }
 

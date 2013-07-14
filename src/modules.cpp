@@ -415,11 +415,14 @@ void ModuleManager::AddService(ServiceProvider& item)
 				throw ModuleException("Command "+std::string(item.name)+" already exists.");
 			return;
 		case SERVICE_MODE:
-			if (!ServerInstance->Modes->AddMode(static_cast<ModeHandler*>(&item)))
+		{
+			ModeHandler* mh = static_cast<ModeHandler*>(&item);
+			if (!ServerInstance->Modes->AddMode(mh))
 				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
-			DataProviders.insert(std::make_pair("mode/" + item.name, &item));
+			DataProviders.insert(std::make_pair((mh->GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + item.name, &item));
 			dynamic_reference_base::reset_all();
 			return;
+		}
 		case SERVICE_METADATA:
 			if (!ServerInstance->Extensions.Register(static_cast<ExtensionItem*>(&item)))
 				throw ModuleException("Extension " + std::string(item.name) + " already exists.");
@@ -427,8 +430,8 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
-			if (item.name.substr(0, 5) == "mode/")
-				throw ModuleException("The \"mode/\" service name prefix is reserved.");
+			if ((item.name.substr(0, 5) == "mode/") || (item.name.substr(0, 6) == "umode/"))
+				throw ModuleException("The \"mode/\" and the \"umode\" service name prefixes are reserved.");
 
 			DataProviders.insert(std::make_pair(item.name, &item));
 			std::string::size_type slash = item.name.find('/');

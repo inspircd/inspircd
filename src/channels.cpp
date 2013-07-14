@@ -28,7 +28,7 @@
 #include <cstdarg>
 #include "mode.h"
 
-static ModeReference ban(NULL, "ban");
+static ChanModeReference ban(NULL, "ban");
 
 Channel::Channel(const std::string &cname, time_t ts)
 {
