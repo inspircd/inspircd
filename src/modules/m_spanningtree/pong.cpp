@@ -21,30 +21,25 @@
 
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
+#include "commands.h"
+#include "utils.h"
 
-bool TreeSocket::LocalPong(const std::string &prefix, parameterlist &params)
+CmdResult CommandPong::Handle(User* user, std::vector<std::string>& params)
 {
-	if (params.size() < 1)
-		return true;
+	TreeServer* server = Utils->FindServer(user->server);
+	if (server->bursting)
+	{
+		ServerInstance->SNO->WriteGlobalSno('l', "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());
+		server->FinishBurst();
+	}
 
-	const std::string& forwardto = params[0];
-	if (forwardto == ServerInstance->Config->GetSID())
+	if (params[0] == ServerInstance->Config->GetSID())
 	{
 		// PONG for us
-		TreeServer* ServerSource = Utils->FindServer(prefix);
-		if (ServerSource)
-		{
-			long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-			ServerSource->rtt = ts - ServerSource->LastPingMsec;
-			ServerSource->SetPingFlag();
-		}
+		long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
+		server->rtt = ts - server->LastPingMsec;
+		server->SetPingFlag();
 	}
-	else
-	{
-		// not for us, pass it on :)
-		Utils->DoOneToOne(prefix,"PONG",params,forwardto);
-	}
-	return true;
+	return CMD_SUCCESS;
 }
 

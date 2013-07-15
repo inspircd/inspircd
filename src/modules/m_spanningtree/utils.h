@@ -126,7 +126,7 @@ class SpanningTreeUtilities : public classbase
 	 */
 	~SpanningTreeUtilities();
 
-	void RouteCommand(TreeServer*, Command*, const parameterlist&, User*);
+	void RouteCommand(TreeServer* origin, CommandBase* cmd, const parameterlist& parameters, User* user);
 
 	/** Send a message from this server to one other local or remote
 	 */
@@ -143,6 +143,10 @@ class SpanningTreeUtilities : public classbase
 	/** Read the spanningtree module's tags from the config file
 	 */
 	void ReadConfiguration();
+
+	/** Handle nick collision
+	 */
+	int DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid);
 
 	/** Compile a list of servers which contain members of channel c
 	 */

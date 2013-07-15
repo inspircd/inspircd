@@ -19,33 +19,28 @@
 
 #include "inspircd.h"
 #include "utils.h"
-#include "treesocket.h"
+#include "commands.h"
 
-bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
+CmdResult CommandIdle::Handle(User* issuer, std::vector<std::string>& params)
 {
-	if (params.size() < 1)
-		return true;
-
 	/* If this is a request, this user did the /whois
 	 * If this is a reply, this user's information is in params[1] and params[2]
 	 */
-	User* issuer = ServerInstance->FindUUID(prefix);
-	if ((!issuer) || (IS_SERVER(issuer)))
-		return true;
+	if (IS_SERVER(issuer))
+		return CMD_FAILURE;
 
 	/* If this is a request, this is the user whose idle information was requested
 	 * If this is a reply, this user did the /whois
 	 */
 	User* target = ServerInstance->FindUUID(params[0]);
 	if ((!target) || (IS_SERVER(target)))
-		return true;
+		return CMD_FAILURE;
 
 	LocalUser* localtarget = IS_LOCAL(target);
 	if (!localtarget)
 	{
 		// Forward to target's server
-		Utils->DoOneToOne(prefix, "IDLE", params, target->server);
-		return true;
+		return CMD_SUCCESS;
 	}
 
 	if (params.size() >= 2)
@@ -63,11 +58,11 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 			idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
 
 		parameterlist reply;
-		reply.push_back(prefix);
+		reply.push_back(issuer->uuid);
 		reply.push_back(ConvToStr(target->signon));
 		reply.push_back(ConvToStr(idle));
 		Utils->DoOneToOne(params[0], "IDLE", reply, issuer->server);
 	}
 
-	return true;
+	return CMD_SUCCESS;
 }

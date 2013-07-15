@@ -310,156 +310,13 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			return;
 	}
 
-	// TODO move all this into Commands
-	if (command == "MAP")
+	ServerCommand* scmd = Utils->Creator->CmdManager.GetHandler(command);
+	CommandBase* cmdbase = scmd;
+	Command* cmd;
+	if (!scmd)
 	{
-		Utils->Creator->HandleMap(params, who);
-	}
-	else if (command == "SERVER")
-	{
-		this->RemoteServer(prefix,params);
-	}
-	else if (command == "ERROR")
-	{
-		this->Error(params);
-	}
-	else if (command == "AWAY")
-	{
-		this->Away(prefix,params);
-	}
-	else if (command == "PING")
-	{
-		this->LocalPing(prefix,params);
-	}
-	else if (command == "PONG")
-	{
-		TreeServer *s = Utils->FindServer(prefix);
-		if (s && s->bursting)
-		{
-			ServerInstance->SNO->WriteGlobalSno('l',"Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", prefix.c_str());
-			s->FinishBurst();
-		}
-		this->LocalPong(prefix,params);
-	}
-	else if (command == "VERSION")
-	{
-		this->ServerVersion(prefix,params);
-	}
-	else if (command == "ADDLINE")
-	{
-		this->AddLine(prefix,params);
-	}
-	else if (command == "DELLINE")
-	{
-		this->DelLine(prefix,params);
-	}
-	else if (command == "SAVE")
-	{
-		this->ForceNick(prefix,params);
-	}
-	else if (command == "IDLE")
-	{
-		this->Whois(prefix,params);
-	}
-	else if (command == "PUSH")
-	{
-		this->Push(prefix,params);
-	}
-	else if (command == "SQUIT")
-	{
-		if (params.size() == 2)
-		{
-			this->Squit(Utils->FindServer(params[0]),params[1]);
-		}
-	}
-	else if (command == "SNONOTICE")
-	{
-		if (params.size() >= 2)
-		{
-			ServerInstance->SNO->WriteToSnoMask(params[0][0], "From " + who->nick + ": "+ params[1]);
-			params[1] = ":" + params[1];
-			Utils->DoOneToAllButSender(prefix, command, params, prefix);
-		}
-	}
-	else if (command == "BURST")
-	{
-		// Set prefix server as bursting
-		TreeServer* ServerSource = Utils->FindServer(prefix);
-		if (!ServerSource)
-		{
-			ServerInstance->SNO->WriteGlobalSno('l', "WTF: Got BURST from a non-server(?): %s", prefix.c_str());
-			return;
-		}
-
-		ServerSource->bursting = true;
-		Utils->DoOneToAllButSender(prefix, command, params, prefix);
-	}
-	else if (command == "ENDBURST")
-	{
-		TreeServer* ServerSource = Utils->FindServer(prefix);
-		if (!ServerSource)
-		{
-			ServerInstance->SNO->WriteGlobalSno('l', "WTF: Got ENDBURST from a non-server(?): %s", prefix.c_str());
-			return;
-		}
-
-		ServerSource->FinishBurst();
-		Utils->DoOneToAllButSender(prefix, command, params, prefix);
-	}
-	else if (command == "ENCAP")
-	{
-		this->Encap(who, params);
-	}
-	else if (command == "NICK")
-	{
-		if (params.size() != 2)
-		{
-			SendError("Protocol violation: Wrong number of parameters for NICK message");
-			return;
-		}
-
-		if (IS_SERVER(who))
-		{
-			SendError("Protocol violation: Server changing nick");
-			return;
-		}
-
-		if ((isdigit(params[0][0])) && (params[0] != who->uuid))
-		{
-			SendError("Protocol violation: User changing nick to an invalid UID - " + params[0]);
-			return;
-		}
-
-		/* Update timestamp on user when they change nicks */
-		who->age = ConvToInt(params[1]);
-
-		/*
-		 * On nick messages, check that the nick doesnt already exist here.
-		 * If it does, perform collision logic.
-		 */
-		User* x = ServerInstance->FindNickOnly(params[0]);
-		if ((x) && (x != who))
-		{
-			int collideret = 0;
-			/* x is local, who is remote */
-			collideret = this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
-			if (collideret != 1)
-			{
-				/*
-				 * Remote client lost, or both lost, parsing or passing on this
-				 * nickchange would be pointless, as the incoming client's server will
-				 * soon recieve SVSNICK to change its nick to its UID. :) -- w00t
-				 */
-				return;
-			}
-		}
-		who->ForceNickChange(params[0]);
-		Utils->DoOneToAllButSender(prefix, command, params, prefix);
-	}
-	else
-	{
-		Command* cmd = ServerInstance->Parser->GetHandler(command);
-
+		// Not a special server-to-server command
+		cmd = ServerInstance->Parser->GetHandler(command);
 		if (!cmd)
 		{
 			irc::stringjoiner pmlist(params);
@@ -468,36 +325,41 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			SendError("Unrecognised command '" + command + "' -- possibly loaded mismatched modules");
 			return;
 		}
-
-		if (params.size() < cmd->min_params)
-		{
-			irc::stringjoiner pmlist(params);
-			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Insufficient parameters for S2S command :%s %s %s",
-				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
-			SendError("Insufficient parameters for command '" + command + "'");
-			return;
-		}
-
-		if ((!params.empty()) && (params.back().empty()) && (!cmd->allow_empty_last_param))
-		{
-			// the last param is empty and the command handler doesn't allow that, check if there will be enough params if we drop the last
-			if (params.size()-1 < cmd->min_params)
-				return;
-			params.pop_back();
-		}
-
-		CmdResult res = cmd->Handle(params, who);
-
-		if (res == CMD_INVALID)
-		{
-			irc::stringjoiner pmlist(params);
-			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Error handling S2S command :%s %s %s",
-				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
-			SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
-		}
-		else if (res == CMD_SUCCESS)
-			Utils->RouteCommand(route_back_again, cmd, params, who);
+		cmdbase = cmd;
 	}
+
+	if (params.size() < cmdbase->min_params)
+	{
+		irc::stringjoiner pmlist(params);
+		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Insufficient parameters for S2S command :%s %s %s",
+			who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
+		SendError("Insufficient parameters for command '" + command + "'");
+		return;
+	}
+
+	if ((!params.empty()) && (params.back().empty()) && (!cmdbase->allow_empty_last_param))
+	{
+		// the last param is empty and the command handler doesn't allow that, check if there will be enough params if we drop the last
+		if (params.size()-1 < cmdbase->min_params)
+			return;
+		params.pop_back();
+	}
+
+	CmdResult res;
+	if (scmd)
+		res = scmd->Handle(who, params);
+	else
+		res = cmd->Handle(params, who);
+
+	if (res == CMD_INVALID)
+	{
+		irc::stringjoiner pmlist(params);
+		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Error handling S2S command :%s %s %s",
+			who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
+		SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
+	}
+	else if (res == CMD_SUCCESS)
+		Utils->RouteCommand(route_back_again, cmdbase, params, who);
 }
 
 void TreeSocket::OnTimeout()

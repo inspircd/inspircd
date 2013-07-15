@@ -20,25 +20,17 @@
 #include "inspircd.h"
 
 #include "utils.h"
-#include "treesocket.h"
+#include "commands.h"
 
-bool TreeSocket::Push(const std::string &prefix, parameterlist &params)
+CmdResult CommandPush::Handle(User* user, std::vector<std::string>& params)
 {
-	if (params.size() < 2)
-		return true;
 	User* u = ServerInstance->FindNick(params[0]);
 	if (!u)
-		return true;
+		return CMD_FAILURE;
 	if (IS_LOCAL(u))
 	{
 		u->Write(params[1]);
 	}
-	else
-	{
-		// continue the raw onwards
-		params[1] = ":" + params[1];
-		Utils->DoOneToOne(prefix,"PUSH",params,u->server);
-	}
-	return true;
+	return CMD_SUCCESS;
 }
 

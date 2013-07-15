@@ -26,7 +26,7 @@
 #include "treesocket.h"
 
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
-CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *srcuser)
+CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 {
 	/* 1.1+ FJOIN works as follows:
 	 *

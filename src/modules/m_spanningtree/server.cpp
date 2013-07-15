@@ -20,53 +20,48 @@
 
 #include "inspircd.h"
 
+#include "main.h"
 #include "utils.h"
 #include "link.h"
 #include "treeserver.h"
 #include "treesocket.h"
+#include "commands.h"
 
 /*
  * Some server somewhere in the network introducing another server.
  *	-- w
  */
-bool TreeSocket::RemoteServer(const std::string &prefix, parameterlist &params)
+CmdResult CommandServer::Handle(User* user, std::vector<std::string>& params)
 {
-	if (params.size() < 5)
-	{
-		SendError("Protocol error - Not enough parameters for SERVER command");
-		return false;
-	}
-
 	std::string servername = params[0];
 	// password is not used for a remote server
 	// hopcount is not used (ever)
 	std::string sid = params[3];
 	std::string description = params[4];
-	TreeServer* ParentOfThis = Utils->FindServer(prefix);
+	TreeServer* ParentOfThis = Utils->FindServer(user->server);
+	TreeSocket* socket = ParentOfThis->GetRoute()->GetSocket();
 
-	if (!ParentOfThis)
-	{
-		this->SendError("Protocol error - Introduced remote server from unknown server "+prefix);
-		return false;
-	}
+	if (!IS_SERVER(user))
+		return CMD_FAILURE;
+
 	if (!InspIRCd::IsSID(sid))
 	{
-		this->SendError("Invalid format server ID: "+sid+"!");
-		return false;
+		socket->SendError("Invalid format server ID: "+sid+"!");
+		return CMD_FAILURE;
 	}
 	TreeServer* CheckDupe = Utils->FindServer(servername);
 	if (CheckDupe)
 	{
-		this->SendError("Server "+servername+" already exists!");
+		socket->SendError("Server "+servername+" already exists!");
 		ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
-		return false;
+		return CMD_FAILURE;
 	}
 	CheckDupe = Utils->FindServer(sid);
 	if (CheckDupe)
 	{
-		this->SendError("Server ID "+sid+" already exists! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
+		socket->SendError("Server ID "+sid+" already exists! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
 		ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
-		return false;
+		return CMD_FAILURE;
 	}
 
 
@@ -75,10 +70,8 @@ bool TreeSocket::RemoteServer(const std::string &prefix, parameterlist &params)
 	TreeServer *Node = new TreeServer(servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
 
 	ParentOfThis->AddChild(Node);
-	params[4] = ":" + params[4];
-	Utils->DoOneToAllButSender(prefix,"SERVER",params,prefix);
 	ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
-	return true;
+	return CMD_SUCCESS;
 }
 
 

@@ -22,7 +22,7 @@
 #include "commands.h"
 
 /** FMODE command - server mode with timestamp checks */
-CmdResult CommandFMode::Handle(const std::vector<std::string>& params, User *who)
+CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 {
 	time_t TS = ConvToInt(params[1]);
 	if (!TS)

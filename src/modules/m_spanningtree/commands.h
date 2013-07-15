@@ -39,50 +39,53 @@ class CommandRSQuit : public Command
 		RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
-class CommandSVSJoin : public Command
+class CommandSVSJoin : public ServerCommand
 {
  public:
-	CommandSVSJoin(Module* Creator) : Command(Creator, "SVSJOIN", 2) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
+	CommandSVSJoin(Module* Creator) : ServerCommand(Creator, "SVSJOIN", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
-class CommandSVSPart : public Command
+
+class CommandSVSPart : public ServerCommand
 {
  public:
-	CommandSVSPart(Module* Creator) : Command(Creator, "SVSPART", 2) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
+	CommandSVSPart(Module* Creator) : ServerCommand(Creator, "SVSPART", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
-class CommandSVSNick : public Command
+
+class CommandSVSNick : public ServerCommand
 {
  public:
-	CommandSVSNick(Module* Creator) : Command(Creator, "SVSNICK", 3) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
+	CommandSVSNick(Module* Creator) : ServerCommand(Creator, "SVSNICK", 3) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
-class CommandMetadata : public Command
+
+class CommandMetadata : public ServerCommand
 {
  public:
-	CommandMetadata(Module* Creator) : Command(Creator, "METADATA", 2) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
+	CommandMetadata(Module* Creator) : ServerCommand(Creator, "METADATA", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 };
-class CommandUID : public Command
+
+class CommandUID : public ServerCommand
 {
  public:
-	CommandUID(Module* Creator) : Command(Creator, "UID", 10) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
+	CommandUID(Module* Creator) : ServerCommand(Creator, "UID", 10) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 };
-class CommandOpertype : public Command
+
+class CommandOpertype : public ServerCommand
 {
  public:
-	CommandOpertype(Module* Creator) : Command(Creator, "OPERTYPE", 1) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
+	CommandOpertype(Module* Creator) : ServerCommand(Creator, "OPERTYPE", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 };
+
 class TreeSocket;
-class CommandFJoin : public Command
+class CommandFJoin : public ServerCommand
 {
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
 	 * This does not update the timestamp of the target channel, this must be done seperately.
@@ -91,59 +94,174 @@ class CommandFJoin : public Command
 	static void ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack);
 	bool ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack);
  public:
-	CommandFJoin(Module* Creator) : Command(Creator, "FJOIN", 3) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-};
-class CommandFMode : public Command
-{
- public:
-	CommandFMode(Module* Creator) : Command(Creator, "FMODE", 3) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-};
-class CommandFTopic : public Command
-{
- public:
-	CommandFTopic(Module* Creator) : Command(Creator, "FTOPIC", 5) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-};
-class CommandFHost : public Command
-{
- public:
-	CommandFHost(Module* Creator) : Command(Creator, "FHOST", 1) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-};
-class CommandFIdent : public Command
-{
- public:
-	CommandFIdent(Module* Creator) : Command(Creator, "FIDENT", 1) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
-};
-class CommandFName : public Command
-{
- public:
-	CommandFName(Module* Creator) : Command(Creator, "FNAME", 1) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
+	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 };
 
-class CommandIJoin : public SplitCommand
+class CommandFMode : public ServerCommand
 {
  public:
-	CommandIJoin(Module* Creator) : SplitCommand(Creator, "IJOIN", 1) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult HandleRemote(const std::vector<std::string>& parameters, RemoteUser* user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_BROADCAST; }
+	CommandFMode(Module* Creator) : ServerCommand(Creator, "FMODE", 3) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
 };
 
-class CommandResync : public SplitCommand
+class CommandFTopic : public ServerCommand
 {
  public:
-	CommandResync(Module* Creator) : SplitCommand(Creator, "RESYNC", 1) { flags_needed = FLAG_SERVERONLY; }
-	CmdResult HandleServer(const std::vector<std::string>& parameters, FakeUser* user);
+	CommandFTopic(Module* Creator) : ServerCommand(Creator, "FTOPIC", 5) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
+};
+
+class CommandFHost : public ServerCommand
+{
+ public:
+	CommandFHost(Module* Creator) : ServerCommand(Creator, "FHOST", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
+};
+
+class CommandFIdent : public ServerCommand
+{
+ public:
+	CommandFIdent(Module* Creator) : ServerCommand(Creator, "FIDENT", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
+};
+
+class CommandFName : public ServerCommand
+{
+ public:
+	CommandFName(Module* Creator) : ServerCommand(Creator, "FNAME", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
+};
+
+class CommandIJoin : public ServerCommand
+{
+ public:
+	CommandIJoin(Module* Creator) : ServerCommand(Creator, "IJOIN", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& params);
+};
+
+class CommandResync : public ServerCommand
+{
+ public:
+	CommandResync(Module* Creator) : ServerCommand(Creator, "RESYNC", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandAway : public ServerCommand
+{
+ public:
+	CommandAway(Module* Creator) : ServerCommand(Creator, "AWAY", 0, 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandAddLine : public ServerCommand
+{
+ public:
+	CommandAddLine(Module* Creator) : ServerCommand(Creator, "ADDLINE", 6, 6) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandDelLine : public ServerCommand
+{
+ public:
+	CommandDelLine(Module* Creator) : ServerCommand(Creator, "DELLINE", 2, 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandEncap : public ServerCommand
+{
+ public:
+	CommandEncap(Module* Creator) : ServerCommand(Creator, "ENCAP", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+};
+
+class CommandIdle : public ServerCommand
+{
+ public:
+	CommandIdle(Module* Creator) : ServerCommand(Creator, "IDLE", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
+};
+
+class CommandNick : public ServerCommand
+{
+ public:
+	CommandNick(Module* Creator) : ServerCommand(Creator, "NICK", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandPing : public ServerCommand
+{
+ public:
+	CommandPing(Module* Creator) : ServerCommand(Creator, "PING", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
+};
+
+class CommandPong : public ServerCommand
+{
+ public:
+	CommandPong(Module* Creator) : ServerCommand(Creator, "PONG", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
+};
+
+class CommandPush : public ServerCommand
+{
+ public:
+	CommandPush(Module* Creator) : ServerCommand(Creator, "PUSH", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
+};
+
+class CommandSave : public ServerCommand
+{
+ public:
+	CommandSave(Module* Creator) : ServerCommand(Creator, "SAVE", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandServer : public ServerCommand
+{
+ public:
+	CommandServer(Module* Creator) : ServerCommand(Creator, "SERVER", 5) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandSQuit : public ServerCommand
+{
+ public:
+	CommandSQuit(Module* Creator) : ServerCommand(Creator, "SQUIT", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandSNONotice : public ServerCommand
+{
+ public:
+	CommandSNONotice(Module* Creator) : ServerCommand(Creator, "SNONOTICE", 2) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandVersion : public ServerCommand
+{
+ public:
+	CommandVersion(Module* Creator) : ServerCommand(Creator, "VERSION", 1) { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandBurst : public ServerCommand
+{
+ public:
+	CommandBurst(Module* Creator) : ServerCommand(Creator, "BURST") { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+};
+
+class CommandEndBurst : public ServerCommand
+{
+ public:
+	CommandEndBurst(Module* Creator) : ServerCommand(Creator, "ENDBURST") { }
+	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
 class SpanningTreeCommands
@@ -165,5 +283,21 @@ class SpanningTreeCommands
 	CommandFHost fhost;
 	CommandFIdent fident;
 	CommandFName fname;
+	CommandAway away;
+	CommandAddLine addline;
+	CommandDelLine delline;
+	CommandEncap encap;
+	CommandIdle idle;
+	CommandNick nick;
+	CommandPing ping;
+	CommandPong pong;
+	CommandPush push;
+	CommandSave save;
+	CommandServer server;
+	CommandSQuit squit;
+	CommandSNONotice snonotice;
+	CommandVersion version;
+	CommandBurst burst;
+	CommandEndBurst endburst;
 	SpanningTreeCommands(ModuleSpanningTree* module);
 };

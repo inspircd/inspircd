@@ -21,6 +21,7 @@
 #include "inspircd.h"
 
 #include "treesocket.h"
+#include "treeserver.h"
 #include "utils.h"
 
 /*
@@ -29,7 +30,7 @@
  * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
  * Sends SAVEs as appropriate and forces nickchanges too.
  */
-int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid)
+int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid)
 {
 	/*
 	 * Under old protocol rules, we would have had to kill both clients.
@@ -107,7 +108,7 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		parameterlist params;
 		params.push_back(u->uuid);
 		params.push_back(ConvToStr(u->age));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
+		this->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
 
 		u->ForceNickChange(u->uuid);
 
@@ -122,7 +123,8 @@ int TreeSocket::DoCollision(User *u, time_t remotets, const std::string &remotei
 		 * the UID or halt the propagation of the nick change command,
 		 * so other servers don't need to see the SAVE
 		 */
-		WriteLine(":"+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
+		TreeSocket* sock = server->GetRoute()->GetSocket();
+		sock->WriteLine(":"+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
 
 		if (remote)
 		{

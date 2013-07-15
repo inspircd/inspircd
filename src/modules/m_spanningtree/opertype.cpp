@@ -26,7 +26,7 @@
 /** Because the core won't let users or even SERVERS set +o,
  * we use the OPERTYPE command to do this.
  */
-CmdResult CommandOpertype::Handle(const std::vector<std::string>& params, User *u)
+CmdResult CommandOpertype::Handle(User* u, std::vector<std::string>& params)
 {
 	const std::string& opertype = params[0];
 	if (!u->IsOper())

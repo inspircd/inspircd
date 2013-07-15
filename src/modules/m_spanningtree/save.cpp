@@ -21,28 +21,27 @@
 
 #include "utils.h"
 #include "treesocket.h"
+#include "commands.h"
 
 /**
  * SAVE command - force nick change to UID on timestamp match
  */
-bool TreeSocket::ForceNick(const std::string &prefix, parameterlist &params)
+CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 {
-	if (params.size() < 2)
-		return true;
-
 	User* u = ServerInstance->FindNick(params[0]);
+	if ((!u) || (IS_SERVER(u)))
+		return CMD_FAILURE;
+
 	time_t ts = atol(params[1].c_str());
 
-	if ((u) && (!IS_SERVER(u)) && (u->age == ts))
+	if (u->age == ts)
 	{
-		Utils->DoOneToAllButSender(prefix,"SAVE",params,prefix);
-
 		if (!u->ForceNickChange(u->uuid))
 		{
 			ServerInstance->Users->QuitUser(u, "Nickname collision");
 		}
 	}
 
-	return true;
+	return CMD_SUCCESS;
 }
 

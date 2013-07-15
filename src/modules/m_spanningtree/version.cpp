@@ -22,21 +22,16 @@
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
-#include "treesocket.h"
+#include "commands.h"
 
-bool TreeSocket::ServerVersion(const std::string &prefix, parameterlist &params)
+CmdResult CommandVersion::Handle(User* user, std::vector<std::string>& params)
 {
-	if (params.size() < 1)
-		return true;
-
-	TreeServer* ServerSource = Utils->FindServer(prefix);
+	TreeServer* ServerSource = Utils->FindServer(user->server);
 
 	if (ServerSource)
 	{
 		ServerSource->SetVersion(params[0]);
 	}
-	params[0] = ":" + params[0];
-	Utils->DoOneToAllButSender(prefix,"VERSION",params,prefix);
-	return true;
+	return CMD_SUCCESS;
 }
 

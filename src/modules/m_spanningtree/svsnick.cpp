@@ -22,7 +22,7 @@
 
 #include "commands.h"
 
-CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, User *user)
+CmdResult CommandSVSNick::Handle(User* user, std::vector<std::string>& parameters)
 {
 	User* u = ServerInstance->FindNick(parameters[0]);
 

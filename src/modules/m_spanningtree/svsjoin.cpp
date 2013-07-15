@@ -22,7 +22,7 @@
 
 #include "commands.h"
 
-CmdResult CommandSVSJoin::Handle(const std::vector<std::string>& parameters, User *user)
+CmdResult CommandSVSJoin::Handle(User* user, std::vector<std::string>& parameters)
 {
 	// Check for valid channel name
 	if (!ServerInstance->IsChannel(parameters[1]))

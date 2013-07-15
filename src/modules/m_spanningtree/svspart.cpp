@@ -22,7 +22,7 @@
 
 #include "commands.h"
 
-CmdResult CommandSVSPart::Handle(const std::vector<std::string>& parameters, User *user)
+CmdResult CommandSVSPart::Handle(User* user, std::vector<std::string>& parameters)
 {
 	User* u = ServerInstance->FindUUID(parameters[0]);
 	if (!u)

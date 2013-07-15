@@ -44,7 +44,11 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	: rconnect(module), rsquit(module),
 	svsjoin(module), svspart(module), svsnick(module), metadata(module),
 	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
-	fmode(module), ftopic(module), fhost(module), fident(module), fname(module)
+	fmode(module), ftopic(module), fhost(module), fident(module), fname(module),
+	away(module), addline(module), delline(module), encap(module), idle(module),
+	nick(module), ping(module), pong(module), push(module), save(module),
+	server(module), squit(module), snonotice(module), version(module),
+	burst(module), endburst(module)
 {
 }
 
@@ -57,20 +61,6 @@ void ModuleSpanningTree::init()
 	commands = new SpanningTreeCommands(this);
 	ServerInstance->Modules->AddService(commands->rconnect);
 	ServerInstance->Modules->AddService(commands->rsquit);
-	ServerInstance->Modules->AddService(commands->svsjoin);
-	ServerInstance->Modules->AddService(commands->svspart);
-	ServerInstance->Modules->AddService(commands->svsnick);
-	ServerInstance->Modules->AddService(commands->metadata);
-	ServerInstance->Modules->AddService(commands->uid);
-	ServerInstance->Modules->AddService(commands->opertype);
-	ServerInstance->Modules->AddService(commands->fjoin);
-	ServerInstance->Modules->AddService(commands->ijoin);
-	ServerInstance->Modules->AddService(commands->resync);
-	ServerInstance->Modules->AddService(commands->fmode);
-	ServerInstance->Modules->AddService(commands->ftopic);
-	ServerInstance->Modules->AddService(commands->fhost);
-	ServerInstance->Modules->AddService(commands->fident);
-	ServerInstance->Modules->AddService(commands->fname);
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(Utils);

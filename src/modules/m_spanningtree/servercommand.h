@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2013 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,27 +17,23 @@
  */
 
 
-#include "inspircd.h"
+#pragma once
 
-#include "utils.h"
-#include "treeserver.h"
-#include "commands.h"
-#include "utils.h"
-
-CmdResult CommandPing::Handle(User* user, std::vector<std::string>& params)
+class ServerCommand : public CommandBase
 {
-	if (params[0] == ServerInstance->Config->GetSID())
-	{
-		// PING for us, reply with a PONG
-		parameterlist reply;
-		reply.push_back(user->uuid);
-		if (params.size() >= 2)
-			// If there is a second parameter, append it
-			reply.push_back(params[1]);
+ public:
+	ServerCommand(Module* Creator, const std::string& Name, unsigned int MinPara = 0, unsigned int MaxPara = 0);
 
-		Utils->DoOneToOne(params[0], "PONG", reply, user->server);
-	}
-	return CMD_SUCCESS;
-}
+	virtual CmdResult Handle(User* user, std::vector<std::string>& parameters) = 0;
+	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+};
 
+class ServerCommandManager
+{
+	typedef TR1NS::unordered_map<std::string, ServerCommand*> ServerCommandMap;
+	ServerCommandMap commands;
 
+ public:
+	ServerCommand* GetHandler(const std::string& command) const;
+	bool AddCommand(ServerCommand* cmd);
+};

@@ -24,8 +24,9 @@
 #pragma once
 
 #include "inspircd.h"
-
 #include "modules/dns.h"
+#include "servercommand.h"
+
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
  *
@@ -56,6 +57,8 @@ class ModuleSpanningTree : public Module
 
  public:
 	dynamic_reference<DNS::Manager> DNS;
+
+	ServerCommandManager CmdManager;
 
 	/** Set to true if inside a spanningtree call, to prevent sending
 	 * xlines and other things back to their source

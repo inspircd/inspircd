@@ -208,9 +208,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	void Squit(TreeServer* Current, const std::string &reason);
 
-	/* Used on nick collision ... XXX ugly function HACK */
-	int DoCollision(User *u, time_t remotets, const std::string &remoteident, const std::string &remoteip, const std::string &remoteuid);
-
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
 	 * in length, it is split over multiple lines.
@@ -244,48 +241,6 @@ class TreeSocket : public BufferedSocket
 
 	/** Handle ERROR command */
 	void Error(parameterlist &params);
-
-	/** Remote AWAY */
-	bool Away(const std::string &prefix, parameterlist &params);
-
-	/** SAVE to resolve nick collisions without killing */
-	bool ForceNick(const std::string &prefix, parameterlist &params);
-
-	/** ENCAP command
-	 */
-	void Encap(User* who, parameterlist &params);
-
-	/** PONG
-	 */
-	bool LocalPong(const std::string &prefix, parameterlist &params);
-
-	/** VERSION
-	 */
-	bool ServerVersion(const std::string &prefix, parameterlist &params);
-
-	/** ADDLINE
-	 */
-	bool AddLine(const std::string &prefix, parameterlist &params);
-
-	/** DELLINE
-	 */
-	bool DelLine(const std::string &prefix, parameterlist &params);
-
-	/** WHOIS
-	 */
-	bool Whois(const std::string &prefix, parameterlist &params);
-
-	/** PUSH
-	 */
-	bool Push(const std::string &prefix, parameterlist &params);
-
-	/** PING
-	 */
-	bool LocalPing(const std::string &prefix, parameterlist &params);
-
-	/** <- (remote) <- SERVER
-	 */
-	bool RemoteServer(const std::string &prefix, parameterlist &params);
 
 	/** (local) -> SERVER
 	 */

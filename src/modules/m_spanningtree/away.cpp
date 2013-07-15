@@ -21,13 +21,12 @@
 
 #include "main.h"
 #include "utils.h"
-#include "treesocket.h"
+#include "commands.h"
 
-bool TreeSocket::Away(const std::string &prefix, parameterlist &params)
+CmdResult CommandAway::Handle(User* u, std::vector<std::string>& params)
 {
-	User* u = ServerInstance->FindNick(prefix);
-	if ((!u) || (IS_SERVER(u)))
-		return true;
+	if (IS_SERVER(u))
+		return CMD_INVALID;
 	if (params.size())
 	{
 		FOREACH_MOD(OnSetAway, (u, params[params.size() - 1]));
@@ -38,14 +37,11 @@ bool TreeSocket::Away(const std::string &prefix, parameterlist &params)
 			u->awaytime = ServerInstance->Time();
 
 		u->awaymsg = params[params.size() - 1];
-
-		params[params.size() - 1] = ":" + params[params.size() - 1];
 	}
 	else
 	{
 		FOREACH_MOD(OnSetAway, (u, ""));
 		u->awaymsg.clear();
 	}
-	Utils->DoOneToAllButSender(prefix,"AWAY",params,u->server);
-	return true;
+	return CMD_SUCCESS;
 }

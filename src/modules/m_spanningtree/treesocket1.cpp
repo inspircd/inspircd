@@ -29,6 +29,7 @@
 #include "treeserver.h"
 #include "link.h"
 #include "treesocket.h"
+#include "commands.h"
 
 /** Because most of the I/O gubbins are encapsulated within
  * BufferedSocket, we just call the superclass constructor for
@@ -167,22 +168,21 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 {
 	bool LocalSquit = false;
 
-	if ((Current) && (Current != Utils->TreeRoot))
+	if (Current != Utils->TreeRoot)
 	{
 		DelServerEvent(Utils->Creator, Current->GetName());
-
-		if (!Current->GetSocket() || Current->GetSocket()->Introduced())
-		{
-			parameterlist params;
-			params.push_back(Current->GetID());
-			params.push_back(":"+reason);
-			Utils->DoOneToAllButSender(Current->GetParent()->GetID(),"SQUIT",params,Current->GetName());
-		}
 
 		if (Current->GetParent() == Utils->TreeRoot)
 		{
 			ServerInstance->SNO->WriteGlobalSno('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
 			LocalSquit = true;
+			if (Current->GetSocket()->Introduced())
+			{
+				parameterlist params;
+				params.push_back(Current->GetID());
+				params.push_back(":"+reason);
+				Utils->DoOneToMany(Utils->TreeRoot->GetID(), "SQUIT", params);
+			}
 		}
 		else
 		{
@@ -204,8 +204,20 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 			Close();
 		}
 	}
-	else
+}
+
+CmdResult CommandSQuit::Handle(User* user, std::vector<std::string>& params)
+{
+	TreeServer* quitting = Utils->FindServer(params[0]);
+	if (!quitting)
+	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Squit from unknown server");
+		return CMD_FAILURE;
+	}
+
+	TreeSocket* sock = Utils->FindServer(user->server)->GetRoute()->GetSocket();
+	sock->Squit(quitting, params[1]);
+	return CMD_SUCCESS;
 }
 
 /** This function is called when we receive data from a remote

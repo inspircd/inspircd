@@ -29,7 +29,7 @@ void ModuleSpanningTree::OnPostCommand(Command* command, const std::vector<std::
 		Utils->RouteCommand(NULL, command, parameters, user);
 }
 
-void SpanningTreeUtilities::RouteCommand(TreeServer* origin, Command* thiscmd, const parameterlist& parameters, User* user)
+void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscmd, const parameterlist& parameters, User* user)
 {
 	const std::string& command = thiscmd->name;
 	RouteDescriptor routing = thiscmd->GetRouting(user, parameters);

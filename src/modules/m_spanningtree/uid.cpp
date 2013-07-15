@@ -25,7 +25,7 @@
 #include "utils.h"
 #include "treeserver.h"
 
-CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
+CmdResult CommandUID::Handle(User* serversrc, std::vector<std::string>& params)
 {
 	/** Do we have enough parameters:
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
@@ -50,7 +50,6 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		return CMD_INVALID;
 	if (modestr[0] != '+')
 		return CMD_INVALID;
-	TreeSocket* sock = remoteserver->GetRoute()->GetSocket();
 
 	/* check for collision */
 	user_hash::iterator iter = ServerInstance->Users->clientlist->find(params[2]);
@@ -60,17 +59,13 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		/*
 		 * Nick collision.
 		 */
-		int collide = sock->DoCollision(iter->second, age_t, params[5], params[6], params[0]);
+		int collide = Utils->DoCollision(iter->second, remoteserver, age_t, params[5], params[6], params[0]);
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)
 		{
-			/* remote client lost, make sure we change their nick for the hash too
-			 *
-			 * This alters the line that will be sent to other servers, which
-			 * commands normally shouldn't do; hence the required const_cast.
-			 */
-			const_cast<parameterlist&>(params)[2] = params[0];
+			// Remote client lost, make sure we change their nick for the hash too
+			params[2] = params[0];
 		}
 	}
 
@@ -152,7 +147,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFHost::Handle(const parameterlist &params, User* src)
+CmdResult CommandFHost::Handle(User* src, std::vector<std::string>& params)
 {
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
@@ -160,7 +155,7 @@ CmdResult CommandFHost::Handle(const parameterlist &params, User* src)
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFIdent::Handle(const parameterlist &params, User* src)
+CmdResult CommandFIdent::Handle(User* src, std::vector<std::string>& params)
 {
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
@@ -168,7 +163,7 @@ CmdResult CommandFIdent::Handle(const parameterlist &params, User* src)
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFName::Handle(const parameterlist &params, User* src)
+CmdResult CommandFName::Handle(User* src, std::vector<std::string>& params)
 {
 	if (IS_SERVER(src))
 		return CMD_FAILURE;

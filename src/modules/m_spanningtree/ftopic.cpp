@@ -22,7 +22,7 @@
 #include "commands.h"
 
 /** FTOPIC command */
-CmdResult CommandFTopic::Handle(const std::vector<std::string>& params, User *user)
+CmdResult CommandFTopic::Handle(User* user, std::vector<std::string>& params)
 {
 	Channel* c = ServerInstance->FindChan(params[0]);
 	if (!c)
