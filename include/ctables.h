@@ -97,7 +97,7 @@ struct RouteDescriptor
 /** A structure that defines a command. Every command available
  * in InspIRCd must be defined as derived from Command.
  */
-class CoreExport Command : public ServiceProvider
+class CoreExport CommandBase : public ServiceProvider
 {
  public:
 	/** User flags needed to execute the command or 0
@@ -156,19 +156,12 @@ class CoreExport Command : public ServiceProvider
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
 	 * will be tossed into one last space-seperated param.
 	 */
-	Command(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
+	CommandBase(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
 		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),
 		use_count(0), disabled(false), works_before_reg(false), allow_empty_last_param(true),
 		Penalty(1)
 	{
 	}
-
-	/** Handle the command from a user.
-	 * @param parameters The parameters for the command.
-	 * @param user The user who issued the command.
-	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
-	 */
-	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
 
 	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
@@ -218,7 +211,28 @@ class CoreExport Command : public ServiceProvider
 		return works_before_reg;
 	}
 
-	virtual ~Command();
+	virtual ~CommandBase();
+};
+
+class CoreExport Command : public CommandBase
+{
+ public:
+	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0)
+		: CommandBase(me, cmd, minpara, maxpara)
+	{
+	}
+
+	/** Handle the command from a user.
+	 * @param parameters The parameters for the command.
+	 * @param user The user who issued the command.
+	 * @return Return CMD_SUCCESS on success, or CMD_FAILURE on failure.
+	 */
+	virtual CmdResult Handle(const std::vector<std::string>& parameters, User* user) = 0;
+
+	/** Destructor
+	 * Removes this command from the command parser
+	 */
+	~Command();
 };
 
 class CoreExport SplitCommand : public Command

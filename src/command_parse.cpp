@@ -327,6 +327,10 @@ void CommandParser::RemoveCommand(Command* x)
 		cmdlist.erase(n);
 }
 
+CommandBase::~CommandBase()
+{
+}
+
 Command::~Command()
 {
 	ServerInstance->Parser->RemoveCommand(this);
@@ -357,7 +361,7 @@ CommandParser::CommandParser()
 {
 }
 
-std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final, Command* custom_translator)
+std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final, CommandBase* custom_translator)
 {
 	std::vector<TranslateType>::const_iterator types = to.begin();
 	std::string dest;
@@ -386,7 +390,7 @@ std::string CommandParser::TranslateUIDs(const std::vector<TranslateType>& to, c
 	return dest;
 }
 
-void CommandParser::TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, Command* custom_translator, unsigned int paramnumber)
+void CommandParser::TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator, unsigned int paramnumber)
 {
 	switch (to)
 	{

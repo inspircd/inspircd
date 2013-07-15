@@ -125,7 +125,7 @@ class CoreExport CommandParser
 	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
 	 * @param paramnumber The index of the parameter we are translating.
 	 */
-	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, Command* custom_translator = NULL, unsigned int paramnumber = 0);
+	static void TranslateSingleParam(TranslateType to, const std::string& item, std::string& dest, CommandBase* custom_translator = NULL, unsigned int paramnumber = 0);
 
 	/** Translate nicknames in a list of strings into UIDs, based on the TranslateTypes given.
 	 * @param to The translation types to use for the process. If this list is too short, TR_TEXT is assumed for the rest.
@@ -134,7 +134,7 @@ class CoreExport CommandParser
 	 * @param custom_translator Used to translate the parameter if the translation type is TR_CUSTOM, if NULL, TR_CUSTOM will act like TR_TEXT
 	 * @return dest The output string
 	 */
-	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final = false, Command* custom_translator = NULL);
+	static std::string TranslateUIDs(const std::vector<TranslateType>& to, const std::vector<std::string>& source, bool prefix_final = false, CommandBase* custom_translator = NULL);
 };
 
 /** A lookup table of values for multiplier characters used by
