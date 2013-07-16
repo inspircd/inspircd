@@ -298,18 +298,6 @@ if (test_file($config{CXX}, "eventfd.cpp")) {
 	print "no\n";
 }
 
-printf "Checking if a TCP deferring mechanism is available... ";
-if (test_file($config{CXX}, "tcp_defer_accept.cpp")) {
-	$config{HAS_DEFER} = "TCP_DEFER_ACCEPT";
-	print "yes (TCP_DEFER_ACCEPT)\n";
-} elsif (test_file($config{CXX}, "so_acceptfilter.cpp")) {
-	$config{HAS_DEFER} = "SO_ACCEPTFILTER";
-	print "yes (SO_ACCEPTFILTER)\n";
-} else {
-	$config{HAS_DEFER} = "false";
-	print "no\n";
-}
-
 print "Checking whether epoll is available... ";
 $config{HAS_EPOLL} = test_header($config{CXX}, "sys/epoll.h");
 print $config{HAS_EPOLL} ? "yes\n" : "no\n";
@@ -790,11 +778,6 @@ EOF
 		}
 		if ($config{HAS_CLOCK_GETTIME} eq 'true') {
 			print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
-		}
-		if ($config{HAS_DEFER} eq "TCP_DEFER_ACCEPT") {
-			print FILEHANDLE "#define USE_TCP_DEFER_ACCEPT\n";
-		} elsif ($config{HAS_DEFER} eq "SO_ACCEPTFILTER") {
-			print FILEHANDLE "#define USE_SO_ACCEPTFILTER\n"
 		}
 
 		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n";
