@@ -50,7 +50,6 @@ CoreExport extern InspIRCd* ServerInstance;
 
 #include "config.h"
 #include "consolecolors.h"
-#include "caller.h"
 #include "cull_list.h"
 #include "extensible.h"
 #include "numerics.h"
@@ -240,13 +239,6 @@ public:
 	void SendTo(LocalUser* user);
 };
 
-DEFINE_HANDLER1(IsNickHandler, bool, const std::string&);
-DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
-DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
-DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
-DEFINE_HANDLER1(RehashHandler, void, const std::string&);
-DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
-
 /** The main class of the irc server.
  * This class contains instances of all the other classes in this software.
  * Amongst other things, it contains a ModeParser, a DNS object, a CommandParser
@@ -291,12 +283,11 @@ class CoreExport InspIRCd
 
 	/**** Functors ****/
 
-	IsNickHandler HandleIsNick;
-	IsIdentHandler HandleIsIdent;
-	OnCheckExemptionHandler HandleOnCheckExemption;
-	IsChannelHandler HandleIsChannel;
-	RehashHandler HandleRehash;
-	GenRandomHandler HandleGenRandom;
+	TR1NS::function<void(char*, size_t)> GenRandom;
+	TR1NS::function<bool(const std::string&)> IsNick;
+	TR1NS::function<bool(const std::string&)> IsIdent;
+	TR1NS::function<bool(const std::string&)> IsChannel;
+	TR1NS::function<ModResult(User*, Channel*, const std::string&)> OnCheckExemption;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
 	 * Reason for it:
@@ -429,7 +420,7 @@ class CoreExport InspIRCd
 	unsigned long GenRandomInt(unsigned long max);
 
 	/** Fill a buffer with random bits */
-	caller2<void, char*, size_t> GenRandom;
+	static void HandleGenRandom(char* buffer, size_t size);
 
 	/** Bind all ports specified in the configuration file.
 	 * @return The number of ports bound without error
@@ -475,16 +466,12 @@ class CoreExport InspIRCd
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
 	 */
-	caller1<bool, const std::string&> IsChannel;
+	static bool HandleIsChannel(const std::string& chname);
 
 	/** Return true if str looks like a server ID
 	 * @param sid string to check against
 	 */
 	static bool IsSID(const std::string& sid);
-
-	/** Rehash the local server
-	 */
-	caller1<void, const std::string&> Rehash;
 
 	/** Handles incoming signals after being set
 	 * @param signal the signal recieved
@@ -528,16 +515,16 @@ class CoreExport InspIRCd
 	void SendError(const std::string &s);
 
 	/** Return true if a nickname is valid
-	 * @param n A nickname to verify
+	 * @param nick A nickname to verify
 	 * @return True if the nick is valid
 	 */
-	caller1<bool, const std::string&> IsNick;
+	static bool HandleIsNick(const std::string& nick);
 
 	/** Return true if an ident is valid
-	 * @param An ident to verify
+	 * @param ident An ident to verify
 	 * @return True if the ident is valid
 	 */
-	caller1<bool, const std::string&> IsIdent;
+	static bool HandleIsIdent(const std::string& ident);
 
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
@@ -583,7 +570,7 @@ class CoreExport InspIRCd
 
 	/** Rehash the local server
 	 */
-	void RehashServer();
+	void Rehash(const std::string& reason);
 
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against
@@ -674,11 +661,11 @@ class CoreExport InspIRCd
 	void SendWhoisLine(User* user, User* dest, int numeric, const char* format, ...) CUSTOM_PRINTF(5, 6);
 
 	/** Called to check whether a channel restriction mode applies to a user
-	 * @param User that is attempting some action
-	 * @param Channel that the action is being performed on
-	 * @param Action name
+	 * @param u User that is attempting some action
+	 * @param c Channel that the action is being performed on
+	 * @param a Action name
 	 */
-	caller3<ModResult, User*, Channel*, const std::string&> OnCheckExemption;
+	static ModResult HandleOnCheckExemption(User* u, Channel* c, const std::string& a);
 
 	/** Prepare the ircd for restart or shutdown.
 	 * This function unloads all modules which can be unloaded,

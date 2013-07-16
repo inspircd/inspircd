@@ -57,7 +57,6 @@
 #include "socket.h"
 #include "command_parse.h"
 #include "exitcodes.h"
-#include "caller.h"
 #include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
@@ -231,15 +230,15 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
-	 OperQuit("OperQuit", NULL),
-	 GenRandom(&HandleGenRandom),
-	 IsChannel(&HandleIsChannel),
-	 Rehash(&HandleRehash),
-	 IsNick(&HandleIsNick),
-	 IsIdent(&HandleIsIdent),
-	 OnCheckExemption(&HandleOnCheckExemption)
+	 OperQuit("OperQuit", NULL)
 {
 	ServerInstance = this;
+
+	GenRandom = &InspIRCd::HandleGenRandom;
+	IsChannel = &InspIRCd::HandleIsChannel;
+	IsIdent = &InspIRCd::HandleIsIdent;
+	IsNick = &InspIRCd::HandleIsNick;
+	OnCheckExemption = &InspIRCd::HandleOnCheckExemption;
 
 	Extensions.Register(&OperQuit);
 

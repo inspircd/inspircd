@@ -130,7 +130,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 }
 
 namespace {
-	struct UnloadAction : public HandlerBase0<void>
+	struct UnloadAction : public ActionBase
 	{
 		Module* const mod;
 		UnloadAction(Module* m) : mod(m) {}
@@ -144,11 +144,11 @@ namespace {
 		}
 	};
 
-	struct ReloadAction : public HandlerBase0<void>
+	struct ReloadAction : public ActionBase
 	{
 		Module* const mod;
-		HandlerBase1<void, bool>* const callback;
-		ReloadAction(Module* m, HandlerBase1<void, bool>* c)
+		TR1NS::function<void(bool)> const callback;
+		ReloadAction(Module* m, TR1NS::function<void(bool)> c)
 			: mod(m), callback(c) {}
 		void Call()
 		{
@@ -159,7 +159,7 @@ namespace {
 			delete dll;
 			bool rv = ServerInstance->Modules->Load(name.c_str());
 			if (callback)
-				callback->Call(rv);
+				callback(rv);
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
 	};
@@ -173,12 +173,12 @@ bool ModuleManager::Unload(Module* mod)
 	return true;
 }
 
-void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
+void ModuleManager::Reload(Module* mod, TR1NS::function<void(bool)> callback)
 {
 	if (CanUnload(mod))
 		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
 	else
-		callback->Call(false);
+		callback(false);
 }
 
 /* We must load the modules AFTER initializing the socket engine, now */

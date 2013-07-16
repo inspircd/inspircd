@@ -21,33 +21,9 @@
 
 static std::bitset<256> allowedmap;
 
-class NewIsChannelHandler : public HandlerBase1<bool, const std::string&>
-{
- public:
-	NewIsChannelHandler() { }
-	~NewIsChannelHandler() { }
-	bool Call(const std::string&);
-};
-
-bool NewIsChannelHandler::Call(const std::string& channame)
-{
-	if (channame.empty() || channame.length() > ServerInstance->Config->Limits.ChanMax || channame[0] != '#')
-		return false;
-
-	for (std::string::const_iterator c = channame.begin(); c != channame.end(); ++c)
-	{
-		unsigned int i = *c & 0xFF;
-		if (!allowedmap[i])
-			return false;
-	}
-
-	return true;
-}
-
 class ModuleChannelNames : public Module
 {
-	NewIsChannelHandler myhandler;
-	caller1<bool, const std::string&> rememberer;
+	TR1NS::function<bool(const std::string&)> rememberer;
 	bool badchan;
 
  public:
@@ -57,10 +33,25 @@ class ModuleChannelNames : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->IsChannel = &myhandler;
+		ServerInstance->IsChannel = &ModuleChannelNames::HandleIsChannel;
 		Implementation eventlist[] = { I_OnRehash, I_OnUserKick };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
+	}
+
+	static bool HandleIsChannel(const std::string& channame)
+	{
+		if (channame.empty() || channame.length() > ServerInstance->Config->Limits.ChanMax || channame[0] != '#')
+			return false;
+
+		for (std::string::const_iterator c = channame.begin(); c != channame.end(); ++c)
+		{
+			unsigned int i = *c & 0xFF;
+			if (!allowedmap[i])
+				return false;
+		}
+
+		return true;
 	}
 
 	void ValidateChans()

@@ -234,7 +234,7 @@ void InspIRCd::ProcessColors(file_cache& input)
 }
 
 /* true for valid channel name, false else */
-bool IsChannelHandler::Call(const std::string& chname)
+bool InspIRCd::HandleIsChannel(const std::string& chname)
 {
 	if (chname.empty() || chname.length() > ServerInstance->Config->Limits.ChanMax)
 		return false;
@@ -257,7 +257,7 @@ bool IsChannelHandler::Call(const std::string& chname)
 }
 
 /* true for valid nickname, false else */
-bool IsNickHandler::Call(const std::string& n)
+bool InspIRCd::HandleIsNick(const std::string& n)
 {
 	if (n.empty() || n.length() > ServerInstance->Config->Limits.NickMax)
 		return false;
@@ -284,7 +284,7 @@ bool IsNickHandler::Call(const std::string& n)
 }
 
 /* return true for good ident, false else */
-bool IsIdentHandler::Call(const std::string& n)
+bool InspIRCd::HandleIsIdent(const std::string& n)
 {
 	if (n.empty())
 		return false;
@@ -462,7 +462,7 @@ unsigned long InspIRCd::GenRandomInt(unsigned long max)
 }
 
 // This is overridden by a higher-quality algorithm when SSL support is loaded
-void GenRandomHandler::Call(char *output, size_t max)
+void InspIRCd::HandleGenRandom(char *output, size_t max)
 {
 	for(unsigned int i=0; i < max; i++)
 #ifdef _WIN32
@@ -478,7 +478,7 @@ void GenRandomHandler::Call(char *output, size_t max)
 #endif
 }
 
-ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::string& restriction)
+ModResult InspIRCd::HandleOnCheckExemption(User* user, Channel* chan, const std::string& restriction)
 {
 	unsigned int mypfx = chan->GetPrefixValue(user);
 	char minmode = 0;

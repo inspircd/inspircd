@@ -81,16 +81,6 @@ static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_c
 	return 0;
 }
 
-class RandGen : public HandlerBase2<void, char*, size_t>
-{
- public:
-	RandGen() {}
-	void Call(char* buffer, size_t len)
-	{
-		gcry_randomize(buffer, len, GCRY_STRONG_RANDOM);
-	}
-};
-
 /** Represents an SSL user's extra data
  */
 class issl_session
@@ -594,7 +584,6 @@ class ModuleSSLGnuTLS : public Module
 	bool cred_alloc;
 	bool dh_alloc;
 
-	RandGen randhandler;
 	CommandStartTLS starttls;
 
 	GenericCap capHandler;
@@ -622,7 +611,7 @@ class ModuleSSLGnuTLS : public Module
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
 
-		ServerInstance->GenRandom = &randhandler;
+		ServerInstance->GenRandom = ModuleSSLGnuTLS::HandleGenRandom;
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(iohook.x509_cred, dh_params);
@@ -931,6 +920,11 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if (starttls.enabled)
 			capHandler.HandleEvent(ev);
+	}
+
+	static void HandleGenRandom(char* buffer, size_t len)
+	{
+		gcry_randomize(buffer, len, GCRY_STRONG_RANDOM);
 	}
 };
 

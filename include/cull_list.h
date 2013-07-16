@@ -43,14 +43,20 @@ class CoreExport CullList
 	void Apply();
 };
 
+class CoreExport ActionBase : public classbase
+{
+ public:
+	virtual void Call() = 0;
+};
+
 class CoreExport ActionList
 {
-	std::vector<HandlerBase0<void>*> list;
+	std::vector<ActionBase*> list;
 
  public:
 	/** Adds an item to the list
 	 */
-	void AddAction(HandlerBase0<void>* item) { list.push_back(item); }
+	void AddAction(ActionBase* item) { list.push_back(item); }
 
 	/** Runs the items
 	 */

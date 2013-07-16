@@ -27,9 +27,11 @@
  */
 #if defined _LIBCPP_VERSION || defined _WIN32
 # define TR1NS std
+# include <functional>
 # include <unordered_map>
 #else
 # define TR1NS std::tr1
+# include <tr1/functional>
 # include <tr1/unordered_map>
 #endif
 
@@ -69,24 +71,6 @@
 #else
 # define CXX11_FINAL
 # define CXX11_OVERRIDE
-#endif
-
-/**
- * These macros enable the detection of the C++11 variadic templates in
- * compilers which support them.
- */
-#if __cplusplus >= 201103L
-# define HAS_CXX11_VARIADIC_TEMPLATES
-#elif defined __clang__
-# if __has_feature(cxx_variadic_templates)
-#  define HAS_CXX11_VARIADIC_TEMPLATES
-# endif
-#elif (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4)
-# if defined __GXX_EXPERIMENTAL_CXX0X__
-#  define HAS_CXX11_VARIADIC_TEMPLATES
-# endif
-#elif _MSC_FULL_VER >= 170051025
-# define HAS_CXX11_VARIADIC_TEMPLATES
 #endif
 
 /**
