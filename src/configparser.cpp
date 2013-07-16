@@ -183,7 +183,10 @@ struct Parser
 		std::set<std::string> seen;
 		tag = ConfigTag::create(name, current.filename, current.line, items);
 
-		while (kv(items, seen));
+		while (kv(items, seen))
+		{
+			// Do nothing here (silences a GCC warning).
+		}
 
 		if (name == mandatory_tag)
 		{
