@@ -78,18 +78,21 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	{
 		Parent = Current->GetParent()->GetName();
 	}
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+
+	const TreeServer::ChildServers& children = Current->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
-		if ((Current->GetChild(q)->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(Current->GetChild(q)->GetName()))))
+		TreeServer* server = *i;
+		if ((server->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(server->GetName()))))
 		{
 			if (user->IsOper())
 			{
-				 ShowLinks(Current->GetChild(q),user,hops+1);
+				 ShowLinks(server, user, hops+1);
 			}
 		}
 		else
 		{
-			ShowLinks(Current->GetChild(q),user,hops+1);
+			ShowLinks(server, user, hops+1);
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
@@ -685,11 +688,11 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		return;
 	ServerInstance->PI->SendMetaData(NULL, "modules", "-" + mod->ModuleSourceFile);
 
-	unsigned int items = Utils->TreeRoot->ChildCount();
-	for(unsigned int x = 0; x < items; x++)
+	// Close all connections which use an IO hook provided by this module
+	const TreeServer::ChildServers& list = Utils->TreeRoot->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
-		TreeServer* srv = Utils->TreeRoot->GetChild(x);
-		TreeSocket* sock = srv->GetSocket();
+		TreeSocket* sock = (*i)->GetSocket();
 		if (sock && sock->GetIOHook() && sock->GetIOHook()->creator == mod)
 		{
 			sock->SendError("SSL module unloaded");

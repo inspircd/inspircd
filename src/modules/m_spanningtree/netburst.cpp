@@ -65,9 +65,10 @@ void TreeSocket::DoBurst(TreeServer* s)
  */
 void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	const TreeServer::ChildServers& children = Current->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
-		TreeServer* recursive_server = Current->GetChild(q);
+		TreeServer* recursive_server = *i;
 		if (recursive_server != s)
 		{
 			this->WriteLine(InspIRCd::Format(":%s SERVER %s * 0 %s :%s", Current->GetID().c_str(),

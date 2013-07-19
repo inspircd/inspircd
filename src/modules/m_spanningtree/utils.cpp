@@ -136,14 +136,11 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 
 CullResult SpanningTreeUtilities::cull()
 {
-	while (TreeRoot->ChildCount())
+	const TreeServer::ChildServers& children = TreeRoot->GetChildren();
+	while (!children.empty())
 	{
-		TreeServer* child_server = TreeRoot->GetChild(0);
-		if (child_server)
-		{
-			TreeSocket* sock = child_server->GetSocket();
-			sock->Close();
-		}
+		TreeSocket* sock = children.front()->GetSocket();
+		sock->Close();
 	}
 
 	for(std::map<TreeSocket*, std::pair<std::string, int> >::iterator i = timeoutlist.begin(); i != timeoutlist.end(); ++i)
@@ -209,10 +206,10 @@ void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const
 {
 	std::string FullLine = ConstructLine(prefix, command, params);
 
-	unsigned int items = this->TreeRoot->ChildCount();
-	for (unsigned int x = 0; x < items; x++)
+	const TreeServer::ChildServers& children = TreeRoot->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
-		TreeServer* Route = this->TreeRoot->GetChild(x);
+		TreeServer* Route = *i;
 		// Send the line if the route isn't the path to the one to be omitted
 		if (Route != omitroute)
 		{

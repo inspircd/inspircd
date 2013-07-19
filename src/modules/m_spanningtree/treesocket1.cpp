@@ -150,9 +150,10 @@ void TreeSocket::SquitServer(std::string &from, TreeServer* Current, int& num_lo
 	 * We're going backwards so we don't remove users
 	 * while we still need them ;)
 	 */
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+	const TreeServer::ChildServers& children = Current->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
-		TreeServer* recursive_server = Current->GetChild(q);
+		TreeServer* recursive_server = *i;
 		this->SquitServer(from,recursive_server, num_lost_servers, num_lost_users);
 	}
 	/* Now we've whacked the kids, whack self */

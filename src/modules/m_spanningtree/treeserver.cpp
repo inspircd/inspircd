@@ -119,9 +119,9 @@ void TreeServer::FinishBurstInternal()
 	this->bursting = false;
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	SetPingFlag();
-	for(unsigned int q=0; q < ChildCount(); q++)
+	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
-		TreeServer* child = GetChild(q);
+		TreeServer* child = *i;
 		child->FinishBurstInternal();
 	}
 }
@@ -227,28 +227,6 @@ TreeServer* TreeServer::GetParent()
 void TreeServer::SetVersion(const std::string &Version)
 {
 	VersionString = Version;
-}
-
-unsigned int TreeServer::ChildCount()
-{
-	return Children.size();
-}
-
-TreeServer* TreeServer::GetChild(unsigned int n)
-{
-	if (n < Children.size())
-	{
-		/* Make sure they  cant request
-		 * an out-of-range object. After
-		 * all we know what these programmer
-		 * types are like *grin*.
-		 */
-		return Children[n];
-	}
-	else
-	{
-		return NULL;
-	}
 }
 
 void TreeServer::AddChild(TreeServer* Child)

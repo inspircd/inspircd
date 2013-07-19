@@ -77,9 +77,11 @@ void CommandMap::ShowMap(TreeServer* Current, User* user, int depth, int &line, 
 
 	if (user->IsOper() || !Utils->FlatLinks)
 		depth = depth + 2;
-	for (unsigned int q = 0; q < Current->ChildCount(); q++)
+
+	const TreeServer::ChildServers& servers = Current->GetChildren();
+	for (TreeServer::ChildServers::const_iterator i = servers.begin(); i != servers.end(); ++i)
 	{
-		TreeServer* child = Current->GetChild(q);
+		TreeServer* child = *i;
 		if (!user->IsOper()) {
 			if (child->Hidden)
 				continue;

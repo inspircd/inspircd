@@ -56,6 +56,7 @@ class TreeServer : public classbase
 	void AddHashEntry();
 
  public:
+	typedef std::vector<TreeServer*> ChildServers;
 	FakeUser* const ServerUser;		/* User representing this server */
 	const time_t age;
 
@@ -151,13 +152,9 @@ class TreeServer : public classbase
 	 */
 	void SetVersion(const std::string &Version);
 
-	/** Return number of child servers
+	/** Return all child servers
 	 */
-	unsigned int ChildCount();
-
-	/** Return a child server indexed 0..n
-	 */
-	TreeServer* GetChild(unsigned int n);
+	const ChildServers& GetChildren() const { return Children; }
 
 	/** Add a child server
 	 */
