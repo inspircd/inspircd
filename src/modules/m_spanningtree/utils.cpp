@@ -162,7 +162,7 @@ SpanningTreeUtilities::~SpanningTreeUtilities()
 }
 
 /* returns a list of DIRECT servernames for a specific channel */
-void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list)
+void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list)
 {
 	unsigned int minrank = 0;
 	if (status)
@@ -186,7 +186,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeServerLis
 		{
 			TreeServer* best = this->BestRouteTo(i->first->server);
 			if (best)
-				list.insert(best);
+				list.insert(best->GetSocket());
 		}
 	}
 	return;
@@ -379,7 +379,7 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	return NULL;
 }
 
-void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const char* message_type)
+void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
 {
 	std::string raw(":");
 	raw.append(prefix).append(1, ' ').append(message_type).push_back(' ');
@@ -387,12 +387,12 @@ void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channe
 		raw.push_back(status);
 	raw.append(target->name).append(" :").append(text);
 
-	TreeServerList list;
+	TreeSocketSet list;
 	this->GetListOfServersForChannel(target, list, status, exempt_list);
-	for (TreeServerList::iterator i = list.begin(); i != list.end(); ++i)
+	for (TreeSocketSet::iterator i = list.begin(); i != list.end(); ++i)
 	{
-		TreeSocket* Sock = (*i)->GetSocket();
-		if (Sock)
+		TreeSocket* Sock = *i;
+		if (Sock != omit)
 			Sock->WriteLine(raw);
 	}
 }

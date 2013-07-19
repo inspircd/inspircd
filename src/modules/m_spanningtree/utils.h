@@ -40,8 +40,6 @@ extern SpanningTreeUtilities* Utils;
  */
 typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::StrHashComp> server_hash;
 
-typedef std::set<TreeServer*> TreeServerList;
-
 /** Contains helper functions and variables for this module,
  * and keeps them out of the global namespace
  */
@@ -54,6 +52,8 @@ class SpanningTreeUtilities : public classbase
 	CacheRefreshTimer RefreshTimer;
 
  public:
+ 	typedef std::set<TreeSocket*> TreeSocketSet;
+
 	/** Creator module
 	 */
 	ModuleSpanningTree* Creator;
@@ -150,7 +150,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Compile a list of servers which contain members of channel c
 	 */
-	void GetListOfServersForChannel(Channel* c, TreeServerList &list, char status, const CUList &exempt_list);
+	void GetListOfServersForChannel(Channel* c, TreeSocketSet& list, char status, const CUList& exempt_list);
 
 	/** Find a server by name
 	 */
@@ -178,7 +178,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Sends a PRIVMSG or a NOTICE to a channel obeying an exempt list and an optional prefix
 	 */
-	void SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const char* message_type);
+	void SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const CUList& exempt_list, const char* message_type, TreeSocket* omit = NULL);
 };
 
 inline void SpanningTreeUtilities::DoOneToMany(const std::string& prefix, const std::string& command, const parameterlist& params)

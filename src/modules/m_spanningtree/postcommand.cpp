@@ -91,20 +91,9 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			Channel* c = ServerInstance->FindChan(dest);
 			if (!c)
 				return;
-			TreeServerList list;
 			// TODO OnBuildExemptList hook was here
-			GetListOfServersForChannel(c,list,pfx, CUList());
-			std::string data = ":" + user->uuid + " " + sent_cmd;
-			for (unsigned int x = 0; x < params.size(); x++)
-				data += " " + params[x];
-			for (TreeServerList::iterator i = list.begin(); i != list.end(); i++)
-			{
-				TreeSocket* Sock = (*i)->GetSocket();
-				if (origin && origin->GetSocket() == Sock)
-					continue;
-				if (Sock)
-					Sock->WriteLine(data);
-			}
+			CUList exempts;
+			SendChannelMessage(user->uuid, c, parameters[1], pfx, exempts, sent_cmd.c_str(), origin ? origin->GetSocket() : NULL);
 		}
 		else if (dest[0] == '$')
 		{
