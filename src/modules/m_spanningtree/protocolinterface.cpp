@@ -27,12 +27,11 @@
  * For documentation on this class, see include/protocol.h.
  */
 
-void SpanningTreeProtocolInterface::GetServerList(ProtoServerList &sl)
+void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 {
-	sl.clear();
 	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
 	{
-		ProtoServer ps;
+		ServerInfo ps;
 		ps.servername = i->second->GetName();
 		TreeServer* s = i->second->GetParent();
 		ps.parentname = s ? s->GetName() : "";
@@ -127,30 +126,18 @@ void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string
 	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", p, target->server);
 }
 
-void SpanningTreeProtocolInterface::SendChannelPrivmsg(Channel* target, char status, const std::string &text)
+void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype)
 {
+	const char* cmd = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	CUList exempt_list;
-	Utils->SendChannelMessage(ServerInstance->Config->GetSID(), target, text, status, exempt_list, "PRIVMSG");
+	Utils->SendChannelMessage(ServerInstance->Config->GetSID(), target, text, status, exempt_list, cmd);
 }
 
-void SpanningTreeProtocolInterface::SendChannelNotice(Channel* target, char status, const std::string &text)
+void SpanningTreeProtocolInterface::SendMessage(User* target, const std::string& text, MessageType msgtype)
 {
-	CUList exempt_list;
-	Utils->SendChannelMessage(ServerInstance->Config->GetSID(), target, text, status, exempt_list, "NOTICE");
-}
-
-void SpanningTreeProtocolInterface::SendUserPrivmsg(User* target, const std::string &text)
-{
+	const char* cmd = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	parameterlist p;
 	p.push_back(target->uuid);
 	p.push_back(":" + text);
-	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PRIVMSG", p, target->server);
-}
-
-void SpanningTreeProtocolInterface::SendUserNotice(User* target, const std::string &text)
-{
-	parameterlist p;
-	p.push_back(target->uuid);
-	p.push_back(":" + text);
-	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "NOTICE", p, target->server);
+	Utils->DoOneToOne(ServerInstance->Config->GetSID(), cmd, p, target->server);
 }

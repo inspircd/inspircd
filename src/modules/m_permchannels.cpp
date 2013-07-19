@@ -263,7 +263,7 @@ public:
 		// Load only when there are no linked servers - we set the TS of the channels we
 		// create to the current time, this can lead to desync because spanningtree has
 		// no way of knowing what we do
-		ProtoServerList serverlist;
+		ProtocolInterface::ServerList serverlist;
 		ServerInstance->PI->GetServerList(serverlist);
 		if (serverlist.size() < 2)
 		{

@@ -208,10 +208,10 @@ class ModuleHttpStats : public Module
 
 				data << "</userlist><serverlist>";
 
-				ProtoServerList sl;
+				ProtocolInterface::ServerList sl;
 				ServerInstance->PI->GetServerList(sl);
 
-				for (ProtoServerList::iterator b = sl.begin(); b != sl.end(); ++b)
+				for (ProtocolInterface::ServerList::const_iterator b = sl.begin(); b != sl.end(); ++b)
 				{
 					data << "<server>";
 					data << "<servername>" << b->servername << "</servername>";

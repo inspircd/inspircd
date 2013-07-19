@@ -26,23 +26,22 @@ class User;
 
 typedef std::vector<std::string> parameterlist;
 
-class ProtoServer
-{
- public:
-	std::string servername;
-	std::string parentname;
-	std::string gecos;
-	unsigned int usercount;
-	unsigned int opercount;
-	unsigned int latencyms;
-};
-
-typedef std::list<ProtoServer> ProtoServerList;
-
 class ProtocolInterface
 {
  public:
-	ProtocolInterface() { }
+	class ServerInfo
+	{
+	 public:
+		std::string servername;
+		std::string parentname;
+		std::string gecos;
+		unsigned int usercount;
+		unsigned int opercount;
+		unsigned int latencyms;
+	};
+
+	typedef std::vector<ServerInfo> ServerList;
+
 	virtual ~ProtocolInterface() { }
 
 	/** Send an ENCAP message to one or more linked servers.
@@ -92,31 +91,39 @@ class ProtocolInterface
 	 * @param target The channel to message.
 	 * @param status The status character (e.g. %) required to recieve.
 	 * @param text The message to send.
+	 * @param type The message type (MSG_PRIVMSG or MSG_NOTICE)
 	 */
-	virtual void SendChannelPrivmsg(Channel* target, char status, const std::string &text) { }
+	virtual void SendMessage(Channel* target, char status, const std::string& text, MessageType type = MSG_PRIVMSG) { }
+
+	/** Send a message to a user.
+	 * @param target The user to message.
+	 * @param text The message to send.
+	 * @param type The message type (MSG_PRIVMSG or MSG_NOTICE)
+	 */
+	virtual void SendMessage(User* target, const std::string& text, MessageType type = MSG_PRIVMSG) { }
 
 	/** Send a notice to a channel.
 	 * @param target The channel to message.
 	 * @param status The status character (e.g. %) required to recieve.
 	 * @param text The message to send.
 	 */
-	virtual void SendChannelNotice(Channel* target, char status, const std::string &text) { }
-
-	/** Send a message to a user.
-	 * @param target The user to message.
-	 * @param text The message to send.
-	 */
-	virtual void SendUserPrivmsg(User* target, const std::string &text) { }
+	void SendChannelNotice(Channel* target, char status, const std::string &text)
+	{
+		SendMessage(target, status, text, MSG_NOTICE);
+	}
 
 	/** Send a notice to a user.
 	 * @param target The user to message.
 	 * @param text The message to send.
 	 */
-	virtual void SendUserNotice(User* target, const std::string &text) { }
+	void SendUserNotice(User* target, const std::string &text)
+	{
+		SendMessage(target, text, MSG_NOTICE);
+	}
 
 	/** Fill a list of servers and information about them.
 	 * @param sl The list of servers to fill.
 	 * XXX: document me properly, this is shit.
 	 */
-	virtual void GetServerList(ProtoServerList &sl) { }
+	virtual void GetServerList(ServerList& sl) { }
 };

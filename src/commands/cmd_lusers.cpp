@@ -73,11 +73,11 @@ class CommandLusers : public Command
 CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 {
 	unsigned int n_users = ServerInstance->Users->RegisteredUserCount();
-	ProtoServerList serverlist;
+	ProtocolInterface::ServerList serverlist;
 	ServerInstance->PI->GetServerList(serverlist);
 	unsigned int n_serv = serverlist.size();
 	unsigned int n_local_servs = 0;
-	for(ProtoServerList::iterator i = serverlist.begin(); i != serverlist.end(); ++i)
+	for (ProtocolInterface::ServerList::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
 	{
 		if (i->parentname == ServerInstance->Config->ServerName)
 			n_local_servs++;

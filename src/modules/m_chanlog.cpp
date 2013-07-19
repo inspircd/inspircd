@@ -76,7 +76,7 @@ class ModuleChanLog : public Module
 			if (c)
 			{
 				c->WriteChannelWithServ(ServerInstance->Config->ServerName, "PRIVMSG %s :%s", c->name.c_str(), snotice.c_str());
-				ServerInstance->PI->SendChannelPrivmsg(c, 0, snotice);
+				ServerInstance->PI->SendMessage(c, 0, snotice);
 			}
 		}
 
