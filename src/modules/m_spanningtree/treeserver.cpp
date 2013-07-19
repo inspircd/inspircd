@@ -288,7 +288,7 @@ void TreeServer::Tidy()
 
 CullResult TreeServer::cull()
 {
-	if (ServerUser != ServerInstance->FakeClient)
+	if (!IsRoot())
 		ServerUser->cull();
 	return classbase::cull();
 }
@@ -296,7 +296,7 @@ CullResult TreeServer::cull()
 TreeServer::~TreeServer()
 {
 	/* We'd better tidy up after ourselves, eh? */
-	if (ServerUser != ServerInstance->FakeClient)
+	if (!IsRoot())
 		delete ServerUser;
 
 	Utils->sidlist.erase(sid);

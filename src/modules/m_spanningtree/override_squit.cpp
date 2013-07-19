@@ -30,7 +30,7 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 	TreeServer* s = Utils->FindServerMask(parameters[0]);
 	if (s)
 	{
-		if (s == Utils->TreeRoot)
+		if (s->IsRoot())
 		{
 			user->WriteNotice("*** SQUIT: Foolish mortal, you cannot make a server SQUIT itself! (" + parameters[0] + " matches local server name)");
 			return MOD_RES_DENY;
@@ -38,7 +38,7 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 
 		TreeSocket* sock = s->GetSocket();
 
-		if (sock)
+		if (s->IsLocal())
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick.c_str());
 			sock->Squit(s,"Server quit by " + user->GetFullRealHost());

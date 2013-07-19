@@ -45,7 +45,7 @@ class TreeServer : public classbase
 	std::string ServerName;			/* Server's name */
 	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
-	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
+	TreeSocket* Socket;			/* Socket used to communicate with this server */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	std::string sid;			/* Server ID */
@@ -84,6 +84,14 @@ class TreeServer : public classbase
 	 * connected server which can be used to reach this server.
 	 */
 	TreeServer* GetRoute();
+
+	/** Returns true if this server is the tree root (i.e.: us)
+	 */
+	bool IsRoot() const { return (this->Parent == NULL); }
+
+	/** Returns true if this server is locally connected
+	 */
+	bool IsLocal() const { return (this->Route == this); }
 
 	/** Get server name
 	 */

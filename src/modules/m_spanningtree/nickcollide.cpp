@@ -123,7 +123,7 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		 * the UID or halt the propagation of the nick change command,
 		 * so other servers don't need to see the SAVE
 		 */
-		TreeSocket* sock = server->GetRoute()->GetSocket();
+		TreeSocket* sock = server->GetSocket();
 		sock->WriteLine(":"+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
 
 		if (remote)

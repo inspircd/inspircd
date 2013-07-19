@@ -81,8 +81,6 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
  */
 TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 {
-	if (ServerName == TreeRoot->GetName() || ServerName == ServerInstance->Config->GetSID())
-		return NULL;
 	TreeServer* Found = FindServer(ServerName);
 	if (Found)
 	{
@@ -216,15 +214,10 @@ void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const
 	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = this->TreeRoot->GetChild(x);
-		// Send the line IF:
-		// The route has a socket (its a direct connection)
-		// The route isnt the one to be omitted
-		// The route isnt the path to the one to be omitted
-		if ((Route) && (Route->GetSocket()) && (Route->GetName() != omit) && (omitroute != Route))
+		// Send the line if the route isn't the path to the one to be omitted
+		if (Route != omitroute)
 		{
-			TreeSocket* Sock = Route->GetSocket();
-			if (Sock)
-				Sock->WriteLine(FullLine);
+			Route->GetSocket()->WriteLine(FullLine);
 		}
 	}
 }
@@ -237,32 +230,18 @@ void SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::st
 	for (unsigned int x = 0; x < items; x++)
 	{
 		TreeServer* Route = this->TreeRoot->GetChild(x);
-		if (Route && Route->GetSocket())
-		{
-			TreeSocket* Sock = Route->GetSocket();
-			if (Sock)
-				Sock->WriteLine(FullLine);
-		}
+		Route->GetSocket()->WriteLine(FullLine);
 	}
 }
 
 bool SpanningTreeUtilities::DoOneToOne(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& target)
 {
 	TreeServer* Route = this->BestRouteTo(target);
-	if (Route)
-	{
-		if (Route && Route->GetSocket())
-		{
-			TreeSocket* Sock = Route->GetSocket();
-			if (Sock)
-				Sock->WriteLine(ConstructLine(prefix, command, params));
-		}
-		return true;
-	}
-	else
-	{
+	if (!Route)
 		return false;
-	}
+
+	Route->GetSocket()->WriteLine(ConstructLine(prefix, command, params));
+	return true;
 }
 
 void SpanningTreeUtilities::RefreshIPCache()

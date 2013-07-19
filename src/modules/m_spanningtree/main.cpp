@@ -138,60 +138,53 @@ restart:
 	{
 		TreeServer *s = i->second;
 
-		if (s->GetSocket() && s->GetSocket()->GetLinkState() == DYING)
+		// Skip myself
+		if (s->IsRoot())
+			continue;
+
+		if (s->GetSocket()->GetLinkState() == DYING)
 		{
 			s->GetSocket()->Close();
 			goto restart;
 		}
 
-		// Fix for bug #792, do not ping servers that are not connected yet!
-		// Remote servers have Socket == NULL and local connected servers have
-		// Socket->LinkState == CONNECTED
-		if (s->GetSocket() && s->GetSocket()->GetLinkState() != CONNECTED)
+		// Do not ping servers that are not fully connected yet!
+		// Servers which are connected to us have IsLocal() == true and if they're fully connected
+		// then Socket->LinkState == CONNECTED. Servers that are linked to another server are always fully connected.
+		if (s->IsLocal() && s->GetSocket()->GetLinkState() != CONNECTED)
 			continue;
 
 		// Now do PING checks on all servers
-		TreeServer *mts = Utils->BestRouteTo(s->GetID());
-
-		if (mts)
+		// Only ping if this server needs one
+		if (curtime >= s->NextPingTime())
 		{
-			// Only ping if this server needs one
-			if (curtime >= s->NextPingTime())
+			// And if they answered the last
+			if (s->AnsweredLastPing())
 			{
-				// And if they answered the last
-				if (s->AnsweredLastPing())
+				// They did, send a ping to them
+				s->SetNextPingTime(curtime + Utils->PingFreq);
+				s->GetSocket()->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " + s->GetID());
+				s->LastPingMsec = ts;
+			}
+			else
+			{
+				// They didn't answer the last ping, if they are locally connected, get rid of them.
+				if (s->IsLocal())
 				{
-					// They did, send a ping to them
-					s->SetNextPingTime(curtime + Utils->PingFreq);
-					TreeSocket *tsock = mts->GetSocket();
-
-					// ... if we can find a proper route to them
-					if (tsock)
-					{
-						tsock->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " + s->GetID());
-						s->LastPingMsec = ts;
-					}
-				}
-				else
-				{
-					// They didn't answer the last ping, if they are locally connected, get rid of them.
-					TreeSocket *sock = s->GetSocket();
-					if (sock)
-					{
-						sock->SendError("Ping timeout");
-						sock->Close();
-						goto restart;
-					}
+					TreeSocket* sock = s->GetSocket();
+					sock->SendError("Ping timeout");
+					sock->Close();
+					goto restart;
 				}
 			}
+		}
 
-			// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
-			if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
-			{
-				/* The server hasnt responded, send a warning to opers */
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
-				s->Warned = true;
-			}
+		// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
+		if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
+		{
+			/* The server hasnt responded, send a warning to opers */
+			ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
+			s->Warned = true;
 		}
 	}
 }

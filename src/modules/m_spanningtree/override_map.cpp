@@ -111,7 +111,7 @@ CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* u
 			return CMD_FAILURE;
 		}
 
-		if (s != Utils->TreeRoot)
+		if (!s->IsRoot())
 			return CMD_SUCCESS;
 	}
 

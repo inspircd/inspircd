@@ -168,11 +168,11 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 {
 	bool LocalSquit = false;
 
-	if (Current != Utils->TreeRoot)
+	if (!Current->IsRoot())
 	{
 		DelServerEvent(Utils->Creator, Current->GetName());
 
-		if (Current->GetParent() == Utils->TreeRoot)
+		if (Current->IsLocal())
 		{
 			ServerInstance->SNO->WriteGlobalSno('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
 			LocalSquit = true;
@@ -215,7 +215,7 @@ CmdResult CommandSQuit::Handle(User* user, std::vector<std::string>& params)
 		return CMD_FAILURE;
 	}
 
-	TreeSocket* sock = Utils->FindServer(user->server)->GetRoute()->GetSocket();
+	TreeSocket* sock = Utils->FindServer(user->server)->GetSocket();
 	sock->Squit(quitting, params[1]);
 	return CMD_SUCCESS;
 }

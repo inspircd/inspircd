@@ -39,7 +39,7 @@ CmdResult CommandServer::Handle(User* user, std::vector<std::string>& params)
 	std::string sid = params[3];
 	std::string description = params[4];
 	TreeServer* ParentOfThis = Utils->FindServer(user->server);
-	TreeSocket* socket = ParentOfThis->GetRoute()->GetSocket();
+	TreeSocket* socket = ParentOfThis->GetSocket();
 
 	if (!IS_SERVER(user))
 		return CMD_FAILURE;
@@ -67,7 +67,7 @@ CmdResult CommandServer::Handle(User* user, std::vector<std::string>& params)
 
 	Link* lnk = Utils->FindLink(servername);
 
-	TreeServer *Node = new TreeServer(servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
+	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
 	ParentOfThis->AddChild(Node);
 	ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");

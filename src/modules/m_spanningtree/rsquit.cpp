@@ -34,7 +34,6 @@ CommandRSQuit::CommandRSQuit(Module* Creator)
 CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	TreeServer *server_target; // Server to squit
-	TreeServer *server_linked; // Server target is linked to
 
 	server_target = Utils->FindServerMask(parameters[0]);
 	if (!server_target)
@@ -43,25 +42,20 @@ CmdResult CommandRSQuit::Handle (const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 	}
 
-	if (server_target == Utils->TreeRoot)
+	if (server_target->IsRoot())
 	{
 		((ModuleSpanningTree*)(Module*)creator)->RemoteMessage(user, "*** RSQUIT: Foolish mortal, you cannot make a server SQUIT itself! (%s matches local server name)", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
-	server_linked = server_target->GetParent();
-
-	if (server_linked == Utils->TreeRoot)
+	if (server_target->IsLocal())
 	{
 		// We have been asked to remove server_target.
 		TreeSocket* sock = server_target->GetSocket();
-		if (sock)
-		{
-			const char *reason = parameters.size() == 2 ? parameters[1].c_str() : "No reason";
-			ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick.c_str(), reason);
-			sock->Squit(server_target, "Server quit by " + user->GetFullRealHost() + " (" + reason + ")");
-			sock->Close();
-		}
+		const char* reason = parameters.size() == 2 ? parameters[1].c_str() : "No reason";
+		ServerInstance->SNO->WriteToSnoMask('l',"RSQUIT: Server \002%s\002 removed from network by %s (%s)", parameters[0].c_str(), user->nick.c_str(), reason);
+		sock->Squit(server_target, "Server quit by " + user->GetFullRealHost() + " (" + reason + ")");
+		sock->Close();
 	}
 
 	return CMD_SUCCESS;
