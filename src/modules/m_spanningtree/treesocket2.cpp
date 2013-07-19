@@ -184,8 +184,8 @@ void TreeSocket::ProcessLine(std::string &line)
 				sparams.push_back("0");
 				sparams.push_back(MyRoot->GetID());
 				sparams.push_back(":" + MyRoot->GetDesc());
-				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(), "SERVER", sparams, MyRoot->GetName());
-				Utils->DoOneToAllButSender(MyRoot->GetID(), "BURST", params, MyRoot->GetName());
+				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(), "SERVER", sparams, MyRoot);
+				Utils->DoOneToAllButSender(MyRoot->GetID(), "BURST", params, MyRoot);
 			}
 			else if (command == "ERROR")
 			{

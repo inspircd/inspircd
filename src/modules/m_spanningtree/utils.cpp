@@ -205,9 +205,8 @@ std::string SpanningTreeUtilities::ConstructLine(const std::string& prefix, cons
 	return FullLine;
 }
 
-void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& omit)
+void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, TreeServer* omitroute)
 {
-	TreeServer* omitroute = this->BestRouteTo(omit);
 	std::string FullLine = ConstructLine(prefix, command, params);
 
 	unsigned int items = this->TreeRoot->ChildCount();
@@ -219,18 +218,6 @@ void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const
 		{
 			Route->GetSocket()->WriteLine(FullLine);
 		}
-	}
-}
-
-void SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params)
-{
-	std::string FullLine = ConstructLine(prefix, command, params);
-
-	unsigned int items = this->TreeRoot->ChildCount();
-	for (unsigned int x = 0; x < items; x++)
-	{
-		TreeServer* Route = this->TreeRoot->GetChild(x);
-		Route->GetSocket()->WriteLine(FullLine);
 	}
 }
 

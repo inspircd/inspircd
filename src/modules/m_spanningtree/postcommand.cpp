@@ -108,10 +108,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		}
 		else if (dest[0] == '$')
 		{
-			if (origin)
-				DoOneToAllButSender(user->uuid, sent_cmd, params, origin->GetName());
-			else
-				DoOneToMany(user->uuid, sent_cmd, params);
+			DoOneToAllButSender(user->uuid, sent_cmd, params, origin);
 		}
 		else
 		{
@@ -128,10 +125,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 	}
 	else if (routing.type == ROUTE_TYPE_BROADCAST || routing.type == ROUTE_TYPE_OPT_BCAST)
 	{
-		if (origin)
-			DoOneToAllButSender(user->uuid, sent_cmd, params, origin->GetName());
-		else
-			DoOneToMany(user->uuid, sent_cmd, params);
+		DoOneToAllButSender(user->uuid, sent_cmd, params, origin);
 	}
 	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
 	{

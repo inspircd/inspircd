@@ -150,7 +150,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 
 		/* IMPORTANT: Take password/hmac hash OUT of here before we broadcast the introduction! */
 		params[1] = "*";
-		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,sname);
+		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,MyRoot);
 
 		return true;
 	}

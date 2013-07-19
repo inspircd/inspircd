@@ -641,7 +641,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	{
 		parameterlist params;
 		params.push_back(parameter);
-		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? user->server : ServerInstance->Config->ServerName);
+		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? Utils->BestRouteTo(user->server) : NULL);
 	}
 }
 

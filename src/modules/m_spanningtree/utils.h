@@ -134,7 +134,7 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	void DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist& params, const std::string& omit);
+	void DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, TreeServer* omit);
 
 	/** Send a message from this server to all others
 	 */
@@ -180,3 +180,8 @@ class SpanningTreeUtilities : public classbase
 	 */
 	void SendChannelMessage(const std::string& prefix, Channel* target, const std::string &text, char status, const CUList& exempt_list, const char* message_type);
 };
+
+inline void SpanningTreeUtilities::DoOneToMany(const std::string& prefix, const std::string& command, const parameterlist& params)
+{
+	DoOneToAllButSender(prefix, command, params, NULL);
+}
