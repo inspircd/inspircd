@@ -50,6 +50,8 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 
 void ModuleSpanningTree::init()
 {
+	ServerInstance->SNO->EnableSnomask('l', "LINK");
+
 	Utils = new SpanningTreeUtilities(this);
 	commands = new SpanningTreeCommands(this);
 	ServerInstance->Modules->AddService(commands->rconnect);
