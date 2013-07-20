@@ -88,12 +88,12 @@ std::string User::ProcessNoticeMasks(const char *sm)
 						this->SetNoticeMask(*c, adding);
 
 						output += *c;
+						oldadding = adding;
 					}
 				}
 				else
 					this->WriteNumeric(ERR_UNKNOWNSNOMASK, "%s %c :is unknown snomask char to me", this->nick.c_str(), *c);
 
-				oldadding = adding;
 			break;
 		}
 
