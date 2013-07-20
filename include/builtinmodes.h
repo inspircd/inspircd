@@ -150,32 +150,24 @@ class ModeUserInvisible : public SimpleUserModeHandler
  */
 class ModeUserServerNoticeMask : public ModeHandler
 {
-	/** Create a displayable mode string for this users snomasks
-	 * @param user The user whose notice masks to format
-	 * @return The notice mask character sequence
-	 */
-	std::string FormatNoticeMasks(User* user);
-
 	/** Process a snomask modifier string, e.g. +abc-de
 	 * @param user The target user
-	 * @param sm A sequence of notice mask characters
+	 * @param input A sequence of notice mask characters
 	 * @return The cleaned mode sequence which can be output,
 	 * e.g. in the above example if masks c and e are not
 	 * valid, this function will return +ab-d
 	 */
-	std::string ProcessNoticeMasks(User* user, const char *sm);
-
-	/** Changed a specific notice mask value
-	 * @param user The target user
-	 * @param sm The server notice mask to change
-	 * @param value An on/off value for this mask
-	 */
-	void SetNoticeMask(User* user, unsigned char sm, bool value);
+	std::string ProcessNoticeMasks(User* user, const std::string& input);
 
  public:
 	ModeUserServerNoticeMask();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 	void OnParameterMissing(User* user, User* dest, Channel* channel);
+
+	/** Create a displayable mode string of the snomasks set on a given user
+	 * @param user The user whose notice masks to format
+	 * @return The notice mask character sequence
+	 */
 	std::string GetUserParameter(User* user);
 };
 
