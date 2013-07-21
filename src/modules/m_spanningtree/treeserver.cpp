@@ -35,7 +35,7 @@
  * no socket associated with it. Its version string is our own local version.
  */
 TreeServer::TreeServer(SpanningTreeUtilities* Util)
-	: Parent(NULL), Route(NULL), ServerName(ServerInstance->Config->ServerName.c_str()), ServerDesc(ServerInstance->Config->ServerDesc)
+	: Parent(NULL), Route(NULL), ServerName(ServerInstance->Config->ServerName), ServerDesc(ServerInstance->Config->ServerDesc)
 	, VersionString(ServerInstance->GetVersionString()), Socket(NULL), Utils(Util), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
@@ -47,7 +47,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util)
  * its ping counters so that it will be pinged one minute from now.
  */
 TreeServer::TreeServer(SpanningTreeUtilities* Util, const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), sid(id), ServerUser(new FakeUser(id, Name))
+	: Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock), Utils(Util), sid(id), ServerUser(new FakeUser(id, Name))
 	, age(ServerInstance->Time()), Warned(false), bursting(true), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
 {
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
@@ -136,7 +136,7 @@ void TreeServer::FinishBurst()
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	AddServerEvent(Utils->Creator, ServerName.c_str());
+	AddServerEvent(Utils->Creator, ServerName);
 }
 
 int TreeServer::QuitUsers(const std::string &reason)
@@ -173,7 +173,7 @@ int TreeServer::QuitUsers(const std::string &reason)
  */
 void TreeServer::AddHashEntry()
 {
-	Utils->serverlist[ServerName.c_str()] = this;
+	Utils->serverlist[ServerName] = this;
 	Utils->sidlist[sid] = this;
 }
 
@@ -183,11 +183,6 @@ void TreeServer::AddHashEntry()
 TreeServer* TreeServer::GetRoute()
 {
 	return Route;
-}
-
-std::string TreeServer::GetName()
-{
-	return ServerName.c_str();
 }
 
 const std::string& TreeServer::GetDesc()
@@ -307,5 +302,5 @@ TreeServer::~TreeServer()
 		delete ServerUser;
 
 	Utils->sidlist.erase(sid);
-	Utils->serverlist.erase(ServerName.c_str());
+	Utils->serverlist.erase(ServerName);
 }

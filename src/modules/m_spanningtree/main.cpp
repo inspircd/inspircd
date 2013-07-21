@@ -118,8 +118,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	else if ((Current->Hidden) && (!user->IsOper()))
 		return;
 
-	std::string servername = Current->GetName();
-	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(), servername.c_str(),
+	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(), Current->GetName().c_str(),
 			(Utils->FlatLinks && (!user->IsOper())) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
 			(Utils->FlatLinks && (!user->IsOper())) ? 0 : hops,
 			Current->GetDesc().c_str());
@@ -215,8 +214,7 @@ restart:
 			if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
 			{
 				/* The server hasnt responded, send a warning to opers */
-				std::string servername = s->GetName();
-				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", servername.c_str(), Utils->PingWarnTime);
+				ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
 				s->Warned = true;
 			}
 		}
@@ -412,8 +410,7 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 			}
 			else
 			{
-				std::string servername = CheckDupe->GetParent()->GetName();
-				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002", x->Name.c_str(), servername.c_str());
+				RemoteMessage(user, "*** CONNECT: Server \002%s\002 already exists on the network and is connected via \002%s\002", x->Name.c_str(), CheckDupe->GetParent()->GetName().c_str());
 				return MOD_RES_DENY;
 			}
 		}

@@ -34,9 +34,8 @@
  */
 void TreeSocket::DoBurst(TreeServer* s)
 {
-	std::string servername = s->GetName();
 	ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
-		servername.c_str(),
+		s->GetName().c_str(),
 		capab->auth_fingerprint ? "SSL Fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();

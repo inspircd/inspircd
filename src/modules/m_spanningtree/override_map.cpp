@@ -55,14 +55,13 @@ void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int
 	memset(myname, ' ', depth);
 	int w = depth;
 
-	std::string servername = Current->GetName();
 	if (user->IsOper())
 	{
-		w += snprintf(myname + depth, 99 - depth, "%s (%s)", servername.c_str(), Current->GetID().c_str());
+		w += snprintf(myname + depth, 99 - depth, "%s (%s)", Current->GetName().c_str(), Current->GetID().c_str());
 	}
 	else
 	{
-		w += snprintf(myname + depth, 99 - depth, "%s", servername.c_str());
+		w += snprintf(myname + depth, 99 - depth, "%s", Current->GetName().c_str());
 	}
 	memset(myname + w, ' ', 100 - w);
 	if (w > maxnamew)

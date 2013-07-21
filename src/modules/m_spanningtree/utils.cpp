@@ -60,7 +60,7 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
 	if (InspIRCd::IsSID(ServerName))
 		return this->FindServerID(ServerName);
 
-	server_hash::iterator iter = serverlist.find(ServerName.c_str());
+	server_hash::iterator iter = serverlist.find(ServerName);
 	if (iter != serverlist.end())
 	{
 		return iter->second;
@@ -79,7 +79,7 @@ TreeServer* SpanningTreeUtilities::FindServer(const std::string &ServerName)
  */
 TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 {
-	if (ServerName.c_str() == TreeRoot->GetName() || ServerName == ServerInstance->Config->GetSID())
+	if (ServerName == TreeRoot->GetName() || ServerName == ServerInstance->Config->GetSID())
 		return NULL;
 	TreeServer* Found = FindServer(ServerName);
 	if (Found)

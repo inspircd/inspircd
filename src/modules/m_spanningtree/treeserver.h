@@ -42,7 +42,7 @@ class TreeServer : public classbase
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	irc::string ServerName;			/* Server's name */
+	std::string ServerName;			/* Server's name */
 	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
 	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
@@ -88,7 +88,7 @@ class TreeServer : public classbase
 
 	/** Get server name
 	 */
-	std::string GetName();
+	const std::string& GetName() const { return ServerName; }
 
 	/** Get server description (GECOS)
 	 */
