@@ -59,20 +59,12 @@
 /* macro definitions */
 
 #include "inspircd.h"
-#ifdef HAS_STDINT
-#include <stdint.h>
-#endif
 #include "modules/hash.h"
 
 #define RMDsize 160
 
-#ifndef HAS_STDINT
-typedef		unsigned char		byte;
-typedef		unsigned int		dword;
-#else
-typedef		uint8_t			byte;
-typedef		uint32_t		dword;
-#endif
+typedef uint8_t byte;
+typedef uint32_t dword;
 
 /* collect four bytes into one word: */
 #define BYTES_TO_DWORD(strptr)                    \
