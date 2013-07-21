@@ -51,15 +51,14 @@ class TreeServer : public classbase
 	SpanningTreeUtilities* Utils;		/* Utility class */
 	std::string sid;			/* Server ID */
 
-	/** Set server ID
-	 * @param id Server ID
-	 * @throws CoreException on duplicate ID
+	/** This method is used to add this TreeServer to the
+	 * hash maps. It is only called by the constructors.
 	 */
-	void SetID(const std::string &id);
+	void AddHashEntry();
 
  public:
 	FakeUser* const ServerUser;		/* User representing this server */
-	time_t age;
+	const time_t age;
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
 	bool bursting;				/* whether or not this server is bursting */
@@ -71,27 +70,15 @@ class TreeServer : public classbase
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id);
+	TreeServer(SpanningTreeUtilities* Util);
 
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide);
+	TreeServer(SpanningTreeUtilities* Util, const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide);
 
 	int QuitUsers(const std::string &reason);
-
-	/** This method is used to add the structure to the
-	 * hash_map for linear searches. It is only called
-	 * by the constructors.
-	 */
-	void AddHashEntry();
-
-	/** This method removes the reference to this object
-	 * from the hash_map which is used for linear searches.
-	 * It is only called by the default destructor.
-	 */
-	void DelHashEntry();
 
 	/** Get route.
 	 * The 'route' is defined as the locally-
@@ -190,7 +177,10 @@ class TreeServer : public classbase
 	void FinishBurstInternal();
 
 	CullResult cull();
+
 	/** Destructor
+	 * Removes the reference to this object from the
+	 * hash maps.
 	 */
 	~TreeServer();
 };

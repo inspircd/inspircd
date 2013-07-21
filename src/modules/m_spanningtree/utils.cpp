@@ -130,9 +130,8 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 	: RefreshTimer(this), Creator(C)
 {
 	ServerInstance->Timers->AddTimer(&RefreshTimer);
-	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "***** Using SID for hash: %s *****", ServerInstance->Config->GetSID().c_str());
 
-	this->TreeRoot = new TreeServer(this, ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc, ServerInstance->Config->GetSID());
+	this->TreeRoot = new TreeServer(this);
 	this->ReadConfiguration();
 }
 

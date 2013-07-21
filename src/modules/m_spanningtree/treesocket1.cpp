@@ -36,18 +36,13 @@
  * to it.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr)
-	: Utils(Util)
+	: Utils(Util), linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0), ConnectionFailureShown(false)
+	, age(ServerInstance->Time())
 {
-	age = ServerInstance->Time();
-	linkID = assign(link->Name);
 	capab = new CapabData;
 	capab->link = link;
 	capab->ac = myac;
 	capab->capab_phase = 0;
-	MyRoot = NULL;
-	proto_version = 0;
-	ConnectionFailureShown = false;
-	LinkState = CONNECTING;
 	if (!link->Hook.empty())
 	{
 		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_IOHOOK, link->Hook);
@@ -68,16 +63,11 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
  * connection. This constructor is used for this purpose.
  */
 TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-	: BufferedSocket(newfd), Utils(Util)
+	: BufferedSocket(newfd), Utils(Util), linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
+	, ConnectionFailureShown(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;
-	MyRoot = NULL;
-	age = ServerInstance->Time();
-	LinkState = WAIT_AUTH_1;
-	proto_version = 0;
-	ConnectionFailureShown = false;
-	linkID = "inbound from " + client->addr();
 
 	FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
 	if (GetIOHook())
@@ -111,8 +101,7 @@ CullResult TreeSocket::cull()
 
 TreeSocket::~TreeSocket()
 {
-	if (capab)
-		delete capab;
+	delete capab;
 }
 
 /** When an outbound connection finishes connecting, we receive

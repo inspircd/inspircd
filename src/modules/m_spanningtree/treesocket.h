@@ -104,7 +104,7 @@ class TreeSocket : public BufferedSocket
 	bool CheckDuplicate(const std::string& servername, const std::string& sid);
 
  public:
-	time_t age;
+	const time_t age;
 
 	/** Because most of the I/O gubbins are encapsulated within
 	 * BufferedSocket, we just call the superclass constructor for

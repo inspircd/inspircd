@@ -34,42 +34,28 @@
  * represents our own server. Therefore, it has no route, no parent, and
  * no socket associated with it. Its version string is our own local version.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id)
-	: ServerName(Name.c_str()), ServerDesc(Desc), Utils(Util), ServerUser(ServerInstance->FakeClient)
+TreeServer::TreeServer(SpanningTreeUtilities* Util)
+	: Parent(NULL), Route(NULL), ServerName(ServerInstance->Config->ServerName.c_str()), ServerDesc(ServerInstance->Config->ServerDesc)
+	, VersionString(ServerInstance->GetVersionString()), Socket(NULL), Utils(Util), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
+	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
-	age = ServerInstance->Time();
-	bursting = false;
-	Parent = NULL;
-	VersionString.clear();
-	UserCount = OperCount = 0;
-	VersionString = ServerInstance->GetVersionString();
-	Route = NULL;
-	Socket = NULL; /* Fix by brain */
-	StartBurst = rtt = 0;
-	Warned = Hidden = false;
 	AddHashEntry();
-	SetID(id);
 }
 
 /** When we create a new server, we call this constructor to initialize it.
  * This constructor initializes the server's Route and Parent, and sets up
  * its ping counters so that it will be pinged one minute from now.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::string Desc, const std::string &id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), ServerUser(new FakeUser(id, Name)), Hidden(Hide)
+TreeServer::TreeServer(SpanningTreeUtilities* Util, const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
+	: Parent(Above), ServerName(Name.c_str()), ServerDesc(Desc), Socket(Sock), Utils(Util), sid(id), ServerUser(new FakeUser(id, Name))
+	, age(ServerInstance->Time()), Warned(false), bursting(true), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
 {
-	age = ServerInstance->Time();
-	bursting = true;
-	VersionString.clear();
-	UserCount = OperCount = 0;
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	SetPingFlag();
-	Warned = false;
-	rtt = 0;
 
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	this->StartBurst = ts;
-	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Started bursting at time %lu", ts);
+	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Server %s started bursting at time %lu", sid.c_str(), ts);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -123,8 +109,6 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, std::string Name, std::strin
 	 */
 
 	this->AddHashEntry();
-
-	SetID(id);
 }
 
 const std::string& TreeServer::GetID()
@@ -153,13 +137,6 @@ void TreeServer::FinishBurst()
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
 	AddServerEvent(Utils->Creator, ServerName.c_str());
-}
-
-void TreeServer::SetID(const std::string &id)
-{
-	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Setting SID to " + id);
-	sid = id;
-	Utils->sidlist[sid] = this;
 }
 
 int TreeServer::QuitUsers(const std::string &reason)
@@ -196,20 +173,8 @@ int TreeServer::QuitUsers(const std::string &reason)
  */
 void TreeServer::AddHashEntry()
 {
-	server_hash::iterator iter = Utils->serverlist.find(this->ServerName.c_str());
-	if (iter == Utils->serverlist.end())
-		Utils->serverlist[this->ServerName.c_str()] = this;
-}
-
-/** This method removes the reference to this object
- * from the hash_map which is used for linear searches.
- * It is only called by the default destructor.
- */
-void TreeServer::DelHashEntry()
-{
-	server_hash::iterator iter = Utils->serverlist.find(this->ServerName.c_str());
-	if (iter != Utils->serverlist.end())
-		Utils->serverlist.erase(iter);
+	Utils->serverlist[ServerName.c_str()] = this;
+	Utils->sidlist[sid] = this;
 }
 
 /** These accessors etc should be pretty self-
@@ -338,11 +303,9 @@ CullResult TreeServer::cull()
 TreeServer::~TreeServer()
 {
 	/* We'd better tidy up after ourselves, eh? */
-	this->DelHashEntry();
 	if (ServerUser != ServerInstance->FakeClient)
 		delete ServerUser;
 
-	server_hash::iterator iter = Utils->sidlist.find(GetID());
-	if (iter != Utils->sidlist.end())
-		Utils->sidlist.erase(iter);
+	Utils->sidlist.erase(sid);
+	Utils->serverlist.erase(ServerName.c_str());
 }
