@@ -1337,7 +1337,12 @@
 # Muteban: Implements extended ban m:, which stops anyone matching
 # a mask like +b m:nick!user@host from speaking on channel.
 #<module name="m_muteban.so">
-#
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Rand-GCrypt: Adds support for secure random number generation using
+# libgcrypt. You need libgcrypt installed and in your PATH to compile
+# this module.
+#<module name="m_rand_gcrypt.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect.

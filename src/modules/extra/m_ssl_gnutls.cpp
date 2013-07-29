@@ -22,7 +22,6 @@
 
 
 #include "inspircd.h"
-#include <gcrypt.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #include "modules/ssl.h"
@@ -35,7 +34,6 @@
 
 #ifdef _WIN32
 # pragma comment(lib, "libgnutls.lib")
-# pragma comment(lib, "libgcrypt.lib")
 # pragma comment(lib, "libgpg-error.lib")
 # pragma comment(lib, "user32.lib")
 # pragma comment(lib, "advapi32.lib")
@@ -44,8 +42,8 @@
 # pragma comment(lib, "gdi32.lib")
 #endif
 
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") exec("libgcrypt-config --cflags") */
-/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") exec("libgcrypt-config --libs") */
+/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") */
+/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") */
 /* $NoPedantic */
 
 // These don't exist in older GnuTLS versions
@@ -80,16 +78,6 @@ static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_c
 
 	return 0;
 }
-
-class RandGen : public HandlerBase2<void, char*, size_t>
-{
- public:
-	RandGen() {}
-	void Call(char* buffer, size_t len)
-	{
-		gcry_randomize(buffer, len, GCRY_STRONG_RANDOM);
-	}
-};
 
 /** Represents an SSL user's extra data
  */
@@ -594,7 +582,6 @@ class ModuleSSLGnuTLS : public Module
 	bool cred_alloc;
 	bool dh_alloc;
 
-	RandGen randhandler;
 	CommandStartTLS starttls;
 
 	GenericCap capHandler;
@@ -603,8 +590,6 @@ class ModuleSSLGnuTLS : public Module
 	ModuleSSLGnuTLS()
 		: iohook(this), starttls(this, iohook), capHandler(this, "tls")
 	{
-		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
-
 		gnutls_global_init(); // This must be called once in the program
 		gnutls_x509_privkey_init(&x509_key);
 
@@ -621,8 +606,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		// Needs the flag as it ignores a plain /rehash
 		OnModuleRehash(NULL,"ssl");
-
-		ServerInstance->GenRandom = &randhandler;
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(iohook.x509_cred, dh_params);
@@ -881,7 +864,6 @@ class ModuleSSLGnuTLS : public Module
 			gnutls_certificate_free_credentials(iohook.x509_cred);
 
 		gnutls_global_deinit();
-		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
 	}
 
 	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
