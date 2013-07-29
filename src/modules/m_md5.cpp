@@ -22,9 +22,6 @@
 
 
 #include "inspircd.h"
-#ifdef HAS_STDINT
-#include <stdint.h>
-#endif
 #include "modules/hash.h"
 
 /* The four core functions - F1 is optimized somewhat */
@@ -36,10 +33,6 @@
 /* This is the central step in the MD5 algorithm. */
 #define MD5STEP(f,w,x,y,z,in,s) \
 	(w += f(x,y,z) + in, w = (w<<s | w>>(32-s)) + x)
-
-#ifndef HAS_STDINT
-typedef unsigned int uint32_t;
-#endif
 
 typedef uint32_t word32; /* NOT unsigned long. We don't support 16 bit platforms, anyway. */
 typedef unsigned char byte;

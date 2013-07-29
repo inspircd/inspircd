@@ -33,30 +33,17 @@ BEGIN {
 use strict;
 use warnings FATAL => qw(all);
 
-use Data::Dumper;
-BEGIN {
-	$Data::Dumper::Sortkeys = 1;
-	$Data::Dumper::Useqq = 1;
-};
-
 use File::Copy ();
+use File::Spec::Functions qw(rel2abs);
 use Cwd;
 use Getopt::Long;
 
-# Utility functions for our buildsystem
-use make::utilities;
 use make::configure;
-
-###############################################################################################
-#
-#                                 NON-EDITABLE VARIABLES
-#
-###############################################################################################
+use make::utilities;
 
 our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_socketengine, $opt_freebsd_port,
-     $opt_system, $opt_uid);
-
-our ($opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir, $opt_data_dir, $opt_log_dir);
+     $opt_system, $opt_uid, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
+     $opt_data_dir, $opt_log_dir);
 
 sub list_extras ();
 
@@ -116,14 +103,12 @@ our $interactive = !(
 	(defined $opt_freebsd_port)
 );
 
-chomp(our $topdir = getcwd());
-our $this = resolve_directory($topdir);						# PWD, Regardless.
-our @modlist = ();							  		# Declare for Module List..
-our %config = ();						   			# Initiate Configuration Hash..
+our $topdir = getcwd();
+our @modlist = ();
+our %config = ();
 our $cache_loaded = getcache();
-$config{ME} = resolve_directory($topdir);				# Present Working Directory
 
-$config{BASE_DIR} = $config{ME}."/run";
+$config{BASE_DIR} = $topdir."/run";
 
 if (defined $opt_base_dir) {
 	$config{BASE_DIR} = $opt_base_dir;
@@ -133,20 +118,20 @@ if (defined $opt_base_dir) {
 
 if (defined $opt_system) {
 	$config{UID} = $opt_uid || 'ircd';
-	$config{CONFIG_DIR}	 = '/etc/inspircd';
-	$config{MODULE_DIR}	 = '/usr/lib/inspircd';
-	$config{BINARY_DIR}	 = '/usr/sbin/';
-	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
-	$config{DATA_DIR}	 = '/var/inspircd';
-	$config{LOG_DIR}	 = '/var/log/inspircd';
+	$config{CONFIG_DIR} = '/etc/inspircd';
+	$config{MODULE_DIR} = '/usr/lib/inspircd';
+	$config{BINARY_DIR} = '/usr/sbin/';
+	$config{BUILD_DIR} = $topdir."/build";
+	$config{DATA_DIR} = '/var/inspircd';
+	$config{LOG_DIR} = '/var/log/inspircd';
 } else {
 	$config{UID} = $opt_uid || $<;
-	$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	# Configuration Directory
-	$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
-	$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");		# Binary Directory
-	$config{BUILD_DIR}	 = resolve_directory($config{ME}."/build");         # Build Directory
-	$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data directory
-	$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log directory
+	$config{CONFIG_DIR} = rel2abs($config{BASE_DIR}."/conf");
+	$config{MODULE_DIR} = rel2abs($config{BASE_DIR}."/modules");
+	$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
+	$config{BUILD_DIR} = rel2abs($topdir."/build");
+	$config{DATA_DIR} = rel2abs($config{BASE_DIR}."/data");
+	$config{LOG_DIR} = rel2abs($config{BASE_DIR}."/logs");	
 }
 
 if (defined $opt_config_dir) {
@@ -200,14 +185,7 @@ if (defined $opt_use_openssl)
 	$config{USE_OPENSSL} = "y";
 }
 
-$config{HAS_STDINT}	 = "false";					# stdint.h check
-$config{OSNAME}       	    = $^O;			      		# Operating System Name
-$config{STARTSCRIPT}	  = "inspircd";			# start script?
-$config{DESTINATION}	  = "BASE";				# Is target path.
-if ($config{OSNAME} =~ /darwin/i)
-{
-	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
-}
+$config{STARTSCRIPT} = $^O eq 'darwin' ? 'org.inspircd.plist' : 'inspircd';
 
 $config{CXX} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
 if ($config{CXX} eq "") {
@@ -240,19 +218,18 @@ sub clean
 sub update
 {
 	eval {
-		chomp($topdir = getcwd());
-		$this = resolve_directory($topdir);					     # PWD, Regardless.
-		getmodules();
 		# Does the cache file exist?
 		if (!getcache()) {
 			# No, No it doesn't.. *BASH*
 			print "You have not run ./configure before. Please do this before trying to run the update script.\n";
-			exit 0;
+			exit 1;
 		} else {
 			# We've Loaded the cache file and all our variables..
+			$topdir = getcwd();
+			getmodules();
 			print "Updating files...\n";
 			%cxx = get_compiler_info($config{CXX});
-			writefiles(1);
+			writefiles();
 			makecache();
 			print "Complete.\n";
 			exit;
@@ -268,19 +245,8 @@ sub update
 print "Running non-interactive configure...\n" unless $interactive;
 print "Checking for cache from previous configure... ";
 print ($cache_loaded ? "found\n" : "not found\n");
-$config{SYSTEM} = lc $^O;
-print "Checking operating system version... $config{SYSTEM}\n";
 
-print "Checking whether <stdint.h> exists... ";
-if (test_header($config{CXX}, "stdint.h")) {
-	$config{HAS_STDINT} = "true";
-	print "yes\n";
-} else {
-	$config{HAS_STDINT} = "false";
-	print "no\n";
-}
-
-printf "Checking whether clock_gettime() exists... ";
+print "Checking whether clock_gettime() is available... ";
 if (test_file($config{CXX}, "clock_gettime.cpp", "-lrt")) {
 	$config{HAS_CLOCK_GETTIME} = "true";
 	print "yes\n";
@@ -289,7 +255,7 @@ if (test_file($config{CXX}, "clock_gettime.cpp", "-lrt")) {
 	print "no\n";
 }
 
-printf "Checking whether eventfd() exists... ";
+print "Checking whether eventfd() is available... ";
 if (test_file($config{CXX}, "eventfd.cpp")) {
 	$config{HAS_EVENTFD} = "true";
 	print "yes\n";
@@ -338,7 +304,7 @@ if (defined $opt_socketengine) {
 	}
 }
 
-printf "Checking for libgnutls... ";
+print "Checking for libgnutls... ";
 if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y"))) {
 	if (defined($gnutls_ver) && ($gnutls_ver ne "")) {
 		print "yes\n";
@@ -352,7 +318,7 @@ if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTL
 	$config{HAS_GNUTLS} = "n";
 }
 
-printf "Checking for openssl... ";
+print "Checking for openssl... ";
 if (defined($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL}) || ($config{HAS_OPENSSL} eq "y"))) {
 	if (defined($openssl_ver) && ($openssl_ver ne "")) {
 		print "yes\n";
@@ -366,38 +332,14 @@ if (defined($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL}) || ($config{HAS_OPE
 	$config{HAS_OPENSSL} = "n";
 }
 
-printf "Checking if you are running an ancient, unsupported OS... ";
-if ($config{OSNAME} =~ /FreeBSD/i)
-{
-	my $version = `uname -r`;
-	if ($version =~ /^4\./)
-	{
-		print "yes.\n";
-		print "FreeBSD 4.x is no longer supported. By ANYONE.\n";
-		print "To build, you will need to add the following to CXXFLAGS:\n";
-		print "\t-L/usr/local/lib -lgnugetopt -DHAVE_DECL_GETOPT=1\n";
- 	}
-	else
-	{
-		print "no ($version)\n";
-	}
-}
-else
-{
-	print "no ($config{OSNAME})\n";
-}
-
-################################################################################
-#			  BEGIN INTERACTIVE PART			      #
-################################################################################
-
-# Clear the Screen..
 if ($interactive)
 {
-	print "\e[2J\e[0G\e[0d"; # J = Erase in Display, 2 = Entire Screen, (G, d) = Move cursor to (..,..)
-	my $wholeos = $^O;
+	# Clear the screen.
+	system 'tput', 'clear';
 
-	my $rev = getrevision();
+	my $revision = getrevision();
+	chomp(my $version = `sh src/version.sh`);
+
 	# Display Introduction Message..
 	print <<"STOP" ;
 Welcome to the \e[1mInspIRCd\e[0m Configuration program! (\e[1minteractive mode\e[0m)
@@ -411,25 +353,22 @@ Press \e[1m<RETURN>\e[0m to accept the default for any option, or enter
 a new value. Please note: You will \e[1mHAVE\e[0m to read the docs
 dir, otherwise you won't have a config file!
 
-Your operating system is: \e[1;32m$config{OSNAME}\e[0m ($wholeos)
-Your InspIRCd revision ID is \e[1;32mr$rev\e[0m
+Your operating system is: \e[1;32m$^O\e[0m 
 STOP
-	if ($rev eq "r0") {
-		print " (Non-SVN build)";
-	}
-	print ".\n\n";
-
-	print "I have detected the following compiler: \e[1;32m$cxx{NAME}\e[0m (version \e[1;32m$cxx{VERSION}\e[0m)\n\n";
+	print "Your InspIRCd version is: \e[1;32m";
+	print $revision eq 'release' ? substr($version, 9) : substr($revision, 1);
+	print "\e[0m\n\n";
+	print "The following compiler has been detected: \e[1;32m$cxx{NAME} $cxx{VERSION}\e[0m ($config{CXX})\n\n";
 
 	# Directory Settings..
 	my $tmpbase = $config{BASE_DIR};
 	dir_check("do you wish to install the InspIRCd base", "BASE_DIR");
 	if ($tmpbase ne $config{BASE_DIR}) {
-		$config{CONFIG_DIR}	 = resolve_directory($config{BASE_DIR}."/conf");	   # Configuration Dir
-		$config{MODULE_DIR}	 = resolve_directory($config{BASE_DIR}."/modules");	# Modules Directory
-		$config{DATA_DIR}	 = resolve_directory($config{BASE_DIR}."/data");	# Data Directory
-		$config{LOG_DIR}	 = resolve_directory($config{BASE_DIR}."/logs");	# Log Directory
-		$config{BINARY_DIR}	 = resolve_directory($config{BASE_DIR}."/bin");	    # Binary Directory
+		$config{CONFIG_DIR} = rel2abs($config{BASE_DIR}."/conf");
+		$config{MODULE_DIR} = rel2abs($config{BASE_DIR}."/modules");
+		$config{DATA_DIR} = rel2abs($config{BASE_DIR}."/data");
+		$config{LOG_DIR} = rel2abs($config{BASE_DIR}."/logs");
+		$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
 	}
 
 	dir_check("are the configuration files", "CONFIG_DIR");
@@ -505,7 +444,6 @@ STOP
 	}
 
 	$config{USE_SSL} = "n";
-	$config{MODUPDATE} = 'n';
 
 	if ($config{HAS_GNUTLS} eq "y" || $config{HAS_OPENSSL} eq "y")
 	{
@@ -529,7 +467,7 @@ STOP
 				yesno('USE_OPENSSL', "Would you like to enable SSL with m_ssl_openssl?");
 				if ($config{USE_OPENSSL} eq "y")
 				{
-					print "\nUsing OpenSSL SSL module.\nYou will get better performance if you move to GnuTLS in the future.\n";
+					print "\nUsing OpenSSL SSL module.\n";
 				}
 			}
 		}
@@ -539,13 +477,6 @@ STOP
 		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed and\n";
 		print "is in your path.\n\n";
 	}
-
-	yesno('MODUPDATE',"Would you like to check for updates to third-party modules?");
-	print "\n";
-	if ($config{MODUPDATE} eq "y") {
-		print "Checking for upgrades to extra and third party modules... ";
-		system "./modulemanager upgrade";
-	}
 }
 
 # We are on a POSIX system, we can enable POSIX extras without asking
@@ -554,14 +485,13 @@ symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
 {
 	print "Sorry, but i couldn't detect gnutls. Make sure gnutls-config is in your path.\n";
-	exit(0);
+	exit 1;
 }
 if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 {
 	print "Sorry, but i couldn't detect openssl. Make sure openssl is in your path.\n";
-	exit(0);
+	exit 1;
 }
-our $failed = 0;
 
 $config{CERTGEN} ||= 'y';
 yesno('CERTGEN',"Would you like generate SSL certificates now?") if ($interactive && ($config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y"));
@@ -573,22 +503,12 @@ if ($config{USE_GNUTLS} eq "y") {
 	}
 	if ($interactive && $config{CERTGEN} eq 'y')
 	{
-		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
-			print "SSL Certificates Not found, Generating.. \n\n
-*************************************************************
-* Generating the Private Key may take some time, go grab a  *
-* Coffee. Even better, to generate some more entropy if it  *
-* is taking a while, open another console and type du / a   *
-* few times and get that HD going :) Then answer the        *
-* Questions which follow. If you are unsure, just hit enter *
-*************************************************************\n\n";
-			$failed = system "./tools/genssl gnutls";
-			if ($failed) {
-				print "\n\e[1;32mCertificate generation failed!\e[0m\n\n";
-			} else {
+		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem" && -r "$config{CONFIG_DIR}/dhparams.pem") {
+			unless (system './tools/genssl gnutls') {
 				print "\nCertificate generation complete, copying to config directory... ";
 				File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
 				File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
+				File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
 				print "Done.\n\n";
 			}
 		}
@@ -607,21 +527,16 @@ if ($config{USE_OPENSSL} eq "y") {
 		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
 		symlink "extra/m_ssl_openssl.cpp", "src/modules/m_ssl_openssl.cpp" or print STDERR "Symlink failed: $!";
 	}
-	$failed = 0;
 	if ($interactive && $config{CERTGEN} eq 'y')
 	{
-		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
-			print "SSL Certificates Not found, Generating.. \n\n
-*************************************************************
-* Generating the certificates may take some time, go grab a *
-* coffee, or something.	                                    *
-*************************************************************\n\n";
-			system "./tools/genssl openssl";
-			print "\nCertificate generation complete, copying to config directory... ";
-			File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
-			File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
-			File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
-			print "Done.\n\n";
+		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem" && -r "$config{CONFIG_DIR}/dhparams.pem") {
+			unless (system './tools/genssl openssl') {
+				print "\nCertificate generation complete, copying to config directory... ";
+				File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
+				File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
+				File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
+				print "Done.\n\n";
+			}
 		} else {
 			print "SSL Certificates found, skipping.\n\n"
 		}
@@ -636,7 +551,7 @@ if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
 }
 
 depcheck();
-writefiles(1);
+writefiles();
 makecache();
 dumphash();
 
@@ -650,9 +565,6 @@ if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 }
 print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n";
 
-################################################################################
-#			      HELPER FUNCTIONS				#
-################################################################################
 sub getcache {
 	# Retrieves the .config.cache file, and loads values into the main config hash.
 	open(CACHE, ".config.cache") or return 0;
@@ -692,15 +604,9 @@ sub dir_check {
 		}
 		if ($var =~ /^\~\/(.+)$/) {
 			# Convert it to a full path..
-			$var = resolve_directory($ENV{HOME} . "/" . $1);
+			$var = rel2abs($ENV{HOME} . "/" . $1);
 		}
-		elsif ((($config{OSNAME} =~ /MINGW32/i) and ($var !~ /^[A-Z]{1}:\\.*/)) and (substr($var,0,1) ne "/"))
-		{
-			# Assume relative Path was given.. fill in the rest.
-			$var = $this . "/$var";
-		}
-
-		$var = resolve_directory($var);
+		$var = rel2abs($var);
 		if (! -e $var) {
 			print "$var does not exist. Create it?\n[\e[1;32my\e[0m] ";
 			chomp(my $tmp = <STDIN>);
@@ -722,7 +628,7 @@ sub dir_check {
 				next;
 			}
 		} else {
-			if (!is_dir($var)) {
+			if (! -d $var) {
 				# Target exists, but is not a directory.
 				print "File $var exists, but is not a directory.\n\n";
 				next;
@@ -735,32 +641,24 @@ sub dir_check {
 	}
 }
 
-our $SHARED = "";
-
-my ($mliflags, $mfrules, $mobjs, $mfcount) = ("", "", "", 0);
-
 sub writefiles {
-	my($writeheader) = @_;
-	# First File.. config.h
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh src/version.sh`);
-	chomp(my $revision2 = getrevision());
+	my $revision = getrevision();
 	my $branch = "InspIRCd-0.0";
 	if ($version =~ /^(InspIRCd-[0-9]+\.[0-9]+)\.[0-9]+/)
 	{
 		$branch = $1;
 	}
-	if ($writeheader == 1)
-	{
-		print "Writing \e[1;32mconfig.h\e[0m\n";
-		open(FILEHANDLE, ">include/config.h.tmp");
-		print FILEHANDLE <<EOF;
+	print "Writing \e[1;32mconfig.h\e[0m\n";
+	open(FILEHANDLE, ">include/config.h.tmp");
+	print FILEHANDLE <<EOF;
 /* Auto generated by configure, do not modify! */
 #pragma once
 
 #define BRANCH "$branch"
 #define VERSION "$version"
-#define REVISION "$revision2"
+#define REVISION "$revision"
 #define SYSTEM "$incos"
 
 #define CONFIG_PATH "$config{CONFIG_DIR}"
@@ -770,74 +668,42 @@ sub writefiles {
 
 EOF
 
-		if ($config{HAS_STDINT} eq "true") {
-			print FILEHANDLE "#define HAS_STDINT\n";
-		}
-		if ($config{HAS_EVENTFD} eq 'true') {
-			print FILEHANDLE "#define HAS_EVENTFD\n";
-		}
-		if ($config{HAS_CLOCK_GETTIME} eq 'true') {
-			print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
-		}
-
-		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n";
-		close(FILEHANDLE);
-		
-		my $file = 'include/config.h';
-		my $diff = 0;
-		open my $fh1, $file or $diff = 1;
-		open my $fh2, $file.'.tmp' or die "Can't read $file.tmp that we just wrote: $!";
-		while (!$diff) {
-			my $line1 = <$fh1>;
-			my $line2 = <$fh2>;
-			if (defined($line1) != defined($line2)) {
-				$diff = 1;
-			} elsif (!defined $line1) {
-				last;
-			} else {
-				$diff = ($line1 ne $line2);
-			}
-		}
-		if ($diff) {
-			unlink $file;
-			rename "$file.tmp", $file;
-		} else {
-			unlink "$file.tmp";
-		}
+	if ($config{HAS_EVENTFD} eq 'true') {
+		print FILEHANDLE "#define HAS_EVENTFD\n";
+	}
+	if ($config{HAS_CLOCK_GETTIME} eq 'true') {
+		print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
 	}
 
-	# Write all .in files.
-	my $tmp = "";
-	my $file = "";
-	my $exe = "inspircd";
+	print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n";
+	close(FILEHANDLE);
+
+	unlink 'include/config.h';
+	rename 'include/config.h.tmp', 'include/config.h';
 
 	# Do this once here, and cache it in the .*.inc files,
 	# rather than attempting to read src/version.sh from
 	# compiled code -- we might not have the source to hand.
-	# Fix for bug#177 by Brain.
-
-	chomp($version = `sh ./src/version.sh`);
-	chomp(my $revision = getrevision());
-	$version = "$version(r$revision)";
 
 	my @dotfiles = qw(main.mk inspircd);
-	push @dotfiles, 'org.inspircd.plist' if $config{OSNAME} eq 'darwin';
+	push @dotfiles, 'org.inspircd.plist' if $^O eq 'darwin';
 
 	foreach my $file (@dotfiles) {
 		open(FILEHANDLE, "make/template/$file") or die "Can't open make/template/$file: $!";
 		$_ = join '', <FILEHANDLE>;
 		close(FILEHANDLE);
 
-		$config{BUILD_DIR} ||= resolve_directory($config{ME}."/build");
+		$config{BUILD_DIR} ||= rel2abs($topdir."/build");
 		$config{COMPILER} = lc $cxx{NAME};
+		$config{SYSTEM} = lc $^O;
 
 		for my $var (qw(
 			CXX COMPILER SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
-			STARTSCRIPT DESTINATION SOCKETENGINE
+			STARTSCRIPT SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;
 		}
-		s/\@EXECUTABLE\@/$exe/ if defined $exe;
+
 		s/\@VERSION\@/$version/ if defined $version;
 
 		if ($file eq 'main.mk') {

@@ -29,7 +29,7 @@ my $binpath	=	"@BINARY_DIR@";
 my $runpath	=	"@BASE_DIR@";
 my $datadir	=       "@DATA_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
-my $executable	=	"@EXECUTABLE@";
+my $executable	=	"inspircd";
 my $version	=	"@VERSION@";
 my $uid = "@UID@";
 
