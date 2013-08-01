@@ -872,6 +872,7 @@
 #<hostchange mask="*root@*" action="suffix">
 #<hostchange mask="a@example.com" action="set" value="foo.bar.baz">
 #<hostchange mask="localhost" ports="7000,7001,7005-7007" action="set" value="blahblah.foo">
+#<hostchange connect="secret" action="spoof" spoof="penguins">
 
 # hostcycle: If loaded, when a user gets a host or ident set, it will
 # cycle them in all their channels. If not loaded it will simply change

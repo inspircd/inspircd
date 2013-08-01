@@ -30,18 +30,37 @@ class Host
 	{
 		HCA_SET,
 		HCA_SUFFIX,
-		HCA_ADDNICK
+		HCA_ADDNICK,
+		HCA_SPOOF
 	};
 
+	std::string mask;
 	HostChangeAction action;
 	std::string newhost;
 	std::string ports;
 
-	Host(HostChangeAction Action, const std::string& Newhost, const std::string& Ports) :
-		action(Action), newhost(Newhost), ports(Ports) {}
+	std::string connect;
+	std::string spoof;
+
+	Host(const std::string &Mask, HostChangeAction Action, const std::string& Newhost, const std::string& Ports, const std::string& Connect, const std::string& Spoof) :
+		mask(Mask), action(Action), newhost(Newhost), ports(Ports), connect(Connect), spoof(Spoof) {}
+	
+	bool Matches(LocalUser *user) const
+	{
+		if (InspIRCd::MatchCIDR(user->MakeHost(), mask))
+			return true;
+
+		if (InspIRCd::MatchCIDR(user->MakeHostIP(), mask))
+			return true;
+
+		if (user->MyClass && user->MyClass->name == connect)
+			return true;
+
+		return false;
+	}
 };
 
-typedef std::vector<std::pair<std::string, Host> > hostchanges_t;
+typedef std::vector<Host> hostchanges_t;
 
 class ModuleHostChange : public Module
 {
@@ -80,10 +99,17 @@ class ModuleHostChange : public Module
 				act = Host::HCA_SUFFIX;
 			else if (!strcasecmp(action.c_str(), "addnick"))
 				act = Host::HCA_ADDNICK;
+			else if (!strcasecmp(action.c_str(), "spoof"))
+				act = Host::HCA_SPOOF;
 			else
 				throw ModuleException("Invalid hostchange action: " + action);
 
-			hostchanges.push_back(std::make_pair(mask, Host(act, newhost, tag->getString("ports"))));
+			std::string spoof = tag->getString("spoof");
+
+			if (!spoof.find(':') || spoof.find(' ') != std::string::npos || spoof.length() > 64)
+				spoof.clear();
+
+			hostchanges.push_back(Host(mask, act, newhost, tag->getString("ports"), tag->getString("connect"), spoof));
 		}
 	}
 
@@ -98,10 +124,10 @@ class ModuleHostChange : public Module
 	{
 		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
 		{
-			if (((InspIRCd::MatchCIDR(user->MakeHost(), i->first)) || (InspIRCd::MatchCIDR(user->MakeHostIP(), i->first))))
+			const Host& h = *i;
+			
+			if (h.Matches(user))
 			{
-				const Host& h = i->second;
-
 				if (!h.ports.empty())
 				{
 					irc::portparser portrange(h.ports, false);
@@ -148,6 +174,7 @@ class ModuleHostChange : public Module
 					else
 						newhost = complete + MySeparator + MySuffix;
 				}
+
 				if (!newhost.empty())
 				{
 					user->WriteNotice("Setting your virtual host: " + newhost);
@@ -155,6 +182,29 @@ class ModuleHostChange : public Module
 						user->WriteNotice("Could not set your virtual host: " + newhost);
 					return;
 				}
+			}
+		}
+	}
+
+	void OnUserInit(LocalUser* user) CXX11_OVERRIDE
+	{
+		for (hostchanges_t::iterator i = hostchanges.begin(); i != hostchanges.end(); i++)
+		{
+			const Host& h = *i;
+
+			if (!h.Matches(user))
+				continue;
+
+			if (h.action == Host::HCA_SPOOF && !h.spoof.empty())
+			{
+				user->host = user->dhost = h.spoof;
+				user->InvalidateCache();
+				ServerInstance->Users->RemoveCloneCounts(user);
+				user->SetClientIP("255.255.255.255", false);
+				user->exempt = true;
+
+				user->WriteNotice("Spoofing your host to: " + h.spoof);
+				return;
 			}
 		}
 	}

@@ -197,6 +197,9 @@ class ModuleHostnameLookup : public Module
 
 	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
 	{
+		if (user->host != user->GetIPString())
+			return;
+
 		if (!DNS || !user->MyClass->resolvehostnames)
 		{
 			user->WriteNotice("*** Skipping host resolution (disabled by server administrator)");
