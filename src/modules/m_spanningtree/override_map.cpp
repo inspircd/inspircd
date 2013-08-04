@@ -35,7 +35,7 @@ const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 
 void ModuleSpanningTree::ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats)
 {
-	ServerInstance->Logs->Log("map", LOG_DEBUG, "ShowMap depth %d on line %d", depth, line);
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "ShowMap depth %d on line %d", depth, line);
 	float percent;
 
 	if (ServerInstance->Users->clientlist->size() == 0)

@@ -88,17 +88,17 @@ class ModuleXLineDB : public Module
 		 * Technically, that means that this can block, but I have *never* seen that.
 		 *     -- w00t
 		 */
-		ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Opening temporary database");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Opening temporary database");
 		std::string xlinenewdbpath = xlinedbpath + ".new";
 		std::ofstream stream(xlinenewdbpath.c_str());
 		if (!stream.is_open())
 		{
-			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot create database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot create database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
-		ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Opened. Writing..");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Opened. Writing..");
 
 		/*
 		 * Now, much as I hate writing semi-unportable formats, additional
@@ -126,11 +126,11 @@ class ModuleXLineDB : public Module
 			}
 		}
 
-		ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Finished writing XLines. Checking for error..");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Finished writing XLines. Checking for error..");
 
 		if (stream.fail())
 		{
-			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot write to new database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot write to new database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -139,7 +139,7 @@ class ModuleXLineDB : public Module
 #ifdef _WIN32
 		if (remove(xlinedbpath.c_str()))
 		{
-			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot remove old database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot remove old database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -147,7 +147,7 @@ class ModuleXLineDB : public Module
 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
-			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot move new to old database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot move new to old database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -164,7 +164,7 @@ class ModuleXLineDB : public Module
 		std::ifstream stream(xlinedbpath.c_str());
 		if (!stream.is_open())
 		{
-			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Cannot read database! %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot read database! %s (%d)", strerror(errno), errno);
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
@@ -184,14 +184,14 @@ class ModuleXLineDB : public Module
 				items++;
 			}
 
-			ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Processing %s", line.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Processing %s", line.c_str());
 
 			if (command_p[0] == "VERSION")
 			{
 				if (command_p[1] != "1")
 				{
 					stream.close();
-					ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "I got database version %s - I don't understand it", command_p[1].c_str());
 					ServerInstance->SNO->WriteToSnoMask('a', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
 					return false;
 				}

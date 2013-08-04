@@ -30,7 +30,7 @@ void TreeSocket::WriteLine(std::string line)
 	{
 		if (line[0] != ':')
 		{
-			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Sending line without server prefix!");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Sending line without server prefix!");
 			line = ":" + ServerInstance->Config->GetSID() + " " + line;
 		}
 		if (proto_version != ProtocolVersion)
@@ -157,7 +157,7 @@ void TreeSocket::WriteLine(std::string line)
 		}
 	}
 
-	ServerInstance->Logs->Log("m_spanningtree", LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 	this->WriteData(line);
 	this->WriteData(newline);
 }
@@ -212,7 +212,7 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 			if (!server)
 			{
 				// We've no idea what this is, log and stop processing
-				ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Received a " + cmd + " with an unknown target: \"" + params[0] + "\", command dropped");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received a " + cmd + " with an unknown target: \"" + params[0] + "\", command dropped");
 				return false;
 			}
 

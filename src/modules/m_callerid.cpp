@@ -120,7 +120,7 @@ struct CallerIDExtInfo : public ExtensionItem
 
 			if (!targ)
 			{
-				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (1)");
 				continue; // shouldn't happen, but oh well.
 			}
 
@@ -128,7 +128,7 @@ struct CallerIDExtInfo : public ExtensionItem
 			if (it2 != targ->wholistsme.end())
 				targ->wholistsme.erase(it2);
 			else
-				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
 	}
@@ -302,7 +302,7 @@ public:
 		if (!dat2)
 		{
 			// How the fuck is this possible.
-			ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (3)");
 			return false;
 		}
 
@@ -311,7 +311,7 @@ public:
 			// Found me!
 			dat2->wholistsme.erase(it);
 		else
-			ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 
 		user->WriteNotice(whotoremove->nick + " is no longer on your accept list");
@@ -350,7 +350,7 @@ class ModuleCallerID : public Module
 			if (it2 != dat->accepting.end())
 				dat->accepting.erase(it2);
 			else
-				ServerInstance->Logs->Log("m_callerid", LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
 		userdata->wholistsme.clear();

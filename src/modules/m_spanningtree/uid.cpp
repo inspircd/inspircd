@@ -62,7 +62,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		 * Nick collision.
 		 */
 		int collide = sock->DoCollision(iter->second, age_t, params[5], params[6], params[0]);
-		ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "*** Collision on %s, collide=%d", params[2].c_str(), collide);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)
 		{
@@ -85,7 +85,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	}
 	catch (...)
 	{
-		ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
 		return CMD_INVALID;
 	}
 	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
@@ -110,7 +110,7 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
 		if (!mh)
 		{
-			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Unrecognised mode '%c' for a user in UID, dropping link", *v);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Unrecognised mode '%c' for a user in UID, dropping link", *v);
 			return CMD_INVALID;
 		}
 

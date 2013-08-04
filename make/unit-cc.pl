@@ -102,7 +102,7 @@ sub do_compile {
 		$flags .= ' ' . getcompilerflags($file);
 
 		if ($file =~ m#(?:^|/)((?:m|cmd)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
-			$flags .= ' -DMODNAME='.$1.'.so';
+			$flags .= ' -DMODNAME=\\"'.$1.'\\"';
 		}
 	} else {
 		$binary = $ENV{RUNLD};

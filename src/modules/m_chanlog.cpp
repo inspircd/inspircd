@@ -52,14 +52,14 @@ class ModuleChanLog : public Module
 
 			if (channel.empty() || snomasks.empty())
 			{
-				ServerInstance->Logs->Log("m_chanlog", LOG_DEFAULT, "Malformed chanlog tag, ignoring");
+				ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "Malformed chanlog tag, ignoring");
 				continue;
 			}
 
 			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
 			{
 				logstreams.insert(std::make_pair(*it, channel));
-				ServerInstance->Logs->Log("m_chanlog", LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
 			}
 		}
 

@@ -45,7 +45,7 @@ class CommandSVSTOPIC : public Command
 			time_t topicts = ConvToInt(parameters[1]);
 			if (!topicts)
 			{
-				ServerInstance->Logs->Log("m_topiclock", LOG_DEFAULT, "Received SVSTOPIC with a 0 topicts, dropped.");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received SVSTOPIC with a 0 topicts, dropped.");
 				return CMD_INVALID;
 			}
 
