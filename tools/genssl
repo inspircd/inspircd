@@ -42,11 +42,40 @@ sub prompt($$) {
 	return $answer ? $answer : $default;
 }
 
-if ($#ARGV != 0 || $ARGV[0] !~ /gnutls|openssl/i) {
-	print "Syntax: genssl <gnutls|openssl>\n";
+if ($#ARGV != 0 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
+	print "Syntax: genssl <auto|gnutls|openssl>\n";
 	exit 1;
 }
 
+# On OS X the GnuTLS certtool is prefixed to avoid collision with the system certtool.
+my $certtool = $^O eq 'darwin' ? 'gnutls-certtool' : 'certtool';
+
+# Check whether the user has the required tools installed.
+my $has_gnutls = !system "$certtool --version >/dev/null 2>&1";
+my $has_openssl = !system 'openssl version >/dev/null 2>&1';
+
+# The framework the user has specified.
+my $tool = lc $ARGV[0];
+
+# If the user has not explicitly specified a framework then detect one.
+if ($tool eq 'auto') {
+	if ($has_gnutls) {
+		$tool = 'gnutls';
+	} elsif ($has_openssl) {
+		$tool = 'openssl';
+	} else {
+		print STDERR "SSL generation failed: could not find $certtool or openssl in the PATH!\n";
+		exit 1;
+	}
+} elsif ($tool eq 'gnutls' && !$has_gnutls) {
+	print STDERR "SSL generation failed: could not find '$certtool' in the PATH!\n";
+	exit 1;
+} elsif ($tool eq 'openssl' && !$has_openssl) {
+	print STDERR "SSL generation failed: could not find 'openssl' in the PATH!\n";
+	exit 1;
+}
+
+# Harvest information needed to generate the certificate.
 my $common_name = prompt('What is the hostname of your server?', 'irc.example.com');
 my $email = prompt('What email address can you be contacted at?', 'example@example.com');
 my $unit = prompt('What is the name of your unit?', 'Server Admins');
@@ -59,7 +88,7 @@ my $days = prompt('How many days do you want your certificate to be valid for?',
 # Contains the exit code of openssl/gnutls-certtool.
 my $status = 0;
 
-if (lc $ARGV[0] eq 'gnutls') {
+if ($tool eq 'gnutls') {
 	my $tmp = new File::Temp();
 	print $tmp <<__GNUTLS_END__;
 cn              = "$common_name"
@@ -81,12 +110,10 @@ ocsp_signing_key
 time_stamping_key
 __GNUTLS_END__
 	close($tmp);
-	my $certtool = `uname -s` eq "Darwin\n" ? 'gnutls-certtool' : 'certtool';
-	$status ||= system "$certtool --version  >/dev/null 2>&1";
 	$status ||= system "$certtool --generate-privkey --outfile key.pem";
 	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
 	$status ||= system "$certtool --generate-dh-params --bits 2048 --outfile dhparams.pem";
-} elsif (lc $ARGV[0] eq 'openssl') {
+} elsif ($tool eq 'openssl') {
 	my $tmp = new File::Temp();
 	print $tmp <<__OPENSSL_END__;
 $country
@@ -98,13 +125,11 @@ $common_name
 $email
 __OPENSSL_END__
 	close($tmp);
-	$status ||= system 'openssl version >/dev/null 2>&1';
 	$status ||= system "cat $tmp | openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -days $days 2>/dev/null";
 	$status ||= system 'openssl dhparam -out dhparams.pem 2048';
 }
 
 if ($status) {
-	print "SSL generation failed! Are you missing an $ARGV[0] binary package?\n";
+	print STDERR "SSL generation failed: $tool exited with a non-zero status!\n";
 	exit 1;
 }
-
