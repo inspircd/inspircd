@@ -51,12 +51,8 @@ void FileLogStream::OnLog(LogLevel loglevel, const std::string &type, const std:
 		struct tm *timeinfo = localtime(&local);
 
 		TIMESTR.assign(asctime(timeinfo), 24);
-		TIMESTR += ": ";
 		LAST = ServerInstance->Time();
 	}
 
-	std::string out = TIMESTR;
-	out += text;
-	out += '\n';
-	this->f->WriteLogLine(out);
+	this->f->WriteLogLine(TIMESTR + " " + type + ": " + text + "\n");
 }

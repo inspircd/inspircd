@@ -32,7 +32,7 @@ class OpMeQuery : public SQLQuery
 
 	void OnResult(SQLResult& res) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "SQLOPER: result for %s", uid.c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "result for %s", uid.c_str());
 		User* user = ServerInstance->FindNick(uid);
 		if (!user)
 			return;
@@ -44,14 +44,14 @@ class OpMeQuery : public SQLQuery
 			if (OperUser(user, row[0], row[1]))
 				return;
 		}
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "SQLOPER: no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
 		// nobody succeeded... fall back to OPER
 		fallback();
 	}
 
 	void OnError(SQLerror& error) CXX11_OVERRIDE
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "SQLOPER: query failed (%s)", error.Str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "query failed (%s)", error.Str());
 		fallback();
 	}
 
@@ -81,7 +81,7 @@ class OpMeQuery : public SQLQuery
 		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
 		if (iter == ServerInstance->Config->oper_blocks.end())
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "SQLOPER: bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
 			return false;
 		}
 		OperInfo* ifo = iter->second;
@@ -143,7 +143,7 @@ public:
 				/* Query is in progress, it will re-invoke OPER if needed */
 				return MOD_RES_DENY;
 			}
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "SQLOPER: database not present");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "database not present");
 		}
 		return MOD_RES_PASSTHRU;
 	}

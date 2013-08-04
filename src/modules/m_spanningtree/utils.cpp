@@ -274,7 +274,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 		Link* L = *i;
 		if (!L->Port)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "m_spanningtree: Ignoring a link block without a port.");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring a link block without a port.");
 			/* Invalid link block */
 			continue;
 		}
