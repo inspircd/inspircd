@@ -124,8 +124,6 @@ public:
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(p);
-		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
 	}
@@ -145,7 +143,7 @@ public:
 			{
 				chan_hash::iterator at = iter;
 				iter++;
-				FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(c));
+				FOREACH_MOD(OnChannelDelete, (c));
 				ServerInstance->chanlist->erase(at);
 				ServerInstance->GlobalCulls.AddItem(c);
 			}

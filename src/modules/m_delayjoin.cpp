@@ -48,8 +48,6 @@ class ModuleDelayJoin : public Module
 	{
 		ServerInstance->Modules->AddService(djm);
 		ServerInstance->Modules->AddService(unjoined);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPart, I_OnUserKick, I_OnBuildNeighborList, I_OnNamesListItem, I_OnText, I_OnRawMode };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 	Version GetVersion() CXX11_OVERRIDE;
 	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick) CXX11_OVERRIDE;

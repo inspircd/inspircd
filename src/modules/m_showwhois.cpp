@@ -87,8 +87,6 @@ class ModuleShowwhois : public Module
 		sw = new SeeWhois(this, OpersOnly);
 		ServerInstance->Modules->AddService(*sw);
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleShowwhois()

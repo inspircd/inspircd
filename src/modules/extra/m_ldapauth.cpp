@@ -122,8 +122,6 @@ public:
 	{
 		ServerInstance->Modules->AddService(ldapAuthed);
 		ServerInstance->Modules->AddService(ldapVhost);
-		Implementation eventlist[] = { I_OnCheckReady, I_OnRehash,I_OnUserRegister, I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

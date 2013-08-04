@@ -32,12 +32,6 @@ class ModuleDenyChannels : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
 	void OnRehash(User* user) CXX11_OVERRIDE
 	{
 		/* check for redirect validity and loops/chains */

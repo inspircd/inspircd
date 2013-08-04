@@ -86,7 +86,7 @@ void Channel::SetTopic(User* u, const std::string& ntopic)
 	this->WriteChannel(u, "TOPIC %s :%s", this->name.c_str(), this->topic.c_str());
 	this->topicset = ServerInstance->Time();
 
-	FOREACH_MOD(I_OnPostTopicChange,OnPostTopicChange(u, this, this->topic));
+	FOREACH_MOD(OnPostTopicChange, (u, this, this->topic));
 }
 
 Membership* Channel::AddUser(User* user)
@@ -120,7 +120,7 @@ void Channel::CheckDestroy()
 	/* kill the record */
 	if (iter != ServerInstance->chanlist->end())
 	{
-		FOREACH_MOD(I_OnChannelDelete, OnChannelDelete(this));
+		FOREACH_MOD(OnChannelDelete, (this));
 		ServerInstance->chanlist->erase(iter);
 	}
 
@@ -355,7 +355,7 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 
 	// Tell modules about this join, they have the chance now to populate except_list with users we won't send the JOIN (and possibly MODE) to
 	CUList except_list;
-	FOREACH_MOD(I_OnUserJoin,OnUserJoin(memb, bursting, created_by_local, except_list));
+	FOREACH_MOD(OnUserJoin, (memb, bursting, created_by_local, except_list));
 
 	this->WriteAllExcept(user, false, 0, except_list, "JOIN :%s", this->name.c_str());
 
@@ -380,7 +380,7 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 		this->UserList(user);
 	}
 
-	FOREACH_MOD(I_OnPostJoin,OnPostJoin(memb));
+	FOREACH_MOD(OnPostJoin, (memb));
 }
 
 bool Channel::IsBanned(User* user)
@@ -465,7 +465,7 @@ void Channel::PartUser(User *user, std::string &reason)
 	{
 		Membership* memb = membiter->second;
 		CUList except_list;
-		FOREACH_MOD(I_OnUserPart,OnUserPart(memb, reason, except_list));
+		FOREACH_MOD(OnUserPart, (memb, reason, except_list));
 
 		WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
@@ -520,7 +520,7 @@ void Channel::KickUser(User* src, User* victim, const std::string& reason, Membe
 	}
 
 	CUList except_list;
-	FOREACH_MOD(I_OnUserKick,OnUserKick(src, memb, reason, except_list));
+	FOREACH_MOD(OnUserKick, (src, memb, reason, except_list));
 
 	WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), victim->nick.c_str(), reason.c_str());
 
@@ -696,7 +696,7 @@ void Channel::UserList(User *user)
 		prefixlist = this->GetPrefixChar(i->first);
 		nick = i->first->nick;
 
-		FOREACH_MOD(I_OnNamesListItem, OnNamesListItem(user, i->second, prefixlist, nick));
+		FOREACH_MOD(OnNamesListItem, (user, i->second, prefixlist, nick));
 
 		/* Nick was nuked, a module wants us to skip it */
 		if (nick.empty())

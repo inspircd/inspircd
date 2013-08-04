@@ -153,7 +153,6 @@ class ModuleNickLock : public Module
 		ServerInstance->Modules->AddService(cmd1);
 		ServerInstance->Modules->AddService(cmd2);
 		ServerInstance->Modules->AddService(locked);
-		ServerInstance->Modules->Attach(I_OnUserPreNick, this);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

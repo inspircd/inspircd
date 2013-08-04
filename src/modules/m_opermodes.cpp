@@ -25,11 +25,6 @@
 class ModuleModesOnOper : public Module
 {
  public:
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->Attach(I_OnPostOper, this);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Sets (and unsets) modes on opers when they oper up", VF_VENDOR);

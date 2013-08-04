@@ -227,9 +227,6 @@ class ModuleRLine : public Module
 
 		ServerInstance->Modules->AddService(r);
 		ServerInstance->XLines->RegisterFactory(&f);
-
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnUserPostNick, I_OnStats, I_OnBackgroundTimer, I_OnUnloadModule };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleRLine()

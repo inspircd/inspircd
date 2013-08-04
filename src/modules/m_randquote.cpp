@@ -38,9 +38,6 @@ class ModuleRandQuote : public Module
 		suffix = conf->getString("suffix");
 		FileReader reader(conf->getString("file", "quotes"));
 		quotes = reader.GetVector();
-
-		Implementation eventlist[] = { I_OnUserConnect };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE

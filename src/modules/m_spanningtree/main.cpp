@@ -71,17 +71,6 @@ void ModuleSpanningTree::init()
 	ServerInstance->Modules->AddService(commands->fident);
 	ServerInstance->Modules->AddService(commands->fname);
 
-	Implementation eventlist[] =
-	{
-		I_OnPreCommand, I_OnGetServerDescription, I_OnUserInvite, I_OnPostTopicChange,
-		I_OnUserMessage, I_OnBackgroundTimer, I_OnUserJoin,
-		I_OnChangeHost, I_OnChangeName, I_OnChangeIdent, I_OnUserPart, I_OnUnloadModule,
-		I_OnUserQuit, I_OnUserPostNick, I_OnUserKick, I_OnRehash, I_OnPreRehash,
-		I_OnOper, I_OnAddLine, I_OnDelLine, I_OnLoadModule, I_OnStats,
-		I_OnSetAway, I_OnPostCommand, I_OnUserConnect, I_OnAcceptConnection
-	};
-	ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface(Utils);
 	loopCall = false;

@@ -63,7 +63,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	UserIOHandler* eh = &New->eh;
 
 	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD(I_OnHookIO, OnHookIO(eh, via));
+	FOREACH_MOD(OnHookIO, (eh, via));
 
 	if (eh->GetIOHook())
 	{
@@ -162,11 +162,11 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	if (ServerInstance->Config->RawLog)
 		New->WriteNotice("*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
-	FOREACH_MOD(I_OnSetUserIP,OnSetUserIP(New));
+	FOREACH_MOD(OnSetUserIP, (New));
 	if (New->quitting)
 		return;
 
-	FOREACH_MOD(I_OnUserInit,OnUserInit(New));
+	FOREACH_MOD(OnUserInit, (New));
 }
 
 void UserManager::QuitUser(User *user, const std::string &quitreason, const char* operreason)
@@ -200,7 +200,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 
 	if (user->registered == REG_ALL)
 	{
-		FOREACH_MOD(I_OnUserQuit,OnUserQuit(user, reason, oper_reason));
+		FOREACH_MOD(OnUserQuit, (user, reason, oper_reason));
 		user->WriteCommonQuit(reason, oper_reason);
 	}
 
@@ -211,7 +211,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	if (IS_LOCAL(user))
 	{
 		LocalUser* lu = IS_LOCAL(user);
-		FOREACH_MOD(I_OnUserDisconnect,OnUserDisconnect(lu));
+		FOREACH_MOD(OnUserDisconnect, (lu));
 		lu->eh.Close();
 	}
 

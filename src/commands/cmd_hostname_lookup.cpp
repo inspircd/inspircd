@@ -193,12 +193,8 @@ class ModuleHostnameLookup : public Module
 
 	void init()
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(this->dnsLookup);
 		ServerInstance->Modules->AddService(this->ptrHosts);
-
-		Implementation i[] = { I_OnUserInit, I_OnCheckReady };
-		ServerInstance->Modules->Attach(i, this, sizeof(i) / sizeof(Implementation));
 	}
 
 	void OnUserInit(LocalUser *user)

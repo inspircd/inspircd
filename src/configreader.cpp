@@ -829,7 +829,7 @@ void ConfigReaderThread::Finish()
 		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
 		User* user = ServerInstance->FindNick(TheUserUID);
-		FOREACH_MOD(I_OnRehash, OnRehash(user));
+		FOREACH_MOD(OnRehash, (user));
 		ServerInstance->ISupport.Build();
 
 		ServerInstance->Logs->CloseLogs();

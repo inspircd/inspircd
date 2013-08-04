@@ -52,8 +52,6 @@ class ModuleStripColor : public Module
 	{
 		ServerInstance->Modules->AddService(usc);
 		ServerInstance->Modules->AddService(csc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

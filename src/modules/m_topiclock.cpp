@@ -153,7 +153,6 @@ class ModuleTopicLock : public Module
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(topiclock);
-		ServerInstance->Modules->Attach(I_OnPreTopicChange, this);
 	}
 
 	ModResult OnPreTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE

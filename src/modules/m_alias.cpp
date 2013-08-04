@@ -105,8 +105,6 @@ class ModuleAlias : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ReadAliases();
-		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash, I_OnUserMessage };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

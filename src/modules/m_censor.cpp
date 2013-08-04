@@ -60,8 +60,6 @@ class ModuleCensor : public Module
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(cc);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	// format of a config entry is <badword text="shit" replace="poo">

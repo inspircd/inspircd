@@ -62,8 +62,6 @@ class ModuleChannelNames : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->IsChannel = &myhandler;
-		Implementation eventlist[] = { I_OnRehash, I_OnUserKick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

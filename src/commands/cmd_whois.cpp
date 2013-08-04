@@ -173,7 +173,7 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 		}
 	}
 
-	FOREACH_MOD(I_OnWhois,OnWhois(user,dest));
+	FOREACH_MOD(OnWhois, (user,dest));
 
 	/*
 	 * We only send these if we've been provided them. That is, if hidewhois is turned off, and user is local, or

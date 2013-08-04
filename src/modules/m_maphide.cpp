@@ -25,8 +25,6 @@ class ModuleMapHide : public Module
  public:
 	void init() CXX11_OVERRIDE
 	{
-		Implementation eventlist[] = { I_OnPreCommand, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

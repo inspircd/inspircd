@@ -26,7 +26,7 @@ CmdResult CommandMetadata::Handle(const std::vector<std::string>& params, User *
 	if (params[0] == "*")
 	{
 		std::string value = params.size() < 3 ? "" : params[2];
-		FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(NULL,params[1],value));
+		FOREACH_MOD(OnDecodeMetaData, (NULL,params[1],value));
 		return CMD_SUCCESS;
 	}
 
@@ -54,7 +54,7 @@ CmdResult CommandMetadata::Handle(const std::vector<std::string>& params, User *
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
 		if (item)
 			item->unserialize(FORMAT_NETWORK, c, value);
-		FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(c,params[2],value));
+		FOREACH_MOD(OnDecodeMetaData, (c,params[2],value));
 	}
 	else
 	{
@@ -66,7 +66,7 @@ CmdResult CommandMetadata::Handle(const std::vector<std::string>& params, User *
 
 			if (item)
 				item->unserialize(FORMAT_NETWORK, u, value);
-			FOREACH_MOD(I_OnDecodeMetaData,OnDecodeMetaData(u,params[1],value));
+			FOREACH_MOD(OnDecodeMetaData, (u,params[1],value));
 		}
 	}
 

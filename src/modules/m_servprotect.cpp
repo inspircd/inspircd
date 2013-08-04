@@ -54,8 +54,6 @@ class ModuleServProtectMode : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(bm);
-		Implementation eventlist[] = { I_OnWhois, I_OnKill, I_OnWhoisLine, I_OnRawMode, I_OnUserPreKick };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

@@ -62,7 +62,7 @@ Event::Event(Module* src, const std::string &eventid) : source(src), id(eventid)
 
 void Event::Send()
 {
-	FOREACH_MOD(I_OnEvent,OnEvent(*this));
+	FOREACH_MOD(OnEvent, (*this));
 }
 
 // These declarations define the behavours of the base class Module (which does nothing at all)
@@ -76,86 +76,86 @@ Module::~Module()
 {
 }
 
-ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserConnect(LocalUser*) { }
-void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
-void		Module::OnUserDisconnect(LocalUser*) { }
-void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { }
-void		Module::OnPostJoin(Membership*) { }
-void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
-void		Module::OnPreRehash(User*, const std::string&) { }
-void		Module::OnModuleRehash(User*, const std::string&) { }
-void		Module::OnRehash(User*) { }
-ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnMode(User*, User*, Channel*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
-void		Module::OnOper(User*, const std::string&) { }
-void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
-void		Module::OnInfo(User*) { }
-void		Module::OnWhois(User*, User*) { }
-ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserPostNick(User*, const std::string&) { }
-ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
-void		Module::On005Numeric(std::map<std::string, std::string>&) { }
-ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnLoadModule(Module*) { }
-void		Module::OnUnloadModule(Module*) { }
-void		Module::OnBackgroundTimer(time_t) { }
-ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUser*, bool, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnPostCommand(Command*, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { }
-void		Module::OnUserInit(LocalUser*) { }
-ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserRegister(LocalUser*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
-ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckChannelBan(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnExtBanCheck(User*, Channel*, char) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnEvent(Event&) { }
-ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
-void		Module::OnGlobalOper(User*) { }
-void		Module::OnPostConnect(User*) { }
-void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { }
-void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }
-void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { }
-void		Module::OnGetServerDescription(const std::string&, std::string&) { }
-void		Module::OnSyncUser(User*, Module*, void*) { }
-void		Module::OnSyncChannel(Channel*, Module*, void*) { }
-void		Module::OnSyncNetwork(Module*, void*) { }
+ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { throw NotImplementedException(); }
+void		Module::OnUserConnect(LocalUser*) { throw NotImplementedException(); }
+void		Module::OnUserQuit(User*, const std::string&, const std::string&) { throw NotImplementedException(); }
+void		Module::OnUserDisconnect(LocalUser*) { throw NotImplementedException(); }
+void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { throw NotImplementedException(); }
+void		Module::OnPostJoin(Membership*) { throw NotImplementedException(); }
+void		Module::OnUserPart(Membership*, std::string&, CUList&) { throw NotImplementedException(); }
+void		Module::OnPreRehash(User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnModuleRehash(User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnRehash(User*) { throw NotImplementedException(); }
+ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { throw NotImplementedException(); }
+void		Module::OnMode(User*, User*, Channel*, const std::vector<std::string>&, const std::vector<TranslateType>&) { throw NotImplementedException(); }
+void		Module::OnOper(User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnPostOper(User*, const std::string&, const std::string &) { throw NotImplementedException(); }
+void		Module::OnInfo(User*) { throw NotImplementedException(); }
+void		Module::OnWhois(User*, User*) { throw NotImplementedException(); }
+ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { throw NotImplementedException(); }
+ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { throw NotImplementedException(); }
+ModResult	Module::OnUserPreNick(User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnUserPostNick(User*, const std::string&) { throw NotImplementedException(); }
+ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { throw NotImplementedException(); }
+void		Module::On005Numeric(std::map<std::string, std::string>&) { throw NotImplementedException(); }
+ModResult	Module::OnKill(User*, User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnLoadModule(Module*) { throw NotImplementedException(); }
+void		Module::OnUnloadModule(Module*) { throw NotImplementedException(); }
+void		Module::OnBackgroundTimer(time_t) { throw NotImplementedException(); }
+ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUser*, bool, const std::string&) { throw NotImplementedException(); }
+void		Module::OnPostCommand(Command*, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { throw NotImplementedException(); }
+void		Module::OnUserInit(LocalUser*) { throw NotImplementedException(); }
+ModResult	Module::OnCheckReady(LocalUser*) { throw NotImplementedException(); }
+ModResult	Module::OnUserRegister(LocalUser*) { throw NotImplementedException(); }
+ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { throw NotImplementedException(); }
+ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { throw NotImplementedException(); }
+ModResult	Module::OnCheckInvite(User*, Channel*) { throw NotImplementedException(); }
+ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { throw NotImplementedException(); }
+ModResult	Module::OnCheckLimit(User*, Channel*) { throw NotImplementedException(); }
+ModResult	Module::OnCheckChannelBan(User*, Channel*) { throw NotImplementedException(); }
+ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { throw NotImplementedException(); }
+ModResult	Module::OnExtBanCheck(User*, Channel*, char) { throw NotImplementedException(); }
+ModResult	Module::OnStats(char, User*, string_list&) { throw NotImplementedException(); }
+ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { throw NotImplementedException(); }
+ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { throw NotImplementedException(); }
+ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnEvent(Event&) { throw NotImplementedException(); }
+ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { throw NotImplementedException(); }
+void		Module::OnGlobalOper(User*) { throw NotImplementedException(); }
+void		Module::OnPostConnect(User*) { throw NotImplementedException(); }
+void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { throw NotImplementedException(); }
+void		Module::OnUserInvite(User*, User*, Channel*, time_t) { throw NotImplementedException(); }
+void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnGetServerDescription(const std::string&, std::string&) { throw NotImplementedException(); }
+void		Module::OnSyncUser(User*, Module*, void*) { throw NotImplementedException(); }
+void		Module::OnSyncChannel(Channel*, Module*, void*) { throw NotImplementedException(); }
+void		Module::OnSyncNetwork(Module*, void*) { throw NotImplementedException(); }
 void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
-void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
+void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { throw NotImplementedException(); }
 void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
-void		Module::OnChangeHost(User*, const std::string&) { }
-void		Module::OnChangeName(User*, const std::string&) { }
-void		Module::OnChangeIdent(User*, const std::string&) { }
-void		Module::OnAddLine(User*, XLine*) { }
-void		Module::OnDelLine(User*, XLine*) { }
-void		Module::OnExpireLine(XLine*) { }
+void		Module::OnChangeHost(User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnChangeName(User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnChangeIdent(User*, const std::string&) { throw NotImplementedException(); }
+void		Module::OnAddLine(User*, XLine*) { throw NotImplementedException(); }
+void		Module::OnDelLine(User*, XLine*) { throw NotImplementedException(); }
+void		Module::OnExpireLine(XLine*) { throw NotImplementedException(); }
 void 		Module::OnCleanup(int, void*) { }
-ModResult	Module::OnChannelPreDelete(Channel*) { return MOD_RES_PASSTHRU; }
-void		Module::OnChannelDelete(Channel*) { }
-ModResult	Module::OnSetAway(User*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { }
-void		Module::OnGarbageCollect() { }
-ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { return MOD_RES_PASSTHRU; }
-void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
-void		Module::OnRunTestSuite() { }
-void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
-ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnHookIO(StreamSocket*, ListenSocket*) { }
-ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return MOD_RES_PASSTHRU; }
-void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { }
-void		Module::OnSetUserIP(LocalUser*) { }
+ModResult	Module::OnChannelPreDelete(Channel*) { throw NotImplementedException(); }
+void		Module::OnChannelDelete(Channel*) { throw NotImplementedException(); }
+ModResult	Module::OnSetAway(User*, const std::string &) { throw NotImplementedException(); }
+ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { throw NotImplementedException(); }
+void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { throw NotImplementedException(); }
+void		Module::OnGarbageCollect() { throw NotImplementedException(); }
+ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { throw NotImplementedException(); }
+void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { throw NotImplementedException(); }
+void		Module::OnRunTestSuite() { throw NotImplementedException(); }
+void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { throw NotImplementedException(); }
+ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { throw NotImplementedException(); }
+void		Module::OnHookIO(StreamSocket*, ListenSocket*) { throw NotImplementedException(); }
+ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { throw NotImplementedException(); }
+void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { throw NotImplementedException(); }
+void		Module::OnSetUserIP(LocalUser*) { throw NotImplementedException(); }
 
 ModuleManager::ModuleManager() : ModCount(0)
 {
@@ -329,7 +329,7 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	// First, notify all modules that a module is about to be unloaded, so in case
 	// they pass execution to the soon to be unloaded module, it will happen now,
 	// i.e. before we unregister the services of the module being unloaded
-	FOREACH_MOD(I_OnUnloadModule,OnUnloadModule(mod));
+	FOREACH_MOD(OnUnloadModule, (mod));
 
 	std::map<std::string, Module*>::iterator modfind = Modules.find(mod->ModuleSourceFile);
 

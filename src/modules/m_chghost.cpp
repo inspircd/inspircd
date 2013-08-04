@@ -98,8 +98,6 @@ class ModuleChgHost : public Module
 	{
 		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

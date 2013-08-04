@@ -151,8 +151,6 @@ class ModuleTimedBans : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->Modes->AddModeWatcher(&banwatcher);
 	}
 

@@ -123,9 +123,6 @@ class ModuleRedirect : public Module
 			/* Try to add the usermode */
 			ServerInstance->Modules->AddService(re_u);
 		}
-
-		Implementation eventlist[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE

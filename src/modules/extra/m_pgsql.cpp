@@ -511,9 +511,6 @@ class ModulePgSQL : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ReadConf();
-
-		Implementation eventlist[] = { I_OnUnloadModule, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModulePgSQL()

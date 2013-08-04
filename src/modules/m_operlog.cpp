@@ -28,8 +28,6 @@ class ModuleOperLog : public Module
  public:
 	void init() CXX11_OVERRIDE
 	{
-		Implementation eventlist[] = { I_OnPreCommand, I_On005Numeric, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
 		OnRehash(NULL);
 	}

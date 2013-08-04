@@ -91,8 +91,6 @@ class ModuleLockserv : public Module
 		locked = false;
 		ServerInstance->Modules->AddService(lockcommand);
 		ServerInstance->Modules->AddService(unlockcommand);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

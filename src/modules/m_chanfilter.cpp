@@ -80,8 +80,6 @@ class ModuleChanFilter : public Module
 		ServerInstance->Modules->AddService(cf);
 
 		cf.DoImplements(this);
-		Implementation eventlist[] = { I_OnRehash, I_OnUserPreMessage, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
 	}

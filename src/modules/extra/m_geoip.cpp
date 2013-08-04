@@ -57,8 +57,6 @@ class ModuleGeoIP : public Module
 				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
 
 		ServerInstance->Modules->AddService(ext);
-		Implementation eventlist[] = { I_OnSetConnectClass, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 		{

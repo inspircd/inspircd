@@ -284,7 +284,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	lookup_lines[line->type][line->Displayable().c_str()] = line;
 	line->OnAdd();
 
-	FOREACH_MOD(I_OnAddLine,OnAddLine(user, line));
+	FOREACH_MOD(OnAddLine, (user, line));
 
 	return true;
 }
@@ -308,7 +308,7 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 
 	ServerInstance->BanCache->RemoveEntries(y->second->type, true);
 
-	FOREACH_MOD(I_OnDelLine,OnDelLine(user, y->second));
+	FOREACH_MOD(OnDelLine, (user, y->second));
 
 	y->second->Unset();
 
@@ -409,7 +409,7 @@ XLine* XLineManager::MatchesLine(const std::string &type, const std::string &pat
 // removes lines that have expired
 void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 {
-	FOREACH_MOD(I_OnExpireLine, OnExpireLine(item->second));
+	FOREACH_MOD(OnExpireLine, (item->second));
 
 	item->second->DisplayExpiry();
 	item->second->Unset();

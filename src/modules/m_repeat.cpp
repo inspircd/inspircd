@@ -352,8 +352,6 @@ class RepeatModule : public Module
 		ServerInstance->Modules->AddService(rm);
 		ServerInstance->Modules->AddService(rm.ChanSet);
 		ServerInstance->Modules->AddService(rm.MemberInfoExt);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		rm.ReadConfig();
 	}
 

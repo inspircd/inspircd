@@ -81,9 +81,6 @@ class ModuleOperPrefixMode : public Module
 	{
 		ServerInstance->Modules->AddService(opm);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPostOper };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-
 		/* To give clients a chance to learn about the new prefix we don't give +y to opers
 		 * right now. That means if the module was loaded after opers have joined channels
 		 * they need to rejoin them in order to get the oper prefix.

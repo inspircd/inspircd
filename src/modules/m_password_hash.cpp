@@ -86,8 +86,6 @@ class ModuleOperHash : public Module
 		OnRehash(NULL);
 
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnPassCompare };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) CXX11_OVERRIDE

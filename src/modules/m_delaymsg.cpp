@@ -49,8 +49,6 @@ class ModuleDelayMsg : public Module
 	{
 		ServerInstance->Modules->AddService(djm);
 		ServerInstance->Modules->AddService(djm.jointime);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 	Version GetVersion() CXX11_OVERRIDE;
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&) CXX11_OVERRIDE;

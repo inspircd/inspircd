@@ -30,7 +30,7 @@ bool TreeSocket::Away(const std::string &prefix, parameterlist &params)
 		return true;
 	if (params.size())
 	{
-		FOREACH_MOD(I_OnSetAway, OnSetAway(u, params[params.size() - 1]));
+		FOREACH_MOD(OnSetAway, (u, params[params.size() - 1]));
 
 		if (params.size() > 1)
 			u->awaytime = ConvToInt(params[0]);
@@ -43,7 +43,7 @@ bool TreeSocket::Away(const std::string &prefix, parameterlist &params)
 	}
 	else
 	{
-		FOREACH_MOD(I_OnSetAway, OnSetAway(u, ""));
+		FOREACH_MOD(OnSetAway, (u, ""));
 		u->awaymsg.clear();
 	}
 	Utils->DoOneToAllButSender(prefix,"AWAY",params,u->server);

@@ -27,8 +27,6 @@ class ModuleChanCreate : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
-		Implementation eventlist[] = { I_OnUserJoin };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

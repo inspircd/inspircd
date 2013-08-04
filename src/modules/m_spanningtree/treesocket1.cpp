@@ -69,7 +69,7 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via
 	capab = new CapabData;
 	capab->capab_phase = 0;
 
-	FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
+	FOREACH_MOD(OnHookIO, (this, via));
 	if (GetIOHook())
 		GetIOHook()->OnStreamSocketAccept(this, client, server);
 	SendCapabilities(1);

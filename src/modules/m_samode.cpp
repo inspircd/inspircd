@@ -64,7 +64,6 @@ class ModuleSaMode : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
-		ServerInstance->Modules->Attach(I_OnPreMode, this);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

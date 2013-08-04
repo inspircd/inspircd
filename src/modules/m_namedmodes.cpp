@@ -107,9 +107,6 @@ class ModuleNamedModes : public Module
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(dummyZ);
-
-		Implementation eventlist[] = { I_OnPreMode };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
