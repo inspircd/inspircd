@@ -31,9 +31,9 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(get_compiler_info find_compiler test_file test_header promptnumeric dumphash is_dir getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic resolve_directory yesno showhelp promptstring_s module_installed);
+our @EXPORT = qw(get_compiler_info find_compiler test_file test_header promptnumeric dumphash getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic yesno showhelp promptstring_s module_installed);
 
-my $no_git = 0;
+my $revision;
 
 sub get_compiler_info($) {
         my %info = (NAME => shift, VERSION => '0.0');
@@ -103,30 +103,11 @@ sub yesno {
 	return;
 }
 
-sub resolve_directory
-{
-	my $ret = $_[0];
-	eval
-	{
-		use File::Spec;
-		$ret = File::Spec->rel2abs($_[0]);
-	};
-	return $ret;
-}
-
 sub getrevision {
-	if ($no_git)
-	{
-		return "0";
-	}
-	my $data = `git describe --tags 2>/dev/null`;
-	if ($data eq "")
-	{
-		$no_git = 1;
-		return '0';
-	}
-	chomp $data; # remove \n
-	return $data;
+	return $revision if defined $revision;
+	chomp(my $tags = `git describe --tags 2>/dev/null`);
+	$revision = $tags || 'release';
+	return $revision;
 }
 
 sub getcompilerflags {
@@ -269,27 +250,13 @@ sub dumphash()
 	print "\n\e[1;32mPre-build configuration is complete!\e[0m\n\n";
 	print "\e[0mBase install path:\e[1;32m\t\t$main::config{BASE_DIR}\e[0m\n";
 	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
+	print "\e[0mData path:\e[1;32m\t\t\t$main::config{DATA_DIR}\e[0m\n";
+	print "\e[0mLog path:\e[1;32m\t\t\t$main::config{LOG_DIR}\e[0m\n";
 	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
 	print "\e[0mCompiler:\e[1;32m\t\t\t$main::cxx{NAME} $main::cxx{VERSION}\e[0m\n";
 	print "\e[0mSocket engine:\e[1;32m\t\t\t$main::config{SOCKETENGINE}\e[0m\n";
 	print "\e[0mGnuTLS support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
 	print "\e[0mOpenSSL support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n";
-}
-
-sub is_dir
-{
-	my ($path) = @_;
-	if (chdir($path))
-	{
-		chdir($main::this);
-		return 1;
-	}
-	else
-	{
-		# Just in case..
-		chdir($main::this);
-		return 0;
-	}
 }
 
 sub showhelp
@@ -304,20 +271,13 @@ sub showhelp
 	print <<EOH;
 Usage: configure [options]
 
-*** NOTE: NON-INTERACTIVE CONFIGURE IS *NOT* SUPPORTED BY THE ***
-*** INSPIRCD DEVELOPMENT TEAM. DO NOT ASK FOR HELP REGARDING  ***
-***     NON-INTERACTIVE CONFIGURE ON THE FORUMS OR ON IRC!    ***
-
-Options: [defaults in brackets after descriptions]
-
 When no options are specified, interactive
 configuration is started and you must specify
 any required values manually. If one or more
 options are specified, non-interactive configuration
 is started, and any omitted values are defaulted.
 
-Arguments with a single \"-\" symbol, as in
-InspIRCd 1.0.x, are also allowed.
+Arguments with a single \"-\" symbol are also allowed.
 
   --disable-interactive        Sets no options itself, but
                                will disable any interactive prompting.
@@ -328,8 +288,8 @@ InspIRCd 1.0.x, are also allowed.
   --socketengine=[name]        Sets the socket engine to be used. Possible values are
                                $SELIST.
   --prefix=[directory]         Base directory to install into (if defined,
-                               can automatically define config, module, bin
-                               and library dirs as subdirectories of prefix)
+                               can automatically define config, data, module,
+                               log and binary dirs as subdirectories of prefix)
                                [$PWD]
   --config-dir=[directory]     Config file directory for config and SSL certs
                                [$PWD/conf]
@@ -342,8 +302,6 @@ InspIRCd 1.0.x, are also allowed.
                                [$PWD/modules]
   --binary-dir=[directory]     Binaries directory for core binary
                                [$PWD/bin]
-  --library-dir=[directory]    Library directory for core libraries
-                               [$PWD/lib]
   --list-extras                Show current status of extra modules
   --enable-extras=[extras]     Enable the specified list of extras
   --disable-extras=[extras]    Disable the specified list of extras

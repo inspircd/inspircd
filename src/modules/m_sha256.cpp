@@ -57,14 +57,7 @@
  */
 
 #include "inspircd.h"
-#ifdef HAS_STDINT
-#include <stdint.h>
-#endif
 #include "modules/hash.h"
-
-#ifndef HAS_STDINT
-typedef unsigned int uint32_t;
-#endif
 
 #define SHA256_DIGEST_SIZE (256 / 8)
 #define SHA256_BLOCK_SIZE  (512 / 8)
