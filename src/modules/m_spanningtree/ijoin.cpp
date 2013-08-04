@@ -30,7 +30,7 @@ CmdResult CommandIJoin::HandleRemote(const std::vector<std::string>& params, Rem
 	{
 		// Desync detected, recover
 		// Ignore the join and send RESYNC, this will result in the remote server sending all channel data to us
-		ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Received IJOIN for non-existant channel: " + params[0]);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received IJOIN for non-existant channel: " + params[0]);
 
 		parameterlist p;
 		p.push_back(params[0]);
@@ -46,13 +46,13 @@ CmdResult CommandIJoin::HandleRemote(const std::vector<std::string>& params, Rem
 		time_t RemoteTS = ConvToInt(params[1]);
 		if (!RemoteTS)
 		{
-			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Invalid TS in IJOIN: " + params[1]);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Invalid TS in IJOIN: " + params[1]);
 			return CMD_INVALID;
 		}
 
 		if (RemoteTS < chan->age)
 		{
-			ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Attempted to lower TS via IJOIN. Channel=" + params[0] + " RemoteTS=" + params[1] + " LocalTS=" + ConvToStr(chan->age));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Attempted to lower TS via IJOIN. Channel=" + params[0] + " RemoteTS=" + params[1] + " LocalTS=" + ConvToStr(chan->age));
 			return CMD_INVALID;
 		}
 		apply_modes = ((params.size() > 2) && (RemoteTS == chan->age));
@@ -66,12 +66,12 @@ CmdResult CommandIJoin::HandleRemote(const std::vector<std::string>& params, Rem
 
 CmdResult CommandResync::HandleServer(const std::vector<std::string>& params, FakeUser* user)
 {
-	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Resyncing " + params[0]);
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resyncing " + params[0]);
 	Channel* chan = ServerInstance->FindChan(params[0]);
 	if (!chan)
 	{
 		// This can happen for a number of reasons, safe to ignore
-		ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Channel does not exist");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Channel does not exist");
 		return CMD_FAILURE;
 	}
 
@@ -83,7 +83,7 @@ CmdResult CommandResync::HandleServer(const std::vector<std::string>& params, Fa
 	TreeSocket* socket = server->GetSocket();
 	if (!socket)
 	{
-		ServerInstance->Logs->Log("m_spanningtree", LOG_DEFAULT, "Received RESYNC with a source that is not directly connected: " + user->uuid);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received RESYNC with a source that is not directly connected: " + user->uuid);
 		return CMD_INVALID;
 	}
 

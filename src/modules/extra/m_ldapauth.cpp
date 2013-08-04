@@ -377,7 +377,7 @@ public:
 				attr_value.bv_val = const_cast<char*>(val.c_str());
 				attr_value.bv_len = val.length();
 
-				ServerInstance->Logs->Log("m_ldapauth", LOG_DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "LDAP compare: %s=%s", attr.c_str(), val.c_str());
 
 				authed = (ldap_compare_ext_s(conn, DN, attr.c_str(), &attr_value, NULL, NULL) == LDAP_COMPARE_TRUE);
 

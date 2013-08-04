@@ -80,7 +80,7 @@ void TreeSocket::ProcessLine(std::string &line)
 	std::string command;
 	parameterlist params;
 
-	ServerInstance->Logs->Log("m_spanningtree", LOG_RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
+	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] I %s", this->GetFd(), line.c_str());
 
 	Split(line, prefix, command, params);
 
@@ -267,7 +267,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			}
 			else
 			{
-				ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Command '%s' from unknown prefix '%s'! Dropping entire command.",
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Command '%s' from unknown prefix '%s'! Dropping entire command.",
 					command.c_str(), prefix.c_str());
 				return;
 			}
@@ -298,7 +298,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	if ((!route_back_again) || (route_back_again->GetSocket() != this))
 	{
 		if (route_back_again)
-			ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Protocol violation: Fake direction '%s' from connection '%s'",
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Protocol violation: Fake direction '%s' from connection '%s'",
 				prefix.c_str(),linkID.c_str());
 		return;
 	}
@@ -467,7 +467,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		if (!cmd)
 		{
 			irc::stringjoiner pmlist(params);
-			ServerInstance->Logs->Log("m_spanningtree", LOG_SPARSE, "Unrecognised S2S command :%s %s %s",
+			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Unrecognised S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Unrecognised command '" + command + "' -- possibly loaded mismatched modules");
 			return;
@@ -476,7 +476,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		if (params.size() < cmd->min_params)
 		{
 			irc::stringjoiner pmlist(params);
-			ServerInstance->Logs->Log("m_spanningtree", LOG_SPARSE, "Insufficient parameters for S2S command :%s %s %s",
+			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Insufficient parameters for S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Insufficient parameters for command '" + command + "'");
 			return;
@@ -495,7 +495,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		if (res == CMD_INVALID)
 		{
 			irc::stringjoiner pmlist(params);
-			ServerInstance->Logs->Log("m_spanningtree", LOG_SPARSE, "Error handling S2S command :%s %s %s",
+			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Error handling S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
 			SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
 		}

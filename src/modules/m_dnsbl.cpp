@@ -356,7 +356,7 @@ class ModuleDNSBL : public Module
 				return;
 		}
 		else
-			ServerInstance->Logs->Log("m_dnsbl", LOG_DEBUG, "User has no connect class in OnSetUserIP");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
 		unsigned char a, b, c, d;
 		d = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
@@ -383,7 +383,7 @@ class ModuleDNSBL : public Module
 			catch (DNS::Exception &ex)
 			{
 				delete r;
-				ServerInstance->Logs->Log("m_dnsbl", LOG_DEBUG, std::string(ex.GetReason()));
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, std::string(ex.GetReason()));
 			}
 
 			if (user->quitting)

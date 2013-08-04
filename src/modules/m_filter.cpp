@@ -375,7 +375,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 				delete gl;
 		}
 
-		ServerInstance->Logs->Log("FILTER", LOG_DEFAULT, "FILTER: "+ user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, user->nick + " had their message filtered, target was " + target + ": " + f->reason + " Action: " + ModuleFilter::FilterActionToString(f->action));
 		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
@@ -560,7 +560,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 		}
 		catch (ModuleException& e)
 		{
-			ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "Error when unserializing filter: " + std::string(e.GetReason()));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error when unserializing filter: " + std::string(e.GetReason()));
 		}
 	}
 }
@@ -628,7 +628,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 	}
 	catch (ModuleException &e)
 	{
-		ServerInstance->Logs->Log("m_filter", LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
 		return std::make_pair(false, e.GetReason());
 	}
 	return std::make_pair(true, "");
@@ -688,11 +688,11 @@ void ModuleFilter::ReadFilters()
 		try
 		{
 			filters.push_back(ImplFilter(this, reason, fa, gline_time, pattern, flgs));
-			ServerInstance->Logs->Log("m_filter", LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log("m_filter", LOG_DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
 		}
 	}
 }

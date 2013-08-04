@@ -113,7 +113,7 @@ class ModuleConnectBan : public Module
 
 	void OnGarbageCollect()
 	{
-		ServerInstance->Logs->Log("m_connectban", LOG_DEBUG, "Clearing map.");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Clearing map.");
 		connects.clear();
 	}
 };

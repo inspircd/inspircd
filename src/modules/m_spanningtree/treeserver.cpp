@@ -55,7 +55,7 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util, const std::string& Name, con
 
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	this->StartBurst = ts;
-	ServerInstance->Logs->Log("m_spanningtree", LOG_DEBUG, "Server %s started bursting at time %lu", sid.c_str(), ts);
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu", sid.c_str(), ts);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)

@@ -303,7 +303,7 @@ class ModuleNationalChars : public Module
 		std::ifstream ifs(filename.c_str());
 		if (ifs.fail())
 		{
-			ServerInstance->Logs->Log("m_nationalchars", LOG_DEFAULT, "loadtables() called for missing file: %s", filename.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "loadtables() called for missing file: %s", filename.c_str());
 			return;
 		}
 
@@ -318,7 +318,7 @@ class ModuleNationalChars : public Module
 		{
 			if (loadtable(ifs, tables[n], 255) && (n < faillimit))
 			{
-				ServerInstance->Logs->Log("m_nationalchars", LOG_DEFAULT, "loadtables() called for illegal file: %s (line %d)", filename.c_str(), n+1);
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "loadtables() called for illegal file: %s (line %d)", filename.c_str(), n+1);
 				return;
 			}
 		}

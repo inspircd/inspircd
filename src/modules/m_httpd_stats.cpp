@@ -100,7 +100,7 @@ class ModuleHttpStats : public Module
 
 		if (event.id == "httpd_url")
 		{
-			ServerInstance->Logs->Log("m_http_stats", LOG_DEBUG, "Handling httpd event");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
 			HTTPRequest* http = (HTTPRequest*)&event;
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
@@ -234,7 +234,7 @@ class ModuleHttpStats : public Module
 
 				/* Send the document back to m_httpd */
 				HTTPDocumentResponse response(this, *http, &data, 200);
-				response.headers.SetHeader("X-Powered-By", "m_httpd_stats.so");
+				response.headers.SetHeader("X-Powered-By", MODNAME);
 				response.headers.SetHeader("Content-Type", "text/xml");
 				API->SendResponse(response);
 			}
