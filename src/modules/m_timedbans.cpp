@@ -79,9 +79,9 @@ class CommandTban : public Command
 			mask.append("!*@*");
 
 		setban.push_back(mask);
-		// use CallHandler to make it so that the user sets the mode
-		// themselves
-		ServerInstance->Parser->CallHandler("MODE",setban,user);
+		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
+		// make it so that the user sets the mode themselves
+		ServerInstance->Modes->Process(setban, user);
 		if (ServerInstance->Modes->GetLastParse().empty())
 		{
 			user->WriteNotice("Invalid ban mask");

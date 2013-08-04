@@ -51,26 +51,14 @@ class ModuleModesOnConnect : public Module
 			std::string buf;
 			std::stringstream ss(ThisModes);
 
-			std::vector<std::string> tokens;
+			std::vector<std::string> modes;
+			modes.push_back(user->nick);
 
 			// split ThisUserModes into modes and mode params
 			while (ss >> buf)
-				tokens.push_back(buf);
+				modes.push_back(buf);
 
-			std::vector<std::string> modes;
-			modes.push_back(user->nick);
-			modes.push_back(tokens[0]);
-
-			if (tokens.size() > 1)
-			{
-				// process mode params
-				for (unsigned int k = 1; k < tokens.size(); k++)
-				{
-					modes.push_back(tokens[k]);
-				}
-			}
-
-			ServerInstance->Parser->CallHandler("MODE", modes, user);
+			ServerInstance->Modes->Process(modes, user);
 		}
 
 		memcpy(ServerInstance->Config->DisabledUModes, save, 64);

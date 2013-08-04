@@ -486,7 +486,7 @@ void User::UnOper()
 	parameters.push_back(this->nick);
 	parameters.push_back(moderemove);
 
-	ServerInstance->Parser->CallHandler("MODE", parameters, this);
+	ServerInstance->Modes->Process(parameters, this);
 
 	/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
 	ServerInstance->Users->all_opers.remove(this);
