@@ -31,7 +31,7 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(get_compiler_info find_compiler test_file test_header promptnumeric dumphash getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic yesno showhelp promptstring_s module_installed);
+our @EXPORT = qw(get_compiler_info find_compiler run_test test_file test_header promptnumeric dumphash getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic yesno showhelp promptstring_s module_installed);
 
 my $revision;
 
@@ -66,6 +66,13 @@ sub find_compiler {
 		}
 	}
 	return "";
+}
+
+sub run_test($$) {
+	my ($what, $result) = @_;
+	print "Checking whether $what is available... ";
+	print $result ? "yes\n" : "no\n";
+	return $result;
 }
 
 sub test_file($$;$) {

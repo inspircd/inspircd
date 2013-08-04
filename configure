@@ -246,43 +246,24 @@ print "Running non-interactive configure...\n" unless $interactive;
 print "Checking for cache from previous configure... ";
 print ($cache_loaded ? "found\n" : "not found\n");
 
-print "Checking whether clock_gettime() is available... ";
-if (test_file($config{CXX}, "clock_gettime.cpp", "-lrt")) {
-	$config{HAS_CLOCK_GETTIME} = "true";
-	print "yes\n";
-} else {
-	$config{HAS_CLOCK_GETTIME} = "false";
-	print "no\n";
+$config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', '-lrt');
+$config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
+
+if ($config{HAS_EPOLL} = run_test 'epoll', test_header($config{CXX}, 'sys/epoll.h')) {
+	$config{SOCKETENGINE} ||= 'epoll';
 }
 
-print "Checking whether eventfd() is available... ";
-if (test_file($config{CXX}, "eventfd.cpp")) {
-	$config{HAS_EVENTFD} = "true";
-	print "yes\n";
-} else {
-	$config{HAS_EVENTFD} = "false";
-	print "no\n";
+if ($config{HAS_KQUEUE} = run_test 'kqueue', test_file($config{CXX}, 'kqueue.cpp')) {
+	$config{SOCKETENGINE} ||= 'kqueue';
 }
 
-print "Checking whether epoll is available... ";
-$config{HAS_EPOLL} = test_header($config{CXX}, "sys/epoll.h");
-print $config{HAS_EPOLL} ? "yes\n" : "no\n";
-$config{SOCKETENGINE} ||= "epoll" if $config{HAS_EPOLL};
+if ($config{HAS_PORTS} = run_test 'Solaris IOCP', test_header($config{CXX}, 'port.h')) {
+	$config{SOCKETENGINE} ||= 'ports';
+}
 
-print "Checking whether Kqueue is available... ";
-$config{HAS_KQUEUE} = test_file($config{CXX}, "kqueue.cpp");
-print $config{HAS_KQUEUE} ? "yes\n" : "no\n";
-$config{SOCKETENGINE} ||= "kqueue" if $config{HAS_KQUEUE};
-
-print 'Checking whether Solaris IOCP is available... ';
-$config{HAS_PORTS} = test_header($config{CXX}, 'port.h');
-print $config{HAS_PORTS} ? "yes\n" : "no\n";
-$config{SOCKETENGINE} ||= "ports" if $config{HAS_PORTS};
-
-print 'Checking whether poll is available... ';
-$config{HAS_POLL} = test_header($config{CXX}, 'poll.h');
-print $config{HAS_POLL} ? "yes\n" : "no\n";
-$config{SOCKETENGINE} ||= "poll" if $config{HAS_POLL};
+if ($config{HAS_POLL} = run_test 'poll', test_header($config{CXX}, 'poll.h')) {
+	$config{SOCKETENGINE} ||= 'poll';
+}
 
 # Select is available on all platforms
 $config{HAS_SELECT} = 1;
@@ -668,10 +649,10 @@ sub writefiles {
 
 EOF
 
-	if ($config{HAS_EVENTFD} eq 'true') {
+	if ($config{HAS_EVENTFD}) {
 		print FILEHANDLE "#define HAS_EVENTFD\n";
 	}
-	if ($config{HAS_CLOCK_GETTIME} eq 'true') {
+	if ($config{HAS_CLOCK_GETTIME}) {
 		print FILEHANDLE "#define HAS_CLOCK_GETTIME\n";
 	}
 
