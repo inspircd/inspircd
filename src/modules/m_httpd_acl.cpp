@@ -106,7 +106,7 @@ class ModuleHTTPAccessList : public Module
 
 		std::stringstream data("Access to this resource is denied by an access control list. Please contact your IRC administrator.");
 		HTTPDocumentResponse response(this, *http, &data, returnval);
-		response.headers.SetHeader("X-Powered-By", "m_httpd_acl.so");
+		response.headers.SetHeader("X-Powered-By", MODNAME);
 		if (!extraheaderkey.empty())
 			response.headers.SetHeader(extraheaderkey, extraheaderval);
 		API->SendResponse(response);

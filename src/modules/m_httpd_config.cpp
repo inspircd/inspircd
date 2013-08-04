@@ -100,7 +100,7 @@ class ModuleHttpConfig : public Module
 				data << "</body></html>";
 				/* Send the document back to m_httpd */
 				HTTPDocumentResponse response(this, *http, &data, 200);
-				response.headers.SetHeader("X-Powered-By", "m_httpd_config.so");
+				response.headers.SetHeader("X-Powered-By", MODNAME);
 				response.headers.SetHeader("Content-Type", "text/html");
 				API->SendResponse(response);
 			}
