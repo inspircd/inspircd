@@ -327,12 +327,7 @@ class ModuleIdent : public Module
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
-		{
-			ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "No ident socket :(");
 			return MOD_RES_PASSTHRU;
-		}
-
-		ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "Has ident_socket");
 
 		time_t compare = isock->age;
 		compare += RequestTimeout;
@@ -342,16 +337,12 @@ class ModuleIdent : public Module
 		{
 			/* Ident timeout */
 			user->WriteNotice("*** Ident request timed out.");
-			ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "Timeout");
 		}
 		else if (!isock->HasResult())
 		{
 			// time still good, no result yet... hold the registration
-			ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "No result yet");
 			return MOD_RES_DENY;
 		}
-
-		ServerInstance->Logs->Log("m_ident", LOG_DEBUG, "Yay, result!");
 
 		/* wooo, got a result (it will be good, or bad) */
 		if (isock->result.empty())

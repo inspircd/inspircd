@@ -188,11 +188,7 @@ class ModuleXLineDB : public Module
 
 			if (command_p[0] == "VERSION")
 			{
-				if (command_p[1] == "1")
-				{
-					ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: Reading db version %s", command_p[1].c_str());
-				}
-				else
+				if (command_p[1] != "1")
 				{
 					stream.close();
 					ServerInstance->Logs->Log("m_xline_db", LOG_DEBUG, "xlinedb: I got database version %s - I don't understand it", command_p[1].c_str());

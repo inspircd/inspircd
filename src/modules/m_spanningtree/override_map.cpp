@@ -170,7 +170,6 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 
 	float avg_users = totusers * 1.0 / line;
 
-	ServerInstance->Logs->Log("map", LOG_DEBUG, "local");
 	for (int t = 0; t < line; t++)
 	{
 		// terminate the string at maxnamew characters

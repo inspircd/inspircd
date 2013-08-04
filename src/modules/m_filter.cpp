@@ -592,13 +592,8 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 			InspIRCd::StripColor(stripped_text);
 		}
 
-		//ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "Match '%s' against '%s'", text.c_str(), index->freeform.c_str());
 		if (index->regex->Matches(filter->flag_strip_color ? stripped_text : text))
-		{
-			//ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "MATCH");
 			return &*index;
-		}
-		//ServerInstance->Logs->Log("m_filter", LOG_DEBUG, "NO MATCH");
 	}
 	return NULL;
 }
