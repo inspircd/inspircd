@@ -38,7 +38,6 @@ class ModulePrivacyMode : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(pm);
-		ServerInstance->Modules->Attach(I_OnUserPreMessage, this);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

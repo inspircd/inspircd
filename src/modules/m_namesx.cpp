@@ -31,12 +31,6 @@ class ModuleNamesX : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		Implementation eventlist[] = { I_OnPreCommand, I_OnNamesListItem, I_On005Numeric, I_OnEvent, I_OnSendWhoLine };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides the NAMESX (CAP multi-prefix) capability.",VF_VENDOR);

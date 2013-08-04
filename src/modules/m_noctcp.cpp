@@ -40,8 +40,6 @@ class ModuleNoCTCP : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(nc);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

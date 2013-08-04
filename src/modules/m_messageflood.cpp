@@ -128,7 +128,6 @@ class ModuleMsgFlood : public Module
 	{
 		ServerInstance->Modules->AddService(mf);
 		ServerInstance->Modules->AddService(mf.ext);
-		ServerInstance->Modules->Attach(I_OnUserPreMessage, this);
 	}
 
 	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)

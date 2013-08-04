@@ -139,8 +139,6 @@ class ModuleJumpServer : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(js);
-		Implementation eventlist[] = { I_OnUserRegister, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE

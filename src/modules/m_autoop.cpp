@@ -89,9 +89,6 @@ class ModuleAutoOp : public Module
 	{
 		ServerInstance->Modules->AddService(mh);
 		mh.DoImplements(this);
-
-		Implementation list[] = { I_OnPostJoin, };
-		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
 	void OnPostJoin(Membership *memb) CXX11_OVERRIDE

@@ -124,8 +124,6 @@ public:
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(p);
-		Implementation eventlist[] = { I_OnChannelPreDelete, I_OnPostTopicChange, I_OnRawMode, I_OnRehash, I_OnBackgroundTimer };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		OnRehash(NULL);
 	}

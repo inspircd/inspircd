@@ -116,8 +116,6 @@ class ModuleExemptChanOps : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(eh.ec);
-		Implementation eventlist[] = { I_OnRehash, I_OnSyncChannel };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->OnCheckExemption = &eh;
 
 		OnRehash(NULL);

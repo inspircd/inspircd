@@ -72,8 +72,6 @@ public:
 	ModuleRegexStd() : ref(this)
 	{
 		ServerInstance->Modules->AddService(ref);
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

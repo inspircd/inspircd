@@ -61,8 +61,6 @@ class ModuleBlockAmsg : public Module
 	{
 		this->OnRehash(NULL);
 		ServerInstance->Modules->AddService(blockamsg);
-		Implementation eventlist[] = { I_OnRehash, I_OnPreCommand };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

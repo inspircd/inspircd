@@ -58,8 +58,6 @@ class ModuleDeaf : public Module
 		ServerInstance->Modules->AddService(m1);
 
 		OnRehash(NULL);
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

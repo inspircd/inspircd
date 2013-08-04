@@ -23,12 +23,6 @@
 class ModuleQuietBan : public Module
 {
  public:
-	void init() CXX11_OVERRIDE
-	{
-		Implementation eventlist[] = { I_OnUserPreMessage, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Implements extban +b m: - mute bans",VF_OPTCOMMON|VF_VENDOR);

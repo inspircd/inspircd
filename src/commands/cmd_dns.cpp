@@ -797,9 +797,6 @@ class ModuleDNS : public Module
 
 	void init()
 	{
-		Implementation i[] = { I_OnRehash, I_OnUnloadModule };
-		ServerInstance->Modules->Attach(i, this, sizeof(i) / sizeof(Implementation));
-
 		ServerInstance->Modules->AddService(this->manager);
 
 		this->OnRehash(NULL);

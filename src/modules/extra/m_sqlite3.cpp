@@ -206,9 +206,6 @@ class ModuleSQLite3 : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ReadConf();
-
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleSQLite3()

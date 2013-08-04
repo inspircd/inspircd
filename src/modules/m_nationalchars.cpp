@@ -240,8 +240,6 @@ class ModuleNationalChars : public Module
 
 		ServerInstance->IsNick = &myhandler;
 
-		Implementation eventlist[] = { I_OnRehash, I_On005Numeric };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

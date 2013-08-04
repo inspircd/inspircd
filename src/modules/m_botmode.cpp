@@ -41,8 +41,6 @@ class ModuleBotMode : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(bm);
-		Implementation eventlist[] = { I_OnWhois };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

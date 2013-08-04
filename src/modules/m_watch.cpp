@@ -380,8 +380,6 @@ class Modulewatch : public Module
 		ServerInstance->Modules->AddService(cmdw);
 		ServerInstance->Modules->AddService(sw);
 		ServerInstance->Modules->AddService(cmdw.ext);
-		Implementation eventlist[] = { I_OnRehash, I_OnGarbageCollect, I_OnUserQuit, I_OnPostConnect, I_OnUserPostNick, I_On005Numeric, I_OnSetAway };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

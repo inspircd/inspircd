@@ -76,86 +76,91 @@ Module::~Module()
 {
 }
 
-ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserConnect(LocalUser*) { }
-void		Module::OnUserQuit(User*, const std::string&, const std::string&) { }
-void		Module::OnUserDisconnect(LocalUser*) { }
-void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { }
-void		Module::OnPostJoin(Membership*) { }
-void		Module::OnUserPart(Membership*, std::string&, CUList&) { }
-void		Module::OnPreRehash(User*, const std::string&) { }
-void		Module::OnModuleRehash(User*, const std::string&) { }
-void		Module::OnRehash(User*) { }
-ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnMode(User*, User*, Channel*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
-void		Module::OnOper(User*, const std::string&) { }
-void		Module::OnPostOper(User*, const std::string&, const std::string &) { }
-void		Module::OnInfo(User*) { }
-void		Module::OnWhois(User*, User*) { }
-ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreNick(User*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserPostNick(User*, const std::string&) { }
-ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { return MOD_RES_PASSTHRU; }
-void		Module::On005Numeric(std::map<std::string, std::string>&) { }
-ModResult	Module::OnKill(User*, User*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnLoadModule(Module*) { }
-void		Module::OnUnloadModule(Module*) { }
-void		Module::OnBackgroundTimer(time_t) { }
-ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUser*, bool, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnPostCommand(Command*, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { }
-void		Module::OnUserInit(LocalUser*) { }
-ModResult	Module::OnCheckReady(LocalUser*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserRegister(LocalUser*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { }
-ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckInvite(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckLimit(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckChannelBan(User*, Channel*) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnExtBanCheck(User*, Channel*, char) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnStats(char, User*, string_list&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnEvent(Event&) { }
-ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { return MOD_RES_PASSTHRU; }
-void		Module::OnGlobalOper(User*) { }
-void		Module::OnPostConnect(User*) { }
-void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { }
-void		Module::OnUserInvite(User*, User*, Channel*, time_t) { }
-void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { }
-void		Module::OnGetServerDescription(const std::string&, std::string&) { }
-void		Module::OnSyncUser(User*, Module*, void*) { }
-void		Module::OnSyncChannel(Channel*, Module*, void*) { }
-void		Module::OnSyncNetwork(Module*, void*) { }
+void Module::DetachEvent(Implementation i)
+{
+	ServerInstance->Modules->Detach(i, this);
+}
+
+ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
+void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
+void		Module::OnUserQuit(User*, const std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
+void		Module::OnUserDisconnect(LocalUser*) { DetachEvent(I_OnUserDisconnect); }
+void		Module::OnUserJoin(Membership*, bool, bool, CUList&) { DetachEvent(I_OnUserJoin); }
+void		Module::OnPostJoin(Membership*) { DetachEvent(I_OnPostJoin); }
+void		Module::OnUserPart(Membership*, std::string&, CUList&) { DetachEvent(I_OnUserPart); }
+void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash); }
+void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
+void		Module::OnRehash(User*) { DetachEvent(I_OnRehash); }
+ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
+void		Module::OnMode(User*, User*, Channel*, const std::vector<std::string>&, const std::vector<TranslateType>&) { DetachEvent(I_OnMode); }
+void		Module::OnOper(User*, const std::string&) { DetachEvent(I_OnOper); }
+void		Module::OnPostOper(User*, const std::string&, const std::string &) { DetachEvent(I_OnPostOper); }
+void		Module::OnInfo(User*) { DetachEvent(I_OnInfo); }
+void		Module::OnWhois(User*, User*) { DetachEvent(I_OnWhois); }
+ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserPreInvite); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreNick(User*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
+void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
+ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
+void		Module::On005Numeric(std::map<std::string, std::string>&) { DetachEvent(I_On005Numeric); }
+ModResult	Module::OnKill(User*, User*, const std::string&) { DetachEvent(I_OnKill); return MOD_RES_PASSTHRU; }
+void		Module::OnLoadModule(Module*) { DetachEvent(I_OnLoadModule); }
+void		Module::OnUnloadModule(Module*) { DetachEvent(I_OnUnloadModule); }
+void		Module::OnBackgroundTimer(time_t) { DetachEvent(I_OnBackgroundTimer); }
+ModResult	Module::OnPreCommand(std::string&, std::vector<std::string>&, LocalUser*, bool, const std::string&) { DetachEvent(I_OnPreCommand); return MOD_RES_PASSTHRU; }
+void		Module::OnPostCommand(Command*, const std::vector<std::string>&, LocalUser*, CmdResult, const std::string&) { DetachEvent(I_OnPostCommand); }
+void		Module::OnUserInit(LocalUser*) { DetachEvent(I_OnUserInit); }
+ModResult	Module::OnCheckReady(LocalUser*) { DetachEvent(I_OnCheckReady); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserRegister(LocalUser*) { DetachEvent(I_OnUserRegister); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreKick(User*, Membership*, const std::string&) { DetachEvent(I_OnUserPreKick); return MOD_RES_PASSTHRU; }
+void		Module::OnUserKick(User*, Membership*, const std::string&, CUList&) { DetachEvent(I_OnUserKick); }
+ModResult	Module::OnRawMode(User*, Channel*, const char, const std::string &, bool, int) { DetachEvent(I_OnRawMode); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckInvite(User*, Channel*) { DetachEvent(I_OnCheckInvite); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckKey(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckKey); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckLimit(User*, Channel*) { DetachEvent(I_OnCheckLimit); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckChannelBan(User*, Channel*) { DetachEvent(I_OnCheckChannelBan); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnCheckBan(User*, Channel*, const std::string&) { DetachEvent(I_OnCheckBan); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnExtBanCheck(User*, Channel*, char) { DetachEvent(I_OnExtBanCheck); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnStats(char, User*, string_list&) { DetachEvent(I_OnStats); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserHost); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserGECOS); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
+void		Module::OnEvent(Event&) { DetachEvent(I_OnEvent); }
+ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
+void		Module::OnGlobalOper(User*) { DetachEvent(I_OnGlobalOper); }
+void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
+void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { DetachEvent(I_OnUserMessage); }
+void		Module::OnUserInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserInvite); }
+void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
+void		Module::OnGetServerDescription(const std::string&, std::string&) { DetachEvent(I_OnGetServerDescription); }
+void		Module::OnSyncUser(User*, Module*, void*) { DetachEvent(I_OnSyncUser); }
+void		Module::OnSyncChannel(Channel*, Module*, void*) { DetachEvent(I_OnSyncChannel); }
+void		Module::OnSyncNetwork(Module*, void*) { DetachEvent(I_OnSyncNetwork); }
 void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
-void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { }
+void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
 void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
-void		Module::OnChangeHost(User*, const std::string&) { }
-void		Module::OnChangeName(User*, const std::string&) { }
-void		Module::OnChangeIdent(User*, const std::string&) { }
-void		Module::OnAddLine(User*, XLine*) { }
-void		Module::OnDelLine(User*, XLine*) { }
-void		Module::OnExpireLine(XLine*) { }
+void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
+void		Module::OnChangeName(User*, const std::string&) { DetachEvent(I_OnChangeName); }
+void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeIdent); }
+void		Module::OnAddLine(User*, XLine*) { DetachEvent(I_OnAddLine); }
+void		Module::OnDelLine(User*, XLine*) { DetachEvent(I_OnDelLine); }
+void		Module::OnExpireLine(XLine*) { DetachEvent(I_OnExpireLine); }
 void 		Module::OnCleanup(int, void*) { }
-ModResult	Module::OnChannelPreDelete(Channel*) { return MOD_RES_PASSTHRU; }
-void		Module::OnChannelDelete(Channel*) { }
-ModResult	Module::OnSetAway(User*, const std::string &) { return MOD_RES_PASSTHRU; }
-ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { }
-void		Module::OnGarbageCollect() { }
-ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { return MOD_RES_PASSTHRU; }
-void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { }
-void		Module::OnRunTestSuite() { }
-void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { }
-ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { return MOD_RES_PASSTHRU; }
-void		Module::OnHookIO(StreamSocket*, ListenSocket*) { }
-ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { return MOD_RES_PASSTHRU; }
-void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { }
-void		Module::OnSetUserIP(LocalUser*) { }
+ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelete); return MOD_RES_PASSTHRU; }
+void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
+ModResult	Module::OnSetAway(User*, const std::string &) { DetachEvent(I_OnSetAway); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { DetachEvent(I_OnWhoisLine); return MOD_RES_PASSTHRU; }
+void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
+void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
+ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
+void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { DetachEvent(I_OnText); }
+void		Module::OnRunTestSuite() { DetachEvent(I_OnRunTestSuite); }
+void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { DetachEvent(I_OnNamesListItem); }
+ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
+void		Module::OnHookIO(StreamSocket*, ListenSocket*) { DetachEvent(I_OnHookIO); }
+ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
+void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { DetachEvent(I_OnSendWhoLine); }
+void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 
 ModuleManager::ModuleManager() : ModCount(0)
 {
@@ -189,6 +194,12 @@ void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
 {
 	for (size_t n = 0; n < sz; ++n)
 		Attach(i[n], mod);
+}
+
+void ModuleManager::AttachAll(Module* mod)
+{
+	for (size_t i = I_BEGIN + 1; i != I_END; ++i)
+		Attach((Implementation)i, mod);
 }
 
 void ModuleManager::DetachAll(Module* mod)
@@ -233,22 +244,25 @@ bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Modul
 	return false;
 
 found_src:
+	// The modules registered for a hook are called in reverse order (to allow for easier removal
+	// of list entries while looping), meaning that the Priority given to us has the exact opposite effect
+	// on the list, e.g.: PRIORITY_BEFORE will actually put 'mod' after 'which', etc.
 	size_t swap_pos = my_pos;
 	switch (s)
 	{
-		case PRIORITY_FIRST:
+		case PRIORITY_LAST:
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
 			else
 				swap_pos = 0;
 			break;
-		case PRIORITY_LAST:
+		case PRIORITY_FIRST:
 			if (prioritizationState != PRIO_STATE_FIRST)
 				return true;
 			else
 				swap_pos = EventHandlers[i].size() - 1;
 			break;
-		case PRIORITY_AFTER:
+		case PRIORITY_BEFORE:
 		{
 			/* Find the latest possible position, only searching AFTER our position */
 			for (size_t x = EventHandlers[i].size() - 1; x > my_pos; --x)
@@ -263,7 +277,7 @@ found_src:
 			return true;
 		}
 		/* Place this module before a set of other modules */
-		case PRIORITY_BEFORE:
+		case PRIORITY_AFTER:
 		{
 			for (size_t x = 0; x < my_pos; ++x)
 			{

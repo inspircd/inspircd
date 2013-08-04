@@ -32,12 +32,6 @@ class ModuleHttpConfig : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		Implementation eventlist[] = { I_OnEvent };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
-	}
-
 	std::string Sanitize(const std::string &str)
 	{
 		std::string ret;

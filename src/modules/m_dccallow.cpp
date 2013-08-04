@@ -259,8 +259,6 @@ class ModuleDCCAllow : public Module
 		ServerInstance->Modules->AddService(*ext);
 		ServerInstance->Modules->AddService(cmd);
 		ReadFileConf();
-		Implementation eventlist[] = { I_OnUserPreMessage, I_OnUserQuit, I_OnUserPostNick, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

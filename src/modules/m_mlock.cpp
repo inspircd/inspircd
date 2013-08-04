@@ -28,7 +28,6 @@ public:
 
 	void init() CXX11_OVERRIDE
 	{
-		ServerInstance->Modules->Attach(I_OnPreMode, this);
 		ServerInstance->Modules->AddService(this->mlock);
 	}
 

@@ -239,9 +239,6 @@ public:
 		OnRehash(NULL);
 		ServiceProvider* providerlist[] = { &cmd, &cmd.realhost, &cmd.realip, &cmd.webirc_hostname, &cmd.webirc_ip, &waiting };
 		ServerInstance->Modules->AddServices(providerlist, sizeof(providerlist)/sizeof(ServiceProvider*));
-
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	void OnRehash(User* user) CXX11_OVERRIDE

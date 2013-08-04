@@ -111,8 +111,6 @@ class ModuleHelpop : public Module
 			ReadConfig();
 			ServerInstance->Modules->AddService(ho);
 			ServerInstance->Modules->AddService(cmd);
-			Implementation eventlist[] = { I_OnRehash, I_OnWhois };
-			ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		}
 
 		void ReadConfig()

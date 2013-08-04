@@ -31,8 +31,6 @@ class ModuleConnectBan : public Module
  public:
 	void init() CXX11_OVERRIDE
 	{
-		Implementation eventlist[] = { I_OnSetUserIP, I_OnGarbageCollect, I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
 

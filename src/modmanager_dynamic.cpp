@@ -74,6 +74,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 			}
 			else
 			{
+				AttachAll(newmod);
 				newmod->init();
 
 				Version v = newmod->GetVersion();
@@ -233,6 +234,7 @@ void ModuleManager::LoadAll()
 		try
 		{
 			ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Initializing %s", i->first.c_str());
+			AttachAll(mod);
 			mod->init();
 		}
 		catch (CoreException& modexcept)

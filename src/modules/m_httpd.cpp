@@ -360,7 +360,6 @@ class ModuleHttpServer : public Module
 	{
 		HttpModule = this;
 		ServerInstance->Modules->AddService(APIImpl);
-		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
 	}
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE

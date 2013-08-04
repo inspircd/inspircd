@@ -56,8 +56,6 @@ class ModuleBanException : public Module
 		ServerInstance->Modules->AddService(be);
 
 		be.DoImplements(this);
-		Implementation list[] = { I_OnRehash, I_On005Numeric, I_OnExtBanCheck, I_OnCheckChannelBan };
-		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE

@@ -102,6 +102,7 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 		}
 		else
 		{
+			AttachAll(mod);
 			mod->init();
 		}
 	}
@@ -207,6 +208,7 @@ void ModuleManager::LoadAll()
 		Module* mod = i->second;
 		try
 		{
+			AttachAll(mod);
 			mod->init();
 		}
 		catch (CoreException& modexcept)

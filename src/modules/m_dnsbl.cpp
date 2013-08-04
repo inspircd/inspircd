@@ -234,8 +234,6 @@ class ModuleDNSBL : public Module
 		ReadConf();
 		ServerInstance->Modules->AddService(nameExt);
 		ServerInstance->Modules->AddService(countExt);
-		Implementation eventlist[] = { I_OnRehash, I_OnSetUserIP, I_OnStats, I_OnSetConnectClass, I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleDNSBL()

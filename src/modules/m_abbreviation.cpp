@@ -22,11 +22,6 @@
 class ModuleAbbreviation : public Module
 {
  public:
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modules->Attach(I_OnPreCommand, this);
-	}
-
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPreCommand, PRIORITY_FIRST);

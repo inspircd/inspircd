@@ -39,8 +39,6 @@ public:
 	void init() CXX11_OVERRIDE
 	{
 		InitConf();
-		Implementation eventlist[] = { I_OnRehash, I_OnUserRegister };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

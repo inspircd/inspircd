@@ -129,9 +129,6 @@ class ModuleCAP : public Module
 	{
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.reghold);
-
-		Implementation eventlist[] = { I_OnCheckReady };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	ModResult OnCheckReady(LocalUser* user) CXX11_OVERRIDE

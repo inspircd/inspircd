@@ -658,8 +658,6 @@ class ModuleMsSQL : public Module
 
 		ServerInstance->Threads->Start(queryDispatcher);
 
-		Implementation eventlist[] = { I_OnRehash };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		ServerInstance->Modules->AddService(sqlserv);
 	}
 

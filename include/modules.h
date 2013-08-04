@@ -122,12 +122,10 @@ struct ModResult {
  * 'FOREACH_MOD(OnConnect,(user));'
  */
 #define FOREACH_MOD(y,x) do { \
-	EventHandlerIter safei; \
-	IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
-	for (EventHandlerIter _i = _handlers.begin(); _i != _handlers.end(); ) \
+	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## y]; \
+	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
-		safei = _i; \
-		++safei; \
+		_next = _i+1; \
 		try \
 		{ \
 			(*_i)->y x ; \
@@ -136,7 +134,6 @@ struct ModResult {
 		{ \
 			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: %s",modexcept.GetReason()); \
 		} \
-		_i = safei; \
 	} \
 } while (0);
 
@@ -148,9 +145,10 @@ struct ModResult {
  */
 #define DO_EACH_HOOK(n,v,args) \
 do { \
-	IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
-	for (EventHandlerIter _i = _handlers.begin(); _i != _handlers.end(); ++_i) \
+	const IntModuleList& _handlers = ServerInstance->Modules->EventHandlers[I_ ## n]; \
+	for (IntModuleList::const_reverse_iterator _i = _handlers.rbegin(), _next; _i != _handlers.rend(); _i = _next) \
 	{ \
+		_next = _i+1; \
 		try \
 		{ \
 			v = (*_i)->n args;
@@ -278,6 +276,11 @@ enum Implementation
  */
 class CoreExport Module : public classbase, public usecountbase
 {
+	/** Detach an event from this module
+	 * @param i Event type to detach
+	 */
+	void DetachEvent(Implementation i);
+
  public:
 	/** File that this module was loaded from
 	 */
@@ -1269,6 +1272,11 @@ class CoreExport ModuleManager
 	 * @param mod Module to detach from
 	 */
 	void DetachAll(Module* mod);
+
+	/** Attach all events to a module (used on module load)
+	 * @param mod Module to attach to all events
+	 */
+	void AttachAll(Module* mod);
 
 	/** Returns text describing the last module error
 	 * @return The last error message to occur

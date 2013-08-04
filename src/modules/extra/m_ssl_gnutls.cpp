@@ -626,9 +626,6 @@ class ModuleSSLGnuTLS : public Module
 
 		// Void return, guess we assume success
 		gnutls_certificate_set_dh_params(iohook.x509_cred, dh_params);
-		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect,
-			I_OnEvent, I_OnHookIO };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		ServerInstance->Modules->AddService(iohook);
 		ServerInstance->Modules->AddService(starttls);

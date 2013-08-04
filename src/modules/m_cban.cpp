@@ -159,8 +159,6 @@ class ModuleCBan : public Module
 		ServerInstance->XLines->RegisterFactory(&f);
 
 		ServerInstance->Modules->AddService(mycommand);
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnStats };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	~ModuleCBan()

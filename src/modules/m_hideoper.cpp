@@ -44,8 +44,6 @@ class ModuleHideOper : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(hm);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine };
-		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

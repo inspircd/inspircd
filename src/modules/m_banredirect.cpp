@@ -233,8 +233,6 @@ class ModuleBanRedirect : public Module
 	{
 		ServerInstance->Modes->AddModeWatcher(&re);
 		ServerInstance->Modules->AddService(re.extItem);
-		Implementation list[] = { I_OnUserPreJoin };
-		ServerInstance->Modules->Attach(list, this, sizeof(list)/sizeof(Implementation));
 	}
 
 	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
