@@ -434,14 +434,13 @@ long ConfigTag::getInt(const std::string &key, long def)
 	switch (toupper(*res_tail))
 	{
 		case 'K':
-			res= res* 1024;
+			res= res << 10;
 			break;
 		case 'M':
-			res= res* 1024 * 1024;
+			res= res << 20;
 			break;
 		case 'G':
-			res= res* 1024 * 1024 * 1024;
-			break;
+			res= res << 30;
 	}
 	return res;
 }
