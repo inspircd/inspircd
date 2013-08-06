@@ -356,11 +356,11 @@ class ModuleDNSBL : public Module
 		else
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "User has no connect class in OnSetUserIP");
 
-		unsigned char a, b, c, d;
-		d = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
-		c = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
-		b = (unsigned char) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
-		a = (unsigned char) user->client_sa.in4.sin_addr.s_addr & 0xFF;
+		unsigned int a, b, c, d;
+		d = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 24) & 0xFF;
+		c = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 16) & 0xFF;
+		b = (unsigned int) (user->client_sa.in4.sin_addr.s_addr >> 8) & 0xFF;
+		a = (unsigned int) user->client_sa.in4.sin_addr.s_addr & 0xFF;
 
 		const std::string reversedip = ConvToStr(d) + "." + ConvToStr(c) + "." + ConvToStr(b) + "." + ConvToStr(a);
 
