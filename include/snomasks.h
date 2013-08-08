@@ -59,8 +59,8 @@ class Snomask
 	void Flush();
 
 	/** Returns the description of this snomask
-	 * @param remote If true the description of the uppercase (remote) variant of this snomask
-	 * will be returned (i.e.: "REMOTE" will be prepended to the description).
+	 * @param letter The letter of this snomask. If uppercase, the description of the remote
+	 * variant of this snomask will be returned (i.e.: "REMOTE" will be prepended to the description).
 	 * @return The description of this snomask
 	 */
 	std::string GetDescription(char letter) const;

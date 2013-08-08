@@ -82,7 +82,7 @@ class ModuleChannelNames : public Module
 			{
 				std::vector<std::string> modes;
 				modes.push_back(c->name);
-				modes.push_back("-" + permchannelmode->GetModeChar());
+				modes.push_back(std::string("-") + permchannelmode->GetModeChar());
 
 				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 			}

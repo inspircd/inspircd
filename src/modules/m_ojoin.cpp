@@ -69,7 +69,7 @@ class CommandOjoin : public SplitCommand
 			// they're already in the channel
 			std::vector<std::string> modes;
 			modes.push_back(parameters[0]);
-			modes.push_back("+" + npmh->GetModeChar());
+			modes.push_back(std::string("+") + npmh->GetModeChar());
 			if (op)
 			{
 				modes[1].push_back('o');

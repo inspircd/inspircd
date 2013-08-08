@@ -49,7 +49,7 @@ class CommandMode : public Command
  */
 CmdResult CommandMode::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	ServerInstance->Modes->Process(parameters, user);
+	ServerInstance->Modes->Process(parameters, user, (IS_LOCAL(user) ? ModeParser::MODE_NONE : ModeParser::MODE_LOCALONLY));
 	return CMD_SUCCESS;
 }
 

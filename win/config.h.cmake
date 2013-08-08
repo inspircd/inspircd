@@ -2,7 +2,7 @@
 
 #define BRANCH "@MAJOR_VERSION@.@MINOR_VERSION@"
 #define VERSION "@FULL_VERSION@"
-#define REVISION "0"
+#define REVISION "release"
 #define SYSTEM "@CMAKE_SYSTEM@"
 
 #define CONFIG_PATH "@CONF_PATH@"

@@ -196,7 +196,7 @@ CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters,
 	if (!user)
 		return CMD_FAILURE;
 
-	unsigned long idle = ConvToInt(parameters[1]);
+	unsigned long idle = ConvToInt(parameters.back());
 	DoWhois(user, target, target->signon, idle);
 
 	return CMD_SUCCESS;

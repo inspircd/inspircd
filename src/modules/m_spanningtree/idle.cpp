@@ -60,7 +60,7 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 			// Possible case when our clock ticked backwards
 			idle = 0;
 		else
-			idle = ((unsigned int) (localtarget->idle_lastmsg - ServerInstance->Time()));
+			idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
 
 		parameterlist reply;
 		reply.push_back(prefix);

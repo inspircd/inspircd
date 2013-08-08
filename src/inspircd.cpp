@@ -358,7 +358,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (do_version)
 	{
-		std::cout << std::endl << VERSION << " r" << REVISION << std::endl;
+		std::cout << std::endl << VERSION << " " << REVISION << std::endl;
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
