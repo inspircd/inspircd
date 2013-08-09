@@ -1278,21 +1278,6 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	}
 }
 
-/* looks up a users password for their connection class (<ALLOW>/<DENY> tags)
- * NOTE: If the <ALLOW> or <DENY> tag specifies an ip, and this user resolves,
- * then their ip will be taken as 'priority' anyway, so for example,
- * <connect allow="127.0.0.1"> will match joe!bloggs@localhost
- */
-ConnectClass* LocalUser::GetClass()
-{
-	return MyClass;
-}
-
-ConnectClass* User::GetClass()
-{
-	return NULL;
-}
-
 void User::PurgeEmptyChannels()
 {
 	// firstly decrement the count on each channel

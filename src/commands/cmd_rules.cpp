@@ -52,8 +52,9 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 		return CMD_SUCCESS;
 
 	ConfigTag* tag = NULL;
-	if (IS_LOCAL(user))
-		tag = user->GetClass()->config;
+	LocalUser* localuser = IS_LOCAL(user);
+	if (localuser)
+		tag = localuser->GetClass()->config;
 	std::string rules_name = tag->getString("rules", "rules");
 	ConfigFileCache::iterator rules = ServerInstance->Config->Files.find(rules_name);
 	if (rules == ServerInstance->Config->Files.end())

@@ -635,11 +635,6 @@ class CoreExport User : public Extensible
 	 */
 	void PurgeEmptyChannels();
 
-	/** Get the connect class which this user belongs to. NULL for remote users.
-	 * @return A pointer to this user's connect class.
-	 */
-	virtual ConnectClass* GetClass();
-
 	/** Default destructor
 	 */
 	virtual ~User();
@@ -702,7 +697,10 @@ class CoreExport LocalUser : public User, public InviteBase
 	 */
 	reference<ConnectClass> MyClass;
 
-	ConnectClass* GetClass();
+	/** Get the connect class which this user belongs to.
+	 * @return A pointer to this user's connect class.
+	 */
+	ConnectClass* GetClass() const { return MyClass; }
 
 	/** Call this method to find the matching \<connect> for a user, and to check them against it.
 	 */

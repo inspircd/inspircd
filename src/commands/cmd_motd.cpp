@@ -54,8 +54,9 @@ CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_SUCCESS;
 
 	ConfigTag* tag = NULL;
-	if (IS_LOCAL(user))
-		tag = user->GetClass()->config;
+	LocalUser* localuser = IS_LOCAL(user);
+	if (localuser)
+		tag = localuser->GetClass()->config;
 	std::string motd_name = tag->getString("motd", "motd");
 	ConfigFileCache::iterator motd = ServerInstance->Config->Files.find(motd_name);
 	if (motd == ServerInstance->Config->Files.end())
