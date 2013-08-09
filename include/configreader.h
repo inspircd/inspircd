@@ -450,11 +450,6 @@ class CoreExport ServerConfig
 	 */
 	bool SyntaxHints;
 
-	/** If set to true, users appear to quit then rejoin when their hosts change.
-	 * This keeps clients synchronized properly.
-	 */
-	bool CycleHosts;
-
 	/** If set to true, the CycleHosts mode change will be sourced from the user,
 	 * rather than the server
 	 */

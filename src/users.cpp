@@ -1124,72 +1124,6 @@ bool User::ChangeName(const char* gecos)
 	return true;
 }
 
-void User::DoHostCycle(const std::string &quitline)
-{
-	if (!ServerInstance->Config->CycleHosts)
-		return;
-
-	already_sent_t silent_id = ++LocalUser::already_sent_id;
-	already_sent_t seen_id = ++LocalUser::already_sent_id;
-
-	UserChanList include_c(chans);
-	std::map<User*,bool> exceptions;
-
-	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
-
-	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
-	{
-		LocalUser* u = IS_LOCAL(i->first);
-		if (u && !u->quitting)
-		{
-			if (i->second)
-			{
-				u->already_sent = seen_id;
-				u->Write(quitline);
-			}
-			else
-			{
-				u->already_sent = silent_id;
-			}
-		}
-	}
-	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
-	{
-		Channel* c = *v;
-		Membership* memb = c->GetUser(this);
-		const std::string joinline = ":" + GetFullHost() + " JOIN " + c->name;
-		std::string modeline;
-
-		if (!memb->modes.empty())
-		{
-			modeline = ":" + (ServerInstance->Config->CycleHostsFromUser ? GetFullHost() : ServerInstance->Config->ServerName)
-				+ " MODE " + c->name + " +" + memb->modes;
-
-			for (size_t i = 0; i < memb->modes.length(); i++)
-				modeline.append(" ").append(nick);
-		}
-
-		const UserMembList *ulist = c->GetUsers();
-		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
-		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if (u == NULL || u == this)
-				continue;
-			if (u->already_sent == silent_id)
-				continue;
-
-			if (u->already_sent != seen_id)
-			{
-				u->Write(quitline);
-				u->already_sent = seen_id;
-			}
-			u->Write(joinline);
-			if (!memb->modes.empty())
-				u->Write(modeline);
-		}
-	}
-}
-
 bool User::ChangeDisplayedHost(const char* shost)
 {
 	if (dhost == shost)
@@ -1205,14 +1139,8 @@ bool User::ChangeDisplayedHost(const char* shost)
 
 	FOREACH_MOD(OnChangeHost, (this,shost));
 
-	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing host";
-
-	/* Fix by Om: User::dhost is 65 long, this was truncating some long hosts */
 	this->dhost.assign(shost, 0, 64);
-
 	this->InvalidateCache();
-
-	this->DoHostCycle(quitstr);
 
 	if (IS_LOCAL(this))
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, "%s %s :is now your displayed host",this->nick.c_str(),this->dhost.c_str());
@@ -1227,13 +1155,8 @@ bool User::ChangeIdent(const char* newident)
 
 	FOREACH_MOD(OnChangeIdent, (this,newident));
 
-	std::string quitstr = ":" + GetFullHost() + " QUIT :Changing ident";
-
 	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax);
-
 	this->InvalidateCache();
-
-	this->DoHostCycle(quitstr);
 
 	return true;
 }

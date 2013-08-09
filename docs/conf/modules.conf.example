@@ -816,6 +816,11 @@
 #<hostchange mask="a@b.com" action="set" value="blah.blah.blah">
 #<hostchange mask="localhost" ports="7000,7001,7005-7007" action="set" value="blahblah.foo">
 
+# hostcycle: If loaded, when a user gets a host or ident set, it will
+# cycle them in all their channels. If not loaded it will simply change
+# their host/ident without cycling them.
+#<module name="m_hostcycle.so">
+
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # httpd module: Provides http server support for InspIRCd
 #<module name="m_httpd.so">

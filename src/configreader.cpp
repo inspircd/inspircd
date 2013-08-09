@@ -32,7 +32,7 @@
 ServerConfig::ServerConfig()
 {
 	RawLog = HideBans = HideSplits = UndernetMsgPrefix = false;
-	WildcardIPv6 = CycleHosts = InvBypassModes = true;
+	WildcardIPv6 = InvBypassModes = true;
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
@@ -349,6 +349,7 @@ static const DeprecatedConfig ChangedConfig[] = {
 	{ "link",        "transport",   "",                 "has been moved to <link:ssl> as of 2.0" },
 	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
 	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
+	{ "options",     "cyclehosts",  "",                 "has been replaced with m_hostcycle as of 2.2" },
 	{ "performance", "nouserdns",   "",                 "has been moved to <connect:nouserdns> as of 2.2" }
 };
 
@@ -405,7 +406,6 @@ void ServerConfig::Fill()
 	RestrictBannedUsers = security->getBool("restrictbannedusers", true);
 	GenericOper = security->getBool("genericoper");
 	SyntaxHints = options->getBool("syntaxhints");
-	CycleHosts = options->getBool("cyclehosts");
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
 	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
