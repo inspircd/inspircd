@@ -40,7 +40,7 @@ class CommandSetname : public Command
 			return CMD_FAILURE;
 		}
 
-		if (user->ChangeName(parameters[0].c_str()))
+		if (user->ChangeName(parameters[0]))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used SETNAME to change their GECOS to '%s'", user->nick.c_str(), parameters[0].c_str());
 		}

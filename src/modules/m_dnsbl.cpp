@@ -118,13 +118,13 @@ class DNSBLResolver : public DNS::Request
 					if (!ConfEntry->ident.empty())
 					{
 						them->WriteServ("304 " + them->nick + " :Your ident has been set to " + ConfEntry->ident + " because you matched " + reason);
-						them->ChangeIdent(ConfEntry->ident.c_str());
+						them->ChangeIdent(ConfEntry->ident);
 					}
 
 					if (!ConfEntry->host.empty())
 					{
 						them->WriteServ("304 " + them->nick + " :Your host has been set to " + ConfEntry->host + " because you matched " + reason);
-						them->ChangeDisplayedHost(ConfEntry->host.c_str());
+						them->ChangeDisplayedHost(ConfEntry->host);
 					}
 
 					nameExt.set(them, ConfEntry->name);

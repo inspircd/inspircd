@@ -45,7 +45,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 	/* A user may only send the USER command once */
 	if (!(user->registered & REG_USER))
 	{
-		if (!ServerInstance->IsIdent(parameters[0].c_str()))
+		if (!ServerInstance->IsIdent(parameters[0]))
 		{
 			/*
 			 * RFC says we must use this numeric, so we do. Let's make it a little more nub friendly though. :)
@@ -61,7 +61,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 			 * ~ character, and +1 for null termination, therefore we can safely use up to
 			 * IDENTMAX here.
 			 */
-			user->ChangeIdent(parameters[0].c_str());
+			user->ChangeIdent(parameters[0]);
 			user->fullname.assign(parameters[3].empty() ? "No info" : parameters[3], 0, ServerInstance->Config->Limits.MaxGecos);
 			user->registered = (user->registered | REG_USER);
 		}

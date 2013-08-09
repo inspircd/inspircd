@@ -57,7 +57,7 @@ class CommandChgname : public Command
 
 		if (IS_LOCAL(dest))
 		{
-			dest->ChangeName(parameters[1].c_str());
+			dest->ChangeName(parameters[1]);
 			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's GECOS to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
 		}
 

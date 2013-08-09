@@ -1106,7 +1106,7 @@ bool User::SharesChannelWith(User *other)
 	return false;
 }
 
-bool User::ChangeName(const char* gecos)
+bool User::ChangeName(const std::string& gecos)
 {
 	if (!this->fullname.compare(gecos))
 		return true;
@@ -1124,7 +1124,7 @@ bool User::ChangeName(const char* gecos)
 	return true;
 }
 
-bool User::ChangeDisplayedHost(const char* shost)
+bool User::ChangeDisplayedHost(const std::string& shost)
 {
 	if (dhost == shost)
 		return true;
@@ -1148,7 +1148,7 @@ bool User::ChangeDisplayedHost(const char* shost)
 	return true;
 }
 
-bool User::ChangeIdent(const char* newident)
+bool User::ChangeIdent(const std::string& newident)
 {
 	if (this->ident == newident)
 		return true;

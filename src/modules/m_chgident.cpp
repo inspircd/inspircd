@@ -51,7 +51,7 @@ class CommandChgident : public Command
 			return CMD_FAILURE;
 		}
 
-		if (!ServerInstance->IsIdent(parameters[1].c_str()))
+		if (!ServerInstance->IsIdent(parameters[1]))
 		{
 			user->WriteNotice("*** CHGIDENT: Invalid characters in ident");
 			return CMD_FAILURE;
@@ -59,7 +59,7 @@ class CommandChgident : public Command
 
 		if (IS_LOCAL(dest))
 		{
-			dest->ChangeIdent(parameters[1].c_str());
+			dest->ChangeIdent(parameters[1]);
 
 			if (!ServerInstance->ULine(user->server))
 				ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());

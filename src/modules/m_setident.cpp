@@ -41,13 +41,13 @@ class CommandSetident : public Command
 			return CMD_FAILURE;
 		}
 
-		if (!ServerInstance->IsIdent(parameters[0].c_str()))
+		if (!ServerInstance->IsIdent(parameters[0]))
 		{
 			user->WriteNotice("*** SETIDENT: Invalid characters in ident");
 			return CMD_FAILURE;
 		}
 
-		user->ChangeIdent(parameters[0].c_str());
+		user->ChangeIdent(parameters[0]);
 		ServerInstance->SNO->WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
 		return CMD_SUCCESS;

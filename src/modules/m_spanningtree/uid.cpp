@@ -157,7 +157,7 @@ CmdResult CommandFHost::Handle(const parameterlist &params, User* src)
 {
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
-	src->ChangeDisplayedHost(params[0].c_str());
+	src->ChangeDisplayedHost(params[0]);
 	return CMD_SUCCESS;
 }
 
@@ -165,7 +165,7 @@ CmdResult CommandFIdent::Handle(const parameterlist &params, User* src)
 {
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
-	src->ChangeIdent(params[0].c_str());
+	src->ChangeIdent(params[0]);
 	return CMD_SUCCESS;
 }
 
@@ -173,7 +173,7 @@ CmdResult CommandFName::Handle(const parameterlist &params, User* src)
 {
 	if (IS_SERVER(src))
 		return CMD_FAILURE;
-	src->ChangeName(params[0].c_str());
+	src->ChangeName(params[0]);
 	return CMD_SUCCESS;
 }
 

@@ -258,7 +258,7 @@ class IdentRequestSocket : public EventHandler
 			 * we're done.
 			 */
 			result += *i;
-			if (!ServerInstance->IsIdent(result.c_str()))
+			if (!ServerInstance->IsIdent(result))
 			{
 				result.erase(result.end()-1);
 				break;

@@ -52,7 +52,7 @@ class CommandSethost : public Command
 			return CMD_FAILURE;
 		}
 
-		if (user->ChangeDisplayedHost(parameters[0].c_str()))
+		if (user->ChangeDisplayedHost(parameters[0]))
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->dhost);
 			return CMD_SUCCESS;

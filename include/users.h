@@ -593,7 +593,7 @@ class CoreExport User : public Extensible
 	 * @return True if the change succeeded, false if it didn't
 	 * (a module vetoed the change).
 	 */
-	bool ChangeDisplayedHost(const char* host);
+	bool ChangeDisplayedHost(const std::string& host);
 
 	/** Change the ident (username) of a user.
 	 * ALWAYS use this function, rather than writing User::ident directly,
@@ -602,7 +602,7 @@ class CoreExport User : public Extensible
 	 * @param newident The new ident to set
 	 * @return True if the change succeeded, false if it didn't
 	 */
-	bool ChangeIdent(const char* newident);
+	bool ChangeIdent(const std::string& newident);
 
 	/** Change a users realname field.
 	 * ALWAYS use this function, rather than writing User::fullname directly,
@@ -611,7 +611,7 @@ class CoreExport User : public Extensible
 	 * @param gecos The user's new realname
 	 * @return True if the change succeeded, false if otherwise
 	 */
-	bool ChangeName(const char* gecos);
+	bool ChangeName(const std::string& gecos);
 
 	/** Change a user's nick
 	 * @param newnick The new nick
