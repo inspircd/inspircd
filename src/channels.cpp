@@ -40,15 +40,10 @@ namespace
 }
 
 Channel::Channel(const std::string &cname, time_t ts)
+	: name(cname), age(ts), topicset(0)
 {
 	if (!ServerInstance->chanlist->insert(std::make_pair(cname, this)).second)
 		throw CoreException("Cannot create duplicate channel " + cname);
-
-	this->name = cname;
-	this->age = ts ? ts : ServerInstance->Time();
-
-	topicset = 0;
-	modes.reset();
 }
 
 void Channel::SetMode(ModeHandler* mh, bool on)

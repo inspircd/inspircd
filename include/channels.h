@@ -63,7 +63,9 @@ class CoreExport Channel : public Extensible, public InviteBase
 
  public:
 	/** Creates a channel record and initialises it with default values
-	 * @throw Nothing at present.
+	 * @param name The name of the channel
+	 * @param ts The creation time of the channel
+	 * @throw CoreException if this channel name is in use
 	 */
 	Channel(const std::string &name, time_t ts);
 

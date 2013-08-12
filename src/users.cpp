@@ -80,10 +80,7 @@ User::User(const std::string &uid, const std::string& sid, int type)
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
-	user_hash::iterator finduuid = ServerInstance->Users->uuidlist->find(uuid);
-	if (finduuid == ServerInstance->Users->uuidlist->end())
-		(*ServerInstance->Users->uuidlist)[uuid] = this;
-	else
+	if (!ServerInstance->Users->uuidlist->insert(std::make_pair(uuid, this)).second)
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
 

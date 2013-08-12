@@ -893,9 +893,6 @@ ModeParser::ModeParser()
 	/* Clear mode handler list */
 	memset(modehandlers, 0, sizeof(modehandlers));
 
-	/* Last parse string */
-	LastParse.clear();
-
 	seq = 0;
 	memset(&sent, 0, sizeof(sent));
 }
