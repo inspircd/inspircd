@@ -112,7 +112,7 @@ void LogManager::OpenFileLogs()
 			loglevel = LOG_NONE;
 		}
 		FileWriter* fw;
-		std::string target = tag->getString("target");
+		std::string target = ServerInstance->Config->Paths.PrependLog(tag->getString("target"));
 		std::map<std::string, FileWriter*>::iterator fwi = logmap.find(target);
 		if (fwi == logmap.end())
 		{

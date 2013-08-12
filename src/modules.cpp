@@ -577,7 +577,8 @@ FileReader::FileReader(const std::string& filename)
 void FileReader::Load(const std::string& filename)
 {
 	// If the file is stored in the file cache then we used that version instead.
-	ConfigFileCache::iterator it = ServerInstance->Config->Files.find(filename);
+	std::string realName = ServerInstance->Config->Paths.PrependConfig(filename);
+	ConfigFileCache::iterator it = ServerInstance->Config->Files.find(realName);
 	if (it != ServerInstance->Config->Files.end())
 	{
 		this->lines = it->second;
@@ -586,7 +587,7 @@ void FileReader::Load(const std::string& filename)
 	{
 		lines.clear();
 
-		std::ifstream stream(filename.c_str());
+		std::ifstream stream(realName.c_str());
 		if (!stream.is_open())
 			throw CoreException(filename + " does not exist or is not readable!");
 

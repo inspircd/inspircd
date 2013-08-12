@@ -199,7 +199,7 @@ class ModuleHostnameLookup : public Module
 
 	void OnUserInit(LocalUser *user)
 	{
-		if (!DNS || user->MyClass->nouserdns)
+		if (!DNS || !user->MyClass->resolvehostnames)
 		{
 			user->WriteNotice("*** Skipping host resolution (disabled by server administrator)");
 			return;

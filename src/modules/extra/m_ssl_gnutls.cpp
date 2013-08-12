@@ -684,10 +684,10 @@ class ModuleSSLGnuTLS : public Module
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 
-		cafile = Conf->getString("cafile", CONFIG_PATH "/ca.pem");
-		crlfile	= Conf->getString("crlfile", CONFIG_PATH "/crl.pem");
-		certfile = Conf->getString("certfile", CONFIG_PATH "/cert.pem");
-		keyfile	= Conf->getString("keyfile", CONFIG_PATH "/key.pem");
+		cafile = ServerInstance->Config->Paths.PrependConfig(Conf->getString("cafile", "ca.pem"));
+		crlfile	= ServerInstance->Config->Paths.PrependConfig(Conf->getString("crlfile", "crl.pem"));
+		certfile = ServerInstance->Config->Paths.PrependConfig(Conf->getString("certfile", "cert.pem"));
+		keyfile	= ServerInstance->Config->Paths.PrependConfig(Conf->getString("keyfile", "key.pem"));
 		int dh_bits = Conf->getInt("dhbits");
 		std::string hashname = Conf->getString("hash", "md5");
 

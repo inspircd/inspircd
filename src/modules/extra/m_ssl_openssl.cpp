@@ -558,10 +558,10 @@ class ModuleSSLOpenSSL : public Module
 
 		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
 
-		cafile	 = conf->getString("cafile", CONFIG_PATH "/ca.pem");
-		certfile = conf->getString("certfile", CONFIG_PATH "/cert.pem");
-		keyfile	 = conf->getString("keyfile", CONFIG_PATH "/key.pem");
-		dhfile	 = conf->getString("dhfile", CONFIG_PATH "/dhparams.pem");
+		cafile	 = ServerInstance->Config->Paths.PrependConfig(conf->getString("cafile", "ca.pem"));
+		certfile = ServerInstance->Config->Paths.PrependConfig(conf->getString("certfile", "cert.pem"));
+		keyfile	 = ServerInstance->Config->Paths.PrependConfig(conf->getString("keyfile", "key.pem"));
+		dhfile	 = ServerInstance->Config->Paths.PrependConfig(conf->getString("dhfile", "dhparams.pem"));
 		std::string hash = conf->getString("hash", "md5");
 
 		iohook.digest = EVP_get_digestbyname(hash.c_str());

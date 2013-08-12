@@ -43,18 +43,9 @@ class ModuleConnectBan : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 
-		ipv4_cidr = tag->getInt("ipv4cidr", 32);
-		if (ipv4_cidr == 0)
-			ipv4_cidr = 32;
-
-		ipv6_cidr = tag->getInt("ipv6cidr", 128);
-		if (ipv6_cidr == 0)
-			ipv6_cidr = 128;
-
-		threshold = tag->getInt("threshold", 10);
-		if (threshold == 0)
-			threshold = 10;
-
+		ipv4_cidr = tag->getInt("ipv4cidr", 32, 1, 32);
+		ipv6_cidr = tag->getInt("ipv6cidr", 128, 1, 128);
+		threshold = tag->getInt("threshold", 10, 1);
 		banduration = InspIRCd::Duration(tag->getString("duration", "10m"));
 		if (banduration == 0)
 			banduration = 10*60;

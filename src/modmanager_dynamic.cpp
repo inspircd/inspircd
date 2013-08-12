@@ -37,7 +37,7 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 	if (filename.find('/') != std::string::npos)
 		return false;
 
-	const std::string moduleFile = ServerInstance->Config->ModPath + "/" + filename;
+	const std::string moduleFile = ServerInstance->Config->Paths.PrependModule(filename);
 
 	if (!ServerConfig::FileExists(moduleFile.c_str()))
 	{
@@ -190,7 +190,7 @@ void ModuleManager::LoadAll()
 	std::cout << std::endl << "Loading core commands";
 	fflush(stdout);
 
-	DIR* library = opendir(ServerInstance->Config->ModPath.c_str());
+	DIR* library = opendir(ServerInstance->Config->Paths.Module.c_str());
 	if (library)
 	{
 		dirent* entry = NULL;
