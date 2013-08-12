@@ -44,16 +44,6 @@ ServerConfig::ServerConfig()
 	c_ipv6_range = 128;
 }
 
-template<typename T, typename V>
-static void range(T& value, V min, V max, V def, const char* msg)
-{
-	if (value >= (T)min && value <= (T)max)
-		return;
-	ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: %s value of %ld is not between %ld and %ld; set to %ld.",
-		msg, (long)value, (long)min, (long)max, (long)def);
-	value = def;
-}
-
 static void ValidHost(const std::string& p, const std::string& msg)
 {
 	int num_dots = 0;
@@ -309,7 +299,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->maxchans = tag->getInt("maxchans", me->maxchans);
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getInt("limit", me->limit);
-			me->nouserdns = tag->getBool("nouserdns", me->nouserdns);
+			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
 
 			ClassMap::iterator oldMask = oldBlocksByMask.find(typeMask);
 			if (oldMask != oldBlocksByMask.end())
@@ -350,7 +340,7 @@ static const DeprecatedConfig ChangedConfig[] = {
 	{ "module",      "name",        "m_chanprotect.so", "has been replaced with m_customprefix as of 2.2" },
 	{ "module",      "name",        "m_halfop.so",      "has been replaced with m_customprefix as of 2.2" },
 	{ "options",     "cyclehosts",  "",                 "has been replaced with m_hostcycle as of 2.2" },
-	{ "performance", "nouserdns",   "",                 "has been moved to <connect:nouserdns> as of 2.2" }
+	{ "performance", "nouserdns",   "",                 "has been moved to <connect:resolvehostnames> as of 2.2" }
 };
 
 void ServerConfig::Fill()
@@ -359,9 +349,10 @@ void ServerConfig::Fill()
 	ConfigTag* security = ConfValue("security");
 	if (sid.empty())
 	{
-		ServerName = ConfValue("server")->getString("name");
-		sid = ConfValue("server")->getString("id");
+		ServerName = ConfValue("server")->getString("name", "irc.example.com");
 		ValidHost(ServerName, "<server:name>");
+
+		sid = ConfValue("server")->getString("id");
 		if (!sid.empty() && !InspIRCd::IsSID(sid))
 			throw CoreException(sid + " is not a valid server ID. A server ID must be 3 characters long, with the first character a digit and the next two characters a digit or letter.");
 	}
@@ -383,22 +374,21 @@ void ServerConfig::Fill()
 	PrefixPart = options->getString("prefixpart");
 	SuffixPart = options->getString("suffixpart");
 	FixedPart = options->getString("fixedpart");
-	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds());
+	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds(), 10, ServerInstance->SE->GetMaxFds());
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
-	MoronBanner = options->getString("moronbanner", "You're banned!");
+	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));
 	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
 	Network = ConfValue("server")->getString("network", "Network");
 	AdminName = ConfValue("admin")->getString("name", "");
 	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
 	AdminNick = ConfValue("admin")->getString("nick", "admin");
-	ModPath = ConfValue("path")->getString("moduledir", MOD_PATH);
-	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240);
+	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");
 	DisabledDontExist = ConfValue("disabled")->getBool("fakenonexistant");
 	UserStats = security->getString("userstats");
-	CustomVersion = security->getString("customversion", Network + " IRCd");
+	CustomVersion = security->getString("customversion");
 	HideSplits = security->getBool("hidesplits");
 	HideBans = security->getBool("hidebans");
 	HideWhoisServer = security->getString("hidewhois");
@@ -409,8 +399,8 @@ void ServerConfig::Fill()
 	CycleHostsFromUser = options->getBool("cyclehostsfromuser");
 	UndernetMsgPrefix = options->getBool("ircumsgprefix");
 	FullHostInTopic = options->getBool("hostintopic");
-	MaxTargets = security->getInt("maxtargets", 20);
-	DefaultModes = options->getString("defaultmodes", "nt");
+	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
+	DefaultModes = options->getString("defaultmodes", "not");
 	PID = ConfValue("pid")->getString("file");
 	MaxChans = ConfValue("channels")->getInt("users", 20);
 	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
@@ -426,15 +416,15 @@ void ServerConfig::Fill()
 	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
 	Limits.MaxLine = ConfValue("limits")->getInt("maxline", 512);
+	Paths.Config = ConfValue("path")->getString("configdir", CONFIG_PATH);
+	Paths.Data = ConfValue("path")->getString("datadir", DATA_PATH);
+	Paths.Log = ConfValue("path")->getString("logdir", LOG_PATH);
+	Paths.Module = ConfValue("path")->getString("moduledir", MOD_PATH);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
 	if (Network.find(' ') != std::string::npos)
 		throw CoreException(Network + " is not a valid network name. A network name must not contain spaces.");
-
-	range(SoftLimit, 10, ServerInstance->SE->GetMaxFds(), ServerInstance->SE->GetMaxFds(), "<performance:softlimit>");
-	range(MaxTargets, 1, 31, 20, "<security:maxtargets>");
-	range(NetBufferSize, 1024, 65534, 10240, "<performance:netbuffersize>");
 
 	std::string defbind = options->getString("defaultbind");
 	if (assign(defbind) == "ipv4")
@@ -461,6 +451,10 @@ void ServerConfig::Fill()
 		std::string server;
 		if (!tag->readString("server", server))
 			throw CoreException("<uline> tag missing server at " + tag->getTagLocation());
+
+		if (ServerName == server)
+			throw CoreException("Servers should not uline themselves (at " + tag->getTagLocation() + ")");
+
 		ulines[assign(server)] = tag->getBool("silent");
 	}
 
@@ -565,7 +559,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 					{
 						errstr << ' ' << ChangedConfig[index].key << "=\"" << ChangedConfig[index].value << "\"";
 					}
-					errstr << "> - " << ChangedConfig[index].reason << " (at " << i->second->getTagLocation() << ")\n";
+					errstr << "> - " << ChangedConfig[index].reason << " (at " << i->second->getTagLocation() << ")" << std::endl;
 				}
 			}
 		}
@@ -587,6 +581,11 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	// write once here, to try it out and make sure its ok
 	if (valid)
 		ServerInstance->WritePID(this->PID);
+
+	ConfigTagList binds = ConfTags("bind");
+	if (binds.first == binds.second)
+		 errstr << "Possible configuration error: you have not defined any <bind> blocks." << std::endl
+			 << "You will need to do this if you want clients to be able to connect!" << std::endl;
 
 	if (old)
 	{
@@ -793,6 +792,15 @@ std::string ServerConfig::Escape(const std::string& str, bool xml)
 		}
 	}
 	return escaped;
+}
+
+std::string ServerConfig::ExpandPath(const std::string& base, const std::string& fragment)
+{
+	// The fragment is an absolute path, don't modify it.
+	if (fragment[0] == '/' || ServerConfig::StartsWithWindowsDriveLetter(fragment))
+		return fragment;
+
+	return base + '/' + fragment;
 }
 
 const char* ServerConfig::CleanFilename(const char* name)

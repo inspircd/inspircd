@@ -44,7 +44,7 @@ class CoreExport ConfigTag : public refcountbase
 	/** Get the value of an option, using def if it does not exist */
 	std::string getString(const std::string& key, const std::string& def = "");
 	/** Get the value of an option, using def if it does not exist */
-	long getInt(const std::string& key, long def = 0);
+	long getInt(const std::string& key, long def = 0, long min = LONG_MIN, long max = LONG_MAX);
 	/** Get the value of an option, using def if it does not exist */
 	double getFloat(const std::string& key, double def = 0);
 	/** Get the value of an option, using def if it does not exist */
@@ -184,6 +184,32 @@ class CoreExport ServerConfig
 	void CrossCheckConnectBlocks(ServerConfig* current);
 
  public:
+	class ServerPaths
+	{
+	 public:
+		/** Config path */
+		std::string Config;
+
+		/** Data path */
+		std::string Data;
+
+		/** Log path */
+		std::string Log;
+
+		/** Module path */
+		std::string Module;
+
+		ServerPaths()
+			: Config(CONFIG_PATH)
+			, Data(DATA_PATH)
+			, Log(LOG_PATH)
+			, Module(MOD_PATH) { }
+
+		std::string PrependConfig(const std::string& fn) const { return ServerConfig::ExpandPath(Config, fn); }
+		std::string PrependData(const std::string& fn) const { return ServerConfig::ExpandPath(Data, fn); }
+		std::string PrependLog(const std::string& fn) const { return ServerConfig::ExpandPath(Log, fn); }
+		std::string PrependModule(const std::string& fn) const { return ServerConfig::ExpandPath(Module, fn); }
+	};
 
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get
@@ -220,6 +246,9 @@ class CoreExport ServerConfig
 	 */
 	ServerLimits Limits;
 
+	/** Locations of various types of file (config, module, etc). */
+	ServerPaths Paths;
+
 	/** Configuration parsed from the command line.
 	 */
 	CommandLineConf cmdline;
@@ -239,9 +268,9 @@ class CoreExport ServerConfig
 	 */
 	std::string ServerName;
 
-	/** Notice to give to users when they are Xlined
+	/** Notice to give to users when they are banned by an XLine
 	 */
-	std::string MoronBanner;
+	std::string XLineMessage;
 
 	/* Holds the network name the local server
 	 * belongs to. This is an arbitary field defined
@@ -332,13 +361,6 @@ class CoreExport ServerConfig
 	/** This variable identifies which chanmodes have been disabled.
 	 */
 	char DisabledCModes[64];
-
-	/** The full path to the modules directory.
-	 * This is either set at compile time, or
-	 * overridden in the configuration file via
-	 * the \<path> tag.
-	 */
-	std::string ModPath;
 
 	/** If set to true, then all opers on this server are
 	 * shown with a generic 'is an IRC operator' line rather
@@ -508,7 +530,7 @@ class CoreExport ServerConfig
 
 	/** Returns true if the given string starts with a windows drive letter
 	 */
-	bool StartsWithWindowsDriveLetter(const std::string &path);
+	static bool StartsWithWindowsDriveLetter(const std::string& path);
 
 	bool ApplyDisabledCommands(const std::string& data);
 
@@ -523,7 +545,13 @@ class CoreExport ServerConfig
 	 * @return True if the file exists and is readable.
 	 */
 	static bool FileExists(const char* file);
-	
+
+	/** Expands a path fragment to a full path.
+	 * @param base The base path to expand from
+	 * @param fragment The path fragment to expand on top of base.
+	 */
+	static std::string ExpandPath(const std::string& base, const std::string& fragment);
+
 	/** Escapes a value for storage in a configuration key.
 	 * @param str The string to escape.
 	 * @param xml Are we using the XML config format?

@@ -207,7 +207,7 @@ void InspIRCd::WritePID(const std::string &filename)
 #ifndef _WIN32
 	std::string fname(filename);
 	if (fname.empty())
-		fname = DATA_PATH "/inspircd.pid";
+		fname = ServerInstance->Config->Paths.PrependData("inspircd.pid");
 	std::ofstream outfile(fname.c_str());
 	if (outfile.is_open())
 	{

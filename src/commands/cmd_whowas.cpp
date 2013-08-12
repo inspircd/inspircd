@@ -342,12 +342,10 @@ class ModuleWhoWas : public Module
 	void OnRehash(User* user)
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("whowas");
-		int NewGroupSize = tag->getInt("groupsize");
-		int NewMaxGroups = tag->getInt("maxgroups");
+		int NewGroupSize = tag->getInt("groupsize", 10, 0, 10000);
+		int NewMaxGroups = tag->getInt("maxgroups", 10240, 0, 1000000);
 		int NewMaxKeep = InspIRCd::Duration(tag->getString("maxkeep"));
 
-		RangeCheck(NewGroupSize, 0, 10000, 10, "<whowas:groupsize>");
-		RangeCheck(NewMaxGroups, 0, 1000000, 10240, "<whowas:maxgroups>");
 		RangeCheck(NewMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
 
 		if ((NewGroupSize == cmd.WhoWasGroupSize) && (NewMaxGroups == cmd.WhoWasMaxGroups) && (NewMaxKeep == cmd.WhoWasMaxKeep))

@@ -286,9 +286,9 @@
          # maxconnwarn: Enable warnings when localmax or globalmax is hit (defaults to on)
          maxconnwarn="off"
 
-         # nouserdns: If enabled, no DNS lookups will be performed on connecting users
+         # resolvehostnames: If disabled, no DNS lookups will be performed on connecting users
          # in this class. This can save a lot of resources on very busy servers.
-         nouserdns="no"
+         resolvehostnames="yes"
 
          # usednsbl: Defines whether or not users in this class are subject to DNSBL. Default is yes.
          # This setting only has effect when m_dnsbl is loaded.
@@ -395,9 +395,9 @@
          # globalmax: Maximum global (network-wide) connections per IP.
          globalmax="3"
 
-         # nouserdns: If enabled, no DNS lookups will be performed on connecting users
+         # resolvehostnames: If disabled, no DNS lookups will be performed on connecting users
          # in this class. This can save a lot of resources on very busy servers.
-         nouserdns="no"
+         resolvehostnames="yes"
 
          # useident: Defines if users in this class must respond to a ident query or not.
          useident="no"
@@ -439,11 +439,11 @@
 
 # This file has all the information about oper classes, types and o:lines.
 # You *MUST* edit it.
-<include file="conf/examples/opers.conf.example">
+<include file="examples/opers.conf.example">
 
 # This file has all the information about server links and ulined servers.
 # You *MUST* edit it if you intend to link servers.
-<include file="conf/examples/links.conf.example">
+<include file="examples/links.conf.example">
 
 #-#-#-#-#-#-#-#-#-#-  MISCELLANEOUS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -453,7 +453,7 @@
 #   motd - displayed on connect and when a user executes /MOTD
 #   rules - displayed when the user executes /RULES
 # Modules can also define their own files
-<files motd="conf/examples/motd.txt.example" rules="conf/examples/rules.txt.example">
+<files motd="examples/motd.txt.example" rules="examples/rules.txt.example">
 
 # Example of an executable file include. Note this will be read on rehash,
 # not when the command is run.
@@ -617,11 +617,11 @@
          # defaultmodes: What modes are set on a empty channel when a user
          # joins it and it is unregistered. This is similar to Asuka's
          # autochanmodes.
-         defaultmodes="nt"
+         defaultmodes="not"
 
-         # moronbanner: This is the text that is sent to a user when they are
+         # xlinemessage: This is the text that is sent to a user when they are
          # banned from the server.
-         moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
+         xlinemessage="You're banned! Email irc@example.com with the ERROR line below for help."
 
          # exemptchanops: exemptions for channel access restrictions based on prefix.
          exemptchanops="nonick:v flood:o"
@@ -729,8 +729,8 @@
           # (Commands like /notice, /privmsg, /kick, etc)
           maxtargets="20"
 
-          # customversion: Displays a custom string when a user /version's
-          # the ircd. This may be set for security reasons or vanity reasons.
+          # customversion: A custom message to be displayed in the comments field
+          # of the VERSION command response. This does not hide the InspIRCd version.
           customversion=""
 
           # operspywhois: show opers (users/auspex) the +s channels a user is in. Values:
@@ -807,6 +807,14 @@
         # maxaway: Maximum length of an away message.
         maxaway="200">
 
+#-#-#-#-#-#-#-#-#-#-#-#-# PATHS CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# This configuration tag defines the location that InspIRCd stores    #
+# various types of files such as configuration files, log files and   #
+# modules. You will probably not need to change these from the values #
+# set when InspIRCd was built unless you are using a binary package   #
+# where you do not have the ability to set build time configuration.  #
+#<path configdir="conf" datadir="data" logdir="logs" moduledir="modules">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Logging
@@ -976,7 +984,7 @@
 # provide almost all the features of InspIRCd. :)                     #
 #                                                                     #
 # The default does nothing -- we include it for simplicity for you.   #
-<include file="conf/examples/modules.conf.example">
+<include file="examples/modules.conf.example">
 
 # Here are some pre-built modules.conf files that closely match the
 # default configurations of some popular IRCd's. You still may want to
@@ -988,10 +996,10 @@
 # recommended that you make your own modules file based on modules.conf.example.
 
 # Settings similar to UnrealIRCd defaults.
-#<include file="conf/examples/modules/unrealircd.conf.example">
+#<include file="examples/modules/unrealircd.conf.example">
 
 # Settings similar to Charybdis IRCd defaults.
-#<include file="conf/examples/modules/charybdis.conf.example">
+#<include file="examples/modules/charybdis.conf.example">
 
 
 #########################################################################
