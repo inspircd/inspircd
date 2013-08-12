@@ -96,7 +96,7 @@
 # Simple autoconnect block. This enables automatic connection of a server
 # Recommended setup is to have leaves connect to the hub, and have no
 # automatic connections started by the hub.
-<autoconnect period="300" server="hub.penguin.org">
+<autoconnect period="10m" server="hub.penguin.org">
 
 # Failover autoconnect block. If you have multiple hubs, or want your network
 # to automatically link even if the hub is down, you can specify multiple

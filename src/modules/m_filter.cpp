@@ -675,7 +675,7 @@ void ModuleFilter::ReadFilters()
 		std::string reason = i->second->getString("reason");
 		std::string action = i->second->getString("action");
 		std::string flgs = i->second->getString("flags");
-		unsigned long gline_time = InspIRCd::Duration(i->second->getString("duration"));
+		unsigned long gline_time = i->second->getDuration("duration", 10*60, 1);
 		if (flgs.empty())
 			flgs = "*";
 

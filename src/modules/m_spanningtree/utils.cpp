@@ -336,7 +336,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 		L->RecvPass = tag->getString("recvpass", tag->getString("password"));
 		L->Fingerprint = tag->getString("fingerprint");
 		L->HiddenFromStats = tag->getBool("statshidden");
-		L->Timeout = tag->getInt("timeout", 30);
+		L->Timeout = tag->getDuration("timeout", 30);
 		L->Hook = tag->getString("ssl");
 		L->Bind = tag->getString("bind");
 		L->Hidden = tag->getBool("hidden");
@@ -380,7 +380,7 @@ void SpanningTreeUtilities::ReadConfiguration()
 	{
 		ConfigTag* tag = i->second;
 		reference<Autoconnect> A = new Autoconnect(tag);
-		A->Period = tag->getInt("period");
+		A->Period = tag->getDuration("period", 60, 1);
 		A->NextConnectTime = ServerInstance->Time() + A->Period;
 		A->position = -1;
 		irc::spacesepstream ss(tag->getString("server"));
@@ -388,11 +388,6 @@ void SpanningTreeUtilities::ReadConfiguration()
 		while (ss.GetToken(server))
 		{
 			A->servers.push_back(server);
-		}
-
-		if (A->Period <= 0)
-		{
-			throw ModuleException("Invalid configuration for autoconnect, period not a positive integer!");
 		}
 
 		if (A->servers.empty())

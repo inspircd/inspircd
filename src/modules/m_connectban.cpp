@@ -46,9 +46,7 @@ class ModuleConnectBan : public Module
 		ipv4_cidr = tag->getInt("ipv4cidr", 32, 1, 32);
 		ipv6_cidr = tag->getInt("ipv6cidr", 128, 1, 128);
 		threshold = tag->getInt("threshold", 10, 1);
-		banduration = InspIRCd::Duration(tag->getString("duration", "10m"));
-		if (banduration == 0)
-			banduration = 10*60;
+		banduration = tag->getDuration("duration", 10*60, 1);
 	}
 
 	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE

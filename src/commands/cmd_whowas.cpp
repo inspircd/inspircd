@@ -299,16 +299,6 @@ class ModuleWhoWas : public Module
 {
 	CommandWhowas cmd;
 
-	void RangeCheck(int& value, int min, int max, int def, const char* msg)
-	{
-		// From ConfigReader
-		if (value >= min && value <= max)
-			return;
-
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: %s value of %d is not between %d and %d; set to %d.", msg, value, min, max, def);
-		value = def;
-	}
-
  public:
 	ModuleWhoWas() : cmd(this)
 	{
@@ -344,9 +334,7 @@ class ModuleWhoWas : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("whowas");
 		int NewGroupSize = tag->getInt("groupsize", 10, 0, 10000);
 		int NewMaxGroups = tag->getInt("maxgroups", 10240, 0, 1000000);
-		int NewMaxKeep = InspIRCd::Duration(tag->getString("maxkeep"));
-
-		RangeCheck(NewMaxKeep, 3600, INT_MAX, 3600, "<whowas:maxkeep>");
+		int NewMaxKeep = tag->getDuration("maxkeep", 3600, 3600);
 
 		if ((NewGroupSize == cmd.WhoWasGroupSize) && (NewMaxGroups == cmd.WhoWasMaxGroups) && (NewMaxKeep == cmd.WhoWasMaxKeep))
 			return;

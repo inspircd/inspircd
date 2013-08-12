@@ -289,7 +289,7 @@ class ModuleDNSBL : public Module
 			}
 
 			e->banaction = str2banaction(tag->getString("action"));
-			e->duration = InspIRCd::Duration(tag->getString("duration", "60"));
+			e->duration = tag->getDuration("duration", 60, 1);
 
 			/* Use portparser for record replies */
 
@@ -313,11 +313,6 @@ class ModuleDNSBL : public Module
 			{
 				std::string location = tag->getTagLocation();
 				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid banaction", location.c_str());
-			}
-			else if (e->duration <= 0)
-			{
-				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid duration", location.c_str());
 			}
 			else
 			{

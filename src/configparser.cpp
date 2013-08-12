@@ -445,13 +445,30 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 			res = res * 1024 * 1024 * 1024;
 			break;
 	}
+
+	CheckRange(key, res, def, min, max);
+	return res;
+}
+
+void ConfigTag::CheckRange(const std::string& key, long& res, long def, long min, long max)
+{
 	if (res < min || res > max)
 	{
 		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <%s:%s> value of %ld is not between %ld and %ld; set to %ld.",
 			tag.c_str(), key.c_str(), res, min, max, def);
 		res = def;
 	}
-	return res;
+}
+
+time_t ConfigTag::getDuration(const std::string& key, long def, long min, long max)
+{
+	std::string duration;
+	if (!readString(key, duration))
+		return def;
+
+	time_t ret = InspIRCd::Duration(duration);
+	CheckRange(key, ret, def, min, max);
+	return ret;
 }
 
 double ConfigTag::getFloat(const std::string &key, double def)

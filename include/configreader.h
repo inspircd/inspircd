@@ -50,6 +50,16 @@ class CoreExport ConfigTag : public refcountbase
 	/** Get the value of an option, using def if it does not exist */
 	bool getBool(const std::string& key, bool def = false);
 
+	/** Get the value in seconds of a duration that is in the user-friendly "1h2m3s" format,
+	 * using a default value if it does not exist or is out of bounds.
+	 * @param key The config key name
+	 * @param def Default value (optional)
+	 * @param min Minimum acceptable value (optional)
+	 * @param max Maximum acceptable value (optional)
+	 * @return The duration in seconds
+	 */
+	time_t getDuration(const std::string& key, time_t def = 0, long min = LONG_MIN, long max = LONG_MAX);
+
 	/** Get the value of an option
 	 * @param key The option to get
 	 * @param value The location to store the value (unmodified if does not exist)
@@ -57,6 +67,16 @@ class CoreExport ConfigTag : public refcountbase
 	 * @return true if the option exists
 	 */
 	bool readString(const std::string& key, std::string& value, bool allow_newline = false);
+
+	/** Check for an out of range value. If the value falls outside the boundaries a warning is
+	 * logged and the value is corrected (set to def).
+	 * @param key The key name, used in the warning message
+	 * @param res The value to verify and modify if needed
+	 * @param def The default value, res will be set to this if (min <= res <= max) doesn't hold true
+	 * @param min Minimum accepted value for res
+	 * @param max Maximum accepted value for res
+	 */
+	void CheckRange(const std::string& key, long& res, long def, long min, long max);
 
 	std::string getTagLocation();
 
