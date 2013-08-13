@@ -507,10 +507,13 @@ class CoreExport ServerConfig
 	 */
 	bool FullHostInTopic;
 
-	/** Oper block and type index.
-	 * For anonymous oper blocks (type only), prefix with a space.
+	/** Oper blocks keyed by their name
 	 */
 	OperIndex oper_blocks;
+
+	/** Oper types keyed by their name
+	 */
+	OperIndex OperTypes;
 
 	/** Max channels per user
 	 */

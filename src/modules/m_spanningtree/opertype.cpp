@@ -36,8 +36,8 @@ CmdResult CommandOpertype::Handle(const std::vector<std::string>& params, User *
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
 	u->SetMode(opermh, true);
 
-	OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + opertype);
-	if (iter != ServerInstance->Config->oper_blocks.end())
+	OperIndex::iterator iter = ServerInstance->Config->OperTypes.find(opertype);
+	if (iter != ServerInstance->Config->OperTypes.end())
 		u->oper = iter->second;
 	else
 	{

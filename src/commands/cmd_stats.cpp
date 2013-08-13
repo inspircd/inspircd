@@ -325,11 +325,8 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		break;
 		case 'O':
 		{
-			for(OperIndex::iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); i++)
+			for (OperIndex::const_iterator i = ServerInstance->Config->OperTypes.begin(); i != ServerInstance->Config->OperTypes.end(); ++i)
 			{
-				// just the types, not the actual oper blocks...
-				if (i->first[0] != ' ')
-					continue;
 				OperInfo* tag = i->second;
 				tag->init();
 				std::string umodes;

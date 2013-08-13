@@ -78,8 +78,8 @@ class OpMeQuery : public SQLQuery
 
 	bool OperUser(User* user, const std::string &pattern, const std::string &type)
 	{
-		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(" " + type);
-		if (iter == ServerInstance->Config->oper_blocks.end())
+		OperIndex::iterator iter = ServerInstance->Config->OperTypes.find(type);
+		if (iter == ServerInstance->Config->OperTypes.end())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
 			return false;
