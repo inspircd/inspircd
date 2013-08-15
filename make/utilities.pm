@@ -108,15 +108,6 @@ sub pkgconfig_get_include_dirs($$$;$)
 {
 	my ($packagename, $headername, $defaults, $module) = @_;
 
-	my $key = "default_includedir_$packagename";
-	if (exists $main::config{$key})
-	{
-		print "Locating include directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
-		my $ret = $main::config{$key};
-		print "\e[1;32m$ret\e[0m (cached)\n";
-		return $ret;
-	}
-
 	extend_pkg_path();
 
 	print "Locating include directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
@@ -222,15 +213,6 @@ sub pkgconfig_check_version($$;$)
 sub pkgconfig_get_lib_dirs($$$;$)
 {
 	my ($packagename, $libname, $defaults, $module) = @_;
-
-	my $key = "default_libdir_$packagename";
-	if (exists $main::config{$key})
-	{
-		print "Locating library directory for package \e[1;32m$packagename\e[0m for module \e[1;32m$module\e[0m... ";
-		my $ret = $main::config{$key};
-		print "\e[1;32m$ret\e[0m (cached)\n";
-		return $ret;
-	}
 
 	extend_pkg_path();
 

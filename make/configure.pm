@@ -31,7 +31,7 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use POSIX;
 use make::utilities;
-our @EXPORT = qw(get_compiler_info find_compiler run_test test_file test_header promptnumeric dumphash getmodules getrevision getcompilerflags getlinkerflags getdependencies nopedantic yesno showhelp promptstring_s module_installed);
+our @EXPORT = qw(get_compiler_info find_compiler run_test test_file test_header promptnumeric dumphash getmodules getrevision get_property yesno showhelp promptstring_s module_installed);
 
 my $revision;
 
@@ -110,71 +110,26 @@ sub yesno {
 	return;
 }
 
+sub get_property($$;$)
+{
+	my ($file, $property, $default) = @_;
+	open(MODULE, $file) or return $default;
+	while (<MODULE>) {
+		if ($_ =~ /^\/\* \$(\S+): (.+) \*\/$/) {
+			next unless $1 eq $property;
+			close(MODULE);
+			return translate_functions($2, $file);
+		}
+	}
+	close(MODULE);
+	return defined $default ? $default : '';
+}
+
 sub getrevision {
 	return $revision if defined $revision;
 	chomp(my $tags = `git describe --tags 2>/dev/null`);
 	$revision = $tags || 'release';
 	return $revision;
-}
-
-sub getcompilerflags {
-	my ($file) = @_;
-	open(FLAGS, $file) or return "";
-	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
-			my $x = translate_functions($1, $file);
-			next if ($x eq "");
-			close(FLAGS);
-			return $x;
-		}
-	}
-	close(FLAGS);
-	return "";
-}
-
-sub getlinkerflags {
-	my ($file) = @_;
-	open(FLAGS, $file) or return "";
-	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
-			my $x = translate_functions($1, $file);
-			next if ($x eq "");
-			close(FLAGS);
-			return $x;
-		}
-	}
-	close(FLAGS);
-	return "";
-}
-
-sub getdependencies {
-	my ($file) = @_;
-	open(FLAGS, $file) or return "";
-	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
-			my $x = translate_functions($1, $file);
-			next if ($x eq "");
-			close(FLAGS);
-			return $x;
-		}
-	}
-	close(FLAGS);
-	return "";
-}
-
-sub nopedantic {
-	my ($file) = @_;
-	open(FLAGS, $file) or return "";
-	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$NoPedantic \*\/$/) {
-			my $x = translate_functions($_, $file);
-			next if ($x eq "");
-			close(FLAGS);
-			return 1;
-		}
-	}
-	close(FLAGS);
-	return 0;
 }
 
 sub getmodules

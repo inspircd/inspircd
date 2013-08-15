@@ -41,7 +41,7 @@ use Getopt::Long;
 use make::configure;
 use make::utilities;
 
-our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_socketengine, $opt_freebsd_port,
+our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_socketengine,
      $opt_system, $opt_uid, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
      $opt_data_dir, $opt_log_dir);
 
@@ -61,7 +61,6 @@ GetOptions (
 	'enable-openssl' => \$opt_use_openssl,
 	'disable-interactive' => \$opt_nointeractive,
 	'socketengine=s' => \$opt_socketengine,
-	'enable-freebsd-ports-openssl' => \$opt_freebsd_port,
 	'prefix=s' => \$opt_base_dir,
 	'config-dir=s' => \$opt_config_dir,
 	'module-dir=s' => \$opt_module_dir,
@@ -99,8 +98,7 @@ our $interactive = !(
 	(defined $opt_use_openssl) ||
 	(defined $opt_system) ||
 	(defined $opt_uid) ||
-	(defined $opt_use_gnutls) ||
-	(defined $opt_freebsd_port)
+	(defined $opt_use_gnutls)
 );
 
 our $topdir = getcwd();
@@ -149,28 +147,8 @@ if (defined $opt_data_dir) {
 if (defined $opt_log_dir) {
 	$config{LOG_DIR} = $opt_log_dir;
 }
-chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null`); # GNUTLS Version.
-
-if (defined $opt_freebsd_port)
-{
-	chomp($config{HAS_OPENSSL} = `pkg-config --modversion openssl 2>/dev/null`);
-	chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);
-	$config{USE_FREEBSD_BASE_SSL} = "n";
-}
-else
-{
-	if ($^O eq "freebsd")
-	{
-		# default: use base ssl
-		chomp($config{HAS_OPENSSL} = `openssl version | cut -d ' ' -f 2`);			# OpenSSL version, freebsd specific
-		chomp($config{HAS_OPENSSL_PORT}  = `pkg-config --modversion openssl 2>/dev/null`);	# Port version, may be different
-	}
-	else
-	{
-		chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version, others
-		$config{HAS_OPENSSL_PORT} = "";
-	}
-}
+chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null`);
+chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);
 
 chomp(our $gnutls_ver = $config{HAS_GNUTLS});
 chomp(our $openssl_ver = $config{HAS_OPENSSL});
@@ -402,28 +380,6 @@ STOP
 		$config{SOCKETENGINE} = "select";
 	}
 
-	$config{USE_FREEBSD_BASE_SSL} = "n";
-	$config{USE_FREEBSD_PORTS_SSL} = "n";
-	if ($config{HAS_OPENSSL_PORT} ne "")
-	{
-		$config{USE_FREEBSD_PORTS_SSL} = "y";
-		print "I have detected the OpenSSL FreeBSD port installed on your system,\n";
-		print "version \e[1;32m".$config{HAS_OPENSSL_PORT}."\e[0m. Your base system OpenSSL is version \e[1;32m".$openssl_ver."\e[0m.\n\n";
-		yesno('USE_FREEBSD_PORTS_SSL', "Do you want to use the FreeBSD ports version?");
-		print "\n";
-		$config{USE_FREEBSD_BASE_SSL} = "y" if ($config{USE_FREEBSD_PORTS_SSL} eq "n");
-
-		if ($config{USE_FREEBSD_BASE_SSL} eq "n")
-		{
-			# update to port version
-			$openssl_ver = $config{HAS_OPENSSL_PORT};
-		}
-	}
-	else
-	{
-		$config{USE_FREEBSD_BASE_SSL} = "y" if ($^O eq "freebsd");
-	}
-
 	$config{USE_SSL} = "n";
 
 	if ($config{HAS_GNUTLS} eq "y" || $config{HAS_OPENSSL} eq "y")
@@ -465,12 +421,12 @@ symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
 
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
 {
-	print "Sorry, but i couldn't detect gnutls. Make sure gnutls-config is in your path.\n";
+	print "Sorry, but i couldn't detect gnutls. Make sure pkg-config is in your path.\n";
 	exit 1;
 }
 if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 {
-	print "Sorry, but i couldn't detect openssl. Make sure openssl is in your path.\n";
+	print "Sorry, but i couldn't detect openssl. Make sure pkg-config is in your path.\n";
 	exit 1;
 }
 
@@ -531,7 +487,7 @@ if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
 	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
 }
 
-depcheck();
+getmodules();
 writefiles();
 makecache();
 dumphash();
@@ -732,15 +688,6 @@ EOF
 	chmod 0755, 'inspircd';
 }
 
-sub depcheck
-{
-	getmodules();
-	for my $mod (@modlist) {
-		getcompilerflags("src/modules/m_$mod.cpp");
-		getlinkerflags("src/modules/m_$mod.cpp");
-	}
-}
-
 # Routine to list out the extra/ modules that have been enabled.
 # Note: when getting any filenames out and comparing, it's important to lc it if the
 # file system is not case-sensitive (== Epoc, MacOS, OS/2 (incl DOS/DJGPP), VMS, Win32
@@ -804,7 +751,7 @@ EXTRA:	for my $extra (@extras) {
 	for my $extra (keys(%extras)) {
 		next unless $extras{$extra} =~ m/enabled/; # only process enabled extras.
 		my $abs_extra = File::Spec->catfile($abs_srcdir, "extra", $extra);
-		my @deps = split / +/, getdependencies($abs_extra);
+		my @deps = split /\s+/, get_property($abs_extra, 'ModDep');
 		for my $dep (@deps) {
 			if (exists($extras{$dep})) {
 				my $ref = \$extras{$dep}; # Take reference.
@@ -851,7 +798,7 @@ sub enable_extras (@) {
 			next;
 		}
 		# Get dependencies, and add them to be processed.
-		my @deps = split / +/, getdependencies($extrapath);
+		my @deps = split /\s+/, get_property($extrapath, 'ModDep');
 		for my $dep (@deps) {
 			next if scalar(grep { $_ eq $dep } (@extras)) > 0; # Skip if we're going to be enabling it anyway.
 			if (!-e "src/modules/$dep" && !-e "include/$dep") {
@@ -887,7 +834,7 @@ EXTRA:	for my $extra (@extras) {
 		}
 		# Check if anything needs this.
 		for my $file (@files) {
-			my @deps = split / +/, getdependencies("src/modules/extra/$file");
+			my @deps = split /\s+/, get_property("src/modules/extra/$file", 'ModDep');
 			# File depends on this extra...
 			if (scalar(grep { $_ eq $extra } @deps) > 0) {
 				# And is both enabled and not about to be disabled.
