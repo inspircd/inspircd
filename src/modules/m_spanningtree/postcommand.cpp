@@ -23,8 +23,6 @@
 #include "utils.h"
 #include "treeserver.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h */
-
 void ModuleSpanningTree::OnPostCommand(Command* command, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line)
 {
 	if (result == CMD_SUCCESS)

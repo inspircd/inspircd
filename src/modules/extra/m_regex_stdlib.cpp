@@ -21,7 +21,6 @@
 #include <regex>
 
 /* $CompileFlags: -std=c++11 */
-/* $ModDep: modules/regex.h */
 
 class StdRegexException : public ModuleException
 {

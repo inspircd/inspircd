@@ -22,8 +22,6 @@
 #include "utils.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
 /**
  * SAVE command - force nick change to UID on timestamp match
  */

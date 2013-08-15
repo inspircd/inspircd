@@ -26,8 +26,6 @@
 #include "iohook.h"
 #include "modules/httpd.h"
 
-/* $ModDep: modules/httpd.h */
-
 class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;

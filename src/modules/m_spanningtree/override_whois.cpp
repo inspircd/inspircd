@@ -21,8 +21,6 @@
 #include "main.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h */
-
 ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parameters, User* user)
 {
 	if ((IS_LOCAL(user)) && (parameters.size() > 1))

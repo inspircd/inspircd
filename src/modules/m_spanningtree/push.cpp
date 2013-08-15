@@ -22,8 +22,6 @@
 #include "utils.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treesocket.h */
-
 bool TreeSocket::Push(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 2)

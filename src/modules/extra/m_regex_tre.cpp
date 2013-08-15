@@ -25,7 +25,6 @@
 
 /* $CompileFlags: pkgconfincludes("tre","tre/regex.h","") */
 /* $LinkerFlags: pkgconflibs("tre","/libtre.so","-ltre") rpath("pkg-config --libs tre") */
-/* $ModDep: modules/regex.h */
 
 class TRERegexException : public ModuleException
 {

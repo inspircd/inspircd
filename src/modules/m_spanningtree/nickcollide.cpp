@@ -23,9 +23,6 @@
 #include "treesocket.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treesocket.h */
-
-
 /*
  * Yes, this function looks a little ugly.
  * However, in some circumstances we may not have a User, so we need to do things this way.

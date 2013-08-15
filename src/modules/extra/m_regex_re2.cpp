@@ -29,7 +29,6 @@
 
 /* $CompileFlags: -std=c++11 */
 /* $LinkerFlags: -lre2 */
-/* $ModDep: modules/regex.h */
 
 class RE2Exception : public ModuleException
 {

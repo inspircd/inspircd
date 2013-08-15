@@ -21,9 +21,6 @@
 #include "treesocket.h"
 #include "utils.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
-
 bool TreeSocket::OperQuit(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)

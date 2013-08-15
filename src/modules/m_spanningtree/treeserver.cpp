@@ -28,8 +28,6 @@
 #include "utils.h"
 #include "treeserver.h"
 
-/* $ModDep: m_spanningtree/utils.h m_spanningtree/treeserver.h */
-
 /** We use this constructor only to create the 'root' item, Utils->TreeRoot, which
  * represents our own server. Therefore, it has no route, no parent, and
  * no socket associated with it. Its version string is our own local version.

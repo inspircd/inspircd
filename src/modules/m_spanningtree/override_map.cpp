@@ -25,8 +25,6 @@
 #include "utils.h"
 #include "treeserver.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h */
-
 const std::string ModuleSpanningTree::MapOperInfo(TreeServer* Current)
 {
 	time_t secs_up = ServerInstance->Time() - Current->age;

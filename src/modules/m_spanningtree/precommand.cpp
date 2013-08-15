@@ -22,8 +22,6 @@
 
 #include "main.h"
 
-/* $ModDep: m_spanningtree/main.h */
-
 ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
 	/* If the command doesnt appear to be valid, we dont want to mess with it. */

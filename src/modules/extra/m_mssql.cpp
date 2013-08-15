@@ -32,7 +32,6 @@
 
 /* $CompileFlags: exec("grep VERSION_NO /usr/include/tdsver.h 2>/dev/null | perl -e 'print "-D_TDSVER=".((<> =~ /freetds v(\d+\.\d+)/i) ? $1*100 : 0);'") */
 /* $LinkerFlags: -ltds */
-/* $ModDep: m_sqlv2.h */
 
 class SQLConn;
 class MsSQLResult;

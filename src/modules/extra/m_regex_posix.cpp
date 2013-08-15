@@ -23,8 +23,6 @@
 #include <sys/types.h>
 #include <regex.h>
 
-/* $ModDep: modules/regex.h */
-
 class POSIXRegexException : public ModuleException
 {
  public:

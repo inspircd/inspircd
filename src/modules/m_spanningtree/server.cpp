@@ -25,8 +25,6 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h m_spanningtree/link.h */
-
 /*
  * Some server somewhere in the network introducing another server.
  *	-- w

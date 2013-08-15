@@ -23,8 +23,6 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-/* $ModDep: m_spanningtree/main.h m_spanningtree/utils.h m_spanningtree/treeserver.h m_spanningtree/treesocket.h */
-
 bool TreeSocket::LocalPong(const std::string &prefix, parameterlist &params)
 {
 	if (params.size() < 1)
