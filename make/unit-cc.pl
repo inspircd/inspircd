@@ -52,7 +52,7 @@ exit 1;
 sub do_static_find {
 	my @flags;
 	for my $file (@ARGV) {
-		push @flags, getlinkerflags($file);
+		push @flags, get_property($file, 'LinkerFlags');
 	}
 	open F, '>', $out;
 	print F join ' ', @flags;
@@ -97,9 +97,7 @@ sub do_compile {
 	my $libs = '';
 	my $binary = $ENV{RUNCC};
 	if ($do_compile) {
-		$flags = $ENV{CORECXXFLAGS};
-		$flags =~ s/ -pedantic// if nopedantic($file);
-		$flags .= ' ' . getcompilerflags($file);
+		$flags = $ENV{CORECXXFLAGS} . ' ' . get_property($file, 'CompileFlags');
 
 		if ($file =~ m#(?:^|/)((?:m|cmd)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
 			$flags .= ' -DMODNAME=\\"'.$1.'\\"';
@@ -110,7 +108,7 @@ sub do_compile {
 
 	if ($do_link) {
 		$flags = join ' ', $flags, $ENV{PICLDFLAGS};
-		$libs = join ' ', getlinkerflags($file);
+		$libs = get_property($file, 'LinkerFlags');
 	} else {
 		$flags .= ' -c';
 	}

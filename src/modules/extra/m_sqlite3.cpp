@@ -28,9 +28,8 @@
 # pragma comment(lib, "sqlite3.lib")
 #endif
 
-/* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") */
+/* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") -Wno-pedantic */
 /* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
-/* $NoPedantic */
 
 class SQLConn;
 typedef std::map<std::string, SQLConn*> ConnMap;
