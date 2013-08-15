@@ -24,8 +24,8 @@
 #include "treeserver.h"
 #include "commands.h"
 
-CommandRSQuit::CommandRSQuit (Module* Creator, SpanningTreeUtilities* Util)
-	: Command(Creator, "RSQUIT", 1), Utils(Util)
+CommandRSQuit::CommandRSQuit(Module* Creator)
+	: Command(Creator, "RSQUIT", 1)
 {
 	flags_needed = 'o';
 	syntax = "<target-server-mask> [reason]";

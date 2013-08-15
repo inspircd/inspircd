@@ -48,7 +48,6 @@ class TreeServer : public classbase
 	TreeSocket* Socket;			/* For directly connected servers this points at the socket object */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
-	SpanningTreeUtilities* Utils;		/* Utility class */
 	std::string sid;			/* Server ID */
 
 	/** This method is used to add this TreeServer to the
@@ -70,13 +69,13 @@ class TreeServer : public classbase
 	 * represents our own server. Therefore, it has no route, no parent, and
 	 * no socket associated with it. Its version string is our own local version.
 	 */
-	TreeServer(SpanningTreeUtilities* Util);
+	TreeServer();
 
 	/** When we create a new server, we call this constructor to initialize it.
 	 * This constructor initializes the server's Route and Parent, and sets up
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
-	TreeServer(SpanningTreeUtilities* Util, const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide);
+	TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide);
 
 	int QuitUsers(const std::string &reason);
 

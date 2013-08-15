@@ -35,8 +35,8 @@
  * most of the action, and append a few of our own values
  * to it.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr)
-	: Utils(Util), linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0), ConnectionFailureShown(false)
+TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
+	: linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0), ConnectionFailureShown(false)
 	, age(ServerInstance->Time())
 {
 	capab = new CapabData;
@@ -62,8 +62,9 @@ TreeSocket::TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* mya
  * we must associate it with a socket without creating a new
  * connection. This constructor is used for this purpose.
  */
-TreeSocket::TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-	: BufferedSocket(newfd), Utils(Util), linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
+TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+	: BufferedSocket(newfd)
+	, linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
 	, ConnectionFailureShown(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;

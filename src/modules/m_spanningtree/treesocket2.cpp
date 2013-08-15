@@ -172,7 +172,7 @@ void TreeSocket::ProcessLine(std::string &line)
 
 				linkID = capab->name;
 
-				MyRoot = new TreeServer(Utils, capab->name, capab->description, capab->sid, Utils->TreeRoot, this, capab->hidden);
+				MyRoot = new TreeServer(capab->name, capab->description, capab->sid, Utils->TreeRoot, this, capab->hidden);
 				Utils->TreeRoot->AddChild(MyRoot);
 
 				MyRoot->bursting = true;

@@ -72,7 +72,7 @@ bool TreeSocket::RemoteServer(const std::string &prefix, parameterlist &params)
 
 	Link* lnk = Utils->FindLink(servername);
 
-	TreeServer *Node = new TreeServer(Utils, servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
+	TreeServer *Node = new TreeServer(servername, description, sid, ParentOfThis,NULL, lnk ? lnk->Hidden : false);
 
 	ParentOfThis->AddChild(Node);
 	params[4] = ":" + params[4];
@@ -149,7 +149,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		Utils->timeoutlist.erase(this);
 		linkID = sname;
 
-		MyRoot = new TreeServer(Utils, sname, description, sid, Utils->TreeRoot, this, x->Hidden);
+		MyRoot = new TreeServer(sname, description, sid, Utils->TreeRoot, this, x->Hidden);
 		Utils->TreeRoot->AddChild(MyRoot);
 		this->DoBurst(MyRoot);
 

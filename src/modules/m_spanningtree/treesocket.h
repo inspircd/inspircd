@@ -89,7 +89,6 @@ struct CapabData
  */
 class TreeSocket : public BufferedSocket
 {
-	SpanningTreeUtilities* Utils;		/* Utility class */
 	std::string linkID;			/* Description for this link */
 	ServerState LinkState;			/* Link state */
 	CapabData* capab;			/* Link setup data (held until burst is sent) */
@@ -111,13 +110,13 @@ class TreeSocket : public BufferedSocket
 	 * most of the action, and append a few of our own values
 	 * to it.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, Link* link, Autoconnect* myac, const std::string& ipaddr);
+	TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr);
 
 	/** When a listening socket gives us a new file descriptor,
 	 * we must associate it with a socket without creating a new
 	 * connection. This constructor is used for this purpose.
 	 */
-	TreeSocket(SpanningTreeUtilities* Util, int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 
 	/** Get link state
 	 */

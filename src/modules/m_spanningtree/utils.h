@@ -33,6 +33,8 @@ class Autoconnect;
 class ModuleSpanningTree;
 class SpanningTreeUtilities;
 
+extern SpanningTreeUtilities* Utils;
+
 /* This hash_map holds the hash equivalent of the server
  * tree, used for rapid linear lookups.
  */

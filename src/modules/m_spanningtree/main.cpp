@@ -36,12 +36,12 @@
 #include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: commands(NULL), DNS(this, "DNS"), Utils(NULL)
+	: commands(NULL), DNS(this, "DNS")
 {
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
-	: rconnect(module, module->Utils), rsquit(module, module->Utils),
+	: rconnect(module), rsquit(module),
 	svsjoin(module), svspart(module), svsnick(module), metadata(module),
 	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
 	fmode(module), ftopic(module), fhost(module), fident(module), fname(module)
@@ -53,6 +53,7 @@ void ModuleSpanningTree::init()
 	ServerInstance->SNO->EnableSnomask('l', "LINK");
 
 	Utils = new SpanningTreeUtilities(this);
+	Utils->TreeRoot = new TreeServer;
 	commands = new SpanningTreeCommands(this);
 	ServerInstance->Modules->AddService(commands->rconnect);
 	ServerInstance->Modules->AddService(commands->rsquit);
@@ -275,7 +276,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	if (ipvalid)
 	{
 		/* Gave a hook, but it wasnt one we know */
-		TreeSocket* newsocket = new TreeSocket(Utils, x, y, x->IPAddr);
+		TreeSocket* newsocket = new TreeSocket(x, y, x->IPAddr);
 		if (newsocket->GetFd() > -1)
 		{
 			/* Handled automatically on success */
@@ -293,7 +294,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 	}
 	else
 	{
-		ServernameResolver* snr = new ServernameResolver(Utils, *DNS, x->IPAddr, x, start_type, y);
+		ServernameResolver* snr = new ServernameResolver(*DNS, x->IPAddr, x, start_type, y);
 		try
 		{
 			DNS->Process(snr);

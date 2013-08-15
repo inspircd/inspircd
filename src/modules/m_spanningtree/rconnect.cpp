@@ -24,8 +24,8 @@
 #include "utils.h"
 #include "commands.h"
 
-CommandRConnect::CommandRConnect (Module* Creator, SpanningTreeUtilities* Util)
-	: Command(Creator, "RCONNECT", 2), Utils(Util)
+CommandRConnect::CommandRConnect (Module* Creator)
+	: Command(Creator, "RCONNECT", 2)
 {
 	flags_needed = 'o';
 	syntax = "<remote-server-mask> <target-server-mask>";

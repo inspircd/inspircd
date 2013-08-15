@@ -34,8 +34,9 @@
  * callback to OnLookupComplete or OnError when completed. Once it has completed we
  * will have an IP address which we can then use to continue our connection.
  */
-ServernameResolver::ServernameResolver(SpanningTreeUtilities* Util, DNS::Manager *mgr, const std::string &hostname, Link* x, DNS::QueryType qt, Autoconnect* myac)
-	: DNS::Request(mgr, Util->Creator, hostname, qt), Utils(Util), query(qt), host(hostname), MyLink(x), myautoconnect(myac)
+ServernameResolver::ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac)
+	: DNS::Request(mgr, Utils->Creator, hostname, qt)
+	, query(qt), host(hostname), MyLink(x), myautoconnect(myac)
 {
 }
 
@@ -50,7 +51,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 	TreeServer* CheckDupe = Utils->FindServer(MyLink->Name.c_str());
 	if (!CheckDupe) /* Check that nobody tried to connect it successfully while we were resolving */
 	{
-		TreeSocket* newsocket = new TreeSocket(Utils, MyLink, myautoconnect, ans_record.rdata);
+		TreeSocket* newsocket = new TreeSocket(MyLink, myautoconnect, ans_record.rdata);
 		if (newsocket->GetFd() > -1)
 		{
 			/* We're all OK */
@@ -70,7 +71,7 @@ void ServernameResolver::OnError(const DNS::Query *r)
 	/* Ooops! */
 	if (query == DNS::QUERY_AAAA)
 	{
-		ServernameResolver* snr = new ServernameResolver(Utils, this->manager, host, MyLink, DNS::QUERY_A, myautoconnect);
+		ServernameResolver* snr = new ServernameResolver(this->manager, host, MyLink, DNS::QUERY_A, myautoconnect);
 		try
 		{
 			this->manager->Process(snr);
@@ -86,8 +87,9 @@ void ServernameResolver::OnError(const DNS::Query *r)
 	Utils->Creator->ConnectServer(myautoconnect, false);
 }
 
-SecurityIPResolver::SecurityIPResolver(Module* me, SpanningTreeUtilities* U, DNS::Manager *mgr, const std::string &hostname, Link* x, DNS::QueryType qt)
-		: DNS::Request(mgr, me, hostname, qt), MyLink(x), Utils(U), mine(me), host(hostname), query(qt)
+SecurityIPResolver::SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt)
+	: DNS::Request(mgr, me, hostname, qt)
+	, MyLink(x), mine(me), host(hostname), query(qt)
 {
 }
 
@@ -110,7 +112,7 @@ void SecurityIPResolver::OnError(const DNS::Query *r)
 {
 	if (query == DNS::QUERY_AAAA)
 	{
-		SecurityIPResolver* res = new SecurityIPResolver(mine, Utils, this->manager, host, MyLink, DNS::QUERY_A);
+		SecurityIPResolver* res = new SecurityIPResolver(mine, this->manager, host, MyLink, DNS::QUERY_A);
 		try
 		{
 			this->manager->Process(res);
@@ -125,8 +127,8 @@ void SecurityIPResolver::OnError(const DNS::Query *r)
 		MyLink->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
 }
 
-CacheRefreshTimer::CacheRefreshTimer(SpanningTreeUtilities* Util)
-	: Timer(3600, ServerInstance->Time(), true), Utils(Util)
+CacheRefreshTimer::CacheRefreshTimer()
+	: Timer(3600, ServerInstance->Time(), true)
 {
 }
 

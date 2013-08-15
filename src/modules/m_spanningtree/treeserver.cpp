@@ -32,9 +32,9 @@
  * represents our own server. Therefore, it has no route, no parent, and
  * no socket associated with it. Its version string is our own local version.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util)
+TreeServer::TreeServer()
 	: Parent(NULL), Route(NULL), ServerName(ServerInstance->Config->ServerName), ServerDesc(ServerInstance->Config->ServerDesc)
-	, VersionString(ServerInstance->GetVersionString()), Socket(NULL), Utils(Util), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
+	, VersionString(ServerInstance->GetVersionString()), Socket(NULL), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
 	AddHashEntry();
@@ -44,8 +44,8 @@ TreeServer::TreeServer(SpanningTreeUtilities* Util)
  * This constructor initializes the server's Route and Parent, and sets up
  * its ping counters so that it will be pinged one minute from now.
  */
-TreeServer::TreeServer(SpanningTreeUtilities* Util, const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock), Utils(Util), sid(id), ServerUser(new FakeUser(id, Name))
+TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
+	: Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock), sid(id), ServerUser(new FakeUser(id, Name))
 	, age(ServerInstance->Time()), Warned(false), bursting(true), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
 {
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
@@ -153,7 +153,7 @@ int TreeServer::QuitUsers(const std::string &reason)
 		User* a = (User*)*n;
 		if (!IS_LOCAL(a))
 		{
-			if (this->Utils->quiet_bursts)
+			if (Utils->quiet_bursts)
 				a->quietquit = true;
 
 			if (ServerInstance->Config->HideSplits)

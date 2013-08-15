@@ -27,7 +27,6 @@
 
 CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 {
-	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 	/** Do we have enough parameters:
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
 	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :gecos

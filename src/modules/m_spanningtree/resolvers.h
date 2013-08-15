@@ -32,12 +32,11 @@ class SecurityIPResolver : public DNS::Request
 {
  private:
 	reference<Link> MyLink;
-	SpanningTreeUtilities* Utils;
 	Module* mine;
 	std::string host;
 	DNS::QueryType query;
  public:
-	SecurityIPResolver(Module* me, SpanningTreeUtilities* U, DNS::Manager *mgr, const std::string &hostname, Link* x, DNS::QueryType qt);
+	SecurityIPResolver(Module* me, DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt);
 	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
 	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
 };
@@ -51,13 +50,12 @@ class SecurityIPResolver : public DNS::Request
 class ServernameResolver : public DNS::Request
 {
  private:
-	SpanningTreeUtilities* Utils;
 	DNS::QueryType query;
 	std::string host;
 	reference<Link> MyLink;
 	reference<Autoconnect> myautoconnect;
  public:
-	ServernameResolver(SpanningTreeUtilities* Util, DNS::Manager *mgr, const std::string &hostname, Link* x, DNS::QueryType qt, Autoconnect* myac);
+	ServernameResolver(DNS::Manager* mgr, const std::string& hostname, Link* x, DNS::QueryType qt, Autoconnect* myac);
 	void OnLookupComplete(const DNS::Query *r) CXX11_OVERRIDE;
 	void OnError(const DNS::Query *q) CXX11_OVERRIDE;
 };

@@ -28,6 +28,8 @@
 #include "treesocket.h"
 #include "resolvers.h"
 
+SpanningTreeUtilities* Utils = NULL;
+
 /* Create server sockets off a listener. */
 ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 {
@@ -41,7 +43,7 @@ ModResult ModuleSpanningTree::OnAcceptConnection(int newsock, ListenSocket* from
 		if (*i == "*" || *i == incomingip || irc::sockets::cidr_mask(*i).match(*client))
 		{
 			/* we don't need to do anything with the pointer, creating it stores it in the necessary places */
-			new TreeSocket(Utils, newsock, from, client, server);
+			new TreeSocket(newsock, from, client, server);
 			return MOD_RES_ALLOW;
 		}
 	}
@@ -127,11 +129,10 @@ TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 }
 
 SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
-	: RefreshTimer(this), Creator(C)
+	: Creator(C), TreeRoot(NULL)
 {
 	ServerInstance->Timers->AddTimer(&RefreshTimer);
 
-	this->TreeRoot = new TreeServer(this);
 	this->ReadConfiguration();
 }
 
@@ -288,7 +289,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			ValidIPs.push_back(L->IPAddr);
 		else if (this->Creator->DNS)
 		{
-			SecurityIPResolver* sr = new SecurityIPResolver(Creator, this, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
+			SecurityIPResolver* sr = new SecurityIPResolver(Creator, *this->Creator->DNS, L->IPAddr, L, DNS::QUERY_AAAA);
 			try
 			{
 				this->Creator->DNS->Process(sr);

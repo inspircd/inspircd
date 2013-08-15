@@ -19,17 +19,13 @@
 
 #pragma once
 
-class SpanningTreeUtilities;
-
 /** Create a timer which recurs every second, we inherit from Timer.
  * Timer is only one-shot however, so at the end of each Tick() we simply
  * insert another of ourselves into the pending queue :)
  */
 class CacheRefreshTimer : public Timer
 {
- private:
-	SpanningTreeUtilities *Utils;
  public:
-	CacheRefreshTimer(SpanningTreeUtilities* Util);
+	CacheRefreshTimer();
 	bool Tick(time_t TIME);
 };

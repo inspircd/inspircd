@@ -25,18 +25,16 @@
  */
 class CommandRConnect : public Command
 {
-        SpanningTreeUtilities* Utils;	/* Utility class */
  public:
-        CommandRConnect (Module* Callback, SpanningTreeUtilities* Util);
+        CommandRConnect(Module* Creator);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 		RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 class CommandRSQuit : public Command
 {
-        SpanningTreeUtilities* Utils;	/* Utility class */
  public:
-        CommandRSQuit(Module* Callback, SpanningTreeUtilities* Util);
+        CommandRSQuit(Module* Creator);
         CmdResult Handle (const std::vector<std::string>& parameters, User *user);
 		RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };

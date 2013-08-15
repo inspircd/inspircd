@@ -28,7 +28,6 @@
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
 CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *srcuser)
 {
-	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 	/* 1.1+ FJOIN works as follows:
 	 *
 	 * Each FJOIN is sent along with a timestamp, and the side with the lowest
@@ -167,7 +166,6 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 	}
 
 	/* Check that the user's 'direction' is correct */
-	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 	TreeServer* route_back_again = Utils->BestRouteTo(who->server);
 	if ((!route_back_again) || (route_back_again->GetSocket() != src_socket))
 	{

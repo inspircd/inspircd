@@ -57,8 +57,6 @@ class ModuleSpanningTree : public Module
  public:
 	dynamic_reference<DNS::Manager> DNS;
 
-	SpanningTreeUtilities* Utils;
-
 	/** Set to true if inside a spanningtree call, to prevent sending
 	 * xlines and other things back to their source
 	 */

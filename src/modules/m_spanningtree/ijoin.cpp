@@ -34,7 +34,6 @@ CmdResult CommandIJoin::HandleRemote(const std::vector<std::string>& params, Rem
 
 		parameterlist p;
 		p.push_back(params[0]);
-		SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "RESYNC", p, user->server);
 
 		return CMD_FAILURE;
@@ -75,7 +74,6 @@ CmdResult CommandResync::HandleServer(const std::vector<std::string>& params, Fa
 		return CMD_FAILURE;
 	}
 
-	SpanningTreeUtilities* Utils = ((ModuleSpanningTree*)(Module*)creator)->Utils;
 	TreeServer* server = Utils->FindServer(user->server);
 	if (!server)
 		return CMD_FAILURE;
