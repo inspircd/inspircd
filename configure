@@ -67,9 +67,9 @@ GetOptions (
 	'binary-dir=s' => \$opt_binary_dir,
 	'data-dir=s' => \$opt_data_dir,
 	'log-dir=s' => \$opt_log_dir,
-	'help'	=> sub { showhelp(); },
-	'update' => sub { update(); },
-	'clean' => sub { clean(); },
+	'help'	=> \&cmd_help,
+	'update' => \&cmd_update,
+	'clean' => \&cmd_clean,
 	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
 	'enable-extras=s@' => \@opt_enableextras, # ^
 	'disable-extras=s@' => \@opt_disableextras, # ^
@@ -102,9 +102,10 @@ our $interactive = !(
 );
 
 our $topdir = getcwd();
-our @modlist = ();
-our %config = ();
-our $cache_loaded = getcache();
+our %config = read_configure_cache();
+
+print "Checking for cache from previous configure... ";
+print %config ? "found\n" : "not found\n";
 
 $config{BASE_DIR} = $topdir."/run";
 
@@ -129,7 +130,7 @@ if (defined $opt_system) {
 	$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
 	$config{BUILD_DIR} = rel2abs($topdir."/build");
 	$config{DATA_DIR} = rel2abs($config{BASE_DIR}."/data");
-	$config{LOG_DIR} = rel2abs($config{BASE_DIR}."/logs");	
+	$config{LOG_DIR} = rel2abs($config{BASE_DIR}."/logs");
 }
 
 if (defined $opt_config_dir) {
@@ -184,45 +185,6 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 } else {
 	$config{HAS_OPENSSL} = "";
 }
-
-# Get and Set some important vars..
-getmodules();
-
-sub clean
-{
-	unlink(".config.cache");
-}
-
-sub update
-{
-	eval {
-		# Does the cache file exist?
-		if (!getcache()) {
-			# No, No it doesn't.. *BASH*
-			print "You have not run ./configure before. Please do this before trying to run the update script.\n";
-			exit 1;
-		} else {
-			# We've Loaded the cache file and all our variables..
-			$topdir = getcwd();
-			getmodules();
-			print "Updating files...\n";
-			%cxx = get_compiler_info($config{CXX});
-			writefiles();
-			makecache();
-			print "Complete.\n";
-			exit;
-		}
-	};
-	if ($@)
-	{
-		print "Configure update failed: $@\n";
-	}
-	exit;
-}
-
-print "Running non-interactive configure...\n" unless $interactive;
-print "Checking for cache from previous configure... ";
-print ($cache_loaded ? "found\n" : "not found\n");
 
 $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', '-lrt');
 $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
@@ -296,7 +258,7 @@ if ($interactive)
 	# Clear the screen.
 	system 'tput', 'clear';
 
-	my $revision = getrevision();
+	my $revision = get_revision();
 	chomp(my $version = `sh src/version.sh`);
 
 	# Display Introduction Message..
@@ -321,7 +283,7 @@ STOP
 
 	# Directory Settings..
 	my $tmpbase = $config{BASE_DIR};
-	dir_check("do you wish to install the InspIRCd base", "BASE_DIR");
+	$config{BASE_DIR} = prompt_dir(1, 'What directory do you wish to install the InspIRCd base?', $config{BASE_DIR});
 	if ($tmpbase ne $config{BASE_DIR}) {
 		$config{CONFIG_DIR} = rel2abs($config{BASE_DIR}."/conf");
 		$config{MODULE_DIR} = rel2abs($config{BASE_DIR}."/modules");
@@ -330,81 +292,75 @@ STOP
 		$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
 	}
 
-	dir_check("are the configuration files", "CONFIG_DIR");
-	dir_check("are the modules to be compiled to", "MODULE_DIR");
-	dir_check("is the IRCd binary to be placed", "BINARY_DIR");
-	dir_check("are variable data files to be located in", "DATA_DIR");
-	dir_check("are the logs to be stored in", "LOG_DIR");
-	dir_check("do you want the build to take place", "BUILD_DIR");
-		
+	$config{BINARY_DIR} = prompt_dir(1, 'In what directory should the InspIRCd binary be placed?', $config{BINARY_DIR});
+	$config{CONFIG_DIR} = prompt_dir(1, 'In what directory are the configuration files to be stored?', $config{CONFIG_DIR});
+	$config{DATA_DIR} = prompt_dir(1, 'In what directory are variable data files to be stored?', $config{DATA_DIR});
+	$config{LOG_DIR} = prompt_dir(1, 'In what directory are log files to be stored?', $config{LOG_DIR});
+	$config{MODULE_DIR} = prompt_dir(1, 'In what directory are the modules to be placed?', $config{MODULE_DIR});
+	$config{BUILD_DIR} = prompt_dir(1, 'In what directory do you want the build to take place?', $config{BUILD_DIR});
+
 	my $chose_hiperf = 0;
 	if ($config{HAS_KQUEUE}) {
-		$config{USE_KQUEUE} = "y";
-		yesno('USE_KQUEUE',"You are running a BSD operating system, and kqueue\nwas detected. Would you like to enable kqueue support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable kqueue?");
-		print "\n";
-		if ($config{USE_KQUEUE} eq "y") {
+		$config{USE_KQUEUE} = prompt_bool(1, 'Your operating system has support for the high performance kqueue socket engine. Would you like to enable it?', 1);
+		if ($config{USE_KQUEUE}) {
 			$config{SOCKETENGINE} = "kqueue";
 			$chose_hiperf = 1;
 		}
 	}
 	if ($config{HAS_EPOLL}) {
-		$config{USE_EPOLL} = "y";
-		yesno('USE_EPOLL',"You are running a Linux 2.6+ operating system, and epoll\nwas detected. Would you like to enable epoll support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable epoll?");
-		print "\n";
-		if ($config{USE_EPOLL} eq "y") {
+		$config{USE_EPOLL} = prompt_bool(1, 'Your operating system has support for the high performance epoll socket engine. Would you like to enable it?', 1);
+		if ($config{USE_EPOLL}) {
 			$config{SOCKETENGINE} = "epoll";
 			$chose_hiperf = 1;
 		}
 	}
 	if ($config{HAS_PORTS}) {
-		$config{USE_PORTS} = "y";
-		yesno('USE_PORTS',"You are running Solaris 10.\nWould you like to enable I/O completion ports support?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable support for I/O completion ports?");
-		print "\n";
-		if ($config{USE_PORTS} eq "y") {
+		$config{USE_PORTS} = prompt_bool(1, 'Your operating system has support for the high performance IOCP socket engine. Would you like to enable it?', 1);
+		if ($config{USE_PORTS}) {
 			$config{SOCKETENGINE} = "ports";
 			$chose_hiperf = 1;
 		}
 	}
 
 	if (!$chose_hiperf && $config{HAS_POLL}) {
-		$config{USE_POLL} = "y";
-		yesno('USE_POLL', "Would you like to use poll?\nThis is likely to increase performance.\nIf you are unsure, answer yes.\n\nEnable poll?");
-		if ($config{USE_POLL} eq "y") {
+		$config{USE_POLL} = prompt_bool(1, 'Your operating system has support for the mid performance poll socket engine. Would you like to enable it?', 1);
+		if ($config{USE_POLL}) {
 			$config{SOCKETENGINE} = "poll";
 		}
 	}
-	if (!$chose_hiperf && $config{USE_POLL} ne "y")
+	unless ($chose_hiperf || $config{USE_POLL})
 	{
-		print "No high-performance socket engines are available, or you chose\n";
-		print "not to enable one. Defaulting to select() engine.\n\n";
+		print "No high-performance socket engines are available, or you chose not to enable one. Defaulting to select() engine.\n\n";
 		$config{SOCKETENGINE} = "select";
 	}
-
-	$config{USE_SSL} = "n";
 
 	if ($config{HAS_GNUTLS} eq "y" || $config{HAS_OPENSSL} eq "y")
 	{
 		print "Detected GnuTLS version: \e[1;32m" . $gnutls_ver . "\e[0m\n";
 		print "Detected OpenSSL version: \e[1;32m" . $openssl_ver . "\e[0m\n\n";
 
-		yesno('USE_SSL', "One or more SSL libraries detected. Would you like to enable SSL support?");
-		if ($config{USE_SSL} eq "y")
+		$config{USE_SSL} = prompt_bool(1, 'One or more SSL libraries detected. Would you like to enable SSL support?', 1);
+		if ($config{USE_SSL})
 		{
 			if ($config{HAS_GNUTLS} eq "y")
 			{
-				yesno('USE_GNUTLS',"Would you like to enable SSL with m_ssl_gnutls? (recommended)");
-				if ($config{USE_GNUTLS} eq "y")
+				$config{USE_GNUTLS} = prompt_bool(1, 'Would you like to enable SSL with m_ssl_gnutls (recommended)?', 1);
+				if ($config{USE_GNUTLS})
 				{
-					print "\nUsing GnuTLS SSL module.\n";
+					print "Using GnuTLS SSL module.\n\n";
+					unlink 'src/modules/m_ssl_gnutls.cpp' if -f 'src/modules/m_ssl_gnutls.cpp';
+					symlink "extra/m_ssl_gnutls.cpp", "src/modules/m_ssl_gnutls.cpp" or print STDERR "Symlink failed: $!\n";
 				}
 			}
 
 			if ($config{HAS_OPENSSL} eq "y")
 			{
-				yesno('USE_OPENSSL', "Would you like to enable SSL with m_ssl_openssl?");
-				if ($config{USE_OPENSSL} eq "y")
+				$config{USE_OPENSSL} = prompt_bool(1, 'Would you like to enable SSL with m_ssl_openssl (recommended)?', 1);
+				if ($config{USE_OPENSSL})
 				{
-					print "\nUsing OpenSSL SSL module.\n";
+					print "Using OpenSSL SSL module.\n\n";
+					unlink 'src/modules/m_ssl_openssl.cpp' if -f 'src/modules/m_ssl_openssl.cpp';
+					symlink "extra/m_ssl_openssl.cpp", "src/modules/m_ssl_openssl.cpp" or print STDERR "Symlink failed: $!\n";
 				}
 			}
 		}
@@ -419,55 +375,21 @@ STOP
 # We are on a POSIX system, we can enable POSIX extras without asking
 symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
 
-if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
+if (($config{USE_GNUTLS}) && ($config{HAS_GNUTLS} ne "y"))
 {
 	print "Sorry, but i couldn't detect gnutls. Make sure pkg-config is in your path.\n";
 	exit 1;
 }
-if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
+if (($config{USE_OPENSSL}) && ($config{HAS_OPENSSL} ne "y"))
 {
 	print "Sorry, but i couldn't detect openssl. Make sure pkg-config is in your path.\n";
 	exit 1;
 }
 
-$config{CERTGEN} ||= 'y';
-yesno('CERTGEN',"Would you like generate SSL certificates now?") if ($interactive && ($config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y"));
-
-if ($config{USE_GNUTLS} eq "y") {
-	unless (-r "src/modules/m_ssl_gnutls.cpp") {
-		print "Symlinking src/modules/m_ssl_gnutls.cpp from extra/\n";
-		symlink "extra/m_ssl_gnutls.cpp", "src/modules/m_ssl_gnutls.cpp" or print STDERR "Symlink failed: $!";
-	}
-	if ($interactive && $config{CERTGEN} eq 'y')
-	{
+if ($config{USE_GNUTLS} || $config{USE_OPENSSL}) {
+	if (my $val = prompt_bool($interactive, 'Would you like to generate SSL certificates now?', $interactive)) {
 		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem" && -r "$config{CONFIG_DIR}/dhparams.pem") {
-			unless (system './tools/genssl gnutls') {
-				print "\nCertificate generation complete, copying to config directory... ";
-				File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
-				File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
-				File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
-				print "Done.\n\n";
-			}
-		}
-		else {
-			print "SSL Certificates found, skipping.\n\n";
-		}
-	}
-	else
-	{
-		print "Skipping SSL certificate generation\nin non-interactive mode.\n\n";
-	}
-}
-
-if ($config{USE_OPENSSL} eq "y") {
-	unless (-r "src/modules/m_ssl_openssl.cpp") {
-		print "Symlinking src/modules/m_ssl_openssl.cpp from extra/\n";
-		symlink "extra/m_ssl_openssl.cpp", "src/modules/m_ssl_openssl.cpp" or print STDERR "Symlink failed: $!";
-	}
-	if ($interactive && $config{CERTGEN} eq 'y')
-	{
-		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem" && -r "$config{CONFIG_DIR}/dhparams.pem") {
-			unless (system './tools/genssl openssl') {
+			unless (system './tools/genssl auto') {
 				print "\nCertificate generation complete, copying to config directory... ";
 				File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
 				File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
@@ -477,24 +399,21 @@ if ($config{USE_OPENSSL} eq "y") {
 		} else {
 			print "SSL Certificates found, skipping.\n\n"
 		}
+	} else {
+		print "Skipping SSL certificate generation in non-interactive mode.\n\n";
 	}
-	else
-	{
-		print "Skipping SSL certificate generation\nin non-interactive mode.\n\n";
-	}
-}
-if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
+} else {
 	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
 }
 
-getmodules();
+print "Writing \e[1;32m.config.cache\e[0m ...\n";
+write_configure_cache(%config);
 writefiles();
-makecache();
-dumphash();
+dump_hash();
 
 print "\n";
 print "To build your server with these settings, please run '\e[1;32mmake\e[0m' now.\n";
-if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
+if ($config{USE_GNUTLS} || $config{USE_OPENSSL}) {
 	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
 	print "modules in your config. This configure script has added those modules to the\n";
 	print "build process. For more info please refer to:\n";
@@ -502,86 +421,10 @@ if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 }
 print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n";
 
-sub getcache {
-	# Retrieves the .config.cache file, and loads values into the main config hash.
-	open(CACHE, ".config.cache") or return 0;
-	while (<CACHE>) {
-		chomp;
-		# Ignore Blank lines, and comments..
-		next if /^\s*$/;
-		next if /^\s*#/;
-		my ($key, $value) = split("=", $_, 2);
-		$value =~ /^\"(.*)\"$/;
-		# Do something with data here!
-		$config{$key} = $1;
-	}
-	close(CACHE);
-	return 1;
-}
-
-sub makecache {
-	# Dump the contents of %config
-	print "Writing \e[1;32mcache file\e[0m for future ./configures ...\n";
-	open(FILEHANDLE, ">.config.cache");
-	foreach my $key (keys %config) {
-		print FILEHANDLE "$key=\"$config{$key}\"\n";
-	}
-	close(FILEHANDLE);
-}
-
-sub dir_check {
-	my ($desc, $hash_key) = @_;
-	my $complete = 0;
-	while (!$complete) {
-		print "In what directory $desc?\n";
-		print "[\e[1;32m$config{$hash_key}\e[0m] -> ";
-		chomp(my $var = <STDIN>);
-		if ($var eq "") {
-			$var = $config{$hash_key};
-		}
-		if ($var =~ /^\~\/(.+)$/) {
-			# Convert it to a full path..
-			$var = rel2abs($ENV{HOME} . "/" . $1);
-		}
-		$var = rel2abs($var);
-		if (! -e $var) {
-			print "$var does not exist. Create it?\n[\e[1;32my\e[0m] ";
-			chomp(my $tmp = <STDIN>);
-			if (($tmp eq "") || ($tmp =~ /^y/i)) {
-				# Attempt to Create the Dir..
-				my $chk = eval {
-					use File::Path ();
-					File::Path::mkpath($var, 0, 0777);
-					1;
-				};
-				unless (defined($chk) && -d $var) {
-					print "Unable to create directory. ($var)\n\n";
-					# Restart Loop..
-					next;
-				}
-			} else {
-				# They said they don't want to create, and we can't install there.
-				print "\n\n";
-				next;
-			}
-		} else {
-			if (! -d $var) {
-				# Target exists, but is not a directory.
-				print "File $var exists, but is not a directory.\n\n";
-				next;
-			}
-		}
-		# Either Dir Exists, or was created fine.
-		$config{$hash_key} = $var;
-		$complete = 1;
-		print "\n";
-	}
-}
-
 sub writefiles {
 	chomp(my $incos = `uname -n -s -r`);
 	chomp(my $version = `sh src/version.sh`);
-	my $revision = getrevision();
+	my $revision = get_revision();
 	my $branch = "InspIRCd-0.0";
 	if ($version =~ /^(InspIRCd-[0-9]+\.[0-9]+)\.[0-9]+/)
 	{
@@ -685,7 +528,7 @@ EOF
 		}
 	}
 
-	chmod 0755, 'inspircd';
+	chmod 0750, 'inspircd';
 }
 
 # Routine to list out the extra/ modules that have been enabled.

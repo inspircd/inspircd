@@ -20,18 +20,22 @@
 #
 
 
-package make::utilities;
+BEGIN {
+	require 5.8.0;
+}
 
-require 5.8.0;
+package make::utilities;
 
 use strict;
 use warnings FATAL => qw(all);
 
 use Exporter 'import';
-use POSIX;
-use Getopt::Long;
 use Fcntl;
-our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
+use File::Path;
+use File::Spec::Functions qw(rel2abs);
+use Getopt::Long;
+
+our @EXPORT = qw(module_installed prompt_bool prompt_dir prompt_string make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
 # Parse the output of a *_config program,
 # such as pcre_config, take out the -L
@@ -41,6 +45,47 @@ our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pk
 
 my %already_added = ();
 my $if_skip_lines = 0;
+
+sub module_installed($)
+{
+	my $module = shift;
+	eval("use $module;");
+	return !$@;
+}
+
+sub prompt_bool($$$) {
+	my ($interactive, $question, $default) = @_;
+	my $answer = prompt_string($interactive, $question, $default ? 'y' : 'n');
+	return $answer =~ /y/i;
+}
+
+sub prompt_dir($$$) {
+	my ($interactive, $question, $default) = @_;
+	my ($answer, $create) = (undef, 'y');
+	do {
+		$answer = rel2abs(prompt_string($interactive, $question, $default));
+		$create = prompt_bool($interactive && !-d $answer, "$answer does not exist. Create it?", 'y');
+		my $mkpath = eval {
+			mkpath($answer, 0, 0750);
+			return 1;
+		};
+		unless (defined $mkpath) {
+			print "Error: unable to create $answer!\n\n";
+			$create = 0;
+		}
+	} while (!$create);
+	return $answer;
+}
+
+sub prompt_string($$$) {
+	my ($interactive, $question, $default) = @_;
+	return $default unless $interactive;
+	print $question, "\n";
+	print "[\e[1;32m$default\e[0m] => ";
+	chomp(my $answer = <STDIN>);
+	print "\n";
+	return $answer ? $answer : $default;
+}
 
 sub promptstring($$$$$)
 {
