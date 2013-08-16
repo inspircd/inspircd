@@ -80,11 +80,9 @@ class ModuleChanFilter : public Module
 		ServerInstance->Modules->AddService(cf);
 
 		cf.DoImplements(this);
-
-		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		hidemask = ServerInstance->Config->ConfValue("chanfilter")->getBool("hidemask");
 		cf.DoRehash();

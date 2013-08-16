@@ -55,9 +55,6 @@ class ModuleCensor : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		/* Read the configuration file on startup.
-		 */
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(cc);
 	}
@@ -103,7 +100,7 @@ class ModuleCensor : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		/*
 		 * reload our config file on rehash - we must destroy and re-allocate the classes

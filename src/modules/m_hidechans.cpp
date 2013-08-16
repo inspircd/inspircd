@@ -40,7 +40,6 @@ class ModuleHideChans : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(hm);
-		OnRehash(NULL);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -48,7 +47,7 @@ class ModuleHideChans : public Module
 		return Version("Provides support for hiding channels with user mode +I", VF_VENDOR);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		AffectsOpers = ServerInstance->Config->ConfValue("hidechans")->getBool("affectsopers");
 	}

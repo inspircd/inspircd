@@ -29,17 +29,12 @@ class ModuleConnectBan : public Module
 	unsigned int ipv6_cidr;
 
  public:
-	void init() CXX11_OVERRIDE
-	{
-		OnRehash(NULL);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Throttles the connections of IP ranges who try to connect flood.", VF_VENDOR);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connectban");
 

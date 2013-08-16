@@ -62,7 +62,6 @@ public:
 	ModuleRegexStd() : ref(this)
 	{
 		ServerInstance->Modules->AddService(ref);
-		OnRehash(NULL);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -70,7 +69,7 @@ public:
 		return Version("Regex Provider Module for std::regex", VF_VENDOR);
 	}
 
-	void OnRehash(User* u) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("stdregex");
 		std::string regextype = Conf->getString("type", "ecmascript");

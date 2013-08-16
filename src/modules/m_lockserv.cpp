@@ -93,10 +93,11 @@ class ModuleLockserv : public Module
 		ServerInstance->Modules->AddService(unlockcommand);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		// Emergency way to unlock
-		if (!user) locked = false;
+		if (!status.srcuser)
+			locked = false;
 	}
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE

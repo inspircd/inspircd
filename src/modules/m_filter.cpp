@@ -183,7 +183,7 @@ class ModuleFilter : public Module
 	FilterResult* FilterMatch(User* user, const std::string &text, int flags);
 	bool DeleteFilter(const std::string &freeform);
 	std::pair<bool, std::string> AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flags);
-	void OnRehash(User* user) CXX11_OVERRIDE;
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 	Version GetVersion() CXX11_OVERRIDE;
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
@@ -301,7 +301,6 @@ ModuleFilter::ModuleFilter()
 void ModuleFilter::init()
 {
 	ServerInstance->Modules->AddService(filtcommand);
-	OnRehash(NULL);
 }
 
 CullResult ModuleFilter::cull()
@@ -451,7 +450,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleFilter::OnRehash(User* user)
+void ModuleFilter::ReadConfig(ConfigStatus& status)
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
 	exemptfromfilter.clear();

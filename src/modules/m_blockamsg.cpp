@@ -59,7 +59,6 @@ class ModuleBlockAmsg : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		this->OnRehash(NULL);
 		ServerInstance->Modules->AddService(blockamsg);
 	}
 
@@ -68,7 +67,7 @@ class ModuleBlockAmsg : public Module
 		return Version("Attempt to block /amsg, at least some of the irritating mIRC scripts.",VF_VENDOR);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockamsg");
 		ForgetDelay = tag->getInt("delay", -1);

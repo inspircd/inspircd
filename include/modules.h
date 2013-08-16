@@ -250,7 +250,7 @@ enum Priority { PRIORITY_FIRST, PRIORITY_LAST, PRIORITY_BEFORE, PRIORITY_AFTER }
 enum Implementation
 {
 	I_BEGIN,
-	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart, I_OnRehash,
+	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
 	I_OnUserMessage, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
@@ -318,6 +318,13 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void Prioritize()
 	{
 	}
+
+	/** This method is called when you should reload module specific configuration:
+	 * on boot, on a /REHASH and on module load.
+	 * @param status The current status, can be inspected for more information;
+	 * also used for reporting configuration errors and warnings.
+	 */
+	virtual void ReadConfig(ConfigStatus& status);
 
 	/** Returns the version number of a Module.
 	 * The method should return a Version object with its version information assigned via
@@ -408,14 +415,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param parameter The parameter given to REHASH
 	 */
 	virtual void OnModuleRehash(User* user, const std::string &parameter);
-
-	/** Called on rehash.
-	 * This method is called after a rehash has completed. You should use it to reload any module
-	 * configuration from the main configuration file.
-	 * @param user The user that performed the rehash, if it was initiated by a user and that user
-	 * is still connected.
-	 */
-	virtual void OnRehash(User* user);
 
 	/** Called whenever a snotice is about to be sent to a snomask.
 	 * snomask and type may both be modified; the message may not.
@@ -1191,7 +1190,9 @@ class CoreExport ModuleManager
 
 	/** Internal unload module hook */
 	bool CanUnload(Module*);
+
  public:
+	typedef std::map<std::string, Module*> ModuleMap;
 
 	/** Event handler hooks.
 	 * This needs to be public to be used by FOREACH_MOD and friends.
@@ -1353,6 +1354,11 @@ class CoreExport ModuleManager
 	 * @return The list of module names
 	 */
 	const std::vector<std::string> GetAllModuleNames(int filter);
+
+	/** Get a map of all loaded modules keyed by their name
+	 * @return A ModuleMap containing all loaded modules
+	 */
+	const ModuleMap& GetModules() const { return Modules; }
 };
 
 /** Do not mess with these functions unless you know the C preprocessor

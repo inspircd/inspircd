@@ -231,7 +231,6 @@ class ModuleWhoWas : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(cmd);
-		OnRehash(NULL);
 	}
 
 	void OnGarbageCollect()
@@ -253,7 +252,7 @@ class ModuleWhoWas : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("whowas");
 		unsigned int NewGroupSize = tag->getInt("groupsize", 10, 0, 10000);

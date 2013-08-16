@@ -74,8 +74,11 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 			}
 			else
 			{
+				ConfigStatus confstatus;
+
 				AttachAll(newmod);
 				newmod->init();
+				newmod->ReadConfig(confstatus);
 
 				Version v = newmod->GetVersion();
 				ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "New module introduced: %s (Module version %s)%s",
@@ -228,6 +231,8 @@ void ModuleManager::LoadAll()
 		}
 	}
 
+	ConfigStatus confstatus;
+
 	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
 	{
 		Module* mod = i->second;
@@ -236,6 +241,7 @@ void ModuleManager::LoadAll()
 			ServerInstance->Logs->Log("MODULE", LOG_DEBUG, "Initializing %s", i->first.c_str());
 			AttachAll(mod);
 			mod->init();
+			mod->ReadConfig(confstatus);
 		}
 		catch (CoreException& modexcept)
 		{

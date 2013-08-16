@@ -231,7 +231,6 @@ class ModuleDNSBL : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		ReadConf();
 		ServerInstance->Modules->AddService(nameExt);
 		ServerInstance->Modules->AddService(countExt);
 	}
@@ -243,7 +242,7 @@ class ModuleDNSBL : public Module
 
 	/** Fill our conf vector with data
 	 */
-	void ReadConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		DNSBLConfEntries.clear();
 
@@ -313,11 +312,6 @@ class ModuleDNSBL : public Module
 				DNSBLConfEntries.push_back(e);
 			}
 		}
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		ReadConf();
 	}
 
 	void OnSetUserIP(LocalUser* user) CXX11_OVERRIDE

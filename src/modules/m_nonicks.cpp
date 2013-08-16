@@ -38,7 +38,6 @@ class ModuleNoNickChange : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(nn);
 	}
 
@@ -80,7 +79,7 @@ class ModuleNoNickChange : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		override = ServerInstance->Config->ConfValue("nonicks")->getBool("operoverride", false);
 	}

@@ -169,8 +169,6 @@ public:
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(p);
-
-		OnRehash(NULL);
 	}
 
 	CullResult cull()
@@ -199,7 +197,7 @@ public:
 		return Module::cull();
 	}
 
-	void OnRehash(User *user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");

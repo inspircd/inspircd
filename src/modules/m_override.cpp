@@ -46,14 +46,12 @@ class ModuleOverride : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		// read our config options (main config file)
-		OnRehash(NULL);
 		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		// re-read our config options on a rehash
+		// re-read our config options
 		ConfigTag* tag = ServerInstance->Config->ConfValue("override");
 		NoisyOverride = tag->getBool("noisy");
 		RequireKey = tag->getBool("requirekey");

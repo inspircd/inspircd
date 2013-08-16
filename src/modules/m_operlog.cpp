@@ -29,7 +29,6 @@ class ModuleOperLog : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
-		OnRehash(NULL);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -37,7 +36,7 @@ class ModuleOperLog : public Module
 		return Version("A module which logs all oper commands to the ircd log at default loglevel.", VF_VENDOR);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		tosnomask = ServerInstance->Config->ConfValue("operlog")->getBool("tosnomask", false);
 	}

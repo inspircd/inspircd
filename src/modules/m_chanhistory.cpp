@@ -118,11 +118,9 @@ class ModuleChanHistory : public Module
 	{
 		ServerInstance->Modules->AddService(m);
 		ServerInstance->Modules->AddService(m.ext);
-
-		OnRehash(NULL);
 	}
 
-	void OnRehash(User*) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getInt("maxlines", 50);

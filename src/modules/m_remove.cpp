@@ -206,7 +206,6 @@ class ModuleRemove : public Module
 	{
 		ServerInstance->Modules->AddService(cmd1);
 		ServerInstance->Modules->AddService(cmd2);
-		OnRehash(NULL);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
@@ -214,7 +213,7 @@ class ModuleRemove : public Module
 		tokens["REMOVE"];
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		supportnokicks = ServerInstance->Config->ConfValue("remove")->getBool("supportnokicks");
 	}

@@ -122,7 +122,6 @@ public:
 	{
 		ServerInstance->Modules->AddService(ldapAuthed);
 		ServerInstance->Modules->AddService(ldapVhost);
-		OnRehash(NULL);
 	}
 
 	~ModuleLDAPAuth()
@@ -131,7 +130,7 @@ public:
 			ldap_unbind_ext(conn, NULL, NULL);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
 		whitelistedcidrs.clear();

@@ -81,6 +81,7 @@ void Module::DetachEvent(Implementation i)
 	ServerInstance->Modules->Detach(i, this);
 }
 
+void		Module::ReadConfig(ConfigStatus& status) { }
 ModResult	Module::OnSendSnotice(char &snomask, std::string &type, const std::string &message) { DetachEvent(I_OnSendSnotice); return MOD_RES_PASSTHRU; }
 void		Module::OnUserConnect(LocalUser*) { DetachEvent(I_OnUserConnect); }
 void		Module::OnUserQuit(User*, const std::string&, const std::string&) { DetachEvent(I_OnUserQuit); }
@@ -90,7 +91,6 @@ void		Module::OnPostJoin(Membership*) { DetachEvent(I_OnPostJoin); }
 void		Module::OnUserPart(Membership*, std::string&, CUList&) { DetachEvent(I_OnUserPart); }
 void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash); }
 void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
-void		Module::OnRehash(User*) { DetachEvent(I_OnRehash); }
 ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
 void		Module::OnMode(User*, User*, Channel*, const std::vector<std::string>&, const std::vector<TranslateType>&) { DetachEvent(I_OnMode); }
 void		Module::OnOper(User*, const std::string&) { DetachEvent(I_OnOper); }

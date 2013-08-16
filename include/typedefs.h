@@ -25,6 +25,7 @@ class BanCacheManager;
 class BufferedSocket;
 class Channel;
 class Command;
+class ConfigStatus;
 class ConfigTag;
 class Extensible;
 class FakeUser;

@@ -202,11 +202,6 @@ class ModuleSQLite3 : public Module
 	ConnMap conns;
 
  public:
-	void init() CXX11_OVERRIDE
-	{
-		ReadConf();
-	}
-
 	~ModuleSQLite3()
 	{
 		ClearConns();
@@ -223,7 +218,7 @@ class ModuleSQLite3 : public Module
 		conns.clear();
 	}
 
-	void ReadConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ClearConns();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("database");
@@ -235,11 +230,6 @@ class ModuleSQLite3 : public Module
 			conns.insert(std::make_pair(i->second->getString("id"), conn));
 			ServerInstance->Modules->AddService(*conn);
 		}
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		ReadConf();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

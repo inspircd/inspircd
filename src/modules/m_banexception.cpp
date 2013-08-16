@@ -117,7 +117,7 @@ class ModuleBanException : public Module
 		be.DoSyncChannel(chan, proto, opaque);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		be.DoRehash();
 	}

@@ -638,7 +638,7 @@ class ModuleSSLGnuTLS : public Module
 		ServerInstance->Modules->AddService(starttls);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		sslports.clear();
 
@@ -687,7 +687,6 @@ class ModuleSSLGnuTLS : public Module
 		std::string certfile;
 		std::string cafile;
 		std::string crlfile;
-		OnRehash(user);
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 

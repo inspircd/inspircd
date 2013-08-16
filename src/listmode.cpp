@@ -92,7 +92,6 @@ void ListModeBase::DoRehash()
 void ListModeBase::DoImplements(Module* m)
 {
 	ServerInstance->Modules->AddService(extItem);
-	this->DoRehash();
 }
 
 unsigned int ListModeBase::FindLimit(const std::string& channame)

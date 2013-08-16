@@ -49,7 +49,7 @@ class ModuleHTTPAccessList : public Module
 	{
 	}
 
-	void OnRehash(User* user)
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		acl_list.clear();
 		ConfigTagList acls = ServerInstance->Config->ConfTags("httpdacl");
@@ -91,11 +91,6 @@ class ModuleHTTPAccessList : public Module
 
 			acl_list.push_back(HTTPACL(path, username, password, whitelist, blacklist));
 		}
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		OnRehash(NULL);
 	}
 
 	void BlockAccess(HTTPRequest* http, int returnval, const std::string &extraheaderkey = "", const std::string &extraheaderval="")

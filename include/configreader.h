@@ -614,3 +614,14 @@ class CoreExport ConfigReaderThread : public Thread
 	void Finish();
 	bool IsDone() { return done; }
 };
+
+class CoreExport ConfigStatus
+{
+ public:
+	User* const srcuser;
+
+	ConfigStatus(User* user = NULL)
+		: srcuser(user)
+	{
+	}
+};

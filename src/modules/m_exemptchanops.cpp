@@ -117,8 +117,6 @@ class ModuleExemptChanOps : public Module
 	{
 		ServerInstance->Modules->AddService(eh.ec);
 		ServerInstance->OnCheckExemption = &eh;
-
-		OnRehash(NULL);
 	}
 
 	~ModuleExemptChanOps()
@@ -131,7 +129,7 @@ class ModuleExemptChanOps : public Module
 		return Version("Provides the ability to allow channel operators to be exempt from certain modes.",VF_VENDOR);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		eh.ec.DoRehash();
 	}

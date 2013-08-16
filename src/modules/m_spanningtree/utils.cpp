@@ -131,8 +131,6 @@ SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 	: Creator(C), TreeRoot(NULL)
 {
 	ServerInstance->Timers->AddTimer(&RefreshTimer);
-
-	this->ReadConfiguration();
 }
 
 CullResult SpanningTreeUtilities::cull()

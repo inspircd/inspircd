@@ -108,7 +108,7 @@ class ModuleSQL : public Module
 	ModuleSQL();
 	void init() CXX11_OVERRIDE;
 	~ModuleSQL();
-	void OnRehash(User* user) CXX11_OVERRIDE;
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	Version GetVersion() CXX11_OVERRIDE;
 };
@@ -381,8 +381,6 @@ void ModuleSQL::init()
 {
 	Dispatcher = new DispatcherThread(this);
 	ServerInstance->Threads->Start(Dispatcher);
-
-	OnRehash(NULL);
 }
 
 ModuleSQL::~ModuleSQL()
@@ -399,7 +397,7 @@ ModuleSQL::~ModuleSQL()
 	}
 }
 
-void ModuleSQL::OnRehash(User* user)
+void ModuleSQL::ReadConfig(ConfigStatus& status)
 {
 	ConnMap conns;
 	ConfigTagList tags = ServerInstance->Config->ConfTags("database");

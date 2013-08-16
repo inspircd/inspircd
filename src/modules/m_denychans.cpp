@@ -32,7 +32,7 @@ class ModuleDenyChannels : public Module
 	{
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		/* check for redirect validity and loops/chains */
 		ConfigTagList tags = ServerInstance->Config->ConfTags("badchan");
@@ -46,8 +46,8 @@ class ModuleDenyChannels : public Module
 
 				if (!ServerInstance->IsChannel(redirect))
 				{
-					if (user)
-						user->WriteNotice("Invalid badchan redirect '" + redirect + "'");
+					if (status.srcuser)
+						status.srcuser->WriteNotice("Invalid badchan redirect '" + redirect + "'");
 					throw ModuleException("Invalid badchan redirect, not a channel");
 				}
 
@@ -66,8 +66,8 @@ class ModuleDenyChannels : public Module
 						if (!goodchan)
 						{
 							/* <badchan:redirect> is a badchan */
-							if (user)
-								user->WriteNotice("Badchan " + name + " redirects to badchan " + redirect);
+							if (status.srcuser)
+								status.srcuser->WriteNotice("Badchan " + name + " redirects to badchan " + redirect);
 							throw ModuleException("Badchan redirect loop");
 						}
 					}

@@ -26,7 +26,8 @@ class ModuleRestrictChans : public Module
 {
 	std::set<irc::string> allowchans;
 
-	void ReadConfig()
+ public:
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		allowchans.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("allowchannel");
@@ -36,17 +37,6 @@ class ModuleRestrictChans : public Module
 			std::string txt = tag->getString("name");
 			allowchans.insert(txt.c_str());
 		}
-	}
-
- public:
-	void init() CXX11_OVERRIDE
-	{
-		ReadConfig();
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		ReadConfig();
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE

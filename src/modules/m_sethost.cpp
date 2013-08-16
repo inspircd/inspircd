@@ -76,11 +76,10 @@ class ModuleSetHost : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cmd);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string hmap = ServerInstance->Config->ConfValue("hostname")->getString("charmap", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.-_/0123456789");
 

@@ -45,18 +45,12 @@ public:
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(bc);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["EXTBAN"].push_back('B');
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		ReadConf();
 	}
 
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
@@ -101,7 +95,7 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void ReadConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("blockcaps");
 		percent = tag->getInt("percent", 100, 1, 100);

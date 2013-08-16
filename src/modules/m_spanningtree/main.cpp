@@ -618,7 +618,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	}
 }
 
-void ModuleSpanningTree::OnRehash(User* user)
+void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 {
 	// Re-read config stuff
 	try
@@ -633,7 +633,7 @@ void ModuleSpanningTree::OnRehash(User* user)
 		std::string msg = "Error in configuration: ";
 		msg.append(e.GetReason());
 		ServerInstance->SNO->WriteToSnoMask('l', msg);
-		if (user && !IS_LOCAL(user))
+		if (status.srcuser && !IS_LOCAL(status.srcuser))
 			ServerInstance->PI->SendSNONotice("L", msg);
 	}
 }

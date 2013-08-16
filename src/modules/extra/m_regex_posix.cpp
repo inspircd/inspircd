@@ -79,7 +79,6 @@ class ModuleRegexPOSIX : public Module
 	ModuleRegexPOSIX() : ref(this)
 	{
 		ServerInstance->Modules->AddService(ref);
-		OnRehash(NULL);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -87,7 +86,7 @@ class ModuleRegexPOSIX : public Module
 		return Version("Regex Provider Module for POSIX Regular Expressions", VF_VENDOR);
 	}
 
-	void OnRehash(User* u) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ref.extended = ServerInstance->Config->ConfValue("posix")->getBool("extended");
 	}

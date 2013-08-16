@@ -352,10 +352,9 @@ class RepeatModule : public Module
 		ServerInstance->Modules->AddService(rm);
 		ServerInstance->Modules->AddService(rm.ChanSet);
 		ServerInstance->Modules->AddService(rm.MemberInfoExt);
-		rm.ReadConfig();
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		rm.ReadConfig();
 	}

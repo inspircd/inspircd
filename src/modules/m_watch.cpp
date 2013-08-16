@@ -376,13 +376,12 @@ class Modulewatch : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cmdw);
 		ServerInstance->Modules->AddService(sw);
 		ServerInstance->Modules->AddService(cmdw.ext);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		maxwatch = ServerInstance->Config->ConfValue("watch")->getInt("maxentries", 32);
 		if (!maxwatch)

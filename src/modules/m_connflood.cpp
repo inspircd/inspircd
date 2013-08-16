@@ -36,17 +36,12 @@ public:
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		InitConf();
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Connection throttle", VF_VENDOR);
 	}
 
-	void InitConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		/* read configuration variables */
 		ConfigTag* tag = ServerInstance->Config->ConfValue("connflood");
@@ -109,12 +104,6 @@ public:
 		}
 		return MOD_RES_PASSTHRU;
 	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		InitConf();
-	}
-
 };
 
 MODULE_INIT(ModuleConnFlood)

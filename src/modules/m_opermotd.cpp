@@ -83,7 +83,6 @@ class ModuleOpermotd : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(cmd);
-		OnRehash(NULL);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -97,7 +96,7 @@ class ModuleOpermotd : public Module
 			cmd.ShowOperMOTD(user);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		cmd.opermotd.clear();
 		ConfigTag* conf = ServerInstance->Config->ConfValue("opermotd");

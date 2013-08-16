@@ -29,12 +29,7 @@ class ModuleChanLog : public Module
 	ChanLogTargets logstreams;
 
  public:
-	void init() CXX11_OVERRIDE
-	{
-		OnRehash(NULL);
-	}
-
-	void OnRehash(User *user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string snomasks;
 		std::string channel;

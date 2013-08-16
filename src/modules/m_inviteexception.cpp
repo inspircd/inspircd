@@ -54,8 +54,6 @@ public:
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ie);
-
-		OnRehash(NULL);
 		ie.DoImplements(this);
 	}
 
@@ -93,7 +91,7 @@ public:
 		ie.DoSyncChannel(chan, proto, opaque);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);
 		ie.DoRehash();

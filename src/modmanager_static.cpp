@@ -102,8 +102,11 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 		}
 		else
 		{
+			ConfigStatus confstatus;
+
 			AttachAll(mod);
 			mod->init();
+			mod->ReadConfig(confstatus);
 		}
 	}
 	catch (CoreException& modexcept)
@@ -203,6 +206,8 @@ void ModuleManager::LoadAll()
 		}
 	}
 
+	ConfigStatus confstatus;
+
 	for(std::map<std::string, Module*>::iterator i = Modules.begin(); i != Modules.end(); i++)
 	{
 		Module* mod = i->second;
@@ -210,6 +215,7 @@ void ModuleManager::LoadAll()
 		{
 			AttachAll(mod);
 			mod->init();
+			mod->ReadConfig(confstatus);
 		}
 		catch (CoreException& modexcept)
 		{

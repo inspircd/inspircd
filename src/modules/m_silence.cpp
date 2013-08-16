@@ -301,13 +301,12 @@ class ModuleSilence : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
 		ServerInstance->Modules->AddService(cmdsilence);
 		ServerInstance->Modules->AddService(cmdsvssilence);
 		ServerInstance->Modules->AddService(cmdsilence.ext);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		maxsilence = ServerInstance->Config->ConfValue("showwhois")->getInt("maxentries", 32);
 		if (!maxsilence)

@@ -39,10 +39,9 @@ class ModuleWaitPong : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ext);
-		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("waitpong");
 		sendsnotice = tag->getBool("sendsnotice", true);

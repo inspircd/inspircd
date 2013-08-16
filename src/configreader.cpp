@@ -837,7 +837,12 @@ void ConfigReaderThread::Finish()
 		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
 		User* user = ServerInstance->FindNick(TheUserUID);
-		FOREACH_MOD(OnRehash, (user));
+
+		ConfigStatus status(user);
+		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+			i->second->ReadConfig(status);
+
 		ServerInstance->ISupport.Build();
 
 		ServerInstance->Logs->CloseLogs();

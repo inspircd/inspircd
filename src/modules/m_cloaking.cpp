@@ -148,8 +148,6 @@ class ModuleCloaking : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-
 		ServerInstance->Modules->AddService(cu);
 		ServerInstance->Modules->AddService(ck);
 		ServerInstance->Modules->AddService(cu.ext);
@@ -331,7 +329,7 @@ class ModuleCloaking : public Module
 		return Version("Provides masking of user hostnames", VF_COMMON|VF_VENDOR, testcloak);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("cloak");
 		prefix = tag->getString("prefix");

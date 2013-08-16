@@ -127,7 +127,7 @@ class ModuleAutoOp : public Module
 		mh.DoSyncChannel(chan, proto, opaque);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		mh.DoRehash();
 	}

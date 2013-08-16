@@ -82,9 +82,6 @@ class ModuleOperHash : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		/* Read the config file first */
-		OnRehash(NULL);
-
 		ServerInstance->Modules->AddService(cmd);
 	}
 

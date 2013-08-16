@@ -31,7 +31,7 @@ class ModuleXLineDB : public Module
 	{
 		/* Load the configuration
 		 * Note:
-		 * 		this is on purpose not in the OnRehash() method. It would be non-trivial to change the database on-the-fly.
+		 * 		This is on purpose not changed on a rehash. It would be non-trivial to change the database on-the-fly.
 		 * 		Imagine a scenario where the new file already exists. Merging the current XLines with the existing database is likely a bad idea
 		 * 		...and so is discarding all current in-memory XLines for the ones in the database.
 		 */

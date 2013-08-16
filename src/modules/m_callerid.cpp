@@ -363,8 +363,6 @@ public:
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-
 		ServerInstance->Modules->AddService(myumode);
 		ServerInstance->Modules->AddService(cmd);
 		ServerInstance->Modules->AddService(cmd.extInfo);
@@ -427,7 +425,7 @@ public:
 		RemoveFromAllAccepts(user);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("callerid");
 		cmd.maxaccepts = tag->getInt("maxaccepts", 16);

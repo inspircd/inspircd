@@ -84,10 +84,9 @@ class ModuleSQLAuth : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(pendingExt);
-		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("sqlauth");
 		std::string dbid = conf->getString("dbid");

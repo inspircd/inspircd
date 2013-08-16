@@ -99,11 +99,9 @@ class ModuleKnock : public Module
 	{
 		ServerInstance->Modules->AddService(kn);
 		ServerInstance->Modules->AddService(cmd);
-
-		OnRehash(NULL);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		std::string knocknotify = ServerInstance->Config->ConfValue("knock")->getString("notify");
 		irc::string notify(knocknotify.c_str());

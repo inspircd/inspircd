@@ -779,7 +779,7 @@ class ModuleMsSQL : public Module
 		connections.clear();
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		queryDispatcher->LockQueue();
 		ReadConf();

@@ -128,9 +128,6 @@ class ModuleOjoin : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		/* Load config stuff */
-		OnRehash(NULL);
-
 		std::string npre = ServerInstance->Config->ConfValue("ojoin")->getString("prefix");
 		char NPrefix = npre.empty() ? 0 : npre[0];
 		if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
@@ -157,7 +154,7 @@ class ModuleOjoin : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("ojoin");
 		mycommand.notice = Conf->getBool("notice", true);

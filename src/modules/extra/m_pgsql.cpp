@@ -508,18 +508,13 @@ class ModulePgSQL : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ReadConf();
-	}
-
 	~ModulePgSQL()
 	{
 		delete retimer;
 		ClearAllConnections();
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ReadConf();
 	}

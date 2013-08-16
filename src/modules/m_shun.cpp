@@ -181,8 +181,6 @@ class ModuleShun : public Module
 	{
 		ServerInstance->XLines->RegisterFactory(&f);
 		ServerInstance->Modules->AddService(cmd);
-
-		OnRehash(NULL);
 	}
 
 	~ModuleShun()
@@ -206,7 +204,7 @@ class ModuleShun : public Module
 		return MOD_RES_DENY;
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("shun");
 		std::string cmds = tag->getString("enabledcommands");

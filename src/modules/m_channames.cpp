@@ -62,7 +62,6 @@ class ModuleChannelNames : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->IsChannel = &myhandler;
-		OnRehash(NULL);
 	}
 
 	void ValidateChans()
@@ -102,7 +101,7 @@ class ModuleChannelNames : public Module
 		badchan = false;
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("channames");
 		std::string denyToken = tag->getString("denyrange");

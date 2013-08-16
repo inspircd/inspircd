@@ -170,10 +170,11 @@ class ModuleJumpServer : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		// Emergency way to unlock
-		if (!user) js.redirect_new_users = false;
+		if (!status.srcuser)
+			js.redirect_new_users = false;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

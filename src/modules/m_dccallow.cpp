@@ -258,12 +258,6 @@ class ModuleDCCAllow : public Module
 		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
 		ServerInstance->Modules->AddService(*ext);
 		ServerInstance->Modules->AddService(cmd);
-		ReadFileConf();
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		ReadFileConf();
 	}
 
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE
@@ -453,7 +447,7 @@ class ModuleDCCAllow : public Module
 		}
 	}
 
-	void ReadFileConf()
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		bfl.clear();
 		ConfigTagList tags = ServerInstance->Config->ConfTags("banfile");

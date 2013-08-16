@@ -279,7 +279,6 @@ class ModuleIdent : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->Modules->AddService(ext);
-		OnRehash(NULL);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -287,7 +286,7 @@ class ModuleIdent : public Module
 		return Version("Provides support for RFC1413 ident lookups", VF_VENDOR);
 	}
 
-	void OnRehash(User *user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		RequestTimeout = ServerInstance->Config->ConfValue("ident")->getInt("timeout", 5);
 		if (!RequestTimeout)

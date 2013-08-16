@@ -239,8 +239,6 @@ class ModuleNationalChars : public Module
 		national_case_insensitive_map = m_lower;
 
 		ServerInstance->IsNick = &myhandler;
-
-		OnRehash(NULL);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
@@ -248,7 +246,7 @@ class ModuleNationalChars : public Module
 		tokens["CASEMAPPING"] = casemapping;
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("nationalchars");
 		charset = tag->getString("file");

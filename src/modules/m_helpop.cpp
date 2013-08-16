@@ -108,12 +108,11 @@ class ModuleHelpop : public Module
 
 		void init() CXX11_OVERRIDE
 		{
-			ReadConfig();
 			ServerInstance->Modules->AddService(ho);
 			ServerInstance->Modules->AddService(cmd);
 		}
 
-		void ReadConfig()
+		void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 		{
 			helpop_map.clear();
 
@@ -144,11 +143,6 @@ class ModuleHelpop : public Module
 				throw ModuleException("m_helpop: Helpop file is missing important entry 'nohelp'. Please check the example conf.");
 			}
 
-		}
-
-		void OnRehash(User* user) CXX11_OVERRIDE
-		{
-			ReadConfig();
 		}
 
 		void OnWhois(User* src, User* dst) CXX11_OVERRIDE

@@ -27,17 +27,12 @@ class ModuleSecureList : public Module
 	time_t WaitTime;
 
  public:
-	void init() CXX11_OVERRIDE
-	{
-		OnRehash(NULL);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Disallows /LIST for recently connected clients to hinder spam bots", VF_VENDOR);
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		allowlist.clear();
 

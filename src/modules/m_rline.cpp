@@ -223,8 +223,6 @@ class ModuleRLine : public Module
 
 	void init() CXX11_OVERRIDE
 	{
-		OnRehash(NULL);
-
 		ServerInstance->Modules->AddService(r);
 		ServerInstance->XLines->RegisterFactory(&f);
 	}
@@ -254,7 +252,7 @@ class ModuleRLine : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnRehash(User *user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("rline");
 

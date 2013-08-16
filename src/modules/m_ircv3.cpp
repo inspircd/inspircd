@@ -76,12 +76,7 @@ class ModuleIRCv3 : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		OnRehash(NULL);
-	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
 		accountnotify = conf->getBool("accountnotify", true);

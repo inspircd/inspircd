@@ -69,7 +69,8 @@ class ModuleAlias : public Module
 	bool AllowBots;
 	UserModeReference botmode;
 
-	void ReadAliases()
+ public:
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* fantasy = ServerInstance->Config->ConfValue("fantasy");
 		AllowBots = fantasy->getBool("allowbots", false);
@@ -96,15 +97,9 @@ class ModuleAlias : public Module
 		}
 	}
 
- public:
 	ModuleAlias()
 		: botmode(this, "bot")
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		ReadAliases();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -368,11 +363,6 @@ class ModuleAlias : public Module
 		}
 		ServerInstance->Parser->CallHandler(command, pars, user);
 	}
-
-	void OnRehash(User* user) CXX11_OVERRIDE
-	{
-		ReadAliases();
- 	}
 
 	void Prioritize()
 	{

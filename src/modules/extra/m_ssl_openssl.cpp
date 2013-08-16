@@ -502,7 +502,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 	}
 
-	void OnRehash(User* user) CXX11_OVERRIDE
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		sslports.clear();
 
@@ -550,7 +550,6 @@ class ModuleSSLOpenSSL : public Module
 		std::string certfile;
 		std::string cafile;
 		std::string dhfile;
-		OnRehash(user);
 
 		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
 
