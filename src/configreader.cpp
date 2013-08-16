@@ -673,9 +673,8 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 
 void ServerConfig::ApplyModules(User* user)
 {
-	const std::vector<std::string> v = ServerInstance->Modules->GetAllModuleNames(0);
 	std::vector<std::string> added_modules;
-	std::set<std::string> removed_modules(v.begin(), v.end());
+	ModuleManager::ModuleMap removed_modules = ServerInstance->Modules->GetModules();
 
 	ConfigTagList tags = ConfTags("module");
 	for(ConfigIter i = tags.first; i != tags.second; ++i)
@@ -691,27 +690,27 @@ void ServerConfig::ApplyModules(User* user)
 		}
 	}
 
-	for (std::set<std::string>::iterator removing = removed_modules.begin(); removing != removed_modules.end(); removing++)
+	for (ModuleManager::ModuleMap::iterator i = removed_modules.begin(); i != removed_modules.end(); ++i)
 	{
+		const std::string& modname = i->first;
 		// Don't remove cmd_*.so, just remove m_*.so
-		if (removing->c_str()[0] == 'c')
+		if (modname.c_str()[0] == 'c')
 			continue;
-		Module* m = ServerInstance->Modules->Find(*removing);
-		if (m && ServerInstance->Modules->Unload(m))
+		if (ServerInstance->Modules->Unload(i->second))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s",removing->c_str());
+			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
 			if (user)
-				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), removing->c_str(), removing->c_str());
+				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), modname.c_str(), modname.c_str());
 			else
-				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", removing->c_str());
+				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), removing->c_str(), removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), modname.c_str(), modname.c_str(), ServerInstance->Modules->LastError().c_str());
 			else
-				 ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", removing->c_str(), ServerInstance->Modules->LastError().c_str());
+				 ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 

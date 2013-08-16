@@ -141,13 +141,12 @@ class ModuleHttpStats : public Module
 				}
 
 				data << "</xlines><modulelist>";
-				std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
+				const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
 
-				for (std::vector<std::string>::iterator i = module_names.begin(); i != module_names.end(); ++i)
+				for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 				{
-					Module* m = ServerInstance->Modules->Find(i->c_str());
-					Version v = m->GetVersion();
-					data << "<module><name>" << *i << "</name><description>" << Sanitize(v.description) << "</description></module>";
+					Version v = i->second->GetVersion();
+					data << "<module><name>" << i->first << "</name><description>" << Sanitize(v.description) << "</description></module>";
 				}
 				data << "</modulelist><channellist>";
 

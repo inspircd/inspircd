@@ -1347,14 +1347,6 @@ class CoreExport ModuleManager
 		return static_cast<T*>(FindService(SERVICE_DATA, name));
 	}
 
-	/** Return a list of all modules matching the given filter
-	 * @param filter This int is a bitmask of flags set in Module::Flags,
-	 * such as VF_VENDOR or VF_STATIC. If you wish to receive a list of
-	 * all modules with no filtering, set this to 0.
-	 * @return The list of module names
-	 */
-	const std::vector<std::string> GetAllModuleNames(int filter);
-
 	/** Get a map of all loaded modules keyed by their name
 	 * @return A ModuleMap containing all loaded modules
 	 */

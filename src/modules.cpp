@@ -560,15 +560,6 @@ Module* ModuleManager::Find(const std::string &name)
 		return modfind->second;
 }
 
-const std::vector<std::string> ModuleManager::GetAllModuleNames(int filter)
-{
-	std::vector<std::string> retval;
-	for (std::map<std::string, Module*>::iterator x = Modules.begin(); x != Modules.end(); ++x)
-		if (!filter || (x->second->GetVersion().Flags & filter))
-			retval.push_back(x->first);
-	return retval;
-}
-
 FileReader::FileReader(const std::string& filename)
 {
 	Load(filename);

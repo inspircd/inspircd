@@ -28,17 +28,18 @@
 
 std::string TreeSocket::MyModules(int filter)
 {
-	std::vector<std::string> modlist = ServerInstance->Modules->GetAllModuleNames(filter);
+	const ModuleManager::ModuleMap& modlist = ServerInstance->Modules->GetModules();
 
 	std::string capabilities;
-	sort(modlist.begin(),modlist.end());
-	for (std::vector<std::string>::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
+	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
+		Version v = i->second->GetVersion();
+		if (!(v.Flags & filter))
+			continue;
+
 		if (i != modlist.begin())
 			capabilities.push_back(' ');
-		capabilities.append(*i);
-		Module* m = ServerInstance->Modules->Find(*i);
-		Version v = m->GetVersion();
+		capabilities.append(i->first);
 		if (!v.link_data.empty())
 		{
 			capabilities.push_back('=');

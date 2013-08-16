@@ -51,11 +51,11 @@ class CommandModules : public Command
  */
 CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 {
-	std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
+	const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
 
-  	for (unsigned int i = 0; i < module_names.size(); i++)
+  	for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 	{
-		Module* m = ServerInstance->Modules->Find(module_names[i]);
+		Module* m = i->second;
 		Version V = m->GetVersion();
 
 		if (user->HasPrivPermission("servers/auspex"))
@@ -68,17 +68,17 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 
 #ifdef PURE_STATIC
 			user->SendText(":%s 702 %s :%p %s %s :%s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), (void*)m, module_names[i].c_str(), flags.c_str(), V.description.c_str());
+				user->nick.c_str(), (void*)m, m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str());
 #else
 			std::string srcrev = m->ModuleDLLManager->GetVersion();
 			user->SendText(":%s 702 %s :%p %s %s :%s - %s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), (void*)m, module_names[i].c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str());
+				user->nick.c_str(), (void*)m, m->ModuleSourceFile.c_str(), flags.c_str(), V.description.c_str(), srcrev.c_str());
 #endif
 		}
 		else
 		{
 			user->SendText(":%s 702 %s :%s %s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), module_names[i].c_str(), V.description.c_str());
+				user->nick.c_str(), m->ModuleSourceFile.c_str(), V.description.c_str());
 		}
 	}
 	user->SendText(":%s 703 %s :End of MODULES list", ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
