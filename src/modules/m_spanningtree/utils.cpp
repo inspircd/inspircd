@@ -207,7 +207,7 @@ std::string SpanningTreeUtilities::ConstructLine(const std::string& prefix, cons
 	return FullLine;
 }
 
-bool SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& omit)
+void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& omit)
 {
 	TreeServer* omitroute = this->BestRouteTo(omit);
 	std::string FullLine = ConstructLine(prefix, command, params);
@@ -227,10 +227,9 @@ bool SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const
 				Sock->WriteLine(FullLine);
 		}
 	}
-	return true;
 }
 
-bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params)
+void SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params)
 {
 	std::string FullLine = ConstructLine(prefix, command, params);
 
@@ -245,7 +244,6 @@ bool SpanningTreeUtilities::DoOneToMany(const std::string &prefix, const std::st
 				Sock->WriteLine(FullLine);
 		}
 	}
-	return true;
 }
 
 bool SpanningTreeUtilities::DoOneToOne(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& target)

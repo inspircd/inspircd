@@ -134,11 +134,11 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	bool DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist& params, const std::string& omit);
+	void DoOneToAllButSender(const std::string &prefix, const std::string &command, const parameterlist& params, const std::string& omit);
 
 	/** Send a message from this server to all others
 	 */
-	bool DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params);
+	void DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params);
 
 	/** Read the spanningtree module's tags from the config file
 	 */

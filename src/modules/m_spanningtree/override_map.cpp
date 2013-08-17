@@ -123,7 +123,7 @@ bool ModuleSpanningTree::HandleMap(const std::vector<std::string>& parameters, U
 	// "scratch" draw to, as the console device of an irc
 	// client does not provide for a proper terminal.
 	int totusers = ServerInstance->Users->clientlist->size();
-	int totservers = this->CountServs();
+	int totservers = Utils->serverlist.size();
 	int maxnamew = 0;
 	int line = 0;
 	char* names = new char[totservers * 100];

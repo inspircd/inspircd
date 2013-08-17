@@ -271,13 +271,13 @@ bool TreeServer::DelChild(TreeServer* Child)
  * This is used during netsplits to automatically tidy up the
  * server tree. It is slow, we don't use it for much else.
  */
-bool TreeServer::Tidy()
+void TreeServer::Tidy()
 {
 	while (1)
 	{
 		std::vector<TreeServer*>::iterator a = Children.begin();
 		if (a == Children.end())
-			return true;
+			return;
 		TreeServer* s = *a;
 		s->Tidy();
 		s->cull();

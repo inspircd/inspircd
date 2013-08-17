@@ -163,7 +163,7 @@ class TreeServer : public classbase
 	 * This is used during netsplits to automatically tidy up the
 	 * server tree. It is slow, we don't use it for much else.
 	 */
-	bool Tidy();
+	void Tidy();
 
 	/** Get server ID
 	 */

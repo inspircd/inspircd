@@ -104,16 +104,10 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 			Current->GetDesc().c_str());
 }
 
-int ModuleSpanningTree::CountServs()
-{
-	return Utils->serverlist.size();
-}
-
 void ModuleSpanningTree::HandleLinks(const std::vector<std::string>& parameters, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
 	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick.c_str());
-	return;
 }
 
 std::string ModuleSpanningTree::TimeToStr(time_t secs)
@@ -432,12 +426,12 @@ void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std:
 	Utils->DoOneToMany(user->uuid,"TOPIC",params);
 }
 
-void ModuleSpanningTree::LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type)
+void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype)
 {
-	/* Server or remote origin, dest should always be non-null */
-	if ((!user) || (!IS_LOCAL(user)) || (!dest))
+	if (!IS_LOCAL(user))
 		return;
 
+	const char* message_type = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	if (target_type == TYPE_USER)
 	{
 		User* d = (User*) dest;
@@ -461,11 +455,6 @@ void ModuleSpanningTree::LocalMessage(User* user, void* dest, int target_type, c
 		par.push_back(":"+text);
 		Utils->DoOneToMany(user->uuid, message_type, par);
 	}
-}
-
-void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype)
-{
-	LocalMessage(user, dest, target_type, text, status, exempt_list, (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE"));
 }
 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)

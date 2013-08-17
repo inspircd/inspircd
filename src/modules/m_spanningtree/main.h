@@ -53,7 +53,6 @@ class Autoconnect;
 class ModuleSpanningTree : public Module
 {
 	SpanningTreeCommands* commands;
-	void LocalMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList &exempt_list, const char* message_type);
 
  public:
 	dynamic_reference<DNS::Manager> DNS;
@@ -73,10 +72,6 @@ class ModuleSpanningTree : public Module
 	/** Shows /LINKS
 	 */
 	void ShowLinks(TreeServer* Current, User* user, int hops);
-
-	/** Counts local and remote servers
-	 */
-	int CountServs();
 
 	/** Handle LINKS command
 	 */
@@ -136,7 +131,7 @@ class ModuleSpanningTree : public Module
 
 	/** Display a time as a human readable string
 	 */
-	std::string TimeToStr(time_t secs);
+	static std::string TimeToStr(time_t secs);
 
 	/**
 	 ** *** MODULE EVENTS ***

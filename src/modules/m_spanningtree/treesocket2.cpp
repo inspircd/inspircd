@@ -388,7 +388,7 @@ void TreeSocket::Close()
 		time_t server_uptime = ServerInstance->Time() - this->age;
 		if (server_uptime)
 		{
-			std::string timestr = Utils->Creator->TimeToStr(server_uptime);
+			std::string timestr = ModuleSpanningTree::TimeToStr(server_uptime);
 			ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), timestr.c_str());
 		}
 	}
