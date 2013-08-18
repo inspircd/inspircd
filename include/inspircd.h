@@ -402,7 +402,7 @@ class CoreExport InspIRCd
 
 	/** Holds extensible for user operquit
 	 */
-	LocalStringExt OperQuit;
+	StringExtItem OperQuit;
 
 	/** Manages the generation and transmission of ISUPPORT. */
 	ISupportManager ISupport;

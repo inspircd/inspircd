@@ -255,10 +255,6 @@ class TreeSocket : public BufferedSocket
 	 */
 	void Encap(User* who, parameterlist &params);
 
-	/** OPERQUIT command
-	 */
-	bool OperQuit(const std::string &prefix, parameterlist &params);
-
 	/** PONG
 	 */
 	bool LocalPong(const std::string &prefix, parameterlist &params);

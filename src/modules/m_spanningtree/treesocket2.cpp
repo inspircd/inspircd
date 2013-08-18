@@ -357,10 +357,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	{
 		this->ForceNick(prefix,params);
 	}
-	else if (command == "OPERQUIT")
-	{
-		this->OperQuit(prefix,params);
-	}
 	else if (command == "IDLE")
 	{
 		this->Whois(prefix,params);

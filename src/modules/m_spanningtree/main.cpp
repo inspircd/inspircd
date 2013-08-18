@@ -597,11 +597,8 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		parameterlist params;
 
 		if (oper_message != reason)
-		{
-			params.push_back(":"+oper_message);
-			Utils->DoOneToMany(user->uuid,"OPERQUIT",params);
-		}
-		params.clear();
+			ServerInstance->PI->SendMetaData(user, "operquit", oper_message);
+
 		params.push_back(":"+reason);
 		Utils->DoOneToMany(user->uuid,"QUIT",params);
 	}

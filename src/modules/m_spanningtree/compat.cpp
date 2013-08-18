@@ -93,7 +93,7 @@ void TreeSocket::WriteLine(std::string line)
 					return;
 				else if (command == "METADATA")
 				{
-					// Drop TS for channel METADATA
+					// Drop TS for channel METADATA, translate METADATA operquit into an OPERQUIT command
 					// :sid METADATA #target TS extname ...
 					//     A        B       C  D
 					if (b == std::string::npos)
@@ -103,14 +103,19 @@ void TreeSocket::WriteLine(std::string line)
 					if (c == std::string::npos)
 						return;
 
+					std::string::size_type d = line.find(' ', c + 1);
+					if (d == std::string::npos)
+						return;
+
 					if (line[b + 1] == '#')
 					{
 						// We're sending channel metadata
-						std::string::size_type d = line.find(' ', c + 1);
-						if (d == std::string::npos)
-							return;
-
 						line.erase(c, d-c);
+					}
+					else if (line.substr(c, d-c) == " operquit")
+					{
+						// ":22D METADATA 22DAAAAAX operquit :message" -> ":22DAAAAAX OPERQUIT :message"
+						line = ":" + line.substr(b+1, c-b) + "OPERQUIT" + line.substr(d);
 					}
 				}
 				else if (command == "FTOPIC")
@@ -245,6 +250,17 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	else if (cmd == "SVSMODE")
 	{
 		cmd = "MODE";
+	}
+	else if (cmd == "OPERQUIT")
+	{
+		// Translate OPERQUIT into METADATA
+		if (params.empty())
+			return false;
+
+		cmd = "METADATA";
+		params.insert(params.begin(), who->uuid);
+		params.insert(params.begin()+1, "operquit");
+		who = MyRoot->ServerUser;
 	}
 
 	return true; // Passthru
