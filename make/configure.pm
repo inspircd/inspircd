@@ -21,42 +21,175 @@
 #
 
 
-package make::configure;
+BEGIN {
+	require 5.8.0;
+}
 
-require 5.8.0;
+package make::configure;
 
 use strict;
 use warnings FATAL => qw(all);
 
+use Cwd;
 use Exporter 'import';
-use POSIX;
+
 use make::utilities;
-our @EXPORT = qw(get_compiler_info find_compiler run_test test_file test_header promptnumeric dumphash getmodules getrevision get_property yesno showhelp promptstring_s module_installed);
+
+our @EXPORT = qw(cmd_clean cmd_help cmd_update
+                 read_configure_cache write_configure_cache
+                 get_compiler_info find_compiler
+                 run_test test_file test_header
+                 get_property get_revision
+                 dump_hash);
 
 my $revision;
 
+sub __get_socketengines() {
+	my @socketengines;
+	foreach (<src/socketengines/socketengine_*.cpp>) {
+		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
+		push @socketengines, $1;
+	}
+	return @socketengines;
+}
+
+sub cmd_clean {
+	unlink '.config.cache';
+}
+
+sub cmd_help {
+	my $PWD = getcwd();
+	my $SELIST = join ', ', __get_socketengines();
+	print <<EOH;
+Usage: $0 [options]
+
+When no options are specified, configure runs in interactive mode and you must
+specify any required values manually. If one or more options are specified,
+non-interactive configuration is started and any omitted values are defaulted.
+
+PATH OPTIONS
+
+  --system                      Automatically set up the installation paths
+                                for system-wide installation.
+  --prefix=[dir]                The root install directory. If this is set then
+                                all subdirectories will be adjusted accordingly.
+                                [$PWD/run]
+  --binary-dir=[dir]            The location where the main server binary is
+                                stored.
+                                [$PWD/run/bin]
+  --config-dir=[dir]            The location where the configuration files and
+                                SSL certificates are stored.
+                                [$PWD/run/conf]
+  --data-dir=[dir]              The location where the data files, such as the
+                                pid file, are stored.
+                                [$PWD/run/data]
+  --log-dir=[dir]               The location where the log files are stored.
+                                [$PWD/run/logs]
+  --module-dir=[dir]            The location where the loadable modules are
+                                stored.
+                                [$PWD/run/modules]
+  --build-dir=[dir]             The location to store files in while building.
+
+
+EXTRA MODULE OPTIONS
+
+  --enable-extras=[extras]      Enables a comma separated list of extra modules.
+  --disable-extras=[extras]     Disables a comma separated list of extra modules.
+  --list-extras                 Shows the availability status of all extra
+                                modules.
+
+MISC OPTIONS
+
+  --clean                       Remove the configuration cache file and start
+                                the interactive configuration wizard.
+  --disable-interactive         Disables the interactive configuration wizard.
+  --help                        Show this message and exit.
+  --uid=[name]                  Sets the user to run InspIRCd as.
+  --socketengine=[name]         Sets the socket engine to be used. Possible
+                                values are $SELIST.
+  --update                      Updates the build environment.
+
+
+FLAGS
+
+  CXX=[name]                    Sets the C++ compiler to use when building the
+                                server. If not specified then the build system
+                                will search for c++, g++, clang++ or icpc.
+
+If you have any problems with configuring InspIRCd then visit our IRC channel
+at irc.ChatSpike.net #InspIRCd.
+
+EOH
+	exit 0;
+}
+
+sub cmd_update {
+	unless (-f '.config.cache') {
+		print "You have not run $0 before. Please do this before trying to update the build files.\n";
+		exit 1;
+	}
+	print "Updating...\n";
+	%main::config = read_configure_cache();
+	%main::cxx = get_compiler_info($main::config{CXX});
+	$main::topdir = getcwd();
+	main::writefiles();
+	print "Update complete!\n";
+	exit 0;
+}
+
+sub read_configure_cache {
+	my %cfg = ();
+	open(CACHE, '.config.cache') or return %cfg;
+	while (my $line = <CACHE>) {
+		next if $line =~ /^\s*($|\#)/;
+		my ($key, $value) = ($line =~ /^(\S+)="(.*)"$/);
+		$cfg{$key} = $value;
+	}
+	close(CACHE);
+	return %cfg;
+}
+
+sub write_configure_cache(%) {
+	my %cfg = @_;
+	open(CACHE, ">.config.cache") or return 0;
+	while (my ($key, $value) = each %cfg) {
+		$value = "" unless defined $value;
+		print CACHE "$key=\"$value\"\n";
+	}
+	close(CACHE);
+	return 1;
+}
+
 sub get_compiler_info($) {
-        my %info = (NAME => shift, VERSION => '0.0');
-        my $version = `$info{NAME} -v 2>&1`;
-		return (ERROR => 1) if $?;
-        if ($version =~ /(?:clang|llvm)\sversion\s(\d+\.\d+)/i) {
-                $info{NAME} = 'Clang';
-                $info{VERSION} = $1;
-                $info{UNSUPPORTED} = $1 lt '3.0';
-                $info{REASON} = 'Clang 2.9 and older do not have adequate C++ support.';
-        } elsif ($version =~ /gcc\sversion\s(\d+\.\d+)/i) {
-                $info{NAME} = 'GCC';
-                $info{VERSION} = $1;
-                $info{UNSUPPORTED} = $1 lt '4.1';
-                $info{REASON} = 'GCC 4.0 and older do not have adequate C++ support.';
-        } elsif ($version =~ /(?:icc|icpc)\sversion\s(\d+\.\d+).\d+\s\(gcc\sversion\s(\d+\.\d+).\d+/i) {
-                $info{NAME} = 'ICC';
-                $info{VERSION} = $1;
-                $info{UNSUPPORTED} = $2 lt '4.1';
-                $info{REASON} = "ICC $1 (GCC $2 compatibility mode) does not have adequate C++ support."
-        }
-        return %info;
-}  
+	my $binary = shift;
+	my $version = `$binary -v 2>&1`;
+	if ($version =~ /(?:clang|llvm)\sversion\s(\d+\.\d+)/i) {
+		return (
+			NAME => 'Clang',
+			VERSION => $1,
+			UNSUPPORTED => $1 lt '3.0',
+			REASON => 'Clang 2.9 and older do not have adequate C++ support.'
+		);
+	} elsif ($version =~ /gcc\sversion\s(\d+\.\d+)/i) {
+		return (
+			NAME => 'GCC',
+			VERSION => $1,
+			UNSUPPORTED => $1 lt '4.1',
+			REASON => 'GCC 4.0 and older do not have adequate C++ support.'
+		);
+	} elsif ($version =~ /(?:icc|icpc)\sversion\s(\d+\.\d+).\d+\s\(gcc\sversion\s(\d+\.\d+).\d+/i) {
+		return (
+			NAME => 'ICC',
+			VERSION => $1,
+			UNSUPPORTED => $2 lt '4.1',
+			REASON => "ICC $1 (GCC $2 compatibility mode) does not have adequate C++ support."
+		);
+	}
+	return (
+		NAME => $binary,
+		VERSION => '0.0'
+	);
+}
 
 sub find_compiler {
 	foreach my $compiler ('c++', 'g++', 'clang++', 'icpc') {
@@ -94,22 +227,6 @@ sub test_header($$;$) {
 	return !$?;
 }
 
-sub yesno {
-	my ($flag,$prompt) = @_;
-	print "$prompt [\e[1;32m$main::config{$flag}\e[0m] -> ";
-	chomp(my $tmp = <STDIN>);
-	if ($tmp eq "") { $tmp = $main::config{$flag} }
-	if (($tmp eq "") || ($tmp =~ /^y/i))
-	{
-		$main::config{$flag} = "y";
-	}
-	else
-	{
-		$main::config{$flag} = "n";
-	}
-	return;
-}
-
 sub get_property($$;$)
 {
 	my ($file, $property, $default) = @_;
@@ -125,89 +242,14 @@ sub get_property($$;$)
 	return defined $default ? $default : '';
 }
 
-sub getrevision {
+sub get_revision {
 	return $revision if defined $revision;
 	chomp(my $tags = `git describe --tags 2>/dev/null`);
 	$revision = $tags || 'release';
 	return $revision;
 }
 
-sub getmodules
-{
-	my ($silent) = @_;
-
-	my $i = 0;
-
-	if (!$silent)
-	{
-		print "Detecting modules ";
-	}
-
-	opendir(DIRHANDLE, "src/modules") or die("WTF, missing src/modules!");
-	foreach my $name (sort readdir(DIRHANDLE))
-	{
-		if ($name =~ /^m_(.+)\.cpp$/)
-		{
-			my $mod = $1;
-			$main::modlist[$i++] = $mod;
-			if (!$silent)
-			{
-				print ".";
-			}
-		}
-	}
-	closedir(DIRHANDLE);
-
-	if (!$silent)
-	{
-		print "\nOk, $i modules.\n";
-	}
-}
-
-sub promptnumeric($$)
-{
-	my $continue = 0;
-	my ($prompt, $configitem) = @_;
-	while (!$continue)
-	{
-		print "Please enter the maximum $prompt?\n";
-		print "[\e[1;32m$main::config{$configitem}\e[0m] -> ";
-		chomp(my $var = <STDIN>);
-		if ($var eq "")
-		{
-			$var = $main::config{$configitem};
-		}
-		if ($var =~ /^\d+$/) {
-			# We don't care what the number is, set it and be on our way.
-			$main::config{$configitem} = $var;
-			$continue = 1;
-			print "\n";
-		} else {
-			print "You must enter a number in this field. Please try again.\n\n";
-		}
-	}
-}
-
-sub module_installed($)
-{
-	my $module = shift;
-	eval("use $module;");
-	return !$@;
-}
-
-sub promptstring_s($$)
-{
-	my ($prompt,$default) = @_;
-	my $var;
-	print "$prompt\n";
-	print "[\e[1;32m$default\e[0m] -> ";
-	chomp($var = <STDIN>);
-	$var = $default if $var eq "";
-	print "\n";
-	return $var;
-}
-
-sub dumphash()
+sub dump_hash()
 {
 	print "\n\e[1;32mPre-build configuration is complete!\e[0m\n\n";
 	print "\e[0mBase install path:\e[1;32m\t\t$main::config{BASE_DIR}\e[0m\n";
@@ -221,57 +263,4 @@ sub dumphash()
 	print "\e[0mOpenSSL support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n";
 }
 
-sub showhelp
-{
-	chomp(my $PWD = `pwd`);
-	my (@socketengines, $SELIST);
-	foreach (<src/socketengines/socketengine_*.cpp>) {
-		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
-		push(@socketengines, $1);
-	}
-	$SELIST = join(", ", @socketengines);
-	print <<EOH;
-Usage: configure [options]
-
-When no options are specified, interactive
-configuration is started and you must specify
-any required values manually. If one or more
-options are specified, non-interactive configuration
-is started, and any omitted values are defaulted.
-
-Arguments with a single \"-\" symbol are also allowed.
-
-  --disable-interactive        Sets no options itself, but
-                               will disable any interactive prompting.
-  --update                     Update makefiles and dependencies
-  --clean                      Remove .config.cache file and go interactive
-  --enable-gnutls              Enable GnuTLS module [no]
-  --enable-openssl             Enable OpenSSL module [no]
-  --socketengine=[name]        Sets the socket engine to be used. Possible values are
-                               $SELIST.
-  --prefix=[directory]         Base directory to install into (if defined,
-                               can automatically define config, data, module,
-                               log and binary dirs as subdirectories of prefix)
-                               [$PWD]
-  --config-dir=[directory]     Config file directory for config and SSL certs
-                               [$PWD/conf]
-  --log-dir=[directory]	       Log file directory for logs
-                               [$PWD/logs]
-  --data-dir=[directory]       Data directory for variable data, such as the permchannel
-                               configuration and the XLine database
-                               [$PWD/data]
-  --module-dir=[directory]     Modules directory for loadable modules
-                               [$PWD/modules]
-  --binary-dir=[directory]     Binaries directory for core binary
-                               [$PWD/bin]
-  --list-extras                Show current status of extra modules
-  --enable-extras=[extras]     Enable the specified list of extras
-  --disable-extras=[extras]    Disable the specified list of extras
-  --help                       Show this help text and exit
-
-EOH
-	exit(0);
-}
-
 1;
-
