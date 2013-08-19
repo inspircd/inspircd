@@ -24,17 +24,19 @@
 
 static std::string newline("\n");
 
-void TreeSocket::WriteLine(std::string line)
+void TreeSocket::WriteLine(const std::string& original_line)
 {
 	if (LinkState == CONNECTED)
 	{
-		if (line[0] != ':')
+		if (original_line.c_str()[0] != ':')
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Sending line without server prefix!");
-			line = ":" + ServerInstance->Config->GetSID() + " " + line;
+			WriteLine(":" + ServerInstance->Config->GetSID() + " " + original_line);
+			return;
 		}
 		if (proto_version != ProtocolVersion)
 		{
+			std::string line = original_line;
 			std::string::size_type a = line.find(' ');
 			std::string::size_type b = line.find(' ', a + 1);
 			std::string command = line.substr(a + 1, b-a-1);
@@ -159,11 +161,15 @@ void TreeSocket::WriteLine(std::string line)
 					}
 				}
 			}
+			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
+			this->WriteData(line);
+			this->WriteData(newline);
+			return;
 		}
 	}
 
-	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
-	this->WriteData(line);
+	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), original_line.c_str());
+	this->WriteData(original_line);
 	this->WriteData(newline);
 }
 

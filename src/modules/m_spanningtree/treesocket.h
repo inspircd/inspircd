@@ -237,7 +237,7 @@ class TreeSocket : public BufferedSocket
 
 	/** Send one or more complete lines down the socket
 	 */
-	void WriteLine(std::string line);
+	void WriteLine(const std::string& line);
 
 	/** Handle ERROR command */
 	void Error(parameterlist &params);
