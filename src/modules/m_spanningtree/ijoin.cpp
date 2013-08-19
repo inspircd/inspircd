@@ -23,7 +23,7 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
-CmdResult CommandIJoin::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>& params)
 {
 	Channel* chan = ServerInstance->FindChan(params[0]);
 	if (!chan)
@@ -63,7 +63,7 @@ CmdResult CommandIJoin::Handle(User* user, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandResync::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandResync::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resyncing " + params[0]);
 	Channel* chan = ServerInstance->FindChan(params[0]);
@@ -74,18 +74,13 @@ CmdResult CommandResync::Handle(User* user, std::vector<std::string>& params)
 		return CMD_FAILURE;
 	}
 
-	TreeServer* server = Utils->FindServer(user->server);
-	if (!server)
-		return CMD_FAILURE;
-
-	TreeSocket* socket = server->GetSocket();
-	if (!socket)
+	if (!server->IsLocal())
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received RESYNC with a source that is not directly connected: " + user->uuid);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received RESYNC with a source that is not directly connected: " + server->GetID());
 		return CMD_INVALID;
 	}
 
 	// Send all known information about the channel
-	socket->SyncChannel(chan);
+	server->GetSocket()->SyncChannel(chan);
 	return CMD_SUCCESS;
 }

@@ -23,10 +23,8 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandAway::Handle(User* u, std::vector<std::string>& params)
+CmdResult CommandAway::HandleRemote(RemoteUser* u, std::vector<std::string>& params)
 {
-	if (IS_SERVER(u))
-		return CMD_INVALID;
 	if (params.size())
 	{
 		FOREACH_MOD(OnSetAway, (u, params[params.size() - 1]));

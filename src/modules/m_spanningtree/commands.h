@@ -86,18 +86,18 @@ class CommandMetadata : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& params);
 };
 
-class CommandUID : public ServerCommand
+class CommandUID : public ServerOnlyServerCommand<CommandUID>
 {
  public:
-	CommandUID(Module* Creator) : ServerCommand(Creator, "UID", 10) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params);
+	CommandUID(Module* Creator) : ServerOnlyServerCommand<CommandUID>(Creator, "UID", 10) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& params);
 };
 
-class CommandOpertype : public ServerCommand
+class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
 {
  public:
-	CommandOpertype(Module* Creator) : ServerCommand(Creator, "OPERTYPE", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params);
+	CommandOpertype(Module* Creator) : UserOnlyServerCommand<CommandOpertype>(Creator, "OPERTYPE", 1) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
 };
 
 class TreeSocket;
@@ -128,46 +128,46 @@ class CommandFTopic : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& params);
 };
 
-class CommandFHost : public ServerCommand
+class CommandFHost : public UserOnlyServerCommand<CommandFHost>
 {
  public:
-	CommandFHost(Module* Creator) : ServerCommand(Creator, "FHOST", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params);
+	CommandFHost(Module* Creator) : UserOnlyServerCommand<CommandFHost>(Creator, "FHOST", 1) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
 };
 
-class CommandFIdent : public ServerCommand
+class CommandFIdent : public UserOnlyServerCommand<CommandFIdent>
 {
  public:
-	CommandFIdent(Module* Creator) : ServerCommand(Creator, "FIDENT", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params);
+	CommandFIdent(Module* Creator) : UserOnlyServerCommand<CommandFIdent>(Creator, "FIDENT", 1) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
 };
 
-class CommandFName : public ServerCommand
+class CommandFName : public UserOnlyServerCommand<CommandFName>
 {
  public:
-	CommandFName(Module* Creator) : ServerCommand(Creator, "FNAME", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params);
+	CommandFName(Module* Creator) : UserOnlyServerCommand<CommandFName>(Creator, "FNAME", 1) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
 };
 
-class CommandIJoin : public ServerCommand
+class CommandIJoin : public UserOnlyServerCommand<CommandIJoin>
 {
  public:
-	CommandIJoin(Module* Creator) : ServerCommand(Creator, "IJOIN", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& params);
+	CommandIJoin(Module* Creator) : UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 1) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
 };
 
-class CommandResync : public ServerCommand
+class CommandResync : public ServerOnlyServerCommand<CommandResync>
 {
  public:
-	CommandResync(Module* Creator) : ServerCommand(Creator, "RESYNC", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandResync(Module* Creator) : ServerOnlyServerCommand<CommandResync>(Creator, "RESYNC", 1) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 };
 
-class CommandAway : public ServerCommand
+class CommandAway : public UserOnlyServerCommand<CommandAway>
 {
  public:
-	CommandAway(Module* Creator) : ServerCommand(Creator, "AWAY", 0, 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandAway(Module* Creator) : UserOnlyServerCommand<CommandAway>(Creator, "AWAY", 0, 2) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& parameters);
 };
 
 class CommandAddLine : public ServerCommand
@@ -192,19 +192,19 @@ class CommandEncap : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
-class CommandIdle : public ServerCommand
+class CommandIdle : public UserOnlyServerCommand<CommandIdle>
 {
  public:
-	CommandIdle(Module* Creator) : ServerCommand(Creator, "IDLE", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandIdle(Module* Creator) : UserOnlyServerCommand<CommandIdle>(Creator, "IDLE", 1) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& parameters);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class CommandNick : public ServerCommand
+class CommandNick : public UserOnlyServerCommand<CommandNick>
 {
  public:
-	CommandNick(Module* Creator) : ServerCommand(Creator, "NICK", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandNick(Module* Creator) : UserOnlyServerCommand<CommandNick>(Creator, "NICK", 2) { }
+	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& parameters);
 };
 
 class CommandPing : public ServerCommand
@@ -215,11 +215,11 @@ class CommandPing : public ServerCommand
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
 };
 
-class CommandPong : public ServerCommand
+class CommandPong : public ServerOnlyServerCommand<CommandPong>
 {
  public:
-	CommandPong(Module* Creator) : ServerCommand(Creator, "PONG", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandPong(Module* Creator) : ServerOnlyServerCommand<CommandPong>(Creator, "PONG", 1) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_UNICAST(parameters[0]); }
 };
 
@@ -238,18 +238,18 @@ class CommandSave : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
-class CommandServer : public ServerCommand
+class CommandServer : public ServerOnlyServerCommand<CommandServer>
 {
  public:
-	CommandServer(Module* Creator) : ServerCommand(Creator, "SERVER", 5) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 5) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 };
 
-class CommandSQuit : public ServerCommand
+class CommandSQuit : public ServerOnlyServerCommand<CommandSQuit>
 {
  public:
-	CommandSQuit(Module* Creator) : ServerCommand(Creator, "SQUIT", 2) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandSQuit(Module* Creator) : ServerOnlyServerCommand<CommandSQuit>(Creator, "SQUIT", 2) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 };
 
 class CommandSNONotice : public ServerCommand
@@ -259,25 +259,25 @@ class CommandSNONotice : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
-class CommandVersion : public ServerCommand
+class CommandVersion : public ServerOnlyServerCommand<CommandServer>
 {
  public:
-	CommandVersion(Module* Creator) : ServerCommand(Creator, "VERSION", 1) { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandVersion(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "VERSION", 1) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 };
 
-class CommandBurst : public ServerCommand
+class CommandBurst : public ServerOnlyServerCommand<CommandBurst>
 {
  public:
-	CommandBurst(Module* Creator) : ServerCommand(Creator, "BURST") { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandBurst(Module* Creator) : ServerOnlyServerCommand<CommandBurst>(Creator, "BURST") { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 };
 
-class CommandEndBurst : public ServerCommand
+class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
 {
  public:
-	CommandEndBurst(Module* Creator) : ServerCommand(Creator, "ENDBURST") { }
-	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+	CommandEndBurst(Module* Creator) : ServerOnlyServerCommand<CommandEndBurst>(Creator, "ENDBURST") { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 };
 
 class SpanningTreeCommands

@@ -25,7 +25,7 @@
 #include "utils.h"
 #include "treeserver.h"
 
-CmdResult CommandUID::Handle(User* serversrc, std::vector<std::string>& params)
+CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::string>& params)
 {
 	/** Do we have enough parameters:
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
@@ -36,12 +36,8 @@ CmdResult CommandUID::Handle(User* serversrc, std::vector<std::string>& params)
 	std::string empty;
 	const std::string& modestr = params[8];
 
-	TreeServer* remoteserver = Utils->FindServer(serversrc->server);
-
-	if (!remoteserver)
-		return CMD_INVALID;
 	/* Is this a valid UID, and not misrouted? */
-	if (params[0].length() != 9 || params[0].substr(0,3) != serversrc->uuid)
+	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].substr(0, 3) != remoteserver->GetID())
 		return CMD_INVALID;
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age_t)
@@ -147,26 +143,20 @@ CmdResult CommandUID::Handle(User* serversrc, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFHost::Handle(User* src, std::vector<std::string>& params)
+CmdResult CommandFHost::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
 {
-	if (IS_SERVER(src))
-		return CMD_FAILURE;
 	src->ChangeDisplayedHost(params[0]);
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFIdent::Handle(User* src, std::vector<std::string>& params)
+CmdResult CommandFIdent::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
 {
-	if (IS_SERVER(src))
-		return CMD_FAILURE;
 	src->ChangeIdent(params[0]);
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandFName::Handle(User* src, std::vector<std::string>& params)
+CmdResult CommandFName::HandleRemote(RemoteUser* src, std::vector<std::string>& params)
 {
-	if (IS_SERVER(src))
-		return CMD_FAILURE;
 	src->ChangeName(params[0]);
 	return CMD_SUCCESS;
 }

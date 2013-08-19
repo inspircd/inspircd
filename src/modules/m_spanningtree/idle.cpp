@@ -21,17 +21,19 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandIdle::Handle(User* issuer, std::vector<std::string>& params)
+CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, std::vector<std::string>& params)
 {
-	/* If this is a request, this user did the /whois
-	 * If this is a reply, this user's information is in params[1] and params[2]
+	/**
+	 * There are two forms of IDLE: request and reply. Requests have one parameter,
+	 * replies have more than one.
+	 *
+	 * If this is a request, 'issuer' did a /whois and its server wants to learn the
+	 * idle time of the user in params[0].
+	 *
+	 * If this is a reply, params[0] is the user who did the whois and params.back() is
+	 * the number of seconds 'issuer' has been idle.
 	 */
-	if (IS_SERVER(issuer))
-		return CMD_FAILURE;
 
-	/* If this is a request, this is the user whose idle information was requested
-	 * If this is a reply, this user did the /whois
-	 */
 	User* target = ServerInstance->FindUUID(params[0]);
 	if ((!target) || (IS_SERVER(target)))
 		return CMD_FAILURE;

@@ -24,9 +24,8 @@
 #include "commands.h"
 #include "utils.h"
 
-CmdResult CommandPong::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandPong::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
-	TreeServer* server = Utils->FindServer(user->server);
 	if (server->bursting)
 	{
 		ServerInstance->SNO->WriteGlobalSno('l', "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());

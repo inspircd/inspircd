@@ -207,7 +207,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 	}
 }
 
-CmdResult CommandSQuit::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
 	TreeServer* quitting = Utils->FindServer(params[0]);
 	if (!quitting)
@@ -216,7 +216,7 @@ CmdResult CommandSQuit::Handle(User* user, std::vector<std::string>& params)
 		return CMD_FAILURE;
 	}
 
-	TreeSocket* sock = Utils->FindServer(user->server)->GetSocket();
+	TreeSocket* sock = server->GetSocket();
 	sock->Squit(quitting, params[1]);
 	return CMD_SUCCESS;
 }

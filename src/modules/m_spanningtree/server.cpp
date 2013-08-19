@@ -31,18 +31,14 @@
  * Some server somewhere in the network introducing another server.
  *	-- w
  */
-CmdResult CommandServer::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std::string>& params)
 {
 	std::string servername = params[0];
 	// password is not used for a remote server
 	// hopcount is not used (ever)
 	std::string sid = params[3];
 	std::string description = params[4];
-	TreeServer* ParentOfThis = Utils->FindServer(user->server);
 	TreeSocket* socket = ParentOfThis->GetSocket();
-
-	if (!IS_SERVER(user))
-		return CMD_FAILURE;
 
 	if (!InspIRCd::IsSID(sid))
 	{

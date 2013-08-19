@@ -35,22 +35,14 @@ CmdResult CommandSNONotice::Handle(User* user, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandBurst::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandBurst::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
-	if (!IS_SERVER(user))
-		return CMD_INVALID;
-
-	TreeServer* server = Utils->FindServer(user->server);
 	server->bursting = true;
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandEndBurst::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandEndBurst::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
-	if (!IS_SERVER(user))
-		return CMD_INVALID;
-
-	TreeServer* server = Utils->FindServer(user->server);
 	server->FinishBurst();
 	return CMD_SUCCESS;
 }

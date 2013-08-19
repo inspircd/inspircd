@@ -24,14 +24,9 @@
 #include "treeserver.h"
 #include "commands.h"
 
-CmdResult CommandVersion::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandVersion::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
-	TreeServer* ServerSource = Utils->FindServer(user->server);
-
-	if (ServerSource)
-	{
-		ServerSource->SetVersion(params[0]);
-	}
+	server->SetVersion(params[0]);
 	return CMD_SUCCESS;
 }
 

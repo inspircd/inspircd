@@ -29,11 +29,8 @@
 #include "utils.h"
 #include "commands.h"
 
-CmdResult CommandNick::Handle(User* user, std::vector<std::string>& params)
+CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& params)
 {
-	if (IS_SERVER(user))
-		return CMD_INVALID;
-
 	if ((isdigit(params[0][0])) && (params[0] != user->uuid))
 		return CMD_INVALID;
 
