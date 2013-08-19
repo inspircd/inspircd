@@ -29,6 +29,7 @@
 #include "treeserver.h"
 #include "treesocket.h"
 #include "resolvers.h"
+#include "commands.h"
 
 /* Handle ERROR command */
 void TreeSocket::Error(parameterlist &params)
@@ -178,14 +179,8 @@ void TreeSocket::ProcessLine(std::string &line)
 				MyRoot->bursting = true;
 				this->DoBurst(MyRoot);
 
-				parameterlist sparams;
-				sparams.push_back(MyRoot->GetName());
-				sparams.push_back("*");
-				sparams.push_back("0");
-				sparams.push_back(MyRoot->GetID());
-				sparams.push_back(":" + MyRoot->GetDesc());
-				Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(), "SERVER", sparams, MyRoot);
-				Utils->DoOneToAllButSender(MyRoot->GetID(), "BURST", params, MyRoot);
+				CommandServer::Builder(MyRoot).Forward(MyRoot);
+				CmdBuilder(MyRoot->GetID(), "BURST").insert(params).Forward(MyRoot);
 			}
 			else if (command == "ERROR")
 			{

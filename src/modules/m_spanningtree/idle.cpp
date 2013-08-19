@@ -59,11 +59,11 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, std::vector<std::string>
 		else
 			idle = ((unsigned int) (ServerInstance->Time() - localtarget->idle_lastmsg));
 
-		parameterlist reply;
+		CmdBuilder reply(params[0], "IDLE");
 		reply.push_back(issuer->uuid);
 		reply.push_back(ConvToStr(target->signon));
 		reply.push_back(ConvToStr(idle));
-		Utils->DoOneToOne(params[0], "IDLE", reply, issuer->server);
+		reply.Unicast(issuer);
 	}
 
 	return CMD_SUCCESS;

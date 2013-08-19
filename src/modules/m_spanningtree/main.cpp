@@ -408,11 +408,11 @@ void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, 
 {
 	if (IS_LOCAL(source))
 	{
-		parameterlist params;
+		CmdBuilder params(source, "INVITE");
 		params.push_back(dest->uuid);
 		params.push_back(channel->name);
 		params.push_back(ConvToStr(expiry));
-		Utils->DoOneToMany(source->uuid,"INVITE",params);
+		params.Broadcast();
 	}
 }
 
@@ -422,10 +422,10 @@ void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std:
 	if (!IS_LOCAL(user))
 		return;
 
-	parameterlist params;
+	CmdBuilder params(user->uuid, "TOPIC");
 	params.push_back(chan->name);
-	params.push_back(":"+topic);
-	Utils->DoOneToMany(user->uuid,"TOPIC",params);
+	params.push_last(topic);
+	params.Broadcast();
 }
 
 void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype)
@@ -439,10 +439,10 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 		User* d = (User*) dest;
 		if (!IS_LOCAL(d))
 		{
-			parameterlist params;
+			CmdBuilder params(user, message_type);
 			params.push_back(d->uuid);
-			params.push_back(":"+text);
-			Utils->DoOneToOne(user->uuid, message_type, params, d->server);
+			params.push_last(text);
+			params.Unicast(d);
 		}
 	}
 	else if (target_type == TYPE_CHANNEL)
@@ -452,10 +452,10 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 	else if (target_type == TYPE_SERVER)
 	{
 		char* target = (char*) dest;
-		parameterlist par;
+		CmdBuilder par(user, message_type);
 		par.push_back(target);
-		par.push_back(":"+text);
-		Utils->DoOneToMany(user->uuid, message_type, par);
+		par.push_last(text);
+		par.Broadcast();
 	}
 }
 
@@ -471,26 +471,10 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 	if (user->quitting)
 		return;
 
-	parameterlist params;
-	params.push_back(user->uuid);
-	params.push_back(ConvToStr(user->age));
-	params.push_back(user->nick);
-	params.push_back(user->host);
-	params.push_back(user->dhost);
-	params.push_back(user->ident);
-	params.push_back(user->GetIPString());
-	params.push_back(ConvToStr(user->signon));
-	params.push_back("+"+std::string(user->FormatModes(true)));
-	params.push_back(":"+user->fullname);
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "UID", params);
+	CommandUID::Builder(user).Broadcast();
 
 	if (user->IsOper())
-	{
-		params.clear();
-		params.push_back(":");
-		params[0].append(user->oper->name);
-		Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
-	}
+		CommandOpertype::Builder(user).Broadcast();
 
 	for(Extensible::ExtensibleStore::const_iterator i = user->GetExtList().begin(); i != user->GetExtList().end(); i++)
 	{
@@ -506,26 +490,28 @@ void ModuleSpanningTree::OnUserConnect(LocalUser* user)
 void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by_local, CUList& excepts)
 {
 	// Only do this for local users
-	if (IS_LOCAL(memb->user))
+	if (!IS_LOCAL(memb->user))
+		return;
+
+	if (created_by_local)
 	{
-		parameterlist params;
+		CmdBuilder params("FJOIN");
 		params.push_back(memb->chan->name);
-		if (created_by_local)
+		params.push_back(ConvToStr(memb->chan->age));
+		params.push_raw(" +").push_raw(memb->chan->ChanModes(true));
+		params.push(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+		params.Broadcast();
+	}
+	else
+	{
+		CmdBuilder params(memb->user, "IJOIN");
+		params.push_back(memb->chan->name);
+		if (!memb->modes.empty())
 		{
 			params.push_back(ConvToStr(memb->chan->age));
-			params.push_back(std::string("+") + memb->chan->ChanModes(true));
-			params.push_back(memb->modes+","+memb->user->uuid);
-			Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FJOIN",params);
+			params.push_back(memb->modes);
 		}
-		else
-		{
-			if (!memb->modes.empty())
-			{
-				params.push_back(ConvToStr(memb->chan->age));
-				params.push_back(memb->modes);
-			}
-			Utils->DoOneToMany(memb->user->uuid, "IJOIN", params);
-		}
+		params.Broadcast();
 	}
 }
 
@@ -534,9 +520,7 @@ void ModuleSpanningTree::OnChangeHost(User* user, const std::string &newhost)
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 
-	parameterlist params;
-	params.push_back(newhost);
-	Utils->DoOneToMany(user->uuid,"FHOST",params);
+	CmdBuilder(user, "FHOST").push(newhost).Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
@@ -544,9 +528,7 @@ void ModuleSpanningTree::OnChangeName(User* user, const std::string &gecos)
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
 
-	parameterlist params;
-	params.push_back(gecos);
-	Utils->DoOneToMany(user->uuid,"FNAME",params);
+	CmdBuilder(user, "FNAME").push(gecos).Broadcast();
 }
 
 void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
@@ -554,20 +536,18 @@ void ModuleSpanningTree::OnChangeIdent(User* user, const std::string &ident)
 	if ((user->registered != REG_ALL) || (!IS_LOCAL(user)))
 		return;
 
-	parameterlist params;
-	params.push_back(ident);
-	Utils->DoOneToMany(user->uuid,"FIDENT",params);
+	CmdBuilder(user, "FIDENT").push(ident).Broadcast();
 }
 
 void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, CUList& excepts)
 {
 	if (IS_LOCAL(memb->user))
 	{
-		parameterlist params;
+		CmdBuilder params(memb->user, "PART");
 		params.push_back(memb->chan->name);
 		if (!partmessage.empty())
-			params.push_back(":"+partmessage);
-		Utils->DoOneToMany(memb->user->uuid,"PART",params);
+			params.push_last(partmessage);
+		params.Broadcast();
 	}
 }
 
@@ -575,13 +555,10 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 {
 	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
 	{
-		parameterlist params;
-
 		if (oper_message != reason)
 			ServerInstance->PI->SendMetaData(user, "operquit", oper_message);
 
-		params.push_back(":"+reason);
-		Utils->DoOneToMany(user->uuid,"QUIT",params);
+		CmdBuilder(user, "QUIT").push_last(reason).Broadcast();
 	}
 
 	// Regardless, We need to modify the user Counts..
@@ -596,7 +573,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 {
 	if (IS_LOCAL(user))
 	{
-		parameterlist params;
+		CmdBuilder params(user, "NICK");
 		params.push_back(user->nick);
 
 		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
@@ -605,31 +582,27 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 			user->age = ServerInstance->Time();
 
 		params.push_back(ConvToStr(user->age));
-		Utils->DoOneToMany(user->uuid,"NICK",params);
+		params.Broadcast();
 	}
 	else if (!loopCall && user->nick == user->uuid)
 	{
-		parameterlist params;
+		CmdBuilder params("SAVE");
 		params.push_back(user->uuid);
 		params.push_back(ConvToStr(user->age));
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
+		params.Broadcast();
 	}
 }
 
 void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 {
-	parameterlist params;
+	if ((!IS_LOCAL(source) || source != ServerInstance->FakeClient))
+		return;
+
+	CmdBuilder params(source, "KICK");
 	params.push_back(memb->chan->name);
 	params.push_back(memb->user->uuid);
-	params.push_back(":"+reason);
-	if (IS_LOCAL(source))
-	{
-		Utils->DoOneToMany(source->uuid,"KICK",params);
-	}
-	else if (source == ServerInstance->FakeClient)
-	{
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(),"KICK",params);
-	}
+	params.push_last(reason);
+	params.Broadcast();
 }
 
 void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
@@ -642,9 +615,9 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	// Send out to other servers
 	if (!parameter.empty() && parameter[0] != '-')
 	{
-		parameterlist params;
+		CmdBuilder params((user ? user->uuid : ServerInstance->Config->GetSID()), "REHASH");
 		params.push_back(parameter);
-		Utils->DoOneToAllButSender(user ? user->uuid : ServerInstance->Config->GetSID(), "REHASH", params, user ? Utils->BestRouteTo(user->server) : NULL);
+		params.Forward(user ? Utils->BestRouteTo(user->server) : NULL);
 	}
 }
 
@@ -708,70 +681,38 @@ void ModuleSpanningTree::OnOper(User* user, const std::string &opertype)
 {
 	if (user->registered != REG_ALL || !IS_LOCAL(user))
 		return;
-	parameterlist params;
-	params.push_back(":");
-	params[0].append(opertype);
-	Utils->DoOneToMany(user->uuid,"OPERTYPE",params);
+	CommandOpertype::Builder(user).Broadcast();
 }
 
 void ModuleSpanningTree::OnAddLine(User* user, XLine *x)
 {
-	if (!x->IsBurstable() || loopCall)
+	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
 		return;
 
-	parameterlist params;
-	params.push_back(x->type);
-	params.push_back(x->Displayable());
-	params.push_back(ServerInstance->Config->ServerName);
-	params.push_back(ConvToStr(x->set_time));
-	params.push_back(ConvToStr(x->duration));
-	params.push_back(":" + x->reason);
-
 	if (!user)
-	{
-		/* Server-set lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ADDLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-set lines */
-		Utils->DoOneToMany(user->uuid, "ADDLINE", params);
-	}
+		user = ServerInstance->FakeClient;
+
+	CommandAddLine::Builder(x, user).Broadcast();
 }
 
 void ModuleSpanningTree::OnDelLine(User* user, XLine *x)
 {
-	if (!x->IsBurstable() || loopCall)
+	if (!x->IsBurstable() || loopCall || (user && !IS_LOCAL(user)))
 		return;
 
-	parameterlist params;
+	if (!user)
+		user = ServerInstance->FakeClient;
+
+	CmdBuilder params(user, "DELLINE");
 	params.push_back(x->type);
 	params.push_back(x->Displayable());
-
-	if (!user)
-	{
-		/* Server-unset lines */
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "DELLINE", params);
-	}
-	else if (IS_LOCAL(user))
-	{
-		/* User-unset lines */
-		Utils->DoOneToMany(user->uuid, "DELLINE", params);
-	}
+	params.Broadcast();
 }
 
 ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 {
 	if (IS_LOCAL(user))
-	{
-		parameterlist params;
-		if (!awaymsg.empty())
-		{
-			params.push_back(ConvToStr(user->awaytime));
-			params.push_back(":" + awaymsg);
-		}
-		Utils->DoOneToMany(user->uuid, "AWAY", params);
-	}
+		CommandAway::Builder(user, awaymsg).Broadcast();
 
 	return MOD_RES_PASSTHRU;
 }

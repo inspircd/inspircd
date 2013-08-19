@@ -32,6 +32,7 @@ class Link;
 class Autoconnect;
 class ModuleSpanningTree;
 class SpanningTreeUtilities;
+class CmdBuilder;
 
 extern SpanningTreeUtilities* Utils;
 
@@ -45,10 +46,6 @@ typedef TR1NS::unordered_map<std::string, TreeServer*, irc::insensitive, irc::St
  */
 class SpanningTreeUtilities : public classbase
 {
-	/** Creates a line in the :<prefix> <command> [<params>] format
-	 */
-	std::string ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params);
-
 	CacheRefreshTimer RefreshTimer;
 
  public:
@@ -130,15 +127,15 @@ class SpanningTreeUtilities : public classbase
 
 	/** Send a message from this server to one other local or remote
 	 */
-	bool DoOneToOne(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& target);
+	bool DoOneToOne(const CmdBuilder& params, const std::string& target);
 
 	/** Send a message from this server to all but one other, local or remote
 	 */
-	void DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, TreeServer* omit);
+	void DoOneToAllButSender(const CmdBuilder& params, TreeServer* omit);
 
 	/** Send a message from this server to all others
 	 */
-	void DoOneToMany(const std::string &prefix, const std::string &command, const parameterlist &params);
+	void DoOneToMany(const CmdBuilder& params);
 
 	/** Read the spanningtree module's tags from the config file
 	 */
@@ -181,7 +178,7 @@ class SpanningTreeUtilities : public classbase
 	void SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const CUList& exempt_list, const char* message_type, TreeSocket* omit = NULL);
 };
 
-inline void SpanningTreeUtilities::DoOneToMany(const std::string& prefix, const std::string& command, const parameterlist& params)
+inline void SpanningTreeUtilities::DoOneToMany(const CmdBuilder& params)
 {
-	DoOneToAllButSender(prefix, command, params, NULL);
+	DoOneToAllButSender(params, NULL);
 }

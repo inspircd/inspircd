@@ -27,6 +27,7 @@
 #include "treeserver.h"
 #include "treesocket.h"
 #include "resolvers.h"
+#include "commandbuilder.h"
 
 SpanningTreeUtilities* Utils = NULL;
 
@@ -189,22 +190,9 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	return;
 }
 
-std::string SpanningTreeUtilities::ConstructLine(const std::string& prefix, const std::string& command, const parameterlist& params)
+void SpanningTreeUtilities::DoOneToAllButSender(const CmdBuilder& params, TreeServer* omitroute)
 {
-	std::string FullLine;
-	FullLine.reserve(1024);
-	FullLine = ":" + prefix + " " + command;
-	for (parameterlist::const_iterator x = params.begin(); x != params.end(); ++x)
-	{
-		FullLine.push_back(' ');
-		FullLine.append(*x);
-	}
-	return FullLine;
-}
-
-void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const std::string& command, const parameterlist& params, TreeServer* omitroute)
-{
-	std::string FullLine = ConstructLine(prefix, command, params);
+	const std::string& FullLine = params.str();
 
 	const TreeServer::ChildServers& children = TreeRoot->GetChildren();
 	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
@@ -218,13 +206,13 @@ void SpanningTreeUtilities::DoOneToAllButSender(const std::string& prefix, const
 	}
 }
 
-bool SpanningTreeUtilities::DoOneToOne(const std::string& prefix, const std::string& command, const parameterlist& params, const std::string& target)
+bool SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, const std::string& target)
 {
 	TreeServer* Route = this->BestRouteTo(target);
 	if (!Route)
 		return false;
 
-	Route->GetSocket()->WriteLine(ConstructLine(prefix, command, params));
+	Route->GetSocket()->WriteLine(params);
 	return true;
 }
 
@@ -378,11 +366,10 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 
 void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
 {
-	std::string raw(":");
-	raw.append(prefix).append(1, ' ').append(message_type).push_back(' ');
-	if (status)
-		raw.push_back(status);
-	raw.append(target->name).append(" :").append(text);
+	CmdBuilder msg(prefix, message_type);
+	if (status == 0)
+		status = ' ';
+	msg.push(status).push_raw(target->name).push_last(text);
 
 	TreeSocketSet list;
 	this->GetListOfServersForChannel(target, list, status, exempt_list);
@@ -390,6 +377,6 @@ void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channe
 	{
 		TreeSocket* Sock = *i;
 		if (Sock != omit)
-			Sock->WriteLine(raw);
+			Sock->WriteLine(msg);
 	}
 }

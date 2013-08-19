@@ -59,3 +59,8 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 	return CMD_SUCCESS;
 }
 
+CommandOpertype::Builder::Builder(User* user)
+	: CmdBuilder(user, "OPERTYPE")
+{
+	push_last(user->oper->name);
+}

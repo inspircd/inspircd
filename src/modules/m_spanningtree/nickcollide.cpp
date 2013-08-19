@@ -23,6 +23,7 @@
 #include "treesocket.h"
 #include "treeserver.h"
 #include "utils.h"
+#include "commandbuilder.h"
 
 /*
  * Yes, this function looks a little ugly.
@@ -105,10 +106,10 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		 * Local-side nick needs to change. Just in case we are hub, and
 		 * this "local" nick is actually behind us, send an SAVE out.
 		 */
-		parameterlist params;
+		CmdBuilder params("SAVE");
 		params.push_back(u->uuid);
 		params.push_back(ConvToStr(u->age));
-		this->DoOneToMany(ServerInstance->Config->GetSID(),"SAVE",params);
+		params.Broadcast();
 
 		u->ForceNickChange(u->uuid);
 

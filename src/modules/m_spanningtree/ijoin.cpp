@@ -32,9 +32,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>&
 		// Ignore the join and send RESYNC, this will result in the remote server sending all channel data to us
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received IJOIN for non-existant channel: " + params[0]);
 
-		parameterlist p;
-		p.push_back(params[0]);
-		Utils->DoOneToOne(ServerInstance->Config->GetSID(), "RESYNC", p, user->server);
+		CmdBuilder("RESYNC").push(params[0]).Unicast(user);
 
 		return CMD_FAILURE;
 	}

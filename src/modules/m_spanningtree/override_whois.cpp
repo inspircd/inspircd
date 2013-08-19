@@ -19,7 +19,7 @@
 #include "inspircd.h"
 
 #include "main.h"
-#include "utils.h"
+#include "commandbuilder.h"
 
 ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parameters, User* user)
 {
@@ -28,9 +28,7 @@ ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& 
 		User* remote = ServerInstance->FindNickOnly(parameters[1]);
 		if (remote && !IS_LOCAL(remote))
 		{
-			parameterlist params;
-			params.push_back(remote->uuid);
-			Utils->DoOneToOne(user->uuid,"IDLE",params,remote->server);
+			CmdBuilder(user, "IDLE").push(remote->uuid).Unicast(remote);
 			return MOD_RES_DENY;
 		}
 		else if (!remote)

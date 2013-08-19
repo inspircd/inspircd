@@ -22,6 +22,7 @@
 #include "utils.h"
 #include "treeserver.h"
 #include "protocolinterface.h"
+#include "commands.h"
 
 /*
  * For documentation on this class, see include/protocol.h.
@@ -45,85 +46,71 @@ void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 
 bool SpanningTreeProtocolInterface::SendEncapsulatedData(const parameterlist &encap)
 {
+	CmdBuilder params("ENCAP");
+	params.insert(encap);
 	if (encap[0].find_first_of("*?") != std::string::npos)
 	{
-		Utils->DoOneToMany(ServerInstance->Config->GetSID(), "ENCAP", encap);
+		params.Broadcast();
 		return true;
 	}
-	return Utils->DoOneToOne(ServerInstance->Config->GetSID(), "ENCAP", encap, encap[0]);
+	return params.Unicast(encap[0]);
 }
 
 void SpanningTreeProtocolInterface::SendMetaData(Extensible* target, const std::string &key, const std::string &data)
 {
-	parameterlist params;
-
 	User* u = dynamic_cast<User*>(target);
 	Channel* c = dynamic_cast<Channel*>(target);
 	if (u)
-		params.push_back(u->uuid);
+		CommandMetadata::Builder(u, key, data).Broadcast();
 	else if (c)
-	{
-		params.push_back(c->name);
-		params.push_back(ConvToStr(c->age));
-	}
+		CommandMetadata::Builder(c, key, data).Broadcast();
 	else
-		params.push_back("*");
-
-	params.push_back(key);
-	params.push_back(":" + data);
-
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(),"METADATA",params);
+		CommandMetadata::Builder(key, data).Broadcast();
 }
 
 void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &topic)
 {
-	parameterlist params;
+	CmdBuilder params("FTOPIC");
 
 	params.push_back(channel->name);
 	params.push_back(ConvToStr(channel->age));
 	params.push_back(ConvToStr(ServerInstance->Time()));
 	params.push_back(ServerInstance->Config->ServerName);
-	params.push_back(":" + topic);
+	params.push_last(topic);
 
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(),"FTOPIC", params);
+	params.Broadcast();
 }
 
-void SpanningTreeProtocolInterface::SendMode(User* source, User* u, Channel* c, const parameterlist& modedata, const std::vector<TranslateType>& translate)
+void SpanningTreeProtocolInterface::SendMode(User* source, User* u, Channel* c, const std::vector<std::string>& modedata, const std::vector<TranslateType>& translate)
 {
-	parameterlist params;
-
 	if (u)
 	{
 		if (u->registered != REG_ALL)
 			return;
 
+		CmdBuilder params(source, "MODE");
 		params.push_back(u->uuid);
-		params.insert(params.end(), modedata.begin(), modedata.end());
-		Utils->DoOneToMany(source->uuid, "MODE", params);
+		params.insert(modedata);
+		params.Broadcast();
 	}
 	else
 	{
+		CmdBuilder params(source, "FMODE");
 		params.push_back(c->name);
 		params.push_back(ConvToStr(c->age));
 		params.push_back(CommandParser::TranslateUIDs(translate, modedata));
-		Utils->DoOneToMany(source->uuid, "FMODE", params);
+		params.Broadcast();
 	}
 }
 
 void SpanningTreeProtocolInterface::SendSNONotice(const std::string &snomask, const std::string &text)
 {
-	parameterlist p;
-	p.push_back(snomask);
-	p.push_back(":" + text);
-	Utils->DoOneToMany(ServerInstance->Config->GetSID(), "SNONOTICE", p);
+	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();
 }
 
 void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string &rawline)
 {
-	parameterlist p;
-	p.push_back(target->uuid);
-	p.push_back(":" + rawline);
-	Utils->DoOneToOne(ServerInstance->Config->GetSID(), "PUSH", p, target->server);
+	CmdBuilder("PUSH").push(target->uuid).push_last(rawline).Unicast(target);
 }
 
 void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, const std::string& text, MessageType msgtype)
@@ -135,9 +122,8 @@ void SpanningTreeProtocolInterface::SendMessage(Channel* target, char status, co
 
 void SpanningTreeProtocolInterface::SendMessage(User* target, const std::string& text, MessageType msgtype)
 {
-	const char* cmd = (msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
-	parameterlist p;
+	CmdBuilder p(msgtype == MSG_PRIVMSG ? "PRIVMSG" : "NOTICE");
 	p.push_back(target->uuid);
-	p.push_back(":" + text);
-	Utils->DoOneToOne(ServerInstance->Config->GetSID(), cmd, p, target->server);
+	p.push_last(text);
+	p.Unicast(target);
 }

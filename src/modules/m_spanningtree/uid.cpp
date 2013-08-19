@@ -161,3 +161,17 @@ CmdResult CommandFName::HandleRemote(RemoteUser* src, std::vector<std::string>& 
 	return CMD_SUCCESS;
 }
 
+CommandUID::Builder::Builder(User* user)
+	: CmdBuilder(user->uuid.substr(0, 3), "UID")
+{
+	push(user->uuid);
+	push_int(user->age);
+	push(user->nick);
+	push(user->host);
+	push(user->dhost);
+	push(user->ident);
+	push(user->GetIPString());
+	push_int(user->signon);
+	push('+').push_raw(user->FormatModes(true));
+	push_last(user->fullname);
+}

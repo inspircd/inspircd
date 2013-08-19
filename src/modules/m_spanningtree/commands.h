@@ -20,6 +20,7 @@
 #pragma once
 
 #include "main.h"
+#include "commandbuilder.h"
 
 /** Handle /RCONNECT
  */
@@ -84,6 +85,14 @@ class CommandMetadata : public ServerCommand
  public:
 	CommandMetadata(Module* Creator) : ServerCommand(Creator, "METADATA", 2) { }
 	CmdResult Handle(User* user, std::vector<std::string>& params);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(User* user, const std::string& key, const std::string& val);
+		Builder(Channel* chan, const std::string& key, const std::string& val);
+		Builder(const std::string& key, const std::string& val);
+	};
 };
 
 class CommandUID : public ServerOnlyServerCommand<CommandUID>
@@ -91,6 +100,12 @@ class CommandUID : public ServerOnlyServerCommand<CommandUID>
  public:
 	CommandUID(Module* Creator) : ServerOnlyServerCommand<CommandUID>(Creator, "UID", 10) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& params);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(User* user);
+	};
 };
 
 class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
@@ -98,6 +113,12 @@ class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
  public:
 	CommandOpertype(Module* Creator) : UserOnlyServerCommand<CommandOpertype>(Creator, "OPERTYPE", 1) { }
 	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(User* user);
+	};
 };
 
 class TreeSocket;
@@ -168,13 +189,27 @@ class CommandAway : public UserOnlyServerCommand<CommandAway>
  public:
 	CommandAway(Module* Creator) : UserOnlyServerCommand<CommandAway>(Creator, "AWAY", 0, 2) { }
 	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& parameters);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(User* user);
+		Builder(User* user, const std::string& msg);
+	};
 };
 
+class XLine;
 class CommandAddLine : public ServerCommand
 {
  public:
 	CommandAddLine(Module* Creator) : ServerCommand(Creator, "ADDLINE", 6, 6) { }
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(XLine* xline, User* user = ServerInstance->FakeClient);
+	};
 };
 
 class CommandDelLine : public ServerCommand
@@ -243,6 +278,12 @@ class CommandServer : public ServerOnlyServerCommand<CommandServer>
  public:
 	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 5) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(TreeServer* server);
+	};
 };
 
 class CommandSQuit : public ServerOnlyServerCommand<CommandSQuit>

@@ -73,3 +73,27 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 	return CMD_SUCCESS;
 }
 
+CommandMetadata::Builder::Builder(User* user, const std::string& key, const std::string& val)
+	: CmdBuilder("METADATA")
+{
+	push(user->uuid);
+	push(key);
+	push_last(val);
+}
+
+CommandMetadata::Builder::Builder(Channel* chan, const std::string& key, const std::string& val)
+	: CmdBuilder("METADATA")
+{
+	push(chan->name);
+	push_int(chan->age);
+	push(key);
+	push_last(val);
+}
+
+CommandMetadata::Builder::Builder(const std::string& key, const std::string& val)
+	: CmdBuilder("METADATA")
+{
+	push("*");
+	push(key);
+	push_last(val);
+}

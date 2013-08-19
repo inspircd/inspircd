@@ -75,3 +75,13 @@ CmdResult CommandAddLine::Handle(User* usr, std::vector<std::string>& params)
 	}
 }
 
+CommandAddLine::Builder::Builder(XLine* xline, User* user)
+	: CmdBuilder(user, "ADDLINE")
+{
+	push(xline->type);
+	push(xline->Displayable());
+	push(xline->source);
+	push_int(xline->set_time);
+	push_int(xline->duration);
+	push_last(xline->reason);
+}

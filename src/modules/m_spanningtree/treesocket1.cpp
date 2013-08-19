@@ -179,10 +179,10 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 			LocalSquit = true;
 			if (Current->GetSocket()->Introduced())
 			{
-				parameterlist params;
+				CmdBuilder params("SQUIT");
 				params.push_back(Current->GetID());
-				params.push_back(":"+reason);
-				Utils->DoOneToMany(Utils->TreeRoot->GetID(), "SQUIT", params);
+				params.push_last(reason);
+				params.Broadcast();
 			}
 		}
 		else

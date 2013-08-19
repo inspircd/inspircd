@@ -43,3 +43,16 @@ CmdResult CommandAway::HandleRemote(RemoteUser* u, std::vector<std::string>& par
 	}
 	return CMD_SUCCESS;
 }
+
+CommandAway::Builder::Builder(User* user)
+	: CmdBuilder(user, "AWAY")
+{
+	push_int(user->awaytime).push_last(user->awaymsg);
+}
+
+CommandAway::Builder::Builder(User* user, const std::string& msg)
+	: CmdBuilder(user, "AWAY")
+{
+	if (!msg.empty())
+		push_int(ServerInstance->Time()).push_last(msg);
+}

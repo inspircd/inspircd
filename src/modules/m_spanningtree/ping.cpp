@@ -29,13 +29,13 @@ CmdResult CommandPing::Handle(User* user, std::vector<std::string>& params)
 	if (params[0] == ServerInstance->Config->GetSID())
 	{
 		// PING for us, reply with a PONG
-		parameterlist reply;
+		CmdBuilder reply("PONG");
 		reply.push_back(user->uuid);
 		if (params.size() >= 2)
 			// If there is a second parameter, append it
 			reply.push_back(params[1]);
 
-		Utils->DoOneToOne(params[0], "PONG", reply, user->server);
+		reply.Unicast(user);
 	}
 	return CMD_SUCCESS;
 }

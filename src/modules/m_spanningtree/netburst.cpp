@@ -26,6 +26,7 @@
 #include "treesocket.h"
 #include "treeserver.h"
 #include "main.h"
+#include "commands.h"
 
 /** This function is called when we want to send a netburst to a local
  * server. There is a set order we must do this, because for example
@@ -71,8 +72,7 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 		TreeServer* recursive_server = *i;
 		if (recursive_server != s)
 		{
-			this->WriteLine(InspIRCd::Format(":%s SERVER %s * 0 %s :%s", Current->GetID().c_str(),
-				recursive_server->GetName().c_str(), recursive_server->GetID().c_str(), recursive_server->GetDesc().c_str()));
+			this->WriteLine(CommandServer::Builder(recursive_server));
 			this->WriteLine(":" + recursive_server->GetID() + " VERSION :" + recursive_server->GetVersion());
 			/* down to next level */
 			this->SendServers(recursive_server, s);
@@ -133,14 +133,7 @@ void TreeSocket::SendXLines()
 				if (!i->second->IsBurstable())
 					break;
 
-				this->WriteLine(InspIRCd::Format(":%s ADDLINE %s %s %s %lu %lu :%s",
-					ServerInstance->Config->GetSID().c_str(),
-					it->c_str(),
-					i->second->Displayable().c_str(),
-					i->second->source.c_str(),
-					(unsigned long)i->second->set_time,
-					(unsigned long)i->second->duration,
-					i->second->reason.c_str()));
+				this->WriteLine(CommandAddLine::Builder(i->second));
 			}
 		}
 	}
@@ -176,45 +169,28 @@ void TreeSocket::SendUsers()
 {
 	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 	{
-		if (u->second->registered == REG_ALL)
+		User* user = u->second;
+		if (user->registered != REG_ALL)
+			continue;
+
+		this->WriteLine(CommandUID::Builder(user));
+
+		if (user->IsOper())
+			this->WriteLine(CommandOpertype::Builder(user));
+
+		if (user->IsAway())
+			this->WriteLine(CommandAway::Builder(user));
+
+		const Extensible::ExtensibleStore& exts = user->GetExtList();
+		for (Extensible::ExtensibleStore::const_iterator i = exts.begin(); i != exts.end(); ++i)
 		{
-			TreeServer* theirserver = Utils->FindServer(u->second->server);
-			if (theirserver)
-			{
-				this->WriteLine(InspIRCd::Format(":%s UID %s %lu %s %s %s %s %s %lu +%s :%s",
-					theirserver->GetID().c_str(),     // Prefix: SID
-					u->second->uuid.c_str(),          // 0: UUID
-					(unsigned long)u->second->age,    // 1: TS
-					u->second->nick.c_str(),          // 2: Nick
-					u->second->host.c_str(),          // 3: Real host
-					u->second->dhost.c_str(),         // 4: Display host
-					u->second->ident.c_str(),         // 5: Ident
-					u->second->GetIPString().c_str(), // 6: IP address
-					(unsigned long)u->second->signon, // 7: Signon time
-					u->second->FormatModes(true),     // 8...n: User modes and params
-					u->second->fullname.c_str()));    // size-1: GECOS
-
-				if (u->second->IsOper())
-				{
-					this->WriteLine(InspIRCd::Format(":%s OPERTYPE :%s", u->second->uuid.c_str(), u->second->oper->name.c_str()));
-				}
-				if (u->second->IsAway())
-				{
-					this->WriteLine(InspIRCd::Format(":%s AWAY %ld :%s", u->second->uuid.c_str(), (long)u->second->awaytime,
-						u->second->awaymsg.c_str()));
-				}
-			}
-
-			for(Extensible::ExtensibleStore::const_iterator i = u->second->GetExtList().begin(); i != u->second->GetExtList().end(); i++)
-			{
-				ExtensionItem* item = i->first;
-				std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
-				if (!value.empty())
-					Utils->Creator->ProtoSendMetaData(this, u->second, item->name, value);
-			}
-
-			FOREACH_MOD(OnSyncUser, (u->second,Utils->Creator,this));
+			ExtensionItem* item = i->first;
+			std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
+			if (!value.empty())
+				Utils->Creator->ProtoSendMetaData(this, u->second, item->name, value);
 		}
+
+		FOREACH_MOD(OnSyncUser, (user, Utils->Creator, this));
 	}
 }
 

@@ -22,6 +22,7 @@
 #include "main.h"
 #include "utils.h"
 #include "treeserver.h"
+#include "commandbuilder.h"
 
 void ModuleSpanningTree::OnPostCommand(Command* command, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line)
 {
@@ -33,19 +34,16 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 {
 	const std::string& command = thiscmd->name;
 	RouteDescriptor routing = thiscmd->GetRouting(user, parameters);
-
-	std::string sent_cmd = command;
-	parameterlist params;
-
 	if (routing.type == ROUTE_TYPE_LOCALONLY)
-	{
 		return;
-	}
-	else if (routing.type == ROUTE_TYPE_OPT_BCAST)
+
+	const bool encap = ((routing.type == ROUTE_TYPE_OPT_BCAST) || (routing.type == ROUTE_TYPE_OPT_UCAST));
+	CmdBuilder params(user, encap ? "ENCAP" : command.c_str());
+
+	if (routing.type == ROUTE_TYPE_OPT_BCAST)
 	{
-		params.push_back("*");
+		params.push('*');
 		params.push_back(command);
-		sent_cmd = "ENCAP";
 	}
 	else if (routing.type == ROUTE_TYPE_OPT_UCAST)
 	{
@@ -58,7 +56,6 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		}
 		params.push_back(sdest->GetID());
 		params.push_back(command);
-		sent_cmd = "ENCAP";
 	}
 	else
 	{
@@ -93,11 +90,11 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 				return;
 			// TODO OnBuildExemptList hook was here
 			CUList exempts;
-			SendChannelMessage(user->uuid, c, parameters[1], pfx, exempts, sent_cmd.c_str(), origin ? origin->GetSocket() : NULL);
+			SendChannelMessage(user->uuid, c, parameters[1], pfx, exempts, command.c_str(), origin ? origin->GetSocket() : NULL);
 		}
 		else if (dest[0] == '$')
 		{
-			DoOneToAllButSender(user->uuid, sent_cmd, params, origin);
+			params.Forward(origin);
 		}
 		else
 		{
@@ -109,17 +106,17 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			if (tsd == origin)
 				// huh? no routing stuff around in a circle, please.
 				return;
-			DoOneToOne(user->uuid, sent_cmd, params, d->server);
+			params.Unicast(d);
 		}
 	}
 	else if (routing.type == ROUTE_TYPE_BROADCAST || routing.type == ROUTE_TYPE_OPT_BCAST)
 	{
-		DoOneToAllButSender(user->uuid, sent_cmd, params, origin);
+		params.Forward(origin);
 	}
 	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
 	{
 		if (origin && routing.serverdest == origin->GetName())
 			return;
-		DoOneToOne(user->uuid, sent_cmd, params, routing.serverdest);
+		params.Unicast(routing.serverdest);
 	}
 }

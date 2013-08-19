@@ -142,11 +142,8 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		Utils->TreeRoot->AddChild(MyRoot);
 		this->DoBurst(MyRoot);
 
-		params[4] = ":" + params[4];
-
-		/* IMPORTANT: Take password/hmac hash OUT of here before we broadcast the introduction! */
-		params[1] = "*";
-		Utils->DoOneToAllButSender(ServerInstance->Config->GetSID(),"SERVER",params,MyRoot);
+		// This will send a * in place of the password/hmac
+		CommandServer::Builder(MyRoot).Forward(MyRoot);
 
 		return true;
 	}
@@ -248,3 +245,11 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 	return false;
 }
 
+CommandServer::Builder::Builder(TreeServer* server)
+	: CmdBuilder(server->GetParent()->GetID(), "SERVER")
+{
+	push(server->GetName());
+	push_raw(" * 0 ");
+	push_raw(server->GetID());
+	push_last(server->GetDesc());
+}
