@@ -123,8 +123,10 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				else if (command == "FTOPIC")
 				{
 					// Drop channel TS for FTOPIC
-					// :sid FTOPIC #target TS TopicTS ...
-					//     A      B       C  D
+					// :sid FTOPIC #target TS TopicTS setter :newtopic
+					//     A      B       C  D       E      F
+					// :uid FTOPIC #target TS TopicTS :newtopic
+					//     A      B       C  D       E
 					if (b == std::string::npos)
 						return;
 
@@ -136,7 +138,14 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					if (d == std::string::npos)
 						return;
 
-					line.erase(c, d-c);
+					std::string::size_type e = line.find(' ', d + 1);
+					if (line[e+1] == ':')
+					{
+						line.erase(c, e-c);
+						line.erase(a+1, 1);
+					}
+					else
+						line.erase(c, d-c);
 				}
 				else if ((command == "PING") || (command == "PONG"))
 				{
@@ -267,6 +276,15 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		params.insert(params.begin(), who->uuid);
 		params.insert(params.begin()+1, "operquit");
 		who = MyRoot->ServerUser;
+	}
+	else if ((cmd == "TOPIC") && (params.size() >= 2))
+	{
+		// :20DAAAAAC TOPIC #chan :new topic
+		cmd = "FTOPIC";
+		if (!InsertCurrentChannelTS(params))
+			return false;
+
+		params.insert(params.begin()+2, ConvToStr(ServerInstance->Time()));
 	}
 
 	return true; // Passthru

@@ -145,8 +145,15 @@ class CommandFMode : public ServerCommand
 class CommandFTopic : public ServerCommand
 {
  public:
-	CommandFTopic(Module* Creator) : ServerCommand(Creator, "FTOPIC", 5) { }
+	CommandFTopic(Module* Creator) : ServerCommand(Creator, "FTOPIC", 4, 5) { }
 	CmdResult Handle(User* user, std::vector<std::string>& params);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(Channel* chan);
+		Builder(User* user, Channel* chan);
+	};
 };
 
 class CommandFHost : public UserOnlyServerCommand<CommandFHost>

@@ -422,10 +422,7 @@ void ModuleSpanningTree::OnPostTopicChange(User* user, Channel* chan, const std:
 	if (!IS_LOCAL(user))
 		return;
 
-	CmdBuilder params(user->uuid, "TOPIC");
-	params.push_back(chan->name);
-	params.push_last(topic);
-	params.Broadcast();
+	CommandFTopic::Builder(user, chan).Broadcast();
 }
 
 void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, const std::string& text, char status, const CUList& exempt_list, MessageType msgtype)

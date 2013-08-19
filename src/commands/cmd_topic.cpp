@@ -27,7 +27,7 @@
  * the same way, however, they can be fully unloaded, where these
  * may not.
  */
-class CommandTopic : public Command
+class CommandTopic : public SplitCommand
 {
 	ChanModeReference secretmode;
 	ChanModeReference topiclockmode;
@@ -36,7 +36,7 @@ class CommandTopic : public Command
 	/** Constructor for topic.
 	 */
 	CommandTopic(Module* parent)
-		: Command(parent, "TOPIC", 1, 2)
+		: SplitCommand(parent, "TOPIC", 1, 2)
 		, secretmode(parent, "secret")
 		, topiclockmode(parent, "topiclock")
 	{
@@ -50,14 +50,10 @@ class CommandTopic : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
-	}
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
 };
 
-CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	if (!c)
@@ -86,13 +82,6 @@ CmdResult CommandTopic::Handle (const std::vector<std::string>& parameters, User
 				user->WriteNumeric(RPL_NOTOPICSET, "%s %s :No topic is set.", user->nick.c_str(), c->name.c_str());
 			}
 		}
-		return CMD_SUCCESS;
-	}
-
-	// Access checks are skipped for non-local users
-	if (!IS_LOCAL(user))
-	{
-		c->SetTopic(user, parameters[1]);
 		return CMD_SUCCESS;
 	}
 

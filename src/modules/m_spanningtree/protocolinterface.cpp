@@ -70,15 +70,7 @@ void SpanningTreeProtocolInterface::SendMetaData(Extensible* target, const std::
 
 void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &topic)
 {
-	CmdBuilder params("FTOPIC");
-
-	params.push_back(channel->name);
-	params.push_back(ConvToStr(channel->age));
-	params.push_back(ConvToStr(ServerInstance->Time()));
-	params.push_back(ServerInstance->Config->ServerName);
-	params.push_last(topic);
-
-	params.Broadcast();
+	CommandFTopic::Builder(ServerInstance->FakeClient, channel).Broadcast();
 }
 
 void SpanningTreeProtocolInterface::SendMode(User* source, User* u, Channel* c, const std::vector<std::string>& modedata, const std::vector<TranslateType>& translate)
