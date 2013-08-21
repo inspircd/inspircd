@@ -50,6 +50,8 @@ typedef std::map<TreeServer*,TreeServer*> TreeServerList;
 class SpanningTreeUtilities : public classbase
 {
  public:
+	typedef std::map<TreeSocket*, std::pair<std::string, int> > TimeoutList;
+
 	/** Creator module
 	 */
 	ModuleSpanningTree* Creator;
@@ -90,7 +92,7 @@ class SpanningTreeUtilities : public classbase
 	server_hash sidlist;
 	/** List of all outgoing sockets and their timeouts
 	 */
-	std::map<TreeSocket*, std::pair<std::string, int> > timeoutlist;
+	TimeoutList timeoutlist;
 	/** Holds the data from the <link> tags in the conf
 	 */
 	std::vector<reference<Link> > LinkBlocks;
