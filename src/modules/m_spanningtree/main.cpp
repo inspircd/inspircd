@@ -688,6 +688,8 @@ void ModuleSpanningTree::OnLoadModule(Module* mod)
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
+	if (!Utils)
+		return;
 	ServerInstance->PI->SendMetaData(NULL, "modules", "-" + mod->ModuleSourceFile);
 
 	unsigned int items = Utils->TreeRoot->ChildCount();

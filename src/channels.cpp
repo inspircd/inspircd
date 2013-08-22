@@ -337,7 +337,6 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 	{
 		// If the user was granted prefix modes (in the OnUserPreJoin hook, or he's a
 		// remote user and his own server set the modes), then set them internally now
-		memb->modes = *privs;
 		for (std::string::const_iterator i = privs->begin(); i != privs->end(); ++i)
 		{
 			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);

@@ -153,12 +153,12 @@ chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);
 
 chomp(our $gnutls_ver = $config{HAS_GNUTLS});
 chomp(our $openssl_ver = $config{HAS_OPENSSL});
-$config{USE_GNUTLS}	    = "n";
+$config{USE_GNUTLS}	    = 0;
 if (defined $opt_use_gnutls)
 {
 	$config{USE_GNUTLS} = "y";					# Use gnutls.
 }
-$config{USE_OPENSSL}	= "n";						# Use openssl.
+$config{USE_OPENSSL}	= 0;						# Use openssl.
 if (defined $opt_use_openssl)
 {
 	$config{USE_OPENSSL} = "y";
