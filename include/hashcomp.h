@@ -118,8 +118,8 @@ namespace irc
 	 * This class is used to implement irc::string, a case-insensitive, RFC-
 	 * comparing string class.
 	 */
-	struct irc_char_traits : std::char_traits<char> {
-
+	struct CoreExport irc_char_traits : public std::char_traits<char>
+	{
 		/** Check if two chars match.
 		 * @param c1st First character
 		 * @param c2nd Second character

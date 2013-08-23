@@ -111,6 +111,6 @@
 #else
 # include <unistd.h>
 # define ENTRYPOINT int main(int argc, char** argv)
-# define DllExport
-# define CoreExport
+# define DllExport __attribute__ ((visibility ("default")))
+# define CoreExport __attribute__ ((visibility ("default")))
 #endif

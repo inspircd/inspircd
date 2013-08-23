@@ -26,7 +26,7 @@ class User;
 
 typedef std::vector<std::string> parameterlist;
 
-class ProtocolInterface
+class CoreExport ProtocolInterface
 {
  public:
 	class ServerInfo
