@@ -107,8 +107,10 @@ class ModuleChanHistory : public Module
 {
 	HistoryMode m;
 	bool sendnotice;
+	UserModeReference botmode;
+	bool dobots;
  public:
-	ModuleChanHistory() : m(this)
+	ModuleChanHistory() : m(this), botmode(this, "bot")
 	{
 	}
 
@@ -125,6 +127,7 @@ class ModuleChanHistory : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("chanhistory");
 		m.maxlines = tag->getInt("maxlines", 50);
 		sendnotice = tag->getBool("notice", true);
+		dobots = tag->getBool("bots", true);
 	}
 
 	void OnUserMessage(User* user, void* dest, int target_type, const std::string &text, char status, const CUList&, MessageType msgtype) CXX11_OVERRIDE
@@ -146,6 +149,9 @@ class ModuleChanHistory : public Module
 	void OnPostJoin(Membership* memb) CXX11_OVERRIDE
 	{
 		if (IS_REMOTE(memb->user))
+			return;
+
+		if (memb->user->IsModeSet(botmode) && !dobots)
 			return;
 
 		HistoryList* list = m.ext.get(memb->chan);
