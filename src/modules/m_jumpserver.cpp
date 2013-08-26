@@ -20,6 +20,7 @@
 
 
 #include "inspircd.h"
+#include "modules/ssl.h"
 
 /** Handle /JUMPSERVER
  */
@@ -30,11 +31,14 @@ class CommandJumpserver : public Command
 	std::string redirect_to;
 	std::string reason;
 	int port;
+	int sslport;
 
 	CommandJumpserver(Module* Creator) : Command(Creator, "JUMPSERVER", 0, 4)
 	{
-		flags_needed = 'o'; syntax = "[<server> <port> <+/-an> <reason>]";
+		flags_needed = 'o';
+		syntax = "[<server> <port>[:<port>] <+/-an> <reason>]";
 		port = 0;
+		sslport = 0;
 		redirect_new_users = false;
 	}
 
@@ -56,6 +60,7 @@ class CommandJumpserver : public Command
 				user->WriteNotice("*** Jumpserver was not enabled.");
 
 			port = 0;
+			sslport = 0;
 			redirect_to.clear();
 			return CMD_SUCCESS;
 		}
@@ -88,7 +93,13 @@ class CommandJumpserver : public Command
 				}
 			}
 
-			if (!atoi(parameters[1].c_str()))
+			size_t delimpos = parameters[1].find(':');
+			port = ConvToInt(parameters[1].substr(0, delimpos ? delimpos : std::string::npos));
+			sslport = (delimpos == std::string::npos ? 0 : ConvToInt(parameters[1].substr(delimpos + 1, std::string::npos)));
+
+			if (parameters[1].find_first_not_of("0123456789:") != std::string::npos
+				|| parameters[1].rfind(":") != delimpos
+				|| port > 65535 || sslport > 65535)
 			{
 				user->WriteNotice("*** Invalid port number");
 				return CMD_FAILURE;
@@ -99,10 +110,13 @@ class CommandJumpserver : public Command
 				/* Redirect everyone but the oper sending the command */
 				for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
 				{
-					User* t = *i;
+					LocalUser* t = *i;
 					if (!t->IsOper())
 					{
-						t->WriteNumeric(10, "%s %s %s :Please use this Server/Port instead", t->nick.c_str(), parameters[0].c_str(), parameters[1].c_str());
+						t->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead", t->nick.c_str(), parameters[0].c_str(),
+							(SSLClientCert::GetCertificate(&t->eh) ?
+								(sslport ? sslport : t->GetServerPort()) :
+								(port ? port : t->GetServerPort())));
 						ServerInstance->Users->QuitUser(t, reason);
 						n_done++;
 					}
@@ -114,12 +128,9 @@ class CommandJumpserver : public Command
 			}
 
 			if (redirect_new_users)
-			{
 				redirect_to = parameters[0];
-				port = atoi(parameters[1].c_str());
-			}
 
-			user->WriteNotice("*** Set jumpserver to server '" + parameters[0] + "' port '" + parameters[1] + "', flags '+" +
+			user->WriteNotice("*** Set jumpserver to server '" + parameters[0] + "' port '" + (port ? ConvToStr(port) : "Auto") + ", SSL " + (sslport ? ConvToStr(sslport) : "Auto") + "', flags '+" +
 				(redirect_all_immediately ? "a" : "") + (redirect_new_users ? "n'" : "'") +
 				(n_done ? " (" + n_done_s + "user(s) redirected): " : ": ") + reason);
 		}
@@ -143,10 +154,10 @@ class ModuleJumpServer : public Module
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
-		if (js.port && js.redirect_new_users)
+		if (js.redirect_new_users)
 		{
 			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead",
-				user->nick.c_str(), js.redirect_to.c_str(), js.port);
+				user->nick.c_str(), js.redirect_to.c_str(), (js.port ? js.port : user->GetServerPort()));
 			ServerInstance->Users->QuitUser(user, js.reason);
 			return MOD_RES_PASSTHRU;
 		}
