@@ -28,7 +28,7 @@ public:
 	{
 	}
 
-	bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
 		return InspIRCd::Match(text, this->regex_string);
 	}
@@ -37,7 +37,7 @@ public:
 class GlobFactory : public RegexFactory
 {
  public:
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new GlobRegex(expr);
 	}
