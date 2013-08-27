@@ -54,14 +54,9 @@ class POSIXRegex : public Regex
 		regfree(&regbuf);
 	}
 
-	bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
-		if (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
 	}
 };
 
@@ -70,7 +65,7 @@ class PosixFactory : public RegexFactory
  public:
 	bool extended;
 	PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new POSIXRegex(expr, extended);
 	}

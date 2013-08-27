@@ -51,14 +51,9 @@ class PCRERegex : public Regex
 		pcre_free(regex);
 	}
 
-	bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
-		if (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) > -1)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		return (pcre_exec(regex, NULL, text.c_str(), text.length(), 0, 0, NULL, 0) >= 0);
 	}
 };
 
@@ -66,7 +61,7 @@ class PCREFactory : public RegexFactory
 {
  public:
 	PCREFactory(Module* m) : RegexFactory(m, "regex/pcre") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new PCRERegex(expr);
 	}

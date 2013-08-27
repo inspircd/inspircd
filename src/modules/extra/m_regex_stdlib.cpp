@@ -38,7 +38,7 @@ class StdRegex : public Regex
 		}
 	}
 
-	bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
 		return std::regex_search(text, regexcl);
 	}
@@ -49,7 +49,7 @@ class StdRegexFactory : public RegexFactory
  public:
 	std::regex::flag_type regextype;
 	StdRegexFactory(Module* m) : RegexFactory(m, "regex/stdregex") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new StdRegex(expr, regextype);
 	}

@@ -25,18 +25,15 @@
 class Regex : public classbase
 {
 protected:
-	std::string regex_string; // The raw uncompiled regex string.
+	/** The uncompiled regex string. */
+	std::string regex_string;
 
 	// Constructor may as well be protected, as this class is abstract.
-	Regex(const std::string& rx) : regex_string(rx)
-	{
-	}
+	Regex(const std::string& rx) : regex_string(rx) { }
 
 public:
 
-	virtual ~Regex()
-	{
-	}
+	virtual ~Regex() { }
 
 	virtual bool Matches(const std::string& text) = 0;
 
@@ -49,7 +46,7 @@ public:
 class RegexFactory : public DataProvider
 {
  public:
-	RegexFactory(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) {}
+	RegexFactory(Module* creator, const std::string& name) : DataProvider(creator, name) { }
 
 	virtual Regex* Create(const std::string& expr) = 0;
 };
