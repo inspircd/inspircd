@@ -26,15 +26,6 @@
 /* $CompileFlags: pkgconfincludes("tre","tre/regex.h","") */
 /* $LinkerFlags: pkgconflibs("tre","/libtre.so","-ltre") rpath("pkg-config --libs tre") */
 
-class TRERegexException : public ModuleException
-{
- public:
-	TRERegexException(const std::string& rx, const std::string& error)
-		: ModuleException("Error in regex " + rx + ": " + error)
-	{
-	}
-};
-
 class TRERegex : public Regex
 {
 	regex_t regbuf;
@@ -57,7 +48,7 @@ public:
 			error = errbuf;
 			delete[] errbuf;
 			regfree(&regbuf);
-			throw TRERegexException(rx, error);
+			throw RegexException(rx, error);
 		}
 	}
 

@@ -53,3 +53,13 @@ class RegexFactory : public DataProvider
 
 	virtual Regex* Create(const std::string& expr) = 0;
 };
+
+class RegexException : public ModuleException
+{
+ public:
+	 RegexException(const std::string& regex, const std::string& error)
+		 : ModuleException("Error in regex '" + regex + "': " + error) { }
+
+	 RegexException(const std::string& regex, const std::string& error, int offset)
+		 : ModuleException("Error in regex '" + regex + "' at offset " + ConvToStr(offset) + ": " + error) { }
+};

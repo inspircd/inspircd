@@ -30,15 +30,6 @@
 /* $CompileFlags: -std=c++11 */
 /* $LinkerFlags: -lre2 */
 
-class RE2Exception : public ModuleException
-{
- public:
-	 RE2Exception(const std::string& rx, const std::string& error)
-		: ModuleException(std::string("Error in regex ") + rx + ": " + error)
-	{
-	}
-};
-
 class RE2Regex : public Regex
 {
 	RE2 regexcl;
@@ -48,7 +39,7 @@ class RE2Regex : public Regex
 	{
 		if (!regexcl.ok())
 		{
-			throw RE2Exception(rx, regexcl.error());
+			throw RegexException(rx, regexcl.error());
 		}
 	}
 

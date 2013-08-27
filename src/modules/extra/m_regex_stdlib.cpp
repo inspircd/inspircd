@@ -22,15 +22,6 @@
 
 /* $CompileFlags: -std=c++11 */
 
-class StdRegexException : public ModuleException
-{
- public:
-	StdRegexException(const std::string& rx, const std::string& error)
-		: ModuleException(std::string("Error in regex ") + rx + ": " + error)
-	{
-	}
-};
-
 class StdRegex : public Regex
 {
 	std::regex regexcl;
@@ -43,7 +34,7 @@ class StdRegex : public Regex
 		}
 		catch(std::regex_error rxerr)
 		{
-			throw StdRegexException(rx, rxerr.what());
+			throw RegexException(rx, rxerr.what());
 		}
 	}
 
