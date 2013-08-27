@@ -45,12 +45,12 @@ class UserOnlyServerCommand : public ServerCommand
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
 	CmdResult Handle(User* user, std::vector<std::string>& parameters)
-    {
-    	RemoteUser* remoteuser = IS_REMOTE(user);
+	{
+		RemoteUser* remoteuser = IS_REMOTE(user);
 		if (!remoteuser)
 			return CMD_INVALID;
 		return static_cast<T*>(this)->HandleRemote(remoteuser, parameters);
-    }
+	}
 };
 
 /** Base class for server-to-server command handlers which are only valid if their source is a server.
@@ -64,12 +64,12 @@ class ServerOnlyServerCommand : public ServerCommand
 		: ServerCommand(Creator, Name, MinPara, MaxPara) { }
 
 	CmdResult Handle(User* user, std::vector<std::string>& parameters)
-    {
+	{
 		if (!IS_SERVER(user))
 			return CMD_INVALID;
 		TreeServer* server = Utils->FindServer(user->server);
 		return static_cast<T*>(this)->HandleServer(server, parameters);
-    }
+	}
 };
 
 class ServerCommandManager

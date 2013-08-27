@@ -26,17 +26,17 @@
 class CommandRConnect : public Command
 {
  public:
-        CommandRConnect(Module* Creator);
-        CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-		RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	CommandRConnect(Module* Creator);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 class CommandRSQuit : public Command
 {
  public:
-        CommandRSQuit(Module* Creator);
-        CmdResult Handle (const std::vector<std::string>& parameters, User *user);
-		RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+	CommandRSQuit(Module* Creator);
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
 class CommandMap : public Command
