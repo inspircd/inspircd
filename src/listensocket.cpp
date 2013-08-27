@@ -21,7 +21,10 @@
 #include "inspircd.h"
 #include "socket.h"
 #include "socketengine.h"
+
+#ifndef _WIN32
 #include <netinet/tcp.h>
+#endif
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)

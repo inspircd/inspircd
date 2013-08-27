@@ -8,9 +8,15 @@ list(SORT INSPIRCD_MODULES)
 add_definitions("-DDLL_BUILD")
 
 foreach(MODULE_NAME ${INSPIRCD_MODULES})
-	string(REGEX REPLACE "^.*[/\\](.*).cpp$" "\\1.so" SO_NAME ${MODULE_NAME})
+	string(REGEX REPLACE "^.*[/\\](.*).cpp$" "\\1" BASE_NAME ${MODULE_NAME})
+	set(SO_NAME "${BASE_NAME}.so")
 	add_library(${SO_NAME} MODULE ${MODULE_NAME})
-	set_target_properties(${SO_NAME} PROPERTIES PREFIX "" SUFFIX "")
+	set_target_properties(${SO_NAME} PROPERTIES
+		PREFIX ""
+		SUFFIX ""
+		COMPILE_DEFINITIONS "MODNAME=\"${BASE_NAME}\""
+	)
+
 	target_link_libraries(${SO_NAME} inspircd)
 	add_dependencies(${SO_NAME} inspircd)
 	if(MSVC)
@@ -24,7 +30,12 @@ file(GLOB INSPIRCD_MODULES_SPANNINGTREE RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${
 list(SORT INSPIRCD_MODULES_SPANNINGTREE)
 
 add_library(m_spanningtree.so MODULE ${INSPIRCD_MODULES_SPANNINGTREE})
-set_target_properties(m_spanningtree.so PROPERTIES PREFIX "" SUFFIX "")
+set_target_properties(m_spanningtree.so PROPERTIES
+	PREFIX ""
+	SUFFIX ""
+	COMPILE_DEFINITIONS "MODNAME=\"m_spanningtree\""
+)
+
 target_link_libraries(m_spanningtree.so inspircd)
 add_dependencies(m_spanningtree.so inspircd)
 if(MSVC)

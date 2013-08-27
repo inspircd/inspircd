@@ -46,7 +46,7 @@ public:
 class RegexFactory : public DataProvider
 {
  public:
-	RegexFactory(Module* creator, const std::string& name) : DataProvider(creator, name) { }
+	RegexFactory(Module* Creator, const std::string& Name) : DataProvider(Creator, Name) { }
 
 	virtual Regex* Create(const std::string& expr) = 0;
 };
