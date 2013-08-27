@@ -16,6 +16,6 @@ many different users.
 
 ### Links
 
-* [Website](http://inspircd.github.com)
-* [GitHub]( https://github.com/inspircd)
+* [Website](http://inspircd.org)
+* [GitHub](https://github.com/inspircd)
 * [IRC](irc://irc.chatspike.net/inspircd)

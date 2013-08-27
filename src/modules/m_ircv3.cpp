@@ -88,7 +88,7 @@ class ModuleIRCv3 : public Module
 	void OnRehash(User* user)
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
-		accountnotify = conf->getBool("accoutnotify", true);
+		accountnotify = conf->getBool("accountnotify", conf->getBool("accoutnotify", true));
 		awaynotify = conf->getBool("awaynotify", true);
 		extendedjoin = conf->getBool("extendedjoin", true);
 	}
