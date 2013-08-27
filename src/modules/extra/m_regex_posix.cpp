@@ -23,15 +23,6 @@
 #include <sys/types.h>
 #include <regex.h>
 
-class POSIXRegexException : public ModuleException
-{
- public:
-	POSIXRegexException(const std::string& rx, const std::string& error)
-		: ModuleException("Error in regex " + rx + ": " + error)
-	{
-	}
-};
-
 class POSIXRegex : public Regex
 {
 	regex_t regbuf;
@@ -54,7 +45,7 @@ class POSIXRegex : public Regex
 			error = errbuf;
 			delete[] errbuf;
 			regfree(&regbuf);
-			throw POSIXRegexException(rx, error);
+			throw RegexException(rx, error);
 		}
 	}
 
@@ -63,14 +54,9 @@ class POSIXRegex : public Regex
 		regfree(&regbuf);
 	}
 
-	bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
-		if (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0)
-		{
-			// Bang. :D
-			return true;
-		}
-		return false;
+		return (regexec(&regbuf, text.c_str(), 0, NULL, 0) == 0);
 	}
 };
 
@@ -79,7 +65,7 @@ class PosixFactory : public RegexFactory
  public:
 	bool extended;
 	PosixFactory(Module* m) : RegexFactory(m, "regex/posix") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new POSIXRegex(expr, extended);
 	}

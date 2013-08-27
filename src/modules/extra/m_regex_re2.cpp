@@ -30,15 +30,6 @@
 /* $CompileFlags: -std=c++11 */
 /* $LinkerFlags: -lre2 */
 
-class RE2Exception : public ModuleException
-{
- public:
-	 RE2Exception(const std::string& rx, const std::string& error)
-		: ModuleException(std::string("Error in regex ") + rx + ": " + error)
-	{
-	}
-};
-
 class RE2Regex : public Regex
 {
 	RE2 regexcl;
@@ -48,11 +39,11 @@ class RE2Regex : public Regex
 	{
 		if (!regexcl.ok())
 		{
-			throw RE2Exception(rx, regexcl.error());
+			throw RegexException(rx, regexcl.error());
 		}
 	}
 
-	bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
 		return RE2::FullMatch(text, regexcl);
 	}
@@ -62,7 +53,7 @@ class RE2Factory : public RegexFactory
 {
  public:
 	RE2Factory(Module* m) : RegexFactory(m, "regex/re2") { }
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new RE2Regex(expr);
 	}

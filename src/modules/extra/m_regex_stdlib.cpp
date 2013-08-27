@@ -22,15 +22,6 @@
 
 /* $CompileFlags: -std=c++11 */
 
-class StdRegexException : public ModuleException
-{
- public:
-	StdRegexException(const std::string& rx, const std::string& error)
-		: ModuleException(std::string("Error in regex ") + rx + ": " + error)
-	{
-	}
-};
-
 class StdRegex : public Regex
 {
 	std::regex regexcl;
@@ -43,11 +34,11 @@ class StdRegex : public Regex
 		}
 		catch(std::regex_error rxerr)
 		{
-			throw StdRegexException(rx, rxerr.what());
+			throw RegexException(rx, rxerr.what());
 		}
 	}
 
-	bool Matches(const std::string& text)
+	bool Matches(const std::string& text) CXX11_OVERRIDE
 	{
 		return std::regex_search(text, regexcl);
 	}
@@ -58,7 +49,7 @@ class StdRegexFactory : public RegexFactory
  public:
 	std::regex::flag_type regextype;
 	StdRegexFactory(Module* m) : RegexFactory(m, "regex/stdregex") {}
-	Regex* Create(const std::string& expr)
+	Regex* Create(const std::string& expr) CXX11_OVERRIDE
 	{
 		return new StdRegex(expr, regextype);
 	}
