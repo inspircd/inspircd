@@ -495,7 +495,26 @@ bool InspIRCd::SilentULine(const std::string& sserver)
 
 std::string InspIRCd::TimeString(time_t curtime)
 {
-	return std::string(ctime(&curtime),24);
+#ifdef _WIN32
+	if (curtime < 0)
+		curtime = 0;
+#endif
+
+	struct tm* timeinfo = localtime(&curtime);
+	if (!timeinfo)
+	{
+		curtime = 0;
+		timeinfo = localtime(&curtime);
+	}
+
+	// If the calculated year exceeds four digits or is less than the year 1000,
+	// the behavior of asctime() is undefined
+	if (timeinfo->tm_year + 1900 > 9999)
+		timeinfo->tm_year = 9999 - 1900;
+	else if (timeinfo->tm_year + 1900 < 1000)
+		timeinfo->tm_year = 0;
+
+	return std::string(asctime(timeinfo),24);
 }
 
 // You should only pass a single character to this.

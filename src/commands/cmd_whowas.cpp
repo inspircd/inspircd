@@ -58,14 +58,6 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
 			{
 				WhoWasGroup* u = *ux;
-				time_t rawtime = u->signon;
-				tm *timeinfo;
-				char b[25];
-
-				timeinfo = localtime(&rawtime);
-
-				strncpy(b,asctime(timeinfo),24);
-				b[24] = 0;
 
 				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick.c_str(),parameters[0].c_str(),
 					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
@@ -74,10 +66,11 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 					user->WriteNumeric(379, "%s %s :was connecting from *@%s",
 						user->nick.c_str(), parameters[0].c_str(), u->host.c_str());
 
+				std::string signon = ServerInstance->TimeString(u->signon);
 				if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
-					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer.c_str(), b);
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), ServerInstance->Config->HideWhoisServer.c_str(), signon.c_str());
 				else
-					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), u->server.c_str(), b);
+					user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(),parameters[0].c_str(), u->server.c_str(), signon.c_str());
 			}
 		}
 		else
