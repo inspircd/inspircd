@@ -292,6 +292,8 @@ public:
 
 				c->SetTopic(NULL, topic, true);
 				c->setby = tag->getString("topicsetby");
+				if (c->setby.empty())
+					c->setby = ServerInstance->Config->ServerName;
 				unsigned int topicset = tag->getInt("topicts");
 				// SetTopic() sets the topic TS to now, if there was no topicts saved then don't overwrite that with a 0
 				if (topicset > 0)
