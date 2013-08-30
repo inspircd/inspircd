@@ -274,12 +274,12 @@ class CoreExport ServerConfig
 	CommandLineConf cmdline;
 
 	/** Clones CIDR range for ipv4 (0-32)
-	 * Defaults to 32 (checks clones on all IPs seperately)
+	 * Defaults to 32 (checks clones on all IPs separately)
 	 */
 	int c_ipv4_range;
 
 	/** Clones CIDR range for ipv6 (0-128)
-	 * Defaults to 128 (checks on all IPs seperately)
+	 * Defaults to 128 (checks on all IPs separately)
 	 */
 	int c_ipv6_range;
 
@@ -368,7 +368,7 @@ class CoreExport ServerConfig
 	 */
 	bool DisabledDontExist;
 
-	/** This variable contains a space-seperated list
+	/** This variable contains a space-separated list
 	 * of commands which are disabled by the
 	 * administrator of the server for non-opers.
 	 */

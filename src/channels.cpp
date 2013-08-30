@@ -650,7 +650,7 @@ const char* Channel::ChanModes(bool showkey)
 	return scratch.c_str();
 }
 
-/* compile a userlist of a channel into a string, each nick seperated by
+/* compile a userlist of a channel into a string, each nick separated by
  * spaces and op, voice etc status shown as @ and +, and send it to 'user'
  */
 void Channel::UserList(User *user)

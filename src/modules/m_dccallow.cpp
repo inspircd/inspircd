@@ -59,7 +59,7 @@ class CommandDccallow : public Command
 	CommandDccallow(Module* parent) : Command(parent, "DCCALLOW", 0)
 	{
 		syntax = "{[+|-]<nick> <time>|HELP|LIST}";
-		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
+		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a separate param */
 	}
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)

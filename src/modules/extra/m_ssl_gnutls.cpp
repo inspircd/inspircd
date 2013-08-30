@@ -658,7 +658,7 @@ class ModuleSSLGnuTLS : public Module
 					 * Found an SSL port for clients that is not bound to 127.0.0.1 and handled by us, display
 					 * the IP:port in ISUPPORT.
 					 *
-					 * We used to advertise all ports seperated by a ';' char that matched the above criteria,
+					 * We used to advertise all ports separated by a ';' char that matched the above criteria,
 					 * but this resulted in too long ISUPPORT lines if there were lots of ports to be displayed.
 					 * To solve this by default we now only display the first IP:port found and let the user
 					 * configure the exact value for the 005 token, if necessary.

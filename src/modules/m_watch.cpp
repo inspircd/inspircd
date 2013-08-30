@@ -63,7 +63,7 @@
  * and Om by reading their 'watched by' list. When this occurs, their online status
  * in each of these users lists (see below) is also updated.
  *
- * Each user also has a seperate (smaller) map attached to their User whilst they
+ * Each user also has a separate (smaller) map attached to their User whilst they
  * have any watch entries, which is managed by class Extensible. When they add or remove
  * a watch entry from their list, it is inserted here, as well as the main list being
  * maintained. This map also contains the user's online status. For users that are

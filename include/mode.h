@@ -576,7 +576,7 @@ class CoreExport ModeParser
 	 */
 	ModeHandler* FindPrefix(unsigned const char pfxletter);
 
-	/** Returns a list of modes, space seperated by type:
+	/** Returns a list of modes, space separated by type:
 	 * 1. User modes
 	 * 2. Channel modes
 	 * 3. Channel modes that require a parameter when set
@@ -584,7 +584,7 @@ class CoreExport ModeParser
 	 */
 	const std::string& GetModeListFor004Numeric();
 
-	/** Generates a list of modes, comma seperated by type:
+	/** Generates a list of modes, comma separated by type:
 	 *  1; Listmodes EXCEPT those with a prefix
 	 *  2; Modes that take a param when adding or removing
 	 *  3; Modes that only take a param when adding

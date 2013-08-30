@@ -165,7 +165,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 <module name="m_deaf.so">
-<module name="m_denychans.so"> 
+<module name="m_denychans.so">
 #<badchan name="#gods*" allowopers="yes" reason="Tortoises!">         #
 #<badchan name="#heaven" redirect="#hell" reason="Nice try!">         #
 
@@ -187,7 +187,7 @@
 # posix - POSIX regexps, provided via m_regex_posix.so, not availale  #
 #         on windows, no dependencies on other operating systems.     #
 #                                                                     #
-<filteropts engine="glob">                                           
+<filteropts engine="glob">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide.
 #
@@ -239,7 +239,7 @@
 # If you are using the m_operjoin.so module, specify options here:    #
 #                                                                     #
 # channel     -      The channel name to join, can also be a comma    #
-#                    seperated list eg. "#channel1,#channel2".        #
+#                    separated list eg. "#channel1,#channel2".        #
 #                                                                     #
 # override    -      Lets the oper join walking thru any modes that   #
 #                    might be set, even bans. Use "yes" or "no".      #
@@ -254,7 +254,7 @@
 <module name="m_operlog.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for seperate message of the day
+# Oper MOTD module: Provides support for separate message of the day
 # on oper-up
 # This module is oper-only.
 #<module name="m_opermotd.so">
@@ -281,7 +281,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect.
-# NOTE: Some of these may mimic fatal errors and confuse users and 
+# NOTE: Some of these may mimic fatal errors and confuse users and
 # opers alike! - BEWARE!
 #<module name="m_randquote.so">
 #

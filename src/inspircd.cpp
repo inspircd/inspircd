@@ -443,7 +443,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	SE->RecoverFromFork();
 
 	/* During startup we read the configuration now, not in
-	 * a seperate thread
+	 * a separate thread
 	 */
 	this->Config->Read();
 	this->Config->Apply(NULL, "");

@@ -39,12 +39,13 @@
 # o: Don't match against opers
 # c: Strip color codes from text before trying to match
 # *: Represents all of the above flags
-# -: Does nothing, a non-op for when you do not want to specify any flags 
+# -: Does nothing, a non-op for when you do not want to specify any flags
 #
-# IMPORTANT NOTE: Because the InspIRCd config reader places special meaning on the
-# '\' character, you must use '\\' if you wish to specify a '\' character in a regular
-# expression. For example, to indicate numbers, use \\d and not \d. This does not
-# apply when adding a regular expression over irc with the /FILTER command.
+# IMPORTANT NOTE: Because the InspIRCd config reader places special meaning on
+# the '\' character, you must use '\\' if you wish to specify a '\' character
+# in a regular expression. For example, to indicate numbers, use \\d and not \d.
+# This does not apply when adding a regular expression over irc with the /FILTER
+# command.
 
 # Example filters for m_filter:
 #

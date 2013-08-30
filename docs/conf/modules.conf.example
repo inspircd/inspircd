@@ -49,13 +49,13 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # RIPEMD160 Module - Allows other modules to generate RIPEMD160 hashes,
 # usually for cryptographic uses and security.
-# 
+#
 # IMPORTANT:
 # Other modules may rely on this module being loaded to function.
 #<module name="m_ripemd160.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Abbreviation module: Provides the ability to abbreviate commands a-la 
+# Abbreviation module: Provides the ability to abbreviate commands a-la
 # BBC BASIC keywords.
 #<module name="m_abbreviation.so">
 
@@ -273,10 +273,10 @@
 #<module name="m_botmode.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CallerID module: Adds usermode +g which activates hybrid-style 
+# CallerID module: Adds usermode +g which activates hybrid-style
 # callerid (== block all private messages unless you /accept first)
 #<module name="m_callerid.so">
-# 
+#
 #-#-#-#-#-#-#-#-#-#-#- CALLERID  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 # maxaccepts     - Maximum number of entires a user can add to his    #
 #                  /accept list. Default is 16 entries.               #
@@ -403,15 +403,14 @@
 # can be quite annoying and allow users to on occasion have a channel
 # that looks like the name of another channel on the network.
 #<module name="m_channames.so">
-
-<channames
-	# denyrange: characters or range of characters to deny in channel
-	# names.
-	denyrange="2,3"
-
-	# allowrange: characters or range of characters to specifically allow
-	# in channel names.
-	allowrange="">
+#<channames
+#	# denyrange: characters or range of characters to deny in channel
+#	# names.
+#	denyrange="2,3"
+#
+#	# allowrange: characters or range of characters to specifically allow
+#	# in channel names.
+#	allowrange="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channelban: Implements extended ban j:, which stops anyone in already
@@ -440,7 +439,7 @@
 # specify your own custom list of chars with the <hostname> tag:     #
 #                                                                    #
 # charmap        - A list of chars accepted as valid by the /CHGHOST #
-#                  and /SETHOST commands. Also note that the list is # 
+#                  and /SETHOST commands. Also note that the list is #
 #                  case-sensitive.                                   #
 #<hostname charmap="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_/0123456789">
 
@@ -604,7 +603,7 @@
 #<module name="m_customtitle.so">
 #
 #-#-#-#-#-#-#-#-#-#-  CUSTOM TITLE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#
-#  name              - The username used to identify 
+#  name              - The username used to identify
 #  password          - The password used to identify
 #  hash              - The hash for the specific user's password (optional)
 #                      m_password_hash.so and a hashing module must be loaded for this to work
@@ -658,7 +657,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny Channels: Deny Channels from being used by users
-#<module name="m_denychans.so"> 
+#<module name="m_denychans.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-   DENYCHAN DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
@@ -740,7 +739,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GeoIP module: Allows the server admin to match users by country code.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_geoip.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_geoip.cpp
 # and run make install, then uncomment this module to enable it.
 # This module requires GeoIP to be installed on your system,
 # use your package manager to find the appropriate packages
@@ -847,7 +847,7 @@
 #
 # <httpdacl path="/stats*" types="password,whitelist"
 #    username="secretstuff" password="mypasshere" whitelist="127.0.0.*,10.*">
-# 
+#
 # Deny all connections to all but the main index page:
 #
 # <httpdacl path="/*" types="blacklist" blacklist="*">
@@ -892,7 +892,7 @@
 # enhancements to the client-to-server protocol. An extension is only
 # active for a client when the client specifically requests it, so this
 # module needs m_cap to work.
-# 
+#
 # Further information on these extensions can be found at the IRCv3
 # working group website:
 # http://ircv3.atheme.org/extensions/
@@ -1006,7 +1006,8 @@
 # LDAP oper configuration module: Adds the ability to authenticate    #
 # opers via LDAP. This is an extra module which must be enabled       #
 # explicitly by symlinking it from modules/extra, and requires the    #
-# OpenLDAP libs. Re-run configure with: ./configure --enable-extras=m_ldapoper.cpp
+# OpenLDAP libs. Re-run configure with:
+# ./configure --enable-extras=m_ldapoper.cpp
 # and run make install, then uncomment this module to enable it.      #
 #                                                                     #
 #<module name="m_ldapoper.so">
@@ -1057,9 +1058,10 @@
 #<module name="m_mlock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MsSQL module: Allows other SQL modules to access MS SQL Server 
+# MsSQL module: Allows other SQL modules to access MS SQL Server
 # through a unified API.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mssql.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_mssql.cpp
 # and run make install, then uncomment this module to enable it.
 #
 #<module name="m_mssql.so">
@@ -1069,12 +1071,15 @@
 # m_mssql.so is more complex than described here, see wiki for more   #
 # info http://wiki.inspircd.org/Modules/mssql                         #
 #
-#<database module="mssql" name="db" user="user" pass="pass" host="localhost" id="db1">
-
+#<database module="mssql" name="db"
+#          user="user" pass="pass"
+#          host="localhost" id="db1">
+#
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mysql.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_mysql.cpp
 # and run make install, then uncomment this module to enable it.
 #
 #<module name="m_mysql.so">
@@ -1084,7 +1089,9 @@
 # m_mysql.so is more complex than described here, see the wiki for    #
 # more: http://wiki.inspircd.org/Modules/mysql                        #
 #
-#<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2">
+#<database module="mysql" name="mydb"
+#          user="myuser" pass="mypass"
+#          host="localhost" id="my_database2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Named Modes module: This module allows for the display and set/unset
@@ -1185,7 +1192,7 @@
 # If you are using the m_operjoin.so module, specify options here:    #
 #                                                                     #
 # channel     -      The channel name to join, can also be a comma    #
-#                    seperated list eg. "#channel1,#channel2".        #
+#                    separated list eg. "#channel1,#channel2".        #
 #                                                                     #
 # override    -      Lets the oper join walking thru any modes that   #
 #                    might be set, even bans. Use "yes" or "no".      #
@@ -1217,7 +1224,7 @@
 #<operprefix prefix="!">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for seperate message of the day
+# Oper MOTD module: Provides support for separate message of the day
 # on oper-up
 # This module is oper-only.
 #<module name="m_opermotd.so">
@@ -1265,25 +1272,24 @@
 # module is usually used to authenticate users with nickserv using their
 # connect password.
 #<module name="m_passforward.so">
-
-<passforward
-		# nick: nick to forward connect passwords to.
-		nick="NickServ"
-
-		# forwardmsg: Message to send to users using a connect password.
-		# $nick will be the users' nick, $nickrequired will be the nick
-		# of where the password is going (the nick above).
-		# You can also use $user for the user ident string.
-		forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
-
-		# cmd: Command for the nick to run when it recieves a connect
-		# password. 
-		cmd="PRIVMSG $nickrequired :IDENTIFY $pass">
+#<passforward
+#		# nick: nick to forward connect passwords to.
+#		nick="NickServ"
+#
+#		# forwardmsg: Message to send to users using a connect password.
+#		# $nick will be the users' nick, $nickrequired will be the nick
+#		# of where the password is going (the nick above).
+#		# You can also use $user for the user ident string.
+#		forwardmsg="NOTICE $nick :*** Forwarding PASS to $nickrequired"
+#
+#		# cmd: Command for the nick to run when it recieves a connect
+#		# password.
+#		cmd="PRIVMSG $nickrequired :IDENTIFY $pass">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.
 # To be useful, a hashing module like m_sha256.so also needs to be loaded.
-# 
+#
 #<module name="m_password_hash.so">
 #
 #-#-#-#-#-#-#-#-#-# PASSWORD HASH CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#
@@ -1296,7 +1302,7 @@
 #           hash="sha256"
 #           password="01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
 #           type="NetAdmin">
-# 
+#
 # Starting from 2.0, you can use a more secure salted hash that prevents simply
 # looking up the hash's value in a rainbow table built for the hash.
 #    hash="hmac-sha256" password="lkS1Nbtp$CyLd/WPQXizsbxFUTqFRoMvaC+zhOULEeZaQkUJj+Gg"
@@ -1327,7 +1333,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
 # through a unified API.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_pgsql.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_pgsql.cpp
 # and run make install, then uncomment this module to enable it.
 #
 #<module name="m_pgsql.so">
@@ -1337,7 +1344,11 @@
 # m_pgsql.so is more complex than described here, see the wiki for    #
 # more: http://wiki.inspircd.org/Modules/pgsql                        #
 #
-#<database module="pgsql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database" ssl="no">
+# Note: When using a socket connection, omit the host parameter.
+#
+#<database module="pgsql" name="mydb"
+#          user="myuser" pass="mypass"
+#          host="localhost" id="my_database" ssl="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Muteban: Implements extended ban m:, which stops anyone matching
@@ -1347,7 +1358,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect.
-# NOTE: Some of these may mimic fatal errors and confuse users and 
+# NOTE: Some of these may mimic fatal errors and confuse users and
 # opers alike! - BEWARE!
 #<module name="m_randquote.so">
 #
@@ -1436,22 +1447,28 @@
 #<module name="m_remove.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# A module to block, kick or ban upon similiar messages being uttered several times.
+# A module to block, kick or ban upon similiar messages being uttered
+# several times.
 # Syntax [~*][lines]:[sec]{[:difference]}{[:matchlines]}
 # ~ is to block, * is to ban, default is kick.
-# lines - In mode 1 the amount of lines that has to match consecutively - In mode 2 the size of the backlog to keep for matching
+# lines - In mode 1 the amount of lines that has to match consecutively
+#       - In mode 2 the size of the backlog to keep for matching
 # seconds - How old the message has to be before it's invalidated.
 # distance - Edit distance, in percent, between two strings to trigger on.
-# matchlines - When set, the function goes into mode 2. In this mode the function will trigger if this many of the last <lines> matches.
+# matchlines - When set, the function goes into mode 2. In this mode the
+#              function will trigger if this many of the last <lines> matches.
 #
 # As this module can be rather CPU-intensive, it comes with some options.
-# maxbacklog - Maximum size that can be specified for backlog. 0 disables multiline matching.
-# maxdistance - Max percentage of difference between two lines we'll allow to match. Set to 0 to disable edit-distance matching.
+# maxbacklog - Maximum size that can be specified for backlog.
+#              0 disables multiline matching.
+# maxdistance - Max percentage of difference between two lines we'll allow
+#               to match. Set to 0 to disable edit-distance matching.
 # maxlines - Max lines of backlog to match against.
 # maxsecs - Maximum value of seconds a user can set. 0 to allow any.
-# size - Maximum number of characters to check for, can be used to truncate messages
-# before they are checked, resulting in less CPU usage. Increasing this beyond 512
-# doesn't have any effect, as the maximum length of a message on IRC cannot exceed that.
+# size - Maximum number of characters to check for, can be used to truncate
+#        messages before they are checked, resulting in less CPU usage.
+#        Increasing this beyond 512 doesn't have any effect, as the maximum
+#        length of a message on IRC cannot exceed that.
 #<repeat maxbacklog="20" maxlines="20" maxdistance="50" maxsecs="0" size="512">
 #<module name="m_repeat.so">
 
@@ -1544,7 +1561,7 @@
 #<module name="m_satopic.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SASL authentication module: Provides support for IRC Authentication 
+# SASL authentication module: Provides support for IRC Authentication
 # Layer (aka: atheme SASL) via AUTHENTICATE.
 #<module name="m_sasl.so">
 
@@ -1558,10 +1575,10 @@
 # Securelist can be harmful to some irc search engines such as        #
 # netsplit.de and searchirc.com. To prevent securelist blocking these #
 # sites from listing, define exception tags as shown below:           #
-<securehost exception="*@*.searchirc.org">
-<securehost exception="*@*.netsplit.de">
-<securehost exception="*@echo940.server4you.de">
-<securehost exception="*@*.ircdriven.com">
+#<securehost exception="*@*.searchirc.org">
+#<securehost exception="*@*.netsplit.de">
+#<securehost exception="*@echo940.server4you.de">
+#<securehost exception="*@*.ircdriven.com">
 #                                                                     #
 # Define the following variable to change how long a user must wait   #
 # before issuing a LIST. If not defined, defaults to 60 seconds.      #
@@ -1591,7 +1608,7 @@
 # and is similar in operation to the way asuka and ircu handle services.
 #
 # At the same time, this offers +r for users and channels to mark them
-# as identified seperately from the idea of a master account, which
+# as identified separately from the idea of a master account, which
 # can be useful for services which are heavily nick-as-account centric.
 #
 # This replaces m_services from 1.1 and earlier.
@@ -1600,7 +1617,7 @@
 # +b R: (stop matching account names from joining)
 # +b M: (stop matching account names from speaking)
 # +b U:n!u@h (blocks matching unregistered users)
-#                                                                       
+#
 #<module name="m_services_account.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1684,7 +1701,7 @@
 # SSL Info module: Allows users to retrieve information about other
 # user's peer SSL certificates and keys. This can be used by client
 # scripts to validate users. For this to work, one of m_ssl_gnutls.so
-# or m_ssl_openssl.so must be loaded. This module also adds the 
+# or m_ssl_openssl.so must be loaded. This module also adds the
 # "* <user> is using a secure connection" whois line, the ability for
 # opers to use SSL fingerprints to verify their identity and the ability
 # to force opers to use SSL connections in order to oper up.
@@ -1727,8 +1744,9 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
-# databases through a unified API. 
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlite.cpp
+# databases through a unified API.
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_sqlite.cpp
 # and run make install, then uncomment this module to enable it.      #
 #
 #<module name="m_sqlite3.so">
@@ -1743,7 +1761,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL authentication module: Allows IRCd connections to be tied into
 # a database table (for example a forum).
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlauth.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_sqlauth.cpp
 # and run make install, then uncomment this module to enable it.
 #
 #<module name="m_sqlauth.so">
@@ -1755,7 +1774,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqloper.cpp
+# This modules is in extras. Re-run configure with:i
+# ./configure --enable-extras=m_sqloper.cpp
 # and run make install, then uncomment this module to enable it.
 #
 #<module name="m_sqloper.so">
@@ -1843,7 +1863,7 @@
 #<vhost user="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" host="some.other.host">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Watch module: Adds the WATCH command, which is used by clients to 
+# Watch module: Adds the WATCH command, which is used by clients to
 # maintain notify lists.
 #<module name="m_watch.so">
 #

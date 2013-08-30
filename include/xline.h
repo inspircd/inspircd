@@ -106,7 +106,7 @@ class CoreExport XLine : public classbase
 	 * e.g. '*\@foo' or '*baz*'. This must always return the full pattern
 	 * in a form which can be used to construct an entire derived xline,
 	 * even if it is stored differently internally (e.g. GLine stores the
-	 * ident and host parts seperately but will still return ident\@host
+	 * ident and host parts separately but will still return ident\@host
 	 * for its Displayable() method).
 	 */
 	virtual const std::string& Displayable() = 0;
@@ -423,7 +423,7 @@ class CoreExport XLineManager
 	 */
 	~XLineManager();
 
-	/** Split an ident and host into two seperate strings.
+	/** Split an ident and host into two separate strings.
 	 * This allows for faster matching.
 	 */
 	IdentHostPair IdentSplit(const std::string &ident_and_host);
