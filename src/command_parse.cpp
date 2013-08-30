@@ -256,7 +256,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		while (command_p.size() > (cm->second->max_params - 1))
 		{
 			// BE CAREFUL: .end() returns past the end of the vector, hence decrement.
-			std::vector<std::string>::iterator it = --command_p.end();
+			std::vector<std::string>::iterator it = command_p.end() - 1;
 
 			lparam.insert(0, " " + *(it));
 			command_p.erase(it); // remove last element
