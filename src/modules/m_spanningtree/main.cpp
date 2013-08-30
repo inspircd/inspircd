@@ -669,6 +669,13 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 			sock->Close();
 		}
 	}
+
+	for (SpanningTreeUtilities::TimeoutList::const_iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); ++i)
+	{
+		TreeSocket* sock = i->first;
+		if (sock->GetIOHook() && sock->GetIOHook()->creator == mod)
+			sock->Close();
+	}
 }
 
 // note: the protocol does not allow direct umode +o except

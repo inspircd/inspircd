@@ -769,7 +769,7 @@ Closes all unregistered connections to the local server.">
  c            Blocks private messages and notices from users who do
               not share a common channel with you (requires
               commonchans module).
- d            Deaf mode. User will not recieve any messages or notices
+ d            Deaf mode. User will not receive any messages or notices
               from channels they are in (requires deaf module).
  g            In combination with /allow, provides for server side
               ignore (requires callerid module).

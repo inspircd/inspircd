@@ -80,6 +80,8 @@ class ThreadSignalSocket : public EventHandler
 
 	~ThreadSignalSocket()
 	{
+		ServerInstance->SE->DelFd(this);
+		ServerInstance->SE->Close(GetFd());
 	}
 
 	void Notify()
@@ -104,6 +106,7 @@ class ThreadSignalSocket : public EventHandler
 
 SocketThread::SocketThread()
 {
+	signal.sock = NULL;
 	int fd = eventfd(0, EFD_NONBLOCK);
 	if (fd < 0)
 		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
@@ -127,6 +130,8 @@ class ThreadSignalSocket : public EventHandler
 	~ThreadSignalSocket()
 	{
 		close(send_fd);
+		ServerInstance->SE->DelFd(this);
+		ServerInstance->SE->Close(GetFd());
 	}
 
 	void Notify()
@@ -152,6 +157,7 @@ class ThreadSignalSocket : public EventHandler
 
 SocketThread::SocketThread()
 {
+	signal.sock = NULL;
 	int fds[2];
 	if (pipe(fds))
 		throw new CoreException("Could not create pipe " + std::string(strerror(errno)));
@@ -166,4 +172,9 @@ void SocketThread::NotifyParent()
 
 SocketThread::~SocketThread()
 {
+	if (signal.sock)
+	{
+		signal.sock->cull();
+		delete signal.sock;
+	}
 }

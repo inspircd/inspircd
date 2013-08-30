@@ -19,8 +19,15 @@
 
 
 #include "inspircd.h"
+#include "listmode.h"
 #include <fstream>
 
+
+struct ListModeData
+{
+	std::string modes;
+	std::string params;
+};
 
 /** Handles the +P channel mode
  */
@@ -48,8 +55,9 @@ class PermChannel : public ModeHandler
 
 // Not in a class due to circular dependancy hell.
 static std::string permchannelsconf;
-static bool WriteDatabase(PermChannel& permchanmode)
+static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_listmodes)
 {
+	ChanModeReference ban(mod, "ban");
 	/*
 	 * We need to perform an atomic write so as not to fuck things up.
 	 * So, let's write to a temporary file, flush it, then rename the file..
@@ -78,9 +86,45 @@ static bool WriteDatabase(PermChannel& permchanmode)
 		if (!chan->IsModeSet(permchanmode))
 			continue;
 
+		std::string chanmodes = chan->ChanModes(true);
+		if (save_listmodes)
+		{
+			ListModeData lm;
+
+			// Bans are managed by the core, so we have to process them separately
+			static_cast<ListModeBase*>(*ban)->DoSyncChannel(chan, mod, &lm);
+
+			// All other listmodes are managed by modules, so we need to ask them (call their
+			// OnSyncChannel() handler) to give our ProtoSendMode() a list of modes that are
+			// set on the channel. The ListModeData struct is passed as an opaque pointer
+			// that will be passed back to us by the module handling the mode.
+			FOREACH_MOD(OnSyncChannel, (chan, mod, &lm));
+
+			if (!lm.modes.empty())
+			{
+				// Remove the last space
+				lm.params.erase(lm.params.end()-1);
+
+				// If there is at least a space in chanmodes (that is, a non-listmode has a parameter)
+				// insert the listmode mode letters before the space. Otherwise just append them.
+				std::string::size_type p = chanmodes.find(' ');
+				if (p == std::string::npos)
+					chanmodes += lm.modes;
+				else
+					chanmodes.insert(p, lm.modes);
+
+				// Append the listmode parameters (the masks themselves)
+				chanmodes += ' ';
+				chanmodes += lm.params;
+			}
+		}
+
 		stream << "<permchannels channel=\"" << ServerConfig::Escape(chan->name)
+			<< "\" ts=\"" << chan->age
 			<< "\" topic=\"" << ServerConfig::Escape(chan->topic)
-			<< "\" modes=\"" << ServerConfig::Escape(chan->ChanModes(true))
+			<< "\" topicts=\"" << chan->topicset
+			<< "\" topicsetby=\"" << ServerConfig::Escape(chan->setby)
+			<< "\" modes=\"" << ServerConfig::Escape(chanmodes)
 			<< "\">" << std::endl;
 	}
 
@@ -115,6 +159,7 @@ class ModulePermanentChannels : public Module
 {
 	PermChannel p;
 	bool dirty;
+	bool save_listmodes;
 public:
 
 	ModulePermanentChannels() : p(this), dirty(false)
@@ -156,7 +201,9 @@ public:
 
 	void OnRehash(User *user) CXX11_OVERRIDE
 	{
-		permchannelsconf = ServerInstance->Config->ConfValue("permchanneldb")->getString("filename");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
+		permchannelsconf = tag->getString("filename");
+		save_listmodes = tag->getBool("listmodes");
 	}
 
 	void LoadDatabase()
@@ -170,12 +217,11 @@ public:
 		{
 			ConfigTag* tag = i->second;
 			std::string channel = tag->getString("channel");
-			std::string topic = tag->getString("topic");
 			std::string modes = tag->getString("modes");
 
-			if (channel.empty())
+			if ((channel.empty()) || (channel.length() > ServerInstance->Config->Limits.ChanMax))
 			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Malformed permchannels tag with empty channel name.");
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring permchannels tag with empty or too long channel name (\"" + channel + "\")");
 				continue;
 			}
 
@@ -183,20 +229,23 @@ public:
 
 			if (!c)
 			{
-				c = new Channel(channel, ServerInstance->Time());
-				if (!topic.empty())
-				{
-					c->SetTopic(ServerInstance->FakeClient, topic);
+				time_t TS = tag->getInt("ts", ServerInstance->Time(), 1);
+				c = new Channel(channel, TS);
 
-					/*
-					 * Due to the way protocol works in 1.2, we need to hack the topic TS in such a way that this
-					 * topic will always win over others.
-					 *
-					 * This is scheduled for (proper) fixing in a later release, and can be removed at a later date.
-					 */
-					c->topicset = 42;
+				unsigned int topicset = tag->getInt("topicts");
+				c->topic = tag->getString("topic");
+
+				if ((topicset != 0) || (!c->topic.empty()))
+				{
+					if (topicset == 0)
+						topicset = ServerInstance->Time();
+					c->topicset = topicset;
+					c->setby = tag->getString("topicsetby");
+					if (c->setby.empty())
+						c->setby = ServerInstance->Config->ServerName;
 				}
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), topic.c_str());
+
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Added %s with topic %s", channel.c_str(), c->topic.c_str());
 
 				if (modes.empty())
 					continue;
@@ -242,7 +291,7 @@ public:
 	void OnBackgroundTimer(time_t) CXX11_OVERRIDE
 	{
 		if (dirty)
-			WriteDatabase(p);
+			WriteDatabase(p, this, save_listmodes);
 		dirty = false;
 	}
 
@@ -275,6 +324,25 @@ public:
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
 			}
+		}
+	}
+
+	void ProtoSendMode(void* opaque, TargetTypeFlags type, void* target, const std::vector<std::string>& modes, const std::vector<TranslateType>& translate)
+	{
+		// We never pass an empty modelist but better be sure
+		if (modes.empty())
+			return;
+
+		ListModeData* lm = static_cast<ListModeData*>(opaque);
+
+		// Append the mode letters without the trailing '+' (for example "IIII", "gg")
+		lm->modes.append(modes[0].begin()+1, modes[0].end());
+
+		// Append the parameters
+		for (std::vector<std::string>::const_iterator i = modes.begin()+1; i != modes.end(); ++i)
+		{
+			lm->params += *i;
+			lm->params += ' ';
 		}
 	}
 

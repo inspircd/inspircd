@@ -57,7 +57,7 @@ void BufferedSocket::DoConnect(const std::string &ipaddr, int aport, unsigned lo
 	if (err != I_ERR_NONE)
 	{
 		state = I_ERROR;
-		SetError(strerror(errno));
+		SetError(SocketEngine::LastError());
 		OnError(err);
 	}
 }
@@ -211,7 +211,7 @@ void StreamSocket::DoRead()
 		}
 		else
 		{
-			error = strerror(errno);
+			error = SocketEngine::LastError();
 			ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 		}
 	}
@@ -249,11 +249,13 @@ void StreamSocket::DoWrite()
 					// The length limit of 1024 is to prevent merging strings
 					// more than once when writes begin to block.
 					std::string tmp;
-					tmp.reserve(sendq_len);
-					for(unsigned int i=0; i < sendq.size(); i++)
-						tmp.append(sendq[i]);
-					sendq.clear();
-					sendq.push_back(tmp);
+					tmp.reserve(1280);
+					while (!sendq.empty() && tmp.length() < 1024)
+					{
+						tmp.append(sendq.front());
+						sendq.pop_front();
+					}
+					sendq.push_front(tmp);
 				}
 				std::string& front = sendq.front();
 				int itemlen = front.length();
@@ -295,7 +297,7 @@ void StreamSocket::DoWrite()
 						if (errno == EINTR || SocketEngine::IgnoreError())
 							ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
 						else
-							SetError(strerror(errno));
+							SetError(SocketEngine::LastError());
 						return;
 					}
 					else if (rv < itemlen)
@@ -400,7 +402,7 @@ void StreamSocket::DoWrite()
 			}
 			else
 			{
-				error = strerror(errno);
+				error = SocketEngine::LastError();
 			}
 		}
 		if (!error.empty())
@@ -496,7 +498,7 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 				if (errornum == 0)
 					SetError("Connection closed");
 				else
-					SetError(strerror(errornum));
+					SetError(SocketEngine::GetError(errornum));
 				switch (errornum)
 				{
 					case ETIMEDOUT:

@@ -26,7 +26,7 @@
 #include "modules/dns.h"
 
 /* Class holding data for a single entry */
-class DNSBLConfEntry
+class DNSBLConfEntry : public refcountbase
 {
 	public:
 		enum EnumBanaction { I_UNKNOWN, I_KILL, I_ZLINE, I_KLINE, I_GLINE, I_MARK };
@@ -49,11 +49,11 @@ class DNSBLResolver : public DNS::Request
 	std::string theiruid;
 	LocalStringExt& nameExt;
 	LocalIntExt& countExt;
-	DNSBLConfEntry *ConfEntry;
+	reference<DNSBLConfEntry> ConfEntry;
 
  public:
 
-	DNSBLResolver(DNS::Manager *mgr, Module *me, LocalStringExt& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, DNSBLConfEntry *conf)
+	DNSBLResolver(DNS::Manager *mgr, Module *me, LocalStringExt& match, LocalIntExt& ctr, const std::string &hostname, LocalUser* u, reference<DNSBLConfEntry> conf)
 		: DNS::Request(mgr, me, hostname, DNS::QUERY_A, true), theiruid(u->uuid), nameExt(match), countExt(ctr), ConfEntry(conf)
 	{
 	}
@@ -203,7 +203,7 @@ class DNSBLResolver : public DNS::Request
 
 class ModuleDNSBL : public Module
 {
-	std::vector<DNSBLConfEntry *> DNSBLConfEntries;
+	std::vector<reference<DNSBLConfEntry> > DNSBLConfEntries;
 	dynamic_reference<DNS::Manager> DNS;
 	LocalStringExt nameExt;
 	LocalIntExt countExt;
@@ -236,36 +236,22 @@ class ModuleDNSBL : public Module
 		ServerInstance->Modules->AddService(countExt);
 	}
 
-	~ModuleDNSBL()
-	{
-		ClearEntries();
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides handling of DNS blacklists", VF_VENDOR);
-	}
-
-	/** Clear entries and free the mem it was using
-	 */
-	void ClearEntries()
-	{
-		for (std::vector<DNSBLConfEntry *>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
-			delete *i;
-		DNSBLConfEntries.clear();
 	}
 
 	/** Fill our conf vector with data
 	 */
 	void ReadConf()
 	{
-		ClearEntries();
+		DNSBLConfEntries.clear();
 
 		ConfigTagList dnsbls = ServerInstance->Config->ConfTags("dnsbl");
 		for(ConfigIter i = dnsbls.first; i != dnsbls.second; ++i)
 		{
 			ConfigTag* tag = i->second;
-			DNSBLConfEntry *e = new DNSBLConfEntry();
+			reference<DNSBLConfEntry> e = new DNSBLConfEntry();
 
 			e->name = tag->getString("name");
 			e->ident = tag->getString("ident");
@@ -325,11 +311,7 @@ class ModuleDNSBL : public Module
 
 				/* add it, all is ok */
 				DNSBLConfEntries.push_back(e);
-				continue;
 			}
-
-			/* delete and drop it, error somewhere */
-			delete e;
 		}
 	}
 
@@ -410,7 +392,7 @@ class ModuleDNSBL : public Module
 
 		unsigned long total_hits = 0, total_misses = 0;
 
-		for (std::vector<DNSBLConfEntry*>::iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); i++)
+		for (std::vector<reference<DNSBLConfEntry> >::const_iterator i = DNSBLConfEntries.begin(); i != DNSBLConfEntries.end(); ++i)
 		{
 			total_hits += (*i)->stats_hits;
 			total_misses += (*i)->stats_misses;

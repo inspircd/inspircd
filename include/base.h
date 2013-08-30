@@ -121,7 +121,7 @@ class CoreExport usecountbase
 };
 
 template <typename T>
-class CoreExport reference
+class reference
 {
 	T* value;
  public:

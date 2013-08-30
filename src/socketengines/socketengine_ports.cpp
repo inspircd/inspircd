@@ -76,7 +76,7 @@ PortsEngine::PortsEngine()
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
 		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 	EngineHandle = port_create();
 
@@ -86,7 +86,7 @@ PortsEngine::PortsEngine()
 		ServerInstance->Logs->Log("SOCKET", LOG_SPARSE, "ERROR: This is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize socket engine: " << strerror(errno) << std::endl;
 		std::cout << "ERROR: This is a fatal error, exiting now." << std::endl;
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
 

@@ -184,7 +184,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
 
-		if (SelfSigned)
+		if (!SelfSigned)
 		{
 			certinfo->unknownsigner = false;
 			certinfo->trusted = true;

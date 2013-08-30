@@ -136,12 +136,9 @@
 #   |_| \_\___|\__,_|\__,_|   |_| |_| |_|_|___/ |____/|_|\__(_)       #
 #                                                                     #
 #  If you want to link servers to InspIRCd you must load the          #
-#  m_spanningtree.so module! Please see the modules list below for    #
+#  m_spanningtree.so module! Please see the modules list for          #
 #  information on how to load this module! If you do not load this    #
-#  module, server ports will NOT be bound!                            #
-#                                                                     #
-# PLEASE NOTE: If you have build InspIRCd with IPv6 support, you MUST #
-# specify a bind address if you want the IRCd to bind to a IPv4 IP.   #
+#  module, server ports will NOT work!                                #
 
 <bind
       # address: IP address to bind to if the box that you are hosting
@@ -198,10 +195,12 @@
 #                                                                     #
 
 <power
-       # hash: what hash these passwords are hashed with. requires the module
-       # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-       # loaded and the password hashing module (m_password_hash.so)
-       # loaded. Options here are: "md5", "sha256" and "ripemd160".
+       # hash: what hash these passwords are hashed with.
+       # Requires the module for selected hash (m_md5.so, m_sha256.so
+       # or m_ripemd160.so) be loaded and the password hashing module
+       # (m_password_hash.so) loaded.
+       # Options here are: "md5", "sha256" and "ripemd160", or one of
+       # these prefixed with "hmac-", e.g.: "hmac-sha256".
        # Optional, but recommended. Create hashed password with:
        # /mkpasswd <hash> <password>
        #hash="sha256"
@@ -639,12 +638,9 @@
 #                                                                     #
 
 <performance
-             # netbuffersize: Size of the buffer used to recieve data from clients.
+             # netbuffersize: Size of the buffer used to receive data from clients.
              # The ircd may only read this amount of text in 1 go at any time.
              netbuffersize="10240"
-
-             # maxwho: Maximum number of results to show in a /who query.
-             maxwho="4096"
 
              # somaxconn: The maximum number of connections that may be waiting
              # in the accept queue. This is *NOT* the total maximum number of

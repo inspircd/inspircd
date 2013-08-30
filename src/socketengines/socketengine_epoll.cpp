@@ -63,7 +63,7 @@ EPollEngine::EPollEngine()
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
 		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 
 	// This is not a maximum, just a hint at the eventual number of sockets that may be polled.
@@ -75,7 +75,7 @@ EPollEngine::EPollEngine()
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize epoll socket engine: " << strerror(errno) << std::endl;
 		std::cout << "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now." << std::endl;
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 
 	ref = new EventHandler* [GetMaxFds()];

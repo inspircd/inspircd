@@ -124,12 +124,36 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	/* First up, apply their channel modes if they won the TS war */
 	if (apply_other_sides_modes)
 	{
-		std::vector<std::string> modelist;
-		modelist.push_back(channel);
+		// Need to use a modestacker here due to maxmodes
+		irc::modestacker stack(true);
+		std::vector<std::string>::const_iterator paramit = params.begin() + 3;
+		const std::vector<std::string>::const_iterator lastparamit = ((params.size() > 3) ? (params.end() - 1) : params.end());
+		for (std::string::const_iterator i = params[2].begin(); i != params[2].end(); ++i)
+		{
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
+			if (!mh)
+				continue;
 
-		/* Remember, params[params.size() - 1] is userlist, and we don't want to apply *that* */
-		modelist.insert(modelist.end(), params.begin()+2, params.end()-1);
-		ServerInstance->Modes->Process(modelist, srcuser, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
+			std::string modeparam;
+			if ((paramit != lastparamit) && (mh->GetNumParams(true)))
+			{
+				modeparam = *paramit;
+				++paramit;
+			}
+
+			stack.Push(*i, modeparam);
+		}
+
+		std::vector<std::string> modelist;
+
+		// Mode parser needs to know what channel to act on.
+		modelist.push_back(params[0]);
+
+		while (stack.GetStackedLine(modelist))
+		{
+			ServerInstance->Modes->Process(modelist, srcuser, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
+			modelist.erase(modelist.begin() + 1, modelist.end());
+		}
 	}
 
 	irc::modestacker modestack(true);

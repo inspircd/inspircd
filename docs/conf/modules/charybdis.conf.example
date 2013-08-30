@@ -257,20 +257,16 @@
 #<module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# GnuTLS ssl module: Adds support for client-server SSL using GnuTLS,
-# if enabled. You must copy the source for this module from the directory
-# src/modules/extra, or answer 'yes' in ./configure when asked if you
-# want to enable this, or it will not load.
+# GnuTLS SSL module: Adds support for SSL connections using GnuTLS,
+# if enabled. You must answer 'yes' in ./configure when asked or
+# manually symlink the source for this module from the directory
+# src/modules/extra, if you want to enable this, or it will not load.
 #<module name="m_ssl_gnutls.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
 # http://wiki.inspircd.org/Modules/ssl_gnutls                         #
-#                                                                     #
-# NOTE: If you want to use this module to encrypt and sign your       #
-# server to server traffic, you MUST load it before m_spanningtree in #
-# your configuration file!                                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL Info module: Allows users to retrieve information about other
@@ -288,20 +284,16 @@
 #<module name="m_sslinfo.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# OpenSSL ssl module: Adds support for client-server SSL using OpenSSL,
-# if enabled. You must copy the source for this module from the directory
-# src/modules/extra, or answer 'yes' in ./configure when asked if you
-# want to enable this, or it will not load.
+# OpenSSL SSL module: Adds support for SSL connections using OpenSSL,
+# if enabled. You must answer 'yes' in ./configure when asked or symlink
+# the source for this module from the directory src/modules/extra, if
+# you want to enable this, or it will not load.
 #<module name="m_ssl_openssl.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_openssl.so is too complex it describe here, see the wiki:     #
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
-#                                                                     #
-# NOTE: If you want to use this module to encrypt and sign your       #
-# server to server traffic, you MUST load it before m_spanningtree in #
-# your configuration file!                                            #
 
 <module name="m_stripcolor.so">
 <module name="m_svshold.so">

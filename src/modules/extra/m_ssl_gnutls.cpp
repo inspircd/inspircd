@@ -47,8 +47,14 @@
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") exec("libgcrypt-config --cflags") -Wno-pedantic */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") exec("libgcrypt-config --libs") */
 
+#ifndef GNUTLS_VERSION_MAJOR
+#define GNUTLS_VERSION_MAJOR LIBGNUTLS_VERSION_MAJOR
+#define GNUTLS_VERSION_MINOR LIBGNUTLS_VERSION_MINOR
+#define GNUTLS_VERSION_PATCH LIBGNUTLS_VERSION_PATCH
+#endif
+
 // These don't exist in older GnuTLS versions
-#if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 1) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 1 && GNUTLS_VERSION_MICRO >= 7))
+#if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 1) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 1 && GNUTLS_VERSION_PATCH >= 7))
 #define GNUTLS_NEW_PRIO_API
 #endif
 
@@ -115,6 +121,8 @@ class GnuTLSIOHook : public SSLIOHook
 
 		#ifdef GNUTLS_NEW_PRIO_API
 		gnutls_priority_set(session->sess, priority);
+		#else
+		gnutls_set_default_priority(session->sess);
 		#endif
 		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);

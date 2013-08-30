@@ -28,9 +28,9 @@
      #   - channels/high-join-limit: allows opers with this priv to join <channels:opers> total channels instead of <channels:users> total channels.
      # PERMISSIONS:
      #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE)
-     #   - users/flood/increased-buffers: allows opers with this priv to send and recieve data without worrying about being disconnected for exceeding limits (*NOTE)
+     #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE)
      #
-     # *NOTE: These privs are potantially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
+     # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
      privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit users/flood/no-throttle users/flood/increased-buffers"
 
      # usermodes: Oper-only usermodes that opers with this class can use.
@@ -139,10 +139,12 @@
       # Remember: This is case sensitive
       name="Brain"
 
-      # hash: what hash this password is hashed with. requires the module
-      # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
-      # loaded and the password hashing module (m_password_hash.so)
-      # loaded. Options here are: "md5", "sha256" and "ripemd160".
+      # hash: what hash this password is hashed with.
+      # Requires the module for selected hash (m_md5.so, m_sha256.so
+      # or m_ripemd160.so) be loaded and the password hashing module
+      # (m_password_hash.so) loaded.
+      # Options here are: "md5", "sha256" and "ripemd160", or one of
+      # these prefixed with "hmac-", e.g.: "hmac-sha256".
       # Create hashed password with: /mkpasswd <hash> <password>
       hash="sha256"
 

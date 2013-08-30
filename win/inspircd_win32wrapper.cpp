@@ -222,10 +222,3 @@ DWORD CWin32Exception::GetErrorCode()
 {
 	return dwErrorCode;
 }
-
-#include "../src/modules/m_spanningtree/link.h"
-#include "modules/ssl.h"
-template class reference<Link>;
-template class reference<Autoconnect>;
-template class reference<ssl_cert>;
-template class reference<OperInfo>;

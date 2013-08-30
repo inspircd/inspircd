@@ -74,7 +74,7 @@ KQueueEngine::KQueueEngine()
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
 		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 
 	this->RecoverFromFork();
@@ -97,7 +97,7 @@ void KQueueEngine::RecoverFromFork()
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: this is a fatal error, exiting now.");
 		std::cout << "ERROR: Could not initialize socket engine. Your kernel probably does not have the proper features." << std::endl;
 		std::cout << "ERROR: this is a fatal error, exiting now." << std::endl;
-		ServerInstance->Exit(EXIT_STATUS_SOCKETENGINE);
+		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
 }

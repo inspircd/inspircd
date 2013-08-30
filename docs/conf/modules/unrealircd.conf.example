@@ -239,7 +239,7 @@
 # If you are using the m_operjoin.so module, specify options here:    #
 #                                                                     #
 # channel     -      The channel name to join, can also be a comma    #
-#                    seperated list eg. "#channel1,#channel2".        #
+#                    separated list eg. "#channel1,#channel2".        #
 #                                                                     #
 # override    -      Lets the oper join walking thru any modes that   #
 #                    might be set, even bans. Use "yes" or "no".      #
@@ -254,7 +254,7 @@
 <module name="m_operlog.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for seperate message of the day
+# Oper MOTD module: Provides support for separate message of the day
 # on oper-up
 # This module is oper-only.
 #<module name="m_opermotd.so">
@@ -365,38 +365,30 @@
 <module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# GnuTLS ssl module: Adds support for client-server SSL using GnuTLS,
-# if enabled. You must copy the source for this module from the directory
-# src/modules/extra, or answer 'yes' in ./configure when asked if you
-# want to enable this, or it will not load.
+# GnuTLS SSL module: Adds support for SSL connections using GnuTLS,
+# if enabled. You must answer 'yes' in ./configure when asked or symlink
+# the source for this module from the directory src/modules/extra, if
+# you want to enable this, or it will not load. 
 #<module name="m_ssl_gnutls.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
 # http://wiki.inspircd.org/Modules/ssl_gnutls                         #
-#                                                                     #
-# NOTE: If you want to use this module to encrypt and sign your       #
-# server to server traffic, you MUST load it before m_spanningtree in #
-# your configuration file!                                            #
 
 <module name="m_sslinfo.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# OpenSSL ssl module: Adds support for client-server SSL using OpenSSL,
-# if enabled. You must copy the source for this module from the directory
-# src/modules/extra, or answer 'yes' in ./configure when asked if you
-# want to enable this, or it will not load.
+# OpenSSL SSL module: Adds support for SSL connections using OpenSSL,
+# if enabled. You must answer 'yes' in ./configure when asked or symlink
+# the source for this module from the directory src/modules/extra, if
+# you want to enable this, or it will not load.
 #<module name="m_ssl_openssl.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_ssl_openssl.so is too complex it describe here, see the wiki:     #
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
-#                                                                     #
-# NOTE: If you want to use this module to encrypt and sign your       #
-# server to server traffic, you MUST load it before m_spanningtree in #
-# your configuration file!                                            #
 
 <module name="m_stripcolor.so">
 <module name="m_svshold.so">

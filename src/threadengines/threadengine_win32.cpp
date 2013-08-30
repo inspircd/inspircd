@@ -35,17 +35,11 @@ void ThreadEngine::Start(Thread* thread)
 
 	if (data->handle == NULL)
 	{
+		DWORD lasterr = GetLastError();
 		thread->state = NULL;
 		delete data;
-		std::string err = "Unable to create new thread: ";
-#ifdef _WIN32
-		CHAR errdetail[100];
-		FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errdetail, 100, 0);
+		std::string err = "Unable to create new thread: " + ConvToStr(lasterr);
 		SetLastError(ERROR_SUCCESS);
-		err += errdetail;
-#else
-		err += dlerror();
-#endif
 		throw CoreException(err);
 	}
 }
