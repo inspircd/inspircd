@@ -69,7 +69,7 @@ class CommandKill : public Command
  */
 CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	/* Allow comma seperated lists of users for /KILL (thanks w00t) */
+	/* Allow comma separated lists of users for /KILL (thanks w00t) */
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 	{
 		// If we got a colon delimited list of nicks then the handler ran for each nick,

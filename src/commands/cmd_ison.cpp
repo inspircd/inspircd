@@ -70,7 +70,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 		{
 			if ((i == parameters.size() - 1) && (parameters[i].find(' ') != std::string::npos))
 			{
-				/* Its a space seperated list of nicks (RFC1459 says to support this)
+				/* Its a space separated list of nicks (RFC1459 says to support this)
 				 */
 				irc::spacesepstream list(parameters[i]);
 				std::string item;

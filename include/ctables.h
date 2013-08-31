@@ -154,7 +154,7 @@ class CoreExport CommandBase : public ServiceProvider
 	 * @param cmd Command name. This must be UPPER CASE.
 	 * @param minpara Minimum parameters required for the command.
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
-	 * will be tossed into one last space-seperated param.
+	 * will be tossed into one last space-separated param.
 	 */
 	CommandBase(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
 		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),

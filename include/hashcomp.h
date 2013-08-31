@@ -178,8 +178,8 @@ namespace irc
 	 public:
 
 		/** Join all elements of a vector, in the resulting string
-		 * each element will be seperated by a single space character.
-		 * @param sequence Zero or more items to seperate
+		 * each element will be separated by a single space character.
+		 * @param sequence Zero or more items to separate
 		 */
 		stringjoiner(const std::vector<std::string>& sequence);
 
@@ -250,7 +250,7 @@ namespace irc
 		 * @param result The vector to populate. This will not
 		 * be cleared before it is used.
 		 * @param max_line_size The maximum size of the line
-		 * to build, in characters, seperate to MAXMODES.
+		 * to build, in characters, separate to MAXMODES.
 		 * @return The number of elements in the deque.
 		 * The function should be called repeatedly until it
 		 * returns 0, in case there are multiple lines of
@@ -260,7 +260,7 @@ namespace irc
 
 	};
 
-	/** irc::sepstream allows for splitting token seperated lists.
+	/** irc::sepstream allows for splitting token separated lists.
 	 * Each successive call to sepstream::GetToken() returns
 	 * the next token, until none remain, at which point the method returns
 	 * an empty string.
@@ -302,7 +302,7 @@ namespace irc
 		bool StreamEnd();
 	};
 
-	/** A derived form of sepstream, which seperates on commas
+	/** A derived form of sepstream, which separates on commas
 	 */
 	class CoreExport commasepstream : public sepstream
 	{
@@ -314,7 +314,7 @@ namespace irc
 		}
 	};
 
-	/** A derived form of sepstream, which seperates on spaces
+	/** A derived form of sepstream, which separates on spaces
 	 */
 	class CoreExport spacesepstream : public sepstream
 	{
@@ -370,7 +370,7 @@ namespace irc
 		bool GetToken(long &token);
 	};
 
-	/** The portparser class seperates out a port range into integers.
+	/** The portparser class separates out a port range into integers.
 	 * A port range may be specified in the input string in the form
 	 * "6660,6661,6662-6669,7020". The end of the stream is indicated by
 	 * a return value of 0 from portparser::GetToken(). If you attempt

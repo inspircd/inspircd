@@ -334,7 +334,7 @@ class CoreExport User : public Extensible
 
 	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
-	 * This value is set by QuitUser, and is not needed seperately from that call.
+	 * This value is set by QuitUser, and is not needed separately from that call.
 	 * Please note that setting this value alone will NOT cause the user to quit.
 	 */
 	unsigned int quitting:1;

@@ -229,7 +229,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		// Iterator to the first excess parameter
 		const std::vector<std::string>::iterator firstexcess = lastkeep + 1;
 
-		// Append all excess parameter(s) to the last parameter, seperated by spaces
+		// Append all excess parameter(s) to the last parameter, separated by spaces
 		for (std::vector<std::string>::const_iterator i = firstexcess; i != command_p.end(); ++i)
 		{
 			lastkeep->push_back(' ');
@@ -241,7 +241,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	}
 
 	/*
-	 * We call OnPreCommand here seperately if the command exists, so the magic above can
+	 * We call OnPreCommand here separately if the command exists, so the magic above can
 	 * truncate to max_params if necessary. -- w00t
 	 */
 	ModResult MOD_RESULT;

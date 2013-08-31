@@ -100,7 +100,7 @@
 
 # Failover autoconnect block. If you have multiple hubs, or want your network
 # to automatically link even if the hub is down, you can specify multiple
-# space seperated servers to autoconnect; they will be tried in a round
+# space separated servers to autoconnect; they will be tried in a round
 # robin fashion until one succeeds. Period defines the time for restarting
 # a single loop.
 <autoconnect period="120"

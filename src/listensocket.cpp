@@ -101,7 +101,7 @@ ListenSocket::~ListenSocket()
 	}
 }
 
-/* Just seperated into another func for tidiness really.. */
+/* Just separated into another func for tidiness really.. */
 void ListenSocket::AcceptInternal()
 {
 	irc::sockets::sockaddrs client;

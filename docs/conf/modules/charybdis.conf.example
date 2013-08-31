@@ -164,7 +164,7 @@
 #   quitmsg="Throttled" bootwait="10">
 
 <module name="m_deaf.so">
-<module name="m_dnsbl.so">                                           
+<module name="m_dnsbl.so">
 <module name="m_gecosban.so">
 <module name="m_globalload.so">
 <module name="m_ident.so">
@@ -246,7 +246,7 @@
 <showwhois opersonly="yes" showfromopers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Spy module: Provides the ability to see the complete names list of 
+# Spy module: Provides the ability to see the complete names list of
 # channels an oper is not a member of
 # This module is oper-only.
 #<module name="m_spy.so">
@@ -276,7 +276,7 @@
 # SSL Info module: Allows users to retrieve information about other
 # user's peer SSL certificates and keys. This can be used by client
 # scripts to validate users. For this to work, one of m_ssl_gnutls.so
-# or m_ssl_openssl.so must be loaded. This module also adds the 
+# or m_ssl_openssl.so must be loaded. This module also adds the
 # "* <user> is using a secure connection" whois line, the ability for
 # opers to use SSL fingerprints to verify their identity and the ability
 # to force opers to use SSL connections in order to oper up.
