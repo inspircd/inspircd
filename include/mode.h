@@ -100,6 +100,12 @@ enum ParamSpec
  */
 class CoreExport ModeHandler : public ServiceProvider
 {
+ public:
+	enum Class
+	{
+		MC_OTHER
+	};
+
 	/**
 	 * Removes this prefix mode from all users on the given channel
 	 * @param channel The channel which the server wants to remove your mode from
@@ -150,6 +156,10 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	ModeType m_type;
 
+	/** The object type of this mode handler
+	 */
+	const Class type_id;
+
 	/** The prefix char needed on channel to use this mode,
 	 * only checked for channel modes
 	 */
@@ -170,8 +180,9 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @param modeletter The mode letter you wish to handle
 	 * @param params Parameters taken by the mode
 	 * @param type Type of the mode (MODETYPE_USER or MODETYPE_CHANNEL)
+	 * @param mclass The object type of this mode handler, one of ModeHandler::Class
 	 */
-	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type);
+	ModeHandler(Module* me, const std::string& name, char modeletter, ParamSpec params, ModeType type, Class mclass = MC_OTHER);
 	virtual CullResult cull();
 	virtual ~ModeHandler();
 	/**
