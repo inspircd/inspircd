@@ -28,16 +28,9 @@
 #include "modules.h"
 #include "builtinmodes.h"
 
-ModeChannelVoice::ModeChannelVoice() : ModeHandler(NULL, "voice", 'v', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelVoice::ModeChannelVoice() : PrefixMode(NULL, "voice", 'v')
 {
-	list = true;
 	prefix = '+';
 	levelrequired = HALFOP_VALUE;
-	m_paramtype = TR_NICK;
 	prefixrank = VOICE_VALUE;
-}
-
-ModeAction ModeChannelVoice::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
-{
-	return MODEACTION_ALLOW;
 }

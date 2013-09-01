@@ -86,13 +86,10 @@ class ModeChannelNoExternal : public SimpleChannelModeHandler
 
 /** Channel mode +o
  */
-class ModeChannelOp : public ModeHandler
+class ModeChannelOp : public PrefixMode
 {
- private:
  public:
 	ModeChannelOp();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	unsigned int GetPrefixRank();
 };
 
 /** Channel mode +p
@@ -127,13 +124,10 @@ class ModeChannelTopicOps : public SimpleChannelModeHandler
 
 /** Channel mode +v
  */
-class ModeChannelVoice : public ModeHandler
+class ModeChannelVoice : public PrefixMode
 {
- private:
  public:
 	ModeChannelVoice();
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	unsigned int GetPrefixRank();
 };
 
 /** User mode +i

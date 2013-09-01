@@ -103,15 +103,9 @@ class CoreExport ModeHandler : public ServiceProvider
  public:
 	enum Class
 	{
+		MC_PREFIX,
 		MC_OTHER
 	};
-
-	/**
-	 * Removes this prefix mode from all users on the given channel
-	 * @param channel The channel which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
-	 */
-	void RemovePrefixMode(Channel* chan, irc::modestacker& stack);
 
  protected:
 	/**
@@ -310,6 +304,54 @@ class CoreExport ModeHandler : public ServiceProvider
 	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
 
 	inline unsigned int GetLevelRequired() const { return levelrequired; }
+};
+
+/**
+ * Prefix modes are channel modes that grant a specific rank to members having prefix mode set.
+ * They require a parameter when setting and unsetting; the parameter is always a member of the channel.
+ * A prefix mode may be set on any number of members on a channel, but for a given member a given prefix
+ * mode is either set or not set, in other words members cannot have the same prefix mode set more than once.
+ *
+ * A rank of a member is defined as the rank given by the 'strongest' prefix mode that member has.
+ * Other parts of the IRCd use this rank to determine whether a channel action is allowable for a user or not.
+ * The rank of a prefix mode is constant, i.e. the same rank value is given to all users having that prefix mode set.
+ *
+ * Note that it is possible that the same action requires a different rank on a different channel;
+ * for example changing the topic on a channel having +t set requires a rank that is >= than the rank of a halfop,
+ * but there is no such restriction when +t isn't set.
+ */
+class PrefixMode : public ModeHandler
+{
+ public:
+	/**
+	 * Constructor
+	 * @param Creator The module creating this mode
+	 * @param Name The user-friendly one word name of the prefix mode, e.g.: "op", "voice"
+	 * @param ModeLetter The mode letter of this mode
+	 */
+	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter);
+
+	/**
+	 * Handles setting and unsetting the prefix mode.
+	 * Finds the given member of the given channel, if it's not found an error message is sent to 'source'
+	 * and MODEACTION_DENY is returned. Otherwise the mode change is attempted.
+	 * @param source Source of the mode change, an error message is sent to this user if the target is not found
+	 * @param dest Unused
+	 * @param channel The channel the mode change is happening on
+	 * @param param The nickname or uuid of the target user
+	 * @param adding True when the mode is being set, false when it is being unset
+	 * @return MODEACTION_ALLOW if the change happened, MODEACTION_DENY if no change happened
+	 * The latter occurs either when the member cannot be found or when the member already has this prefix set
+	 * (when setting) or doesn't have this prefix set (when unsetting).
+	 */
+	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& param, bool adding);
+
+	/**
+	 * Removes this prefix mode from all users on the given channel
+	 * @param chan The channel which the server wants to remove your mode from
+	 * @param stack The mode stack to add the mode change to
+	 */
+	void RemoveMode(Channel* chan, irc::modestacker& stack);
 };
 
 /** A prebuilt mode handler which handles a simple user mode, e.g. no parameters, usable by any user, with no extra

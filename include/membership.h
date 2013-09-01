@@ -32,6 +32,16 @@ class CoreExport Membership : public Extensible
 		return modes.find(m) != std::string::npos;
 	}
 	unsigned int getRank();
+
+	/** Add a prefix character to a user.
+	 * Only the core should call this method, usually from
+	 * within the mode parser or when the first user joins
+	 * the channel (to grant the default privs to them)
+	 * @param mh The mode handler of the prefix mode to associate
+	 * @param adding True if adding the prefix, false when removing
+	 * @return True if a change was made
+	 */
+	bool SetPrefix(ModeHandler* mh, bool adding);
 };
 
 class CoreExport InviteBase

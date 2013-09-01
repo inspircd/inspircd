@@ -84,16 +84,14 @@ class CommandOjoin : public SplitCommand
 
 /** channel mode +Y
  */
-class NetworkPrefix : public ModeHandler
+class NetworkPrefix : public PrefixMode
 {
  public:
 	NetworkPrefix(Module* parent, char NPrefix)
-		: ModeHandler(parent, "official-join", 'Y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+		: PrefixMode(parent, "official-join", 'Y')
 	{
-		list = true;
 		prefix = NPrefix;
 		levelrequired = INT_MAX;
-		m_paramtype = TR_NICK;
 		prefixrank = NETWORK_VALUE;
 	}
 
@@ -106,12 +104,6 @@ class NetworkPrefix : public ModeHandler
 
 		return MOD_RES_PASSTHRU;
 	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		return MODEACTION_ALLOW;
-	}
-
 };
 
 class ModuleOjoin : public Module

@@ -28,16 +28,9 @@
 #include "modules.h"
 #include "builtinmodes.h"
 
-ModeChannelOp::ModeChannelOp() : ModeHandler(NULL, "op", 'o', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelOp::ModeChannelOp() : PrefixMode(NULL, "op", 'o')
 {
-	list = true;
 	prefix = '@';
 	levelrequired = OP_VALUE;
-	m_paramtype = TR_NICK;
 	prefixrank = OP_VALUE;
-}
-
-ModeAction ModeChannelOp::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
-{
-	return MODEACTION_ALLOW;
 }

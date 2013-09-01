@@ -343,9 +343,8 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 			if (mh && mh->GetPrefixRank())
 			{
 				std::string nick = user->nick;
-				/* Set, and make sure that the mode handler knows this mode was now set */
-				this->SetPrefix(user, mh->GetModeChar(), true);
-				mh->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, nick, true);
+				// Set the mode on the user
+				mh->OnModeChange(ServerInstance->FakeClient, NULL, this, nick, true);
 			}
 		}
 	}
@@ -792,29 +791,23 @@ unsigned int Channel::GetPrefixValue(User* user)
 	return m->second->getRank();
 }
 
-bool Channel::SetPrefix(User* user, char prefix, bool adding)
+bool Membership::SetPrefix(ModeHandler* delta_mh, bool adding)
 {
-	ModeHandler* delta_mh = ServerInstance->Modes->FindMode(prefix, MODETYPE_CHANNEL);
-	if (!delta_mh)
-		return false;
-	UserMembIter m = userlist.find(user);
-	if (m == userlist.end())
-		return false;
-	for(unsigned int i=0; i < m->second->modes.length(); i++)
+	char prefix = delta_mh->GetModeChar();
+	for (unsigned int i = 0; i < modes.length(); i++)
 	{
-		char mchar = m->second->modes[i];
+		char mchar = modes[i];
 		ModeHandler* mh = ServerInstance->Modes->FindMode(mchar, MODETYPE_CHANNEL);
 		if (mh && mh->GetPrefixRank() <= delta_mh->GetPrefixRank())
 		{
-			m->second->modes =
-				m->second->modes.substr(0,i) +
+			modes = modes.substr(0,i) +
 				(adding ? std::string(1, prefix) : "") +
-				m->second->modes.substr(mchar == prefix ? i+1 : i);
+				modes.substr(mchar == prefix ? i+1 : i);
 			return adding != (mchar == prefix);
 		}
 	}
 	if (adding)
-		m->second->modes += std::string(1, prefix);
+		modes.push_back(prefix);
 	return adding;
 }
 

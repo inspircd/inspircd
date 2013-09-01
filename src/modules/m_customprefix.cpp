@@ -19,17 +19,16 @@
 
 #include "inspircd.h"
 
-class CustomPrefixMode : public ModeHandler
+class CustomPrefixMode : public PrefixMode
 {
  public:
 	reference<ConfigTag> tag;
 	bool depriv;
 
 	CustomPrefixMode(Module* parent, ConfigTag* Tag)
-		: ModeHandler(parent, Tag->getString("name"), 0, PARAM_ALWAYS, MODETYPE_CHANNEL), tag(Tag)
+		: PrefixMode(parent, Tag->getString("name"), 0)
+		, tag(Tag)
 	{
-		list = true;
-		m_paramtype = TR_NICK;
 		std::string v = tag->getString("prefix");
 		prefix = v.c_str()[0];
 		v = tag->getString("letter");
@@ -44,11 +43,6 @@ class CustomPrefixMode : public ModeHandler
 		if (!adding && src->nick == value && depriv)
 			return MOD_RES_ALLOW;
 		return MOD_RES_PASSTHRU;
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		return MODEACTION_ALLOW;
 	}
 };
 

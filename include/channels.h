@@ -338,17 +338,6 @@ class CoreExport Channel : public Extensible, public InviteBase
 	 */
 	unsigned int GetPrefixValue(User* user);
 
-	/** Add a prefix character to a user.
-	 * Only the core should call this method, usually  from
-	 * within the mode parser or when the first user joins
-	 * the channel (to grant ops to them)
-	 * @param user The user to associate the privilage with
-	 * @param prefix The prefix character to associate
-	 * @param adding True if adding the prefix, false when removing
-	 * @return True if a change was made
-	 */
-	bool SetPrefix(User* user, char prefix, bool adding);
-
 	/** Check if a user is banned on this channel
 	 * @param user A user to check against the banlist
 	 * @returns True if the user given is banned

@@ -195,6 +195,30 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	}
 }
 
+PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter)
+	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
+{
+	list = true;
+	m_paramtype = TR_NICK;
+}
+
+ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::string& parameter, bool adding)
+{
+	User* target = ServerInstance->FindNick(parameter);
+	if (!target)
+	{
+		source->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", source->nick.c_str(), parameter.c_str());
+		return MODEACTION_DENY;
+	}
+
+	Membership* memb = chan->GetUser(target);
+	if (!memb)
+		return MODEACTION_DENY;
+
+	parameter = target->nick;
+	return (memb->SetPrefix(this, adding) ? MODEACTION_ALLOW : MODEACTION_DENY);
+}
+
 ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool adding, const unsigned char modechar,
 		std::string &parameter, bool SkipACL)
 {
@@ -293,21 +317,6 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 					user->nick.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
 		}
 		return MODEACTION_DENY;
-	}
-
-	if (mh->GetTranslateType() == TR_NICK && !ServerInstance->FindNick(parameter))
-	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameter.c_str());
-		return MODEACTION_DENY;
-	}
-
-	if (mh->GetPrefixRank() && chan)
-	{
-		User* user_to_prefix = ServerInstance->FindNick(parameter);
-		if (!user_to_prefix)
-			return MODEACTION_DENY;
-		if (!chan->SetPrefix(user_to_prefix, modechar, adding))
-			return MODEACTION_DENY;
 	}
 
 	/* Call the handler for the mode */
@@ -437,16 +446,9 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 		if (pcnt)
 		{
-			TranslateType tt = mh->GetTranslateType();
-			if (tt == TR_NICK)
-			{
-				User* u = ServerInstance->FindNick(parameter);
-				if (u)
-					parameter = u->nick;
-			}
 			output_parameters << " " << parameter;
 			LastParseParams.push_back(parameter);
-			LastParseTranslate.push_back(tt);
+			LastParseTranslate.push_back(mh->GetTranslateType());
 		}
 
 		if ( (output_mode.length() + output_parameters.str().length() > 450)
@@ -827,11 +829,7 @@ void ModeHandler::RemoveMode(User* user)
 
 void ModeHandler::RemoveMode(Channel* channel, irc::modestacker& stack)
 {
-	if (this->GetPrefixRank())
-	{
-		RemovePrefixMode(channel, stack);
-	}
-	else if (channel->IsModeSet(this))
+	if (channel->IsModeSet(this))
 	{
 		if (this->GetNumParams(false))
 			// Removing this mode requires a parameter
@@ -841,7 +839,7 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker& stack)
 	}
 }
 
-void ModeHandler::RemovePrefixMode(Channel* chan, irc::modestacker& stack)
+void PrefixMode::RemoveMode(Channel* chan, irc::modestacker& stack)
 {
 	const UserMembList* userlist = chan->GetUsers();
 	for (UserMembCIter i = userlist->begin(); i != userlist->end(); ++i)

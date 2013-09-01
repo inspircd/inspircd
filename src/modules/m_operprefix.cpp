@@ -26,32 +26,16 @@
 
 #define OPERPREFIX_VALUE 1000000
 
-class OperPrefixMode : public ModeHandler
+class OperPrefixMode : public PrefixMode
 {
 	public:
-		OperPrefixMode(Module* Creator) : ModeHandler(Creator, "operprefix", 'y', PARAM_ALWAYS, MODETYPE_CHANNEL)
+		OperPrefixMode(Module* Creator) : PrefixMode(Creator, "operprefix", 'y')
 		{
 			std::string pfx = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!");
-			list = true;
 			prefix = pfx.empty() ? '!' : pfx[0];
-			levelrequired = OPERPREFIX_VALUE;
-			m_paramtype = TR_NICK;
+			levelrequired = INT_MAX;
 			prefixrank = OPERPREFIX_VALUE;
 		}
-
-		ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-		{
-			if (IS_SERVER(source) || ServerInstance->ULine(source->server))
-				return MODEACTION_ALLOW;
-			else
-			{
-				if (channel)
-					source->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :Only servers are permitted to change channel mode '%c'", source->nick.c_str(), channel->name.c_str(), 'y');
-				return MODEACTION_DENY;
-			}
-		}
-
-		bool NeedsOper() { return true; }
 };
 
 class ModuleOperPrefixMode;
