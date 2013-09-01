@@ -28,8 +28,8 @@
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
 	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT),
-	parameters_taken(Params), mode(modeletter), prefix(0), oper(false),
-	list(false), m_type(type), type_id(mclass), levelrequired(HALFOP_VALUE), prefixrank(0)
+	parameters_taken(Params), mode(modeletter), oper(false),
+	list(false), m_type(type), type_id(mclass), levelrequired(HALFOP_VALUE)
 {
 }
 
@@ -197,6 +197,7 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 
 PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter)
 	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
+	, prefix(0), prefixrank(0)
 {
 	list = true;
 	m_paramtype = TR_NICK;
@@ -254,10 +255,10 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 			unsigned int ourrank = chan->GetPrefixValue(user);
 			if (ourrank < neededrank)
 			{
-				ModeHandler* neededmh = NULL;
+				PrefixMode* neededmh = NULL;
 				for(char c='A'; c <= 'z'; c++)
 				{
-					ModeHandler *privmh = FindMode(c, MODETYPE_CHANNEL);
+					PrefixMode* privmh = FindPrefixMode(c);
 					if (privmh && privmh->GetPrefixRank() >= neededrank)
 					{
 						// this mode is sufficient to allow this action
@@ -594,18 +595,22 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	 * If they do that, thats their problem, and if i ever EVER see an
 	 * official InspIRCd developer do that, i'll beat them with a paddle!
 	 */
-	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z') || (mh->GetPrefix() > 126))
+	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
 		return false;
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
 	 * A mode prefix of '#' will mess up /whois and /privmsg
 	 */
-	if ((mh->GetPrefix() == ',') || (mh->GetPrefix() == ':') || (mh->GetPrefix() == '#'))
-		return false;
+	PrefixMode* pm = mh->IsPrefixMode();
+	if (pm)
+	{
+		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || (pm->GetPrefix() == '#'))
+			return false;
 
-	if (mh->GetPrefix() && FindPrefix(mh->GetPrefix()))
-		return false;
+		if (FindPrefix(pm->GetPrefix()))
+			return false;
+	}
 
 	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
 	pos = (mh->GetModeChar()-65) | mask;
@@ -686,6 +691,14 @@ ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
 	return modehandlers[pos];
 }
 
+PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
+{
+	ModeHandler* mh = FindMode(modeletter, MODETYPE_CHANNEL);
+	if (!mh)
+		return NULL;
+	return mh->IsPrefixMode();
+}
+
 std::string ModeParser::CreateModeList(ModeType mt, bool needparam)
 {
 	std::string modestr;
@@ -707,16 +720,13 @@ void ModeParser::RecreateModeListFor004Numeric()
 	Cached004ModeList = CreateModeList(MODETYPE_USER) + " " + CreateModeList(MODETYPE_CHANNEL) + " " + CreateModeList(MODETYPE_CHANNEL, true);
 }
 
-ModeHandler* ModeParser::FindPrefix(unsigned const char pfxletter)
+PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
 {
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		unsigned char pos = (mode-65) | MASK_CHANNEL;
-
-		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix() == pfxletter))
-		{
-			return modehandlers[pos];
-		}
+		PrefixMode* pm = FindPrefixMode(mode);
+		if ((pm) && (pm->GetPrefix() == pfxletter))
+			return pm;
 	}
 	return NULL;
 }
@@ -736,7 +746,8 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 		{
 			if (modehandlers[pos]->GetNumParams(true))
 			{
-				if ((modehandlers[pos]->IsListMode()) && (!modehandlers[pos]->GetPrefix()))
+				PrefixMode* pm = modehandlers[pos]->IsPrefixMode();
+				if ((modehandlers[pos]->IsListMode()) && ((!pm) || (pm->GetPrefix() == 0)))
 				{
 					type1 += modehandlers[pos]->GetModeChar();
 				}
@@ -746,7 +757,7 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 					if (modehandlers[pos]->GetNumParams(false))
 					{
 						/* But not a list mode */
-						if (!modehandlers[pos]->GetPrefix())
+						if (!pm)
 						{
 							type2 += modehandlers[pos]->GetModeChar();
 						}
@@ -776,13 +787,9 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		unsigned char pos = (mode-65) | MASK_CHANNEL;
-
-		if ((modehandlers[pos]) && (modehandlers[pos]->GetPrefix()))
-		{
-			prefixes[modehandlers[pos]->GetPrefixRank()] = std::make_pair(
-				modehandlers[pos]->GetPrefix(), modehandlers[pos]->GetModeChar());
-		}
+		PrefixMode* pm = FindPrefixMode(mode);
+		if (pm && pm->GetPrefix())
+			prefixes[pm->GetPrefixRank()] = std::make_pair(pm->GetPrefix(), pm->GetModeChar());
 	}
 
 	for(std::map<int,std::pair<char,char> >::reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); n++)

@@ -84,6 +84,8 @@ enum ParamSpec
 	PARAM_ALWAYS
 };
 
+class PrefixMode;
+
 /** Each mode is implemented by ONE ModeHandler class.
  * You must derive ModeHandler and add the child class to
  * the list of modes handled by the ircd, using
@@ -122,10 +124,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	char mode;
 
-	/** Mode prefix, or 0
-	 */
-	char prefix;
-
 	/**
 	 * True if the mode requires oper status
 	 * to set.
@@ -159,11 +157,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	int levelrequired;
 
-	/** The prefix rank of this mode, used to compare prefix
-	 * modes
-	 */
-	unsigned int prefixrank;
-
  public:
 	/**
 	 * The constructor for ModeHandler initalizes the mode handler.
@@ -183,20 +176,12 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * Returns true if the mode is a list mode
 	 */
 	bool IsListMode() const { return list; }
+
 	/**
-	 * Mode prefix or 0. If this is defined, you should
-	 * also implement GetPrefixRank() to return an integer
-	 * value for this mode prefix.
+	 * Returns a PrefixMode* if this mode is a prefix mode, NULL otherwise
 	 */
-	inline char GetPrefix() const { return prefix; }
-	/**
-	 * Get the 'value' of this modes prefix.
-	 * determines which to display when there are multiple.
-	 * The mode with the highest value is ranked first. See the
-	 * PrefixModeValue enum and Channel::GetPrefixValue() for
-	 * more information.
-	 */
-	unsigned int GetPrefixRank() const { return prefixrank; }
+	PrefixMode* IsPrefixMode();
+
 	/**
 	 * Returns the mode's type
 	 */
@@ -322,6 +307,17 @@ class CoreExport ModeHandler : public ServiceProvider
  */
 class PrefixMode : public ModeHandler
 {
+ protected:
+	/** The prefix character granted by this mode. '@' for op, '+' for voice, etc.
+	 * If 0, this mode does not have a visible prefix character.
+	 */
+	char prefix;
+
+	/** The prefix rank of this mode, used to compare prefix
+	 * modes
+	 */
+	unsigned int prefixrank;
+
  public:
 	/**
 	 * Constructor
@@ -352,6 +348,22 @@ class PrefixMode : public ModeHandler
 	 * @param stack The mode stack to add the mode change to
 	 */
 	void RemoveMode(Channel* chan, irc::modestacker& stack);
+
+	/**
+	 * Mode prefix or 0. If this is defined, you should
+	 * also implement GetPrefixRank() to return an integer
+	 * value for this mode prefix.
+	 */
+	char GetPrefix() const { return prefix; }
+
+	/**
+	 * Get the 'value' of this modes prefix.
+	 * determines which to display when there are multiple.
+	 * The mode with the highest value is ranked first. See the
+	 * PrefixModeValue enum and Channel::GetPrefixValue() for
+	 * more information.
+	 */
+	unsigned int GetPrefixRank() const { return prefixrank; }
 };
 
 /** A prebuilt mode handler which handles a simple user mode, e.g. no parameters, usable by any user, with no extra
@@ -622,12 +634,18 @@ class CoreExport ModeParser
 	 */
 	ModeHandler* FindMode(unsigned const char modeletter, ModeType mt);
 
+	/** Find the mode handler for the given prefix mode
+	 * @param modeletter The mode letter to search for
+	 * @return A pointer to the PrefixMode or NULL if the mode wasn't found or it isn't a prefix mode
+	 */
+	PrefixMode* FindPrefixMode(unsigned char modeletter);
+
 	/** Find a mode handler by its prefix.
 	 * If there is no mode handler with the given prefix, NULL will be returned.
 	 * @param pfxletter The prefix to find, e.g. '@'
 	 * @return The mode handler which handles this prefix, or NULL if there is none.
 	 */
-	ModeHandler* FindPrefix(unsigned const char pfxletter);
+	PrefixMode* FindPrefix(unsigned const char pfxletter);
 
 	/** Returns a list of modes, space seperated by type:
 	 * 1. User modes
@@ -654,4 +672,9 @@ class CoreExport ModeParser
 inline const std::string& ModeParser::GetModeListFor004Numeric()
 {
 	return Cached004ModeList;
+}
+
+inline PrefixMode* ModeHandler::IsPrefixMode()
+{
+	return (this->type_id == MC_PREFIX ? static_cast<PrefixMode*>(this) : NULL);
 }

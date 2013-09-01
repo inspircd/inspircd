@@ -32,13 +32,13 @@ class AutoOpList : public ListModeBase
 		tidy = false;
 	}
 
-	ModeHandler* FindMode(const std::string& mid)
+	PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
-			return ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL);
+			return ServerInstance->Modes->FindPrefixMode(mid[0]);
 		for(char c='A'; c < 'z'; c++)
 		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
+			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(c);
 			if (mh && mh->name == mid)
 				return mh;
 		}
@@ -52,9 +52,9 @@ class AutoOpList : public ListModeBase
 			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 		unsigned int mylevel = channel->GetPrefixValue(source);
 		std::string mid = parameter.substr(0, pos);
-		ModeHandler* mh = FindMode(mid);
+		PrefixMode* mh = FindMode(mid);
 
-		if (adding && (!mh || !mh->GetPrefixRank()))
+		if (adding && !mh)
 		{
 			source->WriteNumeric(415, "%s %s :Cannot find prefix mode '%s' for autoop",
 				source->nick.c_str(), mid.c_str(), mid.c_str());
@@ -103,8 +103,8 @@ class ModuleAutoOp : public Module
 					continue;
 				if (memb->chan->CheckBan(memb->user, it->mask.substr(colon+1)))
 				{
-					ModeHandler* given = mh.FindMode(it->mask.substr(0, colon));
-					if (given && given->GetPrefixRank())
+					PrefixMode* given = mh.FindMode(it->mask.substr(0, colon));
+					if (given)
 						modeline.push_back(given->GetModeChar());
 				}
 			}

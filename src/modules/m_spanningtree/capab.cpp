@@ -59,10 +59,13 @@ static std::string BuildModeList(ModeType type)
 		{
 			std::string mdesc = mh->name;
 			mdesc.push_back('=');
-			if (mh->GetPrefix())
-				mdesc.push_back(mh->GetPrefix());
-			if (mh->GetModeChar())
+			PrefixMode* pm = mh->IsPrefixMode();
+			if (pm)
+			{
+				if (pm->GetPrefix())
+					mdesc.push_back(pm->GetPrefix());
 				mdesc.push_back(mh->GetModeChar());
+			}
 			modes.push_back(mdesc);
 		}
 	}

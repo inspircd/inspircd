@@ -131,7 +131,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 				}
 				case ServerConfig::INVITE_ANNOUNCE_DYNAMIC:
 				{
-					ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
+					PrefixMode* mh = ServerInstance->Modes->FindPrefixMode('h');
 					prefix = (mh && mh->name == "halfop" ? mh->GetPrefix() : '@');
 					break;
 				}

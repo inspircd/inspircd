@@ -61,13 +61,13 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 	ExemptChanOps ec;
 	ExemptHandler(Module* me) : ec(me) {}
 
-	ModeHandler* FindMode(const std::string& mid)
+	PrefixMode* FindMode(const std::string& mid)
 	{
 		if (mid.length() == 1)
-			return ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL);
+			return ServerInstance->Modes->FindPrefixMode(mid[0]);
 		for(char c='A'; c < 'z'; c++)
 		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
+			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(c);
 			if (mh && mh->name == mid)
 				return mh;
 		}
@@ -93,7 +93,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 			}
 		}
 
-		ModeHandler* mh = FindMode(minmode);
+		PrefixMode* mh = FindMode(minmode);
 		if (mh && mypfx >= mh->GetPrefixRank())
 			return MOD_RES_ALLOW;
 		if (mh || minmode == "*")

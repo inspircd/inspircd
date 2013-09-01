@@ -514,7 +514,7 @@ ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::st
 			minmode = current[pos+1];
 	}
 
-	ModeHandler* mh = ServerInstance->Modes->FindMode(minmode, MODETYPE_CHANNEL);
+	PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(minmode);
 	if (mh && mypfx >= mh->GetPrefixRank())
 		return MOD_RES_ALLOW;
 	if (mh || minmode == '*')

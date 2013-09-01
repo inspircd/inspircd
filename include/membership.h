@@ -41,7 +41,7 @@ class CoreExport Membership : public Extensible
 	 * @param adding True if adding the prefix, false when removing
 	 * @return True if a change was made
 	 */
-	bool SetPrefix(ModeHandler* mh, bool adding);
+	bool SetPrefix(PrefixMode* mh, bool adding);
 };
 
 class CoreExport InviteBase
