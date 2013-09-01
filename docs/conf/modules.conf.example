@@ -1059,6 +1059,11 @@
 #<module name="m_mlock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Modenotice module: Adds the /MODENOTICE command that allows opers to
+# send notices to all users having the given user mode(s) set.
+#<module name="m_modenotice.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MsSQL module: Allows other SQL modules to access MS SQL Server 
 # through a unified API.
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mssql.cpp

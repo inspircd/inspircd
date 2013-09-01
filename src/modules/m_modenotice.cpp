@@ -48,8 +48,24 @@ next_user:	;
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		return ROUTE_BROADCAST;
+		return ROUTE_OPT_BCAST;
 	}
 };
 
-COMMAND_INIT(CommandModeNotice)
+class ModuleModeNotice : public Module
+{
+	CommandModeNotice cmd;
+
+ public:
+	ModuleModeNotice()
+		: cmd(this)
+	{
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the /MODENOTICE command", VF_VENDOR);
+	}
+};
+
+MODULE_INIT(ModuleModeNotice)

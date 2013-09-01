@@ -286,6 +286,13 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 
 		params.insert(params.begin()+2, ConvToStr(ServerInstance->Time()));
 	}
+	else if (cmd == "MODENOTICE")
+	{
+		// MODENOTICE is always supported by 2.0 but it's optional in 2.2.
+		params.insert(params.begin(), "*");
+		params.insert(params.begin()+1, cmd);
+		cmd = "ENCAP";
+	}
 
 	return true; // Passthru
 }
