@@ -30,6 +30,7 @@ class CommandModeNotice : public Command
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *src)
 	{
+		std::string msg = "*** From " + src->nick + ": " + parameters[1];
 		int mlen = parameters[0].length();
 		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
 		{
@@ -39,8 +40,7 @@ class CommandModeNotice : public Command
 				if (!user->IsModeSet(parameters[0][n]))
 					goto next_user;
 			}
-			user->Write(":%s NOTICE %s :*** From %s: %s", ServerInstance->Config->ServerName.c_str(),
-				user->nick.c_str(), src->nick.c_str(), parameters[1].c_str());
+			user->WriteNotice(msg);
 next_user:	;
 		}
 		return CMD_SUCCESS;
