@@ -195,7 +195,7 @@ void ModuleManager::LoadAll()
 		std::string name = tag->getString("name");
 		std::cout << "[" << con_green << "*" << con_reset << "] Loading module:\t" << con_green << name << con_reset << std::endl;
 
-		if (!this->Load(name, true))
+		if (!this->Load(name, true) && !tag->getBool("optional"))
 		{
 			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, this->LastError());
 			std::cout << std::endl << "[" << con_red << "*" << con_reset << "] " << this->LastError() << std::endl << std::endl;
