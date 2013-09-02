@@ -618,7 +618,13 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if (modehandlers[pos])
 		return false;
 
+	// Everything is fine, add the mode
 	modehandlers[pos] = mh;
+	if (pm)
+		mhlist.prefix.push_back(pm);
+	else if (mh->IsListModeBase())
+		mhlist.list.push_back(mh->IsListModeBase());
+
 	RecreateModeListFor004Numeric();
 	return true;
 }
@@ -672,8 +678,12 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	}
 
 	modehandlers[pos] = NULL;
-	RecreateModeListFor004Numeric();
+	if (mh->IsPrefixMode())
+		mhlist.prefix.erase(std::find(mhlist.prefix.begin(), mhlist.prefix.end(), mh->IsPrefixMode()));
+	else if (mh->IsListModeBase())
+		mhlist.list.erase(std::find(mhlist.list.begin(), mhlist.list.end(), mh->IsListModeBase()));
 
+	RecreateModeListFor004Numeric();
 	return true;
 }
 
@@ -722,10 +732,11 @@ void ModeParser::RecreateModeListFor004Numeric()
 
 PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
 {
-	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	const PrefixModeList& list = GetPrefixModes();
+	for (PrefixModeList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
-		PrefixMode* pm = FindPrefixMode(mode);
-		if ((pm) && (pm->GetPrefix() == pfxletter))
+		PrefixMode* pm = *i;
+		if (pm->GetPrefix() == pfxletter)
 			return pm;
 	}
 	return NULL;
@@ -785,10 +796,11 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 	std::string mprefixes;
 	std::map<int,std::pair<char,char> > prefixes;
 
-	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
+	const PrefixModeList& list = GetPrefixModes();
+	for (PrefixModeList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
-		PrefixMode* pm = FindPrefixMode(mode);
-		if (pm && pm->GetPrefix())
+		PrefixMode* pm = *i;
+		if (pm->GetPrefix())
 			prefixes[pm->GetPrefixRank()] = std::make_pair(pm->GetPrefix(), pm->GetModeChar());
 	}
 

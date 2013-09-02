@@ -497,6 +497,19 @@ class CoreExport ModeParser
 	 */
 	ModeHandler* modehandlers[256];
 
+	/** Lists of mode handlers by type
+	 */
+	struct
+	{
+		/** List of mode handlers that inherit from ListModeBase
+		 */
+		std::vector<ListModeBase*> list;
+
+		/** List of mode handlers that inherit from PrefixMode
+		 */
+		std::vector<PrefixMode*> prefix;
+	} mhlist;
+
 	/** Mode watcher classes
 	 */
 	std::multimap<std::string, ModeWatcher*> modewatchermap;
@@ -545,6 +558,9 @@ class CoreExport ModeParser
 	std::string Cached004ModeList;
 
  public:
+	typedef std::vector<ListModeBase*> ListModeList;
+	typedef std::vector<PrefixMode*> PrefixModeList;
+
 	typedef unsigned int ModeProcessFlag;
 	enum ModeProcessFlags
 	{
@@ -676,6 +692,16 @@ class CoreExport ModeParser
 	 * just the "@%+" part if the parameter false
 	 */
 	std::string BuildPrefixes(bool lettersAndModes = true);
+
+	/** Get a list of all mode handlers that inherit from ListModeBase
+	 * @return A list containing ListModeBase modes
+	 */
+	const ListModeList& GetListModes() const { return mhlist.list; }
+
+	/** Get a list of all prefix modes
+	 * @return A list containing all prefix modes
+	 */
+	const PrefixModeList& GetPrefixModes() const { return mhlist.prefix; }
 };
 
 inline const std::string& ModeParser::GetModeListFor004Numeric()

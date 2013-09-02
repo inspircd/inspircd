@@ -36,10 +36,12 @@ class AutoOpList : public ListModeBase
 	{
 		if (mid.length() == 1)
 			return ServerInstance->Modes->FindPrefixMode(mid[0]);
-		for(char c='A'; c < 'z'; c++)
+
+		const ModeParser::PrefixModeList& pmlist = ServerInstance->Modes->GetPrefixModes();
+		for (ModeParser::PrefixModeList::const_iterator i = pmlist.begin(); i != pmlist.end(); ++i)
 		{
-			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(c);
-			if (mh && mh->name == mid)
+			PrefixMode* mh = *i;
+			if (mh->name == mid)
 				return mh;
 		}
 		return NULL;
