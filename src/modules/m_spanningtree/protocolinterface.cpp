@@ -56,16 +56,19 @@ bool SpanningTreeProtocolInterface::SendEncapsulatedData(const parameterlist &en
 	return params.Unicast(encap[0]);
 }
 
-void SpanningTreeProtocolInterface::SendMetaData(Extensible* target, const std::string &key, const std::string &data)
+void SpanningTreeProtocolInterface::SendMetaData(User* u, const std::string& key, const std::string& data)
 {
-	User* u = dynamic_cast<User*>(target);
-	Channel* c = dynamic_cast<Channel*>(target);
-	if (u)
-		CommandMetadata::Builder(u, key, data).Broadcast();
-	else if (c)
-		CommandMetadata::Builder(c, key, data).Broadcast();
-	else
-		CommandMetadata::Builder(key, data).Broadcast();
+	CommandMetadata::Builder(u, key, data).Broadcast();
+}
+
+void SpanningTreeProtocolInterface::SendMetaData(Channel* c, const std::string& key, const std::string& data)
+{
+	CommandMetadata::Builder(c, key, data).Broadcast();
+}
+
+void SpanningTreeProtocolInterface::SendMetaData(const std::string& key, const std::string& data)
+{
+	CommandMetadata::Builder(key, data).Broadcast();
 }
 
 void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &topic)

@@ -646,14 +646,14 @@ void ModuleSpanningTree::OnLoadModule(Module* mod)
 		data.push_back('=');
 		data.append(v.link_data);
 	}
-	ServerInstance->PI->SendMetaData(NULL, "modules", data);
+	ServerInstance->PI->SendMetaData("modules", data);
 }
 
 void ModuleSpanningTree::OnUnloadModule(Module* mod)
 {
 	if (!Utils)
 		return;
-	ServerInstance->PI->SendMetaData(NULL, "modules", "-" + mod->ModuleSourceFile);
+	ServerInstance->PI->SendMetaData("modules", "-" + mod->ModuleSourceFile);
 
 	// Close all connections which use an IO hook provided by this module
 	const TreeServer::ChildServers& list = Utils->TreeRoot->GetChildren();

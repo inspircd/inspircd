@@ -23,7 +23,9 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 {
  public:
 	bool SendEncapsulatedData(const parameterlist &encap);
-	void SendMetaData(Extensible* target, const std::string &key, const std::string &data);
+	void SendMetaData(User* user, const std::string& key, const std::string& data) CXX11_OVERRIDE;
+	void SendMetaData(Channel* chan, const std::string& key, const std::string& data) CXX11_OVERRIDE;
+	void SendMetaData(const std::string& key, const std::string& data) CXX11_OVERRIDE;
 	void SendTopic(Channel* channel, std::string &topic);
 	void SendMode(User* source, User* usertarget, Channel* chantarget, const parameterlist& modedata, const std::vector<TranslateType>& types);
 	void SendSNONotice(const std::string &snomask, const std::string &text);

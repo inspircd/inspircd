@@ -53,12 +53,25 @@ class CoreExport ProtocolInterface
 	 */
 	virtual bool SendEncapsulatedData(const parameterlist &encap) { return false; }
 
-	/** Send metadata for an object to other linked servers.
-	 * @param target The object to send metadata for.
+	/** Send metadata for a channel to other linked servers.
+	 * @param chan The channel to send metadata for
 	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
 	 * @param data The string representation of the data
 	 */
-	virtual void SendMetaData(Extensible* target, const std::string &key, const std::string &data) { }
+	virtual void SendMetaData(Channel* chan, const std::string& key, const std::string& data) { }
+
+	/** Send metadata for a user to other linked servers.
+	 * @param user The user to send metadata for
+	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
+	 * @param data The string representation of the data
+	 */
+	virtual void SendMetaData(User* user, const std::string& key, const std::string& data) { }
+
+	/** Send metadata related to the server to other linked servers.
+	 * @param key The 'key' of the data
+	 * @param data The string representation of the data
+	 */
+	virtual void SendMetaData(const std::string& key, const std::string& data) { }
 
 	/** Send a topic change for a channel
 	 * @param channel The channel to change the topic for.
