@@ -117,11 +117,6 @@ class ModuleChanFilter : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
-	{
-		cf.DoSyncChannel(chan, proto, opaque);
-	}
-
 	Version GetVersion() CXX11_OVERRIDE
 	{
 		return Version("Provides channel-specific censor lists (like mode +G but varies from channel to channel)", VF_VENDOR);

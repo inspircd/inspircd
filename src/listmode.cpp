@@ -204,28 +204,6 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 	}
 }
 
-void ListModeBase::DoSyncChannel(Channel* chan, Module* proto, void* opaque)
-{
-	ChanData* cd = extItem.get(chan);
-	if (!cd)
-		return;
-
-	irc::modestacker modestack(true);
-	std::vector<std::string> stackresult;
-	std::vector<TranslateType> types;
-	types.push_back(TR_TEXT);
-
-	for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
-		modestack.Push(mode, it->mask);
-
-	while (modestack.GetStackedLine(stackresult))
-	{
-		types.assign(stackresult.size(), this->GetTranslateType());
-		proto->ProtoSendMode(opaque, TYPE_CHANNEL, chan, stackresult, types);
-		stackresult.clear();
-	}
-}
-
 bool ListModeBase::ValidateParam(User*, Channel*, std::string&)
 {
 	return true;

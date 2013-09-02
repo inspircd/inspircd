@@ -25,6 +25,7 @@ class TreeServer;
 
 class CmdBuilder
 {
+ protected:
 	std::string content;
 
  public:

@@ -134,11 +134,6 @@ class ModuleExemptChanOps : public Module
 	{
 		eh.ec.DoRehash();
 	}
-
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
-	{
-		eh.ec.DoSyncChannel(chan, proto, opaque);
-	}
 };
 
 MODULE_INIT(ModuleExemptChanOps)

@@ -102,6 +102,10 @@ class TreeSocket : public BufferedSocket
 	 */
 	bool CheckDuplicate(const std::string& servername, const std::string& sid);
 
+	/** Send all ListModeBase modes set on the channel
+	 */
+	void SendListModes(Channel* chan);
+
  public:
 	const time_t age;
 

@@ -118,11 +118,6 @@ class ModuleAutoOp : public Module
 		}
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
-	{
-		mh.DoSyncChannel(chan, proto, opaque);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		mh.DoRehash();

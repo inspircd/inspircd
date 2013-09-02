@@ -137,7 +137,6 @@ void		Module::OnGetServerDescription(const std::string&, std::string&) { DetachE
 void		Module::OnSyncUser(User*, Module*, void*) { DetachEvent(I_OnSyncUser); }
 void		Module::OnSyncChannel(Channel*, Module*, void*) { DetachEvent(I_OnSyncChannel); }
 void		Module::OnSyncNetwork(Module*, void*) { DetachEvent(I_OnSyncNetwork); }
-void		Module::ProtoSendMode(void*, TargetTypeFlags, void*, const std::vector<std::string>&, const std::vector<TranslateType>&) { }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
 void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }

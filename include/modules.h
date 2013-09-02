@@ -670,19 +670,6 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata);
 
 	/** Implemented by modules which provide the ability to link servers.
-	 * These modules will implement this method, which allows transparent sending of servermodes
-	 * down the network link as a broadcast, without a module calling it having to know the format
-	 * of the MODE command before the actual mode string.
-	 *
-	 * @param opaque An opaque pointer set by the protocol module, should not be modified!
-	 * @param target_type The type of item to decode data for, TYPE_USER or TYPE_CHANNEL
-	 * @param target The Channel* or User* that modes should be sent for
-	 * @param modeline The modes and parameters to be sent
-	 * @param translate The translation types of the mode parameters
-	 */
-	virtual void ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const std::vector<std::string> &modeline, const std::vector<TranslateType> &translate);
-
-	/** Implemented by modules which provide the ability to link servers.
 	 * These modules will implement this method, which allows metadata (extra data added to
 	 * user and channel records using class Extensible, Extensible::Extend, etc) to be sent
 	 * to other servers on a netburst and decoded at the other end by the same module on a

@@ -80,11 +80,6 @@ public:
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
-	{
-		ie.DoSyncChannel(chan, proto, opaque);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		invite_bypass_key = ServerInstance->Config->ConfValue("inviteexception")->getBool("bypasskey", true);

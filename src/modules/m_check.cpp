@@ -27,7 +27,6 @@
  */
 class CommandCheck : public Command
 {
-	ChanModeReference ban;
 	UserModeReference snomaskmode;
 
 	std::string GetSnomasks(User* user)
@@ -41,10 +40,30 @@ class CommandCheck : public Command
 		return ret;
 	}
 
+	static void dumpListMode(User* user, const std::string& checkstr, const ListModeBase::ModeList* list)
+	{
+		if (!list)
+			return;
+
+		std::string buf = checkstr + " modelist";
+		const std::string::size_type headlen = buf.length();
+		const size_t maxline = ServerInstance->Config->Limits.MaxLine;
+		for (ListModeBase::ModeList::const_iterator i = list->begin(); i != list->end(); ++i)
+		{
+			if (buf.size() + i->mask.size() + 1 > maxline)
+			{
+				user->SendText(buf);
+				buf.erase(headlen);
+			}
+			buf.append(" ").append(i->mask);
+		}
+		if (buf.length() > headlen)
+			user->SendText(buf);
+	}
+
  public:
 	CommandCheck(Module* parent)
 		: Command(parent,"CHECK", 1)
-		, ban(parent, "ban")
 		, snomaskmode(parent, "snomask")
 	{
 		flags_needed = 'o'; syntax = "<nickname>|<ip>|<hostmask>|<channel> <server>";
@@ -215,12 +234,10 @@ class CommandCheck : public Command
 					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
 			}
 
-			// We know that the mode handler for bans is in the core and is derived from ListModeBase
-			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
-			banlm->DoSyncChannel(targchan, creator, user);
+			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+			for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
+				dumpListMode(user, checkstr, (*i)->GetList(targchan));
 
-			// Show other listmodes as well
-			FOREACH_MOD(OnSyncChannel, (targchan,creator,user));
 			dumpExt(user, checkstr, targchan);
 		}
 		else
@@ -266,22 +283,6 @@ class ModuleCheck : public Module
  public:
 	ModuleCheck() : mycommand(this)
 	{
-	}
-
-	void ProtoSendMode(void* uv, TargetTypeFlags, void*, const std::vector<std::string>& result, const std::vector<TranslateType>&)
-	{
-		User* user = (User*)uv;
-		std::string checkstr(":");
-		checkstr.append(ServerInstance->Config->ServerName);
-		checkstr.append(" 304 ");
-		checkstr.append(user->nick);
-		checkstr.append(" :CHECK modelist");
-		for(unsigned int i=0; i < result.size(); i++)
-		{
-			checkstr.append(" ");
-			checkstr.append(result[i]);
-		}
-		user->SendText(checkstr);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

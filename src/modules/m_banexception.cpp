@@ -105,11 +105,6 @@ class ModuleBanException : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSyncChannel(Channel* chan, Module* proto, void* opaque) CXX11_OVERRIDE
-	{
-		be.DoSyncChannel(chan, proto, opaque);
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		be.DoRehash();

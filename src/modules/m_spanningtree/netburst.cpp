@@ -28,6 +28,67 @@
 #include "main.h"
 #include "commands.h"
 
+/**
+ * Creates FMODE messages, used only when syncing channels
+ */
+class FModeBuilder : public CmdBuilder
+{
+	static const size_t maxline = 480;
+	std::string params;
+	unsigned int modes;
+	std::string::size_type startpos;
+
+ public:
+	FModeBuilder(Channel* chan)
+		: CmdBuilder("FMODE"), modes(0)
+	{
+		push(chan->name).push_int(chan->age).push_raw(" +");
+		startpos = str().size();
+	}
+
+	/** Add a mode to the message
+	 */
+	void push_mode(const char modeletter, const std::string& mask)
+	{
+		push_raw(modeletter);
+		params.push_back(' ');
+		params.append(mask);
+		modes++;
+	}
+
+	/** Remove all modes from the message
+	 */
+	void clear()
+	{
+		content.erase(startpos);
+		params.clear();
+		modes = 0;
+	}
+
+	/** Prepare the message for sending, next mode can only be added after clear()
+	 */
+	const std::string& finalize()
+	{
+		return push_raw(params);
+	}
+
+	/** Returns true if the given mask can be added to the message, false if the message
+	 * has no room for the mask
+	 */
+	bool has_room(const std::string& mask) const
+	{
+		return ((str().size() + params.size() + mask.size() + 2 <= maxline) &&
+				(modes < ServerInstance->Config->Limits.MaxModes));
+	}
+
+	/** Returns true if this message is empty (has no modes)
+	 */
+	bool empty() const
+	{
+		return (modes == 0);
+	}
+};
+
 /** This function is called when we want to send a netburst to a local
  * server. There is a set order we must do this, because for example
  * users require their servers to exist, and channels require their
@@ -107,9 +168,6 @@ void TreeSocket::SendFJoins(Channel* c)
 		line.append(modestr).append(1, ',').append(i->first->uuid).push_back(' ');
 	}
 	this->WriteLine(line);
-
-	ChanModeReference ban(NULL, "ban");
-	static_cast<ListModeBase*>(*ban)->DoSyncChannel(c, Utils->Creator, this);
 }
 
 /** Send all XLines we know about */
@@ -139,6 +197,37 @@ void TreeSocket::SendXLines()
 	}
 }
 
+void TreeSocket::SendListModes(Channel* chan)
+{
+	FModeBuilder fmode(chan);
+	const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+	for (ModeParser::ListModeList::const_iterator i = listmodes.begin(); i != listmodes.end(); ++i)
+	{
+		ListModeBase* mh = *i;
+		ListModeBase::ModeList* list = mh->GetList(chan);
+		if (!list)
+			continue;
+
+		// Add all items on the list to the FMODE, send it whenever it becomes too long
+		const char modeletter = mh->GetModeChar();
+		for (ListModeBase::ModeList::const_iterator j = list->begin(); j != list->end(); ++j)
+		{
+			const std::string& mask = j->mask;
+			if (!fmode.has_room(mask))
+			{
+				// No room for this mask, send the current line as-is then add the mask to a
+				// new, empty FMODE message
+				this->WriteLine(fmode.finalize());
+				fmode.clear();
+			}
+			fmode.push_mode(modeletter, mask);
+		}
+	}
+
+	if (!fmode.empty())
+		this->WriteLine(fmode.finalize());
+}
+
 /** Send channel topic, modes and metadata */
 void TreeSocket::SyncChannel(Channel* chan)
 {
@@ -148,6 +237,8 @@ void TreeSocket::SyncChannel(Channel* chan)
 	// because a new empty topic should override an old non-empty topic
 	if (chan->topicset != 0)
 		this->WriteLine(CommandFTopic::Builder(chan));
+
+	SendListModes(chan);
 
 	for (Extensible::ExtensibleStore::const_iterator i = chan->GetExtList().begin(); i != chan->GetExtList().end(); i++)
 	{

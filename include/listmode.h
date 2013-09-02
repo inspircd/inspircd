@@ -162,14 +162,6 @@ class CoreExport ListModeBase : public ModeHandler
 	 */
 	virtual ModeAction OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding);
 
-	/** Syncronize channel item list with another server.
-	 * See modules.h
-	 * @param chan Channel to syncronize
-	 * @param proto Protocol module pointer
-	 * @param opaque Opaque connection handle
-	 */
-	virtual void DoSyncChannel(Channel* chan, Module* proto, void* opaque);
-
 	/** Validate parameters.
 	 * Overridden by implementing module.
 	 * @param user Source user adding the parameter

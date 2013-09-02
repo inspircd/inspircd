@@ -23,12 +23,6 @@
 #include <fstream>
 
 
-struct ListModeData
-{
-	std::string modes;
-	std::string params;
-};
-
 /** Handles the +P channel mode
  */
 class PermChannel : public ModeHandler
@@ -89,33 +83,45 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 		std::string chanmodes = chan->ChanModes(true);
 		if (save_listmodes)
 		{
-			ListModeData lm;
+			std::string modes;
+			std::string params;
 
-			// Bans are managed by the core, so we have to process them separately
-			static_cast<ListModeBase*>(*ban)->DoSyncChannel(chan, mod, &lm);
+			const ModeParser::ListModeList& listmodes = ServerInstance->Modes->GetListModes();
+			for (ModeParser::ListModeList::const_iterator j = listmodes.begin(); j != listmodes.end(); ++j)
+			{
+				ListModeBase* lm = *j;
+				ListModeBase::ModeList* list = lm->GetList(chan);
+				if (!list || list->empty())
+					continue;
 
-			// All other listmodes are managed by modules, so we need to ask them (call their
-			// OnSyncChannel() handler) to give our ProtoSendMode() a list of modes that are
-			// set on the channel. The ListModeData struct is passed as an opaque pointer
-			// that will be passed back to us by the module handling the mode.
-			FOREACH_MOD(OnSyncChannel, (chan, mod, &lm));
+				size_t n = 0;
+				// Append the parameters
+				for (ListModeBase::ModeList::const_iterator k = list->begin(); k != list->end(); ++k, n++)
+				{
+					params += k->mask;
+					params += ' ';
+				}
 
-			if (!lm.modes.empty())
+				// Append the mode letters (for example "IIII", "gg")
+				modes.append(n, lm->GetModeChar());
+			}
+
+			if (!params.empty())
 			{
 				// Remove the last space
-				lm.params.erase(lm.params.end()-1);
+				params.erase(params.end()-1);
 
 				// If there is at least a space in chanmodes (that is, a non-listmode has a parameter)
 				// insert the listmode mode letters before the space. Otherwise just append them.
 				std::string::size_type p = chanmodes.find(' ');
 				if (p == std::string::npos)
-					chanmodes += lm.modes;
+					chanmodes += modes;
 				else
-					chanmodes.insert(p, lm.modes);
+					chanmodes.insert(p, modes);
 
 				// Append the listmode parameters (the masks themselves)
 				chanmodes += ' ';
-				chanmodes += lm.params;
+				chanmodes += params;
 			}
 		}
 
@@ -317,25 +323,6 @@ public:
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error loading permchannels database: " + std::string(e.GetReason()));
 			}
-		}
-	}
-
-	void ProtoSendMode(void* opaque, TargetTypeFlags type, void* target, const std::vector<std::string>& modes, const std::vector<TranslateType>& translate)
-	{
-		// We never pass an empty modelist but better be sure
-		if (modes.empty())
-			return;
-
-		ListModeData* lm = static_cast<ListModeData*>(opaque);
-
-		// Append the mode letters without the trailing '+' (for example "IIII", "gg")
-		lm->modes.append(modes[0].begin()+1, modes[0].end());
-
-		// Append the parameters
-		for (std::vector<std::string>::const_iterator i = modes.begin()+1; i != modes.end(); ++i)
-		{
-			lm->params += *i;
-			lm->params += ' ';
 		}
 	}
 
