@@ -62,12 +62,7 @@ class CommandRMode : public Command
 		ListModeBase::ModeList* ml;
 		irc::modestacker modestack(false);
 
-		if (!mh->IsListMode())
-		{
-			if (chan->IsModeSet(mh))
-				modestack.Push(modeletter);
-		}
-		else if ((pm = mh->IsPrefixMode()))
+		if ((pm = mh->IsPrefixMode()))
 		{
 			// As user prefix modes don't have a GetList() method, let's iterate through the channel's users.
 			for (UserMembIter it = chan->userlist.begin(); it != chan->userlist.end(); ++it)
@@ -78,7 +73,7 @@ class CommandRMode : public Command
 					modestack.Push(modeletter, it->first->nick);
 			}
 		}
-		else if (((lm = dynamic_cast<ListModeBase*>(mh)) != NULL) && ((ml = lm->GetList(chan)) != NULL))
+		else if ((lm = mh->IsListModeBase()) && ((ml = lm->GetList(chan)) != NULL))
 		{
 			for (ListModeBase::ModeList::iterator it = ml->begin(); it != ml->end(); ++it)
 			{
@@ -89,8 +84,8 @@ class CommandRMode : public Command
 		}
 		else
 		{
-			user->WriteNotice("Could not remove channel mode " + ConvToStr(modeletter));
-			return CMD_FAILURE;
+			if (chan->IsModeSet(mh))
+				modestack.Push(modeletter);
 		}
 
 		parameterlist stackresult;
