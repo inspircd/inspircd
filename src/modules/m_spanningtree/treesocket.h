@@ -89,6 +89,8 @@ struct CapabData
  */
 class TreeSocket : public BufferedSocket
 {
+	class BurstState;
+
 	std::string linkID;			/* Description for this link */
 	ServerState LinkState;			/* Link state */
 	CapabData* capab;			/* Link setup data (held until burst is sent) */
@@ -105,6 +107,12 @@ class TreeSocket : public BufferedSocket
 	/** Send all ListModeBase modes set on the channel
 	 */
 	void SendListModes(Channel* chan);
+
+	/** Send all known information about a channel */
+	void SyncChannel(Channel* chan, BurstState& bs);
+
+	/** Send all users and their oper state, away state and metadata */
+	void SendUsers(BurstState& bs);
 
  public:
 	const time_t age;
@@ -223,9 +231,6 @@ class TreeSocket : public BufferedSocket
 
 	/** Send all known information about a channel */
 	void SyncChannel(Channel* chan);
-
-	/** send all users and their oper state/modes */
-	void SendUsers();
 
 	/** This function is called when we want to send a netburst to a local
 	 * server. There is a set order we must do this, because for example

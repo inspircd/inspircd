@@ -26,9 +26,21 @@ class User;
 
 typedef std::vector<std::string> parameterlist;
 
+class ProtocolServer
+{
+ public:
+	/** Send metadata related to this server to the target server
+	 * @param key The 'key' of the data
+	 * @param data The string representation of the data
+	 */
+	virtual void SendMetaData(const std::string& key, const std::string& data) = 0;
+};
+
 class CoreExport ProtocolInterface
 {
  public:
+	typedef ProtocolServer Server;
+
 	class ServerInfo
 	{
 	 public:

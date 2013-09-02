@@ -22,6 +22,15 @@
 class SpanningTreeProtocolInterface : public ProtocolInterface
 {
  public:
+	class Server : public ProtocolInterface::Server
+	{
+		TreeSocket* const sock;
+
+	 public:
+		Server(TreeSocket* s) : sock(s) { }
+		void SendMetaData(const std::string& key, const std::string& data) CXX11_OVERRIDE;
+	};
+
 	bool SendEncapsulatedData(const parameterlist &encap);
 	void SendMetaData(User* user, const std::string& key, const std::string& data) CXX11_OVERRIDE;
 	void SendMetaData(Channel* chan, const std::string& key, const std::string& data) CXX11_OVERRIDE;

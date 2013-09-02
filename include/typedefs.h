@@ -36,6 +36,7 @@ class LocalUser;
 class Membership;
 class Module;
 class OperInfo;
+class ProtocolServer;
 class RemoteUser;
 class ServerConfig;
 class ServerLimits;

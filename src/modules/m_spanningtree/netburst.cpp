@@ -27,6 +27,7 @@
 #include "treeserver.h"
 #include "main.h"
 #include "commands.h"
+#include "protocolinterface.h"
 
 /**
  * Creates FMODE messages, used only when syncing channels
@@ -89,6 +90,12 @@ class FModeBuilder : public CmdBuilder
 	}
 };
 
+struct TreeSocket::BurstState
+{
+	SpanningTreeProtocolInterface::Server server;
+	BurstState(TreeSocket* sock) : server(sock) { }
+};
+
 /** This function is called when we want to send a netburst to a local
  * server. There is a set order we must do this, because for example
  * users require their servers to exist, and channels require their
@@ -106,14 +113,16 @@ void TreeSocket::DoBurst(TreeServer* s)
 	this->WriteLine(":" + ServerInstance->Config->GetSID() + " VERSION :"+ServerInstance->GetVersionString());
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot, s);
+
+	BurstState bs(this);
 	/* Send users and their oper status */
-	this->SendUsers();
+	this->SendUsers(bs);
 
 	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
-		SyncChannel(i->second);
+		SyncChannel(i->second, bs);
 
 	this->SendXLines();
-	FOREACH_MOD(OnSyncNetwork, (Utils->Creator,(void*)this));
+	FOREACH_MOD(OnSyncNetwork, (bs.server));
 	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
 }
@@ -229,7 +238,7 @@ void TreeSocket::SendListModes(Channel* chan)
 }
 
 /** Send channel topic, modes and metadata */
-void TreeSocket::SyncChannel(Channel* chan)
+void TreeSocket::SyncChannel(Channel* chan, BurstState& bs)
 {
 	SendFJoins(chan);
 
@@ -245,15 +254,22 @@ void TreeSocket::SyncChannel(Channel* chan)
 		ExtensionItem* item = i->first;
 		std::string value = item->serialize(FORMAT_NETWORK, chan, i->second);
 		if (!value.empty())
-			Utils->Creator->ProtoSendMetaData(this, chan, item->name, value);
+			this->WriteLine(CommandMetadata::Builder(chan, item->name, value));
 	}
 
-	FOREACH_MOD(OnSyncChannel, (chan, Utils->Creator, this));
+	FOREACH_MOD(OnSyncChannel, (chan, bs.server));
+}
+
+void TreeSocket::SyncChannel(Channel* chan)
+{
+	BurstState bs(this);
+	SyncChannel(chan, bs);
 }
 
 /** send all users and their oper state/modes */
-void TreeSocket::SendUsers()
+void TreeSocket::SendUsers(BurstState& bs)
 {
+	ProtocolInterface::Server& piserver = bs.server;
 	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
 	{
 		User* user = u->second;
@@ -274,10 +290,10 @@ void TreeSocket::SendUsers()
 			ExtensionItem* item = i->first;
 			std::string value = item->serialize(FORMAT_NETWORK, u->second, i->second);
 			if (!value.empty())
-				Utils->Creator->ProtoSendMetaData(this, u->second, item->name, value);
+				this->WriteLine(CommandMetadata::Builder(user, item->name, value));
 		}
 
-		FOREACH_MOD(OnSyncUser, (user, Utils->Creator, this));
+		FOREACH_MOD(OnSyncUser, (user, piserver));
 	}
 }
 

@@ -186,7 +186,7 @@ class ModuleFilter : public Module
 	Version GetVersion() CXX11_OVERRIDE;
 	std::string EncodeFilter(FilterResult* filter);
 	FilterResult DecodeFilter(const std::string &data);
-	void OnSyncNetwork(Module* proto, void* opaque) CXX11_OVERRIDE;
+	void OnSyncNetwork(ProtocolInterface::Server& server) CXX11_OVERRIDE;
 	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE;
 	ModResult OnStats(char symbol, User* user, string_list &results) CXX11_OVERRIDE;
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
@@ -532,11 +532,11 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 	return res;
 }
 
-void ModuleFilter::OnSyncNetwork(Module* proto, void* opaque)
+void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 {
 	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); ++i)
 	{
-		proto->ProtoSendMetaData(opaque, NULL, "filter", EncodeFilter(&(*i)));
+		server.SendMetaData("filter", EncodeFilter(&(*i)));
 	}
 }
 

@@ -71,6 +71,11 @@ void SpanningTreeProtocolInterface::SendMetaData(const std::string& key, const s
 	CommandMetadata::Builder(key, data).Broadcast();
 }
 
+void SpanningTreeProtocolInterface::Server::SendMetaData(const std::string& key, const std::string& data)
+{
+	sock->WriteLine(CommandMetadata::Builder(key, data));
+}
+
 void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &topic)
 {
 	CommandFTopic::Builder(ServerInstance->FakeClient, channel).Broadcast();

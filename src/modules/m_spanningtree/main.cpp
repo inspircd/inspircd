@@ -718,19 +718,6 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	return MOD_RES_PASSTHRU;
 }
 
-void ModuleSpanningTree::ProtoSendMetaData(void* opaque, Extensible* target, const std::string &extname, const std::string &extdata)
-{
-	TreeSocket* s = static_cast<TreeSocket*>(opaque);
-	User* u = dynamic_cast<User*>(target);
-	Channel* c = dynamic_cast<Channel*>(target);
-	if (u)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+u->uuid+" "+extname+" :"+extdata);
-	else if (c)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA "+c->name+" "+ConvToStr(c->age)+" "+extname+" :"+extdata);
-	else if (!target)
-		s->WriteLine(":"+ServerInstance->Config->GetSID()+" METADATA * "+extname+" :"+extdata);
-}
-
 CullResult ModuleSpanningTree::cull()
 {
 	if (Utils)

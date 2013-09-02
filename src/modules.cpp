@@ -134,11 +134,10 @@ void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const C
 void		Module::OnUserInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserInvite); }
 void		Module::OnPostTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPostTopicChange); }
 void		Module::OnGetServerDescription(const std::string&, std::string&) { DetachEvent(I_OnGetServerDescription); }
-void		Module::OnSyncUser(User*, Module*, void*) { DetachEvent(I_OnSyncUser); }
-void		Module::OnSyncChannel(Channel*, Module*, void*) { DetachEvent(I_OnSyncChannel); }
-void		Module::OnSyncNetwork(Module*, void*) { DetachEvent(I_OnSyncNetwork); }
+void		Module::OnSyncUser(User*, ProtocolInterface::Server&) { DetachEvent(I_OnSyncUser); }
+void		Module::OnSyncChannel(Channel*, ProtocolInterface::Server&) { DetachEvent(I_OnSyncChannel); }
+void		Module::OnSyncNetwork(ProtocolInterface::Server&) { DetachEvent(I_OnSyncNetwork); }
 void		Module::OnDecodeMetaData(Extensible*, const std::string&, const std::string&) { DetachEvent(I_OnDecodeMetaData); }
-void		Module::ProtoSendMetaData(void*, Extensible*, const std::string&, const std::string&) { }
 void		Module::OnChangeHost(User*, const std::string&) { DetachEvent(I_OnChangeHost); }
 void		Module::OnChangeName(User*, const std::string&) { DetachEvent(I_OnChangeName); }
 void		Module::OnChangeIdent(User*, const std::string&) { DetachEvent(I_OnChangeIdent); }
