@@ -102,6 +102,38 @@ class AChannel_M : public SimpleChannelModeHandler
 	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, "regmoderated", 'M') { }
 };
 
+class AccountExtItemImpl : public AccountExtItem
+{
+ public:
+	AccountExtItemImpl(Module* mod)
+		: AccountExtItem("accountname", mod)
+	{
+	}
+
+	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
+	{
+		User* user = dynamic_cast<User*>(container);
+		if (!user)
+			return;
+
+		StringExtItem::unserialize(format, container, value);
+		if (!value.empty())
+		{
+			// Logged in
+			if (IS_LOCAL(user))
+				user->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
+					user->nick.c_str(), user->GetFullHost().c_str(), value.c_str(), value.c_str());
+
+			AccountEvent(creator, user, value).Send();
+		}
+		else
+		{
+			// Logged out
+			AccountEvent(creator, user, "").Send();
+		}
+	}
+};
+
 class ModuleServicesAccount : public Module
 {
 	AChannel_R m1;
@@ -109,10 +141,10 @@ class ModuleServicesAccount : public Module
 	AUser_R m3;
 	Channel_r m4;
 	User_r m5;
-	AccountExtItem accountname;
+	AccountExtItemImpl accountname;
  public:
 	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
-		accountname("accountname", this)
+		accountname(this)
 	{
 	}
 
@@ -240,37 +272,6 @@ class ModuleServicesAccount : public Module
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	// Whenever the linking module receives metadata from another server and doesnt know what
-	// to do with it (of course, hence the 'meta') it calls this method, and it is up to each
-	// module in turn to figure out if this metadata key belongs to them, and what they want
-	// to do with it.
-	// In our case we're only sending a single string around, so we just construct a std::string.
-	// Some modules will probably get much more complex and format more detailed structs and classes
-	// in a textual way for sending over the link.
-	void OnDecodeMetaData(Extensible* target, const std::string &extname, const std::string &extdata) CXX11_OVERRIDE
-	{
-		User* dest = dynamic_cast<User*>(target);
-		// check if its our metadata key, and its associated with a user
-		if (dest && (extname == "accountname"))
-		{
-			std::string *account = accountname.get(dest);
-			if (account && !account->empty())
-			{
-				trim(*account);
-
-				if (IS_LOCAL(dest))
-					dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
-						dest->nick.c_str(), dest->GetFullHost().c_str(), account->c_str(), account->c_str());
-
-				AccountEvent(this, dest, *account).Send();
-			}
-			else
-			{
-				AccountEvent(this, dest, "").Send();
-			}
-		}
 	}
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
