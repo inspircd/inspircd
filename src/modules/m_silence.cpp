@@ -87,7 +87,7 @@ class CommandSVSSilence : public Command
 
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(++parameters.begin(), parameters.end()), u);
+			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(parameters.begin() + 1, parameters.end()), u);
 		}
 
 		return CMD_SUCCESS;

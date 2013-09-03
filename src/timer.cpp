@@ -70,7 +70,7 @@ void TimerManager::DelTimer(Timer* T)
 void TimerManager::AddTimer(Timer* T)
 {
 	Timers.push_back(T);
-	sort(Timers.begin(), Timers.end(), TimerManager::TimerComparison);
+	std::sort(Timers.begin(), Timers.end(), TimerManager::TimerComparison);
 }
 
 bool TimerManager::TimerComparison( Timer *one, Timer *two)
