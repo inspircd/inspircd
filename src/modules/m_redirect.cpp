@@ -40,7 +40,6 @@ class Redirect : public ModeHandler
 				if (!ServerInstance->IsChannel(parameter))
 				{
 					source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
-					parameter.clear();
 					return MODEACTION_DENY;
 				}
 			}
@@ -51,13 +50,11 @@ class Redirect : public ModeHandler
 				if (!c)
 				{
 					source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
-					parameter.clear();
 					return MODEACTION_DENY;
 				}
 				else if (c->GetPrefixValue(source) < OP_VALUE)
 				{
 					source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
-					parameter.clear();
 					return MODEACTION_DENY;
 				}
 			}

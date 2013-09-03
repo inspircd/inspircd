@@ -156,7 +156,6 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 		{
 			/* List is full, give subclass a chance to send a custom message */
 			TellListTooLong(source, channel, parameter);
-			parameter.clear();
 			return MODEACTION_DENY;
 		}
 
@@ -199,7 +198,6 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 
 		/* Tried to remove something that wasn't set */
 		TellNotSet(source, channel, parameter);
-		parameter.clear();
 		return MODEACTION_DENY;
 	}
 }
