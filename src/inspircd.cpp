@@ -51,6 +51,7 @@
 	HANDLE g_hStdout;
 #endif
 
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include "xline.h"
@@ -63,7 +64,6 @@
 #include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
-int* mysig = NULL;
 
 /** Seperate from the other casemap tables so that code *can* still exclusively rely on RFC casemapping
  * if it must.
@@ -244,13 +244,20 @@ void InspIRCd::QuickExit(int status)
 	exit(status);
 }
 
+// Required for returning the proper value of EXIT_SUCCESS for the parent process
+static void VoidSignalHandler(int signalreceived)
+{
+	exit(EXIT_SUCCESS);
+}
+
 bool InspIRCd::DaemonSeed()
 {
 #ifdef _WIN32
 	std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
 	return true;
 #else
-	signal(SIGTERM, InspIRCd::QuickExit);
+	// Do not use QuickExit here: It will exit with status SIGTERM which would break i.e. daemon scripts
+	signal(SIGTERM, VoidSignalHandler);
 
 	int childpid;
 	if ((childpid = fork ()) < 0)
@@ -266,7 +273,7 @@ bool InspIRCd::DaemonSeed()
 		 */
 		while (kill(childpid, 0) != -1)
 			sleep(1);
-		exit(0);
+		exit(EXIT_SUCCESS);
 	}
 	setsid ();
 	std::cout << "InspIRCd Process ID: " << con_green << getpid() << con_reset << std::endl;
@@ -676,7 +683,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (ret == -1)
 		{
 			this->Logs->Log("SETGROUPS", DEFAULT, "setgroups() failed (wtf?): %s", strerror(errno));
-			this->QuickExit(0);
+			this->QuickExit(EXIT_SUCCESS);
 		}
 
 		// setgid
@@ -688,7 +695,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (!g)
 		{
 			this->Logs->Log("SETGUID", DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
-			this->QuickExit(0);
+			this->QuickExit(EXIT_SUCCESS);
 		}
 
 		ret = setgid(g->gr_gid);
@@ -696,7 +703,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (ret == -1)
 		{
 			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
-			this->QuickExit(0);
+			this->QuickExit(EXIT_SUCCESS);
 		}
 	}
 
@@ -711,7 +718,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (!u)
 		{
 			this->Logs->Log("SETGUID", DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
-			this->QuickExit(0);
+			this->QuickExit(EXIT_SUCCESS);
 		}
 
 		int ret = setuid(u->pw_uid);
@@ -719,7 +726,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		if (ret == -1)
 		{
 			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
-			this->QuickExit(0);
+			this->QuickExit(EXIT_SUCCESS);
 		}
 	}
 
@@ -754,7 +761,7 @@ int InspIRCd::Run()
 	{
 		TestSuite* ts = new TestSuite;
 		delete ts;
-		Exit(0);
+		Exit(EXIT_STATUS_NOERROR);
 	}
 
 	UpdateTime();
@@ -847,10 +854,10 @@ int InspIRCd::Run()
 		GlobalCulls.Apply();
 		AtomicActions.Run();
 
-		if (this->s_signal)
+		if (s_signal)
 		{
 			this->SignalHandler(s_signal);
-			this->s_signal = 0;
+			s_signal = 0;
 		}
 	}
 
@@ -874,9 +881,11 @@ bool InspIRCd::AllModulesReportReady(LocalUser* user)
 	return (res == MOD_RES_PASSTHRU);
 }
 
+sig_atomic_t InspIRCd::s_signal = 0;
+
 void InspIRCd::SetSignal(int signal)
 {
-	*mysig = signal;
+	s_signal = signal;
 }
 
 /* On posix systems, the flow of the program starts right here, with
@@ -888,7 +897,6 @@ void InspIRCd::SetSignal(int signal)
 ENTRYPOINT
 {
 	new InspIRCd(argc, argv);
-	mysig = &ServerInstance->s_signal;
 	ServerInstance->Run();
 	delete ServerInstance;
 	return 0;
