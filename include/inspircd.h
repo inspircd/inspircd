@@ -47,6 +47,7 @@
 #endif
 
 // Required system headers.
+#include <csignal>
 #include <ctime>
 #include <cstdarg>
 #include <algorithm>
@@ -454,7 +455,7 @@ class CoreExport InspIRCd
 
 	/** Set to the current signal recieved
 	 */
-	int s_signal;
+	static sig_atomic_t s_signal;
 
 	/** Protocol interface, overridden by server protocol modules
 	 */
