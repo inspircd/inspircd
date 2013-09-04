@@ -880,7 +880,7 @@ bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 	mw->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
 	pos = (mw->GetModeChar()-65) | mask;
 
-	ModeWatchIter a = find(modewatchers[pos].begin(),modewatchers[pos].end(),mw);
+	ModeWatchIter a = std::find(modewatchers[pos].begin(),modewatchers[pos].end(),mw);
 
 	if (a == modewatchers[pos].end())
 	{

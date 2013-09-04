@@ -362,7 +362,7 @@ class ModuleIdent : public Module
 		/* wooo, got a result (it will be good, or bad) */
 		if (isock->result.empty())
 		{
-			user->ident.insert(0, 1, '~');
+			user->ident.insert(user->ident.begin(), 1, '~');
 			user->WriteServ("NOTICE Auth :*** Could not find your ident, using %s instead.", user->ident.c_str());
 		}
 		else
