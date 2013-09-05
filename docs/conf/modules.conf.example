@@ -952,6 +952,7 @@
 #           searchscope="subtree"                                     #
 #           binddn="cn=Manager,dc=brainbox,dc=cc"                     #
 #           bindauth="mysecretpass"                                   #
+#           followreferrals="yes"                                     #
 #           verbose="yes"                                             #
 #           host="$uid.$ou.inspircd.org">                             #
 #                                                                     #
@@ -977,6 +978,8 @@
 #                                                                     #
 # The searchscope value indicates the subtree to search under. On our #
 # test system this is 'subtree'. Your mileage may vary.               #
+#                                                                     #
+# Setting the followreferrals no to turn off LDAP referrals.          #
 #                                                                     #
 # Setting the verbose value causes an oper notice to be sent out for  #
 # every failed authentication to the server, with an error string.    #
@@ -1020,6 +1023,7 @@
 #           searchscope="subtree"
 #           binddn="cn=Manager,dc=brainbox,dc=cc"
 #           bindauth="mysecretpass"
+#           followreferrals="yes"
 #           attribute="uid">
 #                                                                     #
 # Available configuration items are identical to the same items in    #
@@ -1028,6 +1032,7 @@
 # Please always specify a password in your <oper> tags even if the    #
 # opers are to be authenticated via LDAP, so in case this module is   #
 # not loaded the oper accounts are still protected by a password.     #
+# Setting the followreferrals no to turn off LDAP referrals.          #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Lock server module: Adds /LOCKSERV and /UNLOCKSERV commands that is #
