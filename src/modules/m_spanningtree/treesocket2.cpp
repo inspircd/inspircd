@@ -307,7 +307,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 
 	ServerCommand* scmd = Utils->Creator->CmdManager.GetHandler(command);
 	CommandBase* cmdbase = scmd;
-	Command* cmd;
+	Command* cmd = NULL;
 	if (!scmd)
 	{
 		// Not a special server-to-server command

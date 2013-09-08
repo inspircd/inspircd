@@ -49,15 +49,15 @@ class CmdBuilder
 		push(cmd);
 	}
 
-	CmdBuilder& push_raw(const std::string& str)
+	CmdBuilder& push_raw(const std::string& s)
 	{
-		content.append(str);
+		content.append(s);
 		return *this;
 	}
 
-	CmdBuilder& push_raw(const char* str)
+	CmdBuilder& push_raw(const char* s)
 	{
-		content.append(str);
+		content.append(s);
 		return *this;
 	}
 
@@ -67,17 +67,17 @@ class CmdBuilder
 		return *this;
 	}
 
-	CmdBuilder& push(const std::string& str)
+	CmdBuilder& push(const std::string& s)
 	{
 		content.push_back(' ');
-		content.append(str);
+		content.append(s);
 		return *this;
 	}
 
-	CmdBuilder& push(const char* str)
+	CmdBuilder& push(const char* s)
 	{
 		content.push_back(' ');
-		content.append(str);
+		content.append(s);
 		return *this;
 	}
 
@@ -96,11 +96,11 @@ class CmdBuilder
 		return *this;
 	}
 
-	CmdBuilder& push_last(const std::string& str)
+	CmdBuilder& push_last(const std::string& s)
 	{
 		content.push_back(' ');
 		content.push_back(':');
-		content.append(str);
+		content.append(s);
 		return *this;
 	}
 
@@ -112,7 +112,7 @@ class CmdBuilder
 		return *this;
 	}
 
-	void push_back(const std::string& str) { push(str); }
+	void push_back(const std::string& s) { push(s); }
 
 	const std::string& str() const { return content; }
 	operator const std::string&() const { return str(); }
