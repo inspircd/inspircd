@@ -1187,6 +1187,15 @@ class CoreExport ModuleManager
 	/** Internal unload module hook */
 	bool CanUnload(Module*);
 
+	/** Loads all core modules (cmd_*)
+	 */
+	void LoadCoreModules();
+
+	/** Calls the Prioritize() method in all loaded modules
+	 * @return True if all went well, false if a dependency loop was detected
+	 */
+	bool PrioritizeHooks();
+
  public:
 	typedef std::map<std::string, Module*> ModuleMap;
 
