@@ -51,12 +51,16 @@ typedef std::vector<DCCAllow> dccallowlist;
 dccallowlist* dl;
 typedef std::vector<BannedFileList> bannedfilelist;
 bannedfilelist bfl;
-SimpleExtItem<dccallowlist>* ext;
+typedef SimpleExtItem<dccallowlist> DCCAllowExt;
 
 class CommandDccallow : public Command
 {
+	DCCAllowExt& ext;
+
  public:
-	CommandDccallow(Module* parent) : Command(parent, "DCCALLOW", 0)
+	CommandDccallow(Module* parent, DCCAllowExt& Ext)
+		: Command(parent, "DCCALLOW", 0)
+		, ext(Ext)
 	{
 		syntax = "{[+|-]<nick> <time>|HELP|LIST}";
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
@@ -106,7 +110,7 @@ class CommandDccallow : public Command
 				if (action == '-')
 				{
 					// check if it contains any entries
-					dl = ext->get(user);
+					dl = ext.get(user);
 					if (dl)
 					{
 						for (dccallowlist::iterator i = dl->begin(); i != dl->end(); ++i)
@@ -129,11 +133,11 @@ class CommandDccallow : public Command
 						return CMD_FAILURE;
 					}
 
-					dl = ext->get(user);
+					dl = ext.get(user);
 					if (!dl)
 					{
 						dl = new dccallowlist;
-						ext->set(user, dl);
+						ext.set(user, dl);
 						// add this user to the userlist
 						ul.push_back(user);
 					}
@@ -228,7 +232,7 @@ class CommandDccallow : public Command
 		 // display current DCCALLOW list
 		user->WriteNumeric(990, "%s :Users on your DCCALLOW list:", user->nick.c_str());
 
-		dl = ext->get(user);
+		dl = ext.get(user);
 		if (dl)
 		{
 			for (dccallowlist::const_iterator c = dl->begin(); c != dl->end(); ++c)
@@ -244,24 +248,19 @@ class CommandDccallow : public Command
 
 class ModuleDCCAllow : public Module
 {
+	DCCAllowExt ext;
 	CommandDccallow cmd;
 
  public:
 	ModuleDCCAllow()
-		: cmd(this)
+		: ext("dccallow", this)
+		, cmd(this, ext)
 	{
-		ext = NULL;
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		ext = new SimpleExtItem<dccallowlist>("dccallow", this);
-		ServerInstance->Modules->AddService(*ext);
 	}
 
 	void OnUserQuit(User* user, const std::string &reason, const std::string &oper_message) CXX11_OVERRIDE
 	{
-		dccallowlist* udl = ext->get(user);
+		dccallowlist* udl = ext.get(user);
 
 		// remove their DCCALLOW list if they have one
 		if (udl)
@@ -303,7 +302,7 @@ class ModuleDCCAllow : public Module
 
 				if (strncmp(text.c_str(), "\1DCC ", 5) == 0)
 				{
-					dl = ext->get(u);
+					dl = ext.get(u);
 					if (dl && dl->size())
 					{
 						for (dccallowlist::const_iterator iter = dl->begin(); iter != dl->end(); ++iter)
@@ -372,7 +371,7 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end();)
 		{
 			User* u = (User*)(*iter);
-			dl = ext->get(u);
+			dl = ext.get(u);
 			if (dl)
 			{
 				if (dl->size())
@@ -406,7 +405,7 @@ class ModuleDCCAllow : public Module
 		for (userlist::iterator iter = ul.begin(); iter != ul.end();)
 		{
 			User *u = (User*)(*iter);
-			dl = ext->get(u);
+			dl = ext.get(u);
 			if (dl)
 			{
 				if (dl->size())
@@ -457,11 +456,6 @@ class ModuleDCCAllow : public Module
 			bf.action = i->second->getString("action");
 			bfl.push_back(bf);
 		}
-	}
-
-	~ModuleDCCAllow()
-	{
-		delete ext;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

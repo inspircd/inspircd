@@ -28,9 +28,14 @@
 class SeeWhois : public SimpleUserModeHandler
 {
  public:
-	SeeWhois(Module* Creator, bool IsOpersOnly) : SimpleUserModeHandler(Creator, "showwhois", 'W')
+	SeeWhois(Module* Creator)
+		: SimpleUserModeHandler(Creator, "showwhois", 'W')
 	{
-		oper = IsOpersOnly;
+	}
+
+	void SetOperOnly(bool operonly)
+	{
+		oper = operonly;
 	}
 };
 
@@ -67,13 +72,13 @@ class WhoisNoticeCmd : public Command
 class ModuleShowwhois : public Module
 {
 	bool ShowWhoisFromOpers;
-	SeeWhois* sw;
+	SeeWhois sw;
 	WhoisNoticeCmd cmd;
 
  public:
 
 	ModuleShowwhois()
-		: sw(NULL), cmd(this)
+		: sw(this), cmd(this)
 	{
 	}
 
@@ -81,16 +86,8 @@ class ModuleShowwhois : public Module
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("showwhois");
 
-		bool OpersOnly = tag->getBool("opersonly", true);
+		sw.SetOperOnly(tag->getBool("opersonly", true));
 		ShowWhoisFromOpers = tag->getBool("showfromopers", true);
-
-		sw = new SeeWhois(this, OpersOnly);
-		ServerInstance->Modules->AddService(*sw);
-	}
-
-	~ModuleShowwhois()
-	{
-		delete sw;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -100,7 +97,7 @@ class ModuleShowwhois : public Module
 
 	void OnWhois(User* source, User* dest) CXX11_OVERRIDE
 	{
-		if (!dest->IsModeSet(*sw) || source == dest)
+		if (!dest->IsModeSet(sw) || source == dest)
 			return;
 
 		if (!ShowWhoisFromOpers && source->IsOper())
