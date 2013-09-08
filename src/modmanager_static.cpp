@@ -17,7 +17,7 @@
  */
 
 
-#define MODNAME cmd_all
+#define MODNAME "cmd_all"
 
 #include "inspircd.h"
 #include "exitcodes.h"
@@ -186,7 +186,7 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 
 void ModuleManager::LoadAll()
 {
-	Load("cmd_all", true);
+	Load("cmd_all.so", true);
 	Load("cmd_whowas.so", true);
 	Load("cmd_lusers.so", true);
 	Load("cmd_privmsg.so", true);
