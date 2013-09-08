@@ -1173,10 +1173,6 @@ class CoreExport ModuleManager
 	 */
 	std::string LastModuleError;
 
-	/** Total number of modules loaded into the ircd
-	 */
-	int ModCount;
-
 	/** List of loaded modules and shared object/dll handles
 	 * keyed by module name
 	 */
@@ -1309,14 +1305,6 @@ class CoreExport ModuleManager
 	void LoadAll();
 	void UnloadAll();
 	void DoSafeUnload(Module*);
-
-	/** Get the total number of currently loaded modules
-	 * @return The number of loaded modules
-	 */
-	int GetCount()
-	{
-		return this->ModCount;
-	}
 
 	/** Find a module by name, and return a Module* to it.
 	 * This is preferred over iterating the module lists yourself.

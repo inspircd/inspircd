@@ -162,7 +162,7 @@ ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockadd
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { DetachEvent(I_OnSendWhoLine); }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 
-ModuleManager::ModuleManager() : ModCount(0)
+ModuleManager::ModuleManager()
 {
 }
 
@@ -388,7 +388,6 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	ServerInstance->GlobalCulls.AddItem(mod);
 
 	ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Module %s unloaded",mod->ModuleSourceFile.c_str());
-	this->ModCount--;
 	ServerInstance->ISupport.Build();
 }
 

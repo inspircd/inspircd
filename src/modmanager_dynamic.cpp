@@ -108,7 +108,6 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 		return false;
 	}
 
-	this->ModCount++;
 	if (defer)
 		return true;
 
@@ -188,8 +187,6 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 /* We must load the modules AFTER initializing the socket engine, now */
 void ModuleManager::LoadAll()
 {
-	ModCount = 0;
-
 	std::cout << std::endl << "Loading core commands";
 	fflush(stdout);
 
