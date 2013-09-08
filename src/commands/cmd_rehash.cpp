@@ -88,11 +88,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		/* Don't do anything with the logs here -- logs are restarted
 		 * after the config thread has completed.
 		 */
-		FOREACH_MOD(OnGarbageCollect, ());
-
-
-		ServerInstance->ConfigThread = new ConfigReaderThread(user->uuid);
-		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
+		ServerInstance->Rehash();
 	}
 	else
 	{

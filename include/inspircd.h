@@ -245,7 +245,6 @@ DEFINE_HANDLER1(IsNickHandler, bool, const std::string&);
 DEFINE_HANDLER2(GenRandomHandler, void, char*, size_t);
 DEFINE_HANDLER1(IsIdentHandler, bool, const std::string&);
 DEFINE_HANDLER1(IsChannelHandler, bool, const std::string&);
-DEFINE_HANDLER1(RehashHandler, void, const std::string&);
 DEFINE_HANDLER3(OnCheckExemptionHandler, ModResult, User*, Channel*, const std::string&);
 
 /** The main class of the irc server.
@@ -296,7 +295,6 @@ class CoreExport InspIRCd
 	IsIdentHandler HandleIsIdent;
 	OnCheckExemptionHandler HandleOnCheckExemption;
 	IsChannelHandler HandleIsChannel;
-	RehashHandler HandleRehash;
 	GenRandomHandler HandleGenRandom;
 
 	/** Globally accessible fake user record. This is used to force mode changes etc across s2s, etc.. bit ugly, but.. better than how this was done in 1.1
@@ -483,10 +481,6 @@ class CoreExport InspIRCd
 	 */
 	static bool IsSID(const std::string& sid);
 
-	/** Rehash the local server
-	 */
-	caller1<void, const std::string&> Rehash;
-
 	/** Handles incoming signals after being set
 	 * @param signal the signal recieved
 	 */
@@ -583,8 +577,9 @@ class CoreExport InspIRCd
 	static void ProcessColors(file_cache& input);
 
 	/** Rehash the local server
+	 * @param uuid The uuid of the user who started the rehash, can be empty
 	 */
-	void RehashServer();
+	void Rehash(const std::string& uuid = "");
 
 	/** Check if the given nickmask matches too many users, send errors to the given user
 	 * @param nick A nickmask to match against

@@ -234,7 +234,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 OperQuit("operquit", NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
-	 Rehash(&HandleRehash),
 	 IsNick(&HandleIsNick),
 	 IsIdent(&HandleIsIdent),
 	 OnCheckExemption(&HandleOnCheckExemption)

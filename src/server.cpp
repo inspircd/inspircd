@@ -31,7 +31,8 @@ void InspIRCd::SignalHandler(int signal)
 #else
 	if (signal == SIGHUP)
 	{
-		Rehash("Caught SIGHUP");
+		ServerInstance->SNO->WriteGlobalSno('a', "Rehashing due to SIGHUP");
+		Rehash();
 	}
 	else if (signal == SIGTERM)
 #endif
@@ -55,13 +56,11 @@ void InspIRCd::Exit(int status)
 	exit (status);
 }
 
-void RehashHandler::Call(const std::string &reason)
+void InspIRCd::Rehash(const std::string& uuid)
 {
-	ServerInstance->SNO->WriteToSnoMask('a', "Rehashing config file %s %s",ServerConfig::CleanFilename(ServerInstance->ConfigFileName.c_str()), reason.c_str());
-	FOREACH_MOD(OnGarbageCollect, ());
 	if (!ServerInstance->ConfigThread)
 	{
-		ServerInstance->ConfigThread = new ConfigReaderThread("");
+		ServerInstance->ConfigThread = new ConfigReaderThread(uuid);
 		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
 	}
 }
