@@ -32,6 +32,7 @@ class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;
 static bool claimed;
+static std::set<HttpServerSocket*> sockets;
 
 /** HTTP socket states
  */
@@ -67,6 +68,11 @@ class HttpServerSocket : public BufferedSocket
 		FOREACH_MOD(I_OnHookIO, OnHookIO(this, via));
 		if (GetIOHook())
 			GetIOHook()->OnStreamSocketAccept(this, client, server);
+	}
+
+	~HttpServerSocket()
+	{
+		sockets.erase(this);
 	}
 
 	virtual void OnError(BufferedSocketError)
@@ -333,7 +339,6 @@ class HttpServerSocket : public BufferedSocket
 
 class ModuleHttpServer : public Module
 {
-	std::vector<HttpServerSocket *> httpsocks;
  public:
 
 	void init()
@@ -358,18 +363,21 @@ class ModuleHttpServer : public Module
 		int port;
 		std::string incomingip;
 		irc::sockets::satoap(*client, incomingip, port);
-		new HttpServerSocket(nfd, incomingip, from, client, server);
+		sockets.insert(new HttpServerSocket(nfd, incomingip, from, client, server));
 		return MOD_RES_ALLOW;
 	}
 
-
-	virtual ~ModuleHttpServer()
+	CullResult cull()
 	{
-		for (size_t i = 0; i < httpsocks.size(); i++)
+		std::set<HttpServerSocket*> local;
+		local.swap(sockets);
+		for (std::set<HttpServerSocket*>::const_iterator i = local.begin(); i != local.end(); ++i)
 		{
-			httpsocks[i]->cull();
-			delete httpsocks[i];
+			HttpServerSocket* sock = *i;
+			sock->cull();
+			delete sock;
 		}
+		return Module::cull();
 	}
 
 	virtual Version GetVersion()
