@@ -472,10 +472,10 @@ std::string ConfigTag::getTagLocation()
 	return src_name + ":" + ConvToStr(src_line);
 }
 
-ConfigTag* ConfigTag::create(const std::string& Tag, const std::string& file, int line, std::vector<KeyVal>*&items)
+ConfigTag* ConfigTag::create(const std::string& Tag, const std::string& file, int line, std::vector<KeyVal>*&itemsread)
 {
 	ConfigTag* rv = new ConfigTag(Tag, file, line);
-	items = &rv->items;
+	itemsread = &rv->items;
 	return rv;
 }
 
