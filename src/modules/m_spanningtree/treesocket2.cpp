@@ -314,6 +314,12 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		cmd = ServerInstance->Parser->GetHandler(command);
 		if (!cmd)
 		{
+			if (command == "ERROR")
+			{
+				this->Error(params);
+				return;
+			}
+
 			irc::stringjoiner pmlist(params);
 			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Unrecognised S2S command :%s %s %s",
 				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
