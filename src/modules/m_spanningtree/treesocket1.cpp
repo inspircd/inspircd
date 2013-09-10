@@ -218,7 +218,13 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string
 
 	TreeSocket* sock = server->GetSocket();
 	sock->Squit(quitting, params[1]);
-	return CMD_SUCCESS;
+
+	// XXX: Return CMD_FAILURE when servers SQUIT themselves (i.e. :00S SQUIT 00S :Shutting down)
+	// to avoid RouteCommand() being called. RouteCommand() requires a valid command source but we
+	// do not have one because the server user is deleted when its TreeServer is destructed.
+	// We generate a SQUIT in TreeSocket::Squit(), with our sid as the source and send it to the
+	// remaining servers.
+	return ((quitting == server) ? CMD_FAILURE : CMD_SUCCESS);
 }
 
 /** This function is called when we receive data from a remote

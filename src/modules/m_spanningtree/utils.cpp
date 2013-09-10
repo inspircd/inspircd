@@ -365,9 +365,10 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 void SpanningTreeUtilities::SendChannelMessage(const std::string& prefix, Channel* target, const std::string& text, char status, const CUList& exempt_list, const char* message_type, TreeSocket* omit)
 {
 	CmdBuilder msg(prefix, message_type);
-	if (status == 0)
-		status = ' ';
-	msg.push(status).push_raw(target->name).push_last(text);
+	msg.push_raw(' ');
+	if (status != 0)
+		msg.push_raw(status);
+	msg.push_raw(target->name).push_last(text);
 
 	TreeSocketSet list;
 	this->GetListOfServersForChannel(target, list, status, exempt_list);
