@@ -26,6 +26,7 @@
 #include "inspircd.h"
 #include "modules/dns.h"
 #include "servercommand.h"
+#include "commands.h"
 
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
@@ -52,6 +53,14 @@ class Autoconnect;
  */
 class ModuleSpanningTree : public Module
 {
+	/** Client to server commands, registered in the core
+	 */
+	CommandRConnect rconnect;
+	CommandRSQuit rsquit;
+	CommandMap map;
+
+	/** Server to server only commands, not registered in the core
+	 */
 	SpanningTreeCommands* commands;
 
  public:

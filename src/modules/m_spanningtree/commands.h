@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "main.h"
+#include "servercommand.h"
 #include "commandbuilder.h"
 
 /** Handle /RCONNECT
@@ -331,9 +331,6 @@ class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
 class SpanningTreeCommands
 {
  public:
-	CommandRConnect rconnect;
-	CommandRSQuit rsquit;
-	CommandMap map;
 	CommandSVSJoin svsjoin;
 	CommandSVSPart svspart;
 	CommandSVSNick svsnick;

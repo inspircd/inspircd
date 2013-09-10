@@ -36,13 +36,13 @@
 #include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
-	: commands(NULL), DNS(this, "DNS")
+	: rconnect(this), rsquit(this), map(this)
+	, commands(NULL), DNS(this, "DNS")
 {
 }
 
 SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
-	: rconnect(module), rsquit(module), map(module),
-	svsjoin(module), svspart(module), svsnick(module), metadata(module),
+	: svsjoin(module), svspart(module), svsnick(module), metadata(module),
 	uid(module), opertype(module), fjoin(module), ijoin(module), resync(module),
 	fmode(module), ftopic(module), fhost(module), fident(module), fname(module),
 	away(module), addline(module), delline(module), encap(module), idle(module),
