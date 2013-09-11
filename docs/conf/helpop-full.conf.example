@@ -72,7 +72,7 @@ private message you when you have usermode +g set. ACCEPT +nick adds
 a nick to your accept list, ACCEPT -nick removes a nick from your
 accept list, and ACCEPT * displays your accept list.">
 
-<helpop key="cycle" value="/CYCLE [channel]
+<helpop key="cycle" value="/CYCLE [channel] :[reason]
 
 Cycles a channel (leaving and rejoining), overrides restrictions that
 would stop a new user joining, such as user limits and channel keys.">
@@ -361,7 +361,7 @@ Sets your name to the specified name.">
 <helpop key="coper" value="Oper Commands
 -------------
 
-OPERMOTD  CHECK     CLONES      USERIP   LINE
+OPERMOTD  CHECK     CLONES      USERIP   TLINE
 ALLTIME   MODULES   WALLOPS     GLOBOPS
 
 SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
@@ -813,14 +813,12 @@ Closes all unregistered connections to the local server.">
  q [nickname]       Gives owner status to [nickname], preventing them
                     from being kicked (Services or only, requires
                     chanprotect module).
-
  b [hostmask]       Bans [hostmask] from the channel.
  e [hostmask]       Excepts [hostmask] from bans (requires
                     banexception module).
  I [hostmask]       Excepts [hostmask] from +i, allowing matching
                     users to join while the channel is invite-only
                     (requires inviteexception module).
-
  c                  Blocks messages containing mIRC color codes
                     (requires blockcolor module).
  d [time]           Blocks messages to a channel from new users
@@ -829,6 +827,8 @@ Closes all unregistered connections to the local server.">
  f [*][lines]:[sec] Kicks on text flood equal to or above the
                     specified rate. With *, the user is banned
                     (requires messageflood module).
+ g [mask]           Blocks messages matching the given blob mask
+                    (requires chanfilter module).
  i                  Makes the channel invite-only.
                     Users can only join if an operator
                     uses /INVITE to invite them.
@@ -858,7 +858,6 @@ Closes all unregistered connections to the local server.">
                     to the account 'Brain' on join.
                     (requires autoop module)
  z                  Blocks non-SSL clients from joining the channel.
-
  A                  Allows anyone to invite users to the channel
                     (normally only chanops can invite, requires
                     allowinvite module).
@@ -895,12 +894,9 @@ Closes all unregistered connections to the local server.">
  R                  Blocks unregistered users from joining (requires
                     services account module).
  S                  Strips mIRC color codes from messages to the
-                    channel (requirs stripcolor module).
+                    channel (requires stripcolor module).
  T                  Blocks /NOTICEs to the channel from users who are
                     not at least halfop (requires nonotice module).
- 
- g [mask]           Blocks messages matching the given blob mask
-                    (requires chanfilter module).
  X [mode]           Makes channel operators immune to the specified
                     restrictive mode (requires exemptchanops module).
 
@@ -921,35 +917,35 @@ symbols may be only available to opers.
 
 Valid symbols are:
 
-e  Show e-lines (local ban exemptions)
-g  Show g-lines (host bans)
-k  Show k-lines (local host bans)
-q  Show q-lines (nick mask bans)
-Z  Show z-lines (IP mask bans)
+e  Show E-lines (local ban exemptions)
+g  Show G-lines (host bans)
+k  Show K-lines (local host bans)
+q  Show Q-lines (nick mask bans)
 R  Show R-lines (regular expression bans)
+Z  Show Z-lines (IP mask bans)
 
-H  Show shuns
 s  Show filters
 C  Show channel bans
+H  Show shuns
 
 c  Show link blocks
 d  Show configured DNSBLs and related statistics
+i  Show connect class permissions
+l  Show all client connections with information (sendq, commands, bytes, time connected)
 m  Show command statistics, number of times commands have been used
 o  Show a list of all valid oper usernames and hostmasks
 p  Show open client ports, and the port type (ssl, plaintext, etc)
 u  Show server uptime
 z  Show memory usage statistics
-i  Show connect class permissions
-l  Show all client connections with information (sendq, commands, bytes, time connected)
+E  Show socket engine events
+G  Show how many local users are connected from each country according to GeoIP
 L  Show all client connections with information and IP address
+O  Show opertypes and the allowed user and channel modes it can set
 P  Show online opers and their idle times
+S  Show currently held registered nicknames
 T  Show bandwidth/socket statistics
 U  Show U-lined servers
 Y  Show connection classes
-O  Show opertypes and the allowed user and channel modes it can set
-E  Show socket engine events
-S  Show currently held registered nicknames
-G  Show how many local users are connected from each country according to GeoIP
 
 Note that all /STATS use is broadcast to online IRC operators.">
 
@@ -967,8 +963,6 @@ Note that all /STATS use is broadcast to online IRC operators.">
         messages.
  f      Allows receipt of flooding notices.
  g      Allows receipt of globops (requires globops module).
- G      Allows receipt of notices of use of oper-override (requires
-        override module)
  j      Allows receipt of channel creation notices (requires
         chancreate module).
  J      Allows receipt of remote channel creation notices (requires
@@ -989,7 +983,8 @@ Note that all /STATS use is broadcast to online IRC operators.">
  Q      Allows receipt of remote quit messages.
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires override module).
- x      Allows receipt of Xline notices (g/z/q/k/e/R/shuns).">
+ x      Allows receipt of Xline notices (g/Z/q/k/e/R/shuns)."
+ X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
 
 ######################
 #      EXTBANS       #
@@ -1013,44 +1008,48 @@ Matching extbans:
 
  j:#channel    Matches anyone in #channel. Does not support wildcards
                for #channel (requires channelban module).
- r:realname    Matches users with a matching realname (requires gecosban
-               module).
- s:server      Matches users on a matching server (requires serverban
-               module).
- z:fingerprint Matches users with a matching ssl fingerprint (requires
-               sslmodes module)
- O:opertype    Matches IRCops of a matching type, mostly useful as an
-               an invite exception (requires operchans module).
- R:account     Matches users logged into a matching account (requires
-               services account module).
+ r:realname    Prevents users with a matching realname from joining
+               the channel (requires gecosban module).
+ s:server      Prevents users on a matching server from joining the
+               channel (requires serverban module).
+ z:fingerprint Matches users with a matching SSL fingerprint (requires
+               sslmodes module).
+ O:opertype    Prevents IRCops of the specified opertype from joining
+               the channel, mostly useful as an invite exception (IRCop
+               only, requires operchans module).
+ R:account     Prevents users logged into a matching account from
+               joining the channel (requires services account module).
 
 Acting extbans:
 
- c:<ban>       Blocks any messages that contain color codes from
+ c:n!u@h       Blocks any messages that contain color codes from
                matching users (requires blockcolor module).
- m:<ban>       Blocks messages from matching users (requires muteban
+ m:n!u@h       Blocks messages from matching users (requires muteban
                module). Users with +v or above are not affected.
- p:<ban>       Blocks part messages from matching users (requires
+ p:n!u@h       Blocks part messages from matching users (requires
                nopartmsg module).
- A:<ban>       Blocks invites by matching users even when +A is set
+ A:n!u@h       Blocks invites by matching users even when +A is set
                (requires allowinvite module).
- B:<ban>       Blocks all capital or nearly all capital messages from
+ B:n!u@h       Blocks all capital or nearly all capital messages from
                matching users (requires blockcaps module).
- C:<ban>       Blocks CTCPs from matching users (requires noctcp
+ C:n!u@h       Blocks CTCPs from matching users (requires noctcp
                module).
- N:<ban>       Blocks nick changes from matching users (requires
+ M:account     Blocks messages from users logged into a matching
+               account (requires services account module).
+ N:n!u@h       Blocks nick changes from matching users (requires
                nonicks module).
- Q:<ban>       Blocks kicks by matching users (requires nokicks
+ Q:n!u@h       Blocks kicks by matching users (requires nokicks
                module).
- S:<ban>       Strips color/bold/underline from messages from matching
+ S:n!u@h       Strips color/bold/underline from messages from matching
                users (requires stripcolor module).
- T:<ban>       Blocks notices from matching users (requires nonotice
+ T:n!u@h       Blocks notices from matching users (requires nonotice
                module).
- U:<ban>       Blocks unregistered users matching the given ban.
-               (requires m_services_account)
+ U:n!u@h       Blocks unregistered users matching the given ban.
+               (requires m_services_account).
 
 A ban given to an acting extban may either be a nick!user@host mask,
 matched against users as for a normal ban, or a matching extban.
+
 
 There is an additional special type of extended ban, a redirect ban:
 
