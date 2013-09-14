@@ -170,7 +170,7 @@ inline std::string ConvToStr(const bool in)
  */
 inline std::string ConvToStr(char in)
 {
-	return std::string(in,1);
+	return std::string(1, in);
 }
 
 /** Template function to convert any input type to std::string
