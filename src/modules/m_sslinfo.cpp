@@ -250,10 +250,12 @@ class ModuleSSLInfo : public Module, public Whois::EventListener
 		if (myclass->config->getString("requiressl") == "trusted")
 		{
 			ok = (cert && cert->IsCAVerified());
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires a trusted SSL cert. Client %s one.", (ok ? "has" : "does not have"));
 		}
 		else if (myclass->config->getBool("requiressl"))
 		{
 			ok = (cert != NULL);
+			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Class requires any SSL cert. Client %s one.", (ok ? "has" : "does not have"));
 		}
 
 		if (!ok)
