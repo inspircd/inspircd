@@ -112,9 +112,11 @@ class ModuleServicesAccount : public Module
 	Channel_r m4;
 	User_r m5;
 	AccountExtItem accountname;
+	bool checking_ban;
+
  public:
 	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
-		accountname("accountname", this)
+		accountname("accountname", this), checking_ban(false)
 	{
 	}
 
@@ -199,8 +201,7 @@ class ModuleServicesAccount : public Module
 
 	ModResult OnCheckBan(User* user, Channel* chan, const std::string& mask)
 	{
-		static bool checking = false;
-		if (checking)
+		if (checking_ban)
 			return MOD_RES_PASSTHRU;
 
 		if ((mask.length() > 2) && (mask[1] == ':'))
@@ -220,9 +221,9 @@ class ModuleServicesAccount : public Module
 
 				/* If we made it this far we know the user isn't registered
 					so just deny if it matches */
-				checking = true;
+				checking_ban = true;
 				bool result = chan->CheckBan(user, mask.substr(2));
-				checking = false;
+				checking_ban = false;
 
 				if (result)
 					return MOD_RES_DENY;

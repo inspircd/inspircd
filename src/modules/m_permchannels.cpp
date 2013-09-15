@@ -214,10 +214,12 @@ class ModulePermanentChannels : public Module
 {
 	PermChannel p;
 	bool dirty;
+	bool loaded;
 	bool save_listmodes;
 public:
 
-	ModulePermanentChannels() : p(this), dirty(false)
+	ModulePermanentChannels()
+		: p(this), dirty(false), loaded(false)
 	{
 	}
 
@@ -356,8 +358,6 @@ public:
 		// to be able to set the modes they provide (e.g.: m_stripcolor is inited after us)
 		// Prioritize() is called after all module initialization is complete, consequently
 		// all modes are available now
-
-		static bool loaded = false;
 		if (loaded)
 			return;
 
