@@ -158,7 +158,7 @@ class CommandAccept : public Command
 	 */
 	typedef std::pair<User*, bool> ACCEPTAction;
 
-	ACCEPTAction GetTargetAndAction(std::string& tok)
+	static ACCEPTAction GetTargetAndAction(std::string& tok)
 	{
 		bool remove = (tok[0] == '-');
 		if ((remove) || (tok[0] == '+'))

@@ -54,8 +54,6 @@
 
 <type
     # name: Name of type. Used in actual olines below.
-    # Cannot contain spaces. If you would like a space, use
-    # the _ character instead and it will translate to a space on whois.
     name="NetAdmin"
 
     # classes: classes (above blocks) that this type belongs to.

@@ -88,7 +88,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 		/* Don't do anything with the logs here -- logs are restarted
 		 * after the config thread has completed.
 		 */
-		ServerInstance->Rehash();
+		ServerInstance->Rehash(user->uuid);
 	}
 	else
 	{

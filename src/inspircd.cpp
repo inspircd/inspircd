@@ -335,7 +335,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{
 			case 'c':
 				/* Config filename was set */
-				ConfigFileName = optarg;
+				ConfigFileName = ServerInstance->Config->Paths.PrependConfig(optarg);
 			break;
 			case 0:
 				/* getopt_long_only() set an int variable, just keep going */

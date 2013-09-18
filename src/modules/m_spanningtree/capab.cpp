@@ -64,8 +64,8 @@ static std::string BuildModeList(ModeType type)
 			{
 				if (pm->GetPrefix())
 					mdesc.push_back(pm->GetPrefix());
-				mdesc.push_back(mh->GetModeChar());
 			}
+			mdesc.push_back(mh->GetModeChar());
 			modes.push_back(mdesc);
 		}
 	}
