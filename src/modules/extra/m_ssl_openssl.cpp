@@ -60,7 +60,180 @@ char* get_error()
 	return ERR_error_string(ERR_get_error(), NULL);
 }
 
-static int error_callback(const char *str, size_t len, void *u);
+static int OnVerify(int preverify_ok, X509_STORE_CTX* ctx);
+
+namespace OpenSSL
+{
+	class Exception : public ModuleException
+	{
+	 public:
+		Exception(const std::string& reason)
+			: ModuleException(reason) { }
+	};
+
+	class DHParams
+	{
+		DH* dh;
+
+	 public:
+		DHParams(const std::string& filename)
+		{
+			FILE* dhpfile = fopen(filename.c_str(), "r");
+			if (dhpfile == NULL)
+				throw Exception("Couldn't open DH file " + filename + ": " + strerror(errno));
+
+			dh = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
+			fclose(dhpfile);
+			if (!dh)
+				throw Exception("Couldn't read DH params from file " + filename);
+		}
+
+		~DHParams()
+		{
+			DH_free(dh);
+		}
+
+		DH* get()
+		{
+			return dh;
+		}
+	};
+
+	class Context
+	{
+		SSL_CTX* const ctx;
+
+	 public:
+		Context(SSL_CTX* context)
+			: ctx(context)
+		{
+			SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+		}
+
+		~Context()
+		{
+			SSL_CTX_free(ctx);
+		}
+
+		bool SetDH(DHParams& dh)
+		{
+			return (SSL_CTX_set_tmp_dh(ctx, dh.get()) >= 0);
+		}
+
+		bool SetCiphers(const std::string& ciphers)
+		{
+			return SSL_CTX_set_cipher_list(ctx, ciphers.c_str());
+		}
+
+		bool SetCerts(const std::string& filename)
+		{
+			return SSL_CTX_use_certificate_chain_file(ctx, filename.c_str());
+		}
+
+		bool SetPrivateKey(const std::string& filename)
+		{
+			return SSL_CTX_use_PrivateKey_file(ctx, filename.c_str(), SSL_FILETYPE_PEM);
+		}
+
+		bool SetCA(const std::string& filename)
+		{
+			return SSL_CTX_load_verify_locations(ctx, filename.c_str(), 0);
+		}
+
+		SSL* CreateSession()
+		{
+			return SSL_new(ctx);
+		}
+	};
+
+	class Profile : public refcountbase
+	{
+		/** Name of this profile
+		 */
+		const std::string name;
+
+		/** DH parameters in use
+		 */
+		DHParams dh;
+
+		/** OpenSSL makes us have two contexts, one for servers and one for clients
+		 */
+		Context ctx;
+		Context clictx;
+
+		/** Digest to use when generating fingerprints
+		 */
+		const EVP_MD* digest;
+
+		/** Last error, set by error_callback()
+		 */
+		std::string lasterr;
+
+		static int error_callback(const char* str, size_t len, void* u)
+		{
+			Profile* profile = reinterpret_cast<Profile*>(u);
+			profile->lasterr = std::string(str, len - 1);
+			return 0;
+		}
+
+	 public:
+		Profile(const std::string& profilename, ConfigTag* tag)
+			: name(profilename)
+			, dh(ServerInstance->Config->Paths.PrependConfig(tag->getString("dhfile", "dh.pem")))
+			, ctx(SSL_CTX_new(SSLv23_server_method()))
+			, clictx(SSL_CTX_new(SSLv23_client_method()))
+		{
+			if ((!ctx.SetDH(dh)) || (!clictx.SetDH(dh)))
+				throw Exception("Couldn't set DH parameters");
+
+			std::string hash = tag->getString("hash", "md5");
+			digest = EVP_get_digestbyname(hash.c_str());
+			if (digest == NULL)
+				throw Exception("Unknown hash type " + hash);
+
+			std::string ciphers = tag->getString("ciphers");
+			if (!ciphers.empty())
+			{
+				if ((!ctx.SetCiphers(ciphers)) || (!clictx.SetCiphers(ciphers)))
+				{
+					ERR_print_errors_cb(error_callback, this);
+					throw Exception("Can't set cipher list to \"" + ciphers + "\" " + lasterr);
+				}
+			}
+
+			/* Load our keys and certificates
+			 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
+			 */
+			std::string filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("certfile", "cert.pem"));
+			if ((!ctx.SetCerts(filename)) || (!clictx.SetCerts(filename)))
+			{
+				ERR_print_errors_cb(error_callback, this);
+				throw Exception("Can't read certificate file: " + lasterr);
+			}
+
+			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("keyfile", "key.pem"));
+			if ((!ctx.SetPrivateKey(filename)) || (!clictx.SetPrivateKey(filename)))
+			{
+				ERR_print_errors_cb(error_callback, this);
+				throw Exception("Can't read key file: " + lasterr);
+			}
+
+			// Load the CAs we trust
+			filename = ServerInstance->Config->Paths.PrependConfig(tag->getString("cafile", "ca.pem"));
+			if ((!ctx.SetCA(filename)) || (!clictx.SetCA(filename)))
+			{
+				ERR_print_errors_cb(error_callback, this);
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", filename.c_str(), lasterr.c_str());
+			}
+		}
+
+		const std::string& GetName() const { return name; }
+		SSL* CreateServerSession() { return ctx.CreateSession(); }
+		SSL* CreateClientSession() { return clictx.CreateSession(); }
+		const EVP_MD* GetDigest() { return digest; }
+	};
+}
 
 /** Represents an SSL user's extra data
  */
@@ -70,6 +243,7 @@ public:
 	SSL* sess;
 	issl_status status;
 	reference<ssl_cert> cert;
+	reference<OpenSSL::Profile> profile;
 
 	bool outbound;
 	bool data_to_write;
@@ -198,7 +372,7 @@ class OpenSSLIOHook : public SSLIOHook
 		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
 		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
 
-		if (!X509_digest(cert, digest, md, &n))
+		if (!X509_digest(cert, session->profile->GetDigest(), md, &n))
 		{
 			certinfo->error = "Out of memory generating fingerprint";
 		}
@@ -217,9 +391,6 @@ class OpenSSLIOHook : public SSLIOHook
 
  public:
 	issl_session* sessions;
-	SSL_CTX* ctx;
-	SSL_CTX* clictx;
-	const EVP_MD *digest;
 
 	OpenSSLIOHook(Module* mod)
 		: SSLIOHook(mod, "ssl/openssl")
@@ -238,7 +409,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 		issl_session* session = &sessions[fd];
 
-		session->sess = SSL_new(ctx);
+		session->sess = session->profile->CreateServerSession();
 		session->status = ISSL_NONE;
 		session->outbound = false;
 		session->cert = NULL;
@@ -264,7 +435,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 		issl_session* session = &sessions[fd];
 
-		session->sess = SSL_new(clictx);
+		session->sess = session->profile->CreateClientSession();
 		session->status = ISSL_NONE;
 		session->outbound = true;
 
@@ -457,47 +628,91 @@ class OpenSSLIOHook : public SSLIOHook
 
 class ModuleSSLOpenSSL : public Module
 {
+	typedef std::vector<reference<OpenSSL::Profile> > ProfileList;
+
 	std::string sslports;
 	OpenSSLIOHook iohook;
+	ProfileList profiles;
+
+	void ReadProfiles()
+	{
+		ProfileList newprofiles;
+		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
+		if (tags.first == tags.second)
+		{
+			// Create a default profile named "openssl"
+			const std::string defname = "openssl";
+			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found, using settings from the <openssl> tag");
+
+			try
+			{
+				reference<OpenSSL::Profile> profile(new OpenSSL::Profile(defname, tag));
+				newprofiles.push_back(profile);
+			}
+			catch (OpenSSL::Exception& ex)
+			{
+				throw ModuleException("Error while initializing the default SSL profile - " + ex.GetReason());
+			}
+		}
+
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		{
+			ConfigTag* tag = i->second;
+			if (tag->getString("provider") != "openssl")
+				continue;
+
+			std::string name = tag->getString("name");
+			if (name.empty())
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				continue;
+			}
+
+			reference<OpenSSL::Profile> profile;
+			try
+			{
+				profile = new OpenSSL::Profile(name, tag);
+			}
+			catch (CoreException& ex)
+			{
+				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
+			}
+
+			newprofiles.push_back(profile);
+		}
+
+		profiles.swap(newprofiles);
+	}
 
  public:
 	ModuleSSLOpenSSL() : iohook(this)
 	{
-		/* Global SSL library initialization*/
+		// Initialize OpenSSL
 		SSL_library_init();
 		SSL_load_error_strings();
-
-		/* Build our SSL contexts:
-		 * NOTE: OpenSSL makes us have two contexts, one for servers and one for clients. ICK.
-		 */
-		iohook.ctx = SSL_CTX_new( SSLv23_server_method() );
-		iohook.clictx = SSL_CTX_new( SSLv23_client_method() );
-
-		SSL_CTX_set_mode(iohook.ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-		SSL_CTX_set_mode(iohook.clictx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-
-		SSL_CTX_set_verify(iohook.ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
-		SSL_CTX_set_verify(iohook.clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
-	}
-
-	~ModuleSSLOpenSSL()
-	{
-		SSL_CTX_free(iohook.ctx);
-		SSL_CTX_free(iohook.clictx);
 	}
 
 	void init() CXX11_OVERRIDE
 	{
-		// Needs the flag as it ignores a plain /rehash
-		OnModuleRehash(NULL,"ssl");
+		ReadProfiles();
 	}
 
 	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE
 	{
-		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "openssl")
+		if (user->GetIOHook())
+			return;
+
+		ConfigTag* tag = lsb->bind_tag;
+		std::string profilename = tag->getString("ssl");
+		for (ProfileList::const_iterator i = profiles.begin(); i != profiles.end(); ++i)
 		{
-			/* Hook the user with our module */
-			user->AddIOHook(&iohook);
+			if ((*i)->GetName() == profilename)
+			{
+				iohook.sessions[user->GetFd()].profile = *i;
+				user->AddIOHook(&iohook);
+				break;
+			}
 		}
 	}
 
@@ -545,78 +760,14 @@ class ModuleSSLOpenSSL : public Module
 		if (param != "ssl")
 			return;
 
-		std::string keyfile;
-		std::string certfile;
-		std::string cafile;
-		std::string dhfile;
-
-		ConfigTag* conf = ServerInstance->Config->ConfValue("openssl");
-
-		cafile	 = ServerInstance->Config->Paths.PrependConfig(conf->getString("cafile", "ca.pem"));
-		certfile = ServerInstance->Config->Paths.PrependConfig(conf->getString("certfile", "cert.pem"));
-		keyfile	 = ServerInstance->Config->Paths.PrependConfig(conf->getString("keyfile", "key.pem"));
-		dhfile	 = ServerInstance->Config->Paths.PrependConfig(conf->getString("dhfile", "dhparams.pem"));
-		std::string hash = conf->getString("hash", "md5");
-
-		iohook.digest = EVP_get_digestbyname(hash.c_str());
-		if (iohook.digest == NULL)
-			throw ModuleException("Unknown hash type " + hash);
-
-		std::string ciphers = conf->getString("ciphers", "");
-
-		SSL_CTX* ctx = iohook.ctx;
-		SSL_CTX* clictx = iohook.clictx;
-
-		if (!ciphers.empty())
+		try
 		{
-			if ((!SSL_CTX_set_cipher_list(ctx, ciphers.c_str())) || (!SSL_CTX_set_cipher_list(clictx, ciphers.c_str())))
-			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't set cipher list to %s.", ciphers.c_str());
-				ERR_print_errors_cb(error_callback, this);
-			}
+			ReadProfiles();
 		}
-
-		/* Load our keys and certificates
-		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
-		 */
-		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
+		catch (ModuleException& ex)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
-			ERR_print_errors_cb(error_callback, this);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
-
-		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
-			ERR_print_errors_cb(error_callback, this);
-		}
-
-		/* Load the CAs we trust*/
-		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", cafile.c_str(), strerror(errno));
-			ERR_print_errors_cb(error_callback, this);
-		}
-
-		FILE* dhpfile = fopen(dhfile.c_str(), "r");
-		DH* ret;
-
-		if (dhpfile == NULL)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Couldn't open DH file %s: %s", dhfile.c_str(), strerror(errno));
-			throw ModuleException("Couldn't open DH file " + dhfile + ": " + strerror(errno));
-		}
-		else
-		{
-			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
-			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
-			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
-				ERR_print_errors_cb(error_callback, this);
-			}
-		}
-
-		fclose(dhpfile);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
@@ -651,21 +802,5 @@ class ModuleSSLOpenSSL : public Module
 		return Version("Provides SSL support for clients", VF_VENDOR);
 	}
 };
-
-static int error_callback(const char *str, size_t len, void *u)
-{
-	ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "SSL error: " + std::string(str, len - 1));
-
-	//
-	// XXX: Remove this line, it causes valgrind warnings...
-	//
-	// MD_update(&m, buf, j);
-	//
-	//
-	// ... ONLY JOKING! :-)
-	//
-
-	return 0;
-}
 
 MODULE_INIT(ModuleSSLOpenSSL)

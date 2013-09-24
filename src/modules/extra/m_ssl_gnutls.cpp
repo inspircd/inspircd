@@ -26,6 +26,7 @@
 #include <gnutls/x509.h>
 #include "modules/ssl.h"
 #include "modules/cap.h"
+#include <memory>
 
 #if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 9) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 9 && GNUTLS_VERSION_PATCH >= 8))
 #define GNUTLS_HAS_MAC_GET_ID
@@ -70,16 +71,12 @@ typedef gnutls_dh_params_t gnutls_dh_params;
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-static std::vector<gnutls_x509_crt_t> x509_certs;
-static gnutls_x509_privkey_t x509_key;
 #if (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 12))
 #define GNUTLS_NEW_CERT_CALLBACK_API
 typedef gnutls_retr2_st cert_cb_last_param_type;
 #else
 typedef gnutls_retr_st cert_cb_last_param_type;
 #endif
-
-static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st);
 
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
@@ -95,6 +92,457 @@ class RandGen : public HandlerBase2<void, char*, size_t>
 	}
 };
 
+namespace GnuTLS
+{
+	class Init
+	{
+	 public:
+		Init() { gnutls_global_init(); }
+		~Init() { gnutls_global_deinit(); }
+	};
+
+	class Exception : public ModuleException
+	{
+	 public:
+		Exception(const std::string& reason)
+			: ModuleException(reason) { }
+	};
+
+	void ThrowOnError(int errcode, const char* msg)
+	{
+		if (errcode < 0)
+		{
+			std::string reason = msg;
+			reason.append(" :").append(gnutls_strerror(errcode));
+			throw Exception(reason);
+		}
+	}
+
+	/** Used to create a gnutls_datum_t* from a std::string
+	 */
+	class Datum
+	{
+		gnutls_datum_t datum;
+
+	 public:
+		Datum(const std::string& dat)
+		{
+			datum.data = (unsigned char*)dat.data();
+			datum.size = static_cast<unsigned int>(dat.length());
+		}
+
+		const gnutls_datum_t* get() const { return &datum; }
+	};
+
+	class Hash
+	{
+		gnutls_digest_algorithm_t hash;
+
+	 public:
+		// Nothing to deallocate, constructor may throw freely
+		Hash(const std::string& hashname)
+		{
+			// As older versions of gnutls can't do this, let's disable it where needed.
+#ifdef GNUTLS_HAS_MAC_GET_ID
+			// As gnutls_digest_algorithm_t and gnutls_mac_algorithm_t are mapped 1:1, we can do this
+			// There is no gnutls_dig_get_id() at the moment, but it may come later
+			hash = (gnutls_digest_algorithm_t)gnutls_mac_get_id(hashname.c_str());
+			if (hash == GNUTLS_DIG_UNKNOWN)
+				throw Exception("Unknown hash type " + hashname);
+
+			// Check if the user is giving us something that is a valid MAC but not digest
+			gnutls_hash_hd_t is_digest;
+			if (gnutls_hash_init(&is_digest, hash) < 0)
+				throw Exception("Unknown hash type " + hashname);
+			gnutls_hash_deinit(is_digest, NULL);
+#else
+			if (hashname == "md5")
+				hash = GNUTLS_DIG_MD5;
+			else if (hashname == "sha1")
+				hash = GNUTLS_DIG_SHA1;
+			else
+				throw Exception("Unknown hash type " + hashname);
+#endif
+		}
+
+		gnutls_digest_algorithm_t get() const { return hash; }
+	};
+
+	class DHParams
+	{
+		gnutls_dh_params_t dh_params;
+
+		DHParams()
+		{
+			ThrowOnError(gnutls_dh_params_init(&dh_params), "gnutls_dh_params_init() failed");
+		}
+
+	 public:
+		/** Import */
+		static std::auto_ptr<DHParams> Import(const std::string& dhstr)
+		{
+			std::auto_ptr<DHParams> dh(new DHParams);
+			int ret = gnutls_dh_params_import_pkcs3(dh->dh_params, Datum(dhstr).get(), GNUTLS_X509_FMT_PEM);
+			ThrowOnError(ret, "Unable to import DH params");
+			return dh;
+		}
+
+		/** Generate */
+		static std::auto_ptr<DHParams> Generate(unsigned int bits)
+		{
+			std::auto_ptr<DHParams> dh(new DHParams);
+			ThrowOnError(gnutls_dh_params_generate2(dh->dh_params, bits), "Unable to generate DH params");
+			return dh;
+		}
+
+		~DHParams()
+		{
+			gnutls_dh_params_deinit(dh_params);
+		}
+
+		const gnutls_dh_params_t& get() const { return dh_params; }
+	};
+
+	class X509Key
+	{
+		/** Ensure that the key is deinited in case the constructor of X509Key throws
+		 */
+		class RAIIKey
+		{
+		 public:
+			gnutls_x509_privkey_t key;
+
+			RAIIKey()
+			{
+				ThrowOnError(gnutls_x509_privkey_init(&key), "gnutls_x509_privkey_init() failed");
+			}
+
+			~RAIIKey()
+			{
+				gnutls_x509_privkey_deinit(key);
+			}
+		} key;
+
+	 public:
+		/** Import */
+		X509Key(const std::string& keystr)
+		{
+			int ret = gnutls_x509_privkey_import(key.key, Datum(keystr).get(), GNUTLS_X509_FMT_PEM);
+			ThrowOnError(ret, "Unable to import private key");
+		}
+
+		gnutls_x509_privkey_t& get() { return key.key; }
+	};
+
+	class X509CertList
+	{
+		std::vector<gnutls_x509_crt_t> certs;
+
+	 public:
+		/** Import */
+		X509CertList(const std::string& certstr)
+		{
+			unsigned int certcount = 3;
+			certs.resize(certcount);
+			Datum datum(certstr);
+
+			int ret = gnutls_x509_crt_list_import(raw(), &certcount, datum.get(), GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
+			if (ret == GNUTLS_E_SHORT_MEMORY_BUFFER)
+			{
+				// the buffer wasn't big enough to hold all certs but gnutls changed certcount to the number of available certs,
+				// try again with a bigger buffer
+				certs.resize(certcount);
+				ret = gnutls_x509_crt_list_import(raw(), &certcount, datum.get(), GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
+			}
+
+			ThrowOnError(ret, "Unable to load certificates");
+
+			// Resize the vector to the actual number of certs because we rely on its size being correct
+			// when deallocating the certs
+			certs.resize(certcount);
+		}
+
+		~X509CertList()
+		{
+			for (std::vector<gnutls_x509_crt_t>::iterator i = certs.begin(); i != certs.end(); ++i)
+				gnutls_x509_crt_deinit(*i);
+		}
+
+		gnutls_x509_crt_t* raw() { return &certs[0]; }
+		unsigned int size() const { return certs.size(); }
+	};
+
+	class X509CRL : public refcountbase
+	{
+		class RAIICRL
+		{
+		 public:
+			gnutls_x509_crl_t crl;
+
+			RAIICRL()
+			{
+				ThrowOnError(gnutls_x509_crl_init(&crl), "gnutls_x509_crl_init() failed");
+			}
+
+			~RAIICRL()
+			{
+				gnutls_x509_crl_deinit(crl);
+			}
+		} crl;
+
+	 public:
+		/** Import */
+		X509CRL(const std::string& crlstr)
+		{
+			int ret = gnutls_x509_crl_import(get(), Datum(crlstr).get(), GNUTLS_X509_FMT_PEM);
+			ThrowOnError(ret, "Unable to load certificate revocation list");
+		}
+
+		gnutls_x509_crl_t& get() { return crl.crl; }
+	};
+
+#ifdef GNUTLS_NEW_PRIO_API
+	class Priority
+	{
+		gnutls_priority_t priority;
+
+	 public:
+		Priority(const std::string& priorities)
+		{
+			// Try to set the priorities for ciphers, kex methods etc. to the user supplied string
+			// If the user did not supply anything then the string is already set to "NORMAL"
+			const char* priocstr = priorities.c_str();
+			const char* prioerror;
+
+			int ret = gnutls_priority_init(&priority, priocstr, &prioerror);
+			if (ret < 0)
+			{
+				// gnutls did not understand the user supplied string
+				throw Exception("Unable to initialize priorities to \"" + priorities + "\": " + gnutls_strerror(ret) + " Syntax error at position " + ConvToStr((unsigned int) (prioerror - priocstr)));
+			}
+		}
+
+		~Priority()
+		{
+			gnutls_priority_deinit(priority);
+		}
+
+		void SetupSession(gnutls_session_t sess)
+		{
+			gnutls_priority_set(sess, priority);
+		}
+	};
+#else
+	/** Dummy class, used when gnutls_priority_set() is not available
+	 */
+	class Priority
+	{
+	 public:
+		Priority(const std::string& priorities)
+		{
+			if (priorities != "NORMAL")
+				throw Exception("You've set a non-default priority string, but GnuTLS lacks support for it");
+		}
+
+		static void SetupSession(gnutls_session_t sess)
+		{
+			// Always set the default priorities
+			gnutls_set_default_priority(sess);
+		}
+	};
+#endif
+
+	class CertCredentials
+	{
+		/** DH parameters associated with these credentials
+		 */
+		std::auto_ptr<DHParams> dh;
+
+	 protected:
+		gnutls_certificate_credentials_t cred;
+
+	 public:
+		CertCredentials()
+		{
+			ThrowOnError(gnutls_certificate_allocate_credentials(&cred), "Cannot allocate certificate credentials");
+		}
+
+		~CertCredentials()
+		{
+			gnutls_certificate_free_credentials(cred);
+		}
+
+		/** Associates these credentials with the session
+		 */
+		void SetupSession(gnutls_session_t sess)
+		{
+			gnutls_credentials_set(sess, GNUTLS_CRD_CERTIFICATE, cred);
+		}
+
+		/** Set the given DH parameters to be used with these credentials
+		 */
+		void SetDH(std::auto_ptr<DHParams>& DH)
+		{
+			dh = DH;
+			gnutls_certificate_set_dh_params(cred, dh->get());
+		}
+	};
+
+	class X509Credentials : public CertCredentials
+	{
+		/** Private key
+		 */
+		X509Key key;
+
+		/** Certificate list, presented to the peer
+		 */
+		X509CertList certs;
+
+		/** Trusted CA, may be NULL
+		 */
+		std::auto_ptr<X509CertList> trustedca;
+
+		/** Certificate revocation list, may be NULL
+		 */
+		std::auto_ptr<X509CRL> crl;
+
+		static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st);
+
+	 public:
+		X509Credentials(const std::string& certstr, const std::string& keystr)
+			: key(keystr)
+			, certs(certstr)
+		{
+			// Throwing is ok here, the destructor of Credentials is called in that case
+			int ret = gnutls_certificate_set_x509_key(cred, certs.raw(), certs.size(), key.get());
+			ThrowOnError(ret, "Unable to set cert/key pair");
+
+#ifdef GNUTLS_NEW_CERT_CALLBACK_API
+			gnutls_certificate_set_retrieve_function(cred, cert_callback);
+#else
+			gnutls_certificate_client_set_retrieve_function(cred, cert_callback);
+#endif
+		}
+
+		/** Sets the trusted CA and the certificate revocation list
+		 * to use when verifying certificates
+		 */
+		void SetCA(std::auto_ptr<X509CertList>& certlist, std::auto_ptr<X509CRL>& CRL)
+		{
+			// Do nothing if certlist is NULL
+			if (certlist.get())
+			{
+				int ret = gnutls_certificate_set_x509_trust(cred, certlist->raw(), certlist->size());
+				ThrowOnError(ret, "gnutls_certificate_set_x509_trust() failed");
+
+				if (CRL.get())
+				{
+					ret = gnutls_certificate_set_x509_crl(cred, &CRL->get(), 1);
+					ThrowOnError(ret, "gnutls_certificate_set_x509_crl() failed");
+				}
+
+				trustedca = certlist;
+				crl = CRL;
+			}
+		}
+	};
+
+	class Profile : public refcountbase
+	{
+		/** Name of this profile
+		 */
+		const std::string name;
+
+		/** X509 certificate(s) and key
+		 */
+		X509Credentials x509cred;
+
+		/** The minimum length in bits for the DH prime to be accepted as a client
+		 */
+		unsigned int min_dh_bits;
+
+		/** Hashing algorithm to use when generating certificate fingerprints
+		 */
+		Hash hash;
+
+		/** Priorities for ciphers, compression methods, etc.
+		 */
+		Priority priority;
+
+		Profile(const std::string& profilename, const std::string& certstr, const std::string& keystr,
+				std::auto_ptr<DHParams>& DH, unsigned int mindh, const std::string& hashstr,
+				const std::string& priostr, std::auto_ptr<X509CertList>& CA, std::auto_ptr<X509CRL>& CRL)
+			: name(profilename)
+			, x509cred(certstr, keystr)
+			, min_dh_bits(mindh)
+			, hash(hashstr)
+			, priority(priostr)
+		{
+			x509cred.SetDH(DH);
+			x509cred.SetCA(CA, CRL);
+		}
+
+		static std::string ReadFile(const std::string& filename)
+		{
+			FileReader reader(filename);
+			std::string ret = reader.GetString();
+			if (ret.empty())
+				throw Exception("Cannot read file " + filename);
+			return ret;
+		}
+
+	 public:
+		static reference<Profile> Create(const std::string& profilename, ConfigTag* tag)
+		{
+			std::string certstr = ReadFile(tag->getString("certfile", "cert.pem"));
+			std::string keystr = ReadFile(tag->getString("keyfile", "key.pem"));
+
+			std::auto_ptr<DHParams> dh;
+			int gendh = tag->getInt("gendh");
+			if (gendh)
+			{
+				gendh = (gendh < 1024 ? 1024 : gendh);
+				dh = DHParams::Generate(gendh);
+			}
+			else
+				dh = DHParams::Import(ReadFile(tag->getString("dhfile", "dhparams.pem")));
+
+			// Use default priority string if this tag does not specify one
+			std::string priostr = tag->getString("priority", "NORMAL");
+			unsigned int mindh = tag->getInt("mindhbits", 1024);
+			std::string hashstr = tag->getString("hash", "md5");
+
+			// Load trusted CA and revocation list, if set
+			std::auto_ptr<X509CertList> ca;
+			std::auto_ptr<X509CRL> crl;
+			std::string filename = tag->getString("cafile");
+			if (!filename.empty())
+			{
+				ca.reset(new X509CertList(ReadFile(filename)));
+
+				filename = tag->getString("crlfile");
+				if (!filename.empty())
+					crl.reset(new X509CRL(ReadFile(filename)));
+			}
+
+			return new Profile(profilename, certstr, keystr, dh, mindh, hashstr, priostr, ca, crl);
+		}
+
+		/** Set up the given session with the settings in this profile
+		 */
+		void SetupSession(gnutls_session_t sess)
+		{
+			priority.SetupSession(sess);
+			x509cred.SetupSession(sess);
+			gnutls_dh_set_prime_bits(sess, min_dh_bits);
+		}
+
+		const std::string& GetName() const { return name; }
+		X509Credentials& GetX509Credentials() { return x509cred; }
+		gnutls_digest_algorithm_t GetHash() const { return hash.get(); }
+	};
+}
+
 /** Represents an SSL user's extra data
  */
 class issl_session
@@ -104,6 +552,7 @@ public:
 	gnutls_session_t sess;
 	issl_status status;
 	reference<ssl_cert> cert;
+	reference<GnuTLS::Profile> profile;
 
 	issl_session() : socket(NULL), sess(NULL) {}
 };
@@ -118,13 +567,7 @@ class GnuTLSIOHook : public SSLIOHook
 		gnutls_init(&session->sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
 		session->socket = user;
 
-		#ifdef GNUTLS_NEW_PRIO_API
-		gnutls_priority_set(session->sess, priority);
-		#else
-		gnutls_set_default_priority(session->sess);
-		#endif
-		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
-		gnutls_dh_set_prime_bits(session->sess, dh_bits);
+		session->profile->SetupSession(session->sess);
 		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(session));
 		gnutls_transport_set_push_function(session->sess, gnutls_push_wrapper);
 		gnutls_transport_set_pull_function(session->sess, gnutls_pull_wrapper);
@@ -145,6 +588,7 @@ class GnuTLSIOHook : public SSLIOHook
 		session->socket = NULL;
 		session->sess = NULL;
 		session->cert = NULL;
+		session->profile = NULL;
 		session->status = ISSL_NONE;
 	}
 
@@ -269,7 +713,7 @@ class GnuTLSIOHook : public SSLIOHook
 		gnutls_x509_crt_get_issuer_dn(cert, str, &name_size);
 		certinfo->issuer = str;
 
-		if ((ret = gnutls_x509_crt_get_fingerprint(cert, hash, digest, &digest_size)) < 0)
+		if ((ret = gnutls_x509_crt_get_fingerprint(cert, session->profile->GetHash(), digest, &digest_size)) < 0)
 		{
 			certinfo->error = gnutls_strerror(ret);
 		}
@@ -360,13 +804,6 @@ info_done_dealloc:
 
  public:
  	issl_session* sessions;
-	gnutls_certificate_credentials_t x509_cred;
-
-	gnutls_digest_algorithm_t hash;
-	#ifdef GNUTLS_NEW_PRIO_API
-	gnutls_priority_t priority;
-	#endif
-	int dh_bits;
 
 	GnuTLSIOHook(Module* parent)
 		: SSLIOHook(parent, "ssl/gnutls")
@@ -538,7 +975,7 @@ info_done_dealloc:
 	}
 };
 
-static int cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st)
+int GnuTLS::X509Credentials::cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st)
 {
 #ifndef GNUTLS_NEW_CERT_CALLBACK_API
 	st->type = GNUTLS_CRT_X509;
@@ -546,9 +983,12 @@ static int cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn
 	st->cert_type = GNUTLS_CRT_X509;
 	st->key_type = GNUTLS_PRIVKEY_X509;
 #endif
-	st->ncerts = x509_certs.size();
-	st->cert.x509 = &x509_certs[0];
-	st->key.x509 = x509_key;
+	issl_session* session = reinterpret_cast<issl_session*>(gnutls_transport_get_ptr(sess));
+	GnuTLS::X509Credentials& cred = session->profile->GetX509Credentials();
+
+	st->ncerts = cred.certs.size();
+	st->cert.x509 = cred.certs.raw();
+	st->key.x509 = cred.key.get();
 	st->deinit_all = 0;
 
 	return 0;
@@ -556,16 +996,74 @@ static int cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn
 
 class ModuleSSLGnuTLS : public Module
 {
-	GnuTLSIOHook iohook;
+	typedef std::vector<reference<GnuTLS::Profile> > ProfileList;
 
-	gnutls_dh_params_t dh_params;
+	// First member of the class, gets constructed first and destructed last
+	GnuTLS::Init libinit;
+
+	GnuTLSIOHook iohook;
 
 	std::string sslports;
 
-	bool cred_alloc;
-	bool dh_alloc;
-
 	RandGen randhandler;
+	ProfileList profiles;
+
+	void ReadProfiles()
+	{
+		// First, store all profiles in a new, temporary container. If no problems occur, swap the two
+		// containers; this way if something goes wrong we can go back and continue using the current profiles,
+		// avoiding unpleasant situations where no new SSL connections are possible.
+		ProfileList newprofiles;
+
+		ConfigTagList tags = ServerInstance->Config->ConfTags("sslprofile");
+		if (tags.first == tags.second)
+		{
+			// No <sslprofile> tags found, create a profile named "gnutls" from settings in the <gnutls> block
+			const std::string defname = "gnutls";
+			ConfigTag* tag = ServerInstance->Config->ConfValue(defname);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "No <sslprofile> tags found; using settings from the <gnutls> tag");
+
+			try
+			{
+				reference<GnuTLS::Profile> profile(GnuTLS::Profile::Create(defname, tag));
+				newprofiles.push_back(profile);
+			}
+			catch (CoreException& ex)
+			{
+				throw ModuleException("Error while initializing the default SSL profile - " + ex.GetReason());
+			}
+		}
+
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		{
+			ConfigTag* tag = i->second;
+			if (tag->getString("provider") != "gnutls")
+				continue;
+
+			std::string name = tag->getString("name");
+			if (name.empty())
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Ignoring <sslprofile> tag without name at " + tag->getTagLocation());
+				continue;
+			}
+
+			reference<GnuTLS::Profile> profile;
+			try
+			{
+				profile = GnuTLS::Profile::Create(name, tag);
+			}
+			catch (CoreException& ex)
+			{
+				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
+			}
+
+			newprofiles.push_back(profile);
+		}
+
+		// New profiles are ok, begin using them
+		// Old profiles are deleted when their refcount drops to zero
+		profiles.swap(newprofiles);
+	}
 
  public:
 	ModuleSSLGnuTLS() : iohook(this)
@@ -573,28 +1071,12 @@ class ModuleSSLGnuTLS : public Module
 #ifndef GNUTLS_HAS_RND
 		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
 #endif
-
-		gnutls_global_init(); // This must be called once in the program
-		gnutls_x509_privkey_init(&x509_key);
-
-		#ifdef GNUTLS_NEW_PRIO_API
-		// Init this here so it's always initialized, avoids an extra boolean
-		gnutls_priority_init(&iohook.priority, "NORMAL", NULL);
-		#endif
-
-		cred_alloc = false;
-		dh_alloc = false;
 	}
 
 	void init() CXX11_OVERRIDE
 	{
-		// Needs the flag as it ignores a plain /rehash
-		OnModuleRehash(NULL,"ssl");
-
+		ReadProfiles();
 		ServerInstance->GenRandom = &randhandler;
-
-		// Void return, guess we assume success
-		gnutls_certificate_set_dh_params(iohook.x509_cred, dh_params);
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -641,207 +1123,18 @@ class ModuleSSLGnuTLS : public Module
 		if(param != "ssl")
 			return;
 
-		std::string keyfile;
-		std::string certfile;
-		std::string cafile;
-		std::string crlfile;
-
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
-
-		cafile = ServerInstance->Config->Paths.PrependConfig(Conf->getString("cafile", "ca.pem"));
-		crlfile	= ServerInstance->Config->Paths.PrependConfig(Conf->getString("crlfile", "crl.pem"));
-		certfile = ServerInstance->Config->Paths.PrependConfig(Conf->getString("certfile", "cert.pem"));
-		keyfile	= ServerInstance->Config->Paths.PrependConfig(Conf->getString("keyfile", "key.pem"));
-		int dh_bits = Conf->getInt("dhbits");
-		std::string hashname = Conf->getString("hash", "md5");
-
-		// The GnuTLS manual states that the gnutls_set_default_priority()
-		// call we used previously when initializing the session is the same
-		// as setting the "NORMAL" priority string.
-		// Thus if the setting below is not in the config we will behave exactly
-		// the same as before, when the priority setting wasn't available.
-		std::string priorities = Conf->getString("priority", "NORMAL");
-
-		if((dh_bits != 768) && (dh_bits != 1024) && (dh_bits != 2048) && (dh_bits != 3072) && (dh_bits != 4096))
-			dh_bits = 1024;
-
-		iohook.dh_bits = dh_bits;
-
-		// As older versions of gnutls can't do this, let's disable it where needed.
-#ifdef GNUTLS_HAS_MAC_GET_ID
-		// As gnutls_digest_algorithm_t and gnutls_mac_algorithm_t are mapped 1:1, we can do this
-		// There is no gnutls_dig_get_id() at the moment, but it may come later
-		iohook.hash = (gnutls_digest_algorithm_t)gnutls_mac_get_id(hashname.c_str());
-		if (iohook.hash == GNUTLS_DIG_UNKNOWN)
-			throw ModuleException("Unknown hash type " + hashname);
-
-		// Check if the user is walking around with their head in the ass,
-		// giving us something that is a valid MAC but not digest
-		gnutls_hash_hd_t is_digest;
-		if (gnutls_hash_init(&is_digest, iohook.hash) < 0)
-			throw ModuleException("Unknown hash type " + hashname);
-		gnutls_hash_deinit(is_digest, NULL);
-#else
-		if (hashname == "md5")
-			iohook.hash = GNUTLS_DIG_MD5;
-		else if (hashname == "sha1")
-			iohook.hash = GNUTLS_DIG_SHA1;
-		else
-			throw ModuleException("Unknown hash type " + hashname);
-#endif
-
-		int ret;
-
-		if (dh_alloc)
+		try
 		{
-			gnutls_dh_params_deinit(dh_params);
-			dh_alloc = false;
-			dh_params = NULL;
+			ReadProfiles();
 		}
-
-		if (cred_alloc)
+		catch (ModuleException& ex)
 		{
-			// Deallocate the old credentials
-			gnutls_certificate_free_credentials(iohook.x509_cred);
-
-			for(unsigned int i=0; i < x509_certs.size(); i++)
-				gnutls_x509_crt_deinit(x509_certs[i]);
-			x509_certs.clear();
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
-
-		ret = gnutls_certificate_allocate_credentials(&iohook.x509_cred);
-		cred_alloc = (ret >= 0);
-		if (!cred_alloc)
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
-
-		if((ret =gnutls_certificate_set_x509_trust_file(iohook.x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
-
-		if((ret = gnutls_certificate_set_x509_crl_file (iohook.x509_cred, crlfile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Failed to set X.509 CRL file '%s': %s", crlfile.c_str(), gnutls_strerror(ret));
-
-		FileReader reader;
-
-		reader.Load(certfile);
-		std::string cert_string = reader.GetString();
-		gnutls_datum_t cert_datum = { (unsigned char*)cert_string.data(), static_cast<unsigned int>(cert_string.length()) };
-
-		reader.Load(keyfile);
-		std::string key_string = reader.GetString();
-		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
-
-		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
-		unsigned int certcount = 3;
-		x509_certs.resize(certcount);
-		ret = gnutls_x509_crt_list_import(&x509_certs[0], &certcount, &cert_datum, GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
-		if (ret == GNUTLS_E_SHORT_MEMORY_BUFFER)
-		{
-			// the buffer wasn't big enough to hold all certs but gnutls updated certcount to the number of available certs, try again with a bigger buffer
-			x509_certs.resize(certcount);
-			ret = gnutls_x509_crt_list_import(&x509_certs[0], &certcount, &cert_datum, GNUTLS_X509_FMT_PEM, GNUTLS_X509_CRT_LIST_IMPORT_FAIL_IF_EXCEED);
-		}
-
-		if (ret <= 0)
-		{
-			// clear the vector so we won't call gnutls_x509_crt_deinit() on the (uninited) certs later
-			x509_certs.clear();
-			throw ModuleException("Unable to load GnuTLS server certificate (" + certfile + "): " + ((ret < 0) ? (std::string(gnutls_strerror(ret))) : "No certs could be read"));
-		}
-		x509_certs.resize(ret);
-
-		if((ret = gnutls_x509_privkey_import(x509_key, &key_datum, GNUTLS_X509_FMT_PEM)) < 0)
-			throw ModuleException("Unable to load GnuTLS server private key (" + keyfile + "): " + std::string(gnutls_strerror(ret)));
-
-		if((ret = gnutls_certificate_set_x509_key(iohook.x509_cred, &x509_certs[0], certcount, x509_key)) < 0)
-			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
-
-		#ifdef GNUTLS_NEW_PRIO_API
-		// It's safe to call this every time as we cannot have this uninitialized, see constructor and below.
-		gnutls_priority_deinit(iohook.priority);
-
-		// Try to set the priorities for ciphers, kex methods etc. to the user supplied string
-		// If the user did not supply anything then the string is already set to "NORMAL"
-		const char* priocstr = priorities.c_str();
-		const char* prioerror;
-
-		if ((ret = gnutls_priority_init(&iohook.priority, priocstr, &prioerror)) < 0)
-		{
-			// gnutls did not understand the user supplied string, log and fall back to the default priorities
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Failed to set priorities to \"%s\": %s Syntax error at position %u, falling back to default (NORMAL)", priorities.c_str(), gnutls_strerror(ret), (unsigned int) (prioerror - priocstr));
-			gnutls_priority_init(&iohook.priority, "NORMAL", NULL);
-		}
-
-		#else
-		if (priorities != "NORMAL")
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "You've set <gnutls:priority> to a value other than the default, but this is only supported with GnuTLS v2.1.7 or newer. Your GnuTLS version is older than that so the option will have no effect.");
-		#endif
-
-		#if(GNUTLS_VERSION_MAJOR < 2 || ( GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR < 12 ) )
-		gnutls_certificate_client_set_retrieve_function (iohook.x509_cred, cert_callback);
-		#else
-		gnutls_certificate_set_retrieve_function (iohook.x509_cred, cert_callback);
-		#endif
-		ret = gnutls_dh_params_init(&dh_params);
-		dh_alloc = (ret >= 0);
-		if (!dh_alloc)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Failed to initialise DH parameters: %s", gnutls_strerror(ret));
-			return;
-		}
-
-		std::string dhfile = Conf->getString("dhfile");
-		if (!dhfile.empty())
-		{
-			// Try to load DH params from file
-			reader.Load(dhfile);
-			std::string dhstring = reader.GetString();
-			gnutls_datum_t dh_datum = { (unsigned char*)dhstring.data(), static_cast<unsigned int>(dhstring.length()) };
-
-			if ((ret = gnutls_dh_params_import_pkcs3(dh_params, &dh_datum, GNUTLS_X509_FMT_PEM)) < 0)
-			{
-				// File unreadable or GnuTLS was unhappy with the contents, generate the DH primes now
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Generating DH parameters because I failed to load them from file '%s': %s", dhfile.c_str(), gnutls_strerror(ret));
-				GenerateDHParams();
-			}
-		}
-		else
-		{
-			GenerateDHParams();
-		}
-	}
-
-	void GenerateDHParams()
-	{
- 		// Generate Diffie Hellman parameters - for use with DHE
-		// kx algorithms. These should be discarded and regenerated
-		// once a day, once a week or once a month. Depending on the
-		// security requirements.
-
-		if (!dh_alloc)
-			return;
-
-		int ret;
-
-		if((ret = gnutls_dh_params_generate2(dh_params, iohook.dh_bits)) < 0)
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Failed to generate DH parameters (%d bits): %s", iohook.dh_bits, gnutls_strerror(ret));
 	}
 
 	~ModuleSSLGnuTLS()
 	{
-		for(unsigned int i=0; i < x509_certs.size(); i++)
-			gnutls_x509_crt_deinit(x509_certs[i]);
-
-		gnutls_x509_privkey_deinit(x509_key);
-		#ifdef GNUTLS_NEW_PRIO_API
-		gnutls_priority_deinit(iohook.priority);
-		#endif
-
-		if (dh_alloc)
-			gnutls_dh_params_deinit(dh_params);
-		if (cred_alloc)
-			gnutls_certificate_free_credentials(iohook.x509_cred);
-
-		gnutls_global_deinit();
 		ServerInstance->GenRandom = &ServerInstance->HandleGenRandom;
 	}
 
@@ -873,10 +1166,18 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE
 	{
-		if (!user->GetIOHook() && lsb->bind_tag->getString("ssl") == "gnutls")
+		if (!user->GetIOHook())
 		{
-			/* Hook the user with our module */
-			user->AddIOHook(&iohook);
+			std::string profilename = lsb->bind_tag->getString("ssl");
+			for (ProfileList::const_iterator i = profiles.begin(); i != profiles.end(); ++i)
+			{
+				if ((*i)->GetName() == profilename)
+				{
+					iohook.sessions[user->GetFd()].profile = *i;
+					user->AddIOHook(&iohook);
+					break;
+				}
+			}
 		}
 	}
 
