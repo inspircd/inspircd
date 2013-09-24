@@ -677,7 +677,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 	for (TreeServer::ChildServers::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		TreeSocket* sock = (*i)->GetSocket();
-		if (sock && sock->GetIOHook() && sock->GetIOHook()->creator == mod)
+		if (sock->GetIOHook() && sock->GetIOHook()->prov->creator == mod)
 		{
 			sock->SendError("SSL module unloaded");
 			sock->Close();
@@ -687,7 +687,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 	for (SpanningTreeUtilities::TimeoutList::const_iterator i = Utils->timeoutlist.begin(); i != Utils->timeoutlist.end(); ++i)
 	{
 		TreeSocket* sock = i->first;
-		if (sock->GetIOHook() && sock->GetIOHook()->creator == mod)
+		if (sock->GetIOHook() && sock->GetIOHook()->prov->creator == mod)
 			sock->Close();
 	}
 }

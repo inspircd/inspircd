@@ -264,7 +264,7 @@ enum Implementation
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
+	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
 	I_END
 };
@@ -988,12 +988,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user who is connecting
 	 */
 	virtual void OnPostConnect(User* user);
-
-	/** Called to install an I/O hook on an event handler
-	 * @param user The socket to possibly install the I/O hook on
-	 * @param via The port that the user connected on
-	 */
-	virtual void OnHookIO(StreamSocket* user, ListenSocket* via);
 
 	/** Called when a port accepts a connection
 	 * Return MOD_RES_ACCEPT if you have used the file descriptor.

@@ -30,10 +30,10 @@ enum
 
 class CommandStartTLS : public SplitCommand
 {
-	dynamic_reference_nocheck<IOHook>& ssl;
+	dynamic_reference_nocheck<IOHookProvider>& ssl;
 
  public:
-	CommandStartTLS(Module* mod, dynamic_reference_nocheck<IOHook>& s)
+	CommandStartTLS(Module* mod, dynamic_reference_nocheck<IOHookProvider>& s)
 		: SplitCommand(mod, "STARTTLS")
 		, ssl(s)
 	{
@@ -71,8 +71,7 @@ class CommandStartTLS : public SplitCommand
 		 */
 		user->eh.DoWrite();
 
-		user->eh.AddIOHook(*ssl);
-		ssl->OnStreamSocketAccept(&user->eh, NULL, NULL);
+		ssl->OnAccept(&user->eh, NULL, NULL);
 
 		return CMD_SUCCESS;
 	}
@@ -82,7 +81,7 @@ class ModuleStartTLS : public Module
 {
 	CommandStartTLS starttls;
 	GenericCap tls;
-	dynamic_reference_nocheck<IOHook> ssl;
+	dynamic_reference_nocheck<IOHookProvider> ssl;
 
  public:
 	ModuleStartTLS()

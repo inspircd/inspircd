@@ -127,6 +127,7 @@ namespace irc
 	}
 }
 
+#include "iohook.h"
 #include "socketengine.h"
 /** This class handles incoming connections on client ports.
  * It will create a new User for every valid connection
@@ -140,6 +141,12 @@ class CoreExport ListenSocket : public EventHandler
 	int bind_port;
 	/** Human-readable bind description */
 	std::string bind_desc;
+
+	/** The IOHook provider which handles connections on this socket,
+	 * NULL if there is none.
+	 */
+	dynamic_reference_nocheck<IOHookProvider> iohookprov;
+
 	/** Create a new listening socket
 	 */
 	ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to);
@@ -153,4 +160,10 @@ class CoreExport ListenSocket : public EventHandler
 	/** Handles sockets internals crap of a connection, convenience wrapper really
 	 */
 	void AcceptInternal();
+
+	/** Inspects the bind block belonging to this socket to set the name of the IO hook
+	 * provider which this socket will use for incoming connections.
+	 * @return True if the IO hook provider was found or none was given, false otherwise.
+	 */
+	bool ResetIOHookProvider();
 };

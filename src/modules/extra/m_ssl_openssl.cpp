@@ -235,26 +235,6 @@ namespace OpenSSL
 	};
 }
 
-/** Represents an SSL user's extra data
- */
-class issl_session
-{
-public:
-	SSL* sess;
-	issl_status status;
-	reference<ssl_cert> cert;
-	reference<OpenSSL::Profile> profile;
-
-	bool outbound;
-	bool data_to_write;
-
-	issl_session()
-	{
-		outbound = false;
-		data_to_write = false;
-	}
-};
-
 static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 {
 	/* XXX: This will allow self signed certificates.
@@ -272,34 +252,40 @@ static int OnVerify(int preverify_ok, X509_STORE_CTX *ctx)
 class OpenSSLIOHook : public SSLIOHook
 {
  private:
-	bool Handshake(StreamSocket* user, issl_session* session)
+	SSL* sess;
+	issl_status status;
+	const bool outbound;
+	bool data_to_write;
+	reference<OpenSSL::Profile> profile;
+
+	bool Handshake(StreamSocket* user)
 	{
 		int ret;
 
-		if (session->outbound)
-			ret = SSL_connect(session->sess);
+		if (outbound)
+			ret = SSL_connect(sess);
 		else
-			ret = SSL_accept(session->sess);
+			ret = SSL_accept(sess);
 
 		if (ret < 0)
 		{
-			int err = SSL_get_error(session->sess, ret);
+			int err = SSL_get_error(sess, ret);
 
 			if (err == SSL_ERROR_WANT_READ)
 			{
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
-				session->status = ISSL_HANDSHAKING;
+				this->status = ISSL_HANDSHAKING;
 				return true;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
-				session->status = ISSL_HANDSHAKING;
+				this->status = ISSL_HANDSHAKING;
 				return true;
 			}
 			else
 			{
-				CloseSession(session);
+				CloseSession();
 			}
 
 			return false;
@@ -307,9 +293,9 @@ class OpenSSLIOHook : public SSLIOHook
 		else if (ret > 0)
 		{
 			// Handshake complete.
-			VerifyCertificate(session, user);
+			VerifyCertificate();
 
-			session->status = ISSL_OPEN;
+			status = ISSL_OPEN;
 
 			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
@@ -317,38 +303,35 @@ class OpenSSLIOHook : public SSLIOHook
 		}
 		else if (ret == 0)
 		{
-			CloseSession(session);
+			CloseSession();
 			return true;
 		}
 
 		return true;
 	}
 
-	void CloseSession(issl_session* session)
+	void CloseSession()
 	{
-		if (session->sess)
+		if (sess)
 		{
-			SSL_shutdown(session->sess);
-			SSL_free(session->sess);
+			SSL_shutdown(sess);
+			SSL_free(sess);
 		}
-
-		session->sess = NULL;
-		session->status = ISSL_NONE;
+		sess = NULL;
+		certificate = NULL;
+		status = ISSL_NONE;
 		errno = EIO;
 	}
 
-	void VerifyCertificate(issl_session* session, StreamSocket* user)
+	void VerifyCertificate()
 	{
-		if (!session->sess || !user)
-			return;
-
 		X509* cert;
 		ssl_cert* certinfo = new ssl_cert;
-		session->cert = certinfo;
+		this->certificate = certinfo;
 		unsigned int n;
 		unsigned char md[EVP_MAX_MD_SIZE];
 
-		cert = SSL_get_peer_certificate((SSL*)session->sess);
+		cert = SSL_get_peer_certificate(sess);
 
 		if (!cert)
 		{
@@ -356,7 +339,7 @@ class OpenSSLIOHook : public SSLIOHook
 			return;
 		}
 
-		certinfo->invalid = (SSL_get_verify_result(session->sess) != X509_V_OK);
+		certinfo->invalid = (SSL_get_verify_result(sess) != X509_V_OK);
 
 		if (!SelfSigned)
 		{
@@ -372,7 +355,7 @@ class OpenSSLIOHook : public SSLIOHook
 		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
 		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
 
-		if (!X509_digest(cert, session->profile->GetDigest(), md, &n))
+		if (!X509_digest(cert, profile->GetDigest(), md, &n))
 		{
 			certinfo->error = "Out of memory generating fingerprint";
 		}
@@ -390,129 +373,73 @@ class OpenSSLIOHook : public SSLIOHook
 	}
 
  public:
-	issl_session* sessions;
-
-	OpenSSLIOHook(Module* mod)
-		: SSLIOHook(mod, "ssl/openssl")
+	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool is_outbound, SSL* session, const reference<OpenSSL::Profile>& sslprofile)
+		: SSLIOHook(hookprov)
+		, sess(session)
+		, status(ISSL_NONE)
+		, outbound(is_outbound)
+		, data_to_write(false)
+		, profile(sslprofile)
 	{
-		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
-	}
-
-	~OpenSSLIOHook()
-	{
-		delete[] sessions;
-	}
-
-	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
-	{
-		int fd = user->GetFd();
-
-		issl_session* session = &sessions[fd];
-
-		session->sess = session->profile->CreateServerSession();
-		session->status = ISSL_NONE;
-		session->outbound = false;
-		session->cert = NULL;
-
-		if (session->sess == NULL)
+		if (sess == NULL)
 			return;
+		if (SSL_set_fd(sess, sock->GetFd()) == 0)
+			throw ModuleException("Can't set fd with SSL_set_fd: " + ConvToStr(sock->GetFd()));
 
-		if (SSL_set_fd(session->sess, fd) == 0)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Can't set fd with SSL_set_fd: %d", fd);
-			return;
-		}
-
- 		Handshake(user, session);
-	}
-
-	void OnStreamSocketConnect(StreamSocket* user) CXX11_OVERRIDE
-	{
-		int fd = user->GetFd();
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() -1))
-			return;
-
-		issl_session* session = &sessions[fd];
-
-		session->sess = session->profile->CreateClientSession();
-		session->status = ISSL_NONE;
-		session->outbound = true;
-
-		if (session->sess == NULL)
-			return;
-
-		if (SSL_set_fd(session->sess, fd) == 0)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Can't set fd with SSL_set_fd: %d", fd);
-			return;
-		}
-
-		Handshake(user, session);
+		sock->AddIOHook(this);
+		Handshake(sock);
 	}
 
 	void OnStreamSocketClose(StreamSocket* user) CXX11_OVERRIDE
 	{
-		int fd = user->GetFd();
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return;
-
-		CloseSession(&sessions[fd]);
+		CloseSession();
 	}
 
 	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) CXX11_OVERRIDE
 	{
-		int fd = user->GetFd();
-		/* Are there any possibilities of an out of range fd? Hope not, but lets be paranoid */
-		if ((fd < 0) || (fd > ServerInstance->SE->GetMaxFds() - 1))
-			return -1;
-
-		issl_session* session = &sessions[fd];
-
-		if (!session->sess)
+		if (!sess)
 		{
-			CloseSession(session);
+			CloseSession();
 			return -1;
 		}
 
-		if (session->status == ISSL_HANDSHAKING)
+		if (status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished and it wants to read, try to finish it.
-			if (!Handshake(user, session))
+			if (!Handshake(user))
 			{
 				// Couldn't resume handshake.
-				if (session->status == ISSL_NONE)
+				if (status == ISSL_NONE)
 					return -1;
 				return 0;
 			}
 		}
 
-		// If we resumed the handshake then session->status will be ISSL_OPEN
+		// If we resumed the handshake then this->status will be ISSL_OPEN
 
-		if (session->status == ISSL_OPEN)
+		if (status == ISSL_OPEN)
 		{
 			char* buffer = ServerInstance->GetReadBuffer();
 			size_t bufsiz = ServerInstance->Config->NetBufferSize;
-			int ret = SSL_read(session->sess, buffer, bufsiz);
+			int ret = SSL_read(sess, buffer, bufsiz);
 
 			if (ret > 0)
 			{
 				recvq.append(buffer, ret);
-				if (session->data_to_write)
+				if (data_to_write)
 					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE);
 				return 1;
 			}
 			else if (ret == 0)
 			{
 				// Client closed connection.
-				CloseSession(session);
+				CloseSession();
 				user->SetError("Connection closed");
 				return -1;
 			}
 			else if (ret < 0)
 			{
-				int err = SSL_get_error(session->sess, ret);
+				int err = SSL_get_error(sess, ret);
 
 				if (err == SSL_ERROR_WANT_READ)
 				{
@@ -526,7 +453,7 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 				else
 				{
-					CloseSession(session);
+					CloseSession();
 					return -1;
 				}
 			}
@@ -537,35 +464,31 @@ class OpenSSLIOHook : public SSLIOHook
 
 	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer) CXX11_OVERRIDE
 	{
-		int fd = user->GetFd();
-
-		issl_session* session = &sessions[fd];
-
-		if (!session->sess)
+		if (!sess)
 		{
-			CloseSession(session);
+			CloseSession();
 			return -1;
 		}
 
-		session->data_to_write = true;
+		data_to_write = true;
 
-		if (session->status == ISSL_HANDSHAKING)
+		if (status == ISSL_HANDSHAKING)
 		{
-			if (!Handshake(user, session))
+			if (!Handshake(user))
 			{
 				// Couldn't resume handshake.
-				if (session->status == ISSL_NONE)
+				if (status == ISSL_NONE)
 					return -1;
 				return 0;
 			}
 		}
 
-		if (session->status == ISSL_OPEN)
+		if (status == ISSL_OPEN)
 		{
-			int ret = SSL_write(session->sess, buffer.data(), buffer.size());
+			int ret = SSL_write(sess, buffer.data(), buffer.size());
 			if (ret == (int)buffer.length())
 			{
-				session->data_to_write = false;
+				data_to_write = false;
 				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				return 1;
 			}
@@ -577,12 +500,12 @@ class OpenSSLIOHook : public SSLIOHook
 			}
 			else if (ret == 0)
 			{
-				CloseSession(session);
+				CloseSession();
 				return -1;
 			}
 			else if (ret < 0)
 			{
-				int err = SSL_get_error(session->sess, ret);
+				int err = SSL_get_error(sess, ret);
 
 				if (err == SSL_ERROR_WANT_WRITE)
 				{
@@ -596,7 +519,7 @@ class OpenSSLIOHook : public SSLIOHook
 				}
 				else
 				{
-					CloseSession(session);
+					CloseSession();
 					return -1;
 				}
 			}
@@ -604,20 +527,12 @@ class OpenSSLIOHook : public SSLIOHook
 		return 0;
 	}
 
-	ssl_cert* GetCertificate(StreamSocket* sock) CXX11_OVERRIDE
-	{
-		int fd = sock->GetFd();
-		issl_session* session = &sessions[fd];
-		return session->cert;
-	}
-
 	void TellCiphersAndFingerprint(LocalUser* user)
 	{
-		issl_session& s = sessions[user->eh.GetFd()];
-		if (s.sess)
+		if (sess)
 		{
-			std::string text = "*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(s.sess)) + "'";
-			const std::string& fingerprint = s.cert->fingerprint;
+			std::string text = "*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sess)) + "'";
+			const std::string& fingerprint = certificate->fingerprint;
 			if (!fingerprint.empty())
 				text += " and your SSL fingerprint is " + fingerprint;
 
@@ -626,12 +541,39 @@ class OpenSSLIOHook : public SSLIOHook
 	}
 };
 
+class OpenSSLIOHookProvider : public refcountbase, public IOHookProvider
+{
+	reference<OpenSSL::Profile> profile;
+
+ public:
+	OpenSSLIOHookProvider(Module* mod, reference<OpenSSL::Profile>& prof)
+		: IOHookProvider(mod, "ssl/" + prof->GetName(), IOHookProvider::IOH_SSL)
+		, profile(prof)
+	{
+		ServerInstance->Modules->AddService(*this);
+	}
+
+	~OpenSSLIOHookProvider()
+	{
+		ServerInstance->Modules->DelService(*this);
+	}
+
+	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
+	{
+		new OpenSSLIOHook(this, sock, false, profile->CreateServerSession(), profile);
+	}
+
+	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
+	{
+		new OpenSSLIOHook(this, sock, true, profile->CreateClientSession(), profile);
+	}
+};
+
 class ModuleSSLOpenSSL : public Module
 {
-	typedef std::vector<reference<OpenSSL::Profile> > ProfileList;
+	typedef std::vector<reference<OpenSSLIOHookProvider> > ProfileList;
 
 	std::string sslports;
-	OpenSSLIOHook iohook;
 	ProfileList profiles;
 
 	void ReadProfiles()
@@ -648,7 +590,7 @@ class ModuleSSLOpenSSL : public Module
 			try
 			{
 				reference<OpenSSL::Profile> profile(new OpenSSL::Profile(defname, tag));
-				newprofiles.push_back(profile);
+				newprofiles.push_back(new OpenSSLIOHookProvider(this, profile));
 			}
 			catch (OpenSSL::Exception& ex)
 			{
@@ -679,14 +621,14 @@ class ModuleSSLOpenSSL : public Module
 				throw ModuleException("Error while initializing SSL profile \"" + name + "\" at " + tag->getTagLocation() + " - " + ex.GetReason());
 			}
 
-			newprofiles.push_back(profile);
+			newprofiles.push_back(new OpenSSLIOHookProvider(this, profile));
 		}
 
 		profiles.swap(newprofiles);
 	}
 
  public:
-	ModuleSSLOpenSSL() : iohook(this)
+	ModuleSSLOpenSSL()
 	{
 		// Initialize OpenSSL
 		SSL_library_init();
@@ -696,24 +638,6 @@ class ModuleSSLOpenSSL : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ReadProfiles();
-	}
-
-	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE
-	{
-		if (user->GetIOHook())
-			return;
-
-		ConfigTag* tag = lsb->bind_tag;
-		std::string profilename = tag->getString("ssl");
-		for (ProfileList::const_iterator i = profiles.begin(); i != profiles.end(); ++i)
-		{
-			if ((*i)->GetName() == profilename)
-			{
-				iohook.sessions[user->GetFd()].profile = *i;
-				user->AddIOHook(&iohook);
-				break;
-			}
-		}
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -778,8 +702,9 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		if (user->eh.GetIOHook() == &iohook)
-			iohook.TellCiphersAndFingerprint(user);
+		IOHook* hook = user->eh.GetIOHook();
+		if (hook && hook->prov->creator == this)
+			static_cast<OpenSSLIOHook*>(hook)->TellCiphersAndFingerprint(user);
 	}
 
 	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
@@ -788,7 +713,7 @@ class ModuleSSLOpenSSL : public Module
 		{
 			LocalUser* user = IS_LOCAL((User*)item);
 
-			if (user && user->eh.GetIOHook() == &iohook)
+			if (user && user->eh.GetIOHook() && user->eh.GetIOHook()->prov->creator == this)
 			{
 				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
 				// Potentially there could be multiple SSL modules loaded at once on different ports.

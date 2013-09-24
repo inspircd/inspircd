@@ -133,28 +133,34 @@ class ssl_cert : public refcountbase
 
 class SSLIOHook : public IOHook
 {
+ protected:
+	/** Peer SSL certificate, set by the SSL module
+	 */
+	reference<ssl_cert> certificate;
+
  public:
-	SSLIOHook(Module* mod, const std::string& Name)
-		: IOHook(mod, Name, IOHook::IOH_SSL)
+	SSLIOHook(IOHookProvider* hookprov)
+		: IOHook(hookprov)
 	{
 	}
 
 	/**
-	 * Get the client certificate from a socket
-	 * @param sock The socket to get the certificate from, must be using this IOHook
-	 * @return The SSL client certificate information
+	 * Get the certificate sent by this peer
+	 * @return The SSL certificate sent by the peer, NULL if no cert was sent
 	 */
-	virtual ssl_cert* GetCertificate(StreamSocket* sock) = 0;
+	ssl_cert* GetCertificate() const
+	{
+		return certificate;
+	}
 
 	/**
-	 * Get the fingerprint of a client certificate from a socket
-	 * @param sock The socket to get the certificate fingerprint from, must be using this IOHook
+	 * Get the fingerprint of the peer's certificate
 	 * @return The fingerprint of the SSL client certificate sent by the peer,
 	 * empty if no cert was sent
 	 */
-	std::string GetFingerprint(StreamSocket* sock)
+	std::string GetFingerprint() const
 	{
-		ssl_cert* cert = GetCertificate(sock);
+		ssl_cert* cert = GetCertificate();
 		if (cert)
 			return cert->GetFingerprint();
 		return "";
@@ -175,11 +181,11 @@ class SSLClientCert
 	static ssl_cert* GetCertificate(StreamSocket* sock)
 	{
 		IOHook* iohook = sock->GetIOHook();
-		if ((!iohook) || (iohook->type != IOHook::IOH_SSL))
+		if ((!iohook) || (iohook->prov->type != IOHookProvider::IOH_SSL))
 			return NULL;
 
 		SSLIOHook* ssliohook = static_cast<SSLIOHook*>(iohook);
-		return ssliohook->GetCertificate(sock);
+		return ssliohook->GetCertificate();
 	}
 
 	/**

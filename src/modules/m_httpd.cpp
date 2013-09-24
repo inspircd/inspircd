@@ -65,9 +65,8 @@ class HttpServerSocket : public BufferedSocket
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 
-		FOREACH_MOD(OnHookIO, (this, via));
-		if (GetIOHook())
-			GetIOHook()->OnStreamSocketAccept(this, client, server);
+		if (via->iohookprov)
+			via->iohookprov->OnAccept(this, client, server);
 	}
 
 	~HttpServerSocket()

@@ -62,20 +62,9 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	}
 	UserIOHandler* eh = &New->eh;
 
-	/* Give each of the modules an attempt to hook the user for I/O */
-	FOREACH_MOD(OnHookIO, (eh, via));
-
-	if (eh->GetIOHook())
-	{
-		try
-		{
-			eh->GetIOHook()->OnStreamSocketAccept(eh, client, server);
-		}
-		catch (CoreException& modexcept)
-		{
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "%s threw an exception: %s", modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
-		}
-	}
+	// If this listener has an IO hook provider set then tell it about the connection
+	if (via->iohookprov)
+		via->iohookprov->OnAccept(eh, client, server);
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New user fd: %d", socket);
 

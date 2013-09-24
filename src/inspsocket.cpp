@@ -134,6 +134,7 @@ void StreamSocket::Close()
 				ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
 					modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
 			}
+			delete iohook;
 			DelIOHook();
 		}
 		ServerInstance->SE->Shutdown(this, 2);
@@ -467,9 +468,7 @@ void BufferedSocket::DoWrite()
 	{
 		state = I_CONNECTED;
 		this->OnConnected();
-		if (GetIOHook())
-			GetIOHook()->OnStreamSocketConnect(this);
-		else
+		if (!GetIOHook())
 			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 	}
 	this->StreamSocket::DoWrite();

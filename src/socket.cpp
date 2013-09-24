@@ -106,6 +106,8 @@ int InspIRCd::BindPorts(FailedPortList &failed_ports)
 				if ((**n).bind_desc == bind_readable)
 				{
 					(*n)->bind_tag = tag; // Replace tag, we know addr and port match, but other info (type, ssl) may not
+					(*n)->ResetIOHookProvider();
+
 					skip = true;
 					old_ports.erase(n);
 					break;

@@ -28,6 +28,7 @@
 
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
+	, iohookprov(NULL, std::string())
 {
 	irc::sockets::satoap(bind_to, bind_addr, bind_port);
 	bind_desc = bind_to.str();
@@ -85,6 +86,8 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	{
 		ServerInstance->SE->NonBlocking(this->fd);
 		ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+
+		this->ResetIOHookProvider();
 	}
 }
 
@@ -213,4 +216,17 @@ void ListenSocket::HandleEvent(EventType e, int err)
 			this->AcceptInternal();
 			break;
 	}
+}
+
+bool ListenSocket::ResetIOHookProvider()
+{
+	std::string provname = bind_tag->getString("ssl");
+	if (!provname.empty())
+		provname.insert(0, "ssl/");
+
+	// Set the new provider name, dynref handles the rest
+	iohookprov.SetProvider(provname);
+
+	// Return true if no provider was set, or one was set and it was also found
+	return (provname.empty() || iohookprov);
 }

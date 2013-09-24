@@ -44,16 +44,7 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 	capab->link = link;
 	capab->ac = myac;
 	capab->capab_phase = 0;
-	if (!link->Hook.empty())
-	{
-		ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_IOHOOK, link->Hook);
-		if (!prov)
-		{
-			SetError("Could not find hook '" + link->Hook + "' for connection to " + linkID);
-			return;
-		}
-		AddIOHook(static_cast<IOHook*>(prov));
-	}
+
 	DoConnect(ipaddr, link->Port, link->Timeout, link->Bind);
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, link->Timeout);
 	SendCapabilities(1);
@@ -71,9 +62,8 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 	capab = new CapabData;
 	capab->capab_phase = 0;
 
-	FOREACH_MOD(OnHookIO, (this, via));
-	if (GetIOHook())
-		GetIOHook()->OnStreamSocketAccept(this, client, server);
+	if (via->iohookprov)
+		via->iohookprov->OnAccept(this, client, server);
 	SendCapabilities(1);
 
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, 30);
@@ -116,6 +106,17 @@ void TreeSocket::OnConnected()
 {
 	if (this->LinkState == CONNECTING)
 	{
+		if (!capab->link->Hook.empty())
+		{
+			ServiceProvider* prov = ServerInstance->Modules->FindService(SERVICE_IOHOOK, capab->link->Hook);
+			if (!prov)
+			{
+				SetError("Could not find hook '" + capab->link->Hook + "' for connection to " + linkID);
+				return;
+			}
+			static_cast<IOHookProvider*>(prov)->OnConnect(this);
+		}
+
 		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", linkID.c_str(),
 			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr.c_str()));
 		this->SendCapabilities(1);
