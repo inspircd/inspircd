@@ -72,24 +72,14 @@ enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISS
 
 static std::vector<gnutls_x509_crt_t> x509_certs;
 static gnutls_x509_privkey_t x509_key;
-#if(GNUTLS_VERSION_MAJOR < 2 || ( GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR < 12 ) )
-static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
-	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st) {
-
-	st->type = GNUTLS_CRT_X509;
+#if (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 12))
+#define GNUTLS_NEW_CERT_CALLBACK_API
+typedef gnutls_retr2_st cert_cb_last_param_type;
 #else
-static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
-	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr2_st * st) {
-	st->cert_type = GNUTLS_CRT_X509;
-	st->key_type = GNUTLS_PRIVKEY_X509;
+typedef gnutls_retr_st cert_cb_last_param_type;
 #endif
-	st->ncerts = x509_certs.size();
-	st->cert.x509 = &x509_certs[0];
-	st->key.x509 = x509_key;
-	st->deinit_all = 0;
 
-	return 0;
-}
+static int cert_callback(gnutls_session_t session, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st);
 
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
@@ -547,6 +537,22 @@ info_done_dealloc:
 		}
 	}
 };
+
+static int cert_callback(gnutls_session_t sess, const gnutls_datum_t* req_ca_rdn, int nreqs, const gnutls_pk_algorithm_t* sign_algos, int sign_algos_length, cert_cb_last_param_type* st)
+{
+#ifndef GNUTLS_NEW_CERT_CALLBACK_API
+	st->type = GNUTLS_CRT_X509;
+#else
+	st->cert_type = GNUTLS_CRT_X509;
+	st->key_type = GNUTLS_PRIVKEY_X509;
+#endif
+	st->ncerts = x509_certs.size();
+	st->cert.x509 = &x509_certs[0];
+	st->key.x509 = x509_key;
+	st->deinit_all = 0;
+
+	return 0;
+}
 
 class ModuleSSLGnuTLS : public Module
 {
