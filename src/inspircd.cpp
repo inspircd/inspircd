@@ -693,7 +693,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!g)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -701,7 +701,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", DEFAULT, "setgid() failed (wrong group?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -716,7 +716,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!u)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -724,7 +724,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("SETGUID", DEFAULT, "setuid() failed (wrong user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
