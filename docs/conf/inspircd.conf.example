@@ -718,13 +718,15 @@
           #  no        Do not show
           operspywhois="no"
 
-          # runasuser: If this is set, InspIRCd will attempt to setuid
-          # to run as this user- allows binding of ports under 1024.
+          # runasuser: If this is set, InspIRCd will attempt to switch
+          # to run as this user, which allows binding of ports under 1024.
+          # You should NOT set this unless you are starting as root.
           # NOT SUPPORTED/NEEDED UNDER WINDOWS.
           #runasuser=""
 
-          # runasgroup: If this is set, InspIRCd will attempt to set group
-          # to run under this group, which allows binding of ports under 1024
+          # runasgroup: If this is set, InspIRCd will attempt to switch
+          # to run as this group, which allows binding of ports under 1024.
+          # You should NOT set this unless you are starting as root.
           # NOT SUPPORTED/NEEDED UNDER WINDOWS.
           #runasgroup=""
 
