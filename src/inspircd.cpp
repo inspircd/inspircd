@@ -380,14 +380,14 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		Logs->AddLogTypes("*", fls, true);
 	}
 
-	if (!ServerConfig::FileExists(ConfigFileName.c_str()))
+	if (!FileSystem::FileExists(ConfigFileName))
 	{
 #ifdef _WIN32
 		/* Windows can (and defaults to) hide file extensions, so let's play a bit nice for windows users. */
 		std::string txtconf = this->ConfigFileName;
 		txtconf.append(".txt");
 
-		if (ServerConfig::FileExists(txtconf.c_str()))
+		if (FileSystem::FileExists(txtconf))
 		{
 			ConfigFileName = txtconf;
 		}

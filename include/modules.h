@@ -1078,44 +1078,6 @@ class CoreExport Module : public classbase, public usecountbase
 	virtual void OnSetUserIP(LocalUser* user);
 };
 
-/** Provides an easy method of reading a text file into memory. */
-class CoreExport FileReader : public classbase
-{
-	/** The lines of text in the file.
-	 */
-	std::vector<std::string> lines;
-
-	/** Content size in bytes
-	 */
-	unsigned long totalSize;
-
- public:
-	/** Initializes a new file reader.
-	 */
-	FileReader() : totalSize(0) { }
-
-	/** Initializes a new file reader and reads the specified file.
-	 * @param filename The file to read into memory.
-	 */
-	FileReader(const std::string& filename);
-
-	/** Loads a text file from disk.
-	 * @param filename The file to read into memory.
-	 * @throw CoreException The file can not be loaded.
-	 */
-	void Load(const std::string& filename);
-
-	/** Retrieves the entire contents of the file cache as a single string.
-	 */
-	std::string GetString();
-
-	/** Retrieves the entire contents of the file cache as a vector of strings.
-	 */
-	const std::vector<std::string>& GetVector() { return lines; }
-
-	unsigned long TotalSize() { return totalSize; }
-};
-
 /** A list of modules
  */
 typedef std::vector<Module*> IntModuleList;

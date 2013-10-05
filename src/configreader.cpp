@@ -734,11 +734,6 @@ void ServerConfig::ApplyModules(User* user)
 	}
 }
 
-bool ServerConfig::StartsWithWindowsDriveLetter(const std::string &path)
-{
-	return (path.length() > 2 && isalpha(path[0]) && path[1] == ':');
-}
-
 ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 {
 	ConfigTagList found = config_data.equal_range(tag);
@@ -755,18 +750,6 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 ConfigTagList ServerConfig::ConfTags(const std::string& tag)
 {
 	return config_data.equal_range(tag);
-}
-
-bool ServerConfig::FileExists(const char* file)
-{
-	struct stat sb;
-	if (stat(file, &sb) == -1)
-		return false;
-
-	if ((sb.st_mode & S_IFDIR) > 0)
-		return false;
-
-	return !access(file, F_OK);
 }
 
 std::string ServerConfig::Escape(const std::string& str, bool xml)
@@ -791,22 +774,6 @@ std::string ServerConfig::Escape(const std::string& str, bool xml)
 		}
 	}
 	return escaped;
-}
-
-std::string ServerConfig::ExpandPath(const std::string& base, const std::string& fragment)
-{
-	// The fragment is an absolute path, don't modify it.
-	if (fragment[0] == '/' || ServerConfig::StartsWithWindowsDriveLetter(fragment))
-		return fragment;
-
-	return base + '/' + fragment;
-}
-
-const char* ServerConfig::CleanFilename(const char* name)
-{
-	const char* p = name + strlen(name);
-	while ((p != name) && (*p != '/') && (*p != '\\')) p--;
-	return (p != name ? ++p : p);
 }
 
 void ConfigReaderThread::Run()

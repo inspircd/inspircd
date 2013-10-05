@@ -54,6 +54,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "caller.h"
 #include "cull_list.h"
 #include "extensible.h"
+#include "fileutils.h"
 #include "numerics.h"
 #include "uid.h"
 #include "users.h"

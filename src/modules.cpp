@@ -25,7 +25,6 @@
 
 
 #include <iostream>
-#include <fstream>
 #include "inspircd.h"
 #include "xline.h"
 #include "socket.h"
@@ -707,48 +706,4 @@ Module* ModuleManager::Find(const std::string &name)
 		return NULL;
 	else
 		return modfind->second;
-}
-
-FileReader::FileReader(const std::string& filename)
-{
-	Load(filename);
-}
-
-void FileReader::Load(const std::string& filename)
-{
-	// If the file is stored in the file cache then we used that version instead.
-	std::string realName = ServerInstance->Config->Paths.PrependConfig(filename);
-	ConfigFileCache::iterator it = ServerInstance->Config->Files.find(realName);
-	if (it != ServerInstance->Config->Files.end())
-	{
-		this->lines = it->second;
-	}
-	else
-	{
-		lines.clear();
-
-		std::ifstream stream(realName.c_str());
-		if (!stream.is_open())
-			throw CoreException(filename + " does not exist or is not readable!");
-
-		std::string line;
-		while (std::getline(stream, line))
-		{
-			lines.push_back(line);
-			totalSize += line.size() + 2;
-		}
-
-		stream.close();
-	}
-}
-
-std::string FileReader::GetString()
-{
-	std::string buffer;
-	for (file_cache::iterator it = this->lines.begin(); it != this->lines.end(); ++it)
-	{
-		buffer.append(*it);
-		buffer.append("\r\n");
-	}
-	return buffer;
 }
