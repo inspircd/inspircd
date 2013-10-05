@@ -521,7 +521,7 @@ void ServerConfig::Read()
 	catch (CoreException& err)
 	{
 		valid = false;
-		errstr << err.GetReason();
+		errstr << err.GetReason() << std::endl;
 	}
 }
 
