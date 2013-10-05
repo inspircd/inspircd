@@ -606,7 +606,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		}
 	}
 
-	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
+	User* user = useruid.empty() ? NULL : ServerInstance->FindUUID(useruid);
 
 	if (!valid)
 		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "There were errors in your configuration file:");
@@ -835,7 +835,7 @@ void ConfigReaderThread::Finish()
 		ChanModeReference ban(NULL, "ban");
 		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
-		User* user = ServerInstance->FindNick(TheUserUID);
+		User* user = ServerInstance->FindUUID(TheUserUID);
 
 		ConfigStatus status(user);
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
