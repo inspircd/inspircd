@@ -315,7 +315,7 @@ class ModuleSilence : public Module
 
 	void OnRehash(User* user)
 	{
-		maxsilence = ServerInstance->Config->ConfValue("showwhois")->getInt("maxentries", 32);
+		maxsilence = ServerInstance->Config->ConfValue("silence")->getInt("maxentries", 32);
 		if (!maxsilence)
 			maxsilence = 32;
 	}
