@@ -253,21 +253,6 @@
 
 <module name="m_operlog.so">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for separate message of the day
-# on oper-up
-# This module is oper-only.
-#<module name="m_opermotd.so">
-#
-#-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# If you are using the m_opermotd.so module, specify the motd here    #
-#                                                                     #
-# onoper      -      Should the message be sent on /OPER or only when #
-#                    /OPERMOTD is used. Use "yes" or "no".            #
-#                                                                     #
-#<opermotd file="oper.motd" onoper="yes">
-
 <module name="m_override.so">
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
