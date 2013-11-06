@@ -34,39 +34,36 @@ class CommandUserip : public Command
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
 		std::string retbuf = "340 " + user->nick + " :";
-		int nicks = 0;
+		std::vector::size_type nicks = 0;
 		bool checked_privs = false;
-		bool has_privs = false;
+		bool has_privs = user->HasPrivPermission("users/auspex");
 
-		for (int i = 0; i < (int)parameters.size(); i++)
+		for (std::vector::size_type i = 0; i < parameters.size(); i++)
 		{
 			User *u = ServerInstance->FindNick(parameters[i]);
-			if ((u) && (u->registered == REG_ALL))
-			{
-				// Anyone may query their own IP
-				if (u != user)
-				{
-					if (!checked_privs)
-					{
-						// Do not trigger the insufficient priviliges message more than once
-						checked_privs = true;
-						has_privs = user->HasPrivPermission("users/auspex");
-						if (!has_privs)
-							user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
-					}
+			if (!u || u->registered != REG_ALL)
+				continue;
 
-					if (!has_privs)
-						continue;
+			// Anyone may query their own IP
+			if (u != user && !has_privs)
+			{
+				if (!checked_privs)
+				{
+					// Do not trigger the insufficient priviliges message more than once
+					checked_privs = true;
+					user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
 				}
 
-				retbuf = retbuf + u->nick + (u->IsOper() ? "*" : "") + "=";
-				if (u->IsAway())
-					retbuf += "-";
-				else
-					retbuf += "+";
-				retbuf += u->ident + "@" + u->GetIPString() + " ";
-				nicks++;
+				continue;
 			}
+
+			retbuf = retbuf + u->nick + (u->IsOper() ? "*" : "") + "=";
+			if (u->IsAway())
+				retbuf += "-";
+			else
+				retbuf += "+";
+			retbuf += u->ident + "@" + u->GetIPString() + " ";
+			nicks++;
 		}
 
 		if (nicks != 0)

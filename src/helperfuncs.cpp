@@ -55,13 +55,7 @@ User* InspIRCd::FindNick(const std::string &nick)
 	if (!nick.empty() && isdigit(*nick.begin()))
 		return FindUUID(nick);
 
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
+	return FindNickOnly(nick);
 }
 
 User* InspIRCd::FindNickOnly(const std::string &nick)
@@ -151,28 +145,50 @@ bool InspIRCd::IsValidMask(const std::string &mask)
 
 void InspIRCd::StripColor(std::string &sentence)
 {
-	/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
-	int seq = 0;
-
-	for (std::string::iterator i = sentence.begin(); i != sentence.end();)
+	std::string::iterator i = sentence.begin();
+	while (i != sentence.end())
 	{
-		if (*i == 3)
-			seq = 1;
-		else if (seq && (( ((*i >= '0') && (*i <= '9')) || (*i == ',') ) ))
-		{
-			seq++;
-			if ( (seq <= 4) && (*i == ',') )
-				seq = 1;
-			else if (seq > 3)
-				seq = 0;
-		}
-		else
-			seq = 0;
+		/* XXX: These magic numbers should probably be placed somewhere more central (and this comment removed), so they can be reused in the function below.
+		 *      Their corresponding functionality is:
+		 * 0x02: Bold
+		 * 0x03: Colour
+		 * 0x0F: Stop colours
+		 * 0x15: I don't know. It was in the previous function...
+		 * 0x16: Reverse background/foreground
+		 * 0x1D: Italics
+		 * 0x1F: Underline
+		 */
 
-		if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
-			i = sentence.erase(i);
-		else
-			++i;
+		switch (*i) {
+			case 0x02:
+			case 0x0F:
+			case 0x15:
+			case 0x16:
+			case 0x1D:
+			case 0x1F:
+				i = sentence.erase(i);
+				break;
+			case 0x03:
+				for (size_t x = 0; x < 3; x++)
+				{
+					i = sentence.erase(i);
+					if (i == sentence.end()) { return; }
+					if (!isdigit(*i)) { break; }
+				}
+
+				if (*i != ',') { break; }
+
+				for (size_t x = 0; x < 3; x++)
+				{
+					i = sentence.erase(i);
+					if (i == sentence.end()) { return; }
+					if (!isdigit(*i)) { break; }
+				}
+				break;
+			default:
+				i++;
+				break;
+		}
 	}
 }
 
