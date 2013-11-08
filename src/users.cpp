@@ -274,7 +274,6 @@ void UserIOHandler::OnDataReady()
 				c = ' ';
 				break;
 			case '\r':
-				continue;
 			case '\n':
 				goto eol_found;
 			}
