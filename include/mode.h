@@ -314,7 +314,7 @@ class CoreExport ModeHandler : public ServiceProvider
  * for example changing the topic on a channel having +t set requires a rank that is >= than the rank of a halfop,
  * but there is no such restriction when +t isn't set.
  */
-class PrefixMode : public ModeHandler
+class CoreExport PrefixMode : public ModeHandler
 {
  protected:
 	/** The prefix character granted by this mode. '@' for op, '+' for voice, etc.
