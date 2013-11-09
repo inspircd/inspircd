@@ -54,17 +54,21 @@ bool TreeSocket::AddLine(const std::string &prefix, parameterlist &params)
 		return true;
 	}
 
+	long created = atol(params[3].c_str()), expires = atol(params[4].c_str());
+	if (created < 0 || expires < 0)
+		return true;
+
 	XLine* xl = NULL;
 	try
 	{
-		xl = xlf->Generate(ServerInstance->Time(), atoi(params[4].c_str()), params[2], params[5], params[1]);
+		xl = xlf->Generate(ServerInstance->Time(), expires, params[2], params[5], params[1]);
 	}
 	catch (ModuleException &e)
 	{
 		ServerInstance->SNO->WriteToSnoMask('d',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason());
 		return true;
 	}
-	xl->SetCreateTime(atoi(params[3].c_str()));
+	xl->SetCreateTime(created);
 	if (ServerInstance->XLines->AddLine(xl, NULL))
 	{
 		if (xl->duration)
