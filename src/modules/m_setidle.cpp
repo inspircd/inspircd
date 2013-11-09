@@ -33,7 +33,7 @@ class CommandSetidle : public SplitCommand
 
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 	{
-		int idle = InspIRCd::Duration(parameters[0]);
+		unsigned long idle = InspIRCd::Duration(parameters[0]);
 		if (idle < 1)
 		{
 			user->WriteNumeric(948, "%s :Invalid idle time.",user->nick.c_str());

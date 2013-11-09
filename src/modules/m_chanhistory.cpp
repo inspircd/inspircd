@@ -68,7 +68,7 @@ class HistoryMode : public ModeHandler
 				return MODEACTION_DENY;
 
 			unsigned int len = ConvToInt(parameter.substr(0, colon));
-			int time = InspIRCd::Duration(duration);
+			unsigned long time = InspIRCd::Duration(duration);
 			if (len == 0 || time < 0)
 				return MODEACTION_DENY;
 			if (len > maxlines && IS_LOCAL(source))

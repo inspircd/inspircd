@@ -146,7 +146,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 			match = InspIRCd::Match(user->awaymsg, matchtext);
 		else if (opt_time)
 		{
-			long seconds = InspIRCd::Duration(matchtext);
+			unsigned long seconds = InspIRCd::Duration(matchtext);
 
 			// Okay, so time matching, we want all users connected `seconds' ago
 			if (user->age >= ServerInstance->Time() - seconds)

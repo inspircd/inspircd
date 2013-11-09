@@ -99,7 +99,7 @@ class RepeatMode : public ModeHandler
 		unsigned int Backlog;
 		unsigned int Lines;
 		unsigned int Diff;
-		unsigned int Seconds;
+		unsigned long Seconds;
 
 		std::string serialize()
 		{

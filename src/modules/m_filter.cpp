@@ -224,7 +224,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 			FilterAction type;
 			const std::string& flags = parameters[2];
 			unsigned int reasonindex;
-			long duration = 0;
+			unsigned long duration = 0;
 
 			if (!ModuleFilter::StringToFilterAction(parameters[1], type))
 			{

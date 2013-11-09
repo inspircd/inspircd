@@ -34,7 +34,7 @@ class DNSBLConfEntry : public refcountbase
 		std::string name, ident, host, domain, reason;
 		EnumBanaction banaction;
 		EnumType type;
-		long duration;
+		unsigned long duration;
 		int bitmask;
 		unsigned char records[256];
 		unsigned long stats_hits, stats_misses;

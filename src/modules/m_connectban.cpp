@@ -24,7 +24,7 @@ class ModuleConnectBan : public Module
 {
 	clonemap connects;
 	unsigned int threshold;
-	unsigned int banduration;
+	unsigned long banduration;
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
 
