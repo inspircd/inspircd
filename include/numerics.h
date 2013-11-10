@@ -56,7 +56,6 @@ enum Numerics
 	RPL_YOURUUID					=	42, // taken from ircnet
 
 	RPL_UMODEIS					=	221,
-	RPL_RULES					=	232, // unrealircd
 	RPL_ADMINME					=	256,
 	RPL_ADMINLOC1				=	257,
 	RPL_ADMINLOC2				=	258,
@@ -68,8 +67,6 @@ enum Numerics
 	RPL_UNAWAY						=	305,
 	RPL_NOWAWAY						=	306,
 
-	RPL_RULESTART					=	308, // unrealircd
-	RPL_RULESEND					=	309, // unrealircd
 	RPL_CHANNELMODEIS				=	324,
 	RPL_CHANNELCREATED				=	329, // ???
 	RPL_NOTOPICSET					=	331,

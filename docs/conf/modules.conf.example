@@ -1224,25 +1224,6 @@
 #<operprefix prefix="!">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper MOTD module: Provides support for separate message of the day
-# on oper-up
-# This module is oper-only.
-#<module name="m_opermotd.so">
-#
-#-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# If you are using the m_opermotd.so module, specify the motd here    #
-#                                                                     #
-# onoper        - Should the message be sent on /OPER or only when    #
-#                 /OPERMOTD is used. Use "yes" or "no".               #
-#                                                                     #
-# processcolors - Allow color codes to be processed in the opermotd.  #
-#                 Read the comment above <connect:allowmotdcolors> in #
-#                 inspircd.conf.example for details.                  #
-#                                                                     #
-#<opermotd file="examples/opermotd.txt.example" onoper="yes" processcolors="false">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Override module: Adds support for oper override
 # This module is oper-only.
 #<module name="m_override.so">
@@ -1633,6 +1614,30 @@
 # Serverban: Implements extended ban s:, which stops anyone connected
 # to a server matching a mask like +b s:server.mask.here from joining.
 #<module name="m_serverban.so">
+
+
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Show file module: Provides support for showing custom MOTD-like files
+# to the user.
+#<module name="m_showfile.so">
+#
+#-#-#-#-#-#-#-#-#-#-#   SHOWFILE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# command       - The name of the command which displays this file.   #
+# file          - The file to be displayed to the user.               #
+# operonly      - Is the file only available to IRC operators?        #
+# processcolors - Allow color codes to be processed in the opermotd.  #
+#                 Read the comment above <connect:allowmotdcolors> in #
+#                 inspircd.conf.example for details.                  #
+# showonconnect - Should the file be displaued to the user when they  #
+#                 connect to the server? If oper-only, this applies   #
+#                 to when they oper up.                               #
+#                                                                     #
+#<showfile command="OPERMOTD" file="examples/opermotd.txt.example"
+#          processcolors="false" operonly="true" showonconnect="true">
+#<showfile command="RULES" file="examples/rules.txt.example"
+#          processcolors="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Show Whois module: Adds the +W usermode which allows opers
