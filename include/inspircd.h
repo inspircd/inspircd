@@ -534,6 +534,12 @@ class CoreExport InspIRCd
 	 */
 	caller1<bool, const std::string&> IsIdent;
 
+	/** Remove superfluous asterisks and rearrange neighbouring question-marks and asterisks from wildstrings.
+	 * eg. "t*e**s*?t*??i*??*n**??g" -> "t*e*s?*t??*i??*n??*g"
+	 * @param str The wildstring to optimise.
+	 */
+	void OptimiseWildstr(std::string &str);
+
 	/** Match two strings using pattern matching, optionally, with a map
 	 * to check case against (may be NULL). If map is null, match will be case insensitive.
 	 * @param str The literal string to match against
