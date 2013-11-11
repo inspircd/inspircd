@@ -119,7 +119,7 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param ctag Configuration tag to get limits from
 	 * @param wildmask List entries contain wildchars
 	 */
-	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist", bool wildstr);
+	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist", bool wildstr = true);
 
 	/** Get limit of this mode on a channel
 	 * @param channel The channel to inspect
