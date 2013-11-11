@@ -25,7 +25,7 @@
 class ExemptChanOps : public ListModeBase
 {
  public:
-	ExemptChanOps(Module* Creator) : ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false, "exemptchanops") { }
+	ExemptChanOps(Module* Creator) : ListModeBase(Creator, "exemptchanops", 'X', "End of channel exemptchanops list", 954, 953, false, "exemptchanops", false) { }
 
 	bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{

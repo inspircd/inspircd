@@ -73,6 +73,43 @@ static bool MatchInternal(const unsigned char* str, const unsigned char* mask, u
 	return !*wild;
 }
 
+/*
+ * Remove superfluous asterisks and rearrange neighbouring question-marks and asterisks from wildstrings.
+ * eg. "t*e**s*?t*??i*??*n**??g" -> "t*e*s?*t??*i??*n??*g"
+ */
+
+void InspIRCd::OptimiseWildstr(std::string &str)
+{
+	int w = 0;
+	std::string::iterator x = str.begin();
+	while (x != str.end())
+	{
+		if (*x == '*') {
+			w = 1;
+			x = str.erase(x);
+			continue;
+		}
+
+		if (*x == '?')
+		{
+			x++;
+			continue;
+		}
+
+		if (w)
+		{
+			x = str.insert(x, '*') + 1;
+			w = 0;
+		}
+
+		x++;	
+	}
+
+	if (w) {
+		str.insert(x, '*');
+	}
+}
+
 // Below here is all wrappers around MatchInternal
 
 bool InspIRCd::Match(const std::string& str, const std::string& mask, unsigned const char* map)

@@ -188,27 +188,14 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	 * We restrict local operators to OperMaxChans channels.
 	 * This is a lot more logical than how it was formerly. -- w00t
 	 */
-	if (!override)
+	unsigned int maxchans	= user->HasPrivPermission("channels/high-join-limit")	? ServerInstance->Config->OperMaxChans
+				: user->GetClass()->maxchans > 0			? user->GetClass()->maxchans
+				: ServerInstance->Config->MaxChans;
+
+	if (!override && user->chans.size() >= maxchans)
 	{
-		if (user->HasPrivPermission("channels/high-join-limit"))
-		{
-			if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cname.c_str());
-				return NULL;
-			}
-		}
-		else
-		{
-			unsigned int maxchans = user->GetClass()->maxchans;
-			if (!maxchans)
-				maxchans = ServerInstance->Config->MaxChans;
-			if (user->chans.size() >= maxchans)
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cname.c_str());
-				return NULL;
-			}
-		}
+		user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cname.c_str());
+		return NULL;
 	}
 
 	// Crop channel name if it's too long
@@ -236,79 +223,77 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 		// Set the default modes on the channel (<options:defaultmodes>)
 		chan->SetDefaultModes();
 	}
-	else
+
+	/* Already on the channel */
+	else if (chan->HasUser(user))
+		return NULL;
+
+	else if (override == false)
 	{
-		/* Already on the channel */
-		if (chan->HasUser(user))
+		ModResult MOD_RESULT;
+		FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, chan, cname, privs, key));
+
+		// A module explicitly denied the join and (hopefully) generated a message
+		// describing the situation, so we may stop here without sending anything
+		if (MOD_RESULT == MOD_RES_DENY)
 			return NULL;
 
-		if (override == false)
+		// If no module returned MOD_RES_DENY or MOD_RES_ALLOW (which is the case
+		// most of the time) then proceed to check channel modes +k, +i, +l and bans,
+		// in this order.
+		// If a module explicitly allowed the join (by returning MOD_RES_ALLOW),
+		// then this entire section is skipped
+		if (MOD_RESULT == MOD_RES_PASSTHRU)
 		{
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserPreJoin, MOD_RESULT, (user, chan, cname, privs, key));
+			std::string ckey = chan->GetModeParameter(keymode);
+			bool invited = user->IsInvited(chan);
+			bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
 
-			// A module explicitly denied the join and (hopefully) generated a message
-			// describing the situation, so we may stop here without sending anything
-			if (MOD_RESULT == MOD_RES_DENY)
-				return NULL;
-
-			// If no module returned MOD_RES_DENY or MOD_RES_ALLOW (which is the case
-			// most of the time) then proceed to check channel modes +k, +i, +l and bans,
-			// in this order.
-			// If a module explicitly allowed the join (by returning MOD_RES_ALLOW),
-			// then this entire section is skipped
-			if (MOD_RESULT == MOD_RES_PASSTHRU)
+			if (!ckey.empty())
 			{
-				std::string ckey = chan->GetModeParameter(keymode);
-				bool invited = user->IsInvited(chan);
-				bool can_bypass = ServerInstance->Config->InvBypassModes && invited;
-
-				if (!ckey.empty())
+				FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, key));
+				if (!MOD_RESULT.check((ckey == key) || can_bypass))
 				{
-					FIRST_MOD_RESULT(OnCheckKey, MOD_RESULT, (user, chan, key));
-					if (!MOD_RESULT.check((ckey == key) || can_bypass))
-					{
-						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-						user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), chan->name.c_str());
-						return NULL;
-					}
-				}
-
-				if (chan->IsModeSet(inviteonlymode))
-				{
-					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check(invited))
-					{
-						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), chan->name.c_str());
-						return NULL;
-					}
-				}
-
-				std::string limit = chan->GetModeParameter(limitmode);
-				if (!limit.empty())
-				{
-					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
-					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
-					{
-						user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), chan->name.c_str());
-						return NULL;
-					}
-				}
-
-				if (chan->IsBanned(user) && !can_bypass)
-				{
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), chan->name.c_str());
+					// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
+					user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), chan->name.c_str());
 					return NULL;
 				}
+			}
 
-				/*
-				 * If the user has invites for this channel, remove them now
-				 * after a successful join so they don't build up.
-				 */
-				if (invited)
+			if (chan->IsModeSet(inviteonlymode))
+			{
+				FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
+				if (!MOD_RESULT.check(invited))
 				{
-					user->RemoveInvite(chan);
+					user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), chan->name.c_str());
+					return NULL;
 				}
+			}
+
+			std::string limit = chan->GetModeParameter(limitmode);
+			if (!limit.empty())
+			{
+				FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
+				if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
+				{
+					user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), chan->name.c_str());
+					return NULL;
+				}
+			}
+
+			if (chan->IsBanned(user) && !can_bypass)
+			{
+				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), chan->name.c_str());
+				return NULL;
+			}
+
+			/*
+			 * If the user has invites for this channel, remove them now
+			 * after a successful join so they don't build up.
+			 */
+			if (invited)
+			{
+				user->RemoveInvite(chan);
 			}
 		}
 	}

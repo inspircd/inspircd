@@ -100,53 +100,42 @@ void InspIRCd::SendError(const std::string &s)
 	}
 }
 
+std::string::const_iterator InspIRCd::ParseCharsetField(char *set, std::string::const_iterator str, std::string::const_iterator end) {
+	while (str != end && strchr(set, *str)) {
+		str++;
+	}
+
+	return str;
+}
+
 bool InspIRCd::IsValidMask(const std::string &mask)
 {
 	if (mask.length() > 250)
 		return false;
 
-	std::string::iterator i = mask.begin();
-	while (i != mask.end())
-	{
-		char *valid_char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
-		if (strchr(valid_char, *i) == NULL)
-		{
-			break;
-		}
-		i++;
-	}
+	std::string::const_iterator i = mask.begin();
+	char *valid_nick_char = "*-0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
+	char *valid_user_char = "*-.0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
+	char *valid_host_char = "*-.0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
-	if (i == mask.end() || *i++ != '!')
+	if (i == mask.end() || *i == '-' || isdigit(*i))
 	{
 		return false;
 	}
 
-	while (i != mask.end())
-	{
-		char *valid_char = "-.ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
-		if (strchr(valid_char, *i) == NULL)
-		{
-			break;
-		}
-		i++;
-	}
-
-	if (i == mask.end() || *i++ != '@')
+	i = ParseCharsetField(valid_nick_char, i, mask.end());
+	if (i == mask.end() || *i != '!')
 	{
 		return false;
 	}
 
-	while (i != mask.end())
+	i = ParseCharsetField(valid_user_char, i+1, mask.end());
+	if (i == mask.end() || *i != '@')
 	{
-		char *valid_char = "\"#$%&'()*+,-./0123456789:;<=>?ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-		if (strchr(valid_char, *i) == NULL)
-		{
-			break;
-		}
-		i++;
+		return false;
 	}
 
-
+	i = ParseCharsetField(valid_host_char, i+1, mask.end());
 	return i == mask.end();
 }
 
@@ -166,7 +155,8 @@ void InspIRCd::StripColor(std::string &sentence)
 		 * 0x1F: Underline
 		 */
 
-		switch (*i) {
+		switch (*i)
+		{
 			case 0x02:
 			case 0x0F:
 			case 0x15:
@@ -282,20 +272,21 @@ bool IsChannelHandler::Call(const std::string& chname)
 /* true for valid nickname, false else */
 bool IsNickHandler::Call(const std::string& n)
 {
-	char *valid_char = "ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
+	char *valid_char = "-0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
 
 	if (n.empty() || n.length() > ServerInstance->Config->Limits.NickMax)
 		return false;
 
 	std::string::const_iterator i = n.begin();
-	char *c = strchr(valid_char, *i);
 
-	while (c != NULL && ++i != n.end())
+	/* Nickname can't begin with '-' or '0'..'9'. */
+	if (*i == '-' || isdigit(*i))
 	{
-		c = isdigit(*i) || *i == '-' ? valid_char : strchr(valid_char, *i);
+		return false;
 	}
 
-	return c != NULL;
+	i = ParseCharsetField(valid_char, i, n.end());
+	return i == n.end();
 }
 
 /* return true for good ident, false else */
@@ -305,14 +296,9 @@ bool IsIdentHandler::Call(const std::string& n)
 	if (n.empty())
 		return false;
 
-	for (std::string::const_iterator i = n.begin(); i != n.end(); i++)
-	{
-		if (!strchr(valid_char, *i)) {
-			return false;
-		}
-	}
-
-	return true;
+	std::string::const_iterator i = n.begin();
+	i = ParseCharsetField(valid_char, i, n.end());
+	return i == n.end();
 }
 
 bool InspIRCd::IsSID(const std::string &str)
@@ -355,7 +341,7 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* fo
 	this->SendWhoisLine(user, dest, numeric, textbuffer);
 }
 
-std::string::iterator InspIRCd::StringIteratorToUnsignedLong(unsigned long *destination, std::string::iterator source, std::string::iterator end)
+std::string::const_iterator InspIRCd::StringIteratorToUnsignedLong(unsigned long *destination, std::string::const_iterator source, std::string::const_iterator end)
 {
 	unsigned long d = 0;
 	while (source != end && isdigit(*source))
@@ -376,7 +362,7 @@ unsigned long InspIRCd::Duration(const std::string &str)
 {
 	unsigned long total = 0;
 	unsigned long subtotal = 0;
-	std::string::iterator i = str.begin();
+	std::string::const_iterator i = str.begin();
 
 	i = StringIteratorToUnsignedLong(&subtotal, i, str.end());
 	if (i == str.end() || *i != 'y')
@@ -467,7 +453,8 @@ std::string InspIRCd::TimeString(time_t curtime)
 	}
 
 	static std::vector<char> str(32);
-	while (strftime(&str[0], str.size(), "%a %b %d %H:%M:%S %Y\n", timeinfo) == 0) {
+	while (strftime(&str[0], str.size(), "%a %b %d %H:%M:%S %Y\n", timeinfo) == 0)
+	{
 		str.resize(str.size() * 2);
 	}
 
