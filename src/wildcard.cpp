@@ -103,7 +103,11 @@ void InspIRCd::OptimiseWildstr(std::string &str)
 		}
 
 		x++;	
-	}	
+	}
+
+	if (w) {
+		str.insert(x, '*');
+	}
 }
 
 // Below here is all wrappers around MatchInternal
