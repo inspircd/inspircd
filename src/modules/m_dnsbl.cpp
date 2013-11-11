@@ -34,8 +34,8 @@ class DNSBLConfEntry : public refcountbase
 		std::string name, ident, host, domain, reason;
 		EnumBanaction banaction;
 		EnumType type;
-		long duration;
-		int bitmask;
+		unsigned long duration;
+		unsigned long bitmask;
 		unsigned char records[256];
 		unsigned long stats_hits, stats_misses;
 		DNSBLConfEntry(): type(A_BITMASK),duration(86400),bitmask(0),stats_hits(0), stats_misses(0) {}
@@ -74,7 +74,7 @@ class DNSBLResolver : public DNS::Request
 
 		// Now we calculate the bitmask: 256*(256*(256*a+b)+c)+d
 
-		unsigned int bitmask = 0, record = 0;
+		unsigned long bitmask = 0, record = 0;
 		bool match = false;
 		in_addr resultip;
 
@@ -180,7 +180,7 @@ class DNSBLResolver : public DNS::Request
 					break;
 			}
 
-			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
+			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %lu", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
 		}
 		else
 			ConfEntry->stats_misses++;

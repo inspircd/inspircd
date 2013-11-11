@@ -66,7 +66,7 @@ class CommandWhowas : public Command
 
 	/** Max seconds a user is kept in WhoWas before being pruned.
 	 */
-	unsigned int MaxKeep;
+	unsigned long MaxKeep;
 
 	CommandWhowas(Module* parent);
 	/** Handle command.

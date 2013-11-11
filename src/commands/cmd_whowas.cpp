@@ -252,7 +252,7 @@ class ModuleWhoWas : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("whowas");
 		unsigned int NewGroupSize = tag->getInt("groupsize", 10, 0, 10000);
 		unsigned int NewMaxGroups = tag->getInt("maxgroups", 10240, 0, 1000000);
-		unsigned int NewMaxKeep = tag->getDuration("maxkeep", 3600, 3600);
+		unsigned long NewMaxKeep = tag->getDuration("maxkeep", 3600, 3600);
 
 		if ((NewGroupSize == cmd.GroupSize) && (NewMaxGroups == cmd.MaxGroups) && (NewMaxKeep == cmd.MaxKeep))
 			return;

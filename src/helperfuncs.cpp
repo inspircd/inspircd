@@ -38,15 +38,7 @@ std::string InspIRCd::GetServerDescription(const std::string& servername)
 
 	FOREACH_MOD(OnGetServerDescription, (servername,description));
 
-	if (!description.empty())
-	{
-		return description;
-	}
-	else
-	{
-		// not a remote server that can be found, it must be me.
-		return Config->ServerDesc;
-	}
+	return !description.empty() ? description : Config->ServerDesc;
 }
 
 /* Find a user record by nickname and return a pointer to it */
@@ -55,13 +47,7 @@ User* InspIRCd::FindNick(const std::string &nick)
 	if (!nick.empty() && isdigit(*nick.begin()))
 		return FindUUID(nick);
 
-	user_hash::iterator iter = this->Users->clientlist->find(nick);
-
-	if (iter == this->Users->clientlist->end())
-		/* Couldn't find it */
-		return NULL;
-
-	return iter->second;
+	return FindNickOnly(nick);
 }
 
 User* InspIRCd::FindNickOnly(const std::string &nick)
@@ -114,65 +100,92 @@ void InspIRCd::SendError(const std::string &s)
 	}
 }
 
-bool InspIRCd::IsValidMask(const std::string &mask)
-{
-	const char* dest = mask.c_str();
-	int exclamation = 0;
-	int atsign = 0;
-
-	for (const char* i = dest; *i; i++)
-	{
-		/* out of range character, bad mask */
-		if (*i < 32 || *i > 126)
-		{
-			return false;
-		}
-
-		switch (*i)
-		{
-			case '!':
-				exclamation++;
-				break;
-			case '@':
-				atsign++;
-				break;
-		}
+std::string::const_iterator InspIRCd::ParseCharsetField(char *set, std::string::const_iterator str, std::string::const_iterator end) {
+	while (str != end && strchr(set, *str)) {
+		str++;
 	}
 
-	/* valid masks only have 1 ! and @ */
-	if (exclamation != 1 || atsign != 1)
-		return false;
+	return str;
+}
 
+bool InspIRCd::IsValidMask(const std::string &mask)
+{
 	if (mask.length() > 250)
 		return false;
 
-	return true;
+	std::string::const_iterator i = mask.begin();
+	char *valid_nick_char = "*-0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
+	char *valid_user_char = "*-.0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
+	char *valid_host_char = "*-.0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+
+	if (i == mask.end() || *i == '-' || isdigit(*i))
+	{
+		return false;
+	}
+
+	i = ParseCharsetField(valid_nick_char, i, mask.end());
+	if (i == mask.end() || *i != '!')
+	{
+		return false;
+	}
+
+	i = ParseCharsetField(valid_user_char, i+1, mask.end());
+	if (i == mask.end() || *i != '@')
+	{
+		return false;
+	}
+
+	i = ParseCharsetField(valid_host_char, i+1, mask.end());
+	return i == mask.end();
 }
 
 void InspIRCd::StripColor(std::string &sentence)
 {
-	/* refactor this completely due to SQUIT bug since the old code would strip last char and replace with \0 --peavey */
-	int seq = 0;
-
-	for (std::string::iterator i = sentence.begin(); i != sentence.end();)
+	std::string::iterator i = sentence.begin();
+	while (i != sentence.end())
 	{
-		if (*i == 3)
-			seq = 1;
-		else if (seq && (( ((*i >= '0') && (*i <= '9')) || (*i == ',') ) ))
-		{
-			seq++;
-			if ( (seq <= 4) && (*i == ',') )
-				seq = 1;
-			else if (seq > 3)
-				seq = 0;
-		}
-		else
-			seq = 0;
+		/* XXX: These magic numbers should probably be placed somewhere more central (and this comment removed), so they can be reused in the function below.
+		 *      Their corresponding functionality is:
+		 * 0x02: Bold
+		 * 0x03: Colour
+		 * 0x0F: Stop colours
+		 * 0x15: I don't know. It was in the previous function...
+		 * 0x16: Reverse background/foreground
+		 * 0x1D: Italics
+		 * 0x1F: Underline
+		 */
 
-		if (seq || ((*i == 2) || (*i == 15) || (*i == 22) || (*i == 21) || (*i == 31)))
-			i = sentence.erase(i);
-		else
-			++i;
+		switch (*i)
+		{
+			case 0x02:
+			case 0x0F:
+			case 0x15:
+			case 0x16:
+			case 0x1D:
+			case 0x1F:
+				i = sentence.erase(i);
+				break;
+			case 0x03:
+				for (size_t x = 0; x < 3; x++)
+				{
+					i = sentence.erase(i);
+					if (i == sentence.end()) { return; }
+					if (!isdigit(*i)) { break; }
+				}
+
+				if (*i != ',') { break; }
+
+				for (size_t x = 0; x < 3; x++)
+				{
+					i = sentence.erase(i);
+					if (i == sentence.end()) { return; }
+					if (!isdigit(*i)) { break; }
+				}
+				break;
+			default:
+				i++;
+				break;
+		}
 	}
 }
 
@@ -259,52 +272,33 @@ bool IsChannelHandler::Call(const std::string& chname)
 /* true for valid nickname, false else */
 bool IsNickHandler::Call(const std::string& n)
 {
+	char *valid_char = "-0123456789?ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}";
+
 	if (n.empty() || n.length() > ServerInstance->Config->Limits.NickMax)
 		return false;
 
-	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
+	std::string::const_iterator i = n.begin();
+
+	/* Nickname can't begin with '-' or '0'..'9'. */
+	if (*i == '-' || isdigit(*i))
 	{
-		if ((*i >= 'A') && (*i <= '}'))
-		{
-			/* "A"-"}" can occur anywhere in a nickname */
-			continue;
-		}
-
-		if ((((*i >= '0') && (*i <= '9')) || (*i == '-')) && (i != n.begin()))
-		{
-			/* "0"-"9", "-" can occur anywhere BUT the first char of a nickname */
-			continue;
-		}
-
-		/* invalid character! abort */
 		return false;
 	}
 
-	return true;
+	i = ParseCharsetField(valid_char, i, n.end());
+	return i == n.end();
 }
 
 /* return true for good ident, false else */
 bool IsIdentHandler::Call(const std::string& n)
 {
+	char *valid_char = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}"
 	if (n.empty())
 		return false;
 
-	for (std::string::const_iterator i = n.begin(); i != n.end(); ++i)
-	{
-		if ((*i >= 'A') && (*i <= '}'))
-		{
-			continue;
-		}
-
-		if (((*i >= '0') && (*i <= '9')) || (*i == '-') || (*i == '.'))
-		{
-			continue;
-		}
-
-		return false;
-	}
-
-	return true;
+	std::string::const_iterator i = n.begin();
+	i = ParseCharsetField(valid_char, i, n.end());
+	return i == n.end();
 }
 
 bool InspIRCd::IsSID(const std::string &str)
@@ -312,9 +306,9 @@ bool InspIRCd::IsSID(const std::string &str)
 	/* Returns true if the string given is exactly 3 characters long,
 	 * starts with a digit, and the other two characters are A-Z or digits
 	 */
-	return ((str.length() == 3) && isdigit(str[0]) &&
-			((str[1] >= 'A' && str[1] <= 'Z') || isdigit(str[1])) &&
-			 ((str[2] >= 'A' && str[2] <= 'Z') || isdigit(str[2])));
+	return str.length() == 3 && isdigit(str[0]) &&
+		(isupper(str[1]) || isdigit(str[1])) &&
+		(isupper(str[2]) || isdigit(str[2]));
 }
 
 void InspIRCd::CheckRoot()
@@ -347,47 +341,56 @@ void InspIRCd::SendWhoisLine(User* user, User* dest, int numeric, const char* fo
 	this->SendWhoisLine(user, dest, numeric, textbuffer);
 }
 
-/** Refactored by Brain, Jun 2009. Much faster with some clever O(1) array
- * lookups and pointer maths.
+std::string::const_iterator InspIRCd::StringIteratorToUnsignedLong(unsigned long *destination, std::string::const_iterator source, std::string::const_iterator end)
+{
+	unsigned long d = 0;
+	while (source != end && isdigit(*source))
+	{
+		d *= 10;
+		d += *source++ - '0';
+	}
+	*destination = d;
+	return source;
+}
+
+/*
+ * Vanity and pride are different things, though the words are often used synonymously.
+ * A person may be proud without being vain. Pride relates more to our opinion of
+ * ourselves, vanity to what we would have others think of us.  -- Jane Austen
  */
 unsigned long InspIRCd::Duration(const std::string &str)
 {
-	unsigned char multiplier = 0;
-	long total = 0;
-	long times = 1;
-	long subtotal = 0;
+	unsigned long total = 0;
+	unsigned long subtotal = 0;
+	std::string::const_iterator i = str.begin();
 
-	/* Iterate each item in the string, looking for number or multiplier */
-	for (std::string::const_reverse_iterator i = str.rbegin(); i != str.rend(); ++i)
-	{
-		/* Found a number, queue it onto the current number */
-		if ((*i >= '0') && (*i <= '9'))
-		{
-			subtotal = subtotal + ((*i - '0') * times);
-			times = times * 10;
-		}
-		else
-		{
-			/* Found something thats not a number, find out how much
-			 * it multiplies the built up number by, multiply the total
-			 * and reset the built up number.
-			 */
-			if (subtotal)
-				total += subtotal * duration_multi[multiplier];
+	i = StringIteratorToUnsignedLong(&subtotal, i, str.end());
+	if (i == str.end() || *i != 'y')
+		goto w;
 
-			/* Next subtotal please */
-			subtotal = 0;
-			multiplier = *i;
-			times = 1;
-		}
-	}
-	if (multiplier)
-	{
-		total += subtotal * duration_multi[multiplier];
-		subtotal = 0;
-	}
-	/* Any trailing values built up are treated as raw seconds */
-	return total + subtotal;
+	total += subtotal * 31557600UL;
+	i = StringIteratorToUnsignedLong(&subtotal, i+1, str.end());
+w:	if (i == str.end() || *i != 'w')
+		goto d;
+
+	total += subtotal * 604800UL;
+	i = StringIteratorToUnsignedLong(&subtotal, i+1, str.end());
+d:	if (i == str.end() || *i != 'd')
+		goto h;
+
+	total += subtotal * 86400UL;
+	i = StringIteratorToUnsignedLong(&subtotal, i+1, str.end());
+h:	if (i == str.end() || *i != 'h')
+		goto m;
+
+	total += subtotal * 3600UL;
+	i = StringIteratorToUnsignedLong(&subtotal, i+1, str.end());
+m:	if (i == str.end() || *i != 'm')
+		goto s;
+
+	total += subtotal * 60UL;
+	i = StringIteratorToUnsignedLong(&subtotal, i+1, str.end());
+s:	return total + subtotal;
 }
 
 const char* InspIRCd::Format(va_list &vaList, const char* formatString)
@@ -442,21 +445,20 @@ std::string InspIRCd::TimeString(time_t curtime)
 		curtime = 0;
 #endif
 
-	struct tm* timeinfo = localtime(&curtime);
+	struct tm *timeinfo = localtime(&curtime);
 	if (!timeinfo)
 	{
 		curtime = 0;
 		timeinfo = localtime(&curtime);
 	}
 
-	// If the calculated year exceeds four digits or is less than the year 1000,
-	// the behavior of asctime() is undefined
-	if (timeinfo->tm_year + 1900 > 9999)
-		timeinfo->tm_year = 9999 - 1900;
-	else if (timeinfo->tm_year + 1900 < 1000)
-		timeinfo->tm_year = 0;
+	static std::vector<char> str(32);
+	while (strftime(&str[0], str.size(), "%a %b %d %H:%M:%S %Y\n", timeinfo) == 0)
+	{
+		str.resize(str.size() * 2);
+	}
 
-	return std::string(asctime(timeinfo),24);
+	return std::string(str);
 }
 
 std::string InspIRCd::GenRandomStr(int length, bool printable)

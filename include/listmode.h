@@ -92,6 +92,9 @@ class CoreExport ListModeBase : public ModeHandler
 	/** Automatically tidy up entries
 	 */
 	bool tidy;
+	/** Automatically optimise wildchars
+	 */
+	bool wild;
 	/** Config tag to check for max items per channel
 	 */
 	std::string configtag;
@@ -114,8 +117,9 @@ class CoreExport ListModeBase : public ModeHandler
 	 * @param eolnum End of list numeric
 	 * @param autotidy Automatically tidy list entries on add
 	 * @param ctag Configuration tag to get limits from
+	 * @param wildmask List entries contain wildchars
 	 */
-	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist");
+	ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag = "banlist", bool wildstr = true);
 
 	/** Get limit of this mode on a channel
 	 * @param channel The channel to inspect
