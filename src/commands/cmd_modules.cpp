@@ -49,8 +49,11 @@ class CommandModules : public Command
 
 /** Handle /MODULES
  */
-CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
+CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, User *user)
 {
+	if (parameters.size() >= 1 && parameters[0] != ServerInstance->Config->ServerName)
+		return CMD_SUCCESS;
+
 	std::vector<std::string> module_names = ServerInstance->Modules->GetAllModuleNames(0);
 
   	for (unsigned int i = 0; i < module_names.size(); i++)
@@ -58,7 +61,7 @@ CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
 		Module* m = ServerInstance->Modules->Find(module_names[i]);
 		Version V = m->GetVersion();
 
-		if (user->HasPrivPermission("servers/auspex"))
+		if (IS_LOCAL(user) && user->HasPrivPermission("servers/auspex"))
 		{
 			std::string flags("SvcC");
 			int pos = 0;
