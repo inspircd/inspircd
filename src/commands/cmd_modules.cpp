@@ -49,8 +49,24 @@ class CommandModules : public Command
 
 /** Handle /MODULES
  */
-CmdResult CommandModules::Handle (const std::vector<std::string>&, User *user)
+CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, User *user)
 {
+	// Don't ask remote servers about their modules unless the local user asking is an oper
+	// 2.0 asks anyway, so let's handle that the same way
+	bool for_us = (parameters.empty() || parameters[0] == ServerInstance->Config->ServerName);
+	if ((!for_us) || (!IS_LOCAL(user)))
+	{
+		if (!user->IsOper())
+		{
+			user->WriteNotice("*** You cannot check what modules other servers have loaded.");
+			return CMD_FAILURE;
+		}
+
+		// From an oper and not for us, forward
+		if (!for_us)
+			return CMD_SUCCESS;
+	}
+
 	const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
 
   	for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
