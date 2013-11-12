@@ -1528,6 +1528,8 @@
 # SAJOIN module: Adds the /SAJOIN command
 # This module is oper-only.
 # To use, SAJOIN must be in one of your oper class blocks.
+# Opers need the users/sajoin-others priv to be able to /SAJOIN users
+# other than themselves.
 #<module name="m_sajoin.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
