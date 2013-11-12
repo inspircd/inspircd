@@ -102,7 +102,7 @@ class CommandGunloadmodule : public Command
 				}
 			}
 			else
-				user->SendText(":%s ERR_CANTUNLOADMODULE %s %s :No such module", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+				user->SendText(":%s %03d %s %s :No such module", ServerInstance->Config->ServerName.c_str(), ERR_CANTUNLOADMODULE, user->nick.c_str(), parameters[0].c_str());
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
