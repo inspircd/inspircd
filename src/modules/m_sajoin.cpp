@@ -26,24 +26,33 @@
 class CommandSajoin : public Command
 {
  public:
-	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 2)
+	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel>";
+		flags_needed = 'o'; Penalty = 0; syntax = "[<nick>] <channel>";
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
+		const std::string& channel = parameters.size() > 1 ? parameters[1] : parameters[0];
+		const std::string& nickname = parameters.size() > 1 ? parameters[0] : user->nick;
+
+		User* dest = ServerInstance->FindNick(nickname);
 		if ((dest) && (dest->registered == REG_ALL))
 		{
+			if (user != dest && !user->HasPrivPermission("users/sajoin-others", false))
+			{
+				user->WriteNotice("*** You are not allowed to use sajoin on the user you tried. Permission users/sajoin-others needed.");
+				return CMD_FAILURE;
+			}
+
 			if (ServerInstance->ULine(dest->server))
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, ":Cannot use an SA command on a u-lined client");
 				return CMD_FAILURE;
 			}
-			if (IS_LOCAL(user) && !ServerInstance->IsChannel(parameters[1]))
+			if (IS_LOCAL(user) && !ServerInstance->IsChannel(channel))
 			{
 				/* we didn't need to check this for each character ;) */
 				user->WriteNotice("*** Invalid characters in channel name or name too long");
@@ -57,42 +66,43 @@ class CommandSajoin : public Command
 			LocalUser* localuser = IS_LOCAL(dest);
 			if (localuser)
 			{
-				Channel* n = Channel::JoinUser(localuser, parameters[1], true);
+				Channel* n = Channel::JoinUser(localuser, channel, true);
 				if (n)
 				{
 					if (n->HasUser(dest))
 					{
-						ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+parameters[1]);
+						ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
 						return CMD_SUCCESS;
 					}
 					else
 					{
-						user->WriteNotice("*** Could not join "+dest->nick+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
+						user->WriteNotice("*** Could not join "+dest->nick+" to "+channel+" (User is probably banned, or blocking modes)");
 						return CMD_FAILURE;
 					}
 				}
 				else
 				{
-					user->WriteNotice("*** Could not join "+dest->nick+" to "+parameters[1]);
+					user->WriteNotice("*** Could not join "+dest->nick+" to "+channel);
 					return CMD_FAILURE;
 				}
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', user->nick+" sent remote SAJOIN to make "+dest->nick+" join "+parameters[1]);
+				ServerInstance->SNO->WriteToSnoMask('a', user->nick+" sent remote SAJOIN to make "+dest->nick+" join "+channel);
 				return CMD_SUCCESS;
 			}
 		}
 		else
 		{
-			user->WriteNotice("*** No such nickname "+parameters[0]);
+			user->WriteNotice("*** No such nickname "+nickname);
 			return CMD_FAILURE;
 		}
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
+		const std::string& nickname = parameters.size() > 1 ? parameters[0] : user->nick;
+		User* dest = ServerInstance->FindNick(nickname);
 		if (dest)
 			return ROUTE_OPT_UCAST(dest->server);
 		return ROUTE_LOCALONLY;
