@@ -163,7 +163,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 	}
 	else
 	{
-		user->WriteServ( "401 %s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 

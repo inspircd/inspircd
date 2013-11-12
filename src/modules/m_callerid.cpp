@@ -22,6 +22,18 @@
 
 #include "inspircd.h"
 
+enum
+{
+	RPL_ACCEPTLIST = 281,
+	RPL_ENDOFACCEPT = 282,
+	ERR_ACCEPTFULL = 456,
+	ERR_ACCEPTEXIST = 457,
+	ERR_ACCEPTNOT = 458,
+	ERR_TARGUMODEG = 716,
+	RPL_TARGNOTIFY = 717,
+	RPL_UMODEGMSG = 718
+};
+
 class callerid_data
 {
  public:
@@ -207,7 +219,7 @@ public:
 		ACCEPTAction action = GetTargetAndAction(tok);
 		if (!action.first)
 		{
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), tok.c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", tok.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -251,9 +263,9 @@ public:
 		if (dat)
 		{
 			for (std::set<User*>::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
-				user->WriteNumeric(281, "%s %s", user->nick.c_str(), (*i)->nick.c_str());
+				user->WriteNumeric(RPL_ACCEPTLIST, (*i)->nick);
 		}
-		user->WriteNumeric(282, "%s :End of ACCEPT list", user->nick.c_str());
+		user->WriteNumeric(RPL_ENDOFACCEPT, ":End of ACCEPT list");
 	}
 
 	bool AddAccept(User* user, User* whotoadd)
@@ -262,12 +274,12 @@ public:
 		callerid_data* dat = extInfo.get(user, true);
 		if (dat->accepting.size() >= maxaccepts)
 		{
-			user->WriteNumeric(456, "%s :Accept list is full (limit is %d)", user->nick.c_str(), maxaccepts);
+			user->WriteNumeric(ERR_ACCEPTFULL, ":Accept list is full (limit is %d)", maxaccepts);
 			return false;
 		}
 		if (!dat->accepting.insert(whotoadd).second)
 		{
-			user->WriteNumeric(457, "%s %s :is already on your accept list", user->nick.c_str(), whotoadd->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTEXIST, "%s :is already on your accept list", whotoadd->nick.c_str());
 			return false;
 		}
 
@@ -285,13 +297,13 @@ public:
 		callerid_data* dat = extInfo.get(user, false);
 		if (!dat)
 		{
-			user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
 			return false;
 		}
 		std::set<User*>::iterator i = dat->accepting.find(whotoremove);
 		if (i == dat->accepting.end())
 		{
-			user->WriteNumeric(458, "%s %s :is not on your accept list", user->nick.c_str(), whotoremove->nick.c_str());
+			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
 			return false;
 		}
 
@@ -386,12 +398,12 @@ public:
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
-			user->WriteNumeric(716, "%s %s :is in +g mode (server-side ignore).", user->nick.c_str(), dest->nick.c_str());
+			user->WriteNumeric(ERR_TARGUMODEG, "%s :is in +g mode (server-side ignore).", dest->nick.c_str());
 			if (now > (dat->lastnotify + (time_t)notify_cooldown))
 			{
-				user->WriteNumeric(717, "%s %s :has been informed that you messaged them.", user->nick.c_str(), dest->nick.c_str());
-				dest->SendText(":%s 718 %s %s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
-					ServerInstance->Config->ServerName.c_str(), dest->nick.c_str(), user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
+				user->WriteNumeric(RPL_TARGNOTIFY, "%s :has been informed that you messaged them.", dest->nick.c_str());
+				dest->WriteNumeric(RPL_UMODEGMSG, "%s %s@%s :is messaging you, and you have umode +g. Use /ACCEPT +%s to allow.",
+						user->nick.c_str(), user->ident.c_str(), user->dhost.c_str(), user->nick.c_str());
 				dat->lastnotify = now;
 			}
 			return MOD_RES_DENY;

@@ -701,14 +701,14 @@ void ServerConfig::ApplyModules(User* user)
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
 			if (user)
-				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s %s :Module %s successfully unloaded.",user->nick.c_str(), modname.c_str(), modname.c_str());
+				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s :Module %s successfully unloaded.", modname.c_str(), modname.c_str());
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s %s :Failed to unload module %s: %s",user->nick.c_str(), modname.c_str(), modname.c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :Failed to unload module %s: %s", modname.c_str(), modname.c_str(), ServerInstance->Modules->LastError().c_str());
 			else
 				 ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
 		}
@@ -720,14 +720,14 @@ void ServerConfig::ApplyModules(User* user)
 		{
 			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
 			if (user)
-				user->WriteNumeric(RPL_LOADEDMODULE, "%s %s :Module %s successfully loaded.",user->nick.c_str(), adding->c_str(), adding->c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %s successfully loaded.", adding->c_str(), adding->c_str());
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully loaded.", adding->c_str());
 		}
 		else
 		{
 			if (user)
-				user->WriteNumeric(ERR_CANTLOADMODULE, "%s %s :Failed to load module %s: %s",user->nick.c_str(), adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, "%s :Failed to load module %s: %s", adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 			else
 				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 		}

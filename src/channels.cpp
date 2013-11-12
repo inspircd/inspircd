@@ -194,7 +194,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 		{
 			if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
 			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cname.c_str());
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s :You are on too many channels", cname.c_str());
 				return NULL;
 			}
 		}
@@ -205,7 +205,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 				maxchans = ServerInstance->Config->MaxChans;
 			if (user->chans.size() >= maxchans)
 			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s %s :You are on too many channels",user->nick.c_str(), cname.c_str());
+				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s :You are on too many channels", cname.c_str());
 				return NULL;
 			}
 		}
@@ -269,7 +269,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					if (!MOD_RESULT.check((ckey == key) || can_bypass))
 					{
 						// If no key provided, or key is not the right one, and can't bypass +k (not invited or option not enabled)
-						user->WriteNumeric(ERR_BADCHANNELKEY, "%s %s :Cannot join channel (Incorrect channel key)",user->nick.c_str(), chan->name.c_str());
+						user->WriteNumeric(ERR_BADCHANNELKEY, "%s :Cannot join channel (Incorrect channel key)", chan->name.c_str());
 						return NULL;
 					}
 				}
@@ -279,7 +279,7 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					FIRST_MOD_RESULT(OnCheckInvite, MOD_RESULT, (user, chan));
 					if (!MOD_RESULT.check(invited))
 					{
-						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s %s :Cannot join channel (Invite only)",user->nick.c_str(), chan->name.c_str());
+						user->WriteNumeric(ERR_INVITEONLYCHAN, "%s :Cannot join channel (Invite only)", chan->name.c_str());
 						return NULL;
 					}
 				}
@@ -290,14 +290,14 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 					FIRST_MOD_RESULT(OnCheckLimit, MOD_RESULT, (user, chan));
 					if (!MOD_RESULT.check((chan->GetUserCounter() < atol(limit.c_str()) || can_bypass)))
 					{
-						user->WriteNumeric(ERR_CHANNELISFULL, "%s %s :Cannot join channel (Channel is full)",user->nick.c_str(), chan->name.c_str());
+						user->WriteNumeric(ERR_CHANNELISFULL, "%s :Cannot join channel (Channel is full)", chan->name.c_str());
 						return NULL;
 					}
 				}
 
 				if (chan->IsBanned(user) && !can_bypass)
 				{
-					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s %s :Cannot join channel (You're banned)",user->nick.c_str(), chan->name.c_str());
+					user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You're banned)", chan->name.c_str());
 					return NULL;
 				}
 
@@ -370,8 +370,8 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 	{
 		if (this->topicset)
 		{
-			user->WriteNumeric(RPL_TOPIC, "%s %s :%s", user->nick.c_str(), this->name.c_str(), this->topic.c_str());
-			user->WriteNumeric(RPL_TOPICTIME, "%s %s %s %lu", user->nick.c_str(), this->name.c_str(), this->setby.c_str(), (unsigned long)this->topicset);
+			user->WriteNumeric(RPL_TOPIC, "%s :%s", this->name.c_str(), this->topic.c_str());
+			user->WriteNumeric(RPL_TOPICTIME, "%s %s %lu", this->name.c_str(), this->setby.c_str(), (unsigned long)this->topicset);
 		}
 		this->UserList(user);
 	}
@@ -479,7 +479,7 @@ void Channel::KickUser(User* src, User* victim, const std::string& reason, Membe
 
 	if (!memb)
 	{
-		src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s %s :They are not on that channel",src->nick.c_str(), victim->nick.c_str(), this->name.c_str());
+		src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", victim->nick.c_str(), this->name.c_str());
 		return;
 	}
 
@@ -508,8 +508,8 @@ void Channel::KickUser(User* src, User* victim, const std::string& reason, Membe
 
 			if (them < req)
 			{
-				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",
-					src->nick.c_str(), this->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
+				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
+					this->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
 				return;
 			}
 		}
@@ -656,12 +656,11 @@ void Channel::UserList(User *user)
 {
 	if (this->IsModeSet(secretmode) && !this->HasUser(user) && !user->HasPrivPermission("channels/auspex"))
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", this->name.c_str());
 		return;
 	}
 
-	std::string list = user->nick;
-	list.push_back(' ');
+	std::string list;
 	list.push_back(this->IsModeSet(secretmode) ? '@' : this->IsModeSet(privatemode) ? '*' : '=');
 	list.push_back(' ');
 	list.append(this->name).append(" :");
@@ -719,7 +718,7 @@ void Channel::UserList(User *user)
 		user->WriteNumeric(RPL_NAMREPLY, list);
 	}
 
-	user->WriteNumeric(RPL_ENDOFNAMES, "%s %s :End of /NAMES list.", user->nick.c_str(), this->name.c_str());
+	user->WriteNumeric(RPL_ENDOFNAMES, "%s :End of /NAMES list.", this->name.c_str());
 }
 
 /* returns the status character for a given user on a channel, e.g. @ for op,

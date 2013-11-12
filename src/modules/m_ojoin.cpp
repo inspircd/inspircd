@@ -162,7 +162,7 @@ class ModuleOjoin : public Module
 		if (source == memb->user)
 			return MOD_RES_PASSTHRU;
 
-		source->WriteNumeric(484, source->nick+" "+memb->chan->name+" :Can't kick "+memb->user->nick+" as they're on official network business.");
+		source->WriteNumeric(ERR_RESTRICTED, memb->chan->name+" :Can't kick "+memb->user->nick+" as they're on official network business.");
 		return MOD_RES_DENY;
 	}
 

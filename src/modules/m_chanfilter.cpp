@@ -40,7 +40,7 @@ class ChanFilter : public ListModeBase
 	{
 		if ((word.length() > 35) || (word.empty()))
 		{
-			user->WriteNumeric(935, "%s %s %s :word is too %s for censor list",user->nick.c_str(), chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
+			user->WriteNumeric(935, "%s %s :word is too %s for censor list", chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
 			return false;
 		}
 
@@ -49,17 +49,17 @@ class ChanFilter : public ListModeBase
 
 	void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(939, "%s %s %s :Channel spamfilter list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
+		user->WriteNumeric(939, "%s %s :Channel spamfilter list is full", chan->name.c_str(), word.c_str());
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(937, "%s %s :The word %s is already on the spamfilter list",user->nick.c_str(), chan->name.c_str(), word.c_str());
+		user->WriteNumeric(937, "%s :The word %s is already on the spamfilter list", chan->name.c_str(), word.c_str());
 	}
 
 	void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(938, "%s %s :No such spamfilter word is set",user->nick.c_str(), chan->name.c_str());
+		user->WriteNumeric(938, "%s :No such spamfilter word is set", chan->name.c_str());
 	}
 };
 
@@ -97,9 +97,9 @@ class ModuleChanFilter : public Module
 				if (InspIRCd::Match(text, i->mask))
 				{
 					if (hidemask)
-						user->WriteNumeric(404, "%s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str());
+						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (your message contained a censored word)", chan->name.c_str());
 					else
-						user->WriteNumeric(404, "%s %s %s :Cannot send to channel (your message contained a censored word)",user->nick.c_str(), chan->name.c_str(), i->mask.c_str());
+						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Cannot send to channel (your message contained a censored word)", chan->name.c_str(), i->mask.c_str());
 					return MOD_RES_DENY;
 				}
 			}

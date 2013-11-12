@@ -90,8 +90,8 @@ public:
 						if (iter->first == user->uuid)
 						{
 							std::string modeparam = chan->GetModeParameter(&kr);
-							user->WriteNumeric(ERR_DELAYREJOIN, "%s %s :You must wait %s seconds after being kicked to rejoin (+J)",
-								user->nick.c_str(), chan->name.c_str(), modeparam.c_str());
+							user->WriteNumeric(ERR_DELAYREJOIN, "%s :You must wait %s seconds after being kicked to rejoin (+J)",
+								chan->name.c_str(), modeparam.c_str());
 							return MOD_RES_DENY;
 						}
 						++iter;

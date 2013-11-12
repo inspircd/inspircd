@@ -60,7 +60,7 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 	sort(list.begin(), list.end());
 	for(unsigned int i=0; i < list.size(); i++)
 		user->Write(list[i]);
-	user->WriteNumeric(RPL_COMMANDSEND, "%s :End of COMMANDS list",user->nick.c_str());
+	user->WriteNumeric(RPL_COMMANDSEND, ":End of COMMANDS list");
 	return CMD_SUCCESS;
 }
 

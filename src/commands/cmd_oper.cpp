@@ -76,7 +76,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 		fields.append("hosts");
 
 	// tell them they suck, and lag them up to help prevent brute-force attacks
-	user->WriteNumeric(491, "%s :Invalid oper credentials",user->nick.c_str());
+	user->WriteNumeric(ERR_NOOPERHOST, ":Invalid oper credentials");
 	user->CommandFloodPenalty += 10000;
 
 	ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());

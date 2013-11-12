@@ -99,7 +99,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	else if ((Current->Hidden) && (!user->IsOper()))
 		return;
 
-	user->WriteNumeric(364, "%s %s %s :%d %s",	user->nick.c_str(), Current->GetName().c_str(),
+	user->WriteNumeric(RPL_LINKS, "%s %s :%d %s",	Current->GetName().c_str(),
 			(Utils->FlatLinks && (!user->IsOper())) ? ServerInstance->Config->ServerName.c_str() : Parent.c_str(),
 			(Utils->FlatLinks && (!user->IsOper())) ? 0 : hops,
 			Current->GetDesc().c_str());
@@ -108,7 +108,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 void ModuleSpanningTree::HandleLinks(const std::vector<std::string>& parameters, User* user)
 {
 	ShowLinks(Utils->TreeRoot,user,0);
-	user->WriteNumeric(365, "%s * :End of /LINKS list.",user->nick.c_str());
+	user->WriteNumeric(RPL_ENDOFLINKS, "* :End of /LINKS list.");
 }
 
 std::string ModuleSpanningTree::TimeToStr(time_t secs)
@@ -334,11 +334,11 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 			return MOD_RES_PASSTHRU;
 		}
 		std::string Version = found->GetVersion();
-		user->WriteNumeric(351, "%s :%s",user->nick.c_str(),Version.c_str());
+		user->WriteNumeric(RPL_VERSION, ":%s", Version.c_str());
 	}
 	else
 	{
-		user->WriteNumeric(402, "%s %s :No such server",user->nick.c_str(),parameters[0].c_str());
+		user->WriteNumeric(ERR_NOSUCHSERVER, "%s :No such server", parameters[0].c_str());
 	}
 	return MOD_RES_DENY;
 }

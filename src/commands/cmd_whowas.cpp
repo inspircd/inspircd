@@ -36,7 +36,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	/* if whowas disabled in config */
 	if (this->GroupSize == 0 || this->MaxGroups == 0)
 	{
-		user->WriteNumeric(421, "%s %s :This command has been disabled.",user->nick.c_str(),name.c_str());
+		user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :This command has been disabled.", name.c_str());
 		return CMD_FAILURE;
 	}
 
@@ -44,7 +44,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 
 	if (i == whowas.end())
 	{
-		user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick.c_str(),parameters[0].c_str());
+		user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
 	}
 	else
 	{
@@ -55,25 +55,25 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 			{
 				WhoWasGroup* u = *ux;
 
-				user->WriteNumeric(314, "%s %s %s %s * :%s",user->nick.c_str(),parameters[0].c_str(),
+				user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(),
 					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
 
 				if (user->HasPrivPermission("users/auspex"))
-					user->WriteNumeric(379, "%s %s :was connecting from *@%s",
-						user->nick.c_str(), parameters[0].c_str(), u->host.c_str());
+					user->WriteNumeric(RPL_WHOWASIP, "%s :was connecting from *@%s",
+						parameters[0].c_str(), u->host.c_str());
 
 				std::string signon = ServerInstance->TimeString(u->signon);
 				bool hide_server = (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"));
-				user->WriteNumeric(312, "%s %s %s :%s",user->nick.c_str(), parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
+				user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
 			}
 		}
 		else
 		{
-			user->WriteNumeric(406, "%s %s :There was no such nickname",user->nick.c_str(),parameters[0].c_str());
+			user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
 		}
 	}
 
-	user->WriteNumeric(369, "%s %s :End of WHOWAS",user->nick.c_str(),parameters[0].c_str());
+	user->WriteNumeric(RPL_ENDOFWHOWAS, "%s :End of WHOWAS", parameters[0].c_str());
 	return CMD_SUCCESS;
 }
 

@@ -82,7 +82,7 @@ void CommandWhois::SplitChanList(User* source, User* dest, const std::string& cl
 	std::ostringstream prefix;
 	std::string::size_type start, pos, length;
 
-	prefix << source->nick << " " << dest->nick << " :";
+	prefix << dest->nick << " :";
 	line = prefix.str();
 	int namelen = ServerInstance->Config->ServerName.length() + 6;
 
@@ -92,7 +92,7 @@ void CommandWhois::SplitChanList(User* source, User* dest, const std::string& cl
 
 		if (line.length() + namelen + length - start > 510)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 319, "%s", line.c_str());
+			ServerInstance->SendWhoisLine(source, dest, 319, line);
 			line = prefix.str();
 		}
 
@@ -109,16 +109,16 @@ void CommandWhois::SplitChanList(User* source, User* dest, const std::string& cl
 
 	if (line.length() != prefix.str().length())
 	{
-		ServerInstance->SendWhoisLine(source, dest, 319, "%s", line.c_str());
+		ServerInstance->SendWhoisLine(source, dest, 319, line);
 	}
 }
 
 void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigned long idle)
 {
-	ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s %s * :%s",user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
+	ServerInstance->SendWhoisLine(user, dest, 311, "%s %s %s * :%s", dest->nick.c_str(), dest->ident.c_str(), dest->dhost.c_str(), dest->fullname.c_str());
 	if (user == dest || user->HasPrivPermission("users/auspex"))
 	{
-		ServerInstance->SendWhoisLine(user, dest, 378, "%s %s :is connecting from %s@%s %s", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString().c_str());
+		ServerInstance->SendWhoisLine(user, dest, 378, "%s :is connecting from %s@%s %s", dest->nick.c_str(), dest->ident.c_str(), dest->host.c_str(), dest->GetIPString().c_str());
 	}
 
 	std::string cl = ChannelList(user, dest, false);
@@ -134,42 +134,42 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 		std::string scl = ChannelList(user, dest, true);
 		if (scl.length())
 		{
-			ServerInstance->SendWhoisLine(user, dest, 336, "%s %s :is on private/secret channels:",user->nick.c_str(), dest->nick.c_str());
+			ServerInstance->SendWhoisLine(user, dest, 336, "%s :is on private/secret channels:", dest->nick.c_str());
 			SplitChanList(user, dest, scl);
 		}
 	}
 	if (user != dest && !ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 	{
-		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), ServerInstance->Config->HideWhoisServer.c_str(), ServerInstance->Config->Network.c_str());
+		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s :%s", dest->nick.c_str(), ServerInstance->Config->HideWhoisServer.c_str(), ServerInstance->Config->Network.c_str());
 	}
 	else
 	{
 		std::string serverdesc = ServerInstance->GetServerDescription(dest->server);
-		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->server.c_str(), serverdesc.c_str());
+		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s :%s", dest->nick.c_str(), dest->server.c_str(), serverdesc.c_str());
 	}
 
 	if (dest->IsAway())
 	{
-		ServerInstance->SendWhoisLine(user, dest, 301, "%s %s :%s",user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
+		ServerInstance->SendWhoisLine(user, dest, 301, "%s :%s", dest->nick.c_str(), dest->awaymsg.c_str());
 	}
 
 	if (dest->IsOper())
 	{
 		if (ServerInstance->Config->GenericOper)
-			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is an IRC operator",user->nick.c_str(), dest->nick.c_str());
+			ServerInstance->SendWhoisLine(user, dest, 313, "%s :is an IRC operator", dest->nick.c_str());
 		else
-			ServerInstance->SendWhoisLine(user, dest, 313, "%s %s :is %s %s on %s",user->nick.c_str(), dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"),dest->oper->name.c_str(), ServerInstance->Config->Network.c_str());
+			ServerInstance->SendWhoisLine(user, dest, 313, "%s :is %s %s on %s", dest->nick.c_str(), (strchr("AEIOUaeiou",dest->oper->name[0]) ? "an" : "a"),dest->oper->name.c_str(), ServerInstance->Config->Network.c_str());
 	}
 
 	if (user == dest || user->HasPrivPermission("users/auspex"))
 	{
 		if (dest->IsModeSet(snomaskmode))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s %s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes(), snomaskmode->GetUserParameter(dest).c_str());
+			ServerInstance->SendWhoisLine(user, dest, 379, "%s :is using modes +%s %s", dest->nick.c_str(), dest->FormatModes(), snomaskmode->GetUserParameter(dest).c_str());
 		}
 		else
 		{
-			ServerInstance->SendWhoisLine(user, dest, 379, "%s %s :is using modes +%s", user->nick.c_str(), dest->nick.c_str(), dest->FormatModes());
+			ServerInstance->SendWhoisLine(user, dest, 379, "%s :is using modes +%s", dest->nick.c_str(), dest->FormatModes());
 		}
 	}
 
@@ -181,10 +181,10 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 	 */
 	if ((idle) || (signon))
 	{
-		ServerInstance->SendWhoisLine(user, dest, 317, "%s %s %lu %lu :seconds idle, signon time",user->nick.c_str(), dest->nick.c_str(), idle, signon);
+		ServerInstance->SendWhoisLine(user, dest, 317, "%s %lu %lu :seconds idle, signon time", dest->nick.c_str(), idle, signon);
 	}
 
-	ServerInstance->SendWhoisLine(user, dest, 318, "%s %s :End of /WHOIS list.",user->nick.c_str(), dest->nick.c_str());
+	ServerInstance->SendWhoisLine(user, dest, 318, "%s :End of /WHOIS list.", dest->nick.c_str());
 }
 
 CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters, RemoteUser* target)
@@ -242,8 +242,8 @@ CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, 
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
-		user->WriteNumeric(318, "%s %s :End of /WHOIS list.",user->nick.c_str(), !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
+		user->WriteNumeric(RPL_ENDOFWHOIS, "%s :End of /WHOIS list.", !parameters[userindex].empty() ? parameters[userindex].c_str() : "*");
 		return CMD_FAILURE;
 	}
 

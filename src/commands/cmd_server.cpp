@@ -44,11 +44,11 @@ CmdResult CommandServer::Handle (const std::vector<std::string>&, User *user)
 {
 	if (user->registered == REG_ALL)
 	{
-		user->WriteNumeric(ERR_ALREADYREGISTERED, "%s :You are already registered. (Perhaps your IRC client does not have a /SERVER command).",user->nick.c_str());
+		user->WriteNumeric(ERR_ALREADYREGISTERED, ":You are already registered. (Perhaps your IRC client does not have a /SERVER command).");
 	}
 	else
 	{
-		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You may not register as a server (servers have separate ports from clients, change your config)",name.c_str());
+		user->WriteNumeric(ERR_NOTREGISTERED, ":You may not register as a server (servers have separate ports from clients, change your config)");
 	}
 	return CMD_FAILURE;
 }

@@ -49,7 +49,7 @@ class ModuleRegOnlyCreate : public Module
 			return MOD_RES_PASSTHRU;
 
 		// XXX. there may be a better numeric for this..
-		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have a registered nickname to create a new channel", user->nick.c_str(), cname.c_str());
+		user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must have a registered nickname to create a new channel", cname.c_str());
 		return MOD_RES_DENY;
 	}
 

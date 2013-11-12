@@ -124,10 +124,10 @@ class CommandSilence : public Command
 				for (silencelist::const_iterator c = sl->begin(); c != sl->end(); c++)
 				{
 					std::string decomppattern = DecompPattern(c->second);
-					user->WriteNumeric(271, "%s %s %s %s",user->nick.c_str(), user->nick.c_str(),c->first.c_str(), decomppattern.c_str());
+					user->WriteNumeric(271, "%s %s %s", user->nick.c_str(),c->first.c_str(), decomppattern.c_str());
 				}
 			}
-			user->WriteNumeric(272, "%s :End of Silence List",user->nick.c_str());
+			user->WriteNumeric(272, ":End of Silence List");
 
 			return CMD_SUCCESS;
 		}
@@ -173,7 +173,7 @@ class CommandSilence : public Command
 						if (listitem == mask && i->second == pattern)
 						{
 							sl->erase(i);
-							user->WriteNumeric(950, "%s %s :Removed %s %s from silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+							user->WriteNumeric(950, "%s :Removed %s %s from silence list", user->nick.c_str(), mask.c_str(), decomppattern.c_str());
 							if (!sl->size())
 							{
 								ext.unset(user);
@@ -182,7 +182,7 @@ class CommandSilence : public Command
 						}
 					}
 				}
-				user->WriteNumeric(952, "%s %s :%s %s does not exist on your silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+				user->WriteNumeric(952, "%s :%s %s does not exist on your silence list", user->nick.c_str(), mask.c_str(), decomppattern.c_str());
 			}
 			else if (action == '+')
 			{
@@ -195,7 +195,7 @@ class CommandSilence : public Command
 				}
 				if (sl->size() > maxsilence)
 				{
-					user->WriteNumeric(952, "%s %s :Your silence list is full",user->nick.c_str(), user->nick.c_str());
+					user->WriteNumeric(952, "%s :Your silence list is full",user->nick.c_str());
 					return CMD_FAILURE;
 				}
 
@@ -205,7 +205,7 @@ class CommandSilence : public Command
 					irc::string listitem = n->first.c_str();
 					if (listitem == mask && n->second == pattern)
 					{
-						user->WriteNumeric(952, "%s %s :%s %s is already on your silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+						user->WriteNumeric(952, "%s :%s %s is already on your silence list", user->nick.c_str(), mask.c_str(), decomppattern.c_str());
 						return CMD_FAILURE;
 					}
 				}
@@ -217,7 +217,7 @@ class CommandSilence : public Command
 				{
 					sl->push_back(silenceset(mask,pattern));
 				}
-				user->WriteNumeric(951, "%s %s :Added %s %s to silence list",user->nick.c_str(), user->nick.c_str(), mask.c_str(), decomppattern.c_str());
+				user->WriteNumeric(951, "%s :Added %s %s to silence list", user->nick.c_str(), mask.c_str(), decomppattern.c_str());
 				return CMD_SUCCESS;
 			}
 		}

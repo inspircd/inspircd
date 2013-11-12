@@ -120,8 +120,8 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 	{
 		if (channel->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			user->WriteNumeric(404, "%s %s :You must wait %s seconds after joining to send to channel (+d)",
-				user->nick.c_str(), channel->name.c_str(), len.c_str());
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :You must wait %s seconds after joining to send to channel (+d)",
+				channel->name.c_str(), len.c_str());
 			return MOD_RES_DENY;
 		}
 	}

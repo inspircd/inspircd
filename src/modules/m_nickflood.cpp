@@ -92,7 +92,7 @@ class NickFlood : public ModeHandler
 			std::string::size_type colon = parameter.find(':');
 			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
 				return MODEACTION_DENY;
 			}
 
@@ -102,7 +102,7 @@ class NickFlood : public ModeHandler
 
 			if ((nnicks<1) || (nsecs<1))
 			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
 				return MODEACTION_DENY;
 			}
 
@@ -152,7 +152,7 @@ class ModuleNickFlood : public Module
 
 				if (f->islocked())
 				{
-					user->WriteNumeric(447, "%s :%s has been locked for nickchanges for 60 seconds because there have been more than %u nick changes in %u seconds", user->nick.c_str(), channel->name.c_str(), f->nicks, f->secs);
+					user->WriteNumeric(ERR_CANTCHANGENICK, ":%s has been locked for nickchanges for 60 seconds because there have been more than %u nick changes in %u seconds", channel->name.c_str(), f->nicks, f->secs);
 					return MOD_RES_DENY;
 				}
 

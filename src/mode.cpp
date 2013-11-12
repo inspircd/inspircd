@@ -170,8 +170,8 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	if (targetchannel)
 	{
 		/* Display channel's current mode string */
-		user->WriteNumeric(RPL_CHANNELMODEIS, "%s %s +%s",user->nick.c_str(), targetchannel->name.c_str(), targetchannel->ChanModes(targetchannel->HasUser(user)));
-		user->WriteNumeric(RPL_CHANNELCREATED, "%s %s %lu", user->nick.c_str(), targetchannel->name.c_str(), (unsigned long)targetchannel->age);
+		user->WriteNumeric(RPL_CHANNELMODEIS, "%s +%s", targetchannel->name.c_str(), targetchannel->ChanModes(targetchannel->HasUser(user)));
+		user->WriteNumeric(RPL_CHANNELCREATED, "%s %lu", targetchannel->name.c_str(), (unsigned long)targetchannel->age);
 		return;
 	}
 	else
@@ -179,17 +179,17 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 		if (targetuser == user || user->HasPrivPermission("users/auspex"))
 		{
 			/* Display user's current mode string */
-			user->WriteNumeric(RPL_UMODEIS, "%s :+%s",targetuser->nick.c_str(),targetuser->FormatModes());
+			user->WriteNumeric(RPL_UMODEIS, ":+%s", targetuser->FormatModes());
 			if ((targetuser->IsOper()))
 			{
 				ModeHandler* snomask = FindMode('s', MODETYPE_USER);
-				user->WriteNumeric(RPL_SNOMASKIS, "%s %s :Server notice mask", targetuser->nick.c_str(), snomask->GetUserParameter(user).c_str());
+				user->WriteNumeric(RPL_SNOMASKIS, "%s :Server notice mask", snomask->GetUserParameter(user).c_str());
 			}
 			return;
 		}
 		else
 		{
-			user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't view modes for other users", user->nick.c_str());
+			user->WriteNumeric(ERR_USERSDONTMATCH, ":Can't view modes for other users");
 			return;
 		}
 	}
@@ -208,7 +208,7 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::str
 	User* target = ServerInstance->FindNick(parameter);
 	if (!target)
 	{
-		source->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", source->nick.c_str(), parameter.c_str());
+		source->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameter.c_str());
 		return MODEACTION_DENY;
 	}
 
@@ -267,11 +267,11 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 					}
 				}
 				if (neededmh)
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must have channel %s access or above to %sset channel mode %c",
-						user->nick.c_str(), chan->name.c_str(), neededmh->name.c_str(), adding ? "" : "un", modechar);
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must have channel %s access or above to %sset channel mode %c",
+						chan->name.c_str(), neededmh->name.c_str(), adding ? "" : "un", modechar);
 				else
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You cannot %sset channel mode %c",
-						user->nick.c_str(), chan->name.c_str(), adding ? "" : "un", modechar);
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You cannot %sset channel mode %c",
+						chan->name.c_str(), adding ? "" : "un", modechar);
 				return MODEACTION_DENY;
 			}
 		}
@@ -298,8 +298,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		char* disabled = (type == MODETYPE_CHANNEL) ? ServerInstance->Config->DisabledCModes : ServerInstance->Config->DisabledUModes;
 		if (disabled[modechar - 'A'])
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - %s mode %c has been locked by the administrator",
-				user->nick.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
+			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - %s mode %c has been locked by the administrator",
+				type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
 			return MODEACTION_DENY;
 		}
 	}
@@ -309,13 +309,13 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		/* It's an oper only mode, and they don't have access to it. */
 		if (user->IsOper())
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to set %s mode %c",
-					user->nick.c_str(), user->oper->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
+			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Oper type %s does not have access to set %s mode %c",
+					user->oper->name.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Only operators may set %s mode %c",
-					user->nick.c_str(), type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
+			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Only operators may set %s mode %c",
+					type == MODETYPE_CHANNEL ? "channel" : "user", modechar);
 		}
 		return MODEACTION_DENY;
 	}
@@ -356,7 +356,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 	if ((!targetchannel) && ((!targetuser) || (IS_SERVER(targetuser))))
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(),target.c_str());
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", target.c_str());
 		return;
 	}
 	if (parameters.size() == 1)
@@ -377,7 +377,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 	if (targetuser && !SkipAccessChecks && user != targetuser)
 	{
-		user->WriteNumeric(ERR_USERSDONTMATCH, "%s :Can't change mode for other users", user->nick.c_str());
+		user->WriteNumeric(ERR_USERSDONTMATCH, ":Can't change mode for other users");
 		return;
 	}
 
@@ -405,7 +405,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		if (!mh)
 		{
 			/* No mode handler? Unknown mode character then. */
-			user->WriteServ("%d %s %c :is unknown mode char to me", type == MODETYPE_CHANNEL ? 472 : 501, user->nick.c_str(), modechar);
+			user->WriteNumeric(type == MODETYPE_CHANNEL ? ERR_UNKNOWNMODE : ERR_UNKNOWNSNOMASK, "%c :is unknown mode char to me", modechar);
 			continue;
 		}
 
@@ -520,8 +520,8 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 		bool display = true;
 		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetPrefixValue(user) < HALFOP_VALUE))
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You do not have access to view the +%c list",
-				user->nick.c_str(), chan->name.c_str(), mletter);
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to view the +%c list",
+				chan->name.c_str(), mletter);
 			display = false;
 		}
 

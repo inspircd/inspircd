@@ -46,7 +46,7 @@ class Channel_r : public ModeHandler
 		}
 		else
 		{
-			source->WriteNumeric(500, "%s :Only a server may modify the +r channel mode", source->nick.c_str());
+			source->WriteNumeric(500, ":Only a server may modify the +r channel mode");
 		}
 		return MODEACTION_DENY;
 	}
@@ -72,7 +72,7 @@ class User_r : public ModeHandler
 		}
 		else
 		{
-			source->WriteNumeric(500, "%s :Only a server may modify the +r user mode", source->nick.c_str());
+			source->WriteNumeric(500, ":Only a server may modify the +r user mode");
 		}
 		return MODEACTION_DENY;
 	}
@@ -121,8 +121,8 @@ class AccountExtItemImpl : public AccountExtItem
 		{
 			// Logged in
 			if (IS_LOCAL(user))
-				user->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
-					user->nick.c_str(), user->GetFullHost().c_str(), value.c_str(), value.c_str());
+				user->WriteNumeric(900, "%s %s :You are now logged in as %s",
+					user->GetFullHost().c_str(), value.c_str(), value.c_str());
 
 			AccountEvent(creator, user, value).Send();
 		}
@@ -161,13 +161,13 @@ class ModuleServicesAccount : public Module
 
 		if (account)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s %s :is logged in as", source->nick.c_str(), dest->nick.c_str(), account->c_str());
+			ServerInstance->SendWhoisLine(source, dest, 330, "%s %s :is logged in as", dest->nick.c_str(), account->c_str());
 		}
 
 		if (dest->IsModeSet(m5))
 		{
 			/* user is registered */
-			ServerInstance->SendWhoisLine(source, dest, 307, "%s %s :is a registered nick", source->nick.c_str(), dest->nick.c_str());
+			ServerInstance->SendWhoisLine(source, dest, 307, "%s :is a registered nick", dest->nick.c_str());
 		}
 	}
 
@@ -199,7 +199,7 @@ class ModuleServicesAccount : public Module
 			if (c->IsModeSet(m2) && !is_registered && res != MOD_RES_ALLOW)
 			{
 				// user messaging a +M channel and is not registered
-				user->WriteNumeric(477, user->nick+" "+c->name+" :You need to be identified to a registered account to message this channel");
+				user->WriteNumeric(477, c->name+" :You need to be identified to a registered account to message this channel");
 				return MOD_RES_DENY;
 			}
 		}
@@ -210,7 +210,7 @@ class ModuleServicesAccount : public Module
 			if (u->IsModeSet(m3) && !is_registered)
 			{
 				// user messaging a +R user and is not registered
-				user->WriteNumeric(477, ""+ user->nick +" "+ u->nick +" :You need to be identified to a registered account to message this user");
+				user->WriteNumeric(477, u->nick +" :You need to be identified to a registered account to message this user");
 				return MOD_RES_DENY;
 			}
 		}
@@ -266,7 +266,7 @@ class ModuleServicesAccount : public Module
 				if (!is_registered)
 				{
 					// joining a +R channel and not identified
-					user->WriteNumeric(477, user->nick + " " + chan->name + " :You need to be identified to a registered account to join this channel");
+					user->WriteNumeric(477, chan->name + " :You need to be identified to a registered account to join this channel");
 					return MOD_RES_DENY;
 				}
 			}

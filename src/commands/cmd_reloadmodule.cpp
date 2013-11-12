@@ -48,8 +48,8 @@ class ReloadModuleWorker : public HandlerBase1<void, bool>
 			name.c_str(), result ? "" : "un");
 		User* user = ServerInstance->FindNick(uid);
 		if (user)
-			user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
-				user->nick.c_str(), name.c_str(), result ? "" : "un");
+			user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %ssuccessfully reloaded.",
+				name.c_str(), result ? "" : "un");
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
 };
@@ -58,8 +58,8 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 {
 	if (parameters[0] == "cmd_reloadmodule.so")
 	{
-		user->WriteNumeric(975, "%s %s :You cannot reload cmd_reloadmodule.so (unload and load it)",
-			user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(RPL_LOADEDMODULE, "%s :You cannot reload cmd_reloadmodule.so (unload and load it)",
+			parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
@@ -71,7 +71,7 @@ CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameter
 	}
 	else
 	{
-		user->WriteNumeric(975, "%s %s :Could not find module by that name", user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(RPL_LOADEDMODULE, "%s :Could not find module by that name", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 }

@@ -44,11 +44,11 @@ class CommandGloadmodule : public Command
 			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
-				user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module successfully loaded.", parameters[0].c_str());
 			}
 			else
 			{
-				user->WriteNumeric(974, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+				user->WriteNumeric(ERR_CANTLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 			}
 		}
 		else
@@ -79,7 +79,7 @@ class CommandGunloadmodule : public Command
 		if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
 			InspIRCd::Match(parameters[0], "cmd_*.so", ascii_case_insensitive_map))
 		{
-			user->WriteNumeric(972, "%s %s :You cannot unload core commands!", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload core commands!", parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
@@ -98,11 +98,11 @@ class CommandGunloadmodule : public Command
 				}
 				else
 				{
-					user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+					user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 				}
 			}
 			else
-				user->SendText(":%s 972 %s %s :No such module", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
+				user->SendText(":%s ERR_CANTUNLOADMODULE %s %s :No such module", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
 		}
 		else
 			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
@@ -129,8 +129,8 @@ class GReloadModuleWorker : public HandlerBase1<void, bool>
 		ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'%s", name.c_str(), nick.c_str(), result ? "" : " (failed here)");
 		User* user = ServerInstance->FindNick(uid);
 		if (user)
-			user->WriteNumeric(975, "%s %s :Module %ssuccessfully reloaded.",
-				user->nick.c_str(), name.c_str(), result ? "" : "un");
+			user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %ssuccessfully reloaded.",
+				name.c_str(), result ? "" : "un");
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
 };
@@ -156,7 +156,7 @@ class CommandGreloadmodule : public Command
 				ServerInstance->Modules->Reload(m, new GReloadModuleWorker(user->nick, user->uuid, parameters[0]));
 			else
 			{
-				user->WriteNumeric(975, "%s %s :Could not find module by that name", user->nick.c_str(), parameters[0].c_str());
+				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Could not find module by that name", parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}

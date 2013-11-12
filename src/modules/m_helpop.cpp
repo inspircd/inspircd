@@ -55,17 +55,15 @@ class CommandHelpop : public Command
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
-			user->WriteServ("290 %s :HELPOP topic index", user->nick.c_str());
+			user->WriteNumeric(290, ":HELPOP topic index");
 			for (std::map<irc::string, std::string>::iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
-			{
-				user->WriteServ("292 %s :  %s", user->nick.c_str(), iter->first.c_str());
-			}
-			user->WriteServ("292 %s :*** End of HELPOP topic index", user->nick.c_str());
+				user->WriteNumeric(292, ":  %s", iter->first.c_str());
+			user->WriteNumeric(292, ":*** End of HELPOP topic index");
 		}
 		else
 		{
-			user->WriteServ("290 %s :*** HELPOP for %s", user->nick.c_str(), parameter.c_str());
-			user->WriteServ("292 %s : -", user->nick.c_str());
+			user->WriteNumeric(290, ":*** HELPOP for %s", parameter.c_str());
+			user->WriteNumeric(292, ": -");
 
 			std::map<irc::string, std::string>::iterator iter = helpop_map.find(parameter);
 
@@ -82,13 +80,13 @@ class CommandHelpop : public Command
 			{
 				// Writing a blank line will not work with some clients
 				if (token.empty())
-					user->WriteServ("292 %s : ", user->nick.c_str());
+					user->WriteNumeric(292, ": ");
 				else
-					user->WriteServ("292 %s :%s", user->nick.c_str(), token.c_str());
+					user->WriteNumeric(292, ":%s", token.c_str());
 			}
 
-			user->WriteServ("292 %s : -", user->nick.c_str());
-			user->WriteServ("292 %s :*** End of HELPOP", user->nick.c_str());
+			user->WriteNumeric(292, ": -");
+			user->WriteNumeric(292, ":*** End of HELPOP");
 		}
 		return CMD_SUCCESS;
 	}
@@ -143,7 +141,7 @@ class ModuleHelpop : public Module
 		{
 			if (dst->IsModeSet(ho))
 			{
-				ServerInstance->SendWhoisLine(src, dst, 310, src->nick+" "+dst->nick+" :is available for help.");
+				ServerInstance->SendWhoisLine(src, dst, 310, dst->nick+" :is available for help.");
 			}
 		}
 

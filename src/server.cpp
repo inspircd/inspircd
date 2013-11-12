@@ -231,5 +231,5 @@ void ISupportManager::Build()
 void ISupportManager::SendTo(LocalUser* user)
 {
 	for (std::vector<std::string>::const_iterator i = this->Lines.begin(); i != this->Lines.end(); ++i)
-		user->WriteNumeric(RPL_ISUPPORT, "%s %s", user->nick.c_str(), i->c_str());
+		user->WriteNumeric(RPL_ISUPPORT, *i);
 }

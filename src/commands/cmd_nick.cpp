@@ -58,7 +58,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (newnick.empty())
 	{
-		user->WriteNumeric(432, "%s * :Erroneous Nickname", oldnick.c_str());
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, "* :Erroneous Nickname");
 		return CMD_FAILURE;
 	}
 
@@ -68,7 +68,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 	}
 	else if (!ServerInstance->IsNick(newnick))
 	{
-		user->WriteNumeric(432, "%s %s :Erroneous Nickname", user->nick.c_str(),newnick.c_str());
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Erroneous Nickname", newnick.c_str());
 		return CMD_FAILURE;
 	}
 

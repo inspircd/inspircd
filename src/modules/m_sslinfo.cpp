@@ -91,7 +91,7 @@ class CommandSSLInfo : public Command
 
 		if ((!target) || (target->registered != REG_ALL))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nickname", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nickname", parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
@@ -156,11 +156,11 @@ class ModuleSSLInfo : public Module
 		ssl_cert* cert = cmd.CertExt.get(dest);
 		if (cert)
 		{
-			ServerInstance->SendWhoisLine(source, dest, 671, "%s %s :is using a secure connection", source->nick.c_str(), dest->nick.c_str());
+			ServerInstance->SendWhoisLine(source, dest, 671, "%s :is using a secure connection", dest->nick.c_str());
 			bool operonlyfp = ServerInstance->Config->ConfValue("sslinfo")->getBool("operonly");
 			if ((!operonlyfp || source == dest || source->IsOper()) && !cert->fingerprint.empty())
-				ServerInstance->SendWhoisLine(source, dest, 276, "%s %s :has client certificate fingerprint %s",
-					source->nick.c_str(), dest->nick.c_str(), cert->fingerprint.c_str());
+				ServerInstance->SendWhoisLine(source, dest, 276, "%s :has client certificate fingerprint %s",
+					dest->nick.c_str(), cert->fingerprint.c_str());
 		}
 	}
 
@@ -176,7 +176,7 @@ class ModuleSSLInfo : public Module
 
 				if (ifo->oper_block->getBool("sslonly") && !cert)
 				{
-					user->WriteNumeric(491, "%s :This oper login requires an SSL connection.", user->nick.c_str());
+					user->WriteNumeric(491, ":This oper login requires an SSL connection.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
@@ -184,7 +184,7 @@ class ModuleSSLInfo : public Module
 				std::string fingerprint;
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
-					user->WriteNumeric(491, "%s :This oper login requires a matching SSL fingerprint.",user->nick.c_str());
+					user->WriteNumeric(491, ":This oper login requires a matching SSL fingerprint.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}

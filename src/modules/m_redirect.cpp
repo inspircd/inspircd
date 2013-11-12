@@ -39,7 +39,7 @@ class Redirect : public ModeHandler
 			{
 				if (!ServerInstance->IsChannel(parameter))
 				{
-					source->WriteNumeric(403, "%s %s :Invalid channel name", source->nick.c_str(), parameter.c_str());
+					source->WriteNumeric(ERR_NOSUCHCHANNEL, "%s :Invalid channel name", parameter.c_str());
 					return MODEACTION_DENY;
 				}
 			}
@@ -49,12 +49,12 @@ class Redirect : public ModeHandler
 				Channel* c = ServerInstance->FindChan(parameter);
 				if (!c)
 				{
-					source->WriteNumeric(690, "%s :Target channel %s must exist to be set as a redirect.",source->nick.c_str(),parameter.c_str());
+					source->WriteNumeric(690, ":Target channel %s must exist to be set as a redirect.",parameter.c_str());
 					return MODEACTION_DENY;
 				}
 				else if (c->GetPrefixValue(source) < OP_VALUE)
 				{
-					source->WriteNumeric(690, "%s :You must be opped on %s to set it as a redirect.",source->nick.c_str(),parameter.c_str());
+					source->WriteNumeric(690, ":You must be opped on %s to set it as a redirect.",parameter.c_str());
 					return MODEACTION_DENY;
 				}
 			}
@@ -127,19 +127,19 @@ class ModuleRedirect : public Module
 					Channel* destchan = ServerInstance->FindChan(channel);
 					if (destchan && destchan->IsModeSet(re))
 					{
-						user->WriteNumeric(470, "%s %s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", user->nick.c_str(), cname.c_str());
+						user->WriteNumeric(470, "%s * :You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.", cname.c_str());
 						return MOD_RES_DENY;
 					}
 					/* We check the bool value here to make sure we have it enabled, if we don't then
 						usermode +L might be assigned to something else. */
 					if (UseUsermode && user->IsModeSet(re_u))
 					{
-						user->WriteNumeric(470, "%s %s %s :Force redirection stopped.", user->nick.c_str(), cname.c_str(), channel.c_str());
+						user->WriteNumeric(470, "%s %s :Force redirection stopped.", cname.c_str(), channel.c_str());
 						return MOD_RES_DENY;
 					}
 					else
 					{
-						user->WriteNumeric(470, "%s %s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", user->nick.c_str(), cname.c_str(), channel.c_str());
+						user->WriteNumeric(470, "%s %s :You may not join this channel, so you are automatically being transferred to the redirect channel.", cname.c_str(), channel.c_str());
 						Channel::JoinUser(user, channel);
 						return MOD_RES_DENY;
 					}

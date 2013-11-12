@@ -45,13 +45,13 @@ CmdResult CommandUnloadmodule::Handle (const std::vector<std::string>& parameter
 	if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
 		InspIRCd::Match(parameters[0], "cmd_*.so", ascii_case_insensitive_map))
 	{
-		user->WriteNumeric(972, "%s %s :You cannot unload core commands!", user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload core commands!", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
 	if (parameters[0] == "cmd_unloadmodule.so" || parameters[0] == "cmd_loadmodule.so")
 	{
-		user->WriteNumeric(972, "%s %s :You cannot unload module loading commands!", user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload module loading commands!", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
@@ -59,11 +59,11 @@ CmdResult CommandUnloadmodule::Handle (const std::vector<std::string>& parameter
 	if (m && ServerInstance->Modules->Unload(m))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
-		user->WriteNumeric(973, "%s %s :Module successfully unloaded.",user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(RPL_UNLOADEDMODULE, "%s :Module successfully unloaded.", parameters[0].c_str());
 	}
 	else
 	{
-		user->WriteNumeric(972, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(),
+		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :%s", parameters[0].c_str(),
 			m ? ServerInstance->Modules->LastError().c_str() : "No such module");
 		return CMD_FAILURE;
 	}

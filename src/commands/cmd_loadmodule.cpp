@@ -47,12 +47,12 @@ CmdResult CommandLoadmodule::Handle (const std::vector<std::string>& parameters,
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
-		user->WriteNumeric(975, "%s %s :Module successfully loaded.",user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module successfully loaded.", parameters[0].c_str());
 		return CMD_SUCCESS;
 	}
 	else
 	{
-		user->WriteNumeric(974, "%s %s :%s",user->nick.c_str(), parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
+		user->WriteNumeric(ERR_CANTLOADMODULE, "%s :%s", parameters[0].c_str(), ServerInstance->Modules->LastError().c_str());
 		return CMD_FAILURE;
 	}
 }

@@ -112,13 +112,13 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 			{
 				if (chan->IsModeSet(noextmsgmode) && !chan->HasUser(user))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (no external messages)", user->nick.c_str(), chan->name.c_str());
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (no external messages)", chan->name.c_str());
 					return CMD_FAILURE;
 				}
 
 				if (chan->IsModeSet(moderatedmode))
 				{
-					user->WriteNumeric(404, "%s %s :Cannot send to channel (+m)", user->nick.c_str(), chan->name.c_str());
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (+m)", chan->name.c_str());
 					return CMD_FAILURE;
 				}
 
@@ -126,7 +126,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 				{
 					if (chan->IsBanned(user))
 					{
-						user->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", user->nick.c_str(), chan->name.c_str());
+						user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
 						return CMD_FAILURE;
 					}
 				}
@@ -143,7 +143,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 			/* Check again, a module may have zapped the input string */
 			if (temp.empty())
 			{
-				user->WriteNumeric(412, "%s :No text to send", user->nick.c_str());
+				user->WriteNumeric(ERR_NOTEXTTOSEND, ":No text to send");
 				return CMD_FAILURE;
 			}
 
@@ -170,7 +170,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		else
 		{
 			/* no such nick/channel */
-			user->WriteNumeric(401, "%s %s :No such nick/channel", user->nick.c_str(), target);
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", target);
 			return CMD_FAILURE;
 		}
 		return CMD_SUCCESS;
@@ -191,7 +191,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 			if (dest && strcasecmp(dest->server.c_str(), targetserver + 1))
 			{
 				/* Incorrect server for user */
-				user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
+				user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
 				return CMD_FAILURE;
 			}
 		}
@@ -205,14 +205,14 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 	{
 		if (parameters[1].empty())
 		{
-			user->WriteNumeric(412, "%s :No text to send", user->nick.c_str());
+			user->WriteNumeric(ERR_NOTEXTTOSEND, ":No text to send");
 			return CMD_FAILURE;
 		}
 
 		if ((dest->IsAway()) && (mt == MSG_PRIVMSG))
 		{
 			/* auto respond with aweh msg */
-			user->WriteNumeric(301, "%s %s :%s", user->nick.c_str(), dest->nick.c_str(), dest->awaymsg.c_str());
+			user->WriteNumeric(RPL_AWAY, "%s :%s", dest->nick.c_str(), dest->awaymsg.c_str());
 		}
 
 		ModResult MOD_RESULT;
@@ -237,7 +237,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 	else
 	{
 		/* no such nick/channel */
-		user->WriteNumeric(401, "%s %s :No such nick/channel",user->nick.c_str(), parameters[0].c_str());
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;

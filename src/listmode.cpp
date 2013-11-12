@@ -34,15 +34,15 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	{
 		for (ModeList::reverse_iterator it = cd->list.rbegin(); it != cd->list.rend(); ++it)
 		{
-			user->WriteNumeric(listnumeric, "%s %s %s %s %lu", user->nick.c_str(), channel->name.c_str(), it->mask.c_str(), (!it->setter.empty() ? it->setter.c_str() : ServerInstance->Config->ServerName.c_str()), (unsigned long) it->time);
+			user->WriteNumeric(listnumeric, "%s %s %s %lu", channel->name.c_str(), it->mask.c_str(), (!it->setter.empty() ? it->setter.c_str() : ServerInstance->Config->ServerName.c_str()), (unsigned long) it->time);
 		}
 	}
-	user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
+	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
 }
 
 void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 {
-	user->WriteNumeric(endoflistnumeric, "%s %s :%s", user->nick.c_str(), channel->name.c_str(), endofliststring.c_str());
+	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
 }
 
 void ListModeBase::RemoveMode(Channel* channel, irc::modestacker& stack)
@@ -209,7 +209,7 @@ bool ListModeBase::ValidateParam(User*, Channel*, std::string&)
 
 void ListModeBase::TellListTooLong(User* source, Channel* channel, std::string& parameter)
 {
-	source->WriteNumeric(478, "%s %s %s :Channel ban list is full", source->nick.c_str(), channel->name.c_str(), parameter.c_str());
+	source->WriteNumeric(ERR_BANLISTFULL, "%s %s :Channel ban list is full", channel->name.c_str(), parameter.c_str());
 }
 
 void ListModeBase::TellAlreadyOnList(User*, Channel*, std::string&)

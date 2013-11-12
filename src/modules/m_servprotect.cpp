@@ -60,7 +60,7 @@ class ModuleServProtectMode : public Module
 	{
 		if (dest->IsModeSet(bm))
 		{
-			ServerInstance->SendWhoisLine(user, dest, 310, user->nick+" "+dest->nick+" :is a Network Service on "+ServerInstance->Config->Network);
+			ServerInstance->SendWhoisLine(user, dest, 310, dest->nick+" :is a Network Service on "+ServerInstance->Config->Network);
 		}
 	}
 
@@ -84,7 +84,7 @@ class ModuleServProtectMode : public Module
 				if (u->IsModeSet(bm) && memb && memb->modes.find(mode) != std::string::npos)
 				{
 					/* BZZZT, Denied! */
-					user->WriteNumeric(482, "%s %s :You are not permitted to remove privileges from %s services", user->nick.c_str(), chan->name.c_str(), ServerInstance->Config->Network.c_str());
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You are not permitted to remove privileges from %s services", chan->name.c_str(), ServerInstance->Config->Network.c_str());
 					return MOD_RES_DENY;
 				}
 			}
@@ -100,7 +100,7 @@ class ModuleServProtectMode : public Module
 
 		if (dst->IsModeSet(bm))
 		{
-			src->WriteNumeric(485, "%s :You are not permitted to kill %s services!", src->nick.c_str(), ServerInstance->Config->Network.c_str());
+			src->WriteNumeric(485, ":You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str());
 			ServerInstance->SNO->WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}
@@ -111,8 +111,8 @@ class ModuleServProtectMode : public Module
 	{
 		if (memb->user->IsModeSet(bm))
 		{
-			src->WriteNumeric(484, "%s %s :You are not permitted to kick services",
-				src->nick.c_str(), memb->chan->name.c_str());
+			src->WriteNumeric(ERR_RESTRICTED, "%s :You are not permitted to kick services",
+				memb->chan->name.c_str());
 			return MOD_RES_DENY;
 		}
 

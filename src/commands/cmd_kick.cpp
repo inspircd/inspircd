@@ -62,7 +62,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 
 	if (!u || !c)
 	{
-		user->WriteServ( "401 %s %s :No such nick/channel", user->nick.c_str(), u ? parameters[0].c_str() : parameters[1].c_str());
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", u ? parameters[0].c_str() : parameters[1].c_str());
 		return CMD_FAILURE;
 	}
 
@@ -72,13 +72,13 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		srcmemb = c->GetUser(user);
 		if (!srcmemb)
 		{
-			user->WriteServ( "442 %s %s :You're not on that channel!", user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOTONCHANNEL, "%s :You're not on that channel!", parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 
 		if (ServerInstance->ULine(u->server))
 		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You may not kick a u-lined client", user->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You may not kick a u-lined client", c->name.c_str());
 			return CMD_FAILURE;
 		}
 	}

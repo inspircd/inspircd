@@ -88,19 +88,19 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 
 	counters.UpdateMaxUsers();
 
-	user->WriteNumeric(251, "%s :There are %d users and %d invisible on %d servers",user->nick.c_str(),
+	user->WriteNumeric(RPL_LUSERCLIENT, ":There are %d users and %d invisible on %d servers",
 			n_users - counters.invisible, counters.invisible, n_serv);
 
 	if (ServerInstance->Users->OperCount())
-		user->WriteNumeric(252, "%s %d :operator(s) online",user->nick.c_str(),ServerInstance->Users->OperCount());
+		user->WriteNumeric(RPL_LUSEROP, "%d :operator(s) online", ServerInstance->Users->OperCount());
 
 	if (ServerInstance->Users->UnregisteredUserCount())
-		user->WriteNumeric(253, "%s %d :unknown connections",user->nick.c_str(),ServerInstance->Users->UnregisteredUserCount());
+		user->WriteNumeric(RPL_LUSERUNKNOWN, "%d :unknown connections", ServerInstance->Users->UnregisteredUserCount());
 
-	user->WriteNumeric(254, "%s %ld :channels formed",user->nick.c_str(),ServerInstance->ChannelCount());
-	user->WriteNumeric(255, "%s :I have %d clients and %d servers",user->nick.c_str(),ServerInstance->Users->LocalUserCount(),n_local_servs);
-	user->WriteNumeric(265, "%s :Current Local Users: %d  Max: %d", user->nick.c_str(), ServerInstance->Users->LocalUserCount(), counters.max_local);
-	user->WriteNumeric(266, "%s :Current Global Users: %d  Max: %d", user->nick.c_str(), n_users, counters.max_global);
+	user->WriteNumeric(RPL_LUSERCHANNELS, "%ld :channels formed", ServerInstance->ChannelCount());
+	user->WriteNumeric(RPL_LUSERME, ":I have %d clients and %d servers", ServerInstance->Users->LocalUserCount(),n_local_servs);
+	user->WriteNumeric(RPL_LOCALUSERS, ":Current Local Users: %d  Max: %d", ServerInstance->Users->LocalUserCount(), counters.max_local);
+	user->WriteNumeric(RPL_GLOBALUSERS, ":Current Global Users: %d  Max: %d", n_users, counters.max_global);
 
 	return CMD_SUCCESS;
 }

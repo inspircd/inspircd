@@ -113,7 +113,7 @@ class CommandJumpserver : public Command
 					LocalUser* t = *i;
 					if (!t->IsOper())
 					{
-						t->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead", t->nick.c_str(), parameters[0].c_str(), GetPort(t));
+						t->WriteNumeric(RPL_REDIR, "%s %d :Please use this Server/Port instead", parameters[0].c_str(), GetPort(t));
 						ServerInstance->Users->QuitUser(t, reason);
 						n_done++;
 					}
@@ -157,8 +157,8 @@ class ModuleJumpServer : public Module
 		if (js.redirect_new_users)
 		{
 			int port = js.GetPort(user);
-			user->WriteNumeric(10, "%s %s %d :Please use this Server/Port instead",
-				user->nick.c_str(), js.redirect_to.c_str(), port);
+			user->WriteNumeric(RPL_REDIR, "%s %d :Please use this Server/Port instead",
+				js.redirect_to.c_str(), port);
 			ServerInstance->Users->QuitUser(user, js.reason);
 			return MOD_RES_PASSTHRU;
 		}

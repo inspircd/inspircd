@@ -206,7 +206,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		if (!handler)
 		{
 			if (user->registered == REG_ALL)
-				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
+				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :Unknown command",command.c_str());
 			ServerInstance->stats->statsUnknown++;
 			return;
 		}
@@ -256,14 +256,14 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	{
 		if (!user->IsModeSet(handler->flags_needed))
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - You do not have the required operator privileges",user->nick.c_str());
+			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - You do not have the required operator privileges");
 			return;
 		}
 
 		if (!user->HasPermission(command))
 		{
-			user->WriteNumeric(ERR_NOPRIVILEGES, "%s :Permission Denied - Oper type %s does not have access to command %s",
-				user->nick.c_str(), user->oper->name.c_str(), command.c_str());
+			user->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Oper type %s does not have access to command %s",
+				user->oper->name.c_str(), command.c_str());
 			return;
 		}
 	}
@@ -273,12 +273,11 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		/* command is disabled! */
 		if (ServerInstance->Config->DisabledDontExist)
 		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :Unknown command",user->nick.c_str(),command.c_str());
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :Unknown command", command.c_str());
 		}
 		else
 		{
-			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s %s :This command has been disabled.",
-										user->nick.c_str(), command.c_str());
+			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :This command has been disabled.", command.c_str());
 		}
 
 		ServerInstance->SNO->WriteToSnoMask('t', "%s denied for %s (%s@%s)",
@@ -291,9 +290,9 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 
 	if (command_p.size() < handler->min_params)
 	{
-		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s %s :Not enough parameters.", user->nick.c_str(), command.c_str());
+		user->WriteNumeric(ERR_NEEDMOREPARAMS, "%s :Not enough parameters.", command.c_str());
 		if ((ServerInstance->Config->SyntaxHints) && (user->registered == REG_ALL) && (handler->syntax.length()))
-			user->WriteNumeric(RPL_SYNTAX, "%s :SYNTAX %s %s", user->nick.c_str(), handler->name.c_str(), handler->syntax.c_str());
+			user->WriteNumeric(RPL_SYNTAX, ":SYNTAX %s %s", handler->name.c_str(), handler->syntax.c_str());
 		return;
 	}
 

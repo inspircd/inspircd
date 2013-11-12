@@ -35,7 +35,7 @@ static void DisplayList(User* user, Channel* channel)
 	}
 	const std::string line = ":" + ServerInstance->Config->ServerName + " 961 " + user->nick + " " + channel->name;
 	user->SendText(line, items);
-	user->WriteNumeric(960, "%s %s :End of mode list", user->nick.c_str(), channel->name.c_str());
+	user->WriteNumeric(960, "%s :End of mode list", channel->name.c_str());
 }
 
 class CommandProp : public Command

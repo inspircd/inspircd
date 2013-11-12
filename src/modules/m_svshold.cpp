@@ -174,7 +174,7 @@ class ModuleSVSHold : public Module
 
 		if (rl)
 		{
-			user->WriteServ( "432 %s %s :Services reserved nickname: %s", user->nick.c_str(), newnick.c_str(), rl->reason.c_str());
+			user->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Services reserved nickname: %s", newnick.c_str(), rl->reason.c_str());
 			return MOD_RES_DENY;
 		}
 

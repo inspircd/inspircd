@@ -390,7 +390,7 @@ void User::Oper(OperInfo* info)
 
 	ServerInstance->SNO->WriteToSnoMask('o',"%s (%s@%s) is now an IRC operator of type %s (using oper '%s')",
 		nick.c_str(), ident.c_str(), host.c_str(), oper->name.c_str(), opername.c_str());
-	this->WriteNumeric(381, "%s :You are now %s %s", nick.c_str(), strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str());
+	this->WriteNumeric(RPL_YOUAREOPER, ":You are now %s %s", strchr("aeiouAEIOU", oper->name[0]) ? "an" : "a", oper->name.c_str());
 
 	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "%s opered as type: %s", GetFullRealHost().c_str(), oper->name.c_str());
 	ServerInstance->Users->all_opers.push_back(this);
@@ -570,15 +570,15 @@ void LocalUser::FullConnect()
 	if (quitting)
 		return;
 
-	this->WriteNumeric(RPL_WELCOME, "%s :Welcome to the %s IRC Network %s",this->nick.c_str(), ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
-	this->WriteNumeric(RPL_YOURHOSTIS, "%s :Your host is %s, running version %s",this->nick.c_str(),ServerInstance->Config->ServerName.c_str(),BRANCH);
-	this->WriteNumeric(RPL_SERVERCREATED, "%s :This server was created %s %s", this->nick.c_str(), __TIME__, __DATE__);
+	this->WriteNumeric(RPL_WELCOME, ":Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
+	this->WriteNumeric(RPL_YOURHOSTIS, ":Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), BRANCH);
+	this->WriteNumeric(RPL_SERVERCREATED, ":This server was created %s %s", __TIME__, __DATE__);
 
 	const std::string& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
-	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s %s", this->nick.c_str(), ServerInstance->Config->ServerName.c_str(), BRANCH, modelist.c_str());
+	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s", ServerInstance->Config->ServerName.c_str(), BRANCH, modelist.c_str());
 
 	ServerInstance->ISupport.SendTo(this);
-	this->WriteNumeric(RPL_YOURUUID, "%s %s :your unique ID", this->nick.c_str(), this->uuid.c_str());
+	this->WriteNumeric(RPL_YOURUUID, "%s :your unique ID", this->uuid.c_str());
 
 	/* Now registered */
 	if (ServerInstance->Users->unregistered_count)
@@ -675,7 +675,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 					ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s: %s",
 						newnick.c_str(), GetFullRealHost().c_str(), mq->reason.c_str());
 				}
-				this->WriteNumeric(432, "%s %s :Invalid nickname: %s",this->nick.c_str(), newnick.c_str(), mq->reason.c_str());
+				this->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Invalid nickname: %s", newnick.c_str(), mq->reason.c_str());
 				return false;
 			}
 
@@ -686,7 +686,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 					Channel *chan = *i;
 					if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
 					{
-						this->WriteNumeric(404, "%s %s :Cannot send to channel (you're banned)", this->nick.c_str(), chan->name.c_str());
+						this->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
 						return false;
 					}
 				}
@@ -709,7 +709,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 			{
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
 				InUse->WriteTo(InUse, "NICK %s", InUse->uuid.c_str());
-				InUse->WriteNumeric(433, "%s %s :Nickname overruled.", InUse->nick.c_str(), InUse->nick.c_str());
+				InUse->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname overruled.", InUse->nick.c_str());
 
 				ServerInstance->Users->clientlist->erase(InUse->nick);
 				(*(ServerInstance->Users->clientlist))[InUse->uuid] = InUse;
@@ -721,7 +721,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 			else
 			{
 				/* No camping, tell the incoming user  to stop trying to change nick ;p */
-				this->WriteNumeric(433, "%s %s :Nickname is already in use.", this->registered >= REG_NICK ? this->nick.c_str() : "*", newnick.c_str());
+				this->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname is already in use.", newnick.c_str());
 				return false;
 			}
 		}
@@ -898,8 +898,8 @@ void User::WriteNumeric(unsigned int numeric, const std::string &text)
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
 	
-	const std::string message = InspIRCd::Format(":%s %03u %s", ServerInstance->Config->ServerName.c_str(),
-		numeric, text.c_str());
+	const std::string message = InspIRCd::Format(":%s %03u %s %s", ServerInstance->Config->ServerName.c_str(),
+		numeric, !this->nick.empty() ? this->nick.c_str() : "*", text.c_str());
 	this->Write(message);
 }
 
@@ -1140,7 +1140,7 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 	this->InvalidateCache();
 
 	if (IS_LOCAL(this))
-		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, "%s %s :is now your displayed host",this->nick.c_str(),this->dhost.c_str());
+		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, "%s :is now your displayed host", this->dhost.c_str());
 
 	return true;
 }

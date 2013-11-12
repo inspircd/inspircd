@@ -82,7 +82,7 @@ public:
 				}
 				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s %s :Your message cannot contain more than %d%% capital letters if it's longer than %d characters", user->nick.c_str(), c->name.c_str(), percent, minlen);
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Your message cannot contain more than %d%% capital letters if it's longer than %d characters", c->name.c_str(), percent, minlen);
 					return MOD_RES_DENY;
 				}
 			}

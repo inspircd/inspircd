@@ -96,7 +96,7 @@ class JoinFlood : public ModeHandler
 			std::string::size_type colon = parameter.find(':');
 			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
 				return MODEACTION_DENY;
 			}
 
@@ -105,7 +105,7 @@ class JoinFlood : public ModeHandler
 			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
 			if ((njoins<1) || (nsecs<1))
 			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
 				return MODEACTION_DENY;
 			}
 
@@ -152,7 +152,7 @@ class ModuleJoinFlood : public Module
 			joinfloodsettings *f = jf.ext.get(chan);
 			if (f && f->islocked())
 			{
-				user->WriteNumeric(609, "%s %s :This channel is temporarily unavailable (+j). Please try again later.",user->nick.c_str(),chan->name.c_str());
+				user->WriteNumeric(609, "%s :This channel is temporarily unavailable (+j). Please try again later.",chan->name.c_str());
 				return MOD_RES_DENY;
 			}
 		}

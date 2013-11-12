@@ -32,7 +32,7 @@ class ExemptChanOps : public ListModeBase
 		// TODO actually make sure there's a prop for this
 		if ((word.length() > 35) || (word.empty()))
 		{
-			user->WriteNumeric(955, "%s %s %s :word is too %s for exemptchanops list",user->nick.c_str(), chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
+			user->WriteNumeric(955, "%s %s :word is too %s for exemptchanops list", chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
 			return false;
 		}
 
@@ -41,17 +41,17 @@ class ExemptChanOps : public ListModeBase
 
 	void TellListTooLong(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(959, "%s %s %s :Channel exemptchanops list is full", user->nick.c_str(), chan->name.c_str(), word.c_str());
+		user->WriteNumeric(959, "%s %s :Channel exemptchanops list is full", chan->name.c_str(), word.c_str());
 	}
 
 	void TellAlreadyOnList(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(957, "%s %s :The word %s is already on the exemptchanops list",user->nick.c_str(), chan->name.c_str(), word.c_str());
+		user->WriteNumeric(957, "%s :The word %s is already on the exemptchanops list", chan->name.c_str(), word.c_str());
 	}
 
 	void TellNotSet(User* user, Channel* chan, std::string &word)
 	{
-		user->WriteNumeric(958, "%s %s :No such exemptchanops word is set",user->nick.c_str(), chan->name.c_str());
+		user->WriteNumeric(958, "%s :No such exemptchanops word is set", chan->name.c_str());
 	}
 };
 

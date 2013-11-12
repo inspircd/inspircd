@@ -78,7 +78,7 @@ class MsgFlood : public ModeHandler
 			std::string::size_type colon = parameter.find(':');
 			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				source->WriteNumeric(608, "%s :Invalid flood parameter", channel->name.c_str());
 				return MODEACTION_DENY;
 			}
 
@@ -89,7 +89,7 @@ class MsgFlood : public ModeHandler
 
 			if ((nlines<2) || (nsecs<1))
 			{
-				source->WriteNumeric(608, "%s %s :Invalid flood parameter",source->nick.c_str(),channel->name.c_str());
+				source->WriteNumeric(608, "%s :Invalid flood parameter", channel->name.c_str());
 				return MODEACTION_DENY;
 			}
 

@@ -72,19 +72,19 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		if ((!c) || (!u) || (u->registered != REG_ALL))
 		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), c ? parameters[0].c_str() : parameters[1].c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c ? parameters[0].c_str() : parameters[1].c_str());
 			return CMD_FAILURE;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
 		{
-			user->WriteNumeric(ERR_NOTONCHANNEL, "%s %s :You're not on that channel!",user->nick.c_str(), c->name.c_str());
+			user->WriteNumeric(ERR_NOTONCHANNEL, "%s :You're not on that channel!", c->name.c_str());
 			return CMD_FAILURE;
 		}
 
 		if (c->HasUser(u))
 		{
-			user->WriteNumeric(ERR_USERONCHANNEL, "%s %s %s :is already on channel",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+			user->WriteNumeric(ERR_USERONCHANNEL, "%s %s :is already on channel", u->nick.c_str(), c->name.c_str());
 			return CMD_FAILURE;
 		}
 
@@ -103,8 +103,8 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 				{
 					// Check whether halfop mode is available and phrase error message accordingly
 					ModeHandler* mh = ServerInstance->Modes->FindMode('h', MODETYPE_CHANNEL);
-					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s %s :You must be a channel %soperator",
-						user->nick.c_str(), c->name.c_str(), (mh && mh->name == "halfop" ? "half-" : ""));
+					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
+						c->name.c_str(), (mh && mh->name == "halfop" ? "half-" : ""));
 					return CMD_FAILURE;
 				}
 			}
@@ -117,7 +117,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		}
 
 		if (IS_LOCAL(user))
-			user->WriteNumeric(RPL_INVITING, "%s %s %s",user->nick.c_str(),u->nick.c_str(),c->name.c_str());
+			user->WriteNumeric(RPL_INVITING, "%s %s", u->nick.c_str(),c->name.c_str());
 
 		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
 		{
@@ -152,9 +152,9 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		InviteList& il = IS_LOCAL(user)->GetInviteList();
 		for (InviteList::const_iterator i = il.begin(); i != il.end(); ++i)
 		{
-			user->WriteNumeric(RPL_INVITELIST, "%s :%s",user->nick.c_str(), (*i)->chan->name.c_str());
+			user->WriteNumeric(RPL_INVITELIST, ":%s", (*i)->chan->name.c_str());
 		}
-		user->WriteNumeric(RPL_ENDOFINVITELIST, "%s :End of INVITE list",user->nick.c_str());
+		user->WriteNumeric(RPL_ENDOFINVITELIST, ":End of INVITE list");
 	}
 	return CMD_SUCCESS;
 }

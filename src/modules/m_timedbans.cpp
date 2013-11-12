@@ -50,14 +50,14 @@ class CommandTban : public Command
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
 		if (!channel)
 		{
-			user->WriteNumeric(401, "%s %s :No such channel",user->nick.c_str(), parameters[0].c_str());
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such channel", parameters[0].c_str());
 			return CMD_FAILURE;
 		}
 		int cm = channel->GetPrefixValue(user);
 		if (cm < HALFOP_VALUE)
 		{
-			user->WriteNumeric(482, "%s %s :You do not have permission to set bans on this channel",
-				user->nick.c_str(), channel->name.c_str());
+			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have permission to set bans on this channel",
+				channel->name.c_str());
 			return CMD_FAILURE;
 		}
 
