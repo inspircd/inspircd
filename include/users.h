@@ -411,6 +411,8 @@ class CoreExport User : public Extensible
 	 * @return True if the mode is set
 	 */
 	bool IsModeSet(unsigned char m);
+	bool IsModeSet(const char *m);
+	bool IsModeSet(std::string &m);
 	bool IsModeSet(ModeHandler* mh);
 	bool IsModeSet(ModeHandler& mh) { return IsModeSet(&mh); }
 	bool IsModeSet(UserModeReference& moderef);

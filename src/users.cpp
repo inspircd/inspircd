@@ -45,6 +45,29 @@ bool User::IsModeSet(unsigned char m)
 	return (modes[m-65]);
 }
 
+bool User::IsModeSet(const char *m)
+{
+	bool positive;
+
+	while (*m)
+	{
+		switch (*m++)
+		{
+			case '+': positive = true; break;
+			case '-': positive = false; break;
+			default: if (user->IsModeSet((unsigned char) *m) != positive)
+					return false;
+		}
+	}
+
+	return true;
+}
+
+bool User::IsModeSet(std::string &m)
+{
+	return IsModeSet(m.c_str());
+}
+
 const char* User::FormatModes(bool showparameters)
 {
 	static std::string data;
