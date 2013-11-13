@@ -85,7 +85,7 @@
 class IdentRequestSocket : public EventHandler
 {
  public:
-	LocalUser *user;			/* User we are attached to */
+	LocalUser *user;		/* User we are attached to */
 	std::string result;		/* Holds the ident string if done */
 	time_t age;
 	bool done;			/* True if lookup is finished */
@@ -272,6 +272,7 @@ class IdentRequestSocket : public EventHandler
 class ModuleIdent : public Module
 {
 	int RequestTimeout;
+	bool NoLookupPrefix;
 	SimpleExtItem<IdentRequestSocket> ext;
  public:
 	ModuleIdent() : ext("ident_socket", this)
@@ -300,9 +301,12 @@ class ModuleIdent : public Module
 
 	virtual void OnRehash(User *user)
 	{
-		RequestTimeout = ServerInstance->Config->ConfValue("ident")->getInt("timeout", 5);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
+		RequestTimeout = tag->getInt("timeout", 5);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
+
+		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 
 	void OnUserInit(LocalUser *user)
@@ -334,6 +338,8 @@ class ModuleIdent : public Module
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
 		{
+			if (NoLookupPrefix)
+				user->ident.insert(user->ident.begin(), 1, '~');
 			ServerInstance->Logs->Log("m_ident",DEBUG, "No ident socket :(");
 			return MOD_RES_PASSTHRU;
 		}

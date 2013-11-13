@@ -910,13 +910,20 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-#-   IDENT CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# Optional - If you are using the m_ident.so module, then you can     #
-# specify the timeout for ident lookups here. If not defined, it will #
-# default to one second. This is a non-blocking timeout which holds   #
-# the user in a 'connecting' state until the lookup is complete.      #
-# The bind value indicates which IP to bind outbound requests to.     #
+# If you are using the m_ident.so module, you can specify these       #
+# optional settings to configure it in the <ident> tag:               #
 #                                                                     #
-#<ident timeout="5">
+# timeout        -   The timeout, in seconds, for ident lookups. If   #
+#                    not defined, it defaults to 5 seconds. This is a #
+#                    non-blocking timeout which holds the user in a   #
+#                    'connecting' state until the lookup is complete. #
+# nolookupprefix -   This setting takes 'yes' or 'no' as a value.     #
+#                    This is used for <connect> tags which have       #
+#                    useident="no" set, and allows for the '~' to     #
+#                    still be prefixed to the idents of users.        #
+#                    The default is 'no'.                             #
+#                                                                     #
+#<ident timeout="5" nolookupprefix="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite except module: Adds support for channel invite exceptions (+I)
