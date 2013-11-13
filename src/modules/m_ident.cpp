@@ -268,6 +268,7 @@ class IdentRequestSocket : public EventHandler
 class ModuleIdent : public Module
 {
 	int RequestTimeout;
+	bool NoLookupPrefix;
 	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
  public:
 	ModuleIdent() : ext("ident_socket", this)
@@ -281,9 +282,11 @@ class ModuleIdent : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		RequestTimeout = ServerInstance->Config->ConfValue("ident")->getInt("timeout", 5);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
+		RequestTimeout = tag->getInt("timeout", 5);
 		if (!RequestTimeout)
 			RequestTimeout = 5;
+		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 
 	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
@@ -314,7 +317,11 @@ class ModuleIdent : public Module
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
+		{
+			if ((NoLookupPrefix) && (user->ident[0] != '~'))
+				user->ident.insert(user->ident.begin(), 1, '~');
 			return MOD_RES_PASSTHRU;
+		}
 
 		time_t compare = isock->age;
 		compare += RequestTimeout;

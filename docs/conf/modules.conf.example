@@ -898,7 +898,7 @@
 # the user in a 'connecting' state until the lookup is complete.      #
 # The bind value indicates which IP to bind outbound requests to.     #
 #
-#<ident timeout="5">
+#<ident timeout="5" nolookupprefix="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite exception module: Adds support for channel invite exceptions
