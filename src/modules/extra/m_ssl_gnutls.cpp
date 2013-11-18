@@ -22,7 +22,6 @@
 
 
 #include "inspircd.h"
-#include <gcrypt.h>
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #include "modules/ssl.h"
@@ -31,6 +30,12 @@
 #if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 9) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 9 && GNUTLS_VERSION_PATCH >= 8))
 #define GNUTLS_HAS_MAC_GET_ID
 #include <gnutls/crypto.h>
+#endif
+
+#if (GNUTLS_VERSION_MAJOR > 2 || GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 12)
+# define GNUTLS_HAS_RND
+#else
+# include <gcrypt.h>
 #endif
 
 #ifdef _WIN32
@@ -44,8 +49,8 @@
 # pragma comment(lib, "gdi32.lib")
 #endif
 
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") exec("libgcrypt-config --cflags") -Wno-pedantic */
-/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") exec("libgcrypt-config --libs") */
+/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") -Wno-pedantic */
+/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") eval("print `libgcrypt-config --libs | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
 
 #ifndef GNUTLS_VERSION_MAJOR
 #define GNUTLS_VERSION_MAJOR LIBGNUTLS_VERSION_MAJOR
@@ -92,7 +97,11 @@ class RandGen : public HandlerBase2<void, char*, size_t>
 	RandGen() {}
 	void Call(char* buffer, size_t len)
 	{
+#ifdef GNUTLS_HAS_RND
+		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);
+#else
 		gcry_randomize(buffer, len, GCRY_STRONG_RANDOM);
+#endif
 	}
 };
 
@@ -610,7 +619,9 @@ class ModuleSSLGnuTLS : public Module
 	ModuleSSLGnuTLS()
 		: iohook(this), starttls(this, iohook), capHandler(this, "tls")
 	{
+#ifndef GNUTLS_HAS_RND
 		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+#endif
 
 		gnutls_global_init(); // This must be called once in the program
 		gnutls_x509_privkey_init(&x509_key);
