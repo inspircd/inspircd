@@ -34,6 +34,7 @@ use Fcntl;
 use File::Path;
 use File::Spec::Functions qw(rel2abs);
 use Getopt::Long;
+use POSIX;
 
 our @EXPORT = qw(module_installed prompt_bool prompt_dir prompt_string make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
