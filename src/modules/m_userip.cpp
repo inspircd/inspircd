@@ -57,16 +57,18 @@ class CommandUserip : public Command
 				continue;
 			}
 
-			retbuf = retbuf + u->nick + (u->IsOper() ? "*" : "") + "=";
-			if (u->IsAway())
-				retbuf += "-";
-			else
-				retbuf += "+";
-			retbuf += u->ident + "@" + u->GetIPString() + " ";
+			std::string result = u->nick + (u->IsOper() ? "*=" : "=") + (u->IsAway() ? "-" : "+") + u->ident + "@" + u->GetIPString() + " ";
+			if (nicks > 0 && retbuf.size() + result.size() >= 510)
+			{
+				user->WriteServ(retbuf);
+				retbuf = "340 " + user->nick + " :";
+				nicks = 0;
+			}
+			retbuf += result;
 			nicks++;
 		}
 
-		if (nicks != 0)
+		if (nicks > 0)
 			user->WriteServ(retbuf);
 
 		return CMD_SUCCESS;

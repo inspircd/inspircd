@@ -205,22 +205,14 @@ CmdResult CommandWhois::HandleRemote(const std::vector<std::string>& parameters,
 CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	User *dest;
-	int userindex = 0;
-	unsigned long idle = 0, signon = 0;
+	time_t idle = 0, signon = 0;
 
 	if (CommandParser::LoopCall(user, this, parameters, 0))
 		return CMD_SUCCESS;
 
-	/*
-	 * If 2 paramters are specified (/whois nick nick), ignore the first one like spanningtree
-	 * does, and use the second one, otherwise, use the only paramter. -- djGrrr
-	 */
-	if (parameters.size() > 1)
-		userindex = 1;
+	dest = ServerInstance->FindNickOnly(parameters[parameters.size() == 1 ? 0 : 1]);
 
-	dest = ServerInstance->FindNickOnly(parameters[userindex]);
-
-	if ((dest) && (dest->registered == REG_ALL))
+	if (dest && dest->registered == REG_ALL)
 	{
 		/*
 		 * Okay. Umpteenth attempt at doing this, so let's re-comment...
@@ -233,7 +225,7 @@ CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, 
 		LocalUser* localuser = IS_LOCAL(dest);
 		if (localuser && (ServerInstance->Config->HideWhoisServer.empty() || parameters.size() > 1))
 		{
-			idle = abs((long)((localuser->idle_lastmsg)-ServerInstance->Time()));
+			idle = ServerInstance->Time() - localuser->idle_lastmsg;
 			signon = dest->signon;
 		}
 
