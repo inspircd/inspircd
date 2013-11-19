@@ -166,21 +166,22 @@ void InspIRCd::StripColor(std::string &sentence)
 				i = sentence.erase(i);
 				break;
 			case 0x03:
-				for (size_t x = 0; x < 3; x++)
+				size_t x = 0;
+				do
 				{
 					i = sentence.erase(i);
 					if (i == sentence.end()) { return; }
-					if (!isdigit(*i)) { break; }
-				}
+				} while (isdigit(*i) && x++ < 3);
 
-				if (*i != ',') { break; }
+				/* Don't trim commas immediately following colour codes. */
+				if (x == 0 || *i != ',') { break; }
 
-				for (size_t x = 0; x < 3; x++)
+				x = 0;
+				do
 				{
 					i = sentence.erase(i);
 					if (i == sentence.end()) { return; }
-					if (!isdigit(*i)) { break; }
-				}
+				} while (isdigit(*i) && x++ < 3);
 				break;
 			default:
 				i++;
