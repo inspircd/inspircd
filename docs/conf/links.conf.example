@@ -29,7 +29,7 @@
 
       # allowmask: Range of IP addresses to allow for this link.
       # Can be a CIDR (see example).
-      allowmask="69.58.44.0/24"
+      allowmask="69.58.44.0/24 127.0.0.0/8"
 
       # timeout: If defined, this option defines how long the server
       # will wait to consider the connect attempt failed and try the

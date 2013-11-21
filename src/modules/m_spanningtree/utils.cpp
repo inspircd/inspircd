@@ -227,8 +227,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			continue;
 		}
 
-		if (L->AllowMask.length())
-			ValidIPs.push_back(L->AllowMask);
+		std::copy(L->AllowMasks.begin(), L->AllowMasks.end(), std::back_inserter(ValidIPs));
 
 		irc::sockets::sockaddrs dummy;
 		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);
@@ -277,7 +276,11 @@ void SpanningTreeUtilities::ReadConfiguration()
 		reference<Link> L = new Link(tag);
 		std::string linkname = tag->getString("name");
 		L->Name = linkname.c_str();
-		L->AllowMask = tag->getString("allowmask");
+
+		irc::spacesepstream sep = tag->getString("allowmask");
+		for (std::string s; sep.GetToken(s);)
+			L->AllowMasks.push_back(s);
+
 		L->IPAddr = tag->getString("ipaddr");
 		L->Port = tag->getInt("port");
 		L->SendPass = tag->getString("sendpass", tag->getString("password"));
