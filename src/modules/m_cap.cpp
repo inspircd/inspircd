@@ -64,6 +64,7 @@ class CommandCAP : public Command
 
 			while (cap_stream.GetToken(cap_))
 			{
+				std::transform(cap_.begin(), cap_.end(), cap_.begin(), ::tolower);
 				Data.wanted.push_back(cap_);
 			}
 
