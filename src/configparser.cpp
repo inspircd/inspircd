@@ -132,7 +132,7 @@ struct Parser
 					else
 					{
 						stack.errstr << "Invalid XML entity name in value of <" + tag->tag + ":" + key + ">\n"
-							<< "To include an ampersand or quote, use &amp; or &quot;\n";
+							<< "To include an ampersand or quote, use &amp; or &quot;" << std::endl;
 						throw CoreException("Parse error");
 					}
 				}
@@ -267,7 +267,7 @@ struct Parser
 						break;
 					case 0xFE:
 					case 0xFF:
-						stack.errstr << "Do not save your files as UTF-16; use ASCII!\n";
+						stack.errstr << "Do not save your files as UTF-16; use ASCII!" << std::endl;
 					default:
 						throw CoreException("Syntax error - start of tag expected");
 				}
@@ -277,9 +277,9 @@ struct Parser
 		{
 			stack.errstr << err.GetReason() << " at " << current.str();
 			if (tag)
-				stack.errstr << " (inside tag " << tag->tag << " at line " << tag->src_line << ")\n";
+				stack.errstr << " (inside tag " << tag->tag << " at line " << tag->src_line << ")" << std::endl;
 			else
-				stack.errstr << " (last tag was on line " << last_tag.line << ")\n";
+				stack.errstr << " (last tag was on line " << last_tag.line << ")" << std::endl;
 		}
 		return false;
 	}

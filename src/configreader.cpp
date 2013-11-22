@@ -606,7 +606,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		}
 	}
 
-	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
+	User* user = useruid.empty() ? NULL : ServerInstance->FindUUID(useruid);
 
 	if (!valid)
 		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "There were errors in your configuration file:");
@@ -693,8 +693,8 @@ void ServerConfig::ApplyModules(User* user)
 	for (ModuleManager::ModuleMap::iterator i = removed_modules.begin(); i != removed_modules.end(); ++i)
 	{
 		const std::string& modname = i->first;
-		// Don't remove cmd_*.so, just remove m_*.so
-		if (modname.c_str()[0] == 'c')
+		// Don't remove core modules.
+		if (InspIRCd::Match(modname, "cmd_*.so"))
 			continue;
 		if (ServerInstance->Modules->Unload(i->second))
 		{
@@ -835,7 +835,7 @@ void ConfigReaderThread::Finish()
 		ChanModeReference ban(NULL, "ban");
 		static_cast<ListModeBase*>(*ban)->DoRehash();
 		Config->ApplyDisabledCommands(Config->DisabledCommands);
-		User* user = ServerInstance->FindNick(TheUserUID);
+		User* user = ServerInstance->FindUUID(TheUserUID);
 
 		ConfigStatus status(user);
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
