@@ -172,7 +172,6 @@ void ISupportManager::Build()
 	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MASK_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
 	tokens["CHANTYPES"] = "#";
-	tokens["CHARSET"] = "ascii";
 	tokens["ELIST"] = "MU";
 	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
 	tokens["MAXBANS"] = "64"; // TODO: make this a config setting.

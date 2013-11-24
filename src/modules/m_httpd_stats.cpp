@@ -197,7 +197,7 @@ class ModuleHttpStats : public Module
 					LocalUser* lu = IS_LOCAL(u);
 					if (lu)
 						data << "<port>" << lu->GetServerPort() << "</port><servaddr>"
-							<< irc::sockets::satouser(lu->server_sa) << "</servaddr>";
+							<< lu->server_sa.str() << "</servaddr>";
 					data << "<ipaddress>" << u->GetIPString() << "</ipaddress>";
 
 					DumpMeta(data, u);
