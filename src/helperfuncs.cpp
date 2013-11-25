@@ -400,6 +400,8 @@ const char* InspIRCd::Format(va_list &vaList, const char* formatString)
 		va_copy(dst, vaList);
 
 		int vsnret = vsnprintf(&formatBuffer[0], formatBuffer.size(), formatString, dst);
+		va_end(dst);
+
 		if (vsnret > 0 && static_cast<unsigned>(vsnret) < formatBuffer.size())
 		{
 			return &formatBuffer[0];
