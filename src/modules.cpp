@@ -550,6 +550,8 @@ void ModuleManager::LoadAll()
 		}
 	}
 
+	this->NewServices = NULL;
+
 	if (!PrioritizeHooks())
 		ServerInstance->Exit(EXIT_STATUS_MODULE);
 }
