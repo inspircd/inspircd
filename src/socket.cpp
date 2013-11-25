@@ -264,35 +264,41 @@ bool irc::sockets::sockaddrs::operator==(const irc::sockets::sockaddrs& other) c
 static void sa2cidr(irc::sockets::cidr_mask& cidr, const irc::sockets::sockaddrs& sa, int range)
 {
 	const unsigned char* base;
+	unsigned char target_byte;
 	cidr.type = sa.sa.sa_family;
+
+	memset(cidr.bits, 0, sizeof(cidr.bits));
+
 	if (cidr.type == AF_INET)
 	{
+		target_byte = sizeof(sa.in4.sin_addr);
 		base = (unsigned char*)&sa.in4.sin_addr;
 		if (range > 32)
 			range = 32;
 	}
 	else if (cidr.type == AF_INET6)
 	{
+		target_byte = sizeof(sa.in6.sin6_addr);
 		base = (unsigned char*)&sa.in6.sin6_addr;
 		if (range > 128)
 			range = 128;
 	}
 	else
 	{
-		base = (unsigned char*)"";
-		range = 0;
+		cidr.length = 0;
+		return;
 	}
 	cidr.length = range;
 	unsigned int border = range / 8;
 	unsigned int bitmask = (0xFF00 >> (range & 7)) & 0xFF;
-	for(unsigned int i=0; i < 16; i++)
+	for(unsigned int i=0; i < target_byte; i++)
 	{
 		if (i < border)
 			cidr.bits[i] = base[i];
 		else if (i == border)
 			cidr.bits[i] = base[i] & bitmask;
 		else
-			cidr.bits[i] = 0;
+			return;
 	}
 }
 
