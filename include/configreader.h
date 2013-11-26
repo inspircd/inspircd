@@ -76,7 +76,7 @@ class CoreExport ConfigTag : public refcountbase
 	 * @param min Minimum accepted value for res
 	 * @param max Maximum accepted value for res
 	 */
-	void CheckRange(const std::string& key, long& res, long def, long min, long max);
+	void CheckRange(const std::string& key, unsigned long& res, unsigned long def, unsigned long min, unsigned long max);
 
 	std::string getTagLocation();
 

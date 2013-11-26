@@ -450,11 +450,11 @@ long ConfigTag::getInt(const std::string &key, long def, long min, long max)
 	return res;
 }
 
-void ConfigTag::CheckRange(const std::string& key, long& res, long def, long min, long max)
+void ConfigTag::CheckRange(const std::string& key, unsigned long& res, unsigned long def, unsigned long min, unsigned long max)
 {
 	if (res < min || res > max)
 	{
-		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <%s:%s> value of %ld is not between %ld and %ld; set to %ld.",
+		ServerInstance->Logs->Log("CONFIG", LOG_DEFAULT, "WARNING: <%s:%s> value of %lu is not between %lu and %lu; set to %lu.",
 			tag.c_str(), key.c_str(), res, min, max, def);
 		res = def;
 	}
