@@ -24,15 +24,13 @@ use warnings FATAL => qw(all);
 
 use make::configure;
 
-
-if (!module_installed("LWP::Simple"))
-{
-	die "Your system is missing the LWP::Simple Perl module!";
-}
-
-if (!module_installed("Crypt::SSLeay") && !module_installed("IO::Socket::SSL"))
-{
-	die "Your system is missing the Crypt::SSLeay or IO::Socket::SSL Perl modules!";
+BEGIN {
+	unless (module_installed("LWP::Simple")) {
+		die "Your system is missing the LWP::Simple Perl module!";
+	}
+	unless (module_installed("Crypt::SSLeay") || module_installed("IO::Socket::SSL")) {
+		die "Your system is missing the Crypt::SSLeay or IO::Socket::SSL Perl modules!";
+	}
 }
 
 use LWP::Simple;
@@ -58,15 +56,20 @@ sub parse_url;
 
 # retrieve and parse entries from sources.list
 sub parse_url {
-	my $src = shift;
+	chomp(my $src = shift);
 	return if $url_seen{$src};
 	$url_seen{$src}++;
 
-	my $doc = get($src);
-	die "Could not retrieve $_" unless defined $doc;
+	my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
+	my $response = $ua->get($src);
+
+	unless ($response->is_success) {
+		my $err = $response->message;
+		die "Could not retrieve $src: $err";
+	}
 
 	my $mod;
-	for (split /\n+/, $doc) {
+	for (split /\n+/, $response->decoded_content) {
 		s/^\s+//; # ignore whitespace at start
 		next if /^#/;
 		if (/^module (\S+) (\S+) (\S+)/) {
@@ -262,7 +265,7 @@ sub resolve_deps {
 	}
 }
 
-my $action = $#ARGV > 0 ? lc shift @ARGV : 'help';
+my $action = $#ARGV >= 0 ? lc shift @ARGV : 'help';
 
 if ($action eq 'install') {
 	for my $mod (@ARGV) {
