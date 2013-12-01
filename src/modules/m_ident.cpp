@@ -345,7 +345,6 @@ class ModuleIdent : public Module
 			user->WriteNotice("*** Found your ident, '" + user->ident + "'");
 		}
 
-		user->InvalidateCache();
 		isock->Close();
 		ext.unset(user);
 		return MOD_RES_PASSTHRU;
