@@ -738,8 +738,11 @@
           # affects the display in WHOIS.
           genericoper="no"
 
-          # userstats: /stats commands that users can run (opers can run all).
-          userstats="Pu">
+          # userstats: /STATS messages that users can view (opers can view all).
+          userstats="Pu"
+
+          # userinfo: /XINFO messages that users can view (opers can view all).
+          userinfo="ONLINEOPS UPTIME">
 
 #-#-#-#-#-#-#-#-#-#-#-#-# LIMITS CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
