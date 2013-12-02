@@ -105,7 +105,7 @@ class CoreExport UserManager
 	 * @param operreason The quit reason to show to opers
 	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
-	void QuitUser(User *user, const std::string &quitreason, const char* operreason = "");
+	void QuitUser(User *user, const std::string &quitreason, const std::string &operreason = "");
 
 	/** Add a user to the local clone map
 	 * @param user The user to add

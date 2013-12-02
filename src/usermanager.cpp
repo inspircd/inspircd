@@ -169,7 +169,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	FOREACH_MOD(OnUserInit, (New));
 }
 
-void UserManager::QuitUser(User *user, const std::string &quitreason, const char* operreason)
+void UserManager::QuitUser(User *user, const std::string &quitreason, const std::string &operreason)
 {
 	if (user->quitting)
 	{
@@ -186,12 +186,12 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	user->quitting = true;
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
-	user->Write("ERROR :Closing link: (%s@%s) [%s]", user->ident.c_str(), user->host.c_str(), *operreason ? operreason : quitreason.c_str());
+	user->Write("ERROR :Closing link: (%s@%s) [%s]", user->ident.c_str(), user->host.c_str(), (!operreason.empty() && user->IsOper() ? operreason.c_str() : quitreason.c_str()));
 
 	std::string reason;
 	std::string oper_reason;
 	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	if (operreason && *operreason)
+	if (!operreason.empty())
 		oper_reason.assign(operreason, 0, ServerInstance->Config->Limits.MaxQuit);
 	else
 		oper_reason = quitreason;
