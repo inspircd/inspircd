@@ -171,6 +171,9 @@ public:
 				dash = true;
 				tok.erase(0, 1); // Remove the dash.
 			}
+			else if (tok[0] == '+')
+				tok.erase(0, 1);
+
 			User* u = ServerInstance->FindNick(tok);
 			if ((!u) || (u->registered != REG_ALL) || (u->quitting) || (IS_SERVER(u)))
 				continue;
