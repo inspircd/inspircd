@@ -1,0 +1,154 @@
+/*
+ * InspIRCd -- Internet Relay Chat Daemon
+ *
+ *   Copyright (C) 2013 Daniel Vassdal <shutter@canternet.org>
+ *
+ * This file is part of InspIRCd.  InspIRCd is free software: you can
+ * redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, version 2.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#include "inspircd.h"
+
+class FlashPDSocket;
+
+static std::set<FlashPDSocket*> sockets;
+static std::string policy_reply;
+static std::string expected_request;
+
+class FlashPDSocket : public BufferedSocket
+{
+ public:
+	time_t created;
+
+	FlashPDSocket(int newfd)
+		: BufferedSocket(newfd), created(ServerInstance->Time())
+	{
+	}
+
+	~FlashPDSocket()
+	{
+		sockets.erase(this);
+	}
+
+	void OnError(BufferedSocketError) CXX11_OVERRIDE
+	{
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+
+	void OnDataReady()
+	{
+		if (recvq == expected_request)
+			WriteData(policy_reply);
+		Close();
+		created = 0;
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
+};
+
+class ModuleFlashPD : public Module
+{
+ public:
+	void init() CXX11_OVERRIDE
+	{
+		expected_request = std::string("<policy-file-request/>\0", 23);
+	}
+
+	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
+	{
+		for (std::set<FlashPDSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
+		{
+			FlashPDSocket* sock = *i;
+			if (sock->created + 5 > curtime || sock->created == 0)
+				continue;
+			sock->Close();
+			sock->created = 0; // created == 0 means it's waiting to get culled
+			ServerInstance->GlobalCulls.AddItem(sock);
+		}
+	}
+
+	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
+	{
+		if (from->bind_tag->getString("type") != "flashpd")
+			return MOD_RES_PASSTHRU;
+
+		if (policy_reply.empty())
+			return MOD_RES_DENY;
+
+		sockets.insert(new FlashPDSocket(nfd));
+		return MOD_RES_ALLOW;
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* conf = ServerInstance->Config->ConfValue("flashpd");
+		std::string file = conf->getString("file", "");
+
+		if (!file.empty())
+		{
+			try
+			{
+				FileReader reader(file);
+				policy_reply = reader.GetString();
+			}
+			catch (CoreException&)
+			{
+				const std::string error_message = "A file was specified for FlashPD, but it could not be loaded.";
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, error_message);
+				ServerInstance->SNO->WriteGlobalSno('a', error_message);
+				policy_reply.clear();
+			}
+			return;
+		}
+
+		//	A file was not specified. Set the default setting.
+		//	We allow access to all client ports by default
+		std::string to_ports;
+		for (std::vector<ListenSocket*>::const_iterator i = ServerInstance->ports.begin(); i != ServerInstance->ports.end(); ++i)
+		{
+				ListenSocket* ls = *i;
+				if (ls->bind_tag->getString("type", "clients") != "clients"
+					|| ls->bind_tag->getString("ssl", "plaintext") != "plaintext")
+					continue;
+
+				to_ports += (ConvToStr(ls->bind_port) + ",");
+		}
+		to_ports.erase(to_ports.size() - 1);
+
+		policy_reply =
+"<?xml version=\"1.0\"?>\
+<!DOCTYPE cross-domain-policy SYSTEM \"/xml/dtds/cross-domain-policy.dtd\">\
+<cross-domain-policy>\
+<site-control permitted-cross-domain-policies=\"master-only\"/>\
+<allow-access-from domain=\"*\" to-ports=\"" + to_ports + "\" />\
+</cross-domain-policy>";
+	}
+
+	CullResult cull()
+	{
+		for (std::set<FlashPDSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
+		{
+			FlashPDSocket* sock = *i;
+			sock->Close();
+			sock->created = 0;
+			ServerInstance->GlobalCulls.AddItem(sock);
+		}
+		return Module::cull();
+	}
+
+	virtual Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Flash Policy Daemon. Allows Flash IRC clients to connect", VF_VENDOR);
+	}
+};
+
+MODULE_INIT(ModuleFlashPD)
