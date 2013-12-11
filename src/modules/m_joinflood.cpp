@@ -153,17 +153,10 @@ class JoinFlood : public ModeHandler
 						else
 						{
 							// new mode param, replace old with new
-							if ((nsecs > 0) && (njoins > 0))
-							{
-								f = new joinfloodsettings(nsecs, njoins);
-								ext.set(channel, f);
-								channel->SetModeParam('j', parameter);
-								return MODEACTION_ALLOW;
-							}
-							else
-							{
-								return MODEACTION_DENY;
-							}
+							f = new joinfloodsettings(nsecs, njoins);
+							ext.set(channel, f);
+							channel->SetModeParam('j', parameter);
+							return MODEACTION_ALLOW;
 						}
 					}
 				}
