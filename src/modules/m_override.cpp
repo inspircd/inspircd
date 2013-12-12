@@ -33,6 +33,20 @@ class ModuleOverride : public Module
 	bool RequireKey;
 	bool NoisyOverride;
 
+	static bool IsOverride(unsigned int userlevel, const std::string& modeline)
+	{
+		for (std::string::const_iterator i = modeline.begin(); i != modeline.end(); ++i)
+		{
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
+			if (!mh)
+				continue;
+
+			if (mh->GetLevelRequired() > userlevel)
+				return true;
+		}
+		return false;
+	}
+
  public:
 
 	void init()
@@ -105,7 +119,10 @@ class ModuleOverride : public Module
 
 		unsigned int mode = channel->GetPrefixValue(source);
 
-		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
+		if (!IsOverride(mode, parameters[1]))
+			return MOD_RES_PASSTHRU;
+
+		if (CanOverride(source, "MODE"))
 		{
 			std::string msg = source->nick+" overriding modes:";
 			for(unsigned int i=0; i < parameters.size(); i++)
