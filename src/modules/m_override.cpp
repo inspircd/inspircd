@@ -70,6 +70,23 @@ class ModuleOverride : public Module
 		return ((tokenlist.find(token, 0) != std::string::npos) || (tokenlist.find("*", 0) != std::string::npos));
 	}
 
+	static bool IsOverride(unsigned int userlevel, std::string& modeline)
+	{
+		ModeHandler* mod = NULL;
+		for (unsigned int i = 0; i < modeline.size(); i++)
+		{
+			if (modeline[i] == '+' || modeline[i] == '-')
+				continue;
+
+			mod = ServerInstance->Modes->FindMode(modeline[i], MODETYPE_CHANNEL);
+			if (!mod)
+				continue;
+
+			if (mod->GetLevelRequired() > userlevel)
+				return true;
+		}
+		return false;
+	}
 
 	ModResult OnPreTopicChange(User *source, Channel *channel, const std::string &topic) CXX11_OVERRIDE
 	{
@@ -110,7 +127,10 @@ class ModuleOverride : public Module
 
 		unsigned int mode = channel->GetPrefixValue(source);
 
-		if (mode < HALFOP_VALUE && CanOverride(source, "MODE"))
+		if (mode >= HALFOP_VALUE && !IsOverride(mode, parameters[1]))
+			return MOD_RES_PASSTHRU;
+
+		if (CanOverride(source, "MODE"))
 		{
 			std::string msg = source->nick+" overriding modes:";
 			for(unsigned int i=0; i < parameters.size(); i++)
