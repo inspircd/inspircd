@@ -281,6 +281,21 @@ STOP
 	print "\e[0m\n\n";
 	print "The following compiler has been detected: \e[1;32m$cxx{NAME} $cxx{VERSION}\e[0m ($config{CXX})\n\n";
 
+	# Check that the user actually wants this version.
+	if (index($version, '+') != -1) {
+		print <<"EOW" ;
+\e[1;31mWARNING!\e[0m You are building a development version. This contains code which has
+not been tested as heavily and may contain various faults which could seriously
+affect the running of your server. It is recommended that you use a stable
+version instead.
+
+You can obtain the latest stable version from https://github.com/inspircd/inspircd/releases
+or by running `git checkout insp20` if you are installing from Git.
+
+EOW
+	exit 1 unless prompt_bool(1, 'I understand this warning and want to continue anyway.', 0);
+	}
+
 	# Directory Settings..
 	my $tmpbase = $config{BASE_DIR};
 	$config{BASE_DIR} = prompt_dir(1, 'What directory do you wish to install the InspIRCd base?', $config{BASE_DIR});
