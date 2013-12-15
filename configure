@@ -116,7 +116,7 @@ if (defined $opt_base_dir) {
 }
 
 if (defined $opt_system) {
-	$config{UID} = $opt_uid || 'ircd';
+	$config{UID} = defined $opt_uid ? $opt_uid : 'ircd';
 	$config{CONFIG_DIR} = '/etc/inspircd';
 	$config{MODULE_DIR} = '/usr/lib/inspircd';
 	$config{BINARY_DIR} = '/usr/sbin/';
@@ -124,7 +124,7 @@ if (defined $opt_system) {
 	$config{DATA_DIR} = '/var/inspircd';
 	$config{LOG_DIR} = '/var/log/inspircd';
 } else {
-	$config{UID} = $opt_uid || $<;
+	$config{UID} = defined $opt_uid ? $opt_uid : $<;
 	$config{CONFIG_DIR} = rel2abs($config{BASE_DIR}."/conf");
 	$config{MODULE_DIR} = rel2abs($config{BASE_DIR}."/modules");
 	$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
