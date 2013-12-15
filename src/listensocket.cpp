@@ -30,7 +30,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	: bind_tag(tag)
 {
 	irc::sockets::satoap(bind_to, bind_addr, bind_port);
-	bind_desc = irc::sockets::satouser(bind_to);
+	bind_desc = bind_to.str();
 
 	fd = socket(bind_to.sa.sa_family, SOCK_STREAM, 0);
 

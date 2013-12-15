@@ -849,7 +849,7 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 		if ((check_expired) && (inv->expiry != 0) && (inv->expiry <= ServerInstance->Time()))
 		{
 			/* Expired invite, remove it. */
-			std::string expiration = ServerInstance->TimeString(inv->expiry);
+			std::string expiration = InspIRCd::TimeString(inv->expiry);
 			ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find ecountered expired entry: %p expired %s", (void*) inv, expiration.c_str());
 			i = locallist.erase(i);
 			inv->cull();

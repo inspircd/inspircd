@@ -156,7 +156,7 @@ class ModuleXLineDB : public Module
 	bool ReadDatabase()
 	{
 		// If the xline database doesn't exist then we don't need to load it.
-		if (!ServerConfig::FileExists(xlinedbpath.c_str()))
+		if (!FileSystem::FileExists(xlinedbpath))
 			return true;
 
 		std::ifstream stream(xlinedbpath.c_str());

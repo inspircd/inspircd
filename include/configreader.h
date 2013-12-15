@@ -225,10 +225,10 @@ class CoreExport ServerConfig
 			, Log(LOG_PATH)
 			, Module(MOD_PATH) { }
 
-		std::string PrependConfig(const std::string& fn) const { return ServerConfig::ExpandPath(Config, fn); }
-		std::string PrependData(const std::string& fn) const { return ServerConfig::ExpandPath(Data, fn); }
-		std::string PrependLog(const std::string& fn) const { return ServerConfig::ExpandPath(Log, fn); }
-		std::string PrependModule(const std::string& fn) const { return ServerConfig::ExpandPath(Module, fn); }
+		std::string PrependConfig(const std::string& fn) const { return FileSystem::ExpandPath(Config, fn); }
+		std::string PrependData(const std::string& fn) const { return FileSystem::ExpandPath(Data, fn); }
+		std::string PrependLog(const std::string& fn) const { return FileSystem::ExpandPath(Log, fn); }
+		std::string PrependModule(const std::string& fn) const { return FileSystem::ExpandPath(Module, fn); }
 	};
 
 	/** Get a configuration tag
@@ -551,29 +551,7 @@ class CoreExport ServerConfig
 
 	void Fill();
 
-	/** Returns true if the given string starts with a windows drive letter
-	 */
-	static bool StartsWithWindowsDriveLetter(const std::string& path);
-
 	bool ApplyDisabledCommands(const std::string& data);
-
-	/** Clean a filename, stripping the directories (and drives) from string.
-	 * @param name Directory to tidy
-	 * @return The cleaned filename
-	 */
-	static const char* CleanFilename(const char* name);
-
-	/** Check if a file exists.
-	 * @param file The full path to a file
-	 * @return True if the file exists and is readable.
-	 */
-	static bool FileExists(const char* file);
-
-	/** Expands a path fragment to a full path.
-	 * @param base The base path to expand from
-	 * @param fragment The path fragment to expand on top of base.
-	 */
-	static std::string ExpandPath(const std::string& base, const std::string& fragment);
 
 	/** Escapes a value for storage in a configuration key.
 	 * @param str The string to escape.

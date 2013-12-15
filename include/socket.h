@@ -124,13 +124,6 @@ namespace irc
 		 * @return true if the conversion was successful, false if unknown address family
 		 */
 		CoreExport bool satoap(const irc::sockets::sockaddrs& sa, std::string& addr, int &port);
-
-		/** Convert a binary sockaddr to a user-readable string.
-		 * This means IPv6 addresses are written as [::1]:6667, and *:6668 is used for 0.0.0.0:6668
-		 * @param sa The structure to convert
-		 * @return The string; "<unknown>" if not a valid address
-		 */
-		inline std::string satouser(const irc::sockets::sockaddrs& sa) { return sa.str(); }
 	}
 }
 

@@ -54,6 +54,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "caller.h"
 #include "cull_list.h"
 #include "extensible.h"
+#include "fileutils.h"
 #include "numerics.h"
 #include "uid.h"
 #include "users.h"
@@ -564,7 +565,7 @@ class CoreExport InspIRCd
 	 * @param mask A nick!user\@host masak to match against
 	 * @return True i the mask is valid
 	 */
-	bool IsValidMask(const std::string &mask);
+	static bool IsValidMask(const std::string& mask);
 
 	/** Strips all color codes from the given string
 	 * @param sentence The string to strip from
@@ -684,7 +685,7 @@ class CoreExport InspIRCd
 
 	/** Return a time_t as a human-readable string.
 	 */
-	std::string TimeString(time_t curtime);
+	static std::string TimeString(time_t curtime);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,

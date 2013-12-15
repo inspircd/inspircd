@@ -140,7 +140,7 @@ class CommandShun : public Command
 				else
 				{
 					time_t c_requires_crap = duration + ServerInstance->Time();
-					std::string timestr = ServerInstance->TimeString(c_requires_crap);
+					std::string timestr = InspIRCd::TimeString(c_requires_crap);
 					ServerInstance->SNO->WriteToSnoMask('x', "%s added timed SHUN for %s to expire on %s: %s",
 						user->nick.c_str(), target.c_str(), timestr.c_str(), expr.c_str());
 				}

@@ -63,7 +63,7 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
-				std::string timestr = ServerInstance->TimeString(c_requires_crap);
+				std::string timestr = InspIRCd::TimeString(c_requires_crap);
 				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed Q-line for %s, expires on %s: %s",user->nick.c_str(),parameters[0].c_str(),
 						timestr.c_str(), parameters[2].c_str());
 			}
