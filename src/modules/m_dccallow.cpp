@@ -168,7 +168,7 @@ class CommandDccallow : public Command
 						length = InspIRCd::Duration(parameters[1]);
 					}
 
-					if (!ServerInstance->IsValidMask(mask))
+					if (!InspIRCd::IsValidMask(mask))
 					{
 						return CMD_FAILURE;
 					}

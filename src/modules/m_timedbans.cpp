@@ -75,7 +75,7 @@ class CommandTban : public Command
 		setban.push_back(parameters[0]);
 		setban.push_back("+b");
 		bool isextban = ((mask.size() > 2) && (mask[1] == ':'));
-		if (!isextban && !ServerInstance->IsValidMask(mask))
+		if (!isextban && !InspIRCd::IsValidMask(mask))
 			mask.append("!*@*");
 
 		setban.push_back(mask);
