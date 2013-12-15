@@ -38,6 +38,7 @@
 #include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
+	: KeepNickTS(false)
 {
 	Utils = new SpanningTreeUtilities(this);
 	commands = new SpanningTreeCommands(this);
@@ -704,11 +705,12 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 
 		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
 		 */
-		if (irc::string(user->nick.c_str()) != assign(oldnick))
+		if ((irc::string(user->nick.c_str()) != assign(oldnick)) && (!this->KeepNickTS))
 			user->age = ServerInstance->Time();
 
 		params.push_back(ConvToStr(user->age));
 		Utils->DoOneToMany(user->uuid,"NICK",params);
+		this->KeepNickTS = false;
 	}
 	else if (!loopCall && user->nick == user->uuid)
 	{

@@ -34,17 +34,28 @@ CmdResult CommandSVSNick::Handle(const std::vector<std::string>& parameters, Use
 		if (isdigit(nick[0]))
 			nick = u->uuid;
 
+		// Don't update the TS if the nick is exactly the same
+		if (u->nick == nick)
+			return CMD_FAILURE;
+
+		time_t NickTS = ConvToInt(parameters[2]);
+		if (NickTS <= 0)
+			return CMD_FAILURE;
+
+		ModuleSpanningTree* st = (ModuleSpanningTree*)(Module*)creator;
+		st->KeepNickTS = true;
+		u->age = NickTS;
+
 		if (!u->ForceNickChange(nick.c_str()))
 		{
 			/* buh. UID them */
 			if (!u->ForceNickChange(u->uuid.c_str()))
 			{
 				ServerInstance->Users->QuitUser(u, "Nickname collision");
-				return CMD_SUCCESS;
 			}
 		}
 
-		u->age = atoi(parameters[2].c_str());
+		st->KeepNickTS = false;
 	}
 
 	return CMD_SUCCESS;
