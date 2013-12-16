@@ -36,7 +36,7 @@ use File::Spec::Functions qw(rel2abs);
 use Getopt::Long;
 use POSIX;
 
-our @EXPORT = qw(module_installed prompt_bool prompt_dir prompt_string make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
+our @EXPORT = qw(module_installed prompt_bool prompt_dir prompt_string get_cpu_count make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
 # Parse the output of a *_config program,
 # such as pcre_config, take out the -L
@@ -86,6 +86,21 @@ sub prompt_string($$$) {
 	chomp(my $answer = <STDIN>);
 	print "\n";
 	return $answer ? $answer : $default;
+}
+
+sub get_cpu_count {
+	my $count = 1;
+	if ($^O =~ /bsd/) {
+		$count = `sysctl -n hw.ncpu`;
+	} elsif ($^O eq 'darwin') {
+		$count = `sysctl -n hw.activecpu`;
+	} elsif ($^O eq 'linux') {
+		$count = `getconf _NPROCESSORS_ONLN`;
+	} elsif ($^O eq 'solaris') {
+		$count = `psrinfo -p`;
+	}
+	chomp($count);
+	return $count;
 }
 
 sub promptstring($$$$$)
