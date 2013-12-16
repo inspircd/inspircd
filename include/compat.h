@@ -41,7 +41,6 @@
 #if defined __clang__ || defined __GNUC__
 # define CUSTOM_PRINTF(stringpos, firstpos) __attribute__((format(printf, stringpos, firstpos)))
 #else
-# pragma message ("Warning! CUSTOM_PRINTF() does not work on your compiler!")
 # define CUSTOM_PRINTF(stringpos, firstpos)
 #endif
 
@@ -98,7 +97,6 @@
 #elif defined _MSC_VER
 # define DEPRECATED_METHOD(function) __declspec(deprecated) function
 #else
-# pragma message ("Warning! DEPRECATED_METHOD() does not work on your compiler!")
 # define DEPRECATED_METHOD(function) function
 #endif
 
