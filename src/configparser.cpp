@@ -300,7 +300,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", false))
 			flags |= FLAG_NO_EXEC;
-		if (!ParseFile(name, flags, mandatorytag))
+		if (!ParseFile(ServerInstance->Config->Paths.PrependConfig(name), flags, mandatorytag))
 			throw CoreException("Included");
 	}
 	else if (tag->readString("executable", name))
@@ -344,13 +344,12 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	}
 }
 
-bool ParseStack::ParseFile(const std::string& name, int flags, const std::string& mandatory_tag)
+bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag)
 {
-	std::string path = ServerInstance->Config->Paths.PrependConfig(name);
 	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading file %s", path.c_str());
 	for (unsigned int t = 0; t < reading.size(); t++)
 	{
-		if (std::string(name) == reading[t])
+		if (path == reading[t])
 		{
 			throw CoreException("File " + path + " is included recursively (looped inclusion)");
 		}

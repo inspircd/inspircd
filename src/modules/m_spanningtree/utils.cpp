@@ -227,7 +227,7 @@ void SpanningTreeUtilities::RefreshIPCache()
 			continue;
 		}
 
-		std::copy(L->AllowMasks.begin(), L->AllowMasks.end(), std::back_inserter(ValidIPs));
+		ValidIPs.insert(ValidIPs.end(), L->AllowMasks.begin(), L->AllowMasks.end());
 
 		irc::sockets::sockaddrs dummy;
 		bool ipvalid = irc::sockets::aptosa(L->IPAddr, L->Port, dummy);

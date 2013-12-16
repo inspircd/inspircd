@@ -148,7 +148,7 @@ namespace irc
 		 * @return similar to strcmp, zero for equal, less than zero for str1
 		 * being less and greater than zero for str1 being greater than str2.
 		 */
-		static CoreExport int compare(const char* str1, const char* str2, size_t n);
+		static int compare(const char* str1, const char* str2, size_t n);
 
 		/** Find a char within a string up to position n.
 		 * @param s1 String to find in
@@ -156,7 +156,7 @@ namespace irc
 		 * @param c Character to search for
 		 * @return Pointer to the first occurance of c in s1
 		 */
-		static CoreExport const char* find(const char* s1, int  n, char c);
+		static const char* find(const char* s1, int  n, char c);
 	};
 
 	/** This typedef declares irc::string based upon irc_char_traits.
