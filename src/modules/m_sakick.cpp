@@ -54,27 +54,21 @@ class CommandSakick : public Command
 				return CMD_FAILURE;
 			}
 
+			if (!channel->HasUser(dest))
+			{
+				user->WriteNotice("*** " + dest->nick + " is not on " + channel->name);
+				return CMD_FAILURE;
+			}
+
 			/* For local clients, directly kick them. For remote clients,
 			 * just return CMD_SUCCESS knowing the protocol module will route the SAKICK to the user's
 			 * local server and that will kick them instead.
 			 */
 			if (IS_LOCAL(dest))
 			{
+				// Target is on this server, kick them and send the snotice
 				channel->KickUser(ServerInstance->FakeClient, dest, reason);
-
-				Channel *n = ServerInstance->FindChan(parameters[1]);
-				if (n && n->HasUser(dest))
-				{
-					/* Sort-of-bug: If the command was issued remotely, this message won't be sent */
-					user->WriteNotice("*** Unable to kick " + dest->nick + " from " + parameters[0]);
-					return CMD_FAILURE;
-				}
-			}
-
-			if (IS_LOCAL(user))
-			{
-				/* Locally issued command; send the snomasks */
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " SAKICKed " + dest->nick + " on " + parameters[0]);
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick + " SAKICKed " + dest->nick + " on " + channel->name);
 			}
 
 			return CMD_SUCCESS;

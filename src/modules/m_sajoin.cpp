@@ -58,18 +58,10 @@ class CommandSajoin : public Command
 			if (localuser)
 			{
 				Channel* n = Channel::JoinUser(localuser, parameters[1], true);
-				if (n)
+				if (n && n->HasUser(dest))
 				{
-					if (n->HasUser(dest))
-					{
-						ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+parameters[1]);
-						return CMD_SUCCESS;
-					}
-					else
-					{
-						user->WriteNotice("*** Could not join "+dest->nick+" to "+parameters[1]+" (User is probably banned, or blocking modes)");
-						return CMD_FAILURE;
-					}
+					ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+parameters[1]);
+					return CMD_SUCCESS;
 				}
 				else
 				{

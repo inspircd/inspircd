@@ -49,6 +49,12 @@ class CommandSapart : public Command
 				return CMD_FAILURE;
 			}
 
+			if (!channel->HasUser(dest))
+			{
+				user->WriteNotice("*** " + dest->nick + " is not on " + channel->name);
+				return CMD_FAILURE;
+			}
+
 			/* For local clients, directly part them generating a PART message. For remote clients,
 			 * just return CMD_SUCCESS knowing the protocol module will route the SAPART to the users
 			 * local server and that will generate the PART instead
@@ -56,26 +62,7 @@ class CommandSapart : public Command
 			if (IS_LOCAL(dest))
 			{
 				channel->PartUser(dest, reason);
-
-				Channel* n = ServerInstance->FindChan(parameters[1]);
-				if (!n)
-				{
-					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+parameters[1]);
-					return CMD_SUCCESS;
-				}
-				else
-				{
-					if (!n->HasUser(dest))
-					{
-						ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+parameters[1]);
-						return CMD_SUCCESS;
-					}
-					else
-					{
-						user->WriteNotice("*** Unable to make " + dest->nick + " part " + parameters[1]);
-						return CMD_FAILURE;
-					}
-				}
+				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAPART to make "+dest->nick+" part "+channel->name);
 			}
 
 			return CMD_SUCCESS;
