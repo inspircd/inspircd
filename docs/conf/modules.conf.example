@@ -1643,6 +1643,43 @@
 #<module name="m_serverban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Showfile: Provides support for showing a text file to users when    #
+# they enter a command.                                               #
+# This module adds one command for each <showfile> tag that shows the #
+# given file to the user as a series of messages or numerics.         #
+#<module name="m_showfile.so">                                        #
+#                                                                     #
+#-#-#-#-#-#-#-#-#-#-# SHOWFILE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# name    - The name of the command which displays this file. This is #
+#           the only mandatory setting, all others are optional.      #
+# file    - The text file to be shown to the user.                    #
+#           By default same as the command name.                      #
+# method  - How should the file be shown?                             #
+#           * numeric: Send contents using a numeric                  #
+#             (similiar to /MOTD; the default).                       #
+#           * notice:  Send contents as a series of notices.          #
+#           * msg:     Send contents as a series of private messages. #
+# colors  - If true, color codes (\c, \b, \u, etc.) will be processed #
+#           and sent as ANSI colors. If false (default) the file will #
+#           be displayed as-is.                                       #
+#                                                                     #
+# When using the method "numeric", the following extra settings are   #
+# available:                                                          #
+#                                                                     #
+# introtext    - Introductory line, "Showing <name>" by default.      #
+# intronumeric - Numeric used for the introductory line.              #
+# numeric      - Numeric used for sending the text itself.            #
+# endtext      - Ending line, "End of <name>" by default.             #
+# endnumeric   - Numeric used for the ending line.                    #
+#                                                                     #
+#<showfile name="RULES"
+#          file="rules.txt"
+#          colors="true"
+#          introtext="Server rules:"
+#          endtext="End of server rules.">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Show Whois module: Adds the +W usermode which allows opers
 # to see when they are whois'ed (can be annoying).
 # This module is oper-only.

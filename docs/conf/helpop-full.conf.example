@@ -34,7 +34,7 @@ UNINVITE  AWAY     DCCALLOW  SILENCE   ACCEPT
 MKPASSWD  VHOST    TITLE     SETNAME
 
 WHOIS     WHOWAS   ISON      USERHOST  WATCH
-LIST      NAMES    WHO       MOTD      RULES
+LIST      NAMES    WHO       MOTD
 ADMIN     MAP      LINKS     LUSERS    TIME
 STATS     VERSION  INFO      MODULES   COMMANDS
 SSLINFO
@@ -263,11 +263,6 @@ You may combine multiple flags in one WHO command except where stated in the tab
 Show the message of the day for [server]. Messages of the day often
 contain important server rules and notices and should be read prior
 to using a server.">
-
-<helpop key="rules" value="/RULES
-
-Show the rules file for the local server. This is similar in effect to
-except that these are not sent automatically on connect.">
 
 <helpop key="oper" value="/OPER [login] [password]
 

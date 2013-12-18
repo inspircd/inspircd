@@ -641,10 +641,6 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		ConfigFileCache::iterator file = this->Files.find(tag->getString("motd", "motd"));
 		if (file != this->Files.end())
 		      InspIRCd::ProcessColors(file->second);
-
-		file = this->Files.find(tag->getString("rules", "rules"));
-		if (file != this->Files.end())
-		      InspIRCd::ProcessColors(file->second);
 	}
 
 	/* No old configuration -> initial boot, nothing more to do here */

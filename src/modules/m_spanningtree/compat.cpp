@@ -293,6 +293,10 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		params.insert(params.begin()+1, cmd);
 		cmd = "ENCAP";
 	}
+	else if (cmd == "RULES")
+	{
+		return false;
+	}
 
 	return true; // Passthru
 }
