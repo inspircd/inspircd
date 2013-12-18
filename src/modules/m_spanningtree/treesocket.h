@@ -89,7 +89,7 @@ struct CapabData
  */
 class TreeSocket : public BufferedSocket
 {
-	class BurstState;
+	struct BurstState;
 
 	std::string linkID;			/* Description for this link */
 	ServerState LinkState;			/* Link state */

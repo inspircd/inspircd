@@ -589,7 +589,7 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 
 void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::string &reason, CUList& excepts)
 {
-	if ((!IS_LOCAL(source) || source != ServerInstance->FakeClient))
+	if ((!IS_LOCAL(source)) && (source != ServerInstance->FakeClient))
 		return;
 
 	CmdBuilder params(source, "KICK");
