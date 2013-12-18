@@ -29,14 +29,14 @@ FileReader::FileReader(const std::string& filename)
 void FileReader::Load(const std::string& filename)
 {
 	// If the file is stored in the file cache then we used that version instead.
-	std::string realName = ServerInstance->Config->Paths.PrependConfig(filename);
-	ConfigFileCache::iterator it = ServerInstance->Config->Files.find(realName);
+	ConfigFileCache::const_iterator it = ServerInstance->Config->Files.find(filename);
 	if (it != ServerInstance->Config->Files.end())
 	{
 		this->lines = it->second;
 	}
 	else
 	{
+		const std::string realName = ServerInstance->Config->Paths.PrependConfig(filename);
 		lines.clear();
 
 		std::ifstream stream(realName.c_str());
