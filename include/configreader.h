@@ -330,16 +330,6 @@ class CoreExport ServerConfig
 	 */
 	std::string powerhash;
 
-	/** The pathname and filename of the message of the
-	 * day file, as defined by the administrator.
-	 */
-	std::string motd;
-
-	/** The pathname and filename of the rules file,
-	 * as defined by the administrator.
-	 */
-	std::string rules;
-
 	/** The quit prefix in use, or an empty string
 	 */
 	std::string PrefixQuit;
