@@ -35,18 +35,10 @@ class CommandSakick : public Command
 	{
 		User* dest = ServerInstance->FindNick(parameters[1]);
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
-		const char* reason = "";
 
 		if ((dest) && (dest->registered == REG_ALL) && (channel))
 		{
-			if (parameters.size() > 2)
-			{
-				reason = parameters[2].c_str();
-			}
-			else
-			{
-				reason = dest->nick.c_str();
-			}
+			const std::string& reason = (parameters.size() > 2) ? parameters[2] : dest->nick;
 
 			if (ServerInstance->ULine(dest->server))
 			{
