@@ -22,20 +22,12 @@
 
 #include "inspircd.h"
 
-class AuditoriumMode : public ModeHandler
+class AuditoriumMode : public SimpleChannelModeHandler
 {
  public:
-	AuditoriumMode(Module* Creator) : ModeHandler(Creator, "auditorium", 'u', PARAM_NONE, MODETYPE_CHANNEL)
+	AuditoriumMode(Module* Creator) : SimpleChannelModeHandler(Creator, "auditorium", 'u')
 	{
 		levelrequired = OP_VALUE;
-	}
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-	{
-		if (channel->IsModeSet(this) == adding)
-			return MODEACTION_DENY;
-		channel->SetMode(this, adding);
-		return MODEACTION_ALLOW;
 	}
 };
 
