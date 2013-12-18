@@ -303,7 +303,7 @@ class ModuleIdent : public Module
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Ident exception: %s", e.GetReason());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Ident exception: " + e.GetReason());
 		}
 	}
 

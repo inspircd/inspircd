@@ -154,7 +154,7 @@ class CommandRLine : public Command
 			}
 			catch (ModuleException &e)
 			{
-				ServerInstance->SNO->WriteToSnoMask('a',"Could not add RLINE: %s", e.GetReason());
+				ServerInstance->SNO->WriteToSnoMask('a',"Could not add RLINE: " + e.GetReason());
 			}
 
 			if (r)

@@ -280,7 +280,7 @@ void ModuleSpanningTree::ConnectServer(Link* x, Autoconnect* y)
 		catch (DNS::Exception& e)
 		{
 			delete snr;
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason());
+			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",x->Name.c_str(), e.GetReason().c_str());
 			ConnectServer(y, false);
 		}
 	}

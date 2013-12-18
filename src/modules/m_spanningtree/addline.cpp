@@ -42,7 +42,7 @@ CmdResult CommandAddLine::Handle(User* usr, std::vector<std::string>& params)
 	}
 	catch (ModuleException &e)
 	{
-		ServerInstance->SNO->WriteToSnoMask('d',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason());
+		ServerInstance->SNO->WriteToSnoMask('d',"Unable to ADDLINE type %s from %s: %s", params[0].c_str(), setter.c_str(), e.GetReason().c_str());
 		return CMD_FAILURE;
 	}
 	xl->SetCreateTime(ConvToInt(params[3]));

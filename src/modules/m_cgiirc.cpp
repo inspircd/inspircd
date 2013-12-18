@@ -222,7 +222,7 @@ class ModuleCgiIRC : public Module
 				waiting.set(user, count - 1);
 			delete r;
 			if (cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason());
+				 ServerInstance->SNO->WriteToSnoMask('a', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason().c_str());
 		}
 	}
 

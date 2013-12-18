@@ -132,7 +132,7 @@ void StreamSocket::Close()
 			catch (CoreException& modexcept)
 			{
 				ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
-					modexcept.GetSource(), modexcept.GetReason());
+					modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
 			}
 			DelIOHook();
 		}
@@ -172,7 +172,7 @@ void StreamSocket::DoRead()
 		catch (CoreException& modexcept)
 		{
 			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "%s threw an exception: %s",
-				modexcept.GetSource(), modexcept.GetReason());
+				modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
 			return;
 		}
 		if (rv > 0)
@@ -321,7 +321,7 @@ void StreamSocket::DoWrite()
 		catch (CoreException& modexcept)
 		{
 			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "%s threw an exception: %s",
-				modexcept.GetSource(), modexcept.GetReason());
+				modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
 		}
 	}
 #ifndef DISABLE_WRITEV
@@ -533,7 +533,7 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 	catch (CoreException& ex)
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Caught exception in socket processing on FD %d - '%s'",
-			fd, ex.GetReason());
+			fd, ex.GetReason().c_str());
 		SetError(ex.GetReason());
 	}
 	if (!error.empty())

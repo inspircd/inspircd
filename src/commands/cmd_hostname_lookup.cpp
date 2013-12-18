@@ -92,7 +92,7 @@ class UserResolver : public DNS::Request
 			catch (DNS::Exception& e)
 			{
 				delete res_forward;
-				ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Error in resolver: %s",e.GetReason());
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
 
 				bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
 				dl->set(bound_user, 0);
@@ -214,7 +214,7 @@ class ModuleHostnameLookup : public Module
 		{
 			this->dnsLookup.set(user, 0);
 			delete res_reverse;
-			ServerInstance->Logs->Log("USERS", LOG_DEBUG, "Error in resolver: %s", e.GetReason());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
 			ServerInstance->stats->statsDnsBad++;
 		}
 	}

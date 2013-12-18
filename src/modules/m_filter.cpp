@@ -551,7 +551,7 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 		}
 		catch (ModuleException& e)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error when unserializing filter: " + std::string(e.GetReason()));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error when unserializing filter: " + e.GetReason());
 		}
 	}
 }
@@ -619,7 +619,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 	}
 	catch (ModuleException &e)
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", freeform.c_str(), e.GetReason().c_str());
 		return std::make_pair(false, e.GetReason());
 	}
 	return std::make_pair(true, "");
@@ -683,7 +683,7 @@ void ModuleFilter::ReadFilters()
 		}
 		catch (ModuleException &e)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error in regular expression '%s': %s", pattern.c_str(), e.GetReason().c_str());
 		}
 	}
 }

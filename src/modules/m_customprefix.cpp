@@ -69,7 +69,7 @@ class ModuleCustomPrefix : public Module
 			}
 			catch (ModuleException& e)
 			{
-				throw ModuleException(e.err + " (while creating mode from " + tag->getTagLocation() + ")");
+				throw ModuleException(e.GetReason() + " (while creating mode from " + tag->getTagLocation() + ")");
 			}
 		}
 	}

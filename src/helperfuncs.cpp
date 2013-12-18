@@ -404,13 +404,13 @@ const char* InspIRCd::Format(va_list &vaList, const char* formatString)
 
 		if (vsnret > 0 && static_cast<unsigned>(vsnret) < formatBuffer.size())
 		{
-			return &formatBuffer[0];
+			break;
 		}
 
 		formatBuffer.resize(formatBuffer.size() * 2);
 	}
 
-	throw CoreException();
+	return &formatBuffer[0];
 }
 
 const char* InspIRCd::Format(const char* formatString, ...)

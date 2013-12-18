@@ -132,7 +132,7 @@ struct ModResult {
 		} \
 		catch (CoreException& modexcept) \
 		{ \
-			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: %s",modexcept.GetReason()); \
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: " + modexcept.GetReason()); \
 		} \
 	} \
 } while (0);
@@ -157,7 +157,7 @@ do { \
 		} \
 		catch (CoreException& except_ ## n) \
 		{ \
-			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: %s", (except_ ## n).GetReason()); \
+			ServerInstance->Logs->Log("MODULE", LOG_DEFAULT, "Exception caught: " + (except_ ## n).GetReason()); \
 		} \
 	} \
 } while(0)

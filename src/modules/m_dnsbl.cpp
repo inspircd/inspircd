@@ -346,7 +346,7 @@ class ModuleDNSBL : public Module
 			catch (DNS::Exception &ex)
 			{
 				delete r;
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, std::string(ex.GetReason()));
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, ex.GetReason());
 			}
 
 			if (user->quitting)

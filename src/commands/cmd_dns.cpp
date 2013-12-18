@@ -580,7 +580,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		}
 		catch (Exception& ex)
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, std::string(ex.GetReason()));
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, ex.GetReason());
 			return;
 		}
 

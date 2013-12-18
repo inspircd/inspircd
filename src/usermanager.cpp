@@ -73,7 +73,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 		catch (CoreException& modexcept)
 		{
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "%s threw an exception: %s", modexcept.GetSource(), modexcept.GetReason());
+			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "%s threw an exception: %s", modexcept.GetSource().c_str(), modexcept.GetReason().c_str());
 		}
 	}
 
