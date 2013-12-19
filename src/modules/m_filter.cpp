@@ -24,8 +24,6 @@
 #include "xline.h"
 #include "modules/regex.h"
 
-class ModuleFilter;
-
 enum FilterFlags
 {
 	FLAG_PART = 2,
@@ -46,6 +44,7 @@ enum FilterAction
 class FilterResult
 {
  public:
+	Regex* regex;
 	std::string freeform;
 	std::string reason;
 	FilterAction action;
@@ -58,9 +57,12 @@ class FilterResult
 	bool flag_notice;
 	bool flag_strip_color;
 
-	FilterResult(const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla) :
-			freeform(free), reason(rea), action(act), gline_time(gt)
+	FilterResult(dynamic_reference<RegexFactory>& RegexEngine, const std::string& free, const std::string& rea, FilterAction act, long gt, const std::string& fla)
+		: freeform(free), reason(rea), action(act), gline_time(gt)
 	{
+		if (!RegexEngine)
+			throw ModuleException("Regex module implementing '"+RegexEngine.GetProvider()+"' is not loaded!");
+		regex = RegexEngine->Create(free);
 		this->FillFlags(fla);
 	}
 
@@ -152,15 +154,6 @@ class CommandFilter : public Command
 	}
 };
 
-class ImplFilter : public FilterResult
-{
- public:
-	Regex* regex;
-
-	ImplFilter(ModuleFilter* mymodule, const std::string &rea, FilterAction act, long glinetime, const std::string &pat, const std::string &flgs);
-};
-
-
 class ModuleFilter : public Module
 {
 	bool initing;
@@ -171,7 +164,7 @@ class ModuleFilter : public Module
 	CommandFilter filtcommand;
 	dynamic_reference<RegexFactory> RegexEngine;
 
-	std::vector<ImplFilter> filters;
+	std::vector<FilterResult> filters;
 	int flags;
 
 	std::set<std::string> exemptfromfilter; // List of channel names excluded from filtering.
@@ -305,7 +298,7 @@ CullResult ModuleFilter::cull()
 
 void ModuleFilter::FreeFilters()
 {
-	for (std::vector<ImplFilter>::const_iterator i = filters.begin(); i != filters.end(); ++i)
+	for (std::vector<FilterResult>::const_iterator i = filters.begin(); i != filters.end(); ++i)
 		delete i->regex;
 
 	filters.clear();
@@ -534,7 +527,7 @@ FilterResult ModuleFilter::DecodeFilter(const std::string &data)
 
 void ModuleFilter::OnSyncNetwork(ProtocolInterface::Server& server)
 {
-	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); ++i)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
 	{
 		server.SendMetaData("filter", EncodeFilter(&(*i)));
 	}
@@ -556,22 +549,14 @@ void ModuleFilter::OnDecodeMetaData(Extensible* target, const std::string &extna
 	}
 }
 
-ImplFilter::ImplFilter(ModuleFilter* mymodule, const std::string &rea, FilterAction act, long glinetime, const std::string &pat, const std::string &flgs)
-		: FilterResult(pat, rea, act, glinetime, flgs)
-{
-	if (!mymodule->RegexEngine)
-		throw ModuleException("Regex module implementing '"+mymodule->RegexEngine.GetProvider()+"' is not loaded!");
-	regex = mymodule->RegexEngine->Create(pat);
-}
-
 FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int flgs)
 {
 	static std::string stripped_text;
 	stripped_text.clear();
 
-	for (std::vector<ImplFilter>::iterator index = filters.begin(); index != filters.end(); index++)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); ++i)
 	{
-		FilterResult* filter = dynamic_cast<FilterResult*>(&(*index));
+		FilterResult* filter = &*i;
 
 		/* Skip ones that dont apply to us */
 		if (!AppliesToMe(user, filter, flgs))
@@ -583,15 +568,15 @@ FilterResult* ModuleFilter::FilterMatch(User* user, const std::string &text, int
 			InspIRCd::StripColor(stripped_text);
 		}
 
-		if (index->regex->Matches(filter->flag_strip_color ? stripped_text : text))
-			return &*index;
+		if (filter->regex->Matches(filter->flag_strip_color ? stripped_text : text))
+			return filter;
 	}
 	return NULL;
 }
 
 bool ModuleFilter::DeleteFilter(const std::string &freeform)
 {
-	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
 		if (i->freeform == freeform)
 		{
@@ -605,7 +590,7 @@ bool ModuleFilter::DeleteFilter(const std::string &freeform)
 
 std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform, FilterAction type, const std::string &reason, long duration, const std::string &flgs)
 {
-	for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+	for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 	{
 		if (i->freeform == freeform)
 		{
@@ -615,7 +600,7 @@ std::pair<bool, std::string> ModuleFilter::AddFilter(const std::string &freeform
 
 	try
 	{
-		filters.push_back(ImplFilter(this, reason, type, duration, freeform, flgs));
+		filters.push_back(FilterResult(RegexEngine, freeform, reason, type, duration, flgs));
 	}
 	catch (ModuleException &e)
 	{
@@ -678,7 +663,7 @@ void ModuleFilter::ReadFilters()
 
 		try
 		{
-			filters.push_back(ImplFilter(this, reason, fa, gline_time, pattern, flgs));
+			filters.push_back(FilterResult(RegexEngine, pattern, reason, fa, gline_time, flgs));
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Regular expression %s loaded.", pattern.c_str());
 		}
 		catch (ModuleException &e)
@@ -692,7 +677,7 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 {
 	if (symbol == 's')
 	{
-		for (std::vector<ImplFilter>::iterator i = filters.begin(); i != filters.end(); i++)
+		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
 			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
