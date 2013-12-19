@@ -24,7 +24,7 @@
 
 class ModuleRestrictChans : public Module
 {
-	std::set<irc::string> allowchans;
+	std::set<std::string, irc::insensitive_swo> allowchans;
 
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -35,19 +35,17 @@ class ModuleRestrictChans : public Module
 		{
 			ConfigTag* tag = i->second;
 			std::string txt = tag->getString("name");
-			allowchans.insert(txt.c_str());
+			allowchans.insert(txt);
 		}
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
-		irc::string x(cname.c_str());
-
 		// channel does not yet exist (record is null, about to be created IF we were to allow it)
 		if (!chan)
 		{
 			// user is not an oper and its not in the allow list
-			if ((!user->IsOper()) && (allowchans.find(x) == allowchans.end()))
+			if ((!user->IsOper()) && (allowchans.find(cname) == allowchans.end()))
 			{
 				user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Only IRC operators may create new channels", cname.c_str());
 				return MOD_RES_DENY;

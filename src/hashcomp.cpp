@@ -170,6 +170,25 @@ bool irc::StrHashComp::operator()(const std::string& s1, const std::string& s2) 
 	return (national_case_insensitive_map[*n1] == national_case_insensitive_map[*n2]);
 }
 
+bool irc::insensitive_swo::operator()(const std::string& a, const std::string& b) const
+{
+	const unsigned char* charmap = national_case_insensitive_map;
+	std::string::size_type asize = a.size();
+	std::string::size_type bsize = b.size();
+	std::string::size_type maxsize = std::min(asize, bsize);
+
+	for (std::string::size_type i = 0; i < maxsize; i++)
+	{
+		unsigned char A = charmap[(unsigned char)a[i]];
+		unsigned char B = charmap[(unsigned char)b[i]];
+		if (A > B)
+			return false;
+		else if (A < B)
+			return true;
+	}
+	return (asize < bsize);
+}
+
 size_t irc::insensitive::operator()(const std::string &s) const
 {
 	/* XXX: NO DATA COPIES! :)

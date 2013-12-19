@@ -23,7 +23,8 @@
 
 #include "inspircd.h"
 
-static std::map<irc::string, std::string> helpop_map;
+typedef std::map<std::string, std::string, irc::insensitive_swo> HelpopMap;
+static HelpopMap helpop_map;
 
 /** Handles user mode +h
  */
@@ -40,23 +41,24 @@ class Helpop : public SimpleUserModeHandler
  */
 class CommandHelpop : public Command
 {
+	const std::string startkey;
  public:
-	CommandHelpop(Module* Creator) : Command(Creator, "HELPOP", 0)
+	CommandHelpop(Module* Creator)
+		: Command(Creator, "HELPOP", 0)
+		, startkey("start")
 	{
 		syntax = "<any-text>";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		irc::string parameter("start");
-		if (parameters.size() > 0)
-			parameter = parameters[0].c_str();
+		const std::string& parameter = (!parameters.empty() ? parameters[0] : startkey);
 
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
 			user->WriteNumeric(290, ":HELPOP topic index");
-			for (std::map<irc::string, std::string>::iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
+			for (HelpopMap::const_iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
 				user->WriteNumeric(292, ":  %s", iter->first.c_str());
 			user->WriteNumeric(292, ":*** End of HELPOP topic index");
 		}
@@ -65,14 +67,14 @@ class CommandHelpop : public Command
 			user->WriteNumeric(290, ":*** HELPOP for %s", parameter.c_str());
 			user->WriteNumeric(292, ": -");
 
-			std::map<irc::string, std::string>::iterator iter = helpop_map.find(parameter);
+			HelpopMap::const_iterator iter = helpop_map.find(parameter);
 
 			if (iter == helpop_map.end())
 			{
 				iter = helpop_map.find("nohelp");
 			}
 
-			std::string value = iter->second;
+			const std::string& value = iter->second;
 			irc::sepstream stream(value, '\n');
 			std::string token = "*";
 
@@ -112,7 +114,7 @@ class ModuleHelpop : public Module
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
 				ConfigTag* tag = i->second;
-				irc::string key = assign(tag->getString("key"));
+				std::string key = tag->getString("key");
 				std::string value;
 				tag->readString("value", value, true); /* Linefeeds allowed */
 

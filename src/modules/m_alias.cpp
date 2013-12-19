@@ -28,7 +28,7 @@ class Alias
 {
  public:
 	/** The text of the alias command */
-	irc::string AliasedCommand;
+	std::string AliasedCommand;
 
 	/** Text to replace with */
 	std::string ReplaceFormat;
@@ -63,7 +63,9 @@ class ModuleAlias : public Module
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
      */
-	std::multimap<irc::string, Alias> Aliases;
+	typedef std::multimap<std::string, Alias, irc::insensitive_swo> AliasMap;
+
+	AliasMap Aliases;
 
 	/* whether or not +B users are allowed to use fantasy commands */
 	bool AllowBots;
@@ -83,8 +85,8 @@ class ModuleAlias : public Module
 		{
 			ConfigTag* tag = i->second;
 			Alias a;
-			std::string aliastext = tag->getString("text");
-			a.AliasedCommand = aliastext.c_str();
+			a.AliasedCommand = tag->getString("text");
+			std::transform(a.AliasedCommand.begin(), a.AliasedCommand.end(), a.AliasedCommand.begin(), ::toupper);
 			tag->readString("replace", a.ReplaceFormat, true);
 			a.RequiredNick = tag->getString("requires");
 			a.ULineOnly = tag->getBool("uline");
@@ -134,7 +136,7 @@ class ModuleAlias : public Module
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
-		std::multimap<irc::string, Alias>::iterator i, upperbound;
+		AliasMap::iterator i, upperbound;
 
 		/* If theyre not registered yet, we dont want
 		 * to know.
@@ -143,13 +145,12 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */
-		i = Aliases.find(command.c_str());
+		i = Aliases.find(command);
 		if (i == Aliases.end())
 			return MOD_RES_PASSTHRU;
 		/* Avoid iterating on to different aliases if no patterns match. */
-		upperbound = Aliases.upper_bound(command.c_str());
+		upperbound = Aliases.upper_bound(command);
 
-		irc::string c = command.c_str();
 		/* The parameters for the command in their original form, with the command stripped off */
 		std::string compare = original_line.substr(command.length());
 		while (*(compare.c_str()) == ' ')
@@ -197,33 +198,32 @@ class ModuleAlias : public Module
 		// text is like "!moo cows bite me", we want "!moo" first
 		irc::spacesepstream ss(text);
 		ss.GetToken(scommand);
-		irc::string fcommand = scommand.c_str();
 
-		if (fcommand.empty())
+		if (scommand.empty())
 		{
 			return; // wtfbbq
 		}
 
 		// we don't want to touch non-fantasy stuff
-		if (*fcommand.c_str() != fprefix)
+		if (*scommand.c_str() != fprefix)
 		{
 			return;
 		}
 
 		// nor do we give a shit about the prefix
-		fcommand.erase(fcommand.begin());
+		scommand.erase(scommand.begin());
 
-		std::multimap<irc::string, Alias>::iterator i = Aliases.find(fcommand);
+		AliasMap::iterator i = Aliases.find(scommand);
 
 		if (i == Aliases.end())
 			return;
 
 		/* Avoid iterating on to other aliases if no patterns match */
-		std::multimap<irc::string, Alias>::iterator upperbound = Aliases.upper_bound(fcommand);
+		AliasMap::iterator upperbound = Aliases.upper_bound(scommand);
 
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = text.substr(fcommand.length() + 1);
+		std::string compare = text.substr(scommand.length() + 1);
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
@@ -276,7 +276,7 @@ class ModuleAlias : public Module
 		{
 			if (!ServerInstance->ULine(u->server))
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+std::string(a->AliasedCommand.c_str())+" is not on a u-lined server, possibly underhanded antics detected!");
+				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a u-lined server, possibly underhanded antics detected!");
 				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick + " :is an imposter! Please inform an IRC operator as soon as possible.");
 				return 1;
 			}

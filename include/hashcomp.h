@@ -114,6 +114,11 @@ namespace irc
 		size_t CoreExport operator()(const std::string &s) const;
 	};
 
+	struct insensitive_swo
+	{
+		bool CoreExport operator()(const std::string& a, const std::string& b) const;
+	};
+
 	/** The irc_char_traits class is used for RFC-style comparison of strings.
 	 * This class is used to implement irc::string, a case-insensitive, RFC-
 	 * comparing string class.
