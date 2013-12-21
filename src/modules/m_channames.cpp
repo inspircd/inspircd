@@ -109,6 +109,12 @@ class ModuleChannelNames : public Module
 		ConfigTag* tag = ServerInstance->Config->ConfValue("channames");
 		std::string denyToken = tag->getString("denyrange");
 		std::string allowToken = tag->getString("allowrange");
+
+		if (!denyToken.compare(0, 2, "0-"))
+			denyToken[0] = '1';
+		if (!allowToken.compare(0, 2, "0-"))
+			allowToken[0] = '1';
+
 		allowedmap.set();
 
 		irc::portparser denyrange(denyToken, false);
