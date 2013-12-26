@@ -99,7 +99,6 @@ class CommandHelpop : public Command
 class ModuleHelpop : public Module
 {
 	private:
-		std::string  h_file;
 		CommandHelpop cmd;
 		Helpop ho;
 
@@ -120,7 +119,7 @@ class ModuleHelpop : public Module
 
 		void ReadConfig()
 		{
-			helpop_map.clear();
+			std::map<irc::string, std::string> help;
 
 			ConfigTagList tags = ServerInstance->Config->ConfTags("helpop");
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
@@ -135,20 +134,21 @@ class ModuleHelpop : public Module
 					throw ModuleException("m_helpop: The key 'index' is reserved for internal purposes. Please remove it.");
 				}
 
-				helpop_map[key] = value;
+				help[key] = value;
 			}
 
-			if (helpop_map.find("start") == helpop_map.end())
+			if (help.find("start") == help.end())
 			{
 				// error!
 				throw ModuleException("m_helpop: Helpop file is missing important entry 'start'. Please check the example conf.");
 			}
-			else if (helpop_map.find("nohelp") == helpop_map.end())
+			else if (help.find("nohelp") == help.end())
 			{
 				// error!
 				throw ModuleException("m_helpop: Helpop file is missing important entry 'nohelp'. Please check the example conf.");
 			}
 
+			helpop_map.swap(help);
 		}
 
 		void OnRehash(User* user)
