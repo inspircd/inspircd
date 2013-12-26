@@ -106,6 +106,7 @@ class ModuleLDAPAuth : public Module
 	std::vector<std::string> whitelistedcidrs;
 	std::vector<std::pair<std::string, std::string> > requiredattributes;
 	int searchscope;
+	bool followreferrals;
 	bool verbose;
 	bool useusername;
 	LDAP *conn;
@@ -139,6 +140,7 @@ public:
 		username		= tag->getString("binddn");
 		password		= tag->getString("bindauth");
 		vhost			= tag->getString("host");
+		followreferrals		= tag->getBool("followreferrals", true);
 		verbose			= tag->getBool("verbose");		/* Set to true if failed connects should be reported to operators */
 		useusername		= tag->getBool("userfield");
 
@@ -185,7 +187,18 @@ public:
 			conn = NULL;
 			return false;
 		}
-
+		if (!followreferrals)
+		{
+			res = ldap_set_option(conn, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
+			if (res != LDAP_SUCCESS)
+			{
+				if (verbose)
+					ServerInstance->SNO->WriteToSnoMask('c', "Failed to turn LDAP referrals off: %s", ldap_err2string(res));
+				ldap_unbind_ext(conn, NULL, NULL);
+				conn = NULL;
+				return false;
+			}
+		}
 		res = ldap_set_option(conn, LDAP_OPT_PROTOCOL_VERSION, (void *)&v);
 		if (res != LDAP_SUCCESS)
 		{

@@ -66,6 +66,7 @@ class ModuleLDAPAuth : public Module
 	std::string username;
 	std::string password;
 	std::string attribute;
+	bool followreferrals;
 	int searchscope;
 	LDAP *conn;
 
@@ -113,6 +114,7 @@ public:
 		username		= tag->getString("binddn");
 		password		= tag->getString("bindauth");
 		attribute		= tag->getString("attribute");
+		followreferrals		= tag->getBool("followreferrals", true);
 
 		if (scope == "base")
 			searchscope = LDAP_SCOPE_BASE;
@@ -133,6 +135,18 @@ public:
 		{
 			conn = NULL;
 			return false;
+		}
+
+		if (!followreferrals)
+		{
+			res = ldap_set_option(conn, LDAP_OPT_REFERRALS, LDAP_OPT_OFF);
+			if (res != LDAP_SUCCESS)
+			{
+				ServerInstance->SNO->WriteToSnoMask('c', "Failed to turn LDAP referrals off: %s", ldap_err2string(res));
+				ldap_unbind_ext(conn, NULL, NULL);
+				conn = NULL;
+				return false;
+			}
 		}
 
 		res = ldap_set_option(conn, LDAP_OPT_PROTOCOL_VERSION, (void *)&v);
