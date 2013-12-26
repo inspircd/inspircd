@@ -104,6 +104,8 @@ class ModuleLDAPAuth : public Module
 	std::string password;
 	std::string vhost;
 	std::vector<std::string> whitelistedcidrs;
+	std::vector<std::string> allownickpatterns;
+	std::vector<std::string> allowidentpatterns;
 	std::vector<std::pair<std::string, std::string> > requiredattributes;
 	int searchscope;
 	bool verbose;
@@ -128,6 +130,8 @@ public:
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("ldapauth");
 		whitelistedcidrs.clear();
+		allownickpatterns.clear();
+		allowidentpatterns.clear();
 		requiredattributes.clear();
 
 		base 			= tag->getString("baserdn");
@@ -149,6 +153,14 @@ public:
 			std::string cidr = i->second->getString("cidr");
 			if (!cidr.empty()) {
 				whitelistedcidrs.push_back(cidr);
+			}
+			std::string wlnick = i->second->getString("nick");
+			if (!wlnick.empty()) {
+				allownickpatterns.push_back(wlnick);
+			}
+			std::string wlident = i->second->getString("ident");
+			if (!wlident.empty()) {
+				allowidentpatterns.push_back(wlident);
 			}
 		}
 
@@ -242,7 +254,23 @@ public:
 			return MOD_RES_PASSTHRU;
 		}
 
-		for (std::vector<std::string>::iterator i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++)
+		std::vector<std::string>::iterator i;
+		for (i = allownickpatterns.begin(); i != allownickpatterns.end(); i++)
+		{
+			if (InspIRCd::Match(user->nick, *i)) {
+				ldapAuthed.set(user,1);
+				return MOD_RES_PASSTHRU;
+			}
+		}
+		for (i = allowidentpatterns.begin(); i != allowidentpatterns.end(); i++)
+		{
+			if (InspIRCd::Match(user->ident, *i)) {
+				ldapAuthed.set(user,1);
+				return MOD_RES_PASSTHRU;
+			}
+		}
+
+		for (i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++)
 		{
 			if (InspIRCd::MatchCIDR(user->GetIPString(), *i, ascii_case_insensitive_map))
 			{
