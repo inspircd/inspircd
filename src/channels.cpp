@@ -679,7 +679,7 @@ void Channel::UserList(User *user)
 	{
 		if (i->first->quitting)
 			continue;
-		if ((!has_user) && (i->first->IsModeSet(invisiblemode)))
+		if (!has_user && i->first->IsModeSet(invisiblemode) && !user->HasPrivPermission("channels/auspex"))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show
