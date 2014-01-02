@@ -29,7 +29,7 @@
 
       # allowmask: Range of IP addresses to allow for this link.
       # Can be a CIDR (see example).
-      allowmask="69.58.44.0/24"
+      allowmask="203.0.113.0/24"
 
       # timeout: If defined, this option defines how long the server
       # will wait to consider the connect attempt failed and try the
@@ -74,7 +74,7 @@
 <link name="hub.penguin.org"
       ipaddr="penguin.box.com"
       port="7000"
-      allowmask="69.58.44.0/24"
+      allowmask="203.0.113.0/24"
       timeout="300"
       ssl="gnutls"
       bind="1.2.3.4"

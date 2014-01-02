@@ -91,7 +91,7 @@
       # Multiple options can be separated by spaces and CIDR's are allowed.
       # You CAN use just * or *@* for this section, but it is not recommended
       # for security reasons.
-      host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
+      host="yourident@dialup15.isp.com *@localhost *@example.com *@2001:db8::/32"
 
       # ** ADVANCED ** This option is disabled by default.
       # fingerprint: When using the m_sslinfo module, you may specify
@@ -128,7 +128,7 @@
 <oper
       name="Brain"
       password="s3cret"
-      host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
+      host="yourident@dialup15.isp.com *@localhost *@example.com *@2001:db8::/32"
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
       type="NetAdmin">
 
@@ -156,7 +156,7 @@
       # Multiple options can be separated by spaces and CIDR's are allowed.
       # You CAN use just * or *@* for this section, but it is not recommended
       # for security reasons.
-      host="ident@dialup15.isp.com *@localhost *@server.com *@3ffe::0/16"
+      host="yourident@dialup15.isp.com *@localhost *@example.com *@2001:db8::/32"
 
       # type: What oper type this oline is. See the block above for list
       # of types. NOTE: This is case-sensitive as well.
