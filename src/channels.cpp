@@ -772,7 +772,9 @@ void Channel::UserList(User *user)
 	if (!IS_LOCAL(user))
 		return;
 
-	if (this->IsModeSet('s') && !this->HasUser(user) && !user->HasPrivPermission("channels/auspex"))
+	bool has_privs = user->HasPrivPermission("channels/auspex");
+
+	if (this->IsModeSet('s') && !this->HasUser(user) && !has_privs)
 	{
 		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel",user->nick.c_str(), this->name.c_str());
 		return;
@@ -792,7 +794,7 @@ void Channel::UserList(User *user)
 	{
 		if (i->first->quitting)
 			continue;
-		if ((!has_user) && (i->first->IsModeSet('i')))
+		if ((!has_user) && (i->first->IsModeSet('i')) && (!has_privs))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show
