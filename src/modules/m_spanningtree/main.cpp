@@ -631,7 +631,7 @@ void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 		msg.append(e.GetReason());
 		ServerInstance->SNO->WriteToSnoMask('l', msg);
 		if (status.srcuser && !IS_LOCAL(status.srcuser))
-			ServerInstance->PI->SendSNONotice("L", msg);
+			ServerInstance->PI->SendSNONotice('L', msg);
 	}
 }
 

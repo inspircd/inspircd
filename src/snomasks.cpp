@@ -47,7 +47,7 @@ void SnomaskManager::WriteGlobalSno(char letter, const std::string& text)
 {
 	WriteToSnoMask(letter, text);
 	letter = toupper(letter);
-	ServerInstance->PI->SendSNONotice(std::string(1, letter), text);
+	ServerInstance->PI->SendSNONotice(letter, text);
 }
 
 void SnomaskManager::WriteToSnoMask(char letter, const char* text, ...)
