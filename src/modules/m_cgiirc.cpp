@@ -147,7 +147,6 @@ class CGIResolver : public DNS::Request
 				ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str(), typ.c_str());
 
 			them->host = them->dhost = ans_record.rdata;
-			them->InvalidateCache();
 			lu->CheckLines(true);
 		}
 	}
@@ -202,7 +201,6 @@ class ModuleCgiIRC : public Module
 		cmd.realip.set(user, user->GetIPString());
 		ChangeIP(user, newip);
 		user->host = user->dhost = user->GetIPString();
-		user->InvalidateCache();
 		RecheckClass(user);
 
 		// Don't create the resolver if the core couldn't put the user in a connect class or when dns is disabled

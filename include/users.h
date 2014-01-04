@@ -219,22 +219,6 @@ struct CoreExport ConnectClass : public refcountbase
 class CoreExport User : public Extensible
 {
  private:
-	/** Cached nick!ident@dhost value using the displayed hostname
-	 */
-	std::string cached_fullhost;
-
-	/** Cached ident@ip value using the real IP address
-	 */
-	std::string cached_hostip;
-
-	/** Cached ident@realhost value using the real hostname
-	 */
-	std::string cached_makehost;
-
-	/** Cached nick!ident@realhost value using the real hostname
-	 */
-	std::string cached_fullrealhost;
-
 	/** Set by GetIPString() to avoid constantly re-grabbing IP via sockets voodoo.
 	 */
 	std::string cachedip;
@@ -377,11 +361,6 @@ class CoreExport User : public Extensible
 	 * @return The full real host of the user
 	 */
 	virtual const std::string& GetFullRealHost();
-
-	/** This clears any cached results that are used for GetFullRealHost() etc.
-	 * The results of these calls are cached as generating them can be generally expensive.
-	 */
-	void InvalidateCache();
 
 	/** Returns whether this user is currently away or not. If true,
 	 * further information can be found in User::awaymsg and User::awaytime

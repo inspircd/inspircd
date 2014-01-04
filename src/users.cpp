@@ -108,42 +108,22 @@ User::~User()
 
 const std::string& User::MakeHost()
 {
-	if (!this->cached_makehost.empty())
-		return this->cached_makehost;
-
-	// XXX: Is there really a need to cache this?
-	this->cached_makehost = ident + "@" + host;
-	return this->cached_makehost;
+	return ident + "@" + host;
 }
 
 const std::string& User::MakeHostIP()
 {
-	if (!this->cached_hostip.empty())
-		return this->cached_hostip;
-
-	// XXX: Is there really a need to cache this?
-	this->cached_hostip = ident + "@" + this->GetIPString();
-	return this->cached_hostip;
+	return ident + "@" + this->GetIPString();
 }
 
 const std::string& User::GetFullHost()
 {
-	if (!this->cached_fullhost.empty())
-		return this->cached_fullhost;
-
-	// XXX: Is there really a need to cache this?
-	this->cached_fullhost = nick + "!" + ident + "@" + dhost;
-	return this->cached_fullhost;
+	return nick + "!" + ident + "@" + dhost;
 }
 
 const std::string& User::GetFullRealHost()
 {
-	if (!this->cached_fullrealhost.empty())
-		return this->cached_fullrealhost;
-
-	// XXX: Is there really a need to cache this?
-	this->cached_fullrealhost = nick + "!" + ident + "@" + host;
-	return this->cached_fullrealhost;
+	return nick + "!" + ident + "@" + host;
 }
 
 InviteList& LocalUser::GetInviteList()
@@ -619,15 +599,6 @@ void LocalUser::FullConnect()
 	CommandFloodPenalty = 0;
 }
 
-void User::InvalidateCache()
-{
-	/* Invalidate cache */
-	cached_fullhost.clear();
-	cached_hostip.clear();
-	cached_makehost.clear();
-	cached_fullrealhost.clear();
-}
-
 bool User::ChangeNick(const std::string& newnick, bool force)
 {
 	if (quitting)
@@ -715,7 +686,6 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 				(*(ServerInstance->Users->clientlist))[InUse->uuid] = InUse;
 
 				InUse->nick = InUse->uuid;
-				InUse->InvalidateCache();
 				InUse->registered &= ~REG_NICK;
 			}
 			else
@@ -732,7 +702,6 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 	std::string oldnick = nick;
 	nick = newnick;
 
-	InvalidateCache();
 	ServerInstance->Users->clientlist->erase(oldnick);
 	(*(ServerInstance->Users->clientlist))[newnick] = this;
 
@@ -785,15 +754,11 @@ irc::sockets::cidr_mask User::GetCIDRMask()
 
 bool User::SetClientIP(const char* sip, bool recheck_eline)
 {
-	cachedip.clear();
-	cached_hostip.clear();
 	return irc::sockets::aptosa(sip, 0, client_sa);
 }
 
 void User::SetClientIP(const irc::sockets::sockaddrs& sa, bool recheck_eline)
 {
-	cachedip.clear();
-	cached_hostip.clear();
 	memcpy(&client_sa, &sa, sizeof(irc::sockets::sockaddrs));
 }
 
@@ -1137,7 +1102,6 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 	FOREACH_MOD(OnChangeHost, (this,shost));
 
 	this->dhost.assign(shost, 0, 64);
-	this->InvalidateCache();
 
 	if (IS_LOCAL(this))
 		this->WriteNumeric(RPL_YOURDISPLAYEDHOST, "%s :is now your displayed host", this->dhost.c_str());
@@ -1153,7 +1117,6 @@ bool User::ChangeIdent(const std::string& newident)
 	FOREACH_MOD(OnChangeIdent, (this,newident));
 
 	this->ident.assign(newident, 0, ServerInstance->Config->Limits.IdentMax);
-	this->InvalidateCache();
 
 	return true;
 }

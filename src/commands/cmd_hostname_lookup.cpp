@@ -142,9 +142,6 @@ class UserResolver : public DNS::Request
 					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
 					bound_user->host.assign(*hostname, 0, 64);
 					bound_user->dhost = bound_user->host;
-
-					/* Invalidate cache */
-					bound_user->InvalidateCache();
 				}
 				else
 				{
