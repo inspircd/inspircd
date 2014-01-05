@@ -81,7 +81,7 @@ class RemoveBase : public Command
 		int ulevel = channel->GetPrefixValue(user);
 		int tlevel = channel->GetPrefixValue(target);
 
-		if (ServerInstance->ULine(target->server))
+		if (target->server->IsULine())
 		{
 			user->WriteNumeric(482, "%s :Only a u-line may remove a u-line from a channel.", channame.c_str());
 			return CMD_FAILURE;

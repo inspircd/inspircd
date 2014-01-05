@@ -188,7 +188,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 
 			nickonly.assign(destnick, 0, targetserver - destnick);
 			dest = ServerInstance->FindNickOnly(nickonly);
-			if (dest && strcasecmp(dest->server.c_str(), targetserver + 1))
+			if (dest && strcasecmp(dest->server->GetName().c_str(), targetserver + 1))
 			{
 				/* Incorrect server for user */
 				user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());

@@ -28,6 +28,7 @@
 #include "main.h"
 #include "utils.h"
 #include "commands.h"
+#include "treeserver.h"
 
 CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& params)
 {
@@ -45,7 +46,7 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 	if ((x) && (x != user))
 	{
 		/* x is local, who is remote */
-		int collideret = Utils->DoCollision(x, Utils->FindServer(user->server), user->age, user->ident, user->GetIPString(), user->uuid);
+		int collideret = Utils->DoCollision(x, TreeServer::Get(user), user->age, user->ident, user->GetIPString(), user->uuid);
 		if (collideret != 1)
 		{
 			/*

@@ -31,7 +31,7 @@ class ModuleServerBan : public Module
 	{
 		if ((mask.length() > 2) && (mask[0] == 's') && (mask[1] == ':'))
 		{
-			if (InspIRCd::Match(user->server, mask.substr(2)))
+			if (InspIRCd::Match(user->server->GetName(), mask.substr(2)))
 				return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

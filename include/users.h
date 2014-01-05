@@ -306,7 +306,7 @@ class CoreExport User : public Extensible
 
 	/** The server the user is connected to.
 	 */
-	const std::string server;
+	Server* server;
 
 	/** The user's away message.
 	 * If this string is empty, the user is not marked as away.
@@ -357,7 +357,7 @@ class CoreExport User : public Extensible
 	/** Constructor
 	 * @throw CoreException if the UID allocated to the user already exists
 	 */
-	User(const std::string &uid, const std::string& srv, int objtype);
+	User(const std::string& uid, Server* srv, int objtype);
 
 	/** Returns the full displayed host of the user
 	 * This member function returns the hostname of the user as seen by other users
@@ -818,7 +818,7 @@ class CoreExport LocalUser : public User, public InviteBase
 class CoreExport RemoteUser : public User
 {
  public:
-	RemoteUser(const std::string& uid, const std::string& srv) : User(uid, srv, USERTYPE_REMOTE)
+	RemoteUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_REMOTE)
 	{
 	}
 	virtual void SendText(const std::string& line);
@@ -827,9 +827,15 @@ class CoreExport RemoteUser : public User
 class CoreExport FakeUser : public User
 {
  public:
-	FakeUser(const std::string &uid, const std::string& srv) : User(uid, srv, USERTYPE_SERVER)
+	FakeUser(const std::string& uid, Server* srv) : User(uid, srv, USERTYPE_SERVER)
 	{
-		nick = srv;
+		nick = srv->GetName();
+	}
+
+	FakeUser(const std::string& uid, const std::string& sname)
+		: User(uid, new Server(sname), USERTYPE_SERVER)
+	{
+		nick = sname;
 	}
 
 	virtual CullResult cull();

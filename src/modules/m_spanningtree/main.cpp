@@ -52,6 +52,17 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 {
 }
 
+namespace
+{
+	void SetLocalUsersServer(Server* newserver)
+	{
+		ServerInstance->FakeClient->server = newserver;
+		const LocalUserList& list = ServerInstance->Users->local_users;
+		for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
+			(*i)->server = newserver;
+	}
+}
+
 void ModuleSpanningTree::init()
 {
 	ServerInstance->SNO->EnableSnomask('l', "LINK");
@@ -62,6 +73,10 @@ void ModuleSpanningTree::init()
 
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface;
+
+	delete ServerInstance->FakeClient->server;
+	SetLocalUsersServer(Utils->TreeRoot);
+
 	loopCall = false;
 	SplitInProgress = false;
 
@@ -81,7 +96,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
 		TreeServer* server = *i;
-		if ((server->Hidden) || ((Utils->HideULines) && (ServerInstance->ULine(server->GetName()))))
+		if ((server->Hidden) || ((Utils->HideULines) && (server->IsULine())))
 		{
 			if (user->IsOper())
 			{
@@ -94,7 +109,7 @@ void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
 		}
 	}
 	/* Don't display the line if its a uline, hide ulines is on, and the user isnt an oper */
-	if ((Utils->HideULines) && (ServerInstance->ULine(Current->GetName())) && (!user->IsOper()))
+	if ((Utils->HideULines) && (Current->IsULine()) && (!user->IsOper()))
 		return;
 	/* Or if the server is hidden and they're not an oper */
 	else if ((Current->Hidden) && (!user->IsOper()))
@@ -560,20 +575,16 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		// Hide the message if one of the following is true:
 		// - User is being quit due to a netsplit and quietbursts is on
 		// - Server is a silent uline
-		bool hide = (((this->SplitInProgress) && (Utils->quiet_bursts)) || (ServerInstance->SilentULine(user->server)));
+		bool hide = (((this->SplitInProgress) && (Utils->quiet_bursts)) || (user->server->IsSilentULine()));
 		if (!hide)
 		{
 			ServerInstance->SNO->WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
-				user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_message.c_str());
+				user->server->GetName().c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_message.c_str());
 		}
 	}
 
 	// Regardless, We need to modify the user Counts..
-	TreeServer* SourceServer = Utils->FindServer(user->server);
-	if (SourceServer)
-	{
-		SourceServer->UserCount--;
-	}
+	TreeServer::Get(user)->UserCount--;
 }
 
 void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
@@ -624,7 +635,7 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 	{
 		CmdBuilder params((user ? user->uuid : ServerInstance->Config->GetSID()), "REHASH");
 		params.push_back(parameter);
-		params.Forward(user ? Utils->BestRouteTo(user->server) : NULL);
+		params.Forward(user ? TreeServer::Get(user)->GetRoute() : NULL);
 	}
 }
 
@@ -742,6 +753,9 @@ ModuleSpanningTree::~ModuleSpanningTree()
 {
 	delete ServerInstance->PI;
 	ServerInstance->PI = new ProtocolInterface;
+
+	Server* newsrv = new Server(ServerInstance->Config->ServerName);
+	SetLocalUsersServer(newsrv);
 
 	/* This will also free the listeners */
 	delete Utils;

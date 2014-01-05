@@ -52,7 +52,7 @@ class SSLMode : public ModeHandler
 					for(UserMembCIter i = userlist->begin(); i != userlist->end(); i++)
 					{
 						ssl_cert* cert = API->GetCertificate(i->first);
-						if (!cert && !ServerInstance->ULine(i->first->server))
+						if (!cert && !i->first->server->IsULine())
 						{
 							source->WriteNumeric(ERR_ALLMUSTSSL, "%s :all members of the channel must be connected via SSL", channel->name.c_str());
 							return MODEACTION_DENY;

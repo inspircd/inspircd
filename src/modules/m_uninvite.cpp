@@ -70,11 +70,11 @@ class CommandUninvite : public Command
 		{
 			if (!lu->RemoveInvite(c))
 			{
-				user->SendText(":%s 505 %s %s %s :Is not invited to channel %s", user->server.c_str(), user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
+				user->SendText(":%s 505 %s %s %s :Is not invited to channel %s", user->server->GetName().c_str(), user->nick.c_str(), u->nick.c_str(), c->name.c_str(), c->name.c_str());
 				return CMD_FAILURE;
 			}
 
-			user->SendText(":%s 494 %s %s %s :Uninvited", user->server.c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
+			user->SendText(":%s 494 %s %s %s :Uninvited", user->server->GetName().c_str(), user->nick.c_str(), c->name.c_str(), u->nick.c_str());
 			lu->WriteNumeric(493, ":You were uninvited from %s by %s", c->name.c_str(), user->nick.c_str());
 
 			std::string msg = "*** " + user->nick + " uninvited " + u->nick + ".";

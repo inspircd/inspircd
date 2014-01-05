@@ -178,7 +178,7 @@ class SQLProvider : public DataProvider
 		userinfo["ip"] = user->GetIPString();
 		userinfo["gecos"] = user->fullname;
 		userinfo["ident"] = user->ident;
-		userinfo["server"] = user->server;
+		userinfo["server"] = user->server->GetName();
 		userinfo["uuid"] = user->uuid;
 	}
 };

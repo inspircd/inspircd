@@ -75,10 +75,17 @@ struct RouteDescriptor
 	 */
 	std::string serverdest;
 
+	/** For unicast, the destination Server
+	 */
+	Server* server;
+
 	/** Create a RouteDescriptor
 	 */
 	RouteDescriptor(RouteType t, const std::string &d)
-		: type(t), serverdest(d) { }
+		: type(t), serverdest(d), server(NULL) { }
+
+	RouteDescriptor(RouteType t, Server* srv)
+		: type(t), server(srv) { }
 };
 
 /** Do not route this command */

@@ -76,7 +76,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 			return CMD_FAILURE;
 		}
 
-		if (ServerInstance->ULine(u->server))
+		if (u->server->IsULine())
 		{
 			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You may not kick a u-lined client", c->name.c_str());
 			return CMD_FAILURE;

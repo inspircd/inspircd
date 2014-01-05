@@ -37,7 +37,7 @@ class CommandSaquit : public Command
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		if ((dest) && (!IS_SERVER(dest)))
 		{
-			if (ServerInstance->ULine(dest->server))
+			if (dest->server->IsULine())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, ":Cannot use an SA command on a u-lined client");
 				return CMD_FAILURE;

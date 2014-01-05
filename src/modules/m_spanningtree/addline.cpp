@@ -60,7 +60,7 @@ CmdResult CommandAddLine::Handle(User* usr, std::vector<std::string>& params)
 					params[1].c_str(),params[5].c_str());
 		}
 
-		TreeServer* remoteserver = Utils->FindServer(usr->server);
+		TreeServer* remoteserver = TreeServer::Get(usr);
 
 		if (!remoteserver->bursting)
 		{

@@ -126,7 +126,7 @@ class CommandCheck : public Command
 			user->SendText(checkstr + " realname " + targuser->fullname);
 			user->SendText(checkstr + " modes +" + targuser->FormatModes());
 			user->SendText(checkstr + " snomasks " + GetSnomasks(targuser));
-			user->SendText(checkstr + " server " + targuser->server);
+			user->SendText(checkstr + " server " + targuser->server->GetName());
 			user->SendText(checkstr + " uid " + targuser->uuid);
 			user->SendText(checkstr + " signon " + timestring(targuser->signon));
 			user->SendText(checkstr + " nickts " + timestring(targuser->age));

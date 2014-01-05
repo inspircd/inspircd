@@ -82,7 +82,7 @@ class ModulePassForward : public Module
 		{
 			/* Check if nick exists and its server is ulined */
 			User* u = ServerInstance->FindNick(nickrequired);
-			if (!u || !ServerInstance->ULine(u->server))
+			if (!u || !u->server->IsULine())
 				return;
 		}
 

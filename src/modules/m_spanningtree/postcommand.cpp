@@ -102,7 +102,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 			User* d = ServerInstance->FindNick(dest);
 			if (!d)
 				return;
-			TreeServer* tsd = BestRouteTo(d->server);
+			TreeServer* tsd = TreeServer::Get(d)->GetRoute();
 			if (tsd == origin)
 				// huh? no routing stuff around in a circle, please.
 				return;

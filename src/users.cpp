@@ -69,8 +69,8 @@ const char* User::FormatModes(bool showparameters)
 	return data.c_str();
 }
 
-User::User(const std::string &uid, const std::string& sid, int type)
-	: uuid(uid), server(sid), usertype(type)
+User::User(const std::string& uid, Server* srv, int type)
+	: uuid(uid), server(srv), usertype(type)
 {
 	age = ServerInstance->Time();
 	signon = 0;
@@ -85,7 +85,7 @@ User::User(const std::string &uid, const std::string& sid, int type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
+	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, USERTYPE_LOCAL), eh(this),
 	localuseriter(ServerInstance->Users->local_users.end()),
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
@@ -1291,14 +1291,14 @@ const std::string& FakeUser::GetFullHost()
 {
 	if (!ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;
-	return server;
+	return server->GetName();
 }
 
 const std::string& FakeUser::GetFullRealHost()
 {
 	if (!ServerInstance->Config->HideWhoisServer.empty())
 		return ServerInstance->Config->HideWhoisServer;
-	return server;
+	return server->GetName();
 }
 
 ConnectClass::ConnectClass(ConfigTag* tag, char t, const std::string& mask)

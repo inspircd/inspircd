@@ -38,6 +38,7 @@ class Module;
 class OperInfo;
 class ProtocolServer;
 class RemoteUser;
+class Server;
 class ServerConfig;
 class ServerLimits;
 class Thread;

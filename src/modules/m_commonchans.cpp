@@ -45,7 +45,7 @@ class ModulePrivacyMode : public Module
 		if (target_type == TYPE_USER)
 		{
 			User* t = (User*)dest;
-			if (!user->IsOper() && (t->IsModeSet(pm)) && (!ServerInstance->ULine(user->server)) && !user->SharesChannelWith(t))
+			if (!user->IsOper() && (t->IsModeSet(pm)) && (!user->server->IsULine()) && !user->SharesChannelWith(t))
 			{
 				user->WriteNumeric(ERR_CANTSENDTOUSER, "%s :You are not permitted to send private messages to this user (+c set)", t->nick.c_str());
 				return MOD_RES_DENY;

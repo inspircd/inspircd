@@ -71,7 +71,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	User* _new = NULL;
 	try
 	{
-		_new = new RemoteUser(params[0], remoteserver->GetName());
+		_new = new RemoteUser(params[0], remoteserver);
 	}
 	catch (...)
 	{
@@ -132,11 +132,11 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 
 	bool dosend = true;
 
-	if ((Utils->quiet_bursts && remoteserver->bursting) || ServerInstance->SilentULine(_new->server))
+	if ((Utils->quiet_bursts && remoteserver->bursting) || _new->server->IsSilentULine())
 		dosend = false;
 
 	if (dosend)
-		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", _new->server.c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->fullname.c_str());
+		ServerInstance->SNO->WriteToSnoMask('C',"Client connecting at %s: %s (%s) [%s]", remoteserver->GetName().c_str(), _new->GetFullRealHost().c_str(), _new->GetIPString().c_str(), _new->fullname.c_str());
 
 	FOREACH_MOD(OnPostConnect, (_new));
 
@@ -162,7 +162,7 @@ CmdResult CommandFName::HandleRemote(RemoteUser* src, std::vector<std::string>& 
 }
 
 CommandUID::Builder::Builder(User* user)
-	: CmdBuilder(user->uuid.substr(0, 3), "UID")
+	: CmdBuilder(TreeServer::Get(user)->GetID(), "UID")
 {
 	push(user->uuid);
 	push_int(user->age);

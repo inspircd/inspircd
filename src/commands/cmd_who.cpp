@@ -168,7 +168,7 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 
 		/* Don't allow server name matches if HideWhoisServer is enabled, unless the command user has the priv */
 		if (!match && (ServerInstance->Config->HideWhoisServer.empty() || cuser->HasPrivPermission("users/auspex")))
-			match = InspIRCd::Match(user->server, matchtext);
+			match = InspIRCd::Match(user->server->GetName(), matchtext);
 
 		return match;
 	}
@@ -204,7 +204,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 		wholine.append(ServerInstance->Config->HideWhoisServer);
 	else
-		wholine.append(u->server);
+		wholine.append(u->server->GetName());
 
 	wholine.append(" " + u->nick + " ");
 

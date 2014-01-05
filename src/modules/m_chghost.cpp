@@ -64,7 +64,7 @@ class CommandChghost : public Command
 
 		if (IS_LOCAL(dest))
 		{
-			if ((dest->ChangeDisplayedHost(parameters[1])) && (!ServerInstance->ULine(user->server)))
+			if ((dest->ChangeDisplayedHost(parameters[1])) && (!user->server->IsULine()))
 			{
 				// fix by brain - ulines set hosts silently
 				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);

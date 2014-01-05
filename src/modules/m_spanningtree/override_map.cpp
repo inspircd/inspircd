@@ -85,7 +85,7 @@ void CommandMap::ShowMap(TreeServer* Current, User* user, int depth, int &line, 
 		if (!user->IsOper()) {
 			if (child->Hidden)
 				continue;
-			if ((Utils->HideULines) && (ServerInstance->ULine(child->GetName())))
+			if ((Utils->HideULines) && (child->IsULine()))
 				continue;
 		}
 		ShowMap(child, user, depth, line, names, maxnamew, stats);

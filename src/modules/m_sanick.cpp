@@ -40,7 +40,7 @@ class CommandSanick : public Command
 		/* Do local sanity checks and bails */
 		if (IS_LOCAL(user))
 		{
-			if (target && ServerInstance->ULine(target->server))
+			if (target && target->server->IsULine())
 			{
 				user->WriteNumeric(ERR_NOPRIVILEGES, ":Cannot use an SA command on a u-lined client");
 				return CMD_FAILURE;

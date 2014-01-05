@@ -109,7 +109,7 @@ class ModuleDeaf : public Module
 			if (is_bypasschar && is_bypasschar_uline)
 				continue; /* deliver message */
 
-			is_a_uline = ServerInstance->ULine(i->first->server);
+			is_a_uline = i->first->server->IsULine();
 			/* matched a U-line only bypass */
 			if (is_bypasschar_uline && is_a_uline)
 				continue; /* deliver message */

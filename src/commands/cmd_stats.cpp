@@ -164,7 +164,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			for (std::list<User*>::const_iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); ++i)
 			{
 				User* oper = *i;
-				if (!ServerInstance->ULine(oper->server))
+				if (!oper->server->IsULine())
 				{
 					LocalUser* lu = IS_LOCAL(oper);
 					results.push_back(sn+" 249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +

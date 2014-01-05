@@ -133,8 +133,8 @@ class CmdBuilder
 		return Utils->DoOneToOne(*this, target);
 	}
 
-	bool Unicast(User* target) const
+	void Unicast(User* target) const
 	{
-		return Unicast(target->server);
+		Utils->DoOneToOne(*this, target->server);
 	}
 };

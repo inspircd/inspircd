@@ -274,7 +274,7 @@ class ModuleAlias : public Module
 		}
 		if ((u != NULL) && (!a->RequiredNick.empty()) && (a->ULineOnly))
 		{
-			if (!ServerInstance->ULine(u->server))
+			if (!u->server->IsULine())
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a u-lined server, possibly underhanded antics detected!");
 				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick + " :is an imposter! Please inform an IRC operator as soon as possible.");

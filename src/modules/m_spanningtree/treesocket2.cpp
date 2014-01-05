@@ -229,7 +229,6 @@ void TreeSocket::ProcessLine(std::string &line)
 void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command, parameterlist& params)
 {
 	User* who = ServerInstance->FindUUID(prefix);
-	std::string direction;
 
 	if (!who)
 	{
@@ -269,10 +268,6 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		}
 	}
 
-	// Make sure prefix is still good
-	direction = who->server;
-	prefix = who->uuid;
-
 	/*
 	 * Check for fake direction here, and drop any instances that are found.
 	 * What is fake direction? Imagine the following server setup:
@@ -289,12 +284,10 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	 * a valid SID or a valid UUID, so that invalid UUID or SID never makes it
 	 * to the higher level functions. -- B
 	 */
-	TreeServer* route_back_again = Utils->BestRouteTo(direction);
-	if ((!route_back_again) || (route_back_again->GetSocket() != this))
+	TreeServer* route_back_again = TreeServer::Get(who)->GetRoute();
+	if (route_back_again->GetSocket() != this)
 	{
-		if (route_back_again)
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Protocol violation: Fake direction '%s' from connection '%s'",
-				prefix.c_str(),linkID.c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Protocol violation: Fake direction '%s' from connection '%s'", prefix.c_str(), linkID.c_str());
 		return;
 	}
 

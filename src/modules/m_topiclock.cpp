@@ -29,7 +29,7 @@ class CommandSVSTOPIC : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		if (!ServerInstance->ULine(user->server))
+		if (!user->server->IsULine())
 		{
 			// Ulines only
 			return CMD_FAILURE;

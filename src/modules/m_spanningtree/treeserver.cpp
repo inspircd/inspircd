@@ -33,7 +33,8 @@
  * no socket associated with it. Its version string is our own local version.
  */
 TreeServer::TreeServer()
-	: Parent(NULL), Route(NULL), ServerName(ServerInstance->Config->ServerName), ServerDesc(ServerInstance->Config->ServerDesc)
+	: Server(ServerInstance->Config->ServerName)
+	, Parent(NULL), Route(NULL), ServerDesc(ServerInstance->Config->ServerDesc)
 	, VersionString(ServerInstance->GetVersionString()), Socket(NULL), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
@@ -45,9 +46,11 @@ TreeServer::TreeServer()
  * its ping counters so that it will be pinged one minute from now.
  */
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Parent(Above), ServerName(Name), ServerDesc(Desc), Socket(Sock), sid(id), ServerUser(new FakeUser(id, Name))
+	: Server(Name)
+	, Parent(Above), ServerDesc(Desc), Socket(Sock), sid(id), ServerUser(new FakeUser(id, this))
 	, age(ServerInstance->Time()), Warned(false), bursting(true), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
 {
+	CheckULine();
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	SetPingFlag();
 
@@ -133,8 +136,8 @@ void TreeServer::FinishBurst()
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
-		ServerName.c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	AddServerEvent(Utils->Creator, ServerName);
+		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
+	AddServerEvent(Utils->Creator, GetName());
 }
 
 int TreeServer::QuitUsers(const std::string &reason)
@@ -148,10 +151,21 @@ int TreeServer::QuitUsers(const std::string &reason)
 		User* user = i->second;
 		// Increment the iterator now because QuitUser() removes the user from the container
 		++i;
-		if (user->server == ServerName)
+		if (user->server == this)
 			ServerInstance->Users->QuitUser(user, publicreason, &reason);
 	}
 	return original_size - users.size();
+}
+
+void TreeServer::CheckULine()
+{
+	uline = silentuline = false;
+	std::map<irc::string, bool>::iterator it = ServerInstance->Config->ulines.find(GetName().c_str());
+	if (it != ServerInstance->Config->ulines.end())
+	{
+		uline = true;
+		silentuline = it->second;
+	}
 }
 
 /** This method is used to add the structure to the
@@ -160,7 +174,7 @@ int TreeServer::QuitUsers(const std::string &reason)
  */
 void TreeServer::AddHashEntry()
 {
-	Utils->serverlist[ServerName] = this;
+	Utils->serverlist[GetName()] = this;
 	Utils->sidlist[sid] = this;
 }
 
@@ -267,5 +281,5 @@ TreeServer::~TreeServer()
 		delete ServerUser;
 
 	Utils->sidlist.erase(sid);
-	Utils->serverlist.erase(ServerName);
+	Utils->serverlist.erase(GetName());
 }

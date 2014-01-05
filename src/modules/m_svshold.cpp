@@ -89,7 +89,7 @@ class CommandSvshold : public Command
 		/* syntax: svshold nickname time :reason goes here */
 		/* 'time' is a human-readable timestring, like 2d3h2s. */
 
-		if (!ServerInstance->ULine(user->server))
+		if (!user->server->IsULine())
 		{
 			/* don't allow SVSHOLD from non-ulined clients */
 			return CMD_FAILURE;

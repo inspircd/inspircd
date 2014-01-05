@@ -61,7 +61,7 @@ class CommandChgident : public Command
 		{
 			dest->ChangeIdent(parameters[1]);
 
-			if (!ServerInstance->ULine(user->server))
+			if (!user->server->IsULine())
 				ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGIDENT to change %s's ident to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->ident.c_str());
 		}
 

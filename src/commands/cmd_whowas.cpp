@@ -215,7 +215,7 @@ CommandWhowas::~CommandWhowas()
 }
 
 WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ident(user->ident),
-	server(user->server), gecos(user->fullname), signon(user->signon)
+	server(user->server->GetName()), gecos(user->fullname), signon(user->signon)
 {
 }
 

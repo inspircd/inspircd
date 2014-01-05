@@ -37,12 +37,11 @@
  * TreeServer items, deleting and inserting them as they
  * are created and destroyed.
  */
-class TreeServer : public classbase
+class TreeServer : public Server
 {
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	std::string ServerName;			/* Server's name */
 	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
@@ -93,10 +92,6 @@ class TreeServer : public classbase
 	/** Returns true if this server is locally connected
 	 */
 	bool IsLocal() const { return (this->Route == this); }
-
-	/** Get server name
-	 */
-	const std::string& GetName() const { return ServerName; }
 
 	/** Get server description (GECOS)
 	 */
@@ -180,6 +175,10 @@ class TreeServer : public classbase
 	/** Recursive call for child servers */
 	void FinishBurstInternal();
 
+	/** (Re)check the uline state of this server
+	 */
+	void CheckULine();
+
 	CullResult cull();
 
 	/** Destructor
@@ -187,4 +186,13 @@ class TreeServer : public classbase
 	 * hash maps.
 	 */
 	~TreeServer();
+
+	/** Returns the TreeServer the given user is connected to
+	 * @param user The user whose server to return
+	 * @return The TreeServer this user is connected to.
+	 */
+	static TreeServer* Get(User* user)
+	{
+		return static_cast<TreeServer*>(user->server);
+	}
 };

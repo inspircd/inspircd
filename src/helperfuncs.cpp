@@ -420,23 +420,6 @@ const char* InspIRCd::Format(const char* formatString, ...)
 	return ret;
 }
 
-bool InspIRCd::ULine(const std::string& sserver)
-{
-	if (sserver.empty())
-		return true;
-
-	return (Config->ulines.find(sserver.c_str()) != Config->ulines.end());
-}
-
-bool InspIRCd::SilentULine(const std::string& sserver)
-{
-	std::map<irc::string,bool>::iterator n = Config->ulines.find(sserver.c_str());
-	if (n != Config->ulines.end())
-		return n->second;
-	else
-		return false;
-}
-
 std::string InspIRCd::TimeString(time_t curtime)
 {
 #ifdef _WIN32

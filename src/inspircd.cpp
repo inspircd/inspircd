@@ -120,7 +120,10 @@ void InspIRCd::Cleanup()
 	/* Delete objects dynamically allocated in constructor (destructor would be more appropriate, but we're likely exiting) */
 	/* Must be deleted before modes as it decrements modelines */
 	if (FakeClient)
+	{
+		delete FakeClient->server;
 		FakeClient->cull();
+	}
 	DeleteZero(this->FakeClient);
 	DeleteZero(this->Users);
 	DeleteZero(this->Modes);

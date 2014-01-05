@@ -73,7 +73,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	if (!TS)
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server.c_str());
+		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server->GetName().c_str());
 		return CMD_INVALID;
 	}
 
@@ -157,7 +157,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	}
 
 	irc::modestacker modestack(true);
-	TreeSocket* src_socket = Utils->FindServer(srcuser->server)->GetSocket();
+	TreeSocket* src_socket = TreeServer::Get(srcuser)->GetSocket();
 
 	/* Now, process every 'modes,uuid' pair */
 	irc::tokenstream users(*params.rbegin());
@@ -190,8 +190,8 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 	}
 
 	/* Check that the user's 'direction' is correct */
-	TreeServer* route_back_again = Utils->BestRouteTo(who->server);
-	if ((!route_back_again) || (route_back_again->GetSocket() != src_socket))
+	TreeServer* route_back_again = TreeServer::Get(who);
+	if (route_back_again->GetSocket() != src_socket)
 	{
 		return true;
 	}

@@ -110,7 +110,7 @@ class CommandSVSWatch : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		if (!ServerInstance->ULine(user->server))
+		if (!user->server->IsULine())
 			return CMD_FAILURE;
 
 		User *u = ServerInstance->FindNick(parameters[0]);

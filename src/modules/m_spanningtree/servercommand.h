@@ -20,8 +20,7 @@
 #pragma once
 
 #include "utils.h"
-
-class TreeServer;
+#include "treeserver.h"
 
 /** Base class for server-to-server commands that may have a (remote) user source or server source.
  */
@@ -67,7 +66,7 @@ class ServerOnlyServerCommand : public ServerCommand
 	{
 		if (!IS_SERVER(user))
 			return CMD_INVALID;
-		TreeServer* server = Utils->FindServer(user->server);
+		TreeServer* server = TreeServer::Get(user);
 		return static_cast<T*>(this)->HandleServer(server, parameters);
 	}
 };

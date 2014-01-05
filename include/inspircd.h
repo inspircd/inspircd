@@ -57,6 +57,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "fileutils.h"
 #include "numerics.h"
 #include "uid.h"
+#include "server.h"
 #include "users.h"
 #include "channels.h"
 #include "timer.h"
@@ -620,18 +621,6 @@ class CoreExport InspIRCd
 	 * @return 0 if the strings match, 1 or -1 if they do not
 	 */
 	int PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype);
-
-	/** Check if a given server is a uline.
-	 * An empty string returns true, this is by design.
-	 * @param server The server to check for uline status
-	 * @return True if the server is a uline OR the string is empty
-	 */
-	bool ULine(const std::string& server);
-
-	/** Returns true if the uline is 'silent' (doesnt generate
-	 * remote connect notices etc).
-	 */
-	bool SilentULine(const std::string& server);
 
 	/** Returns the full version string of this ircd
 	 * @return The version string

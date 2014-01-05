@@ -76,7 +76,7 @@ class CommandSVSSilence : public Command
 		 * style command so services can modify lots of entries at once.
 		 * leaving it backwards compatible for now as it's late. -- w
 		 */
-		if (!ServerInstance->ULine(user->server))
+		if (!user->server->IsULine())
 			return CMD_FAILURE;
 
 		User *u = ServerInstance->FindNick(parameters[0]);

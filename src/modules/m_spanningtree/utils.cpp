@@ -93,9 +93,7 @@ TreeServer* SpanningTreeUtilities::BestRouteTo(const std::string &ServerName)
 		User *u = ServerInstance->FindNick(ServerName);
 		if (u)
 		{
-			Found = FindServer(u->server);
-			if (Found)
-				return Found->GetRoute();
+			return TreeServer::Get(u)->GetRoute();
 		}
 
 		return NULL;
@@ -180,9 +178,8 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 
 		if (exempt_list.find(i->first) == exempt_list.end())
 		{
-			TreeServer* best = this->BestRouteTo(i->first->server);
-			if (best)
-				list.insert(best->GetSocket());
+			TreeServer* best = TreeServer::Get(i->first);
+			list.insert(best->GetSocket());
 		}
 	}
 	return;
@@ -210,8 +207,14 @@ bool SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, const std::stri
 	if (!Route)
 		return false;
 
-	Route->GetSocket()->WriteLine(params);
+	DoOneToOne(params, Route);
 	return true;
+}
+
+void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, Server* server)
+{
+	TreeServer* ts = static_cast<TreeServer*>(server);
+	ts->GetSocket()->WriteLine(params);
 }
 
 void SpanningTreeUtilities::RefreshIPCache()
@@ -348,6 +351,9 @@ void SpanningTreeUtilities::ReadConfiguration()
 
 		AutoconnectBlocks.push_back(A);
 	}
+
+	for (server_hash::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
+		i->second->CheckULine();
 
 	RefreshIPCache();
 }

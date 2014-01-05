@@ -50,12 +50,12 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 		 * If quiet bursts are enabled, and server is bursting or silent uline (i.e. services),
 		 * then do nothing. -- w00t
 		 */
-		TreeServer* remoteserver = Utils->FindServer(u->server);
-		if (remoteserver->bursting || ServerInstance->SilentULine(u->server))
+		TreeServer* remoteserver = TreeServer::Get(u);
+		if (remoteserver->bursting || remoteserver->IsSilentULine())
 			return CMD_SUCCESS;
 	}
 
-	ServerInstance->SNO->WriteToSnoMask('O',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server.c_str(), u->nick.c_str(),u->ident.c_str(), u->host.c_str(), opertype.c_str());
+	ServerInstance->SNO->WriteToSnoMask('O',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(), u->host.c_str(), opertype.c_str());
 	return CMD_SUCCESS;
 }
 
