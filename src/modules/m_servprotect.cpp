@@ -69,7 +69,7 @@ class ModuleServProtectMode : public Module
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
 		 */
-		if (!adding && chan && IS_LOCAL(user) && !param.empty() && !ServerInstance->ULine(user->server))
+		if (!adding && chan && IS_LOCAL(user) && !param.empty())
 		{
 			/* Check if the parameter is a valid nick/uuid
 			 */

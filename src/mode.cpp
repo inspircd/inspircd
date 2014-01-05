@@ -370,7 +370,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 	bool SkipAccessChecks = false;
 
-	if (!IS_LOCAL(user) || ServerInstance->ULine(user->server) || MOD_RESULT == MOD_RES_ALLOW)
+	if (!IS_LOCAL(user) || MOD_RESULT == MOD_RES_ALLOW)
 		SkipAccessChecks = true;
 	else if (MOD_RESULT == MOD_RES_DENY)
 		return;

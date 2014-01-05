@@ -306,8 +306,8 @@ void ModuleFilter::FreeFilters()
 
 ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
 {
-	/* Leave ulines alone */
-	if ((ServerInstance->ULine(user->server)) || (!IS_LOCAL(user)))
+	// Leave remote users and servers alone
+	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
 	flags = (msgtype == MSG_PRIVMSG) ? FLAG_PRIVMSG : FLAG_NOTICE;
