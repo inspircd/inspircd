@@ -73,6 +73,10 @@ class ModuleSpanningTree : public Module
 	 */
 	bool loopCall;
 
+	/** True if users are quitting due to a netsplit
+	 */
+	bool SplitInProgress;
+
 	/** Constructor
 	 */
 	ModuleSpanningTree();

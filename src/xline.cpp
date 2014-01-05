@@ -537,7 +537,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 		u->WriteNotice("*** " + ServerInstance->Config->XLineMessage);
 
 	if (ServerInstance->Config->HideBans)
-		ServerInstance->Users->QuitUser(u, line + "-Lined", banReason.c_str());
+		ServerInstance->Users->QuitUser(u, line + "-Lined", &banReason);
 	else
 		ServerInstance->Users->QuitUser(u, banReason);
 
@@ -545,7 +545,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	if (bancache)
 	{
 		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
-		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, line + "-Lined: " + this->reason, this->duration);
+		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, banReason, this->duration);
 	}
 }
 

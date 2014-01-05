@@ -139,7 +139,7 @@ void TreeServer::FinishBurst()
 
 int TreeServer::QuitUsers(const std::string &reason)
 {
-	const char* reason_s = reason.c_str();
+	std::string publicreason = ServerInstance->Config->HideSplits ? "*.net *.split" : reason;
 	std::vector<User*> time_to_die;
 	for (user_hash::iterator n = ServerInstance->Users->clientlist->begin(); n != ServerInstance->Users->clientlist->end(); n++)
 	{
@@ -153,13 +153,7 @@ int TreeServer::QuitUsers(const std::string &reason)
 		User* a = (User*)*n;
 		if (!IS_LOCAL(a))
 		{
-			if (Utils->quiet_bursts)
-				a->quietquit = true;
-
-			if (ServerInstance->Config->HideSplits)
-				ServerInstance->Users->QuitUser(a, "*.net *.split", reason_s);
-			else
-				ServerInstance->Users->QuitUser(a, reason_s);
+			ServerInstance->Users->QuitUser(a, publicreason, &reason);
 		}
 	}
 	return time_to_die.size();

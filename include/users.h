@@ -328,10 +328,6 @@ class CoreExport User : public Extensible
 	 */
 	unsigned int registered:3;
 
-	/** Whether or not to send an snotice about this user's quitting
-	 */
-	unsigned int quietquit:1;
-
 	/** If this is set to true, then all socket operations for the user
 	 * are dropped into the bit-bucket.
 	 * This value is set by QuitUser, and is not needed seperately from that call.

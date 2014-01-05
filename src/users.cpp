@@ -75,7 +75,7 @@ User::User(const std::string &uid, const std::string& sid, int type)
 	age = ServerInstance->Time();
 	signon = 0;
 	registered = 0;
-	quietquit = quitting = false;
+	quitting = false;
 	client_sa.sa.sa_family = AF_UNSPEC;
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());

@@ -102,10 +102,10 @@ class CoreExport UserManager
 	/** Disconnect a user gracefully
 	 * @param user The user to remove
 	 * @param quitreason The quit reason to show to normal users
-	 * @param operreason The quit reason to show to opers
+	 * @param operreason The quit reason to show to opers, can be NULL if same as quitreason
 	 * @return Although this function has no return type, on exit the user provided will no longer exist.
 	 */
-	void QuitUser(User *user, const std::string &quitreason, const char* operreason = "");
+	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = NULL);
 
 	/** Add a user to the local clone map
 	 * @param user The user to add

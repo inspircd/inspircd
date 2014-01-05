@@ -63,6 +63,7 @@ void ModuleSpanningTree::init()
 	delete ServerInstance->PI;
 	ServerInstance->PI = new SpanningTreeProtocolInterface;
 	loopCall = false;
+	SplitInProgress = false;
 
 	// update our local user count
 	Utils->TreeRoot->UserCount = ServerInstance->Users->local_users.size();
@@ -547,12 +548,24 @@ void ModuleSpanningTree::OnUserPart(Membership* memb, std::string &partmessage, 
 
 void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const std::string &oper_message)
 {
-	if ((IS_LOCAL(user)) && (user->registered == REG_ALL))
+	if (IS_LOCAL(user))
 	{
 		if (oper_message != reason)
 			ServerInstance->PI->SendMetaData(user, "operquit", oper_message);
 
 		CmdBuilder(user, "QUIT").push_last(reason).Broadcast();
+	}
+	else
+	{
+		// Hide the message if one of the following is true:
+		// - User is being quit due to a netsplit and quietbursts is on
+		// - Server is a silent uline
+		bool hide = (((this->SplitInProgress) && (Utils->quiet_bursts)) || (ServerInstance->SilentULine(user->server)));
+		if (!hide)
+		{
+			ServerInstance->SNO->WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
+				user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_message.c_str());
+		}
 	}
 
 	// Regardless, We need to modify the user Counts..

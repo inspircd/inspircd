@@ -169,7 +169,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	FOREACH_MOD(OnUserInit, (New));
 }
 
-void UserManager::QuitUser(User *user, const std::string &quitreason, const char* operreason)
+void UserManager::QuitUser(User* user, const std::string& quitreason, const std::string* operreason)
 {
 	if (user->quitting)
 	{
@@ -186,57 +186,31 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	user->quitting = true;
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "QuitUser: %s=%s '%s'", user->uuid.c_str(), user->nick.c_str(), quitreason.c_str());
-	user->Write("ERROR :Closing link: (%s@%s) [%s]", user->ident.c_str(), user->host.c_str(), *operreason ? operreason : quitreason.c_str());
+	user->Write("ERROR :Closing link: (%s@%s) [%s]", user->ident.c_str(), user->host.c_str(), operreason ? operreason->c_str() : quitreason.c_str());
 
 	std::string reason;
-	std::string oper_reason;
 	reason.assign(quitreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	if (operreason && *operreason)
-		oper_reason.assign(operreason, 0, ServerInstance->Config->Limits.MaxQuit);
-	else
-		oper_reason = quitreason;
+	if (!operreason)
+		operreason = &reason;
 
 	ServerInstance->GlobalCulls.AddItem(user);
 
 	if (user->registered == REG_ALL)
 	{
-		FOREACH_MOD(OnUserQuit, (user, reason, oper_reason));
-		user->WriteCommonQuit(reason, oper_reason);
+		FOREACH_MOD(OnUserQuit, (user, reason, *operreason));
+		user->WriteCommonQuit(reason, *operreason);
 	}
-
-	if (user->registered != REG_ALL)
-		if (ServerInstance->Users->unregistered_count)
-			ServerInstance->Users->unregistered_count--;
+	else
+		unregistered_count--;
 
 	if (IS_LOCAL(user))
 	{
 		LocalUser* lu = IS_LOCAL(user);
 		FOREACH_MOD(OnUserDisconnect, (lu));
 		lu->eh.Close();
-	}
 
-	/*
-	 * this must come before the ServerInstance->SNO->WriteToSnoMaskso that it doesnt try to fill their buffer with anything
-	 * if they were an oper with +s +qQ.
-	 */
-	if (user->registered == REG_ALL)
-	{
-		if (IS_LOCAL(user))
-		{
-			if (!user->quietquit)
-			{
-				ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]",
-					user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_reason.c_str());
-			}
-		}
-		else
-		{
-			if ((!ServerInstance->SilentULine(user->server)) && (!user->quietquit))
-			{
-				ServerInstance->SNO->WriteToSnoMask('Q',"Client exiting on server %s: %s (%s) [%s]",
-					user->server.c_str(), user->GetFullRealHost().c_str(), user->GetIPString().c_str(), oper_reason.c_str());
-			}
-		}
+		if (lu->registered == REG_ALL)
+			ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operreason->c_str());
 	}
 
 	user_hash::iterator iter = this->clientlist->find(user->nick);
@@ -246,7 +220,7 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 	else
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
-	ServerInstance->Users->uuidlist->erase(user->uuid);
+	uuidlist->erase(user->uuid);
 }
 
 void UserManager::AddLocalClone(User *user)

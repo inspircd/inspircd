@@ -192,7 +192,12 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		int num_lost_servers = 0;
 		int num_lost_users = 0;
 		std::string from = Current->GetParent()->GetName()+" "+Current->GetName();
+
+		ModuleSpanningTree* st = Utils->Creator;
+		st->SplitInProgress = true;
 		SquitServer(from, Current, num_lost_servers, num_lost_users);
+		st->SplitInProgress = false;
+
 		ServerInstance->SNO->WriteToSnoMask(LocalSquit ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
 			num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 		Current->Tidy();

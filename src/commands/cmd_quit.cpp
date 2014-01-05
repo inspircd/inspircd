@@ -56,21 +56,14 @@ CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User 
 			quitmsg = ServerInstance->Config->FixedQuit;
 		else
 			quitmsg = parameters.size() ?
-				ServerInstance->Config->PrefixQuit + std::string(parameters[0]) + ServerInstance->Config->SuffixQuit
+				ServerInstance->Config->PrefixQuit + parameters[0] + ServerInstance->Config->SuffixQuit
 				: "Client exited";
 	}
 	else
 		quitmsg = parameters.size() ? parameters[0] : "Client exited";
 
 	std::string* operquit = ServerInstance->OperQuit.get(user);
-	if (operquit)
-	{
-		ServerInstance->Users->QuitUser(user, quitmsg, operquit->c_str());
-	}
-	else
-	{
-		ServerInstance->Users->QuitUser(user, quitmsg);
-	}
+	ServerInstance->Users->QuitUser(user, quitmsg, operquit);
 
 	return CMD_SUCCESS;
 }
