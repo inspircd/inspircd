@@ -144,8 +144,7 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 	}
 	else
 	{
-		std::string serverdesc = ServerInstance->GetServerDescription(dest->server->GetName());
-		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s :%s", dest->nick.c_str(), dest->server->GetName().c_str(), serverdesc.c_str());
+		ServerInstance->SendWhoisLine(user, dest, 312, "%s %s :%s", dest->nick.c_str(), dest->server->GetName().c_str(), dest->server->GetDesc().c_str());
 	}
 
 	if (dest->IsAway())

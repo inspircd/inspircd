@@ -832,8 +832,8 @@ class CoreExport FakeUser : public User
 		nick = srv->GetName();
 	}
 
-	FakeUser(const std::string& uid, const std::string& sname)
-		: User(uid, new Server(sname), USERTYPE_SERVER)
+	FakeUser(const std::string& uid, const std::string& sname, const std::string& sdesc)
+		: User(uid, new Server(sname, sdesc), USERTYPE_SERVER)
 	{
 		nick = sname;
 	}

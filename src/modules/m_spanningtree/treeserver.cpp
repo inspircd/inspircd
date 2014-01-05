@@ -33,8 +33,8 @@
  * no socket associated with it. Its version string is our own local version.
  */
 TreeServer::TreeServer()
-	: Server(ServerInstance->Config->ServerName)
-	, Parent(NULL), Route(NULL), ServerDesc(ServerInstance->Config->ServerDesc)
+	: Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc)
+	, Parent(NULL), Route(NULL)
 	, VersionString(ServerInstance->GetVersionString()), Socket(NULL), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
@@ -46,8 +46,8 @@ TreeServer::TreeServer()
  * its ping counters so that it will be pinged one minute from now.
  */
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
-	: Server(Name)
-	, Parent(Above), ServerDesc(Desc), Socket(Sock), sid(id), ServerUser(new FakeUser(id, this))
+	: Server(Name, Desc)
+	, Parent(Above), Socket(Sock), sid(id), ServerUser(new FakeUser(id, this))
 	, age(ServerInstance->Time()), Warned(false), bursting(true), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
 {
 	CheckULine();
@@ -184,11 +184,6 @@ void TreeServer::AddHashEntry()
 TreeServer* TreeServer::GetRoute()
 {
 	return Route;
-}
-
-const std::string& TreeServer::GetDesc()
-{
-	return ServerDesc;
 }
 
 const std::string& TreeServer::GetVersion()

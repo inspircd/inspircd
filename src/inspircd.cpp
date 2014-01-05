@@ -460,7 +460,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->UIDGen.init(Config->sid);
 
 	// Create the server user for this server
-	this->FakeClient = new FakeUser(Config->sid, Config->ServerName);
+	this->FakeClient = new FakeUser(Config->sid, Config->ServerName, Config->ServerDesc);
 
 	// This is needed as all new XLines are marked pending until ApplyLines() is called
 	this->XLines->ApplyLines();

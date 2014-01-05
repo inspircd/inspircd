@@ -408,15 +408,6 @@ void ModuleSpanningTree::On005Numeric(std::map<std::string, std::string>& tokens
 	tokens["MAP"];
 }
 
-void ModuleSpanningTree::OnGetServerDescription(const std::string &servername,std::string &description)
-{
-	TreeServer* s = Utils->FindServer(servername);
-	if (s)
-	{
-		description = s->GetDesc();
-	}
-}
-
 void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, time_t expiry)
 {
 	if (IS_LOCAL(source))
@@ -754,7 +745,7 @@ ModuleSpanningTree::~ModuleSpanningTree()
 	delete ServerInstance->PI;
 	ServerInstance->PI = new ProtocolInterface;
 
-	Server* newsrv = new Server(ServerInstance->Config->ServerName);
+	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);
 
 	/* This will also free the listeners */

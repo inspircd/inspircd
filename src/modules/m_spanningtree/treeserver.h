@@ -42,7 +42,6 @@ class TreeServer : public Server
 	TreeServer* Parent;			/* Parent entry */
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
-	std::string ServerDesc;			/* Server's description */
 	std::string VersionString;		/* Version string or empty string */
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
@@ -92,10 +91,6 @@ class TreeServer : public Server
 	/** Returns true if this server is locally connected
 	 */
 	bool IsLocal() const { return (this->Route == this); }
-
-	/** Get server description (GECOS)
-	 */
-	const std::string& GetDesc();
 
 	/** Get server version string
 	 */

@@ -446,15 +446,6 @@ class CoreExport InspIRCd
 	 */
 	bool BindSocket(int sockfd, int port, const char* addr, bool dolisten = true);
 
-	/** Gets the GECOS (description) field of the given server.
-	 * If the servername is not that of the local server, the name
-	 * is passed to handling modules which will attempt to determine
-	 * the GECOS that bleongs to the given servername.
-	 * @param servername The servername to find the description of
-	 * @return The description of this server, or of the local server
-	 */
-	std::string GetServerDescription(const std::string& servername);
-
 	/** Find a user in the nick hash.
 	 * If the user cant be found in the nick hash check the uuid hash
 	 * @param nick The nickname to find

@@ -253,7 +253,7 @@ enum Implementation
 	I_OnUserConnect, I_OnUserQuit, I_OnUserDisconnect, I_OnUserJoin, I_OnUserPart,
 	I_OnSendSnotice, I_OnUserPreJoin, I_OnUserPreKick, I_OnUserKick, I_OnOper, I_OnInfo, I_OnWhois,
 	I_OnUserPreInvite, I_OnUserInvite, I_OnUserPreMessage, I_OnUserPreNick,
-	I_OnUserMessage, I_OnMode, I_OnGetServerDescription, I_OnSyncUser,
+	I_OnUserMessage, I_OnMode, I_OnSyncUser,
 	I_OnSyncChannel, I_OnDecodeMetaData, I_OnAcceptConnection, I_OnUserInit,
 	I_OnChangeHost, I_OnChangeName, I_OnAddLine, I_OnDelLine, I_OnExpireLine,
 	I_OnUserPostNick, I_OnPreMode, I_On005Numeric, I_OnKill, I_OnLoadModule,
@@ -610,16 +610,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param translate The translation types of the mode parameters
 	 */
 	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const std::vector<std::string>& modes, const std::vector<TranslateType>& translate);
-
-	/** Allows modules to alter or create server descriptions
-	 * Whenever a module requires a server description, for example for display in
-	 * WHOIS, this function is called in all modules. You may change or define the
-	 * description given in std::string &description. If you do, this description
-	 * will be shown in the WHOIS fields.
-	 * @param servername The servername being searched for
-	 * @param description Alterable server description for this server
-	 */
-	virtual void OnGetServerDescription(const std::string &servername,std::string &description);
 
 	/** Allows modules to synchronize data which relates to users during a netburst.
 	 * When this function is called, it will be called from the module which implements

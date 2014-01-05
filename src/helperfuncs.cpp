@@ -32,23 +32,6 @@
 #include "exitcodes.h"
 #include <iostream>
 
-std::string InspIRCd::GetServerDescription(const std::string& servername)
-{
-	std::string description;
-
-	FOREACH_MOD(OnGetServerDescription, (servername,description));
-
-	if (!description.empty())
-	{
-		return description;
-	}
-	else
-	{
-		// not a remote server that can be found, it must be me.
-		return Config->ServerDesc;
-	}
-}
-
 /* Find a user record by nickname and return a pointer to it */
 User* InspIRCd::FindNick(const std::string &nick)
 {

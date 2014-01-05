@@ -140,7 +140,6 @@ class ModuleSpanningTree : public Module
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string>& parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE;
 	void OnPostCommand(Command*, const std::vector<std::string>& parameters, LocalUser* user, CmdResult result, const std::string& original_line) CXX11_OVERRIDE;
-	void OnGetServerDescription(const std::string &servername,std::string &description) CXX11_OVERRIDE;
 	void OnUserConnect(LocalUser* source) CXX11_OVERRIDE;
 	void OnUserInvite(User* source,User* dest,Channel* channel, time_t) CXX11_OVERRIDE;
 	void OnPostTopicChange(User* user, Channel* chan, const std::string &topic) CXX11_OVERRIDE;

@@ -26,6 +26,10 @@ class CoreExport Server : public classbase
 	 */
 	const std::string name;
 
+	/** The description of this server
+	 */
+	const std::string description;
+
 	/** True if this server is ulined
 	 */
 	bool uline;
@@ -35,14 +39,19 @@ class CoreExport Server : public classbase
 	bool silentuline;
 
  public:
-	Server(const std::string& srvname)
-		: name(srvname), uline(false), silentuline(false) { }
+	Server(const std::string& srvname, const std::string& srvdesc)
+		: name(srvname), description(srvdesc), uline(false), silentuline(false) { }
 
 	/**
 	 * Returns the name of this server
 	 * @return The name of this server, for example "irc.inspircd.org".
 	 */
 	const std::string& GetName() const { return name; }
+
+	/** Returns the description (GECOS) of this server
+	 * @return The description of this server
+	 */
+	const std::string& GetDesc() const { return description; }
 
 	/**
 	 * Checks whether this server is ulined
