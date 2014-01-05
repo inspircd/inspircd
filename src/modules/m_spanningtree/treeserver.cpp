@@ -140,23 +140,18 @@ void TreeServer::FinishBurst()
 int TreeServer::QuitUsers(const std::string &reason)
 {
 	std::string publicreason = ServerInstance->Config->HideSplits ? "*.net *.split" : reason;
-	std::vector<User*> time_to_die;
-	for (user_hash::iterator n = ServerInstance->Users->clientlist->begin(); n != ServerInstance->Users->clientlist->end(); n++)
+
+	const user_hash& users = *ServerInstance->Users->clientlist;
+	unsigned int original_size = users.size();
+	for (user_hash::const_iterator i = users.begin(); i != users.end(); )
 	{
-		if (n->second->server == ServerName)
-		{
-			time_to_die.push_back(n->second);
-		}
+		User* user = i->second;
+		// Increment the iterator now because QuitUser() removes the user from the container
+		++i;
+		if (user->server == ServerName)
+			ServerInstance->Users->QuitUser(user, publicreason, &reason);
 	}
-	for (std::vector<User*>::iterator n = time_to_die.begin(); n != time_to_die.end(); n++)
-	{
-		User* a = (User*)*n;
-		if (!IS_LOCAL(a))
-		{
-			ServerInstance->Users->QuitUser(a, publicreason, &reason);
-		}
-	}
-	return time_to_die.size();
+	return original_size - users.size();
 }
 
 /** This method is used to add the structure to the
