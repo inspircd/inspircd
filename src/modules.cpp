@@ -352,18 +352,23 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	std::vector<reference<ExtensionItem> > items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 	/* Give the module a chance to tidy out all its metadata */
-	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); c++)
+	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); )
 	{
-		mod->OnCleanup(TYPE_CHANNEL,c->second);
-		c->second->doUnhookExtensions(items);
-		const UserMembList* users = c->second->GetUsers();
+		Channel* chan = c->second;
+		++c;
+		mod->OnCleanup(TYPE_CHANNEL, chan);
+		chan->doUnhookExtensions(items);
+		const UserMembList* users = chan->GetUsers();
 		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
 			mi->second->doUnhookExtensions(items);
 	}
-	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
+	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); )
 	{
-		mod->OnCleanup(TYPE_USER,u->second);
-		u->second->doUnhookExtensions(items);
+		User* user = u->second;
+		// The module may quit the user (e.g. SSL mod unloading) and that will remove it from the container
+		++u;
+		mod->OnCleanup(TYPE_USER, user);
+		user->doUnhookExtensions(items);
 	}
 	for(char m='A'; m <= 'z'; m++)
 	{
