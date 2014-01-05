@@ -401,6 +401,17 @@ if (!$fail) {
 print "yes\n" if $has_kqueue == 1;
 print "no\n" if $has_kqueue == 0;
 
+printf "Checking if a TCP deferring mechanism is available ... ";
+if (test_compile("tcp_defer_accept")) {
+	$config{HAS_DEFER} = "TCP_DEFER_ACCEPT";
+	print "yes (TCP_DEFER_ACCEPT)\n";
+} elsif (test_compile("so_acceptfilter")) {
+	$config{HAS_DEFER} = "SO_ACCEPTFILTER";
+	print "yes (SO_ACCEPTFILTER)\n";
+} else {
+	print "no\n";
+}
+
 printf "Checking for epoll support... ";
 $has_epoll = test_compile('epoll');
 print $has_epoll ? "yes\n" : "no\n";
@@ -947,6 +958,13 @@ print FILEHANDLE "#define MAXBUF " . ($config{MAXBUF}+2) . "\n";
 				$config{SOCKETENGINE} = "socketengine_select";
 			}
 		}
+
+		if ($config{HAS_DEFER} eq "TCP_DEFER_ACCEPT") {
+			print FILEHANDLE "#define USE_TCP_DEFER_ACCEPT";
+		} elsif ($config{HAS_DEFER} eq "SO_ACCEPTFILTER") {
+			print FILEHANDLE "#define USE_SO_ACCEPTFILTER"
+		}
+
 		print FILEHANDLE "\n#include \"threadengines/threadengine_pthread.h\"\n\n#endif\n";
 		close(FILEHANDLE);
 

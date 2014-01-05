@@ -22,6 +22,10 @@
 #include "socket.h"
 #include "socketengine.h"
 
+#ifdef USE_TCP_DEFER_ACCEPT
+#include <netinet/tcp.h>
+#endif
+
 ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_to)
 	: bind_tag(tag)
 {
@@ -55,6 +59,19 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	int rv = ServerInstance->SE->Bind(this->fd, bind_to);
 	if (rv >= 0)
 		rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
+
+	int timeout = tag->getInt("defer", 0);
+	if (timeout && !rv)
+	{
+#ifdef USE_TCP_DEFER_ACCEPT
+		setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &timeout, sizeof(timeout));
+#elif defined USE_SO_ACCEPTFILTER
+		struct accept_filter_arg afa;
+		memset(&afa, 0, sizeof(afa));
+		strcpy(afa.af_name, "dataready");
+		setsockopt(fd, SOL_SOCKET, SO_ACCEPTFILTER, &afa, sizeof(afa));
+#endif
+	}
 
 	if (rv < 0)
 	{
