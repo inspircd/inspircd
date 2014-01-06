@@ -75,29 +75,14 @@ class ModuleDeaf : public Module
 	void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
 	{
 		const UserMembList *ulist = chan->GetUsers();
-		bool is_a_uline;
-		bool is_bypasschar, is_bypasschar_avail;
-		bool is_bypasschar_uline, is_bypasschar_uline_avail;
-
-		is_bypasschar = is_bypasschar_avail = is_bypasschar_uline = is_bypasschar_uline_avail = 0;
-		if (!deaf_bypasschars.empty())
-		{
-			is_bypasschar_avail = 1;
-			if (deaf_bypasschars.find(text[0], 0) != std::string::npos)
-				is_bypasschar = 1;
-		}
-		if (!deaf_bypasschars_uline.empty())
-		{
-			is_bypasschar_uline_avail = 1;
-			if (deaf_bypasschars_uline.find(text[0], 0) != std::string::npos)
-				is_bypasschar_uline = 1;
-		}
+		bool is_bypasschar = (deaf_bypasschars.find(text[0]) != std::string::npos);
+		bool is_bypasschar_uline = (deaf_bypasschars_uline.find(text[0]) != std::string::npos);
 
 		/*
 		 * If we have no bypasschars_uline in config, and this is a bypasschar (regular)
 		 * Than it is obviously going to get through +d, no build required
 		 */
-		if (!is_bypasschar_uline_avail && is_bypasschar)
+		if (!deaf_bypasschars_uline.empty() && is_bypasschar)
 			return;
 
 		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
@@ -109,7 +94,7 @@ class ModuleDeaf : public Module
 			if (is_bypasschar && is_bypasschar_uline)
 				continue; /* deliver message */
 
-			is_a_uline = i->first->server->IsULine();
+			bool is_a_uline = i->first->server->IsULine();
 			/* matched a U-line only bypass */
 			if (is_bypasschar_uline && is_a_uline)
 				continue; /* deliver message */
