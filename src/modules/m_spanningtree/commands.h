@@ -129,6 +129,15 @@ class CommandFJoin : public ServerCommand
 	 */
 	static void RemoveStatus(Channel* c);
 	static void ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack);
+
+	/**
+	 * Lowers the TS on the given channel: removes all modes, unsets all extensions,
+	 * clears the topic and removes all pending invites.
+	 * @param chan The target channel whose TS to lower
+	 * @param TS The new TS to set
+	 * @param newname The new name of the channel; must be the same or a case change of the current name
+	 */
+	static void LowerTS(Channel* chan, time_t TS, const std::string& newname);
 	bool ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack);
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }

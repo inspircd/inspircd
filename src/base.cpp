@@ -187,12 +187,17 @@ Extensible::Extensible()
 
 CullResult Extensible::cull()
 {
+	FreeAllExtItems();
+	return classbase::cull();
+}
+
+void Extensible::FreeAllExtItems()
+{
 	for(ExtensibleStore::iterator i = extensions.begin(); i != extensions.end(); ++i)
 	{
 		i->first->free(i->second);
 	}
 	extensions.clear();
-	return classbase::cull();
 }
 
 Extensible::~Extensible()

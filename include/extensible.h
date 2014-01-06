@@ -94,6 +94,11 @@ class CoreExport Extensible : public classbase
 	virtual CullResult cull();
 	virtual ~Extensible();
 	void doUnhookExtensions(const std::vector<reference<ExtensionItem> >& toRemove);
+
+	/**
+	 * Free all extension items attached to this Extensible
+	 */
+	void FreeAllExtItems();
 };
 
 class CoreExport ExtensionManager

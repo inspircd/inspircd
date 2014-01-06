@@ -99,16 +99,8 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 			}
 			else if (ourTS > TS)
 			{
-				/* Our TS greater than theirs, clear all our modes from the channel, accept theirs. */
-				if (Utils->AnnounceTSChange)
-					chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), channel.c_str(), (unsigned long) ourTS, (unsigned long) TS);
-
-				// while the name is equal in case-insensitive compare, it might differ in case; use the remote version
-				chan->name = channel;
-				chan->age = TS;
-				chan->ClearInvites();
-
-				CommandFJoin::RemoveStatus(chan);
+				// Our TS is greater than theirs, remove all modes, extensions, etc. from the channel
+				LowerTS(chan, TS, channel);
 
 				// XXX: If the channel does not exist in the chan hash at this point, create it so the remote modes can be applied on it.
 				// This happens to 0-user permanent channels on the losing side, because those are removed (from the chan hash, then
@@ -247,4 +239,32 @@ void CommandFJoin::ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& s
 		ServerInstance->Modes->Process(stackresult, srcuser, ModeParser::MODE_LOCALONLY);
 		stackresult.erase(stackresult.begin() + 1, stackresult.end());
 	}
+}
+
+void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
+{
+	if (Utils->AnnounceTSChange)
+		chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :TS for %s changed from %lu to %lu", chan->name.c_str(), newname.c_str(), (unsigned long) chan->age, (unsigned long) TS);
+
+	// While the name is equal in case-insensitive compare, it might differ in case; use the remote version
+	chan->name = newname;
+	chan->age = TS;
+
+	// Remove all pending invites
+	chan->ClearInvites();
+
+	// Clear all modes
+	CommandFJoin::RemoveStatus(chan);
+
+	// Unset all extensions
+	chan->FreeAllExtItems();
+
+	// Clear the topic, if it isn't empty then send a topic change message to local users
+	if (!chan->topic.empty())
+	{
+		chan->topic.clear();
+		chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "TOPIC %s :", chan->name.c_str());
+	}
+	chan->setby.clear();
+	chan->topicset = 0;
 }
