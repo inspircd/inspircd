@@ -154,11 +154,6 @@ class ModuleLusers : public Module
 	{
 	}
 
-	void init()
-	{
-		ServerInstance->Modes->AddModeWatcher(&mw);
-	}
-
 	void OnPostConnect(User* user)
 	{
 		counters.UpdateMaxUsers();
@@ -170,11 +165,6 @@ class ModuleLusers : public Module
 	{
 		if (user->IsModeSet(invisiblemode))
 			counters.invisible--;
-	}
-
-	~ModuleLusers()
-	{
-		ServerInstance->Modes->DelModeWatcher(&mw);
 	}
 
 	Version GetVersion()

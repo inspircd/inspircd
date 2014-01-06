@@ -148,16 +148,6 @@ class ModuleTimedBans : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modes->AddModeWatcher(&banwatcher);
-	}
-
-	~ModuleTimedBans()
-	{
-		ServerInstance->Modes->DelModeWatcher(&banwatcher);
-	}
-
 	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
 	{
 		timedbans expired;

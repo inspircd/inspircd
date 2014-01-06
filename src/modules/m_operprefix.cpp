@@ -59,16 +59,10 @@ class ModuleOperPrefixMode : public Module
 		: opm(this), hideoperwatcher(this)
 		, hideopermode(this, "hideoper")
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
 		/* To give clients a chance to learn about the new prefix we don't give +y to opers
 		 * right now. That means if the module was loaded after opers have joined channels
 		 * they need to rejoin them in order to get the oper prefix.
 		 */
-
-		ServerInstance->Modes->AddModeWatcher(&hideoperwatcher);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
@@ -96,12 +90,6 @@ class ModuleOperPrefixMode : public Module
 	{
 		if (IS_LOCAL(user) && (!user->IsModeSet(hideopermode)))
 			SetOperPrefix(user, true);
-	}
-
-
-	~ModuleOperPrefixMode()
-	{
-		ServerInstance->Modes->DelModeWatcher(&hideoperwatcher);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

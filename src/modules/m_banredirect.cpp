@@ -229,11 +229,6 @@ class ModuleBanRedirect : public Module
 	{
 	}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->Modes->AddModeWatcher(&re);
-	}
-
 	void OnCleanup(int target_type, void* item) CXX11_OVERRIDE
 	{
 		if(target_type == TYPE_CHANNEL)
@@ -332,13 +327,6 @@ class ModuleBanRedirect : public Module
 			}
 		}
 		return MOD_RES_PASSTHRU;
-	}
-
-	~ModuleBanRedirect()
-	{
-		/* XXX is this the best place to do this? */
-		if (!ServerInstance->Modes->DelModeWatcher(&re))
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Failed to delete modewatcher!");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

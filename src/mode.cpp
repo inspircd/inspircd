@@ -145,10 +145,12 @@ bool ParamChannelModeHandler::ParamValidate(std::string& parameter)
 ModeWatcher::ModeWatcher(Module* Creator, const std::string& modename, ModeType type)
 	: mode(modename), m_type(type), creator(Creator)
 {
+	ServerInstance->Modes->AddModeWatcher(this);
 }
 
 ModeWatcher::~ModeWatcher()
 {
+	ServerInstance->Modes->DelModeWatcher(this);
 }
 
 ModeType ModeWatcher::GetModeType()
