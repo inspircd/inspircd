@@ -124,8 +124,12 @@ class ModuleMsgFlood : public Module
 	{
 	}
 
-	ModResult ProcessMessages(User* user,Channel* dest, const std::string &text)
+	ModResult OnUserPreMessage(User* user, void* voiddest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
+		if (target_type != TYPE_CHANNEL)
+			return MOD_RES_PASSTHRU;
+
+		Channel* dest = static_cast<Channel*>(voiddest);
 		if ((!IS_LOCAL(user)) || !dest->IsModeSet(mf))
 			return MOD_RES_PASSTHRU;
 
@@ -156,14 +160,6 @@ class ModuleMsgFlood : public Module
 				return MOD_RES_DENY;
 			}
 		}
-
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
-	{
-		if (target_type == TYPE_CHANNEL)
-			return ProcessMessages(user,(Channel*)dest,text);
 
 		return MOD_RES_PASSTHRU;
 	}

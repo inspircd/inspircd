@@ -383,8 +383,12 @@ public:
 		tokens["CALLERID"] = "g";
 	}
 
-	ModResult PreText(User* user, User* dest, std::string& text)
+	ModResult OnUserPreMessage(User* user, void* voiddest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
+		if (!IS_LOCAL(user) || target_type != TYPE_USER)
+			return MOD_RES_PASSTHRU;
+
+		User* dest = static_cast<User*>(voiddest);
 		if (!dest->IsModeSet(myumode) || (user == dest))
 			return MOD_RES_PASSTHRU;
 
@@ -408,14 +412,6 @@ public:
 			}
 			return MOD_RES_DENY;
 		}
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
-	{
-		if (IS_LOCAL(user) && target_type == TYPE_USER)
-			return PreText(user, (User*)dest, text);
-
 		return MOD_RES_PASSTHRU;
 	}
 

@@ -62,18 +62,10 @@ class ModuleDeaf : public Module
 
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			Channel* chan = (Channel*)dest;
-			if (chan)
-				this->BuildDeafList(msgtype, chan, user, status, text, exempt_list);
-		}
+		if (target_type != TYPE_CHANNEL)
+			return MOD_RES_PASSTHRU;
 
-		return MOD_RES_PASSTHRU;
-	}
-
-	void BuildDeafList(MessageType message_type, Channel* chan, User* sender, char status, const std::string &text, CUList &exempt_list)
-	{
+		Channel* chan = static_cast<Channel*>(dest);
 		const UserMembList *ulist = chan->GetUsers();
 		bool is_bypasschar = (deaf_bypasschars.find(text[0]) != std::string::npos);
 		bool is_bypasschar_uline = (deaf_bypasschars_uline.find(text[0]) != std::string::npos);
@@ -83,7 +75,7 @@ class ModuleDeaf : public Module
 		 * Than it is obviously going to get through +d, no build required
 		 */
 		if (!deaf_bypasschars_uline.empty() && is_bypasschar)
-			return;
+			return MOD_RES_PASSTHRU;
 
 		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
 		{
@@ -108,6 +100,8 @@ class ModuleDeaf : public Module
 			/* don't deliver message! */
 			exempt_list.insert(i->first);
 		}
+
+		return MOD_RES_PASSTHRU;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

@@ -81,8 +81,12 @@ class ModuleChanFilter : public Module
 		cf.DoRehash();
 	}
 
-	ModResult ProcessMessages(User* user,Channel* chan,std::string &text)
+	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
 	{
+		if (target_type != TYPE_CHANNEL)
+			return MOD_RES_PASSTHRU;
+
+		Channel* chan = static_cast<Channel*>(dest);
 		ModResult res = ServerInstance->OnCheckExemption(user,chan,"filter");
 
 		if (!IS_LOCAL(user) || res == MOD_RES_ALLOW)
@@ -105,15 +109,6 @@ class ModuleChanFilter : public Module
 			}
 		}
 
-		return MOD_RES_PASSTHRU;
-	}
-
-	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
-	{
-		if (target_type == TYPE_CHANNEL)
-		{
-			return ProcessMessages(user,(Channel*)dest,text);
-		}
 		return MOD_RES_PASSTHRU;
 	}
 
