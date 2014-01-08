@@ -37,6 +37,17 @@ ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &r
 		}
 		return MOD_RES_DENY;
 	}
+	else if (statschar == 'U')
+	{
+		ConfigTagList tags = ServerInstance->Config->ConfTags("uline");
+		for (ConfigIter i = tags.first; i != tags.second; ++i)
+		{
+			std::string name = i->second->getString("server");
+			if (!name.empty())
+				results.push_back(ServerInstance->Config->ServerName+" 248 "+user->nick+" U "+name);
+		}
+		return MOD_RES_DENY;
+	}
 	return MOD_RES_PASSTHRU;
 }
 

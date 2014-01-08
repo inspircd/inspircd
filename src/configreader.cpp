@@ -444,19 +444,6 @@ void ServerConfig::Fill()
 		else
 			ServerInstance->SE->Close(socktest);
 	}
-	ConfigTagList tags = ConfTags("uline");
-	for(ConfigIter i = tags.first; i != tags.second; ++i)
-	{
-		ConfigTag* tag = i->second;
-		std::string server;
-		if (!tag->readString("server", server))
-			throw CoreException("<uline> tag missing server at " + tag->getTagLocation());
-
-		if (ServerName == server)
-			throw CoreException("Servers should not uline themselves (at " + tag->getTagLocation() + ")");
-
-		ulines[assign(server)] = tag->getBool("silent");
-	}
 
 	ReadXLine(this, "badip", "ipmask", ServerInstance->XLines->GetFactory("Z"));
 	ReadXLine(this, "badnick", "nick", ServerInstance->XLines->GetFactory("Q"));

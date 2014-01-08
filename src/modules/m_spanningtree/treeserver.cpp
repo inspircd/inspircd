@@ -160,11 +160,24 @@ int TreeServer::QuitUsers(const std::string &reason)
 void TreeServer::CheckULine()
 {
 	uline = silentuline = false;
-	std::map<irc::string, bool>::iterator it = ServerInstance->Config->ulines.find(GetName().c_str());
-	if (it != ServerInstance->Config->ulines.end())
+
+	ConfigTagList tags = ServerInstance->Config->ConfTags("uline");
+	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		uline = true;
-		silentuline = it->second;
+		ConfigTag* tag = i->second;
+		std::string server = tag->getString("server");
+		if (!strcasecmp(server.c_str(), GetName().c_str()))
+		{
+			if (this->IsRoot())
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Servers should not uline themselves (at " + tag->getTagLocation() + ")");
+				return;
+			}
+
+			uline = true;
+			silentuline = tag->getBool("silent");
+			break;
+		}
 	}
 }
 

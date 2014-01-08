@@ -149,15 +149,6 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		}
 		break;
 
-		case 'U':
-		{
-			for(std::map<irc::string, bool>::iterator i = ServerInstance->Config->ulines.begin(); i != ServerInstance->Config->ulines.end(); ++i)
-			{
-				results.push_back(sn+" 248 "+user->nick+" U "+std::string(i->first.c_str()));
-			}
-		}
-		break;
-
 		case 'P':
 		{
 			unsigned int idx = 0;

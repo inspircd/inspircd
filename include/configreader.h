@@ -474,10 +474,6 @@ class CoreExport ServerConfig
 	 */
 	std::string CustomVersion;
 
-	/** List of u-lined servers
-	 */
-	std::map<irc::string, bool> ulines;
-
 	/** If set to true, provide syntax hints for unknown commands
 	 */
 	bool SyntaxHints;
