@@ -103,7 +103,7 @@ class ModuleOverride : public Module
 
 	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters) CXX11_OVERRIDE
 	{
-		if (!source || !channel)
+		if (!channel)
 			return MOD_RES_PASSTHRU;
 		if (!source->IsOper() || !IS_LOCAL(source))
 			return MOD_RES_PASSTHRU;

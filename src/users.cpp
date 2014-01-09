@@ -1088,7 +1088,7 @@ void User::SendText(const std::string& linePrefix, std::stringstream& textStream
  */
 bool User::SharesChannelWith(User *other)
 {
-	if ((!other) || (this->registered != REG_ALL) || (other->registered != REG_ALL))
+	if ((this->registered != REG_ALL) || (other->registered != REG_ALL))
 		return false;
 
 	/* Outer loop */

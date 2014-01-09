@@ -338,10 +338,7 @@ class ModuleSilence : public Module
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* chan = (Channel*)dest;
-			if (chan)
-			{
-				this->OnBuildExemptList(msgtype, chan, user, status, exempt_list, "");
-			}
+			this->OnBuildExemptList(msgtype, chan, user, status, exempt_list, "");
 		}
 		return MOD_RES_PASSTHRU;
 	}
@@ -353,10 +350,6 @@ class ModuleSilence : public Module
 
 	ModResult MatchPattern(User* dest, User* source, int pattern)
 	{
-		/* Server source */
-		if (!source || !dest)
-			return MOD_RES_ALLOW;
-
 		silencelist* sl = cmdsilence.ext.get(dest);
 		if (sl)
 		{

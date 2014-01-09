@@ -58,23 +58,19 @@ class ModuleBanException : public Module
 
 	ModResult OnExtBanCheck(User *user, Channel *chan, char type) CXX11_OVERRIDE
 	{
-		if (chan != NULL)
+		ListModeBase::ModeList* list = be.GetList(chan);
+		if (!list)
+			return MOD_RES_PASSTHRU;
+
+		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 		{
-			ListModeBase::ModeList *list = be.GetList(chan);
+			if (it->mask[0] != type || it->mask[1] != ':')
+				continue;
 
-			if (!list)
-				return MOD_RES_PASSTHRU;
-
-			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
+			if (chan->CheckBan(user, it->mask.substr(2)))
 			{
-				if (it->mask[0] != type || it->mask[1] != ':')
-					continue;
-
-				if (chan->CheckBan(user, it->mask.substr(2)))
-				{
-					// They match an entry on the list, so let them pass this.
-					return MOD_RES_ALLOW;
-				}
+				// They match an entry on the list, so let them pass this.
+				return MOD_RES_ALLOW;
 			}
 		}
 
@@ -83,23 +79,19 @@ class ModuleBanException : public Module
 
 	ModResult OnCheckChannelBan(User* user, Channel* chan) CXX11_OVERRIDE
 	{
-		if (chan)
+		ListModeBase::ModeList* list = be.GetList(chan);
+		if (!list)
 		{
-			ListModeBase::ModeList *list = be.GetList(chan);
+			// No list, proceed normally
+			return MOD_RES_PASSTHRU;
+		}
 
-			if (!list)
+		for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
+		{
+			if (chan->CheckBan(user, it->mask))
 			{
-				// No list, proceed normally
-				return MOD_RES_PASSTHRU;
-			}
-
-			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
-			{
-				if (chan->CheckBan(user, it->mask))
-				{
-					// They match an entry on the list, so let them in.
-					return MOD_RES_ALLOW;
-				}
+				// They match an entry on the list, so let them in.
+				return MOD_RES_ALLOW;
 			}
 		}
 		return MOD_RES_PASSTHRU;

@@ -337,7 +337,7 @@ Command::~Command()
 
 void CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)
 {
-	if (!user || buffer.empty())
+	if (buffer.empty())
 		return;
 
 	ServerInstance->Logs->Log("USERINPUT", LOG_RAWIO, "C[%s] I :%s %s",

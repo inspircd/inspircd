@@ -181,7 +181,7 @@ class ModuleAlias : public Module
 		}
 
 		// fcommands are only for local users. Spanningtree will send them back out as their original cmd.
-		if (!user || !IS_LOCAL(user))
+		if (!IS_LOCAL(user))
 		{
 			return;
 		}
