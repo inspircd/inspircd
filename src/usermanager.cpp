@@ -60,7 +60,10 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
-	UserIOHandler* eh = &New->eh;
+
+	UserIOHandler* eh = new UserIOHandler(New);
+	eh->SetFd(socket);
+	New->ehs.push_back(eh);
 
 	/* Give each of the modules an attempt to hook the user for I/O */
 	FOREACH_MOD(OnHookIO, (eh, via));
@@ -208,11 +211,15 @@ void UserManager::QuitUser(User *user, const std::string &quitreason, const char
 		if (ServerInstance->Users->unregistered_count)
 			ServerInstance->Users->unregistered_count--;
 
-	if (IS_LOCAL(user))
+	if (LocalUser* lu = IS_LOCAL(user))
 	{
-		LocalUser* lu = IS_LOCAL(user);
 		FOREACH_MOD(OnUserDisconnect, (lu));
-		lu->eh.Close();
+		for (unsigned i = 0; i < lu->ehs.size(); ++i)
+		{
+			lu->ehs[i]->Close();
+			ServerInstance->GlobalCulls.AddItem(lu->ehs[i]);
+		}
+		lu->ehs.clear();
 	}
 
 	/*
@@ -355,14 +362,23 @@ void UserManager::DoBackgroundUserStuff()
 		if (curr->quitting)
 			continue;
 
-		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
+		if (curr->CommandFloodPenalty)
 		{
 			unsigned int rate = curr->MyClass->GetCommandRate();
 			if (curr->CommandFloodPenalty > rate)
 				curr->CommandFloodPenalty -= rate;
 			else
 				curr->CommandFloodPenalty = 0;
-			curr->eh.OnDataReady();
+
+			for (unsigned j = 0; j < curr->ehs.size(); ++j)
+			{
+				UserIOHandler *eh = curr->ehs[j];
+				if (eh->getSendQSize())
+				{
+					eh->OnDataReady();
+					break;
+				}
+			}
 		}
 
 		switch (curr->registered)

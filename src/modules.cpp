@@ -159,6 +159,7 @@ void		Module::OnHookIO(StreamSocket*, ListenSocket*) { DetachEvent(I_OnHookIO); 
 ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { DetachEvent(I_OnSendWhoLine); }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
+ModResult	Module::OnUserIOError(LocalUser*) { DetachEvent(I_OnUserIOError); return MOD_RES_PASSTHRU; }
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 	: creator(Creator), name(Name), service(Type)

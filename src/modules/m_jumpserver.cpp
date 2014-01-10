@@ -137,7 +137,7 @@ class CommandJumpserver : public Command
 
 	int GetPort(LocalUser* user)
 	{
-		int p = (SSLClientCert::GetCertificate(&user->eh) ? sslport : port);
+		int p = (!user->ehs.empty() && SSLClientCert::GetCertificate(user->ehs[0]) ? sslport : port);
 		if (p == 0)
 			p = user->GetServerPort();
 		return p;

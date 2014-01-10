@@ -85,8 +85,8 @@ User::User(const std::string &uid, const std::string& sid, int type)
 }
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
-	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL), eh(this),
-	localuseriter(ServerInstance->Users->local_users.end()),
+	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->Config->ServerName, USERTYPE_LOCAL),
+	currentHandler(NULL), localuseriter(ServerInstance->Users->local_users.end()),
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
 {
@@ -94,7 +94,6 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	idle_lastmsg = 0;
 	ident = "unknown";
 	lastping = 0;
-	eh.SetFd(myfd);
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
 	dhost = host = GetIPString();
@@ -292,7 +291,9 @@ eol_found:
 		user->bytes_in += qpos;
 		user->cmds_in++;
 
+		user->currentHandler = this;
 		ServerInstance->Parser->ProcessBuffer(line, user);
+		user->currentHandler = NULL;
 		if (user->quitting)
 			return;
 	}
@@ -320,6 +321,17 @@ void UserIOHandler::AddWriteBuf(const std::string &data)
 
 void UserIOHandler::OnError(BufferedSocketError)
 {
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(OnUserIOError, MOD_RESULT, (user));
+	if (MOD_RESULT == MOD_RES_DENY)
+	{
+		std::vector<UserIOHandler *>::iterator it = std::find(user->ehs.begin(), user->ehs.end(), this);
+		if (it != user->ehs.end())
+			user->ehs.erase(it);
+		ServerInstance->GlobalCulls.AddItem(this);
+		return;
+	}
+
 	ServerInstance->Users->QuitUser(user, getError());
 }
 
@@ -349,7 +361,8 @@ CullResult LocalUser::cull()
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: LocalUserIter does not point to a valid entry for " + this->nick);
 
 	ClearInvites();
-	eh.cull();
+	for (unsigned i = 0; i < ehs.size(); ++i)
+		ehs[i]->cull();
 	return User::cull();
 }
 
@@ -832,9 +845,6 @@ void User::Write(const char *text, ...)
 
 void LocalUser::Write(const std::string& text)
 {
-	if (!ServerInstance->SE->BoundsCheckFd(&eh))
-		return;
-
 	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)
 	{
 		// this should happen rarely or never. Crop the string at 512 and try again.
@@ -845,8 +855,16 @@ void LocalUser::Write(const std::string& text)
 
 	ServerInstance->Logs->Log("USEROUTPUT", LOG_RAWIO, "C[%s] O %s", uuid.c_str(), text.c_str());
 
-	eh.AddWriteBuf(text);
-	eh.AddWriteBuf(wide_newline);
+	for (unsigned i = 0; i < ehs.size(); ++i)
+	{
+		UserIOHandler *iohandler = ehs[i];
+
+		if (!ServerInstance->SE->BoundsCheckFd(iohandler))
+			continue;
+
+		iohandler->AddWriteBuf(text);
+		iohandler->AddWriteBuf(wide_newline);
+	}
 
 	ServerInstance->stats->statsSent += text.length() + 2;
 	this->bytes_out += text.length() + 2;

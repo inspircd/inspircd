@@ -266,6 +266,7 @@ enum Implementation
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
 	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric, I_OnHookIO,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
+	I_OnUserIOError,
 	I_END
 };
 
@@ -1076,6 +1077,8 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param user The user whose IP is being set
 	 */
 	virtual void OnSetUserIP(LocalUser* user);
+
+	virtual ModResult OnUserIOError(LocalUser *);
 };
 
 /** A list of modules

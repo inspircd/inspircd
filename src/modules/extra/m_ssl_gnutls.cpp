@@ -530,7 +530,7 @@ info_done_dealloc:
 
 	void TellCiphersAndFingerprint(LocalUser* user)
 	{
-		const gnutls_session_t& sess = sessions[user->eh.GetFd()].sess;
+		const gnutls_session_t& sess = sessions[user->currentHandler->GetFd()].sess;
 		if (sess)
 		{
 			std::string text = "*** You are connected using SSL cipher '";
@@ -539,7 +539,7 @@ info_done_dealloc:
 			text.append("-").append(UnknownIfNULL(gnutls_cipher_get_name(gnutls_cipher_get(sess)))).append("-");
 			text.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess)))).append("'");
 
-			ssl_cert* cert = sessions[user->eh.GetFd()].cert;
+			ssl_cert* cert = sessions[user->currentHandler->GetFd()].cert;
 			if (!cert->fingerprint.empty())
 				text += " and your SSL fingerprint is " + cert->fingerprint;
 
@@ -576,7 +576,7 @@ class CommandStartTLS : public SplitCommand
 		}
 		else
 		{
-			if (!user->eh.GetIOHook())
+			if (!user->currentHandler->GetIOHook())
 			{
 				user->WriteNumeric(670, ":STARTTLS successful, go ahead with TLS handshake");
 				/* We need to flush the write buffer prior to adding the IOHook,
@@ -587,9 +587,9 @@ class CommandStartTLS : public SplitCommand
 				 * user hasn't built up much sendq. Handling a blocked write here would
 				 * be very annoying.
 				 */
-				user->eh.DoWrite();
-				user->eh.AddIOHook(&hook);
-				hook.OnStreamSocketAccept(&user->eh, NULL, NULL);
+				user->currentHandler->DoWrite();
+				user->currentHandler->AddIOHook(&hook);
+				hook.OnStreamSocketAccept(user->currentHandler, NULL, NULL);
 			}
 			else
 				user->WriteNumeric(691, ":STARTTLS failure");
@@ -901,12 +901,14 @@ class ModuleSSLGnuTLS : public Module
 		{
 			LocalUser* user = IS_LOCAL(static_cast<User*>(item));
 
-			if (user && user->eh.GetIOHook() == &iohook)
-			{
-				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
-				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Users->QuitUser(user, "SSL module unloading");
-			}
+			for (unsigned i = 0; i < user->ehs.size(); ++i)
+				if (user->ehs[i]->GetIOHook() == &iohook)
+				{
+					// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
+					// Potentially there could be multiple SSL modules loaded at once on different ports.
+					ServerInstance->Users->QuitUser(user, "SSL module unloading");
+					break;
+				}
 		}
 	}
 
@@ -934,7 +936,7 @@ class ModuleSSLGnuTLS : public Module
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		if (user->eh.GetIOHook() == &iohook)
+		if (user->currentHandler->GetIOHook() == &iohook)
 			iohook.TellCiphersAndFingerprint(user);
 	}
 

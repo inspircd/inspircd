@@ -197,7 +197,7 @@ class ModuleSSLInfo : public Module
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
+		ssl_cert* cert = SSLClientCert::GetCertificate(user->ehs[0]);
 		if (cert)
 			cmd.CertExt.set(user, cert);
 	}
@@ -219,7 +219,7 @@ class ModuleSSLInfo : public Module
 
 	ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass) CXX11_OVERRIDE
 	{
-		ssl_cert* cert = SSLClientCert::GetCertificate(&user->eh);
+		ssl_cert* cert = SSLClientCert::GetCertificate(user->ehs[0]);
 		bool ok = true;
 		if (myclass->config->getString("requiressl") == "trusted")
 		{

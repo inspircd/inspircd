@@ -644,7 +644,7 @@ class CoreExport User : public Extensible
 class CoreExport UserIOHandler : public StreamSocket
 {
  public:
-	LocalUser* const user;
+	LocalUser* user;
 	UserIOHandler(LocalUser* me) : user(me) {}
 	void OnDataReady();
 	void OnError(BufferedSocketError error);
@@ -665,7 +665,8 @@ class CoreExport LocalUser : public User, public InviteBase
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
 
-	UserIOHandler eh;
+	std::vector<UserIOHandler *> ehs;
+	UserIOHandler *currentHandler;
 
 	/** Position in UserManager::local_users
 	 */

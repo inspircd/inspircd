@@ -442,7 +442,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 	void TellCiphersAndFingerprint(LocalUser* user)
 	{
-		issl_session& s = sessions[user->eh.GetFd()];
+		issl_session& s = sessions[user->currentHandler->GetFd()];
 		if (s.sess)
 		{
 			std::string text = "*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(s.sess)) + "'";
@@ -627,7 +627,7 @@ class ModuleSSLOpenSSL : public Module
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
 	{
-		if (user->eh.GetIOHook() == &iohook)
+		if (user->currentHandler->GetIOHook() == &iohook)
 			iohook.TellCiphersAndFingerprint(user);
 	}
 
@@ -637,12 +637,14 @@ class ModuleSSLOpenSSL : public Module
 		{
 			LocalUser* user = IS_LOCAL((User*)item);
 
-			if (user && user->eh.GetIOHook() == &iohook)
-			{
-				// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
-				// Potentially there could be multiple SSL modules loaded at once on different ports.
-				ServerInstance->Users->QuitUser(user, "SSL module unloading");
-			}
+			for (unsigned i = 0; i < user->ehs.size(); ++i)
+				if (user->ehs[i]->GetIOHook() == &iohook)
+				{
+					// User is using SSL, they're a local user, and they're using one of *our* SSL ports.
+					// Potentially there could be multiple SSL modules loaded at once on different ports.
+					ServerInstance->Users->QuitUser(user, "SSL module unloading");
+					break;
+				}
 		}
 	}
 
