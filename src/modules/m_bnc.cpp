@@ -166,6 +166,12 @@ class ModuleBNC : public Module
 		return MOD_RES_DENY;
 	}
 
+	ModResult HandleUser(LocalUser *user)
+	{
+		/* Ignore USER from bnc users, the client will send this right after reattaching */
+		return bncPassword.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
+	}
+
  public:
 	ModuleBNC() : cmd(this), bncPassword("bncPassword", this)
 	{
@@ -184,6 +190,9 @@ class ModuleBNC : public Module
 
 		if (command == "PASS")
 			return HandlePass(user, parameters);
+
+		if (command == "USER")
+			return HandleUser(user);
 
 		return MOD_RES_PASSTHRU;
 	}
