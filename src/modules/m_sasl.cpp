@@ -93,9 +93,8 @@ class SaslAuthenticator
 		{
 		 case SASL_INIT:
 			this->agent = msg[0];
-			this->user->Write("AUTHENTICATE %s", msg[3].c_str());
 			this->state = SASL_COMM;
-			break;
+			/* fall through */
 		 case SASL_COMM:
 			if (msg[0] != this->agent)
 				return this->state;
