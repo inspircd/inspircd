@@ -136,7 +136,7 @@ class ModuleBNC : public Module
 		/* Re-assign user for this I/O handler */
 		io->user = lu;
 
-		/* Temporarily copy existing ehs for this usre so we may burst to only the new user */
+		/* Temporarily copy existing ehs for this user so we may burst to only the new user */
 		std::vector<UserIOHandler *> ehs;
 		lu->ehs.swap(ehs);
 
