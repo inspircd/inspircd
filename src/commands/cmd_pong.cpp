@@ -44,7 +44,7 @@ CmdResult CommandPong::Handle (const std::vector<std::string>&, User *user)
 {
 	// set the user as alive so they survive to next ping
 	if (IS_LOCAL(user))
-		IS_LOCAL(user)->lastping = 1;
+		IS_LOCAL(user)->currentHandler->lastping = 1;
 	return CMD_SUCCESS;
 }
 

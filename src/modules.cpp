@@ -160,6 +160,7 @@ ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockadd
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { DetachEvent(I_OnSendWhoLine); }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 ModResult	Module::OnUserIOError(LocalUser*) { DetachEvent(I_OnUserIOError); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPingTimeout(LocalUser*, UserIOHandler*) { DetachEvent(I_OnPingTimeout); return MOD_RES_PASSTHRU; }
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)
 	: creator(Creator), name(Name), service(Type)

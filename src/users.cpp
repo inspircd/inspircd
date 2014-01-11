@@ -93,7 +93,6 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 	exempt = quitting_sendq = false;
 	idle_lastmsg = 0;
 	ident = "unknown";
-	lastping = 0;
 	memcpy(&client_sa, client, sizeof(irc::sockets::sockaddrs));
 	memcpy(&server_sa, servaddr, sizeof(irc::sockets::sockaddrs));
 	dhost = host = GetIPString();

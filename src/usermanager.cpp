@@ -90,7 +90,6 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	New->registered = REG_NONE;
 	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
-	New->lastping = 1;
 
 	ServerInstance->Users->AddLocalClone(New);
 	ServerInstance->Users->AddGlobalClone(New);
@@ -386,17 +385,28 @@ void UserManager::DoBackgroundUserStuff()
 			case REG_ALL:
 				if (ServerInstance->Time() > curr->nping)
 				{
-					// This user didn't answer the last ping, remove them
-					if (!curr->lastping)
+					for (unsigned j = 0; j < curr->ehs.size(); ++j)
 					{
-						time_t time = ServerInstance->Time() - (curr->nping - curr->MyClass->GetPingTime());
-						const std::string message = "Ping timeout: " + ConvToStr(time) + (time == 1 ? " seconds" : " second");
-						this->QuitUser(curr, message);
-						continue;
+						UserIOHandler *eh = curr->ehs[j];
+
+						// This socket didn't answer the last ping, remove it
+						if (!eh->lastping)
+						{
+							ModResult res;
+							FIRST_MOD_RESULT(OnPingTimeout, res, (curr, eh));
+							if (res == MOD_RES_DENY)
+								continue;
+
+							time_t time = ServerInstance->Time() - (curr->nping - curr->MyClass->GetPingTime());
+							const std::string message = "Ping timeout: " + ConvToStr(time) + (time == 1 ? " seconds" : " second");
+							this->QuitUser(curr, message);
+							goto next;
+						}
+
+						eh->lastping = 0;
 					}
 
 					curr->Write("PING :" + ServerInstance->Config->ServerName);
-					curr->lastping = 0;
 					curr->nping = ServerInstance->Time() + curr->MyClass->GetPingTime();
 				}
 				break;
@@ -419,5 +429,6 @@ void UserManager::DoBackgroundUserStuff()
 			this->QuitUser(curr, "Registration timeout");
 			continue;
 		}
+		next:;
 	}
 }

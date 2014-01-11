@@ -645,7 +645,12 @@ class CoreExport UserIOHandler : public StreamSocket
 {
  public:
 	LocalUser* user;
-	UserIOHandler(LocalUser* me) : user(me) {}
+
+	/** has this socket responded to their previous ping?
+	 */
+	unsigned int lastping:1;
+
+	UserIOHandler(LocalUser* me) : user(me), lastping(1) {}
 	void OnDataReady();
 	void OnError(BufferedSocketError error);
 
@@ -721,10 +726,6 @@ class CoreExport LocalUser : public User, public InviteBase
 	 * users, which could trigger their SendQ to overrun.
 	 */
 	unsigned int quitting_sendq:1;
-
-	/** has the user responded to their previous ping?
-	 */
-	unsigned int lastping:1;
 
 	/** This is true if the user matched an exception (E:Line). It is used to save time on ban checks.
 	 */

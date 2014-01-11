@@ -206,6 +206,16 @@ class ModuleBNC : public Module
 	{
 		return bncPassword.get(user) ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 	}
+
+	ModResult OnPingTimeout(LocalUser *user, UserIOHandler *handler) CXX11_OVERRIDE
+	{
+		if (!bncPassword.get(user))
+			return MOD_RES_PASSTHRU;
+
+		/* 'handler' for 'user' pinged out, so it goes away */
+		ServerInstance->GlobalCulls.AddItem(handler);
+		return MOD_RES_DENY;
+	}
 };
 
 MODULE_INIT(ModuleBNC)
