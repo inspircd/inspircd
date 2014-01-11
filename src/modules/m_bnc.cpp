@@ -27,17 +27,25 @@ namespace
 class CommandBNC : public Command
 {
  public:
-	CommandBNC(Module* Creator) : Command(Creator, "BNC", 1, 1)
+	CommandBNC(Module* Creator) : Command(Creator, "BNC", 0, 1)
 	{
 		syntax = "[password]";
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		const std::string &password = parameters.empty() ? ServerInstance->GenRandomStr(16) : parameters[0].substr(0, 32);
+		if (parameters.empty())
+		{
+			bncPass->unset(user);
+			user->WriteNotice("*** BNC disabled.");
+		}
+		else
+		{
+			const std::string &password = parameters[0].substr(0, 32);
+			user->WriteNotice("*** Set your server password to " + user->nick + ":" + password + " to reattach.");
+			bncPass->set(user, password);
+		}
 
-		user->WriteNotice("*** Set your server password to " + user->nick + ":" + password + " to reattach.");
-		bncPass->set(user, password);
 		return CMD_SUCCESS;
 	}
 };
