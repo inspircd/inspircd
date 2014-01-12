@@ -582,6 +582,8 @@ void LocalUser::FullConnect()
 	if (quitting)
 		return;
 
+	currentHandler = ehs[0];
+
 	this->WriteNumeric(RPL_WELCOME, ":Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
 	this->WriteNumeric(RPL_YOURHOSTIS, ":Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), BRANCH);
 	this->WriteNumeric(RPL_SERVERCREATED, ":This server was created %s %s", __TIME__, __DATE__);
@@ -629,6 +631,8 @@ void LocalUser::FullConnect()
 	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
+
+	currentHandler = NULL;
 }
 
 void User::InvalidateCache()
