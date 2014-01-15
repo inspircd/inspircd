@@ -1554,7 +1554,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SASL authentication module: Provides support for IRC Authentication 
-# Layer (aka: atheme SASL) via AUTHENTICATE.
+# Layer (aka: atheme SASL) via AUTHENTICATE. You need to have m_cap.so
+# Loaded so this module can work
 #<module name="m_sasl.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
