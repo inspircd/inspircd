@@ -1807,6 +1807,12 @@
 #<sqloper dbid="1" hash="md5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# StartTLS module: Implements STARTTLS, which allows clients          #
+# connected to non SSL enabled ports to enable SSL, if a proper SSL   #
+# module is loaded (either m_ssl_gnutls or m_ssl_openssl).            #
+#<module name="m_starttls.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SVSHold module: Implements SVSHOLD. Like Q:Lines, but can only be   #
 # added/removed by Services.                                          #
 #<module name="m_svshold.so">
