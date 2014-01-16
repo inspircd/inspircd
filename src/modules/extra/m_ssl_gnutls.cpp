@@ -548,57 +548,6 @@ info_done_dealloc:
 	}
 };
 
-class CommandStartTLS : public SplitCommand
-{
-	IOHook& hook;
-
- public:
-	bool enabled;
-	CommandStartTLS(Module* mod, IOHook& Hook)
-		: SplitCommand(mod, "STARTTLS")
-		, hook(Hook)
-	{
-		enabled = true;
-		works_before_reg = true;
-	}
-
-	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser *user)
-	{
-		if (!enabled)
-		{
-			user->WriteNumeric(691, ":STARTTLS is not enabled");
-			return CMD_FAILURE;
-		}
-
-		if (user->registered == REG_ALL)
-		{
-			user->WriteNumeric(691, ":STARTTLS is not permitted after client registration is complete");
-		}
-		else
-		{
-			if (!user->eh.GetIOHook())
-			{
-				user->WriteNumeric(670, ":STARTTLS successful, go ahead with TLS handshake");
-				/* We need to flush the write buffer prior to adding the IOHook,
-				 * otherwise we'll be sending this line inside the SSL session - which
-				 * won't start its handshake until the client gets this line. Currently,
-				 * we assume the write will not block here; this is usually safe, as
-				 * STARTTLS is sent very early on in the registration phase, where the
-				 * user hasn't built up much sendq. Handling a blocked write here would
-				 * be very annoying.
-				 */
-				user->eh.DoWrite();
-				user->eh.AddIOHook(&hook);
-				hook.OnStreamSocketAccept(&user->eh, NULL, NULL);
-			}
-			else
-				user->WriteNumeric(691, ":STARTTLS failure");
-		}
-
-		return CMD_FAILURE;
-	}
-};
-
 class ModuleSSLGnuTLS : public Module
 {
 	GnuTLSIOHook iohook;
@@ -611,13 +560,9 @@ class ModuleSSLGnuTLS : public Module
 	bool dh_alloc;
 
 	RandGen randhandler;
-	CommandStartTLS starttls;
-
-	GenericCap capHandler;
 
  public:
-	ModuleSSLGnuTLS()
-		: iohook(this), starttls(this, iohook), capHandler(this, "tls")
+	ModuleSSLGnuTLS() : iohook(this)
 	{
 #ifndef GNUTLS_HAS_RND
 		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
@@ -651,7 +596,6 @@ class ModuleSSLGnuTLS : public Module
 		sslports.clear();
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
-		starttls.enabled = Conf->getBool("starttls", true);
 
 		if (Conf->getBool("showports", true))
 		{
@@ -919,8 +863,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if (!sslports.empty())
 			tokens["SSL"] = sslports;
-		if (starttls.enabled)
-			tokens["STARTTLS"];
 	}
 
 	void OnHookIO(StreamSocket* user, ListenSocket* lsb) CXX11_OVERRIDE
@@ -936,12 +878,6 @@ class ModuleSSLGnuTLS : public Module
 	{
 		if (user->eh.GetIOHook() == &iohook)
 			iohook.TellCiphersAndFingerprint(user);
-	}
-
-	void OnEvent(Event& ev) CXX11_OVERRIDE
-	{
-		if (starttls.enabled)
-			capHandler.HandleEvent(ev);
 	}
 };
 
