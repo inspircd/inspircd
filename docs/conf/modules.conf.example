@@ -55,12 +55,12 @@
 #<module name="m_ripemd160.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Abbreviation module: Provides the ability to abbreviate commands a-la 
+# Abbreviation module: Provides the ability to abbreviate commands a-la
 # BBC BASIC keywords.
 #<module name="m_abbreviation.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Alias module: Allows you to define server-side command aliases
+# Alias module: Allows you to define server-side command aliases.
 #<module name="m_alias.so">
 #
 # Fantasy settings:
@@ -82,7 +82,7 @@
 # An alias tag requires the following values to be defined in it:     #
 #                                                                     #
 # text        -      The text to detect as the actual command line,   #
-#                    Cant contain spaces, but case insensitive.       #
+#                    Can't contain spaces, but case insensitive.      #
 #                    You may have multiple aliases with the same      #
 #                    command name (text="" value), however the first  #
 #                    found will be executed if its format value is    #
@@ -154,7 +154,7 @@
 #<alias text="MS" replace="PRIVMSG MemoServ :$2-" requires="MemoServ" uline="yes">
 #
 # An example of using the format value to create an alias with two
-# different behaviours depending on the format of the parameters.
+# different behaviors depending on the format of the parameters.
 #
 #<alias text="ID" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3"
 #  requires="ChanServ" uline="yes">
@@ -184,7 +184,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Allowinvite module: Gives channel mode +A to allow all users to use
-# /invite, and extban A to deny invite from specific masks
+# /invite, and extban A to deny invite from specific masks.
 #<module name="m_allowinvite.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -219,7 +219,7 @@
 #<module name="m_autoop.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Ban except module: Adds support for channel ban exceptions (+e)
+# Ban except module: Adds support for channel ban exceptions (+e).
 #<module name="m_banexception.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -228,7 +228,7 @@
 #<module name="m_banredirect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block amsg module: Attempt to block all usage of /amsg and /ame
+# Block amsg module: Attempt to block all usage of /amsg and /ame.
 #<module name="m_blockamsg.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  BLOCKAMSG CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -241,11 +241,10 @@
 # action         -   Any of 'notice', 'noticeopers', 'silent', 'kill' #
 #                    or 'killopers'. Define how to take action when   #
 #                    a user uses /amsg or /ame.                       #
-#
 #<blockamsg delay="3" action="killopers">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block CAPS module: Blocking all-CAPS messages with cmode +B
+# Block CAPS module: Blocking all-CAPS messages with cmode +B.
 #<module name="m_blockcaps.so">
 #                                                                     #
 #-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -265,22 +264,22 @@
 #           capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block color module: Blocking color-coded messages with chan mode +c
+# Block color module: Blocking color-coded messages with chan mode +c.
 #<module name="m_blockcolor.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Botmode module: Adds the user mode +B
+# Botmode module: Adds the user mode +B.
 #<module name="m_botmode.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CallerID module: Adds usermode +g which activates hybrid-style 
-# callerid: block all private messages unless you /accept first
+# CallerID module: Adds usermode +g which activates hybrid-style
+# callerid: block all private messages unless you /accept first.
 #<module name="m_callerid.so">
 # 
 #-#-#-#-#-#-#-#-#-#-#- CALLERID  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
-# maxaccepts     - Maximum number of entires a user can add to his    #
+# maxaccepts     - Maximum number of entries a user can add to his    #
 #                  /accept list. Default is 16 entries.               #
-# operoverride   - Can opers (note: ALL opers) ignore callerid mode?  #
+# operoverride   - Can opers (note: ALL opers) override callerid mode?#
 #                  Default is no.                                     #
 # tracknick      - Preserve /accept entries when a user changes nick? #
 #                  If no (the default), the user is removed from      #
@@ -295,7 +294,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CAP module: Provides the CAP negotiation mechanism seen in
-# ratbox-derived ircds
+# ratbox-derived ircds.
 #<module name="m_cap.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -305,7 +304,7 @@
 #<module name="m_cban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Censor module: Adds channel and user mode +G
+# Censor module: Adds channel and user mode +G.
 #<module name="m_censor.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  CENSOR  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
@@ -328,7 +327,7 @@
 # will be connecting to your network, and an optional cgiirc tag.
 # For more information see: http://wiki.inspircd.org/Modules/cgiirc
 #
-# Set to yes if you want to notice opers when CGI clients connect
+# Set to yes if you want to notice opers when CGI:IRC clients connect.
 # <cgiirc opernotice="no">
 #
 # The type field indicates where the module should get the real
@@ -345,18 +344,15 @@
 #
 # IMPORTANT NOTE:
 # ---------------
-#
 # When you connect CGI:IRC clients, there are two connect classes which
 # apply to these clients. When the client initially connects, the connect
-# class which matches the cgi:irc site's host is checked. Therefore you
+# class which matches the CGI:IRC site's host is checked. Therefore you
 # must raise the maximum local/global clients for this ip as high as you
 # want to allow cgi clients. After the client has connected and is
-# determined to be a cgi:irc client, the class which matches the client's
+# determined to be a CGI:IRC client, the class which matches the client's
 # real IP is then checked. You may set this class to a lower value, so that
 # the real IP of the client can still be restricted to, for example, 3
 # sessions maximum.
-#
-
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel create module: Adds snomask +j, which will notify opers of
@@ -365,8 +361,8 @@
 #<module name="m_chancreate.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel filter module: Allows channel-op defined message
-# filtering using simple string matches (channel mode +g)
+# Channel filter module: Allows channel-op defined message filtering
+# using simple string matches (channel mode +g).
 #<module name="m_chanfilter.so">
 #
 # If hidemask is set to yes, the user will not be shown the mask when
@@ -374,7 +370,7 @@
 #<chanfilter hidemask="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel History module: Displays the last 'X' lines of chat to a user
+# Channel history module: Displays the last 'X' lines of chat to a user
 # joining a channel with +H 'X:T' set; 'T' is the maximum time to keep
 # lines in the history buffer. Designed so that the new user knows what
 # the current topic of conversation is when joining the channel.
@@ -387,7 +383,7 @@
 #<chanhistory maxlines="20" notice="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel logging module: used to send snotice output to channels, to
+# Channel logging module: Used to send snotice output to channels, to
 # allow staff to centrally monitor and discuss network activity.
 #
 # The "channel" field is where you want the messages to go, "snomasks"
@@ -397,12 +393,14 @@
 #<chanlog snomasks="AOcC" channel="#opers">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel Names module: Allows disabling channels which have certain
+# Channel names module: Allows disabling channels which have certain
 # characters in the channel name such as bold, colorcodes, etc. which
 # can be quite annoying and allow users to on occasion have a channel
 # that looks like the name of another channel on the network.
 #<module name="m_channames.so">
-
+#
+#-#-#-#-#-#-#-#-#-#-#- CHANNAMES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
 <channames
 	# denyrange: characters or range of characters to deny in channel
 	# names.
@@ -413,16 +411,18 @@
 	allowrange="">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channelban: Implements extended ban j:, which stops anyone in already
-# in a channel matching a mask like +b j:#channel*mask from joining.
+# Channelban: Implements extended ban j:, which stops anyone already
+# in a channel matching an extban like +b j:#channel from joining.
 #<module name="m_channelban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Chanprotect module: gives +q and +a channel modes
+# Chanprotect module: Gives +q and +a channel modes.
 #<module name="m_chanprotect.so">
-
+#
+#-#-#-#-#-#-#-#-#-#-# CHANPROTECT CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
 <chanprotect
-	# noservices: With this set to yes, when a user joins a empty channel,
+	# noservices: With this set to yes, when a user joins an empty channel,
 	# the server will set +q on them. If set to no, it will only set +o
 	# on them until they register the channel.
 	noservices="no"
@@ -442,9 +442,8 @@
 	# user with +q or +a may remove the +q or +a from other users.
 	deprotectothers="yes">
 
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Check module: gives /check
+# Check module: Adds the /CHECK command.
 # Check is useful for looking up information on channels,
 # users, IP addresses and hosts.
 # This module is oper-only.
@@ -452,7 +451,7 @@
 #<module name="m_check.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CHGHOST module: Adds the /CHGHOST command
+# CHGHOST module: Adds the /CHGHOST command.
 # This module is oper-only.
 # To use, CHGHOST must be in one of your oper class blocks.
 # NOTE: Services will not be able to set vhosts on users if this module
@@ -465,18 +464,18 @@
 # specify your own custom list of chars with the <hostname> tag:     #
 #                                                                    #
 # charmap        - A list of chars accepted as valid by the /CHGHOST #
-#                  and /SETHOST commands. Also note that the list is # 
+#                  and /SETHOST commands. Also note that the list is #
 #                  case-sensitive.                                   #
 #<hostname charmap="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_/0123456789">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CHGIDENT module: Adds the /CHGIDENT command
+# CHGIDENT module: Adds the /CHGIDENT command.
 # This module is oper-only.
 # To use, CHGIDENT must be in one of your oper class blocks.
 #<module name="m_chgident.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CHGNAME module: Adds the /CHGNAME command
+# CHGNAME module: Adds the /CHGNAME command.
 # This module is oper-only.
 # To use, CHGNAME must be in one of your oper class blocks.
 #<module name="m_chgname.so">
@@ -501,13 +500,13 @@
 #                  or /48 subnet of the IPv6 address.                 #
 #                                                                     #
 #   full           Cloak the users completely, using three slices for #
-#                  common CIDR bans (IPv4: /16, /24; IPv6: /48, /64)  #
+#                  common CIDR bans (IPv4: /16, /24; IPv6: /48, /64). #
 #                                                                     #
 # These methods use a single key that can be any length of text.      #
 # An optional prefix may be specified to mark cloaked hosts.          #
 #                                                                     #
 # The following methods are maintained for backwards compatibility;   #
-# they are slightly less secure, and always hide unresolved IPs       #
+# they are slightly less secure, and always hide unresolved IPs.      #
 #                                                                     #
 #   compat-host    InspIRCd 1.2-compatible host-based cloaking        #
 #   compat-ip      InspIRCd 1.2-compatible ip-always cloaking         #
@@ -516,7 +515,6 @@
 # key3, key4; the values must be less than 0x80000000 and should be   #
 # picked at random. Prefix is mandatory, will default to network name #
 # if not specified, and will always have a "-" appended.              #
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #
 #<cloak mode="half"
 #       key="secret"
@@ -524,7 +522,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#- CLOSE MODULE #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Close module: Allows an oper to close all unregistered connections.
-# This module is oper-only and provides /close.
+# This module is oper-only, and provides the command /CLOSE.
 # To use, CLOSE must be in one of your oper class blocks.
 #<module name="m_close.so">
 
@@ -555,29 +553,27 @@
 #<autojoin channel="#one,#two,#three">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Conn-Usermodes: Set modes on users when they connect
+# Conn-Usermodes: Set modes on users when they connect.
 # When this module is loaded <connect:allow> tags may have an optional
 # modes="" value, which contains modes to add or remove from users
 # when they connect to the server.
 #<module name="m_conn_umodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Conn-Wait-for-Pong: Don't let a user connect until they PONG
+# Conn-Wait-for-Pong: Don't let a user connect until they PONG.
 #<module name="m_conn_waitpong.so">
 #
-#-#-#-#-#-#-#-#-#-#-#-   WAITPONG CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-  WAITPONG  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # If you have the m_conn_waitpong.so module loaded, configure it with #
 # the <waitpong> tag:                                                 #
 #                                                                     #
 # sendsnotice    -   Whether to send a snotice on connect, like other #
-#                    older ircds                                      #
+#                    older IRCds.                                     #
 #                                                                     #
 # killonbadreply -   Whether to kill the user if they send the wrong  #
 #                    PONG reply.                                      #
-#                                                                     #
 #<waitpong sendsnotice="yes" killonbadreply="yes">
-
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel cycle module. Server side /hop, with +ilk etc. bypass.
@@ -587,18 +583,20 @@
 # Connectban: Provides IP connection throttling. Any IP range that connects
 # too many times (configurable) in an hour is zlined for a (configurable)
 # duration, and their count resets to 0.
+#<module name="m_connectban.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- CONNECTBAN  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
 #
 # ipv4cidr and ipv6cidr allow you to turn the comparison from individual
 # IP addresses (32 and 128 bits) into CIDR masks, to allow for throttling
 # over whole ISPs/blocks of IPs, which may be needed to prevent attacks.
 #
+# This allows for 10 connections in an hour with a 10 minute ban if that
+# is exceeded.
 #<connectban threshold="10" duration="10m" ipv4cidr="32" ipv6cidr="128">
-# This allows for 10 connections in an hour with a 10 minute ban if that is exceeded.
-#
-#<module name="m_connectban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Connection throttle module. Configuration:
+# Connection throttle module.
 #<module name="m_connflood.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- CONNTHROTTLE CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
@@ -613,20 +611,19 @@
 #
 #  bootwait          -  Amount of time in seconds to wait before enforcing
 #                       the throttling when the server just booted.
-#
 #<connflood seconds="30" maxconns="3" timeout="30"
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Custom prefixes: allows for channel prefixes to be added. 
+# Custom prefixes: Allows for channel prefixes to be added.
 # This replaces m_chanprotect and m_halfop.
 #<module name="m_customprefix.so">
 #
-# name       The name of the mode, must be unique from other modes
+# name       The name of the mode, must be unique from other modes.
 # letter     The letter used for this mode. Required.
 # prefix     The prefix used for nicks with this mode. Not required.
-# rank       A numeric rank for this prefix, defining what permissions it gives
-#            VOICE_VALUE is 10000, HALFOP_VALUE is 20000, OP_VALUE is 30000
+# rank       A numeric rank for this prefix, defining what permissions it gives.
+#            VOICE_VALUE is 10000, HALFOP_VALUE is 20000, OP_VALUE is 30000.
 # ranktoset  The numeric rank required to set/unset this mode. Defaults to rank.
 # depriv     Can you remove the mode from yourself? Defaults to yes.
 #<customprefix name="founder" letter="q" prefix="~" rank="50000" ranktoset="50000">
@@ -643,41 +640,39 @@
 #<module name="m_customtitle.so">
 #
 #-#-#-#-#-#-#-#-#-#-  CUSTOM TITLE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#
-#  name              - The username used to identify 
-#  password          - The password used to identify
-#  hash              - The hash for the specific user's password (optional)
-#                      m_password_hash.so and a hashing module must be loaded for this to work
-#  host              - Allowed hostmask [optional]
-#  title             - Title shown in whois
-#  vhost             - Displayed host [optional]
+#  name              - The username used to identify.
+#  password          - The password used to identify.
+#  hash              - The hash for the specific user's password (optional).
+#                      m_password_hash.so and a hashing module must be loaded for this to work.
+#  host              - Allowed hostmask (optional).
+#  title             - Title shown in whois.
+#  vhost             - Displayed host (optional).
 #
 #<title name="foo" password="bar" title="Official Chat Helper">
 #<title name="bar" password="foo" host="ident@host.name" title="Official Chat Helper" vhost="helper.network.chat">
 #<title name="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" title="Official Chat Helper">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# DCCALLOW module: Adds the /DCCALLOW command
+# DCCALLOW module: Adds the /DCCALLOW command.
 #<module name="m_dccallow.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  DCCALLOW CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
-#  blockchat         - Whether to block DCC CHAT as well as DCC SEND
-#  length            - Default duration of entries in DCCALLOW list
-#  action            - Default action to take if no action is specified
-#                      can be 'block' or 'allow'
+#  blockchat         - Whether to block DCC CHAT as well as DCC SEND.
+#  length            - Default duration of entries in DCCALLOW list.
+#  action            - Default action to take if no action is specified,
+#                      can be 'block' or 'allow'.
 #
 # File configuration:
-#  pattern           - The glob pattern to match against
+#  pattern           - The glob pattern to match against.
 #  action            - Action to take if a user attempts to send a file
-#                      that matches this pattern, can be 'block' or 'allow'
+#                      that matches this pattern, can be 'block' or 'allow'.
 #
 #<dccallow blockchat="yes" length="5m" action="block">
 #<banfile pattern="*.exe" action="block">
 #<banfile pattern="*.txt" action="allow">
-#
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Deaf module: adds support for ircu style usermode +d - deaf to
+# Deaf module: Adds support for ircu style usermode +d - deaf to
 # channel messages and channel notices.
 #<module name="m_deaf.so">
 
@@ -696,7 +691,7 @@
 #<module name="m_delaymsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Deny Channels: Deny Channels from being used by users
+# Deny channels module: Deny channels from being used by users.
 #<module name="m_denychans.so"> 
 #
 #-#-#-#-#-#-#-#-#-#-#-   DENYCHAN DEFINITIONS  -#-#-#-#-#-#-#-#-#-#-#-#
@@ -704,13 +699,13 @@
 # If you have the m_denychans.so module loaded, you need to specify   #
 # the channels to deny:                                               #
 #                                                                     #
-# name        -      The channel name to deny. (glob masks are ok)    #
+# name        -      The channel name to deny (glob masks are ok).    #
 #                                                                     #
 # allowopers  -      If operators are allowed to override the deny.   #
 #                                                                     #
 # reason      -      Reason given for the deny.                       #
 #                                                                     #
-# redirect    -      Redirect the user to a different channel         #
+# redirect    -      Redirect the user to a different channel.        #
 #                                                                     #
 #<badchan name="#gods*" allowopers="yes" reason="Tortoises!">         #
 #<badchan name="#heaven" redirect="#hell" reason="Nice try!">         #
@@ -723,19 +718,19 @@
 # Glob masks are accepted here also.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Devoice Module: Let users devoice themselves using /devoice #chan.
+# Devoice module: Let users devoice themselves using /devoice #chan.
 #<module name="m_devoice.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# DNS Blacklist Module: Provides support for looking up IPs on one or #
-# more blacklists.                                                    #
+# DNS blacklist module: Provides support for looking up IPs on one or #
+# more DNS blacklists.                                                #
 #<module name="m_dnsbl.so">                                           #
 #                                                                     #
 # For configuration options please see the wiki page for m_dnsbl at   #
 # http://wiki.inspircd.org/Modules/dnsbl                              #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Exempt Channel Operators Module: Provides support for allowing      #
+# Exempt channel operators module: Provides support for allowing      #
 # channel operators to be exempt from some channel modes.  Supported  #
 # modes are blockcaps, noctcp, blockcolor, nickflood, flood, censor,  #
 # filter, regmoderated, nonick, nonotice, and stripcolor.             #
@@ -767,7 +762,7 @@
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Optional - If you specify to use the m_filter module, then          #
-# specfiy below the path to the filter.conf file, or define some      #
+# specify below the path to the filter.conf file, or define some    #
 # <filter> tags.                                                      #
 #                                                                     #
 #<include file="conf/examples/filter.conf.example">
@@ -779,7 +774,8 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # GeoIP module: Allows the server admin to match users by country code.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_geoip.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_geoip.cpp
 # and run make install, then uncomment this module to enable it.
 # This module requires GeoIP to be installed on your system,
 # use your package manager to find the appropriate packages
@@ -789,7 +785,6 @@
 # The actual allow/ban actions are done by connect classes, not by the
 # GeoIP module. An example connect class to ban people from russia or
 # turkey:
-#
 # <connect deny="*" geoip="TR,RU">
 #
 # The country code must be in capitals and should be an ISO country
@@ -799,14 +794,14 @@
 # classes for them to match.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Globops module: gives /GLOBOPS and SNOMASK +g
+# Globops module: Provides the command /GLOBOPS and SNOMASK +g.
 # This module is oper-only.
 # To use, GLOBOPS must be in one of your oper class blocks.
 #<module name="m_globops.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Global load module: Allows loading and unloading of modules network-
-# wide (USE WITH EXTREME CAUTION!)
+# wide (USE WITH EXTREME CAUTION!).
 # This module is oper-only and provides /gloadmodule, /gunloadmodule
 # and /greloadmodule.
 # To use, GLOADMODULE, GUNLOADMODULE and GRELOADMODULE
@@ -818,7 +813,7 @@
 #<module name="m_halfop.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# HELPOP module: Provides the /HELPOP command
+# HELPOP module: Provides the /HELPOP command.
 #<module name="m_helpop.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#-  HELPOP  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -846,7 +841,7 @@
 #<module name="m_hideoper.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Hostchange module: Allows a different style of cloaking
+# Hostchange module: Allows a different style of cloaking.
 #<module name="m_hostchange.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  HOSTCHANGE  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#
@@ -861,35 +856,30 @@
 #<hostchange mask="localhost" ports="7000,7001,7005-7007" action="set" value="blahblah.foo">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# httpd module: Provides http server support for InspIRCd
+# httpd module: Provides HTTP server support for InspIRCd.
 #<module name="m_httpd.so">
 #
-#-#-#-#-#-#-#-#-#-#-#-#-  HTTPD   CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-   HTTPD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #
 # If you choose to use the m_httpd.so module, then you will need to add
 # a <bind> tag with type "httpd", and load at least one of the other
 # m_httpd_* modules to provide pages to display.
-#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# http ACL module: Provides access control lists for m_httpd dependent
+# HTTP ACL module: Provides access control lists for m_httpd dependent
 # modules. Use this module to restrict pages by IP address and by
 # password.
-#
 #<module name="m_httpd_acl.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- HTTPD ACL CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
 #
 # Restrict access to the m_httpd_stats module to all but the local
 # network and when the correct password is specified:
-#
-# <httpdacl path="/stats*" types="password,whitelist"
-#    username="secretstuff" password="mypasshere" whitelist="127.0.0.*,10.*">
+#<httpdacl path="/stats*" types="password,whitelist"
+#   username="secretstuff" password="mypasshere" whitelist="127.0.0.*,10.*">
 # 
 # Deny all connections to all but the main index page:
-#
-# <httpdacl path="/*" types="blacklist" blacklist="*">
-#
+#<httpdacl path="/*" types="blacklist" blacklist="*">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # http config module: Allows the server's configuration to be viewed
@@ -915,11 +905,10 @@
 # default to one second. This is a non-blocking timeout which holds   #
 # the user in a 'connecting' state until the lookup is complete.      #
 # The bind value indicates which IP to bind outbound requests to.     #
-#                                                                     #
 #<ident timeout="5">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Invite except module: Adds support for channel invite exceptions (+I)
+# Invite except module: Adds support for channel invite exceptions (+I).
 #<module name="m_inviteexception.so">
 # Does a +I bypass channel +k in addition to +i?
 #<inviteexception bypasskey="yes">
@@ -930,7 +919,7 @@
 # enhancements to the client-to-server protocol. An extension is only
 # active for a client when the client specifically requests it, so this
 # module needs m_cap to work.
-# 
+#
 # Further information on these extensions can be found at the IRCv3
 # working group website:
 # http://ircv3.atheme.org/extensions/
@@ -941,11 +930,11 @@
 #<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Join flood module: Adds support for join flood protection (+j)
+# Join flood module: Adds support for join flood protection (+j).
 #<module name="m_joinflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Jump Server module: Adds support for the RPL_REDIR numeric
+# Jump server module: Adds support for the RPL_REDIR numeric.
 # This module is oper-only.
 # To use, JUMPSERVER must be in one of your oper class blocks.
 # If your server is redirecting new clients and you get disconnected,
@@ -953,14 +942,15 @@
 #<module name="m_jumpserver.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J)
+# Anti-Auto-Rejoin: Adds support for prevention of auto-rejoin (+J).
 #<module name="m_kicknorejoin.so">
 # Set the maximum time that is accepted as a parameter for +J here.
 #<kicknorejoin maxtime="1m">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Knock module: adds the /KNOCK command and +K channel mode
+# Knock module: Adds the /KNOCK command and +K channel mode.
 #<module name="m_knock.so">
+#
 # This setting specifes what to do when someone successfully /KNOCKs.
 # If set to "notice", then a NOTICE will be sent to the channel.
 # This is the default and the compatible setting, as it requires no
@@ -977,8 +967,7 @@
 # This modules is in extras. To enable it, Re-run configure with:     #
 # ./configure --enable-extras=m_ldapauth.cpp                          #
 # and run make install, then uncomment this module.                   #
-#                                                                     #
-#<module name="m_ldapauth.so">                                        #
+#<module name="m_ldapauth.so">
 #                                                                     #
 # Configuration:                                                      #
 #                                                                     #
@@ -1004,7 +993,7 @@
 # a user account by name. On POSIX systems this is usually 'uid'.     #
 #                                                                     #
 # The server parameter indicates the LDAP server to connect to. The   #
-# ldap:// style scheme before the hostname proper is MANDITORY.       #
+# ldap:// style scheme before the hostname proper is MANDATORY.       #
 #                                                                     #
 # The allowpattern value allows you to specify a wildcard mask which  #
 # will always be allowed to connect regardless of if they have an     #
@@ -1046,19 +1035,19 @@
 # LDAP oper configuration module: Adds the ability to authenticate    #
 # opers via LDAP. This is an extra module which must be enabled       #
 # explicitly by symlinking it from modules/extra, and requires the    #
-# OpenLDAP libs. Re-run configure with: ./configure --enable-extras=m_ldapoper.cpp
+# OpenLDAP libs. Re-run configure with:                               #
+# ./configure --enable-extras=m_ldapoper.cpp                          #
 # and run make install, then uncomment this module to enable it.      #
-#                                                                     #
 #<module name="m_ldapoper.so">
 #                                                                     #
 # Configuration:                                                      #
 #                                                                     #
-# <ldapoper baserdn="ou=People,dc=brainbox,dc=cc"
-#           server="ldap://brainwave.brainbox.cc"
-#           searchscope="subtree"
-#           binddn="cn=Manager,dc=brainbox,dc=cc"
-#           bindauth="mysecretpass"
-#           attribute="uid">
+# <ldapoper baserdn="ou=People,dc=brainbox,dc=cc"                     #
+#           server="ldap://brainwave.brainbox.cc"                     #
+#           searchscope="subtree"                                     #
+#           binddn="cn=Manager,dc=brainbox,dc=cc"                     #
+#           bindauth="mysecretpass"                                   #
+#           attribute="uid">                                          #
 #                                                                     #
 # Available configuration items are identical to the same items in    #
 # m_ldapauth above (except for the verbose setting, that is only      #
@@ -1075,9 +1064,7 @@
 # you can control who has access to this possible dangerous command.  #
 # If your server is locked and you get disconnected, do a REHASH from #
 # shell to open up again.                                             #
-#
 # This module is oper-only.
-#
 #<module name="m_lockserv.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1087,21 +1074,21 @@
 #<module name="m_maphide.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Msg flood module: Adds message/notice flood protection (+f)
+# Msg flood module: Adds message/notice flood protection (+f).
 #<module name="m_messageflood.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MLOCK module: Adds support for server-side enforcement of services
-# side MLOCKs.  Basically, this module suppresses any mode change that
+# MLOCKs.  Basically, this module suppresses any mode change that
 # would likely be immediately bounced by services.
 #<module name="m_mlock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# MsSQL module: Allows other SQL modules to access MS SQL Server 
+# MsSQL module: Allows other SQL modules to access MS SQL Server
 # through a unified API.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mssql.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_mssql.cpp
 # and run make install, then uncomment this module to enable it.
-#
 #<module name="m_mssql.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1114,9 +1101,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # MySQL module: Allows other SQL modules to access MySQL databases
 # through a unified API.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_mysql.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_mysql.cpp
 # and run make install, then uncomment this module to enable it.
-#
 #<module name="m_mysql.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1127,7 +1114,7 @@
 #<database module="mysql" name="mydb" user="myuser" pass="mypass" host="localhost" id="my_database2">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Named Modes module: This module allows for the display and set/unset
+# Named modes module: This module allows for the display and set/unset
 # of channel settings and modes via long-form mode names in channels with
 # channelmode +Z set. For example, to set a channelban with named modes:
 # /mode #channel +Z ban=foo!bar@baz . Currently this doesn't serve much
@@ -1148,10 +1135,12 @@
 # 2) Allows using custom (national) casemapping over the network.
 # file -- filename of existing file in "locales" directory
 # casemapping -- custom value for 005 numeric (if you want it to be
-# different from the filename.
+#                different from the filename).
+#<module name="m_nationalchars.so">
+#
+#-#-#-#-#-#-#-#-#-#-#- NATIONALCHARS CONFIGURATION -#-#-#-#-#-#-#-#-#-#
 #
 #<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
-#<module name="m_nationalchars.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nickchange flood protection module: Allows up to X nick changes in Y seconds.
@@ -1166,7 +1155,7 @@
 #<module name="m_nicklock.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No ctcp module: Adds the channel mode +C to block CTCPs and extban C
+# No CTCP module: Adds the channel mode +C to block CTCPs and extban C
 # to block CTCPs sent by specific users.
 #<module name="m_noctcp.so">
 
@@ -1183,40 +1172,38 @@
 #<module name="m_nonicks.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No part message module: adds extban 'p' to block part messages from #
+# No part message module: Adds extban 'p' to block part messages from #
 # matching users.                                                     #
 #<module name="m_nopartmsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# No Notice module: adds the channel mode +T and the extban T to block
+# No Notice module: Adds the channel mode +T and the extban T to block
 # specific users from noticing the channel.
 #<module name="m_nonotice.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Network business join module
+# Network business join module:
 # Allows an oper to join a channel using /OJOIN, giving them +Y on the
 # channel which makes them immune to kick/deop/etc.
 #<module name="m_ojoin.so">
 #
-#<ojoin prefix="!" notice="yes" op="yes">
-# Specify the prefix that +Y will grant here
+# Specify the prefix that +Y will grant here.
 # Leave prefix empty if you do not wish +Y to grant a prefix
 # If notice is set to on, upon ojoin, the server will notice
 # the channel saying that the oper is joining on network business
 # If op is set to on, it will give them +o along with +Y
-
+#<ojoin prefix="!" notice="yes" op="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper channels mode: Adds the +O channel mode and +beI type O:<mask>
 # to ban, exempt, and invex given oper type masks.
 # e.g, /mode #channel +iI O:* is equivilant to chmode +O, but you
 # may also, e.g. /mode #channel +iI O:AdminTypeOnly to only allow admins.
-# +be work in a similar fashion.
-#
+# Modes +b and +e work in a similar fashion.
 #<module name="m_operchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper Join module: Auto-joins opers to a channel upon oper-up
+# Oper join module: Auto-joins opers to a channel upon oper-up.
 # This module is oper-only. For the user equivalent, see m_conn_join.
 #<module name="m_operjoin.so">
 #
@@ -1224,17 +1211,17 @@
 #                                                                     #
 # If you are using the m_operjoin.so module, specify options here:    #
 #                                                                     #
-# channel     -      The channel name to join, can also be a comma    #
-#                    separated list eg. "#channel1,#channel2".        #
+# channel     -    The channel name to join, can also be a comma      #
+#                  separated list eg. "#channel1,#channel2".          #
 #                                                                     #
-# override    -      Lets the oper join walking thru any modes that   #
-#                    might be set, even bans. Use "yes" or "no".      #
+# override    -    Lets the oper join, walking through any modes that #
+#                  might be set, even bans. Use "yes" or "no".        #
 #                                                                     #
 #<operjoin channel="#channel" override="no">
 #
 # Alternatively you can use the autojoin="channellist" in a <type>    #
 # tag to set specific autojoins for a type of oper, for example:      #
-#
+#                                                                     #
 #<type name="Helper" autojoin="#help" classes="...">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1250,7 +1237,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper prefixing module: Gives IRC operators a prefix status character
 # on all channels they are in.
-#
 #<module name="m_operprefix.so">
 #
 # You may additionally customise the prefix character.
@@ -1264,7 +1250,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#   OPERMOTD CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# If you are using the m_opermotd.so module, specify the motd here    #
+# If you are using the m_opermotd.so module, specify the motd here.   #
 #                                                                     #
 # onoper        - Should the message be sent on /OPER or only when    #
 #                 /OPERMOTD is used. Use "yes" or "no".               #
@@ -1276,36 +1262,50 @@
 #<opermotd file="conf/examples/opermotd.txt.example" onoper="yes" processcolors="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Override module: Adds support for oper override
+# Override module: Adds support for oper override.
 # This module is oper-only.
 #<module name="m_override.so">
 #
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_override.so is too complex it describe here, see the wiki:        #
+# m_override.so is too complex to describe here, see the wiki:        #
 # http://wiki.inspircd.org/Modules/override                           #
+#
+# However, some basic settings for this module are:                   #
+#                                                                     #
+# noisy      - Announces all overrides in SNOMASKS as well as in the  #
+#              channel being overriden (via channel notice).          #
+#              Set to "yes" or "no".                                  #
+#                                                                     #
+# requirekey - Forces opers to override-join by using the channel     #
+#              key "override" to prevent accidental overrides.        #
+#              For example: /join #secret override                    #
+#              Set to "yes" or "no".                                  #
+#                                                                     #
+#<override noisy="yes" requirekey="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper levels module: Gives each oper a level and prevents
-# actions being taken against higher level opers
+# actions being taken against higher level opers.
 # Specify the level as the 'level' parameter of the <type> tag
 # This module is oper-only.
 #<module name="m_operlevels.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper modes module: Allows you to specify modes to add/remove on oper
+# Oper modes module: Allows you to specify modes to add/remove on oper.
 # Specify the modes as the 'modes' parameter of the <type> tag
 # and/or as the 'modes' parameter of the <oper> tag.
-# This module is oper-only. For the user equivalent, see m_conn_umodes
+# This module is oper-only. For the user equivalent, see m_conn_umodes.
 #<module name="m_opermodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password forwarding module: Forwards a password users can send on connect
-# to the specified client below. The client is usually nickserv and this
-# module is usually used to authenticate users with nickserv using their
+# to the specified client below. The client is usually NickServ and this
+# module is usually used to authenticate users with NickServ using their
 # connect password.
 #<module name="m_passforward.so">
-
+#
+#-#-#-#-#-#-#-#-#-#  PASSFORWARD CONFIGURATION  #-#-#-#-#-#-#-#-#-#-#-#
 <passforward
 		# nick: nick to forward connect passwords to.
 		nick="NickServ"
@@ -1323,7 +1323,6 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Password hash module: Allows hashed passwords to be used.
 # To be useful, a hashing module like m_sha256.so also needs to be loaded.
-# 
 #<module name="m_password_hash.so">
 #
 #-#-#-#-#-#-#-#-#-# PASSWORD HASH CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#
@@ -1345,7 +1344,7 @@
 # server you don't trust with your password.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Permanent Channels module: Channels with the permanent channels mode
+# Permanent channels module: Channels with the permanent channels mode
 # will remain open even after everyone else has left the channel, and
 # therefore keep things like modes, ban lists and topic. Permanent
 # channels -may- need support from your Services package to function
@@ -1369,9 +1368,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # PostgreSQL module: Allows other SQL modules to access PgSQL databases
 # through a unified API.
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_pgsql.cpp
+# This modules is in extras. Re-run configure with:
+# ./configure --enable-extras=m_pgsql.cpp
 # and run make install, then uncomment this module to enable it.
-#
 #<module name="m_pgsql.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1385,7 +1384,6 @@
 # Muteban: Implements extended ban m:, which stops anyone matching
 # a mask like +b m:nick!user@host from speaking on channel.
 #<module name="m_muteban.so">
-#
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Random Quote module: provides a random quote on connect.
@@ -1396,12 +1394,12 @@
 #-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # Optional - If you specify to use the m_randquote.so module, then    #
-# specify below the path to the randquotes.conf file.                 #
+# specify below the path to the quotes.txt file.                      #
 #                                                                     #
 #<randquote file="quotes.txt">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Redirect module: Adds channel redirection (mode +L)                 #
+# Redirect module: Adds channel redirection (mode +L).                #
 # Optional: <redirect:antiredirect> to add usermode +L to stop forced #
 # redirection and instead print an error.                             #
 #                                                                     #
@@ -1459,11 +1457,10 @@
 #<module name="m_regex_tre.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Registered users only channel creation
+# Registered users only channel creation.
 # Allows only registered users and opers to create new channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
-#
 #<module name="m_regonlycreate.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1475,18 +1472,16 @@
 # Restricted channels module: Allows only opers to create channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
-#
 #<module name="m_restrictchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Restrict message module: Allows users to only message opers.
 #
 # You probably *DO NOT* want to load this module on a public network.
-#
 #<module name="m_restrictmsg.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Ban users through regular expression patterns
+# Ban users through regular expression patterns.
 #<module name="m_rline.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- RLINE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1511,49 +1506,49 @@
 # so that at least \s or [[:space:]] is available.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAJOIN module: Adds the /SAJOIN command
+# SAJOIN module: Adds the /SAJOIN command.
 # This module is oper-only.
 # To use, SAJOIN must be in one of your oper class blocks.
 #<module name="m_sajoin.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAKICK module: Adds the /SAKICK command
+# SAKICK module: Adds the /SAKICK command.
 # This module is oper-only.
 # To use, SAKICK must be in one of your oper class blocks.
 #<module name="m_sakick.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAMODE module: Adds the oper /SAMODE command
+# SAMODE module: Adds the oper /SAMODE command.
 # This module is oper-only.
 # To use, SAMODE must be in one of your oper class blocks.
 #<module name="m_samode.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SANICK module: Allows opers to change user's nicks
+# SANICK module: Allows opers to change user's nicks.
 # This module is oper-only.
 # To use, SANICK must be in one of your oper class blocks.
 #<module name="m_sanick.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAPART module: Adds the oper /SAPART command
+# SAPART module: Adds the oper /SAPART command.
 # This module is oper-only.
 # To use, SAPART must be in one of your oper class blocks.
 #<module name="m_sapart.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SAQUIT module: Adds the oper /SAQUIT command (abusable!!!)
+# SAQUIT module: Adds the oper /SAQUIT command (abusable!).
 # This module is oper-only.
 # To use, SAQUIT must be in one of your oper class blocks.
 #<module name="m_saquit.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SATOPIC module: Adds the oper /SATOPIC command
+# SATOPIC module: Adds the oper /SATOPIC command.
 # This module is oper-only.
 # To use, SATOPIC must be in one of your oper class blocks.
 #<module name="m_satopic.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SASL authentication module: Provides support for IRC Authentication 
+# SASL authentication module: Provides support for IRC Authentication
 # Layer (aka: atheme SASL) via AUTHENTICATE.
 #<module name="m_sasl.so">
 
@@ -1579,7 +1574,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Servprotect module: Provides support for Austhex style +k /
-# UnrealIRCD +S services mode
+# UnrealIRCD +S services mode.
 #<module name="m_servprotect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1588,8 +1583,8 @@
 #<module name="m_seenicks.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Set Idle module: Adds a command for opers to change their
-# idle time (mainly a toy)
+# Set idle module: Adds a command for opers to change their
+# idle time (mainly a toy).
 # This module is oper-only.
 # To use, SETIDLE must be in one of your oper class blocks.
 #<module name="m_setidle.so">
@@ -1609,24 +1604,24 @@
 # +b R: (stop matching account names from joining)
 # +b M: (stop matching account names from speaking)
 # +b U:n!u@h (blocks matching unregistered users)
-#                                                                       
+#
 #<module name="m_services_account.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Sethost module: Adds the /SETHOST command
+# Sethost module: Adds the /SETHOST command.
 # This module is oper-only.
 # To use, SETHOST must be in one of your oper class blocks.
-# See m_chghost for how to customise valid chars for hostnames
+# See m_chghost for how to customize valid chars for hostnames.
 #<module name="m_sethost.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Setident module: Adds the /SETIDENT command
+# Setident module: Adds the /SETIDENT command.
 # This module is oper-only.
 # To use, SETIDENT must be in one of your oper class blocks.
 #<module name="m_setident.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SETNAME module: Adds the /SETNAME command
+# SETNAME module: Adds the /SETNAME command.
 #<module name="m_setname.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1635,7 +1630,7 @@
 #<module name="m_serverban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Show Whois module: Adds the +W usermode which allows opers
+# Show whois module: Adds the +W usermode which allows opers
 # to see when they are whois'ed (can be annoying).
 # This module is oper-only.
 #<module name="m_showwhois.so">
@@ -1648,7 +1643,7 @@
 #
 # You may also set whether or not users should receive whois notices, should
 # they be /whois'd by an oper.
-# showfromopers="yes">
+#showfromopers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Shun module: Provides the /SHUN command, which stops a user from
@@ -1680,14 +1675,14 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
+# m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
 # http://wiki.inspircd.org/Modules/ssl_gnutls                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SSL Info module: Allows users to retrieve information about other
 # user's peer SSL certificates and keys. This can be used by client
 # scripts to validate users. For this to work, one of m_ssl_gnutls.so
-# or m_ssl_openssl.so must be loaded. This module also adds the 
+# or m_ssl_openssl.so must be loaded. This module also adds the
 # "* <user> is using a secure connection" whois line, the ability for
 # opers to use SSL fingerprints to verify their identity and the ability
 # to force opers to use SSL connections in order to oper up.
@@ -1695,7 +1690,6 @@
 # you use SSL on your network.
 # For how to use the oper features, please see the first example <oper> tag
 # in opers.conf.example.
-#
 #<module name="m_sslinfo.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1705,34 +1699,33 @@
 # you want to enable this, or it will not load.
 #<module name="m_ssl_openssl.so">
 #
-#-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-  OPENSSL CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_openssl.so is too complex it describe here, see the wiki:     #
+# m_ssl_openssl.so is too complex to describe here, see the wiki:     #
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Strip color module: Adds the channel mode +S
+# Strip color module: Adds the channel mode +S.
 #<module name="m_stripcolor.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SILENCE module: Adds support for /SILENCE
+# SILENCE module: Adds support for the /SILENCE command.
 #<module name="m_silence.so">
 #
-# Configuration tags:
-#
+#-#-#-#-#-#-#-#-#-#-#-  SILENCE CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Set the maximum number of entries allowed on a user's silence list. #
 #<silence maxentries="32">
-#
-# Sets the maximum number of entries on a users silence list.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
-# databases through a unified API. 
-# This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlite.cpp
+# databases through a unified API.                                    #
+# This modules is in extras. Re-run configure with:                   #
+# ./configure --enable-extras=m_sqlite.cpp                            #
 # and run make install, then uncomment this module to enable it.      #
-#
 #<module name="m_sqlite3.so">
 #
-#-#-#-#-#-#-#-#-#-#-#-#- SQL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-#-  SQL CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # m_sqlite.so is more complex than described here, see the wiki for   #
 # more: http://wiki.inspircd.org/Modules/sqlite3                      #
@@ -1744,25 +1737,23 @@
 # a database table (for example a forum).
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqlauth.cpp
 # and run make install, then uncomment this module to enable it.
-#
 #<module name="m_sqlauth.so">
 #
-#-#-#-#-#-#-#-#-#-#-#- SQLAUTH CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-  SQLAUTH CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_sqlauth.so is too complex it describe here, see the wiki:         #
+# m_sqlauth.so is too complex to describe here, see the wiki:         #
 # http://wiki.inspircd.org/Modules/sqlauth                            #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQL oper module: Allows you to store oper credentials in an SQL table
 # This modules is in extras. Re-run configure with: ./configure --enable-extras=m_sqloper.cpp
 # and run make install, then uncomment this module to enable it.
-#
 #<module name="m_sqloper.so">
 #
-#-#-#-#-#-#-#-#-#-#-#- SQLOPER CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-  SQLOPER CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# dbid       - Database ID to use (see m_sql)                         #
-# hash       - Hashing provider to use for password hashing           #
+# dbid       - Database ID to use (see m_sql).                        #
+# hash       - Hashing provider to use for password hashing.          #
 #                                                                     #
 # See also: http://wiki.inspircd.org/Modules/sqloper                  #
 #                                                                     #
@@ -1782,11 +1773,11 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Test module: enable this to create a command useful in testing
 # flood control. To avoid accidental use on live networks, the server
-# name must contain ".test" to load the module
+# name must contain ".test" to load the module.
 #<module name="m_testnet.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Timed bans module: Adds timed channel bans and the /TBAN command
+# Timed bans module: Adds timed channel bans with the /TBAN command.
 #<module name="m_timedbans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1815,7 +1806,7 @@
 #<module name="m_uninvite.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Userip module: Adds the /USERIP command
+# Userip module: Adds the /USERIP command.
 # Allows users to query their own IP, also allows opers to query the IP
 # of anyone else.
 #<module name="m_userip.so">
@@ -1825,13 +1816,13 @@
 # hosts which are accessible using a username and password in the config.
 #<module name="m_vhost.so">
 #
-#-#-#-#-#-#-#-#-#-#-#- VHOST CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#-#
+#-#-#-#-#-#-#-#-#-#-#-  VHOST CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
 # user       - Username for the vhost.                                #
 #                                                                     #
 # pass       - Password for the vhost.                                #
 #                                                                     #
-# hash       - The hash for the specific user (optional)              #
+# hash       - The hash for the specific user (optional).             #
 #              m_password_hash.so and a hashing module must be loaded #
 #              for this to work.                                      #
 #                                                                     #
@@ -1845,11 +1836,10 @@
 # maintain notify lists.
 #<module name="m_watch.so">
 #
-# Configuration tags:
-#
+#-#-#-#-#-#-#-#-#-#-#-  WATCH CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#-#
+#                                                                     #
+# Set the maximum number of entries allowed on a user's watch list.   #
 #<watch maxentries="32">
-#
-# Sets the maximum number of entries on a user's watch list.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # XLine database: Stores all *Lines (G/Z/K/R/any added by other modules)
@@ -1858,9 +1848,10 @@
 # bigger networks, server connections will take less time as there will
 # be a lot less bans to apply - as most of them will already be there.
 #<module name="m_xline_db.so">
-
-# Specify the filename for the xline database here
+#
+# Specify the filename for the xline database here.
 #<xlinedb filename="data/xline.db">
+
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #
@@ -1876,10 +1867,7 @@
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Spanning Tree module - allows linking of servers using the spanning
+# Spanning tree module - allows linking of servers using the spanning
 # tree protocol (see the READ THIS BIT section above).
 # You will almost always want to load this.
-#
 #<module name="m_spanningtree.so">
-
-

@@ -28,6 +28,7 @@
      # PERMISSIONS:
      #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE)
      #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE)
+     #   - users/flood/no-fakelag: prevents opers from being penalized with fake lag for flooding (*NOTE)
      #
      # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
      privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit users/flood/no-throttle users/flood/increased-buffers"
