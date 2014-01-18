@@ -23,25 +23,24 @@
 
 #include "inspircd.h"
 
-int InspIRCd::PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype)
+bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype)
 {
 	ModResult res;
 	FIRST_MOD_RESULT(OnPassCompare, res, (ex, data, input, hashtype));
 
 	/* Module matched */
 	if (res == MOD_RES_ALLOW)
-		return 0;
+		return true;
 
 	/* Module explicitly didnt match */
 	if (res == MOD_RES_DENY)
-		return 1;
+		return false;
 
 	/* We dont handle any hash types except for plaintext - Thanks tra26 */
 	if (!hashtype.empty() && hashtype != "plaintext")
-		/* See below. 1 because they dont match */
-		return 1;
+		return false;
 
-	return (data != input); // this seems back to front, but returns 0 if they *match*, 1 else
+	return (data == input);
 }
 
 bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)

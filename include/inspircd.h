@@ -610,9 +610,9 @@ class CoreExport InspIRCd
 	 * @param data The data from the config file
 	 * @param input The data input by the oper
 	 * @param hashtype The hash from the config file
-	 * @return 0 if the strings match, 1 or -1 if they do not
+	 * @return True if the strings match, false if they do not
 	 */
-	int PassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype);
+	bool PassCompare(Extensible* ex, const std::string& data, const std::string& input, const std::string& hashtype);
 
 	/** Returns the full version string of this ircd
 	 * @return The version string
