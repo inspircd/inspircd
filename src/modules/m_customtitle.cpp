@@ -48,7 +48,7 @@ class CommandTitle : public Command
 			std::string title = i->second->getString("title");
 			std::string vhost = i->second->getString("vhost");
 
-			if (Name == parameters[0] && !ServerInstance->PassCompare(user, pass, parameters[1], hash) &&
+			if (Name == parameters[0] && ServerInstance->PassCompare(user, pass, parameters[1], hash) &&
 				InspIRCd::MatchMask(host, userHost, userIP) && !title.empty())
 			{
 				ctitle.set(user, title);
