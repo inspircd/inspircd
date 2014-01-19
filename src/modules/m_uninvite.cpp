@@ -37,7 +37,12 @@ class CommandUninvite : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		User* u = ServerInstance->FindNick(parameters[0]);
+		User* u;
+		if (IS_LOCAL(user))
+			u = ServerInstance->FindNickOnly(parameters[0]);
+		else
+			u = ServerInstance->FindNick(parameters[0]);
+
 		Channel* c = ServerInstance->FindChan(parameters[1]);
 
 		if ((!c) || (!u) || (u->registered != REG_ALL))

@@ -346,10 +346,19 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		return MODEACTION_DENY;
 	}
 
-	if (mh->GetTranslateType() == TR_NICK && !ServerInstance->FindNick(parameter))
+	if (mh->GetTranslateType() == TR_NICK)
 	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameter.c_str());
-		return MODEACTION_DENY;
+		User* prefixtarget;
+		if (IS_LOCAL(user))
+			prefixtarget = ServerInstance->FindNickOnly(parameter);
+		else
+			prefixtarget = ServerInstance->FindNick(parameter);
+
+		if (!prefixtarget)
+		{
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameter.c_str());
+			return MODEACTION_DENY;
+		}
 	}
 
 	if (mh->GetPrefixRank() && chan)
@@ -378,9 +387,16 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 void ModeParser::Process(const std::vector<std::string>& parameters, User *user, bool merge)
 {
-	std::string target = parameters[0];
+	const std::string& target = parameters[0];
 	Channel* targetchannel = ServerInstance->FindChan(target);
-	User* targetuser  = ServerInstance->FindNick(target);
+	User* targetuser = NULL;
+	if (!targetchannel)
+	{
+		if (IS_LOCAL(user))
+			targetuser = ServerInstance->FindNickOnly(target);
+		else
+			targetuser = ServerInstance->FindNick(target);
+	}
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
 
 	LastParse.clear();

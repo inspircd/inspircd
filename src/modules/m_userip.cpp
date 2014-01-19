@@ -42,7 +42,7 @@ class CommandUserip : public Command
 
 		for (int i = 0; i < (int)parameters.size(); i++)
 		{
-			User *u = ServerInstance->FindNick(parameters[i]);
+			User *u = ServerInstance->FindNickOnly(parameters[i]);
 			if ((u) && (u->registered == REG_ALL))
 			{
 				// Anyone may query their own IP

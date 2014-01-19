@@ -63,7 +63,10 @@ class RemoveBase : public Command
 		const std::string& username = parameters[neworder ? 1 : 0];
 
 		/* Look up the user we're meant to be removing from the channel */
-		target = ServerInstance->FindNick(username);
+		if (IS_LOCAL(user))
+			target = ServerInstance->FindNickOnly(username);
+		else
+			target = ServerInstance->FindNick(username);
 
 		/* And the channel we're meant to be removing them from */
 		channel = ServerInstance->FindChan(channame);

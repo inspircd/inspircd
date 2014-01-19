@@ -197,7 +197,7 @@ public:
 		/* Even if callerid mode is not set, we let them manage their ACCEPT list so that if they go +g they can
 		 * have a list already setup. */
 
-		std::string tok = parameters[0];
+		const std::string& tok = parameters[0];
 
 		if (tok == "*")
 		{
@@ -207,7 +207,12 @@ public:
 		}
 		else if (tok[0] == '-')
 		{
-			User* whotoremove = ServerInstance->FindNick(tok.substr(1));
+			User* whotoremove;
+			if (IS_LOCAL(user))
+				whotoremove = ServerInstance->FindNickOnly(tok.substr(1));
+			else
+				whotoremove = ServerInstance->FindNick(tok.substr(1));
+
 			if (whotoremove)
 				return (RemoveAccept(user, whotoremove) ? CMD_SUCCESS : CMD_FAILURE);
 			else
@@ -215,7 +220,13 @@ public:
 		}
 		else
 		{
-			User* whotoadd = ServerInstance->FindNick(tok[0] == '+' ? tok.substr(1) : tok);
+			const std::string target = (tok[0] == '+' ? tok.substr(1) : tok);
+			User* whotoadd;
+			if (IS_LOCAL(user))
+				whotoadd = ServerInstance->FindNickOnly(target);
+			else
+				whotoadd = ServerInstance->FindNick(target);
+
 			if ((whotoadd) && (whotoadd->registered == REG_ALL) && (!whotoadd->quitting) && (!IS_SERVER(whotoadd)))
 				return (AddAccept(user, whotoadd) ? CMD_SUCCESS : CMD_FAILURE);
 			else
