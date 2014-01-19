@@ -231,7 +231,7 @@ class ModuleJoinFlood : public Module
 		joinfloodsettings *f = jf.ext.get(memb->chan);
 
 		/* But all others are OK */
-		if (f)
+		if ((f) && (!f->islocked()))
 		{
 			f->addjoin();
 			if (f->shouldlock())
