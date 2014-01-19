@@ -320,11 +320,11 @@ class ModuleAlias : public Module
 		for (unsigned int i = 0; i < newline.length(); i++)
 		{
 			char c = newline[i];
-			if (c == '$')
+			if ((c == '$') && (i + 1 < newline.length()))
 			{
 				if (isdigit(newline[i+1]))
 				{
-					int len = (newline[i+2] == '-') ? 3 : 2;
+					int len = ((i + 2 < newline.length()) && (newline[i+2] == '-')) ? 3 : 2;
 					std::string var = newline.substr(i, len);
 					result.append(GetVar(var, original_line));
 					i += len - 1;
