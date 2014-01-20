@@ -42,14 +42,6 @@ class CommandRSQuit : public Command
 
 class CommandMap : public Command
 {
-	/** Show MAP output to a user (recursive)
-	 */
-	void ShowMap(TreeServer* Current, User* user, int depth, int &line, char* names, int &maxnamew, char* stats);
-
-	/** Returns oper-specific MAP information
-	 */
-	std::string MapOperInfo(TreeServer* Current);
-
  public:
 	CommandMap(Module* Creator);
 	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
