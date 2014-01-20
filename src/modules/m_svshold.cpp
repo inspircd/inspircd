@@ -25,6 +25,11 @@
 
 /* $ModDesc: Implements SVSHOLD. Like Q:Lines, but can only be added/removed by Services. */
 
+namespace
+{
+	bool silent;
+}
+
 /** Holds a SVSHold item
  */
 class SVSHold : public XLine
@@ -58,8 +63,11 @@ public:
 
 	void DisplayExpiry()
 	{
-		ServerInstance->SNO->WriteToSnoMask('x',"Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
-			this->nickname.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
+		if (!silent)
+		{
+			ServerInstance->SNO->WriteToSnoMask('x',"Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
+				this->nickname.c_str(), this->source.c_str(), (long int)(ServerInstance->Time() - this->set_time));
+		}
 	}
 
 	const char* Displayable()
@@ -114,7 +122,8 @@ class CommandSvshold : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s removed SVSHOLD on %s",user->nick.c_str(),parameters[0].c_str());
+				if (!silent)
+					ServerInstance->SNO->WriteToSnoMask('x',"%s removed SVSHOLD on %s",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
@@ -132,6 +141,9 @@ class CommandSvshold : public Command
 
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
+				if (silent)
+					return CMD_SUCCESS;
+
 				if (!duration)
 				{
 					ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
@@ -174,8 +186,15 @@ class ModuleSVSHold : public Module
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
 		ServerInstance->Modules->AddService(cmd);
-		Implementation eventlist[] = { I_OnUserPreNick, I_OnStats };
+		Implementation eventlist[] = { I_OnUserPreNick, I_OnStats, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		OnRehash(NULL);
+	}
+
+	void OnRehash(User* user)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("svshold");
+		silent = tag->getBool("silent");
 	}
 
 	virtual ModResult OnStats(char symbol, User* user, string_list &out)
