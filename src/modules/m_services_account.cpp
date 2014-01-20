@@ -114,6 +114,24 @@ class ModuleServicesAccount : public Module
 	AccountExtItem accountname;
 	bool checking_ban;
 
+	static bool ReadCGIIRCExt(const char* extname, User* user, const std::string*& out)
+	{
+		ExtensionItem* wiext = ServerInstance->Extensions.GetItem(extname);
+		if (!wiext)
+			return false;
+
+		if (wiext->creator->ModuleSourceFile != "m_cgiirc.so")
+			return false;
+
+		StringExtItem* stringext = static_cast<StringExtItem*>(wiext);
+		std::string* addr = stringext->get(user);
+		if (!addr)
+			return false;
+
+		out = addr;
+		return true;
+	}
+
  public:
 	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
 		accountname("accountname", this), checking_ban(false)
@@ -282,8 +300,19 @@ class ModuleServicesAccount : public Module
 				trim(*account);
 
 				if (IS_LOCAL(dest))
-					dest->WriteNumeric(900, "%s %s %s :You are now logged in as %s",
-						dest->nick.c_str(), dest->GetFullHost().c_str(), account->c_str(), account->c_str());
+				{
+					const std::string* host = &dest->dhost;
+					if (dest->registered != REG_ALL)
+					{
+						if (!ReadCGIIRCExt("cgiirc_webirc_hostname", dest, host))
+						{
+							ReadCGIIRCExt("cgiirc_webirc_ip", dest, host);
+						}
+					}
+
+					dest->WriteNumeric(900, "%s %s!%s@%s %s :You are now logged in as %s",
+						dest->nick.c_str(), dest->nick.c_str(), dest->ident.c_str(), host->c_str(), account->c_str(), account->c_str());
+				}
 
 				AccountEvent(this, dest, *account).Send();
 			}
