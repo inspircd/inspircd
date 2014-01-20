@@ -59,9 +59,11 @@ class HttpServerSocket : public BufferedSocket
 	std::string http_version;
 
  public:
+	const time_t createtime;
 
 	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 		: BufferedSocket(newfd), ip(IP), postsize(0)
+		, createtime(ServerInstance->Time())
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 
@@ -339,12 +341,22 @@ class HttpServerSocket : public BufferedSocket
 
 class ModuleHttpServer : public Module
 {
+	unsigned int timeoutsec;
+
  public:
 
 	void init()
 	{
 		HttpModule = this;
-		ServerInstance->Modules->Attach(I_OnAcceptConnection, this);
+		Implementation eventlist[] = { I_OnAcceptConnection, I_OnBackgroundTimer, I_OnRehash };
+		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		OnRehash(NULL);
+	}
+
+	void OnRehash(User* user)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("httpd");
+		timeoutsec = tag->getInt("timeout");
 	}
 
 	void OnRequest(Request& request)
@@ -365,6 +377,24 @@ class ModuleHttpServer : public Module
 		irc::sockets::satoap(*client, incomingip, port);
 		sockets.insert(new HttpServerSocket(nfd, incomingip, from, client, server));
 		return MOD_RES_ALLOW;
+	}
+
+	void OnBackgroundTimer(time_t curtime)
+	{
+		if (!timeoutsec)
+			return;
+
+		time_t oldest_allowed = curtime - timeoutsec;
+		for (std::set<HttpServerSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); )
+		{
+			HttpServerSocket* sock = *i;
+			++i;
+			if (sock->createtime < oldest_allowed)
+			{
+				sock->cull();
+				delete sock;
+			}
+		}
 	}
 
 	CullResult cull()

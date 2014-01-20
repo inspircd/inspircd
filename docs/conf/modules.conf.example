@@ -870,6 +870,9 @@
 # a <bind> tag with type "httpd", and load at least one of the other
 # m_httpd_* modules to provide pages to display.
 #
+# You can adjust the timeout for HTTP connections below. All HTTP
+# connections will be closed after (roughly) this many seconds.
+#<httpd timeout="20">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # http ACL module: Provides access control lists for m_httpd dependent
