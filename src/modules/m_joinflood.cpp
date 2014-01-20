@@ -169,8 +169,7 @@ class JoinFlood : public ModeHandler
 		}
 		else
 		{
-			joinfloodsettings* f = ext.get(channel);
-			if (f)
+			if (channel->IsModeSet('j'))
 			{
 				ext.unset(channel);
 				channel->SetModeParam('j', "");
