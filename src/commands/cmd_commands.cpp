@@ -30,7 +30,11 @@ class CommandCommands : public Command
  public:
 	/** Constructor for commands.
 	 */
-	CommandCommands ( Module* parent) : Command(parent,"COMMANDS",0,0) { }
+	CommandCommands(Module* parent) : Command(parent,"COMMANDS",0,0)
+	{
+		Penalty = 3;
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
