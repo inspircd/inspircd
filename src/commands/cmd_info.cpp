@@ -32,7 +32,12 @@ class CommandInfo : public Command
  public:
 	/** Constructor for info.
 	 */
-	CommandInfo ( Module* parent) : Command(parent,"INFO") { syntax = "[<servermask>]"; }
+	CommandInfo(Module* parent) : Command(parent,"INFO")
+	{
+		Penalty = 4;
+		syntax = "[<servername>]";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

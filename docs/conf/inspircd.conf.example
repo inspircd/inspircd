@@ -236,7 +236,7 @@
 
 <connect
          # deny: Will not let people connect if they have specified host/IP.
-         deny="69.254.*">
+         deny="192.0.2.*">
 
 # connect:reason is the message that users will see if they match a deny block
 <connect deny="3ffe::0/32" reason="The 6bone address space is deprecated">
@@ -253,7 +253,7 @@
          parent="main"
 
          # allow: What IP addresses/hosts to allow for this block.
-         allow="196.12.*"
+         allow="203.0.113.*"
 
          # hash: what hash this password is hashed with. requires the module
          # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
@@ -734,13 +734,15 @@
           #  no        Do not show
           operspywhois="no"
 
-          # runasuser: If this is set, InspIRCd will attempt to setuid
-          # to run as this user- allows binding of ports under 1024.
+          # runasuser: If this is set, InspIRCd will attempt to switch
+          # to run as this user, which allows binding of ports under 1024.
+          # You should NOT set this unless you are starting as root.
           # NOT SUPPORTED/NEEDED UNDER WINDOWS.
           #runasuser=""
 
-          # runasgroup: If this is set, InspIRCd will attempt to set group
-          # to run under this group, which allows binding of ports under 1024
+          # runasgroup: If this is set, InspIRCd will attempt to switch
+          # to run as this group, which allows binding of ports under 1024.
+          # You should NOT set this unless you are starting as root.
           # NOT SUPPORTED/NEEDED UNDER WINDOWS.
           #runasgroup=""
 
@@ -894,7 +896,7 @@
 
 <badip
        # ipmask: IP range to ban. Wildcards and CIDR can be used.
-       ipmask="69.69.69.69"
+       ipmask="192.0.2.69"
 
        # reason: Reason to display when user is disconnected.
        reason="No porn here thanks.">
@@ -913,22 +915,22 @@
 <badhost
          # host: ident@hostname to ban.
          # Wildcards and CIDR (if you specify an IP) can be used.
-         host="*@hundredz.n.hundredz.o.1337.kiddies.com"
+         host="*@hundredz.n.hundredz.o.1337.kiddies.example.net"
 
          # reason: Reason to display when user is disconnected
          reason="Too many 1337 kiddiots">
 
-<badhost host="root@*" reason="Don't irc as root!">
-<badhost host="*@172.32.0.0/16" reason="This subnet is bad.">
+<badhost host="root@*" reason="Don't IRC as root!">
+<badhost host="*@198.51.100.0/24" reason="This subnet is bad.">
 
 # exception: Hosts that are exempt from [kgz]lines.
 <exception
            # host: ident@hostname to exempt.
            # Wildcards and CIDR (if you specify an IP) can be used.
-           host="*@ircop.host.com"
+           host="*@ircop.example.com"
 
            # reason: Reason for exception. Only shown in /stats e
-           reason="Opers hostname">
+           reason="Oper's hostname">
 
 #-#-#-#-#-#-#-#-#-#-#- INSANE BAN OPTIONS  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

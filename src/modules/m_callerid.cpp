@@ -158,13 +158,18 @@ class CommandAccept : public Command
 	 */
 	typedef std::pair<User*, bool> ACCEPTAction;
 
-	static ACCEPTAction GetTargetAndAction(std::string& tok)
+	static ACCEPTAction GetTargetAndAction(std::string& tok, User* cmdfrom = NULL)
 	{
 		bool remove = (tok[0] == '-');
 		if ((remove) || (tok[0] == '+'))
 			tok.erase(tok.begin());
 
-		User* target = ServerInstance->FindNick(tok);
+		User* target;
+		if (!cmdfrom || !IS_LOCAL(cmdfrom))
+			target = ServerInstance->FindNick(tok);
+		else
+			target = ServerInstance->FindNickOnly(tok);
+
 		if ((!target) || (target->registered != REG_ALL) || (target->quitting) || (IS_SERVER(target)))
 			target = NULL;
 
@@ -216,7 +221,7 @@ public:
 		}
 
 		std::string tok = parameters[0];
-		ACCEPTAction action = GetTargetAndAction(tok);
+		ACCEPTAction action = GetTargetAndAction(tok, user);
 		if (!action.first)
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", tok.c_str());
@@ -248,7 +253,7 @@ public:
 
 		// Find the target
 		std::string targetstring = parameters[0];
-		ACCEPTAction action = GetTargetAndAction(targetstring);
+		ACCEPTAction action = GetTargetAndAction(targetstring, user);
 		if (!action.first)
 			// Target is a "*" or source is local and the target is a list of nicks
 			return ROUTE_LOCALONLY;

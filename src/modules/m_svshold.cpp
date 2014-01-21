@@ -23,6 +23,11 @@
 #include "inspircd.h"
 #include "xline.h"
 
+namespace
+{
+	bool silent;
+}
+
 /** Holds a SVSHold item
  */
 class SVSHold : public XLine
@@ -46,6 +51,15 @@ public:
 	bool Matches(const std::string &s)
 	{
 		return InspIRCd::Match(s, nickname);
+	}
+
+	void DisplayExpiry()
+	{
+		if (!silent)
+		{
+			ServerInstance->SNO->WriteToSnoMask('x', "Removing expired SVSHOLD %s (set by %s %ld seconds ago)",
+				nickname.c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time));
+		}
 	}
 
 	const std::string& Displayable()
@@ -99,7 +113,8 @@ class CommandSvshold : public Command
 		{
 			if (ServerInstance->XLines->DelLine(parameters[0].c_str(), "SVSHOLD", user))
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s removed SVSHOLD on %s",user->nick.c_str(),parameters[0].c_str());
+				if (!silent)
+					ServerInstance->SNO->WriteToSnoMask('x',"%s removed SVSHOLD on %s",user->nick.c_str(),parameters[0].c_str());
 			}
 			else
 			{
@@ -116,6 +131,9 @@ class CommandSvshold : public Command
 
 			if (ServerInstance->XLines->AddLine(r, user))
 			{
+				if (silent)
+					return CMD_SUCCESS;
+
 				if (!duration)
 				{
 					ServerInstance->SNO->WriteGlobalSno('x', "%s added permanent SVSHOLD for %s: %s", user->nick.c_str(), parameters[0].c_str(), parameters[2].c_str());
@@ -157,6 +175,12 @@ class ModuleSVSHold : public Module
 	void init() CXX11_OVERRIDE
 	{
 		ServerInstance->XLines->RegisterFactory(&s);
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("svshold");
+		silent = tag->getBool("silent");
 	}
 
 	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE

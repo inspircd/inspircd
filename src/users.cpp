@@ -761,7 +761,7 @@ const std::string& User::GetIPString()
 		irc::sockets::satoap(client_sa, cachedip, port);
 		/* IP addresses starting with a : on irc are a Bad Thing (tm) */
 		if (cachedip[0] == ':')
-			cachedip.insert(0,1,'0');
+			cachedip.insert(cachedip.begin(),1,'0');
 	}
 
 	return cachedip;

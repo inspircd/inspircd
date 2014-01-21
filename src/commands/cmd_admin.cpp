@@ -30,7 +30,12 @@ class CommandAdmin : public Command
  public:
 	/** Constructor for admin.
 	 */
-	CommandAdmin(Module* parent) : Command(parent,"ADMIN",0,0) { syntax = "[<servername>]"; }
+	CommandAdmin(Module* parent) : Command(parent,"ADMIN",0,0)
+	{
+		Penalty = 2;
+		syntax = "[<servername>]";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

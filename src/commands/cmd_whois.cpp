@@ -80,7 +80,7 @@ void CommandWhois::SplitChanList(User* source, User* dest, const std::string& cl
 {
 	std::string line;
 	std::ostringstream prefix;
-	std::string::size_type start, pos, length;
+	std::string::size_type start, pos;
 
 	prefix << dest->nick << " :";
 	line = prefix.str();
@@ -88,23 +88,13 @@ void CommandWhois::SplitChanList(User* source, User* dest, const std::string& cl
 
 	for (start = 0; (pos = cl.find(' ', start)) != std::string::npos; start = pos+1)
 	{
-		length = (pos == std::string::npos) ? cl.length() : pos;
-
-		if (line.length() + namelen + length - start > 510)
+		if (line.length() + namelen + pos - start > 510)
 		{
 			ServerInstance->SendWhoisLine(source, dest, 319, line);
 			line = prefix.str();
 		}
 
-		if(pos == std::string::npos)
-		{
-			line.append(cl.substr(start, length - start));
-			break;
-		}
-		else
-		{
-			line.append(cl.substr(start, length - start + 1));
-		}
+		line.append(cl.substr(start, pos - start + 1));
 	}
 
 	if (line.length() != prefix.str().length())

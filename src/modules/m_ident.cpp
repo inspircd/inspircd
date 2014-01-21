@@ -336,7 +336,7 @@ class ModuleIdent : public Module
 		/* wooo, got a result (it will be good, or bad) */
 		if (isock->result.empty())
 		{
-			user->ident.insert(0, 1, '~');
+			user->ident.insert(user->ident.begin(), 1, '~');
 			user->WriteNotice("*** Could not find your ident, using " + user->ident + " instead.");
 		}
 		else

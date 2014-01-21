@@ -161,13 +161,20 @@ void InspIRCd::QuickExit(int status)
 	exit(status);
 }
 
+// Required for returning the proper value of EXIT_SUCCESS for the parent process
+static void VoidSignalHandler(int signalreceived)
+{
+	exit(0);
+}
+
 bool InspIRCd::DaemonSeed()
 {
 #ifdef _WIN32
 	std::cout << "InspIRCd Process ID: " << con_green << GetCurrentProcessId() << con_reset << std::endl;
 	return true;
 #else
-	signal(SIGTERM, InspIRCd::QuickExit);
+	// Do not use QuickExit here: It will exit with status SIGTERM which would break e.g. daemon scripts
+	signal(SIGTERM, VoidSignalHandler);
 
 	int childpid = fork();
 	if (childpid < 0)
@@ -570,7 +577,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!g)
 		{
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "getgrnam(%s) failed (wrong group?): %s", SetGroup.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -578,7 +585,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setgid() failed (wrong group?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}
@@ -593,7 +600,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (!u)
 		{
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "getpwnam(%s) failed (wrong user?): %s", SetUser.c_str(), strerror(errno));
 			this->QuickExit(0);
 		}
 
@@ -601,7 +608,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 		if (ret == -1)
 		{
-			this->Logs->Log("STARTUP", LOG_DEFAULT, "setuid() failed (bad user?): %s", strerror(errno));
+			this->Logs->Log("STARTUP", LOG_DEFAULT, "setuid() failed (wrong user?): %s", strerror(errno));
 			this->QuickExit(0);
 		}
 	}

@@ -149,6 +149,9 @@ typedef uint32_t dword;
 
 class RIProv : public HashProvider
 {
+	/** Final hash value
+	 */
+	byte hashcode[RMDsize/8];
 
 	void MDinit(dword *MDbuf, unsigned int* key)
 	{
@@ -403,7 +406,6 @@ class RIProv : public HashProvider
 	byte *RMD(byte *message, dword length, unsigned int* key)
 	{
 		dword         MDbuf[RMDsize/32];   /* contains (A, B, C, D(E))   */
-		static byte   hashcode[RMDsize/8]; /* for final hash-value         */
 		dword         X[16];               /* current 16-word chunk        */
 		unsigned int  i;                   /* counter                      */
 		dword         nbytes;              /* # of bytes not yet processed */

@@ -654,7 +654,8 @@ const char* Channel::ChanModes(bool showkey)
  */
 void Channel::UserList(User *user)
 {
-	if (this->IsModeSet(secretmode) && !this->HasUser(user) && !user->HasPrivPermission("channels/auspex"))
+	bool has_privs = user->HasPrivPermission("channels/auspex");
+	if (this->IsModeSet(secretmode) && !this->HasUser(user) && !has_privs)
 	{
 		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", this->name.c_str());
 		return;
@@ -679,7 +680,7 @@ void Channel::UserList(User *user)
 	{
 		if (i->first->quitting)
 			continue;
-		if ((!has_user) && (i->first->IsModeSet(invisiblemode)))
+		if ((!has_user) && (i->first->IsModeSet(invisiblemode)) && (!has_privs))
 		{
 			/*
 			 * user is +i, and source not on the channel, does not show

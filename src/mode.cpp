@@ -207,7 +207,12 @@ PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter
 
 ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::string& parameter, bool adding)
 {
-	User* target = ServerInstance->FindNick(parameter);
+	User* target;
+	if (IS_LOCAL(source))
+		target = ServerInstance->FindNickOnly(parameter);
+	else
+		target = ServerInstance->FindNick(parameter);
+
 	if (!target)
 	{
 		source->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameter.c_str());
@@ -347,9 +352,16 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 void ModeParser::Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags)
 {
-	std::string target = parameters[0];
+	const std::string& target = parameters[0];
 	Channel* targetchannel = ServerInstance->FindChan(target);
-	User* targetuser  = ServerInstance->FindNick(target);
+	User* targetuser = NULL;
+	if (!targetchannel)
+	{
+		if (IS_LOCAL(user))
+			targetuser = ServerInstance->FindNickOnly(target);
+		else
+			targetuser = ServerInstance->FindNick(target);
+	}
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
 
 	LastParse.clear();

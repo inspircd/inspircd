@@ -42,7 +42,7 @@ class SeeWhois : public SimpleUserModeHandler
 class WhoisNoticeCmd : public Command
 {
  public:
-	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 1)
+	WhoisNoticeCmd(Module* Creator) : Command(Creator,"WHOISNOTICE", 2)
 	{
 		flags_needed = FLAG_SERVERONLY;
 	}

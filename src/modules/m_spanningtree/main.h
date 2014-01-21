@@ -77,6 +77,11 @@ class ModuleSpanningTree : public Module
 	 */
 	bool SplitInProgress;
 
+	/** If true OnUserPostNick() won't update the nick TS before sending the NICK,
+	 * used when handling SVSNICK.
+	 */
+	bool KeepNickTS;
+
 	/** Constructor
 	 */
 	ModuleSpanningTree();

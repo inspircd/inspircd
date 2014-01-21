@@ -361,8 +361,8 @@ Sets your name to the specified name.">
 <helpop key="coper" value="Oper Commands
 -------------
 
-OPERMOTD  CHECK     CLONES      USERIP   LINE
-ALLTIME   MODULES   WALLOPS     GLOBOPS
+OPERMOTD  CHECK     CLONES      USERIP   TLINE
+ALLTIME   WALLOPS   GLOBOPS
 
 SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
 SETIDLE   SWHOIS

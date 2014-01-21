@@ -85,7 +85,7 @@ class CommandSVSSilence : public Command
 
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(++parameters.begin(), parameters.end()), u);
+			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(parameters.begin() + 1, parameters.end()), u);
 		}
 
 		return CMD_SUCCESS;
@@ -301,7 +301,7 @@ class ModuleSilence : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		maxsilence = ServerInstance->Config->ConfValue("showwhois")->getInt("maxentries", 32);
+		maxsilence = ServerInstance->Config->ConfValue("silence")->getInt("maxentries", 32);
 		if (!maxsilence)
 			maxsilence = 32;
 	}

@@ -30,6 +30,7 @@ class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;
 static bool claimed;
+static std::set<HttpServerSocket*> sockets;
 
 /** HTTP socket states
  */
@@ -56,14 +57,22 @@ class HttpServerSocket : public BufferedSocket
 	std::string http_version;
 
  public:
+	const time_t createtime;
+
 	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 		: BufferedSocket(newfd), ip(IP), postsize(0)
+		, createtime(ServerInstance->Time())
 	{
 		InternalState = HTTP_SERVE_WAIT_REQUEST;
 
 		FOREACH_MOD(OnHookIO, (this, via));
 		if (GetIOHook())
 			GetIOHook()->OnStreamSocketAccept(this, client, server);
+	}
+
+	~HttpServerSocket()
+	{
+		sockets.erase(this);
 	}
 
 	void OnError(BufferedSocketError) CXX11_OVERRIDE
@@ -347,6 +356,7 @@ class ModuleHttpServer : public Module
 {
 	std::vector<HttpServerSocket *> httpsocks;
 	HTTPdAPIImpl APIImpl;
+	unsigned int timeoutsec;
 
  public:
 	ModuleHttpServer()
@@ -359,6 +369,12 @@ class ModuleHttpServer : public Module
 		HttpModule = this;
 	}
 
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("httpd");
+		timeoutsec = tag->getInt("timeout");
+	}
+
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
 		if (from->bind_tag->getString("type") != "httpd")
@@ -366,17 +382,39 @@ class ModuleHttpServer : public Module
 		int port;
 		std::string incomingip;
 		irc::sockets::satoap(*client, incomingip, port);
-		new HttpServerSocket(nfd, incomingip, from, client, server);
+		sockets.insert(new HttpServerSocket(nfd, incomingip, from, client, server));
 		return MOD_RES_ALLOW;
 	}
 
-	~ModuleHttpServer()
+	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
 	{
-		for (size_t i = 0; i < httpsocks.size(); i++)
+		if (!timeoutsec)
+			return;
+
+		time_t oldest_allowed = curtime - timeoutsec;
+		for (std::set<HttpServerSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); )
 		{
-			httpsocks[i]->cull();
-			delete httpsocks[i];
+			HttpServerSocket* sock = *i;
+			++i;
+			if (sock->createtime < oldest_allowed)
+			{
+				sock->cull();
+				delete sock;
+			}
 		}
+	}
+
+	CullResult cull() CXX11_OVERRIDE
+	{
+		std::set<HttpServerSocket*> local;
+		local.swap(sockets);
+		for (std::set<HttpServerSocket*>::const_iterator i = local.begin(); i != local.end(); ++i)
+		{
+			HttpServerSocket* sock = *i;
+			sock->cull();
+			delete sock;
+		}
+		return Module::cull();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

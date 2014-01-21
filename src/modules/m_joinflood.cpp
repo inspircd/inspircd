@@ -124,12 +124,8 @@ class JoinFlood : public ModeHandler
 			if (!channel->IsModeSet(this))
 				return MODEACTION_DENY;
 
-			joinfloodsettings* f = ext.get(channel);
-			if (f)
-			{
-				ext.unset(channel);
-				return MODEACTION_ALLOW;
-			}
+			ext.unset(channel);
+			return MODEACTION_ALLOW;
 		}
 		return MODEACTION_DENY;
 	}
@@ -168,7 +164,7 @@ class ModuleJoinFlood : public Module
 		joinfloodsettings *f = jf.ext.get(memb->chan);
 
 		/* But all others are OK */
-		if (f)
+		if ((f) && (!f->islocked()))
 		{
 			f->addjoin();
 			if (f->shouldlock())

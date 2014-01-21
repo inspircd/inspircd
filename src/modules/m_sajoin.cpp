@@ -60,7 +60,7 @@ class CommandSajoin : public Command
 				Channel* n = Channel::JoinUser(localuser, parameters[1], true);
 				if (n && n->HasUser(dest))
 				{
-					ServerInstance->SNO->WriteToSnoMask('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+parameters[1]);
+					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+parameters[1]);
 					return CMD_SUCCESS;
 				}
 				else
@@ -71,7 +71,6 @@ class CommandSajoin : public Command
 			}
 			else
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', user->nick+" sent remote SAJOIN to make "+dest->nick+" join "+parameters[1]);
 				return CMD_SUCCESS;
 			}
 		}

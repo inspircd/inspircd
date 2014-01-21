@@ -225,6 +225,10 @@ class CommandDccallow : public Command
 		user->WriteNumeric(998, ":  they will be removed from your DCCALLOW list.");
 		user->WriteNumeric(998, ":  your DCCALLOW list will be deleted when you leave IRC.");
 		user->WriteNumeric(999, ":End of DCCALLOW HELP");
+
+		LocalUser* localuser = IS_LOCAL(user);
+		if (localuser)
+			localuser->CommandFloodPenalty += 4000;
 	}
 
 	void DisplayDCCAllowList(User* user)

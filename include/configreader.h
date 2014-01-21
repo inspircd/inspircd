@@ -83,8 +83,7 @@ class CoreExport ConfigTag : public refcountbase
 	inline const std::vector<KeyVal>& getItems() const { return items; }
 
 	/** Create a new ConfigTag, giving access to the private KeyVal item list */
-	static ConfigTag* create(const std::string& Tag, const std::string& file, int line,
-		std::vector<KeyVal>*&items);
+	static ConfigTag* create(const std::string& Tag, const std::string& file, int line, std::vector<KeyVal>*& Items);
  private:
 	ConfigTag(const std::string& Tag, const std::string& file, int line);
 };

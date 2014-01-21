@@ -142,7 +142,10 @@ class DNSBLResolver : public DNS::Request
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
+					{
 						delete kl;
+						return;
+					}
 					break;
 				}
 				case DNSBLConfEntry::I_GLINE:
@@ -157,7 +160,10 @@ class DNSBLResolver : public DNS::Request
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
+					{
 						delete gl;
+						return;
+					}
 					break;
 				}
 				case DNSBLConfEntry::I_ZLINE:
@@ -172,7 +178,10 @@ class DNSBLResolver : public DNS::Request
 						ServerInstance->XLines->ApplyLines();
 					}
 					else
+					{
 						delete zl;
+						return;
+					}
 					break;
 				}
 				case DNSBLConfEntry::I_UNKNOWN:

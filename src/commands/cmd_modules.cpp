@@ -31,7 +31,12 @@ class CommandModules : public Command
  public:
 	/** Constructor for modules.
 	 */
-	CommandModules ( Module* parent) : Command(parent,"MODULES",0,0) { syntax = "[server]"; }
+	CommandModules(Module* parent) : Command(parent,"MODULES",0,0)
+	{
+		Penalty = 4;
+		syntax = "[<servername>]";
+	}
+
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -74,7 +79,7 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 		Module* m = i->second;
 		Version V = m->GetVersion();
 
-		if (user->HasPrivPermission("servers/auspex"))
+		if (IS_LOCAL(user) && user->HasPrivPermission("servers/auspex"))
 		{
 			std::string flags("SvcC");
 			int pos = 0;
