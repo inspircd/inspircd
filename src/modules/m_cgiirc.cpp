@@ -29,6 +29,13 @@
 
 enum CGItype { PASS, IDENT, PASSFIRST, IDENTFIRST, WEBIRC };
 
+// We need this method up here so that it can be accessed from anywhere
+static void ChangeIP(User* user, const std::string& newip)
+{
+	ServerInstance->Users->RemoveCloneCounts(user);
+	user->SetClientIP(newip.c_str());
+	ServerInstance->Users->AddClone(user);
+}
 
 /** Holds a CGI site's details
  */
@@ -63,14 +70,11 @@ class CommandWebirc : public Command
 	bool notify;
 	StringExtItem realhost;
 	StringExtItem realip;
-	LocalStringExt webirc_hostname;
-	LocalStringExt webirc_ip;
 
 	CGIHostlist Hosts;
 	CommandWebirc(Module* Creator)
 		: Command(Creator, "WEBIRC", 4),
-		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator),
-		  webirc_hostname("cgiirc_webirc_hostname", Creator), webirc_ip("cgiirc_webirc_ip", Creator)
+		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator)
 		{
 			works_before_reg = true;
 			this->syntax = "password client hostname ip";
@@ -89,19 +93,18 @@ class CommandWebirc : public Command
 						realhost.set(user, user->host);
 						realip.set(user, user->GetIPString());
 
+						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
 						bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost);
 						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
 
 						if (notify)
 							ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
 
-						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
-						if (host_ok)
-							webirc_hostname.set(user, parameters[2]);
-						else
-							webirc_hostname.unset(user);
+						// Where the magic happens - change their IP
+						ChangeIP(user, parameters[3]);
+						// And follow this up by changing their host
+						user->host = user->dhost = newhost;
 
-						webirc_ip.set(user, parameters[3]);
 						return CMD_SUCCESS;
 					}
 				}
@@ -186,13 +189,6 @@ class ModuleCgiIRC : public Module
 		user->MyClass = NULL;
 		user->SetClass();
 		user->CheckClass();
-	}
-
-	static void ChangeIP(LocalUser* user, const std::string& newip)
-	{
-		ServerInstance->Users->RemoveCloneCounts(user);
-		user->SetClientIP(newip.c_str());
-		ServerInstance->Users->AddClone(user);
 	}
 
 	void HandleIdentOrPass(LocalUser* user, const std::string& newip, bool was_pass)
@@ -292,14 +288,8 @@ public:
 		if (waiting.get(user))
 			return MOD_RES_DENY;
 
-		std::string *webirc_ip = cmd.webirc_ip.get(user);
-		if (!webirc_ip)
+		if (!cmd.realip.get(user))
 			return MOD_RES_PASSTHRU;
-
-		ChangeIP(user, *webirc_ip);
-
-		std::string* webirc_hostname = cmd.webirc_hostname.get(user);
-		user->host = user->dhost = (webirc_hostname ? *webirc_hostname : user->GetIPString());
 
 		RecheckClass(user);
 		if (user->quitting)
@@ -308,9 +298,6 @@ public:
 		user->CheckLines(true);
 		if (user->quitting)
 			return MOD_RES_DENY;
-
-		cmd.webirc_hostname.unset(user);
-		cmd.webirc_ip.unset(user);
 
 		return MOD_RES_PASSTHRU;
 	}
