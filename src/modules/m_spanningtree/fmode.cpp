@@ -75,5 +75,3 @@ CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 	ServerInstance->Modes->Process(modelist, who, flags);
 	return CMD_SUCCESS;
 }
-
-

@@ -190,4 +190,3 @@ namespace DNS
 	};
 
 } // namespace DNS
-

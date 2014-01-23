@@ -103,4 +103,3 @@ class ModuleSanick : public Module
 };
 
 MODULE_INIT(ModuleSanick)
-

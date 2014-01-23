@@ -35,4 +35,3 @@ CmdResult CommandDelLine::Handle(User* user, std::vector<std::string>& params)
 	}
 	return CMD_FAILURE;
 }
-

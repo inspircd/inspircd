@@ -525,4 +525,3 @@ class CoreExport XLineManager
 	 */
 	void InvokeStats(const std::string &type, int numeric, User* user, string_list &results);
 };
-

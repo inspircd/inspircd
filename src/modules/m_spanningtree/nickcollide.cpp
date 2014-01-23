@@ -139,4 +139,3 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 
 	return 3;
 }
-

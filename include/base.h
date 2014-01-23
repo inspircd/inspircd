@@ -255,4 +255,3 @@ class CoreExport ServiceProvider : public classbase
 	 */
 	void DisableAutoRegister();
 };
-

@@ -33,4 +33,3 @@ CmdResult CommandPush::Handle(User* user, std::vector<std::string>& params)
 	}
 	return CMD_SUCCESS;
 }
-

@@ -125,5 +125,4 @@ class ModuleServProtectMode : public Module
 	}
 };
 
-
 MODULE_INIT(ModuleServProtectMode)

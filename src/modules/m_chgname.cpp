@@ -86,7 +86,6 @@ public:
 	{
 		return Version("Provides support for the CHGNAME command", VF_OPTCOMMON | VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleChgName)

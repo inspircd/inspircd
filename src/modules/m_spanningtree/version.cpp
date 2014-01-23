@@ -29,4 +29,3 @@ CmdResult CommandVersion::HandleServer(TreeServer* server, std::vector<std::stri
 	server->SetVersion(params[0]);
 	return CMD_SUCCESS;
 }
-

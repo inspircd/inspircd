@@ -541,4 +541,3 @@ void StreamSocket::HandleEvent(EventType et, int errornum)
 		OnError(errcode);
 	}
 }
-

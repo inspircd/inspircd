@@ -896,7 +896,7 @@ void User::WriteNumeric(unsigned int numeric, const std::string &text)
 
 	if (MOD_RESULT == MOD_RES_DENY)
 		return;
-	
+
 	const std::string message = InspIRCd::Format(":%s %03u %s %s", ServerInstance->Config->ServerName.c_str(),
 		numeric, !this->nick.empty() ? this->nick.c_str() : "*", text.c_str());
 	this->Write(message);

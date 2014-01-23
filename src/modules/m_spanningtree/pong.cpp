@@ -41,4 +41,3 @@ CmdResult CommandPong::HandleServer(TreeServer* server, std::vector<std::string>
 	}
 	return CMD_SUCCESS;
 }
-

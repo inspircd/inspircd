@@ -50,4 +50,3 @@ ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &r
 	}
 	return MOD_RES_PASSTHRU;
 }
-

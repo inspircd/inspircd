@@ -40,4 +40,3 @@ ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& 
 	}
 	return MOD_RES_PASSTHRU;
 }
-

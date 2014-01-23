@@ -143,4 +143,3 @@ CmdResult SplitCommand::HandleServer(const std::vector<std::string>&, FakeUser*)
 {
 	return CMD_INVALID;
 }
-

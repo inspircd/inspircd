@@ -91,7 +91,7 @@ std::string FileSystem::GetFileName(const std::string& name)
 #ifdef _WIN32
 	size_t pos = name.find_last_of("\\/");
 #else
-	size_t pos = name.rfind('/');	
+	size_t pos = name.rfind('/');
 #endif
 	return pos == std::string::npos ? name : name.substr(++pos);
 }

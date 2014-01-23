@@ -56,4 +56,3 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 	}
 	return MOD_RES_DENY;
 }
-

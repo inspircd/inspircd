@@ -28,7 +28,8 @@ class CommandClose : public Command
 	/* Command 'close', needs operator */
 	CommandClose(Module* Creator) : Command(Creator,"CLOSE", 0)
 	{
-	flags_needed = 'o'; }
+		flags_needed = 'o';
+	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *src)
 	{

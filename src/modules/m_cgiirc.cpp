@@ -412,7 +412,6 @@ public:
 	{
 		return Version("Change user's hosts connecting from known CGI:IRC hosts",VF_VENDOR);
 	}
-
 };
 
 MODULE_INIT(ModuleCgiIRC)

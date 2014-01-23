@@ -369,4 +369,3 @@ bool irc::sockets::cidr_mask::match(const irc::sockets::sockaddrs& addr) const
 	irc::sockets::cidr_mask tmp(addr, length);
 	return tmp == *this;
 }
-

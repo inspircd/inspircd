@@ -28,7 +28,7 @@
  * Starting with PSAPI version 2 for Windows 7 and Windows Server 2008 R2, this function is defined as K32GetProcessMemoryInfo in Psapi.h and exported
  * in Kernel32.lib and Kernel32.dll. However, you should always call this function as GetProcessMemoryInfo. To ensure correct resolution of symbols
  * for programs that will run on earlier versions of Windows, add Psapi.lib to the TARGETLIBS macro and compile the program with PSAPI_VERSION=1.
- * 
+ *
  * We do this before anything to make sure it's done.
  */
 #define PSAPI_VERSION 1
@@ -114,7 +114,7 @@ __inline void sleep(int seconds) { Sleep(seconds * 1000); }
 
 /* IPV4 only convert string to address struct */
 __inline int inet_aton(const char *cp, struct in_addr *addr)
-{ 
+{
 	addr->s_addr = inet_addr(cp);
 	return (addr->s_addr == INADDR_NONE) ? 0 : 1;
 };

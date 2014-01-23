@@ -84,4 +84,3 @@ class ModuleSaquit : public Module
 };
 
 MODULE_INIT(ModuleSaquit)
-

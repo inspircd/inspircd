@@ -92,5 +92,3 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 
 	return mask == mask2;
 }
-
-

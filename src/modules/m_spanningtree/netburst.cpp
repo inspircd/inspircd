@@ -296,4 +296,3 @@ void TreeSocket::SendUsers(BurstState& bs)
 		FOREACH_MOD(OnSyncUser, (user, piserver));
 	}
 }
-

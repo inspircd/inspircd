@@ -39,5 +39,3 @@ CmdResult CommandPing::Handle(User* user, std::vector<std::string>& params)
 	}
 	return CMD_SUCCESS;
 }
-
-

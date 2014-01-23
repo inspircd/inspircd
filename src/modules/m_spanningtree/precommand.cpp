@@ -55,4 +55,3 @@ ModResult ModuleSpanningTree::OnPreCommand(std::string &command, std::vector<std
 	}
 	return MOD_RES_PASSTHRU;
 }
-

@@ -166,7 +166,7 @@ class ModuleXLineDB : public Module
 			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
-		
+
 		std::string line;
 		while (std::getline(stream, line))
 		{

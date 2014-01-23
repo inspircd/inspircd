@@ -316,4 +316,3 @@ ModuleException::ModuleException(const std::string &message, Module* who)
 	: CoreException(message, who ? who->ModuleSourceFile : "A Module")
 {
 }
-

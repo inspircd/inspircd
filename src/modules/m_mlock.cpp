@@ -23,8 +23,11 @@ class ModuleMLock : public Module
 {
 	StringExtItem mlock;
 
-public:
-	ModuleMLock() : mlock("mlock", this) {};
+ public:
+	ModuleMLock()
+		: mlock("mlock", this)
+	{
+	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
