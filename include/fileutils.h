@@ -20,7 +20,7 @@
 #pragma once
 
 /** Provides an easy method of reading a text file into memory. */
-class CoreExport FileReader : public classbase
+class CoreExport FileReader
 {
 	/** The lines of text in the file. */
 	std::vector<std::string> lines;
