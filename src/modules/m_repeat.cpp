@@ -19,11 +19,6 @@
 
 #include "inspircd.h"
 
-#ifdef _WIN32
-// windows.h defines this
-#undef min
-#endif
-
 class RepeatMode : public ModeHandler
 {
  private:

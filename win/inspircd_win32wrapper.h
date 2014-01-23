@@ -75,8 +75,10 @@
 #define W_OK            (1<<1)  /* test for write permission */
 #define R_OK            (1<<2)  /* test for read permission */
 
-/* Windows defines this already. */
+// Windows defines these already.
 #undef ERROR
+#undef min
+#undef max
 
 /* strcasecmp is not defined on windows by default */
 #define strcasecmp _stricmp
