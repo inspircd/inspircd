@@ -63,10 +63,6 @@ class CoreExport UserManager
 	 */
 	unsigned int unregistered_count;
 
-	/** Number of elements in local_users
-	 */
-	unsigned int local_count;
-
 	/** Map of global ip addresses for clone counting
 	 * XXX - this should be private, but m_clones depends on it currently.
 	 */
@@ -159,7 +155,7 @@ class CoreExport UserManager
 	/** Return a count of local registered users
 	 * @return The number of registered local users
 	 */
-	unsigned int LocalUserCount() const { return (this->local_count - this->UnregisteredUserCount()); }
+	unsigned int LocalUserCount() const { return (this->local_users.size() - this->UnregisteredUserCount()); }
 
 	/** Send a server notice to all local users
 	 * @param text The text format string to send

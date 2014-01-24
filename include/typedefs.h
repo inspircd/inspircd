@@ -57,7 +57,7 @@ typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHa
 
 /** A list holding local users, this is the type of UserManager::local_users
  */
-typedef std::list<LocalUser*> LocalUserList;
+typedef intrusive_list<LocalUser> LocalUserList;
 
 /** A list of failed port bindings, used for informational purposes on startup */
 typedef std::vector<std::pair<std::string, std::string> > FailedPortList;

@@ -655,17 +655,13 @@ class CoreExport UserIOHandler : public StreamSocket
 
 typedef unsigned int already_sent_t;
 
-class CoreExport LocalUser : public User, public InviteBase
+class CoreExport LocalUser : public User, public InviteBase, public intrusive_list_node<LocalUser>
 {
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
 	CullResult cull();
 
 	UserIOHandler eh;
-
-	/** Position in UserManager::local_users
-	 */
-	LocalUserList::iterator localuseriter;
 
 	/** Stats counter for bytes inbound
 	 */

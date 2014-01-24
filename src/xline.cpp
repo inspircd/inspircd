@@ -430,10 +430,10 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
-	LocalUserList::reverse_iterator u2 = ServerInstance->Users->local_users.rbegin();
-	while (u2 != ServerInstance->Users->local_users.rend())
+	LocalUserList& list = ServerInstance->Users->local_users;
+	for (LocalUserList::iterator j = list.begin(); j != list.end(); ++j)
 	{
-		LocalUser* u = *u2++;
+		LocalUser* u = *j;
 
 		// Don't ban people who are exempt.
 		if (u->exempt)

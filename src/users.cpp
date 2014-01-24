@@ -86,7 +86,6 @@ User::User(const std::string& uid, Server* srv, int type)
 
 LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* servaddr)
 	: User(ServerInstance->UIDGen.GetUID(), ServerInstance->FakeClient->server, USERTYPE_LOCAL), eh(this),
-	localuseriter(ServerInstance->Users->local_users.end()),
 	bytes_in(0), bytes_out(0), cmds_in(0), cmds_out(0), nping(0), CommandFloodPenalty(0),
 	already_sent(0)
 {
@@ -337,17 +336,7 @@ CullResult User::cull()
 
 CullResult LocalUser::cull()
 {
-	// The iterator is initialized to local_users.end() in the constructor. It is
-	// overwritten in UserManager::AddUser() with the real iterator so this check
-	// is only a precaution currently.
-	if (localuseriter != ServerInstance->Users->local_users.end())
-	{
-		ServerInstance->Users->local_count--;
-		ServerInstance->Users->local_users.erase(localuseriter);
-	}
-	else
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: LocalUserIter does not point to a valid entry for " + this->nick);
-
+	ServerInstance->Users->local_users.erase(this);
 	ClearInvites();
 	eh.cull();
 	return User::cull();

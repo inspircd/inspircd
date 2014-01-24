@@ -28,7 +28,7 @@
 UserManager::UserManager()
 	: clientlist(new user_hash)
 	, uuidlist(new user_hash)
-	, unregistered_count(0), local_count(0)
+	, unregistered_count(0)
 {
 }
 
@@ -81,8 +81,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	ServerInstance->Users->AddLocalClone(New);
 	ServerInstance->Users->AddGlobalClone(New);
 
-	New->localuseriter = this->local_users.insert(local_users.end(), New);
-	local_count++;
+	this->local_users.push_front(New);
 
 	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)ServerInstance->SE->GetMaxFds()))
 	{
