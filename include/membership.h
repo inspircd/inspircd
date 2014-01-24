@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2012-2014 Attila Molnar <attilamolnar@hush.com>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
@@ -19,7 +20,7 @@
 
 #pragma once
 
-class CoreExport Membership : public Extensible
+class CoreExport Membership : public Extensible, public intrusive_list_node<Membership>
 {
  public:
 	User* const user;

@@ -32,7 +32,7 @@ class ModuleHostCycle : public Module
 		already_sent_t silent_id = ++LocalUser::already_sent_id;
 		already_sent_t seen_id = ++LocalUser::already_sent_id;
 
-		UserChanList include_chans(user->chans);
+		IncludeChanList include_chans(user->chans.begin(), user->chans.end());
 		std::map<User*,bool> exceptions;
 
 		FOREACH_MOD(OnBuildNeighborList, (user, include_chans, exceptions));
@@ -56,10 +56,10 @@ class ModuleHostCycle : public Module
 
 		std::string newfullhost = user->nick + "!" + newident + "@" + newhost;
 
-		for (UCListIter i = include_chans.begin(); i != include_chans.end(); ++i)
+		for (IncludeChanList::const_iterator i = include_chans.begin(); i != include_chans.end(); ++i)
 		{
-			Channel* c = *i;
-			Membership* memb = c->GetUser(user);
+			Membership* memb = *i;
+			Channel* c = memb->chan;
 			const std::string joinline = ":" + newfullhost + " JOIN " + c->name;
 			std::string modeline;
 

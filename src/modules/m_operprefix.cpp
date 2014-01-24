@@ -81,7 +81,7 @@ class ModuleOperPrefixMode : public Module
 		modechange.push_back(user->nick);
 		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
 		{
-			modechange[0] = (*v)->name;
+			modechange[0] = (*v)->chan->name;
 			ServerInstance->Modes->Process(modechange, ServerInstance->FakeClient);
 		}
 	}

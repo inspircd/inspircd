@@ -53,7 +53,7 @@ class ModuleNoNickChange : public Module
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			Channel* curr = *i;
+			Channel* curr = (*i)->chan;
 
 			ModResult res = ServerInstance->OnCheckExemption(user,curr,"nonick");
 

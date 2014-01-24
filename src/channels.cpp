@@ -331,7 +331,7 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 	if (!memb)
 		return; // Already on the channel
 
-	user->chans.insert(this);
+	user->chans.push_front(memb);
 
 	if (privs)
 	{
@@ -466,7 +466,7 @@ void Channel::PartUser(User *user, std::string &reason)
 		WriteAllExcept(user, false, 0, except_list, "PART %s%s%s", this->name.c_str(), reason.empty() ? "" : " :", reason.c_str());
 
 		// Remove this channel from the user's chanlist
-		user->chans.erase(this);
+		user->chans.erase(memb);
 		// Remove the Membership from this channel's userlist and destroy it
 		this->DelUser(membiter);
 	}
@@ -520,7 +520,7 @@ void Channel::KickUser(User* src, User* victim, const std::string& reason, Membe
 
 	WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), victim->nick.c_str(), reason.c_str());
 
-	victim->chans.erase(this);
+	victim->chans.erase(memb);
 	this->DelUser(victimiter);
 }
 

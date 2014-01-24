@@ -43,6 +43,7 @@
 #include <string>
 #include <vector>
 
+#include "intrusive_list.h"
 #include "compat.h"
 #include "typedefs.h"
 

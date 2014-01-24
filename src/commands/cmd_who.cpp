@@ -45,10 +45,9 @@ class CommandWho : public Command
 
 	Channel* get_first_visible_channel(User *u)
 	{
-		UCListIter i = u->chans.begin();
-		while (i != u->chans.end())
+		for (UCListIter i = u->chans.begin(); i != u->chans.end(); ++i)
 		{
-			Channel* c = *i++;
+			Channel* c = (*i)->chan;
 			if (!c->IsModeSet(secretmode))
 				return c;
 		}

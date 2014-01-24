@@ -50,7 +50,7 @@ class ModuleDelayJoin : public Module
 	void CleanUser(User* user);
 	void OnUserPart(Membership*, std::string &partmessage, CUList&) CXX11_OVERRIDE;
 	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) CXX11_OVERRIDE;
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception) CXX11_OVERRIDE;
+	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE;
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
 	ModResult OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE;
 };
@@ -123,15 +123,15 @@ void ModuleDelayJoin::OnUserKick(User* source, Membership* memb, const std::stri
 		populate(except, memb);
 }
 
-void ModuleDelayJoin::OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception)
+void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception)
 {
-	UCListIter i = include.begin();
-	while (i != include.end())
+	for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
 	{
-		Channel* c = *i++;
-		Membership* memb = c->GetUser(source);
-		if (memb && unjoined.get(memb))
-			include.erase(c);
+		Membership* memb = *i;
+		if (unjoined.get(memb))
+			i = include.erase(i);
+		else
+			++i;
 	}
 }
 

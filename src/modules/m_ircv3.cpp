@@ -33,7 +33,7 @@ class ModuleIRCv3 : public Module
 
 	void WriteNeighboursWithExt(User* user, const std::string& line, const LocalIntExt& ext)
 	{
-		UserChanList chans(user->chans);
+		IncludeChanList chans(user->chans.begin(), user->chans.end());
 
 		std::map<User*, bool> exceptions;
 		FOREACH_MOD(OnBuildNeighborList, (user, chans, exceptions));
@@ -48,9 +48,9 @@ class ModuleIRCv3 : public Module
 
 		// Now consider sending it to all other users who has at least a common channel with the user
 		std::set<User*> already_sent;
-		for (UCListIter i = chans.begin(); i != chans.end(); ++i)
+		for (IncludeChanList::const_iterator i = chans.begin(); i != chans.end(); ++i)
 		{
-			const UserMembList* userlist = (*i)->GetUsers();
+			const UserMembList* userlist = (*i)->chan->GetUsers();
 			for (UserMembList::const_iterator m = userlist->begin(); m != userlist->end(); ++m)
 			{
 				/*

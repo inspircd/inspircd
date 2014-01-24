@@ -682,7 +682,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 			{
 				for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 				{
-					Channel *chan = *i;
+					Channel* chan = (*i)->chan;
 					if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
 					{
 						this->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
@@ -962,7 +962,7 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 
 	LocalUser::already_sent_id++;
 
-	UserChanList include_c(chans);
+	IncludeChanList include_c(chans.begin(), chans.end());
 	std::map<User*,bool> exceptions;
 
 	exceptions[this] = include_self;
@@ -979,9 +979,9 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 				u->Write(line);
 		}
 	}
-	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
+	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
-		Channel* c = *v;
+		Channel* c = (*v)->chan;
 		const UserMembList* ulist = c->GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
@@ -1005,7 +1005,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	const std::string normalMessage = ":" + this->GetFullHost() + " QUIT :" + normal_text;
 	const std::string operMessage = ":" + this->GetFullHost() + " QUIT :" + oper_text;
 
-	UserChanList include_c(chans);
+	IncludeChanList include_c(chans.begin(), chans.end());
 	std::map<User*,bool> exceptions;
 
 	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
@@ -1020,9 +1020,9 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 				u->Write(u->IsOper() ? operMessage : normalMessage);
 		}
 	}
-	for (UCListIter v = include_c.begin(); v != include_c.end(); ++v)
+	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
-		const UserMembList* ulist = (*v)->GetUsers();
+		const UserMembList* ulist = (*v)->chan->GetUsers();
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
@@ -1096,7 +1096,7 @@ bool User::SharesChannelWith(User *other)
 		/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
 		 * by replacing it with a map::find which *should* be more efficient
 		 */
-		if ((*i)->HasUser(other))
+		if ((*i)->chan->HasUser(other))
 			return true;
 	}
 	return false;
@@ -1277,9 +1277,10 @@ void LocalUser::SetClass(const std::string &explicit_name)
 void User::PurgeEmptyChannels()
 {
 	// firstly decrement the count on each channel
-	for (UCListIter f = this->chans.begin(); f != this->chans.end(); f++)
+	for (UCListIter i = this->chans.begin(); i != this->chans.end(); )
 	{
-		Channel* c = *f;
+		Channel* c = (*i)->chan;
+		++i;
 		c->DelUser(this);
 	}
 

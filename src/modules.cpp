@@ -147,7 +147,7 @@ ModResult	Module::OnChannelPreDelete(Channel*) { DetachEvent(I_OnChannelPreDelet
 void		Module::OnChannelDelete(Channel*) { DetachEvent(I_OnChannelDelete); }
 ModResult	Module::OnSetAway(User*, const std::string &) { DetachEvent(I_OnSetAway); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnWhoisLine(User*, User*, int&, std::string&) { DetachEvent(I_OnWhoisLine); return MOD_RES_PASSTHRU; }
-void		Module::OnBuildNeighborList(User*, UserChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
+void		Module::OnBuildNeighborList(User*, IncludeChanList&, std::map<User*,bool>&) { DetachEvent(I_OnBuildNeighborList); }
 void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
 ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { DetachEvent(I_OnText); }

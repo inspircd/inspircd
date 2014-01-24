@@ -72,11 +72,15 @@ typedef std::vector<reference<ConnectClass> > ClassVector;
 
 /** Typedef for the list of user-channel records for a user
  */
-typedef std::set<Channel*> UserChanList;
+typedef intrusive_list<Membership> UserChanList;
 
 /** Shorthand for an iterator into a UserChanList
  */
 typedef UserChanList::iterator UCListIter;
+
+/** List of channels to consider when building the neighbor list of a user
+ */
+typedef std::vector<Membership*> IncludeChanList;
 
 /** A list of custom modes parameters on a channel
  */

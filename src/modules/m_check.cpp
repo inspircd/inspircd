@@ -192,7 +192,7 @@ class CommandCheck : public Command
 
 			for (UCListIter i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
-				Channel* c = *i;
+				Channel* c = (*i)->chan;
 				chliststr.append(c->GetPrefixChar(targuser)).append(c->name).append(" ");
 			}
 

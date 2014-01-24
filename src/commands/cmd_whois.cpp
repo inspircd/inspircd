@@ -65,7 +65,7 @@ std::string CommandWhois::ChannelList(User* source, User* dest, bool spy)
 
 	for (UCListIter i = dest->chans.begin(); i != dest->chans.end(); i++)
 	{
-		Channel* c = *i;
+		Channel* c = (*i)->chan;
 		/* If the target is the sender, neither +p nor +s is set, or
 		 * the channel contains the user, it is not a spy channel
 		 */

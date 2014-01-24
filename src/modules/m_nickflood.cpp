@@ -140,7 +140,7 @@ class ModuleNickFlood : public Module
 	{
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
-			Channel *channel = *i;
+			Channel* channel = (*i)->chan;
 			ModResult res;
 
 			nickfloodsettings *f = nf.ext.get(channel);
@@ -179,7 +179,7 @@ class ModuleNickFlood : public Module
 
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); ++i)
 		{
-			Channel *channel = *i;
+			Channel* channel = (*i)->chan;
 			ModResult res;
 
 			nickfloodsettings *f = nf.ext.get(channel);

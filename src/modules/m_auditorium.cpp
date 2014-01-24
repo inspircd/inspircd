@@ -129,19 +129,21 @@ class ModuleAuditorium : public Module
 		BuildExcept(memb, excepts);
 	}
 
-	void OnBuildNeighborList(User* source, UserChanList &include, std::map<User*,bool> &exception) CXX11_OVERRIDE
+	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE
 	{
-		UCListIter i = include.begin();
-		while (i != include.end())
+		for (IncludeChanList::iterator i = include.begin(); i != include.end(); )
 		{
-			Channel* c = *i++;
-			Membership* memb = c->GetUser(source);
-			if (!memb || IsVisible(memb))
+			Membership* memb = *i;
+			if (IsVisible(memb))
+			{
+				++i;
 				continue;
+			}
+
 			// this channel should not be considered when listing my neighbors
-			include.erase(c);
+			i = include.erase(i);
 			// however, that might hide me from ops that can see me...
-			const UserMembList* users = c->GetUsers();
+			const UserMembList* users = memb->chan->GetUsers();
 			for(UserMembCIter j = users->begin(); j != users->end(); j++)
 			{
 				if (IS_LOCAL(j->first) && CanSee(j->first, memb))
