@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2014 Adam <Adam@anope.org>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Craig Edwards <craigedwards@brainbox.cc>
  *
@@ -36,9 +37,6 @@ public:
 	/** Create a new SelectEngine
 	 */
 	SelectEngine();
-	/** Delete a SelectEngine
-	 */
-	virtual ~SelectEngine();
 	virtual bool AddFd(EventHandler* eh, int event_mask);
 	virtual void DelFd(EventHandler* eh);
 	void OnSetEvent(EventHandler* eh, int, int);
@@ -51,18 +49,10 @@ SelectEngine::SelectEngine()
 	MAX_DESCRIPTORS = FD_SETSIZE;
 	CurrentSetSize = 0;
 
-	ref = new EventHandler* [GetMaxFds()];
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
-
 	FD_ZERO(&ReadSet);
 	FD_ZERO(&WriteSet);
 	FD_ZERO(&ErrSet);
 	MaxFD = 0;
-}
-
-SelectEngine::~SelectEngine()
-{
-	delete[] ref;
 }
 
 bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
@@ -71,10 +61,8 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (ref[fd])
+	if (!SocketEngine::AddFd(eh))
 		return false;
-
-	ref[fd] = eh;
 
 	SocketEngine::SetEventMask(eh, event_mask);
 	OnSetEvent(eh, 0, event_mask);
@@ -96,7 +84,7 @@ void SelectEngine::DelFd(EventHandler* eh)
 		return;
 
 	CurrentSetSize--;
-	ref[fd] = NULL;
+	SocketEngine::DelFd(eh);
 
 	FD_CLR(fd, &ReadSet);
 	FD_CLR(fd, &WriteSet);
@@ -149,7 +137,7 @@ int SelectEngine::DispatchEvents()
 		{
 			--j;
 
-			EventHandler* ev = ref[i];
+			EventHandler* ev = GetRef(i);
 			if (!ev)
 				continue;
 
@@ -171,7 +159,7 @@ int SelectEngine::DispatchEvents()
 				ReadEvents++;
 				SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
 				ev->HandleEvent(EVENT_READ);
-				if (ev != ref[i])
+				if (ev != GetRef(i))
 					continue;
 			}
 			if (has_write)

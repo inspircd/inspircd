@@ -230,13 +230,14 @@ class CoreExport EventHandler : public classbase
  */
 class CoreExport SocketEngine
 {
+	/** Reference table, contains all current handlers
+	 **/
+	std::vector<EventHandler*> ref;
+
  protected:
 	/** Current number of descriptors in the engine
 	 */
 	size_t CurrentSetSize;
-	/** Reference table, contains all current handlers
-	 */
-	EventHandler** ref;
 	/** List of handlers that want a trial read/write
 	 */
 	std::set<int> trials;
@@ -251,6 +252,18 @@ class CoreExport SocketEngine
 
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask) = 0;
 	void SetEventMask(EventHandler* eh, int value);
+
+	/** Add an event handler to the base socket engine. AddFd(EventHandler*, int) should call this.
+	 */
+	bool AddFd(EventHandler* eh);
+
+	template <typename T>
+	void ResizeDouble(std::vector<T>& vect)
+	{
+		if (CurrentSetSize > vect.size())
+			vect.resize(vect.size() * 2);
+	}
+
 public:
 
 	unsigned long TotalEvents;
@@ -314,7 +327,7 @@ public:
 	 * required you must do this yourself.
 	 * @param eh The event handler object to remove
 	 */
-	virtual void DelFd(EventHandler* eh) = 0;
+	virtual void DelFd(EventHandler* eh);
 
 	/** Returns true if a file descriptor exists in
 	 * the socket engine's list.

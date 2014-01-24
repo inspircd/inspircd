@@ -42,9 +42,9 @@
 class PortsEngine : public SocketEngine
 {
 private:
-	/** These are used by epoll() to hold socket events
+	/** These are used by ports to hold socket events
 	 */
-	port_event_t* events;
+	std::vector<port_event_t> events;
 	int EngineHandle;
 public:
 	/** Create a new PortsEngine
@@ -65,7 +65,7 @@ public:
 
 #include <ulimit.h>
 
-PortsEngine::PortsEngine()
+PortsEngine::PortsEngine() : events(1)
 {
 	int max = ulimit(4, 0);
 	if (max > 0)
@@ -89,17 +89,11 @@ PortsEngine::PortsEngine()
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 	CurrentSetSize = 0;
-
-	ref = new EventHandler* [GetMaxFds()];
-	events = new port_event_t[GetMaxFds()];
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 PortsEngine::~PortsEngine()
 {
 	this->Close(EngineHandle);
-	delete[] ref;
-	delete[] events;
 }
 
 static int mask_to_events(int event_mask)
@@ -118,15 +112,16 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (ref[fd])
+	if (!SocketEngine::AddFd(eh))
 		return false;
 
-	ref[fd] = eh;
 	SocketEngine::SetEventMask(eh, event_mask);
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(event_mask), eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 	CurrentSetSize++;
+	ResizeDouble(events);
+
 	return true;
 }
 
@@ -145,7 +140,7 @@ void PortsEngine::DelFd(EventHandler* eh)
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);
 
 	CurrentSetSize--;
-	ref[fd] = NULL;
+	SocketEngine::DelFd(eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
@@ -158,7 +153,7 @@ int PortsEngine::DispatchEvents()
 	poll_time.tv_nsec = 0;
 
 	unsigned int nget = 1; // used to denote a retrieve request.
-	int ret = port_getn(EngineHandle, this->events, GetMaxFds() - 1, &nget, &poll_time);
+	int ret = port_getn(EngineHandle, &events[0], events.size(), &nget, &poll_time);
 	ServerInstance->UpdateTime();
 
 	// first handle an error condition
@@ -170,38 +165,35 @@ int PortsEngine::DispatchEvents()
 	unsigned int i;
 	for (i = 0; i < nget; i++)
 	{
-		switch (this->events[i].portev_source)
+		port_event_t& ev = events[i];
+
+		if (ev.portev_source != PORT_SOURCE_FD)
+			continue;
+
+		int fd = ev.portev_object;
+		EventHandler* eh = GetRef(fd);
+		if (!eh)
+			continue;
+
+		int mask = eh->GetEventMask();
+		if (ev.portev_events & POLLWRNORM)
+			mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE);
+		if (ev.portev_events & POLLRDNORM)
+			mask &= ~FD_READ_WILL_BLOCK;
+		// reinsert port for next time around, pretending to be one-shot for writes
+		SetEventMask(eh, mask);
+		port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
+		if (ev.portev_events & POLLRDNORM)
 		{
-			case PORT_SOURCE_FD:
-			{
-				int fd = this->events[i].portev_object;
-				EventHandler* eh = ref[fd];
-				if (eh)
-				{
-					int mask = eh->GetEventMask();
-					if (events[i].portev_events & POLLWRNORM)
-						mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE);
-					if (events[i].portev_events & POLLRDNORM)
-						mask &= ~FD_READ_WILL_BLOCK;
-					// reinsert port for next time around, pretending to be one-shot for writes
-					SetEventMask(eh, mask);
-					port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
-					if (events[i].portev_events & POLLRDNORM)
-					{
-						ReadEvents++;
-						eh->HandleEvent(EVENT_READ);
-						if (eh != ref[fd])
-							continue;
-					}
-					if (events[i].portev_events & POLLWRNORM)
-					{
-						WriteEvents++;
-						eh->HandleEvent(EVENT_WRITE);
-					}
-				}
-			}
-			default:
-			break;
+			ReadEvents++;
+			eh->HandleEvent(EVENT_READ);
+			if (eh != GetRef(fd))
+				continue;
+		}
+		if (ev.portev_events & POLLWRNORM)
+		{
+			WriteEvents++;
+			eh->HandleEvent(EVENT_WRITE);
 		}
 	}
 

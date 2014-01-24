@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #include "socketengine.h"
 #include <iostream>
+#include <sys/sysctl.h>
 
 /** A specialisation of the SocketEngine class, designed to use BSD kqueue().
  */
@@ -35,7 +36,7 @@ private:
 	int EngineHandle;
 	/** These are used by kqueue() to hold socket events
 	 */
-	struct kevent* ke_list;
+	std::vector<struct kevent> ke_list;
 	/** This is a specialised time value used by kqueue()
 	 */
 	struct timespec ts;
@@ -54,9 +55,7 @@ public:
 	virtual void RecoverFromFork();
 };
 
-#include <sys/sysctl.h>
-
-KQueueEngine::KQueueEngine()
+KQueueEngine::KQueueEngine() : ke_list(1)
 {
 	MAX_DESCRIPTORS = 0;
 	int mib[2];
@@ -78,9 +77,6 @@ KQueueEngine::KQueueEngine()
 	}
 
 	this->RecoverFromFork();
-	ke_list = new struct kevent[GetMaxFds()];
-	ref = new EventHandler* [GetMaxFds()];
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 void KQueueEngine::RecoverFromFork()
@@ -105,8 +101,6 @@ void KQueueEngine::RecoverFromFork()
 KQueueEngine::~KQueueEngine()
 {
 	this->Close(EngineHandle);
-	delete[] ref;
-	delete[] ke_list;
 }
 
 bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
@@ -116,7 +110,7 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (ref[fd])
+	if (!SocketEngine::AddFd(eh))
 		return false;
 
 	// We always want to read from the socket...
@@ -131,12 +125,13 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	ref[fd] = eh;
+	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
+
 	SocketEngine::SetEventMask(eh, event_mask);
 	OnSetEvent(eh, 0, event_mask);
 	CurrentSetSize++;
+	ResizeDouble(ke_list);
 
-	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 	return true;
 }
 
@@ -167,8 +162,8 @@ void KQueueEngine::DelFd(EventHandler* eh)
 					  fd, strerror(errno));
 	}
 
+	SocketEngine::DelFd(eh);
 	CurrentSetSize--;
-	ref[fd] = NULL;
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
@@ -215,23 +210,29 @@ int KQueueEngine::DispatchEvents()
 	ts.tv_nsec = 0;
 	ts.tv_sec = 1;
 
-	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], GetMaxFds(), &ts);
+	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], ke_list.size(), &ts);
 	ServerInstance->UpdateTime();
+
+	if (i < 0)
+		return i;
 
 	TotalEvents += i;
 
 	for (int j = 0; j < i; j++)
 	{
-		EventHandler* eh = ref[ke_list[j].ident];
+		struct kevent& kev = ke_list[j];
+
+		EventHandler* eh = GetRef(kev.ident);
 		if (!eh)
 			continue;
-		if (ke_list[j].flags & EV_EOF)
+
+		if (kev.flags & EV_EOF)
 		{
 			ErrorEvents++;
-			eh->HandleEvent(EVENT_ERROR, ke_list[j].fflags);
+			eh->HandleEvent(EVENT_ERROR, kev.fflags);
 			continue;
 		}
-		if (ke_list[j].filter == EVFILT_WRITE)
+		if (kev.filter == EVFILT_WRITE)
 		{
 			WriteEvents++;
 			/* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
@@ -242,11 +243,11 @@ int KQueueEngine::DispatchEvents()
 			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
 			eh->HandleEvent(EVENT_WRITE);
 
-			if (eh != ref[ke_list[j].ident])
+			if (eh != GetRef(kev.ident))
 				// whoops, deleted out from under us
 				continue;
 		}
-		if (ke_list[j].filter == EVFILT_READ)
+		if (kev.filter == EVFILT_READ)
 		{
 			ReadEvents++;
 			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);

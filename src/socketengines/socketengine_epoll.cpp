@@ -36,7 +36,7 @@ class EPollEngine : public SocketEngine
 private:
 	/** These are used by epoll() to hold socket events
 	 */
-	struct epoll_event* events;
+	std::vector<struct epoll_event> events;
 	int EngineHandle;
 public:
 	/** Create a new EPollEngine
@@ -52,7 +52,7 @@ public:
 	virtual std::string GetName();
 };
 
-EPollEngine::EPollEngine()
+EPollEngine::EPollEngine() : events(1)
 {
 	int max = ulimit(4, 0);
 	if (max > 0)
@@ -77,18 +77,11 @@ EPollEngine::EPollEngine()
 		std::cout << "ERROR: Your kernel probably does not have the proper features. This is a fatal error, exiting now." << std::endl;
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
-
-	ref = new EventHandler* [GetMaxFds()];
-	events = new struct epoll_event[GetMaxFds()];
-
-	memset(ref, 0, GetMaxFds() * sizeof(EventHandler*));
 }
 
 EPollEngine::~EPollEngine()
 {
 	this->Close(EngineHandle);
-	delete[] ref;
-	delete[] events;
 }
 
 static unsigned mask_to_epoll(int event_mask)
@@ -123,7 +116,7 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	if (ref[fd])
+	if (!SocketEngine::AddFd(eh))
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
 		return false;
@@ -142,9 +135,10 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
-	ref[fd] = eh;
 	SocketEngine::SetEventMask(eh, event_mask);
 	CurrentSetSize++;
+	ResizeDouble(events);
+
 	return true;
 }
 
@@ -182,7 +176,7 @@ void EPollEngine::DelFd(EventHandler* eh)
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "epoll_ctl can't remove socket: %s", strerror(errno));
 	}
 
-	ref[fd] = NULL;
+	SocketEngine::DelFd(eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 	CurrentSetSize--;
@@ -192,39 +186,44 @@ int EPollEngine::DispatchEvents()
 {
 	socklen_t codesize = sizeof(int);
 	int errcode;
-	int i = epoll_wait(EngineHandle, events, GetMaxFds() - 1, 1000);
+	int i = epoll_wait(EngineHandle, &events[0], events.size(), 1000);
 	ServerInstance->UpdateTime();
 
 	TotalEvents += i;
 
 	for (int j = 0; j < i; j++)
 	{
-		EventHandler* eh = ref[events[j].data.fd];
+		struct epoll_event& ev = events[j];
+
+		EventHandler* eh = GetRef(ev.data.fd);
 		if (!eh)
 		{
 			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Got event on unknown fd: %d", events[j].data.fd);
 			epoll_ctl(EngineHandle, EPOLL_CTL_DEL, events[j].data.fd, &events[j]);
 			continue;
 		}
-		if (events[j].events & EPOLLHUP)
+
+		if (ev.events & EPOLLHUP)
 		{
 			ErrorEvents++;
 			eh->HandleEvent(EVENT_ERROR, 0);
 			continue;
 		}
-		if (events[j].events & EPOLLERR)
+
+		if (ev.events & EPOLLERR)
 		{
 			ErrorEvents++;
 			/* Get error number */
-			if (getsockopt(events[j].data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+			if (getsockopt(ev.data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
 			eh->HandleEvent(EVENT_ERROR, errcode);
 			continue;
 		}
+
 		int mask = eh->GetEventMask();
-		if (events[j].events & EPOLLIN)
+		if (ev.events & EPOLLIN)
 			mask &= ~FD_READ_WILL_BLOCK;
-		if (events[j].events & EPOLLOUT)
+		if (ev.events & EPOLLOUT)
 		{
 			mask &= ~FD_WRITE_WILL_BLOCK;
 			if (mask & FD_WANT_SINGLE_WRITE)
@@ -235,15 +234,15 @@ int EPollEngine::DispatchEvents()
 			}
 		}
 		SetEventMask(eh, mask);
-		if (events[j].events & EPOLLIN)
+		if (ev.events & EPOLLIN)
 		{
 			ReadEvents++;
 			eh->HandleEvent(EVENT_READ);
-			if (eh != ref[events[j].data.fd])
+			if (eh != GetRef(ev.data.fd))
 				// whoa! we got deleted, better not give out the write event
 				continue;
 		}
-		if (events[j].events & EPOLLOUT)
+		if (ev.events & EPOLLOUT)
 		{
 			WriteEvents++;
 			eh->HandleEvent(EVENT_WRITE);

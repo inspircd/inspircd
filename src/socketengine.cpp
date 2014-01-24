@@ -94,16 +94,33 @@ void SocketEngine::DispatchTrialWrites()
 	}
 }
 
+bool SocketEngine::AddFd(EventHandler* eh)
+{
+	int fd = eh->GetFd();
+	if (HasFd(fd))
+		return false;
+
+	while (static_cast<unsigned int>(fd) >= ref.size())
+		ref.resize(ref.empty() ? 1 : (ref.size() * 2));
+	ref[fd] = eh;
+	return true;
+}
+
+void SocketEngine::DelFd(EventHandler *eh)
+{
+	int fd = eh->GetFd();
+	if (GetRef(fd) == eh)
+		ref[fd] = NULL;
+}
+
 bool SocketEngine::HasFd(int fd)
 {
-	if ((fd < 0) || (fd > GetMaxFds()))
-		return false;
-	return (ref[fd] != NULL);
+	return GetRef(fd) != NULL;
 }
 
 EventHandler* SocketEngine::GetRef(int fd)
 {
-	if ((fd < 0) || (fd > GetMaxFds()))
+	if (fd < 0 || static_cast<unsigned int>(fd) >= ref.size())
 		return 0;
 	return ref[fd];
 }
