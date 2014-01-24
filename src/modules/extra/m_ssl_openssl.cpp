@@ -21,20 +21,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- /* HACK: This prevents OpenSSL on OS X 10.7 and later from spewing deprecation
-  * warnings for every single function call. As far as I (SaberUK) know, Apple
-  * have no plans to remove OpenSSL so this warning just causes needless spam.
-  */
-#ifdef __APPLE__
-# define __AVAILABILITYMACROS__
-# define DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER
-#endif
 
 #include "inspircd.h"
 #include "iohook.h"
+#include "modules/ssl.h"
+
+// Ignore OpenSSL deprecation warnings on OS X Lion and newer.
+#if defined __APPLE__
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "modules/ssl.h"
 
 #ifdef _WIN32
 # pragma comment(lib, "libcrypto.lib")
@@ -46,7 +44,7 @@
 # pragma comment(lib, "gdi32.lib")
 #endif
 
-/* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") -Wno-pedantic */
+/* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto") */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
