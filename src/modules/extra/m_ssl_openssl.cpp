@@ -132,6 +132,9 @@ class ModuleSSLOpenSSL : public Module
 
 		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+
+		const unsigned char session_id[] = "inspircd";
+		SSL_CTX_set_session_id_context(ctx, session_id, sizeof(session_id) - 1);
 	}
 
 	void init()
