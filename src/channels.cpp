@@ -853,7 +853,6 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 			std::string expiration = InspIRCd::TimeString(inv->expiry);
 			ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find ecountered expired entry: %p expired %s", (void*) inv, expiration.c_str());
 			i = locallist.erase(i);
-			inv->cull();
 			delete inv;
 		}
 		else
@@ -891,7 +890,6 @@ void InviteBase::ClearInvites()
 	locallist.swap(invites);
 	for (InviteList::const_iterator i = locallist.begin(); i != locallist.end(); ++i)
 	{
-		(*i)->cull();
 		delete *i;
 	}
 }

@@ -56,7 +56,7 @@ class CoreExport InviteBase
 	friend class Invitation;
 };
 
-class CoreExport Invitation : public classbase
+class CoreExport Invitation
 {
 	Invitation(Channel* c, LocalUser* u, time_t timeout) : user(u), chan(c), expiry(timeout) {}
 

@@ -156,7 +156,6 @@ bool LocalUser::RemoveInvite(Channel* chan)
 	Invitation* inv = Invitation::Find(chan, this);
 	if (inv)
 	{
-		inv->cull();
 		delete inv;
 		return true;
 	}
