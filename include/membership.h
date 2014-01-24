@@ -45,10 +45,11 @@ class CoreExport Membership : public Extensible, public intrusive_list_node<Memb
 	bool SetPrefix(PrefixMode* mh, bool adding);
 };
 
-class CoreExport InviteBase
+template <typename T>
+class InviteBase
 {
  protected:
-	InviteList invites;
+	intrusive_list<Invitation, T> invites;
 
  public:
 	void ClearInvites();
@@ -56,7 +57,7 @@ class CoreExport InviteBase
 	friend class Invitation;
 };
 
-class CoreExport Invitation
+class CoreExport Invitation : public intrusive_list_node<Invitation, Channel>, public intrusive_list_node<Invitation, LocalUser>
 {
 	Invitation(Channel* c, LocalUser* u, time_t timeout) : user(u), chan(c), expiry(timeout) {}
 
@@ -69,3 +70,16 @@ class CoreExport Invitation
 	static void Create(Channel* c, LocalUser* u, time_t timeout);
 	static Invitation* Find(Channel* c, LocalUser* u, bool check_expired = true);
 };
+
+typedef intrusive_list<Invitation, LocalUser> InviteList;
+
+template<typename T>
+inline void InviteBase<T>::ClearInvites()
+{
+	for (typename intrusive_list<Invitation, T>::iterator i = invites.begin(); i != invites.end(); )
+	{
+		Invitation* inv = *i;
+		++i;
+		delete inv;
+	}
+}

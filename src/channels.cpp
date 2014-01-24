@@ -828,8 +828,8 @@ void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
 	else
 	{
 		inv = new Invitation(c, u, timeout);
-		c->invites.push_back(inv);
-		u->invites.push_back(inv);
+		c->invites.push_front(inv);
+		u->invites.push_front(inv);
 		ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Create created new invitation %p", (void*) inv);
 	}
 }
@@ -840,19 +840,17 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 	if (!u || u->invites.empty())
 		return NULL;
 
-	InviteList locallist;
-	locallist.swap(u->invites);
-
 	Invitation* result = NULL;
-	for (InviteList::iterator i = locallist.begin(); i != locallist.end(); )
+	for (InviteList::iterator i = u->invites.begin(); i != u->invites.end(); )
 	{
 		Invitation* inv = *i;
+		++i;
+
 		if ((check_expired) && (inv->expiry != 0) && (inv->expiry <= ServerInstance->Time()))
 		{
 			/* Expired invite, remove it. */
 			std::string expiration = InspIRCd::TimeString(inv->expiry);
 			ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find ecountered expired entry: %p expired %s", (void*) inv, expiration.c_str());
-			i = locallist.erase(i);
 			delete inv;
 		}
 		else
@@ -863,11 +861,9 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 				result = inv;
 				break;
 			}
-			++i;
 		}
 	}
 
-	locallist.swap(u->invites);
 	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find result=%p", (void*) result);
 	return result;
 }
@@ -875,21 +871,7 @@ Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 Invitation::~Invitation()
 {
 	// Remove this entry from both lists
-	InviteList::iterator it = std::find(chan->invites.begin(), chan->invites.end(), this);
-	if (it != chan->invites.end())
-		chan->invites.erase(it);
-	it = std::find(user->invites.begin(), user->invites.end(), this);
-	if (it != user->invites.end())
-		user->invites.erase(it);
-}
-
-void InviteBase::ClearInvites()
-{
-	ServerInstance->Logs->Log("INVITEBASE", LOG_DEBUG, "InviteBase::ClearInvites %p", (void*) this);
-	InviteList locallist;
-	locallist.swap(invites);
-	for (InviteList::const_iterator i = locallist.begin(); i != locallist.end(); ++i)
-	{
-		delete *i;
-	}
+	chan->invites.erase(this);
+	user->invites.erase(this);
+	ServerInstance->Logs->Log("INVITEBASE", LOG_DEBUG, "Invitation::~ %p", (void*) this);
 }

@@ -655,7 +655,7 @@ class CoreExport UserIOHandler : public StreamSocket
 
 typedef unsigned int already_sent_t;
 
-class CoreExport LocalUser : public User, public InviteBase, public intrusive_list_node<LocalUser>
+class CoreExport LocalUser : public User, public InviteBase<LocalUser>, public intrusive_list_node<LocalUser>
 {
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);

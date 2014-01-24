@@ -33,7 +33,7 @@
  * This class represents a channel, and contains its name, modes, topic, topic set time,
  * etc, and an instance of the BanList type.
  */
-class CoreExport Channel : public Extensible, public InviteBase
+class CoreExport Channel : public Extensible, public InviteBase<Channel>
 {
 	/** Set default modes for the channel on creation
 	 */
