@@ -155,7 +155,7 @@ void		Module::OnRunTestSuite() { DetachEvent(I_OnRunTestSuite); }
 void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { DetachEvent(I_OnNamesListItem); }
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
 ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
-void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, std::string&) { DetachEvent(I_OnSendWhoLine); }
+void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Channel*, std::string&) { DetachEvent(I_OnSendWhoLine); }
 void		Module::OnSetUserIP(LocalUser*) { DetachEvent(I_OnSetUserIP); }
 
 ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, ServiceType Type)

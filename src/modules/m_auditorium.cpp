@@ -152,9 +152,8 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line) CXX11_OVERRIDE
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line) CXX11_OVERRIDE
 	{
-		Channel* channel = ServerInstance->FindChan(params[0]);
 		if (!channel)
 			return;
 		Membership* memb = channel->GetUser(user);

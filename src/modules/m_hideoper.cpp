@@ -63,7 +63,7 @@ class ModuleHideOper : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, std::string& line) CXX11_OVERRIDE
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* chan, std::string& line) CXX11_OVERRIDE
 	{
 		if (user->IsModeSet(hm) && !source->HasPrivPermission("users/auspex"))
 		{

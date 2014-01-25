@@ -228,7 +228,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 
 	wholine.append(" :0 " + u->fullname);
 
-	FOREACH_MOD(OnSendWhoLine, (user, parms, u, wholine));
+	FOREACH_MOD(OnSendWhoLine, (user, parms, u, ch, wholine));
 
 	if (!wholine.empty())
 		whoresults.push_back(wholine);
