@@ -31,9 +31,9 @@ ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &r
 		for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i != Utils->LinkBlocks.end(); ++i)
 		{
 			Link* L = *i;
-			results.push_back(std::string(ServerInstance->Config->ServerName)+" 213 "+user->nick+" "+statschar+" *@"+(L->HiddenFromStats ? "<hidden>" : L->IPAddr)+" * "+(*i)->Name.c_str()+" "+ConvToStr(L->Port)+" "+(L->Hook.empty() ? "plaintext" : L->Hook));
+			results.push_back("213 "+user->nick+" "+statschar+" *@"+(L->HiddenFromStats ? "<hidden>" : L->IPAddr)+" * "+(*i)->Name.c_str()+" "+ConvToStr(L->Port)+" "+(L->Hook.empty() ? "plaintext" : L->Hook));
 			if (statschar == 'c')
-				results.push_back(std::string(ServerInstance->Config->ServerName)+" 244 "+user->nick+" H * * "+L->Name.c_str());
+				results.push_back("244 "+user->nick+" H * * "+L->Name.c_str());
 		}
 		return MOD_RES_DENY;
 	}
@@ -44,7 +44,7 @@ ModResult ModuleSpanningTree::OnStats(char statschar, User* user, string_list &r
 		{
 			std::string name = i->second->getString("server");
 			if (!name.empty())
-				results.push_back(ServerInstance->Config->ServerName+" 248 "+user->nick+" U "+name);
+				results.push_back("248 "+user->nick+" U "+name);
 		}
 		return MOD_RES_DENY;
 	}

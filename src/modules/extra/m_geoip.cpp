@@ -110,7 +110,7 @@ class ModuleGeoIP : public Module
 				unknown++;
 		}
 
-		std::string p = ServerInstance->Config->ServerName + " 801 " + user->nick + " :GeoIPSTATS ";
+		std::string p = "801 " + user->nick + " :GeoIPSTATS ";
 		for (std::map<std::string, unsigned int>::const_iterator i = results.begin(); i != results.end(); ++i)
 		{
 			out.push_back(p + i->first + " " + ConvToStr(i->second));

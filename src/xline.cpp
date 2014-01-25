@@ -471,7 +471,7 @@ void XLineManager::InvokeStats(const std::string &type, int numeric, User* user,
 				ExpireLine(n, i);
 			}
 			else
-				results.push_back(ServerInstance->Config->ServerName+" "+ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
+				results.push_back(ConvToStr(numeric)+" "+user->nick+" :"+i->second->Displayable()+" "+
 					ConvToStr(i->second->set_time)+" "+ConvToStr(i->second->duration)+" "+i->second->source+" :"+i->second->reason);
 			i = safei;
 		}

@@ -242,7 +242,7 @@ class ModuleWhoWas : public Module
 	ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 'z')
-			results.push_back(ServerInstance->Config->ServerName+" 249 "+user->nick+" :"+cmd.GetStats());
+			results.push_back("249 "+user->nick+" :"+cmd.GetStats());
 
 		return MOD_RES_PASSTHRU;
 	}

@@ -56,8 +56,6 @@ class CommandStats : public Command
 
 void CommandStats::DoStats(char statschar, User* user, string_list &results)
 {
-	std::string sn(ServerInstance->Config->ServerName);
-
 	bool isPublic = ServerInstance->Config->UserStats.find(statschar) != std::string::npos;
 	bool isRemoteOper = IS_REMOTE(user) && (user->IsOper());
 	bool isLocalOperWithPrivs = IS_LOCAL(user) && user->HasPrivPermission("servers/auspex");
@@ -68,7 +66,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
 				statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		results.push_back(sn + " 481 " + user->nick + " :Permission denied - STATS " + statschar + " requires the servers/auspex priv.");
+		results.push_back("481 " + user->nick + " :Permission denied - STATS " + statschar + " requires the servers/auspex priv.");
 		return;
 	}
 
@@ -76,7 +74,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 	FIRST_MOD_RESULT(OnStats, MOD_RESULT, (statschar, user, results));
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
-		results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
+		results.push_back("219 "+user->nick+" "+statschar+" :End of /STATS report");
 		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
 			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return;
@@ -96,7 +94,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				std::string type = ls->bind_tag->getString("type", "clients");
 				std::string hook = ls->bind_tag->getString("ssl", "plaintext");
 
-				results.push_back(sn+" 249 "+user->nick+" :"+ ip + ":"+ConvToStr(ls->bind_port)+
+				results.push_back("249 "+user->nick+" :"+ ip + ":"+ConvToStr(ls->bind_port)+
 					" (" + type + ", " + hook + ")");
 			}
 		}
@@ -113,7 +111,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			{
 				ConnectClass* c = *i;
 				std::stringstream res;
-				res << sn << " 215 " << user->nick << " I " << c->name << ' ';
+				res << "215 " << user->nick << " I " << c->name << ' ';
 				if (c->type == CC_ALLOW)
 					res << '+';
 				if (c->type == CC_DENY)
@@ -141,8 +139,8 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
-				results.push_back(sn+" 215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : ServerInstance->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
-				results.push_back(sn+" 218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqHardMax())+" :"+
+				results.push_back("215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : ServerInstance->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
+				results.push_back("218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqHardMax())+" :"+
 						ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;
 			}
@@ -158,12 +156,12 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				if (!oper->server->IsULine())
 				{
 					LocalUser* lu = IS_LOCAL(oper);
-					results.push_back(sn+" 249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
+					results.push_back("249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
 							(lu ? ConvToStr(ServerInstance->Time() - lu->idle_lastmsg) + " secs" : "unavailable"));
 					idx++;
 				}
 			}
-			results.push_back(sn+" 249 "+user->nick+" :"+ConvToStr(idx)+" OPER(s)");
+			results.push_back("249 "+user->nick+" :"+ConvToStr(idx)+" OPER(s)");
 		}
 		break;
 
@@ -183,10 +181,10 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			ServerInstance->XLines->InvokeStats("E",223,user,results);
 		break;
 		case 'E':
-			results.push_back(sn+" 249 "+user->nick+" :Total events: "+ConvToStr(ServerInstance->SE->TotalEvents));
-			results.push_back(sn+" 249 "+user->nick+" :Read events:  "+ConvToStr(ServerInstance->SE->ReadEvents));
-			results.push_back(sn+" 249 "+user->nick+" :Write events: "+ConvToStr(ServerInstance->SE->WriteEvents));
-			results.push_back(sn+" 249 "+user->nick+" :Error events: "+ConvToStr(ServerInstance->SE->ErrorEvents));
+			results.push_back("249 "+user->nick+" :Total events: "+ConvToStr(ServerInstance->SE->TotalEvents));
+			results.push_back("249 "+user->nick+" :Read events:  "+ConvToStr(ServerInstance->SE->ReadEvents));
+			results.push_back("249 "+user->nick+" :Write events: "+ConvToStr(ServerInstance->SE->WriteEvents));
+			results.push_back("249 "+user->nick+" :Error events: "+ConvToStr(ServerInstance->SE->ErrorEvents));
 		break;
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
@@ -196,7 +194,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				if (i->second->use_count)
 				{
 					/* RPL_STATSCOMMANDS */
-					results.push_back(sn+" 212 "+user->nick+" "+i->second->name+" "+ConvToStr(i->second->use_count));
+					results.push_back("212 "+user->nick+" "+i->second->name+" "+ConvToStr(i->second->use_count));
 				}
 			}
 		break;
@@ -204,9 +202,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		/* stats z (debug and memory info) */
 		case 'z':
 		{
-			results.push_back(sn+" 249 "+user->nick+" :Users: "+ConvToStr(ServerInstance->Users->clientlist->size()));
-			results.push_back(sn+" 249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->chanlist->size()));
-			results.push_back(sn+" 249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
+			results.push_back("249 "+user->nick+" :Users: "+ConvToStr(ServerInstance->Users->clientlist->size()));
+			results.push_back("249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->chanlist->size()));
+			results.push_back("249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
@@ -217,9 +215,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			snprintf(kbitpersec_out_s, 30, "%03.5f", kbitpersec_out);
 			snprintf(kbitpersec_in_s, 30, "%03.5f", kbitpersec_in);
 
-			results.push_back(sn+" 249 "+user->nick+" :Bandwidth total:  "+ConvToStr(kbitpersec_total_s)+" kilobits/sec");
-			results.push_back(sn+" 249 "+user->nick+" :Bandwidth out:    "+ConvToStr(kbitpersec_out_s)+" kilobits/sec");
-			results.push_back(sn+" 249 "+user->nick+" :Bandwidth in:     "+ConvToStr(kbitpersec_in_s)+" kilobits/sec");
+			results.push_back("249 "+user->nick+" :Bandwidth total:  "+ConvToStr(kbitpersec_total_s)+" kilobits/sec");
+			results.push_back("249 "+user->nick+" :Bandwidth out:    "+ConvToStr(kbitpersec_out_s)+" kilobits/sec");
+			results.push_back("249 "+user->nick+" :Bandwidth in:     "+ConvToStr(kbitpersec_in_s)+" kilobits/sec");
 
 #ifndef _WIN32
 			/* Moved this down here so all the not-windows stuff (look w00tie, I didn't say win32!) is in one ifndef.
@@ -230,11 +228,11 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			/* Not sure why we were doing '0' with a RUSAGE_SELF comment rather than just using RUSAGE_SELF -- Om */
 			if (!getrusage(RUSAGE_SELF,&R))	/* RUSAGE_SELF */
 			{
-				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
-				results.push_back(sn+" 249 "+user->nick+" :Signals:          "+ConvToStr(R.ru_nsignals));
-				results.push_back(sn+" 249 "+user->nick+" :Page faults:      "+ConvToStr(R.ru_majflt));
-				results.push_back(sn+" 249 "+user->nick+" :Swaps:            "+ConvToStr(R.ru_nswap));
-				results.push_back(sn+" 249 "+user->nick+" :Context Switches: Voluntary; "+ConvToStr(R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
+				results.push_back("249 "+user->nick+" :Total allocation: "+ConvToStr(R.ru_maxrss)+"K");
+				results.push_back("249 "+user->nick+" :Signals:          "+ConvToStr(R.ru_nsignals));
+				results.push_back("249 "+user->nick+" :Page faults:      "+ConvToStr(R.ru_majflt));
+				results.push_back("249 "+user->nick+" :Swaps:            "+ConvToStr(R.ru_nswap));
+				results.push_back("249 "+user->nick+" :Context Switches: Voluntary; "+ConvToStr(R.ru_nvcsw)+" Involuntary; "+ConvToStr(R.ru_nivcsw));
 
 				char percent[30];
 
@@ -244,21 +242,21 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				float per = (n_eaten / n_elapsed) * 100;
 
 				snprintf(percent, 30, "%03.5f%%", per);
-				results.push_back(sn+" 249 "+user->nick+" :CPU Use (now):    "+percent);
+				results.push_back("249 "+user->nick+" :CPU Use (now):    "+percent);
 
 				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
 				n_eaten = (float)R.ru_utime.tv_sec + R.ru_utime.tv_usec / 100000.0;
 				per = (n_eaten / n_elapsed) * 100;
 				snprintf(percent, 30, "%03.5f%%", per);
-				results.push_back(sn+" 249 "+user->nick+" :CPU Use (total):  "+percent);
+				results.push_back("249 "+user->nick+" :CPU Use (total):  "+percent);
 			}
 #else
 			PROCESS_MEMORY_COUNTERS MemCounters;
 			if (GetProcessMemoryInfo(GetCurrentProcess(), &MemCounters, sizeof(MemCounters)))
 			{
-				results.push_back(sn+" 249 "+user->nick+" :Total allocation: "+ConvToStr((MemCounters.WorkingSetSize + MemCounters.PagefileUsage) / 1024)+"K");
-				results.push_back(sn+" 249 "+user->nick+" :Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage / 1024)+"K");
-				results.push_back(sn+" 249 "+user->nick+" :Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
+				results.push_back("249 "+user->nick+" :Total allocation: "+ConvToStr((MemCounters.WorkingSetSize + MemCounters.PagefileUsage) / 1024)+"K");
+				results.push_back("249 "+user->nick+" :Pagefile usage:   "+ConvToStr(MemCounters.PagefileUsage / 1024)+"K");
+				results.push_back("249 "+user->nick+" :Page faults:      "+ConvToStr(MemCounters.PageFaultCount));
 			}
 
 			FILETIME CreationTime;
@@ -278,13 +276,13 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				char percent[30];
 
 				snprintf(percent, 30, "%03.5f%%", per);
-				results.push_back(sn+" 249 "+user->nick+" :CPU Use (now):    "+percent);
+				results.push_back("249 "+user->nick+" :CPU Use (now):    "+percent);
 
 				n_elapsed = ServerInstance->Time() - ServerInstance->startup_time;
 				n_eaten = (double)(( (uint64_t)(KernelTime.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime))/100000;
 				per = (n_eaten / n_elapsed);
 				snprintf(percent, 30, "%03.5f%%", per);
-				results.push_back(sn+" 249 "+user->nick+" :CPU Use (total):  "+percent);
+				results.push_back("249 "+user->nick+" :CPU Use (total):  "+percent);
 			}
 #endif
 		}
@@ -292,12 +290,12 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		case 'T':
 		{
-			results.push_back(sn+" 249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats->statsAccept)+" refused "+ConvToStr(ServerInstance->stats->statsRefused));
-			results.push_back(sn+" 249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats->statsUnknown));
-			results.push_back(sn+" 249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats->statsCollisions));
-			results.push_back(sn+" 249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats->statsDnsGood+ServerInstance->stats->statsDnsBad)+" succeeded "+ConvToStr(ServerInstance->stats->statsDnsGood)+" failed "+ConvToStr(ServerInstance->stats->statsDnsBad));
-			results.push_back(sn+" 249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats->statsConnects));
-			results.push_back(InspIRCd::Format("%s 249 %s :bytes sent %5.2fK recv %5.2fK", sn.c_str(), user->nick.c_str(),
+			results.push_back("249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats->statsAccept)+" refused "+ConvToStr(ServerInstance->stats->statsRefused));
+			results.push_back("249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats->statsUnknown));
+			results.push_back("249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats->statsCollisions));
+			results.push_back("249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats->statsDnsGood+ServerInstance->stats->statsDnsBad)+" succeeded "+ConvToStr(ServerInstance->stats->statsDnsGood)+" failed "+ConvToStr(ServerInstance->stats->statsDnsBad));
+			results.push_back("249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats->statsConnects));
+			results.push_back(InspIRCd::Format("249 %s :bytes sent %5.2fK recv %5.2fK", user->nick.c_str(),
 				ServerInstance->stats->statsSent / 1024.0, ServerInstance->stats->statsRecv / 1024.0));
 		}
 		break;
@@ -309,7 +307,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			for(ConfigIter i = tags.first; i != tags.second; ++i)
 			{
 				ConfigTag* tag = i->second;
-				results.push_back(sn+" 243 "+user->nick+" O "+tag->getString("host")+" * "+
+				results.push_back("243 "+user->nick+" O "+tag->getString("host")+" * "+
 					tag->getString("name") + " " + tag->getString("type")+" 0");
 			}
 		}
@@ -331,28 +329,28 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 					if (mh && mh->NeedsOper() && tag->AllowedChanModes[c - 'A'])
 						cmodes.push_back(c);
 				}
-				results.push_back(sn+" 243 "+user->nick+" O "+tag->name.c_str() + " " + umodes + " " + cmodes);
+				results.push_back("243 "+user->nick+" O "+tag->name.c_str() + " " + umodes + " " + cmodes);
 			}
 		}
 		break;
 
 		/* stats l (show user I/O stats) */
 		case 'l':
-			results.push_back(sn+" 211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
+			results.push_back("211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
 			for (LocalUserList::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
 			{
 				LocalUser* i = *n;
-				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
+				results.push_back("211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
 			}
 		break;
 
 		/* stats L (show user I/O stats with IP addresses) */
 		case 'L':
-			results.push_back(sn+" 211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
+			results.push_back("211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
 			for (LocalUserList::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
 			{
 				LocalUser* i = *n;
-				results.push_back(sn+" 211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
+				results.push_back("211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
 			}
 		break;
 
@@ -368,14 +366,14 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			 * Craig suggested this, and it seemed a good idea so in it went */
 			if (stime->tm_year > 70)
 			{
-				results.push_back(InspIRCd::Format("%s 242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",
-					sn.c_str(), user->nick.c_str(), stime->tm_year - 70, stime->tm_yday, stime->tm_hour,
+				results.push_back(InspIRCd::Format("242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",
+					user->nick.c_str(), stime->tm_year - 70, stime->tm_yday, stime->tm_hour,
 					stime->tm_min, stime->tm_sec));
 			}
 			else
 			{
-				results.push_back(InspIRCd::Format("%s 242 %s :Server up %d days, %.2d:%.2d:%.2d",
-					sn.c_str(), user->nick.c_str(), stime->tm_yday, stime->tm_hour, stime->tm_min,
+				results.push_back(InspIRCd::Format("242 %s :Server up %d days, %.2d:%.2d:%.2d",
+					user->nick.c_str(), stime->tm_yday, stime->tm_hour, stime->tm_min,
 					stime->tm_sec));
 			}
 		}
@@ -385,7 +383,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		break;
 	}
 
-	results.push_back(sn+" 219 "+user->nick+" "+statschar+" :End of /STATS report");
+	results.push_back("219 "+user->nick+" "+statschar+" :End of /STATS report");
 	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
 		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 	return;
@@ -398,8 +396,10 @@ CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User
 	string_list values;
 	char search = parameters[0][0];
 	DoStats(search, user, values);
+
+	const std::string p = ":" + ServerInstance->Config->ServerName + " ";
 	for (size_t i = 0; i < values.size(); i++)
-		user->SendText(":%s", values[i].c_str());
+		user->SendText(p + values[i]);
 
 	return CMD_SUCCESS;
 }

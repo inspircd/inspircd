@@ -679,11 +679,11 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 	{
 		for (std::vector<FilterResult>::iterator i = filters.begin(); i != filters.end(); i++)
 		{
-			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
+			results.push_back("223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
 		for (std::set<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
 		{
-			results.push_back(ServerInstance->Config->ServerName+" 223 "+user->nick+" :EXEMPT "+(*i));
+			results.push_back("223 "+user->nick+" :EXEMPT "+(*i));
 		}
 	}
 	return MOD_RES_PASSTHRU;
