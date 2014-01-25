@@ -325,7 +325,6 @@ CullResult User::cull()
 {
 	if (!quitting)
 		ServerInstance->Users->QuitUser(this, "Culled without QuitUser");
-	PurgeEmptyChannels();
 
 	if (client_sa.sa.sa_family != AF_UNSPEC)
 		ServerInstance->Users->RemoveCloneCounts(this);
@@ -974,7 +973,7 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
-			if (u && !u->quitting && u->already_sent != LocalUser::already_sent_id)
+			if (u && u->already_sent != LocalUser::already_sent_id)
 			{
 				u->already_sent = LocalUser::already_sent_id;
 				u->Write(line);
@@ -1014,7 +1013,7 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
-			if (u && !u->quitting && (u->already_sent != uniq_id))
+			if (u && (u->already_sent != uniq_id))
 			{
 				u->already_sent = uniq_id;
 				u->Write(u->IsOper() ? operMessage : normalMessage);

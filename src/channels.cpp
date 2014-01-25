@@ -678,8 +678,6 @@ void Channel::UserList(User *user)
 	std::string nick;
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
 	{
-		if (i->first->quitting)
-			continue;
 		if ((!has_user) && (i->first->IsModeSet(invisiblemode)) && (!has_privs))
 		{
 			/*

@@ -209,6 +209,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	uuidlist->erase(user->uuid);
+	user->PurgeEmptyChannels();
 }
 
 void UserManager::AddLocalClone(User *user)
