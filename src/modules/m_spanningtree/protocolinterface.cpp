@@ -44,16 +44,31 @@ void SpanningTreeProtocolInterface::GetServerList(ServerList& sl)
 	}
 }
 
-bool SpanningTreeProtocolInterface::SendEncapsulatedData(const parameterlist &encap)
+bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const parameterlist& params, User* source)
 {
-	CmdBuilder params("ENCAP");
-	params.insert(encap);
-	if (encap[0].find_first_of("*?") != std::string::npos)
+	if (!source)
+		source = ServerInstance->FakeClient;
+
+	CmdBuilder encap(source, "ENCAP");
+
+	// Are there any wildcards in the target string?
+	if (targetmask.find_first_of("*?") != std::string::npos)
 	{
-		params.Broadcast();
-		return true;
+		// Yes, send the target string as-is; servers will decide whether or not it matches them
+		encap.push(targetmask).push(cmd).insert(params).Broadcast();
 	}
-	return params.Unicast(encap[0]);
+	else
+	{
+		// No wildcards which means the target string has to be the name of a known server
+		TreeServer* server = Utils->FindServer(targetmask);
+		if (!server)
+			return false;
+
+		// Use the SID of the target in the message instead of the server name
+		encap.push(server->GetID()).push(cmd).insert(params).Unicast(server->ServerUser);
+	}
+
+	return true;
 }
 
 void SpanningTreeProtocolInterface::SendMetaData(User* u, const std::string& key, const std::string& data)

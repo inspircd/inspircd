@@ -31,7 +31,7 @@ static std::string sasl_target = "*";
 
 static void SendSASL(const parameterlist& params)
 {
-	if (!ServerInstance->PI->SendEncapsulatedData(params))
+	if (!ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params))
 	{
 		SASLFallback(NULL, params);
 	}
@@ -54,8 +54,6 @@ class SaslAuthenticator
 		: user(user_), state(SASL_INIT), state_announced(false)
 	{
 		parameterlist params;
-		params.push_back(sasl_target);
-		params.push_back("SASL");
 		params.push_back(user->uuid);
 		params.push_back("*");
 		params.push_back("S");
@@ -132,8 +130,6 @@ class SaslAuthenticator
 			return true;
 
 		parameterlist params;
-		params.push_back(sasl_target);
-		params.push_back("SASL");
 		params.push_back(this->user->uuid);
 		params.push_back(this->agent);
 		params.push_back("C");

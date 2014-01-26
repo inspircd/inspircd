@@ -56,14 +56,17 @@ class CoreExport ProtocolInterface
 
 	virtual ~ProtocolInterface() { }
 
-	/** Send an ENCAP message to one or more linked servers.
+	/** Send an ENCAP message to all servers matching a wildcard string.
 	 * See the protocol documentation for the purpose of ENCAP.
-	 * @param encap This is a list of string parameters, the first of which must be a server ID or glob matching servernames.
-	 * The second must be a subcommand. All subsequent parameters are dependant on the subcommand.
+	 * @param targetmask The target server mask (can contain wildcards)
+	 * @param cmd The ENCAP subcommand
+	 * @param params List of string parameters which are dependant on the subcommand
+	 * @param source The source of the message (prefix), must be a local user or NULL which means use local server
+	 * @return Always true if the target mask contains wildcards; otherwise true if the server name was found,
+	 * and the message was sent, false if it was not found.
 	 * ENCAP (should) be used instead of creating new protocol messages for easier third party application support.
-	 * @return True if the message was sent out (target exists)
 	 */
-	virtual bool SendEncapsulatedData(const parameterlist &encap) { return false; }
+	virtual bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const parameterlist& params, User* source = NULL) { return false; }
 
 	/** Send metadata for a channel to other linked servers.
 	 * @param chan The channel to send metadata for
