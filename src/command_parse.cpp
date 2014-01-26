@@ -118,7 +118,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 // calls a handler function for a command
 
-CmdResult CommandParser::CallHandler(const std::string &commandname, const std::vector<std::string>& parameters, User *user)
+CmdResult CommandParser::CallHandler(const std::string& commandname, const std::vector<std::string>& parameters, User* user, Command** cmd)
 {
 	Commandtable::iterator n = cmdlist.find(commandname);
 
@@ -150,6 +150,8 @@ CmdResult CommandParser::CallHandler(const std::string &commandname, const std::
 
 			if (bOkay)
 			{
+				if (cmd)
+					*cmd = n->second;
 				return n->second->Handle(parameters,user);
 			}
 		}

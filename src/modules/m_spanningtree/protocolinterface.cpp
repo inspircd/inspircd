@@ -71,6 +71,17 @@ bool SpanningTreeProtocolInterface::SendEncapsulatedData(const std::string& targ
 	return true;
 }
 
+void SpanningTreeProtocolInterface::BroadcastEncap(const std::string& cmd, const parameterlist& params, User* source, User* omit)
+{
+	if (!source)
+		source = ServerInstance->FakeClient;
+
+	// If omit is non-NULL we pass the route belonging to the user to Forward(),
+	// otherwise we pass NULL, which is equivalent to Broadcast()
+	TreeServer* server = (omit ? TreeServer::Get(omit)->GetRoute() : NULL);
+	CmdBuilder(source, "ENCAP * ").push_raw(cmd).insert(params).Forward(server);
+}
+
 void SpanningTreeProtocolInterface::SendMetaData(User* u, const std::string& key, const std::string& data)
 {
 	CommandMetadata::Builder(u, key, data).Broadcast();

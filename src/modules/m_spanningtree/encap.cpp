@@ -27,8 +27,12 @@ CmdResult CommandEncap::Handle(User* user, std::vector<std::string>& params)
 	if (ServerInstance->Config->GetSID() == params[0] || InspIRCd::Match(ServerInstance->Config->ServerName, params[0]))
 	{
 		parameterlist plist(params.begin() + 2, params.end());
-		ServerInstance->Parser->CallHandler(params[1], plist, user);
+		Command* cmd = NULL;
+		ServerInstance->Parser->CallHandler(params[1], plist, user, &cmd);
 		// Discard return value, ENCAP shall succeed even if the command does not exist
+
+		if ((cmd) && (cmd->force_manual_route))
+			return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;
 }

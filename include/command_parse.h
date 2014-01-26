@@ -49,13 +49,15 @@ class CoreExport CommandParser
 	 * @param commandname The command to find. This should be in uppercase.
 	 * @param parameters Parameter list
 	 * @param user The user to call the handler on behalf of
+	 * @param cmd If non-NULL and the command was executed it is set to the command handler,
+	 * otherwise it isn't written to.
 	 * @return This method will return CMD_SUCCESS if the command handler was found and called,
 	 * and the command completeld successfully. It will return CMD_FAILURE if the command handler was found
 	 * and called, but the command did not complete successfully, and it will return CMD_INVALID if the
 	 * command simply did not exist at all or the wrong number of parameters were given, or the user
 	 * was not privilaged enough to execute the command.
 	 */
-	CmdResult CallHandler(const std::string &commandname, const std::vector<std::string>& parameters, User *user);
+	CmdResult CallHandler(const std::string& commandname, const std::vector<std::string>& parameters, User* user, Command** cmd = NULL);
 
 	/** Get the handler function for a command.
 	 * @param commandname The command required. Always use uppercase for this parameter.

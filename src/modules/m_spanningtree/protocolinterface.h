@@ -32,6 +32,7 @@ class SpanningTreeProtocolInterface : public ProtocolInterface
 	};
 
 	bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const parameterlist& params, User* source) CXX11_OVERRIDE;
+	void BroadcastEncap(const std::string& cmd, const parameterlist& params, User* source, User* omit) CXX11_OVERRIDE;
 	void SendMetaData(User* user, const std::string& key, const std::string& data) CXX11_OVERRIDE;
 	void SendMetaData(Channel* chan, const std::string& key, const std::string& data) CXX11_OVERRIDE;
 	void SendMetaData(const std::string& key, const std::string& data) CXX11_OVERRIDE;

@@ -224,8 +224,14 @@ class CoreExport CommandBase : public ServiceProvider
 class CoreExport Command : public CommandBase
 {
  public:
+	/** If true, the command will not be forwarded by the linking module even if it comes via ENCAP.
+	 * Can be used to forward commands before their effects.
+	 */
+	bool force_manual_route;
+
 	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0)
 		: CommandBase(me, cmd, minpara, maxpara)
+		, force_manual_route(false)
 	{
 	}
 

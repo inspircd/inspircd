@@ -68,6 +68,16 @@ class CoreExport ProtocolInterface
 	 */
 	virtual bool SendEncapsulatedData(const std::string& targetmask, const std::string& cmd, const parameterlist& params, User* source = NULL) { return false; }
 
+	/** Send an ENCAP message to all servers.
+	 * See the protocol documentation for the purpose of ENCAP.
+	 * @param cmd The ENCAP subcommand
+	 * @param params List of string parameters which are dependant on the subcommand
+	 * @param source The source of the message (prefix), must be a local user or a user behind 'omit'
+	 * or NULL which is equivalent to the local server
+	 * @param omit If non-NULL the message won't be sent in the direction of this server, useful for forwarding messages
+	 */
+	virtual void BroadcastEncap(const std::string& cmd, const parameterlist& params, User* source = NULL, User* omit = NULL) { }
+
 	/** Send metadata for a channel to other linked servers.
 	 * @param chan The channel to send metadata for
 	 * @param key The 'key' of the data, e.g. "swhois" for swhois desc on a user
