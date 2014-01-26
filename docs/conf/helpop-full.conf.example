@@ -373,7 +373,7 @@ SAJOIN    SAPART    SAMODE      SATOPIC  SAKICK
 
 KILL      SAQUIT    GLINE       ZLINE    QLINE
 KLINE     RLINE     ELINE       CBAN     SHUN
-FILTER    OJOIN
+FILTER    OJOIN     CLEARCHAN
 
 CONNECT   SQUIT     RCONNECT    RSQUIT
 
@@ -753,6 +753,16 @@ Reloads the specified core command.">
 <helpop key="close" value="/CLOSE
 
 Closes all unregistered connections to the local server.">
+
+<helpop key="clearchan" value="/CLEARCHAN <channel> [<KILL|KICK|G|Z>] [<reason>]
+
+Quits or kicks all non-opers from a channel, optionally G/Z-Lines them.
+Useful for quickly nuking bot channels.
+
+The default method, KILL, simply disconnects the victims from the server,
+while methods G and Z also add G/Z-Lines for all the targets.
+
+When used, the victims won't see each other getting kicked or quitting.">
 
 ######################
 # User/Channel Modes #

@@ -457,6 +457,11 @@
 #<module name="m_chgname.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Clear chan module: Allows opers to masskick, masskill or mass-G/ZLine
+# all users on a channel using /CLEARCHAN.
+#<module name="m_clearchan.so">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Cloaking module: Adds usermode +x and cloaking support.
 # Relies on the module m_md5.so being loaded.
 # To use, you should enable m_conn_umodes and add +x as
