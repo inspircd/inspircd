@@ -265,6 +265,7 @@ class ModuleSSLOpenSSL : public Module
 				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
 				ERR_print_errors_cb(error_callback, this);
 			}
+			DH_free(ret);
 		}
 
 		fclose(dhpfile);
@@ -629,8 +630,11 @@ class ModuleSSLOpenSSL : public Module
 			certinfo->trusted = false;
 		}
 
-		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
-		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
+		char buf[512];
+		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
+		certinfo->dn = buf;
+		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
+		certinfo->issuer = buf;
 
 		if (!X509_digest(cert, digest, md, &n))
 		{
