@@ -136,8 +136,6 @@ class ModuleAlias : public Module
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
 	{
-		AliasMap::iterator i, upperbound;
-
 		/* If theyre not registered yet, we dont want
 		 * to know.
 		 */
@@ -145,18 +143,16 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* We dont have any commands looking like this? Stop processing. */
-		i = Aliases.find(command);
-		if (i == Aliases.end())
+		std::pair<AliasMap::iterator, AliasMap::iterator> iters = Aliases.equal_range(command);
+		if (iters.first == iters.second)
 			return MOD_RES_PASSTHRU;
-		/* Avoid iterating on to different aliases if no patterns match. */
-		upperbound = Aliases.upper_bound(command);
 
 		/* The parameters for the command in their original form, with the command stripped off */
 		std::string compare = original_line.substr(command.length());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		while (i != upperbound)
+		for (AliasMap::iterator i = iters.first; i != iters.second; ++i)
 		{
 			if (i->second.UserCommand)
 			{
@@ -165,8 +161,6 @@ class ModuleAlias : public Module
 					return MOD_RES_DENY;
 				}
 			}
-
-			i++;
 		}
 
 		// If we made it here, no aliases actually matched.
@@ -213,21 +207,16 @@ class ModuleAlias : public Module
 		// nor do we give a shit about the prefix
 		scommand.erase(scommand.begin());
 
-		AliasMap::iterator i = Aliases.find(scommand);
-
-		if (i == Aliases.end())
+		std::pair<AliasMap::iterator, AliasMap::iterator> iters = Aliases.equal_range(scommand);
+		if (iters.first == iters.second)
 			return;
-
-		/* Avoid iterating on to other aliases if no patterns match */
-		AliasMap::iterator upperbound = Aliases.upper_bound(scommand);
-
 
 		/* The parameters for the command in their original form, with the command stripped off */
 		std::string compare = text.substr(scommand.length() + 1);
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
-		while (i != upperbound)
+		for (AliasMap::iterator i = iters.first; i != iters.second; ++i)
 		{
 			if (i->second.ChannelCommand)
 			{
@@ -235,8 +224,6 @@ class ModuleAlias : public Module
 				if (DoAlias(user, c, &(i->second), compare, text.substr(1)))
 					return;
 			}
-
-			i++;
 		}
 	}
 
