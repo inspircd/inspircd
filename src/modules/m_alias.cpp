@@ -230,8 +230,6 @@ class ModuleAlias : public Module
 
 	int DoAlias(User *user, Channel *c, Alias *a, const std::string& compare, const std::string& safe)
 	{
-		User *u = NULL;
-
 		/* Does it match the pattern? */
 		if (!a->format.empty())
 		{
@@ -252,16 +250,14 @@ class ModuleAlias : public Module
 
 		if (!a->RequiredNick.empty())
 		{
-			u = ServerInstance->FindNick(a->RequiredNick);
+			User* u = ServerInstance->FindNick(a->RequiredNick);
 			if (!u)
 			{
 				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick + " :is currently unavailable. Please try again later.");
 				return 1;
 			}
-		}
-		if ((u != NULL) && (!a->RequiredNick.empty()) && (a->ULineOnly))
-		{
-			if (!u->server->IsULine())
+
+			if ((a->ULineOnly) && (!u->server->IsULine()))
 			{
 				ServerInstance->SNO->WriteToSnoMask('a', "NOTICE -- Service "+a->RequiredNick+" required by alias "+a->AliasedCommand+" is not on a u-lined server, possibly underhanded antics detected!");
 				user->WriteNumeric(ERR_NOSUCHNICK, a->RequiredNick + " :is an imposter! Please inform an IRC operator as soon as possible.");
