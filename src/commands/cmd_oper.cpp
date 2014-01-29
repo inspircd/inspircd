@@ -56,7 +56,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 		OperInfo* ifo = i->second;
 		ConfigTag* tag = ifo->oper_block;
 		match_login = true;
-		match_pass = !ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
+		match_pass = ServerInstance->PassCompare(user, tag->getString("password"), parameters[1], tag->getString("hash"));
 		match_hosts = InspIRCd::MatchMask(tag->getString("host"), userHost, userIP);
 
 		if (match_pass && match_hosts)

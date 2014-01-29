@@ -43,7 +43,7 @@ class CommandVhost : public Command
 			std::string pass = tag->getString("pass");
 			std::string hash = tag->getString("hash");
 
-			if (parameters[0] == username && !ServerInstance->PassCompare(user, pass, parameters[1], hash))
+			if (parameters[0] == username && ServerInstance->PassCompare(user, pass, parameters[1], hash))
 			{
 				if (!mask.empty())
 				{
