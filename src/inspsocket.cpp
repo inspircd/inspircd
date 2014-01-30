@@ -440,7 +440,10 @@ bool SocketTimeout::Tick(time_t)
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "SocketTimeout::Tick");
 
 	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
+	{
+		delete this;
 		return false;
+	}
 
 	if (this->sock->state == I_CONNECTING)
 	{
@@ -456,6 +459,7 @@ bool SocketTimeout::Tick(time_t)
 	}
 
 	this->sock->Timeout = NULL;
+	delete this;
 	return false;
 }
 

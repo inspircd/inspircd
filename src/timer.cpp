@@ -47,8 +47,9 @@ void TimerManager::TickTimers(time_t TIME)
 		Timers.erase(i++);
 
 		if (!t->Tick(TIME))
-			delete t;
-		else if (t->GetRepeat())
+			continue;
+
+		if (t->GetRepeat())
 		{
 			t->SetTrigger(TIME + t->GetInterval());
 			AddTimer(t);

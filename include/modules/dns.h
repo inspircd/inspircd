@@ -185,6 +185,7 @@ namespace DNS
 			Query rr(*this);
 			rr.error = ERROR_TIMEDOUT;
 			this->OnError(&rr);
+			delete this;
 			return false;
 		}
 	};

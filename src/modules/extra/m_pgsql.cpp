@@ -593,6 +593,7 @@ bool ReconnectTimer::Tick(time_t time)
 {
 	mod->retimer = NULL;
 	mod->ReadConf();
+	delete this;
 	return false;
 }
 
