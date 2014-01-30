@@ -513,15 +513,16 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Join: Allows you to force users to join one or more channels
-# automatically upon connecting to the server.
+# automatically upon connecting to the server, or join them in case
+# they aren't on any channels after being online for X seconds.
 #<module name="m_conn_join.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- CONNJOIN CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
 #
-# If you have m_conn_join.so loaded, you can configure it using the
-# follow values:
-#
+# Join users immediately after connection to #one #two and #three.
 #<autojoin channel="#one,#two,#three">
+# Join users to #chat after 15 seconds if they aren't on any channels.
+#<autojoin channel="#chat" delay="15">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Conn-Usermodes: Set modes on users when they connect
