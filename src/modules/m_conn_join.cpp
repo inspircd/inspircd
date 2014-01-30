@@ -22,9 +22,52 @@
 
 #include "inspircd.h"
 
+static void JoinChannels(LocalUser* u, const std::string& chanlist)
+{
+	irc::commasepstream chans(chanlist);
+	std::string chan;
+
+	while (chans.GetToken(chan))
+	{
+		if (ServerInstance->IsChannel(chan))
+			Channel::JoinUser(u, chan);
+	}
+}
+
+class JoinTimer : public Timer
+{
+ private:
+	LocalUser* const user;
+	const std::string channels;
+	SimpleExtItem<JoinTimer>& ext;
+
+ public:
+	JoinTimer(LocalUser* u, SimpleExtItem<JoinTimer>& ex, const std::string& chans, unsigned int delay)
+		: Timer(delay, ServerInstance->Time(), false)
+		, user(u), channels(chans), ext(ex)
+	{
+		ServerInstance->Timers->AddTimer(this);
+	}
+
+	bool Tick(time_t time) CXX11_OVERRIDE
+	{
+		if (user->chans.empty())
+			JoinChannels(user, channels);
+
+		ext.unset(user);
+		return false;
+	}
+};
+
 class ModuleConnJoin : public Module
 {
+	SimpleExtItem<JoinTimer> ext;
+
  public:
+	ModuleConnJoin() : ext("join_timer", this)
+	{
+	}
+
 	void Prioritize()
 	{
 		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
@@ -41,17 +84,23 @@ class ModuleConnJoin : public Module
 		if (!localuser)
 			return;
 
-		std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
-		chanlist = localuser->GetClass()->config->getString("autojoin", chanlist);
+		std::string chanlist = localuser->GetClass()->config->getString("autojoin");
+		unsigned int chandelay = localuser->GetClass()->config->getInt("autojoindelay", 0, 0, 60);
 
-		irc::commasepstream chans(chanlist);
-		std::string chan;
-
-		while (chans.GetToken(chan))
+		if (chanlist.empty())
 		{
-			if (ServerInstance->IsChannel(chan))
-				Channel::JoinUser(localuser, chan);
+			ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
+			chanlist = tag->getString("channel");
+			chandelay = tag->getInt("delay", 0, 0, 60);
 		}
+
+		if (chanlist.empty())
+			return;
+
+		if (!chandelay)
+			JoinChannels(localuser, chanlist);
+		else
+			ext.set(localuser, new JoinTimer(localuser, ext, chanlist, chandelay));
 	}
 };
 
