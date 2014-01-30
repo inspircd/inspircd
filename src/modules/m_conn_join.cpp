@@ -62,10 +62,19 @@ class JoinTimer : public Timer
 class ModuleConnJoin : public Module
 {
 	SimpleExtItem<JoinTimer> ext;
+	std::string defchans;
+	unsigned int defdelay;
 
  public:
 	ModuleConnJoin() : ext("join_timer", this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
+		defchans = tag->getString("channel");
+		defdelay = tag->getInt("delay", 0, 0, 60);
 	}
 
 	void Prioritize()
@@ -89,13 +98,11 @@ class ModuleConnJoin : public Module
 
 		if (chanlist.empty())
 		{
-			ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
-			chanlist = tag->getString("channel");
-			chandelay = tag->getInt("delay", 0, 0, 60);
+			if (defchans.empty())
+				return;
+			chanlist = defchans;
+			chandelay = defdelay;
 		}
-
-		if (chanlist.empty())
-			return;
 
 		if (!chandelay)
 			JoinChannels(localuser, chanlist);
