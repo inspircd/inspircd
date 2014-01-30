@@ -24,35 +24,35 @@
 
 class ModuleConnJoin : public Module
 {
-	public:
-		void Prioritize()
+ public:
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
+	}
+
+	void OnPostConnect(User* user) CXX11_OVERRIDE
+	{
+		LocalUser* localuser = IS_LOCAL(user);
+		if (!localuser)
+			return;
+
+		std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
+		chanlist = localuser->GetClass()->config->getString("autojoin", chanlist);
+
+		irc::commasepstream chans(chanlist);
+		std::string chan;
+
+		while (chans.GetToken(chan))
 		{
-			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+			if (ServerInstance->IsChannel(chan))
+				Channel::JoinUser(localuser, chan);
 		}
-
-		Version GetVersion() CXX11_OVERRIDE
-		{
-			return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
-		}
-
-		void OnPostConnect(User* user) CXX11_OVERRIDE
-		{
-			LocalUser* localuser = IS_LOCAL(user);
-			if (!localuser)
-				return;
-
-			std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
-			chanlist = localuser->GetClass()->config->getString("autojoin", chanlist);
-
-			irc::commasepstream chans(chanlist);
-			std::string chan;
-
-			while (chans.GetToken(chan))
-			{
-				if (ServerInstance->IsChannel(chan))
-					Channel::JoinUser(localuser, chan);
-			}
-		}
+	}
 };
 
 MODULE_INIT(ModuleConnJoin)
