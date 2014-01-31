@@ -40,7 +40,7 @@ class CommandRestart : public Command
 CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	ServerInstance->Logs->Log("COMMAND", LOG_DEFAULT, "Restart: %s",user->nick.c_str());
-	if (ServerInstance->PassCompare(user, ServerInstance->Config->restartpass, parameters[0].c_str(), ServerInstance->Config->powerhash))
+	if (ServerInstance->PassCompare(user, ServerInstance->Config->restartpass, parameters[0], ServerInstance->Config->powerhash))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
 

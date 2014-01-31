@@ -99,7 +99,7 @@ class CloakUser : public ModeHandler
 			}
 			if (cloak)
 			{
-				user->ChangeDisplayedHost(cloak->c_str());
+				user->ChangeDisplayedHost(*cloak);
 				user->SetMode(this, true);
 				return MODEACTION_ALLOW;
 			}

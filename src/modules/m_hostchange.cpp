@@ -151,7 +151,7 @@ class ModuleHostChange : public Module
 				if (!newhost.empty())
 				{
 					user->WriteNotice("Setting your virtual host: " + newhost);
-					if (!user->ChangeDisplayedHost(newhost.c_str()))
+					if (!user->ChangeDisplayedHost(newhost))
 						user->WriteNotice("Could not set your virtual host: " + newhost);
 					return;
 				}

@@ -46,7 +46,7 @@ class CommandDie : public Command
  */
 CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (ServerInstance->PassCompare(user, ServerInstance->Config->diepass, parameters[0].c_str(), ServerInstance->Config->powerhash))
+	if (ServerInstance->PassCompare(user, ServerInstance->Config->diepass, parameters[0], ServerInstance->Config->powerhash))
 	{
 		{
 			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";

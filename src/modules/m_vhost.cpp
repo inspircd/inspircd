@@ -48,7 +48,7 @@ class CommandVhost : public Command
 				if (!mask.empty())
 				{
 					user->WriteNotice("Setting your VHost: " + mask);
-					user->ChangeDisplayedHost(mask.c_str());
+					user->ChangeDisplayedHost(mask);
 					return CMD_SUCCESS;
 				}
 			}

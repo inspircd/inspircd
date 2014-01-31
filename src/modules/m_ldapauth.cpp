@@ -323,7 +323,7 @@ public:
 		std::string* cc = ldapVhost.get(user);
 		if (cc)
 		{
-			user->ChangeDisplayedHost(cc->c_str());
+			user->ChangeDisplayedHost(*cc);
 			ldapVhost.unset(user);
 		}
 	}

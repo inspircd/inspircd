@@ -56,7 +56,7 @@ class CommandTitle : public Command
 				ServerInstance->PI->SendMetaData(user, "ctitle", title);
 
 				if (!vhost.empty())
-					user->ChangeDisplayedHost(vhost.c_str());
+					user->ChangeDisplayedHost(vhost);
 
 				user->WriteNotice("Custom title set to '" + title + "'");
 
