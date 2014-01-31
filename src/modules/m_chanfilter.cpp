@@ -23,9 +23,6 @@
  */
 
 
-#define _CRT_SECURE_NO_DEPRECATE
-#define _SCL_SECURE_NO_DEPRECATE
-
 #include "inspircd.h"
 #include "listmode.h"
 

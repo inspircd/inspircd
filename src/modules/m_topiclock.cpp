@@ -94,10 +94,6 @@ class FlagExtItem : public ExtensionItem
 	{
 	}
 
-	~FlagExtItem()
-	{
-	}
-
 	bool get(const Extensible* container) const
 	{
 		return (get_raw(container) != NULL);

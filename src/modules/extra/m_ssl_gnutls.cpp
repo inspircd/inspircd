@@ -81,7 +81,6 @@ typedef gnutls_retr_st cert_cb_last_param_type;
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
  public:
-	RandGen() {}
 	void Call(char* buffer, size_t len)
 	{
 #ifdef GNUTLS_HAS_RND

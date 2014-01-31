@@ -438,7 +438,6 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
 	ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
 	const ListModeBase::ModeList* bans = banlm->GetList(this);
 	if (bans)
-
 	{
 		for (ListModeBase::ModeList::const_iterator it = bans->begin(); it != bans->end(); ++it)
 		{

@@ -34,7 +34,7 @@ class CommandCycle : public SplitCommand
 	CmdResult HandleLocal(const std::vector<std::string> &parameters, LocalUser* user)
 	{
 		Channel* channel = ServerInstance->FindChan(parameters[0]);
-		std::string reason = ConvToStr("Cycling");
+		std::string reason = "Cycling";
 
 		if (parameters.size() > 1)
 		{

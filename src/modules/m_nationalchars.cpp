@@ -32,8 +32,6 @@
 class lwbNickHandler : public HandlerBase1<bool, const std::string&>
 {
  public:
-	lwbNickHandler() { }
-	~lwbNickHandler() { }
 	bool Call(const std::string&);
 };
 

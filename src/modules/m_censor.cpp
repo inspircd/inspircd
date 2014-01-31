@@ -20,11 +20,7 @@
  */
 
 
-#define _CRT_SECURE_NO_DEPRECATE
-#define _SCL_SECURE_NO_DEPRECATE
-
 #include "inspircd.h"
-#include <iostream>
 
 typedef std::map<irc::string,irc::string> censor_t;
 

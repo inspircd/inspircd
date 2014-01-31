@@ -107,7 +107,6 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 
 class ModuleExemptChanOps : public Module
 {
-	std::string defaults;
 	ExemptHandler eh;
 
  public:

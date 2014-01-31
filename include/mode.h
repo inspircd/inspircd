@@ -385,7 +385,6 @@ class CoreExport SimpleUserModeHandler : public ModeHandler
  public:
 	SimpleUserModeHandler(Module* Creator, const std::string& Name, char modeletter)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_USER) {}
-	virtual ~SimpleUserModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 
@@ -399,7 +398,6 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
  public:
 	SimpleChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
 		: ModeHandler(Creator, Name, modeletter, PARAM_NONE, MODETYPE_CHANNEL) {}
-	virtual ~SimpleChannelModeHandler() {}
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 

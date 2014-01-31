@@ -24,8 +24,6 @@ static std::bitset<256> allowedmap;
 class NewIsChannelHandler : public HandlerBase1<bool, const std::string&>
 {
  public:
-	NewIsChannelHandler() { }
-	~NewIsChannelHandler() { }
 	bool Call(const std::string&);
 };
 
