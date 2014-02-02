@@ -22,37 +22,85 @@
 
 #include "inspircd.h"
 
+void JoinChannels(LocalUser* u, const std::string& chanlist)
+{
+	irc::commasepstream chans(chanlist);
+	std::string chan;
+
+	while (chans.GetToken(chan))
+	{
+		if (ServerInstance->IsChannel(chan))
+			Channel::JoinUser(u, chan);
+	}
+}
+
+class JoinTimer : public Timer
+{
+ private:
+	LocalUser* user;
+	std::string channels;
+	SimpleExtItem<JoinTimer>& ext;
+
+ public:
+	JoinTimer(LocalUser* u, SimpleExtItem<JoinTimer>& ex, const std::string& chans, int delay) : Timer(delay, ServerInstance->Time(), false), user(u), channels(chans), ext(ex)
+	{
+		ServerInstance->Timers->AddTimer(this);
+	}
+
+	bool Tick(time_t time)
+	{
+		if (user->chans.empty())
+			JoinChannels(user, channels);
+
+		ext.unset(user);
+		return true;
+	}
+};
+
 class ModuleConnJoin : public Module
 {
-	public:
-		void Prioritize()
+ private:
+	SimpleExtItem<JoinTimer> ext;
+
+ public:
+	ModuleConnJoin() : ext("join_timer", this)
+	{
+	}
+
+	void Prioritize()
+	{
+		ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+	}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
+	}
+
+	void OnPostConnect(User* user) CXX11_OVERRIDE
+	{
+		LocalUser* localuser = IS_LOCAL(user);
+		if (!localuser)
+			return;
+
+		std::string chanlist = localuser->GetClass()->config->getString("autojoin");
+		int chandelay = localuser->GetClass()->config->getInt("autojoindelay");
+
+		if (chanlist.empty())
 		{
-			ServerInstance->Modules->SetPriority(this, I_OnPostConnect, PRIORITY_LAST);
+			ConfigTag* tag = ServerInstance->Config->ConfValue("autojoin");
+			chanlist = tag->getString("channel");
+			chandelay = tag->getInt("delay");
 		}
 
-		Version GetVersion() CXX11_OVERRIDE
-		{
-			return Version("Forces users to join the specified channel(s) on connect", VF_VENDOR);
-		}
+		if (chanlist.empty())
+			return;
 
-		void OnPostConnect(User* user) CXX11_OVERRIDE
-		{
-			LocalUser* localuser = IS_LOCAL(user);
-			if (!localuser)
-				return;
-
-			std::string chanlist = ServerInstance->Config->ConfValue("autojoin")->getString("channel");
-			chanlist = localuser->GetClass()->config->getString("autojoin", chanlist);
-
-			irc::commasepstream chans(chanlist);
-			std::string chan;
-
-			while (chans.GetToken(chan))
-			{
-				if (ServerInstance->IsChannel(chan))
-					Channel::JoinUser(localuser, chan);
-			}
-		}
+		if (!chandelay)
+			JoinChannels(localuser, chanlist);
+		else
+			ext.set(localuser, new JoinTimer(localuser, ext, chanlist, chandelay));
+	}
 };
 
 MODULE_INIT(ModuleConnJoin)
