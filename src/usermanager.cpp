@@ -337,7 +337,7 @@ void UserManager::DoBackgroundUserStuff()
 					if (!curr->lastping)
 					{
 						time_t time = ServerInstance->Time() - (curr->nping - curr->MyClass->GetPingTime());
-						const std::string message = "Ping timeout: " + ConvToStr(time) + (time == 1 ? " seconds" : " second");
+						const std::string message = "Ping timeout: " + ConvToStr(time) + (time != 1 ? " seconds" : " second");
 						this->QuitUser(curr, message);
 						continue;
 					}
