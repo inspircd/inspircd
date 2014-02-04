@@ -137,7 +137,7 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 	events[index].fd = fd;
 	events[index].events = mask_to_poll(event_mask);
 
-	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[fd].events, index);
+	ServerInstance->Logs->Log("SOCKET", DEBUG,"New file descriptor: %d (%d; index %d)", fd, events[index].events, index);
 	SocketEngine::SetEventMask(eh, event_mask);
 	CurrentSetSize++;
 	return true;
