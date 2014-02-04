@@ -233,7 +233,7 @@ class CoreExport SocketEngine
  protected:
 	/** Current number of descriptors in the engine
 	 */
-	int CurrentSetSize;
+	size_t CurrentSetSize;
 	/** Reference table, contains all current handlers
 	 */
 	EventHandler** ref;
@@ -304,7 +304,7 @@ public:
 	/** Returns the number of file descriptors being queried
 	 * @return The set size
 	 */
-	inline int GetUsedFds() const { return CurrentSetSize; }
+	inline size_t GetUsedFds() const { return CurrentSetSize; }
 
 	/** Delete an event handler from the engine.
 	 * This function call deletes an EventHandler
