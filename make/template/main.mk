@@ -72,7 +72,7 @@ INSTMODE_LIB = 0640
   LDLIBS += -ldl -lrt
 @ENDIF
 @IFEQ $(SYSTEM) solaris
-  LDLIBS += -lsocket -lnsl -lrt -lresolv
+  LDLIBS += -lsocket -lnsl -lrt -lresolv -lm
   INSTALL = ginstall
 @ENDIF
 @IFEQ $(SYSTEM) darwin
