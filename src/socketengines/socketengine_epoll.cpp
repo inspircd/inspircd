@@ -123,7 +123,7 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 	}
 
 	struct epoll_event ev;
-	memset(&ev,0,sizeof(ev));
+	memset(&ev, 0, sizeof(ev));
 	ev.events = mask_to_epoll(event_mask);
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
@@ -150,7 +150,7 @@ void EPollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	{
 		// ok, we actually have something to tell the kernel about
 		struct epoll_event ev;
-		memset(&ev,0,sizeof(ev));
+		memset(&ev, 0, sizeof(ev));
 		ev.events = new_events;
 		ev.data.fd = eh->GetFd();
 		epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
@@ -167,7 +167,7 @@ void EPollEngine::DelFd(EventHandler* eh)
 	}
 
 	struct epoll_event ev;
-	memset(&ev,0,sizeof(ev));
+	memset(&ev, 0, sizeof(ev));
 	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 

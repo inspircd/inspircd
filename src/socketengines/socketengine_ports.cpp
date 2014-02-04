@@ -20,10 +20,6 @@
 
 #include "inspircd.h"
 #include "exitcodes.h"
-#include <port.h>
-
-#ifndef SOCKETENGINE_PORTS
-#define SOCKETENGINE_PORTS
 
 #ifndef __sun
 # error You need Solaris 10 or later to make use of this code.
@@ -36,6 +32,7 @@
 #include "socketengine.h"
 #include <port.h>
 #include <iostream>
+#include <ulimit.h>
 
 /** A specialisation of the SocketEngine class, designed to use solaris 10 I/O completion ports
  */
@@ -59,11 +56,6 @@ public:
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 };
-
-#endif
-
-
-#include <ulimit.h>
 
 PortsEngine::PortsEngine() : events(1)
 {

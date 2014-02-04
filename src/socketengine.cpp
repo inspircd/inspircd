@@ -121,7 +121,7 @@ bool SocketEngine::HasFd(int fd)
 EventHandler* SocketEngine::GetRef(int fd)
 {
 	if (fd < 0 || static_cast<unsigned int>(fd) >= ref.size())
-		return 0;
+		return NULL;
 	return ref[fd];
 }
 

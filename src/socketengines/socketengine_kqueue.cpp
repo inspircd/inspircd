@@ -176,10 +176,9 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		struct kevent ke;
 		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0) {
+		if (i < 0)
 			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to mark for writing: %d %s",
 						  eh->GetFd(), strerror(errno));
-		}
 	}
 	else if ((old_mask & FD_WANT_POLL_WRITE) && !(new_mask & FD_WANT_POLL_WRITE))
 	{
@@ -187,10 +186,9 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		struct kevent ke;
 		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0) {
+		if (i < 0)
 			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to mark for writing: %d %s",
 						  eh->GetFd(), strerror(errno));
-		}
 	}
 	if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)))
 	{
@@ -198,10 +196,9 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		struct kevent ke;
 		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0) {
+		if (i < 0)
 			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to mark for writing: %d %s",
 						  eh->GetFd(), strerror(errno));
-		}
 	}
 }
 

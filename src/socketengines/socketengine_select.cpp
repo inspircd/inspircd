@@ -125,51 +125,48 @@ int SelectEngine::DispatchEvents()
 	int sresult = select(MaxFD + 1, &rfdset, &wfdset, &errfdset, &tval);
 	ServerInstance->UpdateTime();
 
-	/* Nothing to process this time around */
-	if (sresult < 1)
-		return 0;
-
 	for (int i = 0, j = sresult; i <= MaxFD && j > 0; i++)
 	{
 		int has_read = FD_ISSET(i, &rfdset), has_write = FD_ISSET(i, &wfdset), has_error = FD_ISSET(i, &errfdset);
 
-		if (has_read || has_write || has_error)
+		if (!(has_read || has_write || has_error))
+			continue;
+
+		--j;
+
+		EventHandler* ev = GetRef(i);
+		if (!ev)
+			continue;
+
+		if (has_error)
 		{
-			--j;
+			ErrorEvents++;
 
-			EventHandler* ev = GetRef(i);
-			if (!ev)
+			socklen_t codesize = sizeof(int);
+			int errcode = 0;
+			if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
+				errcode = errno;
+
+			ev->HandleEvent(EVENT_ERROR, errcode);
+			continue;
+		}
+
+		if (has_read)
+		{
+			ReadEvents++;
+			SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
+			ev->HandleEvent(EVENT_READ);
+			if (ev != GetRef(i))
 				continue;
+		}
 
-			if (has_error)
-			{
-				ErrorEvents++;
-
-				socklen_t codesize = sizeof(int);
-				int errcode = 0;
-				if (getsockopt(i, SOL_SOCKET, SO_ERROR, (char*)&errcode, &codesize) < 0)
-					errcode = errno;
-
-				ev->HandleEvent(EVENT_ERROR, errcode);
-				continue;
-			}
-
-			if (has_read)
-			{
-				ReadEvents++;
-				SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
-				ev->HandleEvent(EVENT_READ);
-				if (ev != GetRef(i))
-					continue;
-			}
-			if (has_write)
-			{
-				WriteEvents++;
-				int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
-				this->OnSetEvent(ev, ev->GetEventMask(), newmask);
-				SetEventMask(ev, newmask);
-				ev->HandleEvent(EVENT_WRITE);
-			}
+		if (has_write)
+		{
+			WriteEvents++;
+			int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
+			this->OnSetEvent(ev, ev->GetEventMask(), newmask);
+			SetEventMask(ev, newmask);
+			ev->HandleEvent(EVENT_WRITE);
 		}
 	}
 

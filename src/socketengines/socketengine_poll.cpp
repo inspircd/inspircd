@@ -21,9 +21,6 @@
  */
 
 
-#ifndef SOCKETENGINE_POLL
-#define SOCKETENGINE_POLL
-
 #include <iostream>
 #include <vector>
 #include <string>
@@ -43,8 +40,6 @@
 # define struct pollfd WSAPOLLFD
 # define poll WSAPoll
 #endif
-
-class InspIRCd;
 
 /** A specialisation of the SocketEngine class, designed to use poll().
  */
@@ -67,8 +62,6 @@ public:
 	virtual int DispatchEvents();
 	virtual std::string GetName();
 };
-
-#endif
 
 PollEngine::PollEngine() : events(1), fd_mappings(1)
 {
