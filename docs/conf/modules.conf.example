@@ -980,7 +980,7 @@
 # <ldapauth dbid="ldapdb"                                             #
 #           baserdn="ou=People,dc=brainbox,dc=cc"                     #
 #           attribute="uid"                                           #
-#           allowpattern="Guest*"                                     #
+#           allowpattern="Guest* Bot*"                                #
 #           killreason="Access denied"                                #
 #           verbose="yes"                                             #
 #           host="$uid.$ou.inspircd.org">                             #
@@ -995,9 +995,10 @@
 # The attribute value indicates the attribute which is used to locate #
 # a user account by name. On POSIX systems this is usually 'uid'.     #
 #                                                                     #
-# The allowpattern value allows you to specify a wildcard mask which  #
-# will always be allowed to connect regardless of if they have an     #
-# account, for example guest users.                                   #
+# The allowpattern value allows you to specify a space separated list #
+# of wildcard masks which will always be allowed to connect           #
+# regardless of if they have an account, for example guest and bot    #
+# users.                                                              #
 #                                                                     #
 # Killreason indicates the QUIT reason to give to users if they fail  #
 # to authenticate.                                                    #
