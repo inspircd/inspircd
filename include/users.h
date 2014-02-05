@@ -501,10 +501,16 @@ class CoreExport User : public Extensible
 	 */
 	void WriteServ(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
+	/** Sends a command to this user.
+	 * @param command The command to be sent.
+	 * @param text The message to send.
+	 */
+	void WriteCommand(const char* command, const std::string& text);
+
 	/** Sends a server notice to this user.
 	 * @param text The contents of the message to send.
 	 */
-	void WriteNotice(const std::string& text);
+	void WriteNotice(const std::string& text) { this->WriteCommand("NOTICE", ":" + text); }
 
 	void WriteNumeric(unsigned int numeric, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
