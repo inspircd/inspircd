@@ -33,9 +33,14 @@
 namespace
 {
 	int EngineHandle;
+	unsigned int ChangePos = 0;
 	/** These are used by kqueue() to hold socket events
 	 */
 	std::vector<struct kevent> ke_list(16);
+
+	/** Pending changes
+	 */
+	std::vector<struct kevent> changelist(8);
 }
 
 /** Initialize the kqueue engine
@@ -89,6 +94,13 @@ void SocketEngine::Deinit()
 	Close(EngineHandle);
 }
 
+static struct kevent* GetChangeKE()
+{
+	if (ChangePos >= changelist.size())
+		changelist.resize(changelist.size() * 2);
+	return &changelist[ChangePos++];
+}
+
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
@@ -100,16 +112,8 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 
 	// We always want to read from the socket...
-	struct kevent ke;
-	EV_SET(&ke, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-
-	int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-	if (i == -1)
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to add fd: %d %s",
-					  fd, strerror(errno));
-		return false;
-	}
+	struct kevent* ke = GetChangeKE();
+	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
@@ -130,22 +134,14 @@ void SocketEngine::DelFd(EventHandler* eh)
 		return;
 	}
 
-	struct kevent ke;
-
 	// First remove the write filter ignoring errors, since we can't be
 	// sure if there are actually any write filters registered.
-	EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-	kevent(EngineHandle, &ke, 1, 0, 0, NULL);
+	struct kevent* ke = GetChangeKE();
+	EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 
 	// Then remove the read filter.
-	EV_SET(&ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
-	int j = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-
-	if (j < 0)
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to remove fd: %d %s",
-					  fd, strerror(errno));
-	}
+	ke = GetChangeKE();
+	EV_SET(ke, eh->GetFd(), EVFILT_READ, EV_DELETE, 0, 0, NULL);
 
 	SocketEngine::DelFdRef(eh);
 
@@ -157,32 +153,19 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	if ((new_mask & FD_WANT_POLL_WRITE) && !(old_mask & FD_WANT_POLL_WRITE))
 	{
 		// new poll-style write
-		struct kevent ke;
-		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, NULL);
-		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0)
-			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to mark for writing: %d %s",
-						  eh->GetFd(), strerror(errno));
+		struct kevent* ke = GetChangeKE();
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, NULL);
 	}
 	else if ((old_mask & FD_WANT_POLL_WRITE) && !(new_mask & FD_WANT_POLL_WRITE))
 	{
 		// removing poll-style write
-		struct kevent ke;
-		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0)
-			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to mark for writing: %d %s",
-						  eh->GetFd(), strerror(errno));
+		struct kevent* ke = GetChangeKE();
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 	}
 	if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)))
 	{
-		// new one-shot write
-		struct kevent ke;
-		EV_SET(&ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
-		int i = kevent(EngineHandle, &ke, 1, 0, 0, NULL);
-		if (i < 0)
-			ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Failed to mark for writing: %d %s",
-						  eh->GetFd(), strerror(errno));
+		struct kevent* ke = GetChangeKE();
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
 	}
 }
 
@@ -192,7 +175,8 @@ int SocketEngine::DispatchEvents()
 	ts.tv_nsec = 0;
 	ts.tv_sec = 1;
 
-	int i = kevent(EngineHandle, NULL, 0, &ke_list[0], ke_list.size(), &ts);
+	int i = kevent(EngineHandle, &changelist.front(), ChangePos, &ke_list.front(), ke_list.size(), &ts);
+	ChangePos = 0;
 	ServerInstance->UpdateTime();
 
 	if (i < 0)
