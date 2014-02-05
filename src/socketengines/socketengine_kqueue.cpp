@@ -243,12 +243,8 @@ int KQueueEngine::DispatchEvents()
 			const int bits_to_clr = FD_WANT_SINGLE_WRITE | FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
 			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
 			eh->HandleEvent(EVENT_WRITE);
-
-			if (eh != GetRef(fd))
-				// whoops, deleted out from under us
-				continue;
 		}
-		if (filter == EVFILT_READ)
+		else if (filter == EVFILT_READ)
 		{
 			ReadEvents++;
 			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
