@@ -74,13 +74,13 @@ class CommandCAP : public Command
 			if (Data.ack.size() > 0)
 			{
 				std::string AckResult = irc::stringjoiner(Data.ack).GetJoined();
-				user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), AckResult.c_str());
+				user->WriteCommand("CAP", "ACK :" + AckResult);
 			}
 
 			if (Data.wanted.size() > 0)
 			{
 				std::string NakResult = irc::stringjoiner(Data.wanted).GetJoined();
-				user->WriteServ("CAP %s NAK :%s", user->nick.c_str(), NakResult.c_str());
+				user->WriteCommand("CAP", "NAK :" + NakResult);
 			}
 		}
 		else if (subcommand == "END")
@@ -95,7 +95,7 @@ class CommandCAP : public Command
 			Data.Send();
 
 			std::string Result = irc::stringjoiner(Data.wanted).GetJoined();
-			user->WriteServ("CAP %s %s :%s", user->nick.c_str(), subcommand.c_str(), Result.c_str());
+			user->WriteCommand("CAP", parameters[0] + " :" + Result);
 		}
 		else if (subcommand == "CLEAR")
 		{
@@ -105,7 +105,7 @@ class CommandCAP : public Command
 			Data.Send();
 
 			std::string Result = irc::stringjoiner(Data.ack).GetJoined();
-			user->WriteServ("CAP %s ACK :%s", user->nick.c_str(), Result.c_str());
+			user->WriteCommand("CAP", "ACK :" + Result);
 		}
 		else
 		{

@@ -301,7 +301,7 @@ class ModuleCloaking : public Module
 		if (u->IsModeSet(cu))
 		{
 			u->SetMode(cu, false);
-			u->WriteServ("MODE %s -%c", u->nick.c_str(), cu.GetModeChar());
+			u->WriteCommand("MODE", "-" + ConvToStr(cu.GetModeChar()));
 		}
 	}
 
