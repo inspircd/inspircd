@@ -70,8 +70,7 @@ static std::string BuildModeList(ModeType type)
 		}
 	}
 	sort(modes.begin(), modes.end());
-	irc::stringjoiner line(modes);
-	return line.GetJoined();
+	return irc::stringjoiner(modes);
 }
 
 void TreeSocket::SendCapabilities(int phase)

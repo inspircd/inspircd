@@ -313,9 +313,8 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 				return;
 			}
 
-			irc::stringjoiner pmlist(params);
 			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Unrecognised S2S command :%s %s %s",
-				who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
+				who->uuid.c_str(), command.c_str(), irc::stringjoiner(params).c_str());
 			SendError("Unrecognised command '" + command + "' -- possibly loaded mismatched modules");
 			return;
 		}
@@ -324,9 +323,8 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 
 	if (params.size() < cmdbase->min_params)
 	{
-		irc::stringjoiner pmlist(params);
 		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Insufficient parameters for S2S command :%s %s %s",
-			who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
+			who->uuid.c_str(), command.c_str(), irc::stringjoiner(params).c_str());
 		SendError("Insufficient parameters for command '" + command + "'");
 		return;
 	}
@@ -347,9 +345,8 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 
 	if (res == CMD_INVALID)
 	{
-		irc::stringjoiner pmlist(params);
 		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Error handling S2S command :%s %s %s",
-			who->uuid.c_str(), command.c_str(), pmlist.GetJoined().c_str());
+			who->uuid.c_str(), command.c_str(), irc::stringjoiner(params).c_str());
 		SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
 	}
 	else if (res == CMD_SUCCESS)

@@ -168,31 +168,11 @@ namespace irc
 	 */
 	typedef std::basic_string<char, irc_char_traits, std::allocator<char> > string;
 
-	/** irc::stringjoiner joins string lists into a string, using
-	 * space as the separator.
-	 * This class can join a vector of std::string.
+	/** Joins the contents of a vector to a string.
+	 * @param sequence Zero or more items to seperate.
+	 * @separator The character to place between the items.
 	 */
-	class CoreExport stringjoiner
-	{
-	 private:
-
-		/** Output string
-		 */
-		std::string joined;
-
-	 public:
-
-		/** Join all elements of a vector, in the resulting string
-		 * each element will be seperated by a single space character.
-		 * @param sequence Zero or more items to seperate
-		 */
-		stringjoiner(const std::vector<std::string>& sequence);
-
-		/** Get the joined sequence
-		 * @return A constant reference to the joined string
-		 */
-		const std::string& GetJoined() const { return joined; }
-	};
+   	std::string CoreExport stringjoiner(const std::vector<std::string>& sequence, char separator = ' ');
 
 	/** irc::modestacker stacks mode sequences into a list.
 	 * It can then reproduce this list, clamped to a maximum of MAXMODES
