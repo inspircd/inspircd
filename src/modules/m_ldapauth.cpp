@@ -264,8 +264,8 @@ class ModuleLDAPAuth : public Module
 	LocalStringExt ldapVhost;
 	std::string base;
 	std::string attribute;
-	std::string allowpattern;
 	std::vector<std::string> whitelistedcidrs;
+	std::vector<std::string> allowpatterns;
 	bool useusername;
 
 public:
@@ -287,7 +287,6 @@ public:
 
 		base 			= tag->getString("baserdn");
 		attribute		= tag->getString("attribute");
-		allowpattern	= tag->getString("allowpattern");
 		killreason		= tag->getString("killreason");
 		vhost			= tag->getString("host");
 		// Set to true if failed connects should be reported to operators
@@ -316,6 +315,13 @@ public:
 			if (!attr.empty() && !val.empty())
 				requiredattributes.push_back(make_pair(attr, val));
 		}
+
+		std::string allowpattern = tag->getString("allowpattern");
+		irc::spacesepstream ss(allowpattern);
+		for (std::string more; ss.GetToken(more); )
+		{
+			allowpatterns.push_back(more);
+		}
 	}
 
 	void OnUserConnect(LocalUser *user) CXX11_OVERRIDE
@@ -330,10 +336,13 @@ public:
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
 	{
-		if ((!allowpattern.empty()) && (InspIRCd::Match(user->nick,allowpattern)))
+		for (std::vector<std::string>::const_iterator i = allowpatterns.begin(); i != allowpatterns.end(); i++)
 		{
-			ldapAuthed.set(user,1);
-			return MOD_RES_PASSTHRU;
+			if (InspIRCd::Match(user->nick, *i))
+			{
+				ldapAuthed.set(user,1);
+				return MOD_RES_PASSTHRU;
+			}
 		}
 
 		for (std::vector<std::string>::iterator i = whitelistedcidrs.begin(); i != whitelistedcidrs.end(); i++)
