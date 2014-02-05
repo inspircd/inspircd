@@ -219,7 +219,11 @@ int KQueueEngine::DispatchEvents()
 	{
 		struct kevent& kev = ke_list[j];
 
-		EventHandler* eh = GetRef(kev.ident);
+		// Copy these in case the vector gets resized and kev invalidated
+		const int fd = kev.ident;
+		const short filter = kev.filter;
+
+		EventHandler* eh = GetRef(fd);
 		if (!eh)
 			continue;
 
@@ -229,7 +233,7 @@ int KQueueEngine::DispatchEvents()
 			eh->HandleEvent(EVENT_ERROR, kev.fflags);
 			continue;
 		}
-		if (kev.filter == EVFILT_WRITE)
+		if (filter == EVFILT_WRITE)
 		{
 			WriteEvents++;
 			/* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
@@ -240,11 +244,11 @@ int KQueueEngine::DispatchEvents()
 			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
 			eh->HandleEvent(EVENT_WRITE);
 
-			if (eh != GetRef(kev.ident))
+			if (eh != GetRef(fd))
 				// whoops, deleted out from under us
 				continue;
 		}
-		if (kev.filter == EVFILT_READ)
+		if (filter == EVFILT_READ)
 		{
 			ReadEvents++;
 			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);

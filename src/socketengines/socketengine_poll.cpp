@@ -196,43 +196,49 @@ int PollEngine::DispatchEvents()
 	{
 		struct pollfd& pfd = events[index];
 
-		if (pfd.revents)
+		// Copy these in case the vector gets resized and pfd invalidated
+		const int fd = pfd.fd;
+		const short revents = pfd.revents;
+
+		if (revents)
 			processed++;
 
-		EventHandler* eh = GetRef(pfd.fd);
+		EventHandler* eh = GetRef(fd);
 		if (!eh)
 			continue;
 
-		if (pfd.revents & POLLHUP)
+		if (revents & POLLHUP)
 		{
 			eh->HandleEvent(EVENT_ERROR, 0);
 			continue;
 		}
 
-		if (pfd.revents & POLLERR)
+		if (revents & POLLERR)
 		{
 			// Get error number
-			if (getsockopt(pfd.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+			if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
 			eh->HandleEvent(EVENT_ERROR, errcode);
 			continue;
 		}
 
-		if (pfd.revents & POLLIN)
+		if (revents & POLLIN)
 		{
 			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			eh->HandleEvent(EVENT_READ);
-			if (eh != GetRef(pfd.fd))
+			if (eh != GetRef(fd))
 				// whoops, deleted out from under us
 				continue;
 		}
 
-		if (pfd.revents & POLLOUT)
+		if (revents & POLLOUT)
 		{
 			int mask = eh->GetEventMask();
 			mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE);
 			SetEventMask(eh, mask);
-			pfd.events = mask_to_poll(mask);
+
+			// The vector could've been resized, reference can be invalid by now; don't use it
+			events[index].events = mask_to_poll(mask);
 			eh->HandleEvent(EVENT_WRITE);
 		}
 	}

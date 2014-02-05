@@ -54,6 +54,7 @@ public:
 
 EPollEngine::EPollEngine() : events(1)
 {
+	CurrentSetSize = 0;
 	int max = ulimit(4, 0);
 	if (max > 0)
 	{
@@ -193,7 +194,8 @@ int EPollEngine::DispatchEvents()
 
 	for (int j = 0; j < i; j++)
 	{
-		struct epoll_event& ev = events[j];
+		// Copy these in case the vector gets resized and ev invalidated
+		const epoll_event ev = events[j];
 
 		EventHandler* eh = GetRef(ev.data.fd);
 		if (!eh)

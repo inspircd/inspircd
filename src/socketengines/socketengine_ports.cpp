@@ -162,27 +162,29 @@ int PortsEngine::DispatchEvents()
 		if (ev.portev_source != PORT_SOURCE_FD)
 			continue;
 
-		int fd = ev.portev_object;
+		// Copy these in case the vector gets resized and ev invalidated
+		const int fd = ev.portev_object;
+		const int portev_events = ev.portev_events;
 		EventHandler* eh = GetRef(fd);
 		if (!eh)
 			continue;
 
 		int mask = eh->GetEventMask();
-		if (ev.portev_events & POLLWRNORM)
+		if (portev_events & POLLWRNORM)
 			mask &= ~(FD_WRITE_WILL_BLOCK | FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE);
-		if (ev.portev_events & POLLRDNORM)
+		if (portev_events & POLLRDNORM)
 			mask &= ~FD_READ_WILL_BLOCK;
 		// reinsert port for next time around, pretending to be one-shot for writes
 		SetEventMask(eh, mask);
 		port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
-		if (ev.portev_events & POLLRDNORM)
+		if (portev_events & POLLRDNORM)
 		{
 			ReadEvents++;
 			eh->HandleEvent(EVENT_READ);
 			if (eh != GetRef(fd))
 				continue;
 		}
-		if (ev.portev_events & POLLWRNORM)
+		if (portev_events & POLLWRNORM)
 		{
 			WriteEvents++;
 			eh->HandleEvent(EVENT_WRITE);
