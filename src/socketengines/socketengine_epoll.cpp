@@ -54,6 +54,7 @@ public:
 
 EPollEngine::EPollEngine()
 {
+	CurrentSetSize = 0;
 	int max = ulimit(4, 0);
 	if (max > 0)
 	{
