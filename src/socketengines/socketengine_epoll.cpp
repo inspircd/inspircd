@@ -167,9 +167,10 @@ void EPollEngine::DelFd(EventHandler* eh)
 		return;
 	}
 
+	// Do not initialize epoll_event because for EPOLL_CTL_DEL operations the event is ignored and can be NULL.
+	// In kernel versions before 2.6.9, the EPOLL_CTL_DEL operation required a non-NULL pointer in event,
+	// even though this argument is ignored. Since Linux 2.6.9, event can be specified as NULL when using EPOLL_CTL_DEL.
 	struct epoll_event ev;
-	memset(&ev, 0, sizeof(ev));
-	ev.data.fd = fd;
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_DEL, fd, &ev);
 
 	if (i < 0)
