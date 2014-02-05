@@ -567,6 +567,12 @@ class CoreExport User : public Extensible
 	 */
 	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
 
+	/** Write a line to the neighbours of this user who have a specific extension set.
+	 * @param line The line of text to send to the user.
+	 * @param ext The extension to check neighbours of this user for.
+	 */
+	void WriteNeighboursWithExt(const std::string& line, const LocalIntExt& ext);
+
 	/** Dump text to a user target, splitting it appropriately to fit
 	 * @param linePrefix text to prefix each complete line with
 	 * @param textStream the text to send to the user
