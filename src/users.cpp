@@ -357,7 +357,7 @@ void User::Oper(OperInfo* info)
 
 	this->SetMode(opermh, true);
 	this->oper = info;
-	this->WriteServ("MODE %s :+o", this->nick.c_str());
+	this->WriteCommand("MODE", "+o");
 	FOREACH_MOD(OnOper, (this, info->name));
 
 	std::string opername;
@@ -585,7 +585,7 @@ void LocalUser::FullConnect()
 		ServerInstance->Parser->CallHandler(command, parameters, this);
 
 	if (ServerInstance->Config->RawLog)
-		WriteServ("PRIVMSG %s :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", nick.c_str());
+		WriteCommand("PRIVMSG", ":*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.");
 
 	/*
 	 * We don't set REG_ALL until triggering OnUserConnect, so some module events don't spew out stuff
@@ -863,9 +863,9 @@ void User::WriteServ(const char* text, ...)
 	this->WriteServ(textbuffer);
 }
 
-void User::WriteNotice(const std::string& text)
+void User::WriteCommand(const char* command, const std::string& text)
 {
-	this->WriteServ("NOTICE " + (this->registered == REG_ALL ? this->nick : "*") + " :" + text);
+	this->WriteServ(command + (this->registered & REG_NICK ? " " + this->nick : " *") + " " + text);
 }
 
 void User::WriteNumeric(unsigned int numeric, const char* text, ...)
@@ -885,7 +885,7 @@ void User::WriteNumeric(unsigned int numeric, const std::string &text)
 		return;
 
 	const std::string message = InspIRCd::Format(":%s %03u %s %s", ServerInstance->Config->ServerName.c_str(),
-		numeric, !this->nick.empty() ? this->nick.c_str() : "*", text.c_str());
+		numeric, this->registered & REG_NICK ? this->nick.c_str() : "*", text.c_str());
 	this->Write(message);
 }
 
