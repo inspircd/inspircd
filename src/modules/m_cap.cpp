@@ -49,7 +49,8 @@ class CommandCAP : public Command
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		irc::string subcommand = parameters[0].c_str();
+		std::string subcommand(parameters[0].length(), ' ');
+		std::transform(parameters[0].begin(), parameters[0].end(), subcommand.begin(), ::toupper);
 
 		if (subcommand == "REQ")
 		{
