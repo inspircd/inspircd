@@ -248,9 +248,7 @@ install: target
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
 
-@GNU_ONLY RCS_FILES = $(wildcard .git/index src/version.sh)
-@BSD_ONLY RCS_FILES = src/version.sh
-GNUmakefile BSDmakefile: make/template/main.mk configure $(RCS_FILES)
+GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure .config.cache
 	./configure -update
 @BSD_ONLY .MAKEFILEDEPS: BSDmakefile
 
