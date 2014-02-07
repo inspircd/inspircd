@@ -18,6 +18,8 @@
 
 #pragma once
 
+#ifdef INSPIRCD_ENABLE_TESTSUITE
+
 class TestSuite
 {
  public:
@@ -30,3 +32,5 @@ class TestSuite
 	bool DoSpaceSepStreamTests();
 	bool DoGenerateUIDTests();
 };
+
+#endif

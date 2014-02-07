@@ -89,6 +89,13 @@ const char* ExitCodes[] =
 		"Received SIGTERM"						// 10
 };
 
+#ifdef INSPIRCD_ENABLE_TESTSUITE
+/** True if we have been told to run the testsuite from the commandline,
+ * rather than entering the mainloop.
+ */
+static int do_testsuite = 0;
+#endif
+
 template<typename T> static void DeleteZero(T*&n)
 {
 	T* t = n;
@@ -250,8 +257,9 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Extensions.Register(&OperQuit);
 
 	FailedPortList pl;
+	// Flag variables passed to getopt_long() later
 	int do_version = 0, do_nofork = 0, do_debug = 0,
-	    do_nolog = 0, do_root = 0, do_testsuite = 0;    /* flag variables */
+	    do_nolog = 0, do_root = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Logs = 0;
@@ -330,7 +338,9 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		{ "nolog",	no_argument,		&do_nolog,	1	},
 		{ "runasroot",	no_argument,		&do_root,	1	},
 		{ "version",	no_argument,		&do_version,	1	},
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 		{ "testsuite",	no_argument,		&do_testsuite,	1	},
+#endif
 		{ 0, 0, 0, 0 }
 	};
 
@@ -353,14 +363,16 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 				/* Fall through to handle other weird values too */
 				std::cout << "Unknown parameter '" << argv[optind-1] << "'" << std::endl;
 				std::cout << "Usage: " << argv[0] << " [--nofork] [--nolog] [--debug] [--config <config>]" << std::endl <<
-					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version] [--testsuite]" << std::endl;
+					std::string(static_cast<int>(8+strlen(argv[0])), ' ') << "[--runasroot] [--version]" << std::endl;
 				Exit(EXIT_STATUS_ARGV);
 			break;
 		}
 	}
 
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 	if (do_testsuite)
 		do_nofork = do_debug = true;
+#endif
 
 	if (do_version)
 	{
@@ -378,7 +390,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	Config->cmdline.nofork = (do_nofork != 0);
 	Config->cmdline.forcedebug = (do_debug != 0);
 	Config->cmdline.writelog = (!do_nolog != 0);
-	Config->cmdline.TestSuite = (do_testsuite != 0);
 
 	if (do_debug)
 	{
@@ -515,7 +526,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	 *
 	 *    -- nenolod
 	 */
-	if ((!do_nofork) && (!do_testsuite) && (!Config->cmdline.forcedebug))
+	if ((!do_nofork) && (!Config->cmdline.forcedebug))
 	{
 		int fd = open("/dev/null", O_RDWR);
 
@@ -636,13 +647,15 @@ void InspIRCd::UpdateTime()
 
 void InspIRCd::Run()
 {
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 	/* See if we're supposed to be running the test suite rather than entering the mainloop */
-	if (Config->cmdline.TestSuite)
+	if (do_testsuite)
 	{
 		TestSuite* ts = new TestSuite;
 		delete ts;
 		return;
 	}
+#endif
 
 	UpdateTime();
 	time_t OLDTIME = TIME.tv_sec;

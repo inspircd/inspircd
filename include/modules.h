@@ -264,7 +264,7 @@ enum Implementation
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
-	I_OnText, I_OnPassCompare, I_OnRunTestSuite, I_OnNamesListItem, I_OnNumeric,
+	I_OnText, I_OnPassCompare, I_OnNamesListItem, I_OnNumeric,
 	I_OnPreRehash, I_OnModuleRehash, I_OnSendWhoLine, I_OnChangeIdent, I_OnSetUserIP,
 	I_END
 };
@@ -1034,10 +1034,12 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual ModResult OnSetConnectClass(LocalUser* user, ConnectClass* myclass);
 
+#ifdef INSPIRCD_ENABLE_TESTSUITE
 	/** Add test suite hooks here. These are used for testing functionality of a module
 	 * via the --testsuite debugging parameter.
 	 */
 	virtual void OnRunTestSuite();
+#endif
 
 	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
 	 * For example NAMESX, channel mode +u and +I, and UHNAMES. If the nick is set to an empty string by any

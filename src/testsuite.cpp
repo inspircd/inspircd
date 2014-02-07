@@ -19,6 +19,8 @@
  */
 
 
+#ifdef INSPIRCD_ENABLE_TESTSUITE
+
 #include "inspircd.h"
 #include "testsuite.h"
 #include "threadengine.h"
@@ -74,8 +76,12 @@ TestSuite::TestSuite()
 		switch (choice)
 		{
 			case '1':
-				FOREACH_MOD(OnRunTestSuite, ());
+			{
+				const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
+				for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
+					i->second->OnRunTestSuite();
 				break;
+			}
 			case '2':
 				std::cout << "Enter module filename to load: ";
 				std::cin >> modname;
@@ -394,3 +400,4 @@ TestSuite::~TestSuite()
 	std::cout << "\n\n*** END OF TEST SUITE ***\n";
 }
 
+#endif
