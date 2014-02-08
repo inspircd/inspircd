@@ -148,7 +148,7 @@ int PortsEngine::DispatchEvents()
 	if (ret == -1)
 		return -1;
 
-	TotalEvents += nget;
+	stats.TotalEvents += nget;
 
 	unsigned int i;
 	for (i = 0; i < nget; i++)
@@ -175,14 +175,14 @@ int PortsEngine::DispatchEvents()
 		port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
 		if (portev_events & POLLRDNORM)
 		{
-			ReadEvents++;
+			stats.ReadEvents++;
 			eh->HandleEvent(EVENT_READ);
 			if (eh != GetRef(fd))
 				continue;
 		}
 		if (portev_events & POLLWRNORM)
 		{
-			WriteEvents++;
+			stats.WriteEvents++;
 			eh->HandleEvent(EVENT_WRITE);
 		}
 	}

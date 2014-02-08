@@ -230,6 +230,45 @@ class CoreExport EventHandler : public classbase
  */
 class CoreExport SocketEngine
 {
+ public:
+	/** Socket engine statistics: count of various events, bandwidth usage
+	 */
+	class Statistics
+	{
+		mutable size_t indata;
+		mutable size_t outdata;
+		mutable time_t lastempty;
+
+		/** Reset the byte counters and lastempty if there wasn't a reset in this second.
+		 */
+		void CheckFlush() const;
+
+	 public:
+		/** Constructor, initializes member vars except indata and outdata because those are set to 0
+		 * in CheckFlush() the first time Update() or GetBandwidth() is called.
+		 */
+		Statistics() : lastempty(0), TotalEvents(0), ReadEvents(0), WriteEvents(0), ErrorEvents(0) { }
+
+		/** Increase the counters for bytes sent/received in this second.
+		 * @param len_in Bytes received, 0 if updating number of bytes written.
+		 * @param len_out Bytes sent, 0 if updating number of bytes read.
+		 */
+		void Update(size_t len_in, size_t len_out);
+
+		/** Get data transfer statistics.
+		 * @param kbitspersec_in Filled with incoming traffic in this second in kbit/s.
+		 * @param kbitspersec_out Filled with outgoing traffic in this second in kbit/s.
+		 * @param kbitspersec_total Filled with total traffic in this second in kbit/s.
+		 */
+		void CoreExport GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const;
+
+		unsigned long TotalEvents;
+		unsigned long ReadEvents;
+		unsigned long WriteEvents;
+		unsigned long ErrorEvents;
+	};
+
+ private:
 	/** Reference table, contains all current handlers
 	 **/
 	std::vector<EventHandler*> ref;
@@ -244,11 +283,9 @@ class CoreExport SocketEngine
 
 	int MAX_DESCRIPTORS;
 
-	size_t indata;
-	size_t outdata;
-	time_t lastempty;
-
-	void UpdateStats(size_t len_in, size_t len_out);
+	/** Socket engine statistics: count of various events, bandwidth usage
+	 */
+	Statistics stats;
 
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask) = 0;
 	void SetEventMask(EventHandler* eh, int value);
@@ -267,12 +304,6 @@ class CoreExport SocketEngine
 	}
 
 public:
-
-	unsigned long TotalEvents;
-	unsigned long ReadEvents;
-	unsigned long WriteEvents;
-	unsigned long ErrorEvents;
-
 	/** Constructor.
 	 * The constructor transparently initializes
 	 * the socket engine which the ircd is using.
@@ -494,9 +525,9 @@ public:
 	 */
 	virtual void RecoverFromFork();
 
-	/** Get data transfer statistics, kilobits per second in and out and total.
+	/** Get data transfer and event statistics
 	 */
-	void GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total);
+	const Statistics& GetStats() const { return stats; }
 
 	/** Should we ignore the error in errno?
 	 * Checks EAGAIN and WSAEWOULDBLOCK

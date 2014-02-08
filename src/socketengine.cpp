@@ -36,9 +36,6 @@ void EventHandler::SetFd(int FD)
 
 SocketEngine::SocketEngine()
 {
-	TotalEvents = WriteEvents = ReadEvents = ErrorEvents = 0;
-	lastempty = ServerInstance->Time();
-	indata = outdata = 0;
 	CurrentSetSize = 0;
 }
 
@@ -195,7 +192,7 @@ int SocketEngine::RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, s
 {
 	int nbRecvd = recvfrom(fd->GetFd(), (char*)buf, len, flags, from, fromlen);
 	if (nbRecvd > 0)
-		this->UpdateStats(nbRecvd, 0);
+		stats.Update(nbRecvd, 0);
 	return nbRecvd;
 }
 
@@ -203,7 +200,7 @@ int SocketEngine::Send(EventHandler* fd, const void *buf, size_t len, int flags)
 {
 	int nbSent = send(fd->GetFd(), (const char*)buf, len, flags);
 	if (nbSent > 0)
-		this->UpdateStats(0, nbSent);
+		stats.Update(0, nbSent);
 	return nbSent;
 }
 
@@ -211,7 +208,7 @@ int SocketEngine::Recv(EventHandler* fd, void *buf, size_t len, int flags)
 {
 	int nbRecvd = recv(fd->GetFd(), (char*)buf, len, flags);
 	if (nbRecvd > 0)
-		this->UpdateStats(nbRecvd, 0);
+		stats.Update(nbRecvd, 0);
 	return nbRecvd;
 }
 
@@ -219,7 +216,7 @@ int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flag
 {
 	int nbSent = sendto(fd->GetFd(), (const char*)buf, len, flags, to, tolen);
 	if (nbSent > 0)
-		this->UpdateStats(0, nbSent);
+		stats.Update(0, nbSent);
 	return nbSent;
 }
 
@@ -257,20 +254,27 @@ void SocketEngine::RecoverFromFork()
 {
 }
 
-void SocketEngine::UpdateStats(size_t len_in, size_t len_out)
+void SocketEngine::Statistics::Update(size_t len_in, size_t len_out)
 {
-	if (lastempty != ServerInstance->Time())
-	{
-		lastempty = ServerInstance->Time();
-		indata = outdata = 0;
-	}
+	CheckFlush();
 	indata += len_in;
 	outdata += len_out;
 }
 
-void SocketEngine::GetStats(float &kbitpersec_in, float &kbitpersec_out, float &kbitpersec_total)
+void SocketEngine::Statistics::CheckFlush() const
 {
-	UpdateStats(0, 0); /* Forces emptying of the values if its been more than a second */
+	// Reset the in/out byte counters if it has been more than a second
+	time_t now = ServerInstance->Time();
+	if (lastempty != now)
+	{
+		lastempty = now;
+		indata = outdata = 0;
+	}
+}
+
+void SocketEngine::Statistics::GetBandwidth(float& kbitpersec_in, float& kbitpersec_out, float& kbitpersec_total) const
+{
+	CheckFlush();
 	float in_kbit = indata * 8;
 	float out_kbit = outdata * 8;
 	kbitpersec_total = ((in_kbit + out_kbit) / 1024);

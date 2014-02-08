@@ -207,7 +207,7 @@ int KQueueEngine::DispatchEvents()
 	if (i < 0)
 		return i;
 
-	TotalEvents += i;
+	stats.TotalEvents += i;
 
 	for (int j = 0; j < i; j++)
 	{
@@ -223,13 +223,13 @@ int KQueueEngine::DispatchEvents()
 
 		if (kev.flags & EV_EOF)
 		{
-			ErrorEvents++;
+			stats.ErrorEvents++;
 			eh->HandleEvent(EVENT_ERROR, kev.fflags);
 			continue;
 		}
 		if (filter == EVFILT_WRITE)
 		{
-			WriteEvents++;
+			stats.WriteEvents++;
 			/* When mask is FD_WANT_FAST_WRITE or FD_WANT_SINGLE_WRITE,
 			 * we set a one-shot write, so we need to clear that bit
 			 * to detect when it set again.
@@ -240,7 +240,7 @@ int KQueueEngine::DispatchEvents()
 		}
 		else if (filter == EVFILT_READ)
 		{
-			ReadEvents++;
+			stats.ReadEvents++;
 			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			eh->HandleEvent(EVENT_READ);
 		}

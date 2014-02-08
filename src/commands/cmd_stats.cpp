@@ -181,11 +181,14 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			ServerInstance->XLines->InvokeStats("E",223,user,results);
 		break;
 		case 'E':
-			results.push_back("249 "+user->nick+" :Total events: "+ConvToStr(ServerInstance->SE->TotalEvents));
-			results.push_back("249 "+user->nick+" :Read events:  "+ConvToStr(ServerInstance->SE->ReadEvents));
-			results.push_back("249 "+user->nick+" :Write events: "+ConvToStr(ServerInstance->SE->WriteEvents));
-			results.push_back("249 "+user->nick+" :Error events: "+ConvToStr(ServerInstance->SE->ErrorEvents));
-		break;
+		{
+			const SocketEngine::Statistics& stats = ServerInstance->SE->GetStats();
+			results.push_back("249 "+user->nick+" :Total events: "+ConvToStr(stats.TotalEvents));
+			results.push_back("249 "+user->nick+" :Read events:  "+ConvToStr(stats.ReadEvents));
+			results.push_back("249 "+user->nick+" :Write events: "+ConvToStr(stats.WriteEvents));
+			results.push_back("249 "+user->nick+" :Error events: "+ConvToStr(stats.ErrorEvents));
+			break;
+		}
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':
@@ -209,7 +212,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
 
-			ServerInstance->SE->GetStats(kbitpersec_in, kbitpersec_out, kbitpersec_total);
+			ServerInstance->SE->GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
 			snprintf(kbitpersec_total_s, 30, "%03.5f", kbitpersec_total);
 			snprintf(kbitpersec_out_s, 30, "%03.5f", kbitpersec_out);

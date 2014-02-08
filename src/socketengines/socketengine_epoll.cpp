@@ -185,7 +185,7 @@ int EPollEngine::DispatchEvents()
 	int i = epoll_wait(EngineHandle, &events[0], events.size(), 1000);
 	ServerInstance->UpdateTime();
 
-	TotalEvents += i;
+	stats.TotalEvents += i;
 
 	for (int j = 0; j < i; j++)
 	{
@@ -202,14 +202,14 @@ int EPollEngine::DispatchEvents()
 
 		if (ev.events & EPOLLHUP)
 		{
-			ErrorEvents++;
+			stats.ErrorEvents++;
 			eh->HandleEvent(EVENT_ERROR, 0);
 			continue;
 		}
 
 		if (ev.events & EPOLLERR)
 		{
-			ErrorEvents++;
+			stats.ErrorEvents++;
 			/* Get error number */
 			socklen_t codesize = sizeof(int);
 			int errcode;
@@ -235,7 +235,7 @@ int EPollEngine::DispatchEvents()
 		SetEventMask(eh, mask);
 		if (ev.events & EPOLLIN)
 		{
-			ReadEvents++;
+			stats.ReadEvents++;
 			eh->HandleEvent(EVENT_READ);
 			if (eh != GetRef(ev.data.fd))
 				// whoa! we got deleted, better not give out the write event
@@ -243,7 +243,7 @@ int EPollEngine::DispatchEvents()
 		}
 		if (ev.events & EPOLLOUT)
 		{
-			WriteEvents++;
+			stats.WriteEvents++;
 			eh->HandleEvent(EVENT_WRITE);
 		}
 	}

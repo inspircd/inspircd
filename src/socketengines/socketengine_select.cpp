@@ -135,7 +135,7 @@ int SelectEngine::DispatchEvents()
 
 		if (has_error)
 		{
-			ErrorEvents++;
+			stats.ErrorEvents++;
 
 			socklen_t codesize = sizeof(int);
 			int errcode = 0;
@@ -148,7 +148,7 @@ int SelectEngine::DispatchEvents()
 
 		if (has_read)
 		{
-			ReadEvents++;
+			stats.ReadEvents++;
 			SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			ev->HandleEvent(EVENT_READ);
 			if (ev != GetRef(i))
@@ -157,7 +157,7 @@ int SelectEngine::DispatchEvents()
 
 		if (has_write)
 		{
-			WriteEvents++;
+			stats.WriteEvents++;
 			int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
 			this->OnSetEvent(ev, ev->GetEventMask(), newmask);
 			SetEventMask(ev, newmask);
