@@ -48,7 +48,7 @@ BufferedSocket::BufferedSocket(int newfd)
 	this->fd = newfd;
 	this->state = I_CONNECTED;
 	if (fd > -1)
-		ServerInstance->SE->AddFd(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
+		SocketEngine::AddFd(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 }
 
 void BufferedSocket::DoConnect(const std::string &ipaddr, int aport, unsigned long maxtime, const std::string &connectbindip)
@@ -107,7 +107,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 	this->state = I_CONNECTING;
 
-	if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE | FD_WRITE_WILL_BLOCK))
+	if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE | FD_WRITE_WILL_BLOCK))
 		return I_ERR_NOMOREFDS;
 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout, ServerInstance->Time());
@@ -138,7 +138,7 @@ void StreamSocket::Close()
 			DelIOHook();
 		}
 		SocketEngine::Shutdown(this, 2);
-		ServerInstance->SE->DelFd(this);
+		SocketEngine::DelFd(this);
 		SocketEngine::Close(this);
 		fd = -1;
 	}
@@ -184,36 +184,36 @@ void StreamSocket::DoRead()
 	else
 	{
 		char* ReadBuffer = ServerInstance->GetReadBuffer();
-		int n = ServerInstance->SE->Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
+		int n = SocketEngine::Recv(this, ReadBuffer, ServerInstance->Config->NetBufferSize, 0);
 		if (n == ServerInstance->Config->NetBufferSize)
 		{
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
+			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
 			recvq.append(ReadBuffer, n);
 			OnDataReady();
 		}
 		else if (n > 0)
 		{
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ);
+			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ);
 			recvq.append(ReadBuffer, n);
 			OnDataReady();
 		}
 		else if (n == 0)
 		{
 			error = "Connection closed";
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 		}
 		else if (SocketEngine::IgnoreError())
 		{
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_READ_WILL_BLOCK);
+			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_READ_WILL_BLOCK);
 		}
 		else if (errno == EINTR)
 		{
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
+			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_ADD_TRIAL_READ);
 		}
 		else
 		{
 			error = SocketEngine::LastError();
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 		}
 	}
 }
@@ -287,7 +287,7 @@ void StreamSocket::DoWrite()
 #ifdef DISABLE_WRITEV
 				else
 				{
-					rv = ServerInstance->SE->Send(this, front.data(), itemlen, 0);
+					rv = SocketEngine::Send(this, front.data(), itemlen, 0);
 					if (rv == 0)
 					{
 						SetError("Connection closed");
@@ -296,14 +296,14 @@ void StreamSocket::DoWrite()
 					else if (rv < 0)
 					{
 						if (errno == EINTR || SocketEngine::IgnoreError())
-							ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
+							SocketEngine::ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
 						else
 							SetError(SocketEngine::LastError());
 						return;
 					}
 					else if (rv < itemlen)
 					{
-						ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
+						SocketEngine::ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
 						front = front.substr(rv);
 						sendq_len -= rv;
 						return;
@@ -313,7 +313,7 @@ void StreamSocket::DoWrite()
 						sendq_len -= itemlen;
 						sendq.pop_front();
 						if (sendq.empty())
-							ServerInstance->SE->ChangeEventMask(this, FD_WANT_EDGE_WRITE);
+							SocketEngine::ChangeEventMask(this, FD_WANT_EDGE_WRITE);
 					}
 				}
 #endif
@@ -409,11 +409,11 @@ void StreamSocket::DoWrite()
 		if (!error.empty())
 		{
 			// error - kill all events
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
+			SocketEngine::ChangeEventMask(this, FD_WANT_NO_READ | FD_WANT_NO_WRITE);
 		}
 		else
 		{
-			ServerInstance->SE->ChangeEventMask(this, eventChange);
+			SocketEngine::ChangeEventMask(this, eventChange);
 		}
 	}
 #endif
@@ -432,14 +432,14 @@ void StreamSocket::WriteData(const std::string &data)
 	sendq.push_back(data);
 	sendq_len += data.length();
 
-	ServerInstance->SE->ChangeEventMask(this, FD_ADD_TRIAL_WRITE);
+	SocketEngine::ChangeEventMask(this, FD_ADD_TRIAL_WRITE);
 }
 
 bool SocketTimeout::Tick(time_t)
 {
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "SocketTimeout::Tick");
 
-	if (ServerInstance->SE->GetRef(this->sfd) != this->sock)
+	if (SocketEngine::GetRef(this->sfd) != this->sock)
 	{
 		delete this;
 		return false;
@@ -473,7 +473,7 @@ void BufferedSocket::DoWrite()
 		state = I_CONNECTED;
 		this->OnConnected();
 		if (!GetIOHook())
-			ServerInstance->SE->ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
+			SocketEngine::ChangeEventMask(this, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE);
 	}
 	this->StreamSocket::DoWrite();
 }

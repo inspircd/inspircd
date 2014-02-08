@@ -107,7 +107,7 @@ class ModuleHttpStats : public Module
 				data << "<usercount>" << ServerInstance->Users->clientlist->size() << "</usercount>";
 				data << "<channelcount>" << ServerInstance->chanlist->size() << "</channelcount>";
 				data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
-				data << "<socketcount>" << (ServerInstance->SE->GetUsedFds()) << "</socketcount><socketmax>" << ServerInstance->SE->GetMaxFds() << "</socketmax><socketengine>" INSPIRCD_SOCKETENGINE_NAME "</socketengine>";
+				data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax><socketengine>" INSPIRCD_SOCKETENGINE_NAME "</socketengine>";
 
 				time_t current_time = 0;
 				current_time = ServerInstance->Time();

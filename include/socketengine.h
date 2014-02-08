@@ -165,6 +165,9 @@ class CoreExport EventHandler : public classbase
  private:
 	/** Private state maintained by socket engine */
 	int event_mask;
+
+	void SetEventMask(int mask) { event_mask = mask; }
+
  protected:
 	/** File descriptor.
 	 * All events which can be handled must have a file descriptor.  This
@@ -271,35 +274,34 @@ class CoreExport SocketEngine
  private:
 	/** Reference table, contains all current handlers
 	 **/
-	std::vector<EventHandler*> ref;
+	static std::vector<EventHandler*> ref;
 
  protected:
 	/** Current number of descriptors in the engine
 	 */
-	size_t CurrentSetSize;
+	static size_t CurrentSetSize;
 	/** List of handlers that want a trial read/write
 	 */
-	std::set<int> trials;
+	static std::set<int> trials;
 
-	int MAX_DESCRIPTORS;
+	static int MAX_DESCRIPTORS;
 
 	/** Socket engine statistics: count of various events, bandwidth usage
 	 */
-	Statistics stats;
+	static Statistics stats;
 
-	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask) = 0;
-	void SetEventMask(EventHandler* eh, int value);
+	static void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 
 	/** Add an event handler to the base socket engine. AddFd(EventHandler*, int) should call this.
 	 */
-	bool AddFdRef(EventHandler* eh);
+	static bool AddFdRef(EventHandler* eh);
 
-	void DelFdRef(EventHandler* eh);
+	static void DelFdRef(EventHandler* eh);
 
 	template <typename T>
-	void ResizeDouble(std::vector<T>& vect)
+	static void ResizeDouble(std::vector<T>& vect)
 	{
-		if (CurrentSetSize > vect.size())
+		if (SocketEngine::CurrentSetSize > vect.size())
 			vect.resize(vect.size() * 2);
 	}
 
@@ -311,14 +313,16 @@ public:
 	 * failure (for example, you try and enable
 	 * epoll on a 2.4 linux kernel) then this
 	 * function may bail back to the shell.
+	 * @return void, but it is acceptable for this function to bail back to
+	 * the shell or operating system on fatal error.
 	 */
-	SocketEngine();
+	static void Init();
 
 	/** Destructor.
 	 * The destructor transparently tidies up
 	 * any resources used by the socket engine.
 	 */
-	virtual ~SocketEngine();
+	static void Deinit();
 
 	/** Add an EventHandler object to the engine.  Use AddFd to add a file
 	 * descriptor to the engine and have the socket engine monitor it. You
@@ -327,7 +331,7 @@ public:
 	 * @param eh An event handling object to add
 	 * @param event_mask The initial event mask for the object
 	 */
-	virtual bool AddFd(EventHandler* eh, int event_mask) = 0;
+	static bool AddFd(EventHandler* eh, int event_mask);
 
 	/** If you call this function and pass it an
 	 * event handler, that event handler will
@@ -340,17 +344,17 @@ public:
 	 * @param eh The event handler to change
 	 * @param event_mask The changes to make to the wait state
 	 */
-	void ChangeEventMask(EventHandler* eh, int event_mask);
+	static void ChangeEventMask(EventHandler* eh, int event_mask);
 
 	/** Returns the highest file descriptor you may store in the socket engine
 	 * @return The maximum fd value
 	 */
-	inline int GetMaxFds() const { return MAX_DESCRIPTORS; }
+	static int GetMaxFds() { return MAX_DESCRIPTORS; }
 
 	/** Returns the number of file descriptors being queried
 	 * @return The set size
 	 */
-	inline size_t GetUsedFds() const { return CurrentSetSize; }
+	static size_t GetUsedFds() { return CurrentSetSize; }
 
 	/** Delete an event handler from the engine.
 	 * This function call deletes an EventHandler
@@ -360,21 +364,21 @@ public:
 	 * required you must do this yourself.
 	 * @param eh The event handler object to remove
 	 */
-	virtual void DelFd(EventHandler* eh) = 0;
+	static void DelFd(EventHandler* eh);
 
 	/** Returns true if a file descriptor exists in
 	 * the socket engine's list.
 	 * @param fd The event handler to look for
 	 * @return True if this fd has an event handler
 	 */
-	virtual bool HasFd(int fd);
+	static bool HasFd(int fd);
 
 	/** Returns the EventHandler attached to a specific fd.
 	 * If the fd isnt in the socketengine, returns NULL.
 	 * @param fd The event handler to look for
 	 * @return A pointer to the event handler, or NULL
 	 */
-	virtual EventHandler* GetRef(int fd);
+	static EventHandler* GetRef(int fd);
 
 	/** Waits for events and dispatches them to handlers.  Please note that
 	 * this doesn't wait long, only a couple of milliseconds. It returns the
@@ -384,17 +388,17 @@ public:
 	 * value.
 	 * @return The number of events which have occured.
 	 */
-	virtual int DispatchEvents() = 0;
+	static int DispatchEvents();
 
 	/** Dispatch trial reads and writes. This causes the actual socket I/O
 	 * to happen when writes have been pre-buffered.
 	 */
-	virtual void DispatchTrialWrites();
+	static void DispatchTrialWrites();
 
 	/** Returns true if the file descriptors in the given event handler are
 	 * within sensible ranges which can be handled by the socket engine.
 	 */
-	virtual bool BoundsCheckFd(EventHandler* eh);
+	static bool BoundsCheckFd(EventHandler* eh);
 
 	/** Abstraction for BSD sockets accept(2).
 	 * This function should emulate its namesake system call exactly.
@@ -427,7 +431,7 @@ public:
 	 * @param flags A flag value that controls the sending of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Send(EventHandler* fd, const void *buf, size_t len, int flags);
+	static int Send(EventHandler* fd, const void *buf, size_t len, int flags);
 
 	/** Abstraction for BSD sockets recv(2).
 	 * This function should emulate its namesake system call exactly.
@@ -437,7 +441,7 @@ public:
 	 * @param flags A flag value that controls the reception of the data.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Recv(EventHandler* fd, void *buf, size_t len, int flags);
+	static int Recv(EventHandler* fd, void *buf, size_t len, int flags);
 
 	/** Abstraction for BSD sockets recvfrom(2).
 	 * This function should emulate its namesake system call exactly.
@@ -449,7 +453,7 @@ public:
 	 * @param fromlen The size of the from parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
+	static int RecvFrom(EventHandler* fd, void *buf, size_t len, int flags, sockaddr *from, socklen_t *fromlen);
 
 	/** Abstraction for BSD sockets sendto(2).
 	 * This function should emulate its namesake system call exactly.
@@ -461,7 +465,7 @@ public:
 	 * @param tolen The size of the to parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
+	static int SendTo(EventHandler* fd, const void *buf, size_t len, int flags, const sockaddr *to, socklen_t tolen);
 
 	/** Abstraction for BSD sockets connect(2).
 	 * This function should emulate its namesake system call exactly.
@@ -523,11 +527,11 @@ public:
 	 * @return void, but it is acceptable for this function to bail back to
 	 * the shell or operating system on fatal error.
 	 */
-	virtual void RecoverFromFork();
+	static void RecoverFromFork();
 
 	/** Get data transfer and event statistics
 	 */
-	const Statistics& GetStats() const { return stats; }
+	static const Statistics& GetStats() { return stats; }
 
 	/** Should we ignore the error in errno?
 	 * Checks EAGAIN and WSAEWOULDBLOCK
@@ -555,5 +559,3 @@ inline bool SocketEngine::IgnoreError()
 
 	return false;
 }
-
-SocketEngine* CreateSocketEngine();

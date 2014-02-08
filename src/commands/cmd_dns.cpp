@@ -519,7 +519,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return;
 		}
 
-		if (ServerInstance->SE->SendTo(this, buffer, len, 0, &this->myserver.sa, this->myserver.sa_size()) != len)
+		if (SocketEngine::SendTo(this, buffer, len, 0, &this->myserver.sa, this->myserver.sa_size()) != len)
 			throw Exception("DNS: Unable to send query");
 	}
 
@@ -567,7 +567,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		irc::sockets::sockaddrs from;
 		socklen_t x = sizeof(from);
 
-		int length = ServerInstance->SE->RecvFrom(this, buffer, sizeof(buffer), 0, &from.sa, &x);
+		int length = SocketEngine::RecvFrom(this, buffer, sizeof(buffer), 0, &from.sa, &x);
 
 		if (length < Packet::HEADER_LENGTH)
 			return;
@@ -681,7 +681,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	{
 		if (this->GetFd() > -1)
 		{
-			ServerInstance->SE->DelFd(this);
+			SocketEngine::DelFd(this);
 			SocketEngine::Shutdown(this, 2);
 			SocketEngine::Close(this);
 			this->SetFd(-1);
@@ -713,7 +713,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 				SocketEngine::Close(this);
 				this->SetFd(-1);
 			}
-			else if (!ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
+			else if (!SocketEngine::AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 			{
 				ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Internal error starting DNS - hostnames will NOT resolve.");
 				SocketEngine::Close(this);

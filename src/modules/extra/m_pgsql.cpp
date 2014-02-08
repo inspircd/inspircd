@@ -241,7 +241,7 @@ class SQLConn : public SQLProvider, public EventHandler
 		if(this->fd <= -1)
 			return false;
 
-		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
+		if (!SocketEngine::AddFd(this, FD_WANT_NO_WRITE | FD_WANT_NO_READ))
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: Couldn't add pgsql socket to socket engine");
 			return false;
@@ -256,17 +256,17 @@ class SQLConn : public SQLProvider, public EventHandler
 		switch(PQconnectPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
 				status = CWRITE;
 				return true;
 			case PGRES_POLLING_READING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
 				return false;
 			case PGRES_POLLING_OK:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				DoConnectedPoll();
 			default:
@@ -349,17 +349,17 @@ restart:
 		switch(PQresetPoll(sql))
 		{
 			case PGRES_POLLING_WRITING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_WRITE | FD_WANT_NO_READ);
 				status = CWRITE;
 				return DoPoll();
 			case PGRES_POLLING_READING:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = CREAD;
 				return true;
 			case PGRES_POLLING_FAILED:
 				return false;
 			case PGRES_POLLING_OK:
-				ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				status = WWRITE;
 				DoConnectedPoll();
 			default:
@@ -487,7 +487,7 @@ restart:
 
 	void Close()
 	{
-		ServerInstance->SE->DelFd(this);
+		SocketEngine::DelFd(this);
 
 		if(sql)
 		{

@@ -83,7 +83,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	this->local_users.push_front(New);
 
-	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)ServerInstance->SE->GetMaxFds()))
+	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)SocketEngine::GetMaxFds()))
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
 		this->QuitUser(New,"No more connections allowed");
@@ -141,7 +141,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 		}
 	}
 
-	if (!ServerInstance->SE->AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
+	if (!SocketEngine::AddFd(eh, FD_WANT_FAST_READ | FD_WANT_EDGE_WRITE))
 	{
 		ServerInstance->Logs->Log("USERS", LOG_DEBUG, "Internal error on new connection");
 		this->QuitUser(New, "Internal error handling connection");

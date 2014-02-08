@@ -273,13 +273,13 @@ class OpenSSLIOHook : public SSLIOHook
 
 			if (err == SSL_ERROR_WANT_READ)
 			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				this->status = ISSL_HANDSHAKING;
 				return true;
 			}
 			else if (err == SSL_ERROR_WANT_WRITE)
 			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
+				SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				this->status = ISSL_HANDSHAKING;
 				return true;
 			}
@@ -297,7 +297,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 			status = ISSL_OPEN;
 
-			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
+			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
 			return true;
 		}
@@ -427,7 +427,7 @@ class OpenSSLIOHook : public SSLIOHook
 			{
 				recvq.append(buffer, ret);
 				if (data_to_write)
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE);
+					SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_SINGLE_WRITE);
 				return 1;
 			}
 			else if (ret == 0)
@@ -443,12 +443,12 @@ class OpenSSLIOHook : public SSLIOHook
 
 				if (err == SSL_ERROR_WANT_READ)
 				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ);
+					SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ);
 					return 0;
 				}
 				else if (err == SSL_ERROR_WANT_WRITE)
 				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
+					SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 					return 0;
 				}
 				else
@@ -489,13 +489,13 @@ class OpenSSLIOHook : public SSLIOHook
 			if (ret == (int)buffer.length())
 			{
 				data_to_write = false;
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				return 1;
 			}
 			else if (ret > 0)
 			{
 				buffer = buffer.substr(ret);
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
+				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
 			else if (ret == 0)
@@ -509,12 +509,12 @@ class OpenSSLIOHook : public SSLIOHook
 
 				if (err == SSL_ERROR_WANT_WRITE)
 				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
+					SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 					return 0;
 				}
 				else if (err == SSL_ERROR_WANT_READ)
 				{
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ);
+					SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ);
 					return 0;
 				}
 				else

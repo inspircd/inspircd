@@ -818,7 +818,7 @@ void User::Write(const char *text, ...)
 
 void LocalUser::Write(const std::string& text)
 {
-	if (!ServerInstance->SE->BoundsCheckFd(&eh))
+	if (!SocketEngine::BoundsCheckFd(&eh))
 		return;
 
 	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)

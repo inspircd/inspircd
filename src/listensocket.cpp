@@ -85,7 +85,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	else
 	{
 		SocketEngine::NonBlocking(this->fd);
-		ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+		SocketEngine::AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		this->ResetIOHookProvider();
 	}
@@ -95,7 +95,7 @@ ListenSocket::~ListenSocket()
 {
 	if (this->GetFd() > -1)
 	{
-		ServerInstance->SE->DelFd(this);
+		SocketEngine::DelFd(this);
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
 		SocketEngine::Shutdown(this, 2);
 		if (SocketEngine::Close(this) != 0)
@@ -137,7 +137,7 @@ void ListenSocket::AcceptInternal()
 	 * which for the time being is a physical impossibility (even the largest networks dont have more
 	 * than about 10,000 users on ONE server!)
 	 */
-	if (incomingSockfd >= ServerInstance->SE->GetMaxFds())
+	if (incomingSockfd >= SocketEngine::GetMaxFds())
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Server is full");
 		SocketEngine::Shutdown(incomingSockfd, 2);

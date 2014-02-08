@@ -30,28 +30,17 @@
 
 /** A specialisation of the SocketEngine class, designed to use BSD kqueue().
  */
-class KQueueEngine : public SocketEngine
+namespace
 {
-private:
 	int EngineHandle;
 	/** These are used by kqueue() to hold socket events
 	 */
-	std::vector<struct kevent> ke_list;
-public:
-	/** Create a new KQueueEngine
-	 */
-	KQueueEngine();
-	/** Delete a KQueueEngine
-	 */
-	virtual ~KQueueEngine();
-	bool AddFd(EventHandler* eh, int event_mask);
-	void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual void DelFd(EventHandler* eh);
-	virtual int DispatchEvents();
-	virtual void RecoverFromFork();
-};
+	std::vector<struct kevent> ke_list(16);
+}
 
-KQueueEngine::KQueueEngine() : ke_list(1)
+/** Initialize the kqueue engine
+ */
+void SocketEngine::Init()
 {
 	MAX_DESCRIPTORS = 0;
 	int mib[2];
@@ -72,10 +61,10 @@ KQueueEngine::KQueueEngine() : ke_list(1)
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 
-	this->RecoverFromFork();
+	RecoverFromFork();
 }
 
-void KQueueEngine::RecoverFromFork()
+void SocketEngine::RecoverFromFork()
 {
 	/*
 	 * The only bad thing about kqueue is that its fd cant survive a fork and is not inherited.
@@ -93,12 +82,14 @@ void KQueueEngine::RecoverFromFork()
 	}
 }
 
-KQueueEngine::~KQueueEngine()
+/** Shutdown the kqueue engine
+ */
+void SocketEngine::Deinit()
 {
-	this->Close(EngineHandle);
+	Close(EngineHandle);
 }
 
-bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 
@@ -122,14 +113,14 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
-	SocketEngine::SetEventMask(eh, event_mask);
+	eh->SetEventMask(event_mask);
 	OnSetEvent(eh, 0, event_mask);
 	ResizeDouble(ke_list);
 
 	return true;
 }
 
-void KQueueEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
@@ -161,7 +152,7 @@ void KQueueEngine::DelFd(EventHandler* eh)
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	if ((new_mask & FD_WANT_POLL_WRITE) && !(old_mask & FD_WANT_POLL_WRITE))
 	{
@@ -195,7 +186,7 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	}
 }
 
-int KQueueEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
 	struct timespec ts;
 	ts.tv_nsec = 0;
@@ -235,21 +226,16 @@ int KQueueEngine::DispatchEvents()
 			 * to detect when it set again.
 			 */
 			const int bits_to_clr = FD_WANT_SINGLE_WRITE | FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK;
-			SetEventMask(eh, eh->GetEventMask() & ~bits_to_clr);
+			eh->SetEventMask(eh->GetEventMask() & ~bits_to_clr);
 			eh->HandleEvent(EVENT_WRITE);
 		}
 		else if (filter == EVFILT_READ)
 		{
 			stats.ReadEvents++;
-			SetEventMask(eh, eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
+			eh->SetEventMask(eh->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			eh->HandleEvent(EVENT_READ);
 		}
 	}
 
 	return i;
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new KQueueEngine;
 }

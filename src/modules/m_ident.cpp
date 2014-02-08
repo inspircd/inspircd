@@ -133,7 +133,7 @@ class IdentRequestSocket : public EventHandler
 		}
 
 		/* Add fd to socket engine */
-		if (!ServerInstance->SE->AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
+		if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_POLL_WRITE))
 		{
 			this->Close();
 			throw ModuleException("out of fds");
@@ -143,7 +143,7 @@ class IdentRequestSocket : public EventHandler
 	void OnConnected()
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnConnected()");
-		ServerInstance->SE->ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+		SocketEngine::ChangeEventMask(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		char req[32];
 
@@ -159,7 +159,7 @@ class IdentRequestSocket : public EventHandler
 		/* Send failed if we didnt write the whole ident request --
 		 * might as well give up if this happens!
 		 */
-		if (ServerInstance->SE->Send(this, req, req_size, 0) < req_size)
+		if (SocketEngine::Send(this, req, req_size, 0) < req_size)
 			done = true;
 	}
 
@@ -195,7 +195,7 @@ class IdentRequestSocket : public EventHandler
 		if (GetFd() > -1)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
-			ServerInstance->SE->DelFd(this);
+			SocketEngine::DelFd(this);
 			SocketEngine::Close(GetFd());
 			this->SetFd(-1);
 		}
@@ -212,7 +212,7 @@ class IdentRequestSocket : public EventHandler
 		 * extremely short - there is *no* sane reason it'd be in more than one packet
 		 */
 		char ibuf[256];
-		int recvresult = ServerInstance->SE->Recv(this, ibuf, sizeof(ibuf)-1, 0);
+		int recvresult = SocketEngine::Recv(this, ibuf, sizeof(ibuf)-1, 0);
 
 		/* Close (but don't delete from memory) our socket
 		 * and flag as done since the ident lookup has finished

@@ -36,27 +36,17 @@
 
 /** A specialisation of the SocketEngine class, designed to use solaris 10 I/O completion ports
  */
-class PortsEngine : public SocketEngine
+namespace
 {
-private:
 	/** These are used by ports to hold socket events
 	 */
-	std::vector<port_event_t> events;
+	std::vector<port_event_t> events(16);
 	int EngineHandle;
-public:
-	/** Create a new PortsEngine
-	 */
-	PortsEngine();
-	/** Delete a PortsEngine
-	 */
-	virtual ~PortsEngine();
-	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual void DelFd(EventHandler* eh);
-	virtual int DispatchEvents();
-};
+}
 
-PortsEngine::PortsEngine() : events(1)
+/** Initialize ports engine
+ */
+void SocketEngine::Init()
 {
 	int max = ulimit(4, 0);
 	if (max > 0)
@@ -81,9 +71,15 @@ PortsEngine::PortsEngine() : events(1)
 	}
 }
 
-PortsEngine::~PortsEngine()
+/** Shutdown the ports engine
+ */
+void SocketEngine::Deinit()
 {
-	this->Close(EngineHandle);
+	SocketEngine::Close(EngineHandle);
+}
+
+void SocketEngine::RecoverFromFork()
+{
 }
 
 static int mask_to_events(int event_mask)
@@ -96,7 +92,7 @@ static int mask_to_events(int event_mask)
 	return rv;
 }
 
-bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -105,7 +101,7 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
-	SocketEngine::SetEventMask(eh, event_mask);
+	eh->SetEventMask(event_mask);
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(event_mask), eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
@@ -114,13 +110,13 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	return true;
 }
 
-void PortsEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	if (mask_to_events(new_mask) != mask_to_events(old_mask))
 		port_associate(EngineHandle, PORT_SOURCE_FD, eh->GetFd(), mask_to_events(new_mask), eh);
 }
 
-void PortsEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -133,7 +129,7 @@ void PortsEngine::DelFd(EventHandler* eh)
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-int PortsEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
 	struct timespec poll_time;
 
@@ -171,7 +167,7 @@ int PortsEngine::DispatchEvents()
 		if (portev_events & POLLRDNORM)
 			mask &= ~FD_READ_WILL_BLOCK;
 		// reinsert port for next time around, pretending to be one-shot for writes
-		SetEventMask(eh, mask);
+		eh->SetEventMask(mask);
 		port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(mask), eh);
 		if (portev_events & POLLRDNORM)
 		{
@@ -188,9 +184,4 @@ int PortsEngine::DispatchEvents()
 	}
 
 	return (int)i;
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new PortsEngine;
 }

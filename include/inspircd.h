@@ -334,10 +334,6 @@ class CoreExport InspIRCd
 	 */
 	CommandParser* Parser;
 
-	/** Socket engine, handles socket activity events
-	 */
-	SocketEngine* SE;
-
 	/** Thread engine, Handles threading where required
 	 */
 	ThreadEngine* Threads;

@@ -23,6 +23,25 @@
 
 #include "inspircd.h"
 
+
+/** Reference table, contains all current handlers
+ **/
+std::vector<EventHandler*> SocketEngine::ref;
+
+/** Current number of descriptors in the engine
+ */
+size_t SocketEngine::CurrentSetSize = 0;
+
+/** List of handlers that want a trial read/write
+ */
+std::set<int> SocketEngine::trials;
+
+int SocketEngine::MAX_DESCRIPTORS;
+
+/** Socket engine statistics: count of various events, bandwidth usage
+ */
+SocketEngine::Statistics SocketEngine::stats;
+
 EventHandler::EventHandler()
 {
 	fd = -1;
@@ -32,20 +51,6 @@ EventHandler::EventHandler()
 void EventHandler::SetFd(int FD)
 {
 	this->fd = FD;
-}
-
-SocketEngine::SocketEngine()
-{
-	CurrentSetSize = 0;
-}
-
-SocketEngine::~SocketEngine()
-{
-}
-
-void SocketEngine::SetEventMask(EventHandler* eh, int mask)
-{
-	eh->event_mask = mask;
 }
 
 void SocketEngine::ChangeEventMask(EventHandler* eh, int change)
@@ -248,10 +253,6 @@ int SocketEngine::Listen(int sockfd, int backlog)
 int SocketEngine::Shutdown(int fd, int how)
 {
 	return shutdown(fd, how);
-}
-
-void SocketEngine::RecoverFromFork()
-{
 }
 
 void SocketEngine::Statistics::Update(size_t len_in, size_t len_out)

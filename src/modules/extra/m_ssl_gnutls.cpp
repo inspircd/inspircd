@@ -588,13 +588,13 @@ class GnuTLSIOHook : public SSLIOHook
 				{
 					// gnutls_handshake() wants to read() again.
 					this->status = ISSL_HANDSHAKING_READ;
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
+					SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				}
 				else
 				{
 					// gnutls_handshake() wants to write() again.
 					this->status = ISSL_HANDSHAKING_WRITE;
-					ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
+					SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				}
 			}
 			else
@@ -614,7 +614,7 @@ class GnuTLSIOHook : public SSLIOHook
 			VerifyCertificate();
 
 			// Finish writing, if any left
-			ServerInstance->SE->ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
+			SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE | FD_ADD_TRIAL_WRITE);
 
 			return true;
 		}
@@ -734,7 +734,7 @@ info_done_dealloc:
 			return -1;
 		}
 
-		int rv = ServerInstance->SE->Recv(sock, reinterpret_cast<char *>(buffer), size, 0);
+		int rv = SocketEngine::Recv(sock, reinterpret_cast<char *>(buffer), size, 0);
 
 #ifdef _WIN32
 		if (rv < 0)
@@ -749,7 +749,7 @@ info_done_dealloc:
 #endif
 
 		if (rv < (int)size)
-			ServerInstance->SE->ChangeEventMask(sock, FD_READ_WILL_BLOCK);
+			SocketEngine::ChangeEventMask(sock, FD_READ_WILL_BLOCK);
 		return rv;
 	}
 
@@ -770,7 +770,7 @@ info_done_dealloc:
 			return -1;
 		}
 
-		int rv = ServerInstance->SE->Send(sock, reinterpret_cast<const char *>(buffer), size, 0);
+		int rv = SocketEngine::Send(sock, reinterpret_cast<const char *>(buffer), size, 0);
 
 #ifdef _WIN32
 		if (rv < 0)
@@ -785,7 +785,7 @@ info_done_dealloc:
 #endif
 
 		if (rv < (int)size)
-			ServerInstance->SE->ChangeEventMask(sock, FD_WRITE_WILL_BLOCK);
+			SocketEngine::ChangeEventMask(sock, FD_WRITE_WILL_BLOCK);
 		return rv;
 	}
 
@@ -888,18 +888,18 @@ info_done_dealloc:
 
 			if (ret == (int)sendq.length())
 			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_NO_WRITE);
+				SocketEngine::ChangeEventMask(user, FD_WANT_NO_WRITE);
 				return 1;
 			}
 			else if (ret > 0)
 			{
 				sendq = sendq.substr(ret);
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
+				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
 			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED || ret == 0)
 			{
-				ServerInstance->SE->ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
+				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}
 			else // (ret < 0)

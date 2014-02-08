@@ -142,7 +142,7 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->PI);
 	DeleteZero(this->Threads);
 	DeleteZero(this->Timers);
-	DeleteZero(this->SE);
+	SocketEngine::Deinit();
 	Logs->CloseLogs();
 	DeleteZero(this->Logs);
 }
@@ -285,7 +285,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// This must be created first, so other parts of Insp can use it while starting up
 	this->Logs = new LogManager;
 
-	SE = CreateSocketEngine();
+	SocketEngine::Init();
 
 	this->Threads = new ThreadEngine;
 
@@ -457,7 +457,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		}
 	}
 
-	SE->RecoverFromFork();
+	SocketEngine::RecoverFromFork();
 
 	/* During startup we read the configuration now, not in
 	 * a seperate thread
@@ -504,7 +504,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		std::cout << std::endl << "Hint: Try using a public IP instead of blank or *" << std::endl;
 	}
 
-	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SE->GetMaxFds() << " max open sockets" << std::endl;
+	std::cout << "InspIRCd is now running as '" << Config->ServerName << "'[" << Config->GetSID() << "] with " << SocketEngine::GetMaxFds() << " max open sockets" << std::endl;
 
 #ifndef _WIN32
 	if (!Config->cmdline.nofork)
@@ -559,7 +559,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	QueryPerformanceFrequency(&stats->QPFrequency);
 #endif
 
-	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SE->GetMaxFds());
+	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
 
 #ifndef _WIN32
 	std::string SetUser = Config->ConfValue("security")->getString("runasuser");
@@ -740,8 +740,8 @@ void InspIRCd::Run()
 		 * This will cause any read or write events to be
 		 * dispatched to their handlers.
 		 */
-		this->SE->DispatchTrialWrites();
-		this->SE->DispatchEvents();
+		SocketEngine::DispatchTrialWrites();
+		SocketEngine::DispatchEvents();
 
 		/* if any users were quit, take them out */
 		GlobalCulls.Apply();

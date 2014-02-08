@@ -28,32 +28,30 @@
 
 /** A specialisation of the SocketEngine class, designed to use traditional select().
  */
-class SelectEngine : public SocketEngine
+namespace
 {
 	fd_set ReadSet, WriteSet, ErrSet;
-	int MaxFD;
+	int MaxFD = 0;
+}
 
-public:
-	/** Create a new SelectEngine
-	 */
-	SelectEngine();
-	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual void DelFd(EventHandler* eh);
-	void OnSetEvent(EventHandler* eh, int, int);
-	virtual int DispatchEvents();
-};
-
-SelectEngine::SelectEngine()
+void SocketEngine::Init()
 {
 	MAX_DESCRIPTORS = FD_SETSIZE;
 
 	FD_ZERO(&ReadSet);
 	FD_ZERO(&WriteSet);
 	FD_ZERO(&ErrSet);
-	MaxFD = 0;
 }
 
-bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
+void SocketEngine::Deinit()
+{
+}
+
+void SocketEngine::RecoverFromFork()
+{
+}
+
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -62,7 +60,7 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
-	SocketEngine::SetEventMask(eh, event_mask);
+	eh->SetEventMask(event_mask);
 	OnSetEvent(eh, 0, event_mask);
 	FD_SET(fd, &ErrSet);
 	if (fd > MaxFD)
@@ -72,7 +70,7 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 	return true;
 }
 
-void SelectEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
@@ -90,7 +88,7 @@ void SelectEngine::DelFd(EventHandler* eh)
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	int fd = eh->GetFd();
 	int diff = old_mask ^ new_mask;
@@ -111,7 +109,7 @@ void SelectEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	}
 }
 
-int SelectEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
 	static timeval tval = { 1, 0 };
 
@@ -149,7 +147,7 @@ int SelectEngine::DispatchEvents()
 		if (has_read)
 		{
 			stats.ReadEvents++;
-			SetEventMask(ev, ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
+			ev->SetEventMask(ev->GetEventMask() & ~FD_READ_WILL_BLOCK);
 			ev->HandleEvent(EVENT_READ);
 			if (ev != GetRef(i))
 				continue;
@@ -159,16 +157,11 @@ int SelectEngine::DispatchEvents()
 		{
 			stats.WriteEvents++;
 			int newmask = (ev->GetEventMask() & ~(FD_WRITE_WILL_BLOCK | FD_WANT_SINGLE_WRITE));
-			this->OnSetEvent(ev, ev->GetEventMask(), newmask);
-			SetEventMask(ev, newmask);
+			SocketEngine::OnSetEvent(ev, ev->GetEventMask(), newmask);
+			ev->SetEventMask(newmask);
 			ev->HandleEvent(EVENT_WRITE);
 		}
 	}
 
 	return sresult;
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new SelectEngine;
 }

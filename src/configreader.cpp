@@ -36,7 +36,7 @@ ServerConfig::ServerConfig()
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
-	SoftLimit = ServerInstance->SE->GetMaxFds();
+	SoftLimit = SocketEngine::GetMaxFds();
 	MaxConn = SOMAXCONN;
 	MaxChans = 20;
 	OperMaxChans = 30;
@@ -375,7 +375,7 @@ void ServerConfig::Fill()
 	PrefixPart = options->getString("prefixpart");
 	SuffixPart = options->getString("suffixpart");
 	FixedPart = options->getString("fixedpart");
-	SoftLimit = ConfValue("performance")->getInt("softlimit", ServerInstance->SE->GetMaxFds(), 10, ServerInstance->SE->GetMaxFds());
+	SoftLimit = ConfValue("performance")->getInt("softlimit", SocketEngine::GetMaxFds(), 10, SocketEngine::GetMaxFds());
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
 	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));

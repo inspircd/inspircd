@@ -139,7 +139,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
-				results.push_back("215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : ServerInstance->SE->GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
+				results.push_back("215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : SocketEngine::GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
 				results.push_back("218 "+user->nick+" Y "+ConvToStr(idx)+" "+ConvToStr(c->GetPingTime())+" 0 "+ConvToStr(c->GetSendqHardMax())+" :"+
 						ConvToStr(c->GetRecvqMax())+" "+ConvToStr(c->GetRegTimeout()));
 				idx++;
@@ -182,7 +182,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		break;
 		case 'E':
 		{
-			const SocketEngine::Statistics& stats = ServerInstance->SE->GetStats();
+			const SocketEngine::Statistics& stats = SocketEngine::GetStats();
 			results.push_back("249 "+user->nick+" :Total events: "+ConvToStr(stats.TotalEvents));
 			results.push_back("249 "+user->nick+" :Read events:  "+ConvToStr(stats.ReadEvents));
 			results.push_back("249 "+user->nick+" :Write events: "+ConvToStr(stats.WriteEvents));
@@ -212,7 +212,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
 
-			ServerInstance->SE->GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
+			SocketEngine::GetStats().GetBandwidth(kbitpersec_in, kbitpersec_out, kbitpersec_total);
 
 			snprintf(kbitpersec_total_s, 30, "%03.5f", kbitpersec_total);
 			snprintf(kbitpersec_out_s, 30, "%03.5f", kbitpersec_out);

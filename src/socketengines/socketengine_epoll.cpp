@@ -31,27 +31,16 @@
 
 /** A specialisation of the SocketEngine class, designed to use linux 2.6 epoll().
  */
-class EPollEngine : public SocketEngine
+namespace
 {
-private:
+	int EngineHandle;
+
 	/** These are used by epoll() to hold socket events
 	 */
-	std::vector<struct epoll_event> events;
-	int EngineHandle;
-public:
-	/** Create a new EPollEngine
-	 */
-	EPollEngine();
-	/** Delete an EPollEngine
-	 */
-	virtual ~EPollEngine();
-	virtual bool AddFd(EventHandler* eh, int event_mask);
-	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
-	virtual void DelFd(EventHandler* eh);
-	virtual int DispatchEvents();
-};
+	std::vector<struct epoll_event> events(1);
+}
 
-EPollEngine::EPollEngine() : events(1)
+void SocketEngine::Init()
 {
 	int max = ulimit(4, 0);
 	if (max > 0)
@@ -78,9 +67,13 @@ EPollEngine::EPollEngine() : events(1)
 	}
 }
 
-EPollEngine::~EPollEngine()
+void SocketEngine::RecoverFromFork()
 {
-	this->Close(EngineHandle);
+}
+
+void SocketEngine::Deinit()
+{
+	Close(EngineHandle);
 }
 
 static unsigned mask_to_epoll(int event_mask)
@@ -106,7 +99,7 @@ static unsigned mask_to_epoll(int event_mask)
 	return rv;
 }
 
-bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
+bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -134,13 +127,13 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
-	SocketEngine::SetEventMask(eh, event_mask);
+	eh->SetEventMask(event_mask);
 	ResizeDouble(events);
 
 	return true;
 }
 
-void EPollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
+void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 {
 	unsigned old_events = mask_to_epoll(old_mask);
 	unsigned new_events = mask_to_epoll(new_mask);
@@ -155,7 +148,7 @@ void EPollEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	}
 }
 
-void EPollEngine::DelFd(EventHandler* eh)
+void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
@@ -180,7 +173,7 @@ void EPollEngine::DelFd(EventHandler* eh)
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }
 
-int EPollEngine::DispatchEvents()
+int SocketEngine::DispatchEvents()
 {
 	int i = epoll_wait(EngineHandle, &events[0], events.size(), 1000);
 	ServerInstance->UpdateTime();
@@ -232,7 +225,7 @@ int EPollEngine::DispatchEvents()
 				mask = nm;
 			}
 		}
-		SetEventMask(eh, mask);
+		eh->SetEventMask(mask);
 		if (ev.events & EPOLLIN)
 		{
 			stats.ReadEvents++;
@@ -249,9 +242,4 @@ int EPollEngine::DispatchEvents()
 	}
 
 	return i;
-}
-
-SocketEngine* CreateSocketEngine()
-{
-	return new EPollEngine;
 }
