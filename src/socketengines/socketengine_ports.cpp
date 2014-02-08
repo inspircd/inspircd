@@ -54,7 +54,6 @@ public:
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
-	virtual std::string GetName();
 };
 
 PortsEngine::PortsEngine() : events(1)
@@ -192,11 +191,6 @@ int PortsEngine::DispatchEvents()
 	}
 
 	return (int)i;
-}
-
-std::string PortsEngine::GetName()
-{
-	return "ports";
 }
 
 SocketEngine* CreateSocketEngine()

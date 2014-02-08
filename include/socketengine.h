@@ -358,12 +358,6 @@ public:
 	 */
 	virtual void DispatchTrialWrites();
 
-	/** Returns the socket engines name.  This returns the name of the
-	 * engine for use in /VERSION responses.
-	 * @return The socket engine name
-	 */
-	virtual std::string GetName() = 0;
-
 	/** Returns true if the file descriptors in the given event handler are
 	 * within sensible ranges which can be handled by the socket engine.
 	 */

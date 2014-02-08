@@ -51,7 +51,6 @@ public:
 	void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
-	virtual std::string GetName();
 	virtual void RecoverFromFork();
 };
 
@@ -253,11 +252,6 @@ int KQueueEngine::DispatchEvents()
 	}
 
 	return i;
-}
-
-std::string KQueueEngine::GetName()
-{
-	return "kqueue";
 }
 
 SocketEngine* CreateSocketEngine()

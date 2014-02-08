@@ -41,7 +41,6 @@ public:
 	virtual void DelFd(EventHandler* eh);
 	void OnSetEvent(EventHandler* eh, int, int);
 	virtual int DispatchEvents();
-	virtual std::string GetName();
 };
 
 SelectEngine::SelectEngine()
@@ -171,11 +170,6 @@ int SelectEngine::DispatchEvents()
 	}
 
 	return sresult;
-}
-
-std::string SelectEngine::GetName()
-{
-	return "select";
 }
 
 SocketEngine* CreateSocketEngine()

@@ -60,7 +60,6 @@ public:
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
-	virtual std::string GetName();
 };
 
 PollEngine::PollEngine() : events(1), fd_mappings(1)
@@ -244,11 +243,6 @@ int PollEngine::DispatchEvents()
 	}
 
 	return i;
-}
-
-std::string PollEngine::GetName()
-{
-	return "poll";
 }
 
 SocketEngine* CreateSocketEngine()

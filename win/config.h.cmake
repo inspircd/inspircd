@@ -4,6 +4,7 @@
 #define VERSION "@FULL_VERSION@"
 #define REVISION "release"
 #define SYSTEM "@CMAKE_SYSTEM@"
+#define INSPIRCD_SOCKETENGINE_NAME "select"
 
 #define CONFIG_PATH "@CONF_PATH@"
 #define MOD_PATH "@MODULE_PATH@"

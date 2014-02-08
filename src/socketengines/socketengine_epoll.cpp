@@ -49,7 +49,6 @@ public:
 	virtual void OnSetEvent(EventHandler* eh, int old_mask, int new_mask);
 	virtual void DelFd(EventHandler* eh);
 	virtual int DispatchEvents();
-	virtual std::string GetName();
 };
 
 EPollEngine::EPollEngine() : events(1)
@@ -253,11 +252,6 @@ int EPollEngine::DispatchEvents()
 	}
 
 	return i;
-}
-
-std::string EPollEngine::GetName()
-{
-	return "epoll";
 }
 
 SocketEngine* CreateSocketEngine()

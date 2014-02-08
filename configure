@@ -455,6 +455,7 @@ sub writefiles {
 #define VERSION "$version"
 #define REVISION "$revision"
 #define SYSTEM "$incos"
+#define INSPIRCD_SOCKETENGINE_NAME "$config{SOCKETENGINE}"
 
 #define CONFIG_PATH "$config{CONFIG_DIR}"
 #define DATA_PATH "$config{DATA_DIR}"
