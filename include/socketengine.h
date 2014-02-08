@@ -376,21 +376,21 @@ public:
 	 * @param addrlen The size of the sockaddr parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
+	static int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
 
 	/** Abstraction for BSD sockets close(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Close(EventHandler* fd);
+	static int Close(EventHandler* fd);
 
 	/** Abstraction for BSD sockets close(2).
 	 * This function should emulate its namesake system call exactly.
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Close(int fd);
+	static int Close(int fd);
 
 	/** Abstraction for BSD sockets send(2).
 	 * This function should emulate its namesake system call exactly.
@@ -443,19 +443,19 @@ public:
 	 * @param addrlen The size of the sockaddr parameter.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
+	static int Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen);
 
 	/** Make a file descriptor blocking.
 	 * @param fd a file descriptor to set to blocking mode
 	 * @return 0 on success, -1 on failure, errno is set appropriately.
 	 */
-	int Blocking(int fd);
+	static int Blocking(int fd);
 
 	/** Make a file descriptor nonblocking.
 	 * @param fd A file descriptor to set to nonblocking mode
 	 * @return 0 on success, -1 on failure, errno is set appropriately.
 	 */
-	int NonBlocking(int fd);
+	static int NonBlocking(int fd);
 
 	/** Abstraction for BSD sockets shutdown(2).
 	 * This function should emulate its namesake system call exactly.
@@ -463,29 +463,29 @@ public:
 	 * @param how What part of the socket to shut down
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Shutdown(EventHandler* fd, int how);
+	static int Shutdown(EventHandler* fd, int how);
 
 	/** Abstraction for BSD sockets shutdown(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Shutdown(int fd, int how);
+	static int Shutdown(int fd, int how);
 
 	/** Abstraction for BSD sockets bind(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Bind(int fd, const irc::sockets::sockaddrs& addr);
+	static int Bind(int fd, const irc::sockets::sockaddrs& addr);
 
 	/** Abstraction for BSD sockets listen(2).
 	 * This function should emulate its namesake system call exactly.
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
-	int Listen(int sockfd, int backlog);
+	static int Listen(int sockfd, int backlog);
 
 	/** Set SO_REUSEADDR and SO_LINGER on this file descriptor
 	 */
-	void SetReuse(int sockfd);
+	static void SetReuse(int sockfd);
 
 	/** This function is called immediately after fork().
 	 * Some socket engines (notably kqueue) cannot have their

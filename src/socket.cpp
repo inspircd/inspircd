@@ -46,7 +46,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	else if (!irc::sockets::aptosa(addr, port, servaddr))
 		return false;
 
-	ret = SE->Bind(sockfd, servaddr);
+	ret = SocketEngine::Bind(sockfd, servaddr);
 
 	if (ret < 0)
 	{
@@ -56,7 +56,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 	{
 		if (dolisten)
 		{
-			if (SE->Listen(sockfd, Config->MaxConn) == -1)
+			if (SocketEngine::Listen(sockfd, Config->MaxConn) == -1)
 			{
 				this->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR in listen(): %s",strerror(errno));
 				return false;
@@ -64,7 +64,7 @@ bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
 			else
 			{
 				this->Logs->Log("SOCKET", LOG_DEBUG, "New socket binding for %d with listen: %s:%d", sockfd, addr, port);
-				SE->NonBlocking(sockfd);
+				SocketEngine::NonBlocking(sockfd);
 				return true;
 			}
 		}

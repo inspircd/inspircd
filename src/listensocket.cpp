@@ -56,10 +56,10 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	}
 #endif
 
-	ServerInstance->SE->SetReuse(fd);
-	int rv = ServerInstance->SE->Bind(this->fd, bind_to);
+	SocketEngine::SetReuse(fd);
+	int rv = SocketEngine::Bind(this->fd, bind_to);
 	if (rv >= 0)
-		rv = ServerInstance->SE->Listen(this->fd, ServerInstance->Config->MaxConn);
+		rv = SocketEngine::Listen(this->fd, ServerInstance->Config->MaxConn);
 
 	int timeout = tag->getInt("defer", 0);
 	if (timeout && !rv)
@@ -77,14 +77,14 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	if (rv < 0)
 	{
 		int errstore = errno;
-		ServerInstance->SE->Shutdown(this, 2);
-		ServerInstance->SE->Close(this);
+		SocketEngine::Shutdown(this, 2);
+		SocketEngine::Close(this);
 		this->fd = -1;
 		errno = errstore;
 	}
 	else
 	{
-		ServerInstance->SE->NonBlocking(this->fd);
+		SocketEngine::NonBlocking(this->fd);
 		ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 
 		this->ResetIOHookProvider();
@@ -97,8 +97,8 @@ ListenSocket::~ListenSocket()
 	{
 		ServerInstance->SE->DelFd(this);
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
-		ServerInstance->SE->Shutdown(this, 2);
-		if (ServerInstance->SE->Close(this) != 0)
+		SocketEngine::Shutdown(this, 2);
+		if (SocketEngine::Close(this) != 0)
 			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Failed to cancel listener: %s", strerror(errno));
 		this->fd = -1;
 	}
@@ -111,7 +111,7 @@ void ListenSocket::AcceptInternal()
 	irc::sockets::sockaddrs server;
 
 	socklen_t length = sizeof(client);
-	int incomingSockfd = ServerInstance->SE->Accept(this, &client.sa, &length);
+	int incomingSockfd = SocketEngine::Accept(this, &client.sa, &length);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
@@ -140,8 +140,8 @@ void ListenSocket::AcceptInternal()
 	if (incomingSockfd >= ServerInstance->SE->GetMaxFds())
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Server is full");
-		ServerInstance->SE->Shutdown(incomingSockfd, 2);
-		ServerInstance->SE->Close(incomingSockfd);
+		SocketEngine::Shutdown(incomingSockfd, 2);
+		SocketEngine::Close(incomingSockfd);
 		ServerInstance->stats->statsRefused++;
 		return;
 	}
@@ -176,7 +176,7 @@ void ListenSocket::AcceptInternal()
 		}
 	}
 
-	ServerInstance->SE->NonBlocking(incomingSockfd);
+	SocketEngine::NonBlocking(incomingSockfd);
 
 	ModResult res;
 	FIRST_MOD_RESULT(OnAcceptConnection, res, (incomingSockfd, this, &client, &server));
@@ -198,7 +198,7 @@ void ListenSocket::AcceptInternal()
 		ServerInstance->stats->statsRefused++;
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
 			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
-		ServerInstance->SE->Close(incomingSockfd);
+		SocketEngine::Close(incomingSockfd);
 	}
 }
 

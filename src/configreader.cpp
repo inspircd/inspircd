@@ -443,7 +443,7 @@ void ServerConfig::Fill()
 		if (socktest < 0)
 			WildcardIPv6 = false;
 		else
-			ServerInstance->SE->Close(socktest);
+			SocketEngine::Close(socktest);
 	}
 
 	ReadXLine(this, "badip", "ipmask", ServerInstance->XLines->GetFactory("Z"));

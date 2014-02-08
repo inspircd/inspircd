@@ -682,8 +682,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 		if (this->GetFd() > -1)
 		{
 			ServerInstance->SE->DelFd(this);
-			ServerInstance->SE->Shutdown(this, 2);
-			ServerInstance->SE->Close(this);
+			SocketEngine::Shutdown(this, 2);
+			SocketEngine::Close(this);
 			this->SetFd(-1);
 
 			/* Remove expired entries from the cache */
@@ -699,24 +699,24 @@ class MyManager : public Manager, public Timer, public EventHandler
 		/* Have we got a socket? */
 		if (this->GetFd() != -1)
 		{
-			ServerInstance->SE->SetReuse(s);
-			ServerInstance->SE->NonBlocking(s);
+			SocketEngine::SetReuse(s);
+			SocketEngine::NonBlocking(s);
 
 			irc::sockets::sockaddrs bindto;
 			memset(&bindto, 0, sizeof(bindto));
 			bindto.sa.sa_family = myserver.sa.sa_family;
 
-			if (ServerInstance->SE->Bind(this->GetFd(), bindto) < 0)
+			if (SocketEngine::Bind(this->GetFd(), bindto) < 0)
 			{
 				/* Failed to bind */
 				ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Error binding dns socket - hostnames will NOT resolve");
-				ServerInstance->SE->Close(this);
+				SocketEngine::Close(this);
 				this->SetFd(-1);
 			}
 			else if (!ServerInstance->SE->AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 			{
 				ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Internal error starting DNS - hostnames will NOT resolve.");
-				ServerInstance->SE->Close(this);
+				SocketEngine::Close(this);
 				this->SetFd(-1);
 			}
 		}

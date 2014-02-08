@@ -93,13 +93,13 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 
 	if (bind.sa.sa_family != 0)
 	{
-		if (ServerInstance->SE->Bind(fd, bind) < 0)
+		if (SocketEngine::Bind(fd, bind) < 0)
 			return I_ERR_BIND;
 	}
 
-	ServerInstance->SE->NonBlocking(fd);
+	SocketEngine::NonBlocking(fd);
 
-	if (ServerInstance->SE->Connect(this, &dest.sa, dest.sa_size()) == -1)
+	if (SocketEngine::Connect(this, &dest.sa, dest.sa_size()) == -1)
 	{
 		if (errno != EINPROGRESS)
 			return I_ERR_CONNECT;
@@ -137,9 +137,9 @@ void StreamSocket::Close()
 			delete iohook;
 			DelIOHook();
 		}
-		ServerInstance->SE->Shutdown(this, 2);
+		SocketEngine::Shutdown(this, 2);
 		ServerInstance->SE->DelFd(this);
-		ServerInstance->SE->Close(this);
+		SocketEngine::Close(this);
 		fd = -1;
 	}
 }

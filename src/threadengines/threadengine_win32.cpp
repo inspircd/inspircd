@@ -94,20 +94,20 @@ SocketThread::SocketThread()
 
 	if (!ServerInstance->BindSocket(listenFD, 0, "127.0.0.1", true))
 		throw CoreException("Could not create ITC pipe");
-	ServerInstance->SE->NonBlocking(connFD);
+	SocketEngine::NonBlocking(connFD);
 
 	struct sockaddr_in addr;
 	socklen_t sz = sizeof(addr);
 	getsockname(listenFD, reinterpret_cast<struct sockaddr*>(&addr), &sz);
 	connect(connFD, reinterpret_cast<struct sockaddr*>(&addr), sz);
-	ServerInstance->SE->Blocking(listenFD);
+	SocketEngine::Blocking(listenFD);
 	int nfd = accept(listenFD, reinterpret_cast<struct sockaddr*>(&addr), &sz);
 	if (nfd < 0)
 		throw CoreException("Could not create ITC pipe");
 	new ThreadSignalSocket(this, nfd);
 	closesocket(listenFD);
 
-	ServerInstance->SE->Blocking(connFD);
+	SocketEngine::Blocking(connFD);
 	this->signal.connFD = connFD;
 }
 

@@ -81,7 +81,7 @@ class ThreadSignalSocket : public EventHandler
 	~ThreadSignalSocket()
 	{
 		ServerInstance->SE->DelFd(this);
-		ServerInstance->SE->Close(GetFd());
+		SocketEngine::Close(GetFd());
 	}
 
 	void Notify()
@@ -123,7 +123,7 @@ class ThreadSignalSocket : public EventHandler
 		parent(p), send_fd(sendfd)
 	{
 		SetFd(recvfd);
-		ServerInstance->SE->NonBlocking(fd);
+		SocketEngine::NonBlocking(fd);
 		ServerInstance->SE->AddFd(this, FD_WANT_FAST_READ | FD_WANT_NO_WRITE);
 	}
 
@@ -131,7 +131,7 @@ class ThreadSignalSocket : public EventHandler
 	{
 		close(send_fd);
 		ServerInstance->SE->DelFd(this);
-		ServerInstance->SE->Close(GetFd());
+		SocketEngine::Close(GetFd());
 	}
 
 	void Notify()

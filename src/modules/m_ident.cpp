@@ -117,16 +117,16 @@ class IdentRequestSocket : public EventHandler
 		}
 
 		/* Attempt to bind (ident requests must come from the ip the query is referring to */
-		if (ServerInstance->SE->Bind(GetFd(), bindaddr) < 0)
+		if (SocketEngine::Bind(GetFd(), bindaddr) < 0)
 		{
 			this->Close();
 			throw ModuleException("failed to bind()");
 		}
 
-		ServerInstance->SE->NonBlocking(GetFd());
+		SocketEngine::NonBlocking(GetFd());
 
 		/* Attempt connection (nonblocking) */
-		if (ServerInstance->SE->Connect(this, &connaddr.sa, connaddr.sa_size()) == -1 && errno != EINPROGRESS)
+		if (SocketEngine::Connect(this, &connaddr.sa, connaddr.sa_size()) == -1 && errno != EINPROGRESS)
 		{
 			this->Close();
 			throw ModuleException("connect() failed");
@@ -196,7 +196,7 @@ class IdentRequestSocket : public EventHandler
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
 			ServerInstance->SE->DelFd(this);
-			ServerInstance->SE->Close(GetFd());
+			SocketEngine::Close(GetFd());
 			this->SetFd(-1);
 		}
 	}
