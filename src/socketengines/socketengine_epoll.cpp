@@ -53,7 +53,6 @@ public:
 
 EPollEngine::EPollEngine() : events(1)
 {
-	CurrentSetSize = 0;
 	int max = ulimit(4, 0);
 	if (max > 0)
 	{
@@ -136,7 +135,6 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
 	SocketEngine::SetEventMask(eh, event_mask);
-	CurrentSetSize++;
 	ResizeDouble(events);
 
 	return true;
@@ -180,7 +178,6 @@ void EPollEngine::DelFd(EventHandler* eh)
 	SocketEngine::DelFdRef(eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
-	CurrentSetSize--;
 }
 
 int EPollEngine::DispatchEvents()

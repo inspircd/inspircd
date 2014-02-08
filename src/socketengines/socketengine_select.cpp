@@ -46,7 +46,6 @@ public:
 SelectEngine::SelectEngine()
 {
 	MAX_DESCRIPTORS = FD_SETSIZE;
-	CurrentSetSize = 0;
 
 	FD_ZERO(&ReadSet);
 	FD_ZERO(&WriteSet);
@@ -69,8 +68,6 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 	if (fd > MaxFD)
 		MaxFD = fd;
 
-	CurrentSetSize++;
-
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 	return true;
 }
@@ -82,7 +79,6 @@ void SelectEngine::DelFd(EventHandler* eh)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return;
 
-	CurrentSetSize--;
 	SocketEngine::DelFdRef(eh);
 
 	FD_CLR(fd, &ReadSet);

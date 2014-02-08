@@ -39,6 +39,7 @@ SocketEngine::SocketEngine()
 	TotalEvents = WriteEvents = ReadEvents = ErrorEvents = 0;
 	lastempty = ServerInstance->Time();
 	indata = outdata = 0;
+	CurrentSetSize = 0;
 }
 
 SocketEngine::~SocketEngine()
@@ -103,6 +104,7 @@ bool SocketEngine::AddFdRef(EventHandler* eh)
 	while (static_cast<unsigned int>(fd) >= ref.size())
 		ref.resize(ref.empty() ? 1 : (ref.size() * 2));
 	ref[fd] = eh;
+	CurrentSetSize++;
 	return true;
 }
 
@@ -110,7 +112,10 @@ void SocketEngine::DelFdRef(EventHandler *eh)
 {
 	int fd = eh->GetFd();
 	if (GetRef(fd) == eh)
+	{
 		ref[fd] = NULL;
+		CurrentSetSize--;
+	}
 }
 
 bool SocketEngine::HasFd(int fd)

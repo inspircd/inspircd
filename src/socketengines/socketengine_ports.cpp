@@ -79,7 +79,6 @@ PortsEngine::PortsEngine() : events(1)
 		std::cout << "ERROR: This is a fatal error, exiting now." << std::endl;
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
-	CurrentSetSize = 0;
 }
 
 PortsEngine::~PortsEngine()
@@ -110,7 +109,6 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	port_associate(EngineHandle, PORT_SOURCE_FD, fd, mask_to_events(event_mask), eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
-	CurrentSetSize++;
 	ResizeDouble(events);
 
 	return true;
@@ -130,7 +128,6 @@ void PortsEngine::DelFd(EventHandler* eh)
 
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);
 
-	CurrentSetSize--;
 	SocketEngine::DelFdRef(eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);

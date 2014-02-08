@@ -91,7 +91,6 @@ void KQueueEngine::RecoverFromFork()
 		std::cout << "ERROR: this is a fatal error, exiting now." << std::endl;
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
-	CurrentSetSize = 0;
 }
 
 KQueueEngine::~KQueueEngine()
@@ -125,7 +124,6 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 
 	SocketEngine::SetEventMask(eh, event_mask);
 	OnSetEvent(eh, 0, event_mask);
-	CurrentSetSize++;
 	ResizeDouble(ke_list);
 
 	return true;
@@ -159,7 +157,6 @@ void KQueueEngine::DelFd(EventHandler* eh)
 	}
 
 	SocketEngine::DelFdRef(eh);
-	CurrentSetSize--;
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }

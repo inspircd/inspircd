@@ -64,7 +64,6 @@ public:
 
 PollEngine::PollEngine() : events(1), fd_mappings(1)
 {
-	CurrentSetSize = 0;
 	struct rlimit limits;
 	if (!getrlimit(RLIMIT_NOFILE, &limits))
 	{
@@ -103,13 +102,13 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
+	unsigned int index = CurrentSetSize;
+
 	if (!SocketEngine::AddFdRef(eh))
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
 		return false;
 	}
-
-	unsigned int index = CurrentSetSize;
 
 	while (static_cast<unsigned int>(fd) >= fd_mappings.size())
 		fd_mappings.resize(fd_mappings.size() * 2, -1);
@@ -121,7 +120,6 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d (%d; index %d)", fd, events[index].events, index);
 	SocketEngine::SetEventMask(eh, event_mask);
-	CurrentSetSize++;
 	return true;
 }
 
@@ -175,8 +173,6 @@ void PollEngine::DelFd(EventHandler* eh)
 	events[last_index].events = 0;
 
 	SocketEngine::DelFdRef(eh);
-
-	CurrentSetSize--;
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d (index: %d) "
 			"(Filled gap with: %d (index: %d))", fd, index, last_fd, last_index);
