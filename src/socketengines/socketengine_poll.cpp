@@ -103,7 +103,7 @@ bool PollEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	if (!SocketEngine::AddFd(eh))
+	if (!SocketEngine::AddFdRef(eh))
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
 		return false;
@@ -174,7 +174,7 @@ void PollEngine::DelFd(EventHandler* eh)
 	events[last_index].fd = 0;
 	events[last_index].events = 0;
 
-	SocketEngine::DelFd(eh);
+	SocketEngine::DelFdRef(eh);
 
 	CurrentSetSize--;
 

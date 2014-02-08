@@ -103,7 +103,7 @@ bool PortsEngine::AddFd(EventHandler* eh, int event_mask)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (!SocketEngine::AddFd(eh))
+	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
 	SocketEngine::SetEventMask(eh, event_mask);
@@ -131,7 +131,7 @@ void PortsEngine::DelFd(EventHandler* eh)
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);
 
 	CurrentSetSize--;
-	SocketEngine::DelFd(eh);
+	SocketEngine::DelFdRef(eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 }

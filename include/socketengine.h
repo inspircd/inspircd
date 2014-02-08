@@ -255,7 +255,9 @@ class CoreExport SocketEngine
 
 	/** Add an event handler to the base socket engine. AddFd(EventHandler*, int) should call this.
 	 */
-	bool AddFd(EventHandler* eh);
+	bool AddFdRef(EventHandler* eh);
+
+	void DelFdRef(EventHandler* eh);
 
 	template <typename T>
 	void ResizeDouble(std::vector<T>& vect)
@@ -327,7 +329,7 @@ public:
 	 * required you must do this yourself.
 	 * @param eh The event handler object to remove
 	 */
-	virtual void DelFd(EventHandler* eh);
+	virtual void DelFd(EventHandler* eh) = 0;
 
 	/** Returns true if a file descriptor exists in
 	 * the socket engine's list.

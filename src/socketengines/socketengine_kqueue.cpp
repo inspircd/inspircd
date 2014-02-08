@@ -106,7 +106,7 @@ bool KQueueEngine::AddFd(EventHandler* eh, int event_mask)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (!SocketEngine::AddFd(eh))
+	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
 	// We always want to read from the socket...
@@ -158,7 +158,7 @@ void KQueueEngine::DelFd(EventHandler* eh)
 					  fd, strerror(errno));
 	}
 
-	SocketEngine::DelFd(eh);
+	SocketEngine::DelFdRef(eh);
 	CurrentSetSize--;
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);

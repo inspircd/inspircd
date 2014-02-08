@@ -60,7 +60,7 @@ bool SelectEngine::AddFd(EventHandler* eh, int event_mask)
 	if ((fd < 0) || (fd > GetMaxFds() - 1))
 		return false;
 
-	if (!SocketEngine::AddFd(eh))
+	if (!SocketEngine::AddFdRef(eh))
 		return false;
 
 	SocketEngine::SetEventMask(eh, event_mask);
@@ -83,7 +83,7 @@ void SelectEngine::DelFd(EventHandler* eh)
 		return;
 
 	CurrentSetSize--;
-	SocketEngine::DelFd(eh);
+	SocketEngine::DelFdRef(eh);
 
 	FD_CLR(fd, &ReadSet);
 	FD_CLR(fd, &WriteSet);

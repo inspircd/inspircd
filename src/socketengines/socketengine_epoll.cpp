@@ -116,7 +116,7 @@ bool EPollEngine::AddFd(EventHandler* eh, int event_mask)
 		return false;
 	}
 
-	if (!SocketEngine::AddFd(eh))
+	if (!SocketEngine::AddFdRef(eh))
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Attempt to add duplicate fd: %d", fd);
 		return false;
@@ -177,7 +177,7 @@ void EPollEngine::DelFd(EventHandler* eh)
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "epoll_ctl can't remove socket: %s", strerror(errno));
 	}
 
-	SocketEngine::DelFd(eh);
+	SocketEngine::DelFdRef(eh);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Remove file descriptor: %d", fd);
 	CurrentSetSize--;

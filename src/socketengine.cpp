@@ -94,7 +94,7 @@ void SocketEngine::DispatchTrialWrites()
 	}
 }
 
-bool SocketEngine::AddFd(EventHandler* eh)
+bool SocketEngine::AddFdRef(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 	if (HasFd(fd))
@@ -106,7 +106,7 @@ bool SocketEngine::AddFd(EventHandler* eh)
 	return true;
 }
 
-void SocketEngine::DelFd(EventHandler *eh)
+void SocketEngine::DelFdRef(EventHandler *eh)
 {
 	int fd = eh->GetFd();
 	if (GetRef(fd) == eh)
