@@ -185,13 +185,10 @@ void PollEngine::DelFd(EventHandler* eh)
 int PollEngine::DispatchEvents()
 {
 	int i = poll(&events[0], CurrentSetSize, 1000);
-	int index;
-	socklen_t codesize = sizeof(int);
-	int errcode;
 	int processed = 0;
 	ServerInstance->UpdateTime();
 
-	for (index = 0; index < CurrentSetSize && processed < i; index++)
+	for (int index = 0; index < CurrentSetSize && processed < i; index++)
 	{
 		struct pollfd& pfd = events[index];
 
@@ -215,6 +212,8 @@ int PollEngine::DispatchEvents()
 		if (revents & POLLERR)
 		{
 			// Get error number
+			socklen_t codesize = sizeof(int);
+			int errcode;
 			if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
 			eh->HandleEvent(EVENT_ERROR, errcode);

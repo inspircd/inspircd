@@ -37,9 +37,6 @@ private:
 	/** These are used by kqueue() to hold socket events
 	 */
 	std::vector<struct kevent> ke_list;
-	/** This is a specialised time value used by kqueue()
-	 */
-	struct timespec ts;
 public:
 	/** Create a new KQueueEngine
 	 */
@@ -203,6 +200,7 @@ void KQueueEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 
 int KQueueEngine::DispatchEvents()
 {
+	struct timespec ts;
 	ts.tv_nsec = 0;
 	ts.tv_sec = 1;
 

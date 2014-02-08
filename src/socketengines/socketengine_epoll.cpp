@@ -185,8 +185,6 @@ void EPollEngine::DelFd(EventHandler* eh)
 
 int EPollEngine::DispatchEvents()
 {
-	socklen_t codesize = sizeof(int);
-	int errcode;
 	int i = epoll_wait(EngineHandle, &events[0], events.size(), 1000);
 	ServerInstance->UpdateTime();
 
@@ -216,6 +214,8 @@ int EPollEngine::DispatchEvents()
 		{
 			ErrorEvents++;
 			/* Get error number */
+			socklen_t codesize = sizeof(int);
+			int errcode;
 			if (getsockopt(ev.data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
 			eh->HandleEvent(EVENT_ERROR, errcode);
