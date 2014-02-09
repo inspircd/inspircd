@@ -117,7 +117,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 	struct epoll_event ev;
 	memset(&ev, 0, sizeof(ev));
 	ev.events = mask_to_epoll(event_mask);
-	ev.data.fd = fd;
+	ev.data.ptr = static_cast<void*>(eh);
 	int i = epoll_ctl(EngineHandle, EPOLL_CTL_ADD, fd, &ev);
 	if (i < 0)
 	{
@@ -143,7 +143,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 		struct epoll_event ev;
 		memset(&ev, 0, sizeof(ev));
 		ev.events = new_events;
-		ev.data.fd = eh->GetFd();
+		ev.data.ptr = static_cast<void*>(eh);
 		epoll_ctl(EngineHandle, EPOLL_CTL_MOD, eh->GetFd(), &ev);
 	}
 }
@@ -185,13 +185,10 @@ int SocketEngine::DispatchEvents()
 		// Copy these in case the vector gets resized and ev invalidated
 		const epoll_event ev = events[j];
 
-		EventHandler* eh = GetRef(ev.data.fd);
-		if (!eh)
-		{
-			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Got event on unknown fd: %d", events[j].data.fd);
-			epoll_ctl(EngineHandle, EPOLL_CTL_DEL, events[j].data.fd, &events[j]);
+		EventHandler* const eh = static_cast<EventHandler*>(ev.data.ptr);
+		const int fd = eh->GetFd();
+		if (fd < 0)
 			continue;
-		}
 
 		if (ev.events & EPOLLHUP)
 		{
@@ -206,7 +203,7 @@ int SocketEngine::DispatchEvents()
 			/* Get error number */
 			socklen_t codesize = sizeof(int);
 			int errcode;
-			if (getsockopt(ev.data.fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
+			if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &errcode, &codesize) < 0)
 				errcode = errno;
 			eh->HandleEvent(EVENT_ERROR, errcode);
 			continue;
@@ -230,7 +227,7 @@ int SocketEngine::DispatchEvents()
 		{
 			stats.ReadEvents++;
 			eh->HandleEvent(EVENT_READ);
-			if (eh != GetRef(ev.data.fd))
+			if (eh != GetRef(fd))
 				// whoa! we got deleted, better not give out the write event
 				continue;
 		}

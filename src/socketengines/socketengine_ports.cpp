@@ -157,8 +157,8 @@ int SocketEngine::DispatchEvents()
 		// Copy these in case the vector gets resized and ev invalidated
 		const int fd = ev.portev_object;
 		const int portev_events = ev.portev_events;
-		EventHandler* eh = GetRef(fd);
-		if (!eh)
+		EventHandler* eh = static_cast<EventHandler*>(ev.portev_user);
+		if (eh->GetFd() < 0)
 			continue;
 
 		int mask = eh->GetEventMask();

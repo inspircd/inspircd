@@ -113,7 +113,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 
 	// We always want to read from the socket...
 	struct kevent* ke = GetChangeKE();
-	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	EV_SET(ke, fd, EVFILT_READ, EV_ADD, 0, 0, static_cast<void*>(eh));
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "New file descriptor: %d", fd);
 
@@ -154,7 +154,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	{
 		// new poll-style write
 		struct kevent* ke = GetChangeKE();
-		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD, 0, 0, static_cast<void*>(eh));
 	}
 	else if ((old_mask & FD_WANT_POLL_WRITE) && !(new_mask & FD_WANT_POLL_WRITE))
 	{
@@ -165,7 +165,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 	if ((new_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)) && !(old_mask & (FD_WANT_FAST_WRITE | FD_WANT_SINGLE_WRITE)))
 	{
 		struct kevent* ke = GetChangeKE();
-		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL);
+		EV_SET(ke, eh->GetFd(), EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, static_cast<void*>(eh));
 	}
 }
 
@@ -187,13 +187,14 @@ int SocketEngine::DispatchEvents()
 	for (int j = 0; j < i; j++)
 	{
 		struct kevent& kev = ke_list[j];
+		EventHandler* eh = static_cast<EventHandler*>(kev.udata);
+		if (!eh)
+			continue;
 
 		// Copy these in case the vector gets resized and kev invalidated
-		const int fd = kev.ident;
+		const int fd = eh->GetFd();
 		const short filter = kev.filter;
-
-		EventHandler* eh = GetRef(fd);
-		if (!eh)
+		if (fd < 0)
 			continue;
 
 		if (kev.flags & EV_EOF)
