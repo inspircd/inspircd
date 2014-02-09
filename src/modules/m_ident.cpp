@@ -195,9 +195,7 @@ class IdentRequestSocket : public EventHandler
 		if (GetFd() > -1)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Close ident socket %d", GetFd());
-			SocketEngine::DelFd(this);
-			SocketEngine::Close(GetFd());
-			this->SetFd(-1);
+			SocketEngine::Close(this);
 		}
 	}
 

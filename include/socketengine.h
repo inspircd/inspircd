@@ -409,12 +409,11 @@ public:
 	 */
 	static int Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen);
 
-	/** Abstraction for BSD sockets close(2).
-	 * This function should emulate its namesake system call exactly.
-	 * @param fd This version of the call takes an EventHandler instead of a bare file descriptor.
-	 * @return This method should return exactly the same values as the system call it emulates.
+	/** Close the underlying fd of an event handler, remove it from the socket engine and set the fd to -1.
+	 * @param eh The EventHandler to close.
+	 * @return 0 on success, a negative value on error
 	 */
-	static int Close(EventHandler* fd);
+	static int Close(EventHandler* eh);
 
 	/** Abstraction for BSD sockets close(2).
 	 * This function should emulate its namesake system call exactly.

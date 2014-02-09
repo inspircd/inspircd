@@ -80,8 +80,7 @@ class ThreadSignalSocket : public EventHandler
 
 	~ThreadSignalSocket()
 	{
-		SocketEngine::DelFd(this);
-		SocketEngine::Close(GetFd());
+		SocketEngine::Close(this);
 	}
 
 	void Notify()
@@ -130,8 +129,7 @@ class ThreadSignalSocket : public EventHandler
 	~ThreadSignalSocket()
 	{
 		close(send_fd);
-		SocketEngine::DelFd(this);
-		SocketEngine::Close(GetFd());
+		SocketEngine::Close(this);
 	}
 
 	void Notify()

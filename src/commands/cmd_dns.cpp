@@ -681,10 +681,8 @@ class MyManager : public Manager, public Timer, public EventHandler
 	{
 		if (this->GetFd() > -1)
 		{
-			SocketEngine::DelFd(this);
 			SocketEngine::Shutdown(this, 2);
 			SocketEngine::Close(this);
-			this->SetFd(-1);
 
 			/* Remove expired entries from the cache */
 			this->Tick(ServerInstance->Time());
@@ -710,13 +708,13 @@ class MyManager : public Manager, public Timer, public EventHandler
 			{
 				/* Failed to bind */
 				ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Error binding dns socket - hostnames will NOT resolve");
-				SocketEngine::Close(this);
+				SocketEngine::Close(this->GetFd());
 				this->SetFd(-1);
 			}
 			else if (!SocketEngine::AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 			{
 				ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Internal error starting DNS - hostnames will NOT resolve.");
-				SocketEngine::Close(this);
+				SocketEngine::Close(this->GetFd());
 				this->SetFd(-1);
 			}
 		}

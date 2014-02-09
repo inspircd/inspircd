@@ -147,13 +147,12 @@ int SocketEngine::Accept(EventHandler* fd, sockaddr *addr, socklen_t *addrlen)
 	return accept(fd->GetFd(), addr, addrlen);
 }
 
-int SocketEngine::Close(EventHandler* fd)
+int SocketEngine::Close(EventHandler* eh)
 {
-#ifdef _WIN32
-	return closesocket(fd->GetFd());
-#else
-	return close(fd->GetFd());
-#endif
+	DelFd(eh);
+	int ret = Close(eh->GetFd());
+	eh->SetFd(-1);
+	return ret;
 }
 
 int SocketEngine::Close(int fd)

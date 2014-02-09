@@ -42,7 +42,6 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick.c_str());
 			sock->Squit(s,"Server quit by " + user->GetFullRealHost());
-			SocketEngine::DelFd(sock);
 			sock->Close();
 		}
 		else

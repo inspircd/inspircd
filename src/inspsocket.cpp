@@ -138,9 +138,7 @@ void StreamSocket::Close()
 			DelIOHook();
 		}
 		SocketEngine::Shutdown(this, 2);
-		SocketEngine::DelFd(this);
 		SocketEngine::Close(this);
-		fd = -1;
 	}
 }
 

@@ -78,7 +78,7 @@ ListenSocket::ListenSocket(ConfigTag* tag, const irc::sockets::sockaddrs& bind_t
 	{
 		int errstore = errno;
 		SocketEngine::Shutdown(this, 2);
-		SocketEngine::Close(this);
+		SocketEngine::Close(this->GetFd());
 		this->fd = -1;
 		errno = errstore;
 	}
@@ -95,12 +95,10 @@ ListenSocket::~ListenSocket()
 {
 	if (this->GetFd() > -1)
 	{
-		SocketEngine::DelFd(this);
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Shut down listener on fd %d", this->fd);
 		SocketEngine::Shutdown(this, 2);
 		if (SocketEngine::Close(this) != 0)
 			ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Failed to cancel listener: %s", strerror(errno));
-		this->fd = -1;
 	}
 }
 
