@@ -84,6 +84,11 @@ class CoreExport Extensible : public classbase
 	 * Holds all extensible metadata for the class.
 	 */
 	ExtensibleStore extensions;
+
+	/** True if this Extensible has been culled.
+	 * A warning is generated if false on destruction.
+	 */
+	unsigned int culled:1;
  public:
 	/**
 	 * Get the extension items for iteraton (i.e. for metadata sync during netburst)

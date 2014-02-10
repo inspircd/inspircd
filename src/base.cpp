@@ -174,20 +174,15 @@ void Extensible::doUnhookExtensions(const std::vector<reference<ExtensionItem> >
 	}
 }
 
-static struct DummyExtensionItem : LocalExtItem
-{
-	DummyExtensionItem() : LocalExtItem("", NULL) {}
-	void free(void*) {}
-} dummy;
-
 Extensible::Extensible()
+	: culled(false)
 {
-	extensions[&dummy] = NULL;
 }
 
 CullResult Extensible::cull()
 {
 	FreeAllExtItems();
+	culled = true;
 	return classbase::cull();
 }
 
@@ -202,7 +197,7 @@ void Extensible::FreeAllExtItems()
 
 Extensible::~Extensible()
 {
-	if (!extensions.empty() && ServerInstance && ServerInstance->Logs)
+	if ((!extensions.empty() || !culled) && ServerInstance && ServerInstance->Logs)
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
 }
 
