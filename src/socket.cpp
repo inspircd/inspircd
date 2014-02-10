@@ -217,8 +217,6 @@ bool irc::sockets::satoap(const irc::sockets::sockaddrs& sa, std::string& addr, 
 	return !addr.empty();
 }
 
-static const char all_zero[16] = {0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
-
 std::string irc::sockets::sockaddrs::str() const
 {
 	char buffer[MAXBUF];

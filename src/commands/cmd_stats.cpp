@@ -217,7 +217,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			results.push_back(sn+" 249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->chanlist->size()));
 			results.push_back(sn+" 249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
 
-			if (!ServerInstance->Config->WhoWasGroupSize == 0 && !ServerInstance->Config->WhoWasMaxGroups == 0)
+			if (ServerInstance->Config->WhoWasGroupSize && ServerInstance->Config->WhoWasMaxGroups)
 			{
 				Module* whowas = ServerInstance->Modules->Find("cmd_whowas.so");
 				if (whowas)
