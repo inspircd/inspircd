@@ -26,39 +26,20 @@
 
 class ModuleOperjoin : public Module
 {
-		std::string operChan;
 		std::vector<std::string> operChans;
 		bool override;
-
-		int tokenize(const std::string &str, std::vector<std::string> &tokens)
-		{
-			// skip delimiters at beginning.
-			std::string::size_type lastPos = str.find_first_not_of(",", 0);
-			// find first "non-delimiter".
-			std::string::size_type pos = str.find_first_of(",", lastPos);
-
-			while (std::string::npos != pos || std::string::npos != lastPos)
-			{
-				// found a token, add it to the vector.
-				tokens.push_back(str.substr(lastPos, pos - lastPos));
-				// skip delimiters. Note the "not_of"
-				lastPos = str.find_first_not_of(",", pos);
-				// find next "non-delimiter"
-				pos = str.find_first_of(",", lastPos);
-			}
-			return tokens.size();
-		}
 
 	public:
 		void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 		{
 			ConfigTag* tag = ServerInstance->Config->ConfValue("operjoin");
 
-			operChan = tag->getString("channel");
 			override = tag->getBool("override", false);
+			irc::commasepstream ss(tag->getString("channel"));
 			operChans.clear();
-			if (!operChan.empty())
-				tokenize(operChan,operChans);
+
+			for (std::string channame; ss.GetToken(channame); )
+				operChans.push_back(channame);
 		}
 
 		Version GetVersion() CXX11_OVERRIDE
@@ -76,18 +57,11 @@ class ModuleOperjoin : public Module
 				if (ServerInstance->IsChannel(*i))
 					Channel::JoinUser(localuser, *i, override);
 
-			std::string chanList = localuser->oper->getConfig("autojoin");
-			if (!chanList.empty())
+			irc::commasepstream ss(localuser->oper->getConfig("autojoin"));
+			for (std::string channame; ss.GetToken(channame); )
 			{
-				std::vector<std::string> typechans;
-				tokenize(chanList, typechans);
-				for (std::vector<std::string>::const_iterator it = typechans.begin(); it != typechans.end(); ++it)
-				{
-					if (ServerInstance->IsChannel(*it))
-					{
-						Channel::JoinUser(localuser, *it, override);
-					}
-				}
+				if (ServerInstance->IsChannel(channame))
+					Channel::JoinUser(localuser, channame, override);
 			}
 		}
 };
