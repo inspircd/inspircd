@@ -20,6 +20,7 @@
 #include "inspircd.h"
 #include "modules/sql.h"
 #include "modules/hash.h"
+#include "modules/ssl.h"
 
 enum AuthState {
 	AUTH_STATE_NONE = 0,
@@ -128,6 +129,9 @@ class ModuleSQLAuth : public Module
 		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 		if (sha256)
 			userinfo["sha256pass"] = sha256->hexsum(user->password);
+
+		const std::string certfp = SSLClientCert::GetFingerprint(&user->eh);
+		userinfo["certfp"] = certfp;
 
 		SQL->submit(new AuthQuery(this, user->uuid, pendingExt, verbose), freeformquery, userinfo);
 
