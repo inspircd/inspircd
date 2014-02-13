@@ -573,7 +573,6 @@ class ModuleSSLOpenSSL : public Module
 {
 	typedef std::vector<reference<OpenSSLIOHookProvider> > ProfileList;
 
-	std::string sslports;
 	ProfileList profiles;
 
 	void ReadProfiles()
@@ -640,45 +639,6 @@ class ModuleSSLOpenSSL : public Module
 		ReadProfiles();
 	}
 
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		sslports.clear();
-
-		ConfigTag* Conf = ServerInstance->Config->ConfValue("openssl");
-
-		if (Conf->getBool("showports", true))
-		{
-			sslports = Conf->getString("advertisedports");
-			if (!sslports.empty())
-				return;
-
-			for (size_t i = 0; i < ServerInstance->ports.size(); i++)
-			{
-				ListenSocket* port = ServerInstance->ports[i];
-				if (port->bind_tag->getString("ssl") != "openssl")
-					continue;
-
-				const std::string& portid = port->bind_desc;
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Enabling SSL for port %s", portid.c_str());
-
-				if (port->bind_tag->getString("type", "clients") == "clients" && port->bind_addr != "127.0.0.1")
-				{
-					/*
-					 * Found an SSL port for clients that is not bound to 127.0.0.1 and handled by us, display
-					 * the IP:port in ISUPPORT.
-					 *
-					 * We used to advertise all ports seperated by a ';' char that matched the above criteria,
-					 * but this resulted in too long ISUPPORT lines if there were lots of ports to be displayed.
-					 * To solve this by default we now only display the first IP:port found and let the user
-					 * configure the exact value for the 005 token, if necessary.
-					 */
-					sslports = portid;
-					break;
-				}
-			}
-		}
-	}
-
 	void OnModuleRehash(User* user, const std::string &param) CXX11_OVERRIDE
 	{
 		if (param != "ssl")
@@ -692,12 +652,6 @@ class ModuleSSLOpenSSL : public Module
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason() + " Not applying settings.");
 		}
-	}
-
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
-	{
-		if (!sslports.empty())
-			tokens["SSL"] = sslports;
 	}
 
 	void OnUserConnect(LocalUser* user) CXX11_OVERRIDE
