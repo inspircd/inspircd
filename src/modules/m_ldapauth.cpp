@@ -257,6 +257,43 @@ class SearchInterface : public LDAPInterface
 	}
 };
 
+class AdminBindInterface : public LDAPInterface
+{
+	const std::string provider;
+	const std::string uuid;
+	const std::string base;
+	const std::string what;
+
+ public:
+	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& b, const std::string& w)
+		: LDAPInterface(c), provider(p), uuid(u), base(b), what(w)
+	{
+	}
+
+	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
+	{
+		dynamic_reference<LDAPProvider> LDAP(me, provider);
+		if (LDAP)
+		{
+			try
+			{
+				LDAP->Search(new SearchInterface(this->creator, provider, uuid), base, what);
+			}
+			catch (LDAPException& ex)
+			{
+				ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
+			}
+		}
+		delete this;
+	}
+
+	void OnError(const LDAPResult& err) CXX11_OVERRIDE
+	{
+		ServerInstance->SNO->WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
+		delete this;
+	}
+};
+
 class ModuleLDAPAuth : public Module
 {
 	dynamic_reference<LDAPProvider> LDAP;
@@ -372,10 +409,8 @@ public:
 
 		try
 		{
-			LDAP->BindAsManager(NULL);
-
 			std::string what = attribute + "=" + (useusername ? user->ident : user->nick);
-			LDAP->Search(new SearchInterface(this, LDAP.GetProvider(), user->uuid), base, what);
+			LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, base, what));
 		}
 		catch (LDAPException &ex)
 		{

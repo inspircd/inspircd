@@ -126,8 +126,8 @@ class SearchInterface : public LDAPOperBase
 	}
 
  public:
-	SearchInterface(Module* mod, const std::string& prov, User* user, const std::string& oper, const std::string& pass)
-		: LDAPOperBase(mod, user->uuid, oper, pass)
+	SearchInterface(Module* mod, const std::string& prov, const std::string &uuid, const std::string& oper, const std::string& pass)
+		: LDAPOperBase(mod, uuid, oper, pass)
 		, provider(prov)
 	{
 	}
@@ -136,6 +136,45 @@ class SearchInterface : public LDAPOperBase
 	{
 		if (!HandleResult(result))
 			Fallback();
+		delete this;
+	}
+};
+
+class AdminBindInterface : public LDAPInterface
+{
+	const std::string provider;
+	const std::string user;
+	const std::string opername;
+	const std::string password;
+	const std::string base;
+	const std::string what;
+
+ public:
+	AdminBindInterface(Module* c, const std::string& p, const std::string& u, const std::string& o, const std::string& pa, const std::string& b, const std::string& w)
+		: LDAPInterface(c), provider(p), user(u), opername(p), password(pa), base(b), what(w)
+	{
+	}
+
+	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
+	{
+		dynamic_reference<LDAPProvider> LDAP(me, provider);
+		if (LDAP)
+		{
+			try
+			{
+				LDAP->Search(new SearchInterface(this->creator, provider, user, opername, password), base, what);
+			}
+			catch (LDAPException& ex)
+			{
+				ServerInstance->SNO->WriteToSnoMask('a', "Error searching LDAP server: " + ex.GetReason());
+			}
+		}
+		delete this;
+	}
+
+	void OnError(const LDAPResult& err) CXX11_OVERRIDE
+	{
+		ServerInstance->SNO->WriteToSnoMask('a', "Error binding as manager to LDAP server: " + err.getError());
 		delete this;
 	}
 };
@@ -187,12 +226,8 @@ class ModuleLDAPAuth : public Module
 
 			try
 			{
-				// First, bind as the manager so the following search will go through
-				LDAP->BindAsManager(NULL);
-
-				// Fire off the search
 				std::string what = attribute + "=" + opername;
-				LDAP->Search(new SearchInterface(this, LDAP.GetProvider(), user, opername, password), base, what);
+				LDAP->BindAsManager(new AdminBindInterface(this, LDAP.GetProvider(), user->uuid, opername, password, base, what));
 				return MOD_RES_DENY;
 			}
 			catch (LDAPException& ex)
