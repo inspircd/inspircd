@@ -232,8 +232,7 @@ class SearchInterface : public LDAPInterface
 			std::string bindDn = a.get("dn");
 			if (bindDn.empty())
 			{
-				if (user)
-					ServerInstance->Users->QuitUser(user, killreason);
+				ServerInstance->Users->QuitUser(user, killreason);
 				delete this;
 				return;
 			}
