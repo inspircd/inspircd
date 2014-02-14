@@ -71,9 +71,9 @@ class ModuleNamesX : public Module
 		prefixes = memb->chan->GetAllPrefixChars(memb->user);
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* chan, std::string& line) CXX11_OVERRIDE
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
 	{
-		if ((!chan) || (!cap.ext.get(source)))
+		if ((!memb) || (!cap.ext.get(source)))
 			return;
 
 		// Channel names can contain ":", and ":" as a 'start-of-token' delimiter is
@@ -91,7 +91,7 @@ class ModuleNamesX : public Module
 		//                                                            pos
 
 		// Don't do anything if the user has only one prefix
-		std::string prefixes = chan->GetAllPrefixChars(user);
+		std::string prefixes = memb->chan->GetAllPrefixChars(memb->user);
 		if (prefixes.length() <= 1)
 			return;
 

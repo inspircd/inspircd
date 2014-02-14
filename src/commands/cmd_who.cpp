@@ -43,13 +43,13 @@ class CommandWho : public Command
 	ChanModeReference privatemode;
 	UserModeReference invisiblemode;
 
-	Channel* get_first_visible_channel(User *u)
+	Membership* get_first_visible_channel(User* u)
 	{
 		for (UCListIter i = u->chans.begin(); i != u->chans.end(); ++i)
 		{
-			Channel* c = (*i)->chan;
-			if (!c->IsModeSet(secretmode))
-				return c;
+			Membership* memb = *i;
+			if (!memb->chan->IsModeSet(secretmode))
+				return memb;
 		}
 		return NULL;
 	}
@@ -66,7 +66,7 @@ class CommandWho : public Command
 		syntax = "<server>|<nickname>|<channel>|<realname>|<host>|0 [ohurmMiaplf]";
 	}
 
-	void SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults);
+	void SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string& initial, Membership* memb, User* u, std::vector<std::string>& whoresults);
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
@@ -193,12 +193,12 @@ bool CommandWho::CanView(Channel* chan, User* user)
 	return false;
 }
 
-void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string &initial, Channel* ch, User* u, std::vector<std::string> &whoresults)
+void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, const std::string& initial, Membership* memb, User* u, std::vector<std::string>& whoresults)
 {
-	if (!ch)
-		ch = get_first_visible_channel(u);
+	if (!memb)
+		memb = get_first_visible_channel(u);
 
-	std::string wholine = initial + (ch ? ch->name : "*") + " " + u->ident + " " +
+	std::string wholine = initial + (memb ? memb->chan->name : "*") + " " + u->ident + " " +
 		(opt_showrealhost ? u->host : u->dhost) + " ";
 	if (!ServerInstance->Config->HideWhoisServer.empty() && !user->HasPrivPermission("servers/auspex"))
 		wholine.append(ServerInstance->Config->HideWhoisServer);
@@ -223,12 +223,12 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 		wholine.push_back('*');
 	}
 
-	if (ch)
-		wholine.append(ch->GetPrefixChar(u));
+	if (memb)
+		wholine.append(memb->chan->GetPrefixChar(u));
 
 	wholine.append(" :0 " + u->fullname);
 
-	FOREACH_MOD(OnSendWhoLine, (user, parms, u, ch, wholine));
+	FOREACH_MOD(OnSendWhoLine, (user, parms, u, memb, wholine));
 
 	if (!wholine.empty())
 		whoresults.push_back(wholine);
@@ -341,7 +341,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 						continue;
 				}
 
-				SendWhoLine(user, parameters, initial, ch, i->first, whoresults);
+				SendWhoLine(user, parameters, initial, i->second, i->first, whoresults);
 			}
 		}
 	}

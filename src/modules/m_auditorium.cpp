@@ -152,11 +152,10 @@ class ModuleAuditorium : public Module
 		}
 	}
 
-	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Channel* channel, std::string& line) CXX11_OVERRIDE
+	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
 	{
-		if (!channel)
+		if (!memb)
 			return;
-		Membership* memb = channel->GetUser(user);
 		if (IsVisible(memb))
 			return;
 		if (CanSee(source, memb))
