@@ -52,6 +52,13 @@ class CoreExport Membership : public Extensible, public intrusive_list_node<Memb
 	 * prefixes, using GetPrefixValue().
 	 */
 	char GetPrefixChar() const;
+
+	/** Return all prefix chars this member has.
+	 * @return A list of all prefix characters. The prefixes will always
+	 * be in rank order, greatest first, as certain IRC clients require
+	 * this when multiple prefixes are used names lists.
+	 */
+	const char* GetAllPrefixChars() const;
 };
 
 template <typename T>

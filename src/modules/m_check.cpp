@@ -232,7 +232,7 @@ class CommandCheck : public Command
 			 	 */
 				user->SendText("%s member %-3lu %s%s (%s@%s) %s ",
 					checkstr.c_str(), ServerInstance->Users->GlobalCloneCount(i->first),
-					targchan->GetAllPrefixChars(i->first), i->first->nick.c_str(),
+					i->second->GetAllPrefixChars(), i->first->nick.c_str(),
 					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
 			}
 

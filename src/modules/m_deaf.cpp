@@ -94,7 +94,7 @@ class ModuleDeaf : public Module
 			if (is_bypasschar && !is_a_uline)
 				continue; /* deliver message */
 
-			if (status && !strchr(chan->GetAllPrefixChars(i->first), status))
+			if (status && !strchr(i->second->GetAllPrefixChars(), status))
 				continue;
 
 			/* don't deliver message! */

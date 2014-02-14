@@ -304,14 +304,6 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 */
 	void UserList(User *user);
 
-	/** Return all of a users mode prefixes into a char* string.
-	 * @param user The user to look up
-	 * @return A list of all prefix characters. The prefixes will always
-	 * be in rank order, greatest first, as certain IRC clients require
-	 * this when multiple prefixes are used names lists.
-	 */
-	const char* GetAllPrefixChars(User* user);
-
 	/** Get the value of a users prefix on this channel.
 	 * @param user The user to look up
 	 * @return The module or core-defined value of the users prefix.

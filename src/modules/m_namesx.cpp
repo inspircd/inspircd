@@ -68,7 +68,7 @@ class ModuleNamesX : public Module
 		if (nick.empty())
 			return;
 
-		prefixes = memb->chan->GetAllPrefixChars(memb->user);
+		prefixes = memb->GetAllPrefixChars();
 	}
 
 	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE
@@ -91,7 +91,7 @@ class ModuleNamesX : public Module
 		//                                                            pos
 
 		// Don't do anything if the user has only one prefix
-		std::string prefixes = memb->chan->GetAllPrefixChars(memb->user);
+		std::string prefixes = memb->GetAllPrefixChars();
 		if (prefixes.length() <= 1)
 			return;
 

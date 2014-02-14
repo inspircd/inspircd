@@ -168,7 +168,7 @@ class ModuleHttpStats : public Module
 					{
 						Membership* memb = x->second;
 						data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"
-							<< Sanitize(c->GetAllPrefixChars(x->first)) << "</privs><modes>"
+							<< Sanitize(memb->GetAllPrefixChars()) << "</privs><modes>"
 							<< memb->modes << "</modes>";
 						DumpMeta(data, memb);
 						data << "</channelmember>";

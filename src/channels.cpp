@@ -756,20 +756,16 @@ unsigned int Membership::getRank()
 	return rv;
 }
 
-const char* Channel::GetAllPrefixChars(User* user)
+const char* Membership::GetAllPrefixChars() const
 {
 	static char prefix[64];
 	int ctr = 0;
 
-	UserMembIter m = userlist.find(user);
-	if (m != userlist.end())
+	for (std::string::const_iterator i = modes.begin(); i != modes.end(); ++i)
 	{
-		for(unsigned int i=0; i < m->second->modes.length(); i++)
-		{
-			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(m->second->modes[i]);
-			if (mh && mh->GetPrefix())
-				prefix[ctr++] = mh->GetPrefix();
-		}
+		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(*i);
+		if (mh && mh->GetPrefix())
+			prefix[ctr++] = mh->GetPrefix();
 	}
 	prefix[ctr] = 0;
 
