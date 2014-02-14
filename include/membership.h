@@ -43,6 +43,15 @@ class CoreExport Membership : public Extensible, public intrusive_list_node<Memb
 	 * @return True if a change was made
 	 */
 	bool SetPrefix(PrefixMode* mh, bool adding);
+
+	/** Get the highest prefix this user has on the channel
+	 * @return A character containing the highest prefix.
+	 * If the user has no prefix, 0 is returned. If the user has multiple prefixes,
+	 * the highest is returned. If you do not recognise the prefix character you
+	 * can get, you can deal with it in a 'proportional' manner compared to known
+	 * prefixes, using GetPrefixValue().
+	 */
+	char GetPrefixChar() const;
 };
 
 template <typename T>

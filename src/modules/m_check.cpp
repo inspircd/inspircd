@@ -192,8 +192,10 @@ class CommandCheck : public Command
 
 			for (UCListIter i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
-				Channel* c = (*i)->chan;
-				chliststr.append(c->GetPrefixChar(targuser)).append(c->name).append(" ");
+				Membership* memb = *i;
+				Channel* c = memb->chan;
+				chliststr.push_back(memb->GetPrefixChar());
+				chliststr.append(c->name).push_back(' ');
 			}
 
 			std::stringstream dump(chliststr);

@@ -224,7 +224,7 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	}
 
 	if (memb)
-		wholine.append(memb->chan->GetPrefixChar(u));
+		wholine.push_back(memb->GetPrefixChar());
 
 	wholine.append(" :0 " + u->fullname);
 

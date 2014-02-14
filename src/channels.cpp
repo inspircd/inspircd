@@ -686,10 +686,13 @@ void Channel::UserList(User *user)
 			continue;
 		}
 
-		prefixlist = this->GetPrefixChar(i->first);
+		Membership* memb = i->second;
+
+		prefixlist.clear();
+		prefixlist.push_back(memb->GetPrefixChar());
 		nick = i->first->nick;
 
-		FOREACH_MOD(OnNamesListItem, (user, i->second, prefixlist, nick));
+		FOREACH_MOD(OnNamesListItem, (user, memb, prefixlist, nick));
 
 		/* Nick was nuked, a module wants us to skip it */
 		if (nick.empty())
@@ -723,23 +726,18 @@ void Channel::UserList(User *user)
  * % for halfop etc. If the user has several modes set, the highest mode
  * the user has must be returned.
  */
-const char* Channel::GetPrefixChar(User *user)
+char Membership::GetPrefixChar() const
 {
-	static char pf[2] = {0, 0};
-	*pf = 0;
+	char pf = 0;
 	unsigned int bestrank = 0;
 
-	UserMembIter m = userlist.find(user);
-	if (m != userlist.end())
+	for (std::string::const_iterator i = modes.begin(); i != modes.end(); ++i)
 	{
-		for(unsigned int i=0; i < m->second->modes.length(); i++)
+		PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(*i);
+		if (mh && mh->GetPrefixRank() > bestrank && mh->GetPrefix())
 		{
-			PrefixMode* mh = ServerInstance->Modes->FindPrefixMode(m->second->modes[i]);
-			if (mh && mh->GetPrefixRank() > bestrank && mh->GetPrefix())
-			{
-				bestrank = mh->GetPrefixRank();
-				pf[0] = mh->GetPrefix();
-			}
+			bestrank = mh->GetPrefixRank();
+			pf = mh->GetPrefix();
 		}
 	}
 	return pf;

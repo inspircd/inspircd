@@ -304,19 +304,6 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 */
 	void UserList(User *user);
 
-	/** Get a users prefix on this channel in a string.
-	 * @param user The user to look up
-	 * @return A character array containing the prefix string.
-	 * Unlike GetStatus and GetStatusFlags which will only return the
-	 * core specified modes @, % and + (op, halfop and voice), GetPrefixChar
-	 * will also return module-defined prefixes. If the user has to prefix,
-	 * an empty but non-null string is returned. If the user has multiple
-	 * prefixes, the highest is returned. If you do not recognise the prefix
-	 * character you can get, you can deal with it in a 'proprtional' manner
-	 * compared to known prefixes, using GetPrefixValue().
-	 */
-	const char* GetPrefixChar(User *user);
-
 	/** Return all of a users mode prefixes into a char* string.
 	 * @param user The user to look up
 	 * @return A list of all prefix characters. The prefixes will always

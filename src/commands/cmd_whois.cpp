@@ -65,12 +65,16 @@ std::string CommandWhois::ChannelList(User* source, User* dest, bool spy)
 
 	for (UCListIter i = dest->chans.begin(); i != dest->chans.end(); i++)
 	{
-		Channel* c = (*i)->chan;
+		Membership* memb = *i;
+		Channel* c = memb->chan;
 		/* If the target is the sender, neither +p nor +s is set, or
 		 * the channel contains the user, it is not a spy channel
 		 */
 		if (spy != (source == dest || !(c->IsModeSet(privatemode) || c->IsModeSet(secretmode)) || c->HasUser(source)))
-			list.append(c->GetPrefixChar(dest)).append(c->name).append(" ");
+		{
+			list.push_back(memb->GetPrefixChar());
+			list.append(c->name).push_back(' ');
+		}
 	}
 
 	return list;
