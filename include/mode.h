@@ -86,6 +86,7 @@ enum ParamSpec
 
 class PrefixMode;
 class ListModeBase;
+class ParamModeBase;
 
 /** Each mode is implemented by ONE ModeHandler class.
  * You must derive ModeHandler and add the child class to
@@ -108,6 +109,7 @@ class CoreExport ModeHandler : public ServiceProvider
 	{
 		MC_PREFIX,
 		MC_LIST,
+		MC_PARAM,
 		MC_OTHER
 	};
 
@@ -190,6 +192,12 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * @return non-NULL if this mode handler inherits from ListModeBase, NULL otherwise
 	 */
 	ListModeBase* IsListModeBase();
+
+	/**
+	 * Check whether this mode handler inherits from ListModeBase
+	 * @return non-NULL if this mode handler inherits from ParamModeBase, NULL otherwise
+	 */
+	ParamModeBase* IsParameterMode();
 
 	/**
 	 * Returns the mode's type
@@ -715,4 +723,9 @@ inline PrefixMode* ModeHandler::IsPrefixMode()
 inline ListModeBase* ModeHandler::IsListModeBase()
 {
 	return (this->type_id == MC_LIST ? reinterpret_cast<ListModeBase*>(this) : NULL);
+}
+
+inline ParamModeBase* ModeHandler::IsParameterMode()
+{
+	return (this->type_id == MC_PARAM ? reinterpret_cast<ParamModeBase*>(this) : NULL);
 }
