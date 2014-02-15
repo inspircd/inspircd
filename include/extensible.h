@@ -184,6 +184,7 @@ class CoreExport LocalIntExt : public LocalExtItem
 	std::string serialize(SerializeFormat format, const Extensible* container, void* item) const;
 	intptr_t get(const Extensible* container) const;
 	intptr_t set(Extensible* container, intptr_t value);
+	void unset(Extensible* container) { set(container, 0); }
 	void free(void* item);
 };
 

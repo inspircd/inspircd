@@ -47,21 +47,24 @@ class ModeChannelInviteOnly : public SimpleChannelModeHandler
 
 /** Channel mode +k
  */
-class ModeChannelKey : public ModeHandler
+class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
 {
  public:
 	ModeChannelKey();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	void SerializeParam(Channel* chan, const std::string* key, std::string& out);
+	ModeAction OnSet(User* source, Channel* chan, std::string& param);
 };
 
 /** Channel mode +l
  */
-class ModeChannelLimit : public ParamChannelModeHandler
+class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
 {
  public:
 	ModeChannelLimit();
-	bool ParamValidate(std::string& parameter);
 	bool ResolveModeConflict(std::string &their_param, const std::string &our_param, Channel* channel);
+	void SerializeParam(Channel* chan, intptr_t n, std::string& out);
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter);
 };
 
 /** Channel mode +m

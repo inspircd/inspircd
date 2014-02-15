@@ -51,29 +51,6 @@ void Channel::SetMode(ModeHandler* mh, bool on)
 	modes[mh->GetModeChar() - 65] = on;
 }
 
-void Channel::SetModeParam(ModeHandler* mh, const std::string& parameter)
-{
-	char mode = mh->GetModeChar();
-	if (parameter.empty())
-	{
-		custom_mode_params.erase(mode);
-		modes[mode-65] = false;
-	}
-	else
-	{
-		custom_mode_params[mode] = parameter;
-		modes[mode-65] = true;
-	}
-}
-
-std::string Channel::GetModeParameter(ModeHandler* mode)
-{
-	CustomModeList::iterator n = custom_mode_params.find(mode->GetModeChar());
-	if (n != custom_mode_params.end())
-		return n->second;
-	return "";
-}
-
 void Channel::SetTopic(User* u, const std::string& ntopic)
 {
 	this->topic.assign(ntopic, 0, ServerInstance->Config->Limits.MaxTopic);
@@ -628,18 +605,18 @@ const char* Channel::ChanModes(bool showkey)
 			if (!mh)
 				continue;
 
+			ParamModeBase* pm = mh->IsParameterMode();
+			if (!pm)
+				continue;
+
 			if (n == 'k' - 65 && !showkey)
 			{
 				sparam += " <key>";
 			}
 			else
 			{
-				const std::string param = this->GetModeParameter(mh);
-				if (!param.empty())
-				{
-					sparam += ' ';
-					sparam += param;
-				}
+				sparam += ' ';
+				pm->GetParameter(this, sparam);
 			}
 		}
 	}

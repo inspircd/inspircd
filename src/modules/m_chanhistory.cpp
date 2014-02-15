@@ -30,10 +30,13 @@ struct HistoryList
 {
 	std::deque<HistoryItem> lines;
 	unsigned int maxlen, maxtime;
-	HistoryList(unsigned int len, unsigned int time) : maxlen(len), maxtime(time) {}
+	std::string param;
+
+	HistoryList(unsigned int len, unsigned int time, const std::string& oparam)
+		: maxlen(len), maxtime(time), param(oparam) { }
 };
 
-class HistoryMode : public ModeHandler
+class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 {
 	bool IsValidDuration(const std::string& duration)
 	{
@@ -50,56 +53,52 @@ class HistoryMode : public ModeHandler
 	}
 
  public:
-	SimpleExtItem<HistoryList> ext;
 	unsigned int maxlines;
-	HistoryMode(Module* Creator) : ModeHandler(Creator, "history", 'H', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("history", Creator) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	HistoryMode(Module* Creator)
+		: ParamMode<HistoryMode, SimpleExtItem<HistoryList> >(Creator, "history", 'H')
 	{
-		if (adding)
+	}
+
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
+		std::string::size_type colon = parameter.find(':');
+		if (colon == std::string::npos)
+			return MODEACTION_DENY;
+
+		std::string duration = parameter.substr(colon+1);
+		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
+			return MODEACTION_DENY;
+
+		unsigned int len = ConvToInt(parameter.substr(0, colon));
+		int time = InspIRCd::Duration(duration);
+		if (len == 0 || time < 0)
+			return MODEACTION_DENY;
+		if (len > maxlines && IS_LOCAL(source))
+			return MODEACTION_DENY;
+		if (len > maxlines)
+			len = maxlines;
+
+		HistoryList* history = ext.get(channel);
+		if (history)
 		{
-			std::string::size_type colon = parameter.find(':');
-			if (colon == std::string::npos)
-				return MODEACTION_DENY;
+			// Shrink the list if the new line number limit is lower than the old one
+			if (len < history->lines.size())
+				history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - len));
 
-			std::string duration = parameter.substr(colon+1);
-			if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
-				return MODEACTION_DENY;
-
-			unsigned int len = ConvToInt(parameter.substr(0, colon));
-			int time = InspIRCd::Duration(duration);
-			if (len == 0 || time < 0)
-				return MODEACTION_DENY;
-			if (len > maxlines && IS_LOCAL(source))
-				return MODEACTION_DENY;
-			if (len > maxlines)
-				len = maxlines;
-			if (parameter == channel->GetModeParameter(this))
-				return MODEACTION_DENY;
-
-			HistoryList* history = ext.get(channel);
-			if (history)
-			{
-				// Shrink the list if the new line number limit is lower than the old one
-				if (len < history->lines.size())
-					history->lines.erase(history->lines.begin(), history->lines.begin() + (history->lines.size() - len));
-
-				history->maxlen = len;
-				history->maxtime = time;
-			}
-			else
-			{
-				ext.set(channel, new HistoryList(len, time));
-			}
+			history->maxlen = len;
+			history->maxtime = time;
+			history->param = parameter;
 		}
 		else
 		{
-			if (!channel->IsModeSet(this))
-				return MODEACTION_DENY;
-			ext.unset(channel);
+			ext.set(channel, new HistoryList(len, time, parameter));
 		}
 		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const HistoryList* history, std::string& out)
+	{
+		out.append(history->param);
 	}
 };
 

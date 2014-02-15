@@ -409,16 +409,6 @@ class CoreExport SimpleChannelModeHandler : public ModeHandler
 	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
 
-class CoreExport ParamChannelModeHandler : public ModeHandler
-{
- public:
-	ParamChannelModeHandler(Module* Creator, const std::string& Name, char modeletter)
-		: ModeHandler(Creator, Name, modeletter, PARAM_SETONLY, MODETYPE_CHANNEL) {}
-	virtual ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
-	/** Validate the parameter - you may change the value to normalize it. Return true if it is valid. */
-	virtual bool ParamValidate(std::string& parameter);
-};
-
 /**
  * The ModeWatcher class can be used to alter the behaviour of a mode implemented
  * by the core or by another module. To use ModeWatcher, derive a class from it,

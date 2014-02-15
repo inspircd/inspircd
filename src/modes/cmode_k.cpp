@@ -26,32 +26,51 @@
 #include "users.h"
 #include "builtinmodes.h"
 
-ModeChannelKey::ModeChannelKey() : ModeHandler(NULL, "key", 'k', PARAM_ALWAYS, MODETYPE_CHANNEL)
+ModeChannelKey::ModeChannelKey()
+	: ParamMode<ModeChannelKey, LocalStringExt>(NULL, "key", 'k', PARAM_ALWAYS)
 {
 }
 
 ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, std::string &parameter, bool adding)
 {
-	bool exists = channel->IsModeSet(this);
+	const std::string* key = ext.get(channel);
+	bool exists = (key != NULL);
 	if (IS_LOCAL(source))
 	{
 		if (exists == adding)
 			return MODEACTION_DENY;
-		if (exists && (parameter != channel->GetModeParameter(this)))
+		if (exists && (parameter != *key))
 		{
 			/* Key is currently set and the correct key wasnt given */
 			return MODEACTION_DENY;
 		}
 	} else {
-		if (exists && adding && parameter == channel->GetModeParameter(this))
+		if (exists && adding && parameter == *key)
 		{
 			/* no-op, don't show */
 			return MODEACTION_DENY;
 		}
 	}
 
+	channel->SetMode(this, adding);
 	if (adding)
+	{
 		parameter = parameter.substr(0, 32);
+		ext.set(channel, parameter);
+	}
+	else
+		ext.unset(channel);
 
 	return MODEACTION_ALLOW;
+}
+
+void ModeChannelKey::SerializeParam(Channel* chan, const std::string* key, std::string& out)
+{
+	out += *key;
+}
+
+ModeAction ModeChannelKey::OnSet(User* source, Channel* chan, std::string& param)
+{
+	// Dummy function, never called
+	return MODEACTION_DENY;
 }

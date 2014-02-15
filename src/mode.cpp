@@ -127,21 +127,6 @@ ModeAction SimpleChannelModeHandler::OnModeChange(User* source, User* dest, Chan
 	return MODEACTION_ALLOW;
 }
 
-ModeAction ParamChannelModeHandler::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
-{
-	if (adding && !ParamValidate(parameter))
-		return MODEACTION_DENY;
-	std::string now = channel->GetModeParameter(this);
-	if (parameter == now)
-		return MODEACTION_DENY;
-	return MODEACTION_ALLOW;
-}
-
-bool ParamChannelModeHandler::ParamValidate(std::string& parameter)
-{
-	return true;
-}
-
 ModeWatcher::ModeWatcher(Module* Creator, const std::string& modename, ModeType type)
 	: mode(modename), m_type(type), creator(Creator)
 {
@@ -225,6 +210,32 @@ ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::str
 
 	parameter = target->nick;
 	return (memb->SetPrefix(this, adding) ? MODEACTION_ALLOW : MODEACTION_DENY);
+}
+
+ModeAction ParamModeBase::OnModeChange(User* source, User*, Channel* chan, std::string& parameter, bool adding)
+{
+	if (adding)
+	{
+		if (chan->GetModeParameter(this) == parameter)
+			return MODEACTION_DENY;
+
+		if (OnSet(source, chan, parameter) != MODEACTION_ALLOW)
+			return MODEACTION_DENY;
+
+		chan->SetMode(this, true);
+
+		// Handler might have changed the parameter internally
+		parameter.clear();
+		this->GetParameter(chan, parameter);
+	}
+	else
+	{
+		if (!chan->IsModeSet(this))
+			return MODEACTION_DENY;
+		this->OnUnsetInternal(source, chan);
+		chan->SetMode(this, false);
+	}
+	return MODEACTION_ALLOW;
 }
 
 ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool adding, const unsigned char modechar,
@@ -335,9 +346,6 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	if (ma != MODEACTION_ALLOW)
 		return ma;
-
-	if ((!mh->IsListMode()) && (mh->GetNumParams(true)) && (chan))
-		chan->SetModeParam(mh, (adding ? parameter : ""));
 
 	itpair = modewatchermap.equal_range(mh->name);
 	for (ModeWatchIter i = itpair.first; i != itpair.second; ++i)

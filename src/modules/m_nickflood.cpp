@@ -78,51 +78,41 @@ class nickfloodsettings
 
 /** Handles channel mode +F
  */
-class NickFlood : public ModeHandler
+class NickFlood : public ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >
 {
  public:
-	SimpleExtItem<nickfloodsettings> ext;
-	NickFlood(Module* Creator) : ModeHandler(Creator, "nickflood", 'F', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("nickflood", Creator) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	NickFlood(Module* Creator)
+		: ParamMode<NickFlood, SimpleExtItem<nickfloodsettings> >(Creator, "nickflood", 'F')
 	{
-		if (adding)
+	}
+
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
+		std::string::size_type colon = parameter.find(':');
+		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			std::string::size_type colon = parameter.find(':');
-			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
-			{
-				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			/* Set up the flood parameters for this channel */
-			unsigned int nnicks = ConvToInt(parameter.substr(0, colon));
-			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
-
-			if ((nnicks<1) || (nsecs<1))
-			{
-				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			nickfloodsettings* f = ext.get(channel);
-			if ((f) && (nnicks == f->nicks) && (nsecs == f->secs))
-				// mode params match
-				return MODEACTION_DENY;
-
-			ext.set(channel, new nickfloodsettings(nsecs, nnicks));
-			parameter = ConvToStr(nnicks) + ":" + ConvToStr(nsecs);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
+			return MODEACTION_DENY;
 		}
-		else
+
+		/* Set up the flood parameters for this channel */
+		unsigned int nnicks = ConvToInt(parameter.substr(0, colon));
+		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+
+		if ((nnicks<1) || (nsecs<1))
 		{
-			if (!channel->IsModeSet(this))
-				return MODEACTION_DENY;
-
-			ext.unset(channel);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
+			return MODEACTION_DENY;
 		}
+
+		ext.set(channel, new nickfloodsettings(nsecs, nnicks));
+		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const nickfloodsettings* nfs, std::string& out)
+	{
+		out.append(ConvToStr(nfs->nicks)).push_back(':');
+		out.append(ConvToStr(nfs->secs));
 	}
 };
 

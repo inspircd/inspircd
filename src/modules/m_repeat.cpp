@@ -19,7 +19,45 @@
 
 #include "inspircd.h"
 
-class RepeatMode : public ModeHandler
+class ChannelSettings
+{
+ public:
+ 	enum RepeatAction
+	{
+		ACT_KICK,
+		ACT_BLOCK,
+		ACT_BAN
+	};
+
+	RepeatAction Action;
+	unsigned int Backlog;
+	unsigned int Lines;
+	unsigned int Diff;
+	unsigned int Seconds;
+
+	void serialize(std::string& out) const
+	{
+		if (Action == ACT_BAN)
+			out.push_back('*');
+		else if (Action == ACT_BLOCK)
+			out.push_back('~');
+
+		out.append(ConvToStr(Lines)).push_back(':');
+		out.append(ConvToStr(Seconds));
+		if (Diff)
+		{
+			out.push_back(':');
+			out.append(ConvToStr(Diff));
+			if (Backlog)
+			{
+				out.push_back(':');
+				out.append(ConvToStr(Backlog));
+			}
+		}
+	}
+};
+
+class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 {
  private:
 	struct RepeatItem
@@ -80,64 +118,24 @@ class RepeatMode : public ModeHandler
 	}
 
  public:
-	enum RepeatAction
-	{
-		ACT_KICK,
-		ACT_BLOCK,
-		ACT_BAN
-	};
-
-	class ChannelSettings
-	{
-	 public:
-		RepeatAction Action;
-		unsigned int Backlog;
-		unsigned int Lines;
-		unsigned int Diff;
-		unsigned int Seconds;
-
-		std::string serialize()
-		{
-			std::string ret = ((Action == ACT_BAN) ? "*" : (Action == ACT_BLOCK ? "~" : "")) + ConvToStr(Lines) + ":" + ConvToStr(Seconds);
-			if (Diff)
-			{
-				ret += ":" + ConvToStr(Diff);
-				if (Backlog)
-					ret += ":" + ConvToStr(Backlog);
-			}
-			return ret;
-		}
-	};
-
 	SimpleExtItem<MemberInfo> MemberInfoExt;
-	SimpleExtItem<ChannelSettings> ChanSet;
 
 	RepeatMode(Module* Creator)
-		: ModeHandler(Creator, "repeat", 'E', PARAM_SETONLY, MODETYPE_CHANNEL)
+		: ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >(Creator, "repeat", 'E')
 		, MemberInfoExt("repeat_memb", Creator)
-		, ChanSet("repeat", Creator)
 	{
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string& parameter, bool adding)
+	void OnUnset(User* source, Channel* chan)
 	{
-		if (!adding)
-		{
-			if (!channel->IsModeSet(this))
-				return MODEACTION_DENY;
+		// Unset the per-membership extension when the mode is removed
+		const UserMembList* users = chan->GetUsers();
+		for (UserMembCIter i = users->begin(); i != users->end(); ++i)
+			MemberInfoExt.unset(i->second);
+	}
 
-			// Unset the per-membership extension when the mode is removed
-			const UserMembList* users = channel->GetUsers();
-			for (UserMembCIter i = users->begin(); i != users->end(); ++i)
-				MemberInfoExt.unset(i->second);
-
-			ChanSet.unset(channel);
-			return MODEACTION_ALLOW;
-		}
-
-		if (channel->GetModeParameter(this) == parameter)
-			return MODEACTION_DENY;
-
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
 		ChannelSettings settings;
 		if (!ParseSettings(source, parameter, settings))
 		{
@@ -155,7 +153,7 @@ class RepeatMode : public ModeHandler
 		if ((localsource) && (!ValidateSettings(localsource, settings)))
 			return MODEACTION_DENY;
 
-		ChanSet.set(channel, settings);
+		ext.set(channel, settings);
 
 		return MODEACTION_ALLOW;
 	}
@@ -197,7 +195,7 @@ class RepeatMode : public ModeHandler
 			{
 				if (++matches >= rs->Lines)
 				{
-					if (rs->Action != ACT_BLOCK)
+					if (rs->Action != ChannelSettings::ACT_BLOCK)
 						rp->Counter = 0;
 					return true;
 				}
@@ -251,6 +249,11 @@ class RepeatMode : public ModeHandler
 		return ConvToStr(ms.MaxLines) + ":" + ConvToStr(ms.MaxSecs) + ":" + ConvToStr(ms.MaxDiff) + ":" + ConvToStr(ms.MaxBacklog);
 	}
 
+	void SerializeParam(Channel* chan, const ChannelSettings* chset, std::string& out)
+	{
+		chset->serialize(out);
+	}
+
  private:
 	bool ParseSettings(User* source, std::string& parameter, ChannelSettings& settings)
 	{
@@ -262,11 +265,11 @@ class RepeatMode : public ModeHandler
 
 		if ((item[0] == '*') || (item[0] == '~'))
 		{
-			settings.Action = ((item[0] == '*') ? ACT_BAN : ACT_BLOCK);
+			settings.Action = ((item[0] == '*') ? ChannelSettings::ACT_BAN : ChannelSettings::ACT_BLOCK);
 			item.erase(item.begin());
 		}
 		else
-			settings.Action = ACT_KICK;
+			settings.Action = ChannelSettings::ACT_KICK;
 
 		if ((settings.Lines = ConvToInt(item)) == 0)
 			return false;
@@ -295,7 +298,6 @@ class RepeatMode : public ModeHandler
 			}
 		}
 
-		parameter = settings.serialize();
 		return true;
 	}
 
@@ -352,26 +354,27 @@ class RepeatModule : public Module
 		if (target_type != TYPE_CHANNEL || !IS_LOCAL(user))
 			return MOD_RES_PASSTHRU;
 
-		Membership* memb = ((Channel*)dest)->GetUser(user);
-		if (!memb || !memb->chan->IsModeSet(&rm))
-			return MOD_RES_PASSTHRU;
-
-		if (ServerInstance->OnCheckExemption(user, memb->chan, "repeat") == MOD_RES_ALLOW)
-			return MOD_RES_PASSTHRU;
-
-		RepeatMode::ChannelSettings* settings = rm.ChanSet.get(memb->chan);
+		Channel* chan = reinterpret_cast<Channel*>(dest);
+		ChannelSettings* settings = rm.ext.get(chan);
 		if (!settings)
+			return MOD_RES_PASSTHRU;
+
+		Membership* memb = chan->GetUser(user);
+		if (!memb)
+			return MOD_RES_PASSTHRU;
+
+		if (ServerInstance->OnCheckExemption(user, chan, "repeat") == MOD_RES_ALLOW)
 			return MOD_RES_PASSTHRU;
 
 		if (rm.MatchLine(memb, settings, text))
 		{
-			if (settings->Action == RepeatMode::ACT_BLOCK)
+			if (settings->Action == ChannelSettings::ACT_BLOCK)
 			{
 				user->WriteNotice("*** This line is too similiar to one of your last lines.");
 				return MOD_RES_DENY;
 			}
 
-			if (settings->Action == RepeatMode::ACT_BAN)
+			if (settings->Action == ChannelSettings::ACT_BAN)
 			{
 				std::vector<std::string> parameters;
 				parameters.push_back(memb->chan->name);

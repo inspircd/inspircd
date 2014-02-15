@@ -77,10 +77,6 @@ typedef UserChanList::iterator UCListIter;
  */
 typedef std::vector<Membership*> IncludeChanList;
 
-/** A list of custom modes parameters on a channel
- */
-typedef std::map<char,std::string> CustomModeList;
-
 /** A cached text file stored with its contents as lines
  */
 typedef std::vector<std::string> file_cache;

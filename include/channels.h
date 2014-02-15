@@ -24,6 +24,7 @@
 
 #include "membership.h"
 #include "mode.h"
+#include "parammode.h"
 
 /** Holds an entry for a ban list, exemption list, or invite list.
  * This class contains a single element in a channel list, such as a banlist.
@@ -46,11 +47,6 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 * field to check.
 	 */
 	std::bitset<64> modes;
-
-	/** Parameters for custom modes.
-	 * One for each custom mode letter.
-	 */
-	CustomModeList custom_mode_params;
 
 	/** Remove the given membership from the channel's internal map of
 	 * memberships and destroy the Membership object.
@@ -113,13 +109,6 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 */
 	void SetMode(ModeHandler* mode, bool value);
 
-	/** Sets or unsets a custom mode in the channels info
-	 * @param mode The mode character to set or unset
-	 * @param parameter The parameter string to associate with this mode character.
-	 * If it is empty, the mode is unset; if it is nonempty, the mode is set.
-	 */
-	void SetModeParam(ModeHandler* mode, const std::string& parameter);
-
 	/** Returns true if a mode is set on a channel
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
@@ -140,6 +129,7 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	  */
 	std::string GetModeParameter(ModeHandler* mode);
 	std::string GetModeParameter(ChanModeReference& mode);
+	std::string GetModeParameter(ParamModeBase* pm);
 
 	/** Sets the channel topic.
 	 * @param user The user setting the topic.
@@ -342,6 +332,23 @@ inline std::string Channel::GetModeParameter(ChanModeReference& mode)
 	if (!mode)
 		return "";
 	return GetModeParameter(*mode);
+}
+
+inline std::string Channel::GetModeParameter(ModeHandler* mh)
+{
+	std::string out;
+	ParamModeBase* pm = mh->IsParameterMode();
+	if (pm && this->IsModeSet(pm))
+		pm->GetParameter(this, out);
+	return out;
+}
+
+inline std::string Channel::GetModeParameter(ParamModeBase* pm)
+{
+	std::string out;
+	if (this->IsModeSet(pm))
+		pm->GetParameter(this, out);
+	return out;
 }
 
 inline bool Channel::IsModeSet(ChanModeReference& mode)

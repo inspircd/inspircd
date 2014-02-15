@@ -64,52 +64,44 @@ class floodsettings
 
 /** Handles channel mode +f
  */
-class MsgFlood : public ModeHandler
+class MsgFlood : public ParamMode<MsgFlood, SimpleExtItem<floodsettings> >
 {
  public:
-	SimpleExtItem<floodsettings> ext;
-	MsgFlood(Module* Creator) : ModeHandler(Creator, "flood", 'f', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("messageflood", Creator) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	MsgFlood(Module* Creator)
+		: ParamMode<MsgFlood, SimpleExtItem<floodsettings> >(Creator, "flood", 'f')
 	{
-		if (adding)
+	}
+
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
+		std::string::size_type colon = parameter.find(':');
+		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			std::string::size_type colon = parameter.find(':');
-			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
-			{
-				source->WriteNumeric(608, "%s :Invalid flood parameter", channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			/* Set up the flood parameters for this channel */
-			bool ban = (parameter[0] == '*');
-			unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
-			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
-
-			if ((nlines<2) || (nsecs<1))
-			{
-				source->WriteNumeric(608, "%s :Invalid flood parameter", channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			floodsettings* f = ext.get(channel);
-			if ((f) && (nlines == f->lines) && (nsecs == f->secs) && (ban == f->ban))
-				// mode params match
-				return MODEACTION_DENY;
-
-			ext.set(channel, new floodsettings(ban, nsecs, nlines));
-			parameter = std::string(ban ? "*" : "") + ConvToStr(nlines) + ":" + ConvToStr(nsecs);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, "%s :Invalid flood parameter", channel->name.c_str());
+			return MODEACTION_DENY;
 		}
-		else
+
+		/* Set up the flood parameters for this channel */
+		bool ban = (parameter[0] == '*');
+		unsigned int nlines = ConvToInt(parameter.substr(ban ? 1 : 0, ban ? colon-1 : colon));
+		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+
+		if ((nlines<2) || (nsecs<1))
 		{
-			if (!channel->IsModeSet(this))
-				return MODEACTION_DENY;
-
-			ext.unset(channel);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, "%s :Invalid flood parameter", channel->name.c_str());
+			return MODEACTION_DENY;
 		}
+
+		ext.set(channel, new floodsettings(ban, nsecs, nlines));
+		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const floodsettings* fs, std::string& out)
+	{
+		if (fs->ban)
+			out.push_back('*');
+		out.append(ConvToStr(fs->lines)).push_back(':');
+		out.append(ConvToStr(fs->secs));
 	}
 };
 

@@ -82,52 +82,40 @@ class joinfloodsettings
 
 /** Handles channel mode +j
  */
-class JoinFlood : public ModeHandler
+class JoinFlood : public ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >
 {
  public:
-	SimpleExtItem<joinfloodsettings> ext;
-	JoinFlood(Module* Creator) : ModeHandler(Creator, "joinflood", 'j', PARAM_SETONLY, MODETYPE_CHANNEL),
-		ext("joinflood", Creator) { }
-
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	JoinFlood(Module* Creator)
+		: ParamMode<JoinFlood, SimpleExtItem<joinfloodsettings> >(Creator, "joinflood", 'j')
 	{
-		if (adding)
+	}
+
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
+	{
+		std::string::size_type colon = parameter.find(':');
+		if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
 		{
-			std::string::size_type colon = parameter.find(':');
-			if ((colon == std::string::npos) || (parameter.find('-') != std::string::npos))
-			{
-				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			/* Set up the flood parameters for this channel */
-			unsigned int njoins = ConvToInt(parameter.substr(0, colon));
-			unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
-			if ((njoins<1) || (nsecs<1))
-			{
-				source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
-				return MODEACTION_DENY;
-			}
-
-			joinfloodsettings jfs(nsecs, njoins);
-			joinfloodsettings* f = ext.get(channel);
-			if ((f) && (*f == jfs))
-				// mode params match
-				return MODEACTION_DENY;
-
-			ext.set(channel, jfs);
-			parameter = ConvToStr(njoins) + ":" + ConvToStr(nsecs);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
+			return MODEACTION_DENY;
 		}
-		else
+
+		/* Set up the flood parameters for this channel */
+		unsigned int njoins = ConvToInt(parameter.substr(0, colon));
+		unsigned int nsecs = ConvToInt(parameter.substr(colon+1));
+		if ((njoins<1) || (nsecs<1))
 		{
-			if (!channel->IsModeSet(this))
-				return MODEACTION_DENY;
-
-			ext.unset(channel);
-			return MODEACTION_ALLOW;
+			source->WriteNumeric(608, "%s :Invalid flood parameter",channel->name.c_str());
+			return MODEACTION_DENY;
 		}
-		return MODEACTION_DENY;
+
+		ext.set(channel, new joinfloodsettings(nsecs, njoins));
+		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const joinfloodsettings* jfs, std::string& out)
+	{
+		out.append(ConvToStr(jfs->joins)).push_back(':');
+		out.append(ConvToStr(jfs->secs));
 	}
 };
 

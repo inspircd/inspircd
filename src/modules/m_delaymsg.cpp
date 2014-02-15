@@ -19,11 +19,12 @@
 
 #include "inspircd.h"
 
-class DelayMsgMode : public ModeHandler
+class DelayMsgMode : public ParamMode<DelayMsgMode, LocalIntExt>
 {
  public:
 	LocalIntExt jointime;
-	DelayMsgMode(Module* Parent) : ModeHandler(Parent, "delaymsg", 'd', PARAM_SETONLY, MODETYPE_CHANNEL)
+	DelayMsgMode(Module* Parent)
+		: ParamMode<DelayMsgMode, LocalIntExt>(Parent, "delaymsg", 'd')
 		, jointime("delaymsg", Parent)
 	{
 		levelrequired = OP_VALUE;
@@ -34,7 +35,13 @@ class DelayMsgMode : public ModeHandler
 		return (atoi(their_param.c_str()) < atoi(our_param.c_str()));
 	}
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
+	ModeAction OnSet(User* source, Channel* chan, std::string& parameter);
+	void OnUnset(User* source, Channel* chan);
+
+	void SerializeParam(Channel* chan, int n, std::string& out)
+	{
+		out += ConvToStr(n);
+	}
 };
 
 class ModuleDelayMsg : public Module
@@ -50,35 +57,25 @@ class ModuleDelayMsg : public Module
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
 };
 
-ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+ModeAction DelayMsgMode::OnSet(User* source, Channel* chan, std::string& parameter)
 {
-	if (adding)
-	{
-		if ((channel->IsModeSet(this)) && (channel->GetModeParameter(this) == parameter))
-			return MODEACTION_DENY;
+	// Setting a new limit, sanity check
+	unsigned int limit = ConvToInt(parameter);
+	if (limit == 0)
+		limit = 1;
 
-		/* Setting a new limit, sanity check */
-		long limit = atoi(parameter.c_str());
-
-		/* Wrap low values at 32768 */
-		if (limit < 0)
-			limit = 0x7FFF;
-
-		parameter = ConvToStr(limit);
-	}
-	else
-	{
-		if (!channel->IsModeSet(this))
-			return MODEACTION_DENY;
-
-		/*
-		 * Clean up metadata
-		 */
-		const UserMembList* names = channel->GetUsers();
-		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
-			jointime.set(n->second, 0);
-	}
+	ext.set(chan, limit);
 	return MODEACTION_ALLOW;
+}
+
+void DelayMsgMode::OnUnset(User* source, Channel* chan)
+{
+	/*
+	 * Clean up metadata
+	 */
+	const UserMembList* names = chan->GetUsers();
+	for (UserMembCIter n = names->begin(); n != names->end(); ++n)
+		jointime.set(n->second, 0);
 }
 
 Version ModuleDelayMsg::GetVersion()
@@ -114,14 +111,14 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 	if (ts == 0)
 		return MOD_RES_PASSTHRU;
 
-	std::string len = channel->GetModeParameter(&djm);
+	int len = djm.ext.get(channel);
 
-	if (ts + atoi(len.c_str()) > ServerInstance->Time())
+	if ((ts + len) > ServerInstance->Time())
 	{
 		if (channel->GetPrefixValue(user) < VOICE_VALUE)
 		{
-			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :You must wait %s seconds after joining to send to channel (+d)",
-				channel->name.c_str(), len.c_str());
+			user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :You must wait %d seconds after joining to send to channel (+d)",
+				channel->name.c_str(), len);
 			return MOD_RES_DENY;
 		}
 	}

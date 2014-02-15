@@ -26,57 +26,49 @@
 
 /** Handle channel mode +L
  */
-class Redirect : public ModeHandler
+class Redirect : public ParamMode<Redirect, LocalStringExt>
 {
  public:
-	Redirect(Module* Creator) : ModeHandler(Creator, "redirect", 'L', PARAM_SETONLY, MODETYPE_CHANNEL) { }
+	Redirect(Module* Creator)
+		: ParamMode<Redirect, LocalStringExt>(Creator, "redirect", 'L') { }
 
-	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
+	ModeAction OnSet(User* source, Channel* channel, std::string& parameter)
 	{
-		if (adding)
+		if (IS_LOCAL(source))
 		{
-			if (IS_LOCAL(source))
+			if (!ServerInstance->IsChannel(parameter))
 			{
-				if (!ServerInstance->IsChannel(parameter))
-				{
-					source->WriteNumeric(ERR_NOSUCHCHANNEL, "%s :Invalid channel name", parameter.c_str());
-					return MODEACTION_DENY;
-				}
-			}
-
-			if (IS_LOCAL(source) && !source->IsOper())
-			{
-				Channel* c = ServerInstance->FindChan(parameter);
-				if (!c)
-				{
-					source->WriteNumeric(690, ":Target channel %s must exist to be set as a redirect.",parameter.c_str());
-					return MODEACTION_DENY;
-				}
-				else if (c->GetPrefixValue(source) < OP_VALUE)
-				{
-					source->WriteNumeric(690, ":You must be opped on %s to set it as a redirect.",parameter.c_str());
-					return MODEACTION_DENY;
-				}
-			}
-
-			if (channel->GetModeParameter(this) == parameter)
+				source->WriteNumeric(ERR_NOSUCHCHANNEL, "%s :Invalid channel name", parameter.c_str());
 				return MODEACTION_DENY;
-			/*
-			 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
-			 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
-			 */
-			return MODEACTION_ALLOW;
-		}
-		else
-		{
-			if (channel->IsModeSet(this))
-			{
-				return MODEACTION_ALLOW;
 			}
 		}
 
-		return MODEACTION_DENY;
+		if (IS_LOCAL(source) && !source->IsOper())
+		{
+			Channel* c = ServerInstance->FindChan(parameter);
+			if (!c)
+			{
+				source->WriteNumeric(690, ":Target channel %s must exist to be set as a redirect.",parameter.c_str());
+				return MODEACTION_DENY;
+			}
+			else if (c->GetPrefixValue(source) < OP_VALUE)
+			{
+				source->WriteNumeric(690, ":You must be opped on %s to set it as a redirect.",parameter.c_str());
+				return MODEACTION_DENY;
+			}
+		}
 
+		/*
+		 * We used to do some checking for circular +L here, but there is no real need for this any more especially as we
+		 * now catch +L looping in PreJoin. Remove it, since O(n) logic makes me sad, and we catch it anyway. :) -- w00t
+		 */
+		ext.set(channel, parameter);
+		return MODEACTION_ALLOW;
+	}
+
+	void SerializeParam(Channel* chan, const std::string* str, std::string& out)
+	{
+		out += *str;
 	}
 };
 
@@ -121,7 +113,7 @@ class ModuleRedirect : public Module
 			{
 				if (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter(limitmode)))
 				{
-					std::string channel = chan->GetModeParameter(&re);
+					const std::string& channel = *re.ext.get(chan);
 
 					/* sometimes broken ulines can make circular or chained +L, avoid this */
 					Channel* destchan = ServerInstance->FindChan(channel);
