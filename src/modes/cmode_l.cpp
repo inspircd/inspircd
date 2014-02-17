@@ -39,7 +39,7 @@ bool ModeChannelLimit::ParamValidate(std::string &parameter)
 {
 	int limit = atoi(parameter.c_str());
 
-	if (limit < 0)
+	if (limit < 1)
 		return false;
 
 	parameter = ConvToStr(limit);
