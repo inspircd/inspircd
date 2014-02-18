@@ -682,7 +682,7 @@ class CoreExport ModeParser
 	 *  3; Modes that only take a param when adding
 	 *  4; Modes that dont take a param
 	 */
-	std::string GiveModeList(ModeMasks m);
+	std::string GiveModeList(ModeType mt);
 
 	/** This returns the PREFIX=(ohv)@%+ section of the 005 numeric, or
 	 * just the "@%+" part if the parameter false

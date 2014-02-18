@@ -764,7 +764,7 @@ PrefixMode* ModeParser::FindPrefix(unsigned const char pfxletter)
 	return NULL;
 }
 
-std::string ModeParser::GiveModeList(ModeMasks m)
+std::string ModeParser::GiveModeList(ModeType mt)
 {
 	std::string type1;	/* Listmodes EXCEPT those with a prefix */
 	std::string type2;	/* Modes that take a param when adding or removing */
@@ -773,7 +773,7 @@ std::string ModeParser::GiveModeList(ModeMasks m)
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		unsigned char pos = (mode-65) | m;
+		unsigned char pos = (mode-65) | ((mt == MODETYPE_CHANNEL) ? MASK_CHANNEL : MASK_USER);
 		 /* One parameter when adding */
 		if (modehandlers[pos])
 		{

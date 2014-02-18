@@ -169,7 +169,7 @@ void ISupportManager::Build()
 
 	tokens["AWAYLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxAway);
 	tokens["CASEMAPPING"] = "rfc1459";
-	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MASK_CHANNEL);
+	tokens["CHANMODES"] = ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL);
 	tokens["CHANNELLEN"] = ConvToStr(ServerInstance->Config->Limits.ChanMax);
 	tokens["CHANTYPES"] = "#";
 	tokens["ELIST"] = "MU";
