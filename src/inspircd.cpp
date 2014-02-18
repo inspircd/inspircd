@@ -476,7 +476,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	/* Set the finished argument values */
 	Config->cmdline.nofork = (do_nofork != 0);
 	Config->cmdline.forcedebug = (do_debug != 0);
-	Config->cmdline.writelog = (!do_nolog != 0);
+	Config->cmdline.writelog = !do_nolog;
 	Config->cmdline.TestSuite = (do_testsuite != 0);
 
 	if (do_debug)
