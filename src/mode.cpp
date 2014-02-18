@@ -610,9 +610,6 @@ void ModeParser::CleanMask(std::string &mask)
 
 bool ModeParser::AddMode(ModeHandler* mh)
 {
-	unsigned char mask = 0;
-	unsigned char pos = 0;
-
 	/* Yes, i know, this might let people declare modes like '_' or '^'.
 	 * If they do that, thats their problem, and if i ever EVER see an
 	 * official InspIRCd developer do that, i'll beat them with a paddle!
@@ -634,14 +631,12 @@ bool ModeParser::AddMode(ModeHandler* mh)
 			return false;
 	}
 
-	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
-	pos = (mh->GetModeChar()-65) | mask;
-
-	if (modehandlers[pos])
+	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
+	if (slot)
 		return false;
 
 	// Everything is fine, add the mode
-	modehandlers[pos] = mh;
+	slot = mh;
 	if (pm)
 		mhlist.prefix.push_back(pm);
 	else if (mh->IsListModeBase())
@@ -653,16 +648,11 @@ bool ModeParser::AddMode(ModeHandler* mh)
 
 bool ModeParser::DelMode(ModeHandler* mh)
 {
-	unsigned char mask = 0;
-	unsigned char pos = 0;
-
 	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
 		return false;
 
-	mh->GetModeType() == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
-	pos = (mh->GetModeChar()-65) | mask;
-
-	if (modehandlers[pos] != mh)
+	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
+	if (slot != mh)
 		return false;
 
 	/* Note: We can't stack here, as we have modes potentially being removed across many different channels.
@@ -699,7 +689,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 		break;
 	}
 
-	modehandlers[pos] = NULL;
+	slot = NULL;
 	if (mh->IsPrefixMode())
 		mhlist.prefix.erase(std::find(mhlist.prefix.begin(), mhlist.prefix.end(), mh->IsPrefixMode()));
 	else if (mh->IsListModeBase())
@@ -711,16 +701,10 @@ bool ModeParser::DelMode(ModeHandler* mh)
 
 ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
 {
-	unsigned char mask = 0;
-	unsigned char pos = 0;
-
 	if ((modeletter < 'A') || (modeletter > 'z'))
 		return NULL;
 
-	mt == MODETYPE_USER ? mask = MASK_USER : mask = MASK_CHANNEL;
-	pos = (modeletter-65) | mask;
-
-	return modehandlers[pos];
+	return modehandlers[mt][modeletter-65];
 }
 
 PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
@@ -734,13 +718,11 @@ PrefixMode* ModeParser::FindPrefixMode(unsigned char modeletter)
 std::string ModeParser::CreateModeList(ModeType mt, bool needparam)
 {
 	std::string modestr;
-	unsigned char mask = ((mt == MODETYPE_CHANNEL) ? MASK_CHANNEL : MASK_USER);
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		unsigned char pos = (mode-65) | mask;
-
-		if ((modehandlers[pos]) && ((!needparam) || (modehandlers[pos]->GetNumParams(true))))
+		ModeHandler* mh = modehandlers[mt][mode-65];
+		if ((mh) && ((!needparam) || (mh->GetNumParams(true))))
 			modestr.push_back(mode);
 	}
 
@@ -773,38 +755,38 @@ std::string ModeParser::GiveModeList(ModeType mt)
 
 	for (unsigned char mode = 'A'; mode <= 'z'; mode++)
 	{
-		unsigned char pos = (mode-65) | ((mt == MODETYPE_CHANNEL) ? MASK_CHANNEL : MASK_USER);
+		ModeHandler* mh = modehandlers[mt][mode-65];
 		 /* One parameter when adding */
-		if (modehandlers[pos])
+		if (mh)
 		{
-			if (modehandlers[pos]->GetNumParams(true))
+			if (mh->GetNumParams(true))
 			{
-				PrefixMode* pm = modehandlers[pos]->IsPrefixMode();
-				if ((modehandlers[pos]->IsListMode()) && ((!pm) || (pm->GetPrefix() == 0)))
+				PrefixMode* pm = mh->IsPrefixMode();
+				if ((mh->IsListMode()) && ((!pm) || (pm->GetPrefix() == 0)))
 				{
-					type1 += modehandlers[pos]->GetModeChar();
+					type1 += mh->GetModeChar();
 				}
 				else
 				{
 					/* ... and one parameter when removing */
-					if (modehandlers[pos]->GetNumParams(false))
+					if (mh->GetNumParams(false))
 					{
 						/* But not a list mode */
 						if (!pm)
 						{
-							type2 += modehandlers[pos]->GetModeChar();
+							type2 += mh->GetModeChar();
 						}
 					}
 					else
 					{
 						/* No parameters when removing */
-						type3 += modehandlers[pos]->GetModeChar();
+						type3 += mh->GetModeChar();
 					}
 				}
 			}
 			else
 			{
-				type4 += modehandlers[pos]->GetModeChar();
+				type4 += mh->GetModeChar();
 			}
 		}
 	}

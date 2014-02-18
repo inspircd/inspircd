@@ -46,17 +46,6 @@ enum ModeAction
 };
 
 /**
- * Used to mask off the mode types in the mode handler
- * array. Used in a simple two instruction hashing function
- * "(modeletter - 65) OR mask"
- */
-enum ModeMasks
-{
-	MASK_USER = 128,	/* A user mode */
-	MASK_CHANNEL = 0	/* A channel mode */
-};
-
-/**
  * These fixed values can be used to proportionally compare module-defined prefixes to known values.
  * For example, if your module queries a Channel, and is told that user 'joebloggs' has the prefix
  * '$', and you dont know what $ means, then you can compare it to these three values to determine
@@ -486,12 +475,16 @@ typedef std::multimap<std::string, ModeWatcher*>::iterator ModeWatchIter;
 class CoreExport ModeParser
 {
  private:
+	/** Last item in the ModeType enum
+	 */
+	static const unsigned int MODETYPE_LAST = 2;
+
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
 	 * The upper bit of the value indicates if its a usermode
 	 * or a channel mode, so we have 256 of them not 64.
 	 */
-	ModeHandler* modehandlers[256];
+	ModeHandler* modehandlers[MODETYPE_LAST][128];
 
 	/** Lists of mode handlers by type
 	 */
