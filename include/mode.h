@@ -479,12 +479,20 @@ class CoreExport ModeParser
 	 */
 	static const unsigned int MODETYPE_LAST = 2;
 
+	/** Type of the container that maps mode names to ModeHandlers
+	 */
+	typedef TR1NS::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
+
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
 	 * The upper bit of the value indicates if its a usermode
 	 * or a channel mode, so we have 256 of them not 64.
 	 */
 	ModeHandler* modehandlers[MODETYPE_LAST][128];
+
+	/** A map of mode handlers keyed by their name
+	 */
+	ModeHandlerMap modehandlersbyname[MODETYPE_LAST];
 
 	/** Lists of mode handlers by type
 	 */

@@ -635,6 +635,9 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if (slot)
 		return false;
 
+	if (!modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh)).second)
+		return false;
+
 	// Everything is fine, add the mode
 	slot = mh;
 	if (pm)
@@ -649,6 +652,11 @@ bool ModeParser::AddMode(ModeHandler* mh)
 bool ModeParser::DelMode(ModeHandler* mh)
 {
 	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
+		return false;
+
+	ModeHandlerMap& mhmap = modehandlersbyname[mh->GetModeType()];
+	ModeHandlerMap::iterator mhmapit = mhmap.find(mh->name);
+	if ((mhmapit == mhmap.end()) || (mhmapit->second != mh))
 		return false;
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
@@ -689,6 +697,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 		break;
 	}
 
+	mhmap.erase(mhmapit);
 	slot = NULL;
 	if (mh->IsPrefixMode())
 		mhlist.prefix.erase(std::find(mhlist.prefix.begin(), mhlist.prefix.end(), mh->IsPrefixMode()));
