@@ -37,14 +37,8 @@ class AutoOpList : public ListModeBase
 		if (mid.length() == 1)
 			return ServerInstance->Modes->FindPrefixMode(mid[0]);
 
-		const ModeParser::PrefixModeList& pmlist = ServerInstance->Modes->GetPrefixModes();
-		for (ModeParser::PrefixModeList::const_iterator i = pmlist.begin(); i != pmlist.end(); ++i)
-		{
-			PrefixMode* mh = *i;
-			if (mh->name == mid)
-				return mh;
-		}
-		return NULL;
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mid, MODETYPE_CHANNEL);
+		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)

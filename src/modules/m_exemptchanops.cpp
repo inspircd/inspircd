@@ -29,10 +29,9 @@ class ExemptChanOps : public ListModeBase
 
 	bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
-		// TODO actually make sure there's a prop for this
-		if ((word.length() > 35) || (word.empty()))
+		if (!ServerInstance->Modes->FindMode(word, MODETYPE_CHANNEL))
 		{
-			user->WriteNumeric(955, "%s %s :word is too %s for exemptchanops list", chan->name.c_str(), word.c_str(), (word.empty() ? "short" : "long"));
+			user->WriteNumeric(955, "%s %s :Mode doesn't exist", chan->name.c_str(), word.c_str());
 			return false;
 		}
 
@@ -66,14 +65,8 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 		if (mid.length() == 1)
 			return ServerInstance->Modes->FindPrefixMode(mid[0]);
 
-		const ModeParser::PrefixModeList& pmlist = ServerInstance->Modes->GetPrefixModes();
-		for (ModeParser::PrefixModeList::const_iterator i = pmlist.begin(); i != pmlist.end(); ++i)
-		{
-			PrefixMode* mh = *i;
-			if (mh->name == mid)
-				return mh;
-		}
-		return NULL;
+		ModeHandler* mh = ServerInstance->Modes->FindMode(mid, MODETYPE_CHANNEL);
+		return mh ? mh->IsPrefixMode() : NULL;
 	}
 
 	ModResult Call(User* user, Channel* chan, const std::string& restriction)

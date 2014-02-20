@@ -708,6 +708,16 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	return true;
 }
 
+ModeHandler* ModeParser::FindMode(const std::string& modename, ModeType mt)
+{
+	ModeHandlerMap& mhmap = modehandlersbyname[mt];
+	ModeHandlerMap::const_iterator it = mhmap.find(modename);
+	if (it != mhmap.end())
+		return it->second;
+
+	return NULL;
+}
+
 ModeHandler* ModeParser::FindMode(unsigned const char modeletter, ModeType mt)
 {
 	if ((modeletter < 'A') || (modeletter > 'z'))

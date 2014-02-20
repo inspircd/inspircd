@@ -66,17 +66,15 @@ class CommandProp : public Command
 			if (prop[0] == '+' || prop[0] == '-')
 				prop.erase(prop.begin());
 
-			for(char letter = 'A'; letter <= 'z'; letter++)
+			ModeHandler* mh = ServerInstance->Modes->FindMode(prop, MODETYPE_CHANNEL);
+			if (mh)
 			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-				if (mh && mh->name == prop)
+				modes[1].push_back(plus ? '+' : '-');
+				modes[1].push_back(mh->GetModeChar());
+				if (mh->GetNumParams(plus))
 				{
-					modes[1].append((plus ? "+" : "-") + std::string(1, letter));
-					if (mh->GetNumParams(plus))
-					{
-						if (i != parameters.size())
-							modes.push_back(parameters[i++]);
-					}
+					if (i != parameters.size())
+						modes.push_back(parameters[i++]);
 				}
 			}
 		}
@@ -143,7 +141,6 @@ class ModuleNamedModes : public Module
 			ModeHandler *mh = ServerInstance->Modes->FindMode(modechar, MODETYPE_CHANNEL);
 			if (modechar == 'Z')
 			{
-				modechar = 0;
 				std::string name, value;
 				if (param_at < parameters.size())
 					name = parameters[param_at++];
@@ -153,31 +150,28 @@ class ModuleNamedModes : public Module
 					value = name.substr(eq + 1);
 					name = name.substr(0, eq);
 				}
-				for(char letter = 'A'; modechar == 0 && letter <= 'z'; letter++)
+
+				mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);
+				if (!mh)
 				{
-					mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-					if (mh && mh->name == name)
-					{
-						if (mh->GetNumParams(adding))
-						{
-							if (!value.empty())
-							{
-								newparms.push_back(value);
-								modechar = letter;
-								break;
-							}
-						}
-						else
-						{
-							modechar = letter;
-							break;
-						}
-					}
-				}
-				if (modechar)
-					modelist[i] = modechar;
-				else
+					// Mode handler not found
 					modelist.erase(i--, 1);
+					continue;
+				}
+
+				if (mh->GetNumParams(adding))
+				{
+					if (value.empty())
+					{
+						// Mode needs a parameter but there wasn't one
+						modelist.erase(i--, 1);
+						continue;
+					}
+
+					newparms.push_back(value);
+				}
+
+				modelist[i] = mh->GetModeChar();
 			}
 			else if (mh && mh->GetNumParams(adding) && param_at < parameters.size())
 			{

@@ -649,6 +649,13 @@ class CoreExport ModeParser
 	 */
 	void Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags = MODE_NONE);
 
+	/** Find the mode handler for a given mode name and type.
+	 * @param modename The mode name to search for.
+	 * @param mt Type of mode to search for, user or channel.
+	 * @return A pointer to a ModeHandler class, or NULL of there isn't a handler for the given mode name.
+	 */
+	ModeHandler* FindMode(const std::string& modename, ModeType mt);
+
 	/** Find the mode handler for a given mode and type.
 	 * @param modeletter mode letter to search for
 	 * @param mt type of mode to search for, user or channel
