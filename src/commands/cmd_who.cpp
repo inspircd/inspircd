@@ -368,7 +368,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 				{
 					if (!user->SharesChannelWith(oper))
 					{
-						if (usingwildcards && (!oper->IsModeSet('i')) && (!user->HasPrivPermission("users/auspex")))
+						if (usingwildcards && (oper->IsModeSet('i')) && (!user->HasPrivPermission("users/auspex")))
 							continue;
 					}
 
