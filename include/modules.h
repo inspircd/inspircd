@@ -853,15 +853,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 * Return 1 from this function to block the mode character from being processed entirely.
 	 * @param user The user who is sending the mode
 	 * @param chan The channel the mode is being sent to (or NULL if a usermode)
-	 * @param mode The mode character being set
+	 * @param mh The mode handler for the mode being changed
 	 * @param param The parameter for the mode or an empty string
 	 * @param adding true of the mode is being added, false if it is being removed
-	 * @param pcnt The parameter count for the mode (0 or 1)
 	 * @return ACR_DENY to deny the mode, ACR_DEFAULT to do standard mode checking, and ACR_ALLOW
 	 * to skip all permission checking. Please note that for remote mode changes, your return value
 	 * will be ignored!
 	 */
-	virtual ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt);
+	virtual ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding);
 
 	/** Called whenever a user joins a channel, to determine if key checks should go ahead or not.
 	 * This method will always be called for each join, wether or not the channel is actually +k, and

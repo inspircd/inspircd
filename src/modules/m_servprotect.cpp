@@ -64,7 +64,7 @@ class ModuleServProtectMode : public Module
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE
+	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE
 	{
 		/* Check that the mode is not a server mode, it is being removed, the user making the change is local, there is a parameter,
 		 * and the user making the change is not a uline
@@ -81,7 +81,7 @@ class ModuleServProtectMode : public Module
 				 * This includes any prefix permission mode, even those registered in other modules, e.g. +qaohv. Using ::ModeString()
 				 * here means that the number of modes is restricted to only modes the user has, limiting it to as short a loop as possible.
 				 */
-				if (u->IsModeSet(bm) && memb && memb->modes.find(mode) != std::string::npos)
+				if (u->IsModeSet(bm) && memb && memb->hasMode(mh->GetModeChar()))
 				{
 					/* BZZZT, Denied! */
 					user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You are not permitted to remove privileges from %s services", chan->name.c_str(), ServerInstance->Config->Network.c_str());

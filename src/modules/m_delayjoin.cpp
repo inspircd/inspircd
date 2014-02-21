@@ -52,7 +52,7 @@ class ModuleDelayJoin : public Module
 	void OnUserKick(User* source, Membership*, const std::string &reason, CUList&) CXX11_OVERRIDE;
 	void OnBuildNeighborList(User* source, IncludeChanList& include, std::map<User*, bool>& exception) CXX11_OVERRIDE;
 	void OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list) CXX11_OVERRIDE;
-	ModResult OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE;
+	ModResult OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE;
 };
 
 ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
@@ -162,7 +162,7 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 }
 
 /* make the user visible if he receives any mode change */
-ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, const char mode, const std::string &param, bool adding, int pcnt)
+ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding)
 {
 	if (!user || !channel || param.empty())
 		return MOD_RES_PASSTHRU;

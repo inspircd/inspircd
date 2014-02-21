@@ -251,7 +251,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 		parameter = parameter.substr(0, 250);
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, modechar, parameter, adding, pcnt));
+	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mh, parameter, adding));
 
 	if (IS_LOCAL(user) && (MOD_RESULT == MOD_RES_DENY))
 		return MODEACTION_DENY;
@@ -535,7 +535,7 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_s
 			return;
 
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mletter, "", true, 0));
+		FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mh, "", true));
 		if (MOD_RESULT == MOD_RES_DENY)
 			continue;
 

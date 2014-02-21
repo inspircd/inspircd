@@ -275,9 +275,9 @@ public:
 		}
 	}
 
-	ModResult OnRawMode(User* user, Channel* chan, const char mode, const std::string &param, bool adding, int pcnt) CXX11_OVERRIDE
+	ModResult OnRawMode(User* user, Channel* chan, ModeHandler* mh, const std::string& param, bool adding) CXX11_OVERRIDE
 	{
-		if (chan && (chan->IsModeSet(p) || mode == p.GetModeChar()))
+		if (chan && (chan->IsModeSet(p) || mh == &p))
 			dirty = true;
 
 		return MOD_RES_PASSTHRU;

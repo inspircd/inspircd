@@ -34,7 +34,7 @@ class ModuleMLock : public Module
 		return Version("Implements the ability to have server-side MLOCK enforcement.", VF_VENDOR);
 	}
 
-	ModResult OnRawMode(User* source, Channel* channel, const char mode, const std::string& parameter, bool adding, int pcnt)
+	ModResult OnRawMode(User* source, Channel* channel, ModeHandler* mh, const std::string& parameter, bool adding)
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
@@ -46,6 +46,7 @@ class ModuleMLock : public Module
 		if (!mlock_str)
 			return MOD_RES_PASSTHRU;
 
+		const char mode = mh->GetModeChar();
 		std::string::size_type p = mlock_str->find(mode);
 		if (p != std::string::npos)
 		{
