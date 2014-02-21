@@ -27,7 +27,7 @@
 #include "builtinmodes.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
-	: ServiceProvider(Creator, Name, SERVICE_MODE), m_paramtype(TR_TEXT),
+	: ServiceProvider(Creator, Name, SERVICE_MODE), modeid(ModeParser::MODEID_MAX), m_paramtype(TR_TEXT),
 	parameters_taken(Params), mode(modeletter), oper(false),
 	list(false), m_type(type), type_id(mclass), levelrequired(HALFOP_VALUE)
 {
@@ -608,6 +608,17 @@ void ModeParser::CleanMask(std::string &mask)
 	}
 }
 
+ModeHandler::Id ModeParser::AllocateModeId(ModeType mt)
+{
+	for (ModeHandler::Id i = 0; i != MODEID_MAX; ++i)
+	{
+		if (!modehandlersbyid[mt][i])
+			return i;
+	}
+
+	throw ModuleException("Out of ModeIds");
+}
+
 bool ModeParser::AddMode(ModeHandler* mh)
 {
 	/* Yes, i know, this might let people declare modes like '_' or '^'.
@@ -635,10 +646,24 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if (slot)
 		return false;
 
+	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
+	// Otherwise (for listmodes and prefix modes) the id remains MODEID_MAX, which is invalid.
+	ModeHandler::Id modeid = MODEID_MAX;
+	if ((mh->GetModeType() == MODETYPE_USER) || (mh->IsParameterMode()) || (!mh->IsListMode()))
+		modeid = AllocateModeId(mh->GetModeType());
+
 	if (!modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh)).second)
 		return false;
 
 	// Everything is fine, add the mode
+
+	// If we allocated an id for this mode then save it and put the mode handler into the slot
+	if (modeid != MODEID_MAX)
+	{
+		mh->modeid = modeid;
+		modehandlersbyid[mh->GetModeType()][modeid] = mh;
+	}
+
 	slot = mh;
 	if (pm)
 		mhlist.prefix.push_back(pm);
@@ -698,6 +723,8 @@ bool ModeParser::DelMode(ModeHandler* mh)
 	}
 
 	mhmap.erase(mhmapit);
+	if (mh->GetId() != MODEID_MAX)
+		modehandlersbyid[mh->GetModeType()][mh->GetId()] = NULL;
 	slot = NULL;
 	if (mh->IsPrefixMode())
 		mhlist.prefix.erase(std::find(mhlist.prefix.begin(), mhlist.prefix.end(), mh->IsPrefixMode()));
@@ -932,6 +959,7 @@ ModeParser::ModeParser()
 {
 	/* Clear mode handler list */
 	memset(modehandlers, 0, sizeof(modehandlers));
+	memset(modehandlersbyid, 0, sizeof(modehandlersbyid));
 
 	seq = 0;
 	memset(&sent, 0, sizeof(sent));

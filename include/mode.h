@@ -94,6 +94,8 @@ class ParamModeBase;
 class CoreExport ModeHandler : public ServiceProvider
 {
  public:
+  	typedef size_t Id;
+
 	enum Class
 	{
 		MC_PREFIX,
@@ -101,6 +103,11 @@ class CoreExport ModeHandler : public ServiceProvider
 		MC_PARAM,
 		MC_OTHER
 	};
+
+ private:
+	/** The opaque id of this mode assigned by the mode parser
+	 */
+	Id modeid;
 
  protected:
 	/**
@@ -213,6 +220,11 @@ class CoreExport ModeHandler : public ServiceProvider
 	 */
 	inline char GetModeChar() { return mode; }
 
+	/** Return the id of this mode which is used in User::modes and
+	 * Channel::modes as the index to determine whether a mode is set.
+	 */
+	Id GetId() const { return modeid; }
+
 	/** For user modes, return the current parameter, if any
 	 */
 	virtual std::string GetUserParameter(User* useor);
@@ -295,6 +307,8 @@ class CoreExport ModeHandler : public ServiceProvider
 	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
 
 	inline unsigned int GetLevelRequired() const { return levelrequired; }
+
+	friend class ModeParser;
 };
 
 /**
@@ -474,6 +488,9 @@ typedef std::multimap<std::string, ModeWatcher*>::iterator ModeWatchIter;
  */
 class CoreExport ModeParser
 {
+ public:
+	static const ModeHandler::Id MODEID_MAX = 64;
+
  private:
 	/** Last item in the ModeType enum
 	 */
@@ -489,6 +506,10 @@ class CoreExport ModeParser
 	 * or a channel mode, so we have 256 of them not 64.
 	 */
 	ModeHandler* modehandlers[MODETYPE_LAST][128];
+
+	/** An array of mode handlers indexed by the mode id
+	 */
+	ModeHandler* modehandlersbyid[MODETYPE_LAST][MODEID_MAX];
 
 	/** A map of mode handlers keyed by their name
 	 */
@@ -538,6 +559,12 @@ class CoreExport ModeParser
 	 * Called when a mode handler is added or removed.
 	 */
 	void RecreateModeListFor004Numeric();
+
+	/** Allocates an unused id for the given mode type, throws a ModuleException if out of ids.
+	 * @param mt The type of the mode to allocate the id for
+	 * @return The id
+	 */
+	ModeHandler::Id AllocateModeId(ModeType mt);
 
 	/** The string representing the last set of modes to be parsed.
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
