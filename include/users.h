@@ -241,11 +241,11 @@ class CoreExport User : public Extensible
 
 	/** The user's mode list.
 	 * Much love to the STL for giving us an easy to use bitset, saving us RAM.
-	 * if (modes[modeletter-65]) is set, then the mode is
-	 * set, for example, to work out if mode +s is set, we check the field
-	 * User::modes['s'-65] != 0.
+	 * if (modes[modeid]) is set, then the mode is set.
+	 * For example, to work out if mode +i is set, we check the field
+	 * User::modes[invisiblemode->modeid] == true.
 	 */
-	std::bitset<64> modes;
+	std::bitset<ModeParser::MODEID_MAX> modes;
 
  public:
 
@@ -865,8 +865,7 @@ inline FakeUser* IS_SERVER(User* u)
 
 inline bool User::IsModeSet(ModeHandler* mh)
 {
-	char m = mh->GetModeChar();
-	return (modes[m-65]);
+	return (modes[mh->GetId()]);
 }
 
 inline bool User::IsModeSet(UserModeReference& moderef)
@@ -878,6 +877,5 @@ inline bool User::IsModeSet(UserModeReference& moderef)
 
 inline void User::SetMode(ModeHandler* mh, bool value)
 {
-	char m = mh->GetModeChar();
-	modes[m-65] = value;
+	modes[mh->GetId()] = value;
 }

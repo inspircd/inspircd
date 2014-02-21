@@ -40,9 +40,8 @@ bool User::IsNoticeMaskSet(unsigned char sm)
 
 bool User::IsModeSet(unsigned char m)
 {
-	if (!isalpha(m))
-		return false;
-	return (modes[m-65]);
+	ModeHandler* mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
+	return (mh && modes[mh->GetId()]);
 }
 
 const char* User::FormatModes(bool showparameters)
@@ -53,11 +52,11 @@ const char* User::FormatModes(bool showparameters)
 
 	for (unsigned char n = 0; n < 64; n++)
 	{
-		if (modes[n])
+		ModeHandler* mh = ServerInstance->Modes->FindMode(n + 65, MODETYPE_USER);
+		if (mh && IsModeSet(mh))
 		{
 			data.push_back(n + 65);
-			ModeHandler* mh = ServerInstance->Modes->FindMode(n + 65, MODETYPE_USER);
-			if (showparameters && mh && mh->GetNumParams(true))
+			if (showparameters && mh->GetNumParams(true))
 			{
 				std::string p = mh->GetUserParameter(this);
 				if (p.length())

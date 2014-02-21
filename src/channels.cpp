@@ -48,7 +48,7 @@ Channel::Channel(const std::string &cname, time_t ts)
 
 void Channel::SetMode(ModeHandler* mh, bool on)
 {
-	modes[mh->GetModeChar() - 65] = on;
+	modes[mh->GetId()] = on;
 }
 
 void Channel::SetTopic(User* u, const std::string& ntopic)
@@ -598,12 +598,10 @@ const char* Channel::ChanModes(bool showkey)
 	/* This was still iterating up to 190, Channel::modes is only 64 elements -- Om */
 	for(int n = 0; n < 64; n++)
 	{
-		if(this->modes[n])
+		ModeHandler* mh = ServerInstance->Modes->FindMode(n + 65, MODETYPE_CHANNEL);
+		if (mh && IsModeSet(mh))
 		{
 			scratch.push_back(n + 65);
-			ModeHandler* mh = ServerInstance->Modes->FindMode(n+'A', MODETYPE_CHANNEL);
-			if (!mh)
-				continue;
 
 			ParamModeBase* pm = mh->IsParameterMode();
 			if (!pm)

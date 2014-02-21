@@ -41,12 +41,10 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	void SetDefaultModes();
 
 	/** Modes for the channel.
-	 * This is not a null terminated string! It is a bitset where
-	 * each item in it represents if a mode is set. For example
-	 * for mode +A, index 0. Use modechar-65 to calculate which
-	 * field to check.
+	 * It is a bitset where each item in it represents if a mode is set.
+	 * To see if a mode is set, inspect modes[mh->modeid]
 	 */
-	std::bitset<64> modes;
+	std::bitset<ModeParser::MODEID_MAX> modes;
 
 	/** Remove the given membership from the channel's internal map of
 	 * memberships and destroy the Membership object.
@@ -113,7 +111,7 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	  * @param mode The mode character you wish to query
 	  * @return True if the custom mode is set, false if otherwise
 	  */
-	inline bool IsModeSet(ModeHandler* mode) { return modes[mode->GetModeChar()-'A']; }
+	bool IsModeSet(ModeHandler* mode) { return ((mode->GetId() != ModeParser::MODEID_MAX) && (modes[mode->GetId()])); }
 	bool IsModeSet(ModeHandler& mode) { return IsModeSet(&mode); }
 	bool IsModeSet(ChanModeReference& mode);
 
