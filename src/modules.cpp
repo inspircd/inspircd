@@ -408,16 +408,23 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		mod->OnCleanup(TYPE_USER, user);
 		user->doUnhookExtensions(items);
 	}
-	for(char m='A'; m <= 'z'; m++)
+
+	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes->GetModes(MODETYPE_USER);
+	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); ++i)
 	{
-		ModeHandler* mh;
-		mh = ServerInstance->Modes->FindMode(m, MODETYPE_USER);
-		if (mh && mh->creator == mod)
-			this->DelService(*mh);
-		mh = ServerInstance->Modes->FindMode(m, MODETYPE_CHANNEL);
-		if (mh && mh->creator == mod)
+		ModeHandler* mh = i->second;
+		if (mh->creator == mod)
 			this->DelService(*mh);
 	}
+
+	const ModeParser::ModeHandlerMap& chanmodes = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
+	for (ModeParser::ModeHandlerMap::const_iterator i = chanmodes.begin(); i != chanmodes.end(); ++i)
+	{
+		ModeHandler* mh = i->second;
+		if (mh->creator == mod)
+			this->DelService(*mh);
+	}
+
 	for(std::multimap<std::string, ServiceProvider*>::iterator i = DataProviders.begin(); i != DataProviders.end(); )
 	{
 		std::multimap<std::string, ServiceProvider*>::iterator curr = i++;

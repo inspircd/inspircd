@@ -22,11 +22,10 @@
 static void DisplayList(User* user, Channel* channel)
 {
 	std::stringstream items;
-	for(char letter = 'A'; letter <= 'z'; letter++)
+	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
+	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_CHANNEL);
-		if (!mh || mh->IsListMode())
-			continue;
+		ModeHandler* mh = i->second;
 		if (!channel->IsModeSet(mh))
 			continue;
 		items << " +" << mh->name;

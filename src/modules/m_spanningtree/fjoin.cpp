@@ -214,16 +214,16 @@ void CommandFJoin::RemoveStatus(Channel* c)
 {
 	irc::modestacker stack(false);
 
-	for (char modeletter = 'A'; modeletter <= 'z'; ++modeletter)
+	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
+	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(modeletter, MODETYPE_CHANNEL);
+		ModeHandler* mh = i->second;
 
 		/* Passing a pointer to a modestacker here causes the mode to be put onto the mode stack,
 		 * rather than applied immediately. Module unloads require this to be done immediately,
 		 * for this function we require tidyness instead. Fixes bug #493
 		 */
-		if (mh)
-			mh->RemoveMode(c, stack);
+		mh->RemoveMode(c, stack);
 	}
 
 	ApplyModeStack(ServerInstance->FakeClient, c, stack);

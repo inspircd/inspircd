@@ -491,14 +491,14 @@ class CoreExport ModeParser
  public:
 	static const ModeHandler::Id MODEID_MAX = 64;
 
+	/** Type of the container that maps mode names to ModeHandlers
+	 */
+	typedef TR1NS::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
+
  private:
 	/** Last item in the ModeType enum
 	 */
 	static const unsigned int MODETYPE_LAST = 2;
-
-	/** Type of the container that maps mode names to ModeHandlers
-	 */
-	typedef TR1NS::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
 
 	/** Mode handlers for each mode, to access a handler subtract
 	 * 65 from the ascii value of the mode letter.
@@ -733,6 +733,12 @@ class CoreExport ModeParser
 	 * @return A list containing all prefix modes
 	 */
 	const PrefixModeList& GetPrefixModes() const { return mhlist.prefix; }
+
+	/** Get a mode name -> ModeHandler* map containing all modes of the given type
+	 * @param mt Type of modes to return, MODETYPE_USER or MODETYPE_CHANNEL
+	 * @return A map of mode handlers of the given type
+	 */
+	const ModeHandlerMap& GetModes(ModeType mt) const { return modehandlersbyname[mt]; }
 };
 
 inline const std::string& ModeParser::GetModeListFor004Numeric()
