@@ -594,8 +594,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_MODE:
 		{
 			ModeHandler* mh = static_cast<ModeHandler*>(&item);
-			if (!ServerInstance->Modes->AddMode(mh))
-				throw ModuleException("Mode "+std::string(item.name)+" already exists.");
+			ServerInstance->Modes->AddMode(mh);
 			DataProviders.insert(std::make_pair((mh->GetModeType() == MODETYPE_CHANNEL ? "mode/" : "umode/") + item.name, &item));
 			dynamic_reference_base::reset_all();
 			return;

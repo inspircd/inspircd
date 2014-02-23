@@ -619,14 +619,14 @@ ModeHandler::Id ModeParser::AllocateModeId(ModeType mt)
 	throw ModuleException("Out of ModeIds");
 }
 
-bool ModeParser::AddMode(ModeHandler* mh)
+void ModeParser::AddMode(ModeHandler* mh)
 {
 	/* Yes, i know, this might let people declare modes like '_' or '^'.
 	 * If they do that, thats their problem, and if i ever EVER see an
 	 * official InspIRCd developer do that, i'll beat them with a paddle!
 	 */
 	if ((mh->GetModeChar() < 'A') || (mh->GetModeChar() > 'z'))
-		return false;
+		throw ModuleException("Invalid letter for mode " + mh->name);
 
 	/* A mode prefix of ',' is not acceptable, it would fuck up server to server.
 	 * A mode prefix of ':' will fuck up both server to server, and client to server.
@@ -636,15 +636,15 @@ bool ModeParser::AddMode(ModeHandler* mh)
 	if (pm)
 	{
 		if ((pm->GetPrefix() > 126) || (pm->GetPrefix() == ',') || (pm->GetPrefix() == ':') || (pm->GetPrefix() == '#'))
-			return false;
+			throw ModuleException("Invalid prefix for mode " + mh->name);
 
 		if (FindPrefix(pm->GetPrefix()))
-			return false;
+			throw ModuleException("Prefix already exists for mode " + mh->name);
 	}
 
 	ModeHandler*& slot = modehandlers[mh->GetModeType()][mh->GetModeChar()-65];
 	if (slot)
-		return false;
+		throw ModuleException("Letter is already in use for mode " + mh->name);
 
 	// The mode needs an id if it is either a user mode, a simple mode (flag) or a parameter mode.
 	// Otherwise (for listmodes and prefix modes) the id remains MODEID_MAX, which is invalid.
@@ -653,7 +653,7 @@ bool ModeParser::AddMode(ModeHandler* mh)
 		modeid = AllocateModeId(mh->GetModeType());
 
 	if (!modehandlersbyname[mh->GetModeType()].insert(std::make_pair(mh->name, mh)).second)
-		return false;
+		throw ModuleException("Mode name already in use: " + mh->name);
 
 	// Everything is fine, add the mode
 
@@ -671,7 +671,6 @@ bool ModeParser::AddMode(ModeHandler* mh)
 		mhlist.list.push_back(mh->IsListModeBase());
 
 	RecreateModeListFor004Numeric();
-	return true;
 }
 
 bool ModeParser::DelMode(ModeHandler* mh)

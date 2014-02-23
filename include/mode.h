@@ -637,10 +637,12 @@ class CoreExport ModeParser
 	const std::string& GetLastParse() const { return LastParse; }
 	const std::vector<std::string>& GetLastParseParams() { return LastParseParams; }
 	const std::vector<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
+
 	/** Add a mode to the mode parser.
-	 * @return True if the mode was successfully added.
+	 * Throws a ModuleException if the mode cannot be added.
 	 */
-	bool AddMode(ModeHandler* mh);
+	void AddMode(ModeHandler* mh);
+
 	/** Delete a mode from the mode parser.
 	 * When a mode is deleted, the mode handler will be called
 	 * for every user (if it is a user mode) or for every  channel
