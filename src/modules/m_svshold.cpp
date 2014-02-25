@@ -180,7 +180,7 @@ class ModuleSVSHold : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("svshold");
-		silent = tag->getBool("silent");
+		silent = tag->getBool("silent", true);
 	}
 
 	ModResult OnStats(char symbol, User* user, string_list &out) CXX11_OVERRIDE
