@@ -55,7 +55,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 			return CMD_SUCCESS;
 	}
 
-	ServerInstance->SNO->WriteToSnoMask('O',"From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(), u->host.c_str(), opertype.c_str());
+	SnomaskManager::Write(SNO_REMOTE, SnomaskManager::oper, "From %s: User %s (%s@%s) is now an IRC operator of type %s",u->server->GetName().c_str(), u->nick.c_str(),u->ident.c_str(), u->host.c_str(), opertype.c_str());
 	return CMD_SUCCESS;
 }
 

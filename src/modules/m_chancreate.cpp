@@ -23,22 +23,22 @@
 
 class ModuleChanCreate : public Module
 {
+	Snomask chancreate;
  public:
-	void init() CXX11_OVERRIDE
+	ModuleChanCreate() : chancreate("CHANCREATE")
 	{
-		ServerInstance->SNO->EnableSnomask('j', "CHANCREATE");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides snomasks 'j' and 'J', to which notices about newly created channels are sent",VF_VENDOR);
+		return Version("Provides snomask CHANCREATE, to which notices about newly created channels are sent",VF_VENDOR);
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& except) CXX11_OVERRIDE
 	{
 		if ((created) && (IS_LOCAL(memb->user)))
 		{
-			ServerInstance->SNO->WriteGlobalSno('j', "Channel %s created by %s", memb->chan->name.c_str(), memb->user->GetFullRealHost().c_str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, chancreate, "Channel %s created by %s", memb->chan->name.c_str(), memb->user->GetFullRealHost().c_str());
 		}
 	}
 };

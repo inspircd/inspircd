@@ -69,7 +69,7 @@ class CommandSajoin : public Command
 				Channel* n = Channel::JoinUser(localuser, channel, true);
 				if (n && n->HasUser(dest))
 				{
-					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
+					SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
 					return CMD_SUCCESS;
 				}
 				else

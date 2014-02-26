@@ -73,7 +73,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	if (!TS)
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server->GetName().c_str());
+		SnomaskManager::Write(SNO_LOCAL, SnomaskManager::debug, "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server->GetName().c_str());
 		return CMD_INVALID;
 	}
 
@@ -90,7 +90,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 		time_t ourTS = chan->age;
 		if (TS != ourTS)
 		{
-			ServerInstance->SNO->WriteToSnoMask('d', "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %lu",
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::debug, "Merge FJOIN received for %s, ourTS: %lu, TS: %lu, difference: %lu",
 				chan->name.c_str(), (unsigned long)ourTS, (unsigned long)TS, (unsigned long)(ourTS - TS));
 			/* If our TS is less than theirs, we dont accept their modes */
 			if (ourTS < TS)
@@ -197,7 +197,7 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 		{
 			if (!ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL))
 			{
-				ServerInstance->SNO->WriteToSnoMask('d', "Unrecognised mode '%c' for a user in FJOIN, dropping link", *i);
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::debug, "Unrecognised mode '%c' for a user in FJOIN, dropping link", *i);
 				return false;
 			}
 

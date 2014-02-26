@@ -48,7 +48,7 @@ class CommandSetident : public Command
 		}
 
 		user->ChangeIdent(parameters[0]);
-		ServerInstance->SNO->WriteGlobalSno('a', "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "%s used SETIDENT to change their ident to '%s'", user->nick.c_str(), user->ident.c_str());
 
 		return CMD_SUCCESS;
 	}

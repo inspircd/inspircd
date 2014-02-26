@@ -281,7 +281,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 			user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :This command has been disabled.", command.c_str());
 		}
 
-		ServerInstance->SNO->WriteToSnoMask('t', "%s denied for %s (%s@%s)",
+		SnomaskManager::Write(SNO_LOCAL, SnomaskManager::stats, "%s denied for %s (%s@%s)",
 				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return;
 	}

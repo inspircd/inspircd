@@ -129,9 +129,9 @@ void SpanningTreeProtocolInterface::SendMode(User* source, User* u, Channel* c, 
 	}
 }
 
-void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::string &text)
+void SpanningTreeProtocolInterface::SendSNONotice(Snomask& snomask, const std::string &text)
 {
-	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();
+	CmdBuilder("SNONOTICE").push(snomask.name).push_last(text).Broadcast();
 }
 
 void SpanningTreeProtocolInterface::PushToClient(User* target, const std::string &rawline)

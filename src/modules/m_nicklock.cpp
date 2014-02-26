@@ -65,11 +65,11 @@ class CommandNicklock : public Command
 
 			std::string oldnick = target->nick;
 			if (target->ForceNickChange(parameters[1]))
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+oldnick+" to "+parameters[1]);
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used NICKLOCK to change and hold "+oldnick+" to "+parameters[1]);
 			else
 			{
 				std::string newnick = target->nick;
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK, but "+oldnick+" failed nick change to "+parameters[1]+" and was locked to "+newnick+" instead");
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used NICKLOCK, but "+oldnick+" failed nick change to "+parameters[1]+" and was locked to "+newnick+" instead");
 			}
 		}
 
@@ -113,7 +113,7 @@ class CommandNickunlock : public Command
 		{
 			if (locked.set(target, 0))
 			{
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKUNLOCK on "+target->nick);
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used NICKUNLOCK on "+target->nick);
 				user->SendText(":%s 945 %s %s :Nickname now unlocked.",
 					ServerInstance->Config->ServerName.c_str(),user->nick.c_str(),target->nick.c_str());
 			}

@@ -396,7 +396,7 @@
 # is what snomasks you want to be sent to that channel. Multiple tags
 # are allowed.
 #<module name="m_chanlog.so">
-#<chanlog snomasks="AOcC" channel="#opers">
+#<chanlog snomasks="ANNOUNCEMENT,OPER,CONNECT,REMOTECONNECT" channel="#opers">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Channel Names module: Allows disabling channels which have certain

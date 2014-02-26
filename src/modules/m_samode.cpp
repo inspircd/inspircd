@@ -46,7 +46,7 @@ class CommandSamode : public Command
 		this->active = true;
 		ServerInstance->Modes->Process(parameters, user);
 		if (ServerInstance->Modes->GetLastParse().length())
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
 		this->active = false;
 		return CMD_SUCCESS;
 	}

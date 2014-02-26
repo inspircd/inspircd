@@ -44,7 +44,7 @@ class ReloadModuleWorker : public HandlerBase1<void, bool>
 		: name(modn), uid(uuid) {}
 	void Call(bool result)
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "RELOAD MODULE: %s %ssuccessfully reloaded",
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "RELOAD MODULE: %s %ssuccessfully reloaded",
 			name.c_str(), result ? "" : "un");
 		User* user = ServerInstance->FindNick(uid);
 		if (user)

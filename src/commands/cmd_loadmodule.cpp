@@ -46,7 +46,7 @@ CmdResult CommandLoadmodule::Handle (const std::vector<std::string>& parameters,
 {
 	if (ServerInstance->Modules->Load(parameters[0]))
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "NEW MODULE: %s loaded %s",user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module successfully loaded.", parameters[0].c_str());
 		return CMD_SUCCESS;
 	}

@@ -34,6 +34,7 @@ class ModuleOverride : public Module
 	ChanModeReference inviteonly;
 	ChanModeReference key;
 	ChanModeReference limit;
+	Snomask override;
 
 	static bool IsOverride(unsigned int userlevel, const std::string& modeline)
 	{
@@ -55,12 +56,8 @@ class ModuleOverride : public Module
 		, inviteonly(this, "inviteonly")
 		, key(this, "key")
 		, limit(this, "limit")
+		, override("OVERRIDE")
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('v', "OVERRIDE");
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
@@ -91,7 +88,7 @@ class ModuleOverride : public Module
 		{
 			if (!channel->HasUser(source) || (channel->IsModeSet(topiclock) && channel->GetPrefixValue(source) < HALFOP_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to change a topic on "+channel->name);
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, override, source->nick+" used oper override to change a topic on "+channel->name);
 			}
 
 			// Explicit allow
@@ -108,7 +105,7 @@ class ModuleOverride : public Module
 			// If the kicker's status is less than the target's,			or	the kicker's status is less than or equal to voice
 			if ((memb->chan->GetPrefixValue(source) < memb->getRank()) || (memb->chan->GetPrefixValue(source) <= VOICE_VALUE))
 			{
-				ServerInstance->SNO->WriteGlobalSno('v',source->nick+" used oper override to kick "+memb->user->nick+" on "+memb->chan->name+" ("+reason+")");
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, override, source->nick+" used oper override to kick "+memb->user->nick+" on "+memb->chan->name+" ("+reason+")");
 				return MOD_RES_ALLOW;
 			}
 		}
@@ -132,7 +129,7 @@ class ModuleOverride : public Module
 			std::string msg = source->nick+" overriding modes:";
 			for(unsigned int i=0; i < parameters.size(); i++)
 				msg += " " + parameters[i];
-			ServerInstance->SNO->WriteGlobalSno('v',msg);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, override, msg);
 			return MOD_RES_ALLOW;
 		}
 		return MOD_RES_PASSTHRU;
@@ -157,7 +154,7 @@ class ModuleOverride : public Module
 
 						if (NoisyOverride)
 							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname.c_str(), user->nick.c_str());
-						ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +i on " + cname);
+						SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, override, user->nick+" used oper override to bypass +i on " + cname);
 					}
 					return MOD_RES_ALLOW;
 				}
@@ -173,7 +170,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +k on " + cname);
+					SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, override, user->nick+" used oper override to bypass +k on " + cname);
 					return MOD_RES_ALLOW;
 				}
 
@@ -188,7 +185,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +l on " + cname);
+					SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, override, user->nick+" used oper override to bypass +l on " + cname);
 					return MOD_RES_ALLOW;
 				}
 
@@ -203,7 +200,7 @@ class ModuleOverride : public Module
 
 					if (NoisyOverride)
 						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname.c_str());
+					SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, override, "%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname.c_str());
 					return MOD_RES_ALLOW;
 				}
 			}

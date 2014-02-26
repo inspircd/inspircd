@@ -92,7 +92,7 @@ class ModuleXLineDB : public Module
 		if (!stream.is_open())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot create database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "database: cannot create new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
@@ -129,7 +129,7 @@ class ModuleXLineDB : public Module
 		if (stream.fail())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot write to new database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "database: cannot write to new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 		stream.close();
@@ -138,7 +138,7 @@ class ModuleXLineDB : public Module
 		if (remove(xlinedbpath.c_str()))
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot remove old database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "database: cannot remove old database: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 #endif
@@ -146,7 +146,7 @@ class ModuleXLineDB : public Module
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot move new to old database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
@@ -163,7 +163,7 @@ class ModuleXLineDB : public Module
 		if (!stream.is_open())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot read database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "database: cannot read db: %s (%d)", strerror(errno), errno);
 			return false;
 		}
 
@@ -190,7 +190,7 @@ class ModuleXLineDB : public Module
 				{
 					stream.close();
 					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "I got database version %s - I don't understand it", command_p[1].c_str());
-					ServerInstance->SNO->WriteToSnoMask('a', "database: I got a database version (%s) I don't understand", command_p[1].c_str());
+					SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "database: I got a database version (%s) I don't understand", command_p[1].c_str());
 					return false;
 				}
 			}
@@ -201,7 +201,7 @@ class ModuleXLineDB : public Module
 
 				if (!xlf)
 				{
-					ServerInstance->SNO->WriteToSnoMask('a', "database: Unknown line type (%s).", command_p[1].c_str());
+					SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "database: Unknown line type (%s).", command_p[1].c_str());
 					continue;
 				}
 
@@ -210,7 +210,7 @@ class ModuleXLineDB : public Module
 
 				if (ServerInstance->XLines->AddLine(xl, NULL))
 				{
-					ServerInstance->SNO->WriteToSnoMask('x', "database: Added a line of type %s", command_p[1].c_str());
+					SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline, "database: Added a line of type %s", command_p[1].c_str());
 				}
 				else
 					delete xl;

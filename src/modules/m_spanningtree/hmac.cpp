@@ -90,7 +90,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 		/* Require fingerprint to exist and match */
 		if (link.Fingerprint != fp)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL fingerprint on link %s: need \"%s\" got \"%s\"",
+			SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Invalid SSL fingerprint on link %s: need \"%s\" got \"%s\"",
 				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
 			SendError("Provided invalid SSL fingerprint " + fp + " - expected " + link.Fingerprint);
 			return false;
@@ -98,7 +98,7 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	}
 	else if (!fp.empty())
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is \"%s\". "
+		SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "SSL fingerprint for link %s is \"%s\". "
 			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
 	}
 	return true;

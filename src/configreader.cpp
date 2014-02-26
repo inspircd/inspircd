@@ -612,7 +612,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 		if (user)
 			user->SendText(":%s NOTICE %s :*** %s", ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), line.c_str());
 		// Also tell opers
-		ServerInstance->SNO->WriteGlobalSno('a', line);
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, line);
 	}
 
 	errstr.clear();
@@ -652,7 +652,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	if (user)
 		user->SendText(":%s NOTICE %s :*** Successfully rehashed server.",
 			ServerInstance->Config->ServerName.c_str(), user->nick.c_str());
-	ServerInstance->SNO->WriteGlobalSno('a', "*** Successfully rehashed server.");
+	SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "*** Successfully rehashed server.");
 }
 
 void ServerConfig::ApplyModules(User* user)
@@ -682,19 +682,19 @@ void ServerConfig::ApplyModules(User* user)
 			continue;
 		if (ServerInstance->Modules->Unload(i->second))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH UNLOADED MODULE: %s", modname.c_str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "*** REHASH UNLOADED MODULE: %s", modname.c_str());
 
 			if (user)
 				user->WriteNumeric(RPL_UNLOADEDMODULE, "%s :Module %s successfully unloaded.", modname.c_str(), modname.c_str());
 			else
-				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully unloaded.", modname.c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Module %s successfully unloaded.", modname.c_str());
 		}
 		else
 		{
 			if (user)
 				user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :Failed to unload module %s: %s", modname.c_str(), modname.c_str(), ServerInstance->Modules->LastError().c_str());
 			else
-				 ServerInstance->SNO->WriteGlobalSno('a', "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
+				 SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Failed to unload module %s: %s", modname.c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 
@@ -702,18 +702,18 @@ void ServerConfig::ApplyModules(User* user)
 	{
 		if (ServerInstance->Modules->Load(adding->c_str()))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "*** REHASH LOADED MODULE: %s",adding->c_str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "*** REHASH LOADED MODULE: %s",adding->c_str());
 			if (user)
 				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %s successfully loaded.", adding->c_str(), adding->c_str());
 			else
-				ServerInstance->SNO->WriteGlobalSno('a', "Module %s successfully loaded.", adding->c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Module %s successfully loaded.", adding->c_str());
 		}
 		else
 		{
 			if (user)
 				user->WriteNumeric(ERR_CANTLOADMODULE, "%s :Failed to load module %s: %s", adding->c_str(), adding->c_str(), ServerInstance->Modules->LastError().c_str());
 			else
-				ServerInstance->SNO->WriteGlobalSno('a', "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Failed to load module %s: %s", adding->c_str(), ServerInstance->Modules->LastError().c_str());
 		}
 	}
 }

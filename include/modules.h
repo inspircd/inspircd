@@ -418,12 +418,12 @@ class CoreExport Module : public classbase, public usecountbase
 
 	/** Called whenever a snotice is about to be sent to a snomask.
 	 * snomask and type may both be modified; the message may not.
-	 * @param snomask The snomask the message is going to (e.g. 'A')
+	 * @param snomask The snomask the message is going to
 	 * @param type The textual description the snomask will go to (e.g. 'OPER')
 	 * @param message The text message to be sent via snotice
 	 * @return 1 to block the snotice from being sent entirely, 0 else.
 	 */
-	virtual ModResult OnSendSnotice(char &snomask, std::string &type, const std::string &message);
+	virtual ModResult OnSendSnotice(Snomask *snomask, std::string &type, const std::string &message);
 
 	/** Called whenever a user is about to join a channel, before any processing is done.
 	 * Returning a value of 1 from this function stops the process immediately, causing no

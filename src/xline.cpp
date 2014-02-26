@@ -691,7 +691,7 @@ void ELine::OnAdd()
 void XLine::DisplayExpiry()
 {
 	bool onechar = (type.length() == 1);
-	ServerInstance->SNO->WriteToSnoMask('x', "Removing expired %s%s %s (set by %s %ld seconds ago)",
+	SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline, "Removing expired %s%s %s (set by %s %ld seconds ago)",
 		type.c_str(), (onechar ? "-Line" : ""), Displayable().c_str(), source.c_str(), (long)(ServerInstance->Time() - set_time));
 }
 

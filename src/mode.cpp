@@ -170,7 +170,8 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 			if ((targetuser->IsOper()))
 			{
 				ModeHandler* snomask = FindMode('s', MODETYPE_USER);
-				user->WriteNumeric(RPL_SNOMASKIS, "%s :Server notice mask", snomask->GetUserParameter(user).c_str());
+				if (user->IsModeSet(snomask))
+					user->WriteNumeric(RPL_SNOMASKIS, "%s :Server notice mask", snomask->GetUserParameter(user).c_str());
 			}
 			return;
 		}

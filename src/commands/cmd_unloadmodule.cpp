@@ -58,7 +58,7 @@ CmdResult CommandUnloadmodule::Handle (const std::vector<std::string>& parameter
 	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m && ServerInstance->Modules->Unload(m))
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());
 		user->WriteNumeric(RPL_UNLOADEDMODULE, "%s :Module successfully unloaded.", parameters[0].c_str());
 	}
 	else

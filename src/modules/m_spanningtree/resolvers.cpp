@@ -59,7 +59,7 @@ void ServernameResolver::OnLookupComplete(const DNS::Query *r)
 		else
 		{
 			/* Something barfed, show the opers */
-			ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: %s.",
+			SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "CONNECT: Error connecting \002%s\002: %s.",
 				MyLink->Name.c_str(), newsocket->getError().c_str());
 			ServerInstance->GlobalCulls.AddItem(newsocket);
 		}
@@ -83,7 +83,7 @@ void ServernameResolver::OnError(const DNS::Query *r)
 		}
 	}
 
-	ServerInstance->SNO->WriteToSnoMask('l', "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
+	SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "CONNECT: Error connecting \002%s\002: Unable to resolve hostname - %s", MyLink->Name.c_str(), this->manager->GetErrorStr(r->error).c_str());
 	Utils->Creator->ConnectServer(myautoconnect, false);
 }
 

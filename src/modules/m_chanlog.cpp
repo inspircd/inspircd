@@ -25,7 +25,7 @@ class ModuleChanLog : public Module
 	/*
 	 * Multimap so people can redirect a snomask to multiple channels.
 	 */
-	typedef std::multimap<char, std::string> ChanLogTargets;
+	typedef std::multimap<std::string, std::string> ChanLogTargets;
 	ChanLogTargets logstreams;
 
  public:
@@ -48,18 +48,19 @@ class ModuleChanLog : public Module
 				continue;
 			}
 
-			for (std::string::const_iterator it = snomasks.begin(); it != snomasks.end(); it++)
+			irc::commasepstream sep(snomasks);
+			for (std::string token; sep.GetToken(token);)
 			{
-				logstreams.insert(std::make_pair(*it, channel));
-				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Logging %c to %s", *it, channel.c_str());
+				logstreams.insert(std::make_pair(token, channel));
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Logging %s to %s", token.c_str(), channel.c_str());
 			}
 		}
 
 	}
 
-	ModResult OnSendSnotice(char &sno, std::string &desc, const std::string &msg) CXX11_OVERRIDE
+	ModResult OnSendSnotice(Snomask *, std::string &desc, const std::string &msg) CXX11_OVERRIDE
 	{
-		std::pair<ChanLogTargets::const_iterator, ChanLogTargets::const_iterator> itpair = logstreams.equal_range(sno);
+		std::pair<ChanLogTargets::const_iterator, ChanLogTargets::const_iterator> itpair = logstreams.equal_range(desc);
 		if (itpair.first == itpair.second)
 			return MOD_RES_PASSTHRU;
 

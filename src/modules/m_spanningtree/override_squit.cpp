@@ -40,7 +40,7 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 
 		if (s->IsLocal())
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick.c_str());
+			SnomaskManager::Write(SNO_LOCAL, link, "SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick.c_str());
 			sock->Squit(s,"Server quit by " + user->GetFullRealHost());
 			sock->Close();
 		}

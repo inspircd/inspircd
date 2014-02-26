@@ -49,14 +49,14 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std:
 	if (CheckDupe)
 	{
 		socket->SendError("Server "+servername+" already exists!");
-		ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
+		SnomaskManager::Write(SNO_REMOTE, Utils->Creator->link, "Server \2"+CheckDupe->GetName()+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, already exists. Closing link with " + ParentOfThis->GetName());
 		return CMD_FAILURE;
 	}
 	CheckDupe = Utils->FindServer(sid);
 	if (CheckDupe)
 	{
 		socket->SendError("Server ID "+sid+" already exists! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-		ServerInstance->SNO->WriteToSnoMask('L', "Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
+		SnomaskManager::Write(SNO_REMOTE, Utils->Creator->link, "Server \2"+servername+"\2 being introduced from \2" + ParentOfThis->GetName() + "\2 denied, server ID already exists on the network. Closing link with " + ParentOfThis->GetName());
 		return CMD_FAILURE;
 	}
 
@@ -66,7 +66,7 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std:
 	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
 	ParentOfThis->AddChild(Node);
-	ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
+	SnomaskManager::Write(SNO_REMOTE, Utils->Creator->link, "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
 	return CMD_SUCCESS;
 }
 
@@ -105,7 +105,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 
 		if (!ComparePass(*x, password))
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
+			SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Invalid password on link: %s", x->Name.c_str());
 			continue;
 		}
 
@@ -114,14 +114,14 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		{
 			std::string pname = CheckDupe->GetParent() ? CheckDupe->GetParent()->GetName() : "<ourself>";
 			SendError("Server "+sname+" already exists on server "+pname+"!");
-			ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+pname);
+			SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server connection from \2"+sname+"\2 denied, already exists on server "+pname);
 			return false;
 		}
 		CheckDupe = Utils->FindServer(sid);
 		if (CheckDupe)
 		{
 			this->SendError("Server ID "+sid+" already exists on the network! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-			ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
+			SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
 			return false;
 		}
 
@@ -149,7 +149,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 	}
 
 	this->SendError("Invalid credentials (check the other server's linking snomask for more information)");
-	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
+	SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
 
@@ -161,7 +161,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 	{
 		std::string pname = CheckDupe->GetParent() ? CheckDupe->GetParent()->GetName() : "<ourself>";
 		SendError("Server "+sname+" already exists on server "+pname+"!");
-		ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+pname);
+		SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server connection from \2"+sname+"\2 denied, already exists on server "+pname);
 		return false;
 	}
 
@@ -172,7 +172,7 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
 	if (CheckDupe)
 	{
 		this->SendError("Server ID "+CheckDupe->GetID()+" already exists on server "+CheckDupe->GetName()+"! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-		ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupe->GetID()+
+		SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server connection from \2"+sname+"\2 denied, server ID '"+CheckDupe->GetID()+
 				"' already exists on server "+CheckDupe->GetName());
 		return false;
 	}
@@ -214,14 +214,14 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 
 		if (!ComparePass(*x, password))
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
+			SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Invalid password on link: %s", x->Name.c_str());
 			continue;
 		}
 
 		if (!CheckDuplicate(sname, sid))
 			return false;
 
-		ServerInstance->SNO->WriteToSnoMask('l',"Verified incoming server connection " + linkID + " ("+description+")");
+		SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Verified incoming server connection " + linkID + " ("+description+")");
 
 		this->SendCapabilities(2);
 
@@ -241,7 +241,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 	}
 
 	this->SendError("Invalid credentials");
-	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
+	SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
 

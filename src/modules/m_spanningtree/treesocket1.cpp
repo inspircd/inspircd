@@ -117,7 +117,7 @@ void TreeSocket::OnConnected()
 			static_cast<IOHookProvider*>(prov)->OnConnect(this);
 		}
 
-		ServerInstance->SNO->WriteGlobalSno('l', "Connection to \2%s\2[%s] started.", linkID.c_str(),
+		SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Connection to \2%s\2[%s] started.", linkID.c_str(),
 			(capab->link->HiddenFromStats ? "<hidden>" : capab->link->IPAddr.c_str()));
 		this->SendCapabilities(1);
 	}
@@ -125,7 +125,7 @@ void TreeSocket::OnConnected()
 
 void TreeSocket::OnError(BufferedSocketError e)
 {
-	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
+	SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Connection to '\002%s\002' failed with error: %s",
 		linkID.c_str(), getError().c_str());
 	LinkState = DYING;
 }
@@ -176,7 +176,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 
 		if (Current->IsLocal())
 		{
-			ServerInstance->SNO->WriteGlobalSno('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
+			SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server \002"+Current->GetName()+"\002 split: "+reason);
 			LocalSquit = true;
 			if (Current->GetSocket()->Introduced())
 			{
@@ -188,7 +188,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		}
 		else
 		{
-			ServerInstance->SNO->WriteGlobalSno('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, Utils->Creator->link, "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 		}
 		int num_lost_servers = 0;
 		int num_lost_users = 0;
@@ -199,7 +199,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		SquitServer(from, Current, num_lost_servers, num_lost_users);
 		st->SplitInProgress = false;
 
-		ServerInstance->SNO->WriteToSnoMask(LocalSquit ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
+		SnomaskManager::Write(LocalSquit ? SNO_LOCAL : SNO_REMOTE, Utils->Creator->link, "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
 			num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 		Current->Tidy();
 		Current->GetParent()->DelChild(Current);

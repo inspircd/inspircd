@@ -65,7 +65,7 @@
     # modes: usermodes besides +o that are set on a oper of this type
     # when they oper up. Used for snomasks and other things.
     # Requires that m_opermodes.so be loaded.
-    modes="+s +cCqQ">
+    modes="+s connect,quit,remoteconnect,remotequit">
 
 <type name="GlobalOp" classes="OperChat BanControl HostCloak ServerLink" vhost="ircop.omega.org.za">
 <type name="Helper" classes="HostCloak" vhost="helper.omega.org.za">

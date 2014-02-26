@@ -59,7 +59,7 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	else
 	{
 		ServerInstance->Logs->Log("COMMAND", LOG_SPARSE, "Failed /DIE command from %s", user->GetFullRealHost().c_str());
-		ServerInstance->SNO->WriteGlobalSno('a', "Failed DIE Command from %s.", user->GetFullRealHost().c_str());
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Failed DIE Command from %s.", user->GetFullRealHost().c_str());
 		return CMD_FAILURE;
 	}
 	return CMD_SUCCESS;

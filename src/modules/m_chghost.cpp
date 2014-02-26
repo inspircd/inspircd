@@ -67,7 +67,7 @@ class CommandChghost : public Command
 			if ((dest->ChangeDisplayedHost(parameters[1])) && (!user->server->IsULine()))
 			{
 				// fix by brain - ulines set hosts silently
-				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used CHGHOST to make the displayed host of "+dest->nick+" become "+dest->dhost);
 			}
 		}
 

@@ -79,7 +79,7 @@ public:
 			{
 				/* expire throttle */
 				throttled = false;
-				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle deactivated");
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Connection throttle deactivated");
 				return MOD_RES_PASSTHRU;
 			}
 
@@ -92,7 +92,7 @@ public:
 			if (conns >= maxconns)
 			{
 				throttled = true;
-				ServerInstance->SNO->WriteGlobalSno('a', "Connection throttle activated");
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Connection throttle activated");
 				ServerInstance->Users->QuitUser(user, quitmsg);
 				return MOD_RES_DENY;
 			}

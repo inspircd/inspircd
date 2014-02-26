@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2014 Adam <Adam@anope.org>
  *   Copyright (C) 2010 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
@@ -22,18 +23,25 @@
 
 #pragma once
 
-class SnomaskManager;
-class Snomask
+class Snomasks
 {
-	/** Description of this snomask, e.g.: OPER, ANNOUNCEMENT, XLINE
-	 */
-	std::string Description;
+	std::vector<bool> snomasks;
 
+ public:
+	std::vector<bool>::reference operator[](size_t idx);
+	bool operator[](size_t idx) const;
+	bool none() const;
+	inline size_t size() const { return snomasks.size(); }
+};
+
+class SnomaskManager;
+class CoreExport Snomask
+{
 	/** Information about the last sent message,
 	 * used for sending "last message repeated X times" messages
 	 */
 	std::string LastMessage;
-	char LastLetter;
+	bool LastRemote;
 	unsigned int Count;
 
 	/** Log and send a message to all opers who have the given snomask set
@@ -41,31 +49,35 @@ class Snomask
 	 * @param desc The description of this snomask, will be prepended to the message
 	 * @param msg The message to send
 	 */
-	static void Send(char letter, const std::string& desc, const std::string& msg);
+	void Send(bool remote, const std::string& desc, const std::string& msg);
 
  public:
+	std::string name;
+	unsigned int pos;
+
 	/** Create a new Snomask
 	 */
-	Snomask();
+	Snomask(const std::string &name);
+	~Snomask();
 
 	/** Sends a message to all opers with this snomask.
 	 * @param message The message to send
 	 * @param remote If true the message will go to the uppercase variant of this snomask
 	 */
-	void SendMessage(const std::string& message, char letter);
+	void SendMessage(const std::string& message, bool remote);
 
 	/** Sends out the (last message repeated N times) message
 	 */
 	void Flush();
 
-	/** Returns the description of this snomask
-	 * @param letter The letter of this snomask. If uppercase, the description of the remote
-	 * variant of this snomask will be returned (i.e.: "REMOTE" will be prepended to the description).
-	 * @return The description of this snomask
-	 */
-	std::string GetDescription(char letter) const;
-
 	friend class SnomaskManager;
+};
+
+enum
+{
+	SNO_LOCAL,
+	SNO_REMOTE,
+	SNO_BROADCAST
 };
 
 /** Snomask manager handles routing of SNOMASK (usermode +s) messages to opers.
@@ -74,47 +86,22 @@ class Snomask
  */
 class CoreExport SnomaskManager
 {
-	Snomask	masks[26];
+	static unsigned int pos;
+	static std::map<std::string, Snomask *> snomasksByName;
+	static std::map<unsigned int, Snomask *> snomasksByPos;
 
  public:
-	/** Create a new SnomaskManager
-	 */
-	SnomaskManager();
+	static Snomask connect, quit, kill, oper, announcement, debug, xline, stats;
 
-	/** Enable a snomask.
-	 * @param letter The snomask letter to enable. Once enabled,
-	 * server notices may be routed to users with this letter in
-	 * their list, and users may add this letter to their list.
-	 * @param description The descriptive text sent along with any
-	 * server notices, at the start of the notice, e.g. "GLOBOPS".
-	 */
-	void EnableSnomask(char letter, const std::string &description);
+	static void RegisterSnomask(Snomask *);
+	static void UnregisterSnomask(Snomask *);
 
-	/** Write to all users with a given snomask (local server only)
-	 * @param letter The snomask letter to write to
-	 * @param text The text to send to the users
-	 */
-	void WriteToSnoMask(char letter, const std::string &text);
+	static Snomask* FindSnomaskByName(const std::string &name);
+	static Snomask* FindSnomaskByPos(unsigned int);
+	static std::vector<Snomask*> GetSnomasks();
 
-	/** Write to all users with a given snomask (local server only)
-	 * @param letter The snomask letter to write to
-	 * @param text A format string containing text to send
-	 * @param ... Format arguments
-	 */
-	void WriteToSnoMask(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
-
-	/** Write to all users with a given snomask (sent globally)
-	 * @param letter The snomask letter to write to
-	 * @param text The text to send to the users
-	 */
-	void WriteGlobalSno(char letter, const std::string &text);
-
-	/** Write to all users with a given snomask (sent globally)
-	 * @param letter The snomask letter to write to
-	 * @param text A format string containing text to send
-	 * @param ... Format arguments
-	 */
-	void WriteGlobalSno(char letter, const char* text, ...) CUSTOM_PRINTF(3, 4);
+	static void Write(int where, Snomask &sno, const std::string &text);
+	static void Write(int where, Snomask &sno, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
 	/** Called once per 5 seconds from the mainloop, this flushes any cached
 	 * snotices. The way the caching works is as follows:
@@ -124,13 +111,5 @@ class CoreExport SnomaskManager
 	 * and the new message is cached. This acts as a sender in case the number of notices
 	 * is not particularly significant, in order to keep notices going out.
 	 */
-	void FlushSnotices();
-
-	/** Check whether a given character is an enabled (initialized) snomask.
-	 * Valid snomask chars are lower- or uppercase letters and have a description.
-	 * Snomasks are initialized with EnableSnomask().
-	 * @param ch The character to check
-	 * @return True if the given char is allowed to be set via +s.
-	 */
-	bool IsSnomaskUsable(char ch) const;
+	static void FlushSnotices();
 };

@@ -154,7 +154,7 @@ class ModeUserServerNoticeMask : public ModeHandler
 	 * e.g. in the above example if masks c and e are not
 	 * valid, this function will return +ab-d
 	 */
-	std::string ProcessNoticeMasks(User* user, const std::string& input);
+	std::string ProcessNoticeMasks(User* user, const std::string& input, bool adding);
 
  public:
 	ModeUserServerNoticeMask();

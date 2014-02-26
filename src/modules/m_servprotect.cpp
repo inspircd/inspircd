@@ -101,7 +101,7 @@ class ModuleServProtectMode : public Module
 		if (dst->IsModeSet(bm))
 		{
 			src->WriteNumeric(485, ":You are not permitted to kill %s services!", ServerInstance->Config->Network.c_str());
-			ServerInstance->SNO->WriteGlobalSno('a', src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, src->nick+" tried to kill service "+dst->nick+" ("+reason+")");
 			return MOD_RES_DENY;
 		}
 		return MOD_RES_PASSTHRU;

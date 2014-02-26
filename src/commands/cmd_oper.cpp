@@ -79,7 +79,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	user->WriteNumeric(ERR_NOOPERHOST, ":Invalid oper credentials");
 	user->CommandFloodPenalty += 10000;
 
-	ServerInstance->SNO->WriteGlobalSno('o', "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
+	SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::oper, "WARNING! Failed oper attempt by %s using login '%s': The following fields do not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
 	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "OPER: Failed oper attempt by %s using login '%s': The following fields did not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
 	return CMD_FAILURE;
 }

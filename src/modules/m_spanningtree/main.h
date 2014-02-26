@@ -68,6 +68,8 @@ class ModuleSpanningTree : public Module
 
 	ServerCommandManager CmdManager;
 
+	Snomask link;
+
 	/** Set to true if inside a spanningtree call, to prevent sending
 	 * xlines and other things back to their source
 	 */

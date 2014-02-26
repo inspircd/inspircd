@@ -82,13 +82,13 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent K-line for %s: %s",user->nick.c_str(),target.c_str(), parameters[2].c_str());
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline,"%s added permanent K-line for %s: %s",user->nick.c_str(),target.c_str(), parameters[2].c_str());
 			}
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
 				std::string timestr = InspIRCd::TimeString(c_requires_crap);
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed K-line for %s, expires on %s: %s",user->nick.c_str(),target.c_str(),
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline,"%s added timed K-line for %s, expires on %s: %s",user->nick.c_str(),target.c_str(),
 						timestr.c_str(), parameters[2].c_str());
 			}
 
@@ -104,7 +104,7 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(),"K",user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s removed K-line on %s",user->nick.c_str(),target.c_str());
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline,"%s removed K-line on %s",user->nick.c_str(),target.c_str());
 		}
 		else
 		{

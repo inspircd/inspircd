@@ -414,18 +414,6 @@ int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_l
 	return n;
 }
 
-std::string irc::stringjoiner(const std::vector<std::string>& sequence, char separator)
-{
-	std::string joined;
-	if (sequence.empty())
-		return joined; // nothing to do here
-
-	for (std::vector<std::string>::const_iterator i = sequence.begin(); i != sequence.end(); ++i)
-		joined.append(*i).push_back(separator);
-	joined.erase(joined.end()-1);
-	return joined;
-}
-
 irc::portparser::portparser(const std::string &source, bool allow_overlapped)
 	: sep(source), in_range(0), range_begin(0), range_end(0), overlapped(allow_overlapped)
 {

@@ -136,7 +136,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->stats);
 	DeleteZero(this->Modules);
 	DeleteZero(this->BanCache);
-	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
 	DeleteZero(this->chanlist);
 	DeleteZero(this->PI);
@@ -268,7 +267,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Users = 0;
 	this->chanlist = 0;
 	this->Config = 0;
-	this->SNO = 0;
 	this->BanCache = 0;
 	this->Modules = 0;
 	this->stats = 0;
@@ -298,7 +296,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->chanlist = new chan_hash();
 
 	this->Config = new ServerConfig;
-	this->SNO = new SnomaskManager;
 	this->BanCache = new BanCacheManager;
 	this->Modules = new ModuleManager();
 	dynamic_reference_base::reset_all();
@@ -708,11 +705,11 @@ void InspIRCd::Run()
 			/* Allow a buffer of two seconds drift on this so that ntpdate etc dont harass admins */
 			if (TIME.tv_sec < OLDTIME - 2)
 			{
-				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)OLDTIME-TIME.tv_sec);
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::debug, "\002EH?!\002 -- Time is flowing BACKWARDS in this dimension! Clock drifted backwards %lu secs.", (unsigned long)OLDTIME-TIME.tv_sec);
 			}
 			else if (TIME.tv_sec > OLDTIME + 2)
 			{
-				SNO->WriteToSnoMask('d', "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)TIME.tv_sec - OLDTIME);
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::debug, "\002EH?!\002 -- Time is jumping FORWARDS! Clock skipped %lu secs.", (unsigned long)TIME.tv_sec - OLDTIME);
 			}
 
 			OLDTIME = TIME.tv_sec;
@@ -729,7 +726,7 @@ void InspIRCd::Run()
 			if ((TIME.tv_sec % 5) == 0)
 			{
 				FOREACH_MOD(OnBackgroundTimer, (TIME.tv_sec));
-				SNO->FlushSnotices();
+				SnomaskManager::FlushSnotices();
 			}
 		}
 

@@ -199,7 +199,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 		if (static_cast<ModuleFilter *>(me)->DeleteFilter(parameters[0]))
 		{
 			user->WriteNotice("*** Removed filter '" + parameters[0] + "'");
-			ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" removed filter '"+parameters[0]+"'");
+			SnomaskManager::Write(IS_LOCAL(user) ? SNO_LOCAL : SNO_REMOTE, SnomaskManager::announcement, "FILTER: "+user->nick+" removed filter '"+parameters[0]+"'");
 			return CMD_SUCCESS;
 		}
 		else
@@ -251,7 +251,7 @@ CmdResult CommandFilter::Handle(const std::vector<std::string> &parameters, User
 					(duration ? ", duration " +  parameters[3] : "") + ", flags '" + flags + "', reason: '" +
 					parameters[reasonindex] + "'");
 
-				ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'a' : 'A', "FILTER: "+user->nick+" added filter '"+freeform+"', type '"+parameters[1]+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+parameters[reasonindex]);
+				SnomaskManager::Write(IS_LOCAL(user) ? SNO_LOCAL : SNO_REMOTE, SnomaskManager::announcement, "FILTER: "+user->nick+" added filter '"+freeform+"', type '"+parameters[1]+"', "+(duration ? "duration "+parameters[3]+", " : "")+"flags '"+flags+"', reason: "+parameters[reasonindex]);
 
 				return CMD_SUCCESS;
 			}
@@ -331,7 +331,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		}
 		if (f->action == FA_BLOCK)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "FILTER: "+user->nick+" had their message filtered, target was "+target+": "+f->reason);
 			if (target_type == TYPE_CHANNEL)
 				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Message to channel blocked and opers notified (%s)", target.c_str(), f->reason.c_str());
 			else
@@ -460,9 +460,9 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	if (!RegexEngine)
 	{
 		if (newrxengine.empty())
-			ServerInstance->SNO->WriteGlobalSno('a', "WARNING: No regex engine loaded - Filter functionality disabled until this is corrected.");
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "WARNING: No regex engine loaded - Filter functionality disabled until this is corrected.");
 		else
-			ServerInstance->SNO->WriteGlobalSno('a', "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "WARNING: Regex engine '%s' is not loaded - Filter functionality disabled until this is corrected.", newrxengine.c_str());
 
 		initing = false;
 		FreeFilters();
@@ -471,7 +471,7 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 
 	if ((!initing) && (RegexEngine.operator->() != factory))
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "Dumping all filters due to regex engine change");
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Dumping all filters due to regex engine change");
 		FreeFilters();
 	}
 

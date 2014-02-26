@@ -51,7 +51,7 @@ class AuthQuery : public SQLQuery
 		else
 		{
 			if (verbose)
-				ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (SQL query returned no matches)", user->GetFullRealHost().c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Forbidden connection from %s (SQL query returned no matches)", user->GetFullRealHost().c_str());
 			pendingExt.set(user, AUTH_STATE_FAIL);
 		}
 	}
@@ -63,7 +63,7 @@ class AuthQuery : public SQLQuery
 			return;
 		pendingExt.set(user, AUTH_STATE_FAIL);
 		if (verbose)
-			ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.Str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Forbidden connection from %s (SQL query failed: %s)", user->GetFullRealHost().c_str(), error.Str());
 	}
 };
 
@@ -111,7 +111,7 @@ class ModuleSQLAuth : public Module
 
 		if (!SQL)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', "Forbiding connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Forbiding connection from %s (SQL database not present)", user->GetFullRealHost().c_str());
 			ServerInstance->Users->QuitUser(user, killreason);
 			return MOD_RES_PASSTHRU;
 		}

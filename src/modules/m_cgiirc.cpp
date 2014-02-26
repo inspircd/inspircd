@@ -59,6 +59,8 @@ typedef std::vector<CGIhost> CGIHostlist;
  */
 class CommandWebirc : public Command
 {
+	Snomask &cgiirc;
+
  public:
 	bool notify;
 	StringExtItem realhost;
@@ -67,8 +69,9 @@ class CommandWebirc : public Command
 	LocalStringExt webirc_ip;
 
 	CGIHostlist Hosts;
-	CommandWebirc(Module* Creator)
+	CommandWebirc(Module* Creator, Snomask &Cgiirc)
 		: Command(Creator, "WEBIRC", 4),
+		  cgiirc(Cgiirc),
 		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator),
 		  webirc_hostname("cgiirc_webirc_hostname", Creator), webirc_ip("cgiirc_webirc_ip", Creator)
 		{
@@ -93,7 +96,7 @@ class CommandWebirc : public Command
 						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
 
 						if (notify)
-							ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
+							SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, cgiirc, "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", user->nick.c_str(), user->host.c_str(), newhost.c_str(), user->host.c_str());
 
 						// Check if we're happy with the provided hostname. If it's problematic then make sure we won't set a host later, just the IP
 						if (host_ok)
@@ -107,7 +110,7 @@ class CommandWebirc : public Command
 				}
 			}
 
-			ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, cgiirc, "Connecting user %s tried to use WEBIRC, but didn't match any configured webirc blocks.", user->GetFullRealHost().c_str());
 			return CMD_FAILURE;
 		}
 };
@@ -117,14 +120,15 @@ class CommandWebirc : public Command
  */
 class CGIResolver : public DNS::Request
 {
+	Snomask &cgiirc;
 	std::string typ;
 	std::string theiruid;
 	LocalIntExt& waiting;
 	bool notify;
  public:
-	CGIResolver(DNS::Manager *mgr, Module* me, bool NotifyOpers, const std::string &source, LocalUser* u,
+	CGIResolver(DNS::Manager *mgr, Module* me, Snomask &Cgiirc, bool NotifyOpers, const std::string &source, LocalUser* u,
 			const std::string &ttype, LocalIntExt& ext)
-		: DNS::Request(mgr, me, source, DNS::QUERY_PTR), typ(ttype), theiruid(u->uuid),
+		: DNS::Request(mgr, me, source, DNS::QUERY_PTR), cgiirc(Cgiirc), typ(ttype), theiruid(u->uuid),
 		waiting(ext), notify(NotifyOpers)
 	{
 	}
@@ -144,7 +148,7 @@ class CGIResolver : public DNS::Request
 				return;
 
 			if (notify)
-				ServerInstance->SNO->WriteGlobalSno('w', "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str(), typ.c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, cgiirc, "Connecting user %s detected as using CGI:IRC (%s), changing real host to %s from %s", them->nick.c_str(), them->host.c_str(), ans_record.rdata.c_str(), typ.c_str());
 
 			them->host = them->dhost = ans_record.rdata;
 			them->InvalidateCache();
@@ -160,7 +164,7 @@ class CGIResolver : public DNS::Request
 		User* them = ServerInstance->FindUUID(theiruid);
 		if ((them) && (!them->quitting))
 		{
-			ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
+			SnomaskManager::Write(SNO_LOCAL, cgiirc, "Connecting user %s detected as using CGI:IRC (%s), but their host can't be resolved from their %s!", them->nick.c_str(), them->host.c_str(), typ.c_str());
 		}
 	}
 
@@ -180,6 +184,7 @@ class ModuleCgiIRC : public Module
 	CommandWebirc cmd;
 	LocalIntExt waiting;
 	dynamic_reference<DNS::Manager> DNS;
+	Snomask cgiirc;
 
 	static void RecheckClass(LocalUser* user)
 	{
@@ -209,7 +214,7 @@ class ModuleCgiIRC : public Module
 		if (user->quitting || !DNS || !user->MyClass->resolvehostnames)
 			return;
 
-		CGIResolver* r = new CGIResolver(*this->DNS, this, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), waiting);
+		CGIResolver* r = new CGIResolver(*this->DNS, this, cgiirc, cmd.notify, newip, user, (was_pass ? "PASS" : "IDENT"), waiting);
 		try
 		{
 			waiting.set(user, waiting.get(user) + 1);
@@ -222,21 +227,17 @@ class ModuleCgiIRC : public Module
 				waiting.set(user, count - 1);
 			delete r;
 			if (cmd.notify)
-				 ServerInstance->SNO->WriteToSnoMask('w', "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason().c_str());
+				 SnomaskManager::Write(SNO_LOCAL, cgiirc, "Connecting user %s detected as using CGI:IRC (%s), but I could not resolve their hostname; %s", user->nick.c_str(), user->host.c_str(), ex.GetReason().c_str());
 		}
 	}
 
 public:
 	ModuleCgiIRC()
-		: cmd(this)
+		: cmd(this, cgiirc)
 		, waiting("cgiirc-delay", this)
 		, DNS(this, "DNS")
+		, cgiirc("CGIIRC")
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('w', "CGIIRC");
 	}
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

@@ -111,7 +111,7 @@ class ModuleFlashPD : public Module
 			{
 				const std::string error_message = "A file was specified for FlashPD, but it could not be loaded.";
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, error_message);
-				ServerInstance->SNO->WriteGlobalSno('a', error_message);
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, error_message);
 				policy_reply.clear();
 			}
 			return;

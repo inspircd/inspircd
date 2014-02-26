@@ -75,13 +75,13 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 		{
 			if (!duration)
 			{
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added permanent E-line for %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline,"%s added permanent E-line for %s: %s", user->nick.c_str(), target.c_str(), parameters[2].c_str());
 			}
 			else
 			{
 				time_t c_requires_crap = duration + ServerInstance->Time();
 				std::string timestr = InspIRCd::TimeString(c_requires_crap);
-				ServerInstance->SNO->WriteToSnoMask('x',"%s added timed E-line for %s, expires on %s: %s",user->nick.c_str(),target.c_str(),
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline,"%s added timed E-line for %s, expires on %s: %s",user->nick.c_str(),target.c_str(),
 						timestr.c_str(), parameters[2].c_str());
 			}
 		}
@@ -95,7 +95,7 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 	{
 		if (ServerInstance->XLines->DelLine(target.c_str(), "E", user))
 		{
-			ServerInstance->SNO->WriteToSnoMask('x',"%s removed E-line on %s",user->nick.c_str(),target.c_str());
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::xline,"%s removed E-line on %s",user->nick.c_str(),target.c_str());
 		}
 		else
 		{

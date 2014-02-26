@@ -43,7 +43,7 @@ class CommandGloadmodule : public Command
 		{
 			if (ServerInstance->Modules->Load(parameters[0].c_str()))
 			{
-				ServerInstance->SNO->WriteToSnoMask('a', "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
+				SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "NEW MODULE '%s' GLOBALLY LOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
 				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module successfully loaded.", parameters[0].c_str());
 			}
 			else
@@ -52,7 +52,7 @@ class CommandGloadmodule : public Command
 			}
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0].c_str(), user->nick.c_str());
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "MODULE '%s' GLOBAL LOAD BY '%s' (not loaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
 	}
@@ -92,7 +92,7 @@ class CommandGunloadmodule : public Command
 			{
 				if (ServerInstance->Modules->Unload(m))
 				{
-					ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
+					SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "MODULE '%s' GLOBALLY UNLOADED BY '%s'",parameters[0].c_str(), user->nick.c_str());
 					user->SendText(":%s 973 %s %s :Module successfully unloaded.",
 						ServerInstance->Config->ServerName.c_str(), user->nick.c_str(), parameters[0].c_str());
 				}
@@ -105,7 +105,7 @@ class CommandGunloadmodule : public Command
 				user->SendText(":%s %03d %s %s :No such module", ServerInstance->Config->ServerName.c_str(), ERR_CANTUNLOADMODULE, user->nick.c_str(), parameters[0].c_str());
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "MODULE '%s' GLOBAL UNLOAD BY '%s' (not unloaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
 	}
@@ -126,7 +126,7 @@ class GReloadModuleWorker : public HandlerBase1<void, bool>
 		: nick(usernick), name(modn), uid(uuid) {}
 	void Call(bool result)
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBALLY RELOADED BY '%s'%s", name.c_str(), nick.c_str(), result ? "" : " (failed here)");
+		SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "MODULE '%s' GLOBALLY RELOADED BY '%s'%s", name.c_str(), nick.c_str(), result ? "" : " (failed here)");
 		User* user = ServerInstance->FindNick(uid);
 		if (user)
 			user->WriteNumeric(RPL_LOADEDMODULE, "%s :Module %ssuccessfully reloaded.",
@@ -161,7 +161,7 @@ class CommandGreloadmodule : public Command
 			}
 		}
 		else
-			ServerInstance->SNO->WriteToSnoMask('a', "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "MODULE '%s' GLOBAL RELOAD BY '%s' (not reloaded here)",parameters[0].c_str(), user->nick.c_str());
 
 		return CMD_SUCCESS;
 	}

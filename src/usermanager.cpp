@@ -57,7 +57,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	catch (...)
 	{
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "*** WTF *** Duplicated UUID! -- Crack smoking monkeys have been unleashed.");
-		ServerInstance->SNO->WriteToSnoMask('a', "WARNING *** Duplicate UUID allocated!");
+		SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "WARNING *** Duplicate UUID allocated!");
 		return;
 	}
 	UserIOHandler* eh = &New->eh;
@@ -85,7 +85,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)SocketEngine::GetMaxFds()))
 	{
-		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
+		SnomaskManager::Write(SNO_LOCAL, SnomaskManager::announcement, "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
 		this->QuitUser(New,"No more connections allowed");
 		return;
 	}
@@ -198,7 +198,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 		lu->eh.Close();
 
 		if (lu->registered == REG_ALL)
-			ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operreason->c_str());
+			SnomaskManager::Write(SNO_LOCAL, SnomaskManager::quit, "Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operreason->c_str());
 	}
 
 	user_hash::iterator iter = this->clientlist->find(user->nick);

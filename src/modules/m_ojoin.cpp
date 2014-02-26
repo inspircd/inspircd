@@ -53,7 +53,7 @@ class CommandOjoin : public SplitCommand
 
 		if (channel)
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN to join "+channel->name);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used OJOIN to join "+channel->name);
 
 			if (notice)
 			{
@@ -65,7 +65,7 @@ class CommandOjoin : public SplitCommand
 		}
 		else
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN in "+parameters[0]);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used OJOIN in "+parameters[0]);
 			// they're already in the channel
 			std::vector<std::string> modes;
 			modes.push_back(parameters[0]);

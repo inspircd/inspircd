@@ -42,7 +42,7 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 	ServerInstance->Logs->Log("COMMAND", LOG_DEFAULT, "Restart: %s",user->nick.c_str());
 	if (ServerInstance->PassCompare(user, ServerInstance->Config->restartpass, parameters[0], ServerInstance->Config->powerhash))
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "RESTART command from %s, restarting server.", user->GetFullRealHost().c_str());
 
 		ServerInstance->SendError("Server restarting.");
 
@@ -62,12 +62,12 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 #endif
 
 		execv(ServerInstance->Config->cmdline.argv[0], ServerInstance->Config->cmdline.argv);
-		ServerInstance->SNO->WriteGlobalSno('a', "Failed RESTART - could not execute '%s' (%s)",
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Failed RESTART - could not execute '%s' (%s)",
 			ServerInstance->Config->cmdline.argv[0], strerror(errno));
 	}
 	else
 	{
-		ServerInstance->SNO->WriteGlobalSno('a', "Failed RESTART Command from %s.", user->GetFullRealHost().c_str());
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Failed RESTART Command from %s.", user->GetFullRealHost().c_str());
 	}
 	return CMD_FAILURE;
 }

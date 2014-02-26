@@ -62,7 +62,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 	if (!isPublic && !isRemoteOper && !isLocalOperWithPrivs)
 	{
-		ServerInstance->SNO->WriteToSnoMask('t',
+		SnomaskManager::Write(SNO_LOCAL, SnomaskManager::stats,
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
 				statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
@@ -75,7 +75,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 	if (MOD_RESULT == MOD_RES_DENY)
 	{
 		results.push_back("219 "+user->nick+" "+statschar+" :End of /STATS report");
-		ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
+		SnomaskManager::Write(SNO_LOCAL, SnomaskManager::stats,"%s '%c' requested by %s (%s@%s)",
 			(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return;
 	}
@@ -387,7 +387,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 	}
 
 	results.push_back("219 "+user->nick+" "+statschar+" :End of /STATS report");
-	ServerInstance->SNO->WriteToSnoMask('t',"%s '%c' requested by %s (%s@%s)",
+	SnomaskManager::Write(SNO_LOCAL, SnomaskManager::stats,"%s '%c' requested by %s (%s@%s)",
 		(IS_LOCAL(user) ? "Stats" : "Remote stats"), statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 	return;
 }

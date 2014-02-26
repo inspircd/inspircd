@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2014 Adam <Adam@anope.org>
  *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2007 Dennis Friis <peavey@inspircd.org>
  *   Copyright (C) 2006 Craig Edwards <craigedwards@brainbox.cc>
@@ -25,123 +26,101 @@
 #include "users.h"
 #include "builtinmodes.h"
 
-ModeUserServerNoticeMask::ModeUserServerNoticeMask() : ModeHandler(NULL, "snomask", 's', PARAM_SETONLY, MODETYPE_USER)
+ModeUserServerNoticeMask::ModeUserServerNoticeMask() : ModeHandler(NULL, "snomask", 's', PARAM_ALWAYS, MODETYPE_USER)
 {
 	oper = true;
 }
 
 ModeAction ModeUserServerNoticeMask::OnModeChange(User* source, User* dest, Channel*, std::string &parameter, bool adding)
 {
-	if (adding)
-	{
-		dest->SetMode(this, true);
-		// Process the parameter (remove chars we don't understand, remove redundant chars, etc.)
-		parameter = ProcessNoticeMasks(dest, parameter);
-		return MODEACTION_ALLOW;
-	}
-	else
-	{
-		if (dest->IsModeSet(this))
-		{
-			dest->SetMode(this, false);
-			dest->snomasks.reset();
-			return MODEACTION_ALLOW;
-		}
-	}
-
-	// Mode not set and trying to unset, deny
-	return MODEACTION_DENY;
+	parameter = ProcessNoticeMasks(dest, parameter, adding);
+	return MODEACTION_ALLOW;
 }
 
 std::string ModeUserServerNoticeMask::GetUserParameter(User* user)
 {
 	std::string ret;
+
 	if (!user->IsModeSet(this))
 		return ret;
 
-	ret.push_back('+');
-	for (unsigned char n = 0; n < 64; n++)
+	for (unsigned i = 0; i < user->snomasks.size(); ++i)
+		if (user->snomasks[i])
+		{
+			bool remote = i & 1;
+			Snomask *sno = SnomaskManager::FindSnomaskByPos(i - remote);
+			if (sno == NULL)
+				continue;
+
+			std::string r = remote ? "REMOTE" : "";
+			ret += "," + r + sno->name;
+		}
+
+	if (!ret.empty())
 	{
-		if (user->snomasks[n])
-			ret.push_back(n + 'A');
+		ret = ret.substr(1);
+		std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
 	}
+
 	return ret;
 }
 
 void ModeUserServerNoticeMask::OnParameterMissing(User* user, User* dest, Channel* channel)
 {
-	user->WriteNotice("*** The user mode +s requires a parameter (server notice mask). Please provide a parameter, e.g. '+s +*'.");
+	user->WriteNotice("*** The user mode +" + ConvToStr(mode) + " requires a parameter (server notice mask). Please provide a parameter, e.g. '+" + ConvToStr(mode) + " +*'.");
 }
 
-std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::string& input)
+std::string ModeUserServerNoticeMask::ProcessNoticeMasks(User* user, const std::string& input, bool adding)
 {
-	bool adding = true;
-	std::bitset<64> curr = user->snomasks;
+	irc::commasepstream sep(input);
+	std::set<std::string> changed;
 
-	for (std::string::const_iterator i = input.begin(); i != input.end(); ++i)
+	for (std::string token; sep.GetToken(token);)
 	{
-		switch (*i)
+		if (token == "*")
 		{
-			case '+':
-				adding = true;
-			break;
-			case '-':
-				adding = false;
-			break;
-			case '*':
-				for (size_t j = 0; j < 64; j++)
-				{
-					if (ServerInstance->SNO->IsSnomaskUsable(j+'A'))
-						curr[j] = adding;
-				}
-			break;
-			default:
-				// For local users check whether the given snomask is valid and enabled - IsSnomaskUsable() tests both.
-				// For remote users accept what we were told, unless the snomask char is not a letter.
-				if (IS_LOCAL(user))
-				{
-					if (!ServerInstance->SNO->IsSnomaskUsable(*i))
-					{
-						user->WriteNumeric(ERR_UNKNOWNSNOMASK, "%c :is unknown snomask char to me", *i);
-						continue;
-					}
-				}
-				else if (!(((*i >= 'a') && (*i <= 'z')) || ((*i >= 'A') && (*i <= 'Z'))))
-					continue;
+			std::vector<Snomask*> v = SnomaskManager::GetSnomasks();
+			for (unsigned j = 0; j < v.size(); ++j)
+			{
+				Snomask *s = v[j];
 
-				size_t index = ((*i) - 'A');
-				curr[index] = adding;
-			break;
+				if (user->snomasks[s->pos] != adding)
+				{
+					user->snomasks[s->pos] = adding;
+					changed.insert(s->name);
+				}
+				if (user->snomasks[s->pos + 1] != adding)
+				{
+					user->snomasks[s->pos + 1] = adding;
+					changed.insert("REMOTE" + s->name);
+				}
+			}
+			continue;
+		}
+
+		std::transform(token.begin(), token.end(), token.begin(), ::toupper);
+		bool remote = false;
+		if (!token.find("REMOTE"))
+		{
+			token = token.substr(6);
+			remote = true;
+		}
+		Snomask* snomask = SnomaskManager::FindSnomaskByName(token);
+		if (snomask == NULL)
+		{
+			if (IS_LOCAL(user))
+				user->WriteNumeric(ERR_UNKNOWNSNOMASK, "%s :is unknown snomask to me", token.c_str());
+			continue;
+		}
+
+		if (user->snomasks[snomask->pos + remote] != adding)
+		{
+			user->snomasks[snomask->pos + remote] = adding;
+			changed.insert((remote ? "REMOTE" : "") + snomask->name);
 		}
 	}
 
-	std::string plus = "+";
-	std::string minus = "-";
+	user->SetMode(this, !user->snomasks.none());
 
-	// Apply changes and construct two strings consisting of the newly added and the removed snomask chars
-	for (size_t i = 0; i < 64; i++)
-	{
-		bool isset = curr[i];
-		if (user->snomasks[i] != isset)
-		{
-			user->snomasks[i] = isset;
-			std::string& appendhere = (isset ? plus : minus);
-			appendhere.push_back(i+'A');
-		}
-	}
-
-	// Create the final string that will be shown to the user and sent to servers
-	// Form: "+ABc-de"
-	std::string output;
-	if (plus.length() > 1)
-		output = plus;
-
-	if (minus.length() > 1)
-		output += minus;
-
-	// Unset the snomask usermode itself if every snomask was unset
-	if (user->snomasks.none())
-		user->SetMode(this, false);
-
-	return output;
+	return irc::stringjoiner(changed, ',');
 }

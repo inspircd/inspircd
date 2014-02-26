@@ -172,7 +172,17 @@ namespace irc
 	 * @param sequence Zero or more items to join.
 	 * @separator The character to place between the items.
 	 */
-   	std::string CoreExport stringjoiner(const std::vector<std::string>& sequence, char separator = ' ');
+	template<typename T> std::string stringjoiner(const T& sequence, char separator = ' ')
+	{
+		std::string joined;
+		if (sequence.empty())
+			return joined; // nothing to do here
+
+		for (typename T::const_iterator i = sequence.begin(); i != sequence.end(); ++i)
+			joined.append(*i).push_back(separator);
+		joined.erase(joined.end()-1);
+		return joined;
+	}
 
 	/** irc::modestacker stacks mode sequences into a list.
 	 * It can then reproduce this list, clamped to a maximum of MAXMODES

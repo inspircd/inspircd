@@ -23,12 +23,12 @@
 
 class ModuleOperLog : public Module
 {
+	Snomask operlog;
 	bool tosnomask;
 
  public:
-	void init() CXX11_OVERRIDE
+	ModuleOperLog() : operlog("OPERLOG")
 	{
-		ServerInstance->SNO->EnableSnomask('r', "OPERLOG");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -55,7 +55,7 @@ class ModuleOperLog : public Module
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + irc::stringjoiner(parameters);
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "OPERLOG: " + msg);
 				if (tosnomask)
-					ServerInstance->SNO->WriteGlobalSno('r', msg);
+					SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, operlog, msg);
 			}
 		}
 

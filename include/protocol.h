@@ -117,7 +117,7 @@ class CoreExport ProtocolInterface
 	 * @param snomask The snomask required for the message to be sent.
 	 * @param text The message to send.
 	 */
-	virtual void SendSNONotice(char snomask, const std::string& text) { }
+	virtual void SendSNONotice(Snomask& snomask, const std::string& text) { }
 
 	/** Send raw data to a remote client.
 	 * @param target The user to push data to.

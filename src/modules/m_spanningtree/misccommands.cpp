@@ -31,7 +31,11 @@
 
 CmdResult CommandSNONotice::Handle(User* user, std::vector<std::string>& params)
 {
-	ServerInstance->SNO->WriteToSnoMask(params[0][0], "From " + user->nick + ": " + params[1]);
+	Snomask *snomask = SnomaskManager::FindSnomaskByName(params[0]);
+	if (snomask == NULL)
+		snomask = &SnomaskManager::announcement;
+
+	SnomaskManager::Write(SNO_REMOTE, *snomask, "From " + user->nick + ": " + params[1]);
 	return CMD_SUCCESS;
 }
 

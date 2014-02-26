@@ -40,6 +40,7 @@ class RemoteUser;
 class Server;
 class ServerConfig;
 class ServerLimits;
+class Snomask;
 class Thread;
 class User;
 class XLine;

@@ -58,7 +58,7 @@ class CommandChgname : public Command
 		if (IS_LOCAL(dest))
 		{
 			dest->ChangeName(parameters[1]);
-			ServerInstance->SNO->WriteGlobalSno('a', "%s used CHGNAME to change %s's GECOS to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "%s used CHGNAME to change %s's GECOS to '%s'", user->nick.c_str(), dest->nick.c_str(), dest->fullname.c_str());
 		}
 
 		return CMD_SUCCESS;

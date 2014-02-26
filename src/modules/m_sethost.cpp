@@ -54,7 +54,7 @@ class CommandSethost : public Command
 
 		if (user->ChangeDisplayedHost(parameters[0]))
 		{
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SETHOST to change their displayed host to "+user->dhost);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick+" used SETHOST to change their displayed host to "+user->dhost);
 			return CMD_SUCCESS;
 		}
 

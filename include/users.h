@@ -28,6 +28,7 @@
 #include "inspsocket.h"
 #include "mode.h"
 #include "membership.h"
+#include "snomasks.h"
 
 /** connect class types
  */
@@ -296,9 +297,8 @@ class CoreExport User : public Extensible
 	std::string fullname;
 
 	/** What snomasks are set on this user.
-	 * This functions the same as the above modes.
 	 */
-	std::bitset<64> snomasks;
+	Snomasks snomasks;
 
 	/** Channels this user is on
 	 */
@@ -392,10 +392,9 @@ class CoreExport User : public Extensible
 	bool IsOper() const { return oper; }
 
 	/** Returns true if a notice mask is set
-	 * @param sm A notice mask character to check
 	 * @return True if the notice mask is set
 	 */
-	bool IsNoticeMaskSet(unsigned char sm);
+	bool IsNoticeMaskSet(Snomask *snomask, bool remote) const;
 
 	/** Create a displayable mode string for this users umodes
 	 * @param showparameters The mode string

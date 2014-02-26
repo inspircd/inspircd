@@ -22,13 +22,13 @@
 #include "utils.h"
 #include "treeserver.h"
 #include "commands.h"
-#include "utils.h"
+#include "main.h"
 
 CmdResult CommandPong::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
 	if (server->bursting)
 	{
-		ServerInstance->SNO->WriteGlobalSno('l', "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());
+		SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());
 		server->FinishBurst();
 	}
 

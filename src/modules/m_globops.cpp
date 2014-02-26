@@ -19,7 +19,7 @@
  */
 
 
-// Globops and snomask +g module by C.J.Edwards
+// Globops module by C.J.Edwards
 
 #include "inspircd.h"
 
@@ -27,33 +27,32 @@
  */
 class CommandGlobops : public Command
 {
+	Snomask& globops;
+
  public:
-	CommandGlobops(Module* Creator) : Command(Creator,"GLOBOPS", 1,1)
+	CommandGlobops(Module* Creator, Snomask& Globops) : Command(Creator,"GLOBOPS", 1,1), globops(Globops)
 	{
 		flags_needed = 'o'; syntax = "<any-text>";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)
 	{
-		ServerInstance->SNO->WriteGlobalSno('g', "From " + user->nick + ": " + parameters[0]);
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, globops, "From " + user->nick + ": " + parameters[0]);
 		return CMD_SUCCESS;
 	}
 };
 
 class ModuleGlobops : public Module
 {
+	Snomask globops;
 	CommandGlobops cmd;
- public:
-	ModuleGlobops() : cmd(this) {}
 
-	void init() CXX11_OVERRIDE
-	{
-		ServerInstance->SNO->EnableSnomask('g',"GLOBOPS");
-	}
+ public:
+	ModuleGlobops() : globops("GLOBOPS"), cmd(this, globops) {}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides support for GLOBOPS and snomask +g", VF_VENDOR);
+		return Version("Provides support for GLOBOPS, and the snomask GLOBOPS", VF_VENDOR);
 	}
 };
 

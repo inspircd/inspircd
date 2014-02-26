@@ -30,7 +30,6 @@ class CommandWhois : public SplitCommand
 {
 	ChanModeReference secretmode;
 	ChanModeReference privatemode;
-	UserModeReference snomaskmode;
 
 	void SplitChanList(User* source, User* dest, const std::string& cl);
 	void DoWhois(User* user, User* dest, unsigned long signon, unsigned long idle);
@@ -43,7 +42,6 @@ class CommandWhois : public SplitCommand
 		: SplitCommand(parent, "WHOIS", 1)
 		, secretmode(parent, "secret")
 		, privatemode(parent, "private")
-		, snomaskmode(parent, "snomask")
 	{
 		Penalty = 2;
 		syntax = "<nick>{,<nick>}";
@@ -155,16 +153,7 @@ void CommandWhois::DoWhois(User* user, User* dest, unsigned long signon, unsigne
 	}
 
 	if (user == dest || user->HasPrivPermission("users/auspex"))
-	{
-		if (dest->IsModeSet(snomaskmode))
-		{
-			ServerInstance->SendWhoisLine(user, dest, 379, "%s :is using modes +%s %s", dest->nick.c_str(), dest->FormatModes(), snomaskmode->GetUserParameter(dest).c_str());
-		}
-		else
-		{
-			ServerInstance->SendWhoisLine(user, dest, 379, "%s :is using modes +%s", dest->nick.c_str(), dest->FormatModes());
-		}
-	}
+		ServerInstance->SendWhoisLine(user, dest, 379, "%s :is using modes +%s", dest->nick.c_str(), dest->FormatModes(true));
 
 	FOREACH_MOD(OnWhois, (user,dest));
 

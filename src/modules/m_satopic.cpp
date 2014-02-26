@@ -40,7 +40,7 @@ class CommandSATopic : public Command
 		{
 			const std::string& newTopic = parameters[1];
 			target->SetTopic(user, newTopic);
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, user->nick + " used SATOPIC on " + target->name + ", new topic: " + newTopic);
 
 			return CMD_SUCCESS;
 		}

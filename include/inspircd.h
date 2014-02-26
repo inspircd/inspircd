@@ -364,11 +364,6 @@ class CoreExport InspIRCd
 	 */
 	ServerConfig* Config;
 
-	/** Snomask manager - handles routing of snomask messages
-	 * to opers.
-	 */
-	SnomaskManager* SNO;
-
 	/** Timer manager class, triggers Timer timer events
 	 */
 	TimerManager* Timers;

@@ -44,7 +44,7 @@ CmdResult CommandRConnect::Handle (const std::vector<std::string>& parameters, U
 	if (InspIRCd::Match(ServerInstance->Config->ServerName,parameters[0]))
 	{
 		/* Yes, initiate the given connect */
-		ServerInstance->SNO->WriteToSnoMask('l',"Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
+		SnomaskManager::Write(SNO_LOCAL, Utils->Creator->link, "Remote CONNECT from %s matching \002%s\002, connecting server \002%s\002",user->nick.c_str(),parameters[0].c_str(),parameters[1].c_str());
 		std::vector<std::string> para;
 		para.push_back(parameters[1]);
 		((ModuleSpanningTree*)(Module*)creator)->HandleConnect(para, user);

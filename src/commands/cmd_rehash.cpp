@@ -76,7 +76,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	if (!ServerInstance->ConfigThread)
 	{
 		std::string m = user->nick + " is rehashing config file " + FileSystem::GetFileName(ServerInstance->ConfigFileName) + " on " + ServerInstance->Config->ServerName;
-		ServerInstance->SNO->WriteGlobalSno('a', m);
+		SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, m);
 
 		if (IS_LOCAL(user))
 			user->WriteNumeric(RPL_REHASHING, "%s :Rehashing", FileSystem::GetFileName(ServerInstance->ConfigFileName).c_str());

@@ -42,7 +42,7 @@ class ModuleOperLevels : public Module
 
 				if (dest_level > source_level)
 				{
-					if (IS_LOCAL(source)) ServerInstance->SNO->WriteGlobalSno('a', "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());
+					if (IS_LOCAL(source)) SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Oper %s (level %ld) attempted to /kill a higher oper: %s (level %ld): Reason: %s",source->nick.c_str(),source_level,dest->nick.c_str(),dest_level,reason.c_str());
 					dest->WriteNotice("*** Oper " + source->nick + " attempted to /kill you!");
 					source->WriteNumeric(ERR_NOPRIVILEGES, ":Permission Denied - Oper %s is a higher level than you", dest->nick.c_str());
 					return MOD_RES_DENY;

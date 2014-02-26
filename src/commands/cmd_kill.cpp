@@ -128,7 +128,7 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 		{
 			// remote kill
 			if (!user->server->IsULine())
-				ServerInstance->SNO->WriteToSnoMask('K', "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+				SnomaskManager::Write(SNO_REMOTE, SnomaskManager::kill, "Remote kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
 			this->lastuuid = u->uuid;
 		}
 		else
@@ -140,10 +140,8 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 			 */
 			if (!user->server->IsULine())
 			{
-				if (IS_LOCAL(user))
-					ServerInstance->SNO->WriteGlobalSno('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
-				else
-					ServerInstance->SNO->WriteToSnoMask('k',"Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
+				int sno = IS_LOCAL(user) ? (SNO_REMOTE | SNO_BROADCAST) : SNO_LOCAL;
+				SnomaskManager::Write(sno, SnomaskManager::kill, "Local Kill by %s: %s (%s)", user->nick.c_str(), u->GetFullRealHost().c_str(), parameters[1].c_str());
 			}
 
 			ServerInstance->Logs->Log("KILL", LOG_DEFAULT, "LOCAL KILL: %s :%s!%s!%s (%s)", u->nick.c_str(), ServerInstance->Config->ServerName.c_str(), user->dhost.c_str(), user->nick.c_str(), parameters[1].c_str());

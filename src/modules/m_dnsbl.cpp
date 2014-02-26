@@ -137,7 +137,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(kl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(kl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x',"K:line added due to DNSBL match on *@%s to expire on %s: %s",
+						SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::xline,"K:line added due to DNSBL match on *@%s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -155,7 +155,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(gl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(gl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x',"G:line added due to DNSBL match on *@%s to expire on %s: %s",
+						SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::xline,"G:line added due to DNSBL match on *@%s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -173,7 +173,7 @@ class DNSBLResolver : public DNS::Request
 					if (ServerInstance->XLines->AddLine(zl,NULL))
 					{
 						std::string timestr = InspIRCd::TimeString(zl->expiry);
-						ServerInstance->SNO->WriteGlobalSno('x',"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
+						SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::xline,"Z:line added due to DNSBL match on *@%s to expire on %s: %s",
 							them->GetIPString().c_str(), timestr.c_str(), reason.c_str());
 						ServerInstance->XLines->ApplyLines();
 					}
@@ -189,7 +189,7 @@ class DNSBLResolver : public DNS::Request
 					break;
 			}
 
-			ServerInstance->SNO->WriteGlobalSno('a', "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
+			SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "Connecting user %s%s detected as being on a DNS blacklist (%s) with result %d", them->nick.empty() ? "<unknown>" : "", them->GetFullRealHost().c_str(), ConfEntry->domain.c_str(), (ConfEntry->type==DNSBLConfEntry::A_BITMASK) ? bitmask : record);
 		}
 		else
 			ConfEntry->stats_misses++;
@@ -285,29 +285,29 @@ class ModuleDNSBL : public Module
 			if ((e->bitmask <= 0) && (DNSBLConfEntry::A_BITMASK == e->type))
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): invalid bitmask", location.c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "DNSBL(%s): invalid bitmask", location.c_str());
 			}
 			else if (e->name.empty())
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid name", location.c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "DNSBL(%s): Invalid name", location.c_str());
 			}
 			else if (e->domain.empty())
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid domain", location.c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "DNSBL(%s): Invalid domain", location.c_str());
 			}
 			else if (e->banaction == DNSBLConfEntry::I_UNKNOWN)
 			{
 				std::string location = tag->getTagLocation();
-				ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): Invalid banaction", location.c_str());
+				SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "DNSBL(%s): Invalid banaction", location.c_str());
 			}
 			else
 			{
 				if (e->reason.empty())
 				{
 					std::string location = tag->getTagLocation();
-					ServerInstance->SNO->WriteGlobalSno('a', "DNSBL(%s): empty reason, using defaults", location.c_str());
+					SnomaskManager::Write(SNO_REMOTE | SNO_BROADCAST, SnomaskManager::announcement, "DNSBL(%s): empty reason, using defaults", location.c_str());
 					e->reason = "Your IP has been blacklisted.";
 				}
 

@@ -23,10 +23,11 @@
 
 class ModuleSeeNicks : public Module
 {
+	Snomask nick;
+
  public:
-	void init() CXX11_OVERRIDE
+	ModuleSeeNicks() : nick("NICK")
 	{
-		ServerInstance->SNO->EnableSnomask('n',"NICK");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
@@ -36,7 +37,7 @@ class ModuleSeeNicks : public Module
 
 	void OnUserPostNick(User* user, const std::string &oldnick) CXX11_OVERRIDE
 	{
-		ServerInstance->SNO->WriteToSnoMask(IS_LOCAL(user) ? 'n' : 'N',"User %s changed their nickname to %s", oldnick.c_str(), user->nick.c_str());
+		SnomaskManager::Write(IS_LOCAL(user) ? SNO_LOCAL : SNO_REMOTE, nick, "User %s changed their nickname to %s", oldnick.c_str(), user->nick.c_str());
 	}
 };
 
