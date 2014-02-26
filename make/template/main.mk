@@ -33,7 +33,7 @@
 CXX = @CXX@
 COMPILER = @COMPILER@
 SYSTEM = @SYSTEM@
-BUILDPATH = @BUILD_DIR@
+BUILDPATH ?= $(PWD)/build
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
 LDLIBS = -lstdc++
@@ -131,7 +131,7 @@ FOOTER = finishmessage
 CORECXXFLAGS += $(CXXFLAGS)
 
 @DO_EXPORT RUNCC RUNLD CORECXXFLAGS LDLIBS PICLDFLAGS VERBOSE SOCKETENGINE CORELDFLAGS
-@DO_EXPORT SOURCEPATH BUILDPATH PURE_STATIC SPLIT_CC
+@DO_EXPORT SOURCEPATH BUILDPATH PURE_STATIC
 
 # Default target
 TARGET = all
@@ -228,7 +228,10 @@ install: target
 @IFNDEF PURE_STATIC
 	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 @ENDIF
-	-$(INSTALL) -m $(INSTMODE_BIN) @STARTSCRIPT@ $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_BIN) inspircd $(BASE) 2>/dev/null
+@IFEQ $(SYSTEM) darwin
+	-$(INSTALL) -m $(INSTMODE_BIN) org.inspircd.plist $(BASE) 2>/dev/null
+@ENDIF
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
