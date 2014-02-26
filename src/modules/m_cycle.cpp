@@ -50,21 +50,15 @@ class CommandCycle : public SplitCommand
 
 		if (channel->HasUser(user))
 		{
-			/*
-			 * technically, this is only ever sent locally, but pays to be safe ;p
-			 */
-			if (IS_LOCAL(user))
+			if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->IsBanned(user))
 			{
-				if (channel->GetPrefixValue(user) < VOICE_VALUE && channel->IsBanned(user))
-				{
-					/* banned, boned. drop the message. */
-					user->WriteNotice("*** You may not cycle, as you are banned on channel " + channel->name);
-					return CMD_FAILURE;
-				}
-
-				channel->PartUser(user, reason);
-				Channel::JoinUser(user, parameters[0], true);
+				// User is banned, send an error and don't cycle them
+				user->WriteNotice("*** You may not cycle, as you are banned on channel " + channel->name);
+				return CMD_FAILURE;
 			}
+
+			channel->PartUser(user, reason);
+			Channel::JoinUser(user, parameters[0], true);
 
 			return CMD_SUCCESS;
 		}
