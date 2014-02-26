@@ -131,7 +131,6 @@ sub cmd_update {
 	print "Updating...\n";
 	%main::config = read_configure_cache();
 	%main::cxx = get_compiler_info($main::config{CXX});
-	$main::topdir = getcwd();
 	main::writefiles();
 	print "Update complete!\n";
 	exit 0;

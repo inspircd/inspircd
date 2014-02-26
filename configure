@@ -101,13 +101,12 @@ our $interactive = !(
 	(defined $opt_use_gnutls)
 );
 
-our $topdir = getcwd();
 our %config = read_configure_cache();
 
 print "Checking for cache from previous configure... ";
 print %config ? "found\n" : "not found\n";
 
-$config{BASE_DIR} = $topdir."/run";
+$config{BASE_DIR} = getcwd()."/run";
 
 if (defined $opt_base_dir) {
 	$config{BASE_DIR} = $opt_base_dir;
@@ -120,7 +119,6 @@ if (defined $opt_system) {
 	$config{CONFIG_DIR} = '/etc/inspircd';
 	$config{MODULE_DIR} = '/usr/lib/inspircd';
 	$config{BINARY_DIR} = '/usr/sbin/';
-	$config{BUILD_DIR} = $topdir."/build";
 	$config{DATA_DIR} = '/var/inspircd';
 	$config{LOG_DIR} = '/var/log/inspircd';
 } else {
@@ -128,7 +126,6 @@ if (defined $opt_system) {
 	$config{CONFIG_DIR} = rel2abs($config{BASE_DIR}."/conf");
 	$config{MODULE_DIR} = rel2abs($config{BASE_DIR}."/modules");
 	$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
-	$config{BUILD_DIR} = rel2abs($topdir."/build");
 	$config{DATA_DIR} = rel2abs($config{BASE_DIR}."/data");
 	$config{LOG_DIR} = rel2abs($config{BASE_DIR}."/logs");
 }
@@ -163,8 +160,6 @@ if (defined $opt_use_openssl)
 {
 	$config{USE_OPENSSL} = "y";
 }
-
-$config{STARTSCRIPT} = $^O eq 'darwin' ? 'org.inspircd.plist' : 'inspircd';
 
 $config{CXX} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
 if ($config{CXX} eq "") {
@@ -312,7 +307,6 @@ EOW
 	$config{DATA_DIR} = prompt_dir(1, 'In what directory are variable data files to be stored?', $config{DATA_DIR});
 	$config{LOG_DIR} = prompt_dir(1, 'In what directory are log files to be stored?', $config{LOG_DIR});
 	$config{MODULE_DIR} = prompt_dir(1, 'In what directory are the modules to be placed?', $config{MODULE_DIR});
-	$config{BUILD_DIR} = prompt_dir(1, 'In what directory do you want the build to take place?', $config{BUILD_DIR});
 
 	my $chose_hiperf = 0;
 	if ($config{HAS_KQUEUE}) {
@@ -489,13 +483,11 @@ EOF
 		$_ = join '', <FILEHANDLE>;
 		close(FILEHANDLE);
 
-		$config{BUILD_DIR} ||= rel2abs($topdir."/build");
 		$config{COMPILER} = lc $cxx{NAME};
 		$config{SYSTEM} = lc $^O;
 
 		for my $var (qw(
-			CXX COMPILER SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR BUILD_DIR DATA_DIR UID
-			STARTSCRIPT SOCKETENGINE
+			CXX COMPILER SYSTEM BASE_DIR CONFIG_DIR MODULE_DIR BINARY_DIR DATA_DIR UID SOCKETENGINE
 		)) {
 			s/\@$var\@/$config{$var}/g;
 		}
