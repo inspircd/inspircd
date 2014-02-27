@@ -64,23 +64,20 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 
 	if (parameters.size() == 1)
 	{
-		if (c)
+		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
 		{
-			if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
-			{
-				user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c->name.c_str());
-				return CMD_FAILURE;
-			}
+			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c->name.c_str());
+			return CMD_FAILURE;
+		}
 
-			if (c->topic.length())
-			{
-				user->WriteNumeric(RPL_TOPIC, "%s :%s", c->name.c_str(), c->topic.c_str());
-				user->WriteNumeric(RPL_TOPICTIME, "%s %s %lu", c->name.c_str(), c->setby.c_str(), (unsigned long)c->topicset);
-			}
-			else
-			{
-				user->WriteNumeric(RPL_NOTOPICSET, "%s :No topic is set.", c->name.c_str());
-			}
+		if (c->topic.length())
+		{
+			user->WriteNumeric(RPL_TOPIC, "%s :%s", c->name.c_str(), c->topic.c_str());
+			user->WriteNumeric(RPL_TOPICTIME, "%s %s %lu", c->name.c_str(), c->setby.c_str(), (unsigned long)c->topicset);
+		}
+		else
+		{
+			user->WriteNumeric(RPL_NOTOPICSET, "%s :No topic is set.", c->name.c_str());
 		}
 		return CMD_SUCCESS;
 	}
