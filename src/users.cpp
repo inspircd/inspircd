@@ -1073,9 +1073,6 @@ void User::SendText(const std::string& linePrefix, std::stringstream& textStream
  */
 bool User::SharesChannelWith(User *other)
 {
-	if ((this->registered != REG_ALL) || (other->registered != REG_ALL))
-		return false;
-
 	/* Outer loop */
 	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
 	{
