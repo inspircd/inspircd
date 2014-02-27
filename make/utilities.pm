@@ -127,7 +127,8 @@ sub pkgconfig_get_include_dirs($$$;$)
 	if ((!defined $v) || ($v eq ""))
 	{
 		print "\e[31mCould not find $packagename via pkg-config\e[m (\e[1;32mplease install pkg-config\e[m)\n";
-		$foo = `locate "$headername" 2>/dev/null | head -n 1`;
+		my $locbin = $^O eq 'solaris' ? 'slocate' : 'locate';
+		$foo = `$locbin "$headername" 2>/dev/null | head -n 1`;
 		my $find = $foo =~ /(.+)\Q$headername\E/ ? $1 : '';
 		chomp($find);
 		if ((defined $find) && ($find ne "") && ($find ne $packagename))
@@ -242,7 +243,8 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	my $foo = "";
 	if ((!defined $v) || ($v eq ""))
 	{
-		$foo = `locate "$libname" | head -n 1`;
+		my $locbin = $^O eq 'solaris' ? 'slocate' : 'locate';
+		$foo = `$locbin "$libname" | head -n 1`;
 		$foo =~ /(.+)\Q$libname\E/;
 		my $find = $1;
 		chomp($find);
