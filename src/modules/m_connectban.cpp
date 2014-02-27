@@ -27,6 +27,7 @@ class ModuleConnectBan : public Module
 	unsigned int banduration;
 	unsigned int ipv4_cidr;
 	unsigned int ipv6_cidr;
+	std::string banmessage;
 
  public:
 	Version GetVersion() CXX11_OVERRIDE
@@ -42,6 +43,7 @@ class ModuleConnectBan : public Module
 		ipv6_cidr = tag->getInt("ipv6cidr", 128, 1, 128);
 		threshold = tag->getInt("threshold", 10, 1);
 		banduration = tag->getDuration("duration", 10*60, 1);
+		banmessage = tag->getString("banmessage", "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.");
 	}
 
 	void OnSetUserIP(LocalUser* u) CXX11_OVERRIDE
@@ -72,7 +74,7 @@ class ModuleConnectBan : public Module
 			if (i->second >= threshold)
 			{
 				// Create zline for set duration.
-				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, "Your IP range has been attempting to connect too many times in too short a duration. Wait a while, and you will be able to connect.", mask.str());
+				ZLine* zl = new ZLine(ServerInstance->Time(), banduration, ServerInstance->Config->ServerName, banmessage, mask.str());
 				if (!ServerInstance->XLines->AddLine(zl, NULL))
 				{
 					delete zl;
