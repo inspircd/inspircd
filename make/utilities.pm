@@ -86,7 +86,7 @@ sub make_rpath($;$)
 			print "Adding extra library path to \e[1;32m$module\e[0m ... \e[1;32m$libpath\e[0m\n";
 			$already_added{$libpath} = 1;
 		}
-		$output .= "-Wl,--rpath -Wl,$libpath -L$libpath " unless defined $main::opt_disablerpath;
+		$output .= "-Wl,-rpath -Wl,$libpath -L$libpath " unless defined $main::opt_disablerpath;
 		$data =~ s/-L(\S+)//;
 	}
 	return $output;
@@ -434,7 +434,6 @@ sub translate_functions($$)
 		while ($line =~ /rpath\("(.+?)"\)/)
 		{
 			my $replace = make_rpath($1,$module);
-			$replace = "" if ($^O =~ /darwin/i);
 			$line =~ s/rpath\("(.+?)"\)/$replace/;
 		}
 	};
