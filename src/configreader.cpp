@@ -743,7 +743,10 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	User* user = useruid.empty() ? NULL : ServerInstance->FindNick(useruid);
 
 	if (!valid)
+	{
 		ServerInstance->Logs->Log("CONFIG",DEFAULT, "There were errors in your configuration file:");
+		Classes.clear();
+	}
 
 	while (errstr.good())
 	{
