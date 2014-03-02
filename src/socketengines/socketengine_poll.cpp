@@ -29,17 +29,8 @@
 #include "inspircd.h"
 #include "socketengine.h"
 
-#ifndef _WIN32
-# ifndef __USE_XOPEN
-#  define __USE_XOPEN /* fuck every fucking OS ever made. needed by poll.h to work.*/
-# endif
-# include <poll.h>
-# include <sys/poll.h>
-# include <sys/resource.h>
-#else
-# define struct pollfd WSAPOLLFD
-# define poll WSAPoll
-#endif
+#include <sys/poll.h>
+#include <sys/resource.h>
 
 /** A specialisation of the SocketEngine class, designed to use poll().
  */
