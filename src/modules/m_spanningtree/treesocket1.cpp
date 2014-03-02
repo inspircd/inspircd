@@ -201,7 +201,7 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		}
 		else
 		{
-			ServerInstance->SNO->WriteGlobalSno('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
+			ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
 		}
 		int num_lost_servers = 0;
 		int num_lost_users = 0;
