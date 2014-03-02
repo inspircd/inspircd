@@ -212,8 +212,9 @@ void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
 		Current->Tidy();
 		Current->GetParent()->DelChild(Current);
 		Current->cull();
+		const bool ismyroot = (Current == MyRoot);
 		delete Current;
-		if (Current == MyRoot)
+		if (ismyroot)
 		{
 			MyRoot = NULL;
 			Close();
