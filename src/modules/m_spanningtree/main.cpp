@@ -38,7 +38,6 @@
 ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
 	, commands(NULL), DNS(this, "DNS")
-	, KeepNickTS(false)
 {
 }
 
@@ -588,7 +587,6 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 		params.push_back(user->nick);
 		params.push_back(ConvToStr(user->age));
 		params.Broadcast();
-		this->KeepNickTS = false;
 	}
 	else if (!loopCall && user->nick == user->uuid)
 	{
