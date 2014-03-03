@@ -583,14 +583,9 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 {
 	if (IS_LOCAL(user))
 	{
+		// The nick TS is updated by the core, we don't do it
 		CmdBuilder params(user, "NICK");
 		params.push_back(user->nick);
-
-		/** IMPORTANT: We don't update the TS if the oldnick is just a case change of the newnick!
-		 */
-		if ((irc::string(user->nick.c_str()) != assign(oldnick)) && (!this->KeepNickTS))
-			user->age = ServerInstance->Time();
-
 		params.push_back(ConvToStr(user->age));
 		params.Broadcast();
 		this->KeepNickTS = false;

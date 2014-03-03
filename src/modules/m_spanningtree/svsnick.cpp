@@ -43,9 +43,8 @@ CmdResult CommandSVSNick::Handle(User* user, std::vector<std::string>& parameter
 
 		ModuleSpanningTree* st = (ModuleSpanningTree*)(Module*)creator;
 		st->KeepNickTS = true;
-		u->age = NickTS;
 
-		if (!u->ForceNickChange(nick))
+		if (!u->ForceNickChange(nick, NickTS))
 		{
 			/* buh. UID them */
 			if (!u->ForceNickChange(u->uuid))

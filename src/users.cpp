@@ -613,7 +613,7 @@ void User::InvalidateCache()
 	cached_fullrealhost.clear();
 }
 
-bool User::ChangeNick(const std::string& newnick, bool force)
+bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 {
 	if (quitting)
 	{
@@ -637,6 +637,7 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 	{
 		// case change, don't need to check Q:lines and such
 		// and, if it's identical including case, we can leave right now
+		// We also don't update the nick TS if it's a case change, either
 		if (newnick == nick)
 			return true;
 	}
@@ -710,6 +711,8 @@ bool User::ChangeNick(const std::string& newnick, bool force)
 				return false;
 			}
 		}
+
+		age = newts ? newts : ServerInstance->Time();
 	}
 
 	if (this->registered == REG_ALL)

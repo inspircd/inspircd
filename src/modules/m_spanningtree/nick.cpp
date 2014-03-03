@@ -36,7 +36,7 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 		return CMD_INVALID;
 
 	/* Update timestamp on user when they change nicks */
-	user->age = ConvToInt(params[1]);
+	const time_t newts = ConvToInt(params[1]);
 
 	/*
 	 * On nick messages, check that the nick doesn't already exist here.
@@ -46,7 +46,7 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 	if ((x) && (x != user))
 	{
 		/* x is local, who is remote */
-		int collideret = Utils->DoCollision(x, TreeServer::Get(user), user->age, user->ident, user->GetIPString(), user->uuid);
+		int collideret = Utils->DoCollision(x, TreeServer::Get(user), newts, user->ident, user->GetIPString(), user->uuid);
 		if (collideret != 1)
 		{
 			/*
@@ -57,6 +57,6 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 			return CMD_FAILURE;
 		}
 	}
-	user->ForceNickChange(params[0]);
+	user->ForceNickChange(params[0], newts);
 	return CMD_SUCCESS;
 }
