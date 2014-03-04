@@ -20,10 +20,7 @@
 
 #include "inspircd.h"
 
-/** Handle /JOIN. These command handlers can be reloaded by the core,
- * and handle basic RFC1459 commands. Commands within modules work
- * the same way, however, they can be fully unloaded, where these
- * may not.
+/** Handle /JOIN.
  */
 class CommandJoin : public SplitCommand
 {
@@ -38,8 +35,7 @@ class CommandJoin : public SplitCommand
 	}
 
 	/** Handle command.
-	 * @param parameters The parameters to the comamnd
-	 * @param pcnt The number of parameters passed to teh command
+	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */

@@ -21,10 +21,7 @@
 #include "inspircd.h"
 #include "xline.h"
 
-/** Handle /GLINE. These command handlers can be reloaded by the core,
- * and handle basic RFC1459 commands. Commands within modules work
- * the same way, however, they can be fully unloaded, where these
- * may not.
+/** Handle /GLINE.
  */
 class CommandGline : public Command
 {
@@ -33,8 +30,7 @@ class CommandGline : public Command
 	 */
 	CommandGline (Module* parent) : Command(parent,"GLINE",1,3) { flags_needed = 'o'; Penalty = 0; syntax = "<ident@host> [<duration> :<reason>]"; }
 	/** Handle command.
-	 * @param parameters The parameters to the comamnd
-	 * @param pcnt The number of parameters passed to teh command
+	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */

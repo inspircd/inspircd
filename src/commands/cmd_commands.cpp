@@ -20,10 +20,7 @@
 
 #include "inspircd.h"
 
-/** Handle /COMMANDS. These command handlers can be reloaded by the core,
- * and handle basic RFC1459 commands. Commands within modules work
- * the same way, however, they can be fully unloaded, where these
- * may not.
+/** Handle /COMMANDS.
  */
 class CommandCommands : public Command
 {
@@ -36,8 +33,7 @@ class CommandCommands : public Command
 	}
 
 	/** Handle command.
-	 * @param parameters The parameters to the comamnd
-	 * @param pcnt The number of parameters passed to teh command
+	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */

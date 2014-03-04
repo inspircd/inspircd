@@ -41,7 +41,7 @@ class MessageCommandBase : public Command
 	}
 
 	/** Handle command.
-	 * @param parameters The parameters to the comamnd
+	 * @param parameters The parameters to the command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
