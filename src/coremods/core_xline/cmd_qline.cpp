@@ -21,23 +21,15 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "core_xline.h"
 
-/** Handle /QLINE.  */
-class CommandQline : public Command
+CommandQline::CommandQline(Module* parent)
+	: Command(parent, "QLINE", 1, 3)
 {
- public:
-	/** Constructor for qline.
-	 */
-	CommandQline ( Module* parent) : Command(parent,"QLINE",1,3) { flags_needed = 'o'; Penalty = 0; syntax = "<nick> [<duration> :<reason>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param pcnt The number of parameters passed to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
-
+	flags_needed = 'o';
+	Penalty = 0;
+	syntax = "<nick> [<duration> :<reason>]";
+}
 
 CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -90,6 +82,3 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-
-
-COMMAND_INIT(CommandQline)

@@ -20,22 +20,14 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "core_xline.h"
 
-/** Handle /ELINE.
- */
-class CommandEline : public Command
+CommandEline::CommandEline(Module* parent)
+	: Command(parent, "ELINE", 1, 3)
 {
- public:
-	/** Constructor for eline.
-	 */
-	CommandEline ( Module* parent) : Command(parent,"ELINE",1,3) { flags_needed = 'o'; syntax = "<ident@host> [<duration> :<reason>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
+	flags_needed = 'o';
+	syntax = "<ident@host> [<duration> :<reason>]";
+}
 
 /** Handle /ELINE
  */
@@ -101,5 +93,3 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-
-COMMAND_INIT(CommandEline)

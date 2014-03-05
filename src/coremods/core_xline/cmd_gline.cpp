@@ -20,23 +20,15 @@
 
 #include "inspircd.h"
 #include "xline.h"
+#include "core_xline.h"
 
-/** Handle /GLINE.
- */
-class CommandGline : public Command
+CommandGline::CommandGline(Module* parent)
+	: Command(parent, "GLINE", 1, 3)
 {
- public:
-	/** Constructor for gline.
-	 */
-	CommandGline (Module* parent) : Command(parent,"GLINE",1,3) { flags_needed = 'o'; Penalty = 0; syntax = "<ident@host> [<duration> :<reason>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
-
+	flags_needed = 'o';
+	Penalty = 0;
+	syntax = "<ident@host> [<duration> :<reason>]";
+}
 
 /** Handle /GLINE
  */
@@ -111,5 +103,3 @@ CmdResult CommandGline::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-
-COMMAND_INIT(CommandGline)

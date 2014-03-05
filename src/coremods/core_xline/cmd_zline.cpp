@@ -21,21 +21,15 @@
 
 #include "inspircd.h"
 #include "xline.h"
-/** Handle /ZLINE.
- */
-class CommandZline : public Command
+#include "core_xline.h"
+
+CommandZline::CommandZline(Module* parent)
+	: Command(parent, "ZLINE", 1, 3)
 {
- public:
-	/** Constructor for zline.
-	 */
-	CommandZline ( Module* parent) : Command(parent,"ZLINE",1,3) { flags_needed = 'o'; Penalty = 0; syntax = "<ipmask> [<duration> :<reason>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
+	flags_needed = 'o';
+	Penalty = 0;
+	syntax = "<ipmask> [<duration> :<reason>]";
+}
 
 CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -106,5 +100,3 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-
-COMMAND_INIT(CommandZline)
