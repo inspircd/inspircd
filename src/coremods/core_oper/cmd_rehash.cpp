@@ -20,22 +20,15 @@
 
 
 #include "inspircd.h"
+#include "core_oper.h"
 
-/** Handle /REHASH.
- */
-class CommandRehash : public Command
+CommandRehash::CommandRehash(Module* parent)
+	: Command(parent, "REHASH", 0)
 {
- public:
-	/** Constructor for rehash.
-	 */
-	CommandRehash ( Module* parent) : Command(parent,"REHASH",0) { flags_needed = 'o'; Penalty = 2; syntax = "[<servermask>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
+	flags_needed = 'o';
+	Penalty = 2;
+	syntax = "[<servermask>]";
+}
 
 CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -99,6 +92,3 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 	// Always return success so spanningtree forwards an incoming REHASH even if we failed
 	return CMD_SUCCESS;
 }
-
-
-COMMAND_INIT(CommandRehash)

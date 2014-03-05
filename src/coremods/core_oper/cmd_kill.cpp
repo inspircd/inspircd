@@ -20,46 +20,16 @@
 
 
 #include "inspircd.h"
+#include "core_oper.h"
 
-/** Handle /KILL.
- */
-class CommandKill : public Command
+CommandKill::CommandKill(Module* parent)
+	: Command(parent, "KILL", 2, 2)
 {
-	std::string lastuuid;
-	std::string killreason;
+	flags_needed = 'o';
+	syntax = "<nickname> <reason>";
+	TRANSLATE2(TR_CUSTOM, TR_CUSTOM);
+}
 
- public:
-	/** Constructor for kill.
-	 */
-	CommandKill ( Module* parent) : Command(parent,"KILL",2,2) {
-		flags_needed = 'o';
-		syntax = "<nickname> <reason>";
-		TRANSLATE2(TR_CUSTOM, TR_CUSTOM);
-	}
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		// FindNick() doesn't work here because we quit the target user in Handle() which
-		// removes it from the nicklist, so we check lastuuid: if it's empty then this KILL
-		// was for a local user, otherwise it contains the uuid of the user who was killed.
-		if (lastuuid.empty())
-			return ROUTE_LOCALONLY;
-		return ROUTE_BROADCAST;
-	}
-
-	void EncodeParameter(std::string& param, int index)
-	{
-		// Manually translate the nick -> uuid (see above), and also the reason (params[1])
-		// because we decorate it if the oper is local and want remote servers to see the
-		// decorated reason not the original.
-		param = ((index == 0) ? lastuuid : killreason);
-	}
-};
 
 /** Handle /KILL
  */
@@ -166,5 +136,21 @@ CmdResult CommandKill::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
+RouteDescriptor CommandKill::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	// FindNick() doesn't work here because we quit the target user in Handle() which
+	// removes it from the nicklist, so we check lastuuid: if it's empty then this KILL
+	// was for a local user, otherwise it contains the uuid of the user who was killed.
+	if (lastuuid.empty())
+		return ROUTE_LOCALONLY;
+	return ROUTE_BROADCAST;
+}
 
-COMMAND_INIT(CommandKill)
+
+void CommandKill::EncodeParameter(std::string& param, int index)
+{
+	// Manually translate the nick -> uuid (see above), and also the reason (params[1])
+	// because we decorate it if the oper is local and want remote servers to see the
+	// decorated reason not the original.
+	param = ((index == 0) ? lastuuid : killreason);
+}

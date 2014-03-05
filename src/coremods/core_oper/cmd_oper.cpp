@@ -20,22 +20,13 @@
 
 
 #include "inspircd.h"
+#include "core_oper.h"
 
-/** Handle /OPER.
- */
-class CommandOper : public SplitCommand
+CommandOper::CommandOper(Module* parent)
+	: SplitCommand(parent, "OPER", 2, 2)
 {
- public:
-	/** Constructor for oper.
-	 */
-	CommandOper ( Module* parent) : SplitCommand(parent,"OPER",2,2) { syntax = "<username> <password>"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
-};
+	syntax = "<username> <password>";
+}
 
 CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
@@ -79,5 +70,3 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	ServerInstance->Logs->Log("OPER", LOG_DEFAULT, "OPER: Failed oper attempt by %s using login '%s': The following fields did not match: %s", user->GetFullRealHost().c_str(), parameters[0].c_str(), fields.c_str());
 	return CMD_FAILURE;
 }
-
-COMMAND_INIT(CommandOper)

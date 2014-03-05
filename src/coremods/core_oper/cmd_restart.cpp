@@ -19,22 +19,14 @@
 
 
 #include "inspircd.h"
+#include "core_oper.h"
 
-/** Handle /RESTART
- */
-class CommandRestart : public Command
+CommandRestart::CommandRestart(Module* parent)
+	: Command(parent, "RESTART", 1, 1)
 {
- public:
-	/** Constructor for restart.
-	 */
-	CommandRestart(Module* parent) : Command(parent,"RESTART",1,1) { flags_needed = 'o'; syntax = "<password>"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
+	flags_needed = 'o';
+	syntax = "<password>";
+}
 
 CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -70,6 +62,3 @@ CmdResult CommandRestart::Handle (const std::vector<std::string>& parameters, Us
 	}
 	return CMD_FAILURE;
 }
-
-
-COMMAND_INIT(CommandRestart)

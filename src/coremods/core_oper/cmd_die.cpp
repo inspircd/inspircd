@@ -19,24 +19,15 @@
 
 
 #include "inspircd.h"
-
-/** Handle /DIE.
- */
-class CommandDie : public Command
-{
- public:
-	/** Constructor for die.
-	 */
-	CommandDie ( Module* parent) : Command(parent,"DIE",1) { flags_needed = 'o'; syntax = "<password>"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
-
 #include "exitcodes.h"
+#include "core_oper.h"
+
+CommandDie::CommandDie(Module* parent)
+	: Command(parent, "DIE", 1)
+{
+	flags_needed = 'o';
+	syntax = "<password>";
+}
 
 /** Handle /DIE
  */
@@ -60,5 +51,3 @@ CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *
 	}
 	return CMD_SUCCESS;
 }
-
-COMMAND_INIT(CommandDie)
