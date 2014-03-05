@@ -19,30 +19,14 @@
 
 
 #include "inspircd.h"
+#include "core_channel.h"
 
-/** Handle /NAMES.
- */
-class CommandNames : public Command
+CommandNames::CommandNames(Module* parent)
+	: Command(parent, "NAMES", 0, 0)
+	, secretmode(parent, "secret")
 {
-	ChanModeReference secretmode;
-
- public:
-	/** Constructor for names.
-	 */
-	CommandNames(Module* parent)
-		: Command(parent, "NAMES", 0, 0)
-		, secretmode(parent, "secret")
-	{
-		syntax = "{<channel>{,<channel>}}";
-	}
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
+	syntax = "{<channel>{,<channel>}}";
+}
 
 /** Handle /NAMES
  */
@@ -76,5 +60,3 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 
 	return CMD_SUCCESS;
 }
-
-COMMAND_INIT(CommandNames)

@@ -19,26 +19,13 @@
 
 
 #include "inspircd.h"
+#include "core_channel.h"
 
-/** Handle /KICK.
- */
-class CommandKick : public Command
+CommandKick::CommandKick(Module* parent)
+	: Command(parent, "KICK", 2, 3)
 {
- public:
-	/** Constructor for kick.
-	 */
-	CommandKick ( Module* parent) : Command(parent,"KICK",2,3) { syntax = "<channel> <nick>{,<nick>} [<reason>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
-	}
-};
+	syntax = "<channel> <nick>{,<nick>} [<reason>]";
+}
 
 /** Handle /KICK
  */
@@ -93,4 +80,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandKick)
+RouteDescriptor CommandKick::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+}

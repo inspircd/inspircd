@@ -21,33 +21,16 @@
 
 
 #include "inspircd.h"
+#include "core_channel.h"
 
-/** Handle /TOPIC.
- */
-class CommandTopic : public SplitCommand
+CommandTopic::CommandTopic(Module* parent)
+	: SplitCommand(parent, "TOPIC", 1, 2)
+	, secretmode(parent, "secret")
+	, topiclockmode(parent, "topiclock")
 {
-	ChanModeReference secretmode;
-	ChanModeReference topiclockmode;
-
- public:
-	/** Constructor for topic.
-	 */
-	CommandTopic(Module* parent)
-		: SplitCommand(parent, "TOPIC", 1, 2)
-		, secretmode(parent, "secret")
-		, topiclockmode(parent, "topiclock")
-	{
-		syntax = "<channel> [<topic>]";
-		Penalty = 2;
-	}
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
-};
+	syntax = "<channel> [<topic>]";
+	Penalty = 2;
+}
 
 CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
@@ -101,6 +84,3 @@ CmdResult CommandTopic::HandleLocal(const std::vector<std::string>& parameters, 
 	c->SetTopic(user, t);
 	return CMD_SUCCESS;
 }
-
-
-COMMAND_INIT(CommandTopic)

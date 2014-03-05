@@ -19,28 +19,14 @@
 
 
 #include "inspircd.h"
+#include "core_channel.h"
 
-/** Handle /JOIN.
- */
-class CommandJoin : public SplitCommand
+CommandJoin::CommandJoin(Module* parent)
+	: SplitCommand(parent, "JOIN", 1, 2)
 {
- public:
-	/** Constructor for join.
-	 */
-	CommandJoin(Module* parent)
-		: SplitCommand(parent, "JOIN", 1, 2)
-	{
-		syntax = "<channel>{,<channel>} {<key>{,<key>}}";
-		Penalty = 2;
-	}
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
-};
+	syntax = "<channel>{,<channel>} {<key>{,<key>}}";
+	Penalty = 2;
+}
 
 /** Handle /JOIN
  */
@@ -72,5 +58,3 @@ CmdResult CommandJoin::HandleLocal(const std::vector<std::string>& parameters, L
 	user->WriteNumeric(ERR_NOSUCHCHANNEL, "%s :Invalid channel name", parameters[0].c_str());
 	return CMD_FAILURE;
 }
-
-COMMAND_INIT(CommandJoin)

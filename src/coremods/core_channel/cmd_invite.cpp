@@ -21,26 +21,14 @@
 
 
 #include "inspircd.h"
+#include "core_channel.h"
 
-/** Handle /INVITE.
- */
-class CommandInvite : public Command
+CommandInvite::CommandInvite(Module* parent)
+	: Command(parent, "INVITE", 0, 0)
 {
- public:
-	/** Constructor for invite.
-	 */
-	CommandInvite ( Module* parent) : Command(parent,"INVITE", 0, 0) { Penalty = 4; syntax = "[<nick> <channel>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
-	}
-};
+	Penalty = 4;
+	syntax = "[<nick> <channel>]";
+}
 
 /** Handle /INVITE
  */
@@ -155,5 +143,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 	return CMD_SUCCESS;
 }
 
-
-COMMAND_INIT(CommandInvite)
+RouteDescriptor CommandInvite::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+}
