@@ -677,7 +677,7 @@ void ServerConfig::ApplyModules(User* user)
 	for (ModuleManager::ModuleMap::iterator i = removed_modules.begin(); i != removed_modules.end(); ++i)
 	{
 		const std::string& modname = i->first;
-		// Don't remove cmd_*.so, just remove m_*.so
+		// Don't remove core_*.so, just remove m_*.so
 		if (modname.c_str()[0] == 'c')
 			continue;
 		if (ServerInstance->Modules->Unload(i->second))

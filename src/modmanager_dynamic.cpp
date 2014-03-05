@@ -136,7 +136,7 @@ void ModuleManager::LoadCoreModules(std::map<std::string, ServiceList>& servicem
 		dirent* entry = NULL;
 		while (0 != (entry = readdir(library)))
 		{
-			if (InspIRCd::Match(entry->d_name, "cmd_*.so", ascii_case_insensitive_map))
+			if (InspIRCd::Match(entry->d_name, "core_*.so", ascii_case_insensitive_map))
 			{
 				std::cout << ".";
 				fflush(stdout);
