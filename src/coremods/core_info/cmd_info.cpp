@@ -21,33 +21,14 @@
 
 
 #include "inspircd.h"
+#include "core_info.h"
 
-/** Handle /INFO.
- */
-class CommandInfo : public Command
+CommandInfo::CommandInfo(Module* parent)
+	: Command(parent, "INFO")
 {
- public:
-	/** Constructor for info.
-	 */
-	CommandInfo(Module* parent) : Command(parent,"INFO")
-	{
-		Penalty = 4;
-		syntax = "[<servername>]";
-	}
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		if (parameters.size() > 0)
-			return ROUTE_UNICAST(parameters[0]);
-		return ROUTE_LOCALONLY;
-	}
-};
+	Penalty = 4;
+	syntax = "[<servername>]";
+}
 
 static const char* const lines[] = {
 	"                   -/\\- \2InspIRCd\2 -\\/-",
@@ -106,4 +87,9 @@ CmdResult CommandInfo::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandInfo)
+RouteDescriptor CommandInfo::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	if (parameters.size() > 0)
+		return ROUTE_UNICAST(parameters[0]);
+	return ROUTE_LOCALONLY;
+}

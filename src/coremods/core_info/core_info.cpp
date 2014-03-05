@@ -1,8 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
- *   Copyright (C) 2007 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2014 Attila Molnar <attilamolnar@hush.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -21,20 +20,26 @@
 #include "inspircd.h"
 #include "core_info.h"
 
-CommandVersion::CommandVersion(Module* parent)
-	: Command(parent, "VERSION", 0, 0)
+class CoreModInfo : public Module
 {
-	syntax = "[<servername>]";
-}
+	CommandAdmin cmdadmin;
+	CommandCommands cmdcommands;
+	CommandInfo cmdinfo;
+	CommandModules cmdmodules;
+	CommandMotd cmdmotd;
+	CommandTime cmdtime;
+	CommandVersion cmdversion;
 
-CmdResult CommandVersion::Handle (const std::vector<std::string>&, User *user)
-{
-	std::string version = ServerInstance->GetVersionString((user->IsOper()));
-	user->WriteNumeric(RPL_VERSION, ":%s", version.c_str());
-	LocalUser *lu = IS_LOCAL(user);
-	if (lu != NULL)
+ public:
+	CoreModInfo()
+		: cmdadmin(this), cmdcommands(this), cmdinfo(this), cmdmodules(this), cmdmotd(this), cmdtime(this), cmdversion(this)
 	{
-		ServerInstance->ISupport.SendTo(lu);
 	}
-	return CMD_SUCCESS;
-}
+
+	Version GetVersion() CXX11_OVERRIDE
+	{
+		return Version("Provides the ADMIN, COMMANDS, INFO, MODULES, MOTD, TIME and VERSION commands", VF_VENDOR|VF_CORE);
+	}
+};
+
+MODULE_INIT(CoreModInfo)

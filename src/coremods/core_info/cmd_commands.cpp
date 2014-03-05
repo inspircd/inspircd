@@ -19,26 +19,13 @@
 
 
 #include "inspircd.h"
+#include "core_info.h"
 
-/** Handle /COMMANDS.
- */
-class CommandCommands : public Command
+CommandCommands::CommandCommands(Module* parent)
+	: Command(parent, "COMMANDS", 0, 0)
 {
- public:
-	/** Constructor for commands.
-	 */
-	CommandCommands(Module* parent) : Command(parent,"COMMANDS",0,0)
-	{
-		Penalty = 3;
-	}
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
+	Penalty = 3;
+}
 
 /** Handle /COMMANDS
  */
@@ -63,5 +50,3 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 	user->WriteNumeric(RPL_COMMANDSEND, ":End of COMMANDS list");
 	return CMD_SUCCESS;
 }
-
-COMMAND_INIT(CommandCommands)

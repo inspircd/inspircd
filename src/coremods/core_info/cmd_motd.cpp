@@ -19,28 +19,13 @@
 
 
 #include "inspircd.h"
+#include "core_info.h"
 
-/** Handle /MOTD.
- */
-class CommandMotd : public Command
+CommandMotd::CommandMotd(Module* parent)
+	: Command(parent, "MOTD", 0, 1)
 {
- public:
-	/** Constructor for motd.
-	 */
-	CommandMotd ( Module* parent) : Command(parent,"MOTD",0,1) { syntax = "[<servername>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		if (parameters.size() > 0)
-			return ROUTE_UNICAST(parameters[0]);
-		return ROUTE_LOCALONLY;
-	}
-};
+	syntax = "[<servername>]";
+}
 
 /** Handle /MOTD
  */
@@ -73,4 +58,9 @@ CmdResult CommandMotd::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandMotd)
+RouteDescriptor CommandMotd::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	if (parameters.size() > 0)
+		return ROUTE_UNICAST(parameters[0]);
+	return ROUTE_LOCALONLY;
+}

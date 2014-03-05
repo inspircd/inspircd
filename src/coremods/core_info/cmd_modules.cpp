@@ -20,33 +20,14 @@
 
 
 #include "inspircd.h"
+#include "core_info.h"
 
-/** Handle /MODULES.
- */
-class CommandModules : public Command
+CommandModules::CommandModules(Module* parent)
+	: Command(parent, "MODULES", 0, 0)
 {
- public:
-	/** Constructor for modules.
-	 */
-	CommandModules(Module* parent) : Command(parent,"MODULES",0,0)
-	{
-		Penalty = 4;
-		syntax = "[<servername>]";
-	}
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		if (parameters.size() >= 1)
-			return ROUTE_UNICAST(parameters[0]);
-		return ROUTE_LOCALONLY;
-	}
-};
+	Penalty = 4;
+	syntax = "[<servername>]";
+}
 
 /** Handle /MODULES
  */
@@ -103,4 +84,9 @@ CmdResult CommandModules::Handle (const std::vector<std::string>& parameters, Us
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandModules)
+RouteDescriptor CommandModules::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	if (parameters.size() >= 1)
+		return ROUTE_UNICAST(parameters[0]);
+	return ROUTE_LOCALONLY;
+}
