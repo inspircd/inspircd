@@ -19,26 +19,13 @@
 
 
 #include "inspircd.h"
+#include "core_user.h"
 
-/** Handle /AWAY.
- */
-class CommandAway : public Command
+CommandAway::CommandAway(Module* parent)
+	: Command(parent, "AWAY", 0, 0)
 {
- public:
-	/** Constructor for away.
-	 */
-	CommandAway ( Module* parent) : Command(parent,"AWAY",0,0) { syntax = "[<message>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
-	}
-};
+	syntax = "[<message>]";
+}
 
 /** Handle /AWAY
  */
@@ -72,4 +59,7 @@ CmdResult CommandAway::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandAway)
+RouteDescriptor CommandAway::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+}

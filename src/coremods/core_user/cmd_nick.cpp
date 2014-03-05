@@ -21,22 +21,15 @@
 
 
 #include "inspircd.h"
+#include "core_user.h"
 
-/** Handle /NICK.
- */
-class CommandNick : public Command
+CommandNick::CommandNick(Module* parent)
+	: Command(parent, "NICK", 1, 1)
 {
- public:
-	/** Constructor for nick.
-	 */
-	CommandNick ( Module* parent) : Command(parent,"NICK", 1, 1) { works_before_reg = true; syntax = "<newnick>"; Penalty = 0; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
+	works_before_reg = true;
+	syntax = "<newnick>";
+	Penalty = 0;
+}
 
 /** Handle nick changes from users.
  * NOTE: If you are used to ircds based on ircd2.8, and are looking
@@ -89,6 +82,3 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 
 	return CMD_SUCCESS;
 }
-
-
-COMMAND_INIT(CommandNick)

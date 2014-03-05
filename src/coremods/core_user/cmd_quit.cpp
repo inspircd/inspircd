@@ -19,27 +19,14 @@
 
 
 #include "inspircd.h"
+#include "core_user.h"
 
-/** Handle /QUIT.
- */
-class CommandQuit : public Command
+CommandQuit::CommandQuit(Module* parent)
+	: Command(parent, "QUIT", 0, 1)
 {
- public:
-	/** Constructor for quit.
-	 */
-	CommandQuit ( Module* parent) : Command(parent,"QUIT",0,1) { works_before_reg = true; syntax = "[<message>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
-	}
-};
-
+	works_before_reg = true;
+	syntax = "[<message>]";
+}
 
 CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -64,5 +51,7 @@ CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-
-COMMAND_INIT(CommandQuit)
+RouteDescriptor CommandQuit::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+}

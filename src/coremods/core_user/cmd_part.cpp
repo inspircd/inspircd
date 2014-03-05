@@ -19,26 +19,14 @@
 
 
 #include "inspircd.h"
+#include "core_user.h"
 
-/** Handle /PART.
- */
-class CommandPart : public Command
+CommandPart::CommandPart(Module* parent)
+	: Command(parent, "PART", 1, 2)
 {
- public:
-	/** Constructor for part.
-	 */
-	CommandPart (Module* parent) : Command(parent,"PART", 1, 2) { Penalty = 5; syntax = "<channel>{,<channel>} [<reason>]"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
-	}
-};
+	Penalty = 5;
+	syntax = "<channel>{,<channel>} [<reason>]";
+}
 
 CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User *user)
 {
@@ -75,4 +63,7 @@ CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User 
 	return CMD_SUCCESS;
 }
 
-COMMAND_INIT(CommandPart)
+RouteDescriptor CommandPart::GetRouting(User* user, const std::vector<std::string>& parameters)
+{
+	return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
+}

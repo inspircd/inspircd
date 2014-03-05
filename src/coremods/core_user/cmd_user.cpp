@@ -19,22 +19,15 @@
 
 
 #include "inspircd.h"
+#include "core_user.h"
 
-/** Handle /USER.
- */
-class CommandUser : public SplitCommand
+CommandUser::CommandUser(Module* parent)
+	: SplitCommand(parent, "USER", 4, 4)
 {
- public:
-	/** Constructor for user.
-	 */
-	CommandUser ( Module* parent) : SplitCommand(parent,"USER",4,4) { works_before_reg = true; Penalty = 0; syntax = "<username> <localhost> <remotehost> <GECOS>"; }
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
-};
+	works_before_reg = true;
+	Penalty = 0;
+	syntax = "<username> <localhost> <remotehost> <GECOS>";
+}
 
 CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, LocalUser *user)
 {
@@ -82,5 +75,3 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 
 	return CMD_SUCCESS;
 }
-
-COMMAND_INIT(CommandUser)
