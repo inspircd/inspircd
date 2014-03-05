@@ -27,7 +27,7 @@ sub find_output;
 sub gendep($);
 sub dep_cpp($$$);
 sub dep_so($);
-sub dep_dir($);
+sub dep_dir($$);
 sub run();
 
 my %f2dep;
@@ -44,7 +44,7 @@ sub run() {
 	mkdir $_ for qw/bin modules obj/;
 # BSD make has a horribly annoying bug resulting in an extra chdir of the make process
 # Create symlinks to work around it
-	symlink "../$_", "obj/$_" for qw/bin modules obj/;
+	symlink "../$_", "obj/$_" for qw/bin coremods modules obj/;
 
 	$build = getcwd();
 	open MAKE, '>real.mk' or die "Could not write real.mk: $!";
@@ -71,10 +71,10 @@ bad-target:
 	\@echo "in order to set the correct environment variables"
 	\@exit 1
 
-all: inspircd commands modules
+all: inspircd coremods modules
 
 END
-	my(@core_deps, @cmdlist, @modlist);
+	my(@core_deps, @cmodlist, @modlist);
 	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
@@ -82,9 +82,17 @@ END
 		push @core_deps, $out;
 	}
 
-	for my $file (<commands/*.cpp>) {
-		my $out = dep_so $file;
-		push @cmdlist, $out;
+	opendir my $coremoddir, 'coremods';
+	for my $file (sort readdir $coremoddir) {
+		next if $file =~ /^\./;
+		if ($file =~ /^core_/ && -d "coremods/$file" && dep_dir "coremods/$file", "modules/$file") {
+			mkdir "$build/obj/$file";
+			push @cmodlist, "modules/$file.so";
+		}
+		if ($file =~ /^core_.*\.cpp$/) {
+			my $out = dep_so "coremods/$file";
+			push @cmodlist, $out;
+		}
 	}
 
 	opendir my $moddir, 'modules';
@@ -96,7 +104,7 @@ END
 			rename "modules/$file", "modules/$file~";
 			symlink "extra/$file", "modules/$file";
 		}
-		if ($file =~ /^m_/ && -d "modules/$file" && dep_dir "modules/$file") {
+		if ($file =~ /^m_/ && -d "modules/$file" && dep_dir "modules/$file", "modules/$file") {
 			mkdir "$build/obj/$file";
 			push @modlist, "modules/$file.so";
 		}
@@ -107,7 +115,7 @@ END
 	}
 	
 	my $core_mk = join ' ', @core_deps;
-	my $cmds = join ' ', @cmdlist;
+	my $cmods = join ' ', @cmodlist;
 	my $mods = join ' ', @modlist;
 	print MAKE <<END;
 
@@ -116,11 +124,11 @@ bin/inspircd: $core_mk
 
 inspircd: bin/inspircd
 
-commands: $cmds
+coremods: $cmods
 
 modules: $mods
 
-.PHONY: all bad-target inspircd commands modules
+.PHONY: all bad-target inspircd coremods modules
 
 END
 }
@@ -141,7 +149,7 @@ all: inspircd
 
 END
 	my(@deps, @srcs);
-	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, <commands/*.cpp>,
+	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, <coremods/*.cpp>, <coremods/core_*/*.cpp>,
 			<modules/*.cpp>, <modules/m_*/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file, 1;
 		if ($out =~ m#obj/([^/]+)/[^/]+.o$#) {
@@ -173,11 +181,11 @@ END
 sub find_output {
 	my($file, $static) = @_;
 	my($path,$base) = $file =~ m#^((?:.*/)?)([^/]+)\.cpp# or die "Bad file $file";
-	if ($path eq 'modules/' || $path eq 'commands/') {
+	if ($path eq 'modules/' || $path eq 'coremods/') {
 		return $static ? "obj/$base.o" : "modules/$base.so";
 	} elsif ($path eq '' || $path eq 'modes/' || $path =~ /^[a-z]+engines\/$/) {
 		return "obj/$base.o";
-	} elsif ($path =~ m#modules/(m_.*)/#) {
+	} elsif ($path =~ m#modules/(m_.*)/# || $path =~ m#coremods/(core_.*)/#) {
 		return "obj/$1/$base.o";
 	} else {
 		die "Can't determine output for $file";
@@ -243,8 +251,8 @@ sub dep_so($) {
 	return $out;
 }
 
-sub dep_dir($) {
-	my($dir) = @_;
+sub dep_dir($$) {
+	my($dir, $outdir) = @_;
 	my @ofiles;
 	opendir DIR, $dir;
 	for my $file (sort readdir DIR) {
@@ -256,7 +264,7 @@ sub dep_dir($) {
 	closedir DIR;
 	if (@ofiles) {
 		my $ofiles = join ' ', @ofiles;
-		print MAKE "$dir.so: $ofiles\n";
+		print MAKE "$outdir.so: $ofiles\n";
 		print MAKE "\t@\$(SOURCEPATH)/make/unit-cc.pl link-dir\$(VERBOSE) \$\@ \$^ \$>\n";
 		return 1;
 	} else {

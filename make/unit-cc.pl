@@ -99,7 +99,7 @@ sub do_compile {
 	if ($do_compile) {
 		$flags = $ENV{CORECXXFLAGS} . ' ' . get_property($file, 'CompileFlags');
 
-		if ($file =~ m#(?:^|/)((?:m|cmd)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
+		if ($file =~ m#(?:^|/)((?:m|core)_[^/. ]+)(?:\.cpp|/.*\.cpp)$#) {
 			$flags .= ' -DMODNAME=\\"'.$1.'\\"';
 		}
 	} else {
