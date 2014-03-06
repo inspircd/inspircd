@@ -46,7 +46,7 @@ class CommandSethost : public Command
 			}
 		}
 
-		if (len > 64)
+		if (len > ServerInstance->Config->Limits.MaxHost)
 		{
 			user->WriteNotice("*** SETHOST: Host too long");
 			return CMD_FAILURE;

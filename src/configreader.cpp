@@ -399,6 +399,7 @@ void ServerConfig::Fill()
 	Limits.ChanMax = ConfValue("limits")->getInt("maxchan", 64);
 	Limits.MaxModes = ConfValue("limits")->getInt("maxmodes", 20);
 	Limits.IdentMax = ConfValue("limits")->getInt("maxident", 11);
+	Limits.MaxHost = ConfValue("limits")->getInt("maxhost", 64);
 	Limits.MaxQuit = ConfValue("limits")->getInt("maxquit", 255);
 	Limits.MaxTopic = ConfValue("limits")->getInt("maxtopic", 307);
 	Limits.MaxKick = ConfValue("limits")->getInt("maxkick", 255);

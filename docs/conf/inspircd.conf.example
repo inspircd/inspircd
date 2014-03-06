@@ -789,6 +789,9 @@
         # maxident: Maximum length of a ident/username.
         maxident="11"
 
+        # maxhost: Maximum length of a hostname.
+        maxhost="64"
+
         # maxquit: Maximum length of a quit message.
         maxquit="255"
 

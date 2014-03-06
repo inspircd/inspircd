@@ -89,7 +89,7 @@ class CommandWebirc : public Command
 						realhost.set(user, user->host);
 						realip.set(user, user->GetIPString());
 
-						bool host_ok = (parameters[2].length() < 64);
+						bool host_ok = (parameters[2].length() <= ServerInstance->Config->Limits.MaxHost);
 						const std::string& newhost = (host_ok ? parameters[2] : parameters[3]);
 
 						if (notify)
@@ -140,7 +140,7 @@ class CGIResolver : public DNS::Request
 				return;
 
 			const DNS::ResourceRecord &ans_record = r->answers[0];
-			if (ans_record.rdata.empty() || ans_record.rdata.length() > 64)
+			if (ans_record.rdata.empty() || ans_record.rdata.length() > ServerInstance->Config->Limits.MaxHost)
 				return;
 
 			if (notify)
@@ -394,7 +394,7 @@ public:
 
 	bool IsValidHost(const std::string &host)
 	{
-		if(!host.size() || host.size() > 64)
+		if(!host.size() || host.size() > ServerInstance->Config->Limits.MaxHost)
 			return false;
 
 		for(unsigned int i = 0; i < host.size(); i++)
