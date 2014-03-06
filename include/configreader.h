@@ -114,6 +114,8 @@ class ServerLimits
 	size_t MaxAway;
 	/** Maximum line length */
 	size_t MaxLine;
+	/** Maximum hostname length */
+	size_t MaxHost;
 
 	/** Creating the class initialises it to the defaults
 	 * as in 1.1's ./configure script. Reading other values
@@ -121,7 +123,7 @@ class ServerLimits
 	 */
 	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12),
 		MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200),
-		MaxLine(512) { }
+		MaxLine(512), MaxHost(255) { }
 };
 
 struct CommandLineConf

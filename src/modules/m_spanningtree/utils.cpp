@@ -301,8 +301,8 @@ void SpanningTreeUtilities::ReadConfiguration()
 		if (L->Name.find('.') == std::string::npos)
 			throw ModuleException("The link name '"+assign(L->Name)+"' is invalid as it must contain at least one '.' character");
 
-		if (L->Name.length() > 64)
-			throw ModuleException("The link name '"+assign(L->Name)+"' is invalid as it is longer than 64 characters");
+		if (L->Name.length() > ServerInstance->Config->Limits.MaxHost)
+			throw ModuleException("The link name '"+assign(L->Name)+"' is invalid as it is longer than " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters");
 
 		if (L->RecvPass.empty())
 			throw ModuleException("Invalid configuration for server '"+assign(L->Name)+"', recvpass not defined");
