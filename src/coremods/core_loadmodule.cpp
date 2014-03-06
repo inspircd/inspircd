@@ -78,19 +78,19 @@ class CommandUnloadmodule : public Command
 CmdResult CommandUnloadmodule::Handle(const std::vector<std::string>& parameters, User* user)
 {
 	if (!ServerInstance->Config->ConfValue("security")->getBool("allowcoreunload") &&
-		InspIRCd::Match(parameters[0], "cmd_*.so", ascii_case_insensitive_map))
+		InspIRCd::Match(parameters[0], "core_*.so", ascii_case_insensitive_map))
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload core commands!", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
-	if (parameters[0] == "cmd_unloadmodule.so" || parameters[0] == "cmd_loadmodule.so")
+	Module* m = ServerInstance->Modules->Find(parameters[0]);
+	if (m == creator)
 	{
 		user->WriteNumeric(ERR_CANTUNLOADMODULE, "%s :You cannot unload module loading commands!", parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
-	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m && ServerInstance->Modules->Unload(m))
 	{
 		ServerInstance->SNO->WriteGlobalSno('a', "MODULE UNLOADED: %s unloaded %s", user->nick.c_str(), parameters[0].c_str());

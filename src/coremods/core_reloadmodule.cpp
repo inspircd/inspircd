@@ -55,14 +55,14 @@ class ReloadModuleWorker : public HandlerBase1<void, bool>
 
 CmdResult CommandReloadmodule::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (parameters[0] == "cmd_reloadmodule.so")
+	Module* m = ServerInstance->Modules->Find(parameters[0]);
+	if (m == creator)
 	{
-		user->WriteNumeric(RPL_LOADEDMODULE, "%s :You cannot reload cmd_reloadmodule.so (unload and load it)",
+		user->WriteNumeric(RPL_LOADEDMODULE, "%s :You cannot reload core_reloadmodule.so (unload and load it)",
 			parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 
-	Module* m = ServerInstance->Modules->Find(parameters[0]);
 	if (m)
 	{
 		ServerInstance->Modules->Reload(m, new ReloadModuleWorker(user->uuid, parameters[0]));
