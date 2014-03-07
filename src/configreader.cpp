@@ -372,9 +372,6 @@ void ServerConfig::Fill()
 	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));
 	ServerDesc = ConfValue("server")->getString("description", "Configure Me");
 	Network = ConfValue("server")->getString("network", "Network");
-	AdminName = ConfValue("admin")->getString("name", "");
-	AdminEmail = ConfValue("admin")->getString("email", "null@example.com");
-	AdminNick = ConfValue("admin")->getString("nick", "admin");
 	NetBufferSize = ConfValue("performance")->getInt("netbuffersize", 10240, 1024, 65534);
 	dns_timeout = ConfValue("dns")->getInt("timeout", 5);
 	DisabledCommands = ConfValue("disabled")->getString("commands", "");

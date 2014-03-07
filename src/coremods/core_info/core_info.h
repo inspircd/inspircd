@@ -26,6 +26,21 @@
 class CommandAdmin : public Command
 {
  public:
+	/** Holds the admin's name, for output in
+	 * the /ADMIN command.
+	 */
+	std::string AdminName;
+
+	/** Holds the email address of the admin,
+	 * for output in the /ADMIN command.
+	 */
+	std::string AdminEmail;
+
+	/** Holds the admin's nickname, for output
+	 * in the /ADMIN command
+	 */
+	std::string AdminNick;
+
 	/** Constructor for admin.
 	 */
 	CommandAdmin(Module* parent);

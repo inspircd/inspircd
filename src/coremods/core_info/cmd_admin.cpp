@@ -36,13 +36,13 @@ CmdResult CommandAdmin::Handle (const std::vector<std::string>& parameters, User
 		return CMD_SUCCESS;
 	user->SendText(":%s %03d %s :Administrative info for %s", ServerInstance->Config->ServerName.c_str(),
 		RPL_ADMINME, user->nick.c_str(),ServerInstance->Config->ServerName.c_str());
-	if (!ServerInstance->Config->AdminName.empty())
+	if (!AdminName.empty())
 		user->SendText(":%s %03d %s :Name     - %s", ServerInstance->Config->ServerName.c_str(),
-			RPL_ADMINLOC1, user->nick.c_str(), ServerInstance->Config->AdminName.c_str());
+			RPL_ADMINLOC1, user->nick.c_str(), AdminName.c_str());
 	user->SendText(":%s %03d %s :Nickname - %s", ServerInstance->Config->ServerName.c_str(),
-		RPL_ADMINLOC2, user->nick.c_str(), ServerInstance->Config->AdminNick.c_str());
+		RPL_ADMINLOC2, user->nick.c_str(), AdminNick.c_str());
 	user->SendText(":%s %03d %s :E-Mail   - %s", ServerInstance->Config->ServerName.c_str(),
-		RPL_ADMINEMAIL, user->nick.c_str(), ServerInstance->Config->AdminEmail.c_str());
+		RPL_ADMINEMAIL, user->nick.c_str(), AdminEmail.c_str());
 	return CMD_SUCCESS;
 }
 
