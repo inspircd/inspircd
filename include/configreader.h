@@ -312,30 +312,6 @@ class CoreExport ServerConfig
 	 */
 	std::string AdminNick;
 
-	/** The quit prefix in use, or an empty string
-	 */
-	std::string PrefixQuit;
-
-	/** The quit suffix in use, or an empty string
-	 */
-	std::string SuffixQuit;
-
-	/** The fixed quit message in use, or an empty string
-	 */
-	std::string FixedQuit;
-
-	/** The part prefix in use, or an empty string
-	 */
-	std::string PrefixPart;
-
-	/** The part suffix in use, or an empty string
-	 */
-	std::string SuffixPart;
-
-	/** The fixed part message in use, or an empty string
-	 */
-	std::string FixedPart;
-
 	/** Pretend disabled commands don't exist.
 	 */
 	bool DisabledDontExist;

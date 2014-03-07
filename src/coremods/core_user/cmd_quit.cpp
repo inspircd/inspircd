@@ -30,20 +30,11 @@ CommandQuit::CommandQuit(Module* parent)
 
 CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User *user)
 {
-
 	std::string quitmsg;
-
-	if (IS_LOCAL(user))
-	{
-		if (!ServerInstance->Config->FixedQuit.empty())
-			quitmsg = ServerInstance->Config->FixedQuit;
-		else
-			quitmsg = parameters.size() ?
-				ServerInstance->Config->PrefixQuit + parameters[0] + ServerInstance->Config->SuffixQuit
-				: "Client exited";
-	}
-	else
-		quitmsg = parameters.size() ? parameters[0] : "Client exited";
+	if (parameters.empty())
+		quitmsg = "Client exited";
+	else if (IS_LOCAL(user))
+		msgwrap.Wrap(parameters[0], quitmsg);
 
 	std::string* operquit = ServerInstance->OperQuit.get(user);
 	ServerInstance->Users->QuitUser(user, quitmsg, operquit);

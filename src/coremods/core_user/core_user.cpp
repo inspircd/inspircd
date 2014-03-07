@@ -136,6 +136,27 @@ class CommandPong : public Command
 	}
 };
 
+void MessageWrapper::Wrap(const std::string& message, std::string& out)
+{
+	// If there is a fixed message, it is stored in prefix. Otherwise prefix contains
+	// only the prefix, so append the message and the suffix
+	out.assign(prefix);
+	if (!fixed)
+		out.append(message).append(suffix);
+}
+
+void MessageWrapper::ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname)
+{
+	ConfigTag* tag = ServerInstance->Config->ConfValue("options");
+	prefix = tag->getString(fixedname);
+	fixed = (!prefix.empty());
+	if (!fixed)
+	{
+		prefix = tag->getString(prefixname);
+		suffix = tag->getString(suffixname);
+	}
+}
+
 class CoreModUser : public Module
 {
 	CommandAway cmdaway;
@@ -153,6 +174,12 @@ class CoreModUser : public Module
 		: cmdaway(this), cmdmode(this), cmdnick(this), cmdpart(this), cmdpass(this), cmdping(this)
 		, cmdpong(this), cmdquit(this), cmduser(this)
 	{
+	}
+
+	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
+	{
+		cmdpart.msgwrap.ReadConfig("prefixpart", "suffixpart", "fixedpart");
+		cmdquit.msgwrap.ReadConfig("prefixquit", "suffixquit", "fixedquit");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

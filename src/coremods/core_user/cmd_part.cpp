@@ -31,17 +31,11 @@ CommandPart::CommandPart(Module* parent)
 CmdResult CommandPart::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	std::string reason;
-
-	if (IS_LOCAL(user))
+	if (parameters.size() > 1)
 	{
-		if (!ServerInstance->Config->FixedPart.empty())
-			reason = ServerInstance->Config->FixedPart;
-		else if (parameters.size() > 1)
-			reason = ServerInstance->Config->PrefixPart + parameters[1] + ServerInstance->Config->SuffixPart;
-	}
-	else
-	{
-		if (parameters.size() > 1)
+		if (IS_LOCAL(user))
+			msgwrap.Wrap(parameters[1], reason);
+		else
 			reason = parameters[1];
 	}
 

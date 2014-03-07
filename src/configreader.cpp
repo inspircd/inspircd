@@ -366,12 +366,6 @@ void ServerConfig::Fill()
 		if (!nsid.empty() && nsid != sid)
 			throw CoreException("You must restart to change the server id");
 	}
-	PrefixQuit = options->getString("prefixquit");
-	SuffixQuit = options->getString("suffixquit");
-	FixedQuit = options->getString("fixedquit");
-	PrefixPart = options->getString("prefixpart");
-	SuffixPart = options->getString("suffixpart");
-	FixedPart = options->getString("fixedpart");
 	SoftLimit = ConfValue("performance")->getInt("softlimit", SocketEngine::GetMaxFds(), 10, SocketEngine::GetMaxFds());
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);

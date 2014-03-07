@@ -21,6 +21,30 @@
 
 #include "inspircd.h"
 
+class MessageWrapper
+{
+	std::string prefix;
+	std::string suffix;
+	bool fixed;
+
+ public:
+	/**
+	 * Wrap the given message according to the config rules
+	 * @param message The message to wrap
+	 * @param out String where the result is placed
+	 */
+	void Wrap(const std::string& message, std::string& out);
+
+	/**
+	 * Read the settings from the given config keys (options block)
+	 * @param prefixname Name of the config key to read the prefix from
+	 * @param suffixname Name of the config key to read the suffix from
+	 * @param fixedname Name of the config key to read the fixed string string from.
+	 * If this key has a non-empty value, all messages will be replaced with it.
+	 */
+	void ReadConfig(const char* prefixname, const char* suffixname, const char* fixedname);
+};
+
 /** Handle /AWAY.
  */
 class CommandAway : public Command
@@ -60,6 +84,8 @@ class CommandNick : public Command
 class CommandPart : public Command
 {
  public:
+	MessageWrapper msgwrap;
+
 	/** Constructor for part.
 	 */
 	CommandPart(Module* parent);
@@ -78,6 +104,8 @@ class CommandPart : public Command
 class CommandQuit : public Command
 {
  public:
+	MessageWrapper msgwrap;
+
 	/** Constructor for quit.
 	 */
 	CommandQuit(Module* parent);
