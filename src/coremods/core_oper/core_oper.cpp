@@ -20,6 +20,18 @@
 #include "inspircd.h"
 #include "core_oper.h"
 
+namespace DieRestart
+{
+	bool CheckPass(User* user, const std::string& inputpass, const char* confentry)
+	{
+		ConfigTag* tag = ServerInstance->Config->ConfValue("power");
+		// The hash method for *BOTH* the die and restart passwords
+		const std::string hash = tag->getString("hash");
+		const std::string correctpass = tag->getString(confentry);
+		return ServerInstance->PassCompare(user, correctpass, inputpass, hash);
+	}
+}
+
 class CoreModOper : public Module
 {
 	CommandDie cmddie;

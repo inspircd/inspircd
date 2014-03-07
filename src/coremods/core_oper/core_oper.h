@@ -21,6 +21,17 @@
 
 #include "inspircd.h"
 
+namespace DieRestart
+{
+	/** Checks a die or restart password
+	 * @param user The user executing /DIE or /RESTART
+	 * @param inputpass The password given by the user
+	 * @param confkey The name of the key in the power tag containing the correct password
+	 * @return True if the given password was correct, false if it was not
+	 */
+	bool CheckPass(User* user, const std::string& inputpass, const char* confkey);
+}
+
 /** Handle /DIE.
  */
 class CommandDie : public Command

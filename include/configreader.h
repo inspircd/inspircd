@@ -312,18 +312,6 @@ class CoreExport ServerConfig
 	 */
 	std::string AdminNick;
 
-	/** The admin-configured /DIE password
-	 */
-	std::string diepass;
-
-	/** The admin-configured /RESTART password
-	 */
-	std::string restartpass;
-
-	/** The hash method for *BOTH* the die and restart passwords.
-	 */
-	std::string powerhash;
-
 	/** The quit prefix in use, or an empty string
 	 */
 	std::string PrefixQuit;

@@ -366,9 +366,6 @@ void ServerConfig::Fill()
 		if (!nsid.empty() && nsid != sid)
 			throw CoreException("You must restart to change the server id");
 	}
-	diepass = ConfValue("power")->getString("diepass");
-	restartpass = ConfValue("power")->getString("restartpass");
-	powerhash = ConfValue("power")->getString("hash");
 	PrefixQuit = options->getString("prefixquit");
 	SuffixQuit = options->getString("suffixquit");
 	FixedQuit = options->getString("fixedquit");

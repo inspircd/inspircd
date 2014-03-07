@@ -33,7 +33,7 @@ CommandDie::CommandDie(Module* parent)
  */
 CmdResult CommandDie::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	if (ServerInstance->PassCompare(user, ServerInstance->Config->diepass, parameters[0], ServerInstance->Config->powerhash))
+	if (DieRestart::CheckPass(user, parameters[0], "diepass"))
 	{
 		{
 			std::string diebuf = "*** DIE command from " + user->GetFullHost() + ". Terminating.";
