@@ -35,6 +35,8 @@ CmdResult CommandQuit::Handle (const std::vector<std::string>& parameters, User 
 		quitmsg = "Client exited";
 	else if (IS_LOCAL(user))
 		msgwrap.Wrap(parameters[0], quitmsg);
+	else
+		quitmsg = parameters[0];
 
 	std::string* operquit = ServerInstance->OperQuit.get(user);
 	ServerInstance->Users->QuitUser(user, quitmsg, operquit);
