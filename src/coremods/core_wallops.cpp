@@ -24,14 +24,14 @@
  */
 class CommandWallops : public Command
 {
-	UserModeReference wallopsmode;
+	SimpleUserModeHandler wallopsmode;
 
  public:
 	/** Constructor for wallops.
 	 */
 	CommandWallops(Module* parent)
 		: Command(parent, "WALLOPS", 1, 1)
-		, wallopsmode(parent, "wallops")
+		, wallopsmode(parent, "wallops", 'w')
 	{
 		flags_needed = 'o';
 		syntax = "<any-text>";

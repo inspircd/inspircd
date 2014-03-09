@@ -933,7 +933,6 @@ struct builtin_modes
 	ModeChannelOp o;
 	ModeChannelVoice v;
 
-	ModeUserWallops uw;
 	ModeUserInvisible ui;
 	ModeUserOperator uo;
 	ModeUserServerNoticeMask us;
@@ -941,7 +940,7 @@ struct builtin_modes
 	void init()
 	{
 		ServiceProvider* modes[] = { &s, &p, &m, &t, &n, &i, &k, &l, &b, &o, &v,
-									 &uw, &ui, &uo, &us };
+									 &ui, &uo, &us };
 		ServerInstance->Modules->AddServices(modes, sizeof(modes)/sizeof(ServiceProvider*));
 	}
 };

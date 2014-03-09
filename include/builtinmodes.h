@@ -176,13 +176,3 @@ class ModeUserOperator : public ModeHandler
 	ModeUserOperator();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);
 };
-
-/** User mode +w
- */
-class ModeUserWallops : public SimpleUserModeHandler
-{
- public:
-	ModeUserWallops() : SimpleUserModeHandler(NULL, "wallops", 'w')
-	{
-	}
-};
