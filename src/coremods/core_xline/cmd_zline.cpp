@@ -59,7 +59,8 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 			ipaddr++;
 		}
 
-		if (ServerInstance->IPMatchesEveryone(ipaddr,user))
+		IPMatcher matcher;
+		if (InsaneBan::MatchesEveryone(ipaddr, matcher, user, "Z", "ipmasks"))
 			return CMD_FAILURE;
 
 		unsigned long duration = InspIRCd::Duration(parameters[1]);
@@ -99,4 +100,9 @@ CmdResult CommandZline::Handle (const std::vector<std::string>& parameters, User
 	}
 
 	return CMD_SUCCESS;
+}
+
+bool CommandZline::IPMatcher::Check(User* user, const std::string& ip) const
+{
+	return InspIRCd::Match(user->GetIPString(), ip, ascii_case_insensitive_map);
 }

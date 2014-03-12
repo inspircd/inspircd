@@ -55,7 +55,8 @@ CmdResult CommandKline::Handle (const std::vector<std::string>& parameters, User
             return CMD_FAILURE;
         }
 
-		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
+		InsaneBan::IPHostMatcher matcher;
+		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "K", "hostmasks"))
 			return CMD_FAILURE;
 
 		if (target.find('!') != std::string::npos)

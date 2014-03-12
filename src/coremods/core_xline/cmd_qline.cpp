@@ -35,7 +35,8 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 {
 	if (parameters.size() >= 3)
 	{
-		if (ServerInstance->NickMatchesEveryone(parameters[0],user))
+		NickMatcher matcher;
+		if (InsaneBan::MatchesEveryone(parameters[0], matcher, user, "Q", "nickmasks"))
 			return CMD_FAILURE;
 
 		if (parameters[0].find('@') != std::string::npos || parameters[0].find('!') != std::string::npos || parameters[0].find('.') != std::string::npos)
@@ -81,4 +82,9 @@ CmdResult CommandQline::Handle (const std::vector<std::string>& parameters, User
 	}
 
 	return CMD_SUCCESS;
+}
+
+bool CommandQline::NickMatcher::Check(User* user, const std::string& nick) const
+{
+	return InspIRCd::Match(user->nick, nick);
 }

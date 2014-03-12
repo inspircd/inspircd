@@ -54,7 +54,8 @@ CmdResult CommandEline::Handle (const std::vector<std::string>& parameters, User
 			return CMD_FAILURE;
 		}
 
-		if (ServerInstance->HostMatchesEveryone(ih.first+"@"+ih.second,user))
+		InsaneBan::IPHostMatcher matcher;
+		if (InsaneBan::MatchesEveryone(ih.first+"@"+ih.second, matcher, user, "E", "hostmasks"))
 			return CMD_FAILURE;
 
 		unsigned long duration = InspIRCd::Duration(parameters[1]);

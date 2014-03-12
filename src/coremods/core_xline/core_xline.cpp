@@ -20,6 +20,35 @@
 #include "inspircd.h"
 #include "core_xline.h"
 
+bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, const char* bantype, const char* confkey)
+{
+	ConfigTag* insane = ServerInstance->Config->ConfValue("insane");
+
+	if (insane->getBool(confkey))
+		return false;
+
+	float itrigger = insane->getFloat("trigger", 95.5);
+
+	long matches = test.Run(mask);
+
+	if (!matches)
+		return false;
+
+	float percent = ((float)matches / (float)ServerInstance->Users->clientlist->size()) * 100;
+	if (percent > itrigger)
+	{
+		ServerInstance->SNO->WriteToSnoMask('a', "\2WARNING\2: %s tried to set a %s-line mask of %s, which covers %.2f%% of the network!", user->nick.c_str(), bantype, mask.c_str(), percent);
+		return true;
+	}
+	return false;
+}
+
+bool InsaneBan::IPHostMatcher::Check(User* user, const std::string& mask) const
+{
+	return ((InspIRCd::Match(user->MakeHost(), mask, ascii_case_insensitive_map)) ||
+			(InspIRCd::Match(user->MakeHostIP(), mask, ascii_case_insensitive_map)));
+}
+
 class CoreModXLine : public Module
 {
 	CommandEline cmdeline;

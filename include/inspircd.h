@@ -571,27 +571,6 @@ class CoreExport InspIRCd
 	 */
 	void Rehash(const std::string& uuid = "");
 
-	/** Check if the given nickmask matches too many users, send errors to the given user
-	 * @param nick A nickmask to match against
-	 * @param user A user to send error text to
-	 * @return True if the nick matches too many users
-	 */
-	bool NickMatchesEveryone(const std::string &nick, User* user);
-
-	/** Check if the given IP mask matches too many users, send errors to the given user
-	 * @param ip An ipmask to match against
-	 * @param user A user to send error text to
-	 * @return True if the ip matches too many users
-	 */
-	bool IPMatchesEveryone(const std::string &ip, User* user);
-
-	/** Check if the given hostmask matches too many users, send errors to the given user
-	 * @param mask A hostmask to match against
-	 * @param user A user to send error text to
-	 * @return True if the host matches too many users
-	 */
-	bool HostMatchesEveryone(const std::string &mask, User* user);
-
 	/** Calculate a duration in seconds from a string in the form 1y2w3d4h6m5s
 	 * @param str A string containing a time in the form 1y2w3d4h6m5s
 	 * (one year, two weeks, three days, four hours, six minutes and five seconds)
