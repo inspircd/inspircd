@@ -783,6 +783,7 @@ void Channel::UserList(User *user)
 	 */
 	bool has_user = this->HasUser(user);
 
+	const size_t maxlen = MAXBUF - 10 - ServerInstance->Config->ServerName.size();
 	std::string prefixlist;
 	std::string nick;
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
@@ -807,7 +808,7 @@ void Channel::UserList(User *user)
 		if (nick.empty())
 			continue;
 
-		if (list.size() + prefixlist.length() + nick.length() + 1 > 480)
+		if (list.size() + prefixlist.length() + nick.length() + 1 > maxlen)
 		{
 			/* list overflowed into multiple numerics */
 			user->WriteNumeric(RPL_NAMREPLY, list);
