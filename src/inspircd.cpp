@@ -138,7 +138,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->BanCache);
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
-	DeleteZero(this->chanlist);
 	DeleteZero(this->PI);
 	DeleteZero(this->Threads);
 	DeleteZero(this->Timers);
@@ -266,7 +265,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Threads = 0;
 	this->PI = 0;
 	this->Users = 0;
-	this->chanlist = 0;
 	this->Config = 0;
 	this->SNO = 0;
 	this->BanCache = 0;
@@ -294,8 +292,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	// Create base manager classes early, so nothing breaks
 	this->Users = new UserManager;
-
-	this->chanlist = new chan_hash();
 
 	this->Config = new ServerConfig;
 	this->SNO = new SnomaskManager;

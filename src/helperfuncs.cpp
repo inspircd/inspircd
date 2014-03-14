@@ -70,9 +70,9 @@ User *InspIRCd::FindUUID(const std::string &uid)
 
 Channel* InspIRCd::FindChan(const std::string &chan)
 {
-	chan_hash::iterator iter = chanlist->find(chan);
+	chan_hash::iterator iter = chanlist.find(chan);
 
-	if (iter == chanlist->end())
+	if (iter == chanlist.end())
 		/* Couldn't find it */
 		return NULL;
 

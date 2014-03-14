@@ -383,7 +383,7 @@ class CoreExport InspIRCd
 
 	/** Channel list, a hash_map containing all channels XXX move to channel manager class
 	 */
-	chan_hash* chanlist;
+	chan_hash chanlist;
 
 	/** List of the open ports
 	 */
@@ -463,7 +463,7 @@ class CoreExport InspIRCd
 	/** Get a hash map containing all channels, keyed by their name
 	 * @return A hash map mapping channel names to Channel pointers
 	 */
-	chan_hash& GetChans() { return *chanlist; }
+	chan_hash& GetChans() { return chanlist; }
 
 	/** Return true if a channel name is valid
 	 * @param chname A channel name to verify

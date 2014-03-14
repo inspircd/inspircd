@@ -42,7 +42,7 @@ namespace
 Channel::Channel(const std::string &cname, time_t ts)
 	: name(cname), age(ts), topicset(0)
 {
-	if (!ServerInstance->chanlist->insert(std::make_pair(cname, this)).second)
+	if (!ServerInstance->chanlist.insert(std::make_pair(cname, this)).second)
 		throw CoreException("Cannot create duplicate channel " + cname);
 }
 
@@ -88,12 +88,12 @@ void Channel::CheckDestroy()
 	if (res == MOD_RES_DENY)
 		return;
 
-	chan_hash::iterator iter = ServerInstance->chanlist->find(this->name);
+	chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
 	/* kill the record */
-	if (iter != ServerInstance->chanlist->end())
+	if (iter != ServerInstance->chanlist.end())
 	{
 		FOREACH_MOD(OnChannelDelete, (this));
-		ServerInstance->chanlist->erase(iter);
+		ServerInstance->chanlist.erase(iter);
 	}
 
 	ClearInvites();
