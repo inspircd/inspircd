@@ -460,6 +460,11 @@ class CoreExport InspIRCd
 	 */
 	Channel* FindChan(const std::string &chan);
 
+	/** Get a hash map containing all channels, keyed by their name
+	 * @return A hash map mapping channel names to Channel pointers
+	 */
+	chan_hash& GetChans() { return *chanlist; }
+
 	/** Return true if a channel name is valid
 	 * @param chname A channel name to verify
 	 * @return True if the name is valid
@@ -501,11 +506,6 @@ class CoreExport InspIRCd
 	*/
 	static const char* Format(const char* formatString, ...) CUSTOM_PRINTF(1, 2);
 	static const char* Format(va_list &vaList, const char* formatString) CUSTOM_PRINTF(2, 0);
-
-	/** Return a count of channels on the network
-	 * @return The number of channels
-	 */
-	long ChannelCount() const { return chanlist->size(); }
 
 	/** Send an error notice to all local users, opered and unopered
 	 * @param s The error string to send

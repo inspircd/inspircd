@@ -68,7 +68,8 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); i++)
+	const chan_hash& chans = ServerInstance->GetChans();
+	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 	{
 		// attempt to match a glob pattern
 		long users = i->second->GetUserCounter();

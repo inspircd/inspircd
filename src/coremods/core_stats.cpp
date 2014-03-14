@@ -202,7 +202,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		case 'z':
 		{
 			results.push_back("249 "+user->nick+" :Users: "+ConvToStr(ServerInstance->Users->clientlist->size()));
-			results.push_back("249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->chanlist->size()));
+			results.push_back("249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->GetChans().size()));
 			results.push_back("249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;

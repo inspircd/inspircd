@@ -81,7 +81,8 @@ void ListModeBase::DoRehash()
 	if (oldlimits == chanlimits)
 		return;
 
-	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
+	const chan_hash& chans = ServerInstance->GetChans();
+	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 	{
 		ChanData* cd = extItem.get(i->second);
 		if (cd)

@@ -701,7 +701,9 @@ bool ModeParser::DelMode(ModeHandler* mh)
 			}
 		break;
 		case MODETYPE_CHANNEL:
-			for (chan_hash::iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); )
+		{
+			const chan_hash& chans = ServerInstance->GetChans();
+			for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); )
 			{
 				// The channel may not be in the hash after RemoveMode(), see m_permchannels
 				Channel* chan = i->second;
@@ -718,6 +720,7 @@ bool ModeParser::DelMode(ModeHandler* mh)
 					stackresult.erase(stackresult.begin() + 1, stackresult.end());
 				}
 			}
+		}
 		break;
 	}
 

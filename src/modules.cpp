@@ -390,7 +390,8 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	std::vector<reference<ExtensionItem> > items;
 	ServerInstance->Extensions.BeginUnregister(modfind->second, items);
 	/* Give the module a chance to tidy out all its metadata */
-	for (chan_hash::iterator c = ServerInstance->chanlist->begin(); c != ServerInstance->chanlist->end(); )
+	const chan_hash& chans = ServerInstance->GetChans();
+	for (chan_hash::const_iterator c = chans.begin(); c != chans.end(); )
 	{
 		Channel* chan = c->second;
 		++c;

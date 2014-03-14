@@ -118,7 +118,8 @@ void TreeSocket::DoBurst(TreeServer* s)
 	/* Send users and their oper status */
 	this->SendUsers(bs);
 
-	for (chan_hash::const_iterator i = ServerInstance->chanlist->begin(); i != ServerInstance->chanlist->end(); ++i)
+	const chan_hash& chans = ServerInstance->GetChans();
+	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 		SyncChannel(i->second, bs);
 
 	this->SendXLines();

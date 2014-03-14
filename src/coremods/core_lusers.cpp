@@ -93,7 +93,7 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 	if (ServerInstance->Users->UnregisteredUserCount())
 		user->WriteNumeric(RPL_LUSERUNKNOWN, "%d :unknown connections", ServerInstance->Users->UnregisteredUserCount());
 
-	user->WriteNumeric(RPL_LUSERCHANNELS, "%ld :channels formed", ServerInstance->ChannelCount());
+	user->WriteNumeric(RPL_LUSERCHANNELS, "%lu :channels formed", (unsigned long)ServerInstance->GetChans().size());
 	user->WriteNumeric(RPL_LUSERME, ":I have %d clients and %d servers", ServerInstance->Users->LocalUserCount(),n_local_servs);
 	user->WriteNumeric(RPL_LOCALUSERS, ":Current Local Users: %d  Max: %d", ServerInstance->Users->LocalUserCount(), counters.max_local);
 	user->WriteNumeric(RPL_GLOBALUSERS, ":Current Global Users: %d  Max: %d", n_users, counters.max_global);
