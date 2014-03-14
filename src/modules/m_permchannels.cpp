@@ -174,32 +174,6 @@ public:
 	{
 	}
 
-	CullResult cull()
-	{
-		/*
-		 * DelMode can't remove the +P mode on empty channels, or it will break
-		 * merging modes with remote servers. Remove the empty channels now as
-		 * we know this is not the case.
-		 */
-		chan_hash::iterator iter = ServerInstance->chanlist->begin();
-		while (iter != ServerInstance->chanlist->end())
-		{
-			Channel* c = iter->second;
-			if (c->GetUserCounter() == 0)
-			{
-				chan_hash::iterator at = iter;
-				iter++;
-				FOREACH_MOD(OnChannelDelete, (c));
-				ServerInstance->chanlist->erase(at);
-				ServerInstance->GlobalCulls.AddItem(c);
-			}
-			else
-				iter++;
-		}
-		ServerInstance->Modes->DelMode(&p);
-		return Module::cull();
-	}
-
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
