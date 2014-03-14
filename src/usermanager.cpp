@@ -27,7 +27,6 @@
 
 UserManager::UserManager()
 	: clientlist(new user_hash)
-	, uuidlist(new user_hash)
 	, unregistered_count(0)
 {
 }
@@ -40,7 +39,6 @@ UserManager::~UserManager()
 	}
 
 	delete clientlist;
-	delete uuidlist;
 }
 
 /* add a client connection to the sockets list */
@@ -208,7 +206,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 	else
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
-	uuidlist->erase(user->uuid);
+	uuidlist.erase(user->uuid);
 	user->PurgeEmptyChannels();
 }
 

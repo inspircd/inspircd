@@ -59,9 +59,9 @@ User* InspIRCd::FindNickOnly(const std::string &nick)
 
 User *InspIRCd::FindUUID(const std::string &uid)
 {
-	user_hash::iterator finduuid = this->Users->uuidlist->find(uid);
+	user_hash::iterator finduuid = this->Users->uuidlist.find(uid);
 
-	if (finduuid == this->Users->uuidlist->end())
+	if (finduuid == this->Users->uuidlist.end())
 		return NULL;
 
 	return finduuid->second;

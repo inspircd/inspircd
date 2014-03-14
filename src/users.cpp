@@ -79,7 +79,7 @@ User::User(const std::string& uid, Server* srv, int type)
 
 	ServerInstance->Logs->Log("USERS", LOG_DEBUG, "New UUID for user: %s", uuid.c_str());
 
-	if (!ServerInstance->Users->uuidlist->insert(std::make_pair(uuid, this)).second)
+	if (!ServerInstance->Users->uuidlist.insert(std::make_pair(uuid, this)).second)
 		throw CoreException("Duplicate UUID "+std::string(uuid)+" in User constructor");
 }
 
@@ -100,7 +100,7 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 
 User::~User()
 {
-	if (ServerInstance->Users->uuidlist->find(uuid) != ServerInstance->Users->uuidlist->end())
+	if (ServerInstance->FindUUID(uuid))
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "User destructor for %s called without cull", uuid.c_str());
 }
 
@@ -344,7 +344,7 @@ CullResult FakeUser::cull()
 	// Fake users don't quit, they just get culled.
 	quitting = true;
 	// Fake users are not inserted into UserManager::clientlist, they're only in the uuidlist
-	ServerInstance->Users->uuidlist->erase(uuid);
+	ServerInstance->Users->uuidlist.erase(uuid);
 	return User::cull();
 }
 

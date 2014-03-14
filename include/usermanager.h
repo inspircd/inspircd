@@ -48,7 +48,7 @@ class CoreExport UserManager
 	/** Client list stored by UUID. Contains all clients, and is updated
 	 * automatically by the constructor and destructor of User.
 	 */
-	user_hash* uuidlist;
+	user_hash uuidlist;
 
 	/** Local client list, a list containing only local clients
 	 */
