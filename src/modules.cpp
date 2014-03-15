@@ -413,17 +413,19 @@ void ModuleManager::DoSafeUnload(Module* mod)
 	}
 
 	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes->GetModes(MODETYPE_USER);
-	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); ++i)
+	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); )
 	{
 		ModeHandler* mh = i->second;
+		++i;
 		if (mh->creator == mod)
 			this->DelService(*mh);
 	}
 
 	const ModeParser::ModeHandlerMap& chanmodes = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
-	for (ModeParser::ModeHandlerMap::const_iterator i = chanmodes.begin(); i != chanmodes.end(); ++i)
+	for (ModeParser::ModeHandlerMap::const_iterator i = chanmodes.begin(); i != chanmodes.end(); )
 	{
 		ModeHandler* mh = i->second;
+		++i;
 		if (mh->creator == mod)
 			this->DelService(*mh);
 	}
