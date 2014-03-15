@@ -66,10 +66,11 @@ static std::vector<std::string> GetMap(User* user, TreeServer* current, unsigned
 {
 	float percent = 0;
 
-	if (!ServerInstance->Users->clientlist->empty())
+	const user_hash& users = ServerInstance->Users->GetUsers();
+	if (!users.empty())
 	{
 		// If there are no users, WHO THE HELL DID THE /MAP?!?!?!
-		percent = current->UserCount * 100.0 / ServerInstance->Users->clientlist->size();
+		percent = current->UserCount * 100.0 / users.size();
 	}
 
 	std::string buffer = current->GetName();
@@ -201,7 +202,7 @@ CmdResult CommandMap::Handle(const std::vector<std::string>& parameters, User* u
 		user->SendText(":%s %03d %s :%s", ServerInstance->Config->ServerName.c_str(),
 			RPL_MAP, user->nick.c_str(), i->c_str());
 
-	size_t totusers = ServerInstance->Users->clientlist->size();
+	size_t totusers = ServerInstance->Users->GetUsers().size();
 	float avg_users = (float) totusers / Utils->serverlist.size();
 
 	user->SendText(":%s %03d %s :%u server%s and %u user%s, average %.2f users per server",

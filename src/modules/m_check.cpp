@@ -248,7 +248,8 @@ class CommandCheck : public Command
 			long x = 0;
 
 			/* hostname or other */
-			for (user_hash::const_iterator a = ServerInstance->Users->clientlist->begin(); a != ServerInstance->Users->clientlist->end(); a++)
+			const user_hash& users = ServerInstance->Users->GetUsers();
+			for (user_hash::const_iterator a = users.begin(); a != users.end(); ++a)
 			{
 				if (InspIRCd::Match(a->second->host, parameters[0], ascii_case_insensitive_map) || InspIRCd::Match(a->second->dhost, parameters[0], ascii_case_insensitive_map))
 				{

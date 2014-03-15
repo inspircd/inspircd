@@ -157,6 +157,11 @@ class CoreExport UserManager
 	 */
 	unsigned int LocalUserCount() const { return (this->local_users.size() - this->UnregisteredUserCount()); }
 
+	/** Get a hash map containing all users, keyed by their nickname
+	 * @return A hash map mapping nicknames to User pointers
+	 */
+	user_hash& GetUsers() { return *clientlist; }
+
 	/** Send a server notice to all local users
 	 * @param text The text format string to send
 	 * @param ... The format arguments

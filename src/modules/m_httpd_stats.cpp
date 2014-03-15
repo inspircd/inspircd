@@ -104,7 +104,7 @@ class ModuleHttpStats : public Module
 					<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
 
 				data << "<general>";
-				data << "<usercount>" << ServerInstance->Users->clientlist->size() << "</usercount>";
+				data << "<usercount>" << ServerInstance->Users->GetUsers().size() << "</usercount>";
 				data << "<channelcount>" << ServerInstance->GetChans().size() << "</channelcount>";
 				data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
 				data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax><socketengine>" INSPIRCD_SOCKETENGINE_NAME "</socketengine>";
@@ -182,9 +182,10 @@ class ModuleHttpStats : public Module
 
 				data << "</channellist><userlist>";
 
-				for (user_hash::const_iterator a = ServerInstance->Users->clientlist->begin(); a != ServerInstance->Users->clientlist->end(); ++a)
+				const user_hash& users = ServerInstance->Users->GetUsers();
+				for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
 				{
-					User* u = a->second;
+					User* u = i->second;
 
 					data << "<user>";
 					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"

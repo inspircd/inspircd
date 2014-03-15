@@ -36,7 +36,8 @@ class CommandTline : public Command
 		unsigned int n_match_host = 0;
 		unsigned int n_match_ip = 0;
 
-		for (user_hash::const_iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
+		const user_hash& users = ServerInstance->Users->GetUsers();
+		for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
 		{
 			if (InspIRCd::Match(u->second->GetFullRealHost(),parameters[0]))
 			{
@@ -54,7 +55,7 @@ class CommandTline : public Command
 			}
 		}
 
-		unsigned long n_counted = ServerInstance->Users->clientlist->size();
+		unsigned long n_counted = users.size();
 		if (n_matched)
 		{
 			float p = (n_matched / (float)n_counted) * 100;

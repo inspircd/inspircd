@@ -365,7 +365,8 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		}
 		else
 		{
-			for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); i++)
+			const user_hash& users = ServerInstance->Users->GetUsers();
+			for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
 			{
 				if (whomatch(user, i->second, matchtext.c_str()))
 				{

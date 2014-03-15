@@ -48,14 +48,13 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 		return CMD_INVALID;
 
 	/* check for collision */
-	user_hash::iterator iter = ServerInstance->Users->clientlist->find(params[2]);
-
-	if (iter != ServerInstance->Users->clientlist->end())
+	User* collideswith = ServerInstance->FindNickOnly(params[2]);
+	if (collideswith)
 	{
 		/*
 		 * Nick collision.
 		 */
-		int collide = Utils->DoCollision(iter->second, remoteserver, age_t, params[5], params[6], params[0]);
+		int collide = Utils->DoCollision(collideswith, remoteserver, age_t, params[5], params[6], params[0]);
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)

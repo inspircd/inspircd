@@ -144,7 +144,7 @@ int TreeServer::QuitUsers(const std::string &reason)
 {
 	std::string publicreason = ServerInstance->Config->HideSplits ? "*.net *.split" : reason;
 
-	const user_hash& users = *ServerInstance->Users->clientlist;
+	const user_hash& users = ServerInstance->Users->GetUsers();
 	unsigned int original_size = users.size();
 	for (user_hash::const_iterator i = users.begin(); i != users.end(); )
 	{

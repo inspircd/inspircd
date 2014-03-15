@@ -271,7 +271,9 @@ void TreeSocket::SyncChannel(Channel* chan)
 void TreeSocket::SendUsers(BurstState& bs)
 {
 	ProtocolInterface::Server& piserver = bs.server;
-	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); u++)
+
+	const user_hash& users = ServerInstance->Users->GetUsers();
+	for (user_hash::const_iterator u = users.begin(); u != users.end(); ++u)
 	{
 		User* user = u->second;
 		if (user->registered != REG_ALL)

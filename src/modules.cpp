@@ -401,7 +401,9 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
 			mi->second->doUnhookExtensions(items);
 	}
-	for (user_hash::iterator u = ServerInstance->Users->clientlist->begin(); u != ServerInstance->Users->clientlist->end(); )
+
+	const user_hash& users = ServerInstance->Users->GetUsers();
+	for (user_hash::const_iterator u = users.begin(); u != users.end(); )
 	{
 		User* user = u->second;
 		// The module may quit the user (e.g. SSL mod unloading) and that will remove it from the container

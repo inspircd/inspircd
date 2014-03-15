@@ -132,7 +132,8 @@ class ModuleLusers : public Module
 	unsigned int CountInvisible()
 	{
 		unsigned int c = 0;
-		for (user_hash::iterator i = ServerInstance->Users->clientlist->begin(); i != ServerInstance->Users->clientlist->end(); ++i)
+		const user_hash& users = ServerInstance->Users->GetUsers();
+		for (user_hash::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			User* u = i->second;
 			if (u->IsModeSet(invisiblemode))
