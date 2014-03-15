@@ -371,7 +371,7 @@ class CoreExport InspIRCd
 
 	/** Timer manager class, triggers Timer timer events
 	 */
-	TimerManager* Timers;
+	TimerManager Timers;
 
 	/** X-Line manager. Handles G/K/Q/E line setting, removal and matching
 	 */

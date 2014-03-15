@@ -111,7 +111,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 		return I_ERR_NOMOREFDS;
 
 	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout, ServerInstance->Time());
-	ServerInstance->Timers->AddTimer(this->Timeout);
+	ServerInstance->Timers.AddTimer(this->Timeout);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BufferedSocket::DoConnect success");
 	return I_ERR_NONE;

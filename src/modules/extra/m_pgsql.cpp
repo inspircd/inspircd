@@ -608,7 +608,7 @@ void SQLConn::DelayReconnect()
 		if (!mod->retimer)
 		{
 			mod->retimer = new ReconnectTimer(mod);
-			ServerInstance->Timers->AddTimer(mod->retimer);
+			ServerInstance->Timers.AddTimer(mod->retimer);
 		}
 	}
 }

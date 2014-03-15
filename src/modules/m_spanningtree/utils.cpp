@@ -128,7 +128,7 @@ TreeServer* SpanningTreeUtilities::FindServerID(const std::string &id)
 SpanningTreeUtilities::SpanningTreeUtilities(ModuleSpanningTree* C)
 	: Creator(C), TreeRoot(NULL)
 {
-	ServerInstance->Timers->AddTimer(&RefreshTimer);
+	ServerInstance->Timers.AddTimer(&RefreshTimer);
 }
 
 CullResult SpanningTreeUtilities::cull()

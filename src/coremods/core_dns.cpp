@@ -448,7 +448,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	{
 		for (int i = 0; i < MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
-		ServerInstance->Timers->AddTimer(this);
+		ServerInstance->Timers.AddTimer(this);
 	}
 
 	~MyManager()

@@ -46,7 +46,7 @@ class JoinTimer : public Timer
 		: Timer(delay, ServerInstance->Time(), false)
 		, user(u), channels(chans), ext(ex)
 	{
-		ServerInstance->Timers->AddTimer(this);
+		ServerInstance->Timers.AddTimer(this);
 	}
 
 	bool Tick(time_t time) CXX11_OVERRIDE

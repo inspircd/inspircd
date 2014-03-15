@@ -25,15 +25,15 @@
 
 void Timer::SetInterval(time_t newinterval)
 {
-	ServerInstance->Timers->DelTimer(this);
+	ServerInstance->Timers.DelTimer(this);
 	secs = newinterval;
 	SetTrigger(ServerInstance->Time() + newinterval);
-	ServerInstance->Timers->AddTimer(this);
+	ServerInstance->Timers.AddTimer(this);
 }
 
 Timer::~Timer()
 {
-	ServerInstance->Timers->DelTimer(this);
+	ServerInstance->Timers.DelTimer(this);
 }
 
 void TimerManager::TickTimers(time_t TIME)

@@ -140,7 +140,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Config);
 	DeleteZero(this->PI);
 	DeleteZero(this->Threads);
-	DeleteZero(this->Timers);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
 	DeleteZero(this->Logs);
@@ -270,7 +269,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->BanCache = 0;
 	this->Modules = 0;
 	this->stats = 0;
-	this->Timers = 0;
 	this->Parser = 0;
 	this->XLines = 0;
 	this->Modes = 0;
@@ -299,7 +297,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Modules = new ModuleManager();
 	dynamic_reference_base::reset_all();
 	this->stats = new serverstats();
-	this->Timers = new TimerManager;
 	this->Parser = new CommandParser;
 	this->XLines = new XLineManager;
 
@@ -719,7 +716,7 @@ void InspIRCd::Run()
 				FOREACH_MOD(OnGarbageCollect, ());
 			}
 
-			Timers->TickTimers(TIME.tv_sec);
+			Timers.TickTimers(TIME.tv_sec);
 			Users->DoBackgroundUserStuff();
 
 			if ((TIME.tv_sec % 5) == 0)
