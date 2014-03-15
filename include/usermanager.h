@@ -32,18 +32,17 @@ class CoreExport UserManager
 	clonemap local_clones;
 
  public:
-	/** Constructor, initializes variables and allocates the hashmaps
+	/** Constructor, initializes variables
 	 */
 	UserManager();
 
-	/** Destructor, destroys all users in clientlist and then deallocates
-	 * the hashmaps
+	/** Destructor, destroys all users in clientlist
 	 */
 	~UserManager();
 
 	/** Client list, a hash_map containing all clients, local and remote
 	 */
-	user_hash* clientlist;
+	user_hash clientlist;
 
 	/** Client list stored by UUID. Contains all clients, and is updated
 	 * automatically by the constructor and destructor of User.
@@ -135,12 +134,12 @@ class CoreExport UserManager
 	/** Return a count of all global users, unknown and known connections
 	 * @return The number of users on the network, including local unregistered users
 	 */
-	unsigned int UserCount() const { return this->clientlist->size(); }
+	unsigned int UserCount() const { return this->clientlist.size(); }
 
 	/** Return a count of fully registered connections on the network
 	 * @return The number of registered users on the network
 	 */
-	unsigned int RegisteredUserCount() { return this->clientlist->size() - this->UnregisteredUserCount(); }
+	unsigned int RegisteredUserCount() { return this->clientlist.size() - this->UnregisteredUserCount(); }
 
 	/** Return a count of opered (umode +o) users on the network
 	 * @return The number of opers on the network
@@ -160,7 +159,7 @@ class CoreExport UserManager
 	/** Get a hash map containing all users, keyed by their nickname
 	 * @return A hash map mapping nicknames to User pointers
 	 */
-	user_hash& GetUsers() { return *clientlist; }
+	user_hash& GetUsers() { return clientlist; }
 
 	/** Send a server notice to all local users
 	 * @param text The text format string to send

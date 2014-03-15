@@ -77,7 +77,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
 		return CMD_INVALID;
 	}
-	(*(ServerInstance->Users->clientlist))[params[2]] = _new;
+	ServerInstance->Users->clientlist[params[2]] = _new;
 	_new->nick = params[2];
 	_new->host = params[3];
 	_new->dhost = params[4];

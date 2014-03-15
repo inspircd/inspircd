@@ -26,19 +26,16 @@
 #include "iohook.h"
 
 UserManager::UserManager()
-	: clientlist(new user_hash)
-	, unregistered_count(0)
+	: unregistered_count(0)
 {
 }
 
 UserManager::~UserManager()
 {
-	for (user_hash::iterator i = clientlist->begin(); i != clientlist->end(); ++i)
+	for (user_hash::iterator i = clientlist.begin(); i != clientlist.end(); ++i)
 	{
 		delete i->second;
 	}
-
-	delete clientlist;
 }
 
 /* add a client connection to the sockets list */
@@ -70,7 +67,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	/* The users default nick is their UUID */
 	New->nick = New->uuid;
-	(*(this->clientlist))[New->nick] = New;
+	this->clientlist[New->nick] = New;
 
 	New->registered = REG_NONE;
 	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
@@ -199,11 +196,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 			ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operreason->c_str());
 	}
 
-	user_hash::iterator iter = this->clientlist->find(user->nick);
-
-	if (iter != this->clientlist->end())
-		this->clientlist->erase(iter);
-	else
+	if (!clientlist.erase(user->nick))
 		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "ERROR: Nick not found in clientlist, cannot remove: " + user->nick);
 
 	uuidlist.erase(user->uuid);
