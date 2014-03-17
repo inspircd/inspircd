@@ -21,15 +21,28 @@
 
 #include <list>
 
-/** A list of ip addresses cross referenced against clone counts */
-typedef std::map<irc::sockets::cidr_mask, unsigned int> clonemap;
-
 class CoreExport UserManager
 {
- private:
-	/** Map of local ip addresses for clone counting
+ public:
+	struct CloneCounts
+	{
+		unsigned int global;
+		unsigned int local;
+		CloneCounts() : global(0), local(0) { }
+	};
+
+	/** Container that maps IP addresses to clone counts
 	 */
-	clonemap local_clones;
+	typedef std::map<irc::sockets::cidr_mask, CloneCounts> CloneMap;
+
+ private:
+	/** Map of IP addresses for clone counting
+	 */
+	CloneMap clonemap;
+
+	/** A CloneCounts that contains zero for both local and global
+	 */
+	const CloneCounts zeroclonecounts;
 
  public:
 	/** Constructor, initializes variables
@@ -61,11 +74,6 @@ class CoreExport UserManager
 	 * (Unregistered means before USER/NICK/dns)
 	 */
 	unsigned int unregistered_count;
-
-	/** Map of global ip addresses for clone counting
-	 * XXX - this should be private, but m_clones depends on it currently.
-	 */
-	clonemap global_clones;
 
 	/**
 	 * Reset the already_sent IDs so we don't wrap it around and drop a message
@@ -102,15 +110,10 @@ class CoreExport UserManager
 	 */
 	void QuitUser(User* user, const std::string& quitreason, const std::string* operreason = NULL);
 
-	/** Add a user to the local clone map
+	/** Add a user to the clone map
 	 * @param user The user to add
 	 */
-	void AddLocalClone(User *user);
-
-	/** Add a user to the global clone map
-	 * @param user The user to add
-	 */
-	void AddGlobalClone(User *user);
+	void AddClone(User* user);
 
 	/** Remove all clone counts from the user, you should
 	 * use this if you change the user's IP address
@@ -119,17 +122,18 @@ class CoreExport UserManager
 	 */
 	void RemoveCloneCounts(User *user);
 
-	/** Return the number of global clones of this user
-	 * @param user The user to get a count for
-	 * @return The global clone count of this user
+	/** Return the number of local and global clones of this user
+	 * @param user The user to get the clone counts for
+	 * @return The clone counts of this user. The returned reference is volatile - you
+	 * must assume that it becomes invalid as soon as you call any function other than
+	 * your own.
 	 */
-	unsigned long GlobalCloneCount(User *user);
+	const CloneCounts& GetCloneCounts(User* user) const;
 
-	/** Return the number of local clones of this user
-	 * @param user The user to get a count for
-	 * @return The local clone count of this user
+	/** Return a map containg IP addresses and their clone counts
+	 * @return The clone count map
 	 */
-	unsigned long LocalCloneCount(User *user);
+	const CloneMap& GetCloneMap() const { return clonemap; }
 
 	/** Return a count of all global users, unknown and known connections
 	 * @return The number of users on the network, including local unregistered users

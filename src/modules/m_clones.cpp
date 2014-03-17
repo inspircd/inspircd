@@ -48,11 +48,12 @@ class CommandClones : public Command
 		user->WriteServ(clonesstr + " START");
 
 		/* hostname or other */
-		// XXX I really don't like marking global_clones public for this. at all. -- w00t
-		for (clonemap::iterator x = ServerInstance->Users->global_clones.begin(); x != ServerInstance->Users->global_clones.end(); x++)
+		const UserManager::CloneMap& clonemap = ServerInstance->Users->GetCloneMap();
+		for (UserManager::CloneMap::const_iterator i = clonemap.begin(); i != clonemap.end(); ++i)
 		{
-			if (x->second >= limit)
-				user->WriteServ(clonesstr + " "+ ConvToStr(x->second) + " " + x->first.str());
+			const UserManager::CloneCounts& counts = i->second;
+			if (counts.global >= limit)
+				user->WriteServ(clonesstr + " " + ConvToStr(counts.global) + " " + i->first.str());
 		}
 
 		user->WriteServ(clonesstr + " END");

@@ -230,8 +230,9 @@ class CommandCheck : public Command
 				/*
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t
 			 	 */
-				user->SendText("%s member %-3lu %s%s (%s@%s) %s ",
-					checkstr.c_str(), ServerInstance->Users->GlobalCloneCount(i->first),
+				const UserManager::CloneCounts& clonecount = ServerInstance->Users->GetCloneCounts(i->first);
+				user->SendText("%s member %-3u %s%s (%s@%s) %s ",
+					checkstr.c_str(), clonecount.global,
 					i->second->GetAllPrefixChars(), i->first->nick.c_str(),
 					i->first->ident.c_str(), i->first->dhost.c_str(), i->first->fullname.c_str());
 			}

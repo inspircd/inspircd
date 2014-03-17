@@ -73,8 +73,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
 	New->lastping = 1;
 
-	ServerInstance->Users->AddLocalClone(New);
-	ServerInstance->Users->AddGlobalClone(New);
+	this->AddClone(New);
 
 	this->local_users.push_front(New);
 
@@ -203,58 +202,40 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 	user->PurgeEmptyChannels();
 }
 
-void UserManager::AddLocalClone(User *user)
+void UserManager::AddClone(User* user)
 {
-	local_clones[user->GetCIDRMask()]++;
-}
-
-void UserManager::AddGlobalClone(User *user)
-{
-	global_clones[user->GetCIDRMask()]++;
+	CloneCounts& counts = clonemap[user->GetCIDRMask()];
+	counts.global++;
+	if (IS_LOCAL(user))
+		counts.local++;
 }
 
 void UserManager::RemoveCloneCounts(User *user)
 {
-	if (IS_LOCAL(user))
+	CloneMap::iterator it = clonemap.find(user->GetCIDRMask());
+	if (it != clonemap.end())
 	{
-		clonemap::iterator x = local_clones.find(user->GetCIDRMask());
-		if (x != local_clones.end())
+		CloneCounts& counts = it->second;
+		counts.global--;
+		if (counts.global == 0)
 		{
-			x->second--;
-			if (!x->second)
-			{
-				local_clones.erase(x);
-			}
+			// No more users from this IP, remove entry from the map
+			clonemap.erase(it);
+			return;
 		}
-	}
 
-	clonemap::iterator y = global_clones.find(user->GetCIDRMask());
-	if (y != global_clones.end())
-	{
-		y->second--;
-		if (!y->second)
-		{
-			global_clones.erase(y);
-		}
+		if (IS_LOCAL(user))
+			counts.local--;
 	}
 }
 
-unsigned long UserManager::GlobalCloneCount(User *user)
+const UserManager::CloneCounts& UserManager::GetCloneCounts(User* user) const
 {
-	clonemap::iterator x = global_clones.find(user->GetCIDRMask());
-	if (x != global_clones.end())
-		return x->second;
+	CloneMap::const_iterator it = clonemap.find(user->GetCIDRMask());
+	if (it != clonemap.end())
+		return it->second;
 	else
-		return 0;
-}
-
-unsigned long UserManager::LocalCloneCount(User *user)
-{
-	clonemap::iterator x = local_clones.find(user->GetCIDRMask());
-	if (x != local_clones.end())
-		return x->second;
-	else
-		return 0;
+		return zeroclonecounts;
 }
 
 void UserManager::ServerNoticeAll(const char* text, ...)

@@ -192,8 +192,7 @@ class ModuleCgiIRC : public Module
 	{
 		ServerInstance->Users->RemoveCloneCounts(user);
 		user->SetClientIP(newip.c_str());
-		ServerInstance->Users->AddLocalClone(user);
-		ServerInstance->Users->AddGlobalClone(user);
+		ServerInstance->Users->AddClone(user);
 	}
 
 	void HandleIdentOrPass(LocalUser* user, const std::string& newip, bool was_pass)

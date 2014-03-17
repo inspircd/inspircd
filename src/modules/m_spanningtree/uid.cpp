@@ -126,7 +126,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 
 	_new->SetClientIP(params[6].c_str());
 
-	ServerInstance->Users->AddGlobalClone(_new);
+	ServerInstance->Users->AddClone(_new);
 	remoteserver->UserCount++;
 
 	bool dosend = true;
