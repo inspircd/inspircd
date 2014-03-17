@@ -22,7 +22,8 @@
 
 class ModuleConnectBan : public Module
 {
-	clonemap connects;
+	typedef std::map<irc::sockets::cidr_mask, unsigned int> ConnectMap;
+	ConnectMap connects;
 	unsigned int threshold;
 	unsigned int banduration;
 	unsigned int ipv4_cidr;
@@ -52,7 +53,6 @@ class ModuleConnectBan : public Module
 			return;
 
 		int range = 32;
-		clonemap::iterator i;
 
 		switch (u->client_sa.sa.sa_family)
 		{
@@ -65,7 +65,7 @@ class ModuleConnectBan : public Module
 		}
 
 		irc::sockets::cidr_mask mask(u->client_sa, range);
-		i = connects.find(mask);
+		ConnectMap::iterator i = connects.find(mask);
 
 		if (i != connects.end())
 		{
