@@ -262,8 +262,8 @@
          password="secret"
 
          # maxchans: Maximum number of channels a user in this class
-         # be in at one time. This overrides every other maxchans setting.
-         #maxchans="30"
+         # be in at one time.
+         maxchans="20"
 
          # timeout: How long (in seconds) the server will wait before
          # disconnecting a user if they do not do anything on connect.
@@ -335,8 +335,8 @@
          allow="*"
 
          # maxchans: Maximum number of channels a user in this class
-         # be in at one time. This overrides every other maxchans setting.
-         #maxchans="30"
+         # be in at one time.
+         maxchans="20"
 
          # timeout: How long (in seconds) the server will wait before
          # disconnecting a user if they do not do anything on connect.
@@ -453,16 +453,6 @@
 # Example of an executable file include. Note this will be read on rehash,
 # not when the command is run.
 #<execfiles motd="wget -O - http://www.example.com/motd.txt">
-
-#-#-#-#-#-#-#-#-#-#-#-# MAXIMUM CHANNELS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-
-<channels
-          # users: Maximum number of channels a user can be in at once.
-          users="20"
-
-          # opers: Maximum number of channels an oper can be in at once.
-          opers="60">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # If these values are not defined, InspIRCd uses the default DNS resolver

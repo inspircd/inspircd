@@ -392,7 +392,7 @@ void ServerConfig::Fill()
 	DefaultModes = options->getString("defaultmodes", "not");
 	PID = ConfValue("pid")->getString("file");
 	MaxChans = ConfValue("channels")->getInt("users", 20);
-	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
+	OperMaxChans = ConfValue("channels")->getInt("opers");
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
 	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
 	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);

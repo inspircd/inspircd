@@ -446,11 +446,11 @@ class CoreExport ServerConfig
 	 */
 	OperIndex OperTypes;
 
-	/** Max channels per user
+	/** Default value for <connect:maxchans>, deprecated in 2.2
 	 */
 	unsigned int MaxChans;
 
-	/** Oper max channels per user
+	/** Default value for <oper:maxchans>, deprecated in 2.2
 	 */
 	unsigned int OperMaxChans;
 

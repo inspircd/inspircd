@@ -25,14 +25,13 @@
      # ACTIONS:
      #   - users/mass-message: allows opers with this priv to PRIVMSG and NOTICE to a server mask (e.g. NOTICE $*)
      #   - users/samode-usermodes: allows opers with this priv to change the user modes of any other user using /SAMODE
-     #   - channels/high-join-limit: allows opers with this priv to join <channels:opers> total channels instead of <channels:users> total channels.
      # PERMISSIONS:
      #   - users/flood/no-fakelag: prevents opers from being penalized with fake lag for flooding (*NOTE)
      #   - users/flood/no-throttle: allows opers with this priv to send commands without being throttled (*NOTE)
      #   - users/flood/increased-buffers: allows opers with this priv to send and receive data without worrying about being disconnected for exceeding limits (*NOTE)
      #
      # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
-     privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit users/flood/no-throttle users/flood/increased-buffers"
+     privs="users/auspex channels/auspex servers/auspex users/mass-message users/flood/no-throttle users/flood/increased-buffers"
 
      # usermodes: Oper-only usermodes that opers with this class can use.
      usermodes="*"
@@ -63,6 +62,9 @@
 
     # vhost: Host opers of this type get when they log in (oper up). This is optional.
     vhost="netadmin.omega.example.org"
+
+    # maxchans: Maximum number of channels opers of this type can be in at once.
+    maxchans="60"
 
     # modes: User modes besides +o that are set on an oper of this type
     # when they oper up. Used for snomasks and other things.

@@ -161,30 +161,26 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 
 	/*
 	 * We don't restrict the number of channels that remote users or users that are override-joining may be in.
-	 * We restrict local users to MaxChans channels.
-	 * We restrict local operators to OperMaxChans channels.
+	 * We restrict local users to <connect:maxchans> channels.
+	 * We restrict local operators to <oper:maxchans> channels.
 	 * This is a lot more logical than how it was formerly. -- w00t
 	 */
 	if (!override)
 	{
-		if (user->HasPrivPermission("channels/high-join-limit"))
+		unsigned int maxchans = user->GetClass()->maxchans;
+		if (user->IsOper())
 		{
-			if (user->chans.size() >= ServerInstance->Config->OperMaxChans)
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s :You are on too many channels", cname.c_str());
-				return NULL;
-			}
+			unsigned int opermaxchans = ConvToInt(user->oper->getConfig("maxchans"));
+			// If not set, use 2.0's <channels:opers>, if that's not set either, use limit from CC
+			if (!opermaxchans)
+				opermaxchans = ServerInstance->Config->OperMaxChans;
+			if (opermaxchans)
+				maxchans = opermaxchans;
 		}
-		else
+		if (user->chans.size() >= maxchans)
 		{
-			unsigned int maxchans = user->GetClass()->maxchans;
-			if (!maxchans)
-				maxchans = ServerInstance->Config->MaxChans;
-			if (user->chans.size() >= maxchans)
-			{
-				user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s :You are on too many channels", cname.c_str());
-				return NULL;
-			}
+			user->WriteNumeric(ERR_TOOMANYCHANNELS, "%s :You are on too many channels", cname.c_str());
+			return NULL;
 		}
 	}
 
