@@ -72,7 +72,7 @@ private message you when you have usermode +g set. ACCEPT +nick adds
 a nick to your accept list, ACCEPT -nick removes a nick from your
 accept list, and ACCEPT * displays your accept list.">
 
-<helpop key="cycle" value="/CYCLE [channel]
+<helpop key="cycle" value="/CYCLE [channel] [reason]
 
 Cycles a channel (leaving and rejoining), overrides restrictions that
 would stop a new user joining, such as user limits and channel keys.">
@@ -99,14 +99,14 @@ a message stating they were removed from the channel and by whom.">
 
 <helpop key="fpart" value="/FPART [channel] [nick] {[reason]}
 
-This behaves identically to /REMOVE, the only difference is that that
+This behaves identically to /REMOVE, the only difference is that the
 [channel] and [nick] parameters are switched around to match /KICK's
 syntax. Also, /REMOVE is a builtin mIRC command which caused trouble
-for some users. This feature was added in the 1.1 branch.">
+for some users.">
 
 <helpop key="devoice" value="/DEVOICE [channel]
 
-Devoices yourself from the specified channel.">
+Devoices yourself on the specified channel.">
 
 <helpop key="silence" value="/SILENCE [+/-][hostmask] [p|c|i|n|t|a|x]
 
@@ -124,7 +124,7 @@ Valid SILENCE Flags
  a        Block all of the above
  x        Exception
 
-Multiple letters may be specified. For an exception, you msut pair x
+Multiple letters may be specified. For an exception, you must pair x
 with what you want excepted. For example, if you wanted to except
 everything from people with a host matching *.foo.net, you would do
 /SILENCE +*!*@*.foo.net xa
@@ -157,7 +157,7 @@ Returns the server's version information.">
 
 <helpop key="ping" value="/PING [server]
 
-Ping a server. Target server will answer with a PONG.">
+Ping a server. The server will answer with a PONG.">
 
 <helpop key="pong" value="/PONG [server]
 
@@ -191,11 +191,11 @@ Leaves one or more channels you specify.">
 <helpop key="kick" value="/KICK [channel] [nick] {[reason]}
 
 Kicks a user from a channel you specify. You must be
-At least a channel halfoperator to kick a user.">
+at least a channel halfoperator to kick a user.">
 
 <helpop key="mode" value="/MODE [target] [+|-][modes]{[+|-][modes]} {mode parameters}
 
-Sets the mode for a channel or a nickname specified in [target]
+Sets the mode for a channel or a nickname specified in [target].
 A user may only set modes upon themselves, and may not set the
 +o usermode, and a user may only change channel modes of
 channels where they are at least a halfoperator.
@@ -229,7 +229,8 @@ The following flags after the mask have the following effects:
 
  a      Show all users who have an away message matching the given mask
  i      Show all users who have an ident (username) matching the given mask
- p      Show all users who are connected on the given port number
+ p      Show all users who are connected on the given port number (IRC
+        operators only)
  r      Show all users whose realnames match the mask. When this
         flag is set it overrides the meaning of the search-pattern,
         which must contain a glob pattern intended to match GECOS
@@ -238,10 +239,10 @@ The following flags after the mask have the following effects:
         this flag is set it overrides the meaning of the
         search-pattern, which must contain the mode sequence to
         search for, for example to find all users with +i and
-        without +s, issue the command WHO +i-s m.
+        without +s, issue the command WHO +i-s m (IRC operators only)
  t      Show users connected within this number of seconds
  M      Show all users who have metadata attached to them with
-        the given key name
+        the given key name (IRC operators only)
 
  f      Show only remote (far) users
  l      Show only local users
@@ -383,9 +384,9 @@ RELOADMODULE   GLOADMODULE  GUNLOADMODULE
 GRELOADMODULE  RELOAD       CLOSE
 LOCKSERV       UNLOCKSERV   JUMPSERVER">
 
-<helpop key="userip" value="/USERIP [nickname]
+<helpop key="userip" value="/USERIP [nicknames]
 
-Returns the ip and nickname of a user.">
+Returns the ip and nickname of the given users.">
 
 <helpop key="tline" value="/TLINE [host or ip mask]
 
@@ -452,12 +453,13 @@ n    Block private and channel notices
 P    Block part messages
 q    Block quit messages
 o    Don't match against opers
+c    Strip all color codes from the message before matching
 *    Represents all of the above flags
 -    Does nothing, a non-op for when you do not want to specify any
      flags
 
 The reason for the filter will be used as the reason for the action,
-unless the ation is 'none', and is sent to the user when their text is
+unless the action is 'none', and is sent to the user when their text is
 blocked by 'block' and 'silent' actions.
 
 A gline duration may be specified in seconds, or in the format
@@ -562,7 +564,7 @@ the result.">
 
 <helpop key="opermotd" value="/OPERMOTD
 
-Redisplays the Oper MOTD.">
+Displays the Oper MOTD.">
 
 <helpop key="nicklock" value="/NICKLOCK [nick] [new nick]
 
@@ -587,7 +589,7 @@ Changes the ident of the user to the new ident.">
 
 <helpop key="shun" value="/SHUN [nick!user@host] {[duration] :[reason]}
 
-Sets or removes a shun (serverside ignore) on a host and ident mask.
+Sets or removes a shun (server side ignore) on a host and ident mask.
 You must specify all three parameters to add a shun, and one parameter
 to remove a shun (just the nick!user@host section).
 
@@ -603,7 +605,7 @@ command to function.">
 
 <helpop key="restart" value="/RESTART [password]
 
-This command restarts down the local server. A single parameter is
+This command restarts the local server. A single parameter is
 required, which must match the password in the configuration for the
 command to function.">
 
@@ -615,21 +617,21 @@ Shows all currently available commands.">
 
 This command will disconnect a user from IRC with the given reason.">
 
-<helpop key="rehash" value="/REHASH
+<helpop key="rehash" value="/REHASH [mask]
 
 This command will cause the server configuration file to be reread and
-values reinitialized for all servers matchin the server mask, or the
+values reinitialized for all servers matching the server mask, or the
 local server if one is not specified.">
 
 <helpop key="connect" value="/CONNECT [servermask]
 
-Add a connection to the server matching the given servermask. You must
+Add a connection to the server matching the given server mask. You must
 have configured the server for linking in your configuration file
 before trying to link them.">
 
 <helpop key="squit" value="/SQUIT [servermask]
 
-Disconnects the server matching the given servermask from this server.">
+Disconnects the server matching the given server mask from this server.">
 
 <helpop key="modules" value="/MODULES
 
@@ -766,7 +768,7 @@ Closes all unregistered connections to the local server.">
               commonchans module).
  d            Deaf mode. User will not receive any messages or notices
               from channels they are in (requires deaf module).
- g            In combination with /allow, provides for server side
+ g            In combination with /ACCEPT, provides for server side
               ignore (requires callerid module).
  h            Marks as 'available for help' in WHOIS (IRCop only,
               requires helpop module).
@@ -789,9 +791,6 @@ Closes all unregistered connections to the local server.">
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
               non-IRCops (requires hidechans module).
- Q            Makes an operator invisible, preventing users from
-              seeing their presence, including in channel user lists
-              (IRCop only, requires invisible module).
  R            Blocks private messages from unregistered users
               (requires services account module).
  S            Strips mIRC color/bold/underline codes out of private
@@ -898,7 +897,7 @@ Closes all unregistered connections to the local server.">
                     channel (requirs stripcolor module).
  T                  Blocks /NOTICEs to the channel from users who are
                     not at least halfop (requires nonotice module).
- 
+
  g [mask]           Blocks messages matching the given blob mask
                     (requires chanfilter module).
  X [mode]           Makes channel operators immune to the specified
@@ -921,16 +920,16 @@ symbols may be only available to opers.
 
 Valid symbols are:
 
-e  Show e-lines (local ban exemptions)
-g  Show g-lines (host bans)
-k  Show k-lines (local host bans)
-q  Show q-lines (nick mask bans)
-Z  Show z-lines (IP mask bans)
+e  Show E-lines (local ban exemptions)
+g  Show G-lines (host bans)
+k  Show K-lines (local host bans)
+q  Show Q-lines (nick mask bans)
 R  Show R-lines (regular expression bans)
+Z  Show Z-lines (IP mask bans)
 
-H  Show shuns
 s  Show filters
 C  Show channel bans
+H  Show shuns
 
 c  Show link blocks
 d  Show configured DNSBLs and related statistics
@@ -967,8 +966,6 @@ Note that all /STATS use is broadcast to online IRC operators.">
         messages.
  f      Allows receipt of flooding notices.
  g      Allows receipt of globops (requires globops module).
- G      Allows receipt of notices of use of oper-override (requires
-        override module)
  j      Allows receipt of channel creation notices (requires
         chancreate module).
  J      Allows receipt of remote channel creation notices (requires
@@ -989,7 +986,8 @@ Note that all /STATS use is broadcast to online IRC operators.">
  Q      Allows receipt of remote quit messages.
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires override module).
- x      Allows receipt of Xline notices (g/z/q/k/e/R/shuns).">
+ x      Allows receipt of local Xline notices (g/z/q/k/e/R/shuns)."
+ X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
 
 ######################
 #      EXTBANS       #

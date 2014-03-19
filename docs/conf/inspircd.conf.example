@@ -18,7 +18,7 @@
 ##################################||####################################
 #                                                                      #
 #         This is an example of the config file for InspIRCd.          #
-#             Change the options to suit your network                  #
+#             Change the options to suit your network.                 #
 #                                                                      #
 #                                                                      #
 #    ____                _   _____ _     _       ____  _ _   _         #
@@ -31,10 +31,6 @@
 #   lines, and you REALLY SHOULD READ THEM. Yes, THIS MEANS YOU. Even  #
 #   if you've configured InspIRCd before, these probably indicate      #
 #   something new or different to this version and you SHOULD READ IT. #
-#                                                                      #
-########################################################################
-#                                                                      #
-#         Unalphabeticalise the modules list at your own risk          #
 #                                                                      #
 ########################################################################
 
@@ -56,7 +52,7 @@
 #<include file="file.conf">                                           #
 #<include executable="/path/to/executable parameters">                #
 #                                                                     #
-# Executable Include Example:                                         #
+# Executable include example:                                         #
 #<include executable="/usr/bin/wget -q -O - http://mynet.net/inspircd.conf">
 #                                                                     #
 
@@ -161,12 +157,11 @@
 
 <bind address="" port="6660-6669" type="clients">
 
-# When linking servers, the openssl and gnutls implementations are completely
+# When linking servers, the OpenSSL and GnuTLS implementations are completely
 # link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
 # Supported ssl types are: "openssl" and "gnutls".
-# You must load, m_ssl_openssl for openssl
-# or m_ssl_gnutls for gnutls.
+# You must load, m_ssl_openssl for OpenSSL or m_ssl_gnutls for GnuTLS.
 
 <bind address="" port="7000,7001" type="servers">
 <bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
@@ -175,7 +170,7 @@
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
 #   You can configure the passwords here which you wish to use for    #
-#   the die and restart commands. Only trusted IRCop's who will       #
+#   the /DIE and /RESTART commands. Only trusted IRCop's who will     #
 #   need this ability should know the die and restart password.       #
 #                                                                     #
 
@@ -186,7 +181,7 @@
        # (m_password_hash.so) loaded.
        # Options here are: "md5", "sha256" and "ripemd160", or one of
        # these prefixed with "hmac-", e.g.: "hmac-sha256".
-       # Optional, but recommended. Create hashed password with:
+       # Optional, but recommended. Create hashed passwords with:
        # /mkpasswd <hash> <password>
        #hash="sha256"
 
@@ -244,7 +239,7 @@
          # for selected hash (m_md5.so, m_sha256.so or m_ripemd160.so) be
          # loaded and the password hashing module (m_password_hash.so)
          # loaded. Options here are: "md5", "sha256" and "ripemd160".
-         # Optional, but recommended. Create hashed password with:
+         # Optional, but recommended. Create hashed passwords with:
          # /mkpasswd <hash> <password>
          #hash="sha256"
 
@@ -337,14 +332,16 @@
          # before they are dropped. Keep this value higher than the length of
          # your network's /LIST or /WHO output, or you will have lots of
          # disconnects from sendq overruns!
-         hardsendq="1048576"
+         # Setting this to "1M" is equivalent to "1048576", "8K" is 8192, etc.
+         hardsendq="1M"
 
          # softsendq: amount of data in a client's send queue before the server
          # begins delaying their commands in order to allow the sendq to drain
          softsendq="8192"
 
          # recvq: amount of data allowed in a client's queue before they are dropped.
-         recvq="8192"
+         # Entering "8K" is equivalent to "8192", see above.
+         recvq="8K"
 
          # threshold: This specifies the amount of command penalty a user is allowed to have
          # before being quit or fakelagged due to flood. Normal commands have a penalty of 1,
@@ -442,7 +439,7 @@
           # users: Maximum number of channels a user can be in at once.
           users="20"
 
-          # opers: Maximum number of channels a oper can be in at once.
+          # opers: Maximum number of channels an oper can be in at once.
           opers="60">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-# DNS SERVER -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -525,20 +522,20 @@
 #                                                                     #
 
 <options
-         # prefixquit: What (if anything) a users' quit message
+         # prefixquit: What (if anything) users' quit messages
          # should be prefixed with.
          prefixquit="Quit: "
 
-         # suffixquit: What (if anything) a users' quit message
+         # suffixquit: What (if anything) users' quit messages
          # should be suffixed with.
          suffixquit=""
 
-         # prefixpart: What (if anything) a users' part message
+         # prefixpart: What (if anything) users' part messages
          # should be prefixed with.
          prefixpart="&quot;"
          # NOTE: Use "\"" instead of "&quot;" if not using <config format="xml">
 
-         # suffixpart: What (if anything) a users' part message
+         # suffixpart: What (if anything) users' part message
          # should be suffixed with.
          suffixpart="&quot;"
 
@@ -569,12 +566,12 @@
          # it will just message the user normally.
          ircumsgprefix="no"
 
-         # announcets: If set to yes, when the TimeStamp on a channel changes, all users
-         # in channel will be sent a NOTICE about it.
+         # announcets: If set to yes, when the timestamp on a channel changes, all users
+         # in the channel will be sent a NOTICE about it.
          announcets="yes"
 
          # allowmismatch: Setting this option to yes will allow servers to link even
-         # if they don't have the same VF_OPTCOMMON modules loaded. Setting this to
+         # if they don't have the same "optionally common" modules loaded. Setting this to
          # yes may introduce some desyncs and weirdness.
          allowmismatch="no"
 
@@ -583,8 +580,8 @@
          # falling back to IPv4 otherwise.
          defaultbind="auto"
 
-         # hostintopic: If enabled, channels will show the host of the topicsetter
-         # in the topic. If set to no, it will only show the nick of the topicsetter.
+         # hostintopic: If enabled, channels will show the host of the topic setter
+         # in the topic. If set to no, it will only show the nick of the topic setter.
          hostintopic="yes"
 
          # pingwarning: If a server does not respond to a ping within x seconds,
@@ -596,26 +593,25 @@
          serverpingfreq="60"
 
          # defaultmodes: What modes are set on a empty channel when a user
-         # joins it and it is unregistered. This is similar to Asuka's
-         # autochanmodes.
+         # joins it and it is unregistered.
          defaultmodes="nt"
 
          # moronbanner: This is the text that is sent to a user when they are
          # banned from the server.
-         moronbanner="You're banned! Email haha@abuse.com with the ERROR line below for help."
+         moronbanner="You're banned! Email abuse@example.com with the ERROR line below for help."
 
          # exemptchanops: exemptions for channel access restrictions based on prefix.
          exemptchanops="nonick:v flood:o"
 
          # invitebypassmodes: This allows /invite to bypass other channel modes.
-         # (Such as +k, +j, +l, etc)
+         # (Such as +k, +j, +l, etc.)
          invitebypassmodes="yes"
 
          # nosnoticestack: This prevents snotices from 'stacking' and giving you
          # the message saying '(last message repeated X times)'. Defaults to no.
          nosnoticestack="no"
 
-         # welcomenotice: When turned on, this sends a NOTICE to connecting users 
+         # welcomenotice: When turned on, this sends a NOTICE to connecting users
          # with the text Welcome to <networkname>! after successful registration.
          # Defaults to yes.
          welcomenotice="yes">
@@ -638,7 +634,7 @@
              # limitsomaxconn: By default, somaxconn (see above) is limited to a
              # safe maximum value in the 2.0 branch for compatibility reasons.
              # This setting can be used to disable this limit, forcing InspIRCd
-             # to use the value specifed above.
+             # to use the value specified above.
              limitsomaxconn="true"
 
              # softlimit: This optional feature allows a defined softlimit for
@@ -802,7 +798,7 @@
 # to do what they want.
 #
 # An example log tag would be:
-#  <log method="file" type="OPER" level="default" target="opers.log">
+#  <log method="file" type="OPER" level="default" target="logs/opers.log">
 # which would log all information on /oper (failed and successful) to
 # a file called opers.log.
 #
@@ -839,7 +835,7 @@
 # The following log tag is highly default and uncustomised. It is recommended you
 # sort out your own log tags. This is just here so you get some output.
 
-<log method="file" type="* -USERINPUT -USEROUTPUT" level="default" target="ircd.log">
+<log method="file" type="* -USERINPUT -USEROUTPUT" level="default" target="logs/ircd.log">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-  WHOWAS OPTIONS   -#-#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

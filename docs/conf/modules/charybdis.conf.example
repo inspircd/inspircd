@@ -70,8 +70,8 @@
 
 <module name="m_chancreate.so">
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Channel Names module: Allows disabling channels which have certain
-# characters in the channel name such as bold, colorcodes, etc which
+# Channel names module: Allows disabling channels which have certain
+# characters in the channel name such as bold, colorcodes, etc. which
 # can be quite annoying and allow users to on occasion have a channel
 # that looks like the name of another channel on the network.
 <module name="m_channames.so">
@@ -144,7 +144,7 @@
 #<module name="m_connectban.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Connection throttle module. Configuration:
+# Connection throttle module.
 #<module name="m_connflood.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- CONTHROTTLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
@@ -182,21 +182,21 @@
 <module name="m_redirect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular Expression Provider for Glob or wildcard (?/*) matching.
+# Regular expression provider for glob or wildcard (?/*) matching.
 # You must have at least 1 provider loaded to use m_filter or m_rline
 # modules. This module has no additional requirements, as it uses the
 # matching already present in InspIRCd core.
 #<module name="m_regex_glob.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular Expression Provider for PCRE (Perl-Compatible Regular
+# Regular expression provider for PCRE (Perl-Compatible Regular
 # Expressions). You need libpcre installed to compile and load this
 # module. You must have at least 1 provider loaded to use m_filter or
 # m_rline.
 #<module name="m_regex_pcre.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular Expression Provider for POSIX Regular Expressions.
+# Regular expression provider for POSIX regular expressions.
 # You shouldn't need any additional libraries on a POSIX-compatible
 # system (ie: any Linux, BSD, but not Windows). You must have at least
 # 1 provider loaded to use m_filter or m_rline.
@@ -246,14 +246,10 @@
 <showwhois opersonly="yes" showfromopers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Spy module: Provides the ability to see the complete names list of 
-# channels an oper is not a member of
-# This module is oper-only.
-#<module name="m_spy.so">
-
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL channel mode module: Adds support for SSL-only channels (+z).
-# does not do anything useful without a working SSL module (see below)
+# SSL channel mode module: Adds support for SSL-only channels via 
+# channel mode +z and the 'z' extban which matches SSL client 
+# certificate fingerprints.
+# Does not do anything useful without a working SSL module (see below).
 #<module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -265,7 +261,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
+# m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
 # http://wiki.inspircd.org/Modules/ssl_gnutls                         #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -292,7 +288,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_openssl.so is too complex it describe here, see the wiki:     #
+# m_ssl_openssl.so is too complex to describe here, see the wiki:     #
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
 
 <module name="m_stripcolor.so">
@@ -304,4 +300,3 @@
 <module name="m_xline_db.so">
 
 <module name="m_spanningtree.so">
-
