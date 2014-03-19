@@ -175,7 +175,7 @@ void ISupportManager::Build()
 	tokens["ELIST"] = "MU";
 	tokens["KICKLEN"] = ConvToStr(ServerInstance->Config->Limits.MaxKick);
 	tokens["MAXBANS"] = "64"; // TODO: make this a config setting.
-	tokens["MAXCHANNELS"] = ConvToStr(ServerInstance->Config->MaxChans);
+	tokens["MAXCHANNELS"] = "20"; // TODO: harvest this from the connect class.
 	tokens["MAXTARGETS"] = ConvToStr(ServerInstance->Config->MaxTargets);
 	tokens["MODES"] = ConvToStr(ServerInstance->Config->Limits.MaxModes);
 	tokens["NETWORK"] = ServerInstance->Config->Network;

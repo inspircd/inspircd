@@ -38,8 +38,6 @@ ServerConfig::ServerConfig()
 	NetBufferSize = 10240;
 	SoftLimit = SocketEngine::GetMaxFds();
 	MaxConn = SOMAXCONN;
-	MaxChans = 20;
-	OperMaxChans = 30;
 	c_ipv4_range = 32;
 	c_ipv6_range = 128;
 }
@@ -296,7 +294,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 			me->fakelag = tag->getBool("fakelag", me->fakelag);
 			me->maxlocal = tag->getInt("localmax", me->maxlocal);
 			me->maxglobal = tag->getInt("globalmax", me->maxglobal);
-			me->maxchans = tag->getInt("maxchans", me->maxchans);
+			me->maxchans = tag->getInt("maxchans", me->maxchans, 1, UINT_MAX);
 			me->maxconnwarn = tag->getBool("maxconnwarn", me->maxconnwarn);
 			me->limit = tag->getInt("limit", me->limit);
 			me->resolvehostnames = tag->getBool("resolvehostnames", me->resolvehostnames);
@@ -334,6 +332,8 @@ struct DeprecatedConfig
 
 static const DeprecatedConfig ChangedConfig[] = {
 	{ "bind",        "transport",   "",                 "has been moved to <bind:ssl> as of 2.0" },
+	{ "channels",    "opers",       "",                 "has ben moved to <oper:maxchans> as of 2.2" },
+	{ "channels",    "users",       "",                 "has ben moved to <connect:maxchans> as of 2.2" },
 	{ "die",         "value",       "",                 "you need to reread your config" },
 	{ "gnutls",      "starttls",    "",                 "has been replaced with m_starttls as of 2.2" },
 	{ "link",        "autoconnect", "",                 "2.0+ does not use this attribute - define <autoconnect> tags instead" },
@@ -391,8 +391,6 @@ void ServerConfig::Fill()
 	MaxTargets = security->getInt("maxtargets", 20, 1, 31);
 	DefaultModes = options->getString("defaultmodes", "not");
 	PID = ConfValue("pid")->getString("file");
-	MaxChans = ConfValue("channels")->getInt("users", 20);
-	OperMaxChans = ConfValue("channels")->getInt("opers", 60);
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
 	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
 	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);
