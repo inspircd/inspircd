@@ -162,7 +162,8 @@ class ModuleOperPrefixMode : public Module
 
 void HideOperWatcher::AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding, ModeType type)
 {
-	if (IS_LOCAL(dest))
+	// If hideoper is being unset because the user is deopering, don't set +y
+	if (IS_LOCAL(dest) && IS_OPER(dest))
 		parentmod->SetOperPrefix(dest, !adding);
 }
 
