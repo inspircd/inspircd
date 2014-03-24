@@ -672,3 +672,9 @@ class CommandModule : public Module
 		return Version(cmd.name, VF_VENDOR|VF_CORE);
 	}
 };
+
+inline void stdalgo::culldeleter::operator()(classbase* item)
+{
+	if (item)
+		ServerInstance->GlobalCulls.AddItem(item);
+}

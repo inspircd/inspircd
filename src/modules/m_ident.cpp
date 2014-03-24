@@ -268,7 +268,7 @@ class IdentRequestSocket : public EventHandler
 class ModuleIdent : public Module
 {
 	int RequestTimeout;
-	SimpleExtItem<IdentRequestSocket> ext;
+	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
  public:
 	ModuleIdent() : ext("ident_socket", this)
 	{

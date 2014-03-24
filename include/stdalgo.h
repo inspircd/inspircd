@@ -75,4 +75,13 @@ namespace stdalgo
 			delete o;
 		}
 	};
+
+	/**
+	 * Deleter that adds the item to the cull list, that is, queues it for
+	 * deletion at the end of the current mainloop iteration
+	 */
+	struct culldeleter
+	{
+		void operator()(classbase* item);
+	};
 }
