@@ -46,6 +46,7 @@
 #include "intrusive_list.h"
 #include "compat.h"
 #include "typedefs.h"
+#include "stdalgo.h"
 
 CoreExport extern InspIRCd* ServerInstance;
 
