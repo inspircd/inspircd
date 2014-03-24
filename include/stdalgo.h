@@ -63,4 +63,16 @@ namespace stdalgo
 			return false;
 		}
 	}
+
+	/**
+	 * Deleter that uses operator delete to delete the item
+	 */
+	template <typename T>
+	struct defaultdeleter
+	{
+		void operator()(T* o)
+		{
+			delete o;
+		}
+	};
 }

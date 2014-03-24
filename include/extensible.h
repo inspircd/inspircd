@@ -126,7 +126,7 @@ class CoreExport LocalExtItem : public ExtensionItem
 	virtual void free(void* item) = 0;
 };
 
-template<typename T>
+template <typename T, typename Del = stdalgo::defaultdeleter<T> >
 class SimpleExtItem : public LocalExtItem
 {
  public:
@@ -147,24 +147,28 @@ class SimpleExtItem : public LocalExtItem
 	{
 		T* ptr = new T(value);
 		T* old = static_cast<T*>(set_raw(container, ptr));
-		delete old;
+		Del del;
+		del(old);
 	}
 
 	inline void set(Extensible* container, T* value)
 	{
 		T* old = static_cast<T*>(set_raw(container, value));
-		delete old;
+		Del del;
+		del(old);
 	}
 
 	inline void unset(Extensible* container)
 	{
 		T* old = static_cast<T*>(unset_raw(container));
-		delete old;
+		Del del;
+		del(old);
 	}
 
 	virtual void free(void* item)
 	{
-		delete static_cast<T*>(item);
+		Del del;
+		del(static_cast<T*>(item));
 	}
 };
 
