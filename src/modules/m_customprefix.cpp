@@ -76,8 +76,7 @@ class ModuleCustomPrefix : public Module
 
 	~ModuleCustomPrefix()
 	{
-		for (std::vector<CustomPrefixMode*>::iterator i = modes.begin(); i != modes.end(); i++)
-			delete *i;
+		stdalgo::delete_all(modes);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

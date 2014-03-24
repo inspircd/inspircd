@@ -127,12 +127,6 @@ class ModuleShowFile : public Module
 		newcmds.push_back(sfcmd);
 	}
 
-	static void DelAll(const std::vector<CommandShowFile*>& list)
-	{
-		for (std::vector<CommandShowFile*>::const_iterator i = list.begin(); i != list.end(); ++i)
-			delete *i;
-	}
-
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
@@ -157,13 +151,13 @@ class ModuleShowFile : public Module
 		std::sort(newcmds.begin(), newcmds.end());
 		std::set_difference(cmds.begin(), cmds.end(), newcmds.begin(), newcmds.end(), removed.begin());
 
-		DelAll(removed);
+		stdalgo::delete_all(removed);
 		cmds.swap(newcmds);
 	}
 
 	~ModuleShowFile()
 	{
-		DelAll(cmds);
+		stdalgo::delete_all(cmds);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

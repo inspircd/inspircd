@@ -84,4 +84,14 @@ namespace stdalgo
 	{
 		void operator()(classbase* item);
 	};
+
+	/**
+	 * Deletes all elements in a container using operator delete
+	 * @param cont The container containing the elements to delete
+	 */
+	template <template<typename, typename> class Cont, typename T, typename Alloc>
+	inline void delete_all(const Cont<T*, Alloc>& cont)
+	{
+		std::for_each(cont.begin(), cont.end(), defaultdeleter<T>());
+	}
 }

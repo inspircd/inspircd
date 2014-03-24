@@ -119,8 +119,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 			if (it != whowas.end())
 			{
 				whowas_set* set = it->second;
-				for (whowas_set::iterator i = set->begin(); i != set->end(); ++i)
-					delete *i;
+				stdalgo::delete_all(*set);
 
 				delete set;
 				whowas.erase(it);
@@ -164,8 +163,7 @@ void CommandWhowas::Prune()
 			}
 
 			whowas_set* set = iter->second;
-			for (whowas_set::iterator i = set->begin(); i != set->end(); ++i)
-				delete *i;
+			stdalgo::delete_all(*set);
 
 			delete set;
 			whowas.erase(iter);

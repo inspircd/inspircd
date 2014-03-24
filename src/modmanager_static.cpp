@@ -69,8 +69,7 @@ class AllModule : public Module
 
 	~AllModule()
 	{
-		for(std::vector<Command*>::iterator i = cmds.begin(); i != cmds.end(); ++i)
-			delete *i;
+		stdalgo::delete_all(cmds);
 	}
 
 	Version GetVersion()
