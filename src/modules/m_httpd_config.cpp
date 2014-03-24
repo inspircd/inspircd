@@ -67,15 +67,13 @@ class ModuleHttpConfig : public Module
 
 	void OnEvent(Event& event) CXX11_OVERRIDE
 	{
-		std::stringstream data("");
-
 		if (event.id == "httpd_url")
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
 			HTTPRequest* http = (HTTPRequest*)&event;
-
-			if ((http->GetURI() == "/config") || (http->GetURI() == "/config/"))
+			if (http->GetURI() == "/config")
 			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
+				std::stringstream data;
 				data << "<html><head><title>InspIRCd Configuration</title></head><body>";
 				data << "<h1>InspIRCd Configuration</h1><p>";
 

@@ -42,6 +42,7 @@ class HTTPHeaders
 	 */
 	void SetHeader(const std::string &name, const std::string &data)
 	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "SetHeader: set %s to %s", name.c_str(), data.c_str());
 		headers[name] = data;
 	}
 
@@ -58,6 +59,7 @@ class HTTPHeaders
 	 */
 	void RemoveHeader(const std::string &name)
 	{
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "RemoveHeader: removed %s", name.c_str());
 		headers.erase(name);
 	}
 
