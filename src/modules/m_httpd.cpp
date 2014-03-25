@@ -107,7 +107,7 @@ class HttpServerSocket : public BufferedSocket
 			case 300:
 				return "MULTIPLE CHOICES";
 			case 301:
-				return "MOVED PERMENANTLY";
+				return "MOVED PERMANENTLY";
 			case 302:
 				return "FOUND";
 			case 303:
