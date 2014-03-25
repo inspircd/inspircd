@@ -471,8 +471,8 @@ void User::UnOper()
 
 	ServerInstance->Modes->Process(parameters, this);
 
-	/* remove the user from the oper list. Will remove multiple entries as a safeguard against bug #404 */
-	ServerInstance->Users->all_opers.remove(this);
+	// Remove the user from the oper list
+	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);
 
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
 	this->SetMode(opermh, false);

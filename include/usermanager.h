@@ -37,7 +37,7 @@ class CoreExport UserManager
 
 	/** Sequence container in which each element is a User*
 	 */
-	typedef std::list<User*> OperList;
+	typedef std::vector<User*> OperList;
 
  private:
 	/** Map of IP addresses for clone counting
