@@ -347,7 +347,8 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 		if (opt_viewopersonly)
 		{
 			/* Showing only opers */
-			for (std::list<User*>::iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); i++)
+			const UserManager::OperList& opers = ServerInstance->Users->all_opers;
+			for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 			{
 				User* oper = *i;
 

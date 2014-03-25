@@ -146,7 +146,8 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		case 'P':
 		{
 			unsigned int idx = 0;
-			for (std::list<User*>::const_iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); ++i)
+			const UserManager::OperList& opers = ServerInstance->Users->all_opers;
+			for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 			{
 				User* oper = *i;
 				if (!oper->server->IsULine())

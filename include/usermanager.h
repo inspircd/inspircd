@@ -35,6 +35,10 @@ class CoreExport UserManager
 	 */
 	typedef std::map<irc::sockets::cidr_mask, CloneCounts> CloneMap;
 
+	/** Sequence container in which each element is a User*
+	 */
+	typedef std::list<User*> OperList;
+
  private:
 	/** Map of IP addresses for clone counting
 	 */
@@ -68,7 +72,7 @@ class CoreExport UserManager
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */
-	std::list<User*> all_opers;
+	OperList all_opers;
 
 	/** Number of unregistered users online right now.
 	 * (Unregistered means before USER/NICK/dns)

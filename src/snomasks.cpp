@@ -132,8 +132,8 @@ void Snomask::Send(char letter, const std::string& desc, const std::string& msg)
 	std::string finalmsg = "*** ";
 	finalmsg.append(log);
 	/* Only opers can receive snotices, so we iterate the oper list */
-	const std::list<User*>& opers = ServerInstance->Users->all_opers;
-	for (std::list<User*>::const_iterator i = opers.begin(); i != opers.end(); ++i)
+	const UserManager::OperList& opers = ServerInstance->Users->all_opers;
+	for (UserManager::OperList::const_iterator i = opers.begin(); i != opers.end(); ++i)
 	{
 		User* user = *i;
 		// IsNoticeMaskSet() returns false for opers who aren't +s, no need to check for it seperately
