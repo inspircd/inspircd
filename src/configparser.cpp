@@ -125,7 +125,7 @@ struct Parser
 				while (1)
 				{
 					ch = next();
-					if (isalnum(ch))
+					if (isalnum(ch) || (varname.empty() && ch == '#'))
 						varname.push_back(ch);
 					else if (ch == ';')
 						break;
@@ -136,10 +136,30 @@ struct Parser
 						throw CoreException("Parse error");
 					}
 				}
-				std::map<std::string, std::string>::iterator var = stack.vars.find(varname);
-				if (var == stack.vars.end())
-					throw CoreException("Undefined XML entity reference '&" + varname + ";'");
-				value.append(var->second);
+				if (varname.empty())
+					throw CoreException("Empty XML entity reference");
+				else if (varname[0] == '#' && (varname.size() == 1 || (varname.size() == 2 && varname[1] == 'x')))
+					throw CoreException("Empty numeric character reference");
+				else if (varname[0] == '#')
+				{
+					const char* cvarname = varname.c_str();
+					char* endptr;
+					unsigned long lvalue;
+					if (cvarname[1] == 'x')
+						lvalue = strtoul(cvarname + 2, &endptr, 16);
+					else
+						lvalue = strtoul(cvarname + 1, &endptr, 10);
+					if (*endptr != '\0' || lvalue > 255)
+						throw CoreException("Invalid numeric character reference '&" + varname + ";'");
+					value.push_back(static_cast<char>(lvalue));
+				}
+				else
+				{
+					std::map<std::string, std::string>::iterator var = stack.vars.find(varname);
+					if (var == stack.vars.end())
+						throw CoreException("Undefined XML entity reference '&" + varname + ";'");
+					value.append(var->second);
+				}
 			}
 			else if (ch == '\\' && (flags & FLAG_USE_COMPAT))
 			{
