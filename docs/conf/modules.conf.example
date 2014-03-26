@@ -318,6 +318,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CGI:IRC module: Adds support for automatic host changing in CGI:IRC
+# Adds snomask +w for monitoring cgiirc connections
 # (http://cgiirc.sourceforge.net).
 #<module name="m_cgiirc.so">
 #
