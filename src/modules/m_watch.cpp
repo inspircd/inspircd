@@ -316,10 +316,10 @@ class CommandWatch : public Command
 					{
 						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 						{
-							if (!q->second.empty())
+							User* targ = ServerInstance->FindNick(q->first.c_str());
+							if (targ && !q->second.empty())
 							{
 								user->WriteNumeric(604, "%s %s %s :is online", user->nick.c_str(), q->first.c_str(), q->second.c_str());
-								User *targ = ServerInstance->FindNick(q->first.c_str());
 								if (IS_AWAY(targ))
 								{
 									user->WriteNumeric(609, "%s %s %s %s %lu :is away", user->nick.c_str(), targ->nick.c_str(), targ->ident.c_str(), targ->dhost.c_str(), (unsigned long) targ->awaytime);
