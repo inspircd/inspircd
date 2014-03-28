@@ -36,7 +36,7 @@
 	#include <dirent.h>
 #endif
 
-static std::vector<dynamic_reference_base*>* dynrefs = NULL;
+static intrusive_list<dynamic_reference_base>* dynrefs = NULL;
 static bool dynref_init_complete = false;
 
 void dynamic_reference_base::reset_all()
@@ -44,8 +44,8 @@ void dynamic_reference_base::reset_all()
 	dynref_init_complete = true;
 	if (!dynrefs)
 		return;
-	for(unsigned int i = 0; i < dynrefs->size(); i++)
-		(*dynrefs)[i]->resolve();
+	for (intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
+		(*i)->resolve();
 }
 
 // Version is a simple class for holding a modules version number
@@ -676,29 +676,19 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 	: name(Name), value(NULL), creator(Creator)
 {
 	if (!dynrefs)
-		dynrefs = new std::vector<dynamic_reference_base*>;
-	dynrefs->push_back(this);
+		dynrefs = new intrusive_list<dynamic_reference_base>;
+	dynrefs->push_front(this);
 	if (dynref_init_complete)
 		resolve();
 }
 
 dynamic_reference_base::~dynamic_reference_base()
 {
-	for(unsigned int i = 0; i < dynrefs->size(); i++)
+	dynrefs->erase(this);
+	if (dynrefs->empty())
 	{
-		if (dynrefs->at(i) == this)
-		{
-			unsigned int last = dynrefs->size() - 1;
-			if (i != last)
-				dynrefs->at(i) = dynrefs->at(last);
-			dynrefs->erase(dynrefs->begin() + last);
-			if (dynrefs->empty())
-			{
-				delete dynrefs;
-				dynrefs = NULL;
-			}
-			return;
-		}
+		delete dynrefs;
+		dynrefs = NULL;
 	}
 }
 
