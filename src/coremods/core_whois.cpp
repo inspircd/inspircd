@@ -68,7 +68,9 @@ std::string CommandWhois::ChannelList(User* source, User* dest, bool spy)
 		 */
 		if (spy != (source == dest || !(c->IsModeSet(privatemode) || c->IsModeSet(secretmode)) || c->HasUser(source)))
 		{
-			list.push_back(memb->GetPrefixChar());
+			char prefix = memb->GetPrefixChar();
+			if (prefix)
+				list.push_back(prefix);
 			list.append(c->name).push_back(' ');
 		}
 	}

@@ -194,7 +194,9 @@ class CommandCheck : public Command
 			{
 				Membership* memb = *i;
 				Channel* c = memb->chan;
-				chliststr.push_back(memb->GetPrefixChar());
+				char prefix = memb->GetPrefixChar();
+				if (prefix)
+					chliststr.push_back(prefix);
 				chliststr.append(c->name).push_back(' ');
 			}
 

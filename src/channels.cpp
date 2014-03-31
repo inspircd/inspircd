@@ -664,7 +664,9 @@ void Channel::UserList(User *user)
 		Membership* memb = i->second;
 
 		prefixlist.clear();
-		prefixlist.push_back(memb->GetPrefixChar());
+		char prefix = memb->GetPrefixChar();
+		if (prefix)
+			prefixlist.push_back(prefix);
 		nick = i->first->nick;
 
 		FOREACH_MOD(OnNamesListItem, (user, memb, prefixlist, nick));

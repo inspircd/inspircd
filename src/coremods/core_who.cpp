@@ -220,7 +220,11 @@ void CommandWho::SendWhoLine(User* user, const std::vector<std::string>& parms, 
 	}
 
 	if (memb)
-		wholine.push_back(memb->GetPrefixChar());
+	{
+		char prefix = memb->GetPrefixChar();
+		if (prefix)
+			wholine.push_back(prefix);
+	}
 
 	wholine.append(" :0 " + u->fullname);
 
