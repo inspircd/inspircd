@@ -924,7 +924,7 @@
 #<module name="m_ircv3.so">
 # The following block can be used to control which extensions are
 # enabled.
-#<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on">
+#<ircv3 accountnotify="on" awaynotify="on" extendedjoin="on" chghost="on">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Join flood module: Adds support for join flood protection (+j)

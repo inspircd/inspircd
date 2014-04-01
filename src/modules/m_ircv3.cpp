@@ -25,9 +25,12 @@ class ModuleIRCv3 : public Module
 	GenericCap cap_accountnotify;
 	GenericCap cap_awaynotify;
 	GenericCap cap_extendedjoin;
+	GenericCap cap_chghost;
+	
 	bool accountnotify;
 	bool awaynotify;
 	bool extendedjoin;
+	bool chghost;
 
 	CUList last_excepts;
 
@@ -72,7 +75,8 @@ class ModuleIRCv3 : public Module
  public:
 	ModuleIRCv3() : cap_accountnotify(this, "account-notify"),
 					cap_awaynotify(this, "away-notify"),
-					cap_extendedjoin(this, "extended-join")
+					cap_extendedjoin(this, "extended-join"),
+					cap_chghost(this, "chghost")
 	{
 	}
 
@@ -82,6 +86,7 @@ class ModuleIRCv3 : public Module
 		accountnotify = conf->getBool("accountnotify", true);
 		awaynotify = conf->getBool("awaynotify", true);
 		extendedjoin = conf->getBool("extendedjoin", true);
+		chghost = conf->getBool("chghost", true);
 	}
 
 	void OnEvent(Event& ev) CXX11_OVERRIDE
@@ -90,6 +95,8 @@ class ModuleIRCv3 : public Module
 			cap_awaynotify.HandleEvent(ev);
 		if (extendedjoin)
 			cap_extendedjoin.HandleEvent(ev);
+		if (chghost)
+			cap_chghost.HandleEvent(ev);
 
 		if (accountnotify)
 		{
@@ -220,6 +227,30 @@ class ModuleIRCv3 : public Module
 		}
 
 		last_excepts.clear();
+	}
+	
+	void OnChangeIdent(User* user, const std::string& newident) CXX11_OVERRIDE
+	{
+		if(chghost)
+		{
+			//Changing ident
+			std::string line = ":" + user->GetFullHost() + " CHGHOST " +\
+				newident + " " + user->dhost;
+
+			WriteNeighboursWithExt(user, line, cap_chghost.ext);
+		}
+	}
+
+	void OnChangeHost(User* user, const std::string& newhost) CXX11_OVERRIDE
+	{
+		if(chghost)
+		{
+			//Changing host
+			std::string line = ":" + user->GetFullHost() + " CHGHOST ";
+			line += user->ident + " " + newhost;
+
+			WriteNeighboursWithExt(user, line, cap_chghost.ext);
+		}
 	}
 
 	void Prioritize()
