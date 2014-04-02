@@ -541,12 +541,6 @@ class CoreExport User : public Extensible
 	 */
 	void WriteCommon(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
-	/** Write to all users that can see this user (not including this user in the list), appending CR/LF
-	 * @param text The format string for text to send to the users
-	 * @param ... POD-type format arguments
-	 */
-	void WriteCommonExcept(const char* text, ...) CUSTOM_PRINTF(2, 3);
-
 	/** Write a quit message to all common users, as in User::WriteCommonExcept but with a specific
 	 * quit message for opers only.
 	 * @param normal_text Normal user quit message

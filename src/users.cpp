@@ -919,17 +919,6 @@ void User::WriteCommon(const char* text, ...)
 	this->WriteCommonRaw(textbuffer, true);
 }
 
-void User::WriteCommonExcept(const char* text, ...)
-{
-	if (this->registered != REG_ALL || quitting)
-		return;
-
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	textbuffer = ":" + this->GetFullHost() + " " + textbuffer;
-	this->WriteCommonRaw(textbuffer, false);
-}
-
 void User::WriteCommonRaw(const std::string &line, bool include_self)
 {
 	if (this->registered != REG_ALL || quitting)
