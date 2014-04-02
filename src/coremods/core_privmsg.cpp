@@ -31,6 +31,13 @@ class MessageCommandBase : public Command
 	ChanModeReference moderatedmode;
 	ChanModeReference noextmsgmode;
 
+	/** Send a PRIVMSG or NOTICE message to all local users from the given user
+	 * @param user User sending the message
+	 * @param msg The message to send
+	 * @param mt Type of the message (MSG_PRIVMSG or MSG_NOTICE)
+	 */
+	static void SendAll(User* user, const std::string& msg, MessageType mt);
+
  public:
 	MessageCommandBase(Module* parent, MessageType mt)
 		: Command(parent, MessageTypeString[mt], 2, 2)
@@ -56,6 +63,17 @@ class MessageCommandBase : public Command
 			return ROUTE_MESSAGE(parameters[0]);
 	}
 };
+
+void MessageCommandBase::SendAll(User* user, const std::string& msg, MessageType mt)
+{
+	const std::string message = ":" + user->GetFullHost() + " " + MessageTypeString[mt] + " $* :" + msg;
+	const LocalUserList& list = ServerInstance->Users->local_users;
+	for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
+	{
+		if ((*i)->registered == REG_ALL)
+			(*i)->Write(message);
+	}
+}
 
 CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& parameters, User* user, MessageType mt)
 {
@@ -87,7 +105,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		FOREACH_MOD(OnText, (user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list));
 		if (InspIRCd::Match(ServerInstance->Config->ServerName, servermask, NULL))
 		{
-			user->SendAll(MessageTypeString[mt], "%s", text);
+			SendAll(user, text, mt);
 		}
 		FOREACH_MOD(OnUserMessage, (user, (void*)parameters[0].c_str(), TYPE_SERVER, text, 0, except_list, mt));
 		return CMD_SUCCESS;

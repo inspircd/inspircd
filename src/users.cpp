@@ -1129,19 +1129,6 @@ bool User::ChangeIdent(const std::string& newident)
 	return true;
 }
 
-void User::SendAll(const char* command, const char* text, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, text, text);
-	const std::string message = ":" + this->GetFullHost() + " " + command + " $* :" + textbuffer;
-
-	for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
-	{
-		if ((*i)->registered == REG_ALL)
-			(*i)->Write(message);
-	}
-}
-
 /*
  * Sets a user's connection class.
  * If the class name is provided, it will be used. Otherwise, the class will be guessed using host/ip/ident/etc.

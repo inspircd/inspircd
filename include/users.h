@@ -609,16 +609,6 @@ class CoreExport User : public Extensible
 	 */
 	bool ChangeNick(const std::string& newnick, bool force = false, time_t newts = 0);
 
-	/** Send a command to all local users from this user
-	 * The command given must be able to send text with the
-	 * first parameter as a servermask (e.g. $*), so basically
-	 * you should use PRIVMSG or NOTICE.
-	 * @param command the command to send
-	 * @param text The text format string to send
-	 * @param ... Format arguments
-	 */
-	void SendAll(const char* command, const char* text, ...) CUSTOM_PRINTF(3, 4);
-
 	/** Remove this user from all channels they are on, and delete any that are now empty.
 	 * This is used by QUIT, and will not send part messages!
 	 */
