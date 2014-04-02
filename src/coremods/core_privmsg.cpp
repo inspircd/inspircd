@@ -229,7 +229,7 @@ CmdResult MessageCommandBase::HandleMessage(const std::vector<std::string>& para
 		if (IS_LOCAL(dest))
 		{
 			// direct write, same server
-			user->WriteTo(dest, "%s %s :%s", MessageTypeString[mt], dest->nick.c_str(), text);
+			dest->WriteFrom(user, "%s %s :%s", MessageTypeString[mt], dest->nick.c_str(), text);
 		}
 
 		FOREACH_MOD(OnUserMessage, (user, dest, TYPE_USER, text, 0, except_list, mt));

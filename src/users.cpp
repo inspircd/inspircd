@@ -695,7 +695,7 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 			if (InUse->registered != REG_ALL)
 			{
 				/* force the camper to their UUID, and ask them to re-send a NICK. */
-				InUse->WriteTo(InUse, "NICK %s", InUse->uuid.c_str());
+				InUse->WriteFrom(InUse, "NICK %s", InUse->uuid.c_str());
 				InUse->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname overruled.", InUse->nick.c_str());
 
 				ServerInstance->Users->clientlist.erase(InUse->nick);
@@ -906,21 +906,6 @@ void User::WriteFrom(User *user, const char* text, ...)
 	std::string textbuffer;
 	VAFORMAT(textbuffer, text, text);
 	this->WriteFrom(user, textbuffer);
-}
-
-
-/* write text to an destination user from a source user (e.g. user privmsg) */
-
-void User::WriteTo(User *dest, const char *data, ...)
-{
-	std::string textbuffer;
-	VAFORMAT(textbuffer, data, data);
-	this->WriteTo(dest, textbuffer);
-}
-
-void User::WriteTo(User *dest, const std::string &data)
-{
-	dest->WriteFrom(this, data);
 }
 
 void User::WriteCommon(const char* text, ...)

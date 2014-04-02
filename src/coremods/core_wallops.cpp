@@ -59,7 +59,7 @@ CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, Us
 	{
 		User* t = *i;
 		if (t->IsModeSet(wallopsmode))
-			user->WriteTo(t,wallop);
+			t->WriteFrom(user, wallop);
 	}
 
 	return CMD_SUCCESS;

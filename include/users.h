@@ -529,19 +529,6 @@ class CoreExport User : public Extensible
 	 */
 	void WriteFrom(User *user, const char* text, ...) CUSTOM_PRINTF(3, 4);
 
-	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user\@host.
-	 * @param dest The user to route the message to
-	 * @param data A std::string to send to the user
-	 */
-	void WriteTo(User *dest, const std::string &data);
-
-	/** Write text to the user provided in the first parameter, appending CR/LF, and prepending THIS user's :nick!user\@host.
-	 * @param dest The user to route the message to
-	 * @param data The format string for text to send to the user
-	 * @param ... POD-type format arguments
-	 */
-	void WriteTo(User *dest, const char *data, ...) CUSTOM_PRINTF(3, 4);
-
 	/** Write to all users that can see this user (including this user in the list if include_self is true), appending CR/LF
 	 * @param line A std::string to send to the users
 	 * @param include_self Should the message be sent back to the author?
