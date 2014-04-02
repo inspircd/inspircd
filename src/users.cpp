@@ -1121,7 +1121,7 @@ bool User::ChangeDisplayedHost(const std::string& shost)
 
 	FOREACH_MOD(OnChangeHost, (this,shost));
 
-	this->dhost.assign(shost, 0, 64);
+	this->dhost.assign(shost, 0, ServerInstance->Config->Limits.MaxHost);
 	this->InvalidateCache();
 
 	if (IS_LOCAL(this))

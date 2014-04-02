@@ -133,14 +133,14 @@ class UserResolver : public DNS::Request
 					bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
 					return;
 				}
-				else if (hostname->length() < 65)
+				else if (hostname->length() <= ServerInstance->Config->Limits.MaxHost)
 				{
 					/* Hostnames starting with : are not a good thing (tm) */
 					if ((*hostname)[0] == ':')
 						hostname->insert(0, "0");
 
 					bound_user->WriteNotice("*** Found your hostname (" + *hostname + (r->cached ? ") -- cached" : ")"));
-					bound_user->host.assign(*hostname, 0, 64);
+					bound_user->host.assign(*hostname, 0, ServerInstance->Config->Limits.MaxHost);
 					bound_user->dhost = bound_user->host;
 
 					/* Invalidate cache */
@@ -148,7 +148,7 @@ class UserResolver : public DNS::Request
 				}
 				else
 				{
-					bound_user->WriteNotice("*** Your hostname is longer than the maximum of 64 characters, using your IP address (" + bound_user->GetIPString() + ") instead.");
+					bound_user->WriteNotice("*** Your hostname is longer than the maximum of " + ConvToStr(ServerInstance->Config->Limits.MaxHost) + " characters, using your IP address (" + bound_user->GetIPString() + ") instead.");
 				}
 
 				ph->unset(bound_user);

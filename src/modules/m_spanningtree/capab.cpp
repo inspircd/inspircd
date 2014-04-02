@@ -149,6 +149,7 @@ void TreeSocket::SendCapabilities(int phase)
 			" MAXKICK="+ConvToStr(ServerInstance->Config->Limits.MaxKick)+
 			" MAXGECOS="+ConvToStr(ServerInstance->Config->Limits.MaxGecos)+
 			" MAXAWAY="+ConvToStr(ServerInstance->Config->Limits.MaxAway)+
+			" MAXHOST="+ConvToStr(ServerInstance->Config->Limits.MaxHost)+
 			extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
 			" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL)+

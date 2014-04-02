@@ -39,7 +39,7 @@ class CommandChghost : public Command
 	{
 		const char* x = parameters[1].c_str();
 
-		if (parameters[1].length() > 63)
+		if (parameters[1].length() > ServerInstance->Config->Limits.MaxHost)
 		{
 			user->WriteNotice("*** CHGHOST: Host too long");
 			return CMD_FAILURE;
