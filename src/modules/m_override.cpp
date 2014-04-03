@@ -49,6 +49,21 @@ class ModuleOverride : public Module
 		return false;
 	}
 
+	ModResult HandleJoinOverride(LocalUser* user, Channel* chan, const std::string& keygiven, const char* bypasswhat, const char* mode)
+	{
+		if (RequireKey && keygiven != "override")
+		{
+			// Can't join normally -- must use a special key to bypass restrictions
+			user->WriteNotice("*** You may not join normally. You must join with a key of 'override' to oper override.");
+			return MOD_RES_PASSTHRU;
+		}
+
+		if (NoisyOverride)
+			chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass %s", chan->name.c_str(), user->nick.c_str(), bypasswhat);
+		ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass " + mode + " on " + chan->name);
+		return MOD_RES_ALLOW;
+	}
+
  public:
 	ModuleOverride()
 		: topiclock(this, "topiclock")
@@ -147,65 +162,18 @@ class ModuleOverride : public Module
 				if (chan->IsModeSet(inviteonly) && (CanOverride(user,"INVITE")))
 				{
 					if (!IS_LOCAL(user)->IsInvited(chan))
-					{
-						if (RequireKey && keygiven != "override")
-						{
-							// Can't join normally -- must use a special key to bypass restrictions
-							user->WriteNotice("*** You may not join normally. You must join with a key of 'override' to oper override.");
-							return MOD_RES_PASSTHRU;
-						}
-
-						if (NoisyOverride)
-							chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass invite-only", cname.c_str(), user->nick.c_str());
-						ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +i on " + cname);
-					}
+						return HandleJoinOverride(user, chan, keygiven, "invite-only", "+i");
 					return MOD_RES_ALLOW;
 				}
 
 				if (chan->IsModeSet(key) && (CanOverride(user,"KEY")) && keygiven != chan->GetModeParameter(key))
-				{
-					if (RequireKey && keygiven != "override")
-					{
-						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteNotice("*** You may not join normally. You must join with a key of 'override' to oper override.");
-						return MOD_RES_PASSTHRU;
-					}
-
-					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel key", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +k on " + cname);
-					return MOD_RES_ALLOW;
-				}
+					return HandleJoinOverride(user, chan, keygiven, "the channel key", "+k");
 
 				if (chan->IsModeSet(limit) && (chan->GetUserCounter() >= ConvToInt(chan->GetModeParameter(limit))) && (CanOverride(user,"LIMIT")))
-				{
-					if (RequireKey && keygiven != "override")
-					{
-						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteNotice("*** You may not join normally. You must join with a key of 'override' to oper override.");
-						return MOD_RES_PASSTHRU;
-					}
-
-					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass the channel limit", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v', user->nick+" used oper override to bypass +l on " + cname);
-					return MOD_RES_ALLOW;
-				}
+					return HandleJoinOverride(user, chan, keygiven, "the channel limit", "+l");
 
 				if (chan->IsBanned(user) && CanOverride(user,"BANWALK"))
-				{
-					if (RequireKey && keygiven != "override")
-					{
-						// Can't join normally -- must use a special key to bypass restrictions
-						user->WriteNotice("*** You may not join normally. You must join with a key of 'override' to oper override.");
-						return MOD_RES_PASSTHRU;
-					}
-
-					if (NoisyOverride)
-						chan->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s used oper override to bypass channel ban", cname.c_str(), user->nick.c_str());
-					ServerInstance->SNO->WriteGlobalSno('v',"%s used oper override to bypass channel ban on %s", user->nick.c_str(), cname.c_str());
-					return MOD_RES_ALLOW;
-				}
+					return HandleJoinOverride(user, chan, keygiven, "channel ban", "channel ban");
 			}
 		}
 		return MOD_RES_PASSTHRU;
