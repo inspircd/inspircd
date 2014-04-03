@@ -1344,8 +1344,8 @@
 #
 # If 'listmodes' is true then all list modes (+b, +I, +e, +g...) will be
 # saved. Defaults to false.
-#<permchanneldb filename="data/permchannels.conf" listmodes="true">
-#<include file="data/permchannels.conf">
+#<permchanneldb filename="permchannels.conf" listmodes="true">
+#<include file="permchannels.conf">
 #
 # You may also create channels on startup by using the <permchannels> block.
 # Don't forget to set them +P in the modes, or they won't stay permanent.

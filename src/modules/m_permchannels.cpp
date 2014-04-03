@@ -205,6 +205,9 @@ public:
 		ConfigTag* tag = ServerInstance->Config->ConfValue("permchanneldb");
 		permchannelsconf = tag->getString("filename");
 		save_listmodes = tag->getBool("listmodes");
+
+		if (permchannelsconf.size())
+			permchannelsconf = ServerInstance->Config->Paths.PrependConfig(permchannelsconf);
 	}
 
 	void LoadDatabase()
