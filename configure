@@ -490,7 +490,7 @@ if ($interactive)
 	my $rev = getrevision();
 	# Display Introduction Message..
 	print <<"STOP" ;
-Welcome to the \e[1mInspIRCd\e[0m Configuration program! (\e[1minteractive mode\e[0m)
+Welcome to the \e[1mInspIRCd\e[0m configuration program! (\e[1minteractive mode\e[0m)
 \e[1mPackage maintainers: Type ./configure --help for non-interactive help\e[0m
 
 *** If you are unsure of any of these values, leave it blank for    ***
@@ -651,7 +651,7 @@ should NOT be used. You should probably specify a newer compiler.\n\n";
 	yesno('MODUPDATE',"Would you like to check for updates to third-party modules?");
 	print "\n";
 	if ($config{MODUPDATE} eq "y") {
-		print "Checking for upgrades to extra and third party modules... ";
+		print "Checking for upgrades to extra and third-party modules... ";
 		system "./modulemanager upgrade";
 	}
 }
@@ -663,18 +663,18 @@ dumphash();
 
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
 {
-	print "Sorry, but i couldn't detect gnutls. Make sure gnutls-config is in your path.\n";
+	print "Sorry, but I couldn't detect GnuTLS. Make sure gnutls-config is in your path.\n";
 	exit(0);
 }
 if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 {
-	print "Sorry, but i couldn't detect openssl. Make sure openssl is in your path.\n";
+	print "Sorry, but I couldn't detect OpenSSL. Make sure openssl is in your path.\n";
 	exit(0);
 }
 our $failed = 0;
 
 $config{CERTGEN} ||= 'y';
-yesno('CERTGEN',"Would you like generate SSL certificates now?") if ($interactive && ($config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y"));
+yesno('CERTGEN',"Would you like to generate SSL certificates now?") if ($interactive && ($config{USE_GNUTLS} eq "y" || $config{USE_OPENSSL} eq "y"));
 
 if ($config{USE_GNUTLS} eq "y") {
 	unless (-r "src/modules/m_ssl_gnutls.cpp") {
@@ -684,13 +684,11 @@ if ($config{USE_GNUTLS} eq "y") {
 	if ($interactive && $config{CERTGEN} eq 'y')
 	{
 		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
-			print "SSL Certificates Not found, Generating.. \n\n
+			print "SSL certificates not found, generating.. \n\n
 *************************************************************
-* Generating the Private Key may take some time, go grab a  *
-* Coffee. Even better, to generate some more entropy if it  *
-* is taking a while, open another console and type du / a   *
-* few times and get that HD going :) Then answer the        *
-* Questions which follow. If you are unsure, just hit enter *
+* Generating the private key may take some time, once done, *
+* answer the questions which follow. If you are unsure,     *
+* just hit enter!                                           *
 *************************************************************\n\n";
 			$failed = make_gnutls_cert();
 			if ($failed) {
@@ -703,7 +701,7 @@ if ($config{USE_GNUTLS} eq "y") {
 			}
 		}
 		else {
-			print "SSL Certificates found, skipping.\n\n";
+			print "SSL certificates found, skipping.\n\n";
 		}
 	}
 	else
@@ -721,10 +719,10 @@ if ($config{USE_OPENSSL} eq "y") {
 	if ($interactive && $config{CERTGEN} eq 'y')
 	{
 		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem") {
-			print "SSL Certificates Not found, Generating.. \n\n
+			print "SSL certificates not found, generating.. \n\n
 *************************************************************
 * Generating the certificates may take some time, go grab a *
-* coffee, or something.	                                    *
+* coffee or something.	                                    *
 *************************************************************\n\n";
 			make_openssl_cert();
 			print "\nCertificate generation complete, copying to config directory... ";
@@ -733,7 +731,7 @@ if ($config{USE_OPENSSL} eq "y") {
 			File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
 			print "Done.\n\n";
 		} else {
-			print "SSL Certificates found, skipping.\n\n"
+			print "SSL certificates found, skipping.\n\n"
 		}
 	}
 	else
@@ -742,7 +740,7 @@ if ($config{USE_OPENSSL} eq "y") {
 	}
 }
 if (($config{USE_GNUTLS} eq "n") && ($config{USE_OPENSSL} eq "n")) {
-	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
+	print "Skipping SSL certificate generation as SSL support is not available.\n\n";
 }
 
 depcheck();
@@ -754,12 +752,12 @@ print "To build your server with these settings, please run '\e[1;32mmake\e[0m' 
 if (($config{USE_GNUTLS} eq "y") || ($config{USE_OPENSSL} eq "y")) {
 	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
 	print "modules in your config. This configure script has added those modules to the\n";
-	print "build process. For more info please refer to:\n";
+	print "build process. For more info, please refer to:\n";
 	print "\e[1;32mhttp://wiki.inspircd.org/Installation_From_Tarball\e[0m\n";
 }
 print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n\n";
 if (($config{OSNAME} eq "OpenBSD") && ($config{CC} ne "eg++")) {
-	print "\e[1;32mWARNING!\e[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but i'm letting you\ngo ahead with it anyway, just in case i'm wrong :-)\n";
+	print "\e[1;32mWARNING!\e[0m You are running OpenBSD but you are using the base gcc package\nrather than eg++. This compile will most likely fail, but I'm letting you\ngo ahead with it anyway, just in case I'm wrong :-)\n";
 }
 
 if ($config{GCCVER} < "3") {
