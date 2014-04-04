@@ -39,6 +39,16 @@ class CommandSamode : public Command
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
+		if (parameters[0].c_str()[0] != '#')
+		{
+			User* target = ServerInstance->FindNickOnly(parameters[0]);
+			if ((!target) || (target->registered != REG_ALL))
+			{
+				user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
+				return CMD_FAILURE;
+			}
+		}
+
 		this->active = true;
 		ServerInstance->Parser->CallHandler("MODE", parameters, user);
 		if (ServerInstance->Modes->GetLastParse().length())

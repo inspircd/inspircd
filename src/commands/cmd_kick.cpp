@@ -56,9 +56,9 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	else
 		u = ServerInstance->FindNick(parameters[1]);
 
-	if (!u || !c)
+	if ((!u) || (!c) || (u->registered != REG_ALL))
 	{
-		user->WriteServ( "401 %s %s :No such nick/channel", user->nick.c_str(), u ? parameters[0].c_str() : parameters[1].c_str());
+		user->WriteServ( "401 %s %s :No such nick/channel", user->nick.c_str(), c ? parameters[1].c_str() : parameters[0].c_str());
 		return CMD_FAILURE;
 	}
 

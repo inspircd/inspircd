@@ -59,7 +59,7 @@ bool TreeSocket::Whois(const std::string &prefix, parameterlist &params)
 		{
 			std::string who_did_the_whois = params[0];
 			User* who_to_send_to = ServerInstance->FindNick(who_did_the_whois);
-			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)))
+			if ((who_to_send_to) && (IS_LOCAL(who_to_send_to)) && (who_to_send_to->registered == REG_ALL))
 			{
 				// an incoming reply to a whois we sent out
 				std::string nick_whoised = prefix;

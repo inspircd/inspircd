@@ -238,7 +238,7 @@ class CommandWatch : public Command
 			}
 
 			User* target = ServerInstance->FindNick(nick);
-			if (target)
+			if ((target) && (target->registered == REG_ALL))
 			{
 				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
 				user->WriteNumeric(604, "%s %s %s :is online",user->nick.c_str(), nick, (*wl)[nick].c_str());
