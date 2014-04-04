@@ -313,7 +313,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 										user->nick.c_str(), command.c_str());
 		}
 
-		ServerInstance->SNO->WriteToSnoMask('t', "%s denied for %s (%s@%s)",
+		ServerInstance->SNO->WriteToSnoMask('a', "%s denied for %s (%s@%s)",
 				command.c_str(), user->nick.c_str(), user->ident.c_str(), user->host.c_str());
 		return do_more;
 	}
