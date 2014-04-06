@@ -72,7 +72,7 @@ private message you when you have usermode +g set. ACCEPT +nick adds
 a nick to your accept list, ACCEPT -nick removes a nick from your
 accept list, and ACCEPT * displays your accept list.">
 
-<helpop key="cycle" value="/CYCLE [channel] [reason]
+<helpop key="cycle" value="/CYCLE [channel] :[reason]
 
 Cycles a channel (leaving and rejoining), overrides restrictions that
 would stop a new user joining, such as user limits and channel keys.">
@@ -986,7 +986,7 @@ Note that all /STATS use is broadcast to online IRC operators.">
  Q      Allows receipt of remote quit messages.
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires override module).
- x      Allows receipt of local Xline notices (g/z/q/k/e/R/shuns)."
+ x      Allows receipt of local Xline notices (g/Z/q/k/e/R/shuns).
  X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
 
 ######################

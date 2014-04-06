@@ -244,7 +244,8 @@ help channel if you have any questions.">
  Q      Allows receipt of remote quit messages.
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires override module).
- x      Allows receipt of Xline notices (g/z/q/k/e/R/shuns).">
+ x      Allows receipt of local Xline notices (g/Z/q/k/e/R/shuns).
+ X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
 
 <helpop key="extbans" value="Extended Bans
 ----------
