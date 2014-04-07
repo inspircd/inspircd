@@ -26,7 +26,7 @@ struct intrusive_list_def_tag { };
 template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list;
 
 template <typename T, typename Tag = intrusive_list_def_tag>
-struct intrusive_list_node
+class intrusive_list_node
 {
 	T* ptr_next;
 	T* ptr_prev;
@@ -77,7 +77,7 @@ class intrusive_list
 			return ret;
 		}
 
-		void operator--()
+		iterator& operator--()
 		{
 			curr = curr->intrusive_list_node<T, Tag>::ptr_prev;
 			return *this;
