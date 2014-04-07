@@ -40,8 +40,8 @@
       # making an outbound connection to the server. Options are: "openssl"
       # and "gnutls" (they are compatible with each other).
       #
-      # You will need to load the m_ssl_openssl.so module for openssl,
-      # m_ssl_gnutls.so for gnutls. The server port that you connect to
+      # You will need to load the m_ssl_openssl.so module for OpenSSL,
+      # m_ssl_gnutls.so for GnuTLS. The server port that you connect to
       # must be capable of accepting this type of connection.
       ssl="gnutls"
 
@@ -54,7 +54,7 @@
       # bind: Local IP address to bind to.
       bind="1.2.3.4"
 
-      # statshidden: defines if IP is shown to opers when
+      # statshidden: Defines if IP is shown to opers when
       # /stats c is invoked.
       statshidden="no"
 

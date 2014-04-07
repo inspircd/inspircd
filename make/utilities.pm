@@ -147,7 +147,7 @@ sub make_rpath($;$)
 			print "Adding extra library path to \e[1;32m$module\e[0m ... \e[1;32m$libpath\e[0m\n";
 			$already_added{$libpath} = 1;
 		}
-		$output .= "-Wl,--rpath -Wl,$libpath -L$libpath " unless defined $main::opt_disablerpath;
+		$output .= "-Wl,-rpath -Wl,$libpath -L$libpath " unless defined $main::opt_disablerpath;
 		$data =~ s/-L(\S+)//;
 	}
 	return $output;
@@ -179,7 +179,8 @@ sub pkgconfig_get_include_dirs($$$;$)
 	if ((!defined $v) || ($v eq ""))
 	{
 		print "\e[31mCould not find $packagename via pkg-config\e[m (\e[1;32mplease install pkg-config\e[m)\n";
-		$foo = `locate "$headername" 2>/dev/null | head -n 1`;
+		my $locbin = $^O eq 'solaris' ? 'slocate' : 'locate';
+		$foo = `$locbin "$headername" 2>/dev/null | head -n 1`;
 		my $find = $foo =~ /(.+)\Q$headername\E/ ? $1 : '';
 		chomp($find);
 		if ((defined $find) && ($find ne "") && ($find ne $packagename))
@@ -285,7 +286,8 @@ sub pkgconfig_get_lib_dirs($$$;$)
 	my $foo = "";
 	if ((!defined $v) || ($v eq ""))
 	{
-		$foo = `locate "$libname" | head -n 1`;
+		my $locbin = $^O eq 'solaris' ? 'slocate' : 'locate';
+		$foo = `$locbin "$libname" | head -n 1`;
 		$foo =~ /(.+)\Q$libname\E/;
 		my $find = $1;
 		chomp($find);
@@ -465,7 +467,6 @@ sub translate_functions($$)
 		while ($line =~ /rpath\("(.+?)"\)/)
 		{
 			my $replace = make_rpath($1,$module);
-			$replace = "" if ($^O =~ /darwin/i);
 			$line =~ s/rpath\("(.+?)"\)/$replace/;
 		}
 	};

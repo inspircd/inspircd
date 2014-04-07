@@ -21,25 +21,7 @@
 
 #include "inspircd.h"
 
-/* Used when comparing CIDR masks for the modulus bits left over.
- * A lot of ircd's seem to do this:
- * ((-1) << (8 - (mask % 8)))
- * But imho, it sucks in comparison to a nice neat lookup table.
- */
-const unsigned char inverted_bits[8] = {	0x00, /* 00000000 - 0 bits - never actually used */
-				0x80, /* 10000000 - 1 bits */
-				0xC0, /* 11000000 - 2 bits */
-				0xE0, /* 11100000 - 3 bits */
-				0xF0, /* 11110000 - 4 bits */
-				0xF8, /* 11111000 - 5 bits */
-				0xFC, /* 11111100 - 6 bits */
-				0xFE  /* 11111110 - 7 bits */
-};
-
-
 /* Match CIDR strings, e.g. 127.0.0.1 to 127.0.0.0/8 or 3ffe:1:5:6::8 to 3ffe:1::0/32
- * If you have a lot of hosts to match, youre probably better off building your mask once
- * and then using the lower level MatchCIDRBits directly.
  *
  * This will also attempt to match any leading usernames or nicknames on the mask, using
  * match(), when match_with_username is true.
@@ -81,8 +63,14 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 		cidr_copy.assign(cidr_mask);
 	}
 
-	if (cidr_copy.find('/') == std::string::npos)
+	const std::string::size_type per_pos = cidr_copy.rfind('/');
+	if ((per_pos == std::string::npos) || (per_pos == cidr_copy.length()-1)
+		|| (cidr_copy.find_first_not_of("0123456789", per_pos+1) != std::string::npos)
+		|| (cidr_copy.find_first_not_of("0123456789abcdef.:") < per_pos))
+	{
+		// The CIDR mask is invalid
 		return false;
+	}
 
 	irc::sockets::sockaddrs addr;
 	irc::sockets::aptosa(address_copy, 0, addr);

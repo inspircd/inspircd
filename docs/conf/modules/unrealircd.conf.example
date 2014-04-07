@@ -1,7 +1,7 @@
 <module name="m_md5.so">
 <module name="m_sha256.so">
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Alias module: Allows you to define server-side command aliases
+# Alias module: Allows you to define server-side command aliases.
 <module name="m_alias.so">
 <fantasy prefix="!" allowbots="no">
 # Aliases
@@ -109,8 +109,8 @@
 <module name="m_commonchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Conn-Join: Allows you to force users to join one or more channels
-# automatically upon connecting to the server.
+# Auto join on connect module: Allows you to force users to join one
+# or more channels automatically upon connecting to the server.
 #<module name="m_conn_join.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-#- CONNJOIN CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -124,7 +124,7 @@
 <module name="m_cycle.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Connection throttle module. Configuration:
+# Connection throttle module.
 #<module name="m_connflood.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- CONTHROTTLE CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
@@ -144,7 +144,7 @@
 #   quitmsg="Throttled" bootwait="10">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# DCCALLOW module: Adds the /DCCALLOW command
+# DCCALLOW module: Adds the /DCCALLOW command.
 <module name="m_dccallow.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  DCCALLOW CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
@@ -230,7 +230,7 @@
 <module name="m_operchans.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper Join module: Auto-joins opers to a channel upon oper-up
+# Oper join module: Auto-joins opers to a channel upon oper-up.
 # This module is oper-only. For the user equivalent, see m_conn_join.
 <module name="m_operjoin.so">
 #
@@ -255,7 +255,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Oper MOTD module: Provides support for separate message of the day
-# on oper-up
+# on oper-up.
 # This module is oper-only.
 #<module name="m_opermotd.so">
 #
@@ -263,15 +263,15 @@
 #                                                                     #
 # If you are using the m_opermotd.so module, specify the motd here    #
 #                                                                     #
-# onoper      -      Should the message be sent on /OPER or only when #
-#                    /OPERMOTD is used. Use "yes" or "no".            #
+# onoper        - If on, the message is sent on /OPER, otherwise it's #
+#                 only sent when /OPERMOTD is used.                   #
 #                                                                     #
 #<opermotd file="oper.motd" onoper="yes">
 
 <module name="m_override.so">
 #-#-#-#-#-#-#-#-#-#-#   OVERRIDE CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_override.so is too complex it describe here, see the wiki:        #
+# m_override.so is too complex to describe here, see the wiki:        #
 # http://wiki.inspircd.org/Modules/override                           #
 
 <module name="m_operlevels.so">
@@ -279,31 +279,18 @@
 <module name="m_password_hash.so">
 <module name="m_muteban.so">
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Random Quote module: provides a random quote on connect.
-# NOTE: Some of these may mimic fatal errors and confuse users and 
-# opers alike! - BEWARE!
-#<module name="m_randquote.so">
-#
-#-#-#-#-#-#-#-#-#-#-  RANDOMQUOTES CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#
-#                                                                     #
-# Optional - If you specify to use the m_randquote.so module, then    #
-# specify below the path to the randquotes.conf file.                 #
-#                                                                     #
-#<randquote file="randquotes.conf">
-
 <module name="m_redirect.so">
 <module name="m_regex_glob.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular Expression Provider for PCRE (Perl-Compatible Regular
+# Regular expression provider for PCRE (Perl-Compatible Regular
 # Expressions). You need libpcre installed to compile and load this
 # module. You must have at least 1 provider loaded to use m_filter or
 # m_rline.
 #<module name="m_regex_pcre.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular Expression Provider for POSIX Regular Expressions.
+# Regular expression provider for POSIX Regular Expressions.
 # You shouldn't need any additional libraries on a POSIX-compatible
 # system (ie: any Linux, BSD, but not Windows). You must have at least
 # 1 provider loaded to use m_filter or m_rline.
@@ -312,7 +299,7 @@
 #<module name="m_regex_posix.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Regular Expression Provider for TRE Regular Expressions.
+# Regular expression provider for TRE Regular Expressions.
 # This is the same regular expression engine used by UnrealIRCd, so
 # if you are most familiar with the syntax of /spamfilter from there,
 # this is the provider you want. You need libtre installed in order
@@ -320,8 +307,8 @@
 #<module name="m_regex_tre.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Registered users only channel creation
-# Allows only registered users and opers to create new channels.
+# Registered users only channel creation module. If enabled, only
+# registered users and opers can create new channels.
 #
 # You probably *DO NOT* want to load this module on a public network.
 #
@@ -361,7 +348,6 @@
 <module name="m_shun.so">
 <shun enabledcommands="PING PONG QUIT PART JOIN" notifyuser="no" affectopers="no">
 
-<module name="m_spy.so">
 <module name="m_sslmodes.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -373,7 +359,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_gnutls.so is too complex it describe here, see the wiki:      #
+# m_ssl_gnutls.so is too complex to describe here, see the wiki:      #
 # http://wiki.inspircd.org/Modules/ssl_gnutls                         #
 
 <module name="m_sslinfo.so">
@@ -387,7 +373,7 @@
 #
 #-#-#-#-#-#-#-#-#-#-#- OPENSSL CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
-# m_ssl_openssl.so is too complex it describe here, see the wiki:     #
+# m_ssl_openssl.so is too complex to describe here, see the wiki:     #
 # http://wiki.inspircd.org/Modules/ssl_openssl                        #
 
 <module name="m_stripcolor.so">
@@ -400,4 +386,3 @@
 <watch maxentries="32">
 
 <module name="m_spanningtree.so">
-

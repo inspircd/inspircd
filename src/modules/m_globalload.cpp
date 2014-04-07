@@ -153,7 +153,12 @@ class CommandGreloadmodule : public Command
 		{
 			Module* m = ServerInstance->Modules->Find(parameters[0]);
 			if (m)
-				ServerInstance->Modules->Reload(m, new GReloadModuleWorker(user->nick, user->uuid, parameters[0]));
+			{
+				GReloadModuleWorker* worker = NULL;
+				if (m != creator)
+					worker = new GReloadModuleWorker(user->nick, user->uuid, parameters[0]);
+				ServerInstance->Modules->Reload(m, worker);
+			}
 			else
 			{
 				user->WriteNumeric(RPL_LOADEDMODULE, "%s :Could not find module by that name", parameters[0].c_str());

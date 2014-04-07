@@ -316,7 +316,7 @@ class ModuleBanRedirect : public Module
 						else
 						{
 							user->WriteNumeric(ERR_BANNEDFROMCHAN, "%s :Cannot join channel (You are banned)", chan->name.c_str());
-							user->WriteNumeric(470, "%s %s :You are banned from this channel, so you are automatically transfered to the redirected channel.", chan->name.c_str(), redir->targetchan.c_str());
+							user->WriteNumeric(470, "%s %s :You are banned from this channel, so you are automatically transferred to the redirected channel.", chan->name.c_str(), redir->targetchan.c_str());
 							nofollow = true;
 							Channel::JoinUser(user, redir->targetchan);
 							nofollow = false;

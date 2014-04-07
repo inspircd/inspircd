@@ -46,11 +46,6 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 	c = ServerInstance->FindChan(parameters[0]);
 	if (c)
 	{
-		if ((c->IsModeSet(secretmode)) && (!c->HasUser(user)))
-		{
-		      user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c->name.c_str());
-		      return CMD_FAILURE;
-		}
 		c->UserList(user);
 	}
 	else

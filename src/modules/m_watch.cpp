@@ -231,7 +231,7 @@ class CommandWatch : public Command
 			}
 
 			User* target = ServerInstance->FindNick(nick);
-			if (target)
+			if ((target) && (target->registered == REG_ALL))
 			{
 				(*wl)[nick] = std::string(target->ident).append(" ").append(target->dhost).append(" ").append(ConvToStr(target->age));
 				user->WriteNumeric(604, "%s %s :is online", nick, (*wl)[nick].c_str());
@@ -308,10 +308,10 @@ class CommandWatch : public Command
 					{
 						for (watchlist::iterator q = wl->begin(); q != wl->end(); q++)
 						{
-							if (!q->second.empty())
+							User* targ = ServerInstance->FindNick(q->first.c_str());
+							if (targ && !q->second.empty())
 							{
 								user->WriteNumeric(604, "%s %s :is online", q->first.c_str(), q->second.c_str());
-								User *targ = ServerInstance->FindNick(q->first.c_str());
 								if (targ->IsAway())
 								{
 									user->WriteNumeric(609, "%s %s %s %lu :is away", targ->nick.c_str(), targ->ident.c_str(), targ->dhost.c_str(), (unsigned long) targ->awaytime);

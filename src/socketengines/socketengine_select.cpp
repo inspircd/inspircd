@@ -111,7 +111,9 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 
 int SocketEngine::DispatchEvents()
 {
-	static timeval tval = { 1, 0 };
+	timeval tval;
+	tval.tv_sec = 1;
+	tval.tv_usec = 0;
 
 	fd_set rfdset = ReadSet, wfdset = WriteSet, errfdset = ErrSet;
 

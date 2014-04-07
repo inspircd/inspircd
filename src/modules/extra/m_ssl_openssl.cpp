@@ -109,6 +109,9 @@ namespace OpenSSL
 		{
 			SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
+
+			const unsigned char session_id[] = "inspircd";
+			SSL_CTX_set_session_id_context(ctx, session_id, sizeof(session_id) - 1);
 		}
 
 		~Context()
@@ -352,8 +355,11 @@ class OpenSSLIOHook : public SSLIOHook
 			certinfo->trusted = false;
 		}
 
-		certinfo->dn = X509_NAME_oneline(X509_get_subject_name(cert),0,0);
-		certinfo->issuer = X509_NAME_oneline(X509_get_issuer_name(cert),0,0);
+		char buf[512];
+		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
+		certinfo->dn = buf;
+		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
+		certinfo->issuer = buf;
 
 		if (!X509_digest(cert, profile->GetDigest(), md, &n))
 		{

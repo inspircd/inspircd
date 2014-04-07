@@ -102,9 +102,6 @@ LOCKSERV       UNLOCKSERV   JUMPSERVER">
               hideoper module).
  I            Hides a user's entire channel list in WHOIS from
               non-IRCops (requires hidechans module).
- Q            Makes an operator invisible, preventing users from
-              seeing their presence, including in channel user lists
-              (IRCop only, requires invisible module).
  R            Blocks private messages from unregistered users
               (requires services account module).
  S            Strips mIRC color/bold/underline codes out of private
@@ -230,8 +227,6 @@ help channel if you have any questions.">
         messages.
  f      Allows receipt of flooding notices.
  g      Allows receipt of globops (requires globops module).
- G      Allows receipt of notices of use of oper-override (requires
-        override module)
  j      Allows receipt of channel creation notices (requires
         chancreate module).
  J      Allows receipt of remote channel creation notices (requires
@@ -252,7 +247,8 @@ help channel if you have any questions.">
  Q      Allows receipt of remote quit messages.
  t      Allows receipt of attempts to use /STATS (local and remote).
  v      Allows receipt of oper-override notices (requires override module).
- x      Allows receipt of Xline notices (g/z/q/k/e/R/shuns).">
+ x      Allows receipt of local Xline notices (g/Z/q/k/e/R/shuns).
+ X      Allows receipt of remote Xline notices (g/Z/q/k/e/R/shuns).">
 
 <helpop key="extbans" value="Extended Bans
 ----------
@@ -293,6 +289,8 @@ help channel if you have any questions.">
               module).
  U:n!u@h      Blocks unregistered users matching the given ban.
               (requires m_services_account)
+ z:certfp     Blocks users having the given certificate fingerprint
+              (requires m_sslmodes)
 
  Redirect     n!u@h#channel will redirect the banned user to #channel
               when they try to join (requires banredirect module).

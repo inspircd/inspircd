@@ -263,7 +263,7 @@ if ($interactive)
 
 	# Display Introduction Message..
 	print <<"STOP" ;
-Welcome to the \e[1mInspIRCd\e[0m Configuration program! (\e[1minteractive mode\e[0m)
+Welcome to the \e[1mInspIRCd\e[0m configuration program! (\e[1minteractive mode\e[0m)
 \e[1mPackage maintainers: Type ./configure --help for non-interactive help\e[0m
 
 *** If you are unsure of any of these values, leave it blank for    ***
@@ -392,12 +392,12 @@ symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
 
 if (($config{USE_GNUTLS}) && ($config{HAS_GNUTLS} ne "y"))
 {
-	print "Sorry, but i couldn't detect gnutls. Make sure pkg-config is in your path.\n";
+	print "Sorry, but I couldn't detect GnuTLS. Make sure pkg-config is in your path.\n";
 	exit 1;
 }
 if (($config{USE_OPENSSL}) && ($config{HAS_OPENSSL} ne "y"))
 {
-	print "Sorry, but i couldn't detect openssl. Make sure pkg-config is in your path.\n";
+	print "Sorry, but I couldn't detect OpenSSL. Make sure pkg-config is in your path.\n";
 	exit 1;
 }
 
@@ -412,7 +412,7 @@ if ($config{USE_GNUTLS} || $config{USE_OPENSSL}) {
 				print "Done.\n\n";
 			}
 		} else {
-			print "SSL Certificates found, skipping.\n\n"
+			print "SSL certificates found, skipping.\n\n"
 		}
 	} else {
 		print "Skipping SSL certificate generation in non-interactive mode.\n\n";
@@ -431,7 +431,7 @@ print "To build your server with these settings, please run '\e[1;32mmake\e[0m' 
 if ($config{USE_GNUTLS} || $config{USE_OPENSSL}) {
 	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
 	print "modules in your config. This configure script has added those modules to the\n";
-	print "build process. For more info please refer to:\n";
+	print "build process. For more info, please refer to:\n";
 	print "\e[1;32mhttp://wiki.inspircd.org/Installation_From_Tarball\e[0m\n";
 }
 print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n";
