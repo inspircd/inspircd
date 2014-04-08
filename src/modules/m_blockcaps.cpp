@@ -64,22 +64,14 @@ public:
 			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet(bc)))
 			{
 				int caps = 0;
-				const char* actstr = "\1ACTION ";
-				int act = 0;
+				unsigned int offset = 0;
+				// Ignore the beginning of the text if it's a CTCP ACTION (/me)
+				if (!text.compare(0, 8, "\1ACTION ", 8))
+					offset = 8;
 
-				for (std::string::iterator i = text.begin(); i != text.end(); i++)
-				{
-					/* Smart fix for suggestion from Jobe, ignore CTCP ACTION (part of /ME) */
-					if (*actstr && *i == *actstr++ && act != -1)
-					{
-						act++;
-						continue;
-					}
-					else
-						act = -1;
-
+				for (std::string::const_iterator i = text.begin() + offset; i != text.end(); ++i)
 					caps += capsmap[(unsigned char)*i];
-				}
+
 				if ( ((caps*100)/(int)text.length()) >= percent )
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Your message cannot contain more than %d%% capital letters if it's longer than %d characters", c->name.c_str(), percent, minlen);
