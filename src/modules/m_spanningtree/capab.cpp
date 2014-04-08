@@ -129,7 +129,7 @@ void TreeSocket::SendCapabilities(int phase)
 
 	std::string extra;
 	/* Do we have sha256 available? If so, we send a challenge */
-	if (Utils->ChallengeResponse && (ServerInstance->Modules->Find("m_sha256.so")))
+	if (ServerInstance->Modules->Find("m_sha256.so"))
 	{
 		SetOurChallenge(ServerInstance->GenRandomStr(20));
 		extra = " CHALLENGE=" + this->GetOurChallenge();
@@ -312,7 +312,7 @@ bool TreeSocket::Capab(const parameterlist &params)
 
 		/* Challenge response, store their challenge for our password */
 		std::map<std::string,std::string>::iterator n = this->capab->CapKeys.find("CHALLENGE");
-		if (Utils->ChallengeResponse && (n != this->capab->CapKeys.end()) && (ServerInstance->Modules->Find("m_sha256.so")))
+		if ((n != this->capab->CapKeys.end()) && (ServerInstance->Modules->Find("m_sha256.so")))
 		{
 			/* Challenge-response is on now */
 			this->SetTheirChallenge(n->second);

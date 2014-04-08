@@ -100,14 +100,6 @@ class SpanningTreeUtilities : public classbase
 	 */
 	std::vector<reference<Autoconnect> > AutoconnectBlocks;
 
-	/** True (default) if we are to use challenge-response HMAC
-	 * to authenticate passwords.
-	 *
-	 * NOTE: This defaults to on, but should be turned off if
-	 * you are linking to an older version of inspircd.
-	 */
-	bool ChallengeResponse;
-
 	/** Ping frequency of server to server links
 	 */
 	int PingFreq;

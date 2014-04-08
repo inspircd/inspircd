@@ -55,7 +55,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	 *       HMAC challenge/response.
 	 */
 	HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
-	if (Utils->ChallengeResponse && sha256 && !challenge.empty())
+	if (sha256 && !challenge.empty())
 		return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
 
 	if (!challenge.empty() && !sha256)

@@ -259,7 +259,6 @@ void SpanningTreeUtilities::ReadConfiguration()
 	HideULines = security->getBool("hideulines");
 	AnnounceTSChange = options->getBool("announcets");
 	AllowOptCommon = options->getBool("allowmismatch");
-	ChallengeResponse = !security->getBool("disablehmac");
 	quiet_bursts = ServerInstance->Config->ConfValue("performance")->getBool("quietbursts");
 	PingWarnTime = options->getInt("pingwarning");
 	PingFreq = options->getInt("serverpingfreq");
