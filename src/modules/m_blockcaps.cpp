@@ -34,7 +34,7 @@ class BlockCaps : public SimpleChannelModeHandler
 class ModuleBlockCAPS : public Module
 {
 	BlockCaps bc;
-	int percent;
+	unsigned int percent;
 	unsigned int minlen;
 	char capsmap[256];
 
@@ -63,7 +63,7 @@ public:
 
 			if (!c->GetExtBanStatus(user, 'B').check(!c->IsModeSet(bc)))
 			{
-				int caps = 0;
+				std::string::size_type caps = 0;
 				unsigned int offset = 0;
 				// Ignore the beginning of the text if it's a CTCP ACTION (/me)
 				if (!text.compare(0, 8, "\1ACTION ", 8))
@@ -72,7 +72,7 @@ public:
 				for (std::string::const_iterator i = text.begin() + offset; i != text.end(); ++i)
 					caps += capsmap[(unsigned char)*i];
 
-				if ( ((caps*100)/(int)text.length()) >= percent )
+				if (((caps * 100) / text.length()) >= percent)
 				{
 					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Your message cannot contain more than %d%% capital letters if it's longer than %d characters", c->name.c_str(), percent, minlen);
 					return MOD_RES_DENY;
