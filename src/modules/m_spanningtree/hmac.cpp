@@ -51,7 +51,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 	/* This is a simple (maybe a bit hacky?) HMAC algorithm, thanks to jilles for
 	 * suggesting the use of HMAC to secure the password against various attacks.
 	 *
-	 * Note: If m_sha256.so is not loaded, we MUST fall back to plaintext with no
+	 * Note: If an sha256 provider is not available, we MUST fall back to plaintext with no
 	 *       HMAC challenge/response.
 	 */
 	HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
@@ -59,7 +59,7 @@ std::string TreeSocket::MakePass(const std::string &password, const std::string 
 		return "AUTH:" + BinToBase64(sha256->hmac(password, challenge));
 
 	if (!challenge.empty() && !sha256)
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Not authenticating to server using SHA256/HMAC because we don't have m_sha256 loaded!");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Not authenticating to server using SHA256/HMAC because we don't have an SHA256 provider (e.g. m_sha256) loaded!");
 
 	return password;
 }
