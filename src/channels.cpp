@@ -626,7 +626,7 @@ const char* Channel::ChanModes(bool showkey)
 /* compile a userlist of a channel into a string, each nick seperated by
  * spaces and op, voice etc status shown as @ and +, and send it to 'user'
  */
-void Channel::UserList(User *user)
+void Channel::UserList(User* user, bool has_user)
 {
 	bool has_privs = user->HasPrivPermission("channels/auspex");
 	std::string list;
@@ -634,11 +634,6 @@ void Channel::UserList(User *user)
 	list.push_back(' ');
 	list.append(this->name).append(" :");
 	std::string::size_type pos = list.size();
-
-	/* Improvement by Brain - this doesnt change in value, so why was it inside
-	 * the loop?
-	 */
-	bool has_user = this->HasUser(user);
 
 	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size();
 	std::string prefixlist;

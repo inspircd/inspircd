@@ -54,7 +54,7 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 		bool has_user = c->HasUser(user);
 		if ((!c->IsModeSet(secretmode)) || (has_user) || (user->HasPrivPermission("channels/auspex")))
 		{
-			c->UserList(user);
+			c->UserList(user, has_user);
 			return CMD_SUCCESS;
 		}
 	}
