@@ -629,12 +629,6 @@ const char* Channel::ChanModes(bool showkey)
 void Channel::UserList(User *user)
 {
 	bool has_privs = user->HasPrivPermission("channels/auspex");
-	if (this->IsModeSet(secretmode) && !this->HasUser(user) && !has_privs)
-	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", this->name.c_str());
-		return;
-	}
-
 	std::string list;
 	list.push_back(this->IsModeSet(secretmode) ? '@' : this->IsModeSet(privatemode) ? '*' : '=');
 	list.push_back(' ');

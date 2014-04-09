@@ -46,12 +46,19 @@ CmdResult CommandNames::Handle (const std::vector<std::string>& parameters, User
 	c = ServerInstance->FindChan(parameters[0]);
 	if (c)
 	{
-		c->UserList(user);
-	}
-	else
-	{
-		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+		// Show the NAMES list if one of the following is true:
+		// - the channel is not secret
+		// - the user doing the /NAMES is inside the channel
+		// - the user doing the /NAMES has the channels/auspex privilege
+
+		bool has_user = c->HasUser(user);
+		if ((!c->IsModeSet(secretmode)) || (has_user) || (user->HasPrivPermission("channels/auspex")))
+		{
+			c->UserList(user);
+			return CMD_SUCCESS;
+		}
 	}
 
-	return CMD_SUCCESS;
+	user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+	return CMD_FAILURE;
 }
