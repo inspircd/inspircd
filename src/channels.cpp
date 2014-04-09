@@ -641,8 +641,6 @@ void Channel::UserList(User *user)
 	list.append(this->name).append(" :");
 	std::string::size_type pos = list.size();
 
-	bool has_one = false;
-
 	/* Improvement by Brain - this doesnt change in value, so why was it inside
 	 * the loop?
 	 */
@@ -683,19 +681,14 @@ void Channel::UserList(User *user)
 
 			// Erase all nicks, keep the constant part
 			list.erase(pos);
-			has_one = false;
 		}
 
 		list.append(prefixlist).append(nick).push_back(' ');
-
-		has_one = true;
 	}
 
-	/* if whats left in the list isnt empty, send it */
-	if (has_one)
-	{
+	// Only send the user list numeric if there is at least one user in it
+	if (list.size() != pos)
 		user->WriteNumeric(RPL_NAMREPLY, list);
-	}
 
 	user->WriteNumeric(RPL_ENDOFNAMES, "%s :End of /NAMES list.", this->name.c_str());
 }
