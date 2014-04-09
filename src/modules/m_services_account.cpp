@@ -102,24 +102,6 @@ class AChannel_M : public SimpleChannelModeHandler
 	AChannel_M(Module* Creator) : SimpleChannelModeHandler(Creator, "regmoderated", 'M') { }
 };
 
-static bool ReadCGIIRCExt(const char* extname, User* user, const std::string*& out)
-{
-	ExtensionItem* wiext = ServerInstance->Extensions.GetItem(extname);
-	if (!wiext)
-		return false;
-
-	if (wiext->creator->ModuleSourceFile != "m_cgiirc.so")
-		return false;
-
-	StringExtItem* stringext = static_cast<StringExtItem*>(wiext);
-	std::string* addr = stringext->get(user);
-	if (!addr)
-		return false;
-
-	out = addr;
-	return true;
-}
-
 class AccountExtItemImpl : public AccountExtItem
 {
  public:
@@ -140,17 +122,8 @@ class AccountExtItemImpl : public AccountExtItem
 			// Logged in
 			if (IS_LOCAL(user))
 			{
-				const std::string* host = &user->dhost;
-				if (user->registered != REG_ALL)
-				{
-					if (!ReadCGIIRCExt("cgiirc_webirc_hostname", user, host))
-					{
-						ReadCGIIRCExt("cgiirc_webirc_ip", user, host);
-					}
-				}
-
-				user->WriteNumeric(900, "%s!%s@%s %s :You are now logged in as %s",
-					user->nick.c_str(), user->ident.c_str(), host->c_str(), value.c_str(), value.c_str());
+				user->WriteNumeric(900, "%s %s :You are now logged in as %s",
+					user->GetFullHost().c_str(), value.c_str(), value.c_str());
 			}
 
 			AccountEvent(creator, user, value).Send();
