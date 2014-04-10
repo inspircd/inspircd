@@ -249,7 +249,11 @@ class ModuleSSLOpenSSL : public Module
 			ERR_print_errors_cb(error_callback, this);
 		}
 
+#ifdef _WIN32
+		BIO* dhpfile = BIO_new_file(dhfile.c_str(), "r");
+#else
 		FILE* dhpfile = fopen(dhfile.c_str(), "r");
+#endif
 		DH* ret;
 
 		if (dhpfile == NULL)
@@ -259,7 +263,12 @@ class ModuleSSLOpenSSL : public Module
 		}
 		else
 		{
+#ifdef _WIN32
+			ret = PEM_read_bio_DHparams(dhpfile, NULL, NULL, NULL);
+			BIO_free(dhpfile);
+#else
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
+#endif
 			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
 			{
 				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
@@ -268,7 +277,9 @@ class ModuleSSLOpenSSL : public Module
 			DH_free(ret);
 		}
 
+#ifndef _WIN32
 		fclose(dhpfile);
+#endif
 	}
 
 	void On005Numeric(std::string &output)
