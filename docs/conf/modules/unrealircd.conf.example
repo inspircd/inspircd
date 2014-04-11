@@ -192,7 +192,7 @@
 # Your choice of regex engine must match on all servers network-wide.
 #
 # You may specify specific channels that are exempt from being filtered:
-#<exemptfromfilter channel="#blah">
+#<exemptfromfilter target="#opers">
 #
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #

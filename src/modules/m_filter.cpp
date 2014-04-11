@@ -446,9 +446,12 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 	exemptedchans.clear();
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
-		std::string chan = i->second->getString("channel");
-		if (!chan.empty())
-			exemptedchans.insert(chan);
+		ConfigTag* tag = i->second;
+
+		// If "target" is not found, try the old "channel" key to keep compatibility with 2.0 configs
+		const std::string target = tag->getString("target", tag->getString("channel"));
+		if (!target.empty())
+			exemptedchans.insert(target);
 	}
 
 	std::string newrxengine = ServerInstance->Config->ConfValue("filteropts")->getString("engine");
