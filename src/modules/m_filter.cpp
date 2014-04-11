@@ -172,6 +172,9 @@ class ModuleFilter : public Module
 	// List of channel names excluded from filtering.
 	ExemptTargetSet exemptedchans;
 
+	// List of target nicknames excluded from filtering.
+	ExemptTargetSet exemptednicks;
+
 	ModuleFilter();
 	CullResult cull();
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE;
@@ -322,6 +325,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		if (target_type == TYPE_USER)
 		{
 			User* t = (User*)dest;
+			// Check if the target nick is exempted, if yes, ignore this message
+			if (exemptednicks.count(t->nick))
+				return MOD_RES_PASSTHRU;
+
 			target = t->nick;
 		}
 		else if (target_type == TYPE_CHANNEL)
@@ -444,6 +451,8 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
 	exemptedchans.clear();
+	exemptednicks.clear();
+
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		ConfigTag* tag = i->second;
@@ -451,7 +460,12 @@ void ModuleFilter::ReadConfig(ConfigStatus& status)
 		// If "target" is not found, try the old "channel" key to keep compatibility with 2.0 configs
 		const std::string target = tag->getString("target", tag->getString("channel"));
 		if (!target.empty())
-			exemptedchans.insert(target);
+		{
+			if (target[0] == '#')
+				exemptedchans.insert(target);
+			else
+				exemptednicks.insert(target);
+		}
 	}
 
 	std::string newrxengine = ServerInstance->Config->ConfValue("filteropts")->getString("engine");
@@ -688,6 +702,10 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 			results.push_back("223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
 		for (ExemptTargetSet::const_iterator i = exemptedchans.begin(); i != exemptedchans.end(); ++i)
+		{
+			results.push_back("223 "+user->nick+" :EXEMPT "+(*i));
+		}
+		for (ExemptTargetSet::const_iterator i = exemptednicks.begin(); i != exemptednicks.end(); ++i)
 		{
 			results.push_back("223 "+user->nick+" :EXEMPT "+(*i));
 		}

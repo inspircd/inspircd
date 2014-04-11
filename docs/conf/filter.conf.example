@@ -59,3 +59,12 @@
 # You may specify specific channels that are exempt from being filtered:
 #<exemptfromfilter target="#opers">
 #<exemptfromfilter target="#help">
+
+# You can also exempt messages from being filtered if they are sent to
+# specific nicks.
+# Example that exempts all messages sent *to* NickServ:
+#<exemptfromfilter target="NickServ">
+
+# Note that messages *from* services are never subject to filtering;
+# <exemptfromfilter> tags are only for exempting messages sent *to* the
+# configured targets.
