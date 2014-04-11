@@ -170,7 +170,7 @@ class ModuleFilter : public Module
 	int flags;
 
 	// List of channel names excluded from filtering.
-	ExemptTargetSet exemptfromfilter;
+	ExemptTargetSet exemptedchans;
 
 	ModuleFilter();
 	CullResult cull();
@@ -327,7 +327,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 		else if (target_type == TYPE_CHANNEL)
 		{
 			Channel* t = (Channel*)dest;
-			if (exemptfromfilter.find(t->name) != exemptfromfilter.end())
+			if (exemptedchans.count(t->name))
 				return MOD_RES_PASSTHRU;
 
 			target = t->name;
@@ -390,7 +390,7 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 			if (parameters.size() < 2)
 				return MOD_RES_PASSTHRU;
 
-			if (exemptfromfilter.find(parameters[0]) != exemptfromfilter.end())
+			if (exemptedchans.count(parameters[0]))
 				return MOD_RES_PASSTHRU;
 
 			parting = true;
@@ -443,12 +443,12 @@ ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::stri
 void ModuleFilter::ReadConfig(ConfigStatus& status)
 {
 	ConfigTagList tags = ServerInstance->Config->ConfTags("exemptfromfilter");
-	exemptfromfilter.clear();
+	exemptedchans.clear();
 	for (ConfigIter i = tags.first; i != tags.second; ++i)
 	{
 		std::string chan = i->second->getString("channel");
 		if (!chan.empty())
-			exemptfromfilter.insert(chan);
+			exemptedchans.insert(chan);
 	}
 
 	std::string newrxengine = ServerInstance->Config->ConfValue("filteropts")->getString("engine");
@@ -684,7 +684,7 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 		{
 			results.push_back("223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
-		for (ExemptTargetSet::const_iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
+		for (ExemptTargetSet::const_iterator i = exemptedchans.begin(); i != exemptedchans.end(); ++i)
 		{
 			results.push_back("223 "+user->nick+" :EXEMPT "+(*i));
 		}
