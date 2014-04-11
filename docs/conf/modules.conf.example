@@ -735,8 +735,9 @@
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide.
 #
-# You may specify specific channels that are exempt from being filtered:
-#<exemptfromfilter target="#opers">
+# To learn more about the configuration of this module, read          #
+# examples/filter.conf.example, which covers the various types of     #
+# filters and shows how to add exemptions.                            #
 #
 #-#-#-#-#-#-#-#-#-#-#-  FILTER  CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#-#
 #                                                                     #
