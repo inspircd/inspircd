@@ -156,6 +156,8 @@ class CommandFilter : public Command
 
 class ModuleFilter : public Module
 {
+	typedef std::set<std::string, irc::insensitive_swo> ExemptTargetSet;
+
 	bool initing;
 	RegexFactory* factory;
 	void FreeFilters();
@@ -167,7 +169,8 @@ class ModuleFilter : public Module
 	std::vector<FilterResult> filters;
 	int flags;
 
-	std::set<std::string> exemptfromfilter; // List of channel names excluded from filtering.
+	// List of channel names excluded from filtering.
+	ExemptTargetSet exemptfromfilter;
 
 	ModuleFilter();
 	CullResult cull();
@@ -681,7 +684,7 @@ ModResult ModuleFilter::OnStats(char symbol, User* user, string_list &results)
 		{
 			results.push_back("223 "+user->nick+" :"+RegexEngine.GetProvider()+":"+i->freeform+" "+i->GetFlags()+" "+FilterActionToString(i->action)+" "+ConvToStr(i->gline_time)+" :"+i->reason);
 		}
-		for (std::set<std::string>::iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
+		for (ExemptTargetSet::const_iterator i = exemptfromfilter.begin(); i != exemptfromfilter.end(); ++i)
 		{
 			results.push_back("223 "+user->nick+" :EXEMPT "+(*i));
 		}
