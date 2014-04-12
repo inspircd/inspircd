@@ -30,7 +30,7 @@ class CommandConnect : public Command
  public:
 	/** Constructor for connect.
 	 */
-	CommandConnect ( Module* parent) : Command(parent,"CONNECT",1) { flags_needed = 'o'; syntax = "<servername> [<remote-server>]"; }
+	CommandConnect ( Module* parent) : Command(parent,"CONNECT",1) { flags_needed = 'o'; syntax = "<servername>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command

@@ -146,7 +146,7 @@ public:
 		extInfo(Creator)
 	{
 		allow_empty_last_param = false;
-		syntax = "{[+|-]<nicks>}|*}";
+		syntax = "*|(+|-)<nick>[,(+|-)<nick> ...]";
 		TRANSLATE2(TR_CUSTOM, TR_END);
 	}
 

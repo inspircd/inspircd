@@ -60,7 +60,7 @@ class CommandDccallow : public Command
  public:
 	CommandDccallow(Module* parent) : Command(parent, "DCCALLOW", 0)
 	{
-		syntax = "{[+|-]<nick> <time>|HELP|LIST}";
+		syntax = "[(+|-)<nick> [<time>]]|[LIST|HELP]";
 		/* XXX we need to fix this so it can work with translation stuff (i.e. move +- into a seperate param */
 	}
 
@@ -203,7 +203,7 @@ class CommandDccallow : public Command
 
 	void DisplayHelp(User* user)
 	{
-		user->WriteNumeric(998, "%s :DCCALLOW [<+|->nick [time]] [list] [help]", user->nick.c_str());
+		user->WriteNumeric(998, "%s :DCCALLOW [(+|-)<nick> [<time>]]|[LIST|HELP]", user->nick.c_str());
 		user->WriteNumeric(998, "%s :You may allow DCCs from specific users by specifying a", user->nick.c_str());
 		user->WriteNumeric(998, "%s :DCC allow for the user you want to receive DCCs from.", user->nick.c_str());
 		user->WriteNumeric(998, "%s :For example, to allow the user Brain to send you inspircd.exe", user->nick.c_str());
