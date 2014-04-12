@@ -101,5 +101,9 @@ void DLLManager::RetrieveLastError()
 	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errmsg, 100, 0);
 	SetLastError(ERROR_SUCCESS);
 	err = errmsg;
+
+	std::string::size_type p;
+	while ((p = err.find_last_of("\r\n")) != std::string::npos)
+		err.erase(p, 1);
 }
 #endif

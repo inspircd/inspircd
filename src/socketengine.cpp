@@ -265,7 +265,13 @@ std::string SocketEngine::LastError()
 	DWORD dwErrorCode = WSAGetLastError();
 	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)szErrorString, _countof(szErrorString), NULL) == 0)
 		sprintf_s(szErrorString, _countof(szErrorString), "Error code: %u", dwErrorCode);
-	return szErrorString;
+
+	std::string::size_type p;
+	std::string ret = szErrorString;
+	while ((p = ret.find_last_of("\r\n")) != std::string::npos)
+		ret.erase(p, 1);
+
+	return ret;
 #endif
 }
 
