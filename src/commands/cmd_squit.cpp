@@ -30,7 +30,7 @@ class CommandSquit : public Command
  public:
 	/** Constructor for squit.
 	 */
-	CommandSquit ( Module* parent) : Command(parent,"SQUIT",1,2) { flags_needed = 'o'; syntax = "<servername> [<reason>]"; }
+	CommandSquit ( Module* parent) : Command(parent,"SQUIT",1,2) { flags_needed = 'o'; syntax = "<servername>"; }
 	/** Handle command.
 	 * @param parameters The parameters to the comamnd
 	 * @param pcnt The number of parameters passed to teh command
