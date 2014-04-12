@@ -214,7 +214,7 @@ class CommandWatch : public Command
 			ext.set(user, wl);
 		}
 
-		if (wl->size() == MAX_WATCH)
+		if (wl->size() >= MAX_WATCH)
 		{
 			user->WriteNumeric(512, "%s %s :Too many WATCH entries", user->nick.c_str(), nick);
 			return CMD_FAILURE;
