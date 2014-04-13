@@ -183,7 +183,7 @@ class ModuleAuditorium : public Module
 		if (!channel)
 			return;
 		Membership* memb = channel->GetUser(user);
-		if (IsVisible(memb))
+		if ((!memb) || (IsVisible(memb)))
 			return;
 		if (CanSee(source, memb))
 			return;
