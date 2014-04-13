@@ -176,7 +176,7 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 {
 	if (CanUnload(mod))
 		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
-	else
+	else if (callback)
 		callback->Call(false);
 }
 
