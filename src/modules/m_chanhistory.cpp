@@ -38,20 +38,6 @@ struct HistoryList
 
 class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 {
-	bool IsValidDuration(const std::string& duration)
-	{
-		for (std::string::const_iterator i = duration.begin(); i != duration.end(); ++i)
-		{
-			unsigned char c = *i;
-			if (((c >= '0') && (c <= '9')) || (c == 's') || (c == 'S'))
-				continue;
-
-			if (duration_multi[c] == 1)
-				return false;
-		}
-		return true;
-	}
-
  public:
 	unsigned int maxlines;
 	HistoryMode(Module* Creator)
@@ -66,7 +52,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 			return MODEACTION_DENY;
 
 		std::string duration(parameter, colon+1);
-		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
+		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!InspIRCd::IsValidDuration(duration))))
 			return MODEACTION_DENY;
 
 		unsigned int len = ConvToInt(parameter.substr(0, colon));

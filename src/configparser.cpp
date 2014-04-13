@@ -451,7 +451,7 @@ void ConfigTag::CheckRange(const std::string& key, long& res, long def, long min
 long ConfigTag::getDuration(const std::string& key, long def, long min, long max)
 {
 	std::string duration;
-	if (!readString(key, duration))
+	if (!readString(key, duration) || !InspIRCd::IsValidDuration(duration))
 		return def;
 
 	long ret = InspIRCd::Duration(duration);
