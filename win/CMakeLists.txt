@@ -99,7 +99,7 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 	set(CPACK_NSIS_MUI_UNIICON "${INSPIRCD_BASE}/win\\\\inspircd.ico")
 	set(CPACK_NSIS_INSTALLED_ICON_NAME "inspircd.exe")
 	set(CPACK_NSIS_URL_INFO_ABOUT "http://www.inspircd.org/")
-	set(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
+	set(CPACK_NSIS_COMPRESSOR "/SOLID zlib")
 
 	include(CPack)
 endif(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
