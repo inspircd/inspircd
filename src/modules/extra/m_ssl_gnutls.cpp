@@ -22,21 +22,16 @@
 
 
 #include "inspircd.h"
+#ifndef _WIN32
 #include <gcrypt.h>
+#endif
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #include "ssl.h"
 #include "m_cap.h"
 
 #ifdef _WIN32
-# pragma comment(lib, "libgnutls.lib")
-# pragma comment(lib, "libgcrypt.lib")
-# pragma comment(lib, "libgpg-error.lib")
-# pragma comment(lib, "user32.lib")
-# pragma comment(lib, "advapi32.lib")
-# pragma comment(lib, "libgcc.lib")
-# pragma comment(lib, "libmingwex.lib")
-# pragma comment(lib, "gdi32.lib")
+# pragma comment(lib, "libgnutls-28.lib")
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
@@ -58,6 +53,13 @@
 #if(GNUTLS_VERSION_MAJOR < 2)
 typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
 typedef gnutls_dh_params_t gnutls_dh_params;
+#endif
+
+#if (defined(_WIN32) && (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 12)))
+# define GNUTLS_HAS_RND
+# include <gnutls/crypto.h>
+#else
+# include <gcrypt.h>
 #endif
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
@@ -89,7 +91,11 @@ class RandGen : public HandlerBase2<void, char*, size_t>
 	RandGen() {}
 	void Call(char* buffer, size_t len)
 	{
+#ifdef GNUTLS_HAS_RND
+		gnutls_rnd(GNUTLS_RND_RANDOM, buffer, len);
+#else
 		gcry_randomize(buffer, len, GCRY_STRONG_RANDOM);
+#endif
 	}
 };
 
@@ -250,7 +256,9 @@ class ModuleSSLGnuTLS : public Module
 	ModuleSSLGnuTLS()
 		: starttls(this), capHandler(this, "tls"), iohook(this, "ssl/gnutls", SERVICE_IOHOOK)
 	{
+#ifndef GNUTLS_HAS_RND
 		gcry_control (GCRYCTL_INITIALIZATION_FINISHED, 0);
+#endif
 
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 

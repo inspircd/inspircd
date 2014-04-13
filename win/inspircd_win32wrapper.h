@@ -78,6 +78,8 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 
+typedef int ssize_t;
+
 /* Convert formatted (xxx.xxx.xxx.xxx) string to in_addr struct */
 CoreExport int insp_inet_pton(int af, const char * src, void * dst);
 
