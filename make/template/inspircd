@@ -1,3 +1,4 @@
+%mode 0750
 #!/usr/bin/env perl
 
 #
@@ -30,7 +31,7 @@ my $runpath	=	"@BASE_DIR@";
 my $datadir	=       "@DATA_DIR@";
 my $valgrindlogpath	=	"$basepath/valgrindlogs";
 my $executable	=	"inspircd";
-my $version	=	"@VERSION@";
+my $version	=	"@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@+@VERSION_LABEL@";
 my $uid = "@UID@";
 
 if (!("--runasroot" ~~ @ARGV) && ($< == 0 || $> == 0)) {
