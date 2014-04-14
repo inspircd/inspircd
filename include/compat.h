@@ -106,9 +106,11 @@
  */
 #if defined _WIN32
 # include "inspircd_win32wrapper.h"
+# include "threadengines/threadengine_win32.h"
 #else
-# include <unistd.h>
 # define ENTRYPOINT int main(int argc, char** argv)
 # define DllExport __attribute__ ((visibility ("default")))
 # define CoreExport __attribute__ ((visibility ("default")))
+# include <unistd.h>
+# include "threadengines/threadengine_pthread.h"
 #endif

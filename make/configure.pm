@@ -1,7 +1,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2012 Peter Powell <petpow@saberuk.com>
+#   Copyright (C) 2012-2014 Peter Powell <petpow@saberuk.com>
 #   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
 #   Copyright (C) 2007-2008 Craig Edwards <craigedwards@brainbox.cc>
 #   Copyright (C) 2008 Thomas Stagner <aquanight@inspircd.org>
@@ -30,8 +30,9 @@ package make::configure;
 use strict;
 use warnings FATAL => qw(all);
 
-use Cwd;
+use Cwd 'getcwd';
 use Exporter 'import';
+use File::Basename 'basename';
 
 use make::utilities;
 
@@ -39,10 +40,7 @@ our @EXPORT = qw(cmd_clean cmd_help cmd_update
                  read_configure_cache write_configure_cache
                  get_compiler_info find_compiler
                  run_test test_file test_header
-                 get_property get_revision
-                 dump_hash);
-
-my $revision;
+                 dump_hash get_property parse_templates);
 
 sub __get_socketengines() {
 	my @socketengines;
@@ -51,6 +49,34 @@ sub __get_socketengines() {
 		push @socketengines, $1;
 	}
 	return @socketengines;
+}
+
+# TODO: when buildtool is done this can be mostly removed with
+#       the remainder being merged into parse_templates.
+sub __get_template_settings($$) {
+
+	# These are actually hash references
+	my ($config, $compiler) = @_;
+
+	# Start off by populating with the config
+	my %settings = %$config;
+
+	# Compiler information
+	while (my ($key, $value) = each %{$compiler}) {
+		$settings{'COMPILER_' . $key} = $value;
+	}
+
+	# Version information
+	my %version = get_version();
+	while (my ($key, $value) = each %version) {
+		$settings{'VERSION_' . $key} = $value;
+	}
+
+	# Miscellaneous information
+	$settings{SYSTEM_NAME} = lc $^O;
+	chomp($settings{SYSTEM_NAME_VERSION} = `uname -sr 2>/dev/null`);
+
+	return %settings;
 }
 
 sub cmd_clean {
@@ -129,9 +155,9 @@ sub cmd_update {
 		exit 1;
 	}
 	print "Updating...\n";
-	%main::config = read_configure_cache();
-	%main::cxx = get_compiler_info($main::config{CXX});
-	main::writefiles();
+	my %config = read_configure_cache();
+	my %compiler = get_compiler_info($config{CXX});
+	parse_templates(\%config, \%compiler);
 	print "Update complete!\n";
 	exit 0;
 }
@@ -241,15 +267,7 @@ sub get_property($$;$)
 	return defined $default ? $default : '';
 }
 
-sub get_revision {
-	return $revision if defined $revision;
-	chomp(my $tags = `git describe --tags 2>/dev/null`);
-	$revision = $tags || 'release';
-	return $revision;
-}
-
-sub dump_hash()
-{
+sub dump_hash() {
 	print "\n\e[1;32mPre-build configuration is complete!\e[0m\n\n";
 	print "\e[0mBase install path:\e[1;32m\t\t$main::config{BASE_DIR}\e[0m\n";
 	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
@@ -260,6 +278,165 @@ sub dump_hash()
 	print "\e[0mSocket engine:\e[1;32m\t\t\t$main::config{SOCKETENGINE}\e[0m\n";
 	print "\e[0mGnuTLS support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
 	print "\e[0mOpenSSL support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n";
+}
+
+sub parse_templates($$) {
+
+	# These are actually hash references
+	my ($config, $compiler) = @_;
+
+	# Collect settings to be used when generating files
+	my %settings = __get_template_settings($config, $compiler);
+
+	# Iterate through files in make/template.
+	foreach (<make/template/*>) {
+		print "Parsing $_...\n";
+		open(TEMPLATE, $_);
+		my (@lines, $mode, @platforms, %targets);
+
+		# First pass: parse template variables and directives.
+		while (my $line = <TEMPLATE>) {
+			chomp $line;
+
+			# Does this line match a variable?
+			while ($line =~ /(@(\w+?)@)/) {
+				my ($variable, $name) = ($1, $2);
+				if (defined $settings{$name}) {
+					$line =~ s/$variable/$settings{$name}/;
+				} else {
+					print STDERR "Warning: unknown template variable '$name' in $_!\n";
+					last;
+				}
+			}
+
+			# Does this line match a directive?
+			if ($line =~ /^\s*%(\w+)\s+(.+)$/) {
+				if ($1 eq 'define') {
+					if ($settings{$2}) {
+						push @lines, "#define $2";
+					} else {
+						push @lines, "#undef $2";
+					}
+				} elsif ($1 eq 'mode') {
+					$mode = oct $2;
+				} elsif ($1 eq 'platform') {
+					push @platforms, $2;
+				} elsif ($1 eq 'target') {
+					if ($2 =~ /(\w+)\s(.+)/) {
+						$targets{$1} = $2;
+					} else {
+						$targets{DEFAULT} = $2;
+					}
+				} else {
+					print STDERR "Warning: unknown template command '$1' in $_!\n";
+					push @lines, $line;
+				}
+				next;
+			}
+			push @lines, $line;
+		}
+		close(TEMPLATE);
+
+		# Only proceed if this file should be templated on this platform.
+		if ($#platforms < 0 || grep { $_ eq $^O } @platforms) {
+
+			# Add a default target if the template has not defined one.
+			unless (scalar keys %targets) {
+				$targets{DEFAULT} = basename $_;
+			}
+
+			# Second pass: parse makefile junk and write files.
+			while (my ($name, $target) = each %targets) {
+
+				# TODO: when buildtool is done this mess can be removed completely.
+				my @final_lines;
+				foreach my $line (@lines) {
+
+					# Are we parsing a makefile and does this line match a statement?
+					if ($name =~ /(?:BSD|GNU)_MAKE/ && $line =~ /^\s*\@(\w+)(?:\s+(.+))?$/) {
+						my @tokens = split /\s/, $2 if defined $2;
+						if ($1 eq 'DO_EXPORT' && defined $2) {
+							if ($name eq 'BSD_MAKE') {
+								foreach my $variable (@tokens) {
+									push @final_lines, "MAKEENV += $variable='\${$variable}'";
+								}
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "export $2";
+							}
+						} elsif ($1 eq 'ELSE') {
+							if ($name eq 'BSD_MAKE') {
+								push @final_lines, ".else";
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "else";
+							}
+						} elsif ($1 eq 'ENDIF') {
+							if ($name eq 'BSD_MAKE') {
+								push @final_lines, ".endif";
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "endif";
+							}
+						} elsif ($1 eq 'ELSIFEQ' && defined $2) {
+							if ($name eq 'BSD_MAKE') {
+								push @final_lines, ".elif $tokens[0] == $tokens[1]";
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "else ifeq ($tokens[0], $tokens[1])";
+							}
+						} elsif ($1 eq 'IFDEF' && defined $2) {
+							if ($name eq 'BSD_MAKE') {
+								push @final_lines, ".if defined($2)";
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "ifdef $2";
+							}
+						} elsif ($1 eq 'IFEQ' && defined $2) {
+							if ($name eq 'BSD_MAKE') {
+								push @final_lines, ".if $tokens[0] == $tokens[1]";
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "ifeq ($tokens[0],$tokens[1])";
+							}
+						} elsif ($1 eq 'IFNEQ' && defined $2) {
+							if ($name eq 'BSD_MAKE') {
+								push @final_lines, ".if $tokens[0] != $tokens[1]";
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "ifneq ($tokens[0],$tokens[1])";
+							}
+						} elsif ($1 eq 'IFNDEF' && defined $2) {
+							if ($name eq 'BSD_MAKE') {
+								push @final_lines, ".if !defined($2)";
+							} elsif ($name eq 'GNU_MAKE') {
+								push @final_lines, "ifndef $2";
+							}
+						} elsif ($1 eq 'TARGET' && defined $2) {
+							if ($tokens[0] eq $name) {
+								push @final_lines, substr($2, length($tokens[0]) + 1);
+							}
+						} elsif ($1 !~ /[A-Z]/) {
+							# HACK: silently ignore if lower case as these are probably make commands.
+							push @final_lines, $line;
+						} else {
+							print STDERR "Warning: unknown template command '$1' in $_!\n";
+							push @final_lines, $line;
+						}
+						next;
+					}
+
+					push @final_lines, $line;
+				}
+
+				# Write the template file.
+				print "Writing $target...\n";
+				open(TARGET, ">$target");
+				foreach (@final_lines) {
+					print TARGET $_, "\n";
+				}
+				close(TARGET);
+
+				# Set file permissions.
+				if (defined $mode) {
+					chmod $mode, $target;
+				}
+			}
+		}
+	}
 }
 
 1;

@@ -3,6 +3,7 @@
 *.swp
 
 /.config.cache
+/.gdbargs
 /.modulemanager
 /BSDmakefile
 /GNUmakefile
