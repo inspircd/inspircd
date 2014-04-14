@@ -214,7 +214,9 @@ bool SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, const std::stri
 void SpanningTreeUtilities::DoOneToOne(const CmdBuilder& params, Server* server)
 {
 	TreeServer* ts = static_cast<TreeServer*>(server);
-	ts->GetSocket()->WriteLine(params);
+	TreeSocket* sock = ts->GetSocket();
+	if (sock)
+		sock->WriteLine(params);
 }
 
 void SpanningTreeUtilities::RefreshIPCache()

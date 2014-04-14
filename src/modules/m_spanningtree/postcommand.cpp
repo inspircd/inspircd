@@ -39,23 +39,31 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 
 	const bool encap = ((routing.type == ROUTE_TYPE_OPT_BCAST) || (routing.type == ROUTE_TYPE_OPT_UCAST));
 	CmdBuilder params(user, encap ? "ENCAP" : command.c_str());
+	TreeServer* sdest = NULL;
 
 	if (routing.type == ROUTE_TYPE_OPT_BCAST)
 	{
 		params.push('*');
 		params.push_back(command);
 	}
-	else if (routing.type == ROUTE_TYPE_OPT_UCAST)
+	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
 	{
-		TreeServer* sdest = FindServer(routing.serverdest);
+		sdest = static_cast<TreeServer*>(routing.server);
 		if (!sdest)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Trying to route ENCAP to nonexistant server %s",
-				routing.serverdest.c_str());
-			return;
+			sdest = FindServer(routing.serverdest);
+			if (!sdest)
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Trying to route %s%s to nonexistant server %s", (encap ? "ENCAP " : ""), command.c_str(), routing.serverdest.c_str());
+				return;
+			}
 		}
-		params.push_back(sdest->GetID());
-		params.push_back(command);
+
+		if (encap)
+		{
+			params.push_back(sdest->GetID());
+			params.push_back(command);
+		}
 	}
 	else
 	{
@@ -115,8 +123,6 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 	}
 	else if (routing.type == ROUTE_TYPE_UNICAST || routing.type == ROUTE_TYPE_OPT_UCAST)
 	{
-		if (origin && routing.serverdest == origin->GetName())
-			return;
-		params.Unicast(routing.serverdest);
+		params.Unicast(sdest->ServerUser);
 	}
 }
