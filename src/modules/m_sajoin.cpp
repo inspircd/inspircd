@@ -59,6 +59,13 @@ class CommandSajoin : public Command
 				return CMD_FAILURE;
 			}
 
+			Channel* chan = ServerInstance->FindChan(channel);
+			if ((chan) && (chan->HasUser(dest)))
+			{
+				user->SendText(":" + user->server->GetName() + " NOTICE " + user->nick + " :*** " + dest->nick + " is already on " + channel);
+				return CMD_FAILURE;
+			}
+
 			/* For local users, we call Channel::JoinUser which may create a channel and set its TS.
 			 * For non-local users, we just return CMD_SUCCESS, knowing this will propagate it where it needs to be
 			 * and then that server will handle the command.
@@ -66,8 +73,8 @@ class CommandSajoin : public Command
 			LocalUser* localuser = IS_LOCAL(dest);
 			if (localuser)
 			{
-				Channel* n = Channel::JoinUser(localuser, channel, true);
-				if (n && n->HasUser(dest))
+				chan = Channel::JoinUser(localuser, channel, true);
+				if (chan)
 				{
 					ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used SAJOIN to make "+dest->nick+" join "+channel);
 					return CMD_SUCCESS;
