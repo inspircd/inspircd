@@ -29,13 +29,17 @@ class CommandSajoin : public Command
 	CommandSajoin(Module* Creator) : Command(Creator,"SAJOIN", 1)
 	{
 		allow_empty_last_param = false;
-		flags_needed = 'o'; Penalty = 0; syntax = "[<nick>] <channel>";
+		flags_needed = 'o'; Penalty = 0; syntax = "[<nick>] <channel>[,<channel>]";
 		TRANSLATE2(TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		const std::string& channel = parameters.size() > 1 ? parameters[1] : parameters[0];
+		const unsigned int channelindex = (parameters.size() > 1) ? 1 : 0;
+		if (CommandParser::LoopCall(user, this, parameters, channelindex))
+			return CMD_FAILURE;
+
+		const std::string& channel = parameters[channelindex];
 		const std::string& nickname = parameters.size() > 1 ? parameters[0] : user->nick;
 
 		User* dest = ServerInstance->FindNick(nickname);

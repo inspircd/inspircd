@@ -521,13 +521,14 @@ The duration may be specified in seconds, or in the format
 1y2w3d4h5m6s - meaning one year, two weeks, three days, 4 hours,
 5 minutes and 6 seconds. All fields in this format are optional.">
 
-<helpop key="sajoin" value="/SAJOIN [nick] [channel]
+<helpop key="sajoin" value="/SAJOIN [<nick>] <channel>[,<channel>]
 
-Forces the user to join the channel.">
+Forces the user to join the channel(s).
+If no nick is given, it joins the oper doing the /SAJOIN.">
 
-<helpop key="sapart" value="/SAPART [nick] [channel]
+<helpop key="sapart" value="/SAPART <nick> <channel>[,<channel>]
 
-Forces the user to part the channel.">
+Forces the user to part the channel(s).">
 
 <helpop key="samode" value="/SAMODE [target] +/-[modes] {[parameters for modes]}
 

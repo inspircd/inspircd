@@ -28,12 +28,15 @@ class CommandSapart : public Command
  public:
 	CommandSapart(Module* Creator) : Command(Creator,"SAPART", 2, 3)
 	{
-		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel> [reason]";
+		flags_needed = 'o'; Penalty = 0; syntax = "<nick> <channel>[,<channel>] [reason]";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
+		if (CommandParser::LoopCall(user, this, parameters, 1))
+			return CMD_FAILURE;
+
 		User* dest = ServerInstance->FindNick(parameters[0]);
 		Channel* channel = ServerInstance->FindChan(parameters[1]);
 		std::string reason;
