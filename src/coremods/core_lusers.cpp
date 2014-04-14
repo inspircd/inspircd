@@ -95,8 +95,8 @@ CmdResult CommandLusers::Handle (const std::vector<std::string>&, User *user)
 
 	user->WriteNumeric(RPL_LUSERCHANNELS, "%lu :channels formed", (unsigned long)ServerInstance->GetChans().size());
 	user->WriteNumeric(RPL_LUSERME, ":I have %d clients and %d servers", ServerInstance->Users->LocalUserCount(),n_local_servs);
-	user->WriteNumeric(RPL_LOCALUSERS, ":Current Local Users: %d  Max: %d", ServerInstance->Users->LocalUserCount(), counters.max_local);
-	user->WriteNumeric(RPL_GLOBALUSERS, ":Current Global Users: %d  Max: %d", n_users, counters.max_global);
+	user->WriteNumeric(RPL_LOCALUSERS, ":Current local users: %d  Max: %d", ServerInstance->Users->LocalUserCount(), counters.max_local);
+	user->WriteNumeric(RPL_GLOBALUSERS, ":Current global users: %d  Max: %d", n_users, counters.max_global);
 
 	return CMD_SUCCESS;
 }
