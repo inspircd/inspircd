@@ -41,10 +41,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 		if (!c)
 			return CMD_FAILURE;
 
-		time_t ChanTS = ConvToInt(params[1]);
-		if (!ChanTS)
-			return CMD_INVALID;
-
+		time_t ChanTS = ServerCommand::ExtractTS(params[1]);
 		if (c->age < ChanTS)
 			// Their TS is newer than ours, discard this command and do not propagate
 			return CMD_FAILURE;

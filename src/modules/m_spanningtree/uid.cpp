@@ -31,8 +31,8 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	 *      0    1    2    3    4    5        6        7     8        9       (n-1)
 	 * UID uuid age nick host dhost ident ip.string signon +modes (modepara) :gecos
 	 */
-	time_t age_t = ConvToInt(params[1]);
-	time_t signon = ConvToInt(params[7]);
+	time_t age_t = ServerCommand::ExtractTS(params[1]);
+	time_t signon = ServerCommand::ExtractTS(params[7]);
 	std::string empty;
 	const std::string& modestr = params[8];
 
@@ -40,10 +40,6 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].substr(0, 3) != remoteserver->GetID())
 		throw ProtocolException("Bogus UUID");
 	/* Check parameters for validity before introducing the client, discovered by dmb */
-	if (!age_t)
-		return CMD_INVALID;
-	if (!signon)
-		return CMD_INVALID;
 	if (modestr[0] != '+')
 		throw ProtocolException("Invalid mode string");
 

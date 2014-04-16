@@ -40,13 +40,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>&
 	bool apply_modes;
 	if (params.size() > 1)
 	{
-		time_t RemoteTS = ConvToInt(params[1]);
-		if (!RemoteTS)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Invalid TS in IJOIN: " + params[1]);
-			return CMD_INVALID;
-		}
-
+		time_t RemoteTS = ServerCommand::ExtractTS(params[1]);
 		if (RemoteTS < chan->age)
 			throw ProtocolException("Attempted to lower TS via IJOIN. LocalTS=" + ConvToStr(chan->age));
 		apply_modes = ((params.size() > 2) && (RemoteTS == chan->age));

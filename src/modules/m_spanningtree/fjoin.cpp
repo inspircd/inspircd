@@ -69,13 +69,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 *
 	 */
 
-	time_t TS = ConvToInt(params[1]);
-	if (!TS)
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server->GetName().c_str());
-		return CMD_INVALID;
-	}
+	time_t TS = ServerCommand::ExtractTS(params[1]);
 
 	const std::string& channel = params[0];
 	Channel* chan = ServerInstance->FindChan(channel);

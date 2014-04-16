@@ -24,13 +24,7 @@
 /** FMODE command - server mode with timestamp checks */
 CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 {
-	time_t TS = ConvToInt(params[1]);
-	if (!TS)
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "*** BUG? *** TS of 0 sent to FMODE. Are some services authors smoking craq, or is it 1970 again?. Dropping link.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FMODE with a TS of zero. Total craq, dropping link.", who->server->GetName().c_str());
-		return CMD_INVALID;
-	}
+	time_t TS = ServerCommand::ExtractTS(params[1]);
 
 	/* Extract the TS value of the object, either User or Channel */
 	time_t ourTS;

@@ -40,6 +40,15 @@ class ServerCommand : public CommandBase
 
 	virtual CmdResult Handle(User* user, std::vector<std::string>& parameters) = 0;
 	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+
+	/**
+	 * Extract the TS from a string.
+	 * @param tsstr The string containing the TS.
+	 * @return The raw timestamp value.
+	 * This function throws a ProtocolException if it considers the TS invalid. Note that the detection of
+	 * invalid timestamps is not designed to be bulletproof, only some cases - like "0" - trigger an exception.
+	 */
+	static time_t ExtractTS(const std::string& tsstr);
 };
 
 /** Base class for server-to-server command handlers which are only valid if their source is a user.
