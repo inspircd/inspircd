@@ -22,6 +22,15 @@
 #include "utils.h"
 #include "treeserver.h"
 
+class ProtocolException : public ModuleException
+{
+ public:
+	ProtocolException(const std::string& msg)
+		: ModuleException("Protocol violation: " + msg)
+	{
+	}
+};
+
 /** Base class for server-to-server commands that may have a (remote) user source or server source.
  */
 class ServerCommand : public CommandBase
@@ -47,7 +56,7 @@ class UserOnlyServerCommand : public ServerCommand
 	{
 		RemoteUser* remoteuser = IS_REMOTE(user);
 		if (!remoteuser)
-			return CMD_INVALID;
+			throw ProtocolException("Invalid source");
 		return static_cast<T*>(this)->HandleRemote(remoteuser, parameters);
 	}
 };
@@ -65,7 +74,7 @@ class ServerOnlyServerCommand : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& parameters)
 	{
 		if (!IS_SERVER(user))
-			return CMD_INVALID;
+			throw ProtocolException("Invalid source");
 		TreeServer* server = TreeServer::Get(user);
 		return static_cast<T*>(this)->HandleServer(server, parameters);
 	}

@@ -35,7 +35,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 		// Channel METADATA has an additional parameter: the channel TS
 		// :22D METADATA #channel 12345 extname :extdata
 		if (params.size() < 3)
-			return CMD_INVALID;
+			throw ProtocolException("Insufficient parameters for channel METADATA");
 
 		Channel* c = ServerInstance->FindChan(params[0]);
 		if (!c)

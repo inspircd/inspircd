@@ -38,14 +38,14 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 
 	/* Is this a valid UID, and not misrouted? */
 	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].substr(0, 3) != remoteserver->GetID())
-		return CMD_INVALID;
+		throw ProtocolException("Bogus UUID");
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (!age_t)
 		return CMD_INVALID;
 	if (!signon)
 		return CMD_INVALID;
 	if (modestr[0] != '+')
-		return CMD_INVALID;
+		throw ProtocolException("Invalid mode string");
 
 	/* check for collision */
 	User* collideswith = ServerInstance->FindNickOnly(params[2]);
@@ -66,17 +66,10 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 
 	/* IMPORTANT NOTE: For remote users, we pass the UUID in the constructor. This automatically
 	 * sets it up in the UUID hash for us.
+	 *
+	 * If the UUID already exists User::User() throws an exception which causes this connection to be closed.
 	 */
-	User* _new = NULL;
-	try
-	{
-		_new = new RemoteUser(params[0], remoteserver);
-	}
-	catch (...)
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Duplicate UUID %s in client introduction", params[0].c_str());
-		return CMD_INVALID;
-	}
+	RemoteUser* _new = new RemoteUser(params[0], remoteserver);
 	ServerInstance->Users->clientlist[params[2]] = _new;
 	_new->nick = params[2];
 	_new->host = params[3];
@@ -98,15 +91,12 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 		/* For each mode thats set, find the mode handler and set it on the new user */
 		ModeHandler* mh = ServerInstance->Modes->FindMode(*v, MODETYPE_USER);
 		if (!mh)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Unrecognised mode '%c' for a user in UID, dropping link", *v);
-			return CMD_INVALID;
-		}
+			throw ProtocolException("Unrecognised mode '" + std::string(1, *v) + "'");
 
 		if (mh->GetNumParams(true))
 		{
 			if (paramptr >= params.size() - 1)
-				return CMD_INVALID;
+				throw ProtocolException("Out of parameters while processing modes");
 			std::string mp = params[paramptr++];
 			/* IMPORTANT NOTE:
 			 * All modes are assumed to succeed here as they are being set by a remote server.

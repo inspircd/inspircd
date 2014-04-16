@@ -33,7 +33,7 @@
 CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& params)
 {
 	if ((isdigit(params[0][0])) && (params[0] != user->uuid))
-		return CMD_INVALID;
+		throw ProtocolException("Attempted to change nick to an invalid or non-matching UUID");
 
 	/* Update timestamp on user when they change nicks */
 	const time_t newts = ConvToInt(params[1]);

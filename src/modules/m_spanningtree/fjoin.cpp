@@ -157,8 +157,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	irc::modestacker* modestackptr = (apply_other_sides_modes ? &modestack : NULL);
 	while (users.GetToken(item))
 	{
-		if (!ProcessModeUUIDPair(item, src_socket, chan, modestackptr))
-			return CMD_INVALID;
+		ProcessModeUUIDPair(item, src_socket, chan, modestackptr);
 	}
 
 	/* Flush mode stacker if we lost the FJOIN or had equal TS */
@@ -168,7 +167,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack)
+void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack)
 {
 	std::string::size_type comma = item.find(',');
 
@@ -178,14 +177,14 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 	if (!who)
 	{
 		// Probably KILLed, ignore
-		return true;
+		return;
 	}
 
 	/* Check that the user's 'direction' is correct */
 	TreeServer* route_back_again = TreeServer::Get(who);
 	if (route_back_again->GetSocket() != src_socket)
 	{
-		return true;
+		return;
 	}
 
 	/* Check if the user received at least one mode */
@@ -196,10 +195,7 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 		for (std::string::const_iterator i = item.begin(); i != commait; ++i)
 		{
 			if (!ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL))
-			{
-				ServerInstance->SNO->WriteToSnoMask('d', "Unrecognised mode '%c' for a user in FJOIN, dropping link", *i);
-				return false;
-			}
+				throw ProtocolException("Unrecognised mode '" + std::string(1, *i) + "'");
 
 			/* Add any modes this user had to the mode stack */
 			modestack->Push(*i, who->nick);
@@ -207,7 +203,6 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 	}
 
 	chan->ForceJoin(who, NULL, route_back_again->bursting);
-	return true;
 }
 
 void CommandFJoin::RemoveStatus(Channel* c)

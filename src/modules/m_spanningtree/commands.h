@@ -130,7 +130,7 @@ class CommandFJoin : public ServerCommand
 	 * @param newname The new name of the channel; must be the same or a case change of the current name
 	 */
 	static void LowerTS(Channel* chan, time_t TS, const std::string& newname);
-	bool ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack);
+	void ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack);
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
 	CmdResult Handle(User* user, std::vector<std::string>& params);

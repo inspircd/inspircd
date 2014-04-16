@@ -313,21 +313,13 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 				return;
 			}
 
-			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Unrecognised S2S command :%s %s %s",
-				who->uuid.c_str(), command.c_str(), irc::stringjoiner(params).c_str());
-			SendError("Unrecognised command '" + command + "' -- possibly loaded mismatched modules");
-			return;
+			throw ProtocolException("Unknown command");
 		}
 		cmdbase = cmd;
 	}
 
 	if (params.size() < cmdbase->min_params)
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Insufficient parameters for S2S command :%s %s %s",
-			who->uuid.c_str(), command.c_str(), irc::stringjoiner(params).c_str());
-		SendError("Insufficient parameters for command '" + command + "'");
-		return;
-	}
+		throw ProtocolException("Insufficient parameters");
 
 	if ((!params.empty()) && (params.back().empty()) && (!cmdbase->allow_empty_last_param))
 	{
@@ -341,15 +333,13 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	if (scmd)
 		res = scmd->Handle(who, params);
 	else
-		res = cmd->Handle(params, who);
-
-	if (res == CMD_INVALID)
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Error handling S2S command :%s %s %s",
-			who->uuid.c_str(), command.c_str(), irc::stringjoiner(params).c_str());
-		SendError("Error handling '" + command + "' -- possibly loaded mismatched modules");
+		res = cmd->Handle(params, who);
+		if (res == CMD_INVALID)
+			throw ProtocolException("Error in command handler");
 	}
-	else if (res == CMD_SUCCESS)
+
+	if (res == CMD_SUCCESS)
 		Utils->RouteCommand(route_back_again, cmdbase, params, who);
 }
 

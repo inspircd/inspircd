@@ -251,7 +251,18 @@ void TreeSocket::OnDataReady()
 			SendError("Read null character from socket");
 			break;
 		}
-		ProcessLine(line);
+
+		try
+		{
+			ProcessLine(line);
+		}
+		catch (CoreException& ex)
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error while processing: " + line);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason());
+			SendError(ex.GetReason() + " - check the log file for details");
+		}
+
 		if (!getError().empty())
 			break;
 	}

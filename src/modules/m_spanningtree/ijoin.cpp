@@ -48,10 +48,7 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>&
 		}
 
 		if (RemoteTS < chan->age)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Attempted to lower TS via IJOIN. Channel=" + params[0] + " RemoteTS=" + params[1] + " LocalTS=" + ConvToStr(chan->age));
-			return CMD_INVALID;
-		}
+			throw ProtocolException("Attempted to lower TS via IJOIN. LocalTS=" + ConvToStr(chan->age));
 		apply_modes = ((params.size() > 2) && (RemoteTS == chan->age));
 	}
 	else
@@ -73,10 +70,7 @@ CmdResult CommandResync::HandleServer(TreeServer* server, std::vector<std::strin
 	}
 
 	if (!server->IsLocal())
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received RESYNC with a source that is not directly connected: " + server->GetID());
-		return CMD_INVALID;
-	}
+		throw ProtocolException("RESYNC from a server that is not directly connected");
 
 	// Send all known information about the channel
 	server->GetSocket()->SyncChannel(chan);

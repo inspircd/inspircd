@@ -50,7 +50,7 @@ CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 			return CMD_FAILURE;
 
 		if (IS_SERVER(user))
-			return CMD_INVALID;
+			throw ProtocolException("Invalid target");
 
 		ourTS = user->age;
 	}
