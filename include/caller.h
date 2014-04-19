@@ -136,7 +136,7 @@ template <typename ReturnType> class CoreExport caller0 : public caller< Handler
 	: caller< HandlerBase0<ReturnType> >::caller(initial)
 	{ }
 
-	virtual ReturnType operator() ()
+	ReturnType operator() ()
 	{
 		return this->target->Call();
 	}
@@ -149,7 +149,7 @@ template <typename ReturnType, typename Param1> class CoreExport caller1 : publi
 	: caller< HandlerBase1<ReturnType, Param1> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1)
+	ReturnType operator() (Param1 param1)
 	{
 		return this->target->Call(param1);
 	}
@@ -162,7 +162,7 @@ template <typename ReturnType, typename Param1, typename Param2> class CoreExpor
 	: caller< HandlerBase2<ReturnType, Param1, Param2> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1, Param2 param2)
+	ReturnType operator() (Param1 param1, Param2 param2)
 	{
 		return this->target->Call(param1, param2);
 	}
@@ -175,7 +175,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	: caller< HandlerBase3<ReturnType, Param1, Param2, Param3> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1, Param2 param2, Param3 param3)
+	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3)
 	{
 		return this->target->Call(param1, param2, param3);
 	}
@@ -188,7 +188,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	: caller< HandlerBase4<ReturnType, Param1, Param2, Param3, Param4> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4)
+	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4)
 	{
 		return this->target->Call(param1, param2, param3, param4);
 	}
@@ -201,7 +201,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	: caller< HandlerBase5<ReturnType, Param1, Param2, Param3, Param4, Param5> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5)
+	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5)
 	{
 		return this->target->Call(param1, param2, param3, param4, param5);
 	}
@@ -214,7 +214,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	: caller< HandlerBase6<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6)
+	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6)
 	{
 		return this->target->Call(param1, param2, param3, param4, param5, param6);
 	}
@@ -227,7 +227,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	: caller< HandlerBase7<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6, Param7 param7)
+	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6, Param7 param7)
 	{
 		return this->target->Call(param1, param2, param3, param4, param5, param6, param7);
 	}
@@ -240,7 +240,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	: caller< HandlerBase8<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8> >(initial)
 	{ }
 
-	virtual ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6, Param7 param7, Param8 param8)
+	ReturnType operator() (Param1 param1, Param2 param2, Param3 param3, Param4 param4, Param5 param5, Param6 param6, Param7 param7, Param8 param8)
 	{
 		return this->target->Call(param1, param2, param3, param4, param5, param6, param7, param8);
 	}
