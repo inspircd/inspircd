@@ -34,12 +34,14 @@ sub make_gnutls_cert()
 {
 	open (FH, ">certtool.template");
 	my $timestr = time();
-	my $org = promptstring_s("Please enter the organization name", "My IRC Network");
-	my $unit = promptstring_s("Please enter the unit Name", "Server Admins");
-	my $state = promptstring_s("Please enter your state (two letter code)", "CA");
-	my $country = promptstring_s("Please enter your country", "Oompa Loompa Land");
-	my $commonname = promptstring_s("Please enter the certificate common name (hostname)", "irc.mynetwork.com");
-	my $email = promptstring_s("Please enter a contact email address", "oompa\@loompa.com");
+	my $commonname = promptstring_s('What is the hostname of your server?', 'irc.example.com');
+	my $email = promptstring_s('What email address can you be contacted at?', 'example@example.com');
+	my $unit = promptstring_s('What is the name of your unit?', 'Server Admins');
+	my $org = promptstring_s('What is the name of your organization?', 'Example IRC Network');
+	my $city = promptstring_s('What city are you located in?', 'Example City');
+	my $state = promptstring_s('What state are you located in?', 'Example State');
+	my $country = promptstring_s('What is the ISO 3166-1 code for the country you are located in?', 'XZ');
+	my $days = promptstring_s('How many days do you want your certificate to be valid for?', '365');
 	print FH <<__END__;
 # X.509 Certificate options
 #
@@ -52,13 +54,13 @@ organization = "$org"
 unit = "$unit"
 
 # The locality of the subject.
-# locality =
+locality = "$city"
 
 # The state of the certificate owner.
 state = "$state"
 
 # The country of the subject. Two letter code.
-country = $country
+country = "$country"
 
 # The common name of the certificate owner.
 cn = "$commonname"
@@ -80,7 +82,7 @@ cn = "$commonname"
 serial = $timestr
 
 # In how many days, counting from today, this certificate will expire.
-expiration_days = 700
+expiration_days = $days
 
 # X.509 v3 extensions
 

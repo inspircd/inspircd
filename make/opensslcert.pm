@@ -33,13 +33,14 @@ our @EXPORT = qw(make_openssl_cert);
 sub make_openssl_cert()
 {
 	open (FH, ">openssl.template");
-	my $org = promptstring_s("Please enter the organization name", "My IRC Network");
-	my $unit = promptstring_s("Please enter the unit Name", "Server Admins");
-	my $country = promptstring_s("Please enter your country (two letter code)", "US");
-	my $state = promptstring_s("Please enter your state or locality name", "Alaska");
-	my $city = promptstring_s("Please enter your city", "Factory Town");
-	my $email = promptstring_s("Please enter a contact email address", "oompa\@loompa.com");
-	my $commonname = promptstring_s("Please enter the common name (domain name) of the irc server", "example.inspircd.org");
+	my $commonname = promptstring_s('What is the hostname of your server?', 'irc.example.com');
+	my $email = promptstring_s('What email address can you be contacted at?', 'example@example.com');
+	my $unit = promptstring_s('What is the name of your unit?', 'Server Admins');
+	my $org = promptstring_s('What is the name of your organization?', 'Example IRC Network');
+	my $city = promptstring_s('What city are you located in?', 'Example City');
+	my $state = promptstring_s('What state are you located in?', 'Example State');
+	my $country = promptstring_s('What is the ISO 3166-1 code for the country you are located in?', 'XZ');
+	my $time = promptstring_s('How many days do you want your certificate to be valid for?', '365');
 	print FH <<__END__;
 $country
 $state
@@ -50,9 +51,6 @@ $commonname
 $email
 __END__
 close(FH);
-
-my $time = promptstring_s("Please enter the number of days that this certificate is valid for","365");
-
 system("cat openssl.template | openssl req -x509 -nodes -newkey rsa:1024 -keyout key.pem -out cert.pem -days $time 2>/dev/null");
 system("openssl dhparam -out dhparams.pem 1024");
 unlink("openssl.template");
