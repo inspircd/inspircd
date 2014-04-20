@@ -1041,10 +1041,9 @@ class CoreExport Module : public classbase, public usecountbase
 #endif
 
 	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
-	 * For example NAMESX, channel mode +u and +I, and UHNAMES. If the nick is set to an empty string by any
-	 * module, then this will cause the nickname not to be displayed at all.
+	 * For example NAMESX, channel mode +u and +I, and UHNAMES.
 	 */
-	virtual void OnNamesListItem(User* issuer, Membership* item, std::string &prefixes, std::string &nick);
+	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
 	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
 

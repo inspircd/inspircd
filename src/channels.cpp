@@ -653,10 +653,11 @@ void Channel::UserList(User* user, bool has_user)
 			prefixlist.push_back(prefix);
 		nick = i->first->nick;
 
-		FOREACH_MOD(OnNamesListItem, (user, memb, prefixlist, nick));
+		ModResult res;
+		FIRST_MOD_RESULT(OnNamesListItem, res, (user, memb, prefixlist, nick));
 
-		/* Nick was nuked, a module wants us to skip it */
-		if (nick.empty())
+		// See if a module wants us to exclude this user from NAMES
+		if (res == MOD_RES_DENY)
 			continue;
 
 		if (list.size() + prefixlist.length() + nick.length() + 1 > maxlen)
