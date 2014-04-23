@@ -649,6 +649,7 @@ void Channel::UserList(User *user)
 	bool has_user = this->HasUser(user);
 
 	std::string prefixlist;
+	char prefix;
 	std::string nick;
 	for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
 	{
@@ -664,7 +665,7 @@ void Channel::UserList(User *user)
 		Membership* memb = i->second;
 
 		prefixlist.clear();
-		prefixlist.push_back(memb->GetPrefixChar());
+		if ((prefix = memb->GetPrefixChar())) prefixlist.push_back(prefix);
 		nick = i->first->nick;
 
 		FOREACH_MOD(OnNamesListItem, (user, memb, prefixlist, nick));
