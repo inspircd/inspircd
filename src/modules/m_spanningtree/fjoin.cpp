@@ -66,7 +66,8 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 	bool created = !chan;						/* True if the channel doesnt exist here yet */
 	std::string item;						/* One item in the list of nicks */
 
-	TreeSocket* src_socket = Utils->FindServer(srcuser->server)->GetRoute()->GetSocket();
+	TreeServer* src_server = Utils->FindServer(srcuser->server);
+	TreeSocket* src_socket = src_server->GetRoute()->GetSocket();
 
 	if (!TS)
 	{
@@ -196,7 +197,7 @@ CmdResult CommandFJoin::Handle(const std::vector<std::string>& params, User *src
 				for (std::string::iterator x = modes.begin(); x != modes.end(); ++x)
 					modestack.Push(*x, who->nick);
 
-				Channel::JoinUser(who, channel.c_str(), true, "", route_back_again->bursting, TS);
+				Channel::JoinUser(who, channel.c_str(), true, "", src_server->bursting, TS);
 			}
 			else
 			{
