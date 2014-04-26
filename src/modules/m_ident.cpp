@@ -296,7 +296,7 @@ class ModuleIdent : public Module
 
 		try
 		{
-			IdentRequestSocket *isock = new IdentRequestSocket(IS_LOCAL(user));
+			IdentRequestSocket *isock = new IdentRequestSocket(user);
 			ext.set(user, isock);
 		}
 		catch (ModuleException &e)
