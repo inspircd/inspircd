@@ -294,6 +294,7 @@ public:
 
 		std::string* webirc_hostname = cmd.webirc_hostname.get(user);
 		user->host = user->dhost = (webirc_hostname ? *webirc_hostname : user->GetIPString());
+		user->InvalidateCache();
 
 		RecheckClass(user);
 		if (user->quitting)
