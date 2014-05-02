@@ -45,10 +45,7 @@ void FileLogStream::OnLog(LogLevel loglevel, const std::string &type, const std:
 
 	if (ServerInstance->Time() != LAST)
 	{
-		time_t local = ServerInstance->Time();
-		struct tm *timeinfo = localtime(&local);
-
-		TIMESTR.assign(asctime(timeinfo), 24);
+		TIMESTR = InspIRCd::TimeString(ServerInstance->Time());
 		LAST = ServerInstance->Time();
 	}
 

@@ -662,8 +662,11 @@ class CoreExport InspIRCd
 	void Cleanup();
 
 	/** Return a time_t as a human-readable string.
+	 * @param format The format to retrieve the date/time in. See `man 3 strftime`
+	 * for more information. If NULL, "%a %b %d %T %Y" is assumed.
+	 * @return A string representing the given date/time.
 	 */
-	static std::string TimeString(time_t curtime);
+	static std::string TimeString(time_t curtime, const char* format = NULL);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
