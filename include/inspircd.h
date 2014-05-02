@@ -642,7 +642,7 @@ class CoreExport InspIRCd
 
 	/** Return a time_t as a human-readable string.
 	 */
-	static std::string TimeString(time_t curtime);
+	static std::string TimeString(time_t curtime, const char* format = NULL);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
