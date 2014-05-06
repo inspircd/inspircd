@@ -785,8 +785,6 @@ void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
 Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 {
 	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find chan=%s user=%s check_expired=%d", c ? c->name.c_str() : "NULL", u ? u->uuid.c_str() : "NULL", check_expired);
-	if (!u || u->invites.empty())
-		return NULL;
 
 	Invitation* result = NULL;
 	for (InviteList::iterator i = u->invites.begin(); i != u->invites.end(); )
