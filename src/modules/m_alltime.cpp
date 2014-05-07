@@ -31,7 +31,7 @@ class CommandAlltime : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *user)
 	{
-		const std::string fmtdate = InspIRCd::TimeString(ServerInstance->Time(), "%Y-%m-%d %H:%M:%S");
+		const std::string fmtdate = ServerInstance->TimeStr("%Y-%m-%d %H:%M:%S");
 
 		std::string msg = ":" + ServerInstance->Config->ServerName + " NOTICE " + user->nick + " :System time is " + fmtdate + " (" + ConvToStr(ServerInstance->Time()) + ") on " + ServerInstance->Config->ServerName;
 
