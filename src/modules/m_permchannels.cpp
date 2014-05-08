@@ -156,12 +156,7 @@ static bool WriteDatabase(Module* mod, bool save_listmodes)
 	}
 
 #ifdef _WIN32
-	if (remove(permchannelsconf.c_str()))
-	{
-		ServerInstance->Logs->Log("m_permchannels",DEFAULT, "permchannels: Cannot remove old database! %s (%d)", strerror(errno), errno);
-		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
-		return false;
-	}
+	remove(permchannelsconf.c_str());
 #endif
 	// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 	if (rename(tempname.c_str(), permchannelsconf.c_str()) < 0)
