@@ -45,7 +45,7 @@ for(my $i = 0; $i <= $maxparams; $i++)
 
 # And now the caller family
 
-print "template <typename HandlerType> class CoreExport caller\n";
+print "template <typename HandlerType> class caller\n";
 print "{\n";
 print " public:\n";
 print "	HandlerType* target;\n\n";
@@ -72,13 +72,13 @@ for(my $i = 0; $i <= $maxparams; $i++)
 	my @templatetypepairs = map { $_ . " " . lc($_) }  @templatetypes;
 	my @lctemplatetypes = map(lc, @templatetypes);
 	
-	print "template <typename " . join(', typename ', @templatetypes) . "> class CoreExport caller" . $i . " : public caller< " . $handlertype . " >\n";
+	print "template <typename " . join(', typename ', @templatetypes) . "> class caller" . $i . " : public caller< " . $handlertype . " >\n";
 	print "{\n";
 	print " public:\n";
 	print "	caller" . $i . "(" . $handlertype . "* initial)\n";
 	print "	: caller< " . $handlertype. " >::caller(initial)\n";
 	print "	{ }\n\n";
-	print "	virtual ReturnType operator() (" . join(', ', @templatetypepairs[1..$#templatetypepairs]) . ")\n";
+	print "	ReturnType operator() (" . join(', ', @templatetypepairs[1..$#templatetypepairs]) . ")\n";
 	print "	{\n";
 	print "		return this->target->Call(" . join(', ', @lctemplatetypes[1..$#lctemplatetypes]) . ");\n";
 	print "	}\n";

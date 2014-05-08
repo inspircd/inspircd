@@ -117,7 +117,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	virtual ~HandlerBase8() { }
 };
 
-template <typename HandlerType> class CoreExport caller
+template <typename HandlerType> class caller
 {
  public:
 	HandlerType* target;
@@ -129,7 +129,7 @@ template <typename HandlerType> class CoreExport caller
 	virtual ~caller() { }
 };
 
-template <typename ReturnType> class CoreExport caller0 : public caller< HandlerBase0<ReturnType> >
+template <typename ReturnType> class caller0 : public caller< HandlerBase0<ReturnType> >
 {
  public:
 	caller0(HandlerBase0<ReturnType>* initial)
@@ -142,7 +142,7 @@ template <typename ReturnType> class CoreExport caller0 : public caller< Handler
 	}
 };
 
-template <typename ReturnType, typename Param1> class CoreExport caller1 : public caller< HandlerBase1<ReturnType, Param1> >
+template <typename ReturnType, typename Param1> class caller1 : public caller< HandlerBase1<ReturnType, Param1> >
 {
  public:
 	caller1(HandlerBase1<ReturnType, Param1>* initial)
@@ -155,7 +155,7 @@ template <typename ReturnType, typename Param1> class CoreExport caller1 : publi
 	}
 };
 
-template <typename ReturnType, typename Param1, typename Param2> class CoreExport caller2 : public caller< HandlerBase2<ReturnType, Param1, Param2> >
+template <typename ReturnType, typename Param1, typename Param2> class caller2 : public caller< HandlerBase2<ReturnType, Param1, Param2> >
 {
  public:
 	caller2(HandlerBase2<ReturnType, Param1, Param2>* initial)
@@ -168,7 +168,7 @@ template <typename ReturnType, typename Param1, typename Param2> class CoreExpor
 	}
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3> class CoreExport caller3 : public caller< HandlerBase3<ReturnType, Param1, Param2, Param3> >
+template <typename ReturnType, typename Param1, typename Param2, typename Param3> class caller3 : public caller< HandlerBase3<ReturnType, Param1, Param2, Param3> >
 {
  public:
 	caller3(HandlerBase3<ReturnType, Param1, Param2, Param3>* initial)
@@ -181,7 +181,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	}
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4> class CoreExport caller4 : public caller< HandlerBase4<ReturnType, Param1, Param2, Param3, Param4> >
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4> class caller4 : public caller< HandlerBase4<ReturnType, Param1, Param2, Param3, Param4> >
 {
  public:
 	caller4(HandlerBase4<ReturnType, Param1, Param2, Param3, Param4>* initial)
@@ -194,7 +194,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	}
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5> class CoreExport caller5 : public caller< HandlerBase5<ReturnType, Param1, Param2, Param3, Param4, Param5> >
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5> class caller5 : public caller< HandlerBase5<ReturnType, Param1, Param2, Param3, Param4, Param5> >
 {
  public:
 	caller5(HandlerBase5<ReturnType, Param1, Param2, Param3, Param4, Param5>* initial)
@@ -207,7 +207,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	}
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6> class CoreExport caller6 : public caller< HandlerBase6<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6> >
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6> class caller6 : public caller< HandlerBase6<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6> >
 {
  public:
 	caller6(HandlerBase6<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6>* initial)
@@ -220,7 +220,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	}
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7> class CoreExport caller7 : public caller< HandlerBase7<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7> >
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7> class caller7 : public caller< HandlerBase7<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7> >
 {
  public:
 	caller7(HandlerBase7<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7>* initial)
@@ -233,7 +233,7 @@ template <typename ReturnType, typename Param1, typename Param2, typename Param3
 	}
 };
 
-template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7, typename Param8> class CoreExport caller8 : public caller< HandlerBase8<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8> >
+template <typename ReturnType, typename Param1, typename Param2, typename Param3, typename Param4, typename Param5, typename Param6, typename Param7, typename Param8> class caller8 : public caller< HandlerBase8<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8> >
 {
  public:
 	caller8(HandlerBase8<ReturnType, Param1, Param2, Param3, Param4, Param5, Param6, Param7, Param8>* initial)
