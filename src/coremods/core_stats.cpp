@@ -62,7 +62,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
 				statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		results.push_back("481 " + user->nick + " :Permission denied - STATS " + statschar + " requires the servers/auspex priv.");
+		results.push_back("481 " + user->nick + " :Permission Denied - STATS " + statschar + " requires the servers/auspex priv.");
 		return;
 	}
 
