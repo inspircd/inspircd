@@ -78,6 +78,10 @@ class ModulePassForward : public Module
 		if (!user || user->password.empty())
 			return;
 
+		// If the connect class requires a password, don't forward it
+		if (!user->MyClass->config->getString("password").empty())
+			return;
+
 		if (!nickrequired.empty())
 		{
 			/* Check if nick exists and its server is ulined */
