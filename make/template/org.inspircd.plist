@@ -4,14 +4,14 @@
 <dict>
 	<key>Iterations</key>
 	<integer>3</integer>
+	<key>KeepAlive</key>
+	<true/>
 	<key>Label</key>
 	<string>org.inspircd</string>
 	<key>LowPriorityIO</key>
 	<true/>
 	<key>Nice</key>
 	<integer>1</integer>
-	<key>OnDemand</key>
-	<false/>
 	<key>Program</key>
 	<string>@BINARY_DIR@/inspircd</string>
 	<key>ProgramArguments</key>
