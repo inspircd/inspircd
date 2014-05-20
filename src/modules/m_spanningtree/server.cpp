@@ -176,7 +176,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		return true;
 	}
 
-	this->SendError("Invalid credentials (check the other server's log (or set umode +s +Ll) for details");
+	this->SendError("Invalid credentials (check the other server's log (or set umode +s +Ll) for details)");
 	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
