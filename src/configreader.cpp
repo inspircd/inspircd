@@ -406,10 +406,10 @@ void ServerConfig::Fill()
 	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
 	Limits.MaxLine = ConfValue("limits")->getInt("maxline", 512);
-	Paths.Config = ConfValue("path")->getString("configdir", CONFIG_PATH);
-	Paths.Data = ConfValue("path")->getString("datadir", DATA_PATH);
-	Paths.Log = ConfValue("path")->getString("logdir", LOG_PATH);
-	Paths.Module = ConfValue("path")->getString("moduledir", MOD_PATH);
+	Paths.Config = ConfValue("path")->getString("configdir", INSPIRCD_CONFIG_PATH);
+	Paths.Data = ConfValue("path")->getString("datadir", INSPIRCD_DATA_PATH);
+	Paths.Log = ConfValue("path")->getString("logdir", INSPIRCD_LOG_PATH);
+	Paths.Module = ConfValue("path")->getString("moduledir", INSPIRCD_MODULE_PATH);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 

@@ -236,7 +236,7 @@ void InspIRCd::WritePID(const std::string &filename)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv) :
-	 ConfigFileName(CONFIG_PATH "/inspircd.conf"),
+	 ConfigFileName(INSPIRCD_CONFIG_PATH "/inspircd.conf"),
 
 	 /* Functor pointer initialisation.
 	  *
@@ -369,7 +369,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (do_version)
 	{
-		std::cout << std::endl << VERSION << " " << REVISION << std::endl;
+		std::cout << std::endl << INSPIRCD_VERSION << " " << INSPIRCD_REVISION << std::endl;
 		Exit(EXIT_STATUS_NOERROR);
 	}
 

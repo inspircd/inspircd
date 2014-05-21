@@ -216,10 +216,10 @@ class CoreExport ServerConfig
 		std::string Module;
 
 		ServerPaths()
-			: Config(CONFIG_PATH)
-			, Data(DATA_PATH)
-			, Log(LOG_PATH)
-			, Module(MOD_PATH) { }
+			: Config(INSPIRCD_CONFIG_PATH)
+			, Data(INSPIRCD_DATA_PATH)
+			, Log(INSPIRCD_LOG_PATH)
+			, Module(INSPIRCD_MODULE_PATH) { }
 
 		std::string PrependConfig(const std::string& fn) const { return FileSystem::ExpandPath(Config, fn); }
 		std::string PrependData(const std::string& fn) const { return FileSystem::ExpandPath(Data, fn); }
