@@ -191,7 +191,7 @@ class HttpServerSocket : public BufferedSocket
 		date[strlen(date) - 1] = '\0';
 		rheaders.CreateHeader("Date", date);
 
-		rheaders.CreateHeader("Server", BRANCH);
+		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
 
 		if (size)

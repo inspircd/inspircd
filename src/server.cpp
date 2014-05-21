@@ -68,8 +68,8 @@ void InspIRCd::Rehash(const std::string& uuid)
 std::string InspIRCd::GetVersionString(bool getFullVersion)
 {
 	if (getFullVersion)
-		return VERSION " " + Config->ServerName + " :" SYSTEM " [" REVISION "," INSPIRCD_SOCKETENGINE_NAME "," + Config->sid + "]";
-	return BRANCH " " + Config->ServerName + " :" + Config->CustomVersion;
+		return INSPIRCD_VERSION " " + Config->ServerName + " :" INSPIRCD_SYSTEM " [" INSPIRCD_REVISION "," INSPIRCD_SOCKETENGINE_NAME "," + Config->sid + "]";
+	return INSPIRCD_BRANCH " " + Config->ServerName + " :" + Config->CustomVersion;
 }
 
 std::string UIDGenerator::GenerateSID(const std::string& servername, const std::string& serverdesc)

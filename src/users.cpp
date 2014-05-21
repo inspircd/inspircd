@@ -558,11 +558,11 @@ void LocalUser::FullConnect()
 		return;
 
 	this->WriteNumeric(RPL_WELCOME, ":Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
-	this->WriteNumeric(RPL_YOURHOSTIS, ":Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), BRANCH);
+	this->WriteNumeric(RPL_YOURHOSTIS, ":Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH);
 	this->WriteNumeric(RPL_SERVERCREATED, ":This server was created %s %s", __TIME__, __DATE__);
 
 	const std::string& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
-	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s", ServerInstance->Config->ServerName.c_str(), BRANCH, modelist.c_str());
+	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH, modelist.c_str());
 
 	ServerInstance->ISupport.SendTo(this);
 
