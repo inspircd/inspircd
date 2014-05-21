@@ -103,6 +103,9 @@ namespace OpenSSL
 		Context(SSL_CTX* context)
 			: ctx(context)
 		{
+			// Sane default options for OpenSSL see https://www.openssl.org/docs/ssl/SSL_CTX_set_options.html
+			// and when choosing a cipher, use the server's preferences instead of the client preferences.
+			SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION | SSL_OP_CIPHER_SERVER_PREFERENCE);
 			SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 
