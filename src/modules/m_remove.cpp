@@ -45,19 +45,24 @@ class RemoveBase : public Command
 	{
 	}
 
-	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool neworder)
+	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user)
 	{
 		User* target;
 		Channel* channel;
 		std::string reason;
+		std::string chancheck = parameters[0];
+		std::string usercheck = parameters[1];
 
-		/* Set these to the parameters needed, the new version of this module switches it's parameters around
-		 * supplying a new command with the new order while keeping the old /remove with the older order.
-		 * /remove <nick> <channel> [reason ...]
-		 * /fpart <channel> <nick> [reason ...]
-		 */
-		const std::string& channame = parameters[neworder ? 0 : 1];
-		const std::string& username = parameters[neworder ? 1 : 0];
+		/* If they used the wrong syntax then we need to swap
+		our variables around to point at the other parameter. */
+		if (ServerInstance->IsChannel(parameters[1]))
+		{
+			chancheck = parameters[1];
+			usercheck = parameters[0];
+		}
+
+		const std::string& channame = chancheck;
+		const std::string& username = usercheck;
 
 		/* Look up the user we're meant to be removing from the channel */
 		if (IS_LOCAL(user))
@@ -146,13 +151,13 @@ class CommandRemove : public RemoveBase
 	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
 		: RemoveBase(Creator, snk, nkm, "REMOVE")
 	{
-		syntax = "<nick> <channel> [<reason>]";
-		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
+		syntax = "<channel> <nick> [<reason>]";
+		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		return HandleRMB(parameters, user, false);
+		return HandleRMB(parameters, user);
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
@@ -178,7 +183,7 @@ class CommandFpart : public RemoveBase
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
-		return HandleRMB(parameters, user, true);
+		return HandleRMB(parameters, user);
 	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
@@ -217,7 +222,7 @@ class ModuleRemove : public Module
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Provides a /remove command, this is mostly an alternative to /kick, except makes users appear to have parted the channel", VF_OPTCOMMON | VF_VENDOR);
+		return Version("Provides the /remove and /fpart commands, this is mostly an alternative to /kick, except makes users appear to have parted the channel", VF_OPTCOMMON | VF_VENDOR);
 	}
 };
 
