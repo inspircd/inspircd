@@ -72,37 +72,18 @@ class Redirect : public ParamMode<Redirect, LocalStringExt>
 	}
 };
 
-/** Handles usermode +L to stop forced redirection and print an error.
-*/
-class AntiRedirect : public SimpleUserModeHandler
-{
-	public:
-		AntiRedirect(Module* Creator) : SimpleUserModeHandler(Creator, "antiredirect", 'L')
-		{
-			if (!ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect"))
-				DisableAutoRegister();
-		}
-};
-
 class ModuleRedirect : public Module
 {
 	Redirect re;
-	AntiRedirect re_u;
+	SimpleUserModeHandler antiredirectmode;
 	ChanModeReference limitmode;
-	bool UseUsermode;
 
  public:
 	ModuleRedirect()
 		: re(this)
-		, re_u(this)
+		, antiredirectmode(this, "antiredirect", 'L')
 		, limitmode(this, "limit")
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		/* Setting this here so it isn't changable by rehasing the config later. */
-		UseUsermode = ServerInstance->Config->ConfValue("redirect")->getBool("antiredirect");
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
@@ -122,9 +103,8 @@ class ModuleRedirect : public Module
 						user->WriteNumeric(470, cname, '*', "You may not join this channel. A redirect is set, but you may not be redirected as it is a circular loop.");
 						return MOD_RES_DENY;
 					}
-					/* We check the bool value here to make sure we have it enabled, if we don't then
-						usermode +L might be assigned to something else. */
-					if (UseUsermode && user->IsModeSet(re_u))
+
+					if (user->IsModeSet(antiredirectmode))
 					{
 						user->WriteNumeric(470, cname, channel, "Force redirection stopped.");
 						return MOD_RES_DENY;
