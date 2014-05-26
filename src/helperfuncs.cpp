@@ -478,7 +478,7 @@ ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::st
 		std::string::size_type pos = current.find(':');
 		if (pos == std::string::npos)
 			continue;
-		if (current.substr(0,pos) == restriction)
+		if (!current.compare(0, pos, restriction))
 			minmode = current[pos+1];
 	}
 

@@ -176,7 +176,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		for(ClassVector::iterator i = current->Classes.begin(); i != current->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
-			if (c->name.substr(0, 8) != "unnamed-")
+			if (c->name.compare(0, 8, "unnamed-", 8))
 			{
 				oldBlocksByMask["n" + c->name] = c;
 			}

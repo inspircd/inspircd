@@ -37,7 +37,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	const std::string& modestr = params[8];
 
 	/* Is this a valid UID, and not misrouted? */
-	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].substr(0, 3) != remoteserver->GetID())
+	if (params[0].length() != UIDGenerator::UUID_LENGTH || params[0].compare(0, 3, remoteserver->GetID()))
 		throw ProtocolException("Bogus UUID");
 	/* Check parameters for validity before introducing the client, discovered by dmb */
 	if (modestr[0] != '+')

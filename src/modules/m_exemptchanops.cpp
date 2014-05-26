@@ -83,7 +83,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 				std::string::size_type pos = (*i).mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				if ((*i).mask.substr(0,pos) == restriction)
+				if (!i->mask.compare(0, pos, restriction))
 					minmode = (*i).mask.substr(pos + 1);
 			}
 		}

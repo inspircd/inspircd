@@ -44,22 +44,22 @@ class ModulePassForward : public Module
 			char c = format[i];
 			if (c == '$')
 			{
-				if (format.substr(i, 13) == "$nickrequired")
+				if (!format.compare(i, 13, "$nickrequired", 13))
 				{
 					result.append(nickrequired);
 					i += 12;
 				}
-				else if (format.substr(i, 5) == "$nick")
+				else if (!format.compare(i, 5, "$nick", 5))
 				{
 					result.append(user->nick);
 					i += 4;
 				}
-				else if (format.substr(i, 5) == "$user")
+				else if (!format.compare(i, 5, "$user", 5))
 				{
 					result.append(user->ident);
 					i += 4;
 				}
-				else if (format.substr(i,5) == "$pass")
+				else if (!format.compare(i, 5, "$pass", 5))
 				{
 					result.append(user->password);
 					i += 4;

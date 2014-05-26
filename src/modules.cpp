@@ -611,7 +611,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
-			if ((item.name.substr(0, 5) == "mode/") || (item.name.substr(0, 6) == "umode/"))
+			if ((!item.name.compare(0, 5, "mode/", 5)) || (!item.name.compare(0, 6, "umode/", 6)))
 				throw ModuleException("The \"mode/\" and the \"umode\" service name prefixes are reserved.");
 
 			DataProviders.insert(std::make_pair(item.name, &item));

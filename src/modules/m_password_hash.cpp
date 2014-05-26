@@ -34,7 +34,7 @@ class CommandMkpasswd : public Command
 
 	void MakeHash(User* user, const std::string& algo, const std::string& stuff)
 	{
-		if (algo.substr(0,5) == "hmac-")
+		if (!algo.compare(0, 5, "hmac-", 5))
 		{
 			std::string type = algo.substr(5);
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
@@ -82,7 +82,7 @@ class ModuleOperHash : public Module
 
 	ModResult OnPassCompare(Extensible* ex, const std::string &data, const std::string &input, const std::string &hashtype) CXX11_OVERRIDE
 	{
-		if (hashtype.substr(0,5) == "hmac-")
+		if (!hashtype.compare(0, 5, "hmac-", 5))
 		{
 			std::string type = hashtype.substr(5);
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);

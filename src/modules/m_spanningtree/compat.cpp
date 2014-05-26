@@ -114,7 +114,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						// We're sending channel metadata
 						line.erase(c, d-c);
 					}
-					else if (line.substr(c, d-c) == " operquit")
+					else if (!line.compare(c, d-c, " operquit", 9))
 					{
 						// ":22D METADATA 22DAAAAAX operquit :message" -> ":22DAAAAAX OPERQUIT :message"
 						line = ":" + line.substr(b+1, c-b) + "OPERQUIT" + line.substr(d);
