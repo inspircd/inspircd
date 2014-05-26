@@ -25,7 +25,6 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #include "modules/ssl.h"
-#include "modules/cap.h"
 #include <memory>
 
 #if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 9) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 9 && GNUTLS_VERSION_PATCH >= 8))
