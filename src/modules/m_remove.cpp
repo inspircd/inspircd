@@ -30,22 +30,25 @@
  * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
 */
 
-/** Base class for /FPART and /REMOVE
+/** Handle /REMOVE
  */
-class RemoveBase : public Command
+class CommandRemove : public Command
 {
+ private:
 	bool& supportnokicks;
 	ChanModeReference& nokicksmode;
 
  public:
-	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
-		: Command(Creator, cmdn, 2, 3)
+	CommandRemove(Module* Creator, const char* Name, bool& snk, ChanModeReference& nkm)
+		: Command(Creator, Name, 2, 3)
 		, supportnokicks(snk)
 		, nokicksmode(nkm)
 	{
+		syntax = "<channel> <nick> [<reason>]";
+		TRANSLATE3(TR_NICK, TR_NICK, TR_TEXT);
 	}
 
-	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user)
+	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
 		User* target;
 		Channel* channel;
@@ -140,25 +143,6 @@ class RemoveBase : public Command
 
 		return CMD_SUCCESS;
 	}
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) = 0;
-};
-
-/** Handle /REMOVE
- */
-class CommandRemove : public RemoveBase
-{
- public:
-	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
-		: RemoveBase(Creator, snk, nkm, "REMOVE")
-	{
-		syntax = "<channel> <nick> [<reason>]";
-		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
-	}
-
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
-	{
-		return HandleRMB(parameters, user);
-	}
 
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
 	{
@@ -169,44 +153,18 @@ class CommandRemove : public RemoveBase
 	}
 };
 
-/** Handle /FPART
- */
-class CommandFpart : public RemoveBase
-{
- public:
-	CommandFpart(Module* Creator, bool& snk, ChanModeReference& nkm)
-		: RemoveBase(Creator, snk, nkm, "FPART")
-	{
-		syntax = "<channel> <nick> [<reason>]";
-		TRANSLATE3(TR_TEXT, TR_NICK, TR_TEXT);
-	}
-
-	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
-	{
-		return HandleRMB(parameters, user);
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		User* dest = ServerInstance->FindNick(parameters[1]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
-	}
-};
-
 class ModuleRemove : public Module
 {
 	ChanModeReference nokicksmode;
 	CommandRemove cmd1;
-	CommandFpart cmd2;
+	CommandRemove cmd2;
 	bool supportnokicks;
 
  public:
 	ModuleRemove()
 		: nokicksmode(this, "nokick")
-		, cmd1(this, supportnokicks, nokicksmode)
-		, cmd2(this, supportnokicks, nokicksmode)
+		, cmd1(this, "FPART", supportnokicks, nokicksmode)
+		, cmd2(this, "REMOVE", supportnokicks, nokicksmode)
 	{
 	}
 
