@@ -263,6 +263,12 @@ class IdentRequestSocket : public EventHandler
 			}
 		}
 	}
+
+	CullResult cull() CXX11_OVERRIDE
+	{
+		Close();
+		return EventHandler::cull();
+	}
 };
 
 class ModuleIdent : public Module
@@ -359,28 +365,6 @@ class ModuleIdent : public Module
 		if (myclass->config->getBool("requireident") && user->ident[0] == '~')
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnCleanup(int target_type, void *item) CXX11_OVERRIDE
-	{
-		/* Module unloading, tidy up users */
-		if (target_type == TYPE_USER)
-		{
-			LocalUser* user = IS_LOCAL((User*) item);
-			if (user)
-				OnUserDisconnect(user);
-		}
-	}
-
-	void OnUserDisconnect(LocalUser *user) CXX11_OVERRIDE
-	{
-		/* User disconnect (generic socket detatch event) */
-		IdentRequestSocket *isock = ext.get(user);
-		if (isock)
-		{
-			isock->Close();
-			ext.unset(user);
-		}
 	}
 };
 
