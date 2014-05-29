@@ -76,7 +76,7 @@ class CommandRemove : public Command
 
 		if (!channel->HasUser(target))
 		{
-			user->WriteServ( "NOTICE %s :*** The user %s is not on channel %s", user->nick.c_str(), target->nick.c_str(), channel->name.c_str());
+			user->WriteNotice("*** The user " + target->nick + " is not on channel " + channel->name);
 			return CMD_FAILURE;
 		}
 
@@ -115,7 +115,7 @@ class CommandRemove : public Command
 			}
 			else
 			{
-				user->WriteServ( "NOTICE %s :*** You do not have access to /remove %s from %s", user->nick.c_str(), target->nick.c_str(), channel->name.c_str());
+				user->WriteNotice("*** You do not have access to remove " + target->nick + " from " + channel->name);
 				return CMD_FAILURE;
 			}
 		}
