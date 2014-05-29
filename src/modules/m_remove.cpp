@@ -24,12 +24,6 @@
 
 #include "inspircd.h"
 
-/*
- * This module supports the use of the +q and +a usermodes, but should work without them too.
- * Usage of the command is restricted to +hoaq, and you cannot remove a user with a "higher" level than yourself.
- * eg: +h can remove +hv and users with no modes. +a can remove +aohv and users with no modes.
-*/
-
 /** Handle /REMOVE
  */
 class CommandRemove : public Command
@@ -87,9 +81,8 @@ class CommandRemove : public Command
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
 			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
-			 * Nobody may remove a founder.
 			 */
-			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && (tlevel != 50000)))
+			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel)))
 			{
 				// REMOVE/FPART will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
 				if (!IS_LOCAL(target))
