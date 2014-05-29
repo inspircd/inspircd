@@ -80,12 +80,6 @@ class CommandRemove : public Command
 			return CMD_FAILURE;
 		}
 
-		if (target->server->IsULine())
-		{
-			user->WriteNumeric(482, "%s :Only a u-line may remove a u-line from a channel.", channame.c_str());
-			return CMD_FAILURE;
-		}
-
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
 		if ((!IS_LOCAL(user)) || (!supportnokicks) || (!channel->IsModeSet(nokicksmode)))
 		{
