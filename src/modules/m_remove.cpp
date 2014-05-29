@@ -50,31 +50,22 @@ class CommandRemove : public Command
 
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user)
 	{
-		User* target;
-		Channel* channel;
-		std::string reason;
-		std::string chancheck = parameters[0];
-		std::string usercheck = parameters[1];
+		std::string channame = parameters[0];
+		std::string username = parameters[1];
 
-		/* If they used the wrong syntax then we need to swap
-		our variables around to point at the other parameter. */
+		// If the user specified the parameters the wrong way around then swap them.
 		if (ServerInstance->IsChannel(parameters[1]))
-		{
-			chancheck = parameters[1];
-			usercheck = parameters[0];
-		}
-
-		const std::string& channame = chancheck;
-		const std::string& username = usercheck;
+			std::swap(channame, username);
 
 		/* Look up the user we're meant to be removing from the channel */
+		User* target;
 		if (IS_LOCAL(user))
 			target = ServerInstance->FindNickOnly(username);
 		else
 			target = ServerInstance->FindNick(username);
 
 		/* And the channel we're meant to be removing them from */
-		channel = ServerInstance->FindChan(channame);
+		Channel* channel = ServerInstance->FindChan(channame);
 
 		/* Fix by brain - someone needs to learn to validate their input! */
 		if ((!target) || (target->registered != REG_ALL) || (!channel))
@@ -89,9 +80,6 @@ class CommandRemove : public Command
 			return CMD_FAILURE;
 		}
 
-		int ulevel = channel->GetPrefixValue(user);
-		int tlevel = channel->GetPrefixValue(target);
-
 		if (target->server->IsULine())
 		{
 			user->WriteNumeric(482, "%s :Only a u-line may remove a u-line from a channel.", channame.c_str());
@@ -101,6 +89,9 @@ class CommandRemove : public Command
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
 		if ((!IS_LOCAL(user)) || (!supportnokicks) || (!channel->IsModeSet(nokicksmode)))
 		{
+			int ulevel = channel->GetPrefixValue(user);
+			int tlevel = channel->GetPrefixValue(target);
+
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
 			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
@@ -121,7 +112,7 @@ class CommandRemove : public Command
 					reasonparam = "No reason given";
 
 				/* Build up the part reason string. */
-				reason = "Removed by " + user->nick + ": " + reasonparam;
+				std::string reason = "Removed by " + user->nick + ": " + reasonparam;
 
 				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s removed %s from the channel", channel->name.c_str(), user->nick.c_str(), target->nick.c_str());
 				target->WriteNotice("*** " + user->nick + " removed you from " + channel->name + " with the message: " + reasonparam);
