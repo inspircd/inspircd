@@ -35,14 +35,12 @@
 class CommandRemove : public Command
 {
  private:
-	bool& supportnokicks;
-	ChanModeReference& nokicksmode;
+	ChanModeReference nokicksmode;
 
  public:
-	CommandRemove(Module* Creator, const char* Name, bool& snk, ChanModeReference& nkm)
+	CommandRemove(Module* Creator, const char* Name)
 		: Command(Creator, Name, 2, 3)
-		, supportnokicks(snk)
-		, nokicksmode(nkm)
+		, nokicksmode(Creator, "nokick")
 	{
 		syntax = "<channel> <nick> [<reason>]";
 		TRANSLATE3(TR_NICK, TR_NICK, TR_TEXT);
@@ -81,7 +79,7 @@ class CommandRemove : public Command
 		}
 
 		/* We support the +Q channel mode via. the m_nokicks module, if the module is loaded and the mode is set then disallow the /remove */
-		if ((!IS_LOCAL(user)) || (!supportnokicks) || (!channel->IsModeSet(nokicksmode)))
+		if ((!IS_LOCAL(user)) || (!channel->IsModeSet(nokicksmode)))
 		{
 			int ulevel = channel->GetPrefixValue(user);
 			int tlevel = channel->GetPrefixValue(target);
@@ -140,27 +138,18 @@ class CommandRemove : public Command
 
 class ModuleRemove : public Module
 {
-	ChanModeReference nokicksmode;
 	CommandRemove cmd1;
 	CommandRemove cmd2;
-	bool supportnokicks;
 
  public:
 	ModuleRemove()
-		: nokicksmode(this, "nokick")
-		, cmd1(this, "FPART", supportnokicks, nokicksmode)
-		, cmd2(this, "REMOVE", supportnokicks, nokicksmode)
-	{
-	}
+		: cmd1(this, "FPART")
+		, cmd2(this, "REMOVE")
+		{ }
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["REMOVE"];
-	}
-
-	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
-	{
-		supportnokicks = ServerInstance->Config->ConfValue("remove")->getBool("supportnokicks");
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
