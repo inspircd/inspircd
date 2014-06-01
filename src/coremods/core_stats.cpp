@@ -320,7 +320,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				tag->init();
 				std::string umodes;
 				std::string cmodes;
-				for(char c='A'; c < 'z'; c++)
+				for(char c='A'; c <= 'z'; c++)
 				{
 					ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
 					if (mh && mh->NeedsOper() && tag->AllowedUserModes[c - 'A'])
