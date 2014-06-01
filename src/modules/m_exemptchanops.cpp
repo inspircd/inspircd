@@ -68,7 +68,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 	{
 		if (mid.length() == 1)
 			return ServerInstance->Modes->FindMode(mid[0], MODETYPE_CHANNEL);
-		for(char c='A'; c < 'z'; c++)
+		for(char c='A'; c <= 'z'; c++)
 		{
 			ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_CHANNEL);
 			if (mh && mh->name == mid)

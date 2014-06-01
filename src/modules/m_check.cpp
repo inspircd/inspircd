@@ -114,7 +114,7 @@ class CommandCheck : public Command
 				{
 					std::string umodes;
 					std::string cmodes;
-					for(char c='A'; c < 'z'; c++)
+					for(char c='A'; c <= 'z'; c++)
 					{
 						ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
 						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_USER))
