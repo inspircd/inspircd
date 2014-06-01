@@ -156,6 +156,15 @@ template<typename T> inline long ConvToInt(const T &in)
 	return atol(tmp.str().c_str());
 }
 
+inline uint64_t ConvToUInt64(const std::string& in)
+{
+	uint64_t ret;
+	std::istringstream tmp(in);
+	if (!(tmp >> ret))
+		return 0;
+	return ret;
+}
+
 /** This class contains various STATS counters
  * It is used by the InspIRCd class, which internally
  * has an instance of it.
