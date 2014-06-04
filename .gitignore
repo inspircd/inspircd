@@ -9,6 +9,7 @@
 /GNUmakefile
 /build
 /inspircd
+/inspircd.service
 /org.inspircd.plist
 /run
 /bin
