@@ -235,6 +235,9 @@ install: target
 @IFEQ $(SYSTEM) darwin
 	-$(INSTALL) -m $(INSTMODE_BIN) org.inspircd.plist $(BASE) 2>/dev/null
 @ENDIF
+@IFEQ $(SYSTEM) linux
+	-$(INSTALL) -m $(INSTMODE_LIB) inspircd.service $(BASE) 2>/dev/null
+@ENDIF
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
