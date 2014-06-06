@@ -297,6 +297,20 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	{
 		return false;
 	}
+	else if (cmd == "ENCAP" && params.size() >= 3)
+	{
+		// Rewrite FPART and REMOVE arguments to the 2.0 order.
+		if (params[0] == "FPART" && params[1][0] != '#')
+		{
+			// Rewrite to :<UUID> ENCAP <TARGET> FPART <CHAN> <NICK> :<REASON>
+			std::swap(params[1], params[2]);
+		}
+		else if (params[0] == "REMOVE" && params[1][0] == '#')
+		{
+			// Rewrite to :<UUID> ENCAP <TARGET> REMOVE <NICK> <CHAN> :<REASON>
+			std::swap(params[1], params[2]);
+		}
+	}
 
 	return true; // Passthru
 }
