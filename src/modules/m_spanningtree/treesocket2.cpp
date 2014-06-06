@@ -445,6 +445,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		 * On nick messages, check that the nick doesnt already exist here.
 		 * If it does, perform collision logic.
 		 */
+		bool callfnc = true;
 		User* x = ServerInstance->FindNickOnly(params[0]);
 		if ((x) && (x != who))
 		{
@@ -453,15 +454,14 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 			collideret = this->DoCollision(x, who->age, who->ident, who->GetIPString(), who->uuid);
 			if (collideret != 1)
 			{
-				/*
-				 * Remote client lost, or both lost, parsing or passing on this
-				 * nickchange would be pointless, as the incoming client's server will
-				 * soon recieve SVSNICK to change its nick to its UID. :) -- w00t
-				 */
-				return;
+				// Remote client lost, or both lost, rewrite this nick change as a change to uuid before
+				// forwarding and don't call ForceNickChange() because DoCollision() has done it already
+				params[0] = who->uuid;
+				callfnc = false;
 			}
 		}
-		who->ForceNickChange(params[0].c_str());
+		if (callfnc)
+			who->ForceNickChange(params[0].c_str());
 		Utils->RouteCommand(route_back_again, command, params, who);
 	}
 	else
