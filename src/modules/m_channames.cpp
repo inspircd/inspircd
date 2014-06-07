@@ -65,17 +65,15 @@ class ModuleChannelNames : public Module
 	void ValidateChans()
 	{
 		badchan = true;
-		std::vector<Channel*> chanvec;
 		const chan_hash& chans = ServerInstance->GetChans();
-		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); )
 		{
-			if (!ServerInstance->IsChannel(i->second->name))
-				chanvec.push_back(i->second);
-		}
-		std::vector<Channel*>::reverse_iterator c2 = chanvec.rbegin();
-		while (c2 != chanvec.rend())
-		{
-			Channel* c = *c2++;
+			Channel* c = i->second;
+			// Move iterator before we begin kicking
+			++i;
+			if (ServerInstance->IsChannel(c->name))
+				continue; // The name of this channel is still valid
+
 			if (c->IsModeSet(permchannelmode) && c->GetUserCounter())
 			{
 				std::vector<std::string> modes;
