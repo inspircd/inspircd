@@ -44,8 +44,6 @@
 # pragma comment(lib, "libgcc.lib")
 # pragma comment(lib, "libmingwex.lib")
 # pragma comment(lib, "gdi32.lib")
-# undef MAX_DESCRIPTORS
-# define MAX_DESCRIPTORS 10000
 #endif
 
 /* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") -Wno-pedantic */
