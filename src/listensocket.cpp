@@ -125,25 +125,6 @@ void ListenSocket::AcceptInternal()
 		irc::sockets::aptosa(bind_addr, bind_port, server);
 	}
 
-	/*
-	 * XXX -
-	 * this is done as a safety check to keep the file descriptors within range of fd_ref_table.
-	 * its a pretty big but for the moment valid assumption:
-	 * file descriptors are handed out starting at 0, and are recycled as theyre freed.
-	 * therefore if there is ever an fd over 65535, 65536 clients must be connected to the
-	 * irc server at once (or the irc server otherwise initiating this many connections, files etc)
-	 * which for the time being is a physical impossibility (even the largest networks dont have more
-	 * than about 10,000 users on ONE server!)
-	 */
-	if (incomingSockfd >= SocketEngine::GetMaxFds())
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Server is full");
-		SocketEngine::Shutdown(incomingSockfd, 2);
-		SocketEngine::Close(incomingSockfd);
-		ServerInstance->stats->statsRefused++;
-		return;
-	}
-
 	if (client.sa.sa_family == AF_INET6)
 	{
 		/*

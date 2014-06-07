@@ -136,7 +136,7 @@ bool SocketEngine::BoundsCheckFd(EventHandler* eh)
 {
 	if (!eh)
 		return false;
-	if ((eh->GetFd() < 0) || (eh->GetFd() > GetMaxFds()))
+	if (eh->GetFd() < 0)
 		return false;
 	return true;
 }

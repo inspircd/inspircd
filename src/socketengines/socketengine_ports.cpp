@@ -95,7 +95,7 @@ static int mask_to_events(int event_mask)
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return false;
 
 	if (!SocketEngine::AddFdRef(eh))
@@ -119,7 +119,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return;
 
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);

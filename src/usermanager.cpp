@@ -77,7 +77,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	this->local_users.push_front(New);
 
-	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)SocketEngine::GetMaxFds()))
+	if (this->local_users.size() > ServerInstance->Config->SoftLimit)
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
 		this->QuitUser(New,"No more connections allowed");
