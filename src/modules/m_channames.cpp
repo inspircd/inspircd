@@ -141,10 +141,11 @@ class ModuleChannelNames : public Module
 		}
 	}
 
-	~ModuleChannelNames()
+	CullResult cull() CXX11_OVERRIDE
 	{
 		ServerInstance->IsChannel = rememberer;
 		ValidateChans();
+		return Module::cull();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
