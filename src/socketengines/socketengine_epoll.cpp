@@ -54,8 +54,9 @@ void SocketEngine::Init()
 		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
 	}
 
-	// This is not a maximum, just a hint at the eventual number of sockets that may be polled.
-	EngineHandle = epoll_create(GetMaxFds() / 4);
+	// 128 is not a maximum, just a hint at the eventual number of sockets that may be polled,
+	// and it is completely ignored by 2.6.8 and later kernels, except it must be larger than zero.
+	EngineHandle = epoll_create(128);
 
 	if (EngineHandle == -1)
 	{
