@@ -21,7 +21,6 @@
  */
 
 
-#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -53,9 +52,8 @@ void SocketEngine::Init()
 	}
 	else
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets: %s", strerror(errno));
-		std::cout << "ERROR: Can't determine maximum number of open sockets: " << strerror(errno) << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
+		// MAX_DESCRIPTORS is mainly used for display purposes, it's not a problem that getrlimit() failed
+		MAX_DESCRIPTORS = -1;
 	}
 }
 

@@ -36,7 +36,6 @@ ServerConfig::ServerConfig()
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
-	SoftLimit = SocketEngine::GetMaxFds();
 	MaxConn = SOMAXCONN;
 	MaxChans = 20;
 	OperMaxChans = 30;
@@ -366,7 +365,7 @@ void ServerConfig::Fill()
 		if (!nsid.empty() && nsid != sid)
 			throw CoreException("You must restart to change the server id");
 	}
-	SoftLimit = ConfValue("performance")->getInt("softlimit", SocketEngine::GetMaxFds(), 10, SocketEngine::GetMaxFds());
+	SoftLimit = ConfValue("performance")->getInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
 	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));

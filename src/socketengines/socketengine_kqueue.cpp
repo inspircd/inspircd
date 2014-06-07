@@ -58,13 +58,8 @@ void SocketEngine::Init()
 	mib[1] = KERN_MAXFILES;
 #endif
 	len = sizeof(MAX_DESCRIPTORS);
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if the sysctl() below fails
 	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
-	if (MAX_DESCRIPTORS <= 0)
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
 
 	RecoverFromFork();
 }

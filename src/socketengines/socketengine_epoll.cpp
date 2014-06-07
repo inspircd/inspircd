@@ -42,17 +42,8 @@ namespace
 
 void SocketEngine::Init()
 {
-	int max = ulimit(4, 0);
-	if (max > 0)
-	{
-		MAX_DESCRIPTORS = max;
-	}
-	else
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if ulimit() fails and returns a negative number
+	MAX_DESCRIPTORS = ulimit(4, 0);
 
 	// 128 is not a maximum, just a hint at the eventual number of sockets that may be polled,
 	// and it is completely ignored by 2.6.8 and later kernels, except it must be larger than zero.

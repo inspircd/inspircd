@@ -346,8 +346,10 @@ public:
 	 */
 	static void ChangeEventMask(EventHandler* eh, int event_mask);
 
-	/** Returns the highest file descriptor you may store in the socket engine
-	 * @return The maximum fd value
+	/** Returns the number of file descriptors reported by the system this program may use
+	 * when it was started.
+	 * @return If positive, the number of file descriptors that the system reported that we
+	 * may use. Otherwise (<= 0) this number could not be determined.
 	 */
 	static int GetMaxFds() { return MAX_DESCRIPTORS; }
 
