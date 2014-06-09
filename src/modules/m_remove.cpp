@@ -100,9 +100,20 @@ class RemoveBase : public Command
 			 */
 			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && (tlevel != 50000)))
 			{
-				// REMOVE/FPART will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
+				// REMOVE will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
 				if (!IS_LOCAL(target))
+				{
+					// Send an ENCAP REMOVE with parameters being in the old <user> <chan> order which is
+					// compatible with both 2.0 and 2.2. This also turns FPART into REMOVE.
+					std::vector<std::string> p;
+					p.push_back(target->uuid);
+					p.push_back(channel->name);
+					if (parameters.size() > 2)
+						p.push_back(":" + parameters[2]);
+					ServerInstance->PI->SendEncapsulatedData(target->server->GetName(), "REMOVE", p, user);
+
 					return CMD_SUCCESS;
+				}
 
 				std::string reasonparam;
 
@@ -135,7 +146,6 @@ class RemoveBase : public Command
 
 		return CMD_SUCCESS;
 	}
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) = 0;
 };
 
 /** Handle /REMOVE
@@ -154,14 +164,6 @@ class CommandRemove : public RemoveBase
 	{
 		return HandleRMB(parameters, user, false);
 	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
-	}
 };
 
 /** Handle /FPART
@@ -179,14 +181,6 @@ class CommandFpart : public RemoveBase
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		return HandleRMB(parameters, user, true);
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		User* dest = ServerInstance->FindNick(parameters[1]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
 	}
 };
 
