@@ -1456,6 +1456,12 @@
 # Remove module: Adds the /REMOVE command which is a peaceful
 # alternative to /KICK.
 #<module name="m_remove.so">
+#
+# supportnokicks: If true, /REMOVE is not allowed on channels where the
+# nokicks (+Q) mode is set. Defaults to false.
+# protectedrank: Members having this rank or above may not be /REMOVE'd
+# by anyone. Set to 0 to disable this feature. Defaults to 50000.
+#<remove supportnokicks="true" protectedrank="50000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # A module to block, kick or ban upon similiar messages being uttered several times.
