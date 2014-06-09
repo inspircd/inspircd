@@ -53,8 +53,7 @@ struct ParseStack
 		vars["quot"] = "\"";
 		vars["newline"] = vars["nl"] = "\n";
 	}
-	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = "");
-	bool ParseExec(const std::string& name, int flags, const std::string& mandatory_tag = "");
+	bool ParseFile(const std::string& name, int flags, const std::string& mandatory_tag = std::string(), bool isexec = false);
 	void DoInclude(ConfigTag* includeTag, int flags);
 	void DoReadFile(const std::string& key, const std::string& file, int flags, bool exec);
 };
