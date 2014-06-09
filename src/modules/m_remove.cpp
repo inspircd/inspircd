@@ -38,6 +38,8 @@ class RemoveBase : public Command
 	ChanModeReference& nokicksmode;
 
  public:
+ 	unsigned int protectedrank;
+
 	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
 		: Command(Creator, cmdn, 2, 3)
 		, supportnokicks(snk)
@@ -84,9 +86,6 @@ class RemoveBase : public Command
 			return CMD_FAILURE;
 		}
 
-		int ulevel = channel->GetPrefixValue(user);
-		int tlevel = channel->GetPrefixValue(target);
-
 		if (target->server->IsULine())
 		{
 			user->WriteNumeric(482, "%s :Only a u-line may remove a u-line from a channel.", channame.c_str());
@@ -99,9 +98,11 @@ class RemoveBase : public Command
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
 			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
-			 * Nobody may remove a founder.
+			 * Nobody may remove people with >= protectedrank rank.
 			 */
-			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && (tlevel != 50000)))
+			unsigned int ulevel = channel->GetPrefixValue(user);
+			unsigned int tlevel = channel->GetPrefixValue(target);
+			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && ((protectedrank == 0) || (tlevel < protectedrank))))
 			{
 				// REMOVE will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
 				if (!IS_LOCAL(target))
@@ -209,7 +210,9 @@ class ModuleRemove : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		supportnokicks = ServerInstance->Config->ConfValue("remove")->getBool("supportnokicks");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("remove");
+		supportnokicks = tag->getBool("supportnokicks");
+		cmd1.protectedrank = cmd2.protectedrank = tag->getInt("protectedrank", 50000);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
