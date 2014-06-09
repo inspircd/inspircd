@@ -45,11 +45,14 @@ class RemoveBase : public Command
 	{
 	}
 
-	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool neworder)
+	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool fpart)
 	{
 		User* target;
 		Channel* channel;
 		std::string reason;
+
+		// If the command is a /REMOVE then detect the parameter order
+		bool neworder = ((fpart) || (parameters[0][0] == '#'));
 
 		/* Set these to the parameters needed, the new version of this module switches it's parameters around
 		 * supplying a new command with the new order while keeping the old /remove with the older order.
@@ -156,7 +159,7 @@ class CommandRemove : public RemoveBase
 	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
 		: RemoveBase(Creator, snk, nkm, "REMOVE")
 	{
-		syntax = "<nick> <channel> [<reason>]";
+		syntax = "<channel> <nick> [<reason>]";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 

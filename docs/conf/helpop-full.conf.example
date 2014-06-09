@@ -91,7 +91,7 @@ and S queries the status.">
 
 Authenticate for a vhost using the specified username and password.">
 
-<helpop key="remove" value="/REMOVE [nick] [channel] {[reason]}
+<helpop key="remove" value="/REMOVE [channel] [nick] {[reason]}
 
 Removes a user from a channel you specify. You must be at least a
 channel halfoperator to remove a user. A removed user will part with
@@ -104,10 +104,8 @@ E.g. /RMODE #Chan b m:* will remove all mute extbans.">
 
 <helpop key="fpart" value="/FPART [channel] [nick] {[reason]}
 
-This behaves identically to /REMOVE, the only difference is that the
-[channel] and [nick] parameters are switched around to match /KICK's
-syntax. Also, /REMOVE is a builtin mIRC command which caused trouble
-for some users.">
+This behaves identically to /REMOVE. /REMOVE is a builtin mIRC command
+which caused trouble for some users.">
 
 <helpop key="devoice" value="/DEVOICE [channel]
 
