@@ -292,17 +292,17 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	return chan;
 }
 
-void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
+Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
 {
 	if (IS_SERVER(user))
 	{
 		ServerInstance->Logs->Log("CHANNELS", LOG_DEBUG, "Attempted to join server user " + user->uuid + " to channel " + this->name);
-		return;
+		return NULL;
 	}
 
 	Membership* memb = this->AddUser(user);
 	if (!memb)
-		return; // Already on the channel
+		return NULL; // Already on the channel
 
 	user->chans.push_front(memb);
 
@@ -350,6 +350,7 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 	}
 
 	FOREACH_MOD(OnPostJoin, (memb));
+	return memb;
 }
 
 bool Channel::IsBanned(User* user)

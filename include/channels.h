@@ -218,8 +218,9 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 * @param privs Priviliges (prefix mode letters) to give to this user, may be NULL
 	 * @param bursting True if this join is the result of a netburst (passed to modules in the OnUserJoin hook)
 	 * @param created_by_local True if this channel was just created by a local user (passed to modules in the OnUserJoin hook)
+	 * @return A newly created Membership object, or NULL if the user was already inside the channel or if the user is a server user
 	 */
-	void ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
+	Membership* ForceJoin(User* user, const std::string* privs = NULL, bool bursting = false, bool created_by_local = false);
 
 	/** Write to a channel, from a user, using va_args for text
 	 * @param user User whos details to prefix the line with
