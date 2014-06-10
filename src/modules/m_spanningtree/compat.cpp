@@ -169,6 +169,25 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						line.erase(colon, 1);
 					}
 				}
+				else if (command == "INVITE")
+				{
+					// :22D INVITE 22DAAAAAN #chan TS ExpirationTime
+					//     A      B         C     D  E
+					if (b == std::string::npos)
+						return;
+
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = line.find(' ', c + 1);
+					if (d == std::string::npos)
+						return;
+
+					std::string::size_type e = line.find(' ', d + 1);
+					// If there is no expiration time then everything will be erased from 'd'
+					line.erase(d, e-d);
+				}
 			}
 			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 			this->WriteData(line);
@@ -296,6 +315,13 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	else if (cmd == "RULES")
 	{
 		return false;
+	}
+	else if (cmd == "INVITE")
+	{
+		// :20D INVITE 22DAAABBB #chan
+		// :20D INVITE 22DAAABBB #chan 123456789
+		// Insert channel timestamp after the channel name; the 3rd parameter, if there, is the invite expiration time
+		return InsertCurrentChannelTS(params, 1, 2);
 	}
 
 	return true; // Passthru

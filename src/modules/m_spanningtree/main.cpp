@@ -415,6 +415,7 @@ void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, 
 		CmdBuilder params(source, "INVITE");
 		params.push_back(dest->uuid);
 		params.push_back(channel->name);
+		params.push_int(channel->age);
 		params.push_back(ConvToStr(expiry));
 		params.Broadcast();
 	}

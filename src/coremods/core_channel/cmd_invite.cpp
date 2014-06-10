@@ -36,7 +36,7 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 {
 	ModResult MOD_RESULT;
 
-	if (parameters.size() == 2 || parameters.size() == 3)
+	if (parameters.size() >= 2)
 	{
 		User* u;
 		if (IS_LOCAL(user))
@@ -46,18 +46,31 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 
 		Channel* c = ServerInstance->FindChan(parameters[1]);
 		time_t timeout = 0;
-		if (parameters.size() == 3)
+		if (parameters.size() >= 3)
 		{
 			if (IS_LOCAL(user))
 				timeout = ServerInstance->Time() + InspIRCd::Duration(parameters[2]);
-			else
-				timeout = ConvToInt(parameters[2]);
+			else if (parameters.size() > 3)
+				timeout = ConvToInt(parameters[3]);
 		}
 
 		if ((!c) || (!u) || (u->registered != REG_ALL))
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", c ? parameters[0].c_str() : parameters[1].c_str());
 			return CMD_FAILURE;
+		}
+
+		// Verify channel timestamp if the INVITE is coming from a remote server
+		if (!IS_LOCAL(user))
+		{
+			// Remote INVITE commands must carry a channel timestamp
+			if (parameters.size() < 3)
+				return CMD_INVALID;
+
+			// Drop the invite if our channel TS is lower
+			time_t RemoteTS = ConvToInt(parameters[2]);
+			if (c->age < RemoteTS)
+				return CMD_FAILURE;
 		}
 
 		if ((IS_LOCAL(user)) && (!c->HasUser(user)))
