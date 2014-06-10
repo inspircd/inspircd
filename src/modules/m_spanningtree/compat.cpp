@@ -184,14 +184,14 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 namespace
 {
-	bool InsertCurrentChannelTS(std::vector<std::string>& params)
+	bool InsertCurrentChannelTS(std::vector<std::string>& params, unsigned int chanindex = 0, unsigned int pos = 1)
 	{
-		Channel* chan = ServerInstance->FindChan(params[0]);
+		Channel* chan = ServerInstance->FindChan(params[chanindex]);
 		if (!chan)
 			return false;
 
-		// Insert the current TS of the channel between the first and the second parameters
-		params.insert(params.begin()+1, ConvToStr(chan->age));
+		// Insert the current TS of the channel after the pos-th parameter
+		params.insert(params.begin()+pos, ConvToStr(chan->age));
 		return true;
 	}
 }
