@@ -448,45 +448,6 @@ void Channel::KickUser(User* src, User* victim, const std::string& reason, Membe
 {
 	UserMembIter victimiter = userlist.find(victim);
 	Membership* memb = ((victimiter != userlist.end()) ? victimiter->second : NULL);
-
-	if (!memb)
-	{
-		src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", victim->nick.c_str(), this->name.c_str());
-		return;
-	}
-
-	// Do the following checks only if the KICK is done by a local user;
-	// each server enforces its own rules.
-	if (IS_LOCAL(src))
-	{
-		// Modules are allowed to explicitly allow or deny kicks done by local users
-		ModResult res;
-		FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
-		if (res == MOD_RES_DENY)
-			return;
-
-		if (res == MOD_RES_PASSTHRU)
-		{
-			if (!srcmemb)
-				srcmemb = GetUser(src);
-			unsigned int them = srcmemb ? srcmemb->getRank() : 0;
-			unsigned int req = HALFOP_VALUE;
-			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
-			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(memb->modes[i], MODETYPE_CHANNEL);
-				if (mh && mh->GetLevelRequired() > req)
-					req = mh->GetLevelRequired();
-			}
-
-			if (them < req)
-			{
-				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
-					this->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
-				return;
-			}
-		}
-	}
-
 	CUList except_list;
 	FOREACH_MOD(OnUserKick, (src, memb, reason, except_list));
 

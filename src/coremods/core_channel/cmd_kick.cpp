@@ -66,6 +66,13 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
+	Membership* const memb = c->GetUser(u);
+	if (!memb)
+	{
+		user->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", u->nick.c_str(), c->name.c_str());
+		return CMD_FAILURE;
+	}
+
 	if (parameters.size() > 2)
 	{
 		reason.assign(parameters[2], 0, ServerInstance->Config->Limits.MaxKick);
@@ -73,6 +80,36 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	else
 	{
 		reason.assign(user->nick, 0, ServerInstance->Config->Limits.MaxKick);
+	}
+
+	// Do the following checks only if the KICK is done by a local user;
+	// each server enforces its own rules.
+	if (srcmemb)
+	{
+		// Modules are allowed to explicitly allow or deny kicks done by local users
+		ModResult res;
+		FIRST_MOD_RESULT(OnUserPreKick, res, (user, memb, reason));
+		if (res == MOD_RES_DENY)
+			return CMD_FAILURE;
+
+		if (res == MOD_RES_PASSTHRU)
+		{
+			unsigned int them = srcmemb->getRank();
+			unsigned int req = HALFOP_VALUE;
+			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
+			{
+				ModeHandler* mh = ServerInstance->Modes->FindMode(memb->modes[i], MODETYPE_CHANNEL);
+				if (mh && mh->GetLevelRequired() > req)
+					req = mh->GetLevelRequired();
+			}
+
+			if (them < req)
+			{
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
+					this->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
+				return CMD_FAILURE;
+			}
+		}
 	}
 
 	c->KickUser(user, u, reason, srcmemb);
