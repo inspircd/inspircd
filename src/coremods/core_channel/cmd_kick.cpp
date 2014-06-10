@@ -31,7 +31,6 @@ CommandKick::CommandKick(Module* parent)
  */
 CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	std::string reason;
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u;
 
@@ -74,14 +73,8 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	}
 	Membership* const memb = victimiter->second;
 
-	if (parameters.size() > 2)
-	{
-		reason.assign(parameters[2], 0, ServerInstance->Config->Limits.MaxKick);
-	}
-	else
-	{
-		reason.assign(user->nick, 0, ServerInstance->Config->Limits.MaxKick);
-	}
+	const bool has_reason = (parameters.size() > 2);
+	const std::string reason((has_reason ? parameters.back() : user->nick), 0, ServerInstance->Config->Limits.MaxKick);
 
 	// Do the following checks only if the KICK is done by a local user;
 	// each server enforces its own rules.
