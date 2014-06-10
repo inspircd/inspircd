@@ -82,14 +82,14 @@ class ModuleChannelNames : public Module
 
 				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 			}
-			const UserMembList* users = c->GetUsers();
-			for(UserMembCIter j = users->begin(); j != users->end(); )
+			UserMembList& users = c->userlist;
+			for (UserMembIter j = users.begin(); j != users.end(); )
 			{
 				if (IS_LOCAL(j->first))
 				{
 					// KickUser invalidates the iterator
-					UserMembCIter it = j++;
-					c->KickUser(ServerInstance->FakeClient, it->first, "Channel name no longer valid");
+					UserMembIter it = j++;
+					c->KickUser(ServerInstance->FakeClient, it, "Channel name no longer valid");
 				}
 				else
 					++j;

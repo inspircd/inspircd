@@ -66,12 +66,13 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	Membership* const memb = c->GetUser(u);
-	if (!memb)
+	const UserMembIter victimiter = c->userlist.find(u);
+	if (victimiter == c->userlist.end())
 	{
 		user->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", u->nick.c_str(), c->name.c_str());
 		return CMD_FAILURE;
 	}
+	Membership* const memb = victimiter->second;
 
 	if (parameters.size() > 2)
 	{
@@ -112,7 +113,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	c->KickUser(user, u, reason);
+	c->KickUser(user, victimiter, reason);
 
 	return CMD_SUCCESS;
 }

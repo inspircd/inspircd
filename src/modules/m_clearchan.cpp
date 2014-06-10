@@ -93,10 +93,11 @@ class CommandClearChan : public Command
 
 		std::string mask;
 		// Now remove all local non-opers from the channel
-		const UserMembList* users = chan->GetUsers();
-		for (UserMembCIter i = users->begin(); i != users->end(); )
+		UserMembList& users = chan->userlist;
+		for (UserMembIter i = users.begin(); i != users.end(); )
 		{
 			User* curr = i->first;
+			const UserMembIter currit = i;
 			++i;
 
 			if (!IS_LOCAL(curr) || curr->IsOper())
@@ -105,7 +106,7 @@ class CommandClearChan : public Command
 			// If kicking users, remove them and skip the QuitUser()
 			if (kick)
 			{
-				chan->KickUser(ServerInstance->FakeClient, curr, reason);
+				chan->KickUser(ServerInstance->FakeClient, currit, reason);
 				continue;
 			}
 
