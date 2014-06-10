@@ -112,7 +112,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	c->KickUser(user, u, reason, srcmemb);
+	c->KickUser(user, u, reason);
 
 	return CMD_SUCCESS;
 }

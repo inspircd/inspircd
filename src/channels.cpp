@@ -444,13 +444,13 @@ void Channel::PartUser(User *user, std::string &reason)
 	}
 }
 
-void Channel::KickUser(User* src, User* victim, const std::string& reason, Membership* srcmemb)
+void Channel::KickUser(User* src, const UserMembIter& victimiter, const std::string& reason)
 {
-	UserMembIter victimiter = userlist.find(victim);
-	Membership* memb = ((victimiter != userlist.end()) ? victimiter->second : NULL);
+	Membership* memb = victimiter->second;
 	CUList except_list;
 	FOREACH_MOD(OnUserKick, (src, memb, reason, except_list));
 
+	User* victim = memb->user;
 	WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), victim->nick.c_str(), reason.c_str());
 
 	victim->chans.erase(memb);

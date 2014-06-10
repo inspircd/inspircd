@@ -178,11 +178,22 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
-	 * @param user The user being kicked (must be on this channel)
+	 * @param victimiter Iterator to the user being kicked, must be valid
 	 * @param reason The reason for the kick
-	 * @param srcmemb The membership of the user who does the kick, can be NULL
 	 */
-	void KickUser(User* src, User* user, const std::string& reason, Membership* srcmemb = NULL);
+	void KickUser(User* src, const UserMembIter& victimiter, const std::string& reason);
+
+	/** Make src kick user from this channel with the given reason.
+	 * @param src The source of the kick
+	 * @param user The user being kicked
+	 * @param reason The reason for the kick
+	 */
+	void KickUser(User* src, User* user, const std::string& reason)
+	{
+		UserMembIter it = userlist.find(user);
+		if (it != userlist.end())
+			KickUser(src, it, reason);
+	}
 
 	/** Part a user from this channel with the given reason.
 	 * If the reason field is NULL, no reason will be sent.
