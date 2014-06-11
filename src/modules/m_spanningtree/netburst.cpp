@@ -159,25 +159,21 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
  */
 void TreeSocket::SendFJoins(Channel* c)
 {
-	std::string line(":");
-	line.append(ServerInstance->Config->GetSID()).append(" FJOIN ").append(c->name).append(1, ' ').append(ConvToStr(c->age)).append(" +");
-	std::string::size_type erase_from = line.length();
-	line.append(c->ChanModes(true)).append(" :");
-
+	CommandFJoin::Builder fjoin(c);
 	const UserMembList *ulist = c->GetUsers();
 
 	for (UserMembCIter i = ulist->begin(); i != ulist->end(); ++i)
 	{
-		const std::string& modestr = i->second->modes;
-		if ((line.length() + modestr.length() + UIDGenerator::UUID_LENGTH + 2) > 480)
+		Membership* memb = i->second;
+		if (!fjoin.has_room(memb))
 		{
-			this->WriteLine(line);
-			line.erase(erase_from);
-			line.append(" :");
+			// No room for this user, send the line and prepare a new one
+			this->WriteLine(fjoin.finalize());
+			fjoin.clear();
 		}
-		line.append(modestr).append(1, ',').append(i->first->uuid).push_back(' ');
+		fjoin.add(memb);
 	}
-	this->WriteLine(line);
+	this->WriteLine(fjoin.finalize());
 }
 
 /** Send all XLines we know about */

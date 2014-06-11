@@ -134,6 +134,19 @@ class CommandFJoin : public ServerCommand
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
 	CmdResult Handle(User* user, std::vector<std::string>& params);
+
+	class Builder : public CmdBuilder
+	{
+		static const size_t maxline = 480;
+		std::string::size_type pos;
+
+	 public:
+		Builder(Channel* chan);
+		void add(Membership* memb);
+		bool has_room(Membership* memb) const;
+		void clear();
+		const std::string& finalize();
+	};
 };
 
 class CommandFMode : public ServerCommand

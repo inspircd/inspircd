@@ -257,3 +257,35 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	chan->setby.clear();
 	chan->topicset = 0;
 }
+
+CommandFJoin::Builder::Builder(Channel* chan)
+	: CmdBuilder("FJOIN")
+{
+	push(chan->name).push_int(chan->age).push_raw(" +");
+	pos = str().size();
+	push_raw(chan->ChanModes(true)).push_raw(" :");
+}
+
+void CommandFJoin::Builder::add(Membership* memb)
+{
+	push_raw(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+	push_raw(' ');
+}
+
+bool CommandFJoin::Builder::has_room(Membership* memb) const
+{
+	return ((str().size() + memb->modes.size() + UIDGenerator::UUID_LENGTH + 2) <= maxline);
+}
+
+void CommandFJoin::Builder::clear()
+{
+	content.erase(pos);
+	push_raw(" :");
+}
+
+const std::string& CommandFJoin::Builder::finalize()
+{
+	if (*content.rbegin() == ' ')
+		content.erase(content.size()-1);
+	return str();
+}
