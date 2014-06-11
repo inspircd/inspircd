@@ -226,6 +226,24 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						line.erase(colon);
 					}
 				}
+				else if (command == "KICK")
+				{
+					// Strip membership id if the KICK has one
+					if (b == std::string::npos)
+						return;
+
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = line.find(' ', c + 1);
+					if ((d < line.size()-1) && (original_line[d+1] != ':'))
+					{
+						// There is a third parameter which doesn't begin with a colon, erase it
+						std::string::size_type e = line.find(' ', d + 1);
+						line.erase(d, e-d);
+					}
+				}
 			}
 			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 			this->WriteData(line);
