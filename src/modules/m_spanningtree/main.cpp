@@ -516,11 +516,9 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 
 	if (created_by_local)
 	{
-		CmdBuilder params("FJOIN");
-		params.push_back(memb->chan->name);
-		params.push_back(ConvToStr(memb->chan->age));
-		params.push_raw(" +").push_raw(memb->chan->ChanModes(true));
-		params.push(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+		CommandFJoin::Builder params(memb->chan);
+		params.add(memb);
+		params.finalize();
 		params.Broadcast();
 	}
 	else
