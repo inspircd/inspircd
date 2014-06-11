@@ -63,6 +63,10 @@ class ModuleSpanningTree : public Module
 	 */
 	SpanningTreeCommands* commands;
 
+	/** Next membership id assigned when a local user joins a channel
+	 */
+	Membership::Id currmembid;
+
  public:
 	dynamic_reference<DNS::Manager> DNS;
 

@@ -37,7 +37,9 @@
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
-	, commands(NULL), DNS(this, "DNS")
+	, commands(NULL)
+	, currmembid(0)
+	, DNS(this, "DNS")
 {
 }
 
@@ -508,6 +510,9 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 	// Only do this for local users
 	if (!IS_LOCAL(memb->user))
 		return;
+
+	// Assign the current membership id to the new Membership and increase it
+	memb->id = currmembid++;
 
 	if (created_by_local)
 	{
