@@ -194,6 +194,38 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					// If there is no expiration time then everything will be erased from 'd'
 					line.erase(d, e-d);
 				}
+				else if (command == "FJOIN")
+				{
+					// Strip membership ids
+					// :22D FJOIN #chan 1234 +f 4:3 :o,22DAAAAAB:15 o,22DAAAAAA:15
+					// :22D FJOIN #chan 1234 +f 4:3 o,22DAAAAAB:15
+					// :22D FJOIN #chan 1234 +Pf 4:3 :
+
+					// If the last parameter is prefixed by a colon then it's a userlist which may have 0 or more users;
+					// if it isn't, then it is a single member
+					std::string::size_type spcolon = line.find(" :");
+					if (spcolon != std::string::npos)
+					{
+						spcolon++;
+						// Loop while there is a ':' in the userlist, this is never true if the channel is empty
+						std::string::size_type pos = std::string::npos;
+						while ((pos = line.rfind(':', pos-1)) > spcolon)
+						{
+							// Find the next space after the ':'
+							std::string::size_type sp = line.find(' ', pos);
+							// Erase characters between the ':' and the next space after it, including the ':' but not the space;
+							// if there is no next space, everything will be erased between pos and the end of the line
+							line.erase(pos, sp-pos);
+						}
+					}
+					else
+					{
+						// Last parameter is a single member
+						std::string::size_type sp = line.rfind(' ');
+						std::string::size_type colon = line.find(':', sp);
+						line.erase(colon);
+					}
+				}
 			}
 			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 			this->WriteData(line);
