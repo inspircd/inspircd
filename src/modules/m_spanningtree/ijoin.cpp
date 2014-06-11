@@ -38,17 +38,22 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>&
 	}
 
 	bool apply_modes;
-	if (params.size() > 1)
+	if (params.size() > 2)
 	{
-		time_t RemoteTS = ServerCommand::ExtractTS(params[1]);
+		time_t RemoteTS = ServerCommand::ExtractTS(params[2]);
 		if (RemoteTS < chan->age)
 			throw ProtocolException("Attempted to lower TS via IJOIN. LocalTS=" + ConvToStr(chan->age));
-		apply_modes = ((params.size() > 2) && (RemoteTS == chan->age));
+		apply_modes = ((params.size() > 3) && (RemoteTS == chan->age));
 	}
 	else
 		apply_modes = false;
 
-	chan->ForceJoin(user, apply_modes ? &params[2] : NULL);
+	// Join the user and set the membership id to what they sent
+	Membership* memb = chan->ForceJoin(user, apply_modes ? &params[3] : NULL);
+	if (!memb)
+		return CMD_FAILURE;
+
+	memb->id = Membership::IdFromString(params[1]);
 	return CMD_SUCCESS;
 }
 

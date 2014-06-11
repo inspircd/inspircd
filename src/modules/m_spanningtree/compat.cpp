@@ -47,11 +47,17 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				if (command == "IJOIN")
 				{
 					// Convert
-					// :<uid> IJOIN <chan> [<ts> [<flags>]]
+					// :<uid> IJOIN <chan> <membid> [<ts> [<flags>]]
 					// to
 					// :<sid> FJOIN <chan> <ts> + [<flags>],<uuid>
 					std::string::size_type c = line.find(' ', b + 1);
 					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = line.find(' ', c + 1);
+					// Erase membership id first
+					line.erase(c, d-c);
+					if (d == std::string::npos)
 					{
 						// No TS or modes in the command
 						// :22DAAAAAB IJOIN #chan
@@ -66,7 +72,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					}
 					else
 					{
-						std::string::size_type d = line.find(' ', c + 1);
+						d = line.find(' ', c + 1);
 						if (d == std::string::npos)
 						{
 							// TS present, no modes

@@ -181,7 +181,7 @@ class CommandFName : public UserOnlyServerCommand<CommandFName>
 class CommandIJoin : public UserOnlyServerCommand<CommandIJoin>
 {
  public:
-	CommandIJoin(Module* Creator) : UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 1) { }
+	CommandIJoin(Module* Creator) : UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 2) { }
 	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
 };
 
