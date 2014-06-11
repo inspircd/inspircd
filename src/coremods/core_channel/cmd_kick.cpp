@@ -73,6 +73,17 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 	}
 	Membership* const memb = victimiter->second;
 
+	// KICKs coming from servers can carry a membership id
+	if ((!IS_LOCAL(user)) && (parameters.size() > 3))
+	{
+		// If the current membership id is not equal to the one in the message then the user rejoined
+		if (memb->id != Membership::IdFromString(parameters[2]))
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Dropped KICK due to membership id mismatch: " + ConvToStr(memb->id) + " != " + parameters[2]);
+			return CMD_FAILURE;
+		}
+	}
+
 	const bool has_reason = (parameters.size() > 2);
 	const std::string reason((has_reason ? parameters.back() : user->nick), 0, ServerInstance->Config->Limits.MaxKick);
 

@@ -624,6 +624,9 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 	CmdBuilder params(source, "KICK");
 	params.push_back(memb->chan->name);
 	params.push_back(memb->user->uuid);
+	// If a remote user is being kicked by us then send the membership id in the kick too
+	if (!IS_LOCAL(memb->user))
+		params.push_int(memb->id);
 	params.push_last(reason);
 	params.Broadcast();
 }
