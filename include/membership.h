@@ -20,6 +20,8 @@
 
 #pragma once
 
+uint64_t ConvToUInt64(const std::string& in);
+
 /**
  * Represents a member of a channel.
  * A Membership object is created when a user joins a channel, and destroyed when a user leaves
@@ -30,6 +32,10 @@
 class CoreExport Membership : public Extensible, public intrusive_list_node<Membership>
 {
  public:
+	/** Type of the Membership id
+	 */
+	typedef uint64_t Id;
+
 	/** User on the channel
 	 */
 	User* const user;
@@ -42,6 +48,20 @@ class CoreExport Membership : public Extensible, public intrusive_list_node<Memb
 	 * sorted by prefix rank, highest first
 	 */
 	std::string modes;
+
+	/** Id of this Membership, set by the protocol module, other components should never read or
+	 * write this field.
+	 */
+	Id id;
+
+	/** Converts a string to a Membership::Id
+	 * @param str The string to convert
+	 * @return Raw value of type Membership::Id
+	 */
+	static Id IdFromString(const std::string& str)
+	{
+		return ConvToUInt64(str);
+	}
 
 	/** Constructor, sets the user and chan fields to the parameters, does NOT update any bookkeeping
 	 * information in the User or the Channel.
