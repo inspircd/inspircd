@@ -137,6 +137,10 @@ class CommandFJoin : public ServerCommand
 
 	class Builder : public CmdBuilder
 	{
+		/** Maximum possible Membership::Id length in decimal digits, used for determining whether a user will fit into
+		 * a message or not
+		 */
+		static const size_t membid_max_digits = 20;
 		static const size_t maxline = 480;
 		std::string::size_type pos;
 

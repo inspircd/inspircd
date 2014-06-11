@@ -55,10 +55,12 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 * who succeed at internets. :-)
 	 *
 	 * Syntax:
-	 * :<sid> FJOIN <chan> <TS> <modes> :[[modes,]<uuid> [[modes,]<uuid> ... ]]
-	 * The last parameter is a list consisting of zero or more (modelist, uuid)
-	 * pairs (permanent channels may have zero users). The mode list for each
-	 * user is a concatenation of the mode letters the user has on the channel
+	 * :<sid> FJOIN <chan> <TS> <modes> :[<member> [<member> ...]]
+	 * The last parameter is a list consisting of zero or more channel members
+	 * (permanent channels may have zero users). Each entry on the list is in the
+	 * following format:
+	 * [[<modes>,]<uuid>[:<membid>]
+	 * <modes> is a concatenation of the mode letters the user has on the channel
 	 * (e.g.: "ov" if the user is opped and voiced). The order of the mode letters
 	 * are not important but if a server ecounters an unknown mode letter, it will
 	 * drop the link to avoid desync.
@@ -66,6 +68,9 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 * InspIRCd 2.0 and older required a comma before the uuid even if the user
 	 * had no prefix modes on the channel, InspIRCd 2.2 and later does not require
 	 * a comma in this case anymore.
+	 *
+	 * <membid> is a positive integer representing the id of the membership.
+	 * If not present (in FJOINs coming from pre-1205 servers), 0 is assumed.
 	 *
 	 */
 
@@ -166,7 +171,8 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 	std::string::size_type comma = item.find(',');
 
 	// Comma not required anymore if the user has no modes
-	std::string uuid = ((comma == std::string::npos) ? item : item.substr(comma+1));
+	const std::string::size_type ubegin = (comma == std::string::npos ? 0 : comma+1);
+	std::string uuid(item, ubegin, UIDGenerator::UUID_LENGTH);
 	User* who = ServerInstance->FindUUID(uuid);
 	if (!who)
 	{
@@ -196,7 +202,16 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 		}
 	}
 
-	chan->ForceJoin(who, NULL, route_back_again->bursting);
+	Membership* memb = chan->ForceJoin(who, NULL, route_back_again->bursting);
+	if (!memb)
+		return;
+
+	// Assign the id to the new Membership
+	Membership::Id membid = 0;
+	const std::string::size_type colon = item.rfind(':');
+	if (colon != std::string::npos)
+		membid = Membership::IdFromString(item.substr(colon+1));
+	memb->id = membid;
 }
 
 void CommandFJoin::RemoveStatus(Channel* c)
@@ -269,12 +284,13 @@ CommandFJoin::Builder::Builder(Channel* chan)
 void CommandFJoin::Builder::add(Membership* memb)
 {
 	push_raw(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+	push_raw(':').push_raw_int(memb->id);
 	push_raw(' ');
 }
 
 bool CommandFJoin::Builder::has_room(Membership* memb) const
 {
-	return ((str().size() + memb->modes.size() + UIDGenerator::UUID_LENGTH + 2) <= maxline);
+	return ((str().size() + memb->modes.size() + UIDGenerator::UUID_LENGTH + 2 + membid_max_digits + 1) <= maxline);
 }
 
 void CommandFJoin::Builder::clear()
