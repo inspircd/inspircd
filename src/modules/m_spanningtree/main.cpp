@@ -61,11 +61,25 @@ namespace
 		for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
 			(*i)->server = newserver;
 	}
+
+	void ResetMembershipIds()
+	{
+		// Set all membership ids to 0
+		const LocalUserList& list = ServerInstance->Users->local_users;
+		for (LocalUserList::iterator i = list.begin(); i != list.end(); ++i)
+		{
+			LocalUser* user = *i;
+			for (UCListIter j = user->chans.begin(); j != user->chans.end(); ++j)
+				(*j)->id = 0;
+		}
+	}
 }
 
 void ModuleSpanningTree::init()
 {
 	ServerInstance->SNO->EnableSnomask('l', "LINK");
+
+	ResetMembershipIds();
 
 	Utils = new SpanningTreeUtilities(this);
 	Utils->TreeRoot = new TreeServer;
