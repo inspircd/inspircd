@@ -403,18 +403,18 @@ const char* InspIRCd::Format(const char* formatString, ...)
 	return ret;
 }
 
-std::string InspIRCd::TimeString(time_t curtime, const char* format)
+std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 {
 #ifdef _WIN32
 	if (curtime < 0)
 		curtime = 0;
 #endif
 
-	struct tm* timeinfo = localtime(&curtime);
+	struct tm* timeinfo = utc ? gmtime(&curtime) : localtime(&curtime);
 	if (!timeinfo)
 	{
 		curtime = 0;
-		timeinfo = localtime(&curtime);
+		timeinfo = utc ? gmtime(&curtime) : localtime(&curtime);
 	}
 
 	// If the calculated year exceeds four digits or is less than the year 1000,

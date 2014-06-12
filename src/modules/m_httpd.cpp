@@ -185,7 +185,7 @@ class HttpServerSocket : public BufferedSocket
 
 		WriteData(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
 
-		rheaders.CreateHeader("Date", InspIRCd::TimeString("%a, %d %b %Y %H:%M:%S %Z"));
+		rheaders.CreateHeader("Date", InspIRCd::TimeString("%a, %d %b %Y %H:%M:%S %Z", true));
 		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
 

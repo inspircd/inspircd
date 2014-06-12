@@ -424,7 +424,10 @@ class CoreExport InspIRCd
 	 *  for more information.
 	 * @return A string of up to 128 characters representing the current date/time.
 	 */
-	static std::string TimeString(const char* format = NULL) { return InspIRCd::TimeString(ServerInstance->Time(), format); }
+	static std::string TimeString(const char* format = NULL, bool utc = false)
+	{
+		return InspIRCd::TimeString(ServerInstance->Time(), format, utc);
+	}
 
 	/** Update the current time. Don't call this unless you have reason to do so. */
 	void UpdateTime();
@@ -655,7 +658,7 @@ class CoreExport InspIRCd
 
 	/** Return a time_t as a human-readable string.
 	 */
-	static std::string TimeString(time_t curtime, const char* format = NULL);
+	static std::string TimeString(time_t curtime, const char* format = NULL, bool utc = false);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
