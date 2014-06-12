@@ -207,6 +207,7 @@ class CommandResync : public ServerOnlyServerCommand<CommandResync>
  public:
 	CommandResync(Module* Creator) : ServerOnlyServerCommand<CommandResync>(Creator, "RESYNC", 1) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_LOCALONLY; }
 };
 
 class CommandAway : public UserOnlyServerCommand<CommandAway>
