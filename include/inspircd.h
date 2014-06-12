@@ -421,10 +421,10 @@ class CoreExport InspIRCd
 
 	/** Retrieves the current date/time as a string according to the given format.
 	 * @param format The format to retrieve the date/time in. See `man 3 strftime`
-	 *               for more information.
+	 *  for more information.
 	 * @return A string of up to 128 characters representing the current date/time.
 	 */
-	inline std::string TimeStr(const char* format = NULL) { return InspIRCd::TimeString(TIME.tv_sec, format); }
+	static std::string TimeString(const char* format = NULL) { return InspIRCd::TimeString(ServerInstance->Time(), format); }
 
 	/** Update the current time. Don't call this unless you have reason to do so. */
 	void UpdateTime();
