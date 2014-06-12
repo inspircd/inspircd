@@ -664,9 +664,10 @@ class CoreExport InspIRCd
 	/** Return a time_t as a human-readable string.
 	 * @param format The format to retrieve the date/time in. See `man 3 strftime`
 	 * for more information. If NULL, "%a %b %d %T %Y" is assumed.
+	 * @param utc True to convert the time to string as-is, false to convert it to local time first.
 	 * @return A string representing the given date/time.
 	 */
-	static std::string TimeString(time_t curtime, const char* format = NULL);
+	static std::string TimeString(time_t curtime, const char* format = NULL, bool utc = false);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
