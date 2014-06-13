@@ -109,7 +109,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std
 
 Command* CommandParser::GetHandler(const std::string &commandname)
 {
-	Commandtable::iterator n = cmdlist.find(commandname);
+	CommandMap::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())
 		return n->second;
 
@@ -120,7 +120,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 CmdResult CommandParser::CallHandler(const std::string& commandname, const std::vector<std::string>& parameters, User* user, Command** cmd)
 {
-	Commandtable::iterator n = cmdlist.find(commandname);
+	CommandMap::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -322,7 +322,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 
 void CommandParser::RemoveCommand(Command* x)
 {
-	Commandtable::iterator n = cmdlist.find(x->name);
+	CommandMap::iterator n = cmdlist.find(x->name);
 	if (n != cmdlist.end() && n->second == x)
 		cmdlist.erase(n);
 }

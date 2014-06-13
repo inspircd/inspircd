@@ -30,7 +30,7 @@
 class CoreExport CommandParser
 {
  public:
- 	typedef Commandtable CommandMap;
+ 	typedef TR1NS::unordered_map<std::string, Command*> CommandMap;
 
  private:
 	/** Process a command from a user.
@@ -41,7 +41,7 @@ class CoreExport CommandParser
 
 	/** Command list, a hash_map of command names to Command*
 	 */
-	Commandtable cmdlist;
+	CommandMap cmdlist;
 
  public:
 	/** Default constructor.

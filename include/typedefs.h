@@ -100,10 +100,6 @@ typedef std::map<std::string, reference<OperInfo> > OperIndex;
 /** Files read by the configuration */
 typedef std::map<std::string, file_cache> ConfigFileCache;
 
-/** A hash of commands used by the core
- */
-typedef TR1NS::unordered_map<std::string, Command*> Commandtable;
-
 /** Membership list of a channel */
 typedef std::map<User*, Membership*> UserMembList;
 /** Iterator of UserMembList */
