@@ -40,10 +40,7 @@ class CoreExport BanCacheHit
 	 */
 	time_t Expiry;
 
-	BanCacheHit(const std::string &type, const std::string &reason, time_t seconds)
-		: Type(type), Reason(reason), Expiry(ServerInstance->Time() + seconds)
-	{
-	}
+	BanCacheHit(const std::string& type, const std::string& reason, time_t seconds);
 
 	bool IsPositive() const { return (!Reason.empty()); }
 };
