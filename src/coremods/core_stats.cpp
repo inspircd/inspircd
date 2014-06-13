@@ -236,9 +236,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 				char percent[30];
 
-				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats->LastSampled.tv_sec) * 1000000
-					+ (ServerInstance->Time_ns() - ServerInstance->stats->LastSampled.tv_nsec) / 1000;
-				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats->LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats->LastCPU.tv_usec);
+				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats.LastSampled.tv_sec) * 1000000
+					+ (ServerInstance->Time_ns() - ServerInstance->stats.LastSampled.tv_nsec) / 1000;
+				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats.LastCPU.tv_usec);
 				float per = (n_eaten / n_elapsed) * 100;
 
 				snprintf(percent, 30, "%03.5f%%", per);
@@ -269,8 +269,8 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			{
 				KernelTime.dwHighDateTime += UserTime.dwHighDateTime;
 				KernelTime.dwLowDateTime += UserTime.dwLowDateTime;
-				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats->LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats->LastCPU.dwLowDateTime) )/100000;
-				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats->LastSampled.QuadPart) / ServerInstance->stats->QPFrequency.QuadPart;
+				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats.LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats.LastCPU.dwLowDateTime) )/100000;
+				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats.LastSampled.QuadPart) / ServerInstance->stats.QPFrequency.QuadPart;
 				double per = (n_eaten/n_elapsed);
 
 				char percent[30];
@@ -290,13 +290,13 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		case 'T':
 		{
-			results.push_back("249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats->statsAccept)+" refused "+ConvToStr(ServerInstance->stats->statsRefused));
-			results.push_back("249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats->statsUnknown));
-			results.push_back("249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats->statsCollisions));
-			results.push_back("249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats->statsDnsGood+ServerInstance->stats->statsDnsBad)+" succeeded "+ConvToStr(ServerInstance->stats->statsDnsGood)+" failed "+ConvToStr(ServerInstance->stats->statsDnsBad));
-			results.push_back("249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats->statsConnects));
+			results.push_back("249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats.Accept)+" refused "+ConvToStr(ServerInstance->stats.Refused));
+			results.push_back("249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats.Unknown));
+			results.push_back("249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats.Collisions));
+			results.push_back("249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats.DnsGood+ServerInstance->stats.DnsBad)+" succeeded "+ConvToStr(ServerInstance->stats.DnsGood)+" failed "+ConvToStr(ServerInstance->stats.DnsBad));
+			results.push_back("249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats.Connects));
 			results.push_back(InspIRCd::Format("249 %s :bytes sent %5.2fK recv %5.2fK", user->nick.c_str(),
-				ServerInstance->stats->statsSent / 1024.0, ServerInstance->stats->statsRecv / 1024.0));
+				ServerInstance->stats.Sent / 1024.0, ServerInstance->stats.Recv / 1024.0));
 		}
 		break;
 

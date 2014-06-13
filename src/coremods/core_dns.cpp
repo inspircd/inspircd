@@ -603,7 +603,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		if (recv_packet.flags & QUERYFLAGS_OPCODE)
 		{
 			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Received a nonstandard query");
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->stats.DnsBad++;
 			recv_packet.error = ERROR_NONSTANDARD_QUERY;
 			request->OnError(&recv_packet);
 		}
@@ -637,26 +637,26 @@ class MyManager : public Manager, public Timer, public EventHandler
 					break;
 			}
 
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->stats.DnsBad++;
 			recv_packet.error = error;
 			request->OnError(&recv_packet);
 		}
 		else if (recv_packet.questions.empty() || recv_packet.answers.empty())
 		{
 			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: No resource records returned");
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->stats.DnsBad++;
 			recv_packet.error = ERROR_NO_RECORDS;
 			request->OnError(&recv_packet);
 		}
 		else
 		{
 			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Lookup complete for " + request->name);
-			ServerInstance->stats->statsDnsGood++;
+			ServerInstance->stats.DnsGood++;
 			request->OnLookupComplete(&recv_packet);
 			this->AddCache(recv_packet);
 		}
 
-		ServerInstance->stats->statsDns++;
+		ServerInstance->stats.Dns++;
 
 		/* Request's destructor removes it from the request map */
 		delete request;

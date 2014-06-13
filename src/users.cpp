@@ -285,7 +285,7 @@ eol_found:
 		recvq = recvq.substr(qpos);
 
 		// TODO should this be moved to when it was inserted in recvq?
-		ServerInstance->stats->statsRecv += qpos;
+		ServerInstance->stats.Recv += qpos;
 		user->bytes_in += qpos;
 		user->cmds_in++;
 
@@ -540,7 +540,7 @@ bool LocalUser::CheckLines(bool doZline)
 
 void LocalUser::FullConnect()
 {
-	ServerInstance->stats->statsConnects++;
+	ServerInstance->stats.Connects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
 	/*
@@ -629,7 +629,7 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 
 		if (MOD_RESULT == MOD_RES_DENY)
 		{
-			ServerInstance->stats->statsCollisions++;
+			ServerInstance->stats.Collisions++;
 			return false;
 		}
 	}
@@ -837,7 +837,7 @@ void LocalUser::Write(const std::string& text)
 	eh.AddWriteBuf(text);
 	eh.AddWriteBuf(wide_newline);
 
-	ServerInstance->stats->statsSent += text.length() + 2;
+	ServerInstance->stats.Sent += text.length() + 2;
 	this->bytes_out += text.length() + 2;
 	this->cmds_out++;
 }

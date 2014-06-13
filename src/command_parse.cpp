@@ -208,7 +208,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		{
 			if (user->registered == REG_ALL)
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :Unknown command",command.c_str());
-			ServerInstance->stats->statsUnknown++;
+			ServerInstance->stats.Unknown++;
 			return;
 		}
 	}

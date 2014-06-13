@@ -114,7 +114,7 @@ void ListenSocket::AcceptInternal()
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
-		ServerInstance->stats->statsRefused++;
+		ServerInstance->stats.Refused++;
 		return;
 	}
 
@@ -170,11 +170,11 @@ void ListenSocket::AcceptInternal()
 	}
 	if (res == MOD_RES_ALLOW)
 	{
-		ServerInstance->stats->statsAccept++;
+		ServerInstance->stats.Accept++;
 	}
 	else
 	{
-		ServerInstance->stats->statsRefused++;
+		ServerInstance->stats.Refused++;
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
 			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 		SocketEngine::Close(incomingSockfd);

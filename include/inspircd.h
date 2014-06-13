@@ -174,38 +174,38 @@ class serverstats
   public:
 	/** Number of accepted connections
 	 */
-	unsigned long statsAccept;
+	unsigned long Accept;
 	/** Number of failed accepts
 	 */
-	unsigned long statsRefused;
+	unsigned long Refused;
 	/** Number of unknown commands seen
 	 */
-	unsigned long statsUnknown;
+	unsigned long Unknown;
 	/** Number of nickname collisions handled
 	 */
-	unsigned long statsCollisions;
+	unsigned long Collisions;
 	/** Number of DNS queries sent out
 	 */
-	unsigned long statsDns;
+	unsigned long Dns;
 	/** Number of good DNS replies received
 	 * NOTE: This may not tally to the number sent out,
 	 * due to timeouts and other latency issues.
 	 */
-	unsigned long statsDnsGood;
+	unsigned long DnsGood;
 	/** Number of bad (negative) DNS replies received
 	 * NOTE: This may not tally to the number sent out,
 	 * due to timeouts and other latency issues.
 	 */
-	unsigned long statsDnsBad;
+	unsigned long DnsBad;
 	/** Number of inbound connections seen
 	 */
-	unsigned long statsConnects;
+	unsigned long Connects;
 	/** Total bytes of data transmitted
 	 */
-	unsigned long statsSent;
+	unsigned long Sent;
 	/** Total bytes of data received
 	 */
-	unsigned long statsRecv;
+	unsigned long Recv;
 #ifdef _WIN32
 	/** Cpu usage at last sample
 	*/
@@ -227,8 +227,8 @@ class serverstats
 	/** The constructor initializes all the counts to zero
 	 */
 	serverstats()
-		: statsAccept(0), statsRefused(0), statsUnknown(0), statsCollisions(0), statsDns(0),
-		statsDnsGood(0), statsDnsBad(0), statsConnects(0), statsSent(0), statsRecv(0)
+		: Accept(0), Refused(0), Unknown(0), Collisions(0), Dns(0),
+		DnsGood(0), DnsBad(0), Connects(0), Sent(0), Recv(0)
 	{
 	}
 };
@@ -368,7 +368,7 @@ class CoreExport InspIRCd
 
 	/** Stats class, holds miscellaneous stats counters
 	 */
-	serverstats* stats;
+	serverstats stats;
 
 	/**  Server Config class, holds configuration file data
 	 */

@@ -133,7 +133,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Modes);
 	DeleteZero(this->XLines);
 	DeleteZero(this->Parser);
-	DeleteZero(this->stats);
 	DeleteZero(this->Modules);
 	DeleteZero(this->BanCache);
 	DeleteZero(this->SNO);
@@ -268,7 +267,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->SNO = 0;
 	this->BanCache = 0;
 	this->Modules = 0;
-	this->stats = 0;
 	this->Parser = 0;
 	this->XLines = 0;
 	this->Modes = 0;
@@ -296,7 +294,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->BanCache = new BanCacheManager;
 	this->Modules = new ModuleManager();
 	dynamic_reference_base::reset_all();
-	this->stats = new serverstats();
 	this->Parser = new CommandParser;
 	this->XLines = new XLineManager;
 
@@ -549,7 +546,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		FreeConsole();
 	}
 
-	QueryPerformanceFrequency(&stats->QPFrequency);
+	QueryPerformanceFrequency(&stats.QPFrequency);
 #endif
 
 	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
@@ -683,18 +680,18 @@ void InspIRCd::Run()
 		{
 #ifndef _WIN32
 			getrusage(RUSAGE_SELF, &ru);
-			stats->LastSampled = TIME;
-			stats->LastCPU = ru.ru_utime;
+			stats.LastSampled = TIME;
+			stats.LastCPU = ru.ru_utime;
 #else
-			if(QueryPerformanceCounter(&stats->LastSampled))
+			if(QueryPerformanceCounter(&stats.LastSampled))
 			{
 				FILETIME CreationTime;
 				FILETIME ExitTime;
 				FILETIME KernelTime;
 				FILETIME UserTime;
 				GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
-				stats->LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
-				stats->LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
+				stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
+				stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
 			}
 #endif
 
