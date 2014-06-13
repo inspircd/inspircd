@@ -189,7 +189,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':
-			for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+		{
+			const CommandParser::CommandMap& commands = ServerInstance->Parser->GetCommands();
+			for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 			{
 				if (i->second->use_count)
 				{
@@ -197,6 +199,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 					results.push_back("212 "+user->nick+" "+i->second->name+" "+ConvToStr(i->second->use_count));
 				}
 			}
+		}
 		break;
 
 		/* stats z (debug and memory info) */
@@ -204,7 +207,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		{
 			results.push_back("249 "+user->nick+" :Users: "+ConvToStr(ServerInstance->Users->GetUsers().size()));
 			results.push_back("249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->GetChans().size()));
-			results.push_back("249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
+			results.push_back("249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->GetCommands().size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];

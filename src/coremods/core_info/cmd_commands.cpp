@@ -31,9 +31,10 @@ CommandCommands::CommandCommands(Module* parent)
  */
 CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 {
+	const CommandParser::CommandMap& commands = ServerInstance->Parser->GetCommands();
 	std::vector<std::string> list;
-	list.reserve(ServerInstance->Parser->cmdlist.size());
-	for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+	list.reserve(commands.size());
+	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 	{
 		// Don't show S2S commands to users
 		if (i->second->flags_needed == FLAG_SERVERONLY)

@@ -42,7 +42,8 @@ class ModuleAbbreviation : public Module
 		size_t clen = command.length() - 1;
 		std::string foundcommand, matchlist;
 		bool foundmatch = false;
-		for (Commandtable::iterator n = ServerInstance->Parser->cmdlist.begin(); n != ServerInstance->Parser->cmdlist.end(); ++n)
+		const CommandParser::CommandMap& commands = ServerInstance->Parser->GetCommands();
+		for (CommandParser::CommandMap::const_iterator n = commands.begin(); n != commands.end(); ++n)
 		{
 			if (!command.compare(0, clen, n->first, 0, clen))
 			{

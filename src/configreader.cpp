@@ -69,7 +69,8 @@ bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 	std::string thiscmd;
 
 	/* Enable everything first */
-	for (Commandtable::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
+	const CommandParser::CommandMap& commands = ServerInstance->Parser->GetCommands();
+	for (CommandParser::CommandMap::const_iterator x = commands.begin(); x != commands.end(); ++x)
 		x->second->Disable(false);
 
 	/* Now disable all the ones which the user wants disabled */
