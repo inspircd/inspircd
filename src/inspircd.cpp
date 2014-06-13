@@ -52,7 +52,6 @@
 #include <fstream>
 #include <iostream>
 #include "xline.h"
-#include "bancache.h"
 #include "socketengine.h"
 #include "socket.h"
 #include "command_parse.h"

@@ -19,7 +19,6 @@
 
 
 #include "inspircd.h"
-#include "bancache.h"
 
 BanCacheHit::BanCacheHit(const std::string& type, const std::string& reason, time_t seconds)
 	: Type(type)

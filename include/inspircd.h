@@ -78,6 +78,7 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
+#include "bancache.h"
 
 /** Returned by some functions to indicate failure.
  */
