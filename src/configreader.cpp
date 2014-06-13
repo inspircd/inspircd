@@ -75,11 +75,9 @@ bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 	/* Now disable all the ones which the user wants disabled */
 	while (dcmds >> thiscmd)
 	{
-		Commandtable::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
-		if (cm != ServerInstance->Parser->cmdlist.end())
-		{
-			cm->second->Disable(true);
-		}
+		Command* handler = ServerInstance->Parser->GetHandler(thiscmd);
+		if (handler)
+			handler->Disable(true);
 	}
 	return true;
 }
