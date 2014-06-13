@@ -57,7 +57,7 @@ typedef TR1NS::unordered_map<std::string, BanCacheHit*, TR1NS::hash<std::string>
  */
 class CoreExport BanCacheManager
 {
-	BanCacheHash* BanHash;
+	BanCacheHash BanHash;
 	bool RemoveIfExpired(BanCacheHash::iterator& it);
 
  public:
@@ -77,9 +77,5 @@ class CoreExport BanCacheManager
 	 */
 	void RemoveEntries(const std::string& type, bool positive);
 
-	BanCacheManager()
-	{
-		this->BanHash = new BanCacheHash();
-	}
 	~BanCacheManager();
 };
