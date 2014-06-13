@@ -655,7 +655,7 @@ class ModuleMsSQL : public Module
 	{
 		ReadConf();
 
-		ServerInstance->Threads->Start(queryDispatcher);
+		ServerInstance->Threads.Start(queryDispatcher);
 	}
 
 	~ModuleMsSQL()

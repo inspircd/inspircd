@@ -380,7 +380,7 @@ ModuleSQL::ModuleSQL()
 void ModuleSQL::init()
 {
 	Dispatcher = new DispatcherThread(this);
-	ServerInstance->Threads->Start(Dispatcher);
+	ServerInstance->Threads.Start(Dispatcher);
 }
 
 ModuleSQL::~ModuleSQL()

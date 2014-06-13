@@ -138,7 +138,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
 	DeleteZero(this->PI);
-	DeleteZero(this->Threads);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
 	DeleteZero(this->Logs);
@@ -260,7 +259,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Logs = 0;
-	this->Threads = 0;
 	this->PI = 0;
 	this->Users = 0;
 	this->Config = 0;
@@ -280,8 +278,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Logs = new LogManager;
 
 	SocketEngine::Init();
-
-	this->Threads = new ThreadEngine;
 
 	/* Default implementation does nothing */
 	this->PI = new ProtocolInterface;

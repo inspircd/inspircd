@@ -557,7 +557,7 @@ class ModuleLDAP : public Module
 				conns[id] = conn;
 
 				ServerInstance->Modules->AddService(*conn);
-				ServerInstance->Threads->Start(conn);
+				ServerInstance->Threads.Start(conn);
 			}
 			else
 			{

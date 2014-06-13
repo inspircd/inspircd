@@ -346,7 +346,7 @@ class CoreExport InspIRCd
 
 	/** Thread engine, Handles threading where required
 	 */
-	ThreadEngine* Threads;
+	ThreadEngine Threads;
 
 	/** The thread/class used to read config files in REHASH and on startup
 	 */
