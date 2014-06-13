@@ -33,7 +33,6 @@
 #include "link.h"
 #include "treesocket.h"
 #include "commands.h"
-#include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
@@ -88,7 +87,7 @@ void ModuleSpanningTree::init()
 	commands = new SpanningTreeCommands(this);
 
 	delete ServerInstance->PI;
-	ServerInstance->PI = new SpanningTreeProtocolInterface;
+	ServerInstance->PI = &protocolinterface;
 
 	delete ServerInstance->FakeClient->server;
 	SetLocalUsersServer(Utils->TreeRoot);
@@ -759,7 +758,6 @@ CullResult ModuleSpanningTree::cull()
 
 ModuleSpanningTree::~ModuleSpanningTree()
 {
-	delete ServerInstance->PI;
 	ServerInstance->PI = new ProtocolInterface;
 
 	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);

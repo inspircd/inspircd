@@ -27,6 +27,7 @@
 #include "modules/dns.h"
 #include "servercommand.h"
 #include "commands.h"
+#include "protocolinterface.h"
 
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
@@ -66,6 +67,10 @@ class ModuleSpanningTree : public Module
 	/** Next membership id assigned when a local user joins a channel
 	 */
 	Membership::Id currmembid;
+
+	/** The specialized ProtocolInterface that is assigned to ServerInstance->PI on load
+	 */
+	SpanningTreeProtocolInterface protocolinterface;
 
  public:
 	dynamic_reference<DNS::Manager> DNS;
