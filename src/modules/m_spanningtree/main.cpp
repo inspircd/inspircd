@@ -86,7 +86,6 @@ void ModuleSpanningTree::init()
 	Utils->TreeRoot = new TreeServer;
 	commands = new SpanningTreeCommands(this);
 
-	delete ServerInstance->PI;
 	ServerInstance->PI = &protocolinterface;
 
 	delete ServerInstance->FakeClient->server;
@@ -758,7 +757,7 @@ CullResult ModuleSpanningTree::cull()
 
 ModuleSpanningTree::~ModuleSpanningTree()
 {
-	ServerInstance->PI = new ProtocolInterface;
+	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
 	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);

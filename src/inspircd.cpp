@@ -134,7 +134,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Modules);
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
-	DeleteZero(this->PI);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
 	DeleteZero(this->Logs);
@@ -232,6 +231,7 @@ void InspIRCd::WritePID(const std::string &filename)
 
 InspIRCd::InspIRCd(int argc, char** argv) :
 	 ConfigFileName(INSPIRCD_CONFIG_PATH "/inspircd.conf"),
+	 PI(&DefaultProtocolInterface),
 
 	 /* Functor pointer initialisation.
 	  *
@@ -256,7 +256,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Logs = 0;
-	this->PI = 0;
 	this->Users = 0;
 	this->Config = 0;
 	this->SNO = 0;
@@ -273,9 +272,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Logs = new LogManager;
 
 	SocketEngine::Init();
-
-	/* Default implementation does nothing */
-	this->PI = new ProtocolInterface;
 
 	// Create base manager classes early, so nothing breaks
 	this->Users = new UserManager;

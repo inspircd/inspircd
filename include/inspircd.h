@@ -408,6 +408,10 @@ class CoreExport InspIRCd
 	 */
 	ProtocolInterface* PI;
 
+	/** Default implementation of the ProtocolInterface, does nothing
+	 */
+	ProtocolInterface DefaultProtocolInterface;
+
 	/** Holds extensible for user operquit
 	 */
 	StringExtItem OperQuit;
