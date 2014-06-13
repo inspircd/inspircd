@@ -333,7 +333,7 @@ CommandBase::~CommandBase()
 
 Command::~Command()
 {
-	ServerInstance->Parser->RemoveCommand(this);
+	ServerInstance->Parser.RemoveCommand(this);
 }
 
 void CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)

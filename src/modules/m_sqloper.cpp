@@ -61,7 +61,7 @@ class OpMeQuery : public SQLQuery
 		if (!user)
 			return;
 
-		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
+		Command* oper_command = ServerInstance->Parser.GetHandler("OPER");
 
 		if (oper_command)
 		{

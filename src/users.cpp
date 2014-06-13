@@ -288,7 +288,7 @@ eol_found:
 		user->bytes_in += qpos;
 		user->cmds_in++;
 
-		ServerInstance->Parser->ProcessBuffer(line, user);
+		ServerInstance->Parser.ProcessBuffer(line, user);
 		if (user->quitting)
 			return;
 	}
@@ -575,13 +575,13 @@ void LocalUser::FullConnect()
 	std::vector<std::string> parameters;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
-		ServerInstance->Parser->CallHandler(command, parameters, this);
+		ServerInstance->Parser.CallHandler(command, parameters, this);
 
 	MOD_RESULT = MOD_RES_PASSTHRU;
 	command = "MOTD";
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
-		ServerInstance->Parser->CallHandler(command, parameters, this);
+		ServerInstance->Parser.CallHandler(command, parameters, this);
 
 	if (ServerInstance->Config->RawLog)
 		WriteServ("PRIVMSG %s :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", nick.c_str());

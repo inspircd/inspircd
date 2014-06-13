@@ -131,7 +131,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Users);
 	DeleteZero(this->Modes);
 	DeleteZero(this->XLines);
-	DeleteZero(this->Parser);
 	DeleteZero(this->Modules);
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
@@ -262,7 +261,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Config = 0;
 	this->SNO = 0;
 	this->Modules = 0;
-	this->Parser = 0;
 	this->XLines = 0;
 	this->Modes = 0;
 	this->ConfigThread = NULL;
@@ -286,7 +284,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->SNO = new SnomaskManager;
 	this->Modules = new ModuleManager();
 	dynamic_reference_base::reset_all();
-	this->Parser = new CommandParser;
 	this->XLines = new XLineManager;
 
 	this->Config->cmdline.argv = argv;

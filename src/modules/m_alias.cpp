@@ -344,7 +344,7 @@ class ModuleAlias : public Module
 		{
 			pars.push_back(token);
 		}
-		ServerInstance->Parser->CallHandler(command, pars, user);
+		ServerInstance->Parser.CallHandler(command, pars, user);
 	}
 
 	void Prioritize()

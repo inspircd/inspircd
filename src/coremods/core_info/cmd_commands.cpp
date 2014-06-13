@@ -31,7 +31,7 @@ CommandCommands::CommandCommands(Module* parent)
  */
 CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 {
-	const CommandParser::CommandMap& commands = ServerInstance->Parser->GetCommands();
+	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
 	std::vector<std::string> list;
 	list.reserve(commands.size());
 	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)

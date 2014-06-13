@@ -49,7 +49,7 @@ class ModuleOperLog : public Module
 
 		if ((user->IsOper()) && (user->HasPermission(command)))
 		{
-			Command* thiscommand = ServerInstance->Parser->GetHandler(command);
+			Command* thiscommand = ServerInstance->Parser.GetHandler(command);
 			if ((thiscommand) && (thiscommand->flags_needed == 'o'))
 			{
 				std::string msg = "[" + user->GetFullRealHost() + "] " + command + " " + irc::stringjoiner(parameters);

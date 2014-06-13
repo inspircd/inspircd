@@ -304,7 +304,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	if (!scmd)
 	{
 		// Not a special server-to-server command
-		cmd = ServerInstance->Parser->GetHandler(command);
+		cmd = ServerInstance->Parser.GetHandler(command);
 		if (!cmd)
 		{
 			if (command == "ERROR")

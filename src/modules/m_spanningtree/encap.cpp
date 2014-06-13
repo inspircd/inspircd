@@ -28,7 +28,7 @@ CmdResult CommandEncap::Handle(User* user, std::vector<std::string>& params)
 	{
 		parameterlist plist(params.begin() + 2, params.end());
 		Command* cmd = NULL;
-		ServerInstance->Parser->CallHandler(params[1], plist, user, &cmd);
+		ServerInstance->Parser.CallHandler(params[1], plist, user, &cmd);
 		// Discard return value, ENCAP shall succeed even if the command does not exist
 
 		if ((cmd) && (cmd->force_manual_route))

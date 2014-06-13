@@ -104,7 +104,7 @@ class ModuleShowFile : public Module
 		FileReader reader(file);
 
 		CommandShowFile* sfcmd;
-		Command* handler = ServerInstance->Parser->GetHandler(cmdname);
+		Command* handler = ServerInstance->Parser.GetHandler(cmdname);
 		if (handler)
 		{
 			// Command exists, check if it is ours

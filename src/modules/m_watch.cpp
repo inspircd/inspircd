@@ -119,7 +119,7 @@ class CommandSVSWatch : public Command
 
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser->CallHandler("WATCH", parameters, u);
+			ServerInstance->Parser.CallHandler("WATCH", parameters, u);
 		}
 
 		return CMD_SUCCESS;

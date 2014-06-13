@@ -343,7 +343,7 @@ class CoreExport InspIRCd
 
 	/** Command parser, handles client to server commands
 	 */
-	CommandParser* Parser;
+	CommandParser Parser;
 
 	/** Thread engine, Handles threading where required
 	 */
