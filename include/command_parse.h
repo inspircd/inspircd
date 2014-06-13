@@ -39,11 +39,11 @@ class CoreExport CommandParser
 	 */
 	void ProcessCommand(LocalUser* user, std::string& cmd);
 
- public:
 	/** Command list, a hash_map of command names to Command*
 	 */
 	Commandtable cmdlist;
 
+ public:
 	/** Default constructor.
 	 */
 	CommandParser();
