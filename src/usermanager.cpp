@@ -104,7 +104,8 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 */
 	New->exempt = (ServerInstance->XLines->MatchesLine("E",New) != NULL);
 
-	if (BanCacheHit *b = ServerInstance->BanCache->GetHit(New->GetIPString()))
+	BanCacheHit* const b = ServerInstance->BanCache.GetHit(New->GetIPString());
+	if (b)
 	{
 		if (!b->Type.empty() && !New->exempt)
 		{

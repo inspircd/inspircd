@@ -275,7 +275,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	if (!xlf)
 		return false;
 
-	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
+	ServerInstance->BanCache.RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
 
 	if (xlf->AutoApplyToUserList(line))
 		pending_lines.push_back(line);
@@ -305,7 +305,7 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 	if (simulate)
 		return true;
 
-	ServerInstance->BanCache->RemoveEntries(y->second->type, true);
+	ServerInstance->BanCache.RemoveEntries(y->second->type, true);
 
 	FOREACH_MOD(OnDelLine, (user, y->second));
 
@@ -544,7 +544,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	if (bancache)
 	{
 		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
-		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, banReason, this->duration);
+		ServerInstance->BanCache.AddHit(u->GetIPString(), this->type, banReason, this->duration);
 	}
 }
 

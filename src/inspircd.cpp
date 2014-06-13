@@ -133,7 +133,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->XLines);
 	DeleteZero(this->Parser);
 	DeleteZero(this->Modules);
-	DeleteZero(this->BanCache);
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
 	DeleteZero(this->PI);
@@ -262,7 +261,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Users = 0;
 	this->Config = 0;
 	this->SNO = 0;
-	this->BanCache = 0;
 	this->Modules = 0;
 	this->Parser = 0;
 	this->XLines = 0;
@@ -286,7 +284,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->Config = new ServerConfig;
 	this->SNO = new SnomaskManager;
-	this->BanCache = new BanCacheManager;
 	this->Modules = new ModuleManager();
 	dynamic_reference_base::reset_all();
 	this->Parser = new CommandParser;

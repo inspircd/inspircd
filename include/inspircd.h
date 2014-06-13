@@ -365,7 +365,7 @@ class CoreExport InspIRCd
 	/** BanCacheManager is used to speed up checking of restrictions on connection
 	 * to the IRCd.
 	 */
-	BanCacheManager *BanCache;
+	BanCacheManager BanCache;
 
 	/** Stats class, holds miscellaneous stats counters
 	 */
