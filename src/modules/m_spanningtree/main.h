@@ -165,7 +165,6 @@ class ModuleSpanningTree : public Module
 	void OnPreRehash(User* user, const std::string &parameter) CXX11_OVERRIDE;
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE;
-	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
 	void OnAddLine(User *u, XLine *x) CXX11_OVERRIDE;
 	void OnDelLine(User *u, XLine *x) CXX11_OVERRIDE;
 	ModResult OnStats(char statschar, User* user, string_list &results) CXX11_OVERRIDE;
