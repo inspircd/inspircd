@@ -36,7 +36,8 @@ TreeServer::TreeServer()
 	: Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc)
 	, Parent(NULL), Route(NULL)
 	, VersionString(ServerInstance->GetVersionString()), Socket(NULL), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
-	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(false)
+	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(ServerInstance->Users->local_users.size())
+	, OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
 	AddHashEntry();
 }
