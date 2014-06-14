@@ -80,10 +80,6 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "protocol.h"
 #include "bancache.h"
 
-/** Returned by some functions to indicate failure.
- */
-#define ERROR -1
-
 /** Template function to convert any input type to std::string
  */
 template<typename T> inline std::string ConvNumeric(const T &in)
