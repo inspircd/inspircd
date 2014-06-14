@@ -71,7 +71,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	_new->host = params[3];
 	_new->dhost = params[4];
 	_new->ident = params[5];
-	_new->fullname = params[params.size() - 1];
+	_new->fullname = params.back();
 	_new->registered = REG_ALL;
 	_new->signon = signon;
 	_new->age = age_t;

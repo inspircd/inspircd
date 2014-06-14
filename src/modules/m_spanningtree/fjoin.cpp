@@ -151,7 +151,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	TreeSocket* src_socket = TreeServer::Get(srcuser)->GetSocket();
 
 	/* Now, process every 'modes,uuid' pair */
-	irc::tokenstream users(*params.rbegin());
+	irc::tokenstream users(params.back());
 	std::string item;
 	irc::modestacker* modestackptr = (apply_other_sides_modes ? &modestack : NULL);
 	while (users.GetToken(item))
