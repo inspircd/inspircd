@@ -51,7 +51,7 @@ if ($#ARGV != 0 || $ARGV[0] !~ /^(?:auto|gnutls|openssl)$/i) {
 my $certtool = $^O eq 'darwin' ? 'gnutls-certtool' : 'certtool';
 
 # Check whether the user has the required tools installed.
-my $has_gnutls = !system "$certtool --version >/dev/null 2>&1";
+my $has_gnutls = `$certtool --version v 2>/dev/null`;
 my $has_openssl = !system 'openssl version >/dev/null 2>&1';
 
 # The framework the user has specified.
@@ -92,6 +92,8 @@ my $dercert;
 my $status = 0;
 
 if ($tool eq 'gnutls') {
+	$has_gnutls =~ /certtool.+?(\d+\.\d+)/;
+	my $sec_param = $1 lt '2.10' ? '--bits 2048' : '--sec-param normal';
 	my $tmp = new File::Temp();
 	print $tmp <<__GNUTLS_END__;
 cn              = "$common_name"
@@ -113,9 +115,9 @@ ocsp_signing_key
 time_stamping_key
 __GNUTLS_END__
 	close($tmp);
-	$status ||= system "$certtool --generate-privkey --outfile key.pem";
+	$status ||= system "$certtool --generate-privkey $sec_param --outfile key.pem";
 	$status ||= system "$certtool --generate-self-signed --load-privkey key.pem --outfile cert.pem --template $tmp";
-	$status ||= system "$certtool --generate-dh-params --bits 2048 --outfile dhparams.pem";
+	$status ||= system "$certtool --generate-dh-params $sec_param --outfile dhparams.pem";
 	$dercert = `$certtool --certificate-info --infile cert.pem --outder` unless $status;
 } elsif ($tool eq 'openssl') {
 	my $tmp = new File::Temp();
