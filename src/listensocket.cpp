@@ -19,8 +19,6 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "socketengine.h"
 
 #ifndef _WIN32
 #include <netinet/tcp.h>

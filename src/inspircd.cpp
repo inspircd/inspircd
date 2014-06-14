@@ -52,11 +52,7 @@
 #include <fstream>
 #include <iostream>
 #include "xline.h"
-#include "socketengine.h"
-#include "socket.h"
-#include "command_parse.h"
 #include "exitcodes.h"
-#include "caller.h"
 #include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;

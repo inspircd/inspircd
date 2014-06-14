@@ -18,7 +18,6 @@
 
 
 #include "inspircd.h"
-#include "threadengine.h"
 
 void Thread::SetExitFlag()
 {

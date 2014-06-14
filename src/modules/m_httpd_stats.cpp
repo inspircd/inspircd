@@ -24,7 +24,6 @@
 #include "inspircd.h"
 #include "modules/httpd.h"
 #include "xline.h"
-#include "protocol.h"
 
 class ModuleHttpStats : public Module
 {

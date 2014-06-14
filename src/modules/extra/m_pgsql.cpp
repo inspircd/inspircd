@@ -24,7 +24,6 @@
 
 #include "inspircd.h"
 #include <cstdlib>
-#include <sstream>
 #include <libpq-fe.h>
 #include "modules/sql.h"
 

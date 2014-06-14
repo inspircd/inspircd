@@ -23,9 +23,6 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "inspstring.h"
-#include "socketengine.h"
 #include "iohook.h"
 
 #ifndef DISABLE_WRITEV

@@ -22,8 +22,6 @@
 
 
 #include "inspircd.h"
-#include "xline.h"
-#include "command_parse.h"
 
 CmdResult SplitCommand::Handle(const std::vector<std::string>& parms, User* u)
 {

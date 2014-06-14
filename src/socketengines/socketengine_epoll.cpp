@@ -18,12 +18,9 @@
  */
 
 
-#include <vector>
-#include <string>
-#include <map>
 #include "inspircd.h"
 #include "exitcodes.h"
-#include "socketengine.h"
+
 #include <sys/epoll.h>
 #include <ulimit.h>
 #include <iostream>

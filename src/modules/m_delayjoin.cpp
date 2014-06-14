@@ -21,7 +21,6 @@
 
 
 #include "inspircd.h"
-#include <stdarg.h>
 
 class DelayJoinMode : public ModeHandler
 {

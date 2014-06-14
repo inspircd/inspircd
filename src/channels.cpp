@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 #include "listmode.h"
-#include <cstdarg>
-#include "mode.h"
 
 namespace
 {

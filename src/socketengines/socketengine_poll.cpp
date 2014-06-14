@@ -21,12 +21,8 @@
  */
 
 
-#include <vector>
-#include <string>
-#include <map>
 #include "exitcodes.h"
 #include "inspircd.h"
-#include "socketengine.h"
 
 #include <sys/poll.h>
 #include <sys/resource.h>

@@ -26,10 +26,6 @@
 
 #include <iostream>
 #include "inspircd.h"
-#include "xline.h"
-#include "socket.h"
-#include "socketengine.h"
-#include "command_parse.h"
 #include "exitcodes.h"
 
 #ifndef _WIN32

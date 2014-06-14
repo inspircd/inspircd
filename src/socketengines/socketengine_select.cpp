@@ -20,7 +20,6 @@
 
 
 #include "inspircd.h"
-#include "socketengine.h"
 
 #ifndef _WIN32
 #include <sys/select.h>

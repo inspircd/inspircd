@@ -21,7 +21,6 @@
 
 
 #include "inspircd.h"
-#include "timer.h"
 
 void Timer::SetInterval(time_t newinterval)
 {

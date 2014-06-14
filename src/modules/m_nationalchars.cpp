@@ -26,7 +26,6 @@
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
 #include "inspircd.h"
-#include "caller.h"
 #include <fstream>
 
 class lwbNickHandler : public HandlerBase1<bool, const std::string&>

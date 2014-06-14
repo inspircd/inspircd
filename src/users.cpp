@@ -24,8 +24,6 @@
 
 
 #include "inspircd.h"
-#include <stdarg.h>
-#include "socketengine.h"
 #include "xline.h"
 
 already_sent_t LocalUser::already_sent_id = 0;

@@ -23,7 +23,6 @@
 
 #include "inspircd.h"
 #include "testsuite.h"
-#include "threadengine.h"
 #include <iostream>
 
 class TestSuiteThread : public Thread

@@ -25,11 +25,7 @@
 # error You need Solaris 10 or later to make use of this code.
 #endif
 
-#include <vector>
-#include <string>
-#include <map>
 #include "inspircd.h"
-#include "socketengine.h"
 #include <port.h>
 #include <iostream>
 #include <ulimit.h>

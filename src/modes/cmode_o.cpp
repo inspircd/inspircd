@@ -21,11 +21,6 @@
 
 
 #include "inspircd.h"
-#include "configreader.h"
-#include "mode.h"
-#include "channels.h"
-#include "users.h"
-#include "modules.h"
 #include "builtinmodes.h"
 
 ModeChannelOp::ModeChannelOp() : PrefixMode(NULL, "op", 'o')

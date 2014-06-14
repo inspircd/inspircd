@@ -22,8 +22,7 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "socketengine.h"
+
 using irc::sockets::sockaddrs;
 
 /** This will bind a socket to a port. It works for UDP/TCP.

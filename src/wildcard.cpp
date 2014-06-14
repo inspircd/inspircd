@@ -20,8 +20,6 @@
 
 
 #include "inspircd.h"
-#include "hashcomp.h"
-#include "inspstring.h"
 
 static bool MatchInternal(const unsigned char* str, const unsigned char* mask, unsigned const char* map)
 {

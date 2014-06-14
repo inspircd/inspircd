@@ -24,9 +24,6 @@
 #include "inspircd.h"
 #include <tds.h>
 #include <tdsconvert.h>
-#include "users.h"
-#include "channels.h"
-#include "modules.h"
 
 #include "m_sqlv2.h"
 

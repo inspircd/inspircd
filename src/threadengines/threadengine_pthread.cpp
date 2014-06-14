@@ -21,7 +21,6 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_pthread.h"
 #include <pthread.h>
-#include <signal.h>
 #include <fcntl.h>
 
 ThreadEngine::ThreadEngine()
