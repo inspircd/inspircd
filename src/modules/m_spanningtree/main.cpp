@@ -39,6 +39,8 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, commands(NULL)
 	, currmembid(0)
 	, DNS(this, "DNS")
+	, loopCall(false)
+	, SplitInProgress(false)
 {
 }
 
@@ -90,9 +92,6 @@ void ModuleSpanningTree::init()
 
 	delete ServerInstance->FakeClient->server;
 	SetLocalUsersServer(Utils->TreeRoot);
-
-	loopCall = false;
-	SplitInProgress = false;
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
