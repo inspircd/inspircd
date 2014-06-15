@@ -187,7 +187,7 @@
 # posix - POSIX regexps, provided via m_regex_posix.so, not availale  #
 #         on windows, no dependencies on other operating systems.     #
 #                                                                     #
-<filteropts engine="glob">                                           
+<filteropts engine="glob">
 #                                                                     #
 # Your choice of regex engine must match on all servers network-wide.
 #
@@ -355,7 +355,7 @@
 # GnuTLS SSL module: Adds support for SSL connections using GnuTLS,
 # if enabled. You must answer 'yes' in ./configure when asked or symlink
 # the source for this module from the directory src/modules/extra, if
-# you want to enable this, or it will not load. 
+# you want to enable this, or it will not load.
 #<module name="m_ssl_gnutls.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  GNUTLS CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-#-#
