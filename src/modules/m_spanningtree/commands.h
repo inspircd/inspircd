@@ -326,13 +326,6 @@ class CommandSNONotice : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
-class CommandVersion : public ServerOnlyServerCommand<CommandVersion>
-{
- public:
-	CommandVersion(Module* Creator) : ServerOnlyServerCommand<CommandVersion>(Creator, "VERSION", 1) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
-};
-
 class CommandBurst : public ServerOnlyServerCommand<CommandBurst>
 {
  public:
@@ -390,7 +383,6 @@ class SpanningTreeCommands
 	CommandServer server;
 	CommandSQuit squit;
 	CommandSNONotice snonotice;
-	CommandVersion version;
 	CommandBurst burst;
 	CommandEndBurst endburst;
 	CommandSInfo sinfo;
