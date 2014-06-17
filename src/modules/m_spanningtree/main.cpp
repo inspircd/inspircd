@@ -359,7 +359,13 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 			// Pass to default VERSION handler.
 			return MOD_RES_PASSTHRU;
 		}
-		std::string Version = found->GetVersion();
+
+		// If an oper wants to see the version then show the full version string instead of the normal,
+		// but only if it is non-empty.
+		// If it's empty it might be that the server is still syncing (full version hasn't arrived yet)
+		// or the server is a 2.0 server and does not send a full version.
+		bool showfull = ((user->IsOper()) && (!found->GetFullVersion().empty()));
+		const std::string& Version = (showfull ? found->GetFullVersion() : found->GetVersion());
 		user->WriteNumeric(RPL_VERSION, ":%s", Version.c_str());
 	}
 	else
