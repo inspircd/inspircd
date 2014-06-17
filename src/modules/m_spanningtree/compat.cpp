@@ -246,7 +246,17 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				}
 				else if (command == "SINFO")
 				{
-					return;
+					// :22D SINFO version :InspIRCd-2.2
+					//     A     B       C
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					// Only translating SINFO version, discard everything else
+					if (line.compare(b, 9, " version ", 9))
+						return;
+
+					line = line.substr(0, 5) + "VERSION" + line.substr(c);
 				}
 			}
 			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
@@ -382,6 +392,14 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		// :20D INVITE 22DAAABBB #chan 123456789
 		// Insert channel timestamp after the channel name; the 3rd parameter, if there, is the invite expiration time
 		return InsertCurrentChannelTS(params, 1, 2);
+	}
+	else if (cmd == "VERSION")
+	{
+		// :20D VERSION :InspIRCd-2.0
+		// change to
+		// :20D SINFO version :InspIRCd-2.0
+		cmd = "SINFO";
+		params.insert(params.begin(), "version");
 	}
 
 	return true; // Passthru
