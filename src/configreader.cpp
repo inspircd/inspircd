@@ -783,6 +783,9 @@ void ConfigReaderThread::Finish()
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 			i->second->ReadConfig(status);
 
+		// The description of this server may have changed - update it for WHOIS etc.
+		ServerInstance->FakeClient->server->description = Config->ServerDesc;
+
 		ServerInstance->ISupport.Build();
 
 		ServerInstance->Logs->CloseLogs();
