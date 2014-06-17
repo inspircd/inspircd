@@ -108,8 +108,6 @@ void TreeSocket::DoBurst(TreeServer* s)
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
 	this->WriteLine(":" + ServerInstance->Config->GetSID() + " BURST " + ConvToStr(ServerInstance->Time()));
-	/* send our version string */
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " VERSION :"+ServerInstance->GetVersionString());
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot, s);
 
@@ -127,6 +125,12 @@ void TreeSocket::DoBurst(TreeServer* s)
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
 }
 
+void TreeSocket::SendServerInfo(TreeServer* from)
+{
+	// Send public version string
+	this->WriteLine(CmdBuilder(from->GetID(), "VERSION").push_last(from->GetVersion()));
+}
+
 /** Recursively send the server tree.
  * This is used during network burst to inform the other server
  * (and any of ITS servers too) of what servers we know about.
@@ -136,6 +140,8 @@ void TreeSocket::DoBurst(TreeServer* s)
  */
 void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
+	SendServerInfo(Current);
+
 	const TreeServer::ChildServers& children = Current->GetChildren();
 	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
@@ -143,7 +149,6 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 		if (recursive_server != s)
 		{
 			this->WriteLine(CommandServer::Builder(recursive_server));
-			this->WriteLine(":" + recursive_server->GetID() + " VERSION :" + recursive_server->GetVersion());
 			/* down to next level */
 			this->SendServers(recursive_server, s);
 		}

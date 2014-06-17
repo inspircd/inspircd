@@ -114,6 +114,9 @@ class TreeSocket : public BufferedSocket
 	/** Send all users and their oper state, away state and metadata */
 	void SendUsers(BurstState& bs);
 
+	/** Send all additional info about the given server to this server */
+	void SendServerInfo(TreeServer* from);
+
  public:
 	const time_t age;
 
