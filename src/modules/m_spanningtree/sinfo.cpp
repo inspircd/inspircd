@@ -34,6 +34,12 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, std::vector<std::string
 	{
 		server->SetVersion(value);
 	}
+	else if (key == "desc")
+	{
+		// Only sent when the description of a server changes because of a rehash; not sent on burst
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Server description of " + server->GetName() + " changed: " + value);
+		server->SetDesc(value);
+	}
 
 	return CMD_SUCCESS;
 }

@@ -649,6 +649,16 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 
 void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 {
+	// Did this rehash change the description of this server?
+	const std::string& newdesc = ServerInstance->Config->ServerDesc;
+	if (newdesc != Utils->TreeRoot->GetDesc())
+	{
+		// Broadcast a SINFO desc message to let the network know about the new description. This is the description
+		// string that is sent in the SERVER message initially and shown for example in WHOIS.
+		// We don't need to update the field itself in the Server object - the core does that.
+		CommandSInfo::Builder(Utils->TreeRoot, "desc", newdesc).Broadcast();
+	}
+
 	// Re-read config stuff
 	try
 	{

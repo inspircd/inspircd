@@ -157,6 +157,12 @@ class TreeServer : public Server
 	 */
 	void SetFullVersion(const std::string& verstr) { fullversion = verstr; }
 
+	/** Sets the description of this server. Called when the description of a remote server changes
+	 * and we are notified about it.
+	 * @param descstr The description to set
+	 */
+	void SetDesc(const std::string& descstr) { description = descstr; }
+
 	/** Return all child servers
 	 */
 	const ChildServers& GetChildren() const { return Children; }
