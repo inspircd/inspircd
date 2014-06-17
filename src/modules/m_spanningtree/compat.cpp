@@ -244,6 +244,10 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						line.erase(d, e-d);
 					}
 				}
+				else if (command == "SINFO")
+				{
+					return;
+				}
 			}
 			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 			this->WriteData(line);

@@ -347,6 +347,19 @@ class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 };
 
+class CommandSInfo : public ServerOnlyServerCommand<CommandSInfo>
+{
+ public:
+	CommandSInfo(Module* Creator) : ServerOnlyServerCommand<CommandSInfo>(Creator, "SINFO", 2) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(TreeServer* server, const char* type, const std::string& value);
+	};
+};
+
 class SpanningTreeCommands
 {
  public:
@@ -380,5 +393,6 @@ class SpanningTreeCommands
 	CommandVersion version;
 	CommandBurst burst;
 	CommandEndBurst endburst;
+	CommandSInfo sinfo;
 	SpanningTreeCommands(ModuleSpanningTree* module);
 };
