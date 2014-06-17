@@ -46,7 +46,7 @@ class ModuleHideOper : public Module
 	void init()
 	{
 		ServerInstance->Modules->AddService(hm);
-		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine };
+		Implementation eventlist[] = { I_OnWhoisLine, I_OnSendWhoLine, I_OnStats };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 	}
 
@@ -89,6 +89,27 @@ class ModuleHideOper : public Module
 			if (params.size() > 1 && params[1].find('o') != std::string::npos)
 				line.clear();
 		}
+	}
+
+	ModResult OnStats(char symbol, User* user, string_list &results)
+	{
+		if (symbol != 'P')
+			return MOD_RES_PASSTHRU;
+
+		unsigned int count = 0;
+		for (std::list<User*>::const_iterator i = ServerInstance->Users->all_opers.begin(); i != ServerInstance->Users->all_opers.end(); ++i)
+		{
+			User* oper = *i;
+			if (!ServerInstance->ULine(oper->server) && (IS_OPER(user) || !oper->IsModeSet('H')))
+			{
+				results.push_back(ServerInstance->Config->ServerName+" 249 " + user->nick + " :" + oper->nick + " (" + oper->ident + "@" + oper->dhost + ") Idle: " +
+						(IS_LOCAL(oper) ? ConvToStr(ServerInstance->Time() - oper->idle_lastmsg) + " secs" : "unavailable"));
+				count++;
+			}
+		}
+		results.push_back(ServerInstance->Config->ServerName+" 249 "+user->nick+" :"+ConvToStr(count)+" OPER(s)");
+
+		return MOD_RES_DENY;
 	}
 };
 
