@@ -43,6 +43,11 @@ class TreeServer : public Server
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
 	std::string VersionString;		/* Version string or empty string */
+
+	/** Full version string including patch version and other info
+	 */
+	std::string fullversion;
+
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
@@ -96,6 +101,11 @@ class TreeServer : public Server
 	 */
 	const std::string& GetVersion();
 
+	/** Get the full version string of this server
+	 * @return The full version string of this server, including patch version and other info
+	 */
+	const std::string& GetFullVersion() const { return fullversion; }
+
 	/** Set time we are next due to ping this server
 	 */
 	void SetNextPingTime(time_t t);
@@ -141,6 +151,11 @@ class TreeServer : public Server
 	/** Set the server version string
 	 */
 	void SetVersion(const std::string &Version);
+
+	/** Set the full version string
+	 * @param verstr The version string to set
+	 */
+	void SetFullVersion(const std::string& verstr) { fullversion = verstr; }
 
 	/** Return all child servers
 	 */
