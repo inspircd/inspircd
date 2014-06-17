@@ -30,6 +30,10 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, std::vector<std::string
 	{
 		server->SetFullVersion(value);
 	}
+	else if (key == "version")
+	{
+		server->SetVersion(value);
+	}
 
 	return CMD_SUCCESS;
 }
