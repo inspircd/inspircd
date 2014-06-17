@@ -129,6 +129,9 @@ void TreeSocket::SendServerInfo(TreeServer* from)
 {
 	// Send public version string
 	this->WriteLine(CmdBuilder(from->GetID(), "VERSION").push_last(from->GetVersion()));
+
+	// Send full version string that contains more information and is shown to opers
+	this->WriteLine(CommandSInfo::Builder(from, "fullversion", from->GetFullVersion()));
 }
 
 /** Recursively send the server tree.

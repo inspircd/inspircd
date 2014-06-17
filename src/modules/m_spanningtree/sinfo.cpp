@@ -26,6 +26,11 @@ CmdResult CommandSInfo::HandleServer(TreeServer* server, std::vector<std::string
 	const std::string& key = params.front();
 	const std::string& value = params.back();
 
+	if (key == "fullversion")
+	{
+		server->SetFullVersion(value);
+	}
+
 	return CMD_SUCCESS;
 }
 
