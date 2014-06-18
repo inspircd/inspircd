@@ -59,7 +59,8 @@ class CommandChghost : public Command
 
 		User* dest = ServerInstance->FindNick(parameters[0]);
 
-		if ((!dest) || (dest->registered != REG_ALL))
+		// Allow services to change the host of unregistered users
+		if ((!dest) || ((dest->registered != REG_ALL) && (!ServerInstance->ULine(user->server))))
 		{
 			user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 			return CMD_FAILURE;
