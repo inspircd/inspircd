@@ -628,6 +628,21 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 		// If a module denied the change, abort now
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
+
+		// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
+		// one of the channels they are on
+		if (ServerInstance->Config->RestrictBannedUsers)
+		{
+			for (UCListIter i = this->chans.begin(); i != this->chans.end(); ++i)
+			{
+				Channel* chan = (*i)->chan;
+				if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
+				{
+					this->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
+					return false;
+				}
+			}
+		}
 	}
 
 	if (assign(newnick) == assign(nick))
@@ -660,19 +675,6 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 				}
 				this->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Invalid nickname: %s", newnick.c_str(), mq->reason.c_str());
 				return false;
-			}
-
-			if (ServerInstance->Config->RestrictBannedUsers)
-			{
-				for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
-				{
-					Channel* chan = (*i)->chan;
-					if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
-					{
-						this->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
-						return false;
-					}
-				}
 			}
 		}
 
