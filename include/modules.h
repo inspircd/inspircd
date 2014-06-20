@@ -558,17 +558,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnBuildNeighborList(User* source, IncludeChanList& include_c, std::map<User*, bool>& exceptions);
 
-	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
-	 * Please note that although you can see remote nickchanges through this function, you should
-	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
-	 * check user->server before taking any action (including returning nonzero from the method).
+	/** Called before local nickname changes. This can be used to implement Q-lines etc.
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
 	 * @param user The username changing their nick
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
 	 */
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick);
+	virtual ModResult OnUserPreNick(LocalUser* user, const std::string& newnick);
 
 	/** Called after any PRIVMSG sent from a user.
 	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*

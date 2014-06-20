@@ -619,11 +619,13 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 		return false;
 	}
 
-	if (!force)
+	LocalUser* const localuser = IS_LOCAL(this);
+	if (!force && localuser)
 	{
 		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
+		FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (localuser, newnick));
 
+		// If a module denied the change, abort now
 		if (MOD_RESULT == MOD_RES_DENY)
 			return false;
 	}

@@ -126,7 +126,7 @@ class ModuleNickFlood : public Module
 	{
 	}
 
-	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
 		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
 		{
