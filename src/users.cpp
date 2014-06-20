@@ -625,10 +625,7 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 		FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
 
 		if (MOD_RESULT == MOD_RES_DENY)
-		{
-			ServerInstance->stats.Collisions++;
 			return false;
-		}
 	}
 
 	if (assign(newnick) == assign(nick))
