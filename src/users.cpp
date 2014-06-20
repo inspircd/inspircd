@@ -647,7 +647,7 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 
 	if (assign(newnick) == assign(nick))
 	{
-		// case change, don't need to check Q:lines and such
+		// case change, don't need to check campers
 		// and, if it's identical including case, we can leave right now
 		// We also don't update the nick TS if it's a case change, either
 		if (newnick == nick)
@@ -655,29 +655,6 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 	}
 	else
 	{
-		/*
-		 * Don't check Q:Lines if it's a server-enforced change, just on the off-chance some fucking *moron*
-		 * tries to Q:Line SIDs, also, this means we just get our way period, as it really should be.
-		 * Thanks Kein for finding this. -- w00t
-		 *
-		 * Also don't check Q:Lines for remote nickchanges, they should have our Q:Lines anyway to enforce themselves.
-		 *		-- w00t
-		 */
-		if (IS_LOCAL(this) && !force)
-		{
-			XLine* mq = ServerInstance->XLines->MatchesLine("Q",newnick);
-			if (mq)
-			{
-				if (this->registered == REG_ALL)
-				{
-					ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s: %s",
-						newnick.c_str(), GetFullRealHost().c_str(), mq->reason.c_str());
-				}
-				this->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Invalid nickname: %s", newnick.c_str(), mq->reason.c_str());
-				return false;
-			}
-		}
-
 		/*
 		 * Uh oh.. if the nickname is in use, and it's not in use by the person using it (doh) --
 		 * then we have a potential collide. Check whether someone else is camping on the nick
