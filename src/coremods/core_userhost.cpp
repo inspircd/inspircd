@@ -50,22 +50,17 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 
 		if ((u) && (u->registered == REG_ALL))
 		{
-			retbuf = retbuf + u->nick;
+			retbuf += u->nick;
 
 			if (u->IsOper())
-				retbuf = retbuf + "*";
+				retbuf += '*';
 
-			retbuf = retbuf + "=";
-
-			if (u->IsAway())
-				retbuf += "-";
-			else
-				retbuf += "+";
-
-			retbuf = retbuf + u->ident + "@";
-
+			retbuf += '=';
+			retbuf += (u->IsAway() ? '-' : '+');
+			retbuf += u->ident;
+			retbuf += '@';
 			retbuf += (has_privs ? u->host : u->dhost);
-			retbuf = retbuf + " ";
+			retbuf += ' ';
 		}
 	}
 
