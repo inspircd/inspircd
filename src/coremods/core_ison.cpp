@@ -92,9 +92,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	if (!reply.empty())
-		user->WriteServ(reply);
-
+	user->WriteServ(reply);
 	return CMD_SUCCESS;
 }
 
