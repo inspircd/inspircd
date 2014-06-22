@@ -193,7 +193,7 @@ void ISupportManager::Build()
 	std::map<std::string, std::string>::iterator extban = tokens.find("EXTBAN");
 	if (extban != tokens.end())
 	{
-		sort(extban->second.begin(), extban->second.end());
+		std::sort(extban->second.begin(), extban->second.end());
 		extban->second.insert(0, ",");
 	}
 

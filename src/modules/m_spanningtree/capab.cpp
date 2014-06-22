@@ -69,7 +69,7 @@ static std::string BuildModeList(ModeType type)
 			modes.push_back(mdesc);
 		}
 	}
-	sort(modes.begin(), modes.end());
+	std::sort(modes.begin(), modes.end());
 	return irc::stringjoiner(modes);
 }
 

@@ -45,7 +45,7 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 			RPL_COMMANDS, user->nick.c_str(), i->second->name.c_str(), src->ModuleSourceFile.c_str(),
 			i->second->min_params, i->second->Penalty));
 	}
-	sort(list.begin(), list.end());
+	std::sort(list.begin(), list.end());
 	for(unsigned int i=0; i < list.size(); i++)
 		user->Write(list[i]);
 	user->WriteNumeric(RPL_COMMANDSEND, ":End of COMMANDS list");
