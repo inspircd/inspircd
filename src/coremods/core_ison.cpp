@@ -44,6 +44,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 {
 	User *u;
 	std::string reply = "303 " + user->nick + " :";
+	const std::string::size_type pos = reply.size();
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
@@ -54,7 +55,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 			if (reply.length() > 450)
 			{
 				user->WriteServ(reply);
-				reply = "303 " + user->nick + " :";
+				reply.erase(pos);
 			}
 		}
 		else
@@ -75,7 +76,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 						if (reply.length() > 450)
 						{
 							user->WriteServ(reply);
-							reply = "303 " + user->nick + " :";
+							reply.erase(pos);
 						}
 					}
 				}
