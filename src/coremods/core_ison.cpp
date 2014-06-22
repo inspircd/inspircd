@@ -24,6 +24,14 @@
  */
 class CommandIson : public Command
 {
+	/** Helper function to append a nick to an ISON reply
+	 * @param user User doing the /ISON
+	 * @param toadd User to append to the ISON reply
+	 * @param reply Reply string to append the nick to
+	 * @param pos If the reply gets too long it is sent to the user and truncated from this position
+	 */
+	static bool AddNick(User* user, User* toadd, std::string& reply, const std::string::size_type pos);
+
  public:
 	/** Constructor for ison.
 	 */
@@ -38,6 +46,21 @@ class CommandIson : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
+bool CommandIson::AddNick(User* user, User* toadd, std::string& reply, const std::string::size_type pos)
+{
+	if ((toadd) && (toadd->registered == REG_ALL))
+	{
+		reply.append(toadd->nick).push_back(' ');
+		if (reply.length() > 450)
+		{
+			user->WriteServ(reply);
+			reply.erase(pos);
+		}
+		return true;
+	}
+	return false;
+}
+
 /** Handle /ISON
  */
 CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User *user)
@@ -49,16 +72,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
 		u = ServerInstance->FindNickOnly(parameters[i]);
-		if ((u) && (u->registered == REG_ALL))
-		{
-			reply.append(u->nick).append(" ");
-			if (reply.length() > 450)
-			{
-				user->WriteServ(reply);
-				reply.erase(pos);
-			}
-		}
-		else
+		if (!AddNick(user, u, reply, pos))
 		{
 			if ((i == parameters.size() - 1) && (parameters[i].find(' ') != std::string::npos))
 			{
@@ -68,18 +82,7 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 				std::string item;
 
 				while (list.GetToken(item))
-				{
-					u = ServerInstance->FindNickOnly(item);
-					if ((u) && (u->registered == REG_ALL))
-					{
-						reply.append(u->nick).append(" ");
-						if (reply.length() > 450)
-						{
-							user->WriteServ(reply);
-							reply.erase(pos);
-						}
-					}
-				}
+					AddNick(user, ServerInstance->FindNickOnly(item), reply, pos);
 			}
 		}
 	}
