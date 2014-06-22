@@ -68,6 +68,8 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
+	const bool has_privs = user->HasPrivPermission("channels/auspex");
+
 	const chan_hash& chans = ServerInstance->GetChans();
 	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 	{
@@ -87,7 +89,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		}
 
 		// if the channel is not private/secret, OR the user is on the channel anyway
-		bool n = (i->second->HasUser(user) || user->HasPrivPermission("channels/auspex"));
+		bool n = (has_privs || i->second->HasUser(user));
 
 		if (!n && i->second->IsModeSet(privatemode))
 		{
