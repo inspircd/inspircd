@@ -40,6 +40,8 @@ class CommandUserhost : public Command
 
 CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, User *user)
 {
+	const bool has_privs = user->HasPrivPermission("users/auspex");
+
 	std::string retbuf = "302 " + user->nick + " :";
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
@@ -62,15 +64,7 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 
 			retbuf = retbuf + u->ident + "@";
 
-			if (user->HasPrivPermission("users/auspex"))
-			{
-				retbuf = retbuf + u->host;
-			}
-			else
-			{
-				retbuf = retbuf + u->dhost;
-			}
-
+			retbuf += (has_privs ? u->host : u->dhost);
 			retbuf = retbuf + " ";
 		}
 	}
