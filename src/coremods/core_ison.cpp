@@ -65,20 +65,21 @@ bool CommandIson::AddNick(User* user, User* toadd, std::string& reply, const std
  */
 CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	User *u;
 	std::string reply = "303 " + user->nick + " :";
 	const std::string::size_type pos = reply.size();
 
-	for (unsigned int i = 0; i < parameters.size(); i++)
+	for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i)
 	{
-		u = ServerInstance->FindNickOnly(parameters[i]);
+		const std::string& targetstr = *i;
+
+		User* const u = ServerInstance->FindNickOnly(targetstr);
 		if (!AddNick(user, u, reply, pos))
 		{
-			if ((i == parameters.size() - 1) && (parameters[i].find(' ') != std::string::npos))
+			if ((i == parameters.end() - 1) && (targetstr.find(' ') != std::string::npos))
 			{
 				/* Its a space seperated list of nicks (RFC1459 says to support this)
 				 */
-				irc::spacesepstream list(parameters[i]);
+				irc::spacesepstream list(targetstr);
 				std::string item;
 
 				while (list.GetToken(item))
