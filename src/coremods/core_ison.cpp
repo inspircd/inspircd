@@ -42,16 +42,12 @@ class CommandIson : public Command
  */
 CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	std::map<User*,User*> ison_already;
 	User *u;
 	std::string reply = "303 " + user->nick + " :";
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
 	{
 		u = ServerInstance->FindNickOnly(parameters[i]);
-		if (ison_already.find(u) != ison_already.end())
-			continue;
-
 		if ((u) && (u->registered == REG_ALL))
 		{
 			reply.append(u->nick).append(" ");
@@ -60,7 +56,6 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 				user->WriteServ(reply);
 				reply = "303 " + user->nick + " :";
 			}
-			ison_already[u] = u;
 		}
 		else
 		{
@@ -74,9 +69,6 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 				while (list.GetToken(item))
 				{
 					u = ServerInstance->FindNickOnly(item);
-					if (ison_already.find(u) != ison_already.end())
-						continue;
-
 					if ((u) && (u->registered == REG_ALL))
 					{
 						reply.append(u->nick).append(" ");
@@ -85,7 +77,6 @@ CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User 
 							user->WriteServ(reply);
 							reply = "303 " + user->nick + " :";
 						}
-						ison_already[u] = u;
 					}
 				}
 			}
