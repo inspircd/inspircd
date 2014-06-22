@@ -69,6 +69,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 	}
 
 	const bool has_privs = user->HasPrivPermission("channels/auspex");
+	const bool match_name_topic = ((!parameters.empty()) && (!parameters[0].empty()) && (parameters[0][0] != '<') && (parameters[0][0] != '>'));
 
 	const chan_hash& chans = ServerInstance->GetChans();
 	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
@@ -82,7 +83,7 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		if (too_many || too_few)
 			continue;
 
-		if (parameters.size() && !parameters[0].empty() && (parameters[0][0] != '<' && parameters[0][0] != '>'))
+		if (match_name_topic)
 		{
 			if (!InspIRCd::Match(i->second->name, parameters[0]) && !InspIRCd::Match(i->second->topic, parameters[0]))
 				continue;
