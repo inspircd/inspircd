@@ -74,8 +74,10 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 	const chan_hash& chans = ServerInstance->GetChans();
 	for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
 	{
+		Channel* const chan = i->second;
+
 		// attempt to match a glob pattern
-		long users = i->second->GetUserCounter();
+		long users = chan->GetUserCounter();
 
 		bool too_few = (minusers && (users <= minusers));
 		bool too_many = (maxusers && (users >= maxusers));
@@ -85,24 +87,24 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 
 		if (match_name_topic)
 		{
-			if (!InspIRCd::Match(i->second->name, parameters[0]) && !InspIRCd::Match(i->second->topic, parameters[0]))
+			if (!InspIRCd::Match(chan->name, parameters[0]) && !InspIRCd::Match(chan->topic, parameters[0]))
 				continue;
 		}
 
 		// if the channel is not private/secret, OR the user is on the channel anyway
-		bool n = (has_privs || i->second->HasUser(user));
+		bool n = (has_privs || chan->HasUser(user));
 
-		if (!n && i->second->IsModeSet(privatemode))
+		if ((!n) && (chan->IsModeSet(privatemode)))
 		{
 			/* Channel is +p and user is outside/not privileged */
 			user->WriteNumeric(RPL_LIST, "* %ld :", users);
 		}
 		else
 		{
-			if (n || !i->second->IsModeSet(secretmode))
+			if ((n) || (!chan->IsModeSet(secretmode)))
 			{
 				/* User is in the channel/privileged, channel is not +s */
-				user->WriteNumeric(RPL_LIST, "%s %ld :[+%s] %s",i->second->name.c_str(),users,i->second->ChanModes(n),i->second->topic.c_str());
+				user->WriteNumeric(RPL_LIST, "%s %ld :[+%s] %s", chan->name.c_str(), users, chan->ChanModes(n), chan->topic.c_str());
 			}
 		}
 	}
