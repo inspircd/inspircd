@@ -52,14 +52,6 @@ class CoreExport ThreadEngine
 	  * derived object.
 	  */
 	void Start(Thread* thread_to_init);
-
-	/** Returns the thread engine's name for display purposes
-	 * @return The thread engine name
-	 */
-	const std::string GetName()
-	{
-		return "windows-thread";
-	}
 };
 
 class CoreExport ThreadData
