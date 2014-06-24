@@ -57,7 +57,7 @@ class ModuleDenyChannels : public Module
 					if (InspIRCd::Match(redirect, j->second->getString("name")))
 					{
 						bool goodchan = false;
-						ConfigTagList goodchans = ServerInstance->Config->ConfTags("badchan");
+						ConfigTagList goodchans = ServerInstance->Config->ConfTags("goodchan");
 						for (ConfigIter k = goodchans.first; k != goodchans.second; ++k)
 						{
 							if (InspIRCd::Match(redirect, k->second->getString("name")))
