@@ -397,7 +397,7 @@ class CoreExport InspIRCd
 
 	/** User manager. Various methods and data associated with users.
 	 */
-	UserManager *Users;
+	UserManager Users;
 
 	/** Channel list, a hash_map containing all channels XXX move to channel manager class
 	 */

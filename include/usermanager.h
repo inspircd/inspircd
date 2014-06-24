@@ -21,7 +21,7 @@
 
 #include <list>
 
-class CoreExport UserManager
+class CoreExport UserManager : public fakederef<UserManager>
 {
  public:
 	struct CloneCounts

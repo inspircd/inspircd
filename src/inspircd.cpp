@@ -124,7 +124,6 @@ void InspIRCd::Cleanup()
 		FakeClient->cull();
 	}
 	DeleteZero(this->FakeClient);
-	DeleteZero(this->Users);
 	DeleteZero(this->XLines);
 	DeleteZero(this->Config);
 	SocketEngine::Deinit();
@@ -247,7 +246,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	    do_nolog = 0, do_root = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
-	this->Users = 0;
 	this->Config = 0;
 	this->XLines = 0;
 	this->ConfigThread = NULL;
@@ -257,9 +255,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->startup_time = TIME.tv_sec;
 
 	SocketEngine::Init();
-
-	// Create base manager classes early, so nothing breaks
-	this->Users = new UserManager;
 
 	this->Config = new ServerConfig;
 	dynamic_reference_base::reset_all();
