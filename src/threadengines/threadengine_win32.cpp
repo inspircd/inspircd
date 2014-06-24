@@ -23,17 +23,12 @@
 
 void ThreadEngine::Start(Thread* thread)
 {
-	ThreadData* data = new ThreadData;
-	thread->state = data;
-
 	DWORD ThreadId = 0;
-	data->handle = CreateThread(NULL,0,ThreadEngine::Entry,thread,0,&ThreadId);
+	thread->state.handle = CreateThread(NULL, 0, ThreadEngine::Entry, thread, 0, &ThreadId);
 
-	if (data->handle == NULL)
+	if (thread->state.handle == NULL)
 	{
 		DWORD lasterr = GetLastError();
-		thread->state = NULL;
-		delete data;
 		std::string err = "Unable to create new thread: " + ConvToStr(lasterr);
 		SetLastError(ERROR_SUCCESS);
 		throw CoreException(err);

@@ -26,9 +26,7 @@ void Thread::SetExitFlag()
 
 void Thread::join()
 {
-		state->FreeThread(this);
-		delete state;
-		state = 0;
+	state.FreeThread(this);
 }
 
 /** If this thread has a Creator set, call it to

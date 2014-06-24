@@ -49,11 +49,11 @@ class CoreExport Thread
  public:
 	/** Opaque thread state managed by threading engine
 	 */
-	ThreadData* state;
+	ThreadData state;
 
 	/** Set Creator to NULL at this point
 	 */
-	Thread() : ExitFlag(false), state(NULL)
+	Thread() : ExitFlag(false)
 	{
 	}
 
