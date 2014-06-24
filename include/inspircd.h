@@ -385,7 +385,7 @@ class CoreExport InspIRCd
 	/** Snomask manager - handles routing of snomask messages
 	 * to opers.
 	 */
-	SnomaskManager* SNO;
+	SnomaskManager SNO;
 
 	/** Timer manager class, triggers Timer timer events
 	 */

@@ -72,7 +72,7 @@ class Snomask
  * Modules and the core can enable and disable snomask characters. If they do,
  * then sending snomasks using these characters becomes possible.
  */
-class CoreExport SnomaskManager
+class CoreExport SnomaskManager : public fakederef<SnomaskManager>
 {
 	Snomask	masks[26];
 

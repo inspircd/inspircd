@@ -126,7 +126,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->FakeClient);
 	DeleteZero(this->Users);
 	DeleteZero(this->XLines);
-	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
@@ -250,7 +249,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	// Initialize so that if we exit before proper initialization they're not deleted
 	this->Users = 0;
 	this->Config = 0;
-	this->SNO = 0;
 	this->XLines = 0;
 	this->ConfigThread = NULL;
 	this->FakeClient = NULL;
@@ -264,7 +262,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Users = new UserManager;
 
 	this->Config = new ServerConfig;
-	this->SNO = new SnomaskManager;
 	dynamic_reference_base::reset_all();
 	this->XLines = new XLineManager;
 
