@@ -33,11 +33,9 @@
 #endif
 
 static intrusive_list<dynamic_reference_base>* dynrefs = NULL;
-static bool dynref_init_complete = false;
 
 void dynamic_reference_base::reset_all()
 {
-	dynref_init_complete = true;
 	if (!dynrefs)
 		return;
 	for (intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
@@ -674,7 +672,9 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 	if (!dynrefs)
 		dynrefs = new intrusive_list<dynamic_reference_base>;
 	dynrefs->push_front(this);
-	if (dynref_init_complete)
+
+	// Resolve unless there is no ModuleManager (part of class InspIRCd)
+	if (ServerInstance)
 		resolve();
 }
 
