@@ -367,7 +367,7 @@ class CoreExport InspIRCd
 	/** ModuleManager contains everything related to loading/unloading
 	 * modules.
 	 */
-	ModuleManager* Modules;
+	ModuleManager Modules;
 
 	/** BanCacheManager is used to speed up checking of restrictions on connection
 	 * to the IRCd.

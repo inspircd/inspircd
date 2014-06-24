@@ -126,7 +126,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->FakeClient);
 	DeleteZero(this->Users);
 	DeleteZero(this->XLines);
-	DeleteZero(this->Modules);
 	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
 	SocketEngine::Deinit();
@@ -252,7 +251,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->Users = 0;
 	this->Config = 0;
 	this->SNO = 0;
-	this->Modules = 0;
 	this->XLines = 0;
 	this->ConfigThread = NULL;
 	this->FakeClient = NULL;
@@ -267,7 +265,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	this->Config = new ServerConfig;
 	this->SNO = new SnomaskManager;
-	this->Modules = new ModuleManager();
 	dynamic_reference_base::reset_all();
 	this->XLines = new XLineManager;
 

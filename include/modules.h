@@ -1078,7 +1078,7 @@ typedef IntModuleList::iterator EventHandlerIter;
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
-class CoreExport ModuleManager
+class CoreExport ModuleManager : public fakederef<ModuleManager>
 {
  public:
 	typedef std::vector<ServiceProvider*> ServiceList;
