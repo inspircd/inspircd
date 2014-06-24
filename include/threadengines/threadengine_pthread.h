@@ -36,6 +36,13 @@
 class CoreExport ThreadEngine
 {
  public:
+	/** Per-thread state, present in each Thread object, managed by the ThreadEngine
+	 */
+	struct ThreadState
+	{
+		pthread_t pthread_id;
+	};
+
 	/** Create a new thread. This takes an already allocated
 	 * Thread* pointer and initializes it to use this threading
 	 * engine. On failure, this function may throw a CoreException.
@@ -55,12 +62,6 @@ class CoreExport ThreadEngine
 	 * @param thread The thread to stop.
 	 */
 	void Stop(Thread* thread);
-};
-
-class CoreExport ThreadData
-{
- public:
-	pthread_t pthread_id;
 };
 
 /** The Mutex class represents a mutex, which can be used to keep threads

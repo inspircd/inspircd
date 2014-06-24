@@ -38,6 +38,13 @@ class Thread;
 class CoreExport ThreadEngine
 {
  public:
+	/** Per-thread state, present in each Thread object, managed by the ThreadEngine
+	 */
+	struct ThreadState
+	{
+		HANDLE handle;
+	};
+
 	static DWORD WINAPI Entry(void* parameter);
 
 	/** Create a new thread. This takes an already allocated
@@ -59,12 +66,6 @@ class CoreExport ThreadEngine
 	 * @param thread The thread to stop.
 	 */
 	void Stop(Thread* thread);
-};
-
-class CoreExport ThreadData
-{
- public:
-	HANDLE handle;
 };
 
 /** The Mutex class represents a mutex, which can be used to keep threads

@@ -26,8 +26,6 @@
 #include "config.h"
 #include "base.h"
 
-class ThreadData;
-
 /** Derive from this class to implement your own threaded sections of
  * code. Be sure to keep your code thread-safe and not prone to deadlocks
  * and race conditions if you MUST use threading!
@@ -41,7 +39,7 @@ class CoreExport Thread
 
 	/** Opaque thread state managed by the ThreadEngine
 	 */
-	ThreadData state;
+	ThreadEngine::ThreadState state;
 
 	/** ThreadEngine manages Thread::state
 	 */
