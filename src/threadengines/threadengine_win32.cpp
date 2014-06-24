@@ -23,8 +23,7 @@
 
 void ThreadEngine::Start(Thread* thread)
 {
-	DWORD ThreadId = 0;
-	thread->state.handle = CreateThread(NULL, 0, ThreadEngine::Entry, thread, 0, &ThreadId);
+	thread->state.handle = CreateThread(NULL, 0, ThreadEngine::Entry, thread, 0, NULL);
 
 	if (thread->state.handle == NULL)
 	{
