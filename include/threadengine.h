@@ -38,6 +38,15 @@ class CoreExport Thread
 	/** Set to true when the thread is to exit
 	 */
 	bool ExitFlag;
+
+	/** Opaque thread state managed by the ThreadEngine
+	 */
+	ThreadData state;
+
+	/** ThreadEngine manages Thread::state
+	 */
+	friend class ThreadEngine;
+
  protected:
 	/** Get thread's current exit status.
 	 * (are we being asked to exit?)
@@ -47,10 +56,6 @@ class CoreExport Thread
 		return ExitFlag;
 	}
  public:
-	/** Opaque thread state managed by threading engine
-	 */
-	ThreadData state;
-
 	/** Set Creator to NULL at this point
 	 */
 	Thread() : ExitFlag(false)
