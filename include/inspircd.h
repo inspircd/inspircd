@@ -362,7 +362,7 @@ class CoreExport InspIRCd
 
 	/** LogManager handles logging.
 	 */
-	LogManager *Logs;
+	LogManager Logs;
 
 	/** ModuleManager contains everything related to loading/unloading
 	 * modules.

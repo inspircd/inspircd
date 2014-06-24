@@ -131,7 +131,6 @@ void InspIRCd::Cleanup()
 	DeleteZero(this->Config);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
-	DeleteZero(this->Logs);
 }
 
 void InspIRCd::SetSignals()
@@ -250,7 +249,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	    do_nolog = 0, do_root = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
-	this->Logs = 0;
 	this->Users = 0;
 	this->Config = 0;
 	this->SNO = 0;
@@ -261,9 +259,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
-
-	// This must be created first, so other parts of Insp can use it while starting up
-	this->Logs = new LogManager;
 
 	SocketEngine::Init();
 

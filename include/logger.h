@@ -114,7 +114,7 @@ class CoreExport LogStream : public classbase
 
 typedef std::map<FileWriter*, int> FileLogMap;
 
-class CoreExport LogManager
+class CoreExport LogManager : public fakederef<LogManager>
 {
  private:
 	/** Lock variable, set to true when a log is in progress, which prevents further loggging from happening and creating a loop.
