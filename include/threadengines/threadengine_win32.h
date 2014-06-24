@@ -99,9 +99,8 @@ class CoreExport Mutex
 	}
 };
 
-class ThreadQueueData
+class ThreadQueueData : public Mutex
 {
-	CRITICAL_SECTION mutex;
 	HANDLE event;
  public:
 	ThreadQueueData()
@@ -109,23 +108,11 @@ class ThreadQueueData
 		event = CreateEvent(NULL, false, false, NULL);
 		if (event == NULL)
 			throw CoreException("CreateEvent() failed in ThreadQueueData::ThreadQueueData()!");
-		InitializeCriticalSection(&mutex);
 	}
 
 	~ThreadQueueData()
 	{
 		CloseHandle(event);
-		DeleteCriticalSection(&mutex);
-	}
-
-	void Lock()
-	{
-		EnterCriticalSection(&mutex);
-	}
-
-	void Unlock()
-	{
-		LeaveCriticalSection(&mutex);
 	}
 
 	void Wakeup()
@@ -135,9 +122,9 @@ class ThreadQueueData
 
 	void Wait()
 	{
-		LeaveCriticalSection(&mutex);
+		Unlock();
 		WaitForSingleObject(event, INFINITE);
-		EnterCriticalSection(&mutex);
+		Lock();
 	}
 };
 

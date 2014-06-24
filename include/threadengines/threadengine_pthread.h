@@ -74,7 +74,7 @@ class CoreExport ThreadEngine
  */
 class CoreExport Mutex
 {
- private:
+ protected:
 	pthread_mutex_t putex;
  public:
 	/** Constructor.
@@ -103,31 +103,18 @@ class CoreExport Mutex
 	}
 };
 
-class ThreadQueueData
+class ThreadQueueData : public Mutex
 {
-	pthread_mutex_t mutex;
 	pthread_cond_t cond;
  public:
 	ThreadQueueData()
 	{
-		pthread_mutex_init(&mutex, NULL);
 		pthread_cond_init(&cond, NULL);
 	}
 
 	~ThreadQueueData()
 	{
-		pthread_mutex_destroy(&mutex);
 		pthread_cond_destroy(&cond);
-	}
-
-	void Lock()
-	{
-		pthread_mutex_lock(&mutex);
-	}
-
-	void Unlock()
-	{
-		pthread_mutex_unlock(&mutex);
 	}
 
 	void Wakeup()
@@ -137,7 +124,7 @@ class ThreadQueueData
 
 	void Wait()
 	{
-		pthread_cond_wait(&cond, &mutex);
+		pthread_cond_wait(&cond, &putex);
 	}
 };
 
