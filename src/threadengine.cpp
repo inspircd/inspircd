@@ -28,10 +28,3 @@ void Thread::join()
 {
 	ServerInstance->Threads.Stop(this);
 }
-
-/** If this thread has a Creator set, call it to
- * free the thread
- */
-Thread::~Thread()
-{
-}

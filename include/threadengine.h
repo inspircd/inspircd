@@ -60,9 +60,6 @@ class CoreExport Thread
 	{
 	}
 
-	/* If the thread is running, you MUST join BEFORE deletion */
-	virtual ~Thread();
-
 	/** Override this method to put your actual
 	 * threaded code here.
 	 */
