@@ -36,15 +36,6 @@
 class CoreExport ThreadEngine
 {
  public:
-
-	/** Constructor.
-	 */
-	ThreadEngine();
-
-	/** Destructor
-	 */
-	virtual ~ThreadEngine();
-
 	/** Create a new thread. This takes an already allocated
 	 * Thread* pointer and initializes it to use this threading
 	 * engine. On failure, this function may throw a CoreException.

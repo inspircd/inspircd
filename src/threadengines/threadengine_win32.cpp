@@ -21,10 +21,6 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_win32.h"
 
-ThreadEngine::ThreadEngine()
-{
-}
-
 void ThreadEngine::Start(Thread* thread)
 {
 	ThreadData* data = new ThreadData;
@@ -42,10 +38,6 @@ void ThreadEngine::Start(Thread* thread)
 		SetLastError(ERROR_SUCCESS);
 		throw CoreException(err);
 	}
-}
-
-ThreadEngine::~ThreadEngine()
-{
 }
 
 DWORD WINAPI ThreadEngine::Entry(void* parameter)

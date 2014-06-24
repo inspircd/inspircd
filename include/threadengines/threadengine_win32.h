@@ -38,11 +38,6 @@ class Thread;
 class CoreExport ThreadEngine
 {
  public:
-
-	ThreadEngine();
-
-	virtual ~ThreadEngine();
-
 	static DWORD WINAPI Entry(void* parameter);
 
 	/** Create a new thread. This takes an already allocated

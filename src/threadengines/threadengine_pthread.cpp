@@ -23,10 +23,6 @@
 #include <pthread.h>
 #include <fcntl.h>
 
-ThreadEngine::ThreadEngine()
-{
-}
-
 static void* entry_point(void* parameter)
 {
 	/* Recommended by nenolod, signal safety on a per-thread basis */
@@ -52,10 +48,6 @@ void ThreadEngine::Start(Thread* thread)
 		delete data;
 		throw CoreException("Unable to create new thread: " + std::string(strerror(errno)));
 	}
-}
-
-ThreadEngine::~ThreadEngine()
-{
 }
 
 void ThreadData::FreeThread(Thread* thread)
