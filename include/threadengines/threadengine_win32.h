@@ -47,13 +47,24 @@ class CoreExport ThreadEngine
 	  * derived object.
 	  */
 	void Start(Thread* thread_to_init);
+
+	/** Stop a thread gracefully.
+	 * First, this function asks the thread to terminate by calling Thread::SetExitFlag().
+	 * Next, it waits until the thread terminates (on the operating system level). Finally,
+	 * all OS-level resources associated with the thread are released. The Thread instance
+	 * passed to the function is NOT freed.
+	 * When this function returns, the thread is stopped and you can destroy it or restart it
+	 * at a later point.
+	 * Stopping a thread that is not running is a bug.
+	 * @param thread The thread to stop.
+	 */
+	void Stop(Thread* thread);
 };
 
 class CoreExport ThreadData
 {
  public:
 	HANDLE handle;
-	void FreeThread(Thread* toFree);
 };
 
 /** The Mutex class represents a mutex, which can be used to keep threads

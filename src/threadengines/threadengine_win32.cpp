@@ -42,9 +42,10 @@ DWORD WINAPI ThreadEngine::Entry(void* parameter)
 	return 0;
 }
 
-void ThreadData::FreeThread(Thread* thread)
+void ThreadEngine::Stop(Thread* thread)
 {
 	thread->SetExitFlag();
+	HANDLE handle = thread->state.handle;
 	WaitForSingleObject(handle,INFINITE);
 	CloseHandle(handle);
 }

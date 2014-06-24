@@ -43,10 +43,10 @@ void ThreadEngine::Start(Thread* thread)
 		throw CoreException("Unable to create new thread: " + std::string(strerror(errno)));
 }
 
-void ThreadData::FreeThread(Thread* thread)
+void ThreadEngine::Stop(Thread* thread)
 {
 	thread->SetExitFlag();
-	pthread_join(pthread_id, NULL);
+	pthread_join(thread->state.pthread_id, NULL);
 }
 
 #ifdef HAS_EVENTFD
