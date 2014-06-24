@@ -35,7 +35,7 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 
 CullResult ModeHandler::cull()
 {
-	if (ServerInstance->Modes)
+	if (ServerInstance)
 		ServerInstance->Modes->DelMode(this);
 	return classbase::cull();
 }

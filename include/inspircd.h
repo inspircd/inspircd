@@ -346,7 +346,7 @@ class CoreExport InspIRCd
 
 	/** Mode handler, handles mode setting and removal
 	 */
-	ModeParser* Modes;
+	ModeParser Modes;
 
 	/** Command parser, handles client to server commands
 	 */

@@ -125,7 +125,6 @@ void InspIRCd::Cleanup()
 	}
 	DeleteZero(this->FakeClient);
 	DeleteZero(this->Users);
-	DeleteZero(this->Modes);
 	DeleteZero(this->XLines);
 	DeleteZero(this->Modules);
 	DeleteZero(this->SNO);
@@ -257,7 +256,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	this->SNO = 0;
 	this->Modules = 0;
 	this->XLines = 0;
-	this->Modes = 0;
 	this->ConfigThread = NULL;
 	this->FakeClient = NULL;
 
@@ -396,8 +394,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	std::cout << "\taquanight, psychon, dz, danieldg, jackmcbarn" << std::endl;
 	std::cout << "\tAttila" << con_reset << std::endl << std::endl;
 	std::cout << "Others:\t\t\t" << con_green << "See /INFO Output" << con_reset << std::endl;
-
-	this->Modes = new ModeParser;
 
 #ifndef _WIN32
 	if (!do_root)
