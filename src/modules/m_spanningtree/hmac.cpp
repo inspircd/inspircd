@@ -81,11 +81,6 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 			return false;
 		}
 	}
-	else if (!fp.empty())
-	{
-		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is \"%s\". "
-			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
-	}
 
 	if (capab->auth_challenge)
 	{
@@ -101,5 +96,14 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 		if (link.RecvPass != theirs)
 			return false;
 	}
+
+	// Tell opers to set up fingerprint verification if it's not already set up and the SSL mod gave us a fingerprint
+	// this time
+	if ((!capab->auth_fingerprint) && (!fp.empty()))
+	{
+		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is \"%s\". "
+			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
+	}
+
 	return true;
 }
