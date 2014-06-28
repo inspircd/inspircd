@@ -108,3 +108,19 @@ std::string Base64ToBin(const std::string& data_str, const char* table)
 	}
 	return rv;
 }
+
+bool InspIRCd::TimingSafeCompare(const std::string& one, const std::string& two)
+{
+	if (one.length() != two.length())
+		return false;
+
+	unsigned int diff = 0;
+	for (std::string::const_iterator i = one.begin(), j = two.begin(); i != one.end(); ++i, ++j)
+	{
+		unsigned char a = static_cast<unsigned char>(*i);
+		unsigned char b = static_cast<unsigned char>(*j);
+		diff |= a ^ b;
+	}
+
+	return (diff == 0);
+}

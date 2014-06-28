@@ -669,6 +669,15 @@ class CoreExport InspIRCd
 	 */
 	static std::string TimeString(time_t curtime, const char* format = NULL, bool utc = false);
 
+	/** Compare two strings in a timing-safe way. If the lengths of the strings differ, the function
+	 * returns false immediately (leaking information about the length), otherwise it compares each
+	 * character and only returns after all characters have been compared.
+	 * @param one First string
+	 * @param two Second string
+	 * @return True if the strings match, false if they don't
+	 */
+	static bool TimingSafeCompare(const std::string& one, const std::string& two);
+
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
 	 * it will repeatedly loop.
