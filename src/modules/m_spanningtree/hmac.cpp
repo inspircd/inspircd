@@ -86,14 +86,14 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	{
 		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
 
-		/* Straight string compare of hashes */
-		if (our_hmac != theirs)
+		// Use the timing-safe compare function to compare the hashes
+		if (!InspIRCd::TimingSafeCompare(our_hmac, theirs))
 			return false;
 	}
 	else
 	{
-		/* Straight string compare of plaintext */
-		if (link.RecvPass != theirs)
+		// Use the timing-safe compare function to compare the passwords
+		if (!InspIRCd::TimingSafeCompare(link.RecvPass, theirs))
 			return false;
 	}
 

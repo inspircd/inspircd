@@ -106,15 +106,15 @@ class ModuleOperHash : public Module
 		/* Is this a valid hash name? */
 		if (hp)
 		{
-			/* Compare the hash in the config to the generated hash */
-			if (data == hp->hexsum(input))
+			// Use the timing-safe compare function to compare the hashes
+			if (InspIRCd::TimingSafeCompare(data, hp->hexsum(input)))
 				return MOD_RES_ALLOW;
 			else
 				/* No match, and must be hashed, forbid */
 				return MOD_RES_DENY;
 		}
 
-		/* Not a hash, fall through to strcmp in core */
+		// We don't handle this type, let other mods or the core decide
 		return MOD_RES_PASSTHRU;
 	}
 

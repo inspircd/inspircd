@@ -40,7 +40,7 @@ bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::s
 	if (!hashtype.empty() && hashtype != "plaintext")
 		return false;
 
-	return (data == input);
+	return TimingSafeCompare(data, input);
 }
 
 bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
