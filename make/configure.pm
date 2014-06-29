@@ -276,7 +276,6 @@ InspIRCd 1.0.x, are also allowed.
                                to select() [not set]
   --disable-kqueue             Do not enable kqueue(), fall back
                                to select() [not set]
-  --disable-ipv6               Do not build IPv6 native InspIRCd [not set]
   --with-cc=[filename]         Use an alternative compiler to
                                build InspIRCd [g++]
   --with-maxbuf=[n]            Change the per message buffer size [512]
@@ -287,17 +286,16 @@ InspIRCd 1.0.x, are also allowed.
                                and library dirs as subdirectories of prefix)
                                [$PWD]
   --config-dir=[directory]     Config file directory for config and SSL certs
-                               [$PWD/conf]
+                               [$PWD/run/conf]
   --log-dir=[directory]	       Log file directory for logs
-			       [$PWD/logs]
-  --data-dir=[directory]       Data directory for variable data, such as the permchannel configuration and the XLine database
-			       [$PWD/data]
+                               [$PWD/run/logs]
+  --data-dir=[directory]       Data directory for variable data, such as the
+                               permchannel configuration and the XLine database
+                               [$PWD/run/data]
   --module-dir=[directory]     Modules directory for loadable modules
-                               [$PWD/modules]
+                               [$PWD/run/modules]
   --binary-dir=[directory]     Binaries directory for core binary
-                               [$PWD/bin]
-  --library-dir=[directory]    Library directory for core libraries
-                               [$PWD/lib]
+                               [$PWD/run/bin]
   --list-extras                Show current status of extra modules
   --enable-extras=[extras]     Enable the specified list of extras
   --disable-extras=[extras]    Disable the specified list of extras
