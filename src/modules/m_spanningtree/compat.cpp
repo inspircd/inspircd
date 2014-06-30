@@ -415,6 +415,23 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		params.back().append(who->uuid);
 		who = TreeServer::Get(who)->ServerUser;
 	}
+	else if ((cmd == "FMODE") && (params.size() >= 2))
+	{
+		// Translate user mode changes with timestamp to MODE
+		if (params[0][0] != '#')
+		{
+			User* user = ServerInstance->FindUUID(params[0]);
+			if (!user)
+				return false;
+
+			// Emulate the old nonsensical behavior
+			if (user->age < ServerCommand::ExtractTS(params[1]))
+				return false;
+
+			cmd = "MODE";
+			params.erase(params.begin()+1);
+		}
+	}
 
 	return true; // Passthru
 }
