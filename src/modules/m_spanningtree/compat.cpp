@@ -401,6 +401,20 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 		cmd = "SINFO";
 		params.insert(params.begin(), "version");
 	}
+	else if (cmd == "JOIN")
+	{
+		// 2.0 allows and forwards legacy JOINs but we don't, so translate them to FJOINs before processing
+		if ((params.size() != 1) || (IS_SERVER(who)))
+			return false; // Huh?
+
+		cmd = "FJOIN";
+		Channel* chan = ServerInstance->FindChan(params[0]);
+		params.push_back(ConvToStr(chan ? chan->age : ServerInstance->Time()));
+		params.push_back("+");
+		params.push_back(",");
+		params.back().append(who->uuid);
+		who = TreeServer::Get(who)->ServerUser;
+	}
 
 	return true; // Passthru
 }
