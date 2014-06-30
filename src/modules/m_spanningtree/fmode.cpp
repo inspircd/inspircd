@@ -26,28 +26,13 @@ CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 {
 	time_t TS = ServerCommand::ExtractTS(params[1]);
 
-	/* Extract the TS value of the object, either User or Channel */
-	time_t ourTS;
-	if (params[0][0] == '#')
-	{
-		Channel* chan = ServerInstance->FindChan(params[0]);
-		if (!chan)
-			/* Oops, channel doesn't exist! */
-			return CMD_FAILURE;
+	Channel* const chan = ServerInstance->FindChan(params[0]);
+	if (!chan)
+		// Channel doesn't exist
+		return CMD_FAILURE;
 
-		ourTS = chan->age;
-	}
-	else
-	{
-		User* user = ServerInstance->FindUUID(params[0]);
-		if (!user)
-			return CMD_FAILURE;
-
-		if (IS_SERVER(user))
-			throw ProtocolException("Invalid target");
-
-		ourTS = user->age;
-	}
+	// Extract the TS of the channel in question
+	time_t ourTS = chan->age;
 
 	/* If the TS is greater than ours, we drop the mode and don't pass it anywhere.
 	 */
