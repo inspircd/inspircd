@@ -226,6 +226,15 @@
 #<module name="m_banredirect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# bcrypt module: Allows other modules to generate bcrypt hashes,
+# usually for cryptographic uses and security.
+#<module name="m_bcrypt.so">
+#
+# rounds: Defines how many rounds the bcrypt function will run when
+# generating new hashes.
+#<bcrypt rounds="10">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block amsg module: Attempt to block all usage of /amsg and /ame.
 #<module name="m_blockamsg.so">
 #
