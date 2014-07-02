@@ -53,6 +53,18 @@
 # IMPORTANT:
 # Other modules may rely on this module being loaded to function.
 #<module name="m_ripemd160.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# BCRYPT Module - Allows other modules to generate BCRYPT hashes,
+# usually for cryptographic uses and security.
+#
+# IMPORTANT:
+# Other modules may rely on this module being loaded to function.
+#
+# Settings:
+# rounds: Defines how many rounds the bcrypt function will run.
+#<bcrypt rounds="10">
+#<module name="m_bcrypt.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Abbreviation module: Provides the ability to abbreviate commands a-la
