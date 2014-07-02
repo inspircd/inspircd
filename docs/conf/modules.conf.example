@@ -1343,6 +1343,20 @@
 # Don't run it on a server you don't trust with your password.
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# PBKDF2 module: Allows other modules to generate PBKDF2 hashes,
+# usually for cryptographic uses and security.
+# This module relies on other hash providers (e.g. SHA256).
+#<module name="m_pbkdf2.so">
+#
+# iterations: Iterations the hashing function runs when generating new
+# hashes.
+# length: Length in bytes of the derived key.
+#<pbkdf2 iterations="12288" length="32">
+# You can override these values with specific values
+# for specific providers if you want to. Example given for SHA256.
+#<pbkdf2prov hash="sha256" iterations="24576">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Permanent channels module: Channels with the permanent channel mode
 # will remain open even after everyone else has left the channel, and
 # therefore keep things like modes, ban lists and topic. Permanent
