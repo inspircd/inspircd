@@ -44,7 +44,7 @@ class CommandMkpasswd : public Command
 				return;
 			}
 			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
-			std::string target = hp->hmac(salt, stuff);
+			std::string target = hp->HMAC(salt, stuff);
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
 
 			user->WriteNotice(algo + " hashed password for " + stuff + " is " + str);
@@ -54,7 +54,7 @@ class CommandMkpasswd : public Command
 		if (hp)
 		{
 			/* Now attempt to generate a hash */
-			std::string hexsum = hp->hexsum(stuff);
+			std::string hexsum = hp->HexSum(stuff);
 			user->WriteNotice(algo + " hashed password for " + stuff + " is " + hexsum);
 		}
 		else
@@ -95,7 +95,7 @@ class ModuleOperHash : public Module
 			std::string salt = Base64ToBin(data.substr(0, sep));
 			std::string target = Base64ToBin(data.substr(sep + 1));
 
-			if (target == hp->hmac(salt, input))
+			if (target == hp->HMAC(salt, input))
 				return MOD_RES_ALLOW;
 			else
 				return MOD_RES_DENY;
@@ -107,7 +107,7 @@ class ModuleOperHash : public Module
 		if (hp)
 		{
 			/* Compare the hash in the config to the generated hash */
-			if (data == hp->hexsum(input))
+			if (data == hp->HexSum(input))
 				return MOD_RES_ALLOW;
 			else
 				/* No match, and must be hashed, forbid */

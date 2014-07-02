@@ -259,7 +259,7 @@ class MD5Provider : public HashProvider
 		*dest++ = 0;
 	}
  public:
-	std::string sum(const std::string& data)
+	std::string Sum(const std::string& data)
 	{
 		char res[16];
 		MyMD5(res, (void*)data.data(), data.length(), NULL);

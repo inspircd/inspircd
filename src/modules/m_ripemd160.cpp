@@ -434,7 +434,7 @@ class RIProv : public HashProvider
 		return (byte *)hashcode;
 	}
 public:
-	std::string sum(const std::string& data)
+	std::string Sum(const std::string& data)
 	{
 		char* rv = (char*)RMD((byte*)data.data(), data.length(), NULL);
 		return std::string(rv, RMDsize / 8);

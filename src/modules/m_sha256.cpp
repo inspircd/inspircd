@@ -247,7 +247,7 @@ class HashSHA256 : public HashProvider
 	}
 
  public:
-	std::string sum(const std::string& data)
+	std::string Sum(const std::string& data)
 	{
 		unsigned char bytes[SHA256_DIGEST_SIZE];
 		SHA256(data.data(), bytes, data.length());

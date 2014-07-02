@@ -27,23 +27,26 @@ class HashProvider : public DataProvider
 	const unsigned int out_size;
 	const unsigned int block_size;
 	HashProvider(Module* mod, const std::string& Name, int osiz, int bsiz)
-		: DataProvider(mod, Name), out_size(osiz), block_size(bsiz) {}
-	virtual std::string sum(const std::string& data) = 0;
-	inline std::string hexsum(const std::string& data)
+		: DataProvider(mod, Name), out_size(osiz), block_size(bsiz)
 	{
-		return BinToHex(sum(data));
 	}
 
-	inline std::string b64sum(const std::string& data)
+	virtual std::string Sum(const std::string& data) = 0;
+	inline std::string HexSum(const std::string& data)
 	{
-		return BinToBase64(sum(data), NULL, 0);
+		return BinToHex(Sum(data));
+	}
+
+	inline std::string B64Sum(const std::string& data)
+	{
+		return BinToBase64(Sum(data), NULL, 0);
 	}
 
 	/** HMAC algorithm, RFC 2104 */
-	std::string hmac(const std::string& key, const std::string& msg)
+	std::string HMAC(const std::string& key, const std::string& msg)
 	{
 		std::string hmac1, hmac2;
-		std::string kbuf = key.length() > block_size ? sum(key) : key;
+		std::string kbuf = key.length() > block_size ? Sum(key) : key;
 		kbuf.resize(block_size);
 
 		for (size_t n = 0; n < block_size; n++)
@@ -52,7 +55,7 @@ class HashProvider : public DataProvider
 			hmac2.push_back(static_cast<char>(kbuf[n] ^ 0x36));
 		}
 		hmac2.append(msg);
-		hmac1.append(sum(hmac2));
-		return sum(hmac1);
+		hmac1.append(Sum(hmac2));
+		return Sum(hmac1);
 	}
 };
