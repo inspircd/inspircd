@@ -147,7 +147,7 @@ public:
 		ParamM userinfo;
 		SQL->PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
-		userinfo["password"] = hash ? hash->hexsum(password) : password;
+		userinfo["password"] = hash ? hash->Generate(password) : password;
 
 		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
 	}

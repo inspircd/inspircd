@@ -434,13 +434,13 @@ class RIProv : public HashProvider
 		return (byte *)hashcode;
 	}
 public:
-	std::string sum(const std::string& data)
+	std::string GenerateRaw(const std::string& data)
 	{
 		char* rv = (char*)RMD((byte*)data.data(), data.length(), NULL);
 		return std::string(rv, RMDsize / 8);
 	}
 
-	RIProv(Module* m) : HashProvider(m, "hash/ripemd160", 20, 64) {}
+	RIProv(Module* m) : HashProvider(m, "ripemd160", 20, 64) {}
 };
 
 class ModuleRIPEMD160 : public Module

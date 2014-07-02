@@ -43,6 +43,13 @@ class CommandMkpasswd : public Command
 				user->WriteNotice("Unknown hash type");
 				return;
 			}
+
+			if (hp->IsKDF())
+			{
+				user->WriteNotice(type + " does not support HMAC");
+				return;
+			}
+
 			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
 			std::string target = hp->hmac(salt, stuff);
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
@@ -54,7 +61,7 @@ class CommandMkpasswd : public Command
 		if (hp)
 		{
 			/* Now attempt to generate a hash */
-			std::string hexsum = hp->hexsum(stuff);
+			std::string hexsum = hp->Generate(stuff);
 			user->WriteNotice(algo + " hashed password for " + stuff + " is " + hexsum);
 		}
 		else
@@ -88,6 +95,13 @@ class ModuleOperHash : public Module
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 				return MOD_RES_PASSTHRU;
+
+			if (hp->IsKDF())
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Tried to use HMAC with %s, which does not support HMAC", type.c_str());
+				return MOD_RES_DENY;
+			}
+
 			// this is a valid hash, from here on we either accept or deny
 			std::string::size_type sep = data.find('$');
 			if (sep == std::string::npos)
@@ -106,8 +120,7 @@ class ModuleOperHash : public Module
 		/* Is this a valid hash name? */
 		if (hp)
 		{
-			// Use the timing-safe compare function to compare the hashes
-			if (InspIRCd::TimingSafeCompare(data, hp->hexsum(input)))
+			if (hp->Compare(input, data))
 				return MOD_RES_ALLOW;
 			else
 				/* No match, and must be hashed, forbid */
