@@ -43,7 +43,7 @@ class CommandMkpasswd : public Command
 				user->WriteNotice("Unknown hash type");
 				return;
 			}
-			std::string salt = ServerInstance->GenRandomStr(6, false);
+			std::string salt = ServerInstance->GenRandomStr(hp->out_size, false);
 			std::string target = hp->hmac(salt, stuff);
 			std::string str = BinToBase64(salt) + "$" + BinToBase64(target, NULL, 0);
 
