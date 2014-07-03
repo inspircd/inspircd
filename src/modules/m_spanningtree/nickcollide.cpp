@@ -114,7 +114,7 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		params.push_back(ConvToStr(u->age));
 		params.Broadcast();
 
-		u->ForceNickChange(u->uuid);
+		u->ChangeNick(u->uuid);
 
 		if (!bChangeRemote)
 			return 1;
@@ -133,7 +133,7 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		if (remote)
 		{
 			/* nick change collide. Force change their nick. */
-			remote->ForceNickChange(remoteuid);
+			remote->ChangeNick(remoteuid);
 		}
 
 		if (!bChangeLocal)

@@ -36,7 +36,7 @@ CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 
 	if (u->age == ts)
 	{
-		if (!u->ForceNickChange(u->uuid))
+		if (!u->ChangeNick(u->uuid))
 		{
 			ServerInstance->Users->QuitUser(u, "Nickname collision");
 		}

@@ -611,7 +611,7 @@ void User::InvalidateCache()
 	cached_fullrealhost.clear();
 }
 
-bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
+bool User::ChangeNick(const std::string& newnick, time_t newts)
 {
 	if (quitting)
 	{

@@ -64,7 +64,7 @@ class CommandNicklock : public Command
 			locked.set(target, 1);
 
 			std::string oldnick = target->nick;
-			if (target->ForceNickChange(parameters[1]))
+			if (target->ChangeNick(parameters[1]))
 				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+oldnick+" to "+parameters[1]);
 			else
 			{

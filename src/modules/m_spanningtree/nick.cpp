@@ -57,6 +57,6 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 			return CMD_FAILURE;
 		}
 	}
-	user->ForceNickChange(params[0], newts);
+	user->ChangeNick(params[0], newts);
 	return CMD_SUCCESS;
 }
