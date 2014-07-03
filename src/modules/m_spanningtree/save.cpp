@@ -35,12 +35,7 @@ CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 	time_t ts = atol(params[1].c_str());
 
 	if (u->age == ts)
-	{
-		if (!u->ChangeNick(u->uuid))
-		{
-			ServerInstance->Users->QuitUser(u, "Nickname collision");
-		}
-	}
+		u->ChangeNick(u->uuid);
 
 	return CMD_SUCCESS;
 }

@@ -40,10 +40,7 @@ CmdResult CommandSVSNick::Handle(User* user, std::vector<std::string>& parameter
 		if (!u->ChangeNick(nick, NickTS))
 		{
 			/* buh. UID them */
-			if (!u->ChangeNick(u->uuid))
-			{
-				ServerInstance->Users->QuitUser(u, "Nickname collision");
-			}
+			u->ChangeNick(u->uuid);
 		}
 	}
 

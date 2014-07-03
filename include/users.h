@@ -588,7 +588,7 @@ class CoreExport User : public Extensible
 	bool ChangeName(const std::string& gecos);
 
 	/** Change a user's nick
-	 * @param newnick The new nick
+	 * @param newnick The new nick. If equal to the users uuid, the nick change always succeeds.
 	 * @return True if the change succeeded
 	 */
 	bool ChangeNick(const std::string& newnick, time_t newts = 0);
