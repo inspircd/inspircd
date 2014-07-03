@@ -135,4 +135,13 @@ class CommandUser : public SplitCommand
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser *user);
+
+	/** Run the OnUserRegister hook if the user has sent both NICK and USER. Called after an unregistered user
+	 * successfully executes the USER or the NICK command.
+	 * @param user User to inspect and possibly pass to the OnUserRegister hook
+	 * @return CMD_FAILURE if OnUserRegister was called and it returned MOD_RES_DENY, CMD_SUCCESS in every other case
+	 * (i.e. if the hook wasn't fired because the user still needs to send NICK/USER or if it was fired and finished with
+	 * a non-MOD_RES_DENY result).
+	 */
+	static CmdResult CheckRegister(LocalUser* user);
 };
