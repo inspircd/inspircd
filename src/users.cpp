@@ -619,7 +619,8 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 		return false;
 	}
 
-	if (assign(newnick) == assign(nick))
+	User* const InUse = ServerInstance->FindNickOnly(newnick);
+	if (InUse == this)
 	{
 		// case change, don't need to check campers
 		// and, if it's identical including case, we can leave right now
@@ -638,8 +639,7 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 		 * If the guy using the nick is already using it, tell the incoming nick change to gtfo,
 		 * because the nick is already (rightfully) in use. -- w00t
 		 */
-		User* InUse = ServerInstance->FindNickOnly(newnick);
-		if (InUse && (InUse != this))
+		if (InUse)
 		{
 			if (InUse->registered != REG_ALL)
 			{
