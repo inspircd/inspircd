@@ -189,7 +189,7 @@ restart:
 			{
 				// They did, send a ping to them
 				s->SetNextPingTime(curtime + Utils->PingFreq);
-				s->GetSocket()->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " + s->GetID());
+				s->GetSocket()->WriteLine(CmdBuilder("PING").push(s->GetID()));
 				s->LastPingMsec = ts;
 			}
 			else

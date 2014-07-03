@@ -107,7 +107,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 		capab->auth_fingerprint ? "SSL Fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " BURST " + ConvToStr(ServerInstance->Time()));
+	this->WriteLine(CmdBuilder("BURST").push_int(ServerInstance->Time()));
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot, s);
 
@@ -121,7 +121,7 @@ void TreeSocket::DoBurst(TreeServer* s)
 
 	this->SendXLines();
 	FOREACH_MOD(OnSyncNetwork, (bs.server));
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
+	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
 }
 

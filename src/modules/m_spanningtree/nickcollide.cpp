@@ -128,7 +128,7 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		 * so other servers don't need to see the SAVE
 		 */
 		TreeSocket* sock = server->GetSocket();
-		sock->WriteLine(":"+ServerInstance->Config->GetSID()+" SAVE "+remoteuid+" "+ ConvToStr(remotets));
+		sock->WriteLine(CmdBuilder("SAVE").push(remoteuid).push_int(remotets));
 
 		if (remote)
 		{
