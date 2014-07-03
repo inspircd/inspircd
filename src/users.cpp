@@ -647,12 +647,8 @@ bool User::ChangeNick(const std::string& newnick, time_t newts)
 				InUse->WriteFrom(InUse, "NICK %s", InUse->uuid.c_str());
 				InUse->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname overruled.", InUse->nick.c_str());
 
-				ServerInstance->Users->clientlist.erase(InUse->nick);
-				ServerInstance->Users->clientlist[InUse->uuid] = InUse;
-
-				InUse->nick = InUse->uuid;
-				InUse->InvalidateCache();
 				InUse->registered &= ~REG_NICK;
+				InUse->ChangeNick(InUse->uuid);
 			}
 			else
 			{
