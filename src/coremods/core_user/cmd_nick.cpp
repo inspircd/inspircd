@@ -24,7 +24,7 @@
 #include "core_user.h"
 
 CommandNick::CommandNick(Module* parent)
-	: Command(parent, "NICK", 1, 1)
+	: SplitCommand(parent, "NICK", 1, 1)
 {
 	works_before_reg = true;
 	syntax = "<newnick>";
@@ -36,14 +36,14 @@ CommandNick::CommandNick(Module* parent)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	std::string oldnick = user->nick;
 	std::string newnick = parameters[0];
 
 	// anything except the initial NICK gets a flood penalty
-	if (user->registered == REG_ALL && IS_LOCAL(user))
-		IS_LOCAL(user)->CommandFloodPenalty += 4000;
+	if (user->registered == REG_ALL)
+		user->CommandFloodPenalty += 4000;
 
 	if (newnick.empty())
 	{
@@ -71,7 +71,7 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		{
 			/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
 			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (IS_LOCAL(user)));
+			FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (user));
 			if (MOD_RESULT == MOD_RES_DENY)
 				return CMD_FAILURE;
 

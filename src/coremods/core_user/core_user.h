@@ -64,7 +64,7 @@ class CommandAway : public Command
 
 /** Handle /NICK.
  */
-class CommandNick : public Command
+class CommandNick : public SplitCommand
 {
  public:
 	/** Constructor for nick.
@@ -76,7 +76,7 @@ class CommandNick : public Command
 	 * @param user The user issuing the command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
+	CmdResult HandleLocal(const std::vector<std::string>& parameters, LocalUser* user);
 };
 
 /** Handle /PART.
