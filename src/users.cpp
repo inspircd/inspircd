@@ -619,32 +619,6 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 		return false;
 	}
 
-	LocalUser* const localuser = IS_LOCAL(this);
-	if (!force && localuser)
-	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (localuser, newnick));
-
-		// If a module denied the change, abort now
-		if (MOD_RESULT == MOD_RES_DENY)
-			return false;
-
-		// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
-		// one of the channels they are on
-		if (ServerInstance->Config->RestrictBannedUsers)
-		{
-			for (UCListIter i = this->chans.begin(); i != this->chans.end(); ++i)
-			{
-				Channel* chan = (*i)->chan;
-				if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
-				{
-					this->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
-					return false;
-				}
-			}
-		}
-	}
-
 	if (assign(newnick) == assign(nick))
 	{
 		// case change, don't need to check campers

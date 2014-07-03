@@ -61,6 +61,28 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 		return CMD_FAILURE;
 	}
 
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
+
+	// If a module denied the change, abort now
+	if (MOD_RESULT == MOD_RES_DENY)
+		return CMD_FAILURE;
+
+	// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
+	// one of the channels they are on
+	if (ServerInstance->Config->RestrictBannedUsers)
+	{
+		for (UCListIter i = user->chans.begin(); i != user->chans.end(); ++i)
+		{
+			Channel* chan = (*i)->chan;
+			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
+			{
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
+				return CMD_FAILURE;
+			}
+		}
+	}
+
 	if (!user->ChangeNick(newnick, false))
 		return CMD_FAILURE;
 
