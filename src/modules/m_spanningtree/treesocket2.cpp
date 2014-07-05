@@ -284,8 +284,8 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	 * a valid SID or a valid UUID, so that invalid UUID or SID never makes it
 	 * to the higher level functions. -- B
 	 */
-	TreeServer* route_back_again = TreeServer::Get(who)->GetRoute();
-	if (route_back_again->GetSocket() != this)
+	TreeServer* const server = TreeServer::Get(who);
+	if (server->GetSocket() != this)
 	{
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Protocol violation: Fake direction '%s' from connection '%s'", prefix.c_str(), linkID.c_str());
 		return;
@@ -340,7 +340,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 	}
 
 	if (res == CMD_SUCCESS)
-		Utils->RouteCommand(route_back_again, cmdbase, params, who);
+		Utils->RouteCommand(server->GetRoute(), cmdbase, params, who);
 }
 
 void TreeSocket::OnTimeout()
