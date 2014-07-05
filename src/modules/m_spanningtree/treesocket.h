@@ -117,6 +117,18 @@ class TreeSocket : public BufferedSocket
 	/** Send all additional info about the given server to this server */
 	void SendServerInfo(TreeServer* from);
 
+	/** Find the User source of a command given a prefix and a command string.
+	 * This connection must be fully up when calling this function.
+	 * @param prefix Prefix string to find the source User object for. Can be a sid, a uuid or a server name.
+	 * @param command The command whose source to find. This is required because certain commands (like mode
+	 * changes and kills) must be processed even if their claimed source doesn't exist. If the given command is
+	 * such a command and the source does not exist, the function returns a valid FakeUser that can be used to
+	 * to process the command with.
+	 * @return The command source to use when processing the command or NULL if the source wasn't found.
+	 * Note that the direction of the returned source is not verified.
+	 */
+	User* FindSource(const std::string& prefix, const std::string& command);
+
  public:
 	const time_t age;
 
