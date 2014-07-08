@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Copyright (C) 2014 Peter Powell <petpow@saberuk.com>
  *   Copyright (C) 2009 Daniel De Graaf <danieldg@inspircd.org>
  *   Copyright (C) 2007-2008 Robin Burchell <robin+git@viroteck.net>
  *   Copyright (C) 2008 Pippijn van Steenhoven <pip88nl@gmail.com>
@@ -32,13 +33,23 @@ static ModuleHttpServer* HttpModule;
 static bool claimed;
 static std::set<HttpServerSocket*> sockets;
 
+#define MAX_REQUEST_SIZE 8192
+
 /** HTTP socket states
  */
 enum HttpState
 {
-	HTTP_SERVE_WAIT_REQUEST = 0, /* Waiting for a full request */
-	HTTP_SERVE_RECV_POSTDATA = 1, /* Waiting to finish recieving POST data */
-	HTTP_SERVE_SEND_DATA = 2 /* Sending response */
+	// Waiting for the GET/POST/etc request.
+	HTTP_REQUEST_WAITING_METHOD,
+
+	// Waiting for the end of the C2S headers.
+	HTTP_REQUEST_WAITING_HEADERS,
+
+	// Waiting for the end of the C2S request data.
+	HTTP_REQUEST_WAITING_FORMDATA,
+
+	// Waiting for the response to send.
+	HTTP_RESPONSE_SENDING
 };
 
 /** A socket used for HTTP transport
@@ -46,24 +57,23 @@ enum HttpState
 class HttpServerSocket : public BufferedSocket
 {
 	HttpState InternalState;
-	std::string ip;
-
 	HTTPHeaders headers;
-	std::string reqbuffer;
-	std::string postdata;
-	unsigned int postsize;
+	long form_data_remaining;
+	std::string form_data;
 	std::string request_type;
 	std::string uri;
 	std::string http_version;
+	irc::sockets::sockaddrs* sockaddr;
 
  public:
 	const time_t createtime;
 
-	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-		: BufferedSocket(newfd), ip(IP), postsize(0)
+	HttpServerSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
+		: BufferedSocket(newfd)
+		, sockaddr(client)
 		, createtime(ServerInstance->Time())
 	{
-		InternalState = HTTP_SERVE_WAIT_REQUEST;
+		InternalState = HTTP_REQUEST_WAITING_METHOD;
 
 		if (via->iohookprov)
 			via->iohookprov->OnAccept(this, client, server);
@@ -178,19 +188,18 @@ class HttpServerSocket : public BufferedSocket
 
 		SendHeaders(data.length(), response, empty);
 		WriteData(data);
+		Close();
 	}
 
 	void SendHeaders(unsigned long size, int response, HTTPHeaders &rheaders)
 	{
+		// Default to a safe version if stuff is broken.
+		if (http_version.empty() || response == 505)
+			http_version = "HTTP/1.0";
 
-		WriteData(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
+		WriteData(http_version + " " + ConvToStr(response) + " " + Response(response) + "\r\n");
 
-		time_t local = ServerInstance->Time();
-		struct tm *timeinfo = gmtime(&local);
-		char *date = asctime(timeinfo);
-		date[strlen(date) - 1] = '\0';
-		rheaders.CreateHeader("Date", date);
-
+		rheaders.CreateHeader("Date", InspIRCd::TimeString(ServerInstance->Time()));
 		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
 
@@ -210,123 +219,143 @@ class HttpServerSocket : public BufferedSocket
 
 	void OnDataReady()
 	{
-		if (InternalState == HTTP_SERVE_RECV_POSTDATA)
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "OnDataReady: bytes %lu, state %d", recvq.size(), InternalState);
+		switch (InternalState)
 		{
-			postdata.append(recvq);
-			if (postdata.length() >= postsize)
-				ServeData();
-		}
-		else
-		{
-			reqbuffer.append(recvq);
-
-			if (reqbuffer.length() >= 8192)
-			{
-				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "m_httpd dropped connection due to an oversized request buffer");
-				reqbuffer.clear();
-				SetError("Buffer");
-			}
-
-			if (InternalState == HTTP_SERVE_WAIT_REQUEST)
-				CheckRequestBuffer();
+			case HTTP_REQUEST_WAITING_METHOD:
+				TryParseMethod();
+				break;
+			case HTTP_REQUEST_WAITING_HEADERS:
+				TryParseHeaders();
+				break;
+			case HTTP_REQUEST_WAITING_FORMDATA:
+				TryParseFormData();
+				break;
+			default:
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "BUG: OnDataReady was called with an unknown state: %d", InternalState);
+				SendHTTPError(500);
+				break;
 		}
 	}
 
-	void CheckRequestBuffer()
+	void TryParseMethod()
 	{
-		std::string::size_type reqend = reqbuffer.find("\r\n\r\n");
-		if (reqend == std::string::npos)
+		std::string::size_type eol = recvq.find("\r\n");
+		if (eol == std::string::npos)
 			return;
 
-		// We have the headers; parse them all
-		std::string::size_type hbegin = 0, hend;
-		while ((hend = reqbuffer.find("\r\n", hbegin)) != std::string::npos)
+		// Attempt to parse the tokens from the receive queue.
+		irc::spacesepstream stream(recvq.substr(0, eol));
+		if (!stream.GetToken(request_type) || !stream.GetToken(uri) || !stream.GetToken(http_version) || stream.GetRemaining() != "")
 		{
-			if (hbegin == hend)
-				break;
-
-			if (request_type.empty())
-			{
-				std::istringstream cheader(std::string(reqbuffer, hbegin, hend - hbegin));
-				cheader >> request_type;
-				cheader >> uri;
-				cheader >> http_version;
-
-				if (request_type.empty() || uri.empty() || http_version.empty())
-				{
-					SendHTTPError(400);
-					return;
-				}
-
-				hbegin = hend + 2;
-				continue;
-			}
-
-			std::string cheader = reqbuffer.substr(hbegin, hend - hbegin);
-
-			std::string::size_type fieldsep = cheader.find(':');
-			if ((fieldsep == std::string::npos) || (fieldsep == 0) || (fieldsep == cheader.length() - 1))
-			{
-				SendHTTPError(400);
-				return;
-			}
-
-			headers.SetHeader(cheader.substr(0, fieldsep), cheader.substr(fieldsep + 2));
-
-			hbegin = hend + 2;
+			// The client has sent something which doesn't look like a HTTP request. ABANDON SHIP!
+			SendHTTPError(400);
+			return;
 		}
-
-		reqbuffer.erase(0, reqend + 4);
-
-		std::transform(request_type.begin(), request_type.end(), request_type.begin(), ::toupper);
-		std::transform(http_version.begin(), http_version.end(), http_version.begin(), ::toupper);
-
-		if ((http_version != "HTTP/1.1") && (http_version != "HTTP/1.0"))
+		else if (http_version != "HTTP/1.0" && http_version != "HTTP/1.1")
 		{
+			// The client has requested a HTTP version we don't support. ABANDON SHIP!
 			SendHTTPError(505);
 			return;
 		}
 
-		if (headers.IsSet("Content-Length") && (postsize = ConvToInt(headers.GetHeader("Content-Length"))) > 0)
-		{
-			InternalState = HTTP_SERVE_RECV_POSTDATA;
+		// Upper case the method and HTTP version to make matching easier.
+		std::transform(request_type.begin(), request_type.end(), request_type.begin(), ::toupper);
+		std::transform(http_version.begin(), http_version.end(), http_version.begin(), ::toupper);
 
-			if (reqbuffer.length() >= postsize)
-			{
-				postdata = reqbuffer.substr(0, postsize);
-				reqbuffer.erase(0, postsize);
-			}
-			else if (!reqbuffer.empty())
-			{
-				postdata = reqbuffer;
-				reqbuffer.clear();
-			}
+		// Strip trailing path separators.
+		if (uri.size() > 1)
+			uri = uri.substr(0, uri.find_last_not_of('/') + 1);
 
-			if (postdata.length() >= postsize)
-				ServeData();
-
-			return;
-		}
-
-		ServeData();
+		// Remove the data we have parsed from the receive queue and advance to the next stage.
+		recvq.erase(0, eol + 2);
+		InternalState = HTTP_REQUEST_WAITING_HEADERS;
+		TryParseHeaders();
 	}
 
-	void ServeData()
+	void TryParseHeaders()
 	{
-		InternalState = HTTP_SERVE_SEND_DATA;
-
-		claimed = false;
-		HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
-		acl.Send();
-		if (!claimed)
+		// Attempt to parse the headers from the receive queue.
+		std::string::size_type eol;
+		while ((eol = recvq.find("\r\n")) != std::string::npos)
 		{
-			HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
-			url.Send();
-			if (!claimed)
+			std::string header = recvq.substr(0, eol);
+			recvq.erase(0, eol + 2);
+			if (header.size())
 			{
-				SendHTTPError(404);
+				// Extract the header name and value.
+				std::string::size_type separator = header.find(": ");
+				if (separator == std::string::npos || separator == 0 || separator == header.length() - 1)
+				{
+					// The client has sent something which doesn't look like a HTTP header. ABANDON SHIP!
+					SendHTTPError(400);
+					return;
+				}
+				headers.SetHeader(header.substr(0, separator), header.substr(separator + 2));
+			}
+			else
+			{
+				// We have reached the end of the headers.
+				if (headers.IsSet("Content-Length"))
+				{
+					form_data_remaining = ConvToInt(headers.GetHeader("Content-Length"));
+					if (form_data_remaining <= 0 || form_data_remaining >= MAX_REQUEST_SIZE)
+					{
+						// The client is trying to upload something massive. ABANDON SHIP!
+						SendHTTPError(413);
+						return;
+					}
+
+					InternalState = HTTP_REQUEST_WAITING_FORMDATA;
+					TryParseFormData();
+				}
+				else
+				{
+					// Nothing left to do other than to wait for the response to send.
+					InternalState = HTTP_RESPONSE_SENDING;
+					this->HandleRequest();
+				}
+				break;
 			}
 		}
+	}
+
+	void TryParseFormData()
+	{
+		if (form_data_remaining && recvq.length())
+		{
+			std::string data = recvq.substr(0, form_data_remaining);
+			form_data.append(data);
+			form_data_remaining -= data.size();
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "TryParseFormData: %li bytes stored, %li remaining.",
+				data.size(), form_data_remaining);
+		}
+		if (!form_data_remaining)
+		{
+			// Nothing left to do other than to wait for the response to send.
+			InternalState = HTTP_RESPONSE_SENDING;
+			this->HandleRequest();
+		}
+	}
+
+	void HandleRequest()
+	{
+		claimed = false;
+		HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, sockaddr->addr(), form_data);
+		acl.Send();
+
+		if (!claimed)
+		{
+			HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, sockaddr->addr(), form_data);
+			url.Send();
+	
+			if (!claimed)
+				SendHTTPError(404);
+		}
+
+		// Request finished. Prepare for the next request.
+		InternalState = HTTP_REQUEST_WAITING_METHOD;
+		TryParseMethod();
 	}
 
 	void Page(std::stringstream* n, int response, HTTPHeaders *hheaders)
@@ -378,10 +407,7 @@ class ModuleHttpServer : public Module
 	{
 		if (from->bind_tag->getString("type") != "httpd")
 			return MOD_RES_PASSTHRU;
-		int port;
-		std::string incomingip;
-		irc::sockets::satoap(*client, incomingip, port);
-		sockets.insert(new HttpServerSocket(nfd, incomingip, from, client, server));
+		sockets.insert(new HttpServerSocket(nfd, from, client, server));
 		return MOD_RES_ALLOW;
 	}
 

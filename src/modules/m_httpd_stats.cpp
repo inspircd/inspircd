@@ -89,15 +89,13 @@ class ModuleHttpStats : public Module
 
 	void OnEvent(Event& event) CXX11_OVERRIDE
 	{
-		std::stringstream data("");
-
 		if (event.id == "httpd_url")
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
 			HTTPRequest* http = (HTTPRequest*)&event;
-
-			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
+			if (http->GetURI() == "/stats")
 			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
+				std::stringstream data;
 				data << "<inspircdstats><server><name>" << ServerInstance->Config->ServerName << "</name><gecos>"
 					<< Sanitize(ServerInstance->Config->ServerDesc) << "</gecos><version>"
 					<< Sanitize(ServerInstance->GetVersionString()) << "</version></server>";
