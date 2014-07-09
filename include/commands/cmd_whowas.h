@@ -34,7 +34,7 @@ namespace WhoWas
 {
 	/** Everything known about one nick
 	 */
-	struct Nick
+	struct Nick : public intrusive_list_node<Nick>
 	{
 		/** Container where each element has information about one occurrence of this nick
 		 */
@@ -56,15 +56,15 @@ namespace WhoWas
 		 */
 		~Nick();
 	};
+
+	/** Order in which the users were added into the map, used to remove oldest nick
+	 */
+	typedef intrusive_list_tail<Nick> FIFO;
 }
 
 /** Sets of users in the whowas system
  */
 typedef std::map<irc::string, WhoWas::Nick*> whowas_users;
-
-/** Sets of time and users in whowas list
- */
-typedef std::deque<std::pair<time_t,irc::string> > whowas_users_fifo;
 
 /** Handle /WHOWAS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
@@ -80,7 +80,7 @@ class CommandWhowas : public Command
 
 	/** List of nicknames in the order they were inserted into the map
 	 */
-	whowas_users_fifo whowas_fifo;
+	WhoWas::FIFO whowas_fifo;
 
   public:
 	/** Max number of WhoWas entries per user.

@@ -109,19 +109,15 @@ void CommandWhowas::AddToWhoWas(User* user)
 		ret.first->second = nick;
 
 		// Add this nick to the fifo too
-		whowas_fifo.push_back(std::make_pair(ServerInstance->Time(), ret.first->first));
+		whowas_fifo.push_back(nick);
 
 		if (whowas.size() > this->MaxGroups)
 		{
 			// Too many nicks, remove the nick which was inserted the longest time ago from both the map and the fifo
-			whowas_users::iterator it = whowas.find(whowas_fifo.front().second);
-			if (it != whowas.end())
-			{
-				WhoWas::Nick* set = it->second;
-				delete set;
-				whowas.erase(it);
-			}
+			nick = whowas_fifo.front();
 			whowas_fifo.pop_front();
+			whowas.erase(nick->nick);
+			delete nick;
 		}
 	}
 	else
@@ -147,22 +143,19 @@ void CommandWhowas::Prune()
 	/* first cut the list to new size (maxgroups) and also prune entries that are timed out. */
 	while (!whowas_fifo.empty())
 	{
-		if ((whowas_fifo.size() > this->MaxGroups) || (whowas_fifo.front().first < min))
+		WhoWas::Nick* nick = whowas_fifo.front();
+		if ((whowas_fifo.size() > this->MaxGroups) || (nick->addtime < min))
 		{
-			whowas_users::iterator iter = whowas.find(whowas_fifo.front().second);
-
 			/* hopefully redundant integrity check, but added while debugging r6216 */
-			if (iter == whowas.end())
+			if (!whowas.erase(nick->nick))
 			{
 				/* this should never happen, if it does maps are corrupt */
 				ServerInstance->Logs->Log("WHOWAS", LOG_DEFAULT, "BUG: Whowas maps got corrupted! (1)");
 				return;
 			}
 
-			WhoWas::Nick* nick = iter->second;
-			delete nick;
-			whowas.erase(iter);
 			whowas_fifo.pop_front();
+			delete nick;
 		}
 		else
 			break;
