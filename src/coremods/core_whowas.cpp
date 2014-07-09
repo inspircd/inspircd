@@ -48,7 +48,8 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 	}
 	else
 	{
-		whowas_set* grp = i->second;
+		WhoWas::Nick* nick = i->second;
+		whowas_set* grp = &nick->entries;
 		if (!grp->empty())
 		{
 			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
@@ -82,7 +83,7 @@ std::string CommandWhowas::GetStats()
 	int whowas_size = 0;
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* n = i->second;
+		whowas_set* n = &i->second->entries;
 		whowas_size += n->size();
 	}
 	return "Whowas entries: " + ConvToStr(whowas_size);
@@ -98,14 +99,14 @@ void CommandWhowas::AddToWhoWas(User* user)
 
 	// Insert nick if it doesn't exist
 	// 'first' will point to the newly inserted element or to the existing element with an equivalent key
-	std::pair<whowas_users::iterator, bool> ret = whowas.insert(std::make_pair(irc::string(user->nick.c_str()), static_cast<whowas_set*>(NULL)));
+	std::pair<whowas_users::iterator, bool> ret = whowas.insert(std::make_pair(irc::string(user->nick.c_str()), static_cast<WhoWas::Nick*>(NULL)));
 
 	if (ret.second) // If inserted
 	{
 		// This nick is new, create a list for it and add the first record to it
-		whowas_set* n = new whowas_set;
-		n->push_back(new WhoWasGroup(user));
-		ret.first->second = n;
+		WhoWas::Nick* nick = new WhoWas::Nick;
+		nick->entries.push_back(new WhoWasGroup(user));
+		ret.first->second = nick;
 
 		// Add this nick to the fifo too
 		whowas_fifo.push_back(std::make_pair(ServerInstance->Time(), ret.first->first));
@@ -116,8 +117,8 @@ void CommandWhowas::AddToWhoWas(User* user)
 			whowas_users::iterator it = whowas.find(whowas_fifo.front().second);
 			if (it != whowas.end())
 			{
-				whowas_set* set = it->second;
-				stdalgo::delete_all(*set);
+				WhoWas::Nick* set = it->second;
+				stdalgo::delete_all(set->entries);
 
 				delete set;
 				whowas.erase(it);
@@ -128,7 +129,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 	else
 	{
 		// We've met this nick before, add a new record to the list
-		whowas_set* set = ret.first->second;
+		whowas_set* set = &ret.first->second->entries;
 		set->push_back(new WhoWasGroup(user));
 
 		// If there are too many records for this nick, remove the oldest (front)
@@ -160,10 +161,10 @@ void CommandWhowas::Prune()
 				return;
 			}
 
-			whowas_set* set = iter->second;
-			stdalgo::delete_all(*set);
+			WhoWas::Nick* nick = iter->second;
+			stdalgo::delete_all(nick->entries);
 
-			delete set;
+			delete nick;
 			whowas.erase(iter);
 			whowas_fifo.pop_front();
 		}
@@ -174,7 +175,7 @@ void CommandWhowas::Prune()
 	/* Then cut the whowas sets to new size (groupsize) */
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* n = i->second;
+		whowas_set* n = &i->second->entries;
 		while (n->size() > this->GroupSize)
 		{
 			delete n->front();
@@ -189,7 +190,7 @@ void CommandWhowas::Maintain()
 	time_t min = ServerInstance->Time() - this->MaxKeep;
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* set = i->second;
+		whowas_set* set = &i->second->entries;
 		while (!set->empty() && set->front()->signon < min)
 		{
 			delete set->front();
@@ -202,11 +203,12 @@ CommandWhowas::~CommandWhowas()
 {
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* set = i->second;
+		WhoWas::Nick* nick = i->second;
+		whowas_set* set = &nick->entries;
 		for (whowas_set::iterator j = set->begin(); j != set->end(); ++j)
 			delete *j;
 
-		delete set;
+		delete nick;
 	}
 }
 

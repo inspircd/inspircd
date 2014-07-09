@@ -30,9 +30,21 @@ class WhoWasGroup;
  */
 typedef std::deque<WhoWasGroup*> whowas_set;
 
+namespace WhoWas
+{
+	/** Everything known about one nick
+	 */
+	struct Nick
+	{
+		/** Container where each element has information about one occurrence of this nick
+		 */
+		whowas_set entries;
+	};
+}
+
 /** Sets of users in the whowas system
  */
-typedef std::map<irc::string,whowas_set*> whowas_users;
+typedef std::map<irc::string, WhoWas::Nick*> whowas_users;
 
 /** Sets of time and users in whowas list
  */
