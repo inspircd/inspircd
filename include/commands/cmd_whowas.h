@@ -23,18 +23,48 @@
 
 #include "modules.h"
 
-/* Forward ref for typedefs */
-class WhoWasGroup;
-
 namespace WhoWas
 {
+	/** One entry for a nick. There may be multiple entries for a nick.
+	 */
+	struct Entry
+	{
+		/** Real host
+		 */
+		const std::string host;
+
+		/** Displayed host
+		 */
+		const std::string dhost;
+
+		/** Ident
+		 */
+		const std::string ident;
+
+		/** Server name
+		 */
+		const std::string server;
+
+		/** Full name (GECOS)
+		 */
+		const std::string gecos;
+
+		/** Signon time
+		 */
+		const time_t signon;
+
+		/** Initialize this Entry with a user
+		 */
+		Entry(User* user);
+	};
+
 	/** Everything known about one nick
 	 */
 	struct Nick : public intrusive_list_node<Nick>
 	{
 		/** A group of users related by nickname
 		 */
-		typedef std::deque<WhoWasGroup*> List;
+		typedef std::deque<Entry*> List;
 
 		/** Container where each element has information about one occurrence of this nick
 		 */
@@ -62,7 +92,7 @@ namespace WhoWas
 	 public:
 		struct Stats
 		{
-			/** Number of currently existing WhoWasGroup objects
+			/** Number of currently existing WhoWas::Entry objects
 			 */
 			size_t entrycount;
 		};
@@ -165,33 +195,4 @@ class CommandWhowas : public Command
 	 * @return A value from CmdResult to indicate command success or failure.
 	 */
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
-};
-
-/** Used to hold WHOWAS information
- */
-class WhoWasGroup
-{
- public:
-	/** Real host
-	 */
-	std::string host;
-	/** Displayed host
-	 */
-	std::string dhost;
-	/** Ident
-	 */
-	std::string ident;
-	/** Server name
-	 */
-	std::string server;
-	/** Fullname (GECOS)
-	 */
-	std::string gecos;
-	/** Signon time
-	 */
-	time_t signon;
-
-	/** Initialize this WhoWasFroup with a user
-	 */
-	WhoWasGroup(User* user);
 };

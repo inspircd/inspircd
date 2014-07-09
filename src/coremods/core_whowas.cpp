@@ -51,7 +51,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 		{
 			for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
 			{
-				WhoWasGroup* u = *i;
+				WhoWas::Entry* u = *i;
 
 				user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(),
 					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
@@ -115,7 +115,7 @@ void WhoWas::Manager::Add(User* user)
 	{
 		// This nick is new, create a list for it and add the first record to it
 		WhoWas::Nick* nick = new WhoWas::Nick(ret.first->first);
-		nick->entries.push_back(new WhoWasGroup(user));
+		nick->entries.push_back(new Entry(user));
 		ret.first->second = nick;
 
 		// Add this nick to the fifo too
@@ -134,7 +134,7 @@ void WhoWas::Manager::Add(User* user)
 	{
 		// We've met this nick before, add a new record to the list
 		WhoWas::Nick::List& list = ret.first->second->entries;
-		list.push_back(new WhoWasGroup(user));
+		list.push_back(new Entry(user));
 
 		// If there are too many records for this nick, remove the oldest (front)
 		if (list.size() > this->GroupSize)
@@ -223,8 +223,13 @@ void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMa
 	Prune();
 }
 
-WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ident(user->ident),
-	server(user->server->GetName()), gecos(user->fullname), signon(user->signon)
+WhoWas::Entry::Entry(User* user)
+	: host(user->host)
+	, dhost(user->dhost)
+	, ident(user->ident)
+	, server(user->server->GetName())
+	, gecos(user->fullname)
+	, signon(user->signon)
 {
 }
 
