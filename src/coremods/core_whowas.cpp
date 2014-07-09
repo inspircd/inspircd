@@ -118,8 +118,6 @@ void CommandWhowas::AddToWhoWas(User* user)
 			if (it != whowas.end())
 			{
 				WhoWas::Nick* set = it->second;
-				stdalgo::delete_all(set->entries);
-
 				delete set;
 				whowas.erase(it);
 			}
@@ -162,8 +160,6 @@ void CommandWhowas::Prune()
 			}
 
 			WhoWas::Nick* nick = iter->second;
-			stdalgo::delete_all(nick->entries);
-
 			delete nick;
 			whowas.erase(iter);
 			whowas_fifo.pop_front();
@@ -204,10 +200,6 @@ CommandWhowas::~CommandWhowas()
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
 		WhoWas::Nick* nick = i->second;
-		whowas_set* set = &nick->entries;
-		for (whowas_set::iterator j = set->begin(); j != set->end(); ++j)
-			delete *j;
-
 		delete nick;
 	}
 }
@@ -215,6 +207,11 @@ CommandWhowas::~CommandWhowas()
 WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ident(user->ident),
 	server(user->server->GetName()), gecos(user->fullname), signon(user->signon)
 {
+}
+
+WhoWas::Nick::~Nick()
+{
+	stdalgo::delete_all(entries);
 }
 
 class ModuleWhoWas : public Module

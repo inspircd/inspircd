@@ -39,6 +39,10 @@ namespace WhoWas
 		/** Container where each element has information about one occurrence of this nick
 		 */
 		whowas_set entries;
+
+		/** Destructor, deallocates all elements in the entries container
+		 */
+		~Nick();
 	};
 }
 
