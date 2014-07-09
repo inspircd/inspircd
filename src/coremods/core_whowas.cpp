@@ -80,14 +80,12 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 std::string CommandWhowas::GetStats()
 {
 	int whowas_size = 0;
-	int whowas_bytes = 0;
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
 		whowas_set* n = i->second;
 		whowas_size += n->size();
-		whowas_bytes += (sizeof(whowas_set) + ( sizeof(WhoWasGroup) * n->size() ) );
 	}
-	return "Whowas entries: " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)";
+	return "Whowas entries: " + ConvToStr(whowas_size);
 }
 
 void CommandWhowas::AddToWhoWas(User* user)
