@@ -18,7 +18,7 @@
 
 
 template <typename T, typename Tag>
-class intrusive_list
+class INSPIRCD_INTRUSIVE_LIST_NAME
 {
  public:
 	class iterator : public std::iterator<std::bidirectional_iterator_tag, T*>
@@ -64,7 +64,7 @@ class intrusive_list
 
 	typedef iterator const_iterator;
 
-	intrusive_list()
+	INSPIRCD_INTRUSIVE_LIST_NAME()
 		: listhead(NULL)
 		, listsize(0)
 	{

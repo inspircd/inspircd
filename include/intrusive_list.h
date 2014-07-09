@@ -50,4 +50,6 @@ class intrusive_list_node
 	friend class intrusive_list<T, Tag>;
 };
 
+#define INSPIRCD_INTRUSIVE_LIST_NAME intrusive_list
 #include "intrusive_list_impl.h"
+#undef INSPIRCD_INTRUSIVE_LIST_NAME
