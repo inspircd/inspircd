@@ -60,15 +60,22 @@ namespace WhoWas
 	class Manager
 	{
 	 public:
+		struct Stats
+		{
+			/** Number of currently existing WhoWasGroup objects
+			 */
+			size_t entrycount;
+		};
+
 		/** Add a user to the whowas database. Called when a user quits.
 		 * @param user The user to add to the database
 		 */
 		void Add(User* user);
 
 		/** Retrieves statistics about the whowas database
-		 * @return Whowas statistics
+		 * @return Whowas statistics as a WhoWas::Manager::Stats struct
 		 */
-		std::string GetStats() const;
+		Stats GetStats() const;
 
 		/** Expires old entries
 		 */

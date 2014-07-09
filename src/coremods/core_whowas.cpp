@@ -88,7 +88,7 @@ const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 	return nick;
 }
 
-std::string WhoWas::Manager::GetStats() const
+WhoWas::Manager::Stats WhoWas::Manager::GetStats() const
 {
 	size_t entrycount = 0;
 	for (whowas_users::const_iterator i = whowas.begin(); i != whowas.end(); ++i)
@@ -96,7 +96,10 @@ std::string WhoWas::Manager::GetStats() const
 		WhoWas::Nick::List& list = i->second->entries;
 		entrycount += list.size();
 	}
-	return "Whowas entries: " + ConvToStr(entrycount);
+
+	Stats stats;
+	stats.entrycount = entrycount;
+	return stats;
 }
 
 void WhoWas::Manager::Add(User* user)
@@ -259,7 +262,7 @@ class ModuleWhoWas : public Module
 	ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 'z')
-			results.push_back("249 "+user->nick+" :"+cmd.manager.GetStats());
+			results.push_back("249 "+user->nick+" :Whowas entries: "+ConvToStr(cmd.manager.GetStats().entrycount));
 
 		return MOD_RES_PASSTHRU;
 	}
