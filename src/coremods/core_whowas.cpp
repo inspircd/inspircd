@@ -25,7 +25,6 @@
 
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
-	, GroupSize(0), MaxGroups(0), MaxKeep(0)
 {
 	syntax = "<nick>{,<nick>}";
 	Penalty = 2;
@@ -34,21 +33,20 @@ CommandWhowas::CommandWhowas( Module* parent)
 CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
 {
 	/* if whowas disabled in config */
-	if (this->GroupSize == 0 || this->MaxGroups == 0)
+	if (!manager.IsEnabled())
 	{
 		user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :This command has been disabled.", name.c_str());
 		return CMD_FAILURE;
 	}
 
-	whowas_users::const_iterator it = whowas.find(parameters[0]);
-	if (it == whowas.end())
+	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
+	if (!nick)
 	{
 		user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
 	}
 	else
 	{
-		const WhoWas::Nick& nick = *it->second;
-		const WhoWas::Nick::List& list = nick.entries;
+		const WhoWas::Nick::List& list = nick->entries;
 		if (!list.empty())
 		{
 			for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -67,17 +65,30 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 				user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
 			}
 		}
-		else
-		{
-			user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
-		}
 	}
 
 	user->WriteNumeric(RPL_ENDOFWHOWAS, "%s :End of WHOWAS", parameters[0].c_str());
 	return CMD_SUCCESS;
 }
 
-std::string CommandWhowas::GetStats()
+WhoWas::Manager::Manager()
+	: GroupSize(0), MaxGroups(0), MaxKeep(0)
+{
+}
+
+const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
+{
+	whowas_users::const_iterator it = whowas.find(nickname);
+	if (it == whowas.end())
+		return NULL;
+
+	const Nick* nick = it->second;
+	if (nick->entries.empty())
+		return NULL;
+	return nick;
+}
+
+std::string WhoWas::Manager::GetStats() const
 {
 	size_t entrycount = 0;
 	for (whowas_users::const_iterator i = whowas.begin(); i != whowas.end(); ++i)
@@ -88,13 +99,10 @@ std::string CommandWhowas::GetStats()
 	return "Whowas entries: " + ConvToStr(entrycount);
 }
 
-void CommandWhowas::AddToWhoWas(User* user)
+void WhoWas::Manager::Add(User* user)
 {
-	/* if whowas disabled */
-	if (this->GroupSize == 0 || this->MaxGroups == 0)
-	{
+	if (!IsEnabled())
 		return;
-	}
 
 	// Insert nick if it doesn't exist
 	// 'first' will point to the newly inserted element or to the existing element with an equivalent key
@@ -135,7 +143,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 }
 
 /* on rehash, refactor maps according to new conf values */
-void CommandWhowas::Prune()
+void WhoWas::Manager::Prune()
 {
 	time_t min = ServerInstance->Time() - this->MaxKeep;
 
@@ -173,7 +181,7 @@ void CommandWhowas::Prune()
 }
 
 /* call maintain once an hour to remove expired nicks */
-void CommandWhowas::Maintain()
+void WhoWas::Manager::Maintain()
 {
 	time_t min = ServerInstance->Time() - this->MaxKeep;
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
@@ -187,13 +195,29 @@ void CommandWhowas::Maintain()
 	}
 }
 
-CommandWhowas::~CommandWhowas()
+WhoWas::Manager::~Manager()
 {
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
 		WhoWas::Nick* nick = i->second;
 		delete nick;
 	}
+}
+
+bool WhoWas::Manager::IsEnabled() const
+{
+	return ((GroupSize != 0) && (MaxGroups != 0));
+}
+
+void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned int NewMaxKeep)
+{
+	if ((NewGroupSize == GroupSize) && (NewMaxGroups == MaxGroups) && (NewMaxKeep == MaxKeep))
+		return;
+
+	GroupSize = NewGroupSize;
+	MaxGroups = NewMaxGroups;
+	MaxKeep = NewMaxKeep;
+	Prune();
 }
 
 WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ident(user->ident),
@@ -224,18 +248,18 @@ class ModuleWhoWas : public Module
 	void OnGarbageCollect()
 	{
 		// Remove all entries older than MaxKeep
-		cmd.Maintain();
+		cmd.manager.Maintain();
 	}
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
 	{
-		cmd.AddToWhoWas(user);
+		cmd.manager.Add(user);
 	}
 
 	ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 'z')
-			results.push_back("249 "+user->nick+" :"+cmd.GetStats());
+			results.push_back("249 "+user->nick+" :"+cmd.manager.GetStats());
 
 		return MOD_RES_PASSTHRU;
 	}
@@ -247,13 +271,7 @@ class ModuleWhoWas : public Module
 		unsigned int NewMaxGroups = tag->getInt("maxgroups", 10240, 0, 1000000);
 		unsigned int NewMaxKeep = tag->getDuration("maxkeep", 3600, 3600);
 
-		if ((NewGroupSize == cmd.GroupSize) && (NewMaxGroups == cmd.MaxGroups) && (NewMaxKeep == cmd.MaxKeep))
-			return;
-
-		cmd.GroupSize = NewGroupSize;
-		cmd.MaxGroups = NewMaxGroups;
-		cmd.MaxKeep = NewMaxKeep;
-		cmd.Prune();
+		cmd.manager.UpdateConfig(NewGroupSize, NewMaxGroups, NewMaxKeep);
 	}
 
 	Version GetVersion()
