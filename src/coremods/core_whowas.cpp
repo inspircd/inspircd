@@ -40,21 +40,20 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 	}
 
-	whowas_users::iterator i = whowas.find(parameters[0]);
-
-	if (i == whowas.end())
+	whowas_users::const_iterator it = whowas.find(parameters[0]);
+	if (it == whowas.end())
 	{
 		user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
 	}
 	else
 	{
-		WhoWas::Nick* nick = i->second;
-		whowas_set* grp = &nick->entries;
-		if (!grp->empty())
+		const WhoWas::Nick& nick = *it->second;
+		const WhoWas::Nick::List& list = nick.entries;
+		if (!list.empty())
 		{
-			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
+			for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
 			{
-				WhoWasGroup* u = *ux;
+				WhoWasGroup* u = *i;
 
 				user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(),
 					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
@@ -83,8 +82,8 @@ std::string CommandWhowas::GetStats()
 	int whowas_size = 0;
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* n = &i->second->entries;
-		whowas_size += n->size();
+		WhoWas::Nick::List& list = i->second->entries;
+		whowas_size += list.size();
 	}
 	return "Whowas entries: " + ConvToStr(whowas_size);
 }
@@ -123,14 +122,14 @@ void CommandWhowas::AddToWhoWas(User* user)
 	else
 	{
 		// We've met this nick before, add a new record to the list
-		whowas_set* set = &ret.first->second->entries;
-		set->push_back(new WhoWasGroup(user));
+		WhoWas::Nick::List& list = ret.first->second->entries;
+		list.push_back(new WhoWasGroup(user));
 
 		// If there are too many records for this nick, remove the oldest (front)
-		if (set->size() > this->GroupSize)
+		if (list.size() > this->GroupSize)
 		{
-			delete set->front();
-			set->pop_front();
+			delete list.front();
+			list.pop_front();
 		}
 	}
 }
@@ -164,11 +163,11 @@ void CommandWhowas::Prune()
 	/* Then cut the whowas sets to new size (groupsize) */
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* n = &i->second->entries;
-		while (n->size() > this->GroupSize)
+		WhoWas::Nick::List& list = i->second->entries;
+		while (list.size() > this->GroupSize)
 		{
-			delete n->front();
-			n->pop_front();
+			delete list.front();
+			list.pop_front();
 		}
 	}
 }
@@ -179,11 +178,11 @@ void CommandWhowas::Maintain()
 	time_t min = ServerInstance->Time() - this->MaxKeep;
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* set = &i->second->entries;
-		while (!set->empty() && set->front()->signon < min)
+		WhoWas::Nick::List& list = i->second->entries;
+		while (!list.empty() && list.front()->signon < min)
 		{
-			delete set->front();
-			set->pop_front();
+			delete list.front();
+			list.pop_front();
 		}
 	}
 }

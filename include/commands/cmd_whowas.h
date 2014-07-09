@@ -26,19 +26,19 @@
 /* Forward ref for typedefs */
 class WhoWasGroup;
 
-/** A group of users related by nickname
- */
-typedef std::deque<WhoWasGroup*> whowas_set;
-
 namespace WhoWas
 {
 	/** Everything known about one nick
 	 */
 	struct Nick : public intrusive_list_node<Nick>
 	{
+		/** A group of users related by nickname
+		 */
+		typedef std::deque<WhoWasGroup*> List;
+
 		/** Container where each element has information about one occurrence of this nick
 		 */
-		whowas_set entries;
+		List entries;
 
 		/** Time this nick was added to the database
 		 */
