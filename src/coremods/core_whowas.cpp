@@ -209,6 +209,11 @@ WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ide
 {
 }
 
+WhoWas::Nick::Nick()
+	: addtime(ServerInstance->Time())
+{
+}
+
 WhoWas::Nick::~Nick()
 {
 	stdalgo::delete_all(entries);

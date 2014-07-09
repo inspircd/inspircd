@@ -40,6 +40,14 @@ namespace WhoWas
 		 */
 		whowas_set entries;
 
+		/** Time this nick was added to the database
+		 */
+		const time_t addtime;
+
+		/** Constructor to initialize fields
+		 */
+		Nick();
+
 		/** Destructor, deallocates all elements in the entries container
 		 */
 		~Nick();
