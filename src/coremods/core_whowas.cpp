@@ -79,13 +79,13 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 
 std::string CommandWhowas::GetStats()
 {
-	int whowas_size = 0;
-	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
+	size_t entrycount = 0;
+	for (whowas_users::const_iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
 		WhoWas::Nick::List& list = i->second->entries;
-		whowas_size += list.size();
+		entrycount += list.size();
 	}
-	return "Whowas entries: " + ConvToStr(whowas_size);
+	return "Whowas entries: " + ConvToStr(entrycount);
 }
 
 void CommandWhowas::AddToWhoWas(User* user)
