@@ -66,6 +66,9 @@ class INSPIRCD_INTRUSIVE_LIST_NAME
 
 	INSPIRCD_INTRUSIVE_LIST_NAME()
 		: listhead(NULL)
+#ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
+		, listtail(NULL)
+#endif
 		, listsize(0)
 	{
 	}
@@ -107,8 +110,36 @@ class INSPIRCD_INTRUSIVE_LIST_NAME
 			x->intrusive_list_node<T, Tag>::ptr_next = listhead;
 			listhead->intrusive_list_node<T, Tag>::ptr_prev = x;
 		}
+#ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
+		else
+			listtail = x;
+#endif
 		listhead = x;
 	}
+
+#ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
+	T* back() const
+	{
+		return listtail;
+	}
+
+	void push_back(T* x)
+	{
+		if (listsize++)
+		{
+			x->intrusive_list_node<T, Tag>::ptr_prev = listtail;
+			listtail->intrusive_list_node<T, Tag>::ptr_next = x;
+		}
+		else
+			listhead = x;
+		listtail = x;
+	}
+
+	void pop_back()
+	{
+		erase(listtail);
+	}
+#endif
 
 	void erase(const iterator& it)
 	{
@@ -119,11 +150,18 @@ class INSPIRCD_INTRUSIVE_LIST_NAME
 	{
 		if (listhead == x)
 			listhead = x->intrusive_list_node<T, Tag>::ptr_next;
+#ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
+		if (listtail == x)
+			listtail = x->intrusive_list_node<T, Tag>::ptr_prev;
+#endif
 		x->intrusive_list_node<T, Tag>::unlink();
 		listsize--;
 	}
 
  private:
 	T* listhead;
+#ifdef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
+	T* listtail;
+#endif
 	size_t listsize;
 };

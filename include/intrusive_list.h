@@ -24,6 +24,7 @@
 struct intrusive_list_def_tag { };
 
 template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list;
+template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list_tail;
 
 template <typename T, typename Tag = intrusive_list_def_tag>
 class intrusive_list_node
@@ -48,8 +49,18 @@ class intrusive_list_node
 	}
 
 	friend class intrusive_list<T, Tag>;
+	friend class intrusive_list_tail<T, Tag>;
 };
 
+// Intrusive list where the list only has a pointer to the head element
 #define INSPIRCD_INTRUSIVE_LIST_NAME intrusive_list
 #include "intrusive_list_impl.h"
 #undef INSPIRCD_INTRUSIVE_LIST_NAME
+
+// Intrusive list where the list maintains a pointer to both the head and the tail elements.
+// Additional methods: back(), push_back(), pop_back()
+#define INSPIRCD_INTRUSIVE_LIST_NAME intrusive_list_tail
+#define INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
+#include "intrusive_list_impl.h"
+#undef INSPIRCD_INTRUSIVE_LIST_NAME
+#undef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
