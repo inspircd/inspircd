@@ -40,7 +40,7 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 		return CMD_FAILURE;
 	}
 
-	whowas_users::iterator i = whowas.find(assign(parameters[0]));
+	whowas_users::iterator i = whowas.find(parameters[0]);
 
 	if (i == whowas.end())
 	{
@@ -99,7 +99,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 
 	// Insert nick if it doesn't exist
 	// 'first' will point to the newly inserted element or to the existing element with an equivalent key
-	std::pair<whowas_users::iterator, bool> ret = whowas.insert(std::make_pair(irc::string(user->nick.c_str()), static_cast<WhoWas::Nick*>(NULL)));
+	std::pair<whowas_users::iterator, bool> ret = whowas.insert(std::make_pair(user->nick, static_cast<WhoWas::Nick*>(NULL)));
 
 	if (ret.second) // If inserted
 	{
@@ -202,7 +202,7 @@ WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ide
 {
 }
 
-WhoWas::Nick::Nick(const irc::string& nickname)
+WhoWas::Nick::Nick(const std::string& nickname)
 	: addtime(ServerInstance->Time())
 	, nick(nickname)
 {

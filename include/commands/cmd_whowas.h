@@ -46,11 +46,11 @@ namespace WhoWas
 
 		/** Nickname whose information is stored in this class
 		 */
-		const irc::string nick;
+		const std::string nick;
 
 		/** Constructor to initialize fields
 		 */
-		Nick(const irc::string& nickname);
+		Nick(const std::string& nickname);
 
 		/** Destructor, deallocates all elements in the entries container
 		 */
@@ -64,7 +64,7 @@ namespace WhoWas
 
 /** Sets of users in the whowas system
  */
-typedef std::map<irc::string, WhoWas::Nick*> whowas_users;
+typedef TR1NS::unordered_map<std::string, WhoWas::Nick*, irc::insensitive, irc::StrHashComp> whowas_users;
 
 /** Handle /WHOWAS. These command handlers can be reloaded by the core,
  * and handle basic RFC1459 commands. Commands within modules work
