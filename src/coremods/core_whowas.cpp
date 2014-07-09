@@ -104,7 +104,7 @@ void CommandWhowas::AddToWhoWas(User* user)
 	if (ret.second) // If inserted
 	{
 		// This nick is new, create a list for it and add the first record to it
-		WhoWas::Nick* nick = new WhoWas::Nick;
+		WhoWas::Nick* nick = new WhoWas::Nick(ret.first->first);
 		nick->entries.push_back(new WhoWasGroup(user));
 		ret.first->second = nick;
 
@@ -209,8 +209,9 @@ WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ide
 {
 }
 
-WhoWas::Nick::Nick()
+WhoWas::Nick::Nick(const irc::string& nickname)
 	: addtime(ServerInstance->Time())
+	, nick(nickname)
 {
 }
 

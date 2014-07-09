@@ -44,9 +44,13 @@ namespace WhoWas
 		 */
 		const time_t addtime;
 
+		/** Nickname whose information is stored in this class
+		 */
+		const irc::string nick;
+
 		/** Constructor to initialize fields
 		 */
-		Nick();
+		Nick(const irc::string& nickname);
 
 		/** Destructor, deallocates all elements in the entries container
 		 */
