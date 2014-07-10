@@ -128,7 +128,7 @@ void SecurityIPResolver::OnError(const DNS::Query *r)
 }
 
 CacheRefreshTimer::CacheRefreshTimer()
-	: Timer(3600, ServerInstance->Time(), true)
+	: Timer(3600, true)
 {
 }
 

@@ -57,7 +57,7 @@ class ReconnectTimer : public Timer
  private:
 	ModulePgSQL* mod;
  public:
-	ReconnectTimer(ModulePgSQL* m) : Timer(5, ServerInstance->Time(), false), mod(m)
+	ReconnectTimer(ModulePgSQL* m) : Timer(5, false), mod(m)
 	{
 	}
 	bool Tick(time_t TIME);

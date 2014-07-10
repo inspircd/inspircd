@@ -90,7 +90,7 @@ class CoreExport SocketTimeout : public Timer
 	 * @param secs_from_now Seconds from now to time out
 	 * @param now The current time
 	 */
-	SocketTimeout(int fd, BufferedSocket* thesock, long secs_from_now, time_t now) : Timer(secs_from_now, now), sock(thesock), sfd(fd) { }
+	SocketTimeout(int fd, BufferedSocket* thesock, long secs_from_now) : Timer(secs_from_now), sock(thesock), sfd(fd) { }
 
 	/** Handle tick event
 	 */

@@ -50,10 +50,9 @@ class CoreExport Timer
  public:
 	/** Default constructor, initializes the triggering time
 	 * @param secs_from_now The number of seconds from now to trigger the timer
-	 * @param now The time now
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	Timer(unsigned int secs_from_now, time_t now, bool repeating = false);
+	Timer(unsigned int secs_from_now, bool repeating = false);
 
 	/** Default destructor, removes the timer from the timer manager
 	 */

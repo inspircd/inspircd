@@ -444,7 +444,7 @@ class MyManager : public Manager, public Timer, public EventHandler
  public:
 	DNS::Request* requests[MAX_REQUEST_ID];
 
-	MyManager(Module* c) : Manager(c), Timer(3600, ServerInstance->Time(), true)
+	MyManager(Module* c) : Manager(c), Timer(3600, true)
 	{
 		for (int i = 0; i < MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
