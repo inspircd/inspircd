@@ -111,14 +111,14 @@ class CoreExport Timer
 	}
 };
 
-typedef std::multimap<time_t, Timer*> TimerMap;
-
 /** This class manages sets of Timers, and triggers them at their defined times.
  * This will ensure timers are not missed, as well as removing timers that have
  * expired and allowing the addition of new ones.
  */
 class CoreExport TimerManager
 {
+	typedef std::multimap<time_t, Timer*> TimerMap;
+
 	/** A list of all pending timers
 	 */
 	TimerMap Timers;
