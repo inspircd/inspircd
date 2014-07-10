@@ -53,12 +53,7 @@ class CoreExport Timer
 	 * @param now The time now
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	Timer(unsigned int secs_from_now, time_t now, bool repeating = false)
-	{
-		trigger = now + secs_from_now;
-		secs = secs_from_now;
-		repeat = repeating;
-	}
+	Timer(unsigned int secs_from_now, time_t now, bool repeating = false);
 
 	/** Default destructor, removes the timer from the timer manager
 	 */
