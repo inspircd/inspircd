@@ -24,17 +24,14 @@ class CoreExport ISupportManager
 {
  private:
 	/** The generated lines which are sent to clients. */
-	std::vector<std::string> Lines;
+	std::vector<std::string> cachedlines;
 
  public:
 	/** (Re)build the ISUPPORT vector. */
 	void Build();
 
 	/** Returns the std::vector of ISUPPORT lines. */
-	const std::vector<std::string>& GetLines()
-	{
-		return this->Lines;
-	}
+	const std::vector<std::string>& GetLines() const { return cachedlines; }
 
 	/** Send the 005 numerics (ISUPPORT) to a user. */
 	void SendTo(LocalUser* user);
