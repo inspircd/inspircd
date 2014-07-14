@@ -57,9 +57,9 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 * This function does not remove the channel from User::chanlist.
 	 * Since the parameter is an iterator to the target, the complexity
 	 * of this function is constant.
-	 * @param membiter The UserMembIter to remove, must be valid
+	 * @param membiter The MemberMap iterator to remove, must be valid
 	 */
-	void DelUser(const UserMembIter& membiter);
+	void DelUser(const MemberMap::iterator& membiter);
 
  public:
 	/** Creates a channel record and initialises it with default values
@@ -187,7 +187,7 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 * @param victimiter Iterator to the user being kicked, must be valid
 	 * @param reason The reason for the kick
 	 */
-	void KickUser(User* src, const UserMembIter& victimiter, const std::string& reason);
+	void KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason);
 
 	/** Make src kick user from this channel with the given reason.
 	 * @param src The source of the kick
@@ -196,7 +196,7 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 */
 	void KickUser(User* src, User* user, const std::string& reason)
 	{
-		UserMembIter it = userlist.find(user);
+		MemberMap::iterator it = userlist.find(user);
 		if (it != userlist.end())
 			KickUser(src, it, reason);
 	}

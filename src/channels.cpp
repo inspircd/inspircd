@@ -71,7 +71,7 @@ Membership* Channel::AddUser(User* user)
 
 void Channel::DelUser(User* user)
 {
-	UserMembIter it = userlist.find(user);
+	MemberMap::iterator it = userlist.find(user);
 	if (it != userlist.end())
 		DelUser(it);
 }
@@ -98,7 +98,7 @@ void Channel::CheckDestroy()
 	ServerInstance->GlobalCulls.AddItem(this);
 }
 
-void Channel::DelUser(const UserMembIter& membiter)
+void Channel::DelUser(const MemberMap::iterator& membiter)
 {
 	Membership* memb = membiter->second;
 	memb->cull();
@@ -111,7 +111,7 @@ void Channel::DelUser(const UserMembIter& membiter)
 
 Membership* Channel::GetUser(User* user)
 {
-	UserMembIter i = userlist.find(user);
+	MemberMap::iterator i = userlist.find(user);
 	if (i == userlist.end())
 		return NULL;
 	return i->second;
@@ -426,7 +426,7 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
  */
 void Channel::PartUser(User *user, std::string &reason)
 {
-	UserMembIter membiter = userlist.find(user);
+	MemberMap::iterator membiter = userlist.find(user);
 
 	if (membiter != userlist.end())
 	{
@@ -443,7 +443,7 @@ void Channel::PartUser(User *user, std::string &reason)
 	}
 }
 
-void Channel::KickUser(User* src, const UserMembIter& victimiter, const std::string& reason)
+void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason)
 {
 	Membership* memb = victimiter->second;
 	CUList except_list;
@@ -467,7 +467,7 @@ void Channel::WriteChannel(User* user, const std::string &text)
 {
 	const std::string message = ":" + user->GetFullHost() + " " + text;
 
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
 			i->first->Write(message);
@@ -485,7 +485,7 @@ void Channel::WriteChannelWithServ(const std::string& ServName, const std::strin
 {
 	const std::string message = ":" + (ServName.empty() ? ServerInstance->Config->ServerName : ServName) + " " + text;
 
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
 			i->first->Write(message);
@@ -524,7 +524,7 @@ void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CULi
 		if (mh)
 			minrank = mh->GetPrefixRank();
 	}
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first) && (except_list.find(i->first) == except_list.end()))
 		{
@@ -594,7 +594,7 @@ void Channel::UserList(User* user, bool has_user)
 	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size();
 	std::string prefixlist;
 	std::string nick;
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); ++i)
 	{
 		if ((!has_user) && (i->first->IsModeSet(invisiblemode)) && (!has_privs))
 		{
@@ -691,7 +691,7 @@ const char* Membership::GetAllPrefixChars() const
 
 unsigned int Channel::GetPrefixValue(User* user)
 {
-	UserMembIter m = userlist.find(user);
+	MemberMap::iterator m = userlist.find(user);
 	if (m == userlist.end())
 		return 0;
 	return m->second->getRank();

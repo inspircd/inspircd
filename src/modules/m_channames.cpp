@@ -83,12 +83,12 @@ class ModuleChannelNames : public Module
 				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 			}
 			Channel::MemberMap& users = c->userlist;
-			for (UserMembIter j = users.begin(); j != users.end(); )
+			for (Channel::MemberMap::iterator j = users.begin(); j != users.end(); )
 			{
 				if (IS_LOCAL(j->first))
 				{
 					// KickUser invalidates the iterator
-					UserMembIter it = j++;
+					Channel::MemberMap::iterator it = j++;
 					c->KickUser(ServerInstance->FakeClient, it, "Channel name no longer valid");
 				}
 				else

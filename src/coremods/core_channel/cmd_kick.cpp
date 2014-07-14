@@ -65,7 +65,7 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	const UserMembIter victimiter = c->userlist.find(u);
+	const Channel::MemberMap::iterator victimiter = c->userlist.find(u);
 	if (victimiter == c->userlist.end())
 	{
 		user->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", u->nick.c_str(), c->name.c_str());

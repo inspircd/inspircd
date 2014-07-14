@@ -94,10 +94,10 @@ class CommandClearChan : public Command
 		std::string mask;
 		// Now remove all local non-opers from the channel
 		Channel::MemberMap& users = chan->userlist;
-		for (UserMembIter i = users.begin(); i != users.end(); )
+		for (Channel::MemberMap::iterator i = users.begin(); i != users.end(); )
 		{
 			User* curr = i->first;
-			const UserMembIter currit = i;
+			const Channel::MemberMap::iterator currit = i;
 			++i;
 
 			if (!IS_LOCAL(curr) || curr->IsOper())
