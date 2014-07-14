@@ -190,7 +190,7 @@ class CommandCheck : public Command
 			else
 				user->SendText(checkstr + " onip " + targuser->GetIPString());
 
-			for (UCListIter i = targuser->chans.begin(); i != targuser->chans.end(); i++)
+			for (User::ChanList::iterator i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
 				Membership* memb = *i;
 				Channel* c = memb->chan;

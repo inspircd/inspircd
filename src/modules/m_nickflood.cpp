@@ -128,7 +128,7 @@ class ModuleNickFlood : public Module
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 		{
 			Channel* channel = (*i)->chan;
 			ModResult res;
@@ -167,7 +167,7 @@ class ModuleNickFlood : public Module
 		if (isdigit(user->nick[0])) /* allow switches to UID */
 			return;
 
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); ++i)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
 		{
 			Channel* channel = (*i)->chan;
 			ModResult res;

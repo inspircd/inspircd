@@ -40,7 +40,7 @@ class ModuleBadChannelExtban : public Module
 				rm = mask.substr(3);
 				status = mh->GetModeChar();
 			}
-			for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+			for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 			{
 				if (InspIRCd::Match((*i)->chan->name, rm))
 				{

@@ -72,7 +72,7 @@ CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, L
 	// one of the channels they are on
 	if (ServerInstance->Config->RestrictBannedUsers)
 	{
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); ++i)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
 		{
 			Channel* chan = (*i)->chan;
 			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))

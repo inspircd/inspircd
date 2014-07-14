@@ -997,7 +997,7 @@ void User::SendText(const std::string& linePrefix, std::stringstream& textStream
 bool User::SharesChannelWith(User *other)
 {
 	/* Outer loop */
-	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
+	for (User::ChanList::iterator i = this->chans.begin(); i != this->chans.end(); ++i)
 	{
 		/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
 		 * by replacing it with a map::find which *should* be more efficient
@@ -1170,7 +1170,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 void User::PurgeEmptyChannels()
 {
 	// firstly decrement the count on each channel
-	for (UCListIter i = this->chans.begin(); i != this->chans.end(); )
+	for (User::ChanList::iterator i = this->chans.begin(); i != this->chans.end(); )
 	{
 		Channel* c = (*i)->chan;
 		++i;

@@ -48,7 +48,7 @@ class ModuleNoNickChange : public Module
 
 	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 		{
 			Channel* curr = (*i)->chan;
 

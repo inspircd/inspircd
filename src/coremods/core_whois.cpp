@@ -59,7 +59,7 @@ std::string CommandWhois::ChannelList(User* source, User* dest, bool spy)
 {
 	std::string list;
 
-	for (UCListIter i = dest->chans.begin(); i != dest->chans.end(); i++)
+	for (User::ChanList::iterator i = dest->chans.begin(); i != dest->chans.end(); i++)
 	{
 		Membership* memb = *i;
 		Channel* c = memb->chan;

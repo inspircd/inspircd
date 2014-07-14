@@ -248,6 +248,9 @@ class CoreExport User : public Extensible
 	std::bitset<ModeParser::MODEID_MAX> modes;
 
  public:
+	/** List of Memberships for this user
+	 */
+	typedef intrusive_list<Membership> ChanList;
 
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
@@ -302,7 +305,7 @@ class CoreExport User : public Extensible
 
 	/** Channels this user is on
 	 */
-	UserChanList chans;
+	ChanList chans;
 
 	/** The server the user is connected to.
 	 */

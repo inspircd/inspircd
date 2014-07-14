@@ -42,7 +42,7 @@ class CommandWho : public Command
 
 	Membership* get_first_visible_channel(User* u)
 	{
-		for (UCListIter i = u->chans.begin(); i != u->chans.end(); ++i)
+		for (User::ChanList::iterator i = u->chans.begin(); i != u->chans.end(); ++i)
 		{
 			Membership* memb = *i;
 			if (!memb->chan->IsModeSet(secretmode))

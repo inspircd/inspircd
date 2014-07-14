@@ -72,7 +72,7 @@ namespace
 		for (LocalUserList::iterator i = list.begin(); i != list.end(); ++i)
 		{
 			LocalUser* user = *i;
-			for (UCListIter j = user->chans.begin(); j != user->chans.end(); ++j)
+			for (User::ChanList::iterator j = user->chans.begin(); j != user->chans.end(); ++j)
 				(*j)->id = 0;
 		}
 	}
