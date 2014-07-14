@@ -90,6 +90,7 @@ struct fakederef
 #include "inspstring.h"
 #include "protocol.h"
 #include "bancache.h"
+#include "isupportmanager.h"
 
 /** Template function to convert any input type to std::string
  */
@@ -239,27 +240,6 @@ class serverstats
 		DnsGood(0), DnsBad(0), Connects(0), Sent(0), Recv(0)
 	{
 	}
-};
-
-/** This class manages the generation and transmission of ISUPPORT. */
-class CoreExport ISupportManager
-{
-private:
-	/** The generated lines which are sent to clients. */
-	std::vector<std::string> Lines;
-
-public:
-	/** (Re)build the ISUPPORT vector. */
-	void Build();
-
-	/** Returns the std::vector of ISUPPORT lines. */
-	const std::vector<std::string>& GetLines()
-	{
-		return this->Lines;
-	}
-
-	/** Send the 005 numerics (ISUPPORT) to a user. */
-	void SendTo(LocalUser* user);
 };
 
 DEFINE_HANDLER1(IsNickHandler, bool, const std::string&);
