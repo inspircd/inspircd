@@ -891,8 +891,8 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
 		Channel* c = (*v)->chan;
-		const UserMembList& ulist = c->GetUsers();
-		for (UserMembList::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
+		const Channel::MemberMap& ulist = c->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
 			if (u && u->already_sent != LocalUser::already_sent_id)
@@ -931,8 +931,8 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	}
 	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
-		const UserMembList& ulist = (*v)->chan->GetUsers();
-		for (UserMembList::const_iterator i = ulist.begin(); i != ulist.end(); i++)
+		const Channel::MemberMap& ulist = (*v)->chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
 			if (u && (u->already_sent != uniq_id))

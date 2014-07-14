@@ -168,7 +168,7 @@ void TreeSocket::SendFJoins(Channel* c)
 {
 	CommandFJoin::Builder fjoin(c);
 
-	const UserMembList& ulist = c->GetUsers();
+	const Channel::MemberMap& ulist = c->GetUsers();
 	for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
 	{
 		Membership* memb = i->second;

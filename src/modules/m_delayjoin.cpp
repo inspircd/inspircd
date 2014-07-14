@@ -66,7 +66,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * Make all users visible, as +D is being removed. If we don't do this,
 		 * they remain permanently invisible on this channel!
 		 */
-		const UserMembList& users = channel->GetUsers();
+		const Channel::MemberMap& users = channel->GetUsers();
 		for (UserMembCIter n = users.begin(); n != users.end(); ++n)
 			creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
 	}
@@ -94,7 +94,7 @@ ModResult ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::
 
 static void populate(CUList& except, Membership* memb)
 {
-	const UserMembList& users = memb->chan->GetUsers();
+	const Channel::MemberMap& users = memb->chan->GetUsers();
 	for (UserMembCIter i = users.begin(); i != users.end(); ++i)
 	{
 		if (i->first == memb->user || !IS_LOCAL(i->first))

@@ -76,7 +76,7 @@ class ModuleDeaf : public Module
 		if (!deaf_bypasschars_uline.empty() && is_bypasschar)
 			return MOD_RES_PASSTHRU;
 
-		const UserMembList& ulist = chan->GetUsers();
+		const Channel::MemberMap& ulist = chan->GetUsers();
 		for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
 		{
 			/* not +d ? */

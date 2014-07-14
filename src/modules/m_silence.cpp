@@ -316,7 +316,7 @@ class ModuleSilence : public Module
 	{
 		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
 
-		const UserMembList& ulist = chan->GetUsers();
+		const Channel::MemberMap& ulist = chan->GetUsers();
 		for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
 		{
 			if (IS_LOCAL(i->first))

@@ -36,6 +36,12 @@
  */
 class CoreExport Channel : public Extensible, public InviteBase<Channel>
 {
+ public:
+	/** A map of Memberships on a channel keyed by User pointers
+	 */
+ 	typedef std::map<User*, Membership*> MemberMap;
+
+ private:
 	/** Set default modes for the channel on creation
 	 */
 	void SetDefaultModes();
@@ -84,7 +90,7 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 
 	/** User list.
 	 */
-	UserMembList userlist;
+	MemberMap userlist;
 
 	/** Channel topic.
 	 * If this is an empty string, no channel topic is set.
@@ -166,7 +172,7 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 *
 	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
-	const UserMembList& GetUsers() const { return userlist; }
+	const MemberMap& GetUsers() const { return userlist; }
 
 	/** Returns true if the user given is on the given channel.
 	 * @param user The user to look for

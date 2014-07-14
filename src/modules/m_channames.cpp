@@ -82,7 +82,7 @@ class ModuleChannelNames : public Module
 
 				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 			}
-			UserMembList& users = c->userlist;
+			Channel::MemberMap& users = c->userlist;
 			for (UserMembIter j = users.begin(); j != users.end(); )
 			{
 				if (IS_LOCAL(j->first))
@@ -132,7 +132,7 @@ class ModuleChannelNames : public Module
 	{
 		if (badchan)
 		{
-			const UserMembList& users = memb->chan->GetUsers();
+			const Channel::MemberMap& users = memb->chan->GetUsers();
 			for (UserMembCIter i = users.begin(); i != users.end(); ++i)
 				if (i->first != memb->user)
 					except_list.insert(i->first);

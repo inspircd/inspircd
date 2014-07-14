@@ -93,7 +93,7 @@ class CommandClearChan : public Command
 
 		std::string mask;
 		// Now remove all local non-opers from the channel
-		UserMembList& users = chan->userlist;
+		Channel::MemberMap& users = chan->userlist;
 		for (UserMembIter i = users.begin(); i != users.end(); )
 		{
 			User* curr = i->first;
@@ -170,7 +170,7 @@ class ModuleClearChan : public Module
 			}
 		}
 
-		const UserMembList& users = cmd.activechan->GetUsers();
+		const Channel::MemberMap& users = cmd.activechan->GetUsers();
 		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
 		{
 			LocalUser* curr = IS_LOCAL(i->first);
@@ -200,7 +200,7 @@ class ModuleClearChan : public Module
 	{
 		// Hide the KICK from all non-opers
 		User* leaving = memb->user;
-		const UserMembList& users = memb->chan->GetUsers();
+		const Channel::MemberMap& users = memb->chan->GetUsers();
 		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
 		{
 			User* curr = i->first;

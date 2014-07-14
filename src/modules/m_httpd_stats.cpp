@@ -163,7 +163,7 @@ class ModuleHttpStats : public Module
 					data << "</channeltopic>";
 					data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
 
-					const UserMembList& ulist = c->GetUsers();
+					const Channel::MemberMap& ulist = c->GetUsers();
 					for (UserMembCIter x = ulist.begin(); x != ulist.end(); ++x)
 					{
 						Membership* memb = x->second;
