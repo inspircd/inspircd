@@ -27,12 +27,19 @@ class CoreExport ISupportManager
 	std::vector<std::string> cachedlines;
 
  public:
-	/** (Re)build the ISUPPORT vector. */
+	/** (Re)build the ISUPPORT vector.
+	 * Called by the core on boot after all modules have been loaded, and every time when a module is loaded
+	 * or unloaded. Calls the On005Numeric hook, letting modules manipulate the ISUPPORT tokens.
+	 */
 	void Build();
 
-	/** Returns the std::vector of ISUPPORT lines. */
+	/** Returns the cached std::vector of ISUPPORT lines.
+	 * @return A list of strings prepared for sending to users
+	 */
 	const std::vector<std::string>& GetLines() const { return cachedlines; }
 
-	/** Send the 005 numerics (ISUPPORT) to a user. */
+	/** Send the 005 numerics (ISUPPORT) to a user.
+	 * @param user The user to send the ISUPPORT numerics to
+	 */
 	void SendTo(LocalUser* user);
 };
