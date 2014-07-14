@@ -326,7 +326,7 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 
 			/* who on a channel. */
 			const Channel::MemberMap& cu = ch->GetUsers();
-			for (UserMembCIter i = cu.begin(); i != cu.end(); ++i)
+			for (Channel::MemberMap::const_iterator i = cu.begin(); i != cu.end(); ++i)
 			{
 				/* None of this applies if we WHO ourselves */
 				if (user != i->first)

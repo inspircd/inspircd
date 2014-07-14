@@ -67,7 +67,7 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * they remain permanently invisible on this channel!
 		 */
 		const Channel::MemberMap& users = channel->GetUsers();
-		for (UserMembCIter n = users.begin(); n != users.end(); ++n)
+		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 			creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
 	}
 	channel->SetMode(this, adding);
@@ -95,7 +95,7 @@ ModResult ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::
 static void populate(CUList& except, Membership* memb)
 {
 	const Channel::MemberMap& users = memb->chan->GetUsers();
-	for (UserMembCIter i = users.begin(); i != users.end(); ++i)
+	for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 	{
 		if (i->first == memb->user || !IS_LOCAL(i->first))
 			continue;

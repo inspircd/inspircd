@@ -227,7 +227,7 @@ class CommandCheck : public Command
 			const Channel::MemberMap& ulist = targchan->GetUsers();
 
 			/* note that unlike /names, we do NOT check +i vs in the channel */
-			for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
+			for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 			{
 				/*
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t

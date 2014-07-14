@@ -74,7 +74,7 @@ void DelayMsgMode::OnUnset(User* source, Channel* chan)
 	 * Clean up metadata
 	 */
 	const Channel::MemberMap& users = chan->GetUsers();
-	for (UserMembCIter n = users.begin(); n != users.end(); ++n)
+	for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 		jointime.set(n->second, 0);
 }
 

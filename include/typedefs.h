@@ -104,8 +104,6 @@ typedef std::map<std::string, file_cache> ConfigFileCache;
 typedef std::map<User*, Membership*> UserMembList;
 /** Iterator of UserMembList */
 typedef UserMembList::iterator UserMembIter;
-/** const Iterator of UserMembList */
-typedef UserMembList::const_iterator UserMembCIter;
 
 /** Generic user list, used for exceptions */
 typedef std::set<User*> CUList;

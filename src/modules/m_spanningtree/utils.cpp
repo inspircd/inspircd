@@ -167,7 +167,7 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 	}
 
 	const Channel::MemberMap& ulist = c->GetUsers();
-	for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
+	for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 	{
 		if (IS_LOCAL(i->first))
 			continue;

@@ -169,7 +169,7 @@ void TreeSocket::SendFJoins(Channel* c)
 	CommandFJoin::Builder fjoin(c);
 
 	const Channel::MemberMap& ulist = c->GetUsers();
-	for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
+	for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 	{
 		Membership* memb = i->second;
 		if (!fjoin.has_room(memb))

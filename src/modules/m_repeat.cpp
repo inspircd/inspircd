@@ -130,7 +130,7 @@ class RepeatMode : public ParamMode<RepeatMode, SimpleExtItem<ChannelSettings> >
 	{
 		// Unset the per-membership extension when the mode is removed
 		const Channel::MemberMap& users = chan->GetUsers();
-		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
+		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 			MemberInfoExt.unset(i->second);
 	}
 

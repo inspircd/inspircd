@@ -135,7 +135,7 @@ class ModuleIRCv3 : public Module
 		std::string mode;
 
 		const Channel::MemberMap& userlist = memb->chan->GetUsers();
-		for (UserMembCIter it = userlist.begin(); it != userlist.end(); ++it)
+		for (Channel::MemberMap::const_iterator it = userlist.begin(); it != userlist.end(); ++it)
 		{
 			// Send the extended join line if the current member is local, has the extended-join cap and isn't excepted
 			User* member = IS_LOCAL(it->first);
@@ -209,7 +209,7 @@ class ModuleIRCv3 : public Module
 		std::string line = ":" + memb->user->GetFullHost() + " AWAY :" + memb->user->awaymsg;
 
 		const Channel::MemberMap& userlist = memb->chan->GetUsers();
-		for (UserMembCIter it = userlist.begin(); it != userlist.end(); ++it)
+		for (Channel::MemberMap::const_iterator it = userlist.begin(); it != userlist.end(); ++it)
 		{
 			// Send the away notify line if the current member is local, has the away-notify cap and isn't excepted
 			User* member = IS_LOCAL(it->first);

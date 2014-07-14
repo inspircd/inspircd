@@ -171,7 +171,7 @@ class ModuleClearChan : public Module
 		}
 
 		const Channel::MemberMap& users = cmd.activechan->GetUsers();
-		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
+		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			LocalUser* curr = IS_LOCAL(i->first);
 			if (!curr)
@@ -201,7 +201,7 @@ class ModuleClearChan : public Module
 		// Hide the KICK from all non-opers
 		User* leaving = memb->user;
 		const Channel::MemberMap& users = memb->chan->GetUsers();
-		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
+		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			User* curr = i->first;
 			if ((IS_LOCAL(curr)) && (!curr->IsOper()) && (curr != leaving))

@@ -133,7 +133,7 @@ class ModuleChannelNames : public Module
 		if (badchan)
 		{
 			const Channel::MemberMap& users = memb->chan->GetUsers();
-			for (UserMembCIter i = users.begin(); i != users.end(); ++i)
+			for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 				if (i->first != memb->user)
 					except_list.insert(i->first);
 		}

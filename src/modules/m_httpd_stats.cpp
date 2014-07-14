@@ -164,7 +164,7 @@ class ModuleHttpStats : public Module
 					data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
 
 					const Channel::MemberMap& ulist = c->GetUsers();
-					for (UserMembCIter x = ulist.begin(); x != ulist.end(); ++x)
+					for (Channel::MemberMap::const_iterator x = ulist.begin(); x != ulist.end(); ++x)
 					{
 						Membership* memb = x->second;
 						data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"

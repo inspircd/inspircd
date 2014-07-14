@@ -104,7 +104,7 @@ class ModuleAuditorium : public Module
 			return;
 
 		const Channel::MemberMap& users = memb->chan->GetUsers();
-		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
+		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			if (IS_LOCAL(i->first) && !CanSee(i->first, memb))
 				excepts.insert(i->first);
@@ -141,7 +141,7 @@ class ModuleAuditorium : public Module
 			i = include.erase(i);
 			// however, that might hide me from ops that can see me...
 			const Channel::MemberMap& users = memb->chan->GetUsers();
-			for(UserMembCIter j = users.begin(); j != users.end(); ++j)
+			for(Channel::MemberMap::const_iterator j = users.begin(); j != users.end(); ++j)
 			{
 				if (IS_LOCAL(j->first) && CanSee(j->first, memb))
 					exception[j->first] = true;

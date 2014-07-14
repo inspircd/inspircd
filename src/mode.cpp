@@ -916,7 +916,7 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker& stack)
 void PrefixMode::RemoveMode(Channel* chan, irc::modestacker& stack)
 {
 	const Channel::MemberMap& userlist = chan->GetUsers();
-	for (UserMembCIter i = userlist.begin(); i != userlist.end(); ++i)
+	for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
 	{
 		if (i->second->hasMode(this->GetModeChar()))
 			stack.Push(this->GetModeChar(), i->first->nick);
