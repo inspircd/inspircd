@@ -132,8 +132,8 @@ class ModuleChannelNames : public Module
 	{
 		if (badchan)
 		{
-			const UserMembList* users = memb->chan->GetUsers();
-			for(UserMembCIter i = users->begin(); i != users->end(); i++)
+			const UserMembList& users = memb->chan->GetUsers();
+			for (UserMembCIter i = users.begin(); i != users.end(); ++i)
 				if (i->first != memb->user)
 					except_list.insert(i->first);
 		}

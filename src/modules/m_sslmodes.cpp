@@ -48,8 +48,8 @@ class SSLMode : public ModeHandler
 					if (!API)
 						return MODEACTION_DENY;
 
-					const UserMembList* userlist = channel->GetUsers();
-					for(UserMembCIter i = userlist->begin(); i != userlist->end(); i++)
+					const UserMembList& userlist = channel->GetUsers();
+					for (UserMembCIter i = userlist.begin(); i != userlist.end(); ++i)
 					{
 						ssl_cert* cert = API->GetCertificate(i->first);
 						if (!cert && !i->first->server->IsULine())

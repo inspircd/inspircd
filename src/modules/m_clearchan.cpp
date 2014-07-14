@@ -170,8 +170,8 @@ class ModuleClearChan : public Module
 			}
 		}
 
-		const UserMembList* users = cmd.activechan->GetUsers();
-		for (UserMembCIter i = users->begin(); i != users->end(); ++i)
+		const UserMembList& users = cmd.activechan->GetUsers();
+		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
 		{
 			LocalUser* curr = IS_LOCAL(i->first);
 			if (!curr)
@@ -200,8 +200,8 @@ class ModuleClearChan : public Module
 	{
 		// Hide the KICK from all non-opers
 		User* leaving = memb->user;
-		const UserMembList* users = memb->chan->GetUsers();
-		for (UserMembCIter i = users->begin(); i != users->end(); ++i)
+		const UserMembList& users = memb->chan->GetUsers();
+		for (UserMembCIter i = users.begin(); i != users.end(); ++i)
 		{
 			User* curr = i->first;
 			if ((IS_LOCAL(curr)) && (!curr->IsOper()) && (curr != leaving))

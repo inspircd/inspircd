@@ -166,7 +166,7 @@ class CoreExport Channel : public Extensible, public InviteBase<Channel>
 	 *
 	 * @return This function returns pointer to a map of User pointers (CUList*).
 	 */
-	const UserMembList* GetUsers() const { return &userlist; }
+	const UserMembList& GetUsers() const { return userlist; }
 
 	/** Returns true if the user given is on the given channel.
 	 * @param user The user to look for

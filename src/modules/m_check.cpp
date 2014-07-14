@@ -224,10 +224,10 @@ class CommandCheck : public Command
 
 			/* now the ugly bit, spool current members of a channel. :| */
 
-			const UserMembList *ulist= targchan->GetUsers();
+			const UserMembList& ulist = targchan->GetUsers();
 
 			/* note that unlike /names, we do NOT check +i vs in the channel */
-			for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+			for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
 			{
 				/*
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t

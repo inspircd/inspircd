@@ -391,8 +391,8 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		++c;
 		mod->OnCleanup(TYPE_CHANNEL, chan);
 		chan->doUnhookExtensions(items);
-		const UserMembList* users = chan->GetUsers();
-		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+		const UserMembList& users = chan->GetUsers();
+		for (UserMembCIter mi = users.begin(); mi != users.end(); ++mi)
 			mi->second->doUnhookExtensions(items);
 	}
 

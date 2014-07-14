@@ -167,9 +167,9 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 void TreeSocket::SendFJoins(Channel* c)
 {
 	CommandFJoin::Builder fjoin(c);
-	const UserMembList *ulist = c->GetUsers();
 
-	for (UserMembCIter i = ulist->begin(); i != ulist->end(); ++i)
+	const UserMembList& ulist = c->GetUsers();
+	for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
 	{
 		Membership* memb = i->second;
 		if (!fjoin.has_room(memb))

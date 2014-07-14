@@ -166,9 +166,8 @@ void SpanningTreeUtilities::GetListOfServersForChannel(Channel* c, TreeSocketSet
 			minrank = mh->GetPrefixRank();
 	}
 
-	const UserMembList *ulist = c->GetUsers();
-
-	for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+	const UserMembList& ulist = c->GetUsers();
+	for (UserMembCIter i = ulist.begin(); i != ulist.end(); ++i)
 	{
 		if (IS_LOCAL(i->first))
 			continue;
