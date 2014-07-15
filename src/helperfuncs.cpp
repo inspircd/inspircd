@@ -403,18 +403,18 @@ const char* InspIRCd::Format(const char* formatString, ...)
 	return ret;
 }
 
-std::string InspIRCd::TimeString(time_t curtime)
+std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 {
 #ifdef _WIN32
 	if (curtime < 0)
 		curtime = 0;
 #endif
 
-	struct tm* timeinfo = localtime(&curtime);
+	struct tm* timeinfo = utc ? gmtime(&curtime) : localtime(&curtime);
 	if (!timeinfo)
 	{
 		curtime = 0;
-		timeinfo = localtime(&curtime);
+		timeinfo = utc ? gmtime(&curtime) : localtime(&curtime);
 	}
 
 	// If the calculated year exceeds four digits or is less than the year 1000,
@@ -424,7 +424,15 @@ std::string InspIRCd::TimeString(time_t curtime)
 	else if (timeinfo->tm_year + 1900 < 1000)
 		timeinfo->tm_year = 0;
 
-	return std::string(asctime(timeinfo),24);
+	// This is the default format used by asctime without the terminating new line.
+	if (!format)
+		format = "%a %b %d %T %Y";
+
+	char buffer[128];
+	if (!strftime(buffer, sizeof(buffer), format, timeinfo))
+		buffer[0] = '\0';
+
+	return buffer;
 }
 
 std::string InspIRCd::GenRandomStr(int length, bool printable)

@@ -426,14 +426,30 @@ class CoreExport InspIRCd
 	/** Manages the generation and transmission of ISUPPORT. */
 	ISupportManager ISupport;
 
-	/** Get the current time
-	 * Because this only calls time() once every time around the mainloop,
-	 * it is much faster than calling time() directly.
-	 * @return The current time as an epoch value (time_t)
+	/** Retrieves the number of seconds since the UNIX epoch.
+	 * @remarks This is much faster than calling time() as it only calls it once
+	 *          for each iteration of the main loop.
+	 * @return A time_t which represents the number of seconds since the UNIX epoch.
 	 */
 	inline time_t Time() { return TIME.tv_sec; }
-	/** The fractional time at the start of this mainloop iteration (nanoseconds) */
+
+	/** Retrieves the number of nanoseconds since the UNIX epoch.
+	 * @remarks This is much faster than calling time() as it only calls it once
+	 *          for each iteration of the main loop.
+	 * @return A long which represents the number of nanoseconds since the UNIX epoch.
+	 */
 	inline long Time_ns() { return TIME.tv_nsec; }
+
+	/** Retrieves the current date/time as a string according to the given format.
+	 * @param format The format to retrieve the date/time in. See `man 3 strftime`
+	 *  for more information.
+	 * @return A string of up to 128 characters representing the current date/time.
+	 */
+	static std::string TimeString(const char* format = NULL, bool utc = false)
+	{
+		return InspIRCd::TimeString(ServerInstance->Time(), format, utc);
+	}
+
 	/** Update the current time. Don't call this unless you have reason to do so. */
 	void UpdateTime();
 
@@ -663,7 +679,7 @@ class CoreExport InspIRCd
 
 	/** Return a time_t as a human-readable string.
 	 */
-	static std::string TimeString(time_t curtime);
+	static std::string TimeString(time_t curtime, const char* format = NULL, bool utc = false);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,
