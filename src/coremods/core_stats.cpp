@@ -360,25 +360,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		/* stats u (show server uptime) */
 		case 'u':
 		{
-			time_t current_time = 0;
-			current_time = ServerInstance->Time();
-			time_t server_uptime = current_time - ServerInstance->startup_time;
-			struct tm* stime;
-			stime = gmtime(&server_uptime);
-			/* i dont know who the hell would have an ircd running for over a year nonstop, but
-			 * Craig suggested this, and it seemed a good idea so in it went */
-			if (stime->tm_year > 70)
-			{
-				results.push_back(InspIRCd::Format("242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",
-					user->nick.c_str(), stime->tm_year - 70, stime->tm_yday, stime->tm_hour,
-					stime->tm_min, stime->tm_sec));
-			}
-			else
-			{
-				results.push_back(InspIRCd::Format("242 %s :Server up %d days, %.2d:%.2d:%.2d",
-					user->nick.c_str(), stime->tm_yday, stime->tm_hour, stime->tm_min,
-					stime->tm_sec));
-			}
+			unsigned int up = static_cast<unsigned int>(ServerInstance->Time() - ServerInstance->startup_time);
+			results.push_back(InspIRCd::Format("242 %s :Server up %u days, %.2u:%.2u:%.2u", user->nick.c_str(),
+				up / 86400, (up / 3600) % 24, (up / 60) % 60, up % 60));
 		}
 		break;
 
