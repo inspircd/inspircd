@@ -317,7 +317,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		break;
 		case 'O':
 		{
-			for (OperIndex::const_iterator i = ServerInstance->Config->OperTypes.begin(); i != ServerInstance->Config->OperTypes.end(); ++i)
+			for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->OperTypes.begin(); i != ServerInstance->Config->OperTypes.end(); ++i)
 			{
 				OperInfo* tag = i->second;
 				tag->init();

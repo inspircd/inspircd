@@ -37,7 +37,7 @@ CmdResult CommandOper::HandleLocal(const std::vector<std::string>& parameters, L
 	const std::string userHost = user->ident + "@" + user->host;
 	const std::string userIP = user->ident + "@" + user->GetIPString();
 
-	OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
+	ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 	if (i != ServerInstance->Config->oper_blocks.end())
 	{
 		OperInfo* ifo = i->second;

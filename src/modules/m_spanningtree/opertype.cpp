@@ -35,7 +35,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
 	u->SetMode(opermh, true);
 
-	OperIndex::iterator iter = ServerInstance->Config->OperTypes.find(opertype);
+	ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(opertype);
 	if (iter != ServerInstance->Config->OperTypes.end())
 		u->oper = iter->second;
 	else

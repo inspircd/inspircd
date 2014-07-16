@@ -231,6 +231,10 @@ class CoreExport ServerConfig
 	 */
 	typedef std::vector<reference<ConnectClass> > ClassVector;
 
+	/** Index of valid oper blocks and types
+	 */
+	typedef std::map<std::string, reference<OperInfo> > OperIndex;
+
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get
 	 */
