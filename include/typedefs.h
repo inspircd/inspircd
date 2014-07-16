@@ -61,10 +61,6 @@ typedef intrusive_list<LocalUser> LocalUserList;
 /** A list of failed port bindings, used for informational purposes on startup */
 typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
 
-/** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
- */
-typedef std::vector<reference<ConnectClass> > ClassVector;
-
 /** List of channels to consider when building the neighbor list of a user
  */
 typedef std::vector<Membership*> IncludeChanList;

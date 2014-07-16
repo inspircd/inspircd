@@ -227,6 +227,10 @@ class CoreExport ServerConfig
 		std::string PrependModule(const std::string& fn) const { return FileSystem::ExpandPath(Module, fn); }
 	};
 
+	/** Holds a complete list of all connect blocks
+	 */
+	typedef std::vector<reference<ConnectClass> > ClassVector;
+
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get
 	 */

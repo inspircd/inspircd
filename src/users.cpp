@@ -1078,7 +1078,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 	if (!explicit_name.empty())
 	{
-		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
 
@@ -1091,7 +1091,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	}
 	else
 	{
-		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
 			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());

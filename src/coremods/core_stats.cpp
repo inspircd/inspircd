@@ -103,7 +103,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		case 'i':
 		{
-			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
 			{
 				ConnectClass* c = *i;
 				std::stringstream res;
@@ -132,7 +132,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		case 'Y':
 		{
 			int idx = 0;
-			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
 				results.push_back("215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : SocketEngine::GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
