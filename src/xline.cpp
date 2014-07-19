@@ -155,7 +155,8 @@ void XLineManager::CheckELines()
 	if (ELines.empty())
 		return;
 
-	for (UserManager::LocalList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
 	{
 		LocalUser* u = *u2;
 
@@ -325,7 +326,8 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 void ELine::Unset()
 {
 	/* remove exempt from everyone and force recheck after deleting eline */
-	for (UserManager::LocalList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
 	{
 		LocalUser* u = *u2;
 		u->exempt = false;
@@ -429,8 +431,8 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
-	UserManager::LocalList& list = ServerInstance->Users->local_users;
-	for (UserManager::LocalList::iterator j = list.begin(); j != list.end(); ++j)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator j = list.begin(); j != list.end(); ++j)
 	{
 		LocalUser* u = *j;
 
@@ -679,7 +681,8 @@ bool GLine::Matches(const std::string &str)
 void ELine::OnAdd()
 {
 	/* When adding one eline, only check the one eline */
-	for (UserManager::LocalList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
 	{
 		LocalUser* u = *u2;
 		if (this->Matches(u))

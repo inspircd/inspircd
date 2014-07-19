@@ -52,6 +52,10 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	const CloneCounts zeroclonecounts;
 
+	/** Local client list, a list containing only local clients
+	 */
+	LocalList local_users;
+
  public:
 	/** Constructor, initializes variables
 	 */
@@ -69,10 +73,6 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 * automatically by the constructor and destructor of User.
 	 */
 	user_hash uuidlist;
-
-	/** Local client list, a list containing only local clients
-	 */
-	LocalList local_users;
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */
@@ -172,6 +172,11 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 * @return A hash map mapping nicknames to User pointers
 	 */
 	user_hash& GetUsers() { return clientlist; }
+
+	/** Get a list containing all local users
+	 * @return A const list of local users
+	 */
+	const LocalList& GetLocalUsers() const { return local_users; }
 
 	/** Send a server notice to all local users
 	 * @param text The text format string to send

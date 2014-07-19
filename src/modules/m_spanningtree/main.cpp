@@ -62,7 +62,7 @@ namespace
 		// Does not change the server of quitting users because those are not in the list
 
 		ServerInstance->FakeClient->server = newserver;
-		const UserManager::LocalList& list = ServerInstance->Users->local_users;
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 			(*i)->server = newserver;
 	}
@@ -70,7 +70,7 @@ namespace
 	void ResetMembershipIds()
 	{
 		// Set all membership ids to 0
-		const UserManager::LocalList& list = ServerInstance->Users->local_users;
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
 		for (UserManager::LocalList::iterator i = list.begin(); i != list.end(); ++i)
 		{
 			LocalUser* user = *i;

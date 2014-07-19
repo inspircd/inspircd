@@ -82,7 +82,8 @@ Channel* InspIRCd::FindChan(const std::string &chan)
 /* Send an error notice to all users, registered or not */
 void InspIRCd::SendError(const std::string &s)
 {
-	for (UserManager::LocalList::const_iterator i = this->Users->local_users.begin(); i != this->Users->local_users.end(); ++i)
+	const UserManager::LocalList& list = Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		User* u = *i;
 		if (u->registered == REG_ALL)
