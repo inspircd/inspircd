@@ -330,7 +330,6 @@ CullResult User::cull()
 
 CullResult LocalUser::cull()
 {
-	ServerInstance->Users->local_users.erase(this);
 	ClearInvites();
 	eh.cull();
 	return User::cull();

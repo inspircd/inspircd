@@ -59,6 +59,8 @@ namespace
 {
 	void SetLocalUsersServer(Server* newserver)
 	{
+		// Does not change the server of quitting users because those are not in the list
+
 		ServerInstance->FakeClient->server = newserver;
 		const LocalUserList& list = ServerInstance->Users->local_users;
 		for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)

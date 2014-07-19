@@ -193,6 +193,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 
 		if (lu->registered == REG_ALL)
 			ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operreason->c_str());
+		local_users.erase(lu);
 	}
 
 	if (!clientlist.erase(user->nick))
@@ -286,9 +287,6 @@ void UserManager::DoBackgroundUserStuff()
 	for (LocalUserList::iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
 		LocalUser* curr = *i;
-
-		if (curr->quitting)
-			continue;
 
 		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
 		{
