@@ -54,8 +54,8 @@ static void GenerateStatsLl(User* user, string_list& results, char c)
 {
 	results.push_back(InspIRCd::Format("211 %s nick[ident@%s] sendq cmds_out bytes_out cmds_in bytes_in time_open", user->nick.c_str(), (c == 'l' ? "host" : "ip")));
 
-	const LocalUserList& list = ServerInstance->Users->local_users;
-	for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
+	const UserManager::LocalList& list = ServerInstance->Users->local_users;
+	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		LocalUser* u = *i;
 		results.push_back("211 "+user->nick+" "+u->nick+"["+u->ident+"@"+(c == 'l' ? u->dhost : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->age));

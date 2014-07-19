@@ -245,7 +245,7 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 	VAFORMAT(message, text, text);
 	message = "NOTICE $" + ServerInstance->Config->ServerName + " :" + message;
 
-	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
 		User* t = *i;
 		t->WriteServ(message);
@@ -256,7 +256,7 @@ void UserManager::GarbageCollect()
 {
 	// Reset the already_sent IDs so we don't wrap it around and drop a message
 	LocalUser::already_sent_id = 0;
-	for (LocalUserList::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
 		(**i).already_sent = 0;
 		(**i).RemoveExpiredInvites();
@@ -284,7 +284,7 @@ void UserManager::DoBackgroundUserStuff()
 	/*
 	 * loop over all local users..
 	 */
-	for (LocalUserList::iterator i = local_users.begin(); i != local_users.end(); ++i)
+	for (LocalList::iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
 		LocalUser* curr = *i;
 

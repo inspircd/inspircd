@@ -39,6 +39,10 @@ class CoreExport UserManager : public fakederef<UserManager>
 	 */
 	typedef std::vector<User*> OperList;
 
+	/** A list holding local users
+	*/
+	typedef intrusive_list<LocalUser> LocalList;
+
  private:
 	/** Map of IP addresses for clone counting
 	 */
@@ -68,7 +72,7 @@ class CoreExport UserManager : public fakederef<UserManager>
 
 	/** Local client list, a list containing only local clients
 	 */
-	LocalUserList local_users;
+	LocalList local_users;
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */

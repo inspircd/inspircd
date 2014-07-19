@@ -62,16 +62,16 @@ namespace
 		// Does not change the server of quitting users because those are not in the list
 
 		ServerInstance->FakeClient->server = newserver;
-		const LocalUserList& list = ServerInstance->Users->local_users;
-		for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
+		const UserManager::LocalList& list = ServerInstance->Users->local_users;
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 			(*i)->server = newserver;
 	}
 
 	void ResetMembershipIds()
 	{
 		// Set all membership ids to 0
-		const LocalUserList& list = ServerInstance->Users->local_users;
-		for (LocalUserList::iterator i = list.begin(); i != list.end(); ++i)
+		const UserManager::LocalList& list = ServerInstance->Users->local_users;
+		for (UserManager::LocalList::iterator i = list.begin(); i != list.end(); ++i)
 		{
 			LocalUser* user = *i;
 			for (User::ChanList::iterator j = user->chans.begin(); j != user->chans.end(); ++j)

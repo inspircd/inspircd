@@ -35,7 +35,7 @@ class CommandClose : public Command
 	{
 		std::map<std::string,int> closed;
 
-		for (LocalUserList::const_iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); ++u)
+		for (UserManager::LocalList::const_iterator u = ServerInstance->Users->local_users.begin(); u != ServerInstance->Users->local_users.end(); ++u)
 		{
 			LocalUser* user = *u;
 			if (user->registered != REG_ALL)

@@ -54,10 +54,6 @@ struct ModResult;
 typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
 typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
 
-/** A list holding local users, this is the type of UserManager::local_users
- */
-typedef intrusive_list<LocalUser> LocalUserList;
-
 /** A list of failed port bindings, used for informational purposes on startup */
 typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
 
