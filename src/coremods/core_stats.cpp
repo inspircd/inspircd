@@ -50,6 +50,18 @@ class CommandStats : public Command
 	}
 };
 
+static void GenerateStatsLl(User* user, string_list& results, char c)
+{
+	results.push_back(InspIRCd::Format("211 %s nick[ident@%s] sendq cmds_out bytes_out cmds_in bytes_in time_open", user->nick.c_str(), (c == 'l' ? "host" : "ip")));
+
+	const LocalUserList& list = ServerInstance->Users->local_users;
+	for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
+	{
+		LocalUser* u = *i;
+		results.push_back("211 "+user->nick+" "+u->nick+"["+u->ident+"@"+(c == 'l' ? u->dhost : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->age));
+	}
+}
+
 void CommandStats::DoStats(char statschar, User* user, string_list &results)
 {
 	bool isPublic = ServerInstance->Config->UserStats.find(statschar) != std::string::npos;
@@ -339,22 +351,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		/* stats l (show user I/O stats) */
 		case 'l':
-			results.push_back("211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-			for (LocalUserList::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
-			{
-				LocalUser* i = *n;
-				results.push_back("211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
-			}
-		break;
-
 		/* stats L (show user I/O stats with IP addresses) */
 		case 'L':
-			results.push_back("211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-			for (LocalUserList::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
-			{
-				LocalUser* i = *n;
-				results.push_back("211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
-			}
+			GenerateStatsLl(user, results, statschar);
 		break;
 
 		/* stats u (show server uptime) */
