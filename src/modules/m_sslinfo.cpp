@@ -184,7 +184,7 @@ class ModuleSSLInfo : public Module
 				std::string fingerprint;
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
-					user->WriteNumeric(491, ":This oper login requires a matching SSL fingerprint.");
+					user->WriteNumeric(491, ":This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}

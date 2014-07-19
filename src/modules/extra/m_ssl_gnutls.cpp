@@ -931,7 +931,7 @@ info_done_dealloc:
 			text.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess)))).append("'");
 
 			if (!certificate->fingerprint.empty())
-				text += " and your SSL fingerprint is " + certificate->fingerprint;
+				text += " and your SSL certificate fingerprint is " + certificate->fingerprint;
 
 			user->WriteNotice(text);
 		}

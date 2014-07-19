@@ -539,7 +539,7 @@ class OpenSSLIOHook : public SSLIOHook
 			std::string text = "*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sess)) + "'";
 			const std::string& fingerprint = certificate->fingerprint;
 			if (!fingerprint.empty())
-				text += " and your SSL fingerprint is " + fingerprint;
+				text += " and your SSL certificate fingerprint is " + fingerprint;
 
 			user->WriteNotice(text);
 		}

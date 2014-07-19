@@ -1027,8 +1027,8 @@ Matching extbans:
                module).
  s:server      Matches users on a matching server (requires serverban
                module).
- z:fingerprint Matches users with a matching ssl fingerprint (requires
-               sslmodes module)
+ z:fingerprint Matches users with a matching SSL certificate fingerprint
+               (requires sslmodes module)
  O:opertype    Matches IRCops of a matching type, mostly useful as an
                an invite exception (requires operchans module).
  R:account     Matches users logged into a matching account (requires

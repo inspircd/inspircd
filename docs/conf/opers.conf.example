@@ -106,10 +106,10 @@
       # If m_sslinfo isn't loaded, this option will be ignored.
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
 
-      # autologin: If an SSL fingerprint for this oper is specified, you can
-      # have the oper block automatically log in. This moves all security of the
-      # oper block to the protection of the client certificate, so be sure that
-      # the private key is well-protected! Requires m_sslinfo.
+      # autologin: If an SSL certificate fingerprint for this oper is specified,
+      # you can have the oper block automatically log in. This moves all security
+      # of the oper block to the protection of the client certificate, so be sure
+      # that the private key is well-protected! Requires m_sslinfo.
       #autologin="on"
 
       # sslonly: If on, this oper can only oper up if they're using a SSL connection.
