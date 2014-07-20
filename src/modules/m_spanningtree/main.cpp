@@ -421,11 +421,6 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 	return MOD_RES_DENY;
 }
 
-void ModuleSpanningTree::On005Numeric(std::map<std::string, std::string>& tokens)
-{
-	tokens["MAP"];
-}
-
 void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, time_t expiry)
 {
 	if (IS_LOCAL(source))
