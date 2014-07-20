@@ -69,21 +69,6 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	capab->auth_fingerprint = !link.Fingerprint.empty();
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
-	if (capab->auth_challenge)
-	{
-		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
-
-		/* Straight string compare of hashes */
-		if (our_hmac != theirs)
-			return false;
-	}
-	else
-	{
-		/* Straight string compare of plaintext */
-		if (link.RecvPass != theirs)
-			return false;
-	}
-
 	std::string fp = SSLClientCert::GetFingerprint(this);
 	if (capab->auth_fingerprint)
 	{
@@ -100,6 +85,21 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	{
 		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is \"%s\". "
 			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
+	}
+
+	if (capab->auth_challenge)
+	{
+		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
+
+		/* Straight string compare of hashes */
+		if (our_hmac != theirs)
+			return false;
+	}
+	else
+	{
+		/* Straight string compare of plaintext */
+		if (link.RecvPass != theirs)
+			return false;
 	}
 	return true;
 }
