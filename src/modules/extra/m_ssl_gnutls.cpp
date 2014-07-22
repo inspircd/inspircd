@@ -880,11 +880,23 @@ class ModuleSSLGnuTLS : public Module
 			goto info_done_dealloc;
 		}
 
-		gnutls_x509_crt_get_dn(cert, name, &name_size);
-		certinfo->dn = name;
+		if (gnutls_x509_crt_get_dn(cert, name, &name_size) == 0)
+		{
+			std::string& dn = certinfo->dn;
+			dn = name;
+			// Make sure there are no chars in the string that we consider invalid
+			if (dn.find_first_of("\r\n") != std::string::npos)
+				dn.clear();
+		}
 
-		gnutls_x509_crt_get_issuer_dn(cert, name, &name_size);
-		certinfo->issuer = name;
+		name_size = sizeof(name);
+		if (gnutls_x509_crt_get_issuer_dn(cert, name, &name_size) == 0)
+		{
+			std::string& issuer = certinfo->issuer;
+			issuer = name;
+			if (issuer.find_first_of("\r\n") != std::string::npos)
+				issuer.clear();
+		}
 
 		if ((ret = gnutls_x509_crt_get_fingerprint(cert, hash, digest, &digest_size)) < 0)
 		{

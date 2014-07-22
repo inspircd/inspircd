@@ -639,8 +639,14 @@ class ModuleSSLOpenSSL : public Module
 		char buf[512];
 		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
 		certinfo->dn = buf;
+		// Make sure there are no chars in the string that we consider invalid
+		if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
+			certinfo->dn.clear();
+
 		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
 		certinfo->issuer = buf;
+		if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
+			certinfo->issuer.clear();
 
 		if (!X509_digest(cert, digest, md, &n))
 		{
