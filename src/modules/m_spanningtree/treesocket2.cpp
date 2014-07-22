@@ -447,7 +447,7 @@ void TreeSocket::ProcessConnectedLine(std::string& prefix, std::string& command,
 		 */
 		bool callfnc = true;
 		User* x = ServerInstance->FindNickOnly(params[0]);
-		if ((x) && (x != who))
+		if ((x) && (x != who) && (x->registered == REG_ALL))
 		{
 			int collideret = 0;
 			/* x is local, who is remote */

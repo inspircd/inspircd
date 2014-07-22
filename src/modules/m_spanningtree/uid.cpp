@@ -57,14 +57,25 @@ CmdResult CommandUID::Handle(const parameterlist &params, User* serversrc)
 	TreeSocket* sock = remoteserver->GetRoute()->GetSocket();
 
 	/* check for collision */
-	user_hash::iterator iter = ServerInstance->Users->clientlist->find(params[2]);
+	User* const collideswith = ServerInstance->FindNickOnly(params[2]);
 
-	if (iter != ServerInstance->Users->clientlist->end())
+	if ((collideswith) && (collideswith->registered != REG_ALL))
+	{
+		// User that the incoming user is colliding with is not fully registered, we force nick change the
+		// unregistered user to their uuid and tell them what happened
+		collideswith->WriteFrom(collideswith, "NICK %s", collideswith->uuid.c_str());
+		collideswith->WriteNumeric(433, "%s %s :Nickname overruled.", collideswith->nick.c_str(), collideswith->nick.c_str());
+
+		// Clear the bit before calling User::ChangeNick() to make it NOT run the OnUserPostNick() hook
+		collideswith->registered &= ~REG_NICK;
+		collideswith->ChangeNick(collideswith->uuid, true);
+	}
+	else if (collideswith)
 	{
 		/*
 		 * Nick collision.
 		 */
-		int collide = sock->DoCollision(iter->second, age_t, params[5], params[6], params[0]);
+		int collide = sock->DoCollision(collideswith, age_t, params[5], params[6], params[0]);
 		ServerInstance->Logs->Log("m_spanningtree",DEBUG,"*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)
