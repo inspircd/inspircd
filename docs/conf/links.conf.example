@@ -55,11 +55,11 @@
       bind="1.2.3.4"
 
       # statshidden: Defines if IP is shown to opers when
-      # /stats c is invoked.
+      # /STATS c is invoked.
       statshidden="no"
 
       # hidden: If this is set to yes, this server and its "child"
-      # servers will not be shown when users do a /map or /links
+      # servers will not be shown when users do a /MAP or /LINKS.
       hidden="no"
 
       # passwords: the passwords we send and receive.
