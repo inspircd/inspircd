@@ -69,21 +69,13 @@ namespace OpenSSL
 	 public:
 		DHParams(const std::string& filename)
 		{
-#ifdef _WIN32
 			BIO* dhpfile = BIO_new_file(filename.c_str(), "r");
-#else
-			FILE* dhpfile = fopen(filename.c_str(), "r");
-#endif
 			if (dhpfile == NULL)
-				throw Exception("Couldn't open DH file " + filename + ": " + strerror(errno));
+				throw Exception("Couldn't open DH file " + filename);
 
-#ifdef _WIN32
 			dh = PEM_read_bio_DHparams(dhpfile, NULL, NULL, NULL);
 			BIO_free(dhpfile);
-#else
-			dh = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
-			fclose(dhpfile);
-#endif
+
 			if (!dh)
 				throw Exception("Couldn't read DH params from file " + filename);
 		}
