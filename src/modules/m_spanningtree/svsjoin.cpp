@@ -36,7 +36,11 @@ CmdResult CommandSVSJoin::Handle(User* user, std::vector<std::string>& parameter
 	/* only join if it's local, otherwise just pass it on! */
 	LocalUser* localuser = IS_LOCAL(u);
 	if (localuser)
-		Channel::JoinUser(localuser, parameters[1]);
+	{
+		const std::string& key = parameters.size() == 3 ? parameters[2] : "";
+		const bool override = key.empty() && parameters.size() == 3;
+		Channel::JoinUser(localuser, parameters[1], override, key);
+	}
 	return CMD_SUCCESS;
 }
 
