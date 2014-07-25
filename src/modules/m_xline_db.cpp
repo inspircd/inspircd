@@ -135,12 +135,7 @@ class ModuleXLineDB : public Module
 		stream.close();
 
 #ifdef _WIN32
-		if (remove(xlinedbpath.c_str()))
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot remove old database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
-			return false;
-		}
+		remove(xlinedbpath.c_str());
 #endif
 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)

@@ -28,7 +28,7 @@ class CommandUserhost : public Command
 	/** Constructor for userhost.
 	 */
 	CommandUserhost ( Module* parent) : Command(parent,"USERHOST", 1, 5) {
-		syntax = "<nick> {<nick>}";
+		syntax = "<nick> [<nick> ...]";
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the command

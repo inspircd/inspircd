@@ -47,14 +47,7 @@
 #endif
 
 #ifdef _WIN32
-# pragma comment(lib, "libgnutls.lib")
-# pragma comment(lib, "libgcrypt.lib")
-# pragma comment(lib, "libgpg-error.lib")
-# pragma comment(lib, "user32.lib")
-# pragma comment(lib, "advapi32.lib")
-# pragma comment(lib, "libgcc.lib")
-# pragma comment(lib, "libmingwex.lib")
-# pragma comment(lib, "gdi32.lib")
+# pragma comment(lib, "libgnutls-28.lib")
 #endif
 
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
@@ -693,11 +686,23 @@ class GnuTLSIOHook : public SSLIOHook
 			goto info_done_dealloc;
 		}
 
-		gnutls_x509_crt_get_dn(cert, str, &name_size);
-		certinfo->dn = str;
+		if (gnutls_x509_crt_get_dn(cert, str, &name_size) == 0)
+		{
+			std::string& dn = certinfo->dn;
+			dn = str;
+			// Make sure there are no chars in the string that we consider invalid
+			if (dn.find_first_of("\r\n") != std::string::npos)
+				dn.clear();
+		}
 
-		gnutls_x509_crt_get_issuer_dn(cert, str, &name_size);
-		certinfo->issuer = str;
+		name_size = sizeof(str);
+		if (gnutls_x509_crt_get_issuer_dn(cert, str, &name_size) == 0)
+		{
+			std::string& issuer = certinfo->issuer;
+			issuer = str;
+			if (issuer.find_first_of("\r\n") != std::string::npos)
+				issuer.clear();
+		}
 
 		if ((ret = gnutls_x509_crt_get_fingerprint(cert, profile->GetHash(), digest, &digest_size)) < 0)
 		{

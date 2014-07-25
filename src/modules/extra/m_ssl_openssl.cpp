@@ -35,13 +35,8 @@
 #include <openssl/err.h>
 
 #ifdef _WIN32
-# pragma comment(lib, "libcrypto.lib")
-# pragma comment(lib, "libssl.lib")
-# pragma comment(lib, "user32.lib")
-# pragma comment(lib, "advapi32.lib")
-# pragma comment(lib, "libgcc.lib")
-# pragma comment(lib, "libmingwex.lib")
-# pragma comment(lib, "gdi32.lib")
+# pragma comment(lib, "ssleay32.lib")
+# pragma comment(lib, "libeay32.lib")
 #endif
 
 /* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
@@ -74,12 +69,21 @@ namespace OpenSSL
 	 public:
 		DHParams(const std::string& filename)
 		{
+#ifdef _WIN32
+			BIO* dhpfile = BIO_new_file(filename.c_str(), "r");
+#else
 			FILE* dhpfile = fopen(filename.c_str(), "r");
+#endif
 			if (dhpfile == NULL)
 				throw Exception("Couldn't open DH file " + filename + ": " + strerror(errno));
 
+#ifdef _WIN32
+			dh = PEM_read_bio_DHparams(dhpfile, NULL, NULL, NULL);
+			BIO_free(dhpfile);
+#else
 			dh = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
 			fclose(dhpfile);
+#endif
 			if (!dh)
 				throw Exception("Couldn't read DH params from file " + filename);
 		}
@@ -357,8 +361,14 @@ class OpenSSLIOHook : public SSLIOHook
 		char buf[512];
 		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
 		certinfo->dn = buf;
+		// Make sure there are no chars in the string that we consider invalid
+		if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
+			certinfo->dn.clear();
+
 		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
 		certinfo->issuer = buf;
+		if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
+			certinfo->issuer.clear();
 
 		if (!X509_digest(cert, profile->GetDigest(), md, &n))
 		{

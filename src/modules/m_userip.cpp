@@ -28,7 +28,7 @@ class CommandUserip : public Command
  public:
 	CommandUserip(Module* Creator) : Command(Creator,"USERIP", 1)
 	{
-		syntax = "<nick>{,<nick>}";
+		syntax = "<nick> [<nick> ...]";
 	}
 
 	CmdResult Handle (const std::vector<std::string> &parameters, User *user)

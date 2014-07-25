@@ -97,9 +97,15 @@ std::string DLLManager::GetVersion()
 #ifdef _WIN32
 void DLLManager::RetrieveLastError()
 {
-	CHAR errmsg[100];
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), errmsg, 100, 0);
+	char errmsg[500];
+	DWORD dwErrorCode = GetLastError();
+	if (FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)errmsg, _countof(errmsg), NULL) == 0)
+		sprintf_s(errmsg, _countof(errmsg), "Error code: %u", dwErrorCode);
 	SetLastError(ERROR_SUCCESS);
 	err = errmsg;
+
+	std::string::size_type p;
+	while ((p = err.find_last_of("\r\n")) != std::string::npos)
+		err.erase(p, 1);
 }
 #endif

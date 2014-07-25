@@ -14,7 +14,7 @@
 #                            |___/                                     #
 #                                                                      #
 ##################################||####################################
-                                 #||#                                   
+                                 #||#
 ##################################||####################################
 #                                                                      #
 #         This is an example of the config file for InspIRCd.          #
@@ -152,10 +152,10 @@
       # to this bind section.
       type="clients"
 
-      # ssl: If you want this bind section to use SSL, define either
-      # gnutls or openssl here. The appropriate SSL modules must be loaded
-      # for ssl to work. If you do not want this bind section to support ssl,
-      # just remove or comment out this option.
+      # ssl: If you want the port(s) in this bind tag to use SSL, set this
+      # to either "gnutls" or "openssl". The appropriate SSL module must be
+      # loaded for SSL to work. If you do not want the port(s) in this bind
+      # tag to support SSL, just remove or comment out this option.
       ssl="gnutls"
 
       # defer: When this is non-zero, connections will not be handed over to
@@ -175,8 +175,8 @@
 # When linking servers, the OpenSSL and GnuTLS implementations are completely
 # link-compatible and can be used alongside each other
 # on each end of the link without any significant issues.
-# Supported ssl types are: "openssl" and "gnutls".
-# You must load, m_ssl_openssl for OpenSSL or m_ssl_gnutls for GnuTLS.
+# Supported SSL types are: "openssl" and "gnutls".
+# You must load m_ssl_openssl for OpenSSL or m_ssl_gnutls for GnuTLS.
 
 <bind address="" port="7000,7001" type="servers">
 <bind address="1.2.3.4" port="7005" type="servers" ssl="openssl">
@@ -462,7 +462,7 @@
      # server: DNS server to use to attempt to resolve IP's to hostnames.
      # in most cases, you won't need to change this, as inspircd will
      # automatically detect the nameserver depending on /etc/resolv.conf
-     # (or, on windows, your set nameservers in the registry.)
+     # (or, on Windows, your set nameservers in the registry.)
      # Note that this must be an IP address and not a hostname, because
      # there is no resolver to resolve the name until this is defined!
      #
@@ -630,7 +630,7 @@
              # somaxconn: The maximum number of connections that may be waiting
              # in the accept queue. This is *NOT* the total maximum number of
              # connections per server. Some systems may only allow this to be up
-             # to 5, while others (such as linux and *BSD) default to 128.
+             # to 5, while others (such as Linux and *BSD) default to 128.
              # Setting this above the limit imposed by your OS can have undesired
              # effects.
              somaxconn="128"

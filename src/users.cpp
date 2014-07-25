@@ -416,7 +416,7 @@ void OperInfo::init()
 			{
 				this->AllowedUserModes.set();
 			}
-			else if (*c >= 'A' && *c < 'z')
+			else if (*c >= 'A' && *c <= 'z')
 			{
 				this->AllowedUserModes[*c - 'A'] = true;
 			}
@@ -429,7 +429,7 @@ void OperInfo::init()
 			{
 				this->AllowedChanModes.set();
 			}
-			else if (*c >= 'A' && *c < 'z')
+			else if (*c >= 'A' && *c <= 'z')
 			{
 				this->AllowedChanModes[*c - 'A'] = true;
 			}

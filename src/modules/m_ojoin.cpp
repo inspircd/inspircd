@@ -57,7 +57,6 @@ class CommandOjoin : public SplitCommand
 
 			if (notice)
 			{
-				channel = ServerInstance->FindChan(parameters[0]);
 				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s joined on official network business.",
 					parameters[0].c_str(), user->nick.c_str());
 				ServerInstance->PI->SendChannelNotice(channel, 0, user->nick + " joined on official network business.");

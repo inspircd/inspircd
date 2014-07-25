@@ -23,8 +23,8 @@
 #include <ldap.h>
 
 #ifdef _WIN32
-# pragma comment(lib, "ldap.lib")
-# pragma comment(lib, "lber.lib")
+# pragma comment(lib, "libldap.lib")
+# pragma comment(lib, "liblber.lib")
 #endif
 
 /* $LinkerFlags: -lldap */

@@ -148,7 +148,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	}
 
 	irc::modestacker modestack(true);
-	TreeSocket* src_socket = TreeServer::Get(srcuser)->GetSocket();
+	TreeServer* const sourceserver = TreeServer::Get(srcuser);
 
 	/* Now, process every 'modes,uuid' pair */
 	irc::tokenstream users(params.back());
@@ -156,7 +156,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	irc::modestacker* modestackptr = (apply_other_sides_modes ? &modestack : NULL);
 	while (users.GetToken(item))
 	{
-		ProcessModeUUIDPair(item, src_socket, chan, modestackptr);
+		ProcessModeUUIDPair(item, sourceserver, chan, modestackptr);
 	}
 
 	/* Flush mode stacker if we lost the FJOIN or had equal TS */
@@ -166,7 +166,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack)
+void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, irc::modestacker* modestack)
 {
 	std::string::size_type comma = item.find(',');
 
@@ -180,6 +180,7 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 		return;
 	}
 
+	TreeSocket* src_socket = sourceserver->GetSocket();
 	/* Check that the user's 'direction' is correct */
 	TreeServer* route_back_again = TreeServer::Get(who);
 	if (route_back_again->GetSocket() != src_socket)
@@ -202,7 +203,7 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 		}
 	}
 
-	Membership* memb = chan->ForceJoin(who, NULL, route_back_again->bursting);
+	Membership* memb = chan->ForceJoin(who, NULL, sourceserver->bursting);
 	if (!memb)
 		return;
 

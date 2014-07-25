@@ -694,6 +694,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		return;
 	ServerInstance->PI->SendMetaData("modules", "-" + mod->ModuleSourceFile);
 
+restart:
 	// Close all connections which use an IO hook provided by this module
 	const TreeServer::ChildServers& list = Utils->TreeRoot->GetChildren();
 	for (TreeServer::ChildServers::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -703,6 +704,8 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		{
 			sock->SendError("SSL module unloaded");
 			sock->Close();
+			// XXX: The list we're iterating is modified by TreeSocket::Squit() which is called by Close()
+			goto restart;
 		}
 	}
 

@@ -42,21 +42,22 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 	 * On nick messages, check that the nick doesn't already exist here.
 	 * If it does, perform collision logic.
 	 */
+	bool callfnc = true;
 	User* x = ServerInstance->FindNickOnly(params[0]);
-	if ((x) && (x != user))
+	if ((x) && (x != user) && (x->registered == REG_ALL))
 	{
 		/* x is local, who is remote */
 		int collideret = Utils->DoCollision(x, TreeServer::Get(user), newts, user->ident, user->GetIPString(), user->uuid);
 		if (collideret != 1)
 		{
-			/*
-			 * Remote client lost, or both lost, parsing or passing on this
-			 * nickchange would be pointless, as the incoming client's server will
-			 * soon receive SAVE to change its nick to its UID. :) -- w00t
-			 */
-			return CMD_FAILURE;
+			// Remote client lost, or both lost, rewrite this nick change as a change to uuid before
+			// forwarding and don't call ChangeNick() because DoCollision() has done it already
+			params[0] = user->uuid;
+			callfnc = false;
 		}
 	}
-	user->ChangeNick(params[0], newts);
+	if (callfnc)
+		user->ChangeNick(params[0], newts);
+
 	return CMD_SUCCESS;
 }

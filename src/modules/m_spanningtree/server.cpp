@@ -148,7 +148,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		return true;
 	}
 
-	this->SendError("Invalid credentials (check the other server's linking snomask for more information)");
+	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. umode +s +Ll)");
 	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
@@ -240,7 +240,7 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 		return true;
 	}
 
-	this->SendError("Invalid credentials");
+	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. umode +s +Ll)");
 	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
