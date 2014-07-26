@@ -604,12 +604,9 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 		params.push_back(ConvToStr(user->age));
 		params.Broadcast();
 	}
-	else if (!loopCall && user->nick == user->uuid)
+	else if (!loopCall)
 	{
-		CmdBuilder params("SAVE");
-		params.push_back(user->uuid);
-		params.push_back(ConvToStr(user->age));
-		params.Broadcast();
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Changed nick of remote user %s from %s to %s TS %lu by ourselves!", user->uuid.c_str(), oldnick.c_str(), user->nick.c_str(), (unsigned long) user->age);
 	}
 }
 
