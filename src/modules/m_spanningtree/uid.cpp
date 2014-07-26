@@ -43,7 +43,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	if (modestr[0] != '+')
 		throw ProtocolException("Invalid mode string");
 
-	/* check for collision */
+	// See if there is a nick collision
 	User* collideswith = ServerInstance->FindNickOnly(params[2]);
 	if ((collideswith) && (collideswith->registered != REG_ALL))
 	{
@@ -58,15 +58,14 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 	}
 	else if (collideswith)
 	{
-		/*
-		 * Nick collision.
-		 */
+		// The user on this side is registered, handle the collision
 		int collide = Utils->DoCollision(collideswith, remoteserver, age_t, params[5], params[6], params[0]);
 		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "*** Collision on %s, collide=%d", params[2].c_str(), collide);
 
 		if (collide != 1)
 		{
-			// Remote client lost, make sure we change their nick for the hash too
+			// The client being introduced needs to change nick to uuid, change the nick in the message before
+			// processing/forwarding it.
 			params[2] = params[0];
 		}
 	}

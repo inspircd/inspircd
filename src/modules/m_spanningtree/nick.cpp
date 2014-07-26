@@ -45,7 +45,8 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 	User* x = ServerInstance->FindNickOnly(params[0]);
 	if ((x) && (x != user) && (x->registered == REG_ALL))
 	{
-		/* x is local, who is remote */
+		// 'x' is the already existing user using the same nick as params[0]
+		// 'user' is the user trying to change nick to the in use nick
 		int collideret = Utils->DoCollision(x, TreeServer::Get(user), newts, user->ident, user->GetIPString(), user->uuid);
 		if (collideret != 1)
 		{

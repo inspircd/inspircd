@@ -62,15 +62,10 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 	#define localident u->ident
 	#define localip u->GetIPString()
 
-	/* mmk. let's do this again. */
-	if (remotets == localts)
+	// If the timestamps are not equal only one of the users has to change nick,
+	// otherwise both have to change
+	if (remotets != localts)
 	{
-		/* equal. fuck them both! do nada, let the handler at the bottom figure this out. */
-	}
-	else
-	{
-		/* fuck. now it gets complex. */
-
 		/* first, let's see if ident@host matches. */
 		bool SamePerson = (localident == remoteident)
 				&& (localip == remoteip);
@@ -82,19 +77,18 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		if((SamePerson && remotets < localts) ||
 		   (!SamePerson && remotets > localts))
 		{
-			/* remote needs to change */
+			// Only remote needs to change
 			bChangeLocal = false;
 		}
 		else
 		{
-			/* ours needs to change */
+			// Only ours needs to change
 			bChangeRemote = false;
 		}
 	}
 
 	/*
-	 * Cheat a little here. Instead of a dedicated command to change UID,
-	 * use SAVE and accept the losing client with its UID (as we know the SAVE will
+	 * Send SAVE and accept the losing client with its UID (as we know the SAVE will
 	 * not fail under any circumstances -- UIDs are netwide exclusive).
 	 *
 	 * This means that each side of a collide will generate one extra NICK back to where
@@ -108,7 +102,7 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 	{
 		/*
 		 * Local-side nick needs to change. Just in case we are hub, and
-		 * this "local" nick is actually behind us, send an SAVE out.
+		 * this "local" nick is actually behind us, send a SAVE out.
 		 */
 		CmdBuilder params("SAVE");
 		params.push_back(u->uuid);
@@ -123,9 +117,8 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 	if (bChangeRemote)
 	{
 		/*
-		 * remote side needs to change. If this happens, we will modify
-		 * the UID or halt the propagation of the nick change command,
-		 * so other servers don't need to see the SAVE
+		 * Remote side needs to change. If this happens, we modify the UID or NICK and
+		 * send back a SAVE to the source.
 		 */
 		TreeSocket* sock = server->GetSocket();
 		sock->WriteLine(CmdBuilder("SAVE").push(remoteuid).push_int(remotets));
