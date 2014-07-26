@@ -118,8 +118,7 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		 * Remote side needs to change. If this happens, we modify the UID or NICK and
 		 * send back a SAVE to the source.
 		 */
-		TreeSocket* sock = server->GetSocket();
-		sock->WriteLine(CmdBuilder("SAVE").push(remoteuid).push_int(remotets));
+		CmdBuilder("SAVE").push(remoteuid).push_int(remotets).Unicast(server->ServerUser);
 
 		if (!bChangeLocal)
 			return 2;
