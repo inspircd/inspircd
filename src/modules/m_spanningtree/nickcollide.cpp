@@ -28,11 +28,11 @@
 /*
  * Yes, this function looks a little ugly.
  * However, in some circumstances we may not have a User, so we need to do things this way.
- * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
+ * Returns true if remote or both lost, false otherwise.
  * Sends SAVEs as appropriate and forces nick change of the user 'u' if our side loses or if both lose.
  * Does not change the nick of the user that is trying to claim the nick of 'u', i.e. the "remote" user.
  */
-int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid)
+bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid)
 {
 	// At this point we're sure that a collision happened, increment the counter regardless of who wins
 	ServerInstance->stats.Collisions++;
@@ -108,9 +108,6 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		params.Broadcast();
 
 		u->ChangeNick(u->uuid);
-
-		if (!bChangeRemote)
-			return 1;
 	}
 	if (bChangeRemote)
 	{
@@ -119,10 +116,7 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		 * send back a SAVE to the source.
 		 */
 		CmdBuilder("SAVE").push(remoteuid).push_int(remotets).Unicast(server->ServerUser);
-
-		if (!bChangeLocal)
-			return 2;
 	}
 
-	return 3;
+	return bChangeRemote;
 }
