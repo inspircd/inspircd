@@ -57,16 +57,14 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 	bool bChangeLocal = true;
 	bool bChangeRemote = true;
 
-	/* for brevity, don't use the User - use defines to avoid any copy */
-	#define localts u->age
-	#define localident u->ident
-	#define localip u->GetIPString()
-
 	// If the timestamps are not equal only one of the users has to change nick,
 	// otherwise both have to change
+	const time_t localts = u->age;
 	if (remotets != localts)
 	{
 		/* first, let's see if ident@host matches. */
+		const std::string& localident = u->ident;
+		const std::string& localip = u->GetIPString();
 		bool SamePerson = (localident == remoteident)
 				&& (localip == remoteip);
 
