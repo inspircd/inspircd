@@ -28,7 +28,7 @@
  */
 CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 {
-	User* u = ServerInstance->FindNick(params[0]);
+	User* u = ServerInstance->FindUUID(params[0]);
 	if ((!u) || (IS_SERVER(u)))
 		return CMD_FAILURE;
 
