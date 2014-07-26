@@ -209,6 +209,7 @@ else
 	{
 		chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);		# Openssl version, others
 		$config{HAS_OPENSSL_PORT} = "";
+		$config{USE_FREEBSD_BASE_SSL} = "n";
 	}
 }
 
