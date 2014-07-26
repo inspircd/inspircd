@@ -24,6 +24,7 @@
 #include "treeserver.h"
 #include "utils.h"
 #include "commandbuilder.h"
+#include "commands.h"
 
 /*
  * Yes, this function looks a little ugly.
@@ -107,7 +108,7 @@ bool SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remo
 		params.push_back(ConvToStr(u->age));
 		params.Broadcast();
 
-		u->ChangeNick(u->uuid);
+		u->ChangeNick(u->uuid, CommandSave::SavedTimestamp);
 	}
 	if (bChangeRemote)
 	{

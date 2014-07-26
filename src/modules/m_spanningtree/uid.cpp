@@ -65,7 +65,9 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 		if (they_change)
 		{
 			// The client being introduced needs to change nick to uuid, change the nick in the message before
-			// processing/forwarding it.
+			// processing/forwarding it. Also change the nick TS to CommandSave::SavedTimestamp.
+			age_t = CommandSave::SavedTimestamp;
+			params[1] = ConvToStr(CommandSave::SavedTimestamp);
 			params[2] = params[0];
 		}
 	}

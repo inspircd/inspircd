@@ -295,6 +295,10 @@ class CommandPush : public ServerCommand
 class CommandSave : public ServerCommand
 {
  public:
+	/** Timestamp of the uuid nick of all users who collided and got their nick changed to uuid
+	 */
+	static const time_t SavedTimestamp = 100;
+
 	CommandSave(Module* Creator) : ServerCommand(Creator, "SAVE", 2) { }
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };

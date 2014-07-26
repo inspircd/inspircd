@@ -36,7 +36,7 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 		throw ProtocolException("Attempted to change nick to an invalid or non-matching UUID");
 
 	// Timestamp of the new nick
-	const time_t newts = ServerCommand::ExtractTS(params[1]);
+	time_t newts = ServerCommand::ExtractTS(params[1]);
 
 	/*
 	 * On nick messages, check that the nick doesn't already exist here.
@@ -53,6 +53,8 @@ CmdResult CommandNick::HandleRemote(RemoteUser* user, std::vector<std::string>& 
 			// Remote client lost, or both lost, rewrite this nick change as a change to uuid before
 			// calling ChangeNick() and forwarding the message
 			params[0] = user->uuid;
+			params[1] = ConvToStr(CommandSave::SavedTimestamp);
+			newts = CommandSave::SavedTimestamp;
 		}
 	}
 

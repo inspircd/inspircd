@@ -35,7 +35,7 @@ CmdResult CommandSave::Handle(User* user, std::vector<std::string>& params)
 	time_t ts = atol(params[1].c_str());
 
 	if (u->age == ts)
-		u->ChangeNick(u->uuid);
+		u->ChangeNick(u->uuid, SavedTimestamp);
 
 	return CMD_SUCCESS;
 }
