@@ -29,7 +29,8 @@
  * Yes, this function looks a little ugly.
  * However, in some circumstances we may not have a User, so we need to do things this way.
  * Returns 1 if colliding local client, 2 if colliding remote, 3 if colliding both.
- * Sends SAVEs as appropriate and forces nickchanges too.
+ * Sends SAVEs as appropriate and forces nick change of the user 'u' if our side loses or if both lose.
+ * Does not change the nick of the user that is trying to claim the nick of 'u', i.e. the "remote" user.
  */
 int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remotets, const std::string& remoteident, const std::string& remoteip, const std::string& remoteuid)
 {
@@ -121,7 +122,6 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 	}
 	if (bChangeRemote)
 	{
-		User *remote = ServerInstance->FindUUID(remoteuid);
 		/*
 		 * remote side needs to change. If this happens, we will modify
 		 * the UID or halt the propagation of the nick change command,
@@ -129,12 +129,6 @@ int SpanningTreeUtilities::DoCollision(User* u, TreeServer* server, time_t remot
 		 */
 		TreeSocket* sock = server->GetSocket();
 		sock->WriteLine(CmdBuilder("SAVE").push(remoteuid).push_int(remotets));
-
-		if (remote)
-		{
-			/* nick change collide. Force change their nick. */
-			remote->ChangeNick(remoteuid);
-		}
 
 		if (!bChangeLocal)
 			return 2;
