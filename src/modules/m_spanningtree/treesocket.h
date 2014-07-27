@@ -129,6 +129,16 @@ class TreeSocket : public BufferedSocket
 	 */
 	User* FindSource(const std::string& prefix, const std::string& command);
 
+	/** Finish the authentication phase of this connection.
+	 * Change the state of the connection to CONNECTED, create a TreeServer object for the server on the
+	 * other end of the connection using the details provided in the parameters, and finally send a burst.
+	 * @param remotename Name of the remote server
+	 * @param remotesid SID of the remote server
+	 * @param remotedesc Description of the remote server
+	 * @param hidden True if the remote server is hidden according to the configuration
+	 */
+	void FinishAuth(const std::string& remotename, const std::string& remotesid, const std::string& remotedesc, bool hidden);
+
  public:
 	const time_t age;
 

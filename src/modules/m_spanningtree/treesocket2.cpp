@@ -168,18 +168,8 @@ void TreeSocket::ProcessLine(std::string &line)
 				if (!CheckDuplicate(capab->name, capab->sid))
 					return;
 
-				this->LinkState = CONNECTED;
-				Utils->timeoutlist.erase(this);
+				FinishAuth(capab->name, capab->sid, capab->description, capab->hidden);
 
-				linkID = capab->name;
-
-				MyRoot = new TreeServer(capab->name, capab->description, capab->sid, Utils->TreeRoot, this, capab->hidden);
-				Utils->TreeRoot->AddChild(MyRoot);
-
-				MyRoot->bursting = true;
-				this->DoBurst(MyRoot);
-
-				CommandServer::Builder(MyRoot).Forward(MyRoot);
 				CmdBuilder(MyRoot->GetID(), "BURST").insert(params).Forward(MyRoot);
 			}
 			else if (command == "ERROR")
@@ -379,4 +369,20 @@ void TreeSocket::Close()
 			ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), timestr.c_str());
 		}
 	}
+}
+
+void TreeSocket::FinishAuth(const std::string& remotename, const std::string& remotesid, const std::string& remotedesc, bool hidden)
+{
+	this->LinkState = CONNECTED;
+	Utils->timeoutlist.erase(this);
+
+	linkID = remotename;
+
+	MyRoot = new TreeServer(remotename, remotedesc, remotesid, Utils->TreeRoot, this, hidden);
+	Utils->TreeRoot->AddChild(MyRoot);
+
+	this->DoBurst(MyRoot);
+
+	// This will send a * in place of the password/hmac
+	CommandServer::Builder(MyRoot).Forward(MyRoot);
 }

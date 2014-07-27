@@ -120,17 +120,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		 * While we're at it, create a treeserver object so we know about them.
 		 *   -- w
 		 */
-		this->LinkState = CONNECTED;
-
-		Utils->timeoutlist.erase(this);
-		linkID = sname;
-
-		MyRoot = new TreeServer(sname, description, sid, Utils->TreeRoot, this, x->Hidden);
-		Utils->TreeRoot->AddChild(MyRoot);
-		this->DoBurst(MyRoot);
-
-		// This will send a * in place of the password/hmac
-		CommandServer::Builder(MyRoot).Forward(MyRoot);
+		FinishAuth(sname, sid, description, x->Hidden);
 
 		return true;
 	}
