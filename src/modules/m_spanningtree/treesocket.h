@@ -148,6 +148,11 @@ class TreeSocket : public BufferedSocket
 	 */
 	Link* AuthRemote(const parameterlist& params);
 
+	/** Write a line on this socket with a new line character appended, skipping all translation for old protocols
+	 * @param line Line to write without a new line character at the end
+	 */
+	void WriteLineNoCompat(const std::string& line);
+
  public:
 	const time_t age;
 

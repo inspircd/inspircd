@@ -24,6 +24,13 @@
 
 static std::string newline("\n");
 
+void TreeSocket::WriteLineNoCompat(const std::string& line)
+{
+	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
+	this->WriteData(line);
+	this->WriteData(newline);
+}
+
 void TreeSocket::WriteLine(const std::string& original_line)
 {
 	if (LinkState == CONNECTED)
@@ -275,16 +282,12 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					line.insert(c, " * 0");
 				}
 			}
-			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
-			this->WriteData(line);
-			this->WriteData(newline);
+			WriteLineNoCompat(line);
 			return;
 		}
 	}
 
-	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), original_line.c_str());
-	this->WriteData(original_line);
-	this->WriteData(newline);
+	WriteLineNoCompat(original_line);
 }
 
 namespace
