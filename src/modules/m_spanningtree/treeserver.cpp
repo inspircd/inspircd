@@ -129,9 +129,11 @@ const std::string& TreeServer::GetID()
 
 void TreeServer::FinishBurstInternal()
 {
-	StartBurst = 0;
-	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
-	SetPingFlag();
+	if (!IsBursting())
+	{
+		SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
+		SetPingFlag();
+	}
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
 		TreeServer* child = *i;
@@ -148,6 +150,7 @@ void TreeServer::FinishBurst()
 		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
 	AddServerEvent(Utils->Creator, GetName());
 
+	StartBurst = 0;
 	FinishBurstInternal();
 }
 
