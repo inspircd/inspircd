@@ -114,8 +114,10 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 
 void TreeServer::BeginBurst(unsigned long startms)
 {
-	if (!startms)
-		startms = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
+	unsigned long now = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
+	// If the start time is in the future (clocks are not synced) then use current time
+	if ((!startms) || (startms > now))
+		startms = now;
 	this->StartBurst = startms;
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu", sid.c_str(), startms);
 }

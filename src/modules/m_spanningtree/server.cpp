@@ -63,7 +63,6 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std:
 
 	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
-	Node->BeginBurst();
 	HandleExtra(Node, params);
 
 	ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
@@ -84,6 +83,9 @@ void CommandServer::HandleExtra(TreeServer* newserver, const std::vector<std::st
 			key.erase(p);
 			val = prop.substr(p+1);
 		}
+
+		if (key == "burst")
+			newserver->BeginBurst(ConvToInt(val));
 	}
 }
 
@@ -217,5 +219,7 @@ CommandServer::Builder::Builder(TreeServer* server)
 {
 	push(server->GetName());
 	push(server->GetID());
+	if (server->IsBursting())
+		push_property("burst", ConvToStr(server->StartBurst));
 	push_last(server->GetDesc());
 }
