@@ -33,11 +33,11 @@
  */
 CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std::string>& params)
 {
-	std::string servername = params[0];
+	const std::string& servername = params[0];
 	// password is not used for a remote server
 	// hopcount is not used (ever)
-	std::string sid = params[3];
-	std::string description = params[4];
+	const std::string& sid = params[3];
+	const std::string& description = params.back();
 	TreeSocket* socket = ParentOfThis->GetSocket();
 
 	if (!InspIRCd::IsSID(sid))
@@ -79,10 +79,10 @@ Link* TreeSocket::AuthRemote(const parameterlist& params)
 	}
 
 	irc::string servername = params[0].c_str();
-	std::string sname = params[0];
-	std::string password = params[1];
-	std::string sid = params[3];
-	std::string description = params[4];
+	const std::string& sname = params[0];
+	const std::string& password = params[1];
+	const std::string& sid = params[3];
+	const std::string& description = params.back();
 
 	this->SendCapabilities(2);
 
