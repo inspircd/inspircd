@@ -139,7 +139,6 @@ void TreeSocket::SendServerInfo(TreeServer* from)
  * (and any of ITS servers too) of what servers we know about.
  * If at any point any of these servers already exist on the other
  * end, our connection may be terminated.
- * The hopcount parameter (3rd) is deprecated, and is always 0.
  */
 void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {

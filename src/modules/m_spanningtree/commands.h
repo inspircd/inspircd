@@ -306,7 +306,7 @@ class CommandSave : public ServerCommand
 class CommandServer : public ServerOnlyServerCommand<CommandServer>
 {
  public:
-	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 5) { }
+	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 3) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 
 	class Builder : public CmdBuilder

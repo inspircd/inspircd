@@ -382,6 +382,5 @@ void TreeSocket::FinishAuth(const std::string& remotename, const std::string& re
 
 	this->DoBurst(MyRoot);
 
-	// This will send a * in place of the password/hmac
 	CommandServer::Builder(MyRoot).Forward(MyRoot);
 }

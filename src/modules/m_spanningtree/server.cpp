@@ -34,9 +34,7 @@
 CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std::string>& params)
 {
 	const std::string& servername = params[0];
-	// password is not used for a remote server
-	// hopcount is not used (ever)
-	const std::string& sid = params[3];
+	const std::string& sid = params[1];
 	const std::string& description = params.back();
 	TreeSocket* socket = ParentOfThis->GetSocket();
 
@@ -198,7 +196,6 @@ CommandServer::Builder::Builder(TreeServer* server)
 	: CmdBuilder(server->GetParent()->GetID(), "SERVER")
 {
 	push(server->GetName());
-	push_raw(" * 0 ");
-	push_raw(server->GetID());
+	push(server->GetID());
 	push_last(server->GetDesc());
 }
