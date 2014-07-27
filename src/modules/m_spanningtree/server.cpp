@@ -109,21 +109,8 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 			continue;
 		}
 
-		TreeServer* CheckDupe = Utils->FindServer(sname);
-		if (CheckDupe)
-		{
-			std::string pname = CheckDupe->GetParent() ? CheckDupe->GetParent()->GetName() : "<ourself>";
-			SendError("Server "+sname+" already exists on server "+pname+"!");
-			ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, already exists on server "+pname);
+		if (!CheckDuplicate(sname, sid))
 			return false;
-		}
-		CheckDupe = Utils->FindServer(sid);
-		if (CheckDupe)
-		{
-			this->SendError("Server ID "+sid+" already exists on the network! You may want to specify the server ID for the server manually with <server:id> so they do not conflict.");
-			ServerInstance->SNO->WriteToSnoMask('l',"Server \2"+assign(servername)+"\2 being introduced denied, server ID already exists on the network. Closing link.");
-			return false;
-		}
 
 		/*
 		 * They're in WAIT_AUTH_2 (having accepted our credentials).
