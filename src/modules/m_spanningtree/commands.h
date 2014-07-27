@@ -330,13 +330,6 @@ class CommandSNONotice : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
-class CommandBurst : public ServerOnlyServerCommand<CommandBurst>
-{
- public:
-	CommandBurst(Module* Creator) : ServerOnlyServerCommand<CommandBurst>(Creator, "BURST") { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
-};
-
 class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
 {
  public:
@@ -387,7 +380,6 @@ class SpanningTreeCommands
 	CommandServer server;
 	CommandSQuit squit;
 	CommandSNONotice snonotice;
-	CommandBurst burst;
 	CommandEndBurst endburst;
 	CommandSInfo sinfo;
 	SpanningTreeCommands(ModuleSpanningTree* module);
