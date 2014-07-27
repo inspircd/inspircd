@@ -258,6 +258,22 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 					line = line.substr(0, 5) + "VERSION" + line.substr(c);
 				}
+				else if (command == "SERVER")
+				{
+					// :001 SERVER inspircd.test 002 [<anything> ...] :gecos
+					//     A      B             C
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = c + 4;
+					std::string::size_type spcolon = line.find(" :", d);
+					if (spcolon == std::string::npos)
+						return;
+
+					line.erase(d, spcolon-d);
+					line.insert(c, " * 0");
+				}
 			}
 			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
 			this->WriteData(line);
@@ -431,6 +447,16 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 			cmd = "MODE";
 			params.erase(params.begin()+1);
 		}
+	}
+	else if ((cmd == "SERVER") && (params.size() > 4))
+	{
+		// This does not affect the initial SERVER line as it is sent before the link state is CONNECTED
+		// :20D SERVER <name> * 0 <sid> <desc>
+		// change to
+		// :20D SERVER <name> <sid> <desc>
+
+		params[1].swap(params[3]);
+		params.erase(params.begin()+2, params.begin()+4);
 	}
 
 	return true; // Passthru
