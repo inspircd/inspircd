@@ -38,7 +38,7 @@ TreeServer::TreeServer()
 	, VersionString(ServerInstance->GetVersionString())
 	, fullversion(ServerInstance->GetVersionString(true))
 	, Socket(NULL), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
-	, age(ServerInstance->Time()), Warned(false), bursting(false), UserCount(ServerInstance->Users.GetLocalUsers().size())
+	, age(ServerInstance->Time()), Warned(false), UserCount(ServerInstance->Users.GetLocalUsers().size())
 	, OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
 	AddHashEntry();
@@ -51,7 +51,7 @@ TreeServer::TreeServer()
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: Server(Name, Desc)
 	, Parent(Above), Socket(Sock), sid(id), ServerUser(new FakeUser(id, this))
-	, age(ServerInstance->Time()), Warned(false), bursting(true), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
+	, age(ServerInstance->Time()), Warned(false), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
 {
 	CheckULine();
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
@@ -123,7 +123,7 @@ const std::string& TreeServer::GetID()
 
 void TreeServer::FinishBurstInternal()
 {
-	this->bursting = false;
+	StartBurst = 0;
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	SetPingFlag();
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
@@ -135,13 +135,14 @@ void TreeServer::FinishBurstInternal()
 
 void TreeServer::FinishBurst()
 {
-	FinishBurstInternal();
 	ServerInstance->XLines->ApplyLines();
 	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
 	AddServerEvent(Utils->Creator, GetName());
+
+	FinishBurstInternal();
 }
 
 int TreeServer::QuitUsers(const std::string &reason)

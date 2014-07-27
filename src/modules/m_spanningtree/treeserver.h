@@ -64,7 +64,6 @@ class TreeServer : public Server
 	const time_t age;
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
-	bool bursting;				/* whether or not this server is bursting */
 
 	unsigned int UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
 	unsigned int OperCount;			/* How many opers are on this server? */
@@ -198,7 +197,7 @@ class TreeServer : public Server
 	/** Get the bursting state of this server
 	 * @return True if this server is bursting, false if it isn't
 	 */
-	bool IsBursting() const { return bursting; }
+	bool IsBursting() const { return (StartBurst != 0); }
 
 	CullResult cull();
 
