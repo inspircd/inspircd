@@ -100,6 +100,12 @@ class TreeSocket : public BufferedSocket
 	int proto_version;			/* Remote protocol version */
 	bool ConnectionFailureShown; /* Set to true if a connection failure message was shown */
 
+	/** True if we've sent our burst.
+	 * This only changes the behavior of message translation for 1202 protocol servers and it can be
+	 * removed once 1202 support is dropped.
+	 */
+	bool burstsent;
+
 	/** Checks if the given servername and sid are both free
 	 */
 	bool CheckDuplicate(const std::string& servername, const std::string& sid);

@@ -38,7 +38,7 @@
  */
 TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 	: linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0), ConnectionFailureShown(false)
-	, age(ServerInstance->Time())
+	, burstsent(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->link = link;
@@ -57,7 +57,7 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	: BufferedSocket(newfd)
 	, linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
-	, ConnectionFailureShown(false), age(ServerInstance->Time())
+	, ConnectionFailureShown(false), burstsent(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;
