@@ -53,6 +53,13 @@ class TreeServer : public Server
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	std::string sid;			/* Server ID */
 
+	/** Counter counting how many servers are bursting in front of this server, including
+	 * this server. Set to parents' value on construction then it is increased if the
+	 * server itself starts bursting. Decreased when a server on the path to this server
+	 * finishes burst.
+	 */
+	unsigned int behind_bursting;
+
 	/** This method is used to add this TreeServer to the
 	 * hash maps. It is only called by the constructors.
 	 */
@@ -198,6 +205,12 @@ class TreeServer : public Server
 	 * @return True if this server is bursting, false if it isn't
 	 */
 	bool IsBursting() const { return (StartBurst != 0); }
+
+	/** Check whether this server is behind a bursting server or is itself bursting.
+	 * This can tell whether a user is on a part of the network that is still bursting.
+	 * @return True if this server is bursting or is behind a server that is bursting, false if it isn't
+	 */
+	bool IsBehindBursting() const { return (behind_bursting != 0); }
 
 	/** Set the bursting state of the server
 	 * @param startms Time the server started bursting, if 0 or omitted, use current time

@@ -37,7 +37,7 @@ TreeServer::TreeServer()
 	, Parent(NULL), Route(NULL)
 	, VersionString(ServerInstance->GetVersionString())
 	, fullversion(ServerInstance->GetVersionString(true))
-	, Socket(NULL), sid(ServerInstance->Config->GetSID()), ServerUser(ServerInstance->FakeClient)
+	, Socket(NULL), sid(ServerInstance->Config->GetSID()), behind_bursting(0), ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time()), Warned(false), UserCount(ServerInstance->Users.GetLocalUsers().size())
 	, OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
@@ -50,9 +50,10 @@ TreeServer::TreeServer()
  */
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: Server(Name, Desc)
-	, Parent(Above), Socket(Sock), sid(id), ServerUser(new FakeUser(id, this))
+	, Parent(Above), Socket(Sock), sid(id), behind_bursting(Parent->behind_bursting), ServerUser(new FakeUser(id, this))
 	, age(ServerInstance->Time()), Warned(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(Hide)
 {
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
 	CheckULine();
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	SetPingFlag();
@@ -114,12 +115,14 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 
 void TreeServer::BeginBurst(unsigned long startms)
 {
+	behind_bursting++;
+
 	unsigned long now = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
 	// If the start time is in the future (clocks are not synced) then use current time
 	if ((!startms) || (startms > now))
 		startms = now;
 	this->StartBurst = startms;
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu", sid.c_str(), startms);
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu behind_bursting %u", sid.c_str(), startms, behind_bursting);
 }
 
 const std::string& TreeServer::GetID()
@@ -129,7 +132,13 @@ const std::string& TreeServer::GetID()
 
 void TreeServer::FinishBurstInternal()
 {
-	if (!IsBursting())
+	// Check is needed because 1202 protocol servers don't send the bursting state of a server, so servers
+	// introduced during a netburst may later send ENDBURST which would normally decrease this counter
+	if (behind_bursting > 0)
+		behind_bursting--;
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
+
+	if (!IsBehindBursting())
 	{
 		SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 		SetPingFlag();
