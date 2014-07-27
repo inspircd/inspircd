@@ -379,7 +379,6 @@ void TreeSocket::FinishAuth(const std::string& remotename, const std::string& re
 	linkID = remotename;
 
 	MyRoot = new TreeServer(remotename, remotedesc, remotesid, Utils->TreeRoot, this, hidden);
-	Utils->TreeRoot->AddChild(MyRoot);
 
 	this->DoBurst(MyRoot);
 

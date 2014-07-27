@@ -113,6 +113,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	 */
 
 	this->AddHashEntry();
+	Parent->AddChild(this);
 }
 
 const std::string& TreeServer::GetID()
