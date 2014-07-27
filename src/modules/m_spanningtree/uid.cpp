@@ -129,7 +129,7 @@ CmdResult CommandUID::HandleServer(TreeServer* remoteserver, std::vector<std::st
 
 	bool dosend = true;
 
-	if ((Utils->quiet_bursts && remoteserver->bursting) || _new->server->IsSilentULine())
+	if ((Utils->quiet_bursts && remoteserver->IsBursting()) || _new->server->IsSilentULine())
 		dosend = false;
 
 	if (dosend)

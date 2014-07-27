@@ -195,6 +195,11 @@ class TreeServer : public Server
 	 */
 	void CheckULine();
 
+	/** Get the bursting state of this server
+	 * @return True if this server is bursting, false if it isn't
+	 */
+	bool IsBursting() const { return bursting; }
+
 	CullResult cull();
 
 	/** Destructor

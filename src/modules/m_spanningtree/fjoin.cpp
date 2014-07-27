@@ -203,7 +203,7 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 		}
 	}
 
-	Membership* memb = chan->ForceJoin(who, NULL, sourceserver->bursting);
+	Membership* memb = chan->ForceJoin(who, NULL, sourceserver->IsBursting());
 	if (!memb)
 		return;
 

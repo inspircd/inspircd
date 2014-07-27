@@ -51,7 +51,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 		 * then do nothing. -- w00t
 		 */
 		TreeServer* remoteserver = TreeServer::Get(u);
-		if (remoteserver->bursting || remoteserver->IsSilentULine())
+		if (remoteserver->IsBursting() || remoteserver->IsSilentULine())
 			return CMD_SUCCESS;
 	}
 
