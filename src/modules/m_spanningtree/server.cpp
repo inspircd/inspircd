@@ -64,9 +64,27 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std:
 	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
 	Node->BeginBurst();
+	HandleExtra(Node, params);
 
 	ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
 	return CMD_SUCCESS;
+}
+
+void CommandServer::HandleExtra(TreeServer* newserver, const std::vector<std::string>& params)
+{
+	for (std::vector<std::string>::const_iterator i = params.begin() + 2; i != params.end() - 1; ++i)
+	{
+		const std::string& prop = *i;
+		std::string::size_type p = prop.find('=');
+
+		std::string key = prop;
+		std::string val;
+		if (p != std::string::npos)
+		{
+			key.erase(p);
+			val = prop.substr(p+1);
+		}
+	}
 }
 
 Link* TreeSocket::AuthRemote(const parameterlist& params)

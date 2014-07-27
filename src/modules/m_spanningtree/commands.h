@@ -305,12 +305,18 @@ class CommandSave : public ServerCommand
 
 class CommandServer : public ServerOnlyServerCommand<CommandServer>
 {
+	static void HandleExtra(TreeServer* newserver, const std::vector<std::string>& params);
+
  public:
 	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 3) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 
 	class Builder : public CmdBuilder
 	{
+		void push_property(const char* key, const std::string& val)
+		{
+			push(key).push_raw('=').push_raw(val);
+		}
 	 public:
 		Builder(TreeServer* server);
 	};
