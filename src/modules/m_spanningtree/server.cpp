@@ -70,17 +70,12 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std:
 	return CMD_SUCCESS;
 }
 
-
-/*
- * This is used after the other side of a connection has accepted our credentials.
- * They are then introducing themselves to us, BEFORE either of us burst. -- w
- */
-bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
+Link* TreeSocket::AuthRemote(const parameterlist& params)
 {
 	if (params.size() < 5)
 	{
 		SendError("Protocol error - Not enough parameters for SERVER command");
-		return false;
+		return NULL;
 	}
 
 	irc::string servername = params[0].c_str();
@@ -94,7 +89,7 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 	if (!ServerInstance->IsSID(sid))
 	{
 		this->SendError("Invalid format server ID: "+sid+"!");
-		return false;
+		return NULL;
 	}
 
 	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
@@ -110,8 +105,26 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		}
 
 		if (!CheckDuplicate(sname, sid))
-			return false;
+			return NULL;
 
+		ServerInstance->SNO->WriteToSnoMask('l',"Verified server connection " + linkID + " ("+description+")");
+		return x;
+	}
+
+	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. umode +s +Ll)");
+	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
+	return NULL;
+}
+
+/*
+ * This is used after the other side of a connection has accepted our credentials.
+ * They are then introducing themselves to us, BEFORE either of us burst. -- w
+ */
+bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
+{
+	const Link* x = AuthRemote(params);
+	if (x)
+	{
 		/*
 		 * They're in WAIT_AUTH_2 (having accepted our credentials).
 		 * Set our state to CONNECTED (since everything's peachy so far) and send our
@@ -120,13 +133,11 @@ bool TreeSocket::Outbound_Reply_Server(parameterlist &params)
 		 * While we're at it, create a treeserver object so we know about them.
 		 *   -- w
 		 */
-		FinishAuth(sname, sid, description, x->Hidden);
+		FinishAuth(params[0], params[3], params.back(), x->Hidden);
 
 		return true;
 	}
 
-	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. umode +s +Ll)");
-	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
 
@@ -163,50 +174,14 @@ bool TreeSocket::CheckDuplicate(const std::string& sname, const std::string& sid
  */
 bool TreeSocket::Inbound_Server(parameterlist &params)
 {
-	if (params.size() < 5)
+	const Link* x = AuthRemote(params);
+	if (x)
 	{
-		SendError("Protocol error - Missing SID");
-		return false;
-	}
-
-	irc::string servername = params[0].c_str();
-	std::string sname = params[0];
-	std::string password = params[1];
-	std::string sid = params[3];
-	std::string description = params[4];
-
-	this->SendCapabilities(2);
-
-	if (!ServerInstance->IsSID(sid))
-	{
-		this->SendError("Invalid format server ID: "+sid+"!");
-		return false;
-	}
-
-	for (std::vector<reference<Link> >::iterator i = Utils->LinkBlocks.begin(); i < Utils->LinkBlocks.end(); i++)
-	{
-		Link* x = *i;
-		if (x->Name != servername && x->Name != "*") // open link allowance
-			continue;
-
-		if (!ComparePass(*x, password))
-		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid password on link: %s", x->Name.c_str());
-			continue;
-		}
-
-		if (!CheckDuplicate(sname, sid))
-			return false;
-
-		ServerInstance->SNO->WriteToSnoMask('l',"Verified incoming server connection " + linkID + " ("+description+")");
-
-		this->SendCapabilities(2);
-
 		// Save these for later, so when they accept our credentials (indicated by BURST) we remember them
 		this->capab->hidden = x->Hidden;
-		this->capab->sid = sid;
-		this->capab->description = description;
-		this->capab->name = sname;
+		this->capab->sid = params[3];
+		this->capab->description = params.back();
+		this->capab->name = params[0];
 
 		// Send our details: Our server name and description and hopcount of 0,
 		// along with the sendpass from this block.
@@ -217,8 +192,6 @@ bool TreeSocket::Inbound_Server(parameterlist &params)
 		return true;
 	}
 
-	this->SendError("Mismatched server name or password (check the other server's snomask output for details - e.g. umode +s +Ll)");
-	ServerInstance->SNO->WriteToSnoMask('l',"Server connection from \2"+sname+"\2 denied, invalid link credentials");
 	return false;
 }
 

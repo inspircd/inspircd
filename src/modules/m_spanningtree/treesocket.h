@@ -139,6 +139,15 @@ class TreeSocket : public BufferedSocket
 	 */
 	void FinishAuth(const std::string& remotename, const std::string& remotesid, const std::string& remotedesc, bool hidden);
 
+	/** Authenticate the remote server.
+	 * Validate the parameters and find the link block that matches the remote server. In case of an error,
+	 * an appropriate snotice is generated, an ERROR message is sent and the connection is closed.
+	 * Failing to find a matching link block counts as an error.
+	 * @param params Parameters they sent in the SERVER command
+	 * @return Link block for the remote server, or NULL if an error occurred
+	 */
+	Link* AuthRemote(const parameterlist& params);
+
  public:
 	const time_t age;
 
