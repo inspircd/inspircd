@@ -199,6 +199,11 @@ class TreeServer : public Server
 	 */
 	bool IsBursting() const { return (StartBurst != 0); }
 
+	/** Set the bursting state of the server
+	 * @param startms Time the server started bursting, if 0 or omitted, use current time
+	 */
+	void BeginBurst(unsigned long startms = 0);
+
 	CullResult cull();
 
 	/** Destructor

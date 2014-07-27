@@ -378,6 +378,8 @@ void TreeSocket::FinishAuth(const std::string& remotename, const std::string& re
 
 	MyRoot = new TreeServer(remotename, remotedesc, remotesid, Utils->TreeRoot, this, hidden);
 
+	// Mark the server as bursting
+	MyRoot->BeginBurst();
 	this->DoBurst(MyRoot);
 
 	CommandServer::Builder(MyRoot).Forward(MyRoot);

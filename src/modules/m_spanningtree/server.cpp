@@ -63,6 +63,8 @@ CmdResult CommandServer::HandleServer(TreeServer* ParentOfThis, std::vector<std:
 
 	TreeServer* Node = new TreeServer(servername, description, sid, ParentOfThis, ParentOfThis->GetSocket(), lnk ? lnk->Hidden : false);
 
+	Node->BeginBurst();
+
 	ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+ParentOfThis->GetName()+"\002 introduced server \002"+servername+"\002 ("+description+")");
 	return CMD_SUCCESS;
 }

@@ -51,15 +51,11 @@ TreeServer::TreeServer()
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: Server(Name, Desc)
 	, Parent(Above), Socket(Sock), sid(id), ServerUser(new FakeUser(id, this))
-	, age(ServerInstance->Time()), Warned(false), UserCount(0), OperCount(0), rtt(0), Hidden(Hide)
+	, age(ServerInstance->Time()), Warned(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(Hide)
 {
 	CheckULine();
 	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
 	SetPingFlag();
-
-	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-	this->StartBurst = ts;
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu", sid.c_str(), ts);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -114,6 +110,14 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 
 	this->AddHashEntry();
 	Parent->AddChild(this);
+}
+
+void TreeServer::BeginBurst(unsigned long startms)
+{
+	if (!startms)
+		startms = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
+	this->StartBurst = startms;
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu", sid.c_str(), startms);
 }
 
 const std::string& TreeServer::GetID()
