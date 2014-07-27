@@ -280,6 +280,15 @@ void TreeSocket::WriteLine(const std::string& original_line)
 
 					line.erase(d, spcolon-d);
 					line.insert(c, " * 0");
+
+					if (burstsent)
+					{
+						WriteLineNoCompat(line);
+
+						// Synthesize a :<newserver> BURST <time> message
+						spcolon = line.find(" :");
+						line = CmdBuilder(line.substr(spcolon-3, 3), "BURST").push_int(ServerInstance->Time()).str();
+					}
 				}
 			}
 			WriteLineNoCompat(line);
@@ -460,6 +469,11 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 
 		params[1].swap(params[3]);
 		params.erase(params.begin()+2, params.begin()+4);
+	}
+	else if (cmd == "BURST")
+	{
+		// A server is introducing another one, drop unnecessary BURST
+		return false;
 	}
 
 	return true; // Passthru

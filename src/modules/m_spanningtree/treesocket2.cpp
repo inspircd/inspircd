@@ -169,8 +169,6 @@ void TreeSocket::ProcessLine(std::string &line)
 					return;
 
 				FinishAuth(capab->name, capab->sid, capab->description, capab->hidden);
-
-				CmdBuilder(MyRoot->GetID(), "BURST").insert(params).Forward(MyRoot);
 			}
 			else if (command == "ERROR")
 			{
