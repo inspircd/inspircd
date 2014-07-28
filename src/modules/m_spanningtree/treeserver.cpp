@@ -37,7 +37,8 @@ TreeServer::TreeServer()
 	, Parent(NULL), Route(NULL)
 	, VersionString(ServerInstance->GetVersionString())
 	, fullversion(ServerInstance->GetVersionString(true))
-	, Socket(NULL), sid(ServerInstance->Config->GetSID()), behind_bursting(0), ServerUser(ServerInstance->FakeClient)
+	, Socket(NULL), sid(ServerInstance->Config->GetSID()), behind_bursting(0), isdead(false)
+	, ServerUser(ServerInstance->FakeClient)
 	, age(ServerInstance->Time()), Warned(false), UserCount(ServerInstance->Users.GetLocalUsers().size())
 	, OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
@@ -50,7 +51,8 @@ TreeServer::TreeServer()
  */
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: Server(Name, Desc)
-	, Parent(Above), Socket(Sock), sid(id), behind_bursting(Parent->behind_bursting), ServerUser(new FakeUser(id, this))
+	, Parent(Above), Socket(Sock), sid(id), behind_bursting(Parent->behind_bursting), isdead(false)
+	, ServerUser(new FakeUser(id, this))
 	, age(ServerInstance->Time()), Warned(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(Hide)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
@@ -209,6 +211,8 @@ void TreeServer::SQuitInternal(const std::string& reason, int& num_lost_servers,
 		server->SQuitInternal(reason, num_lost_servers, num_lost_users);
 	}
 
+	// Mark server as dead
+	isdead = true;
 	num_lost_servers++;
 	num_lost_users += QuitUsers(reason);
 	RemoveHash();

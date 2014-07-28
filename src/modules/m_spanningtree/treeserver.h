@@ -60,6 +60,10 @@ class TreeServer : public Server
 	 */
 	unsigned int behind_bursting;
 
+	/** True if this server has been lost in a split and is awaiting destruction
+	 */
+	bool isdead;
+
 	/** This method is used to add this TreeServer to the
 	 * hash maps. It is only called by the constructors.
 	 */
@@ -124,6 +128,11 @@ class TreeServer : public Server
 	/** Returns true if this server is locally connected
 	 */
 	bool IsLocal() const { return (this->Route == this); }
+
+	/** Returns true if the server is awaiting destruction
+	 * @return True if the server is waiting to be culled and deleted, false otherwise
+	 */
+	bool IsDead() const { return isdead; }
 
 	/** Get server version string
 	 */
