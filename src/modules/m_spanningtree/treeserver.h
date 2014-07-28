@@ -71,7 +71,7 @@ class TreeServer : public Server
 
 	/** Used by SQuit logic to recursively remove servers
 	 */
-	void SQuitInternal(const std::string& reason, int& num_lost_servers, int& num_lost_users);
+	void SQuitInternal(int& num_lost_servers);
 
 	/** Remove the reference to this server from the hash maps
 	 */
@@ -113,7 +113,7 @@ class TreeServer : public Server
 		GetParent()->SQuitChild(this, reason);
 	}
 
-	int QuitUsers(const std::string &reason);
+	static int QuitUsers(const std::string& reason);
 
 	/** Get route.
 	 * The 'route' is defined as the locally-

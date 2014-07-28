@@ -182,12 +182,13 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 	}
 
 	int num_lost_servers = 0;
-	int num_lost_users = 0;
+	server->SQuitInternal(num_lost_servers);
+
 	const std::string quitreason = GetName() + " " + server->GetName();
 
 	ModuleSpanningTree* st = Utils->Creator;
 	st->SplitInProgress = true;
-	server->SQuitInternal(quitreason, num_lost_servers, num_lost_users);
+	int num_lost_users = QuitUsers(quitreason);
 	st->SplitInProgress = false;
 
 	ServerInstance->SNO->WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
@@ -201,20 +202,19 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 	ServerInstance->GlobalCulls.AddItem(server);
 }
 
-void TreeServer::SQuitInternal(const std::string& reason, int& num_lost_servers, int& num_lost_users)
+void TreeServer::SQuitInternal(int& num_lost_servers)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
 
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
 		TreeServer* server = *i;
-		server->SQuitInternal(reason, num_lost_servers, num_lost_users);
+		server->SQuitInternal(num_lost_servers);
 	}
 
 	// Mark server as dead
 	isdead = true;
 	num_lost_servers++;
-	num_lost_users += QuitUsers(reason);
 	RemoveHash();
 }
 
@@ -229,7 +229,8 @@ int TreeServer::QuitUsers(const std::string &reason)
 		User* user = i->second;
 		// Increment the iterator now because QuitUser() removes the user from the container
 		++i;
-		if (user->server == this)
+		TreeServer* server = TreeServer::Get(user);
+		if (server->IsDead())
 			ServerInstance->Users->QuitUser(user, publicreason, &reason);
 	}
 	return original_size - users.size();
