@@ -582,7 +582,8 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		// Hide the message if one of the following is true:
 		// - User is being quit due to a netsplit and quietbursts is on
 		// - Server is a silent uline
-		bool hide = (((this->SplitInProgress) && (Utils->quiet_bursts)) || (user->server->IsSilentULine()));
+		TreeServer* server = TreeServer::Get(user);
+		bool hide = (((server->IsDead()) && (Utils->quiet_bursts)) || (server->IsSilentULine()));
 		if (!hide)
 		{
 			ServerInstance->SNO->WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
