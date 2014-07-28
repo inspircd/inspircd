@@ -53,6 +53,39 @@
 # IMPORTANT:
 # Other modules may rely on this module being loaded to function.
 #<module name="m_ripemd160.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# BCRYPT Module - Allows other modules to generate BCRYPT hashes,
+# usually for cryptographic uses and security.
+#
+# IMPORTANT:
+# Other modules may rely on this module being loaded to function.
+#
+# Settings:
+# rounds: Defines how many rounds the bcrypt function will run.
+#<bcrypt rounds="10">
+#<module name="m_bcrypt.so">
+#
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# PBKDF2 Module - Allows other modules to generate PBKDF2 hashes,
+# usually for cryptographic uses and security.
+#
+# IMPORTANT:
+# This module relies on other hash providers (e.g. SHA256)
+# Other modules may rely on this module being loaded to function.
+#
+#
+# Settings:
+# rounds: Iterations the hashing function runs
+# dkey_length: Length in bytes of the derived key
+# salt: The salt the function uses - set this value!
+# You can override these values with specific values
+# for specific providers if you want to. Example given
+# for SHA256.
+# 
+#<pbkdf2 rounds="12288" dkey_length="32" salt="">
+#<pbkdf2prov hash="sha256" salt="inspircd">
+#<module name="m_pbkdf2.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Abbreviation module: Provides the ability to abbreviate commands a-la

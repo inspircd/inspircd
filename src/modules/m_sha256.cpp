@@ -247,14 +247,23 @@ class HashSHA256 : public HashProvider
 	}
 
  public:
-	std::string sum(const std::string& data)
+	std::string Generate(const std::string& data, const HashProvider::HashType type)
 	{
 		unsigned char bytes[SHA256_DIGEST_SIZE];
 		SHA256(data.data(), bytes, data.length());
-		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
+		std::string ret((char*)bytes, SHA256_DIGEST_SIZE);
+
+		if (type == HashProvider::HASH_RAW)
+			return ret;
+		return BinToHex(ret);
 	}
 
-	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256", 32, 64) {}
+	std::string RAW(const std::string& raw)
+	{
+		return BinToHex(raw);
+	}
+
+	HashSHA256(Module* parent) : HashProvider(parent, "sha256", 32, 64) {}
 };
 
 class ModuleSHA256 : public Module

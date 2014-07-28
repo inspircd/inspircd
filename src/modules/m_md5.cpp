@@ -244,29 +244,24 @@ class MD5Provider : public HashProvider
 		MD5Final((unsigned char*)dest, &context);
 	}
 
-
-	void GenHash(const char* src, char* dest, const char* xtab, unsigned int* ikey, size_t srclen)
-	{
-		unsigned char bytes[16];
-
-		MyMD5((char*)bytes, (void*)src, srclen, ikey);
-
-		for (int i = 0; i < 16; i++)
-		{
-			*dest++ = xtab[bytes[i] / 16];
-			*dest++ = xtab[bytes[i] % 16];
-		}
-		*dest++ = 0;
-	}
  public:
-	std::string sum(const std::string& data)
+	std::string Generate(const std::string& data, const HashProvider::HashType type)
 	{
 		char res[16];
 		MyMD5(res, (void*)data.data(), data.length(), NULL);
-		return std::string(res, 16);
+		std::string ret = std::string(res, 16);
+
+		if (type == HashProvider::HASH_RAW)
+			return ret;
+		return BinToHex(ret);
 	}
 
-	MD5Provider(Module* parent) : HashProvider(parent, "hash/md5", 16, 64) {}
+	std::string RAW(const std::string& raw)
+	{
+		return BinToHex(raw);
+	}
+
+	MD5Provider(Module* parent) : HashProvider(parent, "md5", 16, 64) {}
 };
 
 class ModuleMD5 : public Module

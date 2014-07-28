@@ -146,7 +146,6 @@ typedef uint32_t dword;
       (c) = ROL((c), 10);\
    }
 
-
 class RIProv : public HashProvider
 {
 	/** Final hash value
@@ -434,13 +433,22 @@ class RIProv : public HashProvider
 		return (byte *)hashcode;
 	}
 public:
-	std::string sum(const std::string& data)
+	std::string Generate(const std::string& data, const HashProvider::HashType type)
 	{
 		char* rv = (char*)RMD((byte*)data.data(), data.length(), NULL);
-		return std::string(rv, RMDsize / 8);
+		std::string ret(rv, RMDsize / 8);
+
+		if (type == HashProvider::HASH_RAW)
+			return ret;
+		return BinToHex(ret);
 	}
 
-	RIProv(Module* m) : HashProvider(m, "hash/ripemd160", 20, 64) {}
+	std::string RAW(const std::string& raw)
+	{
+		return BinToHex(raw);
+	}
+
+	RIProv(Module* m) : HashProvider(m, "ripemd160", 20, 64) {}
 };
 
 class ModuleRIPEMD160 : public Module

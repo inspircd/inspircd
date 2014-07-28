@@ -24,26 +24,32 @@
 class HashProvider : public DataProvider
 {
  public:
+	enum HashType
+	{
+		HASH_RAW,
+		HASH_PRINTABLE
+	};
+
 	const unsigned int out_size;
 	const unsigned int block_size;
-	HashProvider(Module* mod, const std::string& Name, int osiz, int bsiz)
-		: DataProvider(mod, Name), out_size(osiz), block_size(bsiz) {}
-	virtual std::string sum(const std::string& data) = 0;
-	inline std::string hexsum(const std::string& data)
+	HashProvider(Module* mod, const std::string& Name, unsigned int osiz = 0, unsigned int bsiz = 0)
+		: DataProvider(mod, "hash/" + Name), out_size(osiz), block_size(bsiz)
 	{
-		return BinToHex(sum(data));
 	}
 
-	inline std::string b64sum(const std::string& data)
+	virtual std::string Generate(const std::string& data, const HashType type = HASH_PRINTABLE) = 0;
+	virtual std::string RAW(const std::string& raw) = 0;
+
+	virtual bool Compare(const std::string& string, const std::string& hash)
 	{
-		return BinToBase64(sum(data), NULL, 0);
+		return Generate(string) == hash;
 	}
 
 	/** HMAC algorithm, RFC 2104 */
-	std::string hmac(const std::string& key, const std::string& msg)
+	std::string HMAC(const std::string& key, const std::string& msg)
 	{
 		std::string hmac1, hmac2;
-		std::string kbuf = key.length() > block_size ? sum(key) : key;
+		std::string kbuf = key.length() > block_size ? Generate(key, HashProvider::HASH_RAW) : key;
 		kbuf.resize(block_size);
 
 		for (size_t n = 0; n < block_size; n++)
@@ -52,7 +58,12 @@ class HashProvider : public DataProvider
 			hmac2.push_back(static_cast<char>(kbuf[n] ^ 0x36));
 		}
 		hmac2.append(msg);
-		hmac1.append(sum(hmac2));
-		return sum(hmac1);
+		hmac1.append(Generate(hmac2, HashProvider::HASH_RAW));
+		return Generate(hmac1, HashProvider::HASH_RAW);
+	}
+
+	bool IsKDF() const
+	{
+		return !block_size;
 	}
 };

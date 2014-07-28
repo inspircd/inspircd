@@ -124,11 +124,11 @@ class ModuleSQLAuth : public Module
 
 		HashProvider* md5 = ServerInstance->Modules->FindDataService<HashProvider>("hash/md5");
 		if (md5)
-			userinfo["md5pass"] = md5->hexsum(user->password);
+			userinfo["md5pass"] = md5->Generate(user->password);
 
 		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
 		if (sha256)
-			userinfo["sha256pass"] = sha256->hexsum(user->password);
+			userinfo["sha256pass"] = sha256->Generate(user->password);
 
 		const std::string certfp = SSLClientCert::GetFingerprint(&user->eh);
 		userinfo["certfp"] = certfp;
