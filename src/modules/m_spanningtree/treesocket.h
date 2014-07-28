@@ -98,7 +98,6 @@ class TreeSocket : public BufferedSocket
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
 	int proto_version;			/* Remote protocol version */
-	bool ConnectionFailureShown; /* Set to true if a connection failure message was shown */
 
 	/** True if we've sent our burst.
 	 * This only changes the behavior of message translation for 1202 protocol servers and it can be

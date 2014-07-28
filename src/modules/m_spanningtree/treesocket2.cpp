@@ -357,17 +357,13 @@ void TreeSocket::Close()
 	if (MyRoot)
 		Squit(MyRoot,getError());
 
-	if (!ConnectionFailureShown)
-	{
-		ConnectionFailureShown = true;
-		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",linkID.c_str());
+	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' failed.",linkID.c_str());
 
-		time_t server_uptime = ServerInstance->Time() - this->age;
-		if (server_uptime)
-		{
-			std::string timestr = ModuleSpanningTree::TimeToStr(server_uptime);
-			ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), timestr.c_str());
-		}
+	time_t server_uptime = ServerInstance->Time() - this->age;
+	if (server_uptime)
+	{
+		std::string timestr = ModuleSpanningTree::TimeToStr(server_uptime);
+		ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\2%s\2' was established for %s", linkID.c_str(), timestr.c_str());
 	}
 }
 
