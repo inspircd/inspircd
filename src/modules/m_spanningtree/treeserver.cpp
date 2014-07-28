@@ -185,11 +185,7 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 	server->SQuitInternal(num_lost_servers);
 
 	const std::string quitreason = GetName() + " " + server->GetName();
-
-	ModuleSpanningTree* st = Utils->Creator;
-	st->SplitInProgress = true;
 	unsigned int num_lost_users = QuitUsers(quitreason);
-	st->SplitInProgress = false;
 
 	ServerInstance->SNO->WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%u\002 user%s on \002%u\002 server%s.",
 		num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");

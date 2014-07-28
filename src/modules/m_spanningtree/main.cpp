@@ -40,7 +40,6 @@ ModuleSpanningTree::ModuleSpanningTree()
 	, currmembid(0)
 	, DNS(this, "DNS")
 	, loopCall(false)
-	, SplitInProgress(false)
 {
 }
 
