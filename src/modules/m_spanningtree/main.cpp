@@ -701,7 +701,7 @@ restart:
 		{
 			sock->SendError("SSL module unloaded");
 			sock->Close();
-			// XXX: The list we're iterating is modified by TreeSocket::Squit() which is called by Close()
+			// XXX: The list we're iterating is modified by TreeServer::SQuit() which is called by Close()
 			goto restart;
 		}
 	}

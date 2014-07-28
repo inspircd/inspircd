@@ -163,6 +163,58 @@ void TreeServer::FinishBurst()
 	FinishBurstInternal();
 }
 
+void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
+{
+	DelServerEvent(Utils->Creator, server->GetName());
+	DelChild(server);
+
+	if (IsRoot())
+	{
+		// Server split from us, generate a SQUIT message and broadcast it
+		ServerInstance->SNO->WriteGlobalSno('l', "Server \002" + server->GetName() + "\002 split: " + reason);
+		CmdBuilder("SQUIT").push(server->GetID()).push_last(reason).Broadcast();
+	}
+	else
+	{
+		ServerInstance->SNO->WriteToSnoMask('L', "Server \002" + server->GetName() + "\002 split from server \002" + GetName() + "\002 with reason: " + reason);
+	}
+
+	int num_lost_servers = 0;
+	int num_lost_users = 0;
+	const std::string quitreason = GetName() + " " + server->GetName();
+
+	ModuleSpanningTree* st = Utils->Creator;
+	st->SplitInProgress = true;
+	server->SQuitInternal(quitreason, num_lost_servers, num_lost_users);
+	st->SplitInProgress = false;
+
+	ServerInstance->SNO->WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
+		num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
+
+	server->Tidy();
+
+	// No-op if the socket is already closed (i.e. it called us)
+	if (server->IsLocal())
+		server->GetSocket()->Close();
+
+	server->cull();
+	delete server;
+}
+
+void TreeServer::SQuitInternal(const std::string& reason, int& num_lost_servers, int& num_lost_users)
+{
+	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
+
+	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
+	{
+		TreeServer* server = *i;
+		server->SQuitInternal(reason, num_lost_servers, num_lost_users);
+	}
+
+	num_lost_servers++;
+	num_lost_users += QuitUsers(reason);
+}
+
 int TreeServer::QuitUsers(const std::string &reason)
 {
 	std::string publicreason = ServerInstance->Config->HideSplits ? "*.net *.split" : reason;

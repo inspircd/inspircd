@@ -65,6 +65,10 @@ class TreeServer : public Server
 	 */
 	void AddHashEntry();
 
+	/** Used by SQuit logic to recursively remove servers
+	 */
+	void SQuitInternal(const std::string& reason, int& num_lost_servers, int& num_lost_users);
+
  public:
 	typedef std::vector<TreeServer*> ChildServers;
 	FakeUser* const ServerUser;		/* User representing this server */
@@ -86,6 +90,20 @@ class TreeServer : public Server
 	 * its ping counters so that it will be pinged one minute from now.
 	 */
 	TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide);
+
+	/** SQuit a server connected to this server, removing the given server and all servers behind it
+	 * @param server Server to squit, must be directly below this server
+	 * @param reason Reason for quitting the server, sent to opers and other servers
+	 */
+	void SQuitChild(TreeServer* server, const std::string& reason);
+
+	/** SQuit this server, removing this server and all servers behind it
+	 * @param reason Reason for quitting the server, sent to opers and other servers
+	 */
+	void SQuit(const std::string& reason)
+	{
+		GetParent()->SQuitChild(this, reason);
+	}
 
 	int QuitUsers(const std::string &reason);
 

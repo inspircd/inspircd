@@ -250,20 +250,6 @@ class TreeSocket : public BufferedSocket
 
 	bool Capab(const parameterlist &params);
 
-	/** This function forces this server to quit, removing this server
-	 * and any users on it (and servers and users below that, etc etc).
-	 * It's very slow and pretty clunky, but luckily unless your network
-	 * is having a REAL bad hair day, this function shouldnt be called
-	 * too many times a month ;-)
-	 */
-	void SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users);
-
-	/** This is a wrapper function for SquitServer above, which
-	 * does some validation first and passes on the SQUIT to all
-	 * other remaining servers.
-	 */
-	void Squit(TreeServer* Current, const std::string &reason);
-
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
 	 * in length, it is split over multiple lines.
@@ -319,10 +305,6 @@ class TreeSocket : public BufferedSocket
 	/** Handle server quit on close
 	 */
 	void Close();
-
-	/** Returns true if this server was introduced to the rest of the network
-	 */
-	bool Introduced();
 
 	/** Fixes messages coming from old servers so the new command handlers understand them
 	 */
