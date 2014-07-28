@@ -69,6 +69,10 @@ class TreeServer : public Server
 	 */
 	void SQuitInternal(const std::string& reason, int& num_lost_servers, int& num_lost_users);
 
+	/** Remove the reference to this server from the hash maps
+	 */
+	void RemoveHash();
+
  public:
 	typedef std::vector<TreeServer*> ChildServers;
 	FakeUser* const ServerUser;		/* User representing this server */
@@ -237,9 +241,7 @@ class TreeServer : public Server
 
 	CullResult cull();
 
-	/** Destructor
-	 * Removes the reference to this object from the
-	 * hash maps.
+	/** Destructor, deletes ServerUser unless IsRoot()
 	 */
 	~TreeServer();
 

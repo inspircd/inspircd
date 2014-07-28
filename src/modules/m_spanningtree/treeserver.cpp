@@ -213,6 +213,7 @@ void TreeServer::SQuitInternal(const std::string& reason, int& num_lost_servers,
 
 	num_lost_servers++;
 	num_lost_users += QuitUsers(reason);
+	RemoveHash();
 }
 
 int TreeServer::QuitUsers(const std::string &reason)
@@ -362,7 +363,10 @@ TreeServer::~TreeServer()
 	/* We'd better tidy up after ourselves, eh? */
 	if (!IsRoot())
 		delete ServerUser;
+}
 
+void TreeServer::RemoveHash()
+{
 	Utils->sidlist.erase(sid);
 	Utils->serverlist.erase(GetName());
 }
