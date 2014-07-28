@@ -154,6 +154,8 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string
 		ret = CMD_FAILURE;
 		server = server->GetParent();
 	}
+	else if (quitting->GetParent() != server)
+		throw ProtocolException("Attempted to SQUIT a non-directly connected server or the parent");
 
 	server->SQuitChild(quitting, params[1]);
 
