@@ -169,12 +169,6 @@ restart:
 		if (s->IsRoot())
 			continue;
 
-		if (s->GetSocket()->GetLinkState() == DYING)
-		{
-			s->GetSocket()->Close();
-			goto restart;
-		}
-
 		// Do not ping servers that are not fully connected yet!
 		// Servers which are connected to us have IsLocal() == true and if they're fully connected
 		// then Socket->LinkState == CONNECTED. Servers that are linked to another server are always fully connected.

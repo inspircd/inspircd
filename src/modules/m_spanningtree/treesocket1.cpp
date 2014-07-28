@@ -128,6 +128,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
 		linkID.c_str(), getError().c_str());
 	LinkState = DYING;
+	Close();
 }
 
 void TreeSocket::SendError(const std::string &errormessage)
