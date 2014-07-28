@@ -203,12 +203,6 @@ class TreeServer : public Server
 	 */
 	bool DelChild(TreeServer* Child);
 
-	/** Removes child nodes of this node, and of that node, etc etc.
-	 * This is used during netsplits to automatically tidy up the
-	 * server tree. It is slow, we don't use it for much else.
-	 */
-	void Tidy();
-
 	/** Get server ID
 	 */
 	const std::string& GetID();

@@ -330,25 +330,6 @@ bool TreeServer::DelChild(TreeServer* Child)
 	return false;
 }
 
-/** Removes child nodes of this node, and of that node, etc etc.
- * This is used during netsplits to automatically tidy up the
- * server tree. It is slow, we don't use it for much else.
- */
-void TreeServer::Tidy()
-{
-	while (1)
-	{
-		std::vector<TreeServer*>::iterator a = Children.begin();
-		if (a == Children.end())
-			return;
-		TreeServer* s = *a;
-		s->Tidy();
-		s->cull();
-		Children.erase(a);
-		delete s;
-	}
-}
-
 CullResult TreeServer::cull()
 {
 	// Recursively cull all servers that are under us in the tree
