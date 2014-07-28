@@ -358,6 +358,10 @@ TreeServer::~TreeServer()
 
 void TreeServer::RemoveHash()
 {
+	// XXX: Erase server from UserManager::uuidlist now, to allow sid reuse in the current main loop
+	// iteration, before the cull list is applied
+	ServerInstance->Users->uuidlist.erase(sid);
+
 	Utils->sidlist.erase(sid);
 	Utils->serverlist.erase(GetName());
 }

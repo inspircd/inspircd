@@ -340,7 +340,7 @@ CullResult FakeUser::cull()
 	// Fake users don't quit, they just get culled.
 	quitting = true;
 	// Fake users are not inserted into UserManager::clientlist, they're only in the uuidlist
-	ServerInstance->Users->uuidlist.erase(uuid);
+	// and they are removed from there by the linking mod when the server splits
 	return User::cull();
 }
 
