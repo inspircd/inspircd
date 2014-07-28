@@ -181,17 +181,17 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 		ServerInstance->SNO->WriteToSnoMask('L', "Server \002" + server->GetName() + "\002 split from server \002" + GetName() + "\002 with reason: " + reason);
 	}
 
-	int num_lost_servers = 0;
+	unsigned int num_lost_servers = 0;
 	server->SQuitInternal(num_lost_servers);
 
 	const std::string quitreason = GetName() + " " + server->GetName();
 
 	ModuleSpanningTree* st = Utils->Creator;
 	st->SplitInProgress = true;
-	int num_lost_users = QuitUsers(quitreason);
+	unsigned int num_lost_users = QuitUsers(quitreason);
 	st->SplitInProgress = false;
 
-	ServerInstance->SNO->WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
+	ServerInstance->SNO->WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%u\002 user%s on \002%u\002 server%s.",
 		num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 
 	// No-op if the socket is already closed (i.e. it called us)
@@ -202,7 +202,7 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 	ServerInstance->GlobalCulls.AddItem(server);
 }
 
-void TreeServer::SQuitInternal(int& num_lost_servers)
+void TreeServer::SQuitInternal(unsigned int& num_lost_servers)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s lost in split", GetName().c_str());
 
@@ -218,7 +218,7 @@ void TreeServer::SQuitInternal(int& num_lost_servers)
 	RemoveHash();
 }
 
-int TreeServer::QuitUsers(const std::string &reason)
+unsigned int TreeServer::QuitUsers(const std::string& reason)
 {
 	std::string publicreason = ServerInstance->Config->HideSplits ? "*.net *.split" : reason;
 
