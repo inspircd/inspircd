@@ -191,14 +191,12 @@ void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 	ServerInstance->SNO->WriteToSnoMask(IsRoot() ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
 		num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
 
-	server->Tidy();
-
 	// No-op if the socket is already closed (i.e. it called us)
 	if (server->IsLocal())
 		server->GetSocket()->Close();
 
-	server->cull();
-	delete server;
+	// Add the server to the cull list, the servers behind it are handled by cull() and the destructor
+	ServerInstance->GlobalCulls.AddItem(server);
 }
 
 void TreeServer::SQuitInternal(const std::string& reason, int& num_lost_servers, int& num_lost_users)
@@ -353,6 +351,13 @@ void TreeServer::Tidy()
 
 CullResult TreeServer::cull()
 {
+	// Recursively cull all servers that are under us in the tree
+	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
+	{
+		TreeServer* server = *i;
+		server->cull();
+	}
+
 	if (!IsRoot())
 		ServerUser->cull();
 	return classbase::cull();
@@ -360,7 +365,11 @@ CullResult TreeServer::cull()
 
 TreeServer::~TreeServer()
 {
-	/* We'd better tidy up after ourselves, eh? */
+	// Recursively delete all servers that are under us in the tree first
+	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
+		delete *i;
+
+	// Delete server user unless it's us
 	if (!IsRoot())
 		delete ServerUser;
 }

@@ -157,8 +157,7 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string
 	server->SQuitChild(quitting, params[1]);
 
 	// XXX: Return CMD_FAILURE when servers SQUIT themselves (i.e. :00S SQUIT 00S :Shutting down)
-	// to avoid RouteCommand() being called. RouteCommand() requires a valid command source but we
-	// do not have one because the server user is deleted when its TreeServer is destructed.
+	// to stop this message from being forwarded.
 	// The squit logic generates a SQUIT message with our sid as the source and sends it to the
 	// remaining servers.
 	return ret;
