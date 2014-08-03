@@ -303,7 +303,7 @@ void UserManager::DoBackgroundUserStuff()
 		switch (curr->registered)
 		{
 			case REG_ALL:
-				if (ServerInstance->Time() > curr->nping)
+				if (ServerInstance->Time() >= curr->nping)
 				{
 					// This user didn't answer the last ping, remove them
 					if (!curr->lastping)
