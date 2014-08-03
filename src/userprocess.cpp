@@ -78,7 +78,7 @@ void InspIRCd::DoBackgroundUserStuff()
 		switch (curr->registered)
 		{
 			case REG_ALL:
-				if (Time() > curr->nping)
+				if (Time() >= curr->nping)
 				{
 					// This user didn't answer the last ping, remove them
 					if (!curr->lastping)
