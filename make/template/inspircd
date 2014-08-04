@@ -18,6 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# InspIRCd          Start up the InspIRCd Internet Relay Chat Daemon
+#
+# chkconfig: 2345 55 25
+# description: InspIRCd -- Internet Relay Chat Daemon
+#
+# processname: inspircd
 
 use strict;
 use POSIX;
