@@ -81,24 +81,26 @@ class PBKDF2Provider : public HashProvider
 		size_t blocks = std::ceil((double)dkl / provider->out_size);
 
 		std::string output;
+		std::string tmphash;
+		std::string salt_block = salt;
 		for (size_t block = 1; block <= blocks; block++)
 		{
 			char salt_data[4];
 			for (size_t i = 0; i < sizeof(salt_data); i++)
 				salt_data[i] = block >> (24 - i * 8) & 0x0F;
 
-			std::string salt_block(salt_data, 4);
-			salt_block = salt + salt_block;
+			salt_block.erase(salt.length());
+			salt_block.append(salt_data, sizeof(salt_data));
 
 			std::string blockdata = provider->hmac(pass, salt_block);
 			std::string lasthash = blockdata;
 			for (size_t iter = 1; iter < itr; iter++)
 			{
-				std::string tmphash = provider->hmac(pass, lasthash);
+				tmphash = provider->hmac(pass, lasthash);
 				for (size_t i = 0; i < provider->out_size; i++)
 					blockdata[i] ^= tmphash[i];
 
-				lasthash = tmphash;
+				lasthash.swap(tmphash);
 			}
 			output += blockdata;
 		}
