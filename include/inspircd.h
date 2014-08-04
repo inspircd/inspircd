@@ -436,15 +436,6 @@ class CoreExport InspIRCd
 	 */
 	int BindPorts(FailedPortList &failed_ports);
 
-	/** Binds a socket on an already open file descriptor
-	 * @param sockfd A valid file descriptor of an open socket
-	 * @param port The port number to bind to
-	 * @param addr The address to bind to (IP only)
-	 * @param dolisten Should this port be listened on?
-	 * @return True if the port was bound successfully
-	 */
-	bool BindSocket(int sockfd, int port, const char* addr, bool dolisten = true);
-
 	/** Find a user in the nick hash.
 	 * If the user cant be found in the nick hash check the uuid hash
 	 * @param nick The nickname to find

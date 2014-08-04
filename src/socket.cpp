@@ -23,58 +23,6 @@
 
 #include "inspircd.h"
 
-using irc::sockets::sockaddrs;
-
-/** This will bind a socket to a port. It works for UDP/TCP.
- * It can only bind to IP addresses, if you wish to bind to hostnames
- * you should first resolve them using class 'Resolver'.
- */
-bool InspIRCd::BindSocket(int sockfd, int port, const char* addr, bool dolisten)
-{
-	sockaddrs servaddr;
-	int ret;
-
-	if ((*addr == '*' || *addr == '\0') && port == -1)
-	{
-		/* Port -1: Means UDP IPV4 port binding - Special case
-		 * used by DNS engine.
-		 */
-		memset(&servaddr, 0, sizeof(servaddr));
-		servaddr.in4.sin_family = AF_INET;
-	}
-	else if (!irc::sockets::aptosa(addr, port, servaddr))
-		return false;
-
-	ret = SocketEngine::Bind(sockfd, servaddr);
-
-	if (ret < 0)
-	{
-		return false;
-	}
-	else
-	{
-		if (dolisten)
-		{
-			if (SocketEngine::Listen(sockfd, Config->MaxConn) == -1)
-			{
-				this->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR in listen(): %s",strerror(errno));
-				return false;
-			}
-			else
-			{
-				this->Logs->Log("SOCKET", LOG_DEBUG, "New socket binding for %d with listen: %s:%d", sockfd, addr, port);
-				SocketEngine::NonBlocking(sockfd);
-				return true;
-			}
-		}
-		else
-		{
-			this->Logs->Log("SOCKET", LOG_DEBUG, "New socket binding for %d without listen: %s:%d", sockfd, addr, port);
-			return true;
-		}
-	}
-}
-
 int InspIRCd::BindPorts(FailedPortList &failed_ports)
 {
 	int bound = 0;
