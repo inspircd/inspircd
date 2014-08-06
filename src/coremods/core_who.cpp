@@ -171,9 +171,6 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 
 bool CommandWho::CanView(Channel* chan, User* user)
 {
-	if (!user || !chan)
-		return false;
-
 	/* Bug #383 - moved higher up the list, because if we are in the channel
 	 * we can see all its users
 	 */
