@@ -35,16 +35,6 @@ class ModeChannelBan : public ListModeBase
 	}
 };
 
-/** Channel mode +i
- */
-class ModeChannelInviteOnly : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelInviteOnly() : SimpleChannelModeHandler(NULL, "inviteonly", 'i')
-	{
-	}
-};
-
 /** Channel mode +k
  */
 class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
@@ -67,26 +57,6 @@ class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter);
 };
 
-/** Channel mode +m
- */
-class ModeChannelModerated : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelModerated() : SimpleChannelModeHandler(NULL, "moderated", 'm')
-	{
-	}
-};
-
-/** Channel mode +n
- */
-class ModeChannelNoExternal : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelNoExternal() : SimpleChannelModeHandler(NULL, "noextmsg", 'n')
-	{
-	}
-};
-
 /** Channel mode +o
  */
 class ModeChannelOp : public PrefixMode
@@ -95,52 +65,12 @@ class ModeChannelOp : public PrefixMode
 	ModeChannelOp();
 };
 
-/** Channel mode +p
- */
-class ModeChannelPrivate : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelPrivate() : SimpleChannelModeHandler(NULL, "private", 'p')
-	{
-	}
-};
-
-/** Channel mode +s
- */
-class ModeChannelSecret : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelSecret() : SimpleChannelModeHandler(NULL, "secret", 's')
-	{
-	}
-};
-
-/** Channel mode +t
- */
-class ModeChannelTopicOps : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelTopicOps() : SimpleChannelModeHandler(NULL, "topiclock", 't')
-	{
-	}
-};
-
 /** Channel mode +v
  */
 class ModeChannelVoice : public PrefixMode
 {
  public:
 	ModeChannelVoice();
-};
-
-/** User mode +i
- */
-class ModeUserInvisible : public SimpleUserModeHandler
-{
- public:
-	ModeUserInvisible() : SimpleUserModeHandler(NULL, "invisible", 'i')
-	{
-	}
 };
 
 /** User mode +s

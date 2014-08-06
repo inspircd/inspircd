@@ -925,13 +925,13 @@ void PrefixMode::RemoveMode(Channel* chan, irc::modestacker& stack)
 
 struct builtin_modes
 {
-	ModeChannelSecret s;
-	ModeChannelPrivate p;
-	ModeChannelModerated m;
-	ModeChannelTopicOps t;
+	SimpleChannelModeHandler s;
+	SimpleChannelModeHandler p;
+	SimpleChannelModeHandler m;
+	SimpleChannelModeHandler t;
 
-	ModeChannelNoExternal n;
-	ModeChannelInviteOnly i;
+	SimpleChannelModeHandler n;
+	SimpleChannelModeHandler i;
 	ModeChannelKey k;
 	ModeChannelLimit l;
 
@@ -939,9 +939,20 @@ struct builtin_modes
 	ModeChannelOp o;
 	ModeChannelVoice v;
 
-	ModeUserInvisible ui;
+	SimpleUserModeHandler ui;
 	ModeUserOperator uo;
 	ModeUserServerNoticeMask us;
+
+	builtin_modes()
+		: s(NULL, "secret", 's')
+		, p(NULL, "private", 'p')
+		, m(NULL, "moderated", 'm')
+		, t(NULL, "topiclock", 't')
+		, n(NULL, "noextmsg", 'n')
+		, i(NULL, "inviteonly", 'i')
+		, ui(NULL, "invisible", 'i')
+	{
+	}
 
 	void init()
 	{
