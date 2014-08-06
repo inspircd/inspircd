@@ -119,8 +119,6 @@ class ModuleOjoin : public Module
 	{
 		std::string npre = ServerInstance->Config->ConfValue("ojoin")->getString("prefix");
 		char NPrefix = npre.empty() ? 0 : npre[0];
-		if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
-			throw ModuleException("Looks like the prefix you picked for m_ojoin is already in use. Pick another.");
 
 		/* Initialise module variables */
 		np = new NetworkPrefix(this, NPrefix);
