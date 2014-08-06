@@ -62,7 +62,11 @@ class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
 class ModeChannelOp : public PrefixMode
 {
  public:
-	ModeChannelOp();
+	ModeChannelOp()
+		: PrefixMode(NULL, "op", 'o', OP_VALUE, '@')
+	{
+		levelrequired = OP_VALUE;
+	}
 };
 
 /** Channel mode +v
@@ -70,7 +74,11 @@ class ModeChannelOp : public PrefixMode
 class ModeChannelVoice : public PrefixMode
 {
  public:
-	ModeChannelVoice();
+	ModeChannelVoice()
+		: PrefixMode(NULL, "voice", 'v', VOICE_VALUE, '+')
+	{
+		levelrequired = HALFOP_VALUE;
+	}
 };
 
 /** User mode +s
