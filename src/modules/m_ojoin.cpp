@@ -87,11 +87,9 @@ class NetworkPrefix : public PrefixMode
 {
  public:
 	NetworkPrefix(Module* parent, char NPrefix)
-		: PrefixMode(parent, "official-join", 'Y')
+		: PrefixMode(parent, "official-join", 'Y', NETWORK_VALUE, NPrefix)
 	{
-		prefix = NPrefix;
 		levelrequired = INT_MAX;
-		prefixrank = NETWORK_VALUE;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)

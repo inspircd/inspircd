@@ -23,9 +23,7 @@
 #include "inspircd.h"
 #include "builtinmodes.h"
 
-ModeChannelOp::ModeChannelOp() : PrefixMode(NULL, "op", 'o')
+ModeChannelOp::ModeChannelOp() : PrefixMode(NULL, "op", 'o', OP_VALUE, '@')
 {
-	prefix = '@';
 	levelrequired = OP_VALUE;
-	prefixrank = OP_VALUE;
 }

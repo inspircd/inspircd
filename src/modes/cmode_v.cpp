@@ -23,9 +23,7 @@
 #include "inspircd.h"
 #include "builtinmodes.h"
 
-ModeChannelVoice::ModeChannelVoice() : PrefixMode(NULL, "voice", 'v')
+ModeChannelVoice::ModeChannelVoice() : PrefixMode(NULL, "voice", 'v', VOICE_VALUE, '+')
 {
-	prefix = '+';
 	levelrequired = HALFOP_VALUE;
-	prefixrank = VOICE_VALUE;
 }

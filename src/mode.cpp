@@ -182,9 +182,9 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	}
 }
 
-PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter)
+PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank, char PrefixChar)
 	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
-	, prefix(0), prefixrank(0)
+	, prefix(PrefixChar), prefixrank(Rank)
 {
 	list = true;
 	m_paramtype = TR_NICK;
