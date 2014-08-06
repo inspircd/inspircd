@@ -201,13 +201,13 @@ class ListModeBase : public ModeHandler
 			if (limit.mask.size() && limit.limit > 0)
 				chanlimits.push_back(limit);
 		}
-		if (chanlimits.empty())
-		{
-			ListLimit limit;
-			limit.mask = "*";
-			limit.limit = 64;
-			chanlimits.push_back(limit);
-		}
+
+		// Add the default entry. This is inserted last so if the user specifies a
+		// wildcard record in the config it will take precedence over this entry.
+		ListLimit limit;
+		limit.mask = "*";
+		limit.limit = 64;
+		chanlimits.push_back(limit);
 	}
 
 	/** Populate the Implements list with the correct events for a List Mode
