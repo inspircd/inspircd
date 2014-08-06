@@ -155,7 +155,7 @@ class CoreExport ListModeBase : public ModeHandler
 
 	/** Perform a rehash of this mode's configuration data
 	 */
-	virtual void DoRehash();
+	void DoRehash();
 
 	/** Handle the list mode.
 	 * See mode.h
