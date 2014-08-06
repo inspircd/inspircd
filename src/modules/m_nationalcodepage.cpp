@@ -47,9 +47,6 @@ class ModuleNationalCodePage : public Module,public HandlerBase1<bool, const std
       
         void init() CXX11_OVERRIDE
 	{
-            //Copy the existing generic ASCII casemap into place
-            memcpy(m_casemap, rfc_case_insensitive_map, 256);
-            m_allowedchar.reset();
             national_case_insensitive_map = m_casemap;
             ServerInstance->IsNick = this;
 	}
@@ -61,7 +58,7 @@ class ModuleNationalCodePage : public Module,public HandlerBase1<bool, const std
         
         void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-            //Reset casemap and allowed characters
+            //Copy the existing generic ASCII casemap into place
             memcpy(m_casemap, rfc_case_insensitive_map, 256);
             m_allowedchar.reset();
             
