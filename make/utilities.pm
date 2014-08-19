@@ -95,6 +95,7 @@ sub make_rpath($;$)
 
 sub extend_pkg_path()
 {
+	return if defined $ENV{DISABLE_EXTEND_PKG_PATH};
 	if (!exists $ENV{PKG_CONFIG_PATH})
 	{
 		$ENV{PKG_CONFIG_PATH} = "/usr/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/libdata/pkgconfig:/usr/X11R6/libdata/pkgconfig";
