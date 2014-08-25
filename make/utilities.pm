@@ -319,6 +319,15 @@ sub translate_functions($$)
 			die "Developers should no longer use backticks in configuration macros. Please use exec() and eval() macros instead. Offending line: $line (In module: $module)";
 		}
 
+		if ($line =~ /if(gt|lt)\("(.+?)","(.+?)"\)/) {
+			chomp(my $result = `$2 2>/dev/null`);
+			if (($1 eq 'gt' && $result le $3) || ($1 eq 'lt' && $result ge $3)) {
+				$line = substr $line, 0, $-[0];
+			} else {
+				$line =~ s/if$1\("$2","$3"\)//;
+			}
+		}
+
 		if ($line =~ /ifuname\(\!"(\w+)"\)/)
 		{
 			my $uname = $1;
