@@ -21,6 +21,9 @@
 
 #include <iterator>
 
+namespace insp
+{
+
 struct intrusive_list_def_tag { };
 
 template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list;
@@ -51,6 +54,8 @@ class intrusive_list_node
 	friend class intrusive_list<T, Tag>;
 	friend class intrusive_list_tail<T, Tag>;
 };
+
+} // namespace insp
 
 // Intrusive list where the list only has a pointer to the head element
 #define INSPIRCD_INTRUSIVE_LIST_NAME intrusive_list

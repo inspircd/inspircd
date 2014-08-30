@@ -32,13 +32,13 @@
 	#include <dirent.h>
 #endif
 
-static intrusive_list<dynamic_reference_base>* dynrefs = NULL;
+static insp::intrusive_list<dynamic_reference_base>* dynrefs = NULL;
 
 void dynamic_reference_base::reset_all()
 {
 	if (!dynrefs)
 		return;
-	for (intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
+	for (insp::intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
 		(*i)->resolve();
 }
 
@@ -670,7 +670,7 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 	: name(Name), value(NULL), creator(Creator)
 {
 	if (!dynrefs)
-		dynrefs = new intrusive_list<dynamic_reference_base>;
+		dynrefs = new insp::intrusive_list<dynamic_reference_base>;
 	dynrefs->push_front(this);
 
 	// Resolve unless there is no ModuleManager (part of class InspIRCd)

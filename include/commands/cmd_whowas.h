@@ -60,7 +60,7 @@ namespace WhoWas
 
 	/** Everything known about one nick
 	 */
-	struct Nick : public intrusive_list_node<Nick>
+	struct Nick : public insp::intrusive_list_node<Nick>
 	{
 		/** A group of users related by nickname
 		 */
@@ -142,7 +142,7 @@ namespace WhoWas
 	 private:
 		/** Order in which the users were added into the map, used to remove oldest nick
 		 */
-		typedef intrusive_list_tail<Nick> FIFO;
+		typedef insp::intrusive_list_tail<Nick> FIFO;
 
 		/** Sets of users in the whowas system
 		 */

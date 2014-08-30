@@ -250,7 +250,7 @@ class CoreExport User : public Extensible
  public:
 	/** List of Memberships for this user
 	 */
-	typedef intrusive_list<Membership> ChanList;
+	typedef insp::intrusive_list<Membership> ChanList;
 
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
@@ -625,7 +625,7 @@ class CoreExport UserIOHandler : public StreamSocket
 
 typedef unsigned int already_sent_t;
 
-class CoreExport LocalUser : public User, public InviteBase<LocalUser>, public intrusive_list_node<LocalUser>
+class CoreExport LocalUser : public User, public InviteBase<LocalUser>, public insp::intrusive_list_node<LocalUser>
 {
  public:
 	LocalUser(int fd, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
