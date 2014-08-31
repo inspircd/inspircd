@@ -95,7 +95,7 @@ class ModuleBlockAmsg : public Module
 				targets = 1;
 
 			for(const char* c = parameters[0].c_str(); *c; c++)
-				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
+				if ((*c == ',') && (*(c+1) == '#'))
 					targets++;
 
 			/* targets should now contain the number of channel targets the msg/notice was pointed at.
