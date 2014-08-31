@@ -88,17 +88,11 @@ class ModuleBlockAmsg : public Module
 
 		if ((validated) && (parameters.size() >= 2) && ((command == "PRIVMSG") || (command == "NOTICE")))
 		{
-			// parameters[0] should have the target(s) in it.
-			// I think it will be faster to first check if there are any commas, and if there are then try and parse it out.
-			// Most messages have a single target so...
-
-			int targets = 1;
-
-			if(*parameters[0].c_str() != '#')
-			{
-				// Decrement if the first target wasn't a channel.
-				targets--;
-			}
+			// parameters[0] is the target list, count how many channels are there
+			unsigned int targets = 0;
+			// Is the first target a channel?
+			if (*parameters[0].c_str() == '#')
+				targets = 1;
 
 			for(const char* c = parameters[0].c_str(); *c; c++)
 				if((*c == ',') && *(c+1) && (*(c+1) == '#'))
