@@ -30,6 +30,22 @@ my $type = shift;
 my $out = shift;
 my $verbose = ($type =~ s/-v$//);
 
+## BEGIN HACK: REMOVE IN 2.2!
+sub read_config_cache {
+	my %cfg = ();
+	open(CACHE, '../.config.cache') or return %cfg;
+	while (my $line = <CACHE>) {
+		next if $line =~ /^\s*($|\#)/;
+		my ($key, $value) = ($line =~ /^(\S+)="(.*)"$/);
+		$cfg{$key} = $value;
+	}
+	close(CACHE);
+	return %cfg;
+}
+
+our %config = read_config_cache();
+## END HACK
+
 if ($type eq 'gen-ld') {
 	do_static_find(@ARGV);
 } elsif ($type eq 'static-ld') {
