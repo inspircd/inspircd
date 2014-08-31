@@ -93,7 +93,6 @@ class ModuleBlockAmsg : public Module
 			// Most messages have a single target so...
 
 			int targets = 1;
-			int userchans = 0;
 
 			if(*parameters[0].c_str() != '#')
 			{
@@ -114,8 +113,6 @@ class ModuleBlockAmsg : public Module
 				return MOD_RES_PASSTHRU;
 			}
 
-			userchans = user->chans.size();
-
 			// Check that this message wasn't already sent within a few seconds.
 			BlockedMessage* m = blockamsg.get(user);
 
@@ -124,7 +121,7 @@ class ModuleBlockAmsg : public Module
 			// OR
 			// The number of target channels is equal to the number of channels the sender is on..a little suspicious.
 			// Check it's more than 1 too, or else users on one channel would have fun.
-			if((m && (m->message == parameters[1]) && (m->target != parameters[0]) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == userchans)))
+			if ((m && (m->message == parameters[1]) && (m->target != parameters[0]) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == user->chans.size())))
 			{
 				// Block it...
 				if(action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
