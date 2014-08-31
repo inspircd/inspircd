@@ -40,8 +40,8 @@ class BlockedMessage
 	irc::string target;
 	time_t sent;
 
-	BlockedMessage(const std::string &msg, const irc::string &tgt, time_t when)
-	: message(msg), target(tgt), sent(when)
+	BlockedMessage(const std::string& msg, const std::string& tgt, time_t when)
+		: message(msg), target(tgt.c_str()), sent(when)
 	{
 	}
 };
@@ -144,7 +144,7 @@ class ModuleBlockAmsg : public Module
 			}
 			else
 			{
-				m = new BlockedMessage(parameters[1], parameters[0].c_str(), ServerInstance->Time());
+				m = new BlockedMessage(parameters[1], parameters[0], ServerInstance->Time());
 				blockamsg.set(user, m);
 			}
 		}
