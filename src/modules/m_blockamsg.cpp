@@ -68,13 +68,13 @@ class ModuleBlockAmsg : public Module
 		ForgetDelay = tag->getInt("delay", -1);
 		std::string act = tag->getString("action");
 
-		if(act == "notice")
+		if (act == "notice")
 			action = IBLOCK_NOTICE;
-		else if(act == "noticeopers")
+		else if (act == "noticeopers")
 			action = IBLOCK_NOTICEOPERS;
-		else if(act == "silent")
+		else if (act == "silent")
 			action = IBLOCK_SILENT;
-		else if(act == "kill")
+		else if (act == "kill")
 			action = IBLOCK_KILL;
 		else
 			action = IBLOCK_KILLOPERS;
@@ -94,18 +94,18 @@ class ModuleBlockAmsg : public Module
 			if (*parameters[0].c_str() == '#')
 				targets = 1;
 
-			for(const char* c = parameters[0].c_str(); *c; c++)
+			for (const char* c = parameters[0].c_str(); *c; c++)
+			{
 				if ((*c == ',') && (*(c+1) == '#'))
 					targets++;
+			}
 
 			/* targets should now contain the number of channel targets the msg/notice was pointed at.
 			 * If the msg/notice was a PM there should be no channel targets and 'targets' should = 0.
 			 * We don't want to block PMs so...
 			 */
-			if(targets == 0)
-			{
+			if (targets == 0)
 				return MOD_RES_PASSTHRU;
-			}
 
 			// Check that this message wasn't already sent within a few seconds.
 			BlockedMessage* m = blockamsg.get(user);
@@ -118,18 +118,18 @@ class ModuleBlockAmsg : public Module
 			if ((m && (m->message == parameters[1]) && (m->target != parameters[0]) && (ForgetDelay != -1) && (m->sent >= ServerInstance->Time()-ForgetDelay)) || ((targets > 1) && (targets == user->chans.size())))
 			{
 				// Block it...
-				if(action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
+				if (action == IBLOCK_KILLOPERS || action == IBLOCK_NOTICEOPERS)
 					ServerInstance->SNO->WriteToSnoMask('a', "%s had an /amsg or /ame denied", user->nick.c_str());
 
-				if(action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
+				if (action == IBLOCK_KILL || action == IBLOCK_KILLOPERS)
 					ServerInstance->Users->QuitUser(user, "Attempted to global message (/amsg or /ame)");
-				else if(action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
-					user->WriteServ( "NOTICE %s :Global message (/amsg or /ame) denied", user->nick.c_str());
+				else if (action == IBLOCK_NOTICE || action == IBLOCK_NOTICEOPERS)
+					user->WriteNotice("Global message (/amsg or /ame) denied");
 
 				return MOD_RES_DENY;
 			}
 
-			if(m)
+			if (m)
 			{
 				// If there's already a BlockedMessage allocated, use it.
 				m->message = parameters[1];
