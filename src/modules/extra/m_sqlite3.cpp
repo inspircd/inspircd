@@ -97,8 +97,11 @@ class SQLConn : public SQLProvider
 
 	~SQLConn()
 	{
-		sqlite3_interrupt(conn);
-		sqlite3_close(conn);
+		if (conn)
+		{
+			sqlite3_interrupt(conn);
+			sqlite3_close(conn);
+		}
 	}
 
 	void Query(SQLQuery* query, const std::string& q)
