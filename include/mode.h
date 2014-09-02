@@ -541,7 +541,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	/** Displays the value of a list mode
 	 * Used by ModeParser::Process.
 	 */
-	void DisplayListModes(User* user, Channel* chan, std::string &mode_sequence);
+	void DisplayListModes(User* user, Channel* chan, const std::string& mode_sequence);
 
 	/**
 	 * Attempts to apply a mode change to a user or channel

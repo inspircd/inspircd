@@ -403,7 +403,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		return;
 	}
 
-	std::string mode_sequence = parameters[1];
+	const std::string& mode_sequence = parameters[1];
 
 	std::string output_mode;
 	std::string output_parameters;
@@ -512,7 +512,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	}
 }
 
-void ModeParser::DisplayListModes(User* user, Channel* chan, std::string &mode_sequence)
+void ModeParser::DisplayListModes(User* user, Channel* chan, const std::string& mode_sequence)
 {
 	seq++;
 
