@@ -406,7 +406,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	std::string mode_sequence = parameters[1];
 
 	std::string output_mode;
-	std::ostringstream output_parameters;
+	std::string output_parameters;
 	LastParseParams.push_back(output_mode);
 	LastParseTranslate.push_back(TR_TEXT);
 
@@ -469,12 +469,13 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 		if (pcnt)
 		{
-			output_parameters << " " << parameter;
+			output_parameters.push_back(' ');
+			output_parameters.append(parameter);
 			LastParseParams.push_back(parameter);
 			LastParseTranslate.push_back(mh->GetTranslateType());
 		}
 
-		if ( (output_mode.length() + output_parameters.str().length() > 450)
+		if ((output_mode.length() + output_parameters.length() > 450)
 				|| (output_mode.length() > 100)
 				|| (LastParseParams.size() > ServerInstance->Config->Limits.MaxModes))
 		{
@@ -490,7 +491,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		LastParse = targetchannel ? targetchannel->name : targetuser->nick;
 		LastParse.append(" ");
 		LastParse.append(output_mode);
-		LastParse.append(output_parameters.str());
+		LastParse.append(output_parameters);
 
 		if (!(flags & MODE_LOCALONLY))
 			ServerInstance->PI->SendMode(user, targetuser, targetchannel, LastParseParams, LastParseTranslate);
