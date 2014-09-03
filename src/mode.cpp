@@ -437,16 +437,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 		std::string parameter;
 		if (mh->GetNumParams(adding) && param_at < parameters.size())
-		{
 			parameter = parameters[param_at++];
-			if ((flags & MODE_MERGE) && targetchannel && targetchannel->IsModeSet(mh) && !mh->IsListMode())
-			{
-				std::string ours = targetchannel->GetModeParameter(mh);
-				if (!mh->ResolveModeConflict(parameter, ours, targetchannel))
-					/* we won the mode merge, don't apply this mode */
-					continue;
-			}
-		}
 
 		changelist.push(mh, adding, parameter);
 	}
@@ -478,6 +469,19 @@ static bool IsModeParamValid(User* user, Channel* targetchannel, User* targetuse
 	return true;
 }
 
+// Returns true if we should apply a merged mode, false if we should skip it
+static bool ShouldApplyMergedMode(Channel* chan, Modes::Change& item)
+{
+	ModeHandler* mh = item.mh;
+	if ((!chan) || (!chan->IsModeSet(mh)) || (mh->IsListMode()))
+		// Mode not set here or merge is not applicable, apply the incoming mode
+		return true;
+
+	// Mode handler decides
+	std::string ours = chan->GetModeParameter(mh);
+	return mh->ResolveModeConflict(item.param, ours, chan);
+}
+
 void ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags)
 {
 	LastParse.clear();
@@ -494,10 +498,15 @@ void ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetu
 		ModeHandler* mh = item.mh;
 
 		// If the mode is supposed to have a parameter then we first take a look at item.param
+		// and, if we were asked to, also handle mode merges now
 		if (mh->GetNumParams(item.adding))
 		{
 			// Skip the mode if the parameter does not pass basic validation
 			if (!IsModeParamValid(user, targetchannel, targetuser, item))
+				continue;
+
+			// If this is a merge and we won we don't apply this mode
+			if ((flags & MODE_MERGE) && (!ShouldApplyMergedMode(targetchannel, item)))
 				continue;
 		}
 
