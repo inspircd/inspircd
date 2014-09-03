@@ -601,7 +601,15 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 		 * and not send it to other servers. The mode change will be processed
 		 * locally and sent to local user(s) as usual.
 		 */
-		MODE_LOCALONLY = 2
+		MODE_LOCALONLY = 2,
+
+		/** If this flag is set then the mode change will be subject to access checks.
+		 * For more information see the documentation of the PrefixMode class,
+		 * ModeHandler::levelrequired and ModeHandler::AccessCheck().
+		 * Modules may explicitly allow a mode change regardless of this flag by returning
+		 * MOD_RES_ALLOW from the OnPreMode hook. Only affects channel mode changes.
+		 */
+		MODE_CHECKACCESS = 4
 	};
 
 	ModeParser();

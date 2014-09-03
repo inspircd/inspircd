@@ -388,17 +388,23 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
 
-	bool SkipAccessChecks = false;
-
-	if (!IS_LOCAL(user) || MOD_RESULT == MOD_RES_ALLOW)
-		SkipAccessChecks = true;
-	else if (MOD_RESULT == MOD_RES_DENY)
-		return;
-
-	if (targetuser && !SkipAccessChecks && user != targetuser)
+	if (IS_LOCAL(user))
 	{
-		user->WriteNumeric(ERR_USERSDONTMATCH, ":Can't change mode for other users");
-		return;
+		if (MOD_RESULT == MOD_RES_PASSTHRU)
+		{
+			if ((targetuser) && (user != targetuser))
+			{
+				// Local users may only change the modes of other users if a module explicitly allows it
+				user->WriteNumeric(ERR_USERSDONTMATCH, ":Can't change mode for other users");
+				return;
+			}
+
+			// This is a mode change by a local user and modules didn't explicitly allow/deny.
+			// Ensure access checks will happen for each mode being changed.
+			flags |= MODE_CHECKACCESS;
+		}
+		else if (MOD_RESULT == MOD_RES_DENY)
+			return; // Entire mode change denied by a module
 	}
 
 	const std::string& mode_sequence = parameters[1];
@@ -450,7 +456,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			}
 		}
 
-		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, modechar, parameter, SkipAccessChecks);
+		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, modechar, parameter, (!(flags & MODE_CHECKACCESS)));
 
 		if (ma != MODEACTION_ALLOW)
 			continue;
