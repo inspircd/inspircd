@@ -436,19 +436,9 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		}
 
 		std::string parameter;
-		int pcnt = mh->GetNumParams(adding);
-		if (pcnt && param_at == parameters.size())
-		{
-			/* No parameter, continue to the next mode */
-			mh->OnParameterMissing(user, targetuser, targetchannel);
-			continue;
-		}
-		else if (pcnt)
+		if (mh->GetNumParams(adding) && param_at < parameters.size())
 		{
 			parameter = parameters[param_at++];
-			/* Make sure the user isn't trying to slip in an invalid parameter */
-			if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
-				continue;
 			if ((flags & MODE_MERGE) && targetchannel && targetchannel->IsModeSet(mh) && !mh->IsListMode())
 			{
 				std::string ours = targetchannel->GetModeParameter(mh);
@@ -472,6 +462,22 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	}
 }
 
+static bool IsModeParamValid(User* user, Channel* targetchannel, User* targetuser, const Modes::Change& item)
+{
+	// An empty parameter is never acceptable
+	if (item.param.empty())
+	{
+		item.mh->OnParameterMissing(user, targetuser, targetchannel);
+		return false;
+	}
+
+	// The parameter cannot begin with a ':' character or contain a space
+	if ((item.param[0] == ':') || (item.param.find(' ') != std::string::npos))
+		return false;
+
+	return true;
+}
+
 void ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags)
 {
 	LastParse.clear();
@@ -486,7 +492,16 @@ void ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetu
 	{
 		Modes::Change& item = *i;
 		ModeHandler* mh = item.mh;
-		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, modechar, parameter, (!(flags & MODE_CHECKACCESS)));
+
+		// If the mode is supposed to have a parameter then we first take a look at item.param
+		if (mh->GetNumParams(item.adding))
+		{
+			// Skip the mode if the parameter does not pass basic validation
+			if (!IsModeParamValid(user, targetchannel, targetuser, item))
+				continue;
+		}
+
+		ModeAction ma = TryMode(user, targetuser, targetchannel, item, (!(flags & MODE_CHECKACCESS)));
 
 		if (ma != MODEACTION_ALLOW)
 			continue;
