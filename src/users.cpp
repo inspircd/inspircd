@@ -449,21 +449,15 @@ void User::UnOper()
 
 
 	/* Remove all oper only modes from the user when the deoper - Bug #466*/
-	std::string moderemove("-");
-
+	Modes::ChangeList changelist;
 	for (unsigned char letter = 'A'; letter <= 'z'; letter++)
 	{
 		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
 		if (mh && mh->NeedsOper())
-			moderemove += letter;
+			changelist.push_remove(mh);
 	}
 
-
-	std::vector<std::string> parameters;
-	parameters.push_back(this->nick);
-	parameters.push_back(moderemove);
-
-	ServerInstance->Modes->Process(parameters, this);
+	ServerInstance->Modes->Process(this, NULL, this, changelist);
 
 	// Remove the user from the oper list
 	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);

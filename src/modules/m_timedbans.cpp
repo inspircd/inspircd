@@ -71,17 +71,15 @@ class CommandTban : public Command
 			return CMD_FAILURE;
 		}
 		std::string mask = parameters[2];
-		std::vector<std::string> setban;
-		setban.push_back(parameters[0]);
-		setban.push_back("+b");
 		bool isextban = ((mask.size() > 2) && (mask[1] == ':'));
 		if (!isextban && !InspIRCd::IsValidMask(mask))
 			mask.append("!*@*");
 
-		setban.push_back(mask);
+		Modes::ChangeList setban;
+		setban.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
 		// Pass the user (instead of ServerInstance->FakeClient) to ModeHandler::Process() to
 		// make it so that the user sets the mode themselves
-		ServerInstance->Modes->Process(setban, user);
+		ServerInstance->Modes->Process(user, channel, NULL, setban);
 		if (ServerInstance->Modes->GetLastParse().empty())
 		{
 			user->WriteNotice("Invalid ban mask");
@@ -169,17 +167,14 @@ class ModuleTimedBans : public Module
 			Channel* cr = ServerInstance->FindChan(chan);
 			if (cr)
 			{
-				std::vector<std::string> setban;
-				setban.push_back(chan);
-				setban.push_back("-b");
-				setban.push_back(mask);
-
 				CUList empty;
 				std::string expiry = "*** Timed ban on " + chan + " expired.";
 				cr->WriteAllExcept(ServerInstance->FakeClient, true, '@', empty, "NOTICE %s :%s", cr->name.c_str(), expiry.c_str());
 				ServerInstance->PI->SendChannelNotice(cr, '@', expiry);
 
-				ServerInstance->Modes->Process(setban, ServerInstance->FakeClient);
+				Modes::ChangeList setban;
+				setban.push_remove(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), mask);
+				ServerInstance->Modes->Process(ServerInstance->FakeClient, cr, NULL, setban);
 			}
 		}
 	}

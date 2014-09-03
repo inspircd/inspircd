@@ -60,7 +60,7 @@ class CommandRMode : public Command
 		PrefixMode* pm;
 		ListModeBase* lm;
 		ListModeBase::ModeList* ml;
-		irc::modestacker modestack(false);
+		Modes::ChangeList changelist;
 
 		if ((pm = mh->IsPrefixMode()))
 		{
@@ -71,7 +71,7 @@ class CommandRMode : public Command
 				if (!InspIRCd::Match(it->first->nick, pattern))
 					continue;
 				if (it->second->hasMode(modeletter) && !((it->first == user) && (pm->GetPrefixRank() > VOICE_VALUE)))
-					modestack.Push(modeletter, it->first->nick);
+					changelist.push_remove(mh, it->first->nick);
 			}
 		}
 		else if ((lm = mh->IsListModeBase()) && ((ml = lm->GetList(chan)) != NULL))
@@ -80,23 +80,16 @@ class CommandRMode : public Command
 			{
 				if (!InspIRCd::Match(it->mask, pattern))
 					continue;
-				modestack.Push(modeletter, it->mask);
+				changelist.push_remove(mh, it->mask);
 			}
 		}
 		else
 		{
 			if (chan->IsModeSet(mh))
-				modestack.Push(modeletter);
+				changelist.push_remove(mh);
 		}
 
-		parameterlist stackresult;
-		stackresult.push_back(chan->name);
-		while (modestack.GetStackedLine(stackresult))
-		{
-			ServerInstance->Modes->Process(stackresult, user);
-			stackresult.erase(stackresult.begin() + 1, stackresult.end());
-		}
-
+		ServerInstance->Modes->Process(user, chan, NULL, changelist);
 		return CMD_SUCCESS;
 	}
 };

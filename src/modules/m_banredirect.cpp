@@ -238,26 +238,16 @@ class ModuleBanRedirect : public Module
 
 			if(redirects)
 			{
-				irc::modestacker modestack(false);
+				ModeHandler* ban = ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL);
+				Modes::ChangeList changelist;
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
-				{
-					modestack.Push('b', i->targetchan.insert(0, i->banmask));
-				}
+					changelist.push_remove(ban, i->targetchan.insert(0, i->banmask));
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
-				{
-					modestack.PushPlus();
-					modestack.Push('b', i->banmask);
-				}
+					changelist.push_add(ban, i->banmask);
 
-				std::vector<std::string> stackresult;
-				stackresult.push_back(chan->name);
-				while (modestack.GetStackedLine(stackresult))
-				{
-					ServerInstance->Modes->Process(stackresult, ServerInstance->FakeClient, ModeParser::MODE_LOCALONLY);
-					stackresult.erase(stackresult.begin() + 1, stackresult.end());
-				}
+				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
 			}
 		}
 	}

@@ -74,16 +74,10 @@ class ModuleOperPrefixMode : public Module
 
 	void SetOperPrefix(User* user, bool add)
 	{
-		std::vector<std::string> modechange;
-		modechange.push_back("");
-		modechange.push_back(add ? "+" : "-");
-		modechange[1].push_back(opm.GetModeChar());
-		modechange.push_back(user->nick);
+		Modes::ChangeList changelist;
+		changelist.push(&opm, add, user->nick);
 		for (User::ChanList::iterator v = user->chans.begin(); v != user->chans.end(); v++)
-		{
-			modechange[0] = (*v)->chan->name;
-			ServerInstance->Modes->Process(modechange, ServerInstance->FakeClient);
-		}
+			ServerInstance->Modes->Process(ServerInstance->FakeClient, (*v)->chan, NULL, changelist);
 	}
 
 	void OnPostOper(User* user, const std::string& opername, const std::string& opertype) CXX11_OVERRIDE

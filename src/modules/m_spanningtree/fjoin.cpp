@@ -113,10 +113,9 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	}
 
 	/* First up, apply their channel modes if they won the TS war */
+	Modes::ChangeList modechangelist;
 	if (apply_other_sides_modes)
 	{
-		// Need to use a modestacker here due to maxmodes
-		irc::modestacker stack(true);
 		std::vector<std::string>::const_iterator paramit = params.begin() + 3;
 		const std::vector<std::string>::const_iterator lastparamit = ((params.size() > 3) ? (params.end() - 1) : params.end());
 		for (std::string::const_iterator i = params[2].begin(); i != params[2].end(); ++i)
@@ -132,41 +131,33 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 				++paramit;
 			}
 
-			stack.Push(*i, modeparam);
+			modechangelist.push_add(mh, modeparam);
 		}
 
-		std::vector<std::string> modelist;
-
-		// Mode parser needs to know what channel to act on.
-		modelist.push_back(params[0]);
-
-		while (stack.GetStackedLine(modelist))
-		{
-			ServerInstance->Modes->Process(modelist, srcuser, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
-			modelist.erase(modelist.begin() + 1, modelist.end());
-		}
+		ServerInstance->Modes->Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
+		// Reuse for prefix modes
+		modechangelist.clear();
 	}
 
-	irc::modestacker modestack(true);
 	TreeServer* const sourceserver = TreeServer::Get(srcuser);
 
 	/* Now, process every 'modes,uuid' pair */
 	irc::tokenstream users(params.back());
 	std::string item;
-	irc::modestacker* modestackptr = (apply_other_sides_modes ? &modestack : NULL);
+	Modes::ChangeList* modechangelistptr = (apply_other_sides_modes ? &modechangelist : NULL);
 	while (users.GetToken(item))
 	{
-		ProcessModeUUIDPair(item, sourceserver, chan, modestackptr);
+		ProcessModeUUIDPair(item, sourceserver, chan, modechangelistptr);
 	}
 
-	/* Flush mode stacker if we lost the FJOIN or had equal TS */
+	// Set prefix modes on their users if we lost the FJOIN or had equal TS
 	if (apply_other_sides_modes)
-		CommandFJoin::ApplyModeStack(srcuser, chan, modestack);
+		ServerInstance->Modes->Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY);
 
 	return CMD_SUCCESS;
 }
 
-void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, irc::modestacker* modestack)
+void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist)
 {
 	std::string::size_type comma = item.find(',');
 
@@ -189,17 +180,18 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 	}
 
 	/* Check if the user received at least one mode */
-	if ((modestack) && (comma > 0) && (comma != std::string::npos))
+	if ((modechangelist) && (comma > 0) && (comma != std::string::npos))
 	{
 		/* Iterate through the modes and see if they are valid here, if so, apply */
 		std::string::const_iterator commait = item.begin()+comma;
 		for (std::string::const_iterator i = item.begin(); i != commait; ++i)
 		{
-			if (!ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL))
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
+			if (!mh)
 				throw ProtocolException("Unrecognised mode '" + std::string(1, *i) + "'");
 
 			/* Add any modes this user had to the mode stack */
-			modestack->Push(*i, who->nick);
+			modechangelist->push_add(mh, who->nick);
 		}
 	}
 

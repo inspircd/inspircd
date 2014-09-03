@@ -64,6 +64,8 @@ class ModuleChannelNames : public Module
 
 	void ValidateChans()
 	{
+		Modes::ChangeList removepermchan;
+
 		badchan = true;
 		const chan_hash& chans = ServerInstance->GetChans();
 		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); )
@@ -76,12 +78,11 @@ class ModuleChannelNames : public Module
 
 			if (c->IsModeSet(permchannelmode) && c->GetUserCounter())
 			{
-				std::vector<std::string> modes;
-				modes.push_back(c->name);
-				modes.push_back(std::string("-") + permchannelmode->GetModeChar());
-
-				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
+				removepermchan.clear();
+				removepermchan.push_remove(*permchannelmode);
+				ServerInstance->Modes->Process(ServerInstance->FakeClient, c, NULL, removepermchan);
 			}
+
 			Channel::MemberMap& users = c->userlist;
 			for (Channel::MemberMap::iterator j = users.begin(); j != users.end(); )
 			{

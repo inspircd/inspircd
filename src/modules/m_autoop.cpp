@@ -89,9 +89,7 @@ class ModuleAutoOp : public Module
 		ListModeBase::ModeList* list = mh.GetList(memb->chan);
 		if (list)
 		{
-			std::string modeline("+");
-			std::vector<std::string> modechange;
-			modechange.push_back(memb->chan->name);
+			Modes::ChangeList changelist;
 			for (ListModeBase::ModeList::iterator it = list->begin(); it != list->end(); it++)
 			{
 				std::string::size_type colon = it->mask.find(':');
@@ -101,14 +99,10 @@ class ModuleAutoOp : public Module
 				{
 					PrefixMode* given = mh.FindMode(it->mask.substr(0, colon));
 					if (given)
-						modeline.push_back(given->GetModeChar());
+						changelist.push_add(given, memb->user->nick);
 				}
 			}
-			modechange.push_back(modeline);
-			for(std::string::size_type i = modeline.length(); i > 1; --i) // we use "i > 1" instead of "i" so we skip the +
-				modechange.push_back(memb->user->nick);
-			if(modechange.size() >= 3)
-				ServerInstance->Modes->Process(modechange, ServerInstance->FakeClient);
+			ServerInstance->Modes->Process(ServerInstance->FakeClient, memb->chan, NULL, changelist);
 		}
 	}
 
