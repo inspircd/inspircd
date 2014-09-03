@@ -495,9 +495,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		LastParse.append(output_mode);
 		LastParse.append(output_parameters);
 
-		if (!(flags & MODE_LOCALONLY))
-			ServerInstance->PI->SendMode(user, targetuser, targetchannel, LastParseParams, LastParseTranslate);
-
 		if (targetchannel)
 			targetchannel->WriteChannel(user, "MODE " + LastParse);
 		else

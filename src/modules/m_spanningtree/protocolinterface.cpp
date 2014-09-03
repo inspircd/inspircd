@@ -107,10 +107,6 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	CommandFTopic::Builder(ServerInstance->FakeClient, channel).Broadcast();
 }
 
-void SpanningTreeProtocolInterface::SendMode(User* source, User* u, Channel* c, const std::vector<std::string>& modedata, const std::vector<TranslateType>& translate)
-{
-}
-
 void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::string &text)
 {
 	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();
