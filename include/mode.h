@@ -681,7 +681,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	void Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags = MODE_NONE);
 
 	/** Process a single MODE line's worth of mode changes, taking max modes and line length limits
-	 * into consideration.
+	 * into consideration. Return value indicates how many modes were processed.
 	 * @param user The source of the mode change, can be a server user.
 	 * @param targetchannel Channel to apply the mode change on. NULL if changing modes on a channel.
 	 * @param targetuser User to apply the mode change on. NULL if changing modes on a user.
@@ -689,8 +689,11 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * the entire list due to MODE line length and max modes limitations.
 	 * @param flags Optional flags controlling how the mode change is processed,
 	 * defaults to MODE_NONE.
+	 * @param beginindex Index of the first element in changelist to process. Mode changes before
+	 * the element with this index are ignored.
+	 * @return Number of mode changes processed from changelist.
 	 */
-	void ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE);
+	unsigned int ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE, unsigned int beginindex = 0);
 
 	/** Turn a list of parameters compatible with the format of the MODE command into
 	 * Modes::ChangeList form. All modes are processed, regardless of max modes. Unknown modes

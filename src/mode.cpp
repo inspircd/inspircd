@@ -486,18 +486,21 @@ static bool ShouldApplyMergedMode(Channel* chan, Modes::Change& item)
 	return mh->ResolveModeConflict(item.param, ours, chan);
 }
 
-void ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags)
+unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags, unsigned int beginindex)
 {
 	LastParse.clear();
 	LastChangeList.clear();
 
+	unsigned int modes_processed = 0;
 	std::string output_mode;
 	std::string output_parameters;
 
 	char output_pm = '\0'; // current output state, '+' or '-'
 	Modes::ChangeList::List& list = changelist.getlist();
-	for (Modes::ChangeList::List::iterator i = list.begin(); i != list.end(); ++i)
+	for (Modes::ChangeList::List::iterator i = list.begin()+beginindex; i != list.end(); ++i)
 	{
+		modes_processed++;
+
 		Modes::Change& item = *i;
 		ModeHandler* mh = item.mh;
 
@@ -557,6 +560,8 @@ void ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetu
 
 		FOREACH_MOD(OnMode, (user, targetuser, targetchannel, LastChangeList, flags, output_mode));
 	}
+
+	return modes_processed;
 }
 
 void ModeParser::DisplayListModes(User* user, Channel* chan, const std::string& mode_sequence)
