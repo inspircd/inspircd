@@ -111,11 +111,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	Id modeid;
 
  protected:
-	/**
-	 * The mode parameter translation type
-	 */
-	TranslateType m_paramtype;
-
 	/** What kind of parameters does the mode take?
 	 */
 	ParamSpec parameters_taken;
@@ -200,10 +195,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * Returns the mode's type
 	 */
 	inline ModeType GetModeType() const { return m_type; }
-	/**
-	 * Returns the mode's parameter translation type
-	 */
-	inline TranslateType GetTranslateType() const { return m_paramtype; }
 	/**
 	 * Returns true if the mode can only be set/unset by an oper
 	 */

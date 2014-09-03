@@ -27,7 +27,7 @@
 #include "builtinmodes.h"
 
 ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modeletter, ParamSpec Params, ModeType type, Class mclass)
-	: ServiceProvider(Creator, Name, SERVICE_MODE), modeid(ModeParser::MODEID_MAX), m_paramtype(TR_TEXT),
+	: ServiceProvider(Creator, Name, SERVICE_MODE), modeid(ModeParser::MODEID_MAX),
 	parameters_taken(Params), mode(modeletter), oper(false),
 	list(false), m_type(type), type_id(mclass), levelrequired(HALFOP_VALUE)
 {
@@ -187,7 +187,6 @@ PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter
 	, prefix(PrefixChar), prefixrank(Rank)
 {
 	list = true;
-	m_paramtype = TR_NICK;
 }
 
 ModeAction PrefixMode::OnModeChange(User* source, User*, Channel* chan, std::string& parameter, bool adding)
