@@ -479,7 +479,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 		if ((output_mode.length() + output_parameters.length() > 450)
 				|| (output_mode.length() > 100)
-				|| (LastParseParams.size() > ServerInstance->Config->Limits.MaxModes))
+				|| (LastChangeList.size() >= ServerInstance->Config->Limits.MaxModes))
 		{
 			/* mode sequence is getting too long */
 			break;
