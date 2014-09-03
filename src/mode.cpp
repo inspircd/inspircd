@@ -375,6 +375,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	LastParse.clear();
 	LastParseParams.clear();
 	LastParseTranslate.clear();
+	LastChangeList.clear();
 
 	if ((!targetchannel) && ((!targetuser) || (IS_SERVER(targetuser))))
 	{
@@ -474,6 +475,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			LastParseParams.push_back(parameter);
 			LastParseTranslate.push_back(mh->GetTranslateType());
 		}
+		LastChangeList.push(mh, adding, parameter);
 
 		if ((output_mode.length() + output_parameters.length() > 450)
 				|| (output_mode.length() > 100)

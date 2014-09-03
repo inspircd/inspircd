@@ -535,6 +535,10 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 */
 	std::multimap<std::string, ModeWatcher*> modewatchermap;
 
+	/** Last processed mode change
+	 */
+	Modes::ChangeList LastChangeList;
+
 	/** Displays the current modes of a channel or user.
 	 * Used by ModeParser::Process.
 	 */
