@@ -608,8 +608,8 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 		 */
 		MODE_MERGE = 1,
 
-		/** If this flag is set then the mode change won't be handed over to
-		 * the linking module to be sent to other servers, but will be processed
+		/** If this flag is set then the linking module will ignore the mode change
+		 * and not send it to other servers. The mode change will be processed
 		 * locally and sent to local user(s) as usual.
 		 */
 		MODE_LOCALONLY = 2
