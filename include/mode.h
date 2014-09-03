@@ -294,9 +294,9 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * so if you inherit from it or your mode can be removed by the default implementation then you do not have to implement
 	 * this function).
 	 * @param channel The channel which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
+	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
+	virtual void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
 
 	inline unsigned int GetLevelRequired() const { return levelrequired; }
 
@@ -359,9 +359,9 @@ class CoreExport PrefixMode : public ModeHandler
 	/**
 	 * Removes this prefix mode from all users on the given channel
 	 * @param chan The channel which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
+	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	void RemoveMode(Channel* chan, irc::modestacker& stack);
+	void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
 
 	/**
 	 * Mode prefix or 0. If this is defined, you should

@@ -209,7 +209,7 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 
 void CommandFJoin::RemoveStatus(Channel* c)
 {
-	irc::modestacker stack(false);
+	Modes::ChangeList changelist;
 
 	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
 	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
@@ -220,10 +220,10 @@ void CommandFJoin::RemoveStatus(Channel* c)
 		 * rather than applied immediately. Module unloads require this to be done immediately,
 		 * for this function we require tidyness instead. Fixes bug #493
 		 */
-		mh->RemoveMode(c, stack);
+		mh->RemoveMode(c, changelist);
 	}
 
-	ApplyModeStack(ServerInstance->FakeClient, c, stack);
+	ServerInstance->Modes->Process(ServerInstance->FakeClient, c, NULL, changelist, ModeParser::MODE_LOCALONLY);
 }
 
 void CommandFJoin::ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack)

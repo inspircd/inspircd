@@ -778,16 +778,9 @@ bool ModeParser::DelMode(ModeHandler* mh)
 				Channel* chan = i->second;
 				++i;
 
-				irc::modestacker stack(false);
-				mh->RemoveMode(chan, stack);
-
-				std::vector<std::string> stackresult;
-				stackresult.push_back(chan->name);
-				while (stack.GetStackedLine(stackresult))
-				{
-					this->Process(stackresult, ServerInstance->FakeClient, MODE_LOCALONLY);
-					stackresult.erase(stackresult.begin() + 1, stackresult.end());
-				}
+				Modes::ChangeList changelist;
+				mh->RemoveMode(chan, changelist);
+				this->Process(ServerInstance->FakeClient, chan, NULL, changelist, MODE_LOCALONLY);
 			}
 		}
 		break;
@@ -959,33 +952,31 @@ void ModeHandler::RemoveMode(User* user)
 	// Remove the mode if it's set on the user
 	if (user->IsModeSet(this->GetModeChar()))
 	{
-		std::vector<std::string> parameters;
-		parameters.push_back(user->nick);
-		parameters.push_back("-");
-		parameters[1].push_back(this->GetModeChar());
-		ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient, ModeParser::MODE_LOCALONLY);
+		Modes::ChangeList changelist;
+		changelist.push_remove(this);
+		ServerInstance->Modes->Process(ServerInstance->FakeClient, NULL, user, changelist, ModeParser::MODE_LOCALONLY);
 	}
 }
 
-void ModeHandler::RemoveMode(Channel* channel, irc::modestacker& stack)
+void ModeHandler::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 {
 	if (channel->IsModeSet(this))
 	{
 		if (this->GetNumParams(false))
 			// Removing this mode requires a parameter
-			stack.Push(this->GetModeChar(), channel->GetModeParameter(this));
+			changelist.push_remove(this, channel->GetModeParameter(this));
 		else
-			stack.Push(this->GetModeChar());
+			changelist.push_remove(this);
 	}
 }
 
-void PrefixMode::RemoveMode(Channel* chan, irc::modestacker& stack)
+void PrefixMode::RemoveMode(Channel* chan, Modes::ChangeList& changelist)
 {
 	const Channel::MemberMap& userlist = chan->GetUsers();
 	for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
 	{
 		if (i->second->hasMode(this->GetModeChar()))
-			stack.Push(this->GetModeChar(), i->first->nick);
+			changelist.push_remove(this, i->first->nick);
 	}
 }
 

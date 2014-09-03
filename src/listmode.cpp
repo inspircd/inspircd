@@ -45,14 +45,14 @@ void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
 }
 
-void ListModeBase::RemoveMode(Channel* channel, irc::modestacker& stack)
+void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 {
 	ChanData* cd = extItem.get(channel);
 	if (cd)
 	{
 		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
 		{
-			stack.Push(this->GetModeChar(), it->mask);
+			changelist.push_remove(this, it->mask);
 		}
 	}
 }
