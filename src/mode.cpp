@@ -390,6 +390,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 	// Populate a temporary Modes::ChangeList with the parameters
 	Modes::ChangeList changelist;
+	ModeParamsToChangeList(user, type, parameters, changelist);
 
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
@@ -413,6 +414,19 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			return; // Entire mode change denied by a module
 	}
 
+	ProcessSingle(user, targetchannel, targetuser, changelist, flags);
+
+	if ((LastParse.empty()) && (targetchannel) && (parameters.size() == 2))
+	{
+		/* Special case for displaying the list for listmodes,
+		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
+		 */
+		this->DisplayListModes(user, targetchannel, parameters[1]);
+	}
+}
+
+void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist)
+{
 	const std::string& mode_sequence = parameters[1];
 
 	bool adding = true;
@@ -440,16 +454,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			parameter = parameters[param_at++];
 
 		changelist.push(mh, adding, parameter);
-	}
-
-	ProcessSingle(user, targetchannel, targetuser, changelist, flags);
-
-	if ((LastParse.empty()) && (targetchannel) && (parameters.size() == 2))
-	{
-		/* Special case for displaying the list for listmodes,
-		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
-		 */
-		this->DisplayListModes(user, targetchannel, mode_sequence);
 	}
 }
 

@@ -692,6 +692,19 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 */
 	void ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE);
 
+	/** Turn a list of parameters compatible with the format of the MODE command into
+	 * Modes::ChangeList form. All modes are processed, regardless of max modes. Unknown modes
+	 * are skipped.
+	 * @param user The source of the mode change, can be a server user. Error numerics are sent to
+	 * this user.
+	 * @param type MODETYPE_USER if this is a user mode change or MODETYPE_CHANNEL if this
+	 * is a channel mode change.
+	 * @param parameters List of strings describing the mode change to convert to a ChangeList.
+	 * Must be using the same format as the parameters of a MODE command.
+ 	 * @param changelist ChangeList object to populate.
+	 */
+	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist);
+
 	/** Find the mode handler for a given mode name and type.
 	 * @param modename The mode name to search for.
 	 * @param mt Type of mode to search for, user or channel.
