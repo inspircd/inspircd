@@ -503,7 +503,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		else
 			targetuser->WriteFrom(user, "MODE " + LastParse);
 
-		FOREACH_MOD(OnMode, (user, targetuser, targetchannel, LastParseParams, LastParseTranslate));
+		FOREACH_MOD(OnMode, (user, targetuser, targetchannel, LastChangeList, flags, output_mode));
 	}
 	else if (targetchannel && parameters.size() == 2)
 	{

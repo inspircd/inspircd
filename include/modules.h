@@ -598,15 +598,16 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Called after every MODE command sent from a user
 	 * Either the usertarget or the chantarget variable contains the target of the modes,
 	 * the actual target will have a non-NULL pointer.
-	 * The modes vector contains the remainder of the mode string after the target,
-	 * e.g.: "+wsi" or ["+ooo", "nick1", "nick2", "nick3"].
+	 * All changed modes are available in the changelist object.
 	 * @param user The user sending the MODEs
 	 * @param usertarget The target user of the modes, NULL if the target is a channel
 	 * @param chantarget The target channel of the modes, NULL if the target is a user
-	 * @param modes The actual modes and their parameters if any
-	 * @param translate The translation types of the mode parameters
+	 * @param changelist The changed modes.
+	 * @param processflags Flags passed to ModeParser::Process(), see ModeParser::ModeProcessFlags
+	 * for the possible flags.
+	 * @param output_mode Changed modes, including '+' and '-' characters, not including any parameters
 	 */
-	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const std::vector<std::string>& modes, const std::vector<TranslateType>& translate);
+	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags, const std::string& output_mode);
 
 	/** Allows modules to synchronize data which relates to users during a netburst.
 	 * When this function is called, it will be called from the module which implements
