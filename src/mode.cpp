@@ -486,6 +486,19 @@ static bool ShouldApplyMergedMode(Channel* chan, Modes::Change& item)
 	return mh->ResolveModeConflict(item.param, ours, chan);
 }
 
+void ModeParser::Process(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags)
+{
+	// Call ProcessSingle until the entire list is processed, but at least once to ensure
+	// LastParse and LastChangeList are cleared
+	unsigned int processed = 0;
+	do
+	{
+		unsigned int n = ProcessSingle(user, targetchannel, targetuser, changelist, flags, processed);
+		processed += n;
+	}
+	while (processed < changelist.size());
+}
+
 unsigned int ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags, unsigned int beginindex)
 {
 	LastParse.clear();
