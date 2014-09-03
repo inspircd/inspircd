@@ -23,6 +23,7 @@
 #pragma once
 
 #include "ctables.h"
+#include "modechange.h"
 
 /**
  * Holds the values for different type of modes
