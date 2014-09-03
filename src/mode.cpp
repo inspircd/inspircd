@@ -237,14 +237,15 @@ ModeAction ParamModeBase::OnModeChange(User* source, User*, Channel* chan, std::
 	return MODEACTION_ALLOW;
 }
 
-ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool adding, const unsigned char modechar,
-		std::string &parameter, bool SkipACL)
+ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Modes::Change& mcitem, bool SkipACL)
 {
 	ModeType type = chan ? MODETYPE_CHANNEL : MODETYPE_USER;
 
-	ModeHandler *mh = FindMode(modechar, type);
+	ModeHandler* mh = mcitem.mh;
+	bool adding = mcitem.adding;
 	int pcnt = mh->GetNumParams(adding);
 
+	std::string& parameter = mcitem.param;
 	// crop mode parameter size to 250 characters
 	if (parameter.length() > 250 && adding)
 		parameter = parameter.substr(0, 250);
@@ -254,6 +255,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, bool
 
 	if (IS_LOCAL(user) && (MOD_RESULT == MOD_RES_DENY))
 		return MODEACTION_DENY;
+
+	const char modechar = mh->GetModeChar();
 
 	if (chan && !SkipACL && (MOD_RESULT != MOD_RES_ALLOW))
 	{
@@ -385,6 +388,9 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		return;
 	}
 
+	// Populate a temporary Modes::ChangeList with the parameters
+	Modes::ChangeList changelist;
+
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
 
@@ -409,11 +415,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 	const std::string& mode_sequence = parameters[1];
 
-	std::string output_mode;
-	std::string output_parameters;
-
 	bool adding = true;
-	char output_pm = '\0'; // current output state, '+' or '-'
 	unsigned int param_at = 2;
 
 	for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
@@ -456,25 +458,53 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			}
 		}
 
+		changelist.push(mh, adding, parameter);
+	}
+
+	ProcessSingle(user, targetchannel, targetuser, changelist, flags);
+
+	if ((LastParse.empty()) && (targetchannel) && (parameters.size() == 2))
+	{
+		/* Special case for displaying the list for listmodes,
+		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
+		 */
+		this->DisplayListModes(user, targetchannel, mode_sequence);
+	}
+}
+
+void ModeParser::ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags)
+{
+	LastParse.clear();
+	LastChangeList.clear();
+
+	std::string output_mode;
+	std::string output_parameters;
+
+	char output_pm = '\0'; // current output state, '+' or '-'
+	Modes::ChangeList::List& list = changelist.getlist();
+	for (Modes::ChangeList::List::iterator i = list.begin(); i != list.end(); ++i)
+	{
+		Modes::Change& item = *i;
+		ModeHandler* mh = item.mh;
 		ModeAction ma = TryMode(user, targetuser, targetchannel, adding, modechar, parameter, (!(flags & MODE_CHECKACCESS)));
 
 		if (ma != MODEACTION_ALLOW)
 			continue;
 
-		char needed_pm = adding ? '+' : '-';
+		char needed_pm = item.adding ? '+' : '-';
 		if (needed_pm != output_pm)
 		{
 			output_pm = needed_pm;
 			output_mode.append(1, output_pm);
 		}
-		output_mode.append(1, modechar);
+		output_mode.push_back(mh->GetModeChar());
 
-		if (pcnt)
+		if (!item.param.empty())
 		{
 			output_parameters.push_back(' ');
-			output_parameters.append(parameter);
+			output_parameters.append(item.param);
 		}
-		LastChangeList.push(mh, adding, parameter);
+		LastChangeList.push(mh, item.adding, item.param);
 
 		if ((output_mode.length() + output_parameters.length() > 450)
 				|| (output_mode.length() > 100)
@@ -498,13 +528,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			targetuser->WriteFrom(user, "MODE " + LastParse);
 
 		FOREACH_MOD(OnMode, (user, targetuser, targetchannel, LastChangeList, flags, output_mode));
-	}
-	else if (targetchannel && parameters.size() == 2)
-	{
-		/* Special case for displaying the list for listmodes,
-		 * e.g. MODE #chan b, or MODE #chan +b without a parameter
-		 */
-		this->DisplayListModes(user, targetchannel, mode_sequence);
 	}
 }
 

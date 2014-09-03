@@ -542,7 +542,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	/**
 	 * Attempts to apply a mode change to a user or channel
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool SkipACL);
+	ModeAction TryMode(User* user, User* targu, Channel* targc, Modes::Change& mcitem, bool SkipACL);
 
 	/** Returns a list of user or channel mode characters.
 	 * Used for constructing the parts of the mode list in the 004 numeric.
@@ -679,6 +679,18 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * defaults to MODE_NONE.
 	 */
 	void Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags = MODE_NONE);
+
+	/** Process a single MODE line's worth of mode changes, taking max modes and line length limits
+	 * into consideration.
+	 * @param user The source of the mode change, can be a server user.
+	 * @param targetchannel Channel to apply the mode change on. NULL if changing modes on a channel.
+	 * @param targetuser User to apply the mode change on. NULL if changing modes on a user.
+ 	 * @param changelist Modes to change in form of a Modes::ChangeList. May not process
+	 * the entire list due to MODE line length and max modes limitations.
+	 * @param flags Optional flags controlling how the mode change is processed,
+	 * defaults to MODE_NONE.
+	 */
+	void ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE);
 
 	/** Find the mode handler for a given mode name and type.
 	 * @param modename The mode name to search for.
