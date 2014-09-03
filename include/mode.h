@@ -577,7 +577,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
 	 */
 	std::string LastParse;
-	std::vector<TranslateType> LastParseTranslate;
 
 	unsigned int sent[256];
 
@@ -641,7 +640,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @return Last parsed string, as seen by users.
 	 */
 	const std::string& GetLastParse() const { return LastParse; }
-	const std::vector<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
 
 	/** Add a mode to the mode parser.
 	 * Throws a ModuleException if the mode cannot be added.

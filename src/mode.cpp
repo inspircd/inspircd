@@ -373,7 +373,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
 
 	LastParse.clear();
-	LastParseTranslate.clear();
 	LastChangeList.clear();
 
 	if ((!targetchannel) && ((!targetuser) || (IS_SERVER(targetuser))))
@@ -407,7 +406,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 	std::string output_mode;
 	std::string output_parameters;
-	LastParseTranslate.push_back(TR_TEXT);
 
 	bool adding = true;
 	char output_pm = '\0'; // current output state, '+' or '-'
@@ -470,7 +468,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		{
 			output_parameters.push_back(' ');
 			output_parameters.append(parameter);
-			LastParseTranslate.push_back(mh->GetTranslateType());
 		}
 		LastChangeList.push(mh, adding, parameter);
 
