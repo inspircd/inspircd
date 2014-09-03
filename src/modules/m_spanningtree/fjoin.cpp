@@ -226,18 +226,6 @@ void CommandFJoin::RemoveStatus(Channel* c)
 	ServerInstance->Modes->Process(ServerInstance->FakeClient, c, NULL, changelist, ModeParser::MODE_LOCALONLY);
 }
 
-void CommandFJoin::ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack)
-{
-	parameterlist stackresult;
-	stackresult.push_back(c->name);
-
-	while (stack.GetStackedLine(stackresult))
-	{
-		ServerInstance->Modes->Process(stackresult, srcuser, ModeParser::MODE_LOCALONLY);
-		stackresult.erase(stackresult.begin() + 1, stackresult.end());
-	}
-}
-
 void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 {
 	if (Utils->AnnounceTSChange)

@@ -120,7 +120,6 @@ class CommandFJoin : public ServerCommand
 	 * This does not update the timestamp of the target channel, this must be done seperately.
 	 */
 	static void RemoveStatus(Channel* c);
-	static void ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack);
 
 	/**
 	 * Lowers the TS on the given channel: removes all modes, unsets all extensions,
