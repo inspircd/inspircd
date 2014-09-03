@@ -373,7 +373,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	ModeType type = targetchannel ? MODETYPE_CHANNEL : MODETYPE_USER;
 
 	LastParse.clear();
-	LastParseParams.clear();
 	LastParseTranslate.clear();
 	LastChangeList.clear();
 
@@ -408,7 +407,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 
 	std::string output_mode;
 	std::string output_parameters;
-	LastParseParams.push_back(output_mode);
 	LastParseTranslate.push_back(TR_TEXT);
 
 	bool adding = true;
@@ -472,7 +470,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 		{
 			output_parameters.push_back(' ');
 			output_parameters.append(parameter);
-			LastParseParams.push_back(parameter);
 			LastParseTranslate.push_back(mh->GetTranslateType());
 		}
 		LastChangeList.push(mh, adding, parameter);
@@ -485,8 +482,6 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 			break;
 		}
 	}
-
-	LastParseParams[0] = output_mode;
 
 	if (!output_mode.empty())
 	{
