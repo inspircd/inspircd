@@ -41,16 +41,15 @@ CmdResult CommandFMode::Handle(User* who, std::vector<std::string>& params)
 
 	/* TS is equal or less: Merge the mode changes into ours and pass on.
 	 */
-	std::vector<std::string> modelist;
-	modelist.reserve(params.size()-1);
-	/* Insert everything into modelist except the TS (params[1]) */
-	modelist.push_back(params[0]);
-	modelist.insert(modelist.end(), params.begin()+2, params.end());
+
+	// Turn modes into a Modes::ChangeList; may have more elements than max modes
+	Modes::ChangeList changelist;
+	ServerInstance->Modes.ModeParamsToChangeList(who, MODETYPE_CHANNEL, params, changelist, 2);
 
 	ModeParser::ModeProcessFlag flags = ModeParser::MODE_LOCALONLY;
 	if ((TS == ourTS) && IS_SERVER(who))
 		flags |= ModeParser::MODE_MERGE;
 
-	ServerInstance->Modes->Process(modelist, who, flags);
+	ServerInstance->Modes->Process(who, chan, NULL, changelist, flags);
 	return CMD_SUCCESS;
 }
