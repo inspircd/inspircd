@@ -60,7 +60,7 @@ class ModuleModesOnOper : public Module
 		while (ss >> buf)
 			modes.push_back(buf);
 
-		ServerInstance->Modes->Process(modes, u);
+		ServerInstance->Parser.CallHandler("MODE", modes, u);
 	}
 };
 

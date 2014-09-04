@@ -43,7 +43,7 @@ class CommandDevoice : public Command
 		modes.push_back("-v");
 		modes.push_back(user->nick);
 
-		ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
+		ServerInstance->Parser.CallHandler("MODE", modes, ServerInstance->FakeClient);
 		return CMD_SUCCESS;
 	}
 };

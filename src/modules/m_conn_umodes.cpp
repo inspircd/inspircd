@@ -58,7 +58,7 @@ class ModuleModesOnConnect : public Module
 			while (ss >> buf)
 				modes.push_back(buf);
 
-			ServerInstance->Modes->Process(modes, user);
+			ServerInstance->Parser.CallHandler("MODE", modes, user);
 		}
 
 		memcpy(ServerInstance->Config->DisabledUModes, save, 64);

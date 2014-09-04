@@ -53,7 +53,7 @@ class CommandSamode : public Command
 				return CMD_FAILURE;
 		}
 		this->active = true;
-		ServerInstance->Modes->Process(parameters, user);
+		ServerInstance->Parser.CallHandler("MODE", parameters, user);
 		if (ServerInstance->Modes->GetLastParse().length())
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
 		this->active = false;
