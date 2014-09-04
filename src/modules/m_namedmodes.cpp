@@ -47,17 +47,20 @@ class CommandProp : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
 	{
+		Channel* const chan = ServerInstance->FindChan(parameters[0]);
+		if (!chan)
+		{
+			src->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+
 		if (parameters.size() == 1)
 		{
-			Channel* chan = ServerInstance->FindChan(parameters[0]);
-			if (chan)
-				DisplayList(src, chan);
+			DisplayList(src, chan);
 			return CMD_SUCCESS;
 		}
 		unsigned int i = 1;
-		std::vector<std::string> modes;
-		modes.push_back(parameters[0]);
-		modes.push_back("");
+		Modes::ChangeList modes;
 		while (i < parameters.size())
 		{
 			std::string prop = parameters[i++];
@@ -68,16 +71,16 @@ class CommandProp : public Command
 			ModeHandler* mh = ServerInstance->Modes->FindMode(prop, MODETYPE_CHANNEL);
 			if (mh)
 			{
-				modes[1].push_back(plus ? '+' : '-');
-				modes[1].push_back(mh->GetModeChar());
 				if (mh->GetNumParams(plus))
 				{
 					if (i != parameters.size())
-						modes.push_back(parameters[i++]);
+						modes.push(mh, plus, parameters[i++]);
 				}
+				else
+					modes.push(mh, plus);
 			}
 		}
-		ServerInstance->Modes->Process(modes, src);
+		ServerInstance->Modes->ProcessSingle(src, chan, NULL, modes, ModeParser::MODE_CHECKACCESS);
 		return CMD_SUCCESS;
 	}
 };
