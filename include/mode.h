@@ -716,8 +716,12 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @param parameters List of strings describing the mode change to convert to a ChangeList.
 	 * Must be using the same format as the parameters of a MODE command.
  	 * @param changelist ChangeList object to populate.
+ 	 * @param beginindex Index of the first element that is part of the MODE list in the parameters
+ 	 * container. Defaults to 1.
+ 	 * @param endindex Index of the first element that is not part of the MODE list. By default,
+ 	 * the entire container is considered part of the MODE list.
 	 */
-	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist);
+	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, unsigned int beginindex = 1, unsigned int endindex = UINT_MAX);
 
 	/** Find the mode handler for a given mode name and type.
 	 * @param modename The mode name to search for.

@@ -425,12 +425,15 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	}
 }
 
-void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist)
+void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, unsigned int beginindex, unsigned int endindex)
 {
-	const std::string& mode_sequence = parameters[1];
+	if (endindex > parameters.size())
+		endindex = parameters.size();
+
+	const std::string& mode_sequence = parameters[beginindex];
 
 	bool adding = true;
-	unsigned int param_at = 2;
+	unsigned int param_at = beginindex+1;
 
 	for (std::string::const_iterator letter = mode_sequence.begin(); letter != mode_sequence.end(); letter++)
 	{
@@ -450,7 +453,7 @@ void ModeParser::ModeParamsToChangeList(User* user, ModeType type, const std::ve
 		}
 
 		std::string parameter;
-		if (mh->GetNumParams(adding) && param_at < parameters.size())
+		if (mh->GetNumParams(adding) && param_at < endindex)
 			parameter = parameters[param_at++];
 
 		changelist.push(mh, adding, parameter);
