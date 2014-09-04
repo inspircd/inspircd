@@ -786,6 +786,13 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @return A map of mode handlers of the given type
 	 */
 	const ModeHandlerMap& GetModes(ModeType mt) const { return modehandlersbyname[mt]; }
+
+	/** Show the list of a list mode to a user. Modules can deny the listing.
+     * @param user User to show the list to.
+     * @param chan Channel to show the list of.
+     * @param mh List mode to show the list of.
+     */
+	void ShowListModeList(User* user, Channel* chan, ModeHandler* mh);
 };
 
 inline const std::string& ModeParser::GetModeListFor004Numeric()

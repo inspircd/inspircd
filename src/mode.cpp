@@ -603,11 +603,19 @@ void ModeParser::DisplayListModes(User* user, Channel* chan, const std::string& 
 		if (!mh || !mh->IsListMode())
 			return;
 
+		ShowListModeList(user, chan, mh);
+	}
+}
+
+void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
+{
+	{
 		ModResult MOD_RESULT;
 		FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mh, "", true));
 		if (MOD_RESULT == MOD_RES_DENY)
-			continue;
+			return;
 
+		unsigned char mletter = mh->GetModeChar();
 		bool display = true;
 		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetPrefixValue(user) < HALFOP_VALUE))
 		{
