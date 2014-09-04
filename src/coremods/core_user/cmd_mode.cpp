@@ -84,7 +84,10 @@ CmdResult CommandMode::Handle(const std::vector<std::string>& parameters, User* 
 	else
 		flags |= ModeParser::MODE_LOCALONLY;
 
-	ServerInstance->Modes->ProcessSingle(user, targetchannel, targetuser, changelist, flags);
+	if (IS_LOCAL(user))
+		ServerInstance->Modes->ProcessSingle(user, targetchannel, targetuser, changelist, flags);
+	else
+		ServerInstance->Modes->Process(user, targetchannel, targetuser, changelist, flags);
 
 	if ((ServerInstance->Modes.GetLastParse().empty()) && (targetchannel) && (parameters.size() == 2))
 	{
