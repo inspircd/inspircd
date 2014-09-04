@@ -152,7 +152,7 @@ void ModeWatcher::AfterMode(User*, User*, Channel*, const std::string&, bool)
 {
 }
 
-void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text)
+void ModeParser::DisplayCurrentModes(User* user, User* targetuser, Channel* targetchannel)
 {
 	if (targetchannel)
 	{
@@ -384,7 +384,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	}
 	if (parameters.size() == 1)
 	{
-		this->DisplayCurrentModes(user, targetuser, targetchannel, target.c_str());
+		this->DisplayCurrentModes(user, targetuser, targetchannel);
 		return;
 	}
 

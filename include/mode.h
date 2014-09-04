@@ -533,7 +533,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	/** Displays the current modes of a channel or user.
 	 * Used by ModeParser::Process.
 	 */
-	void DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text);
+	void DisplayCurrentModes(User* user, User* targetuser, Channel* targetchannel);
 	/** Displays the value of a list mode
 	 * Used by ModeParser::Process.
 	 */
