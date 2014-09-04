@@ -62,6 +62,23 @@ class CommandAway : public Command
 	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 };
 
+class CommandMode : public Command
+{
+ public:
+	/** Constructor for mode.
+	 */
+	CommandMode(Module* parent);
+
+	/** Handle command.
+	 * @param parameters The parameters to the command
+	 * @param user The user issuing the command
+	 * @return A value from CmdResult to indicate command success or failure.
+	 */
+	CmdResult Handle(const std::vector<std::string>& parameters, User* user);
+
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
+};
+
 /** Handle /NICK.
  */
 class CommandNick : public SplitCommand
