@@ -718,9 +718,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param source the user making the mode change
 	 * @param dest the user destination of the umode change (NULL if a channel mode)
 	 * @param channel the channel destination of the mode change
-	 * @param parameters raw mode parameters; parameters[0] is the user/channel being changed
+	 * @param modes Modes being changed, can be edited
 	 */
-	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters);
+	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes);
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.

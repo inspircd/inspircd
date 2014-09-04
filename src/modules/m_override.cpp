@@ -35,14 +35,11 @@ class ModuleOverride : public Module
 	ChanModeReference key;
 	ChanModeReference limit;
 
-	static bool IsOverride(unsigned int userlevel, const std::string& modeline)
+	static bool IsOverride(unsigned int userlevel, const Modes::ChangeList::List& list)
 	{
-		for (std::string::const_iterator i = modeline.begin(); i != modeline.end(); ++i)
+		for (Modes::ChangeList::List::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
-			if (!mh)
-				continue;
-
+			ModeHandler* mh = i->mh;
 			if (mh->GetLevelRequired() > userlevel)
 				return true;
 		}
@@ -130,23 +127,42 @@ class ModuleOverride : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
 		if (!source->IsOper() || !IS_LOCAL(source))
 			return MOD_RES_PASSTHRU;
 
+		const Modes::ChangeList::List& list = modes.getlist();
 		unsigned int mode = channel->GetPrefixValue(source);
 
-		if (!IsOverride(mode, parameters[1]))
+		if (!IsOverride(mode, list))
 			return MOD_RES_PASSTHRU;
 
 		if (CanOverride(source, "MODE"))
 		{
-			std::string msg = source->nick+" overriding modes:";
-			for(unsigned int i=0; i < parameters.size(); i++)
-				msg += " " + parameters[i];
+			std::string msg = source->nick + " overriding modes: ";
+
+			// Construct a MODE string in the old format for sending it as a snotice
+			std::string params;
+			char pm = 0;
+			for (Modes::ChangeList::List::const_iterator i = list.begin(); i != list.end(); ++i)
+			{
+				const Modes::Change& item = *i;
+				if (!item.param.empty())
+					params.append(1, ' ').append(item.param);
+
+				char wanted_pm = (item.adding ? '+' : '-');
+				if (wanted_pm != pm)
+				{
+					pm = wanted_pm;
+					msg += pm;
+				}
+
+				msg += item.mh->GetModeChar();
+			}
+			msg += params;
 			ServerInstance->SNO->WriteGlobalSno('v',msg);
 			return MOD_RES_ALLOW;
 		}

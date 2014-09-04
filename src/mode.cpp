@@ -393,7 +393,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User* user,
 	ModeParamsToChangeList(user, type, parameters, changelist);
 
 	ModResult MOD_RESULT;
-	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, parameters));
+	FIRST_MOD_RESULT(OnPreMode, MOD_RESULT, (user, targetuser, targetchannel, changelist));
 
 	if (IS_LOCAL(user))
 	{
