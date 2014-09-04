@@ -116,24 +116,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	Modes::ChangeList modechangelist;
 	if (apply_other_sides_modes)
 	{
-		std::vector<std::string>::const_iterator paramit = params.begin() + 3;
-		const std::vector<std::string>::const_iterator lastparamit = ((params.size() > 3) ? (params.end() - 1) : params.end());
-		for (std::string::const_iterator i = params[2].begin(); i != params[2].end(); ++i)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
-			if (!mh)
-				continue;
-
-			std::string modeparam;
-			if ((paramit != lastparamit) && (mh->GetNumParams(true)))
-			{
-				modeparam = *paramit;
-				++paramit;
-			}
-
-			modechangelist.push_add(mh, modeparam);
-		}
-
+		ServerInstance->Modes.ModeParamsToChangeList(srcuser, MODETYPE_CHANNEL, params, modechangelist, 2, params.size() - 1);
 		ServerInstance->Modes->Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
 		// Reuse for prefix modes
 		modechangelist.clear();
