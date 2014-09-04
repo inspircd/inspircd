@@ -178,12 +178,7 @@ class ModuleServicesAccount : public Module
 	{
 		/* On nickchange, if they have +r, remove it */
 		if (user->IsModeSet(m5) && assign(user->nick) != oldnick)
-		{
-			std::vector<std::string> modechange;
-			modechange.push_back(user->nick);
-			modechange.push_back("-r");
-			ServerInstance->Modes->Process(modechange, ServerInstance->FakeClient, ModeParser::MODE_LOCALONLY);
-		}
+			m5.RemoveMode(user);
 	}
 
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype) CXX11_OVERRIDE
