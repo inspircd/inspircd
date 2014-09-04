@@ -64,6 +64,23 @@ class CommandAway : public Command
 
 class CommandMode : public Command
 {
+	unsigned int sent[256];
+	unsigned int seq;
+
+	/** Show the list of one or more list modes to a user.
+	 * @param user User to send to.
+	 * @param chan Channel whose lists to show.
+	 * @param mode_sequence Mode letters to show the lists of.
+	 */
+	void DisplayListModes(User* user, Channel* chan, const std::string& mode_sequence);
+
+	/** Show the current modes of a channel or a user to a user.
+	 * @param user User to show the modes to.
+	 * @param targetuser User whose modes to show. NULL if showing the modes of a channel.
+	 * @param targetchannel Channel whose modes to show. NULL if showing the modes of a user.
+	 */
+	void DisplayCurrentModes(User* user, User* targetuser, Channel* targetchannel);
+
  public:
 	/** Constructor for mode.
 	 */

@@ -709,7 +709,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnUserPostNick(User* user, const std::string &oldnick);
 
-	/** Called before any mode change, to allow a single access check for
+	/** Called before a mode change via the MODE command, to allow a single access check for
 	 * a full mode change (use OnRawMode to check individual modes)
 	 *
 	 * Returning MOD_RES_ALLOW will skip prefix level checks, but can be overridden by

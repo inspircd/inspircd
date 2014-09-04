@@ -530,15 +530,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 */
 	Modes::ChangeList LastChangeList;
 
-	/** Displays the current modes of a channel or user.
-	 * Used by ModeParser::Process.
-	 */
-	void DisplayCurrentModes(User* user, User* targetuser, Channel* targetchannel);
-	/** Displays the value of a list mode
-	 * Used by ModeParser::Process.
-	 */
-	void DisplayListModes(User* user, Channel* chan, const std::string& mode_sequence);
-
 	/**
 	 * Attempts to apply a mode change to a user or channel
 	 */
@@ -568,10 +559,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
 	 */
 	std::string LastParse;
-
-	unsigned int sent[256];
-
-	unsigned int seq;
 
 	/** Cached mode list for use in 004 numeric
 	 */
@@ -671,14 +658,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @return True if the ModeWatcher was deleted correctly
 	 */
 	bool DelModeWatcher(ModeWatcher* mw);
-	/** Process a set of mode changes from a server or user.
-	 * @param parameters The parameters of the mode change, in the format
-	 * they would be from a MODE command.
-	 * @param user The source of the mode change, can be a server user.
-	 * @param flags Optional flags controlling how the mode change is processed,
-	 * defaults to MODE_NONE.
-	 */
-	void Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags = MODE_NONE);
 
 	/** Process a list of mode changes entirely. If the mode changes do not fit into one MODE line
 	 * then multiple MODE lines are generated.

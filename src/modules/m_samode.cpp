@@ -52,11 +52,27 @@ class CommandSamode : public Command
 			if (!user->HasPrivPermission("users/samode-usermodes", true))
 				return CMD_FAILURE;
 		}
+
+		// XXX: Make ModeParser clear LastParse
+		Modes::ChangeList emptychangelist;
+		ServerInstance->Modes->ProcessSingle(ServerInstance->FakeClient, NULL, ServerInstance->FakeClient, emptychangelist);
+
 		this->active = true;
-		ServerInstance->Parser.CallHandler("MODE", parameters, user);
-		if (ServerInstance->Modes->GetLastParse().length())
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
+		CmdResult result = ServerInstance->Parser.CallHandler("MODE", parameters, user);
 		this->active = false;
+
+		if (result == CMD_SUCCESS)
+		{
+			// If lastparse is empty and the MODE command handler returned CMD_SUCCESS then
+			// the client queried the list of a listmode (e.g. /SAMODE #chan b), which was
+			// handled internally by the MODE command handler.
+			//
+			// Viewing the modes of a user or a channel can also result in CMD_SUCCESS, but
+			// that is not possible with /SAMODE because we require at least 2 parameters.
+			const std::string& lastparse = ServerInstance->Modes.GetLastParse();
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + (lastparse.empty() ? irc::stringjoiner(parameters) : lastparse));
+		}
+
 		return CMD_SUCCESS;
 	}
 };
