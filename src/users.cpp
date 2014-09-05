@@ -450,10 +450,11 @@ void User::UnOper()
 
 	/* Remove all oper only modes from the user when the deoper - Bug #466*/
 	Modes::ChangeList changelist;
-	for (unsigned char letter = 'A'; letter <= 'z'; letter++)
+	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes->GetModes(MODETYPE_USER);
+	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); ++i)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
-		if (mh && mh->NeedsOper())
+		ModeHandler* mh = i->second;
+		if (mh->NeedsOper())
 			changelist.push_remove(mh);
 	}
 
