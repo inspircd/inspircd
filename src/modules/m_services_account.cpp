@@ -148,6 +148,7 @@ class ModuleServicesAccount : public Module
  public:
 	ModuleServicesAccount() : m1(this), m2(this), m3(this), m4(this), m5(this),
 		accountname(this)
+		, checking_ban(false)
 	{
 	}
 
