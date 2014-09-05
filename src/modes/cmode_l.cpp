@@ -35,7 +35,11 @@ bool ModeChannelLimit::ResolveModeConflict(std::string &their_param, const std::
 
 ModeAction ModeChannelLimit::OnSet(User* user, Channel* chan, std::string& parameter)
 {
-	ext.set(chan, ConvToInt(parameter));
+	int limit = ConvToInt(parameter);
+	if (limit < 0)
+		return MODEACTION_DENY;
+
+	ext.set(chan, limit);
 	return MODEACTION_ALLOW;
 }
 
