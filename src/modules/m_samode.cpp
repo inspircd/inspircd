@@ -45,11 +45,9 @@ class CommandSamode : public Command
 				user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
-		}
-		User* target = ServerInstance->FindNick(parameters[0]);
-		if ((target) && (target != user))
-		{
-			if (!user->HasPrivPermission("users/samode-usermodes", true))
+
+			// Changing the modes of another user requires a special permission
+			if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes", true)))
 				return CMD_FAILURE;
 		}
 
