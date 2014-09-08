@@ -678,18 +678,6 @@ DNSResult DNS::GetResult()
 			case DNS_QUERY_AAAA:
 			{
 				inet_ntop(AF_INET6, data.first, formatted, sizeof(formatted));
-				char* c = strstr(formatted,":0:");
-				if (c != NULL)
-				{
-					memmove(c+1,c+2,strlen(c+2) + 1);
-					c += 2;
-					while (memcmp(c,"0:",2) == 0)
-						memmove(c,c+2,strlen(c+2) + 1);
-					if (memcmp(c,"0",2) == 0)
-						*c = 0;
-					if (memcmp(formatted,"0::",3) == 0)
-						memmove(formatted,formatted + 1, strlen(formatted + 1) + 1);
-				}
 				resultstr = formatted;
 
 				/* Special case. Sending ::1 around between servers
