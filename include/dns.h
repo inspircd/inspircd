@@ -44,6 +44,28 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "hashcomp.h"
 
 /**
+ * Query and resource record types
+ */
+enum QueryType
+{
+	/** Uninitialized Query */
+	DNS_QUERY_NONE	= 0,
+	/** 'A' record: an ipv4 address */
+	DNS_QUERY_A	= 1,
+	/** 'CNAME' record: An alias */
+	DNS_QUERY_CNAME	= 5,
+	/** 'PTR' record: a hostname */
+	DNS_QUERY_PTR	= 12,
+	/** 'AAAA' record: an ipv6 address */
+	DNS_QUERY_AAAA	= 28,
+
+	/** Force 'PTR' to use IPV4 scemantics */
+	DNS_QUERY_PTR4	= 0xFFFD,
+	/** Force 'PTR' to use IPV6 scemantics */
+	DNS_QUERY_PTR6	= 0xFFFE
+};
+
+/**
  * Result status, used internally
  */
 class CoreExport DNSResult
@@ -61,6 +83,9 @@ class CoreExport DNSResult
 	/** The original request, a hostname or IP address
 	 */
 	std::string original;
+	/** The type of the request
+	 */
+	QueryType type;
 
 	/** Build a DNS result.
 	 * @param i The request ID
@@ -68,7 +93,7 @@ class CoreExport DNSResult
 	 * @param timetolive The request time-to-live
 	 * @param orig The original request, a hostname or IP
 	 */
-	DNSResult(int i, const std::string &res, unsigned long timetolive, const std::string &orig) : id(i), result(res), ttl(timetolive), original(orig) { }
+	DNSResult(int i, const std::string &res, unsigned long timetolive, const std::string &orig, QueryType qt = DNS_QUERY_NONE) : id(i), result(res), ttl(timetolive), original(orig), type(qt) { }
 };
 
 /**
@@ -84,6 +109,9 @@ class CoreExport CachedQuery
 	/** The cached result data, an IP or hostname
 	 */
 	std::string data;
+	/** The type of result this is
+	 */
+	QueryType type;
 	/** The time when the item is due to expire
 	 */
 	time_t expires;
@@ -92,7 +120,7 @@ class CoreExport CachedQuery
 	 * @param res The result data, an IP or hostname
 	 * @param ttl The time-to-live value of the query result
 	 */
-	CachedQuery(const std::string &res, unsigned int ttl);
+	CachedQuery(const std::string &res, QueryType qt, unsigned int ttl);
 
 	/** Returns the number of seconds remaining before this
 	 * cache item has expired and should be removed.
@@ -115,28 +143,6 @@ enum ResolverError
 	RESOLVER_BADIP		=	3,
 	RESOLVER_TIMEOUT	=	4,
 	RESOLVER_FORCEUNLOAD	=	5
-};
-
-/**
- * Query and resource record types
- */
-enum QueryType
-{
-	/** Uninitialized Query */
-	DNS_QUERY_NONE	= 0,
-	/** 'A' record: an ipv4 address */
-	DNS_QUERY_A	= 1,
-	/** 'CNAME' record: An alias */
-	DNS_QUERY_CNAME	= 5,
-	/** 'PTR' record: a hostname */
-	DNS_QUERY_PTR	= 12,
-	/** 'AAAA' record: an ipv6 address */
-	DNS_QUERY_AAAA	= 28,
-
-	/** Force 'PTR' to use IPV4 scemantics */
-	DNS_QUERY_PTR4	= 0xFFFD,
-	/** Force 'PTR' to use IPV6 scemantics */
-	DNS_QUERY_PTR6	= 0xFFFE
 };
 
 /**

@@ -160,7 +160,7 @@ class RequestTimeout : public Timer
 	}
 };
 
-CachedQuery::CachedQuery(const std::string &res, unsigned int ttl) : data(res)
+CachedQuery::CachedQuery(const std::string &res, QueryType qt, unsigned int ttl) : data(res), type(qt)
 {
 	expires = ServerInstance->Time() + ttl;
 }
@@ -716,8 +716,9 @@ DNSResult DNS::GetResult()
 
 		/* Build the reply with the id and hostname/ip in it */
 		std::string ro = req->orig;
+		DNSResult result = DNSResult(this_id,resultstr,ttl,ro,req->type);
 		delete req;
-		return DNSResult(this_id,resultstr,ttl,ro);
+		return result;
 	}
 }
 
@@ -945,11 +946,12 @@ Resolver::Resolver(const std::string &source, QueryType qt, bool &cached, Module
 		{
 			ServerInstance->Res->DelCache(source);
 		}
-		else
+		else if (CQ->type == qt)
 		{
 			cached = true;
 			return;
 		}
+		CQ = NULL;
 	}
 
 	switch (querytype)
@@ -1054,7 +1056,7 @@ void DNS::HandleEvent(EventType, int)
 					ServerInstance->stats->statsDnsGood++;
 
 				if (!this->GetCache(res.original.c_str()))
-					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.ttl)));
+					this->cache->insert(std::make_pair(res.original.c_str(), CachedQuery(res.result, res.type, res.ttl)));
 
 				Classes[res.id]->OnLookupComplete(res.result, res.ttl, false);
 				delete Classes[res.id];
