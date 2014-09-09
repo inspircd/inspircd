@@ -83,10 +83,11 @@ class KickRejoinData
  */
 class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 {
-	static const unsigned int max = 60;
+	const unsigned int max;
  public:
 	KickRejoin(Module* Creator)
 		: ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >(Creator, "kicknorejoin", 'J')
+		, max(60)
 	{
 	}
 
@@ -106,6 +107,11 @@ class KickRejoin : public ParamMode<KickRejoin, SimpleExtItem<KickRejoinData> >
 	void SerializeParam(Channel* chan, const KickRejoinData* krd, std::string& out)
 	{
 		out.append(ConvToStr(krd->delay));
+	}
+
+	std::string GetModuleSettings() const
+	{
+		return ConvToStr(max);
 	}
 };
 
@@ -147,7 +153,7 @@ public:
 
 	Version GetVersion() CXX11_OVERRIDE
 	{
-		return Version("Channel mode to delay rejoin after kick", VF_VENDOR);
+		return Version("Channel mode to delay rejoin after kick", VF_VENDOR | VF_COMMON, kr.GetModuleSettings());
 	}
 };
 
