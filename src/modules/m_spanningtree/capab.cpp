@@ -33,6 +33,11 @@ std::string TreeSocket::MyModules(int filter)
 	std::string capabilities;
 	for (ModuleManager::ModuleMap::const_iterator i = modlist.begin(); i != modlist.end(); ++i)
 	{
+		// 2.2 advertises its settings for the benefit of services
+		// 2.0 would bork on this
+		if (proto_version < 1205 && i->second->ModuleSourceFile == "m_kicknorejoin.so")
+			continue;
+
 		Version v = i->second->GetVersion();
 		if (!(v.Flags & filter))
 			continue;
