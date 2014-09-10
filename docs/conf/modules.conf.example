@@ -837,12 +837,19 @@
 #
 # Each <hidelist> tag configures one listmode to hide.
 # mode: Name of the listmode to hide.
+# rank: Minimum rank required to view the list. If set to 0, all
+# members of the channel may view the list, but non-members may not.
+# The rank of the built-in op and voice mode is 30000 and 10000,
+# respectively; the rank of other prefix modes is configurable.
+# Defaults to 20000.
 #
 # Hiding the ban list is not recommended because it may break some
 # clients.
 #
 # Hide filter (+g) list:
-#<hidelist mode="filter">
+#<hidelist mode="filter" rank="30000">
+# Only show invite exceptions (+I) to channel members:
+#<hidelist mode="invex" rank="0">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide oper module: Allows opers to hide their oper status from non-

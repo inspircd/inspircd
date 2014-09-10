@@ -21,9 +21,13 @@
 
 class ListWatcher : public ModeWatcher
 {
+	// Minimum rank required to view the list
+	const unsigned int minrank;
+
  public:
-	ListWatcher(Module* mod, const std::string& modename)
+	ListWatcher(Module* mod, const std::string& modename, unsigned int rank)
 		: ModeWatcher(mod, modename, MODETYPE_CHANNEL)
+		, minrank(rank)
 	{
 	}
 
@@ -36,7 +40,7 @@ class ListWatcher : public ModeWatcher
 		// If the user requesting the list is a member of the channel see if they have the
 		// rank required to view the list
 		Membership* memb = chan->GetUser(user);
-		if ((memb) && (memb->getRank() >= HALFOP_VALUE))
+		if ((memb) && (memb->getRank() >= minrank))
 			return true;
 
 		if (user->HasPrivPermission("channels/auspex"))
@@ -62,7 +66,10 @@ class ModuleHideList : public Module
 		{
 			ConfigTag* tag = i->second;
 			std::string modename = tag->getString("mode");
-			watchers.push_back(new ListWatcher(this, modename));
+			// If rank is set to 0 everyone inside the channel can view the list,
+			// but non-members may not
+			unsigned int rank = tag->getInt("rank", HALFOP_VALUE, 0);
+			watchers.push_back(new ListWatcher(this, modename, rank));
 		}
 	}
 
