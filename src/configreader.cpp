@@ -457,11 +457,6 @@ void ServerConfig::Fill()
 		DisabledCModes[*p - 'A'] = 1;
 	}
 
-	memset(HideModeLists, 0, sizeof(HideModeLists));
-	modes = ConfValue("security")->getString("hidemodes");
-	for (std::string::const_iterator p = modes.begin(); p != modes.end(); ++p)
-		HideModeLists[(unsigned char) *p] = true;
-
 	std::string v = security->getString("announceinvites");
 
 	if (v == "ops")

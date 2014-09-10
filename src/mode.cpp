@@ -493,14 +493,7 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 		if (MOD_RESULT == MOD_RES_DENY)
 			return;
 
-		unsigned char mletter = mh->GetModeChar();
 		bool display = true;
-		if (!user->HasPrivPermission("channels/auspex") && ServerInstance->Config->HideModeLists[mletter] && (chan->GetPrefixValue(user) < HALFOP_VALUE))
-		{
-			user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You do not have access to view the +%c list",
-				chan->name.c_str(), mletter);
-			display = false;
-		}
 
 		// Ask mode watchers whether it's OK to show the list
 		std::pair<ModeWatchIter, ModeWatchIter> itpair = modewatchermap.equal_range(mh->name);

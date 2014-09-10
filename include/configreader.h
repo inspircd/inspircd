@@ -336,12 +336,6 @@ class CoreExport ServerConfig
 	 */
 	bool RestrictBannedUsers;
 
-	/** If this is set to true, then mode lists (e.g
-	 * MODE \#chan b) are hidden from unprivileged
-	 * users.
-	 */
-	bool HideModeLists[256];
-
 	/** The number of seconds the DNS subsystem
 	 * will wait before timing out any request.
 	 */
