@@ -831,6 +831,20 @@
 #<hidechans affectsopers="false">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Hide list module: Allows for hiding the list of listmodes from users
+# who do not have sufficient channel rank.
+#<module name="m_hidelist.so">
+#
+# Each <hidelist> tag configures one listmode to hide.
+# mode: Name of the listmode to hide.
+#
+# Hiding the ban list is not recommended because it may break some
+# clients.
+#
+# Hide filter (+g) list:
+#<hidelist mode="filter">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide oper module: Allows opers to hide their oper status from non-
 # opers by setting user mode +H on themselves.
 # This module is oper-only.
