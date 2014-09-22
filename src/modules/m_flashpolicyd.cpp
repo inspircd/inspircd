@@ -128,6 +128,13 @@ class ModuleFlashPD : public Module
 
 				to_ports.append(ConvToStr(ls->bind_port)).push_back(',');
 		}
+
+		if (to_ports.empty())
+		{
+			policy_reply.clear();
+			return;
+		}
+
 		to_ports.erase(to_ports.size() - 1);
 
 		policy_reply =
