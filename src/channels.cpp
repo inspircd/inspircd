@@ -206,6 +206,9 @@ void Channel::SetDefaultModes()
 			else
 				parameter.clear();
 
+			if ((mode->GetNumParams(true)) && (parameter.empty()))
+				continue;
+
 			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, parameter, true);
 		}
 	}
