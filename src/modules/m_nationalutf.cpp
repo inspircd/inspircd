@@ -53,7 +53,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 			 * We also clean up the initial headers of the first byte so we
 			 * don't have to do this later.
 			 */
-			
+
 			//MSB is 7, but we've already handled that in ltr, so start at 6
 			//Only a maximum of 4 bits can be set, including the initial
 			//Won't accidentally iterate past the 
@@ -77,8 +77,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 			 and a client isn't sending garbage data.
 			 */
 			for(int i=0;i<3;i++)
-			{
-				
+			{	
 				//If an empty bitset is encountered, we can skip checking the rest
 				//(They will all be empty too)
 				if(!sets[i].any())
@@ -118,7 +117,6 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
                 if(utf32 < (*it).max && utf32 > (*it).min)
                     return true;
             }
-            
             return false;            
         }
                 
