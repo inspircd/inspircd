@@ -21,11 +21,15 @@
 class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::string&>
 {
 	caller1<bool, const std::string&> rememberer;
-	typedef struct Range {
+	struct Range {
 		unsigned long min;
 		unsigned long max;
-	} Range;
-
+		Range(unsigned long mi,unsigned long ma)
+		{
+			min = mi;
+			max = ma;
+		};
+	};
 	std::vector<Range> ranges;
 
 	//Returns the next character in UTF32 encoding and advances the iterator
@@ -80,7 +84,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 		{
 			//If an empty bitset is encountered, we can skip checking the rest
 			//(They will all be empty too)
-			if(!sets[i].any())
+			if(sets[i].none())
 				break;
 
 			if(sets[i][7] != 1 || sets[i][6] != 0)
@@ -169,10 +173,7 @@ public:
 			}
 			if(lower && upper)
 			{
-				Range mrange;
-				mrange.min = lower;
-				mrange.max = upper;
-				ranges.push_back(mrange);
+				ranges.push_back(Range(lower,upper));
 			}
 		}
 	}
