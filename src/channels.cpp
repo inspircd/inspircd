@@ -61,11 +61,11 @@ void Channel::SetTopic(User* u, const std::string& ntopic)
 
 Membership* Channel::AddUser(User* user)
 {
-	Membership*& memb = userlist[user];
-	if (memb)
+	std::pair<MemberMap::iterator, bool> ret = userlist.insert(std::make_pair(user, insp::aligned_storage<Membership>()));
+	if (!ret.second)
 		return NULL;
 
-	memb = new Membership(user, this);
+	Membership* memb = new(ret.first->second) Membership(user, this);
 	return memb;
 }
 
@@ -102,7 +102,7 @@ void Channel::DelUser(const MemberMap::iterator& membiter)
 {
 	Membership* memb = membiter->second;
 	memb->cull();
-	delete memb;
+	memb->~Membership();
 	userlist.erase(membiter);
 
 	// If this channel became empty then it should be removed
