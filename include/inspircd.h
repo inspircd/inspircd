@@ -45,6 +45,7 @@
 
 #include "intrusive_list.h"
 #include "compat.h"
+#include "aligned_storage.h"
 #include "typedefs.h"
 #include "stdalgo.h"
 
