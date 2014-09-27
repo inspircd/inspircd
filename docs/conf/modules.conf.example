@@ -1123,7 +1123,38 @@
 #<module name="m_namesx.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# National characters module:
+# National codepage module:
+# 1) Allows using different 8-bit codepages for nicknames. (National characters)
+# (Examples: ISO 8859-* Windows-1250)
+#
+# 2) Allows using custom (national) casemapping over the network
+#<module name="m_nationalcodepage.so">
+#
+# range - characters which are allowed in this codepage, in decimal form
+# 	all traditional alpha-numeric characters are already included
+# <cpchars range="200-230">
+#
+# upper - the decimal codepoint of the selected character
+# lower - the decimal codepoint of the character to be mapped to
+# <casemap upper="200" lower="30">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# National UTF module:
+# 1) Allows using UTF-8 characters in nicknames.
+# 
+# The <utfrange> tag has two forms:
+#
+# 		value - the UTF character to allow, specified as a decimal codepoint
+# 	<utfrange value="8364"> # Allows the use of the Euro symbol
+#
+# 		lower & upper - specify the range of UTF characters allowed as decimal codepoints
+# 	<utfrange lower="1024" upper="1071"> #Allow Cyrillic capital letters 
+#
+# 	At present the module does not support casemapping. Lower and uppercase letters
+# 	will be treated separately in nicks.
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Legacy national characters module:
 # 1) Allows using national characters in nicknames.
 # 2) Allows using custom (national) casemapping over the network.
 #<module name="m_nationalchars.so">
