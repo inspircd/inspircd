@@ -1126,7 +1126,6 @@
 # National codepage module:
 # 1) Allows using different 8-bit codepages for nicknames. (National characters)
 # (Examples: ISO 8859-* Windows-1250)
-#
 # 2) Allows using custom (national) casemapping over the network
 #<module name="m_nationalcodepage.so">
 #
@@ -1141,7 +1140,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # National UTF module:
 # 1) Allows using UTF-8 characters in nicknames.
-# 
+#<module name="m_nationalutf.so">
 # The <utfrange> tag has two forms:
 #
 # 		value - the UTF character to allow, specified as a decimal codepoint
