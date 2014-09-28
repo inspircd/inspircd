@@ -36,19 +36,44 @@ use File::Spec::Functions qw(rel2abs);
 use Getopt::Long;
 use POSIX;
 
-our @EXPORT = qw(module_installed prompt_bool prompt_dir prompt_string get_cpu_count make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
-
-# Parse the output of a *_config program,
-# such as pcre_config, take out the -L
-# directive and return an rpath for it.
-
-# \e[1;32msrc/Makefile\e[0m
+our @EXPORT = qw(get_version module_installed prompt_bool prompt_dir prompt_string get_cpu_count make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
 my %already_added = ();
-my $if_skip_lines = 0;
+my %version = ();
 
-sub module_installed($)
-{
+sub get_version {
+	return %version if %version;
+
+	# Attempt to retrieve version information from src/version.sh
+	chomp(my $vf = `sh src/version.sh 2>/dev/null`);
+	if ($vf =~ /^InspIRCd-([0-9]+)\.([0-9]+)\.([0-9]+)(?:\+(\w+))?$/) {
+		%version = ( MAJOR => $1, MINOR => $2, PATCH => $3, LABEL => $4 );
+	}
+
+	# Attempt to retrieve missing version information from Git
+	chomp(my $gr = `git describe --tags 2>/dev/null`);
+	if ($gr =~ /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:-\d+-(\w+))?$/) {
+		$version{MAJOR} = $1 unless defined $version{MAJOR};
+		$version{MINOR} = $2 unless defined $version{MINOR};
+		$version{PATCH} = $3 unless defined $version{PATCH};
+		$version{LABEL} = $4 if defined $4;
+	}
+
+	# The user is using a stable release which does not have
+	# a label attached.
+	$version{LABEL} = 'release' unless defined $version{LABEL};
+
+	# If any of these fields are missing then the user has deleted the
+	# version file and is not running from Git. Fill in the fields with
+	# dummy data so we don't get into trouble with undef values later.
+	$version{MAJOR} = '0' unless defined $version{MAJOR};
+	$version{MINOR} = '0' unless defined $version{MINOR};
+	$version{PATCH} = '0' unless defined $version{PATCH};
+
+	return %version;
+}
+
+sub module_installed($) {
 	my $module = shift;
 	eval("use $module;");
 	return !$@;
@@ -137,6 +162,7 @@ sub promptstring($$$$$)
 sub make_rpath($;$)
 {
 	my ($executable, $module) = @_;
+	return "" if defined $ENV{DISABLE_RPATH};
 	chomp(my $data = `$executable`);
 	my $output = "";
 	while ($data =~ /-L(\S+)/)
@@ -144,10 +170,10 @@ sub make_rpath($;$)
 		my $libpath = $1;
 		if (!exists $already_added{$libpath})
 		{
-			print "Adding extra library path to \e[1;32m$module\e[0m ... \e[1;32m$libpath\e[0m\n";
+			print "Adding runtime library path to \e[1;32m$module\e[0m ... \e[1;32m$libpath\e[0m\n";
 			$already_added{$libpath} = 1;
 		}
-		$output .= "-Wl,-rpath -Wl,$libpath -L$libpath " unless defined $main::opt_disablerpath;
+		$output .= "-Wl,-rpath -Wl,$libpath -L$libpath ";
 		$data =~ s/-L(\S+)//;
 	}
 	return $output;
@@ -433,6 +459,7 @@ sub translate_functions($$)
 			close TF;
 			my $replace = `perl $tmpfile`;
 			chomp($replace);
+			unlink($tmpfile);
 			$line =~ s/eval\("(.+?)"\)/$replace/;
 		}
 		while ($line =~ /pkgconflibs\("(.+?)","(.+?)","(.+?)"\)/)
@@ -478,7 +505,7 @@ sub translate_functions($$)
 		print "\nMake sure you have pkg-config installed\n";
 		print "\nIn the case of gnutls configuration errors on debian,\n";
 		print "Ubuntu, etc, you should ensure that you have installed\n";
-		print "gnutls-bin as well as gnutls-dev and gnutls.\n";
+		print "gnutls-bin as well as libgnutls-dev and libgnutls.\n";
 		exit;
 	}
 	else

@@ -24,7 +24,6 @@
 #include <sys/types.h>
 #include <sys/event.h>
 #include <sys/time.h>
-#include "socketengine.h"
 #include <iostream>
 #include <sys/sysctl.h>
 
@@ -58,13 +57,8 @@ void SocketEngine::Init()
 	mib[1] = KERN_MAXFILES;
 #endif
 	len = sizeof(MAX_DESCRIPTORS);
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if the sysctl() below fails
 	sysctl(mib, 2, &MAX_DESCRIPTORS, &len, NULL, 0);
-	if (MAX_DESCRIPTORS <= 0)
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
 
 	RecoverFromFork();
 }
@@ -105,7 +99,7 @@ bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return false;
 
 	if (!SocketEngine::AddFdRef(eh))
@@ -128,7 +122,7 @@ void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
 
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "DelFd() on invalid fd: %d", fd);
 		return;

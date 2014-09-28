@@ -42,7 +42,7 @@ class CommandWho : public Command
 
 	Membership* get_first_visible_channel(User* u)
 	{
-		for (UCListIter i = u->chans.begin(); i != u->chans.end(); ++i)
+		for (User::ChanList::iterator i = u->chans.begin(); i != u->chans.end(); ++i)
 		{
 			Membership* memb = *i;
 			if (!memb->chan->IsModeSet(secretmode))
@@ -171,9 +171,6 @@ bool CommandWho::whomatch(User* cuser, User* user, const char* matchtext)
 
 bool CommandWho::CanView(Channel* chan, User* user)
 {
-	if (!user || !chan)
-		return false;
-
 	/* Bug #383 - moved higher up the list, because if we are in the channel
 	 * we can see all its users
 	 */
@@ -325,9 +322,8 @@ CmdResult CommandWho::Handle (const std::vector<std::string>& parameters, User *
 			bool inside = ch->HasUser(user);
 
 			/* who on a channel. */
-			const UserMembList *cu = ch->GetUsers();
-
-			for (UserMembCIter i = cu->begin(); i != cu->end(); i++)
+			const Channel::MemberMap& cu = ch->GetUsers();
+			for (Channel::MemberMap::const_iterator i = cu.begin(); i != cu.end(); ++i)
 			{
 				/* None of this applies if we WHO ourselves */
 				if (user != i->first)

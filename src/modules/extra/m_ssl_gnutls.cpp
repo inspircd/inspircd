@@ -22,11 +22,18 @@
 
 
 #include "inspircd.h"
+#include "modules/ssl.h"
+#include <memory>
+
+// Fix warnings about the use of commas at end of enumerator lists on C++03.
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-extensions"
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-pedantic"
+#endif
+
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
-#include "modules/ssl.h"
-#include "modules/cap.h"
-#include <memory>
 
 #if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 9) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 9 && GNUTLS_VERSION_PATCH >= 8))
 #define GNUTLS_HAS_MAC_GET_ID
@@ -40,17 +47,10 @@
 #endif
 
 #ifdef _WIN32
-# pragma comment(lib, "libgnutls.lib")
-# pragma comment(lib, "libgcrypt.lib")
-# pragma comment(lib, "libgpg-error.lib")
-# pragma comment(lib, "user32.lib")
-# pragma comment(lib, "advapi32.lib")
-# pragma comment(lib, "libgcc.lib")
-# pragma comment(lib, "libmingwex.lib")
-# pragma comment(lib, "gdi32.lib")
+# pragma comment(lib, "libgnutls-28.lib")
 #endif
 
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") -Wno-pedantic */
+/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") eval("print `libgcrypt-config --libs | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
 
 #ifndef GNUTLS_VERSION_MAJOR
@@ -686,11 +686,23 @@ class GnuTLSIOHook : public SSLIOHook
 			goto info_done_dealloc;
 		}
 
-		gnutls_x509_crt_get_dn(cert, str, &name_size);
-		certinfo->dn = str;
+		if (gnutls_x509_crt_get_dn(cert, str, &name_size) == 0)
+		{
+			std::string& dn = certinfo->dn;
+			dn = str;
+			// Make sure there are no chars in the string that we consider invalid
+			if (dn.find_first_of("\r\n") != std::string::npos)
+				dn.clear();
+		}
 
-		gnutls_x509_crt_get_issuer_dn(cert, str, &name_size);
-		certinfo->issuer = str;
+		name_size = sizeof(str);
+		if (gnutls_x509_crt_get_issuer_dn(cert, str, &name_size) == 0)
+		{
+			std::string& issuer = certinfo->issuer;
+			issuer = str;
+			if (issuer.find_first_of("\r\n") != std::string::npos)
+				issuer.clear();
+		}
 
 		if ((ret = gnutls_x509_crt_get_fingerprint(cert, profile->GetHash(), digest, &digest_size)) < 0)
 		{
@@ -924,7 +936,7 @@ info_done_dealloc:
 			text.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess)))).append("'");
 
 			if (!certificate->fingerprint.empty())
-				text += " and your SSL fingerprint is " + certificate->fingerprint;
+				text += " and your SSL certificate fingerprint is " + certificate->fingerprint;
 
 			user->WriteNotice(text);
 		}

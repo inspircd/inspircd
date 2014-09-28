@@ -31,9 +31,10 @@ CommandCommands::CommandCommands(Module* parent)
  */
 CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 {
+	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
 	std::vector<std::string> list;
-	list.reserve(ServerInstance->Parser->cmdlist.size());
-	for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+	list.reserve(commands.size());
+	for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 	{
 		// Don't show S2S commands to users
 		if (i->second->flags_needed == FLAG_SERVERONLY)
@@ -44,7 +45,7 @@ CmdResult CommandCommands::Handle (const std::vector<std::string>&, User *user)
 			RPL_COMMANDS, user->nick.c_str(), i->second->name.c_str(), src->ModuleSourceFile.c_str(),
 			i->second->min_params, i->second->Penalty));
 	}
-	sort(list.begin(), list.end());
+	std::sort(list.begin(), list.end());
 	for(unsigned int i=0; i < list.size(); i++)
 		user->Write(list[i]);
 	user->WriteNumeric(RPL_COMMANDSEND, ":End of COMMANDS list");

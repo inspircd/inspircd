@@ -38,7 +38,7 @@ class Packet : public Query
 		if (pos + name.length() + 2 > output_size)
 			throw Exception("Unable to pack name");
 
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Packing name " + name);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Packing name " + name);
 
 		irc::sepstream sep(name, '.');
 		std::string token;
@@ -109,7 +109,7 @@ class Packet : public Query
 		if (name.empty())
 			throw Exception("Unable to unpack name - no name");
 
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Unpack name " + name);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Unpack name " + name);
 
 		return name;
 	}
@@ -190,7 +190,7 @@ class Packet : public Query
 		}
 
 		if (!record.name.empty() && !record.rdata.empty())
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: " + record.name + " -> " + record.rdata);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, record.name + " -> " + record.rdata);
 
 		return record;
 	}
@@ -237,7 +237,7 @@ class Packet : public Query
 		unsigned short arcount = (input[packet_pos] << 8) | input[packet_pos + 1];
 		packet_pos += 2;
 
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: qdcount: " + ConvToStr(qdcount) + " ancount: " + ConvToStr(ancount) + " nscount: " + ConvToStr(nscount) + " arcount: " + ConvToStr(arcount));
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "qdcount: " + ConvToStr(qdcount) + " ancount: " + ConvToStr(ancount) + " nscount: " + ConvToStr(nscount) + " arcount: " + ConvToStr(arcount));
 
 		for (unsigned i = 0; i < qdcount; ++i)
 			this->questions.push_back(this->UnpackQuestion(input, len, packet_pos));
@@ -412,7 +412,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	 */
 	bool CheckCache(DNS::Request* req, const DNS::Question& question)
 	{
-		ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: cache: Checking cache for " + question.name);
+		ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "cache: Checking cache for " + question.name);
 
 		cache_map::iterator it = this->cache.find(question);
 		if (it == this->cache.end())
@@ -425,7 +425,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 			return false;
 		}
 
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: cache: Using cached result for " + question.name);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: Using cached result for " + question.name);
 		record.cached = true;
 		req->OnLookupComplete(&record);
 		return true;
@@ -437,14 +437,14 @@ class MyManager : public Manager, public Timer, public EventHandler
 	void AddCache(Query& r)
 	{
 		const ResourceRecord& rr = r.answers[0];
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: cache: added cache for " + rr.name + " -> " + rr.rdata + " ttl: " + ConvToStr(rr.ttl));
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: added cache for " + rr.name + " -> " + rr.rdata + " ttl: " + ConvToStr(rr.ttl));
 		this->cache[r.questions[0]] = r;
 	}
 
  public:
 	DNS::Request* requests[MAX_REQUEST_ID];
 
-	MyManager(Module* c) : Manager(c), Timer(3600, ServerInstance->Time(), true)
+	MyManager(Module* c) : Manager(c), Timer(3600, true)
 	{
 		for (int i = 0; i < MAX_REQUEST_ID; ++i)
 			requests[i] = NULL;
@@ -469,7 +469,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	void Process(DNS::Request* req)
 	{
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Processing request to lookup " + req->name + " of type " + ConvToStr(req->type) + " to " + this->myserver.addr());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Processing request to lookup " + req->name + " of type " + ConvToStr(req->type) + " to " + this->myserver.addr());
 
 		/* Create an id */
 		unsigned int tries = 0;
@@ -514,7 +514,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		 */
 		if (req->use_cache && this->CheckCache(req, p.questions[0]))
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Using cached result");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Using cached result");
 			delete req;
 			return;
 		}
@@ -559,7 +559,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 	{
 		if (et == EVENT_ERROR)
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: UDP socket got an error event");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "UDP socket got an error event");
 			return;
 		}
 
@@ -588,7 +588,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 		{
 			std::string server1 = from.str();
 			std::string server2 = myserver.str();
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Got a result from the wrong server! Bad NAT or DNS forging attempt? '%s' != '%s'",
 				server1.c_str(), server2.c_str());
 			return;
 		}
@@ -596,14 +596,14 @@ class MyManager : public Manager, public Timer, public EventHandler
 		DNS::Request* request = this->requests[recv_packet.id];
 		if (request == NULL)
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Received an answer for something we didn't request");
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received an answer for something we didn't request");
 			return;
 		}
 
 		if (recv_packet.flags & QUERYFLAGS_OPCODE)
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Received a nonstandard query");
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Received a nonstandard query");
+			ServerInstance->stats.DnsBad++;
 			recv_packet.error = ERROR_NONSTANDARD_QUERY;
 			request->OnError(&recv_packet);
 		}
@@ -614,49 +614,49 @@ class MyManager : public Manager, public Timer, public EventHandler
 			switch (recv_packet.flags & QUERYFLAGS_RCODE)
 			{
 				case 1:
-					ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: format error");
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "format error");
 					error = ERROR_FORMAT_ERROR;
 					break;
 				case 2:
-					ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: server error");
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "server error");
 					error = ERROR_SERVER_FAILURE;
 					break;
 				case 3:
-					ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: domain not found");
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "domain not found");
 					error = ERROR_DOMAIN_NOT_FOUND;
 					break;
 				case 4:
-					ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: not implemented");
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "not implemented");
 					error = ERROR_NOT_IMPLEMENTED;
 					break;
 				case 5:
-					ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: refused");
+					ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "refused");
 					error = ERROR_REFUSED;
 					break;
 				default:
 					break;
 			}
 
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->stats.DnsBad++;
 			recv_packet.error = error;
 			request->OnError(&recv_packet);
 		}
 		else if (recv_packet.questions.empty() || recv_packet.answers.empty())
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: No resource records returned");
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "No resource records returned");
+			ServerInstance->stats.DnsBad++;
 			recv_packet.error = ERROR_NO_RECORDS;
 			request->OnError(&recv_packet);
 		}
 		else
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: Lookup complete for " + request->name);
-			ServerInstance->stats->statsDnsGood++;
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Lookup complete for " + request->name);
+			ServerInstance->stats.DnsGood++;
 			request->OnLookupComplete(&recv_packet);
 			this->AddCache(recv_packet);
 		}
 
-		ServerInstance->stats->statsDns++;
+		ServerInstance->stats.Dns++;
 
 		/* Request's destructor removes it from the request map */
 		delete request;
@@ -664,7 +664,7 @@ class MyManager : public Manager, public Timer, public EventHandler
 
 	bool Tick(time_t now)
 	{
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolver: cache: purging DNS cache");
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "cache: purging DNS cache");
 
 		for (cache_map::iterator it = this->cache.begin(); it != this->cache.end(); )
 		{
@@ -707,20 +707,20 @@ class MyManager : public Manager, public Timer, public EventHandler
 			if (SocketEngine::Bind(this->GetFd(), bindto) < 0)
 			{
 				/* Failed to bind */
-				ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Error binding dns socket - hostnames will NOT resolve");
+				ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Error binding dns socket - hostnames will NOT resolve");
 				SocketEngine::Close(this->GetFd());
 				this->SetFd(-1);
 			}
 			else if (!SocketEngine::AddFd(this, FD_WANT_POLL_READ | FD_WANT_NO_WRITE))
 			{
-				ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Internal error starting DNS - hostnames will NOT resolve.");
+				ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Internal error starting DNS - hostnames will NOT resolve.");
 				SocketEngine::Close(this->GetFd());
 				this->SetFd(-1);
 			}
 		}
 		else
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_SPARSE, "Resolver: Error creating DNS socket - hostnames will NOT resolve");
+			ServerInstance->Logs->Log(MODNAME, LOG_SPARSE, "Error creating DNS socket - hostnames will NOT resolve");
 		}
 	}
 };

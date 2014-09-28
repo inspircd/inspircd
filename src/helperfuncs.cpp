@@ -82,7 +82,8 @@ Channel* InspIRCd::FindChan(const std::string &chan)
 /* Send an error notice to all users, registered or not */
 void InspIRCd::SendError(const std::string &s)
 {
-	for (LocalUserList::const_iterator i = this->Users->local_users.begin(); i != this->Users->local_users.end(); i++)
+	const UserManager::LocalList& list = Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		User* u = *i;
 		if (u->registered == REG_ALL)
@@ -403,14 +404,14 @@ const char* InspIRCd::Format(const char* formatString, ...)
 	return ret;
 }
 
-std::string InspIRCd::TimeString(time_t curtime)
+std::string InspIRCd::TimeString(time_t curtime, const char* format, bool utc)
 {
 #ifdef _WIN32
 	if (curtime < 0)
 		curtime = 0;
 #endif
 
-	struct tm* timeinfo = localtime(&curtime);
+	struct tm* timeinfo = utc ? gmtime(&curtime) : localtime(&curtime);
 	if (!timeinfo)
 	{
 		curtime = 0;
@@ -424,7 +425,15 @@ std::string InspIRCd::TimeString(time_t curtime)
 	else if (timeinfo->tm_year + 1900 < 1000)
 		timeinfo->tm_year = 0;
 
-	return std::string(asctime(timeinfo),24);
+	// This is the default format used by asctime without the terminating new line.
+	if (!format)
+		format = "%a %b %d %H:%M:%S %Y";
+
+	char buffer[512];
+	if (!strftime(buffer, sizeof(buffer), format, timeinfo))
+		buffer[0] = '\0';
+
+	return buffer;
 }
 
 std::string InspIRCd::GenRandomStr(int length, bool printable)
@@ -478,7 +487,7 @@ ModResult OnCheckExemptionHandler::Call(User* user, Channel* chan, const std::st
 		std::string::size_type pos = current.find(':');
 		if (pos == std::string::npos)
 			continue;
-		if (current.substr(0,pos) == restriction)
+		if (!current.compare(0, pos, restriction))
 			minmode = current[pos+1];
 	}
 

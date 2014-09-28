@@ -69,7 +69,7 @@ static std::string BuildModeList(ModeType type)
 			modes.push_back(mdesc);
 		}
 	}
-	sort(modes.begin(), modes.end());
+	std::sort(modes.begin(), modes.end());
 	return irc::stringjoiner(modes);
 }
 
@@ -153,7 +153,13 @@ void TreeSocket::SendCapabilities(int phase)
 			extra+
 			" PREFIX="+ServerInstance->Modes->BuildPrefixes()+
 			" CHANMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_CHANNEL)+
-			" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER)
+			" USERMODES="+ServerInstance->Modes->GiveModeList(MODETYPE_USER)+
+			// XXX: Advertise the presence or absence of m_globops in CAPAB CAPABILITIES.
+			// Services want to know about it, and since m_globops was not marked as VF_(OPT)COMMON
+			// in 2.0, we advertise it here to not break linking to previous versions.
+			// Protocol version 1201 (1.2) does not have this issue because we advertise m_globops
+			// to 1201 protocol servers irrespectively of its module flags.
+			(ServerInstance->Modules->Find("m_globops.so") != NULL ? " GLOBOPS=1" : " GLOBOPS=0")
 			);
 
 	this->WriteLine("CAPAB END");

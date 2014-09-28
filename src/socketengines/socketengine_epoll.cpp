@@ -18,12 +18,9 @@
  */
 
 
-#include <vector>
-#include <string>
-#include <map>
 #include "inspircd.h"
 #include "exitcodes.h"
-#include "socketengine.h"
+
 #include <sys/epoll.h>
 #include <ulimit.h>
 #include <iostream>
@@ -42,20 +39,12 @@ namespace
 
 void SocketEngine::Init()
 {
-	int max = ulimit(4, 0);
-	if (max > 0)
-	{
-		MAX_DESCRIPTORS = max;
-	}
-	else
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if ulimit() fails and returns a negative number
+	MAX_DESCRIPTORS = ulimit(4, 0);
 
-	// This is not a maximum, just a hint at the eventual number of sockets that may be polled.
-	EngineHandle = epoll_create(GetMaxFds() / 4);
+	// 128 is not a maximum, just a hint at the eventual number of sockets that may be polled,
+	// and it is completely ignored by 2.6.8 and later kernels, except it must be larger than zero.
+	EngineHandle = epoll_create(128);
 
 	if (EngineHandle == -1)
 	{
@@ -102,9 +91,9 @@ static unsigned mask_to_epoll(int event_mask)
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "AddFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "AddFd out of range: (fd: %d)", fd);
 		return false;
 	}
 
@@ -151,9 +140,9 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DelFd out of range: (fd: %d, max: %d)", fd, GetMaxFds());
+		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DelFd out of range: (fd: %d)", fd);
 		return;
 	}
 

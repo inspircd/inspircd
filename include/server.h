@@ -26,9 +26,10 @@ class CoreExport Server : public classbase
 	 */
 	const std::string name;
 
-	/** The description of this server
+	/** The description of this server.
+	 * This can be updated by the protocol module (for remote servers) or by a rehash (for the local server).
 	 */
-	const std::string description;
+	std::string description;
 
 	/** True if this server is ulined
 	 */
@@ -37,6 +38,10 @@ class CoreExport Server : public classbase
 	/** True if this server is a silent uline, i.e. silent="true" in the uline block
 	 */
 	bool silentuline;
+
+	/** Allow ConfigReaderThread to update the description on a rehash
+	 */
+	friend class ConfigReaderThread;
 
  public:
 	Server(const std::string& srvname, const std::string& srvdesc)

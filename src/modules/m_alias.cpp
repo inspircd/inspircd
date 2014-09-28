@@ -302,28 +302,28 @@ class ModuleAlias : public Module
 					result.append(GetVar(var, original_line));
 					i += len - 1;
 				}
-				else if (newline.substr(i, 5) == "$nick")
+				else if (!newline.compare(i, 5, "$nick", 5))
 				{
 					result.append(user->nick);
 					i += 4;
 				}
-				else if (newline.substr(i, 5) == "$host")
+				else if (!newline.compare(i, 5, "$host", 5))
 				{
 					result.append(user->host);
 					i += 4;
 				}
-				else if (newline.substr(i, 5) == "$chan")
+				else if (!newline.compare(i, 5, "$chan", 5))
 				{
 					if (chan)
 						result.append(chan->name);
 					i += 4;
 				}
-				else if (newline.substr(i, 6) == "$ident")
+				else if (!newline.compare(i, 6, "$ident", 6))
 				{
 					result.append(user->ident);
 					i += 5;
 				}
-				else if (newline.substr(i, 6) == "$vhost")
+				else if (!newline.compare(i, 6, "$vhost", 6))
 				{
 					result.append(user->dhost);
 					i += 5;
@@ -344,7 +344,7 @@ class ModuleAlias : public Module
 		{
 			pars.push_back(token);
 		}
-		ServerInstance->Parser->CallHandler(command, pars, user);
+		ServerInstance->Parser.CallHandler(command, pars, user);
 	}
 
 	void Prioritize()

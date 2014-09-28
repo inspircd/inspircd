@@ -247,14 +247,14 @@ class HashSHA256 : public HashProvider
 	}
 
  public:
-	std::string sum(const std::string& data)
+	std::string GenerateRaw(const std::string& data)
 	{
 		unsigned char bytes[SHA256_DIGEST_SIZE];
 		SHA256(data.data(), bytes, data.length());
 		return std::string((char*)bytes, SHA256_DIGEST_SIZE);
 	}
 
-	HashSHA256(Module* parent) : HashProvider(parent, "hash/sha256", 32, 64) {}
+	HashSHA256(Module* parent) : HashProvider(parent, "sha256", 32, 64) {}
 };
 
 class ModuleSHA256 : public Module

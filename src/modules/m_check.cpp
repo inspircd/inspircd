@@ -149,7 +149,7 @@ class CommandCheck : public Command
 				{
 					std::string umodes;
 					std::string cmodes;
-					for(char c='A'; c < 'z'; c++)
+					for(char c='A'; c <= 'z'; c++)
 					{
 						ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
 						if (mh && mh->NeedsOper() && loctarg->HasModePermission(c, MODETYPE_USER))
@@ -190,7 +190,7 @@ class CommandCheck : public Command
 			else
 				user->SendText(checkstr + " onip " + targuser->GetIPString());
 
-			for (UCListIter i = targuser->chans.begin(); i != targuser->chans.end(); i++)
+			for (User::ChanList::iterator i = targuser->chans.begin(); i != targuser->chans.end(); i++)
 			{
 				Membership* memb = *i;
 				Channel* c = memb->chan;
@@ -224,10 +224,10 @@ class CommandCheck : public Command
 
 			/* now the ugly bit, spool current members of a channel. :| */
 
-			const UserMembList *ulist= targchan->GetUsers();
+			const Channel::MemberMap& ulist = targchan->GetUsers();
 
 			/* note that unlike /names, we do NOT check +i vs in the channel */
-			for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+			for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 			{
 				/*
 			 	 * Unlike Asuka, I define a clone as coming from the same host. --w00t

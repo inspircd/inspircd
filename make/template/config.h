@@ -1,7 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2008 Robin Burchell <robin+git@viroteck.net>
+ *   Copyright (C) 2014 Peter Powell <petpow@saberuk.com>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -17,15 +17,22 @@
  */
 
 
-#include "inspircd.h"
+#pragma once
 
-#include "main.h"
-#include "utils.h"
-#include "treeserver.h"
-#include "commands.h"
+#define INSPIRCD_BRANCH   "InspIRCd-@VERSION_MAJOR@.@VERSION_MINOR@"
+#define INSPIRCD_VERSION  "InspIRCd-@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@"
+#define INSPIRCD_REVISION "@VERSION_LABEL@"
+#define INSPIRCD_SYSTEM   "@SYSTEM_NAME_VERSION@"
 
-CmdResult CommandVersion::HandleServer(TreeServer* server, std::vector<std::string>& params)
-{
-	server->SetVersion(params[0]);
-	return CMD_SUCCESS;
-}
+#define INSPIRCD_CONFIG_PATH "@CONFIG_DIR@"
+#define INSPIRCD_DATA_PATH   "@DATA_DIR@"
+#define INSPIRCD_LOG_PATH    "@LOG_DIR@"
+#define INSPIRCD_MODULE_PATH "@MODULE_DIR@"
+
+#define INSPIRCD_SOCKETENGINE_NAME "@SOCKETENGINE@"
+
+#ifndef _WIN32
+ %target include/config.h
+ %define HAS_CLOCK_GETTIME
+ %define HAS_EVENTFD
+#endif

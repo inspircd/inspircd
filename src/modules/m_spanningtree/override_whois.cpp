@@ -23,20 +23,17 @@
 
 ModResult ModuleSpanningTree::HandleRemoteWhois(const std::vector<std::string>& parameters, User* user)
 {
-	if ((IS_LOCAL(user)) && (parameters.size() > 1))
+	User* remote = ServerInstance->FindNickOnly(parameters[1]);
+	if (remote && !IS_LOCAL(remote))
 	{
-		User* remote = ServerInstance->FindNickOnly(parameters[1]);
-		if (remote && !IS_LOCAL(remote))
-		{
-			CmdBuilder(user, "IDLE").push(remote->uuid).Unicast(remote);
-			return MOD_RES_DENY;
-		}
-		else if (!remote)
-		{
-			user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[1].c_str());
-			user->WriteNumeric(RPL_ENDOFWHOIS, "%s :End of /WHOIS list.", parameters[1].c_str());
-			return MOD_RES_DENY;
-		}
+		CmdBuilder(user, "IDLE").push(remote->uuid).Unicast(remote);
+		return MOD_RES_DENY;
+	}
+	else if (!remote)
+	{
+		user->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[1].c_str());
+		user->WriteNumeric(RPL_ENDOFWHOIS, "%s :End of /WHOIS list.", parameters[1].c_str());
+		return MOD_RES_DENY;
 	}
 	return MOD_RES_PASSTHRU;
 }

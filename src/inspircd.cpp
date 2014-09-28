@@ -52,12 +52,7 @@
 #include <fstream>
 #include <iostream>
 #include "xline.h"
-#include "bancache.h"
-#include "socketengine.h"
-#include "socket.h"
-#include "command_parse.h"
 #include "exitcodes.h"
-#include "caller.h"
 #include "testsuite.h"
 
 InspIRCd* ServerInstance = NULL;
@@ -114,8 +109,8 @@ void InspIRCd::Cleanup()
 	ports.clear();
 
 	/* Close all client sockets, or the new process inherits them */
-	LocalUserList& list = Users->local_users;
-	for (LocalUserList::iterator i = list.begin(); i != list.end(); ++i)
+	const UserManager::LocalList& list = Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		Users->QuitUser(*i, "Server shutdown");
 
 	GlobalCulls.Apply();
@@ -129,20 +124,10 @@ void InspIRCd::Cleanup()
 		FakeClient->cull();
 	}
 	DeleteZero(this->FakeClient);
-	DeleteZero(this->Users);
-	DeleteZero(this->Modes);
 	DeleteZero(this->XLines);
-	DeleteZero(this->Parser);
-	DeleteZero(this->stats);
-	DeleteZero(this->Modules);
-	DeleteZero(this->BanCache);
-	DeleteZero(this->SNO);
 	DeleteZero(this->Config);
-	DeleteZero(this->PI);
-	DeleteZero(this->Threads);
 	SocketEngine::Deinit();
 	Logs->CloseLogs();
-	DeleteZero(this->Logs);
 }
 
 void InspIRCd::SetSignals()
@@ -236,7 +221,8 @@ void InspIRCd::WritePID(const std::string &filename)
 }
 
 InspIRCd::InspIRCd(int argc, char** argv) :
-	 ConfigFileName(CONFIG_PATH "/inspircd.conf"),
+	 ConfigFileName(INSPIRCD_CONFIG_PATH "/inspircd.conf"),
+	 PI(&DefaultProtocolInterface),
 
 	 /* Functor pointer initialisation.
 	  *
@@ -260,44 +246,18 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	    do_nolog = 0, do_root = 0;
 
 	// Initialize so that if we exit before proper initialization they're not deleted
-	this->Logs = 0;
-	this->Threads = 0;
-	this->PI = 0;
-	this->Users = 0;
 	this->Config = 0;
-	this->SNO = 0;
-	this->BanCache = 0;
-	this->Modules = 0;
-	this->stats = 0;
-	this->Parser = 0;
 	this->XLines = 0;
-	this->Modes = 0;
 	this->ConfigThread = NULL;
 	this->FakeClient = NULL;
 
 	UpdateTime();
 	this->startup_time = TIME.tv_sec;
 
-	// This must be created first, so other parts of Insp can use it while starting up
-	this->Logs = new LogManager;
-
 	SocketEngine::Init();
 
-	this->Threads = new ThreadEngine;
-
-	/* Default implementation does nothing */
-	this->PI = new ProtocolInterface;
-
-	// Create base manager classes early, so nothing breaks
-	this->Users = new UserManager;
-
 	this->Config = new ServerConfig;
-	this->SNO = new SnomaskManager;
-	this->BanCache = new BanCacheManager;
-	this->Modules = new ModuleManager();
 	dynamic_reference_base::reset_all();
-	this->stats = new serverstats();
-	this->Parser = new CommandParser;
 	this->XLines = new XLineManager;
 
 	this->Config->cmdline.argv = argv;
@@ -369,7 +329,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 	if (do_version)
 	{
-		std::cout << std::endl << VERSION << " " << REVISION << std::endl;
+		std::cout << std::endl << INSPIRCD_VERSION << " " << INSPIRCD_REVISION << std::endl;
 		Exit(EXIT_STATUS_NOERROR);
 	}
 
@@ -418,8 +378,6 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	std::cout << "\taquanight, psychon, dz, danieldg, jackmcbarn" << std::endl;
 	std::cout << "\tAttila" << con_reset << std::endl << std::endl;
 	std::cout << "Others:\t\t\t" << con_green << "See /INFO Output" << con_reset << std::endl;
-
-	this->Modes = new ModeParser;
 
 #ifndef _WIN32
 	if (!do_root)
@@ -549,7 +507,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 		FreeConsole();
 	}
 
-	QueryPerformanceFrequency(&stats->QPFrequency);
+	QueryPerformanceFrequency(&stats.QPFrequency);
 #endif
 
 	Logs->Log("STARTUP", LOG_DEFAULT, "Startup complete as '%s'[%s], %d max open sockets", Config->ServerName.c_str(),Config->GetSID().c_str(), SocketEngine::GetMaxFds());
@@ -683,18 +641,18 @@ void InspIRCd::Run()
 		{
 #ifndef _WIN32
 			getrusage(RUSAGE_SELF, &ru);
-			stats->LastSampled = TIME;
-			stats->LastCPU = ru.ru_utime;
+			stats.LastSampled = TIME;
+			stats.LastCPU = ru.ru_utime;
 #else
-			if(QueryPerformanceCounter(&stats->LastSampled))
+			if(QueryPerformanceCounter(&stats.LastSampled))
 			{
 				FILETIME CreationTime;
 				FILETIME ExitTime;
 				FILETIME KernelTime;
 				FILETIME UserTime;
 				GetProcessTimes(GetCurrentProcess(), &CreationTime, &ExitTime, &KernelTime, &UserTime);
-				stats->LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
-				stats->LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
+				stats.LastCPU.dwHighDateTime = KernelTime.dwHighDateTime + UserTime.dwHighDateTime;
+				stats.LastCPU.dwLowDateTime = KernelTime.dwLowDateTime + UserTime.dwLowDateTime;
 			}
 #endif
 

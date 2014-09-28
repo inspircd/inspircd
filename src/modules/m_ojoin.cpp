@@ -30,8 +30,9 @@ class CommandOjoin : public SplitCommand
 	bool notice;
 	bool op;
 	ModeHandler* npmh;
-	CommandOjoin(Module* parent) :
-		SplitCommand(parent, "OJOIN", 1)
+	CommandOjoin(Module* parent, ModeHandler& mode)
+		: SplitCommand(parent, "OJOIN", 1)
+		, npmh(&mode)
 	{
 		flags_needed = 'o'; Penalty = 0; syntax = "<channel>";
 		active = false;
@@ -57,7 +58,6 @@ class CommandOjoin : public SplitCommand
 
 			if (notice)
 			{
-				channel = ServerInstance->FindChan(parameters[0]);
 				channel->WriteChannelWithServ(ServerInstance->Config->ServerName, "NOTICE %s :%s joined on official network business.",
 					parameters[0].c_str(), user->nick.c_str());
 				ServerInstance->PI->SendChannelNotice(channel, 0, user->nick + " joined on official network business.");
@@ -88,11 +88,9 @@ class NetworkPrefix : public PrefixMode
 {
  public:
 	NetworkPrefix(Module* parent, char NPrefix)
-		: PrefixMode(parent, "official-join", 'Y')
+		: PrefixMode(parent, "official-join", 'Y', NETWORK_VALUE, NPrefix)
 	{
-		prefix = NPrefix;
 		levelrequired = INT_MAX;
-		prefixrank = NETWORK_VALUE;
 	}
 
 	ModResult AccessCheck(User* source, Channel* channel, std::string &parameter, bool adding)
@@ -108,35 +106,22 @@ class NetworkPrefix : public PrefixMode
 
 class ModuleOjoin : public Module
 {
-	NetworkPrefix* np;
+	NetworkPrefix np;
 	CommandOjoin mycommand;
 
  public:
 
 	ModuleOjoin()
-		: np(NULL), mycommand(this)
+		: np(this, ServerInstance->Config->ConfValue("ojoin")->getString("prefix").c_str()[0])
+		, mycommand(this, np)
 	{
-	}
-
-	void init() CXX11_OVERRIDE
-	{
-		std::string npre = ServerInstance->Config->ConfValue("ojoin")->getString("prefix");
-		char NPrefix = npre.empty() ? 0 : npre[0];
-		if (NPrefix && ServerInstance->Modes->FindPrefix(NPrefix))
-			throw ModuleException("Looks like the prefix you picked for m_ojoin is already in use. Pick another.");
-
-		/* Initialise module variables */
-		np = new NetworkPrefix(this, NPrefix);
-		mycommand.npmh = np;
-
-		ServerInstance->Modules->AddService(*np);
 	}
 
 	ModResult OnUserPreJoin(LocalUser* user, Channel* chan, const std::string& cname, std::string& privs, const std::string& keygiven) CXX11_OVERRIDE
 	{
 		if (mycommand.active)
 		{
-			privs += np->GetModeChar();
+			privs += np.GetModeChar();
 			if (mycommand.op)
 				privs += 'o';
 			return MOD_RES_ALLOW;
@@ -155,7 +140,7 @@ class ModuleOjoin : public Module
 	ModResult OnUserPreKick(User* source, Membership* memb, const std::string &reason) CXX11_OVERRIDE
 	{
 		// Don't do anything if they're not +Y
-		if (!memb->hasMode(np->GetModeChar()))
+		if (!memb->hasMode(np.GetModeChar()))
 			return MOD_RES_PASSTHRU;
 
 		// Let them do whatever they want to themselves.
@@ -164,11 +149,6 @@ class ModuleOjoin : public Module
 
 		source->WriteNumeric(ERR_RESTRICTED, memb->chan->name+" :Can't kick "+memb->user->nick+" as they're on official network business.");
 		return MOD_RES_DENY;
-	}
-
-	~ModuleOjoin()
-	{
-		delete np;
 	}
 
 	void Prioritize()

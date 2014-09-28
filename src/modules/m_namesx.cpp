@@ -59,16 +59,12 @@ class ModuleNamesX : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		if (!cap.ext.get(issuer))
-			return;
+		if (cap.ext.get(issuer))
+			prefixes = memb->GetAllPrefixChars();
 
-		/* Some module hid this from being displayed, dont bother */
-		if (nick.empty())
-			return;
-
-		prefixes = memb->GetAllPrefixChars();
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnSendWhoLine(User* source, const std::vector<std::string>& params, User* user, Membership* memb, std::string& line) CXX11_OVERRIDE

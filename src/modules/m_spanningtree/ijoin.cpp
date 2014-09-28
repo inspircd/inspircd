@@ -38,26 +38,22 @@ CmdResult CommandIJoin::HandleRemote(RemoteUser* user, std::vector<std::string>&
 	}
 
 	bool apply_modes;
-	if (params.size() > 1)
+	if (params.size() > 2)
 	{
-		time_t RemoteTS = ConvToInt(params[1]);
-		if (!RemoteTS)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Invalid TS in IJOIN: " + params[1]);
-			return CMD_INVALID;
-		}
-
+		time_t RemoteTS = ServerCommand::ExtractTS(params[2]);
 		if (RemoteTS < chan->age)
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Attempted to lower TS via IJOIN. Channel=" + params[0] + " RemoteTS=" + params[1] + " LocalTS=" + ConvToStr(chan->age));
-			return CMD_INVALID;
-		}
-		apply_modes = ((params.size() > 2) && (RemoteTS == chan->age));
+			throw ProtocolException("Attempted to lower TS via IJOIN. LocalTS=" + ConvToStr(chan->age));
+		apply_modes = ((params.size() > 3) && (RemoteTS == chan->age));
 	}
 	else
 		apply_modes = false;
 
-	chan->ForceJoin(user, apply_modes ? &params[2] : NULL);
+	// Join the user and set the membership id to what they sent
+	Membership* memb = chan->ForceJoin(user, apply_modes ? &params[3] : NULL);
+	if (!memb)
+		return CMD_FAILURE;
+
+	memb->id = Membership::IdFromString(params[1]);
 	return CMD_SUCCESS;
 }
 
@@ -73,10 +69,7 @@ CmdResult CommandResync::HandleServer(TreeServer* server, std::vector<std::strin
 	}
 
 	if (!server->IsLocal())
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Received RESYNC with a source that is not directly connected: " + server->GetID());
-		return CMD_INVALID;
-	}
+		throw ProtocolException("RESYNC from a server that is not directly connected");
 
 	// Send all known information about the channel
 	server->GetSocket()->SyncChannel(chan);

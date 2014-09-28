@@ -21,31 +21,17 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_win32.h"
 
-ThreadEngine::ThreadEngine()
-{
-}
-
 void ThreadEngine::Start(Thread* thread)
 {
-	ThreadData* data = new ThreadData;
-	thread->state = data;
+	thread->state.handle = CreateThread(NULL, 0, ThreadEngine::Entry, thread, 0, NULL);
 
-	DWORD ThreadId = 0;
-	data->handle = CreateThread(NULL,0,ThreadEngine::Entry,thread,0,&ThreadId);
-
-	if (data->handle == NULL)
+	if (thread->state.handle == NULL)
 	{
 		DWORD lasterr = GetLastError();
-		thread->state = NULL;
-		delete data;
 		std::string err = "Unable to create new thread: " + ConvToStr(lasterr);
 		SetLastError(ERROR_SUCCESS);
 		throw CoreException(err);
 	}
-}
-
-ThreadEngine::~ThreadEngine()
-{
 }
 
 DWORD WINAPI ThreadEngine::Entry(void* parameter)
@@ -55,9 +41,10 @@ DWORD WINAPI ThreadEngine::Entry(void* parameter)
 	return 0;
 }
 
-void ThreadData::FreeThread(Thread* thread)
+void ThreadEngine::Stop(Thread* thread)
 {
 	thread->SetExitFlag();
+	HANDLE handle = thread->state.handle;
 	WaitForSingleObject(handle,INFINITE);
 	CloseHandle(handle);
 }
@@ -83,6 +70,24 @@ class ThreadSignalSocket : public BufferedSocket
 	}
 };
 
+static bool BindAndListen(int sockfd, int port, const char* addr)
+{
+	irc::sockets::sockaddrs servaddr;
+	if (!irc::sockets::aptosa(addr, port, servaddr))
+		return false;
+
+	if (SocketEngine::Bind(sockfd, servaddr) != 0)
+		return false;
+
+	if (SocketEngine::Listen(sockfd, ServerInstance->Config->MaxConn) != 0)
+	{
+		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR in listen(): %s", strerror(errno));
+		return false;
+	}
+
+	return true;
+}
+
 SocketThread::SocketThread()
 {
 	int listenFD = socket(AF_INET, SOCK_STREAM, 0);
@@ -92,7 +97,7 @@ SocketThread::SocketThread()
 	if (connFD == -1)
 		throw CoreException("Could not create ITC pipe");
 
-	if (!ServerInstance->BindSocket(listenFD, 0, "127.0.0.1", true))
+	if (!BindAndListen(listenFD, 0, "127.0.0.1"))
 		throw CoreException("Could not create ITC pipe");
 	SocketEngine::NonBlocking(connFD);
 

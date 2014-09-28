@@ -43,15 +43,39 @@ class TreeServer : public Server
 	TreeServer* Route;			/* Route entry */
 	std::vector<TreeServer*> Children;	/* List of child objects */
 	std::string VersionString;		/* Version string or empty string */
+
+	/** Full version string including patch version and other info
+	 */
+	std::string fullversion;
+
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
 	time_t NextPing;			/* After this time, the server should be PINGed*/
 	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	std::string sid;			/* Server ID */
 
+	/** Counter counting how many servers are bursting in front of this server, including
+	 * this server. Set to parents' value on construction then it is increased if the
+	 * server itself starts bursting. Decreased when a server on the path to this server
+	 * finishes burst.
+	 */
+	unsigned int behind_bursting;
+
+	/** True if this server has been lost in a split and is awaiting destruction
+	 */
+	bool isdead;
+
 	/** This method is used to add this TreeServer to the
 	 * hash maps. It is only called by the constructors.
 	 */
 	void AddHashEntry();
+
+	/** Used by SQuit logic to recursively remove servers
+	 */
+	void SQuitInternal(unsigned int& num_lost_servers);
+
+	/** Remove the reference to this server from the hash maps
+	 */
+	void RemoveHash();
 
  public:
 	typedef std::vector<TreeServer*> ChildServers;
@@ -59,7 +83,6 @@ class TreeServer : public Server
 	const time_t age;
 
 	bool Warned;				/* True if we've warned opers about high latency on this server */
-	bool bursting;				/* whether or not this server is bursting */
 
 	unsigned int UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
 	unsigned int OperCount;			/* How many opers are on this server? */
@@ -76,7 +99,21 @@ class TreeServer : public Server
 	 */
 	TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide);
 
-	int QuitUsers(const std::string &reason);
+	/** SQuit a server connected to this server, removing the given server and all servers behind it
+	 * @param server Server to squit, must be directly below this server
+	 * @param reason Reason for quitting the server, sent to opers and other servers
+	 */
+	void SQuitChild(TreeServer* server, const std::string& reason);
+
+	/** SQuit this server, removing this server and all servers behind it
+	 * @param reason Reason for quitting the server, sent to opers and other servers
+	 */
+	void SQuit(const std::string& reason)
+	{
+		GetParent()->SQuitChild(this, reason);
+	}
+
+	static unsigned int QuitUsers(const std::string& reason);
 
 	/** Get route.
 	 * The 'route' is defined as the locally-
@@ -92,9 +129,19 @@ class TreeServer : public Server
 	 */
 	bool IsLocal() const { return (this->Route == this); }
 
+	/** Returns true if the server is awaiting destruction
+	 * @return True if the server is waiting to be culled and deleted, false otherwise
+	 */
+	bool IsDead() const { return isdead; }
+
 	/** Get server version string
 	 */
 	const std::string& GetVersion();
+
+	/** Get the full version string of this server
+	 * @return The full version string of this server, including patch version and other info
+	 */
+	const std::string& GetFullVersion() const { return fullversion; }
 
 	/** Set time we are next due to ping this server
 	 */
@@ -142,6 +189,17 @@ class TreeServer : public Server
 	 */
 	void SetVersion(const std::string &Version);
 
+	/** Set the full version string
+	 * @param verstr The version string to set
+	 */
+	void SetFullVersion(const std::string& verstr) { fullversion = verstr; }
+
+	/** Sets the description of this server. Called when the description of a remote server changes
+	 * and we are notified about it.
+	 * @param descstr The description to set
+	 */
+	void SetDesc(const std::string& descstr) { description = descstr; }
+
 	/** Return all child servers
 	 */
 	const ChildServers& GetChildren() const { return Children; }
@@ -153,12 +211,6 @@ class TreeServer : public Server
 	/** Delete a child server, return false if it didn't exist.
 	 */
 	bool DelChild(TreeServer* Child);
-
-	/** Removes child nodes of this node, and of that node, etc etc.
-	 * This is used during netsplits to automatically tidy up the
-	 * server tree. It is slow, we don't use it for much else.
-	 */
-	void Tidy();
 
 	/** Get server ID
 	 */
@@ -174,11 +226,25 @@ class TreeServer : public Server
 	 */
 	void CheckULine();
 
+	/** Get the bursting state of this server
+	 * @return True if this server is bursting, false if it isn't
+	 */
+	bool IsBursting() const { return (StartBurst != 0); }
+
+	/** Check whether this server is behind a bursting server or is itself bursting.
+	 * This can tell whether a user is on a part of the network that is still bursting.
+	 * @return True if this server is bursting or is behind a server that is bursting, false if it isn't
+	 */
+	bool IsBehindBursting() const { return (behind_bursting != 0); }
+
+	/** Set the bursting state of the server
+	 * @param startms Time the server started bursting, if 0 or omitted, use current time
+	 */
+	void BeginBurst(unsigned long startms = 0);
+
 	CullResult cull();
 
-	/** Destructor
-	 * Removes the reference to this object from the
-	 * hash maps.
+	/** Destructor, deletes ServerUser unless IsRoot()
 	 */
 	~TreeServer();
 

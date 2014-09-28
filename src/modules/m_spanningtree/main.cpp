@@ -33,11 +33,13 @@
 #include "link.h"
 #include "treesocket.h"
 #include "commands.h"
-#include "protocolinterface.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
-	, commands(NULL), DNS(this, "DNS")
+	, commands(NULL)
+	, currmembid(0)
+	, DNS(this, "DNS")
+	, loopCall(false)
 {
 }
 
@@ -47,8 +49,8 @@ SpanningTreeCommands::SpanningTreeCommands(ModuleSpanningTree* module)
 	fmode(module), ftopic(module), fhost(module), fident(module), fname(module),
 	away(module), addline(module), delline(module), encap(module), idle(module),
 	nick(module), ping(module), pong(module), push(module), save(module),
-	server(module), squit(module), snonotice(module), version(module),
-	burst(module), endburst(module)
+	server(module), squit(module), snonotice(module),
+	endburst(module), sinfo(module)
 {
 }
 
@@ -56,10 +58,24 @@ namespace
 {
 	void SetLocalUsersServer(Server* newserver)
 	{
+		// Does not change the server of quitting users because those are not in the list
+
 		ServerInstance->FakeClient->server = newserver;
-		const LocalUserList& list = ServerInstance->Users->local_users;
-		for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 			(*i)->server = newserver;
+	}
+
+	void ResetMembershipIds()
+	{
+		// Set all membership ids to 0
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::iterator i = list.begin(); i != list.end(); ++i)
+		{
+			LocalUser* user = *i;
+			for (User::ChanList::iterator j = user->chans.begin(); j != user->chans.end(); ++j)
+				(*j)->id = 0;
+		}
 	}
 }
 
@@ -67,21 +83,16 @@ void ModuleSpanningTree::init()
 {
 	ServerInstance->SNO->EnableSnomask('l', "LINK");
 
+	ResetMembershipIds();
+
 	Utils = new SpanningTreeUtilities(this);
 	Utils->TreeRoot = new TreeServer;
 	commands = new SpanningTreeCommands(this);
 
-	delete ServerInstance->PI;
-	ServerInstance->PI = new SpanningTreeProtocolInterface;
+	ServerInstance->PI = &protocolinterface;
 
 	delete ServerInstance->FakeClient->server;
 	SetLocalUsersServer(Utils->TreeRoot);
-
-	loopCall = false;
-	SplitInProgress = false;
-
-	// update our local user count
-	Utils->TreeRoot->UserCount = ServerInstance->Users->local_users.size();
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
@@ -158,12 +169,6 @@ restart:
 		if (s->IsRoot())
 			continue;
 
-		if (s->GetSocket()->GetLinkState() == DYING)
-		{
-			s->GetSocket()->Close();
-			goto restart;
-		}
-
 		// Do not ping servers that are not fully connected yet!
 		// Servers which are connected to us have IsLocal() == true and if they're fully connected
 		// then Socket->LinkState == CONNECTED. Servers that are linked to another server are always fully connected.
@@ -179,7 +184,7 @@ restart:
 			{
 				// They did, send a ping to them
 				s->SetNextPingTime(curtime + Utils->PingFreq);
-				s->GetSocket()->WriteLine(":" + ServerInstance->Config->GetSID() + " PING " + s->GetID());
+				s->GetSocket()->WriteLine(CmdBuilder("PING").push(s->GetID()));
 				s->LastPingMsec = ts;
 			}
 			else
@@ -349,7 +354,13 @@ ModResult ModuleSpanningTree::HandleVersion(const std::vector<std::string>& para
 			// Pass to default VERSION handler.
 			return MOD_RES_PASSTHRU;
 		}
-		std::string Version = found->GetVersion();
+
+		// If an oper wants to see the version then show the full version string instead of the normal,
+		// but only if it is non-empty.
+		// If it's empty it might be that the server is still syncing (full version hasn't arrived yet)
+		// or the server is a 2.0 server and does not send a full version.
+		bool showfull = ((user->IsOper()) && (!found->GetFullVersion().empty()));
+		const std::string& Version = (showfull ? found->GetFullVersion() : found->GetVersion());
 		user->WriteNumeric(RPL_VERSION, ":%s", Version.c_str());
 	}
 	else
@@ -403,11 +414,6 @@ ModResult ModuleSpanningTree::HandleConnect(const std::vector<std::string>& para
 	return MOD_RES_DENY;
 }
 
-void ModuleSpanningTree::On005Numeric(std::map<std::string, std::string>& tokens)
-{
-	tokens["MAP"];
-}
-
 void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, time_t expiry)
 {
 	if (IS_LOCAL(source))
@@ -415,6 +421,7 @@ void ModuleSpanningTree::OnUserInvite(User* source,User* dest,Channel* channel, 
 		CmdBuilder params(source, "INVITE");
 		params.push_back(dest->uuid);
 		params.push_back(channel->name);
+		params.push_int(channel->age);
 		params.push_back(ConvToStr(expiry));
 		params.Broadcast();
 	}
@@ -494,19 +501,21 @@ void ModuleSpanningTree::OnUserJoin(Membership* memb, bool sync, bool created_by
 	if (!IS_LOCAL(memb->user))
 		return;
 
+	// Assign the current membership id to the new Membership and increase it
+	memb->id = currmembid++;
+
 	if (created_by_local)
 	{
-		CmdBuilder params("FJOIN");
-		params.push_back(memb->chan->name);
-		params.push_back(ConvToStr(memb->chan->age));
-		params.push_raw(" +").push_raw(memb->chan->ChanModes(true));
-		params.push(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+		CommandFJoin::Builder params(memb->chan);
+		params.add(memb);
+		params.finalize();
 		params.Broadcast();
 	}
 	else
 	{
 		CmdBuilder params(memb->user, "IJOIN");
 		params.push_back(memb->chan->name);
+		params.push_int(memb->id);
 		if (!memb->modes.empty())
 		{
 			params.push_back(ConvToStr(memb->chan->age));
@@ -566,7 +575,8 @@ void ModuleSpanningTree::OnUserQuit(User* user, const std::string &reason, const
 		// Hide the message if one of the following is true:
 		// - User is being quit due to a netsplit and quietbursts is on
 		// - Server is a silent uline
-		bool hide = (((this->SplitInProgress) && (Utils->quiet_bursts)) || (user->server->IsSilentULine()));
+		TreeServer* server = TreeServer::Get(user);
+		bool hide = (((server->IsDead()) && (Utils->quiet_bursts)) || (server->IsSilentULine()));
 		if (!hide)
 		{
 			ServerInstance->SNO->WriteToSnoMask('Q', "Client exiting on server %s: %s (%s) [%s]",
@@ -588,12 +598,9 @@ void ModuleSpanningTree::OnUserPostNick(User* user, const std::string &oldnick)
 		params.push_back(ConvToStr(user->age));
 		params.Broadcast();
 	}
-	else if (!loopCall && user->nick == user->uuid)
+	else if (!loopCall)
 	{
-		CmdBuilder params("SAVE");
-		params.push_back(user->uuid);
-		params.push_back(ConvToStr(user->age));
-		params.Broadcast();
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Changed nick of remote user %s from %s to %s TS %lu by ourselves!", user->uuid.c_str(), oldnick.c_str(), user->nick.c_str(), (unsigned long) user->age);
 	}
 }
 
@@ -605,6 +612,9 @@ void ModuleSpanningTree::OnUserKick(User* source, Membership* memb, const std::s
 	CmdBuilder params(source, "KICK");
 	params.push_back(memb->chan->name);
 	params.push_back(memb->user->uuid);
+	// If a remote user is being kicked by us then send the membership id in the kick too
+	if (!IS_LOCAL(memb->user))
+		params.push_int(memb->id);
 	params.push_last(reason);
 	params.Broadcast();
 }
@@ -627,6 +637,16 @@ void ModuleSpanningTree::OnPreRehash(User* user, const std::string &parameter)
 
 void ModuleSpanningTree::ReadConfig(ConfigStatus& status)
 {
+	// Did this rehash change the description of this server?
+	const std::string& newdesc = ServerInstance->Config->ServerDesc;
+	if (newdesc != Utils->TreeRoot->GetDesc())
+	{
+		// Broadcast a SINFO desc message to let the network know about the new description. This is the description
+		// string that is sent in the SERVER message initially and shown for example in WHOIS.
+		// We don't need to update the field itself in the Server object - the core does that.
+		CommandSInfo::Builder(Utils->TreeRoot, "desc", newdesc).Broadcast();
+	}
+
 	// Re-read config stuff
 	try
 	{
@@ -665,6 +685,7 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		return;
 	ServerInstance->PI->SendMetaData("modules", "-" + mod->ModuleSourceFile);
 
+restart:
 	// Close all connections which use an IO hook provided by this module
 	const TreeServer::ChildServers& list = Utils->TreeRoot->GetChildren();
 	for (TreeServer::ChildServers::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -674,6 +695,8 @@ void ModuleSpanningTree::OnUnloadModule(Module* mod)
 		{
 			sock->SendError("SSL module unloaded");
 			sock->Close();
+			// XXX: The list we're iterating is modified by TreeServer::SQuit() which is called by Close()
+			goto restart;
 		}
 	}
 
@@ -737,8 +760,7 @@ CullResult ModuleSpanningTree::cull()
 
 ModuleSpanningTree::~ModuleSpanningTree()
 {
-	delete ServerInstance->PI;
-	ServerInstance->PI = new ProtocolInterface;
+	ServerInstance->PI = &ServerInstance->DefaultProtocolInterface;
 
 	Server* newsrv = new Server(ServerInstance->Config->ServerName, ServerInstance->Config->ServerDesc);
 	SetLocalUsersServer(newsrv);

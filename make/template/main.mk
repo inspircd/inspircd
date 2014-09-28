@@ -1,3 +1,5 @@
+%target BSD_MAKE BSDmakefile
+%target GNU_MAKE GNUmakefile
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
@@ -31,8 +33,8 @@
 
 
 CXX = @CXX@
-COMPILER = @COMPILER@
-SYSTEM = @SYSTEM@
+COMPILER = @COMPILER_NAME@
+SYSTEM = @SYSTEM_NAME@
 BUILDPATH ?= $(PWD)/build
 SOCKETENGINE = @SOCKETENGINE@
 CORECXXFLAGS = -fPIC -fvisibility-inlines-hidden -pipe -Iinclude -Wall -Wextra -Wfatal-errors -Wno-unused-parameter -Wshadow
@@ -50,11 +52,11 @@ INSTMODE_DIR = 0750
 INSTMODE_BIN = 0750
 INSTMODE_LIB = 0640
 
-@IFNEQ $(COMPILER) icc
+@IFNEQ $(COMPILER) ICC
   CORECXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
 @ENDIF
 
-@IFNEQ $(SYSTEM)-$(COMPILER) darwin-gcc
+@IFNEQ $(SYSTEM)-$(COMPILER) darwin-GCC
   CORECXXFLAGS += -fvisibility=hidden
 @ENDIF
 
@@ -88,7 +90,7 @@ INSTMODE_LIB = 0640
 DBGOK=0
 @IFEQ $(D) 0
   CORECXXFLAGS += -O2
-@IFEQ $(CXX) g++
+@IFEQ $(COMPILER) GCC
     CORECXXFLAGS += -g1
 @ENDIF
   HEADER = std-header
@@ -106,18 +108,18 @@ DBGOK=0
 @ENDIF
 FOOTER = finishmessage
 
-@GNU_ONLY MAKEFLAGS += --no-print-directory
+@TARGET GNU_MAKE MAKEFLAGS += --no-print-directory
 
-@GNU_ONLY SOURCEPATH = $(shell /bin/pwd)
-@BSD_ONLY SOURCEPATH != /bin/pwd
+@TARGET GNU_MAKE SOURCEPATH = $(shell /bin/pwd)
+@TARGET BSD_MAKE SOURCEPATH != /bin/pwd
 
 @IFDEF V
   RUNCC = $(CXX)
   RUNLD = $(CXX)
   VERBOSE = -v
 @ELSE
-  @GNU_ONLY MAKEFLAGS += --silent
-  @BSD_ONLY MAKE += -s
+  @TARGET GNU_MAKE MAKEFLAGS += --silent
+  @TARGET BSD_MAKE MAKE += -s
   RUNCC = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
   RUNLD = perl $(SOURCEPATH)/make/run-cc.pl $(CXX)
 @ENDIF
@@ -139,8 +141,8 @@ TARGET = all
 @IFDEF M
     HEADER = mod-header
     FOOTER = mod-footer
-    @BSD_ONLY TARGET = modules/${M:S/.so$//}.so
-    @GNU_ONLY TARGET = modules/$(M:.so=).so
+    @TARGET BSD_MAKE TARGET = modules/${M:S/.so$//}.so
+    @TARGET GNU_MAKE TARGET = modules/$(M:.so=).so
 @ENDIF
 
 @IFDEF T
@@ -229,11 +231,16 @@ install: target
 	[ $(BUILDPATH)/modules/ -ef $(MODPATH) ] || $(INSTALL) -m $(INSTMODE_LIB) $(BUILDPATH)/modules/*.so $(MODPATH)
 @ENDIF
 	-$(INSTALL) -m $(INSTMODE_BIN) inspircd $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) .gdbargs $(BASE)/.gdbargs 2>/dev/null
 @IFEQ $(SYSTEM) darwin
 	-$(INSTALL) -m $(INSTMODE_BIN) org.inspircd.plist $(BASE) 2>/dev/null
 @ENDIF
+@IFEQ $(SYSTEM) linux
+	-$(INSTALL) -m $(INSTMODE_LIB) inspircd.service $(BASE) 2>/dev/null
+@ENDIF
+	-$(INSTALL) -m $(INSTMODE_LIB) inspircd.1 $(BASE) 2>/dev/null
+	-$(INSTALL) -m $(INSTMODE_LIB) inspircd-genssl.1 $(BASE) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
-	-$(INSTALL) -m $(INSTMODE_LIB) tools/gdbargs $(BASE)/.gdbargs 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/modules/*.example $(CONPATH)/examples/modules
@@ -253,7 +260,7 @@ install: target
 
 GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure .config.cache
 	./configure -update
-@BSD_ONLY .MAKEFILEDEPS: BSDmakefile
+@TARGET BSD_MAKE .MAKEFILEDEPS: BSDmakefile
 
 clean:
 	@echo Cleaning...

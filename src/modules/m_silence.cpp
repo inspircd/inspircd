@@ -85,7 +85,7 @@ class CommandSVSSilence : public Command
 
 		if (IS_LOCAL(u))
 		{
-			ServerInstance->Parser->CallHandler("SILENCE", std::vector<std::string>(parameters.begin() + 1, parameters.end()), u);
+			ServerInstance->Parser.CallHandler("SILENCE", std::vector<std::string>(parameters.begin() + 1, parameters.end()), u);
 		}
 
 		return CMD_SUCCESS;
@@ -315,9 +315,9 @@ class ModuleSilence : public Module
 	void OnBuildExemptList(MessageType message_type, Channel* chan, User* sender, char status, CUList &exempt_list, const std::string &text)
 	{
 		int public_silence = (message_type == MSG_PRIVMSG ? SILENCE_CHANNEL : SILENCE_CNOTICE);
-		const UserMembList *ulist = chan->GetUsers();
 
-		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+		const Channel::MemberMap& ulist = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 		{
 			if (IS_LOCAL(i->first))
 			{

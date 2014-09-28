@@ -21,34 +21,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- /* HACK: This prevents OpenSSL on OS X 10.7 and later from spewing deprecation
-  * warnings for every single function call. As far as I (SaberUK) know, Apple
-  * have no plans to remove OpenSSL so this warning just causes needless spam.
-  */
-#ifdef __APPLE__
-# define __AVAILABILITYMACROS__
-# define DEPRECATED_IN_MAC_OS_X_VERSION_10_7_AND_LATER
-#endif
 
 #include "inspircd.h"
 #include "iohook.h"
-#include <openssl/ssl.h>
-#include <openssl/err.h>
 #include "modules/ssl.h"
 
-#ifdef _WIN32
-# pragma comment(lib, "libcrypto.lib")
-# pragma comment(lib, "libssl.lib")
-# pragma comment(lib, "user32.lib")
-# pragma comment(lib, "advapi32.lib")
-# pragma comment(lib, "libgcc.lib")
-# pragma comment(lib, "libmingwex.lib")
-# pragma comment(lib, "gdi32.lib")
-# undef MAX_DESCRIPTORS
-# define MAX_DESCRIPTORS 10000
+// Ignore OpenSSL deprecation warnings on OS X Lion and newer.
+#if defined __APPLE__
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-/* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") -Wno-pedantic */
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+
+#ifdef _WIN32
+# pragma comment(lib, "ssleay32.lib")
+# pragma comment(lib, "libeay32.lib")
+#endif
+
+/* $CompileFlags: pkgconfversion("openssl","0.9.7") pkgconfincludes("openssl","/openssl/ssl.h","") */
 /* $LinkerFlags: rpath("pkg-config --libs openssl") pkgconflibs("openssl","/libssl.so","-lssl -lcrypto") */
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
@@ -78,12 +69,13 @@ namespace OpenSSL
 	 public:
 		DHParams(const std::string& filename)
 		{
-			FILE* dhpfile = fopen(filename.c_str(), "r");
+			BIO* dhpfile = BIO_new_file(filename.c_str(), "r");
 			if (dhpfile == NULL)
-				throw Exception("Couldn't open DH file " + filename + ": " + strerror(errno));
+				throw Exception("Couldn't open DH file " + filename);
 
-			dh = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
-			fclose(dhpfile);
+			dh = PEM_read_bio_DHparams(dhpfile, NULL, NULL, NULL);
+			BIO_free(dhpfile);
+
 			if (!dh)
 				throw Exception("Couldn't read DH params from file " + filename);
 		}
@@ -107,6 +99,9 @@ namespace OpenSSL
 		Context(SSL_CTX* context)
 			: ctx(context)
 		{
+			// Sane default options for OpenSSL see https://www.openssl.org/docs/ssl/SSL_CTX_set_options.html
+			// and when choosing a cipher, use the server's preferences instead of the client preferences.
+			SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION | SSL_OP_CIPHER_SERVER_PREFERENCE);
 			SSL_CTX_set_mode(ctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 			SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 
@@ -358,8 +353,14 @@ class OpenSSLIOHook : public SSLIOHook
 		char buf[512];
 		X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
 		certinfo->dn = buf;
+		// Make sure there are no chars in the string that we consider invalid
+		if (certinfo->dn.find_first_of("\r\n") != std::string::npos)
+			certinfo->dn.clear();
+
 		X509_NAME_oneline(X509_get_issuer_name(cert), buf, sizeof(buf));
 		certinfo->issuer = buf;
+		if (certinfo->issuer.find_first_of("\r\n") != std::string::npos)
+			certinfo->issuer.clear();
 
 		if (!X509_digest(cert, profile->GetDigest(), md, &n))
 		{
@@ -540,7 +541,7 @@ class OpenSSLIOHook : public SSLIOHook
 			std::string text = "*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sess)) + "'";
 			const std::string& fingerprint = certificate->fingerprint;
 			if (!fingerprint.empty())
-				text += " and your SSL fingerprint is " + fingerprint;
+				text += " and your SSL certificate fingerprint is " + fingerprint;
 
 			user->WriteNotice(text);
 		}

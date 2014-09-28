@@ -152,7 +152,7 @@ namespace DNS
 		Module* const creator;
 
 		Request(Manager* mgr, Module* mod, const std::string& addr, QueryType qt, bool usecache = true)
-			: Timer((ServerInstance->Config->dns_timeout ? ServerInstance->Config->dns_timeout : 5), ServerInstance->Time())
+			: Timer((ServerInstance->Config->dns_timeout ? ServerInstance->Config->dns_timeout : 5))
 			, Question(addr, qt)
 			, manager(mgr)
 			, use_cache(usecache)

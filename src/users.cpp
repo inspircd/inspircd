@@ -24,10 +24,7 @@
 
 
 #include "inspircd.h"
-#include <stdarg.h>
-#include "socketengine.h"
 #include "xline.h"
-#include "bancache.h"
 
 already_sent_t LocalUser::already_sent_id = 0;
 
@@ -100,8 +97,6 @@ LocalUser::LocalUser(int myfd, irc::sockets::sockaddrs* client, irc::sockets::so
 
 User::~User()
 {
-	if (ServerInstance->FindUUID(uuid))
-		ServerInstance->Logs->Log("USERS", LOG_DEFAULT, "User destructor for %s called without cull", uuid.c_str());
 }
 
 const std::string& User::MakeHost()
@@ -285,11 +280,11 @@ eol_found:
 		recvq = recvq.substr(qpos);
 
 		// TODO should this be moved to when it was inserted in recvq?
-		ServerInstance->stats->statsRecv += qpos;
+		ServerInstance->stats.Recv += qpos;
 		user->bytes_in += qpos;
 		user->cmds_in++;
 
-		ServerInstance->Parser->ProcessBuffer(line, user);
+		ServerInstance->Parser.ProcessBuffer(line, user);
 		if (user->quitting)
 			return;
 	}
@@ -333,7 +328,6 @@ CullResult User::cull()
 
 CullResult LocalUser::cull()
 {
-	ServerInstance->Users->local_users.erase(this);
 	ClearInvites();
 	eh.cull();
 	return User::cull();
@@ -344,7 +338,7 @@ CullResult FakeUser::cull()
 	// Fake users don't quit, they just get culled.
 	quitting = true;
 	// Fake users are not inserted into UserManager::clientlist, they're only in the uuidlist
-	ServerInstance->Users->uuidlist.erase(uuid);
+	// and they are removed from there by the linking mod when the server splits
 	return User::cull();
 }
 
@@ -420,7 +414,7 @@ void OperInfo::init()
 			{
 				this->AllowedUserModes.set();
 			}
-			else if (*c >= 'A' && *c < 'z')
+			else if (*c >= 'A' && *c <= 'z')
 			{
 				this->AllowedUserModes[*c - 'A'] = true;
 			}
@@ -433,7 +427,7 @@ void OperInfo::init()
 			{
 				this->AllowedChanModes.set();
 			}
-			else if (*c >= 'A' && *c < 'z')
+			else if (*c >= 'A' && *c <= 'z')
 			{
 				this->AllowedChanModes[*c - 'A'] = true;
 			}
@@ -540,7 +534,7 @@ bool LocalUser::CheckLines(bool doZline)
 
 void LocalUser::FullConnect()
 {
-	ServerInstance->stats->statsConnects++;
+	ServerInstance->stats.Connects++;
 	this->idle_lastmsg = ServerInstance->Time();
 
 	/*
@@ -558,11 +552,11 @@ void LocalUser::FullConnect()
 		return;
 
 	this->WriteNumeric(RPL_WELCOME, ":Welcome to the %s IRC Network %s", ServerInstance->Config->Network.c_str(), GetFullRealHost().c_str());
-	this->WriteNumeric(RPL_YOURHOSTIS, ":Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), BRANCH);
+	this->WriteNumeric(RPL_YOURHOSTIS, ":Your host is %s, running version %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH);
 	this->WriteNumeric(RPL_SERVERCREATED, ":This server was created %s %s", __TIME__, __DATE__);
 
 	const std::string& modelist = ServerInstance->Modes->GetModeListFor004Numeric();
-	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s", ServerInstance->Config->ServerName.c_str(), BRANCH, modelist.c_str());
+	this->WriteNumeric(RPL_SERVERVERSION, "%s %s %s", ServerInstance->Config->ServerName.c_str(), INSPIRCD_BRANCH, modelist.c_str());
 
 	ServerInstance->ISupport.SendTo(this);
 
@@ -576,13 +570,13 @@ void LocalUser::FullConnect()
 	std::vector<std::string> parameters;
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
-		ServerInstance->Parser->CallHandler(command, parameters, this);
+		ServerInstance->Parser.CallHandler(command, parameters, this);
 
 	MOD_RESULT = MOD_RES_PASSTHRU;
 	command = "MOTD";
 	FIRST_MOD_RESULT(OnPreCommand, MOD_RESULT, (command, parameters, this, true, command));
 	if (!MOD_RESULT)
-		ServerInstance->Parser->CallHandler(command, parameters, this);
+		ServerInstance->Parser.CallHandler(command, parameters, this);
 
 	if (ServerInstance->Config->RawLog)
 		WriteServ("PRIVMSG %s :*** Raw I/O logging is enabled on this server. All messages, passwords, and commands are being recorded.", nick.c_str());
@@ -600,7 +594,7 @@ void LocalUser::FullConnect()
 	ServerInstance->SNO->WriteToSnoMask('c',"Client connecting on port %d (class %s): %s (%s) [%s]",
 		this->GetServerPort(), this->MyClass->name.c_str(), GetFullRealHost().c_str(), this->GetIPString().c_str(), this->fullname.c_str());
 	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding NEGATIVE hit for " + this->GetIPString());
-	ServerInstance->BanCache->AddHit(this->GetIPString(), "", "");
+	ServerInstance->BanCache.AddHit(this->GetIPString(), "", "");
 	// reset the flood penalty (which could have been raised due to things like auto +x)
 	CommandFloodPenalty = 0;
 }
@@ -614,7 +608,7 @@ void User::InvalidateCache()
 	cached_fullrealhost.clear();
 }
 
-bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
+bool User::ChangeNick(const std::string& newnick, time_t newts)
 {
 	if (quitting)
 	{
@@ -622,21 +616,10 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 		return false;
 	}
 
-	if (!force)
+	User* const InUse = ServerInstance->FindNickOnly(newnick);
+	if (InUse == this)
 	{
-		ModResult MOD_RESULT;
-		FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (this, newnick));
-
-		if (MOD_RESULT == MOD_RES_DENY)
-		{
-			ServerInstance->stats->statsCollisions++;
-			return false;
-		}
-	}
-
-	if (assign(newnick) == assign(nick))
-	{
-		// case change, don't need to check Q:lines and such
+		// case change, don't need to check campers
 		// and, if it's identical including case, we can leave right now
 		// We also don't update the nick TS if it's a case change, either
 		if (newnick == nick)
@@ -644,42 +627,6 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 	}
 	else
 	{
-		/*
-		 * Don't check Q:Lines if it's a server-enforced change, just on the off-chance some fucking *moron*
-		 * tries to Q:Line SIDs, also, this means we just get our way period, as it really should be.
-		 * Thanks Kein for finding this. -- w00t
-		 *
-		 * Also don't check Q:Lines for remote nickchanges, they should have our Q:Lines anyway to enforce themselves.
-		 *		-- w00t
-		 */
-		if (IS_LOCAL(this) && !force)
-		{
-			XLine* mq = ServerInstance->XLines->MatchesLine("Q",newnick);
-			if (mq)
-			{
-				if (this->registered == REG_ALL)
-				{
-					ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s: %s",
-						newnick.c_str(), GetFullRealHost().c_str(), mq->reason.c_str());
-				}
-				this->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Invalid nickname: %s", newnick.c_str(), mq->reason.c_str());
-				return false;
-			}
-
-			if (ServerInstance->Config->RestrictBannedUsers)
-			{
-				for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
-				{
-					Channel* chan = (*i)->chan;
-					if (chan->GetPrefixValue(this) < VOICE_VALUE && chan->IsBanned(this))
-					{
-						this->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
-						return false;
-					}
-				}
-			}
-		}
-
 		/*
 		 * Uh oh.. if the nickname is in use, and it's not in use by the person using it (doh) --
 		 * then we have a potential collide. Check whether someone else is camping on the nick
@@ -689,8 +636,7 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 		 * If the guy using the nick is already using it, tell the incoming nick change to gtfo,
 		 * because the nick is already (rightfully) in use. -- w00t
 		 */
-		User* InUse = ServerInstance->FindNickOnly(newnick);
-		if (InUse && (InUse != this))
+		if (InUse)
 		{
 			if (InUse->registered != REG_ALL)
 			{
@@ -698,12 +644,8 @@ bool User::ChangeNick(const std::string& newnick, bool force, time_t newts)
 				InUse->WriteFrom(InUse, "NICK %s", InUse->uuid.c_str());
 				InUse->WriteNumeric(ERR_NICKNAMEINUSE, "%s :Nickname overruled.", InUse->nick.c_str());
 
-				ServerInstance->Users->clientlist.erase(InUse->nick);
-				ServerInstance->Users->clientlist[InUse->uuid] = InUse;
-
-				InUse->nick = InUse->uuid;
-				InUse->InvalidateCache();
 				InUse->registered &= ~REG_NICK;
+				InUse->ChangeNick(InUse->uuid);
 			}
 			else
 			{
@@ -837,7 +779,7 @@ void LocalUser::Write(const std::string& text)
 	eh.AddWriteBuf(text);
 	eh.AddWriteBuf(wide_newline);
 
-	ServerInstance->stats->statsSent += text.length() + 2;
+	ServerInstance->stats.Sent += text.length() + 2;
 	this->bytes_out += text.length() + 2;
 	this->cmds_out++;
 }
@@ -946,8 +888,8 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
 		Channel* c = (*v)->chan;
-		const UserMembList* ulist = c->GetUsers();
-		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
+		const Channel::MemberMap& ulist = c->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
 			if (u && u->already_sent != LocalUser::already_sent_id)
@@ -986,8 +928,8 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	}
 	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
 	{
-		const UserMembList* ulist = (*v)->chan->GetUsers();
-		for (UserMembList::const_iterator i = ulist->begin(); i != ulist->end(); i++)
+		const Channel::MemberMap& ulist = (*v)->chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); i++)
 		{
 			LocalUser* u = IS_LOCAL(i->first);
 			if (u && (u->already_sent != uniq_id))
@@ -1052,7 +994,7 @@ void User::SendText(const std::string& linePrefix, std::stringstream& textStream
 bool User::SharesChannelWith(User *other)
 {
 	/* Outer loop */
-	for (UCListIter i = this->chans.begin(); i != this->chans.end(); i++)
+	for (User::ChanList::iterator i = this->chans.begin(); i != this->chans.end(); ++i)
 	{
 		/* Eliminate the inner loop (which used to be ~equal in size to the outer loop)
 		 * by replacing it with a map::find which *should* be more efficient
@@ -1133,7 +1075,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 
 	if (!explicit_name.empty())
 	{
-		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
 
@@ -1146,7 +1088,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 	}
 	else
 	{
-		for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+		for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
 			ServerInstance->Logs->Log("CONNECTCLASS", LOG_DEBUG, "Checking %s", c->GetName().c_str());
@@ -1225,7 +1167,7 @@ void LocalUser::SetClass(const std::string &explicit_name)
 void User::PurgeEmptyChannels()
 {
 	// firstly decrement the count on each channel
-	for (UCListIter i = this->chans.begin(); i != this->chans.end(); )
+	for (User::ChanList::iterator i = this->chans.begin(); i != this->chans.end(); )
 	{
 		Channel* c = (*i)->chan;
 		++i;

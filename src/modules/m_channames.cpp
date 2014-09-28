@@ -65,17 +65,15 @@ class ModuleChannelNames : public Module
 	void ValidateChans()
 	{
 		badchan = true;
-		std::vector<Channel*> chanvec;
 		const chan_hash& chans = ServerInstance->GetChans();
-		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); ++i)
+		for (chan_hash::const_iterator i = chans.begin(); i != chans.end(); )
 		{
-			if (!ServerInstance->IsChannel(i->second->name))
-				chanvec.push_back(i->second);
-		}
-		std::vector<Channel*>::reverse_iterator c2 = chanvec.rbegin();
-		while (c2 != chanvec.rend())
-		{
-			Channel* c = *c2++;
+			Channel* c = i->second;
+			// Move iterator before we begin kicking
+			++i;
+			if (ServerInstance->IsChannel(c->name))
+				continue; // The name of this channel is still valid
+
 			if (c->IsModeSet(permchannelmode) && c->GetUserCounter())
 			{
 				std::vector<std::string> modes;
@@ -84,14 +82,14 @@ class ModuleChannelNames : public Module
 
 				ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
 			}
-			const UserMembList* users = c->GetUsers();
-			for(UserMembCIter j = users->begin(); j != users->end(); )
+			Channel::MemberMap& users = c->userlist;
+			for (Channel::MemberMap::iterator j = users.begin(); j != users.end(); )
 			{
 				if (IS_LOCAL(j->first))
 				{
 					// KickUser invalidates the iterator
-					UserMembCIter it = j++;
-					c->KickUser(ServerInstance->FakeClient, it->first, "Channel name no longer valid");
+					Channel::MemberMap::iterator it = j++;
+					c->KickUser(ServerInstance->FakeClient, it, "Channel name no longer valid");
 				}
 				else
 					++j;
@@ -134,17 +132,18 @@ class ModuleChannelNames : public Module
 	{
 		if (badchan)
 		{
-			const UserMembList* users = memb->chan->GetUsers();
-			for(UserMembCIter i = users->begin(); i != users->end(); i++)
+			const Channel::MemberMap& users = memb->chan->GetUsers();
+			for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 				if (i->first != memb->user)
 					except_list.insert(i->first);
 		}
 	}
 
-	~ModuleChannelNames()
+	CullResult cull() CXX11_OVERRIDE
 	{
 		ServerInstance->IsChannel = rememberer;
 		ValidateChans();
+		return Module::cull();
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

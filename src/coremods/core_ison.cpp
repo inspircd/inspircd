@@ -24,6 +24,14 @@
  */
 class CommandIson : public Command
 {
+	/** Helper function to append a nick to an ISON reply
+	 * @param user User doing the /ISON
+	 * @param toadd User to append to the ISON reply
+	 * @param reply Reply string to append the nick to
+	 * @param pos If the reply gets too long it is sent to the user and truncated from this position
+	 */
+	static bool AddNick(User* user, User* toadd, std::string& reply, const std::string::size_type pos);
+
  public:
 	/** Constructor for ison.
 	 */
@@ -38,63 +46,49 @@ class CommandIson : public Command
 	CmdResult Handle(const std::vector<std::string>& parameters, User *user);
 };
 
+bool CommandIson::AddNick(User* user, User* toadd, std::string& reply, const std::string::size_type pos)
+{
+	if ((toadd) && (toadd->registered == REG_ALL))
+	{
+		reply.append(toadd->nick).push_back(' ');
+		if (reply.length() > 450)
+		{
+			user->WriteServ(reply);
+			reply.erase(pos);
+		}
+		return true;
+	}
+	return false;
+}
+
 /** Handle /ISON
  */
 CmdResult CommandIson::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	std::map<User*,User*> ison_already;
-	User *u;
 	std::string reply = "303 " + user->nick + " :";
+	const std::string::size_type pos = reply.size();
 
-	for (unsigned int i = 0; i < parameters.size(); i++)
+	for (std::vector<std::string>::const_iterator i = parameters.begin(); i != parameters.end(); ++i)
 	{
-		u = ServerInstance->FindNickOnly(parameters[i]);
-		if (ison_already.find(u) != ison_already.end())
-			continue;
+		const std::string& targetstr = *i;
 
-		if ((u) && (u->registered == REG_ALL))
+		User* const u = ServerInstance->FindNickOnly(targetstr);
+		if (!AddNick(user, u, reply, pos))
 		{
-			reply.append(u->nick).append(" ");
-			if (reply.length() > 450)
-			{
-				user->WriteServ(reply);
-				reply = "303 " + user->nick + " :";
-			}
-			ison_already[u] = u;
-		}
-		else
-		{
-			if ((i == parameters.size() - 1) && (parameters[i].find(' ') != std::string::npos))
+			if ((i == parameters.end() - 1) && (targetstr.find(' ') != std::string::npos))
 			{
 				/* Its a space seperated list of nicks (RFC1459 says to support this)
 				 */
-				irc::spacesepstream list(parameters[i]);
+				irc::spacesepstream list(targetstr);
 				std::string item;
 
 				while (list.GetToken(item))
-				{
-					u = ServerInstance->FindNickOnly(item);
-					if (ison_already.find(u) != ison_already.end())
-						continue;
-
-					if ((u) && (u->registered == REG_ALL))
-					{
-						reply.append(u->nick).append(" ");
-						if (reply.length() > 450)
-						{
-							user->WriteServ(reply);
-							reply = "303 " + user->nick + " :";
-						}
-						ison_already[u] = u;
-					}
-				}
+					AddNick(user, ServerInstance->FindNickOnly(item), reply, pos);
 			}
 		}
 	}
 
-	if (!reply.empty())
-		user->WriteServ(reply);
-
+	user->WriteServ(reply);
 	return CMD_SUCCESS;
 }
 

@@ -192,7 +192,7 @@ class ModuleSVSHold : public Module
 		return MOD_RES_DENY;
 	}
 
-	ModResult OnUserPreNick(User *user, const std::string &newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
 		XLine *rl = ServerInstance->XLines->MatchesLine("SVSHOLD", newnick);
 

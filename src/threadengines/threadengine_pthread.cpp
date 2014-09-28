@@ -21,12 +21,7 @@
 #include "inspircd.h"
 #include "threadengines/threadengine_pthread.h"
 #include <pthread.h>
-#include <signal.h>
 #include <fcntl.h>
-
-ThreadEngine::ThreadEngine()
-{
-}
 
 static void* entry_point(void* parameter)
 {
@@ -44,25 +39,14 @@ static void* entry_point(void* parameter)
 
 void ThreadEngine::Start(Thread* thread)
 {
-	ThreadData* data = new ThreadData;
-	thread->state = data;
-
-	if (pthread_create(&data->pthread_id, NULL, entry_point, thread) != 0)
-	{
-		thread->state = NULL;
-		delete data;
+	if (pthread_create(&thread->state.pthread_id, NULL, entry_point, thread) != 0)
 		throw CoreException("Unable to create new thread: " + std::string(strerror(errno)));
-	}
 }
 
-ThreadEngine::~ThreadEngine()
-{
-}
-
-void ThreadData::FreeThread(Thread* thread)
+void ThreadEngine::Stop(Thread* thread)
 {
 	thread->SetExitFlag();
-	pthread_join(pthread_id, NULL);
+	pthread_join(thread->state.pthread_id, NULL);
 }
 
 #ifdef HAS_EVENTFD

@@ -21,7 +21,6 @@
 
 
 #include "inspircd.h"
-#include <stdarg.h>
 
 class DelayJoinMode : public ModeHandler
 {
@@ -45,7 +44,7 @@ class ModuleDelayJoin : public Module
 	}
 
 	Version GetVersion() CXX11_OVERRIDE;
-	void OnNamesListItem(User* issuer, Membership*, std::string &prefixes, std::string &nick) CXX11_OVERRIDE;
+	ModResult OnNamesListItem(User* issuer, Membership*, std::string& prefixes, std::string& nick) CXX11_OVERRIDE;
 	void OnUserJoin(Membership*, bool, bool, CUList&) CXX11_OVERRIDE;
 	void CleanUser(User* user);
 	void OnUserPart(Membership*, std::string &partmessage, CUList&) CXX11_OVERRIDE;
@@ -67,8 +66,8 @@ ModeAction DelayJoinMode::OnModeChange(User* source, User* dest, Channel* channe
 		 * Make all users visible, as +D is being removed. If we don't do this,
 		 * they remain permanently invisible on this channel!
 		 */
-		const UserMembList* names = channel->GetUsers();
-		for (UserMembCIter n = names->begin(); n != names->end(); ++n)
+		const Channel::MemberMap& users = channel->GetUsers();
+		for (Channel::MemberMap::const_iterator n = users.begin(); n != users.end(); ++n)
 			creator->OnText(n->first, channel, TYPE_CHANNEL, "", 0, empty);
 	}
 	channel->SetMode(this, adding);
@@ -80,21 +79,23 @@ Version ModuleDelayJoin::GetVersion()
 	return Version("Allows for delay-join channels (+D) where users don't appear to join until they speak", VF_VENDOR);
 }
 
-void ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick)
+ModResult ModuleDelayJoin::OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick)
 {
 	/* don't prevent the user from seeing themself */
 	if (issuer == memb->user)
-		return;
+		return MOD_RES_PASSTHRU;
 
 	/* If the user is hidden by delayed join, hide them from the NAMES list */
 	if (unjoined.get(memb))
-		nick.clear();
+		return MOD_RES_DENY;
+
+	return MOD_RES_PASSTHRU;
 }
 
 static void populate(CUList& except, Membership* memb)
 {
-	const UserMembList* users = memb->chan->GetUsers();
-	for(UserMembCIter i = users->begin(); i != users->end(); i++)
+	const Channel::MemberMap& users = memb->chan->GetUsers();
+	for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 	{
 		if (i->first == memb->user || !IS_LOCAL(i->first))
 			continue;

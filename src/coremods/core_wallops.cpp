@@ -55,7 +55,8 @@ CmdResult CommandWallops::Handle (const std::vector<std::string>& parameters, Us
 	std::string wallop("WALLOPS :");
 	wallop.append(parameters[0]);
 
-	for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		User* t = *i;
 		if (t->IsModeSet(wallopsmode))

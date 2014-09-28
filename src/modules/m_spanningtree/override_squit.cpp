@@ -36,13 +36,10 @@ ModResult ModuleSpanningTree::HandleSquit(const std::vector<std::string>& parame
 			return MOD_RES_DENY;
 		}
 
-		TreeSocket* sock = s->GetSocket();
-
 		if (s->IsLocal())
 		{
 			ServerInstance->SNO->WriteToSnoMask('l',"SQUIT: Server \002%s\002 removed from network by %s",parameters[0].c_str(),user->nick.c_str());
-			sock->Squit(s,"Server quit by " + user->GetFullRealHost());
-			sock->Close();
+			s->SQuit("Server quit by " + user->GetFullRealHost());
 		}
 		else
 		{

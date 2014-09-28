@@ -32,7 +32,8 @@ class CommandModeNotice : public Command
 	{
 		std::string msg = "*** From " + src->nick + ": " + parameters[1];
 		int mlen = parameters[0].length();
-		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); i++)
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			User* user = *i;
 			for (int n = 0; n < mlen; n++)

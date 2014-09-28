@@ -29,6 +29,9 @@
  */
 class CoreExport CommandParser
 {
+ public:
+ 	typedef TR1NS::unordered_map<std::string, Command*> CommandMap;
+
  private:
 	/** Process a command from a user.
 	 * @param user The user to parse the command for
@@ -36,14 +39,19 @@ class CoreExport CommandParser
 	 */
 	void ProcessCommand(LocalUser* user, std::string& cmd);
 
- public:
 	/** Command list, a hash_map of command names to Command*
 	 */
-	Commandtable cmdlist;
+	CommandMap cmdlist;
 
+ public:
 	/** Default constructor.
 	 */
 	CommandParser();
+
+	/** Get a command name -> Command* map containing all client to server commands
+	 * @return A map of command handlers keyed by command names
+	 */
+	const CommandMap& GetCommands() const { return cmdlist; }
 
 	/** Calls the handler for a given command.
 	 * @param commandname The command to find. This should be in uppercase.

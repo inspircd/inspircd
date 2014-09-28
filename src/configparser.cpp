@@ -331,7 +331,7 @@ void ParseStack::DoInclude(ConfigTag* tag, int flags)
 			flags |= FLAG_NO_INC;
 		if (tag->getBool("noexec", true))
 			flags |= FLAG_NO_EXEC;
-		if (!ParseExec(name, flags, mandatorytag))
+		if (!ParseFile(name, flags, mandatorytag, true))
 			throw CoreException("Included");
 	}
 }
@@ -364,49 +364,20 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 	}
 }
 
-bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag)
+bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
-	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading file %s", path.c_str());
-	for (unsigned int t = 0; t < reading.size(); t++)
-	{
-		if (path == reading[t])
-		{
-			throw CoreException("File " + path + " is included recursively (looped inclusion)");
-		}
-	}
+	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());
+	if (std::find(reading.begin(), reading.end(), path) != reading.end())
+		throw CoreException((isexec ? "Executable " : "File ") + path + " is included recursively (looped inclusion)");
 
 	/* It's not already included, add it to the list of files we've loaded */
 
-	FileWrapper file(fopen(path.c_str(), "r"));
+	FileWrapper file((isexec ? popen(path.c_str(), "r") : fopen(path.c_str(), "r")), isexec);
 	if (!file)
 		throw CoreException("Could not read \"" + path + "\" for include");
 
 	reading.push_back(path);
 	Parser p(*this, flags, file, path, mandatory_tag);
-	bool ok = p.outer_parse();
-	reading.pop_back();
-	return ok;
-}
-
-bool ParseStack::ParseExec(const std::string& name, int flags, const std::string& mandatory_tag)
-{
-	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading executable %s", name.c_str());
-	for (unsigned int t = 0; t < reading.size(); t++)
-	{
-		if (std::string(name) == reading[t])
-		{
-			throw CoreException("Executable " + name + " is included recursively (looped inclusion)");
-		}
-	}
-
-	/* It's not already included, add it to the list of files we've loaded */
-
-	FileWrapper file(popen(name.c_str(), "r"), true);
-	if (!file)
-		throw CoreException("Could not open executable \"" + name + "\" for include");
-
-	reading.push_back(name);
-	Parser p(*this, flags, file, name, mandatory_tag);
 	bool ok = p.outer_parse();
 	reading.pop_back();
 	return ok;

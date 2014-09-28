@@ -40,7 +40,7 @@ bool InspIRCd::PassCompare(Extensible* ex, const std::string& data, const std::s
 	if (!hashtype.empty() && hashtype != "plaintext")
 		return false;
 
-	return (data == input);
+	return TimingSafeCompare(data, input);
 }
 
 bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std::string>& parameters, unsigned int splithere, int extra, bool usemax)
@@ -109,7 +109,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std
 
 Command* CommandParser::GetHandler(const std::string &commandname)
 {
-	Commandtable::iterator n = cmdlist.find(commandname);
+	CommandMap::iterator n = cmdlist.find(commandname);
 	if (n != cmdlist.end())
 		return n->second;
 
@@ -120,7 +120,7 @@ Command* CommandParser::GetHandler(const std::string &commandname)
 
 CmdResult CommandParser::CallHandler(const std::string& commandname, const std::vector<std::string>& parameters, User* user, Command** cmd)
 {
-	Commandtable::iterator n = cmdlist.find(commandname);
+	CommandMap::iterator n = cmdlist.find(commandname);
 
 	if (n != cmdlist.end())
 	{
@@ -208,7 +208,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 		{
 			if (user->registered == REG_ALL)
 				user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :Unknown command",command.c_str());
-			ServerInstance->stats->statsUnknown++;
+			ServerInstance->stats.Unknown++;
 			return;
 		}
 	}
@@ -322,7 +322,7 @@ void CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 
 void CommandParser::RemoveCommand(Command* x)
 {
-	Commandtable::iterator n = cmdlist.find(x->name);
+	CommandMap::iterator n = cmdlist.find(x->name);
 	if (n != cmdlist.end() && n->second == x)
 		cmdlist.erase(n);
 }
@@ -333,7 +333,7 @@ CommandBase::~CommandBase()
 
 Command::~Command()
 {
-	ServerInstance->Parser->RemoveCommand(this);
+	ServerInstance->Parser.RemoveCommand(this);
 }
 
 void CommandParser::ProcessBuffer(std::string &buffer,LocalUser *user)

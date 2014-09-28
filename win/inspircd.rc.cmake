@@ -1,8 +1,8 @@
 101		ICON		"inspircd.ico"
 
 1 VERSIONINFO
-  FILEVERSION    @MAJOR_VERSION@,@MINOR_VERSION@,@PATCH_VERSION@
-  PRODUCTVERSION @MAJOR_VERSION@,@MINOR_VERSION@,@PATCH_VERSION@
+  FILEVERSION    @VERSION_MAJOR@,@VERSION_MINOR@,@VERSION_PATCH@
+  PRODUCTVERSION @VERSION_MAJOR@,@VERSION_MINOR@,@VERSION_PATCH@
   FILEFLAGSMASK  0x3fL
 #ifdef _DEBUG
   FILEFLAGS 0x1L
@@ -17,12 +17,12 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "Comments", "InspIRCd @MAJOR_VERSION@.@MINOR_VERSION@ IRC Daemon"
+            VALUE "Comments", "InspIRCd @VERSION_MAJOR@.@VERSION_MINOR@ IRC Daemon"
             VALUE "CompanyName", "InspIRCd Development Team"
             VALUE "FileDescription", "InspIRCd"
             VALUE "FileVersion", "@FULL_VERSION@"
             VALUE "InternalName", "InspIRCd"
-            VALUE "LegalCopyright", "Copyright (c) 2013 InspIRCd Development Team"
+            VALUE "LegalCopyright", "Copyright (c) 2014 InspIRCd Development Team"
             VALUE "OriginalFilename", "inspircd.exe"
             VALUE "ProductName", "InspIRCd - The Inspire IRC Daemon"
             VALUE "ProductVersion", "@FULL_VERSION@"

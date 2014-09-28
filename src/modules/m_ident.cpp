@@ -263,11 +263,18 @@ class IdentRequestSocket : public EventHandler
 			}
 		}
 	}
+
+	CullResult cull() CXX11_OVERRIDE
+	{
+		Close();
+		return EventHandler::cull();
+	}
 };
 
 class ModuleIdent : public Module
 {
 	int RequestTimeout;
+	bool NoLookupPrefix;
 	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
  public:
 	ModuleIdent() : ext("ident_socket", this)
@@ -281,9 +288,9 @@ class ModuleIdent : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		RequestTimeout = ServerInstance->Config->ConfValue("ident")->getInt("timeout", 5);
-		if (!RequestTimeout)
-			RequestTimeout = 5;
+		ConfigTag* tag = ServerInstance->Config->ConfValue("ident");
+		RequestTimeout = tag->getInt("timeout", 5, 1);
+		NoLookupPrefix = tag->getBool("nolookupprefix", false);
 	}
 
 	void OnUserInit(LocalUser *user) CXX11_OVERRIDE
@@ -296,7 +303,7 @@ class ModuleIdent : public Module
 
 		try
 		{
-			IdentRequestSocket *isock = new IdentRequestSocket(IS_LOCAL(user));
+			IdentRequestSocket *isock = new IdentRequestSocket(user);
 			ext.set(user, isock);
 		}
 		catch (ModuleException &e)
@@ -314,7 +321,11 @@ class ModuleIdent : public Module
 		/* Does user have an ident socket attached at all? */
 		IdentRequestSocket *isock = ext.get(user);
 		if (!isock)
+		{
+			if ((NoLookupPrefix) && (user->ident[0] != '~'))
+				user->ident.insert(user->ident.begin(), 1, '~');
 			return MOD_RES_PASSTHRU;
+		}
 
 		time_t compare = isock->age;
 		compare += RequestTimeout;
@@ -354,28 +365,6 @@ class ModuleIdent : public Module
 		if (myclass->config->getBool("requireident") && user->ident[0] == '~')
 			return MOD_RES_DENY;
 		return MOD_RES_PASSTHRU;
-	}
-
-	void OnCleanup(int target_type, void *item) CXX11_OVERRIDE
-	{
-		/* Module unloading, tidy up users */
-		if (target_type == TYPE_USER)
-		{
-			LocalUser* user = IS_LOCAL((User*) item);
-			if (user)
-				OnUserDisconnect(user);
-		}
-	}
-
-	void OnUserDisconnect(LocalUser *user) CXX11_OVERRIDE
-	{
-		/* User disconnect (generic socket detatch event) */
-		IdentRequestSocket *isock = ext.get(user);
-		if (isock)
-		{
-			isock->Close();
-			ext.unset(user);
-		}
 	}
 };
 

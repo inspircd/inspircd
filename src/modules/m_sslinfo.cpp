@@ -168,7 +168,7 @@ class ModuleSSLInfo : public Module
 	{
 		if ((command == "OPER") && (validated))
 		{
-			OperIndex::iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
+			ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.find(parameters[0]);
 			if (i != ServerInstance->Config->oper_blocks.end())
 			{
 				OperInfo* ifo = i->second;
@@ -184,7 +184,7 @@ class ModuleSSLInfo : public Module
 				std::string fingerprint;
 				if (ifo->oper_block->readString("fingerprint", fingerprint) && (!cert || cert->GetFingerprint() != fingerprint))
 				{
-					user->WriteNumeric(491, ":This oper login requires a matching SSL fingerprint.");
+					user->WriteNumeric(491, ":This oper login requires a matching SSL certificate fingerprint.");
 					user->CommandFloodPenalty += 10000;
 					return MOD_RES_DENY;
 				}
@@ -208,7 +208,7 @@ class ModuleSSLInfo : public Module
 		if (!cert || cert->fingerprint.empty())
 			return;
 		// find an auto-oper block for this user
-		for(OperIndex::iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); i++)
+		for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->oper_blocks.begin(); i != ServerInstance->Config->oper_blocks.end(); ++i)
 		{
 			OperInfo* ifo = i->second;
 			std::string fp = ifo->oper_block->getString("fingerprint");

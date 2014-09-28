@@ -344,8 +344,10 @@ class CoreExport PrefixMode : public ModeHandler
 	 * @param Creator The module creating this mode
 	 * @param Name The user-friendly one word name of the prefix mode, e.g.: "op", "voice"
 	 * @param ModeLetter The mode letter of this mode
+	 * @param Rank Rank given by this prefix mode, see explanation above
+	 * @param PrefixChar Prefix character, or 0 if the mode has no prefix character
 	 */
-	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter);
+	PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank = 0, char PrefixChar = 0);
 
 	/**
 	 * Handles setting and unsetting the prefix mode.
@@ -486,7 +488,7 @@ typedef std::multimap<std::string, ModeWatcher*>::iterator ModeWatchIter;
  * parses client to server MODE strings for user and channel modes, and performs
  * processing for the 004 mode list numeric, amongst other things.
  */
-class CoreExport ModeParser
+class CoreExport ModeParser : public fakederef<ModeParser>
 {
  public:
 	static const ModeHandler::Id MODEID_MAX = 64;

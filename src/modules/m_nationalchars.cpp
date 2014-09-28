@@ -26,7 +26,6 @@
    by Chernov-Phoenix Alexey (Phoenix@RusNet) mailto:phoenix /email address separator/ pravmail.ru */
 
 #include "inspircd.h"
-#include "caller.h"
 #include <fstream>
 
 class lwbNickHandler : public HandlerBase1<bool, const std::string&>
@@ -262,7 +261,8 @@ class ModuleNationalChars : public Module
 		if (!forcequit)
 			return;
 
-		for (LocalUserList::const_iterator iter = ServerInstance->Users->local_users.begin(); iter != ServerInstance->Users->local_users.end(); ++iter)
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator iter = list.begin(); iter != list.end(); ++iter)
 		{
 			/* Fix by Brain: Dont quit UID users */
 			User* n = *iter;

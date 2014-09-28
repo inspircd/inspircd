@@ -38,19 +38,14 @@ class ModuleAbbreviation : public Module
 		if (validated || command.empty() || *command.rbegin() != '.')
 			return MOD_RES_PASSTHRU;
 
-		/* Whack the . off the end */
-		command.erase(command.end() - 1);
-
 		/* Look for any command that starts with the same characters, if it does, replace the command string with it */
-		size_t clen = command.length();
+		size_t clen = command.length() - 1;
 		std::string foundcommand, matchlist;
 		bool foundmatch = false;
-		for (Commandtable::iterator n = ServerInstance->Parser->cmdlist.begin(); n != ServerInstance->Parser->cmdlist.end(); ++n)
+		const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
+		for (CommandParser::CommandMap::const_iterator n = commands.begin(); n != commands.end(); ++n)
 		{
-			if (n->first.length() < clen)
-				continue;
-
-			if (command == n->first.substr(0, clen))
+			if (!command.compare(0, clen, n->first, 0, clen))
 			{
 				if (matchlist.length() > 450)
 				{
@@ -76,12 +71,7 @@ class ModuleAbbreviation : public Module
 			return MOD_RES_DENY;
 		}
 
-		if (foundcommand.empty())
-		{
-			/* No match, we have to put the . back again so that the invalid command numeric looks correct. */
-			command += '.';
-		}
-		else
+		if (!foundcommand.empty())
 		{
 			command = foundcommand;
 		}

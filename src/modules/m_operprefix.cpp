@@ -29,12 +29,12 @@
 class OperPrefixMode : public PrefixMode
 {
 	public:
-		OperPrefixMode(Module* Creator) : PrefixMode(Creator, "operprefix", 'y')
+		OperPrefixMode(Module* Creator)
+			: PrefixMode(Creator, "operprefix", 'y', OPERPREFIX_VALUE)
 		{
 			std::string pfx = ServerInstance->Config->ConfValue("operprefix")->getString("prefix", "!");
 			prefix = pfx.empty() ? '!' : pfx[0];
 			levelrequired = INT_MAX;
-			prefixrank = OPERPREFIX_VALUE;
 		}
 };
 
@@ -79,7 +79,7 @@ class ModuleOperPrefixMode : public Module
 		modechange.push_back(add ? "+" : "-");
 		modechange[1].push_back(opm.GetModeChar());
 		modechange.push_back(user->nick);
-		for (UCListIter v = user->chans.begin(); v != user->chans.end(); v++)
+		for (User::ChanList::iterator v = user->chans.begin(); v != user->chans.end(); v++)
 		{
 			modechange[0] = (*v)->chan->name;
 			ServerInstance->Modes->Process(modechange, ServerInstance->FakeClient);

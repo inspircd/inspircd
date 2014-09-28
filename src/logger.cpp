@@ -21,7 +21,6 @@
 
 
 #include "inspircd.h"
-#include "filelogger.h"
 
 /*
  * Suggested implementation...
@@ -51,8 +50,8 @@
  */
 
 const char LogStream::LogHeader[] =
-	"Log started for " VERSION " (" REVISION ", " MODULE_INIT_STR ")"
-	" - compiled on " SYSTEM;
+	"Log started for " INSPIRCD_VERSION " (" INSPIRCD_REVISION ", " MODULE_INIT_STR ")"
+	" - compiled on " INSPIRCD_SYSTEM;
 
 LogManager::LogManager()
 	: Logging(false)

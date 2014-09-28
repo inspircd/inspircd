@@ -62,7 +62,7 @@ CmdResult CommandAddLine::Handle(User* usr, std::vector<std::string>& params)
 
 		TreeServer* remoteserver = TreeServer::Get(usr);
 
-		if (!remoteserver->bursting)
+		if (!remoteserver->IsBursting())
 		{
 			ServerInstance->XLines->ApplyLines();
 		}

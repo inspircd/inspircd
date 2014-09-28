@@ -64,7 +64,7 @@ class CommandNicklock : public Command
 			locked.set(target, 1);
 
 			std::string oldnick = target->nick;
-			if (target->ForceNickChange(parameters[1]))
+			if (target->ChangeNick(parameters[1]))
 				ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used NICKLOCK to change and hold "+oldnick+" to "+parameters[1]);
 			else
 			{
@@ -153,11 +153,8 @@ class ModuleNickLock : public Module
 		return Version("Provides the NICKLOCK command, allows an oper to change a users nick and lock them to it until they quit", VF_OPTCOMMON | VF_VENDOR);
 	}
 
-	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
-
 		if (locked.get(user))
 		{
 			user->WriteNumeric(ERR_CANTCHANGENICK, ":You cannot change your nickname (your nick is locked)");

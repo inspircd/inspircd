@@ -72,8 +72,8 @@ class ModuleHostCycle : public Module
 					modeline.append(" ").append(user->nick);
 			}
 
-			const UserMembList* ulist = c->GetUsers();
-			for (UserMembList::const_iterator j = ulist->begin(); j != ulist->end(); ++j)
+			const Channel::MemberMap& ulist = c->GetUsers();
+			for (Channel::MemberMap::const_iterator j = ulist.begin(); j != ulist.end(); ++j)
 			{
 				LocalUser* u = IS_LOCAL(j->first);
 				if (u == NULL || u == user)

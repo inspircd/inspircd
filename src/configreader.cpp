@@ -36,7 +36,6 @@ ServerConfig::ServerConfig()
 	dns_timeout = 5;
 	MaxTargets = 20;
 	NetBufferSize = 10240;
-	SoftLimit = SocketEngine::GetMaxFds();
 	MaxConn = SOMAXCONN;
 	MaxChans = 20;
 	OperMaxChans = 30;
@@ -70,17 +69,16 @@ bool ServerConfig::ApplyDisabledCommands(const std::string& data)
 	std::string thiscmd;
 
 	/* Enable everything first */
-	for (Commandtable::iterator x = ServerInstance->Parser->cmdlist.begin(); x != ServerInstance->Parser->cmdlist.end(); x++)
+	const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
+	for (CommandParser::CommandMap::const_iterator x = commands.begin(); x != commands.end(); ++x)
 		x->second->Disable(false);
 
 	/* Now disable all the ones which the user wants disabled */
 	while (dcmds >> thiscmd)
 	{
-		Commandtable::iterator cm = ServerInstance->Parser->cmdlist.find(thiscmd);
-		if (cm != ServerInstance->Parser->cmdlist.end())
-		{
-			cm->second->Disable(true);
-		}
+		Command* handler = ServerInstance->Parser.GetHandler(thiscmd);
+		if (handler)
+			handler->Disable(true);
 	}
 	return true;
 }
@@ -176,7 +174,7 @@ void ServerConfig::CrossCheckConnectBlocks(ServerConfig* current)
 		for(ClassVector::iterator i = current->Classes.begin(); i != current->Classes.end(); ++i)
 		{
 			ConnectClass* c = *i;
-			if (c->name.substr(0, 8) != "unnamed-")
+			if (c->name.compare(0, 8, "unnamed-", 8))
 			{
 				oldBlocksByMask["n" + c->name] = c;
 			}
@@ -366,7 +364,7 @@ void ServerConfig::Fill()
 		if (!nsid.empty() && nsid != sid)
 			throw CoreException("You must restart to change the server id");
 	}
-	SoftLimit = ConfValue("performance")->getInt("softlimit", SocketEngine::GetMaxFds(), 10, SocketEngine::GetMaxFds());
+	SoftLimit = ConfValue("performance")->getInt("softlimit", (SocketEngine::GetMaxFds() > 0 ? SocketEngine::GetMaxFds() : LONG_MAX), 10);
 	CCOnConnect = ConfValue("performance")->getBool("clonesonconnect", true);
 	MaxConn = ConfValue("performance")->getInt("somaxconn", SOMAXCONN);
 	XLineMessage = options->getString("xlinemessage", options->getString("moronbanner", "You're banned!"));
@@ -406,10 +404,10 @@ void ServerConfig::Fill()
 	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
 	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
 	Limits.MaxLine = ConfValue("limits")->getInt("maxline", 512);
-	Paths.Config = ConfValue("path")->getString("configdir", CONFIG_PATH);
-	Paths.Data = ConfValue("path")->getString("datadir", DATA_PATH);
-	Paths.Log = ConfValue("path")->getString("logdir", LOG_PATH);
-	Paths.Module = ConfValue("path")->getString("moduledir", MOD_PATH);
+	Paths.Config = ConfValue("path")->getString("configdir", INSPIRCD_CONFIG_PATH);
+	Paths.Data = ConfValue("path")->getString("datadir", INSPIRCD_DATA_PATH);
+	Paths.Log = ConfValue("path")->getString("logdir", INSPIRCD_LOG_PATH);
+	Paths.Module = ConfValue("path")->getString("moduledir", INSPIRCD_MODULE_PATH);
 	InvBypassModes = options->getBool("invitebypassmodes", true);
 	NoSnoticeStack = options->getBool("nosnoticestack", false);
 
@@ -784,6 +782,9 @@ void ConfigReaderThread::Finish()
 		const ModuleManager::ModuleMap& mods = ServerInstance->Modules->GetModules();
 		for (ModuleManager::ModuleMap::const_iterator i = mods.begin(); i != mods.end(); ++i)
 			i->second->ReadConfig(status);
+
+		// The description of this server may have changed - update it for WHOIS etc.
+		ServerInstance->FakeClient->server->description = Config->ServerDesc;
 
 		ServerInstance->ISupport.Build();
 

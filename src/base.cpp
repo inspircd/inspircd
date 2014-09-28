@@ -27,13 +27,13 @@
 
 classbase::classbase()
 {
-	if (ServerInstance && ServerInstance->Logs)
+	if (ServerInstance)
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::+ @%p", (void*)this);
 }
 
 CullResult classbase::cull()
 {
-	if (ServerInstance && ServerInstance->Logs)
+	if (ServerInstance)
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p",
 			typeid(*this).name(), (void*)this);
 	return CullResult();
@@ -41,7 +41,7 @@ CullResult classbase::cull()
 
 classbase::~classbase()
 {
-	if (ServerInstance && ServerInstance->Logs)
+	if (ServerInstance)
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::~ @%p", (void*)this);
 }
 
@@ -73,14 +73,14 @@ refcountbase::refcountbase() : refcount(0)
 
 refcountbase::~refcountbase()
 {
-	if (refcount && ServerInstance && ServerInstance->Logs)
+	if (refcount && ServerInstance)
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "refcountbase::~ @%p with refcount %d",
 			(void*)this, refcount);
 }
 
 usecountbase::~usecountbase()
 {
-	if (usecount && ServerInstance && ServerInstance->Logs)
+	if (usecount && ServerInstance)
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "usecountbase::~ @%p with refcount %d",
 			(void*)this, usecount);
 }
@@ -197,7 +197,7 @@ void Extensible::FreeAllExtItems()
 
 Extensible::~Extensible()
 {
-	if ((!extensions.empty() || !culled) && ServerInstance && ServerInstance->Logs)
+	if ((!extensions.empty() || !culled) && ServerInstance)
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
 }
 

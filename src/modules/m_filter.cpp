@@ -377,7 +377,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, void* dest, int target_type
 
 ModResult ModuleFilter::OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line)
 {
-	if (validated && IS_LOCAL(user))
+	if (validated)
 	{
 		flags = 0;
 		bool parting;

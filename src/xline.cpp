@@ -23,7 +23,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "bancache.h"
 
 /** An XLineFactory specialized to generate GLine* pointers
  */
@@ -156,7 +155,8 @@ void XLineManager::CheckELines()
 	if (ELines.empty())
 		return;
 
-	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
 	{
 		LocalUser* u = *u2;
 
@@ -276,7 +276,7 @@ bool XLineManager::AddLine(XLine* line, User* user)
 	if (!xlf)
 		return false;
 
-	ServerInstance->BanCache->RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
+	ServerInstance->BanCache.RemoveEntries(line->type, false); // XXX perhaps remove ELines here?
 
 	if (xlf->AutoApplyToUserList(line))
 		pending_lines.push_back(line);
@@ -306,7 +306,7 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 	if (simulate)
 		return true;
 
-	ServerInstance->BanCache->RemoveEntries(y->second->type, true);
+	ServerInstance->BanCache.RemoveEntries(y->second->type, true);
 
 	FOREACH_MOD(OnDelLine, (user, y->second));
 
@@ -326,7 +326,8 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 void ELine::Unset()
 {
 	/* remove exempt from everyone and force recheck after deleting eline */
-	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
 	{
 		LocalUser* u = *u2;
 		u->exempt = false;
@@ -430,8 +431,8 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 // applies lines, removing clients and changing nicks etc as applicable
 void XLineManager::ApplyLines()
 {
-	LocalUserList& list = ServerInstance->Users->local_users;
-	for (LocalUserList::iterator j = list.begin(); j != list.end(); ++j)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator j = list.begin(); j != list.end(); ++j)
 	{
 		LocalUser* u = *j;
 
@@ -545,7 +546,7 @@ void XLine::DefaultApply(User* u, const std::string &line, bool bancache)
 	if (bancache)
 	{
 		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCache: Adding positive hit (" + line + ") for " + u->GetIPString());
-		ServerInstance->BanCache->AddHit(u->GetIPString(), this->type, banReason, this->duration);
+		ServerInstance->BanCache.AddHit(u->GetIPString(), this->type, banReason, this->duration);
 	}
 }
 
@@ -642,7 +643,7 @@ bool QLine::Matches(User *u)
 void QLine::Apply(User* u)
 {
 	/* Force to uuid on apply of qline, no need to disconnect any more :) */
-	u->ForceNickChange(u->uuid);
+	u->ChangeNick(u->uuid);
 }
 
 
@@ -680,7 +681,8 @@ bool GLine::Matches(const std::string &str)
 void ELine::OnAdd()
 {
 	/* When adding one eline, only check the one eline */
-	for (LocalUserList::const_iterator u2 = ServerInstance->Users->local_users.begin(); u2 != ServerInstance->Users->local_users.end(); u2++)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator u2 = list.begin(); u2 != list.end(); u2++)
 	{
 		LocalUser* u = *u2;
 		if (this->Matches(u))

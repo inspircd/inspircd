@@ -20,9 +20,6 @@
 
 
 #include "inspircd.h"
-#include "mode.h"
-#include "channels.h"
-#include "users.h"
 #include "builtinmodes.h"
 
 ModeChannelLimit::ModeChannelLimit()

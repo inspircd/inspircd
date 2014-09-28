@@ -26,7 +26,7 @@
 
 CmdResult CommandPong::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
-	if (server->bursting)
+	if (server->IsBursting())
 	{
 		ServerInstance->SNO->WriteGlobalSno('l', "Server \002%s\002 has not finished burst, forcing end of burst (send ENDBURST!)", server->GetName().c_str());
 		server->FinishBurst();

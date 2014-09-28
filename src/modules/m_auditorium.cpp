@@ -85,19 +85,16 @@ class ModuleAuditorium : public Module
 		return false;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		// Some module already hid this from being displayed, don't bother
-		if (nick.empty())
-			return;
-
 		if (IsVisible(memb))
-			return;
+			return MOD_RES_PASSTHRU;
 
 		if (CanSee(issuer, memb))
-			return;
+			return MOD_RES_PASSTHRU;
 
-		nick.clear();
+		// Don't display this user in the NAMES list
+		return MOD_RES_DENY;
 	}
 
 	/** Build CUList for showing this join/part/kick */
@@ -106,8 +103,8 @@ class ModuleAuditorium : public Module
 		if (IsVisible(memb))
 			return;
 
-		const UserMembList* users = memb->chan->GetUsers();
-		for(UserMembCIter i = users->begin(); i != users->end(); i++)
+		const Channel::MemberMap& users = memb->chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = users.begin(); i != users.end(); ++i)
 		{
 			if (IS_LOCAL(i->first) && !CanSee(i->first, memb))
 				excepts.insert(i->first);
@@ -143,8 +140,8 @@ class ModuleAuditorium : public Module
 			// this channel should not be considered when listing my neighbors
 			i = include.erase(i);
 			// however, that might hide me from ops that can see me...
-			const UserMembList* users = memb->chan->GetUsers();
-			for(UserMembCIter j = users->begin(); j != users->end(); j++)
+			const Channel::MemberMap& users = memb->chan->GetUsers();
+			for(Channel::MemberMap::const_iterator j = users.begin(); j != users.end(); ++j)
 			{
 				if (IS_LOCAL(j->first) && CanSee(j->first, memb))
 					exception[j->first] = true;

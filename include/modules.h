@@ -558,17 +558,14 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnBuildNeighborList(User* source, IncludeChanList& include_c, std::map<User*, bool>& exceptions);
 
-	/** Called before any nickchange, local or remote. This can be used to implement Q-lines etc.
-	 * Please note that although you can see remote nickchanges through this function, you should
-	 * NOT make any changes to the User if the user is a remote user as this may cause a desnyc.
-	 * check user->server before taking any action (including returning nonzero from the method).
+	/** Called before local nickname changes. This can be used to implement Q-lines etc.
 	 * If your method returns nonzero, the nickchange is silently forbidden, and it is down to your
 	 * module to generate some meaninful output.
 	 * @param user The username changing their nick
 	 * @param newnick Their new nickname
 	 * @return 1 to deny the change, 0 to allow
 	 */
-	virtual ModResult OnUserPreNick(User* user, const std::string &newnick);
+	virtual ModResult OnUserPreNick(LocalUser* user, const std::string& newnick);
 
 	/** Called after any PRIVMSG sent from a user.
 	 * The dest variable contains a User* if target_type is TYPE_USER and a Channel*
@@ -1041,10 +1038,16 @@ class CoreExport Module : public classbase, public usecountbase
 #endif
 
 	/** Called for every item in a NAMES list, so that modules may reformat portions of it as they see fit.
-	 * For example NAMESX, channel mode +u and +I, and UHNAMES. If the nick is set to an empty string by any
-	 * module, then this will cause the nickname not to be displayed at all.
+	 * For example NAMESX, channel mode +u and +I, and UHNAMES.
+	 * @param issuer The user who is going to receive the NAMES list being built
+	 * @param item The channel member being considered for inclusion
+	 * @param prefixes The prefix character(s) to display, initially set to the prefix char of the most powerful
+	 * prefix mode the member has, can be changed
+	 * @param nick The nick to display, initially set to the member's nick, can be changed
+	 * @return Return MOD_RES_PASSTHRU to allow the member to be displayed, MOD_RES_DENY to cause them to be
+	 * excluded from this NAMES list
 	 */
-	virtual void OnNamesListItem(User* issuer, Membership* item, std::string &prefixes, std::string &nick);
+	virtual ModResult OnNamesListItem(User* issuer, Membership* item, std::string& prefixes, std::string& nick);
 
 	virtual ModResult OnNumeric(User* user, unsigned int numeric, const std::string &text);
 
@@ -1075,7 +1078,7 @@ typedef IntModuleList::iterator EventHandlerIter;
 /** ModuleManager takes care of all things module-related
  * in the core.
  */
-class CoreExport ModuleManager
+class CoreExport ModuleManager : public fakederef<ModuleManager>
 {
  public:
 	typedef std::vector<ServiceProvider*> ServiceList;
@@ -1337,7 +1340,7 @@ struct AllModuleList {
 	{ \
 		return new y; \
 	} \
-	extern "C" DllExport const char inspircd_src_version[] = VERSION " " REVISION;
+	extern "C" DllExport const char inspircd_src_version[] = INSPIRCD_VERSION " " INSPIRCD_REVISION;
 #endif
 
 #define COMMAND_INIT(c) MODULE_INIT(CommandModule<c>)

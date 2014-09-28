@@ -19,8 +19,6 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "socketengine.h"
 
 #ifndef _WIN32
 #include <netinet/tcp.h>
@@ -114,7 +112,7 @@ void ListenSocket::AcceptInternal()
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "HandleEvent for Listensocket %s nfd=%d", bind_desc.c_str(), incomingSockfd);
 	if (incomingSockfd < 0)
 	{
-		ServerInstance->stats->statsRefused++;
+		ServerInstance->stats.Refused++;
 		return;
 	}
 
@@ -123,25 +121,6 @@ void ListenSocket::AcceptInternal()
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Can't get peername: %s", strerror(errno));
 		irc::sockets::aptosa(bind_addr, bind_port, server);
-	}
-
-	/*
-	 * XXX -
-	 * this is done as a safety check to keep the file descriptors within range of fd_ref_table.
-	 * its a pretty big but for the moment valid assumption:
-	 * file descriptors are handed out starting at 0, and are recycled as theyre freed.
-	 * therefore if there is ever an fd over 65535, 65536 clients must be connected to the
-	 * irc server at once (or the irc server otherwise initiating this many connections, files etc)
-	 * which for the time being is a physical impossibility (even the largest networks dont have more
-	 * than about 10,000 users on ONE server!)
-	 */
-	if (incomingSockfd >= SocketEngine::GetMaxFds())
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "Server is full");
-		SocketEngine::Shutdown(incomingSockfd, 2);
-		SocketEngine::Close(incomingSockfd);
-		ServerInstance->stats->statsRefused++;
-		return;
 	}
 
 	if (client.sa.sa_family == AF_INET6)
@@ -189,11 +168,11 @@ void ListenSocket::AcceptInternal()
 	}
 	if (res == MOD_RES_ALLOW)
 	{
-		ServerInstance->stats->statsAccept++;
+		ServerInstance->stats.Accept++;
 	}
 	else
 	{
-		ServerInstance->stats->statsRefused++;
+		ServerInstance->stats.Refused++;
 		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "Refusing connection on %s - %s",
 			bind_desc.c_str(), res == MOD_RES_DENY ? "Connection refused by module" : "Module for this port not found");
 		SocketEngine::Close(incomingSockfd);

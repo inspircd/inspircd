@@ -24,7 +24,6 @@
 #include "inspircd.h"
 #include "modules/httpd.h"
 #include "xline.h"
-#include "protocol.h"
 
 class ModuleHttpStats : public Module
 {
@@ -156,16 +155,16 @@ class ModuleHttpStats : public Module
 					Channel* c = i->second;
 
 					data << "<channel>";
-					data << "<usercount>" << c->GetUsers()->size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";
+					data << "<usercount>" << c->GetUsers().size() << "</usercount><channelname>" << Sanitize(c->name) << "</channelname>";
 					data << "<channeltopic>";
 					data << "<topictext>" << Sanitize(c->topic) << "</topictext>";
 					data << "<setby>" << Sanitize(c->setby) << "</setby>";
 					data << "<settime>" << c->topicset << "</settime>";
 					data << "</channeltopic>";
 					data << "<channelmodes>" << Sanitize(c->ChanModes(true)) << "</channelmodes>";
-					const UserMembList* ulist = c->GetUsers();
 
-					for (UserMembCIter x = ulist->begin(); x != ulist->end(); ++x)
+					const Channel::MemberMap& ulist = c->GetUsers();
+					for (Channel::MemberMap::const_iterator x = ulist.begin(); x != ulist.end(); ++x)
 					{
 						Membership* memb = x->second;
 						data << "<channelmember><uid>" << memb->user->uuid << "</uid><privs>"

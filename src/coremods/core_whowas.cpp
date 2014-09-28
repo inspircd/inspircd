@@ -25,7 +25,6 @@
 
 CommandWhowas::CommandWhowas( Module* parent)
 	: Command(parent, "WHOWAS", 1)
-	, GroupSize(0), MaxGroups(0), MaxKeep(0)
 {
 	syntax = "<nick>{,<nick>}";
 	Penalty = 2;
@@ -34,26 +33,25 @@ CommandWhowas::CommandWhowas( Module* parent)
 CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, User* user)
 {
 	/* if whowas disabled in config */
-	if (this->GroupSize == 0 || this->MaxGroups == 0)
+	if (!manager.IsEnabled())
 	{
 		user->WriteNumeric(ERR_UNKNOWNCOMMAND, "%s :This command has been disabled.", name.c_str());
 		return CMD_FAILURE;
 	}
 
-	whowas_users::iterator i = whowas.find(assign(parameters[0]));
-
-	if (i == whowas.end())
+	const WhoWas::Nick* const nick = manager.FindNick(parameters[0]);
+	if (!nick)
 	{
 		user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
 	}
 	else
 	{
-		whowas_set* grp = i->second;
-		if (!grp->empty())
+		const WhoWas::Nick::List& list = nick->entries;
+		if (!list.empty())
 		{
-			for (whowas_set::iterator ux = grp->begin(); ux != grp->end(); ux++)
+			for (WhoWas::Nick::List::const_iterator i = list.begin(); i != list.end(); ++i)
 			{
-				WhoWasGroup* u = *ux;
+				WhoWas::Entry* u = *i;
 
 				user->WriteNumeric(RPL_WHOWASUSER, "%s %s %s * :%s", parameters[0].c_str(),
 					u->ident.c_str(),u->dhost.c_str(),u->gecos.c_str());
@@ -67,107 +65,107 @@ CmdResult CommandWhowas::Handle (const std::vector<std::string>& parameters, Use
 				user->WriteNumeric(RPL_WHOISSERVER, "%s %s :%s", parameters[0].c_str(), (hide_server ? ServerInstance->Config->HideWhoisServer.c_str() : u->server.c_str()), signon.c_str());
 			}
 		}
-		else
-		{
-			user->WriteNumeric(ERR_WASNOSUCHNICK, "%s :There was no such nickname", parameters[0].c_str());
-		}
 	}
 
 	user->WriteNumeric(RPL_ENDOFWHOWAS, "%s :End of WHOWAS", parameters[0].c_str());
 	return CMD_SUCCESS;
 }
 
-std::string CommandWhowas::GetStats()
+WhoWas::Manager::Manager()
+	: GroupSize(0), MaxGroups(0), MaxKeep(0)
 {
-	int whowas_size = 0;
-	int whowas_bytes = 0;
-	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
-	{
-		whowas_set* n = i->second;
-		whowas_size += n->size();
-		whowas_bytes += (sizeof(whowas_set) + ( sizeof(WhoWasGroup) * n->size() ) );
-	}
-	return "Whowas entries: " +ConvToStr(whowas_size)+" ("+ConvToStr(whowas_bytes)+" bytes)";
 }
 
-void CommandWhowas::AddToWhoWas(User* user)
+const WhoWas::Nick* WhoWas::Manager::FindNick(const std::string& nickname) const
 {
-	/* if whowas disabled */
-	if (this->GroupSize == 0 || this->MaxGroups == 0)
+	whowas_users::const_iterator it = whowas.find(nickname);
+	if (it == whowas.end())
+		return NULL;
+
+	const Nick* nick = it->second;
+	if (nick->entries.empty())
+		return NULL;
+	return nick;
+}
+
+WhoWas::Manager::Stats WhoWas::Manager::GetStats() const
+{
+	size_t entrycount = 0;
+	for (whowas_users::const_iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		return;
+		WhoWas::Nick::List& list = i->second->entries;
+		entrycount += list.size();
 	}
+
+	Stats stats;
+	stats.entrycount = entrycount;
+	return stats;
+}
+
+void WhoWas::Manager::Add(User* user)
+{
+	if (!IsEnabled())
+		return;
 
 	// Insert nick if it doesn't exist
 	// 'first' will point to the newly inserted element or to the existing element with an equivalent key
-	std::pair<whowas_users::iterator, bool> ret = whowas.insert(std::make_pair(irc::string(user->nick.c_str()), static_cast<whowas_set*>(NULL)));
+	std::pair<whowas_users::iterator, bool> ret = whowas.insert(std::make_pair(user->nick, static_cast<WhoWas::Nick*>(NULL)));
 
 	if (ret.second) // If inserted
 	{
 		// This nick is new, create a list for it and add the first record to it
-		whowas_set* n = new whowas_set;
-		n->push_back(new WhoWasGroup(user));
-		ret.first->second = n;
+		WhoWas::Nick* nick = new WhoWas::Nick(ret.first->first);
+		nick->entries.push_back(new Entry(user));
+		ret.first->second = nick;
 
 		// Add this nick to the fifo too
-		whowas_fifo.push_back(std::make_pair(ServerInstance->Time(), ret.first->first));
+		whowas_fifo.push_back(nick);
 
 		if (whowas.size() > this->MaxGroups)
 		{
 			// Too many nicks, remove the nick which was inserted the longest time ago from both the map and the fifo
-			whowas_users::iterator it = whowas.find(whowas_fifo.front().second);
-			if (it != whowas.end())
-			{
-				whowas_set* set = it->second;
-				stdalgo::delete_all(*set);
-
-				delete set;
-				whowas.erase(it);
-			}
+			nick = whowas_fifo.front();
 			whowas_fifo.pop_front();
+			whowas.erase(nick->nick);
+			delete nick;
 		}
 	}
 	else
 	{
 		// We've met this nick before, add a new record to the list
-		whowas_set* set = ret.first->second;
-		set->push_back(new WhoWasGroup(user));
+		WhoWas::Nick::List& list = ret.first->second->entries;
+		list.push_back(new Entry(user));
 
 		// If there are too many records for this nick, remove the oldest (front)
-		if (set->size() > this->GroupSize)
+		if (list.size() > this->GroupSize)
 		{
-			delete set->front();
-			set->pop_front();
+			delete list.front();
+			list.pop_front();
 		}
 	}
 }
 
 /* on rehash, refactor maps according to new conf values */
-void CommandWhowas::Prune()
+void WhoWas::Manager::Prune()
 {
 	time_t min = ServerInstance->Time() - this->MaxKeep;
 
 	/* first cut the list to new size (maxgroups) and also prune entries that are timed out. */
 	while (!whowas_fifo.empty())
 	{
-		if ((whowas_fifo.size() > this->MaxGroups) || (whowas_fifo.front().first < min))
+		WhoWas::Nick* nick = whowas_fifo.front();
+		if ((whowas_fifo.size() > this->MaxGroups) || (nick->addtime < min))
 		{
-			whowas_users::iterator iter = whowas.find(whowas_fifo.front().second);
-
 			/* hopefully redundant integrity check, but added while debugging r6216 */
-			if (iter == whowas.end())
+			if (!whowas.erase(nick->nick))
 			{
 				/* this should never happen, if it does maps are corrupt */
 				ServerInstance->Logs->Log("WHOWAS", LOG_DEFAULT, "BUG: Whowas maps got corrupted! (1)");
 				return;
 			}
 
-			whowas_set* set = iter->second;
-			stdalgo::delete_all(*set);
-
-			delete set;
-			whowas.erase(iter);
 			whowas_fifo.pop_front();
+			delete nick;
 		}
 		else
 			break;
@@ -176,45 +174,74 @@ void CommandWhowas::Prune()
 	/* Then cut the whowas sets to new size (groupsize) */
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* n = i->second;
-		while (n->size() > this->GroupSize)
+		WhoWas::Nick::List& list = i->second->entries;
+		while (list.size() > this->GroupSize)
 		{
-			delete n->front();
-			n->pop_front();
+			delete list.front();
+			list.pop_front();
 		}
 	}
 }
 
 /* call maintain once an hour to remove expired nicks */
-void CommandWhowas::Maintain()
+void WhoWas::Manager::Maintain()
 {
 	time_t min = ServerInstance->Time() - this->MaxKeep;
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* set = i->second;
-		while (!set->empty() && set->front()->signon < min)
+		WhoWas::Nick::List& list = i->second->entries;
+		while (!list.empty() && list.front()->signon < min)
 		{
-			delete set->front();
-			set->pop_front();
+			delete list.front();
+			list.pop_front();
 		}
 	}
 }
 
-CommandWhowas::~CommandWhowas()
+WhoWas::Manager::~Manager()
 {
 	for (whowas_users::iterator i = whowas.begin(); i != whowas.end(); ++i)
 	{
-		whowas_set* set = i->second;
-		for (whowas_set::iterator j = set->begin(); j != set->end(); ++j)
-			delete *j;
-
-		delete set;
+		WhoWas::Nick* nick = i->second;
+		delete nick;
 	}
 }
 
-WhoWasGroup::WhoWasGroup(User* user) : host(user->host), dhost(user->dhost), ident(user->ident),
-	server(user->server->GetName()), gecos(user->fullname), signon(user->signon)
+bool WhoWas::Manager::IsEnabled() const
 {
+	return ((GroupSize != 0) && (MaxGroups != 0));
+}
+
+void WhoWas::Manager::UpdateConfig(unsigned int NewGroupSize, unsigned int NewMaxGroups, unsigned int NewMaxKeep)
+{
+	if ((NewGroupSize == GroupSize) && (NewMaxGroups == MaxGroups) && (NewMaxKeep == MaxKeep))
+		return;
+
+	GroupSize = NewGroupSize;
+	MaxGroups = NewMaxGroups;
+	MaxKeep = NewMaxKeep;
+	Prune();
+}
+
+WhoWas::Entry::Entry(User* user)
+	: host(user->host)
+	, dhost(user->dhost)
+	, ident(user->ident)
+	, server(user->server->GetName())
+	, gecos(user->fullname)
+	, signon(user->signon)
+{
+}
+
+WhoWas::Nick::Nick(const std::string& nickname)
+	: addtime(ServerInstance->Time())
+	, nick(nickname)
+{
+}
+
+WhoWas::Nick::~Nick()
+{
+	stdalgo::delete_all(entries);
 }
 
 class ModuleWhoWas : public Module
@@ -229,18 +256,18 @@ class ModuleWhoWas : public Module
 	void OnGarbageCollect()
 	{
 		// Remove all entries older than MaxKeep
-		cmd.Maintain();
+		cmd.manager.Maintain();
 	}
 
 	void OnUserQuit(User* user, const std::string& message, const std::string& oper_message)
 	{
-		cmd.AddToWhoWas(user);
+		cmd.manager.Add(user);
 	}
 
 	ModResult OnStats(char symbol, User* user, string_list &results)
 	{
 		if (symbol == 'z')
-			results.push_back("249 "+user->nick+" :"+cmd.GetStats());
+			results.push_back("249 "+user->nick+" :Whowas entries: "+ConvToStr(cmd.manager.GetStats().entrycount));
 
 		return MOD_RES_PASSTHRU;
 	}
@@ -252,13 +279,7 @@ class ModuleWhoWas : public Module
 		unsigned int NewMaxGroups = tag->getInt("maxgroups", 10240, 0, 1000000);
 		unsigned int NewMaxKeep = tag->getDuration("maxkeep", 3600, 3600);
 
-		if ((NewGroupSize == cmd.GroupSize) && (NewMaxGroups == cmd.MaxGroups) && (NewMaxKeep == cmd.MaxKeep))
-			return;
-
-		cmd.GroupSize = NewGroupSize;
-		cmd.MaxGroups = NewMaxGroups;
-		cmd.MaxKeep = NewMaxKeep;
-		cmd.Prune();
+		cmd.manager.UpdateConfig(NewGroupSize, NewMaxGroups, NewMaxKeep);
 	}
 
 	Version GetVersion()

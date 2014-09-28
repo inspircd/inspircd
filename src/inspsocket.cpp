@@ -23,9 +23,6 @@
 
 
 #include "inspircd.h"
-#include "socket.h"
-#include "inspstring.h"
-#include "socketengine.h"
 #include "iohook.h"
 
 #ifndef DISABLE_WRITEV
@@ -110,7 +107,7 @@ BufferedSocketError BufferedSocket::BeginConnect(const irc::sockets::sockaddrs& 
 	if (!SocketEngine::AddFd(this, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE | FD_WRITE_WILL_BLOCK))
 		return I_ERR_NOMOREFDS;
 
-	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout, ServerInstance->Time());
+	this->Timeout = new SocketTimeout(this->GetFd(), this, timeout);
 	ServerInstance->Timers.AddTimer(this->Timeout);
 
 	ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "BufferedSocket::DoConnect success");

@@ -61,15 +61,15 @@ void InspIRCd::Rehash(const std::string& uuid)
 	if (!ServerInstance->ConfigThread)
 	{
 		ServerInstance->ConfigThread = new ConfigReaderThread(uuid);
-		ServerInstance->Threads->Start(ServerInstance->ConfigThread);
+		ServerInstance->Threads.Start(ServerInstance->ConfigThread);
 	}
 }
 
 std::string InspIRCd::GetVersionString(bool getFullVersion)
 {
 	if (getFullVersion)
-		return VERSION " " + Config->ServerName + " :" SYSTEM " [" REVISION "," INSPIRCD_SOCKETENGINE_NAME "," + Config->sid + "]";
-	return BRANCH " " + Config->ServerName + " :" + Config->CustomVersion;
+		return INSPIRCD_VERSION " " + Config->ServerName + " :" INSPIRCD_SYSTEM " [" INSPIRCD_REVISION "," INSPIRCD_SOCKETENGINE_NAME "," + Config->sid + "]";
+	return INSPIRCD_BRANCH " " + Config->ServerName + " :" + Config->CustomVersion;
 }
 
 std::string UIDGenerator::GenerateSID(const std::string& servername, const std::string& serverdesc)
@@ -193,15 +193,14 @@ void ISupportManager::Build()
 	std::map<std::string, std::string>::iterator extban = tokens.find("EXTBAN");
 	if (extban != tokens.end())
 	{
-		sort(extban->second.begin(), extban->second.end());
+		std::sort(extban->second.begin(), extban->second.end());
 		extban->second.insert(0, ",");
 	}
 
 	// Transform the map into a list of lines, ready to be sent to clients
-	std::vector<std::string>& lines = this->Lines;
 	std::string line;
 	unsigned int token_count = 0;
-	lines.clear();
+	cachedlines.clear();
 
 	for (std::map<std::string, std::string>::const_iterator it = tokens.begin(); it != tokens.end(); ++it)
 	{
@@ -220,7 +219,7 @@ void ISupportManager::Build()
 			// Reached maximum number of tokens for this line or the current token
 			// is the last one; finalize the line and store it for later use
 			line.append(":are supported by this server");
-			lines.push_back(line);
+			cachedlines.push_back(line);
 			line.clear();
 		}
 	}
@@ -228,6 +227,6 @@ void ISupportManager::Build()
 
 void ISupportManager::SendTo(LocalUser* user)
 {
-	for (std::vector<std::string>::const_iterator i = this->Lines.begin(); i != this->Lines.end(); ++i)
+	for (std::vector<std::string>::const_iterator i = cachedlines.begin(); i != cachedlines.end(); ++i)
 		user->WriteNumeric(RPL_ISUPPORT, *i);
 }

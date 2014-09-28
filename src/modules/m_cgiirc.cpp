@@ -104,6 +104,7 @@ class CommandWebirc : public Command
 						ChangeIP(user, parameters[3]);
 						// And follow this up by changing their host
 						user->host = user->dhost = newhost;
+						user->InvalidateCache();
 
 						return CMD_SUCCESS;
 					}

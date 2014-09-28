@@ -24,6 +24,13 @@
 
 static std::string newline("\n");
 
+void TreeSocket::WriteLineNoCompat(const std::string& line)
+{
+	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
+	this->WriteData(line);
+	this->WriteData(newline);
+}
+
 void TreeSocket::WriteLine(const std::string& original_line)
 {
 	if (LinkState == CONNECTED)
@@ -47,11 +54,17 @@ void TreeSocket::WriteLine(const std::string& original_line)
 				if (command == "IJOIN")
 				{
 					// Convert
-					// :<uid> IJOIN <chan> [<ts> [<flags>]]
+					// :<uid> IJOIN <chan> <membid> [<ts> [<flags>]]
 					// to
 					// :<sid> FJOIN <chan> <ts> + [<flags>],<uuid>
 					std::string::size_type c = line.find(' ', b + 1);
 					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = line.find(' ', c + 1);
+					// Erase membership id first
+					line.erase(c, d-c);
+					if (d == std::string::npos)
 					{
 						// No TS or modes in the command
 						// :22DAAAAAB IJOIN #chan
@@ -66,7 +79,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					}
 					else
 					{
-						std::string::size_type d = line.find(' ', c + 1);
+						d = line.find(' ', c + 1);
 						if (d == std::string::npos)
 						{
 							// TS present, no modes
@@ -114,7 +127,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						// We're sending channel metadata
 						line.erase(c, d-c);
 					}
-					else if (line.substr(c, d-c) == " operquit")
+					else if (!line.compare(c, d-c, " operquit", 9))
 					{
 						// ":22D METADATA 22DAAAAAX operquit :message" -> ":22DAAAAAX OPERQUIT :message"
 						line = ":" + line.substr(b+1, c-b) + "OPERQUIT" + line.substr(d);
@@ -169,29 +182,133 @@ void TreeSocket::WriteLine(const std::string& original_line)
 						line.erase(colon, 1);
 					}
 				}
+				else if (command == "INVITE")
+				{
+					// :22D INVITE 22DAAAAAN #chan TS ExpirationTime
+					//     A      B         C     D  E
+					if (b == std::string::npos)
+						return;
+
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = line.find(' ', c + 1);
+					if (d == std::string::npos)
+						return;
+
+					std::string::size_type e = line.find(' ', d + 1);
+					// If there is no expiration time then everything will be erased from 'd'
+					line.erase(d, e-d);
+				}
+				else if (command == "FJOIN")
+				{
+					// Strip membership ids
+					// :22D FJOIN #chan 1234 +f 4:3 :o,22DAAAAAB:15 o,22DAAAAAA:15
+					// :22D FJOIN #chan 1234 +f 4:3 o,22DAAAAAB:15
+					// :22D FJOIN #chan 1234 +Pf 4:3 :
+
+					// If the last parameter is prefixed by a colon then it's a userlist which may have 0 or more users;
+					// if it isn't, then it is a single member
+					std::string::size_type spcolon = line.find(" :");
+					if (spcolon != std::string::npos)
+					{
+						spcolon++;
+						// Loop while there is a ':' in the userlist, this is never true if the channel is empty
+						std::string::size_type pos = std::string::npos;
+						while ((pos = line.rfind(':', pos-1)) > spcolon)
+						{
+							// Find the next space after the ':'
+							std::string::size_type sp = line.find(' ', pos);
+							// Erase characters between the ':' and the next space after it, including the ':' but not the space;
+							// if there is no next space, everything will be erased between pos and the end of the line
+							line.erase(pos, sp-pos);
+						}
+					}
+					else
+					{
+						// Last parameter is a single member
+						std::string::size_type sp = line.rfind(' ');
+						std::string::size_type colon = line.find(':', sp);
+						line.erase(colon);
+					}
+				}
+				else if (command == "KICK")
+				{
+					// Strip membership id if the KICK has one
+					if (b == std::string::npos)
+						return;
+
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = line.find(' ', c + 1);
+					if ((d < line.size()-1) && (original_line[d+1] != ':'))
+					{
+						// There is a third parameter which doesn't begin with a colon, erase it
+						std::string::size_type e = line.find(' ', d + 1);
+						line.erase(d, e-d);
+					}
+				}
+				else if (command == "SINFO")
+				{
+					// :22D SINFO version :InspIRCd-2.2
+					//     A     B       C
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					// Only translating SINFO version, discard everything else
+					if (line.compare(b, 9, " version ", 9))
+						return;
+
+					line = line.substr(0, 5) + "VERSION" + line.substr(c);
+				}
+				else if (command == "SERVER")
+				{
+					// :001 SERVER inspircd.test 002 [<anything> ...] :gecos
+					//     A      B             C
+					std::string::size_type c = line.find(' ', b + 1);
+					if (c == std::string::npos)
+						return;
+
+					std::string::size_type d = c + 4;
+					std::string::size_type spcolon = line.find(" :", d);
+					if (spcolon == std::string::npos)
+						return;
+
+					line.erase(d, spcolon-d);
+					line.insert(c, " * 0");
+
+					if (burstsent)
+					{
+						WriteLineNoCompat(line);
+
+						// Synthesize a :<newserver> BURST <time> message
+						spcolon = line.find(" :");
+						line = CmdBuilder(line.substr(spcolon-3, 3), "BURST").push_int(ServerInstance->Time()).str();
+					}
+				}
 			}
-			ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), line.c_str());
-			this->WriteData(line);
-			this->WriteData(newline);
+			WriteLineNoCompat(line);
 			return;
 		}
 	}
 
-	ServerInstance->Logs->Log(MODNAME, LOG_RAWIO, "S[%d] O %s", this->GetFd(), original_line.c_str());
-	this->WriteData(original_line);
-	this->WriteData(newline);
+	WriteLineNoCompat(original_line);
 }
 
 namespace
 {
-	bool InsertCurrentChannelTS(std::vector<std::string>& params)
+	bool InsertCurrentChannelTS(std::vector<std::string>& params, unsigned int chanindex = 0, unsigned int pos = 1)
 	{
-		Channel* chan = ServerInstance->FindChan(params[0]);
+		Channel* chan = ServerInstance->FindChan(params[chanindex]);
 		if (!chan)
 			return false;
 
-		// Insert the current TS of the channel between the first and the second parameters
-		params.insert(params.begin()+1, ConvToStr(chan->age));
+		// Insert the current TS of the channel after the pos-th parameter
+		params.insert(params.begin()+pos, ConvToStr(chan->age));
 		return true;
 	}
 }
@@ -295,6 +412,72 @@ bool TreeSocket::PreProcessOldProtocolMessage(User*& who, std::string& cmd, std:
 	}
 	else if (cmd == "RULES")
 	{
+		return false;
+	}
+	else if (cmd == "INVITE")
+	{
+		// :20D INVITE 22DAAABBB #chan
+		// :20D INVITE 22DAAABBB #chan 123456789
+		// Insert channel timestamp after the channel name; the 3rd parameter, if there, is the invite expiration time
+		return InsertCurrentChannelTS(params, 1, 2);
+	}
+	else if (cmd == "VERSION")
+	{
+		// :20D VERSION :InspIRCd-2.0
+		// change to
+		// :20D SINFO version :InspIRCd-2.0
+		cmd = "SINFO";
+		params.insert(params.begin(), "version");
+	}
+	else if (cmd == "JOIN")
+	{
+		// 2.0 allows and forwards legacy JOINs but we don't, so translate them to FJOINs before processing
+		if ((params.size() != 1) || (IS_SERVER(who)))
+			return false; // Huh?
+
+		cmd = "FJOIN";
+		Channel* chan = ServerInstance->FindChan(params[0]);
+		params.push_back(ConvToStr(chan ? chan->age : ServerInstance->Time()));
+		params.push_back("+");
+		params.push_back(",");
+		params.back().append(who->uuid);
+		who = TreeServer::Get(who)->ServerUser;
+	}
+	else if ((cmd == "FMODE") && (params.size() >= 2))
+	{
+		// Translate user mode changes with timestamp to MODE
+		if (params[0][0] != '#')
+		{
+			User* user = ServerInstance->FindUUID(params[0]);
+			if (!user)
+				return false;
+
+			// Emulate the old nonsensical behavior
+			if (user->age < ServerCommand::ExtractTS(params[1]))
+				return false;
+
+			cmd = "MODE";
+			params.erase(params.begin()+1);
+		}
+	}
+	else if ((cmd == "SERVER") && (params.size() > 4))
+	{
+		// This does not affect the initial SERVER line as it is sent before the link state is CONNECTED
+		// :20D SERVER <name> * 0 <sid> <desc>
+		// change to
+		// :20D SERVER <name> <sid> <desc>
+
+		params[1].swap(params[3]);
+		params.erase(params.begin()+2, params.begin()+4);
+
+		// If the source of this SERVER message is not bursting, then new servers it introduces are bursting
+		TreeServer* server = TreeServer::Get(who);
+		if (!server->IsBursting())
+			params.insert(params.begin()+2, "burst=" + ConvToStr(ServerInstance->Time()*1000));
+	}
+	else if (cmd == "BURST")
+	{
+		// A server is introducing another one, drop unnecessary BURST
 		return false;
 	}
 

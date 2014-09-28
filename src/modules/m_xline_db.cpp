@@ -91,8 +91,8 @@ class ModuleXLineDB : public Module
 		std::ofstream stream(xlinenewdbpath.c_str());
 		if (!stream.is_open())
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot create database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot create database \"%s\"! %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new xline db \"%s\": %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
 			return false;
 		}
 
@@ -128,25 +128,20 @@ class ModuleXLineDB : public Module
 
 		if (stream.fail())
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot write to new database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot write to new database \"%s\"! %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new xline db \"%s\": %s (%d)", xlinenewdbpath.c_str(), strerror(errno), errno);
 			return false;
 		}
 		stream.close();
 
 #ifdef _WIN32
-		if (remove(xlinedbpath.c_str()))
-		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot remove old database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
-			return false;
-		}
+		remove(xlinedbpath.c_str());
 #endif
 		// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 		if (rename(xlinenewdbpath.c_str(), xlinedbpath.c_str()) < 0)
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot move new to old database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", xlinedbpath.c_str(), xlinenewdbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old xline db \"%s\" with new db \"%s\": %s (%d)", xlinedbpath.c_str(), xlinenewdbpath.c_str(), strerror(errno), errno);
 			return false;
 		}
 
@@ -162,8 +157,8 @@ class ModuleXLineDB : public Module
 		std::ifstream stream(xlinedbpath.c_str());
 		if (!stream.is_open())
 		{
-			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot read database! %s (%d)", strerror(errno), errno);
-			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read db: %s (%d)", strerror(errno), errno);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Cannot read database \"%s\"! %s (%d)", xlinedbpath.c_str(), strerror(errno), errno);
+			ServerInstance->SNO->WriteToSnoMask('a', "database: cannot read xline db \"%s\": %s (%d)", xlinedbpath.c_str(), strerror(errno), errno);
 			return false;
 		}
 

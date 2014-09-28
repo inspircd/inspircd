@@ -2,15 +2,18 @@ cmake_minimum_required(VERSION 2.8)
 
 project(InspIRCd CXX)
 
-set(CONF_PATH "conf" CACHE PATH "Configuration file path")
-set(MODULE_PATH "modules" CACHE PATH "Module path")
-set(DATA_PATH "data" CACHE PATH "Data path")
-set(LOG_PATH "logs" CACHE PATH "Log file path")
+set(CONFIG_DIR "conf" CACHE PATH "Configuration file path")
+set(MODULE_DIR "modules" CACHE PATH "Module path")
+set(DATA_DIR "data" CACHE PATH "Data path")
+set(LOG_DIR "logs" CACHE PATH "Log file path")
 
 set(EXTRA_INCLUDES "" CACHE PATH "Extra include paths")
 set(EXTRA_LIBS "" CACHE PATH "Extra library paths")
 
 set(INSPIRCD_BASE "${CMAKE_CURRENT_SOURCE_DIR}/../")
+
+set(SYSTEM_NAME_VERSION ${CMAKE_SYSTEM})
+set(SOCKETENGINE "select")
 
 # Build with multiple processes
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
@@ -20,10 +23,9 @@ set(CMAKE_MODULE_PATH "${INSPIRCD_BASE}/win")
 
 # Grab version info from version.sh
 file(STRINGS "${INSPIRCD_BASE}/src/version.sh" VERSIONSH)
-string(REGEX REPLACE ".*InspIRCd-([0-9]*).*" "\\1" MAJOR_VERSION "${VERSIONSH}")
-string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.([0-9]*).*" "\\1" MINOR_VERSION "${VERSIONSH}")
-string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.[0-9]*\\.([0-9]*).*" "\\1" PATCH_VERSION "${VERSIONSH}")
-set(FULL_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
+string(REGEX REPLACE ".*InspIRCd-([0-9]*).*" "\\1" VERSION_MAJOR "${VERSIONSH}")
+string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.([0-9]*).*" "\\1" VERSION_MINOR "${VERSIONSH}")
+string(REGEX REPLACE ".*InspIRCd-[0-9]*\\.[0-9]*\\.([0-9]*).*" "\\1" VERSION_PATCH "${VERSIONSH}")
 
 if(MSVC)
 	# Without /SAFESEH:NO old libraries compiled with VS 2010 or older won't link correctly to VS2012 (eg, extra module libs)
@@ -59,7 +61,7 @@ if(MSVC)
 endif(MSVC)
 
 configure_file("${INSPIRCD_BASE}/win/inspircd.rc.cmake" "${INSPIRCD_BASE}/win/inspircd.rc")
-configure_file("${INSPIRCD_BASE}/win/config.h.cmake" "${INSPIRCD_BASE}/win/config.h")
+configure_file("${INSPIRCD_BASE}/make/template/config.h" "${INSPIRCD_BASE}/include/config.h")
 
 add_executable(inspircd ${INSPIRCD_SOURCES} "${INSPIRCD_BASE}/win/inspircd.rc")
 target_link_libraries(inspircd win32_memory)
@@ -77,20 +79,20 @@ file(GLOB_RECURSE EXAMPLE_CONFIGS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "${INSPIR
 install(FILES ${EXAMPLE_CONFIGS} DESTINATION conf)
 
 # Create an empty data and logs directory and install them
-file(MAKE_DIRECTORY ${DATA_PATH})
-install(DIRECTORY ${DATA_PATH} DESTINATION .)
-file(MAKE_DIRECTORY ${LOG_PATH})
-install(DIRECTORY ${LOG_PATH} DESTINATION .)
+file(MAKE_DIRECTORY ${DATA_DIR})
+install(DIRECTORY ${DATA_DIR} DESTINATION .)
+file(MAKE_DIRECTORY ${LOG_DIR})
+install(DIRECTORY ${LOG_DIR} DESTINATION .)
 
 if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 	include(InstallRequiredSystemLibraries)
 
 	set(CPACK_PACKAGE_NAME "InspIRCd IRC Daemon")
 	set(CPACK_PACKAGE_VENDOR "InspIRCd Development Team")
-	set(CPACK_PACKAGE_VERSION_MAJOR ${MAJOR_VERSION})
-	set(CPACK_PACKAGE_VERSION_MINOR ${MINOR_VERSION})
-	set(CPACK_PACKAGE_VERSION_PATCH ${PATCH_VERSION})
-	set(CPACK_PACKAGE_FILE_NAME "InspIRCd-${FULL_VERSION}")
+	set(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+	set(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+	set(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+	set(CPACK_PACKAGE_FILE_NAME "InspIRCd-${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../docs/COPYING")
 
 	set(CPACK_GENERATOR "NSIS")
@@ -101,7 +103,7 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 	set(CPACK_NSIS_MUI_UNIICON "${INSPIRCD_BASE}/win\\\\inspircd.ico")
 	set(CPACK_NSIS_INSTALLED_ICON_NAME "inspircd.exe")
 	set(CPACK_NSIS_URL_INFO_ABOUT "http://www.inspircd.org/")
-	set(CPACK_NSIS_COMPRESSOR "/SOLID lzma")
+	set(CPACK_NSIS_COMPRESSOR "/SOLID zlib")
 
 	include(CPack)
 endif(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")

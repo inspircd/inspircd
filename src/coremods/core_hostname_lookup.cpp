@@ -61,13 +61,13 @@ class UserResolver : public DNS::Request
 		LocalUser* bound_user = (LocalUser*)ServerInstance->FindUUID(uuid);
 		if (!bound_user)
 		{
-			ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Resolution finished for user '%s' who is gone", uuid.c_str());
 			return;
 		}
 
 		const DNS::ResourceRecord& ans_record = r->answers[0];
 
-		ServerInstance->Logs->Log("RESOLVER", LOG_DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), ans_record.name.c_str(), ans_record.rdata.c_str());
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "DNS result for %s: '%s' -> '%s'", uuid.c_str(), ans_record.name.c_str(), ans_record.rdata.c_str());
 
 		if (!fwd)
 		{
@@ -129,7 +129,7 @@ class UserResolver : public DNS::Request
 
 				if (hostname == NULL)
 				{
-					ServerInstance->Logs->Log("RESOLVER", LOG_DEFAULT, "ERROR: User has no hostname attached when doing a forward lookup");
+					ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: User has no hostname attached when doing a forward lookup");
 					bound_user->WriteNotice("*** There was an internal error resolving your host, using your IP address (" + bound_user->GetIPString() + ") instead.");
 					return;
 				}
@@ -170,7 +170,7 @@ class UserResolver : public DNS::Request
 		{
 			bound_user->WriteNotice("*** Could not resolve your hostname: " + this->manager->GetErrorStr(query->error) + "; using your IP address (" + bound_user->GetIPString() + ") instead.");
 			dl->set(bound_user, 0);
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->stats.DnsBad++;
 		}
 	}
 };
@@ -215,7 +215,7 @@ class ModuleHostnameLookup : public Module
 			this->dnsLookup.set(user, 0);
 			delete res_reverse;
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Error in resolver: " + e.GetReason());
-			ServerInstance->stats->statsDnsBad++;
+			ServerInstance->stats.DnsBad++;
 		}
 	}
 

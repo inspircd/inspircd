@@ -25,11 +25,7 @@
 # error You need Solaris 10 or later to make use of this code.
 #endif
 
-#include <vector>
-#include <string>
-#include <map>
 #include "inspircd.h"
-#include "socketengine.h"
 #include <port.h>
 #include <iostream>
 #include <ulimit.h>
@@ -48,17 +44,9 @@ namespace
  */
 void SocketEngine::Init()
 {
-	int max = ulimit(4, 0);
-	if (max > 0)
-	{
-		MAX_DESCRIPTORS = max;
-	}
-	else
-	{
-		ServerInstance->Logs->Log("SOCKET", LOG_DEFAULT, "ERROR: Can't determine maximum number of open sockets!");
-		std::cout << "ERROR: Can't determine maximum number of open sockets!" << std::endl;
-		ServerInstance->QuickExit(EXIT_STATUS_SOCKETENGINE);
-	}
+	// MAX_DESCRIPTORS is mainly used for display purposes, no problem if ulimit() fails and returns a negative number
+	MAX_DESCRIPTORS = ulimit(4, 0);
+
 	EngineHandle = port_create();
 
 	if (EngineHandle == -1)
@@ -95,7 +83,7 @@ static int mask_to_events(int event_mask)
 bool SocketEngine::AddFd(EventHandler* eh, int event_mask)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return false;
 
 	if (!SocketEngine::AddFdRef(eh))
@@ -119,7 +107,7 @@ void SocketEngine::OnSetEvent(EventHandler* eh, int old_mask, int new_mask)
 void SocketEngine::DelFd(EventHandler* eh)
 {
 	int fd = eh->GetFd();
-	if ((fd < 0) || (fd > GetMaxFds() - 1))
+	if (fd < 0)
 		return;
 
 	port_dissociate(EngineHandle, PORT_SOURCE_FD, fd);

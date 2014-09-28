@@ -161,7 +161,7 @@ class ModuleOverride : public Module
 			{
 				if (chan->IsModeSet(inviteonly) && (CanOverride(user,"INVITE")))
 				{
-					if (!IS_LOCAL(user)->IsInvited(chan))
+					if (!user->IsInvited(chan))
 						return HandleJoinOverride(user, chan, keygiven, "invite-only", "+i");
 					return MOD_RES_ALLOW;
 				}

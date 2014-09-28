@@ -69,37 +69,41 @@ bool TreeSocket::ComparePass(const Link& link, const std::string &theirs)
 	capab->auth_fingerprint = !link.Fingerprint.empty();
 	capab->auth_challenge = !capab->ourchallenge.empty() && !capab->theirchallenge.empty();
 
-	if (capab->auth_challenge)
-	{
-		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
-
-		/* Straight string compare of hashes */
-		if (our_hmac != theirs)
-			return false;
-	}
-	else
-	{
-		/* Straight string compare of plaintext */
-		if (link.RecvPass != theirs)
-			return false;
-	}
-
 	std::string fp = SSLClientCert::GetFingerprint(this);
 	if (capab->auth_fingerprint)
 	{
 		/* Require fingerprint to exist and match */
 		if (link.Fingerprint != fp)
 		{
-			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL fingerprint on link %s: need \"%s\" got \"%s\"",
+			ServerInstance->SNO->WriteToSnoMask('l',"Invalid SSL certificate fingerprint on link %s: need \"%s\" got \"%s\"",
 				link.Name.c_str(), link.Fingerprint.c_str(), fp.c_str());
-			SendError("Provided invalid SSL fingerprint " + fp + " - expected " + link.Fingerprint);
+			SendError("Invalid SSL certificate fingerprint " + fp + " - expected " + link.Fingerprint);
 			return false;
 		}
 	}
-	else if (!fp.empty())
+
+	if (capab->auth_challenge)
 	{
-		ServerInstance->SNO->WriteToSnoMask('l', "SSL fingerprint for link %s is \"%s\". "
+		std::string our_hmac = MakePass(link.RecvPass, capab->ourchallenge);
+
+		// Use the timing-safe compare function to compare the hashes
+		if (!InspIRCd::TimingSafeCompare(our_hmac, theirs))
+			return false;
+	}
+	else
+	{
+		// Use the timing-safe compare function to compare the passwords
+		if (!InspIRCd::TimingSafeCompare(link.RecvPass, theirs))
+			return false;
+	}
+
+	// Tell opers to set up fingerprint verification if it's not already set up and the SSL mod gave us a fingerprint
+	// this time
+	if ((!capab->auth_fingerprint) && (!fp.empty()))
+	{
+		ServerInstance->SNO->WriteToSnoMask('l', "SSL certificate fingerprint for link %s is \"%s\". "
 			"You can improve security by specifying this in <link:fingerprint>.", link.Name.c_str(), fp.c_str());
 	}
+
 	return true;
 }

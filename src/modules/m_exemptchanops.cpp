@@ -29,9 +29,23 @@ class ExemptChanOps : public ListModeBase
 
 	bool ValidateParam(User* user, Channel* chan, std::string &word)
 	{
-		if (!ServerInstance->Modes->FindMode(word, MODETYPE_CHANNEL))
+		std::string::size_type p = word.find(':');
+		if (p == std::string::npos)
 		{
-			user->WriteNumeric(955, "%s %s :Mode doesn't exist", chan->name.c_str(), word.c_str());
+			user->WriteNumeric(955, "%s %s :Invalid exemptchanops entry, format is <restriction>:<prefix>", chan->name.c_str(), word.c_str());
+			return false;
+		}
+
+		std::string restriction = word.substr(0, p);
+		// If there is a '-' in the restriction string ignore it and everything after it
+		// to support "auditorium-vis" and "auditorium-see" in m_auditorium
+		p = restriction.find('-');
+		if (p != std::string::npos)
+			restriction.erase(p);
+
+		if (!ServerInstance->Modes->FindMode(restriction, MODETYPE_CHANNEL))
+		{
+			user->WriteNumeric(955, "%s %s :Unknown restriction", chan->name.c_str(), restriction.c_str());
 			return false;
 		}
 
@@ -83,7 +97,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 				std::string::size_type pos = (*i).mask.find(':');
 				if (pos == std::string::npos)
 					continue;
-				if ((*i).mask.substr(0,pos) == restriction)
+				if (!i->mask.compare(0, pos, restriction))
 					minmode = (*i).mask.substr(pos + 1);
 			}
 		}

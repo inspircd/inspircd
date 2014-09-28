@@ -68,6 +68,13 @@ class CmdBuilder
 		return *this;
 	}
 
+	template <typename T>
+	CmdBuilder& push_raw_int(T i)
+	{
+		content.append(ConvToStr(i));
+		return *this;
+	}
+
 	CmdBuilder& push(const std::string& s)
 	{
 		content.push_back(' ');

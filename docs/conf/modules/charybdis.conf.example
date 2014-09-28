@@ -164,7 +164,7 @@
 #   quitmsg="Throttled" bootwait="10">
 
 <module name="m_deaf.so">
-<module name="m_dnsbl.so">                                           
+<module name="m_dnsbl.so">
 <module name="m_gecosban.so">
 <module name="m_globalload.so">
 <module name="m_ident.so">
@@ -246,8 +246,8 @@
 <showwhois opersonly="yes" showfromopers="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# SSL channel mode module: Adds support for SSL-only channels via 
-# channel mode +z and the 'z' extban which matches SSL client 
+# SSL channel mode module: Adds support for SSL-only channels via
+# channel mode +z and the 'z' extban which matches SSL client
 # certificate fingerprints.
 # Does not do anything useful without a working SSL module (see below).
 #<module name="m_sslmodes.so">
@@ -268,10 +268,10 @@
 # SSL Info module: Allows users to retrieve information about other
 # user's peer SSL certificates and keys. This can be used by client
 # scripts to validate users. For this to work, one of m_ssl_gnutls.so
-# or m_ssl_openssl.so must be loaded. This module also adds the 
+# or m_ssl_openssl.so must be loaded. This module also adds the
 # "* <user> is using a secure connection" whois line, the ability for
-# opers to use SSL fingerprints to verify their identity and the ability
-# to force opers to use SSL connections in order to oper up.
+# opers to use SSL cert fingerprints to verify their identity and the
+# ability to force opers to use SSL connections in order to oper up.
 # It is highly recommended to load this module especially if
 # you use SSL on your network.
 # For how to use the oper features, please see the first example <oper> tag

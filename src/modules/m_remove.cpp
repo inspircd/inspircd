@@ -38,6 +38,8 @@ class RemoveBase : public Command
 	ChanModeReference& nokicksmode;
 
  public:
+ 	unsigned int protectedrank;
+
 	RemoveBase(Module* Creator, bool& snk, ChanModeReference& nkm, const char* cmdn)
 		: Command(Creator, cmdn, 2, 3)
 		, supportnokicks(snk)
@@ -45,11 +47,14 @@ class RemoveBase : public Command
 	{
 	}
 
-	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool neworder)
+	CmdResult HandleRMB(const std::vector<std::string>& parameters, User *user, bool fpart)
 	{
 		User* target;
 		Channel* channel;
 		std::string reason;
+
+		// If the command is a /REMOVE then detect the parameter order
+		bool neworder = ((fpart) || (parameters[0][0] == '#'));
 
 		/* Set these to the parameters needed, the new version of this module switches it's parameters around
 		 * supplying a new command with the new order while keeping the old /remove with the older order.
@@ -81,9 +86,6 @@ class RemoveBase : public Command
 			return CMD_FAILURE;
 		}
 
-		int ulevel = channel->GetPrefixValue(user);
-		int tlevel = channel->GetPrefixValue(target);
-
 		if (target->server->IsULine())
 		{
 			user->WriteNumeric(482, "%s :Only a u-line may remove a u-line from a channel.", channame.c_str());
@@ -96,13 +98,26 @@ class RemoveBase : public Command
 			/* We'll let everyone remove their level and below, eg:
 			 * ops can remove ops, halfops, voices, and those with no mode (no moders actually are set to 1)
 			 * a ulined target will get a higher level than it's possible for a /remover to get..so they're safe.
-			 * Nobody may remove a founder.
+			 * Nobody may remove people with >= protectedrank rank.
 			 */
-			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && (tlevel != 50000)))
+			unsigned int ulevel = channel->GetPrefixValue(user);
+			unsigned int tlevel = channel->GetPrefixValue(target);
+			if ((!IS_LOCAL(user)) || ((ulevel > VOICE_VALUE) && (ulevel >= tlevel) && ((protectedrank == 0) || (tlevel < protectedrank))))
 			{
-				// REMOVE/FPART will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
+				// REMOVE will be sent to the target's server and it will reply with a PART (or do nothing if it doesn't understand the command)
 				if (!IS_LOCAL(target))
+				{
+					// Send an ENCAP REMOVE with parameters being in the old <user> <chan> order which is
+					// compatible with both 2.0 and 2.2. This also turns FPART into REMOVE.
+					std::vector<std::string> p;
+					p.push_back(target->uuid);
+					p.push_back(channel->name);
+					if (parameters.size() > 2)
+						p.push_back(":" + parameters[2]);
+					ServerInstance->PI->SendEncapsulatedData(target->server->GetName(), "REMOVE", p, user);
+
 					return CMD_SUCCESS;
+				}
 
 				std::string reasonparam;
 
@@ -135,7 +150,6 @@ class RemoveBase : public Command
 
 		return CMD_SUCCESS;
 	}
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) = 0;
 };
 
 /** Handle /REMOVE
@@ -146,21 +160,13 @@ class CommandRemove : public RemoveBase
 	CommandRemove(Module* Creator, bool& snk, ChanModeReference& nkm)
 		: RemoveBase(Creator, snk, nkm, "REMOVE")
 	{
-		syntax = "<nick> <channel> [<reason>]";
+		syntax = "<channel> <nick> [<reason>]";
 		TRANSLATE3(TR_NICK, TR_TEXT, TR_TEXT);
 	}
 
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		return HandleRMB(parameters, user, false);
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		User* dest = ServerInstance->FindNick(parameters[0]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -179,14 +185,6 @@ class CommandFpart : public RemoveBase
 	CmdResult Handle (const std::vector<std::string>& parameters, User *user)
 	{
 		return HandleRMB(parameters, user, true);
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		User* dest = ServerInstance->FindNick(parameters[1]);
-		if (dest)
-			return ROUTE_OPT_UCAST(dest->server);
-		return ROUTE_LOCALONLY;
 	}
 };
 
@@ -212,7 +210,9 @@ class ModuleRemove : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		supportnokicks = ServerInstance->Config->ConfValue("remove")->getBool("supportnokicks");
+		ConfigTag* tag = ServerInstance->Config->ConfValue("remove");
+		supportnokicks = tag->getBool("supportnokicks");
+		cmd1.protectedrank = cmd2.protectedrank = tag->getInt("protectedrank", 50000);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

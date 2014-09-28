@@ -35,12 +35,6 @@ CmdResult CommandSNONotice::Handle(User* user, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-CmdResult CommandBurst::HandleServer(TreeServer* server, std::vector<std::string>& params)
-{
-	server->bursting = true;
-	return CMD_SUCCESS;
-}
-
 CmdResult CommandEndBurst::HandleServer(TreeServer* server, std::vector<std::string>& params)
 {
 	server->FinishBurst();

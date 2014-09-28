@@ -37,8 +37,8 @@
  * to it.
  */
 TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
-	: linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0), ConnectionFailureShown(false)
-	, age(ServerInstance->Time())
+	: linkID(assign(link->Name)), LinkState(CONNECTING), MyRoot(NULL), proto_version(0)
+	, burstsent(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->link = link;
@@ -57,7 +57,7 @@ TreeSocket::TreeSocket(Link* link, Autoconnect* myac, const std::string& ipaddr)
 TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
 	: BufferedSocket(newfd)
 	, linkID("inbound from " + client->addr()), LinkState(WAIT_AUTH_1), MyRoot(NULL), proto_version(0)
-	, ConnectionFailureShown(false), age(ServerInstance->Time())
+	, burstsent(false), age(ServerInstance->Time())
 {
 	capab = new CapabData;
 	capab->capab_phase = 0;
@@ -128,6 +128,7 @@ void TreeSocket::OnError(BufferedSocketError e)
 	ServerInstance->SNO->WriteGlobalSno('l', "Connection to '\002%s\002' failed with error: %s",
 		linkID.c_str(), getError().c_str());
 	LinkState = DYING;
+	Close();
 }
 
 void TreeSocket::SendError(const std::string &errormessage)
@@ -136,82 +137,6 @@ void TreeSocket::SendError(const std::string &errormessage)
 	DoWrite();
 	LinkState = DYING;
 	SetError(errormessage);
-}
-
-/** This function forces this server to quit, removing this server
- * and any users on it (and servers and users below that, etc etc).
- * It's very slow and pretty clunky, but luckily unless your network
- * is having a REAL bad hair day, this function shouldnt be called
- * too many times a month ;-)
- */
-void TreeSocket::SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users)
-{
-	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "SquitServer for %s from %s", Current->GetName().c_str(), from.c_str());
-	/* recursively squit the servers attached to 'Current'.
-	 * We're going backwards so we don't remove users
-	 * while we still need them ;)
-	 */
-	const TreeServer::ChildServers& children = Current->GetChildren();
-	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
-	{
-		TreeServer* recursive_server = *i;
-		this->SquitServer(from,recursive_server, num_lost_servers, num_lost_users);
-	}
-	/* Now we've whacked the kids, whack self */
-	num_lost_servers++;
-	num_lost_users += Current->QuitUsers(from);
-}
-
-/** This is a wrapper function for SquitServer above, which
- * does some validation first and passes on the SQUIT to all
- * other remaining servers.
- */
-void TreeSocket::Squit(TreeServer* Current, const std::string &reason)
-{
-	bool LocalSquit = false;
-
-	if (!Current->IsRoot())
-	{
-		DelServerEvent(Utils->Creator, Current->GetName());
-
-		if (Current->IsLocal())
-		{
-			ServerInstance->SNO->WriteGlobalSno('l', "Server \002"+Current->GetName()+"\002 split: "+reason);
-			LocalSquit = true;
-			if (Current->GetSocket()->Introduced())
-			{
-				CmdBuilder params("SQUIT");
-				params.push_back(Current->GetID());
-				params.push_last(reason);
-				params.Broadcast();
-			}
-		}
-		else
-		{
-			ServerInstance->SNO->WriteToSnoMask('L', "Server \002"+Current->GetName()+"\002 split from server \002"+Current->GetParent()->GetName()+"\002 with reason: "+reason);
-		}
-		int num_lost_servers = 0;
-		int num_lost_users = 0;
-		std::string from = Current->GetParent()->GetName()+" "+Current->GetName();
-
-		ModuleSpanningTree* st = Utils->Creator;
-		st->SplitInProgress = true;
-		SquitServer(from, Current, num_lost_servers, num_lost_users);
-		st->SplitInProgress = false;
-
-		ServerInstance->SNO->WriteToSnoMask(LocalSquit ? 'l' : 'L', "Netsplit complete, lost \002%d\002 user%s on \002%d\002 server%s.",
-			num_lost_users, num_lost_users != 1 ? "s" : "", num_lost_servers, num_lost_servers != 1 ? "s" : "");
-		Current->Tidy();
-		Current->GetParent()->DelChild(Current);
-		Current->cull();
-		const bool ismyroot = (Current == MyRoot);
-		delete Current;
-		if (ismyroot)
-		{
-			MyRoot = NULL;
-			Close();
-		}
-	}
 }
 
 CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string>& params)
@@ -223,15 +148,22 @@ CmdResult CommandSQuit::HandleServer(TreeServer* server, std::vector<std::string
 		return CMD_FAILURE;
 	}
 
-	TreeSocket* sock = server->GetSocket();
-	sock->Squit(quitting, params[1]);
+	CmdResult ret = CMD_SUCCESS;
+	if (quitting == server)
+	{
+		ret = CMD_FAILURE;
+		server = server->GetParent();
+	}
+	else if (quitting->GetParent() != server)
+		throw ProtocolException("Attempted to SQUIT a non-directly connected server or the parent");
+
+	server->SQuitChild(quitting, params[1]);
 
 	// XXX: Return CMD_FAILURE when servers SQUIT themselves (i.e. :00S SQUIT 00S :Shutting down)
-	// to avoid RouteCommand() being called. RouteCommand() requires a valid command source but we
-	// do not have one because the server user is deleted when its TreeServer is destructed.
-	// We generate a SQUIT in TreeSocket::Squit(), with our sid as the source and send it to the
+	// to stop this message from being forwarded.
+	// The squit logic generates a SQUIT message with our sid as the source and sends it to the
 	// remaining servers.
-	return ((quitting == server) ? CMD_FAILURE : CMD_SUCCESS);
+	return ret;
 }
 
 /** This function is called when we receive data from a remote
@@ -251,16 +183,22 @@ void TreeSocket::OnDataReady()
 			SendError("Read null character from socket");
 			break;
 		}
-		ProcessLine(line);
+
+		try
+		{
+			ProcessLine(line);
+		}
+		catch (CoreException& ex)
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Error while processing: " + line);
+			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, ex.GetReason());
+			SendError(ex.GetReason() + " - check the log file for details");
+		}
+
 		if (!getError().empty())
 			break;
 	}
 	if (LinkState != CONNECTED && recvq.length() > 4096)
 		SendError("RecvQ overrun (line too long)");
 	Utils->Creator->loopCall = false;
-}
-
-bool TreeSocket::Introduced()
-{
-	return (capab == NULL);
 }

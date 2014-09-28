@@ -21,14 +21,22 @@
 
 
 #include "inspircd.h"
-#include <sqlite3.h>
 #include "modules/sql.h"
+
+// Fix warnings about the use of `long long` on C++03.
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-long-long"
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wlong-long"
+#endif
+
+#include <sqlite3.h>
 
 #ifdef _WIN32
 # pragma comment(lib, "sqlite3.lib")
 #endif
 
-/* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") -Wno-pedantic */
+/* $CompileFlags: pkgconfversion("sqlite3","3.3") pkgconfincludes("sqlite3","/sqlite3.h","") */
 /* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
 
 class SQLConn;

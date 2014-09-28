@@ -18,6 +18,7 @@
 
 
 #include "inspircd.h"
+#include "xline.h"
 #include "core_xline.h"
 
 bool InsaneBan::MatchesEveryone(const std::string& mask, MatcherBase& test, User* user, const char* bantype, const char* confkey)
@@ -61,6 +62,26 @@ class CoreModXLine : public Module
 	CoreModXLine()
 		: cmdeline(this), cmdgline(this), cmdkline(this), cmdqline(this), cmdzline(this)
 	{
+	}
+
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
+	{
+		// Check Q-Lines (for local nick changes only, remote servers have our Q-Lines to enforce themselves)
+
+		XLine* xline = ServerInstance->XLines->MatchesLine("Q", newnick);
+		if (!xline)
+			return MOD_RES_PASSTHRU; // No match
+
+		// A Q-Line matched the new nick, tell opers if the user is registered
+		if (user->registered == REG_ALL)
+		{
+			ServerInstance->SNO->WriteGlobalSno('a', "Q-Lined nickname %s from %s: %s",
+				newnick.c_str(), user->GetFullRealHost().c_str(), xline->reason.c_str());
+		}
+
+		// Send a numeric because if we deny then the core doesn't reply anything
+		user->WriteNumeric(ERR_ERRONEUSNICKNAME, "%s :Invalid nickname: %s", newnick.c_str(), xline->reason.c_str());
+		return MOD_RES_DENY;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

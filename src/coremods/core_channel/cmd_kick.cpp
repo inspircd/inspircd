@@ -31,7 +31,6 @@ CommandKick::CommandKick(Module* parent)
  */
 CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User *user)
 {
-	std::string reason;
 	Channel* c = ServerInstance->FindChan(parameters[0]);
 	User* u;
 
@@ -66,16 +65,59 @@ CmdResult CommandKick::Handle (const std::vector<std::string>& parameters, User 
 		}
 	}
 
-	if (parameters.size() > 2)
+	const Channel::MemberMap::iterator victimiter = c->userlist.find(u);
+	if (victimiter == c->userlist.end())
 	{
-		reason.assign(parameters[2], 0, ServerInstance->Config->Limits.MaxKick);
+		user->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", u->nick.c_str(), c->name.c_str());
+		return CMD_FAILURE;
 	}
-	else
+	Membership* const memb = victimiter->second;
+
+	// KICKs coming from servers can carry a membership id
+	if ((!IS_LOCAL(user)) && (parameters.size() > 3))
 	{
-		reason.assign(user->nick, 0, ServerInstance->Config->Limits.MaxKick);
+		// If the current membership id is not equal to the one in the message then the user rejoined
+		if (memb->id != Membership::IdFromString(parameters[2]))
+		{
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Dropped KICK due to membership id mismatch: " + ConvToStr(memb->id) + " != " + parameters[2]);
+			return CMD_FAILURE;
+		}
 	}
 
-	c->KickUser(user, u, reason, srcmemb);
+	const bool has_reason = (parameters.size() > 2);
+	const std::string reason((has_reason ? parameters.back() : user->nick), 0, ServerInstance->Config->Limits.MaxKick);
+
+	// Do the following checks only if the KICK is done by a local user;
+	// each server enforces its own rules.
+	if (srcmemb)
+	{
+		// Modules are allowed to explicitly allow or deny kicks done by local users
+		ModResult res;
+		FIRST_MOD_RESULT(OnUserPreKick, res, (user, memb, reason));
+		if (res == MOD_RES_DENY)
+			return CMD_FAILURE;
+
+		if (res == MOD_RES_PASSTHRU)
+		{
+			unsigned int them = srcmemb->getRank();
+			unsigned int req = HALFOP_VALUE;
+			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
+			{
+				ModeHandler* mh = ServerInstance->Modes->FindMode(memb->modes[i], MODETYPE_CHANNEL);
+				if (mh && mh->GetLevelRequired() > req)
+					req = mh->GetLevelRequired();
+			}
+
+			if (them < req)
+			{
+				user->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
+					this->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
+				return CMD_FAILURE;
+			}
+		}
+	}
+
+	c->KickUser(user, victimiter, reason);
 
 	return CMD_SUCCESS;
 }

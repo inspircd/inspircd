@@ -59,15 +59,12 @@ class ModuleUHNames : public Module
 		return MOD_RES_PASSTHRU;
 	}
 
-	void OnNamesListItem(User* issuer, Membership* memb, std::string &prefixes, std::string &nick) CXX11_OVERRIDE
+	ModResult OnNamesListItem(User* issuer, Membership* memb, std::string& prefixes, std::string& nick) CXX11_OVERRIDE
 	{
-		if (!cap.ext.get(issuer))
-			return;
+		if (cap.ext.get(issuer))
+			nick = memb->user->GetFullHost();
 
-		if (nick.empty())
-			return;
-
-		nick = memb->user->GetFullHost();
+		return MOD_RES_PASSTHRU;
 	}
 
 	void OnEvent(Event& ev) CXX11_OVERRIDE

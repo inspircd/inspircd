@@ -248,6 +248,9 @@ class CoreExport User : public Extensible
 	std::bitset<ModeParser::MODEID_MAX> modes;
 
  public:
+	/** List of Memberships for this user
+	 */
+	typedef intrusive_list<Membership> ChanList;
 
 	/** Hostname of connection.
 	 * This should be valid as per RFC1035.
@@ -302,7 +305,7 @@ class CoreExport User : public Extensible
 
 	/** Channels this user is on
 	 */
-	UserChanList chans;
+	ChanList chans;
 
 	/** The server the user is connected to.
 	 */
@@ -462,15 +465,6 @@ class CoreExport User : public Extensible
 	 */
 	void Oper(OperInfo* info);
 
-	/** Force a nickname change.
-	 * If the nickname change fails (for example, because the nick in question
-	 * already exists) this function will return false, and you must then either
-	 * output an error message, or quit the user for nickname collision.
-	 * @param newnick The nickname to change to
-	 * @return True if the nickchange was successful.
-	 */
-	bool ForceNickChange(const std::string& newnick, time_t newts = 0) { return ChangeNick(newnick, true, newts); }
-
 	/** Oper down.
 	 * This will clear the +o usermode and unset the user's oper type
 	 */
@@ -597,11 +591,10 @@ class CoreExport User : public Extensible
 	bool ChangeName(const std::string& gecos);
 
 	/** Change a user's nick
-	 * @param newnick The new nick
-	 * @param force True if the change is being forced (should not be blocked by modes like +N)
+	 * @param newnick The new nick. If equal to the users uuid, the nick change always succeeds.
 	 * @return True if the change succeeded
 	 */
-	bool ChangeNick(const std::string& newnick, bool force = false, time_t newts = 0);
+	bool ChangeNick(const std::string& newnick, time_t newts = 0);
 
 	/** Remove this user from all channels they are on, and delete any that are now empty.
 	 * This is used by QUIT, and will not send part messages!

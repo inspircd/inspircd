@@ -28,19 +28,12 @@ CmdResult CommandFTopic::Handle(User* user, std::vector<std::string>& params)
 	if (!c)
 		return CMD_FAILURE;
 
-	time_t ChanTS = ConvToInt(params[1]);
-	if (!ChanTS)
-		return CMD_INVALID;
-
-	if (c->age < ChanTS)
+	if (c->age < ServerCommand::ExtractTS(params[1]))
 		// Our channel TS is older, nothing to do
 		return CMD_FAILURE;
 
-	time_t ts = ConvToInt(params[2]);
-	if (!ts)
-		return CMD_INVALID;
-
 	// Channel::topicset is initialized to 0 on channel creation, so their ts will always win if we never had a topic
+	time_t ts = ServerCommand::ExtractTS(params[2]);
 	if (ts < c->topicset)
 		return CMD_FAILURE;
 

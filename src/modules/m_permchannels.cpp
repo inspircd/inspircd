@@ -66,8 +66,8 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 	std::ofstream stream(permchannelsnewconf.c_str());
 	if (!stream.is_open())
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot create database! %s (%d)", strerror(errno), errno);
-		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new db: %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot create database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot create new permchan db \"%s\": %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
 		return false;
 	}
 
@@ -137,25 +137,20 @@ static bool WriteDatabase(PermChannel& permchanmode, Module* mod, bool save_list
 
 	if (stream.fail())
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot write to new database! %s (%d)", strerror(errno), errno);
-		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new db: %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot write to new database \"%s\"! %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot write to new permchan db \"%s\": %s (%d)", permchannelsnewconf.c_str(), strerror(errno), errno);
 		return false;
 	}
 	stream.close();
 
 #ifdef _WIN32
-	if (remove(permchannelsconf.c_str()))
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot remove old database! %s (%d)", strerror(errno), errno);
-		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot remove old database: %s (%d)", strerror(errno), errno);
-		return false;
-	}
+	remove(permchannelsconf.c_str());
 #endif
 	// Use rename to move temporary to new db - this is guarenteed not to fuck up, even in case of a crash.
 	if (rename(permchannelsnewconf.c_str(), permchannelsconf.c_str()) < 0)
 	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot move new to old database! %s (%d)", strerror(errno), errno);
-		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old with new db: %s (%d)", strerror(errno), errno);
+		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "Cannot replace old database \"%s\" with new database \"%s\"! %s (%d)", permchannelsconf.c_str(), permchannelsnewconf.c_str(), strerror(errno), errno);
+		ServerInstance->SNO->WriteToSnoMask('a', "database: cannot replace old permchan db \"%s\" with new db \"%s\": %s (%d)", permchannelsconf.c_str(), permchannelsnewconf.c_str(), strerror(errno), errno);
 		return false;
 	}
 

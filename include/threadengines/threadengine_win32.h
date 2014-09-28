@@ -38,10 +38,12 @@ class Thread;
 class CoreExport ThreadEngine
 {
  public:
-
-	ThreadEngine();
-
-	virtual ~ThreadEngine();
+	/** Per-thread state, present in each Thread object, managed by the ThreadEngine
+	 */
+	struct ThreadState
+	{
+		HANDLE handle;
+	};
 
 	static DWORD WINAPI Entry(void* parameter);
 
@@ -53,20 +55,17 @@ class CoreExport ThreadEngine
 	  */
 	void Start(Thread* thread_to_init);
 
-	/** Returns the thread engine's name for display purposes
-	 * @return The thread engine name
+	/** Stop a thread gracefully.
+	 * First, this function asks the thread to terminate by calling Thread::SetExitFlag().
+	 * Next, it waits until the thread terminates (on the operating system level). Finally,
+	 * all OS-level resources associated with the thread are released. The Thread instance
+	 * passed to the function is NOT freed.
+	 * When this function returns, the thread is stopped and you can destroy it or restart it
+	 * at a later point.
+	 * Stopping a thread that is not running is a bug.
+	 * @param thread The thread to stop.
 	 */
-	const std::string GetName()
-	{
-		return "windows-thread";
-	}
-};
-
-class CoreExport ThreadData
-{
- public:
-	HANDLE handle;
-	void FreeThread(Thread* toFree);
+	void Stop(Thread* thread);
 };
 
 /** The Mutex class represents a mutex, which can be used to keep threads
@@ -100,9 +99,8 @@ class CoreExport Mutex
 	}
 };
 
-class ThreadQueueData
+class ThreadQueueData : public Mutex
 {
-	CRITICAL_SECTION mutex;
 	HANDLE event;
  public:
 	ThreadQueueData()
@@ -110,23 +108,11 @@ class ThreadQueueData
 		event = CreateEvent(NULL, false, false, NULL);
 		if (event == NULL)
 			throw CoreException("CreateEvent() failed in ThreadQueueData::ThreadQueueData()!");
-		InitializeCriticalSection(&mutex);
 	}
 
 	~ThreadQueueData()
 	{
 		CloseHandle(event);
-		DeleteCriticalSection(&mutex);
-	}
-
-	void Lock()
-	{
-		EnterCriticalSection(&mutex);
-	}
-
-	void Unlock()
-	{
-		LeaveCriticalSection(&mutex);
 	}
 
 	void Wakeup()
@@ -136,9 +122,9 @@ class ThreadQueueData
 
 	void Wait()
 	{
-		LeaveCriticalSection(&mutex);
+		Unlock();
 		WaitForSingleObject(event, INFINITE);
-		EnterCriticalSection(&mutex);
+		Lock();
 	}
 };
 

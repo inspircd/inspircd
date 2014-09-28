@@ -50,6 +50,18 @@ class CommandStats : public Command
 	}
 };
 
+static void GenerateStatsLl(User* user, string_list& results, char c)
+{
+	results.push_back(InspIRCd::Format("211 %s nick[ident@%s] sendq cmds_out bytes_out cmds_in bytes_in time_open", user->nick.c_str(), (c == 'l' ? "host" : "ip")));
+
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
+	{
+		LocalUser* u = *i;
+		results.push_back("211 "+user->nick+" "+u->nick+"["+u->ident+"@"+(c == 'l' ? u->dhost : u->GetIPString())+"] "+ConvToStr(u->eh.getSendQSize())+" "+ConvToStr(u->cmds_out)+" "+ConvToStr(u->bytes_out)+" "+ConvToStr(u->cmds_in)+" "+ConvToStr(u->bytes_in)+" "+ConvToStr(ServerInstance->Time() - u->age));
+	}
+}
+
 void CommandStats::DoStats(char statschar, User* user, string_list &results)
 {
 	bool isPublic = ServerInstance->Config->UserStats.find(statschar) != std::string::npos;
@@ -62,7 +74,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 				"%s '%c' denied for %s (%s@%s)",
 				(IS_LOCAL(user) ? "Stats" : "Remote stats"),
 				statschar, user->nick.c_str(), user->ident.c_str(), user->host.c_str());
-		results.push_back("481 " + user->nick + " :Permission denied - STATS " + statschar + " requires the servers/auspex priv.");
+		results.push_back("481 " + user->nick + " :Permission Denied - STATS " + statschar + " requires the servers/auspex priv.");
 		return;
 	}
 
@@ -103,7 +115,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		case 'i':
 		{
-			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); ++i)
 			{
 				ConnectClass* c = *i;
 				std::stringstream res;
@@ -132,7 +144,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		case 'Y':
 		{
 			int idx = 0;
-			for (ClassVector::iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
+			for (ServerConfig::ClassVector::const_iterator i = ServerInstance->Config->Classes.begin(); i != ServerInstance->Config->Classes.end(); i++)
 			{
 				ConnectClass* c = *i;
 				results.push_back("215 "+user->nick+" i NOMATCH * "+c->GetHost()+" "+ConvToStr(c->limit ? c->limit : SocketEngine::GetMaxFds())+" "+ConvToStr(idx)+" "+ServerInstance->Config->ServerName+" *");
@@ -189,7 +201,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		/* stats m (list number of times each command has been used, plus bytecount) */
 		case 'm':
-			for (Commandtable::iterator i = ServerInstance->Parser->cmdlist.begin(); i != ServerInstance->Parser->cmdlist.end(); i++)
+		{
+			const CommandParser::CommandMap& commands = ServerInstance->Parser.GetCommands();
+			for (CommandParser::CommandMap::const_iterator i = commands.begin(); i != commands.end(); ++i)
 			{
 				if (i->second->use_count)
 				{
@@ -197,6 +211,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 					results.push_back("212 "+user->nick+" "+i->second->name+" "+ConvToStr(i->second->use_count));
 				}
 			}
+		}
 		break;
 
 		/* stats z (debug and memory info) */
@@ -204,7 +219,7 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		{
 			results.push_back("249 "+user->nick+" :Users: "+ConvToStr(ServerInstance->Users->GetUsers().size()));
 			results.push_back("249 "+user->nick+" :Channels: "+ConvToStr(ServerInstance->GetChans().size()));
-			results.push_back("249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser->cmdlist.size()));
+			results.push_back("249 "+user->nick+" :Commands: "+ConvToStr(ServerInstance->Parser.GetCommands().size()));
 
 			float kbitpersec_in, kbitpersec_out, kbitpersec_total;
 			char kbitpersec_in_s[30], kbitpersec_out_s[30], kbitpersec_total_s[30];
@@ -236,9 +251,9 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 				char percent[30];
 
-				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats->LastSampled.tv_sec) * 1000000
-					+ (ServerInstance->Time_ns() - ServerInstance->stats->LastSampled.tv_nsec) / 1000;
-				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats->LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats->LastCPU.tv_usec);
+				float n_elapsed = (ServerInstance->Time() - ServerInstance->stats.LastSampled.tv_sec) * 1000000
+					+ (ServerInstance->Time_ns() - ServerInstance->stats.LastSampled.tv_nsec) / 1000;
+				float n_eaten = ((R.ru_utime.tv_sec - ServerInstance->stats.LastCPU.tv_sec) * 1000000 + R.ru_utime.tv_usec - ServerInstance->stats.LastCPU.tv_usec);
 				float per = (n_eaten / n_elapsed) * 100;
 
 				snprintf(percent, 30, "%03.5f%%", per);
@@ -269,8 +284,8 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 			{
 				KernelTime.dwHighDateTime += UserTime.dwHighDateTime;
 				KernelTime.dwLowDateTime += UserTime.dwLowDateTime;
-				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats->LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats->LastCPU.dwLowDateTime) )/100000;
-				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats->LastSampled.QuadPart) / ServerInstance->stats->QPFrequency.QuadPart;
+				double n_eaten = (double)( ( (uint64_t)(KernelTime.dwHighDateTime - ServerInstance->stats.LastCPU.dwHighDateTime) << 32 ) + (uint64_t)(KernelTime.dwLowDateTime - ServerInstance->stats.LastCPU.dwLowDateTime) )/100000;
+				double n_elapsed = (double)(ThisSample.QuadPart - ServerInstance->stats.LastSampled.QuadPart) / ServerInstance->stats.QPFrequency.QuadPart;
 				double per = (n_eaten/n_elapsed);
 
 				char percent[30];
@@ -290,13 +305,13 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		case 'T':
 		{
-			results.push_back("249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats->statsAccept)+" refused "+ConvToStr(ServerInstance->stats->statsRefused));
-			results.push_back("249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats->statsUnknown));
-			results.push_back("249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats->statsCollisions));
-			results.push_back("249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats->statsDnsGood+ServerInstance->stats->statsDnsBad)+" succeeded "+ConvToStr(ServerInstance->stats->statsDnsGood)+" failed "+ConvToStr(ServerInstance->stats->statsDnsBad));
-			results.push_back("249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats->statsConnects));
+			results.push_back("249 "+user->nick+" :accepts "+ConvToStr(ServerInstance->stats.Accept)+" refused "+ConvToStr(ServerInstance->stats.Refused));
+			results.push_back("249 "+user->nick+" :unknown commands "+ConvToStr(ServerInstance->stats.Unknown));
+			results.push_back("249 "+user->nick+" :nick collisions "+ConvToStr(ServerInstance->stats.Collisions));
+			results.push_back("249 "+user->nick+" :dns requests "+ConvToStr(ServerInstance->stats.DnsGood+ServerInstance->stats.DnsBad)+" succeeded "+ConvToStr(ServerInstance->stats.DnsGood)+" failed "+ConvToStr(ServerInstance->stats.DnsBad));
+			results.push_back("249 "+user->nick+" :connection count "+ConvToStr(ServerInstance->stats.Connects));
 			results.push_back(InspIRCd::Format("249 %s :bytes sent %5.2fK recv %5.2fK", user->nick.c_str(),
-				ServerInstance->stats->statsSent / 1024.0, ServerInstance->stats->statsRecv / 1024.0));
+				ServerInstance->stats.Sent / 1024.0, ServerInstance->stats.Recv / 1024.0));
 		}
 		break;
 
@@ -314,13 +329,13 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 		break;
 		case 'O':
 		{
-			for (OperIndex::const_iterator i = ServerInstance->Config->OperTypes.begin(); i != ServerInstance->Config->OperTypes.end(); ++i)
+			for (ServerConfig::OperIndex::const_iterator i = ServerInstance->Config->OperTypes.begin(); i != ServerInstance->Config->OperTypes.end(); ++i)
 			{
 				OperInfo* tag = i->second;
 				tag->init();
 				std::string umodes;
 				std::string cmodes;
-				for(char c='A'; c < 'z'; c++)
+				for(char c='A'; c <= 'z'; c++)
 				{
 					ModeHandler* mh = ServerInstance->Modes->FindMode(c, MODETYPE_USER);
 					if (mh && mh->NeedsOper() && tag->AllowedUserModes[c - 'A'])
@@ -336,46 +351,17 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 
 		/* stats l (show user I/O stats) */
 		case 'l':
-			results.push_back("211 "+user->nick+" :nick[ident@host] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-			for (LocalUserList::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
-			{
-				LocalUser* i = *n;
-				results.push_back("211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->dhost+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
-			}
-		break;
-
 		/* stats L (show user I/O stats with IP addresses) */
 		case 'L':
-			results.push_back("211 "+user->nick+" :nick[ident@ip] sendq cmds_out bytes_out cmds_in bytes_in time_open");
-			for (LocalUserList::iterator n = ServerInstance->Users->local_users.begin(); n != ServerInstance->Users->local_users.end(); n++)
-			{
-				LocalUser* i = *n;
-				results.push_back("211 "+user->nick+" "+i->nick+"["+i->ident+"@"+i->GetIPString()+"] "+ConvToStr(i->eh.getSendQSize())+" "+ConvToStr(i->cmds_out)+" "+ConvToStr(i->bytes_out)+" "+ConvToStr(i->cmds_in)+" "+ConvToStr(i->bytes_in)+" "+ConvToStr(ServerInstance->Time() - i->age));
-			}
+			GenerateStatsLl(user, results, statschar);
 		break;
 
 		/* stats u (show server uptime) */
 		case 'u':
 		{
-			time_t current_time = 0;
-			current_time = ServerInstance->Time();
-			time_t server_uptime = current_time - ServerInstance->startup_time;
-			struct tm* stime;
-			stime = gmtime(&server_uptime);
-			/* i dont know who the hell would have an ircd running for over a year nonstop, but
-			 * Craig suggested this, and it seemed a good idea so in it went */
-			if (stime->tm_year > 70)
-			{
-				results.push_back(InspIRCd::Format("242 %s :Server up %d years, %d days, %.2d:%.2d:%.2d",
-					user->nick.c_str(), stime->tm_year - 70, stime->tm_yday, stime->tm_hour,
-					stime->tm_min, stime->tm_sec));
-			}
-			else
-			{
-				results.push_back(InspIRCd::Format("242 %s :Server up %d days, %.2d:%.2d:%.2d",
-					user->nick.c_str(), stime->tm_yday, stime->tm_hour, stime->tm_min,
-					stime->tm_sec));
-			}
+			unsigned int up = static_cast<unsigned int>(ServerInstance->Time() - ServerInstance->startup_time);
+			results.push_back(InspIRCd::Format("242 %s :Server up %u days, %.2u:%.2u:%.2u", user->nick.c_str(),
+				up / 86400, (up / 3600) % 24, (up / 60) % 60, up % 60));
 		}
 		break;
 

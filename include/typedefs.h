@@ -54,24 +54,8 @@ struct ModResult;
 typedef TR1NS::unordered_map<std::string, User*, irc::insensitive, irc::StrHashComp> user_hash;
 typedef TR1NS::unordered_map<std::string, Channel*, irc::insensitive, irc::StrHashComp> chan_hash;
 
-/** A list holding local users, this is the type of UserManager::local_users
- */
-typedef intrusive_list<LocalUser> LocalUserList;
-
 /** A list of failed port bindings, used for informational purposes on startup */
 typedef std::vector<std::pair<std::string, std::string> > FailedPortList;
-
-/** Holds a complete list of all allow and deny tags from the configuration file (connection classes)
- */
-typedef std::vector<reference<ConnectClass> > ClassVector;
-
-/** Typedef for the list of user-channel records for a user
- */
-typedef intrusive_list<Membership> UserChanList;
-
-/** Shorthand for an iterator into a UserChanList
- */
-typedef UserChanList::iterator UCListIter;
 
 /** List of channels to consider when building the neighbor list of a user
  */
@@ -94,22 +78,8 @@ typedef ConfigDataHash::const_iterator ConfigIter;
 /** Iterator pair, used for tag-name ranges */
 typedef std::pair<ConfigIter,ConfigIter> ConfigTagList;
 
-/** Index of valid oper blocks and types */
-typedef std::map<std::string, reference<OperInfo> > OperIndex;
-
 /** Files read by the configuration */
 typedef std::map<std::string, file_cache> ConfigFileCache;
-
-/** A hash of commands used by the core
- */
-typedef TR1NS::unordered_map<std::string, Command*> Commandtable;
-
-/** Membership list of a channel */
-typedef std::map<User*, Membership*> UserMembList;
-/** Iterator of UserMembList */
-typedef UserMembList::iterator UserMembIter;
-/** const Iterator of UserMembList */
-typedef UserMembList::const_iterator UserMembCIter;
 
 /** Generic user list, used for exceptions */
 typedef std::set<User*> CUList;

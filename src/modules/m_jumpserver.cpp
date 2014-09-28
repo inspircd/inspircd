@@ -108,7 +108,8 @@ class CommandJumpserver : public Command
 			if (redirect_all_immediately)
 			{
 				/* Redirect everyone but the oper sending the command */
-				for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+				const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+				for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 				{
 					LocalUser* t = *i;
 					if (!t->IsOper())

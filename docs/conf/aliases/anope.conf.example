@@ -6,9 +6,6 @@
 <alias text="HOSTSERV" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
 <alias text="BOTSERV" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
 
-# Note: We can't have a shorthand version of this, it conflicts with HS for helpserv
-<alias text="HELPSERV" replace="PRIVMSG HelpServ :$2-" requires="HelpServ" uline="yes">
-
 # Shorthand aliases for nickserv, chanserv, operserv, memoserv, hostserv, botserv
 <alias text="NS" replace="PRIVMSG NickServ :$2-" requires="NickServ" uline="yes">
 <alias text="CS" replace="PRIVMSG ChanServ :$2-" requires="ChanServ" uline="yes">
@@ -17,11 +14,7 @@
 <alias text="HS" replace="PRIVMSG HostServ :$2-" requires="HostServ" uline="yes">
 <alias text="BS" replace="PRIVMSG BotServ :$2-" requires="BotServ" uline="yes">
 
-
-# /id [channel] <password>
-# Identify for a channel or nickname
-<alias text="ID" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3" requires="ChanServ" uline="yes">
-<alias text="ID" format="*" replace="PRIVMSG NickServ :IDENTIFY $2" requires="NickServ" uline="yes">
-<alias text="IDENTIFY" format="#*" replace="PRIVMSG ChanServ :IDENTIFY $2 $3" requires="ChanServ" uline="yes">
-<alias text="IDENTIFY" format="*" replace="PRIVMSG NickServ :IDENTIFY $2" requires="NickServ" uline="yes">
-
+# /id [account] <password>
+# Identify for a nickname
+<alias text="ID" format="*" replace="PRIVMSG NickServ :IDENTIFY $2-" requires="NickServ" uline="yes">
+<alias text="IDENTIFY" format="*" replace="PRIVMSG NickServ :IDENTIFY $2-" requires="NickServ" uline="yes">

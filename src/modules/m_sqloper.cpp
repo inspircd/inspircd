@@ -61,7 +61,7 @@ class OpMeQuery : public SQLQuery
 		if (!user)
 			return;
 
-		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
+		Command* oper_command = ServerInstance->Parser.GetHandler("OPER");
 
 		if (oper_command)
 		{
@@ -78,7 +78,7 @@ class OpMeQuery : public SQLQuery
 
 	bool OperUser(User* user, const std::string &pattern, const std::string &type)
 	{
-		OperIndex::iterator iter = ServerInstance->Config->OperTypes.find(type);
+		ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(type);
 		if (iter == ServerInstance->Config->OperTypes.end())
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "bad type '%s' in returned row for oper %s", type.c_str(), username.c_str());
@@ -147,7 +147,7 @@ public:
 		ParamM userinfo;
 		SQL->PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
-		userinfo["password"] = hash ? hash->hexsum(password) : password;
+		userinfo["password"] = hash ? hash->Generate(password) : password;
 
 		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
 	}

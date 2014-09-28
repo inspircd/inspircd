@@ -41,7 +41,7 @@ class LDAPOperBase : public LDAPInterface
 		if (!user)
 			return;
 
-		Command* oper_command = ServerInstance->Parser->GetHandler("OPER");
+		Command* oper_command = ServerInstance->Parser.GetHandler("OPER");
 		if (!oper_command)
 			return;
 
@@ -83,7 +83,7 @@ class BindInterface : public LDAPOperBase
 	void OnResult(const LDAPResult& r) CXX11_OVERRIDE
 	{
 		User* user = ServerInstance->FindUUID(uid);
-		OperIndex::iterator iter = ServerInstance->Config->oper_blocks.find(opername);
+		ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->oper_blocks.find(opername);
 
 		if (!user || iter == ServerInstance->Config->oper_blocks.end())
 		{
@@ -208,7 +208,7 @@ class ModuleLDAPAuth : public Module
 			const std::string& opername = parameters[0];
 			const std::string& password = parameters[1];
 
-			OperIndex::iterator it = ServerInstance->Config->oper_blocks.find(opername);
+			ServerConfig::OperIndex::const_iterator it = ServerInstance->Config->oper_blocks.find(opername);
 			if (it == ServerInstance->Config->oper_blocks.end())
 				return MOD_RES_PASSTHRU;
 

@@ -73,7 +73,7 @@ struct CapabData
 	std::string ourchallenge;		/* Challenge sent for challenge/response */
 	std::string theirchallenge;		/* Challenge recv for challenge/response */
 	int capab_phase;			/* Have sent CAPAB already */
-	bool auth_fingerprint;			/* Did we auth using SSL fingerprint */
+	bool auth_fingerprint;			/* Did we auth using SSL certificate fingerprint */
 	bool auth_challenge;			/* Did we auth using challenge/response */
 
 	// Data saved from incoming SERVER command, for later use when our credentials have been accepted by the other party
@@ -98,7 +98,12 @@ class TreeSocket : public BufferedSocket
 	time_t NextPing;			/* Time when we are due to ping this server */
 	bool LastPingWasGood;			/* Responded to last ping we sent? */
 	int proto_version;			/* Remote protocol version */
-	bool ConnectionFailureShown; /* Set to true if a connection failure message was shown */
+
+	/** True if we've sent our burst.
+	 * This only changes the behavior of message translation for 1202 protocol servers and it can be
+	 * removed once 1202 support is dropped.
+	 */
+	bool burstsent;
 
 	/** Checks if the given servername and sid are both free
 	 */
@@ -113,6 +118,45 @@ class TreeSocket : public BufferedSocket
 
 	/** Send all users and their oper state, away state and metadata */
 	void SendUsers(BurstState& bs);
+
+	/** Send all additional info about the given server to this server */
+	void SendServerInfo(TreeServer* from);
+
+	/** Find the User source of a command given a prefix and a command string.
+	 * This connection must be fully up when calling this function.
+	 * @param prefix Prefix string to find the source User object for. Can be a sid, a uuid or a server name.
+	 * @param command The command whose source to find. This is required because certain commands (like mode
+	 * changes and kills) must be processed even if their claimed source doesn't exist. If the given command is
+	 * such a command and the source does not exist, the function returns a valid FakeUser that can be used to
+	 * to process the command with.
+	 * @return The command source to use when processing the command or NULL if the source wasn't found.
+	 * Note that the direction of the returned source is not verified.
+	 */
+	User* FindSource(const std::string& prefix, const std::string& command);
+
+	/** Finish the authentication phase of this connection.
+	 * Change the state of the connection to CONNECTED, create a TreeServer object for the server on the
+	 * other end of the connection using the details provided in the parameters, and finally send a burst.
+	 * @param remotename Name of the remote server
+	 * @param remotesid SID of the remote server
+	 * @param remotedesc Description of the remote server
+	 * @param hidden True if the remote server is hidden according to the configuration
+	 */
+	void FinishAuth(const std::string& remotename, const std::string& remotesid, const std::string& remotedesc, bool hidden);
+
+	/** Authenticate the remote server.
+	 * Validate the parameters and find the link block that matches the remote server. In case of an error,
+	 * an appropriate snotice is generated, an ERROR message is sent and the connection is closed.
+	 * Failing to find a matching link block counts as an error.
+	 * @param params Parameters they sent in the SERVER command
+	 * @return Link block for the remote server, or NULL if an error occurred
+	 */
+	Link* AuthRemote(const parameterlist& params);
+
+	/** Write a line on this socket with a new line character appended, skipping all translation for old protocols
+	 * @param line Line to write without a new line character at the end
+	 */
+	void WriteLineNoCompat(const std::string& line);
 
  public:
 	const time_t age;
@@ -206,20 +250,6 @@ class TreeSocket : public BufferedSocket
 
 	bool Capab(const parameterlist &params);
 
-	/** This function forces this server to quit, removing this server
-	 * and any users on it (and servers and users below that, etc etc).
-	 * It's very slow and pretty clunky, but luckily unless your network
-	 * is having a REAL bad hair day, this function shouldnt be called
-	 * too many times a month ;-)
-	 */
-	void SquitServer(std::string &from, TreeServer* Current, int& num_lost_servers, int& num_lost_users);
-
-	/** This is a wrapper function for SquitServer above, which
-	 * does some validation first and passes on the SQUIT to all
-	 * other remaining servers.
-	 */
-	void Squit(TreeServer* Current, const std::string &reason);
-
 	/** Send one or more FJOINs for a channel of users.
 	 * If the length of a single line is more than 480-NICKMAX
 	 * in length, it is split over multiple lines.
@@ -275,10 +305,6 @@ class TreeSocket : public BufferedSocket
 	/** Handle server quit on close
 	 */
 	void Close();
-
-	/** Returns true if this server was introduced to the rest of the network
-	 */
-	bool Introduced();
 
 	/** Fixes messages coming from old servers so the new command handlers understand them
 	 */

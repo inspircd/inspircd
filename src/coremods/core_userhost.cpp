@@ -28,7 +28,7 @@ class CommandUserhost : public Command
 	/** Constructor for userhost.
 	 */
 	CommandUserhost ( Module* parent) : Command(parent,"USERHOST", 1, 5) {
-		syntax = "<nick> {<nick>}";
+		syntax = "<nick> [<nick> ...]";
 	}
 	/** Handle command.
 	 * @param parameters The parameters to the command
@@ -40,6 +40,8 @@ class CommandUserhost : public Command
 
 CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, User *user)
 {
+	const bool has_privs = user->HasPrivPermission("users/auspex");
+
 	std::string retbuf = "302 " + user->nick + " :";
 
 	for (unsigned int i = 0; i < parameters.size(); i++)
@@ -48,30 +50,17 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 
 		if ((u) && (u->registered == REG_ALL))
 		{
-			retbuf = retbuf + u->nick;
+			retbuf += u->nick;
 
 			if (u->IsOper())
-				retbuf = retbuf + "*";
+				retbuf += '*';
 
-			retbuf = retbuf + "=";
-
-			if (u->IsAway())
-				retbuf += "-";
-			else
-				retbuf += "+";
-
-			retbuf = retbuf + u->ident + "@";
-
-			if (user->HasPrivPermission("users/auspex"))
-			{
-				retbuf = retbuf + u->host;
-			}
-			else
-			{
-				retbuf = retbuf + u->dhost;
-			}
-
-			retbuf = retbuf + " ";
+			retbuf += '=';
+			retbuf += (u->IsAway() ? '-' : '+');
+			retbuf += u->ident;
+			retbuf += '@';
+			retbuf += (((u == user) || (has_privs)) ? u->host : u->dhost);
+			retbuf += ' ';
 		}
 	}
 

@@ -26,14 +26,13 @@ class CustomPrefixMode : public PrefixMode
 	bool depriv;
 
 	CustomPrefixMode(Module* parent, ConfigTag* Tag)
-		: PrefixMode(parent, Tag->getString("name"), 0)
+		: PrefixMode(parent, Tag->getString("name"), 0, Tag->getInt("rank"))
 		, tag(Tag)
 	{
 		std::string v = tag->getString("prefix");
 		prefix = v.c_str()[0];
 		v = tag->getString("letter");
 		mode = v.c_str()[0];
-		prefixrank = tag->getInt("rank");
 		levelrequired = tag->getInt("ranktoset", prefixrank);
 		depriv = tag->getBool("depriv", true);
 	}

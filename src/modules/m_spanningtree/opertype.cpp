@@ -35,7 +35,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 	ModeHandler* opermh = ServerInstance->Modes->FindMode('o', MODETYPE_USER);
 	u->SetMode(opermh, true);
 
-	OperIndex::iterator iter = ServerInstance->Config->OperTypes.find(opertype);
+	ServerConfig::OperIndex::const_iterator iter = ServerInstance->Config->OperTypes.find(opertype);
 	if (iter != ServerInstance->Config->OperTypes.end())
 		u->oper = iter->second;
 	else
@@ -51,7 +51,7 @@ CmdResult CommandOpertype::HandleRemote(RemoteUser* u, std::vector<std::string>&
 		 * then do nothing. -- w00t
 		 */
 		TreeServer* remoteserver = TreeServer::Get(u);
-		if (remoteserver->bursting || remoteserver->IsSilentULine())
+		if (remoteserver->IsBehindBursting() || remoteserver->IsSilentULine())
 			return CMD_SUCCESS;
 	}
 

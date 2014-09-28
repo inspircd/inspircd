@@ -27,6 +27,7 @@
 #include "modules/dns.h"
 #include "servercommand.h"
 #include "commands.h"
+#include "protocolinterface.h"
 
 /** If you make a change which breaks the protocol, increment this.
  * If you  completely change the protocol, completely change the number.
@@ -63,6 +64,14 @@ class ModuleSpanningTree : public Module
 	 */
 	SpanningTreeCommands* commands;
 
+	/** Next membership id assigned when a local user joins a channel
+	 */
+	Membership::Id currmembid;
+
+	/** The specialized ProtocolInterface that is assigned to ServerInstance->PI on load
+	 */
+	SpanningTreeProtocolInterface protocolinterface;
+
  public:
 	dynamic_reference<DNS::Manager> DNS;
 
@@ -72,10 +81,6 @@ class ModuleSpanningTree : public Module
 	 * xlines and other things back to their source
 	 */
 	bool loopCall;
-
-	/** True if users are quitting due to a netsplit
-	 */
-	bool SplitInProgress;
 
 	/** Constructor
 	 */
@@ -156,7 +161,6 @@ class ModuleSpanningTree : public Module
 	void OnPreRehash(User* user, const std::string &parameter) CXX11_OVERRIDE;
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE;
 	void OnOper(User* user, const std::string &opertype) CXX11_OVERRIDE;
-	void OnLine(User* source, const std::string &host, bool adding, char linetype, long duration, const std::string &reason);
 	void OnAddLine(User *u, XLine *x) CXX11_OVERRIDE;
 	void OnDelLine(User *u, XLine *x) CXX11_OVERRIDE;
 	ModResult OnStats(char statschar, User* user, string_list &results) CXX11_OVERRIDE;
@@ -164,7 +168,6 @@ class ModuleSpanningTree : public Module
 	void OnLoadModule(Module* mod) CXX11_OVERRIDE;
 	void OnUnloadModule(Module* mod) CXX11_OVERRIDE;
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE;
-	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE;
 	CullResult cull();
 	~ModuleSpanningTree();
 	Version GetVersion() CXX11_OVERRIDE;

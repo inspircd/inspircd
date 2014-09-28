@@ -22,7 +22,6 @@
 
 #include "inspircd.h"
 #include "xline.h"
-#include "bancache.h"
 #include "iohook.h"
 
 UserManager::UserManager()
@@ -77,7 +76,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 
 	this->local_users.push_front(New);
 
-	if ((this->local_users.size() > ServerInstance->Config->SoftLimit) || (this->local_users.size() >= (unsigned int)SocketEngine::GetMaxFds()))
+	if (this->local_users.size() > ServerInstance->Config->SoftLimit)
 	{
 		ServerInstance->SNO->WriteToSnoMask('a', "Warning: softlimit value has been reached: %d clients", ServerInstance->Config->SoftLimit);
 		this->QuitUser(New,"No more connections allowed");
@@ -105,7 +104,8 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	 */
 	New->exempt = (ServerInstance->XLines->MatchesLine("E",New) != NULL);
 
-	if (BanCacheHit *b = ServerInstance->BanCache->GetHit(New->GetIPString()))
+	BanCacheHit* const b = ServerInstance->BanCache.GetHit(New->GetIPString());
+	if (b)
 	{
 		if (!b->Type.empty() && !New->exempt)
 		{
@@ -193,6 +193,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 
 		if (lu->registered == REG_ALL)
 			ServerInstance->SNO->WriteToSnoMask('q',"Client exiting: %s (%s) [%s]", user->GetFullRealHost().c_str(), user->GetIPString().c_str(), operreason->c_str());
+		local_users.erase(lu);
 	}
 
 	if (!clientlist.erase(user->nick))
@@ -244,7 +245,7 @@ void UserManager::ServerNoticeAll(const char* text, ...)
 	VAFORMAT(message, text, text);
 	message = "NOTICE $" + ServerInstance->Config->ServerName + " :" + message;
 
-	for (LocalUserList::const_iterator i = local_users.begin(); i != local_users.end(); i++)
+	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
 		User* t = *i;
 		t->WriteServ(message);
@@ -255,7 +256,7 @@ void UserManager::GarbageCollect()
 {
 	// Reset the already_sent IDs so we don't wrap it around and drop a message
 	LocalUser::already_sent_id = 0;
-	for (LocalUserList::const_iterator i = this->local_users.begin(); i != this->local_users.end(); i++)
+	for (LocalList::const_iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
 		(**i).already_sent = 0;
 		(**i).RemoveExpiredInvites();
@@ -283,12 +284,9 @@ void UserManager::DoBackgroundUserStuff()
 	/*
 	 * loop over all local users..
 	 */
-	for (LocalUserList::iterator i = local_users.begin(); i != local_users.end(); ++i)
+	for (LocalList::iterator i = local_users.begin(); i != local_users.end(); ++i)
 	{
 		LocalUser* curr = *i;
-
-		if (curr->quitting)
-			continue;
 
 		if (curr->CommandFloodPenalty || curr->eh.getSendQSize())
 		{
@@ -303,7 +301,7 @@ void UserManager::DoBackgroundUserStuff()
 		switch (curr->registered)
 		{
 			case REG_ALL:
-				if (ServerInstance->Time() > curr->nping)
+				if (ServerInstance->Time() >= curr->nping)
 				{
 					// This user didn't answer the last ping, remove them
 					if (!curr->lastping)

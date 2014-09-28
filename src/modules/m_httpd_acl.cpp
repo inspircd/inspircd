@@ -20,7 +20,6 @@
 
 #include "inspircd.h"
 #include "modules/httpd.h"
-#include "protocol.h"
 
 class HTTPACL
 {

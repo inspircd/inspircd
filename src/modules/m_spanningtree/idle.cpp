@@ -47,7 +47,7 @@ CmdResult CommandIdle::HandleRemote(RemoteUser* issuer, std::vector<std::string>
 
 	if (params.size() >= 2)
 	{
-		ServerInstance->Parser->CallHandler("WHOIS", params, issuer);
+		ServerInstance->Parser.CallHandler("WHOIS", params, issuer);
 	}
 	else
 	{

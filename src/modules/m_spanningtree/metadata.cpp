@@ -35,16 +35,13 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 		// Channel METADATA has an additional parameter: the channel TS
 		// :22D METADATA #channel 12345 extname :extdata
 		if (params.size() < 3)
-			return CMD_INVALID;
+			throw ProtocolException("Insufficient parameters for channel METADATA");
 
 		Channel* c = ServerInstance->FindChan(params[0]);
 		if (!c)
 			return CMD_FAILURE;
 
-		time_t ChanTS = ConvToInt(params[1]);
-		if (!ChanTS)
-			return CMD_INVALID;
-
+		time_t ChanTS = ServerCommand::ExtractTS(params[1]);
 		if (c->age < ChanTS)
 			// Their TS is newer than ours, discard this command and do not propagate
 			return CMD_FAILURE;

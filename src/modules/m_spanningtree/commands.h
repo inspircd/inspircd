@@ -130,10 +130,27 @@ class CommandFJoin : public ServerCommand
 	 * @param newname The new name of the channel; must be the same or a case change of the current name
 	 */
 	static void LowerTS(Channel* chan, time_t TS, const std::string& newname);
-	bool ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack);
+	void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, irc::modestacker* modestack);
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
 	CmdResult Handle(User* user, std::vector<std::string>& params);
+
+	class Builder : public CmdBuilder
+	{
+		/** Maximum possible Membership::Id length in decimal digits, used for determining whether a user will fit into
+		 * a message or not
+		 */
+		static const size_t membid_max_digits = 20;
+		static const size_t maxline = 480;
+		std::string::size_type pos;
+
+	 public:
+		Builder(Channel* chan);
+		void add(Membership* memb);
+		bool has_room(Membership* memb) const;
+		void clear();
+		const std::string& finalize();
+	};
 };
 
 class CommandFMode : public ServerCommand
@@ -181,7 +198,7 @@ class CommandFName : public UserOnlyServerCommand<CommandFName>
 class CommandIJoin : public UserOnlyServerCommand<CommandIJoin>
 {
  public:
-	CommandIJoin(Module* Creator) : UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 1) { }
+	CommandIJoin(Module* Creator) : UserOnlyServerCommand<CommandIJoin>(Creator, "IJOIN", 2) { }
 	CmdResult HandleRemote(RemoteUser* user, std::vector<std::string>& params);
 };
 
@@ -190,6 +207,7 @@ class CommandResync : public ServerOnlyServerCommand<CommandResync>
  public:
 	CommandResync(Module* Creator) : ServerOnlyServerCommand<CommandResync>(Creator, "RESYNC", 1) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_LOCALONLY; }
 };
 
 class CommandAway : public UserOnlyServerCommand<CommandAway>
@@ -277,18 +295,28 @@ class CommandPush : public ServerCommand
 class CommandSave : public ServerCommand
 {
  public:
+	/** Timestamp of the uuid nick of all users who collided and got their nick changed to uuid
+	 */
+	static const time_t SavedTimestamp = 100;
+
 	CommandSave(Module* Creator) : ServerCommand(Creator, "SAVE", 2) { }
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
 class CommandServer : public ServerOnlyServerCommand<CommandServer>
 {
+	static void HandleExtra(TreeServer* newserver, const std::vector<std::string>& params);
+
  public:
-	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 5) { }
+	CommandServer(Module* Creator) : ServerOnlyServerCommand<CommandServer>(Creator, "SERVER", 3) { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
 
 	class Builder : public CmdBuilder
 	{
+		void push_property(const char* key, const std::string& val)
+		{
+			push(key).push_raw('=').push_raw(val);
+		}
 	 public:
 		Builder(TreeServer* server);
 	};
@@ -308,25 +336,24 @@ class CommandSNONotice : public ServerCommand
 	CmdResult Handle(User* user, std::vector<std::string>& parameters);
 };
 
-class CommandVersion : public ServerOnlyServerCommand<CommandVersion>
-{
- public:
-	CommandVersion(Module* Creator) : ServerOnlyServerCommand<CommandVersion>(Creator, "VERSION", 1) { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
-};
-
-class CommandBurst : public ServerOnlyServerCommand<CommandBurst>
-{
- public:
-	CommandBurst(Module* Creator) : ServerOnlyServerCommand<CommandBurst>(Creator, "BURST") { }
-	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
-};
-
 class CommandEndBurst : public ServerOnlyServerCommand<CommandEndBurst>
 {
  public:
 	CommandEndBurst(Module* Creator) : ServerOnlyServerCommand<CommandEndBurst>(Creator, "ENDBURST") { }
 	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+};
+
+class CommandSInfo : public ServerOnlyServerCommand<CommandSInfo>
+{
+ public:
+	CommandSInfo(Module* Creator) : ServerOnlyServerCommand<CommandSInfo>(Creator, "SINFO", 2) { }
+	CmdResult HandleServer(TreeServer* server, std::vector<std::string>& parameters);
+
+	class Builder : public CmdBuilder
+	{
+	 public:
+		Builder(TreeServer* server, const char* type, const std::string& value);
+	};
 };
 
 class SpanningTreeCommands
@@ -359,8 +386,7 @@ class SpanningTreeCommands
 	CommandServer server;
 	CommandSQuit squit;
 	CommandSNONotice snonotice;
-	CommandVersion version;
-	CommandBurst burst;
 	CommandEndBurst endburst;
+	CommandSInfo sinfo;
 	SpanningTreeCommands(ModuleSpanningTree* module);
 };

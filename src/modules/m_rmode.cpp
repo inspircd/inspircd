@@ -65,7 +65,8 @@ class CommandRMode : public Command
 		if ((pm = mh->IsPrefixMode()))
 		{
 			// As user prefix modes don't have a GetList() method, let's iterate through the channel's users.
-			for (UserMembIter it = chan->userlist.begin(); it != chan->userlist.end(); ++it)
+			const Channel::MemberMap& users = chan->GetUsers();
+			for (Channel::MemberMap::const_iterator it = users.begin(); it != users.end(); ++it)
 			{
 				if (!InspIRCd::Match(it->first->nick, pattern))
 					continue;

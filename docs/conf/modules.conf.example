@@ -226,6 +226,15 @@
 #<module name="m_banredirect.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# bcrypt module: Allows other modules to generate bcrypt hashes,
+# usually for cryptographic uses and security.
+#<module name="m_bcrypt.so">
+#
+# rounds: Defines how many rounds the bcrypt function will run when
+# generating new hashes.
+#<bcrypt rounds="10">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Block amsg module: Attempt to block all usage of /amsg and /ame.
 #<module name="m_blockamsg.so">
 #
@@ -243,7 +252,7 @@
 #<blockamsg delay="3" action="killopers">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Block CAPS module: Blocking all-CAPS messages with channel mode +B.
+# Block CAPS module: Adds channel mode +B, blocks all-CAPS messages.
 #<module name="m_blockcaps.so">
 #
 #-#-#-#-#-#-#-#-#-#-#-  BLOCKCAPS CONFIGURATION  -#-#-#-#-#-#-#-#-#-#-#
@@ -254,10 +263,10 @@
 # minlen         - The minimum length a line must be for the block    #
 #                  percent to have any effect.                        #
 #                                                                     #
-# capsmap        - A list of chars to be considered CAPS, this was    #
-#                  you can add CAPS for your language. Also you can   #
-#                  add things like ! and space to further lock down   #
-#                  on caps usage.                                     #
+# capsmap        - A list of chars to be considered CAPS. Can be used #
+#                  to add CAPS characters for your language. Also you #
+#                  can add things like ! and space to further lock    #
+#                  down on caps usage.                                #
 #<blockcaps percent="50"
 #           minlen="5"
 #           capsmap="ABCDEFGHIJKLMNOPQRSTUVWXYZ! ">
@@ -273,12 +282,12 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CallerID module: Adds usermode +g which activates hybrid-style
-# callerid: block all private messages unless you /accept first
+# callerid: block all private messages unless you /ACCEPT first.
 #<module name="m_callerid.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- CALLERID  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
 # maxaccepts     - Maximum number of entries a user can add to his    #
-#                  /accept list. Default is 16 entries.               #
+#                  /ACCEPT list. Default is 16 entries.               #
 # operoverride   - Can opers (note: ALL opers) override callerid?     #
 #                  Default is no.                                     #
 # tracknick      - Preserve /accept entries when a user changes nick? #
@@ -299,7 +308,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # CBAN module: Lets you disallow channels from being used at runtime.
-# This module is oper-only and provides /cban.
+# This module is oper-only and provides /CBAN.
 # To use, CBAN must be in one of your oper class blocks.
 #<module name="m_cban.so">
 
@@ -449,7 +458,7 @@
 #<module name="m_chgident.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CHGNAME module: Adds the /CHGNAME command
+# CHGNAME module: Adds the /CHGNAME command.
 # This module is oper-only.
 # To use, CHGNAME must be in one of your oper class blocks.
 #<module name="m_chgname.so">
@@ -462,8 +471,9 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Cloaking module: Adds usermode +x and cloaking support.
 # Relies on the module m_md5.so being loaded.
-# To use, you should enable m_conn_umodes and add +x as
-# an enabled mode. See the m_conn_umodes module for more information.
+# To cloak users when they connect, load m_conn_umodes and set
+# <connect:modes> to include the +x mode. The example <connect> tag
+# shows this. See the m_conn_umodes module for more information.
 #<module name="m_cloaking.so">
 #
 #-#-#-#-#-#-#-#-#-#-#- CLOAKING  CONFIGURATION -#-#-#-#-#-#-#-#-#-#-#-#
@@ -725,11 +735,13 @@
 #                                                                     #
 # Valid engines are:                                                  #
 #                                                                     #
-# glob  - Glob patterns, provided via m_regex_glob.so                 #
-# pcre  - PCRE regexps, provided via m_regex_pcre.so, needs libpcre   #
-# tre   - TRE regexps, provided via m_regex_tre.so, requires libtre   #
-# posix - POSIX regexps, provided via m_regex_posix.so, not availale  #
-#         on windows, no dependencies on other operating systems.     #
+# glob   - Glob patterns, provided via m_regex_glob.                  #
+# pcre   - PCRE regexps, provided via m_regex_pcre, needs libpcre.    #
+# tre    - TRE regexps, provided via m_regex_tre, requires libtre.    #
+# posix  - POSIX regexps, provided via m_regex_posix, not available   #
+#          on Windows, no dependencies on other operating systems.    #
+# stdlib - stdlib regexps, provided via m_regex_stdlib, see comment   #
+#          at the <module> tag for info on availability.              #
 #                                                                     #
 #<filteropts engine="glob">                                           #
 #                                                                     #
@@ -791,8 +803,8 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Global load module: Allows loading and unloading of modules network-
 # wide (USE WITH EXTREME CAUTION!)
-# This module is oper-only and provides /gloadmodule, /gunloadmodule
-# and /greloadmodule.
+# This module is oper-only and provides /GLOADMODULE, /GUNLOADMODULE
+# and /GRELOADMODULE.
 # To use, GLOADMODULE, GUNLOADMODULE and GRELOADMODULE
 # must be in one of your oper class blocks.
 #<module name="m_globalload.so">
@@ -897,8 +909,12 @@
 # default to 5 seconds. This is a non-blocking timeout which holds    #
 # the user in a 'connecting' state until the lookup is complete.      #
 # The bind value indicates which IP to bind outbound requests to.     #
+# nolookupprefix: If on, the idents of users being in a connect class #
+# with ident lookups disabled (i.e. <connect useident="off">) will be #
+# prefixed with a "~". If off, the ident of those users will not be   #
+# prefixed. Default is off.                                           #
 #
-#<ident timeout="5">
+#<ident timeout="5" nolookupprefix="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Invite exception module: Adds support for channel invite exceptions
@@ -1170,7 +1186,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Nicklock module: Let opers change a user's nick and then stop that
-# user from changing their nick again.
+# user from changing their nick again until unlocked.
 # This module is oper-only.
 # To use, NICKLOCK and NICKUNLOCK must be in one of your oper class blocks.
 #<module name="m_nicklock.so">
@@ -1257,8 +1273,13 @@
 #<operlog tosnomask="off">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# Oper prefixing module: Gives server operators a prefix status
-# character on all channels they are in.
+# Oper prefixing module: Adds a channel prefix mode +y which is given
+# to all IRC operators automatically on all channels they are in.
+# This prefix mode is more powerful than channel op and other regular
+# prefix modes.
+#
+# Load this module if you want all your IRC operators to have channel
+# operator powers.
 #<module name="m_operprefix.so">
 #
 # You may additionally customise the prefix character.
@@ -1350,6 +1371,20 @@
 #
 # Generate hashes using the /MKPASSWD command on the server.
 # Don't run it on a server you don't trust with your password.
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# PBKDF2 module: Allows other modules to generate PBKDF2 hashes,
+# usually for cryptographic uses and security.
+# This module relies on other hash providers (e.g. SHA256).
+#<module name="m_pbkdf2.so">
+#
+# iterations: Iterations the hashing function runs when generating new
+# hashes.
+# length: Length in bytes of the derived key.
+#<pbkdf2 iterations="12288" length="32">
+# You can override these values with specific values
+# for specific providers if you want to. Example given for SHA256.
+#<pbkdf2prov hash="sha256" iterations="24576">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Permanent channels module: Channels with the permanent channel mode
@@ -1465,7 +1500,7 @@
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Regular expression provider for TRE regular expressions.
 # This is the same regular expression engine used by UnrealIRCd, so
-# if you are most familiar with the syntax of /spamfilter from there,
+# if you are most familiar with the syntax of /SPAMFILTER from there,
 # this is the provider you want. You need libtre installed in order
 # to compile and load this module.
 #<module name="m_regex_tre.so">
@@ -1482,6 +1517,12 @@
 # Remove module: Adds the /REMOVE command which is a peaceful
 # alternative to /KICK.
 #<module name="m_remove.so">
+#
+# supportnokicks: If true, /REMOVE is not allowed on channels where the
+# nokicks (+Q) mode is set. Defaults to false.
+# protectedrank: Members having this rank or above may not be /REMOVE'd
+# by anyone. Set to 0 to disable this feature. Defaults to 50000.
+#<remove supportnokicks="true" protectedrank="50000">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # A module to block, kick or ban upon similiar messages being uttered several times.
@@ -1663,7 +1704,7 @@
 # Sethost module: Adds the /SETHOST command.
 # This module is oper-only.
 # To use, SETHOST must be in one of your oper class blocks.
-# See m_chghost for how to customise valid chars for hostnames
+# See m_chghost for how to customise valid chars for hostnames.
 #<module name="m_sethost.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1774,7 +1815,7 @@
 # scripts to validate users. For this to work, one of m_ssl_gnutls.so
 # or m_ssl_openssl.so must be loaded. This module also adds the
 # "* <user> is using a secure connection" whois line, the ability for
-# opers to use SSL fingerprints to verify their identity and the
+# opers to use SSL cert fingerprints to verify their identity and the
 # ability to force opers to use SSL connections in order to oper up.
 # It is highly recommended to load this module if you use SSL on your
 # network.

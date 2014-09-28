@@ -24,6 +24,7 @@
 struct intrusive_list_def_tag { };
 
 template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list;
+template <typename T, typename Tag = intrusive_list_def_tag> class intrusive_list_tail;
 
 template <typename T, typename Tag = intrusive_list_def_tag>
 class intrusive_list_node
@@ -48,115 +49,18 @@ class intrusive_list_node
 	}
 
 	friend class intrusive_list<T, Tag>;
+	friend class intrusive_list_tail<T, Tag>;
 };
 
-template <typename T, typename Tag>
-class intrusive_list
-{
- public:
-	class iterator : public std::iterator<std::bidirectional_iterator_tag, T*>
-	{
-		T* curr;
+// Intrusive list where the list only has a pointer to the head element
+#define INSPIRCD_INTRUSIVE_LIST_NAME intrusive_list
+#include "intrusive_list_impl.h"
+#undef INSPIRCD_INTRUSIVE_LIST_NAME
 
-	 public:
-		iterator(T* i = NULL)
-			: curr(i)
-		{
-		}
-
-		iterator& operator++()
-		{
-			curr = curr->intrusive_list_node<T, Tag>::ptr_next;
-			return *this;
-		}
-
-		iterator operator++(int)
-		{
-			iterator ret(*this);
-			operator++();
-			return ret;
-		}
-
-		iterator& operator--()
-		{
-			curr = curr->intrusive_list_node<T, Tag>::ptr_prev;
-			return *this;
-		}
-
-		iterator operator--(int)
-		{
-			iterator ret(*this);
-			operator--();
-			return ret;
-		}
-
-		bool operator==(const iterator& other) const { return (curr == other.curr); }
-		bool operator!=(const iterator& other) const { return (curr != other.curr); }
-		T* operator*() const { return curr; }
-	};
-
-	typedef iterator const_iterator;
-
-	intrusive_list()
-		: listhead(NULL)
-		, listsize(0)
-	{
-	}
-
-	bool empty() const
-	{
-		return (size() == 0);
-	}
-
-	size_t size() const
-	{
-		return listsize;
-	}
-
-	iterator begin() const
-	{
-		return iterator(listhead);
-	}
-
-	iterator end() const
-	{
-		return iterator();
-	}
-
-	void pop_front()
-	{
-		erase(listhead);
-	}
-
-	T* front() const
-	{
-		return listhead;
-	}
-
-	void push_front(T* x)
-	{
-		if (listsize++)
-		{
-			x->intrusive_list_node<T, Tag>::ptr_next = listhead;
-			listhead->intrusive_list_node<T, Tag>::ptr_prev = x;
-		}
-		listhead = x;
-	}
-
-	void erase(const iterator& it)
-	{
-		erase(*it);
-	}
-
-	void erase(T* x)
-	{
-		if (listhead == x)
-			listhead = x->intrusive_list_node<T, Tag>::ptr_next;
-		x->intrusive_list_node<T, Tag>::unlink();
-		listsize--;
-	}
-
- private:
-	T* listhead;
-	size_t listsize;
-};
+// Intrusive list where the list maintains a pointer to both the head and the tail elements.
+// Additional methods: back(), push_back(), pop_back()
+#define INSPIRCD_INTRUSIVE_LIST_NAME intrusive_list_tail
+#define INSPIRCD_INTRUSIVE_LIST_HAS_TAIL
+#include "intrusive_list_impl.h"
+#undef INSPIRCD_INTRUSIVE_LIST_NAME
+#undef INSPIRCD_INTRUSIVE_LIST_HAS_TAIL

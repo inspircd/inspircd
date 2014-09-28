@@ -185,13 +185,8 @@ class HttpServerSocket : public BufferedSocket
 
 		WriteData(http_version + " "+ConvToStr(response)+" "+Response(response)+"\r\n");
 
-		time_t local = ServerInstance->Time();
-		struct tm *timeinfo = gmtime(&local);
-		char *date = asctime(timeinfo);
-		date[strlen(date) - 1] = '\0';
-		rheaders.CreateHeader("Date", date);
-
-		rheaders.CreateHeader("Server", BRANCH);
+		rheaders.CreateHeader("Date", InspIRCd::TimeString(ServerInstance->Time(), "%a, %d %b %Y %H:%M:%S GMT", true));
+		rheaders.CreateHeader("Server", INSPIRCD_BRANCH);
 		rheaders.SetHeader("Content-Length", ConvToStr(size));
 
 		if (size)

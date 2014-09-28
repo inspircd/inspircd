@@ -35,7 +35,7 @@ ModeHandler::ModeHandler(Module* Creator, const std::string& Name, char modelett
 
 CullResult ModeHandler::cull()
 {
-	if (ServerInstance->Modes)
+	if (ServerInstance)
 		ServerInstance->Modes->DelMode(this);
 	return classbase::cull();
 }
@@ -182,9 +182,9 @@ void ModeParser::DisplayCurrentModes(User *user, User* targetuser, Channel* targ
 	}
 }
 
-PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter)
+PrefixMode::PrefixMode(Module* Creator, const std::string& Name, char ModeLetter, unsigned int Rank, char PrefixChar)
 	: ModeHandler(Creator, Name, ModeLetter, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_PREFIX)
-	, prefix(0), prefixrank(0)
+	, prefix(PrefixChar), prefixrank(Rank)
 {
 	list = true;
 	m_paramtype = TR_NICK;
@@ -915,8 +915,8 @@ void ModeHandler::RemoveMode(Channel* channel, irc::modestacker& stack)
 
 void PrefixMode::RemoveMode(Channel* chan, irc::modestacker& stack)
 {
-	const UserMembList* userlist = chan->GetUsers();
-	for (UserMembCIter i = userlist->begin(); i != userlist->end(); ++i)
+	const Channel::MemberMap& userlist = chan->GetUsers();
+	for (Channel::MemberMap::const_iterator i = userlist.begin(); i != userlist.end(); ++i)
 	{
 		if (i->second->hasMode(this->GetModeChar()))
 			stack.Push(this->GetModeChar(), i->first->nick);
@@ -925,13 +925,13 @@ void PrefixMode::RemoveMode(Channel* chan, irc::modestacker& stack)
 
 struct builtin_modes
 {
-	ModeChannelSecret s;
-	ModeChannelPrivate p;
-	ModeChannelModerated m;
-	ModeChannelTopicOps t;
+	SimpleChannelModeHandler s;
+	SimpleChannelModeHandler p;
+	SimpleChannelModeHandler m;
+	SimpleChannelModeHandler t;
 
-	ModeChannelNoExternal n;
-	ModeChannelInviteOnly i;
+	SimpleChannelModeHandler n;
+	SimpleChannelModeHandler i;
 	ModeChannelKey k;
 	ModeChannelLimit l;
 
@@ -939,9 +939,20 @@ struct builtin_modes
 	ModeChannelOp o;
 	ModeChannelVoice v;
 
-	ModeUserInvisible ui;
+	SimpleUserModeHandler ui;
 	ModeUserOperator uo;
 	ModeUserServerNoticeMask us;
+
+	builtin_modes()
+		: s(NULL, "secret", 's')
+		, p(NULL, "private", 'p')
+		, m(NULL, "moderated", 'm')
+		, t(NULL, "topiclock", 't')
+		, n(NULL, "noextmsg", 'n')
+		, i(NULL, "inviteonly", 'i')
+		, ui(NULL, "invisible", 'i')
+	{
+	}
 
 	void init()
 	{

@@ -26,10 +26,6 @@
 
 #include <iostream>
 #include "inspircd.h"
-#include "xline.h"
-#include "socket.h"
-#include "socketengine.h"
-#include "command_parse.h"
 #include "exitcodes.h"
 
 #ifndef _WIN32
@@ -37,11 +33,9 @@
 #endif
 
 static intrusive_list<dynamic_reference_base>* dynrefs = NULL;
-static bool dynref_init_complete = false;
 
 void dynamic_reference_base::reset_all()
 {
-	dynref_init_complete = true;
 	if (!dynrefs)
 		return;
 	for (intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
@@ -99,7 +93,7 @@ void		Module::OnInfo(User*) { DetachEvent(I_OnInfo); }
 void		Module::OnWhois(User*, User*) { DetachEvent(I_OnWhois); }
 ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserPreInvite); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
-ModResult	Module::OnUserPreNick(User*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
 ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
 void		Module::On005Numeric(std::map<std::string, std::string>&) { DetachEvent(I_On005Numeric); }
@@ -151,7 +145,7 @@ void		Module::OnBuildNeighborList(User*, IncludeChanList&, std::map<User*,bool>&
 void		Module::OnGarbageCollect() { DetachEvent(I_OnGarbageCollect); }
 ModResult	Module::OnSetConnectClass(LocalUser* user, ConnectClass* myclass) { DetachEvent(I_OnSetConnectClass); return MOD_RES_PASSTHRU; }
 void 		Module::OnText(User*, void*, int, const std::string&, char, CUList&) { DetachEvent(I_OnText); }
-void		Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { DetachEvent(I_OnNamesListItem); }
+ModResult	Module::OnNamesListItem(User*, Membership*, std::string&, std::string&) { DetachEvent(I_OnNamesListItem); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnNumeric(User*, unsigned int, const std::string&) { DetachEvent(I_OnNumeric); return MOD_RES_PASSTHRU; }
 ModResult   Module::OnAcceptConnection(int, ListenSocket*, irc::sockets::sockaddrs*, irc::sockets::sockaddrs*) { DetachEvent(I_OnAcceptConnection); return MOD_RES_PASSTHRU; }
 void		Module::OnSendWhoLine(User*, const std::vector<std::string>&, User*, Membership*, std::string&) { DetachEvent(I_OnSendWhoLine); }
@@ -397,8 +391,8 @@ void ModuleManager::DoSafeUnload(Module* mod)
 		++c;
 		mod->OnCleanup(TYPE_CHANNEL, chan);
 		chan->doUnhookExtensions(items);
-		const UserMembList* users = chan->GetUsers();
-		for(UserMembCIter mi = users->begin(); mi != users->end(); mi++)
+		const Channel::MemberMap& users = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator mi = users.begin(); mi != users.end(); ++mi)
 			mi->second->doUnhookExtensions(items);
 	}
 
@@ -521,7 +515,7 @@ void ModuleManager::Reload(Module* mod, HandlerBase1<void, bool>* callback)
 {
 	if (CanUnload(mod))
 		ServerInstance->AtomicActions.AddAction(new ReloadAction(mod, callback));
-	else
+	else if (callback)
 		callback->Call(false);
 }
 
@@ -593,7 +587,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 	switch (item.service)
 	{
 		case SERVICE_COMMAND:
-			if (!ServerInstance->Parser->AddCommand(static_cast<Command*>(&item)))
+			if (!ServerInstance->Parser.AddCommand(static_cast<Command*>(&item)))
 				throw ModuleException("Command "+std::string(item.name)+" already exists.");
 			return;
 		case SERVICE_MODE:
@@ -611,7 +605,7 @@ void ModuleManager::AddService(ServiceProvider& item)
 		case SERVICE_DATA:
 		case SERVICE_IOHOOK:
 		{
-			if ((item.name.substr(0, 5) == "mode/") || (item.name.substr(0, 6) == "umode/"))
+			if ((!item.name.compare(0, 5, "mode/", 5)) || (!item.name.compare(0, 6, "umode/", 6)))
 				throw ModuleException("The \"mode/\" and the \"umode\" service name prefixes are reserved.");
 
 			DataProviders.insert(std::make_pair(item.name, &item));
@@ -678,7 +672,9 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 	if (!dynrefs)
 		dynrefs = new intrusive_list<dynamic_reference_base>;
 	dynrefs->push_front(this);
-	if (dynref_init_complete)
+
+	// Resolve unless there is no ModuleManager (part of class InspIRCd)
+	if (ServerInstance)
 		resolve();
 }
 

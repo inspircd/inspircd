@@ -50,15 +50,9 @@ class CoreExport Timer
  public:
 	/** Default constructor, initializes the triggering time
 	 * @param secs_from_now The number of seconds from now to trigger the timer
-	 * @param now The time now
 	 * @param repeating Repeat this timer every secs_from_now seconds if set to true
 	 */
-	Timer(unsigned int secs_from_now, time_t now, bool repeating = false)
-	{
-		trigger = now + secs_from_now;
-		secs = secs_from_now;
-		repeat = repeating;
-	}
+	Timer(unsigned int secs_from_now, bool repeating = false);
 
 	/** Default destructor, removes the timer from the timer manager
 	 */
@@ -117,14 +111,14 @@ class CoreExport Timer
 	}
 };
 
-typedef std::multimap<time_t, Timer*> TimerMap;
-
 /** This class manages sets of Timers, and triggers them at their defined times.
  * This will ensure timers are not missed, as well as removing timers that have
  * expired and allowing the addition of new ones.
  */
 class CoreExport TimerManager
 {
+	typedef std::multimap<time_t, Timer*> TimerMap;
+
 	/** A list of all pending timers
 	 */
 	TimerMap Timers;

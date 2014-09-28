@@ -24,7 +24,7 @@
 #include "core_user.h"
 
 CommandNick::CommandNick(Module* parent)
-	: Command(parent, "NICK", 1, 1)
+	: SplitCommand(parent, "NICK", 1, 1)
 {
 	works_before_reg = true;
 	syntax = "<newnick>";
@@ -36,14 +36,14 @@ CommandNick::CommandNick(Module* parent)
  * for the client introduction code in here, youre in the wrong place.
  * You need to look in the spanningtree module for this!
  */
-CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User *user)
+CmdResult CommandNick::HandleLocal(const std::vector<std::string>& parameters, LocalUser* user)
 {
 	std::string oldnick = user->nick;
 	std::string newnick = parameters[0];
 
 	// anything except the initial NICK gets a flood penalty
-	if (user->registered == REG_ALL && IS_LOCAL(user))
-		IS_LOCAL(user)->CommandFloodPenalty += 4000;
+	if (user->registered == REG_ALL)
+		user->CommandFloodPenalty += 4000;
 
 	if (newnick.empty())
 	{
@@ -61,23 +61,35 @@ CmdResult CommandNick::Handle (const std::vector<std::string>& parameters, User 
 		return CMD_FAILURE;
 	}
 
-	if (!user->ChangeNick(newnick, false))
+	ModResult MOD_RESULT;
+	FIRST_MOD_RESULT(OnUserPreNick, MOD_RESULT, (user, newnick));
+
+	// If a module denied the change, abort now
+	if (MOD_RESULT == MOD_RES_DENY)
+		return CMD_FAILURE;
+
+	// Disallow the nick change if <security:restrictbannedusers> is on and there is a ban matching this user in
+	// one of the channels they are on
+	if (ServerInstance->Config->RestrictBannedUsers)
+	{
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); ++i)
+		{
+			Channel* chan = (*i)->chan;
+			if (chan->GetPrefixValue(user) < VOICE_VALUE && chan->IsBanned(user))
+			{
+				user->WriteNumeric(ERR_CANNOTSENDTOCHAN, "%s :Cannot send to channel (you're banned)", chan->name.c_str());
+				return CMD_FAILURE;
+			}
+		}
+	}
+
+	if (!user->ChangeNick(newnick))
 		return CMD_FAILURE;
 
 	if (user->registered < REG_NICKUSER)
 	{
 		user->registered = (user->registered | REG_NICK);
-		if (user->registered == REG_NICKUSER)
-		{
-			/* user is registered now, bit 0 = USER command, bit 1 = sent a NICK command */
-			ModResult MOD_RESULT;
-			FIRST_MOD_RESULT(OnUserRegister, MOD_RESULT, (IS_LOCAL(user)));
-			if (MOD_RESULT == MOD_RES_DENY)
-				return CMD_FAILURE;
-
-			// return early to not penalize new users
-			return CMD_SUCCESS;
-		}
+		return CommandUser::CheckRegister(user);
 	}
 
 	return CMD_SUCCESS;

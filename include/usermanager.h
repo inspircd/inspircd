@@ -21,7 +21,7 @@
 
 #include <list>
 
-class CoreExport UserManager
+class CoreExport UserManager : public fakederef<UserManager>
 {
  public:
 	struct CloneCounts
@@ -39,6 +39,10 @@ class CoreExport UserManager
 	 */
 	typedef std::vector<User*> OperList;
 
+	/** A list holding local users
+	*/
+	typedef intrusive_list<LocalUser> LocalList;
+
  private:
 	/** Map of IP addresses for clone counting
 	 */
@@ -47,6 +51,10 @@ class CoreExport UserManager
 	/** A CloneCounts that contains zero for both local and global
 	 */
 	const CloneCounts zeroclonecounts;
+
+	/** Local client list, a list containing only local clients
+	 */
+	LocalList local_users;
 
  public:
 	/** Constructor, initializes variables
@@ -65,10 +73,6 @@ class CoreExport UserManager
 	 * automatically by the constructor and destructor of User.
 	 */
 	user_hash uuidlist;
-
-	/** Local client list, a list containing only local clients
-	 */
-	LocalUserList local_users;
 
 	/** Oper list, a vector containing all local and remote opered users
 	 */
@@ -168,6 +172,11 @@ class CoreExport UserManager
 	 * @return A hash map mapping nicknames to User pointers
 	 */
 	user_hash& GetUsers() { return clientlist; }
+
+	/** Get a list containing all local users
+	 * @return A const list of local users
+	 */
+	const LocalList& GetLocalUsers() const { return local_users; }
 
 	/** Send a server notice to all local users
 	 * @param text The text format string to send

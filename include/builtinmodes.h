@@ -35,16 +35,6 @@ class ModeChannelBan : public ListModeBase
 	}
 };
 
-/** Channel mode +i
- */
-class ModeChannelInviteOnly : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelInviteOnly() : SimpleChannelModeHandler(NULL, "inviteonly", 'i')
-	{
-	}
-};
-
 /** Channel mode +k
  */
 class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
@@ -67,61 +57,15 @@ class ModeChannelLimit : public ParamMode<ModeChannelLimit, LocalIntExt>
 	ModeAction OnSet(User* source, Channel* channel, std::string& parameter);
 };
 
-/** Channel mode +m
- */
-class ModeChannelModerated : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelModerated() : SimpleChannelModeHandler(NULL, "moderated", 'm')
-	{
-	}
-};
-
-/** Channel mode +n
- */
-class ModeChannelNoExternal : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelNoExternal() : SimpleChannelModeHandler(NULL, "noextmsg", 'n')
-	{
-	}
-};
-
 /** Channel mode +o
  */
 class ModeChannelOp : public PrefixMode
 {
  public:
-	ModeChannelOp();
-};
-
-/** Channel mode +p
- */
-class ModeChannelPrivate : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelPrivate() : SimpleChannelModeHandler(NULL, "private", 'p')
+	ModeChannelOp()
+		: PrefixMode(NULL, "op", 'o', OP_VALUE, '@')
 	{
-	}
-};
-
-/** Channel mode +s
- */
-class ModeChannelSecret : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelSecret() : SimpleChannelModeHandler(NULL, "secret", 's')
-	{
-	}
-};
-
-/** Channel mode +t
- */
-class ModeChannelTopicOps : public SimpleChannelModeHandler
-{
- public:
-	ModeChannelTopicOps() : SimpleChannelModeHandler(NULL, "topiclock", 't')
-	{
+		levelrequired = OP_VALUE;
 	}
 };
 
@@ -130,16 +74,10 @@ class ModeChannelTopicOps : public SimpleChannelModeHandler
 class ModeChannelVoice : public PrefixMode
 {
  public:
-	ModeChannelVoice();
-};
-
-/** User mode +i
- */
-class ModeUserInvisible : public SimpleUserModeHandler
-{
- public:
-	ModeUserInvisible() : SimpleUserModeHandler(NULL, "invisible", 'i')
+	ModeChannelVoice()
+		: PrefixMode(NULL, "voice", 'v', VOICE_VALUE, '+')
 	{
+		levelrequired = HALFOP_VALUE;
 	}
 };
 

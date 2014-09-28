@@ -28,9 +28,7 @@
 #include "modules/sql.h"
 
 #ifdef _WIN32
-# pragma comment(lib, "mysqlclient.lib")
-# pragma comment(lib, "advapi32.lib")
-# pragma comment(linker, "/NODEFAULTLIB:LIBCMT")
+# pragma comment(lib, "libmysql.lib")
 #endif
 
 /* VERSION 3 API: With nonblocking (threaded) requests */
@@ -380,7 +378,7 @@ ModuleSQL::ModuleSQL()
 void ModuleSQL::init()
 {
 	Dispatcher = new DispatcherThread(this);
-	ServerInstance->Threads->Start(Dispatcher);
+	ServerInstance->Threads.Start(Dispatcher);
 }
 
 ModuleSQL::~ModuleSQL()

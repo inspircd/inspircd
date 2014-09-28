@@ -1,8 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013 Adam <Adam@anope.org>
- *   Copyright (C) 2003-2013 Anope Team <team@anope.org>
+ *   Copyright (C) 2013-2014 Adam <Adam@anope.org>
+ *   Copyright (C) 2003-2014 Anope Team <team@anope.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -23,8 +23,8 @@
 #include <ldap.h>
 
 #ifdef _WIN32
-# pragma comment(lib, "ldap.lib")
-# pragma comment(lib, "lber.lib")
+# pragma comment(lib, "libldap.lib")
+# pragma comment(lib, "liblber.lib")
 #endif
 
 /* $LinkerFlags: -lldap */
@@ -35,6 +35,8 @@ class LDAPService : public LDAPProvider, public SocketThread
 	reference<ConfigTag> config;
 	time_t last_connect;
 	int searchscope;
+	time_t timeout;
+	time_t last_timeout_check;
 
 	LDAPMod** BuildMods(const LDAPMods& attributes)
 	{
@@ -100,20 +102,47 @@ class LDAPService : public LDAPProvider, public SocketThread
 		if (i != NULL)
 		{
 			this->LockQueue();
-			this->queries[msgid] = i;
+			this->queries[msgid] = std::make_pair(ServerInstance->Time(), i);
 			this->UnlockQueueWakeup();
 		}
 	}
 
+	void Timeout()
+	{
+		if (last_timeout_check == ServerInstance->Time())
+			return;
+		last_timeout_check = ServerInstance->Time();
+
+		for (query_queue::iterator it = this->queries.begin(); it != this->queries.end(); )
+		{
+			LDAPQuery msgid = it->first;
+			time_t created = it->second.first;
+			LDAPInterface* i = it->second.second;
+			++it;
+
+			if (ServerInstance->Time() > created + timeout)
+			{
+				LDAPResult* ldap_result = new LDAPResult();
+				ldap_result->id = msgid;
+				ldap_result->error = "Query timed out";
+
+				this->queries.erase(msgid);
+				this->results.push_back(std::make_pair(i, ldap_result));
+
+				this->NotifyParent();
+			}
+		}
+	}
+
  public:
-	typedef std::map<int, LDAPInterface*> query_queue;
+	typedef std::map<LDAPQuery, std::pair<time_t, LDAPInterface*> > query_queue;
 	typedef std::vector<std::pair<LDAPInterface*, LDAPResult*> > result_queue;
 	query_queue queries;
 	result_queue results;
 
 	LDAPService(Module* c, ConfigTag* tag)
 		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
-		, con(NULL), config(tag), last_connect(0)
+		, con(NULL), config(tag), last_connect(0), last_timeout_check(0)
 	{
 		std::string scope = config->getString("searchscope");
 		if (scope == "base")
@@ -122,6 +151,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 			searchscope = LDAP_SCOPE_ONELEVEL;
 		else
 			searchscope = LDAP_SCOPE_SUBTREE;
+		timeout = config->getInt("timeout", 5);
 
 		Connect();
 	}
@@ -131,13 +161,29 @@ class LDAPService : public LDAPProvider, public SocketThread
 		this->LockQueue();
 
 		for (query_queue::iterator i = this->queries.begin(); i != this->queries.end(); ++i)
-			ldap_abandon_ext(this->con, i->first, NULL, NULL);
+		{
+			LDAPQuery msgid = i->first;
+			LDAPInterface* inter = i->second.second;
+
+			ldap_abandon_ext(this->con, msgid, NULL, NULL);
+
+			if (inter)
+			{
+				LDAPResult r;
+				r.error = "LDAP Interface is going away";
+				inter->OnError(r);
+			}
+		}
 		this->queries.clear();
 
 		for (result_queue::iterator i = this->results.begin(); i != this->results.end(); ++i)
 		{
-			i->second->error = "LDAP Interface is going away";
-			i->first->OnError(*i->second);
+			LDAPInterface* inter = i->first;
+			LDAPResult* r = i->second;
+
+			r->error = "LDAP Interface is going away";
+			if (inter)
+				inter->OnError(*r);
 		}
 		this->results.clear();
 
@@ -152,6 +198,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		int i = ldap_initialize(&this->con, server.c_str());
 		if (i != LDAP_SUCCESS)
 			throw LDAPException("Unable to connect to LDAP service " + this->name + ": " + ldap_err2string(i));
+
 		const int version = LDAP_VERSION3;
 		i = ldap_set_option(this->con, LDAP_OPT_PROTOCOL_VERSION, &version);
 		if (i != LDAP_OPT_SUCCESS)
@@ -159,6 +206,15 @@ class LDAPService : public LDAPProvider, public SocketThread
 			ldap_unbind_ext(this->con, NULL, NULL);
 			this->con = NULL;
 			throw LDAPException("Unable to set protocol version for " + this->name + ": " + ldap_err2string(i));
+		}
+
+		const struct timeval tv = { 0, 0 };
+		i = ldap_set_option(this->con, LDAP_OPT_NETWORK_TIMEOUT, &tv);
+		if (i != LDAP_OPT_SUCCESS)
+		{
+			ldap_unbind_ext(this->con, NULL, NULL);
+			this->con = NULL;
+			throw LDAPException("Unable to set timeout for " + this->name + ": " + ldap_err2string(i));
 		}
 	}
 
@@ -315,8 +371,8 @@ class LDAPService : public LDAPProvider, public SocketThread
 				this->UnlockQueue();
 				continue;
 			}
-			else
-				this->UnlockQueue();
+			this->Timeout();
+			this->UnlockQueue();
 
 			struct timeval tv = { 1, 0 };
 			LDAPMessage* result;
@@ -335,7 +391,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 				ldap_msgfree(result);
 				continue;
 			}
-			LDAPInterface* i = it->second;
+			LDAPInterface* i = it->second.second;
 			this->queries.erase(it);
 
 			this->UnlockQueue();
@@ -501,7 +557,7 @@ class ModuleLDAP : public Module
 				conns[id] = conn;
 
 				ServerInstance->Modules->AddService(*conn);
-				ServerInstance->Threads->Start(conn);
+				ServerInstance->Threads.Start(conn);
 			}
 			else
 			{
@@ -531,7 +587,7 @@ class ModuleLDAP : public Module
 			for (LDAPService::query_queue::iterator it2 = s->queries.begin(); it2 != s->queries.end();)
 			{
 				int msgid = it2->first;
-				LDAPInterface* i = it2->second;
+				LDAPInterface* i = it2->second.second;
 				++it2;
 
 				if (i->creator == m)

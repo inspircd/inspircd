@@ -66,7 +66,6 @@ class ModuleDeaf : public Module
 			return MOD_RES_PASSTHRU;
 
 		Channel* chan = static_cast<Channel*>(dest);
-		const UserMembList *ulist = chan->GetUsers();
 		bool is_bypasschar = (deaf_bypasschars.find(text[0]) != std::string::npos);
 		bool is_bypasschar_uline = (deaf_bypasschars_uline.find(text[0]) != std::string::npos);
 
@@ -77,7 +76,8 @@ class ModuleDeaf : public Module
 		if (!deaf_bypasschars_uline.empty() && is_bypasschar)
 			return MOD_RES_PASSTHRU;
 
-		for (UserMembCIter i = ulist->begin(); i != ulist->end(); i++)
+		const Channel::MemberMap& ulist = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 		{
 			/* not +d ? */
 			if (!i->first->IsModeSet(m1))

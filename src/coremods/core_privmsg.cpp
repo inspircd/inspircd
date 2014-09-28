@@ -67,8 +67,8 @@ class MessageCommandBase : public Command
 void MessageCommandBase::SendAll(User* user, const std::string& msg, MessageType mt)
 {
 	const std::string message = ":" + user->GetFullHost() + " " + MessageTypeString[mt] + " $* :" + msg;
-	const LocalUserList& list = ServerInstance->Users->local_users;
-	for (LocalUserList::const_iterator i = list.begin(); i != list.end(); ++i)
+	const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+	for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 	{
 		if ((*i)->registered == REG_ALL)
 			(*i)->Write(message);

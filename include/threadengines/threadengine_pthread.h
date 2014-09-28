@@ -36,14 +36,12 @@
 class CoreExport ThreadEngine
 {
  public:
-
-	/** Constructor.
+	/** Per-thread state, present in each Thread object, managed by the ThreadEngine
 	 */
-	ThreadEngine();
-
-	/** Destructor
-	 */
-	virtual ~ThreadEngine();
+	struct ThreadState
+	{
+		pthread_t pthread_id;
+	};
 
 	/** Create a new thread. This takes an already allocated
 	 * Thread* pointer and initializes it to use this threading
@@ -53,20 +51,17 @@ class CoreExport ThreadEngine
 	 */
 	void Start(Thread* thread_to_init);
 
-	/** Returns the thread engine's name for display purposes
-	 * @return The thread engine name
+	/** Stop a thread gracefully.
+	 * First, this function asks the thread to terminate by calling Thread::SetExitFlag().
+	 * Next, it waits until the thread terminates (on the operating system level). Finally,
+	 * all OS-level resources associated with the thread are released. The Thread instance
+	 * passed to the function is NOT freed.
+	 * When this function returns, the thread is stopped and you can destroy it or restart it
+	 * at a later point.
+	 * Stopping a thread that is not running is a bug.
+	 * @param thread The thread to stop.
 	 */
-	const std::string GetName()
-	{
-		return "posix-thread";
-	}
-};
-
-class CoreExport ThreadData
-{
- public:
-	pthread_t pthread_id;
-	void FreeThread(Thread* toFree);
+	void Stop(Thread* thread);
 };
 
 /** The Mutex class represents a mutex, which can be used to keep threads
@@ -79,7 +74,7 @@ class CoreExport ThreadData
  */
 class CoreExport Mutex
 {
- private:
+ protected:
 	pthread_mutex_t putex;
  public:
 	/** Constructor.
@@ -108,31 +103,18 @@ class CoreExport Mutex
 	}
 };
 
-class ThreadQueueData
+class ThreadQueueData : public Mutex
 {
-	pthread_mutex_t mutex;
 	pthread_cond_t cond;
  public:
 	ThreadQueueData()
 	{
-		pthread_mutex_init(&mutex, NULL);
 		pthread_cond_init(&cond, NULL);
 	}
 
 	~ThreadQueueData()
 	{
-		pthread_mutex_destroy(&mutex);
 		pthread_cond_destroy(&cond);
-	}
-
-	void Lock()
-	{
-		pthread_mutex_lock(&mutex);
-	}
-
-	void Unlock()
-	{
-		pthread_mutex_unlock(&mutex);
 	}
 
 	void Wakeup()
@@ -142,7 +124,7 @@ class ThreadQueueData
 
 	void Wait()
 	{
-		pthread_cond_wait(&cond, &mutex);
+		pthread_cond_wait(&cond, &putex);
 	}
 };
 

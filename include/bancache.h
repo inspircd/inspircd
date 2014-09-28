@@ -40,24 +40,20 @@ class CoreExport BanCacheHit
 	 */
 	time_t Expiry;
 
-	BanCacheHit(const std::string &type, const std::string &reason, time_t seconds)
-		: Type(type), Reason(reason), Expiry(ServerInstance->Time() + seconds)
-	{
-	}
+	BanCacheHit(const std::string& type, const std::string& reason, time_t seconds);
 
 	bool IsPositive() const { return (!Reason.empty()); }
 };
-
-/* A container of ban cache items.
- * must be defined after class BanCacheHit.
- */
-typedef TR1NS::unordered_map<std::string, BanCacheHit*, TR1NS::hash<std::string> > BanCacheHash;
 
 /** A manager for ban cache, which allocates and deallocates and checks cached bans.
  */
 class CoreExport BanCacheManager
 {
-	BanCacheHash* BanHash;
+	/** A container of ban cache items.
+	 */
+	typedef TR1NS::unordered_map<std::string, BanCacheHit*, TR1NS::hash<std::string> > BanCacheHash;
+
+	BanCacheHash BanHash;
 	bool RemoveIfExpired(BanCacheHash::iterator& it);
 
  public:
@@ -77,9 +73,5 @@ class CoreExport BanCacheManager
 	 */
 	void RemoveEntries(const std::string& type, bool positive);
 
-	BanCacheManager()
-	{
-		this->BanHash = new BanCacheHash();
-	}
 	~BanCacheManager();
 };

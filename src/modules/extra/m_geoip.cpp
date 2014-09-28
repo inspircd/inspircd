@@ -56,7 +56,8 @@ class ModuleGeoIP : public Module
 		if (gi == NULL)
 				throw ModuleException("Unable to initialize geoip, are you missing GeoIP.dat?");
 
-		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			LocalUser* user = *i;
 			if ((user->registered == REG_ALL) && (!ext.get(user)))
@@ -101,7 +102,9 @@ class ModuleGeoIP : public Module
 
 		unsigned int unknown = 0;
 		std::map<std::string, unsigned int> results;
-		for (LocalUserList::const_iterator i = ServerInstance->Users->local_users.begin(); i != ServerInstance->Users->local_users.end(); ++i)
+
+		const UserManager::LocalList& list = ServerInstance->Users.GetLocalUsers();
+		for (UserManager::LocalList::const_iterator i = list.begin(); i != list.end(); ++i)
 		{
 			std::string* cc = ext.get(*i);
 			if (cc)

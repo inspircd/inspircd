@@ -25,8 +25,6 @@
 
 #include "inspircd.h"
 #include "listmode.h"
-#include <cstdarg>
-#include "mode.h"
 
 namespace
 {
@@ -73,7 +71,7 @@ Membership* Channel::AddUser(User* user)
 
 void Channel::DelUser(User* user)
 {
-	UserMembIter it = userlist.find(user);
+	MemberMap::iterator it = userlist.find(user);
 	if (it != userlist.end())
 		DelUser(it);
 }
@@ -100,7 +98,7 @@ void Channel::CheckDestroy()
 	ServerInstance->GlobalCulls.AddItem(this);
 }
 
-void Channel::DelUser(const UserMembIter& membiter)
+void Channel::DelUser(const MemberMap::iterator& membiter)
 {
 	Membership* memb = membiter->second;
 	memb->cull();
@@ -113,7 +111,7 @@ void Channel::DelUser(const UserMembIter& membiter)
 
 Membership* Channel::GetUser(User* user)
 {
-	UserMembIter i = userlist.find(user);
+	MemberMap::iterator i = userlist.find(user);
 	if (i == userlist.end())
 		return NULL;
 	return i->second;
@@ -292,17 +290,17 @@ Channel* Channel::JoinUser(LocalUser* user, std::string cname, bool override, co
 	return chan;
 }
 
-void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
+Membership* Channel::ForceJoin(User* user, const std::string* privs, bool bursting, bool created_by_local)
 {
 	if (IS_SERVER(user))
 	{
 		ServerInstance->Logs->Log("CHANNELS", LOG_DEBUG, "Attempted to join server user " + user->uuid + " to channel " + this->name);
-		return;
+		return NULL;
 	}
 
 	Membership* memb = this->AddUser(user);
 	if (!memb)
-		return; // Already on the channel
+		return NULL; // Already on the channel
 
 	user->chans.push_front(memb);
 
@@ -350,6 +348,7 @@ void Channel::ForceJoin(User* user, const std::string* privs, bool bursting, boo
 	}
 
 	FOREACH_MOD(OnPostJoin, (memb));
+	return memb;
 }
 
 bool Channel::IsBanned(User* user)
@@ -427,7 +426,7 @@ ModResult Channel::GetExtBanStatus(User *user, char type)
  */
 void Channel::PartUser(User *user, std::string &reason)
 {
-	UserMembIter membiter = userlist.find(user);
+	MemberMap::iterator membiter = userlist.find(user);
 
 	if (membiter != userlist.end())
 	{
@@ -444,52 +443,13 @@ void Channel::PartUser(User *user, std::string &reason)
 	}
 }
 
-void Channel::KickUser(User* src, User* victim, const std::string& reason, Membership* srcmemb)
+void Channel::KickUser(User* src, const MemberMap::iterator& victimiter, const std::string& reason)
 {
-	UserMembIter victimiter = userlist.find(victim);
-	Membership* memb = ((victimiter != userlist.end()) ? victimiter->second : NULL);
-
-	if (!memb)
-	{
-		src->WriteNumeric(ERR_USERNOTINCHANNEL, "%s %s :They are not on that channel", victim->nick.c_str(), this->name.c_str());
-		return;
-	}
-
-	// Do the following checks only if the KICK is done by a local user;
-	// each server enforces its own rules.
-	if (IS_LOCAL(src))
-	{
-		// Modules are allowed to explicitly allow or deny kicks done by local users
-		ModResult res;
-		FIRST_MOD_RESULT(OnUserPreKick, res, (src,memb,reason));
-		if (res == MOD_RES_DENY)
-			return;
-
-		if (res == MOD_RES_PASSTHRU)
-		{
-			if (!srcmemb)
-				srcmemb = GetUser(src);
-			unsigned int them = srcmemb ? srcmemb->getRank() : 0;
-			unsigned int req = HALFOP_VALUE;
-			for (std::string::size_type i = 0; i < memb->modes.length(); i++)
-			{
-				ModeHandler* mh = ServerInstance->Modes->FindMode(memb->modes[i], MODETYPE_CHANNEL);
-				if (mh && mh->GetLevelRequired() > req)
-					req = mh->GetLevelRequired();
-			}
-
-			if (them < req)
-			{
-				src->WriteNumeric(ERR_CHANOPRIVSNEEDED, "%s :You must be a channel %soperator",
-					this->name.c_str(), req > HALFOP_VALUE ? "" : "half-");
-				return;
-			}
-		}
-	}
-
+	Membership* memb = victimiter->second;
 	CUList except_list;
 	FOREACH_MOD(OnUserKick, (src, memb, reason, except_list));
 
+	User* victim = memb->user;
 	WriteAllExcept(src, false, 0, except_list, "KICK %s %s :%s", name.c_str(), victim->nick.c_str(), reason.c_str());
 
 	victim->chans.erase(memb);
@@ -507,7 +467,7 @@ void Channel::WriteChannel(User* user, const std::string &text)
 {
 	const std::string message = ":" + user->GetFullHost() + " " + text;
 
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
 			i->first->Write(message);
@@ -525,7 +485,7 @@ void Channel::WriteChannelWithServ(const std::string& ServName, const std::strin
 {
 	const std::string message = ":" + (ServName.empty() ? ServerInstance->Config->ServerName : ServName) + " " + text;
 
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first))
 			i->first->Write(message);
@@ -564,7 +524,7 @@ void Channel::RawWriteAllExcept(User* user, bool serversource, char status, CULi
 		if (mh)
 			minrank = mh->GetPrefixRank();
 	}
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); i++)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); i++)
 	{
 		if (IS_LOCAL(i->first) && (except_list.find(i->first) == except_list.end()))
 		{
@@ -634,7 +594,7 @@ void Channel::UserList(User* user, bool has_user)
 	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size();
 	std::string prefixlist;
 	std::string nick;
-	for (UserMembIter i = userlist.begin(); i != userlist.end(); ++i)
+	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); ++i)
 	{
 		if ((!has_user) && (i->first->IsModeSet(invisiblemode)) && (!has_privs))
 		{
@@ -653,10 +613,11 @@ void Channel::UserList(User* user, bool has_user)
 			prefixlist.push_back(prefix);
 		nick = i->first->nick;
 
-		FOREACH_MOD(OnNamesListItem, (user, memb, prefixlist, nick));
+		ModResult res;
+		FIRST_MOD_RESULT(OnNamesListItem, res, (user, memb, prefixlist, nick));
 
-		/* Nick was nuked, a module wants us to skip it */
-		if (nick.empty())
+		// See if a module wants us to exclude this user from NAMES
+		if (res == MOD_RES_DENY)
 			continue;
 
 		if (list.size() + prefixlist.length() + nick.length() + 1 > maxlen)
@@ -730,7 +691,7 @@ const char* Membership::GetAllPrefixChars() const
 
 unsigned int Channel::GetPrefixValue(User* user)
 {
-	UserMembIter m = userlist.find(user);
+	MemberMap::iterator m = userlist.find(user);
 	if (m == userlist.end())
 		return 0;
 	return m->second->getRank();
@@ -784,8 +745,6 @@ void Invitation::Create(Channel* c, LocalUser* u, time_t timeout)
 Invitation* Invitation::Find(Channel* c, LocalUser* u, bool check_expired)
 {
 	ServerInstance->Logs->Log("INVITATION", LOG_DEBUG, "Invitation::Find chan=%s user=%s check_expired=%d", c ? c->name.c_str() : "NULL", u ? u->uuid.c_str() : "NULL", check_expired);
-	if (!u || u->invites.empty())
-		return NULL;
 
 	Invitation* result = NULL;
 	for (InviteList::iterator i = u->invites.begin(); i != u->invites.end(); )

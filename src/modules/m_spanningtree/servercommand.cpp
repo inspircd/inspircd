@@ -35,6 +35,14 @@ RouteDescriptor ServerCommand::GetRouting(User* user, const std::vector<std::str
 	return ROUTE_BROADCAST;
 }
 
+time_t ServerCommand::ExtractTS(const std::string& tsstr)
+{
+	time_t TS = ConvToInt(tsstr);
+	if (!TS)
+		throw ProtocolException("Invalid TS");
+	return TS;
+}
+
 ServerCommand* ServerCommandManager::GetHandler(const std::string& command) const
 {
 	ServerCommandMap::const_iterator it = commands.find(command);

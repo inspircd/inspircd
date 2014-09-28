@@ -3,11 +3,15 @@
 *.swp
 
 /.config.cache
+/.gdbargs
 /.modulemanager
 /BSDmakefile
 /GNUmakefile
 /build
 /inspircd
+/inspircd.1
+/inspircd-genssl.1
+/inspircd.service
 /org.inspircd.plist
 /run
 /bin

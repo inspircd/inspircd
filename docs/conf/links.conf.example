@@ -46,20 +46,20 @@
       ssl="gnutls"
 
       # fingerprint: If defined, this option will force servers to be
-      # authenticated using SSL Fingerprints. See http://wiki.inspircd.org/SSL
-      # for more information. This will require an SSL link for both inbound
-      # and outbound connections.
+      # authenticated using SSL certificate fingerprints. See
+      # http://wiki.inspircd.org/SSL for more information. This will
+      # require an SSL link for both inbound and outbound connections.
       #fingerprint=""
 
       # bind: Local IP address to bind to.
       bind="1.2.3.4"
 
       # statshidden: Defines if IP is shown to opers when
-      # /stats c is invoked.
+      # /STATS c is invoked.
       statshidden="no"
 
       # hidden: If this is set to yes, this server and its "child"
-      # servers will not be shown when users do a /map or /links
+      # servers will not be shown when users do a /MAP or /LINKS.
       hidden="no"
 
       # passwords: the passwords we send and receive.

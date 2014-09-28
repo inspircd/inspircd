@@ -38,5 +38,5 @@ foreach(MODULE_NAME ${INSPIRCD_MODULES})
 	)
 
 	# Set the module to be installed to the module directory
-	install(TARGETS ${SO_NAME} DESTINATION modules)
+	install(TARGETS ${SO_NAME} DESTINATION ${MODULE_DIR})
 endforeach(MODULE_NAME ${INSPIRCD_MODULES})

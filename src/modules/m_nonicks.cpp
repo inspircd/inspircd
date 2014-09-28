@@ -46,12 +46,9 @@ class ModuleNoNickChange : public Module
 		tokens["EXTBAN"].push_back('N');
 	}
 
-	ModResult OnUserPreNick(User* user, const std::string &newnick) CXX11_OVERRIDE
+	ModResult OnUserPreNick(LocalUser* user, const std::string& newnick) CXX11_OVERRIDE
 	{
-		if (!IS_LOCAL(user))
-			return MOD_RES_PASSTHRU;
-
-		for (UCListIter i = user->chans.begin(); i != user->chans.end(); i++)
+		for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)
 		{
 			Channel* curr = (*i)->chan;
 

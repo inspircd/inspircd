@@ -19,11 +19,17 @@
 
 
 #include "inspircd.h"
-#include "bancache.h"
+
+BanCacheHit::BanCacheHit(const std::string& type, const std::string& reason, time_t seconds)
+	: Type(type)
+	, Reason(reason)
+	, Expiry(ServerInstance->Time() + seconds)
+{
+}
 
 BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &type, const std::string &reason, time_t seconds)
 {
-	BanCacheHit*& b = (*BanHash)[ip];
+	BanCacheHit*& b = BanHash[ip];
 	if (b != NULL) // can't have two cache entries on the same IP, sorry..
 		return NULL;
 
@@ -33,9 +39,9 @@ BanCacheHit *BanCacheManager::AddHit(const std::string &ip, const std::string &t
 
 BanCacheHit *BanCacheManager::GetHit(const std::string &ip)
 {
-	BanCacheHash::iterator i = this->BanHash->find(ip);
+	BanCacheHash::iterator i = this->BanHash.find(ip);
 
-	if (i == this->BanHash->end())
+	if (i == this->BanHash.end())
 		return NULL; // free and safe
 
 	if (RemoveIfExpired(i))
@@ -51,7 +57,7 @@ bool BanCacheManager::RemoveIfExpired(BanCacheHash::iterator& it)
 
 	ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "Hit on " + it->first + " is out of date, removing!");
 	delete it->second;
-	it = BanHash->erase(it);
+	it = BanHash.erase(it);
 	return true;
 }
 
@@ -62,7 +68,7 @@ void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 	else
 		ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing all negative hits");
 
-	for (BanCacheHash::iterator i = BanHash->begin(); i != BanHash->end(); )
+	for (BanCacheHash::iterator i = BanHash.begin(); i != BanHash.end(); )
 	{
 		if (RemoveIfExpired(i))
 			continue; // updates the iterator if expired
@@ -86,7 +92,7 @@ void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 			/* we need to remove this one. */
 			ServerInstance->Logs->Log("BANCACHE", LOG_DEBUG, "BanCacheManager::RemoveEntries(): Removing a hit on " + i->first);
 			delete b;
-			i = BanHash->erase(i);
+			i = BanHash.erase(i);
 		}
 		else
 			++i;
@@ -95,7 +101,6 @@ void BanCacheManager::RemoveEntries(const std::string& type, bool positive)
 
 BanCacheManager::~BanCacheManager()
 {
-	for (BanCacheHash::iterator n = BanHash->begin(); n != BanHash->end(); ++n)
+	for (BanCacheHash::iterator n = BanHash.begin(); n != BanHash.end(); ++n)
 		delete n->second;
-	delete BanHash;
 }

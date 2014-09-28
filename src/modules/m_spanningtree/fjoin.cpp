@@ -55,10 +55,12 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 * who succeed at internets. :-)
 	 *
 	 * Syntax:
-	 * :<sid> FJOIN <chan> <TS> <modes> :[[modes,]<uuid> [[modes,]<uuid> ... ]]
-	 * The last parameter is a list consisting of zero or more (modelist, uuid)
-	 * pairs (permanent channels may have zero users). The mode list for each
-	 * user is a concatenation of the mode letters the user has on the channel
+	 * :<sid> FJOIN <chan> <TS> <modes> :[<member> [<member> ...]]
+	 * The last parameter is a list consisting of zero or more channel members
+	 * (permanent channels may have zero users). Each entry on the list is in the
+	 * following format:
+	 * [[<modes>,]<uuid>[:<membid>]
+	 * <modes> is a concatenation of the mode letters the user has on the channel
 	 * (e.g.: "ov" if the user is opped and voiced). The order of the mode letters
 	 * are not important but if a server ecounters an unknown mode letter, it will
 	 * drop the link to avoid desync.
@@ -67,15 +69,12 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 * had no prefix modes on the channel, InspIRCd 2.2 and later does not require
 	 * a comma in this case anymore.
 	 *
+	 * <membid> is a positive integer representing the id of the membership.
+	 * If not present (in FJOINs coming from pre-1205 servers), 0 is assumed.
+	 *
 	 */
 
-	time_t TS = ConvToInt(params[1]);
-	if (!TS)
-	{
-		ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "*** BUG? *** TS of 0 sent to FJOIN. Are some services authors smoking craq, or is it 1970 again?. Dropped.");
-		ServerInstance->SNO->WriteToSnoMask('d', "WARNING: The server %s is sending FJOIN with a TS of zero. Total craq. Command was dropped.", srcuser->server->GetName().c_str());
-		return CMD_INVALID;
-	}
+	time_t TS = ServerCommand::ExtractTS(params[1]);
 
 	const std::string& channel = params[0];
 	Channel* chan = ServerInstance->FindChan(channel);
@@ -149,16 +148,15 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	}
 
 	irc::modestacker modestack(true);
-	TreeSocket* src_socket = TreeServer::Get(srcuser)->GetSocket();
+	TreeServer* const sourceserver = TreeServer::Get(srcuser);
 
 	/* Now, process every 'modes,uuid' pair */
-	irc::tokenstream users(*params.rbegin());
+	irc::tokenstream users(params.back());
 	std::string item;
 	irc::modestacker* modestackptr = (apply_other_sides_modes ? &modestack : NULL);
 	while (users.GetToken(item))
 	{
-		if (!ProcessModeUUIDPair(item, src_socket, chan, modestackptr))
-			return CMD_INVALID;
+		ProcessModeUUIDPair(item, sourceserver, chan, modestackptr);
 	}
 
 	/* Flush mode stacker if we lost the FJOIN or had equal TS */
@@ -168,24 +166,26 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_socket, Channel* chan, irc::modestacker* modestack)
+void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, irc::modestacker* modestack)
 {
 	std::string::size_type comma = item.find(',');
 
 	// Comma not required anymore if the user has no modes
-	std::string uuid = ((comma == std::string::npos) ? item : item.substr(comma+1));
+	const std::string::size_type ubegin = (comma == std::string::npos ? 0 : comma+1);
+	std::string uuid(item, ubegin, UIDGenerator::UUID_LENGTH);
 	User* who = ServerInstance->FindUUID(uuid);
 	if (!who)
 	{
 		// Probably KILLed, ignore
-		return true;
+		return;
 	}
 
+	TreeSocket* src_socket = sourceserver->GetSocket();
 	/* Check that the user's 'direction' is correct */
 	TreeServer* route_back_again = TreeServer::Get(who);
 	if (route_back_again->GetSocket() != src_socket)
 	{
-		return true;
+		return;
 	}
 
 	/* Check if the user received at least one mode */
@@ -196,18 +196,23 @@ bool CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeSocket* src_
 		for (std::string::const_iterator i = item.begin(); i != commait; ++i)
 		{
 			if (!ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL))
-			{
-				ServerInstance->SNO->WriteToSnoMask('d', "Unrecognised mode '%c' for a user in FJOIN, dropping link", *i);
-				return false;
-			}
+				throw ProtocolException("Unrecognised mode '" + std::string(1, *i) + "'");
 
 			/* Add any modes this user had to the mode stack */
 			modestack->Push(*i, who->nick);
 		}
 	}
 
-	chan->ForceJoin(who, NULL, route_back_again->bursting);
-	return true;
+	Membership* memb = chan->ForceJoin(who, NULL, sourceserver->IsBursting());
+	if (!memb)
+		return;
+
+	// Assign the id to the new Membership
+	Membership::Id membid = 0;
+	const std::string::size_type colon = item.rfind(':');
+	if (colon != std::string::npos)
+		membid = Membership::IdFromString(item.substr(colon+1));
+	memb->id = membid;
 }
 
 void CommandFJoin::RemoveStatus(Channel* c)
@@ -267,4 +272,37 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	}
 	chan->setby.clear();
 	chan->topicset = 0;
+}
+
+CommandFJoin::Builder::Builder(Channel* chan)
+	: CmdBuilder("FJOIN")
+{
+	push(chan->name).push_int(chan->age).push_raw(" +");
+	pos = str().size();
+	push_raw(chan->ChanModes(true)).push_raw(" :");
+}
+
+void CommandFJoin::Builder::add(Membership* memb)
+{
+	push_raw(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+	push_raw(':').push_raw_int(memb->id);
+	push_raw(' ');
+}
+
+bool CommandFJoin::Builder::has_room(Membership* memb) const
+{
+	return ((str().size() + memb->modes.size() + UIDGenerator::UUID_LENGTH + 2 + membid_max_digits + 1) <= maxline);
+}
+
+void CommandFJoin::Builder::clear()
+{
+	content.erase(pos);
+	push_raw(" :");
+}
+
+const std::string& CommandFJoin::Builder::finalize()
+{
+	if (*content.rbegin() == ' ')
+		content.erase(content.size()-1);
+	return str();
 }

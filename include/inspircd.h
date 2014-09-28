@@ -50,6 +50,17 @@
 
 CoreExport extern InspIRCd* ServerInstance;
 
+/** Base class for manager classes that are still accessed using -> but are no longer pointers
+ */
+template <typename T>
+struct fakederef
+{
+	T* operator->()
+	{
+		return static_cast<T*>(this);
+	}
+};
+
 #include "config.h"
 #include "dynref.h"
 #include "consolecolors.h"
@@ -78,10 +89,8 @@ CoreExport extern InspIRCd* ServerInstance;
 #include "configreader.h"
 #include "inspstring.h"
 #include "protocol.h"
-
-/** Returned by some functions to indicate failure.
- */
-#define ERROR -1
+#include "bancache.h"
+#include "isupportmanager.h"
 
 /** Template function to convert any input type to std::string
  */
@@ -156,6 +165,15 @@ template<typename T> inline long ConvToInt(const T &in)
 	return atol(tmp.str().c_str());
 }
 
+inline uint64_t ConvToUInt64(const std::string& in)
+{
+	uint64_t ret;
+	std::istringstream tmp(in);
+	if (!(tmp >> ret))
+		return 0;
+	return ret;
+}
+
 /** This class contains various STATS counters
  * It is used by the InspIRCd class, which internally
  * has an instance of it.
@@ -165,38 +183,38 @@ class serverstats
   public:
 	/** Number of accepted connections
 	 */
-	unsigned long statsAccept;
+	unsigned long Accept;
 	/** Number of failed accepts
 	 */
-	unsigned long statsRefused;
+	unsigned long Refused;
 	/** Number of unknown commands seen
 	 */
-	unsigned long statsUnknown;
+	unsigned long Unknown;
 	/** Number of nickname collisions handled
 	 */
-	unsigned long statsCollisions;
+	unsigned long Collisions;
 	/** Number of DNS queries sent out
 	 */
-	unsigned long statsDns;
+	unsigned long Dns;
 	/** Number of good DNS replies received
 	 * NOTE: This may not tally to the number sent out,
 	 * due to timeouts and other latency issues.
 	 */
-	unsigned long statsDnsGood;
+	unsigned long DnsGood;
 	/** Number of bad (negative) DNS replies received
 	 * NOTE: This may not tally to the number sent out,
 	 * due to timeouts and other latency issues.
 	 */
-	unsigned long statsDnsBad;
+	unsigned long DnsBad;
 	/** Number of inbound connections seen
 	 */
-	unsigned long statsConnects;
+	unsigned long Connects;
 	/** Total bytes of data transmitted
 	 */
-	unsigned long statsSent;
+	unsigned long Sent;
 	/** Total bytes of data received
 	 */
-	unsigned long statsRecv;
+	unsigned long Recv;
 #ifdef _WIN32
 	/** Cpu usage at last sample
 	*/
@@ -218,31 +236,10 @@ class serverstats
 	/** The constructor initializes all the counts to zero
 	 */
 	serverstats()
-		: statsAccept(0), statsRefused(0), statsUnknown(0), statsCollisions(0), statsDns(0),
-		statsDnsGood(0), statsDnsBad(0), statsConnects(0), statsSent(0), statsRecv(0)
+		: Accept(0), Refused(0), Unknown(0), Collisions(0), Dns(0),
+		DnsGood(0), DnsBad(0), Connects(0), Sent(0), Recv(0)
 	{
 	}
-};
-
-/** This class manages the generation and transmission of ISUPPORT. */
-class CoreExport ISupportManager
-{
-private:
-	/** The generated lines which are sent to clients. */
-	std::vector<std::string> Lines;
-
-public:
-	/** (Re)build the ISUPPORT vector. */
-	void Build();
-
-	/** Returns the std::vector of ISUPPORT lines. */
-	const std::vector<std::string>& GetLines()
-	{
-		return this->Lines;
-	}
-
-	/** Send the 005 numerics (ISUPPORT) to a user. */
-	void SendTo(LocalUser* user);
 };
 
 DEFINE_HANDLER1(IsNickHandler, bool, const std::string&);
@@ -329,15 +326,15 @@ class CoreExport InspIRCd
 
 	/** Mode handler, handles mode setting and removal
 	 */
-	ModeParser* Modes;
+	ModeParser Modes;
 
 	/** Command parser, handles client to server commands
 	 */
-	CommandParser* Parser;
+	CommandParser Parser;
 
 	/** Thread engine, Handles threading where required
 	 */
-	ThreadEngine* Threads;
+	ThreadEngine Threads;
 
 	/** The thread/class used to read config files in REHASH and on startup
 	 */
@@ -345,21 +342,21 @@ class CoreExport InspIRCd
 
 	/** LogManager handles logging.
 	 */
-	LogManager *Logs;
+	LogManager Logs;
 
 	/** ModuleManager contains everything related to loading/unloading
 	 * modules.
 	 */
-	ModuleManager* Modules;
+	ModuleManager Modules;
 
 	/** BanCacheManager is used to speed up checking of restrictions on connection
 	 * to the IRCd.
 	 */
-	BanCacheManager *BanCache;
+	BanCacheManager BanCache;
 
 	/** Stats class, holds miscellaneous stats counters
 	 */
-	serverstats* stats;
+	serverstats stats;
 
 	/**  Server Config class, holds configuration file data
 	 */
@@ -368,7 +365,7 @@ class CoreExport InspIRCd
 	/** Snomask manager - handles routing of snomask messages
 	 * to opers.
 	 */
-	SnomaskManager* SNO;
+	SnomaskManager SNO;
 
 	/** Timer manager class, triggers Timer timer events
 	 */
@@ -380,7 +377,7 @@ class CoreExport InspIRCd
 
 	/** User manager. Various methods and data associated with users.
 	 */
-	UserManager *Users;
+	UserManager Users;
 
 	/** Channel list, a hash_map containing all channels XXX move to channel manager class
 	 */
@@ -397,6 +394,10 @@ class CoreExport InspIRCd
 	/** Protocol interface, overridden by server protocol modules
 	 */
 	ProtocolInterface* PI;
+
+	/** Default implementation of the ProtocolInterface, does nothing
+	 */
+	ProtocolInterface DefaultProtocolInterface;
 
 	/** Holds extensible for user operquit
 	 */
@@ -434,15 +435,6 @@ class CoreExport InspIRCd
 	 * @return The number of ports bound without error
 	 */
 	int BindPorts(FailedPortList &failed_ports);
-
-	/** Binds a socket on an already open file descriptor
-	 * @param sockfd A valid file descriptor of an open socket
-	 * @param port The port number to bind to
-	 * @param addr The address to bind to (IP only)
-	 * @param dolisten Should this port be listened on?
-	 * @return True if the port was bound successfully
-	 */
-	bool BindSocket(int sockfd, int port, const char* addr, bool dolisten = true);
 
 	/** Find a user in the nick hash.
 	 * If the user cant be found in the nick hash check the uuid hash
@@ -641,8 +633,21 @@ class CoreExport InspIRCd
 	void Cleanup();
 
 	/** Return a time_t as a human-readable string.
+	 * @param format The format to retrieve the date/time in. See `man 3 strftime`
+	 * for more information. If NULL, "%a %b %d %T %Y" is assumed.
+	 * @param utc True to convert the time to string as-is, false to convert it to local time first.
+	 * @return A string representing the given date/time.
 	 */
-	static std::string TimeString(time_t curtime);
+	static std::string TimeString(time_t curtime, const char* format = NULL, bool utc = false);
+
+	/** Compare two strings in a timing-safe way. If the lengths of the strings differ, the function
+	 * returns false immediately (leaking information about the length), otherwise it compares each
+	 * character and only returns after all characters have been compared.
+	 * @param one First string
+	 * @param two Second string
+	 * @return True if the strings match, false if they don't
+	 */
+	static bool TimingSafeCompare(const std::string& one, const std::string& two);
 
 	/** Begin execution of the server.
 	 * NOTE: this function NEVER returns. Internally,

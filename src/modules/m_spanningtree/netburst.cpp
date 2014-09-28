@@ -27,7 +27,6 @@
 #include "treeserver.h"
 #include "main.h"
 #include "commands.h"
-#include "protocolinterface.h"
 
 /**
  * Creates FMODE messages, used only when syncing channels
@@ -105,12 +104,10 @@ void TreeSocket::DoBurst(TreeServer* s)
 {
 	ServerInstance->SNO->WriteToSnoMask('l',"Bursting to \2%s\2 (Authentication: %s%s).",
 		s->GetName().c_str(),
-		capab->auth_fingerprint ? "SSL Fingerprint and " : "",
+		capab->auth_fingerprint ? "SSL certificate fingerprint and " : "",
 		capab->auth_challenge ? "challenge-response" : "plaintext password");
 	this->CleanNegotiationInfo();
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " BURST " + ConvToStr(ServerInstance->Time()));
-	/* send our version string */
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " VERSION :"+ServerInstance->GetVersionString());
+	this->WriteLine(CmdBuilder("BURST").push_int(ServerInstance->Time()));
 	/* Send server tree */
 	this->SendServers(Utils->TreeRoot, s);
 
@@ -124,8 +121,19 @@ void TreeSocket::DoBurst(TreeServer* s)
 
 	this->SendXLines();
 	FOREACH_MOD(OnSyncNetwork, (bs.server));
-	this->WriteLine(":" + ServerInstance->Config->GetSID() + " ENDBURST");
+	this->WriteLine(CmdBuilder("ENDBURST"));
 	ServerInstance->SNO->WriteToSnoMask('l',"Finished bursting to \2"+ s->GetName()+"\2.");
+
+	this->burstsent = true;
+}
+
+void TreeSocket::SendServerInfo(TreeServer* from)
+{
+	// Send public version string
+	this->WriteLine(CommandSInfo::Builder(from, "version", from->GetVersion()));
+
+	// Send full version string that contains more information and is shown to opers
+	this->WriteLine(CommandSInfo::Builder(from, "fullversion", from->GetFullVersion()));
 }
 
 /** Recursively send the server tree.
@@ -133,10 +141,11 @@ void TreeSocket::DoBurst(TreeServer* s)
  * (and any of ITS servers too) of what servers we know about.
  * If at any point any of these servers already exist on the other
  * end, our connection may be terminated.
- * The hopcount parameter (3rd) is deprecated, and is always 0.
  */
 void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 {
+	SendServerInfo(Current);
+
 	const TreeServer::ChildServers& children = Current->GetChildren();
 	for (TreeServer::ChildServers::const_iterator i = children.begin(); i != children.end(); ++i)
 	{
@@ -144,7 +153,6 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
 		if (recursive_server != s)
 		{
 			this->WriteLine(CommandServer::Builder(recursive_server));
-			this->WriteLine(":" + recursive_server->GetID() + " VERSION :" + recursive_server->GetVersion());
 			/* down to next level */
 			this->SendServers(recursive_server, s);
 		}
@@ -159,25 +167,21 @@ void TreeSocket::SendServers(TreeServer* Current, TreeServer* s)
  */
 void TreeSocket::SendFJoins(Channel* c)
 {
-	std::string line(":");
-	line.append(ServerInstance->Config->GetSID()).append(" FJOIN ").append(c->name).append(1, ' ').append(ConvToStr(c->age)).append(" +");
-	std::string::size_type erase_from = line.length();
-	line.append(c->ChanModes(true)).append(" :");
+	CommandFJoin::Builder fjoin(c);
 
-	const UserMembList *ulist = c->GetUsers();
-
-	for (UserMembCIter i = ulist->begin(); i != ulist->end(); ++i)
+	const Channel::MemberMap& ulist = c->GetUsers();
+	for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
 	{
-		const std::string& modestr = i->second->modes;
-		if ((line.length() + modestr.length() + UIDGenerator::UUID_LENGTH + 2) > 480)
+		Membership* memb = i->second;
+		if (!fjoin.has_room(memb))
 		{
-			this->WriteLine(line);
-			line.erase(erase_from);
-			line.append(" :");
+			// No room for this user, send the line and prepare a new one
+			this->WriteLine(fjoin.finalize());
+			fjoin.clear();
 		}
-		line.append(modestr).append(1, ',').append(i->first->uuid).push_back(' ');
+		fjoin.add(memb);
 	}
-	this->WriteLine(line);
+	this->WriteLine(fjoin.finalize());
 }
 
 /** Send all XLines we know about */

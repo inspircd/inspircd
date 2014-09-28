@@ -27,14 +27,14 @@ CmdResult CommandAway::HandleRemote(RemoteUser* u, std::vector<std::string>& par
 {
 	if (params.size())
 	{
-		FOREACH_MOD(OnSetAway, (u, params[params.size() - 1]));
+		FOREACH_MOD(OnSetAway, (u, params.back()));
 
 		if (params.size() > 1)
 			u->awaytime = ConvToInt(params[0]);
 		else
 			u->awaytime = ServerInstance->Time();
 
-		u->awaymsg = params[params.size() - 1];
+		u->awaymsg = params.back();
 	}
 	else
 	{
