@@ -69,17 +69,21 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 			if(it == str.end()) return 0;         //Prevent invalid header from iterating too far.
 			bytes++;
 			sets[6-i] = std::bitset<8>(*it);
-
+			if (sets[6-i].none()) { return 0; } // If the byte doesn't even have the header continuation bit, it is invalid
 			//Remove the UTF header of the first byte
 			ltr[i] = 0;
 
 		}
 		it--;        //Set the iterator back so that the loop increments into right position;
 		ltr[7] = 0;         //Remove the initial header bit
+
 		/*
 		   Here we do a basic check to ensure that the encoding is valid
 		   and a client isn't sending garbage data.
 		 */
+
+		if(ltr.none()) { return 0; } //Either the client tried to send a null byte or an overlong
+
 		for(int i=0; i<3; i++)
 		{
 			//If an empty bitset is encountered, we can skip checking the rest
@@ -111,6 +115,10 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 		//If it didn't, the below shift will compensate, moving them into
 		//proper position
 		unsigned long utf32 = (l1+l2+l3+l4) >> ((bytes* -6)+30);
+
+		if(utf32 > 0x10FFFF) { return 0; } //Decoded to greater than the maximum value in the UTF8 spec
+
+
 		return utf32;
 	}
 
@@ -118,7 +126,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 	{
 		for(std::vector<Range>::iterator it = ranges.begin(); it != ranges.end(); ++it)
 		{
-			if(utf32 < (*it).max && utf32 > (*it).min)
+			if(utf32 < (*it).max && utf32 > (*it).min && utf32 != 0)
 				return true;
 		}
 		return false;
