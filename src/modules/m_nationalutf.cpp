@@ -46,9 +46,6 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 		 */
 		std::bitset<8> ltr = *it;
 		std::bitset<8> sets[3];
-
-		//Blank out the newly created bitsets
-		for(int i=0; i<3; i++) sets[i].reset();
 		/*
 		 * As per the UTF spec, the number of initial true bits
 		 * determines the number of following bytes.
@@ -60,8 +57,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 
 		//MSB is 7, but we've already handled that in ltr, so start at 6
 		//Only a maximum of 4 bits can be set, including the initial
-		//Won't accidentally iterate past the
-		int bytes = 0;
+		int bytes = 1; //Already got a header byte
 		for(int i=6; ltr[i]!=0 && i>3; i--)
 		{
 			//For true bit in the UTF header, we grab an extra byte.
@@ -74,7 +70,6 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 			ltr[i] = 0;
 
 		}
-		it--;        //Set the iterator back so that the loop increments into right position;
 		ltr[7] = 0;         //Remove the initial header bit
 
 		/*
@@ -110,11 +105,12 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 		unsigned long l2 = sets[0].to_ulong() << (16+2);
 		unsigned long l3 = sets[1].to_ulong() << (8+4);
 		unsigned long l4 = sets[2].to_ulong() << (6);
+		unsigned long total = l1+l2+l3+l4;
 
 		//The above operation assumes that the UTF8 encoding used four bytes
 		//If it didn't, the below shift will compensate, moving them into
 		//proper position
-		unsigned long utf32 = (l1+l2+l3+l4) >> ((bytes* -6)+30);
+		unsigned long utf32 = total >> ((bytes * -6)+30);
 
 		if(utf32 > 0x10FFFF) { return 0; } //Decoded to greater than the maximum value in the UTF8 spec
 
@@ -126,7 +122,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 	{
 		for(std::vector<Range>::iterator it = ranges.begin(); it != ranges.end(); ++it)
 		{
-			if(utf32 < (*it).max && utf32 > (*it).min && utf32 != 0)
+			if(utf32 <= (*it).max && utf32 >= (*it).min && utf32 != 0)
 				return true;
 		}
 		return false;
