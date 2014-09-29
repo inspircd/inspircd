@@ -33,7 +33,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 	std::vector<Range> ranges;
 
 	//Returns the next character in UTF32 encoding and advances the iterator
-	//past it
+	//past it. Returns 0 on failure
 	unsigned long utf8to32(std::string str,std::string::const_iterator& it)
 	{
 
@@ -114,7 +114,6 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 
 		if(utf32 > 0x10FFFF) { return 0; } //Decoded to greater than the maximum value in the UTF8 spec
 
-
 		return utf32;
 	}
 
@@ -125,6 +124,7 @@ class ModuleNationalUTF : public Module,public HandlerBase1<bool, const std::str
 			if(utf32 <= (*it).max && utf32 >= (*it).min && utf32 != 0)
 				return true;
 		}
+		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Invalid UTF char: " + ConvToStr(utf32));
 		return false;
 	}
 
@@ -136,8 +136,10 @@ public:
 	//Check if Nick is valid using the current codepage
 	bool Call(const std::string& nick)
 	{
+		size_t length = 0;
 		for(std::string::const_iterator it = nick.begin(); it != nick.end(); ++it)
 		{
+			length++;
 			//Check if character in normal range
 			if ((*it >= 'A') && (*it <= '}'))
 				continue;
@@ -146,12 +148,19 @@ public:
 			if ((((*it >= '0') && (*it <= '9')) || (*it == '-')) && (it != nick.begin()))
 				continue;
 
+			//Aborts if the character is within the standard ASCII range, avoids pointless UTF logic
+			if ((unsigned char)*it < 128) 
+				return false;
+
 			unsigned long utf32 = utf8to32(nick,it);
 			if(isValidUTFChar(utf32))
 				continue;
 
 			return false; //Uncaught character, not valid
 		}
+		if(length > ServerInstance->Config->Limits.NickMax)
+			return false;
+
 		return true;
 	}
 

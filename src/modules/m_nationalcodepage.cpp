@@ -34,6 +34,9 @@ public:
 	//Check if Nick is valid using the current codepage
 	bool Call(const std::string& nick)
 	{
+		if(nick.length() > ServerInstance->Config->Limits.NickMax)
+			return false;
+
 		for(std::string::const_iterator it = nick.begin(); it != nick.end(); ++it)
 		{
 			//Check if character in normal range
