@@ -1160,10 +1160,10 @@
 # The <utfrange> tag has two forms:
 #
 # 		value - the UTF character to allow, specified as a decimal codepoint
-# 	<utfrange value="8364"> # Allows the use of the Euro symbol
+# 	<utfrange value="0x20AC"> # Allows the use of the Euro symbol
 #
 # 		lower & upper - specify the range of UTF characters allowed as decimal codepoints
-# 	<utfrange lower="1024" upper="1071"> #Allow Cyrillic capital letters 
+# 	<utfrange lower="0x400" upper="0x42F"> #Allow Cyrillic capital letters	
 #
 # 	At present the module does not support casemapping. Lower and uppercase letters
 # 	will be treated separately in nicks.
