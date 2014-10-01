@@ -54,7 +54,10 @@ INSTMODE_BIN = 0750
 INSTMODE_LIB = 0640
 
 @IFNEQ $(COMPILER) ICC
-  CORECXXFLAGS += -pedantic -Woverloaded-virtual -Wshadow -Wformat=2 -Wmissing-format-attribute
+  CORECXXFLAGS += -Woverloaded-virtual -Wshadow
+@IFNEQ $(SYSTEM) openbsd
+    CORECXXFLAGS += -pedantic -Wformat=2 -Wmissing-format-attribute
+@ENDIF
 @ENDIF
 
 @IFNEQ $(SYSTEM)-$(COMPILER) darwin-GCC
