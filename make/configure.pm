@@ -30,20 +30,27 @@ package make::configure;
 use strict;
 use warnings FATAL => qw(all);
 
-use Cwd 'getcwd';
-use Exporter 'import';
-use File::Basename 'basename';
+use Cwd            qw(getcwd);
+use Exporter       qw(import);
+use File::Basename qw(basename);
 
 use make::console;
 use make::utilities;
 
-our @EXPORT = qw(cmd_clean cmd_help cmd_update
-                 read_configure_cache write_configure_cache
-                 get_compiler_info find_compiler
-                 run_test test_file test_header
-                 dump_hash get_property parse_templates);
+our @EXPORT = qw(cmd_clean
+                 cmd_help
+                 cmd_update
+                 read_configure_cache
+                 write_configure_cache
+                 get_compiler_info
+                 find_compiler
+                 run_test
+                 test_file
+                 test_header
+                 get_property
+                 parse_templates);
 
-sub __get_socketengines() {
+sub __get_socketengines {
 	my @socketengines;
 	foreach (<src/socketengines/socketengine_*.cpp>) {
 		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
@@ -59,7 +66,7 @@ sub __get_template_settings($$) {
 	# These are actually hash references
 	my ($config, $compiler) = @_;
 
-	# Start off by populating with the config
+	# Start off by populating with the config
 	my %settings = %$config;
 
 	# Compiler information
@@ -112,11 +119,11 @@ PATH OPTIONS
                                 [$PWD/run/data]
   --log-dir=[dir]               The location where the log files are stored.
                                 [$PWD/run/logs]
+  --manual-dir=[dir]            The location where the manual files are stored.
+                                [$PWD/run/manuals]
   --module-dir=[dir]            The location where the loadable modules are
                                 stored.
                                 [$PWD/run/modules]
-  --build-dir=[dir]             The location to store files in while building.
-
 
 EXTRA MODULE OPTIONS
 
@@ -130,10 +137,11 @@ MISC OPTIONS
   --clean                       Remove the configuration cache file and start
                                 the interactive configuration wizard.
   --disable-interactive         Disables the interactive configuration wizard.
+  --gid=[id|name]               Sets the group to run InspIRCd as.
   --help                        Show this message and exit.
-  --uid=[name]                  Sets the user to run InspIRCd as.
   --socketengine=[name]         Sets the socket engine to be used. Possible
                                 values are $SELIST.
+  --uid=[id|name]               Sets the user to run InspIRCd as.
   --update                      Updates the build environment.
 
 
@@ -173,14 +181,14 @@ sub read_configure_cache {
 }
 
 sub write_configure_cache(%) {
+	print_format "Writing <|GREEN .config.cache|> ...\n";
 	my %cfg = @_;
-	open(CACHE, ">.config.cache") or return 0;
+	open(CACHE, '>.config.cache') or print_error "unable to write .config.cache: $!";
 	while (my ($key, $value) = each %cfg) {
 		$value = "" unless defined $value;
 		print CACHE "$key=\"$value\"\n";
 	}
 	close(CACHE);
-	return 1;
 }
 
 sub get_compiler_info($) {
@@ -226,8 +234,8 @@ sub find_compiler {
 
 sub run_test($$) {
 	my ($what, $result) = @_;
-	print "Checking whether $what is available... ";
-	print $result ? "yes\n" : "no\n";
+	print_format "Checking whether <|GREEN $what|> is available ... ";
+	print_format $result ? "<|GREEN yes|>\n" : "<|RED no|>\n";
 	return $result;
 }
 
@@ -265,19 +273,6 @@ sub get_property($$;$)
 	return defined $default ? $default : '';
 }
 
-sub dump_hash() {
-	print "\n\e[1;32mPre-build configuration is complete!\e[0m\n\n";
-	print "\e[0mBase install path:\e[1;32m\t\t$main::config{BASE_DIR}\e[0m\n";
-	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
-	print "\e[0mData path:\e[1;32m\t\t\t$main::config{DATA_DIR}\e[0m\n";
-	print "\e[0mLog path:\e[1;32m\t\t\t$main::config{LOG_DIR}\e[0m\n";
-	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
-	print "\e[0mCompiler:\e[1;32m\t\t\t$main::cxx{NAME} $main::cxx{VERSION}\e[0m\n";
-	print "\e[0mSocket engine:\e[1;32m\t\t\t$main::config{SOCKETENGINE}\e[0m\n";
-	print "\e[0mGnuTLS support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
-	print "\e[0mOpenSSL support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n";
-}
-
 sub parse_templates($$) {
 
 	# These are actually hash references
@@ -300,7 +295,7 @@ sub parse_templates($$) {
 			while ($line =~ /(@(\w+?)@)/) {
 				my ($variable, $name) = ($1, $2);
 				if (defined $settings{$name}) {
-					$line =~ s/$variable/$settings{$name}/;
+					$line =~ s/\Q$variable\E/$settings{$name}/;
 				} else {
 					print_warning "unknown template variable '$name' in $_!";
 					last;
