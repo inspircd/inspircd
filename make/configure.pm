@@ -66,10 +66,10 @@ sub __get_socketengines {
 
 # TODO: when buildtool is done this can be mostly removed with
 #       the remainder being merged into parse_templates.
-sub __get_template_settings($$) {
+sub __get_template_settings($$$) {
 
 	# These are actually hash references
-	my ($config, $compiler) = @_;
+	my ($config, $compiler, $version) = @_;
 
 	# Start off by populating with the config
 	my %settings = %$config;
@@ -80,8 +80,7 @@ sub __get_template_settings($$) {
 	}
 
 	# Version information
-	my %version = get_version();
-	while (my ($key, $value) = each %version) {
+	while (my ($key, $value) = each %{$version}) {
 		$settings{'VERSION_' . $key} = $value;
 	}
 
@@ -143,6 +142,8 @@ MISC OPTIONS
   --clean                       Remove the configuration cache file and start
                                 the interactive configuration wizard.
   --disable-interactive         Disables the interactive configuration wizard.
+  --distribution-label=[text]   Sets a distribution specific version label in
+                                the build configuration.
   --gid=[id|name]               Sets the group to run InspIRCd as.
   --help                        Show this message and exit.
   --socketengine=[name]         Sets the socket engine to be used. Possible
@@ -169,7 +170,8 @@ sub cmd_update {
 	print "Updating...\n";
 	my %config = read_configure_cache();
 	my %compiler = get_compiler_info($config{CXX});
-	parse_templates(\%config, \%compiler);
+	my %version = get_version();
+	parse_templates(\%config, \%compiler, \%version);
 	print "Update complete!\n";
 	exit 0;
 }
@@ -263,13 +265,13 @@ sub get_property($$;$)
 	return defined $default ? $default : '';
 }
 
-sub parse_templates($$) {
+sub parse_templates($$$) {
 
 	# These are actually hash references
-	my ($config, $compiler) = @_;
+	my ($config, $compiler, $version) = @_;
 
 	# Collect settings to be used when generating files
-	my %settings = __get_template_settings($config, $compiler);
+	my %settings = __get_template_settings($config, $compiler, $version);
 
 	# Iterate through files in make/template.
 	foreach (<make/template/*>) {

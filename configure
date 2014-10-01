@@ -47,6 +47,7 @@ my ($opt_binary_dir,
     $opt_config_dir,
     $opt_data_dir,
     $opt_disable_interactive,
+    $opt_distribution_label,
     $opt_gid,
     $opt_log_dir,
     $opt_manual_dir,
@@ -70,18 +71,19 @@ GetOptions(
 	'help'	 => \&cmd_help,
 	'update' => \&cmd_update,
 
-	'disable-interactive' => \$opt_disable_interactive,
-	'binary-dir=s'        => \$opt_binary_dir,
-	'config-dir=s'        => \$opt_config_dir,
-	'data-dir=s'          => \$opt_data_dir,
-	'gid=s'               => \$opt_gid,
-	'log-dir=s'           => \$opt_log_dir,
-	'manual-dir=s'        => \$opt_manual_dir,
-	'module-dir=s'        => \$opt_module_dir,
-	'prefix=s'            => \$opt_prefix,
-	'socketengine=s'      => \$opt_socketengine,
-	'system'              => \$opt_system,
-	'uid=s'               => \$opt_uid,
+	'disable-interactive'  => \$opt_disable_interactive,
+	'distribution-label=s' => \$opt_distribution_label,
+	'binary-dir=s'         => \$opt_binary_dir,
+	'config-dir=s'         => \$opt_config_dir,
+	'data-dir=s'           => \$opt_data_dir,
+	'gid=s'                => \$opt_gid,
+	'log-dir=s'            => \$opt_log_dir,
+	'manual-dir=s'         => \$opt_manual_dir,
+	'module-dir=s'         => \$opt_module_dir,
+	'prefix=s'             => \$opt_prefix,
+	'socketengine=s'       => \$opt_socketengine,
+	'system'               => \$opt_system,
+	'uid=s'                => \$opt_uid,
 
 	# TODO: when the modulemanager rewrite is done these should be removed.
 	'disable-extras=s@' => \@opt_disableextras,
@@ -106,6 +108,7 @@ our $interactive = !(
 	defined $opt_config_dir ||
 	defined $opt_data_dir ||
 	defined $opt_disable_interactive ||
+	defined $opt_distribution_label ||
 	defined $opt_gid ||
 	defined $opt_log_dir ||
 	defined $opt_manual_dir ||
@@ -176,6 +179,12 @@ if (defined $opt_socketengine) {
 		print "\n";	
 		exit 1;
 	}
+}
+
+# If the user has specified a distribution label then we use it in
+# place of the label from src/version.sh or Git.
+if (defined $opt_distribution_label) {
+	$version{LABEL} = $opt_distribution_label;
 }
 
 if (defined $opt_system) {
@@ -292,7 +301,7 @@ if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, 'Would you like to ge
 }
 
 write_configure_cache %config if $interactive;
-parse_templates \%config, \%compiler;
+parse_templates \%config, \%compiler, \%version;
 
 print_format <<"EOM";
 
