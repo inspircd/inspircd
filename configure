@@ -39,9 +39,9 @@ use File::Spec::Functions qw(rel2abs);
 use Getopt::Long          qw(GetOptions);
 use POSIX                 qw(getgid getuid);
 
+use make::common;
 use make::configure;
 use make::console;
-use make::utilities;
 
 my ($opt_binary_dir,
     $opt_config_dir,

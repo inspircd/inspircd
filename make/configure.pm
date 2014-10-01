@@ -34,6 +34,7 @@ use Cwd            qw(getcwd);
 use Exporter       qw(import);
 use File::Basename qw(basename);
 
+use make::common;
 use make::console;
 use make::utilities;
 
