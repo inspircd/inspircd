@@ -37,7 +37,12 @@ use File::Basename qw(basename);
 use make::console;
 use make::utilities;
 
-our @EXPORT = qw(cmd_clean
+use constant CONFIGURE_CACHE_FILE    => '.configure.cache';
+use constant CONFIGURE_CACHE_VERSION => '1';
+
+our @EXPORT = qw(CONFIGURE_CACHE_FILE
+                 CONFIGURE_CACHE_VERSION
+                 cmd_clean
                  cmd_help
                  cmd_update
                  read_configure_cache
@@ -81,6 +86,7 @@ sub __get_template_settings($$) {
 	}
 
 	# Miscellaneous information
+	$settings{CONFIGURE_CACHE_FILE} = CONFIGURE_CACHE_FILE;
 	$settings{SYSTEM_NAME} = lc $^O;
 	chomp($settings{SYSTEM_NAME_VERSION} = `uname -sr 2>/dev/null`);
 
@@ -88,7 +94,7 @@ sub __get_template_settings($$) {
 }
 
 sub cmd_clean {
-	unlink '.config.cache';
+	unlink CONFIGURE_CACHE_FILE;
 }
 
 sub cmd_help {
@@ -159,7 +165,7 @@ EOH
 }
 
 sub cmd_update {
-	print_error "You have not run $0 before. Please do this before trying to update the generated files." unless -f '.config.cache';
+	print_error "You have not run $0 before. Please do this before trying to update the generated files." unless -f CONFIGURE_CACHE_FILE;
 	print "Updating...\n";
 	my %config = read_configure_cache();
 	my %compiler = get_compiler_info($config{CXX});
@@ -169,23 +175,23 @@ sub cmd_update {
 }
 
 sub read_configure_cache {
-	my %cfg = ();
-	open(CACHE, '.config.cache') or return %cfg;
+	my %config;
+	open(CACHE, CONFIGURE_CACHE_FILE) or return %config;
 	while (my $line = <CACHE>) {
 		next if $line =~ /^\s*($|\#)/;
 		my ($key, $value) = ($line =~ /^(\S+)="(.*)"$/);
-		$cfg{$key} = $value;
+		$config{$key} = $value;
 	}
 	close(CACHE);
-	return %cfg;
+	return %config;
 }
 
 sub write_configure_cache(%) {
-	print_format "Writing <|GREEN .config.cache|> ...\n";
-	my %cfg = @_;
-	open(CACHE, '>.config.cache') or print_error "unable to write .config.cache: $!";
-	while (my ($key, $value) = each %cfg) {
-		$value = "" unless defined $value;
+	print_format "Writing <|GREEN ${\CONFIGURE_CACHE_FILE}|> ...\n";
+	my %config = @_;
+	open(CACHE, '>', CONFIGURE_CACHE_FILE) or print_error "unable to write ${\CONFIGURE_CACHE_FILE}: $!";
+	while (my ($key, $value) = each %config) {
+		$value = '' unless defined $value;
 		print CACHE "$key=\"$value\"\n";
 	}
 	close(CACHE);

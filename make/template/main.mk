@@ -261,7 +261,10 @@ install: target
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
 
-GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure .config.cache
+@TARGET BSD_MAKE CONFIGURE_CACHE_FILE = @CONFIGURE_CACHE_FILE@
+@TARGET GNU_MAKE CONFIGURE_CACHE_FILE = $(wildcard @CONFIGURE_CACHE_FILE@)
+
+GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure $(CONFIGURE_CACHE_FILE)
 	./configure -update
 @TARGET BSD_MAKE .MAKEFILEDEPS: BSDmakefile
 
@@ -284,7 +287,6 @@ deinstall:
 	-rm -f $(BASE)/org.inspircd.plist
 
 configureclean:
-	rm -f .config.cache
 	rm -f BSDmakefile
 	rm -f GNUmakefile
 	rm -f include/config.h
@@ -293,6 +295,7 @@ configureclean:
 	rm -f inspircd-genssl.1
 	-rm -f inspircd.service
 	-rm -f org.inspircd.plist
+	-rm -f @CONFIGURE_CACHE_FILE@
 
 distclean: clean configureclean
 	-rm -rf $(SOURCEPATH)/run

@@ -2,9 +2,9 @@
 *.pem
 *.swp
 
-/.config.cache
-/.gdbargs
-/.modulemanager
+.*
+!.git*
+
 /BSDmakefile
 /GNUmakefile
 /build
