@@ -45,13 +45,13 @@ our @EXPORT = qw(CONFIGURE_CACHE_FILE
                  cmd_clean
                  cmd_help
                  cmd_update
+                 run_test
+                 test_file
+                 test_header
                  read_configure_cache
                  write_configure_cache
                  get_compiler_info
                  find_compiler
-                 run_test
-                 test_file
-                 test_header
                  get_property
                  parse_templates);
 
@@ -174,6 +174,32 @@ sub cmd_update {
 	exit 0;
 }
 
+sub run_test($$) {
+	my ($what, $result) = @_;
+	print_format "Checking whether <|GREEN $what|> is available ... ";
+	print_format $result ? "<|GREEN yes|>\n" : "<|RED no|>\n";
+	return $result;
+}
+
+sub test_file($$;$) {
+	my ($compiler, $file, $args) = @_;
+	my $status = 0;
+	$args ||= '';
+	$status ||= system "$compiler -o __test_$file make/test/$file $args >/dev/null 2>&1";
+	$status ||= system "./__test_$file >/dev/null 2>&1";
+	unlink "./__test_$file";
+	return !$status;
+}
+
+sub test_header($$;$) {
+	my ($compiler, $header, $args) = @_;
+	$args ||= '';
+	open(COMPILER, "| $compiler -E - $args >/dev/null 2>&1") or return 0;
+	print COMPILER "#include <$header>";
+	close(COMPILER);
+	return !$?;
+}
+
 sub read_configure_cache {
 	my %config;
 	open(CACHE, CONFIGURE_CACHE_FILE) or return %config;
@@ -200,68 +226,26 @@ sub write_configure_cache(%) {
 sub get_compiler_info($) {
 	my $binary = shift;
 	my $version = `$binary -v 2>&1`;
-	if ($version =~ /(?:clang|llvm)\sversion\s(\d+\.\d+)/i) {
-		return (
-			NAME => 'Clang',
-			VERSION => $1,
-			UNSUPPORTED => $1 lt '3.0',
-			REASON => 'Clang 2.9 and older do not have adequate C++ support.'
-		);
+	if ($version =~ /clang\sversion\s(\d+\.\d+)/i || $version =~ /^apple.+\(based\son\sllvm\s(\d+\.\d+)/i) {
+		# Apple version their LLVM releases slightly differently to the mainline LLVM.
+		# See https://trac.macports.org/wiki/XcodeVersionInfo for more information.
+		return (NAME => 'Clang', VERSION => $1);
 	} elsif ($version =~ /gcc\sversion\s(\d+\.\d+)/i) {
-		return (
-			NAME => 'GCC',
-			VERSION => $1,
-			UNSUPPORTED => $1 lt '4.1',
-			REASON => 'GCC 4.0 and older do not have adequate C++ support.'
-		);
+		return (NAME => 'GCC', VERSION => $1);
 	} elsif ($version =~ /(?:icc|icpc)\sversion\s(\d+\.\d+).\d+\s\(gcc\sversion\s(\d+\.\d+).\d+/i) {
-		return (
-			NAME => 'ICC',
-			VERSION => $1,
-			UNSUPPORTED => $2 lt '4.1',
-			REASON => "ICC $1 (GCC $2 compatibility mode) does not have adequate C++ support."
-		);
+		return (NAME => 'ICC', VERSION => $1);
 	}
-	return (
-		NAME => $binary,
-		VERSION => '0.0'
-	);
+	return (NAME => $binary, VERSION => '0.0');
 }
 
 sub find_compiler {
-	foreach my $compiler ('c++', 'g++', 'clang++', 'icpc') {
-		return $compiler unless system "$compiler -v > /dev/null 2>&1";
-		if ($^O eq 'Darwin') {
-			return $compiler unless system "xcrun $compiler -v > /dev/null 2>&1";
+	my @compilers = qw(c++ g++ clang++ icpc);
+	foreach my $compiler (shift || @compilers) {
+		return $compiler if run_test "`$compiler`", test_file $compiler, 'compiler.cpp';
+		if ($^O eq 'darwin') {
+			return $compiler if run_test "`xcrun $compiler`", test_file "xcrun $compiler", 'compiler.cpp';
 		}
 	}
-	return "";
-}
-
-sub run_test($$) {
-	my ($what, $result) = @_;
-	print_format "Checking whether <|GREEN $what|> is available ... ";
-	print_format $result ? "<|GREEN yes|>\n" : "<|RED no|>\n";
-	return $result;
-}
-
-sub test_file($$;$) {
-	my ($cc, $file, $args) = @_;
-	my $status = 0;
-	$args ||= '';
-	$status ||= system "$cc -o __test_$file make/test/$file $args >/dev/null 2>&1";
-	$status ||= system "./__test_$file >/dev/null 2>&1";
-	unlink  "./__test_$file";
-	return !$status;
-}
-
-sub test_header($$;$) {
-	my ($cc, $header, $args) = @_;
-	$args ||= '';
-	open(CC, "| $cc -E - $args >/dev/null 2>&1") or return 0;
-	print CC "#include <$header>";
-	close(CC);
-	return !$?;
 }
 
 sub get_property($$;$)

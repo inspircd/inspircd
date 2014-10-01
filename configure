@@ -131,19 +131,13 @@ if ($interactive) {
 	}
 }
 
-$config{CXX} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
-if ($config{CXX} eq "") {
-	print "A C++ compiler could not be detected on your system!\n";
-	print "Set the CXX environment variable to the full path if this is incorrect.\n";
+$config{CXX} = find_compiler($config{CXX} || $ENV{CXX});
+unless ($config{CXX}) {
+	print "A suitable C++ compiler could not be detected on your system!\n";
+	print "Set the CXX environment variable to the compiler binary path if this is incorrect.\n";
 	exit 1;	
 }
-
 my %compiler = get_compiler_info($config{CXX});
-if ($compiler{UNSUPPORTED}) {
-	print "Your C++ compiler is too old to build InspIRCd!\n";
-	print "Reason: $compiler{REASON}\n";
-	exit 1;
-}
 
 $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', '-lrt');
 $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
