@@ -35,6 +35,7 @@ use File::Temp();
 
 sub prompt($$) {
 	my ($question, $default) = @_;
+	return prompt_string(1, $question, $default) if eval 'use make::console; 1';
 	print "$question\n";
 	print "[$default] => ";
 	chomp(my $answer = <STDIN>);

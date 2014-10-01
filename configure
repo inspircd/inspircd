@@ -39,6 +39,7 @@ use Cwd;
 use Getopt::Long;
 
 use make::configure;
+use make::console;
 use make::utilities;
 
 our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_socketengine,
@@ -277,8 +278,8 @@ STOP
 
 	# Check that the user actually wants this version.
 	if ($version{LABEL} ne 'release') {
-		print <<"EOW" ;
-\e[1;31mWARNING!\e[0m You are building a development version. This contains code which has
+		print_warning <<'EOW';
+You are building a development version. This contains code which has
 not been tested as heavily and may contain various faults which could seriously
 affect the running of your server. It is recommended that you use a stable
 version instead.

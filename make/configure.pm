@@ -34,6 +34,7 @@ use Cwd 'getcwd';
 use Exporter 'import';
 use File::Basename 'basename';
 
+use make::console;
 use make::utilities;
 
 our @EXPORT = qw(cmd_clean cmd_help cmd_update
@@ -150,10 +151,7 @@ EOH
 }
 
 sub cmd_update {
-	unless (-f '.config.cache') {
-		print "You have not run $0 before. Please do this before trying to update the build files.\n";
-		exit 1;
-	}
+	print_error "You have not run $0 before. Please do this before trying to update the generated files." unless -f '.config.cache';
 	print "Updating...\n";
 	my %config = read_configure_cache();
 	my %compiler = get_compiler_info($config{CXX});
@@ -290,8 +288,8 @@ sub parse_templates($$) {
 
 	# Iterate through files in make/template.
 	foreach (<make/template/*>) {
-		print "Parsing $_...\n";
-		open(TEMPLATE, $_);
+		print_format "Parsing <|GREEN $_|> ...\n";
+		open(TEMPLATE, $_) or print_error "unable to read $_: $!";
 		my (@lines, $mode, @platforms, %targets);
 
 		# First pass: parse template variables and directives.
@@ -304,7 +302,7 @@ sub parse_templates($$) {
 				if (defined $settings{$name}) {
 					$line =~ s/$variable/$settings{$name}/;
 				} else {
-					print STDERR "Warning: unknown template variable '$name' in $_!\n";
+					print_warning "unknown template variable '$name' in $_!";
 					last;
 				}
 			}
@@ -328,7 +326,7 @@ sub parse_templates($$) {
 						$targets{DEFAULT} = $2;
 					}
 				} else {
-					print STDERR "Warning: unknown template command '$1' in $_!\n";
+					print_warning "unknown template command '$1' in $_!";
 					push @lines, $line;
 				}
 				next;
@@ -413,7 +411,7 @@ sub parse_templates($$) {
 							# HACK: silently ignore if lower case as these are probably make commands.
 							push @final_lines, $line;
 						} else {
-							print STDERR "Warning: unknown template command '$1' in $_!\n";
+							print_warning "unknown template command '$1' in $_!";
 							push @final_lines, $line;
 						}
 						next;
@@ -423,8 +421,8 @@ sub parse_templates($$) {
 				}
 
 				# Write the template file.
-				print "Writing $target...\n";
-				open(TARGET, ">$target");
+				print_format "Writing <|GREEN $target|> ...\n";
+				open(TARGET, '>', $target) or print_error "unable to write $_: $!";
 				foreach (@final_lines) {
 					print TARGET $_, "\n";
 				}
