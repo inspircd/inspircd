@@ -281,8 +281,6 @@ class ModuleSSLGnuTLS : public Module
 
 		ServerInstance->GenRandom = &randhandler;
 
-		// Void return, guess we assume success
-		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 		Implementation eventlist[] = { I_On005Numeric, I_OnRehash, I_OnModuleRehash, I_OnUserConnect,
 			I_OnEvent, I_OnHookIO };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
@@ -487,6 +485,8 @@ class ModuleSSLGnuTLS : public Module
 		{
 			GenerateDHParams();
 		}
+
+		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	}
 
 	void GenerateDHParams()
