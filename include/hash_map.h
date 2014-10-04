@@ -29,12 +29,16 @@
 	 * TODO: in 2.2 if we drop support for libstdc++ older than 3.4.7 and GCC older
 	 *       than 4.1 this can be cleaned up massively.
 	 */
-	#ifndef _WIN32
-		#if __GLIBCXX__ > 20060309
+	#if !defined _LIBCPP_VERSION && !defined _WIN32
+		#if !defined __GLIBCXX__ || __GLIBCXX__ > 20060309
 			// GCC4+ has deprecated hash_map and uses tr1. But of course, uses a different include to MSVC. FOR FUCKS SAKE.
 			#include <tr1/unordered_map>
 			#define HAS_TR1_UNORDERED
 			#define HASHMAP_DEPRECATED
+			#define hash_map unordered_map
+			#define nspace std::tr1
+			#define BEGIN_HASHMAP_NAMESPACE namespace std { namespace tr1 {
+			#define END_HASHMAP_NAMESPACE } }
 		#else
 			#include <ext/hash_map>
 			/** Oddball linux namespace for hash_map */
@@ -46,14 +50,10 @@
 		#include <unordered_map>
 		#define HAS_TR1_UNORDERED
 		#define HASHMAP_DEPRECATED
-	#endif
-
-	// tr1: restoring sanity to our headers. now if only compiler vendors could agree on a FUCKING INCLUDE FILE.
-	#ifdef HAS_TR1_UNORDERED
 		#define hash_map unordered_map
-		#define nspace std::tr1
-		#define BEGIN_HASHMAP_NAMESPACE namespace std { namespace tr1 {
-		#define END_HASHMAP_NAMESPACE } }
+		#define nspace std
+		#define BEGIN_HASHMAP_NAMESPACE namespace std {
+		#define END_HASHMAP_NAMESPACE }
 	#endif
 
 #endif
