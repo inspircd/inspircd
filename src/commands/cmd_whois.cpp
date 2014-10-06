@@ -76,7 +76,7 @@ CmdResult CommandWhois::Handle (const std::vector<std::string>& parameters, User
 		 */
 		if (IS_LOCAL(dest) && (ServerInstance->Config->HideWhoisServer.empty() || parameters.size() > 1))
 		{
-			idle = abs((long)((dest->idle_lastmsg)-ServerInstance->Time()));
+			idle = labs((long)((dest->idle_lastmsg)-ServerInstance->Time()));
 			signon = dest->signon;
 		}
 
