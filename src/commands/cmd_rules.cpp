@@ -51,7 +51,7 @@ CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
 		return CMD_SUCCESS;
 
-	ConfigTag* tag = NULL;
+	ConfigTag* tag = ServerInstance->Config->EmptyTag;
 	if (IS_LOCAL(user))
 		tag = user->GetClass()->config;
 	std::string rules_name = tag->getString("rules", "rules");

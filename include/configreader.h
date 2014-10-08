@@ -197,6 +197,9 @@ class CoreExport ServerConfig
 
 	ConfigTagList ConfTags(const std::string& tag);
 
+	/** An empty configuration tag. */
+	ConfigTag* EmptyTag;
+
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
 	std::stringstream errstr;
@@ -526,6 +529,8 @@ class CoreExport ServerConfig
 	/** Construct a new ServerConfig
 	 */
 	ServerConfig();
+
+	~ServerConfig();
 
 	/** Get server ID as string with required leading zeroes
 	 */
