@@ -215,6 +215,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (!ciphers.empty())
 		{
+			ERR_clear_error();
 			if ((!SSL_CTX_set_cipher_list(ctx, ciphers.c_str())) || (!SSL_CTX_set_cipher_list(clictx, ciphers.c_str())))
 			{
 				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't set cipher list to %s.", ciphers.c_str());
@@ -225,12 +226,14 @@ class ModuleSSLOpenSSL : public Module
 		/* Load our keys and certificates
 		 * NOTE: OpenSSL's error logging API sucks, don't blame us for this clusterfuck.
 		 */
+		ERR_clear_error();
 		if ((!SSL_CTX_use_certificate_chain_file(ctx, certfile.c_str())) || (!SSL_CTX_use_certificate_chain_file(clictx, certfile.c_str())))
 		{
 			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read certificate file %s. %s", certfile.c_str(), strerror(errno));
 			ERR_print_errors_cb(error_callback, this);
 		}
 
+		ERR_clear_error();
 		if (((!SSL_CTX_use_PrivateKey_file(ctx, keyfile.c_str(), SSL_FILETYPE_PEM))) || (!SSL_CTX_use_PrivateKey_file(clictx, keyfile.c_str(), SSL_FILETYPE_PEM)))
 		{
 			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read key file %s. %s", keyfile.c_str(), strerror(errno));
@@ -238,6 +241,7 @@ class ModuleSSLOpenSSL : public Module
 		}
 
 		/* Load the CAs we trust*/
+		ERR_clear_error();
 		if (((!SSL_CTX_load_verify_locations(ctx, cafile.c_str(), 0))) || (!SSL_CTX_load_verify_locations(clictx, cafile.c_str(), 0)))
 		{
 			ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Can't read CA list from %s. This is only a problem if you want to verify client certificates, otherwise it's safe to ignore this message. Error: %s", cafile.c_str(), strerror(errno));
@@ -264,6 +268,8 @@ class ModuleSSLOpenSSL : public Module
 #else
 			ret = PEM_read_DHparams(dhpfile, NULL, NULL, NULL);
 #endif
+
+			ERR_clear_error();
 			if ((SSL_CTX_set_tmp_dh(ctx, ret) < 0) || (SSL_CTX_set_tmp_dh(clictx, ret) < 0))
 			{
 				ServerInstance->Logs->Log("m_ssl_openssl",DEFAULT, "m_ssl_openssl.so: Couldn't set DH parameters %s. SSL errors follow:", dhfile.c_str());
@@ -426,6 +432,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (session->status == ISSL_OPEN)
 		{
+			ERR_clear_error();
 			char* buffer = ServerInstance->GetReadBuffer();
 			size_t bufsiz = ServerInstance->Config->NetBufferSize;
 			int ret = SSL_read(session->sess, buffer, bufsiz);
@@ -496,6 +503,7 @@ class ModuleSSLOpenSSL : public Module
 
 		if (session->status == ISSL_OPEN)
 		{
+			ERR_clear_error();
 			int ret = SSL_write(session->sess, buffer.data(), buffer.size());
 			if (ret == (int)buffer.length())
 			{
@@ -542,6 +550,7 @@ class ModuleSSLOpenSSL : public Module
 	{
 		int ret;
 
+		ERR_clear_error();
 		if (session->outbound)
 			ret = SSL_connect(session->sess);
 		else
