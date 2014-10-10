@@ -130,6 +130,15 @@ class ModuleSSLOpenSSL : public Module
 
 		const unsigned char session_id[] = "inspircd";
 		SSL_CTX_set_session_id_context(ctx, session_id, sizeof(session_id) - 1);
+
+		long opts = SSL_OP_NO_SSLv2 | SSL_OP_SINGLE_DH_USE;
+		// Only turn options on if they exist
+#ifdef SSL_OP_SINGLE_ECDH_USE
+		opts |= SSL_OP_SINGLE_ECDH_USE;
+#endif
+
+		SSL_CTX_set_options(ctx, opts);
+		SSL_CTX_set_options(clictx, opts);
 	}
 
 	void init()
