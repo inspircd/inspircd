@@ -128,13 +128,16 @@ class ModuleSSLOpenSSL : public Module
 		SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 		SSL_CTX_set_verify(clictx, SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE, OnVerify);
 
-		const unsigned char session_id[] = "inspircd";
-		SSL_CTX_set_session_id_context(ctx, session_id, sizeof(session_id) - 1);
+		SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF);
+		SSL_CTX_set_session_cache_mode(clictx, SSL_SESS_CACHE_OFF);
 
 		long opts = SSL_OP_NO_SSLv2 | SSL_OP_SINGLE_DH_USE;
 		// Only turn options on if they exist
 #ifdef SSL_OP_SINGLE_ECDH_USE
 		opts |= SSL_OP_SINGLE_ECDH_USE;
+#endif
+#ifdef SSL_OP_NO_TICKET
+		opts |= SSL_OP_NO_TICKET;
 #endif
 
 		SSL_CTX_set_options(ctx, opts);
