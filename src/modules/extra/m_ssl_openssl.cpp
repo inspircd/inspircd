@@ -102,10 +102,29 @@ class ModuleSSLOpenSSL : public Module
 	SSL_CTX* ctx;
 	SSL_CTX* clictx;
 
+	long ctx_options;
+	long clictx_options;
+
 	std::string sslports;
 	bool use_sha;
 
 	ServiceProvider iohook;
+
+	static void SetContextOptions(SSL_CTX* ctx, long defoptions, const std::string& ctxname, ConfigTag* tag)
+	{
+		long setoptions = tag->getInt(ctxname + "setoptions");
+		long clearoptions = tag->getInt(ctxname + "clearoptions");
+		ServerInstance->Logs->Log("m_ssl_openssl", DEBUG, "Setting OpenSSL %s context options, default: %ld set: %ld clear: %ld", ctxname.c_str(), defoptions, clearoptions, setoptions);
+
+		// Clear everything
+		SSL_CTX_clear_options(ctx, SSL_CTX_get_options(ctx));
+
+		// Set the default options and what is in the conf
+		SSL_CTX_set_options(ctx, defoptions | setoptions);
+		long final = SSL_CTX_clear_options(ctx, clearoptions);
+		ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "OpenSSL %s context options: %ld", ctxname.c_str(), final);
+	}
+
  public:
 
 	ModuleSSLOpenSSL() : iohook(this, "ssl/openssl", SERVICE_IOHOOK)
@@ -140,8 +159,8 @@ class ModuleSSLOpenSSL : public Module
 		opts |= SSL_OP_NO_TICKET;
 #endif
 
-		SSL_CTX_set_options(ctx, opts);
-		SSL_CTX_set_options(clictx, opts);
+		ctx_options = SSL_CTX_set_options(ctx, opts);
+		clictx_options = SSL_CTX_set_options(clictx, opts);
 	}
 
 	void init()
@@ -222,6 +241,12 @@ class ModuleSSLOpenSSL : public Module
 		if (hash != "sha1" && hash != "md5")
 			throw ModuleException("Unknown hash type " + hash);
 		use_sha = (hash == "sha1");
+
+		if (conf->getBool("customcontextoptions"))
+		{
+			SetContextOptions(ctx, ctx_options, "server", conf);
+			SetContextOptions(clictx, clictx_options, "client", conf);
+		}
 
 		std::string ciphers = conf->getString("ciphers", "");
 
