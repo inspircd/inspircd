@@ -239,6 +239,11 @@ class ModuleNationalChars : public Module
 		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
 
 		ServerInstance->RehashUsersAndChans();
+
+		// The OnGarbageCollect() method in m_watch rebuilds the hashmap used by it
+		Module* mod = ServerInstance->Modules->Find("m_watch.so");
+		if (mod)
+			mod->OnGarbageCollect();
 	}
 
  public:
