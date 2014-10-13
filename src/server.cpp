@@ -46,13 +46,10 @@ void InspIRCd::Exit(int status)
 #ifdef _WIN32
 	SetServiceStopped(status);
 #endif
-	if (this)
-	{
-		this->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
-		this->Cleanup();
-		delete this;
-		ServerInstance = NULL;
-	}
+	this->SendError("Exiting with status " + ConvToStr(status) + " (" + std::string(ExitCodes[status]) + ")");
+	this->Cleanup();
+	delete this;
+	ServerInstance = NULL;
 	exit (status);
 }
 

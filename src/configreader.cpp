@@ -48,6 +48,14 @@ ServerConfig::ServerConfig()
 	OperMaxChans = 30;
 	c_ipv4_range = 32;
 	c_ipv6_range = 128;
+
+	std::vector<KeyVal>* items;
+	EmptyTag = ConfigTag::create("empty", "<auto>", 0, items);
+}
+
+ServerConfig::~ServerConfig()
+{
+	delete EmptyTag;
 }
 
 void ServerConfig::Update005()
@@ -888,7 +896,7 @@ ConfigTag* ServerConfig::ConfValue(const std::string &tag)
 {
 	ConfigTagList found = config_data.equal_range(tag);
 	if (found.first == found.second)
-		return NULL;
+		return EmptyTag;
 	ConfigTag* rv = found.first->second;
 	found.first++;
 	if (found.first != found.second)
