@@ -81,7 +81,7 @@ sub getcompilerflags {
 	my ($file) = @_;
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/$/) {
+		if ($_ =~ /^\/\* \$CompileFlags: (.+) \*\/\r?$/) {
 			my $x = translate_functions($1, $file);
 			next if ($x eq "");
 			close(FLAGS);
@@ -96,7 +96,7 @@ sub getlinkerflags {
 	my ($file) = @_;
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/$/) {
+		if ($_ =~ /^\/\* \$LinkerFlags: (.+) \*\/\r?$/) {
 			my $x = translate_functions($1, $file);
 			next if ($x eq "");
 			close(FLAGS);
@@ -111,7 +111,7 @@ sub getdependencies {
 	my ($file) = @_;
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/$/) {
+		if ($_ =~ /^\/\* \$ModDep: (.+) \*\/\r?$/) {
 			my $x = translate_functions($1, $file);
 			next if ($x eq "");
 			close(FLAGS);
@@ -126,7 +126,7 @@ sub nopedantic {
 	my ($file) = @_;
 	open(FLAGS, $file) or return "";
 	while (<FLAGS>) {
-		if ($_ =~ /^\/\* \$NoPedantic \*\/$/) {
+		if ($_ =~ /^\/\* \$NoPedantic \*\/\r?$/) {
 			my $x = translate_functions($_, $file);
 			next if ($x eq "");
 			close(FLAGS);
