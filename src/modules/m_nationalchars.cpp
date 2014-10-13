@@ -244,6 +244,14 @@ class ModuleNationalChars : public Module
 		Module* mod = ServerInstance->Modules->Find("m_watch.so");
 		if (mod)
 			mod->OnGarbageCollect();
+
+		// Send a Request to m_spanningtree asking it to rebuild its hashmaps
+		mod = ServerInstance->Modules->Find("m_spanningtree.so");
+		if (mod)
+		{
+			Request req(this, mod, "rehash");
+			req.Send();
+		}
 	}
 
  public:
