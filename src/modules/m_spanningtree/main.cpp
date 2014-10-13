@@ -930,6 +930,12 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 	return MOD_RES_PASSTHRU;
 }
 
+void ModuleSpanningTree::OnRequest(Request& request)
+{
+	if (!strcmp(request.id, "rehash"))
+		Utils->Rehash();
+}
+
 void ModuleSpanningTree::ProtoSendMode(void* opaque, TargetTypeFlags target_type, void* target, const parameterlist &modeline, const std::vector<TranslateType> &translate)
 {
 	TreeSocket* s = (TreeSocket*)opaque;

@@ -428,3 +428,16 @@ Link* SpanningTreeUtilities::FindLink(const std::string& name)
 	}
 	return NULL;
 }
+
+void SpanningTreeUtilities::Rehash()
+{
+	server_hash temp;
+	for (server_hash::const_iterator i = serverlist.begin(); i != serverlist.end(); ++i)
+		temp.insert(std::make_pair(i->first, i->second));
+	serverlist.swap(temp);
+	temp.clear();
+
+	for (server_hash::const_iterator i = sidlist.begin(); i != sidlist.end(); ++i)
+		temp.insert(std::make_pair(i->first, i->second));
+	sidlist.swap(temp);
+}

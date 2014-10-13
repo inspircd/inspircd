@@ -173,6 +173,11 @@ class SpanningTreeUtilities : public classbase
 	/** Refresh the IP cache used for allowing inbound connections
 	 */
 	void RefreshIPCache();
+
+	/** Recreate serverlist and sidlist, this is needed because of m_nationalchars changing
+	 * national_case_insensitive_map which is used by the hash function
+	 */
+	void Rehash();
 };
 
 #endif

@@ -178,6 +178,7 @@ class ModuleSpanningTree : public Module
 	void OnLoadModule(Module* mod);
 	void OnUnloadModule(Module* mod);
 	ModResult OnAcceptConnection(int newsock, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server);
+	void OnRequest(Request& request);
 	CullResult cull();
 	~ModuleSpanningTree();
 	Version GetVersion();
