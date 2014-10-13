@@ -228,11 +228,24 @@ class ModuleNationalChars : public Module
 	caller2<bool, const char*, size_t> rememberer;
 	bool forcequit;
 	const unsigned char * lowermap_rememberer;
+	unsigned char prev_map[256];
+
+	void CheckRehash()
+	{
+		// See if anything changed
+		if (!memcmp(prev_map, national_case_insensitive_map, sizeof(prev_map)))
+			return;
+
+		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
+
+		ServerInstance->RehashUsersAndChans();
+	}
 
  public:
 	ModuleNationalChars()
 		: rememberer(ServerInstance->IsNick), lowermap_rememberer(national_case_insensitive_map)
 	{
+		memcpy(prev_map, national_case_insensitive_map, sizeof(prev_map));
 	}
 
 	void init()
@@ -265,6 +278,7 @@ class ModuleNationalChars : public Module
 		loadtables(charset, tables, 8, 5);
 		forcequit = tag->getBool("forcequit");
 		CheckForceQuit("National character set changed");
+		CheckRehash();
 	}
 
 	void CheckForceQuit(const char * message)
@@ -286,6 +300,7 @@ class ModuleNationalChars : public Module
 		ServerInstance->IsNick = rememberer;
 		national_case_insensitive_map = lowermap_rememberer;
 		CheckForceQuit("National characters module unloaded");
+		CheckRehash();
 	}
 
 	virtual Version GetVersion()
