@@ -644,7 +644,7 @@ class ModuleSSLOpenSSL : public Module
 		else if (ret == 0)
 		{
 			CloseSession(session);
-			return true;
+			return false;
 		}
 
 		return true;
