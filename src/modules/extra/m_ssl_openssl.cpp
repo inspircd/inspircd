@@ -113,6 +113,20 @@ class ModuleSSLOpenSSL : public Module
 	static void SetContextOptions(SSL_CTX* ctx, long defoptions, const std::string& ctxname, ConfigTag* tag)
 	{
 		long setoptions = tag->getInt(ctxname + "setoptions");
+		// User-friendly config options for setting context options
+#ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
+		if (tag->getBool("cipherserverpref"))
+			setoptions |= SSL_OP_CIPHER_SERVER_PREFERENCE;
+#endif
+#ifdef SSL_OP_NO_COMPRESSION
+		if (!tag->getBool("compression", true))
+			setoptions |= SSL_OP_NO_COMPRESSION;
+#endif
+		if (!tag->getBool("sslv3", true))
+			setoptions |= SSL_OP_NO_SSLv3;
+		if (!tag->getBool("tlsv1", true))
+			setoptions |= SSL_OP_NO_TLSv1;
+
 		long clearoptions = tag->getInt(ctxname + "clearoptions");
 		ServerInstance->Logs->Log("m_ssl_openssl", DEBUG, "Setting OpenSSL %s context options, default: %ld set: %ld clear: %ld", ctxname.c_str(), defoptions, clearoptions, setoptions);
 
