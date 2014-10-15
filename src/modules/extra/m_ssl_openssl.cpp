@@ -141,6 +141,38 @@ class ModuleSSLOpenSSL : public Module
 		ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "OpenSSL %s context options: %ld", ctxname.c_str(), final);
 	}
 
+#ifdef INSPIRCD_OPENSSL_ENABLE_ECDH
+	void SetupECDH(ConfigTag* tag)
+	{
+		std::string curvename = tag->getString("ecdhcurve", "prime256v1");
+		if (curvename.empty())
+			return;
+
+		int nid = OBJ_sn2nid(curvename.c_str());
+		if (nid == 0)
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Unknown curve: \"%s\"", curvename.c_str());
+			return;
+		}
+
+		EC_KEY* eckey = EC_KEY_new_by_curve_name(nid);
+		if (!eckey)
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Unable to create EC key object");
+			return;
+		}
+
+		ERR_clear_error();
+		if (SSL_CTX_set_tmp_ecdh(ctx, eckey) < 0)
+		{
+			ServerInstance->Logs->Log("m_ssl_openssl", DEFAULT, "m_ssl_openssl.so: Couldn't set ECDH parameters");
+			ERR_print_errors_cb(error_callback, this);
+		}
+
+		EC_KEY_free(eckey);
+	}
+#endif
+
  public:
 
 	ModuleSSLOpenSSL() : iohook(this, "ssl/openssl", SERVICE_IOHOOK)
@@ -333,6 +365,10 @@ class ModuleSSLOpenSSL : public Module
 
 #ifndef _WIN32
 		fclose(dhpfile);
+#endif
+
+#ifdef INSPIRCD_OPENSSL_ENABLE_ECDH
+		SetupECDH(conf);
 #endif
 	}
 
