@@ -128,7 +128,7 @@ class ModuleSSLOpenSSL : public Module
 			setoptions |= SSL_OP_NO_TLSv1;
 
 		long clearoptions = tag->getInt(ctxname + "clearoptions");
-		ServerInstance->Logs->Log("m_ssl_openssl", DEBUG, "Setting OpenSSL %s context options, default: %ld set: %ld clear: %ld", ctxname.c_str(), defoptions, clearoptions, setoptions);
+		ServerInstance->Logs->Log("m_ssl_openssl", DEBUG, "Setting OpenSSL %s context options, default: %ld set: %ld clear: %ld", ctxname.c_str(), defoptions, setoptions, clearoptions);
 
 		// Clear everything
 		SSL_CTX_clear_options(ctx, SSL_CTX_get_options(ctx));
