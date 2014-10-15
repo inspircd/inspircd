@@ -660,7 +660,6 @@ class ModuleSSLOpenSSL : public Module
 
 		session->sess = NULL;
 		session->status = ISSL_NONE;
-		errno = EIO;
 	}
 
 	void VerifyCertificate(issl_session* session, StreamSocket* user)
