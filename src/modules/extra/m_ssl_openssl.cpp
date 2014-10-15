@@ -403,7 +403,6 @@ class ModuleSSLOpenSSL : public Module
 		session->sess = SSL_new(ctx);
 		session->status = ISSL_NONE;
 		session->outbound = false;
-		session->cert = NULL;
 
 		if (session->sess == NULL)
 			return;
@@ -660,6 +659,7 @@ class ModuleSSLOpenSSL : public Module
 
 		session->sess = NULL;
 		session->status = ISSL_NONE;
+		session->cert = NULL;
 	}
 
 	void VerifyCertificate(issl_session* session, StreamSocket* user)
