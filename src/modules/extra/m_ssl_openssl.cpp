@@ -403,6 +403,7 @@ class ModuleSSLOpenSSL : public Module
 		session->sess = SSL_new(ctx);
 		session->status = ISSL_NONE;
 		session->outbound = false;
+		session->data_to_write = false;
 
 		if (session->sess == NULL)
 			return;
@@ -428,6 +429,7 @@ class ModuleSSLOpenSSL : public Module
 		session->sess = SSL_new(clictx);
 		session->status = ISSL_NONE;
 		session->outbound = true;
+		session->data_to_write = false;
 
 		if (session->sess == NULL)
 			return;
