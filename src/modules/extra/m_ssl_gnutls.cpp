@@ -157,7 +157,7 @@ public:
 	reference<ssl_cert> cert;
 	reference<SSLConfig> config;
 
-	issl_session() : socket(NULL), sess(NULL) {}
+	issl_session() : socket(NULL), sess(NULL), status(ISSL_NONE) {}
 };
 
 static SSLConfig* GetSessionConfig(gnutls_session_t sess)

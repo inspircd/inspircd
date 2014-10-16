@@ -75,6 +75,8 @@ public:
 	bool data_to_write;
 
 	issl_session()
+		: sess(NULL)
+		, status(ISSL_NONE)
 	{
 		outbound = false;
 		data_to_write = false;
