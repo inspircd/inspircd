@@ -64,8 +64,53 @@ typedef gnutls_dh_params_t gnutls_dh_params;
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-static std::vector<gnutls_x509_crt_t> x509_certs;
-static gnutls_x509_privkey_t x509_key;
+struct SSLConfig : public refcountbase
+{
+	gnutls_certificate_credentials_t x509_cred;
+	std::vector<gnutls_x509_crt_t> x509_certs;
+	gnutls_x509_privkey_t x509_key;
+	gnutls_dh_params_t dh_params;
+#ifdef GNUTLS_NEW_PRIO_API
+	gnutls_priority_t priority;
+#endif
+
+	SSLConfig()
+		: x509_cred(NULL)
+		, x509_key(NULL)
+		, dh_params(NULL)
+#ifdef GNUTLS_NEW_PRIO_API
+		, priority(NULL)
+#endif
+	{
+	}
+
+	~SSLConfig()
+	{
+		ServerInstance->Logs->Log("m_ssl_gnutls", DEBUG, "Destroying SSLConfig %p", (void*)this);
+
+		if (x509_cred)
+			gnutls_certificate_free_credentials(x509_cred);
+
+		for (unsigned int i = 0; i < x509_certs.size(); i++)
+			gnutls_x509_crt_deinit(x509_certs[i]);
+
+		if (x509_key)
+			gnutls_x509_privkey_deinit(x509_key);
+
+		if (dh_params)
+			gnutls_dh_params_deinit(dh_params);
+
+#ifdef GNUTLS_NEW_PRIO_API
+		if (priority)
+			gnutls_priority_deinit(priority);
+#endif
+	}
+};
+
+static reference<SSLConfig> currconf;
+
+static SSLConfig* GetSessionConfig(gnutls_session_t session);
+
 #if(GNUTLS_VERSION_MAJOR < 2 || ( GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR < 12 ) )
 static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_ca_rdn, int nreqs,
 	const gnutls_pk_algorithm_t * sign_algos, int sign_algos_length, gnutls_retr_st * st) {
@@ -77,9 +122,11 @@ static int cert_callback (gnutls_session_t session, const gnutls_datum_t * req_c
 	st->cert_type = GNUTLS_CRT_X509;
 	st->key_type = GNUTLS_PRIVKEY_X509;
 #endif
+	SSLConfig* conf = GetSessionConfig(session);
+	std::vector<gnutls_x509_crt_t>& x509_certs = conf->x509_certs;
 	st->ncerts = x509_certs.size();
 	st->cert.x509 = &x509_certs[0];
-	st->key.x509 = x509_key;
+	st->key.x509 = conf->x509_key;
 	st->deinit_all = 0;
 
 	return 0;
@@ -108,9 +155,16 @@ public:
 	gnutls_session_t sess;
 	issl_status status;
 	reference<ssl_cert> cert;
+	reference<SSLConfig> config;
 
 	issl_session() : socket(NULL), sess(NULL) {}
 };
+
+static SSLConfig* GetSessionConfig(gnutls_session_t sess)
+{
+	issl_session* session = reinterpret_cast<issl_session*>(gnutls_transport_get_ptr(sess));
+	return session->config;
+}
 
 class CommandStartTLS : public SplitCommand
 {
@@ -163,18 +217,10 @@ class ModuleSSLGnuTLS : public Module
 {
 	issl_session* sessions;
 
-	gnutls_certificate_credentials_t x509_cred;
-	gnutls_dh_params_t dh_params;
 	gnutls_digest_algorithm_t hash;
-	#ifdef GNUTLS_NEW_PRIO_API
-	gnutls_priority_t priority;
-	#endif
 
 	std::string sslports;
 	int dh_bits;
-
-	bool cred_alloc;
-	bool dh_alloc;
 
 	RandGen randhandler;
 	CommandStartTLS starttls;
@@ -263,21 +309,12 @@ class ModuleSSLGnuTLS : public Module
 		sessions = new issl_session[ServerInstance->SE->GetMaxFds()];
 
 		gnutls_global_init(); // This must be called once in the program
-		gnutls_x509_privkey_init(&x509_key);
-
-		#ifdef GNUTLS_NEW_PRIO_API
-		// Init this here so it's always initialized, avoids an extra boolean
-		gnutls_priority_init(&priority, "NORMAL", NULL);
-		#endif
-
-		cred_alloc = false;
-		dh_alloc = false;
 	}
 
 	void init()
 	{
-		// Needs the flag as it ignores a plain /rehash
-		OnModuleRehash(NULL,"ssl");
+		currconf = new SSLConfig;
+		InitSSLConfig(currconf);
 
 		ServerInstance->GenRandom = &randhandler;
 
@@ -334,11 +371,30 @@ class ModuleSSLGnuTLS : public Module
 		if(param != "ssl")
 			return;
 
+		reference<SSLConfig> newconf = new SSLConfig;
+		try
+		{
+			InitSSLConfig(newconf);
+		}
+		catch (ModuleException& ex)
+		{
+			ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls: Not applying new config. %s", ex.GetReason());
+			return;
+		}
+
+		ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls: Applying new config, old config is in use by %d connection(s)", currconf->GetReferenceCount()-1);
+		currconf = newconf;
+	}
+
+	void InitSSLConfig(SSLConfig* config)
+	{
+		ServerInstance->Logs->Log("m_ssl_gnutls", DEBUG, "Initializing new SSLConfig %p", (void*)config);
+
 		std::string keyfile;
 		std::string certfile;
 		std::string cafile;
 		std::string crlfile;
-		OnRehash(user);
+		OnRehash(NULL);
 
 		ConfigTag* Conf = ServerInstance->Config->ConfValue("gnutls");
 
@@ -369,27 +425,16 @@ class ModuleSSLGnuTLS : public Module
 
 		int ret;
 
-		if (dh_alloc)
-		{
-			gnutls_dh_params_deinit(dh_params);
-			dh_alloc = false;
-			dh_params = NULL;
-		}
-
-		if (cred_alloc)
-		{
-			// Deallocate the old credentials
-			gnutls_certificate_free_credentials(x509_cred);
-
-			for(unsigned int i=0; i < x509_certs.size(); i++)
-				gnutls_x509_crt_deinit(x509_certs[i]);
-			x509_certs.clear();
-		}
+		gnutls_certificate_credentials_t& x509_cred = config->x509_cred;
 
 		ret = gnutls_certificate_allocate_credentials(&x509_cred);
-		cred_alloc = (ret >= 0);
-		if (!cred_alloc)
-			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to allocate certificate credentials: %s", gnutls_strerror(ret));
+		if (ret < 0)
+		{
+			// Set to NULL because we can't be sure what value is in it and we must not try to
+			// deallocate it in case of an error
+			x509_cred = NULL;
+			throw ModuleException("Failed to allocate certificate credentials: " + std::string(gnutls_strerror(ret)));
+		}
 
 		if((ret =gnutls_certificate_set_x509_trust_file(x509_cred, cafile.c_str(), GNUTLS_X509_FMT_PEM)) < 0)
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEBUG, "m_ssl_gnutls.so: Failed to set X.509 trust file '%s': %s", cafile.c_str(), gnutls_strerror(ret));
@@ -406,6 +451,8 @@ class ModuleSSLGnuTLS : public Module
 		reader.LoadFile(keyfile);
 		std::string key_string = reader.Contents();
 		gnutls_datum_t key_datum = { (unsigned char*)key_string.data(), static_cast<unsigned int>(key_string.length()) };
+
+		std::vector<gnutls_x509_crt_t>& x509_certs = config->x509_certs;
 
 		// If this fails, no SSL port will work. At all. So, do the smart thing - throw a ModuleException
 		unsigned int certcount = 3;
@@ -426,6 +473,14 @@ class ModuleSSLGnuTLS : public Module
 		}
 		x509_certs.resize(ret);
 
+		gnutls_x509_privkey_t& x509_key = config->x509_key;
+		if (gnutls_x509_privkey_init(&x509_key) < 0)
+		{
+			// Make sure the destructor does not try to deallocate this, see above
+			x509_key = NULL;
+			throw ModuleException("Unable to initialize private key");
+		}
+
 		if((ret = gnutls_x509_privkey_import(x509_key, &key_datum, GNUTLS_X509_FMT_PEM)) < 0)
 			throw ModuleException("Unable to load GnuTLS server private key (" + keyfile + "): " + std::string(gnutls_strerror(ret)));
 
@@ -433,14 +488,12 @@ class ModuleSSLGnuTLS : public Module
 			throw ModuleException("Unable to set GnuTLS cert/key pair: " + std::string(gnutls_strerror(ret)));
 
 		#ifdef GNUTLS_NEW_PRIO_API
-		// It's safe to call this every time as we cannot have this uninitialized, see constructor and below.
-		gnutls_priority_deinit(priority);
-
 		// Try to set the priorities for ciphers, kex methods etc. to the user supplied string
 		// If the user did not supply anything then the string is already set to "NORMAL"
 		const char* priocstr = priorities.c_str();
 		const char* prioerror;
 
+		gnutls_priority_t& priority = config->priority;
 		if ((ret = gnutls_priority_init(&priority, priocstr, &prioerror)) < 0)
 		{
 			// gnutls did not understand the user supplied string, log and fall back to the default priorities
@@ -458,10 +511,13 @@ class ModuleSSLGnuTLS : public Module
 		#else
 		gnutls_certificate_set_retrieve_function (x509_cred, cert_callback);
 		#endif
+
+		gnutls_dh_params_t& dh_params = config->dh_params;
 		ret = gnutls_dh_params_init(&dh_params);
-		dh_alloc = (ret >= 0);
-		if (!dh_alloc)
+		if (ret < 0)
 		{
+			// Make sure the destructor does not try to deallocate this, see above
+			dh_params = NULL;
 			ServerInstance->Logs->Log("m_ssl_gnutls",DEFAULT, "m_ssl_gnutls.so: Failed to initialise DH parameters: %s", gnutls_strerror(ret));
 			return;
 		}
@@ -478,26 +534,23 @@ class ModuleSSLGnuTLS : public Module
 			{
 				// File unreadable or GnuTLS was unhappy with the contents, generate the DH primes now
 				ServerInstance->Logs->Log("m_ssl_gnutls", DEFAULT, "m_ssl_gnutls.so: Generating DH parameters because I failed to load them from file '%s': %s", dhfile.c_str(), gnutls_strerror(ret));
-				GenerateDHParams();
+				GenerateDHParams(dh_params);
 			}
 		}
 		else
 		{
-			GenerateDHParams();
+			GenerateDHParams(dh_params);
 		}
 
 		gnutls_certificate_set_dh_params(x509_cred, dh_params);
 	}
 
-	void GenerateDHParams()
+	void GenerateDHParams(gnutls_dh_params_t dh_params)
 	{
  		// Generate Diffie Hellman parameters - for use with DHE
 		// kx algorithms. These should be discarded and regenerated
 		// once a day, once a week or once a month. Depending on the
 		// security requirements.
-
-		if (!dh_alloc)
-			return;
 
 		int ret;
 
@@ -507,18 +560,7 @@ class ModuleSSLGnuTLS : public Module
 
 	~ModuleSSLGnuTLS()
 	{
-		for(unsigned int i=0; i < x509_certs.size(); i++)
-			gnutls_x509_crt_deinit(x509_certs[i]);
-
-		gnutls_x509_privkey_deinit(x509_key);
-		#ifdef GNUTLS_NEW_PRIO_API
-		gnutls_priority_deinit(priority);
-		#endif
-
-		if (dh_alloc)
-			gnutls_dh_params_deinit(dh_params);
-		if (cred_alloc)
-			gnutls_certificate_free_credentials(x509_cred);
+		currconf = NULL;
 
 		gnutls_global_deinit();
 		delete[] sessions;
@@ -581,13 +623,14 @@ class ModuleSSLGnuTLS : public Module
 
 		gnutls_init(&session->sess, me_server ? GNUTLS_SERVER : GNUTLS_CLIENT);
 		session->socket = user;
+		session->config = currconf;
 
 		#ifdef GNUTLS_NEW_PRIO_API
-		gnutls_priority_set(session->sess, priority);
+		gnutls_priority_set(session->sess, currconf->priority);
 		#else
 		gnutls_set_default_priority(session->sess);
 		#endif
-		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, x509_cred);
+		gnutls_credentials_set(session->sess, GNUTLS_CRD_CERTIFICATE, currconf->x509_cred);
 		gnutls_dh_set_prime_bits(session->sess, dh_bits);
 		gnutls_transport_set_ptr(session->sess, reinterpret_cast<gnutls_transport_ptr_t>(session));
 		gnutls_transport_set_push_function(session->sess, gnutls_push_wrapper);
@@ -809,6 +852,7 @@ class ModuleSSLGnuTLS : public Module
 		session->sess = NULL;
 		session->cert = NULL;
 		session->status = ISSL_NONE;
+		session->config = NULL;
 	}
 
 	void VerifyCertificate(issl_session* session, StreamSocket* user)
