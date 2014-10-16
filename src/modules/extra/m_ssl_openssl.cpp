@@ -392,6 +392,12 @@ class ModuleSSLOpenSSL : public Module
 
 			req.cert = session->cert;
 		}
+		else if (!strcmp("GET_RAW_SSL_SESSION", request.id))
+		{
+			SSLRawSessionRequest& req = static_cast<SSLRawSessionRequest&>(request);
+			if ((req.fd >= 0) && (req.fd < ServerInstance->SE->GetMaxFds()))
+				req.data = reinterpret_cast<void*>(sessions[req.fd].sess);
+		}
 	}
 
 	void OnStreamSocketAccept(StreamSocket* user, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)

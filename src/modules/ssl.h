@@ -172,4 +172,19 @@ struct UserCertificateRequest : public Request
 	}
 };
 
+class SSLRawSessionRequest : public Request
+{
+ public:
+	const int fd;
+	void* data;
+
+	SSLRawSessionRequest(int FD, Module* srcmod, Module* destmod)
+		: Request(srcmod, destmod, "GET_RAW_SSL_SESSION")
+		, fd(FD)
+		, data(NULL)
+	{
+		Send();
+	}
+};
+
 #endif
