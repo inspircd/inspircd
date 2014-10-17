@@ -182,6 +182,11 @@ ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, const char mo
 	if (!user || !channel || param.empty())
 		return MOD_RES_PASSTHRU;
 
+	ModeHandler* mh = ServerInstance->Modes->FindMode(mode, MODETYPE_CHANNEL);
+	// If not a prefix mode then we got nothing to do here
+	if (!mh || !mh->GetPrefixRank())
+		return MOD_RES_PASSTHRU;
+
 	User* dest;
 	if (IS_LOCAL(user))
 		dest = ServerInstance->FindNickOnly(param);
