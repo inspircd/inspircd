@@ -417,7 +417,7 @@ class Modulewatch : public Module
 		{
 			for (std::deque<User*>::iterator n = x->second.begin(); n != x->second.end(); n++)
 			{
-				(*n)->WriteNumeric(inum, numeric);
+				(*n)->WriteNumeric(inum, (*n)->nick + " " + numeric);
 			}
 		}
 
