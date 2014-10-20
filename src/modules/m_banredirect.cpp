@@ -75,6 +75,9 @@ class BanRedirect : public ModeWatcher
 			if (param.length() >= 2 && param[1] == ':')
 				return true;
 
+			if (param.find('#') == std::string::npos)
+				return true;
+
 			if(adding && (channel->bans.size() > static_cast<unsigned>(maxbans)))
 			{
 				source->WriteNumeric(478, "%s %s :Channel ban list for %s is full (maximum entries for this channel is %ld)", source->nick.c_str(), channel->name.c_str(), channel->name.c_str(), maxbans);
@@ -117,6 +120,14 @@ class BanRedirect : public ModeWatcher
 			{
 				/* std::string::swap() is fast - it runs in constant time */
 				mask[NICK].swap(mask[IDENT]);
+			}
+
+			if (!mask[NICK].empty() && mask[IDENT].empty() && mask[HOST].empty())
+			{
+				if (mask[NICK].find('.') != std::string::npos || mask[NICK].find(':') != std::string::npos)
+				{
+					mask[NICK].swap(mask[HOST]);
+				}
 			}
 
 			for(int i = 0; i < 3; i++)
