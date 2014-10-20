@@ -419,6 +419,10 @@ class ModuleSSLGnuTLS : public Module
 			hash = GNUTLS_DIG_MD5;
 		else if (hashname == "sha1")
 			hash = GNUTLS_DIG_SHA1;
+#ifdef INSPIRCD_GNUTLS_ENABLE_SHA256_FINGERPRINT
+		else if (hashname == "sha256")
+			hash = GNUTLS_DIG_SHA256;
+#endif
 		else
 			throw ModuleException("Unknown hash type " + hashname);
 
