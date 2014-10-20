@@ -1146,7 +1146,8 @@
 #
 # file - filename of existing file in "locales" directory
 # casemapping - custom value for 005 numeric (if you want it to be
-#               different from the filename).
+#               different from the filename). Set this to the name of
+#               the locale if you are specifying an absolute path.
 #<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
