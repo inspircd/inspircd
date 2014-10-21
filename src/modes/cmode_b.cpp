@@ -168,6 +168,7 @@ std::string& ModeChannelBan::DelBan(User *user, std::string& dest, Channel *chan
 				dest.clear();
 				return dest;
 			}
+			dest = i->data;
 			chan->bans.erase(i);
 			return dest;
 		}
