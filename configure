@@ -260,6 +260,11 @@ if ($config{OSNAME} =~ /darwin/i)
 	$config{STARTSCRIPT}	  = "org.inspircd.plist";		# start script for OSX.
 	$config{CC} 		    = "xcrun clang++";					# C++ compiler for OSX.
 }
+elsif ($config{OSNAME} =~ /freebsd/i)
+{
+	chomp(my $fbsd_version = `uname -r`);
+	$config{CC} = $fbsd_version ge '10.0' ? 'clang++' : 'g++';
+}
 else
 {
 	$config{CC} 		    = "g++";						# C++ compiler
@@ -281,11 +286,8 @@ if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
 }
 
 if (($config{GCCVER} eq "") || ($config{GCCMINOR} eq "")) {
-	if ($config{IS_DARWIN} eq "YES") {
-		print $config{CC} . " was not found! You require clang++ (the LLVM C++ compiler, part of the OSX developer tools) to build InspIRCd!\n";
-	} else {
-		print $config{CC} . " was not found! You require g++ (the GNU C++ compiler, part of GCC) to build InspIRCd!\n";		
-	}
+	print "`$config{CC}` was not found! A C++ compiler is required to build InspIRCd!\n";
+	print "You can pass a custom compiler to $0 using --with-cc=[name].\n";
 	exit;
 }
 
