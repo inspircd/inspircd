@@ -677,7 +677,13 @@ DNSResult DNS::GetResult()
 
 			case DNS_QUERY_AAAA:
 			{
-				inet_ntop(AF_INET6, data.first, formatted, sizeof(formatted));
+				if (!inet_ntop(AF_INET6, data.first, formatted, sizeof(formatted)))
+				{
+					std::string ro = req->orig;
+					delete req;
+					return DNSResult(this_id | ERROR_MASK, "inet_ntop() failed", 0, ro);
+				}
+
 				resultstr = formatted;
 
 				/* Special case. Sending ::1 around between servers
