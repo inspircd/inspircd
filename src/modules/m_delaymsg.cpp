@@ -52,12 +52,15 @@ class ModuleDelayMsg : public Module
 	{
 		ServerInstance->Modules->AddService(djm);
 		ServerInstance->Modules->AddService(djm.jointime);
-		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage};
+		Implementation eventlist[] = { I_OnUserJoin, I_OnUserPreMessage, I_OnRehash };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
+		OnRehash(NULL);
 	}
 	Version GetVersion();
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList&);
 	ModResult OnUserPreMessage(User* user, void* dest, int target_type, std::string &text, char status, CUList &exempt_list);
+	ModResult OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list);
+	void OnRehash(User* user);
 };
 
 ModeAction DelayMsgMode::OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding)
@@ -142,6 +145,20 @@ ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_ty
 		djm.jointime.set(memb, 0);
 	}
 	return MOD_RES_PASSTHRU;
+}
+
+ModResult ModuleDelayMsg::OnUserPreNotice(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list)
+{
+	return OnUserPreMessage(user, dest, target_type, text, status, exempt_list);
+}
+
+void ModuleDelayMsg::OnRehash(User* user)
+{
+	ConfigTag* tag = ServerInstance->Config->ConfValue("delaymsg");
+	if (tag->getBool("allownotice", true))
+		ServerInstance->Modules->Detach(I_OnUserPreNotice, this);
+	else
+		ServerInstance->Modules->Attach(I_OnUserPreNotice, this);
 }
 
 MODULE_INIT(ModuleDelayMsg)
