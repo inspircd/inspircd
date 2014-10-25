@@ -22,9 +22,6 @@
 
 
 #include "inspircd.h"
-#ifndef _WIN32
-#include <gcrypt.h>
-#endif
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 #include "ssl.h"
@@ -35,8 +32,8 @@
 #endif
 
 /* $ModDesc: Provides SSL support for clients */
-/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") exec("libgcrypt-config --cflags") */
-/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") exec("libgcrypt-config --libs") */
+/* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") iflt("pkg-config --modversion gnutls","2.12") exec("libgcrypt-config --cflags") */
+/* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") iflt("pkg-config --modversion gnutls","2.12") exec("libgcrypt-config --libs") */
 /* $NoPedantic */
 
 #ifndef GNUTLS_VERSION_MAJOR
@@ -55,7 +52,7 @@ typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
 typedef gnutls_dh_params_t gnutls_dh_params;
 #endif
 
-#if (defined(_WIN32) && (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 12)))
+#if (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 12))
 # define GNUTLS_HAS_RND
 # include <gnutls/crypto.h>
 #else
