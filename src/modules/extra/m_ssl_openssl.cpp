@@ -750,10 +750,8 @@ class ModuleSSLOpenSSL : public Module
 		else if (ret == 0)
 		{
 			CloseSession(session);
-			return false;
 		}
-
-		return true;
+		return false;
 	}
 
 	void CloseSession(issl_session* session)
