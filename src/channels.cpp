@@ -136,9 +136,17 @@ void Channel::SetDefaultModes()
 				continue;
 
 			if (mode->GetNumParams(true))
+			{
 				list.GetToken(parameter);
+				// If the parameter begins with a ':' then it's invalid
+				if (parameter.c_str()[0] == ':')
+					continue;
+			}
 			else
 				parameter.clear();
+
+			if ((mode->GetNumParams(true)) && (parameter.empty()))
+				continue;
 
 			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, parameter, true);
 		}

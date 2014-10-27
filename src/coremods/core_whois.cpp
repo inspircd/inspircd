@@ -224,7 +224,7 @@ CmdResult CommandWhois::HandleLocal(const std::vector<std::string>& parameters, 
 		LocalUser* localuser = IS_LOCAL(dest);
 		if (localuser && (ServerInstance->Config->HideWhoisServer.empty() || parameters.size() > 1))
 		{
-			idle = abs((long)((localuser->idle_lastmsg)-ServerInstance->Time()));
+			idle = labs((long)((localuser->idle_lastmsg)-ServerInstance->Time()));
 			signon = dest->signon;
 		}
 

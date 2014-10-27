@@ -95,8 +95,6 @@ class TreeSocket : public BufferedSocket
 	ServerState LinkState;			/* Link state */
 	CapabData* capab;			/* Link setup data (held until burst is sent) */
 	TreeServer* MyRoot;			/* The server we are talking to */
-	time_t NextPing;			/* Time when we are due to ping this server */
-	bool LastPingWasGood;			/* Responded to last ping we sent? */
 	int proto_version;			/* Remote protocol version */
 
 	/** True if we've sent our burst.

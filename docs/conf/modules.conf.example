@@ -681,6 +681,8 @@
 # from talking in the channel unless they've been joined for X seconds.
 # Settable using /MODE #chan +d 30
 #<module name="m_delaymsg.so">
+# Set allownotice to no to disallow NOTICEs too. Defaults to yes.
+#<delaymsg allownotice="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny channels module: Deny channels from being used by users.
@@ -1167,7 +1169,8 @@
 #
 # file - filename of existing file in "locales" directory
 # casemapping - custom value for 005 numeric (if you want it to be
-#               different from the filename).
+#               different from the filename). Set this to the name of
+#               the locale if you are specifying an absolute path.
 #<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

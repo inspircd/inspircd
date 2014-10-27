@@ -168,6 +168,10 @@ ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* 
 	if (!user || !channel || param.empty())
 		return MOD_RES_PASSTHRU;
 
+	// If not a prefix mode then we got nothing to do here
+	if (!mh->IsPrefixMode())
+		return MOD_RES_PASSTHRU;
+
 	User* dest;
 	if (IS_LOCAL(user))
 		dest = ServerInstance->FindNickOnly(param);

@@ -156,9 +156,6 @@ class CommandWatch : public Command
 			/* Yup, is on my list */
 			watchlist::iterator n = wl->find(nick);
 
-			if (!wl)
-				return CMD_FAILURE;
-
 			if (n != wl->end())
 			{
 				if (!n->second.empty())

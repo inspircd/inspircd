@@ -74,8 +74,9 @@ void ListModeBase::DoRehash()
 			chanlimits.push_back(limit);
 	}
 
-	if (chanlimits.empty())
-		chanlimits.push_back(ListLimit("*", 64));
+	// Add the default entry. This is inserted last so if the user specifies a
+	// wildcard record in the config it will take precedence over this entry.
+	chanlimits.push_back(ListLimit("*", 64));
 
 	// Most of the time our settings are unchanged, so we can avoid iterating the chanlist
 	if (oldlimits == chanlimits)
