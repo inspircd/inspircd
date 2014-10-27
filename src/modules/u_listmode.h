@@ -294,6 +294,8 @@ class ListModeBase : public ModeHandler
 							return MODEACTION_DENY;
 						}
 					}
+					else
+						break;
 				}
 			}
 
