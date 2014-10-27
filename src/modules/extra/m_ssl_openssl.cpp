@@ -45,6 +45,7 @@
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_OPEN };
 
 static bool SelfSigned = false;
+static int exdataindex;
 
 char* get_error()
 {
@@ -393,6 +394,7 @@ class OpenSSLIOHook : public SSLIOHook
 		if (SSL_set_fd(sess, sock->GetFd()) == 0)
 			throw ModuleException("Can't set fd with SSL_set_fd: " + ConvToStr(sock->GetFd()));
 
+		SSL_set_ex_data(sess, exdataindex, this);
 		sock->AddIOHook(this);
 		Handshake(sock);
 	}
@@ -643,6 +645,12 @@ class ModuleSSLOpenSSL : public Module
 
 	void init() CXX11_OVERRIDE
 	{
+		// Register application specific data
+		char exdatastr[] = "inspircd";
+		exdataindex = SSL_get_ex_new_index(0, exdatastr, NULL, NULL, NULL);
+		if (exdataindex < 0)
+			throw ModuleException("Failed to register application specific data");
+
 		ReadProfiles();
 	}
 
