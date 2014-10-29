@@ -348,11 +348,16 @@ for my $mod (sort keys %todo) {
 	}
 	$mod_versions{$mod} = $ver;
 
-	my $stat = getstore($url, "src/modules/$mod.cpp");
-	if ($stat == 200) {
+	my $ua = LWP::UserAgent->new(ssl_opts => { verify_hostname => 0 });
+	my $response = $ua->get($url);
+
+	if ($response->is_success) {
+		open(MF, ">src/modules/$mod.cpp") or die "\nFilesystem not writable: $!";
+		print MF $response->decoded_content;
+		close(MF);
 		print " - done\n";
 	} else {
-		print " - HTTP $stat\n";
+		printf "\nHTTP %s: %s\n", $response->code, $response->message;
 	}
 }
 
