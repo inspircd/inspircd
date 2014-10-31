@@ -18,4 +18,4 @@ many different users.
 
 * [Website](http://inspircd.org)
 * [GitHub](https://github.com/inspircd)
-* [IRC](irc://irc.chatspike.net/inspircd)
+* IRC: #inspircd on irc.inspircd.org
