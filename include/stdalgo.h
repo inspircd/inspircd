@@ -94,4 +94,22 @@ namespace stdalgo
 	{
 		std::for_each(cont.begin(), cont.end(), defaultdeleter<T>());
 	}
+
+	/**
+	 * Remove an element from a container
+	 * @param cont Container to remove the element from
+	 * @param val Value of the element to look for and remove
+	 * @return True if the element was found and removed, false otherwise
+	 */
+	template <template<typename, typename> class Cont, typename T, typename Alloc>
+	inline bool erase(Cont<T, Alloc>& cont, const T& val)
+	{
+		const typename Cont<T, Alloc>::iterator it = std::find(cont.begin(), cont.end(), val);
+		if (it != cont.end())
+		{
+			cont.erase(it);
+			return true;
+		}
+		return false;
+	}
 }

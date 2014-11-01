@@ -322,13 +322,7 @@ void TreeServer::AddChild(TreeServer* Child)
 
 bool TreeServer::DelChild(TreeServer* Child)
 {
-	std::vector<TreeServer*>::iterator it = std::find(Children.begin(), Children.end(), Child);
-	if (it != Children.end())
-	{
-		Children.erase(it);
-		return true;
-	}
-	return false;
+	return stdalgo::erase(Children, Child);
 }
 
 CullResult TreeServer::cull()

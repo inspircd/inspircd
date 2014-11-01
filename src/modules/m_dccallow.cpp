@@ -268,11 +268,7 @@ class ModuleDCCAllow : public Module
 
 		// remove their DCCALLOW list if they have one
 		if (udl)
-		{
-			userlist::iterator it = std::find(ul.begin(), ul.end(), user);
-			if (it != ul.end())
-				ul.erase(it);
-		}
+			stdalgo::erase(ul, user);
 
 		// remove them from any DCCALLOW lists
 		// they are currently on

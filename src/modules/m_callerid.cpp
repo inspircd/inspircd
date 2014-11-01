@@ -136,10 +136,7 @@ struct CallerIDExtInfo : public ExtensionItem
 				continue; // shouldn't happen, but oh well.
 			}
 
-			std::list<callerid_data*>::iterator it2 = std::find(targ->wholistsme.begin(), targ->wholistsme.end(), dat);
-			if (it2 != targ->wholistsme.end())
-				targ->wholistsme.erase(it2);
-			else
+			if (!stdalgo::erase(targ->wholistsme, dat))
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
@@ -323,11 +320,7 @@ public:
 			return false;
 		}
 
-		std::list<callerid_data*>::iterator it = std::find(dat2->wholistsme.begin(), dat2->wholistsme.end(), dat);
-		if (it != dat2->wholistsme.end())
-			// Found me!
-			dat2->wholistsme.erase(it);
-		else
+		if (!stdalgo::erase(dat2->wholistsme, dat))
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 

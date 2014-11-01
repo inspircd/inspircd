@@ -312,9 +312,7 @@ bool XLineManager::DelLine(const char* hostmask, const std::string &type, User* 
 
 	y->second->Unset();
 
-	std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), y->second);
-	if (pptr != pending_lines.end())
-		pending_lines.erase(pptr);
+	stdalgo::erase(pending_lines, y->second);
 
 	delete y->second;
 	x->second.erase(y);
@@ -419,9 +417,7 @@ void XLineManager::ExpireLine(ContainerIter container, LookupIter item)
 	 * is pending, cleared when it is no longer pending, so we skip over this loop if its not pending?
 	 * -- Brain
 	 */
-	std::vector<XLine*>::iterator pptr = std::find(pending_lines.begin(), pending_lines.end(), item->second);
-	if (pptr != pending_lines.end())
-		pending_lines.erase(pptr);
+	stdalgo::erase(pending_lines, item->second);
 
 	delete item->second;
 	container->second.erase(item);
