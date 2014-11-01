@@ -113,7 +113,7 @@ class ModuleShowFile : public Module
 
 			// This is our command, make sure we don't have the same entry twice
 			sfcmd = static_cast<CommandShowFile*>(handler);
-			if (std::find(newcmds.begin(), newcmds.end(), sfcmd) != newcmds.end())
+			if (stdalgo::isin(newcmds, sfcmd))
 				throw ModuleException("Command " + cmdname + " is already used in a <showfile> tag");
 		}
 		else

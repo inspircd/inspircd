@@ -178,7 +178,7 @@ ModuleManager::~ModuleManager()
 
 bool ModuleManager::Attach(Implementation i, Module* mod)
 {
-	if (std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod) != EventHandlers[i].end())
+	if (stdalgo::isin(EventHandlers[i], mod))
 		return false;
 
 	EventHandlers[i].push_back(mod);

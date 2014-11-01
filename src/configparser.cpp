@@ -367,7 +367,7 @@ void ParseStack::DoReadFile(const std::string& key, const std::string& name, int
 bool ParseStack::ParseFile(const std::string& path, int flags, const std::string& mandatory_tag, bool isexec)
 {
 	ServerInstance->Logs->Log("CONFIG", LOG_DEBUG, "Reading (isexec=%d) %s", isexec, path.c_str());
-	if (std::find(reading.begin(), reading.end(), path) != reading.end())
+	if (stdalgo::isin(reading, path))
 		throw CoreException((isexec ? "Executable " : "File ") + path + " is included recursively (looped inclusion)");
 
 	/* It's not already included, add it to the list of files we've loaded */

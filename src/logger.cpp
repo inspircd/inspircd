@@ -288,7 +288,7 @@ void LogManager::Log(const std::string &type, LogLevel loglevel, const std::stri
 
 	for (std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.begin(); gi != GlobalLogStreams.end(); ++gi)
 	{
-		if (std::find(gi->second.begin(), gi->second.end(), type) != gi->second.end())
+		if (stdalgo::isin(gi->second, type))
 		{
 			continue;
 		}

@@ -112,4 +112,16 @@ namespace stdalgo
 		}
 		return false;
 	}
+
+	/**
+	 * Check if an element with the given value is in a container. Equivalent to (std::find(cont.begin(), cont.end(), val) != cont.end()).
+	 * @param cont Container to find the element in
+	 * @param val Value of the element to look for
+	 * @return True if the element was found in the container, false otherwise
+	 */
+	template <template<typename, typename> class Cont, typename T, typename Alloc>
+	inline bool isin(const Cont<T, Alloc>& cont, const T& val)
+	{
+		return (std::find(cont.begin(), cont.end(), val) != cont.end());
+	}
 }
