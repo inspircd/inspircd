@@ -348,7 +348,6 @@ class HTTPdAPIImpl : public HTTPdAPIBase
 
 class ModuleHttpServer : public Module
 {
-	std::vector<HttpServerSocket *> httpsocks;
 	HTTPdAPIImpl APIImpl;
 	unsigned int timeoutsec;
 
