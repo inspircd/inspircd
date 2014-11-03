@@ -60,11 +60,12 @@ class HttpServerSocket : public BufferedSocket
 	const time_t createtime;
 
 	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-		: BufferedSocket(newfd), ip(IP), postsize(0)
+		: BufferedSocket(newfd)
+		, InternalState(HTTP_SERVE_WAIT_REQUEST)
+		, ip(IP)
+		, postsize(0)
 		, createtime(ServerInstance->Time())
 	{
-		InternalState = HTTP_SERVE_WAIT_REQUEST;
-
 		if (via->iohookprov)
 			via->iohookprov->OnAccept(this, client, server);
 	}
