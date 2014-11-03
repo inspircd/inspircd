@@ -366,7 +366,7 @@ class ModuleHttpServer : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("httpd");
-		timeoutsec = tag->getInt("timeout");
+		timeoutsec = tag->getInt("timeout", 10, 1);
 	}
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
@@ -382,9 +382,6 @@ class ModuleHttpServer : public Module
 
 	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
 	{
-		if (!timeoutsec)
-			return;
-
 		time_t oldest_allowed = curtime - timeoutsec;
 		for (std::set<HttpServerSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); )
 		{
