@@ -23,12 +23,12 @@ class FlashPDSocket;
 
 namespace
 {
-	std::set<FlashPDSocket*> sockets;
+	insp::intrusive_list<FlashPDSocket> sockets;
 	std::string policy_reply;
 	const std::string expected_request("<policy-file-request/>\0", 23);
 }
 
-class FlashPDSocket : public BufferedSocket, public Timer
+class FlashPDSocket : public BufferedSocket, public Timer, public insp::intrusive_list_node<FlashPDSocket>
 {
 	/** True if this object is in the cull list
 	 */
@@ -90,7 +90,7 @@ class ModuleFlashPD : public Module
 		if (policy_reply.empty())
 			return MOD_RES_DENY;
 
-		sockets.insert(new FlashPDSocket(nfd, timeout));
+		sockets.push_front(new FlashPDSocket(nfd, timeout));
 		return MOD_RES_ALLOW;
 	}
 
@@ -148,7 +148,7 @@ class ModuleFlashPD : public Module
 
 	CullResult cull()
 	{
-		for (std::set<FlashPDSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
+		for (insp::intrusive_list<FlashPDSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{
 			FlashPDSocket* sock = *i;
 			sock->AddToCull();

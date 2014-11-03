@@ -30,7 +30,7 @@ class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;
 static bool claimed;
-static std::set<HttpServerSocket*> sockets;
+static insp::intrusive_list<HttpServerSocket> sockets;
 
 /** HTTP socket states
  */
@@ -43,7 +43,7 @@ enum HttpState
 
 /** A socket used for HTTP transport
  */
-class HttpServerSocket : public BufferedSocket, public Timer
+class HttpServerSocket : public BufferedSocket, public Timer, public insp::intrusive_list_node<HttpServerSocket>
 {
 	HttpState InternalState;
 	std::string ip;
@@ -397,13 +397,13 @@ class ModuleHttpServer : public Module
 		int port;
 		std::string incomingip;
 		irc::sockets::satoap(*client, incomingip, port);
-		sockets.insert(new HttpServerSocket(nfd, incomingip, from, client, server, timeoutsec));
+		sockets.push_front(new HttpServerSocket(nfd, incomingip, from, client, server, timeoutsec));
 		return MOD_RES_ALLOW;
 	}
 
 	CullResult cull() CXX11_OVERRIDE
 	{
-		for (std::set<HttpServerSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
+		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{
 			HttpServerSocket* sock = *i;
 			sock->AddToCull();
