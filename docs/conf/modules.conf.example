@@ -294,8 +294,9 @@
 #          cooldown="60">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CAP module: Provides the CAP negotiation mechanism originally seen in
-# ratbox-derived ircds.
+# CAP module: Provides the CAP negotiation mechanism required by the
+# m_sasl, m_namesx, m_uhnames, and m_ircv3 modules.
+# It is also required for the STARTTLS support in m_ssl_gnutls.
 #<module name="m_cap.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -714,7 +715,7 @@
 # redirect    -      Redirect the user to a different channel.        #
 #                                                                     #
 #<badchan name="#gods*" allowopers="yes" reason="Tortoises!">         #
-#<badchan name="#chan1" redirect="#chan2" reason="Chan1 is closed, try #chan2"> #
+#<badchan name="#chan1" redirect="#chan2" reason="Chan1 is closed">   #
 #                                                                     #
 # Redirects will not work if the target channel is set +L.            #
 #                                                                     #
@@ -1083,7 +1084,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Map hiding module: replaces /MAP and /LINKS output to users with a  #
-# message to see a website, set by maphide="http://example.org/website" in #
+# message to see a website, set by maphide="http://test.org/map" in   #
 # the <security> tag, instead.                                        #
 #<module name="m_maphide.so">
 
