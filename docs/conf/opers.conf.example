@@ -129,8 +129,8 @@
 # Operator with a plaintext password and no comments, for easy copy & paste.
 <oper
       name="Brain"
-      password="s3cret"
-      host="brain@dialup15.isp.com *@localhost *@example.com *@2001:db8::/32"
+      password="youshouldhashthis"
+      host="brain@dialup15.isp.test.com *@localhost *@example.com *@2001:db8::/32"
       #fingerprint="67cb9dc013248a829bb2171ed11becd4"
       type="NetAdmin">
 

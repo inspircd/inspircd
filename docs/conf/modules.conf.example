@@ -22,7 +22,8 @@
 # To link servers to InspIRCd, you MUST load the m_spanningtree       #
 # module. If you don't do this, server links will NOT work at all.    #
 # This is by design, to allow for the implementation of other linking #
-# protocols in modules in the future.                                 #
+# protocols in modules in the future. This module is at the bottom of #
+# this file.                                                          #
 #                                                                     #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -293,8 +294,9 @@
 #          cooldown="60">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
-# CAP module: Provides the CAP negotiation mechanism seen in
-# ratbox-derived ircds.
+# CAP module: Provides the CAP negotiation mechanism required by the
+# m_sasl, m_namesx, m_uhnames, and m_ircv3 modules.
+# It is also recommended for the STARTTLS support in m_ssl_gnutls.
 #<module name="m_cap.so">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -335,12 +337,12 @@
 # CGI:IRC documentation.
 #
 # Old style:
-# <cgihost type="pass" mask="www.mysite.com">       # Get IP from PASS
-# <cgihost type="ident" mask="otherbox.mysite.com"> # Get IP from ident
-# <cgihost type="passfirst" mask="www.mysite.com">  # See the docs
+# <cgihost type="pass" mask="www.example.com">       # Get IP from PASS
+# <cgihost type="ident" mask="otherbox.example.com"> # Get IP from ident
+# <cgihost type="passfirst" mask="www.example.com">  # See the docs
 # New style:
 # <cgihost type="webirc" password="foobar"
-#   mask="somebox.mysite.com">                      # Get IP from WEBIRC
+#   mask="somebox.example.com">                      # Get IP from WEBIRC
 #
 # IMPORTANT NOTE:
 # ---------------
@@ -654,7 +656,7 @@
 #  vhost    - Displayed host (optional).
 #
 #<title name="foo" password="bar" title="Official Chat Helper">
-#<title name="bar" password="foo" host="ident@host.name" title="Official Chat Helper" vhost="helper.network.chat">
+#<title name="bar" password="foo" host="ident@test.org" title="Official Chat Helper" vhost="helper.test.org">
 #<title name="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" title="Official Chat Helper">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -713,13 +715,13 @@
 # redirect    -      Redirect the user to a different channel.        #
 #                                                                     #
 #<badchan name="#gods*" allowopers="yes" reason="Tortoises!">         #
-#<badchan name="#heaven" redirect="#hell" reason="Nice try!">         #
+#<badchan name="#chan1" redirect="#chan2" reason="Chan1 is closed">   #
 #                                                                     #
 # Redirects will not work if the target channel is set +L.            #
 #                                                                     #
 # Additionally, you may specify channels which are allowed, even if   #
 # a badchan tag specifies it would be denied:                         #
-#<goodchan name="#godsleeps">                                         #
+#<goodchan name="#funtimes">                                          #
 # Glob masks are accepted here also.                                  #
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -854,10 +856,10 @@
 #                                                                     #
 # See http://wiki.inspircd.org/Modules/hostchange for help.           #
 #                                                                     #
-#<host suffix="polarbears.org" separator="." prefix="">
-#<hostchange mask="*@fbi.gov" action="addnick">
-#<hostchange mask="*r00t@*" action="suffix">
-#<hostchange mask="a@b.com" action="set" value="blah.blah.blah">
+#<host suffix="invalid.org" separator="." prefix="">
+#<hostchange mask="*@42.theanswer.example.org" action="addnick">
+#<hostchange mask="*root@*" action="suffix">
+#<hostchange mask="a@example.com" action="set" value="foo.bar.baz">
 #<hostchange mask="localhost" ports="7000,7001,7005-7007" action="set" value="blahblah.foo">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -885,7 +887,7 @@
 # Restrict access to the m_httpd_stats module to all but the local
 # network and when the correct password is specified:
 # <httpdacl path="/stats*" types="password,whitelist"
-#    username="secretstuff" password="mypasshere" whitelist="127.0.0.*,10.*">
+#    username="secrets" password="mypasshere" whitelist="127.0.0.*,10.*">
 #
 # Deny all connections to all but the main index page:
 # <httpdacl path="/*" types="blacklist" blacklist="*">
@@ -921,7 +923,7 @@
 # Invite exception module: Adds support for channel invite exceptions
 # (+I).
 #<module name="m_inviteexception.so">
-# Does a +I bypass channel +k in addition to +i?
+# bypasskey: If this is enabled, exceptions will bypass +k as well as +i
 #<inviteexception bypasskey="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -1082,7 +1084,7 @@
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Map hiding module: replaces /MAP and /LINKS output to users with a  #
-# message to see a website, set by maphide="http://link.to/site" in   #
+# message to see a website, set by maphide="http://test.org/map" in   #
 # the <security> tag, instead.                                        #
 #<module name="m_maphide.so">
 
@@ -1333,7 +1335,7 @@
 # password you want to hash. For example:
 #
 #     <oper name="Brain"
-#           host="ident@dialup15.isp.com"
+#           host="ident@dialup15.isp.test.com"
 #           hash="sha256"
 #           password="01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
 #           type="NetAdmin">
@@ -1849,8 +1851,8 @@
 #                                                                     #
 # host       - Vhost to set.                                          #
 #
-#<vhost user="some_username" pass="some_password" host="some.host">
-#<vhost user="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" host="some.other.host">
+#<vhost user="some_username" pass="some_password" host="some.host.test.cc">
+#<vhost user="foo" password="fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9" hash="sha256" host="some.other.host.example.com">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Watch module: Adds the WATCH command, which is used by clients to

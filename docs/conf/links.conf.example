@@ -17,11 +17,11 @@
 <link
       # name: The name of the remote server. This must match
       # the <server:name> value of the remote server.
-      name="hub.penguin.org"
+      name="hub.example.org"
 
       # ipaddr: The IP address of the remote server.
       # Can also be a hostname, but hostname must resolve.
-      ipaddr="penguin.box.com"
+      ipaddr="penguin.example.org"
 
       # port: The port to connect to the server on.
       # It must be bound as a server port on the other server.
@@ -71,8 +71,8 @@
 
 # A duplicate of the first link block without comments
 # if you like copying & pasting.
-<link name="hub.penguin.org"
-      ipaddr="penguin.box.com"
+<link name="hub.example.org"
+      ipaddr="penguin.example.org"
       port="7000"
       allowmask="203.0.113.0/24"
       timeout="300"
@@ -85,7 +85,7 @@
 
 # Link block for services. Options are the same as for the first
 # link block (depending on what your services package supports).
-<link name="services.antarctic.com"
+<link name="services.example.com"
       ipaddr="localhost"
       port="7000"
       allowmask="127.0.0.0/8"
@@ -95,7 +95,7 @@
 # Simple autoconnect block. This enables automatic connection of a server
 # Recommended setup is to have leaves connect to the hub, and have no
 # automatic connections started by the hub.
-<autoconnect period="300" server="hub.penguin.org">
+<autoconnect period="300" server="hub.example.org">
 
 # Failover autoconnect block. If you have multiple hubs, or want your network
 # to automatically link even if the hub is down, you can specify multiple
@@ -103,7 +103,7 @@
 # robin fashion until one succeeds. Period defines the time for restarting
 # a single loop.
 <autoconnect period="120"
-	server="hub.us.penguin.org hub.eu.penguin.org leaf.eu.penguin.org">
+	server="hub.us.example.org hub.eu.example.org leaf.eu.example.org">
 
 
 #-#-#-#-#-#-#-#-#-#-#-#- ULINES CONFIGURATION #-#-#-#-#-#-#-#-#-#-#-#-#
@@ -115,4 +115,4 @@
 # not generate quit and connect notices, which can cut down on noise  #
 # to opers on the network.                                            #
 #                                                                     #
-<uline server="services.antarctic.com" silent="yes">
+<uline server="services.example.com" silent="yes">
