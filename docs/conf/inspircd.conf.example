@@ -53,7 +53,7 @@
 #<include executable="/path/to/executable parameters">                #
 #                                                                     #
 # Executable include example:                                         #
-#<include executable="/usr/bin/wget -q -O - http://mynet.net/inspircd.conf">
+#<include executable="/usr/bin/wget -q -O - http://example.com/inspircd.conf">
 #                                                                     #
 
 
@@ -81,7 +81,7 @@
 <server
         # name: Hostname of your server. Does not need to resolve, but
         # does need to be correct syntax (something.somethingelse.tld).
-        name="penguin.omega.org.za"
+        name="penguin.omega.example.org"
 
         # description: Server description. Spaces are allowed.
         description="Waddle World"
@@ -170,7 +170,7 @@
 #-#-#-#-#-#-#-#-#-#-  DIE/RESTART CONFIGURATION   -#-#-#-#-#-#-#-#-#-#-
 #                                                                     #
 #   You can configure the passwords here which you wish to use for    #
-#   the /DIE and /RESTART commands. Only trusted IRCop's who will     #
+#   the /DIE and /RESTART commands. Only trusted ircops who will      #
 #   need this ability should know the die and restart password.       #
 #                                                                     #
 
@@ -262,7 +262,7 @@
          # globalmax: Maximum global (network-wide) connections per IP (or CIDR mask, see below).
          globalmax="3"
 
-         # maxconnwarn: Enable warnings when localmax or globalmax is hit (defaults to on)
+         # maxconnwarn: Enable warnings when localmax or globalmax are reached (defaults to on)
          maxconnwarn="off"
 
          # usednsbl: Defines whether or not users in this class are subject to DNSBL. Default is yes.
@@ -484,7 +484,7 @@
 # matched, the banlist size defaults to 64 entries.                   #
 #                                                                     #
 
-<banlist chan="#morons" limit="128">
+<banlist chan="#largechan" limit="128">
 <banlist chan="*" limit="69">
 
 #-#-#-#-#-#-#-#-#-#-#-  DISABLED FEATURES  -#-#-#-#-#-#-#-#-#-#-#-#-#-#
@@ -572,7 +572,7 @@
 
          # allowmismatch: Setting this option to yes will allow servers to link even
          # if they don't have the same "optionally common" modules loaded. Setting this to
-         # yes may introduce some desyncs and weirdness.
+         # yes may introduce some desyncs and unwanted behaviour.
          allowmismatch="no"
 
          # defaultbind: Sets the default for <bind> tags without an address. Choices are
@@ -887,10 +887,10 @@
 <badhost
          # host: ident@hostname to ban.
          # Wildcards and CIDR (if you specify an IP) can be used.
-         host="*@hundredz.n.hundredz.o.1337.kiddies.example.net"
+         host="*@banneduser.example.net"
 
          # reason: Reason to display when user is disconnected
-         reason="Too many 1337 kiddiots">
+         reason="Evading Bans">
 
 <badhost host="root@*" reason="Don't IRC as root!">
 <badhost host="*@198.51.100.0/24" reason="This subnet is bad.">
@@ -937,7 +937,7 @@
 #                                                                     #
 #   You should already know what to do here :)                        #
 
-<die value="User error. Insert new user and press any key. (you didn't edit your config properly.)">
+<die value="User error. You didn't edit your config properly. Go back and try again.">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-# MODULES #-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 #    ____                _   _____ _     _       ____  _ _   _        #
