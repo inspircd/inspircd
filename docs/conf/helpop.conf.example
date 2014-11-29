@@ -50,7 +50,7 @@ OPER">
 -------------
 
 OPERMOTD  CHECK     CLONES      USERIP   TLINE
-ALLTIME   WALLOPS   GLOBOPS
+ALLTIME   WALLOPS   GLOBOPS     MODENOTICE
 
 SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
 SETIDLE   SWHOIS
@@ -183,6 +183,10 @@ LOCKSERV       UNLOCKSERV">
                     specified rate (requires nickflood module).
  G                  Censors messages to the channel based on the
                     network configuration (requires censor module).
+ H <num>:<duration> Displays the last <num> lines of chat to joining
+                    users. <duration> is the maximum time to keep
+                    lines in the history buffer (requires chanhistory
+                    module).
  J <seconds>        Prevents rejoin after kick for the specified
                     number of seconds. This prevents auto-rejoin
                     (requires kicknorejoin module).
@@ -192,7 +196,7 @@ LOCKSERV       UNLOCKSERV">
                     module).
  M                  Blocks unregistered users from speaking (requires
                     services account module).
- N                  Prevents users on the channel from chainging nick
+ N                  Prevents users on the channel from changing nick
                     (requires nonicks module).
  O                  Channel is IRCops only (can only be set by IRCops,
                     requires operchans module).

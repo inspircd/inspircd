@@ -112,7 +112,7 @@ a message stating they were removed from the channel and by whom.">
 
 This behaves identically to /REMOVE, the only difference is that the
 <channel> and <nick> parameters are switched around to match /KICK's
-syntax. Also, /REMOVE is a builtin mIRC command which caused trouble
+syntax. Also, /REMOVE is a built-in mIRC command which caused trouble
 for some users.">
 
 <helpop key="devoice" value="/DEVOICE <channel>
@@ -380,7 +380,7 @@ Sets your name to the specified name.">
 -------------
 
 OPERMOTD  CHECK     CLONES      USERIP   TLINE
-ALLTIME   WALLOPS   GLOBOPS
+ALLTIME   WALLOPS   GLOBOPS     MODENOTICE
 
 SETHOST   SETIDENT  CHGHOST     CHGIDENT CHGNAME
 SETIDLE   SWHOIS
@@ -732,7 +732,7 @@ The duration may be specified in seconds, or in the format
 
 <helpop key="eline" value="/ELINE <user@host> [<duration> :<reason>]
 
-Sets or removes a e-line (local ban exception) on host mask.
+Sets or removes a e-line (global ban exception) on host mask.
 You must specify at least 3 parameters to add an exception, and one
 parameter to remove an exception (just the user@host section).
 
@@ -767,6 +767,12 @@ server is specified, the local server's DNS cache will be cleared.">
 <helpop key="close" value="/CLOSE
 
 Closes all unregistered connections to the local server.">
+
+<helpop key="modenotice" value="/MODENOTICE <modeletters> <message>
+
+Sends a notice to all users who have the given mode(s) set.
+If multiple mode letters are given, the notice is only sent to users
+who have all of them set.">
 
 ######################
 # User/Channel Modes #
@@ -884,6 +890,10 @@ Closes all unregistered connections to the local server.">
                     specified rate (requires nickflood module).
  G                  Censors messages to the channel based on the
                     network configuration (requires censor module).
+ H <num>:<duration> Displays the last <num> lines of chat to joining
+                    users. <duration> is the maximum time to keep
+                    lines in the history buffer (requires chanhistory
+                    module).
  J <seconds>        Prevents rejoin after kick for the specified
                     number of seconds. This prevents auto-rejoin
                     (requires kicknorejoin module).
@@ -893,7 +903,7 @@ Closes all unregistered connections to the local server.">
                     module).
  M                  Blocks unregistered users from speaking (requires
                     services account module).
- N                  Prevents users on the channel from chainging nick
+ N                  Prevents users on the channel from changing nick
                     (requires nonicks module).
  O                  Channel is IRCops only (can only be set by IRCops,
                     requires operchans module).
