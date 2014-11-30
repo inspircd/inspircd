@@ -470,7 +470,7 @@ void ModeParser::Process(const std::vector<std::string>& parameters, User *user,
 		{
 			parameter = parameters[param_at++];
 			/* Make sure the user isn't trying to slip in an invalid parameter */
-			if ((parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
+			if ((parameter.empty()) || (parameter.find(':') == 0) || (parameter.rfind(' ') != std::string::npos))
 				continue;
 			if (merge && targetchannel && targetchannel->IsModeSet(modechar) && !mh->IsListMode())
 			{
