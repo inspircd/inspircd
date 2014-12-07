@@ -23,11 +23,11 @@
 #include <ldap.h>
 
 #ifdef _WIN32
-# pragma comment(lib, "libldap.lib")
+# pragma comment(lib, "libldap_r.lib")
 # pragma comment(lib, "liblber.lib")
 #endif
 
-/* $LinkerFlags: -lldap */
+/* $LinkerFlags: -lldap_r */
 
 class LDAPService : public LDAPProvider, public SocketThread
 {
