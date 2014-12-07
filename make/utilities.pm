@@ -32,101 +32,12 @@ use warnings FATAL => qw(all);
 use Exporter 'import';
 use Fcntl;
 use File::Path;
-use File::Spec::Functions qw(rel2abs);
 use Getopt::Long;
 use POSIX;
 
-our @EXPORT = qw(get_version module_installed prompt_bool prompt_dir prompt_string get_cpu_count make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
+our @EXPORT = qw(make_rpath pkgconfig_get_include_dirs pkgconfig_get_lib_dirs pkgconfig_check_version translate_functions promptstring);
 
 my %already_added = ();
-my %version = ();
-
-sub get_version {
-	return %version if %version;
-
-	# Attempt to retrieve version information from src/version.sh
-	chomp(my $vf = `sh src/version.sh 2>/dev/null`);
-	if ($vf =~ /^InspIRCd-([0-9]+)\.([0-9]+)\.([0-9]+)(?:\+(\w+))?$/) {
-		%version = ( MAJOR => $1, MINOR => $2, PATCH => $3, LABEL => $4 );
-	}
-
-	# Attempt to retrieve missing version information from Git
-	chomp(my $gr = `git describe --tags 2>/dev/null`);
-	if ($gr =~ /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:-\d+-(\w+))?$/) {
-		$version{MAJOR} = $1 unless defined $version{MAJOR};
-		$version{MINOR} = $2 unless defined $version{MINOR};
-		$version{PATCH} = $3 unless defined $version{PATCH};
-		$version{LABEL} = $4 if defined $4;
-	}
-
-	# The user is using a stable release which does not have
-	# a label attached.
-	$version{LABEL} = 'release' unless defined $version{LABEL};
-
-	# If any of these fields are missing then the user has deleted the
-	# version file and is not running from Git. Fill in the fields with
-	# dummy data so we don't get into trouble with undef values later.
-	$version{MAJOR} = '0' unless defined $version{MAJOR};
-	$version{MINOR} = '0' unless defined $version{MINOR};
-	$version{PATCH} = '0' unless defined $version{PATCH};
-
-	return %version;
-}
-
-sub module_installed($) {
-	my $module = shift;
-	eval("use $module;");
-	return !$@;
-}
-
-sub prompt_bool($$$) {
-	my ($interactive, $question, $default) = @_;
-	my $answer = prompt_string($interactive, $question, $default ? 'y' : 'n');
-	return $answer =~ /y/i;
-}
-
-sub prompt_dir($$$) {
-	my ($interactive, $question, $default) = @_;
-	my ($answer, $create) = (undef, 'y');
-	do {
-		$answer = rel2abs(prompt_string($interactive, $question, $default));
-		$create = prompt_bool($interactive && !-d $answer, "$answer does not exist. Create it?", 'y');
-		my $mkpath = eval {
-			mkpath($answer, 0, 0750);
-			return 1;
-		};
-		unless (defined $mkpath) {
-			print "Error: unable to create $answer!\n\n";
-			$create = 0;
-		}
-	} while (!$create);
-	return $answer;
-}
-
-sub prompt_string($$$) {
-	my ($interactive, $question, $default) = @_;
-	return $default unless $interactive;
-	print $question, "\n";
-	print "[\e[1;32m$default\e[0m] => ";
-	chomp(my $answer = <STDIN>);
-	print "\n";
-	return $answer ? $answer : $default;
-}
-
-sub get_cpu_count {
-	my $count = 1;
-	if ($^O =~ /bsd/) {
-		$count = `sysctl -n hw.ncpu`;
-	} elsif ($^O eq 'darwin') {
-		$count = `sysctl -n hw.activecpu`;
-	} elsif ($^O eq 'linux') {
-		$count = `getconf _NPROCESSORS_ONLN`;
-	} elsif ($^O eq 'solaris') {
-		$count = `psrinfo -p`;
-	}
-	chomp($count);
-	return $count;
-}
 
 sub promptstring($$$$$)
 {

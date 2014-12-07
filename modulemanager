@@ -22,7 +22,7 @@
 use strict;
 use warnings FATAL => qw(all);
 
-use make::utilities;
+use make::common;
 
 BEGIN {
 	unless (module_installed("LWP::Simple")) {

@@ -31,6 +31,13 @@
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
+// Fix warnings about the use of `long long` on C++03.
+#if defined __clang__
+# pragma clang diagnostic ignored "-Wc++11-long-long"
+#elif defined __GNUC__
+# pragma GCC diagnostic ignored "-Wlong-long"
+#endif
+
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 

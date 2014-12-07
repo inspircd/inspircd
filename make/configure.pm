@@ -30,19 +30,33 @@ package make::configure;
 use strict;
 use warnings FATAL => qw(all);
 
-use Cwd 'getcwd';
-use Exporter 'import';
-use File::Basename 'basename';
+use Cwd            qw(getcwd);
+use Exporter       qw(import);
+use File::Basename qw(basename);
 
+use make::common;
+use make::console;
 use make::utilities;
 
-our @EXPORT = qw(cmd_clean cmd_help cmd_update
-                 read_configure_cache write_configure_cache
-                 get_compiler_info find_compiler
-                 run_test test_file test_header
-                 dump_hash get_property parse_templates);
+use constant CONFIGURE_CACHE_FILE    => '.configure.cache';
+use constant CONFIGURE_CACHE_VERSION => '1';
 
-sub __get_socketengines() {
+our @EXPORT = qw(CONFIGURE_CACHE_FILE
+                 CONFIGURE_CACHE_VERSION
+                 cmd_clean
+                 cmd_help
+                 cmd_update
+                 run_test
+                 test_file
+                 test_header
+                 read_configure_cache
+                 write_configure_cache
+                 get_compiler_info
+                 find_compiler
+                 get_property
+                 parse_templates);
+
+sub __get_socketengines {
 	my @socketengines;
 	foreach (<src/socketengines/socketengine_*.cpp>) {
 		s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
@@ -53,12 +67,12 @@ sub __get_socketengines() {
 
 # TODO: when buildtool is done this can be mostly removed with
 #       the remainder being merged into parse_templates.
-sub __get_template_settings($$) {
+sub __get_template_settings($$$) {
 
 	# These are actually hash references
-	my ($config, $compiler) = @_;
+	my ($config, $compiler, $version) = @_;
 
-	# Start off by populating with the config
+	# Start off by populating with the config
 	my %settings = %$config;
 
 	# Compiler information
@@ -67,12 +81,12 @@ sub __get_template_settings($$) {
 	}
 
 	# Version information
-	my %version = get_version();
-	while (my ($key, $value) = each %version) {
+	while (my ($key, $value) = each %{$version}) {
 		$settings{'VERSION_' . $key} = $value;
 	}
 
 	# Miscellaneous information
+	$settings{CONFIGURE_CACHE_FILE} = CONFIGURE_CACHE_FILE;
 	$settings{SYSTEM_NAME} = lc $^O;
 	chomp($settings{SYSTEM_NAME_VERSION} = `uname -sr 2>/dev/null`);
 
@@ -80,7 +94,7 @@ sub __get_template_settings($$) {
 }
 
 sub cmd_clean {
-	unlink '.config.cache';
+	unlink CONFIGURE_CACHE_FILE;
 }
 
 sub cmd_help {
@@ -111,11 +125,11 @@ PATH OPTIONS
                                 [$PWD/run/data]
   --log-dir=[dir]               The location where the log files are stored.
                                 [$PWD/run/logs]
+  --manual-dir=[dir]            The location where the manual files are stored.
+                                [$PWD/run/manuals]
   --module-dir=[dir]            The location where the loadable modules are
                                 stored.
                                 [$PWD/run/modules]
-  --build-dir=[dir]             The location to store files in while building.
-
 
 EXTRA MODULE OPTIONS
 
@@ -129,10 +143,13 @@ MISC OPTIONS
   --clean                       Remove the configuration cache file and start
                                 the interactive configuration wizard.
   --disable-interactive         Disables the interactive configuration wizard.
+  --distribution-label=[text]   Sets a distribution specific version label in
+                                the build configuration.
+  --gid=[id|name]               Sets the group to run InspIRCd as.
   --help                        Show this message and exit.
-  --uid=[name]                  Sets the user to run InspIRCd as.
   --socketengine=[name]         Sets the socket engine to be used. Possible
                                 values are $SELIST.
+  --uid=[id|name]               Sets the user to run InspIRCd as.
   --update                      Updates the build environment.
 
 
@@ -150,106 +167,88 @@ EOH
 }
 
 sub cmd_update {
-	unless (-f '.config.cache') {
-		print "You have not run $0 before. Please do this before trying to update the build files.\n";
-		exit 1;
-	}
+	print_error "You have not run $0 before. Please do this before trying to update the generated files." unless -f CONFIGURE_CACHE_FILE;
 	print "Updating...\n";
 	my %config = read_configure_cache();
 	my %compiler = get_compiler_info($config{CXX});
-	parse_templates(\%config, \%compiler);
+	my %version = get_version();
+	parse_templates(\%config, \%compiler, \%version);
 	print "Update complete!\n";
 	exit 0;
 }
 
+sub run_test($$) {
+	my ($what, $result) = @_;
+	print_format "Checking whether <|GREEN $what|> is available ... ";
+	print_format $result ? "<|GREEN yes|>\n" : "<|RED no|>\n";
+	return $result;
+}
+
+sub test_file($$;$) {
+	my ($compiler, $file, $args) = @_;
+	my $status = 0;
+	$args ||= '';
+	$status ||= system "$compiler -o __test_$file make/test/$file $args >/dev/null 2>&1";
+	$status ||= system "./__test_$file >/dev/null 2>&1";
+	unlink "./__test_$file";
+	return !$status;
+}
+
+sub test_header($$;$) {
+	my ($compiler, $header, $args) = @_;
+	$args ||= '';
+	open(COMPILER, "| $compiler -E - $args >/dev/null 2>&1") or return 0;
+	print COMPILER "#include <$header>";
+	close(COMPILER);
+	return !$?;
+}
+
 sub read_configure_cache {
-	my %cfg = ();
-	open(CACHE, '.config.cache') or return %cfg;
+	my %config;
+	open(CACHE, CONFIGURE_CACHE_FILE) or return %config;
 	while (my $line = <CACHE>) {
 		next if $line =~ /^\s*($|\#)/;
 		my ($key, $value) = ($line =~ /^(\S+)="(.*)"$/);
-		$cfg{$key} = $value;
+		$config{$key} = $value;
 	}
 	close(CACHE);
-	return %cfg;
+	return %config;
 }
 
 sub write_configure_cache(%) {
-	my %cfg = @_;
-	open(CACHE, ">.config.cache") or return 0;
-	while (my ($key, $value) = each %cfg) {
-		$value = "" unless defined $value;
+	print_format "Writing <|GREEN ${\CONFIGURE_CACHE_FILE}|> ...\n";
+	my %config = @_;
+	open(CACHE, '>', CONFIGURE_CACHE_FILE) or print_error "unable to write ${\CONFIGURE_CACHE_FILE}: $!";
+	while (my ($key, $value) = each %config) {
+		$value = '' unless defined $value;
 		print CACHE "$key=\"$value\"\n";
 	}
 	close(CACHE);
-	return 1;
 }
 
 sub get_compiler_info($) {
 	my $binary = shift;
 	my $version = `$binary -v 2>&1`;
-	if ($version =~ /(?:clang|llvm)\sversion\s(\d+\.\d+)/i) {
-		return (
-			NAME => 'Clang',
-			VERSION => $1,
-			UNSUPPORTED => $1 lt '3.0',
-			REASON => 'Clang 2.9 and older do not have adequate C++ support.'
-		);
+	if ($version =~ /clang\sversion\s(\d+\.\d+)/i || $version =~ /^apple.+\(based\son\sllvm\s(\d+\.\d+)/i) {
+		# Apple version their LLVM releases slightly differently to the mainline LLVM.
+		# See https://trac.macports.org/wiki/XcodeVersionInfo for more information.
+		return (NAME => 'Clang', VERSION => $1);
 	} elsif ($version =~ /gcc\sversion\s(\d+\.\d+)/i) {
-		return (
-			NAME => 'GCC',
-			VERSION => $1,
-			UNSUPPORTED => $1 lt '4.1',
-			REASON => 'GCC 4.0 and older do not have adequate C++ support.'
-		);
+		return (NAME => 'GCC', VERSION => $1);
 	} elsif ($version =~ /(?:icc|icpc)\sversion\s(\d+\.\d+).\d+\s\(gcc\sversion\s(\d+\.\d+).\d+/i) {
-		return (
-			NAME => 'ICC',
-			VERSION => $1,
-			UNSUPPORTED => $2 lt '4.1',
-			REASON => "ICC $1 (GCC $2 compatibility mode) does not have adequate C++ support."
-		);
+		return (NAME => 'ICC', VERSION => $1);
 	}
-	return (
-		NAME => $binary,
-		VERSION => '0.0'
-	);
+	return (NAME => $binary, VERSION => '0.0');
 }
 
 sub find_compiler {
-	foreach my $compiler ('c++', 'g++', 'clang++', 'icpc') {
-		return $compiler unless system "$compiler -v > /dev/null 2>&1";
-		if ($^O eq 'Darwin') {
-			return $compiler unless system "xcrun $compiler -v > /dev/null 2>&1";
+	my @compilers = qw(c++ g++ clang++ icpc);
+	foreach my $compiler (shift || @compilers) {
+		return $compiler if run_test "`$compiler`", test_file $compiler, 'compiler.cpp';
+		if ($^O eq 'darwin') {
+			return $compiler if run_test "`xcrun $compiler`", test_file "xcrun $compiler", 'compiler.cpp';
 		}
 	}
-	return "";
-}
-
-sub run_test($$) {
-	my ($what, $result) = @_;
-	print "Checking whether $what is available... ";
-	print $result ? "yes\n" : "no\n";
-	return $result;
-}
-
-sub test_file($$;$) {
-	my ($cc, $file, $args) = @_;
-	my $status = 0;
-	$args ||= '';
-	$status ||= system "$cc -o __test_$file make/test/$file $args >/dev/null 2>&1";
-	$status ||= system "./__test_$file >/dev/null 2>&1";
-	unlink  "./__test_$file";
-	return !$status;
-}
-
-sub test_header($$;$) {
-	my ($cc, $header, $args) = @_;
-	$args ||= '';
-	open(CC, "| $cc -E - $args >/dev/null 2>&1") or return 0;
-	print CC "#include <$header>";
-	close(CC);
-	return !$?;
 }
 
 sub get_property($$;$)
@@ -267,31 +266,18 @@ sub get_property($$;$)
 	return defined $default ? $default : '';
 }
 
-sub dump_hash() {
-	print "\n\e[1;32mPre-build configuration is complete!\e[0m\n\n";
-	print "\e[0mBase install path:\e[1;32m\t\t$main::config{BASE_DIR}\e[0m\n";
-	print "\e[0mConfig path:\e[1;32m\t\t\t$main::config{CONFIG_DIR}\e[0m\n";
-	print "\e[0mData path:\e[1;32m\t\t\t$main::config{DATA_DIR}\e[0m\n";
-	print "\e[0mLog path:\e[1;32m\t\t\t$main::config{LOG_DIR}\e[0m\n";
-	print "\e[0mModule path:\e[1;32m\t\t\t$main::config{MODULE_DIR}\e[0m\n";
-	print "\e[0mCompiler:\e[1;32m\t\t\t$main::cxx{NAME} $main::cxx{VERSION}\e[0m\n";
-	print "\e[0mSocket engine:\e[1;32m\t\t\t$main::config{SOCKETENGINE}\e[0m\n";
-	print "\e[0mGnuTLS support:\e[1;32m\t\t\t$main::config{USE_GNUTLS}\e[0m\n";
-	print "\e[0mOpenSSL support:\e[1;32m\t\t$main::config{USE_OPENSSL}\e[0m\n";
-}
-
-sub parse_templates($$) {
+sub parse_templates($$$) {
 
 	# These are actually hash references
-	my ($config, $compiler) = @_;
+	my ($config, $compiler, $version) = @_;
 
 	# Collect settings to be used when generating files
-	my %settings = __get_template_settings($config, $compiler);
+	my %settings = __get_template_settings($config, $compiler, $version);
 
 	# Iterate through files in make/template.
 	foreach (<make/template/*>) {
-		print "Parsing $_...\n";
-		open(TEMPLATE, $_);
+		print_format "Parsing <|GREEN $_|> ...\n";
+		open(TEMPLATE, $_) or print_error "unable to read $_: $!";
 		my (@lines, $mode, @platforms, %targets);
 
 		# First pass: parse template variables and directives.
@@ -302,9 +288,9 @@ sub parse_templates($$) {
 			while ($line =~ /(@(\w+?)@)/) {
 				my ($variable, $name) = ($1, $2);
 				if (defined $settings{$name}) {
-					$line =~ s/$variable/$settings{$name}/;
+					$line =~ s/\Q$variable\E/$settings{$name}/;
 				} else {
-					print STDERR "Warning: unknown template variable '$name' in $_!\n";
+					print_warning "unknown template variable '$name' in $_!";
 					last;
 				}
 			}
@@ -328,7 +314,7 @@ sub parse_templates($$) {
 						$targets{DEFAULT} = $2;
 					}
 				} else {
-					print STDERR "Warning: unknown template command '$1' in $_!\n";
+					print_warning "unknown template command '$1' in $_!";
 					push @lines, $line;
 				}
 				next;
@@ -413,7 +399,7 @@ sub parse_templates($$) {
 							# HACK: silently ignore if lower case as these are probably make commands.
 							push @final_lines, $line;
 						} else {
-							print STDERR "Warning: unknown template command '$1' in $_!\n";
+							print_warning "unknown template command '$1' in $_!";
 							push @final_lines, $line;
 						}
 						next;
@@ -423,8 +409,8 @@ sub parse_templates($$) {
 				}
 
 				# Write the template file.
-				print "Writing $target...\n";
-				open(TARGET, ">$target");
+				print_format "Writing <|GREEN $target|> ...\n";
+				open(TARGET, '>', $target) or print_error "unable to write $_: $!";
 				foreach (@final_lines) {
 					print TARGET $_, "\n";
 				}

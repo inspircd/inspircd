@@ -29,8 +29,8 @@ BEGIN {
 use strict;
 use warnings FATAL => qw(all);
 
+use make::common;
 use make::configure;
-use make::utilities;
 
 $ENV{D} = $ENV{V} = 1;
 
