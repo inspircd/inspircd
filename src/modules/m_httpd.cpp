@@ -30,7 +30,7 @@ class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;
 static bool claimed;
-static std::set<HttpServerSocket*> sockets;
+static insp::intrusive_list<HttpServerSocket> sockets;
 
 /** HTTP socket states
  */
@@ -43,7 +43,7 @@ enum HttpState
 
 /** A socket used for HTTP transport
  */
-class HttpServerSocket : public BufferedSocket
+class HttpServerSocket : public BufferedSocket, public Timer, public insp::intrusive_list_node<HttpServerSocket>
 {
 	HttpState InternalState;
 	std::string ip;
@@ -56,14 +56,26 @@ class HttpServerSocket : public BufferedSocket
 	std::string uri;
 	std::string http_version;
 
- public:
-	const time_t createtime;
+	/** True if this object is in the cull list
+	 */
+	bool waitingcull;
 
-	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server)
-		: BufferedSocket(newfd), ip(IP), postsize(0)
-		, createtime(ServerInstance->Time())
+	bool Tick(time_t currtime) CXX11_OVERRIDE
 	{
-		InternalState = HTTP_SERVE_WAIT_REQUEST;
+		AddToCull();
+		return false;
+	}
+
+ public:
+	HttpServerSocket(int newfd, const std::string& IP, ListenSocket* via, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server, unsigned int timeoutsec)
+		: BufferedSocket(newfd)
+		, Timer(timeoutsec)
+		, InternalState(HTTP_SERVE_WAIT_REQUEST)
+		, ip(IP)
+		, postsize(0)
+		, waitingcull(false)
+	{
+		ServerInstance->Timers.AddTimer(this);
 
 		if (via->iohookprov)
 			via->iohookprov->OnAccept(this, client, server);
@@ -76,7 +88,7 @@ class HttpServerSocket : public BufferedSocket
 
 	void OnError(BufferedSocketError) CXX11_OVERRIDE
 	{
-		ServerInstance->GlobalCulls.AddItem(this);
+		AddToCull();
 	}
 
 	std::string Response(int response)
@@ -329,6 +341,16 @@ class HttpServerSocket : public BufferedSocket
 		SendHeaders(n->str().length(), response, *hheaders);
 		WriteData(n->str());
 	}
+
+	void AddToCull()
+	{
+		if (waitingcull)
+			return;
+
+		waitingcull = true;
+		Close();
+		ServerInstance->GlobalCulls.AddItem(this);
+	}
 };
 
 class HTTPdAPIImpl : public HTTPdAPIBase
@@ -348,7 +370,6 @@ class HTTPdAPIImpl : public HTTPdAPIBase
 
 class ModuleHttpServer : public Module
 {
-	std::vector<HttpServerSocket *> httpsocks;
 	HTTPdAPIImpl APIImpl;
 	unsigned int timeoutsec;
 
@@ -366,7 +387,7 @@ class ModuleHttpServer : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* tag = ServerInstance->Config->ConfValue("httpd");
-		timeoutsec = tag->getInt("timeout");
+		timeoutsec = tag->getInt("timeout", 10, 1);
 	}
 
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
@@ -376,37 +397,16 @@ class ModuleHttpServer : public Module
 		int port;
 		std::string incomingip;
 		irc::sockets::satoap(*client, incomingip, port);
-		sockets.insert(new HttpServerSocket(nfd, incomingip, from, client, server));
+		sockets.push_front(new HttpServerSocket(nfd, incomingip, from, client, server, timeoutsec));
 		return MOD_RES_ALLOW;
-	}
-
-	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
-	{
-		if (!timeoutsec)
-			return;
-
-		time_t oldest_allowed = curtime - timeoutsec;
-		for (std::set<HttpServerSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); )
-		{
-			HttpServerSocket* sock = *i;
-			++i;
-			if (sock->createtime < oldest_allowed)
-			{
-				sock->cull();
-				delete sock;
-			}
-		}
 	}
 
 	CullResult cull() CXX11_OVERRIDE
 	{
-		std::set<HttpServerSocket*> local;
-		local.swap(sockets);
-		for (std::set<HttpServerSocket*>::const_iterator i = local.begin(); i != local.end(); ++i)
+		for (insp::intrusive_list<HttpServerSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{
 			HttpServerSocket* sock = *i;
-			sock->cull();
-			delete sock;
+			sock->AddToCull();
 		}
 		return Module::cull();
 	}
