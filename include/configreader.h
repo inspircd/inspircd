@@ -124,6 +124,11 @@ class ServerLimits
 	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12),
 		MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200),
 		MaxLine(512), MaxHost(64) { }
+
+	/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
+	 * @param tag Configuration tag to read the limits from
+	 */
+	ServerLimits(ConfigTag* tag);
 };
 
 struct CommandLineConf

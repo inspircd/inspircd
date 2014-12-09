@@ -29,6 +29,21 @@
 #include "configparser.h"
 #include <iostream>
 
+ServerLimits::ServerLimits(ConfigTag* tag)
+	: NickMax(tag->getInt("maxnick", 32))
+	, ChanMax(tag->getInt("maxchan", 64))
+	, MaxModes(tag->getInt("maxmodes", 20))
+	, IdentMax(tag->getInt("maxident", 11))
+	, MaxQuit(tag->getInt("maxquit", 255))
+	, MaxTopic(tag->getInt("maxtopic", 307))
+	, MaxKick(tag->getInt("maxkick", 255))
+	, MaxGecos(tag->getInt("maxgecos", 128))
+	, MaxAway(tag->getInt("maxaway", 200))
+	, MaxLine(tag->getInt("maxline", 512))
+	, MaxHost(tag->getInt("maxhost", 64))
+{
+}
+
 static ConfigTag* CreateEmptyTag()
 {
 	std::vector<KeyVal>* items;
@@ -405,17 +420,7 @@ void ServerConfig::Fill()
 	OperMaxChans = ConfValue("channels")->getInt("opers");
 	c_ipv4_range = ConfValue("cidr")->getInt("ipv4clone", 32);
 	c_ipv6_range = ConfValue("cidr")->getInt("ipv6clone", 128);
-	Limits.NickMax = ConfValue("limits")->getInt("maxnick", 32);
-	Limits.ChanMax = ConfValue("limits")->getInt("maxchan", 64);
-	Limits.MaxModes = ConfValue("limits")->getInt("maxmodes", 20);
-	Limits.IdentMax = ConfValue("limits")->getInt("maxident", 11);
-	Limits.MaxHost = ConfValue("limits")->getInt("maxhost", 64);
-	Limits.MaxQuit = ConfValue("limits")->getInt("maxquit", 255);
-	Limits.MaxTopic = ConfValue("limits")->getInt("maxtopic", 307);
-	Limits.MaxKick = ConfValue("limits")->getInt("maxkick", 255);
-	Limits.MaxGecos = ConfValue("limits")->getInt("maxgecos", 128);
-	Limits.MaxAway = ConfValue("limits")->getInt("maxaway", 200);
-	Limits.MaxLine = ConfValue("limits")->getInt("maxline", 512);
+	Limits = ServerLimits(ConfValue("limits"));
 	Paths.Config = ConfValue("path")->getString("configdir", INSPIRCD_CONFIG_PATH);
 	Paths.Data = ConfValue("path")->getString("datadir", INSPIRCD_DATA_PATH);
 	Paths.Log = ConfValue("path")->getString("logdir", INSPIRCD_LOG_PATH);
