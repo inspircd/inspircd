@@ -117,14 +117,6 @@ class ServerLimits
 	/** Maximum hostname length */
 	size_t MaxHost;
 
-	/** Creating the class initialises it to the defaults
-	 * as in 1.1's ./configure script. Reading other values
-	 * from the config will change these values.
-	 */
-	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12),
-		MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200),
-		MaxLine(512), MaxHost(64) { }
-
 	/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
 	 * @param tag Configuration tag to read the limits from
 	 */

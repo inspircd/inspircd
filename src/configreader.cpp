@@ -52,6 +52,7 @@ static ConfigTag* CreateEmptyTag()
 
 ServerConfig::ServerConfig()
 	: EmptyTag(CreateEmptyTag())
+	, Limits(EmptyTag)
 {
 	RawLog = HideBans = HideSplits = UndernetMsgPrefix = false;
 	WildcardIPv6 = InvBypassModes = true;
