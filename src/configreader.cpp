@@ -29,7 +29,14 @@
 #include "configparser.h"
 #include <iostream>
 
+static ConfigTag* CreateEmptyTag()
+{
+	std::vector<KeyVal>* items;
+	return ConfigTag::create("empty", "<auto>", 0, items);
+}
+
 ServerConfig::ServerConfig()
+	: EmptyTag(CreateEmptyTag())
 {
 	RawLog = HideBans = HideSplits = UndernetMsgPrefix = false;
 	WildcardIPv6 = InvBypassModes = true;
@@ -41,9 +48,6 @@ ServerConfig::ServerConfig()
 	OperMaxChans = 30;
 	c_ipv4_range = 32;
 	c_ipv6_range = 128;
-
-	std::vector<KeyVal>* items;
-	EmptyTag = ConfigTag::create("empty", "<auto>", 0, items);
 }
 
 ServerConfig::~ServerConfig()
