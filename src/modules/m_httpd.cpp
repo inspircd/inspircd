@@ -348,7 +348,7 @@ class ModuleHttpServer : public Module
 	void init()
 	{
 		HttpModule = this;
-		Implementation eventlist[] = { I_OnAcceptConnection, I_OnBackgroundTimer, I_OnRehash };
+		Implementation eventlist[] = { I_OnAcceptConnection, I_OnBackgroundTimer, I_OnRehash, I_OnUnloadModule };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 		OnRehash(NULL);
 	}
@@ -390,6 +390,20 @@ class ModuleHttpServer : public Module
 			HttpServerSocket* sock = *i;
 			++i;
 			if (sock->createtime < oldest_allowed)
+			{
+				sock->cull();
+				delete sock;
+			}
+		}
+	}
+
+	void OnUnloadModule(Module* mod)
+	{
+		for (std::set<HttpServerSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); )
+		{
+			HttpServerSocket* sock = *i;
+			++i;
+			if (sock->GetIOHook() == mod)
 			{
 				sock->cull();
 				delete sock;
