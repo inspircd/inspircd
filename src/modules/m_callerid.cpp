@@ -37,15 +37,18 @@ enum
 class callerid_data
 {
  public:
+ 	typedef std::set<User*> UserSet;
+	typedef std::list<callerid_data*> CallerIdDataSet;
+
 	time_t lastnotify;
 
 	/** Users I accept messages from
 	 */
-	std::set<User*> accepting;
+	UserSet accepting;
 
 	/** Users who list me as accepted
 	 */
-	std::list<callerid_data *> wholistsme;
+	CallerIdDataSet wholistsme;
 
 	callerid_data() : lastnotify(0) { }
 
@@ -53,7 +56,7 @@ class callerid_data
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
-		for (std::set<User*>::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
+		for (UserSet::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
 		{
 			User* u = *i;
 			// Encode UIDs.
@@ -126,7 +129,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		callerid_data* dat = static_cast<callerid_data*>(item);
 
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
-		for (std::set<User *>::iterator it = dat->accepting.begin(); it != dat->accepting.end(); it++)
+		for (callerid_data::UserSet::iterator it = dat->accepting.begin(); it != dat->accepting.end(); ++it)
 		{
 			callerid_data *targ = this->get(*it, false);
 
@@ -264,7 +267,7 @@ public:
 		callerid_data* dat = extInfo.get(user, false);
 		if (dat)
 		{
-			for (std::set<User*>::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
+			for (callerid_data::UserSet::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
 				user->WriteNumeric(RPL_ACCEPTLIST, (*i)->nick);
 		}
 		user->WriteNumeric(RPL_ENDOFACCEPT, ":End of ACCEPT list");
@@ -347,7 +350,7 @@ class ModuleCallerID : public Module
 			return;
 
 		// Iterate over the list of people who accept me, and remove all entries
-		for (std::list<callerid_data *>::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); it++)
+		for (callerid_data::CallerIdDataSet::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); ++it)
 		{
 			callerid_data *dat = *(it);
 
