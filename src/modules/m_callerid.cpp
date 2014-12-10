@@ -38,7 +38,7 @@ class callerid_data
 {
  public:
  	typedef std::set<User*> UserSet;
-	typedef std::list<callerid_data*> CallerIdDataSet;
+	typedef std::vector<callerid_data*> CallerIdDataSet;
 
 	time_t lastnotify;
 
@@ -139,7 +139,7 @@ struct CallerIDExtInfo : public ExtensionItem
 				continue; // shouldn't happen, but oh well.
 			}
 
-			if (!stdalgo::erase(targ->wholistsme, dat))
+			if (!stdalgo::vector::swaperase(targ->wholistsme, dat))
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
@@ -320,7 +320,7 @@ public:
 			return false;
 		}
 
-		if (!stdalgo::erase(dat2->wholistsme, dat))
+		if (!stdalgo::vector::swaperase(dat2->wholistsme, dat))
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 
