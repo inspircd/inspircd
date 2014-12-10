@@ -302,14 +302,11 @@ public:
 			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
 			return false;
 		}
-		std::set<User*>::iterator i = dat->accepting.find(whotoremove);
-		if (i == dat->accepting.end())
+		if (!dat->accepting.erase(whotoremove))
 		{
 			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
 			return false;
 		}
-
-		dat->accepting.erase(i);
 
 		// Look up their list to remove me.
 		callerid_data *dat2 = extInfo.get(whotoremove, false);
@@ -355,11 +352,7 @@ class ModuleCallerID : public Module
 			callerid_data *dat = *(it);
 
 			// Find me on their callerid list
-			std::set<User *>::iterator it2 = dat->accepting.find(who);
-
-			if (it2 != dat->accepting.end())
-				dat->accepting.erase(it2);
-			else
+			if (!dat->accepting.erase(who))
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
@@ -394,9 +387,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);
-		std::set<User*>::iterator i = dat->accepting.find(user);
-
-		if (i == dat->accepting.end())
+		if (!dat->accepting.count(user))
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
