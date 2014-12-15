@@ -37,15 +37,18 @@ enum
 class callerid_data
 {
  public:
+ 	typedef std::set<User*> UserSet;
+	typedef std::vector<callerid_data*> CallerIdDataSet;
+
 	time_t lastnotify;
 
 	/** Users I accept messages from
 	 */
-	std::set<User*> accepting;
+	UserSet accepting;
 
 	/** Users who list me as accepted
 	 */
-	std::list<callerid_data *> wholistsme;
+	CallerIdDataSet wholistsme;
 
 	callerid_data() : lastnotify(0) { }
 
@@ -53,7 +56,7 @@ class callerid_data
 	{
 		std::ostringstream oss;
 		oss << lastnotify;
-		for (std::set<User*>::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
+		for (UserSet::const_iterator i = accepting.begin(); i != accepting.end(); ++i)
 		{
 			User* u = *i;
 			// Encode UIDs.
@@ -126,7 +129,7 @@ struct CallerIDExtInfo : public ExtensionItem
 		callerid_data* dat = static_cast<callerid_data*>(item);
 
 		// We need to walk the list of users on our accept list, and remove ourselves from their wholistsme.
-		for (std::set<User *>::iterator it = dat->accepting.begin(); it != dat->accepting.end(); it++)
+		for (callerid_data::UserSet::iterator it = dat->accepting.begin(); it != dat->accepting.end(); ++it)
 		{
 			callerid_data *targ = this->get(*it, false);
 
@@ -136,7 +139,7 @@ struct CallerIDExtInfo : public ExtensionItem
 				continue; // shouldn't happen, but oh well.
 			}
 
-			if (!stdalgo::erase(targ->wholistsme, dat))
+			if (!stdalgo::vector::swaperase(targ->wholistsme, dat))
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (2)");
 		}
 		delete dat;
@@ -264,7 +267,7 @@ public:
 		callerid_data* dat = extInfo.get(user, false);
 		if (dat)
 		{
-			for (std::set<User*>::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
+			for (callerid_data::UserSet::iterator i = dat->accepting.begin(); i != dat->accepting.end(); ++i)
 				user->WriteNumeric(RPL_ACCEPTLIST, (*i)->nick);
 		}
 		user->WriteNumeric(RPL_ENDOFACCEPT, ":End of ACCEPT list");
@@ -302,14 +305,11 @@ public:
 			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
 			return false;
 		}
-		std::set<User*>::iterator i = dat->accepting.find(whotoremove);
-		if (i == dat->accepting.end())
+		if (!dat->accepting.erase(whotoremove))
 		{
 			user->WriteNumeric(ERR_ACCEPTNOT, "%s :is not on your accept list", whotoremove->nick.c_str());
 			return false;
 		}
-
-		dat->accepting.erase(i);
 
 		// Look up their list to remove me.
 		callerid_data *dat2 = extInfo.get(whotoremove, false);
@@ -320,7 +320,7 @@ public:
 			return false;
 		}
 
-		if (!stdalgo::erase(dat2->wholistsme, dat))
+		if (!stdalgo::vector::swaperase(dat2->wholistsme, dat))
 			ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (4)");
 
 
@@ -350,16 +350,12 @@ class ModuleCallerID : public Module
 			return;
 
 		// Iterate over the list of people who accept me, and remove all entries
-		for (std::list<callerid_data *>::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); it++)
+		for (callerid_data::CallerIdDataSet::iterator it = userdata->wholistsme.begin(); it != userdata->wholistsme.end(); ++it)
 		{
 			callerid_data *dat = *(it);
 
 			// Find me on their callerid list
-			std::set<User *>::iterator it2 = dat->accepting.find(who);
-
-			if (it2 != dat->accepting.end())
-				dat->accepting.erase(it2);
-			else
+			if (!dat->accepting.erase(who))
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "ERROR: Inconsistency detected in callerid state, please report (5)");
 		}
 
@@ -394,9 +390,7 @@ public:
 			return MOD_RES_PASSTHRU;
 
 		callerid_data* dat = cmd.extInfo.get(dest, true);
-		std::set<User*>::iterator i = dat->accepting.find(user);
-
-		if (i == dat->accepting.end())
+		if (!dat->accepting.count(user))
 		{
 			time_t now = ServerInstance->Time();
 			/* +g and *not* accepted */
