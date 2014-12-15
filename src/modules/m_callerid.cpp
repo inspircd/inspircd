@@ -37,7 +37,7 @@ enum
 class callerid_data
 {
  public:
- 	typedef std::set<User*> UserSet;
+ 	typedef insp::flat_set<User*> UserSet;
 	typedef std::vector<callerid_data*> CallerIdDataSet;
 
 	time_t lastnotify;

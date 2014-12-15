@@ -34,7 +34,7 @@ class floodsettings
 	unsigned int secs;
 	unsigned int lines;
 	time_t reset;
-	std::map<User*, unsigned int> counters;
+	insp::flat_map<User*, unsigned int> counters;
 
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
@@ -54,11 +54,7 @@ class floodsettings
 
 	void clear(User* who)
 	{
-		std::map<User*, unsigned int>::iterator iter = counters.find(who);
-		if (iter != counters.end())
-		{
-			counters.erase(iter);
-		}
+		counters.erase(who);
 	}
 };
 

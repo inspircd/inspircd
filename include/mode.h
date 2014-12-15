@@ -490,7 +490,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
  private:
 	/** Type of the container that maps mode names to ModeWatchers
 	 */
- 	typedef std::multimap<std::string, ModeWatcher*> ModeWatcherMap;
+ 	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
 
 	/** Last item in the ModeType enum
 	 */

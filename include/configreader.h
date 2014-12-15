@@ -165,7 +165,7 @@ struct CommandLineConf
 class CoreExport OperInfo : public refcountbase
 {
  public:
-	typedef std::set<std::string> PrivSet;
+	typedef insp::flat_set<std::string> PrivSet;
 	PrivSet AllowedOperCommands;
 	PrivSet AllowedPrivs;
 
@@ -234,7 +234,7 @@ class CoreExport ServerConfig
 
 	/** Index of valid oper blocks and types
 	 */
-	typedef std::map<std::string, reference<OperInfo> > OperIndex;
+	typedef insp::flat_map<std::string, reference<OperInfo> > OperIndex;
 
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get

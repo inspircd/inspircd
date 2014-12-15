@@ -60,7 +60,7 @@ bool CommandParser::LoopCall(User* user, Command* handler, const std::vector<std
 	 *
 	 * Only check for duplicates if there is one list (allow them in JOIN).
 	 */
-	std::set<irc::string> dupes;
+	insp::flat_set<irc::string> dupes;
 	bool check_dupes = (extra < 0);
 
 	/* Create two sepstreams, if we have only one list, then initialize the second sepstream with

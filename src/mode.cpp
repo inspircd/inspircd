@@ -790,7 +790,7 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 {
 	std::string mletters;
 	std::string mprefixes;
-	std::map<int,std::pair<char,char> > prefixes;
+	insp::flat_map<int, std::pair<char, char> > prefixes;
 
 	const PrefixModeList& list = GetPrefixModes();
 	for (PrefixModeList::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -800,7 +800,7 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 			prefixes[pm->GetPrefixRank()] = std::make_pair(pm->GetPrefix(), pm->GetModeChar());
 	}
 
-	for(std::map<int,std::pair<char,char> >::reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); n++)
+	for (insp::flat_map<int, std::pair<char, char> >::reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); ++n)
 	{
 		mletters = mletters + n->second.first;
 		mprefixes = mprefixes + n->second.second;

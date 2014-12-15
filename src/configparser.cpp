@@ -155,7 +155,7 @@ struct Parser
 				}
 				else
 				{
-					std::map<std::string, std::string>::iterator var = stack.vars.find(varname);
+					insp::flat_map<std::string, std::string>::iterator var = stack.vars.find(varname);
 					if (var == stack.vars.end())
 						throw CoreException("Undefined XML entity reference '&" + varname + ";'");
 					value.append(var->second);

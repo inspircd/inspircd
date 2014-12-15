@@ -25,7 +25,7 @@ class ModuleChanLog : public Module
 	/*
 	 * Multimap so people can redirect a snomask to multiple channels.
 	 */
-	typedef std::multimap<char, std::string> ChanLogTargets;
+	typedef insp::flat_multimap<char, std::string> ChanLogTargets;
 	ChanLogTargets logstreams;
 
  public:
