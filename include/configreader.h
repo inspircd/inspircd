@@ -165,8 +165,9 @@ struct CommandLineConf
 class CoreExport OperInfo : public refcountbase
 {
  public:
-	std::set<std::string> AllowedOperCommands;
-	std::set<std::string> AllowedPrivs;
+	typedef std::set<std::string> PrivSet;
+	PrivSet AllowedOperCommands;
+	PrivSet AllowedPrivs;
 
 	/** Allowed user modes from oper classes. */
 	std::bitset<64> AllowedUserModes;

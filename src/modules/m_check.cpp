@@ -160,7 +160,7 @@ class CommandCheck : public Command
 					}
 					user->SendText(checkstr + " modeperms user=" + umodes + " channel=" + cmodes);
 					std::string opcmds;
-					for(std::set<std::string>::iterator i = oper->AllowedOperCommands.begin(); i != oper->AllowedOperCommands.end(); i++)
+					for (OperInfo::PrivSet::const_iterator i = oper->AllowedOperCommands.begin(); i != oper->AllowedOperCommands.end(); ++i)
 					{
 						opcmds.push_back(' ');
 						opcmds.append(*i);
@@ -168,7 +168,7 @@ class CommandCheck : public Command
 					std::stringstream opcmddump(opcmds);
 					user->SendText(checkstr + " commandperms", opcmddump);
 					std::string privs;
-					for(std::set<std::string>::iterator i = oper->AllowedPrivs.begin(); i != oper->AllowedPrivs.end(); i++)
+					for (OperInfo::PrivSet::const_iterator i = oper->AllowedPrivs.begin(); i != oper->AllowedPrivs.end(); ++i)
 					{
 						privs.push_back(' ');
 						privs.append(*i);
