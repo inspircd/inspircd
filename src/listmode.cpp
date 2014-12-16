@@ -34,7 +34,7 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	{
 		for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 		{
-			user->WriteNumeric(listnumeric, "%s %s %s %lu", channel->name.c_str(), it->mask.c_str(), (!it->setter.empty() ? it->setter.c_str() : ServerInstance->Config->ServerName.c_str()), (unsigned long) it->time);
+			user->WriteNumeric(listnumeric, "%s %s %s %lu", channel->name.c_str(), it->mask.c_str(), it->setter.c_str(), (unsigned long) it->time);
 		}
 	}
 	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
