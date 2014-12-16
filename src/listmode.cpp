@@ -192,7 +192,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 			{
 				if (parameter == it->mask)
 				{
-					cd->list.erase(it);
+					stdalgo::vector::swaperase(cd->list, it);
 					return MODEACTION_ALLOW;
 				}
 			}
