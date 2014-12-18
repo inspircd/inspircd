@@ -247,7 +247,7 @@ install: target
 	-$(INSTALL) -m $(INSTMODE_LIB) inspircd-genssl.1 $(MANPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_BIN) tools/genssl $(BINPATH)/inspircd-genssl 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/*.example $(CONPATH)/examples
-	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH)
+	-$(INSTALL) -m $(INSTMODE_LIB) *.pem $(CONPATH) 2>/dev/null
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/aliases/*.example $(CONPATH)/examples/aliases
 	-$(INSTALL) -m $(INSTMODE_LIB) docs/conf/modules/*.example $(CONPATH)/examples/modules
 	@echo ""
@@ -264,11 +264,8 @@ install: target
 	@echo 'Remember to create your config file:' $(CONPATH)/inspircd.conf
 	@echo 'Examples are available at:' $(CONPATH)/examples/
 
-@TARGET BSD_MAKE CONFIGURE_CACHE_FILE = @CONFIGURE_CACHE_FILE@
-@TARGET GNU_MAKE CONFIGURE_CACHE_FILE = $(wildcard @CONFIGURE_CACHE_FILE@)
-
-GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure $(CONFIGURE_CACHE_FILE)
-	./configure -update
+GNUmakefile BSDmakefile: make/template/main.mk src/version.sh configure @CONFIGURE_CACHE_FILE@
+	./configure --update
 @TARGET BSD_MAKE .MAKEFILEDEPS: BSDmakefile
 
 clean:
