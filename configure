@@ -300,7 +300,7 @@ if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, 'Would you like to ge
 	system './tools/genssl', 'auto';
 }
 
-write_configure_cache %config if $interactive;
+write_configure_cache %config;
 parse_templates \%config, \%compiler, \%version;
 
 print_format <<"EOM";
@@ -312,10 +312,15 @@ Configuration is complete! You have chosen to build with the following settings:
   <|GREEN Name:|>    $compiler{NAME}
   <|GREEN Version:|> $compiler{VERSION}
 
-<|GREEN Extra Modules:|> <<TODO>>
-  * m_foo
-  * m_bar
-  * m_baz
+<|GREEN Extra Modules:|>
+EOM
+
+for my $file (<src/modules/m_*>) {
+	my $module = basename $file, '.cpp';
+	print "  * $module\n" if -l $file;
+}
+
+print_format <<"EOM";
 
 <|GREEN Paths:|>
   <|GREEN Base:|>   $config{BASE_DIR}
