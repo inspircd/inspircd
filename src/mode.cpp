@@ -268,8 +268,8 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	}
 
 	// Ask mode watchers whether this mode change is OK
-	std::pair<ModeWatchIter, ModeWatchIter> itpair = modewatchermap.equal_range(mh->name);
-	for (ModeWatchIter i = itpair.first; i != itpair.second; ++i)
+	std::pair<ModeWatcherMap::iterator, ModeWatcherMap::iterator> itpair = modewatchermap.equal_range(mh->name);
+	for (ModeWatcherMap::iterator i = itpair.first; i != itpair.second; ++i)
 	{
 		ModeWatcher* mw = i->second;
 		if (mw->GetModeType() == type)
@@ -320,7 +320,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 		return ma;
 
 	itpair = modewatchermap.equal_range(mh->name);
-	for (ModeWatchIter i = itpair.first; i != itpair.second; ++i)
+	for (ModeWatcherMap::iterator i = itpair.first; i != itpair.second; ++i)
 	{
 		ModeWatcher* mw = i->second;
 		if (mw->GetModeType() == type)
@@ -496,8 +496,8 @@ void ModeParser::ShowListModeList(User* user, Channel* chan, ModeHandler* mh)
 		bool display = true;
 
 		// Ask mode watchers whether it's OK to show the list
-		std::pair<ModeWatchIter, ModeWatchIter> itpair = modewatchermap.equal_range(mh->name);
-		for (ModeWatchIter i = itpair.first; i != itpair.second; ++i)
+		std::pair<ModeWatcherMap::iterator, ModeWatcherMap::iterator> itpair = modewatchermap.equal_range(mh->name);
+		for (ModeWatcherMap::iterator i = itpair.first; i != itpair.second; ++i)
 		{
 			ModeWatcher* mw = i->second;
 			if (mw->GetModeType() == MODETYPE_CHANNEL)
@@ -790,7 +790,7 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 {
 	std::string mletters;
 	std::string mprefixes;
-	std::map<int,std::pair<char,char> > prefixes;
+	insp::flat_map<int, std::pair<char, char> > prefixes;
 
 	const PrefixModeList& list = GetPrefixModes();
 	for (PrefixModeList::const_iterator i = list.begin(); i != list.end(); ++i)
@@ -800,7 +800,7 @@ std::string ModeParser::BuildPrefixes(bool lettersAndModes)
 			prefixes[pm->GetPrefixRank()] = std::make_pair(pm->GetPrefix(), pm->GetModeChar());
 	}
 
-	for(std::map<int,std::pair<char,char> >::reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); n++)
+	for (insp::flat_map<int, std::pair<char, char> >::reverse_iterator n = prefixes.rbegin(); n != prefixes.rend(); ++n)
 	{
 		mletters = mletters + n->second.first;
 		mprefixes = mprefixes + n->second.second;
@@ -816,8 +816,8 @@ void ModeParser::AddModeWatcher(ModeWatcher* mw)
 
 bool ModeParser::DelModeWatcher(ModeWatcher* mw)
 {
-	std::pair<ModeWatchIter, ModeWatchIter> itpair = modewatchermap.equal_range(mw->GetModeName());
-	for (ModeWatchIter i = itpair.first; i != itpair.second; ++i)
+	std::pair<ModeWatcherMap::iterator, ModeWatcherMap::iterator> itpair = modewatchermap.equal_range(mw->GetModeName());
+	for (ModeWatcherMap::iterator i = itpair.first; i != itpair.second; ++i)
 	{
 		if (i->second == mw)
 		{

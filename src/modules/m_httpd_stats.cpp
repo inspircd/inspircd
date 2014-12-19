@@ -27,7 +27,7 @@
 
 class ModuleHttpStats : public Module
 {
-	static std::map<char, char const*> const &entities;
+	static const insp::flat_map<char, char const*>& entities;
 	HTTPdAPI API;
 
  public:
@@ -43,7 +43,7 @@ class ModuleHttpStats : public Module
 
 		for (std::string::const_iterator x = str.begin(); x != str.end(); ++x)
 		{
-			std::map<char, char const*>::const_iterator it = entities.find(*x);
+			insp::flat_map<char, char const*>::const_iterator it = entities.find(*x);
 
 			if (it != entities.end())
 			{
@@ -241,9 +241,9 @@ class ModuleHttpStats : public Module
 	}
 };
 
-static std::map<char, char const*> const &init_entities()
+static const insp::flat_map<char, char const*>& init_entities()
 {
-	static std::map<char, char const*> entities;
+	static insp::flat_map<char, char const*> entities;
 	entities['<'] = "lt";
 	entities['>'] = "gt";
 	entities['&'] = "amp";
@@ -251,6 +251,6 @@ static std::map<char, char const*> const &init_entities()
 	return entities;
 }
 
-std::map<char, char const*> const &ModuleHttpStats::entities = init_entities ();
+const insp::flat_map<char, char const*>& ModuleHttpStats::entities = init_entities();
 
 MODULE_INIT(ModuleHttpStats)

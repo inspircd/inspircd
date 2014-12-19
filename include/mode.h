@@ -473,8 +473,6 @@ class CoreExport ModeWatcher : public classbase
 	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding);
 };
 
-typedef std::multimap<std::string, ModeWatcher*>::iterator ModeWatchIter;
-
 /** The mode parser handles routing of modes and handling of mode strings.
  * It marshalls, controls and maintains both ModeWatcher and ModeHandler classes,
  * parses client to server MODE strings for user and channel modes, and performs
@@ -490,6 +488,10 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	typedef TR1NS::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
 
  private:
+	/** Type of the container that maps mode names to ModeWatchers
+	 */
+ 	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
+
 	/** Last item in the ModeType enum
 	 */
 	static const unsigned int MODETYPE_LAST = 2;
@@ -524,7 +526,7 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 
 	/** Mode watcher classes
 	 */
-	std::multimap<std::string, ModeWatcher*> modewatchermap;
+	ModeWatcherMap modewatchermap;
 
 	/** Last processed mode change
 	 */

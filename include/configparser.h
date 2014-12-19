@@ -41,7 +41,7 @@ enum ParseFlags
 struct ParseStack
 {
 	std::vector<std::string> reading;
-	std::map<std::string, std::string> vars;
+	insp::flat_map<std::string, std::string> vars;
 	ConfigDataHash& output;
 	ConfigFileCache& FilesOutput;
 	std::stringstream& errstr;
