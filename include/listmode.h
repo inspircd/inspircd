@@ -37,7 +37,7 @@ class CoreExport ListModeBase : public ModeHandler
 
 	/** Items stored in the channel's list
 	 */
-	typedef std::list<ListItem> ModeList;
+	typedef std::vector<ListItem> ModeList;
 
  private:
 	class ChanData
