@@ -578,21 +578,20 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 
 void InspIRCd::UpdateTime()
 {
-#ifdef _WIN32
+#if _POSIX_TIMERS > 0
+	clock_gettime(CLOCK_REALTIME, &TIME);
+#elif defined _WIN32
 	SYSTEMTIME st;
 	GetSystemTime(&st);
 
 	TIME.tv_sec = time(NULL);
 	TIME.tv_nsec = st.wMilliseconds;
 #else
-	#ifdef HAS_CLOCK_GETTIME
-		clock_gettime(CLOCK_REALTIME, &TIME);
-	#else
-		struct timeval tv;
-		gettimeofday(&tv, NULL);
-		TIME.tv_sec = tv.tv_sec;
-		TIME.tv_nsec = tv.tv_usec * 1000;
-	#endif
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+
+	TIME.tv_sec = tv.tv_sec;
+	TIME.tv_nsec = tv.tv_usec * 1000;
 #endif
 }
 
