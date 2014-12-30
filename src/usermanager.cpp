@@ -72,7 +72,7 @@ void UserManager::AddUser(int socket, ListenSocket* via, irc::sockets::sockaddrs
 	(*(this->clientlist))[New->nick] = New;
 
 	New->registered = REG_NONE;
-	New->signon = ServerInstance->Time() + ServerInstance->Config->dns_timeout;
+	New->signon = ServerInstance->Time();
 	New->lastping = 1;
 
 	ServerInstance->Users->AddLocalClone(New);
