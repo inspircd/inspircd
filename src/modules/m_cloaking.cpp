@@ -192,7 +192,7 @@ class ModuleCloaking : public Module
 		input.append(1, '\0'); // null does not terminate a C++ string
 		input.append(item);
 
-		std::string rv = Hash->Generate(input).substr(0,len);
+		std::string rv = Hash->GenerateRaw(input).substr(0,len);
 		for(int i=0; i < len; i++)
 		{
 			// this discards 3 bits per byte. We have an
