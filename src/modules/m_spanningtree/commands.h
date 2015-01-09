@@ -142,7 +142,7 @@ class CommandFJoin : public ServerCommand
 		 * a message or not
 		 */
 		static const size_t membid_max_digits = 20;
-		static const size_t maxline = 480;
+		static const size_t maxline = 510;
 		std::string::size_type pos;
 
 	protected:
