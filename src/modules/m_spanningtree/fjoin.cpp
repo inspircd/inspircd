@@ -162,12 +162,13 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 		return;
 	}
 
+	std::string::const_iterator modeendit = item.begin(); // End of the "ov" mode string
 	/* Check if the user received at least one mode */
-	if ((modechangelist) && (comma > 0) && (comma != std::string::npos))
+	if ((modechangelist) && (comma != std::string::npos))
 	{
+		modeendit += comma;
 		/* Iterate through the modes and see if they are valid here, if so, apply */
-		std::string::const_iterator commait = item.begin()+comma;
-		for (std::string::const_iterator i = item.begin(); i != commait; ++i)
+		for (std::string::const_iterator i = item.begin(); i != modeendit; ++i)
 		{
 			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
 			if (!mh)
