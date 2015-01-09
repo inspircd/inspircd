@@ -75,6 +75,13 @@ class CmdBuilder
 		return *this;
 	}
 
+	template <typename InputIterator>
+	CmdBuilder& push_raw(InputIterator first, InputIterator last)
+	{
+		content.append(first, last);
+		return *this;
+	}
+
 	CmdBuilder& push(const std::string& s)
 	{
 		content.push_back(' ');
