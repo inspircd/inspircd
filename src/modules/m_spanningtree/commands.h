@@ -114,6 +114,7 @@ class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
 };
 
 class TreeSocket;
+class FwdFJoinBuilder;
 class CommandFJoin : public ServerCommand
 {
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
@@ -129,10 +130,11 @@ class CommandFJoin : public ServerCommand
 	 * @param newname The new name of the channel; must be the same or a case change of the current name
 	 */
 	static void LowerTS(Channel* chan, time_t TS, const std::string& newname);
-	void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist);
+	void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin);
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
 	CmdResult Handle(User* user, std::vector<std::string>& params);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_LOCALONLY; }
 
 	class Builder : public CmdBuilder
 	{

@@ -25,6 +25,22 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
+/** FJOIN builder for rebuilding incoming FJOINs and splitting them up into multiple messages if necessary
+ */
+class FwdFJoinBuilder : public CommandFJoin::Builder
+{
+	TreeServer* const sourceserver;
+
+ public:
+	FwdFJoinBuilder(Channel* chan, TreeServer* server)
+		: CommandFJoin::Builder(chan, server)
+		, sourceserver(server)
+	{
+	}
+
+	void add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend);
+};
+
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
 CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 {
@@ -71,6 +87,30 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 *
 	 * <membid> is a positive integer representing the id of the membership.
 	 * If not present (in FJOINs coming from pre-1205 servers), 0 is assumed.
+	 *
+	 * Forwarding:
+	 * FJOIN messages are forwarded with the new TS and modes. Prefix modes of
+	 * members on the losing side are not forwarded.
+	 * This is required to only have one server on each side of the network who
+	 * decides the fate of a channel during a network merge. Otherwise, if the
+	 * clock of a server is slightly off it may make a different decision than
+	 * the rest of the network and desync.
+	 * The prefix modes are always forwarded as-is, or not at all.
+	 * One incoming FJOIN may result in more than one FJOIN being generated
+	 * and forwarded mainly due to compatibility reasons with non-InspIRCd
+	 * servers that don't handle more than 512 char long lines.
+	 *
+	 * Forwarding examples:
+	 * Existing channel #chan with TS 1000, modes +n.
+	 * Incoming:  :220 FJOIN #chan 1000 +t :o,220AAAAAB:0
+	 * Forwarded: :220 FJOIN #chan 1000 +nt :o,220AAAAAB:0
+	 * Merge modes and forward the result. Forward their prefix modes as well.
+	 *
+	 * Existing channel #chan with TS 1000, modes +nt.
+	 * Incoming:  :220 FJOIN #CHAN 2000 +i :ov,220AAAAAB:0 o,220AAAAAC:20
+	 * Forwarded: :220 FJOIN #chan 1000 +nt :,220AAAAAB:0 ,220AAAAAC:20
+	 * Drop their modes, forward our modes and TS, use our channel name
+	 * capitalization. Don't forward prefix modes.
 	 *
 	 */
 
@@ -124,14 +164,21 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 
 	TreeServer* const sourceserver = TreeServer::Get(srcuser);
 
+	// Build a new FJOIN for forwarding. Put the correct TS in it and the current modes of the channel
+	// after applying theirs. If they lost, the prefix modes from their message are not forwarded.
+	FwdFJoinBuilder fwdfjoin(chan, sourceserver);
+
 	/* Now, process every 'modes,uuid' pair */
 	irc::tokenstream users(params.back());
 	std::string item;
 	Modes::ChangeList* modechangelistptr = (apply_other_sides_modes ? &modechangelist : NULL);
 	while (users.GetToken(item))
 	{
-		ProcessModeUUIDPair(item, sourceserver, chan, modechangelistptr);
+		ProcessModeUUIDPair(item, sourceserver, chan, modechangelistptr, fwdfjoin);
 	}
+
+	fwdfjoin.finalize();
+	fwdfjoin.Forward(sourceserver);
 
 	// Set prefix modes on their users if we lost the FJOIN or had equal TS
 	if (apply_other_sides_modes)
@@ -140,7 +187,7 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	return CMD_SUCCESS;
 }
 
-void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist)
+void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin)
 {
 	std::string::size_type comma = item.find(',');
 
@@ -181,7 +228,13 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 
 	Membership* memb = chan->ForceJoin(who, NULL, sourceserver->IsBursting());
 	if (!memb)
+	{
+		// User was already on the channel, forward because of the modes they potentially got
+		memb = chan->GetUser(who);
+		if (memb)
+			fwdfjoin.add(memb, item.begin(), modeendit);
 		return;
+	}
 
 	// Assign the id to the new Membership
 	Membership::Id membid = 0;
@@ -189,6 +242,9 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 	if (colon != std::string::npos)
 		membid = Membership::IdFromString(item.substr(colon+1));
 	memb->id = membid;
+
+	// Add member to fwdfjoin with prefix modes
+	fwdfjoin.add(memb, item.begin(), modeendit);
 }
 
 void CommandFJoin::RemoveStatus(Channel* c)
@@ -269,4 +325,21 @@ const std::string& CommandFJoin::Builder::finalize()
 	if (*content.rbegin() == ' ')
 		content.erase(content.size()-1);
 	return str();
+}
+
+void FwdFJoinBuilder::add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend)
+{
+	// Pseudoserver compatibility:
+	// Some pseudoservers do not handle lines longer than 512 so we split long FJOINs into multiple messages.
+	// The forwarded FJOIN can end up being longer than the original one if we have more modes set and won, for example.
+
+	// Check if the member fits into the current message. If not, send it and prepare a new one.
+	if (!has_room(std::distance(mbegin, mend)))
+	{
+		finalize();
+		Forward(sourceserver);
+		clear();
+	}
+	// Add the member and their modes exactly as they sent them
+	CommandFJoin::Builder::add(memb, mbegin, mend);
 }
