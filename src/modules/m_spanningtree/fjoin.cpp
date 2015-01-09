@@ -245,16 +245,16 @@ CommandFJoin::Builder::Builder(Channel* chan, TreeServer* source)
 	push_raw(chan->ChanModes(true)).push_raw(" :");
 }
 
-void CommandFJoin::Builder::add(Membership* memb)
+void CommandFJoin::Builder::add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend)
 {
-	push_raw(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+	push_raw(mbegin, mend).push_raw(',').push_raw(memb->user->uuid);
 	push_raw(':').push_raw_int(memb->id);
 	push_raw(' ');
 }
 
-bool CommandFJoin::Builder::has_room(Membership* memb) const
+bool CommandFJoin::Builder::has_room(std::string::size_type nummodes) const
 {
-	return ((str().size() + memb->modes.size() + UIDGenerator::UUID_LENGTH + 2 + membid_max_digits + 1) <= maxline);
+	return ((str().size() + nummodes + UIDGenerator::UUID_LENGTH + 2 + membid_max_digits + 1) <= maxline);
 }
 
 void CommandFJoin::Builder::clear()
