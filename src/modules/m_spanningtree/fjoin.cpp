@@ -237,8 +237,8 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	chan->topicset = 0;
 }
 
-CommandFJoin::Builder::Builder(Channel* chan)
-	: CmdBuilder("FJOIN")
+CommandFJoin::Builder::Builder(Channel* chan, TreeServer* source)
+	: CmdBuilder(source->GetID(), "FJOIN")
 {
 	push(chan->name).push_int(chan->age).push_raw(" +");
 	pos = str().size();

@@ -144,7 +144,7 @@ class CommandFJoin : public ServerCommand
 		std::string::size_type pos;
 
 	 public:
-		Builder(Channel* chan);
+		Builder(Channel* chan, TreeServer* source = Utils->TreeRoot);
 		void add(Membership* memb);
 		bool has_room(Membership* memb) const;
 		void clear();
