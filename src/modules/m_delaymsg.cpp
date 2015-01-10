@@ -95,8 +95,7 @@ void ModuleDelayMsg::OnUserJoin(Membership* memb, bool sync, bool created, CULis
 
 ModResult ModuleDelayMsg::OnUserPreMessage(User* user, void* dest, int target_type, std::string& text, char status, CUList& exempt_list, MessageType msgtype)
 {
-	/* Server origin */
-	if ((!user) || (!IS_LOCAL(user)))
+	if (!IS_LOCAL(user))
 		return MOD_RES_PASSTHRU;
 
 	if ((target_type != TYPE_CHANNEL) || ((!allownotice) && (msgtype == MSG_NOTICE)))

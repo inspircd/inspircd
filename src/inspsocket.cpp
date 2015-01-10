@@ -475,11 +475,8 @@ void BufferedSocket::DoWrite()
 BufferedSocket::~BufferedSocket()
 {
 	this->Close();
-	if (Timeout)
-	{
-		// The timer is removed from the TimerManager in Timer::~Timer()
-		delete Timeout;
-	}
+	// The timer is removed from the TimerManager in Timer::~Timer()
+	delete Timeout;
 }
 
 void StreamSocket::HandleEvent(EventType et, int errornum)
