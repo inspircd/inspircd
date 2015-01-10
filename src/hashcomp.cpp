@@ -268,7 +268,7 @@ bool irc::tokenstream::GetToken(std::string &token)
 	/* This is the last parameter */
 	if (token[0] == ':' && !first)
 	{
-		token = token.substr(1);
+		token.erase(token.begin());
 		if (!StreamEnd())
 		{
 			token += ' ';
@@ -332,7 +332,7 @@ bool irc::sepstream::GetToken(std::string &token)
 	if (p == std::string::npos)
 		p = this->tokens.length();
 
-	token = this->tokens.substr(this->pos, p - this->pos);
+	token.assign(tokens, this->pos, p - this->pos);
 	this->pos = p + 1;
 
 	return true;
@@ -412,10 +412,9 @@ long irc::portparser::GetToken()
 	std::string::size_type dash = x.rfind('-');
 	if (dash != std::string::npos)
 	{
-		std::string sbegin = x.substr(0, dash);
-		std::string send = x.substr(dash+1, x.length());
+		std::string sbegin(x, 0, dash);
 		range_begin = atoi(sbegin.c_str());
-		range_end = atoi(send.c_str());
+		range_end = atoi(x.c_str()+dash+1);
 
 		if ((range_begin > 0) && (range_end > 0) && (range_begin < 65536) && (range_end < 65536) && (range_begin < range_end))
 		{

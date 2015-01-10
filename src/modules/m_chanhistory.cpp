@@ -65,7 +65,7 @@ class HistoryMode : public ParamMode<HistoryMode, SimpleExtItem<HistoryList> >
 		if (colon == std::string::npos)
 			return MODEACTION_DENY;
 
-		std::string duration = parameter.substr(colon+1);
+		std::string duration(parameter, colon+1);
 		if ((IS_LOCAL(source)) && ((duration.length() > 10) || (!IsValidDuration(duration))))
 			return MODEACTION_DENY;
 

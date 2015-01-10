@@ -55,7 +55,7 @@ CmdResult CommandRehash::Handle (const std::vector<std::string>& parameters, Use
 
 		// the leading "-" is optional; remove it if present.
 		if (param[0] == '-')
-			param = param.substr(1);
+			param.erase(param.begin());
 
 		FOREACH_MOD(OnModuleRehash, (user, param));
 		return CMD_SUCCESS;

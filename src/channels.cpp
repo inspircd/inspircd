@@ -396,10 +396,10 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 		return false;
 
 	const std::string nickIdent = user->nick + "!" + user->ident;
-	std::string prefix = mask.substr(0, at);
+	std::string prefix(mask, 0, at);
 	if (InspIRCd::Match(nickIdent, prefix, NULL))
 	{
-		std::string suffix = mask.substr(at + 1);
+		std::string suffix(mask, at + 1);
 		if (InspIRCd::Match(user->host, suffix, NULL) ||
 			InspIRCd::Match(user->dhost, suffix, NULL) ||
 			InspIRCd::MatchCIDR(user->GetIPString(), suffix, NULL))

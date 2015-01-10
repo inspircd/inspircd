@@ -47,7 +47,7 @@ class AutoOpList : public ListModeBase
 		if (pos == 0 || pos == std::string::npos)
 			return adding ? MOD_RES_DENY : MOD_RES_PASSTHRU;
 		unsigned int mylevel = channel->GetPrefixValue(source);
-		std::string mid = parameter.substr(0, pos);
+		std::string mid(parameter, 0, pos);
 		PrefixMode* mh = FindMode(mid);
 
 		if (adding && !mh)

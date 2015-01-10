@@ -138,8 +138,8 @@ class ModuleNamedModes : public Module
 				std::string::size_type eq = name.find('=');
 				if (eq != std::string::npos)
 				{
-					value = name.substr(eq + 1);
-					name = name.substr(0, eq);
+					value.assign(name, eq + 1, std::string::npos);
+					name.erase(eq);
 				}
 
 				ModeHandler* mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);

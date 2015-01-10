@@ -909,7 +909,7 @@ info_done_dealloc:
 			}
 			else if (ret > 0)
 			{
-				sendq = sendq.substr(ret);
+				sendq.erase(0, ret);
 				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}

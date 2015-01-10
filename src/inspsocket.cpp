@@ -150,9 +150,8 @@ bool StreamSocket::GetNextLine(std::string& line, char delim)
 	std::string::size_type i = recvq.find(delim);
 	if (i == std::string::npos)
 		return false;
-	line = recvq.substr(0, i);
-	// TODO is this the most efficient way to split?
-	recvq = recvq.substr(i + 1);
+	line.assign(recvq, 0, i);
+	recvq.erase(0, i + 1);
 	return true;
 }
 
@@ -299,7 +298,7 @@ void StreamSocket::DoWrite()
 					else if (rv < itemlen)
 					{
 						SocketEngine::ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
-						front = front.substr(rv);
+						front.erase(0, rv);
 						sendq_len -= rv;
 						return;
 					}
@@ -378,7 +377,7 @@ void StreamSocket::DoWrite()
 					else
 					{
 						// stopped in the middle of this string
-						front = front.substr(rv);
+						front.erase(0, rv);
 						rv = 0;
 					}
 				}

@@ -36,7 +36,7 @@ class CommandMkpasswd : public Command
 	{
 		if (!algo.compare(0, 5, "hmac-", 5))
 		{
-			std::string type = algo.substr(5);
+			std::string type(algo, 5);
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 			{
@@ -91,7 +91,7 @@ class ModuleOperHash : public Module
 	{
 		if (!hashtype.compare(0, 5, "hmac-", 5))
 		{
-			std::string type = hashtype.substr(5);
+			std::string type(hashtype, 5);
 			HashProvider* hp = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + type);
 			if (!hp)
 				return MOD_RES_PASSTHRU;

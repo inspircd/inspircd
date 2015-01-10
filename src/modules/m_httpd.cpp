@@ -269,7 +269,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 				continue;
 			}
 
-			std::string cheader = reqbuffer.substr(hbegin, hend - hbegin);
+			std::string cheader(reqbuffer, hbegin, hend - hbegin);
 
 			std::string::size_type fieldsep = cheader.find(':');
 			if ((fieldsep == std::string::npos) || (fieldsep == 0) || (fieldsep == cheader.length() - 1))
@@ -300,7 +300,7 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 			if (reqbuffer.length() >= postsize)
 			{
-				postdata = reqbuffer.substr(0, postsize);
+				postdata.assign(reqbuffer, 0, postsize);
 				reqbuffer.erase(0, postsize);
 			}
 			else if (!reqbuffer.empty())

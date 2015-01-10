@@ -277,7 +277,7 @@ void UserIOHandler::OnDataReady()
 		return;
 eol_found:
 		// just found a newline. Terminate the string, and pull it out of recvq
-		recvq = recvq.substr(qpos);
+		recvq.erase(0, qpos);
 
 		// TODO should this be moved to when it was inserted in recvq?
 		ServerInstance->stats.Recv += qpos;
@@ -764,7 +764,7 @@ void LocalUser::Write(const std::string& text)
 	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)
 	{
 		// this should happen rarely or never. Crop the string at 512 and try again.
-		std::string try_again = text.substr(0, ServerInstance->Config->Limits.MaxLine - 2);
+		std::string try_again(0, ServerInstance->Config->Limits.MaxLine - 2);
 		Write(try_again);
 		return;
 	}

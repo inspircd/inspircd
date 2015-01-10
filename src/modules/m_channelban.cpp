@@ -32,12 +32,12 @@ class ModuleBadChannelExtban : public Module
 	{
 		if ((mask.length() > 2) && (mask[0] == 'j') && (mask[1] == ':'))
 		{
-			std::string rm = mask.substr(2);
+			std::string rm(mask, 2);
 			char status = 0;
 			ModeHandler* mh = ServerInstance->Modes->FindPrefix(rm[0]);
 			if (mh)
 			{
-				rm = mask.substr(3);
+				rm.assign(mask, 3, std::string::npos);
 				status = mh->GetModeChar();
 			}
 			for (User::ChanList::iterator i = user->chans.begin(); i != user->chans.end(); i++)

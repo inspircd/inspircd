@@ -641,7 +641,7 @@ class OpenSSLIOHook : public SSLIOHook
 			}
 			else if (ret > 0)
 			{
-				buffer = buffer.substr(ret);
+				buffer.erase(0, ret);
 				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}

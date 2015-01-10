@@ -96,7 +96,7 @@ void CommandWhois::SplitChanList(User* source, User* dest, const std::string& cl
 			line = prefix.str();
 		}
 
-		line.append(cl.substr(start, pos - start + 1));
+		line.append(cl, start, pos - start + 1);
 	}
 
 	if (line.length() != prefix.str().length())

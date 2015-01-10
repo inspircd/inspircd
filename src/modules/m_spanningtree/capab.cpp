@@ -386,8 +386,8 @@ bool TreeSocket::Capab(const parameterlist &params)
 			std::string::size_type equals = item.find('=');
 			if (equals != std::string::npos)
 			{
-				std::string var = item.substr(0, equals);
-				std::string value = item.substr(equals+1, item.length());
+				std::string var(item, 0, equals);
+				std::string value(item, equals+1);
 				capab->CapKeys[var] = value;
 			}
 		}

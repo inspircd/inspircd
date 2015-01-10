@@ -47,7 +47,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 
 	if (prefix[0] == ':')
 	{
-		prefix = prefix.substr(1);
+		prefix.erase(prefix.begin());
 
 		if (prefix.empty())
 		{

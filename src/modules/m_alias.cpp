@@ -148,7 +148,7 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = original_line.substr(command.length());
+		std::string compare(original_line, command.length());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
@@ -212,7 +212,7 @@ class ModuleAlias : public Module
 			return;
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = text.substr(scommand.length() + 1);
+		std::string compare(text, scommand.length() + 1);
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 

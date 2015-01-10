@@ -218,7 +218,7 @@ ModeAction ModeParser::TryMode(User* user, User* targetuser, Channel* chan, Mode
 	std::string& parameter = mcitem.param;
 	// crop mode parameter size to 250 characters
 	if (parameter.length() > 250 && adding)
-		parameter = parameter.substr(0, 250);
+		parameter.erase(250);
 
 	ModResult MOD_RESULT;
 	FIRST_MOD_RESULT(OnRawMode, MOD_RESULT, (user, chan, mh, parameter, adding));

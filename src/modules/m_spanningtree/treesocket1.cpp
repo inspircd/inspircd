@@ -177,7 +177,7 @@ void TreeSocket::OnDataReady()
 	{
 		std::string::size_type rline = line.find('\r');
 		if (rline != std::string::npos)
-			line = line.substr(0,rline);
+			line.erase(rline);
 		if (line.find('\0') != std::string::npos)
 		{
 			SendError("Read null character from socket");

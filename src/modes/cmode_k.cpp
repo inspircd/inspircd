@@ -52,7 +52,7 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 	channel->SetMode(this, adding);
 	if (adding)
 	{
-		parameter = parameter.substr(0, 32);
+		parameter.erase(32);
 		ext.set(channel, parameter);
 	}
 	else

@@ -134,7 +134,7 @@ class CommandSilence : public Command
 		else if (parameters.size() > 0)
 		{
 			// one or more parameters, add or delete entry from the list (only the first parameter is used)
-			std::string mask = parameters[0].substr(1);
+			std::string mask(parameters[0], 1);
 			char action = parameters[0][0];
 			// Default is private and notice so clients do not break
 			int pattern = CompilePattern("pn");
