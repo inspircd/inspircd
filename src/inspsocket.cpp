@@ -219,7 +219,7 @@ void StreamSocket::DoWrite()
 {
 	if (sendq.empty())
 		return;
-	if (!error.empty() || fd < 0 || fd == INT_MAX)
+	if (!error.empty() || fd < 0)
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
 		return;
