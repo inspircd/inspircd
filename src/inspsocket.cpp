@@ -339,15 +339,17 @@ void StreamSocket::DoWrite()
 			}
 
 			int rv_max = 0;
-			iovec* iovecs = new iovec[bufcount];
-			for(int i=0; i < bufcount; i++)
+			int rv;
 			{
-				iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
-				iovecs[i].iov_len = sendq[i].length();
-				rv_max += sendq[i].length();
+				iovec iovecs[MYIOV_MAX];
+				for (int i = 0; i < bufcount; i++)
+				{
+					iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
+					iovecs[i].iov_len = sendq[i].length();
+					rv_max += sendq[i].length();
+				}
+				rv = writev(fd, iovecs, bufcount);
 			}
-			int rv = writev(fd, iovecs, bufcount);
-			delete[] iovecs;
 
 			if (rv == (int)sendq_len)
 			{
