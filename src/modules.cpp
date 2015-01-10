@@ -121,7 +121,6 @@ ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { Detac
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
 void		Module::OnEvent(Event&) { DetachEvent(I_OnEvent); }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
-void		Module::OnGlobalOper(User*) { DetachEvent(I_OnGlobalOper); }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { DetachEvent(I_OnUserMessage); }
 void		Module::OnUserInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserInvite); }

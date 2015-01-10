@@ -260,7 +260,7 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect,
+	I_OnPostTopicChange, I_OnEvent, I_OnPostConnect,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
@@ -969,14 +969,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return 0 to do nothing (pass on to next module/default), 1 == password is OK, -1 == password is not OK
 	 */
 	virtual ModResult OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
-
-	/** Called whenever a user is given usermode +o, anywhere on the network.
-	 * You cannot override this and prevent it from happening as it is already happened and
-	 * such a task must be performed by another server. You can however bounce modes by sending
-	 * servermodes out to reverse mode changes.
-	 * @param user The user who is opering
-	 */
-	virtual void OnGlobalOper(User* user);
 
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this
