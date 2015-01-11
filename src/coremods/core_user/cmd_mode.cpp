@@ -143,11 +143,16 @@ void CommandMode::DisplayCurrentModes(User* user, User* targetuser, Channel* tar
 		if (targetuser == user || user->HasPrivPermission("users/auspex"))
 		{
 			// Display user's current mode string
-			user->WriteNumeric(RPL_UMODEIS, ":+%s", targetuser->FormatModes());
+			// XXX: Use WriteServ() because WriteNumeric() assumes the target (i.e. next word after the number)
+			// is 'user' and puts his nick there which is not what we want
+			user->WriteServ("%03d %s :+%s", RPL_UMODEIS, targetuser->nick.c_str(), targetuser->FormatModes());
 			if (targetuser->IsOper())
 			{
 				ModeHandler* snomask = ServerInstance->Modes->FindMode('s', MODETYPE_USER);
-				user->WriteNumeric(RPL_SNOMASKIS, "%s :Server notice mask", snomask->GetUserParameter(user).c_str());
+				std::string snomaskstr = snomask->GetUserParameter(user);
+				// snomaskstr is empty if the snomask mode isn't set, otherwise it begins with a '+'.
+				// In the former case output a "+", not an empty string.
+				user->WriteServ("%03d %s %s%s :Server notice mask", RPL_SNOMASKIS, targetuser->nick.c_str(), (snomaskstr.empty() ? "+" : ""), snomaskstr.c_str());
 			}
 		}
 		else
