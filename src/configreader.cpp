@@ -35,6 +35,7 @@
 #endif
 
 ServerConfig::ServerConfig()
+	: NoSnoticeStack(false)
 {
 	WhoWasGroupSize = WhoWasMaxGroups = WhoWasMaxKeep = 0;
 	RawLog = NoUserDns = HideBans = HideSplits = UndernetMsgPrefix = false;
