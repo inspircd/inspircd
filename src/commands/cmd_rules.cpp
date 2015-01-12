@@ -49,7 +49,13 @@ class CommandRules : public Command
 CmdResult CommandRules::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	if (parameters.size() > 0 && parameters[0] != ServerInstance->Config->ServerName)
+	{
+		// Give extra penalty if a non-oper queries the /RULES of a remote server
+		LocalUser* localuser = IS_LOCAL(user);
+		if ((localuser) && (!IS_OPER(user)))
+			localuser->CommandFloodPenalty += 2000;
 		return CMD_SUCCESS;
+	}
 
 	ConfigTag* tag = ServerInstance->Config->EmptyTag;
 	if (IS_LOCAL(user))

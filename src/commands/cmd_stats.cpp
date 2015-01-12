@@ -420,7 +420,13 @@ void CommandStats::DoStats(char statschar, User* user, string_list &results)
 CmdResult CommandStats::Handle (const std::vector<std::string>& parameters, User *user)
 {
 	if (parameters.size() > 1 && parameters[1] != ServerInstance->Config->ServerName)
+	{
+		// Give extra penalty if a non-oper does /STATS <remoteserver>
+		LocalUser* localuser = IS_LOCAL(user);
+		if ((localuser) && (!IS_OPER(user)))
+			localuser->CommandFloodPenalty += 2000;
 		return CMD_SUCCESS;
+	}
 	string_list values;
 	char search = parameters[0][0];
 	DoStats(search, user, values);

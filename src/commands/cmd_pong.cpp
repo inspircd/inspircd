@@ -43,8 +43,15 @@ class CommandPong : public Command
 CmdResult CommandPong::Handle (const std::vector<std::string>&, User *user)
 {
 	// set the user as alive so they survive to next ping
-	if (IS_LOCAL(user))
-		IS_LOCAL(user)->lastping = 1;
+	LocalUser* localuser = IS_LOCAL(user);
+	if (localuser)
+	{
+		// Increase penalty unless we've sent a PING and this is the reply
+		if (localuser->lastping)
+			localuser->CommandFloodPenalty += 1000;
+		else
+			localuser->lastping = 1;
+	}
 	return CMD_SUCCESS;
 }
 
