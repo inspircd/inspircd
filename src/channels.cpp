@@ -88,7 +88,7 @@ void Channel::CheckDestroy()
 
 	// If the channel isn't in chanlist then it is already in the cull list, don't add it again
 	chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
-	if (iter == ServerInstance->chanlist.end())
+	if ((iter == ServerInstance->chanlist.end()) || (iter->second != this))
 		return;
 
 	FOREACH_MOD(OnChannelDelete, (this));
