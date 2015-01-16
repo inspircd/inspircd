@@ -86,14 +86,13 @@ void Channel::CheckDestroy()
 	if (res == MOD_RES_DENY)
 		return;
 
+	// If the channel isn't in chanlist then it is already in the cull list, don't add it again
 	chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
-	/* kill the record */
-	if (iter != ServerInstance->chanlist.end())
-	{
-		FOREACH_MOD(OnChannelDelete, (this));
-		ServerInstance->chanlist.erase(iter);
-	}
+	if (iter == ServerInstance->chanlist.end())
+		return;
 
+	FOREACH_MOD(OnChannelDelete, (this));
+	ServerInstance->chanlist.erase(iter);
 	ClearInvites();
 	ServerInstance->GlobalCulls.AddItem(this);
 }
