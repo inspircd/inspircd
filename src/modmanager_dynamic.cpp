@@ -36,7 +36,10 @@ bool ModuleManager::Load(const std::string& filename, bool defer)
 {
 	/* Don't allow people to specify paths for modules, it doesn't work as expected */
 	if (filename.find('/') != std::string::npos)
+	{
+		LastModuleError = "You can't load modules with a path: " + filename;
 		return false;
+	}
 
 	char modfile[MAXBUF];
 	snprintf(modfile,MAXBUF,"%s/%s",ServerInstance->Config->ModPath.c_str(),filename.c_str());
