@@ -82,14 +82,15 @@ CmdResult CommandList::Handle (const std::vector<std::string>& parameters, User 
 		// if the channel is not private/secret, OR the user is on the channel anyway
 		bool n = (i->second->HasUser(user) || user->HasPrivPermission("channels/auspex"));
 
-		if (!n && i->second->IsModeSet('p'))
+		// If we're not in the channel and +s is set on it, we want to ignore it
+		if (n || !i->second->IsModeSet('s'))
 		{
-			/* Channel is +p and user is outside/not privileged */
-			user->WriteNumeric(322, "%s * %ld :",user->nick.c_str(), users);
-		}
-		else
-		{
-			if (n || !i->second->IsModeSet('s'))
+			if (!n && i->second->IsModeSet('p'))
+			{
+				/* Channel is +p and user is outside/not privileged */
+				user->WriteNumeric(322, "%s * %ld :",user->nick.c_str(), users);
+			}
+			else
 			{
 				/* User is in the channel/privileged, channel is not +s */
 				user->WriteNumeric(322, "%s %s %ld :[+%s] %s",user->nick.c_str(),i->second->name.c_str(),users,i->second->ChanModes(n),i->second->topic.c_str());
