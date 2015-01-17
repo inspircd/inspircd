@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription", "InspIRCd"
             VALUE "FileVersion", "@FULL_VERSION@"
             VALUE "InternalName", "InspIRCd"
-            VALUE "LegalCopyright", "Copyright (c) 2014 InspIRCd Development Team"
+            VALUE "LegalCopyright", "Copyright (c) 2015 InspIRCd Development Team"
             VALUE "OriginalFilename", "inspircd.exe"
             VALUE "ProductName", "InspIRCd - The Inspire IRC Daemon"
             VALUE "ProductVersion", "@FULL_VERSION@"
