@@ -112,9 +112,7 @@ class AccountExtItemImpl : public AccountExtItem
 
 	void unserialize(SerializeFormat format, Extensible* container, const std::string& value)
 	{
-		User* user = dynamic_cast<User*>(container);
-		if (!user)
-			return;
+		User* user = static_cast<User*>(container);
 
 		StringExtItem::unserialize(format, container, value);
 		if (!value.empty())
