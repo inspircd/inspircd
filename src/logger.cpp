@@ -50,7 +50,7 @@
  */
 
 const char LogStream::LogHeader[] =
-	"Log started for " INSPIRCD_VERSION " (" INSPIRCD_REVISION ", " MODULE_INIT_STR ")"
+	"Log started for " INSPIRCD_VERSION " (" MODULE_INIT_STR ")"
 	" - compiled on " INSPIRCD_SYSTEM;
 
 LogManager::LogManager()
