@@ -49,7 +49,7 @@ class CloakUser : public ModeHandler
 
 	CloakUser(Module* source)
 		: ModeHandler(source, "cloak", 'x', PARAM_NONE, MODETYPE_USER),
-		ext("cloaked_host", source), debounce_ts(0), debounce_count(0)
+		ext("cloaked_host", ExtensionItem::EXT_USER, source), debounce_ts(0), debounce_count(0)
 	{
 	}
 

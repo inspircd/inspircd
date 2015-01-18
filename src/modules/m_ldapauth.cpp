@@ -307,8 +307,8 @@ class ModuleLDAPAuth : public Module
 public:
 	ModuleLDAPAuth()
 		: LDAP(this, "LDAP")
-		, ldapAuthed("ldapauth", this)
-		, ldapVhost("ldapauth_vhost", this)
+		, ldapAuthed("ldapauth", ExtensionItem::EXT_USER, this)
+		, ldapVhost("ldapauth_vhost", ExtensionItem::EXT_USER, this)
 	{
 		me = this;
 		authed = &ldapAuthed;

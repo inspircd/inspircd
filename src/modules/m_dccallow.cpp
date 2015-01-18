@@ -257,7 +257,7 @@ class ModuleDCCAllow : public Module
 
  public:
 	ModuleDCCAllow()
-		: ext("dccallow", this)
+		: ext("dccallow", ExtensionItem::EXT_USER, this)
 		, cmd(this, ext)
 	{
 	}

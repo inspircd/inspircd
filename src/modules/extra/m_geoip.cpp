@@ -46,7 +46,9 @@ class ModuleGeoIP : public Module
 	}
 
  public:
-	ModuleGeoIP() : ext("geoip_cc", this), gi(NULL)
+	ModuleGeoIP()
+		: ext("geoip_cc", ExtensionItem::EXT_USER, this)
+		, gi(NULL)
 	{
 	}
 

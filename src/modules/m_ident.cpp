@@ -277,7 +277,8 @@ class ModuleIdent : public Module
 	bool NoLookupPrefix;
 	SimpleExtItem<IdentRequestSocket, stdalgo::culldeleter> ext;
  public:
-	ModuleIdent() : ext("ident_socket", this)
+	ModuleIdent()
+		: ext("ident_socket", ExtensionItem::EXT_USER, this)
 	{
 	}
 
