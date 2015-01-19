@@ -285,9 +285,12 @@ class CoreExport Module : public classbase, public usecountbase
 	/** File that this module was loaded from
 	 */
 	std::string ModuleSourceFile;
+
+#if !defined PURE_STATIC
 	/** Reference to the dlopen() value
 	 */
 	DLLManager* ModuleDLLManager;
+#endif
 
 	/** If true, this module will be unloaded soon, further unload attempts will fail
 	 * Value is used by the ModuleManager internally, you should not modify it

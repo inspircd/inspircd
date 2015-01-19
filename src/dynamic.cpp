@@ -20,6 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#if !defined PURE_STATIC
 
 #include "inspircd.h"
 
@@ -104,3 +105,4 @@ void DLLManager::RetrieveLastError()
 #endif
 }
 
+#endif

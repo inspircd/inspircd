@@ -95,7 +95,6 @@ bool ModuleManager::Load(const std::string& name, bool defer)
 	{
 		mod = (*it->second->init)();
 		mod->ModuleSourceFile = name;
-		mod->ModuleDLLManager = NULL;
 		mod->dying = false;
 		Modules[name] = mod;
 		this->NewServices = NULL;

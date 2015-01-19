@@ -461,11 +461,14 @@ namespace
 		UnloadAction(Module* m) : mod(m) {}
 		void Call()
 		{
+#if !defined PURE_STATIC
 			DLLManager* dll = mod->ModuleDLLManager;
+#endif
 			ServerInstance->Modules->DoSafeUnload(mod);
 			ServerInstance->GlobalCulls.Apply();
-			// In pure static mode this is always NULL
+#if !defined PURE_STATIC
 			delete dll;
+#endif
 			ServerInstance->GlobalCulls.AddItem(this);
 		}
 	};
@@ -478,11 +481,15 @@ namespace
 			: mod(m), callback(c) {}
 		void Call()
 		{
+#if !defined PURE_STATIC
 			DLLManager* dll = mod->ModuleDLLManager;
+#endif
 			std::string name = mod->ModuleSourceFile;
 			ServerInstance->Modules->DoSafeUnload(mod);
 			ServerInstance->GlobalCulls.Apply();
+#if !defined PURE_STATIC
 			delete dll;
+#endif
 			bool rv = ServerInstance->Modules->Load(name);
 			if (callback)
 				callback->Call(rv);
