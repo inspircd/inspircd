@@ -85,7 +85,7 @@ class ModuleOperPrefixMode : public Module
 	{
 		ServerInstance->Modules->AddService(opm);
 
-		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPostOper, I_OnLoadModule, I_OnUnloadModule };
+		Implementation eventlist[] = { I_OnUserPreJoin, I_OnPostOper, I_OnLoadModule, I_OnUnloadModule, I_OnPostJoin };
 		ServerInstance->Modules->Attach(eventlist, this, sizeof(eventlist)/sizeof(Implementation));
 
 		/* To give clients a chance to learn about the new prefix we don't give +y to opers
@@ -108,6 +108,22 @@ class ModuleOperPrefixMode : public Module
 		if (IS_OPER(user) && (!mw_added || !user->IsModeSet('H')))
 			privs.push_back('y');
 		return MOD_RES_PASSTHRU;
+	}
+
+	void OnPostJoin(Membership* memb)
+	{
+		if ((!IS_LOCAL(memb->user)) || (!IS_OPER(memb->user)) || (((mw_added) && (memb->user->IsModeSet('H')))))
+			return;
+
+		if (memb->hasMode(opm.GetModeChar()))
+			return;
+
+		// The user was force joined and OnUserPreJoin() did not run. Set the operprefix now.
+		std::vector<std::string> modechange;
+		modechange.push_back(memb->chan->name);
+		modechange.push_back("+y");
+		modechange.push_back(memb->user->nick);
+		ServerInstance->SendGlobalMode(modechange, ServerInstance->FakeClient);
 	}
 
 	void SetOperPrefix(User* user, bool add)
