@@ -46,6 +46,7 @@ CmdResult CommandPass::HandleLocal(const std::vector<std::string>& parameters, L
 	// Check to make sure they haven't registered -- Fix by FCS
 	if (user->registered == REG_ALL)
 	{
+		user->CommandFloodPenalty += 1000;
 		user->WriteNumeric(ERR_ALREADYREGISTERED, "%s :You may not reregister",user->nick.c_str());
 		return CMD_FAILURE;
 	}

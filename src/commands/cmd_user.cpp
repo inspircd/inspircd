@@ -68,6 +68,7 @@ CmdResult CommandUser::HandleLocal(const std::vector<std::string>& parameters, L
 	}
 	else
 	{
+		user->CommandFloodPenalty += 1000;
 		user->WriteNumeric(462, "%s :You may not reregister", user->nick.c_str());
 		return CMD_FAILURE;
 	}
