@@ -26,34 +26,28 @@
  */
 
 
-#include "inspircd.h"
-#include <signal.h>
-
-#ifndef _WIN32
-	#include <dirent.h>
-	#include <unistd.h>
-	#include <sys/resource.h>
-	#include <dlfcn.h>
-	#include <getopt.h>
-
-	/* Some systems don't define RUSAGE_SELF. This should fix them. */
-	#ifndef RUSAGE_SELF
-		#define RUSAGE_SELF 0
-	#endif
-
-	#include <pwd.h> // setuid
-	#include <grp.h> // setgid
-#else
-	WORD g_wOriginalColors;
-	WORD g_wBackgroundColor;
-	HANDLE g_hStdout;
-#endif
+#include <csignal>
 
 #include <fstream>
 #include <iostream>
+
+#include "inspircd.h"
 #include "xline.h"
 #include "exitcodes.h"
 #include "testsuite.h"
+
+#if defined _WIN32
+	WORD g_wOriginalColors;
+	WORD g_wBackgroundColor;
+	HANDLE g_hStdout;
+#else
+# include <dirent.h>
+# include <dlfcn.h>
+# include <getopt.h>
+# include <grp.h>
+# include <pwd.h>
+# include <sys/resource.h>
+#endif
 
 InspIRCd* ServerInstance = NULL;
 
