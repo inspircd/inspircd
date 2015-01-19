@@ -730,7 +730,7 @@ void ServerConfig::Apply(ServerConfig* old, const std::string &useruid)
 	if (valid)
 		ServerInstance->WritePID(this->PID);
 
-	if (old)
+	if (old && valid)
 	{
 		// On first run, ports are bound later on
 		FailedPortList pl;
