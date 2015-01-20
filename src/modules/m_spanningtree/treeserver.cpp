@@ -112,7 +112,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	 */
 
 	this->AddHashEntry();
-	Parent->AddChild(this);
+	Parent->Children.push_back(this);
 }
 
 void TreeServer::BeginBurst(unsigned long startms)
@@ -163,7 +163,7 @@ void TreeServer::FinishBurst()
 void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 {
 	DelServerEvent(Utils->Creator, server->GetName());
-	DelChild(server);
+	stdalgo::erase(Children, server);
 
 	if (IsRoot())
 	{
@@ -280,16 +280,6 @@ bool TreeServer::AnsweredLastPing()
 void TreeServer::SetPingFlag()
 {
 	LastPingWasGood = true;
-}
-
-void TreeServer::AddChild(TreeServer* Child)
-{
-	Children.push_back(Child);
-}
-
-bool TreeServer::DelChild(TreeServer* Child)
-{
-	return stdalgo::erase(Children, Child);
 }
 
 CullResult TreeServer::cull()

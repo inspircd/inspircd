@@ -204,14 +204,6 @@ class TreeServer : public Server
 	 */
 	const ChildServers& GetChildren() const { return Children; }
 
-	/** Add a child server
-	 */
-	void AddChild(TreeServer* Child);
-
-	/** Delete a child server, return false if it didn't exist.
-	 */
-	bool DelChild(TreeServer* Child);
-
 	/** Get server ID
 	 */
 	const std::string& GetID() const { return sid; }
