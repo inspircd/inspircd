@@ -127,11 +127,6 @@ void TreeServer::BeginBurst(unsigned long startms)
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu behind_bursting %u", sid.c_str(), startms, behind_bursting);
 }
 
-const std::string& TreeServer::GetID()
-{
-	return sid;
-}
-
 void TreeServer::FinishBurstInternal()
 {
 	// Check is needed because 1202 protocol servers don't send the bursting state of a server, so servers
@@ -266,19 +261,6 @@ void TreeServer::AddHashEntry()
 	Utils->sidlist[sid] = this;
 }
 
-/** These accessors etc should be pretty self-
- * explanitory.
- */
-TreeServer* TreeServer::GetRoute()
-{
-	return Route;
-}
-
-const std::string& TreeServer::GetVersion()
-{
-	return VersionString;
-}
-
 void TreeServer::SetNextPingTime(time_t t)
 {
 	this->NextPing = t;
@@ -298,21 +280,6 @@ bool TreeServer::AnsweredLastPing()
 void TreeServer::SetPingFlag()
 {
 	LastPingWasGood = true;
-}
-
-TreeSocket* TreeServer::GetSocket()
-{
-	return Socket;
-}
-
-TreeServer* TreeServer::GetParent()
-{
-	return Parent;
-}
-
-void TreeServer::SetVersion(const std::string &Version)
-{
-	VersionString = Version;
 }
 
 void TreeServer::AddChild(TreeServer* Child)

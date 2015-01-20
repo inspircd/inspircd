@@ -174,7 +174,7 @@ class TreeSocket : public BufferedSocket
 
 	/** Get link state
 	 */
-	ServerState GetLinkState();
+	ServerState GetLinkState() const { return LinkState; }
 
 	/** Get challenge set in our CAPAB for challenge/response
 	 */

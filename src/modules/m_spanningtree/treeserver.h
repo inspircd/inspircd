@@ -119,7 +119,7 @@ class TreeServer : public Server
 	 * The 'route' is defined as the locally-
 	 * connected server which can be used to reach this server.
 	 */
-	TreeServer* GetRoute();
+	TreeServer* GetRoute() const { return Route; }
 
 	/** Returns true if this server is the tree root (i.e.: us)
 	 */
@@ -136,7 +136,7 @@ class TreeServer : public Server
 
 	/** Get server version string
 	 */
-	const std::string& GetVersion();
+	const std::string& GetVersion() const { return VersionString; }
 
 	/** Get the full version string of this server
 	 * @return The full version string of this server, including patch version and other info
@@ -178,16 +178,16 @@ class TreeServer : public Server
 	/** Get the TreeSocket pointer for local servers.
 	 * For remote servers, this returns NULL.
 	 */
-	TreeSocket* GetSocket();
+	TreeSocket* GetSocket() const { return Socket; }
 
 	/** Get the parent server.
 	 * For the root node, this returns NULL.
 	 */
-	TreeServer* GetParent();
+	TreeServer* GetParent() const { return Parent; }
 
 	/** Set the server version string
 	 */
-	void SetVersion(const std::string &Version);
+	void SetVersion(const std::string& verstr) { VersionString = verstr; }
 
 	/** Set the full version string
 	 * @param verstr The version string to set
@@ -214,7 +214,7 @@ class TreeServer : public Server
 
 	/** Get server ID
 	 */
-	const std::string& GetID();
+	const std::string& GetID() const { return sid; }
 
 	/** Marks a server as having finished bursting and performs appropriate actions.
 	 */
