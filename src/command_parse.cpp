@@ -345,7 +345,7 @@ bool CommandParser::ProcessCommand(LocalUser *user, std::string &cmd)
 	if ((user->registered != REG_ALL) && (!cm->second->WorksBeforeReg()))
 	{
 		user->CommandFloodPenalty += failpenalty;
-		user->WriteNumeric(ERR_NOTREGISTERED, "%s :You have not registered",command.c_str());
+		user->WriteNumeric(ERR_NOTREGISTERED, "%s %s :You have not registered", user->nick.c_str(), command.c_str());
 		return do_more;
 	}
 	else
