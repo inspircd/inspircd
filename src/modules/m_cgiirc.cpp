@@ -74,7 +74,8 @@ class CommandWebirc : public Command
 	CGIHostlist Hosts;
 	CommandWebirc(Module* Creator)
 		: Command(Creator, "WEBIRC", 4),
-		  realhost("cgiirc_realhost", Creator), realip("cgiirc_realip", Creator)
+		  realhost("cgiirc_realhost", ExtensionItem::EXT_USER, Creator)
+		  , realip("cgiirc_realip", ExtensionItem::EXT_USER, Creator)
 		{
 			works_before_reg = true;
 			this->syntax = "password client hostname ip";
@@ -225,7 +226,7 @@ class ModuleCgiIRC : public Module
 public:
 	ModuleCgiIRC()
 		: cmd(this)
-		, waiting("cgiirc-delay", this)
+		, waiting("cgiirc-delay", ExtensionItem::EXT_USER, this)
 		, DNS(this, "DNS")
 	{
 	}

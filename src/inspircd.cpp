@@ -229,7 +229,7 @@ InspIRCd::InspIRCd(int argc, char** argv) :
 	  * THIS MUST MATCH THE ORDER OF DECLARATION OF THE FUNCTORS, e.g. the methods
 	  * themselves within the class.
 	  */
-	 OperQuit("operquit", NULL),
+	 OperQuit("operquit", ExtensionItem::EXT_USER, NULL),
 	 GenRandom(&HandleGenRandom),
 	 IsChannel(&HandleIsChannel),
 	 IsNick(&HandleIsNick),

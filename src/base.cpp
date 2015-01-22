@@ -95,7 +95,9 @@ ServiceProvider::~ServiceProvider()
 {
 }
 
-ExtensionItem::ExtensionItem(const std::string& Key, Module* mod) : ServiceProvider(mod, Key, SERVICE_METADATA)
+ExtensionItem::ExtensionItem(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: ServiceProvider(mod, Key, SERVICE_METADATA)
+	, type(exttype)
 {
 }
 
@@ -207,7 +209,8 @@ Extensible::~Extensible()
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Extensible destructor called without cull @%p", (void*)this);
 }
 
-LocalExtItem::LocalExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)
+LocalExtItem::LocalExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: ExtensionItem(Key, exttype, mod)
 {
 }
 
@@ -224,8 +227,10 @@ void LocalExtItem::unserialize(SerializeFormat format, Extensible* container, co
 {
 }
 
-LocalStringExt::LocalStringExt(const std::string& Key, Module* Owner)
-	: SimpleExtItem<std::string>(Key, Owner) { }
+LocalStringExt::LocalStringExt(const std::string& Key, ExtensibleType exttype, Module* Owner)
+	: SimpleExtItem<std::string>(Key, exttype, Owner)
+{
+}
 
 LocalStringExt::~LocalStringExt()
 {
@@ -238,7 +243,8 @@ std::string LocalStringExt::serialize(SerializeFormat format, const Extensible* 
 	return "";
 }
 
-LocalIntExt::LocalIntExt(const std::string& Key, Module* mod) : LocalExtItem(Key, mod)
+LocalIntExt::LocalIntExt(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: LocalExtItem(Key, exttype, mod)
 {
 }
 
@@ -270,7 +276,8 @@ void LocalIntExt::free(void*)
 {
 }
 
-StringExtItem::StringExtItem(const std::string& Key, Module* mod) : ExtensionItem(Key, mod)
+StringExtItem::StringExtItem(const std::string& Key, ExtensibleType exttype, Module* mod)
+	: ExtensionItem(Key, exttype, mod)
 {
 }
 

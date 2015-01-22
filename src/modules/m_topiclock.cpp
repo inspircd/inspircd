@@ -90,7 +90,7 @@ class FlagExtItem : public ExtensionItem
 {
  public:
 	FlagExtItem(const std::string& key, Module* owner)
-		: ExtensionItem(key, owner)
+		: ExtensionItem(key, ExtensionItem::EXT_CHANNEL, owner)
 	{
 	}
 

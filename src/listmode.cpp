@@ -22,7 +22,8 @@
 ListModeBase::ListModeBase(Module* Creator, const std::string& Name, char modechar, const std::string &eolstr, unsigned int lnum, unsigned int eolnum, bool autotidy, const std::string &ctag)
 	: ModeHandler(Creator, Name, modechar, PARAM_ALWAYS, MODETYPE_CHANNEL, MC_LIST),
 	listnumeric(lnum), endoflistnumeric(eolnum), endofliststring(eolstr), tidy(autotidy),
-	configtag(ctag), extItem("listbase_mode_" + name + "_list", Creator)
+	configtag(ctag)
+	, extItem("listbase_mode_" + name + "_list", ExtensionItem::EXT_CHANNEL, Creator)
 {
 	list = true;
 }
