@@ -21,7 +21,9 @@
 
 
 #include "inspircd.h"
+#ifdef INSPIRCD_ENABLE_RTTI
 #include <typeinfo>
+#endif
 
 void CullList::Apply()
 {
@@ -46,8 +48,12 @@ void CullList::Apply()
 		classbase* c = list[i];
 		if (gone.insert(c).second)
 		{
+#ifdef INSPIRCD_ENABLE_RTTI
 			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting %s @%p", typeid(*c).name(),
 				(void*)c);
+#else
+			ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "Deleting @%p", (void*)c);
+#endif
 			c->cull();
 			queue.push_back(c);
 		}

@@ -23,7 +23,9 @@
 #include "inspircd.h"
 #include "base.h"
 #include <time.h>
+#ifdef INSPIRCD_ENABLE_RTTI
 #include <typeinfo>
+#endif
 
 classbase::classbase()
 {
@@ -34,8 +36,12 @@ classbase::classbase()
 CullResult classbase::cull()
 {
 	if (ServerInstance)
+#ifdef INSPIRCD_ENABLE_RTTI
 		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::-%s @%p",
 			typeid(*this).name(), (void*)this);
+#else
+		ServerInstance->Logs->Log("CULLLIST", LOG_DEBUG, "classbase::- @%p", (void*)this);
+#endif
 	return CullResult();
 }
 
