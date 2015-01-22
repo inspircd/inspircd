@@ -93,7 +93,7 @@ INSTMODE_LIB = 0640
 
 DBGOK=0
 @IFEQ $(D) 0
-  CORECXXFLAGS += -O2
+  CORECXXFLAGS += -fno-rtti -O2
 @IFEQ $(COMPILER) GCC
     CORECXXFLAGS += -g1
 @ENDIF
@@ -101,12 +101,12 @@ DBGOK=0
   DBGOK=1
 @ENDIF
 @IFEQ $(D) 1
-  CORECXXFLAGS += -O0 -g3 -Werror
+  CORECXXFLAGS += -O0 -g3 -Werror -DINSPIRCD_ENABLE_RTTI
   HEADER = debug-header
   DBGOK=1
 @ENDIF
 @IFEQ $(D) 2
-  CORECXXFLAGS += -O2 -g3
+  CORECXXFLAGS += -fno-rtti -O2 -g3
   HEADER = debug-header
   DBGOK=1
 @ENDIF
