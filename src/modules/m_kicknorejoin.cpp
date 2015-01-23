@@ -27,12 +27,38 @@
 
 typedef std::map<std::string, time_t> delaylist;
 
-struct KickRejoinData
+class KickRejoinData
 {
-	delaylist kicked;
-	unsigned int delay;
+	mutable delaylist kicked;
+
+ public:
+	const unsigned int delay;
 
 	KickRejoinData(unsigned int Delay) : delay(Delay) { }
+
+	bool canjoin(LocalUser* user) const
+	{
+		for (delaylist::iterator i = kicked.begin(); i != kicked.end(); )
+		{
+			if (i->second > ServerInstance->Time())
+			{
+				if (i->first == user->uuid)
+					return false;
+				++i;
+			}
+			else
+			{
+				// Expired record, remove.
+				kicked.erase(i++);
+			}
+		}
+		return true;
+	}
+
+	void add(User* user)
+	{
+		kicked[user->uuid] = ServerInstance->Time() + delay;
+	}
 };
 
 /** Handles channel mode +J
@@ -79,28 +105,11 @@ public:
 	{
 		if (chan)
 		{
-			KickRejoinData* data = kr.ext.get(chan);
-			if (data)
+			const KickRejoinData* data = kr.ext.get(chan);
+			if ((data) && (!data->canjoin(user)))
 			{
-				delaylist& kicked = data->kicked;
-				for (delaylist::iterator iter = kicked.begin(); iter != kicked.end(); )
-				{
-					if (iter->second > ServerInstance->Time())
-					{
-						if (iter->first == user->uuid)
-						{
-							user->WriteNumeric(ERR_DELAYREJOIN, "%s :You must wait %u seconds after being kicked to rejoin (+J)",
-								chan->name.c_str(), data->delay);
-							return MOD_RES_DENY;
-						}
-						++iter;
-					}
-					else
-					{
-						// Expired record, remove.
-						kicked.erase(iter++);
-					}
-				}
+				user->WriteNumeric(ERR_DELAYREJOIN, "%s :You must wait %u seconds after being kicked to rejoin (+J)", chan->name.c_str(), data->delay);
+				return MOD_RES_DENY;
 			}
 		}
 		return MOD_RES_PASSTHRU;
@@ -114,7 +123,7 @@ public:
 		KickRejoinData* data = kr.ext.get(memb->chan);
 		if (data)
 		{
-			data->kicked[memb->user->uuid] = ServerInstance->Time() + data->delay;
+			data->add(memb->user);
 		}
 	}
 
