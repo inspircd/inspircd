@@ -49,7 +49,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 		std::string value = params.size() < 4 ? "" : params[3];
 
 		ExtensionItem* item = ServerInstance->Extensions.GetItem(params[2]);
-		if (item)
+		if ((item) && (item->type == ExtensionItem::EXT_CHANNEL))
 			item->unserialize(FORMAT_NETWORK, c, value);
 		FOREACH_MOD(OnDecodeMetaData, (c,params[2],value));
 	}
@@ -61,7 +61,7 @@ CmdResult CommandMetadata::Handle(User* srcuser, std::vector<std::string>& param
 			ExtensionItem* item = ServerInstance->Extensions.GetItem(params[1]);
 			std::string value = params.size() < 3 ? "" : params[2];
 
-			if (item)
+			if ((item) && (item->type == ExtensionItem::EXT_USER))
 				item->unserialize(FORMAT_NETWORK, u, value);
 			FOREACH_MOD(OnDecodeMetaData, (u,params[1],value));
 		}

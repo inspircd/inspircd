@@ -32,7 +32,7 @@ class ModuleWaitPong : public Module
 
  public:
 	ModuleWaitPong()
-	 : ext("waitpong_pingstr", this)
+		: ext("waitpong_pingstr", ExtensionItem::EXT_USER, this)
 	{
 	}
 

@@ -236,7 +236,12 @@ class ModuleDNSBL : public Module
 		return DNSBLConfEntry::I_UNKNOWN;
 	}
  public:
-	ModuleDNSBL() : DNS(this, "DNS"), nameExt("dnsbl_match", this), countExt("dnsbl_pending", this) { }
+	ModuleDNSBL()
+		: DNS(this, "DNS")
+		, nameExt("dnsbl_match", ExtensionItem::EXT_USER, this)
+		, countExt("dnsbl_pending", ExtensionItem::EXT_USER, this)
+	{
+	}
 
 	Version GetVersion() CXX11_OVERRIDE
 	{

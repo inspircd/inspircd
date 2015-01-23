@@ -66,7 +66,8 @@ class ModuleConnJoin : public Module
 	unsigned int defdelay;
 
  public:
-	ModuleConnJoin() : ext("join_timer", this)
+	ModuleConnJoin()
+		: ext("join_timer", ExtensionItem::EXT_USER, this)
 	{
 	}
 
