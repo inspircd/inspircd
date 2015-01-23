@@ -25,11 +25,23 @@
 
 #include "inspircd.h"
 
-typedef std::map<std::string, time_t> delaylist;
-
 class KickRejoinData
 {
-	mutable delaylist kicked;
+	struct KickedUser
+	{
+		std::string uuid;
+		time_t expire;
+
+		KickedUser(User* user, unsigned int Delay)
+			: uuid(user->uuid)
+			, expire(ServerInstance->Time() + Delay)
+		{
+		}
+	};
+
+	typedef std::vector<KickedUser> KickedList;
+
+	mutable KickedList kicked;
 
  public:
 	const unsigned int delay;
@@ -38,18 +50,21 @@ class KickRejoinData
 
 	bool canjoin(LocalUser* user) const
 	{
-		for (delaylist::iterator i = kicked.begin(); i != kicked.end(); )
+		for (KickedList::iterator i = kicked.begin(); i != kicked.end(); )
 		{
-			if (i->second > ServerInstance->Time())
+			KickedUser& rec = *i;
+			if (rec.expire > ServerInstance->Time())
 			{
-				if (i->first == user->uuid)
+				if (rec.uuid == user->uuid)
 					return false;
 				++i;
 			}
 			else
 			{
 				// Expired record, remove.
-				kicked.erase(i++);
+				stdalgo::vector::swaperase(kicked, i);
+				if (kicked.empty())
+					break;
 			}
 		}
 		return true;
@@ -57,7 +72,10 @@ class KickRejoinData
 
 	void add(User* user)
 	{
-		kicked[user->uuid] = ServerInstance->Time() + delay;
+		// One user can be in the list multiple times if the user gets kicked, force joins
+		// (skipping OnUserPreJoin) and gets kicked again, but that's okay because canjoin()
+		// works correctly in this case as well
+		kicked.push_back(KickedUser(user, delay));
 	}
 };
 
