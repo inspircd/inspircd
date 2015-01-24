@@ -936,6 +936,59 @@ void User::WriteCommonQuit(const std::string &normal_text, const std::string &op
 	}
 }
 
+void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
+{
+	// The basic logic for visiting the neighbors of a user is to iterate the channel list of the user
+	// and visit all users on those channels. Because two users may share more than one common channel,
+	// we must skip users that we have already visited.
+	// To do this, we make use of a global counter and an integral 'already_sent' field in LocalUser.
+	// The global counter is incremented every time we do something for each neighbor of a user. Then,
+	// before visiting a member we examine user->already_sent. If it's equal to the current counter, we
+	// skip the member. Otherwise, we set it to the current counter and visit the member.
+
+	// Ask modules to build a list of exceptions.
+	// Mods may also exclude entire channels by erasing them from include_chans.
+	IncludeChanList include_chans(chans.begin(), chans.end());
+	std::map<User*, bool> exceptions;
+	exceptions[this] = include_self;
+	FOREACH_MOD(OnBuildNeighborList, (this, include_chans, exceptions));
+
+	// Get next id, guaranteed to differ from the already_sent field of all users
+	const already_sent_t newid = ++LocalUser::already_sent_id;
+
+	// Handle exceptions first
+	for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
+	{
+		LocalUser* curr = IS_LOCAL(i->first);
+		if (curr)
+		{
+			// Mark as visited to ensure we won't visit again if there is a common channel
+			curr->already_sent = newid;
+			// Always treat quitting users as excluded
+			if ((i->second) && (!curr->quitting))
+				handler.Execute(curr);
+		}
+	}
+
+	// Now consider the real neighbors
+	for (IncludeChanList::const_iterator i = include_chans.begin(); i != include_chans.end(); ++i)
+	{
+		Channel* chan = (*i)->chan;
+		const Channel::MemberMap& userlist = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator j = userlist.begin(); j != userlist.end(); ++j)
+		{
+			LocalUser* curr = IS_LOCAL(j->first);
+			// User not yet visited?
+			if ((curr) && (curr->already_sent != newid))
+			{
+				// Mark as visited and execute function
+				curr->already_sent = newid;
+				handler.Execute(curr);
+			}
+		}
+	}
+}
+
 void LocalUser::SendText(const std::string& line)
 {
 	Write(line);

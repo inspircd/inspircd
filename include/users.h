@@ -248,6 +248,19 @@ class CoreExport User : public Extensible
 	std::bitset<ModeParser::MODEID_MAX> modes;
 
  public:
+	/** To execute a function for each local neighbor of a user, inherit from this class and
+	 * pass an instance of it to User::ForEachNeighbor().
+	 */
+	class ForEachNeighborHandler
+	{
+	 public:
+		/** Method to execute for each local neighbor of a user.
+		 * Derived classes must implement this.
+		 * @param user Current neighbor
+		 */
+		virtual void Execute(LocalUser* user) = 0;
+	};
+
 	/** List of Memberships for this user
 	 */
 	typedef insp::intrusive_list<Membership> ChanList;
@@ -541,6 +554,16 @@ class CoreExport User : public Extensible
 	 * @param oper_text Oper only quit message
 	 */
 	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
+
+	/** Execute a function once for each local neighbor of this user. By default, the neighbors of a user are the users
+	 * who have at least one common channel with the user. Modules are allowed to alter the set of neighbors freely.
+	 * This function is used for example to send something conditionally to neighbors, or to send different messages
+	 * to different users depending on their oper status.
+	 * @param handler Function object to call, inherited from ForEachNeighborHandler.
+	 * @param include_self True to include this user in the set of neighbors, false otherwise.
+	 * Modules may override this. Has no effect if this user is not local.
+	 */
+	void ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self = true);
 
 	/** Dump text to a user target, splitting it appropriately to fit
 	 * @param linePrefix text to prefix each complete line with
