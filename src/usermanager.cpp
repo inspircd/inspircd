@@ -24,6 +24,30 @@
 #include "xline.h"
 #include "iohook.h"
 
+namespace
+{
+	class WriteCommonQuit : public User::ForEachNeighborHandler
+	{
+		std::string line;
+		std::string operline;
+
+		void Execute(LocalUser* user) CXX11_OVERRIDE
+		{
+			user->Write(user->IsOper() ? operline : line);
+		}
+
+	 public:
+		WriteCommonQuit(User* user, const std::string& msg, const std::string& opermsg)
+			: line(":" + user->GetFullHost() + " QUIT :")
+			, operline(line)
+		{
+			line += msg;
+			operline += opermsg;
+			user->ForEachNeighbor(*this, false);
+		}
+	};
+}
+
 UserManager::UserManager()
 	: unregistered_count(0)
 {
@@ -180,7 +204,7 @@ void UserManager::QuitUser(User* user, const std::string& quitreason, const std:
 	if (user->registered == REG_ALL)
 	{
 		FOREACH_MOD(OnUserQuit, (user, reason, *operreason));
-		user->WriteCommonQuit(reason, *operreason);
+		WriteCommonQuit(user, reason, *operreason);
 	}
 	else
 		unregistered_count--;

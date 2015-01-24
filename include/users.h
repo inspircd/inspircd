@@ -548,13 +548,6 @@ class CoreExport User : public Extensible
 	 */
 	void WriteCommon(const char* text, ...) CUSTOM_PRINTF(2, 3);
 
-	/** Write a quit message to all common users, as in User::WriteCommonExcept but with a specific
-	 * quit message for opers only.
-	 * @param normal_text Normal user quit message
-	 * @param oper_text Oper only quit message
-	 */
-	void WriteCommonQuit(const std::string &normal_text, const std::string &oper_text);
-
 	/** Execute a function once for each local neighbor of this user. By default, the neighbors of a user are the users
 	 * who have at least one common channel with the user. Modules are allowed to alter the set of neighbors freely.
 	 * This function is used for example to send something conditionally to neighbors, or to send different messages

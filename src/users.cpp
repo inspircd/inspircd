@@ -896,46 +896,6 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 	}
 }
 
-void User::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
-{
-	if (this->registered != REG_ALL)
-		return;
-
-	already_sent_t uniq_id = ++LocalUser::already_sent_id;
-
-	const std::string normalMessage = ":" + this->GetFullHost() + " QUIT :" + normal_text;
-	const std::string operMessage = ":" + this->GetFullHost() + " QUIT :" + oper_text;
-
-	IncludeChanList include_c(chans.begin(), chans.end());
-	std::map<User*,bool> exceptions;
-
-	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
-
-	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
-	{
-		LocalUser* u = IS_LOCAL(i->first);
-		if (u && !u->quitting)
-		{
-			u->already_sent = uniq_id;
-			if (i->second)
-				u->Write(u->IsOper() ? operMessage : normalMessage);
-		}
-	}
-	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
-	{
-		const Channel::MemberMap& ulist = (*v)->chan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); i++)
-		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if (u && (u->already_sent != uniq_id))
-			{
-				u->already_sent = uniq_id;
-				u->Write(u->IsOper() ? operMessage : normalMessage);
-			}
-		}
-	}
-}
-
 void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
 {
 	// The basic logic for visiting the neighbors of a user is to iterate the channel list of the user
