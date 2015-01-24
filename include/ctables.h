@@ -184,16 +184,6 @@ class CoreExport CommandBase : public ServiceProvider
 	{
 	}
 
-	/** Decode a parameter from server->server transmission.
-	 * Not currently used in this version of InspIRCd.
-	 * Used for parameters for which the translation type is TR_CUSTOM.
-	 * @param parameter The parameter to decode. Can be modified in place.
-	 * @param index The parameter index (0 == first parameter).
-	 */
-	virtual void DecodeParameter(std::string& parameter, int index)
-	{
-	}
-
 	/** Disable or enable this command.
 	 * @param setting True to disable the command.
 	 */
