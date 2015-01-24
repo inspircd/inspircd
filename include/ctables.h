@@ -163,7 +163,7 @@ class CoreExport CommandBase : public ServiceProvider
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
 	 * will be tossed into one last space-seperated param.
 	 */
-	CommandBase(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
+	CommandBase(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0) :
 		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),
 		use_count(0), disabled(false), works_before_reg(false), allow_empty_last_param(true),
 		Penalty(1)
