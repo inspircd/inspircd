@@ -845,6 +845,25 @@ void User::WriteFrom(User *user, const char* text, ...)
 	this->WriteFrom(user, textbuffer);
 }
 
+namespace
+{
+	class WriteCommonRawHandler : public User::ForEachNeighborHandler
+	{
+		const std::string& msg;
+
+		void Execute(LocalUser* user) CXX11_OVERRIDE
+		{
+			user->Write(msg);
+		}
+
+	 public:
+		WriteCommonRawHandler(const std::string& message)
+			: msg(message)
+		{
+		}
+	};
+}
+
 void User::WriteCommon(const char* text, ...)
 {
 	if (this->registered != REG_ALL || quitting)
@@ -861,39 +880,8 @@ void User::WriteCommonRaw(const std::string &line, bool include_self)
 	if (this->registered != REG_ALL || quitting)
 		return;
 
-	LocalUser::already_sent_id++;
-
-	IncludeChanList include_c(chans.begin(), chans.end());
-	std::map<User*,bool> exceptions;
-
-	exceptions[this] = include_self;
-
-	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
-
-	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
-	{
-		LocalUser* u = IS_LOCAL(i->first);
-		if (u && !u->quitting)
-		{
-			u->already_sent = LocalUser::already_sent_id;
-			if (i->second)
-				u->Write(line);
-		}
-	}
-	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
-	{
-		Channel* c = (*v)->chan;
-		const Channel::MemberMap& ulist = c->GetUsers();
-		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
-		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if (u && u->already_sent != LocalUser::already_sent_id)
-			{
-				u->already_sent = LocalUser::already_sent_id;
-				u->Write(line);
-			}
-		}
-	}
+	WriteCommonRawHandler handler(line);
+	ForEachNeighbor(handler, include_self);
 }
 
 void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
