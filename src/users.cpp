@@ -866,9 +866,6 @@ namespace
 
 void User::WriteCommon(const char* text, ...)
 {
-	if (this->registered != REG_ALL || quitting)
-		return;
-
 	std::string textbuffer;
 	VAFORMAT(textbuffer, text, text);
 	textbuffer = ":" + this->GetFullHost() + " " + textbuffer;
@@ -877,9 +874,6 @@ void User::WriteCommon(const char* text, ...)
 
 void User::WriteCommonRaw(const std::string &line, bool include_self)
 {
-	if (this->registered != REG_ALL || quitting)
-		return;
-
 	WriteCommonRawHandler handler(line);
 	ForEachNeighbor(handler, include_self);
 }
