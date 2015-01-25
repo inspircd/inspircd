@@ -103,10 +103,6 @@ class ModuleSpanningTree : public Module
 	 */
 	ModResult HandleRemoteWhois(const std::vector<std::string>& parameters, User* user);
 
-	/** Ping all local servers
-	 */
-	void DoPingChecks(time_t curtime);
-
 	/** Connect a server locally
 	 */
 	void ConnectServer(Link* x, Autoconnect* y = NULL);

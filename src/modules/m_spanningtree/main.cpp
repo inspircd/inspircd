@@ -153,64 +153,6 @@ std::string ModuleSpanningTree::TimeToStr(time_t secs)
 			+ ConvToStr(secs) + "s");
 }
 
-void ModuleSpanningTree::DoPingChecks(time_t curtime)
-{
-	/*
-	 * Cancel remote burst mode on any servers which still have it enabled due to latency/lack of data.
-	 * This prevents lost REMOTECONNECT notices
-	 */
-	long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-
-restart:
-	for (server_hash::iterator i = Utils->serverlist.begin(); i != Utils->serverlist.end(); i++)
-	{
-		TreeServer *s = i->second;
-
-		// Skip myself
-		if (s->IsRoot())
-			continue;
-
-		// Do not ping servers that are not fully connected yet!
-		// Servers which are connected to us have IsLocal() == true and if they're fully connected
-		// then Socket->LinkState == CONNECTED. Servers that are linked to another server are always fully connected.
-		if (s->IsLocal() && s->GetSocket()->GetLinkState() != CONNECTED)
-			continue;
-
-		// Now do PING checks on all servers
-		// Only ping if this server needs one
-		if (curtime >= s->NextPingTime())
-		{
-			// And if they answered the last
-			if (s->AnsweredLastPing())
-			{
-				// They did, send a ping to them
-				s->SetNextPingTime(curtime + Utils->PingFreq);
-				s->GetSocket()->WriteLine(CmdBuilder("PING").push(s->GetID()));
-				s->LastPingMsec = ts;
-			}
-			else
-			{
-				// They didn't answer the last ping, if they are locally connected, get rid of them.
-				if (s->IsLocal())
-				{
-					TreeSocket* sock = s->GetSocket();
-					sock->SendError("Ping timeout");
-					sock->Close();
-					goto restart;
-				}
-			}
-		}
-
-		// If warn on ping enabled and not warned and the difference is sufficient and they didn't answer the last ping...
-		if ((Utils->PingWarnTime) && (!s->Warned) && (curtime >= s->NextPingTime() - (Utils->PingFreq - Utils->PingWarnTime)) && (!s->AnsweredLastPing()))
-		{
-			/* The server hasnt responded, send a warning to opers */
-			ServerInstance->SNO->WriteToSnoMask('l',"Server \002%s\002 has not responded to PING for %d seconds, high latency.", s->GetName().c_str(), Utils->PingWarnTime);
-			s->Warned = true;
-		}
-	}
-}
-
 void ModuleSpanningTree::ConnectServer(Autoconnect* a, bool on_timer)
 {
 	if (!a)
@@ -471,7 +413,6 @@ void ModuleSpanningTree::OnUserMessage(User* user, void* dest, int target_type, 
 void ModuleSpanningTree::OnBackgroundTimer(time_t curtime)
 {
 	AutoConnectServers(curtime);
-	DoPingChecks(curtime);
 	DoConnectTimeout(curtime);
 }
 

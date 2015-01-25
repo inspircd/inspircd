@@ -38,8 +38,9 @@ TreeServer::TreeServer()
 	, VersionString(ServerInstance->GetVersionString())
 	, fullversion(ServerInstance->GetVersionString(true))
 	, Socket(NULL), sid(ServerInstance->Config->GetSID()), behind_bursting(0), isdead(false)
+	, pingtimer(this)
 	, ServerUser(ServerInstance->FakeClient)
-	, age(ServerInstance->Time()), Warned(false), UserCount(ServerInstance->Users.GetLocalUsers().size())
+	, age(ServerInstance->Time()), UserCount(ServerInstance->Users.GetLocalUsers().size())
 	, OperCount(0), rtt(0), StartBurst(0), Hidden(false)
 {
 	AddHashEntry();
@@ -52,13 +53,14 @@ TreeServer::TreeServer()
 TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const std::string& id, TreeServer* Above, TreeSocket* Sock, bool Hide)
 	: Server(Name, Desc)
 	, Parent(Above), Socket(Sock), sid(id), behind_bursting(Parent->behind_bursting), isdead(false)
+	, pingtimer(this)
 	, ServerUser(new FakeUser(id, this))
-	, age(ServerInstance->Time()), Warned(false), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(Hide)
+	, age(ServerInstance->Time()), UserCount(0), OperCount(0), rtt(0), StartBurst(0), Hidden(Hide)
 {
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "New server %s behind_bursting %u", GetName().c_str(), behind_bursting);
 	CheckULine();
-	SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
-	SetPingFlag();
+
+	ServerInstance->Timers.AddTimer(&pingtimer);
 
 	/* find the 'route' for this server (e.g. the one directly connected
 	 * to the local server, which we can use to reach it)
@@ -135,11 +137,6 @@ void TreeServer::FinishBurstInternal()
 		behind_bursting--;
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "FinishBurstInternal() %s behind_bursting %u", GetName().c_str(), behind_bursting);
 
-	if (!IsBehindBursting())
-	{
-		SetNextPingTime(ServerInstance->Time() + Utils->PingFreq);
-		SetPingFlag();
-	}
 	for (ChildServers::const_iterator i = Children.begin(); i != Children.end(); ++i)
 	{
 		TreeServer* child = *i;
@@ -259,27 +256,6 @@ void TreeServer::AddHashEntry()
 {
 	Utils->serverlist[GetName()] = this;
 	Utils->sidlist[sid] = this;
-}
-
-void TreeServer::SetNextPingTime(time_t t)
-{
-	this->NextPing = t;
-	LastPingWasGood = false;
-}
-
-time_t TreeServer::NextPingTime()
-{
-	return NextPing;
-}
-
-bool TreeServer::AnsweredLastPing()
-{
-	return LastPingWasGood;
-}
-
-void TreeServer::SetPingFlag()
-{
-	LastPingWasGood = true;
 }
 
 CullResult TreeServer::cull()

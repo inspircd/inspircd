@@ -35,9 +35,7 @@ CmdResult CommandPong::HandleServer(TreeServer* server, std::vector<std::string>
 	if (params[0] == ServerInstance->Config->GetSID())
 	{
 		// PONG for us
-		long ts = ServerInstance->Time() * 1000 + (ServerInstance->Time_ns() / 1000000);
-		server->rtt = ts - server->LastPingMsec;
-		server->SetPingFlag();
+		server->OnPong();
 	}
 	return CMD_SUCCESS;
 }

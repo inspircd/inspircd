@@ -22,6 +22,7 @@
 #pragma once
 
 #include "treesocket.h"
+#include "pingtimer.h"
 
 /** Each server in the tree is represented by one class of
  * type TreeServer. A locally connected TreeServer can
@@ -49,8 +50,6 @@ class TreeServer : public Server
 	std::string fullversion;
 
 	TreeSocket* Socket;			/* Socket used to communicate with this server */
-	time_t NextPing;			/* After this time, the server should be PINGed*/
-	bool LastPingWasGood;			/* True if the server responded to the last PING with a PONG */
 	std::string sid;			/* Server ID */
 
 	/** Counter counting how many servers are bursting in front of this server, including
@@ -63,6 +62,10 @@ class TreeServer : public Server
 	/** True if this server has been lost in a split and is awaiting destruction
 	 */
 	bool isdead;
+
+	/** Timer handling PINGing the server and killing it on timeout
+	 */
+	PingTimer pingtimer;
 
 	/** This method is used to add this TreeServer to the
 	 * hash maps. It is only called by the constructors.
@@ -81,8 +84,6 @@ class TreeServer : public Server
 	typedef std::vector<TreeServer*> ChildServers;
 	FakeUser* const ServerUser;		/* User representing this server */
 	const time_t age;
-
-	bool Warned;				/* True if we've warned opers about high latency on this server */
 
 	unsigned int UserCount;			/* How many users are on this server? [note: doesn't care about +i] */
 	unsigned int OperCount;			/* How many opers are on this server? */
@@ -143,18 +144,6 @@ class TreeServer : public Server
 	 */
 	const std::string& GetFullVersion() const { return fullversion; }
 
-	/** Set time we are next due to ping this server
-	 */
-	void SetNextPingTime(time_t t);
-
-	/** Get the time we are next due to ping this server
-	 */
-	time_t NextPingTime();
-
-	/** Last ping time in milliseconds, used to calculate round trip time
-	 */
-	unsigned long LastPingMsec;
-
 	/** Round trip time of last ping
 	 */
 	unsigned long rtt;
@@ -166,14 +155,6 @@ class TreeServer : public Server
 	/** True if this server is hidden
 	 */
 	bool Hidden;
-
-	/** True if the server answered their last ping
-	 */
-	bool AnsweredLastPing();
-
-	/** Set the server as responding to its last ping
-	 */
-	void SetPingFlag();
 
 	/** Get the TreeSocket pointer for local servers.
 	 * For remote servers, this returns NULL.
@@ -233,6 +214,10 @@ class TreeServer : public Server
 	 * @param startms Time the server started bursting, if 0 or omitted, use current time
 	 */
 	void BeginBurst(unsigned long startms = 0);
+
+	/** Register a PONG from the server
+	 */
+	void OnPong() { pingtimer.OnPong(); }
 
 	CullResult cull();
 
