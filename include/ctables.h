@@ -163,36 +163,16 @@ class CoreExport CommandBase : public ServiceProvider
 	 * @param maxpara Maximum number of parameters this command may have - extra parameters
 	 * will be tossed into one last space-seperated param.
 	 */
-	CommandBase(Module* me, const std::string &cmd, int minpara = 0, int maxpara = 0) :
-		ServiceProvider(me, cmd, SERVICE_COMMAND), flags_needed(0), min_params(minpara), max_params(maxpara),
-		use_count(0), disabled(false), works_before_reg(false), allow_empty_last_param(true),
-		Penalty(1)
-	{
-	}
+	CommandBase(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
-	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return ROUTE_LOCALONLY;
-	}
+	virtual RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters);
 
 	/** Encode a parameter for server->server transmission.
 	 * Used for parameters for which the translation type is TR_CUSTOM.
 	 * @param parameter The parameter to encode. Can be modified in place.
 	 * @param index The parameter index (0 == first parameter).
 	 */
-	virtual void EncodeParameter(std::string& parameter, int index)
-	{
-	}
-
-	/** Decode a parameter from server->server transmission.
-	 * Not currently used in this version of InspIRCd.
-	 * Used for parameters for which the translation type is TR_CUSTOM.
-	 * @param parameter The parameter to decode. Can be modified in place.
-	 * @param index The parameter index (0 == first parameter).
-	 */
-	virtual void DecodeParameter(std::string& parameter, int index)
-	{
-	}
+	virtual void EncodeParameter(std::string& parameter, int index);
 
 	/** Disable or enable this command.
 	 * @param setting True to disable the command.
@@ -229,11 +209,7 @@ class CoreExport Command : public CommandBase
 	 */
 	bool force_manual_route;
 
-	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0)
-		: CommandBase(me, cmd, minpara, maxpara)
-		, force_manual_route(false)
-	{
-	}
+	Command(Module* me, const std::string& cmd, unsigned int minpara = 0, unsigned int maxpara = 0);
 
 	/** Handle the command from a user.
 	 * @param parameters The parameters for the command.
