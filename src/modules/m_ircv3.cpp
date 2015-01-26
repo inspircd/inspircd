@@ -20,6 +20,26 @@
 #include "modules/account.h"
 #include "modules/cap.h"
 
+class WriteNeighboursWithExt : public User::ForEachNeighborHandler
+{
+	const LocalIntExt& ext;
+	const std::string& msg;
+
+	void Execute(LocalUser* user) CXX11_OVERRIDE
+	{
+		if (ext.get(user))
+			user->Write(msg);
+	}
+
+ public:
+	WriteNeighboursWithExt(User* user, const std::string& message, const LocalIntExt& extension)
+		: ext(extension)
+		, msg(message)
+	{
+		user->ForEachNeighbor(*this, false);
+	}
+};
+
 class ModuleIRCv3 : public Module
 {
 	GenericCap cap_accountnotify;
@@ -30,44 +50,6 @@ class ModuleIRCv3 : public Module
 	bool extendedjoin;
 
 	CUList last_excepts;
-
-	void WriteNeighboursWithExt(User* user, const std::string& line, const LocalIntExt& ext)
-	{
-		IncludeChanList chans(user->chans.begin(), user->chans.end());
-
-		std::map<User*, bool> exceptions;
-		FOREACH_MOD(OnBuildNeighborList, (user, chans, exceptions));
-
-		// Send it to all local users who were explicitly marked as neighbours by modules and have the required ext
-		for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
-		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if ((u) && (i->second) && (ext.get(u)))
-				u->Write(line);
-		}
-
-		// Now consider sending it to all other users who has at least a common channel with the user
-		std::set<User*> already_sent;
-		for (IncludeChanList::const_iterator i = chans.begin(); i != chans.end(); ++i)
-		{
-			const Channel::MemberMap& userlist = (*i)->chan->GetUsers();
-			for (Channel::MemberMap::const_iterator m = userlist.begin(); m != userlist.end(); ++m)
-			{
-				/*
-				 * Send the line if the channel member in question meets all of the following criteria:
-				 * - local
-				 * - not the user who is doing the action (i.e. whose channels we're iterating)
-				 * - has the given extension
-				 * - not on the except list built by modules
-				 * - we haven't sent the line to the member yet
-				 *
-				 */
-				LocalUser* member = IS_LOCAL(m->first);
-				if ((member) && (member != user) && (ext.get(member)) && (exceptions.find(member) == exceptions.end()) && (already_sent.insert(member).second))
-					member->Write(line);
-			}
-		}
-	}
 
  public:
 	ModuleIRCv3() : cap_accountnotify(this, "account-notify"),

@@ -845,11 +845,27 @@ void User::WriteFrom(User *user, const char* text, ...)
 	this->WriteFrom(user, textbuffer);
 }
 
+namespace
+{
+	class WriteCommonRawHandler : public User::ForEachNeighborHandler
+	{
+		const std::string& msg;
+
+		void Execute(LocalUser* user) CXX11_OVERRIDE
+		{
+			user->Write(msg);
+		}
+
+	 public:
+		WriteCommonRawHandler(const std::string& message)
+			: msg(message)
+		{
+		}
+	};
+}
+
 void User::WriteCommon(const char* text, ...)
 {
-	if (this->registered != REG_ALL || quitting)
-		return;
-
 	std::string textbuffer;
 	VAFORMAT(textbuffer, text, text);
 	textbuffer = ":" + this->GetFullHost() + " " + textbuffer;
@@ -858,79 +874,58 @@ void User::WriteCommon(const char* text, ...)
 
 void User::WriteCommonRaw(const std::string &line, bool include_self)
 {
-	if (this->registered != REG_ALL || quitting)
-		return;
-
-	LocalUser::already_sent_id++;
-
-	IncludeChanList include_c(chans.begin(), chans.end());
-	std::map<User*,bool> exceptions;
-
-	exceptions[this] = include_self;
-
-	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
-
-	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
-	{
-		LocalUser* u = IS_LOCAL(i->first);
-		if (u && !u->quitting)
-		{
-			u->already_sent = LocalUser::already_sent_id;
-			if (i->second)
-				u->Write(line);
-		}
-	}
-	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
-	{
-		Channel* c = (*v)->chan;
-		const Channel::MemberMap& ulist = c->GetUsers();
-		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); ++i)
-		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if (u && u->already_sent != LocalUser::already_sent_id)
-			{
-				u->already_sent = LocalUser::already_sent_id;
-				u->Write(line);
-			}
-		}
-	}
+	WriteCommonRawHandler handler(line);
+	ForEachNeighbor(handler, include_self);
 }
 
-void User::WriteCommonQuit(const std::string &normal_text, const std::string &oper_text)
+void User::ForEachNeighbor(ForEachNeighborHandler& handler, bool include_self)
 {
-	if (this->registered != REG_ALL)
-		return;
+	// The basic logic for visiting the neighbors of a user is to iterate the channel list of the user
+	// and visit all users on those channels. Because two users may share more than one common channel,
+	// we must skip users that we have already visited.
+	// To do this, we make use of a global counter and an integral 'already_sent' field in LocalUser.
+	// The global counter is incremented every time we do something for each neighbor of a user. Then,
+	// before visiting a member we examine user->already_sent. If it's equal to the current counter, we
+	// skip the member. Otherwise, we set it to the current counter and visit the member.
 
-	already_sent_t uniq_id = ++LocalUser::already_sent_id;
+	// Ask modules to build a list of exceptions.
+	// Mods may also exclude entire channels by erasing them from include_chans.
+	IncludeChanList include_chans(chans.begin(), chans.end());
+	std::map<User*, bool> exceptions;
+	exceptions[this] = include_self;
+	FOREACH_MOD(OnBuildNeighborList, (this, include_chans, exceptions));
 
-	const std::string normalMessage = ":" + this->GetFullHost() + " QUIT :" + normal_text;
-	const std::string operMessage = ":" + this->GetFullHost() + " QUIT :" + oper_text;
+	// Get next id, guaranteed to differ from the already_sent field of all users
+	const already_sent_t newid = ++LocalUser::already_sent_id;
 
-	IncludeChanList include_c(chans.begin(), chans.end());
-	std::map<User*,bool> exceptions;
-
-	FOREACH_MOD(OnBuildNeighborList, (this, include_c, exceptions));
-
-	for (std::map<User*,bool>::iterator i = exceptions.begin(); i != exceptions.end(); ++i)
+	// Handle exceptions first
+	for (std::map<User*, bool>::const_iterator i = exceptions.begin(); i != exceptions.end(); ++i)
 	{
-		LocalUser* u = IS_LOCAL(i->first);
-		if (u && !u->quitting)
+		LocalUser* curr = IS_LOCAL(i->first);
+		if (curr)
 		{
-			u->already_sent = uniq_id;
-			if (i->second)
-				u->Write(u->IsOper() ? operMessage : normalMessage);
+			// Mark as visited to ensure we won't visit again if there is a common channel
+			curr->already_sent = newid;
+			// Always treat quitting users as excluded
+			if ((i->second) && (!curr->quitting))
+				handler.Execute(curr);
 		}
 	}
-	for (IncludeChanList::const_iterator v = include_c.begin(); v != include_c.end(); ++v)
+
+	// Now consider the real neighbors
+	for (IncludeChanList::const_iterator i = include_chans.begin(); i != include_chans.end(); ++i)
 	{
-		const Channel::MemberMap& ulist = (*v)->chan->GetUsers();
-		for (Channel::MemberMap::const_iterator i = ulist.begin(); i != ulist.end(); i++)
+		Channel* chan = (*i)->chan;
+		const Channel::MemberMap& userlist = chan->GetUsers();
+		for (Channel::MemberMap::const_iterator j = userlist.begin(); j != userlist.end(); ++j)
 		{
-			LocalUser* u = IS_LOCAL(i->first);
-			if (u && (u->already_sent != uniq_id))
+			LocalUser* curr = IS_LOCAL(j->first);
+			// User not yet visited?
+			if ((curr) && (curr->already_sent != newid))
 			{
-				u->already_sent = uniq_id;
-				u->Write(u->IsOper() ? operMessage : normalMessage);
+				// Mark as visited and execute function
+				curr->already_sent = newid;
+				handler.Execute(curr);
 			}
 		}
 	}
