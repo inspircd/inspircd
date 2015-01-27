@@ -678,13 +678,20 @@ class OpenSSLIOHook : public SSLIOHook
 	{
 		if (sess)
 		{
-			std::string text = "*** You are connected using SSL cipher '" + std::string(SSL_get_cipher(sess)) + "'";
+			std::string text = "*** You are connected using SSL cipher '";
+			GetCiphersuite(text);
+			text += '\'';
 			const std::string& fingerprint = certificate->fingerprint;
 			if (!fingerprint.empty())
 				text += " and your SSL certificate fingerprint is " + fingerprint;
 
 			user->WriteNotice(text);
 		}
+	}
+
+	void GetCiphersuite(std::string& out) const
+	{
+		out.append(SSL_get_cipher(sess));
 	}
 };
 
