@@ -945,6 +945,7 @@ info_done_dealloc:
 
 	void GetCiphersuite(std::string& out) const
 	{
+		out.append(UnknownIfNULL(gnutls_protocol_get_name(gnutls_protocol_get_version(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_cipher_get_name(gnutls_cipher_get(sess)))).push_back('-');
 		out.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess))));

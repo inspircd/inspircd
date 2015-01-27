@@ -691,6 +691,7 @@ class OpenSSLIOHook : public SSLIOHook
 
 	void GetCiphersuite(std::string& out) const
 	{
+		out.append(SSL_get_version(sess)).push_back('-');
 		out.append(SSL_get_cipher(sess));
 	}
 };
