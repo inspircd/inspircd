@@ -199,7 +199,7 @@ static void FindDNS(std::string& server)
 		if (server == "nameserver")
 		{
 			resolv >> server;
-			if (server.find_first_not_of("0123456789.") == std::string::npos)
+			if (server.find_first_not_of("0123456789.") == std::string::npos || server.find_first_not_of("0123456789ABCDEFabcdef:") == std::string::npos)
 			{
 				ServerInstance->Logs->Log("CONFIG",DEFAULT,"<dns:server> set to '%s' as first resolver in /etc/resolv.conf.",server.c_str());
 				return;
