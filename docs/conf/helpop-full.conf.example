@@ -17,8 +17,7 @@ parameter for this command.
 /HELPOP SNOMASKS -      To see a list of oper snotice masks
 /HELPOP EXTBANS  -      To see a list of extended bans">
 
-<helpop key="nohelp" value="There is no help for the topic
-you searched for. Please try again.">
+<helpop key="nohelp" value="There is no help for the topic you searched for. Please try again.">
 
 #####################
 #   User Commands   #

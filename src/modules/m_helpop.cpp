@@ -23,6 +23,19 @@
 
 #include "inspircd.h"
 
+
+enum
+{
+	// From UnrealIRCd
+	RPL_WHOISHELPOP = 310,
+
+	// From IRCD-Hybrid
+	ERR_HELPNOTFOUND = 524,
+	RPL_HELPSTART = 704,
+	RPL_HELPTXT = 705,
+	RPL_ENDOFHELP = 706
+};
+
 typedef std::map<std::string, std::string, irc::insensitive_swo> HelpopMap;
 static HelpopMap helpop_map;
 
@@ -57,22 +70,24 @@ class CommandHelpop : public Command
 		if (parameter == "index")
 		{
 			/* iterate over all helpop items */
-			user->WriteNumeric(290, ":HELPOP topic index");
+			user->WriteNumeric(RPL_HELPSTART, "index :HELPOP topic index");
 			for (HelpopMap::const_iterator iter = helpop_map.begin(); iter != helpop_map.end(); iter++)
-				user->WriteNumeric(292, ":  %s", iter->first.c_str());
-			user->WriteNumeric(292, ":*** End of HELPOP topic index");
+				user->WriteNumeric(RPL_HELPTXT, "index :  %s", iter->first.c_str());
+			user->WriteNumeric(RPL_ENDOFHELP, "index :*** End of HELPOP topic index");
 		}
 		else
 		{
-			user->WriteNumeric(290, ":*** HELPOP for %s", parameter.c_str());
-			user->WriteNumeric(292, ": -");
-
 			HelpopMap::const_iterator iter = helpop_map.find(parameter);
 
 			if (iter == helpop_map.end())
 			{
 				iter = helpop_map.find("nohelp");
+				user->WriteNumeric(ERR_HELPNOTFOUND, "%s :%s", parameter.c_str(), iter->second.c_str());
+				return CMD_FAILURE;
 			}
+
+			user->WriteNumeric(RPL_HELPSTART, "%s :*** HELPOP for %s", parameter.c_str(), parameter.c_str());
+			user->WriteNumeric(RPL_HELPTXT, "%s : -", parameter.c_str());
 
 			const std::string& value = iter->second;
 			irc::sepstream stream(value, '\n');
@@ -82,13 +97,13 @@ class CommandHelpop : public Command
 			{
 				// Writing a blank line will not work with some clients
 				if (token.empty())
-					user->WriteNumeric(292, ": ");
+					user->WriteNumeric(RPL_HELPTXT, "%s : ", parameter.c_str());
 				else
-					user->WriteNumeric(292, ":%s", token.c_str());
+					user->WriteNumeric(RPL_HELPTXT, "%s :%s", parameter.c_str(), token.c_str());
 			}
 
-			user->WriteNumeric(292, ": -");
-			user->WriteNumeric(292, ":*** End of HELPOP");
+			user->WriteNumeric(RPL_HELPTXT, "%s : -", parameter.c_str());
+			user->WriteNumeric(RPL_ENDOFHELP, "%s :*** End of HELPOP", parameter.c_str());
 		}
 		return CMD_SUCCESS;
 	}
@@ -143,7 +158,7 @@ class ModuleHelpop : public Module
 		{
 			if (dst->IsModeSet(ho))
 			{
-				ServerInstance->SendWhoisLine(src, dst, 310, dst->nick+" :is available for help.");
+				ServerInstance->SendWhoisLine(src, dst, RPL_WHOISHELPOP, dst->nick+" :is available for help.");
 			}
 		}
 
