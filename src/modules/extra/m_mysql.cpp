@@ -259,10 +259,10 @@ class SQLConnection : public SQLProvider
 		std::string characterset;
 		if (config->readString("characterset", characterset))
 		{
-		  if (!mysql_set_character_set(connection,characterset.c_str()))
-		  {
-		    ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not change character-set to " + characterset);
-		  }
+			if (!mysql_set_character_set(connection, characterset.c_str()))
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not change character-set to " + characterset);
+			}
 		}
 		std::string initquery;
 		if (config->readString("initialquery", initquery))
