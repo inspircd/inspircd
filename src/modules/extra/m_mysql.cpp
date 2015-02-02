@@ -255,6 +255,15 @@ class SQLConnection : public SQLProvider
 		bool rv = mysql_real_connect(connection, host.c_str(), user.c_str(), pass.c_str(), dbname.c_str(), port, NULL, 0);
 		if (!rv)
 			return rv;
+		// enable character-set settings
+		std::string characterset;
+		if (config->readString("characterset", characterset))
+		{
+		  if (!mysql_set_character_set(connection,characterset.c_str()))
+		  {
+		    ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not change character-set to " + characterset);
+		  }
+		}
 		std::string initquery;
 		if (config->readString("initialquery", initquery))
 		{
