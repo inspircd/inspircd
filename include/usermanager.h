@@ -41,7 +41,7 @@ class CoreExport UserManager : public fakederef<UserManager>
 
 	/** A list holding local users
 	*/
-	typedef intrusive_list<LocalUser> LocalList;
+	typedef insp::intrusive_list<LocalUser> LocalList;
 
  private:
 	/** Map of IP addresses for clone counting

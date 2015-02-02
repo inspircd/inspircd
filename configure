@@ -33,17 +33,29 @@ BEGIN {
 use strict;
 use warnings FATAL => qw(all);
 
-use File::Copy ();
+use File::Basename        qw(basename);
+use File::Copy            ();
 use File::Spec::Functions qw(rel2abs);
-use Cwd;
-use Getopt::Long;
+use Getopt::Long          qw(GetOptions);
+use POSIX                 qw(getgid getuid);
 
+use make::common;
 use make::configure;
-use make::utilities;
+use make::console;
 
-our ($opt_use_gnutls, $opt_use_openssl, $opt_nointeractive, $opt_socketengine,
-     $opt_system, $opt_uid, $opt_base_dir, $opt_config_dir, $opt_module_dir, $opt_binary_dir,
-     $opt_data_dir, $opt_log_dir);
+my ($opt_binary_dir,
+    $opt_config_dir,
+    $opt_data_dir,
+    $opt_disable_interactive,
+    $opt_distribution_label,
+    $opt_gid,
+    $opt_log_dir,
+    $opt_manual_dir,
+    $opt_module_dir,
+    $opt_prefix,
+    $opt_socketengine,
+    $opt_system,
+    $opt_uid);
 
 sub list_extras ();
 
@@ -54,25 +66,29 @@ sub disable_extras (@);
 my @opt_enableextras;
 my @opt_disableextras;
 
-GetOptions (
-	'enable-gnutls' => \$opt_use_gnutls,
-	'system' => \$opt_system,
-	'uid=s' => \$opt_uid,
-	'enable-openssl' => \$opt_use_openssl,
-	'disable-interactive' => \$opt_nointeractive,
-	'socketengine=s' => \$opt_socketengine,
-	'prefix=s' => \$opt_base_dir,
-	'config-dir=s' => \$opt_config_dir,
-	'module-dir=s' => \$opt_module_dir,
-	'binary-dir=s' => \$opt_binary_dir,
-	'data-dir=s' => \$opt_data_dir,
-	'log-dir=s' => \$opt_log_dir,
-	'help'	=> \&cmd_help,
+GetOptions(
+	'clean'  => \&cmd_clean,
+	'help'	 => \&cmd_help,
 	'update' => \&cmd_update,
-	'clean' => \&cmd_clean,
-	'list-extras' => sub { list_extras; exit 0; }, # This, --enable-extras, and --disable-extras are for non-interactive managing.
-	'enable-extras=s@' => \@opt_enableextras, # ^
-	'disable-extras=s@' => \@opt_disableextras, # ^
+
+	'disable-interactive'  => \$opt_disable_interactive,
+	'distribution-label=s' => \$opt_distribution_label,
+	'binary-dir=s'         => \$opt_binary_dir,
+	'config-dir=s'         => \$opt_config_dir,
+	'data-dir=s'           => \$opt_data_dir,
+	'gid=s'                => \$opt_gid,
+	'log-dir=s'            => \$opt_log_dir,
+	'manual-dir=s'         => \$opt_manual_dir,
+	'module-dir=s'         => \$opt_module_dir,
+	'prefix=s'             => \$opt_prefix,
+	'socketengine=s'       => \$opt_socketengine,
+	'system'               => \$opt_system,
+	'uid=s'                => \$opt_uid,
+
+	# TODO: when the modulemanager rewrite is done these should be removed.
+	'disable-extras=s@' => \@opt_disableextras,
+	'enable-extras=s@'  => \@opt_enableextras,
+	'list-extras'       => sub { list_extras; exit 0; },
 );
 
 if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
@@ -86,100 +102,45 @@ if (scalar(@opt_enableextras) + scalar(@opt_disableextras) > 0) {
 }
 
 our $interactive = !(
-	(defined $opt_base_dir) ||
-	(defined $opt_config_dir) ||
-	(defined $opt_module_dir) ||
-	(defined $opt_base_dir) ||
-	(defined $opt_binary_dir) ||
-	(defined $opt_data_dir) ||
-	(defined $opt_log_dir) ||
-	(defined $opt_nointeractive) ||
-	(defined $opt_socketengine) ||
-	(defined $opt_use_openssl) ||
-	(defined $opt_system) ||
-	(defined $opt_uid) ||
-	(defined $opt_use_gnutls)
+	!-t STDIN ||
+	!-t STDOUT ||
+	defined $opt_binary_dir ||
+	defined $opt_config_dir ||
+	defined $opt_data_dir ||
+	defined $opt_disable_interactive ||
+	defined $opt_distribution_label ||
+	defined $opt_gid ||
+	defined $opt_log_dir ||
+	defined $opt_manual_dir ||
+	defined $opt_module_dir ||
+	defined $opt_prefix ||
+	defined $opt_socketengine ||
+	defined $opt_system ||
+	defined $opt_uid
 );
 
-our %config = read_configure_cache();
+my %version = get_version();
+print_format "<|BOLD Configuring InspIRCd $version{MAJOR}.$version{MINOR}.$version{PATCH}+$version{LABEL} on $^O.|>\n";
 
-print "Checking for cache from previous configure... ";
-print %config ? "found\n" : "not found\n";
-
-$config{BASE_DIR} = getcwd()."/run";
-
-if (defined $opt_base_dir) {
-	$config{BASE_DIR} = $opt_base_dir;
-} elsif (defined $opt_system) {
-	$config{BASE_DIR} = '/var/lib/inspircd';
-}
-
-if (defined $opt_system) {
-	$config{UID} = defined $opt_uid ? $opt_uid : 'ircd';
-	$config{CONFIG_DIR} = '/etc/inspircd';
-	$config{MODULE_DIR} = '/usr/lib/inspircd';
-	$config{BINARY_DIR} = '/usr/sbin/';
-	$config{DATA_DIR} = '/var/inspircd';
-	$config{LOG_DIR} = '/var/log/inspircd';
-} else {
-	$config{UID} = defined $opt_uid ? $opt_uid : $<;
-	$config{CONFIG_DIR} = rel2abs($config{BASE_DIR}."/conf");
-	$config{MODULE_DIR} = rel2abs($config{BASE_DIR}."/modules");
-	$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
-	$config{DATA_DIR} = rel2abs($config{BASE_DIR}."/data");
-	$config{LOG_DIR} = rel2abs($config{BASE_DIR}."/logs");
+our %config;
+if ($interactive) {
+	%config = read_configure_cache();
+	run_test CONFIGURE_CACHE_FILE, %config;
+	if (!defined $config{VERSION}) {
+		$config{VERSION} = CONFIGURE_CACHE_VERSION;
+	} elsif ($config{VERSION} != CONFIGURE_CACHE_VERSION) {
+		print_warning "ignoring contents of ${\CONFIGURE_CACHE_FILE} as it was generated by an incompatible version of $0!";
+		%config = ('VERSION', CONFIGURE_CACHE_VERSION);
+	}
 }
 
-if (defined $opt_config_dir) {
-	$config{CONFIG_DIR} = $opt_config_dir;
-}
-if (defined $opt_module_dir) {
-	$config{MODULE_DIR} = $opt_module_dir;
-}
-if (defined $opt_binary_dir) {
-	$config{BINARY_DIR} = $opt_binary_dir;
-}
-if (defined $opt_data_dir) {
-	$config{DATA_DIR} = $opt_data_dir;
-}
-if (defined $opt_log_dir) {
-	$config{LOG_DIR} = $opt_log_dir;
-}
-chomp($config{HAS_GNUTLS}   = `pkg-config --modversion gnutls 2>/dev/null`);
-chomp($config{HAS_OPENSSL}  = `pkg-config --modversion openssl 2>/dev/null`);
-
-chomp(our $gnutls_ver = $config{HAS_GNUTLS});
-chomp(our $openssl_ver = $config{HAS_OPENSSL});
-$config{USE_GNUTLS}	    = 0;
-if (defined $opt_use_gnutls)
-{
-	$config{USE_GNUTLS} = "y";					# Use gnutls.
-}
-$config{USE_OPENSSL}	= 0;						# Use openssl.
-if (defined $opt_use_openssl)
-{
-	$config{USE_OPENSSL} = "y";
-}
-
-$config{CXX} = defined $ENV{CXX} && !system("$ENV{CXX} -v > /dev/null 2>&1") ? $ENV{CXX} : find_compiler();
-if ($config{CXX} eq "") {
-	print "A C++ compiler could not be detected on your system!\n";
-	print "Set the CXX environment variable to the full path if this is incorrect.\n";
+$config{CXX} = find_compiler($config{CXX} || $ENV{CXX});
+unless ($config{CXX}) {
+	print "A suitable C++ compiler could not be detected on your system!\n";
+	print "Set the CXX environment variable to the compiler binary path if this is incorrect.\n";
 	exit 1;	
 }
-
-our %cxx = get_compiler_info($config{CXX});
-if ($cxx{UNSUPPORTED}) {
-	print "Your C++ compiler is too old to build InspIRCd!\n";
-	print "Reason: $cxx{REASON}\n";
-	exit 1;
-}
-
-if ($config{HAS_OPENSSL} =~ /^([-[:digit:].]+)(?:[a-z])?(?:\-[a-z][0-9])?/) {
-	$config{HAS_OPENSSL} = $1;
-} else {
-	$config{HAS_OPENSSL} = "";
-}
+my %compiler = get_compiler_info($config{CXX});
 
 $config{HAS_CLOCK_GETTIME} = run_test 'clock_gettime()', test_file($config{CXX}, 'clock_gettime.cpp', '-lrt');
 $config{HAS_EVENTFD} = run_test 'eventfd()', test_file($config{CXX}, 'eventfd.cpp');
@@ -202,10 +163,10 @@ if ($config{HAS_POLL} = run_test 'poll', test_header($config{CXX}, 'poll.h')) {
 
 # Select is available on all platforms
 $config{HAS_SELECT} = 1;
-$config{SOCKETENGINE} ||= "select";
+$config{SOCKETENGINE} ||= 'select';
 
 if (defined $opt_socketengine) {
-	my $cfgkey = "HAS_" . uc $opt_socketengine;
+	my $cfgkey = 'HAS_' . uc $opt_socketengine;
 	if ($config{$cfgkey} && -f "src/socketengines/socketengine_$opt_socketengine.cpp") {
 		$config{SOCKETENGINE} = $opt_socketengine;
 	} else {
@@ -213,221 +174,170 @@ if (defined $opt_socketengine) {
 		print "Available socket engines are:";
 		foreach (<src/socketengines/socketengine_*.cpp>) {
 			s/src\/socketengines\/socketengine_(\w+)\.cpp/$1/;
-			print " $1" if $config{"HAS_" . uc $1};
+			print " $1" if $config{'HAS_' . uc $1};
 		}
 		print "\n";	
 		exit 1;
 	}
 }
 
-print "Checking for libgnutls... ";
-if (defined($config{HAS_GNUTLS}) && (($config{HAS_GNUTLS}) || ($config{HAS_GNUTLS} eq "y"))) {
-	if (defined($gnutls_ver) && ($gnutls_ver ne "")) {
-		print "yes\n";
-		$config{HAS_GNUTLS} = "y";
-	} else {
-		print "no\n";
-		$config{HAS_GNUTLS} = "n";
-	}
-} else {
-	print "no\n";
-	$config{HAS_GNUTLS} = "n";
+# If the user has specified a distribution label then we use it in
+# place of the label from src/version.sh or Git.
+if (defined $opt_distribution_label) {
+	$version{LABEL} = $opt_distribution_label;
 }
 
-print "Checking for openssl... ";
-if (defined($config{HAS_OPENSSL}) && (($config{HAS_OPENSSL}) || ($config{HAS_OPENSSL} eq "y"))) {
-	if (defined($openssl_ver) && ($openssl_ver ne "")) {
-		print "yes\n";
-		$config{HAS_OPENSSL} = "y";
-	} else {
-		print "no\n";
-		$config{HAS_OPENSSL} = "n";
-	}
+if (defined $opt_system) {
+	$config{BASE_DIR}   = $opt_prefix     || '/var/lib/inspircd';
+	$config{BINARY_DIR} = $opt_binary_dir || '/usr/sbin';
+	$config{CONFIG_DIR} = $opt_config_dir || '/etc/inspircd';
+	$config{DATA_DIR}   = $opt_data_dir   || '/var/inspircd';
+	$config{LOG_DIR}    = $opt_module_dir || '/var/log/inspircd';
+	$config{MANUAL_DIR} = $opt_manual_dir || '/usr/share/man/man1';
+	$config{MODULE_DIR} = $opt_module_dir || '/usr/lib/inspircd';
 } else {
-	print "no\n";
-	$config{HAS_OPENSSL} = "n";
+	$config{BASE_DIR}   = $opt_prefix     || $config{BASE_DIR}   || rel2abs 'run';
+	$config{BINARY_DIR} = $opt_binary_dir || $config{BINARY_DIR} || rel2abs $config{BASE_DIR} . '/bin';
+	$config{CONFIG_DIR} = $opt_config_dir || $config{CONFIG_DIR} || rel2abs $config{BASE_DIR} . '/conf';
+	$config{DATA_DIR}   = $opt_data_dir   || $config{DATA_DIR}   || rel2abs $config{BASE_DIR} . '/data';
+	$config{LOG_DIR}    = $opt_log_dir    || $config{LOG_DIR}    || rel2abs $config{BASE_DIR} . '/logs';
+	$config{MANUAL_DIR} = $opt_manual_dir || $config{MANUAL_DIR} || rel2abs $config{BASE_DIR} . '/manuals';
+	$config{MODULE_DIR} = $opt_module_dir || $config{MODULE_DIR} || rel2abs $config{BASE_DIR} . '/modules';
 }
 
-if ($interactive)
-{
-	# Clear the screen.
-	system 'tput', 'clear';
+# Parse --gid=123 or --gid=foo and extract the group id.
+my @group;
+if (defined $opt_gid) {
+	@group = $opt_gid =~ /^\d+$/ ? getgrgid($opt_gid) : getgrnam($opt_gid);
+	print_error "there is no '$opt_gid' group on this system!" unless @group;
+} else {
+	@group = $opt_system ? getgrnam('irc') : getgrgid($config{GID} || getgid());
+	print_error "you need to specify a group to run as using '--gid [id|name]'!" unless @group;
+}
+$config{GROUP} = $group[0];
+$config{GID}   = $group[2];
 
-	my %version = get_version();
+# Parse --uid=123 or --uid=foo and extract the user id.
+my @user;
+if (defined $opt_uid) {
+	@user = $opt_uid =~ /^\d+$/ ? getpwuid($opt_uid) : getpwnam($opt_uid);
+	print_error "there is no '$opt_uid' user on this system!" unless @user;
+} else {
+	@user = $opt_system ? getpwnam('irc') : getpwuid($config{UID} || getuid());
+	print_error "you need to specify a user to run as using '--uid [id|name]'!" unless @user;
+}
+$config{USER} = $user[0];
+$config{UID}  = $user[2];
 
-	# Display Introduction Message..
-	print <<"STOP" ;
-Welcome to the \e[1mInspIRCd\e[0m configuration program! (\e[1minteractive mode\e[0m)
-\e[1mPackage maintainers: Type ./configure --help for non-interactive help\e[0m
+# Clear the screen.
+system 'tput', 'clear' if $interactive;
 
-*** If you are unsure of any of these values, leave it blank for    ***
-*** standard settings that will work, and your server will run      ***
-*** using them. Please consult your IRC network admin if in doubt.  ***
-
-Press \e[1m<RETURN>\e[0m to accept the default for any option, or enter
-a new value. Please note: You will \e[1mHAVE\e[0m to read the docs
-dir, otherwise you won't have a config file!
-
-Your operating system is: \e[1;32m$^O\e[0m 
-STOP
-	print "Your InspIRCd version is: \e[1;32m";
-	print "$version{MAJOR}.$version{MINOR}.$version{PATCH}+$version{LABEL}";
-	print "\e[0m\n\n";
-	print "The following compiler has been detected: \e[1;32m$cxx{NAME} $cxx{VERSION}\e[0m ($config{CXX})\n\n";
-
-	# Check that the user actually wants this version.
-	if ($version{LABEL} ne 'release') {
-		print <<"EOW" ;
-\e[1;31mWARNING!\e[0m You are building a development version. This contains code which has
+# Check that the user actually wants this version.
+if ($version{LABEL} ne 'release' && $interactive) {
+	print_warning <<'EOW';
+You are building a development version. This contains code which has
 not been tested as heavily and may contain various faults which could seriously
 affect the running of your server. It is recommended that you use a stable
 version instead.
 
-You can obtain the latest stable version from https://github.com/inspircd/inspircd/releases
-or by running `git checkout insp20` if you are installing from Git.
+You can obtain the latest stable version from http://www.inspircd.org/ or by
+running `git checkout insp20` if you are installing from Git.
 
 EOW
-	exit 1 unless prompt_bool(1, 'I understand this warning and want to continue anyway.', 0);
-	}
-
-	# Directory Settings..
-	my $tmpbase = $config{BASE_DIR};
-	$config{BASE_DIR} = prompt_dir(1, 'What directory do you wish to install the InspIRCd base?', $config{BASE_DIR});
-	if ($tmpbase ne $config{BASE_DIR}) {
-		$config{CONFIG_DIR} = rel2abs($config{BASE_DIR}."/conf");
-		$config{MODULE_DIR} = rel2abs($config{BASE_DIR}."/modules");
-		$config{DATA_DIR} = rel2abs($config{BASE_DIR}."/data");
-		$config{LOG_DIR} = rel2abs($config{BASE_DIR}."/logs");
-		$config{BINARY_DIR} = rel2abs($config{BASE_DIR}."/bin");
-	}
-
-	$config{BINARY_DIR} = prompt_dir(1, 'In what directory should the InspIRCd binary be placed?', $config{BINARY_DIR});
-	$config{CONFIG_DIR} = prompt_dir(1, 'In what directory are the configuration files to be stored?', $config{CONFIG_DIR});
-	$config{DATA_DIR} = prompt_dir(1, 'In what directory are variable data files to be stored?', $config{DATA_DIR});
-	$config{LOG_DIR} = prompt_dir(1, 'In what directory are log files to be stored?', $config{LOG_DIR});
-	$config{MODULE_DIR} = prompt_dir(1, 'In what directory are the modules to be placed?', $config{MODULE_DIR});
-
-	my $chose_hiperf = 0;
-	if ($config{HAS_KQUEUE}) {
-		$config{USE_KQUEUE} = prompt_bool(1, 'Your operating system has support for the high performance kqueue socket engine. Would you like to enable it?', 1);
-		if ($config{USE_KQUEUE}) {
-			$config{SOCKETENGINE} = "kqueue";
-			$chose_hiperf = 1;
-		}
-	}
-	if ($config{HAS_EPOLL}) {
-		$config{USE_EPOLL} = prompt_bool(1, 'Your operating system has support for the high performance epoll socket engine. Would you like to enable it?', 1);
-		if ($config{USE_EPOLL}) {
-			$config{SOCKETENGINE} = "epoll";
-			$chose_hiperf = 1;
-		}
-	}
-	if ($config{HAS_PORTS}) {
-		$config{USE_PORTS} = prompt_bool(1, 'Your operating system has support for the high performance IOCP socket engine. Would you like to enable it?', 1);
-		if ($config{USE_PORTS}) {
-			$config{SOCKETENGINE} = "ports";
-			$chose_hiperf = 1;
-		}
-	}
-
-	if (!$chose_hiperf && $config{HAS_POLL}) {
-		$config{USE_POLL} = prompt_bool(1, 'Your operating system has support for the mid performance poll socket engine. Would you like to enable it?', 1);
-		if ($config{USE_POLL}) {
-			$config{SOCKETENGINE} = "poll";
-		}
-	}
-	unless ($chose_hiperf || $config{USE_POLL})
-	{
-		print "No high-performance socket engines are available, or you chose not to enable one. Defaulting to select() engine.\n\n";
-		$config{SOCKETENGINE} = "select";
-	}
-
-	if ($config{HAS_GNUTLS} eq "y" || $config{HAS_OPENSSL} eq "y")
-	{
-		print "Detected GnuTLS version: \e[1;32m" . $gnutls_ver . "\e[0m\n";
-		print "Detected OpenSSL version: \e[1;32m" . $openssl_ver . "\e[0m\n\n";
-
-		$config{USE_SSL} = prompt_bool(1, 'One or more SSL libraries detected. Would you like to enable SSL support?', 1);
-		if ($config{USE_SSL})
-		{
-			if ($config{HAS_GNUTLS} eq "y")
-			{
-				$config{USE_GNUTLS} = prompt_bool(1, 'Would you like to enable SSL with m_ssl_gnutls (recommended)?', 1);
-				if ($config{USE_GNUTLS})
-				{
-					print "Using GnuTLS SSL module.\n\n";
-					unlink 'src/modules/m_ssl_gnutls.cpp' if -f 'src/modules/m_ssl_gnutls.cpp';
-					symlink "extra/m_ssl_gnutls.cpp", "src/modules/m_ssl_gnutls.cpp" or print STDERR "Symlink failed: $!\n";
-				}
-			}
-
-			if ($config{HAS_OPENSSL} eq "y")
-			{
-				$config{USE_OPENSSL} = prompt_bool(1, 'Would you like to enable SSL with m_ssl_openssl (recommended)?', 1);
-				if ($config{USE_OPENSSL})
-				{
-					print "Using OpenSSL SSL module.\n\n";
-					unlink 'src/modules/m_ssl_openssl.cpp' if -f 'src/modules/m_ssl_openssl.cpp';
-					symlink "extra/m_ssl_openssl.cpp", "src/modules/m_ssl_openssl.cpp" or print STDERR "Symlink failed: $!\n";
-				}
-			}
-		}
-	}
-	else
-	{
-		print "\nCould not detect OpenSSL or GnuTLS. Make sure pkg-config is installed and\n";
-		print "is in your path.\n\n";
-	}
+exit 1 unless prompt_bool $interactive, 'I understand this warning and want to continue anyway.', !$interactive;
 }
 
-# We are on a POSIX system, we can enable POSIX extras without asking
-symlink "extra/m_regex_posix.cpp", "src/modules/m_regex_posix.cpp";
+# Configure directory settings.
+my $question = <<"EOQ";
+Currently, InspIRCd is configured with the following paths:
 
-if (($config{USE_GNUTLS}) && ($config{HAS_GNUTLS} ne "y"))
-{
-	print "Sorry, but I couldn't detect GnuTLS. Make sure pkg-config is in your path.\n";
-	exit 1;
-}
-if (($config{USE_OPENSSL}) && ($config{HAS_OPENSSL} ne "y"))
-{
-	print "Sorry, but I couldn't detect OpenSSL. Make sure pkg-config is in your path.\n";
-	exit 1;
+<|BOLD Base:|>   $config{BASE_DIR}
+<|BOLD Binary:|> $config{BINARY_DIR}
+<|BOLD Config:|> $config{CONFIG_DIR}
+<|BOLD Data:|>   $config{DATA_DIR}
+<|BOLD Log:|>    $config{LOG_DIR}
+<|BOLD Manual:|> $config{MANUAL_DIR}
+<|BOLD Module:|> $config{MODULE_DIR}
+
+Do you want to change these settings?
+EOQ
+if (prompt_bool $interactive, $question, 0) {
+	my $original_base_dir = $config{BASE_DIR};
+	$config{BASE_DIR} = prompt_dir $interactive, 'In what directory do you wish to install the InspIRCd base?', $config{BASE_DIR};
+	foreach my $key (qw(BINARY_DIR CONFIG_DIR DATA_DIR LOG_DIR MANUAL_DIR MODULE_DIR)) {
+		$config{$key} =~ s/^\Q$original_base_dir\E/$config{BASE_DIR}/;
+	}
+	$config{BINARY_DIR} = prompt_dir $interactive, 'In what directory should the InspIRCd binary be placed?',     $config{BINARY_DIR};
+	$config{CONFIG_DIR} = prompt_dir $interactive, 'In what directory are configuration files to be stored?', $config{CONFIG_DIR};
+	$config{DATA_DIR}   = prompt_dir $interactive, 'In what directory are variable data files to be stored?',     $config{DATA_DIR};
+	$config{LOG_DIR}    = prompt_dir $interactive, 'In what directory are log files to be stored?',               $config{LOG_DIR};
+	$config{MANUAL_DIR} = prompt_dir $interactive, 'In what directory are manual pages to be placed?',        $config{MANUAL_DIR};
+	$config{MODULE_DIR} = prompt_dir $interactive, 'In what directory are modules to be placed?',             $config{MODULE_DIR};
 }
 
-if ($config{USE_GNUTLS} || $config{USE_OPENSSL}) {
-	if (my $val = prompt_bool($interactive, 'Would you like to generate SSL certificates now?', $interactive)) {
-		unless (-r "$config{CONFIG_DIR}/key.pem" && -r "$config{CONFIG_DIR}/cert.pem" && -r "$config{CONFIG_DIR}/dhparams.pem") {
-			unless (system './tools/genssl auto') {
-				print "\nCertificate generation complete, copying to config directory... ";
-				File::Copy::move("key.pem", "$config{CONFIG_DIR}/key.pem") or print STDERR "Could not copy key.pem!\n";
-				File::Copy::move("cert.pem", "$config{CONFIG_DIR}/cert.pem") or print STDERR "Could not copy cert.pem!\n";
-				File::Copy::move("dhparams.pem", "$config{CONFIG_DIR}/dhparams.pem") or print STDERR "Could not copy dhparams.pem!\n";
-				print "Done.\n\n";
-			}
-		} else {
-			print "SSL certificates found, skipping.\n\n"
+# Configure module settings.
+$question = <<'EOQ';
+Currently, InspIRCd is configured to automatically enable all available extra modules.
+
+Would you like to enable extra modules manually?
+EOQ
+if (prompt_bool $interactive, $question, 0) {
+	foreach my $extra (<src/modules/extra/m_*.cpp>) {
+		my $module_name = basename $extra, '.cpp';
+		if (prompt_bool $interactive, "Would you like to enable $module_name?", 0) {
+			enable_extras "$module_name.cpp";
 		}
-	} else {
-		print "Skipping SSL certificate generation in non-interactive mode.\n\n";
 	}
 } else {
-	print "Skipping SSL Certificate generation, SSL support is not available.\n\n";
+	# TODO: finish modulemanager rewrite and replace this code with:
+	# system './modulemanager', 'enable', '--auto';
+	enable_extras 'm_ssl_gnutls.cpp' unless system 'gnutls-cli --version >/dev/null 2>&1';
+	enable_extras 'm_ssl_openssl.cpp' unless system 'openssl --version >/dev/null 2>&1';
 }
 
-print "Writing \e[1;32m.config.cache\e[0m ...\n";
-write_configure_cache(%config);
-parse_templates(\%config, \%cxx);
-dump_hash();
-
-print "\n";
-print "To build your server with these settings, please run '\e[1;32mmake\e[0m' now.\n";
-if ($config{USE_GNUTLS} || $config{USE_OPENSSL}) {
-	print "Please note: for \e[1;32mSSL support\e[0m you will need to load required\n";
-	print "modules in your config. This configure script has added those modules to the\n";
-	print "build process. For more info, please refer to:\n";
-	print "\e[1;32mhttp://wiki.inspircd.org/Installation_From_Tarball\e[0m\n";
+# Generate SSL certificates.
+if (<src/modules/m_ssl_*.cpp> && prompt_bool $interactive, 'Would you like to generate SSL certificates now?', $interactive) {
+	system './tools/genssl', 'auto';
 }
-print "*** \e[1;32mRemember to edit your configuration files!!!\e[0m ***\n\n";
+
+write_configure_cache %config;
+parse_templates \%config, \%compiler, \%version;
+
+print_format <<"EOM";
+
+Configuration is complete! You have chosen to build with the following settings:
+
+<|GREEN Compiler:|>
+  <|GREEN Binary:|>  $config{CXX}
+  <|GREEN Name:|>    $compiler{NAME}
+  <|GREEN Version:|> $compiler{VERSION}
+
+<|GREEN Extra Modules:|>
+EOM
+
+for my $file (<src/modules/m_*>) {
+	my $module = basename $file, '.cpp';
+	print "  * $module\n" if -l $file;
+}
+
+print_format <<"EOM";
+
+<|GREEN Paths:|>
+  <|GREEN Base:|>   $config{BASE_DIR}
+  <|GREEN Binary:|> $config{BINARY_DIR}
+  <|GREEN Config:|> $config{CONFIG_DIR}
+  <|GREEN Data:|>   $config{DATA_DIR}
+  <|GREEN Log:|>    $config{LOG_DIR}
+  <|GREEN Manual:|> $config{MANUAL_DIR}
+  <|GREEN Module:|> $config{MODULE_DIR}
+
+<|GREEN Execution Group:|> $config{GROUP} ($config{GID})
+<|GREEN Execution User:|>  $config{USER} ($config{UID})
+<|GREEN Socket Engine:|>   $config{SOCKETENGINE}
+
+To build with these settings run '<|GREEN make -j${\get_cpu_count}|>' now.
+
+EOM
 
 # Routine to list out the extra/ modules that have been enabled.
 # Note: when getting any filenames out and comparing, it's important to lc it if the

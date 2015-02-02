@@ -64,7 +64,7 @@ class BindInterface : public LDAPInterface
 				while (i < text.length() - 1 && isalpha(text[i + 1]))
 					++i;
 
-				std::string key = text.substr(start, (i - start) + 1);
+				std::string key(start, (i - start) + 1);
 				result.append(replacements[key]);
 			}
 			else
@@ -90,8 +90,8 @@ class BindInterface : public LDAPInterface
 				if (pos == std::string::npos) // malformed
 					continue;
 
-				std::string key = dnPart.substr(0, pos);
-				std::string value = dnPart.substr(pos + 1, dnPart.length() - pos + 1); // +1s to skip the = itself
+				std::string key(dnPart, 0, pos);
+				std::string value(dnPart, pos + 1, dnPart.length() - pos + 1); // +1s to skip the = itself
 				dnParts[key] = value;
 			}
 

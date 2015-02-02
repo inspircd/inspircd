@@ -22,7 +22,7 @@
 
 #include "base.h"
 
-class CoreExport dynamic_reference_base : public interfacebase, public intrusive_list_node<dynamic_reference_base>
+class CoreExport dynamic_reference_base : public interfacebase, public insp::intrusive_list_node<dynamic_reference_base>
 {
  private:
 	std::string name;

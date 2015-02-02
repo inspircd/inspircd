@@ -672,11 +672,6 @@
           #             higher ranked users. This is the recommended setting.
           announceinvites="dynamic"
 
-          # hidemodes: If enabled, then the listmodes given will be hidden
-          # from users below halfop. This is not recommended to be set on +b
-          # as it may break some functionality in popular clients such as mIRC.
-          hidemodes="eI"
-
           # hideulines: If this value is set to yes, U-lined servers will
           # be hidden from non-opers in /links and /map.
           hideulines="no"

@@ -268,7 +268,7 @@ bool irc::tokenstream::GetToken(std::string &token)
 	/* This is the last parameter */
 	if (token[0] == ':' && !first)
 	{
-		token = token.substr(1);
+		token.erase(token.begin());
 		if (!StreamEnd())
 		{
 			token += ' ';
@@ -332,7 +332,7 @@ bool irc::sepstream::GetToken(std::string &token)
 	if (p == std::string::npos)
 		p = this->tokens.length();
 
-	token = this->tokens.substr(this->pos, p - this->pos);
+	token.assign(tokens, this->pos, p - this->pos);
 	this->pos = p + 1;
 
 	return true;
@@ -346,71 +346,6 @@ const std::string irc::sepstream::GetRemaining()
 bool irc::sepstream::StreamEnd()
 {
 	return this->pos > this->tokens.length();
-}
-
-irc::modestacker::modestacker(bool add) : adding(add)
-{
-	sequence.clear();
-	sequence.push_back("");
-}
-
-void irc::modestacker::Push(char modeletter, const std::string &parameter)
-{
-	*(sequence.begin()) += modeletter;
-	sequence.push_back(parameter);
-}
-
-void irc::modestacker::Push(char modeletter)
-{
-	this->Push(modeletter,"");
-}
-
-void irc::modestacker::PushPlus()
-{
-	this->Push('+',"");
-}
-
-void irc::modestacker::PushMinus()
-{
-	this->Push('-',"");
-}
-
-int irc::modestacker::GetStackedLine(std::vector<std::string> &result, int max_line_size)
-{
-	if (sequence.empty())
-	{
-		return 0;
-	}
-
-	unsigned int n = 0;
-	int size = 1; /* Account for initial +/- char */
-	int nextsize = 0;
-	int start = result.size();
-	std::string modeline = adding ? "+" : "-";
-	result.push_back(modeline);
-
-	if (sequence.size() > 1)
-		nextsize = sequence[1].length() + 2;
-
-	while (!sequence[0].empty() && (sequence.size() > 1) && (n < ServerInstance->Config->Limits.MaxModes) && ((size + nextsize) < max_line_size))
-	{
-		modeline += *(sequence[0].begin());
-		if (!sequence[1].empty())
-		{
-			result.push_back(sequence[1]);
-			size += nextsize; /* Account for mode character and whitespace */
-		}
-		sequence[0].erase(sequence[0].begin());
-		sequence.erase(sequence.begin() + 1);
-
-		if (sequence.size() > 1)
-			nextsize = sequence[1].length() + 2;
-
-		n++;
-	}
-	result[start] = modeline;
-
-	return n;
 }
 
 std::string irc::stringjoiner(const std::vector<std::string>& sequence, char separator)
@@ -477,10 +412,9 @@ long irc::portparser::GetToken()
 	std::string::size_type dash = x.rfind('-');
 	if (dash != std::string::npos)
 	{
-		std::string sbegin = x.substr(0, dash);
-		std::string send = x.substr(dash+1, x.length());
+		std::string sbegin(x, 0, dash);
 		range_begin = atoi(sbegin.c_str());
-		range_end = atoi(send.c_str());
+		range_end = atoi(x.c_str()+dash+1);
 
 		if ((range_begin > 0) && (range_end > 0) && (range_begin < 65536) && (range_end < 65536) && (range_begin < range_end))
 		{

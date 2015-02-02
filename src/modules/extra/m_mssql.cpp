@@ -34,7 +34,7 @@ class SQLConn;
 class MsSQLResult;
 class ModuleMsSQL;
 
-typedef std::map<std::string, SQLConn*> ConnMap;
+typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 typedef std::deque<MsSQLResult*> ResultQueue;
 
 unsigned long count(const char * const str, char a)

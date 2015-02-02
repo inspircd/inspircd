@@ -23,11 +23,11 @@
 #include <ldap.h>
 
 #ifdef _WIN32
-# pragma comment(lib, "libldap.lib")
+# pragma comment(lib, "libldap_r.lib")
 # pragma comment(lib, "liblber.lib")
 #endif
 
-/* $LinkerFlags: -lldap */
+/* $LinkerFlags: -lldap_r */
 
 class LDAPService : public LDAPProvider, public SocketThread
 {
@@ -532,7 +532,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 
 class ModuleLDAP : public Module
 {
-	typedef std::map<std::string, LDAPService*> ServiceMap;
+	typedef insp::flat_map<std::string, LDAPService*> ServiceMap;
 	ServiceMap LDAPServices;
 
  public:
@@ -610,7 +610,7 @@ class ModuleLDAP : public Module
 
 	~ModuleLDAP()
 	{
-		for (std::map<std::string, LDAPService*>::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
+		for (ServiceMap::iterator i = LDAPServices.begin(); i != LDAPServices.end(); ++i)
 		{
 			LDAPService* conn = i->second;
 			conn->join();

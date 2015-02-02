@@ -32,13 +32,13 @@
 	#include <dirent.h>
 #endif
 
-static intrusive_list<dynamic_reference_base>* dynrefs = NULL;
+static insp::intrusive_list<dynamic_reference_base>* dynrefs = NULL;
 
 void dynamic_reference_base::reset_all()
 {
 	if (!dynrefs)
 		return;
-	for (intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
+	for (insp::intrusive_list<dynamic_reference_base>::iterator i = dynrefs->begin(); i != dynrefs->end(); ++i)
 		(*i)->resolve();
 }
 
@@ -86,7 +86,7 @@ void		Module::OnUserPart(Membership*, std::string&, CUList&) { DetachEvent(I_OnU
 void		Module::OnPreRehash(User*, const std::string&) { DetachEvent(I_OnPreRehash); }
 void		Module::OnModuleRehash(User*, const std::string&) { DetachEvent(I_OnModuleRehash); }
 ModResult	Module::OnUserPreJoin(LocalUser*, Channel*, const std::string&, std::string&, const std::string&) { DetachEvent(I_OnUserPreJoin); return MOD_RES_PASSTHRU; }
-void		Module::OnMode(User*, User*, Channel*, const std::vector<std::string>&, const std::vector<TranslateType>&) { DetachEvent(I_OnMode); }
+void		Module::OnMode(User*, User*, Channel*, const Modes::ChangeList&, ModeParser::ModeProcessFlag, const std::string&) { DetachEvent(I_OnMode); }
 void		Module::OnOper(User*, const std::string&) { DetachEvent(I_OnOper); }
 void		Module::OnPostOper(User*, const std::string&, const std::string &) { DetachEvent(I_OnPostOper); }
 void		Module::OnInfo(User*) { DetachEvent(I_OnInfo); }
@@ -95,7 +95,7 @@ ModResult	Module::OnUserPreInvite(User*, User*, Channel*, time_t) { DetachEvent(
 ModResult	Module::OnUserPreMessage(User*, void*, int, std::string&, char, CUList&, MessageType) { DetachEvent(I_OnUserPreMessage); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnUserPreNick(LocalUser*, const std::string&) { DetachEvent(I_OnUserPreNick); return MOD_RES_PASSTHRU; }
 void		Module::OnUserPostNick(User*, const std::string&) { DetachEvent(I_OnUserPostNick); }
-ModResult	Module::OnPreMode(User*, User*, Channel*, const std::vector<std::string>&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
+ModResult	Module::OnPreMode(User*, User*, Channel*, Modes::ChangeList&) { DetachEvent(I_OnPreMode); return MOD_RES_PASSTHRU; }
 void		Module::On005Numeric(std::map<std::string, std::string>&) { DetachEvent(I_On005Numeric); }
 ModResult	Module::OnKill(User*, User*, const std::string&) { DetachEvent(I_OnKill); return MOD_RES_PASSTHRU; }
 void		Module::OnLoadModule(Module*) { DetachEvent(I_OnLoadModule); }
@@ -121,7 +121,6 @@ ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { Detac
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
 void		Module::OnEvent(Event&) { DetachEvent(I_OnEvent); }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
-void		Module::OnGlobalOper(User*) { DetachEvent(I_OnGlobalOper); }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { DetachEvent(I_OnUserMessage); }
 void		Module::OnUserInvite(User*, User*, Channel*, time_t) { DetachEvent(I_OnUserInvite); }
@@ -165,12 +164,7 @@ ServiceProvider::ServiceProvider(Module* Creator, const std::string& Name, Servi
 void ServiceProvider::DisableAutoRegister()
 {
 	if ((ServerInstance) && (ServerInstance->Modules->NewServices))
-	{
-		ModuleManager::ServiceList& list = *ServerInstance->Modules->NewServices;
-		ModuleManager::ServiceList::iterator it = std::find(list.begin(), list.end(), this);
-		if (it != list.end())
-			list.erase(it);
-	}
+		stdalgo::erase(*ServerInstance->Modules->NewServices, this);
 }
 
 ModuleManager::ModuleManager()
@@ -183,7 +177,7 @@ ModuleManager::~ModuleManager()
 
 bool ModuleManager::Attach(Implementation i, Module* mod)
 {
-	if (std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod) != EventHandlers[i].end())
+	if (stdalgo::isin(EventHandlers[i], mod))
 		return false;
 
 	EventHandlers[i].push_back(mod);
@@ -192,13 +186,7 @@ bool ModuleManager::Attach(Implementation i, Module* mod)
 
 bool ModuleManager::Detach(Implementation i, Module* mod)
 {
-	EventHandlerIter x = std::find(EventHandlers[i].begin(), EventHandlers[i].end(), mod);
-
-	if (x == EventHandlers[i].end())
-		return false;
-
-	EventHandlers[i].erase(x);
-	return true;
+	return stdalgo::erase(EventHandlers[i], mod);
 }
 
 void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
@@ -670,7 +658,7 @@ dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::strin
 	: name(Name), value(NULL), creator(Creator)
 {
 	if (!dynrefs)
-		dynrefs = new intrusive_list<dynamic_reference_base>;
+		dynrefs = new insp::intrusive_list<dynamic_reference_base>;
 	dynrefs->push_front(this);
 
 	// Resolve unless there is no ModuleManager (part of class InspIRCd)

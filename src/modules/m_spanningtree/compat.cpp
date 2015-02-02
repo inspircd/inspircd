@@ -46,7 +46,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 			std::string line = original_line;
 			std::string::size_type a = line.find(' ');
 			std::string::size_type b = line.find(' ', a + 1);
-			std::string command = line.substr(a + 1, b-a-1);
+			std::string command(line, a + 1, b-a-1);
 			// now try to find a translation entry
 			// TODO a more efficient lookup method will be needed later
 			if (proto_version < 1205)
@@ -68,7 +68,7 @@ void TreeSocket::WriteLine(const std::string& original_line)
 					{
 						// No TS or modes in the command
 						// :22DAAAAAB IJOIN #chan
-						const std::string channame = line.substr(b+1, c-b-1);
+						const std::string channame(line, b+1, c-b-1);
 						Channel* chan = ServerInstance->FindChan(channame);
 						if (!chan)
 							return;

@@ -29,7 +29,7 @@ uint64_t ConvToUInt64(const std::string& in);
  * All prefix modes a member has is tracked by this object. Moreover, Memberships are Extensibles
  * meaning modules can add arbitrary data to them using extensions (see m_delaymsg for an example).
  */
-class CoreExport Membership : public Extensible, public intrusive_list_node<Membership>
+class CoreExport Membership : public Extensible, public insp::intrusive_list_node<Membership>
 {
  public:
 	/** Type of the Membership id
@@ -119,7 +119,7 @@ class InviteBase
  protected:
 	/** List of pending Invitations
 	 */
-	intrusive_list<Invitation, T> invites;
+	insp::intrusive_list<Invitation, T> invites;
 
  public:
 	/** Remove and destruct all pending invitations this user or channel has.
@@ -134,7 +134,7 @@ class InviteBase
  * The Invitation class contains all data about a pending invitation.
  * Invitation objects are referenced from the user and the channel they belong to.
  */
-class CoreExport Invitation : public intrusive_list_node<Invitation, Channel>, public intrusive_list_node<Invitation, LocalUser>
+class CoreExport Invitation : public insp::intrusive_list_node<Invitation, Channel>, public insp::intrusive_list_node<Invitation, LocalUser>
 {
 	/** Constructs an Invitation, only called by Create()
 	 * @param c Channel the user is invited to
@@ -182,12 +182,12 @@ class CoreExport Invitation : public intrusive_list_node<Invitation, Channel>, p
 	static Invitation* Find(Channel* c, LocalUser* u, bool check_expired = true);
 };
 
-typedef intrusive_list<Invitation, LocalUser> InviteList;
+typedef insp::intrusive_list<Invitation, LocalUser> InviteList;
 
 template<typename T>
 inline void InviteBase<T>::ClearInvites()
 {
-	for (typename intrusive_list<Invitation, T>::iterator i = invites.begin(); i != invites.end(); )
+	for (typename insp::intrusive_list<Invitation, T>::iterator i = invites.begin(); i != invites.end(); )
 	{
 		Invitation* inv = *i;
 		// Destructing the Invitation invalidates the iterator, so move it now

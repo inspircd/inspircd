@@ -102,7 +102,7 @@ class CommandServer : public Command
 		}
 		else
 		{
-			user->WriteNumeric(ERR_NOTREGISTERED, ":You may not register as a server (servers have separate ports from clients, change your config)");
+			user->WriteNumeric(ERR_NOTREGISTERED, "SERVER :You may not register as a server (servers have separate ports from clients, change your config)");
 		}
 		return CMD_FAILURE;
 	}

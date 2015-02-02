@@ -117,13 +117,10 @@ class ServerLimits
 	/** Maximum hostname length */
 	size_t MaxHost;
 
-	/** Creating the class initialises it to the defaults
-	 * as in 1.1's ./configure script. Reading other values
-	 * from the config will change these values.
+	/** Read all limits from a config tag. Limits which aren't specified in the tag are set to a default value.
+	 * @param tag Configuration tag to read the limits from
 	 */
-	ServerLimits() : NickMax(31), ChanMax(64), MaxModes(20), IdentMax(12),
-		MaxQuit(255), MaxTopic(307), MaxKick(255), MaxGecos(128), MaxAway(200),
-		MaxLine(512), MaxHost(64) { }
+	ServerLimits(ConfigTag* tag);
 };
 
 struct CommandLineConf
@@ -165,8 +162,9 @@ struct CommandLineConf
 class CoreExport OperInfo : public refcountbase
 {
  public:
-	std::set<std::string> AllowedOperCommands;
-	std::set<std::string> AllowedPrivs;
+	typedef insp::flat_set<std::string> PrivSet;
+	PrivSet AllowedOperCommands;
+	PrivSet AllowedPrivs;
 
 	/** Allowed user modes from oper classes. */
 	std::bitset<64> AllowedUserModes;
@@ -233,7 +231,7 @@ class CoreExport ServerConfig
 
 	/** Index of valid oper blocks and types
 	 */
-	typedef std::map<std::string, reference<OperInfo> > OperIndex;
+	typedef insp::flat_map<std::string, reference<OperInfo> > OperIndex;
 
 	/** Get a configuration tag
 	 * @param tag The name of the tag to get
@@ -241,6 +239,9 @@ class CoreExport ServerConfig
 	ConfigTag* ConfValue(const std::string& tag);
 
 	ConfigTagList ConfTags(const std::string& tag);
+
+	/** An empty configuration tag. */
+	ConfigTag* EmptyTag;
 
 	/** Error stream, contains error output from any failed configuration parsing.
 	 */
@@ -335,12 +336,6 @@ class CoreExport ServerConfig
 	 * if banned on any channel, nor to message them.
 	 */
 	bool RestrictBannedUsers;
-
-	/** If this is set to true, then mode lists (e.g
-	 * MODE \#chan b) are hidden from unprivileged
-	 * users.
-	 */
-	bool HideModeLists[256];
 
 	/** The number of seconds the DNS subsystem
 	 * will wait before timing out any request.
@@ -472,6 +467,8 @@ class CoreExport ServerConfig
 	/** Construct a new ServerConfig
 	 */
 	ServerConfig();
+
+	~ServerConfig();
 
 	/** Get server ID as string with required leading zeroes
 	 */

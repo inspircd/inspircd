@@ -112,7 +112,7 @@ TreeServer::TreeServer(const std::string& Name, const std::string& Desc, const s
 	 */
 
 	this->AddHashEntry();
-	Parent->AddChild(this);
+	Parent->Children.push_back(this);
 }
 
 void TreeServer::BeginBurst(unsigned long startms)
@@ -125,11 +125,6 @@ void TreeServer::BeginBurst(unsigned long startms)
 		startms = now;
 	this->StartBurst = startms;
 	ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Server %s started bursting at time %lu behind_bursting %u", sid.c_str(), startms, behind_bursting);
-}
-
-const std::string& TreeServer::GetID()
-{
-	return sid;
 }
 
 void TreeServer::FinishBurstInternal()
@@ -168,7 +163,7 @@ void TreeServer::FinishBurst()
 void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 {
 	DelServerEvent(Utils->Creator, server->GetName());
-	DelChild(server);
+	stdalgo::erase(Children, server);
 
 	if (IsRoot())
 	{
@@ -266,19 +261,6 @@ void TreeServer::AddHashEntry()
 	Utils->sidlist[sid] = this;
 }
 
-/** These accessors etc should be pretty self-
- * explanitory.
- */
-TreeServer* TreeServer::GetRoute()
-{
-	return Route;
-}
-
-const std::string& TreeServer::GetVersion()
-{
-	return VersionString;
-}
-
 void TreeServer::SetNextPingTime(time_t t)
 {
 	this->NextPing = t;
@@ -298,37 +280,6 @@ bool TreeServer::AnsweredLastPing()
 void TreeServer::SetPingFlag()
 {
 	LastPingWasGood = true;
-}
-
-TreeSocket* TreeServer::GetSocket()
-{
-	return Socket;
-}
-
-TreeServer* TreeServer::GetParent()
-{
-	return Parent;
-}
-
-void TreeServer::SetVersion(const std::string &Version)
-{
-	VersionString = Version;
-}
-
-void TreeServer::AddChild(TreeServer* Child)
-{
-	Children.push_back(Child);
-}
-
-bool TreeServer::DelChild(TreeServer* Child)
-{
-	std::vector<TreeServer*>::iterator it = std::find(Children.begin(), Children.end(), Child);
-	if (it != Children.end())
-	{
-		Children.erase(it);
-		return true;
-	}
-	return false;
 }
 
 CullResult TreeServer::cull()

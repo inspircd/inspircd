@@ -159,6 +159,10 @@ namespace GnuTLS
 				hash = GNUTLS_DIG_MD5;
 			else if (hashname == "sha1")
 				hash = GNUTLS_DIG_SHA1;
+#ifdef INSPIRCD_GNUTLS_ENABLE_SHA256_FINGERPRINT
+			else if (hashname == "sha256")
+				hash = GNUTLS_DIG_SHA256;
+#endif
 			else
 				throw Exception("Unknown hash type " + hashname);
 #endif
@@ -905,7 +909,7 @@ info_done_dealloc:
 			}
 			else if (ret > 0)
 			{
-				sendq = sendq.substr(ret);
+				sendq.erase(0, ret);
 				SocketEngine::ChangeEventMask(user, FD_WANT_SINGLE_WRITE);
 				return 0;
 			}

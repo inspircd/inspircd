@@ -89,7 +89,7 @@ void SpanningTreeUtilities::RouteCommand(TreeServer* origin, CommandBase* thiscm
 		if (ServerInstance->Modes->FindPrefix(dest[0]))
 		{
 			pfx = dest[0];
-			dest = dest.substr(1);
+			dest.erase(dest.begin());
 		}
 		if (dest[0] == '#')
 		{

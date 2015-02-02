@@ -114,13 +114,13 @@ class CommandOpertype : public UserOnlyServerCommand<CommandOpertype>
 };
 
 class TreeSocket;
+class FwdFJoinBuilder;
 class CommandFJoin : public ServerCommand
 {
 	/** Remove all modes from a channel, including statusmodes (+qaovh etc), simplemodes, parameter modes.
 	 * This does not update the timestamp of the target channel, this must be done seperately.
 	 */
 	static void RemoveStatus(Channel* c);
-	static void ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack);
 
 	/**
 	 * Lowers the TS on the given channel: removes all modes, unsets all extensions,
@@ -130,10 +130,11 @@ class CommandFJoin : public ServerCommand
 	 * @param newname The new name of the channel; must be the same or a case change of the current name
 	 */
 	static void LowerTS(Channel* chan, time_t TS, const std::string& newname);
-	void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, irc::modestacker* modestack);
+	void ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin);
  public:
 	CommandFJoin(Module* Creator) : ServerCommand(Creator, "FJOIN", 3) { }
 	CmdResult Handle(User* user, std::vector<std::string>& params);
+	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters) { return ROUTE_LOCALONLY; }
 
 	class Builder : public CmdBuilder
 	{
@@ -141,13 +142,25 @@ class CommandFJoin : public ServerCommand
 		 * a message or not
 		 */
 		static const size_t membid_max_digits = 20;
-		static const size_t maxline = 480;
+		static const size_t maxline = 510;
 		std::string::size_type pos;
 
+	protected:
+		void add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend);
+		bool has_room(std::string::size_type nummodes) const;
+
 	 public:
-		Builder(Channel* chan);
-		void add(Membership* memb);
-		bool has_room(Membership* memb) const;
+		Builder(Channel* chan, TreeServer* source = Utils->TreeRoot);
+		void add(Membership* memb)
+		{
+			add(memb, memb->modes.begin(), memb->modes.end());
+		}
+
+		bool has_room(Membership* memb) const
+		{
+			return has_room(memb->modes.size());
+		}
+
 		void clear();
 		const std::string& finalize();
 	};

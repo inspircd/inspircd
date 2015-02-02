@@ -47,7 +47,7 @@ void TreeSocket::Split(const std::string& line, std::string& prefix, std::string
 
 	if (prefix[0] == ':')
 	{
-		prefix = prefix.substr(1);
+		prefix.erase(prefix.begin());
 
 		if (prefix.empty())
 		{
@@ -152,13 +152,13 @@ void TreeSocket::ProcessLine(std::string &line)
 					time_t delta = them - ServerInstance->Time();
 					if ((delta < -600) || (delta > 600))
 					{
-						ServerInstance->SNO->WriteGlobalSno('l',"\2ERROR\2: Your clocks are out by %d seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",abs((long)delta));
-						SendError("Your clocks are out by "+ConvToStr(abs((long)delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
+						ServerInstance->SNO->WriteGlobalSno('l',"\2ERROR\2: Your clocks are out by %ld seconds (this is more than five minutes). Link aborted, \2PLEASE SYNC YOUR CLOCKS!\2",labs((long)delta));
+						SendError("Your clocks are out by "+ConvToStr(labs((long)delta))+" seconds (this is more than five minutes). Link aborted, PLEASE SYNC YOUR CLOCKS!");
 						return;
 					}
 					else if ((delta < -30) || (delta > 30))
 					{
-						ServerInstance->SNO->WriteGlobalSno('l',"\2WARNING\2: Your clocks are out by %d seconds. Please consider synching your clocks.", abs((long)delta));
+						ServerInstance->SNO->WriteGlobalSno('l',"\2WARNING\2: Your clocks are out by %ld seconds. Please consider synching your clocks.", labs((long)delta));
 					}
 				}
 

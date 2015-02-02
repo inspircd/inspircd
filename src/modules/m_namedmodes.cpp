@@ -47,17 +47,20 @@ class CommandProp : public Command
 
 	CmdResult Handle(const std::vector<std::string> &parameters, User *src)
 	{
+		Channel* const chan = ServerInstance->FindChan(parameters[0]);
+		if (!chan)
+		{
+			src->WriteNumeric(ERR_NOSUCHNICK, "%s :No such nick/channel", parameters[0].c_str());
+			return CMD_FAILURE;
+		}
+
 		if (parameters.size() == 1)
 		{
-			Channel* chan = ServerInstance->FindChan(parameters[0]);
-			if (chan)
-				DisplayList(src, chan);
+			DisplayList(src, chan);
 			return CMD_SUCCESS;
 		}
 		unsigned int i = 1;
-		std::vector<std::string> modes;
-		modes.push_back(parameters[0]);
-		modes.push_back("");
+		Modes::ChangeList modes;
 		while (i < parameters.size())
 		{
 			std::string prop = parameters[i++];
@@ -68,16 +71,16 @@ class CommandProp : public Command
 			ModeHandler* mh = ServerInstance->Modes->FindMode(prop, MODETYPE_CHANNEL);
 			if (mh)
 			{
-				modes[1].push_back(plus ? '+' : '-');
-				modes[1].push_back(mh->GetModeChar());
 				if (mh->GetNumParams(plus))
 				{
 					if (i != parameters.size())
-						modes.push_back(parameters[i++]);
+						modes.push(mh, plus, parameters[i++]);
 				}
+				else
+					modes.push(mh, plus);
 			}
 		}
-		ServerInstance->Modes->Process(modes, src);
+		ServerInstance->Modes->ProcessSingle(src, chan, NULL, modes, ModeParser::MODE_CHECKACCESS);
 		return CMD_SUCCESS;
 	}
 };
@@ -88,6 +91,12 @@ class DummyZ : public ModeHandler
 	DummyZ(Module* parent) : ModeHandler(parent, "namebase", 'Z', PARAM_ALWAYS, MODETYPE_CHANNEL)
 	{
 		list = true;
+	}
+
+	// Handle /MODE #chan Z
+	void DisplayList(User* user, Channel* chan)
+	{
+		::DisplayList(user, chan);
 	}
 };
 
@@ -110,76 +119,59 @@ class ModuleNamedModes : public Module
 		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_FIRST);
 	}
 
-	ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
 	{
 		if (!channel)
 			return MOD_RES_PASSTHRU;
-		if (parameters[1].find('Z') == std::string::npos)
-			return MOD_RES_PASSTHRU;
-		if (parameters.size() <= 2)
-		{
-			DisplayList(source, channel);
-			return MOD_RES_DENY;
-		}
 
-		std::vector<std::string> newparms;
-		newparms.push_back(parameters[0]);
-		newparms.push_back(parameters[1]);
-
-		std::string modelist = newparms[1];
-		bool adding = true;
-		unsigned int param_at = 2;
-		for(unsigned int i = 0; i < modelist.length(); i++)
+		Modes::ChangeList::List& list = modes.getlist();
+		for (Modes::ChangeList::List::iterator i = list.begin(); i != list.end(); )
 		{
-			unsigned char modechar = modelist[i];
-			if (modechar == '+' || modechar == '-')
+			Modes::Change& curr = *i;
+			// Replace all namebase (dummyZ) modes being changed with the actual
+			// mode handler and parameter. The parameter format of the namebase mode is
+			// <modename>[=<parameter>].
+			if (curr.mh == &dummyZ)
 			{
-				adding = (modechar == '+');
-				continue;
-			}
-			ModeHandler *mh = ServerInstance->Modes->FindMode(modechar, MODETYPE_CHANNEL);
-			if (modechar == 'Z')
-			{
-				std::string name, value;
-				if (param_at < parameters.size())
-					name = parameters[param_at++];
+				std::string name = curr.param;
+				std::string value;
 				std::string::size_type eq = name.find('=');
 				if (eq != std::string::npos)
 				{
-					value = name.substr(eq + 1);
-					name = name.substr(0, eq);
+					value.assign(name, eq + 1, std::string::npos);
+					name.erase(eq);
 				}
 
-				mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);
+				ModeHandler* mh = ServerInstance->Modes->FindMode(name, MODETYPE_CHANNEL);
 				if (!mh)
 				{
 					// Mode handler not found
-					modelist.erase(i--, 1);
+					i = list.erase(i);
 					continue;
 				}
 
-				if (mh->GetNumParams(adding))
+				curr.param.clear();
+				if (mh->GetNumParams(curr.adding))
 				{
 					if (value.empty())
 					{
 						// Mode needs a parameter but there wasn't one
-						modelist.erase(i--, 1);
+						i = list.erase(i);
 						continue;
 					}
 
-					newparms.push_back(value);
+					// Change parameter to the text after the '='
+					curr.param = value;
 				}
 
-				modelist[i] = mh->GetModeChar();
+				// Put the actual ModeHandler in place of the namebase handler
+				curr.mh = mh;
 			}
-			else if (mh && mh->GetNumParams(adding) && param_at < parameters.size())
-			{
-				newparms.push_back(parameters[param_at++]);
-			}
+
+			++i;
 		}
-		newparms[1] = modelist;
-		ServerInstance->Modes->Process(newparms, source);
-		return MOD_RES_DENY;
+
+		return MOD_RES_PASSTHRU;
 	}
 };
 

@@ -138,10 +138,6 @@ void ModuleDelayJoin::OnBuildNeighborList(User* source, IncludeChanList& include
 
 void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std::string &text, char status, CUList &exempt_list)
 {
-	/* Server origin */
-	if (!user)
-		return;
-
 	if (target_type != TYPE_CHANNEL)
 		return;
 
@@ -165,7 +161,11 @@ void ModuleDelayJoin::OnText(User* user, void* dest, int target_type, const std:
 /* make the user visible if he receives any mode change */
 ModResult ModuleDelayJoin::OnRawMode(User* user, Channel* channel, ModeHandler* mh, const std::string& param, bool adding)
 {
-	if (!user || !channel || param.empty())
+	if (!channel || param.empty())
+		return MOD_RES_PASSTHRU;
+
+	// If not a prefix mode then we got nothing to do here
+	if (!mh->IsPrefixMode())
 		return MOD_RES_PASSTHRU;
 
 	User* dest;

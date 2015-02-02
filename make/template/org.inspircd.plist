@@ -23,6 +23,8 @@
 	<key>ServiceIPC</key>
 	<false/>
 	<key>UserName</key>
-	<string>ircdaemon</string>
+	<string>@USER@</string>
+	<key>GroupName</key>
+	<string>@GROUP@</string>
 </dict>
 </plist>

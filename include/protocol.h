@@ -104,15 +104,6 @@ class CoreExport ProtocolInterface
 	 */
 	virtual void SendTopic(Channel* channel, std::string &topic) { }
 
-	/** Send mode changes for an object.
-	 * @param source The source of the mode change
-	 * @param usertarget The target user, NULL if the target is a channel
-	 * @param chantarget The target channel, NULL if the target is a user
-	 * @param modedata The mode changes to send.
-	 * @param translate A list of translation types
-	 */
-	virtual void SendMode(User* source, User* usertarget, Channel* chantarget, const parameterlist& modedata, const std::vector<TranslateType>& translate) { }
-
 	/** Send a notice to users with a given snomask.
 	 * @param snomask The snomask required for the message to be sent.
 	 * @param text The message to send.

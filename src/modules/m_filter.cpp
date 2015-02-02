@@ -156,7 +156,7 @@ class CommandFilter : public Command
 
 class ModuleFilter : public Module
 {
-	typedef std::set<std::string, irc::insensitive_swo> ExemptTargetSet;
+	typedef insp::flat_set<std::string, irc::insensitive_swo> ExemptTargetSet;
 
 	bool initing;
 	RegexFactory* factory;

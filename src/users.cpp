@@ -277,7 +277,7 @@ void UserIOHandler::OnDataReady()
 		return;
 eol_found:
 		// just found a newline. Terminate the string, and pull it out of recvq
-		recvq = recvq.substr(qpos);
+		recvq.erase(0, qpos);
 
 		// TODO should this be moved to when it was inserted in recvq?
 		ServerInstance->stats.Recv += qpos;
@@ -449,21 +449,16 @@ void User::UnOper()
 
 
 	/* Remove all oper only modes from the user when the deoper - Bug #466*/
-	std::string moderemove("-");
-
-	for (unsigned char letter = 'A'; letter <= 'z'; letter++)
+	Modes::ChangeList changelist;
+	const ModeParser::ModeHandlerMap& usermodes = ServerInstance->Modes->GetModes(MODETYPE_USER);
+	for (ModeParser::ModeHandlerMap::const_iterator i = usermodes.begin(); i != usermodes.end(); ++i)
 	{
-		ModeHandler* mh = ServerInstance->Modes->FindMode(letter, MODETYPE_USER);
-		if (mh && mh->NeedsOper())
-			moderemove += letter;
+		ModeHandler* mh = i->second;
+		if (mh->NeedsOper())
+			changelist.push_remove(mh);
 	}
 
-
-	std::vector<std::string> parameters;
-	parameters.push_back(this->nick);
-	parameters.push_back(moderemove);
-
-	ServerInstance->Modes->Process(parameters, this);
+	ServerInstance->Modes->Process(this, NULL, this, changelist);
 
 	// Remove the user from the oper list
 	stdalgo::vector::swaperase(ServerInstance->Users->all_opers, this);
@@ -769,7 +764,7 @@ void LocalUser::Write(const std::string& text)
 	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)
 	{
 		// this should happen rarely or never. Crop the string at 512 and try again.
-		std::string try_again = text.substr(0, ServerInstance->Config->Limits.MaxLine - 2);
+		std::string try_again(0, ServerInstance->Config->Limits.MaxLine - 2);
 		Write(try_again);
 		return;
 	}

@@ -41,7 +41,7 @@
 class SQLConn;
 class ModulePgSQL;
 
-typedef std::map<std::string, SQLConn*> ConnMap;
+typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
 /* CREAD,	Connecting and wants read event
  * CWRITE,	Connecting and wants write event

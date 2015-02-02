@@ -107,28 +107,6 @@ void SpanningTreeProtocolInterface::SendTopic(Channel* channel, std::string &top
 	CommandFTopic::Builder(ServerInstance->FakeClient, channel).Broadcast();
 }
 
-void SpanningTreeProtocolInterface::SendMode(User* source, User* u, Channel* c, const std::vector<std::string>& modedata, const std::vector<TranslateType>& translate)
-{
-	if (u)
-	{
-		if (u->registered != REG_ALL)
-			return;
-
-		CmdBuilder params(source, "MODE");
-		params.push_back(u->uuid);
-		params.insert(modedata);
-		params.Broadcast();
-	}
-	else
-	{
-		CmdBuilder params(source, "FMODE");
-		params.push_back(c->name);
-		params.push_back(ConvToStr(c->age));
-		params.push_back(CommandParser::TranslateUIDs(translate, modedata));
-		params.Broadcast();
-	}
-}
-
 void SpanningTreeProtocolInterface::SendSNONotice(char snomask, const std::string &text)
 {
 	CmdBuilder("SNONOTICE").push(snomask).push_last(text).Broadcast();

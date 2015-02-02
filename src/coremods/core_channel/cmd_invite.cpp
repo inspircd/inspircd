@@ -114,7 +114,11 @@ CmdResult CommandInvite::Handle (const std::vector<std::string>& parameters, Use
 		}
 
 		if (IS_LOCAL(user))
+		{
 			user->WriteNumeric(RPL_INVITING, "%s %s", u->nick.c_str(),c->name.c_str());
+			if (u->IsAway())
+				user->WriteNumeric(RPL_AWAY, "%s :%s", u->nick.c_str(), u->awaymsg.c_str());
+		}
 
 		if (ServerInstance->Config->AnnounceInvites != ServerConfig::INVITE_ANNOUNCE_NONE)
 		{

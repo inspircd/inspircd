@@ -44,7 +44,9 @@
 #include <vector>
 
 #include "intrusive_list.h"
+#include "flat_map.h"
 #include "compat.h"
+#include "aligned_storage.h"
 #include "typedefs.h"
 #include "stdalgo.h"
 

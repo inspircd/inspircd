@@ -260,7 +260,7 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnEvent, I_OnGlobalOper, I_OnPostConnect,
+	I_OnPostTopicChange, I_OnEvent, I_OnPostConnect,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
@@ -598,15 +598,16 @@ class CoreExport Module : public classbase, public usecountbase
 	/** Called after every MODE command sent from a user
 	 * Either the usertarget or the chantarget variable contains the target of the modes,
 	 * the actual target will have a non-NULL pointer.
-	 * The modes vector contains the remainder of the mode string after the target,
-	 * e.g.: "+wsi" or ["+ooo", "nick1", "nick2", "nick3"].
+	 * All changed modes are available in the changelist object.
 	 * @param user The user sending the MODEs
 	 * @param usertarget The target user of the modes, NULL if the target is a channel
 	 * @param chantarget The target channel of the modes, NULL if the target is a user
-	 * @param modes The actual modes and their parameters if any
-	 * @param translate The translation types of the mode parameters
+	 * @param changelist The changed modes.
+	 * @param processflags Flags passed to ModeParser::Process(), see ModeParser::ModeProcessFlags
+	 * for the possible flags.
+	 * @param output_mode Changed modes, including '+' and '-' characters, not including any parameters
 	 */
-	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const std::vector<std::string>& modes, const std::vector<TranslateType>& translate);
+	virtual void OnMode(User* user, User* usertarget, Channel* chantarget, const Modes::ChangeList& changelist, ModeParser::ModeProcessFlag processflags, const std::string& output_mode);
 
 	/** Allows modules to synchronize data which relates to users during a netburst.
 	 * When this function is called, it will be called from the module which implements
@@ -708,7 +709,7 @@ class CoreExport Module : public classbase, public usecountbase
 	 */
 	virtual void OnUserPostNick(User* user, const std::string &oldnick);
 
-	/** Called before any mode change, to allow a single access check for
+	/** Called before a mode change via the MODE command, to allow a single access check for
 	 * a full mode change (use OnRawMode to check individual modes)
 	 *
 	 * Returning MOD_RES_ALLOW will skip prefix level checks, but can be overridden by
@@ -717,9 +718,9 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param source the user making the mode change
 	 * @param dest the user destination of the umode change (NULL if a channel mode)
 	 * @param channel the channel destination of the mode change
-	 * @param parameters raw mode parameters; parameters[0] is the user/channel being changed
+	 * @param modes Modes being changed, can be edited
 	 */
-	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, const std::vector<std::string>& parameters);
+	virtual ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes);
 
 	/** Called when a 005 numeric is about to be output.
 	 * The module should modify the 005 numeric if needed to indicate its features.
@@ -968,14 +969,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @return 0 to do nothing (pass on to next module/default), 1 == password is OK, -1 == password is not OK
 	 */
 	virtual ModResult OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype);
-
-	/** Called whenever a user is given usermode +o, anywhere on the network.
-	 * You cannot override this and prevent it from happening as it is already happened and
-	 * such a task must be performed by another server. You can however bounce modes by sending
-	 * servermodes out to reverse mode changes.
-	 * @param user The user who is opering
-	 */
-	virtual void OnGlobalOper(User* user);
 
 	/** Called after a user has fully connected and all modules have executed OnUserConnect
 	 * This event is informational only. You should not change any user information in this

@@ -69,11 +69,6 @@ TreeSocket::TreeSocket(int newfd, ListenSocket* via, irc::sockets::sockaddrs* cl
 	Utils->timeoutlist[this] = std::pair<std::string, int>(linkID, 30);
 }
 
-ServerState TreeSocket::GetLinkState()
-{
-	return this->LinkState;
-}
-
 void TreeSocket::CleanNegotiationInfo()
 {
 	// connect is good, reset the autoconnect block (if used)
@@ -177,7 +172,7 @@ void TreeSocket::OnDataReady()
 	{
 		std::string::size_type rline = line.find('\r');
 		if (rline != std::string::npos)
-			line = line.substr(0,rline);
+			line.erase(rline);
 		if (line.find('\0') != std::string::npos)
 		{
 			SendError("Read null character from socket");

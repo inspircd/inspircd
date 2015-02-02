@@ -39,6 +39,7 @@ class ModeChannelBan : public ListModeBase
  */
 class ModeChannelKey : public ParamMode<ModeChannelKey, LocalStringExt>
 {
+	static const std::string::size_type maxkeylen = 32;
  public:
 	ModeChannelKey();
 	ModeAction OnModeChange(User* source, User* dest, Channel* channel, std::string &parameter, bool adding);

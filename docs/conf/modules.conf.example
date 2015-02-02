@@ -681,6 +681,8 @@
 # from talking in the channel unless they've been joined for X seconds.
 # Settable using /MODE #chan +d 30
 #<module name="m_delaymsg.so">
+# Set allownotice to no to disallow NOTICEs too. Defaults to yes.
+#<delaymsg allownotice="no">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Deny channels module: Deny channels from being used by users.
@@ -829,6 +831,27 @@
 # user, for more privacy if set to true.
 # This setting is not recommended for most mainstream networks.
 #<hidechans affectsopers="false">
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# Hide list module: Allows for hiding the list of listmodes from users
+# who do not have sufficient channel rank.
+#<module name="m_hidelist.so">
+#
+# Each <hidelist> tag configures one listmode to hide.
+# mode: Name of the listmode to hide.
+# rank: Minimum rank required to view the list. If set to 0, all
+# members of the channel may view the list, but non-members may not.
+# The rank of the built-in op and voice mode is 30000 and 10000,
+# respectively; the rank of other prefix modes is configurable.
+# Defaults to 20000.
+#
+# Hiding the ban list is not recommended because it may break some
+# clients.
+#
+# Hide filter (+g) list:
+#<hidelist mode="filter" rank="30000">
+# Only show invite exceptions (+I) to channel members:
+#<hidelist mode="invex" rank="0">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # Hide oper module: Allows opers to hide their oper status from non-
@@ -1176,7 +1199,8 @@
 #
 # file - filename of existing file in "locales" directory
 # casemapping - custom value for 005 numeric (if you want it to be
-#               different from the filename).
+#               different from the filename). Set this to the name of
+#               the locale if you are specifying an absolute path.
 #<nationalchars file="bynets/russian-w1251-charlink" casemapping="ru_RU.cp1251-charlink">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#

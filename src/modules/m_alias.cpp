@@ -63,7 +63,7 @@ class ModuleAlias : public Module
 	 * We can, however, use a fancy invention: the multimap. Maps a key to one or more values.
 	 *		-- w00t
      */
-	typedef std::multimap<std::string, Alias, irc::insensitive_swo> AliasMap;
+	typedef insp::flat_multimap<std::string, Alias, irc::insensitive_swo> AliasMap;
 
 	AliasMap Aliases;
 
@@ -148,7 +148,7 @@ class ModuleAlias : public Module
 			return MOD_RES_PASSTHRU;
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = original_line.substr(command.length());
+		std::string compare(original_line, command.length());
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 
@@ -212,7 +212,7 @@ class ModuleAlias : public Module
 			return;
 
 		/* The parameters for the command in their original form, with the command stripped off */
-		std::string compare = text.substr(scommand.length() + 1);
+		std::string compare(text, scommand.length() + 1);
 		while (*(compare.c_str()) == ' ')
 			compare.erase(compare.begin());
 

@@ -24,7 +24,7 @@
 
 class ModuleRestrictChans : public Module
 {
-	std::set<std::string, irc::insensitive_swo> allowchans;
+	insp::flat_set<std::string, irc::insensitive_swo> allowchans;
 
  public:
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE

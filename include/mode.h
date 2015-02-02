@@ -23,6 +23,7 @@
 #pragma once
 
 #include "ctables.h"
+#include "modechange.h"
 
 /**
  * Holds the values for different type of modes
@@ -110,11 +111,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	Id modeid;
 
  protected:
-	/**
-	 * The mode parameter translation type
-	 */
-	TranslateType m_paramtype;
-
 	/** What kind of parameters does the mode take?
 	 */
 	ParamSpec parameters_taken;
@@ -199,10 +195,6 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * Returns the mode's type
 	 */
 	inline ModeType GetModeType() const { return m_type; }
-	/**
-	 * Returns the mode's parameter translation type
-	 */
-	inline TranslateType GetTranslateType() const { return m_paramtype; }
 	/**
 	 * Returns true if the mode can only be set/unset by an oper
 	 */
@@ -302,9 +294,9 @@ class CoreExport ModeHandler : public ServiceProvider
 	 * so if you inherit from it or your mode can be removed by the default implementation then you do not have to implement
 	 * this function).
 	 * @param channel The channel which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
+	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
+	virtual void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
 
 	inline unsigned int GetLevelRequired() const { return levelrequired; }
 
@@ -367,9 +359,9 @@ class CoreExport PrefixMode : public ModeHandler
 	/**
 	 * Removes this prefix mode from all users on the given channel
 	 * @param chan The channel which the server wants to remove your mode from
-	 * @param stack The mode stack to add the mode change to
+	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	void RemoveMode(Channel* chan, irc::modestacker& stack);
+	void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
 
 	/**
 	 * Mode prefix or 0. If this is defined, you should
@@ -481,8 +473,6 @@ class CoreExport ModeWatcher : public classbase
 	virtual void AfterMode(User* source, User* dest, Channel* channel, const std::string& parameter, bool adding);
 };
 
-typedef std::multimap<std::string, ModeWatcher*>::iterator ModeWatchIter;
-
 /** The mode parser handles routing of modes and handling of mode strings.
  * It marshalls, controls and maintains both ModeWatcher and ModeHandler classes,
  * parses client to server MODE strings for user and channel modes, and performs
@@ -498,6 +488,10 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	typedef TR1NS::unordered_map<std::string, ModeHandler*, irc::insensitive, irc::StrHashComp> ModeHandlerMap;
 
  private:
+	/** Type of the container that maps mode names to ModeWatchers
+	 */
+ 	typedef insp::flat_multimap<std::string, ModeWatcher*> ModeWatcherMap;
+
 	/** Last item in the ModeType enum
 	 */
 	static const unsigned int MODETYPE_LAST = 2;
@@ -532,21 +526,16 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 
 	/** Mode watcher classes
 	 */
-	std::multimap<std::string, ModeWatcher*> modewatchermap;
+	ModeWatcherMap modewatchermap;
 
-	/** Displays the current modes of a channel or user.
-	 * Used by ModeParser::Process.
+	/** Last processed mode change
 	 */
-	void DisplayCurrentModes(User *user, User* targetuser, Channel* targetchannel, const char* text);
-	/** Displays the value of a list mode
-	 * Used by ModeParser::Process.
-	 */
-	void DisplayListModes(User* user, Channel* chan, std::string &mode_sequence);
+	Modes::ChangeList LastChangeList;
 
 	/**
 	 * Attempts to apply a mode change to a user or channel
 	 */
-	ModeAction TryMode(User* user, User* targu, Channel* targc, bool adding, unsigned char mode, std::string &param, bool SkipACL);
+	ModeAction TryMode(User* user, User* targu, Channel* targc, Modes::Change& mcitem, bool SkipACL);
 
 	/** Returns a list of user or channel mode characters.
 	 * Used for constructing the parts of the mode list in the 004 numeric.
@@ -572,12 +561,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * Use GetLastParse() to get this value, to be used for  display purposes.
 	 */
 	std::string LastParse;
-	std::vector<std::string> LastParseParams;
-	std::vector<TranslateType> LastParseTranslate;
-
-	unsigned int sent[256];
-
-	unsigned int seq;
 
 	/** Cached mode list for use in 004 numeric
 	 */
@@ -603,11 +586,19 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 		 */
 		MODE_MERGE = 1,
 
-		/** If this flag is set then the mode change won't be handed over to
-		 * the linking module to be sent to other servers, but will be processed
+		/** If this flag is set then the linking module will ignore the mode change
+		 * and not send it to other servers. The mode change will be processed
 		 * locally and sent to local user(s) as usual.
 		 */
-		MODE_LOCALONLY = 2
+		MODE_LOCALONLY = 2,
+
+		/** If this flag is set then the mode change will be subject to access checks.
+		 * For more information see the documentation of the PrefixMode class,
+		 * ModeHandler::levelrequired and ModeHandler::AccessCheck().
+		 * Modules may explicitly allow a mode change regardless of this flag by returning
+		 * MOD_RES_ALLOW from the OnPreMode hook. Only affects channel mode changes.
+		 */
+		MODE_CHECKACCESS = 4
 	};
 
 	ModeParser();
@@ -637,8 +628,6 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @return Last parsed string, as seen by users.
 	 */
 	const std::string& GetLastParse() const { return LastParse; }
-	const std::vector<std::string>& GetLastParseParams() { return LastParseParams; }
-	const std::vector<TranslateType>& GetLastParseTranslate() { return LastParseTranslate; }
 
 	/** Add a mode to the mode parser.
 	 * Throws a ModuleException if the mode cannot be added.
@@ -671,14 +660,49 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @return True if the ModeWatcher was deleted correctly
 	 */
 	bool DelModeWatcher(ModeWatcher* mw);
-	/** Process a set of mode changes from a server or user.
-	 * @param parameters The parameters of the mode change, in the format
-	 * they would be from a MODE command.
+
+	/** Process a list of mode changes entirely. If the mode changes do not fit into one MODE line
+	 * then multiple MODE lines are generated.
 	 * @param user The source of the mode change, can be a server user.
+	 * @param targetchannel Channel to apply the mode change on. NULL if changing modes on a channel.
+	 * @param targetuser User to apply the mode change on. NULL if changing modes on a user.
+	 * @param changelist Modes to change in form of a Modes::ChangeList.
 	 * @param flags Optional flags controlling how the mode change is processed,
 	 * defaults to MODE_NONE.
 	 */
-	void Process(const std::vector<std::string>& parameters, User* user, ModeProcessFlag flags = MODE_NONE);
+	void Process(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE);
+
+	/** Process a single MODE line's worth of mode changes, taking max modes and line length limits
+	 * into consideration. Return value indicates how many modes were processed.
+	 * @param user The source of the mode change, can be a server user.
+	 * @param targetchannel Channel to apply the mode change on. NULL if changing modes on a channel.
+	 * @param targetuser User to apply the mode change on. NULL if changing modes on a user.
+ 	 * @param changelist Modes to change in form of a Modes::ChangeList. May not process
+	 * the entire list due to MODE line length and max modes limitations.
+	 * @param flags Optional flags controlling how the mode change is processed,
+	 * defaults to MODE_NONE.
+	 * @param beginindex Index of the first element in changelist to process. Mode changes before
+	 * the element with this index are ignored.
+	 * @return Number of mode changes processed from changelist.
+	 */
+	unsigned int ProcessSingle(User* user, Channel* targetchannel, User* targetuser, Modes::ChangeList& changelist, ModeProcessFlag flags = MODE_NONE, unsigned int beginindex = 0);
+
+	/** Turn a list of parameters compatible with the format of the MODE command into
+	 * Modes::ChangeList form. All modes are processed, regardless of max modes. Unknown modes
+	 * are skipped.
+	 * @param user The source of the mode change, can be a server user. Error numerics are sent to
+	 * this user.
+	 * @param type MODETYPE_USER if this is a user mode change or MODETYPE_CHANNEL if this
+	 * is a channel mode change.
+	 * @param parameters List of strings describing the mode change to convert to a ChangeList.
+	 * Must be using the same format as the parameters of a MODE command.
+ 	 * @param changelist ChangeList object to populate.
+ 	 * @param beginindex Index of the first element that is part of the MODE list in the parameters
+ 	 * container. Defaults to 1.
+ 	 * @param endindex Index of the first element that is not part of the MODE list. By default,
+ 	 * the entire container is considered part of the MODE list.
+	 */
+	void ModeParamsToChangeList(User* user, ModeType type, const std::vector<std::string>& parameters, Modes::ChangeList& changelist, unsigned int beginindex = 1, unsigned int endindex = UINT_MAX);
 
 	/** Find the mode handler for a given mode name and type.
 	 * @param modename The mode name to search for.
@@ -743,6 +767,13 @@ class CoreExport ModeParser : public fakederef<ModeParser>
 	 * @return A map of mode handlers of the given type
 	 */
 	const ModeHandlerMap& GetModes(ModeType mt) const { return modehandlersbyname[mt]; }
+
+	/** Show the list of a list mode to a user. Modules can deny the listing.
+     * @param user User to show the list to.
+     * @param chan Channel to show the list of.
+     * @param mh List mode to show the list of.
+     */
+	void ShowListModeList(User* user, Channel* chan, ModeHandler* mh);
 };
 
 inline const std::string& ModeParser::GetModeListFor004Numeric()

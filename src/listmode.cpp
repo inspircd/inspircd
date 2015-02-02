@@ -32,9 +32,9 @@ void ListModeBase::DisplayList(User* user, Channel* channel)
 	ChanData* cd = extItem.get(channel);
 	if (cd)
 	{
-		for (ModeList::reverse_iterator it = cd->list.rbegin(); it != cd->list.rend(); ++it)
+		for (ModeList::const_iterator it = cd->list.begin(); it != cd->list.end(); ++it)
 		{
-			user->WriteNumeric(listnumeric, "%s %s %s %lu", channel->name.c_str(), it->mask.c_str(), (!it->setter.empty() ? it->setter.c_str() : ServerInstance->Config->ServerName.c_str()), (unsigned long) it->time);
+			user->WriteNumeric(listnumeric, "%s %s %s %lu", channel->name.c_str(), it->mask.c_str(), it->setter.c_str(), (unsigned long) it->time);
 		}
 	}
 	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
@@ -45,14 +45,14 @@ void ListModeBase::DisplayEmptyList(User* user, Channel* channel)
 	user->WriteNumeric(endoflistnumeric, "%s :%s", channel->name.c_str(), endofliststring.c_str());
 }
 
-void ListModeBase::RemoveMode(Channel* channel, irc::modestacker& stack)
+void ListModeBase::RemoveMode(Channel* channel, Modes::ChangeList& changelist)
 {
 	ChanData* cd = extItem.get(channel);
 	if (cd)
 	{
 		for (ModeList::iterator it = cd->list.begin(); it != cd->list.end(); it++)
 		{
-			stack.Push(this->GetModeChar(), it->mask);
+			changelist.push_remove(this, it->mask);
 		}
 	}
 }
@@ -74,8 +74,9 @@ void ListModeBase::DoRehash()
 			chanlimits.push_back(limit);
 	}
 
-	if (chanlimits.empty())
-		chanlimits.push_back(ListLimit("*", 64));
+	// Add the default entry. This is inserted last so if the user specifies a
+	// wildcard record in the config it will take precedence over this entry.
+	chanlimits.push_back(ListLimit("*", 64));
 
 	// Most of the time our settings are unchanged, so we can avoid iterating the chanlist
 	if (oldlimits == chanlimits)
@@ -191,7 +192,7 @@ ModeAction ListModeBase::OnModeChange(User* source, User*, Channel* channel, std
 			{
 				if (parameter == it->mask)
 				{
-					cd->list.erase(it);
+					stdalgo::vector::swaperase(cd->list, it);
 					return MODEACTION_ALLOW;
 				}
 			}

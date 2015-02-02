@@ -45,18 +45,32 @@ class CommandSamode : public Command
 				user->WriteNumeric(ERR_NOSUCHNICK, "%s %s :No such nick/channel", user->nick.c_str(), parameters[0].c_str());
 				return CMD_FAILURE;
 			}
-		}
-		User* target = ServerInstance->FindNick(parameters[0]);
-		if ((target) && (target != user))
-		{
-			if (!user->HasPrivPermission("users/samode-usermodes", true))
+
+			// Changing the modes of another user requires a special permission
+			if ((target != user) && (!user->HasPrivPermission("users/samode-usermodes", true)))
 				return CMD_FAILURE;
 		}
+
+		// XXX: Make ModeParser clear LastParse
+		Modes::ChangeList emptychangelist;
+		ServerInstance->Modes->ProcessSingle(ServerInstance->FakeClient, NULL, ServerInstance->FakeClient, emptychangelist);
+
 		this->active = true;
-		ServerInstance->Modes->Process(parameters, user);
-		if (ServerInstance->Modes->GetLastParse().length())
-			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " +ServerInstance->Modes->GetLastParse());
+		CmdResult result = ServerInstance->Parser.CallHandler("MODE", parameters, user);
 		this->active = false;
+
+		if (result == CMD_SUCCESS)
+		{
+			// If lastparse is empty and the MODE command handler returned CMD_SUCCESS then
+			// the client queried the list of a listmode (e.g. /SAMODE #chan b), which was
+			// handled internally by the MODE command handler.
+			//
+			// Viewing the modes of a user or a channel can also result in CMD_SUCCESS, but
+			// that is not possible with /SAMODE because we require at least 2 parameters.
+			const std::string& lastparse = ServerInstance->Modes.GetLastParse();
+			ServerInstance->SNO->WriteGlobalSno('a', user->nick + " used SAMODE: " + (lastparse.empty() ? irc::stringjoiner(parameters) : lastparse));
+		}
+
 		return CMD_SUCCESS;
 	}
 };
@@ -75,7 +89,7 @@ class ModuleSaMode : public Module
 		return Version("Provides command SAMODE to allow opers to change modes on channels and users", VF_VENDOR);
 	}
 
-	ModResult OnPreMode(User* source,User* dest,Channel* channel, const std::vector<std::string>& parameters) CXX11_OVERRIDE
+	ModResult OnPreMode(User* source, User* dest, Channel* channel, Modes::ChangeList& modes) CXX11_OVERRIDE
 	{
 		if (cmd.active)
 			return MOD_RES_ALLOW;

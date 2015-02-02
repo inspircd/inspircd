@@ -61,11 +61,11 @@ void Channel::SetTopic(User* u, const std::string& ntopic)
 
 Membership* Channel::AddUser(User* user)
 {
-	Membership*& memb = userlist[user];
-	if (memb)
+	std::pair<MemberMap::iterator, bool> ret = userlist.insert(std::make_pair(user, insp::aligned_storage<Membership>()));
+	if (!ret.second)
 		return NULL;
 
-	memb = new Membership(user, this);
+	Membership* memb = new(ret.first->second) Membership(user, this);
 	return memb;
 }
 
@@ -86,14 +86,13 @@ void Channel::CheckDestroy()
 	if (res == MOD_RES_DENY)
 		return;
 
+	// If the channel isn't in chanlist then it is already in the cull list, don't add it again
 	chan_hash::iterator iter = ServerInstance->chanlist.find(this->name);
-	/* kill the record */
-	if (iter != ServerInstance->chanlist.end())
-	{
-		FOREACH_MOD(OnChannelDelete, (this));
-		ServerInstance->chanlist.erase(iter);
-	}
+	if ((iter == ServerInstance->chanlist.end()) || (iter->second != this))
+		return;
 
+	FOREACH_MOD(OnChannelDelete, (this));
+	ServerInstance->chanlist.erase(iter);
 	ClearInvites();
 	ServerInstance->GlobalCulls.AddItem(this);
 }
@@ -102,7 +101,7 @@ void Channel::DelUser(const MemberMap::iterator& membiter)
 {
 	Membership* memb = membiter->second;
 	memb->cull();
-	delete memb;
+	memb->~Membership();
 	userlist.erase(membiter);
 
 	// If this channel became empty then it should be removed
@@ -136,9 +135,17 @@ void Channel::SetDefaultModes()
 				continue;
 
 			if (mode->GetNumParams(true))
+			{
 				list.GetToken(parameter);
+				// If the parameter begins with a ':' then it's invalid
+				if (parameter.c_str()[0] == ':')
+					continue;
+			}
 			else
 				parameter.clear();
+
+			if ((mode->GetNumParams(true)) && (parameter.empty()))
+				continue;
 
 			mode->OnModeChange(ServerInstance->FakeClient, ServerInstance->FakeClient, this, parameter, true);
 		}
@@ -388,10 +395,10 @@ bool Channel::CheckBan(User* user, const std::string& mask)
 		return false;
 
 	const std::string nickIdent = user->nick + "!" + user->ident;
-	std::string prefix = mask.substr(0, at);
+	std::string prefix(mask, 0, at);
 	if (InspIRCd::Match(nickIdent, prefix, NULL))
 	{
-		std::string suffix = mask.substr(at + 1);
+		std::string suffix(mask, at + 1);
 		if (InspIRCd::Match(user->host, suffix, NULL) ||
 			InspIRCd::Match(user->dhost, suffix, NULL) ||
 			InspIRCd::MatchCIDR(user->GetIPString(), suffix, NULL))

@@ -75,7 +75,7 @@ class CoreExport ExtensionItem : public ServiceProvider, public usecountbase
 class CoreExport Extensible : public classbase
 {
  public:
-	typedef std::map<reference<ExtensionItem>,void*> ExtensibleStore;
+	typedef insp::flat_map<reference<ExtensionItem>, void*> ExtensibleStore;
 
 	// Friend access for the protected getter/setter
 	friend class ExtensionItem;

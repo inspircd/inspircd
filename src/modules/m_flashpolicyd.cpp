@@ -23,20 +23,30 @@ class FlashPDSocket;
 
 namespace
 {
-	std::set<FlashPDSocket*> sockets;
+	insp::intrusive_list<FlashPDSocket> sockets;
 	std::string policy_reply;
 	const std::string expected_request("<policy-file-request/>\0", 23);
 }
 
-class FlashPDSocket : public BufferedSocket
+class FlashPDSocket : public BufferedSocket, public Timer, public insp::intrusive_list_node<FlashPDSocket>
 {
- public:
-	time_t created;
+	/** True if this object is in the cull list
+	 */
+	bool waitingcull;
 
-	FlashPDSocket(int newfd)
-		: BufferedSocket(newfd)
-		, created(ServerInstance->Time())
+	bool Tick(time_t currtime) CXX11_OVERRIDE
 	{
+		AddToCull();
+		return false;
+	}
+
+ public:
+	FlashPDSocket(int newfd, unsigned int timeoutsec)
+		: BufferedSocket(newfd)
+		, Timer(timeoutsec)
+		, waitingcull(false)
+	{
+		ServerInstance->Timers.AddTimer(this);
 	}
 
 	~FlashPDSocket()
@@ -58,10 +68,10 @@ class FlashPDSocket : public BufferedSocket
 
 	void AddToCull()
 	{
-		if (created == 0)
+		if (waitingcull)
 			return;
 
-		created = 0;
+		waitingcull = true;
 		Close();
 		ServerInstance->GlobalCulls.AddItem(this);
 	}
@@ -69,19 +79,9 @@ class FlashPDSocket : public BufferedSocket
 
 class ModuleFlashPD : public Module
 {
-	time_t timeout;
+	unsigned int timeout;
 
  public:
-	void OnBackgroundTimer(time_t curtime) CXX11_OVERRIDE
-	{
-		for (std::set<FlashPDSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
-		{
-			FlashPDSocket* sock = *i;
-			if ((sock->created + timeout <= curtime) && (sock->created != 0))
-				sock->AddToCull();
-		}
-	}
-
 	ModResult OnAcceptConnection(int nfd, ListenSocket* from, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
 		if (from->bind_tag->getString("type") != "flashpolicyd")
@@ -90,7 +90,7 @@ class ModuleFlashPD : public Module
 		if (policy_reply.empty())
 			return MOD_RES_DENY;
 
-		sockets.insert(new FlashPDSocket(nfd));
+		sockets.push_front(new FlashPDSocket(nfd, timeout));
 		return MOD_RES_ALLOW;
 	}
 
@@ -128,6 +128,13 @@ class ModuleFlashPD : public Module
 
 				to_ports.append(ConvToStr(ls->bind_port)).push_back(',');
 		}
+
+		if (to_ports.empty())
+		{
+			policy_reply.clear();
+			return;
+		}
+
 		to_ports.erase(to_ports.size() - 1);
 
 		policy_reply =
@@ -141,7 +148,7 @@ class ModuleFlashPD : public Module
 
 	CullResult cull()
 	{
-		for (std::set<FlashPDSocket*>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
+		for (insp::intrusive_list<FlashPDSocket>::const_iterator i = sockets.begin(); i != sockets.end(); ++i)
 		{
 			FlashPDSocket* sock = *i;
 			sock->AddToCull();

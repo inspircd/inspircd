@@ -81,7 +81,7 @@ void CommandServer::HandleExtra(TreeServer* newserver, const std::vector<std::st
 		if (p != std::string::npos)
 		{
 			key.erase(p);
-			val = prop.substr(p+1);
+			val.assign(prop, p+1, std::string::npos);
 		}
 
 		if (key == "burst")

@@ -17,6 +17,9 @@
  */
 
 
+namespace insp
+{
+
 template <typename T, typename Tag>
 class INSPIRCD_INTRUSIVE_LIST_NAME
 {
@@ -165,3 +168,5 @@ class INSPIRCD_INTRUSIVE_LIST_NAME
 #endif
 	size_t listsize;
 };
+
+} // namespace insp

@@ -40,7 +40,7 @@
 /* $LinkerFlags: pkgconflibs("sqlite3","/libsqlite3.so","-lsqlite3") */
 
 class SQLConn;
-typedef std::map<std::string, SQLConn*> ConnMap;
+typedef insp::flat_map<std::string, SQLConn*> ConnMap;
 
 class SQLite3Result : public SQLResult
 {
@@ -98,8 +98,11 @@ class SQLConn : public SQLProvider
 
 	~SQLConn()
 	{
-		sqlite3_interrupt(conn);
-		sqlite3_close(conn);
+		if (conn)
+		{
+			sqlite3_interrupt(conn);
+			sqlite3_close(conn);
+		}
 	}
 
 	void Query(SQLQuery* query, const std::string& q)

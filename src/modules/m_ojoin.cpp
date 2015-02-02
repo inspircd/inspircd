@@ -65,18 +65,17 @@ class CommandOjoin : public SplitCommand
 		}
 		else
 		{
+			channel = ServerInstance->FindChan(parameters[0]);
+			if (!channel)
+				return CMD_FAILURE;
+
 			ServerInstance->SNO->WriteGlobalSno('a', user->nick+" used OJOIN in "+parameters[0]);
 			// they're already in the channel
-			std::vector<std::string> modes;
-			modes.push_back(parameters[0]);
-			modes.push_back(std::string("+") + npmh->GetModeChar());
+			Modes::ChangeList changelist;
+			changelist.push_add(npmh, user->nick);
 			if (op)
-			{
-				modes[1].push_back('o');
-				modes.push_back(user->nick);
-			}
-			modes.push_back(user->nick);
-			ServerInstance->Modes->Process(modes, ServerInstance->FakeClient);
+				changelist.push_add(ServerInstance->Modes->FindMode('o', MODETYPE_CHANNEL), user->nick);
+			ServerInstance->Modes->Process(ServerInstance->FakeClient, channel, NULL, changelist);
 		}
 		return CMD_SUCCESS;
 	}

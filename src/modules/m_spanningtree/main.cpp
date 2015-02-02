@@ -33,6 +33,7 @@
 #include "link.h"
 #include "treesocket.h"
 #include "commands.h"
+#include "translate.h"
 
 ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
@@ -749,6 +750,33 @@ ModResult ModuleSpanningTree::OnSetAway(User* user, const std::string &awaymsg)
 		CommandAway::Builder(user, awaymsg).Broadcast();
 
 	return MOD_RES_PASSTHRU;
+}
+
+void ModuleSpanningTree::OnMode(User* source, User* u, Channel* c, const Modes::ChangeList& modes, ModeParser::ModeProcessFlag processflags, const std::string& output_mode)
+{
+	if (processflags & ModeParser::MODE_LOCALONLY)
+		return;
+
+	if (u)
+	{
+		if (u->registered != REG_ALL)
+			return;
+
+		CmdBuilder params(source, "MODE");
+		params.push(u->uuid);
+		params.push(output_mode);
+		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
+		params.Broadcast();
+	}
+	else
+	{
+		CmdBuilder params(source, "FMODE");
+		params.push(c->name);
+		params.push_int(c->age);
+		params.push(output_mode);
+		params.push_raw(Translate::ModeChangeListToParams(modes.getlist()));
+		params.Broadcast();
+	}
 }
 
 CullResult ModuleSpanningTree::cull()

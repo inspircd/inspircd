@@ -20,34 +20,6 @@
 #include "inspircd.h"
 #include "core_user.h"
 
-class CommandMode : public Command
-{
- public:
-	/** Constructor for mode.
-	 */
-	CommandMode(Module* parent)
-		: Command(parent, "MODE", 1)
-	{
-		syntax = "<target> <modes> {<mode-parameters>}";
-	}
-
-	/** Handle command.
-	 * @param parameters The parameters to the command
-	 * @param user The user issuing the command
-	 * @return A value from CmdResult to indicate command success or failure.
-	 */
-	CmdResult Handle(const std::vector<std::string>& parameters, User* user)
-	{
-		ServerInstance->Modes->Process(parameters, user, (IS_LOCAL(user) ? ModeParser::MODE_NONE : ModeParser::MODE_LOCALONLY));
-		return CMD_SUCCESS;
-	}
-
-	RouteDescriptor GetRouting(User* user, const std::vector<std::string>& parameters)
-	{
-		return (IS_LOCAL(user) ? ROUTE_LOCALONLY : ROUTE_BROADCAST);
-	}
-};
-
 /** Handle /PASS.
  */
 class CommandPass : public SplitCommand

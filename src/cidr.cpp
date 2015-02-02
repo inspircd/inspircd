@@ -53,8 +53,8 @@ bool irc::sockets::MatchCIDR(const std::string &address, const std::string &cidr
 		}
 		else
 		{
-			address_copy = address.substr(username_addr_pos + 1);
-			cidr_copy = cidr_mask.substr(username_mask_pos + 1);
+			address_copy.assign(address, username_addr_pos + 1, std::string::npos);
+			cidr_copy.assign(cidr_mask, username_mask_pos + 1, std::string::npos);
 		}
 	}
 	else

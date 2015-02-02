@@ -52,7 +52,8 @@ ModeAction ModeChannelKey::OnModeChange(User* source, User*, Channel* channel, s
 	channel->SetMode(this, adding);
 	if (adding)
 	{
-		parameter = parameter.substr(0, 32);
+		if (parameter.length() > maxkeylen)
+			parameter.erase(maxkeylen);
 		ext.set(channel, parameter);
 	}
 	else

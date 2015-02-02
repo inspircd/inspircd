@@ -2,7 +2,7 @@
 #
 # InspIRCd -- Internet Relay Chat Daemon
 #
-#   Copyright (C) 2013 Peter Powell <petpow@saberuk.com>
+#   Copyright (C) 2013-2014 Peter Powell <petpow@saberuk.com>
 #
 # This file is part of InspIRCd.  InspIRCd is free software: you can
 # redistribute it and/or modify it under the terms of the GNU General Public
@@ -21,7 +21,7 @@
 BEGIN {
 	require 5.8.0;
 	unless (-f 'configure') {
-		print "Error: test-build must be run from the main source directory!\n";
+		print "Error: $0 must be run from the main source directory!\n";
 		exit 1;
 	}
 }
@@ -29,24 +29,29 @@ BEGIN {
 use strict;
 use warnings FATAL => qw(all);
 
+use make::common;
 use make::configure;
-use make::utilities;
 
 $ENV{D} = $ENV{V} = 1;
 
 system 'git', 'clean', '-dfx';
 
-foreach my $compiler ('g++', 'clang++', 'icpc') {
-	next if system "$compiler -v > /dev/null 2>&1";
+my @compilers = $#ARGV >= 0 ? @ARGV : qw(g++ clang++ icpc);
+foreach my $compiler (@compilers) {
+	if (system "$compiler -v > /dev/null 2>&1") {
+		print "Skipping $compiler as it is not installed on this system!\n";
+		next;
+	}
 	$ENV{CXX} = $compiler;
-	my @socketengines = ( 'select' );
+	my @socketengines = qw(select);
 	push @socketengines, 'epoll' if test_header $compiler, 'sys/epoll.h';
 	push @socketengines, 'kqueue' if test_file $compiler, 'kqueue.cpp';
 	push @socketengines, 'poll' if test_header $compiler, 'poll.h';
 	push @socketengines, 'ports' if test_header $compiler, 'ports.h';
 	foreach my $socketengine (@socketengines) {
 		print "Attempting to build using the $compiler compiler and the $socketengine socket engine...\n";
-		if (system './configure', '--disable-interactive', "--socketengine=$socketengine") {
+		system './configure', '--enable-extras', $ENV{TEST_BUILD_MODULES} if defined $ENV{TEST_BUILD_MODULES};
+		if (system './configure', '--disable-interactive', '--socketengine', $socketengine) {
 			print "Failed to configure using the $compiler compiler and the $socketengine socket engine!\n";
 			exit 1;
 		}

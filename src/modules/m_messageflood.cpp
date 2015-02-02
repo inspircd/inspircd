@@ -34,7 +34,7 @@ class floodsettings
 	unsigned int secs;
 	unsigned int lines;
 	time_t reset;
-	std::map<User*, unsigned int> counters;
+	insp::flat_map<User*, unsigned int> counters;
 
 	floodsettings(bool a, int b, int c) : ban(a), secs(b), lines(c)
 	{
@@ -54,11 +54,7 @@ class floodsettings
 
 	void clear(User* who)
 	{
-		std::map<User*, unsigned int>::iterator iter = counters.find(who);
-		if (iter != counters.end())
-		{
-			counters.erase(iter);
-		}
+		counters.erase(who);
 	}
 };
 
@@ -137,11 +133,9 @@ class ModuleMsgFlood : public Module
 				f->clear(user);
 				if (f->ban)
 				{
-					std::vector<std::string> parameters;
-					parameters.push_back(dest->name);
-					parameters.push_back("+b");
-					parameters.push_back("*!*@" + user->dhost);
-					ServerInstance->Modes->Process(parameters, ServerInstance->FakeClient);
+					Modes::ChangeList changelist;
+					changelist.push_add(ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL), "*!*@" + user->dhost);
+					ServerInstance->Modes->Process(ServerInstance->FakeClient, dest, NULL, changelist);
 				}
 
 				const std::string kickMessage = "Channel flood triggered (limit is " + ConvToStr(f->lines) +

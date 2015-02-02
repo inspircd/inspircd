@@ -207,10 +207,9 @@ void LogManager::DelLogStream(LogStream* l)
 {
 	for (std::map<std::string, std::vector<LogStream*> >::iterator i = LogStreams.begin(); i != LogStreams.end(); ++i)
 	{
-		std::vector<LogStream*>::iterator it;
-		while ((it = std::find(i->second.begin(), i->second.end(), l)) != i->second.end())
+		while (stdalgo::erase(i->second, l))
 		{
-			i->second.erase(it);
+			// Keep erasing while it exists
 		}
 	}
 
@@ -236,11 +235,8 @@ bool LogManager::DelLogType(const std::string &type, LogStream *l)
 
 	if (i != LogStreams.end())
 	{
-		std::vector<LogStream *>::iterator it = std::find(i->second.begin(), i->second.end(), l);
-
-		if (it != i->second.end())
+		if (stdalgo::erase(i->second, l))
 		{
-			i->second.erase(it);
 			if (i->second.size() == 0)
 			{
 				LogStreams.erase(i);
@@ -292,7 +288,7 @@ void LogManager::Log(const std::string &type, LogLevel loglevel, const std::stri
 
 	for (std::map<LogStream *, std::vector<std::string> >::iterator gi = GlobalLogStreams.begin(); gi != GlobalLogStreams.end(); ++gi)
 	{
-		if (std::find(gi->second.begin(), gi->second.end(), type) != gi->second.end())
+		if (stdalgo::isin(gi->second, type))
 		{
 			continue;
 		}

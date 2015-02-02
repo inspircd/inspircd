@@ -37,7 +37,7 @@ class CoreExport ListModeBase : public ModeHandler
 
 	/** Items stored in the channel's list
 	 */
-	typedef std::list<ListItem> ModeList;
+	typedef std::vector<ListItem> ModeList;
 
  private:
 	class ChanData
@@ -149,9 +149,9 @@ class CoreExport ListModeBase : public ModeHandler
 	 * this mode from the channel.
 	 * See mode.h for more details.
 	 * @param channel The channel to remove all instances of the mode from
-	 * @param stack The mode stack to add the mode change to
+	 * @param changelist Mode change list to populate with the removal of this mode
 	 */
-	virtual void RemoveMode(Channel* channel, irc::modestacker& stack);
+	virtual void RemoveMode(Channel* channel, Modes::ChangeList& changelist);
 
 	/** Perform a rehash of this mode's configuration data
 	 */

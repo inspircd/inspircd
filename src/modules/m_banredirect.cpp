@@ -74,6 +74,9 @@ class BanRedirect : public ModeWatcher
 			if (param.length() >= 2 && param[1] == ':')
 				return true;
 
+			if (param.find('#') == std::string::npos)
+				return true;
+
 			ListModeBase* banlm = static_cast<ListModeBase*>(*ban);
 			unsigned int maxbans = banlm->GetLimit(channel);
 			ListModeBase::ModeList* list = banlm->GetList(channel);
@@ -121,6 +124,14 @@ class BanRedirect : public ModeWatcher
 			{
 				/* std::string::swap() is fast - it runs in constant time */
 				mask[NICK].swap(mask[IDENT]);
+			}
+
+			if (!mask[NICK].empty() && mask[IDENT].empty() && mask[HOST].empty())
+			{
+				if (mask[NICK].find('.') != std::string::npos || mask[NICK].find(':') != std::string::npos)
+				{
+					mask[NICK].swap(mask[HOST]);
+				}
 			}
 
 			for(int i = 0; i < 3; i++)
@@ -238,26 +249,16 @@ class ModuleBanRedirect : public Module
 
 			if(redirects)
 			{
-				irc::modestacker modestack(false);
+				ModeHandler* ban = ServerInstance->Modes->FindMode('b', MODETYPE_CHANNEL);
+				Modes::ChangeList changelist;
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
-				{
-					modestack.Push('b', i->targetchan.insert(0, i->banmask));
-				}
+					changelist.push_remove(ban, i->targetchan.insert(0, i->banmask));
 
 				for(BanRedirectList::iterator i = redirects->begin(); i != redirects->end(); i++)
-				{
-					modestack.PushPlus();
-					modestack.Push('b', i->banmask);
-				}
+					changelist.push_add(ban, i->banmask);
 
-				std::vector<std::string> stackresult;
-				stackresult.push_back(chan->name);
-				while (modestack.GetStackedLine(stackresult))
-				{
-					ServerInstance->Modes->Process(stackresult, ServerInstance->FakeClient, ModeParser::MODE_LOCALONLY);
-					stackresult.erase(stackresult.begin() + 1, stackresult.end());
-				}
+				ServerInstance->Modes->Process(ServerInstance->FakeClient, chan, NULL, changelist, ModeParser::MODE_LOCALONLY);
 			}
 		}
 	}

@@ -25,6 +25,22 @@
 #include "treeserver.h"
 #include "treesocket.h"
 
+/** FJOIN builder for rebuilding incoming FJOINs and splitting them up into multiple messages if necessary
+ */
+class FwdFJoinBuilder : public CommandFJoin::Builder
+{
+	TreeServer* const sourceserver;
+
+ public:
+	FwdFJoinBuilder(Channel* chan, TreeServer* server)
+		: CommandFJoin::Builder(chan, server)
+		, sourceserver(server)
+	{
+	}
+
+	void add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend);
+};
+
 /** FJOIN, almost identical to TS6 SJOIN, except for nicklist handling. */
 CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 {
@@ -72,6 +88,30 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	 * <membid> is a positive integer representing the id of the membership.
 	 * If not present (in FJOINs coming from pre-1205 servers), 0 is assumed.
 	 *
+	 * Forwarding:
+	 * FJOIN messages are forwarded with the new TS and modes. Prefix modes of
+	 * members on the losing side are not forwarded.
+	 * This is required to only have one server on each side of the network who
+	 * decides the fate of a channel during a network merge. Otherwise, if the
+	 * clock of a server is slightly off it may make a different decision than
+	 * the rest of the network and desync.
+	 * The prefix modes are always forwarded as-is, or not at all.
+	 * One incoming FJOIN may result in more than one FJOIN being generated
+	 * and forwarded mainly due to compatibility reasons with non-InspIRCd
+	 * servers that don't handle more than 512 char long lines.
+	 *
+	 * Forwarding examples:
+	 * Existing channel #chan with TS 1000, modes +n.
+	 * Incoming:  :220 FJOIN #chan 1000 +t :o,220AAAAAB:0
+	 * Forwarded: :220 FJOIN #chan 1000 +nt :o,220AAAAAB:0
+	 * Merge modes and forward the result. Forward their prefix modes as well.
+	 *
+	 * Existing channel #chan with TS 1000, modes +nt.
+	 * Incoming:  :220 FJOIN #CHAN 2000 +i :ov,220AAAAAB:0 o,220AAAAAC:20
+	 * Forwarded: :220 FJOIN #chan 1000 +nt :,220AAAAAB:0 ,220AAAAAC:20
+	 * Drop their modes, forward our modes and TS, use our channel name
+	 * capitalization. Don't forward prefix modes.
+	 *
 	 */
 
 	time_t TS = ServerCommand::ExtractTS(params[1]);
@@ -113,60 +153,41 @@ CmdResult CommandFJoin::Handle(User* srcuser, std::vector<std::string>& params)
 	}
 
 	/* First up, apply their channel modes if they won the TS war */
+	Modes::ChangeList modechangelist;
 	if (apply_other_sides_modes)
 	{
-		// Need to use a modestacker here due to maxmodes
-		irc::modestacker stack(true);
-		std::vector<std::string>::const_iterator paramit = params.begin() + 3;
-		const std::vector<std::string>::const_iterator lastparamit = ((params.size() > 3) ? (params.end() - 1) : params.end());
-		for (std::string::const_iterator i = params[2].begin(); i != params[2].end(); ++i)
-		{
-			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
-			if (!mh)
-				continue;
-
-			std::string modeparam;
-			if ((paramit != lastparamit) && (mh->GetNumParams(true)))
-			{
-				modeparam = *paramit;
-				++paramit;
-			}
-
-			stack.Push(*i, modeparam);
-		}
-
-		std::vector<std::string> modelist;
-
-		// Mode parser needs to know what channel to act on.
-		modelist.push_back(params[0]);
-
-		while (stack.GetStackedLine(modelist))
-		{
-			ServerInstance->Modes->Process(modelist, srcuser, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
-			modelist.erase(modelist.begin() + 1, modelist.end());
-		}
+		ServerInstance->Modes.ModeParamsToChangeList(srcuser, MODETYPE_CHANNEL, params, modechangelist, 2, params.size() - 1);
+		ServerInstance->Modes->Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY | ModeParser::MODE_MERGE);
+		// Reuse for prefix modes
+		modechangelist.clear();
 	}
 
-	irc::modestacker modestack(true);
 	TreeServer* const sourceserver = TreeServer::Get(srcuser);
+
+	// Build a new FJOIN for forwarding. Put the correct TS in it and the current modes of the channel
+	// after applying theirs. If they lost, the prefix modes from their message are not forwarded.
+	FwdFJoinBuilder fwdfjoin(chan, sourceserver);
 
 	/* Now, process every 'modes,uuid' pair */
 	irc::tokenstream users(params.back());
 	std::string item;
-	irc::modestacker* modestackptr = (apply_other_sides_modes ? &modestack : NULL);
+	Modes::ChangeList* modechangelistptr = (apply_other_sides_modes ? &modechangelist : NULL);
 	while (users.GetToken(item))
 	{
-		ProcessModeUUIDPair(item, sourceserver, chan, modestackptr);
+		ProcessModeUUIDPair(item, sourceserver, chan, modechangelistptr, fwdfjoin);
 	}
 
-	/* Flush mode stacker if we lost the FJOIN or had equal TS */
+	fwdfjoin.finalize();
+	fwdfjoin.Forward(sourceserver);
+
+	// Set prefix modes on their users if we lost the FJOIN or had equal TS
 	if (apply_other_sides_modes)
-		CommandFJoin::ApplyModeStack(srcuser, chan, modestack);
+		ServerInstance->Modes->Process(srcuser, chan, NULL, modechangelist, ModeParser::MODE_LOCALONLY);
 
 	return CMD_SUCCESS;
 }
 
-void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, irc::modestacker* modestack)
+void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sourceserver, Channel* chan, Modes::ChangeList* modechangelist, FwdFJoinBuilder& fwdfjoin)
 {
 	std::string::size_type comma = item.find(',');
 
@@ -188,24 +209,32 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 		return;
 	}
 
+	std::string::const_iterator modeendit = item.begin(); // End of the "ov" mode string
 	/* Check if the user received at least one mode */
-	if ((modestack) && (comma > 0) && (comma != std::string::npos))
+	if ((modechangelist) && (comma != std::string::npos))
 	{
+		modeendit += comma;
 		/* Iterate through the modes and see if they are valid here, if so, apply */
-		std::string::const_iterator commait = item.begin()+comma;
-		for (std::string::const_iterator i = item.begin(); i != commait; ++i)
+		for (std::string::const_iterator i = item.begin(); i != modeendit; ++i)
 		{
-			if (!ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL))
+			ModeHandler* mh = ServerInstance->Modes->FindMode(*i, MODETYPE_CHANNEL);
+			if (!mh)
 				throw ProtocolException("Unrecognised mode '" + std::string(1, *i) + "'");
 
 			/* Add any modes this user had to the mode stack */
-			modestack->Push(*i, who->nick);
+			modechangelist->push_add(mh, who->nick);
 		}
 	}
 
 	Membership* memb = chan->ForceJoin(who, NULL, sourceserver->IsBursting());
 	if (!memb)
+	{
+		// User was already on the channel, forward because of the modes they potentially got
+		memb = chan->GetUser(who);
+		if (memb)
+			fwdfjoin.add(memb, item.begin(), modeendit);
 		return;
+	}
 
 	// Assign the id to the new Membership
 	Membership::Id membid = 0;
@@ -213,11 +242,14 @@ void CommandFJoin::ProcessModeUUIDPair(const std::string& item, TreeServer* sour
 	if (colon != std::string::npos)
 		membid = Membership::IdFromString(item.substr(colon+1));
 	memb->id = membid;
+
+	// Add member to fwdfjoin with prefix modes
+	fwdfjoin.add(memb, item.begin(), modeendit);
 }
 
 void CommandFJoin::RemoveStatus(Channel* c)
 {
-	irc::modestacker stack(false);
+	Modes::ChangeList changelist;
 
 	const ModeParser::ModeHandlerMap& mhs = ServerInstance->Modes->GetModes(MODETYPE_CHANNEL);
 	for (ModeParser::ModeHandlerMap::const_iterator i = mhs.begin(); i != mhs.end(); ++i)
@@ -228,22 +260,10 @@ void CommandFJoin::RemoveStatus(Channel* c)
 		 * rather than applied immediately. Module unloads require this to be done immediately,
 		 * for this function we require tidyness instead. Fixes bug #493
 		 */
-		mh->RemoveMode(c, stack);
+		mh->RemoveMode(c, changelist);
 	}
 
-	ApplyModeStack(ServerInstance->FakeClient, c, stack);
-}
-
-void CommandFJoin::ApplyModeStack(User* srcuser, Channel* c, irc::modestacker& stack)
-{
-	parameterlist stackresult;
-	stackresult.push_back(c->name);
-
-	while (stack.GetStackedLine(stackresult))
-	{
-		ServerInstance->Modes->Process(stackresult, srcuser, ModeParser::MODE_LOCALONLY);
-		stackresult.erase(stackresult.begin() + 1, stackresult.end());
-	}
+	ServerInstance->Modes->Process(ServerInstance->FakeClient, c, NULL, changelist, ModeParser::MODE_LOCALONLY);
 }
 
 void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
@@ -274,24 +294,24 @@ void CommandFJoin::LowerTS(Channel* chan, time_t TS, const std::string& newname)
 	chan->topicset = 0;
 }
 
-CommandFJoin::Builder::Builder(Channel* chan)
-	: CmdBuilder("FJOIN")
+CommandFJoin::Builder::Builder(Channel* chan, TreeServer* source)
+	: CmdBuilder(source->GetID(), "FJOIN")
 {
 	push(chan->name).push_int(chan->age).push_raw(" +");
 	pos = str().size();
 	push_raw(chan->ChanModes(true)).push_raw(" :");
 }
 
-void CommandFJoin::Builder::add(Membership* memb)
+void CommandFJoin::Builder::add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend)
 {
-	push_raw(memb->modes).push_raw(',').push_raw(memb->user->uuid);
+	push_raw(mbegin, mend).push_raw(',').push_raw(memb->user->uuid);
 	push_raw(':').push_raw_int(memb->id);
 	push_raw(' ');
 }
 
-bool CommandFJoin::Builder::has_room(Membership* memb) const
+bool CommandFJoin::Builder::has_room(std::string::size_type nummodes) const
 {
-	return ((str().size() + memb->modes.size() + UIDGenerator::UUID_LENGTH + 2 + membid_max_digits + 1) <= maxline);
+	return ((str().size() + nummodes + UIDGenerator::UUID_LENGTH + 2 + membid_max_digits + 1) <= maxline);
 }
 
 void CommandFJoin::Builder::clear()
@@ -305,4 +325,21 @@ const std::string& CommandFJoin::Builder::finalize()
 	if (*content.rbegin() == ' ')
 		content.erase(content.size()-1);
 	return str();
+}
+
+void FwdFJoinBuilder::add(Membership* memb, std::string::const_iterator mbegin, std::string::const_iterator mend)
+{
+	// Pseudoserver compatibility:
+	// Some pseudoservers do not handle lines longer than 512 so we split long FJOINs into multiple messages.
+	// The forwarded FJOIN can end up being longer than the original one if we have more modes set and won, for example.
+
+	// Check if the member fits into the current message. If not, send it and prepare a new one.
+	if (!has_room(std::distance(mbegin, mend)))
+	{
+		finalize();
+		Forward(sourceserver);
+		clear();
+	}
+	// Add the member and their modes exactly as they sent them
+	CommandFJoin::Builder::add(memb, mbegin, mend);
 }

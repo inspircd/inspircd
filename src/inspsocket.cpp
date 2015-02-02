@@ -150,9 +150,8 @@ bool StreamSocket::GetNextLine(std::string& line, char delim)
 	std::string::size_type i = recvq.find(delim);
 	if (i == std::string::npos)
 		return false;
-	line = recvq.substr(0, i);
-	// TODO is this the most efficient way to split?
-	recvq = recvq.substr(i + 1);
+	line.assign(recvq, 0, i);
+	recvq.erase(0, i + 1);
 	return true;
 }
 
@@ -220,7 +219,7 @@ void StreamSocket::DoWrite()
 {
 	if (sendq.empty())
 		return;
-	if (!error.empty() || fd < 0 || fd == INT_MAX)
+	if (!error.empty() || fd < 0)
 	{
 		ServerInstance->Logs->Log("SOCKET", LOG_DEBUG, "DoWrite on errored or closed socket");
 		return;
@@ -299,7 +298,7 @@ void StreamSocket::DoWrite()
 					else if (rv < itemlen)
 					{
 						SocketEngine::ChangeEventMask(this, FD_WANT_FAST_WRITE | FD_WRITE_WILL_BLOCK);
-						front = front.substr(rv);
+						front.erase(0, rv);
 						sendq_len -= rv;
 						return;
 					}
@@ -340,15 +339,17 @@ void StreamSocket::DoWrite()
 			}
 
 			int rv_max = 0;
-			iovec* iovecs = new iovec[bufcount];
-			for(int i=0; i < bufcount; i++)
+			int rv;
 			{
-				iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
-				iovecs[i].iov_len = sendq[i].length();
-				rv_max += sendq[i].length();
+				iovec iovecs[MYIOV_MAX];
+				for (int i = 0; i < bufcount; i++)
+				{
+					iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
+					iovecs[i].iov_len = sendq[i].length();
+					rv_max += sendq[i].length();
+				}
+				rv = writev(fd, iovecs, bufcount);
 			}
-			int rv = writev(fd, iovecs, bufcount);
-			delete[] iovecs;
 
 			if (rv == (int)sendq_len)
 			{
@@ -378,7 +379,7 @@ void StreamSocket::DoWrite()
 					else
 					{
 						// stopped in the middle of this string
-						front = front.substr(rv);
+						front.erase(0, rv);
 						rv = 0;
 					}
 				}
@@ -476,11 +477,8 @@ void BufferedSocket::DoWrite()
 BufferedSocket::~BufferedSocket()
 {
 	this->Close();
-	if (Timeout)
-	{
-		// The timer is removed from the TimerManager in Timer::~Timer()
-		delete Timeout;
-	}
+	// The timer is removed from the TimerManager in Timer::~Timer()
+	delete Timeout;
 }
 
 void StreamSocket::HandleEvent(EventType et, int errornum)

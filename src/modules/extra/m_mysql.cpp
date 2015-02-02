@@ -89,7 +89,7 @@ struct RQueueItem
 	RQueueItem(SQLQuery* Q, MySQLresult* R) : q(Q), r(R) {}
 };
 
-typedef std::map<std::string, SQLConnection*> ConnMap;
+typedef insp::flat_map<std::string, SQLConnection*> ConnMap;
 typedef std::deque<QQueueItem> QueryQueue;
 typedef std::deque<RQueueItem> ResultQueue;
 

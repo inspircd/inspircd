@@ -36,7 +36,7 @@ class ExemptChanOps : public ListModeBase
 			return false;
 		}
 
-		std::string restriction = word.substr(0, p);
+		std::string restriction(word, 0, p);
 		// If there is a '-' in the restriction string ignore it and everything after it
 		// to support "auditorium-vis" and "auditorium-see" in m_auditorium
 		p = restriction.find('-');
@@ -98,7 +98,7 @@ class ExemptHandler : public HandlerBase3<ModResult, User*, Channel*, const std:
 				if (pos == std::string::npos)
 					continue;
 				if (!i->mask.compare(0, pos, restriction))
-					minmode = (*i).mask.substr(pos + 1);
+					minmode.assign(i->mask, pos + 1, std::string::npos);
 			}
 		}
 
