@@ -257,9 +257,10 @@ class SQLConnection : public SQLProvider
 			return rv;
 		// enable character-set settings
 		std::string characterset;
-		if (config->readString("characterset", characterset))
+		characterset=config->getString("characterset");
+		if (!characterset.empty())
 		{
-			if (!mysql_set_character_set(connection, characterset.c_str()))
+			if (mysql_set_character_set(connection, characterset.c_str()))
 			{
 				ServerInstance->Logs->Log(MODNAME, LOG_DEFAULT, "WARNING: Could not change character-set to " + characterset);
 			}
