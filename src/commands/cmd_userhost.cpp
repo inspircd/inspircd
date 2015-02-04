@@ -30,7 +30,7 @@ class CommandUserhost : public Command
  public:
 	/** Constructor for userhost.
 	 */
-	CommandUserhost ( Module* parent) : Command(parent,"USERHOST", 1, 5) {
+	CommandUserhost ( Module* parent) : Command(parent,"USERHOST", 1) {
 		syntax = "<nick> [<nick> ...]";
 	}
 	/** Handle command.
@@ -46,7 +46,10 @@ CmdResult CommandUserhost::Handle (const std::vector<std::string>& parameters, U
 {
 	std::string retbuf = "302 " + user->nick + " :";
 
-	for (unsigned int i = 0; i < parameters.size(); i++)
+	unsigned int max = parameters.size();
+	if (max > 5)
+		max = 5;
+	for (unsigned int i = 0; i < max; i++)
 	{
 		User *u = ServerInstance->FindNickOnly(parameters[i]);
 
