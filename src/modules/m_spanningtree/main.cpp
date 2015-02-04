@@ -88,7 +88,7 @@ void ModuleSpanningTree::init()
 	loopCall = false;
 
 	// update our local user count
-	Utils->TreeRoot->SetUserCount(ServerInstance->Users->local_users.size());
+	Utils->TreeRoot->SetUserCount(ServerInstance->Users->LocalUserCount());
 }
 
 void ModuleSpanningTree::ShowLinks(TreeServer* Current, User* user, int hops)
