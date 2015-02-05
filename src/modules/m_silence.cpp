@@ -291,6 +291,7 @@ class CommandSilence : public Command
 class ModuleSilence : public Module
 {
 	unsigned int maxsilence;
+	bool ExemptULine;
 	CommandSilence cmdsilence;
 	CommandSVSSilence cmdsvssilence;
  public:
@@ -302,9 +303,13 @@ class ModuleSilence : public Module
 
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
-		maxsilence = ServerInstance->Config->ConfValue("silence")->getInt("maxentries", 32);
+		ConfigTag* tag = ServerInstance->Config->ConfValue("silence");
+
+		maxsilence = tag->getInt("maxentries", 32);
 		if (!maxsilence)
 			maxsilence = 32;
+
+		ExemptULine = tag->getBool("exemptuline", true);
 	}
 
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
@@ -351,6 +356,9 @@ class ModuleSilence : public Module
 
 	ModResult MatchPattern(User* dest, User* source, int pattern)
 	{
+		if (ExemptULine && source->server->IsULine())
+			return MOD_RES_PASSTHRU;
+
 		silencelist* sl = cmdsilence.ext.get(dest);
 		if (sl)
 		{

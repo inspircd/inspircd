@@ -1841,7 +1841,10 @@
 #<module name="m_silence.so">
 #
 # Set the maximum number of entries allowed on a user's silence list.
-#<silence maxentries="32">
+#<silence maxentries="32"
+#
+# Whether messages from U-lined servers will bypass silence masks.
+#exemptuline="yes">
 
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # SQLite3 module: Allows other SQL modules to access SQLite3          #
