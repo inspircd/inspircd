@@ -934,16 +934,21 @@ info_done_dealloc:
 		if (sess)
 		{
 			std::string text = "*** You are connected using SSL cipher '";
-
-			text += UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)));
-			text.append("-").append(UnknownIfNULL(gnutls_cipher_get_name(gnutls_cipher_get(sess)))).append("-");
-			text.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess)))).append("'");
-
+			GetCiphersuite(text);
+			text += '\'';
 			if (!certificate->fingerprint.empty())
 				text += " and your SSL certificate fingerprint is " + certificate->fingerprint;
 
 			user->WriteNotice(text);
 		}
+	}
+
+	void GetCiphersuite(std::string& out) const
+	{
+		out.append(UnknownIfNULL(gnutls_protocol_get_name(gnutls_protocol_get_version(sess)))).push_back('-');
+		out.append(UnknownIfNULL(gnutls_kx_get_name(gnutls_kx_get(sess)))).push_back('-');
+		out.append(UnknownIfNULL(gnutls_cipher_get_name(gnutls_cipher_get(sess)))).push_back('-');
+		out.append(UnknownIfNULL(gnutls_mac_get_name(gnutls_mac_get(sess))));
 	}
 
 	GnuTLS::Profile* GetProfile() { return profile; }
