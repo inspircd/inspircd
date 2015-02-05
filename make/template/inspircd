@@ -88,12 +88,11 @@ if (!defined($sub))
 {
 	print STDERR "Invalid command or none given.\n";
 	cmd_help();
-	exit 1;
+	exit 3;	# Unimplemented feature
 }
 else
 {
-	$sub->(@ARGV);
-	exit 0;
+	exit $sub->(@ARGV); # Error code passed through return value
 }
 
 sub cmd_help()
@@ -106,7 +105,7 @@ sub cmd_help()
 	$_ =~ s/_/-/g foreach (@cmds, @devs);
 	print STDERR "Usage: ./inspircd (" . join("|", @cmds) . ")\n";
 	print STDERR "Developer arguments: (" . join("|", @devs) . ")\n";
-	exit 0;
+	exit 0; # Success
 }
 
 sub cmd_status()
@@ -114,10 +113,10 @@ sub cmd_status()
 	if (getstatus() == 1) {
 		my $pid = getprocessid();
 		print "InspIRCd is running (PID: $pid)\n";
-		exit();
+		exit 0; # Program is running or service is OK
 	} else {
 		print "InspIRCd is not running. (Or PID File not found)\n";
-		exit();
+		exit 3; # Program is not running
 	}
 }
 
@@ -127,23 +126,23 @@ sub cmd_rehash()
 		my $pid = getprocessid();
 		system("kill -HUP $pid >/dev/null 2>&1");
 		print "InspIRCd rehashed (pid: $pid).\n";
-		exit();
+		exit 0; # Success
 	} else {
 		print "InspIRCd is not running. (Or PID File not found)\n";
-		exit();
+		exit 7; # Program is not running
 	}
 }
 
 sub cmd_cron()
 {
 	if (getstatus() == 0) { goto &cmd_start(); }
-	exit();
+	exit 1; # Generic or unspecified error
 }
 
 sub cmd_version()
 {
 	print "InspIRCd version: $version\n";
-	exit();
+	exit 0; # Success
 }
 
 sub cmd_restart(@)
@@ -157,13 +156,13 @@ sub hid_cheese_sandwich()
 {
 	print "Creating Cheese Sandwich..\n";
 	print "Done.\n";
-	exit();
+	exit 0; # Success
 }
 
 sub cmd_start(@)
 {
 	# Check to see its not 'running' already.
-	if (getstatus() == 1) { print "InspIRCd is already running.\n"; return 0; }
+	if (getstatus() == 1) { print "InspIRCd is already running.\n"; exit 0; }
 	# If we are still alive here.. Try starting the IRCd..
 	chdir $runpath;
 	print "$binpath/$executable doesn't exist\n" and return 0 unless(-e "$binpath/$executable");
@@ -300,7 +299,7 @@ sub cmd_stop()
 		sleep 1;
 		if (getstatus() == 0) {
 			print "InspIRCd Stopped.\n";
-			return;
+			return 0;
 		}
 	}
 	print "InspIRCd not dying quietly -- forcing kill\n";
@@ -416,7 +415,7 @@ sub checkvalgrind
 	unless(`valgrind --version`)
 	{
 		print "Couldn't start valgrind: $!\n";
-		exit;
+		exit 1; # Generic or unspecified error
 	}
 }
 
@@ -425,7 +424,7 @@ sub checkgdb
 	unless(`gdb --version`)
 	{
 		print "Couldn't start gdb: $!\n";
-		exit;
+		exit 1; # Generic or unspecified error
 	}
 }
 
@@ -434,6 +433,6 @@ sub checkscreen
 	unless(`screen --version`)
 	{
 		print "Couldn't start screen: $!\n";
-		exit;
+		exit 1; # Generic or unspecified error
 	}
 }
