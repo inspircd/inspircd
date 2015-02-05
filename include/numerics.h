@@ -144,6 +144,7 @@ enum Numerics
 	ERR_NOTREGISTERED               = 451,
 	ERR_NEEDMOREPARAMS              = 461,
 	ERR_ALREADYREGISTERED           = 462,
+	ERR_YOUREBANNEDCREEP            = 465,
 	ERR_UNKNOWNMODE                 = 472,
 
 	/*
