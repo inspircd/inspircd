@@ -42,9 +42,6 @@ sub run() {
 	unlink 'include';
 	symlink "$ENV{SOURCEPATH}/include", 'include';
 	mkdir $_ for qw/bin modules obj/;
-# BSD make has a horribly annoying bug resulting in an extra chdir of the make process
-# Create symlinks to work around it
-	symlink "../$_", "obj/$_" for qw/bin coremods modules obj/;
 
 	$build = getcwd();
 	open MAKE, '>real.mk' or die "Could not write real.mk: $!";
