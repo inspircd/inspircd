@@ -77,10 +77,10 @@ bad-target:
 	\@echo "in order to set the correct environment variables"
 	\@exit 1
 
-all: inspircd coremods modules
+all: inspircd modules
 
 END
-	my(@core_deps, @cmodlist, @modlist);
+	my(@core_deps, @modlist);
 	for my $file (<*.cpp>, <modes/*.cpp>, <socketengines/*.cpp>, "threadengines/threadengine_pthread.cpp") {
 		my $out = find_output $file;
 		dep_cpp $file, $out, 'gen-o';
@@ -88,40 +88,28 @@ END
 		push @core_deps, $out;
 	}
 
-	opendir my $coremoddir, 'coremods';
-	for my $file (sort readdir $coremoddir) {
-		next if $file =~ /^\./;
-		if ($file =~ /^core_/ && -d "coremods/$file" && dep_dir "coremods/$file", "modules/$file") {
-			mkdir "${\BUILDPATH}/obj/$file";
-			push @cmodlist, "modules/$file.so";
-		}
-		if ($file =~ /^core_.*\.cpp$/) {
-			my $out = dep_so "coremods/$file";
-			push @cmodlist, $out;
-		}
-	}
-
-	opendir my $moddir, 'modules';
-	for my $file (sort readdir $moddir) {
-		next if $file =~ /^\./;
-		if (-e "modules/extra/$file" && !-l "modules/$file") {
-			# Incorrect symlink?
-			print "Replacing symlink for $file found in modules/extra\n";
-			rename "modules/$file", "modules/$file~";
-			symlink "extra/$file", "modules/$file";
-		}
-		if ($file =~ /^m_/ && -d "modules/$file" && dep_dir "modules/$file", "modules/$file") {
-			mkdir "${\BUILDPATH}/obj/$file";
-			push @modlist, "modules/$file.so";
-		}
-		if ($file =~ /^m_.*\.cpp$/) {
-			my $out = dep_so "modules/$file";
-			push @modlist, $out;
+	foreach my $directory (qw(coremods modules)) {
+		opendir(my $moddir, $directory);
+		for my $file (sort readdir $moddir) {
+			next if $file =~ /^\./;
+			if ($directory eq 'modules' && -e "modules/extra/$file" && !-l "modules/$file") {
+				# Incorrect symlink?
+				print "Replacing symlink for $file found in modules/extra\n";
+				rename "modules/$file", "modules/$file~";
+				symlink "extra/$file", "modules/$file";
+			}
+			if ($file =~ /^(?:core|m)_/ && -d "$directory/$file" && dep_dir "$directory/$file", "modules/$file") {
+				mkdir "${\BUILDPATH}/obj/$file";
+				push @modlist, "modules/$file.so";
+			}
+			if ($file =~ /^.*\.cpp$/) {
+				my $out = dep_so "$directory/$file";
+				push @modlist, $out;
+			}
 		}
 	}
 	
 	my $core_mk = join ' ', @core_deps;
-	my $cmods = join ' ', @cmodlist;
 	my $mods = join ' ', @modlist;
 	print MAKE <<END;
 
@@ -130,11 +118,9 @@ bin/inspircd: $core_mk
 
 inspircd: bin/inspircd
 
-coremods: $cmods
-
 modules: $mods
 
-.PHONY: all bad-target inspircd coremods modules
+.PHONY: all bad-target inspircd modules
 
 END
 }
