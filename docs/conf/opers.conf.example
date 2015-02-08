@@ -14,7 +14,7 @@
 <class
      name="Shutdown"
 
-     # commands: Oper-only commands that opers of this class can run.
+     # commands: Oper only commands that opers of this class can run.
      commands="DIE RESTART REHASH LOADMODULE UNLOADMODULE RELOADMODULE GLOADMODULE GUNLOADMODULE GRELOADMODULE"
 
      # privs: Special privileges that users with this class may utilise.
@@ -33,10 +33,10 @@
      # *NOTE: These privs are potentially dangerous, as they grant users with them the ability to hammer your server's CPU/RAM as much as they want, essentially.
      privs="users/auspex channels/auspex servers/auspex users/mass-message channels/high-join-limit users/flood/no-throttle users/flood/increased-buffers"
 
-     # usermodes: Oper-only usermodes that opers with this class can use.
+     # usermodes: Oper only user modes that opers with this class can use.
      usermodes="*"
 
-     # chanmodes: Oper-only channel modes that opers with this class can use.
+     # chanmodes: Oper only channel modes that opers with this class can use.
      chanmodes="*">
 
 <class name="SACommands" commands="SAJOIN SAPART SANICK SAQUIT SATOPIC SAKICK SAMODE OJOIN">
@@ -67,7 +67,7 @@
 
     # modes: User modes besides +o that are set on an oper of this type
     # when they oper up. Used for snomasks and other things.
-    # Requires that m_opermodes.so be loaded.
+    # Requires that m_opermodes be loaded.
     modes="+s +cCqQ">
 
 <type name="GlobalOp" classes="SACommands OperChat BanControl HostCloak ServerLink" vhost="ircop.omega.example.org">
@@ -97,7 +97,7 @@
 
       # ** ADVANCED ** This option is disabled by default.
       # fingerprint: When using the m_sslinfo module, you may specify
-      # a key fingerprint here. This can be obtained by using the /sslinfo
+      # a key fingerprint here. This can be obtained by using the /SSLINFO
       # command while the module is loaded, and is also noticed on connect.
       # This enhances security by verifying that the person opering up has
       # a matching SSL client certificate, which is very difficult to
@@ -141,16 +141,16 @@
       name="Adam"
 
       # hash: What hash this password is hashed with.
-      # Requires the module for selected hash (m_md5.so, m_sha256.so
-      # or m_ripemd160.so) be loaded and the password hashing module
-      # (m_password_hash.so) loaded.
+      # Requires the module for selected hash (m_md5, m_sha256
+      # or m_ripemd160) be loaded and the password hashing module
+      # (m_password_hash) loaded.
       # Options here are: "md5", "sha256" and "ripemd160", or one of
       # these prefixed with "hmac-", e.g.: "hmac-sha256".
-      # Create hashed passwords with: /mkpasswd <hash> <password>
+      # Create hashed passwords with: /MKPASSWD <hash> <password>
       hash="hmac-sha256"
 
       # password: A hash of the password (see above option) hashed
-      # with /mkpasswd <hash> <password>. See m_password_hash in modules.conf
+      # with /MKPASSWD <hash> <password>. See m_password_hash in modules.conf
       # for more information about password hashing.
       password="qQmv3LcF$Qh63wzmtUqWp9OXnLwe7yv1GcBwHpq59k2a0UrY8xe0"
 
