@@ -144,6 +144,7 @@ class CGIResolver : public Resolver
 			them->host = result;
 			them->dhost = result;
 			them->InvalidateCache();
+			them->exempt = (ServerInstance->XLines->MatchesLine("E",them) != NULL);
 			them->CheckLines(true);
 		}
 	}
@@ -300,6 +301,7 @@ public:
 		if (user->quitting)
 			return MOD_RES_DENY;
 
+		user->exempt = (ServerInstance->XLines->MatchesLine("E",user) != NULL);
 		user->CheckLines(true);
 		if (user->quitting)
 			return MOD_RES_DENY;
@@ -317,6 +319,7 @@ public:
 			if(InspIRCd::Match(user->host, iter->hostmask, ascii_case_insensitive_map) || InspIRCd::MatchCIDR(user->GetIPString(), iter->hostmask, ascii_case_insensitive_map))
 			{
 				// Deal with it...
+				user->exempt = (ServerInstance->XLines->MatchesLine("E",user) != NULL);
 				if(iter->type == PASS)
 				{
 					CheckPass(user); // We do nothing if it fails so...
