@@ -24,6 +24,7 @@
 #pragma once
 
 #include "base.h"
+#include "event.h"
 
 #include <string>
 #include <sstream>
@@ -236,4 +237,15 @@ class HTTPdAPI : public dynamic_reference<HTTPdAPIBase>
 		: dynamic_reference<HTTPdAPIBase>(parent, "m_httpd_api")
 	{
 	}
+};
+
+class HTTPACLEventListener : public Events::ModuleEventListener
+{
+ public:
+	HTTPACLEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/http-acl")
+	{
+	}
+
+	virtual ModResult OnHTTPACLCheck(HTTPRequest& req) = 0;
 };

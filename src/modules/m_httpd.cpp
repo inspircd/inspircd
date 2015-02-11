@@ -31,6 +31,7 @@ class ModuleHttpServer;
 static ModuleHttpServer* HttpModule;
 static bool claimed;
 static insp::intrusive_list<HttpServerSocket> sockets;
+static Events::ModuleEventProvider* aclevprov;
 
 /** HTTP socket states
  */
@@ -323,9 +324,10 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 		InternalState = HTTP_SERVE_SEND_DATA;
 
 		claimed = false;
+		ModResult MOD_RESULT;
 		HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
-		acl.Send();
-		if (!claimed)
+		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
+		if (MOD_RESULT != MOD_RES_DENY)
 		{
 			HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
 			url.Send();
@@ -372,11 +374,14 @@ class ModuleHttpServer : public Module
 {
 	HTTPdAPIImpl APIImpl;
 	unsigned int timeoutsec;
+	Events::ModuleEventProvider acleventprov;
 
  public:
 	ModuleHttpServer()
 		: APIImpl(this)
+		, acleventprov(this, "event/http-acl")
 	{
+		aclevprov = &acleventprov;
 	}
 
 	void init() CXX11_OVERRIDE
