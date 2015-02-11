@@ -326,11 +326,11 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 
 		claimed = false;
 		ModResult MOD_RESULT;
-		HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
+		HTTPRequest acl(request_type, uri, &headers, this, ip, postdata);
 		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
 		if (MOD_RESULT != MOD_RES_DENY)
 		{
-			HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
+			HTTPRequest url(request_type, uri, &headers, this, ip, postdata);
 			FIRST_MOD_RESULT_CUSTOM(*reqevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (url));
 			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{

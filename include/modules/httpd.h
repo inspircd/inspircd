@@ -135,7 +135,7 @@ class HTTPRequest
 	 * @param ip The IP address making the web request.
 	 * @param pdata The post data (content after headers) received with the request, up to Content-Length in size
 	 */
-	HTTPRequest(Module* me, const std::string &eventid, const std::string &request_type, const std::string &uri,
+	HTTPRequest(const std::string& request_type, const std::string& uri,
 		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
 		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(socket)
 	{
