@@ -684,8 +684,10 @@ void dynamic_reference_base::SetProvider(const std::string& newname)
 
 void dynamic_reference_base::resolve()
 {
-	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
-	if (i != ServerInstance->Modules->DataProviders.end())
+	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
+	// to ensure a dynref with the same name as another one resolves to the same object
+	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules.DataProviders.lower_bound(name);
+	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->name))
 		value = static_cast<DataProvider*>(i->second);
 	else
 		value = NULL;
