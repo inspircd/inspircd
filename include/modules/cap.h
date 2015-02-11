@@ -40,11 +40,14 @@ class CapEvent : public Event
 
 class GenericCap
 {
+	bool active;
+
  public:
 	LocalIntExt ext;
 	const std::string cap;
 	GenericCap(Module* parent, const std::string& Cap)
-		: ext("cap_" + Cap, ExtensionItem::EXT_USER, parent)
+		: active(true)
+		, ext("cap_" + Cap, ExtensionItem::EXT_USER, parent)
 		, cap(Cap)
 	{
 	}
@@ -52,6 +55,9 @@ class GenericCap
 	void HandleEvent(Event& ev)
 	{
 		if (ev.id != "cap_request")
+			return;
+
+		if (!active)
 			return;
 
 		CapEvent *data = static_cast<CapEvent*>(&ev);
@@ -87,4 +93,7 @@ class GenericCap
 			ext.set(data->user, 0);
 		}
 	}
+
+	void SetActive(bool newstate) { active = newstate; }
+	bool IsActive() const { return active; }
 };
