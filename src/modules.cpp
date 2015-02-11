@@ -655,7 +655,7 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 }
 
 dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
-	: name(Name), value(NULL), creator(Creator)
+	: name(Name), hook(NULL), value(NULL), creator(Creator)
 {
 	if (!dynrefs)
 		dynrefs = new insp::intrusive_list<dynamic_reference_base>;
@@ -688,7 +688,15 @@ void dynamic_reference_base::resolve()
 	// to ensure a dynref with the same name as another one resolves to the same object
 	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules.DataProviders.lower_bound(name);
 	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->name))
-		value = static_cast<DataProvider*>(i->second);
+	{
+		ServiceProvider* newvalue = i->second;
+		if (value != newvalue)
+		{
+			value = newvalue;
+			if (hook)
+				hook->OnCapture();
+		}
+	}
 	else
 		value = NULL;
 }
