@@ -21,13 +21,14 @@
 #include "inspircd.h"
 #include "modules/httpd.h"
 
-class ModuleHttpConfig : public Module
+class ModuleHttpConfig : public Module, public HTTPRequestEventListener
 {
 	HTTPdAPI API;
 
  public:
 	ModuleHttpConfig()
-		: API(this)
+		: HTTPRequestEventListener(this)
+		, API(this)
 	{
 	}
 
@@ -65,14 +66,12 @@ class ModuleHttpConfig : public Module
 		return ret;
 	}
 
-	void OnEvent(Event& event) CXX11_OVERRIDE
+	ModResult HandleRequest(HTTPRequest* http)
 	{
 		std::stringstream data("");
 
-		if (event.id == "httpd_url")
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
-			HTTPRequest* http = (HTTPRequest*)&event;
 
 			if ((http->GetURI() == "/config") || (http->GetURI() == "/config/"))
 			{
@@ -96,8 +95,15 @@ class ModuleHttpConfig : public Module
 				response.headers.SetHeader("X-Powered-By", MODNAME);
 				response.headers.SetHeader("Content-Type", "text/html");
 				API->SendResponse(response);
+				return MOD_RES_DENY; // Handled
 			}
 		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnHTTPRequest(HTTPRequest& req) CXX11_OVERRIDE
+	{
+		return HandleRequest(&req);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

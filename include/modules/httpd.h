@@ -108,7 +108,7 @@ class HttpServerSocket;
 
 /** This class represents a HTTP request.
  */
-class HTTPRequest : public Event
+class HTTPRequest
 {
  protected:
 	std::string type;
@@ -137,7 +137,7 @@ class HTTPRequest : public Event
 	 */
 	HTTPRequest(Module* me, const std::string &eventid, const std::string &request_type, const std::string &uri,
 		HTTPHeaders* hdr, HttpServerSocket* socket, const std::string &ip, const std::string &pdata)
-		: Event(me, eventid), type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(socket)
+		: type(request_type), document(uri), ipaddr(ip), postdata(pdata), headers(hdr), sock(socket)
 	{
 	}
 
@@ -248,4 +248,15 @@ class HTTPACLEventListener : public Events::ModuleEventListener
 	}
 
 	virtual ModResult OnHTTPACLCheck(HTTPRequest& req) = 0;
+};
+
+class HTTPRequestEventListener : public Events::ModuleEventListener
+{
+ public:
+	HTTPRequestEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/http-request")
+	{
+	}
+
+	virtual ModResult OnHTTPRequest(HTTPRequest& req) = 0;
 };

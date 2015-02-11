@@ -25,14 +25,15 @@
 #include "modules/httpd.h"
 #include "xline.h"
 
-class ModuleHttpStats : public Module
+class ModuleHttpStats : public Module, public HTTPRequestEventListener
 {
 	static const insp::flat_map<char, char const*>& entities;
 	HTTPdAPI API;
 
  public:
 	ModuleHttpStats()
-		: API(this)
+		: HTTPRequestEventListener(this)
+		, API(this)
 	{
 	}
 
@@ -87,14 +88,12 @@ class ModuleHttpStats : public Module
 		data << "</metadata>";
 	}
 
-	void OnEvent(Event& event) CXX11_OVERRIDE
+	ModResult HandleRequest(HTTPRequest* http)
 	{
 		std::stringstream data("");
 
-		if (event.id == "httpd_url")
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd event");
-			HTTPRequest* http = (HTTPRequest*)&event;
 
 			if ((http->GetURI() == "/stats") || (http->GetURI() == "/stats/"))
 			{
@@ -231,8 +230,15 @@ class ModuleHttpStats : public Module
 				response.headers.SetHeader("X-Powered-By", MODNAME);
 				response.headers.SetHeader("Content-Type", "text/xml");
 				API->SendResponse(response);
+				return MOD_RES_DENY; // Handled
 			}
 		}
+		return MOD_RES_PASSTHRU;
+	}
+
+	ModResult OnHTTPRequest(HTTPRequest& req) CXX11_OVERRIDE
+	{
+		return HandleRequest(&req);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
