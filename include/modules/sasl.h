@@ -19,13 +19,15 @@
 
 #pragma once
 
-class SASLFallback : public Event
+#include "event.h"
+
+class SASLEventListener : public Events::ModuleEventListener
 {
  public:
-	const parameterlist& params;
-	SASLFallback(Module* me, const parameterlist& p)
-		: Event(me, "sasl_fallback"), params(p)
+	SASLEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/sasl")
 	{
-		Send();
 	}
+
+	virtual void OnSASLAuth(const parameterlist& params) = 0;
 };

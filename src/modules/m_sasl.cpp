@@ -28,12 +28,13 @@ enum SaslState { SASL_INIT, SASL_COMM, SASL_DONE };
 enum SaslResult { SASL_OK, SASL_FAIL, SASL_ABORT };
 
 static std::string sasl_target = "*";
+static Events::ModuleEventProvider* saslevprov;
 
 static void SendSASL(const parameterlist& params)
 {
 	if (!ServerInstance->PI->SendEncapsulatedData(sasl_target, "SASL", params))
 	{
-		SASLFallback(NULL, params);
+		FOREACH_MOD_CUSTOM(*saslevprov, SASLEventListener, OnSASLAuth, (params));
 	}
 }
 
@@ -246,6 +247,7 @@ class ModuleSASL : public Module
 	GenericCap cap;
 	CommandAuthenticate auth;
 	CommandSASL sasl;
+	Events::ModuleEventProvider sasleventprov;
 
  public:
 	ModuleSASL()
@@ -253,7 +255,9 @@ class ModuleSASL : public Module
 		, cap(this, "sasl")
 		, auth(this, authExt, cap)
 		, sasl(this, authExt)
+		, sasleventprov(this, "event/sasl")
 	{
+		saslevprov = &sasleventprov;
 	}
 
 	void init() CXX11_OVERRIDE
