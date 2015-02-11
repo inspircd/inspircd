@@ -20,7 +20,9 @@
 
 #pragma once
 
-class CapEvent : public Event
+#include "event.h"
+
+class CapEvent
 {
  public:
 	enum CapEventType
@@ -35,10 +37,10 @@ class CapEvent : public Event
 	std::vector<std::string> wanted;
 	std::vector<std::string> ack;
 	User* user;
-	CapEvent(Module* sender, User* u, CapEventType capevtype) : Event(sender, "cap_request"), type(capevtype), user(u) {}
+	CapEvent(Module* sender, User* u, CapEventType capevtype) : type(capevtype), user(u) {}
 };
 
-class GenericCap
+class GenericCap : public Events::ModuleEventListener
 {
 	bool active;
 
@@ -46,17 +48,15 @@ class GenericCap
 	LocalIntExt ext;
 	const std::string cap;
 	GenericCap(Module* parent, const std::string& Cap)
-		: active(true)
+		: Events::ModuleEventListener(parent, "event/cap")
+		, active(true)
 		, ext("cap_" + Cap, ExtensionItem::EXT_USER, parent)
 		, cap(Cap)
 	{
 	}
 
-	void HandleEvent(Event& ev)
+	void OnCapEvent(CapEvent& ev) CXX11_OVERRIDE
 	{
-		if (ev.id != "cap_request")
-			return;
-
 		if (!active)
 			return;
 

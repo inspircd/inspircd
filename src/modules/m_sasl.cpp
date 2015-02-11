@@ -283,11 +283,6 @@ class ModuleSASL : public Module
 	{
 		return Version("Provides support for IRC Authentication Layer (aka: atheme SASL) via AUTHENTICATE.",VF_VENDOR);
 	}
-
-	void OnEvent(Event &ev) CXX11_OVERRIDE
-	{
-		cap.HandleEvent(ev);
-	}
 };
 
 MODULE_INIT(ModuleSASL)

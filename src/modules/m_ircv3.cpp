@@ -65,13 +65,6 @@ class ModuleIRCv3 : public Module, public AccountEventListener
 		cap_extendedjoin.SetActive(conf->getBool("extendedjoin", true));
 	}
 
-	void OnEvent(Event& ev) CXX11_OVERRIDE
-	{
-		cap_awaynotify.HandleEvent(ev);
-		cap_extendedjoin.HandleEvent(ev);
-		cap_accountnotify.HandleEvent(ev);
-	}
-
 	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
 	{
 		// :nick!user@host ACCOUNT account

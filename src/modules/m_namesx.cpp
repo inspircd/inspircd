@@ -94,11 +94,6 @@ class ModuleNamesX : public Module
 		line.erase(pos, 1);
 		line.insert(pos, prefixes);
 	}
-
-	void OnEvent(Event& ev) CXX11_OVERRIDE
-	{
-		cap.HandleEvent(ev);
-	}
 };
 
 MODULE_INIT(ModuleNamesX)
