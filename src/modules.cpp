@@ -52,13 +52,6 @@ Version::Version(const std::string &desc, int flags, const std::string& linkdata
 {
 }
 
-Event::Event(Module* src, const std::string &eventid) : source(src), id(eventid) { }
-
-void Event::Send()
-{
-	FOREACH_MOD(OnEvent, (*this));
-}
-
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
 Module::Module() { }
@@ -119,7 +112,6 @@ ModResult	Module::OnStats(char, User*, string_list&) { DetachEvent(I_OnStats); r
 ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserHost); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserGECOS); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
-void		Module::OnEvent(Event&) { DetachEvent(I_OnEvent); }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { DetachEvent(I_OnUserMessage); }
