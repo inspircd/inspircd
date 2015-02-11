@@ -40,7 +40,7 @@ class WriteNeighboursWithExt : public User::ForEachNeighborHandler
 	}
 };
 
-class ModuleIRCv3 : public Module
+class ModuleIRCv3 : public Module, public AccountEventListener
 {
 	GenericCap cap_accountnotify;
 	GenericCap cap_awaynotify;
@@ -52,7 +52,9 @@ class ModuleIRCv3 : public Module
 	CUList last_excepts;
 
  public:
-	ModuleIRCv3() : cap_accountnotify(this, "account-notify"),
+	ModuleIRCv3()
+		: AccountEventListener(this)
+		, cap_accountnotify(this, "account-notify"),
 					cap_awaynotify(this, "away-notify"),
 					cap_extendedjoin(this, "extended-join")
 	{
@@ -74,25 +76,21 @@ class ModuleIRCv3 : public Module
 			cap_extendedjoin.HandleEvent(ev);
 
 		if (accountnotify)
-		{
 			cap_accountnotify.HandleEvent(ev);
+	}
 
-			if (ev.id == "account_login")
-			{
-				AccountEvent* ae = static_cast<AccountEvent*>(&ev);
+	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
+	{
+		// :nick!user@host ACCOUNT account
+		// or
+		// :nick!user@host ACCOUNT *
+		std::string line = ":" + user->GetFullHost() + " ACCOUNT ";
+		if (newaccount.empty())
+			line += "*";
+		else
+			line += newaccount;
 
-				// :nick!user@host ACCOUNT account
-				// or
-				// :nick!user@host ACCOUNT *
-				std::string line =  ":" + ae->user->GetFullHost() + " ACCOUNT ";
-				if (ae->account.empty())
-					line += "*";
-				else
-					line += std::string(ae->account);
-
-				WriteNeighboursWithExt(ae->user, line, cap_accountnotify.ext);
-			}
-		}
+		WriteNeighboursWithExt(user, line, cap_accountnotify.ext);
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
