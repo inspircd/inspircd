@@ -79,6 +79,16 @@ class dynamic_reference : public dynamic_reference_base
 	{
 		return operator->();
 	}
+
+	const T* operator->() const
+	{
+		return static_cast<T*>(value);
+	}
+
+	const T* operator*() const
+	{
+		return operator->();
+	}
 };
 
 template<typename T>
@@ -94,6 +104,16 @@ class dynamic_reference_nocheck : public dynamic_reference_base
 	}
 
 	T* operator*()
+	{
+		return operator->();
+	}
+
+	const T* operator->() const
+	{
+		return static_cast<T*>(value);
+	}
+
+	const T* operator*() const
 	{
 		return operator->();
 	}
