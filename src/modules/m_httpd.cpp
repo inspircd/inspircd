@@ -29,7 +29,6 @@
 class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;
-static bool claimed;
 static insp::intrusive_list<HttpServerSocket> sockets;
 static Events::ModuleEventProvider* aclevprov;
 static Events::ModuleEventProvider* reqevprov;
@@ -324,7 +323,6 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		InternalState = HTTP_SERVE_SEND_DATA;
 
-		claimed = false;
 		ModResult MOD_RESULT;
 		HTTPRequest acl(request_type, uri, &headers, this, ip, postdata);
 		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
@@ -366,7 +364,6 @@ class HTTPdAPIImpl : public HTTPdAPIBase
 
 	void SendResponse(HTTPDocumentResponse& resp) CXX11_OVERRIDE
 	{
-		claimed = true;
 		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 };
