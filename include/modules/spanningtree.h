@@ -19,22 +19,23 @@
 
 #pragma once
 
-struct AddServerEvent : public Event
-{
-	const std::string servername;
-	AddServerEvent(Module* me, const std::string& name)
-		: Event(me, "new_server"), servername(name)
-	{
-		Send();
-	}
-};
+#include "event.h"
 
-struct DelServerEvent : public Event
+class SpanningTreeEventListener : public Events::ModuleEventListener
 {
-	const std::string servername;
-	DelServerEvent(Module* me, const std::string& name)
-		: Event(me, "lost_server"), servername(name)
+ public:
+	SpanningTreeEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/spanningtree")
 	{
-		Send();
 	}
+
+	/** Fired when a server finishes burst
+	 * @param server Server that recently linked and finished burst
+	 */
+	virtual void OnServerLink(const std::string& server) { }
+
+	 /** Fired when a server splits
+	  * @param server Server that split
+	  */
+	virtual void OnServerSplit(const std::string& server) { }
 };

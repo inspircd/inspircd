@@ -151,7 +151,7 @@ void TreeServer::FinishBurst()
 	unsigned long bursttime = ts - this->StartBurst;
 	ServerInstance->SNO->WriteToSnoMask(Parent == Utils->TreeRoot ? 'l' : 'L', "Received end of netburst from \2%s\2 (burst time: %lu %s)",
 		GetName().c_str(), (bursttime > 10000 ? bursttime / 1000 : bursttime), (bursttime > 10000 ? "secs" : "msecs"));
-	AddServerEvent(Utils->Creator, GetName());
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerLink, (GetName()));
 
 	StartBurst = 0;
 	FinishBurstInternal();
@@ -159,7 +159,7 @@ void TreeServer::FinishBurst()
 
 void TreeServer::SQuitChild(TreeServer* server, const std::string& reason)
 {
-	DelServerEvent(Utils->Creator, server->GetName());
+	FOREACH_MOD_CUSTOM(Utils->Creator->GetEventProvider(), SpanningTreeEventListener, OnServerSplit, (server->GetName()));
 	stdalgo::erase(Children, server);
 
 	if (IsRoot())

@@ -24,6 +24,7 @@
 #pragma once
 
 #include "inspircd.h"
+#include "event.h"
 #include "modules/dns.h"
 #include "servercommand.h"
 #include "commands.h"
@@ -71,6 +72,10 @@ class ModuleSpanningTree : public Module
 	/** The specialized ProtocolInterface that is assigned to ServerInstance->PI on load
 	 */
 	SpanningTreeProtocolInterface protocolinterface;
+
+	/** Event provider for our events
+	 */
+	Events::ModuleEventProvider eventprov;
 
  public:
 	dynamic_reference<DNS::Manager> DNS;
@@ -134,6 +139,8 @@ class ModuleSpanningTree : public Module
 	/** Display a time as a human readable string
 	 */
 	static std::string TimeToStr(time_t secs);
+
+	const Events::ModuleEventProvider& GetEventProvider() const { return eventprov; }
 
 	/**
 	 ** *** MODULE EVENTS ***
