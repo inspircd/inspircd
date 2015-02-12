@@ -107,13 +107,7 @@ class ModuleHttpStats : public Module
 				data << "<channelcount>" << ServerInstance->GetChans().size() << "</channelcount>";
 				data << "<opercount>" << ServerInstance->Users->all_opers.size() << "</opercount>";
 				data << "<socketcount>" << (SocketEngine::GetUsedFds()) << "</socketcount><socketmax>" << SocketEngine::GetMaxFds() << "</socketmax><socketengine>" INSPIRCD_SOCKETENGINE_NAME "</socketengine>";
-
-				time_t current_time = 0;
-				current_time = ServerInstance->Time();
-				time_t server_uptime = current_time - ServerInstance->startup_time;
-				struct tm* stime;
-				stime = gmtime(&server_uptime);
-				data << "<uptime><days>" << stime->tm_yday << "</days><hours>" << stime->tm_hour << "</hours><mins>" << stime->tm_min << "</mins><secs>" << stime->tm_sec << "</secs><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
+				data << "<uptime><boot_time_t>" << ServerInstance->startup_time << "</boot_time_t></uptime>";
 
 				data << "<isupport>";
 				const std::vector<std::string>& isupport = ServerInstance->ISupport.GetLines();
