@@ -206,34 +206,6 @@ class CoreExport Version
 	virtual ~Version() {}
 };
 
-/** The Event class is a unicast message directed at all modules.
- * When the class is properly instantiated it may be sent to all modules
- * using the Send() method, which will trigger the OnEvent method in
- * all modules passing the object as its parameter.
- */
-class CoreExport Event : public classbase
-{
- public:
-	/** This is a pointer to the sender of the message, which can be used to
-	 * directly trigger events, or to create a reply.
-	 */
-	ModuleRef source;
-	/** The event identifier.
-	 * This is arbitary text which should be used to distinguish
-	 * one type of event from another.
-	 */
-	const std::string id;
-
-	/** Create a new Event
-	 */
-	Event(Module* src, const std::string &eventid);
-	/** Send the Event.
-	 * The return result of an Event::Send() will always be NULL as
-	 * no replies are expected.
-	 */
-	void Send();
-};
-
 class CoreExport DataProvider : public ServiceProvider
 {
  public:
@@ -260,7 +232,7 @@ enum Implementation
 	I_OnUnloadModule, I_OnBackgroundTimer, I_OnPreCommand, I_OnCheckReady, I_OnCheckInvite,
 	I_OnRawMode, I_OnCheckKey, I_OnCheckLimit, I_OnCheckBan, I_OnCheckChannelBan, I_OnExtBanCheck,
 	I_OnStats, I_OnChangeLocalUserHost, I_OnPreTopicChange,
-	I_OnPostTopicChange, I_OnEvent, I_OnPostConnect,
+	I_OnPostTopicChange, I_OnPostConnect,
 	I_OnChangeLocalUserGECOS, I_OnUserRegister, I_OnChannelPreDelete, I_OnChannelDelete,
 	I_OnPostOper, I_OnSyncNetwork, I_OnSetAway, I_OnPostCommand, I_OnPostJoin,
 	I_OnWhoisLine, I_OnBuildNeighborList, I_OnGarbageCollect, I_OnSetConnectClass,
@@ -951,12 +923,6 @@ class CoreExport Module : public classbase, public usecountbase
 	 * @param topic The actual topic text
 	 */
 	virtual void OnPostTopicChange(User* user, Channel* chan, const std::string &topic);
-
-	/** Called whenever an Event class is sent to all modules by another module.
-	 * You should *always* check the value of Event::id to determine the event type.
-	 * @param event The Event class being received
-	 */
-	virtual void OnEvent(Event& event);
 
 	/** Called whenever a password check is to be made. Replaces the old OldOperCompare API.
 	 * The password field (from the config file) is in 'password' and is to be compared against

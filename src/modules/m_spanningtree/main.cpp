@@ -39,6 +39,7 @@ ModuleSpanningTree::ModuleSpanningTree()
 	: rconnect(this), rsquit(this), map(this)
 	, commands(NULL)
 	, currmembid(0)
+	, eventprov(this, "event/spanningtree")
 	, DNS(this, "DNS")
 	, loopCall(false)
 {

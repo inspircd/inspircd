@@ -52,13 +52,6 @@ Version::Version(const std::string &desc, int flags, const std::string& linkdata
 {
 }
 
-Event::Event(Module* src, const std::string &eventid) : source(src), id(eventid) { }
-
-void Event::Send()
-{
-	FOREACH_MOD(OnEvent, (*this));
-}
-
 // These declarations define the behavours of the base class Module (which does nothing at all)
 
 Module::Module() { }
@@ -119,7 +112,6 @@ ModResult	Module::OnStats(char, User*, string_list&) { DetachEvent(I_OnStats); r
 ModResult	Module::OnChangeLocalUserHost(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserHost); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnChangeLocalUserGECOS(LocalUser*, const std::string&) { DetachEvent(I_OnChangeLocalUserGECOS); return MOD_RES_PASSTHRU; }
 ModResult	Module::OnPreTopicChange(User*, Channel*, const std::string&) { DetachEvent(I_OnPreTopicChange); return MOD_RES_PASSTHRU; }
-void		Module::OnEvent(Event&) { DetachEvent(I_OnEvent); }
 ModResult	Module::OnPassCompare(Extensible* ex, const std::string &password, const std::string &input, const std::string& hashtype) { DetachEvent(I_OnPassCompare); return MOD_RES_PASSTHRU; }
 void		Module::OnPostConnect(User*) { DetachEvent(I_OnPostConnect); }
 void		Module::OnUserMessage(User*, void*, int, const std::string&, char, const CUList&, MessageType) { DetachEvent(I_OnUserMessage); }
@@ -655,7 +647,7 @@ ServiceProvider* ModuleManager::FindService(ServiceType type, const std::string&
 }
 
 dynamic_reference_base::dynamic_reference_base(Module* Creator, const std::string& Name)
-	: name(Name), value(NULL), creator(Creator)
+	: name(Name), hook(NULL), value(NULL), creator(Creator)
 {
 	if (!dynrefs)
 		dynrefs = new insp::intrusive_list<dynamic_reference_base>;
@@ -684,9 +676,19 @@ void dynamic_reference_base::SetProvider(const std::string& newname)
 
 void dynamic_reference_base::resolve()
 {
-	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules->DataProviders.find(name);
-	if (i != ServerInstance->Modules->DataProviders.end())
-		value = static_cast<DataProvider*>(i->second);
+	// Because find() may return any element with a matching key in case count(key) > 1 use lower_bound()
+	// to ensure a dynref with the same name as another one resolves to the same object
+	std::multimap<std::string, ServiceProvider*>::iterator i = ServerInstance->Modules.DataProviders.lower_bound(name);
+	if ((i != ServerInstance->Modules.DataProviders.end()) && (i->first == this->name))
+	{
+		ServiceProvider* newvalue = i->second;
+		if (value != newvalue)
+		{
+			value = newvalue;
+			if (hook)
+				hook->OnCapture();
+		}
+	}
 	else
 		value = NULL;
 }

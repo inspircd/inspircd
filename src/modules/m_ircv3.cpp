@@ -40,19 +40,18 @@ class WriteNeighboursWithExt : public User::ForEachNeighborHandler
 	}
 };
 
-class ModuleIRCv3 : public Module
+class ModuleIRCv3 : public Module, public AccountEventListener
 {
 	GenericCap cap_accountnotify;
 	GenericCap cap_awaynotify;
 	GenericCap cap_extendedjoin;
-	bool accountnotify;
-	bool awaynotify;
-	bool extendedjoin;
 
 	CUList last_excepts;
 
  public:
-	ModuleIRCv3() : cap_accountnotify(this, "account-notify"),
+	ModuleIRCv3()
+		: AccountEventListener(this)
+		, cap_accountnotify(this, "account-notify"),
 					cap_awaynotify(this, "away-notify"),
 					cap_extendedjoin(this, "extended-join")
 	{
@@ -61,47 +60,32 @@ class ModuleIRCv3 : public Module
 	void ReadConfig(ConfigStatus& status) CXX11_OVERRIDE
 	{
 		ConfigTag* conf = ServerInstance->Config->ConfValue("ircv3");
-		accountnotify = conf->getBool("accountnotify", true);
-		awaynotify = conf->getBool("awaynotify", true);
-		extendedjoin = conf->getBool("extendedjoin", true);
+		cap_accountnotify.SetActive(conf->getBool("accountnotify", true));
+		cap_awaynotify.SetActive(conf->getBool("awaynotify", true));
+		cap_extendedjoin.SetActive(conf->getBool("extendedjoin", true));
 	}
 
-	void OnEvent(Event& ev) CXX11_OVERRIDE
+	void OnAccountChange(User* user, const std::string& newaccount) CXX11_OVERRIDE
 	{
-		if (awaynotify)
-			cap_awaynotify.HandleEvent(ev);
-		if (extendedjoin)
-			cap_extendedjoin.HandleEvent(ev);
+		// :nick!user@host ACCOUNT account
+		// or
+		// :nick!user@host ACCOUNT *
+		std::string line = ":" + user->GetFullHost() + " ACCOUNT ";
+		if (newaccount.empty())
+			line += "*";
+		else
+			line += newaccount;
 
-		if (accountnotify)
-		{
-			cap_accountnotify.HandleEvent(ev);
-
-			if (ev.id == "account_login")
-			{
-				AccountEvent* ae = static_cast<AccountEvent*>(&ev);
-
-				// :nick!user@host ACCOUNT account
-				// or
-				// :nick!user@host ACCOUNT *
-				std::string line =  ":" + ae->user->GetFullHost() + " ACCOUNT ";
-				if (ae->account.empty())
-					line += "*";
-				else
-					line += std::string(ae->account);
-
-				WriteNeighboursWithExt(ae->user, line, cap_accountnotify.ext);
-			}
-		}
+		WriteNeighboursWithExt(user, line, cap_accountnotify.ext);
 	}
 
 	void OnUserJoin(Membership* memb, bool sync, bool created, CUList& excepts) CXX11_OVERRIDE
 	{
 		// Remember who is not going to see the JOIN because of other modules
-		if ((awaynotify) && (memb->user->IsAway()))
+		if ((cap_awaynotify.IsActive()) && (memb->user->IsAway()))
 			last_excepts = excepts;
 
-		if (!extendedjoin)
+		if (!cap_extendedjoin.IsActive())
 			return;
 
 		/*
@@ -170,7 +154,7 @@ class ModuleIRCv3 : public Module
 
 	ModResult OnSetAway(User* user, const std::string &awaymsg) CXX11_OVERRIDE
 	{
-		if (awaynotify)
+		if (cap_awaynotify.IsActive())
 		{
 			// Going away: n!u@h AWAY :reason
 			// Back from away: n!u@h AWAY
@@ -185,7 +169,7 @@ class ModuleIRCv3 : public Module
 
 	void OnPostJoin(Membership *memb) CXX11_OVERRIDE
 	{
-		if ((!awaynotify) || (!memb->user->IsAway()))
+		if ((!cap_awaynotify.IsActive()) || (!memb->user->IsAway()))
 			return;
 
 		std::string line = ":" + memb->user->GetFullHost() + " AWAY :" + memb->user->awaymsg;

@@ -39,9 +39,12 @@ CAP END
  */
 class CommandCAP : public Command
 {
+	Events::ModuleEventProvider capevprov;
+
  public:
 	LocalIntExt reghold;
 	CommandCAP (Module* mod) : Command(mod, "CAP", 1),
+		capevprov(mod, "event/cap"),
 		reghold("CAP_REGHOLD", ExtensionItem::EXT_USER, mod)
 	{
 		works_before_reg = true;
@@ -70,7 +73,7 @@ class CommandCAP : public Command
 			}
 
 			reghold.set(user, 1);
-			Data.Send();
+			FOREACH_MOD_CUSTOM(capevprov, GenericCap, OnCapEvent, (Data));
 
 			if (Data.ack.size() > 0)
 			{
@@ -93,7 +96,7 @@ class CommandCAP : public Command
 			CapEvent Data(creator, user, subcommand == "LS" ? CapEvent::CAPEVENT_LS : CapEvent::CAPEVENT_LIST);
 
 			reghold.set(user, 1);
-			Data.Send();
+			FOREACH_MOD_CUSTOM(capevprov, GenericCap, OnCapEvent, (Data));
 
 			std::string Result = irc::stringjoiner(Data.wanted);
 			user->WriteCommand("CAP", subcommand + " :" + Result);
@@ -103,7 +106,7 @@ class CommandCAP : public Command
 			CapEvent Data(creator, user, CapEvent::CAPEVENT_CLEAR);
 
 			reghold.set(user, 1);
-			Data.Send();
+			FOREACH_MOD_CUSTOM(capevprov, GenericCap, OnCapEvent, (Data));
 
 			std::string Result = irc::stringjoiner(Data.ack);
 			user->WriteCommand("CAP", "ACK :" + Result);

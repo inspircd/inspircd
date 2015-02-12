@@ -22,16 +22,7 @@
 #include <map>
 #include <string>
 
-class AccountEvent : public Event
-{
- public:
-	User* const user;
-	const std::string account;
-	AccountEvent(Module* me, User* u, const std::string& name)
-		: Event(me, "account_login"), user(u), account(name)
-	{
-	}
-};
+#include "event.h"
 
 typedef StringExtItem AccountExtItem;
 
@@ -39,3 +30,19 @@ inline AccountExtItem* GetAccountExtItem()
 {
 	return static_cast<AccountExtItem*>(ServerInstance->Extensions.GetItem("accountname"));
 }
+
+class AccountEventListener : public Events::ModuleEventListener
+{
+ public:
+	AccountEventListener(Module* mod)
+		: ModuleEventListener(mod, "event/account")
+	{
+	}
+
+	/** Called when a user logs in or logs out
+	 * @param user User logging in or out
+	 * @param newaccount New account name of the user or empty string if the user
+	 * logged out
+	 */
+	virtual void OnAccountChange(User* user, const std::string& newaccount) = 0;
+};

@@ -104,9 +104,12 @@ class AChannel_M : public SimpleChannelModeHandler
 
 class AccountExtItemImpl : public AccountExtItem
 {
+	Events::ModuleEventProvider eventprov;
+
  public:
 	AccountExtItemImpl(Module* mod)
 		: AccountExtItem("accountname", ExtensionItem::EXT_USER, mod)
+		, eventprov(mod, "event/account")
 	{
 	}
 
@@ -123,14 +126,10 @@ class AccountExtItemImpl : public AccountExtItem
 				user->WriteNumeric(900, "%s %s :You are now logged in as %s",
 					user->GetFullHost().c_str(), value.c_str(), value.c_str());
 			}
+		}
+		// If value is empty then logged out
 
-			AccountEvent(creator, user, value).Send();
-		}
-		else
-		{
-			// Logged out
-			AccountEvent(creator, user, "").Send();
-		}
+		FOREACH_MOD_CUSTOM(eventprov, AccountEventListener, OnAccountChange, (user, value));
 	}
 };
 

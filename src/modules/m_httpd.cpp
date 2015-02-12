@@ -29,8 +29,9 @@
 class ModuleHttpServer;
 
 static ModuleHttpServer* HttpModule;
-static bool claimed;
 static insp::intrusive_list<HttpServerSocket> sockets;
+static Events::ModuleEventProvider* aclevprov;
+static Events::ModuleEventProvider* reqevprov;
 
 /** HTTP socket states
  */
@@ -322,14 +323,14 @@ class HttpServerSocket : public BufferedSocket, public Timer, public insp::intru
 	{
 		InternalState = HTTP_SERVE_SEND_DATA;
 
-		claimed = false;
-		HTTPRequest acl((Module*)HttpModule, "httpd_acl", request_type, uri, &headers, this, ip, postdata);
-		acl.Send();
-		if (!claimed)
+		ModResult MOD_RESULT;
+		HTTPRequest acl(request_type, uri, &headers, this, ip, postdata);
+		FIRST_MOD_RESULT_CUSTOM(*aclevprov, HTTPACLEventListener, OnHTTPACLCheck, MOD_RESULT, (acl));
+		if (MOD_RESULT != MOD_RES_DENY)
 		{
-			HTTPRequest url((Module*)HttpModule, "httpd_url", request_type, uri, &headers, this, ip, postdata);
-			url.Send();
-			if (!claimed)
+			HTTPRequest url(request_type, uri, &headers, this, ip, postdata);
+			FIRST_MOD_RESULT_CUSTOM(*reqevprov, HTTPRequestEventListener, OnHTTPRequest, MOD_RESULT, (url));
+			if (MOD_RESULT == MOD_RES_PASSTHRU)
 			{
 				SendHTTPError(404);
 			}
@@ -363,7 +364,6 @@ class HTTPdAPIImpl : public HTTPdAPIBase
 
 	void SendResponse(HTTPDocumentResponse& resp) CXX11_OVERRIDE
 	{
-		claimed = true;
 		resp.src.sock->Page(resp.document, resp.responsecode, &resp.headers);
 	}
 };
@@ -372,11 +372,17 @@ class ModuleHttpServer : public Module
 {
 	HTTPdAPIImpl APIImpl;
 	unsigned int timeoutsec;
+	Events::ModuleEventProvider acleventprov;
+	Events::ModuleEventProvider reqeventprov;
 
  public:
 	ModuleHttpServer()
 		: APIImpl(this)
+		, acleventprov(this, "event/http-acl")
+		, reqeventprov(this, "event/http-request")
 	{
+		aclevprov = &acleventprov;
+		reqevprov = &reqeventprov;
 	}
 
 	void init() CXX11_OVERRIDE

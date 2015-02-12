@@ -102,11 +102,6 @@ class ModuleStartTLS : public Module
 			ssl.SetProvider("ssl/" + newprovider);
 	}
 
-	void OnEvent(Event& ev) CXX11_OVERRIDE
-	{
-		tls.HandleEvent(ev);
-	}
-
 	void On005Numeric(std::map<std::string, std::string>& tokens) CXX11_OVERRIDE
 	{
 		tokens["STARTTLS"];

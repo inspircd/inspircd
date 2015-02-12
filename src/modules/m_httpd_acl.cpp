@@ -36,7 +36,7 @@ class HTTPACL
 		blacklist(set_blacklist) { }
 };
 
-class ModuleHTTPAccessList : public Module
+class ModuleHTTPAccessList : public Module, public HTTPACLEventListener
 {
 	std::string stylesheet;
 	std::vector<HTTPACL> acl_list;
@@ -44,7 +44,8 @@ class ModuleHTTPAccessList : public Module
 
  public:
  	ModuleHTTPAccessList()
-		: API(this)
+		: HTTPACLEventListener(this)
+		, API(this)
 	{
 	}
 
@@ -104,12 +105,10 @@ class ModuleHTTPAccessList : public Module
 		API->SendResponse(response);
 	}
 
-	void OnEvent(Event& event) CXX11_OVERRIDE
+	bool IsAccessAllowed(HTTPRequest* http)
 	{
-		if (event.id == "httpd_acl")
 		{
 			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Handling httpd acl event");
-			HTTPRequest* http = (HTTPRequest*)&event;
 
 			for (std::vector<HTTPACL>::const_iterator this_acl = acl_list.begin(); this_acl != acl_list.end(); ++this_acl)
 			{
@@ -128,7 +127,7 @@ class ModuleHTTPAccessList : public Module
 								ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Denying access to blacklisted resource %s (matched by pattern %s) from ip %s (matched by entry %s)",
 										http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str(), entry.c_str());
 								BlockAccess(http, 403);
-								return;
+								return false;
 							}
 						}
 					}
@@ -150,7 +149,7 @@ class ModuleHTTPAccessList : public Module
 							ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Denying access to whitelisted resource %s (matched by pattern %s) from ip %s (Not in whitelist)",
 									http->GetURI().c_str(), this_acl->path.c_str(), http->GetIP().c_str());
 							BlockAccess(http, 403);
-							return;
+							return false;
 						}
 					}
 					if (!this_acl->password.empty() && !this_acl->username.empty())
@@ -186,7 +185,7 @@ class ModuleHTTPAccessList : public Module
 									if (user == this_acl->username && pass == this_acl->password)
 									{
 										ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "HTTP authorization: password and username match");
-										return;
+										return true;
 									}
 									else
 										/* Invalid password */
@@ -205,13 +204,22 @@ class ModuleHTTPAccessList : public Module
 							/* No password given at all, access denied */
 							BlockAccess(http, 401, "WWW-Authenticate", "Basic realm=\"Restricted Object\"");
 						}
+						return false;
 					}
 
 					/* A path may only match one ACL (the first it finds in the config file) */
-					return;
+					break;
 				}
 			}
 		}
+		return true;
+	}
+
+	ModResult OnHTTPACLCheck(HTTPRequest& req) CXX11_OVERRIDE
+	{
+		if (IsAccessAllowed(&req))
+			return MOD_RES_PASSTHRU;
+		return MOD_RES_DENY;
 	}
 
 	Version GetVersion() CXX11_OVERRIDE

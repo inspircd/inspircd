@@ -24,8 +24,18 @@
 
 class CoreExport dynamic_reference_base : public interfacebase, public insp::intrusive_list_node<dynamic_reference_base>
 {
+ public:
+	class CaptureHook
+	{
+	 public:
+		/** Called when the target of the dynamic_reference has been acquired
+		 */
+		virtual void OnCapture() = 0;
+	};
+
  private:
 	std::string name;
+	CaptureHook* hook;
 	void resolve();
  protected:
 	ServiceProvider* value;
@@ -35,6 +45,12 @@ class CoreExport dynamic_reference_base : public interfacebase, public insp::int
 	~dynamic_reference_base();
 	inline const std::string& GetProvider() { return name; }
 	void SetProvider(const std::string& newname);
+
+	/** Set handler to call when the target object becomes available
+	 * @param h Handler to call
+	 */
+	void SetCaptureHook(CaptureHook* h) { hook = h; }
+
 	void check();
 	operator bool() { return (value != NULL); }
 	static void reset_all();
@@ -63,6 +79,16 @@ class dynamic_reference : public dynamic_reference_base
 	{
 		return operator->();
 	}
+
+	const T* operator->() const
+	{
+		return static_cast<T*>(value);
+	}
+
+	const T* operator*() const
+	{
+		return operator->();
+	}
 };
 
 template<typename T>
@@ -78,6 +104,16 @@ class dynamic_reference_nocheck : public dynamic_reference_base
 	}
 
 	T* operator*()
+	{
+		return operator->();
+	}
+
+	const T* operator->() const
+	{
+		return static_cast<T*>(value);
+	}
+
+	const T* operator*() const
 	{
 		return operator->();
 	}

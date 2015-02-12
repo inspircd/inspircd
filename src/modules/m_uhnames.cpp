@@ -66,11 +66,6 @@ class ModuleUHNames : public Module
 
 		return MOD_RES_PASSTHRU;
 	}
-
-	void OnEvent(Event& ev) CXX11_OVERRIDE
-	{
-		cap.HandleEvent(ev);
-	}
 };
 
 MODULE_INIT(ModuleUHNames)
