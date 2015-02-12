@@ -32,10 +32,10 @@ class SpanningTreeEventListener : public Events::ModuleEventListener
 	/** Fired when a server finishes burst
 	 * @param server Server that recently linked and finished burst
 	 */
-	virtual void OnServerLink(const std::string& server) { }
+	virtual void OnServerLink(const Server* server) { }
 
 	 /** Fired when a server splits
 	  * @param server Server that split
 	  */
-	virtual void OnServerSplit(const std::string& server) { }
+	virtual void OnServerSplit(const Server* server) { }
 };
