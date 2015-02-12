@@ -189,7 +189,7 @@ class ModuleHttpStats : public Module
 					data << "<user>";
 					data << "<nickname>" << u->nick << "</nickname><uuid>" << u->uuid << "</uuid><realhost>"
 						<< u->host << "</realhost><displayhost>" << u->dhost << "</displayhost><gecos>"
-						<< Sanitize(u->fullname) << "</gecos><server>" << u->server << "</server>";
+						<< Sanitize(u->fullname) << "</gecos><server>" << u->server->GetName() << "</server>";
 					if (u->IsAway())
 						data << "<away>" << Sanitize(u->awaymsg) << "</away><awaytime>" << u->awaytime << "</awaytime>";
 					if (u->IsOper())
