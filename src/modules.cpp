@@ -189,19 +189,19 @@ void ModuleManager::Attach(Implementation* i, Module* mod, size_t sz)
 
 void ModuleManager::AttachAll(Module* mod)
 {
-	for (size_t i = I_BEGIN + 1; i != I_END; ++i)
+	for (size_t i = 0; i != I_END; ++i)
 		Attach((Implementation)i, mod);
 }
 
 void ModuleManager::DetachAll(Module* mod)
 {
-	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
+	for (size_t n = 0; n != I_END; ++n)
 		Detach((Implementation)n, mod);
 }
 
 bool ModuleManager::SetPriority(Module* mod, Priority s)
 {
-	for (size_t n = I_BEGIN + 1; n != I_END; ++n)
+	for (size_t n = 0; n != I_END; ++n)
 		SetPriority(mod, (Implementation)n, s);
 
 	return true;
