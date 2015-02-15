@@ -1124,7 +1124,7 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 * SetPriority method for this, where you may specify other modules to
 	 * be prioritized against.
 	 */
-	bool SetPriority(Module* mod, Priority s);
+	void SetPriority(Module* mod, Priority s);
 
 	/** Attach an event to a module.
 	 * You may later detatch the event with ModuleManager::Detach().

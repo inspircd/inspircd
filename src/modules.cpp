@@ -199,12 +199,10 @@ void ModuleManager::DetachAll(Module* mod)
 		Detach((Implementation)n, mod);
 }
 
-bool ModuleManager::SetPriority(Module* mod, Priority s)
+void ModuleManager::SetPriority(Module* mod, Priority s)
 {
 	for (size_t n = 0; n != I_END; ++n)
 		SetPriority(mod, (Implementation)n, s);
-
-	return true;
 }
 
 bool ModuleManager::SetPriority(Module* mod, Implementation i, Priority s, Module* which)
