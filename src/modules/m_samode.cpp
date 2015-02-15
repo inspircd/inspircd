@@ -99,7 +99,7 @@ class ModuleSaMode : public Module
 	void Prioritize()
 	{
 		Module *override = ServerInstance->Modules->Find("m_override.so");
-		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, &override);
+		ServerInstance->Modules->SetPriority(this, I_OnPreMode, PRIORITY_BEFORE, override);
 	}
 };
 

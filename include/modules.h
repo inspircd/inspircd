@@ -1116,12 +1116,6 @@ class CoreExport ModuleManager : public fakederef<ModuleManager>
 	 */
 	bool SetPriority(Module* mod, Implementation i, Priority s, Module* which = NULL);
 
-	/** Backwards compat interface */
-	inline bool SetPriority(Module* mod, Implementation i, Priority s, Module** dptr)
-	{
-		return SetPriority(mod, i, s, *dptr);
-	}
-
 	/** Change the priority of all events in a module.
 	 * @param mod The module to set the priority of
 	 * @param s The priority of all events in the module.
