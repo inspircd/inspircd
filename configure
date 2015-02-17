@@ -660,12 +660,12 @@ dumphash();
 
 if (($config{USE_GNUTLS} eq "y") && ($config{HAS_GNUTLS} ne "y"))
 {
-	print "Sorry, but I couldn't detect GnuTLS. Make sure gnutls-config is in your path.\n";
+	print "Sorry, but I couldn't detect GnuTLS. Make sure pkg-config is in your path.\n";
 	exit(0);
 }
 if (($config{USE_OPENSSL} eq "y") && ($config{HAS_OPENSSL} ne "y"))
 {
-	print "Sorry, but I couldn't detect OpenSSL. Make sure openssl is in your path.\n";
+	print "Sorry, but I couldn't detect OpenSSL. Make sure pkg-config and openssl are in your path.\n";
 	exit(0);
 }
 our $failed = 0;
