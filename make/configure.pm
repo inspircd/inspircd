@@ -96,7 +96,7 @@ sub __get_template_settings($$$) {
 sub __test_compiler($) {
 	my $compiler = shift;
 	return 0 unless run_test("`$compiler`", !system "$compiler -v >/dev/null 2>&1");
-	return 0 unless run_test("`$compiler`", test_file($compiler, 'compiler.cpp'), 'compatible');
+	return 0 unless run_test("`$compiler`", test_file($compiler, 'compiler.cpp', '-fno-rtti'), 'compatible');
 	return 1;
 }
 
