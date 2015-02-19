@@ -24,7 +24,7 @@ BEGIN
             VALUE "InternalName", "InspIRCd"
             VALUE "LegalCopyright", "Copyright (c) 2014 InspIRCd Development Team"
             VALUE "OriginalFilename", "inspircd.exe"
-            VALUE "ProductName", "InspIRCd - The Inspire IRC Daemon"
+            VALUE "ProductName", "InspIRCd - Internet Relay Chat Daemon"
             VALUE "ProductVersion", "@FULL_VERSION@"
         END
     END

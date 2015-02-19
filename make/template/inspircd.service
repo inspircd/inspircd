@@ -20,7 +20,7 @@
 
 [Unit]
 After=network.target
-Description=Inspire Internet Relay Chat Daemon
+Description=InspIRCd - Internet Relay Chat Daemon
 Requires=network.target
 
 [Service]
