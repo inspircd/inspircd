@@ -93,6 +93,13 @@ sub __get_template_settings($$$) {
 	return %settings;
 }
 
+sub __test_compiler($) {
+	my $compiler = shift;
+	return 0 unless run_test("`$compiler`", !system "$compiler -v >/dev/null 2>&1");
+	return 0 unless run_test("`$compiler`", test_file($compiler, 'compiler.cpp', '-fno-rtti'), 'compatible');
+	return 1;
+}
+
 sub cmd_clean {
 	unlink CONFIGURE_CACHE_FILE;
 }
@@ -177,9 +184,10 @@ sub cmd_update {
 	exit 0;
 }
 
-sub run_test($$) {
-	my ($what, $result) = @_;
-	print_format "Checking whether <|GREEN $what|> is available ... ";
+sub run_test($$;$) {
+	my ($what, $result, $adjective) = @_;
+	$adjective ||= 'available';
+	print_format "Checking whether <|GREEN $what|> is $adjective ... ";
 	print_format $result ? "<|GREEN yes|>\n" : "<|RED no|>\n";
 	return $result;
 }
@@ -244,10 +252,8 @@ sub get_compiler_info($) {
 sub find_compiler {
 	my @compilers = qw(c++ g++ clang++ icpc);
 	foreach my $compiler (shift || @compilers) {
-		return $compiler if run_test "`$compiler`", test_file $compiler, 'compiler.cpp';
-		if ($^O eq 'darwin') {
-			return $compiler if run_test "`xcrun $compiler`", test_file "xcrun $compiler", 'compiler.cpp';
-		}
+		return $compiler if __test_compiler $compiler;
+		return "xcrun $compiler" if $^O eq 'darwin' && __test_compiler "xcrun $compiler";
 	}
 }
 

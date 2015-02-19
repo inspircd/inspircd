@@ -18,9 +18,15 @@
 
 #include <iostream>
 #if defined _LIBCPP_VERSION
+# include <type_traits>
 # include <unordered_map>
 #else
+# include <tr1/type_traits>
 # include <tr1/unordered_map>
+#endif
+
+#if defined __APPLE__ && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ == 1
+# error "LLVM-GCC 4.2.1 has broken visibility support."
 #endif
 
 int main() {
