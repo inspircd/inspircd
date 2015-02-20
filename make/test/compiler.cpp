@@ -25,7 +25,7 @@
 # include <tr1/unordered_map>
 #endif
 
-#if defined __APPLE__ && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ == 1
+#if defined __llvm__ && !defined __clang__ && __GNUC__ == 4 && __GNUC_MINOR__ == 2 && __GNUC_PATCHLEVEL__ == 1
 # error "LLVM-GCC 4.2.1 has broken visibility support."
 #endif
 
