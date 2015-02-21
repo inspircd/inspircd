@@ -34,21 +34,63 @@ class AuthQuery : public SQL::Query
 	const std::string uid;
 	LocalIntExt& pendingExt;
 	bool verbose;
-	AuthQuery(Module* me, const std::string& u, LocalIntExt& e, bool v)
+	const std::string& kdf;
+	const std::string& pwcolumn;
+
+	AuthQuery(Module* me, const std::string& u, LocalIntExt& e, bool v, const std::string& kd, const std::string& pwcol)
 		: SQL::Query(me)
 		, uid(u)
 		, pendingExt(e)
 		, verbose(v)
+		, kdf(kd)
+		, pwcolumn(pwcol)
 	{
 	}
 
 	void OnResult(SQL::Result& res) CXX11_OVERRIDE
 	{
-		User* user = ServerInstance->FindNick(uid);
+		LocalUser* user = static_cast<LocalUser*>(ServerInstance->FindUUID(uid));
 		if (!user)
 			return;
+
 		if (res.Rows())
 		{
+			if (!kdf.empty())
+			{
+				HashProvider* hashprov = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + kdf);
+				if (!hashprov)
+				{
+					if (verbose)
+						ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (a provider for %s was not loaded)", user->GetFullRealHost().c_str(), kdf.c_str());
+					pendingExt.set(user, AUTH_STATE_FAIL);
+					return;
+				}
+
+				size_t colindex = 0;
+				if (!pwcolumn.empty() && !res.HasColumn(pwcolumn, colindex))
+				{
+					if (verbose)
+						ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (the column specified (%s) was not returned)", user->GetFullRealHost().c_str(), pwcolumn.c_str());
+					pendingExt.set(user, AUTH_STATE_FAIL);
+					return;
+				}
+
+				SQL::Row row;
+				while (res.GetRow(row))
+				{
+					if (hashprov->Compare(user->password, row[colindex]))
+					{
+						pendingExt.set(user, AUTH_STATE_NONE);
+						return;
+					}
+				}
+
+				if (verbose)
+					ServerInstance->SNO->WriteGlobalSno('a', "Forbidden connection from %s (Password from the SQL query did not match the user provided password)", user->GetFullRealHost().c_str());
+				pendingExt.set(user, AUTH_STATE_FAIL);
+				return;
+			}
+
 			pendingExt.set(user, AUTH_STATE_NONE);
 		}
 		else
@@ -79,6 +121,9 @@ class ModuleSQLAuth : public Module
 	std::string killreason;
 	std::string allowpattern;
 	bool verbose;
+	std::vector<std::string> hash_algos;
+	std::string kdf;
+	std::string pwcolumn;
 
  public:
 	ModuleSQLAuth()
@@ -99,6 +144,14 @@ class ModuleSQLAuth : public Module
 		killreason = conf->getString("killreason");
 		allowpattern = conf->getString("allowpattern");
 		verbose = conf->getBool("verbose");
+		kdf = conf->getString("kdf");
+		pwcolumn = conf->getString("column");
+
+		hash_algos.clear();
+		irc::commasepstream algos(conf->getString("hash", "md5,sha256"));
+		std::string algo;
+		while (algos.GetToken(algo))
+			hash_algos.push_back(algo);
 	}
 
 	ModResult OnUserRegister(LocalUser* user) CXX11_OVERRIDE
@@ -127,18 +180,17 @@ class ModuleSQLAuth : public Module
 		SQL::PopulateUserInfo(user, userinfo);
 		userinfo["pass"] = user->password;
 
-		HashProvider* md5 = ServerInstance->Modules->FindDataService<HashProvider>("hash/md5");
-		if (md5)
-			userinfo["md5pass"] = md5->Generate(user->password);
-
-		HashProvider* sha256 = ServerInstance->Modules->FindDataService<HashProvider>("hash/sha256");
-		if (sha256)
-			userinfo["sha256pass"] = sha256->Generate(user->password);
+		for (std::vector<std::string>::const_iterator it = hash_algos.begin(); it != hash_algos.end(); ++it)
+		{
+			HashProvider* hashprov = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + *it);
+			if (hashprov && !hashprov->IsKDF())
+				userinfo[*it + "pass"] = hashprov->Generate(user->password);
+		}
 
 		const std::string certfp = SSLClientCert::GetFingerprint(&user->eh);
 		userinfo["certfp"] = certfp;
 
-		SQL->Submit(new AuthQuery(this, user->uuid, pendingExt, verbose), freeformquery, userinfo);
+		SQL->Submit(new AuthQuery(this, user->uuid, pendingExt, verbose, kdf, pwcolumn), freeformquery, userinfo);
 
 		return MOD_RES_PASSTHRU;
 	}
