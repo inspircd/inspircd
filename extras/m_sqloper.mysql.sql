@@ -15,7 +15,7 @@ CREATE TABLE ircd_opers (
   hostname text,
   type text,
   PRIMARY KEY  (id)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 --
 -- Dumping data for table `ircd_opers`
