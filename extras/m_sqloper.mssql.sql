@@ -4,5 +4,6 @@ CREATE TABLE [dbo].[ircd_opers] (
   [password] varchar(255) NULL,
   [hostname] varchar(255) NULL,
   [type] varchar(255) NULL,
+  [active] bit NOT NULL DEFAULT 1,
   PRIMARY KEY CLUSTERED ([id])
 )
