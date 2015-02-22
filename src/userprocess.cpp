@@ -104,10 +104,15 @@ void InspIRCd::DoBackgroundUserStuff()
 					curr->FullConnect();
 					continue;
 				}
+
+				// If the user has been quit in OnCheckReady then we shouldn't
+				// quit them again for having a registration timeout.
+				if (curr->quitting)
+					continue;
 				break;
 		}
 
-		if (curr->registered != REG_ALL && (Time() > (curr->signon + curr->MyClass->GetRegTimeout())))
+		if (curr->registered != REG_ALL && curr->MyClass && (Time() > (curr->signon + curr->MyClass->GetRegTimeout())))
 		{
 			/*
 			 * registration timeout -- didnt send USER/NICK/HOST
