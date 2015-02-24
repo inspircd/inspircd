@@ -80,13 +80,13 @@ sub prompt_bool($$$) {
 	return $answer =~ /y/i;
 }
 
-sub prompt_dir($$$) {
-	my ($interactive, $question, $default) = @_;
+sub prompt_dir($$$;$) {
+	my ($interactive, $question, $default, $create_now) = @_;
 	my ($answer, $create);
 	do {
 		$answer = rel2abs(prompt_string($interactive, $question, $default));
 		$create = prompt_bool($interactive && !-d $answer, "$answer does not exist. Create it?", 'y');
-		if ($create) {
+		if ($create && $create_now) {
 			my $mkpath = eval {
 				mkpath($answer, 0, 0750);
 				return 1;
