@@ -1,8 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013-2014 Adam <Adam@anope.org>
- *   Copyright (C) 2003-2014 Anope Team <team@anope.org>
+ *   Copyright (C) 2013-2015 Adam <Adam@anope.org>
+ *   Copyright (C) 2003-2015 Anope Team <team@anope.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -29,6 +29,140 @@
 
 /* $LinkerFlags: -lldap_r */
 
+class LDAPService;
+
+class LDAPRequest
+{
+ public:
+	LDAPService* service;
+	LDAPInterface* inter;
+	LDAPMessage* message; /* message returned by ldap_ */
+	LDAPResult* result; /* final result */
+	struct timeval tv;
+	QueryType type;
+
+	LDAPRequest(LDAPService* s, LDAPInterface* i)
+		: service(s)
+		, inter(i)
+		, message(NULL)
+		, result(NULL)
+	{
+		type = QUERY_UNKNOWN;
+		tv.tv_sec = 0;
+		tv.tv_usec = 100000;
+	}
+
+	virtual ~LDAPRequest()
+	{
+		delete result;
+		if (message != NULL)
+			ldap_msgfree(message);
+	}
+
+	virtual int run() = 0;
+};
+
+class LDAPBind : public LDAPRequest
+{
+	std::string who, pass;
+
+ public:
+	LDAPBind(LDAPService* s, LDAPInterface* i, const std::string& w, const std::string& p)
+		: LDAPRequest(s, i)
+		, who(w)
+		, pass(p)
+	{
+		type = QUERY_BIND;
+	}
+
+	int run() CXX11_OVERRIDE;
+};
+
+class LDAPSearch : public LDAPRequest
+{
+	std::string base;
+	int searchscope;
+	std::string filter;
+
+ public:
+	LDAPSearch(LDAPService* s, LDAPInterface* i, const std::string& b, int se, const std::string& f)
+		: LDAPRequest(s, i)
+		, base(b)
+		, searchscope(se)
+		, filter(f)
+	{
+		type = QUERY_SEARCH;
+	}
+
+	int run() CXX11_OVERRIDE;
+};
+
+class LDAPAdd : public LDAPRequest
+{
+	std::string dn;
+	LDAPMods attributes;
+
+ public:
+	LDAPAdd(LDAPService* s, LDAPInterface* i, const std::string& d, const LDAPMods& attr)
+		: LDAPRequest(s, i)
+		, dn(d)
+		, attributes(attr)
+	{
+		type = QUERY_ADD;
+	}
+
+	int run() CXX11_OVERRIDE;
+};
+
+class LDAPDel : public LDAPRequest
+{
+	std::string dn;
+
+ public:
+	LDAPDel(LDAPService* s, LDAPInterface* i, const std::string& d)
+		: LDAPRequest(s, i)
+		, dn(d)
+	{
+		type = QUERY_DELETE;
+	}
+
+	int run() CXX11_OVERRIDE;
+};
+
+class LDAPModify : public LDAPRequest
+{
+	std::string base;
+	LDAPMods attributes;
+
+ public:
+	LDAPModify(LDAPService* s, LDAPInterface* i, const std::string& b, const LDAPMods& attr)
+		: LDAPRequest(s, i)
+		, base(b)
+		, attributes(attr)
+	{
+		type = QUERY_MODIFY;
+	}
+
+	int run() CXX11_OVERRIDE;
+};
+
+class LDAPCompare : public LDAPRequest
+{
+	std::string dn, attr, val;
+
+ public:
+	LDAPCompare(LDAPService* s, LDAPInterface* i, const std::string& d, const std::string& a, const std::string& v)
+		: LDAPRequest(s, i)
+		, dn(d)
+		, attr(a)
+		, val(v)
+	{
+		type = QUERY_COMPARE;
+	}
+
+	int run() CXX11_OVERRIDE;
+};
+
 class LDAPService : public LDAPProvider, public SocketThread
 {
 	LDAP* con;
@@ -38,7 +172,8 @@ class LDAPService : public LDAPProvider, public SocketThread
 	time_t timeout;
 	time_t last_timeout_check;
 
-	LDAPMod** BuildMods(const LDAPMods& attributes)
+ public:
+	static LDAPMod** BuildMods(const LDAPMods& attributes)
 	{
 		LDAPMod** mods = new LDAPMod*[attributes.size() + 1];
 		memset(mods, 0, sizeof(LDAPMod*) * (attributes.size() + 1));
@@ -69,7 +204,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		return mods;
 	}
 
-	void FreeMods(LDAPMod** mods)
+	static void FreeMods(LDAPMod** mods)
 	{
 		for (unsigned int i = 0; mods[i] != NULL; ++i)
 		{
@@ -86,6 +221,7 @@ class LDAPService : public LDAPProvider, public SocketThread
 		delete[] mods;
 	}
 
+ private:
 	void Reconnect()
 	{
 		// Only try one connect a minute. It is an expensive blocking operation
@@ -97,48 +233,17 @@ class LDAPService : public LDAPProvider, public SocketThread
 		Connect();
 	}
 
-	void SaveInterface(LDAPInterface* i, LDAPQuery msgid)
+	void QueueRequest(LDAPRequest* r)
 	{
-		if (i != NULL)
-		{
-			this->LockQueue();
-			this->queries[msgid] = std::make_pair(ServerInstance->Time(), i);
-			this->UnlockQueueWakeup();
-		}
-	}
-
-	void Timeout()
-	{
-		if (last_timeout_check == ServerInstance->Time())
-			return;
-		last_timeout_check = ServerInstance->Time();
-
-		for (query_queue::iterator it = this->queries.begin(); it != this->queries.end(); )
-		{
-			LDAPQuery msgid = it->first;
-			time_t created = it->second.first;
-			LDAPInterface* i = it->second.second;
-			++it;
-
-			if (ServerInstance->Time() > created + timeout)
-			{
-				LDAPResult* ldap_result = new LDAPResult();
-				ldap_result->id = msgid;
-				ldap_result->error = "Query timed out";
-
-				this->queries.erase(msgid);
-				this->results.push_back(std::make_pair(i, ldap_result));
-
-				this->NotifyParent();
-			}
-		}
+		this->LockQueue();
+		this->queries.push_back(r);
+		this->UnlockQueueWakeup();
 	}
 
  public:
-	typedef std::map<LDAPQuery, std::pair<time_t, LDAPInterface*> > query_queue;
-	typedef std::vector<std::pair<LDAPInterface*, LDAPResult*> > result_queue;
-	query_queue queries;
-	result_queue results;
+	typedef std::vector<LDAPRequest*> query_queue;
+	query_queue queries, results;
+	Mutex process_mutex; /* held when processing requests not in either queue */
 
 	LDAPService(Module* c, ConfigTag* tag)
 		: LDAPProvider(c, "LDAP/" + tag->getString("id"))
@@ -160,30 +265,29 @@ class LDAPService : public LDAPProvider, public SocketThread
 	{
 		this->LockQueue();
 
-		for (query_queue::iterator i = this->queries.begin(); i != this->queries.end(); ++i)
+		for (unsigned int i = 0; i < this->queries.size(); ++i)
 		{
-			LDAPQuery msgid = i->first;
-			LDAPInterface* inter = i->second.second;
+			LDAPRequest* req = this->queries[i];
 
-			ldap_abandon_ext(this->con, msgid, NULL, NULL);
+			/* queries have no results yet */
+			req->result = new LDAPResult();
+			req->result->type = req->type;
+			req->result->error = "LDAP Interface is going away";
+			req->inter->OnError(*req->result);
 
-			if (inter)
-			{
-				LDAPResult r;
-				r.error = "LDAP Interface is going away";
-				inter->OnError(r);
-			}
+			delete req;
 		}
 		this->queries.clear();
 
-		for (result_queue::iterator i = this->results.begin(); i != this->results.end(); ++i)
+		for (unsigned int i = 0; i < this->results.size(); ++i)
 		{
-			LDAPInterface* inter = i->first;
-			LDAPResult* r = i->second;
+			LDAPRequest* req = this->results[i];
 
-			r->error = "LDAP Interface is going away";
-			if (inter)
-				inter->OnError(*r);
+			/* even though this may have already finished successfully we return that it didn't */
+			req->result->error = "LDAP Interface is going away";
+			req->inter->OnError(*req->result);
+
+			delete req;
 		}
 		this->results.clear();
 
@@ -218,315 +322,191 @@ class LDAPService : public LDAPProvider, public SocketThread
 		}
 	}
 
-	LDAPQuery BindAsManager(LDAPInterface* i) CXX11_OVERRIDE
+	void BindAsManager(LDAPInterface* i) CXX11_OVERRIDE
 	{
 		std::string binddn = config->getString("binddn");
 		std::string bindauth = config->getString("bindauth");
-		return this->Bind(i, binddn, bindauth);
+		this->Bind(i, binddn, bindauth);
 	}
 
-	LDAPQuery Bind(LDAPInterface* i, const std::string& who, const std::string& pass) CXX11_OVERRIDE
+	void Bind(LDAPInterface* i, const std::string& who, const std::string& pass) CXX11_OVERRIDE
 	{
-		berval cred;
-		cred.bv_val = strdup(pass.c_str());
-		cred.bv_len = pass.length();
-
-		LDAPQuery msgid;
-		int ret = ldap_sasl_bind(con, who.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, &msgid);
-		free(cred.bv_val);
-		if (ret != LDAP_SUCCESS)
-		{
-			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
-			{
-				this->Reconnect();
-				return this->Bind(i, who, pass);
-			}
-			else
-				throw LDAPException(ldap_err2string(ret));
-		}
-
-		SaveInterface(i, msgid);
-		return msgid;
+		LDAPBind* b = new LDAPBind(this, i, who, pass);
+		QueueRequest(b);
 	}
 
-	LDAPQuery Search(LDAPInterface* i, const std::string& base, const std::string& filter) CXX11_OVERRIDE
+	void Search(LDAPInterface* i, const std::string& base, const std::string& filter) CXX11_OVERRIDE
 	{
 		if (i == NULL)
 			throw LDAPException("No interface");
 
-		LDAPQuery msgid;
-		int ret = ldap_search_ext(this->con, base.c_str(), searchscope, filter.c_str(), NULL, 0, NULL, NULL, NULL, 0, &msgid);
-		if (ret != LDAP_SUCCESS)
-		{
-			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
-			{
-				this->Reconnect();
-				return this->Search(i, base, filter);
-			}
-			else
-				throw LDAPException(ldap_err2string(ret));
-		}
-
-		SaveInterface(i, msgid);
-		return msgid;
+		LDAPSearch* s = new LDAPSearch(this, i, base, searchscope, filter);
+		QueueRequest(s);
 	}
 
-	LDAPQuery Add(LDAPInterface* i, const std::string& dn, LDAPMods& attributes) CXX11_OVERRIDE
+	void Add(LDAPInterface* i, const std::string& dn, LDAPMods& attributes) CXX11_OVERRIDE
 	{
-		LDAPMod** mods = this->BuildMods(attributes);
-		LDAPQuery msgid;
-		int ret = ldap_add_ext(this->con, dn.c_str(), mods, NULL, NULL, &msgid);
-		this->FreeMods(mods);
-
-		if (ret != LDAP_SUCCESS)
-		{
-			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
-			{
-				this->Reconnect();
-				return this->Add(i, dn, attributes);
-			}
-			else
-				throw LDAPException(ldap_err2string(ret));
-		}
-
-		SaveInterface(i, msgid);
-		return msgid;
+		LDAPAdd* add = new LDAPAdd(this, i, dn, attributes);
+		QueueRequest(add);
 	}
 
-	LDAPQuery Del(LDAPInterface* i, const std::string& dn) CXX11_OVERRIDE
+	void Del(LDAPInterface* i, const std::string& dn) CXX11_OVERRIDE
 	{
-		LDAPQuery msgid;
-		int ret = ldap_delete_ext(this->con, dn.c_str(), NULL, NULL, &msgid);
-
-		if (ret != LDAP_SUCCESS)
-		{
-			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
-			{
-				this->Reconnect();
-				return this->Del(i, dn);
-			}
-			else
-				throw LDAPException(ldap_err2string(ret));
-		}
-
-		SaveInterface(i, msgid);
-		return msgid;
+		LDAPDel* del = new LDAPDel(this, i, dn);
+		QueueRequest(del);
 	}
 
-	LDAPQuery Modify(LDAPInterface* i, const std::string& base, LDAPMods& attributes) CXX11_OVERRIDE
+	void Modify(LDAPInterface* i, const std::string& base, LDAPMods& attributes) CXX11_OVERRIDE
 	{
-		LDAPMod** mods = this->BuildMods(attributes);
-		LDAPQuery msgid;
-		int ret = ldap_modify_ext(this->con, base.c_str(), mods, NULL, NULL, &msgid);
-		this->FreeMods(mods);
-
-		if (ret != LDAP_SUCCESS)
-		{
-			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
-			{
-				this->Reconnect();
-				return this->Modify(i, base, attributes);
-			}
-			else
-				throw LDAPException(ldap_err2string(ret));
-		}
-
-		SaveInterface(i, msgid);
-		return msgid;
+		LDAPModify* mod = new LDAPModify(this, i, base, attributes);
+		QueueRequest(mod);
 	}
 
-	LDAPQuery Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) CXX11_OVERRIDE
+	void Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) CXX11_OVERRIDE
 	{
-		berval cred;
-		cred.bv_val = strdup(val.c_str());
-		cred.bv_len = val.length();
-
-		LDAPQuery msgid;
-		int ret = ldap_compare_ext(con, dn.c_str(), attr.c_str(), &cred, NULL, NULL, &msgid);
-		free(cred.bv_val);
-
-		if (ret != LDAP_SUCCESS)
-		{
-			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
-			{
-				this->Reconnect();
-				return this->Compare(i, dn, attr, val);
-			}
-			else
-				throw LDAPException(ldap_err2string(ret));
-		}
-
-		SaveInterface(i, msgid);
-		return msgid;
+		LDAPCompare* comp = new LDAPCompare(this, i, dn, attr, val);
+		QueueRequest(comp);
 	}
 
+ private:
+	void BuildReply(int res, LDAPRequest* req)
+	{
+		LDAPResult* ldap_result = req->result = new LDAPResult();
+		req->result->type = req->type;
+
+		if (res != LDAP_SUCCESS)
+		{
+			ldap_result->error = ldap_err2string(res);
+			return;
+		}
+
+		if (req->message == NULL)
+		{
+			return;
+		}
+
+		/* a search result */
+
+		for (LDAPMessage* cur = ldap_first_message(this->con, req->message); cur; cur = ldap_next_message(this->con, cur))
+		{
+			LDAPAttributes attributes;
+
+			char* dn = ldap_get_dn(this->con, cur);
+			if (dn != NULL)
+			{
+				attributes["dn"].push_back(dn);
+				ldap_memfree(dn);
+				dn = NULL;
+			}
+
+			BerElement* ber = NULL;
+
+			for (char* attr = ldap_first_attribute(this->con, cur, &ber); attr; attr = ldap_next_attribute(this->con, cur, ber))
+			{
+				berval** vals = ldap_get_values_len(this->con, cur, attr);
+				int count = ldap_count_values_len(vals);
+
+				std::vector<std::string> attrs;
+				for (int j = 0; j < count; ++j)
+					attrs.push_back(vals[j]->bv_val);
+				attributes[attr] = attrs;
+
+				ldap_value_free_len(vals);
+				ldap_memfree(attr);
+			}
+			if (ber != NULL)
+				ber_free(ber, 0);
+
+			ldap_result->messages.push_back(attributes);
+		}
+	}
+
+	void SendRequests()
+	{
+		process_mutex.Lock();
+
+		query_queue q;
+		this->LockQueue();
+		queries.swap(q);
+		this->UnlockQueue();
+
+		if (q.empty())
+		{
+			process_mutex.Unlock();
+			return;
+		}
+
+		for (unsigned int i = 0; i < q.size(); ++i)
+		{
+			LDAPRequest* req = q[i];
+			int ret = req->run();
+
+			if (ret == LDAP_SERVER_DOWN || ret == LDAP_TIMEOUT)
+			{
+				/* try again */
+				try
+				{
+					Reconnect();
+				}
+				catch (const LDAPException &)
+				{
+				}
+
+				ret = req->run();
+			}
+
+			BuildReply(ret, req);
+
+			this->LockQueue();
+			this->results.push_back(req);
+			this->UnlockQueue();
+		}
+
+		this->NotifyParent();
+
+		process_mutex.Unlock();
+	}
+
+ public:
 	void Run() CXX11_OVERRIDE
 	{
 		while (!this->GetExitFlag())
 		{
 			this->LockQueue();
 			if (this->queries.empty())
-			{
 				this->WaitForQueue();
-				this->UnlockQueue();
-				continue;
-			}
-			this->Timeout();
 			this->UnlockQueue();
 
-			struct timeval tv = { 1, 0 };
-			LDAPMessage* result;
-			int rtype = ldap_result(this->con, LDAP_RES_ANY, 1, &tv, &result);
-			if (rtype <= 0 || this->GetExitFlag())
-				continue;
-
-			int cur_id = ldap_msgid(result);
-
-			this->LockQueue();
-
-			query_queue::iterator it = this->queries.find(cur_id);
-			if (it == this->queries.end())
-			{
-				this->UnlockQueue();
-				ldap_msgfree(result);
-				continue;
-			}
-			LDAPInterface* i = it->second.second;
-			this->queries.erase(it);
-
-			this->UnlockQueue();
-
-			LDAPResult* ldap_result = new LDAPResult();
-			ldap_result->id = cur_id;
-
-			for (LDAPMessage* cur = ldap_first_message(this->con, result); cur; cur = ldap_next_message(this->con, cur))
-			{
-				int cur_type = ldap_msgtype(cur);
-
-				LDAPAttributes attributes;
-
-				{
-					char* dn = ldap_get_dn(this->con, cur);
-					if (dn != NULL)
-					{
-						attributes["dn"].push_back(dn);
-						ldap_memfree(dn);
-					}
-				}
-
-				switch (cur_type)
-				{
-					case LDAP_RES_BIND:
-						ldap_result->type = LDAPResult::QUERY_BIND;
-						break;
-					case LDAP_RES_SEARCH_ENTRY:
-						ldap_result->type = LDAPResult::QUERY_SEARCH;
-						break;
-					case LDAP_RES_ADD:
-						ldap_result->type = LDAPResult::QUERY_ADD;
-						break;
-					case LDAP_RES_DELETE:
-						ldap_result->type = LDAPResult::QUERY_DELETE;
-						break;
-					case LDAP_RES_MODIFY:
-						ldap_result->type = LDAPResult::QUERY_MODIFY;
-						break;
-					case LDAP_RES_SEARCH_RESULT:
-						// If we get here and ldap_result->type is LDAPResult::QUERY_UNKNOWN
-						// then the result set is empty
-						ldap_result->type = LDAPResult::QUERY_SEARCH;
-						break;
-					case LDAP_RES_COMPARE:
-						ldap_result->type = LDAPResult::QUERY_COMPARE;
-						break;
-					default:
-						continue;
-				}
-
-				switch (cur_type)
-				{
-					case LDAP_RES_SEARCH_ENTRY:
-					{
-						BerElement* ber = NULL;
-						for (char* attr = ldap_first_attribute(this->con, cur, &ber); attr; attr = ldap_next_attribute(this->con, cur, ber))
-						{
-							berval** vals = ldap_get_values_len(this->con, cur, attr);
-							int count = ldap_count_values_len(vals);
-
-							std::vector<std::string> attrs;
-							for (int j = 0; j < count; ++j)
-								attrs.push_back(vals[j]->bv_val);
-							attributes[attr] = attrs;
-
-							ldap_value_free_len(vals);
-							ldap_memfree(attr);
-						}
-						if (ber != NULL)
-							ber_free(ber, 0);
-
-						break;
-					}
-					case LDAP_RES_BIND:
-					case LDAP_RES_ADD:
-					case LDAP_RES_DELETE:
-					case LDAP_RES_MODIFY:
-					case LDAP_RES_COMPARE:
-					{
-						int errcode = -1;
-						int parse_result = ldap_parse_result(this->con, cur, &errcode, NULL, NULL, NULL, NULL, 0);
-						if (parse_result != LDAP_SUCCESS)
-						{
-							ldap_result->error = ldap_err2string(parse_result);
-						}
-						else
-						{
-							if (cur_type == LDAP_RES_COMPARE)
-							{
-								if (errcode != LDAP_COMPARE_TRUE)
-									ldap_result->error = ldap_err2string(errcode);
-							}
-							else if (errcode != LDAP_SUCCESS)
-								ldap_result->error = ldap_err2string(errcode);
-						}
-						break;
-					}
-					default:
-						continue;
-				}
-
-				ldap_result->messages.push_back(attributes);
-			}
-
-			ldap_msgfree(result);
-
-			this->LockQueue();
-			this->results.push_back(std::make_pair(i, ldap_result));
-			this->UnlockQueueWakeup();
-
-			this->NotifyParent();
+			SendRequests();
 		}
 	}
 
 	void OnNotify() CXX11_OVERRIDE
 	{
-		LDAPService::result_queue r;
+		query_queue r;
 
 		this->LockQueue();
 		this->results.swap(r);
 		this->UnlockQueue();
 
-		for (LDAPService::result_queue::iterator i = r.begin(); i != r.end(); ++i)
+		for (unsigned int i = 0; i < r.size(); ++i)
 		{
-			LDAPInterface* li = i->first;
-			LDAPResult* res = i->second;
+			LDAPRequest* req = r[i];
+			LDAPInterface* li = req->inter;
+			LDAPResult* res = req->result;
 
 			if (!res->error.empty())
 				li->OnError(*res);
 			else
 				li->OnResult(*res);
 
-			delete res;
+			delete req;
 		}
+	}
+
+	LDAP* GetConnection()
+	{
+		return con;
 	}
 };
 
@@ -583,28 +563,36 @@ class ModuleLDAP : public Module
 		for (ServiceMap::iterator it = this->LDAPServices.begin(); it != this->LDAPServices.end(); ++it)
 		{
 			LDAPService* s = it->second;
-			s->LockQueue();
-			for (LDAPService::query_queue::iterator it2 = s->queries.begin(); it2 != s->queries.end();)
-			{
-				int msgid = it2->first;
-				LDAPInterface* i = it2->second.second;
-				++it2;
 
-				if (i->creator == m)
-					s->queries.erase(msgid);
+			s->process_mutex.Lock();
+			s->LockQueue();
+
+			for (unsigned int i = s->queries.size(); i > 0; --i)
+			{
+				LDAPRequest* req = s->queries[i - 1];
+				LDAPInterface* li = req->inter;
+
+				if (li->creator == m)
+				{
+					s->queries.erase(s->queries.begin() + i - 1);
+					delete req;
+				}
 			}
+
 			for (unsigned int i = s->results.size(); i > 0; --i)
 			{
-				LDAPInterface* li = s->results[i - 1].first;
-				LDAPResult* r = s->results[i - 1].second;
+				LDAPRequest* req = s->results[i - 1];
+				LDAPInterface* li = req->inter;
 
 				if (li->creator == m)
 				{
 					s->results.erase(s->results.begin() + i - 1);
-					delete r;
+					delete req;
 				}
 			}
+
 			s->UnlockQueue();
+			s->process_mutex.Unlock();
 		}
 	}
 
@@ -624,5 +612,58 @@ class ModuleLDAP : public Module
 		return Version("LDAP support", VF_VENDOR);
 	}
 };
+
+int LDAPBind::run()
+{
+	berval cred;
+	cred.bv_val = strdup(pass.c_str());
+	cred.bv_len = pass.length();
+
+	int i = ldap_sasl_bind_s(service->GetConnection(), who.c_str(), LDAP_SASL_SIMPLE, &cred, NULL, NULL, NULL);
+
+	free(cred.bv_val);
+
+	return i;
+}
+
+int LDAPSearch::run()
+{
+	return ldap_search_ext_s(service->GetConnection(), base.c_str(), searchscope, filter.c_str(), NULL, 0, NULL, NULL, &tv, 0, &message);
+}
+
+int LDAPAdd::run()
+{
+	LDAPMod** mods = LDAPService::BuildMods(attributes);
+	int i = ldap_add_ext_s(service->GetConnection(), dn.c_str(), mods, NULL, NULL);
+	LDAPService::FreeMods(mods);
+	return i;
+}
+
+int LDAPDel::run()
+{
+	return ldap_delete_ext_s(service->GetConnection(), dn.c_str(), NULL, NULL);
+}
+
+int LDAPModify::run()
+{
+	LDAPMod** mods = LDAPService::BuildMods(attributes);
+	int i = ldap_modify_ext_s(service->GetConnection(), base.c_str(), mods, NULL, NULL);
+	LDAPService::FreeMods(mods);
+	return i;
+}
+
+int LDAPCompare::run()
+{
+	berval cred;
+	cred.bv_val = strdup(val.c_str());
+	cred.bv_len = val.length();
+
+	int ret = ldap_compare_ext_s(service->GetConnection(), dn.c_str(), attr.c_str(), &cred, NULL, NULL);
+
+	free(cred.bv_val);
+
+	return ret;
+
+}
 
 MODULE_INIT(ModuleLDAP)

@@ -1,8 +1,8 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
- *   Copyright (C) 2013 Adam <Adam@anope.org>
- *   Copyright (C) 2003-2013 Anope Team <team@anope.org>
+ *   Copyright (C) 2015 Adam <Adam@anope.org>
+ *   Copyright (C) 2003-2015 Anope Team <team@anope.org>
  *
  * This file is part of InspIRCd.  InspIRCd is free software: you can
  * redistribute it and/or modify it under the terms of the GNU General Public
@@ -78,21 +78,21 @@ struct LDAPAttributes : public std::map<std::string, std::vector<std::string> >
 	}
 };
 
+enum QueryType
+{
+	QUERY_UNKNOWN,
+	QUERY_BIND,
+	QUERY_SEARCH,
+	QUERY_ADD,
+	QUERY_DELETE,
+	QUERY_MODIFY,
+	QUERY_COMPARE
+};
+
 struct LDAPResult
 {
 	std::vector<LDAPAttributes> messages;
 	std::string error;
-
-	enum QueryType
-	{
-		QUERY_UNKNOWN,
-		QUERY_BIND,
-		QUERY_SEARCH,
-		QUERY_ADD,
-		QUERY_DELETE,
-		QUERY_MODIFY,
-		QUERY_COMPARE
-	};
 
 	QueryType type;
 	LDAPQuery id;
@@ -145,55 +145,48 @@ class LDAPProvider : public DataProvider
 
 	/** Attempt to bind to the LDAP server as a manager
 	 * @param i The LDAPInterface the result is sent to
-	 * @return The query ID
 	 */
-	virtual LDAPQuery BindAsManager(LDAPInterface *i) = 0;
+	virtual void BindAsManager(LDAPInterface* i) = 0;
 
 	/** Bind to LDAP
 	 * @param i The LDAPInterface the result is sent to
 	 * @param who The binddn
 	 * @param pass The password
-	 * @return The query ID
 	 */
-	virtual LDAPQuery Bind(LDAPInterface* i, const std::string& who, const std::string& pass) = 0;
+	virtual void Bind(LDAPInterface* i, const std::string& who, const std::string& pass) = 0;
 
 	/** Search ldap for the specified filter
 	 * @param i The LDAPInterface the result is sent to
 	 * @param base The base DN to search
 	 * @param filter The filter to apply
-	 * @return The query ID
 	 */
-	virtual LDAPQuery Search(LDAPInterface* i, const std::string& base, const std::string& filter) = 0;
+	virtual void Search(LDAPInterface* i, const std::string& base, const std::string& filter) = 0;
 
 	/** Add an entry to LDAP
 	 * @param i The LDAPInterface the result is sent to
 	 * @param dn The dn of the entry to add
 	 * @param attributes The attributes
-	 * @return The query ID
 	 */
-	virtual LDAPQuery Add(LDAPInterface* i, const std::string& dn, LDAPMods& attributes) = 0;
+	virtual void Add(LDAPInterface* i, const std::string& dn, LDAPMods& attributes) = 0;
 
 	/** Delete an entry from LDAP
 	 * @param i The LDAPInterface the result is sent to
 	 * @param dn The dn of the entry to delete
-	 * @return The query ID
 	 */
-	virtual LDAPQuery Del(LDAPInterface* i, const std::string& dn) = 0;
+	virtual void Del(LDAPInterface* i, const std::string& dn) = 0;
 
 	/** Modify an existing entry in LDAP
 	 * @param i The LDAPInterface the result is sent to
 	 * @param base The base DN to modify
 	 * @param attributes The attributes to modify
-	 * @return The query ID
 	 */
-	virtual LDAPQuery Modify(LDAPInterface* i, const std::string& base, LDAPMods& attributes) = 0;
+	virtual void Modify(LDAPInterface* i, const std::string& base, LDAPMods& attributes) = 0;
 
 	/** Compare an attribute in LDAP with our value
 	 * @param i The LDAPInterface the result is sent to
 	 * @param dn DN to use for comparing
 	 * @param attr Attr of DN to compare with
 	 * @param val value to compare attr of dn
-	 * @return the query ID
 	 */
-	virtual LDAPQuery Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) = 0;
+	virtual void Compare(LDAPInterface* i, const std::string& dn, const std::string& attr, const std::string& val) = 0;
 };
