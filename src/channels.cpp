@@ -598,7 +598,7 @@ void Channel::UserList(User* user, bool has_user)
 	list.append(this->name).append(" :");
 	std::string::size_type pos = list.size();
 
-	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size();
+	const size_t maxlen = ServerInstance->Config->Limits.MaxLine - 10 - ServerInstance->Config->ServerName.size() - user->nick.size();
 	std::string prefixlist;
 	std::string nick;
 	for (MemberMap::iterator i = userlist.begin(); i != userlist.end(); ++i)
