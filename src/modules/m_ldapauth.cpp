@@ -64,7 +64,7 @@ class BindInterface : public LDAPInterface
 				while (i < text.length() - 1 && isalpha(text[i + 1]))
 					++i;
 
-				std::string key(start, (i - start) + 1);
+				std::string key(text, start, (i - start) + 1);
 				result.append(replacements[key]);
 			}
 			else

@@ -764,7 +764,7 @@ void LocalUser::Write(const std::string& text)
 	if (text.length() > ServerInstance->Config->Limits.MaxLine - 2)
 	{
 		// this should happen rarely or never. Crop the string at 512 and try again.
-		std::string try_again(0, ServerInstance->Config->Limits.MaxLine - 2);
+		std::string try_again(text, 0, ServerInstance->Config->Limits.MaxLine - 2);
 		Write(try_again);
 		return;
 	}
