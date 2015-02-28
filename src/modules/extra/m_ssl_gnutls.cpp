@@ -451,6 +451,28 @@ namespace GnuTLS
 		}
 	};
 
+	class DataReader
+	{
+		int retval;
+		char* const buffer;
+
+	 public:
+		DataReader(gnutls_session_t sess)
+			: buffer(ServerInstance->GetReadBuffer())
+		{
+			// Read data from GnuTLS buffers into ReadBuffer
+			retval = gnutls_record_recv(sess, buffer, ServerInstance->Config->NetBufferSize);
+		}
+
+		void appendto(std::string& recvq)
+		{
+			// Copy data from ReadBuffer to recvq
+			recvq.append(buffer, retval);
+		}
+
+		int ret() const { return retval; }
+	};
+
 	class Profile : public refcountbase
 	{
 		/** Name of this profile
@@ -848,12 +870,11 @@ info_done_dealloc:
 
 		if (this->status == ISSL_HANDSHAKEN)
 		{
-			char* buffer = ServerInstance->GetReadBuffer();
-			size_t bufsiz = ServerInstance->Config->NetBufferSize;
-			int ret = gnutls_record_recv(this->sess, buffer, bufsiz);
+			GnuTLS::DataReader reader(sess);
+			int ret = reader.ret();
 			if (ret > 0)
 			{
-				recvq.append(buffer, ret);
+				reader.appendto(recvq);
 				return 1;
 			}
 			else if (ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
