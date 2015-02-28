@@ -55,7 +55,7 @@ class GenericCap : public Events::ModuleEventListener
 	{
 	}
 
-	void OnCapEvent(CapEvent& ev) CXX11_OVERRIDE
+	void OnCapEvent(CapEvent& ev)
 	{
 		if (!active)
 			return;
