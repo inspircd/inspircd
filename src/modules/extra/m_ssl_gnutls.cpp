@@ -35,12 +35,19 @@
 #include <gnutls/gnutls.h>
 #include <gnutls/x509.h>
 
-#if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 9) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 9 && GNUTLS_VERSION_PATCH >= 8))
+#ifndef GNUTLS_VERSION_NUMBER
+#define GNUTLS_VERSION_NUMBER LIBGNUTLS_VERSION_NUMBER
+#endif
+
+// Check if the GnuTLS library is at least version major.minor.patch
+#define INSPIRCD_GNUTLS_HAS_VERSION(major, minor, patch) (GNUTLS_VERSION_NUMBER >= ((major << 16) | (minor << 8) | patch))
+
+#if INSPIRCD_GNUTLS_HAS_VERSION(2, 9, 8)
 #define GNUTLS_HAS_MAC_GET_ID
 #include <gnutls/crypto.h>
 #endif
 
-#if (GNUTLS_VERSION_MAJOR > 2 || GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 12)
+#if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
 # define GNUTLS_HAS_RND
 #else
 # include <gcrypt.h>
@@ -53,25 +60,19 @@
 /* $CompileFlags: pkgconfincludes("gnutls","/gnutls/gnutls.h","") eval("print `libgcrypt-config --cflags | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
 /* $LinkerFlags: rpath("pkg-config --libs gnutls") pkgconflibs("gnutls","/libgnutls.so","-lgnutls") eval("print `libgcrypt-config --libs | tr -d \r` if `pkg-config --modversion gnutls 2>/dev/null | tr -d \r` lt '2.12'") */
 
-#ifndef GNUTLS_VERSION_MAJOR
-#define GNUTLS_VERSION_MAJOR LIBGNUTLS_VERSION_MAJOR
-#define GNUTLS_VERSION_MINOR LIBGNUTLS_VERSION_MINOR
-#define GNUTLS_VERSION_PATCH LIBGNUTLS_VERSION_PATCH
-#endif
-
 // These don't exist in older GnuTLS versions
-#if ((GNUTLS_VERSION_MAJOR > 2) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR > 1) || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR == 1 && GNUTLS_VERSION_PATCH >= 7))
+#if INSPIRCD_GNUTLS_HAS_VERSION(2, 1, 7)
 #define GNUTLS_NEW_PRIO_API
 #endif
 
-#if(GNUTLS_VERSION_MAJOR < 2)
+#if (!INSPIRCD_GNUTLS_HAS_VERSION(2, 0, 0))
 typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
 typedef gnutls_dh_params_t gnutls_dh_params;
 #endif
 
 enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
-#if (GNUTLS_VERSION_MAJOR > 2 || (GNUTLS_VERSION_MAJOR == 2 && GNUTLS_VERSION_MINOR >= 12))
+#if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
 #define GNUTLS_NEW_CERT_CALLBACK_API
 typedef gnutls_retr2_st cert_cb_last_param_type;
 #else
