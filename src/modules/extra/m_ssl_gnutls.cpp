@@ -79,6 +79,10 @@ typedef gnutls_retr2_st cert_cb_last_param_type;
 typedef gnutls_retr_st cert_cb_last_param_type;
 #endif
 
+#if INSPIRCD_GNUTLS_HAS_VERSION(3, 3, 5)
+#define INSPIRCD_GNUTLS_HAS_RECV_PACKET
+#endif
+
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
  public:
@@ -454,6 +458,28 @@ namespace GnuTLS
 	class DataReader
 	{
 		int retval;
+#ifdef INSPIRCD_GNUTLS_HAS_RECV_PACKET
+		gnutls_packet_t packet;
+
+	 public:
+		DataReader(gnutls_session_t sess)
+		{
+			// Using the packet API avoids the final copy of the data which GnuTLS does if we supply
+			// our own buffer. Instead, we get the buffer containing the data from GnuTLS and copy it
+			// to the recvq directly from there in appendto().
+			retval = gnutls_record_recv_packet(sess, &packet);
+		}
+
+		void appendto(std::string& recvq)
+		{
+			// Copy data from GnuTLS buffers to recvq
+			gnutls_datum_t datum;
+			gnutls_packet_get(packet, &datum, NULL);
+			recvq.append(reinterpret_cast<const char*>(datum.data), datum.size);
+
+			gnutls_packet_deinit(packet);
+		}
+#else
 		char* const buffer;
 
 	 public:
@@ -469,6 +495,7 @@ namespace GnuTLS
 			// Copy data from ReadBuffer to recvq
 			recvq.append(buffer, retval);
 		}
+#endif
 
 		int ret() const { return retval; }
 	};
