@@ -82,6 +82,16 @@ class PgSQLresult : public SQLResult
 	PGresult* res;
 	int currentrow;
 	int rows;
+	std::vector<std::string> colnames;
+
+	void getColNames()
+	{
+		colnames.resize(PQnfields(res));
+		for(unsigned int i=0; i < colnames.size(); i++)
+		{
+			colnames[i] = PQfname(res, i);
+		}
+	}
  public:
 	PgSQLresult(PGresult* result) : res(result), currentrow(0)
 	{
@@ -102,11 +112,25 @@ class PgSQLresult : public SQLResult
 
 	void GetCols(std::vector<std::string>& result)
 	{
-		result.resize(PQnfields(res));
-		for(unsigned int i=0; i < result.size(); i++)
+		if (colnames.empty())
+			getColNames();
+		result = colnames;
+	}
+
+	bool HasColumn(const std::string& column, size_t& index)
+	{
+		if (colnames.empty())
+			getColNames();
+
+		for (size_t i = 0; i < colnames.size(); ++i)
 		{
-			result[i] = PQfname(res, i);
+			if (colnames[i] == column)
+			{
+				index = i;
+				return true;
+			}
 		}
+		return false;
 	}
 
 	SQLEntry GetValue(int row, int column)
