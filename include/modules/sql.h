@@ -122,6 +122,15 @@ class SQL::Result : public classbase
 	 * @param result A reference to the vector to store column names in.
 	 */
 	virtual void GetCols(std::vector<std::string>& result) = 0;
+
+	/**
+	 * Check if there's a column with the specified name in the result
+	 *
+	 * @param the column name
+	 * @param on success, this is the column index
+	 * @returns true, or false if the column is not found
+	 */
+	virtual bool HasColumn(const std::string& column, size_t& index) = 0;
 };
 
 /** SQL::Error holds the error state of a request.
