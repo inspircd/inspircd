@@ -21,12 +21,25 @@
 #include "modules/sql.h"
 #include "modules/hash.h"
 
+ namespace
+ {
+	struct SQLOperExtraInfo
+	{
+		std::string hashtype;
+		std::string kdf;
+		std::string passcolumn;
+		std::string hostcolumn;
+		std::string typecolumn;
+	};
+ }
+
 class OpMeQuery : public SQLQuery
 {
  public:
 	const std::string uid, username, password;
-	OpMeQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw)
-		: SQLQuery(me), uid(u), username(un), password(pw)
+	const SQLOperExtraInfo& extrainfo;
+	OpMeQuery(Module* me, const std::string& u, const std::string& un, const std::string& pw, const SQLOperExtraInfo& exinfo)
+		: SQLQuery(me), uid(u), username(un), password(pw), extrainfo(exinfo)
 	{
 	}
 
@@ -37,14 +50,41 @@ class OpMeQuery : public SQLQuery
 		if (!user)
 			return;
 
-		// multiple rows may exist
-		SQLEntries row;
-		while (res.GetRow(row))
+		size_t hostindex = 0;
+		size_t typeindex = 0;
+		bool failbit = false;
+		if (!res.HasColumn(extrainfo.hostcolumn, hostindex) || !res.HasColumn(extrainfo.typecolumn, typeindex))
 		{
-			if (OperUser(user, row[0], row[1]))
-				return;
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "Could not find the column specified for oper host or oper type. Falling back to normal oper.");
+			failbit = true;
 		}
-		ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
+
+		size_t passindex = 0;
+		HashProvider* hashprov = NULL;
+		if (!failbit && !extrainfo.kdf.empty())
+		{
+			hashprov = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + extrainfo.kdf);
+			if (!hashprov || !res.HasColumn(extrainfo.passcolumn, passindex))
+			{
+				ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "A kdf was specified, but no kdf-column was specified. Falling back to normal oper.");
+				failbit = true;
+			}
+		}
+
+		if (!failbit)
+		{
+			// multiple rows may exist
+			SQLEntries row;
+			while (res.GetRow(row))
+			{
+				if (hashprov && !hashprov->Compare(password, row[passindex].value))
+					continue;
+
+				if (OperUser(user, row[hostindex], row[typeindex]))
+					return;
+			}
+			ServerInstance->Logs->Log(MODNAME, LOG_DEBUG, "no matches for %s (checked %d rows)", uid.c_str(), res.Rows());
+		}
 		// nobody succeeded... fall back to OPER
 		fallback();
 	}
@@ -105,8 +145,8 @@ class OpMeQuery : public SQLQuery
 class ModuleSQLOper : public Module
 {
 	std::string query;
-	std::string hashtype;
 	dynamic_reference<SQLProvider> SQL;
+	SQLOperExtraInfo extrainfo;
 
 public:
 	ModuleSQLOper() : SQL(this, "SQL") {}
@@ -121,8 +161,13 @@ public:
 		else
 			SQL.SetProvider("SQL/" + dbid);
 
-		hashtype = tag->getString("hash");
 		query = tag->getString("query", "SELECT hostname as host, type FROM ircd_opers WHERE username='$username' AND password='$password' AND active=1;");
+
+		extrainfo.hashtype = tag->getString("hash");
+		extrainfo.kdf = tag->getString("kdf");
+		extrainfo.passcolumn = tag->getString("passcolumn", "password");
+		extrainfo.hostcolumn = tag->getString("hostcolumn", "host");
+		extrainfo.typecolumn = tag->getString("typecolumn", "type");
 	}
 
 	ModResult OnPreCommand(std::string &command, std::vector<std::string> &parameters, LocalUser *user, bool validated, const std::string &original_line) CXX11_OVERRIDE
@@ -142,14 +187,14 @@ public:
 
 	void LookupOper(User* user, const std::string &username, const std::string &password)
 	{
-		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + hashtype);
+		HashProvider* hash = ServerInstance->Modules->FindDataService<HashProvider>("hash/" + extrainfo.hashtype);
 
 		ParamM userinfo;
 		SQL->PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
 		userinfo["password"] = hash ? hash->Generate(password) : password;
 
-		SQL->submit(new OpMeQuery(this, user->uuid, username, password), query, userinfo);
+		SQL->submit(new OpMeQuery(this, user->uuid, username, password, extrainfo), query, userinfo);
 	}
 
 	Version GetVersion() CXX11_OVERRIDE
