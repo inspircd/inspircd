@@ -154,8 +154,6 @@ public:
 
 	void LookupOper(User* user, const std::string &username, const std::string &password)
 	{
-
-
 		ParamM userinfo;
 		SQL->PopulateUserInfo(user, userinfo);
 		userinfo["username"] = username;
