@@ -112,6 +112,10 @@ class CoreExport UserManager
 	 */
 	void RemoveCloneCounts(User *user);
 
+	/** Rebuild clone counts
+	 */
+	void RehashCloneCounts();
+
 	/** Return the number of global clones of this user
 	 * @param user The user to get a count for
 	 * @return The global clone count of this user

@@ -287,6 +287,22 @@ void UserManager::RemoveCloneCounts(User *user)
 	}
 }
 
+void UserManager::RehashCloneCounts()
+{
+	local_clones.clear();
+	global_clones.clear();
+
+	const user_hash& hash = *ServerInstance->Users->clientlist;
+	for (user_hash::const_iterator i = hash.begin(); i != hash.end(); ++i)
+	{
+		User* u = i->second;
+
+		if (IS_LOCAL(u))
+			AddLocalClone(u);
+		AddGlobalClone(u);
+	}
+}
+
 unsigned long UserManager::GlobalCloneCount(User *user)
 {
 	clonemap::iterator x = global_clones.find(user->GetCIDRMask());

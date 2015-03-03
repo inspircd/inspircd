@@ -963,6 +963,7 @@ void ConfigReaderThread::Finish()
 		 * XXX: The order of these is IMPORTANT, do not reorder them without testing
 		 * thoroughly!!!
 		 */
+		ServerInstance->Users->RehashCloneCounts();
 		ServerInstance->XLines->CheckELines();
 		ServerInstance->XLines->ApplyLines();
 		ServerInstance->Res->Rehash();
