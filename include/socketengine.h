@@ -29,6 +29,14 @@
 #include "socket.h"
 #include "base.h"
 
+#ifndef _WIN32
+#include <sys/uio.h>
+#endif
+
+#ifndef IOV_MAX
+#define IOV_MAX 1024
+#endif
+
 /** Types of event an EventHandler may receive.
  * EVENT_READ is a readable file descriptor,
  * and EVENT_WRITE is a writeable file descriptor.
@@ -306,6 +314,12 @@ class CoreExport SocketEngine
 	}
 
 public:
+#ifndef _WIN32
+	typedef iovec IOVector;
+#else
+	typedef WindowsIOVec IOVector;
+#endif
+
 	/** Constructor.
 	 * The constructor transparently initializes
 	 * the socket engine which the ircd is using.
@@ -433,6 +447,27 @@ public:
 	 * @return This method should return exactly the same values as the system call it emulates.
 	 */
 	static int Send(EventHandler* fd, const void *buf, size_t len, int flags);
+
+	/** Abstraction for vector write function writev().
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd EventHandler to send data with
+	 * @param iov Array of IOVectors containing the buffers to send and their lengths in the platform's
+	 * native format.
+	 * @param count Number of elements in iov.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
+	static int WriteV(EventHandler* fd, const IOVector* iov, int count);
+
+#ifdef _WIN32
+	/** Abstraction for vector write function writev() that accepts a POSIX format iovec.
+	 * This function should emulate its namesake system call exactly.
+	 * @param fd EventHandler to send data with
+	 * @param iov Array of iovecs containing the buffers to send and their lengths in POSIX format.
+	 * @param count Number of elements in iov.
+	 * @return This method should return exactly the same values as the system call it emulates.
+	 */
+	static int WriteV(EventHandler* fd, const iovec* iov, int count);
+#endif
 
 	/** Abstraction for BSD sockets recv(2).
 	 * This function should emulate its namesake system call exactly.

@@ -224,6 +224,33 @@ int SocketEngine::SendTo(EventHandler* fd, const void *buf, size_t len, int flag
 	return nbSent;
 }
 
+int SocketEngine::WriteV(EventHandler* fd, const IOVector* iovec, int count)
+{
+	int sent = writev(fd->GetFd(), iovec, count);
+	if (sent > 0)
+		stats.Update(0, sent);
+	return sent;
+}
+
+#ifdef _WIN32
+int SocketEngine::WriteV(EventHandler* fd, const iovec* iovec, int count)
+{
+	// On Windows the fields in iovec are not in the order required by the Winsock API; IOVector has
+	// the fields in the correct order.
+	// Create temporary IOVectors from the iovecs and pass them to the WriteV() method that accepts the
+	// platform's native struct.
+	IOVector wiovec[128];
+	count = std::min(count, static_cast<int>(sizeof(wiovec) / sizeof(IOVector)));
+
+	for (int i = 0; i < count; i++)
+	{
+		wiovec[i].iov_len = iovec[i].iov_len;
+		wiovec[i].iov_base = reinterpret_cast<char*>(iovec[i].iov_base);
+	}
+	return WriteV(fd, wiovec, count);
+}
+#endif
+
 int SocketEngine::Connect(EventHandler* fd, const sockaddr *serv_addr, socklen_t addrlen)
 {
 	int ret = connect(fd->GetFd(), serv_addr, addrlen);

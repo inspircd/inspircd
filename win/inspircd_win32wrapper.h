@@ -219,6 +219,13 @@ private:
 // Same value as EXIT_STATUS_FORK (EXIT_STATUS_FORK is unused on Windows)
 #define EXIT_STATUS_SERVICE 4
 
+// POSIX iovec
+struct iovec
+{
+	void* iov_base; // Starting address
+	size_t iov_len; // Number of bytes to transfer
+};
+
 // Windows WSABUF with POSIX field names
 struct WindowsIOVec
 {

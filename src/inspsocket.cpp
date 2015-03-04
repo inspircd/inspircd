@@ -25,14 +25,6 @@
 #include "inspircd.h"
 #include "iohook.h"
 
-#ifndef DISABLE_WRITEV
-#include <sys/uio.h>
-#endif
-
-#ifndef IOV_MAX
-#define IOV_MAX 1024
-#endif
-
 BufferedSocket::BufferedSocket()
 {
 	Timeout = NULL;
@@ -348,7 +340,7 @@ void StreamSocket::DoWrite()
 					iovecs[i].iov_len = sendq[i].length();
 					rv_max += sendq[i].length();
 				}
-				rv = writev(fd, iovecs, bufcount);
+				rv = SocketEngine::WriteV(this, iovecs, bufcount);
 			}
 
 			if (rv == (int)sendq_len)
