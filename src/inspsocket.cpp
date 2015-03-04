@@ -297,7 +297,7 @@ void StreamSocket::DoWrite()
 			int rv_max = 0;
 			int rv;
 			{
-				iovec iovecs[MYIOV_MAX];
+				SocketEngine::IOVector iovecs[MYIOV_MAX];
 				for (int i = 0; i < bufcount; i++)
 				{
 					iovecs[i].iov_base = const_cast<char*>(sendq[i].data());
