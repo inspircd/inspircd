@@ -199,8 +199,6 @@ CoreExport void closedir(DIR * handle);
 void * ::operator new(size_t iSize);
 void ::operator delete(void * ptr);
 
-#define DISABLE_WRITEV
-
 #include <exception>
 
 class CWin32Exception : public std::exception
