@@ -70,7 +70,7 @@ typedef gnutls_certificate_credentials_t gnutls_certificate_credentials;
 typedef gnutls_dh_params_t gnutls_dh_params;
 #endif
 
-enum issl_status { ISSL_NONE, ISSL_HANDSHAKING_READ, ISSL_HANDSHAKING_WRITE, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
+enum issl_status { ISSL_NONE, ISSL_HANDSHAKING, ISSL_HANDSHAKEN, ISSL_CLOSING, ISSL_CLOSED };
 
 #if INSPIRCD_GNUTLS_HAS_VERSION(2, 12, 0)
 #define GNUTLS_NEW_CERT_CALLBACK_API
@@ -637,17 +637,16 @@ class GnuTLSIOHook : public SSLIOHook
 			if(ret == GNUTLS_E_AGAIN || ret == GNUTLS_E_INTERRUPTED)
 			{
 				// Handshake needs resuming later, read() or write() would have blocked.
+				this->status = ISSL_HANDSHAKING;
 
 				if (gnutls_record_get_direction(this->sess) == 0)
 				{
 					// gnutls_handshake() wants to read() again.
-					this->status = ISSL_HANDSHAKING_READ;
 					SocketEngine::ChangeEventMask(user, FD_WANT_POLL_READ | FD_WANT_NO_WRITE);
 				}
 				else
 				{
 					// gnutls_handshake() wants to write() again.
-					this->status = ISSL_HANDSHAKING_WRITE;
 					SocketEngine::ChangeEventMask(user, FD_WANT_NO_READ | FD_WANT_SINGLE_WRITE);
 				}
 			}
@@ -881,7 +880,7 @@ info_done_dealloc:
 			return -1;
 		}
 
-		if (this->status == ISSL_HANDSHAKING_READ || this->status == ISSL_HANDSHAKING_WRITE)
+		if (this->status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
 
@@ -936,7 +935,7 @@ info_done_dealloc:
 			return -1;
 		}
 
-		if (this->status == ISSL_HANDSHAKING_WRITE || this->status == ISSL_HANDSHAKING_READ)
+		if (this->status == ISSL_HANDSHAKING)
 		{
 			// The handshake isn't finished, try to finish it.
 			Handshake(user);
