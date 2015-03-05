@@ -359,7 +359,6 @@ class OpenSSLIOHook : public SSLIOHook
  private:
 	SSL* sess;
 	issl_status status;
-	const bool outbound;
 	bool data_to_write;
 	reference<OpenSSL::Profile> profile;
 
@@ -524,11 +523,10 @@ class OpenSSLIOHook : public SSLIOHook
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
  public:
-	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, bool is_outbound, SSL* session, const reference<OpenSSL::Profile>& sslprofile)
+	OpenSSLIOHook(IOHookProvider* hookprov, StreamSocket* sock, SSL* session, const reference<OpenSSL::Profile>& sslprofile)
 		: SSLIOHook(hookprov)
 		, sess(session)
 		, status(ISSL_NONE)
-		, outbound(is_outbound)
 		, data_to_write(false)
 		, profile(sslprofile)
 	{
@@ -711,12 +709,12 @@ class OpenSSLIOHookProvider : public refcountbase, public IOHookProvider
 
 	void OnAccept(StreamSocket* sock, irc::sockets::sockaddrs* client, irc::sockets::sockaddrs* server) CXX11_OVERRIDE
 	{
-		new OpenSSLIOHook(this, sock, false, profile->CreateServerSession(), profile);
+		new OpenSSLIOHook(this, sock, profile->CreateServerSession(), profile);
 	}
 
 	void OnConnect(StreamSocket* sock) CXX11_OVERRIDE
 	{
-		new OpenSSLIOHook(this, sock, true, profile->CreateClientSession(), profile);
+		new OpenSSLIOHook(this, sock, profile->CreateClientSession(), profile);
 	}
 };
 
