@@ -778,6 +778,22 @@ info_done_dealloc:
 		gnutls_x509_crt_deinit(cert);
 	}
 
+	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
+	int PrepareIO(StreamSocket* sock)
+	{
+		if (status == ISSL_HANDSHAKEN)
+			return 1;
+		else if (status == ISSL_HANDSHAKING)
+		{
+			// The handshake isn't finished, try to finish it
+			return Handshake(sock);
+		}
+
+		CloseSession();
+		sock->SetError("No SSL session");
+		return -1;
+	}
+
 	static const char* UnknownIfNULL(const char* str)
 	{
 		return str ? str : "UNKNOWN";
@@ -874,20 +890,10 @@ info_done_dealloc:
 
 	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) CXX11_OVERRIDE
 	{
-		if (!this->sess)
-		{
-			CloseSession();
-			user->SetError("No SSL session");
-			return -1;
-		}
-
-		if (this->status == ISSL_HANDSHAKING)
-		{
-			// The handshake isn't finished, try to finish it.
-			int ret = Handshake(user);
-			if (ret <= 0)
-				return ret;
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
 		// If we resumed the handshake then this->status will be ISSL_HANDSHAKEN.
 		{
@@ -919,20 +925,10 @@ info_done_dealloc:
 
 	int OnStreamSocketWrite(StreamSocket* user, std::string& sendq) CXX11_OVERRIDE
 	{
-		if (!this->sess)
-		{
-			CloseSession();
-			user->SetError("No SSL session");
-			return -1;
-		}
-
-		if (this->status == ISSL_HANDSHAKING)
-		{
-			// The handshake isn't finished, try to finish it.
-			int ret = Handshake(user);
-			if (ret <= 0)
-				return ret;
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
 		// Session is ready for transferring application data
 		int ret = 0;

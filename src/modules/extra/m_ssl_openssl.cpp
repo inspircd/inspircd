@@ -502,6 +502,21 @@ class OpenSSLIOHook : public SSLIOHook
 	}
 #endif
 
+	// Returns 1 if application I/O should proceed, 0 if it must wait for the underlying protocol to progress, -1 on fatal error
+	int PrepareIO(StreamSocket* sock)
+	{
+		if (status == ISSL_OPEN)
+			return 1;
+		else if (status == ISSL_HANDSHAKING)
+		{
+			// The handshake isn't finished, try to finish it
+			return Handshake(sock);
+		}
+
+		CloseSession();
+		return -1;
+	}
+
 	// Calls our private SSLInfoCallback()
 	friend void StaticSSLInfoCallback(const SSL* ssl, int where, int rc);
 
@@ -531,19 +546,10 @@ class OpenSSLIOHook : public SSLIOHook
 
 	int OnStreamSocketRead(StreamSocket* user, std::string& recvq) CXX11_OVERRIDE
 	{
-		if (!sess)
-		{
-			CloseSession();
-			return -1;
-		}
-
-		if (status == ISSL_HANDSHAKING)
-		{
-			// The handshake isn't finished and it wants to read, try to finish it.
-			int ret = Handshake(user);
-			if (ret <= 0)
-				return ret;
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
 		// If we resumed the handshake then this->status will be ISSL_OPEN
 		{
@@ -596,20 +602,12 @@ class OpenSSLIOHook : public SSLIOHook
 
 	int OnStreamSocketWrite(StreamSocket* user, std::string& buffer) CXX11_OVERRIDE
 	{
-		if (!sess)
-		{
-			CloseSession();
-			return -1;
-		}
+		// Finish handshake if needed
+		int prepret = PrepareIO(user);
+		if (prepret <= 0)
+			return prepret;
 
 		data_to_write = true;
-
-		if (status == ISSL_HANDSHAKING)
-		{
-			int ret = Handshake(user);
-			if (ret <= 0)
-				return ret;
-		}
 
 		// Session is ready for transferring application data
 		{
