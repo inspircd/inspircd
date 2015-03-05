@@ -83,6 +83,14 @@ typedef gnutls_retr_st cert_cb_last_param_type;
 #define INSPIRCD_GNUTLS_HAS_RECV_PACKET
 #endif
 
+#if INSPIRCD_GNUTLS_HAS_VERSION(2, 99, 0)
+// The second parameter of gnutls_init() has changed in 2.99.0 from gnutls_connection_end_t to unsigned int
+// (it became a general flags parameter) and the enum has been deprecated and generates a warning on use.
+typedef unsigned int inspircd_gnutls_session_init_flags_t;
+#else
+typedef gnutls_connection_end_t inspircd_gnutls_session_init_flags_t;
+#endif
+
 class RandGen : public HandlerBase2<void, char*, size_t>
 {
  public:
